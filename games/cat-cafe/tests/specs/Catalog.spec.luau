@@ -180,10 +180,19 @@ return function()
 			cafe_level = { maxLevel = 5, costs = { 0, 250, 800, 2500, 8000 }, startLevel = 1, requiresCafeLevel = nil },
 			tables = { maxLevel = 6, costs = { 100, 250, 600, 1500, 3500, 8000 }, startLevel = 0, requiresCafeLevel = nil },
 			espresso = { maxLevel = 3, costs = { 0, 300, 1200, 4000, 12000 }, startLevel = 1, requiresCafeLevel = nil },
-			gloves = { maxLevel = 3, costs = { 500, 2500, 10000 }, startLevel = 0, requiresCafeLevel = nil },
+			net = { maxLevel = 3, costs = { 500, 2500, 10000 }, startLevel = 0, requiresCafeLevel = nil },
 			lure_bowl = { maxLevel = 1, costs = { 400 }, startLevel = 0, requiresCafeLevel = 2 },
 			park_access = { maxLevel = 1, costs = { 1000 }, startLevel = 0, requiresCafeLevel = 3 },
 		}
+
+		it("v0.2 names: the net replaces gloves, the lure bowl is shown as Bait bowl (ids keep lure_)", function()
+			expect(Catalog.getUpgrade("gloves")).never.to.be.ok()
+			local net = Catalog.getUpgrade("net")
+			local bowl = Catalog.getUpgrade("lure_bowl")
+			assert(net and bowl)
+			expect(net.name).to.equal("Net")
+			expect(bowl.name).to.equal("Bait bowl")
+		end)
 
 		it("has exactly the six slice upgrades", function()
 			expect(#Catalog.upgrades).to.equal(6)
@@ -322,16 +331,31 @@ return function()
 			assert(alley and park)
 			expect(alley.unlock).never.to.be.ok()
 			expect(alley.spawnPoints).to.equal(8)
-			expect(alley.maxStrays).to.equal(6)
-			expect(alley.spawnInterval).to.equal(20)
-			expect(alley.despawnAfter).to.equal(120)
+			expect(alley.waveSize).to.equal(6)
+			expect(alley.rescueSpots).to.equal(2)
 			expect(alley.odds).to.deepEqual({ Common = 75, Rare = 20, Epic = 4.5, Legendary = 0.5 })
 			expect(park.unlock).to.equal("park_access")
 			expect(park.spawnPoints).to.equal(10)
-			expect(park.maxStrays).to.equal(6)
-			expect(park.spawnInterval).to.equal(20)
-			expect(park.despawnAfter).to.equal(120)
+			expect(park.waveSize).to.equal(6)
+			expect(park.rescueSpots).to.equal(3)
 			expect(park.odds).to.deepEqual({ Common = 55, Rare = 32, Epic = 10, Legendary = 3 })
+		end)
+
+		it("v0.2: areas spawn in night waves, the trickle fields are gone", function()
+			for _, def in ipairs(Catalog.areas) do
+				local raw = def :: any
+				expect(raw.maxStrays).never.to.be.ok()
+				expect(raw.spawnInterval).never.to.be.ok()
+				expect(raw.despawnAfter).never.to.be.ok()
+			end
+		end)
+
+		it("a full wave fits on the spawn points and every area has a rescue spot", function()
+			for _, def in ipairs(Catalog.areas) do
+				expect(def.waveSize >= 1).to.equal(true)
+				expect(def.waveSize <= def.spawnPoints).to.equal(true)
+				expect(def.rescueSpots >= 1).to.equal(true)
+			end
 		end)
 
 		it("area odds sum to 100 and unlock ids exist", function()

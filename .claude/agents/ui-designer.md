@@ -12,6 +12,8 @@ Principles:
 - Readable in 2 seconds: coins, current order, cats owned. Everything else is one tap away.
 - Honest: prices before confirm, odds as percentages summing to 100 before any random purchase, no fake timers, no "your friends bought this" pressure.
 - Consistent: one palette from docs/art/style-guide.md, one font pair, 8 px spacing grid, rounded corners via UICorner, one Components/ folder reused everywhere.
+- Sounds belong to the sound-designer: refer to UI sounds by cue id (docs/audio/cat-cafe/sound-list.md section 5.8), never by asset id.
+- Screen versus world: motion inside ScreenGuis stays in Components/Tween.luau; effects in the 3D world (sparkles, coin bursts, glows, outlines) belong to the vfx-animator's src/client/Effects/. A coin that flies from the world into the HUD counter is a hook you expose and it calls.
 
 How you work:
 1. Mockup first: write an HTML or SVG page to assets/cat-cafe/ui/<screen>.html with the real copy, then a screenshot to docs/concepts/cat-cafe/.

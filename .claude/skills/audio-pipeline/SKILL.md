@@ -33,7 +33,7 @@ Creator Store audio used as it is has no file in the repo; its log row and the i
 ## 3. Names
 - File name, uploaded asset name and Sound instance name are the same: `CatCafe_<Bus>_<Name>[_<Variant>]`, Bus one of `Music`, `Amb`, `Sfx`, `Ui`. Examples: `CatCafe_Music_DayA`, `CatCafe_Amb_AlleyNight`, `CatCafe_Sfx_NetSwing`, `CatCafe_Sfx_Meow_03`, `CatCafe_Ui_Click`.
 - Cue ids in code are short camelCase: `netSwing`, `meow`, `uiClick`. A cue can hold variants (`meow` picks one of five files).
-- Moments, the game events that fire cues, use the PascalCase names shared with the vfx-animator: `NetWindup`, `CatchSuccess`, `NightStart`. One moment can fire several cues and several effects.
+- Moments, the game events that fire cues, use the PascalCase names shared with the vfx-animator (sound-list section 6): `CircleGrade`, `CatchSuccess`, `NightStart`. One moment can fire several cues and several effects.
 
 ## 4. Sourcing and licenses
 In this order:

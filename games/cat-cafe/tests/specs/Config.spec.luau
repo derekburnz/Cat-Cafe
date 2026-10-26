@@ -16,9 +16,10 @@ return function()
 		OfflineRate = 0.25,
 		OfflineCapSeconds = 3600,
 		AutosaveSeconds = 60,
-		-- v0.2 clock and night waves (section 9): no trickle spawns, so SpawnIntervalSeconds and MaxStraysPerArea are gone
-		DayLengthSeconds = 180,
-		NightLengthSeconds = 120,
+		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
+		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
+		DayLengthSeconds = 300,
+		NightLengthSeconds = 300,
 		ServerStartDaySeconds = 120,
 		StrayDespawnSeconds = 120,
 		-- v0.2 rescue (section 10)
@@ -27,15 +28,7 @@ return function()
 		RescueLockSeconds = 6,
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
-		GrabHoldSeconds = 1.5,
-		GrabLockSeconds = 3,
 		GrabRetrySeconds = 2,
-		NetBonus = 0.10, -- was GlovesBonus
-		LureBonus = 0.20,
-		RingBonusPerfect = 0.15,
-		RingBonusGood = 0.05,
-		CatchChanceMin = 0.05,
-		CatchChanceMax = 0.95,
 		LureWaitSeconds = 45,
 		LureDespawnSeconds = 90,
 		CarryWalkSpeed = 13,
@@ -46,8 +39,6 @@ return function()
 		RemoteRateLimitPerSecond = 10,
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
-		RingPerfectWindow = 0.30,
-		RingGoodWindow = 0.80,
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 16,
 		StrayWanderRadius = 5,
@@ -57,7 +48,6 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
-		GrabMinHoldSeconds = 0.15,
 		RingLatencyGraceSeconds = 0.25,
 		-- cat stats (data-model section 4b)
 		CatMaxLevel = 10,
@@ -66,19 +56,17 @@ return function()
 		CatXpPerSecondPlaced = 1,
 		CharmSpread = 0.20,
 		ShinyMultiplier = 1.5, -- v0.3 (F22)
+		-- the net as closing circles (section 10, F26)
+		CircleLeadInSeconds = 0.6,
+		CircleGapMin = 0.40,
+		CircleGapMax = 0.75,
+		CircleScorePerfect = 1.0,
+		CircleScoreGood = 0.5,
+		CatchLatencyCapSeconds = 0.15,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
 	local pending: { [string]: { any } } = {
-		DayLengthSeconds = { 300, "F23" },
-		NightLengthSeconds = { 300, "F23" },
-		WaveSize = { 10, "F23" },
-		CircleLeadInSeconds = { 0.6, "F26" },
-		CircleGapMin = { 0.40, "F26" },
-		CircleGapMax = { 0.75, "F26" },
-		CircleScorePerfect = { 1.0, "F26" },
-		CircleScoreGood = { 0.5, "F26" },
-		CatchLatencyCapSeconds = { 0.15, "F26" },
 		RescueSpawnChance = { 0.6, "F27" },
 		RescueMinStuck = { 1, "F27" },
 		RescueTolerance = { 0.03, "F27" },
@@ -129,14 +117,18 @@ return function()
 			it(string.format("%s = %s (%s)", name, tostring(row[1]), row[2]))
 		end
 
-		it("RenovateBonus is gone: tiers replace rebirth and nothing resets (section 5b)", function()
-			expect((Config :: any).RenovateBonus).never.to.be.ok()
-		end)
+		it(
+			"RenovateBonus is gone: tiers replace rebirth and nothing resets (section 5b)",
+			function()
+				expect((Config :: any).RenovateBonus).never.to.be.ok()
+			end
+		)
 
 		it("has no extra top level tuning numbers the doc does not know about", function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
 			local known = {
 				World = true,
+				NetWindows = true, -- a table per net level, checked below
 				ProfileStoreName = true,
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
@@ -157,21 +149,70 @@ return function()
 	end)
 
 	describe("internal consistency", function()
-		it("ring windows are ordered and the hold is longer than the perfect window", function()
-			expect(Config.RingPerfectWindow < Config.RingGoodWindow).to.equal(true)
-			expect(Config.GrabHoldSeconds > Config.RingPerfectWindow).to.equal(true)
+		it("NetWindows follow the section 10 table for net levels 0 to 3", function()
+			local want = {
+				[0] = { 0.045, 0.11, 0.30 },
+				[1] = { 0.055, 0.13, 0.20 },
+				[2] = { 0.065, 0.155, 0.10 },
+				[3] = { 0.08, 0.18, 0 },
+			}
+			for level, row in want do
+				local windows = Config.NetWindows[level]
+				expect(windows).to.be.ok()
+				expect(windows.perfect).to.be.near(row[1], 1e-9)
+				expect(windows.good).to.be.near(row[2], 1e-9)
+				expect(windows.jitter).to.be.near(row[3], 1e-9)
+			end
+		end)
+
+		it("net windows: Perfect inside Good, and a better net is never harder", function()
+			for level = 0, 3 do
+				local windows = Config.NetWindows[level]
+				expect(windows.perfect < windows.good).to.equal(true)
+				if level > 0 then
+					local previous = Config.NetWindows[level - 1]
+					expect(windows.perfect >= previous.perfect).to.equal(true)
+					expect(windows.good >= previous.good).to.equal(true)
+					expect(windows.jitter <= previous.jitter).to.equal(true)
+				end
+			end
+		end)
+
+		it("S24: the shortest gap outlasts the widest Good window plus the latency cap", function()
+			-- so a circle's deadline always passes before the next one starts
+			for level = 0, 3 do
+				local windows = Config.NetWindows[level]
+				expect(Config.CircleGapMin > windows.good + Config.CatchLatencyCapSeconds).to.equal(
+					true
+				)
+			end
+			expect(Config.CircleGapMin <= Config.CircleGapMax).to.equal(true)
 		end)
 
 		it("carry speed is about 80% of normal walk speed (features F07)", function()
 			expect(Config.CarryWalkSpeed / Config.NormalWalkSpeed).to.be.near(0.8, 0.02)
 		end)
 
-		it(
-			"the grab lock outlives the hold so a second player cannot steal the stray mid-grab",
-			function()
-				expect(Config.GrabLockSeconds > Config.GrabHoldSeconds).to.equal(true)
+		it("the v0.2 hold ring and flat chance are gone (F26)", function()
+			local config = Config :: any
+			for _, name in
+				{
+					"GrabHoldSeconds",
+					"GrabMinHoldSeconds",
+					"GrabLockSeconds",
+					"NetBonus",
+					"LureBonus",
+					"RingBonusPerfect",
+					"RingBonusGood",
+					"RingPerfectWindow",
+					"RingGoodWindow",
+					"CatchChanceMin",
+					"CatchChanceMax",
+				}
+			do
+				expect(config[name]).never.to.be.ok()
 			end
-		)
+		end)
 
 		it(
 			"the v0.1 names are gone (night waves replace the trickle, the net replaces gloves)",
@@ -184,20 +225,16 @@ return function()
 		)
 
 		it(
-			"clock: the first night comes by minute two and never later than a normal day (features step 2)",
+			"clock: the first night comes by minute two and the whole first night fits in the ten minute loop",
 			function()
 				expect(Config.ServerStartDaySeconds > 0).to.equal(true)
 				expect(Config.ServerStartDaySeconds <= 120).to.equal(true)
 				expect(Config.ServerStartDaySeconds <= Config.DayLengthSeconds).to.equal(true)
 				expect(Config.NightLengthSeconds > 0).to.equal(true)
-				-- at least two full nights fit in the ten minute loop test
-				expect(
-					Config.ServerStartDaySeconds
-							+ Config.NightLengthSeconds
-							+ Config.DayLengthSeconds
-							+ Config.NightLengthSeconds
-						<= 600
-				).to.equal(true)
+				-- v0.3 (Gavin, Q1) runs 5 minute days and nights, so the loop test sees one full night
+				expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds <= 600).to.equal(
+					true
+				)
 			end
 		)
 
@@ -205,7 +242,6 @@ return function()
 			"rescue: the lock outlives the hold, the chance is a probability, a rescue pays no more (v0.3)",
 			function()
 				expect(Config.RescueLockSeconds > Config.RescueHoldSeconds).to.equal(true)
-				expect(Config.RescueHoldSeconds > Config.GrabHoldSeconds).to.equal(true)
 				expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(
 					true
 				)

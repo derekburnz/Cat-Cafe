@@ -219,8 +219,14 @@ local function wireServerEvents()
 	)
 	Net.on(
 		"CatchResult",
-		function(strayId: string, scores: { number }, chance: number, success: boolean)
-			UI.catch.showResult(strayId, scores, chance, success)
+		function(
+			strayId: string,
+			scores: { number },
+			chance: number,
+			success: boolean,
+			stayed: boolean?
+		)
+			UI.catch.showResult(strayId, scores, chance, success, stayed)
 		end
 	)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)

@@ -288,7 +288,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 	end
 	self._panel:setTitle(
 		"Decor",
-		("%d placed  ·  %s"):format(placedCount, Format.money(state.coins))
+		("%d placed  ·  %s"):format(placedCount, Format.money(state.money))
 	)
 
 	for decorId, card in self._cards do
@@ -316,7 +316,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.mode = "buy"
 			card.action:setText(Format.money(def.cost))
 			card.action:setStyle("primary")
-			card.action:setEnabled(state.coins >= def.cost)
+			card.action:setEnabled(state.money >= def.cost)
 		end
 	end
 end

@@ -16,9 +16,11 @@ local Signal = require(ReplicatedStorage.Shared.Signal)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 type Profile = Types.PlayerProfile
+-- ProfileStore wants T & JSONAcceptable; optional fields make PlayerProfile fail that test, so the store is typed any
+-- and ProfileSchema.migrate() is the one place raw data becomes a typed Profile.
 type Session = {
 	profile: Profile,
-	store: ProfileStore.Profile<Profile>,
+	store: ProfileStore.Profile<any>,
 	joinedAt: number,
 	pendingOffline: number,
 	pendingOfflineSeconds: number,
@@ -32,7 +34,8 @@ DataService.onReleasing = Signal.new() :: Signal.Signal<Player, Profile>
 
 local sessions: { [Player]: Session } = {}
 local finalizers: { (player: Player, profile: Profile) -> () } = {}
-local store = ProfileStore.New(Config.ProfileStoreName, ProfileSchema.template(os.time()))
+local store: ProfileStore.ProfileStore<any> =
+	ProfileStore.New(Config.ProfileStoreName, ProfileSchema.template(os.time()) :: any)
 
 local function key(player: Player): string
 	return Config.ProfileKeyPrefix .. player.UserId
@@ -51,7 +54,7 @@ local function finalize(player: Player, session: Session)
 	profile.rateAtLogout = Economy.incomePerSecond(profile)
 	profile.lastSeen = now
 	profile.stats.playtimeSeconds += math.max(0, now - session.joinedAt)
-	session.store.Data = profile
+	session.store.Data = profile :: any
 end
 
 local function load(player: Player)
@@ -71,7 +74,7 @@ local function load(player: Player)
 	local offline, offlineSeconds = Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now)
 	profile.lastTick = now -- never credit the offline gap at the online rate
 	profile.stats.sessions += 1
-	profileStore.Data = profile
+	profileStore.Data = profile :: any
 
 	local session: Session = {
 		profile = profile,

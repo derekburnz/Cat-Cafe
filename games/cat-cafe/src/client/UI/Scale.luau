@@ -16,7 +16,9 @@ Scale.TOUCH_FLOOR = 0.75
 Scale.changed = Signal.new() -- fires (scale: number)
 
 local current = 1
-local bound: { UIScale } = {}
+-- Each bound root is a full-screen Frame. UIScale shrinks it about its top-left corner, so the root's
+-- Size is set to 1/scale to keep it covering the screen; right- and bottom-anchored children stay on the edges.
+local bound: { { uiScale: UIScale, root: GuiObject } } = {}
 local cameraConnection: RBXScriptConnection? = nil
 local workspaceConnection: RBXScriptConnection? = nil
 
@@ -50,26 +52,30 @@ end
 
 function Scale.refresh()
 	current = Scale.compute(viewportSize())
-	for _, uiScale in bound do
-		uiScale.Scale = current
+	for _, entry in bound do
+		entry.uiScale.Scale = current
+		entry.root.Size = UDim2.fromScale(1 / current, 1 / current)
 	end
 	Scale.changed:Fire(current)
 end
 
--- Creates a UIScale under `parent` that tracks the viewport. Call unbind on destroy.
+-- Creates a UIScale under `parent` (a full-screen root Frame) that tracks the viewport. Call unbind on destroy.
 function Scale.bind(parent: GuiObject): UIScale
 	local uiScale = Instance.new("UIScale")
 	uiScale.Name = "ViewportScale"
 	uiScale.Scale = current
 	uiScale.Parent = parent
-	table.insert(bound, uiScale)
+	parent.Size = UDim2.fromScale(1 / current, 1 / current)
+	table.insert(bound, { uiScale = uiScale, root = parent })
 	return uiScale
 end
 
 function Scale.unbind(uiScale: UIScale)
-	local index = table.find(bound, uiScale)
-	if index then
-		table.remove(bound, index)
+	for index, entry in bound do
+		if entry.uiScale == uiScale then
+			table.remove(bound, index)
+			return
+		end
 	end
 end
 

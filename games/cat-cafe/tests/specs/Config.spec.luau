@@ -48,6 +48,8 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
+		GrabMinHoldSeconds = 0.15,
+		RingLatencyGraceSeconds = 0.25,
 	}
 
 	describe("data-model section 17 constants", function()

@@ -24,10 +24,10 @@ end
 
 local function collect(root: Instance, filter: string?): { SpecEntry }
 	local specs: { SpecEntry } = {}
-	local found = {}
+	local found: { ModuleScript } = {}
 	for _, instance in ipairs(root:GetDescendants()) do
 		if isSpec(instance) then
-			table.insert(found, instance)
+			table.insert(found, instance :: ModuleScript)
 		end
 	end
 	table.sort(found, function(a, b)
@@ -38,9 +38,9 @@ local function collect(root: Instance, filter: string?): { SpecEntry }
 		if filter ~= nil and not string.find(moduleScript.Name, filter, 1, true) then
 			continue
 		end
-		local ok, result = pcall(require, moduleScript)
+		local ok, result = pcall(require, moduleScript :: any)
 		if ok and type(result) == "function" then
-			table.insert(specs, { name = moduleScript.Name, body = result })
+			table.insert(specs, { name = moduleScript.Name, body = result :: any })
 		else
 			local message = if ok
 				then string.format("spec must return a function, got %s", typeof(result))
@@ -56,9 +56,11 @@ local function collect(root: Instance, filter: string?): { SpecEntry }
 	return specs
 end
 
-return function(root: Instance?, options: { verbose: boolean?, filter: string?, print: ((string) -> ())? }?): TestKit.Summary
-	local opts = options or {}
-	local folder = root or script.Parent
+type RunOptions = { verbose: boolean?, filter: string?, print: ((string) -> ())? }
+
+return function(root: Instance?, options: RunOptions?): TestKit.Summary
+	local opts: RunOptions = options or {}
+	local folder: Instance = root or (script.Parent :: Instance)
 	local specs = collect(folder, opts.filter)
 	return TestKit.runSpecs(specs, { verbose = opts.verbose, print = opts.print })
 end

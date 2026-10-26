@@ -35,7 +35,6 @@ local Config = {
 	CatchChanceMin = 0.05,
 	CatchChanceMax = 0.95,
 	LureWaitSeconds = 45,
-	LureReserveSeconds = 30,
 	LureDespawnSeconds = 90,
 	CarryWalkSpeed = 13,
 	NormalWalkSpeed = 16,

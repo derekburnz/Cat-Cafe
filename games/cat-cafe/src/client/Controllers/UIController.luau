@@ -31,13 +31,13 @@ local function ownPlot(): Model?
 	local world = Workspace:FindFirstChild("World")
 	local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
 	local plot = if plots ~= nil then plots:FindFirstChild("Plot_" .. state.plotIndex) else nil
-	return if plot ~= nil and plot:IsA("Model") then plot else nil
+	return if plot ~= nil and plot:IsA("Model") then plot :: Model else nil
 end
 
 function UIController.ownDoor(): BasePart?
 	local plot = ownPlot()
 	local door = if plot ~= nil then plot:FindFirstChild("Door") else nil
-	return if door ~= nil and door:IsA("BasePart") then door else nil
+	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
 end
 
 local function alleyEntrance(): BasePart?
@@ -45,7 +45,7 @@ local function alleyEntrance(): BasePart?
 	local alley = if world ~= nil then world:FindFirstChild("Alley") else nil
 	local points = if alley ~= nil then alley:FindFirstChild("SpawnPoints") else nil
 	local first = if points ~= nil then points:FindFirstChild("alley_1") else nil
-	return if first ~= nil and first:IsA("BasePart") then first else nil
+	return if first ~= nil and first:IsA("BasePart") then first :: BasePart else nil
 end
 
 local function hasRestingCatAndFreeSpot(s: Types.PlayerState): boolean
@@ -111,7 +111,7 @@ local function applyState(s: Types.PlayerState)
 		decorPlaced = s.decorPlaced,
 		lures = s.lures,
 		equippedLure = s.equippedLure,
-		cats = s.cats,
+		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
@@ -214,16 +214,16 @@ local function startPrediction()
 end
 
 function UIController.start()
-	UI.init({
-		catalog = {
-			cats = Catalog.cats,
-			upgrades = Catalog.upgrades,
-			decor = Catalog.decor,
-			lures = Catalog.lures,
-			spots = Catalog.spots,
-		},
-		keybinds = true,
-	})
+	-- Same shapes as UI/Types.luau, but our catalogs use literal unions (rarity, area, spot type) where the
+	-- UI declares string; Luau table properties are invariant, so the catalog is handed over as any.
+	local catalog: any = {
+		cats = Catalog.cats,
+		upgrades = Catalog.upgrades,
+		decor = Catalog.decor,
+		lures = Catalog.lures,
+		spots = Catalog.spots,
+	}
+	UI.init({ catalog = catalog, keybinds = true })
 	UI.catch.bindProximityPrompts()
 	wireIntents()
 	wireServerEvents()

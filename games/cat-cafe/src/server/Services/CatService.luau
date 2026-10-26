@@ -5,6 +5,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
@@ -338,11 +339,13 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if character == nil then
 		return
 	end
-	local torso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if torso == nil or not torso:IsA("BasePart") then
+	local torsoInstance = character:FindFirstChild("UpperTorso")
+		or character:FindFirstChild("Torso")
+	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+	if torsoInstance == nil or not torsoInstance:IsA("BasePart") then
 		return
 	end
+	local torso = torsoInstance :: BasePart
 	if carry.model ~= nil then
 		carry.model:Destroy()
 	end
@@ -355,8 +358,9 @@ local function attachHeldCat(player: Player, carry: Carry)
 		nameTag:Destroy()
 	end
 	model:PivotTo(torso.CFrame * CFrame.new(0, 0.4, -1.3) * CFrame.Angles(0, math.pi, 0))
-	for _, part in model:GetDescendants() do
-		if part:IsA("BasePart") then
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local part = descendant :: BasePart
 			part.Anchored = false
 			part.CanCollide = false
 			part.CanQuery = false
@@ -399,7 +403,9 @@ local function endCarry(player: Player): Types.CatDef?
 		carry.model:Destroy()
 	end
 	local character = player.Character
-	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	local humanoid = if character ~= nil
+		then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+		else nil
 	if humanoid ~= nil then
 		humanoid.WalkSpeed = Config.NormalWalkSpeed
 	end
@@ -525,24 +531,28 @@ local function onCheckIn(player: Player)
 	finishCheckIn(player, true)
 end
 
+local function findLureSpot(spotId: string): (BasePart?, string?)
+	for id, area in world.areas do
+		local candidate = area.lureSpots[spotId]
+		if candidate ~= nil then
+			return candidate, id
+		end
+	end
+	return nil, nil
+end
+
 local function onUseLure(player: Player, rawSpotId: unknown)
 	local spotId = Guard.id(rawSpotId)
 	local profile = DataService.get(player)
 	if spotId == nil or profile == nil then
 		return
 	end
-	local spotPart: BasePart? = nil
-	local areaId: string? = nil
-	for id, area in world.areas do
-		local candidate = area.lureSpots[spotId]
-		if candidate ~= nil then
-			spotPart = candidate
-			areaId = id
-		end
-	end
-	if spotPart == nil or areaId == nil then
+	local foundSpot, foundArea = findLureSpot(spotId)
+	if foundSpot == nil or foundArea == nil then
 		return
 	end
+	local spotPart: BasePart = foundSpot
+	local areaId: string = foundArea
 	if not areaUnlocked(profile, areaId) then
 		Net.toast(player, "You need the Park pass to lure here.", "warn")
 		return
@@ -555,7 +565,7 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 		Net.toast(player, "That bowl is in use.", "warn")
 		return
 	end
-	if not withinRange(player, (spotPart :: BasePart).Position, Config.GrabRangeStuds + 2) then
+	if not withinRange(player, spotPart.Position, Config.GrabRangeStuds + 2) then
 		return
 	end
 	local lure, reason = CafeService.consumeEquippedLure(player)
@@ -568,11 +578,11 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 		then "CatCafe_Item_FoodBowl_Premium"
 		else "CatCafe_Item_FoodBowl"
 	local bowl = AssetRegistry.clone(bowlAsset)
-	bowl:PivotTo(CFrame.new((spotPart :: BasePart).Position))
+	bowl:PivotTo(CFrame.new(spotPart.Position))
 	bowl.Parent = straysFolder
 	local food = AssetRegistry.clone(lure.asset)
 	food.Name = "Food"
-	food:PivotTo(CFrame.new((spotPart :: BasePart).Position))
+	food:PivotTo(CFrame.new(spotPart.Position))
 	food.Parent = bowl
 	local active: ActiveLure =
 		{ spotId = spotId, area = areaId, player = player, lure = lure, bowl = bowl, strayId = nil }
@@ -597,16 +607,12 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 			active.bowl = nil
 		end
 		local rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
-		local def = Catching.pickCat(rarity, areaId :: string, rng:NextNumber())
-		local area = world.areas[areaId :: string]
-		local position = Vector3.new(
-			(spotPart :: BasePart).Position.X,
-			area.floorY,
-			(spotPart :: BasePart).Position.Z
-		)
+		local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
+		local area = world.areas[areaId]
+		local position = Vector3.new(spotPart.Position.X, area.floorY, spotPart.Position.Z)
 		local stray = spawnStray(
 			def,
-			areaId :: string,
+			areaId,
 			position,
 			nil,
 			spotId,
@@ -684,6 +690,28 @@ end
 
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
+end
+
+-- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken).
+function CatService.debugSpawnStray(catId: string, areaId: string): string
+	assert(RunService:IsStudio(), "debugSpawnStray is Studio only")
+	local def = Catalog.getCat(catId)
+	local areaDef = Catalog.getArea(areaId)
+	assert(def ~= nil and areaDef ~= nil, "unknown cat or area")
+	local area = world.areas[areaId]
+	local pointIndex = freeSpawnPoint(areaId) or 1
+	local point = area.spawnPoints[pointIndex]
+	local stray = spawnStray(
+		def :: Types.CatDef,
+		areaId,
+		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
+		pointIndex,
+		nil,
+		false,
+		0,
+		(areaDef :: Types.AreaDef).despawnAfter
+	)
+	return stray.id
 end
 
 return CatService

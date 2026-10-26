@@ -53,25 +53,25 @@ const CLASS_NAMES = new Set([...definitions.matchAll(/^declare (?:extern )?(?:ty
 
 // 2. Instance tree and module list.
 const tree = buildTree(projectFile);
-const scripts = [];
+const scripts = []; // reported
+const support = []; // vendored or package code: loaded so requires resolve, never reported
 for (const node of walk(tree)) {
   if (!node.path || node.json) continue;
   const rel = path.relative(gameRoot, node.path).split(path.sep).join('/');
-  if (IGNORE.some((re) => re.test(rel))) continue;
   node.moduleName = rel.replace(/\.luau?$/, '');
   node.rel = rel;
-  scripts.push(node);
+  (IGNORE.some((re) => re.test(rel)) ? support : scripts).push(node);
 }
 
 // 3. Rewrite instance-path requires into string requires the checker can follow.
 const notes = [];
 const TEST_GLOBALS = ['describe', 'describeSKIP', 'xdescribe', 'describeFOCUS', 'fdescribe', 'it', 'itSKIP', 'xit', 'itFOCUS', 'fit', 'beforeEach', 'afterEach', 'beforeAll', 'afterAll', 'expect'];
 const analysis = await Analysis.create({ mode: 'strict', lint: true, definitions: [{ name: 'roblox', source: definitions }], globals: args.tests ? TEST_GLOBALS : [] });
-for (const node of scripts) {
+for (const node of [...support, ...scripts]) {
   const source = fs.readFileSync(node.path, 'utf8');
   const { rewritten: step1, unresolved } = rewriteRequires(source, node);
   const rewritten = castServiceAndInstanceNew(step1);
-  for (const text of unresolved) notes.push(`${node.rel}: could not resolve ${text} statically (checked as any)`);
+  if (scripts.includes(node)) for (const text of unresolved) notes.push(`${node.rel}: could not resolve ${text} statically (checked as any)`);
   const kind = node.className === 'ModuleScript' ? 'module' : 'script';
   analysis.setModule(node.moduleName, rewritten, kind);
 }

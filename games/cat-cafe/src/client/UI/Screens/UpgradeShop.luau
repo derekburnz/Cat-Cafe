@@ -205,7 +205,7 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 	local cafeLevel = state.cafeLevel
 	self._panel:setTitle(
 		"Upgrades",
-		"Cafe " .. Format.level(cafeLevel) .. "  ·  " .. Format.money(state.coins)
+		"Cafe " .. Format.level(cafeLevel) .. "  ·  " .. Format.money(state.money)
 	)
 
 	for upgradeId, row in self._rows do
@@ -213,8 +213,12 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		local level = state.upgradeLevels[upgradeId] or 0
 		local isMax = level >= def.maxLevel
 		local nextCost = if isMax then nil else def.costs[level + 1]
-		local locked = def.requiresCafeLevel ~= nil
-			and cafeLevel < (def.requiresCafeLevel :: number)
+		local needsCafe: number? = def.requiresCafeLevel
+		local perLevel = def.requiresCafeLevelAtLevel
+		if perLevel and perLevel[level + 1] then
+			needsCafe = math.max(needsCafe or 0, perLevel[level + 1])
+		end
+		local locked = needsCafe ~= nil and cafeLevel < (needsCafe :: number)
 
 		if isMax then
 			row.level.Text = Format.level(level) .. "  ·  Max"
@@ -233,7 +237,7 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			row.buy:setText("Max")
 			row.buy:setEnabled(false)
 		elseif locked then
-			row.buy:setText("Cafe " .. Format.level(def.requiresCafeLevel :: number))
+			row.buy:setText("Cafe " .. Format.level(needsCafe :: number))
 			row.buy:setEnabled(false)
 		elseif nextCost == nil then
 			row.buy:setText("—")
@@ -241,7 +245,7 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		else
 			row.buy:setText(Format.money(nextCost))
 			row.buy:setStyle("primary")
-			row.buy:setEnabled(state.coins >= nextCost)
+			row.buy:setEnabled(state.money >= nextCost)
 		end
 	end
 end

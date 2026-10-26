@@ -73,7 +73,7 @@ end
 local function ensureLockLabel(furniture: Model, spot: Types.SpotDef): BillboardGui
 	local existing = furniture:FindFirstChild("LockLabel", true)
 	if existing ~= nil and existing:IsA("BillboardGui") then
-		return existing
+		return existing :: BillboardGui
 	end
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "LockLabel"

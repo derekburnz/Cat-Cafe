@@ -17,24 +17,24 @@ function Tween.to(instance: Instance, info: TweenInfo, props: { [string]: any })
 end
 
 -- Scales a GuiObject in from `from` to 1 using a UIScale child (created if missing).
-function Tween.popIn(gui: GuiObject, from: number?)
-	local scale = gui:FindFirstChildOfClass("UIScale")
-	if not scale then
-		scale = Instance.new("UIScale")
-		scale.Parent = gui
+local function scaleOf(gui: GuiObject): UIScale
+	local existing = gui:FindFirstChildOfClass("UIScale")
+	if existing and existing:IsA("UIScale") then
+		return existing :: UIScale
 	end
-	assert(scale)
+	local created = Instance.new("UIScale")
+	created.Parent = gui
+	return created
+end
+
+function Tween.popIn(gui: GuiObject, from: number?)
+	local scale = scaleOf(gui)
 	scale.Scale = from or 0.88
 	Tween.to(scale, Tween.POP, { Scale = 1 })
 end
 
 function Tween.popOut(gui: GuiObject, onDone: (() -> ())?)
-	local scale = gui:FindFirstChildOfClass("UIScale")
-	if not scale then
-		scale = Instance.new("UIScale")
-		scale.Parent = gui
-	end
-	assert(scale)
+	local scale = scaleOf(gui)
 	local tween = Tween.to(scale, Tween.SETTLE, { Scale = 0.9 })
 	if onDone then
 		tween.Completed:Once(function()

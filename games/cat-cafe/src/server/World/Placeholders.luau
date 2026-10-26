@@ -77,71 +77,50 @@ local GREEN = Color3.fromRGB(90, 160, 80)
 function Placeholders.cat(def: Types.CatDef): Model
 	local model = newModel(Catalog.catModelName(def.id))
 	local fur = rgb(def.color)
-	local body = addPart(
-		model,
-		{
-			name = "Body",
-			size = Vector3.new(1, 1.1, 2.2),
-			offset = Vector3.new(0, 0.85, 0.2),
-			color = fur,
-		}
-	)
-	addPart(
-		model,
-		{
-			name = "Head",
-			size = Vector3.new(0.9, 0.9, 0.9),
-			offset = Vector3.new(0, 1.2, -1.25),
-			color = fur,
-		}
-	)
-	addPart(
-		model,
-		{
-			name = "EarL",
-			size = Vector3.new(0.25, 0.3, 0.15),
-			offset = Vector3.new(-0.3, 1.75, -1.3),
-			color = fur,
-		}
-	)
-	addPart(
-		model,
-		{
-			name = "EarR",
-			size = Vector3.new(0.25, 0.3, 0.15),
-			offset = Vector3.new(0.3, 1.75, -1.3),
-			color = fur,
-		}
-	)
-	addPart(
-		model,
-		{
-			name = "Tail",
-			size = Vector3.new(0.18, 0.18, 1.0),
-			offset = Vector3.new(0, 1.15, 1.6),
-			color = fur,
-			rotation = Vector3.new(-35, 0, 0),
-		}
-	)
+	local body = addPart(model, {
+		name = "Body",
+		size = Vector3.new(1, 1.1, 2.2),
+		offset = Vector3.new(0, 0.85, 0.2),
+		color = fur,
+	})
+	addPart(model, {
+		name = "Head",
+		size = Vector3.new(0.9, 0.9, 0.9),
+		offset = Vector3.new(0, 1.2, -1.25),
+		color = fur,
+	})
+	addPart(model, {
+		name = "EarL",
+		size = Vector3.new(0.25, 0.3, 0.15),
+		offset = Vector3.new(-0.3, 1.75, -1.3),
+		color = fur,
+	})
+	addPart(model, {
+		name = "EarR",
+		size = Vector3.new(0.25, 0.3, 0.15),
+		offset = Vector3.new(0.3, 1.75, -1.3),
+		color = fur,
+	})
+	addPart(model, {
+		name = "Tail",
+		size = Vector3.new(0.18, 0.18, 1.0),
+		offset = Vector3.new(0, 1.15, 1.6),
+		color = fur,
+		rotation = Vector3.new(-35, 0, 0),
+	})
 	for i, x in { -0.3, 0.3 } do
-		addPart(
-			model,
-			{
-				name = "LegF" .. i,
-				size = Vector3.new(0.25, 0.35, 0.25),
-				offset = Vector3.new(x, 0.18, -0.6),
-				color = fur,
-			}
-		)
-		addPart(
-			model,
-			{
-				name = "LegB" .. i,
-				size = Vector3.new(0.25, 0.35, 0.25),
-				offset = Vector3.new(x, 0.18, 0.9),
-				color = fur,
-			}
-		)
+		addPart(model, {
+			name = "LegF" .. i,
+			size = Vector3.new(0.25, 0.35, 0.25),
+			offset = Vector3.new(x, 0.18, -0.6),
+			color = fur,
+		})
+		addPart(model, {
+			name = "LegB" .. i,
+			size = Vector3.new(0.25, 0.35, 0.25),
+			offset = Vector3.new(x, 0.18, 0.9),
+			color = fur,
+		})
 	end
 	local eyeColor = if def.rarity == "Legendary"
 		then Color3.fromRGB(255, 190, 60)
@@ -150,38 +129,29 @@ function Placeholders.cat(def: Types.CatDef): Model
 		then Enum.Material.Neon
 		else Enum.Material.SmoothPlastic
 	for i, x in { -0.22, 0.22 } do
-		addPart(
-			model,
-			{
-				name = "Eye" .. i,
-				size = Vector3.new(0.14, 0.14, 0.06),
-				offset = Vector3.new(x, 1.28, -1.72),
-				color = eyeColor,
-				material = eyeMaterial,
-			}
-		)
+		addPart(model, {
+			name = "Eye" .. i,
+			size = Vector3.new(0.14, 0.14, 0.06),
+			offset = Vector3.new(x, 1.28, -1.72),
+			color = eyeColor,
+			material = eyeMaterial,
+		})
 	end
 	-- Pattern hint so placeholders are telling apart at a glance
 	if def.pattern == "stripes" or def.pattern == "spots" or def.pattern == "patches" then
-		addPart(
-			model,
-			{
-				name = "Marking",
-				size = Vector3.new(1.02, 0.25, 0.5),
-				offset = Vector3.new(0, 1.0, 0.2),
-				color = fur:Lerp(Color3.new(0, 0, 0), 0.35),
-			}
-		)
+		addPart(model, {
+			name = "Marking",
+			size = Vector3.new(1.02, 0.25, 0.5),
+			offset = Vector3.new(0, 1.0, 0.2),
+			color = fur:Lerp(Color3.new(0, 0, 0), 0.35),
+		})
 	elseif def.pattern == "points" then
-		addPart(
-			model,
-			{
-				name = "Marking",
-				size = Vector3.new(0.92, 0.3, 0.92),
-				offset = Vector3.new(0, 1.0, -1.25),
-				color = fur:Lerp(Color3.new(0, 0, 0), 0.45),
-			}
-		)
+		addPart(model, {
+			name = "Marking",
+			size = Vector3.new(0.92, 0.3, 0.92),
+			offset = Vector3.new(0, 1.0, -1.25),
+			color = fur:Lerp(Color3.new(0, 0, 0), 0.45),
+		})
 	end
 
 	local billboard = Instance.new("BillboardGui")
@@ -213,33 +183,24 @@ function Placeholders.customer(variant: string): Model
 	}
 	local model = newModel("CatCafe_NPC_Customer_" .. variant)
 	local skin = Color3.fromRGB(235, 200, 170)
-	local legs = addPart(
-		model,
-		{
-			name = "Legs",
-			size = Vector3.new(1.6, 2, 0.9),
-			offset = Vector3.new(0, 1, 0),
-			color = DARK,
-		}
-	)
-	addPart(
-		model,
-		{
-			name = "Torso",
-			size = Vector3.new(2, 1.9, 1),
-			offset = Vector3.new(0, 2.95, 0),
-			color = shirts[variant] or shirts.A,
-		}
-	)
-	addPart(
-		model,
-		{
-			name = "Head",
-			size = Vector3.new(1.3, 1.3, 1.3),
-			offset = Vector3.new(0, 4.55, 0),
-			color = skin,
-		}
-	)
+	local legs = addPart(model, {
+		name = "Legs",
+		size = Vector3.new(1.6, 2, 0.9),
+		offset = Vector3.new(0, 1, 0),
+		color = DARK,
+	})
+	addPart(model, {
+		name = "Torso",
+		size = Vector3.new(2, 1.9, 1),
+		offset = Vector3.new(0, 2.95, 0),
+		color = shirts[variant] or shirts.A,
+	})
+	addPart(model, {
+		name = "Head",
+		size = Vector3.new(1.3, 1.3, 1.3),
+		offset = Vector3.new(0, 4.55, 0),
+		color = skin,
+	})
 	return finish(model, legs)
 end
 

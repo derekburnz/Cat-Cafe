@@ -3,13 +3,15 @@
 -- Usage from any LocalScript:  require(path.to.UI).demo()
 -- Everything here is client-side pretend money. Delete or leave unused in production.
 
+local Types = require(script.Parent.Types)
+
 local Demo = {}
 
 local function now(): number
 	return os.time()
 end
 
-local CATALOG = {
+local CATALOG: Types.Catalog = {
 	cats = {
 		{
 			id = "tabby",
@@ -260,7 +262,7 @@ function Demo.run(UI: any): () -> ()
 		return "demo_" .. tostring(nextUid)
 	end
 
-	local catById: { [string]: any } = {}
+	local catById: { [string]: Types.CatDef } = {}
 	for _, def in CATALOG.cats do
 		catById[def.id] = def
 	end
@@ -272,15 +274,23 @@ function Demo.run(UI: any): () -> ()
 		decorPlaced = {} :: { [string]: boolean },
 		lures = {} :: { [string]: number },
 		equippedLure = nil :: string?,
-		cats = {} :: { [string]: any },
+		cats = {} :: { [string]: Types.CatInstance },
 		collection = { tabby = now() } :: { [string]: number },
 	}
 	local starter = uid()
-	profile.cats[starter] =
-		{ uid = starter, catId = "tabby", variant = "base", caughtAt = now(), spotId = "counter_1" }
+	profile.cats[starter] = {
+		uid = starter,
+		catId = "tabby",
+		variant = "base",
+		caughtAt = now(),
+		spotId = "counter_1",
+		level = 2,
+		stars = 3,
+		rating = 1.2,
+	}
 
 	local spotType: { [string]: string } = {}
-	for _, spot in CATALOG.spots do
+	for _, spot in CATALOG.spots :: { Types.SpotDef } do
 		spotType[spot.id] = spot.spotType
 	end
 
@@ -330,74 +340,60 @@ function Demo.run(UI: any): () -> ()
 
 	UI.init({ catalog = CATALOG })
 
-	local connections = {}
-	table.insert(
-		connections,
-		UI.events.buyUpgrade:Connect(function(upgradeId: string)
-			for _, def in CATALOG.upgrades do
-				if def.id == upgradeId then
-					local level = profile.upgradeLevels[upgradeId] or 0
-					local cost = def.costs[level + 1]
-					if level >= def.maxLevel or not cost then
-						return
-					end
-					if spend(cost) then
-						profile.upgradeLevels[upgradeId] = level + 1
-						UI.toast(def.name .. " is now Lv " .. tostring(level + 1), "good")
-						push()
-					end
+	local connections: { any } = {}
+	connections[#connections + 1] = UI.events.buyUpgrade:Connect(function(upgradeId: string)
+		for _, def in CATALOG.upgrades do
+			if def.id == upgradeId then
+				local level = profile.upgradeLevels[upgradeId] or 0
+				local cost = def.costs[level + 1]
+				if level >= def.maxLevel or not cost then
+					return
 				end
-			end
-		end)
-	)
-	table.insert(
-		connections,
-		UI.events.buyDecor:Connect(function(decorId: string)
-			for _, def in CATALOG.decor do
-				if def.id == decorId and not profile.decorOwned[decorId] and spend(def.cost) then
-					profile.decorOwned[decorId] = true
-					profile.decorPlaced[decorId] = true
-					UI.toast(def.name .. " placed", "good")
+				if spend(cost) then
+					profile.upgradeLevels[upgradeId] = level + 1
+					UI.toast(def.name .. " is now Lv " .. tostring(level + 1), "good")
 					push()
 				end
 			end
-		end)
-	)
-	table.insert(
-		connections,
-		UI.events.toggleDecor:Connect(function(decorId: string, placed: boolean)
+		end
+	end)
+	connections[#connections + 1] = UI.events.buyDecor:Connect(function(decorId: string)
+		for _, def in CATALOG.decor do
+			if def.id == decorId and not profile.decorOwned[decorId] and spend(def.cost) then
+				profile.decorOwned[decorId] = true
+				profile.decorPlaced[decorId] = true
+				UI.toast(def.name .. " placed", "good")
+				push()
+			end
+		end
+	end)
+	connections[#connections + 1] = UI.events.toggleDecor:Connect(
+		function(decorId: string, placed: boolean)
 			if profile.decorOwned[decorId] then
 				profile.decorPlaced[decorId] = placed
 				push()
 			end
-		end)
+		end
 	)
-	table.insert(
-		connections,
-		UI.events.buyLure:Connect(function(lureId: string)
-			for _, def in CATALOG.lures do
-				if def.id == lureId and spend(def.cost) then
-					profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
-					if not profile.equippedLure then
-						profile.equippedLure = lureId
-					end
-					push()
+	connections[#connections + 1] = UI.events.buyLure:Connect(function(lureId: string)
+		for _, def in CATALOG.lures do
+			if def.id == lureId and spend(def.cost) then
+				profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
+				if not profile.equippedLure then
+					profile.equippedLure = lureId
 				end
-			end
-		end)
-	)
-	table.insert(
-		connections,
-		UI.events.equipLure:Connect(function(lureId: string)
-			if (profile.lures[lureId] or 0) > 0 then
-				profile.equippedLure = lureId
 				push()
 			end
-		end)
-	)
-	table.insert(
-		connections,
-		UI.events.placeCat:Connect(function(catUid: string, spotId: string)
+		end
+	end)
+	connections[#connections + 1] = UI.events.equipLure:Connect(function(lureId: string)
+		if (profile.lures[lureId] or 0) > 0 then
+			profile.equippedLure = lureId
+			push()
+		end
+	end)
+	connections[#connections + 1] = UI.events.placeCat:Connect(
+		function(catUid: string, spotId: string)
 			local instance = profile.cats[catUid]
 			if not instance then
 				return
@@ -411,44 +407,37 @@ function Demo.run(UI: any): () -> ()
 			instance.spotId = spotId
 			UI.toast(catById[instance.catId].name .. " placed on " .. spotId, "good")
 			push()
-		end)
+		end
 	)
-	table.insert(
-		connections,
-		UI.events.unplaceCat:Connect(function(catUid: string)
-			local instance = profile.cats[catUid]
-			if instance then
-				instance.spotId = nil
-				push()
-			end
-		end)
-	)
-	table.insert(
-		connections,
-		UI.events.sellCat:Connect(function(catUid: string)
-			local instance = profile.cats[catUid]
-			if instance then
-				local def = catById[instance.catId]
-				profile.cats[catUid] = nil
-				profile.money += SELL_VALUE[def.rarity] or 0
-				UI.toast(("Sold %s for $%d"):format(def.name, SELL_VALUE[def.rarity] or 0), "good")
-				push()
-			end
-		end)
-	)
-	table.insert(
-		connections,
-		UI.events.claimOffline:Connect(function()
-			profile.money += 312
-			UI.toast("+$312 claimed", "good")
+	connections[#connections + 1] = UI.events.unplaceCat:Connect(function(catUid: string)
+		local instance = profile.cats[catUid]
+		if instance then
+			instance.spotId = nil
 			push()
-		end)
-	)
-	table.insert(
-		connections,
-		UI.events.grabEnded:Connect(function(_strayId: string?, result: string)
+		end
+	end)
+	connections[#connections + 1] = UI.events.sellCat:Connect(function(catUid: string)
+		local instance = profile.cats[catUid]
+		if instance then
+			local def = catById[instance.catId]
+			profile.cats[catUid] = nil
+			profile.money += SELL_VALUE[def.rarity] or 0
+			UI.toast(("Sold %s for $%d"):format(def.name, SELL_VALUE[def.rarity] or 0), "good")
+			push()
+		end
+	end)
+	connections[#connections + 1] = UI.events.equipBest:Connect(function()
+		UI.toast("Equip best: the server would place your top cats", "info")
+	end)
+	connections[#connections + 1] = UI.events.claimOffline:Connect(function()
+		profile.money += 312
+		UI.toast("+$312 claimed", "good")
+		push()
+	end)
+	connections[#connections + 1] = UI.events.grabEnded:Connect(
+		function(_strayId: string?, result: string)
 			UI.toast("Ring result: " .. result, "info")
-		end)
+		end
 	)
 
 	push()
@@ -462,7 +451,7 @@ function Demo.run(UI: any): () -> ()
 		end
 		task.wait(3)
 		if running then
-			UI.catch.show({ catId = "void", strayId = "demo_stray" })
+			UI.catch.show({ catId = "void", strayId = "demo_stray", stars = 4 })
 			task.wait(0.8)
 			UI.catch.startRing({ duration = 1.5 })
 			task.wait(1.0)

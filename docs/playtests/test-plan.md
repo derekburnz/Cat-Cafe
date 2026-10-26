@@ -134,7 +134,14 @@ every case in a row. From a client-context command bar: `_G.PurrPotAbuse.run("fa
 is the verdict (CHECK: the client cannot tell, read the server output). After a run, filter the server output
 for `[Net]`: a `handler failed` line means the server errored on bad input (a major on its own); a
 `rate limit hit` line once a second is the correct reaction to the flood. `Someone else's lock` needs two
-clients and stays manual. Remote names are the list in `src/shared/Remotes.luau`.
+clients and stays manual. Remote names are the list in `src/shared/Remotes.luau`. From design v0.2 the alley
+is empty by day apart from the tutorial Common, so run `Debug.setPhase("night")` on the server before the grab
+cases.
+
+"Coins unchanged" below means unchanged apart from income. Every `ProfileSync` carries settled income and the
+server's refusals sync too, so the script asks for a fresh sync first and allows `incomePerSecond` times the
+seconds since then, plus one second and one coin for the server's whole-second clock. A spend still shows as a
+drop and a second payout as a second sale.
 
 | Case | Call | Expected server behaviour |
 |---|---|---|
@@ -146,18 +153,19 @@ clients and stays manual. Remote names are the list in `src/shared/Remotes.luau`
 | Late end (5) | `GrabEnd(id)` 2.0 s after `GrabBegin` | Ignored as stale: the server already resolved the attempt at 1.75 s (see No end), exactly one GrabResult |
 | No end (6) | `GrabBegin(id)` and never send `GrabEnd` | At 1.75 s after begin the server resolves the attempt itself as a ring miss: chance rolled without bonus, lock released, a Common is usually caught and a Rare may flee. Client shows the miss flash at 1.5 s and then the server result |
 | Perfect farming (7) | 10 grabs with `GrabEnd` sent by script 1.6 s after `GrabBegin` (inside the 1.20 to 1.75 s perfect window) | Accepted as perfect by design (latency grace); the only gain is the capped 0.15 bonus. The script prints caught vs expected with and without the ring. Log it, do not ticket |
-| Client ring value (8) | `GrabEnd(id, "perfect")` 0.5 s after `GrabBegin` | Extra argument ignored; scored from timing as a miss right away, GrabResult within 1 s |
-| Bad ids (9) | `BuyUpgrade(41 character string)`, `BuyUpgrade(123)`, `BuyUpgrade(nil)`, `BuyUpgrade("jetpack")`, `BuyUpgrade({})`, `PlaceCat(123, "window_1")`, `ToggleDecor("plants", "yes")`, `TutorialAdvance("two")`, `EquipLure(7)` | All ignored, coins unchanged, no toast, no server error (an error on bad input is a major ticket on its own) |
+| Client ring value (8) | `GrabEnd(id, "perfect")` 0.5 s after `GrabBegin` | Extra argument ignored; scored from timing as a miss. Always CHECK: `GrabResult` carries no ring, so a server that honoured `"perfect"` would answer at the same moment. The proof is code review (`CatService.onGrabEnd` reads only the stray id) |
+| Bad ids (9), malformed | `BuyUpgrade(41 character string)`, `BuyUpgrade(123)`, `BuyUpgrade(nil)`, `BuyUpgrade({})`, `BuyUpgrade(true)`, `BuyDecor("Neon Sign")`, `PlaceCat(123, "window_1")`, `ToggleDecor("plants", "yes")`, `EquipLure(7)`, `TutorialAdvance("two")`, then `TutorialAdvance(1e9)` 1.2 s later (past its 1 per second limit, so the range check runs) | Dropped by `Guard`: no toast, coins unchanged, no server error (an error on bad input is a major ticket on its own) |
+| Bad ids (9), unknown | `BuyUpgrade("jetpack")`, `BuyDecor("jetpack")`: well formed, in no catalog | Refused. A warn toast (`Unknown upgrade`, `Unknown decor`) is fine, since every refused action says why; nothing bought, coins unchanged |
 | Unaffordable (0) | `BuyUpgrade("tables")` with `$0` (`Debug.setCoins(player, 0)` first) | Refused with `Not enough coins`, coins unchanged |
 | Gates (0) | `BuyUpgrade("lure_bowl")` at cafe 1, `BuyDecor("neon_sign")` at cafe 1, `PlaceCat(uid, "cushion_1")` at cafe 1 | Refused with a `Needs cafe level` or `locked` toast, coins unchanged |
-| Ownership (-) | `PlaceCat(other player's uid, "window_1")`, `SellCat(other uid)`, `UnplaceCat(other uid)` | Ignored, coins and cats unchanged |
-| Double spend (=) | `SellCat(uid)` twice in one frame (needs 2 cats; sells one for real), `ClaimOffline()` twice | One sale, one cat gone, coins up by exactly its sellValue; offline paid at most once |
+| Ownership (-) | `PlaceCat(other player's uid, "window_1")`, `SellCat(other uid)`, `UnplaceCat(other uid)` | Ignored, no toast, coins and cats unchanged |
+| Double spend (=) | `SellCat(uid)` twice in one frame (needs 2 cats; sells one for real), `ClaimOffline()` twice 2.2 s apart (past its 1 per 2 s limit, so the handler sees both) | One sale, one cat gone, coins up by its sellValue plus income only; offline paid at most once |
 | Flood (Backspace) | 30 `RequestSync()` in one frame | At most 2 `ProfileSync` back; one `[Net] rate limit hit` line in the server output, not 29 |
 | Early rescue (v0.2, manual) | `RescueBegin(spotId)` then `RescueEnd(spotId)` 2 s later | Refused: under RescueHoldSeconds 4; the lock (6 s) stays until it expires |
 | Rescue without begin (v0.2, manual) | `RescueEnd(spotId)` on an unlocked spot, and on a spot locked by client B | Ignored |
 | Rescue while carrying (v0.2, manual) | `RescueBegin(spotId)` while carrying a cat | Refused with the carrying toast |
 | Far rescue (v0.2, manual) | `RescueBegin` and `RescueEnd` from 200 studs away | Refused by the 10 stud check, nothing rescued |
-| Rate limit | 50 `RequestSync()` in one second | At most 10 handled, the rest dropped, one log line per second per player, no kick |
+| Rate limit | 50 `RequestSync()` in one second | At most 1 handled (`RequestSync` allows 1 per 2 s; most other remotes 10 per second), the rest dropped, one log line per second per player, no kick |
 | Grab limit | `GrabBegin` twice within 2 s | Second dropped |
 | Tutorial | `TutorialAdvance(4)` from step 0, `TutorialAdvance(-1)`, `TutorialAdvance("2")` | Refused; only `tutorialStep + 1` is accepted |
 | Lures | `UseLure(spot)` without `lure_bowl`; `EquipLure("salmon")` with 0 held; `UseLure` twice (one active lure per player) | Refused |

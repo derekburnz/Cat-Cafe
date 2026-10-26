@@ -181,7 +181,12 @@ Expectation.__index = function(self: any, key: string): any
 	return check
 end
 
-local function assertCondition(self: any, condition: boolean, message: string, negatedMessage: string)
+local function assertCondition(
+	self: any,
+	condition: boolean,
+	message: string,
+	negatedMessage: string
+)
 	local negate = rawget(self, "_negate") == true
 	if negate then
 		if condition then
@@ -222,7 +227,11 @@ function Expectation.deepEqual(self: any, other: any)
 		self,
 		deepEqual(value, other),
 		string.format("Expected %s to deep-equal %s", describeValue(value), describeValue(other)),
-		string.format("Expected %s to never deep-equal %s", describeValue(value), describeValue(other))
+		string.format(
+			"Expected %s to never deep-equal %s",
+			describeValue(value),
+			describeValue(other)
+		)
 	)
 end
 
@@ -234,8 +243,18 @@ function Expectation.near(self: any, other: number, limit: number?)
 	return assertCondition(
 		self,
 		close,
-		string.format("Expected %s to be within %s of %s", describeValue(value), tostring(tolerance), tostring(other)),
-		string.format("Expected %s to never be within %s of %s", describeValue(value), tostring(tolerance), tostring(other))
+		string.format(
+			"Expected %s to be within %s of %s",
+			describeValue(value),
+			tostring(tolerance),
+			tostring(other)
+		),
+		string.format(
+			"Expected %s to never be within %s of %s",
+			describeValue(value),
+			tostring(tolerance),
+			tostring(other)
+		)
 	)
 end
 
@@ -245,8 +264,17 @@ function Expectation.a(self: any, typeName: string)
 	return assertCondition(
 		self,
 		actual == typeName,
-		string.format("Expected value of type %s, got %s (%s)", typeName, actual, describeValue(value)),
-		string.format("Expected value to never be of type %s, got %s", typeName, describeValue(value))
+		string.format(
+			"Expected value of type %s, got %s (%s)",
+			typeName,
+			actual,
+			describeValue(value)
+		),
+		string.format(
+			"Expected value to never be of type %s, got %s",
+			typeName,
+			describeValue(value)
+		)
 	)
 end
 Expectation.an = Expectation.a
@@ -254,7 +282,10 @@ Expectation.an = Expectation.a
 function Expectation.throw(self: any, messagePart: string?)
 	local value = rawget(self, "_value")
 	if type(value) ~= "function" then
-		error(string.format("expect(...).to.throw() needs a function, got %s", describeValue(value)), 2)
+		error(
+			string.format("expect(...).to.throw() needs a function, got %s", describeValue(value)),
+			2
+		)
 	end
 	local ok, err = pcall(value)
 	local threw = not ok
@@ -435,16 +466,24 @@ local function callProtected(fn: () -> ()): (boolean, string?)
 	return false, traceback or tostring(err)
 end
 
-local function runNode(node: Node, inheritedSkip: boolean, focusMode: boolean, summary: Summary, options: RunOptions)
+local function runNode(
+	node: Node,
+	inheritedSkip: boolean,
+	focusMode: boolean,
+	summary: Summary,
+	options: RunOptions
+)
 	local output = options.print or print
 	local skip = inheritedSkip or node.skip
 
 	if node.kind == "it" then
 		local path = nodePath(node)
-		local shouldRun = not skip and (not focusMode or node.focus or (node.parent ~= nil and hasFocusAncestor(node)))
+		local shouldRun = not skip
+			and (not focusMode or node.focus or (node.parent ~= nil and hasFocusAncestor(node)))
 		if not shouldRun then
 			summary.skipped += 1
-			local skipped: Result = { path = path, status = "skip", message = nil, durationSeconds = 0 }
+			local skipped: Result =
+				{ path = path, status = "skip", message = nil, durationSeconds = 0 }
 			table.insert(summary.results, skipped)
 			if options.verbose then
 				output("  [SKIP] " .. path)
@@ -597,7 +636,13 @@ function TestKit.runSpecs(specs: { SpecEntry }, options: RunOptions?): Summary
 	end
 
 	local focusMode = hasFocus(root)
-	output(string.format("TestKit: running %d spec file(s)%s", #specs, if focusMode then " (FOCUS mode)" else ""))
+	output(
+		string.format(
+			"TestKit: running %d spec file(s)%s",
+			#specs,
+			if focusMode then " (FOCUS mode)" else ""
+		)
+	)
 	for _, specNode in ipairs(root.children) do
 		output("- " .. specNode.name)
 		for _, child in ipairs(specNode.children) do

@@ -37,6 +37,7 @@ local Config = {
 	StrayJumpBackMin = 6, -- a miss makes the stray hiss and jump this far (studs, rolled) away from the player
 	StrayJumpBackMax = 10,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
+	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
 
 	-- The net: closing circles judged on the server (data-model section 10)
 	CircleLeadInSeconds = 0.6, -- from GrabBegin to the first circle starting to shrink

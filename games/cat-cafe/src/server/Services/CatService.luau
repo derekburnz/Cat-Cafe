@@ -1294,6 +1294,25 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	end)
 end
 
+-- Why the player cannot leave by fast travel right now, or nil: carrying a cat (walking it home is the loop and
+-- bumps depend on it), or in the middle of a catch or a rescue hold.
+function CatService.busyReason(player: Player): string?
+	if carrying[player] ~= nil then
+		return "Walk your cat home first"
+	end
+	for _, stray in strays do
+		if stray.lockedBy == player.UserId and stray.attempt ~= nil and not lockExpired(stray) then
+			return "Finish this catch first"
+		end
+	end
+	for _, entry in stuckCats do
+		if entry.lockedBy == player.UserId and not rescueLockExpired(entry) then
+			return "Finish this rescue first"
+		end
+	end
+	return nil
+end
+
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
 end

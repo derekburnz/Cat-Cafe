@@ -29,6 +29,7 @@ Remotes.ClientToServer = {
 	"ClaimOffline", -- ()
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
+	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
 }
 
 -- Server -> client.
@@ -44,6 +45,7 @@ Remotes.ServerToClient = {
 	-- pawsLeft is nil when this player cannot run out of paws on the stray (data-model section 10 step 5)
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, pawsLeft: number?,
 	-- charmGain: number)  grades up to and including the first Miss; the stray stays after a miss (v0.4)
+	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 }
 
 function Remotes.folder(): Folder

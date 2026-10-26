@@ -56,6 +56,7 @@ return function()
 		RemoteRateLimitPerSecond = 10,
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
+		TravelCooldownSeconds = 3, -- v0.4 (F19)
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 20, -- v0.4
 		StrayWanderRadius = 5,

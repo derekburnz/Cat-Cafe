@@ -43,7 +43,7 @@ Operating rules:
 
 ## 4. Analytics additions for these features
 
-In analytics-plan.md section 6.5 (v0.3, 2026-10-26): `code_redeemed`, `code_failed`, `regulars_claimed`, `daily_treat_claimed` (stamp and card, no streak field since the card no longer resets) and `request_completed`; Catnip is the `buff` field on `bait_rolled`. Code coins log as economy sources with transaction type `Promo`.
+In analytics-plan.md section 6.5 (v0.3, 2026-10-26): `code_redeemed`, `code_failed`, `regulars_claimed`, `daily_treat_claimed` (stamp and card, no streak field since the card no longer resets) and `request_completed`. Catnip affects only area wave spawns (data-model v0.3.1), so it has no field on `bait_rolled`. Code coins log as economy sources with transaction type `Promo`.
 
 ## 5. Two policy notes on neighbouring launch features
 

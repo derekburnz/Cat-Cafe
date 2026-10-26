@@ -115,9 +115,9 @@ Disclosure, every player:
 1. Food odds as percentages summing to 100%, opened from a control labelled "Odds" or "Details". Done in the design.
 2. Every outcome listed. A food's outcome is a cat, a variant and a charm, so the odds panel needs three lines, all independent of each other:
    - Cat: the rarity table plus the per-cat line. Done in the design.
-   - Shiny: "Each cat has a 2% chance to be shiny (earns 1.5x)." Not yet on the card; add it now.
-   - Charm: the star distribution, because charm changes what the cat earns (0.8x to 1.2x). From data-model section 4b (average of two uniform rolls, bands of 20), the exact shares are 1 star 7.84%, 2 stars 23.53%, 3 stars 35.67%, 4 stars 24.31%, 5 stars 8.65%. Shown to one decimal they sum to 100.0 if 5 stars is written as 8.7%; otherwise add the "rounded, may not total 100%" note. Not yet on the card; add it now.
-3. Any modifier that changes the roll shows its numeric effect before purchase and the live odds while active. Catnip already does both (common-features 14). If Catnip also shifts bait rolls, not only area spawns, the food cards must show the boosted odds while it runs; the designer should say which it does. A tier up changes the per-cat split, which the card already states.
+   - Shiny: "Each cat has a 2% chance to be shiny (earns 1.5x)." On every shop and dealer food card since data-model v0.3.1.
+   - Charm: the star distribution, because charm changes what the cat earns (0.8x to 1.2x). From data-model section 4b (average of two uniform rolls, bands of 20), the exact shares are 1 star 7.84%, 2 stars 23.53%, 3 stars 35.67%, 4 stars 24.31%, 5 stars 8.65%. Shown to one decimal they sum to 100.0 if 5 stars is written as 8.7%; otherwise add the "rounded, may not total 100%" note. On every food card since data-model v0.3.1.
+3. Any modifier that changes the roll shows its numeric effect before purchase and the live odds while active. Catnip already does both (common-features 14), and it shifts only wave spawn rolls in the areas, never bait or dealer rolls (data-model v0.3.1), so food card odds never change while it runs. A tier up changes the per-cat split, which the card already states.
 4. Delivery guaranteed. Done (section 7.1). Keep it a rule: food-born cats never enter carry, so bumps never touch them.
 5. Duplicates are still an outcome with benefit (they sell for 25 to 12,000).
 
@@ -138,9 +138,9 @@ Pricing and safety:
 Paperwork and audit:
 14. Answer yes to paid random items on the content maturity questionnaire and describe the PolicyService handling; the Minimal label is still reachable.
 15. Test both flags with the Studio Player Emulator before publishing.
-16. `bait_rolled` (analytics-plan.md 6.1) records food, rolled rarity and buff, so card odds can be audited against results; target within 2 points.
+16. `bait_rolled` (analytics-plan.md 6.1) records food, rolled rarity and source, so card odds can be audited against results; target within 2 points.
 
-Cost of option B on top of the current design: S. The two card lines in point 2 and the dealer weights table in point 8 are worth adding in the slice because they cost almost nothing and remove the last open items.
+Cost of option B on top of the current design: S. The shiny and charm card lines are in the design since v0.3.1; the dealer weights table in point 8 is the last cheap item worth adding in the slice.
 
 ## 8. Creator Rewards fit
 
@@ -155,7 +155,7 @@ Cost of option B on top of the current design: S. The two card lines in point 2 
 - [ ] Private servers set to free.
 - [ ] Content maturity questionnaire answered: Minimal target; paid random items "no" under option A, "yes" with the handling described under option B.
 - [ ] PolicyService call and cache in place; no gate on food.
-- [ ] Food cards show the rarity table, the per-cat line, the shiny line and the charm stars; the dealer Details panel shows the tier's slot weights.
+- [ ] Food cards show the rarity table, the per-cat line, the shiny line and the charm stars (in the design since v0.3.1); the dealer Details panel shows the tier's slot weights.
 - [ ] robux_purchase funnel verified in View Events.
 - [ ] docs/decisions.md entry recorded.
 

@@ -152,7 +152,7 @@ Values are counts unless noted. Never log a cat's player-given name, a username 
 | cat_caught | 1 | cat_id, method (net, rescue, bait, net_dropped), variant (base, shiny) | A cat joins the player: CheckIn, or ResolveBait tame | Which cats players get and how. Area and rarity come from cat_id in the catalog. |
 | catch_circles | catch chance as a whole percent | rarity, net_level (0 to 3), perfect_count (0 to 5) | After the last circle of every net attempt, success or fail | Net fairness: average chance by rarity and net level. Feel target: Common on a Basic Net mostly caught. |
 | rescue_attempt | 1 | trap (trash_bin, garbage_bag, tree, trashcan, ...), rarity, result (freed, out_of_paws, cancelled, missed_catch) | RescueResult with done true, or RescueCancel | Which traps are too hard on touch |
-| bait_rolled | 1 | lure_id, rarity, buff (none, catnip) | UseLure rolls the cat | Odds audit: results against the food card, base and boosted separately (monetization.md section 7) |
+| bait_rolled | 1 | lure_id, rarity, source (shop, dealer) | UseLure rolls the cat | Odds audit: results against the food card (monetization.md section 7). Catnip never touches bait rolls (data-model v0.3.1), so food odds are fixed. |
 | bait_resolved | 1 | lure_id, rarity, choice (tame, letgo) | ResolveBait | Let-go rate by food and rarity |
 | shiny_found | 1 | method (net, rescue, bait), rarity, first_of_cat (yes, no) | A shiny joins the player | Shiny rate against 2%, 2%, 10% |
 

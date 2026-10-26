@@ -14,6 +14,8 @@ Scope: PR #3 `engineer/review-fixes` (c535c36, base `lead/repo-docs-and-ci`) aga
 
 The PR author and the reviewer post from the same GitHub account, so GitHub will not accept a formal approve or request-changes review. The verdicts here and in the PR comments are the record.
 
+**Update 12:00 UTC:** PR #3's gate went green at 6a8a5ba and the lead fast-forwarded its base onto it, so PR #3 is inside PR #1 (green, waiting on Derek). PR #4 and PR #5 merged that head and are green. Details in the follow-up at the end.
+
 ## PR #3: first-pass items
 
 | Item | Status | Evidence |
@@ -82,3 +84,20 @@ S12 above applies here too: the `PromptButtonHoldEnded` path still fires `grabEn
 - N8 (panel sizing): UI thread left it for the on-device pass.
 
 Done gate as of this review: rojo sourcemap passes in CI; luau-lsp 20 errors (blocker, PR #3); selene and StyLua pass locally and have not yet run in CI; cloudcheck green; Studio playtest pending on Derek's PC.
+
+## Follow-up 12:00 UTC
+
+- **PR #3 gate: green at 6a8a5ba.** Commits 82f8566 and 6a8a5ba verified: optional annotations on the indexed Instance locals, the pcall wrappers in `DataService`, `Types.Rarity` on `Catalog.rarityOrder` and the `pickRarity` loop, `RingResult?` on the ring local, the `string?` carrying map, the `decorPlaced` assignment split, and two branch reorderings in `refreshDecor` and `refreshTables` that I checked case by case against the old conditions (same behaviour in all four cases each). `onUseLure` now destroys `active.bowl` instead of the captured local, the safer reference. Selene: the 11 refinement asserts got messages. The lead fast-forwarded `lead/repo-docs-and-ci` to 6a8a5ba, so PR #3's content is in PR #1, which is green on both jobs and waits on Derek. Ownership note: the assert messages and the dropped `catalog` local are in `src/client/UI/`, the UI thread's folder; PR #5 made the same `catalog` change independently and the merge was clean, so no harm done, but CLAUDE.md asks for a decisions.md note for edits outside your folder.
+- **PR #4 at 2483a19** (engineer's head merged in): S13 closed by wording in data-model 4b and the `grantPlacedXp` comment (only settled online time earns XP, no offline grant). S14 closed: `EquipBest = RateLimiter.new(1, 2)` in `Net.luau` `slowLimiters`, recorded in the remotes table of data-model section 15. N14 closed: cast dropped, guards kept. 913243e drops a redundant nil check in `plan`. CI green on both jobs. S15 (the `decisions.md` append) still applies against PR #5.
+- **PR #5 at 546f481** (engineer's head merged in): CI green on both jobs. S12 still open (Studio check in PR #3's test plan step 1, now PR #1's).
+- **Gate rule from the lead:** CI's luau-lsp count is the number; cloudcheck is a pre-check that misses Instance-versus-nil comparisons, pcall return counts and singleton narrowing. The lead's thread has the real luau-lsp 1.70.0, rojo, selene and stylua binaries for a pre-push count.
+
+| Item | Status |
+|---|---|
+| S12 completed-hold event order | Open, needs the Studio check |
+| S13 offline XP wording | Closed in PR #4 |
+| S14 EquipBest bucket | Closed in PR #4 |
+| S15 decisions.md conflict | Open until the second of PR #4 and PR #5 merges |
+| N11, N12, N13 | Open nits, engineer's call |
+| N14 renovations cast | Closed in PR #4 |
+| N15 catViews allocation | Noted |

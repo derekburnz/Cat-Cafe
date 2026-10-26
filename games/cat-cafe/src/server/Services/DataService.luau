@@ -94,7 +94,7 @@ local function load(player: Player)
 			)
 		)
 		profileStore:EndSession()
-		player:Kick("Purr Pot was updated. Please rejoin to play the newest version.")
+		player:Kick("The game just updated, please rejoin.")
 		return
 	end
 

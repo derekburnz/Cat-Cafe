@@ -34,6 +34,7 @@ The private repo https://github.com/derekburnz/purr-pot (created 2026-10-25, sca
 | **UI** | ui-designer (Opus) | concept-visuals, luau-conventions (UI section), monetization-policy (odds UI) | HTML/SVG mockups, Studio MCP device emulator screenshots, check gate | GDD, style guide, controller interfaces | assets/cat-cafe/ui/*.html, games/cat-cafe/src/client/UI/, docs/concepts/cat-cafe/ |
 | **QA** | qa-playtester (Sonnet; Opus for hard bugs) | playtest-report | Studio MCP playtest tools (start_stop_play, character_navigation, inputs, console, screenshots, subagent playtest), Google Sheets export of the feedback form | engineer test notes, reviewer test line, friends' form responses | docs/playtests/<date>.md |
 | **Growth** | growth-analyst (Opus) | monetization-policy, devlog (metrics section) | web search, Roblox Creator docs, later Roblox analytics dashboard and Creator Rewards page | GDD, playtest results | docs/growth/{comps,analytics-plan,monetization,store-page,launch-plan}.md |
+| **Sound and music** (added 2026-10-26) | sound-designer (Opus) | audio-pipeline, roblox-audio, find-resources (Creator Store search, license gate, credits), monetization-policy (purchase sounds) | Studio MCP search_asset (Audio) and playtests, ffmpeg for the audio gate, Creator Dashboard or Open Cloud upload on Derek's PC | GDD, Config timings, style guide mood, moments from the engineer | docs/audio/cat-cafe/sound-list.md, assets/cat-cafe/audio/, games/cat-cafe/src/client/Audio/ |
 
 Third-party skills per role (added 2026-10-26, details in `.claude/skills/THIRD_PARTY.md`): engineer and reviewer read `roblox-dev-skill` (plus `roblox-audio`, `roblox-characters-animation`) and verify APIs with the `roblox_docs` MCP; the asset-artist uses `blender-core`, `blender-asset-qa`, `blender-export-pipelines`, `blender-game-optimization`, `blender-retopology-uv`, `blender-to-roblox` and `find-resources`; QA uses `roblox-mobile-playtest` and `roblox-testing`; growth and the designer use `roblox-publishing-discovery`, `roblox-release-operations` and `roblox-policy-compliance`; the lead runs `/roblox-doctor` for setup checks.
 
@@ -66,6 +67,8 @@ Third-party skills per role (added 2026-10-26, details in `.claude/skills/THIRD_
 - QA -> everyone: ranked tickets with owners in `docs/playtests/<date>.md`.
 - growth -> designer and engineer: analytics event table, monetization table; -> ui-designer and artist: store page brief.
 - lead -> Derek: decisions to confirm, devlog entry, resume bullet.
+- designer -> sound-designer: the clock, catch timings and moments that need sound (gdd.md, Config.luau); engineer -> sound-designer: moments fired from `src/client/Moments.luau` (proposed, shared with the vfx-animator).
+- sound-designer -> engineer and ui-designer: cue ids per moment (sound-list.md sections 5 and 6), never asset ids; -> reviewer: `src/client/Audio/` Luau, same handoff as the engineer; -> QA: the listening list (sound-list.md section 8); -> Derek: what to listen to and which files to upload.
 
 ## 6. Threads running now (2026-10-25)
 | Thread | Role | First deliverable |
@@ -111,5 +114,6 @@ Fable burns the shared usage pool fastest, so it goes where a wrong call costs t
 | Find Roblox dev skills and tools | Sonnet or Haiku | Search and inventory, no judgment calls. |
 | Set up purr-pot repo on desktop (remote control) | Sonnet | Terminal chores on Derek's PC. |
 | Coordinator (project chat) | Opus | Routing and summaries; nothing it decides needs Fable. |
+| Make cat cafe sound and music (sound-designer) | Opus; Sonnet for logging and renames | Sourcing, cue planning and a small client module; the music direction is already in the sound list, and Derek's ear makes the final call. |
 
 Rule of thumb: one Fable pass writes the decision into a doc (GDD, review, decisions.md), then an Opus thread builds from the doc. On Derek's PC the `.claude/agents/*.md` files already pin these models; `game-designer` uses `inherit`, so start design sessions with `/model fable`.

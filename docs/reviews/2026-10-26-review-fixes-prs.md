@@ -101,3 +101,14 @@ Done gate as of this review: rojo sourcemap passes in CI; luau-lsp 20 errors (bl
 | N11, N12, N13 | Open nits, engineer's call |
 | N14 renovations cast | Closed in PR #4 |
 | N15 catViews allocation | Noted |
+
+## Follow-up 12:05 UTC: PR #7 (engineer/review-followups, d07bc45)
+
+Sound, no blockers; CI green on both jobs. S12 closed: `UIController` records the engine's own `PromptTriggered` per stray (from the prompt's `StrayId` attribute, set by the server) and decides the GrabEnd in `task.defer` one frame later, so the full-hold case is caught whichever order HoldEnded and Triggered fire in; the clock test stays as a fallback and an honest release at 1.49 s goes up one frame late, inside the grace. N11 removed (`lockExpired` is still used by the spawn loop and `onGrabBegin`), N12 renamed. Nit: with PR #5's UI a full hold fires no `grabEnded`, so the two per-stray maps keep an entry until the next hold on that stray; a delayed cleanup in the `PromptTriggered` handler would keep them empty. N13 stays the designer's call. The Studio test plan on the PR (hold to the end with a print in `onGrabEnd`) remains the final proof.
+
+| Item | Status |
+|---|---|
+| S12 | Closed in PR #7, Studio test still worth running |
+| N11, N12 | Closed in PR #7 |
+| N13 | Open, designer |
+| S15 | Open until the second of PR #4 and PR #5 merges |

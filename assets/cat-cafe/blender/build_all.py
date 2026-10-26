@@ -58,6 +58,8 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_BowTie": "attachment point (see attach)",
     "CatCafe_Accessory_Apron": "attachment point (see attach)",
     "CatCafe_Accessory_Hat": "attachment point (see attach)",
+    "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
+    "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
@@ -146,15 +148,27 @@ def main():
             spec = cats.ROSTER[name.split("_")[-1]]
             entry["rarity"] = spec["rarity"]
             s_ = spec.get("scale", 1.0)
+            entry["scale"] = s_                     # scale accessories by this too
             joints = {"Head": [v * s_ for v in cats.NECK], "Tail": [v * s_ for v in cats.TAIL_ROOT]}
             entry["joints"] = {k: [round(v, 2) for v in j] for k, j in joints.items()}
             entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items()}
             entry["attachments"] = {k: {"part": p, "offset": [round(v * s_, 2) for v in o],
                                         "offset_roblox": common.to_roblox([v * s_ for v in o])}
-                                    for k, (p, o) in accessories.ATTACH.items()}
+                                    for k, (p, o, r) in accessories.attach_for(spec).items()}
+            entry["uniform_attachments"] = {k: {"part": p, "offset": [round(v * s_, 2) for v in o],
+                                                "offset_roblox": common.to_roblox([v * s_ for v in o]),
+                                                "angles_roblox_deg": common.euler_to_roblox(r)}
+                                            for k, (p, o, r) in accessories.attach_for(spec, upright=True).items()
+                                            if k in accessories.ROLE_UNIFORMS.values()}
         if name.startswith("CatCafe_Accessory_"):
-            part, off = accessories.ATTACH[name.split("_")[-1]]
-            entry["attach"] = {"part": part, "offset": list(off), "offset_roblox": common.to_roblox(off)}
+            n = name.split("_")[-1]
+            if n in accessories.ATTACH:
+                part, off = accessories.ATTACH[n]
+                entry["attach"] = {"part": part, "offset": list(off), "offset_roblox": common.to_roblox(off)}
+            if n in accessories.ATTACH_UPRIGHT:
+                part, off, r = accessories.ATTACH_UPRIGHT[n]
+                entry["attach_upright"] = {"part": part, "offset": list(off), "offset_roblox": common.to_roblox(off),
+                                           "angles_roblox_deg": common.euler_to_roblox(r)}
         if name in poses.STUCK_POSES:
             entry["stuck_pose"] = poses.manifest_pose(poses.STUCK_POSES[name])
         if name in STUDIO_NOTES:
@@ -201,8 +215,9 @@ def main():
     with open(mpath, "w") as f:
         json.dump({"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "units": "studs",
                    "palette": os.path.relpath(png, ROOT),
-                   "pose_convention": poses.__doc__.strip().splitlines()[-4:],
+                   "pose_convention": poses.__doc__.strip().splitlines()[-5:],
                    "poses": {k: poses.manifest_pose(v) for k, v in poses.POSES.items()},
+                   "role_uniforms": accessories.ROLE_UNIFORMS,
                    "upright_attachments": {k: {"part": p, "offset": list(o), "rotation_xyz_deg": list(r),
                                                "offset_roblox": common.to_roblox(o),
                                                "angles_roblox_deg": common.euler_to_roblox(r)}

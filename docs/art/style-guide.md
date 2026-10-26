@@ -103,7 +103,13 @@ Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex val
 | 54 | sparkle | #FFF4B0 | Legendary sparkles, star specks |
 | 55 | galaxy_blue | #3B4C8C | Galaxy cat base |
 
-Row 7 (56 to 63) is spare. Add new colors there and record them here before using them.
+Row 7, v0.3 additions (2026-10-26). 59 to 63 are still spare; add new colors there and record them here before using them.
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 56 | rarity_mythic | #FF5E7E | Mythical collars (data-model section 2 color) |
+| 57 | fur_blue | #9AA9C2 | Blue's silver-blue coat |
+| 58 | aurora_violet | #8E7CF0 | Aurora's middle band between galaxy_blue and mint |
 
 ## 3. Shape language
 
@@ -151,7 +157,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | category | budget per asset | notes |
 |---|---|---|
 | Cat (Body + Head + Tail) | 1,500 total | Body 900, Head 450, Tail 150 |
-| Accessory | 200 to 300 | glasses, bow tie, apron, hat |
+| Accessory | 200 to 300 | glasses, hat, and the role uniforms: apron, bow tie, sash, party hat |
 | Held tool (net) | 500 to 650 | per level |
 | Customer NPC | 1,000 | |
 | Hero furniture (Counter) | 3,000 | |
@@ -220,7 +226,7 @@ After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one
 
 ## 12. Poses
 
-The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each rescue prop (StuckTree, StuckBox, Drainpipe), with every value in both Blender and Roblox axes. Carried is relative to the HumanoidRootPart centre, which sits 3 studs above the floor on a default R15 character (`previews/Pose_Carried.png`). `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`. A pose can also move the Head joint by `head_offset_roblox`, given in the Body's own frame: upright moves it 0.32 studs, which seats the head on the collar so the raised front paws and the bow tie stay below the face. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
+The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each rescue prop (StuckTree, StuckBox, Drainpipe), with every value in both Blender and Roblox axes. Carried is relative to the HumanoidRootPart centre, which sits 3 studs above the floor on a default R15 character (`previews/Pose_Carried.png`). `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`. Working cats (v0.3 roles, data-model section 5) stand upright in their role's uniform: Apron for the barista, BowTie for the waiter, Sash for the greeter and PartyHat for the entertainer (`role_uniforms` in the manifest, `previews/Pose_Uniforms.png`). Each cat entry carries `uniform_attachments` (the upright slots, already scaled for that cat) and `scale`; scale the accessory itself by the cat's `scale` too, and multiply every pose position by it. A pose can also move the Head joint by `head_offset_roblox`, given in the Body's own frame: upright moves it 0.32 studs, which seats the head on the collar so the raised front paws and the bow tie stay below the face. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
 
 ## 13. Rules
 

@@ -83,7 +83,7 @@ def build_sheets(docs_dir, manifest):
         "sheet_items": [e for e in manifest if e["category"] in ("Item", "Accessory")],
     }
     extras = [os.path.join(docs_dir, "previews", n + ".png") for n in
-              ("CatCafe_Accessory_Set", "Pose_Upright", "Pose_Carried", "CatCafe_Alley_StuckTree", "CatCafe_Alley_StuckBox", "CatCafe_Alley_Drainpipe")]
+              ("CatCafe_Accessory_Set", "Pose_Upright", "Pose_Uniforms", "Pose_Carried", "CatCafe_Alley_StuckTree", "CatCafe_Alley_StuckBox", "CatCafe_Alley_Drainpipe")]
     extras = [p for p in extras if os.path.exists(p)]
     if extras:
         sheet(extras, os.path.join(docs_dir, "sheet_poses.png"), cols=3)

@@ -38,7 +38,7 @@ Creator Store audio used as it is has no file in the repo; its log row and the i
 ## 4. Sourcing and licenses
 In this order:
 1. **Roblox Creator Store audio.** Over 100,000 sound effects and music tracks from Roblox's audio partners, free in experiences, no upload needed. Search with Studio MCP `search_asset` (`scope: "creator_store"`, `assetType: "Audio"`, `priceFilter: "free"`, `verifiedCreatorsOnly: true`, `audioMinDuration`/`audioMaxDuration`) or `find-resources/scripts/search.sh --type sound` (or `music`). Licensed music is for use inside Roblox only: never in a trailer, devlog clip or any video off the platform. Take the audio id; never insert a Model only because it contains a sound.
-2. **Our own.** Record it (Derek's or friends' cats for meows and purrs, a cup, a bell; a phone in a quiet room is enough) or synthesize it (UI blips, coin chimes, timing ticks with an sfxr-style tool such as jsfxr or ChipTone). Fully original, no license questions.
+2. **Our own.** Record it (Derek's or friends' cats for meows and purrs, a cup, a bell; a phone in a quiet room is enough) or synthesize it (UI blips, coin chimes, timing ticks): add a builder to `assets/cat-cafe/audio/synth/synth.py` and rerun it, the way `build_all.py` makes the models, or use an sfxr-style tool such as jsfxr or ChipTone. Fully original, no license questions.
 3. **CC0.** Kenney audio packs, Freesound filtered to CC0. Log the page link anyway.
 4. **CC-BY.** Allowed with a credit in `CREDITS.md` and on the in-game credits screen; record the version (3.0 or 4.0).
 5. **Paid royalty-free** (a pack, a commissioned track): only with a license that allows commercial use in a game; log where the license or receipt lives.

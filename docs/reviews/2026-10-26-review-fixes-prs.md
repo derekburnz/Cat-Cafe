@@ -112,3 +112,7 @@ Sound, no blockers; CI green on both jobs. S12 closed: `UIController` records th
 | N11, N12 | Closed in PR #7 |
 | N13 | Open, designer |
 | S15 | Open until the second of PR #4 and PR #5 merges |
+
+## Follow-up 12:10 UTC: PR #5 commit a67ff9b (UI side of S12)
+
+Sound. `PromptButtonHoldEnded` now defers its decision one frame under a hold serial: if `PromptTriggered` closed the hold in between, or the ring loop already collapsed, the release counts as a full hold (miss flash, no `grabEnded`); otherwise `grabEnded` fires with the hint. Checked: the serial guard stops a deferred end from acting on a later hold; the "ring not ringing" test only holds after `expire()` or a hold that never started its ring, both correctly a full hold; the one-frame edge now errs toward "full hold" (a release inside the last 16 ms scores as a miss) instead of toward "perfect", which is the safer side for the economy. With PR #7's one-frame defer in the controller, an honest release reaches the server about 33 ms late, inside the grace at every band edge. The two guards (UI and controller) overlap; either alone would now hold, so one can go in a later tidy, not now. S12 is closed on both sides; the Studio hold-to-the-end test remains the proof.

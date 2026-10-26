@@ -3,7 +3,7 @@
 -- See docs/design/cat-cafe/ui-contract.md. The UI is a view: it renders the state it is given and raises
 -- events for what the player tapped. It never changes money or ownership and never fires remotes.
 --
---   local UI = require(path.to.UI)
+--   local UI = require(script.Parent.UI) -- from the client controller
 --   UI.init({ catalog = Catalog })
 --   UI.update(partialState)
 --   UI.events.buyUpgrade:Connect(function(upgradeId) Remotes.BuyUpgrade:FireServer(upgradeId) end)
@@ -48,7 +48,7 @@ UI.events = {
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
-	grabEnded = Signal.new(), -- (strayId, ringResult, catId)
+	grabEnded = Signal.new(), -- (strayId, ringHint, catId)  hint only: the server scores the hold time
 	screenOpened = Signal.new(), -- (name or nil)
 }
 
@@ -524,6 +524,7 @@ UI.catch = {}
 local activePrompt: ProximityPrompt? = nil
 local activeInfo: Types.CatchInfo? = nil
 local holdOpen = false
+local holdSerial = 0 -- bumps on every hold begin so a deferred hold end cannot act on a later hold
 local promptConnections: { RBXScriptConnection } = {}
 
 function UI.catch.show(info: Types.CatchInfo)
@@ -555,6 +556,13 @@ function UI.catch.stopRing(): Types.RingResult
 		return catch:stopRing()
 	end
 	return "miss"
+end
+
+-- The hold ran its full length with no release: miss flash, send nothing, wait for the server.
+function UI.catch.expire()
+	if catch then
+		catch:expire()
+	end
 end
 
 function UI.catch.setProgress(alpha: number)
@@ -638,7 +646,9 @@ local function finishHold(result: Types.RingResult)
 end
 
 -- Drives the prompt UI from every ProximityPrompt with Style = Custom and a CatId attribute
--- (on the prompt, its model, or its parent). Fires events.grabBegan / grabEnded with the ring result.
+-- (on the prompt, its model, or its parent). Fires events.grabBegan on hold begin and events.grabEnded
+-- on release with the ring hint. A hold that runs its full length fires nothing (data-model section 10):
+-- the server resolves it as a ring miss and the controller then calls catch.fail or showCatFound.
 function UI.catch.bindProximityPrompts()
 	if #promptConnections > 0 or not catch then
 		return
@@ -676,6 +686,7 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			holdOpen = true
+			holdSerial += 1
 			catchScreen:startRing({ duration = prompt.HoldDuration })
 			local info = activeInfo
 			UI.events.grabBegan:Fire(
@@ -690,17 +701,33 @@ function UI.catch.bindProximityPrompts()
 			if prompt ~= activePrompt then
 				return
 			end
-			finishHold(catchScreen:stopRing())
+			-- A full hold fires PromptTriggered and PromptButtonHoldEnded in the same frame, in either
+			-- order (reviewer S12). Decide one frame later: if PromptTriggered closed the hold, or the
+			-- ring already collapsed, the hold ran its full length and nothing is sent.
+			local serial = holdSerial
+			task.defer(function()
+				if not holdOpen or holdSerial ~= serial then
+					return
+				end
+				if not catchScreen:isRinging() then
+					holdOpen = false
+					catchScreen:expire()
+					return
+				end
+				finishHold(catchScreen:stopRing())
+			end)
 		end)
 	)
 	table.insert(
 		promptConnections,
 		ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
-			-- the hold ran the full duration: the ring collapsed, so this is a miss
+			-- the hold ran the full duration with no release. Send no GrabEnd: the server would score it
+			-- as a 1.5 s release. Close the hold, flash the miss and wait for the server's result.
 			if prompt ~= activePrompt then
 				return
 			end
-			finishHold(catchScreen:stopRing())
+			holdOpen = false
+			catchScreen:expire()
 		end)
 	)
 	-- mobile GRAB button drives the real prompt so the server sees an ordinary hold

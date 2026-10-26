@@ -16,6 +16,14 @@ local Config = {
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 
+	-- Cat stats (data-model section 4b)
+	CatMaxLevel = 10,
+	CatLevelBonus = 0.05, -- rate bonus per level above 1, so level 10 is 1.45x
+	CatXpBase = 60, -- XP (seconds placed) from level n to n + 1 is CatXpBase x n; level 10 after 45 min placed
+	CatXpPerSecondPlaced = 1, -- XP a placed cat earns per second (Economy.settle grants it)
+	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
+	RenovateBonus = 0.25, -- permanent tips bonus per Renovate (rebirth); the seam exists, the feature does not yet
+
 	-- Strays and catching (data-model sections 9 and 10)
 	SpawnIntervalSeconds = 20,
 	MaxStraysPerArea = 6,

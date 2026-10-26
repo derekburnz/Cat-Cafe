@@ -1,6 +1,7 @@
 # Cat Cafe UI contract
 
-Owner: UI thread ("Design cat cafe UI"). v2, updated 2026-10-26 (v1 was 2026-10-25).
+Owner: UI thread ("Design cat cafe UI"). v3, updated 2026-10-26 (v1 2026-10-25, v2 earlier on 2026-10-26).
+v3 changes: ring bands come from shared Config and a full hold sends no GrabEnd (designer, data-model section 10); catalog types are re-exported from shared Types so the controller passes the catalog with no cast (reviewer S9); `equipBest` event and per-cat stats (cat stats thread); mockup page built.
 Readers: engineer (client controller), designer (catalog fields), reviewer, QA.
 Code: `games/cat-cafe/src/client/UI/` (20 Luau files, StyLua-formatted to the repo's stylua.toml).
 Mockups: `docs/concepts/cat-cafe/ui/index.html`.
@@ -8,7 +9,7 @@ Mockups: `docs/concepts/cat-cafe/ui/index.html`.
 ## Ownership and file boundaries
 
 - The UI thread owns everything under `games/cat-cafe/src/client/UI/`. Nobody else edits there; ask the UI thread instead.
-- The UI requires nothing outside its own folder. It does not touch RemoteEvents, DataStores, workspace cats or player data.
+- Outside its own folder the UI requires only `ReplicatedStorage.Shared.Types` (type re-exports), `Shared.Config` (ring timing) and, in Demo only, `Shared.Catalog`. It does not touch RemoteEvents, DataStores, workspace cats or player data.
 - The engineer owns the client controller that requires `UI`, feeds it state, and forwards UI intents to the server over remotes.
 - Catalog data (cats, upgrades, decor, lures, spots) is passed in at `UI.init`. The UI hardcodes nothing about the game's content.
 - Field names match `src/shared/Types.luau` (engineer) and `data-model.md` (designer). Where the engineer's `PlayerState` has extras (`cats`, `collection`, `carrying`, `tutorialStep`), the UI reads them when present.
@@ -18,10 +19,10 @@ Mockups: `docs/concepts/cat-cafe/ui/index.html`.
 ```
 games/cat-cafe/src/client/UI/      -> StarterPlayer.StarterPlayerScripts.Client.UI  (ModuleScript via init.luau)
   init.luau          public API (everything below)
-  Types.luau         exported Luau types for catalog, state, events
+  Types.luau         Luau types for state and events; catalog types re-exported from src/shared/Types.luau
   Theme.luau         Cozy Cream tokens (final, Derek's pick), fonts, sizes, rarity colors
   Scale.luau         viewport-driven UIScale, touch detection
-  Demo.luau          fake catalog and pretend server: UI.demo() shows the whole UI in Studio with no backend
+  Demo.luau          the shared Catalog plus a pretend server: UI.demo() shows the whole UI in Studio with no backend
   Components/        Create, Button, Panel, Modal, Tween, Format, Signal, WorldMarker
   Screens/           HUD, UpgradeShop, DecorShop, CatCollection (Book + Cat room tabs), CatchPrompt (timing ring), Toasts, Popups
 ```
@@ -34,12 +35,12 @@ Pure Luau, no UI framework, no Wally packages. Instances are built in code (no .
 local UI = require(script.Parent.UI)
 
 UI.init({
-    catalog = {
-        cats = Catalog.Cats,          -- {CatDef}
-        upgrades = Catalog.Upgrades,  -- {UpgradeDef}
-        decor = Catalog.Decor,        -- {DecorDef}
-        lures = Catalog.Lures,        -- {LureDef} with odds
-        spots = Catalog.Spots,        -- {SpotDef}, needed by the cat room's Place picker
+    catalog = {                     -- the shared Catalog's own tables, no cast: UI.Types re-exports the shared types
+        cats = Catalog.cats,          -- {CatDef}
+        upgrades = Catalog.upgrades,  -- {UpgradeDef}
+        decor = Catalog.decor,        -- {DecorDef}
+        lures = Catalog.lures,        -- {LureDef} with odds
+        spots = Catalog.spots,        -- {SpotDef}, needed by the cat room's Place picker
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F lure picker, gamepad B closes (default true)
 })
@@ -52,7 +53,7 @@ UI.update({ cats = profile.cats, collection = profile.collection })   -- catsOwn
 UI.events.buyUpgrade:Connect(function(upgradeId) Remotes.BuyUpgrade:FireServer(upgradeId) end)
 UI.events.placeCat:Connect(function(uid, spotId) Remotes.PlaceCat:FireServer(uid, spotId) end)
 UI.events.grabBegan:Connect(function(strayId) Remotes.GrabBegin:FireServer(strayId) end)
-UI.events.grabEnded:Connect(function(strayId, ringResult) Remotes.GrabEnd:FireServer(strayId, ringResult) end)
+UI.events.grabEnded:Connect(function(strayId) Remotes.GrabEnd:FireServer(strayId) end)  -- the server scores the hold time itself
 
 -- catch flow: one call and every stray's custom ProximityPrompt is drawn by the UI
 UI.catch.bindProximityPrompts()
@@ -85,16 +86,17 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 
 | Function | Purpose |
 |---|---|
-| `bindProximityPrompts()` | Recommended. Watches `ProximityPromptService`. Any prompt with `Style = Custom` and a `CatId` attribute (on the prompt, its Model or its parent) gets the UI. Reads `StrayId`, `CatName`, `Rarity` the same way, falling back to the catalog by `CatId`. Hold begin starts the ring with the prompt's `HoldDuration`; hold end (or the hold running out) judges the ring and fires `events.grabEnded(strayId, ringResult, catId)` once. On touch, the big GRAB button calls `prompt:InputHoldBegin/End`, so the server sees an ordinary hold. |
+| `bindProximityPrompts()` | Recommended. Watches `ProximityPromptService`. Any prompt with `Style = Custom` and a `CatId` attribute (on the prompt, its Model or its parent) gets the UI. Reads `StrayId`, `CatName`, `Rarity`, `Stars`, `Charm` the same way, falling back to the catalog by `CatId`. Hold begin starts the ring with the prompt's `HoldDuration` and fires `events.grabBegan`. A release fires `events.grabEnded(strayId, ringHint, catId)` once. A hold that runs its full length fires nothing: the ring shows "Missed" and the UI waits for the controller's `catch.fail` or `showCatFound` (the server resolves the attempt itself about 0.25 s later). On touch, the big GRAB button calls `prompt:InputHoldBegin/End`, so the server sees an ordinary hold. |
 | `unbindProximityPrompts()` | Stop watching. |
-| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode? }`. |
-| `startRing(config?)` | `config = { duration?, goodBand?, perfectBand? }`. The outer ring shrinks from 1 to 0 over `duration` (default 1.5 s). Defaults: good band 0.26 to 0.48 of the ring, perfect 0.33 to 0.41. |
-| `stopRing()` | Returns `"perfect"`, `"good"` or `"miss"` from where the ring was, and shows the word. The server still decides the catch. |
+| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode?, stars?, charm? }`. |
+| `startRing(config?)` | `config = { duration?, goodBand?, perfectBand? }`. The outer ring shrinks from 1 to 0 over `duration` (default `Config.GrabHoldSeconds`, 1.5 s). The band is the end of the shrink: good is the last `Config.RingGoodWindow` s (0.80, ring scale 0 to 0.533), perfect the last `Config.RingPerfectWindow` s (0.30, scale 0 to 0.2). Pass bands only to experiment. |
+| `stopRing()` | Call on release. Shows "Perfect!", "Good" or "Too early" from where the ring was and returns `"perfect"`, `"good"` or `"miss"` as a hint. The server scores the real time between GrabBegin and GrabEnd (release 1.20 to 1.50 s perfect, 0.70 to 1.50 s good), so the hint decides nothing. |
+| `expire()` | Call when a manual hold runs its full length with no release. Miss flash, nothing sent. `bindProximityPrompts` does this itself on `PromptTriggered`. |
 | `fail(reason?, retry?)` | `retry = true` keeps the prompt open with "Missed, try again" (Commons, lured strays). Otherwise it flashes "It got away" and hides. |
 | `success(catId)` is not needed: call `UI.showCatFound` when CatCaught arrives. | |
 | `hide()` / `setProgress(alpha)` / `getActivePrompt()` | Utilities. |
 
-Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holding the whole duration triggers the prompt and counts as a miss ("Too late").
+Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holding the whole duration triggers the prompt: the UI shows "Missed", sends no GrabEnd (a GrabEnd then would score as a 1.5 s release) and waits for the server's result. The ring is a bonus, never a gate: a ring miss still rolls the catch chance.
 
 ## Events (UI -> game), all `Signal` with `:Connect(fn)` returning a connection with `:Disconnect()`
 
@@ -108,9 +110,10 @@ Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holdin
 | `placeCat` | `uid, spotId` | A free, open spot picked for a cat in the Cat room |
 | `unplaceCat` | `uid` | Rest pressed on a placed cat |
 | `sellCat` | `uid` | Sell confirmed. Rare and above ask twice: Sell turns into "Sell $150", Rest turns into an equal-sized Cancel. |
+| `equipBest` | none | "Equip best" pressed at the top of the Cat room: the server places the highest-rated cats on the open spots |
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `grabBegan` | `strayId, catId` | Hold began on a bound stray prompt |
-| `grabEnded` | `strayId, ringResult, catId` | Hold ended or ran out; `ringResult` is `perfect`, `good` or `miss` |
+| `grabEnded` | `strayId, ringHint, catId` | The player released during the hold. `ringHint` is the client's `perfect`, `good` or `miss` for feedback only; the server scores timing. Not fired when the hold runs out. |
 | `screenOpened` | `name or nil` | Modal opened or closed |
 
 ## State shape (`Types.PlayerState`)
@@ -127,21 +130,26 @@ Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holdin
     decorOwned: { [decorId]: boolean }, decorPlaced: { [decorId]: boolean },
     lures: { [lureId]: number }, equippedLure: string?,
     -- engineer extras the UI uses when present
-    cats: { [uid]: { uid, catId, variant?, caughtAt?, spotId? } },   -- enables the Cat room tab
+    cats: { [uid]: { uid, catId, variant?, caughtAt?, spotId?,       -- enables the Cat room tab
+                     level?, xp?, xpToNext?, charm?, stars?, rating? } }, -- cat stats thread; shown when present
     collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 12 count
     carrying: string?, tutorialStep: number?,
 }
 ```
 
-## Catalog shapes (`Types.*Def`, same names as the engineer's shared Types)
+## Catalog shapes (re-exported from `src/shared/Types.luau`)
+
+`UI.Types.CatDef`, `UpgradeDef`, `DecorDef`, `LureDef`, `SpotDef`, `LureOdds`, `Rarity`, `Area`, `SpotType` and `RingResult` are the shared types, so `Catalog.cats` and friends pass straight into `UI.init`. Fields the UI reads:
 
 ```lua
-CatDef     = { id, name, rarity, incomePerSecond, area?, favoriteSpot?, description?, imageId?, color? {r,g,b} }
-UpgradeDef = { id, name, description, maxLevel, costs {n}, startLevel?, requiresCafeLevel?, requiresCafeLevelAtLevel? { [level] = cafe } }
-DecorDef   = { id, name, cost, category, effect?, description?, requiresCafeLevel?, imageId? }
-LureDef    = { id, name, cost, attracts, description?, odds? { Common, Rare, Epic, Legendary } }  -- percentages, sum 100
-SpotDef    = { id, spotType, cafeLevel }
+CatDef     : id, name, rarity, incomePerSecond, area, favoriteSpot, description, color {r,g,b}  (placeholder body colour until renders exist)
+UpgradeDef : id, name, description, maxLevel, costs {n}, startLevel, requiresCafeLevel?, requiresCafeLevelAtLevel? { [level] = cafe }
+DecorDef   : id, name, cost, category, effect, description, requiresCafeLevel?   (asset is the 3D model; the card draws a lettered tile)
+LureDef    : id, name, cost, attracts, description, odds { Common, Rare, Epic, Legendary }  -- percentages, sum 100
+SpotDef    : id, spotType, cafeLevel
 ```
+
+`CatInstance`, `PlayerState` and `PartialState` stay the UI's own (optional fields for the cat stats extras); the controller passes `cats` with a cast because Luau table fields are invariant.
 
 `costs[n]` is the price of level n. Starting levels (`cafe_level` 1, `espresso` 1) mean `costs[1]` is never offered. Odds are printed on every lure row as "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.5% Legendary" and a labelled Details button expands the per-cat split per area, computed from the catalog (every cat of a rarity in an area has the same chance).
 
@@ -162,7 +170,8 @@ Odds visible before any purchase and the detail control is labelled "Details", n
 ## Names agreed
 
 - Screens: `Upgrades`, `Decor`, `Collection`. Rarities exactly: `Common`, `Rare`, `Epic`, `Legendary`, `Secret`.
-- Stray prompt attributes (on the model, data-model section 13): `StrayId`, `CatId`, `CatName`, `Rarity`; prompt `Style = Custom`.
+- Stray prompt attributes (on the model, data-model section 13): `StrayId`, `CatId`, `CatName`, `Rarity`, plus `Stars` and `Charm` from the cat stats thread; prompt `Style = Custom`.
+- Ring timing constants live only in `Shared.Config`: `GrabHoldSeconds`, `RingGoodWindow`, `RingPerfectWindow`. The UI derives its bands from them.
 - Currency is coins shown as `$` (`Theme.currencySymbol`).
 
 ## Not in scope for the UI thread, and space left for later
@@ -171,4 +180,8 @@ Remotes, validation, rate limits, data saving, cat AI, decor placement in the wo
 
 ## Check gate status
 
-StyLua: formatted and parse-clean (20 files). `luau-lsp analyze` and `selene` have not run yet: they need the Roblox type definitions, which this environment cannot download. First person to run `check.sh` or `check.ps1` on a PC, please send the UI thread the output.
+StyLua: formatted and parse-clean (20 files). QA's cloud checker (`tools/cloudcheck/analyze.mjs`, strict Luau with the Roblox definitions) reports 0 type errors under `src/client/UI`. `luau-lsp analyze` and `selene` with the real sourcemap have not run yet; first person to run `check.sh` or `check.ps1` on a PC, please send the UI thread the output.
+
+## Mockups
+
+`docs/concepts/cat-cafe/ui/index.html`: HUD at 1280x720, phone at 812x375 with the catch ring and GRAB button, carry banner, Upgrades, Decor, Collection (Book and Cat room tabs), lure picker with odds and Details, popups and toasts, tokens and rules. Built from the asset thread's cat renders.

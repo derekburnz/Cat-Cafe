@@ -1,13 +1,15 @@
 --!strict
--- Save data version 1 (data-model section 14): template, migration and sanitising. Pure.
+-- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
 local ProfileSchema = {}
 
-ProfileSchema.VERSION = 1
+-- Version 2 (2026-10-26) adds level, xp and charm per cat and the renovations counter.
+ProfileSchema.VERSION = 2
 
 local function asNumber(value: any, default: number): number
 	if type(value) == "number" and value == value and value >= 0 and value < math.huge then
@@ -26,6 +28,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 	for _, def in Catalog.upgrades do
 		levels[def.id] = def.startLevel
 	end
+	-- The starter has neutral charm (50) so every new cafe earns the same 1.5 per second.
+	local starter = CatStats.newInstance("starter_tabby", "tabby", now)
+	starter.spotId = "counter_1"
 	return {
 		version = ProfileSchema.VERSION,
 		coins = Config.StartCoins,
@@ -39,13 +44,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lures = {},
 		equippedLure = nil,
 		cats = {
-			starter_tabby = {
-				uid = "starter_tabby",
-				catId = "tabby",
-				variant = "base",
-				caughtAt = now,
-				spotId = "counter_1",
-			},
+			starter_tabby = starter,
 		},
 		collection = { tabby = now },
 		stats = {
@@ -59,6 +58,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		},
 		tutorialStep = 0,
 		settings = { music = true, sfx = true },
+		renovations = 0,
 	}
 end
 
@@ -76,6 +76,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.lastSeen = asInt(raw.lastSeen, now)
 	profile.rateAtLogout = asNumber(raw.rateAtLogout, 0)
 	profile.tutorialStep = math.clamp(asInt(raw.tutorialStep, 0), 0, 4)
+	profile.renovations = asInt(raw.renovations, 0)
 
 	if type(raw.upgradeLevels) == "table" then
 		for id, lvl in raw.upgradeLevels do
@@ -141,6 +142,18 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 					variant = if type(entry.variant) == "string" then entry.variant else "base",
 					caughtAt = asInt(entry.caughtAt, now),
 					spotId = spotId,
+					-- Version 1 cats had no stats: they become level 1 with neutral charm (a 1.0x rate).
+					level = math.clamp(
+						asInt(entry.level, CatStats.MIN_LEVEL),
+						CatStats.MIN_LEVEL,
+						Config.CatMaxLevel
+					),
+					xp = asInt(entry.xp, 0),
+					charm = math.clamp(
+						asInt(entry.charm, CatStats.DEFAULT_CHARM),
+						CatStats.MIN_CHARM,
+						CatStats.MAX_CHARM
+					),
 				}
 			end
 		end

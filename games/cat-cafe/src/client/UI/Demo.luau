@@ -1,8 +1,12 @@
 --!strict
--- Fake catalog (data-model.md v0.1) and a pretend server, so the UI runs in Studio with no backend.
--- Usage from any LocalScript:  require(path.to.UI).demo()
+-- The shared catalog plus a pretend server, so the UI runs in Studio with no backend.
+-- Usage from any LocalScript: require the UI module and call UI.demo()
 -- Everything here is client-side pretend money. Delete or leave unused in production.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Catalog = require(Shared:WaitForChild("Catalog"))
 local Types = require(script.Parent.Types)
 
 local Demo = {}
@@ -11,243 +15,13 @@ local function now(): number
 	return os.time()
 end
 
+-- The real catalog (src/shared/Catalog.luau), so the demo shows the slice's actual cats and prices.
 local CATALOG: Types.Catalog = {
-	cats = {
-		{
-			id = "tabby",
-			name = "Tabby",
-			rarity = "Common",
-			incomePerSecond = 1,
-			area = "both",
-			favoriteSpot = "counter",
-			description = "The starter. Stripes, snacks, naps.",
-			color = { 233, 162, 75 },
-		},
-		{
-			id = "tuxedo",
-			name = "Tuxedo",
-			rarity = "Common",
-			incomePerSecond = 1,
-			area = "both",
-			favoriteSpot = "window",
-			description = "Dressed for dinner, waiting for it.",
-			color = { 43, 43, 53 },
-		},
-		{
-			id = "ginger",
-			name = "Ginger",
-			rarity = "Common",
-			incomePerSecond = 1,
-			area = "both",
-			favoriteSpot = "cushion",
-			description = "Warm, round, always in the sun.",
-			color = { 217, 123, 75 },
-		},
-		{
-			id = "smoke",
-			name = "Smoke",
-			rarity = "Common",
-			incomePerSecond = 1,
-			area = "both",
-			favoriteSpot = "shelf",
-			description = "Grey as a rainy morning.",
-			color = { 138, 143, 153 },
-		},
-		{
-			id = "snow",
-			name = "Snow",
-			rarity = "Common",
-			incomePerSecond = 1,
-			area = "both",
-			favoriteSpot = "window",
-			description = "All white, hates the alley puddles.",
-			color = { 247, 241, 230 },
-		},
-		{
-			id = "calico",
-			name = "Calico",
-			rarity = "Rare",
-			incomePerSecond = 3,
-			area = "both",
-			favoriteSpot = "cushion",
-			description = "Three colors, three opinions.",
-			color = { 240, 200, 150 },
-		},
-		{
-			id = "siamese",
-			name = "Siamese",
-			rarity = "Rare",
-			incomePerSecond = 3,
-			area = "both",
-			favoriteSpot = "counter",
-			description = "Loud. Supervises the espresso machine.",
-			color = { 232, 214, 186 },
-		},
-		{
-			id = "tortie",
-			name = "Tortie",
-			rarity = "Rare",
-			incomePerSecond = 3,
-			area = "park",
-			favoriteSpot = "shelf",
-			description = "Brindled and bossy.",
-			color = { 120, 80, 50 },
-		},
-		{
-			id = "bengal",
-			name = "Bengal",
-			rarity = "Rare",
-			incomePerSecond = 3,
-			area = "park",
-			favoriteSpot = "cattree",
-			description = "Spotted and fast. Climbs everything.",
-			color = { 214, 150, 80 },
-		},
-		{
-			id = "sphynx",
-			name = "Sphynx",
-			rarity = "Epic",
-			incomePerSecond = 8,
-			area = "both",
-			favoriteSpot = "cushion",
-			description = "No fur, all attitude. Loves the warm cushion.",
-			color = { 232, 160, 160 },
-		},
-		{
-			id = "ragdoll",
-			name = "Ragdoll",
-			rarity = "Epic",
-			incomePerSecond = 8,
-			area = "park",
-			favoriteSpot = "cattree",
-			description = "Huge, fluffy, goes limp when carried.",
-			color = { 225, 225, 232 },
-		},
-		{
-			id = "void",
-			name = "Void",
-			rarity = "Legendary",
-			incomePerSecond = 25,
-			area = "both",
-			favoriteSpot = "shelf",
-			description = "Pure black with glowing eyes. Appears when you stop looking.",
-			color = { 25, 22, 30 },
-		},
-	},
-	upgrades = {
-		{
-			id = "cafe_level",
-			name = "Cafe level",
-			description = "Opens new cat spots and unlocks more of the shop",
-			maxLevel = 5,
-			costs = { 0, 250, 800, 2500, 8000 },
-			startLevel = 1,
-		},
-		{
-			id = "tables",
-			name = "Tables",
-			description = "Each table seats two more customers and adds tips",
-			maxLevel = 6,
-			costs = { 100, 250, 600, 1500, 3500, 8000 },
-			startLevel = 0,
-		},
-		{
-			id = "espresso",
-			name = "Espresso machine",
-			description = "Better coffee, bigger tips from every cat",
-			maxLevel = 3,
-			costs = { 0, 300, 1200 },
-			startLevel = 1,
-			requiresCafeLevelAtLevel = { [3] = 3 },
-		},
-		{
-			id = "gloves",
-			name = "Catching gloves",
-			description = "Steadier hands: better odds on every grab",
-			maxLevel = 3,
-			costs = { 500, 2500, 10000 },
-			startLevel = 0,
-		},
-		{
-			id = "lure_bowl",
-			name = "Lure bowl",
-			description = "Unlocks luring with food at lure spots",
-			maxLevel = 1,
-			costs = { 400 },
-			startLevel = 0,
-			requiresCafeLevel = 2,
-		},
-		{
-			id = "park_access",
-			name = "Park pass",
-			description = "Opens the park, where rarer cats roam",
-			maxLevel = 1,
-			costs = { 1000 },
-			startLevel = 0,
-			requiresCafeLevel = 3,
-		},
-	},
-	decor = {
-		{
-			id = "plants",
-			name = "Window plants",
-			cost = 150,
-			category = "Plants",
-			effect = "+5% tips",
-		},
-		{ id = "rug", name = "Cozy rug", cost = 400, category = "Floor", effect = "+5% tips" },
-		{
-			id = "neon_sign",
-			name = "Neon cat sign",
-			cost = 1500,
-			category = "Wall",
-			effect = "+10% tips",
-			requiresCafeLevel = 4,
-		},
-		{
-			id = "fish_tank",
-			name = "Fish tank",
-			cost = 5000,
-			category = "Furniture",
-			effect = "+10% tips, cats stare at it",
-			requiresCafeLevel = 4,
-		},
-	},
-	lures = {
-		{
-			id = "kibble",
-			name = "Kibble",
-			cost = 25,
-			attracts = "Common",
-			description = "Cheap and crunchy. Brings the regulars.",
-			odds = { Common = 70, Rare = 26, Epic = 3.5, Legendary = 0.5 },
-		},
-		{
-			id = "tuna",
-			name = "Tuna",
-			cost = 100,
-			attracts = "Rare",
-			description = "The good stuff. Rare cats come running.",
-			odds = { Common = 45, Rare = 42, Epic = 11, Legendary = 2 },
-		},
-		{
-			id = "salmon",
-			name = "Salmon",
-			cost = 500,
-			attracts = "Epic",
-			description = "Nobody can resist it, not even the Void.",
-			odds = { Common = 15, Rare = 50, Epic = 28, Legendary = 7 },
-		},
-	},
-	spots = {
-		{ id = "counter_1", spotType = "counter", cafeLevel = 1 },
-		{ id = "window_1", spotType = "window", cafeLevel = 1 },
-		{ id = "cushion_1", spotType = "cushion", cafeLevel = 2 },
-		{ id = "shelf_1", spotType = "shelf", cafeLevel = 3 },
-		{ id = "cattree_1", spotType = "cattree", cafeLevel = 4 },
-		{ id = "patio_1", spotType = "patio", cafeLevel = 5 },
-		{ id = "patio_2", spotType = "patio", cafeLevel = 5 },
-	},
+	cats = Catalog.cats,
+	upgrades = Catalog.upgrades,
+	decor = Catalog.decor,
+	lures = Catalog.lures,
+	spots = Catalog.spots,
 }
 
 local DECOR_BONUS: { [string]: number } =
@@ -436,7 +210,8 @@ function Demo.run(UI: any): () -> ()
 	end)
 	connections[#connections + 1] = UI.events.grabEnded:Connect(
 		function(_strayId: string?, result: string)
-			UI.toast("Ring result: " .. result, "info")
+			-- a real server scores the hold time itself; this is only the client's hint
+			UI.toast("Ring hint: " .. result .. " (the server scores the real timing)", "info")
 		end
 	)
 

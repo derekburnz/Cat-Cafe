@@ -3,6 +3,7 @@
 -- predicts the coin counter between syncs, and drives the catch prompt, carry marker and tutorial hints.
 
 local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -152,28 +153,54 @@ local function wireIntents()
 	UI.events.sellCat:Connect(function(uid: string)
 		Net.fire("SellCat", uid)
 	end)
+	-- Equip best button on the cat room tab (UI thread). Looked up loosely so an older UI build without the
+	-- signal still loads; the server validates the request like any other.
+	local equipBest = (UI.events :: any).equipBest
+	if equipBest ~= nil then
+		equipBest:Connect(function()
+			Net.fire("EquipBest")
+		end)
+	end
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)
 	local grabStartedAt: { [string]: number } = {}
+	local grabCompleted: { [string]: boolean } = {}
+	-- The engine fires PromptTriggered when a hold runs its full duration; that is the authoritative
+	-- "completed hold" signal, independent of our clock and of the order it fires in relative to HoldEnded.
+	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
+		local strayId = prompt:GetAttribute("StrayId")
+		if type(strayId) == "string" then
+			grabCompleted[strayId] = true
+		end
+	end)
 	UI.events.grabBegan:Connect(function(strayId: string?)
 		if strayId ~= nil then
 			grabStartedAt[strayId] = os.clock()
+			grabCompleted[strayId] = nil
 			Net.fire("GrabBegin", strayId)
 		end
 	end)
 	-- The server scores the ring from its own clock, so only the stray id goes up. A hold that ran the full
 	-- duration sends nothing: the server resolves it as a ring miss by itself (data-model section 10).
+	-- The decision waits one frame so a PromptTriggered fired in the same frame as the hold's end is seen
+	-- whichever order the two signals arrive in; 16 ms sits well inside RingLatencyGraceSeconds.
 	UI.events.grabEnded:Connect(function(strayId: string?, _result: Types.RingResult)
 		if strayId == nil then
 			return
 		end
 		local startedAt = grabStartedAt[strayId]
 		grabStartedAt[strayId] = nil
-		if startedAt ~= nil and os.clock() - startedAt >= Config.GrabHoldSeconds then
-			return
-		end
-		Net.fire("GrabEnd", strayId)
+		task.defer(function()
+			local completed = grabCompleted[strayId] == true
+			grabCompleted[strayId] = nil
+			if
+				completed or (startedAt ~= nil and os.clock() - startedAt >= Config.GrabHoldSeconds)
+			then
+				return
+			end
+			Net.fire("GrabEnd", strayId)
+		end)
 	end)
 end
 

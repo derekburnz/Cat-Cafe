@@ -1,15 +1,23 @@
 --!strict
 -- Grab prompt with the timing ring.
 --   show(info)          "Hold [E] to grab" card at the bottom centre with the cat's name and rarity.
---   startRing(config)   the outer ring shrinks onto the target band; call on hold begin.
---   stopRing()          returns "perfect" | "good" | "miss" from where the ring was; call on hold end.
+--   startRing(config)   the outer ring shrinks to the centre over the hold; call on hold begin.
+--   stopRing()          shows "Perfect!" / "Good" / "Too early" from where the ring was and returns it.
+--                       A hint only: the server scores the real time between GrabBegin and GrabEnd.
+--   expire()            the hold ran its full length with no release: miss flash, then wait for the server.
 --   fail(reason)        red flash ("It got away"), then hide.
 --   hide()
+-- Band sizes come from shared Config (data-model section 10). The ring shrinks over GrabHoldSeconds and
+-- the band is the end of the shrink: good = the last RingGoodWindow s (0.80), perfect = the last
+-- RingPerfectWindow s (0.30). So a release 0.70 to 1.50 s into the hold is good, 1.20 to 1.50 s perfect.
 -- On touch devices a big round GRAB button appears; holding it fires holdBegan / holdEnded.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Scale = require(script.Parent.Parent.Scale)
@@ -25,6 +33,7 @@ export type CatchPrompt = {
 	show: (self: CatchPrompt, info: Types.CatchInfo) -> (),
 	startRing: (self: CatchPrompt, config: Types.RingConfig?) -> (),
 	stopRing: (self: CatchPrompt) -> Types.RingResult,
+	expire: (self: CatchPrompt) -> (),
 	isRinging: (self: CatchPrompt) -> boolean,
 	setProgress: (self: CatchPrompt, alpha: number) -> (),
 	fail: (self: CatchPrompt, reason: string?, retry: boolean?) -> (),
@@ -34,9 +43,11 @@ export type CatchPrompt = {
 }
 
 local RING_SIZE = 150 -- outer ring diameter at scale 1 (design px)
-local DEFAULT_DURATION = 1.5
-local DEFAULT_GOOD = { 0.26, 0.48 }
-local DEFAULT_PERFECT = { 0.33, 0.41 }
+local DEFAULT_DURATION: number = Config.GrabHoldSeconds
+-- Bands as { min, max } of the ring's scale (1 = full size, 0 = collapsed). Both reach 0: the band is
+-- the end of the shrink, so only an early release reads as a miss on the client.
+local DEFAULT_GOOD: { number } = { 0, Config.RingGoodWindow / Config.GrabHoldSeconds }
+local DEFAULT_PERFECT: { number } = { 0, Config.RingPerfectWindow / Config.GrabHoldSeconds }
 
 local CatchPrompt = {}
 CatchPrompt.__index = CatchPrompt
@@ -105,7 +116,8 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Parent = root,
 	})
 	self._ringHolder = ringHolder
-	-- target band: a translucent disc between good min and good max, plus a crisp perfect ring
+	-- target band: a translucent green disc (good), a gold disc inside it (perfect) with a crisp edge,
+	-- and a dark hole that only shows for a custom band that stops short of the centre
 	self._goodDisc = Create("Frame", {
 		Name = "GoodBand",
 		BackgroundColor3 = Theme.colors.good,
@@ -113,6 +125,17 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(RING_SIZE * DEFAULT_GOOD[2], RING_SIZE * DEFAULT_GOOD[2]),
+		ZIndex = 1,
+		Parent = ringHolder,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._perfectDisc = Create("Frame", {
+		Name = "PerfectBand",
+		BackgroundColor3 = Theme.colors.gold,
+		BackgroundTransparency = 0.55,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(RING_SIZE * DEFAULT_PERFECT[2], RING_SIZE * DEFAULT_PERFECT[2]),
+		ZIndex = 2,
 		Parent = ringHolder,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	self._goodHole = Create("Frame", {
@@ -121,10 +144,14 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		BackgroundTransparency = 0.35,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(RING_SIZE * DEFAULT_GOOD[1], RING_SIZE * DEFAULT_GOOD[1]),
+		Size = UDim2.fromOffset(0, 0),
+		Visible = false,
+		ZIndex = 2,
 		Parent = ringHolder,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._perfectRing = ring(ringHolder, "PerfectRing", RING_SIZE * 0.37, Theme.colors.gold, 3)
+	self._perfectRing =
+		ring(ringHolder, "PerfectRing", RING_SIZE * DEFAULT_PERFECT[2], Theme.colors.gold, 3)
+	self._perfectRing.ZIndex = 2
 	self._outerRing = ring(ringHolder, "OuterRing", RING_SIZE, Theme.colors.paper, 5)
 	self._outerRing.ZIndex = 3
 	self._centreText = Create("TextLabel", {
@@ -328,10 +355,12 @@ function CatchPrompt.startRing(self: any, config: Types.RingConfig?)
 	self._perfect = (config and config.perfectBand) or DEFAULT_PERFECT
 	local goodMax = RING_SIZE * self._good[2]
 	local goodMin = RING_SIZE * self._good[1]
-	local perfectMid = RING_SIZE * (self._perfect[1] + self._perfect[2]) / 2
+	local perfectMax = RING_SIZE * self._perfect[2]
 	self._goodDisc.Size = UDim2.fromOffset(goodMax, goodMax)
+	self._perfectDisc.Size = UDim2.fromOffset(perfectMax, perfectMax)
+	self._perfectRing.Size = UDim2.fromOffset(perfectMax, perfectMax)
 	self._goodHole.Size = UDim2.fromOffset(goodMin, goodMin)
-	self._perfectRing.Size = UDim2.fromOffset(perfectMid, perfectMid)
+	self._goodHole.Visible = goodMin > 0
 
 	self:_stopRingLoop()
 	self._ringing = true
@@ -344,13 +373,21 @@ function CatchPrompt.startRing(self: any, config: Types.RingConfig?)
 		local alpha = math.max(0, 1 - elapsed / duration)
 		self:_setRingScale(alpha)
 		if alpha <= 0 then
-			-- held too long: the ring collapsed past the band
-			self:_stopRingLoop()
-			self._ringing = false
-			self._centreText.Text = "Too late"
-			self._centreText.TextColor3 = Theme.colors.warn
+			-- the ring collapsed: the hold ran its full length with no release
+			self:expire()
 		end
 	end)
+end
+
+-- The hold ran its full length with no release. The client sends nothing (a GrabEnd now would score
+-- as a 1.5 s release); the server resolves the attempt itself as a ring miss and still rolls the catch,
+-- so flash the miss and wait for the controller's fail() or showCatFound.
+function CatchPrompt.expire(self: any)
+	self:_stopRingLoop()
+	self._ringing = false
+	self:_setRingScale(0)
+	self._centreText.Text = "Missed"
+	self._centreText.TextColor3 = Theme.colors.warn
 end
 
 function CatchPrompt._stopRingLoop(self: any)
@@ -365,7 +402,8 @@ function CatchPrompt.isRinging(self: any): boolean
 	return self._ringing
 end
 
--- Called on hold release. Judges the ring and shows the word; the server still decides the catch.
+-- Called on hold release. Shows the word for where the ring was and returns it as a hint. The server
+-- scores the real hold time, so this never decides anything.
 function CatchPrompt.stopRing(self: any): Types.RingResult
 	local wasRinging = self._ringing
 	self:_stopRingLoop()

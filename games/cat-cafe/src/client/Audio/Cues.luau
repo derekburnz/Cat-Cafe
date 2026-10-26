@@ -100,7 +100,13 @@ local Cues: { [string]: Cue } = {
 	loopStreetLamp = { ids = {}, group = "Ambience", volume = 0.3, looped = true, range = 15 },
 	loopDealerCart = { ids = {}, group = "Ambience", volume = 0.6, looped = true, range = 25 },
 	loopFishTank = { ids = {}, group = "Ambience", volume = 0.4, looped = true, range = 10 },
-	loopCafeDoor = { ids = {}, group = "Ambience", volume = 0.7, looped = true, range = 30 }, -- tag CafeDoor
+	loopCafeDoor = {
+		ids = { "rbxassetid://98253223255392" },
+		group = "Ambience",
+		volume = 0.7,
+		looped = true,
+		range = 30,
+	}, -- tag CafeDoor
 	loopEspresso = { ids = {}, group = "Ambience", volume = 0.4, range = 15 },
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------
@@ -155,9 +161,21 @@ local Cues: { [string]: Cue } = {
 		volume = 0.7,
 		preload = true,
 	},
-	catHiss = { ids = {}, group = "Sfx", volume = 0.7, pitch = { 0.95, 1.05 }, range = 40 }, -- v0.4: a Miss ends the catch
-	pawLost = { ids = {}, group = "Sfx", volume = 0.6 },
-	purrfectChime = { ids = {}, group = "Sfx", volume = 0.8, minGap = 1, preload = true },
+	catHiss = {
+		ids = { "rbxassetid://133059376390215" },
+		group = "Sfx",
+		volume = 0.7,
+		pitch = { 0.95, 1.05 },
+		range = 40,
+	}, -- v0.4: a Miss ends the catch
+	pawLost = { ids = { "rbxassetid://120814540941175" }, group = "Sfx", volume = 0.6 },
+	purrfectChime = {
+		ids = { "rbxassetid://115362387345274" },
+		group = "Sfx",
+		volume = 0.8,
+		minGap = 1,
+		preload = true,
+	},
 	strayFlee = {
 		ids = { "rbxassetid://115429958262894" },
 		group = "Sfx",
@@ -207,7 +225,12 @@ local Cues: { [string]: Cue } = {
 	rescueDone = { ids = {}, group = "Sfx", volume = 0.8 },
 
 	-- Carry, bumps and check-in (5.3) -----------------------------------------------------------------------
-	carryPurr = { ids = {}, group = "Sfx", volume = 0.25, looped = true },
+	carryPurr = {
+		ids = { "rbxassetid://73628889177188" },
+		group = "Sfx",
+		volume = 0.25,
+		looped = true,
+	},
 	bumpLoose = { ids = {}, group = "Sfx", volume = 0.8, range = 40 },
 	bumpHeld = { ids = {}, group = "Sfx", volume = 0.7, range = 40 },
 	checkInBell = {
@@ -240,7 +263,13 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 		range = 40,
 	},
-	purr = { ids = {}, group = "Sfx", volume = 0.2, looped = true, range = 8 },
+	purr = {
+		ids = { "rbxassetid://134709393284855" },
+		group = "Sfx",
+		volume = 0.2,
+		looped = true,
+		range = 8,
+	},
 	shimmerRare = { ids = {}, group = "Sfx", volume = 0.4, looped = true, range = 40 },
 	shinyReveal = { ids = {}, group = "Sfx", volume = 0.8, duck = true },
 
@@ -264,15 +293,20 @@ local Cues: { [string]: Cue } = {
 	},
 	offlineClaim = { ids = {}, group = "Sfx", volume = 0.7 },
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
-	gateOpen = { ids = {}, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
-	shuttersUp = { ids = {}, group = "Sfx", volume = 0.7, range = 60 }, -- a For Rent plot becomes a cafe
+	gateOpen = { ids = { "rbxassetid://89970899972584" }, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
+	shuttersUp = {
+		ids = { "rbxassetid://137368825957454" },
+		group = "Sfx",
+		volume = 0.7,
+		range = 60,
+	}, -- a For Rent plot becomes a cafe
 	richArrive = { ids = {}, group = "Sfx", volume = 0.7 },
 	richTip = { ids = {}, group = "Sfx", volume = 0.8 },
 	dealerArrive = { ids = {}, group = "Sfx", volume = 0.7, range = 60 },
 	dealerLeave = { ids = {}, group = "Sfx", volume = 0.6, range = 60 },
 
 	-- Clock (5.7) -------------------------------------------------------------------------------------------
-	signFlip = { ids = {}, group = "Sfx", volume = 0.5, range = 30 },
+	signFlip = { ids = { "rbxassetid://108862500995197" }, group = "Sfx", volume = 0.5, range = 30 },
 	lampOn = {
 		ids = {},
 		group = "Sfx",
@@ -308,7 +342,7 @@ local Cues: { [string]: Cue } = {
 	uiTab = { ids = {}, group = "Ui", volume = 0.4, minGap = 0.05 },
 	uiToggle = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.05 },
 	uiRename = { ids = {}, group = "Ui", volume = 0.5 },
-	announce = { ids = {}, group = "Ui", volume = 0.6, minGap = 1 },
+	announce = { ids = { "rbxassetid://140320161816899" }, group = "Ui", volume = 0.6, minGap = 1 },
 }
 
 return Cues

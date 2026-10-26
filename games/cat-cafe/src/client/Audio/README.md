@@ -8,7 +8,7 @@ Owner: sound-designer (Luau reviewed by luau-reviewer). Rules: `.claude/skills/a
 | `Cues.luau` | Every cue id with its channel, volume, pitch range, spam gap, voices, 3D range and asset ids. The only place asset ids live. Pure. |
 | `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which music bed or ambience plays, ducking, rarity jingles, grade, food and trap cues), so they can be unit tested. |
 
-Hooks 1, 2 and 4 are wired (PR #66); moments come with catching v0.4. Until a cue has an uploaded id in `Cues.luau`, playing it does nothing, so the hooks below are safe to add before any file is uploaded.
+Hooks 1, 2 and 4 are wired (PR #66); moments come with catching v0.4. Every synthesized cue has an uploaded id since 2026-10-26; a cue with no id yet (music, later sounds) plays nothing, so a hook is safe to add before its file exists.
 
 ## Hooks for the luau-engineer
 

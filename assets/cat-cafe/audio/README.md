@@ -43,13 +43,13 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `strayFlee` | `sfx/CatCafe_Sfx_StrayFlee.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 115429958262894 | 2026-10-26 |
 | `jingleCatFound` | `music/CatCafe_Music_JingleCatFound.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 102912195564834 | 2026-10-26 |
 | `jingleRankUp` | `music/CatCafe_Music_JingleRankUp.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 77815750894397 | 2026-10-26 |
-| `loopCafeDoor` | `ambience/CatCafe_Amb_LoopCafeDoor.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `catHiss` | `sfx/CatCafe_Sfx_CatHiss.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `pawLost` | `sfx/CatCafe_Sfx_PawLost.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `purrfectChime` | `sfx/CatCafe_Sfx_PurrfectChime.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `gateOpen` | `sfx/CatCafe_Sfx_GateOpen.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `shuttersUp` | `sfx/CatCafe_Sfx_ShuttersUp.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `signFlip` | `sfx/CatCafe_Sfx_SignFlip.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `announce` | `sfx/CatCafe_Sfx_Announce.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `purr` | `sfx/CatCafe_Sfx_Purr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
-| `carryPurr` | `sfx/CatCafe_Sfx_CarryPurr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `loopCafeDoor` | `ambience/CatCafe_Amb_LoopCafeDoor.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 98253223255392 | 2026-10-26 |
+| `catHiss` | `sfx/CatCafe_Sfx_CatHiss.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 133059376390215 | 2026-10-26 |
+| `pawLost` | `sfx/CatCafe_Sfx_PawLost.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 120814540941175 | 2026-10-26 |
+| `purrfectChime` | `sfx/CatCafe_Sfx_PurrfectChime.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 115362387345274 | 2026-10-26 |
+| `gateOpen` | `sfx/CatCafe_Sfx_GateOpen.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 89970899972584 | 2026-10-26 |
+| `shuttersUp` | `sfx/CatCafe_Sfx_ShuttersUp.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 137368825957454 | 2026-10-26 |
+| `signFlip` | `sfx/CatCafe_Sfx_SignFlip.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 108862500995197 | 2026-10-26 |
+| `announce` | `sfx/CatCafe_Sfx_Announce.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 140320161816899 | 2026-10-26 |
+| `purr` | `sfx/CatCafe_Sfx_Purr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 134709393284855 | 2026-10-26 |
+| `carryPurr` | `sfx/CatCafe_Sfx_CarryPurr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 73628889177188 | 2026-10-26 |

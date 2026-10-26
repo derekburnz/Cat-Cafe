@@ -61,6 +61,7 @@ function PlotService.release(player: Player)
 	plotOf[player] = nil
 	owners[plot.index] = nil
 	plot.model:SetAttribute("OwnerUserId", 0)
+	plot.model:SetAttribute("Tier", 0)
 	plot.sign.Text = "Cafe for rent"
 	plot.cats:ClearAllChildren()
 	plot.decor:ClearAllChildren()

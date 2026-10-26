@@ -181,7 +181,7 @@ A cat exports as one FBX containing three objects: `<Name>_Body` (legs included)
 - Cat Head pivots at the neck joint, Tail at the tail root, so rotating them in Studio looks right.
 - Held tools (the net) pivot at the grip end with the pole running forward (-Z in Roblox), so the Tool's Handle needs no Grip offset beyond rotation.
 - Accessories pivot at their attachment point. `manifest.json` lists, per cat, where each attachment sits on the Head or Body: Glasses and Hat ride the Head, BowTie and Apron ride the Body, so they survive a pose change (upright, carried, stuck) and any future upright variant without new art.
-- Front faces -Y in Blender. The FBX exporter maps that to Roblox's front (-Z, the LookVector), so `CFrame.lookAt` works without a correction.
+- Front faces -Y in Blender. The FBX export uses Roblox's documented axes (Forward Z, Up Y), which turn Blender (x, y, z) into Roblox (-x, z, y), so the front lands on -Z, the LookVector, and `CFrame.lookAt` works without a correction. Every position and angle in `manifest.json` has a `_roblox` twin already converted; use those in code. Angles named `*_angles_roblox_deg` are for `CFrame.Angles(math.rad(x), math.rad(y), math.rad(z))`.
 - Apply all transforms before export: location 0, rotation 0, scale 1 on every object except the deliberate offsets of Head and Tail.
 
 ## 8. Materials and textures
@@ -210,7 +210,7 @@ Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_
 
 ## 10. Export and import checklist
 
-Blender export (the build script does this): FBX, Selected Objects, Object Types Mesh only, Apply Unit, Apply Scalings "FBX Units Scale", Forward -Z, Up Y, Mesh Smoothing Face, no Leaf Bones, no animation. A `.glb` sits next to each `.fbx` for tools that prefer glTF.
+Blender export (the build script does this): FBX, Selected Objects, Object Types Mesh only, Apply Unit, Apply Scalings "FBX Units Scale", Forward Z, Up Y (Roblox's documented settings; Forward -Z would turn every model to face +Z), Mesh Smoothing Face, no Leaf Bones, no animation. A `.glb` sits next to each `.fbx` for tools that prefer glTF; it keeps glTF's own axes, so import the `.fbx` into Studio.
 
 Studio import (3D Importer): Scale Unit Studs, Rig Type none, Insert using Scene Position off, Anchored on. After import check: 1) it stands on the floor with the pivot at the base, 2) the front faces the camera when you use View Selected from the front, 3) scale next to a 5-stud R15 dummy matches the table above, 4) texture shows the right colors (if the whole mesh is grey, set TextureID to the uploaded palette), 5) CollisionFidelity Box for simple props, Hull for the counter, cat tree and dumpster, 6) RenderFidelity Automatic, DoubleSided off.
 
@@ -220,7 +220,7 @@ After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one
 
 ## 12. Poses
 
-The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each rescue prop (StuckTree, StuckBox, Drainpipe), with positions in both Blender and Roblox axes. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
+The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each rescue prop (StuckTree, StuckBox, Drainpipe), with every value in both Blender and Roblox axes; `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
 
 ## 13. Rules
 

@@ -9,7 +9,7 @@ Loop
 Catching
 
 2. Circle scoring. Perfect counts 100%, Good 50% and Miss 0, and the catch chance is the average of all the circles. Is Good at 50% right, or should it be higher or lower?
-3. Bumps. When you are close to someone carrying a cat you can press Bump, and half the time their cat drops and runs a few steps for anyone to net. No bumps in the first 3 seconds after a catch or near their own cafe, and a cat that was knocked loose cannot be bumped again on its next trip. Is that the kind of interrupt you meant?
+3. Bumps. When you are close to someone carrying a cat you can press Bump, and half the time their cat drops and runs a few steps. They get the first 8 seconds to net it back, then anyone except you can try, and a dropped cat never runs away for good. No bumps in the first 3 seconds after a catch or near their own cafe, and a cat that was knocked loose cannot be bumped again on its next trip. Is that the kind of interrupt you meant?
 4. Bait bowl. Your bowl sits at your own cafe and the 10 minute timer keeps going while you are offline. Good, or should bait go out in the areas?
 5. Shinies. A shiny earns 1.5x tips and sparkles. 10% chance from rescues, 2% from the net and bait. OK?
 
@@ -18,7 +18,7 @@ Cafe
 6. Ranking up. Does ranking up spend the money (our plan) or only need you to have it? Are five tiers enough to start?
 7. Roles. Barista, Waiter, Greeter and Entertainer, all paying the same for now, and each cat has one favorite role that pays 1.5x. Any other roles you want?
 8. Night pay. Cats earn 60% at night. Right amount?
-9. Dealer. Each player sees their own three items, each buyable once per night, and higher tiers get better rolls. Or should the whole server share one stock?
+9. Dealer. Each player sees their own three items, restocked every 10 minutes and the same on every server, each buyable once per restock, and higher tiers get better rolls. Or should the whole server share one stock?
 
 Cats and areas
 

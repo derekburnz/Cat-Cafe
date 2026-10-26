@@ -1,6 +1,7 @@
 # Cat Cafe UI contract
 
-Owner: UI thread ("Design cat cafe UI"). v3, updated 2026-10-26 (v1 2026-10-25, v2 earlier on 2026-10-26).
+Owner: UI thread ("Design cat cafe UI"). v4, updated 2026-10-26 (v1 2026-10-25, v2 and v3 earlier on 2026-10-26).
+v4 changes (gdd.md v0.2): day and night clock chip (`UI.clock`, F20), the catch tool is the Net so the prompt copy is a swing, and the 4 s Rescue hold bar with `rescueBegan` / `rescueEnded` (F21). The `gloves` upgrade is now `net`; the UI reads it from the catalog, nothing to change.
 v3 changes: ring bands come from shared Config and a full hold sends no GrabEnd (designer, data-model section 10); catalog types are re-exported from shared Types so the controller passes the catalog with no cast (reviewer S9); `equipBest` event and per-cat stats (cat stats thread); mockup page built.
 Readers: engineer (client controller), designer (catalog fields), reviewer, QA.
 Code: `games/cat-cafe/src/client/UI/` (20 Luau files, StyLua-formatted to the repo's stylua.toml).
@@ -78,17 +79,22 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.floatText(worldPosition, text, color?)` | Rising "+$8" at a world point (customers' coin pops). |
 | `UI.setCarrying(info?)` | `info = { catId, catName?, rarity?, door: BasePart? }`. Bottom-centre banner "Carrying Void" plus a world marker with distance over the door. `nil` clears. |
 | `UI.tutorial.show(text, target?, markerLabel?)` / `UI.tutorial.hide()` | One-line gold strip at the bottom and, with a target (BasePart, Attachment or Vector3), a marker in the world. |
+| `UI.clock.set(phase, phaseEndsAt, serverNow?)` | Day and night chip under the cats pill: sun or moon and "Day 2:31" counting down. `phase` is `"day"` or `"night"`, `phaseEndsAt` server `os.time()` seconds. Pass ProfileSync's `serverTime` as `serverNow` so the countdown does not trust the device clock. |
+| `UI.clock.bind(ReplicatedStorage.Clock)` / `UI.clock.unbind()` | Easiest: reads the folder's `Phase` and `PhaseEndsAt` attributes and follows changes. `UI.clock.clear()` hides the chip. |
 | `UI.setVisible(bool)` | Hide the whole UI for cutscenes or screenshots. |
 | `UI.destroy()` | Tear everything down and disconnect every connection. |
 | `UI.demo()` | Runs Demo.luau. Returns a stop function. Not for production. |
 
-### Catch prompt and timing ring (`UI.catch`)
+### Catch prompt: swing ring and rescue bar (`UI.catch`)
+
+Copy follows the Net: "Hold to swing", "Swing!" on release, the mobile button reads SWING. A prompt whose model has `Rescue = true` is a stuck cat (F21): "Hold to rescue", a bar fills over the 4 s hold instead of the ring, the button reads HOLD, there is no band and no fail.
 
 | Function | Purpose |
 |---|---|
 | `bindProximityPrompts()` | Recommended. Watches `ProximityPromptService`. Any prompt with `Style = Custom` and a `CatId` attribute (on the prompt, its Model or its parent) gets the UI. Reads `StrayId`, `CatName`, `Rarity`, `Stars`, `Charm` the same way, falling back to the catalog by `CatId`. Hold begin starts the ring with the prompt's `HoldDuration` and fires `events.grabBegan`. A release fires `events.grabEnded(strayId, ringHint, catId)` once. A hold that runs its full length fires nothing: the ring shows "Missed" and the UI waits for the controller's `catch.fail` or `showCatFound` (the server resolves the attempt itself about 0.25 s later). On touch, the big GRAB button calls `prompt:InputHoldBegin/End`, so the server sees an ordinary hold. |
 | `unbindProximityPrompts()` | Stop watching. |
-| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode?, stars?, charm? }`. |
+| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode?, stars?, charm?, kind?, rescueSpotId? }`. `kind` is `"swing"` (default) or `"rescue"`. |
+| `startRescue(duration?)` / `stopRescue(completed)` | Manual rescue hold. Default duration 4 s (`Config.RescueHoldSeconds` once it exists). `stopRescue(true)` shows "Rescued!" and leaves the card up for `showCatFound` or `hide`; `stopRescue(false)` resets the bar. |
 | `startRing(config?)` | `config = { duration?, goodBand?, perfectBand? }`. The outer ring shrinks from 1 to 0 over `duration` (default `Config.GrabHoldSeconds`, 1.5 s). The band is the end of the shrink: good is the last `Config.RingGoodWindow` s (0.80, ring scale 0 to 0.533), perfect the last `Config.RingPerfectWindow` s (0.30, scale 0 to 0.2). Pass bands only to experiment. |
 | `stopRing()` | Call on release. Shows "Perfect!", "Good" or "Too early" from where the ring was and returns `"perfect"`, `"good"` or `"miss"` as a hint. The server scores the real time between GrabBegin and GrabEnd (release 1.20 to 1.50 s perfect, 0.70 to 1.50 s good), so the hint decides nothing. |
 | `expire()` | Call when a manual hold runs its full length with no release. Miss flash, nothing sent. `bindProximityPrompts` does this itself on `PromptTriggered`. |
@@ -114,6 +120,8 @@ Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holdin
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `grabBegan` | `strayId, catId` | Hold began on a bound stray prompt |
 | `grabEnded` | `strayId, ringHint, catId` | The player released during the hold. `ringHint` is the client's `perfect`, `good` or `miss` for feedback only; the server scores timing. Not fired when the hold runs out. |
+| `rescueBegan` | `rescueSpotId, catId` | Hold began on a prompt whose model has `Rescue = true`. Forward as RescueBegin. |
+| `rescueEnded` | `rescueSpotId, catId, completed` | `completed = true` after the full 4 s hold: forward as RescueEnd, the server moves the player to carry. `false` is an early release: the bar reset, send what the server needs to unlock the spot (or nothing). |
 | `screenOpened` | `name or nil` | Modal opened or closed |
 
 ## State shape (`Types.PlayerState`)
@@ -170,13 +178,14 @@ Odds visible before any purchase and the detail control is labelled "Details", n
 ## Names agreed
 
 - Screens: `Upgrades`, `Decor`, `Collection`. Rarities exactly: `Common`, `Rare`, `Epic`, `Legendary`, `Secret`.
-- Stray prompt attributes (on the model, data-model section 13): `StrayId`, `CatId`, `CatName`, `Rarity`, plus `Stars` and `Charm` from the cat stats thread; prompt `Style = Custom`.
+- Stray prompt attributes (on the model, data-model section 13): `StrayId`, `CatId`, `CatName`, `Rarity`, plus `Stars` and `Charm` from the cat stats thread; prompt `Style = Custom`. A stuck cat adds `Rescue = true` and `RescueSpotId` (the id RescueBegin and RescueEnd take; falls back to `StrayId`).
+- Clock folder (`ReplicatedStorage.Clock`, data-model section 9): attributes `Phase` ("day" or "night") and `PhaseEndsAt` (server `os.time()` seconds).
 - Ring timing constants live only in `Shared.Config`: `GrabHoldSeconds`, `RingGoodWindow`, `RingPerfectWindow`. The UI derives its bands from them.
 - Currency is coins shown as `$` (`Theme.currencySymbol`).
 
 ## Not in scope for the UI thread, and space left for later
 
-Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, sounds (`Theme.sounds.*` hooks are nil), localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: fast travel buttons (F19, HUD left stack under the menu, greyed while carrying), leaderboards and settings (P2, modal screens), day and night chip and event banner (HUD top corners, post-slice).
+Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, sounds (`Theme.sounds.*` hooks are nil), localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: fast travel buttons (F19, HUD left stack under the menu, greyed while carrying), leaderboards and settings (P2, modal screens), event banner (HUD top centre under the cafe pill, post-slice), a "Closed" state on the HUD rate if tips pause at night (questions-for-gavin.md question 10).
 
 ## Check gate status
 

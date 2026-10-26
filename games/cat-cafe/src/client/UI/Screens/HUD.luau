@@ -1,8 +1,9 @@
 --!strict
--- Always-on overlay: money and income (top left), cafe level pill (top centre), cat count (top right),
--- menu buttons (left), equipped lure slot with an odds picker (bottom right), carry banner and
+-- Always-on overlay: money and income (top left), cafe level pill (top centre), cat count and the day
+-- and night clock chip (top right), menu buttons (left), equipped lure slot with an odds picker (bottom right), carry banner and
 -- tutorial strip (bottom centre). Laid out in design pixels under one UIScale from Scale.bind.
 
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -25,6 +26,7 @@ export type HUD = {
 	render: (self: HUD, state: Types.PlayerState) -> (),
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
+	setClock: (self: HUD, clock: Types.ClockState?, serverNow: number?) -> (),
 	togglePicker: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
@@ -185,6 +187,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local self = setmetatable({}, HUD) :: any
 	self._callbacks = callbacks
 	self._connections = {} :: { RBXScriptConnection }
+	self._clockConnection = nil :: RBXScriptConnection?
 	self._buttons = {} :: { any }
 	self._lureRows = {} :: { [string]: any }
 	self._catalog = nil :: Types.Catalog?
@@ -331,6 +334,56 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		})
 	)
+
+	-- Clock chip (top right, under the cats pill): sun or moon and the time to the next phase (F20)
+	local clock = hudPanel("Clock", {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, MARGIN + 52 + Theme.sizes.gap),
+		Size = UDim2.fromOffset(150, 40),
+		Visible = false,
+		Parent = root,
+	})
+	self._clock = clock
+	self._sun = Create("Frame", {
+		Name = "Sun",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(10, 8),
+		Size = UDim2.fromOffset(24, 24),
+		Parent = clock,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = Theme.colors.goldDark, Thickness = 2 }),
+	})
+	self._moon = Create("Frame", {
+		Name = "Moon",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(10, 8),
+		Size = UDim2.fromOffset(24, 24),
+		ClipsDescendants = true,
+		Visible = false,
+		Parent = clock,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		-- a second disc offset up and right turns the paper disc into a crescent
+		Create("Frame", {
+			Name = "Shadow",
+			BackgroundColor3 = Theme.hud.panel,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(8, -5),
+			Size = UDim2.fromOffset(22, 22),
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+	})
+	self._clockText = label({
+		Name = "Phase",
+		Position = UDim2.fromOffset(42, 0),
+		Size = UDim2.new(1, -50, 1, 0),
+		FontFace = Theme.fonts.display,
+		TextSize = 16,
+		Text = "",
+		Parent = clock,
+	})
 
 	-- Menu stack (left, vertically centred)
 	local menu: Frame = Create("Frame", {
@@ -807,11 +860,58 @@ function HUD._layoutBottom(self: any)
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 end
 
+local function clockText(phase: Types.ClockPhase, remaining: number): string
+	local seconds = math.max(0, math.floor(remaining + 0.5))
+	return ("%s  %d:%02d"):format(
+		if phase == "night" then "Night" else "Day",
+		seconds // 60,
+		seconds % 60
+	)
+end
+
+-- Day and night chip. nil hides it. serverNow (ProfileSync's serverTime) calibrates the countdown so a
+-- wrong device clock does not skew it; without it the device's os.time() is taken as server time.
+function HUD.setClock(self: any, clock: Types.ClockState?, serverNow: number?)
+	self:_stopClock()
+	if not clock then
+		self._clock.Visible = false
+		return
+	end
+	local current: Types.ClockState = clock
+	local offset: number = if serverNow then serverNow - os.time() else 0
+	local isNight = current.phase == "night"
+	self._sun.Visible = not isNight
+	self._moon.Visible = isNight
+	self._clockText.TextColor3 = if isNight then Theme.colors.sky else Theme.hud.text
+	self._clock.Visible = true
+	local function tick()
+		self._clockText.Text = clockText(current.phase, current.phaseEndsAt - (os.time() + offset))
+	end
+	tick()
+	local accumulated = 0
+	self._clockConnection = RunService.Heartbeat:Connect(function(dt: number)
+		accumulated += dt
+		if accumulated >= 0.25 then
+			accumulated = 0
+			tick()
+		end
+	end)
+end
+
+function HUD._stopClock(self: any)
+	local connection: RBXScriptConnection? = self._clockConnection
+	if connection then
+		connection:Disconnect()
+		self._clockConnection = nil
+	end
+end
+
 function HUD.setVisible(self: any, visible: boolean)
 	self.screenGui.Enabled = visible
 end
 
 function HUD.destroy(self: any)
+	self:_stopClock()
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

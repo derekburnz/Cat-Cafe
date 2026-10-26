@@ -14,6 +14,8 @@ export type Rarity = SharedTypes.Rarity
 export type Area = SharedTypes.Area
 export type SpotType = SharedTypes.SpotType
 export type RingResult = SharedTypes.RingResult
+export type ClockPhase = "day" | "night" -- Clock folder attribute Phase (data-model section 9)
+export type PromptKind = "swing" | "rescue" -- the Net with its ring, or the 4 s rescue hold bar
 export type CatDef = SharedTypes.CatDef
 export type UpgradeDef = SharedTypes.UpgradeDef
 export type DecorDef = SharedTypes.DecorDef
@@ -106,6 +108,8 @@ export type CatchInfo = {
 	keyCode: Enum.KeyCode?, -- default E
 	stars: number?, -- 1 to 5 from the stray's Stars attribute
 	charm: number?, -- 0 to 100 from the stray's Charm attribute
+	kind: PromptKind?, -- default "swing"; "rescue" draws the hold bar instead of the ring (F21)
+	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 }
 
 -- Ring bands are { min, max } of the ring's scale (1 = full, 0 = collapsed). Defaults come from shared
@@ -115,6 +119,14 @@ export type RingConfig = {
 	duration: number?, -- seconds from full ring to zero, default Config.GrabHoldSeconds
 	goodBand: { number }?,
 	perfectBand: { number }?,
+}
+
+-- Day and night clock (data-model section 9). phaseEndsAt is server os.time() seconds, as the Clock
+-- folder's PhaseEndsAt attribute. Pass ProfileSync's serverTime as serverNow so the countdown does not
+-- trust the device clock.
+export type ClockState = {
+	phase: ClockPhase,
+	phaseEndsAt: number,
 }
 
 export type CarryInfo = {

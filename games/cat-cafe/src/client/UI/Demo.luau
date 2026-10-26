@@ -214,9 +214,35 @@ function Demo.run(UI: any): () -> ()
 			UI.toast("Ring hint: " .. result .. " (the server scores the real timing)", "info")
 		end
 	)
+	connections[#connections + 1] = UI.events.rescueEnded:Connect(
+		function(_rescueSpotId: string?, _catId: string?, completed: boolean)
+			if completed then
+				UI.toast("Rescued! A real server would hand you the cat now", "good")
+			end
+		end
+	)
 
 	push()
 	UI.toast("Demo mode: pretend server, pretend money", "info")
+
+	-- clock: a short day and night so the chip can be seen flipping (real lengths are 180 s and 120 s)
+	task.spawn(function()
+		local phase: Types.ClockPhase = "day"
+		while running do
+			local length = if phase == "day" then 45 else 30
+			UI.clock.set(phase, now() + length, now())
+			task.wait(length)
+			phase = if phase == "day" then "night" else "day"
+			if running then
+				UI.toast(
+					if phase == "night"
+						then "Night falls. Strays are out!"
+						else "Morning. The cafe opens.",
+					"info"
+				)
+			end
+		end
+	end)
 
 	-- money ticks, a cat shows up every 25 s, one ring demo near the start
 	task.spawn(function()
@@ -239,6 +265,15 @@ function Demo.run(UI: any): () -> ()
 			UI.tutorial.show("Place your new cat: open Cats, then the Cat room tab")
 			task.wait(6)
 			UI.tutorial.hide()
+			-- rescue prompt: the 4 s bar, no ring
+			task.wait(3)
+			UI.catch.show({ kind = "rescue", catId = "calico", rescueSpotId = "demo_rescue_1" })
+			task.wait(0.8)
+			UI.catch.startRescue(4)
+			task.wait(4.2)
+			UI.catch.stopRescue(true)
+			task.wait(1.2)
+			UI.catch.hide()
 		end
 	end)
 	task.spawn(function()

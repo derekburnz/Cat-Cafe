@@ -524,6 +524,7 @@ UI.catch = {}
 local activePrompt: ProximityPrompt? = nil
 local activeInfo: Types.CatchInfo? = nil
 local holdOpen = false
+local holdSerial = 0 -- bumps on every hold begin so a deferred hold end cannot act on a later hold
 local promptConnections: { RBXScriptConnection } = {}
 
 function UI.catch.show(info: Types.CatchInfo)
@@ -685,6 +686,7 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			holdOpen = true
+			holdSerial += 1
 			catchScreen:startRing({ duration = prompt.HoldDuration })
 			local info = activeInfo
 			UI.events.grabBegan:Fire(
@@ -699,7 +701,21 @@ function UI.catch.bindProximityPrompts()
 			if prompt ~= activePrompt then
 				return
 			end
-			finishHold(catchScreen:stopRing())
+			-- A full hold fires PromptTriggered and PromptButtonHoldEnded in the same frame, in either
+			-- order (reviewer S12). Decide one frame later: if PromptTriggered closed the hold, or the
+			-- ring already collapsed, the hold ran its full length and nothing is sent.
+			local serial = holdSerial
+			task.defer(function()
+				if not holdOpen or holdSerial ~= serial then
+					return
+				end
+				if not catchScreen:isRinging() then
+					holdOpen = false
+					catchScreen:expire()
+					return
+				end
+				finishHold(catchScreen:stopRing())
+			end)
 		end)
 	)
 	table.insert(

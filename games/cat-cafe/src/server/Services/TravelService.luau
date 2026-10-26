@@ -1,12 +1,15 @@
 --!strict
 -- Fast travel (features F19): the client's top row of Home and area buttons fires Travel(destination). The server
--- checks the destination is "home" or an area this player's tier opens and that they are not carrying a cat or
--- mid catch or rescue, then moves the character. Every answer goes back as TravelResult.
+-- checks the destination is "home" or an area this player's tier opens, that they are not carrying a cat or
+-- mid catch or rescue (leaving would be a Miss, reviewer N47) and that TravelCooldownSeconds have passed, then
+-- moves the character to a landing point the server built. Every answer goes back as TravelResult.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -19,6 +22,7 @@ local TravelService = {}
 local HOME_STEP_OUT = 6 -- studs out from the front door, on the street
 
 local world: WorldBuilder.World? = nil
+local lastTravel: { [Player]: number } = {}
 
 -- Where `destination` puts this player, or nil and the reason it is refused.
 local function landingFor(player: Player, destination: string): (CFrame?, string?)
@@ -54,6 +58,11 @@ local function onTravel(player: Player, rawDestination: unknown)
 	if destination == nil then
 		return
 	end
+	local last = lastTravel[player]
+	if last ~= nil and os.clock() - last < Config.TravelCooldownSeconds then
+		Net.fire(player, "TravelResult", destination, false, "Catch your breath first")
+		return
+	end
 	local landing, reason = landingFor(player, destination)
 	if landing == nil then
 		Net.fire(player, "TravelResult", destination, false, reason)
@@ -72,12 +81,16 @@ local function onTravel(player: Player, rawDestination: unknown)
 		return
 	end
 	character:PivotTo(landing :: CFrame)
+	lastTravel[player] = os.clock()
 	Net.fire(player, "TravelResult", destination, true, nil)
 end
 
 function TravelService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	Net.on("Travel", onTravel)
+	Players.PlayerRemoving:Connect(function(player)
+		lastTravel[player] = nil
+	end)
 end
 
 return TravelService

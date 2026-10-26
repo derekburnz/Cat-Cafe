@@ -37,20 +37,62 @@ local Cues: { [string]: Cue } = {
 	musicNightB = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "Night Owls"
 	stingDusk = { ids = {}, group = "Music", volume = 0.6, duck = true }, -- "Night Shift"
 	stingDawn = { ids = {}, group = "Music", volume = 0.6, duck = true }, -- "Fresh Pot"
-	jingleCatFound = { ids = {}, group = "Music", volume = 0.7, minGap = 1, preload = true },
+	jingleCatFound = {
+		ids = { "rbxassetid://102912195564834" },
+		group = "Music",
+		volume = 0.7,
+		minGap = 1,
+		preload = true,
+	},
 	jingleRare = { ids = {}, group = "Music", volume = 0.6, minGap = 1 },
 	jingleEpic = { ids = {}, group = "Music", volume = 0.65, minGap = 1 },
 	jingleLegendary = { ids = {}, group = "Music", volume = 0.7, minGap = 1, duck = true },
 	jingleMythical = { ids = {}, group = "Music", volume = 0.7, minGap = 1, duck = true },
-	jingleRankUp = { ids = {}, group = "Music", volume = 0.7, minGap = 1, duck = true },
+	jingleRankUp = {
+		ids = { "rbxassetid://77815750894397" },
+		group = "Music",
+		volume = 0.7,
+		minGap = 1,
+		duck = true,
+	},
 
 	-- Ambience beds by zone and phase, and 3D world loops (section 4) ---------------------------------------
-	ambCafeDay = { ids = {}, group = "Ambience", volume = 0.4, looped = true },
-	ambCafeNight = { ids = {}, group = "Ambience", volume = 0.4, looped = true },
-	ambAlleyDay = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
-	ambAlleyNight = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
-	ambParkDay = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
-	ambParkNight = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
+	ambCafeDay = {
+		ids = { "rbxassetid://136952289794282" },
+		group = "Ambience",
+		volume = 0.4,
+		looped = true,
+	},
+	ambCafeNight = {
+		ids = { "rbxassetid://84916609751628" },
+		group = "Ambience",
+		volume = 0.4,
+		looped = true,
+	},
+	ambAlleyDay = {
+		ids = { "rbxassetid://83744712629616" },
+		group = "Ambience",
+		volume = 0.5,
+		looped = true,
+	},
+	ambAlleyNight = {
+		ids = { "rbxassetid://82664754116384" },
+		group = "Ambience",
+		volume = 0.5,
+		looped = true,
+	},
+	ambParkDay = {
+		ids = { "rbxassetid://75896689856230" },
+		group = "Ambience",
+		volume = 0.5,
+		looped = true,
+	},
+	ambParkNight = {
+		ids = { "rbxassetid://120595462689856" },
+		group = "Ambience",
+		volume = 0.5,
+		looped = true,
+	},
 	ambNeighbourhood = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambWoods = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambSewer = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
@@ -62,11 +104,16 @@ local Cues: { [string]: Cue } = {
 	loopEspresso = { ids = {}, group = "Ambience", volume = 0.4, range = 15 },
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------
-	catchStart = { ids = {}, group = "Sfx", volume = 0.6 },
-	circleAppear = { ids = {}, group = "Sfx", volume = 0.5, voices = 2 }, -- played one scale step per circle
+	catchStart = { ids = { "rbxassetid://92586398019542" }, group = "Sfx", volume = 0.6 },
+	circleAppear = {
+		ids = { "rbxassetid://135049952895026" },
+		group = "Sfx",
+		volume = 0.5,
+		voices = 2,
+	}, -- played one scale step per circle
 	circleClose = { ids = {}, group = "Sfx", volume = 0.3, voices = 2 },
 	netSwing = {
-		ids = {},
+		ids = { "rbxassetid://89396147858929" },
 		group = "Sfx",
 		volume = 0.8,
 		pitch = { 0.96, 1.04 },
@@ -74,22 +121,50 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 		preload = true,
 	},
-	circlePerfect = { ids = {}, group = "Sfx", volume = 0.8, voices = 2, preload = true }, -- one scale step per circle
-	circleGood = { ids = {}, group = "Sfx", volume = 0.7, voices = 2, preload = true }, -- one scale step per circle
+	circlePerfect = {
+		ids = { "rbxassetid://80668948664944" },
+		group = "Sfx",
+		volume = 0.8,
+		voices = 2,
+		preload = true,
+	}, -- one scale step per circle
+	circleGood = {
+		ids = { "rbxassetid://104110576862212" },
+		group = "Sfx",
+		volume = 0.7,
+		voices = 2,
+		preload = true,
+	}, -- one scale step per circle
 	circleMiss = {
-		ids = {},
+		ids = { "rbxassetid://82265210012821" },
 		group = "Sfx",
 		volume = 0.6,
 		pitch = { 0.97, 1.03 },
 		voices = 2,
 		preload = true,
 	},
-	catchSparkle = { ids = {}, group = "Sfx", volume = 0.8, preload = true },
-	catchMiss = { ids = {}, group = "Sfx", volume = 0.7, preload = true },
+	catchSparkle = {
+		ids = { "rbxassetid://96610512551224" },
+		group = "Sfx",
+		volume = 0.8,
+		preload = true,
+	},
+	catchMiss = {
+		ids = { "rbxassetid://72335633309097" },
+		group = "Sfx",
+		volume = 0.7,
+		preload = true,
+	},
 	catHiss = { ids = {}, group = "Sfx", volume = 0.7, pitch = { 0.95, 1.05 }, range = 40 }, -- v0.4: a Miss ends the catch
 	pawLost = { ids = {}, group = "Sfx", volume = 0.6 },
 	purrfectChime = { ids = {}, group = "Sfx", volume = 0.8, minGap = 1, preload = true },
-	strayFlee = { ids = {}, group = "Sfx", volume = 0.8, pitch = { 0.95, 1.05 }, range = 40 },
+	strayFlee = {
+		ids = { "rbxassetid://115429958262894" },
+		group = "Sfx",
+		volume = 0.8,
+		pitch = { 0.95, 1.05 },
+		range = 40,
+	},
 
 	-- Rescue minigames (5.2) --------------------------------------------------------------------------------
 	rescueStart = { ids = {}, group = "Sfx", volume = 0.6 },
@@ -136,7 +211,7 @@ local Cues: { [string]: Cue } = {
 	bumpLoose = { ids = {}, group = "Sfx", volume = 0.8, range = 40 },
 	bumpHeld = { ids = {}, group = "Sfx", volume = 0.7, range = 40 },
 	checkInBell = {
-		ids = {},
+		ids = { "rbxassetid://75991488445164" },
 		group = "Sfx",
 		volume = 0.7,
 		minGap = 0.5,
@@ -171,7 +246,7 @@ local Cues: { [string]: Cue } = {
 
 	-- Coins, tiers and the night economy (5.6) --------------------------------------------------------------
 	coinPop = {
-		ids = {},
+		ids = { "rbxassetid://80305681313349" },
 		group = "Sfx",
 		volume = 0.4,
 		pitch = { 0.94, 1.06 },
@@ -180,7 +255,13 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 		preload = true,
 	},
-	purchase = { ids = {}, group = "Sfx", volume = 0.7, minGap = 0.2, preload = true },
+	purchase = {
+		ids = { "rbxassetid://135044364239461" },
+		group = "Sfx",
+		volume = 0.7,
+		minGap = 0.2,
+		preload = true,
+	},
 	offlineClaim = { ids = {}, group = "Sfx", volume = 0.7 },
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	gateOpen = { ids = {}, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
@@ -203,7 +284,7 @@ local Cues: { [string]: Cue } = {
 
 	-- UI (5.8) ----------------------------------------------------------------------------------------------
 	uiClick = {
-		ids = {},
+		ids = { "rbxassetid://100998799358810" },
 		group = "Ui",
 		volume = 0.6,
 		pitch = { 0.97, 1.03 },
@@ -211,7 +292,13 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 		preload = true,
 	},
-	uiError = { ids = {}, group = "Ui", volume = 0.6, minGap = 0.3, preload = true },
+	uiError = {
+		ids = { "rbxassetid://80135751380842" },
+		group = "Ui",
+		volume = 0.6,
+		minGap = 0.3,
+		preload = true,
+	},
 	uiOpen = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.1 },
 	uiClose = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.1 },
 	uiDealerOpen = { ids = {}, group = "Ui", volume = 0.6 },

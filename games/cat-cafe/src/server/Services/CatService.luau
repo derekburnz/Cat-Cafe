@@ -186,6 +186,19 @@ local function despawn(stray: Stray)
 	stray.model:Destroy()
 end
 
+-- Reviewer S35: every wander step moves every part of the cat and replicates to every client, so a stray only
+-- wanders while a player is close enough to see it.
+local WANDER_WATCH_STUDS = 80
+
+local function anyoneNear(position: Vector3): boolean
+	for _, player in Players:GetPlayers() do
+		if withinRange(player, position, WANDER_WATCH_STUDS) then
+			return true
+		end
+	end
+	return false
+end
+
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
 	local alive = function()
@@ -193,7 +206,7 @@ local function wander(stray: Stray)
 	end
 	while stray.alive do
 		task.wait(rng:NextNumber(3, 7))
-		if not stray.alive or stray.lockedBy ~= 0 then
+		if not stray.alive or stray.lockedBy ~= 0 or not anyoneNear(stray.home) then
 			continue
 		end
 		local radius = Config.StrayWanderRadius

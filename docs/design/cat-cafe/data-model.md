@@ -1,6 +1,6 @@
 # Cat Cafe Data Model and Balance Tables
 
-Draft v0.3.1, 2026-10-26 (v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
+Draft v0.4, 2026-10-26 (v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md; v0.4 makes a missed circle end the catch, adds patience paws and the Perfect charm bonus, the back alley layout and walk speeds from Derek's playtest, and syncs the engineer's F22 choices; reasoning in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
 
 ## 1. Conventions
 
@@ -14,15 +14,15 @@ Draft v0.3.1, 2026-10-26 (v0.2 earlier the same day; v0.3.1 adds the reviewer's 
 
 ## 2. Rarity
 
-| rarity | incomePerSecond | circles | shrinkSeconds | fleesOnFail | rescueHits | sellValue | firstCatchReward | color |
+| rarity | incomePerSecond | circles | shrinkSeconds | patience | rescueHits | sellValue | firstCatchReward | color |
 |---|---|---|---|---|---|---|---|---|
-| Common | 1 | 1 | 1.40 | no | 2 | 25 | 50 | #8E97B2 |
-| Rare | 3 | 2 | 1.15 | yes | 3 | 150 | 300 | #5FA8FF |
-| Epic | 8 | 3 | 0.95 | yes | 4 | 600 | 1,500 | #C07CFF |
-| Legendary | 25 | 4 | 0.80 | yes | 5 | 3,000 | 8,000 | #FFC94D |
-| Mythical | 75 | 5 | 0.65 | yes | 6 | 12,000 | 30,000 | #FF5E7E |
+| Common | 1 | 1 | 1.40 | 3 | 2 | 25 | 50 | #8E97B2 |
+| Rare | 3 | 2 | 1.15 | 2 | 3 | 150 | 300 | #5FA8FF |
+| Epic | 8 | 3 | 0.95 | 2 | 4 | 600 | 1,500 | #C07CFF |
+| Legendary | 25 | 4 | 0.80 | 1 | 5 | 3,000 | 8,000 | #FFC94D |
+| Mythical | 75 | 5 | 0.65 | 1 | 6 | 12,000 | 30,000 | #FF5E7E |
 
-`circles` and `shrinkSeconds` drive the net (section 10), `rescueHits` the rescue bar (section 10b). v0.3 change: `baseCatchChance` is gone; the circles decide the chance. The Mythical color is a proposal for the UI thread.
+`circles` and `shrinkSeconds` drive the net (section 10), `rescueHits` the rescue bar (section 10b). v0.4 change: `patience` replaces `fleesOnFail`; it is how many failed catches each player gets on one stray before it stops trusting them (section 10). v0.3 change: `baseCatchChance` is gone; the circles decide the catch. The Mythical color is a proposal for the UI thread.
 
 ## 3. Cat catalog (50 cats, 10 per area)
 
@@ -82,13 +82,13 @@ A cat the player owns is an instance: `{ uid, catId, variant, caughtAt, spotId, 
 - `level`, `xp`, `charm`: the per-cat stats in section 4b, unchanged.
 - `rescued`: true for a rescued cat. v0.3 change: it no longer pays more (RescuedTipsMultiplier is 1.0); the rescue reward is the shiny chance. The flag stays for the book and analytics.
 - `name`: the player's name for this cat, or nil to show the catalog name. Validation (S30): trim, then 1 to CatNameMaxLength (20) characters counted with `utf8.len` (not `#`); reject invalid UTF-8, control characters, newlines, `<` and `>`. RenameCat filters it once with `TextService:FilterStringAsync` and refuses with a toast if filtering errors or the filtered text is all hashes, so the old name stays. The save keeps the raw name; whenever the name is shown (the cat starts working, or the profile loads with the cat working; at most 10 cats) the server filters it again for broadcast (`GetNonChatStringForBroadcastAsync`) and sets `DisplayName`, because the filter changes over time. If that display filter fails, `DisplayName` falls back to the catalog name.
-- `method`: `net`, `rescue`, `bait` or `starter`, for the book and analytics.
+- `method`: `net`, `rescue`, `bait` or `starter`, for the book and analytics. A v2 cat saved as rescued migrates with method `rescue` (engineer's F22, PR #38).
 
 ## 4b. Cat stats: charm, level, XP and rating (`src/shared/CatStats.luau`)
 
 Built 2026-10-26 by the cat stats thread and unchanged in v0.3 except the multipliers named below. Everything is deterministic given the saved fields; the server sends it in `CatView`.
 
-- `charm` 0 to 100, rolled once (now at spawn for strays and rescues, at food placement for bait) and never changed. The average of two uniform rolls times 101, floored and clamped. Most cats sit near 50; about 8% are 80 or above.
+- `charm` 0 to 100, rolled once (now at spawn for strays and rescues, at food placement for bait) and never changed after the cat is owned. v0.4 change: a net catch adds the Perfect bonus to the stray's charm at the moment of the catch (section 10, step 5). The average of two uniform rolls times 101, floored and clamped. Most cats sit near 50; about 8% are 80 or above.
 - `stars` 1 to 5 from charm in bands of 20.
 - `charmMultiplier = 1 + (charm - 50) / 50 x CharmSpread` (0.20): 0.8x to 1.2x. The starter Tabby has charm 50.
 - `level` 1 to CatMaxLevel (10), `levelMultiplier = 1 + CatLevelBonus x (level - 1)` (0.05), so level 10 is 1.45x.
@@ -119,11 +119,11 @@ v0.3 change (Gavin, Q18): no rebirth and nothing resets. `tier` is a profile fie
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | Corner Cafe | start | | | 2 | 1.00 | alley | 2, 2, 1 | bait bowl |
 | 2 | Cozy Cafe | 1,500 | 5 | | 4 | 1.25 | park | 4, 3, 2 | plants, rug; cafe expansion 1 |
-| 3 | Busy Cafe | 8,000 | 12 | one Epic | 6 | 1.50 | neighbourhood | 6, 4, 3 | neon sign; expansion 2 |
-| 4 | Famous Cafe | 30,000 | 20 | one Legendary | 8 | 1.75 | woods | 6, 5, 3 | fish tank, patio; expansion 3 |
-| 5 | Grand Cafe | 120,000 | 30 | two different Legendaries | 10 | 2.00 | sewer | 6, 5, 3 | "Grand Cafe" leaderboard tag; expansion 4 |
+| 3 | Busy Cafe | 8,000 | 12 | one Epic or rarer | 6 | 1.50 | neighbourhood | 6, 4, 3 | neon sign; expansion 2 |
+| 4 | Famous Cafe | 30,000 | 20 | one Legendary or rarer | 8 | 1.75 | woods | 6, 5, 3 | fish tank, patio; expansion 3 |
+| 5 | Grand Cafe | 120,000 | 30 | two different Legendary or rarer cats | 10 | 2.00 | sewer | 6, 5, 3 | "Grand Cafe" leaderboard tag; expansion 4 |
 
-Each column is reachable from the areas already open: Tier 2 needs 5 of the Alleyway's 10, Tier 3 needs 12 of 20, Tier 4 20 of 30, Tier 5 30 of 40. "Cafe expansion n" is a plot model variant the world builder swaps in (more floor, the patio at T4); in the graybox it is extra floor Parts. The UI shows a rank up card with each requirement ticked or not.
+Each column is reachable from the areas already open: Tier 2 needs 5 of the Alleyway's 10, Tier 3 needs 12 of 20, Tier 4 20 of 30, Tier 5 30 of 40. "Cafe expansion n" is a plot model variant the world builder swaps in (more floor, the patio at T4); in the graybox it is extra floor Parts. The UI shows a rank up card with each requirement ticked or not. Rarity requirements mean that rarity or rarer (reviewer N44): the check counts distinct catIds in `collection` whose rarity rank is at least `needsRarity`, so a Mythical meets "one Epic" and a Legendary plus a Mythical meets Tier 5. The card reads "1 Epic or better" and "2 Legendary or better".
 
 `TierDef = { tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps = { tables, espresso, net } }`.
 
@@ -142,7 +142,7 @@ Net level names for the UI: 0 Basic Net, 1 Sturdy Net, 2 Pro Net, 3 Master Net.
 
 ## 7. Decor catalog
 
-UI `DecorDef` fields; `requiresCafeLevel` becomes `requiresTier`. Bonuses apply only while placed.
+UI `DecorDef` fields; `requiresCafeLevel` becomes `requiresTier`. Bonuses apply only while placed. Decor a v2 save placed above its new tier stays placed with no refund (engineer's F22).
 
 | id | name | cost | category | effect | requiresTier | bonus |
 |---|---|---|---|---|---|---|
@@ -176,7 +176,7 @@ Shop foods (`LureDef`, `source = "shop"`):
 
 v0.3 addition (Gavin, Q10). A cart with the dealer NPC parks on the street at night start and leaves at day start. Proximity prompt (12 studs) opens the dealer screen.
 
-- Per-player stock: three slots, each one food from the dealer table, rolled from `DealerSlotWeights[tier]`. The roll is seeded from the player's UserId and a global time window, `dealerWindow = floor(os.time() / DealerWindowSeconds)` (600), as `Random.new(hash(userId, dealerWindow, tier))`, so rejoining or changing servers shows the same stock (S27; a per-server night number would reroll on every server hop). Each slot can be bought once per window; bought slots are saved in `profile.dealer = { window, bought }`, cleared only when the current window is greater than the saved one (N32: server clocks differ by a second or two, so a hop at a boundary can go from W + 1 back to W), so a rejoin or a server hop cannot buy twice. Server nights are not aligned with windows, so a window can roll over mid-night: the stock refreshes then and the dealer screen shows "Fresh stock in m:ss".
+- Per-player stock: three slots, each one food from the dealer table, rolled from `DealerSlotWeights[tier]`. The roll is seeded from the player's UserId and a global time window, `dealerWindow = floor(os.time() / DealerWindowSeconds)` (600), as `Random.new(hash(userId, dealerWindow, tier))`, so rejoining or changing servers shows the same stock (S27; a per-server night number would reroll on every server hop). Each slot can be bought once per window; bought slots are saved in `profile.dealer = { window, bought }` (`bought` keyed by the strings "1" to "3" so the save stays JSON-shaped, engineer's F22), cleared only when the current window is greater than the saved one (N32: server clocks differ by a second or two, so a hop at a boundary can go from W + 1 back to W), so a rejoin or a server hop cannot buy twice. Server nights are not aligned with windows, so a window can roll over mid-night: the stock refreshes then and the dealer screen shows "Fresh stock in m:ss".
 - Stock and prices are shown before buying. Bought dealer food goes into `lures` and is used in the bowl like shop food, with its odds on its card.
 - `BuyDealerFood(slot)`: night, cart within 12 studs, slot 1 to 3, not bought this window, affordable. The server recomputes the stock from the seed at purchase time rather than trusting a cached or client value.
 - Later: an upgrade that improves the dealer's weights (Gavin's "upgrade or someway"), not in v0.3; tiers already do it.
@@ -189,6 +189,8 @@ Dealer foods (`LureDef`, `source = "dealer"`):
 | caviar | Caviar | 3,000 | 10 / 35 / 38 / 14 / 3 | Tiny, shiny and very fancy. |
 | moon_milk | Moon Milk | 10,000 | 0 / 20 / 45 / 28 / 7 | Nobody knows where he gets it. |
 | star_treat | Star Treat | 40,000 | 0 / 0 / 40 / 45 / 15 | It twinkles. Mythical cats can smell it from the next area. |
+
+Each dealer food's `attracts` chip is its likeliest rarity: sardines Rare, caviar Epic, moon_milk Epic, star_treat Legendary (engineer's F22).
 
 `DealerSlotWeights` (chance per slot of sardines / caviar / moon_milk / star_treat):
 
@@ -208,27 +210,34 @@ Night waves (Q2, Q3): at every night start each area despawns its uncaught stray
 
 | id | name | unlock | spawnPoints | waveSize | rescue traps | odds Common / Rare / Epic / Legendary / Mythical |
 |---|---|---|---|---|---|---|
-| alley | Alleyway | Tier 1 | 14 | 10 | trash_bin x2, garbage_bag x1 | 72 / 22 / 5 / 0.9 / 0.1 |
+| alley | Alleyway | Tier 1 | 24 | 10 | trash_bin x2, garbage_bag x1 | 72 / 22 / 5 / 0.9 / 0.1 |
 | park | Park | Tier 2 | 14 | 10 | tree x2, trashcan x1 | 60 / 28 / 9 / 2.5 / 0.5 |
 | neighbourhood | Neighbourhood | Tier 3 | 14 | 10 | shed, gutter (provisional) | 50 / 32 / 13 / 4 / 1 |
 | woods | Woods | Tier 4 | 16 | 10 | hollow_log, bramble_bush (provisional) | 42 / 34 / 17 / 5.5 / 1.5 |
 | sewer | Sewer | Tier 5 | 16 | 10 | drain_pipe, grate (provisional) | 35 / 35 / 20 / 7.5 / 2.5 |
 
+v0.4 layout (engineer, 2026-10-26, after Derek found the old alley too far and too small; design in [world-and-feel.md](world-and-feel.md) section 2): the Alleyway is two back alleys behind the cafe rows that meet in an Alley Square at the north end, at least 8 times the old 60 x 44 box. Every cafe's back door opens onto it from Tier 1, and check-in works at either door. Its 24 spawn points carry `Zone`: `lane` (two behind every cafe, 16) or `square` (8). Epic, Legendary and Mythical strays take only free `square` points (any free point if none is free); Commons and Rares take any. One trash bin per back alley, the garbage bags in the Square. The Park gate stays at the street's south end; the Neighbourhood, Woods and Sewer gates go where world-and-feel.md suggests unless the engineer finds better spots.
+
 Locked areas: a gate model at the entrance is solid on the client for players below the tier, and the server refuses GrabBegin, RescueBegin and Bump in an area the player has not unlocked, so walking past the gate gains nothing.
 
-Tutorial rule (unchanged): a player with `tutorialStep` below 2 always finds a Common stray at alley spawn point 1. Strays are workspace models with attributes (section 13).
+Tutorial rule: a player with `tutorialStep` below 2 always finds a Common stray waiting, v0.4 at the `lane` spawn point behind their own cafe so it is right outside the back door. Strays are workspace models with attributes (section 13).
 
 ## 10. Net: closing circles
 
-v0.3 change (Gavin, Q6): the hold-and-release ring and the flat catch chance are replaced by a sequence of closing circles judged on the server.
+v0.3 change (Gavin, Q6): the hold-and-release ring and the flat catch chance are replaced by a sequence of closing circles judged on the server. v0.4 change (Derek, 2026-10-26: "making the game actually matter if you miss the catch windows"): the first Miss ends the catch with no roll, all Good or Perfect is a sure catch, and each player has patience paws per stray.
 
 Flow:
 
-1. The stray's prompt fires `GrabBegin(strayId)`. Server checks as before (exists, unlocked area, LockedBy 0 or self, 10 studs, not carrying, cooldown). It locks the stray and builds the schedule: `n = circles[rarity]`; circle 1 starts CircleLeadInSeconds (0.6) from now; each circle's shrink time is `shrinkSeconds[rarity] x (1 + u)` with `u` uniform in `[-jitter, +jitter]` for the player's net level; a gap of CircleGapMin to CircleGapMax (0.40 to 0.75 s) separates circles. The target moment of circle i is its start plus its shrink time. The lock lasts until the last target plus GoodWindow plus 1 s.
-2. The server fires `CatchSchedule(strayId, circles, windows)` to that player: `circles = { { startsAt, shrinkSeconds, x, y } }` in server time (x and y are screen positions 0 to 1 so circles do not sit in one spot), `windows = { perfect, good }` in seconds for drawing the bands.
+1. The stray's prompt fires `GrabBegin(strayId)`. Server checks as before (exists, unlocked area, LockedBy 0 or self, 10 studs, not carrying, cooldown), plus v0.4: the player has a paw left on this stray and, after their own miss on it, StrayWarySeconds (5) have passed. It locks the stray and builds the schedule: `n = circles[rarity]`; circle 1 starts CircleLeadInSeconds (0.6) from now; each circle's shrink time is `shrinkSeconds[rarity] x (1 + u)` with `u` uniform in `[-jitter, +jitter]` for the player's net level; a gap of CircleGapMin to CircleGapMax (0.40 to 0.75 s) separates circles. The target moment of circle i is its start plus its shrink time. The lock lasts until the last target plus GoodWindow plus 1 s, or v0.4 until a Miss ends the attempt, whichever comes first.
+2. The server fires `CatchSchedule(strayId, circles, windows, pawsLeft)` to that player (`pawsLeft` nil when the player cannot run out, step 5): `circles = { { startsAt, shrinkSeconds, x, y } }` in server time (x and y are screen positions 0 to 1 so circles do not sit in one spot), `windows = { perfect, good }` in seconds for drawing the bands.
 3. The client draws each circle shrinking onto its ring and fires `CatchPress(strayId, index)` on each press. The client sends no time: the server stamps each press with `GetServerTimeNow()` on arrival and subtracts half the player's round-trip ping (`Player:GetNetworkPing() / 2`, capped at CatchLatencyCapSeconds 0.15).
-4. Judging each circle: `error = abs(press - target)`. Within `perfect` scores CircleScorePerfect 1.0, within `good` scores CircleScoreGood 0.5, else 0. Only the first press per index counts, presses must come in index order, and a press before a circle's start is ignored. A circle with no press by its target plus `good` plus CatchLatencyCapSeconds scores 0. Invariant (S24, a Config spec): `CircleGapMin > max(good over net levels) + CatchLatencyCapSeconds`, so a late press for one circle can never land on the next; today 0.40 > 0.18 + 0.15. Raise CircleGapMin whenever `good` is widened.
-5. After the last circle: `chance = mean(scores)`. Roll once. Success puts the player in carry (section 10c). On a fail a Common stays and can be retried after GrabRetrySeconds (2); anything rarer flees (despawns) with "It got away". The server fires `CatchResult(strayId, scores, chance, success)` and the UI shows each circle's grade and the final percentage.
+4. Judging each circle: `error = abs(press - target)`. Within `perfect` is Perfect, within `good` is Good, else Miss (v0.4: grades only, no scores). Only the first press per index counts, presses must come in index order, and a press before a circle's start is ignored. A circle with no press by its target plus `good` plus CatchLatencyCapSeconds is a Miss. Invariant (S24, a Config spec): `CircleGapMin > max(good over net levels) + CatchLatencyCapSeconds`, so a late press for one circle can never land on the next; today 0.40 > 0.18 + 0.15. Raise CircleGapMin whenever `good` is widened.
+5. v0.4: the attempt ends at the first Miss or after the last circle, with no roll.
+   - Fail (a Miss): the server stops judging and cancels the circles left. The player loses one paw on this stray. Paws live in the server's own table, `stray.paws[userId]`, set to `patience[rarity]` (section 2) the first time that player starts a catch on it and dropped when the stray despawns. The stray jumps StrayJumpBackStuds (6 to 10) straight away from the player. That player waits StrayWarySeconds (5) before another GrabBegin on it; everyone else waits GrabRetrySeconds (2) while it lands. At 0 paws GrabBegin from that player refuses with "It won't trust you again tonight" until the stray despawns; the client disables its prompt locally and shows a hiss icon over it for that player only. The stray stays for everyone else, so no player can burn a cat for others by missing on purpose (reviewer, 2026-10-26). Toasts: "It slipped away! N paws left", then "It won't trust you tonight".
+   - Never out of paws: the `dropOwner` on their own Dropped stray (S26, a bump never loses a cat outright) and a player with `tutorialStep` below TutorialGuaranteedStrayStep on the tutorial Common. Their paws never drop below 1; a miss still jumps the cat back and starts the wary wait.
+   - Walking out of range or finishing a rescue mid-catch (S21, S33) is a Miss.
+   - Success (every circle Good or Perfect): the player enters carry (section 10c). Charm bonus: `gain = PerfectCharmBonus (4) x perfectCount`, times PurrfectCharmMultiplier (2) when every circle is Perfect, and 0 for a profile with `flags.autoPress`; the caught cat's `charm = min(100, strayCharm + gain)` and its stars follow (section 4b).
+   - The server fires `CatchResult(strayId, grades, success, pawsLeft, charmGain)`: `grades` lists the judged circles up to and including any Miss, `pawsLeft` is that player's paws after the attempt (nil when unlimited), `charmGain` is 0 on a fail. The UI shows each grade as it lands, the paw row and the charm line; there is no percentage.
 
 Net levels (windows are half-widths in seconds either side of the target; jitter is the spread on each circle's shrink time):
 
@@ -239,9 +248,9 @@ Net levels (windows are half-widths in seconds either side of the target; jitter
 | 2 | Pro Net | 0.065 | 0.155 | 0.10 |
 | 3 | Master Net | 0.08 | 0.18 | 0 |
 
-Feel targets for QA: a Common with a Basic Net should be caught by a new player most of the time (one slow circle, Good is 50%, retries are free). A Mythical with a Basic Net should be very hard to perfect and a Master Net should make it fair. Test on a phone on mobile data as well as Wi-Fi: phone ping wanders by 30 to 50 ms against a 45 ms Basic Perfect window (N28). If the Basic Net feels mean on touch, widen `good` before touching anything else, and raise CircleGapMin with it (S24).
+Feel targets for QA (v0.4): a new player with a Basic Net should catch a Common within its three paws nearly every time (one slow circle, Good is enough). A Rare or Epic should feel tense but fair. A Mythical with a Basic Net is a real risk (five quick uneven circles on one paw), and a Master Net should make it fair. Test on a phone on mobile data as well as Wi-Fi: phone ping wanders by 30 to 50 ms against a 45 ms Basic Perfect window (N28). If the Basic Net feels mean on touch, widen `good` before touching anything else, and raise CircleGapMin with it (S24).
 
-Exploit note (reviewer signed off 2026-10-26): the server owns the schedule and the clock, so a client cannot forge a Perfect, but a script that watches the circles and presses on time will score well. That is accepted for the slice (Gavin wants all-Perfect to be 100%). The exploit check uses the server's own stamped errors, never TelemetryReport (S23): CatService keeps a 50-circle ring buffer per player and sets `profile.flags.autoPress` when the Perfect rate over the last 50 circles is above 95%. The flag is for review only; nothing is taken away automatically. AnalyticsService has no per-player view, so the check cannot live there. No error-spread test, because network jitter alone spreads a script's arrivals by about 10 ms.
+Exploit note (reviewer signed off 2026-10-26): the server owns the schedule and the clock, so a client cannot forge a Perfect, but a script that watches the circles and presses on time will score well. That is accepted for the slice (Gavin wants all-Perfect to be 100%). v0.4 raises the stakes: all Good or Perfect is now a sure catch, so a script that presses on time catches every cat it reaches; supply (ten strays per area per night, shared) is still the limit. The exploit check uses the server's own stamped errors, never TelemetryReport (S23): CatService keeps a 50-circle ring buffer per player and sets `profile.flags.autoPress` when the Perfect rate over the last 50 circles is above AutoPressFlagRate (0.95). v0.4, what the flag does (reviewer, 2026-10-26): while set, the profile gets no Perfect charm bonus, and the server sends an `autopress_flag` analytics event when it sets and when it clears. It clears itself when the rate over the last 50 circles is AutoPressClearRate (0.85) or below. Nothing else is taken away automatically, because a false positive on a child costs more than a script catching cats; Derek reviews flagged accounts from analytics. A script that mixes in Goods stays under the flag, which is also accepted. AnalyticsService has no per-player view, so the check cannot live there. No error-spread test, because network jitter alone spreads a script's arrivals by about 10 ms.
 
 ## 10b. Rescue minigames
 
@@ -270,7 +279,7 @@ v0.3 change (Gavin, Q9): one cat at a time on the way home, and other players ca
 - Carry is as built: success sets carry state, walk speed CarryWalkSpeed 13, the held cat model, `CheckIn` at the own door (8 studs) adds the instance. Leaving mid-carry still saves the cat. A carrying player cannot start a catch, a rescue or a bump.
 - The carrier's character gets attributes `CarryingCatId`, `CarryStartedAt`, `BumpImmune`.
 - `Bump(targetUserId)`: server checks `targetUserId` is an integer (`Guard.int`) naming a player in the server (`Players:GetPlayerByUserId`) other than the bumper (N29), the bumper is not carrying, has the area unlocked if the target is inside an area, and is within BumpRangeStuds (6); the target is carrying, not BumpImmune, at least BumpGraceSeconds (3) into the carry, and outside its own safe zone (its plot plus BumpSafeRadiusStuds 15 around its door); the bumper is off BumpCooldownSeconds (12) and has not bumped this target in the last BumpSameTargetSeconds (60). BumpEnabled false in Config turns the remote off and hides the prompt.
-- Then roll BumpChance (0.5). Success: the cat drops at the carrier's feet as a stray with `Dropped` true, its catId, variant, charm and rescued flag kept, and scurries 6 to 10 studs. The server records `droppedBy` (the bumper) and `dropOwner` (the old carrier) in its own table (S25). For DropOwnerPrioritySeconds (8) only the old carrier can start a catch on it; after that anyone can, except the bumper, who can never catch a stray they knocked loose. A Dropped stray never flees on a failed catch (any rarity retries after GrabRetrySeconds, like a Common) and stays until caught (S26). It also survives any night wave that starts within DroppedMinStaySeconds (120) of the drop (S32), so a bump timed just before nightfall cannot delete the cat before the owner window is used. A bump can delay a kid's Legendary but never lose it outright. Whoever catches a dropped stray is BumpImmune for that carry. Fail: both players get "It held on tight!" and the carrier is BumpImmune for 3 s.
+- Then roll BumpChance (0.5). Success: the cat drops at the carrier's feet as a stray with `Dropped` true, its catId, variant, charm and rescued flag kept, and scurries 6 to 10 studs. The server records `droppedBy` (the bumper) and `dropOwner` (the old carrier) in its own table (S25). For DropOwnerPrioritySeconds (8) only the old carrier can start a catch on it; after that anyone can, except the bumper, who can never catch a stray they knocked loose. A Dropped stray never runs out of paws for its `dropOwner` (section 10, step 5; v0.4 restates the old "never flees") and stays until caught (S26); other players use their normal paws on it. It also survives any night wave that starts within DroppedMinStaySeconds (120) of the drop (S32), so a bump timed just before nightfall cannot delete the cat before the owner window is used. A bump can delay a kid's Legendary but never lose it outright. Whoever catches a dropped stray is BumpImmune for that carry. Fail: both players get "It held on tight!" and the carrier is BumpImmune for 3 s.
 - Grace, immunity, cooldowns and drop claims live in server tables; the character and stray attributes are display only (N29). The 6-stud range check uses client-owned character positions, so it only bounds honest play; the cooldowns are what limit a teleporting exploiter, which is accepted.
 - The bumper never receives the cat. Nothing is taken from a cafe, only from arms on the way home.
 - The prompt is a ProximityPrompt "Bump" on the carried cat model, shown only to players who are not carrying; the server validates regardless.
@@ -344,8 +353,8 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 
 | name | kind | args | server checks | result |
 |---|---|---|---|---|
-| GrabBegin | event | strayId | stray exists, area unlocked, LockedBy 0 or self, for a Dropped stray not the bumper and within the old carrier's priority window only the old carrier, 10 studs, not carrying, GrabCooldownSeconds | locks, fires CatchSchedule (section 10) |
-| CatchPress | event | strayId, index | LockedBy self, attempt open, index is the next unjudged circle, not before its start; 10 per second | scores the circle; after the last, rolls and fires CatchResult |
+| GrabBegin | event | strayId | stray exists, area unlocked, LockedBy 0 or self, a paw left for this player and past their StrayWarySeconds (v0.4), for a Dropped stray not the bumper and within the old carrier's priority window only the old carrier, 10 studs, not carrying, GrabCooldownSeconds | locks, fires CatchSchedule (section 10) |
+| CatchPress | event | strayId, index | LockedBy self, attempt open, index is the next unjudged circle, not before its start; 10 per second | judges the circle; a Miss or the last circle ends the attempt and fires CatchResult, no roll (v0.4) |
 | RescueBegin | event | rescueSpotId | occupied, area unlocked, unlocked or own, past RetryAt (RescueSelfRetrySeconds for the player who just failed), 10 studs, not carrying | locks with a deadline, fires RescueChallenge (section 10b) |
 | RescuePress | event | rescueSpotId | LockedBy self, attempt open; 10 per second | scores the press; on success to carry, on out of paws ends; fires RescueResult |
 | RescueCancel | event | rescueSpotId | LockedBy self | ends the attempt, sets RetryAt |
@@ -368,8 +377,8 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | TelemetryReport | event | name, value | allowlist, 10 per minute | analytics only |
 | ClaimOffline | event | none | pending above 0 | adds coins |
 | TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
-| CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |
-| CatchResult | server to client | strayId, scores, chance, success | | UI grades and toast |
+| CatchSchedule | server to client | strayId, circles, windows, pawsLeft | | UI draws the circles and the paw row |
+| CatchResult | server to client | strayId, grades, success, pawsLeft, charmGain | | UI grades, paw row, charm line and toast (v0.4) |
 | RescueChallenge | server to client | rescueSpotId, challenge | | UI draws the bar or the shake |
 | RescueResult | server to client | rescueSpotId, hits, pawsLeft, done, success | | UI |
 | DealerStock | server to client | slots = { { lureId, cost, bought } }, restocksAt | | sent at night start, at each window change during night and when the screen opens |
@@ -381,9 +390,11 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 
 Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), EquipLure.
 
+v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying and TravelCooldownSeconds (3) has passed; moves the character to that destination's entry point.
+
 ## 16. Analytics events (AnalyticsService)
 
-The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `shiny_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`. The growth thread also added `bump`, `drop_outcome` and `left_after_bump` to judge griefing in the alpha (analytics-plan.md, PR #33).
+The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `shiny_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`. The growth thread also added `bump`, `drop_outcome` and `left_after_bump` to judge griefing in the alpha (analytics-plan.md, PR #33). v0.4 asks for `catch_circles` to add `missed`, `pawsLeft`, `purrfect` and `charmGain`, a custom event `autopress_flag` (set or cleared), and `travel` (destination) to see whether players still walk.
 
 ## 17. Tuning constants (`src/shared/Config.luau`)
 
@@ -433,6 +444,24 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | RenameCooldownSeconds | 5 | new | CafeService |
 | AnnounceMinRarity | Epic (plus every shiny) | Epic | CatService |
 
+Changed or new in v0.4:
+
+| constant | value | was | used by |
+|---|---|---|---|
+| patience (Catalog rarity field) | 3, 2, 2, 1, 1 | fleesOnFail | CatService, UI paw row |
+| StrayWarySeconds | 5 | new | CatService, the player who just missed |
+| StrayJumpBackStuds | 6 to 10 | new | CatService |
+| PerfectCharmBonus | 4 | new | CatService |
+| PurrfectCharmMultiplier | 2 | new | CatService |
+| AutoPressFlagRate | 0.95 | `Circles.AUTO_PRESS_RATE` | CatService |
+| AutoPressClearRate | 0.85 | new | CatService |
+| NormalWalkSpeed | 20 | 16 | CatService, PlotService |
+| CarryWalkSpeed | 16 | 13 | CatService |
+| TravelCooldownSeconds | 3 | new | Travel (F19) |
+| alley spawnPoints | 24 | 14 | Catalog areas |
+
+CircleScorePerfect and CircleScoreGood no longer decide anything in v0.4; keep them only if a test or analytics wants a number.
+
 Removed: GrabHoldSeconds, GrabMinHoldSeconds, NetBonus, LureBonus, RingBonusPerfect, RingBonusGood, RingPerfectWindow, RingGoodWindow, RingLatencyGraceSeconds, CatchChanceMin, CatchChanceMax, LureDespawnSeconds, LureReserveSeconds, RescueHoldSeconds, RescueLockSeconds (the attempt holds the lock), RenovateBonus. GrabLockSeconds becomes "schedule length plus 1 s".
 
-Unchanged and still used: ServerPlayers 8, StartCoins 50, FavoriteMultiplier 1.5, TableBonus 0.10, EspressoBonus 0.15, OfflineRate 0.25, OfflineCapSeconds 3600, AutosaveSeconds 60, ServerStartDaySeconds 120, GrabRangeStuds 10, GrabRetrySeconds 2, GrabCooldownSeconds 2, CarryWalkSpeed 13, NormalWalkSpeed 16, CheckInRangeStuds 8, the cat stats constants, the customer constants, RemoteRateLimitPerSecond 10, MaxIdLength 40, TutorialGuaranteedStrayStep 2. World layout numbers stay the engineer's in `Config.World`, now with three more area centers and gates.
+Unchanged and still used: ServerPlayers 8, StartCoins 50, FavoriteMultiplier 1.5, TableBonus 0.10, EspressoBonus 0.15, OfflineRate 0.25, OfflineCapSeconds 3600, AutosaveSeconds 60, ServerStartDaySeconds 120, GrabRangeStuds 10, GrabRetrySeconds 2, GrabCooldownSeconds 2, CheckInRangeStuds 8, the cat stats constants, the customer constants, RemoteRateLimitPerSecond 10, MaxIdLength 40, TutorialGuaranteedStrayStep 2. World layout numbers stay the engineer's in `Config.World`, now with three more area centers and gates.

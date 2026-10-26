@@ -124,3 +124,5 @@ Sound, one should-fix; CI green on both jobs. Matches gdd v0.2 and data-model se
 **S16 (should-fix)** `HUD.setClock` counts down with `os.time() + offset`, and the `UI.clock.bind` path has no `serverNow`, so the chip trusts the device clock (data-model section 1 forbids this). A phone a few minutes off shows a wrong or frozen countdown. Use `workspace:GetServerTimeNow()`, the server's synchronised epoch time, and drop the `serverTime` plumbing.
 
 Nits: N17 `(Config :: any).RescueHoldSeconds or 4` is an acceptable bridge (the live path takes the prompt's `HoldDuration`); drop the cast once the constant exists. N18 the rescue fill runs on `RenderStepped`; `Heartbeat` is enough.
+
+Update 12:20 UTC: PR #8 commit ca69191 closes S16 (`Workspace:GetServerTimeNow()` in the clock tick, `serverNow` and the `os.time()` offset removed) and N18 (rescue fill on Heartbeat). CI green at that head. Stack note for the lead: PR #4 and PR #5 still have base `engineer/review-fixes`, which was fast-forwarded into `lead/repo-docs-and-ci`; retarget them (and keep that branch until then, or GitHub closes both), and PR #8 sits on PR #5.

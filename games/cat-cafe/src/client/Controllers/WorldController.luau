@@ -1,5 +1,5 @@
 --!strict
--- Client-side world touches: the park gate opens once the cafe reaches the Park's tier, check-in fires itself at the
+-- Client-side world touches: each area gate opens once the cafe reaches that area's tier, check-in fires itself at the
 -- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, and the
 -- sky and the parts that glow at night follow the server's day and night clock (features F20). All cosmetic,
 -- all local.
@@ -11,7 +11,6 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(script.Parent.Parent.Net)
 local UIController = require(script.Parent.UIController)
@@ -19,8 +18,6 @@ local UIController = require(script.Parent.UIController)
 local WorldController = {}
 
 local player = Players.LocalPlayer
-local parkArea = Catalog.getArea("park")
-local parkTier = if parkArea ~= nil then parkArea.tier else 2
 
 local function rootPosition(): Vector3?
 	local character = player.Character
@@ -28,12 +25,7 @@ local function rootPosition(): Vector3?
 	return if root ~= nil and root:IsA("BasePart") then root.Position else nil
 end
 
-local function setGateOpen(open: boolean)
-	local world = Workspace:FindFirstChild("World")
-	local gate = if world ~= nil then world:FindFirstChild("ParkGate") else nil
-	if gate == nil then
-		return
-	end
+local function setGateOpen(gate: Instance, open: boolean)
 	for _, descendant in gate:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			local part = descendant :: BasePart
@@ -233,7 +225,9 @@ end
 function WorldController.start()
 	task.spawn(followClock)
 
-	local lastGateOpen: boolean? = nil
+	-- Gates under World.Gates (WorldBuilder): solid below the gate's RequiresTier, see-through and passable at
+	-- or above it. Only this player's copy changes; the server checks the tier on every catch and rescue.
+	local gateOpen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local lastCheckIn = 0
 	local sawAlley = false
 
@@ -245,10 +239,17 @@ function WorldController.start()
 				continue
 			end
 
-			local gateOpen = state.tier >= parkTier
-			if gateOpen ~= lastGateOpen then
-				lastGateOpen = gateOpen
-				setGateOpen(gateOpen)
+			local world = Workspace:FindFirstChild("World")
+			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil
+			if gates ~= nil then
+				for _, gate in gates:GetChildren() do
+					local requires = gate:GetAttribute("RequiresTier")
+					local open = type(requires) == "number" and state.tier >= requires
+					if gateOpen[gate] ~= open then
+						gateOpen[gate] = open
+						setGateOpen(gate, open)
+					end
+				end
 			end
 
 			local position = rootPosition()

@@ -47,17 +47,24 @@ Results of every run go to `docs/playtests/YYYY-MM-DD.md` in the `playtest-repor
 5. Phone checks use Studio's Device emulator (Test tab) at a 390 x 844 phone preset; multi-player checks use
    Test > Clients and Servers with 2 players. Latency checks use File > Studio Settings > Network > Incoming
    Replication Lag (set it back to 0 afterwards).
-6. Debug hooks (Studio-only, `src/server/Services/Debug.luau`, every call errors outside Studio). From
-   `execute_luau` while playing: `local Debug = require(game.ServerScriptService.Server.Services.Debug)`.
-   `player` may be a Player, a UserId, a name, or nil for the first player.
-   - On `main` now: `Debug.snapshot(player?)` (authoritative `PlayerState`, settled first),
-     `Debug.setCoins(player?, n)`, `Debug.setLastTick(player?, secondsAgo)`, `Debug.resetProfile(player?)`,
-     `Debug.giveCat(player?, catId, rescued?)`, `Debug.setUpgrade(player?, id, level)`,
-     `Debug.spawnStray(catId, areaId?)` (returns the StrayId), `Debug.setPhase("day" or "night")`,
-     `Debug.clock()`, `Debug.spawnStuckCat(catId, rescueSpotId?)`, `Debug.counts(areaId?)`, `Debug.dataSaves()`.
-   - Asked for v0.3 (section 8): `setTier`, shiny on `spawnStray` and `giveCat`, `giveLure`, `readyBait`,
-     `setDealerStock` or a dealer window offset, `spawnRichTip`, `setLastSeen`, a forced bump roll, and a server log of
-     each scored circle. Steps marked (hook) use these; without the hook the step is skipped, not failed.
+6. Debug hooks (Studio-only, `src/server/Services/Debug.luau`, every call errors outside Studio). Reach them
+   through the `PurrPotDebug` bridge that `Main.server.luau` puts in ServerStorage (PR #50), from the command bar
+   in Server view or from `execute_luau` on the server while playing:
+   `game.ServerStorage.PurrPotDebug:Invoke("setPhase", "night")`, `:Invoke("setCoins", nil, 5000)`,
+   `:Invoke("snapshot")`. Never `require` the Debug module there: those contexts get a fresh copy of every module
+   whose services never started (`profile not loaded`, a clock nobody runs). Steps below write
+   `Debug.name(args)` as shorthand for `PurrPotDebug:Invoke("name", args)`. `player` may be a Player, a UserId, a
+   name, or nil for the first player.
+   - On `main` now: `snapshot(player?)` (authoritative `PlayerState`, settled first), `setCoins(player?, n)`,
+     `setLastTick(player?, secondsAgo)`, `resetProfile(player?)`, `setTier(player?, tier)`,
+     `giveLure(player?, lureId, count?)`, `setLastSeen(player?, secondsAgo)` (returns the offline amount and shows
+     the popup), `setSaveVersion(player?, version)`, `giveCat(player?, catId, rescued?)`,
+     `setUpgrade(player?, id, level)`, `spawnStray(catId, areaId?)` (returns the StrayId), `setPhase("day" or
+     "night")`, `clock()`, `spawnStuckCat(catId, rescueSpotId?)`, `counts(areaId?)`, `dataSaves()`. The server
+     also prints a `[Catch]` line per graded circle in Studio.
+   - Still asked for (section 8): shiny on `spawnStray` and `giveCat`, `readyBait`, `setDealerStock` or a dealer
+     window offset, `spawnRichTip` and a forced bump roll. Steps marked (hook) use these; without the hook the step
+     is skipped, not failed.
 
 ## 3. Unit tests
 
@@ -118,8 +125,8 @@ is a ticket against the harness, owner QA.
 
 Conventions: `get_console_output` after every step, any new error or warning is recorded with its full text.
 `screen_capture` after every step that changes what the player sees; save to
-`docs/playtests/evidence/YYYY-MM-DD/<step>.png`. Read authoritative numbers with `execute_luau` on the server
-(hook) and compare with the HUD. Studio's built-in `subagent` tool (playtest type) can run 4.1 end to end once
+`docs/playtests/evidence/YYYY-MM-DD/<step>.png`. Read authoritative numbers with
+`game.ServerStorage.PurrPotDebug:Invoke("snapshot")` from `execute_luau` on the server and compare with the HUD. Studio's built-in `subagent` tool (playtest type) can run 4.1 end to end once
 it is scripted; keep the manual tool sequence below as the reference.
 
 ### 4.1 Smoke run (about 8 minutes, before every friend playtest)
@@ -380,12 +387,11 @@ shaped findings go to luau-reviewer as blockers. QA never writes the fix.
 
 ## 8. Open requests to other threads
 
-1. Engineer, Debug hooks for v0.3 (Studio-only like the rest): `Debug.setTier(player?, tier)`; a shiny option on
-   `spawnStray` and `giveCat`; `Debug.giveLure(player?, lureId, count)`; `Debug.readyBait(player?)` (sets
-   `placedAt` 600 s back); `Debug.setNightIndex(n)` or `Debug.setDealerStock(player?, { lureIds })`;
-   `Debug.spawnRichTip(player?)`; `Debug.setLastSeen(player?, secondsAgo)` (still missing from v0.1); and a way
-   to force the next bump roll (`Debug.forceBump(true or false)`). Done: the server's `[Catch]` line per graded
-   circle (F26, PR #40).
+1. Engineer, Debug hooks for v0.3 (Studio-only like the rest, reached through `PurrPotDebug`): a shiny option on
+   `spawnStray` and `giveCat`; `Debug.readyBait(player?)` (sets `placedAt` 600 s back);
+   `Debug.setNightIndex(n)` or `Debug.setDealerStock(player?, { lureIds })`; `Debug.spawnRichTip(player?)`; and a
+   way to force the next bump roll (`Debug.forceBump(true or false)`). Done: `setTier`, `giveLure`,
+   `setLastSeen`, `setSaveVersion`, the `[Catch]` line per graded circle (F26, PR #40) and the bridge (PR #50).
 2. Engineer, pure functions for unit tests (section 3.1): the circle schedule builder and judge, the rescue bar
    position and hit test, the bump checks as a predicate over positions and times, the rank up requirement
    check, the bait roll, the dealer stock roll, `Economy.settle` across phase boundaries, and name trimming, each

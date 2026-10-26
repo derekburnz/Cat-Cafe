@@ -114,6 +114,7 @@ end
 
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
+	plot.model:SetAttribute("Tier", tier)
 	for _, spot in Catalog.spots do
 		local slot: BasePart? = plot.spots[spot.id]
 		if slot ~= nil then
@@ -417,6 +418,14 @@ local function onUnplaceCat(player: Player, rawUid: unknown)
 	CafeService.sync(player)
 end
 
+-- "$2.6/s", "$12/s": the HUD's rounding (one decimal under 10), so the toast and the income pill agree.
+local function rateText(perSecond: number): string
+	local value = if perSecond >= 10
+		then string.format("%.0f", perSecond)
+		else string.format("%.1f", perSecond)
+	return "$" .. (value:gsub("%.0$", "")) .. "/s"
+end
+
 -- Equip best: one tap gives the owned cats the open role slots for the highest rate (shared/EquipBest).
 -- Nothing is bought or sold, so the only check is that the profile is loaded; the plan itself only ever
 -- uses slots this tier has opened and cats this player owns.
@@ -438,11 +447,11 @@ local function onEquipBest(player: Player)
 	Net.toast(
 		player,
 		string.format(
-			"%d cats working in %d roles (%d moved): $%d/s",
+			"%d cats working in %d roles (%d moved): %s",
 			plan.catsPlaced,
 			plan.spotsOpen,
 			changed,
-			math.floor(Economy.incomePerSecond(profile) + 0.5)
+			rateText(Economy.incomePerSecond(profile))
 		),
 		"good"
 	)

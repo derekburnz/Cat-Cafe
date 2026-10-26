@@ -594,6 +594,9 @@ local function endCarry(player: Player): Carry?
 		return nil
 	end
 	carrying[player] = nil
+	-- the cafe's copy feeds ProfileSync.carrying; while it is set the client keeps the walk-home banner and door
+	-- marker up and holds back tutorial hints
+	CafeService.setCarrying(player, nil)
 	if carry.model ~= nil then
 		carry.model:Destroy()
 	end

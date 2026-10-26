@@ -40,10 +40,11 @@ Theme.colors = {
 	black = Color3.fromHex("000000"),
 }
 
--- HUD panels float over the 3D world, so they are dark and slightly translucent for contrast.
+-- HUD panels float over the 3D world, so they are dark and solid for contrast.
 Theme.hud = {
 	panel = Theme.colors.cocoaDeep,
-	panelTransparency = 0.12,
+	-- opaque: world BillboardGuis (slot labels, name tags) render under the HUD and ghosted through at 0.12
+	panelTransparency = 0,
 	stroke = Color3.fromHex("FFF9F2"),
 	strokeTransparency = 0.72,
 	text = Theme.colors.paper,

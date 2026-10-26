@@ -97,51 +97,40 @@ def build_puddle(mat):
     return [b.finalize("CatCafe_Alley_Puddle", mat)]
 
 
-def build_stuck_tree(mat):
-    """Street tree with one thick low branch a cat clings to. Pivot base center.
-    Stuck pose: see poses.STUCK_POSES["CatCafe_Alley_StuckTree"]."""
+def build_trash_bin(mat):
+    """Rescue trap (trash_bin): wheelie bin with the lid flung open. Pivot base center; the Lid is
+    its own part pivoting on the hinge so it can rattle. The stuck cat stands inside with head and
+    front paws over the rim (poses.STUCK_POSES)."""
     b = Builder()
-    b.cyl_base((0, 0, 0), 0.55, 5.2, "fur_brown", segments=10, radius2=0.4)
-    b.box((1.5, 0, 4.1), (3.2, 0.5, 0.5), "fur_brown", rot=(math.radians(8), "Y"))            # branch toward +X
-    b.box((-0.9, 0.3, 3.4), (1.6, 0.4, 0.4), "fur_brown", rot=(math.radians(-25), "Y"))
-    b.ico((0, 0, 6.3), 1.7, "leaf_green")
-    b.ico((1.0, 0.5, 5.6), 1.1, "leaf_dark")
-    b.ico((-1.1, -0.4, 5.7), 1.0, "leaf_green")
-    b.cyl_base((0, 0, 0), 1.0, 0.25, "concrete_dark", segments=12, bevel=False)            # tree pit
-    return [b.finalize("CatCafe_Alley_StuckTree", mat)]
+    w, d, h = 1.9, 1.7, 2.4
+    b.box_base((0, 0, 0.15), (w, d, h - 0.15), "dumpster_green")
+    b.box_base((0, 0, h - 0.04), (w + 0.12, d + 0.12, 0.14), "concrete_dark")                 # rim
+    b.box((0, 0, h + 0.06), (w - 0.1, d - 0.1, 0.04), "fur_black", bevel=False)               # trash inside
+    b.box((0.45, 0.2, h + 0.12), (0.5, 0.45, 0.16), "cardboard", bevel=False, rot=(math.radians(25), "Z"))
+    lid = Builder()                                                                          # own part, pivot on the hinge
+    a = math.radians(75)                                                                     # flung back past upright
+    lid.box((0, 0.85 * math.cos(a), 0.85 * math.sin(a)), (w + 0.1, 1.7, 0.1), "concrete_dark", rot=(a, "X"))
+    b.box((0, d / 2 + 0.16, h - 0.25), (w * 0.8, 0.12, 0.12), "metal")                       # handle bar
+    for x in (-0.7, 0.7):
+        b.cyl((x, d / 2 - 0.1, 0.2), 0.22, 0.18, "fur_black", segments=10, rot=(math.radians(90), "Y"))  # wheels
+    b.box((0, -d / 2 - 0.01, 1.3), (0.9, 0.02, 0.5), "offwhite", bevel=False)                  # faded label
+    b.box((-0.5, -d / 2 - 0.012, 0.6), (0.3, 0.02, 0.7), "rust", bevel=False)
+    return [b.finalize("CatCafe_Alley_TrashBin_Bin", mat),
+            lid.finalize("CatCafe_Alley_TrashBin_Lid", mat, location=(0, d / 2 + 0.06, h + 0.1))]
 
 
-def build_stuck_box(mat):
-    """Cardboard box on its side, opening toward -Y; a cat gets its head stuck inside.
-    Five slabs, no lid, so the head is hidden by the walls."""
+def build_garbage_bags(mat):
+    """Rescue trap (garbage_bag): three tied bin bags slumped together. Pivot base center.
+    The stuck cat lies under the front-right bag with its head and front paws out (-Y)."""
     b = Builder()
-    w, d, h, t = 1.7, 1.6, 1.95, 0.06
-    cy = 0.65
-    b.box((0, cy, t / 2), (w, d, t), "cardboard", bevel=False)                                  # floor
-    b.box((0, cy, h - t / 2), (w, d, t), "cardboard", bevel=False)                              # top
-    b.box((-w / 2 + t / 2, cy, h / 2), (t, d, h), "cardboard", bevel=False)
-    b.box((w / 2 - t / 2, cy, h / 2), (t, d, h), "cardboard", bevel=False)
-    b.box((0, cy + d / 2 - t / 2, h / 2), (w, t, h), "cardboard", bevel=False)                  # back
-    b.box((0, cy - d / 2 - 0.3, h - 0.03), (w, 0.6, t), "cardboard", bevel=False, rot=(math.radians(-30), "X"))  # top flap
-    b.box((-w / 2 - 0.3, cy - d / 2 + 0.3, h / 2), (0.6, t, h), "cardboard", bevel=False, rot=(math.radians(20), "Z"))
-    b.box((0, cy + d / 2 + 0.01, h * 0.55), (0.6, 0.02, 0.4), "offwhite", bevel=False)          # label on the back
-    return [b.finalize("CatCafe_Alley_StuckBox", mat)]
-
-
-def build_drainpipe(mat):
-    """Wall drainpipe with an elbow at the bottom opening toward -Y. Pivot at the wall,
-    back-bottom center. A cat sits inside the elbow with its head poking out."""
-    b = Builder()
-    r = 0.78
-    b.cyl_base((0, -r, 1.3), r * 0.8, 7.0, "concrete_dark", segments=12)                      # riser
-    for z in (3.0, 6.5):
-        b.ring((0, -r, z), r * 0.85, 0.1, 0.2, "metal", segments=10, bevel=False)              # brackets
-        b.box((0, -r / 2, z), (0.3, r, 0.15), "metal", bevel=False)
-    b.sphere((0, -r, 1.3), r, "concrete_dark", segments=10, rings=6)                           # elbow
-    b.cyl((0, -r - 0.9, r), r, 1.8, "concrete_dark", segments=12, rot=(math.radians(90), "X")) # outlet, open end at -Y
-    b.ring((0, -r - 1.8, r), r + 0.06, 0.12, 0.12, "metal", segments=12, bevel=False, rot=(math.radians(90), "X"))
-    b.cyl_base((0, -r - 1.2, 0), 1.0, 0.03, "puddle", segments=12, bevel=False, scale=(1.3, 1, 1))  # drip puddle
-    return [b.finalize("CatCafe_Alley_Drainpipe", mat)]
+    for (x, y, r, sx, sz, sw) in ((-0.85, 0.55, 0.75, 1.0, 0.9, "concrete_dark"), (1.15, 1.0, 0.55, 1.0, 0.9, "fur_black"),
+                                  (0.45, 0.35, 0.95, 1.05, 0.95, "fur_black")):        # last one hides the cat
+        b.ico((x, y, r * sz), r, sw, subdivisions=1, scale=(sx, 1.0, sz))
+        b.pyramid((x, y, r * sz * 2 - 0.08), 0.22, 0.26, sw)                                    # tied neck
+        b.box((x, y, r * sz * 2 + 0.2), (0.3, 0.06, 0.08), "metal", bevel=False)               # twist tie
+    b.box((-0.75, -0.45, 0.04), (0.5, 0.35, 0.06), "cardboard", bevel=False, rot=(math.radians(-15), "Z"))
+    b.box((1.2, -0.75, 0.05), (0.18, 0.12, 0.08), "fish_belly", bevel=False)                   # fish bone
+    return [b.finalize("CatCafe_Alley_GarbageBags", mat)]
 
 
 def build_shop_window(mat):
@@ -162,9 +151,8 @@ def build_shop_window(mat):
 
 
 ASSETS = {
-    "CatCafe_Alley_StuckTree": (build_stuck_tree, 800),
-    "CatCafe_Alley_StuckBox": (build_stuck_box, 300),
-    "CatCafe_Alley_Drainpipe": (build_drainpipe, 800),
+    "CatCafe_Alley_TrashBin": (build_trash_bin, 600),
+    "CatCafe_Alley_GarbageBags": (build_garbage_bags, 600),
     "CatCafe_Alley_ShopWindow": (build_shop_window, 500),
     "CatCafe_Alley_Dumpster": (build_dumpster, 1200),
     "CatCafe_Alley_TrashCan": (build_trash_can, 800),

@@ -8,10 +8,21 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 
 export type Point = { x: number, y: number, z: number, rotY: number? }
--- A rescue spot: the prop stands at (x, floor, z) turned by rotY; `cat` is where the stuck cat sits, in prop space.
-export type RescuePoint = { prop: string, x: number, z: number, rotY: number?, cat: Point }
+-- A rescue spot: the prop stands at (x, floor, z) turned by rotY; the stuck cat sits at Layout.stuckPoses[prop].
+export type RescuePoint = { prop: string, x: number, z: number, rotY: number? }
 
 local Layout = {}
+
+-- Where the stuck cat's pivot sits on each rescue prop, in prop space: the stuck_pose body_cframe_roblox values
+-- from assets/cat-cafe/exports/manifest.json. Placeholders share the real props' pivots, so one set fits both.
+Layout.stuckPoses = {
+	-- Clings to the low branch, rolled toward the trunk.
+	CatCafe_Alley_StuckTree = CFrame.new(-1.4, 4.4, 0) * CFrame.Angles(0, 0, math.rad(20)),
+	-- Head inside the box, tail end out of the opening.
+	CatCafe_Alley_StuckBox = CFrame.new(0, 0, -0.6) * CFrame.Angles(0, math.rad(-180), 0),
+	-- Body inside the outlet, head poking out.
+	CatCafe_Alley_Drainpipe = CFrame.new(0, 0, -2),
+} :: { [string]: CFrame }
 
 local W = Config.World
 
@@ -101,18 +112,10 @@ Layout.alley = {
 		{ x = 14, y = 0.1, z = W.AlleyCenterZ + 13 },
 	} :: { Point },
 	rescueSpots = {
-		{
-			prop = "CatCafe_Alley_Drainpipe",
-			x = -4,
-			z = W.AlleyCenterZ + 19,
-			cat = { x = 3.6, y = 0, z = 0, rotY = -90 },
-		},
-		{
-			prop = "CatCafe_Alley_StuckBox",
-			x = -26,
-			z = W.AlleyCenterZ - 17,
-			cat = { x = 0, y = 5, z = 0 },
-		},
+		-- On the far wall's inner face, outlet toward the alley.
+		{ prop = "CatCafe_Alley_Drainpipe", x = -4, z = W.AlleyCenterZ + 21.5 },
+		-- Opening turned toward the middle of the alley.
+		{ prop = "CatCafe_Alley_StuckBox", x = -26, z = W.AlleyCenterZ - 17, rotY = -90 },
 	} :: { RescuePoint },
 	props = {
 		{ asset = "CatCafe_Alley_Dumpster", x = -25, z = W.AlleyCenterZ - 6, rotY = 90 },
@@ -150,25 +153,10 @@ Layout.park = {
 		{ x = 28, y = 0.1, z = W.ParkCenterZ + 22 },
 	} :: { Point },
 	rescueSpots = {
-		{
-			prop = "CatCafe_Alley_StuckTree",
-			x = 36,
-			z = W.ParkCenterZ + 26,
-			rotY = 180,
-			cat = { x = 1.8, y = 5.2, z = 0, rotY = 90 },
-		},
-		{
-			prop = "CatCafe_Alley_StuckTree",
-			x = -36,
-			z = W.ParkCenterZ - 25,
-			cat = { x = 1.8, y = 5.2, z = 0, rotY = 90 },
-		},
-		{
-			prop = "CatCafe_Alley_StuckBox",
-			x = 24,
-			z = W.ParkCenterZ - 25,
-			cat = { x = 0, y = 5, z = 0 },
-		},
+		-- Branches reach toward the middle of the park (a tree's branch points along its -X).
+		{ prop = "CatCafe_Alley_StuckTree", x = 36, z = W.ParkCenterZ + 26 },
+		{ prop = "CatCafe_Alley_StuckTree", x = -36, z = W.ParkCenterZ - 25, rotY = 180 },
+		{ prop = "CatCafe_Alley_StuckBox", x = 24, z = W.ParkCenterZ - 25, rotY = 90 },
 	} :: { RescuePoint },
 	props = {
 		{ asset = "CatCafe_Park_Fountain", x = 0, z = W.ParkCenterZ },

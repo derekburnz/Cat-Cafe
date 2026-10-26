@@ -404,7 +404,8 @@ local function buildArea(
 		local base = CFrame.new(point.x, spec.floorY, point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
 		place(point.prop, base, props)
-		local spot = anchor(name, localCFrame(base, point.cat), rescueFolder)
+		local spot =
+			anchor(name, base * (Layout.stuckPoses[point.prop] or CFrame.new()), rescueFolder)
 		spot:SetAttribute("Area", id)
 		spot:SetAttribute("RescueSpotId", name)
 		spot:SetAttribute("Occupied", false)

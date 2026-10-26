@@ -1,12 +1,13 @@
 {
-  "generated": "2026-10-26 17:48 UTC",
+  "generated": "2026-10-26 19:13 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
     "value in Roblox axes.",
     "Roblox: position (x, y, z) -> (-x, z, y), so the front is -Z (LookVector). *_angles_roblox_deg",
     "go to CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)); body_cframe_roblox is the",
-    "same Body CFrame as CFrame.new(table.unpack(t)), relative to the prop pivot or HumanoidRootPart."
+    "same Body CFrame as CFrame.new(table.unpack(t)), relative to the prop pivot or HumanoidRootPart.",
+    "For a cat with `scale` s (Ragdoll, Maine Coon 1.2) multiply every pose position by s."
   ],
   "poses": {
     "upright": {
@@ -144,6 +145,12 @@
       "note": "Cradled across the chest, facing the character's left, so the camera behind the player sees the cat side on. Relative to the HumanoidRootPart centre (R15: 3 studs above the floor)."
     }
   },
+  "role_uniforms": {
+    "barista": "Apron",
+    "waiter": "BowTie",
+    "greeter": "Sash",
+    "entertainer": "PartyHat"
+  },
   "upright_attachments": {
     "BowTie": {
       "part": "Body",
@@ -190,6 +197,52 @@
         0.0,
         0.0
       ]
+    },
+    "Sash": {
+      "part": "Body",
+      "offset": [
+        0.0,
+        -0.32,
+        0.4
+      ],
+      "rotation_xyz_deg": [
+        90,
+        0,
+        0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.4,
+        -0.32
+      ],
+      "angles_roblox_deg": [
+        -90.0,
+        0.0,
+        0.0
+      ]
+    },
+    "PartyHat": {
+      "part": "Head",
+      "offset": [
+        0.0,
+        -0.12,
+        0.5
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.5,
+        -0.12
+      ],
+      "angles_roblox_deg": [
+        0.0,
+        0.0,
+        0.0
+      ]
     }
   },
   "assets": [
@@ -227,6 +280,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -302,6 +356,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -362,6 +490,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -437,6 +566,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -497,6 +700,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -572,6 +776,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -632,6 +910,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -707,6 +986,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -767,6 +1120,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -842,6 +1196,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -902,6 +1330,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -977,6 +1406,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -1037,6 +1540,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -1112,6 +1616,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -1172,6 +1750,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -1247,6 +1826,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -1307,6 +1960,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -1382,6 +2036,80 @@
             0.0,
             1.0,
             -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
           ]
         }
       },
@@ -1442,6 +2170,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -1520,6 +2249,80 @@
           ]
         }
       },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.glb"
@@ -1577,6 +2380,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "scale": 1.2,
       "joints": {
         "Head": [
           0.0,
@@ -1655,6 +2459,80 @@
           ]
         }
       },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            0.26
+          ],
+          "offset_roblox": [
+            0.0,
+            0.26,
+            -0.86
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.54,
+            0.46
+          ],
+          "offset_roblox": [
+            0.0,
+            0.46,
+            -0.54
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.38,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.38
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.14,
+            0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.14
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.glb"
@@ -1712,6 +2590,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Legendary",
+      "scale": 1.0,
       "joints": {
         "Head": [
           0.0,
@@ -1790,6 +2669,80 @@
           ]
         }
       },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
       "studio": "Head eyes are amber in the texture; add a Neon eye Part or Highlight for the glow.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Void.fbx",
@@ -1813,6 +2766,1686 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Void.png"
+    },
+    {
+      "name": "CatCafe_Cat_MaineCoon",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_MaineCoon_Body",
+        "CatCafe_Cat_MaineCoon_Head",
+        "CatCafe_Cat_MaineCoon_Tail"
+      ],
+      "triangles": 956,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.28,
+        "y": 3.21,
+        "z": 2.28
+      },
+      "size_roblox": [
+        1.28,
+        2.28,
+        3.21
+      ],
+      "bounds_min": [
+        -0.64,
+        -1.47,
+        0.0
+      ],
+      "bounds_max": [
+        0.64,
+        1.74,
+        2.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Epic",
+      "scale": 1.2,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.72,
+          1.2
+        ],
+        "Tail": [
+          0.0,
+          0.9,
+          1.14
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.2,
+          -0.72
+        ],
+        "Tail": [
+          0.0,
+          1.14,
+          0.9
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.68,
+            0.24
+          ],
+          "offset_roblox": [
+            0.0,
+            0.24,
+            -0.68
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.22
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            1.14
+          ],
+          "offset_roblox": [
+            0.0,
+            1.14,
+            -0.86
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.84,
+            1.2
+          ],
+          "offset_roblox": [
+            0.0,
+            1.2,
+            -0.84
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            0.26
+          ],
+          "offset_roblox": [
+            0.0,
+            0.26,
+            -0.86
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.54,
+            0.46
+          ],
+          "offset_roblox": [
+            0.0,
+            0.46,
+            -0.54
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.38,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.38
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.14,
+            0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.14
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "956/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "526 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.14"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_MaineCoon.png"
+    },
+    {
+      "name": "CatCafe_Cat_Midnight",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Midnight_Body",
+        "CatCafe_Cat_Midnight_Head",
+        "CatCafe_Cat_Midnight_Tail"
+      ],
+      "triangles": 948,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        1.04,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.52,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.52,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Mythical",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Midnight.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Midnight.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "948/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "514 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Midnight.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Midnight.png"
+    },
+    {
+      "name": "CatCafe_Cat_Cream",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Cream_Body",
+        "CatCafe_Cat_Cream_Head",
+        "CatCafe_Cat_Cream_Tail"
+      ],
+      "triangles": 828,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Cream.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Cream.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "828/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "454 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Cream.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Cream.png"
+    },
+    {
+      "name": "CatCafe_Cat_Brownie",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Brownie_Body",
+        "CatCafe_Cat_Brownie_Head",
+        "CatCafe_Cat_Brownie_Tail"
+      ],
+      "triangles": 900,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Brownie.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Brownie.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "900/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "490 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Brownie.png"
+    },
+    {
+      "name": "CatCafe_Cat_Blue",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Blue_Body",
+        "CatCafe_Cat_Blue_Head",
+        "CatCafe_Cat_Blue_Tail"
+      ],
+      "triangles": 816,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Blue.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Blue.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "816/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "448 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blue.png"
+    },
+    {
+      "name": "CatCafe_Cat_Persian",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Persian_Body",
+        "CatCafe_Cat_Persian_Head",
+        "CatCafe_Cat_Persian_Tail"
+      ],
+      "triangles": 1100,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.18,
+        "y": 2.57,
+        "z": 1.77
+      },
+      "size_roblox": [
+        1.18,
+        1.77,
+        2.57
+      ],
+      "bounds_min": [
+        -0.59,
+        -1.11,
+        0.0
+      ],
+      "bounds_max": [
+        0.59,
+        1.46,
+        1.77
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Epic",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.45,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.45
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Persian.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Persian.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1100/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "610 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.18"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Persian.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Persian.png"
+    },
+    {
+      "name": "CatCafe_Cat_Blossom",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Blossom_Body",
+        "CatCafe_Cat_Blossom_Head",
+        "CatCafe_Cat_Blossom_Tail"
+      ],
+      "triangles": 996,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Legendary",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Blossom.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Blossom.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "996/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "538 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blossom.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blossom.png"
+    },
+    {
+      "name": "CatCafe_Cat_Aurora",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Aurora_Body",
+        "CatCafe_Cat_Aurora_Head",
+        "CatCafe_Cat_Aurora_Tail"
+      ],
+      "triangles": 948,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        1.04,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.52,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.52,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Mythical",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Aurora.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Aurora.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "948/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "514 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Aurora.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Aurora.png"
     },
     {
       "name": "CatCafe_NPC_Customer_A",
@@ -4702,6 +7335,24 @@
           -0.72
         ]
       },
+      "attach_upright": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.72,
+          0.22
+        ],
+        "offset_roblox": [
+          0.0,
+          0.22,
+          -0.72
+        ],
+        "angles_roblox_deg": [
+          -90.0,
+          0.0,
+          0.0
+        ]
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Accessory_BowTie.fbx",
         "assets/cat-cafe/exports/CatCafe_Accessory_BowTie.glb"
@@ -4767,6 +7418,24 @@
           0.0,
           1.0,
           -0.7
+        ]
+      },
+      "attach_upright": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.45,
+          0.38
+        ],
+        "offset_roblox": [
+          0.0,
+          0.38,
+          -0.45
+        ],
+        "angles_roblox_deg": [
+          -90.0,
+          0.0,
+          0.0
         ]
       },
       "files": [
@@ -4856,6 +7525,148 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Hat.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Hat.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Sash",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Sash"
+      ],
+      "triangles": 212,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.97,
+        "y": 0.12,
+        "z": 1.13
+      },
+      "size_roblox": [
+        0.97,
+        1.13,
+        0.12
+      ],
+      "bounds_min": [
+        -0.48,
+        -0.1,
+        -0.57
+      ],
+      "bounds_max": [
+        0.48,
+        0.03,
+        0.57
+      ],
+      "pivot": "attachment point (see attach_upright)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "attach_upright": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.32,
+          0.4
+        ],
+        "offset_roblox": [
+          0.0,
+          0.4,
+          -0.32
+        ],
+        "angles_roblox_deg": [
+          -90.0,
+          0.0,
+          0.0
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Sash.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Sash.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "212/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "114 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.57 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.04"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Sash.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Sash.png"
+    },
+    {
+      "name": "CatCafe_Accessory_PartyHat",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_PartyHat"
+      ],
+      "triangles": 140,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.38,
+        "y": 0.4,
+        "z": 0.72
+      },
+      "size_roblox": [
+        0.38,
+        0.72,
+        0.4
+      ],
+      "bounds_min": [
+        -0.19,
+        -0.2,
+        0.0
+      ],
+      "bounds_max": [
+        0.19,
+        0.2,
+        0.72
+      ],
+      "pivot": "attachment point (see attach_upright)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "attach_upright": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.12,
+          0.5
+        ],
+        "offset_roblox": [
+          0.0,
+          0.5,
+          -0.12
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_PartyHat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_PartyHat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "140/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "65 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_PartyHat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_PartyHat.png"
     }
   ]
 }

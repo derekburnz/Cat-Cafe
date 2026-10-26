@@ -1,6 +1,6 @@
 # Purr Pot test plan (vertical slice)
 
-Owner: qa-playtester. Draft v0.3, 2026-10-26 (v0.1 and v0.2 the same day). Sources: [gdd.md](../design/cat-cafe/gdd.md)
+Owner: qa-playtester. Draft v0.3.1, 2026-10-26 (v0.1, v0.2 and v0.3 the same day; v0.3.1 follows design v0.3.1). Sources: [gdd.md](../design/cat-cafe/gdd.md)
 (core loop), [features.md](../design/cat-cafe/features.md) (done-when per feature, loop script in section 8),
 [data-model.md](../design/cat-cafe/data-model.md) (every number), the `playtest-report` skill (report and ticket
 format, severity scale). QA tests, it does not fix: every failure becomes a ticket for its owner.
@@ -56,7 +56,7 @@ Results of every run go to `docs/playtests/YYYY-MM-DD.md` in the `playtest-repor
      `Debug.spawnStray(catId, areaId?)` (returns the StrayId), `Debug.setPhase("day" or "night")`,
      `Debug.clock()`, `Debug.spawnStuckCat(catId, rescueSpotId?)`, `Debug.counts(areaId?)`, `Debug.dataSaves()`.
    - Asked for v0.3 (section 8): `setTier`, shiny on `spawnStray` and `giveCat`, `giveLure`, `readyBait`,
-     `setDealerStock` or `setNightIndex`, `spawnRichTip`, `setLastSeen`, a forced bump roll, and a server log of
+     `setDealerStock` or a dealer window offset, `spawnRichTip`, `setLastSeen`, a forced bump roll, and a server log of
      each scored circle. Steps marked (hook) use these; without the hook the step is skipped, not failed.
 
 ## 3. Unit tests
@@ -80,18 +80,18 @@ v0.3 specs QA writes as each feature lands (the engineer is asked to keep these 
 
 | Feature | Spec | Checks |
 |---|---|---|
-| F22 | `Catalog.spec`, `ProfileSchema` cases in `CatStats.spec` | Mythical rarity row (5 circles, 0.65 s, 6 hits, 12,000 sell); 20 slice cats, 10 per area, four Common, two Rare, two Epic, one Legendary, one Mythical each; every `favoriteRole` one of four; 10 role slots with tiers (2, 4, 6, 8, 10 open per tier); five `TierDef`s; upgrades without `cafe_level` and `park_access`; shop and dealer foods with five-rarity odds summing to 100; the 2 to 3 migration (refunds, caps, `tier = 1`, `method`, Equip Best on load, no coins lost) |
-| F23 | `Clock.spec`, `Config.spec` | 300 s day and 300 s night after a 120 s first day; `nightIndex` counts up by one per night; WaveSize 10 fits every area's spawn points |
+| F22 | `Catalog.spec`, `ProfileSchema` cases in `CatStats.spec` | Mythical rarity row (5 circles, 0.65 s, 6 hits, 12,000 sell); 20 slice cats, 10 per area, four Common, two Rare, two Epic, one Legendary, one Mythical each; every `favoriteRole` one of four; 10 role slots with tiers (2, 4, 6, 8, 10 open per tier); five `TierDef`s; upgrades without `cafe_level` and `park_access`; shop and dealer foods with five-rarity odds summing to 100; the 2 to 3 migration (refunds from the frozen v2 cost tables, caps, `tier = 1`, `method`, Equip Best on load, no coins lost); a saved `version` above the code's is refused, not rebuilt |
+| F23 | `Clock.spec`, `Config.spec` | 300 s day and 300 s night after a 120 s first day; WaveSize 10 fits every area's spawn points; RescueMinStuck 1 |
 | F24 | `Economy.spec` | Rank up requirements: cost, distinct cats (shinies not counted twice), rarity needs; Tier 2 with 1,500 coins and 5 cats, refused with 4; tier multiplier 1.25 raises income 25%; tier caps on tables, espresso and net; decor `requiresTier` |
 | F25 | `EquipBest.spec`, `Economy.spec` | Favorite role 1.5x; Equip Best matches brute force on ten slots |
-| F26 | new `Circles.spec` | Schedule: circle count by rarity, lead-in 0.6 s, gaps 0.35 to 0.7 s, shrink times within the net's jitter, Master Net with no jitter, lock length; judging: error within perfect is 1.0, within good 0.5, else 0, latency cap 0.15 s, mean of scores is the chance (all Perfect 100%, all Good 50%) |
+| F26 | new `Circles.spec` | Schedule: circle count by rarity, lead-in 0.6 s, gaps 0.40 to 0.75 s, shrink times within the net's jitter, Master Net with no jitter, lock length; judging: error within perfect is 1.0, within good 0.5, else 0, latency cap 0.15 s, mean of scores is the chance (all Perfect 100%, all Good 50%); `Config.spec` invariant CircleGapMin above the widest good window plus the latency cap (0.40 > 0.18 + 0.15), so a late press can never land on the next circle |
 | F27 | new `Rescue.spec` | Bar marker position at any server time (speed, bounce, start phase), zone hit with tolerance 0.03, hits per rarity, three paws, `shake_catch` ends in one circle with Pro Net windows |
 | F28 | `Catching.spec` | Bait roll: rarity from food odds, cat uniform over that rarity in unlocked areas, the per-cat percentages the card shows, ready at `placedAt + 600` |
-| F29 | new `Bump.spec` (if the checks are a pure predicate) | Each protection on its own: range 6, grace 3 s, safe radius 15, cooldown 12 s, same target 60 s, immunity, carrying bumper, `BumpEnabled` false |
+| F29 | new `Bump.spec` (if the checks are a pure predicate) | Each protection on its own: range 6, grace 3 s, safe radius 15, cooldown 12 s, same target 60 s, immunity, carrying bumper, self as target, `BumpEnabled` false; drop claims: only the old carrier for 8 s, never the bumper, a dropped stray never flees |
 | F30 | `CatStats.spec` | Shiny 1.5x in the rating; shiny chances 0.02, 0.02, 0.10 |
 | F31 | `Economy.spec` | Settle across a phase boundary integrates 1.0 by day and 0.6 by night; offline pays the day rate; rich tip `max(50, floor(dayRate x 45))` |
-| F32 | new `Dealer.spec` | Same stock for the same UserId and night; tier weights over 20,000 seeds (Star Treat 0% at Tier 1, about 10% per slot at Tier 5) |
-| F33 | `Economy.spec` or a `Names` module | Trim, 1 to 20 characters, whitespace-only refused |
+| F32 | new `Dealer.spec` | Same stock for the same UserId, `floor(os.time() / 600)` window and tier, a new stock in the next window, bought marks cleared only by a window change; tier weights over 20,000 seeds (Star Treat 0% at Tier 1, about 10% per slot at Tier 5) |
+| F33 | `Economy.spec` or a `Names` module | Trim, 1 to 20 characters by `utf8.len` (a 20 emoji name passes, 21 fails), invalid UTF-8, control characters, newlines, `<` and `>` refused, whitespace-only refused |
 
 Not covered by unit tests, by design: anything that needs DataStores, Players, RemoteEvents, TextService,
 physics or the world. `DataService`, `CatService`, `CafeService`, `Net`, `WorldBuilder` and all of `src/client`
@@ -134,15 +134,15 @@ it is scripted; keep the manual tool sequence below as the reference.
 | S6 Role | Open the cat room, pick the new cat, assign it to `waiter_1` | It stands upright in a bow tie. Rate rises by its rating, times 1.5 if `waiter` is its favorite (Tuxedo, Snow): `1 x charmMultiplier` where charm 0 to 100 gives 0.8x to 1.2x (read `snapshot.cats[uid].charm`) | F25 |
 | S7 Buy | At `$100` buy Tables; at `$400` buy the Bait bowl (hook: `Debug.setCoins` to skip the wait) | Table and two chairs appear, rate x1.10 exactly. A bowl appears at the `BaitBowl` anchor by the door | F08, F28 |
 | S8 Refusals | At Tier 1: buy Tables level 3, Espresso level 3, Net level 2, Window plants; assign a cat to `greeter_1`; walk into the Park | Each refused with a toast that names the tier (`Needs Tier 2`), no coins taken, no server error; the gate holds | F24, F23 |
-| S9 Bait | Buy Kibble (`$25`), stand at the bowl, use it. (hook: `Debug.readyBait`) | Kibble count drops by 1 at once, `BaitReadyAt` on the plot is `os.time() + 600`, HUD countdown `10:00`. When ready: the cat sits eating at the bowl, the bait card shows name, rarity, stars and the two buttons. Tame adds it to the cat room with no net and no carry (`CatCaught` fires); Let go clears the bowl; the food is gone either way | F28 |
-| S10 Night | Wait for the first night (120 s after a fresh server start, or `Debug.setPhase("night")`) | `Phase` flips to `night`, `NightIndex` goes up by 1. Each unlocked area holds exactly 10 strays (`Debug.counts("alley")`), the alley's three traps (two trash bins, one bag of garbage) each hold a stuck cat with chance 0.6. Rate drops to 60% within one sync (hook: `snapshot.incomePerSecond`), recovers at dawn. The dealer cart appears on the street | F23, F31, F32 |
-| S11 Rescue, bar | At a trash bin with a stuck Common (`Debug.spawnStuckCat("ginger", <spot>)`), start the rescue. Press when the marker is inside the zone, twice | The bar's marker moves at 0.8 bar lengths per second, the zone is 0.30 wide. Two hits free the cat; it is revealed (sparkle if shiny) and the player enters carry with `rescued = true`. Three misses end the attempt, the cat stays stuck, anyone can retry after 3 s | F27 |
+| S9 Bait | Buy Kibble (`$25`), stand at the bowl, use it. (hook: `Debug.readyBait`) | Kibble count drops by 1 at once, `BaitReadyAt` on the plot is `os.time() + 600`, HUD countdown `10:00`. Until ready the client's state holds only `lureId` and `readyAt`, never the rolled cat (client `execute_luau`: read the last ProfileSync). When ready: the cat sits eating at the bowl, the bait card shows name, rarity, stars and the two buttons. Tame adds it to the cat room with no net and no carry (`CatCaught` fires); Let go clears the bowl; the food is gone either way | F28 |
+| S10 Night | Wait for the first night (120 s after a fresh server start, or `Debug.setPhase("night")`) | `Phase` flips to `night`. Each unlocked area holds exactly 10 strays (`Debug.counts("alley")`), the alley's three traps (two trash bins, one bag of garbage) each hold a stuck cat with chance 0.6 and at least one is always filled. Stuck cats show `CatId`, `CatName` and `Rarity` but no `Shiny` or charm on the model, prompt or attributes. Rate drops to 60% within one sync (hook: `snapshot.incomePerSecond`), recovers at dawn. The dealer cart appears on the street | F23, F31, F32 |
+| S11 Rescue, bar | At a trash bin with a stuck Common (`Debug.spawnStuckCat("ginger", <spot>)`), start the rescue. Press when the marker is inside the zone, twice | The bar's marker moves at 0.8 bar lengths per second, the zone is 0.30 wide. Two hits free the cat; it is revealed (sparkle if shiny) and the player enters carry with `rescued = true`. Three misses end the attempt, the cat stays stuck; other players can retry after 3 s, the player who failed after 6 s. An attempt also ends as a fail at 15 s, when the player walks more than 14 studs away, dies or leaves | F27 |
 | S12 Rescue, tree | Tier 2 test profile (hook: `Debug.setTier(player, 2)`), Park tree with a stuck Common | `rescueHits - 1` bar hits shake the branch, then one catch circle (Common shrink time, Pro Net windows 0.065 and 0.155) must score Good or Perfect; a miss means the cat climbs back and the attempt ends | F27 |
-| S13 Dealer | At night within 12 studs of the cart, open the dealer screen. Buy one slot (hook: `Debug.setCoins`) | Three slots with food, cost and odds before buying. A bought slot shows bought and cannot be bought again. Dealer food lands in `lures` and works in the bowl | F32 |
+| S13 Dealer | At night within 12 studs of the cart, open the dealer screen. Buy one slot (hook: `Debug.setCoins`) | Three slots with food, cost and odds before buying, and "Fresh stock in m:ss" counting to the next 600 s window. A bought slot shows bought and cannot be bought again until the window changes; at the change mid-night the stock refreshes. Dealer food lands in `lures` and works in the bowl | F32 |
 | S14 Rank up | Hook: `Debug.setCoins(player, 1500)` and give 5 distinct cats, open the rank up card, rank up | Card ticks cost and 5 different cats; Tier 2: coins drop by 1,500, `Tier` 2, income x1.25 over Tier 1 exactly, the Park gate opens, `waiter_2` and `greeter_1` open. With 4 cats the button is refused and the card says what is missing | F24 |
 | S15 Shiny | Hook: `Debug.giveCat(player, "tabby", { shiny = true })` | Rating x1.5 over the same cat's base variant, sparkle on the model and card, the shiny page lists it, every player gets the Announce | F30, F14 |
-| S16 Rich tip | By day with income above 0, hook `Debug.spawnRichTip(player)` | A rich customer in a top hat at a table; plot attributes `RichTipAmount = max(50, floor(dayRate x 45))` and `RichTipExpiresAt = now + 90`. Claiming within 12 studs adds the amount once; leaving it unclaimed adds it at expiry; never both | F31 |
-| S17 Rename | Rename a working cat to `Biscuit` | The name shows over the cat (`DisplayName`) for every player and in the cat room. Empty, whitespace-only and 21 character names are refused with a toast. A second rename within 5 s is dropped | F33 |
+| S16 Rich tip | By day with income above 0, hook `Debug.spawnRichTip(player)` | A rich customer in a top hat at a table; plot attributes `RichTipAmount = max(50, floor(dayRate x 45))` and `RichTipExpiresAt = now + 90`. Claiming within 12 studs adds the amount once; leaving it unclaimed adds it at expiry; never both. Leaving before expiry still pays it (save-on-leave), and the next player on that plot sees no tip | F31 |
+| S17 Rename | Rename a working cat to `Biscuit` | The name shows over the cat (`DisplayName`) for every player and in the cat room. Empty, whitespace-only, 21 character, newline, `<b>` and control character names are refused with a toast; a 20 emoji name is allowed. A second rename within 5 s is dropped | F33 |
 | S18 Persist (API access on) | `start_stop_play` stop, start again | Coins within rate x gap of the last value, cats, roles, tier, tables, bait (same cat, same ready time) and dealer bought slots back | F10, F28, F32 |
 | S19 Offline | API access on: stop play, wait, start again (with `Debug.setLastSeen` this becomes a 5 s step) | Popup shows `floor(dayRateAtLogout x 0.25 x min(secondsAway, 3600))`, even if the player left at night. Claim adds exactly that once; a second claim adds nothing. A bait placed before leaving is ready if 600 s passed | F12, F28 |
 
@@ -162,6 +162,7 @@ and record the grade of every circle (hook: server circle log) and the final cha
 | C3 Mythical, Master Net | Same with `Debug.setUpgrade(player, "net", 3)` | Grades, final chance | Feels fair: steady speeds, most circles Good or better |
 | C4 Latency | Incoming Replication Lag 0.1 s, then 0.25 s, Common, net 0; record `player:GetNetworkPing()` on the server at each setting | Perfect rate pressing on the visual target, and the ping the server saw | The server subtracts half the ping, capped at 0.15 s. If the ping reflects the simulated lag, 0.1 s should grade like the 0 s run and 0.25 s should grade late. Record, do not ticket: Studio's lag setting may not match a real phone on mobile data, so the friend round on phones is the real test |
 | C5 Touch | Phone emulator, tap the action button | Circle placement (x, y spread), button size, whether the thumb hides the ring | No circle under the thumb zone; button at least 44 px |
+| C6 Phone on mobile data | A real phone on mobile data, then on Wi-Fi, a published test place (not Studio), C1 and C2 again | Grades per circle and the ping the server saw | Phone ping wanders 30 to 50 ms against the 45 ms Basic Perfect window (data-model 10). If Good is the best a careful player gets on mobile data, file a balance note for the designer with the numbers |
 
 If the Basic Net feels mean on touch, the designer's rule is to widen `good` before anything else; file it as a
 balance note with the numbers, owner designer.
@@ -174,14 +175,15 @@ balance note with the numbers, owner designer.
    stands within 6 studs and bumps. Use two test profiles and the hooks to reset carries (or a forced roll for the
    protection rows). Expected: about half knock the cat loose (6 to 14 of 20 is inside the 95% range of a fair
    50% roll); on success the cat drops as a stray with `Dropped` true, keeps its catId, variant, charm and rescued
-   flag, scurries 6 to 10 studs and cannot be grabbed for 2 s; anyone can net it, A included; whoever catches it
-   is `BumpImmune` for that carry; B never receives the cat. On a fail both see "It held on tight!" and A is immune
+   flag, and scurries 6 to 10 studs; for 8 s only A can start a catch on it, then anyone except B, who can never
+   catch a stray B knocked loose; it never flees on a failed catch, whatever its rarity, and stays until caught or
+   the next night wave; whoever catches it is `BumpImmune` for that carry; B never receives the cat. On a fail both see "It held on tight!" and A is immune
    for 3 s. Each protection on its own refuses the bump: under 3 s into the carry, within 15 studs of A's door or
    inside A's plot, B more than 6 studs away, B carrying, B bumped anyone in the last 12 s, B bumped A in the last
-   60 s, A immune, `BumpEnabled` false (the prompt also hides).
+   60 s, A immune, `BumpEnabled` false (the prompt also hides), B naming itself or a UserId not in the server.
 3. Locked area bump: a Tier 1 B inside the Park (walked past the gate in Studio) cannot bump a Tier 2 A there.
 4. Rescue lock: A starts a rescue at a trap; B's `RescueBegin` there is refused until A's attempt ends, then
-   allowed after the 3 s retry time.
+   allowed after 3 s, while A waits 6 s. A walking 15 studs away ends A's attempt as a fail.
 5. Announce: A catches an Epic (`Debug.spawnStray("sphynx", "alley")`), finds any shiny and ranks up to Tier 3.
    Expected: B sees all three announcements. (F14, F30, F24.)
 6. Visiting: B walks into A's cafe. Expected: B sees A's working cats in uniform with their names, A's tables and
@@ -218,7 +220,7 @@ Catching and rescue (F26, F27, F23)
 | Grab limit | `GrabBegin` twice within 2 s on two strays | Second dropped (GrabCooldownSeconds 2) |
 | Far grab | Teleport 200 studs away, `GrabBegin(id)` | Refused with `Too far away`, no schedule |
 | Locked area | Tier 1, teleport past the Park gate, `GrabBegin(park stray)`, `RescueBegin(park trap)` | Refused, nothing locked, no schedule or challenge |
-| Drop protect | `GrabBegin` on a knocked-loose stray within 2 s of the drop | Refused |
+| Drop claims (Clients and Servers, 3 players) | After B bumps A loose: C `GrabBegin` within 8 s; B `GrabBegin` at any time; A fails a catch on a dropped Rare | Refused within 8 s for anyone but A; refused for B always; the Rare stays and can be retried after 2 s |
 | Press without begin (manual) | `CatchPress(id, 1)` on a stray nobody locked, and on one client B locked | Ignored |
 | Press early (manual) | `CatchPress(id, 1)` right after `GrabBegin`, before circle 1 starts | Ignored, not counted as the first press; a later on-time press still grades |
 | Press out of order (manual) | Three-circle Epic: `CatchPress(id, 2)` before circle 1 is judged | Ignored |
@@ -226,13 +228,16 @@ Catching and rescue (F26, F27, F23)
 | Press with a time (manual) | `CatchPress(id, 1, os.clock())`, `CatchPress(id, 1, 0)` | Extra arguments ignored, the server stamps the arrival time; grade matches the real arrival |
 | Press spam (manual) | `CatchPress(id, i)` every 0.1 s from `GrabBegin` on | Each circle grades from the first press after its start, which is early, so the chance is near 0; at most 10 presses per second reach the handler |
 | No press | `GrabBegin(id)` and never press | Every circle scores 0 after its target + good + 0.15 s, the roll fails, a Common stays and a Rare flees; the lock clears |
-| Scripted perfect (manual) | A script that reads `CatchSchedule` and presses on each target, 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the exploit telemetry flags it (Perfect rate over 95% with an error spread under 10 ms). Log, do not ticket, unless the flag never fires |
+| Scripted perfect (manual) | A script that reads `CatchSchedule` and presses on each target, 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the server's exploit check flags it from its own stamped errors (Perfect rate above 95% over 50 or more circles; no `TelemetryReport` involved). Log, do not ticket, unless the flag never fires |
 | Bad index (manual) | `CatchPress(id, 0)`, `(id, 6)`, `(id, "1")`, `(id, 1.5)`, `(id, nil)` | Dropped silently, no error |
 | Rescue without begin (manual) | `RescuePress(spot)` on an unlocked trap, `RescueCancel(spot)` on a trap client B locked | Ignored |
 | Rescue spam (manual) | `RescuePress(spot)` 10 times a second | Misses cost paws; the attempt ends after 3 misses; the cat stays stuck |
-| Rescue retry (manual) | `RescueBegin(spot)` again within 3 s of a failed attempt | Refused until `RetryAt` |
+| Rescue retry (manual) | `RescueBegin(spot)` again within 6 s of the same player's failed attempt; another client within 3 s | Refused until each one's retry time |
+| Rescue hold (manual) | `RescueBegin(spot)` then no press for 16 s; `RescueBegin` then walk 20 studs away | Attempt ends as a fail at 15 s, or on leaving the 14 stud radius; the trap unlocks |
+| Hidden rolls (manual) | Read every attribute and the prompt text of a stuck cat; read the last ProfileSync while a bait is not ready | No `Shiny` or charm on the stuck cat; the bait shows only `lureId` and `readyAt` |
 | Rescue while carrying (manual) | `RescueBegin(spot)` while carrying | Refused with the carrying toast |
 | Removed remotes | Look for `GrabEnd`, `RescueEnd`, `EquipLure` under `ReplicatedStorage.Remotes` | Not there |
+| Bump target (manual) | `Bump(own UserId)`, `Bump("123")`, `Bump(1.5)`, `Bump(nil)`, `Bump(99999999)` (nobody in the server) | Dropped or refused, no error |
 
 Economy, tiers and roles (F24, F25, F08)
 
@@ -269,13 +274,15 @@ Bait, dealer, rich tips and names (F28, F32, F31, F33)
 | Dealer far (manual) | `BuyDealerFood(1)` 30 studs from the cart | Refused |
 | Dealer slot (manual) | `BuyDealerFood(0)`, `(4)`, `("1")`, `(1.5)` | Dropped |
 | Dealer twice (manual) | `BuyDealerFood(1)` twice in one frame, then again after a rejoin the same night (API access on) | Bought once |
-| Dealer server hop (manual, question in section 8) | Note the stock, join a second Studio server at a different `NightIndex` | Record what happens to the stock and the bought slots; see the open design question |
+| Dealer server hop (manual, API access on) | Note the stock and buy slot 1, then join a second server (a second Studio session or a test place) at night within the same 600 s window | Same stock; slot 1 still bought |
+| Dealer window (manual) | `BuyDealerFood(1)` just before a window change, then again just after | The second buy sees the new window's stock; the server recomputes the stock from the seed at purchase, never from a client value |
 | Rich tip none (manual) | `ClaimRichTip()` with no tip | Ignored |
 | Rich tip far (manual) | `ClaimRichTip()` 30 studs from the anchor | Refused |
 | Rich tip double (manual) | `ClaimRichTip()` twice in one frame; `ClaimRichTip()` exactly at expiry | Paid once in total, never claim plus auto-credit |
-| Rename bad (manual) | `RenameCat(uid, "")`, `("   ")`, 21 characters, `(uid, 123)`, `(uid, nil)` | Refused or dropped, name unchanged |
+| Rich tip owner (manual, two clients) | A has a tip and leaves; B takes A's plot before the expiry | A is paid on leave; B gets no tip and cannot claim A's |
+| Rename bad (manual) | `RenameCat(uid, "")`, `("   ")`, 21 characters, `("a\nb")`, `("<b>x</b>")`, `("\0")`, invalid UTF-8 `("\255")`, `(uid, 123)`, `(uid, nil)` | Refused or dropped, name unchanged |
 | Rename flood (manual) | `RenameCat(uid, "a")` then `("b")` within 5 s | Second dropped |
-| Rename filter (live test server only) | A name the filter blocks | Stored as the filtered string or refused with a toast; never shown raw to another player. Studio does not filter text the way live servers do, so this row runs in a private test server |
+| Rename filter (live test server only) | A name the filter blocks | Refused with a toast when filtering errors or returns all hashes; otherwise the save keeps the raw name and `DisplayName` shows the broadcast-filtered text, filtered again each time the cat starts working, never the raw name to another player. Studio does not filter text the way live servers do, so this row runs in a private test server |
 | Telemetry (manual) | `TelemetryReport("not_allowed", 1)`, 11 reports in a minute, `TelemetryReport("catch_circles", 1e308)` | Unknown names dropped, rate limited, no error |
 | Client time | Change the client clock or send stale timestamps in any payload | No remote accepts a time argument; income, bait and dealer use server time only (code read, reviewer confirms) |
 
@@ -325,6 +332,7 @@ Data and errors
 - [ ] No red output in the console in a 10 minute session (yellow warnings listed in the report)
 - [ ] Joining with Studio API access off shows a visible "progress will not save" notice (state `dataSaves = false`)
 - [ ] Leaving during a purchase, a catch, a rescue, a bait resolve or a rank up never duplicates coins or cats
+- [ ] F22 newer-save guard (API access on, dev DataStore only): a save whose `version` is above the code's is neither loaded nor saved, and the player is kicked with "The game just updated, please rejoin". Test by joining a v3 save with a v2 build, or with an engineer hook that writes `version = 99` to a dev profile
 
 ## 6. Ten minute loop script (Phase 2 exit test) with expected numbers
 
@@ -340,9 +348,8 @@ data-model v0.3 and become spec checks as each feature lands.
    Tuxedo or Snow, so the HUD reads between `2.3/s` and `3.3/s`.
 5. Buy Table 1 at `$100` (rate x1.10), then the Bait bowl at `$400`, then Kibble at `$25` and put it in. The
    countdown shows `10:00`.
-6. First night by minute two: ten strays in the alley and a stuck cat in each of the three traps with chance 0.6.
-   At least one trap is filled 94% of the time (1 - 0.4^3); if none is, note it and use `Debug.spawnStuckCat`
-   rather than failing the step. Rescue it with the bar. The rate drops to 60% for the night.
+6. First night by minute two: ten strays in the alley and a stuck cat in each of the three traps with chance 0.6,
+   at least one always (RescueMinStuck). Rescue it with the bar. The rate drops to 60% for the night.
 7. Free play until minute 10. Expected: three or four different cats, two roles filled, two tables, a bait cat on
    the way, the rank up card showing what Tier 2 still needs (1,500 coins and 5 different cats).
 8. Leave for 10 minutes, rejoin. Offline popup shows `floor(dayRate x 0.25 x 600)`, for example `412` at a day rate
@@ -375,14 +382,9 @@ shaped findings go to luau-reviewer as blockers. QA never writes the fix.
    position and hit test, the bump checks as a predicate over positions and times, the rank up requirement
    check, the bait roll, the dealer stock roll, `Economy.settle` across phase boundaries, and name trimming, each
    in `src/shared` with the random source passed in.
-3. Designer, question: the dealer seed uses `NightIndex`, which counts nights since that server started. A player
-   who leaves and joins another server lands on a different `NightIndex`, so they see a new stock and
-   `profile.dealer.night` no longer matches, which clears their bought slots. Server hopping would reroll the
-   dealer and allow buying again in the same real-time night. Options: a night number from a shared clock (for
-   example `os.time()` cut into 600 s cycles for the seed), or keep the hop and accept it. QA will test whatever
-   is chosen (section 4.4, Dealer server hop).
-4. Designer, note: features.md section 8 step 6 expects "at least one stuck cat" on the first night; with three
-   alley traps at 0.6 that fails about one fresh server in 16. Section 6 step 6 here allows the Debug fallback.
+3. Designer, answered in design v0.3.1: the dealer stock and bought marks key on a global 600 s window, so a
+   server hop shows the same stock (section 4.4, Dealer server hop and Dealer window).
+4. Designer, answered in design v0.3.1: every area gets at least one stuck cat each night (RescueMinStuck 1).
 5. Studio plan thread: the `playtest-report` skill section 2 still describes the per-serve loop ("tap a cat to
    serve"); replace it with section 4.1 of this plan.
 

@@ -221,6 +221,28 @@ local function simple(name: string, parts: { PartSpec }): Model
 	return finish(model, primary :: BasePart)
 end
 
+-- An area gate across a street-wide opening: see-through Bars (the part that blocks) under an Arch.
+local function gate(name: string, color: Color3): Model
+	return simple(name, {
+		{
+			name = "Bars",
+			size = Vector3.new(24, 5, 0.5),
+			offset = Vector3.new(0, 2.5, 0),
+			color = color,
+			material = Enum.Material.Metal,
+			transparency = 0.35,
+			collide = true,
+		},
+		{
+			name = "Arch",
+			size = Vector3.new(26, 0.8, 1),
+			offset = Vector3.new(0, 5.4, 0),
+			color = color,
+			material = Enum.Material.Metal,
+		},
+	})
+end
+
 -- The net per level (asset round 2): the pivot is the grip and the pole runs forward (-Z), longer each level.
 local function net(level: number): Model
 	local name = "CatCafe_Item_Net_L" .. level
@@ -757,24 +779,16 @@ local builders: { [string]: () -> Model } = {
 		})
 	end,
 	CatCafe_Park_Gate = function()
-		return simple("CatCafe_Park_Gate", {
-			{
-				name = "Bars",
-				size = Vector3.new(24, 5, 0.5),
-				offset = Vector3.new(0, 2.5, 0),
-				color = DARK,
-				material = Enum.Material.Metal,
-				transparency = 0.35,
-				collide = true,
-			},
-			{
-				name = "Arch",
-				size = Vector3.new(26, 0.8, 1),
-				offset = Vector3.new(0, 5.4, 0),
-				color = DARK,
-				material = Enum.Material.Metal,
-			},
-		})
+		return gate("CatCafe_Park_Gate", DARK)
+	end,
+	CatCafe_Neighbourhood_Gate = function()
+		return gate("CatCafe_Neighbourhood_Gate", Color3.fromRGB(150, 110, 80))
+	end,
+	CatCafe_Woods_Gate = function()
+		return gate("CatCafe_Woods_Gate", Color3.fromRGB(70, 55, 40))
+	end,
+	CatCafe_Sewer_Gate = function()
+		return gate("CatCafe_Sewer_Gate", Color3.fromRGB(60, 75, 70))
 	end,
 	CatCafe_Item_FoodBowl = function()
 		return simple("CatCafe_Item_FoodBowl", {

@@ -3,6 +3,7 @@
 
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
+local Catching = require(script.Parent.Catching)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
@@ -181,6 +182,54 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 		return string.format("Needs Tier %d", def.requiresTier)
 	end
 	if not Economy.canAfford(profile, def.cost) then
+		return "Not enough coins"
+	end
+	return nil
+end
+
+-- Different cats ever caught: entries in the collection (a shiny is not a second entry).
+function Economy.distinctCats(profile: Types.PlayerProfile): number
+	local n = 0
+	for _ in profile.collection do
+		n += 1
+	end
+	return n
+end
+
+-- Different cats of this rarity or rarer in the collection, for the Tier 3 to 5 requirement (data-model 5b:
+-- "one Epic" means one Epic or better, so a Legendary counts).
+function Economy.distinctCatsAtLeast(profile: Types.PlayerProfile, rarity: Types.Rarity): number
+	local n = 0
+	for catId in profile.collection do
+		local def = Catalog.getCat(catId)
+		if def ~= nil and Catching.rarityAtLeast(def.rarity, rarity) then
+			n += 1
+		end
+	end
+	return n
+end
+
+-- Returns nil when RankUp would succeed, else a short reason for a toast (data-model section 5b). Checked in the
+-- order a player works through them: cats, the rarity, then coins.
+function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
+	local nextTier = Catalog.getTier(Economy.tier(profile) + 1)
+	if nextTier == nil then
+		return "Your cafe is already a " .. (Catalog.getTier(Catalog.maxTier) :: Types.TierDef).name
+	end
+	local cats = Economy.distinctCats(profile)
+	if cats < nextTier.distinctCats then
+		return string.format("Needs %d different cats (you have %d)", nextTier.distinctCats, cats)
+	end
+	local rarity: Types.Rarity? = nextTier.needsRarity
+	if rarity ~= nil then
+		local need = nextTier.needsRarityCount or 1
+		if Economy.distinctCatsAtLeast(profile, rarity) < need then
+			return if need == 1
+				then string.format("Needs one cat, %s or better", rarity)
+				else string.format("Needs %d different cats, %s or better", need, rarity)
+		end
+	end
+	if not Economy.canAfford(profile, nextTier.cost) then
 		return "Not enough coins"
 	end
 	return nil

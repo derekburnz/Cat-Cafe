@@ -22,8 +22,10 @@ import common
 
 # name -> pose. Rescue poses are relative to the prop's pivot.
 POSES = {
-    "upright": dict(pivot=(0, 0.5, 0), rot=(-90, 0, 0), offset=(0, 0, 0.3), head=(90, 0, 0), tail=(80, 0, 0),
+    "upright": dict(pivot=(0, 0.5, 0), rot=(-90, 0, 0), offset=(0, -1.22, 0.3), head=(90, 0, 0), tail=(80, 0, 0),
                     head_offset=(0, -0.32, 0),  # standing, -Y is up: seats the head on the collar, clear of the paws
+                    # offset y -1.22 centres the standing body over the cat's pivot, so a station's sit_point is
+                    # where the cat stands
                     note="Stands on the hind legs. Same parts; Head pitched back to face forward. Accessories keep their offsets."),
     "carried": dict(pivot=(0, 0, 0), rot=(0, 0, 90), offset=(0, -1.05, -0.4), head=(-10, 0, 0), tail=(-40, 0, 0),
                     note="Cradled across the chest, facing the character's left, so the camera behind the player "
@@ -39,14 +41,14 @@ def _upright_at(offset, head=(90, 0, 0), note=""):
 
 # Rescue traps (features.md section 5): prop name -> where the stuck cat goes, relative to the prop pivot.
 STUCK_POSES = {
-    "CatCafe_Alley_TrashBin": _upright_at((0, -1.3, 1.25), head=(80, 0, 12),
+    "CatCafe_Alley_TrashBin": _upright_at((0, -0.08, 1.25), head=(80, 0, 12),
                                           note="Stands inside the bin, front paws over the front rim, head tilted up at the player."),
     "CatCafe_Alley_GarbageBags": dict(pivot=(0, 0, 0), rot=(0, 0, 0), offset=(0.45, 0.4, 0), head=(-15, 12, 0), tail=(-10, 0, 0),
                                       note="Buried in the front bag: head and front paws out the front, tail out the back."),
     "CatCafe_Park_RescueTree": dict(pivot=(0, 0, 0), rot=(0, 0, 90), offset=(1.7, 0, 4.0), head=(25, 0, -55), tail=(-20, 0, 0),
                                     note="Out on the Branch facing the tip, head turned to the camera, looking down. "
                                          "Place it, then WeldConstraint the cat Body to the Branch so it wobbles with it."),
-    "CatCafe_Park_TrashCan": _upright_at((0, -1.3, 0.95), head=(80, 0, -12),
+    "CatCafe_Park_TrashCan": _upright_at((0, -0.08, 0.95), head=(80, 0, -12),
                                          note="Stands inside the can, front paws over the rim, head tilted up at the player."),
 }
 

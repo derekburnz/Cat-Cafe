@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-26 21:48 UTC",
+  "generated": "2026-10-26 21:52 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -13,7 +13,7 @@
     "upright": {
       "body_position_blender": [
         0.0,
-        0.5,
+        -0.72,
         0.8
       ],
       "body_rotation_xyz_deg_blender": [
@@ -34,7 +34,7 @@
       "body_position_roblox": [
         0.0,
         0.8,
-        0.5
+        -0.72
       ],
       "body_angles_roblox_deg": [
         90.0,
@@ -44,7 +44,7 @@
       "body_cframe_roblox": [
         0.0,
         0.8,
-        0.5,
+        -0.72,
         1.0,
         0.0,
         0.0,

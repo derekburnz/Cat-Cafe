@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-26 19:13 UTC",
+  "generated": "2026-10-26 21:52 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -13,7 +13,7 @@
     "upright": {
       "body_position_blender": [
         0.0,
-        0.5,
+        -0.72,
         0.8
       ],
       "body_rotation_xyz_deg_blender": [
@@ -34,7 +34,7 @@
       "body_position_roblox": [
         0.0,
         0.8,
-        0.5
+        -0.72
       ],
       "body_angles_roblox_deg": [
         90.0,
@@ -44,7 +44,7 @@
       "body_cframe_roblox": [
         0.0,
         0.8,
-        0.5,
+        -0.72,
         1.0,
         0.0,
         0.0,
@@ -243,6 +243,31 @@
         0.0,
         0.0
       ]
+    }
+  },
+  "textures": {
+    "CatCafe_VFX_ShinySparkle": {
+      "file": "assets/cat-cafe/exports/CatCafe_VFX_ShinySparkle.png",
+      "size_px": 128,
+      "format": "PNG RGBA, white, alpha shaped",
+      "use": "ParticleEmitter.Texture for the ShinySparkle preset; tint with Color",
+      "suggested_emitter": {
+        "Texture": "the uploaded CatCafe_VFX_ShinySparkle.png",
+        "Color": "sparkle #FFF4B0 (Mythical cats: rarity_mythic #FF5E7E)",
+        "LightEmission": 1,
+        "LightInfluence": 0,
+        "Brightness": 2,
+        "Size": "NumberSequence 0 -> 0.55 at 0.3 -> 0 (a twinkle)",
+        "Transparency": "NumberSequence 0 -> 0 at 0.6 -> 1",
+        "Lifetime": "0.6 to 1.0",
+        "Rate": 3,
+        "Speed": "0.2 to 0.5",
+        "SpreadAngle": "180, 180",
+        "Rotation": "0 to 45",
+        "RotSpeed": "-40 to 40",
+        "ZOffset": 0.5,
+        "parent": "the cat's Body (emits from its box)"
+      }
     }
   },
   "assets": [
@@ -5787,229 +5812,122 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_Cup.png"
     },
     {
-      "name": "CatCafe_Alley_StuckTree",
+      "name": "CatCafe_Alley_TrashBin",
       "category": "Alley",
       "module": "alley",
       "objects": [
-        "CatCafe_Alley_StuckTree"
+        "CatCafe_Alley_TrashBin_Bin",
+        "CatCafe_Alley_TrashBin_Lid"
       ],
-      "triangles": 308,
-      "budget": 800,
+      "triangles": 412,
+      "budget": 600,
       "size_studs": {
-        "x": 5.11,
-        "y": 2.89,
-        "z": 8.0
+        "x": 2.02,
+        "y": 2.3,
+        "z": 4.15
       },
       "size_roblox": [
-        5.11,
-        8.0,
-        2.89
+        2.02,
+        4.15,
+        2.3
       ],
       "bounds_min": [
-        -1.99,
-        -1.45,
-        0.0
+        -1.01,
+        -0.91,
+        -0.01
       ],
       "bounds_max": [
-        3.11,
-        1.45,
-        8.0
+        1.01,
+        1.39,
+        4.14
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "stuck_pose": {
-        "body_position_blender": [
-          1.4,
+      "part_pivots": {
+        "CatCafe_Alley_TrashBin_Lid": [
           0.0,
-          4.4
-        ],
-        "body_rotation_xyz_deg_blender": [
-          0.0,
-          20.0,
-          0.0
-        ],
-        "head_local_xyz_deg_blender": [
-          30,
-          0,
-          0
-        ],
-        "tail_local_xyz_deg_blender": [
-          10,
-          0,
-          0
-        ],
-        "body_position_roblox": [
-          -1.4,
-          4.4,
-          0.0
-        ],
-        "body_angles_roblox_deg": [
-          0.0,
-          0.0,
-          20.0
-        ],
-        "body_cframe_roblox": [
-          -1.4,
-          4.4,
-          0.0,
-          0.9397,
-          -0.342,
-          0.0,
-          0.342,
-          0.9397,
-          0.0,
-          0.0,
-          0.0,
-          1.0
-        ],
-        "head_angles_roblox_deg": [
-          -30.0,
-          0.0,
-          0.0
-        ],
-        "head_offset_blender": [
-          0,
-          0,
-          0
-        ],
-        "head_offset_roblox": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "tail_angles_roblox_deg": [
-          -10.0,
-          0.0,
-          0.0
-        ],
-        "note": "Clings to the low branch, rolled toward the trunk, looking down."
+          0.91,
+          2.5
+        ]
       },
-      "studio": "Rescue spot. Put the stuck cat at stuck_pose. CollisionFidelity Hull.",
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Alley_StuckTree.fbx",
-        "assets/cat-cafe/exports/CatCafe_Alley_StuckTree.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "centered"
-        ],
-        "checks": {
-          "budget": "308/800 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "188 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.56 y=0.00"
-        }
+      "part_pivots_roblox": {
+        "CatCafe_Alley_TrashBin_Lid": [
+          0.0,
+          2.5,
+          0.91
+        ]
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StuckTree.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_StuckTree.png"
-    },
-    {
-      "name": "CatCafe_Alley_StuckBox",
-      "category": "Alley",
-      "module": "alley",
-      "objects": [
-        "CatCafe_Alley_StuckBox"
-      ],
-      "triangles": 96,
-      "budget": 300,
-      "size_studs": {
-        "x": 2.29,
-        "y": 2.19,
-        "z": 2.1
-      },
-      "size_roblox": [
-        2.29,
-        2.1,
-        2.19
-      ],
-      "bounds_min": [
-        -1.44,
-        -0.72,
-        0.0
-      ],
-      "bounds_max": [
-        0.85,
-        1.47,
-        2.1
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "stuck_pose": {
         "body_position_blender": [
           0.0,
-          -0.6,
-          0.0
+          -0.8,
+          2.05
         ],
         "body_rotation_xyz_deg_blender": [
-          0.0,
+          -90.0,
           -0.0,
-          -180.0
+          0.0
         ],
         "head_local_xyz_deg_blender": [
+          80,
           0,
-          0,
-          0
+          12
         ],
         "tail_local_xyz_deg_blender": [
-          30,
+          80,
           0,
           0
         ],
         "body_position_roblox": [
           0.0,
-          0.0,
-          -0.6
+          2.05,
+          -0.8
         ],
         "body_angles_roblox_deg": [
+          90.0,
           0.0,
-          -180.0,
           0.0
         ],
         "body_cframe_roblox": [
           0.0,
-          0.0,
-          -0.6,
-          -1.0,
-          0.0,
-          0.0,
-          0.0,
+          2.05,
+          -0.8,
           1.0,
           0.0,
           0.0,
           0.0,
-          -1.0
+          0.0,
+          -1.0,
+          0.0,
+          1.0,
+          0.0
         ],
         "head_angles_roblox_deg": [
-          0.0,
-          0.0,
-          0.0
+          -80.2,
+          2.1,
+          11.8
         ],
         "head_offset_blender": [
           0,
-          0,
+          -0.32,
           0
         ],
         "head_offset_roblox": [
           0.0,
           0.0,
-          0.0
+          -0.32
         ],
         "tail_angles_roblox_deg": [
-          -30.0,
+          -80.0,
           0.0,
           0.0
         ],
-        "note": "Head inside the box opening (hidden by the box walls), tail up."
+        "note": "Stands inside the bin, front paws over the front rim, head tilted up at the player."
       },
-      "studio": "Rescue spot. The cat's Head sits inside the box at stuck_pose.",
+      "studio": "Rescue trap trash_bin. Put the stuck cat at stuck_pose. The Lid turns about its part_pivots_roblox point (the hinge) to rattle on a hit. CollisionFidelity Box on the Bin.",
       "files": [
-        "assets/cat-cafe/exports/CatCafe_Alley_StuckBox.fbx",
-        "assets/cat-cafe/exports/CatCafe_Alley_StuckBox.glb"
+        "assets/cat-cafe/exports/CatCafe_Alley_TrashBin.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_TrashBin.glb"
       ],
       "gates": {
         "pass": true,
@@ -6018,53 +5936,53 @@
           "centered"
         ],
         "checks": {
-          "budget": "96/300 tris",
+          "budget": "412/600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "48 faces on swatch centers",
+          "uv": "230 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.30 y=0.37"
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=0.24"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StuckBox.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_StuckBox.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_TrashBin.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_TrashBin.png"
     },
     {
-      "name": "CatCafe_Alley_Drainpipe",
+      "name": "CatCafe_Alley_GarbageBags",
       "category": "Alley",
       "module": "alley",
       "objects": [
-        "CatCafe_Alley_Drainpipe"
+        "CatCafe_Alley_GarbageBags"
       ],
-      "triangles": 704,
-      "budget": 800,
+      "triangles": 138,
+      "budget": 600,
       "size_studs": {
-        "x": 2.6,
-        "y": 2.98,
-        "z": 8.36
+        "x": 3.16,
+        "y": 2.28,
+        "z": 2.05
       },
       "size_roblox": [
-        2.6,
-        8.36,
-        2.98
+        3.16,
+        2.05,
+        2.28
       ],
       "bounds_min": [
-        -1.3,
-        -2.98,
-        -0.06
+        -1.52,
+        -0.81,
+        0.0
       ],
       "bounds_max": [
-        1.3,
-        0.0,
-        8.3
+        1.64,
+        1.47,
+        2.05
       ],
-      "pivot": "wall: back-bottom center",
+      "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "stuck_pose": {
         "body_position_blender": [
-          0.0,
-          -2.0,
+          0.45,
+          0.4,
           0.0
         ],
         "body_rotation_xyz_deg_blender": [
@@ -6073,19 +5991,19 @@
           0.0
         ],
         "head_local_xyz_deg_blender": [
+          -15,
+          12,
+          0
+        ],
+        "tail_local_xyz_deg_blender": [
           -10,
           0,
           0
         ],
-        "tail_local_xyz_deg_blender": [
-          60,
-          0,
-          0
-        ],
         "body_position_roblox": [
+          -0.45,
           0.0,
-          0.0,
-          -2.0
+          0.4
         ],
         "body_angles_roblox_deg": [
           0.0,
@@ -6093,9 +6011,9 @@
           0.0
         ],
         "body_cframe_roblox": [
+          -0.45,
           0.0,
-          0.0,
-          -2.0,
+          0.4,
           1.0,
           0.0,
           0.0,
@@ -6107,9 +6025,9 @@
           1.0
         ],
         "head_angles_roblox_deg": [
-          10.0,
-          0.0,
-          0.0
+          14.7,
+          3.1,
+          11.6
         ],
         "head_offset_blender": [
           0,
@@ -6122,33 +6040,35 @@
           0.0
         ],
         "tail_angles_roblox_deg": [
-          -60.0,
+          10.0,
           0.0,
           0.0
         ],
-        "note": "Body inside the outlet, head poking out of the open end, tail against the back."
+        "note": "Buried in the front bag: head and front paws out the front, tail out the back."
       },
-      "studio": "Rescue spot. Cat Body inside the outlet at stuck_pose. CollisionFidelity Box on the riser is fine.",
+      "studio": "Rescue trap garbage_bag. Put the stuck cat at stuck_pose; the front bag hides its body. CollisionFidelity Hull.",
       "files": [
-        "assets/cat-cafe/exports/CatCafe_Alley_Drainpipe.fbx",
-        "assets/cat-cafe/exports/CatCafe_Alley_Drainpipe.glb"
+        "assets/cat-cafe/exports/CatCafe_Alley_GarbageBags.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_GarbageBags.glb"
       ],
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "704/800 tris",
+          "budget": "138/600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "362 faces on swatch centers",
+          "uv": "105 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-1.49"
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.06 y=0.33"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Drainpipe.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Drainpipe.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_GarbageBags.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_GarbageBags.png"
     },
     {
       "name": "CatCafe_Alley_ShopWindow",
@@ -6768,6 +6688,30 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Park_Gate_LeafL": [
+          -2.0,
+          0.0,
+          0.0
+        ],
+        "CatCafe_Park_Gate_LeafR": [
+          2.0,
+          0.0,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Park_Gate_LeafL": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "CatCafe_Park_Gate_LeafR": [
+          -2.0,
+          0.0,
+          0.0
+        ]
+      },
       "studio": "LeafL and LeafR pivot at their hinge pillars; rotate about Y to open.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
@@ -6789,6 +6733,280 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Gate.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Gate.png"
+    },
+    {
+      "name": "CatCafe_Park_RescueTree",
+      "category": "Park",
+      "module": "park",
+      "objects": [
+        "CatCafe_Park_RescueTree_Trunk",
+        "CatCafe_Park_RescueTree_Branch"
+      ],
+      "triangles": 372,
+      "budget": 900,
+      "size_studs": {
+        "x": 6.08,
+        "y": 2.91,
+        "z": 8.8
+      },
+      "size_roblox": [
+        6.08,
+        8.8,
+        2.91
+      ],
+      "bounds_min": [
+        -1.99,
+        -1.45,
+        0.0
+      ],
+      "bounds_max": [
+        4.09,
+        1.47,
+        8.8
+      ],
+      "pivot": "base center; the Branch pivots at its root on the trunk (part_pivots_roblox)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Park_RescueTree_Branch": [
+          0.3,
+          0.0,
+          4.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Park_RescueTree_Branch": [
+          -0.3,
+          4.0,
+          0.0
+        ]
+      },
+      "stuck_pose": {
+        "body_position_blender": [
+          1.7,
+          0.0,
+          4.0
+        ],
+        "body_rotation_xyz_deg_blender": [
+          0.0,
+          -0.0,
+          90.0
+        ],
+        "head_local_xyz_deg_blender": [
+          25,
+          0,
+          -55
+        ],
+        "tail_local_xyz_deg_blender": [
+          -20,
+          0,
+          0
+        ],
+        "body_position_roblox": [
+          -1.7,
+          4.0,
+          0.0
+        ],
+        "body_angles_roblox_deg": [
+          0.0,
+          90.0,
+          0.0
+        ],
+        "body_cframe_roblox": [
+          -1.7,
+          4.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0,
+          0.0,
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "head_angles_roblox_deg": [
+          -39.1,
+          -47.9,
+          -31.1
+        ],
+        "head_offset_blender": [
+          0,
+          0,
+          0
+        ],
+        "head_offset_roblox": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tail_angles_roblox_deg": [
+          20.0,
+          0.0,
+          0.0
+        ],
+        "note": "Out on the Branch facing the tip, head turned to the camera, looking down. Place it, then WeldConstraint the cat Body to the Branch so it wobbles with it."
+      },
+      "studio": "Rescue trap tree (shake_catch). To wobble, rotate the Branch about its part_pivots_roblox point (set Branch.PivotOffset there if the import centres it). Put the cat at stuck_pose, then weld its Body to the Branch so it moves with it. CollisionFidelity Hull on the Trunk.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_RescueTree.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_RescueTree.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "372/900 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "234 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=1.05 y=0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_RescueTree.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_RescueTree.png"
+    },
+    {
+      "name": "CatCafe_Park_TrashCan",
+      "category": "Park",
+      "module": "park",
+      "objects": [
+        "CatCafe_Park_TrashCan_Can",
+        "CatCafe_Park_TrashCan_Lid"
+      ],
+      "triangles": 844,
+      "budget": 900,
+      "size_studs": {
+        "x": 2.2,
+        "y": 2.86,
+        "z": 4.07
+      },
+      "size_roblox": [
+        2.2,
+        4.07,
+        2.86
+      ],
+      "bounds_min": [
+        -1.1,
+        -1.1,
+        0.0
+      ],
+      "bounds_max": [
+        1.1,
+        1.76,
+        4.07
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Park_TrashCan_Lid": [
+          0.0,
+          1.05,
+          2.2
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Park_TrashCan_Lid": [
+          0.0,
+          2.2,
+          1.05
+        ]
+      },
+      "stuck_pose": {
+        "body_position_blender": [
+          0.0,
+          -0.8,
+          1.75
+        ],
+        "body_rotation_xyz_deg_blender": [
+          -90.0,
+          -0.0,
+          0.0
+        ],
+        "head_local_xyz_deg_blender": [
+          80,
+          0,
+          -12
+        ],
+        "tail_local_xyz_deg_blender": [
+          80,
+          0,
+          0
+        ],
+        "body_position_roblox": [
+          0.0,
+          1.75,
+          -0.8
+        ],
+        "body_angles_roblox_deg": [
+          90.0,
+          0.0,
+          0.0
+        ],
+        "body_cframe_roblox": [
+          0.0,
+          1.75,
+          -0.8,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        "head_angles_roblox_deg": [
+          -80.2,
+          -2.1,
+          -11.8
+        ],
+        "head_offset_blender": [
+          0,
+          -0.32,
+          0
+        ],
+        "head_offset_roblox": [
+          0.0,
+          0.0,
+          -0.32
+        ],
+        "tail_angles_roblox_deg": [
+          -80.0,
+          0.0,
+          0.0
+        ],
+        "note": "Stands inside the can, front paws over the rim, head tilted up at the player."
+      },
+      "studio": "Rescue trap trashcan. Put the stuck cat at stuck_pose. The Lid turns about its part_pivots_roblox point (the back of the rim). CollisionFidelity Hull on the Can.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_TrashCan.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_TrashCan.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "844/900 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "418 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.33"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_TrashCan.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_TrashCan.png"
     },
     {
       "name": "CatCafe_Item_FoodBowl",

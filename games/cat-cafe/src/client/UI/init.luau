@@ -622,8 +622,8 @@ end
 
 -- v0.3 net (F26, data-model section 10). CatchSchedule(strayId, circles, windows) -> showCircles: the
 -- prompt card makes way for the circles and every press fires events.catchPressed(strayId, index).
--- CatchResult(strayId, scores, chance, success) -> showResult: each circle shows the server's grade, then
--- the chance and the outcome, and the overlay closes after 1.6 s. A Common that stays gets its card back
+-- CatchResult(strayId, scores, chance, success, stayed) -> showResult: each circle shows the server's grade,
+-- then the chance and the outcome, and the overlay closes after 1.6 s. A stray that stayed gets its card back
 -- while the player is still in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
 function UI.catch.showCircles(
 	strayId: string,
@@ -656,14 +656,22 @@ function UI.catch.showCircles(
 	end)
 end
 
-function UI.catch.showResult(strayId: string, scores: { number }, chance: number, success: boolean)
+-- stayed is the server's word on whether a failed catch left the stray in place (reviewer N39: a lured or
+-- dropped stray can stay whatever its rarity). Without it, only a Common stays (data-model section 2).
+function UI.catch.showResult(
+	strayId: string,
+	scores: { number },
+	chance: number,
+	success: boolean,
+	stayed: boolean?
+)
 	local screen = circles
 	if not screen then
 		return
 	end
 	local info = activeInfo
 	local rarity: string? = if info and info.strayId == strayId then info.rarity else nil
-	local stays = rarity == "Common" -- data-model section 2: only Commons stay after a failed catch
+	local stays = if stayed ~= nil then stayed else rarity == "Common"
 	screen:showResult(
 		scores,
 		chance,

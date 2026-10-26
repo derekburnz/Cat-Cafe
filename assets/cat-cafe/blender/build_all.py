@@ -6,7 +6,7 @@ Run inside the Blender GUI:   Scripting tab, open this file, Run Script (add --n
                                to keep your current scene; objects appear at the origin).
 
 Outputs (relative to the repo root, override with --out and --docs):
-  assets/cat-cafe/exports/<Name>.fbx and .glb, CatCafe_Palette.png, manifest.json, gates.md
+  assets/cat-cafe/exports/<Name>.fbx and .glb, CatCafe_Palette.png, CatCafe_VFX_ShinySparkle.png, manifest.json, gates.md
   docs/concepts/cat-cafe/previews/<Name>.png, views/<Name>.png (five-view sheet), contact sheets, vignettes
 
 Every asset runs through gates.check (budget, transforms, material, UVs, naming as FAIL; pivot
@@ -37,6 +37,7 @@ import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
 import poses  # noqa: E402
+import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, npc, furniture, decor, alley, park, items, accessories]
@@ -49,7 +50,6 @@ PIVOT_NOTES = {
     "CatCafe_Decor_HangingLamp": "ceiling hook (geometry hangs below the pivot)",
     "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
     "CatCafe_Decor_StringLights": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
-    "CatCafe_Alley_Drainpipe": "wall: back-bottom center",
     "CatCafe_Alley_ShopWindow": "wall: back-bottom center",
     "CatCafe_Item_Net_L1": "grip end of the pole; the pole runs forward (Roblox -Z)",
     "CatCafe_Item_Net_L2": "grip end of the pole; the pole runs forward (Roblox -Z)",
@@ -60,6 +60,7 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_Hat": "attachment point (see attach)",
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
+    "CatCafe_Park_RescueTree": "base center; the Branch pivots at its root on the trunk (part_pivots_roblox)",
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
@@ -72,9 +73,15 @@ STUDIO_NOTES = {
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
     "CatCafe_Furniture_CatTree": "CollisionFidelity Hull.",
     "CatCafe_Alley_Dumpster": "CollisionFidelity Hull.",
-    "CatCafe_Alley_StuckTree": "Rescue spot. Put the stuck cat at stuck_pose. CollisionFidelity Hull.",
-    "CatCafe_Alley_StuckBox": "Rescue spot. The cat's Head sits inside the box at stuck_pose.",
-    "CatCafe_Alley_Drainpipe": "Rescue spot. Cat Body inside the outlet at stuck_pose. CollisionFidelity Box on the riser is fine.",
+    "CatCafe_Alley_TrashBin": "Rescue trap trash_bin. Put the stuck cat at stuck_pose. The Lid turns about its "
+                              "part_pivots_roblox point (the hinge) to rattle on a hit. CollisionFidelity Box on the Bin.",
+    "CatCafe_Alley_GarbageBags": "Rescue trap garbage_bag. Put the stuck cat at stuck_pose; the front bag hides its body. "
+                                 "CollisionFidelity Hull.",
+    "CatCafe_Park_RescueTree": "Rescue trap tree (shake_catch). To wobble, rotate the Branch about its part_pivots_roblox point "
+                               "(set Branch.PivotOffset there if the import centres it). Put the cat at stuck_pose, then "
+                               "weld its Body to the Branch so it moves with it. CollisionFidelity Hull on the Trunk.",
+    "CatCafe_Park_TrashCan": "Rescue trap trashcan. Put the stuck cat at stuck_pose. The Lid turns about its "
+                             "part_pivots_roblox point (the back of the rim). CollisionFidelity Hull on the Can.",
     "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, plus a PointLight.",
     "CatCafe_Decor_DoorSign": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
     "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand; SmoothPlastic by day.",
@@ -119,6 +126,7 @@ def main():
     png = os.path.join(args.out, palette.TEXTURE_NAME + ".png")
     palette.write_palette_png(png)
     mat = common.palette_material(png)
+    sparkle_png = vfx.write_sparkle_png(os.path.join(args.out, vfx.SPARKLE + ".png"))
 
     wanted = [s.strip() for s in args.only.split(",") if s.strip()]
     manifest, failed, built = [], [], {}
@@ -141,6 +149,10 @@ def main():
             "pivot": PIVOT_NOTES.get(name, "base center (floor contact)"),
             "front": "-Z in Roblox, the LookVector (Blender -Y)",
         }
+        moved = {o.name: list(o.location) for o in objs if o.location.length > 1e-6}
+        if moved and not name.startswith("CatCafe_Cat_"):   # parts with their own pivot (gate leaves, tree branch); cats use joints
+            entry["part_pivots"] = {k: [round(v, 2) for v in p] for k, p in moved.items()}
+            entry["part_pivots_roblox"] = {k: common.to_roblox(p) for k, p in moved.items()}
         if name in furniture.SIT_POINTS:
             entry["sit_point"] = list(furniture.SIT_POINTS[name])
             entry["sit_point_roblox"] = common.to_roblox(furniture.SIT_POINTS[name])
@@ -222,11 +234,14 @@ def main():
                                                "offset_roblox": common.to_roblox(o),
                                                "angles_roblox_deg": common.euler_to_roblox(r)}
                                            for k, (p, o, r) in accessories.ATTACH_UPRIGHT.items()},
+                   "textures": {vfx.SPARKLE: vfx.manifest_entry(sparkle_png, ROOT)},
                    "assets": manifest}, f, indent=2)
     gates.write_report(os.path.join(args.out, "gates.md"), manifest, ROOT)
 
     if args.render:
         poses.render_pose_previews(built, mat, args.docs, samples=args.samples)
+        vfx.render_sparkle_preview(built, sparkle_png, os.path.join(args.docs, "previews", vfx.SPARKLE + ".png"),
+                                   samples=args.samples)
         import contact_sheet
         contact_sheet.build_sheets(args.docs, manifest)
     if args.scenes:

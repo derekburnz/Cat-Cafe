@@ -42,19 +42,24 @@ export type CatchPrompt = {
 	isRinging: (self: CatchPrompt) -> boolean,
 	setProgress: (self: CatchPrompt, alpha: number) -> (),
 	fail: (self: CatchPrompt, reason: string?, retry: boolean?) -> (),
+	waiting: (self: CatchPrompt) -> (),
 	hide: (self: CatchPrompt) -> (),
 	isVisible: (self: CatchPrompt) -> boolean,
 	destroy: (self: CatchPrompt) -> (),
 }
 
 local RING_SIZE = 150 -- outer ring diameter at scale 1 (design px)
-local DEFAULT_DURATION: number = Config.GrabHoldSeconds
+-- The v0.2 hold ring and rescue hold bar stay until the v0.3 server (closing circles, rescue minigames)
+-- is live; design v0.3 removes their Config constants, so they are read loosely with the v0.2 values.
+local LegacyConfig: { [string]: any } = Config :: any
+local HOLD_SECONDS: number = LegacyConfig.GrabHoldSeconds or 1.5
+local DEFAULT_DURATION: number = HOLD_SECONDS
 -- Bands as { min, max } of the ring's scale (1 = full size, 0 = collapsed). Both reach 0: the band is
 -- the end of the shrink, so only an early release reads as a miss on the client.
-local DEFAULT_GOOD: { number } = { 0, Config.RingGoodWindow / Config.GrabHoldSeconds }
-local DEFAULT_PERFECT: { number } = { 0, Config.RingPerfectWindow / Config.GrabHoldSeconds }
--- data-model RescueHoldSeconds (4)
-local DEFAULT_RESCUE_HOLD: number = Config.RescueHoldSeconds
+local DEFAULT_GOOD: { number } = { 0, (LegacyConfig.RingGoodWindow or 0.8) / HOLD_SECONDS }
+local DEFAULT_PERFECT: { number } = { 0, (LegacyConfig.RingPerfectWindow or 0.3) / HOLD_SECONDS }
+-- data-model v0.2 RescueHoldSeconds (4)
+local DEFAULT_RESCUE_HOLD: number = LegacyConfig.RescueHoldSeconds or 4
 
 local CatchPrompt = {}
 CatchPrompt.__index = CatchPrompt
@@ -370,11 +375,21 @@ end
 function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._failToken += 1
 	local kind: Types.PromptKind = info.kind or "swing"
+	local press = info.press == true -- v0.3: one press starts the circles or the rescue minigame
+	local rescue = kind == "rescue" -- a plain boolean: chained singleton tests confuse the type checker
 	self._kind = kind
-	self._action.Text = info.actionText
-		or (if kind == "rescue" then "Hold to rescue" else "Hold to swing")
+	local defaultAction = if press and rescue
+		then "Rescue"
+		elseif press then "Catch"
+		elseif rescue then "Hold to rescue"
+		else "Hold to swing"
+	self._action.Text = info.actionText or defaultAction
 	self._action.TextColor3 = Theme.hud.text
-	self._grab.Text = if kind == "rescue" then "HOLD" else "SWING"
+	self._grab.Text = if press and rescue
+		then "RESCUE"
+		elseif press then "CATCH"
+		elseif rescue then "HOLD"
+		else "SWING"
 	self:_stopRescueLoop()
 	self._rescuing = false
 	self._rescueHolder.Visible = false
@@ -387,8 +402,13 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
-	self._hint.Text = if kind == "rescue"
-		then "Hold still for 4 seconds. No swing, no miss."
+	self._hint.Text = if press and rescue
+		then "Stop the marker in the zone. The cat never leaves if you miss."
+		elseif
+			press and rarity == "Common"
+		then "Hit each circle on its ring. Commons stay if you miss."
+		elseif press then "Hit each circle on its ring. It runs if you miss!"
+		elseif rescue then "Hold still for 4 seconds. No swing, no miss."
 		elseif rarity == "Common" then "Let go in the green. Commons stay if you miss."
 		else "Let go in the green. It runs if you miss!"
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
@@ -591,6 +611,13 @@ function CatchPrompt.fail(self: any, reason: string?, retry: boolean?)
 			self:hide()
 		end
 	end)
+end
+
+-- v0.3 press prompt: the press went to the server; dim the card until the circles or the minigame come.
+function CatchPrompt.waiting(self: any)
+	self._failToken += 1
+	self._action.Text = "Get ready..."
+	self._action.TextColor3 = Theme.hud.subtext
 end
 
 function CatchPrompt.hide(self: any)

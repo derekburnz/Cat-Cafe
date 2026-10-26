@@ -287,8 +287,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		local def: Types.DecorDef = card.def
 		local isOwned = state.decorOwned[decorId] == true
 		local isPlaced = state.decorPlaced[decorId] == true
-		local locked = def.requiresCafeLevel ~= nil
-			and state.cafeLevel < (def.requiresCafeLevel :: number)
+		local locked = def.requiresTier ~= nil and state.tier < (def.requiresTier :: number)
 		card.owned.Visible = isOwned
 		if isOwned and isPlaced then
 			card.mode = "remove"
@@ -302,7 +301,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.action:setEnabled(true)
 		elseif locked then
 			card.mode = "locked"
-			card.action:setText("Cafe " .. Format.level(def.requiresCafeLevel :: number))
+			card.action:setText(Format.tier(def.requiresTier :: number))
 			card.action:setEnabled(false)
 		else
 			card.mode = "buy"

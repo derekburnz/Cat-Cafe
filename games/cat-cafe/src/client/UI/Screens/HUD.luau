@@ -3,6 +3,7 @@
 -- and night clock chip (top right), menu buttons (left), equipped lure slot with an odds picker (bottom right), carry banner and
 -- tutorial strip (bottom centre). Laid out in design pixels under one UIScale from Scale.bind.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -10,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -33,8 +35,13 @@ export type HUD = {
 	destroy: (self: HUD) -> (),
 }
 
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+
 local MARGIN = 16
 local LURE_ROW = 70
+-- data-model NightIncomeMultiplier (0.6): tips pay this share at night. Read from Config once it exists.
+local NIGHT_TIPS: number = (Config :: any).NightIncomeMultiplier or 0.6
 
 local HUD = {}
 HUD.__index = HUD
@@ -123,63 +130,66 @@ local function percent(value: number): string
 	return text .. "%"
 end
 
--- "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.5% Legendary" (the growth thread's rule: labelled, never an icon)
+-- "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical" (the growth thread's rule:
+-- labelled, never an icon)
 local function oddsText(odds: Types.LureOdds?): string
 	if not odds then
 		return "Odds: not set"
 	end
 	assert(odds, "odds not set")
-	return ("Odds: %s Common · %s Rare · %s Epic · %s Legendary"):format(
-		percent(odds.Common),
-		percent(odds.Rare),
-		percent(odds.Epic),
-		percent(odds.Legendary)
-	)
+	local parts = {}
+	for _, rarity in Theme.rarityOrder do
+		local share = (odds :: any)[rarity]
+		if type(share) == "number" then
+			table.insert(parts, ("%s %s"):format(percent(share), rarity))
+		end
+	end
+	return "Odds: " .. table.concat(parts, " · ")
 end
 
--- Per-cat split, derived from the catalog: every cat of a rarity in an area has the same chance.
--- "Alley · Rare 42%: Calico 21%, Siamese 21%"
-local function oddsDetail(catalog: Types.Catalog, lure: Types.LureDef): string
+-- Per-cat split, derived from the catalog. Bait picks the cat uniformly among that rarity's cats in every
+-- area the player has unlocked (data-model section 8), so the pool grows with the tier.
+-- "Rare 22%: Calico 11%, Siamese 11%"
+local function oddsDetail(catalog: Types.Catalog, lure: Types.LureDef, tier: number): string
 	local odds = lure.odds
 	if not odds then
 		return "Odds not set for this food yet."
 	end
 	assert(odds, "odds not set")
-	local areas = { "alley", "park" }
-	local lines = { "Same chance for every cat of a rarity in the area:" }
-	for _, area in areas do
-		for _, rarity in Theme.rarityOrder do
-			local share = (odds :: any)[rarity]
-			if type(share) ~= "number" or share <= 0 then
-				continue
-			end
-			local names = {}
-			for _, def in catalog.cats do
-				if
-					def.rarity == rarity
-					and (def.area == nil or def.area == "both" or def.area == area)
-				then
-					table.insert(names, def.name)
-				end
-			end
-			if #names == 0 then
-				continue
-			end
-			local each = share / #names
-			local parts = {}
-			for _, name in names do
-				table.insert(parts, ("%s %s"):format(name, percent(each)))
-			end
-			table.insert(
-				lines,
-				("%s · %s %s: %s"):format(
-					area:sub(1, 1):upper() .. area:sub(2),
-					rarity,
-					percent(share),
-					table.concat(parts, ", ")
-				)
-			)
+	local unlocked: { [string]: boolean } = {}
+	local areaNames = {}
+	local areaList: { Types.AreaDef } = catalog.areas or {}
+	for _, area in areaList do
+		if area.tier <= tier then
+			unlocked[area.id] = true
+			table.insert(areaNames, area.name)
 		end
+	end
+	local lines = {
+		if #areaNames > 0
+			then "Same chance for every cat of a rarity in " .. table.concat(areaNames, ", ") .. ":"
+			else "Same chance for every cat of a rarity:",
+	}
+	for _, rarity in Theme.rarityOrder do
+		local share = (odds :: any)[rarity]
+		if type(share) ~= "number" or share <= 0 then
+			continue
+		end
+		local names = {}
+		for _, def in catalog.cats do
+			if def.rarity == rarity and (#areaNames == 0 or unlocked[def.area]) then
+				table.insert(names, def.name)
+			end
+		end
+		if #names == 0 then
+			continue
+		end
+		local each = share / #names
+		local parts = {}
+		for _, name in names do
+			table.insert(parts, ("%s %s"):format(name, percent(each)))
+		end
+		table.insert(lines, ("%s %s: %s"):format(rarity, percent(share), table.concat(parts, ", ")))
 	end
 	return table.concat(lines, "\n")
 end
@@ -194,6 +204,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._catalog = nil :: Types.Catalog?
 	self._pickerOpen = false
 	self._lastMoney = nil :: number?
+	self._oddsTier = 1
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeHUD",
@@ -302,6 +313,45 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromScale(0, 1),
 		Parent = track,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	-- v0.3: with tiers the pill opens the rank up card, and a gold tag shows when it is ready
+	local cafeButton: TextButton = Create("TextButton", {
+		Name = "Open",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Active = false,
+		ZIndex = 3,
+		Parent = cafe,
+	})
+	self._cafeButton = cafeButton
+	table.insert(
+		self._connections,
+		cafeButton.Activated:Connect(function()
+			if self._tiersOn then
+				callbacks.openScreen("RankUp")
+			end
+		end)
+	)
+	self._rankBadge = Create("TextLabel", {
+		Name = "RankReady",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 1, 4),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 22),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.goldText,
+		Text = "Rank up ready!",
+		Visible = false,
+		Parent = cafe,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+	})
+	self._tiersOn = false
 
 	-- Cats pill (top right)
 	local cats = hudPanel("Cats", {
@@ -384,6 +434,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = 16,
 		Text = "",
 		Parent = clock,
+	})
+	-- v0.3 (F31): tips pay less at night, so the chip says by how much
+	self._nightTips = hudPanel("NightTips", {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, MARGIN + 52 + Theme.sizes.gap + 40 + 4),
+		Size = UDim2.fromOffset(150, 24),
+		Visible = false,
+		Parent = root,
+	})
+	label({
+		Name = "Text",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.sky,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "Tips " .. Format.percent(NIGHT_TIPS),
+		Parent = self._nightTips,
 	})
 
 	-- Menu stack (left, vertically centred)
@@ -644,7 +711,7 @@ function HUD._buildLureRows(self: any)
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
-			Text = oddsDetail(catalog, lure),
+			Text = oddsDetail(catalog, lure, self._oddsTier),
 			Visible = false,
 			Parent = row,
 		})
@@ -765,7 +832,29 @@ function HUD.render(self: any, state: Types.PlayerState)
 		if catCount == 1 then "" else "s"
 	)
 
-	self._cafeTitle.Text = "Cafe " .. Format.level(state.cafeLevel)
+	-- the bait pool grows as tiers open areas, so the per-cat split is rebuilt on a tier change
+	if catalog and state.tier ~= self._oddsTier then
+		self._oddsTier = state.tier
+		for _, lureRow in self._lureRows do
+			lureRow.detail.Text = oddsDetail(catalog, lureRow.def, state.tier)
+		end
+	end
+	local tierProgress: RankUp.Progress? = nil
+	if catalog and catalog.tiers and state.tier then
+		tierProgress = RankUp.progress(catalog, state)
+	end
+	self._tiersOn = tierProgress ~= nil
+	self._cafeButton.Active = tierProgress ~= nil
+	if tierProgress then
+		self:_renderTier(tierProgress)
+		self:_renderLures(state)
+		local total = if catalog then #catalog.cats else 0
+		self._catsText.Text = ("Cats %d / %d"):format(distinct, total)
+		return
+	end
+	self._rankBadge.Visible = false
+
+	self._cafeTitle.Text = Format.tier(state.tier, if catalog then catalog.tiers else nil)
 	local parts = {}
 	if state.tables then
 		table.insert(
@@ -793,7 +882,43 @@ function HUD.render(self: any, state: Types.PlayerState)
 
 	local total = if catalog then #catalog.cats else 0
 	self._catsText.Text = ("Cats %d / %d"):format(distinct, total)
+	self:_renderLures(state)
+end
 
+-- v0.3 top pill: "Tier 2 · Cozy Cafe", what the next tier still needs, and a gold tag when ready.
+function HUD._renderTier(self: any, progress: RankUp.Progress)
+	local current = progress.current
+	self._cafeTitle.Text = ("Tier %d%s"):format(
+		progress.tier,
+		if current then "  ·  " .. current.name else ""
+	)
+	local nextTier = progress.nextTier
+	local sub = "Top tier"
+	if nextTier then
+		sub = "Next: " .. nextTier.name
+		for _, item in progress.requirements do
+			if not item.met then
+				sub ..= "  ·  " .. item.label:lower() .. " " .. item.status
+				break
+			end
+		end
+	end
+	self._cafeSub.Text = sub
+	self._cafeSub.Visible = true
+	self._cafeTrack.Visible = nextTier ~= nil
+	self._cafeFill.Size = UDim2.fromScale(math.clamp(progress.fraction, 0, 1), 1)
+	self._cafeFill.BackgroundColor3 = if progress.ready
+		then Theme.colors.gold
+		else Theme.colors.mint
+	local wasVisible = self._rankBadge.Visible
+	self._rankBadge.Visible = progress.ready
+	if progress.ready and not wasVisible then
+		Tween.popIn(self._rankBadge, 0.7)
+	end
+end
+
+function HUD._renderLures(self: any, state: Types.PlayerState)
+	local catalog: Types.Catalog? = self._catalog
 	-- lure slot and picker
 	local equippedDef: Types.LureDef? = nil
 	if catalog and state.equippedLure then
@@ -877,6 +1002,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self:_stopClock()
 	if not clock then
 		self._clock.Visible = false
+		self._nightTips.Visible = false
 		return
 	end
 	local current: Types.ClockState = clock
@@ -885,6 +1011,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._moon.Visible = isNight
 	self._clockText.TextColor3 = if isNight then Theme.colors.sky else Theme.hud.text
 	self._clock.Visible = true
+	self._nightTips.Visible = isNight
 	local function tick()
 		self._clockText.Text =
 			clockText(current.phase, current.phaseEndsAt - Workspace:GetServerTimeNow())

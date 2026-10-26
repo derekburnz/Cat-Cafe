@@ -67,6 +67,45 @@ function Format.level(level: number): string
 	return "Lv " .. tostring(level)
 end
 
+local AREA_NAMES: { [string]: string } = {
+	alley = "Alleyway",
+	park = "Park",
+	neighbourhood = "Neighbourhood",
+	woods = "Woods",
+	sewer = "Sewer",
+}
+
+-- "park" -> "Park" (data-model section 9 names), unknown ids are capitalised
+function Format.areaName(areaId: string): string
+	return AREA_NAMES[areaId] or (areaId:sub(1, 1):upper() .. areaId:sub(2))
+end
+
+-- 2 -> "Tier 2", or "Tier 2 · Cozy Cafe" when the catalog's tiers are given (data-model section 5b)
+function Format.tier(tier: number, tiers: { any }?): string
+	local text = "Tier " .. tostring(tier)
+	if tiers then
+		for _, def in tiers :: { any } do
+			if def.tier == tier and type(def.name) == "string" then
+				return text .. " · " .. def.name
+			end
+		end
+	end
+	return text
+end
+
+-- "barista" -> "Barista" (role display names are the ids capitalised for now)
+function Format.roleName(role: string): string
+	return role:sub(1, 1):upper() .. role:sub(2)
+end
+
+-- 0.6 -> "60%", 0.125 -> "12.5%", 0.004 -> "0.4%" (whole percentages, one decimal under 10%)
+function Format.percent(fraction: number): string
+	local value = fraction * 100
+	local text = string.format(if value >= 10 or value == 0 then "%.0f" else "%.1f", value)
+	text = text:gsub("%.0$", "")
+	return text .. "%"
+end
+
 -- 3 -> "★★★☆☆" (always five glyphs so rows line up)
 function Format.stars(stars: number, max: number?): string
 	local total = max or 5

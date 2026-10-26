@@ -22,7 +22,7 @@ local Config = {
 	CatXpBase = 60, -- XP (seconds placed) from level n to n + 1 is CatXpBase x n; level 10 after 45 min placed
 	CatXpPerSecondPlaced = 1, -- XP a placed cat earns per second (Economy.settle grants it)
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
-	RenovateBonus = 0.25, -- permanent tips bonus per Renovate (rebirth); the seam exists, the feature does not yet
+	ShinyMultiplier = 1.5, -- a shiny cat's rating (data-model section 4)
 
 	-- The clock (data-model section 9): a server-wide loop of day then night
 	DayLengthSeconds = 180,
@@ -59,7 +59,7 @@ local Config = {
 	RescueSpawnChance = 0.5, -- per rescue spot at each night start
 	RescueHoldSeconds = 4,
 	RescueLockSeconds = 6,
-	RescuedTipsMultiplier = 1.10,
+	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher shiny chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
 

@@ -18,6 +18,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -97,7 +98,7 @@ function Debug.resetProfile(player: (Player | number | string)?)
 	CafeService.sync(p)
 end
 
--- Sets the cafe tier (1 to 5) without the rank up checks, for testing areas, slots and caps before RankUp exists.
+-- Sets the cafe tier (1 to 5) without RankUp's checks or cost, for testing areas, slots, caps and expansions.
 function Debug.setTier(player: (Player | number | string)?, tier: number)
 	local p = resolve(player)
 	local profile = profileOf(p)
@@ -163,10 +164,22 @@ function Debug.setUpgrade(player: (Player | number | string)?, upgradeId: string
 	CafeService.sync(p)
 end
 
--- Spawns a stray of the given cat in an area ("alley" or "park"). Returns its StrayId.
+-- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default). Returns its StrayId.
 function Debug.spawnStray(catId: string, areaId: string?): string
 	guard()
 	return CatService.debugSpawnStray(catId, areaId or "alley")
+end
+
+-- Moves the player's character onto an area's first spawn point, past its gate whatever their tier, so a
+-- playtest can check that a locked area refuses catches (F23).
+function Debug.teleport(player: (Player | number | string)?, areaId: string)
+	guard()
+	local spec = Layout.areas[areaId]
+	assert(spec ~= nil, "no area " .. tostring(areaId))
+	local character = resolve(player).Character
+	assert(character ~= nil, "no character")
+	local point = spec.spawnPoints[1]
+	character:PivotTo(CFrame.new(point.x + 3, spec.floorY + 4, point.z))
 end
 
 -- Jumps the server clock to the start of "day" or "night" at full length. Night rolls a wave and the rescue

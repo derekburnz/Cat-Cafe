@@ -1,6 +1,6 @@
 --!strict
 -- Economy.luau against data-model v0.3.1 sections 5, 5b, 6, 7, 11 and 14, plus the ten minute loop in features.md
--- section 8. Night income (F31) and rank up (F24) get their own blocks when they land.
+-- section 8. Rank up (F24) has its own block at the end; night income (F31) gets one when it lands.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
@@ -493,6 +493,169 @@ return function()
 				local minutes = spend / rate / 60
 				expect(minutes >= 10 and minutes <= 20).to.equal(true)
 			end
+		end)
+	end)
+	describe("rank up (F24, section 5b)", function()
+		-- Cat ids of one rarity, in catalog order.
+		local function idsOf(rarity: string): { string }
+			local ids = {}
+			for _, def in Catalog.cats do
+				if def.rarity == rarity then
+					table.insert(ids, def.id)
+				end
+			end
+			return ids
+		end
+
+		-- A profile at `tier` whose collection holds `count` different cats: `needed` of `rarity` first (if any),
+		-- then Commons, Rares and Epics that are not `rarity`, so the rarity count stays exact.
+		local function profileWith(tier: number, count: number, rarity: string?, needed: number?, coins: number?): any
+			local p = freshProfile()
+			p.tier = tier
+			p.coins = coins or 1e9
+			p.collection = {}
+			local added = 0
+			if rarity ~= nil then
+				for index, id in idsOf(rarity) do
+					if index > (needed or 0) or added >= count then
+						break
+					end
+					p.collection[id] = 1000
+					added += 1
+				end
+			end
+			for _, fillRarity in { "Common", "Rare", "Epic" } do
+				if fillRarity ~= rarity then
+					for _, id in idsOf(fillRarity) do
+						if added >= count then
+							break
+						end
+						p.collection[id] = 1000
+						added += 1
+					end
+				end
+			end
+			assert(added == count, "not enough catalog cats for the test profile")
+			return p
+		end
+
+		it("distinctCats counts collection entries: owned cats, sold cats and shinies change nothing", function()
+			local p = freshProfile()
+			expect(Economy.distinctCats(p)).to.equal(1) -- the starter Tabby
+			p.collection.ginger = 1000
+			p.collection.tuxedo = 1000
+			expect(Economy.distinctCats(p)).to.equal(3)
+			-- A shiny of a cat already in the collection is not a second entry.
+			p.shinyCollection.tabby = 1000
+			p.cats.shiny = cat("shiny", "tabby", nil, "shiny")
+			expect(Economy.distinctCats(p)).to.equal(3)
+			-- Selling every cat keeps the collection.
+			p.cats = {}
+			expect(Economy.distinctCats(p)).to.equal(3)
+		end)
+
+		it("distinctCatsAtLeast counts that rarity or rarer and skips unknown ids", function()
+			local p = profileWith(3, 12, "Epic", 1)
+			p.collection.not_a_cat = 1000
+			expect(Economy.distinctCatsAtLeast(p, "Epic")).to.equal(1)
+			expect(Economy.distinctCatsAtLeast(p, "Legendary")).to.equal(0)
+			expect(Economy.distinctCatsAtLeast(p, "Common")).to.equal(12)
+			p.collection[idsOf("Mythical")[1]] = 1000
+			expect(Economy.distinctCatsAtLeast(p, "Epic")).to.equal(2)
+			expect(Economy.distinctCatsAtLeast(p, "Legendary")).to.equal(1)
+		end)
+
+		it("Tier 1 to 2: 5 different cats and 1,500 coins, the starter Tabby counts", function()
+			local p = freshProfile()
+			p.coins = 1500
+			for _, id in { "ginger", "tuxedo", "smoke" } do
+				p.collection[id] = 1000
+			end
+			expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
+			p.collection.calico = 1000
+			expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+			p.coins = 1499
+			expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
+		end)
+
+		it("Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary or better; 4 to 5 two of them", function()
+			expect(Economy.rankUpBlocker(profileWith(2, 12))).to.equal("Needs one cat, Epic or better")
+			expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1))).never.to.be.ok()
+			expect(Economy.rankUpBlocker(profileWith(3, 20, "Epic", 3))).to.equal("Needs one cat, Legendary or better")
+			expect(Economy.rankUpBlocker(profileWith(3, 20, "Legendary", 1))).never.to.be.ok()
+			expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 1))).to.equal(
+				"Needs 2 different cats, Legendary or better"
+			)
+			expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 2))).never.to.be.ok()
+		end)
+
+		it("a shiny of the one Legendary does not count as a second Legendary", function()
+			local p = profileWith(4, 30, "Legendary", 1)
+			local legendary = idsOf("Legendary")[1]
+			p.shinyCollection[legendary] = 1000
+			p.cats.shinyLegend = cat("shinyLegend", legendary, nil, "shiny")
+			expect(Economy.rankUpBlocker(p)).to.equal("Needs 2 different cats, Legendary or better")
+		end)
+
+		it("a rarer cat counts for the rarity asked (section 5b: or better, reviewer N44)", function()
+			expect(Economy.rankUpBlocker(profileWith(2, 12, "Mythical", 1))).never.to.be.ok()
+			expect(Economy.rankUpBlocker(profileWith(3, 20, "Mythical", 1))).never.to.be.ok()
+			-- Tier 5: a Legendary plus a Mythical are two different cats, Legendary or better.
+			local p = profileWith(4, 30, "Legendary", 1)
+			p.collection[idsOf("Mythical")[1]] = 1000
+			expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+		end)
+
+		it("reasons come in the order a player works through them: cats, then the rarity, then coins", function()
+			expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
+				"Needs 12 different cats (you have 11)"
+			)
+			expect(Economy.rankUpBlocker(profileWith(2, 12, nil, nil, 0))).to.equal("Needs one cat, Epic or better")
+			expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1, 0))).to.equal("Not enough coins")
+		end)
+
+		it("every tier step passes at exactly its minimum and fails one cat or one coin short", function()
+			for from = 1, Catalog.maxTier - 1 do
+				local nextTier = Catalog.getTier(from + 1)
+				assert(nextTier)
+				local rarity = nextTier.needsRarity
+				local needed = if rarity ~= nil then nextTier.needsRarityCount or 1 else nil
+				local count = math.max(nextTier.distinctCats, needed or 0)
+				expect(Economy.rankUpBlocker(profileWith(from, count, rarity, needed, nextTier.cost))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(from, count, rarity, needed, nextTier.cost - 1))).to.equal(
+					"Not enough coins"
+				)
+				if count > 0 then
+					local short = Economy.rankUpBlocker(profileWith(from, count - 1, rarity, needed, nextTier.cost))
+					expect(short).to.be.ok()
+					expect(short).never.to.equal("Not enough coins")
+				end
+			end
+		end)
+
+		it("at Tier 5 there is nothing left, whatever the coins", function()
+			local p = profileWith(5, 40, "Legendary", 5)
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Grand Cafe")
+			p.tier = 99 -- clamped like Economy.tier
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Grand Cafe")
+		end)
+
+		it("a damaged tier reads the way Economy.tier does (0 and 1.5 are Tier 1)", function()
+			for _, damaged in { 0, -3, 1.5 } do
+				local p = freshProfile()
+				p.tier = damaged
+				p.coins = 1e9
+				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 1)")
+			end
+		end)
+
+		it("only reads the profile: coins, tier and collection are unchanged", function()
+			local p = profileWith(2, 12, "Epic", 1, 8000)
+			local before = Economy.distinctCats(p)
+			Economy.rankUpBlocker(p)
+			expect(p.coins).to.equal(8000)
+			expect(p.tier).to.equal(2)
+			expect(Economy.distinctCats(p)).to.equal(before)
 		end)
 	end)
 end

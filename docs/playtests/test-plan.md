@@ -7,6 +7,10 @@ format, severity scale). QA tests, it does not fix: every failure becomes a tick
 
 ## 1. What runs where
 
+Code and these docs live in the GitHub repo (`derekburnz/purr-pot`); the shared project folder is a staging copy.
+QA branches off the engineer's current integration branch (`engineer/review-fixes` until it merges), keeps to
+`games/cat-cafe/tests/`, `games/cat-cafe/tools/cloudcheck/` and `docs/playtests/`, and opens a pull request.
+
 | Layer | Where | When | How |
 |---|---|---|---|
 | Unit tests of pure shared modules (`tests/specs/*.spec.luau`) | Cloud threads, or any PC with Node 20 | Every change under `src/shared`, before every review | `cd games/cat-cafe/tools/cloudcheck && npm test` |
@@ -27,7 +31,8 @@ Results of every run go to `docs/playtests/YYYY-MM-DD.md` in the `playtest-repor
 2. Studio MCP on: Assistant > ... > Manage MCP Servers > Enable Studio as MCP server. In Claude Code run
    `list_roblox_studios` and keep the `studio_id`; every Studio tool call takes it.
 3. Rojo: `rojo serve default.project.json` for playtests, `rojo serve tests.project.json` for unit tests in
-   Studio (same tree plus `ReplicatedStorage.Tests`). Never publish a place that contains `ReplicatedStorage.Tests`.
+   Studio and the abuse pass (same tree plus `ReplicatedStorage.Tests` and `StarterPlayerScripts.TestsAbuse`).
+   Never publish a place that contains either.
 4. Data: with **Enable Studio Access to API Services** off, ProfileStore runs in mock mode, so every play session
    is a fresh account (good for onboarding tests) and nothing persists (so skip persistence steps and expect
    `dataSaves = false` in the state). Turn it on only for the persistence and offline steps, using a dev-only
@@ -87,18 +92,24 @@ it is scripted; keep the manual tool sequence below as the reference.
 
 ### 4.1 Smoke run (about 6 minutes, before every friend playtest)
 
+Rows marked (v0.2) follow data-model.md v0.2 (night waves, net, rescue) and apply once the server side lands;
+until then expect the v0.1 behaviour (a stray every 20 s, no clock, no rescue spots) and note it in the report.
+
 | Step | Tool calls | Expected | Feature |
 |---|---|---|---|
 | S1 Join | `start_stop_play` start. Wait 10 s. `get_console_output`. `execute_luau`: count `workspace` descendants tagged `Plot` with `OwnerUserId == player.UserId` | No errors. Exactly one plot owned. HUD shows `$50` and rate `1.5/s` within 5 s (hook: `snapshot.money == 50`, `incomePerSecond == 1.5`) | F01, F04, F10 |
 | S2 World | `execute_luau`: `CollectionService:GetTagged("Stray")` count and positions; `search_game_tree` for `workspace.World` | Plots, alley, park, gate present. Between 1 and 6 strays after 2 minutes, never more than `MaxStraysPerArea` per area (sample 5 times, 20 s apart) | F01, F05 |
 | S3 Walk to alley | `character_navigation` to the alley centre (`Config.World.AlleyCenterZ`, read it from `ReplicatedStorage.Shared.Config` with `execute_luau`) | Arrives in under 60 s. Tutorial arrow visible on the way (phone emulator run only) | F01, F13 |
-| S4 Grab | `execute_luau`: nearest stray position. `character_navigation` to within 8 studs. `user_keyboard_input`: hold `E` for about 1.35 s then release (the server reads the time between GrabBegin and GrabEnd: 1.20 to 1.75 s is perfect, 0.70 to 1.20 s good). Repeat until caught (max 5 tries) | Prompt appears inside 10 studs only. Common: catch chance 0.90 bare, 0.95 with a perfect release; on a failed roll the stray stays and the prompt reopens after 2 s. Stray despawns on success, carry indicator shows, walk speed drops to 13 (hook: `Humanoid.WalkSpeed`) | F06, F07 |
+| S4 Grab | `execute_luau`: nearest stray position. `character_navigation` to within 8 studs. `user_keyboard_input`: hold `E` for about 1.35 s then release (the server reads the time between GrabBegin and GrabEnd: 1.20 to 1.75 s is perfect, 0.70 to 1.20 s good). Repeat until caught (max 5 tries) | Prompt appears inside 10 studs only. Common: catch chance 0.90 bare, 0.95 with a perfect release; on a failed roll the stray stays and the prompt reopens after 2 s. Stray despawns on success, carry indicator shows, walk speed drops to 13 (hook: `Humanoid.WalkSpeed`). Ring text: Good in the last 0.80 s of the hold, Perfect in the last 0.30 s, a full hold with no release shows Missed and sends no GrabEnd (the bands come from `Config`) | F06, F07 |
 | S5 Check in | `character_navigation` to own plot `Door` part. | Within 8 studs: Cat found popup, `+50` first-catch reward for a new Common, collection `2 / 12`, carry indicator gone, walk speed back to 16 | F07 |
 | S6 Place | Open Collection (`user_keyboard_input` `C` or click the HUD button with `user_mouse_input`), pick the new cat, Place, choose `window_1` | Rate rises by the cat's rate (Tuxedo or Snow on the window: +1.5, any other Common: +1). Cat model appears on the spot | F02, F03 |
 | S7 Buy | Wait until `$100` (about 34 s from join at the starter rate, less after the reward). Open Upgrades (`U`), buy Tables | Coins drop by 100, a table and two chairs appear, rate rises by exactly 10% | F08 |
 | S8 Refusals | Try to buy Lure bowl and Park pass at cafe level 1, try Cafe level 2 with under $250 | Each refused with a toast (`Needs cafe level 2`, `Needs cafe level 3`, `Not enough coins`), no coins taken, no server error | F08 |
 | S9 Persist (API access on) | `start_stop_play` stop, start again | Coins within rate x gap of the last value, cats and tables back, offline popup if away over 60 s | F10, F12 |
 | S10 Offline | API access on: stop play, wait 2 minutes (or longer), start play again. With a `setLastSeen` hook this becomes a 5 s step | Popup shows `floor(rateAtLogout x 0.25 x secondsAway)`. Claim adds exactly that once; a second claim adds nothing | F12 |
+| S11 Full hold | Next to a Common stray: `user_keyboard_input` hold `E` for 1.7 s with no release | At 1.5 s the ring reads `Missed`; no `GrabEnd` leaves the client (hook: count `Remotes.GrabEnd` OnServerEvent fires with `execute_luau`, or watch the server log); the server sends `GrabResult` about 1.75 s after the hold began, ring miss, chance still rolled, so the Common is usually caught anyway | F06 |
+| S12 Clock (v0.2) | `execute_luau`: read `ReplicatedStorage.Clock` attributes `Phase` and `PhaseEndsAt`; `screen_capture` the HUD chip at 115 s and at 125 s after server start | Chip reads `Day` with a countdown that reaches `0:00` within one second of the flip, then `Night` in sky blue; `Phase` flips to `night` 120 s after server start, then every 180 s day / 120 s night. At the flip the alley holds exactly 6 strays (`CollectionService:GetTagged("Stray")`) and no new stray appears by day except the tutorial one. Leftovers vanish at the next night start | F05 |
+| S13 Rescue (v0.2) | At night start find a stuck cat (`execute_luau`: models with attribute `Rescue` true under `World`; there are 2 rescue spots in the alley, each filled with chance 0.5). `character_navigation` to it. Hold `E` for 2 s and release, then hold 4.2 s | Card reads `Hold to rescue`. The 2 s release resets the bar with no fail text and no carry. The full hold fills the bar over 4 s, shows `Rescued!`, always succeeds (no ring, no roll), player enters carry. After check in `Debug.snapshot` shows the instance with `rescued = true`; its placed rate is 1.10 x the normal rate for that cat and spot | F06, F04 |
 
 Record pass or fail per step plus the console text. Any step that cannot run (hook missing, API access off) is
 marked skipped with the reason, not failed.
@@ -114,27 +125,38 @@ marked skipped with the reason, not failed.
 
 ### 4.3 Abuse pass (server validation; anything accepted is a blocker, owner luau-reviewer)
 
-Run from a client context: the second client window of a Clients and Servers session, or the QA LocalScript
-`tests/abuse/AbuseClient.client.luau` (to be written once the remote list is frozen; it fires each case on a
-key press and prints the server's reaction). Remote names are the list in `src/shared/Remotes.luau`.
+Run from a client context with the QA LocalScript `tests/abuse/AbuseClient.client.luau`. It only exists in a
+build made from `tests.project.json` (`rojo serve tests.project.json`, it lands in
+`StarterPlayerScripts.TestsAbuse`) and only runs in Studio. In Play Solo or the second client of a Clients and
+Servers session: press ` (backquote) to arm it, the key menu prints, then one key per row below, or `]` for
+every case in a row. From a client-context command bar: `_G.PurrPotAbuse.run("fakeStray")` or
+`_G.PurrPotAbuse.runAll()`. Every line it prints starts with `[Abuse]`; `RESULT <case>: PASS|FAIL|SKIP|CHECK`
+is the verdict (CHECK: the client cannot tell, read the server output). After a run, filter the server output
+for `[Net]`: a `handler failed` line means the server errored on bad input (a major on its own); a
+`rate limit hit` line once a second is the correct reaction to the flood. `Someone else's lock` needs two
+clients and stays manual. Remote names are the list in `src/shared/Remotes.luau`.
 
 | Case | Call | Expected server behaviour |
 |---|---|---|
-| Fake stray | `GrabBegin("not_a_stray")` | Ignored, no error in console |
-| Far grab | Teleport the character 200 studs away (`execute_luau`), `GrabBegin(id)` then `GrabEnd(id)` 1.35 s later | Both refused by the 10 stud check |
-| End without begin | `GrabEnd(id)` on a stray nobody locked | Refused |
-| Someone else's lock | Client B `GrabEnd` on a stray A locked | Refused |
-| Scripted perfect | 40 grabs of Commons with `GrabEnd` sent by script exactly 1.35 s after `GrabBegin` | Every one is a perfect ring; success rate still at most 0.95 and at most 15 points over the honest chance |
-| Instant end | `GrabEnd(id)` 0.05 s after `GrabBegin` | Dropped (under 0.15 s), lock continues, no error |
-| Late end | `GrabEnd(id)` 2.0 s after `GrabBegin` | Refused as stale: the server already resolved the attempt at 1.75 s (see No end), no error |
-| No end | `GrabBegin(id)` and never send `GrabEnd` | At 1.75 s after begin the server resolves the attempt itself as a ring miss: chance rolled without bonus, lock released, a Common is usually caught and a Rare may flee. Client shows the miss flash at 1.5 s and then the server result |
-| Perfect farming | `GrabEnd` sent by script at exactly 1.5 to 1.75 s after `GrabBegin` | Accepted as perfect by design (latency grace); the only gain is the capped 0.15 bonus. Log the hit rate, do not ticket |
-| Client ring value | `GrabEnd(id, "perfect")` with the old extra argument | Argument ignored; result comes from timing only |
-| Bad ids | `BuyUpgrade(41 character string)`, `BuyUpgrade(123)`, `BuyUpgrade(nil)`, `BuyUpgrade("jetpack")` | All refused, no server error (an error on bad input is a major ticket on its own) |
-| Unaffordable | `BuyUpgrade("tables")` with `$0` | Refused with `Not enough coins`, coins unchanged |
-| Gates | `BuyUpgrade("lure_bowl")` at cafe 1, `BuyDecor("neon_sign")` at cafe 3, `PlaceCat(uid, "cushion_1")` at cafe 1 | Refused |
-| Ownership | `PlaceCat(other player's uid, "window_1")`, `SellCat(other uid)`, `UnplaceCat(other uid)` | Refused |
-| Double spend | `SellCat(uid)` twice in one frame, `ClaimOffline()` twice | Second call adds nothing |
+| Fake stray (key 1) | `GrabBegin("not_a_stray")` | Ignored, no error in console |
+| Far grab (2) | Teleport the character 200 studs away, `GrabBegin(id)` then `GrabEnd(id)` 1.35 s later | Begin answered with `Too far away`, end ignored, nothing caught |
+| End without begin (3) | `GrabEnd(id)` on a stray nobody locked | Ignored |
+| Someone else's lock (manual) | Client B `GrabEnd` on a stray A locked | Ignored |
+| Instant end (4) | `GrabEnd(id)` 0.05 s after `GrabBegin` | Dropped (under 0.15 s), lock continues, the hold resolves itself at 1.75 s as a ring miss |
+| Late end (5) | `GrabEnd(id)` 2.0 s after `GrabBegin` | Ignored as stale: the server already resolved the attempt at 1.75 s (see No end), exactly one GrabResult |
+| No end (6) | `GrabBegin(id)` and never send `GrabEnd` | At 1.75 s after begin the server resolves the attempt itself as a ring miss: chance rolled without bonus, lock released, a Common is usually caught and a Rare may flee. Client shows the miss flash at 1.5 s and then the server result |
+| Perfect farming (7) | 10 grabs with `GrabEnd` sent by script 1.6 s after `GrabBegin` (inside the 1.20 to 1.75 s perfect window) | Accepted as perfect by design (latency grace); the only gain is the capped 0.15 bonus. The script prints caught vs expected with and without the ring. Log it, do not ticket |
+| Client ring value (8) | `GrabEnd(id, "perfect")` 0.5 s after `GrabBegin` | Extra argument ignored; scored from timing as a miss right away, GrabResult within 1 s |
+| Bad ids (9) | `BuyUpgrade(41 character string)`, `BuyUpgrade(123)`, `BuyUpgrade(nil)`, `BuyUpgrade("jetpack")`, `BuyUpgrade({})`, `PlaceCat(123, "window_1")`, `ToggleDecor("plants", "yes")`, `TutorialAdvance("two")`, `EquipLure(7)` | All ignored, coins unchanged, no toast, no server error (an error on bad input is a major ticket on its own) |
+| Unaffordable (0) | `BuyUpgrade("tables")` with `$0` (`Debug.setCoins(player, 0)` first) | Refused with `Not enough coins`, coins unchanged |
+| Gates (0) | `BuyUpgrade("lure_bowl")` at cafe 1, `BuyDecor("neon_sign")` at cafe 1, `PlaceCat(uid, "cushion_1")` at cafe 1 | Refused with a `Needs cafe level` or `locked` toast, coins unchanged |
+| Ownership (-) | `PlaceCat(other player's uid, "window_1")`, `SellCat(other uid)`, `UnplaceCat(other uid)` | Ignored, coins and cats unchanged |
+| Double spend (=) | `SellCat(uid)` twice in one frame (needs 2 cats; sells one for real), `ClaimOffline()` twice | One sale, one cat gone, coins up by exactly its sellValue; offline paid at most once |
+| Flood (Backspace) | 30 `RequestSync()` in one frame | At most 2 `ProfileSync` back; one `[Net] rate limit hit` line in the server output, not 29 |
+| Early rescue (v0.2, manual) | `RescueBegin(spotId)` then `RescueEnd(spotId)` 2 s later | Refused: under RescueHoldSeconds 4; the lock (6 s) stays until it expires |
+| Rescue without begin (v0.2, manual) | `RescueEnd(spotId)` on an unlocked spot, and on a spot locked by client B | Ignored |
+| Rescue while carrying (v0.2, manual) | `RescueBegin(spotId)` while carrying a cat | Refused with the carrying toast |
+| Far rescue (v0.2, manual) | `RescueBegin` and `RescueEnd` from 200 studs away | Refused by the 10 stud check, nothing rescued |
 | Rate limit | 50 `RequestSync()` in one second | At most 10 handled, the rest dropped, one log line per second per player, no kick |
 | Grab limit | `GrabBegin` twice within 2 s | Second dropped |
 | Tutorial | `TutorialAdvance(4)` from step 0, `TutorialAdvance(-1)`, `TutorialAdvance("2")` | Refused; only `tutorialStep + 1` is accepted |
@@ -157,8 +179,9 @@ Core loop (features.md section 2 done-when lines)
 - [ ] F02 Place and remove a cat, rate changes, survives rejoin
 - [ ] F03 Collection shows owned cats with Place, Remove, Sell; silhouettes for unfound; `n / 12` count; selling a duplicate raises coins by the rarity's sell value (Common 25)
 - [ ] F04 HUD rate equals the formula for any setup you build (compare with `Economy.incomePerSecond` by hand: rates 1, 3, 8, 25; favorite x1.5; multiplier 1 + 0.10 tables + 0.15 (espresso - 1) + decor)
-- [ ] F05 Six strays in the alley within two minutes, never more; a stray that nobody catches wanders off after about 120 s
-- [ ] F06 Hold to grab, release in the band; Rare and above flee on a miss with the "It got away" toast; Commons stay
+- [ ] F05 Six strays in the alley within two minutes, never more; a stray that nobody catches wanders off after about 120 s (v0.1). v0.2: the first night starts two minutes after the server did and spawns 6 at once in the alley; nothing spawns by day except the tutorial stray; uncaught strays vanish at the next night start
+- [ ] F06 Hold to swing the net, release in the band (Good in the last 0.80 s, Perfect in the last 0.30 s); a hold that runs out reads Missed; Rare and above flee on a failed roll with the "It got away" toast; Commons stay
+- [ ] F06b (v0.2) Rescue: a stuck cat at a rescue spot at night, card reads "Hold to rescue", bar fills over 4 s, "Rescued!", always succeeds; letting go at 2 s resets the bar with no fail text
 - [ ] F07 Carry: slower walk, carry indicator, check in at the door; leaving mid-carry still saves the cat (API access on)
 - [ ] F08 Buy every slice item in order; each is visible in the world; each refused when unaffordable or gated, with a toast
 - [ ] F09 Lure bowl: buy, equip, use at a lure spot; a stray appears after 45 s; it is reserved to you until caught or despawn (90 s); on despawn the food is refunded; Tuna produces a Rare roughly 42% of the time over 20 tries; odds and the per-cat split are visible before buying
@@ -172,6 +195,7 @@ Core loop (features.md section 2 done-when lines)
 Phone and UI
 - [ ] All HUD text readable at 390 x 844; no element under the notch or behind the Roblox top bar
 - [ ] Every tappable control at least 44 px; no accidental grabs when tapping HUD buttons near a stray
+- [ ] On touch the big action button reads SWING next to a stray and HOLD next to a stuck cat (v0.2); the HUD clock chip reads Day with a countdown, then Night in sky blue (v0.2)
 - [ ] Shop cards show cost, effect and (lures) odds before purchase; nothing is bought with one accidental tap on a card
 - [ ] Every refused action shows a toast that says why
 - [ ] Toasts and popups dismiss and never stack off screen
@@ -188,7 +212,7 @@ Fresh account, phone preset, timer running. Numbers come from the specs in secti
 catalog.
 
 1. Join. Plot owned, Tabby on `counter_1`, HUD `$50`, rate `1.5/s` within 5 s.
-2. Follow the arrow to the alley. A Common stray is there (tutorial guarantee below step 2). Hold, release in the band (the last 0.30 s of the 1.5 s hold). Bare chance 0.90, with a perfect release 0.95; a failed roll keeps a Common.
+2. Follow the arrow to the alley. A Common stray is there (tutorial guarantee below step 2). Hold, release in the band (the last 0.30 s of the 1.5 s hold). Bare chance 0.90, with a perfect release 0.95; a failed roll keeps a Common. v0.2: the first night arrives by minute two with a full wave of 6.
 3. Walk home at speed 13, check in at the door. Popup, `+50` reward, collection `2 / 12`.
 4. Place the new cat on `window_1`. Rate `2.5/s` (Ginger or Smoke) or `3.0/s` (Tuxedo or Snow).
 5. Buy Tables at `$100` (reachable in under a minute). A table appears; rate x1.1 (`2.75/s` or `3.3/s`).
@@ -205,8 +229,8 @@ shaped findings go to luau-reviewer as blockers. QA never writes the fix.
 
 ## 8. Open requests to other threads
 
-1. Engineer: `Debug.setLastSeen(player?, secondsAgo)` for the offline popup, and a stable remote list so
-   `tests/abuse/AbuseClient.client.luau` can be written (the rest of the Debug module landed on 2026-10-26).
+1. Engineer: `Debug.setLastSeen(player?, secondsAgo)` for the offline popup (the rest of the Debug module
+   landed on 2026-10-26; the remote list is frozen and the abuse client exists).
 2. Studio plan thread: the `playtest-report` skill section 2 still describes the per-serve loop ("tap a cat to
    serve"); replace it with section 4.1 of this plan.
 3. Lead: `games/cat-cafe/tests/` and `games/cat-cafe/tools/cloudcheck/` are QA owned folders (proposed in

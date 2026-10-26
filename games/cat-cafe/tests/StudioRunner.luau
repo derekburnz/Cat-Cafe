@@ -30,7 +30,7 @@ local function collect(root: Instance, filter: string?): { SpecEntry }
 			table.insert(found, instance :: ModuleScript)
 		end
 	end
-	table.sort(found, function(a, b)
+	table.sort(found, function(a: ModuleScript, b: ModuleScript)
 		return a:GetFullName() < b:GetFullName()
 	end)
 
@@ -47,7 +47,7 @@ local function collect(root: Instance, filter: string?): { SpecEntry }
 				else tostring(result)
 			table.insert(specs, {
 				name = moduleScript.Name,
-				body = function()
+				body = function(_env: { [string]: any }): ()
 					error("Could not load spec: " .. message, 0)
 				end,
 			})

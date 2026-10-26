@@ -7,6 +7,7 @@ Owner: qa-playtester. Unit tests for pure modules (no Roblox services needed at 
 | `TestKit.luau` | Small TestEZ-compatible framework: describe / it / expect, hooks, skip and focus. Runs in Studio and in a plain Luau VM. |
 | `StudioRunner.luau` | Finds `*.spec` ModuleScripts under a folder, requires them, runs them with TestKit. |
 | `specs/*.spec.luau` | One spec file per module under test. `TestKit.spec.luau` is the harness self-test. |
+| `abuse/AbuseClient.client.luau` | Hostile client for the abuse pass (test-plan.md section 4.3). Lands in `StarterPlayerScripts.TestsAbuse`, Studio only, press ` to arm. |
 
 ## Writing a spec
 
@@ -47,4 +48,4 @@ local s = run(nil, { verbose = true })
 return string.format("%d passed, %d failed, %d skipped", s.passed, s.failed, s.skipped)
 ```
 
-`tests.project.json` is the default project plus the `Tests` folder, so the game itself is unchanged. Never publish a place that has `ReplicatedStorage.Tests` in it.
+`tests.project.json` is the default project plus `ReplicatedStorage.Tests` (TestKit, StudioRunner, specs, each mapped by name, so a new top level file needs a line there) and `StarterPlayerScripts.TestsAbuse`. The game itself is unchanged. Never publish a place that has `ReplicatedStorage.Tests` or `StarterPlayerScripts.TestsAbuse` in it.

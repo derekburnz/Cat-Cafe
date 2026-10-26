@@ -5,7 +5,7 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
 
-	local SPOT_TYPES = { counter = true, window = true, cushion = true, shelf = true, cattree = true, patio = true }
+	local SPOT_TYPES: { [string]: boolean } = { counter = true, window = true, cushion = true, shelf = true, cattree = true, patio = true }
 	local AREAS = { alley = true, park = true, both = true }
 	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Secret" }
 
@@ -159,8 +159,9 @@ return function()
 
 		it("every spot type has furniture and every favorite spot exists", function()
 			for spotType in pairs(SPOT_TYPES) do
-				expect(Catalog.spotFurniture[spotType]).to.be.a("string")
-				expect(string.sub(Catalog.spotFurniture[spotType], 1, 18)).to.equal("CatCafe_Furniture_")
+				local furniture: string = Catalog.spotFurniture[spotType]
+				expect(furniture).to.be.a("string")
+				expect(string.sub(furniture, 1, 18)).to.equal("CatCafe_Furniture_")
 			end
 			for _, def in ipairs(Catalog.cats) do
 				local found = false

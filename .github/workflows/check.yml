@@ -23,7 +23,7 @@ jobs:
 
       - name: Run the check gate
         working-directory: games/cat-cafe
-        run: ./check.sh
+        run: bash ./check.sh
 
   cloudcheck:
     name: Luau unit tests and strict type check (WebAssembly Luau)

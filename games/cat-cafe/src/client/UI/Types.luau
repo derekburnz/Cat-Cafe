@@ -104,7 +104,7 @@ export type PartialState = {
 	tutorialStep: number?,
 }
 
-export type ScreenName = "Upgrades" | "Decor" | "Collection"
+export type ScreenName = "Upgrades" | "Decor" | "Collection" | "RankUp"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -120,7 +120,21 @@ export type CatchInfo = {
 	charm: number?, -- 0 to 100 from the stray's Charm attribute
 	kind: PromptKind?, -- default "swing"; "rescue" draws the hold bar instead of the ring (F21)
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
+	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
+	shiny: boolean?, -- v0.3: the stray's Shiny attribute (rescued cats hide it until freed)
 }
+
+-- Net circles (F26, data-model section 10). Times are server time (Workspace:GetServerTimeNow()).
+-- x and y are 0 to 1 and map into the middle of the screen, clear of the HUD and the thumbstick.
+export type CatchCircle = {
+	startsAt: number, -- the circle appears at its widest
+	shrinkSeconds: number, -- it meets its ring at startsAt + shrinkSeconds (the target moment)
+	x: number,
+	y: number,
+}
+-- Half-widths in seconds either side of the target, from the player's net level.
+export type CatchWindows = { perfect: number, good: number }
+export type CircleGrade = "perfect" | "good" | "miss"
 
 -- Ring bands are { min, max } of the ring's scale (1 = full, 0 = collapsed). Defaults come from shared
 -- Config: good = { 0, RingGoodWindow / GrabHoldSeconds }, perfect = { 0, RingPerfectWindow / GrabHoldSeconds },

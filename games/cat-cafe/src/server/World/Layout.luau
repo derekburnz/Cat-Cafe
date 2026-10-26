@@ -10,6 +10,8 @@ local Config = require(ReplicatedStorage.Shared.Config)
 export type Point = { x: number, y: number, z: number, rotY: number? }
 -- A rescue spot: the prop stands at (x, floor, z) turned by rotY; `cat` is where the stuck cat sits, in prop space.
 export type RescuePoint = { prop: string, x: number, z: number, rotY: number?, cat: Point }
+-- y is the height above the area floor (0 when omitted); wall props set it.
+export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
 
 local Layout = {}
 
@@ -123,7 +125,25 @@ Layout.alley = {
 		{ asset = "CatCafe_Alley_StreetLamp", x = 14, z = W.AlleyCenterZ - 20 },
 		{ asset = "CatCafe_Alley_Crate", x = -24, z = W.AlleyCenterZ + 12 },
 		{ asset = "CatCafe_Alley_Crate", x = 26, z = W.AlleyCenterZ - 10 },
-	} :: { { asset: string, x: number, z: number, rotY: number? } },
+		-- Night glow (style guide section 9): a lit shop window on each side wall and string lights along the
+		-- far wall. Wall props sit on the wall's inner face with their front (-Z) turned into the alley.
+		{
+			asset = "CatCafe_Alley_ShopWindow",
+			x = -29.5,
+			y = 1.5,
+			z = W.AlleyCenterZ + 2,
+			rotY = -90,
+		},
+		{
+			asset = "CatCafe_Alley_ShopWindow",
+			x = 29.5,
+			y = 1.5,
+			z = W.AlleyCenterZ - 2,
+			rotY = 90,
+		},
+		{ asset = "CatCafe_Decor_StringLights", x = -20, y = 5.6, z = W.AlleyCenterZ + 21.3 },
+		{ asset = "CatCafe_Decor_StringLights", x = 6, y = 5.6, z = W.AlleyCenterZ + 21.3 },
+	} :: { Prop },
 }
 
 Layout.park = {
@@ -180,7 +200,7 @@ Layout.park = {
 		{ asset = "CatCafe_Park_Bench", x = -8, z = W.ParkCenterZ + 10, rotY = 180 },
 		{ asset = "CatCafe_Park_Bench", x = 8, z = W.ParkCenterZ + 10, rotY = 180 },
 		{ asset = "CatCafe_Park_Bench", x = 20, z = W.ParkCenterZ - 16, rotY = 90 },
-	} :: { { asset: string, x: number, z: number, rotY: number? } },
+	} :: { Prop },
 }
 
 -- Player spawn on the street, between the cafes and the alley.

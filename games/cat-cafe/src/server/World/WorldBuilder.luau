@@ -360,7 +360,8 @@ local function buildArea(
 	for _, prop in spec.props do
 		place(
 			prop.asset,
-			CFrame.new(prop.x, spec.floorY, prop.z) * CFrame.Angles(0, math.rad(prop.rotY or 0), 0),
+			CFrame.new(prop.x, spec.floorY + (prop.y or 0), prop.z)
+				* CFrame.Angles(0, math.rad(prop.rotY or 0), 0),
 			props
 		)
 	end

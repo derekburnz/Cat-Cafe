@@ -3,6 +3,7 @@ sourcemap.json
 Packages/
 ServerPackages/
 globalTypes*.d.luau
+.types-version
 roblox.toml
 roblox.yml
 

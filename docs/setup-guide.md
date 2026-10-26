@@ -110,7 +110,7 @@ Commit (`git commit -am "chore: phase 0 smoke test"`), delete PH_SmokeTest, and 
 ## 14. Troubleshooting
 - **Studio MCP not listed in `/mcp`:** check `%LOCALAPPDATA%\Roblox\mcp.bat` exists; re-enable the server in Studio; restart Claude Code. `claude mcp list` shows what is configured.
 - **Rojo plugin "version mismatch":** run `rojo plugin install` again after any `rokit update`.
-- **`check.ps1` cannot run:** execution policy (step 3). If `Invoke-WebRequest` fails behind a proxy, download `globalTypes.None.d.luau` manually from the luau-lsp repo's `scripts/` folder into `games/cat-cafe/`.
+- **`check.ps1` cannot run:** execution policy (step 3). If `Invoke-WebRequest` fails behind a proxy, download `globalTypes.None.d.luau` manually from the luau-lsp repo's `scripts/` folder at the tag matching `luau-lsp --version` into `games/cat-cafe/`, and write that version into `games/cat-cafe/.types-version`.
 - **Selene says no Roblox std:** run `selene generate-roblox-std` in `games/cat-cafe`.
 - **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `PurrPotDev` store name from `Config.luau`.
 - **Blender MCP hangs:** only one Connect to Claude session; close extra Blender windows; `uvx blender-mcp` needs internet the first time to fetch the package.

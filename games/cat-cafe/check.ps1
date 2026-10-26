@@ -12,10 +12,15 @@ function Step($name, $block) {
 
 Step "rojo sourcemap" { rojo sourcemap default.project.json -o sourcemap.json }
 
+# Roblox API types must come from the same luau-lsp version that parses them (newer files use syntax
+# older releases reject), so they are fetched from the tag matching `luau-lsp --version`.
 $types = "globalTypes.None.d.luau"
-if (-not (Test-Path $types)) {
-  Write-Host "Downloading Roblox API types for luau-lsp (one time)..."
-  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau" -OutFile $types
+$lspVersion = ((luau-lsp --version) | Select-String -Pattern '\d+\.\d+\.\d+').Matches[0].Value
+$haveVersion = if (Test-Path .types-version) { (Get-Content .types-version -Raw).Trim() } else { "" }
+if (-not (Test-Path $types) -or $haveVersion -ne $lspVersion) {
+  Write-Host "Downloading Roblox API types for luau-lsp $lspVersion (once per version)..."
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/$lspVersion/scripts/globalTypes.None.d.luau" -OutFile $types
+  Set-Content -Path .types-version -Value $lspVersion
 }
 
 Step "luau-lsp analyze" {

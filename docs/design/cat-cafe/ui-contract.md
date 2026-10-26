@@ -166,6 +166,10 @@ The HUD's right column has a next goal card under the clock (Pet Simulator 99 qu
 
 Each menu tile gets a red "!" dot when its screen has something new (`Notices.luau`): an upgrade level or decor item the player can now afford and is allowed to buy, or a cat or shiny added to the collection since the book was last open (cats caught before the session are not news). Opening the screen clears its dot, and anything that appears while it is open counts as seen. No new fields: it reads the state the UI already gets.
 
+### Area title card and shout-outs (built, F39 P1)
+
+`UI.showAreaTitle(areaId)` shows the area's name in big outlined letters for two seconds with its "Epic or better N%" line in the area's colour (Pet Simulator 99 and Fisch zone names). `"home"` shows the cafe's tier name over "Your cafe". `UI.travel.result(destination, true)` already calls it; the controller also calls it when the player walks into an area (the zone check that picks the ambience). The same area twice within 4 s shows once. `UI.announce(text)` shout-outs now take the colour of the first rarity named in the text and stay 4 s.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |

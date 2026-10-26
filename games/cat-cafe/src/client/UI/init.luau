@@ -13,6 +13,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local CatCollection = require(script.Screens.CatCollection)
 local CatchCircles = require(script.Screens.CatchCircles)
@@ -88,6 +89,8 @@ local circles: CatchCircles.CatchCircles? = nil
 local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
 local gateSigns: GateSigns.GateSigns? = nil
+local areaTitle: AreaTitle.AreaTitle? = nil
+local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
 local carryMarker: WorldMarker.WorldMarker? = nil
@@ -129,6 +132,7 @@ local function render()
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
+	currentCatalog = newCatalog
 	table.clear(catById)
 	for _, def in newCatalog.cats do
 		catById[def.id] = def
@@ -303,6 +307,7 @@ function UI.init(config: Types.InitConfig)
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
+	areaTitle = AreaTitle.new(parent)
 
 	setCatalog(config.catalog)
 
@@ -397,6 +402,9 @@ function UI.destroy()
 	if gateSigns then
 		gateSigns:destroy()
 	end
+	if areaTitle then
+		areaTitle:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -412,7 +420,7 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker = nil, nil
-	circles, rankUpScreen, areasScreen, gateSigns = nil, nil, nil, nil
+	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -640,6 +648,44 @@ UI.travel = {}
 function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	if hud then
 		hud:travelResult(destination, ok)
+	end
+	if ok then
+		UI.showAreaTitle(destination)
+	end
+end
+
+-- Area title card (F39 P1): the area's name in big letters for two seconds. Call it when the player walks into
+-- an area (the same zone check that picks the ambience); a successful trip shows it already, and the same area
+-- twice within 4 s shows once. `areaId` is an AreaId or "home" (the player's own cafe, named by its tier).
+function UI.showAreaTitle(areaId: string)
+	local card = areaTitle
+	if not card then
+		return
+	end
+	local catalog = currentCatalog
+	if areaId == "home" then
+		local tierName: string? = nil
+		local tiers: { Types.TierDef } = if catalog then catalog.tiers or {} else {}
+		for _, def in tiers do
+			if def.tier == state.tier then
+				tierName = def.name
+			end
+		end
+		card:show("home", tierName or "Your Cafe", if tierName then "Your cafe" else nil)
+		return
+	end
+	local areas: { Types.AreaDef } = if catalog then catalog.areas or {} else {}
+	for _, area in areas do
+		if area.id == areaId then
+			local color = Theme.areaColors[area.id]
+			card:show(
+				area.id,
+				area.name,
+				Areas.rareShare(area),
+				if color then color:Lerp(Theme.colors.white, 0.35) else nil
+			)
+			return
+		end
 	end
 end
 

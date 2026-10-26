@@ -80,6 +80,15 @@ Theme.rarity = {
 }
 Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
+-- Each area's colour, close to its ground in the world (style guide palette): area cards and title cards.
+Theme.areaColors = {
+	alley = Color3.fromHex("8A7B6E"),
+	park = Color3.fromHex("5FB3A0"),
+	neighbourhood = Color3.fromHex("5FA8FF"),
+	woods = Color3.fromHex("2B7F4C"),
+	sewer = Color3.fromHex("6E7F86"),
+} :: { [string]: Color3 }
+
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).
 Theme.fonts = {
 	display = Font.new(

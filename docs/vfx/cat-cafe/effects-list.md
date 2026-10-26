@@ -1,12 +1,44 @@
 # Purr Pot animation and VFX list
 
-Draft v0.2, 2026-10-26, rewritten for design v0.3 (v0.1 earlier the same day was written for design v0.2). Owner: vfx-animator. Readers: luau-engineer (hooks and the cat rig), ui-designer (screen versus world), sound-designer (same moment names), asset-artist (parts and swatches), game-designer, luau-reviewer, qa-playtester. How each tool works, the style rules and the phone budgets are in `.claude/skills/animation-vfx/SKILL.md`; this file is the what and the when. The mechanics come from `docs/design/cat-cafe/features.md` v0.3 and `data-model.md` sections 4, 5, 5b, 8, 8b, 10, 10b, 10c, 12 and 13.
+Draft v0.3, 2026-10-26: adds the design v0.4 build below (Effects v1). v0.2 earlier the same day was rewritten for design v0.3; v0.1 was written for design v0.2. Owner: vfx-animator. Readers: luau-engineer (hooks and the cat rig), ui-designer (screen versus world), sound-designer (same moment names), asset-artist (parts and swatches), game-designer, luau-reviewer, qa-playtester. How each tool works, the style rules and the phone budgets are in `.claude/skills/animation-vfx/SKILL.md`; this file is the what and the when. The mechanics come from `docs/design/cat-cafe/features.md` v0.3 and `data-model.md` sections 4, 5, 5b, 8, 8b, 10, 10b, 10c, 12 and 13.
 
 Nothing here changes gameplay. Every entry runs on the client, reads state the client already has and fits the low tier budget. Priorities: **P1** makes the ten-minute slice loop read, **P2** ships in the slice if time allows, **P3** after the slice. Tools: **proc** is procedural joint motion (`Motor6D.Transform`), **tween** is TweenService, **clip** is a published Animation Editor clip, **fx** is ParticleEmitter, Beam, Trail or Highlight. Particle counts are high tier; the low tier halves them and drops anything marked "high only".
 
 Moment names are the shared v0.3 list in `docs/audio/cat-cafe/sound-list.md` section 6 (agreed with the sound thread) and become Signals in `src/client/Moments.luau`. Effects that other players must see also read replicated state (tags, attributes, models appearing), listed in the hook column.
 
 What design v0.3 removed from v0.1 of this list: the hold-and-release ring and its windup, the 4 s rescue hold, lure spots in the areas with the calm heart and the expiry, the v0.2 stuck props (box and drainpipe; the tree comes back as the Park rescue tree), the cafe level, the Park pass gate and customers leaving at night.
+
+## Design v0.4 build: Effects v1 (2026-10-26)
+
+Derek, 2026-10-26 23:03: make the game clean looking and playable, cafes lively like the sketch, misses that matter. Design v0.4 (`docs/design/cat-cafe/world-and-feel.md` section 7) gave this role: miss hiss and jump-back, Purrfect burst, gate dissolve, rank up confetti, shutter roll-up, station idles for the four roles, napping loops, steam, smoke, butterflies and fireflies. All of them are built in `games/cat-cafe/src/client/Effects/` (file map and hooks in its README). Everything is procedural or a built-in Roblox particle sprite, so nothing waits on an upload and there are no animation ids yet.
+
+"Works now" means it plays as soon as the engineer adds `Effects.start()` to `Main.client.luau`; the other rows wait on the hook named.
+
+| effect | what you see | trigger | status |
+|---|---|---|---|
+| Role idles | Barista dips its head and taps a paw toward the machine every 1.6 s; waiter sways side to side with a little step; greeter waves a front paw every 3.2 s with a head tilt; entertainer swats a client-side yarn ball rolling in front of it | working cat under `Plot/Cats`, role from `Role` or its station's `SpotType` | works now |
+| Every moving cat | Breathing bob and a tail swish; strays also look around; stuck cats shake in their trap every 2.6 s | tags `Stray`, `StuckCat` | works now |
+| Miss hiss and hop | A grey puff, a pink "!" over the head, the cat rears and hops back with its tail straight up; a server jump-back landing during the hop is drawn as travel, not a snap. The player who missed also gets a 0.18 s camera shake | CatchResult with a 0 score (catcher); `HissAt` on the stray (everyone) | works now for the catcher; others need `HissAt` (engineer, F34) |
+| Catch sparkle | A burst in the rarity colour, 8 (Common) to 28 (Mythical) on PC, at most 12 on a phone | CatchResult success | works now |
+| Purrfect | Gold sparkle burst, a gold flash ring on the ground and gold confetti | CatchResult success with every score 1 | works now |
+| Rank up | Confetti and a smoke puff at the cafe door, for any cafe within 120 studs; more confetti for your own | a plot's `Tier` rising with the same owner | works now |
+| Gate dissolve | A copy of the closed barrier fades and swells over the open gate, with rising sparkles, confetti and a mint ring; plays when you are within 70 studs, so a gate that opens while you are far away dissolves when you walk up | your own plot's `Tier` crossing a gate's `RequiresTier` | works now (once per session; a saved "seen" flag would need data) |
+| Shutter roll-up | Each For Rent shutter rolls up into its top edge with a dust puff, the For Rent sign flips and fades, a little confetti at the door | a plot's `OwnerUserId` going from 0 to a player | needs the asset thread's `CatCafe_Plot_ForRent` with `_Shutter` and `_Sign` parts; until then a dust puff and confetti |
+| Naps | Slow breathing, head drooped, floating z, z, Z | `Pose = "nap"` | needs the engineer's roaming cats and doorstep cat (F37) |
+| Shiny sparkle | A soft steady sparkle on the cat | `Shiny = true` | needs the server to set `Shiny` (data-model section 13); uses the ShinySparkle sprite once uploaded |
+| Espresso steam | A thin white wisp above the machine | `_Steam`, else the top of the plot's `Espresso` model | works now |
+| Chimney smoke | Cream-grey smoke drifting with the wind | `_Chimney` parts | needs the asset thread's cafe roofs |
+| Butterflies | Two pastel butterflies looping over the flowers by day | `_Flowers`, else the pavement in front of each door | works now (fallback) |
+| Fireflies | Warm glowing specks drifting in a box of air at night | `_Fireflies` boxes, else the street lamps | works now (fallback) |
+
+Budget per device (low = phone or tablet): 8 moving cats within 60 studs at 30 updates a second, 4 steady emitters, 3 shiny sparkles, 6 butterflies, bursts of at most 12, 14 confetti pieces a burst, 80 alive at most. High: 16 cats within 80 studs at 60 a second, 10 emitters, 8 sparkles, 14 butterflies, bursts up to 30, 28 confetti. Steam (about 7 live particles each), chimney smoke (about 9) and fireflies (about 10) share the steady slots, so a phone in the street holds about 40 steady particles plus one burst: well inside 150. Measure on the device emulator with the MicroProfiler in the next Studio run and record the numbers here.
+
+Requests from this build:
+- Engineer: the start line, `HissAt` on a Miss, `Pose = "nap"`, and Motor6Ds rather than WeldConstraints if cats get welded (Effects README, "Hooks for the luau-engineer"). Sent 2026-10-26 23:27.
+- Asset-artist: name suffixes `_Chimney`, `_Steam`, `_Flowers`, `_Shutter` and `_Sign` (inside the For Rent model) and `_Fireflies` boxes. Upload list: the ShinySparkle sprite (PR #46) goes in `Presets.textures.shinySparkle`.
+- UI-designer: the screen side of a catch stays yours (PERFECT, GOOD and MISS pops, the paw row, the hiss icon at zero paws); the world side and the camera shake are here. Say if the UI already shakes the camera.
+- Game-designer: add `HissAt` (number, server time of the latest miss) and `Pose` (`"nap"` or absent) to data-model section 13.
+- QA: an 11-case spec for `Effects/Logic.luau` and `Presets.luau` passes in cloudcheck; it waits in `docs/vfx/cat-cafe/specs/EffectsLogic.spec.luau` to move into `tests/specs/`. Checks for the next Studio run: a Miss plays the puff, "!" and hop; an all-Perfect catch plays the gold burst; a rank up shows confetti at the door; a gate dissolves once; steam, butterflies by day and fireflies at night appear near you; a phone-sized viewport stays at 30 frames or more in the street.
 
 ## 0. Foundation (build first)
 

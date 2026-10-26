@@ -10,6 +10,7 @@ local AssetRegistry = require(script.Parent.AssetRegistry)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Layout = require(script.Parent.Layout)
+local Types = require(ReplicatedStorage.Shared.Types)
 
 export type Plot = {
 	index: number,
@@ -182,7 +183,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		Enum.Material.SmoothPlastic,
 		walls
 	)
-	-- Windows either side of the door (glass) so the window seat makes sense
+	-- Windows either side of the door (glass)
 	for _, x in { -11, 11 } do
 		local glass = part(
 			"Window",
@@ -238,7 +239,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		local point = Layout.plot.spots[def.id]
 		local spot = anchor(def.id, localCFrame(cframe, point), spotsFolder)
 		spot:SetAttribute("SpotType", def.spotType)
-		spot:SetAttribute("CafeLevel", def.cafeLevel)
+		spot:SetAttribute("Tier", def.tier)
 		spots[def.id] = spot
 		local furniturePoint = Layout.plot.spotFurniture[def.id]
 		local assetName = Catalog.spotFurniture[def.spotType]
@@ -481,7 +482,8 @@ function WorldBuilder.build(): World
 
 	local gate = place("CatCafe_Park_Gate", CFrame.new(0, 0.1, Layout.park.gateZ), root)
 	gate.Name = "ParkGate"
-	gate:SetAttribute("RequiresUpgrade", "park_access")
+	local parkTier = (Catalog.getArea("park") :: Types.AreaDef).tier
+	gate:SetAttribute("RequiresTier", parkTier)
 	local gateBars = gate:FindFirstChild("Bars")
 	if gateBars ~= nil and gateBars:IsA("BasePart") then
 		local billboard = Instance.new("BillboardGui")
@@ -496,7 +498,7 @@ function WorldBuilder.build(): World
 		text.Font = Enum.Font.GothamBold
 		text.TextColor3 = Color3.new(1, 1, 1)
 		text.TextStrokeTransparency = 0.3
-		text.Text = "Park: needs the Park pass"
+		text.Text = string.format("Park: opens at Tier %d", parkTier)
 		text.Parent = billboard
 		billboard.Parent = gateBars
 	end

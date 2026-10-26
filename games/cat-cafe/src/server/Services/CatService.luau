@@ -102,7 +102,7 @@ local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boole
 	if area == nil then
 		return false
 	end
-	return area.unlock == nil or Economy.level(profile, area.unlock :: string) >= 1
+	return Economy.tier(profile) >= area.tier
 end
 
 local function countStrays(areaId: string): number
@@ -646,7 +646,7 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		return
 	end
 	if not areaUnlocked(profile, stray.area) then
-		Net.toast(player, "You need the Park pass to catch cats here.", "warn")
+		Net.toast(player, "This area opens at a higher tier. Rank up to catch cats here.", "warn")
 		return
 	end
 	if stray.reservedFor ~= 0 and stray.reservedFor ~= player.UserId then
@@ -766,7 +766,11 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		return
 	end
 	if not areaUnlocked(profile, entry.area) then
-		rejectRescue(player, spotId, "You need the Park pass to rescue cats here")
+		rejectRescue(
+			player,
+			spotId,
+			"This area opens at a higher tier. Rank up to rescue cats here"
+		)
 		return
 	end
 	local now = os.clock()
@@ -881,7 +885,7 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 	local spotPart: BasePart = foundSpot
 	local areaId: string = foundArea
 	if not areaUnlocked(profile, areaId) then
-		Net.toast(player, "You need the Park pass to set bait here.", "warn")
+		Net.toast(player, "This area opens at a higher tier. Rank up to set bait here.", "warn")
 		return
 	end
 	if lureByPlayer[player] ~= nil then

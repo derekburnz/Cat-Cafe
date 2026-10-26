@@ -15,6 +15,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -93,7 +94,48 @@ function Debug.resetProfile(player: (Player | number | string)?)
 	CafeService.sync(p)
 end
 
--- Gives the player a cat as if checked in (skips the alley). `rescued` true gives it the rescued tips bonus.
+-- Sets the cafe tier (1 to 5) without the rank up checks, for testing areas, slots and caps before RankUp exists.
+function Debug.setTier(player: (Player | number | string)?, tier: number)
+	local p = resolve(player)
+	local profile = profileOf(p)
+	Economy.settle(profile, os.time())
+	profile.tier = math.clamp(math.floor(tier), 1, Catalog.maxTier)
+	CafeService.refreshPlot(p)
+	CafeService.sync(p)
+end
+
+-- Adds `count` of a food (shop or dealer) to the player's lures.
+function Debug.giveLure(player: (Player | number | string)?, lureId: string, count: number?)
+	local p = resolve(player)
+	local profile = profileOf(p)
+	assert(Catalog.getLure(lureId) ~= nil, "unknown lure " .. lureId)
+	profile.lures[lureId] = (profile.lures[lureId] or 0) + math.max(1, math.floor(count or 1))
+	CafeService.sync(p)
+end
+
+-- Pretends the player rejoined after `secondsAgo` away: sets the unclaimed offline earnings to what that gap
+-- pays at the current day rate and shows the popup. Returns the amount.
+function Debug.setLastSeen(player: (Player | number | string)?, secondsAgo: number): number
+	local p = resolve(player)
+	profileOf(p)
+	local amount = DataService.debugSetAway(p, math.max(0, secondsAgo))
+	local pending, seconds = DataService.peekPendingOffline(p)
+	if pending > 0 then
+		Net.fire(p, "OfflineEarnings", pending, seconds)
+	end
+	return amount
+end
+
+-- Marks the in-memory profile as written by a newer version, so it saves that way on leave and the next join hits
+-- the newer-save guard (kicked, data untouched). The dev profile then stays unloadable: clear it from the command
+-- bar with game:GetService("DataStoreService"):GetDataStore("PurrPotProfiles_dev"):RemoveAsync("p_" .. userId).
+function Debug.setSaveVersion(player: (Player | number | string)?, version: number)
+	local p = resolve(player)
+	local profile = profileOf(p)
+	profile.version = math.floor(version)
+end
+
+-- Gives the player a cat as if checked in (skips the alley). `rescued` true marks it as rescued.
 function Debug.giveCat(
 	player: (Player | number | string)?,
 	catId: string,

@@ -17,8 +17,19 @@ function Economy.level(profile: Types.PlayerProfile, upgradeId: string): number
 	return if def ~= nil then def.startLevel else 0
 end
 
-function Economy.cafeLevel(profile: Types.PlayerProfile): number
-	return Economy.level(profile, "cafe_level")
+-- The cafe tier, 1 to Catalog.maxTier (data-model section 5b). Nil-safe for fixtures that predate the field.
+function Economy.tier(profile: Types.PlayerProfile): number
+	local tier = (profile :: any).tier
+	if type(tier) ~= "number" or tier ~= tier then
+		return 1
+	end
+	return math.clamp(math.floor(tier), 1, Catalog.maxTier)
+end
+
+-- tierMultiplier in the income formula: 1.00 at Tier 1 up to 2.00 at Tier 5.
+function Economy.tierMultiplier(profile: Types.PlayerProfile): number
+	local def = Catalog.getTier(Economy.tier(profile))
+	return if def ~= nil then def.multiplier else 1
 end
 
 -- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses
@@ -34,8 +45,8 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	return multiplier
 end
 
--- Rate of one placed cat before the cafe multiplier: its rating (rarity x charm x level x variant x rescued,
--- see CatStats) times the favorite spot bonus (data-model section 11). Resting cats earn nothing.
+-- Rate of one working cat before the cafe multiplier: its rating (rarity x charm x level x variant, see CatStats)
+-- times the favorite role bonus (data-model section 11). Resting cats earn nothing.
 function Economy.catRate(instance: Types.CatInstance): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil or instance.spotId == nil then
@@ -45,7 +56,7 @@ function Economy.catRate(instance: Types.CatInstance): number
 	if spot == nil then
 		return 0
 	end
-	local favorite = if spot.spotType == def.favoriteSpot then Config.FavoriteMultiplier else 1
+	local favorite = if spot.spotType == def.favoriteRole then Config.FavoriteMultiplier else 1
 	return CatStats.rating(instance) * favorite
 end
 
@@ -53,24 +64,14 @@ function Economy.variantMultiplier(variant: string): number
 	return CatStats.variantMultiplier(variant)
 end
 
--- Renovate (rebirth) seam: 1.0 until the feature ships, then 1 + RenovateBonus per Renovate.
--- The whole income formula lives in incomePerSecond, so a customer-driven model later replaces one function.
-function Economy.prestigeMultiplier(profile: Types.PlayerProfile): number
-	local renovations = profile.renovations
-	-- type guard for version 1 saves and fixtures that predate the field; the NaN and sign guards for bad data
-	if type(renovations) ~= "number" or renovations ~= renovations or renovations < 0 then
-		return 1
-	end
-	return 1 + Config.RenovateBonus * math.floor(renovations)
-end
-
--- incomePerSecond = sum over placed cats of (rating x favorite) x cafeMultiplier x prestigeMultiplier
+-- incomePerSecond = sum over working cats of (rating x favorite) x cafeMultiplier x tierMultiplier.
+-- The whole income formula lives here, so the night multiplier and a customer-driven model change one function.
 function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 	local total = 0
 	for _, instance in profile.cats do
 		total += Economy.catRate(instance)
 	end
-	return total * Economy.cafeMultiplier(profile) * Economy.prestigeMultiplier(profile)
+	return total * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
 end
 
 -- Placed cats earn one XP per second of settled time (data-model section 4b). Only online time is settled:
@@ -154,13 +155,13 @@ function Economy.upgradeBlocker(profile: Types.PlayerProfile, upgradeId: string)
 		return "Already maxed"
 	end
 	local nextLevel = lvl + 1
-	local cafe = Economy.cafeLevel(profile)
-	if def.requiresCafeLevel ~= nil and cafe < def.requiresCafeLevel then
-		return string.format("Needs cafe level %d", def.requiresCafeLevel)
+	local tier = Economy.tier(profile)
+	if def.requiresTier ~= nil and tier < def.requiresTier then
+		return string.format("Needs Tier %d", def.requiresTier)
 	end
-	local perLevel = def.requiresCafeLevelAtLevel
-	if perLevel ~= nil and perLevel[nextLevel] ~= nil and cafe < perLevel[nextLevel] then
-		return string.format("Needs cafe level %d", perLevel[nextLevel])
+	local perLevel = def.requiresTierAtLevel
+	if perLevel ~= nil and perLevel[nextLevel] ~= nil and tier < perLevel[nextLevel] then
+		return string.format("Needs Tier %d", perLevel[nextLevel])
 	end
 	if not Economy.canAfford(profile, def.costs[nextLevel]) then
 		return "Not enough coins"
@@ -176,8 +177,8 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	if profile.decorOwned[decorId] then
 		return "Already owned"
 	end
-	if def.requiresCafeLevel ~= nil and Economy.cafeLevel(profile) < def.requiresCafeLevel then
-		return string.format("Needs cafe level %d", def.requiresCafeLevel)
+	if def.requiresTier ~= nil and Economy.tier(profile) < def.requiresTier then
+		return string.format("Needs Tier %d", def.requiresTier)
 	end
 	if not Economy.canAfford(profile, def.cost) then
 		return "Not enough coins"
@@ -187,7 +188,7 @@ end
 
 function Economy.spotIsOpen(profile: Types.PlayerProfile, spotId: string): boolean
 	local spot = Catalog.getSpot(spotId)
-	return spot ~= nil and Economy.cafeLevel(profile) >= spot.cafeLevel
+	return spot ~= nil and Economy.tier(profile) >= spot.tier
 end
 
 function Economy.catOnSpot(profile: Types.PlayerProfile, spotId: string): Types.CatInstance?

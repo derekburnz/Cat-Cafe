@@ -1,10 +1,10 @@
 --!strict
--- Equip best: the placement of owned cats on open spots that earns the most. Pure, no Roblox services.
+-- Equip best: the placement of owned cats on open role slots that earns the most. Pure, no Roblox services.
 --
--- Each cat is worth rating x 1.5 on its favorite spot type and rating x 1 elsewhere, so this is a weighted
--- assignment problem (spots on one side, cats on the other). Greedy by rating is wrong when a slightly weaker
--- cat is the only one that loves a free spot, so the Hungarian algorithm is used instead. The matrix is at most
--- 7 spots by N cats, which is far too small to matter for cost. A tiny bonus for staying on the current spot
+-- Each cat is worth rating x 1.5 in a slot of its favorite role and rating x 1 elsewhere, so this is a weighted
+-- assignment problem (slots on one side, cats on the other). Greedy by rating is wrong when a slightly weaker
+-- cat is the only one that loves a free slot, so the Hungarian algorithm is used instead. The matrix is at most
+-- 10 slots by N cats, which is far too small to matter for cost. A tiny bonus for staying on the current spot
 -- means ties never shuffle cats around the cafe for no gain.
 
 local CatStats = require(script.Parent.CatStats)
@@ -17,7 +17,7 @@ local EquipBest = {}
 
 export type Plan = {
 	placements: { [string]: string }, -- uid -> spotId; any owned uid missing here rests in the cat room
-	baseRate: number, -- sum of cat x spot values before the cafe and prestige multipliers
+	baseRate: number, -- sum of cat x slot values before the cafe and tier multipliers
 	spotsOpen: number,
 	catsPlaced: number,
 }
@@ -25,13 +25,13 @@ export type Plan = {
 local STAY_BONUS = 1e-6 -- below any real difference in value; only breaks exact ties
 local INF = math.huge
 
--- Value of one cat on one spot: rating x favorite multiplier. 0 for an unknown cat.
+-- Value of one cat in one slot: rating x favorite role multiplier. 0 for an unknown cat.
 function EquipBest.value(instance: Types.CatInstance, spot: Types.SpotDef): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return 0
 	end
-	local favorite = if def.favoriteSpot == spot.spotType then Config.FavoriteMultiplier else 1
+	local favorite = if def.favoriteRole == spot.spotType then Config.FavoriteMultiplier else 1
 	return CatStats.rating(instance) * favorite
 end
 

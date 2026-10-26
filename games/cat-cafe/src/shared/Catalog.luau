@@ -1,5 +1,5 @@
 --!strict
--- Every catalog table from docs/design/cat-cafe/data-model.md (sections 2, 3, 5 to 9).
+-- Every catalog table from docs/design/cat-cafe/data-model.md (sections 2, 3, 5 to 9), design v0.3.
 -- Pure data plus lookups. Ids never change once saved; display names can.
 -- Model names derive from ids: cat "tabby" is ReplicatedStorage.Assets.CatCafe_Cat_Tabby.
 
@@ -7,64 +7,79 @@ local Types = require(script.Parent.Types)
 
 local Catalog = {}
 
--- Section 2
+-- Section 2. circles and shrinkSeconds drive the net (section 10), rescueHits the rescue bar (section 10b).
 Catalog.rarities = {
 	Common = {
 		incomePerSecond = 1,
-		baseCatchChance = 0.90,
-		fleesOnMiss = false,
+		circles = 1,
+		shrinkSeconds = 1.40,
+		fleesOnFail = false,
+		rescueHits = 2,
 		sellValue = 25,
 		firstCatchReward = 50,
 		color = "#8E97B2",
+		baseCatchChance = 0.90,
 	},
 	Rare = {
 		incomePerSecond = 3,
-		baseCatchChance = 0.65,
-		fleesOnMiss = true,
+		circles = 2,
+		shrinkSeconds = 1.15,
+		fleesOnFail = true,
+		rescueHits = 3,
 		sellValue = 150,
 		firstCatchReward = 300,
 		color = "#5FA8FF",
+		baseCatchChance = 0.65,
 	},
 	Epic = {
 		incomePerSecond = 8,
-		baseCatchChance = 0.45,
-		fleesOnMiss = true,
+		circles = 3,
+		shrinkSeconds = 0.95,
+		fleesOnFail = true,
+		rescueHits = 4,
 		sellValue = 600,
 		firstCatchReward = 1500,
 		color = "#C07CFF",
+		baseCatchChance = 0.45,
 	},
 	Legendary = {
 		incomePerSecond = 25,
-		baseCatchChance = 0.25,
-		fleesOnMiss = true,
+		circles = 4,
+		shrinkSeconds = 0.80,
+		fleesOnFail = true,
+		rescueHits = 5,
 		sellValue = 3000,
 		firstCatchReward = 8000,
 		color = "#FFC94D",
+		baseCatchChance = 0.25,
 	},
-	Secret = {
-		incomePerSecond = 60,
-		baseCatchChance = 0.20,
-		fleesOnMiss = true,
-		sellValue = 10000,
-		firstCatchReward = 25000,
-		color = "#3FD0B5",
+	Mythical = {
+		incomePerSecond = 75,
+		circles = 5,
+		shrinkSeconds = 0.65,
+		fleesOnFail = true,
+		rescueHits = 6,
+		sellValue = 12000,
+		firstCatchReward = 30000,
+		color = "#FF5E7E",
+		baseCatchChance = 0.15,
 	},
 } :: { [string]: Types.RarityDef }
 
-local rarityOrder: { Types.Rarity } = { "Common", "Rare", "Epic", "Legendary", "Secret" }
+local rarityOrder: { Types.Rarity } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 Catalog.rarityOrder = rarityOrder
 Catalog.rarityRank =
-	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Secret = 5 } :: { [string]: number }
+	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 } :: { [string]: number }
 
 local function cat(
 	id: string,
 	name: string,
 	rarity: Types.Rarity,
 	area: Types.Area,
-	favoriteSpot: Types.SpotType,
-	description: string,
+	favoriteRole: Types.Role,
 	pattern: string,
-	color: { number }
+	color: { number },
+	description: string
 ): Types.CatDef
 	return {
 		id = id,
@@ -72,160 +87,553 @@ local function cat(
 		rarity = rarity,
 		incomePerSecond = Catalog.rarities[rarity].incomePerSecond,
 		area = area,
-		favoriteSpot = favoriteSpot,
+		favoriteRole = favoriteRole,
 		description = description,
 		pattern = pattern,
 		color = color,
 	}
 end
 
--- Section 3 (12 cats in the slice)
+-- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical). Each lives in
+-- exactly one area. Colors are the placeholder body's {r, g, b}.
 Catalog.cats = {
+	-- 3a. Alleyway, in the slice
 	cat(
 		"tabby",
 		"Tabby",
 		"Common",
-		"both",
-		"counter",
-		"The starter. Stripes, snacks, naps.",
+		"alley",
+		"barista",
 		"stripes",
-		{ 214, 140, 70 }
+		{ 214, 140, 70 },
+		"The starter. Stripes, snacks, naps."
 	),
 	cat(
 		"tuxedo",
 		"Tuxedo",
 		"Common",
-		"both",
-		"window",
-		"Dressed for dinner, waiting for it.",
+		"alley",
+		"waiter",
 		"patches",
-		{ 35, 35, 40 }
+		{ 35, 35, 40 },
+		"Dressed for dinner, waiting for it."
 	),
 	cat(
 		"ginger",
 		"Ginger",
 		"Common",
-		"both",
-		"cushion",
-		"Warm, round, always in the sun.",
+		"alley",
+		"greeter",
 		"solid",
-		{ 235, 130, 50 }
+		{ 235, 130, 50 },
+		"Warm, round, always in the sun."
 	),
 	cat(
 		"smoke",
 		"Smoke",
 		"Common",
-		"both",
-		"shelf",
-		"Grey as a rainy morning.",
+		"alley",
+		"entertainer",
 		"solid",
-		{ 120, 120, 130 }
-	),
-	cat(
-		"snow",
-		"Snow",
-		"Common",
-		"both",
-		"window",
-		"All white, hates the alley puddles.",
-		"solid",
-		{ 250, 250, 252 }
+		{ 120, 120, 130 },
+		"Grey as a rainy morning."
 	),
 	cat(
 		"calico",
 		"Calico",
 		"Rare",
-		"both",
-		"cushion",
-		"Three colors, three opinions.",
+		"alley",
+		"greeter",
 		"patches",
-		{ 240, 190, 120 }
-	),
-	cat(
-		"siamese",
-		"Siamese",
-		"Rare",
-		"both",
-		"counter",
-		"Loud. Supervises the espresso machine.",
-		"points",
-		{ 225, 205, 175 }
+		{ 240, 190, 120 },
+		"Three colors, three opinions."
 	),
 	cat(
 		"tortie",
 		"Tortie",
 		"Rare",
-		"park",
-		"shelf",
-		"Brindled and bossy.",
+		"alley",
+		"barista",
 		"patches",
-		{ 110, 70, 45 }
+		{ 110, 70, 45 },
+		"Brindled and bossy."
+	),
+	cat(
+		"sphynx",
+		"Sphynx",
+		"Epic",
+		"alley",
+		"entertainer",
+		"solid",
+		{ 230, 180, 170 },
+		"No fur, all attitude."
+	),
+	cat(
+		"maine_coon",
+		"Maine Coon",
+		"Epic",
+		"alley",
+		"waiter",
+		"stripes",
+		{ 125, 90, 60 },
+		"Big as a backpack, gentle as a pillow."
+	),
+	cat(
+		"void",
+		"Void",
+		"Legendary",
+		"alley",
+		"barista",
+		"solid",
+		{ 12, 12, 16 },
+		"Pure black with glowing eyes. Makes the darkest espresso."
+	),
+	cat(
+		"midnight",
+		"Midnight",
+		"Mythical",
+		"alley",
+		"greeter",
+		"solid",
+		{ 30, 30, 70 },
+		"Fur like the night sky, freckled with stars."
+	),
+	-- 3b. Park, in the slice
+	cat(
+		"snow",
+		"Snow",
+		"Common",
+		"park",
+		"waiter",
+		"solid",
+		{ 250, 250, 252 },
+		"All white, hates the muddy paths."
+	),
+	cat(
+		"cream",
+		"Cream",
+		"Common",
+		"park",
+		"barista",
+		"solid",
+		{ 240, 220, 180 },
+		"The color of a latte, and smells faintly of one."
+	),
+	cat(
+		"brownie",
+		"Brownie",
+		"Common",
+		"park",
+		"entertainer",
+		"stripes",
+		{ 120, 75, 45 },
+		"Chocolate stripes, chases every leaf."
+	),
+	cat(
+		"blue",
+		"Blue",
+		"Common",
+		"park",
+		"greeter",
+		"solid",
+		{ 140, 155, 175 },
+		"Silver-blue and very polite."
+	),
+	cat(
+		"siamese",
+		"Siamese",
+		"Rare",
+		"park",
+		"barista",
+		"points",
+		{ 225, 205, 175 },
+		"Loud. Supervises the espresso machine."
 	),
 	cat(
 		"bengal",
 		"Bengal",
 		"Rare",
 		"park",
-		"cattree",
-		"Spotted and fast. Climbs everything.",
+		"entertainer",
 		"spots",
-		{ 200, 150, 80 }
-	),
-	cat(
-		"sphynx",
-		"Sphynx",
-		"Epic",
-		"both",
-		"cushion",
-		"No fur, all attitude. Loves the warm cushion.",
-		"solid",
-		{ 230, 180, 170 }
+		{ 200, 150, 80 },
+		"Spotted and fast. Climbs everything."
 	),
 	cat(
 		"ragdoll",
 		"Ragdoll",
 		"Epic",
 		"park",
-		"cattree",
-		"Huge, fluffy, goes limp when carried.",
+		"greeter",
 		"points",
-		{ 240, 235, 230 }
+		{ 240, 235, 230 },
+		"Huge, fluffy, goes limp when carried."
 	),
 	cat(
-		"void",
-		"Void",
-		"Legendary",
-		"both",
-		"shelf",
-		"Pure black with glowing eyes. Appears when you stop looking.",
+		"persian",
+		"Persian",
+		"Epic",
+		"park",
+		"waiter",
 		"solid",
-		{ 12, 12, 16 }
+		{ 245, 230, 200 },
+		"A cloud with a squashed face and opinions about cushions."
+	),
+	cat(
+		"blossom",
+		"Blossom",
+		"Legendary",
+		"park",
+		"greeter",
+		"patches",
+		{ 245, 190, 200 },
+		"Pink-cream fur, and petals follow her everywhere."
+	),
+	cat(
+		"aurora",
+		"Aurora",
+		"Mythical",
+		"park",
+		"entertainer",
+		"gradient",
+		{ 110, 200, 190 },
+		"Fur that shifts color like the northern lights."
+	),
+	-- 3c. Neighbourhood, Woods and Sewer: provisional names and roles that reserve the ids (after the slice)
+	cat(
+		"biscuit",
+		"Biscuit",
+		"Common",
+		"neighbourhood",
+		"barista",
+		"solid",
+		{ 220, 180, 120 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"pepper",
+		"Pepper",
+		"Common",
+		"neighbourhood",
+		"waiter",
+		"solid",
+		{ 110, 110, 115 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"socks",
+		"Socks",
+		"Common",
+		"neighbourhood",
+		"greeter",
+		"patches",
+		{ 40, 40, 45 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"butter",
+		"Butter",
+		"Common",
+		"neighbourhood",
+		"entertainer",
+		"solid",
+		{ 245, 215, 130 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"munchkin",
+		"Munchkin",
+		"Rare",
+		"neighbourhood",
+		"entertainer",
+		"solid",
+		{ 200, 140, 90 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"fold",
+		"Fold",
+		"Rare",
+		"neighbourhood",
+		"waiter",
+		"solid",
+		{ 170, 170, 180 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"chonk",
+		"Chonk",
+		"Epic",
+		"neighbourhood",
+		"barista",
+		"solid",
+		{ 230, 140, 60 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"postie",
+		"Postie",
+		"Epic",
+		"neighbourhood",
+		"greeter",
+		"solid",
+		{ 120, 130, 160 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"marshmallow",
+		"Marshmallow",
+		"Legendary",
+		"neighbourhood",
+		"waiter",
+		"solid",
+		{ 252, 248, 245 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"comet",
+		"Comet",
+		"Mythical",
+		"neighbourhood",
+		"entertainer",
+		"solid",
+		{ 150, 190, 255 },
+		"A Neighbourhood regular. More soon."
+	),
+	cat(
+		"moss",
+		"Moss",
+		"Common",
+		"woods",
+		"greeter",
+		"solid",
+		{ 120, 140, 90 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"acorn",
+		"Acorn",
+		"Common",
+		"woods",
+		"barista",
+		"solid",
+		{ 150, 100, 55 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"bramble",
+		"Bramble",
+		"Common",
+		"woods",
+		"waiter",
+		"solid",
+		{ 90, 65, 45 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"fern",
+		"Fern",
+		"Common",
+		"woods",
+		"entertainer",
+		"solid",
+		{ 110, 150, 100 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"pinecone",
+		"Pinecone",
+		"Rare",
+		"woods",
+		"barista",
+		"solid",
+		{ 130, 90, 60 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"forest_cat",
+		"Forest Cat",
+		"Rare",
+		"woods",
+		"greeter",
+		"stripes",
+		{ 140, 110, 80 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"toadstool",
+		"Toadstool",
+		"Epic",
+		"woods",
+		"entertainer",
+		"spots",
+		{ 210, 70, 60 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"firefly",
+		"Firefly",
+		"Epic",
+		"woods",
+		"waiter",
+		"solid",
+		{ 240, 220, 90 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"old_oak",
+		"Old Oak",
+		"Legendary",
+		"woods",
+		"barista",
+		"solid",
+		{ 100, 75, 50 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"wisp",
+		"Wisp",
+		"Mythical",
+		"woods",
+		"greeter",
+		"solid",
+		{ 200, 230, 255 },
+		"Lives deep in the Woods. More soon."
+	),
+	cat(
+		"rusty",
+		"Rusty",
+		"Common",
+		"sewer",
+		"waiter",
+		"solid",
+		{ 180, 90, 50 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"soot",
+		"Soot",
+		"Common",
+		"sewer",
+		"barista",
+		"solid",
+		{ 45, 45, 50 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"pipes",
+		"Pipes",
+		"Common",
+		"sewer",
+		"entertainer",
+		"stripes",
+		{ 130, 135, 140 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"puddle",
+		"Puddle",
+		"Common",
+		"sewer",
+		"greeter",
+		"solid",
+		{ 110, 130, 150 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"lantern",
+		"Lantern",
+		"Rare",
+		"sewer",
+		"waiter",
+		"solid",
+		{ 240, 180, 80 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"bubbles",
+		"Bubbles",
+		"Rare",
+		"sewer",
+		"entertainer",
+		"solid",
+		{ 170, 210, 240 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"gears",
+		"Gears",
+		"Epic",
+		"sewer",
+		"barista",
+		"solid",
+		{ 180, 140, 80 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"glimmer",
+		"Glimmer",
+		"Epic",
+		"sewer",
+		"greeter",
+		"solid",
+		{ 200, 205, 215 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"bottlecap",
+		"Bottlecap King",
+		"Legendary",
+		"sewer",
+		"waiter",
+		"solid",
+		{ 220, 180, 60 },
+		"Found down in the Sewer. More soon."
+	),
+	cat(
+		"eclipse",
+		"Eclipse",
+		"Mythical",
+		"sewer",
+		"barista",
+		"solid",
+		{ 25, 20, 30 },
+		"Found down in the Sewer. More soon."
 	),
 } :: { Types.CatDef }
 
+-- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
+function Catalog.catModelName(catId: string): string
+	local words: { string } = {}
+	for word in catId:gmatch("[^_]+") do
+		table.insert(words, word:sub(1, 1):upper() .. word:sub(2))
+	end
+	return "CatCafe_Cat_" .. table.concat(words)
+end
+
 Catalog.catsById = {} :: { [string]: Types.CatDef }
+Catalog.catsByModelName = {} :: { [string]: Types.CatDef }
 for _, def in Catalog.cats do
 	Catalog.catsById[def.id] = def
+	Catalog.catsByModelName[Catalog.catModelName(def.id)] = def
 end
 
 function Catalog.getCat(id: string): Types.CatDef?
 	return Catalog.catsById[id]
 end
 
--- "tabby" -> "CatCafe_Cat_Tabby"
-function Catalog.catModelName(catId: string): string
-	return "CatCafe_Cat_" .. catId:sub(1, 1):upper() .. catId:sub(2)
-end
-
--- Section 5: spots and the cafe level that opens them
+-- Section 5: role slots in opening order and the tier that opens each (2, 4, 6, 8 and 10 slots per tier).
 Catalog.spots = {
-	{ id = "counter_1", spotType = "counter", cafeLevel = 1 },
-	{ id = "window_1", spotType = "window", cafeLevel = 1 },
-	{ id = "cushion_1", spotType = "cushion", cafeLevel = 2 },
-	{ id = "shelf_1", spotType = "shelf", cafeLevel = 3 },
-	{ id = "cattree_1", spotType = "cattree", cafeLevel = 4 },
-	{ id = "patio_1", spotType = "patio", cafeLevel = 5 },
-	{ id = "patio_2", spotType = "patio", cafeLevel = 5 },
+	{ id = "barista_1", spotType = "barista", tier = 1 },
+	{ id = "waiter_1", spotType = "waiter", tier = 1 },
+	{ id = "waiter_2", spotType = "waiter", tier = 2 },
+	{ id = "greeter_1", spotType = "greeter", tier = 2 },
+	{ id = "barista_2", spotType = "barista", tier = 3 },
+	{ id = "entertainer_1", spotType = "entertainer", tier = 3 },
+	{ id = "waiter_3", spotType = "waiter", tier = 4 },
+	{ id = "greeter_2", spotType = "greeter", tier = 4 },
+	{ id = "barista_3", spotType = "barista", tier = 5 },
+	{ id = "entertainer_2", spotType = "entertainer", tier = 5 },
 } :: { Types.SpotDef }
 
 Catalog.spotsById = {} :: { [string]: Types.SpotDef }
@@ -237,26 +645,91 @@ function Catalog.getSpot(id: string): Types.SpotDef?
 	return Catalog.spotsById[id]
 end
 
--- Furniture model shown at each spot type
+-- Station furniture placed under a slot of each role. Baristas work the counter and waiters stand between the
+-- tables, so neither adds furniture; the greeter's podium comes with the role stations.
 Catalog.spotFurniture = {
-	counter = "CatCafe_Furniture_Counter",
-	window = "CatCafe_Furniture_WindowSeat",
-	cushion = "CatCafe_Furniture_Cushion",
-	shelf = "CatCafe_Furniture_WallShelf",
-	cattree = "CatCafe_Furniture_CatTree",
-	patio = "CatCafe_Furniture_PatioBench",
+	entertainer = "CatCafe_Furniture_CatTree",
 } :: { [string]: string }
 
--- Section 6
-Catalog.upgrades = {
+-- Section 5b
+Catalog.tiers = {
 	{
-		id = "cafe_level",
-		name = "Cafe level",
-		description = "Opens new cat spots and unlocks more of the shop",
-		maxLevel = 5,
-		costs = { 0, 250, 800, 2500, 8000 },
-		startLevel = 1,
+		tier = 1,
+		name = "Corner Cafe",
+		cost = 0,
+		distinctCats = 0,
+		slots = 2,
+		multiplier = 1.00,
+		area = "alley",
+		caps = { tables = 2, espresso = 2, net = 1 },
 	},
+	{
+		tier = 2,
+		name = "Cozy Cafe",
+		cost = 1500,
+		distinctCats = 5,
+		slots = 4,
+		multiplier = 1.25,
+		area = "park",
+		caps = { tables = 4, espresso = 3, net = 2 },
+	},
+	{
+		tier = 3,
+		name = "Busy Cafe",
+		cost = 8000,
+		distinctCats = 12,
+		needsRarity = "Epic",
+		needsRarityCount = 1,
+		slots = 6,
+		multiplier = 1.50,
+		area = "neighbourhood",
+		caps = { tables = 6, espresso = 4, net = 3 },
+	},
+	{
+		tier = 4,
+		name = "Famous Cafe",
+		cost = 30000,
+		distinctCats = 20,
+		needsRarity = "Legendary",
+		needsRarityCount = 1,
+		slots = 8,
+		multiplier = 1.75,
+		area = "woods",
+		caps = { tables = 6, espresso = 5, net = 3 },
+	},
+	{
+		tier = 5,
+		name = "Grand Cafe",
+		cost = 120000,
+		distinctCats = 30,
+		needsRarity = "Legendary",
+		needsRarityCount = 2,
+		slots = 10,
+		multiplier = 2.00,
+		area = "sewer",
+		caps = { tables = 6, espresso = 5, net = 3 },
+	},
+} :: { Types.TierDef }
+
+Catalog.maxTier = #Catalog.tiers
+
+function Catalog.getTier(tier: number): Types.TierDef?
+	return Catalog.tiers[tier]
+end
+
+-- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net); nil when no tier does.
+function Catalog.tierForLevel(upgradeId: string, level: number): number?
+	for _, def in Catalog.tiers do
+		local cap = (def.caps :: any)[upgradeId]
+		if type(cap) == "number" and level <= cap then
+			return def.tier
+		end
+	end
+	return nil
+end
+
+-- Section 6. requiresTierAtLevel is filled from the tier caps below, so the two tables cannot disagree.
+Catalog.upgrades = {
 	{
 		id = "tables",
 		name = "Tables",
@@ -269,17 +742,16 @@ Catalog.upgrades = {
 		id = "espresso",
 		name = "Espresso machine",
 		description = "Better coffee, bigger tips from every cat",
-		maxLevel = 3,
+		maxLevel = 5,
 		costs = { 0, 300, 1200, 4000, 12000 },
 		startLevel = 1,
-		requiresCafeLevelAtLevel = { [3] = 3 },
 	},
 	{
 		id = "net",
 		name = "Net",
 		description = "A better net: higher odds on every swing",
 		maxLevel = 3,
-		costs = { 500, 2500, 10000 },
+		costs = { 500, 3000, 15000 },
 		startLevel = 0,
 	},
 	{
@@ -289,18 +761,23 @@ Catalog.upgrades = {
 		maxLevel = 1,
 		costs = { 400 },
 		startLevel = 0,
-		requiresCafeLevel = 2,
-	},
-	{
-		id = "park_access",
-		name = "Park pass",
-		description = "Opens the park, where rarer cats roam",
-		maxLevel = 1,
-		costs = { 1000 },
-		startLevel = 0,
-		requiresCafeLevel = 3,
 	},
 } :: { Types.UpgradeDef }
+
+for _, def in Catalog.upgrades do
+	local perLevel: { [number]: number } = {}
+	local any = false
+	for level = 1, def.maxLevel do
+		local tier = Catalog.tierForLevel(def.id, level)
+		if tier ~= nil and tier > 1 then
+			perLevel[level] = tier
+			any = true
+		end
+	end
+	if any then
+		def.requiresTierAtLevel = perLevel
+	end
+end
 
 Catalog.upgradesById = {} :: { [string]: Types.UpgradeDef }
 for _, def in Catalog.upgrades do
@@ -323,6 +800,7 @@ Catalog.decor = {
 		category = "Plants",
 		effect = "+5% tips",
 		description = "Green in the window, warmth in the room.",
+		requiresTier = 2,
 		bonus = 0.05,
 		asset = "CatCafe_Decor_WindowPlants",
 	},
@@ -333,6 +811,7 @@ Catalog.decor = {
 		category = "Floor",
 		effect = "+5% tips",
 		description = "Warm paws, generous customers.",
+		requiresTier = 2,
 		bonus = 0.05,
 		asset = "CatCafe_Decor_Rug",
 	},
@@ -343,7 +822,7 @@ Catalog.decor = {
 		category = "Wall",
 		effect = "+10% tips",
 		description = "Seen from the far end of the street.",
-		requiresCafeLevel = 4,
+		requiresTier = 3,
 		bonus = 0.10,
 		asset = "CatCafe_Decor_NeonSign",
 	},
@@ -354,7 +833,7 @@ Catalog.decor = {
 		category = "Furniture",
 		effect = "+10% tips, cats stare at it",
 		description = "The fish are fine. Probably.",
-		requiresCafeLevel = 4,
+		requiresTier = 4,
 		bonus = 0.10,
 		asset = "CatCafe_Decor_FishTank",
 	},
@@ -369,15 +848,17 @@ function Catalog.getDecor(id: string): Types.DecorDef?
 	return Catalog.decorById[id]
 end
 
--- Section 8. Odds are shown before purchase.
+-- Sections 8 and 8b. Odds are shown before purchase. Shop foods are bought with BuyLure; dealer foods only from
+-- the night dealer's stock.
 Catalog.lures = {
 	{
 		id = "kibble",
 		name = "Kibble",
 		cost = 25,
 		attracts = "Common",
+		source = "shop",
 		description = "Cheap and crunchy. Brings the regulars.",
-		odds = { Common = 70, Rare = 26, Epic = 3.5, Legendary = 0.5 },
+		odds = { Common = 70, Rare = 25, Epic = 4, Legendary = 0.9, Mythical = 0.1 },
 		asset = "CatCafe_Item_Kibble",
 	},
 	{
@@ -385,8 +866,9 @@ Catalog.lures = {
 		name = "Tuna",
 		cost = 100,
 		attracts = "Rare",
+		source = "shop",
 		description = "The good stuff. Rare cats come running.",
-		odds = { Common = 45, Rare = 42, Epic = 11, Legendary = 2 },
+		odds = { Common = 40, Rare = 45, Epic = 12, Legendary = 2.6, Mythical = 0.4 },
 		asset = "CatCafe_Item_TunaCan",
 	},
 	{
@@ -394,9 +876,50 @@ Catalog.lures = {
 		name = "Salmon",
 		cost = 500,
 		attracts = "Epic",
+		source = "shop",
 		description = "Nobody can resist it, not even the Void.",
-		odds = { Common = 15, Rare = 50, Epic = 28, Legendary = 7 },
+		odds = { Common = 15, Rare = 45, Epic = 30, Legendary = 8.5, Mythical = 1.5 },
 		asset = "CatCafe_Item_Salmon",
+	},
+	{
+		id = "sardines",
+		name = "Moonlit Sardines",
+		cost = 800,
+		attracts = "Rare",
+		source = "dealer",
+		description = "Silvery and still glowing a little.",
+		odds = { Common = 30, Rare = 45, Epic = 20, Legendary = 4.5, Mythical = 0.5 },
+		asset = "CatCafe_Item_Sardines",
+	},
+	{
+		id = "caviar",
+		name = "Caviar",
+		cost = 3000,
+		attracts = "Epic",
+		source = "dealer",
+		description = "Tiny, shiny and very fancy.",
+		odds = { Common = 10, Rare = 35, Epic = 38, Legendary = 14, Mythical = 3 },
+		asset = "CatCafe_Item_Caviar",
+	},
+	{
+		id = "moon_milk",
+		name = "Moon Milk",
+		cost = 10000,
+		attracts = "Epic",
+		source = "dealer",
+		description = "Nobody knows where he gets it.",
+		odds = { Common = 0, Rare = 20, Epic = 45, Legendary = 28, Mythical = 7 },
+		asset = "CatCafe_Item_MoonMilk",
+	},
+	{
+		id = "star_treat",
+		name = "Star Treat",
+		cost = 40000,
+		attracts = "Legendary",
+		source = "dealer",
+		description = "It twinkles. Mythical cats can smell it from the next area.",
+		odds = { Common = 0, Rare = 0, Epic = 40, Legendary = 45, Mythical = 15 },
+		asset = "CatCafe_Item_StarTreat",
 	},
 } :: { Types.LureDef }
 
@@ -409,25 +932,35 @@ function Catalog.getLure(id: string): Types.LureDef?
 	return Catalog.luresById[id]
 end
 
--- Section 9. A full wave of waveSize strays spawns in every area at each night start.
+-- Section 8b: chance per dealer slot of each dealer food, by the player's tier.
+Catalog.dealerSlotWeights = {
+	{ sardines = 70, caviar = 25, moon_milk = 5, star_treat = 0 },
+	{ sardines = 60, caviar = 30, moon_milk = 9, star_treat = 1 },
+	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 },
+	{ sardines = 40, caviar = 35, moon_milk = 19, star_treat = 6 },
+	{ sardines = 30, caviar = 36, moon_milk = 24, star_treat = 10 },
+} :: { { [string]: number } }
+
+-- Section 9. A full wave of waveSize strays spawns in every area at each night start. The three areas after the
+-- Park join with their worlds.
 Catalog.areas = {
 	{
 		id = "alley",
-		name = "Alley",
-		unlock = nil,
+		name = "Alleyway",
+		tier = 1,
 		spawnPoints = 8,
 		waveSize = 6,
 		rescueSpots = 2,
-		odds = { Common = 75, Rare = 20, Epic = 4.5, Legendary = 0.5 },
+		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 	},
 	{
 		id = "park",
 		name = "Park",
-		unlock = "park_access",
+		tier = 2,
 		spawnPoints = 10,
 		waveSize = 6,
 		rescueSpots = 3,
-		odds = { Common = 55, Rare = 32, Epic = 10, Legendary = 3 },
+		odds = { Common = 60, Rare = 28, Epic = 9, Legendary = 2.5, Mythical = 0.5 },
 	},
 } :: { Types.AreaDef }
 

@@ -81,6 +81,23 @@ local function load(player: Player)
 	end
 	profileStore:AddUserId(player.UserId)
 
+	-- A save written by newer code (a server still running the old version after an update): loading it here
+	-- would drop what this version does not know and save that, so leave it untouched and send the player to a
+	-- new server (reviewer S31).
+	if ProfileSchema.isNewerThanCode(profileStore.Data) then
+		warn(
+			string.format(
+				"[DataService] %d has a version %d save; this server runs version %d. Not loading it.",
+				player.UserId,
+				ProfileSchema.versionOf(profileStore.Data),
+				ProfileSchema.VERSION
+			)
+		)
+		profileStore:EndSession()
+		player:Kick("Purr Pot was updated. Please rejoin to play the newest version.")
+		return
+	end
+
 	local now = os.time()
 	local profile = ProfileSchema.migrate(profileStore.Data, now)
 	local offline, offlineSeconds = Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now)
@@ -201,6 +218,21 @@ function DataService.peekPendingOffline(player: Player): (number, number)
 		return 0, 0
 	end
 	return session.pendingOffline, session.pendingOfflineSeconds
+end
+
+-- Studio test hook (Debug.setLastSeen): pretend the player was away `seconds` before this session started, at
+-- their current day rate. Replaces any unclaimed offline earnings. Returns the amount.
+function DataService.debugSetAway(player: Player, seconds: number): number
+	local session = sessions[player]
+	if session == nil then
+		return 0
+	end
+	local now = os.time()
+	local amount, counted =
+		Economy.offlineGain(Economy.incomePerSecond(session.profile), now - seconds, now)
+	session.pendingOffline = amount
+	session.pendingOfflineSeconds = counted
+	return amount
 end
 
 function DataService.policy(player: Player): { [string]: any }?

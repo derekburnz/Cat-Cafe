@@ -50,25 +50,25 @@ Layout.plot = {
 	counter = { x = 0, y = 0, z = halfD - 3 } :: Point,
 	espresso = { x = 2.6, y = 3.1, z = halfD - 3 } :: Point,
 
-	-- Where a placed cat sits (on top of the furniture)
+	-- Where a working cat stands, per role slot: baristas on the counter, waiters between the tables, greeters
+	-- inside the door, entertainers on the cat trees. The role stations and upright poses come with the roles.
 	spots = {
-		counter_1 = { x = -2, y = 3.1, z = halfD - 3 },
-		window_1 = { x = -13, y = 1.4, z = -halfD + 3 },
-		cushion_1 = { x = 12, y = 0.5, z = 4 },
-		shelf_1 = { x = halfW - 1.7, y = 5.3, z = 6 },
-		cattree_1 = { x = -14, y = 4.65, z = 8 },
-		patio_1 = { x = -8, y = 1.5, z = -halfD - 3.5 },
-		patio_2 = { x = 8, y = 1.5, z = -halfD - 3.5 },
+		barista_1 = { x = -2, y = 3.1, z = halfD - 3 },
+		barista_2 = { x = -3.4, y = 3.1, z = halfD - 3 },
+		barista_3 = { x = 0.4, y = 3.1, z = halfD - 3 },
+		waiter_1 = { x = -4.5, y = 0, z = -2.5 },
+		waiter_2 = { x = 4.5, y = 0, z = -2.5 },
+		waiter_3 = { x = 0, y = 0, z = 4.5 },
+		greeter_1 = { x = -4, y = 0, z = -halfD + 2.5 },
+		greeter_2 = { x = 4, y = 0, z = -halfD + 2.5 },
+		entertainer_1 = { x = -14, y = 4.65, z = 8 },
+		entertainer_2 = { x = 14, y = 4.65, z = 8 },
 	} :: { [string]: Point },
 
-	-- Furniture under each spot (counter_1 uses the counter itself)
+	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)
 	spotFurniture = {
-		window_1 = { x = -13, y = 0, z = -halfD + 3 },
-		cushion_1 = { x = 12, y = 0, z = 4 },
-		shelf_1 = { x = halfW - 1.7, y = 5, z = 6, rotY = 90 },
-		cattree_1 = { x = -14, y = 0, z = 8 },
-		patio_1 = { x = -8, y = 0, z = -halfD - 3.5, rotY = 180 },
-		patio_2 = { x = 8, y = 0, z = -halfD - 3.5, rotY = 180 },
+		entertainer_1 = { x = -14, y = 0, z = 8 },
+		entertainer_2 = { x = 14, y = 0, z = 8 },
 	} :: { [string]: Point },
 
 	decorAnchors = {

@@ -2,20 +2,27 @@
 -- Shared types. Field names follow docs/design/cat-cafe/ui-contract.md and data-model.md.
 -- Pure: no Roblox globals, so tests can require it.
 
-export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Secret"
-export type Area = "alley" | "park" | "both"
-export type SpotType = "counter" | "window" | "cushion" | "shelf" | "cattree" | "patio"
+export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical"
+export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer"
+export type Role = "barista" | "waiter" | "greeter" | "entertainer"
+-- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
+export type SpotType = Role
+export type CatchMethod = "net" | "rescue" | "bait" | "starter"
+export type LureSource = "shop" | "dealer"
 export type RingResult = "perfect" | "good" | "miss"
 export type ClockPhase = "day" | "night" -- ReplicatedStorage.Clock attribute Phase (data-model section 9)
 export type ToastKind = "info" | "good" | "warn"
 
 export type RarityDef = {
 	incomePerSecond: number,
-	baseCatchChance: number,
-	fleesOnMiss: boolean,
+	circles: number, -- closing circles in a net catch (data-model section 10)
+	shrinkSeconds: number, -- base shrink time of each circle
+	fleesOnFail: boolean,
+	rescueHits: number, -- bar hits that free a stuck cat (section 10b)
 	sellValue: number,
 	firstCatchReward: number,
 	color: string, -- hex like "#8E97B2"
+	baseCatchChance: number, -- the v0.2 hold ring only; goes when the closing circles replace it
 }
 
 export type CatDef = {
@@ -23,8 +30,8 @@ export type CatDef = {
 	name: string,
 	rarity: Rarity,
 	incomePerSecond: number,
-	area: Area,
-	favoriteSpot: SpotType,
+	area: Area, -- the one area it spawns in
+	favoriteRole: Role, -- earns FavoriteMultiplier in a slot of this role
 	description: string,
 	pattern: string,
 	color: { number }, -- {r, g, b} 0..255 for the placeholder body
@@ -36,9 +43,9 @@ export type UpgradeDef = {
 	description: string,
 	maxLevel: number,
 	costs: { number }, -- costs[n] = cost of level n
-	startLevel: number, -- 0 for most, 1 for cafe_level and espresso
-	requiresCafeLevel: number?,
-	requiresCafeLevelAtLevel: { [number]: number }?, -- e.g. espresso level 3 needs cafe 3
+	startLevel: number, -- 0 for most, 1 for espresso
+	requiresTier: number?, -- tier needed to buy level 1
+	requiresTierAtLevel: { [number]: number }?, -- e.g. espresso level 3 needs Tier 2 (the tier caps, section 5b)
 }
 
 export type DecorDef = {
@@ -48,18 +55,25 @@ export type DecorDef = {
 	category: string,
 	effect: string,
 	description: string,
-	requiresCafeLevel: number?,
+	requiresTier: number?,
 	bonus: number, -- added to the cafe multiplier while placed
 	asset: string, -- model name in ReplicatedStorage.Assets
 }
 
-export type LureOdds = { Common: number, Rare: number, Epic: number, Legendary: number }
+export type LureOdds = {
+	Common: number,
+	Rare: number,
+	Epic: number,
+	Legendary: number,
+	Mythical: number,
+}
 
 export type LureDef = {
 	id: string,
 	name: string,
 	cost: number,
-	attracts: Rarity,
+	attracts: Rarity, -- the rarity it is known for (the dealer foods: their likeliest rarity)
+	source: LureSource, -- "shop" foods are bought with BuyLure, "dealer" foods only from the night dealer
 	description: string,
 	odds: LureOdds, -- percentages summing to 100, shown before purchase
 	asset: string, -- food model shown in the bowl while the lure is active
@@ -68,7 +82,7 @@ export type LureDef = {
 export type AreaDef = {
 	id: string,
 	name: string,
-	unlock: string?, -- upgrade id that must be level 1+, nil when free
+	tier: number, -- the tier that opens it (data-model section 5b)
 	spawnPoints: number,
 	waveSize: number, -- strays spawned at once at each night start
 	rescueSpots: number,
@@ -76,22 +90,38 @@ export type AreaDef = {
 }
 
 export type SpotDef = {
-	id: string, -- "counter_1"
-	spotType: SpotType,
-	cafeLevel: number, -- opens at this cafe level
+	id: string, -- "barista_1"
+	spotType: SpotType, -- the role
+	tier: number, -- opens at this tier
+}
+
+-- One cafe tier (data-model section 5b). RankUp raises the tier when every requirement is met.
+export type TierDef = {
+	tier: number,
+	name: string,
+	cost: number, -- coins spent on rank up; 0 for Tier 1
+	distinctCats: number, -- entries in the collection
+	needsRarity: Rarity?, -- and this many different cats of this rarity in the collection
+	needsRarityCount: number?,
+	slots: number, -- role slots open at this tier
+	multiplier: number, -- tierMultiplier in the income formula
+	area: Area, -- the area this tier opens
+	caps: { tables: number, espresso: number, net: number }, -- highest shop level allowed at this tier
 }
 
 export type CatInstance = {
 	uid: string,
 	catId: string,
-	variant: string, -- "base" in the slice
+	variant: string, -- "base" or "shiny"
 	caughtAt: number,
-	spotId: string?, -- nil when resting in the cat room
+	spotId: string?, -- the role slot it works, nil when resting in the cat room
 	-- Stats (data-model section 4b). Readers go through CatStats, which defaults any missing field.
 	level: number, -- 1 to Config.CatMaxLevel, rises with XP earned while placed
 	xp: number, -- toward the next level; one XP per second placed
 	charm: number, -- 0 to 100, rolled once when caught; 50 is a 1.0x rate
-	rescued: boolean?, -- true when freed from a rescue spot (earns RescuedTipsMultiplier); absent otherwise
+	rescued: boolean?, -- true when freed from a rescue spot (for the book and analytics); absent otherwise
+	name: string?, -- the player's name for it as typed, filtered again for display; nil shows the catalog name
+	method: CatchMethod?, -- how it was found
 }
 
 -- One cat as ProfileSync sends it: the saved fields plus the derived numbers the UI shows.
@@ -102,6 +132,8 @@ export type CatView = {
 	caughtAt: number,
 	spotId: string?,
 	rescued: boolean?,
+	name: string?,
+	method: CatchMethod?,
 	level: number,
 	xp: number,
 	xpToNext: number, -- 0 at the level cap
@@ -115,9 +147,34 @@ export type Stats = {
 	catsSold: number,
 	grabsAttempted: number,
 	grabsSucceeded: number,
+	perfectCircles: number,
+	circlesTotal: number,
+	rescues: number,
+	rescueAttempts: number,
+	baitsTamed: number,
+	baitsLetGo: number,
+	bumpsGiven: number,
+	bumpsLanded: number,
+	bumpsTaken: number,
 	luresUsed: number,
 	playtimeSeconds: number,
 	sessions: number,
+}
+
+-- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).
+export type BaitState = {
+	lureId: string,
+	placedAt: number, -- os.time(); ready at placedAt + LureWaitSeconds
+	catId: string,
+	variant: string,
+	charm: number,
+}
+
+-- What the night dealer sold this player (section 8b): stock and bought marks are keyed on the dealer window
+-- floor(os.time() / 600). Slot numbers are string keys ("1" to "3") because a DataStore cannot hold a sparse array.
+export type DealerState = {
+	window: number,
+	bought: { [string]: boolean },
 }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
@@ -127,25 +184,28 @@ export type PlayerProfile = {
 	lifetimeCoins: number,
 	lastTick: number,
 	lastSeen: number,
-	rateAtLogout: number,
+	rateAtLogout: number, -- the day rate
+	tier: number, -- 1 to 5 (section 5b)
 	upgradeLevels: { [string]: number },
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
-	equippedLure: string?,
+	equippedLure: string?, -- the v0.2 lure spots; goes when the bait bowl replaces them
+	bait: BaitState?,
+	dealer: DealerState,
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
+	shinyCollection: { [string]: number }, -- catId -> first shiny caught at
 	stats: Stats,
 	tutorialStep: number,
 	settings: { music: boolean, sfx: boolean },
-	renovations: number, -- Renovate (rebirth) count, 0 until that feature ships; Economy.prestigeMultiplier reads it
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
 export type PlayerState = {
 	money: number,
 	incomePerSecond: number,
-	cafeLevel: number,
+	tier: number,
 	cafeProgress: number?,
 	cafeProgressText: string?,
 	tables: number,
@@ -159,6 +219,7 @@ export type PlayerState = {
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },
+	shinyCollection: { [string]: number },
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,

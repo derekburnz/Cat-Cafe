@@ -1,299 +1,424 @@
 # Cat Cafe Data Model and Balance Tables
 
-Draft v0.2, 2026-10-26. Owner: game-designer thread. Every number is a first guess for the vertical slice. The engineer puts the catalog tables in `src/shared/Catalog.luau` and the tuning numbers in `src/shared/Config.luau` so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) so the catalog pastes straight into the UI. Context and reasoning are in [gdd.md](gdd.md); build order is in [features.md](features.md).
+Draft v0.3, 2026-10-26 (v0.2 earlier the same day). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
 
 ## 1. Conventions
 
-- Ids are lower snake_case strings and never change once saved: `tabby`, `cafe_level`, `neon_sign`, `tuna`. Display names can change freely.
-- Model names derive from ids per the style guide: cat `tabby` is `CatCafe_Cat_Tabby`.
+- Ids are lower snake_case strings and never change once saved: `tabby`, `tables`, `neon_sign`, `tuna`, `barista_1`. Display names can change freely.
+- Model names derive from ids per the style guide: cat `tabby` is `CatCafe_Cat_Tabby`, `maine_coon` is `CatCafe_Cat_MaineCoon`.
 - Currency is coins, stored as an integer, shown as `$`. Rates are coins per second.
-- Rarity strings are exactly `Common`, `Rare`, `Epic`, `Legendary`, `Secret`. No Secret cats in the slice.
-- Time is server `os.time()` seconds. Never trust a client clock.
-- Chances are stored as 0 to 1 and shown as whole percentages.
+- Rarity strings are exactly `Common`, `Rare`, `Epic`, `Legendary`, `Mythical`. v0.3 change: `Mythical` replaces `Secret` (no cat ever used Secret, so no save holds it).
+- Time is server time. Never trust a client clock. Durations that must survive a rejoin (bait) use `os.time()`; sub-second timing (circles, rescue bars) uses `workspace:GetServerTimeNow()` on both sides.
+- Chances are stored as 0 to 1 and shown as whole percentages, or one decimal under 1%.
+- In code a role slot is still called a spot (`SpotDef`, `spotId`, `spotType`) so the save field and the UI intents keep their names; only the values change (section 5).
 
 ## 2. Rarity
 
-| rarity | incomePerSecond | baseCatchChance | fleesOnMiss | sellValue | firstCatchReward | color |
-|---|---|---|---|---|---|---|
-| Common | 1 | 0.90 | no | 25 | 50 | #8E97B2 |
-| Rare | 3 | 0.65 | yes | 150 | 300 | #5FA8FF |
-| Epic | 8 | 0.45 | yes | 600 | 1,500 | #C07CFF |
-| Legendary | 25 | 0.25 | yes | 3,000 | 8,000 | #FFC94D |
-| Secret | 60 | 0.20 | yes | 10,000 | 25,000 | #3FD0B5 (post-slice) |
-
-Rates and catch chances are flat per rarity in the slice. Per-cat tuning comes after the first playtest.
-
-## 3. Cat catalog (slice: 12 cats)
-
-Columns are the UI `CatDef` fields plus art notes. `area` is where the cat spawns (`alley`, `park`, `both`). `favoriteSpot` is a spot type; a cat on its favorite spot type earns 1.5 times its rate.
-
-| id | name | rarity | incomePerSecond | area | favoriteSpot | description | pattern | palette swatches |
+| rarity | incomePerSecond | circles | shrinkSeconds | fleesOnFail | rescueHits | sellValue | firstCatchReward | color |
 |---|---|---|---|---|---|---|---|---|
-| tabby | Tabby | Common | 1 | both | counter | The starter. Stripes, snacks, naps. | stripes | fur_orange, fur_orange_dark, eye_amber |
-| tuxedo | Tuxedo | Common | 1 | both | window | Dressed for dinner, waiting for it. | patches | fur_black, fur_white chest, eye_green |
-| ginger | Ginger | Common | 1 | both | cushion | Warm, round, always in the sun. | solid | fur_orange, eye_green |
-| smoke | Smoke | Common | 1 | both | shelf | Grey as a rainy morning. | solid | fur_grey, eye_green |
-| snow | Snow | Common | 1 | both | window | All white, hates the alley puddles. | solid | fur_white, eye_blue |
-| calico | Calico | Rare | 3 | both | cushion | Three colors, three opinions. | patches | fur_white, fur_orange, fur_black |
-| siamese | Siamese | Rare | 3 | both | counter | Loud. Supervises the espresso machine. | points | fur_cream, fur_brown points, eye_blue |
-| tortie | Tortie | Rare | 3 | park | shelf | Brindled and bossy. | patches | fur_brown, fur_orange, eye_amber |
-| bengal | Bengal | Rare | 3 | park | cattree | Spotted and fast. Climbs everything. | spots | fur_orange, fur_brown spots, eye_green |
-| sphynx | Sphynx | Epic | 8 | both | cushion | No fur, all attitude. Loves the warm cushion. | solid | blush (row 0), eye_blue |
-| ragdoll | Ragdoll | Epic | 8 | park | cattree | Huge, fluffy, goes limp when carried. | points | fur_white, fur_grey points, eye_blue |
-| void | Void | Legendary | 25 | both | shelf | Pure black with glowing eyes. Appears when you stop looking. | solid | fur_black, eye_amber glow, sparkle |
+| Common | 1 | 1 | 1.40 | no | 2 | 25 | 50 | #8E97B2 |
+| Rare | 3 | 2 | 1.15 | yes | 3 | 150 | 300 | #5FA8FF |
+| Epic | 8 | 3 | 0.95 | yes | 4 | 600 | 1,500 | #C07CFF |
+| Legendary | 25 | 4 | 0.80 | yes | 5 | 3,000 | 8,000 | #FFC94D |
+| Mythical | 75 | 5 | 0.65 | yes | 6 | 12,000 | 30,000 | #FF5E7E |
 
-Planned after the slice (reserve the ids): `midnight` (Secret, alley at night), `puddle` (Secret, park in rain), `golden` and `galaxy` as variants of any cat (see section 4), plus 25 more to reach 40.
+`circles` and `shrinkSeconds` drive the net (section 10), `rescueHits` the rescue bar (section 10b). v0.3 change: `baseCatchChance` is gone; the circles decide the chance. The Mythical color is a proposal for the UI thread.
 
-Within a rarity, which cat spawns is a uniform pick among cats whose `area` includes the spawn area.
+## 3. Cat catalog (50 cats, 10 per area)
 
-## 4. Cat instances and variants
+Each area has four Common, two Rare, two Epic, one Legendary and one Mythical, and each cat lives in exactly one area (Gavin, Q5; area-unique is a round 2 question). `favoriteRole` is one of `barista`, `waiter`, `greeter`, `entertainer`; a cat working its favorite role earns 1.5 times its rating. `incomePerSecond` repeats the rarity rate for the UI's `CatDef`.
 
-A cat the player owns is an instance: `{ uid, catId, variant, caughtAt, spotId, level, xp, charm, rescued }`. `uid` is a unique string generated by the server. `variant` is `base` in the slice. Post-slice variants multiply the rate: `golden` 2x, `galaxy` 5x. Variants are rolled at spawn time, never bought. `level`, `xp` and `charm` are the per-cat stats in section 4b. `rescued` is true for a cat freed from a rescue spot (section 10) and absent otherwise.
+v0.3 change: `area` is a single area id (no more `both`), `favoriteSpot` becomes `favoriteRole`, eight new cats fill out the Alleyway and the Park, and three areas get provisional rosters.
+
+### 3a. Alleyway (`alley`), in the slice
+
+| id | name | rarity | favoriteRole | description | art notes |
+|---|---|---|---|---|---|
+| tabby | Tabby | Common | barista | The starter. Stripes, snacks, naps. | stripes; fur_orange, fur_orange_dark, eye_amber |
+| tuxedo | Tuxedo | Common | waiter | Dressed for dinner, waiting for it. | patches; fur_black, fur_white chest, eye_green |
+| ginger | Ginger | Common | greeter | Warm, round, always in the sun. | solid; fur_orange, eye_green |
+| smoke | Smoke | Common | entertainer | Grey as a rainy morning. | solid; fur_grey, eye_green |
+| calico | Calico | Rare | greeter | Three colors, three opinions. | patches; fur_white, fur_orange, fur_black |
+| tortie | Tortie | Rare | barista | Brindled and bossy. | patches; fur_brown, fur_orange, eye_amber |
+| sphynx | Sphynx | Epic | entertainer | No fur, all attitude. | solid; blush, eye_blue; the one shape exception |
+| maine_coon | Maine Coon | Epic | waiter | Big as a backpack, gentle as a pillow. | stripes; fur_brown, fur_cream ruff; scale 1.2 (new) |
+| void | Void | Legendary | barista | Pure black with glowing eyes. Makes the darkest espresso. | solid; fur_black, eye_amber glow, sparkle |
+| midnight | Midnight | Mythical | greeter | Fur like the night sky, freckled with stars. | solid; night_sky, star speckles, glow (new) |
+
+### 3b. Park (`park`), in the slice
+
+| id | name | rarity | favoriteRole | description | art notes |
+|---|---|---|---|---|---|
+| snow | Snow | Common | waiter | All white, hates the muddy paths. | solid; fur_white, eye_blue |
+| cream | Cream | Common | barista | The color of a latte, and smells faintly of one. | solid; fur_cream, eye_amber (new) |
+| brownie | Brownie | Common | entertainer | Chocolate stripes, chases every leaf. | stripes; fur_brown, fur_brown_dark (new) |
+| blue | Blue | Common | greeter | Silver-blue and very polite. | solid; fur_grey blue tint, eye_green (new) |
+| siamese | Siamese | Rare | barista | Loud. Supervises the espresso machine. | points; fur_cream, fur_brown points, eye_blue |
+| bengal | Bengal | Rare | entertainer | Spotted and fast. Climbs everything. | spots; fur_orange, fur_brown spots, eye_green |
+| ragdoll | Ragdoll | Epic | greeter | Huge, fluffy, goes limp when carried. | points; fur_white, fur_grey points; scale 1.2 |
+| persian | Persian | Epic | waiter | A cloud with a squashed face and opinions about cushions. | solid; fur_cream long coat (new) |
+| blossom | Blossom | Legendary | greeter | Pink-cream fur, and petals follow her everywhere. | patches; blush, fur_cream, petal particles (new) |
+| aurora | Aurora | Mythical | entertainer | Fur that shifts color like the northern lights. | gradient; galaxy_blue, mint, glow (new) |
+
+### 3c. Neighbourhood, Woods and Sewer (provisional, after the slice)
+
+Names and favorite roles are placeholders so ids can be reserved; the asset thread does not model these yet.
+
+| area | Common | Rare | Epic | Legendary | Mythical |
+|---|---|---|---|---|---|
+| `neighbourhood` | biscuit Biscuit (barista), pepper Pepper (waiter), socks Socks (greeter), butter Butter (entertainer) | munchkin Munchkin (entertainer), fold Fold (waiter) | chonk Chonk (barista), postie Postie (greeter) | marshmallow Marshmallow (waiter) | comet Comet (entertainer) |
+| `woods` | moss Moss (greeter), acorn Acorn (barista), bramble Bramble (waiter), fern Fern (entertainer) | pinecone Pinecone (barista), forest_cat Forest Cat (greeter) | toadstool Toadstool (entertainer), firefly Firefly (waiter) | old_oak Old Oak (barista) | wisp Wisp (greeter) |
+| `sewer` | rusty Rusty (waiter), soot Soot (barista), pipes Pipes (entertainer), puddle Puddle (greeter) | lantern Lantern (waiter), bubbles Bubbles (entertainer) | gears Gears (barista), glimmer Glimmer (greeter) | bottlecap Bottlecap King (waiter) | eclipse Eclipse (barista) |
+
+Which cat within a rarity: a uniform pick among that area's cats of that rarity (four Commons, two Rares, two Epics, one each above). Bait picks across all unlocked areas (section 8).
+
+## 4. Cat instances, shiny and names
+
+A cat the player owns is an instance: `{ uid, catId, variant, caughtAt, spotId, level, xp, charm, rescued, name, method }`.
+
+- `uid`: unique string from the server.
+- `variant`: `base` or `shiny`. v0.3 change: Golden and Galaxy are dropped; there is no merging. A shiny earns ShinyMultiplier 1.5 and shows a sparkle on its model, its card and its book entry. Shiny chance by how the cat was found: net stray ShinyChanceNet 0.02 (rolled at spawn and visible as a sparkle on the stray), bait ShinyChanceBait 0.02 (rolled when the food goes in, revealed when the cat arrives), rescue ShinyChanceRescue 0.10 (rolled at night start, revealed when the cat comes out). A knocked-loose cat keeps its variant and charm.
+- `spotId`: the role slot the cat works, or nil in the cat room (section 5).
+- `level`, `xp`, `charm`: the per-cat stats in section 4b, unchanged.
+- `rescued`: true for a rescued cat. v0.3 change: it no longer pays more (RescuedTipsMultiplier is 1.0); the rescue reward is the shiny chance. The flag stays for the book and analytics.
+- `name`: the player's name for this cat, or nil to show the catalog name. 1 to CatNameMaxLength (20) characters after trimming, filtered with `TextService:FilterStringAsync` and stored as the filtered broadcast string (`GetNonChatStringForBroadcastAsync`), because other players see it over the cat in the cafe. If filtering errors, the rename is refused with a toast and the old name stays.
+- `method`: `net`, `rescue`, `bait` or `starter`, for the book and analytics.
 
 ## 4b. Cat stats: charm, level, XP and rating (`src/shared/CatStats.luau`)
 
-Added 2026-10-26 (cat stats thread) so two cats of the same id are not identical and a cat gets better the longer it works. Everything here is deterministic given the saved fields; the UI never computes it, the server sends it (`CatView` below).
+Built 2026-10-26 by the cat stats thread and unchanged in v0.3 except the multipliers named below. Everything is deterministic given the saved fields; the server sends it in `CatView`.
 
-- `charm` 0 to 100, rolled once when the cat is caught and never changed. Roll: the average of two uniform rolls in [0, 1) times 101, floored and clamped (`CatStats.rollCharm`). The average of two rolls is triangular, so most cats sit near 50 and about 8% are 80 or above, about 8% below 20. The server rolls it in `CafeService.addCaughtCat`; `CatService` may roll it earlier at spawn and show it on the stray's prompt (`Charm` and `Stars` attributes), in which case the same value is passed through.
-- `stars` 1 to 5 for the UI, from charm in bands of 20: 0 to 19 one star, 20 to 39 two, 40 to 59 three, 60 to 79 four, 80 to 100 five.
-- `charmMultiplier = 1 + (charm - 50) / 50 x CharmSpread` (CharmSpread 0.20): charm 0 earns 0.8x, 50 exactly 1.0x, 100 earns 1.2x. The starter Tabby has charm 50 so every new cafe still earns 1.5 per second.
-- `level` 1 to CatMaxLevel (10). `levelMultiplier = 1 + CatLevelBonus x (level - 1)` (CatLevelBonus 0.05), so level 10 is 1.45x.
-- `xp` counts seconds placed on an open spot: `Economy.settle` grants `elapsed x CatXpPerSecondPlaced` (1) to every placed cat after crediting coins. Only online time counts: `DataService.load` resets `lastTick` before the first settle, so the offline gap earns neither coins at the online rate nor XP (offline earnings stay the 25% claim in section 11). XP to go from level n to n + 1 is `CatXpBase x n` (60 x n seconds); a cat reaches level 10 after 60 x 45 = 2,700 s (45 min) placed. Coins in a settle window use the rate from before any level-up in that window (never overpays, at most a few seconds of difference).
-- `rating = rarity rate (section 3) x charmMultiplier x levelMultiplier x variantMultiplier x rescuedMultiplier`: the cat's coins per second on a neutral spot before the cafe multiplier. `rescuedMultiplier` is RescuedTipsMultiplier (1.10) for a rescued cat, else 1. A perfect max-level Tabby rates 1 x 1.2 x 1.45 = 1.74; a perfect max-level Void 25 x 1.74 = 43.5.
-- `maxRating(catId)` is the rating at charm 100 and max level, for the collection book's "potential" line.
-- Sort order for the cat room and for equip best (`CatStats.isBetter`): rating, then rarity, then catId, then uid, so lists are stable.
-- Equip best (`src/shared/EquipBest.luau`, remote `EquipBest`): one tap places the owned cats on the open spots for the highest total of rating x favorite multiplier. It is a weighted assignment problem (a weaker cat that is the only one that loves a free spot can beat greedy by rating), solved exactly with the Hungarian algorithm over at most 7 spots. A spot may stay empty, a cat already on its best spot stays there on ties, and cats that do not fit rest in the cat room. The server applies the plan, toasts the result and syncs; if nothing improves it says so and changes nothing.
+- `charm` 0 to 100, rolled once (now at spawn for strays and rescues, at food placement for bait) and never changed. The average of two uniform rolls times 101, floored and clamped. Most cats sit near 50; about 8% are 80 or above.
+- `stars` 1 to 5 from charm in bands of 20.
+- `charmMultiplier = 1 + (charm - 50) / 50 x CharmSpread` (0.20): 0.8x to 1.2x. The starter Tabby has charm 50.
+- `level` 1 to CatMaxLevel (10), `levelMultiplier = 1 + CatLevelBonus x (level - 1)` (0.05), so level 10 is 1.45x.
+- `xp` counts seconds working a role slot; XP from level n to n + 1 is `CatXpBase x n` (60 x n). Only online time counts.
+- `rating = rarity rate x charmMultiplier x levelMultiplier x variantMultiplier`. `variantMultiplier` is ShinyMultiplier for a shiny, else 1. A perfect max-level shiny Midnight rates 75 x 1.2 x 1.45 x 1.5 = 195.75.
+- `maxRating(catId)` is the rating at charm 100 and max level, base variant, for the book's potential line; the book also shows the shiny figure.
+- Sort order (`CatStats.isBetter`): rating, then rarity, then catId, then uid.
+- Equip Best (`src/shared/EquipBest.luau`, remote `EquipBest`): unchanged algorithm, now over at most 10 role slots with `favoriteRole` in place of `favoriteSpot`.
 
-Migration: version 1 saves have no stats; `ProfileSchema.migrate` gives those cats level 1, xp 0 and charm 50 (a 1.0x rate), so nobody's income changes on the upgrade.
+## 5. Roles (replaces spot types)
 
-## 5. Spots and cafe levels
+v0.3 change (Gavin, Q12): the six spot types become four roles. Each role slot is a station in the plot model where the assigned cat stands upright in that role's uniform. All roles pay the same in v0.3: `rating x favoriteMultiplier` where favoriteMultiplier is 1.5 when the slot's role equals the cat's `favoriteRole`. Role-specific boosts for certain cats are later content.
 
-Spot types: `counter`, `window`, `cushion`, `shelf`, `cattree`, `patio`. Spot instances are named `<type>_<n>` and exist as anchor points in the plot model.
-
-| cafe_level | cost | spots opened (cumulative count) | also unlocks |
+| role (`spotType`) | station | uniform | slot ids in opening order |
 |---|---|---|---|
-| 1 | start | counter_1, window_1 (2) | |
-| 2 | 250 | cushion_1 (3) | lure_bowl purchasable |
-| 3 | 800 | shelf_1 (4) | park_access purchasable, espresso level 3 |
-| 4 | 2,500 | cattree_1 (5) | decor neon_sign and fish_tank |
-| 5 | 8,000 | patio_1, patio_2 (7) | patio area opens, leaderboard tag "Cafe Owner" |
+| barista | counter with the espresso machine | apron | barista_1 (T1), barista_2 (T3), barista_3 (T5) |
+| waiter | between the tables | bow tie | waiter_1 (T1), waiter_2 (T2), waiter_3 (T4) |
+| greeter | inside the door | sash | greeter_1 (T2), greeter_2 (T4) |
+| entertainer | cat tree stage | party hat | entertainer_1 (T3), entertainer_2 (T5) |
 
-Cafe level goes up only by buying it. It is an upgrade in the catalog (section 6), not a progress bar, so the UI's `cafeProgress` stays nil.
+`SpotDef` becomes `{ id, spotType, tier }`; `tier` replaces `cafeLevel` as the tier that opens the slot. Slots per tier: 2, 4, 6, 8, 10.
+
+## 5b. Tiers (replaces cafe level and Renovate)
+
+v0.3 change (Gavin, Q18): no rebirth and nothing resets. `tier` is a profile field from 1 to 5, raised only by the `RankUp` remote when every requirement is met. Coins are spent on rank up (round 2 question: spend or hold). "Different cats" counts entries in `collection` (distinct catIds, shinies not counted twice).
+
+| tier | name | cost | different cats | also needs | role slots | tierMultiplier | opens area | shop caps (tables, espresso, net) | decor and other unlocks |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | Corner Cafe | start | | | 2 | 1.00 | alley | 2, 2, 1 | bait bowl |
+| 2 | Cozy Cafe | 1,500 | 5 | | 4 | 1.25 | park | 4, 3, 2 | plants, rug; cafe expansion 1 |
+| 3 | Busy Cafe | 8,000 | 12 | one Epic | 6 | 1.50 | neighbourhood | 6, 4, 3 | neon sign; expansion 2 |
+| 4 | Famous Cafe | 30,000 | 20 | one Legendary | 8 | 1.75 | woods | 6, 5, 3 | fish tank, patio; expansion 3 |
+| 5 | Grand Cafe | 120,000 | 30 | two different Legendaries | 10 | 2.00 | sewer | 6, 5, 3 | "Grand Cafe" leaderboard tag; expansion 4 |
+
+Each column is reachable from the areas already open: Tier 2 needs 5 of the Alleyway's 10, Tier 3 needs 12 of 20, Tier 4 20 of 30, Tier 5 30 of 40. "Cafe expansion n" is a plot model variant the world builder swaps in (more floor, the patio at T4); in the graybox it is extra floor Parts. The UI shows a rank up card with each requirement ticked or not.
+
+`TierDef = { tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps = { tables, espresso, net } }`.
 
 ## 6. Upgrade catalog
 
-UI `UpgradeDef` fields. `costs[n]` is the cost of level n. Starting levels: `cafe_level` 1 and `espresso` 1 (their `costs[1]` is 0 and never shown as purchasable); everything else starts at 0.
+UI `UpgradeDef` fields. `costs[n]` is the cost of level n. `startLevel` is 1 for espresso, 0 otherwise. v0.3 change: `cafe_level` and `park_access` are removed (tiers do both), `requiresCafeLevel` becomes `requiresTier`, and `requiresTierAtLevel` caps levels by tier (the caps column in section 5b).
 
-| id | name | description | maxLevel | costs | requiresCafeLevel | effect per level |
+| id | name | description | maxLevel | costs | requiresTierAtLevel | effect per level |
 |---|---|---|---|---|---|---|
-| cafe_level | Cafe level | Opens new cat spots and unlocks more of the shop | 5 | 0, 250, 800, 2500, 8000 | | spots per section 5 |
-| tables | Tables | Each table seats two more customers and adds tips | 6 | 100, 250, 600, 1500, 3500, 8000 | | +0.10 cafe multiplier, +2 seats |
-| espresso | Espresso machine | Better coffee, bigger tips from every cat | 3 (5 at launch) | 0, 300, 1200, 4000, 12000 | level 3 needs cafe 3 | +0.15 cafe multiplier per level above 1 |
-| net | Net | A better net: higher odds on every swing | 3 | 500, 2500, 10000 | | +0.10 catch chance |
-| lure_bowl | Bait bowl | Unlocks baiting with food at bait spots | 1 | 400 | 2 | enables bait (ids keep the lure_ prefix) |
-| park_access | Park pass | Opens the park, where rarer cats roam | 1 | 1000 | 3 | area `park` |
+| tables | Tables | Each table seats two more customers and adds tips | 6 | 100, 250, 600, 1500, 3500, 8000 | 3 to 4 need T2, 5 to 6 need T3 | +0.10 cafe multiplier, +2 seats |
+| espresso | Espresso machine | Better coffee, bigger tips from every cat | 5 | 0, 300, 1200, 4000, 12000 | 3 needs T2, 4 needs T3, 5 needs T4 | +0.15 cafe multiplier per level above 1 |
+| net | Net | Wider timing windows and steadier circles | 3 | 500, 3000, 15000 | 2 needs T2, 3 needs T3 | section 10 net table |
+| lure_bowl | Bait bowl | A bowl by your door; put food in and a cat comes by | 1 | 400 | | enables bait (section 8) |
 
-Engineer extensions adopted into the catalog: `startLevel` (1 for cafe_level and espresso, 0 otherwise) and `requiresCafeLevelAtLevel` (a map such as espresso level 3 needs cafe 3) so per-level gates do not need a second table.
+Net level names for the UI: 0 Basic Net, 1 Sturdy Net, 2 Pro Net, 3 Master Net.
 
 ## 7. Decor catalog
 
-UI `DecorDef` fields. Decor appears at a fixed anchor in the plot when placed. Bonuses apply only while placed.
+UI `DecorDef` fields; `requiresCafeLevel` becomes `requiresTier`. Bonuses apply only while placed.
 
-| id | name | cost | category | effect | requiresCafeLevel | bonus |
+| id | name | cost | category | effect | requiresTier | bonus |
 |---|---|---|---|---|---|---|
-| plants | Window plants | 150 | Plants | +5% tips | | +0.05 |
-| rug | Cozy rug | 400 | Floor | +5% tips | | +0.05 |
-| neon_sign | Neon cat sign | 1,500 | Wall | +10% tips | 4 | +0.10 |
+| plants | Window plants | 150 | Plants | +5% tips | 2 | +0.05 |
+| rug | Cozy rug | 400 | Floor | +5% tips | 2 | +0.05 |
+| neon_sign | Neon cat sign | 1,500 | Wall | +10% tips | 3 | +0.10 |
 | fish_tank | Fish tank | 5,000 | Furniture | +10% tips, cats stare at it | 4 | +0.10 |
 
-## 8. Lure catalog
+## 8. Bait (lure catalog and the bowl)
 
-UI `LureDef` fields plus `odds`, which the UI must show before purchase (paid random items rule, in case coins are ever sold for Robux). `attracts` is the headline rarity for the filter chip and means: the odds of that rarity or better are at least what the free alley gives (kibble: any cat on demand, reserved to you; tuna: Rare or better 55% against the alley's 25%; salmon: Epic or better 35% against 5%). The player buys food as a consumable, equips one, and uses it at a lure spot.
+v0.3 change (Gavin, Q7): bait moves from shared lure spots in the areas to one bait bowl at your own cafe, the wait is 10 minutes, and the cat that arrives is offered as Tame or Let go. Lure spots, reservations, the calm bonus and refunds are gone.
 
-| id | name | cost | attracts | odds Common / Rare / Epic / Legendary | description |
+Rules:
+
+- The bowl is the `lure_bowl` upgrade and sits at the plot's `BaitBowl` anchor by the door. One bowl per player.
+- `UseLure(lureId)` near the bowl (12 studs) with the bowl empty and food in stock consumes one food at once. The server rolls everything then and saves it in `profile.bait`: rarity from the food's odds, the cat uniformly among that rarity's cats in every area the player has unlocked, charm, and shiny (ShinyChanceBait). Rolling at placement means rejoining cannot reroll.
+- The cat is ready at `placedAt + LureWaitSeconds` (600, server `os.time()`), and the timer runs while the player is offline. The HUD shows the countdown.
+- When ready and the owner is in the server, the cat model sits eating at the bowl and the bait card shows its name, rarity, stars and sparkle with two buttons: Tame and Let go. `ResolveBait("tame")` adds the instance (method `bait`) straight to the cat room, fires `CatCaught` and empties the bowl; no net and no carry. `ResolveBait("letgo")` empties the bowl. The food is used either way.
+- Odds are on every food card before purchase, with the per-cat line ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"). A tier up that opens a new area changes the per-cat split, and the card says so.
+
+Shop foods (`LureDef`, `source = "shop"`):
+
+| id | name | cost | attracts | odds Common / Rare / Epic / Legendary / Mythical | description |
 |---|---|---|---|---|---|
-| kibble | Kibble | 25 | Common | 70 / 26 / 3.5 / 0.5 | Cheap and crunchy. Brings the regulars. |
-| tuna | Tuna | 100 | Rare | 45 / 42 / 11 / 2 | The good stuff. Rare cats come running. |
-| salmon | Salmon | 500 | Epic | 15 / 50 / 28 / 7 | Nobody can resist it, not even the Void. |
+| kibble | Kibble | 25 | Common | 70 / 25 / 4 / 0.9 / 0.1 | Cheap and crunchy. Brings the regulars. |
+| tuna | Tuna | 100 | Rare | 40 / 45 / 12 / 2.6 / 0.4 | The good stuff. Rare cats come running. |
+| salmon | Salmon | 500 | Epic | 15 / 45 / 30 / 8.5 / 1.5 | Nobody can resist it, not even the Void. |
 
-Lure rules: wait 45 s after placing, then a stray spawns at the bowl. It is calm (+0.20 catch chance), never flees from the placer (a miss just allows a retry after GrabRetrySeconds), and stays reserved for the placer until caught or until it despawns after 90 s; on despawn the food is refunded to the placer. One active lure per player. Lure spots: 2 in the alley, 3 in the park. Within a rarity every cat whose `area` matches has equal odds, and the shop states that line with the per-cat number (for example, Tuna in the alley: Rare 42% split equally across Calico and Siamese, 21% each).
+## 8b. The night food dealer
+
+v0.3 addition (Gavin, Q10). A cart with the dealer NPC parks on the street at night start and leaves at day start. Proximity prompt (12 studs) opens the dealer screen.
+
+- Per-player stock: three slots, each one food from the dealer table, rolled from `DealerSlotWeights[tier]`. The roll is seeded from the player's UserId and the night number (`Random.new(hash(userId, nightIndex))`), so leaving and rejoining in the same night shows the same stock. Each slot can be bought once per night; bought slots are saved in `profile.dealer = { night, bought }` so a rejoin cannot buy twice.
+- Stock and prices are shown before buying. Bought dealer food goes into `lures` and is used in the bowl like shop food, with its odds on its card.
+- `BuyDealerFood(slot)`: night, cart within 12 studs, slot 1 to 3, not bought this night, affordable.
+- Later: an upgrade that improves the dealer's weights (Gavin's "upgrade or someway"), not in v0.3; tiers already do it.
+
+Dealer foods (`LureDef`, `source = "dealer"`):
+
+| id | name | cost | odds Common / Rare / Epic / Legendary / Mythical | description |
+|---|---|---|---|---|
+| sardines | Moonlit Sardines | 800 | 30 / 45 / 20 / 4.5 / 0.5 | Silvery and still glowing a little. |
+| caviar | Caviar | 3,000 | 10 / 35 / 38 / 14 / 3 | Tiny, shiny and very fancy. |
+| moon_milk | Moon Milk | 10,000 | 0 / 20 / 45 / 28 / 7 | Nobody knows where he gets it. |
+| star_treat | Star Treat | 40,000 | 0 / 0 / 40 / 45 / 15 | It twinkles. Mythical cats can smell it from the next area. |
+
+`DealerSlotWeights` (chance per slot of sardines / caviar / moon_milk / star_treat):
+
+| tier | weights |
+|---|---|
+| 1 | 70 / 25 / 5 / 0 |
+| 2 | 60 / 30 / 9 / 1 |
+| 3 | 50 / 33 / 14 / 3 |
+| 4 | 40 / 35 / 19 / 6 |
+| 5 | 30 / 36 / 24 / 10 |
 
 ## 9. Areas, the clock and spawning
 
-Clock: a server-wide loop of DayLengthSeconds 180 then NightLengthSeconds 120, exposed as attributes on a `Clock` folder in ReplicatedStorage: `Phase` ("day" or "night") and `PhaseEndsAt` (server time). A new server starts in day with ServerStartDaySeconds 120 left, so the first night comes at two minutes. Lighting, the cafe sign, customers and the HUD chip follow `Phase`.
+Clock (Gavin, Q1): DayLengthSeconds 300 then NightLengthSeconds 300, exposed as `Phase` and `PhaseEndsAt` on the `Clock` folder in ReplicatedStorage. A new server starts in day with ServerStartDaySeconds 120 left. Lighting, the cafe sign (sun or moon), customers, the dealer cart and the HUD chip follow `Phase`. `Clock.nightIndex(t)` (new) numbers the nights for the dealer seed.
 
-Night waves (Gavin's rule): at every night start each area despawns its uncaught strays and spawns a full wave of `waveSize` strays at once from its odds. There is no trickle by day; leftovers stay catchable until the next night. Lured strays ignore the clock. Rescue spots roll at night start too (section 10).
+Night waves (Q2, Q3): at every night start each area despawns its uncaught strays and spawns WaveSize (10) strays at once from its odds; dropped (knocked-loose) strays count as uncaught. Leftovers stay catchable by day until the next night. Rescue traps roll at night start too. Areas spawn whether or not anyone has them unlocked, so a player who ranks up mid-night finds a wave waiting.
 
-| id | unlock | spawnPoints | waveSize | rescueSpots | odds Common / Rare / Epic / Legendary |
-|---|---|---|---|---|---|
-| alley | free | 8 | 6 | 2 | 75 / 20 / 4.5 / 0.5 |
-| park | park_access | 10 | 6 | 3 | 55 / 32 / 10 / 3 |
-| woods | post-slice, 10,000, cafe 5 | 12 | 8 | 3 | 35 / 40 / 18 / 7 |
+| id | name | unlock | spawnPoints | waveSize | rescue traps | odds Common / Rare / Epic / Legendary / Mythical |
+|---|---|---|---|---|---|---|
+| alley | Alleyway | Tier 1 | 14 | 10 | trash_bin x2, garbage_bag x1 | 72 / 22 / 5 / 0.9 / 0.1 |
+| park | Park | Tier 2 | 14 | 10 | tree x2, trashcan x1 | 60 / 28 / 9 / 2.5 / 0.5 |
+| neighbourhood | Neighbourhood | Tier 3 | 14 | 10 | shed, gutter (provisional) | 50 / 32 / 13 / 4 / 1 |
+| woods | Woods | Tier 4 | 16 | 10 | hollow_log, bramble_bush (provisional) | 42 / 34 / 17 / 5.5 / 1.5 |
+| sewer | Sewer | Tier 5 | 16 | 10 | drain_pipe, grate (provisional) | 35 / 35 / 20 / 7.5 / 2.5 |
 
-Tutorial rule: a player with `tutorialStep` below 2 always finds a Common stray at alley spawn point 1, spawned for them if none is there, day or night. Strays are workspace models with attributes (section 13) so they replicate without a remote. Which cat within a rarity: uniform among cats whose `area` includes the spawn area.
+Locked areas: a gate model at the entrance is solid on the client for players below the tier, and the server refuses GrabBegin, RescueBegin and Bump in an area the player has not unlocked, so walking past the gate gains nothing.
 
-## 10. Catching
+Tutorial rule (unchanged): a player with `tutorialStep` below 2 always finds a Common stray at alley spawn point 1. Strays are workspace models with attributes (section 13).
 
-- Net (the grab): `chance = clamp(base + net * 0.10 + lureBonus + ringBonus, 0.05, 0.95)`. The upgrade id is `net` (was gloves).
-- `ringBonus`: perfect 0.15, good 0.05, miss 0. The ring is a bonus, never a gate: a ring miss still rolls `chance` with no bonus. "Fails" below means the chance roll failed, whatever the ring said.
-- Ring timing: the ring shrinks over GrabHoldSeconds (1.5 s) and the band sits at the end of the shrink. The player releases while the ring is in the band. A hold that runs to completion without a release sends no GrabEnd at all: when GrabHoldSeconds plus RingLatencyGraceSeconds (1.75 s) pass after GrabBegin with no GrabEnd, the server resolves the attempt itself as a ring miss (bonus 0, chance still rolled). The client shows the miss flash at 1.5 s and waits for the server's result. The server derives the ring result from the time between GrabBegin and GrabEnd rather than trusting a client value: release 1.20 to 1.50 s after GrabBegin is perfect (RingPerfectWindow 0.30 s before the hold completes), 0.70 to 1.50 s is good (RingGoodWindow 0.80 s), earlier is a miss, and a GrabEnd later than 1.50 s plus a 0.25 s latency grace is a miss. A GrabEnd within GrabMinHoldSeconds (0.15 s) of GrabBegin is dropped as spam. Latency makes this noisy, which is one more reason the bonus is small.
-- Grab range 10 studs, checked on the server at begin and at end. Hold duration 1.5 s. Lock on begin for 3 s so nobody else can grab the same stray.
-- Common on a failed roll: stays, retry after 2 s. Rare and above on a failed roll: flees (despawns) with a toast "It got away", except a lured stray for its placer (section 8).
-- Success: the stray despawns, the player enters carry state (walk speed 16 to 13), a held cat model attaches to the player. Check-in at the own cafe door (8 studs) moves the cat into the profile. If the player leaves while carrying, the cat is saved anyway.
-- A carrying player cannot start another grab or rescue.
-- Rescue: at night start each rescue spot holds a stuck cat with RescueSpawnChance 0.5, rolled from the area odds with the Rare weight doubled, stuck until rescued or the next night. RescueBegin locks the spot for RescueLockSeconds 6; RescueEnd after at least RescueHoldSeconds 4 always succeeds (no ring, no chance roll) and moves the player to carry. The cat instance is saved with `rescued = true` and earns RescuedTipsMultiplier 1.10. Distance checks as for the net. Rescue odds are the area odds with the Rare weight doubled and renormalised to 100: alley 62.5 / 33.3 / 3.75 / 0.42, park 41.7 / 48.5 / 7.6 / 2.3. RescueEnd accepts a hold of RescueHoldSeconds minus RingLatencyGraceSeconds (3.75 s of server time) so latency cannot fail a rescue; the client still shows the full 4 s bar.
+## 10. Net: closing circles
+
+v0.3 change (Gavin, Q6): the hold-and-release ring and the flat catch chance are replaced by a sequence of closing circles judged on the server.
+
+Flow:
+
+1. The stray's prompt fires `GrabBegin(strayId)`. Server checks as before (exists, unlocked area, LockedBy 0 or self, 10 studs, not carrying, cooldown). It locks the stray and builds the schedule: `n = circles[rarity]`; circle 1 starts CircleLeadInSeconds (0.6) from now; each circle's shrink time is `shrinkSeconds[rarity] x (1 + u)` with `u` uniform in `[-jitter, +jitter]` for the player's net level; a gap of CircleGapMin to CircleGapMax (0.35 to 0.7 s) separates circles. The target moment of circle i is its start plus its shrink time. The lock lasts until the last target plus GoodWindow plus 1 s.
+2. The server fires `CatchSchedule(strayId, circles, windows)` to that player: `circles = { { startsAt, shrinkSeconds, x, y } }` in server time (x and y are screen positions 0 to 1 so circles do not sit in one spot), `windows = { perfect, good }` in seconds for drawing the bands.
+3. The client draws each circle shrinking onto its ring and fires `CatchPress(strayId, index)` on each press. The client sends no time: the server stamps each press with `GetServerTimeNow()` on arrival and subtracts half the player's round-trip ping (`Player:GetNetworkPing() / 2`, capped at CatchLatencyCapSeconds 0.15).
+4. Judging each circle: `error = abs(press - target)`. Within `perfect` scores CircleScorePerfect 1.0, within `good` scores CircleScoreGood 0.5, else 0. Only the first press per index counts, presses must come in index order, and a press before a circle's start is ignored. A circle with no press by its target plus `good` plus CatchLatencyCapSeconds scores 0.
+5. After the last circle: `chance = mean(scores)`. Roll once. Success puts the player in carry (section 10c). On a fail a Common stays and can be retried after GrabRetrySeconds (2); anything rarer flees (despawns) with "It got away". The server fires `CatchResult(strayId, scores, chance, success)` and the UI shows each circle's grade and the final percentage.
+
+Net levels (windows are half-widths in seconds either side of the target; jitter is the spread on each circle's shrink time):
+
+| net | name | perfect | good | jitter |
+|---|---|---|---|---|
+| 0 | Basic Net | 0.045 | 0.11 | 0.30 |
+| 1 | Sturdy Net | 0.055 | 0.13 | 0.20 |
+| 2 | Pro Net | 0.065 | 0.155 | 0.10 |
+| 3 | Master Net | 0.08 | 0.18 | 0 |
+
+Feel targets for QA: a Common with a Basic Net should be caught by a new player most of the time (one slow circle, Good is 50%, retries are free). A Mythical with a Basic Net should be very hard to perfect and a Master Net should make it fair. If the Basic Net feels mean on touch, widen `good` before touching anything else.
+
+Exploit note for the reviewer: the server owns the schedule and the clock, so a client cannot forge a Perfect, but a script that watches the circles and presses on time will score well. That is accepted for the slice (Gavin wants all-Perfect to be 100%). Telemetry sends per-circle error for every catch; flag players whose Perfect rate over 50 circles exceeds 95% with an error spread under 10 ms.
+
+## 10b. Rescue minigames
+
+v0.3 change (Gavin, Q8): the 4 s hold becomes a short minigame on an area-specific trap. A failed attempt never loses the cat.
+
+- At night start each rescue trap holds a stuck cat with RescueSpawnChance 0.6. Rescue odds are the area odds with every non-Common weight doubled and renormalised (Alleyway 56.3 / 34.4 / 7.8 / 1.4 / 0.16, Park 42.9 / 40.0 / 12.9 / 3.6 / 0.7). Charm and shiny (ShinyChanceRescue 0.10) are rolled then and hidden until the rescue succeeds. Stuck until rescued or the next night.
+- `RescueBegin(rescueSpotId)` checks as before (occupied, unlocked area, lock free or own, 10 studs, not carrying), locks the trap to the player for the attempt and fires `RescueChallenge(rescueSpotId, challenge)`.
+- Kind `bar` (trash_bin, garbage_bag, trashcan and the provisional traps): a marker slides back and forth along a bar at RescueBarSpeed[rarity] bar lengths per second, starting at a server-set time and phase, with a target zone RescueZoneWidth[rarity] wide at a server-set position. `RescuePress(rescueSpotId)` is stamped and latency-corrected like a circle press; the server computes where the marker was and allows RescueTolerance 0.03 of the bar. A hit moves the zone to the next server-set position; `rescueHits[rarity]` hits frees the cat. Each miss costs one of RescuePatience (3) paws; out of paws ends the attempt.
+- Kind `shake_catch` (tree): `rescueHits[rarity] - 1` bar hits shake the branch, then the cat drops and one catch circle (Common shrink time, the Pro Net windows whatever net you own) must score Good or Perfect to catch it. A miss means the cat lands, climbs back up and the attempt ends.
+- Ending without success: the trap unlocks, the cat stays stuck, and anyone can try after RescueRetrySeconds (3). The same player can retry at once after that.
+- Success: the cat is revealed (sparkle if shiny), the player enters carry with `rescued = true`.
+
+| rarity | RescueBarSpeed | RescueZoneWidth |
+|---|---|---|
+| Common | 0.8 | 0.30 |
+| Rare | 1.0 | 0.24 |
+| Epic | 1.2 | 0.19 |
+| Legendary | 1.4 | 0.15 |
+| Mythical | 1.6 | 0.12 |
+
+## 10c. Carry and bump
+
+v0.3 change (Gavin, Q9): one cat at a time on the way home, and other players can knock it loose. This replaces the v0.2 no-stealing rule.
+
+- Carry is as built: success sets carry state, walk speed CarryWalkSpeed 13, the held cat model, `CheckIn` at the own door (8 studs) adds the instance. Leaving mid-carry still saves the cat. A carrying player cannot start a catch, a rescue or a bump.
+- The carrier's character gets attributes `CarryingCatId`, `CarryStartedAt`, `BumpImmune`.
+- `Bump(targetUserId)`: server checks the bumper is not carrying, has the area unlocked if the target is inside an area, and is within BumpRangeStuds (6); the target is carrying, not BumpImmune, at least BumpGraceSeconds (3) into the carry, and outside its own safe zone (its plot plus BumpSafeRadiusStuds 15 around its door); the bumper is off BumpCooldownSeconds (12) and has not bumped this target in the last BumpSameTargetSeconds (60). BumpEnabled false in Config turns the remote off and hides the prompt.
+- Then roll BumpChance (0.5). Success: the cat drops at the carrier's feet as a stray with `Dropped` true, its catId, variant, charm and rescued flag kept, scurries 6 to 10 studs and cannot be grabbed for DropProtectSeconds (2). Anyone can net it with normal circles, the old carrier included. Whoever catches a dropped stray is BumpImmune for that carry. Fail: both players get "It held on tight!" and the carrier is BumpImmune for 3 s.
+- The bumper never receives the cat. Nothing is taken from a cafe, only from arms on the way home.
+- The prompt is a ProximityPrompt "Bump" on the carried cat model, shown only to players who are not carrying; the server validates regardless.
 
 ## 11. Income and offline
 
-- `incomePerSecond = sum over placed cats of (rating x favorite multiplier) x cafeMultiplier x prestigeMultiplier`, where `rating = rarity rate x charm x level x variant x rescued multipliers` (section 4b). Tips flow by day and night in the current plan; if Gavin wants the cafe to earn only while open (question 10), add an OpenMultiplier of 0 at night and scale offline earnings by the day fraction 0.6.
-- `prestigeMultiplier = 1 + RenovateBonus x renovations` (RenovateBonus 0.25). `renovations` is 0 for everyone until Renovate (common-features.md item 10) ships, so this is 1.0 in the slice; it is the seam a rebirth plugs into without touching the rest of the formula. If Gavin's answers call for a customer-driven income model instead, `Economy.incomePerSecond` is the one function to replace.
-- `favoriteMultiplier` is 1.5 when the cat's `favoriteSpot` equals the spot's type, else 1.
-- `cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + sum of placed decor bonuses`.
-- Recommended accounting: store `coins` and `lastTick`; on every read or spend, `coins += incomePerSecond x (now - lastTick)` then set `lastTick = now`. No per-second loop per player. The client shows a predicted counter from the last known rate and snaps to the server value on each sync.
-- Offline: on join, `offlineGain = rateAtLogout x 0.25 x min(now - lastSeen, 3600)`. Shown in the offline popup and added only when claimed. Store `rateAtLogout` in the profile on leave. Post-slice game pass raises the cap to 7,200 s.
+- `incomePerSecond = sum over working cats of (rating x favoriteMultiplier) x cafeMultiplier x tierMultiplier x phaseMultiplier`.
+- `tierMultiplier` from section 5b. v0.3 change: it replaces `prestigeMultiplier` and `renovations`, in the same place in `Economy.incomePerSecond`.
+- `phaseMultiplier` is 1.0 by day and NightIncomeMultiplier (0.6) by night (Gavin, Q10). Settling must split the window at phase boundaries: `Economy.settle` integrates the multiplier over `[lastTick, now]` using `Clock.phaseAt`, and ProfileSync sends the current rate, which drops at nightfall.
+- `favoriteMultiplier` is 1.5 when the slot's role is the cat's `favoriteRole`.
+- `cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + sum of placed decor bonuses` (unchanged).
+- Accounting unchanged: `coins` and `lastTick`, settle on every read or spend, the client predicts between syncs.
+- Offline unchanged: `offlineGain = dayRateAtLogout x OfflineRate (0.25) x min(now - lastSeen, OfflineCapSeconds 3600)`. `rateAtLogout` stores the day rate.
 
-## 12. Customers (cosmetic)
+## 12. Customers and rich customers
 
-- Customers come by day only; at night they leave and the sign flips to Closed. Seats = 2 x tables level. While it is day, `incomePerSecond > 0` and a seat is free, spawn a customer every 6 s. A customer walks to a seat, sits 20 to 40 s, pops a coin effect every 3 s, then leaves.
-- Three customer models (adult, kid, elder) with shirt colors from palette row 4.
-- Client-simulated: each client runs its own plot's customers in full and shows at most 4 per other plot. No pathfinding service; waypoints are authored in the plot model.
+- Customers are client-simulated as before. By day: a customer every CustomerSpawnSeconds (6) while a seat is free. By night: every CustomerSpawnSecondsNight (12) as night owls, and the sign shows a moon. v0.3 change: the cafe no longer closes at night.
+- Rich customer (Gavin, Q10), server-driven because it pays: by day, every RichCheckSeconds (60), each occupied plot with income above 0 rolls RichChance (0.15). On a hit the server sets plot attributes `RichTipAmount = max(50, floor(dayRate x RichTipSeconds 45))` and `RichTipExpiresAt = now + RichTipStaySeconds (90)`. Each client shows a rich customer (top hat, gold coin pile on a table). `ClaimRichTip()` by the owner within 12 studs of the plot's tip anchor before expiry adds the amount. If unclaimed, the server adds it when it expires, so it is never lost; claiming is just sooner and more fun. One rich tip at a time per plot.
 
 ## 13. Instance attributes (world data, no remote needed)
 
-Stray cat model (CollectionService tag `Stray`): `StrayId` (string, unique per spawn), `CatId`, `CatName`, `Rarity`, `Area`, `LockedBy` (UserId or 0), `ReservedFor` (UserId or 0, lures only), `SpawnedAt`. Its `ProximityPrompt` uses `Style = Custom` so the UI draws it.
+Stray cat model (tag `Stray`): `StrayId`, `CatId`, `CatName`, `Rarity`, `Area`, `LockedBy` (UserId or 0), `SpawnedAt`, `Charm`, `Stars`, `Shiny` (bool), `Dropped` (bool), `DropProtectUntil`. v0.3 change: `ReservedFor` is gone (no lured strays in areas).
 
-Rescue spot (tag `RescueSpot`): `Area`, `Occupied` (bool), `LockedBy`. The stuck cat is a stray model with `Rescue` true and `RescueSpotId` (the id RescueBegin and RescueEnd take; the UI falls back to `StrayId` if it is absent) and no ProximityPrompt swing; its prompt is the 4 s hold.
+Rescue trap (tag `RescueSpot`): `RescueSpotId`, `Area`, `TrapType` (`trash_bin`, `garbage_bag`, `tree`, `trashcan`, ...), `Occupied`, `LockedBy`, `RetryAt`. The stuck cat model shows `CatId`, `CatName`, `Rarity` (shown before the attempt so players can choose) but not `Shiny`.
 
-Clock folder in ReplicatedStorage: `Phase`, `PhaseEndsAt`.
+Carrier character: `CarryingCatId`, `CarryStartedAt`, `BumpImmune`.
 
-Plot model (tag `Plot`): `OwnerUserId` (0 when free), `PlotIndex`. Children: `Spots/<type>_<n>` anchor parts with attribute `SpotType`, `DecorAnchors/<decorId>`, `LureSpots` only in shared areas, `Door` part for check-in, `CustomerWaypoints`.
+Clock folder in ReplicatedStorage: `Phase`, `PhaseEndsAt`, `NightIndex`.
 
-Placed cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`.
+Dealer cart (tag `DealerCart`): `Open` (bool).
 
-## 14. Player profile (save data, version 2)
+Plot model (tag `Plot`): `OwnerUserId`, `PlotIndex`, `Tier`, `RichTipAmount`, `RichTipExpiresAt`, `BaitReadyAt` (0 when empty). Children: `Spots/<slotId>` station parts with attribute `SpotType` (the role), `DecorAnchors/<decorId>`, `BaitBowl`, `RichTipAnchor`, `Door`, `CustomerWaypoints`, `Expansions/<n>`.
 
-Lives in `Types.luau` as `PlayerProfile`. Saved with session locking (ProfileStore per the lead's proposal), autosave every 60 s, save on leave and in `BindToClose`.
+Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `DisplayName` (the filtered name or the catalog name), `Shiny`.
+
+## 14. Player profile (save data, version 3)
 
 | field | type | default | notes |
 |---|---|---|---|
-| version | integer | 2 | bump on any breaking change, migrate forward only. 2 (2026-10-26) adds the per-cat stats and `renovations` |
+| version | integer | 3 | 3 (2026-10-26, design v0.3) |
 | coins | integer | 50 | |
-| lifetimeCoins | integer | 0 | leaderboards, analytics |
-| lastTick | integer | join time | income accounting |
-| lastSeen | integer | join time | set on leave |
-| rateAtLogout | number | 0 | offline earnings |
-| upgradeLevels | map id to level | cafe_level 1, espresso 1, others 0 | |
-| decorOwned | map id to true | empty | |
-| decorPlaced | map id to true | empty | |
-| lures | map id to count | empty | |
-| equippedLure | string or nil | nil | |
-| cats | map uid to cat instance | one `tabby` placed on `counter_1`, charm 50, level 1 | sections 4 and 4b; each instance saves `level`, `xp`, `charm`, and `rescued` when true |
-| collection | map catId to firstCaughtAt | tabby at first join | drives silhouettes and 7 / 40 count |
-| stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, luresUsed, playtimeSeconds, sessions | 0 | |
-| tutorialStep | 0 to 4 | 0 | 0 new, 1 saw door, 2 caught, 3 placed, 4 bought table (done) |
+| lifetimeCoins | integer | 0 | |
+| lastTick, lastSeen | integer | join time | |
+| rateAtLogout | number | 0 | day rate |
+| tier | integer | 1 | new, section 5b |
+| upgradeLevels | map id to level | espresso 1, tables 0, net 0, lure_bowl 0 | `cafe_level` and `park_access` removed |
+| decorOwned, decorPlaced | map id to true | empty | |
+| lures | map id to count | empty | shop and dealer foods |
+| bait | `{ lureId, placedAt, catId, variant, charm }` or nil | nil | new, section 8 |
+| dealer | `{ night, bought = { [slot] = true } }` | `{ night = 0, bought = {} }` | new, section 8b |
+| cats | map uid to cat instance | one `tabby` on `barista_1`, charm 50, level 1, method `starter` | section 4 adds `name`, `method`; `variant` can be `shiny` |
+| collection | map catId to firstCaughtAt | tabby | drives the book and "different cats" |
+| shinyCollection | map catId to firstCaughtAt | empty | new, the shiny page |
+| stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions | 0 | new counters added |
+| tutorialStep | 0 to 5 | 0 | 0 new, 1 saw the alley, 2 caught, 3 assigned a role, 4 bought a table, 5 set bait (done) |
 | settings | music, sfx | true, true | |
-| renovations | integer | 0 | Renovate count for `prestigeMultiplier` (section 11); stays 0 until that feature ships |
 
-Derived, never saved: `incomePerSecond`, `catsOwned` counts per catId, carry state, lock state. `ProfileSync` sends each cat as a `CatView`: the instance fields plus `xpToNext`, `stars` and `rating` (section 4b), so the UI shows stats without computing them.
+Removed: `equippedLure` (UseLure takes the food id), `renovations`.
+
+Migration 2 to 3: `tier = 1`; refund the coins spent on `cafe_level` levels above 1 and on `park_access` so test saves keep their value; drop both from `upgradeLevels`; cap `tables`, `espresso` and `net` at the Tier 1 caps and refund levels above the cap; clear every cat's `spotId`, then run Equip Best once on load to fill `barista_1` and `waiter_1`; set `method = "net"` on caught cats and `"starter"` on the first tabby; drop `equippedLure` and `renovations`. Forward only.
 
 ## 15. Remotes (`src/shared/Remotes.luau`)
 
-Every client to server call is validated on the server. Default rate limit 10 calls per second per player per remote; grab calls 1 per 2 s. Reject silently on a limit, log the UserId.
+Every client to server call is validated on the server. Default rate limit 10 calls per second per player per remote. Reject silently on a limit and log the UserId.
 
 | name | kind | args | server checks | result |
 |---|---|---|---|---|
-| GrabBegin | event | strayId | stray exists, LockedBy is 0 or self, ReservedFor is 0 or self, distance 10, not carrying, not on cooldown | sets LockedBy, starts 3 s lock timer |
-| RescueBegin | event | rescueSpotId | spot occupied, LockedBy 0 or self, distance 10, not carrying | locks the spot for RescueLockSeconds |
-| RescueEnd | event | rescueSpotId | LockedBy is self, at least RescueHoldSeconds after RescueBegin, distance 10 | always succeeds, player to carry with rescued true |
-| GrabEnd | event | strayId | LockedBy is self, lock not expired, distance 10, at least GrabMinHoldSeconds after GrabBegin | derives the ring result from lock age (section 10), rolls chance; success moves player to carry; fail per section 10 |
-| CheckIn | event | none | carrying, within 8 studs of own plot Door | adds cat instance, fires CatCaught, collection reward if new |
-| PlaceCat | event | uid, spotId | owns uid, spot exists in own plot, spot open at cafe level, spot empty, cat not already placed | sets spotId, recalculates rate |
-| UnplaceCat | event | uid | owns uid, is placed | clears spotId |
-| EquipBest | event | none | profile loaded; the plan itself only uses spots open at this cafe level and cats this player owns, nothing is spent. Rate limit 1 per 2 s (it sorts, solves, rebuilds the plot and sends a full sync) | moves cats to the highest-rate placement (section 4b), toast with cats placed and new rate, refreshes the plot, ProfileSync; "already on their best spots" when nothing improves |
-| SellCat | event | uid | owns uid, not the last cat of that catId if it would empty the cafe (allow otherwise) | removes instance, adds sellValue |
-| BuyUpgrade | event | upgradeId | in catalog, below maxLevel, requiresCafeLevel met, affordable | increments level, spends |
-| BuyDecor | event | decorId | in catalog, not owned, requiresCafeLevel met, affordable | owned and placed |
+| GrabBegin | event | strayId | stray exists, area unlocked, LockedBy 0 or self, not DropProtect, 10 studs, not carrying, GrabCooldownSeconds | locks, fires CatchSchedule (section 10) |
+| CatchPress | event | strayId, index | LockedBy self, attempt open, index is the next unjudged circle, not before its start; 10 per second | scores the circle; after the last, rolls and fires CatchResult |
+| RescueBegin | event | rescueSpotId | occupied, area unlocked, LockedBy 0 or self, past RetryAt, 10 studs, not carrying | locks, fires RescueChallenge (section 10b) |
+| RescuePress | event | rescueSpotId | LockedBy self, attempt open; 10 per second | scores the press; on success to carry, on out of paws ends; fires RescueResult |
+| RescueCancel | event | rescueSpotId | LockedBy self | ends the attempt, sets RetryAt |
+| CheckIn | event | none | carrying, 8 studs of own Door | adds instance, CatCaught, first-catch reward |
+| Bump | event | targetUserId | section 10c; 1 per BumpCooldownSeconds | rolls, drops the cat as a stray on success, Toast both ways |
+| PlaceCat | event | uid, spotId | owns uid, slot exists in own plot, slot open at the player's tier, slot empty, cat not already working | sets spotId, rate, upright model with uniform |
+| UnplaceCat | event | uid | owns uid, working | clears spotId, cat to the cat room |
+| EquipBest | event | none | profile loaded; 1 per 2 s | best placement over open slots |
+| SellCat | event | uid | owns uid, not the last working cat | removes, adds sellValue |
+| RenameCat | event | uid, name | owns uid, string, 1 to 20 chars after trim, 1 per 5 s; filter succeeds | saves the filtered name, updates DisplayName |
+| RankUp | event | none | tier below 5, cost affordable, distinct cats, rarity requirement; 1 per 2 s | spends, tier + 1, unlocks, Announce, ProfileSync |
+| BuyUpgrade | event | upgradeId | in catalog, below maxLevel, tier cap for the next level, affordable | level + 1, spends |
+| BuyDecor | event | decorId | in catalog, not owned, requiresTier met, affordable | owned and placed |
 | ToggleDecor | event | decorId, placed | owned | sets placed |
-| BuyLure | event | lureId | in catalog, affordable | count +1. No PolicyService gate here: if a coins product ever ships, that product is gated for restricted players instead, so their coins are all earned |
-| EquipLure | event | lureId | count above 0 | sets equippedLure |
-| UseLure | event | lureSpotId | lure_bowl owned, equippedLure count above 0, lure spot exists, free, distance 10, no active lure for player | spawns lured stray after 45 s; refunds the food if it despawns uncaught |
-| TelemetryReport | event | name, value | name and value on a server allowlist (shop opened, item viewed, ui_opened, device), 10 per minute per player | analytics only, never changes state |
-| ClaimOffline | event | none | pending offline amount above 0 | adds coins, clears pending |
-| TutorialAdvance | event | step | step equals tutorialStep + 1 | saves step |
-| ProfileSync | server to client | partial `PlayerState` per ui-contract | | UI.update |
-| CatCaught | server to client | catId, isNew | | UI.showCatFound |
-| OfflineEarnings | server to client | amount, seconds | | UI.showOfflineEarnings |
-| Toast | server to client | text, kind | | UI.toast |
-| Announce | server to all | text | | fired for Epic and Legendary catches |
+| BuyLure | event | lureId | shop food (source shop), affordable | count + 1. No PolicyService gate (section 8 and the monetization notes) |
+| UseLure | event | lureId | lure_bowl owned, bowl empty, count above 0, 12 studs of own BaitBowl | consumes, rolls and saves `bait`, sets BaitReadyAt |
+| ResolveBait | event | choice (`tame` or `letgo`) | bait exists, ready, owner within 20 studs of own BaitBowl | tame adds the cat; both empty the bowl |
+| BuyDealerFood | event | slot | night, 12 studs of the cart, slot 1 to 3, not bought this night, affordable | count + 1, marks bought |
+| ClaimRichTip | event | none | own plot has an unexpired tip, 12 studs of RichTipAnchor | adds the tip, clears it |
+| TelemetryReport | event | name, value | allowlist, 10 per minute | analytics only |
+| ClaimOffline | event | none | pending above 0 | adds coins |
+| TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
+| CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |
+| CatchResult | server to client | strayId, scores, chance, success | | UI grades and toast |
+| RescueChallenge | server to client | rescueSpotId, challenge | | UI draws the bar or the shake |
+| RescueResult | server to client | rescueSpotId, hits, pawsLeft, done, success | | UI |
+| DealerStock | server to client | slots = { { lureId, cost, bought } } | | sent at night start and when the screen opens |
+| BaitReady | server to client | catView | | UI bait card |
+| ProfileSync | server to client | partial `PlayerState` | | adds `tier`, `bait`, `shinyCollection`, `rankUp` progress |
+| CatCaught | server to client | catId, isNew, shiny, isNewShiny | | cat found popup |
+| OfflineEarnings, Toast | server to client | as before | | |
+| Announce | server to all | text | | Epic and up, every shiny, every rank up to Tier 3 and up |
+
+Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), EquipLure.
 
 ## 16. Analytics events (AnalyticsService)
 
-The full plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md), which keeps the names below and extends them. Summary, adjusted to Roblox's three custom fields per event:
-
-- Onboarding funnel (12 steps): `joined`, `saw_alley`, `first_catch`, `first_checkin`, `first_place`, `first_table`, `cafe_level_2`, `first_lure`, `park_unlocked`, `returned_next_day`, `first_offline_claim`, `cafe_level_5`. Custom field `device` on step 1.
-- Recurring funnels: `catch_attempt` (engaged, caught, checked_in, placed), `shop_checkout` (opened, viewed, bought), `robux_purchase` (prompted, completed; soft launch only).
-- Economy: sources `tips` (batched per minute), `sell_cat`, `offline`, `first_catch_reward`, `collection_reward`, `start_coins`; sinks by catalog id with `category` upgrade, decor, lure, area. Custom fields `cafe_level` and `cats_placed` bucket.
-- Custom: `cat_caught` (cat_id, area, method where method folds grab ring result and lure food), `grab_failed` (rarity, reason, area), `session_end` (seconds; cats_caught bucket, coins_earned bucket, device), `lure_used`, `cat_sold`, `cat_room_full`, `spot_favorite`, `offline_claim`, `ui_opened`, `tutorial_step`, `announcement_seen`, `error_recovered`.
-- Progression: `cafe_level` 1 to 5 and `collection` sets common, rare, epic, legendary.
+The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `shiny_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`.
 
 ## 17. Tuning constants (`src/shared/Config.luau`)
 
-| constant | value | used by |
-|---|---|---|
-| ServerPlayers | 8 | place settings, plot count |
-| StartCoins | 50 | DataService |
-| FavoriteMultiplier | 1.5 | CafeService |
-| TableBonus | 0.10 | CafeService |
-| EspressoBonus | 0.15 | CafeService |
-| OfflineRate | 0.25 | DataService |
-| OfflineCapSeconds | 3600 | DataService |
-| AutosaveSeconds | 60 | DataService |
-| DayLengthSeconds | 180 | ClockService |
-| NightLengthSeconds | 120 | ClockService |
-| ServerStartDaySeconds | 120 | ClockService |
-| WaveSize | per area, section 9 | CatService |
-| RescueSpawnChance | 0.5 | CatService |
-| RescueHoldSeconds | 4 | CatService, UI |
-| RescueLockSeconds | 6 | CatService |
-| RescuedTipsMultiplier | 1.10 | CafeService |
-| StrayDespawnSeconds | 120 | CatService |
-| GrabRangeStuds | 10 | CatService |
-| GrabHoldSeconds | 1.5 | CatService, UI |
-| GrabLockSeconds | 3 | CatService |
-| RingLatencyGraceSeconds | 0.25 | CatService, added to the late edge of the windows |
-| GrabRetrySeconds | 2 | CatService |
-| NetBonus | 0.10 | CatService (was GlovesBonus) |
-| LureBonus | 0.20 | CatService |
-| RingBonusPerfect | 0.15 | CatService |
-| RingBonusGood | 0.05 | CatService |
-| CatchChanceMin | 0.05 | CatService |
-| CatchChanceMax | 0.95 | CatService |
-| LureWaitSeconds | 45 | CatService |
-| LureReserveSeconds | until despawn (was 30) | CatService |
-| LureDespawnSeconds | 90 | CatService |
-| CarryWalkSpeed | 13 | CatService |
-| CheckInRangeStuds | 8 | CatService |
-| CustomerSpawnSeconds | 6 | client customers |
-| CustomerStayMin, CustomerStayMax | 20, 40 | client customers |
-| RemoteRateLimitPerSecond | 10 | Remotes |
-| AnnounceMinRarity | Epic | CatService |
-| GrabCooldownSeconds | 2 | CatService, per player between GrabBegin calls |
-| GrabMinHoldSeconds | 0.15 | CatService, a GrabEnd sooner than this after GrabBegin is ignored and the lock continues |
-| RingPerfectWindow | 0.30 s, the last 0.30 s of the 1.5 s hold | CatService, UI |
-| RingGoodWindow | 0.80 s, the last 0.80 s of the 1.5 s hold | CatService, UI |
-| SyncIntervalSeconds | 10 | ProfileSync heartbeat, client predicts between |
-| NormalWalkSpeed | 16 | CatService |
-| StrayWanderRadius, StrayWanderSpeed | 5 studs, 3 | CatService |
-| CustomerCoinPopSeconds | 3 | client customers |
-| CustomerWalkSpeed | 7 | client customers |
-| SeatsPerTable | 2 | client customers |
-| MaxIdLength | 40 | Remotes, reject longer ids |
-| TutorialGuaranteedStrayStep | 2 | CatService |
-| CatMaxLevel | 10 | CatStats (section 4b) |
-| CatLevelBonus | 0.05 | CatStats, rate bonus per level above 1 |
-| CatXpBase | 60 | CatStats, XP from level n to n + 1 is CatXpBase x n |
-| CatXpPerSecondPlaced | 1 | Economy.settle, XP per second a placed cat earns |
-| CharmSpread | 0.20 | CatStats, charm 0 earns 1 - spread, charm 100 earns 1 + spread |
-| RenovateBonus | 0.25 | Economy.prestigeMultiplier, per Renovate; unused until Renovate ships |
+Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 
-World layout numbers (plot size, street length, alley and park centers) live in `Config.World` and are the engineer's to set; they are not balance.
+| constant | value | was | used by |
+|---|---|---|---|
+| DayLengthSeconds | 300 | 180 | ClockService |
+| NightLengthSeconds | 300 | 120 | ClockService |
+| WaveSize | 10 | 6 | CatService |
+| NightIncomeMultiplier | 0.6 | new | Economy |
+| ShinyMultiplier | 1.5 | new | CatStats |
+| ShinyChanceNet, ShinyChanceBait, ShinyChanceRescue | 0.02, 0.02, 0.10 | new | CatService |
+| CircleLeadInSeconds | 0.6 | new | CatService |
+| CircleGapMin, CircleGapMax | 0.35, 0.7 | new | CatService |
+| CircleScorePerfect, CircleScoreGood | 1.0, 0.5 | new | CatService |
+| NetWindows | per section 10 table | new | CatService, UI |
+| CatchLatencyCapSeconds | 0.15 | new | CatService |
+| RescueSpawnChance | 0.6 | 0.5 | CatService |
+| RescueBarSpeed, RescueZoneWidth | per section 10b table | new | CatService, UI |
+| RescueTolerance | 0.03 | new | CatService |
+| RescuePatience | 3 | new | CatService, UI |
+| RescueRetrySeconds | 3 | new | CatService |
+| RescuedTipsMultiplier | 1.0 | 1.10 | CatStats |
+| LureWaitSeconds | 600 | 45 | CafeService |
+| BaitBowlRangeStuds | 12 | new | CafeService |
+| BumpEnabled | true | new | CatService |
+| BumpRangeStuds | 6 | new | CatService |
+| BumpChance | 0.5 | new | CatService |
+| BumpGraceSeconds | 3 | new | CatService |
+| BumpSafeRadiusStuds | 15 | new | CatService |
+| BumpCooldownSeconds | 12 | new | CatService |
+| BumpSameTargetSeconds | 60 | new | CatService |
+| DropProtectSeconds | 2 | new | CatService |
+| CustomerSpawnSecondsNight | 12 | new | client customers |
+| RichCheckSeconds | 60 | new | CafeService |
+| RichChance | 0.15 | new | CafeService |
+| RichTipSeconds | 45 | new | CafeService |
+| RichTipStaySeconds | 90 | new | CafeService |
+| DealerRangeStuds | 12 | new | DealerService |
+| CatNameMaxLength | 20 | new | CafeService |
+| RenameCooldownSeconds | 5 | new | CafeService |
+| AnnounceMinRarity | Epic (plus every shiny) | Epic | CatService |
+
+Removed: GrabHoldSeconds, GrabMinHoldSeconds, NetBonus, LureBonus, RingBonusPerfect, RingBonusGood, RingPerfectWindow, RingGoodWindow, RingLatencyGraceSeconds, CatchChanceMin, CatchChanceMax, LureDespawnSeconds, LureReserveSeconds, RescueHoldSeconds, RescueLockSeconds (the attempt holds the lock), RenovateBonus. GrabLockSeconds becomes "schedule length plus 1 s".
+
+Unchanged and still used: ServerPlayers 8, StartCoins 50, FavoriteMultiplier 1.5, TableBonus 0.10, EspressoBonus 0.15, OfflineRate 0.25, OfflineCapSeconds 3600, AutosaveSeconds 60, ServerStartDaySeconds 120, GrabRangeStuds 10, GrabRetrySeconds 2, GrabCooldownSeconds 2, CarryWalkSpeed 13, NormalWalkSpeed 16, CheckInRangeStuds 8, the cat stats constants, the customer constants, RemoteRateLimitPerSecond 10, MaxIdLength 40, TutorialGuaranteedStrayStep 2. World layout numbers stay the engineer's in `Config.World`, now with three more area centers and gates.

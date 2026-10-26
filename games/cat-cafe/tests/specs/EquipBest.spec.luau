@@ -39,7 +39,7 @@ return function()
 	-- Exhaustive search over "each open spot gets one distinct cat or nobody" for small cases.
 	local function bruteForce(profile: any): number
 		local spots = EquipBest.openSpots(profile)
-		local cats = {}
+		local cats: { any } = {}
 		for _, instance in pairs(profile.cats) do
 			table.insert(cats, instance)
 		end

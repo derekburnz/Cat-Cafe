@@ -48,19 +48,21 @@ CONTENT_TYPES = {".ogg": "audio/ogg", ".mp3": "audio/mpeg", ".wav": "audio/wav",
 # Uploaded first, so a small monthly allowance still covers the playtest essentials (sound list P0).
 PRIORITY = (
     "uiClick", "uiError", "netSwing", "circlePerfect", "circleGood", "circleMiss", "catchSparkle",
-    "catchMiss", "coinPop", "purchase", "checkInBell", "jingleCatFound", "ambCafeDay", "ambAlleyNight",
-    "strayFlee", "jingleRankUp", "catchStart", "circleAppear", "ambAlleyDay", "ambCafeNight",
+    "catchMiss", "catHiss", "pawLost", "purrfectChime", "coinPop", "purchase", "checkInBell", "jingleCatFound",
+    "ambCafeDay", "ambAlleyNight", "loopCafeDoor", "jingleRankUp", "shuttersUp", "gateOpen", "announce",
+    "catchStart", "circleAppear", "ambAlleyDay", "ambCafeNight", "carryPurr", "purr", "signFlip", "strayFlee",
 )
 
 
 def cue_for(stem: str) -> str:
-    """CatCafe_Ui_Click -> uiClick, CatCafe_Amb_CafeDay -> ambCafeDay, CatCafe_Sfx_NetSwing -> netSwing."""
+    """CatCafe_Ui_Click -> uiClick, CatCafe_Amb_CafeDay -> ambCafeDay, CatCafe_Amb_LoopCafeDoor -> loopCafeDoor,
+    CatCafe_Sfx_NetSwing -> netSwing."""
     _, bus, name = stem.split("_", 2)
     name = name.replace("_", "")
     if bus == "Ui":
         return "ui" + name
     if bus == "Amb":
-        return "amb" + name
+        return "loop" + name[4:] if name.startswith("Loop") else "amb" + name
     return name[0].lower() + name[1:]
 
 

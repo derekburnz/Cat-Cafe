@@ -132,6 +132,35 @@ function Logic.jingleFor(rarity: string?): string?
 	return JINGLES[string.lower(rarity)]
 end
 
+-- A rarity's place in the order, 1 for Common up to 5 for Mythical, so a shout-out chime rises with rarity.
+local RARITY_STEPS: { [string]: number } =
+	{ common = 1, rare = 2, epic = 3, legendary = 4, mythical = 5, secret = 5 }
+
+function Logic.rarityStep(rarity: string?): number?
+	if rarity == nil then
+		return nil
+	end
+	return RARITY_STEPS[string.lower(rarity)]
+end
+
+-- The indexes of the `max` nearest distances within `radius`, nearest first (which world loops to keep playing).
+function Logic.nearest(distances: { number }, radius: number, max: number): { number }
+	local inside = {}
+	for index, distance in distances do
+		if distance <= radius then
+			table.insert(inside, index)
+		end
+	end
+	table.sort(inside, function(a, b)
+		return distances[a] < distances[b]
+	end)
+	local out = {}
+	for i = 1, math.min(max, #inside) do
+		out[i] = inside[i]
+	end
+	return out
+end
+
 -- The grade cue for a circle; the code says "perfect", the sound list says "Perfect", both work.
 local GRADES: { [string]: string } = {
 	perfect = "circlePerfect",

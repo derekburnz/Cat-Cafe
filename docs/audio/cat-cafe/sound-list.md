@@ -1,10 +1,12 @@
 # Purr Pot sound list
 
-Draft v0.2, 2026-10-26 (v0.1 the same day, rebuilt for design v0.3). Owner: sound-designer. Built from gdd.md v0.3, data-model.md v0.3 (sections 2, 8 to 13, 15 and 17), features.md v0.3 and style guide section 1. Status: 22 files synthesized and gated: 16 effects and jingles (UI click and error, the whole net catch, coins, purchase, the door bell, the stray flee, the cat found and rank up jingles; `assets/cat-cafe/audio/synth/synth.py`) and 6 ambience beds (cafe, Alleyway and Park, day and night; `synth/ambience.py`). The code that plays them is on main in `games/cat-cafe/src/client/Audio/`. Waiting for Derek's ear, the upload (`assets/cat-cafe/audio/upload.py`) and the engineer's wiring; music is still a plan. Every row is a cue: one named sound the game plays, with the moment that fires it. How to source, prepare, upload and wire them is in `.claude/skills/audio-pipeline/SKILL.md`.
+Draft v0.3, 2026-10-26 (v0.1 and v0.2 the same day, v0.3 for design v0.4). Owner: sound-designer. Built from gdd.md v0.4, data-model.md v0.4 (sections 2, 8 to 13, 15 and 17), features.md v0.4, world-and-feel.md and style guide section 1. Status: 32 files synthesized and gated: 25 effects and jingles (UI click and error, the whole net catch with the v0.4 hiss, paw lost and Purrfect chime, coins, purchase, the door bell, the stray flee, both purrs, the gate, the shutters and sign, the shout-out chime, the cat found and rank up jingles; `assets/cat-cafe/audio/synth/synth.py`), 6 ambience beds (cafe, Alleyway and Park, day and night) and the cafe door loop (`synth/ambience.py`). The code that plays them is in `games/cat-cafe/src/client/Audio/`; the engineer wired start, settings, carrying and zones (PR #66) and moments come with catching v0.4. Waiting for Derek's ear and the upload (`assets/cat-cafe/audio/upload.py`); music is still a plan. Every row is a cue: one named sound the game plays, with the moment that fires it. How to source, prepare, upload and wire them is in `.claude/skills/audio-pipeline/SKILL.md`.
 
-Priorities follow the slice: **P0** is needed for the Phase 2 exit test to feel like a game (17 cues), **P1** before the friends alpha, **P2** polish.
+Priorities follow the slice: **P0** is needed for the Phase 2 exit test to feel like a game (20 cues), **P1** before the friends alpha, **P2** polish.
 
 What v0.3 changed here: the hold-and-release ring became 1 to 5 closing circles with a grade per press, the rescue hold became a timing bar (a tree shake in the Park), bait moved to your own bowl with a 10 minute wait and Tame or Let go, other players can bump a carried cat loose, shiny cats exist, tiers replace cafe levels and nights last 5 minutes with the cafe still open, a food dealer and rich customers by day.
+
+What v0.4 changed here (world-and-feel.md): the first Miss ends a catch, so a Miss now hisses and the cat jumps back, and the paw you lose pops; an all-Perfect Purrfect catch chimes. The flee roll is gone. Cafes should feel busy from the street, so each cafe front door plays chatter and cups 3D, and cats working near you purr. Empty plots are For Rent shops whose shutters roll up when a player joins; gates dissolve their barrier; server shout-outs chime higher for rarer cats.
 
 ## 1. How Purr Pot should sound
 
@@ -56,10 +58,11 @@ Source plan: Roblox's licensed music in the Creator Store first, free in experie
 | `ambParkDay` | Park, day | birds, leaves, the fountain from afar | P1 |
 | `ambParkNight` | Park, night | crickets, soft wind, an owl far away | P1 |
 | `ambNeighbourhood`, `ambWoods`, `ambSewer` | the later areas, day and night variants | garden birds and a lawnmower far off; leaves and a stream; gentle drips and a hollow echo | P2 |
-| `loopFountain` | 3D on the park fountain, 30 stud range | gentle splash | P2 |
+| `loopCafeDoor` | 3D on every cafe front door (tag `CafeDoor`), 30 studs | chatter, cup clinks and a far espresso hiss spilling out, so a street of cafes sounds busy before you walk in | P1 |
+| `loopFountain` | 3D on the park fountain (tag `Fountain`), 30 stud range | gentle splash | P2 |
 | `loopStreetLamp` | 3D on each street lamp, night only, 15 studs | faint electric hum | P2 |
 | `loopDealerCart` | 3D on the dealer cart while it is out, 25 studs | a slow music box and a lantern creak: mysterious but friendly | P1 |
-| `loopFishTank` | 3D on the fish tank decor, 10 studs | bubbles | P2 |
+| `loopFishTank` | 3D on the fish tank decor (tag `FishTank`), 10 studs | bubbles | P2 |
 | `loopEspresso` | 3D on the espresso machine, every 20 to 40 s | short steam hiss | P2 |
 
 ## 5. Sound effects by mechanic
@@ -80,8 +83,11 @@ Source plan: Roblox's licensed music in the Creator Store first, free in experie
 | `circleGood` | CircleGrade Good | 2D | 0.25 s | softer wooden chime at the same pitch step | P0 |
 | `circleMiss` | CircleGrade Miss (a bad press, or a circle that closed unpressed) | 2D | 0.2 s | muted "thup", never harsh | P0 |
 | `catchSparkle` | CatchSuccess | 2D | 0.6 s | net "fwump" plus a sparkle; the rarity jingle layers on top (section 3) | P0 |
-| `catchMiss` | CatchFail | 2D | 0.4 s | gentle "whiff" and a soft down-boop; a Common stays for a retry | P0 |
-| `strayFlee` | StrayFlee (a failed catch on Rare and up) | 3D on the stray | 0.5 s | startled "mrrp!" and quick paw patter | P0 |
+| `catchMiss` | CatchFail (v0.4: the first Miss ends the catch) | 2D | 0.4 s | gentle "whiff" and a soft down-boop | P0 |
+| `catHiss` | CatchFail, with the jump back | 3D on the stray | 0.6 s | a short, soft cartoon hiss, more "pfft" than angry | P0 |
+| `pawLost` | PawLost (a paw pops off the row) | 2D | 0.3 s | small pop and a falling two-note boop | P0 |
+| `purrfectChime` | Purrfect (every circle Perfect) | 2D | 1 s | gold sparkle run into a bright bell, under the Purrfect burst | P0 |
+| `strayFlee` | a stray that runs off (v0.4 has no flee roll; kept for a later moment) | 3D on the stray | 0.5 s | startled "mrrp!" and quick paw patter | P2 |
 
 The scale for the Perfect run is the major pentatonic, PlaybackSpeed 1, 1.125, 1.25, 1.5 and 1.667 for circles 1 to 5, so one sample covers all five. The grade sounds follow the same client estimate the UI shows when you press. The server's grades in `CatchResult` are the ones that count; if one differs, the UI corrects the circle and no extra sound plays.
 
@@ -125,7 +131,7 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 | Cue | Moment | 2D/3D | Length | What it sounds like | P |
 |---|---|---|---|---|---|
 | `meow` (5 variants) | idle strays and working cats, every 8 to 20 s each, at most two at once | 3D, 40 studs | 0.3 to 0.8 s | short, cute, varied; pitch shifts a little per play | P1 |
-| `purr` | a cat working its favorite role, you standing close | 3D, 8 studs | 3 s loop | very quiet purr | P2 |
+| `purr` | a working cat (tag `WorkingCat`), only the 3 nearest within 14 studs | 3D, 8 studs | 3 s loop | very quiet purr, so a busy cafe sounds cosy up close | P1 |
 | `shimmerRare` | RareStrayNearby (a shiny stray, or an Epic and up, within about 40 studs) | 3D on the stray | 2 s loop | faint twinkle, so you can find it in the dark | P1 |
 | `shinyReveal` | ShinyReveal (a rescue or bait cat turns out shiny) | 2D | 1.5 s | magical sparkle rising into a bell; ducks the music | P1 |
 
@@ -137,18 +143,19 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 | `purchase` | Purchase (shop, decor, food, dealer) | 2D | 0.5 s | soft register "ka-ching" (the UI's `buy` hook) | P0 |
 | `offlineClaim` | OfflineClaim | 2D | 1 s | a short shower of coins | P1 |
 | `placeFurniture` | Purchase of a table or decor | 3D on the new piece | 0.5 s | wooden thunk and a sparkle | P2 |
-| `gateOpen` | AreaUnlock (the next area's gate after a rank up) | 3D on the gate | 1.5 s | friendly gate creak | P1 |
+| `gateOpen` | AreaUnlock (the next area's gate after a rank up) | 3D on the gate | 1.5 s | v0.4: the see-through barrier dissolves, a soft shimmer and a rising sparkle | P1 |
+| `shuttersUp` | PlotOpened (a For Rent plot becomes a player's cafe) | 3D on the shop front | 1.5 s | shutters rattling up, with `signFlip` as the sign turns to OPEN | P1 |
 | `richArrive` | RichArrive (a rich customer at your cafe) | 3D on your tip pile, plus a 2D chime | 1 s | posh little two-note "ding-ding" and a coin pile settling | P1 |
 | `richTip` | RichTipClaim (claimed or auto-collected) | 2D | 1.2 s | big coin cascade | P1 |
 | `dealerArrive` | DealerArrive | 3D on the cart | 1.5 s | cart wheels rolling in and a lantern bell | P1 |
 | `dealerLeave` | DealerLeave | 3D on the cart | 1.5 s | wheels rolling away | P2 |
-| `announce` | Announce (Epic and up, every shiny, rank ups to Tier 3 and up) | 2D | 1 s | two-note chime under the banner | P1 |
+| `announce` | Announce, the server shout-out (Epic and up, every shiny, rank ups to Tier 3 and up) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
 
 ### 5.7 Clock
 
 | Cue | Moment | 2D/3D | Length | What it sounds like | P |
 |---|---|---|---|---|---|
-| `signFlip` | NightStart, DayStart | 3D on your door sign | 0.4 s | wooden sign turning between sun and moon | P1 |
+| `signFlip` | NightStart, DayStart, PlotOpened | 3D on your door sign | 0.4 s | wooden sign turning between sun and moon, or to OPEN | P1 |
 | `lampOn` | NightStart | 3D on each street lamp | 0.5 s | click and hum start | P2 |
 
 ### 5.8 UI
@@ -168,11 +175,11 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 
 The UI's `catFound` hook plays `jingleCatFound`.
 
-P0 set (17): `musicDayA`, `musicNightA`, `jingleCatFound`, `jingleRankUp`, `ambAlleyNight`, `netSwing`, `circlePerfect`, `circleGood`, `circleMiss`, `catchSparkle`, `catchMiss`, `strayFlee`, `checkInBell`, `coinPop`, `purchase`, `uiClick` and `uiError`. The three circle grades come first: the net is the riskiest feel in v0.3 (features.md build order), and sound is half of a timing game's feel.
+P0 set (20): `musicDayA`, `musicNightA`, `jingleCatFound`, `jingleRankUp`, `ambAlleyNight`, `netSwing`, `circlePerfect`, `circleGood`, `circleMiss`, `catchSparkle`, `catchMiss`, `catHiss`, `pawLost`, `purrfectChime`, `checkInBell`, `coinPop`, `purchase`, `uiClick` and `uiError`, plus `strayFlee` until v0.4 lands. The three circle grades come first: the net is the riskiest feel (features.md build order), and sound is half of a timing game's feel. The upload order in `upload.py` follows this list, so a small monthly allowance covers the whole catch first.
 
 ## 6. Moments and hooks
 
-The engineer adds `src/client/Moments.luau`, one signal per moment fired from the controllers; Audio and the vfx-animator's Effects only listen, so a Perfect sounds and sparkles on the same frame. The names are shared with `docs/vfx/cat-cafe/effects-list.md`. v0.3 removed NetWindup, NetRingGood, NetRingPerfect, RescueHold, BaitExpire and LevelUp.
+The engineer adds `src/client/Moments.luau`, one signal per moment fired from the controllers; Audio and the vfx-animator's Effects only listen, so a Perfect sounds and sparkles on the same frame. The names are shared with `docs/vfx/cat-cafe/effects-list.md`. v0.3 removed NetWindup, NetRingGood, NetRingPerfect, RescueHold, BaitExpire and LevelUp. v0.4 removes StrayFlee and adds PawLost, Purrfect and PlotOpened; the catch rows follow the engineer's final list when catching v0.4 is up.
 
 | Moment | Args | Fired when | Source (data-model v0.3) |
 |---|---|---|---|
@@ -180,7 +187,9 @@ The engineer adds `src/client/Moments.luau`, one signal per moment fired from th
 | CircleAppear | index, shrinkSeconds | a circle starts closing | client timer from `circles[i].startsAt` |
 | NetSwing | index | the player presses | UIController, as `CatchPress` is sent |
 | CircleGrade | index, grade (Perfect, Good, Miss) | the press is judged by the client's estimate, or a circle closes unpressed | client, same rule the UI draws |
-| CatchSuccess, CatchFail, StrayFlee | strayId, rarity, chance | the roll comes back; StrayFlee when it fails on Rare and up | `CatchResult`; rarity from the stray's `Rarity` |
+| CatchSuccess, CatchFail | strayId, rarity | every circle Good or better; the first Miss (the hiss plays on the stray named by strayId) | `CatchResult` v0.4 |
+| PawLost | pawsLeft | a failed catch costs a paw | `CatchResult` `pawsLeft` |
+| Purrfect | charmGain | every circle Perfect | `CatchResult` `charmGain` with all grades Perfect |
 | RescueStart | rescueSpotId, kind, trapType | the challenge arrives | `RescueChallenge`; `TrapType` attribute |
 | RescueHit, RescueMiss | hits, needed, pawsLeft, trapType | a press is judged | `RescueResult` (UI may predict like the circles) |
 | RescueDrop | rescueSpotId | the tree cat falls before its circle | `shake_catch` after the last bar hit |
@@ -195,11 +204,16 @@ The engineer adds `src/client/Moments.luau`, one signal per moment fired from th
 | RareStrayNearby | strayId | a stray with `Shiny` or Epic and up comes within about 40 studs | client distance check on `Stray` models |
 | CatPlaced, CatSold | uid, role | the intent is accepted | ProfileSync diff |
 | CoinPop | position | a customer drops coins | CustomerController coin float text |
-| Purchase, RankUp, AreaUnlock | id, tier | a new upgrade, decor or food in ProfileSync; `tier` rises; a gate opens | ProfileSync diff |
+| Purchase, RankUp | id, tier | a new upgrade, decor or food in ProfileSync; `tier` rises | ProfileSync diff |
+| AreaUnlock | areaId, position (the gate) | a gate's barrier dissolves for you | ProfileSync diff and the gate part |
+| PlotOpened | position (the shop front) | a For Rent plot becomes a player's cafe, for everyone in the server | plot owner attribute changes from none |
 | RichArrive, RichTipClaim | amount | `RichTipAmount` is set on your plot; it clears | plot attributes |
 | DealerArrive, DealerLeave | | the cart's `Open` attribute changes | `DealerCart` tag |
 | NightStart, DayStart | nightIndex | `ReplicatedStorage.Clock` attribute `Phase` changes | attribute, as WorldController reads it |
-| OfflineClaim, Announce | amount; text | `ClaimOffline` pressed; `Announce` arrives | intent; remote |
+| OfflineClaim | amount | `ClaimOffline` pressed | intent |
+| Announce | text, rarity (optional) | a server shout-out arrives | `Announce` remote; rarity as a second argument lets the chime rise |
+
+World loops need no moment: the world builder tags the part or model and Audio plays its loop while it exists: `CafeDoor` (each cafe's front door), `Fountain`, `FishTank` and `WorkingCat` (a cat at its station; only the 3 nearest within 14 studs purr).
 
 For the UI: today `Theme.sounds` holds four optional asset ids. Proposal to the ui-designer: replace the ids with one injected `playSound(cueId)` function, so asset ids live only in `src/client/Audio/Cues.luau` and the UI keeps no ids of its own.
 

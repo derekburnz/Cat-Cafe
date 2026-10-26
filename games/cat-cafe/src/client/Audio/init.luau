@@ -468,16 +468,24 @@ local function you(): BasePart?
 	return if root ~= nil and root:IsA("BasePart") then root :: BasePart else nil
 end
 
+-- The part that stands for a tagged part or model: the part itself, a model's PrimaryPart or its first part.
+local function partOf(instance: Instance): BasePart?
+	if instance:IsA("BasePart") then
+		return instance :: BasePart
+	elseif instance:IsA("Model") then
+		local model = instance :: Model
+		return model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true) :: BasePart?
+	end
+	return nil
+end
+
 -- The part of a tagged world object whose attribute matches (a Stray by StrayId, a RescueSpot by RescueSpotId).
 local function taggedPart(tag: string, attribute: string?, value: any): BasePart?
 	for _, instance in CollectionService:GetTagged(tag) do
 		if attribute == nil or (value ~= nil and instance:GetAttribute(attribute) == value) then
-			if instance:IsA("BasePart") then
-				return instance :: BasePart
-			elseif instance:IsA("Model") then
-				local model = instance :: Model
-				return model.PrimaryPart
-					or model:FindFirstChildWhichIsA("BasePart", true) :: BasePart?
+			local part = partOf(instance)
+			if part ~= nil then
+				return part
 			end
 		end
 	end
@@ -489,6 +497,98 @@ local carrying = false
 local dealerStop: (() -> ())? = nil
 local rescueSpot: BasePart? = nil
 local shimmering: { [string]: Instance } = {}
+
+-- World loops by CollectionService tag: the world builder tags a part or model and its loop plays while it
+-- exists, streaming in and out with it. A tag with `near` plays only on the few closest within that many studs,
+-- so a full server never runs dozens of purrs at once.
+local TAGGED_LOOPS: { [string]: { cue: string, near: number? } } = {
+	CafeDoor = { cue = "loopCafeDoor" },
+	Fountain = { cue = "loopFountain" },
+	FishTank = { cue = "loopFishTank" },
+	WorkingCat = { cue = "purr", near = 14 },
+}
+local MAX_NEAR_LOOPS = 3
+local NEAR_CHECK_SECONDS = 0.5
+local worldLoops: { [Instance]: () -> () } = {}
+
+-- Waits for the first applySettings like music and ambience, so a player who turned sound off never hears one.
+local function startWorldLoop(instance: Instance, cueId: string)
+	local running: (() -> ())? = worldLoops[instance]
+	local part = partOf(instance)
+	if ready and running == nil and part ~= nil then
+		worldLoops[instance] = Audio.loop(cueId, part)
+	end
+end
+
+local function stopWorldLoop(instance: Instance)
+	local running: (() -> ())? = worldLoops[instance]
+	if running ~= nil then
+		worldLoops[instance] = nil
+		running()
+	end
+end
+
+-- Restarts every world loop, on the first settings and after the sound setting changes (a muted channel starts
+-- nothing).
+local function refreshWorldLoops()
+	for instance in worldLoops do
+		stopWorldLoop(instance)
+	end
+	for tag, def in TAGGED_LOOPS do
+		if def.near == nil then
+			for _, instance in CollectionService:GetTagged(tag) do
+				startWorldLoop(instance, def.cue)
+			end
+		end
+	end
+end
+
+-- Keeps the `near` loops on the closest tagged things to the player.
+local function followNearLoops()
+	while true do
+		task.wait(NEAR_CHECK_SECONDS)
+		local root = you()
+		for tag, def in TAGGED_LOOPS do
+			local radius = def.near
+			if radius ~= nil then
+				local instances: { Instance } = {}
+				local distances: { number } = {}
+				for _, instance in CollectionService:GetTagged(tag) do
+					local part = partOf(instance)
+					if root ~= nil and part ~= nil then
+						table.insert(instances, instance)
+						table.insert(distances, (part.Position - root.Position).Magnitude)
+					end
+				end
+				local keep: { [Instance]: boolean } = {}
+				for _, index in Logic.nearest(distances, radius, MAX_NEAR_LOOPS) do
+					keep[instances[index]] = true
+					startWorldLoop(instances[index], def.cue)
+				end
+				for _, instance in CollectionService:GetTagged(tag) do
+					if not keep[instance] then
+						stopWorldLoop(instance)
+					end
+				end
+			end
+		end
+	end
+end
+
+local function followTags()
+	for tag, def in TAGGED_LOOPS do
+		CollectionService:GetInstanceRemovedSignal(tag):Connect(stopWorldLoop)
+		if def.near == nil then
+			CollectionService:GetInstanceAddedSignal(tag):Connect(function(instance: Instance)
+				startWorldLoop(instance, def.cue)
+			end)
+			for _, instance in CollectionService:GetTagged(tag) do
+				startWorldLoop(instance, def.cue)
+			end
+		end
+	end
+	task.spawn(followNearLoops)
+end
 
 local function stopCarry()
 	if carryStop ~= nil then
@@ -545,9 +645,16 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		Audio.play("catchSparkle")
 		rarityJingle(rarity)
 	end,
-	CatchFail = function()
+	CatchFail = function(strayId: any)
 		duckForCatch(false)
 		Audio.play("catchMiss")
+		Audio.play("catHiss", spot(taggedPart("Stray", "StrayId", strayId))) -- v0.4: the cat hisses and jumps back
+	end,
+	PawLost = function()
+		Audio.play("pawLost")
+	end,
+	Purrfect = function()
+		Audio.play("purrfectChime")
 	end,
 	StrayFlee = function(strayId: any)
 		Audio.play("strayFlee", spot(taggedPart("Stray", "StrayId", strayId)))
@@ -648,8 +755,12 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	RankUp = function()
 		Audio.play("jingleRankUp")
 	end,
-	AreaUnlock = function()
-		Audio.play("gateOpen")
+	AreaUnlock = function(_areaId: any, position: any)
+		Audio.play("gateOpen", vec(position))
+	end,
+	PlotOpened = function(position: any)
+		Audio.play("shuttersUp", vec(position))
+		Audio.play("signFlip", vec(position))
 	end,
 	RichArrive = function()
 		Audio.play("richArrive")
@@ -674,8 +785,8 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	OfflineClaim = function()
 		Audio.play("offlineClaim")
 	end,
-	Announce = function()
-		Audio.play("announce")
+	Announce = function(_text: any, rarity: any)
+		Audio.play("announce", nil, Logic.rarityStep(str(rarity)))
 	end,
 }
 
@@ -691,6 +802,7 @@ function Audio.start()
 	build()
 	task.spawn(preload)
 	task.spawn(followClock)
+	followTags()
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,
@@ -706,10 +818,14 @@ function Audio.applySettings(settings: Settings)
 	if enabled.Sfx ~= sfxWas then
 		refreshCarry()
 	end
+	if enabled.Sfx ~= sfxWas or enabled.Ambience ~= ambienceWas then
+		refreshWorldLoops()
+	end
 	if not ready then
 		ready = true
 		refreshMusic(false)
 		refreshAmbience()
+		refreshWorldLoops()
 		return
 	end
 	if enabled.Music ~= musicWas then

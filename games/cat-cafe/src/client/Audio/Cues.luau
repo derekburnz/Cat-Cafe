@@ -58,6 +58,7 @@ local Cues: { [string]: Cue } = {
 	loopStreetLamp = { ids = {}, group = "Ambience", volume = 0.3, looped = true, range = 15 },
 	loopDealerCart = { ids = {}, group = "Ambience", volume = 0.6, looped = true, range = 25 },
 	loopFishTank = { ids = {}, group = "Ambience", volume = 0.4, looped = true, range = 10 },
+	loopCafeDoor = { ids = {}, group = "Ambience", volume = 0.7, looped = true, range = 30 }, -- tag CafeDoor
 	loopEspresso = { ids = {}, group = "Ambience", volume = 0.4, range = 15 },
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------
@@ -85,6 +86,9 @@ local Cues: { [string]: Cue } = {
 	},
 	catchSparkle = { ids = {}, group = "Sfx", volume = 0.8, preload = true },
 	catchMiss = { ids = {}, group = "Sfx", volume = 0.7, preload = true },
+	catHiss = { ids = {}, group = "Sfx", volume = 0.7, pitch = { 0.95, 1.05 }, range = 40 }, -- v0.4: a Miss ends the catch
+	pawLost = { ids = {}, group = "Sfx", volume = 0.6 },
+	purrfectChime = { ids = {}, group = "Sfx", volume = 0.8, minGap = 1, preload = true },
 	strayFlee = { ids = {}, group = "Sfx", volume = 0.8, pitch = { 0.95, 1.05 }, range = 40 },
 
 	-- Rescue minigames (5.2) --------------------------------------------------------------------------------
@@ -179,7 +183,8 @@ local Cues: { [string]: Cue } = {
 	purchase = { ids = {}, group = "Sfx", volume = 0.7, minGap = 0.2, preload = true },
 	offlineClaim = { ids = {}, group = "Sfx", volume = 0.7 },
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
-	gateOpen = { ids = {}, group = "Sfx", volume = 0.7, range = 60 },
+	gateOpen = { ids = {}, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
+	shuttersUp = { ids = {}, group = "Sfx", volume = 0.7, range = 60 }, -- a For Rent plot becomes a cafe
 	richArrive = { ids = {}, group = "Sfx", volume = 0.7 },
 	richTip = { ids = {}, group = "Sfx", volume = 0.8 },
 	dealerArrive = { ids = {}, group = "Sfx", volume = 0.7, range = 60 },

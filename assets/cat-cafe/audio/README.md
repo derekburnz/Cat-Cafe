@@ -4,7 +4,7 @@ Owner: sound-designer. Rules: `.claude/skills/audio-pipeline/SKILL.md`. What eac
 
 ```
 music/      CatCafe_Music_<Name>.ogg     stereo seamless loops and stingers
-ambience/   CatCafe_Amb_<Name>.ogg       stereo seamless beds
+ambience/   CatCafe_Amb_<Name>.ogg       stereo seamless beds; CatCafe_Amb_Loop<Name>.ogg are mono 3D loops on props
 sfx/        CatCafe_Sfx_<Name>.ogg       mono, 3D or 2D game sounds
 ui/         CatCafe_Ui_<Name>.ogg        mono interface sounds
 gates.md    written by audio_gate.py; never edit by hand
@@ -43,3 +43,13 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `strayFlee` | `sfx/CatCafe_Sfx_StrayFlee.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
 | `jingleCatFound` | `music/CatCafe_Music_JingleCatFound.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
 | `jingleRankUp` | `music/CatCafe_Music_JingleRankUp.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `loopCafeDoor` | `ambience/CatCafe_Amb_LoopCafeDoor.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `catHiss` | `sfx/CatCafe_Sfx_CatHiss.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `pawLost` | `sfx/CatCafe_Sfx_PawLost.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `purrfectChime` | `sfx/CatCafe_Sfx_PurrfectChime.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `gateOpen` | `sfx/CatCafe_Sfx_GateOpen.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `shuttersUp` | `sfx/CatCafe_Sfx_ShuttersUp.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `signFlip` | `sfx/CatCafe_Sfx_SignFlip.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `announce` | `sfx/CatCafe_Sfx_Announce.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `purr` | `sfx/CatCafe_Sfx_Purr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |
+| `carryPurr` | `sfx/CatCafe_Sfx_CarryPurr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-26 |

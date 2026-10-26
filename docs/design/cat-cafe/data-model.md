@@ -236,7 +236,7 @@ Flow:
    - Fail (a Miss): the server stops judging and cancels the circles left. The player loses one paw on this stray. Paws live in the server's own table, `stray.paws[userId]`, set to `patience[rarity]` (section 2) the first time that player starts a catch on it and dropped when the stray despawns. The stray jumps StrayJumpBackStuds (6 to 10) straight away from the player. That player waits StrayWarySeconds (5) before another GrabBegin on it; everyone else waits GrabRetrySeconds (2) while it lands. At 0 paws GrabBegin from that player refuses with "It won't trust you again tonight" until the stray despawns; the client disables its prompt locally and shows a hiss icon over it for that player only. The stray stays for everyone else, so no player can burn a cat for others by missing on purpose (reviewer, 2026-10-26). Toasts: "It slipped away! N paws left", then "It won't trust you tonight".
    - Never out of paws: the `dropOwner` on their own Dropped stray (S26, a bump never loses a cat outright) and a player with `tutorialStep` below TutorialGuaranteedStrayStep on the tutorial Common. Their paws never drop below 1; a miss still jumps the cat back and starts the wary wait.
    - Walking out of range or finishing a rescue mid-catch (S21, S33) is a Miss.
-   - Success (every circle Good or Perfect): the player enters carry (section 10c). Charm bonus: `gain = PerfectCharmBonus (4) x perfectCount`, times PurrfectCharmMultiplier (2) when every circle is Perfect, and 0 for a profile with `flags.autoPress`; the caught cat's `charm = min(100, strayCharm + gain)` and its stars follow (section 4b).
+   - Success (every circle Good or Perfect): the player enters carry (section 10c). Charm bonus: `gain = PerfectCharmBonus (4) x perfectCount`, times PurrfectCharmMultiplier (2) when every circle is Perfect, and 0 for a profile with `flags.autoPress` or when the stray is Dropped (reviewer S36: a dropped cat already carries its bonus, and the old carrier's unlimited paws would let two friends bump and re-catch it up to charm 100); the caught cat's `charm = min(100, strayCharm + gain)` and its stars follow (section 4b).
    - The server fires `CatchResult(strayId, grades, success, pawsLeft, charmGain)`: `grades` lists the judged circles up to and including any Miss, `pawsLeft` is that player's paws after the attempt (nil when unlimited), `charmGain` is 0 on a fail. The UI shows each grade as it lands, the paw row and the charm line; there is no percentage.
 
 Net levels (windows are half-widths in seconds either side of the target; jitter is the spread on each circle's shrink time):
@@ -390,7 +390,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 
 Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), EquipLure.
 
-v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying and TravelCooldownSeconds (3) has passed; moves the character to that destination's entry point.
+v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying, holds no catch or rescue lock (reviewer N47) and TravelCooldownSeconds (3) has passed; moves the character to that destination's entry point.
 
 ## 16. Analytics events (AnalyticsService)
 

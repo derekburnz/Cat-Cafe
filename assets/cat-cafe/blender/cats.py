@@ -1,4 +1,4 @@
-"""Signature cats: one parametric blocky cat, twelve variants by swatch swap.
+"""Signature cats: one parametric blocky cat, twenty variants by swatch swap and a few shape flags.
 
 Roster and swatches follow docs/design/cat-cafe/data-model.md section 3.
 Each cat exports as three objects (Body with legs, Head, Tail) so Studio can
@@ -12,7 +12,8 @@ from mathutils import Matrix
 
 from common import Builder
 
-# pattern: solid | stripes | patches | points | spots | sparkle(extra flag)
+# pattern: solid | stripes | patches | points | spots | gradient; extra flags: sparkle (star specks),
+# petals, flower, ruff, ear_tufts, persian (long coat, flat face), tail_thick
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -26,9 +27,25 @@ ROSTER = {
     "Sphynx":  dict(rarity="Epic", fur="blush", second="blush", eyes="eye_blue", pattern="solid", muzzle=None, sphynx=True),
     "Ragdoll": dict(rarity="Epic", fur="fur_white", second="fur_grey", eyes="eye_blue", pattern="points", muzzle="fur_white", scale=1.2, body_scale=(1.1, 1.0, 1.05)),
     "Void":    dict(rarity="Legendary", fur="fur_black", second="sparkle", eyes="eye_amber", pattern="solid", muzzle=None, glow_eyes=True, sparkle=True),
+    # v0.3 additions (data-model 3a and 3b)
+    "MaineCoon": dict(rarity="Epic", fur="fur_brown", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_cream",
+                      scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_cream", ear_tufts=True, tail_thick=0.28),
+    "Midnight":  dict(rarity="Mythical", fur="night_sky", second="sparkle", eyes="sparkle", pattern="solid", muzzle=None,
+                      glow_eyes=True, sparkle=True, moon=True),
+    "Cream":     dict(rarity="Common", fur="fur_cream", second="fur_cream", eyes="eye_amber", pattern="solid", muzzle="fur_white"),
+    "Brownie":   dict(rarity="Common", fur="fur_brown", second="choco", eyes="eye_amber", pattern="stripes", muzzle="fur_cream"),
+    "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None),
+    "Persian":   dict(rarity="Epic", fur="fur_cream", second="fur_white", eyes="eye_amber", pattern="solid", muzzle=None,
+                      body_scale=(1.15, 1.0, 1.1), persian=True, tail_thick=0.3),
+    "Blossom":   dict(rarity="Legendary", fur="fur_cream", second="blush", third="nose_pink", eyes="eye_blue", pattern="patches",
+                      muzzle=None, petals=True, flower=True),
+    "Aurora":    dict(rarity="Mythical", fur="galaxy_blue", second="aurora_violet", third="mint", eyes="mint", pattern="gradient",
+                      muzzle=None, glow_eyes=True, sparkle=True),
 }
 
-COLLAR = {"Common": "rarity_common", "Rare": "rarity_rare", "Epic": "rarity_epic", "Legendary": "rarity_legend"}
+COLLAR = {"Common": "rarity_common", "Rare": "rarity_rare", "Epic": "rarity_epic", "Legendary": "rarity_legend",
+          "Mythical": "rarity_mythic"}
+TAG = {"Legendary": "rarity_legend", "Mythical": "sparkle"}
 
 # Skeleton in studs. Head and Tail objects hang off these joints.
 BODY_C = (0.0, 0.05, 0.78)
@@ -66,11 +83,28 @@ def _body(b, spec):
         b.box((hx + 0.01, -0.2, center[2] - 0.05), (0.04, 0.4, 0.3), third, bevel=False)       # right flank
         b.box((0.15, 0.3, top + 0.01), (0.4, 0.5, 0.04), third, bevel=False)                    # saddle
         b.box((-0.2, -0.3, top + 0.01), (0.3, 0.4, 0.04), second, bevel=False)
+    elif pattern == "gradient":                                 # front to back: fur, second, third
+        third = spec.get("third", second)
+        for y, sw in ((0.0, second), (0.45, third)):
+            b.box((0, y + 0.05, center[2]), (size[0] + 0.04, 0.5, size[2] + 0.04), sw, bevel=False)
     elif pattern == "spots":
         for (x, y, z) in [(-hx - 0.01, 0.25, 0.9), (-hx - 0.01, -0.25, 0.75), (hx + 0.01, 0.0, 0.85), (hx + 0.01, 0.4, 0.7),
                           (0.15, 0.3, top + 0.01), (-0.2, -0.2, top + 0.01), (0.2, -0.45, top + 0.01)]:
             sz = (0.04, 0.18, 0.18) if abs(x) > 0.3 else (0.18, 0.18, 0.04)
             b.box((x, y, z), sz, second, bevel=False)
+    if spec.get("ruff"):                                        # chest ruff under the chin
+        b.box((0, center[1] - hy - 0.04, center[2] - 0.06), (size[0] * 1.08, 0.14, size[2] * 0.85), spec["ruff"])
+    if spec.get("persian"):                                     # long coat: fringe along the flanks and chest
+        for sx in (-1, 1):
+            b.box((sx * (hx + 0.03), center[1], center[2] - size[2] * 0.22), (0.08, size[1] * 0.9, size[2] * 0.55), second)
+        b.box((0, center[1] - hy - 0.04, center[2] - 0.05), (size[0] * 0.85, 0.1, size[2] * 0.8), second)
+    if spec.get("petals"):
+        for (x, y, z) in [(-hx - 0.01, 0.3, 0.95), (hx + 0.01, -0.15, 0.8), (0.18, 0.35, top + 0.01), (-0.15, -0.25, top + 0.01)]:
+            sz = (0.03, 0.14, 0.1) if abs(x) > 0.3 else (0.14, 0.1, 0.03)
+            b.box((x, y, z), sz, spec.get("third", "nose_pink"), bevel=False)
+    if spec.get("sparkle") and spec["rarity"] == "Mythical":   # denser star field on the heroes
+        for (x, y, z) in [(-hx - 0.03, -0.35, 0.95), (hx + 0.03, 0.3, 0.98), (0.0, 0.05, top + 0.03), (hx + 0.03, -0.4, 0.75)]:
+            b.box((x, y, z), (0.07, 0.07, 0.07), "sparkle", bevel=False)
     if spec.get("sparkle"):
         for (x, y, z) in [(-hx - 0.03, 0.2, 0.9), (hx + 0.03, -0.1, 0.7), (0.2, 0.4, top + 0.03), (-0.25, -0.3, top + 0.03), (hx + 0.03, 0.45, 0.95)]:
             b.box((x, y, z), (0.08, 0.08, 0.08), "sparkle", bevel=False)
@@ -79,7 +113,7 @@ def _body(b, spec):
     r = 0.5
     cy = center[1] - hy - 0.05
     b.ring((0, cy, 0.95), r, 0.12, 0.16, COLLAR[spec["rarity"]], segments=12, rot=(math.pi / 2, "X"))
-    b.box((0, cy, 0.95 - r - 0.06), (0.16, 0.12, 0.16), "rarity_legend" if spec["rarity"] == "Legendary" else "metal", bevel=False)
+    b.box((0, cy, 0.95 - r - 0.06), (0.16, 0.12, 0.16), TAG.get(spec["rarity"], "metal"), bevel=False)
 
 
 def _head(b, spec):
@@ -89,13 +123,19 @@ def _head(b, spec):
     hs = (0.8, 0.7, 0.64)
     if spec.get("sphynx"):
         hs = (0.72, 0.66, 0.6)
+    if spec.get("persian"):                                     # wide, short and flat-faced
+        hc, hs = (0.0, -0.12, 0.17), (0.9, 0.58, 0.62)
     b.box(hc, hs, fur)
     front_y = hc[1] - hs[1] / 2
     top_z = hc[2] + hs[2] / 2
     ear_col = second if pattern == "points" else fur
-    ear_w, ear_h = (0.36, 0.44) if spec.get("sphynx") else (0.28, 0.3)
+    if pattern == "gradient":
+        ear_col = spec.get("third", ear_col)
+    ear_w, ear_h = (0.36, 0.44) if spec.get("sphynx") else (0.22, 0.2) if spec.get("persian") else (0.28, 0.3)
     for x in (-0.25, 0.25):
         b.pyramid((x, hc[1] + 0.05, top_z - 0.02), ear_w, ear_h, ear_col)
+        if spec.get("ear_tufts"):                               # lynx tips
+            b.pyramid((x, hc[1] + 0.05, top_z - 0.02 + ear_h - 0.04), 0.08, 0.16, second)
         b.box((x, hc[1] - 0.05 - ear_w * 0.2, top_z + ear_h * 0.3), (ear_w * 0.35, 0.03, ear_h * 0.35), "nose_pink", bevel=False)
     if pattern == "points":
         b.box((0, front_y - 0.02, 0.12), (0.5, 0.06, 0.42), second, bevel=False)           # mask
@@ -107,6 +147,20 @@ def _head(b, spec):
             b.box((x, hc[1] + 0.05, top_z + 0.01), (0.08, 0.5, 0.04), second, bevel=False)
     if spec.get("muzzle"):
         b.box((0, front_y - 0.02, 0.0), (0.38, 0.08, 0.22), spec["muzzle"], bevel=False)
+    if spec.get("persian"):                                     # cheek fluff either side of the flat face
+        for x in (-0.4, 0.4):
+            b.box((x, front_y + 0.12, 0.02), (0.14, 0.26, 0.3), second)
+    if spec.get("moon"):                                        # crescent on the forehead
+        b.box((0.02, front_y - 0.02, 0.42), (0.16, 0.04, 0.06), "sparkle", bevel=False)
+        b.box((-0.05, front_y - 0.02, 0.37), (0.06, 0.04, 0.08), "sparkle", bevel=False)
+    if spec.get("sparkle") and spec["rarity"] == "Mythical":   # star specks on the head too
+        for (x, z) in ((0.33, 0.36), (-0.34, 0.05)):
+            b.box((x, front_y - 0.01, z), (0.06, 0.03, 0.06), "sparkle", bevel=False)
+    if spec.get("flower"):                                      # a blossom tucked by the left ear
+        fx, fz = 0.3, top_z + 0.02
+        b.box((fx, hc[1] - 0.1, fz + 0.03), (0.08, 0.08, 0.08), "sparkle", bevel=False)
+        for dx, dz in ((0.09, 0), (-0.09, 0), (0, 0.09), (0, -0.07)):
+            b.box((fx + dx, hc[1] - 0.1, fz + 0.03 + dz), (0.1, 0.06, 0.1), spec.get("second", "blush"), bevel=False)
     for x in (-0.2, 0.2):
         b.box((x, front_y - 0.04, 0.2), (0.24, 0.06, 0.26), spec["eyes"], bevel=False)
         if not spec.get("glow_eyes"):
@@ -119,7 +173,9 @@ def _tail(b, spec):
     """Three segments curling up, relative to TAIL_ROOT."""
     fur, pattern = spec["fur"], spec["pattern"]
     tip = spec["second"] if pattern in ("points", "stripes") or spec.get("tuxedo") else fur
-    thick = 0.14 if spec.get("sphynx") else 0.2
+    if pattern == "gradient":
+        tip = spec.get("third", tip)
+    thick = 0.14 if spec.get("sphynx") else spec.get("tail_thick", 0.2)
     seg = 0.38
     pos = [0.0, 0.0, 0.0]
     for i, deg in enumerate((15, 55, 95)):

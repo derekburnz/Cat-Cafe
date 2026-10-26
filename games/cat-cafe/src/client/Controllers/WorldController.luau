@@ -75,6 +75,7 @@ local NIGHT_SUFFIXES = { "_Bulb", "_Bulbs", "_Pane", "_Tube" }
 type DayLook = { material: Enum.Material, color: Color3, transparency: number, light: Light }
 
 local dayLooks: { [BasePart]: DayLook } = setmetatable({}, { __mode = "k" }) :: any
+local modelLights: { [Instance]: Light } = setmetatable({}, { __mode = "k" }) :: any
 local isNight = false
 local atmosphereDayColor: Color3? = nil
 
@@ -95,11 +96,17 @@ local function isTube(part: BasePart): boolean
 	return part.Name:sub(-5) == "_Tube"
 end
 
--- The part's own light if the model has one, otherwise the light the style guide gives that kind of part.
+-- The part's own light if it has one, otherwise the light the style guide gives that kind of part, made once per
+-- model: a string of bulbs gets one soft light, not one per bulb (reviewer S22).
 local function lightFor(part: BasePart): Light
 	local existing = part:FindFirstChildWhichIsA("Light")
 	if existing ~= nil then
 		return existing :: Light
+	end
+	local model = part:FindFirstAncestorWhichIsA("Model")
+	local shared = if model ~= nil then modelLights[model] else nil
+	if shared ~= nil then
+		return shared
 	end
 	local light: Light
 	if part.Name:find("StreetLamp", 1, true) ~= nil then
@@ -119,6 +126,9 @@ local function lightFor(part: BasePart): Light
 	end
 	light.Enabled = false
 	light.Parent = part
+	if model ~= nil then
+		modelLights[model] = light
+	end
 	return light
 end
 

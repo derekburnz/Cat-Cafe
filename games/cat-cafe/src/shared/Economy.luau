@@ -56,7 +56,8 @@ end
 -- Renovate (rebirth) seam: 1.0 until the feature ships, then 1 + RenovateBonus per Renovate.
 -- The whole income formula lives in incomePerSecond, so a customer-driven model later replaces one function.
 function Economy.prestigeMultiplier(profile: Types.PlayerProfile): number
-	local renovations = (profile :: any).renovations
+	local renovations = profile.renovations
+	-- type guard for version 1 saves and fixtures that predate the field; the NaN and sign guards for bad data
 	if type(renovations) ~= "number" or renovations ~= renovations or renovations < 0 then
 		return 1
 	end
@@ -72,7 +73,9 @@ function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 	return total * Economy.cafeMultiplier(profile) * Economy.prestigeMultiplier(profile)
 end
 
--- Placed cats earn one XP per second (data-model section 4b). Returns the number of cats that levelled up.
+-- Placed cats earn one XP per second of settled time (data-model section 4b). Only online time is settled:
+-- DataService.load resets lastTick before the first settle, so the offline gap earns neither coins at the
+-- online rate nor XP. Returns the number of cats that levelled up.
 function Economy.grantPlacedXp(profile: Types.PlayerProfile, seconds: number): number
 	if seconds <= 0 then
 		return 0

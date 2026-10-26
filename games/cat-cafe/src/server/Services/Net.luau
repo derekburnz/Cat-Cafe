@@ -21,6 +21,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	GrabBegin = RateLimiter.new(1, Config.GrabRateLimitSeconds),
 	RequestSync = RateLimiter.new(1, 2),
 	ClaimOffline = RateLimiter.new(1, 2),
+	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync
 	TutorialAdvance = RateLimiter.new(1, 1),
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time

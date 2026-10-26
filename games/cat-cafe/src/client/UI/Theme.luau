@@ -38,17 +38,22 @@ Theme.colors = {
 	disabledText = Color3.fromHex("7E7267"),
 	white = Color3.fromHex("FFFFFF"),
 	black = Color3.fromHex("000000"),
+	-- v2 style: the warm near-black outline round buttons, panels and text (the Roblox simulator look)
+	outline = Color3.fromHex("2A1C15"),
+	red = Color3.fromHex("F0524F"),
+	redDark = Color3.fromHex("BE3330"),
 }
 
--- HUD panels float over the 3D world, so they are dark and solid for contrast.
+-- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
+-- and a lighter top edge like the HUDs of popular Roblox simulators.
 Theme.hud = {
 	panel = Theme.colors.cocoaDeep,
 	-- opaque: world BillboardGuis (slot labels, name tags) render under the HUD and ghosted through at 0.12
 	panelTransparency = 0,
-	stroke = Color3.fromHex("FFF9F2"),
-	strokeTransparency = 0.72,
+	stroke = Theme.colors.outline,
+	strokeTransparency = 0,
 	text = Theme.colors.paper,
-	subtext = Color3.fromHex("D9CBBA"),
+	subtext = Color3.fromHex("E6D8C6"),
 	income = Color3.fromHex("8DE0A5"),
 }
 
@@ -60,7 +65,7 @@ Theme.modal = {
 	header = Theme.colors.caramel,
 	headerText = Theme.colors.paper,
 	card = Theme.colors.paper,
-	cardStroke = Theme.colors.line,
+	cardStroke = Color3.fromHex("CDB08E"), -- warm caramel edge so cards read as chunky tiles
 	text = Theme.colors.ink,
 	subtext = Theme.colors.muted,
 }
@@ -100,15 +105,35 @@ Theme.sizes = {
 	radiusSmall = 8,
 	radiusPill = 999,
 	stroke = 2,
-	buttonDepth = 4, -- the chunky bottom edge under buttons
+	outline = 3, -- dark outline round buttons and panels
+	textOutline = 2, -- dark outline round display text
+	buttonDepth = 5, -- the chunky bottom edge under buttons
 	touchMin = 44,
 	textTitle = 26,
 	textLarge = 22,
 	textBody = 16,
-	textSmall = 13,
-	textTiny = 11,
+	textSmall = 14,
+	textTiny = 12,
 	padding = 12,
 	gap = 8,
+}
+
+-- Icon glyphs for buttons and chips. Colour emoji render on every Roblox platform, so they stand in until
+-- the asset thread draws real icons.
+Theme.icons = {
+	upgrades = "⬆️",
+	decor = "🪴",
+	cats = "🐱",
+	collection = "📖",
+	travel = "🧭",
+	home = "🏠",
+	alley = "🐾",
+	park = "🌳",
+	neighbourhood = "🏘️",
+	woods = "🌲",
+	sewer = "🕳️",
+	lock = "🔒",
+	food = "🐟",
 }
 
 -- Optional sound ids ("rbxassetid://..."). nil = silent. The engineer or asset thread fills these in.

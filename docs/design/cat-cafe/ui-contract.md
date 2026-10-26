@@ -1,7 +1,7 @@
 # Cat Cafe UI contract
 
 Owner: UI thread ("Design cat cafe UI"). v5, updated 2026-10-26 (v1 2026-10-25, v2 to v4.1 earlier on 2026-10-26).
-v5 (design v0.3, features.md section 6): data v3 (tiers, roles, Mythical, five-rarity odds), closing circles for the net, press prompts, rank up card and tier pill, "Tips 60%" at night. Everything v0.3 is in the section "Design v0.3 (v5)" below, with each row marked built or planned; the v0.2 hold ring and rescue hold bar keep working until the server switches.
+v5 (design v0.3, features.md section 6): data v3 (tiers, roles, Mythical, five-rarity odds), closing circles for the net, press prompts, rank up card and tier pill, "Tips 60%" at night. Everything v0.3 is in the section "Design v0.3 (v5)" below, with each row marked built or planned. The v0.2 hold ring is gone with F26; the rescue hold bar stays until the rescue minigames.
 v4.1: `catch.fail` closes a hold that is still down and resets the rescue bar, so a server rejection of `GrabBegin` or `RescueBegin` never shows "Missed" or "Rescued!" and sends nothing more.
 v4 changes (gdd.md v0.2): day and night clock chip (`UI.clock`, F20), the catch tool is the Net so the prompt copy is a swing, and the 4 s Rescue hold bar with `rescueBegan` / `rescueEnded` (F21). The `gloves` upgrade is now `net`; the UI reads it from the catalog, nothing to change.
 v3 changes: ring bands come from shared Config and a full hold sends no GrabEnd (designer, data-model section 10); catalog types are re-exported from shared Types so the controller passes the catalog with no cast (reviewer S9); `equipBest` event and per-cat stats (cat stats thread); mockup page built.
@@ -12,7 +12,7 @@ Mockups: `docs/concepts/cat-cafe/ui/index.html`.
 ## Ownership and file boundaries
 
 - The UI thread owns everything under `games/cat-cafe/src/client/UI/`. Nobody else edits there; ask the UI thread instead.
-- Outside its own folder the UI requires only `ReplicatedStorage.Shared.Types` (type re-exports), `Shared.Config` (ring timing) and, in Demo only, `Shared.Catalog`. It does not touch RemoteEvents, DataStores, workspace cats or player data.
+- Outside its own folder the UI requires only `ReplicatedStorage.Shared.Types` (type re-exports), `Shared.Config` (catch and rescue timing) and, in Demo only, `Shared.Catalog`. It does not touch RemoteEvents, DataStores, workspace cats or player data.
 - The engineer owns the client controller that requires `UI`, feeds it state, and forwards UI intents to the server over remotes.
 - Catalog data (cats, upgrades, decor, lures, spots) is passed in at `UI.init`. The UI hardcodes nothing about the game's content.
 - Field names match `src/shared/Types.luau` (engineer) and `data-model.md` (designer). Where the engineer's `PlayerState` has extras (`cats`, `collection`, `carrying`, `tutorialStep`), the UI reads them when present.
@@ -27,7 +27,7 @@ games/cat-cafe/src/client/UI/      -> StarterPlayer.StarterPlayerScripts.Client.
   Scale.luau         viewport-driven UIScale, touch detection
   Demo.luau          the shared Catalog plus a pretend server: UI.demo() shows the whole UI in Studio with no backend
   Components/        Create, Button, Panel, Modal, Tween, Format, Signal, WorldMarker
-  Screens/           HUD, UpgradeShop, DecorShop, CatCollection (Book + Cat room tabs), CatchPrompt (timing ring), Toasts, Popups
+  Screens/           HUD, UpgradeShop, DecorShop, CatCollection (Book + Cat room tabs), CatchPrompt (prompt card and rescue bar), CatchCircles, RankUp, Toasts, Popups
 ```
 
 Pure Luau, no UI framework, no Wally packages. Instances are built in code (no .rbxm), so Rojo syncs the whole UI from files.
@@ -58,7 +58,7 @@ UI.update({ cats = profile.cats, collection = profile.collection })   -- catsOwn
 UI.events.buyUpgrade:Connect(function(upgradeId) Remotes.BuyUpgrade:FireServer(upgradeId) end)
 UI.events.placeCat:Connect(function(uid, spotId) Remotes.PlaceCat:FireServer(uid, spotId) end)
 UI.events.grabBegan:Connect(function(strayId) Remotes.GrabBegin:FireServer(strayId) end)
-UI.events.grabEnded:Connect(function(strayId) Remotes.GrabEnd:FireServer(strayId) end)  -- the server scores the hold time itself
+UI.events.catchPressed:Connect(function(strayId, index) Remotes.CatchPress:FireServer(strayId, index) end)  -- the server stamps the time
 
 -- catch flow: one call and every stray's custom ProximityPrompt is drawn by the UI
 UI.catch.bindProximityPrompts()
@@ -89,24 +89,19 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.destroy()` | Tear everything down and disconnect every connection. |
 | `UI.demo()` | Runs Demo.luau. Returns a stop function. Not for production. |
 
-### Catch prompt: swing ring and rescue bar (`UI.catch`)
+### Catch prompt and rescue bar (`UI.catch`)
 
-Copy follows the Net: "Hold to swing", "Swing!" on release, the mobile button reads SWING. A prompt whose model has `Rescue = true` is a stuck cat (F21): "Hold to rescue", a bar fills over the 4 s hold instead of the ring, the button reads HOLD, there is no band and no fail.
+A stray's prompt has `HoldDuration = 0` (F26): the card reads "Catch", the mobile button reads CATCH, and one press asks for the closing circles (see Design v0.3 below). A prompt whose model has `Rescue = true` is a stuck cat (F21): with a hold duration it reads "Hold to rescue", a bar fills over the 4 s hold, the button reads HOLD, there is no band and no fail; with `HoldDuration = 0` it reads "Rescue" and waits for the rescue minigame.
 
 | Function | Purpose |
 |---|---|
-| `bindProximityPrompts()` | Recommended. Watches `ProximityPromptService`. Any prompt with `Style = Custom` and a `CatId` attribute (on the prompt, its Model or its parent) gets the UI. Reads `StrayId`, `CatName`, `Rarity`, `Stars`, `Charm` the same way, falling back to the catalog by `CatId`. Hold begin starts the ring with the prompt's `HoldDuration` and fires `events.grabBegan`. A release fires `events.grabEnded(strayId, ringHint, catId)` once. A hold that runs its full length fires nothing: the ring shows "Missed" and the UI waits for the controller's `catch.fail` or `showCatFound` (the server resolves the attempt itself about 0.25 s later). On touch, the big GRAB button calls `prompt:InputHoldBegin/End`, so the server sees an ordinary hold. |
+| `bindProximityPrompts()` | Recommended. Watches `ProximityPromptService`. Any prompt with `Style = Custom` and a `CatId` attribute (on the prompt, its Model or its parent) gets the UI. Reads `StrayId`, `CatName`, `Rarity`, `Stars`, `Charm` the same way, falling back to the catalog by `CatId`. A press on a stray's prompt fires `events.grabBegan(strayId, catId)` and the card shows "Get ready..." until `showCircles` or `fail`. A rescue hold fires `events.rescueBegan` on hold begin and `events.rescueEnded` on release or after the full hold. On touch, the big CATCH button calls `prompt:InputHoldBegin/End`, so the server sees an ordinary press or hold. |
 | `unbindProximityPrompts()` | Stop watching. |
-| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode?, stars?, charm?, kind?, rescueSpotId? }`. `kind` is `"swing"` (default) or `"rescue"`. |
-| `startRescue(duration?)` / `stopRescue(completed)` | Manual rescue hold. Default duration 4 s (`Config.RescueHoldSeconds` once it exists). `stopRescue(true)` shows "Rescued!" and leaves the card up for `showCatFound` or `hide`; `stopRescue(false)` resets the bar. |
-| `startRing(config?)` | `config = { duration?, goodBand?, perfectBand? }`. The outer ring shrinks from 1 to 0 over `duration` (default `Config.GrabHoldSeconds`, 1.5 s). The band is the end of the shrink: good is the last `Config.RingGoodWindow` s (0.80, ring scale 0 to 0.533), perfect the last `Config.RingPerfectWindow` s (0.30, scale 0 to 0.2). Pass bands only to experiment. |
-| `stopRing()` | Call on release. Shows "Perfect!", "Good" or "Too early" from where the ring was and returns `"perfect"`, `"good"` or `"miss"` as a hint. The server scores the real time between GrabBegin and GrabEnd (release 1.20 to 1.50 s perfect, 0.70 to 1.50 s good), so the hint decides nothing. |
-| `expire()` | Call when a manual hold runs its full length with no release. Miss flash, nothing sent. `bindProximityPrompts` does this itself on `PromptTriggered`. |
-| `fail(reason?, retry?)` | `retry = true` keeps the prompt open with the reason, or "Missed, try again" ("Hold again to rescue it" on a rescue), for Commons, lured strays and rescues turned down for now. Otherwise it flashes the reason or "It got away" and hides. A fail that arrives while a hold is still down (the server turned down `GrabBegin` or `RescueBegin`) closes that hold: its release or full length fires no `grabEnded` or `rescueEnded`, and the rescue bar resets and hides. The player holds again to retry. |
+| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode?, stars?, charm?, kind?, rescueSpotId?, press?, shiny? }`. `kind` is `"swing"` (default, the net) or `"rescue"`. |
+| `startRescue(duration?)` / `stopRescue(completed)` | Manual rescue hold. Default duration `Config.RescueHoldSeconds` (4 s). `stopRescue(true)` shows "Rescued!" and leaves the card up for `showCatFound` or `hide`; `stopRescue(false)` resets the bar. |
+| `fail(reason?, retry?)` | `retry = true` keeps the prompt open with the reason, or "Missed, try again" ("Hold again to rescue it" on a rescue hold), for strays and rescues turned down for now. Otherwise it flashes the reason or "It got away" and hides. A fail that arrives while a rescue hold is still down (the server turned down `RescueBegin`) closes that hold: its release or full length fires no `rescueEnded`, and the rescue bar resets and hides. The player holds again to retry. |
 | `success(catId)` is not needed: call `UI.showCatFound` when CatCaught arrives. | |
-| `hide()` / `setProgress(alpha)` / `getActivePrompt()` | Utilities. |
-
-Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holding the whole duration triggers the prompt: the UI shows "Missed", sends no GrabEnd (a GrabEnd then would score as a 1.5 s release) and waits for the server's result. The ring is a bonus, never a gate: a ring miss still rolls the catch chance.
+| `hide()` / `getActivePrompt()` | Utilities. |
 
 ## Design v0.3 (v5)
 
@@ -120,7 +115,7 @@ Cat room (F25): Assign opens a role picker, one row per role, never a slot numbe
 
 ### Press prompts (built)
 
-A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card reads "Catch" or "Rescue" (the prompt's `ActionText` wins when set), the touch button reads CATCH or RESCUE, and one press fires `events.grabBegan(strayId, catId)` or `events.rescueBegan(rescueSpotId, catId)`. The card then shows "Get ready..." until the server answers with `catch.showCircles`, the rescue minigame or `catch.fail(reason, retry)` for a refusal. Prompts with a hold duration keep the v0.2 ring and rescue bar, so nothing breaks before the server switches. The `Shiny` attribute on a stray shows on the circles header.
+A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card reads "Catch" or "Rescue" (the prompt's `ActionText` wins when set), the touch button reads CATCH or RESCUE, and one press fires `events.grabBegan(strayId, catId)` or `events.rescueBegan(rescueSpotId, catId)`. The card then shows "Get ready..." until the server answers with `catch.showCircles`, the rescue minigame or `catch.fail(reason, retry)` for a refusal. A rescue prompt with a hold duration keeps the v0.2 rescue bar until the minigames. The `Shiny` attribute on a stray shows on the circles header.
 
 ### Closing circles (`UI.catch`, built, F26)
 
@@ -161,7 +156,7 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 | Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`; the shown name is `CatInstance.name` or the catalog name. |
 | Fast travel | Five area buttons; locked ones grey with "Tier 3". Fires `events.travel(areaId)`. |
 
-Retired once the server switches: `grabEnded`, `rescueEnded`, `startRing`, `stopRing`, `expire`, `startRescue`, `stopRescue` and `equipLure`. They stay until the controller drops them so main keeps compiling.
+Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Retired once the rescue minigames and the bait bowl land: `rescueEnded`, `startRescue`, `stopRescue` and `equipLure`; they stay until the controller drops them so main keeps compiling.
 
 ## Events (UI -> game), all `Signal` with `:Connect(fn)` returning a connection with `:Disconnect()`
 
@@ -178,7 +173,6 @@ Retired once the server switches: `grabEnded`, `rescueEnded`, `startRing`, `stop
 | `equipBest` | none | "Equip best" pressed at the top of the Cat room: the server places the highest-rated cats on the open role slots |
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `grabBegan` | `strayId, catId` | Hold began on a bound stray prompt |
-| `grabEnded` | `strayId, ringHint, catId` | The player released during the hold. `ringHint` is the client's `perfect`, `good` or `miss` for feedback only; the server scores timing. Not fired when the hold runs out. |
 | `rescueBegan` | `rescueSpotId, catId` | Hold began on a prompt whose model has `Rescue = true`. Forward as RescueBegin. |
 | `rescueEnded` | `rescueSpotId, catId, completed` | `completed = true` after the full 4 s hold: forward as RescueEnd, the server moves the player to carry. `false` is an early release: the bar reset, send what the server needs to unlock the spot (or nothing). |
 | `screenOpened` | `name or nil` | Modal opened or closed |
@@ -209,7 +203,7 @@ Retired once the server switches: `grabEnded`, `rescueEnded`, `startRing`, `stop
 
 ## Catalog shapes (re-exported from `src/shared/Types.luau`)
 
-`UI.Types.CatDef`, `UpgradeDef`, `DecorDef`, `LureDef`, `SpotDef`, `TierDef`, `AreaDef`, `LureOdds`, `Rarity`, `Role`, `Area`, `SpotType`, `CatchMethod` and `RingResult` are the shared types, so `Catalog.cats` and friends pass straight into `UI.init`. Fields the UI reads:
+`UI.Types.CatDef`, `UpgradeDef`, `DecorDef`, `LureDef`, `SpotDef`, `TierDef`, `AreaDef`, `LureOdds`, `Rarity`, `Role`, `Area`, `SpotType`, `CatchMethod`, `CatchCircle`, `CatchWindows` and `CircleGrade` are the shared types, so `Catalog.cats` and friends pass straight into `UI.init`. Fields the UI reads:
 
 ```lua
 CatDef     : id, name, rarity, incomePerSecond, area (one of five), favoriteRole, description, color {r,g,b}  (placeholder body colour until renders exist)
@@ -244,7 +238,7 @@ Odds visible before any purchase and the detail control is labelled "Details", n
 - Screens: `Upgrades`, `Decor`, `Collection`, `RankUp`. Rarities exactly: `Common`, `Rare`, `Epic`, `Legendary`, `Mythical` (v0.3; Mythical is #FF5E7E with white text).
 - Stray prompt attributes (on the model, data-model section 13): `StrayId`, `CatId`, `CatName`, `Rarity`, plus `Stars` and `Charm` from the cat stats thread; prompt `Style = Custom`. A stuck cat adds `Rescue = true` and `RescueSpotId` (the id RescueBegin and RescueEnd take; falls back to `StrayId`).
 - Clock folder (`ReplicatedStorage.Clock`, data-model section 9): attributes `Phase` ("day" or "night") and `PhaseEndsAt` (server `os.time()` seconds).
-- Ring timing constants live only in `Shared.Config`: `GrabHoldSeconds`, `RingGoodWindow`, `RingPerfectWindow`. The UI derives its bands from them.
+- Catch timing lives in `Shared.Config` and the schedule: the circles' bands come from `CatchSchedule`'s windows, the miss cut-off from `CatchLatencyCapSeconds`, the rescue bar from `RescueHoldSeconds`.
 - Currency is coins shown as `$` (`Theme.currencySymbol`).
 
 ## Not in scope for the UI thread, and space left for later

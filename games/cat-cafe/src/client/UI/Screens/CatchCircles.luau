@@ -77,7 +77,7 @@ local CLOSER_THICKNESS = 4
 local RING_THICKNESS = 4
 -- data-model CatchLatencyCapSeconds (0.15): the server stops waiting for a circle's press this long
 -- after the good window closes. Read from Config once the engineer adds it.
-local LATENCY_CAP: number = (Config :: any).CatchLatencyCapSeconds or 0.15
+local LATENCY_CAP: number = Config.CatchLatencyCapSeconds
 local RESULT_SECONDS = 1.6
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"

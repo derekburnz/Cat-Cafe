@@ -9,7 +9,9 @@ export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 export type SpotType = Role
 export type CatchMethod = "net" | "rescue" | "bait" | "starter"
 export type LureSource = "shop" | "dealer"
-export type RingResult = "perfect" | "good" | "miss"
+-- How one closing circle was judged (data-model section 10).
+export type CircleGrade = "perfect" | "good" | "miss"
+export type RingResult = CircleGrade -- the v0.2 ring's name, kept while the UI still uses it
 export type ClockPhase = "day" | "night" -- ReplicatedStorage.Clock attribute Phase (data-model section 9)
 export type ToastKind = "info" | "good" | "warn"
 
@@ -22,8 +24,21 @@ export type RarityDef = {
 	sellValue: number,
 	firstCatchReward: number,
 	color: string, -- hex like "#8E97B2"
-	baseCatchChance: number, -- the v0.2 hold ring only; goes when the closing circles replace it
 }
+
+-- One closing circle as CatchSchedule sends it: it starts shrinking at startsAt (Workspace:GetServerTimeNow()
+-- time) and reaches its ring at startsAt + shrinkSeconds, the target. x and y place it on screen, 0 to 1.
+export type CatchCircle = {
+	startsAt: number,
+	shrinkSeconds: number,
+	x: number,
+	y: number,
+}
+
+-- Timing windows of a net level: half-widths in seconds either side of each target; jitter spreads each circle's
+-- shrink time by up to that fraction. CatchSchedule sends only perfect and good.
+export type NetWindows = { perfect: number, good: number, jitter: number }
+export type CatchWindows = { perfect: number, good: number }
 
 export type CatDef = {
 	id: string,
@@ -199,6 +214,7 @@ export type PlayerProfile = {
 	stats: Stats,
 	tutorialStep: number,
 	settings: { music: boolean, sfx: boolean },
+	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

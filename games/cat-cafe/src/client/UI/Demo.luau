@@ -4,9 +4,11 @@
 -- Everything here is client-side pretend money. Delete or leave unused in production.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local RankUp = require(script.Parent.Screens.RankUp)
 local Types = require(script.Parent.Types)
 
 local Demo = {}
@@ -25,6 +27,16 @@ local CATALOG: Types.Catalog = {
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
 }
+
+-- data-model section 10: circles and shrink time per rarity, Basic Net windows
+local DEMO_CIRCLES: { [string]: { count: number, shrink: number } } = {
+	Common = { count = 1, shrink = 1.4 },
+	Rare = { count = 2, shrink = 1.15 },
+	Epic = { count = 3, shrink = 0.95 },
+	Legendary = { count = 4, shrink = 0.8 },
+	Mythical = { count = 5, shrink = 0.65 },
+}
+local DEMO_WINDOWS: Types.CatchWindows = { perfect = 0.045, good = 0.11 }
 
 local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
@@ -53,6 +65,7 @@ function Demo.run(UI: any): () -> ()
 		equippedLure = nil :: string?,
 		cats = {} :: { [string]: Types.CatInstance },
 		collection = { tabby = now() } :: { [string]: number },
+		tier = 1,
 	}
 	local starter = uid()
 	profile.cats[starter] = {
@@ -103,6 +116,7 @@ function Demo.run(UI: any): () -> ()
 			cats = profile.cats,
 			collection = profile.collection,
 			customers = 2 * (profile.upgradeLevels.tables or 0),
+			tier = profile.tier,
 		})
 	end
 
@@ -211,6 +225,79 @@ function Demo.run(UI: any): () -> ()
 		UI.toast("+$312 claimed", "good")
 		push()
 	end)
+	connections[#connections + 1] = UI.events.rankUp:Connect(function()
+		local progress = RankUp.progress(CATALOG, UI.getState())
+		local nextTier = progress.nextTier
+		if progress.ready and nextTier and spend(nextTier.cost) then
+			profile.tier = nextTier.tier
+			UI.close()
+			UI.announce(("Your cafe is now a %s!"):format(nextTier.name))
+			push()
+		end
+	end)
+
+	-- Pretend server for the closing circles: the schedule is made here, presses are stamped on
+	-- arrival and judged against each circle's target, then the chance is rolled (data-model 10).
+	local function demoCatch(catId: string)
+		local def = catById[catId]
+		local rarity: string = if def then def.rarity else "Common"
+		local spec = DEMO_CIRCLES[rarity] or DEMO_CIRCLES.Common
+		local strayId = "demo_stray_" .. catId
+		UI.catch.show({ catId = catId, strayId = strayId, stars = 3, press = true })
+		task.wait(1.2)
+		local start = Workspace:GetServerTimeNow() + 0.6
+		local schedule: { Types.CatchCircle } = {}
+		for _ = 1, spec.count do
+			local shrink = spec.shrink * (1 + (math.random() * 0.6 - 0.3))
+			table.insert(schedule, {
+				startsAt = start,
+				shrinkSeconds = shrink,
+				x = math.random(),
+				y = math.random(),
+			})
+			start += shrink + 0.35 + math.random() * 0.35
+		end
+		local scores: { number } = table.create(#schedule, 0)
+		local pressed: { [number]: boolean } = {}
+		local connection = UI.events.catchPressed:Connect(function(id: string, index: number)
+			local circle = schedule[index]
+			if id ~= strayId or not circle or pressed[index] then
+				return
+			end
+			pressed[index] = true
+			local offset =
+				math.abs(Workspace:GetServerTimeNow() - (circle.startsAt + circle.shrinkSeconds))
+			scores[index] = if offset <= DEMO_WINDOWS.perfect
+				then 1
+				elseif offset <= DEMO_WINDOWS.good then 0.5
+				else 0
+		end)
+		UI.catch.showCircles(strayId, schedule, DEMO_WINDOWS)
+		local last = schedule[#schedule]
+		task.wait(
+			last.startsAt
+				+ last.shrinkSeconds
+				+ DEMO_WINDOWS.good
+				+ 0.2
+				- Workspace:GetServerTimeNow()
+		)
+		connection:Disconnect()
+		local total = 0
+		for _, score in scores do
+			total += score
+		end
+		local chance = total / #scores
+		local success = math.random() < chance
+		UI.catch.showResult(strayId, scores, chance, success)
+		task.wait(1.8)
+		UI.catch.hide()
+		if success then
+			UI.setCarrying({ catId = catId })
+			task.wait(3)
+			UI.setCarrying(nil)
+		end
+	end
+
 	connections[#connections + 1] = UI.events.grabEnded:Connect(
 		function(_strayId: string?, result: string)
 			-- a real server scores the hold time itself; this is only the client's hint
@@ -255,16 +342,10 @@ function Demo.run(UI: any): () -> ()
 		end
 		task.wait(3)
 		if running then
-			UI.catch.show({ catId = "void", strayId = "demo_stray", stars = 4 })
-			task.wait(0.8)
-			UI.catch.startRing({ duration = 1.5 })
-			task.wait(1.0)
-			UI.catch.stopRing()
-			task.wait(1.2)
-			UI.catch.hide()
-			UI.setCarrying({ catId = "void" })
-			task.wait(4)
-			UI.setCarrying(nil)
+			-- v0.3 net: one Common circle, then three Epic circles
+			demoCatch("tabby")
+			task.wait(2)
+			demoCatch("sphynx")
 			UI.tutorial.show("Place your new cat: open Cats, then the Cat room tab")
 			task.wait(6)
 			UI.tutorial.hide()

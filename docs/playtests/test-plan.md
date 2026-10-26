@@ -9,8 +9,8 @@ format, severity scale). QA tests, it does not fix: every failure becomes a tick
 lure spots with the bait bowl, cafe level with tiers, spots with roles and the rescue hold with minigames, and adds
 carry bumps, shinies, the night dealer, night income, rich customers and cat names. The engineer builds it in the
 order of features.md section 1 (F22 first). Every row below names its feature; a row whose feature has not landed
-yet is skipped with the reason "not built", not failed. Until F26 and F27 land, the v0.2 rows kept in section 10
-still describe the build on `main`.
+yet is skipped with the reason "not built", not failed. Until F27 lands, the v0.2 rescue row kept in section 10
+still describes the build on `main`.
 
 ## 1. What runs where
 
@@ -208,28 +208,36 @@ server's refusals sync too, so the script asks for a fresh sync first and allows
 seconds since then, plus one second and one coin for the server's whole-second clock. A spend still shows as a
 drop and a second payout as a second sale.
 
-The script's v0.2 grab cases (keys 1 to 8) test `GrabEnd`, which v0.3 removes. QA rewrites them for
-`CatchPress` once F26 lands; until then the rows marked (manual) are run by hand from the command bar with
+The catch cases (keys 1 to 8, `[`, `;` and `'`) read the `CatchSchedule` the server sent and press on the
+synced clock (`Workspace:GetServerTimeNow()`), the same clock the circles are drawn on; in Studio the server prints
+a `[Catch]` line for every circle it grades (index, error in ms, grade). Key `[` wants a Rare or rarer stray, whose
+catch outlasts the 1 per 2 s `GrabBegin` limit (`Debug.spawnStray("calico")`), and a second stray nearby; key `;`
+wants a Common. Rows marked (manual) are run by hand from the command bar with
 `Remotes.event(name):FireServer(...)`.
 
 Catching and rescue (F26, F27, F23)
 
 | Case | Call | Expected server behaviour |
 |---|---|---|
-| Fake stray | `GrabBegin("not_a_stray")` | Ignored, no error in console |
-| Grab limit | `GrabBegin` twice within 2 s on two strays | Second dropped (GrabCooldownSeconds 2) |
-| Far grab | Teleport 200 studs away, `GrabBegin(id)` | Refused with `Too far away`, no schedule |
+| Fake stray (key 1) | `GrabBegin("not_a_stray")`, `CatchPress("not_a_stray", 1)` | Ignored, no answer, no error in console |
+| Grab limit (key `[`) | `GrabBegin` on a second stray within 1 s of the first | Dropped by the 1 per 2 s limit: no answer, no schedule |
+| Same stray again (key `[`) | `GrabBegin(id)` 2 s into its own catch | `GrabResult` `Keep going, the circles are coming`, no second schedule, one `CatchResult` |
+| One catch at a time (key `[`) | 2 s into a catch, stand by another stray and `GrabBegin` it | `Finish this catch first`, no schedule |
+| Retry wait (key `;`) | Fail a Common on purpose, `GrabBegin(id)` 2 s after the first `GrabBegin` (inside the 2 s from the fail), then once the wait is over | `CatchResult` stayed true; `Give it a moment` inside the wait; a new schedule after it |
+| Far grab (key 2) | Teleport 200 studs away, `GrabBegin(id)` | Refused with `Too far away`, no schedule |
+| Far press (key 8) | `GrabBegin` in range, teleport 200 studs away, press every circle on target | Not caught although the chance is 100%: a failed catch with no roll, toast `Too far away`; a Common stays, a Rare flees |
 | Locked area | Tier 1, teleport past the Park gate, `GrabBegin(park stray)`, `RescueBegin(park trap)` | Refused, nothing locked, no schedule or challenge |
 | Drop claims (Clients and Servers, 3 players) | After B bumps A loose: C `GrabBegin` within 8 s; B `GrabBegin` at any time; A fails a catch on a dropped Rare | Refused within 8 s for anyone but A; refused for B always; the Rare stays and can be retried after 2 s |
-| Press without begin (manual) | `CatchPress(id, 1)` on a stray nobody locked, and on one client B locked | Ignored |
-| Press early (manual) | `CatchPress(id, 1)` right after `GrabBegin`, before circle 1 starts | Ignored, not counted as the first press; a later on-time press still grades |
-| Press out of order (manual) | Three-circle Epic: `CatchPress(id, 2)` before circle 1 is judged | Ignored |
-| Press twice (manual) | `CatchPress(id, 1)` twice, the second on target | Only the first press counts |
-| Press with a time (manual) | `CatchPress(id, 1, os.clock())`, `CatchPress(id, 1, 0)` | Extra arguments ignored, the server stamps the arrival time; grade matches the real arrival |
-| Press spam (manual) | `CatchPress(id, i)` every 0.1 s from `GrabBegin` on | Each circle grades from the first press after its start, which is early, so the chance is near 0; at most 10 presses per second reach the handler |
-| No press | `GrabBegin(id)` and never press | Every circle scores 0 after its target + good + 0.15 s, the roll fails, a Common stays and a Rare flees; the lock clears |
-| Scripted perfect (manual) | A script that reads `CatchSchedule` and presses on each target, 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the server's exploit check flags it from its own stamped errors (Perfect rate above 95% over 50 or more circles; no `TelemetryReport` involved). Log, do not ticket, unless the flag never fires |
-| Bad index (manual) | `CatchPress(id, 0)`, `(id, 6)`, `(id, "1")`, `(id, 1.5)`, `(id, nil)` | Dropped silently, no error |
+| Press without begin (key 3; client B part manual) | `CatchPress(id, 1)`, `CatchPress(id, 2)` on a stray nobody locked, and on one client B locked | Ignored |
+| Press early (key 4) | `CatchPress(id, 1)` right after `GrabBegin`, before circle 1 starts | Ignored, not counted as the first press; the on-target press still grades |
+| Press out of order (key 4) | `CatchPress(id, 2)` before circle 1 is judged | Ignored |
+| Press repeated (key 4) | `CatchPress(id, i - 1)` once circle i is open, then circle i on target | Ignored; circle i still grades, every score above 0 |
+| Press twice (manual) | `CatchPress(id, 1)` twice, the first early but after circle 1 starts, the second on target | Only the first press counts: circle 1 scores 0 |
+| Press with a time (key 5) | `CatchPress(id, 1, target, "perfect", 1)` 0.15 s after circle 1 starts | Extra arguments ignored, the server stamps the arrival time: circle 1 scores 0 |
+| Press spam (key `'`) | `CatchPress(id, i)` every 0.1 s from `GrabBegin` on, moving to the next index once a circle has started | Each circle grades from the first press after its start, which is early, so every circle scores 0; at most 10 presses per second reach the handler |
+| No press (key 6) | `GrabBegin(id)` and never press | Every circle scores 0 at its target + good + 0.15 s, the roll fails, `stayed` is true for a Common and false for a Rare that flees; the lock clears |
+| Scripted perfect (key 7, five runs) | 10 catches pressing each circle on its target, repeated until 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the server's exploit check flags it from its own stamped errors (Perfect rate above 95% over the last 50 circles; no `TelemetryReport` involved), the warn `[CatService] <userId> flagged autoPress`. Log, do not ticket, unless the flag never fires |
+| Bad index (key 4) | `CatchPress(id, 0)`, `(id, 99)`, `(id, -1)`, `(id, 1.5)`, `(id, 0/0)`, `(id, "1")`, `(id, {})`, `(id, nil)` | Dropped silently by `Guard.int`, no error |
 | Rescue without begin (manual) | `RescuePress(spot)` on an unlocked trap, `RescueCancel(spot)` on a trap client B locked | Ignored |
 | Rescue spam (manual) | `RescuePress(spot)` 10 times a second | Misses cost paws; the attempt ends after 3 misses; the cat stays stuck |
 | Rescue retry (manual) | `RescueBegin(spot)` again within 6 s of the same player's failed attempt; another client within 3 s | Refused until each one's retry time |
@@ -375,9 +383,9 @@ shaped findings go to luau-reviewer as blockers. QA never writes the fix.
 1. Engineer, Debug hooks for v0.3 (Studio-only like the rest): `Debug.setTier(player?, tier)`; a shiny option on
    `spawnStray` and `giveCat`; `Debug.giveLure(player?, lureId, count)`; `Debug.readyBait(player?)` (sets
    `placedAt` 600 s back); `Debug.setNightIndex(n)` or `Debug.setDealerStock(player?, { lureIds })`;
-   `Debug.spawnRichTip(player?)`; `Debug.setLastSeen(player?, secondsAgo)` (still missing from v0.1); a way to
-   force the next bump roll (`Debug.forceBump(true or false)`); and a server log line per scored circle (index,
-   error in ms, grade), which also lets the abuse client's ring-style cases read what the server scored.
+   `Debug.spawnRichTip(player?)`; `Debug.setLastSeen(player?, secondsAgo)` (still missing from v0.1); and a way
+   to force the next bump roll (`Debug.forceBump(true or false)`). Done: the server's `[Catch]` line per graded
+   circle (F26, PR #40).
 2. Engineer, pure functions for unit tests (section 3.1): the circle schedule builder and judge, the rescue bar
    position and hit test, the bump checks as a predicate over positions and times, the rank up requirement
    check, the bait roll, the dealer stock roll, `Economy.settle` across phase boundaries, and name trimming, each
@@ -395,13 +403,11 @@ The cloud harness cannot load modules that touch `Instance.new`, events, DataSto
 truth for types. Text filtering only behaves for real on live servers. Nothing here replaces a human playing on a
 real phone for ten minutes.
 
-## 10. v0.2 rows kept until F26 and F27 land
+## 10. v0.2 rows kept until F27 lands
 
-While `main` still runs the v0.2 hold-and-release net and the 4 s rescue hold, these replace S4, S11 and S12
-above and the catching rows of section 4.4. Delete this section when F26 and F27 merge.
+While `main` still runs the 4 s rescue hold, these replace S11 and S12 above and the rescue rows of section 4.4.
+Delete this section when F27 merges. The v0.2 grab rows went with F26 (PR #40).
 
 | Step | Expected |
 |---|---|
-| Grab (v0.2) | Hold `E` about 1.35 s and release: 1.20 to 1.75 s after `GrabBegin` is Perfect, 0.70 to 1.20 s Good. Common chance 0.90 bare, 0.95 with a perfect release; a failed roll keeps a Common. A full hold with no release reads Missed at 1.5 s and the server resolves it about 1.75 s after the hold began |
 | Rescue (v0.2) | At night, hold `E` 4 s at a stuck cat: the bar fills, `Rescued!`, always succeeds; letting go at 2 s resets the bar with no fail text |
-| Abuse grab cases (v0.2) | Keys 1 to 8 of the abuse client: fake stray, far grab, end without begin, instant end (dropped under 0.15 s), late end (ignored after 1.75 s), no end (resolved at 1.75 s), perfect farming (accepted, capped bonus), client ring value (CHECK, extra argument ignored) |

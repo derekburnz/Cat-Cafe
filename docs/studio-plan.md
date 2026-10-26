@@ -21,7 +21,7 @@ Connectors: Roblox Studio MCP (world, playtests, screenshots), Blender MCP (3D),
 | **Roblox Studio** | the dev place, Team Create with friends later, publishing | |
 | **GitHub (private repo)** | source of truth, rollback, portfolio evidence | |
 
-Until the GitHub repo exists, the project folder `cat-cafe/` is the shared workspace; Derek copies it into the repo (setup-guide step 2) and from then on threads that need to change code should work against the repo.
+The private repo https://github.com/derekburnz/purr-pot (created 2026-10-25, scaffold pushed 2026-10-26) is the source of truth and is saved to this project, so new threads get it. Threads change code on a branch and open a pull request; the project folder `cat-cafe/` stays a mirror for threads that cannot reach GitHub. GitHub Actions runs the check gate and the cloud unit tests on every pull request (`.github/workflows/check.yml`).
 
 ## 3. Processes
 | Process | Agent (model) | Skills it reads | Connectors / tools | Input | Output (owned folder) |
@@ -41,7 +41,7 @@ Until the GitHub repo exists, the project folder `cat-cafe/` is the shared works
 | **Roblox Studio MCP server** (built in) | MCP, local | Derek's PC | Phase 0 | setup-guide step 6; `.mcp.json` entry `Roblox_Studio` | to install |
 | **Blender MCP** (ahujasid/blender-mcp) | MCP, local | Derek's PC | Phase 1 | setup-guide step 10; `.mcp.json` entry `blender` | to install |
 | **Roblox Blender plugin** | Blender add-on | Derek's PC | Phase 1 | setup-guide step 11 | to install |
-| **Git + GitHub private repo** | VCS | PC and cloud | Phase 0 | setup-guide step 2; connect GitHub to this project for cloud threads to open PRs | repo not created yet |
+| **Git + GitHub private repo** | VCS | PC and cloud | Phase 0 | setup-guide step 2; repo saved to this project; CI in `.github/workflows/check.yml` | created, scaffold on main |
 | **Rojo, Wally, Selene, StyLua, luau-lsp via Rokit** | CLI | Derek's PC | Phase 0 | `rokit install` | configs written |
 | **Google Drive / Docs** | connector in this project | claude.ai | now | already connected (plan doc, Game Ideas doc) | connected |
 | **Google Forms -> Sheets** (feedback form) | web + connector | claude.ai + friends | Phase 3 | create the form from the playtest-report fields; QA reads the Sheet export | to create |

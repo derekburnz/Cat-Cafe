@@ -1,0 +1,45 @@
+# Purr Pot CI: the same done gate agents run locally (rule 6 in CLAUDE.md), plus the Studio-free unit tests.
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gate:
+    name: Rojo sourcemap, luau-lsp, Selene, StyLua
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rokit
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+
+      - name: Install the pinned toolchain (rokit.toml)
+        run: rokit install --no-trust-check
+
+      - name: Run the check gate
+        working-directory: games/cat-cafe
+        run: ./check.sh
+
+  cloudcheck:
+    name: Luau unit tests and strict type check (WebAssembly Luau)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: games/cat-cafe/tools/cloudcheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: games/cat-cafe/tools/cloudcheck/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run check

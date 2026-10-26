@@ -8,6 +8,7 @@ Format: date, decision, why. Append at the bottom. Anyone may add under "Propose
 - 2026-10-25: `rokit.toml` lives at the repo root, not inside games/cat-cafe. Why: tool versions are studio wide; a second game shares them.
 - 2026-10-25: Code is Rojo synced from `games/cat-cafe/src`; UI is built in Luau under `src/client/UI` rather than hand-built in Studio. Why: text files diff, review and merge; agents can edit them.
 - 2026-10-25: Shared workspace while there is no GitHub repo is the project folder `cat-cafe/`. Derek creates the private repo and pastes the folder in (docs/setup-guide.md step 2).
+- 2026-10-26: https://github.com/derekburnz/purr-pot is the source of truth. The lead thread pushed the project folder as the first three commits on main; from now on changes go through branches and pull requests, and CI runs the check gate on each one. Why: Derek approved the push; the desktop session that was going to do it did not complete.
 - 2026-10-25: No stealing cats from other players and no trading for now. Derek decided in the design thread; can be revisited after the friends alpha. Why: stealing drives griefing complaints with a young audience and trading drives scams. If the alpha feels flat, the first option is an opt-in raid during the carry phase, never base stealing.
 - 2026-10-25: Art style is Cozy Cream. Derek: cozy game vibes. Why: warm, low-contrast room where the cats are the color; the style guide already uses it.
 

@@ -40,8 +40,9 @@ local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
 local LURE_ROW = 70
--- data-model NightIncomeMultiplier (0.6): tips pay this share at night. Read from Config once it exists.
-local NIGHT_TIPS: number = (Config :: any).NightIncomeMultiplier or 0.6
+-- data-model NightIncomeMultiplier (0.6): tips pay this share at night. The server only applies it once it
+-- is in Config (F31), so the chip stays hidden until then instead of promising a cut that is not paid.
+local NIGHT_TIPS: number? = (Config :: any).NightIncomeMultiplier
 
 local HUD = {}
 HUD.__index = HUD
@@ -449,7 +450,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.sky,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "Tips " .. Format.percent(NIGHT_TIPS),
+		Text = if NIGHT_TIPS then "Tips " .. Format.percent(NIGHT_TIPS) else "",
 		Parent = self._nightTips,
 	})
 
@@ -814,11 +815,20 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	self._lastMoney = state.money
 
+	-- income comes only from cats in a role slot, so with instances the count skips resting cats
 	local catCount = 0
 	local distinct = 0
 	for _, owned in state.catsOwned do
 		catCount += owned.count
 		distinct += 1
+	end
+	if state.cats then
+		catCount = 0
+		for _, instance in state.cats :: { [string]: Types.CatInstance } do
+			if instance.spotId then
+				catCount += 1
+			end
+		end
 	end
 	if state.collection then
 		distinct = 0
@@ -1011,7 +1021,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._moon.Visible = isNight
 	self._clockText.TextColor3 = if isNight then Theme.colors.sky else Theme.hud.text
 	self._clock.Visible = true
-	self._nightTips.Visible = isNight
+	self._nightTips.Visible = isNight and NIGHT_TIPS ~= nil
 	local function tick()
 		self._clockText.Text =
 			clockText(current.phase, current.phaseEndsAt - Workspace:GetServerTimeNow())

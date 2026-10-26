@@ -262,6 +262,9 @@ function Pose.apply(rig: Rig, o: Logic.Offsets, hopAlpha: number): boolean
 	local base = rig.base
 	local written = rig.written
 	for i, part in parts do
+		if part.Parent == nil then
+			return false -- a part streamed out or was removed: Cats drops this rig and binds the cat afresh
+		end
 		local now = part.CFrame
 		if now ~= written[i] then
 			base[i] = now

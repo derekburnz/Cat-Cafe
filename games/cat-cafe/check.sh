@@ -13,7 +13,7 @@ if [ ! -f "$TYPES" ]; then
   curl -fsSL -o "$TYPES" https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau
 fi
 
-step "luau-lsp analyze" luau-lsp analyze --sourcemap=sourcemap.json --definitions="$TYPES" --ignore "Packages/**" --ignore "ServerPackages/**" src
+step "luau-lsp analyze" luau-lsp analyze --sourcemap=sourcemap.json --definitions="$TYPES" --ignore "Packages/**" --ignore "ServerPackages/**" --ignore "src/server/Vendor/**" src
 step "selene" selene src
 step "stylua --check" stylua --check src
 echo "All checks passed."

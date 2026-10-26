@@ -92,7 +92,7 @@ UI `DecorDef` fields. Decor appears at a fixed anchor in the plot when placed. B
 
 ## 8. Lure catalog
 
-UI `LureDef` fields plus `odds`, which the UI must show before purchase (paid random items rule, in case coins are ever sold for Robux). `attracts` is the headline rarity for the filter chip. The player buys food as a consumable, equips one, and uses it at a lure spot.
+UI `LureDef` fields plus `odds`, which the UI must show before purchase (paid random items rule, in case coins are ever sold for Robux). `attracts` is the headline rarity for the filter chip and means: the odds of that rarity or better are at least what the free alley gives (kibble: any cat on demand, reserved to you; tuna: Rare or better 55% against the alley's 25%; salmon: Epic or better 35% against 5%). The player buys food as a consumable, equips one, and uses it at a lure spot.
 
 | id | name | cost | attracts | odds Common / Rare / Epic / Legendary | description |
 |---|---|---|---|---|---|
@@ -115,9 +115,10 @@ The server owns spawning. Tutorial rule: a player with `tutorialStep` below 2 al
 ## 10. Catching
 
 - `chance = clamp(base + gloves * 0.10 + lureBonus + ringBonus, 0.05, 0.95)`.
-- `ringBonus`: perfect 0.15, good 0.05, miss 0. The ring result is client-reported, which is why its bonus is small and capped.
+- `ringBonus`: perfect 0.15, good 0.05, miss 0. The ring is a bonus, never a gate: a ring miss still rolls `chance` with no bonus. "Fails" below means the chance roll failed, whatever the ring said.
+- Ring timing: the ring shrinks over GrabHoldSeconds (1.5 s) and the band sits at the end of the shrink. The player releases while the ring is in the band. A hold that runs to completion without a release sends no GrabEnd at all: when GrabHoldSeconds plus RingLatencyGraceSeconds (1.75 s) pass after GrabBegin with no GrabEnd, the server resolves the attempt itself as a ring miss (bonus 0, chance still rolled). The client shows the miss flash at 1.5 s and waits for the server's result. The server derives the ring result from the time between GrabBegin and GrabEnd rather than trusting a client value: release 1.20 to 1.50 s after GrabBegin is perfect (RingPerfectWindow 0.30 s before the hold completes), 0.70 to 1.50 s is good (RingGoodWindow 0.80 s), earlier is a miss, and a GrabEnd later than 1.50 s plus a 0.25 s latency grace is a miss. A GrabEnd within GrabMinHoldSeconds (0.15 s) of GrabBegin is dropped as spam. Latency makes this noisy, which is one more reason the bonus is small.
 - Grab range 10 studs, checked on the server at begin and at end. Hold duration 1.5 s. Lock on begin for 3 s so nobody else can grab the same stray.
-- Common on a miss: stays, retry after 2 s. Rare and above on a miss: flees (despawns) with a toast "It got away".
+- Common on a failed roll: stays, retry after 2 s. Rare and above on a failed roll: flees (despawns) with a toast "It got away", except a lured stray for its placer (section 8).
 - Success: the stray despawns, the player enters carry state (walk speed 16 to 13), a held cat model attaches to the player. Check-in at the own cafe door (8 studs) moves the cat into the profile. If the player leaves while carrying, the cat is saved anyway.
 - A carrying player cannot start another grab.
 
@@ -175,7 +176,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | name | kind | args | server checks | result |
 |---|---|---|---|---|
 | GrabBegin | event | strayId | stray exists, LockedBy is 0 or self, ReservedFor is 0 or self, distance 10, not carrying, not on cooldown | sets LockedBy, starts 3 s lock timer |
-| GrabEnd | event | strayId, ringResult in perfect/good/miss | LockedBy is self, lock not expired, distance 10 | rolls chance; success moves player to carry; fail per section 10 |
+| GrabEnd | event | strayId | LockedBy is self, lock not expired, distance 10, at least GrabMinHoldSeconds after GrabBegin | derives the ring result from lock age (section 10), rolls chance; success moves player to carry; fail per section 10 |
 | CheckIn | event | none | carrying, within 8 studs of own plot Door | adds cat instance, fires CatCaught, collection reward if new |
 | PlaceCat | event | uid, spotId | owns uid, spot exists in own plot, spot open at cafe level, spot empty, cat not already placed | sets spotId, recalculates rate |
 | UnplaceCat | event | uid | owns uid, is placed | clears spotId |
@@ -223,6 +224,7 @@ The full plan is the growth thread's [analytics-plan.md](../../growth/analytics-
 | GrabRangeStuds | 10 | CatService |
 | GrabHoldSeconds | 1.5 | CatService, UI |
 | GrabLockSeconds | 3 | CatService |
+| RingLatencyGraceSeconds | 0.25 | CatService, added to the late edge of the windows |
 | GrabRetrySeconds | 2 | CatService |
 | GlovesBonus | 0.10 | CatService |
 | LureBonus | 0.20 | CatService |
@@ -240,8 +242,9 @@ The full plan is the growth thread's [analytics-plan.md](../../growth/analytics-
 | RemoteRateLimitPerSecond | 10 | Remotes |
 | AnnounceMinRarity | Epic | CatService |
 | GrabCooldownSeconds | 2 | CatService, per player between GrabBegin calls |
-| RingPerfectWindow | 0.30 s after the hold completes | CatService, UI |
-| RingGoodWindow | 0.80 s after the hold completes | CatService, UI |
+| GrabMinHoldSeconds | 0.15 | CatService, a GrabEnd sooner than this after GrabBegin is ignored and the lock continues |
+| RingPerfectWindow | 0.30 s, the last 0.30 s of the 1.5 s hold | CatService, UI |
+| RingGoodWindow | 0.80 s, the last 0.80 s of the 1.5 s hold | CatService, UI |
 | SyncIntervalSeconds | 10 | ProfileSync heartbeat, client predicts between |
 | NormalWalkSpeed | 16 | CatService |
 | StrayWanderRadius, StrayWanderSpeed | 5 studs, 3 | CatService |

@@ -19,7 +19,7 @@ if (-not (Test-Path $types)) {
 }
 
 Step "luau-lsp analyze" {
-  luau-lsp analyze --sourcemap=sourcemap.json --definitions=$types --ignore "Packages/**" --ignore "ServerPackages/**" src
+  luau-lsp analyze --sourcemap=sourcemap.json --definitions=$types --ignore "Packages/**" --ignore "ServerPackages/**" --ignore "src/server/Vendor/**" src
 }
 Step "selene" { selene src }
 Step "stylua --check" { stylua --check src }

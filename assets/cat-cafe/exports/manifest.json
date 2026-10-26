@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-25 21:22 UTC",
+  "generated": "2026-10-26 01:53 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "assets": [
@@ -810,7 +810,7 @@
       "size_studs": {
         "x": 1.78,
         "y": 1.78,
-        "z": 0.44
+        "z": 0.48
       },
       "bounds_min": [
         -0.89,
@@ -820,14 +820,14 @@
       "bounds_max": [
         0.89,
         0.89,
-        0.44
+        0.48
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox (Blender -Y)",
       "sit_point": [
         0,
         0,
-        0.42
+        0.46
       ],
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_Cushion.fbx",
@@ -879,7 +879,7 @@
       "objects": [
         "CatCafe_Furniture_CatTree"
       ],
-      "triangles": 1360,
+      "triangles": 960,
       "budget": 1200,
       "size_studs": {
         "x": 2.35,
@@ -976,7 +976,7 @@
       "sit_point": [
         0,
         -0.1,
-        1.52
+        1.37
       ],
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_PatioBench.fbx",
@@ -991,21 +991,21 @@
       "objects": [
         "CatCafe_Furniture_TableRound"
       ],
-      "triangles": 876,
+      "triangles": 556,
       "budget": 800,
       "size_studs": {
-        "x": 3.58,
-        "y": 3.58,
+        "x": 3.6,
+        "y": 3.6,
         "z": 2.6
       },
       "bounds_min": [
-        -1.79,
-        -1.79,
+        -1.8,
+        -1.8,
         0.0
       ],
       "bounds_max": [
-        1.79,
-        1.79,
+        1.8,
+        1.8,
         2.6
       ],
       "pivot": "base center (floor contact)",
@@ -1223,21 +1223,21 @@
       "objects": [
         "CatCafe_Decor_PlantPot"
       ],
-      "triangles": 552,
+      "triangles": 336,
       "budget": 500,
       "size_studs": {
-        "x": 1.12,
-        "y": 1.1,
+        "x": 1.13,
+        "y": 1.12,
         "z": 1.9
       },
       "bounds_min": [
-        -0.55,
-        -0.55,
+        -0.56,
+        -0.56,
         0.0
       ],
       "bounds_max": [
         0.57,
-        0.55,
+        0.56,
         1.9
       ],
       "pivot": "base center (floor contact)",
@@ -1519,7 +1519,7 @@
       "size_studs": {
         "x": 2.53,
         "y": 1.69,
-        "z": 0.03
+        "z": 0.04
       },
       "bounds_min": [
         -1.27,
@@ -1529,7 +1529,7 @@
       "bounds_max": [
         1.27,
         0.84,
-        0.03
+        0.04
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox (Blender -Y)",
@@ -1611,7 +1611,7 @@
         "CatCafe_Park_Fountain_Basin",
         "CatCafe_Park_Fountain_Water"
       ],
-      "triangles": 1608,
+      "triangles": 760,
       "budget": 1200,
       "size_studs": {
         "x": 5.0,
@@ -1679,21 +1679,21 @@
       "objects": [
         "CatCafe_Item_FoodBowl"
       ],
-      "triangles": 440,
+      "triangles": 184,
       "budget": 300,
       "size_studs": {
-        "x": 0.9,
-        "y": 0.9,
+        "x": 0.92,
+        "y": 0.92,
         "z": 0.31
       },
       "bounds_min": [
-        -0.45,
-        -0.45,
+        -0.46,
+        -0.46,
         0.0
       ],
       "bounds_max": [
-        0.45,
-        0.45,
+        0.46,
+        0.46,
         0.31
       ],
       "pivot": "base center (floor contact)",
@@ -1711,20 +1711,20 @@
       "objects": [
         "CatCafe_Item_FoodBowl_Premium"
       ],
-      "triangles": 622,
+      "triangles": 334,
       "budget": 400,
       "size_studs": {
-        "x": 0.94,
+        "x": 0.96,
         "y": 1.01,
         "z": 0.44
       },
       "bounds_min": [
-        -0.47,
+        -0.48,
         -0.48,
         0.0
       ],
       "bounds_max": [
-        0.47,
+        0.48,
         0.53,
         0.44
       ],
@@ -1810,17 +1810,17 @@
       "triangles": 240,
       "budget": 400,
       "size_studs": {
-        "x": 0.38,
+        "x": 0.37,
         "y": 1.04,
         "z": 0.55
       },
       "bounds_min": [
-        -0.19,
+        -0.18,
         -0.35,
         0.0
       ],
       "bounds_max": [
-        0.19,
+        0.18,
         0.69,
         0.55
       ],

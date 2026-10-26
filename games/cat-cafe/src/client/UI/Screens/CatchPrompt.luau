@@ -53,8 +53,8 @@ local DEFAULT_DURATION: number = Config.GrabHoldSeconds
 -- the end of the shrink, so only an early release reads as a miss on the client.
 local DEFAULT_GOOD: { number } = { 0, Config.RingGoodWindow / Config.GrabHoldSeconds }
 local DEFAULT_PERFECT: { number } = { 0, Config.RingPerfectWindow / Config.GrabHoldSeconds }
--- data-model RescueHoldSeconds (4). Read from Config as soon as the engineer adds the constant.
-local DEFAULT_RESCUE_HOLD: number = (Config :: any).RescueHoldSeconds or 4
+-- data-model RescueHoldSeconds (4)
+local DEFAULT_RESCUE_HOLD: number = Config.RescueHoldSeconds
 
 local CatchPrompt = {}
 CatchPrompt.__index = CatchPrompt

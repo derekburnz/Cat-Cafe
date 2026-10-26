@@ -242,12 +242,14 @@ end
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 -- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
 -- prompt); otherwise it is rolled here.
+-- `rescued` marks a cat freed from a rescue spot; it earns RescuedTipsMultiplier for good (data-model section 10).
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
 	notify: boolean,
 	knownProfile: Profile?,
-	charm: number?
+	charm: number?,
+	rescued: boolean?
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
@@ -262,6 +264,9 @@ function CafeService.addCaughtCat(
 		then charm
 		else CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
 	local instance = CatStats.newInstance(newUid(), def.id, now, rolled)
+	if rescued == true then
+		instance.rescued = true
+	end
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
 	if isNew then
@@ -287,6 +292,17 @@ function CafeService.addCaughtCat(
 					"New cat! %s joins the collection (+$%d)",
 					def.name,
 					Catalog.rarities[def.rarity].firstCatchReward
+				),
+				"good"
+			)
+		end
+		if rescued == true then
+			Net.toast(
+				player,
+				string.format(
+					"%s is grateful: +%d%% tips for good",
+					def.name,
+					math.floor((Config.RescuedTipsMultiplier - 1) * 100 + 0.5)
 				),
 				"good"
 			)
@@ -326,11 +342,11 @@ function CafeService.consumeEquippedLure(player: Player): (Types.LureDef?, strin
 		return nil, "Not loaded"
 	end
 	if Economy.level(profile, "lure_bowl") < 1 then
-		return nil, "Buy the Lure bowl upgrade first"
+		return nil, "Buy the Bait bowl upgrade first"
 	end
 	local lureId = profile.equippedLure
 	if lureId == nil or (profile.lures[lureId] or 0) < 1 then
-		return nil, "Equip a lure first"
+		return nil, "Pick a food to use as bait first"
 	end
 	local def = Catalog.getLure(lureId)
 	if def == nil then

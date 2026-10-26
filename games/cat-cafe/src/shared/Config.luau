@@ -24,17 +24,20 @@ local Config = {
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
 	RenovateBonus = 0.25, -- permanent tips bonus per Renovate (rebirth); the seam exists, the feature does not yet
 
-	-- Strays and catching (data-model sections 9 and 10)
-	SpawnIntervalSeconds = 20,
-	MaxStraysPerArea = 6,
-	StrayDespawnSeconds = 120,
+	-- The clock (data-model section 9): a server-wide loop of day then night
+	DayLengthSeconds = 180,
+	NightLengthSeconds = 120,
+	ServerStartDaySeconds = 120, -- a new server starts in day with this long left, so the first night comes early
+
+	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
+	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
 	GrabRangeStuds = 10,
 	GrabHoldSeconds = 1.5,
 	GrabLockSeconds = 3,
 	GrabRetrySeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between GrabBegin calls
 	GrabMinHoldSeconds = 0.15, -- a GrabEnd sooner than this after GrabBegin is dropped and the lock continues
-	GlovesBonus = 0.10,
+	NetBonus = 0.10, -- per net level (the upgrade was called gloves before v0.2)
 	LureBonus = 0.20,
 	RingBonusPerfect = 0.15,
 	RingBonusGood = 0.05,
@@ -51,6 +54,13 @@ local Config = {
 	StrayWanderRadius = 5,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
+
+	-- Rescue (data-model section 10)
+	RescueSpawnChance = 0.5, -- per rescue spot at each night start
+	RescueHoldSeconds = 4,
+	RescueLockSeconds = 6,
+	RescuedTipsMultiplier = 1.10,
+
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
 
 	-- Cosmetic customers (client side)

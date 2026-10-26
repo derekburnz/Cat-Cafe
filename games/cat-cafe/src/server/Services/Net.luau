@@ -14,11 +14,12 @@ local Net = {}
 
 local events: { [string]: RemoteEvent } = {}
 -- Three layers: one bucket for everything a player sends (the ceiling), one per remote, and slower buckets for
--- remotes that do real work per call (a grab attempt, a full profile serialize, a claim, a tutorial step).
+-- remotes that do real work per call (a grab or rescue attempt, a full profile serialize, a claim, a tutorial step).
 local globalLimiter = RateLimiter.new(Config.RemoteRateLimitPerSecond * 3, 1)
 local defaultLimiter = RateLimiter.new(Config.RemoteRateLimitPerSecond, 1)
 local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	GrabBegin = RateLimiter.new(1, Config.GrabRateLimitSeconds),
+	RescueBegin = RateLimiter.new(1, 1),
 	RequestSync = RateLimiter.new(1, 2),
 	ClaimOffline = RateLimiter.new(1, 2),
 	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync

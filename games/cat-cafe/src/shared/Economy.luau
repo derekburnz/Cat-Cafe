@@ -34,8 +34,8 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	return multiplier
 end
 
--- Rate of one placed cat before the cafe multiplier: its rating (rarity x charm x level x variant, see
--- CatStats) times the favorite spot bonus. Resting cats earn nothing.
+-- Rate of one placed cat before the cafe multiplier: its rating (rarity x charm x level x variant x rescued,
+-- see CatStats) times the favorite spot bonus (data-model section 11). Resting cats earn nothing.
 function Economy.catRate(instance: Types.CatInstance): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil or instance.spotId == nil then

@@ -1,6 +1,7 @@
 --!strict
 -- Feeds the UI (src/client/UI, ui-designer's) with catalog and state, forwards its intents to remotes,
--- predicts the coin counter between syncs, and drives the catch prompt, carry marker and tutorial hints.
+-- predicts the coin counter between syncs, and drives the catch and rescue prompts, the clock chip, the carry
+-- marker and tutorial hints.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -77,7 +78,7 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	if s.tutorialStep < 2 then
 		UI.tutorial.show(
-			"Walk to the alley at the end of the street and hold E on a cat to grab it",
+			"Walk to the alley at the end of the street and hold E on a cat to swing your net",
 			alleyEntrance(),
 			"Alley"
 		)
@@ -172,6 +173,15 @@ local function wireIntents()
 		local strayId = prompt:GetAttribute("StrayId")
 		if type(strayId) == "string" then
 			grabCompleted[strayId] = true
+			-- The UI fires no grabEnded for a full hold, so nothing else clears these two entries. Clear them
+			-- shortly after, unless a new hold on the same stray has started since (reviewer's PR #7 nit).
+			local startedAt = grabStartedAt[strayId]
+			task.delay(0.5, function()
+				if grabStartedAt[strayId] == startedAt then
+					grabStartedAt[strayId] = nil
+					grabCompleted[strayId] = nil
+				end
+			end)
 		end
 	end)
 	UI.events.grabBegan:Connect(function(strayId: string?)
@@ -202,6 +212,21 @@ local function wireIntents()
 			Net.fire("GrabEnd", strayId)
 		end)
 	end)
+	-- Rescue (data-model section 10): RescueBegin when the 4 s hold starts, RescueEnd only when it ran its full
+	-- length. An early release sends nothing; the server's lock lapses after RescueLockSeconds. The server
+	-- answers both with GrabResult, keyed by the rescue spot id.
+	UI.events.rescueBegan:Connect(function(rescueSpotId: string?, _catId: string?)
+		if rescueSpotId ~= nil then
+			Net.fire("RescueBegin", rescueSpotId)
+		end
+	end)
+	UI.events.rescueEnded:Connect(
+		function(rescueSpotId: string?, _catId: string?, completed: boolean)
+			if rescueSpotId ~= nil and completed then
+				Net.fire("RescueEnd", rescueSpotId)
+			end
+		end
+	)
 end
 
 local function wireServerEvents()
@@ -262,6 +287,10 @@ function UIController.start()
 	}
 	UI.init({ catalog = catalog, keybinds = true })
 	UI.catch.bindProximityPrompts()
+	-- The HUD clock chip reads Phase and PhaseEndsAt off the server's Clock folder and follows its changes.
+	task.spawn(function()
+		UI.clock.bind(ReplicatedStorage:WaitForChild("Clock"))
+	end)
 	wireIntents()
 	wireServerEvents()
 	startPrediction()

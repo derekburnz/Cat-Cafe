@@ -1,9 +1,12 @@
 --!strict
 -- Client-side world touches: the park gate opens once the Park pass is owned, check-in fires itself at the
--- own cafe door while carrying, and the first tutorial step advances when the player reaches the alley.
+-- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, and the
+-- sky and street lamps follow the server's day and night clock (features F20). All cosmetic, all local.
 
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -38,7 +41,79 @@ local function setGateOpen(open: boolean)
 	end
 end
 
+-- Lighting per phase. Visual only, so the numbers live here rather than in Config.
+local DAY_LIGHTING = {
+	ClockTime = 14,
+	Brightness = 2,
+	OutdoorAmbient = Color3.fromRGB(150, 140, 130),
+}
+local NIGHT_LIGHTING = {
+	ClockTime = 21.5,
+	Brightness = 0.7,
+	OutdoorAmbient = Color3.fromRGB(70, 75, 115),
+}
+local LIGHTING_TWEEN = TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+
+-- Street lamps are any model whose name contains "StreetLamp" (placeholder or the asset thread's model).
+local lampsOn = false
+
+local function setLamp(light: Light)
+	local model = light:FindFirstAncestorWhichIsA("Model")
+	if model == nil or model.Name:find("StreetLamp", 1, true) == nil then
+		return
+	end
+	light.Enabled = lampsOn
+	local parent = light.Parent
+	if parent ~= nil and parent:IsA("BasePart") then
+		(parent :: BasePart).Material = if lampsOn
+			then Enum.Material.Neon
+			else Enum.Material.SmoothPlastic
+	end
+end
+
+local function setLampsOn(on: boolean)
+	lampsOn = on
+	local world = Workspace:FindFirstChild("World")
+	if world == nil then
+		return
+	end
+	for _, descendant in world:GetDescendants() do
+		if descendant:IsA("Light") then
+			setLamp(descendant :: Light)
+		end
+	end
+end
+
+local function applyPhase(phase: any, instant: boolean)
+	local night = phase == "night"
+	local goal = if night then NIGHT_LIGHTING else DAY_LIGHTING
+	if instant then
+		Lighting.ClockTime = goal.ClockTime
+		Lighting.Brightness = goal.Brightness
+		Lighting.OutdoorAmbient = goal.OutdoorAmbient
+	else
+		TweenService:Create(Lighting, LIGHTING_TWEEN, goal :: any):Play()
+	end
+	setLampsOn(night)
+end
+
+local function followClock()
+	-- Lamps that stream in or are built later pick up the current state.
+	Workspace.DescendantAdded:Connect(function(descendant: Instance)
+		if descendant:IsA("Light") then
+			setLamp(descendant :: Light)
+		end
+	end)
+	local clock = ReplicatedStorage:WaitForChild("Clock")
+	applyPhase(clock:GetAttribute("Phase"), true)
+	clock:GetAttributeChangedSignal("Phase"):Connect(function()
+		applyPhase(clock:GetAttribute("Phase"), false)
+	end)
+end
+
 function WorldController.start()
+	task.spawn(followClock)
+
 	local lastGateOpen: boolean? = nil
 	local lastCheckIn = 0
 	local sawAlley = false

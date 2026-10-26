@@ -1,8 +1,12 @@
 --!strict
--- Hands each loaded player a plot on the street and frees it when they leave.
+-- Hands each loaded player a plot on the street and frees it when they leave. The sign above an owned cafe
+-- follows the clock: open by day, Closed at night (features F20).
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local ClockService = require(script.Parent.ClockService)
+local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local PlotService = {}
@@ -11,9 +15,19 @@ local world: WorldBuilder.World? = nil
 local owners: { [number]: Player } = {} -- plot index -> player
 local plotOf: { [Player]: WorldBuilder.Plot } = {}
 
+local function signText(player: Player, phase: Types.ClockPhase): string
+	local name = player.DisplayName .. "'s Cafe"
+	return if phase == "night" then name .. "\nClosed" else name
+end
+
 function PlotService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	Players.PlayerRemoving:Connect(PlotService.release)
+	ClockService.changed:Connect(function(phase: Types.ClockPhase)
+		for player, plot in plotOf do
+			plot.sign.Text = signText(player, phase)
+		end
+	end)
 end
 
 function PlotService.world(): WorldBuilder.World
@@ -31,7 +45,7 @@ function PlotService.assign(player: Player): WorldBuilder.Plot?
 			owners[plot.index] = player
 			plotOf[player] = plot
 			plot.model:SetAttribute("OwnerUserId", player.UserId)
-			plot.sign.Text = player.DisplayName .. "'s Cafe"
+			plot.sign.Text = signText(player, ClockService.phase())
 			return plot
 		end
 	end

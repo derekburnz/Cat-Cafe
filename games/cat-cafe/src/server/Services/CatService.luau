@@ -1,6 +1,7 @@
 --!strict
--- Strays: spawning per area, the grab (lock, hold, roll), carrying a caught cat home, check-in, and lures.
--- Server authoritative: the client only reports when it pressed and released; distance, locks and odds live here.
+-- Strays: night waves per area, the net swing (lock, hold, roll), rescue spots, carrying a caught cat home,
+-- check-in, and bait (lures in code). Server authoritative: the client only reports when it pressed and released;
+-- distance, locks, timing and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -12,6 +13,7 @@ local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -42,7 +44,19 @@ type Stray = {
 	alive: boolean,
 }
 
-type Carry = { def: Types.CatDef, model: Model? }
+-- A cat stuck at a rescue spot (data-model section 10). Not a Stray: no wander, no swing, a 4 s hold frees it.
+type Stuck = {
+	spotId: string,
+	area: string,
+	def: Types.CatDef,
+	model: Model,
+	spot: BasePart,
+	lockedBy: number,
+	lockAt: number,
+	alive: boolean,
+}
+
+type Carry = { def: Types.CatDef, model: Model?, rescued: boolean }
 type ActiveLure = {
 	spotId: string,
 	area: string,
@@ -59,6 +73,7 @@ local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point i
 local carrying: { [Player]: Carry } = {}
 local activeLures: { [string]: ActiveLure } = {} -- lureSpotId -> lure
 local lureByPlayer: { [Player]: string } = {} -- player -> lureSpotId
+local stuckCats: { [string]: Stuck } = {} -- rescueSpotId -> stuck cat
 local rng = Random.new()
 local nextStrayNumber = 0
 
@@ -104,6 +119,17 @@ end
 
 local function lockExpired(stray: Stray): boolean
 	return os.clock() - stray.lockAt > Config.GrabLockSeconds
+end
+
+local function setRescueLock(entry: Stuck, userId: number)
+	entry.lockedBy = userId
+	entry.lockAt = os.clock()
+	entry.model:SetAttribute("LockedBy", userId)
+	entry.spot:SetAttribute("LockedBy", userId)
+end
+
+local function rescueLockExpired(entry: Stuck): boolean
+	return os.clock() - entry.lockAt > Config.RescueLockSeconds
 end
 
 -- Spawning ------------------------------------------------------------------------------------------------
@@ -161,7 +187,7 @@ local function spawnStray(
 	lureSpotId: string?,
 	calm: boolean,
 	reservedFor: number,
-	lifetime: number
+	lifetime: number? -- nil: stays until the next night start clears it
 ): Stray
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)
@@ -181,7 +207,7 @@ local function spawnStray(
 
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "GrabPrompt"
-	prompt.ActionText = "Grab"
+	prompt.ActionText = "Swing"
 	prompt.ObjectText = def.name
 	prompt.HoldDuration = Config.GrabHoldSeconds
 	prompt.MaxActivationDistance = Config.GrabRangeStuds
@@ -221,6 +247,9 @@ local function spawnStray(
 	end
 
 	task.spawn(wander, stray)
+	if lifetime == nil then
+		return stray
+	end
 	task.delay(lifetime, function()
 		-- Give a player mid-grab a moment, then leave.
 		while stray.alive and stray.lockedBy ~= 0 and not lockExpired(stray) do
@@ -281,7 +310,7 @@ local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity?
 		nil,
 		false,
 		0,
-		areaDef.despawnAfter
+		nil
 	)
 end
 
@@ -312,23 +341,132 @@ local function tutorialTick()
 	spawnAt("alley", 1, "Common")
 end
 
-local function runArea(areaDef: Types.AreaDef)
-	-- First strays appear quickly so the alley is never empty on join.
-	task.wait(2)
-	for _ = 1, math.min(3, areaDef.maxStrays) do
-		local point = freeSpawnPoint(areaDef.id)
-		if point ~= nil then
-			spawnAt(areaDef.id, point)
+-- Night start (data-model section 9): last night's leftovers leave, then a full wave arrives at once. Bait
+-- strays ignore the clock. A stray someone is mid-swing on leaves once that swing is over.
+local function startWave(areaDef: Types.AreaDef)
+	local leaving: { Stray } = {}
+	for _, stray in strays do
+		if stray.area == areaDef.id and stray.lureSpotId == nil then
+			table.insert(leaving, stray)
 		end
 	end
-	while true do
-		task.wait(areaDef.spawnInterval)
-		if countStrays(areaDef.id) < areaDef.maxStrays then
-			local point = freeSpawnPoint(areaDef.id)
-			if point ~= nil then
-				spawnAt(areaDef.id, point)
-			end
+	for _, stray in leaving do
+		if stray.lockedBy ~= 0 and not lockExpired(stray) then
+			task.spawn(function()
+				while stray.alive and stray.lockedBy ~= 0 and not lockExpired(stray) do
+					task.wait(0.5)
+				end
+				despawn(stray)
+			end)
+		else
+			despawn(stray)
 		end
+	end
+	for _ = 1, areaDef.waveSize do
+		local point = freeSpawnPoint(areaDef.id)
+		if point == nil then
+			break
+		end
+		spawnAt(areaDef.id, point)
+	end
+end
+
+-- Rescue spots ------------------------------------------------------------------------------------------
+
+local function clearStuck(entry: Stuck)
+	if not entry.alive then
+		return
+	end
+	entry.alive = false
+	if stuckCats[entry.spotId] == entry then
+		stuckCats[entry.spotId] = nil
+	end
+	entry.spot:SetAttribute("Occupied", false)
+	entry.spot:SetAttribute("LockedBy", 0)
+	entry.model:Destroy()
+end
+
+local function spawnStuck(spotId: string, areaId: string, spot: BasePart, def: Types.CatDef): Stuck
+	local model = AssetRegistry.clone(Catalog.catModelName(def.id))
+	model.Name = "Stuck_" .. spotId
+	local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart") :: BasePart
+	-- Same attributes as a stray (section 13) minus StrayId, plus Rescue and RescueSpotId for the UI.
+	model:SetAttribute("Rescue", true)
+	model:SetAttribute("RescueSpotId", spotId)
+	model:SetAttribute("CatId", def.id)
+	model:SetAttribute("CatName", def.name)
+	model:SetAttribute("Rarity", def.rarity)
+	model:SetAttribute("Area", areaId)
+	model:SetAttribute("LockedBy", 0)
+	CollectionService:AddTag(model, "StuckCat")
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "RescuePrompt"
+	prompt.ActionText = "Rescue"
+	prompt.ObjectText = def.name
+	prompt.HoldDuration = Config.RescueHoldSeconds
+	prompt.MaxActivationDistance = Config.GrabRangeStuds
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt:SetAttribute("CatId", def.id)
+	prompt:SetAttribute("CatName", def.name)
+	prompt:SetAttribute("Rarity", def.rarity)
+	prompt:SetAttribute("Rescue", true)
+	prompt:SetAttribute("RescueSpotId", spotId)
+	prompt.Parent = body
+
+	model:PivotTo(spot.CFrame)
+	model.Parent = straysFolder
+	spot:SetAttribute("Occupied", true)
+	spot:SetAttribute("LockedBy", 0)
+
+	local entry: Stuck = {
+		spotId = spotId,
+		area = areaId,
+		def = def,
+		model = model,
+		spot = spot,
+		lockedBy = 0,
+		lockAt = 0,
+		alive = true,
+	}
+	stuckCats[spotId] = entry
+	return entry
+end
+
+local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePart)
+	local rarity: Types.Rarity =
+		Catching.pickRarity(Catching.rescueOdds(areaDef.odds), rng:NextNumber())
+	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
+	spawnStuck(spotId, areaDef.id, spot, def)
+end
+
+-- Night start: each spot drops last night's stuck cat and rolls RescueSpawnChance for a new one. A spot
+-- someone is mid-rescue on keeps its cat; it rolls again next night.
+local function rollRescues(areaDef: Types.AreaDef)
+	local area = world.areas[areaDef.id]
+	for spotId, spot in area.rescueSpots do
+		local current = stuckCats[spotId]
+		if current ~= nil and current.lockedBy ~= 0 and not rescueLockExpired(current) then
+			continue
+		end
+		if current ~= nil then
+			clearStuck(current)
+		end
+		if rng:NextNumber() < Config.RescueSpawnChance then
+			rollStuckCat(spotId, areaDef, spot)
+		end
+	end
+end
+
+local function onPhaseChanged(phase: Types.ClockPhase)
+	if phase ~= "night" then
+		return
+	end
+	for _, areaDef in Catalog.areas do
+		startWave(areaDef)
+		rollRescues(areaDef)
 	end
 end
 
@@ -385,15 +523,20 @@ local function attachHeldCat(player: Player, carry: Carry)
 	end
 end
 
-local function startCarry(player: Player, def: Types.CatDef)
-	local carry: Carry = { def = def, model = nil }
+local function startCarry(player: Player, def: Types.CatDef, rescued: boolean)
+	local carry: Carry = { def = def, model = nil, rescued = rescued }
 	carrying[player] = carry
 	attachHeldCat(player, carry)
 	CafeService.setCarrying(player, def.id)
-	Net.toast(player, string.format("You caught a %s! Walk it home to check in.", def.name), "good")
+	local verb = if rescued then "rescued" else "caught"
+	Net.toast(
+		player,
+		string.format("You %s a %s! Walk it home to check in.", verb, def.name),
+		"good"
+	)
 end
 
-local function endCarry(player: Player): Types.CatDef?
+local function endCarry(player: Player): Carry?
 	local carry = carrying[player]
 	if carry == nil then
 		return nil
@@ -409,7 +552,7 @@ local function endCarry(player: Player): Types.CatDef?
 	if humanoid ~= nil then
 		humanoid.WalkSpeed = Config.NormalWalkSpeed
 	end
-	return carry.def
+	return carry
 end
 
 -- Rolls the catch for a stray the player has locked and tells them the outcome. The ring result comes from the
@@ -421,7 +564,7 @@ local function resolveGrab(
 	ring: Types.RingResult
 )
 	local lured = stray.calm and stray.reservedFor == player.UserId
-	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "gloves"), lured, ring)
+	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "net"), lured, ring)
 	local success = Catching.succeeds(chance, rng:NextNumber())
 	setLock(stray, 0)
 
@@ -430,7 +573,7 @@ local function resolveGrab(
 		local def = stray.def
 		despawn(stray)
 		Net.fire(player, "GrabResult", stray.id, true, "caught", false)
-		startCarry(player, def)
+		startCarry(player, def, false)
 		return
 	end
 
@@ -464,7 +607,7 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		return
 	end
 	if stray.reservedFor ~= 0 and stray.reservedFor ~= player.UserId then
-		Net.toast(player, "Someone else lured this cat.", "warn")
+		Net.toast(player, "Someone else baited this cat.", "warn")
 		return
 	end
 	if stray.lockedBy ~= 0 and stray.lockedBy ~= player.UserId and not lockExpired(stray) then
@@ -529,11 +672,12 @@ end
 
 -- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 local function finishCheckIn(player: Player, notify: boolean, profile: Types.PlayerProfile?)
-	local def = endCarry(player)
-	if def == nil then
+	local carry = endCarry(player)
+	if carry == nil then
 		return
 	end
-	local _, isNew = CafeService.addCaughtCat(player, def, notify, profile)
+	local def = carry.def
+	local _, isNew = CafeService.addCaughtCat(player, def, notify, profile, nil, carry.rescued)
 	if notify then
 		Net.fire(player, "CatCaught", def.id, isNew)
 		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
@@ -555,6 +699,97 @@ local function onCheckIn(player: Player)
 		return
 	end
 	finishCheckIn(player, true)
+end
+
+-- Rescue: RescueBegin locks the spot to the player for RescueLockSeconds; RescueEnd after the full hold always
+-- frees the cat (no ring, no roll). The hold is timed on the server's clock from RescueBegin. Every rejection
+-- answers with GrabResult so the client's hold bar never waits on nothing.
+local function rejectRescue(player: Player, spotId: string, reason: string)
+	Net.fire(player, "GrabResult", spotId, false, reason, true)
+end
+
+local function onRescueBegin(player: Player, rawSpotId: unknown)
+	local spotId = Guard.id(rawSpotId)
+	local profile = DataService.get(player)
+	if spotId == nil or profile == nil then
+		return
+	end
+	local entry = stuckCats[spotId]
+	if entry == nil or not entry.alive then
+		return
+	end
+	if carrying[player] ~= nil then
+		rejectRescue(player, spotId, "Check in the cat you are carrying first")
+		return
+	end
+	if not areaUnlocked(profile, entry.area) then
+		rejectRescue(player, spotId, "You need the Park pass to rescue cats here")
+		return
+	end
+	if entry.lockedBy ~= 0 and entry.lockedBy ~= player.UserId and not rescueLockExpired(entry) then
+		rejectRescue(player, spotId, "Someone else is rescuing it")
+		return
+	end
+	if not withinRange(player, entry.spot.Position, Config.GrabRangeStuds + 2) then
+		rejectRescue(player, spotId, "Too far away")
+		return
+	end
+	-- One rescue at a time per player, so nobody can hold every spot locked.
+	for _, other in stuckCats do
+		if other ~= entry and other.lockedBy == player.UserId then
+			setRescueLock(other, 0)
+		end
+	end
+	setRescueLock(entry, player.UserId)
+	local lockAt = entry.lockAt
+	task.delay(Config.RescueLockSeconds, function()
+		if entry.alive and entry.lockedBy == player.UserId and entry.lockAt == lockAt then
+			setRescueLock(entry, 0)
+		end
+	end)
+end
+
+local function onRescueEnd(player: Player, rawSpotId: unknown)
+	local spotId = Guard.id(rawSpotId)
+	local profile = DataService.get(player)
+	if spotId == nil or profile == nil then
+		return
+	end
+	local entry = stuckCats[spotId]
+	if entry == nil or not entry.alive then
+		Net.fire(player, "GrabResult", spotId, false, "Someone else got there first", false)
+		return
+	end
+	if entry.lockedBy ~= player.UserId then
+		rejectRescue(player, spotId, "Hold again to rescue it")
+		return
+	end
+	-- RescueEnd travels later than RescueBegin by however much the two trips' latency differs; the same
+	-- allowance as the swing ring's (RingLatencyGraceSeconds) keeps an honest full hold from reading as short.
+	local held = os.clock() - entry.lockAt
+	if held < Config.RescueHoldSeconds - Config.RingLatencyGraceSeconds then
+		setRescueLock(entry, 0)
+		rejectRescue(
+			player,
+			spotId,
+			string.format("Hold for the full %d seconds", Config.RescueHoldSeconds)
+		)
+		return
+	end
+	if carrying[player] ~= nil then
+		setRescueLock(entry, 0)
+		rejectRescue(player, spotId, "Check in the cat you are carrying first")
+		return
+	end
+	if not withinRange(player, entry.spot.Position, Config.GrabRangeStuds + 2) then
+		setRescueLock(entry, 0)
+		rejectRescue(player, spotId, "Too far away")
+		return
+	end
+	local def = entry.def
+	clearStuck(entry)
+	Net.fire(player, "GrabResult", spotId, true, "rescued", false)
+	startCarry(player, def, true)
 end
 
 local function findLureSpot(spotId: string): (BasePart?, string?)
@@ -580,11 +815,11 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 	local spotPart: BasePart = foundSpot
 	local areaId: string = foundArea
 	if not areaUnlocked(profile, areaId) then
-		Net.toast(player, "You need the Park pass to lure here.", "warn")
+		Net.toast(player, "You need the Park pass to set bait here.", "warn")
 		return
 	end
 	if lureByPlayer[player] ~= nil then
-		Net.toast(player, "You already have a lure out.", "warn")
+		Net.toast(player, "You already have bait out.", "warn")
 		return
 	end
 	if activeLures[spotId] ~= nil then
@@ -596,7 +831,7 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 	end
 	local lure, reason = CafeService.consumeEquippedLure(player)
 	if lure == nil then
-		Net.toast(player, reason or "Cannot lure", "warn")
+		Net.toast(player, reason or "Cannot set bait", "warn")
 		return
 	end
 
@@ -665,6 +900,8 @@ function CatService.start(builtWorld: WorldBuilder.World)
 
 	Net.on("GrabBegin", onGrabBegin)
 	Net.on("GrabEnd", onGrabEnd)
+	Net.on("RescueBegin", onRescueBegin)
+	Net.on("RescueEnd", onRescueEnd)
 	Net.on("CheckIn", onCheckIn)
 	Net.on("UseLure", onUseLure)
 
@@ -707,10 +944,17 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				setLock(stray, 0)
 			end
 		end
+		for _, entry in stuckCats do
+			if entry.lockedBy == player.UserId then
+				setRescueLock(entry, 0)
+			end
+		end
 	end)
 
-	for _, areaDef in Catalog.areas do
-		task.spawn(runArea, areaDef)
+	-- No trickle by day: every stray arrives with a night wave (or the tutorial rule, or bait).
+	ClockService.changed:Connect(onPhaseChanged)
+	if ClockService.isNight() then
+		onPhaseChanged("night")
 	end
 	task.spawn(function()
 		while true do
@@ -722,6 +966,15 @@ end
 
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
+end
+
+-- How many rescue spots hold a stuck cat right now, across all areas.
+function CatService.stuckCount(): number
+	local n = 0
+	for _ in stuckCats do
+		n += 1
+	end
+	return n
 end
 
 -- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken).
@@ -741,9 +994,30 @@ function CatService.debugSpawnStray(catId: string, areaId: string): string
 		nil,
 		false,
 		0,
-		(areaDef :: Types.AreaDef).despawnAfter
+		Config.StrayDespawnSeconds
 	)
 	return stray.id
+end
+
+-- Studio-only test hook: puts a stuck cat at a rescue spot (the first spot of the alley when none is given),
+-- replacing any cat already there. Returns the rescueSpotId.
+function CatService.debugSpawnStuck(catId: string, spotId: string?): string
+	assert(RunService:IsStudio(), "debugSpawnStuck is Studio only")
+	local def = Catalog.getCat(catId)
+	assert(def ~= nil, "unknown cat")
+	local wanted = spotId or "rescue_alley_1"
+	for areaId, area in world.areas do
+		local spot: BasePart? = area.rescueSpots[wanted]
+		if spot ~= nil then
+			local current = stuckCats[wanted]
+			if current ~= nil then
+				clearStuck(current)
+			end
+			spawnStuck(wanted, areaId, spot, def :: Types.CatDef)
+			return wanted
+		end
+	end
+	error("unknown rescue spot " .. wanted)
 end
 
 return CatService

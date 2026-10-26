@@ -12,6 +12,8 @@ Remotes.FolderName = "Remotes"
 Remotes.ClientToServer = {
 	"GrabBegin", -- (strayId: string)
 	"GrabEnd", -- (strayId: string)  the server scores the ring from the time since GrabBegin; extra args are ignored
+	"RescueBegin", -- (rescueSpotId: string)  spot holds a stuck cat, not locked by another player, in range, not carrying
+	"RescueEnd", -- (rescueSpotId: string)  sent after the full hold; the server checks RescueHoldSeconds on its own clock
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
@@ -35,7 +37,8 @@ Remotes.ServerToClient = {
 	"OfflineEarnings", -- (amount: number, seconds: number)
 	"Toast", -- (text: string, kind: "info" | "good" | "warn")
 	"Announce", -- (text: string)  fired to everyone
-	"GrabResult", -- (strayId: string, ok: boolean, reason: string, retry: boolean)  retry keeps the prompt open
+	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a strayId or a rescueSpotId;
+	-- retry keeps the prompt open
 }
 
 function Remotes.folder(): Folder

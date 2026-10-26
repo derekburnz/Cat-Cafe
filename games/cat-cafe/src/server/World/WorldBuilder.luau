@@ -34,6 +34,7 @@ export type AreaInfo = {
 	floorY: number,
 	spawnPoints: { BasePart },
 	lureSpots: { [string]: BasePart },
+	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number },
 }
 
@@ -395,6 +396,23 @@ local function buildArea(
 		lureSpots[name] = ring
 	end
 
+	-- Rescue spots (data-model section 13): the prop is always there, the stuck cat only some nights.
+	local rescueFolder = folder("RescueSpots", model)
+	local rescueSpots: { [string]: BasePart } = {}
+	for i, point in spec.rescueSpots do
+		local name = "rescue_" .. id .. "_" .. i
+		local base = CFrame.new(point.x, spec.floorY, point.z)
+			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
+		place(point.prop, base, props)
+		local spot = anchor(name, localCFrame(base, point.cat), rescueFolder)
+		spot:SetAttribute("Area", id)
+		spot:SetAttribute("RescueSpotId", name)
+		spot:SetAttribute("Occupied", false)
+		spot:SetAttribute("LockedBy", 0)
+		CollectionService:AddTag(spot, "RescueSpot")
+		rescueSpots[name] = spot
+	end
+
 	model.Parent = parent
 	return {
 		id = id,
@@ -402,6 +420,7 @@ local function buildArea(
 		floorY = spec.floorY,
 		spawnPoints = spawnPoints,
 		lureSpots = lureSpots,
+		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
 	}
 end

@@ -38,6 +38,7 @@ BUDGETS = {
     "ambience": (20.0, 120.0, False, -26.0, -3.0, None, True),
     "sfx": (0.05, 4.0, True, None, -1.0, 20, False),
     "ui": (0.02, 1.5, True, None, -1.0, 10, False),
+    "stinger": (0.5, 6.0, False, None, -1.0, 20, False),  # music/ files named Jingle* or Sting*
 }
 LOUDNESS_TOLERANCE = 3.0
 FOLDER_KIND = {"music": "music", "ambience": "ambience", "amb": "ambience", "sfx": "sfx", "ui": "ui"}
@@ -129,7 +130,10 @@ def seam(path: Path) -> str | None:
 def kind_of(path: Path, root: Path) -> str | None:
     for part in path.relative_to(root).parts[:-1]:
         if part.lower() in FOLDER_KIND:
-            return FOLDER_KIND[part.lower()]
+            kind = FOLDER_KIND[part.lower()]
+            if kind == "music" and re.match(r"^CatCafe_Music_(Jingle|Sting)", path.stem):
+                return "stinger"
+            return kind
     return None
 
 

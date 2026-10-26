@@ -41,6 +41,8 @@ type Stray = {
 	lockedBy: number,
 	lockUntil: number, -- server time the lock lapses on its own; 0 when unlocked
 	attempt: Circles.Attempt?, -- the circles of the lock holder's catch in progress
+	retryUserId: number, -- the player whose catch just failed waits until retryUntil (server time) on this stray
+	retryUntil: number,
 	reservedFor: number,
 	calm: boolean,
 	alive: boolean,
@@ -81,8 +83,14 @@ local activeLures: { [string]: ActiveLure } = {} -- lureSpotId -> lure
 local lureByPlayer: { [Player]: string } = {} -- player -> lureSpotId
 local stuckCats: { [string]: Stuck } = {} -- rescueSpotId -> stuck cat
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
+local lastCatchStart: { [Player]: number } = {} -- server time of the player's last GrabBegin that started circles
 local rng = Random.new()
 local nextStrayNumber = 0
+
+local MAX_CIRCLES = 1 -- the most circles any rarity has; bounds the CatchPress index
+for _, rarity in Catalog.rarities do
+	MAX_CIRCLES = math.max(MAX_CIRCLES, rarity.circles)
+end
 
 -- Helpers -------------------------------------------------------------------------------------------------
 
@@ -259,6 +267,8 @@ local function spawnStray(
 		lockedBy = 0,
 		lockUntil = 0,
 		attempt = nil,
+		retryUserId = 0,
+		retryUntil = 0,
 		reservedFor = reservedFor,
 		calm = calm,
 		alive = true,
@@ -656,28 +666,22 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	end
 	Circles.expire(attempt, serverNow())
 	recordCircles(player, profile, attempt)
-	-- A rescue can finish while this catch is in flight (reviewer S21); the carried cat wins.
+	-- Walking out of range, or finishing a rescue mid-catch (reviewer S21: the carried cat wins), is a failed
+	-- catch with no roll, never a retry: otherwise stepping away before the last circle dodges a rare cat's
+	-- flee (reviewer S33).
+	local forfeit: string? = nil
 	if carrying[player] ~= nil then
-		setLock(stray, 0)
-		Net.fire(
-			player,
-			"GrabResult",
-			stray.id,
-			false,
-			"Check in the cat you are carrying first",
-			true
-		)
-		return
-	end
-	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
-		setLock(stray, 0)
-		Net.fire(player, "GrabResult", stray.id, false, "Too far away", true)
-		return
+		forfeit = "Check in the cat you are carrying first"
+	elseif not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+		forfeit = "Too far away"
 	end
 	local chance = Circles.chance(attempt.scores)
-	local success = Catching.succeeds(chance, rng:NextNumber())
+	local success = forfeit == nil and Catching.succeeds(chance, rng:NextNumber())
 	setLock(stray, 0)
 	Net.fire(player, "CatchResult", stray.id, attempt.scores, chance, success)
+	if forfeit ~= nil then
+		Net.toast(player, forfeit, "warn")
+	end
 
 	if success then
 		profile.stats.grabsSucceeded += 1
@@ -690,7 +694,11 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	if Catching.fleesOnFail(stray.def.rarity) and not lured then
 		Net.toast(player, "It got away", "warn")
 		despawn(stray)
+		return
 	end
+	-- The stray stays; the player who just failed waits GrabRetrySeconds before trying it again (reviewer N37).
+	stray.retryUserId = player.UserId
+	stray.retryUntil = serverNow() + Config.GrabRetrySeconds
 end
 
 -- Remote handlers -----------------------------------------------------------------------------------------
@@ -729,8 +737,25 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
-
 	local now = serverNow()
+	if stray.retryUserId == player.UserId and now < stray.retryUntil then
+		Net.fire(player, "GrabResult", strayId, false, "Give it a moment", true)
+		return
+	end
+	local last = lastCatchStart[player]
+	if last ~= nil and now - last < Config.GrabCooldownSeconds then
+		Net.fire(player, "GrabResult", strayId, false, "Give it a moment", true)
+		return
+	end
+	-- One catch at a time: a script must not run circles on two strays at once.
+	for _, other in strays do
+		if other.attempt ~= nil and other.lockedBy == player.UserId and not lockExpired(other) then
+			Net.fire(player, "GrabResult", strayId, false, "Finish this catch first", true)
+			return
+		end
+	end
+	lastCatchStart[player] = now
+
 	local windows = Circles.windows(Economy.level(profile, "net"))
 	local circles = Circles.schedule(
 		stray.def.rarity,
@@ -764,7 +789,7 @@ end
 -- ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press).
 local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unknown)
 	local strayId = Guard.id(rawStrayId)
-	local index = Guard.int(rawIndex, 1, #Catalog.rarityOrder)
+	local index = Guard.int(rawIndex, 1, MAX_CIRCLES)
 	if strayId == nil or index == nil then
 		return
 	end
@@ -1085,6 +1110,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			end
 		end
 		circleHistory[player] = nil
+		lastCatchStart[player] = nil
 		for _, stray in strays do
 			if stray.lockedBy == player.UserId then
 				setLock(stray, 0)

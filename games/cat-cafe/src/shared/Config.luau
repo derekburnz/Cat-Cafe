@@ -32,8 +32,8 @@ local Config = {
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
 	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
 	GrabRangeStuds = 10,
-	GrabRetrySeconds = 2,
-	GrabCooldownSeconds = 2, -- per player, between GrabBegin calls
+	GrabRetrySeconds = 2, -- after a failed catch the stray stays (Common, lured), this player waits before trying it again
+	GrabCooldownSeconds = 2, -- per player, between two catches started
 
 	-- The net: closing circles judged on the server (data-model section 10)
 	CircleLeadInSeconds = 0.6, -- from GrabBegin to the first circle starting to shrink

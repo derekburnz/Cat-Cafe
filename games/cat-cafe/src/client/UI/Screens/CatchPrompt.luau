@@ -411,6 +411,7 @@ function CatchPrompt._setRingScale(self: any, alpha: number)
 end
 
 function CatchPrompt.startRing(self: any, config: Types.RingConfig?)
+	self._failToken += 1 -- a new hold cancels the reset a pending retry fail would apply
 	local duration = (config and config.duration) or DEFAULT_DURATION
 	self._good = (config and config.goodBand) or DEFAULT_GOOD
 	self._perfect = (config and config.perfectBand) or DEFAULT_PERFECT
@@ -496,6 +497,7 @@ end
 -- Rescue hold (F21, data-model section 10): the bar fills over the hold; releasing early only resets it.
 function CatchPrompt.startRescue(self: any, duration: number?)
 	local total: number = duration or DEFAULT_RESCUE_HOLD
+	self._failToken += 1 -- a new hold cancels the reset a pending retry fail would apply
 	self:_stopRingLoop()
 	self:_stopRescueLoop()
 	self._ringing = false
@@ -555,21 +557,33 @@ function CatchPrompt.setProgress(self: any, alpha: number)
 	self:_setRingScale(1 - math.clamp(alpha, 0, 1))
 end
 
--- retry = true keeps the prompt open ("Missed, try again"): Commons and lured strays. Otherwise the
--- card flashes the reason and hides, which is what a fleeing cat looks like.
+-- retry = true keeps the prompt open: Commons and lured strays, or a rescue the server turned down for
+-- now ("Someone else is rescuing it"). Otherwise the card flashes the reason and hides, which is what a
+-- fleeing cat looks like. A fail during a rescue hold also stops and hides the rescue bar.
 function CatchPrompt.fail(self: any, reason: string?, retry: boolean?)
 	self._failToken += 1
 	local token = self._failToken
 	self:_stopRingLoop()
+	self:_stopRescueLoop()
 	self._ringing = false
-	self._action.Text = reason or (if retry then "Missed, try again" else "It got away")
+	self._rescuing = false
+	local rescue = self._kind == "rescue"
+	if rescue then
+		self._rescueFill.Size = UDim2.fromScale(0, 1)
+		self._rescueHolder.Visible = false
+	end
+	local fallback = if not retry
+		then "It got away"
+		elseif rescue then "Hold again to rescue it"
+		else "Missed, try again"
+	self._action.Text = reason or fallback
 	self._action.TextColor3 = Theme.colors.warn
 	task.delay(if retry then 1.4 else 0.9, function()
 		if self._failToken ~= token then
 			return
 		end
 		if retry then
-			self._action.Text = "Hold to swing"
+			self._action.Text = if rescue then "Hold to rescue" else "Hold to swing"
 			self._action.TextColor3 = Theme.hud.text
 			self._centreText.Text = ""
 			self._ringHolder.Visible = false

@@ -590,8 +590,12 @@ function UI.catch.setProgress(alpha: number)
 	end
 end
 
--- retry = true keeps the prompt open (Commons, lured strays). Otherwise it flashes and hides (the cat fled).
+-- retry = true keeps the prompt open (Commons, lured strays, a rescue turned down for now). Otherwise it
+-- flashes and hides (the cat fled). A fail that lands while a hold is still down (the server turned down
+-- GrabBegin or RescueBegin) closes that hold: the server holds no lock, so its release or full length sends
+-- nothing and the card keeps the server's reason instead of "Missed" or "Rescued!". Hold again to retry.
 function UI.catch.fail(reason: string?, retry: boolean?)
+	holdOpen = false
 	if catch then
 		catch:fail(reason, retry)
 	end
@@ -793,7 +797,11 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			-- a swing held the full duration with no release. Send no GrabEnd: the server would score it
-			-- as a 1.5 s release. Close the hold, flash the miss and wait for the server's result.
+			-- as a 1.5 s release. Close the hold, flash the miss and wait for the server's result. A hold
+			-- that catch.fail already closed keeps the server's reason on screen.
+			if not holdOpen then
+				return
+			end
 			holdOpen = false
 			catchScreen:expire()
 		end)

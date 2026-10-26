@@ -577,6 +577,8 @@ function UI.catch.show(info: Types.CatchInfo)
 		charm = info.charm,
 		kind = info.kind,
 		rescueSpotId = info.rescueSpotId,
+		press = info.press,
+		shiny = info.shiny,
 	}
 	if catch then
 		catch:show(activeInfo :: Types.CatchInfo)

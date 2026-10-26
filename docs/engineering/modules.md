@@ -44,7 +44,7 @@ Requires use Roblox instance paths (`script.Parent.X`, `ReplicatedStorage.Shared
 
 ## Remotes (server checks in `CafeService` and `CatService`)
 
-As listed in `src/shared/Remotes.luau` and data-model section 15, plus `RequestSync` (client asks for a full sync) and `GrabResult(id, ok, reason, retry)` (server -> client, closes or keeps the catch or rescue prompt; `id` is a strayId or a rescueSpotId). `RescueBegin(rescueSpotId)` locks a stuck cat for 6 s; `RescueEnd(rescueSpotId)` is sent only after a full hold and the server checks the 4 s on its own clock (0.25 s latency allowance).
+As listed in `src/shared/Remotes.luau` and data-model section 15, plus `RequestSync` (client asks for a full sync) and `GrabResult(id, ok, reason, retry)` (server -> client, closes or keeps the catch or rescue prompt; `id` is a strayId or a rescueSpotId). `RescueBegin(rescueSpotId)` locks a stuck cat for 6 s from the holder's latest press; one player's unbroken run of presses on a spot ends after 12 s (2 x RescueLockSeconds) and that player waits 6 s on that spot. `RescueEnd(rescueSpotId)` is sent only after a full hold and the server checks the 4 s on its own clock (0.25 s latency allowance).
 Rate limits: 10 calls per second per player per remote, 30 per second across all remotes; `GrabBegin` 1 per 2 s, `RescueBegin` 1 per s, `EquipBest`, `RequestSync`, `ClaimOffline` 1 per 2 s, `TutorialAdvance` 1 per s. Over the limit is dropped and logged.
 
 ## Test notes

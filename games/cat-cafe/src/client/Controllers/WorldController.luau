@@ -92,17 +92,26 @@ local function applyPhase(phase: any, instant: boolean)
 		Lighting.Brightness = goal.Brightness
 		Lighting.OutdoorAmbient = goal.OutdoorAmbient
 	else
-		TweenService:Create(Lighting, LIGHTING_TWEEN, goal :: any):Play()
+		local tweenGoal = table.clone(goal)
+		-- ClockTime wraps at 24, so dawn runs forward through midnight to 14 the next day (38) instead of
+		-- turning the sun back from 21.5 to 14 (reviewer N23).
+		if not night and Lighting.ClockTime > goal.ClockTime then
+			tweenGoal.ClockTime = goal.ClockTime + 24
+		end
+		TweenService:Create(Lighting, LIGHTING_TWEEN, tweenGoal :: any):Play()
 	end
 	setLampsOn(night)
 end
 
 local function followClock()
-	-- Lamps that stream in or are built later pick up the current state.
-	Workspace.DescendantAdded:Connect(function(descendant: Instance)
-		if descendant:IsA("Light") then
-			setLamp(descendant :: Light)
-		end
+	-- Lamps that stream in or are built later pick up the current state. Lamps live in the World folder, so
+	-- only that folder is watched, not every part of every stray and customer (reviewer N22).
+	task.spawn(function()
+		Workspace:WaitForChild("World").DescendantAdded:Connect(function(descendant: Instance)
+			if descendant:IsA("Light") then
+				setLamp(descendant :: Light)
+			end
+		end)
 	end)
 	local clock = ReplicatedStorage:WaitForChild("Clock")
 	applyPhase(clock:GetAttribute("Phase"), true)

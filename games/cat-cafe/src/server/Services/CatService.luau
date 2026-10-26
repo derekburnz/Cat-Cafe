@@ -52,7 +52,11 @@ type Stuck = {
 	model: Model,
 	spot: BasePart,
 	lockedBy: number,
-	lockAt: number,
+	holdAt: number, -- the holder's latest RescueBegin: times the hold and the lock's RescueLockSeconds
+	lastHolder: number, -- kept after the lock drops, so a holder who lets go and grabs again is not new
+	lockedSince: number, -- when lastHolder's run of locks began; capped at RESCUE_TENURE_SECONDS
+	coolUserId: number, -- refused on this spot until coolUntil, after the cap ended their run
+	coolUntil: number,
 	alive: boolean,
 }
 
@@ -121,15 +125,22 @@ local function lockExpired(stray: Stray): boolean
 	return os.clock() - stray.lockAt > Config.GrabLockSeconds
 end
 
+-- One player's unbroken run of rescue locks on a spot ends after this long: room for two honest tries, and
+-- tapping E cannot hold a spot against everyone else (reviewer S20).
+local RESCUE_TENURE_SECONDS = 2 * Config.RescueLockSeconds
+
 local function setRescueLock(entry: Stuck, userId: number)
 	entry.lockedBy = userId
-	entry.lockAt = os.clock()
+	if userId ~= 0 then
+		entry.holdAt = os.clock()
+		entry.lastHolder = userId
+	end
 	entry.model:SetAttribute("LockedBy", userId)
 	entry.spot:SetAttribute("LockedBy", userId)
 end
 
 local function rescueLockExpired(entry: Stuck): boolean
-	return os.clock() - entry.lockAt > Config.RescueLockSeconds
+	return os.clock() - entry.holdAt > Config.RescueLockSeconds
 end
 
 -- Spawning ------------------------------------------------------------------------------------------------
@@ -428,7 +439,11 @@ local function spawnStuck(spotId: string, areaId: string, spot: BasePart, def: T
 		model = model,
 		spot = spot,
 		lockedBy = 0,
-		lockAt = 0,
+		holdAt = 0,
+		lastHolder = 0,
+		lockedSince = 0,
+		coolUserId = 0,
+		coolUntil = 0,
 		alive = true,
 	}
 	stuckCats[spotId] = entry
@@ -523,7 +538,18 @@ local function attachHeldCat(player: Player, carry: Carry)
 	end
 end
 
-local function startCarry(player: Player, def: Types.CatDef, rescued: boolean)
+-- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it.
+local function startCarry(player: Player, def: Types.CatDef, rescued: boolean): boolean
+	if carrying[player] ~= nil then
+		warn(
+			string.format(
+				"[CatService] %s already carries a cat; %s not carried",
+				player.Name,
+				def.id
+			)
+		)
+		return false
+	end
 	local carry: Carry = { def = def, model = nil, rescued = rescued }
 	carrying[player] = carry
 	attachHeldCat(player, carry)
@@ -534,6 +560,7 @@ local function startCarry(player: Player, def: Types.CatDef, rescued: boolean)
 		string.format("You %s a %s! Walk it home to check in.", verb, def.name),
 		"good"
 	)
+	return true
 end
 
 local function endCarry(player: Player): Carry?
@@ -563,6 +590,19 @@ local function resolveGrab(
 	stray: Stray,
 	ring: Types.RingResult
 )
+	-- A rescue can finish while this swing is in flight (reviewer S21); the carried cat wins.
+	if carrying[player] ~= nil then
+		setLock(stray, 0)
+		Net.fire(
+			player,
+			"GrabResult",
+			stray.id,
+			false,
+			"Check in the cat you are carrying first",
+			true
+		)
+		return
+	end
 	local lured = stray.calm and stray.reservedFor == player.UserId
 	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "net"), lured, ring)
 	local success = Catching.succeeds(chance, rng:NextNumber())
@@ -726,12 +766,34 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		rejectRescue(player, spotId, "You need the Park pass to rescue cats here")
 		return
 	end
+	local now = os.clock()
+	if entry.coolUserId == player.UserId and now < entry.coolUntil then
+		rejectRescue(player, spotId, "Give someone else a turn, then try again")
+		return
+	end
 	if entry.lockedBy ~= 0 and entry.lockedBy ~= player.UserId and not rescueLockExpired(entry) then
 		rejectRescue(player, spotId, "Someone else is rescuing it")
 		return
 	end
 	if not withinRange(player, entry.spot.Position, Config.GrabRangeStuds + 2) then
 		rejectRescue(player, spotId, "Too far away")
+		return
+	end
+	-- A holder who presses again within the lock window, whether the lock is still theirs or they dropped it
+	-- with a short RescueEnd, continues the same run. A run past RESCUE_TENURE_SECONDS ends, and that player
+	-- waits RescueLockSeconds on this spot so someone else can step in (reviewer S20).
+	local continuing = entry.lastHolder == player.UserId
+		and now - entry.holdAt <= Config.RescueLockSeconds
+	if not continuing then
+		entry.lockedSince = now
+	elseif now - entry.lockedSince > RESCUE_TENURE_SECONDS then
+		if entry.lockedBy == player.UserId then
+			setRescueLock(entry, 0)
+		end
+		entry.lastHolder = 0
+		entry.coolUserId = player.UserId
+		entry.coolUntil = now + Config.RescueLockSeconds
+		rejectRescue(player, spotId, "Give someone else a turn, then try again")
 		return
 	end
 	-- One rescue at a time per player, so nobody can hold every spot locked.
@@ -741,9 +803,9 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		end
 	end
 	setRescueLock(entry, player.UserId)
-	local lockAt = entry.lockAt
+	local holdAt = entry.holdAt
 	task.delay(Config.RescueLockSeconds, function()
-		if entry.alive and entry.lockedBy == player.UserId and entry.lockAt == lockAt then
+		if entry.alive and entry.lockedBy == player.UserId and entry.holdAt == holdAt then
 			setRescueLock(entry, 0)
 		end
 	end)
@@ -766,13 +828,13 @@ local function onRescueEnd(player: Player, rawSpotId: unknown)
 	end
 	-- RescueEnd travels later than RescueBegin by however much the two trips' latency differs; the same
 	-- allowance as the swing ring's (RingLatencyGraceSeconds) keeps an honest full hold from reading as short.
-	local held = os.clock() - entry.lockAt
+	local held = os.clock() - entry.holdAt
 	if held < Config.RescueHoldSeconds - Config.RingLatencyGraceSeconds then
 		setRescueLock(entry, 0)
 		rejectRescue(
 			player,
 			spotId,
-			string.format("Hold for the full %d seconds", Config.RescueHoldSeconds)
+			string.format("Hold for the full %g seconds", Config.RescueHoldSeconds)
 		)
 		return
 	end

@@ -245,7 +245,20 @@ local function wireServerEvents()
 	Net.on("OfflineEarnings", function(amount: number, seconds: number)
 		UI.showOfflineEarnings(amount, seconds)
 	end)
-	Net.on("GrabResult", function(_strayId: string, ok: boolean, reason: string, retry: boolean)
+	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)
+		-- Strays and rescue spots share this event and the card. A late answer for a target the card has moved
+		-- on from (a stray's auto-resolve landing after the next hold began) is dropped (reviewer N21).
+		local prompt = UI.catch.getActivePrompt()
+		if prompt ~= nil then
+			local model = prompt:FindFirstAncestorOfClass("Model")
+			local target = prompt:GetAttribute("StrayId") or prompt:GetAttribute("RescueSpotId")
+			if target == nil and model ~= nil then
+				target = model:GetAttribute("StrayId") or model:GetAttribute("RescueSpotId")
+			end
+			if target ~= nil and target ~= id then
+				return
+			end
+		end
 		if ok then
 			UI.catch.hide()
 		else

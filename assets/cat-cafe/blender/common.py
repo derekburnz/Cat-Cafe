@@ -10,9 +10,33 @@ import sys
 
 import bmesh
 import bpy
-from mathutils import Matrix, Vector
+from mathutils import Euler, Matrix, Vector
 
 import palette
+
+# Blender (Z up, front -Y) to Roblox (Y up, front -Z = LookVector): (x, y, z) -> (-x, z, y).
+# It is the rotation the FBX export applies with Forward Z, Up Y, Roblox's documented settings.
+TO_ROBLOX = Matrix(((-1, 0, 0), (0, 0, 1), (0, 1, 0)))
+
+
+def _r(v, n=2):
+    return round(v, n) + 0.0      # + 0.0 turns -0.0 into 0.0
+
+
+def to_roblox(v):
+    """Blender position or offset -> Roblox [x, y, z] in studs."""
+    return [_r(c) for c in TO_ROBLOX @ Vector(v)]
+
+
+def rotation_to_roblox(R):
+    """Blender rotation matrix -> (CFrame.Angles degrees [x, y, z], Roblox 3x3 rotation)."""
+    Rr = TO_ROBLOX @ R.to_3x3() @ TO_ROBLOX.transposed()
+    return [_r(math.degrees(a), 1) for a in Rr.to_euler("ZYX")], Rr   # ZYX here = Rx @ Ry @ Rz = CFrame.Angles
+
+
+def euler_to_roblox(deg_xyz):
+    """Blender XYZ Euler degrees -> CFrame.Angles degrees."""
+    return rotation_to_roblox(Euler([math.radians(a) for a in deg_xyz], "XYZ").to_matrix())[0]
 
 BEVEL = 0.06          # stud, see style guide section 3
 BEVEL_SEGMENTS = 1   # one-segment chamfer reads as soft at Roblox scale and keeps tris low
@@ -227,7 +251,7 @@ def export_asset(objs, name, out_dir, glb=True):
     bpy.ops.export_scene.fbx(
         filepath=fbx, use_selection=True, object_types={"MESH"},
         apply_unit_scale=True, apply_scale_options="FBX_SCALE_UNITS", global_scale=1.0,
-        axis_forward="-Z", axis_up="Y", mesh_smooth_type="FACE", use_mesh_modifiers=True,
+        axis_forward="Z", axis_up="Y", mesh_smooth_type="FACE", use_mesh_modifiers=True,
         add_leaf_bones=False, bake_anim=False, path_mode="COPY", embed_textures=True,
         use_custom_props=False, use_triangles=False,
     )

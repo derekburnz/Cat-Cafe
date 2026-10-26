@@ -1,11 +1,12 @@
 {
-  "generated": "2026-10-26 17:23 UTC",
+  "generated": "2026-10-26 17:34 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
-    "to the Head and the Tail about their own joints. Positions are in studs, Blender axes",
-    "(Z up, -Y forward). Roblox conversion: position (x, y, z) -> (x, z, -y); yaw is the",
-    "Z angle (Roblox Y), pitch the X angle (Roblox X), roll the Y angle (Roblox -Z)."
+    "(Z up, -Y forward); the manifest also gives every value in Roblox axes.",
+    "Roblox: position (x, y, z) -> (-x, z, y), so the front is -Z (LookVector). *_angles_roblox_deg",
+    "go to CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)); body_cframe_roblox is the",
+    "same Body CFrame as CFrame.new(table.unpack(t)), relative to the prop pivot or HumanoidRootPart."
   ],
   "poses": {
     "upright": {
@@ -14,30 +15,54 @@
         0.5,
         0.8
       ],
-      "body_position_roblox": [
-        0.0,
-        0.8,
-        -0.5
-      ],
       "body_rotation_xyz_deg_blender": [
         -90.0,
         -0.0,
         0.0
       ],
-      "body_rotation_roblox": {
-        "pitch_x": -90.0,
-        "yaw_y": 0.0,
-        "roll_z": 0.0
-      },
-      "head_local_xyz_deg": [
+      "head_local_xyz_deg_blender": [
         90,
         0,
         0
       ],
-      "tail_local_xyz_deg": [
+      "tail_local_xyz_deg_blender": [
         80,
         0,
         0
+      ],
+      "body_position_roblox": [
+        0.0,
+        0.8,
+        0.5
+      ],
+      "body_angles_roblox_deg": [
+        90.0,
+        0.0,
+        0.0
+      ],
+      "body_cframe_roblox": [
+        0.0,
+        0.8,
+        0.5,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "head_angles_roblox_deg": [
+        -90.0,
+        0.0,
+        0.0
+      ],
+      "tail_angles_roblox_deg": [
+        -80.0,
+        0.0,
+        0.0
       ],
       "note": "Stands on the hind legs. Same parts; Head pitched back to face forward. Accessories keep their offsets."
     },
@@ -47,30 +72,54 @@
         -1.2,
         3.2
       ],
-      "body_position_roblox": [
-        0.0,
-        3.2,
-        1.2
-      ],
       "body_rotation_xyz_deg_blender": [
         20.0,
         -0.0,
         0.0
       ],
-      "body_rotation_roblox": {
-        "pitch_x": 20.0,
-        "yaw_y": 0.0,
-        "roll_z": 0.0
-      },
-      "head_local_xyz_deg": [
+      "head_local_xyz_deg_blender": [
         -20,
         0,
         0
       ],
-      "tail_local_xyz_deg": [
+      "tail_local_xyz_deg_blender": [
         -40,
         0,
         0
+      ],
+      "body_position_roblox": [
+        0.0,
+        3.2,
+        -1.2
+      ],
+      "body_angles_roblox_deg": [
+        -20.0,
+        0.0,
+        0.0
+      ],
+      "body_cframe_roblox": [
+        0.0,
+        3.2,
+        -1.2,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.9397,
+        0.342,
+        0.0,
+        -0.342,
+        0.9397
+      ],
+      "head_angles_roblox_deg": [
+        20.0,
+        0.0,
+        0.0
+      ],
+      "tail_angles_roblox_deg": [
+        40.0,
+        0.0,
+        0.0
       ],
       "note": "Held in front of the chest, relative to the character's HumanoidRootPart."
     }
@@ -87,6 +136,16 @@
         90,
         0,
         0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.38,
+        -0.62
+      ],
+      "angles_roblox_deg": [
+        -90.0,
+        0.0,
+        0.0
       ]
     },
     "Apron": {
@@ -100,6 +159,16 @@
         90,
         0,
         0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.38,
+        -0.45
+      ],
+      "angles_roblox_deg": [
+        -90.0,
+        0.0,
+        0.0
       ]
     }
   },
@@ -120,6 +189,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -131,7 +205,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
       "joints": {
         "Head": [
@@ -145,6 +219,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -152,6 +238,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -160,6 +251,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -168,6 +264,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -176,6 +277,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -218,6 +324,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.98,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -229,7 +340,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
       "joints": {
         "Head": [
@@ -243,6 +354,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -250,6 +373,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -258,6 +386,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -266,6 +399,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -274,6 +412,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -316,6 +459,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.99,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.5,
         -1.23,
@@ -327,7 +475,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
       "joints": {
         "Head": [
@@ -341,6 +489,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -348,6 +508,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -356,6 +521,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -364,6 +534,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -372,6 +547,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -414,6 +594,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -425,7 +610,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
       "joints": {
         "Head": [
@@ -439,6 +624,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -446,6 +643,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -454,6 +656,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -462,6 +669,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -470,6 +682,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -512,6 +729,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -523,7 +745,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
       "joints": {
         "Head": [
@@ -537,6 +759,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -544,6 +778,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -552,6 +791,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -560,6 +804,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -568,6 +817,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -610,6 +864,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -621,7 +880,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
       "joints": {
         "Head": [
@@ -635,6 +894,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -642,6 +913,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -650,6 +926,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -658,6 +939,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -666,6 +952,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -708,6 +999,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -719,7 +1015,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
       "joints": {
         "Head": [
@@ -733,6 +1029,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -740,6 +1048,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -748,6 +1061,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -756,6 +1074,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -764,6 +1087,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -806,6 +1134,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -817,7 +1150,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
       "joints": {
         "Head": [
@@ -831,6 +1164,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -838,6 +1183,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -846,6 +1196,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -854,6 +1209,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -862,6 +1222,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -904,6 +1269,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.49,
         -1.23,
@@ -915,7 +1285,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
       "joints": {
         "Head": [
@@ -929,6 +1299,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -936,6 +1318,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -944,6 +1331,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -952,6 +1344,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -960,6 +1357,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -1002,6 +1404,11 @@
         "y": 2.59,
         "z": 1.9
       },
+      "size_roblox": [
+        0.97,
+        1.9,
+        2.59
+      ],
       "bounds_min": [
         -0.49,
         -1.2,
@@ -1013,7 +1420,7 @@
         1.9
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
       "joints": {
         "Head": [
@@ -1027,6 +1434,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -1034,6 +1453,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -1042,6 +1466,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -1050,6 +1479,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -1058,6 +1492,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -1100,6 +1539,11 @@
         "y": 3.16,
         "z": 2.14
       },
+      "size_roblox": [
+        1.19,
+        2.14,
+        3.16
+      ],
       "bounds_min": [
         -0.59,
         -1.47,
@@ -1111,7 +1555,7 @@
         2.14
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
       "joints": {
         "Head": [
@@ -1125,6 +1569,18 @@
           1.14
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.2,
+          -0.72
+        ],
+        "Tail": [
+          0.0,
+          1.14,
+          0.9
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -1132,6 +1588,11 @@
             0.0,
             -0.68,
             0.24
+          ],
+          "offset_roblox": [
+            0.0,
+            0.24,
+            -0.68
           ]
         },
         "Hat": {
@@ -1140,6 +1601,11 @@
             0.0,
             -0.22,
             0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.22
           ]
         },
         "BowTie": {
@@ -1148,6 +1614,11 @@
             0.0,
             -0.86,
             1.14
+          ],
+          "offset_roblox": [
+            0.0,
+            1.14,
+            -0.86
           ]
         },
         "Apron": {
@@ -1156,6 +1627,11 @@
             0.0,
             -0.84,
             1.2
+          ],
+          "offset_roblox": [
+            0.0,
+            1.2,
+            -0.84
           ]
         }
       },
@@ -1198,6 +1674,11 @@
         "y": 2.64,
         "z": 1.78
       },
+      "size_roblox": [
+        1.04,
+        1.78,
+        2.64
+      ],
       "bounds_min": [
         -0.52,
         -1.23,
@@ -1209,7 +1690,7 @@
         1.78
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Legendary",
       "joints": {
         "Head": [
@@ -1223,6 +1704,18 @@
           0.95
         ]
       },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
       "attachments": {
         "Glasses": {
           "part": "Head",
@@ -1230,6 +1723,11 @@
             0.0,
             -0.57,
             0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
           ]
         },
         "Hat": {
@@ -1238,6 +1736,11 @@
             0.0,
             -0.18,
             0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
           ]
         },
         "BowTie": {
@@ -1246,6 +1749,11 @@
             0.0,
             -0.72,
             0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
           ]
         },
         "Apron": {
@@ -1254,6 +1762,11 @@
             0.0,
             -0.7,
             1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
           ]
         }
       },
@@ -1295,6 +1808,11 @@
         "y": 1.3,
         "z": 5.05
       },
+      "size_roblox": [
+        4.0,
+        5.05,
+        1.3
+      ],
       "bounds_min": [
         -2.0,
         -0.66,
@@ -1306,7 +1824,7 @@
         5.05
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_A.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_A.glb"
@@ -1342,6 +1860,11 @@
         "y": 1.4,
         "z": 4.08
       },
+      "size_roblox": [
+        3.2,
+        4.08,
+        1.4
+      ],
       "bounds_min": [
         -1.6,
         -0.88,
@@ -1353,7 +1876,7 @@
         4.08
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_B.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_B.glb"
@@ -1391,6 +1914,11 @@
         "y": 1.3,
         "z": 5.05
       },
+      "size_roblox": [
+        4.35,
+        5.05,
+        1.3
+      ],
       "bounds_min": [
         -2.0,
         -0.66,
@@ -1402,7 +1930,7 @@
         5.05
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_C.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_C.glb"
@@ -1440,6 +1968,11 @@
         "y": 2.63,
         "z": 4.2
       },
+      "size_roblox": [
+        8.4,
+        4.2,
+        2.63
+      ],
       "bounds_min": [
         -4.2,
         -1.33,
@@ -1451,11 +1984,16 @@
         4.2
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "sit_point": [
         2.0,
         0.0,
         3.0
+      ],
+      "sit_point_roblox": [
+        -2.0,
+        3.0,
+        0.0
       ],
       "studio": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
       "files": [
@@ -1493,6 +2031,11 @@
         "y": 1.65,
         "z": 1.4
       },
+      "size_roblox": [
+        1.63,
+        1.4,
+        1.65
+      ],
       "bounds_min": [
         -0.7,
         -1.15,
@@ -1504,7 +2047,7 @@
         1.4
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L1.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L1.glb"
@@ -1542,6 +2085,11 @@
         "y": 1.65,
         "z": 1.5
       },
+      "size_roblox": [
+        1.63,
+        1.5,
+        1.65
+      ],
       "bounds_min": [
         -0.7,
         -1.15,
@@ -1553,7 +2101,7 @@
         1.5
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L2.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L2.glb"
@@ -1591,6 +2139,11 @@
         "y": 1.65,
         "z": 1.8
       },
+      "size_roblox": [
+        2.46,
+        1.8,
+        1.65
+      ],
       "bounds_min": [
         -1.23,
         -1.15,
@@ -1602,7 +2155,7 @@
         1.8
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L3.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L3.glb"
@@ -1640,6 +2193,11 @@
         "y": 1.78,
         "z": 0.48
       },
+      "size_roblox": [
+        1.78,
+        0.48,
+        1.78
+      ],
       "bounds_min": [
         -0.89,
         -0.89,
@@ -1651,11 +2209,16 @@
         0.48
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "sit_point": [
         0,
         0,
         0.46
+      ],
+      "sit_point_roblox": [
+        0.0,
+        0.46,
+        0.0
       ],
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_Cushion.fbx",
@@ -1692,6 +2255,11 @@
         "y": 1.2,
         "z": 1.42
       },
+      "size_roblox": [
+        3.0,
+        1.42,
+        1.2
+      ],
       "bounds_min": [
         -1.5,
         -1.2,
@@ -1703,11 +2271,16 @@
         0.82
       ],
       "pivot": "wall: back-bottom center",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "sit_point": [
         0,
         -0.6,
         0.12
+      ],
+      "sit_point_roblox": [
+        0.0,
+        0.12,
+        -0.6
       ],
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_WallShelf.fbx",
@@ -1744,6 +2317,11 @@
         "y": 2.05,
         "z": 4.47
       },
+      "size_roblox": [
+        2.35,
+        4.47,
+        2.05
+      ],
       "bounds_min": [
         -1.2,
         -1.05,
@@ -1755,11 +2333,16 @@
         4.47
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "sit_point": [
         0.5,
         -0.4,
         4.45
+      ],
+      "sit_point_roblox": [
+        -0.5,
+        4.45,
+        -0.4
       ],
       "studio": "CollisionFidelity Hull.",
       "files": [
@@ -1797,6 +2380,11 @@
         "y": 1.4,
         "z": 2.21
       },
+      "size_roblox": [
+        4.0,
+        2.21,
+        1.4
+      ],
       "bounds_min": [
         -2.0,
         -0.7,
@@ -1808,11 +2396,16 @@
         2.21
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "sit_point": [
         0,
         -0.1,
         1.6
+      ],
+      "sit_point_roblox": [
+        0.0,
+        1.6,
+        -0.1
       ],
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_WindowSeat.fbx",
@@ -1849,6 +2442,11 @@
         "y": 1.42,
         "z": 3.0
       },
+      "size_roblox": [
+        4.0,
+        3.0,
+        1.42
+      ],
       "bounds_min": [
         -2.0,
         -0.65,
@@ -1860,11 +2458,16 @@
         3.0
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "sit_point": [
         0,
         -0.1,
         1.37
+      ],
+      "sit_point_roblox": [
+        0.0,
+        1.37,
+        -0.1
       ],
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_PatioBench.fbx",
@@ -1903,6 +2506,11 @@
         "y": 3.6,
         "z": 2.6
       },
+      "size_roblox": [
+        3.6,
+        2.6,
+        3.6
+      ],
       "bounds_min": [
         -1.8,
         -1.8,
@@ -1914,7 +2522,7 @@
         2.6
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_TableRound.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_TableRound.glb"
@@ -1950,6 +2558,11 @@
         "y": 1.5,
         "z": 3.0
       },
+      "size_roblox": [
+        1.5,
+        3.0,
+        1.5
+      ],
       "bounds_min": [
         -0.75,
         -0.75,
@@ -1961,7 +2574,7 @@
         3.0
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Furniture_Chair.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_Chair.glb"
@@ -1998,6 +2611,11 @@
         "y": 0.14,
         "z": 1.88
       },
+      "size_roblox": [
+        3.35,
+        1.88,
+        0.14
+      ],
       "bounds_min": [
         -1.67,
         -0.09,
@@ -2009,7 +2627,7 @@
         0.0
       ],
       "pivot": "hook (geometry hangs below the pivot)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_DoorSign.fbx",
@@ -2049,6 +2667,11 @@
         "y": 0.32,
         "z": 1.18
       },
+      "size_roblox": [
+        8.03,
+        1.18,
+        0.32
+      ],
       "bounds_min": [
         -0.02,
         -0.16,
@@ -2059,8 +2682,8 @@
         0.16,
         0.03
       ],
-      "pivot": "left end of the strand; it runs +X (Roblox +X) and sags below the pivot",
-      "front": "-Z in Roblox (Blender -Y)",
+      "pivot": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand; SmoothPlastic by day.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_StringLights.fbx",
@@ -2100,6 +2723,11 @@
         "y": 0.6,
         "z": 1.2
       },
+      "size_roblox": [
+        3.0,
+        1.2,
+        0.6
+      ],
       "bounds_min": [
         -1.5,
         -0.6,
@@ -2111,7 +2739,7 @@
         1.2
       ],
       "pivot": "wall: back-bottom center",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_WindowPlants.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_WindowPlants.glb"
@@ -2147,6 +2775,11 @@
         "y": 4.0,
         "z": 0.1
       },
+      "size_roblox": [
+        4.0,
+        0.1,
+        4.0
+      ],
       "bounds_min": [
         -2.0,
         -2.0,
@@ -2158,7 +2791,7 @@
         0.1
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_Rug.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_Rug.glb"
@@ -2195,6 +2828,11 @@
         "y": 0.22,
         "z": 2.42
       },
+      "size_roblox": [
+        3.0,
+        2.42,
+        0.22
+      ],
       "bounds_min": [
         -1.5,
         -0.22,
@@ -2206,7 +2844,7 @@
         2.42
       ],
       "pivot": "wall: back-bottom center",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_NeonSign.fbx",
@@ -2246,6 +2884,11 @@
         "y": 1.5,
         "z": 3.85
       },
+      "size_roblox": [
+        3.3,
+        3.85,
+        1.5
+      ],
       "bounds_min": [
         -1.65,
         -0.75,
@@ -2257,7 +2900,7 @@
         3.85
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Glass: Transparency 0.5. Water: Transparency 0.3, Material Glass.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_FishTank.fbx",
@@ -2295,6 +2938,11 @@
         "y": 1.51,
         "z": 2.6
       },
+      "size_roblox": [
+        1.51,
+        2.6,
+        1.51
+      ],
       "bounds_min": [
         -0.75,
         -0.75,
@@ -2306,7 +2954,7 @@
         0.0
       ],
       "pivot": "ceiling hook (geometry hangs below the pivot)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Bulb: Material Neon + PointLight 255,214,170 range 14.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_HangingLamp.fbx",
@@ -2343,6 +2991,11 @@
         "y": 1.12,
         "z": 1.9
       },
+      "size_roblox": [
+        1.13,
+        1.9,
+        1.12
+      ],
       "bounds_min": [
         -0.56,
         -0.56,
@@ -2354,7 +3007,7 @@
         1.9
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.glb"
@@ -2390,6 +3043,11 @@
         "y": 0.14,
         "z": 1.5
       },
+      "size_roblox": [
+        2.12,
+        1.5,
+        0.14
+      ],
       "bounds_min": [
         -1.06,
         -0.14,
@@ -2401,7 +3059,7 @@
         1.5
       ],
       "pivot": "wall: back-bottom center",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.glb"
@@ -2437,6 +3095,11 @@
         "y": 0.7,
         "z": 0.3
       },
+      "size_roblox": [
+        0.7,
+        0.3,
+        0.7
+      ],
       "bounds_min": [
         -0.35,
         -0.35,
@@ -2448,7 +3111,7 @@
         0.3
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_Cup.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_Cup.glb"
@@ -2484,6 +3147,11 @@
         "y": 2.89,
         "z": 8.0
       },
+      "size_roblox": [
+        5.11,
+        8.0,
+        2.89
+      ],
       "bounds_min": [
         -1.99,
         -1.45,
@@ -2495,37 +3163,61 @@
         8.0
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "stuck_pose": {
         "body_position_blender": [
           1.4,
           0.0,
           4.4
         ],
-        "body_position_roblox": [
-          1.4,
-          4.4,
-          -0.0
-        ],
         "body_rotation_xyz_deg_blender": [
           0.0,
           20.0,
           0.0
         ],
-        "body_rotation_roblox": {
-          "pitch_x": 0.0,
-          "yaw_y": 0.0,
-          "roll_z": -20.0
-        },
-        "head_local_xyz_deg": [
+        "head_local_xyz_deg_blender": [
           30,
           0,
           0
         ],
-        "tail_local_xyz_deg": [
+        "tail_local_xyz_deg_blender": [
           10,
           0,
           0
+        ],
+        "body_position_roblox": [
+          -1.4,
+          4.4,
+          0.0
+        ],
+        "body_angles_roblox_deg": [
+          0.0,
+          0.0,
+          20.0
+        ],
+        "body_cframe_roblox": [
+          -1.4,
+          4.4,
+          0.0,
+          0.9397,
+          -0.342,
+          0.0,
+          0.342,
+          0.9397,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "head_angles_roblox_deg": [
+          -30.0,
+          0.0,
+          0.0
+        ],
+        "tail_angles_roblox_deg": [
+          -10.0,
+          0.0,
+          0.0
         ],
         "note": "Clings to the low branch, rolled toward the trunk, looking down."
       },
@@ -2567,6 +3259,11 @@
         "y": 2.19,
         "z": 2.1
       },
+      "size_roblox": [
+        2.29,
+        2.1,
+        2.19
+      ],
       "bounds_min": [
         -1.44,
         -0.72,
@@ -2578,37 +3275,61 @@
         2.1
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "stuck_pose": {
         "body_position_blender": [
           0.0,
           -0.6,
           0.0
         ],
-        "body_position_roblox": [
-          0.0,
-          0.0,
-          0.6
-        ],
         "body_rotation_xyz_deg_blender": [
           0.0,
           -0.0,
           -180.0
         ],
-        "body_rotation_roblox": {
-          "pitch_x": 0.0,
-          "yaw_y": -180.0,
-          "roll_z": 0.0
-        },
-        "head_local_xyz_deg": [
+        "head_local_xyz_deg_blender": [
           0,
           0,
           0
         ],
-        "tail_local_xyz_deg": [
+        "tail_local_xyz_deg_blender": [
           30,
           0,
           0
+        ],
+        "body_position_roblox": [
+          0.0,
+          0.0,
+          -0.6
+        ],
+        "body_angles_roblox_deg": [
+          0.0,
+          -180.0,
+          0.0
+        ],
+        "body_cframe_roblox": [
+          0.0,
+          0.0,
+          -0.6,
+          -1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "head_angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "tail_angles_roblox_deg": [
+          -30.0,
+          0.0,
+          0.0
         ],
         "note": "Head inside the box opening (hidden by the box walls), tail up."
       },
@@ -2650,6 +3371,11 @@
         "y": 2.98,
         "z": 8.36
       },
+      "size_roblox": [
+        2.6,
+        8.36,
+        2.98
+      ],
       "bounds_min": [
         -1.3,
         -2.98,
@@ -2661,37 +3387,61 @@
         8.3
       ],
       "pivot": "wall: back-bottom center",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "stuck_pose": {
         "body_position_blender": [
           0.0,
           -2.0,
           0.0
         ],
-        "body_position_roblox": [
-          0.0,
-          0.0,
-          2.0
-        ],
         "body_rotation_xyz_deg_blender": [
           0.0,
           -0.0,
           0.0
         ],
-        "body_rotation_roblox": {
-          "pitch_x": 0.0,
-          "yaw_y": 0.0,
-          "roll_z": 0.0
-        },
-        "head_local_xyz_deg": [
+        "head_local_xyz_deg_blender": [
           -10,
           0,
           0
         ],
-        "tail_local_xyz_deg": [
+        "tail_local_xyz_deg_blender": [
           60,
           0,
           0
+        ],
+        "body_position_roblox": [
+          0.0,
+          0.0,
+          -2.0
+        ],
+        "body_angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body_cframe_roblox": [
+          0.0,
+          0.0,
+          -2.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "head_angles_roblox_deg": [
+          10.0,
+          0.0,
+          0.0
+        ],
+        "tail_angles_roblox_deg": [
+          -60.0,
+          0.0,
+          0.0
         ],
         "note": "Body inside the outlet, head poking out of the open end, tail against the back."
       },
@@ -2732,6 +3482,11 @@
         "y": 0.7,
         "z": 3.7
       },
+      "size_roblox": [
+        4.8,
+        3.7,
+        0.7
+      ],
       "bounds_min": [
         -2.4,
         -0.7,
@@ -2743,7 +3498,7 @@
         3.7
       ],
       "pivot": "wall: back-bottom center",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, plus a PointLight.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_ShopWindow.fbx",
@@ -2780,6 +3535,11 @@
         "y": 3.66,
         "z": 6.67
       },
+      "size_roblox": [
+        6.4,
+        6.67,
+        3.66
+      ],
       "bounds_min": [
         -3.2,
         -1.8,
@@ -2791,7 +3551,7 @@
         6.69
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "CollisionFidelity Hull.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Dumpster.fbx",
@@ -2828,6 +3588,11 @@
         "y": 1.72,
         "z": 2.57
       },
+      "size_roblox": [
+        1.72,
+        2.57,
+        1.72
+      ],
       "bounds_min": [
         -0.86,
         -0.86,
@@ -2839,7 +3604,7 @@
         2.57
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_TrashCan.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_TrashCan.glb"
@@ -2876,6 +3641,11 @@
         "y": 2.32,
         "z": 9.5
       },
+      "size_roblox": [
+        0.9,
+        9.5,
+        2.32
+      ],
       "bounds_min": [
         -0.45,
         -1.95,
@@ -2887,7 +3657,7 @@
         9.5
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Bulb: Material Neon + SpotLight pointing down, warm.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_StreetLamp.fbx",
@@ -2926,6 +3696,11 @@
         "y": 1.54,
         "z": 1.5
       },
+      "size_roblox": [
+        1.52,
+        1.5,
+        1.54
+      ],
       "bounds_min": [
         -0.76,
         -0.78,
@@ -2937,7 +3712,7 @@
         1.5
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Crate.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Crate.glb"
@@ -2973,6 +3748,11 @@
         "y": 2.79,
         "z": 1.52
       },
+      "size_roblox": [
+        2.79,
+        1.52,
+        2.79
+      ],
       "bounds_min": [
         -1.39,
         -1.39,
@@ -2984,7 +3764,7 @@
         1.52
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_CardboardBox.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_CardboardBox.glb"
@@ -3020,6 +3800,11 @@
         "y": 3.0,
         "z": 0.3
       },
+      "size_roblox": [
+        3.0,
+        0.3,
+        3.0
+      ],
       "bounds_min": [
         -1.5,
         -1.5,
@@ -3031,7 +3816,7 @@
         0.3
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Pallet.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Pallet.glb"
@@ -3067,6 +3852,11 @@
         "y": 1.69,
         "z": 0.04
       },
+      "size_roblox": [
+        2.53,
+        0.04,
+        1.69
+      ],
       "bounds_min": [
         -1.27,
         -0.84,
@@ -3078,7 +3868,7 @@
         0.04
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Puddle.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Puddle.glb"
@@ -3114,6 +3904,11 @@
         "y": 1.42,
         "z": 3.0
       },
+      "size_roblox": [
+        4.0,
+        3.0,
+        1.42
+      ],
       "bounds_min": [
         -2.0,
         -0.65,
@@ -3125,7 +3920,7 @@
         3.0
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Bench.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Bench.glb"
@@ -3163,6 +3958,11 @@
         "y": 3.64,
         "z": 7.4
       },
+      "size_roblox": [
+        4.54,
+        7.4,
+        3.64
+      ],
       "bounds_min": [
         -2.17,
         -1.94,
@@ -3174,7 +3974,7 @@
         7.4
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Tree.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Tree.glb"
@@ -3213,6 +4013,11 @@
         "y": 5.0,
         "z": 3.7
       },
+      "size_roblox": [
+        5.0,
+        3.7,
+        5.0
+      ],
       "bounds_min": [
         -2.5,
         -2.5,
@@ -3224,7 +4029,7 @@
         3.7
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Water: Transparency 0.3. Optional ParticleEmitter at the top ball.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Fountain.fbx",
@@ -3263,6 +4068,11 @@
         "y": 1.0,
         "z": 8.45
       },
+      "size_roblox": [
+        5.8,
+        8.45,
+        1.0
+      ],
       "bounds_min": [
         -2.9,
         -0.5,
@@ -3274,7 +4084,7 @@
         8.45
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "LeafL and LeafR pivot at their hinge pillars; rotate about Y to open.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
@@ -3311,6 +4121,11 @@
         "y": 0.92,
         "z": 0.31
       },
+      "size_roblox": [
+        0.92,
+        0.31,
+        0.92
+      ],
       "bounds_min": [
         -0.46,
         -0.46,
@@ -3322,7 +4137,7 @@
         0.31
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl.glb"
@@ -3358,6 +4173,11 @@
         "y": 1.01,
         "z": 0.44
       },
+      "size_roblox": [
+        0.96,
+        0.44,
+        1.01
+      ],
       "bounds_min": [
         -0.48,
         -0.48,
@@ -3369,7 +4189,7 @@
         0.44
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Premium.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Premium.glb"
@@ -3405,6 +4225,11 @@
         "y": 0.44,
         "z": 1.0
       },
+      "size_roblox": [
+        0.72,
+        1.0,
+        0.44
+      ],
       "bounds_min": [
         -0.36,
         -0.23,
@@ -3416,7 +4241,7 @@
         1.0
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Kibble.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Kibble.glb"
@@ -3452,6 +4277,11 @@
         "y": 0.73,
         "z": 0.3
       },
+      "size_roblox": [
+        0.72,
+        0.3,
+        0.73
+      ],
       "bounds_min": [
         -0.36,
         -0.37,
@@ -3463,7 +4293,7 @@
         0.3
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_TunaCan.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_TunaCan.glb"
@@ -3499,6 +4329,11 @@
         "y": 1.04,
         "z": 0.55
       },
+      "size_roblox": [
+        0.37,
+        0.55,
+        1.04
+      ],
       "bounds_min": [
         -0.18,
         -0.35,
@@ -3510,7 +4345,7 @@
         0.55
       ],
       "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Salmon.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Salmon.glb"
@@ -3549,6 +4384,11 @@
         "y": 4.8,
         "z": 1.17
       },
+      "size_roblox": [
+        1.75,
+        1.17,
+        4.8
+      ],
       "bounds_min": [
         -0.88,
         -4.8,
@@ -3560,7 +4400,7 @@
         0.12
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L1.fbx",
@@ -3601,6 +4441,11 @@
         "y": 5.4,
         "z": 1.17
       },
+      "size_roblox": [
+        2.05,
+        1.17,
+        5.4
+      ],
       "bounds_min": [
         -1.02,
         -5.4,
@@ -3612,7 +4457,7 @@
         0.12
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L2.fbx",
@@ -3653,6 +4498,11 @@
         "y": 6.05,
         "z": 1.2
       },
+      "size_roblox": [
+        2.5,
+        1.2,
+        6.05
+      ],
       "bounds_min": [
         -1.25,
         -6.05,
@@ -3664,7 +4514,7 @@
         0.15
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L3.fbx",
@@ -3704,6 +4554,11 @@
         "y": 0.7,
         "z": 0.3
       },
+      "size_roblox": [
+        0.79,
+        0.3,
+        0.7
+      ],
       "bounds_min": [
         -0.4,
         -0.05,
@@ -3715,13 +4570,18 @@
         0.15
       ],
       "pivot": "attachment point (see attach)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "attach": {
         "part": "Head",
         "offset": [
           0.0,
           -0.57,
           0.2
+        ],
+        "offset_roblox": [
+          0.0,
+          0.2,
+          -0.57
         ]
       },
       "files": [
@@ -3762,6 +4622,11 @@
         "y": 0.13,
         "z": 0.29
       },
+      "size_roblox": [
+        0.72,
+        0.29,
+        0.13
+      ],
       "bounds_min": [
         -0.36,
         -0.06,
@@ -3773,13 +4638,18 @@
         0.15
       ],
       "pivot": "attachment point (see attach)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "attach": {
         "part": "Body",
         "offset": [
           0.0,
           -0.72,
           0.95
+        ],
+        "offset_roblox": [
+          0.0,
+          0.95,
+          -0.72
         ]
       },
       "files": [
@@ -3819,6 +4689,11 @@
         "y": 0.06,
         "z": 0.66
       },
+      "size_roblox": [
+        0.7,
+        0.66,
+        0.06
+      ],
       "bounds_min": [
         -0.35,
         -0.04,
@@ -3830,13 +4705,18 @@
         0.04
       ],
       "pivot": "attachment point (see attach)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "attach": {
         "part": "Body",
         "offset": [
           0.0,
           -0.7,
           1.0
+        ],
+        "offset_roblox": [
+          0.0,
+          1.0,
+          -0.7
         ]
       },
       "files": [
@@ -3876,6 +4756,11 @@
         "y": 0.69,
         "z": 0.32
       },
+      "size_roblox": [
+        0.69,
+        0.32,
+        0.69
+      ],
       "bounds_min": [
         -0.35,
         -0.35,
@@ -3887,13 +4772,18 @@
         0.32
       ],
       "pivot": "attachment point (see attach)",
-      "front": "-Z in Roblox (Blender -Y)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "attach": {
         "part": "Head",
         "offset": [
           0.0,
           -0.18,
           0.5
+        ],
+        "offset_roblox": [
+          0.0,
+          0.5,
+          -0.18
         ]
       },
       "files": [

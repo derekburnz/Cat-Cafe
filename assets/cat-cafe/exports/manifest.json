@@ -1,0 +1,1868 @@
+{
+  "generated": "2026-10-25 21:22 UTC",
+  "units": "studs",
+  "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
+  "assets": [
+    {
+      "name": "CatCafe_Cat_Tabby",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Tabby_Body",
+        "CatCafe_Cat_Tabby_Head",
+        "CatCafe_Cat_Tabby_Tail"
+      ],
+      "triangles": 876,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Common",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Tabby.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Tabby.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby.png"
+    },
+    {
+      "name": "CatCafe_Cat_Tuxedo",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Tuxedo_Body",
+        "CatCafe_Cat_Tuxedo_Head",
+        "CatCafe_Cat_Tuxedo_Tail"
+      ],
+      "triangles": 1028,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.98,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Common",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo.png"
+    },
+    {
+      "name": "CatCafe_Cat_Ginger",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Ginger_Body",
+        "CatCafe_Cat_Ginger_Head",
+        "CatCafe_Cat_Ginger_Tail"
+      ],
+      "triangles": 804,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.99,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.5,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Common",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Ginger.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Ginger.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger.png"
+    },
+    {
+      "name": "CatCafe_Cat_Smoke",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Smoke_Body",
+        "CatCafe_Cat_Smoke_Head",
+        "CatCafe_Cat_Smoke_Tail"
+      ],
+      "triangles": 792,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Common",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Smoke.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Smoke.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke.png"
+    },
+    {
+      "name": "CatCafe_Cat_Snow",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Snow_Body",
+        "CatCafe_Cat_Snow_Head",
+        "CatCafe_Cat_Snow_Tail"
+      ],
+      "triangles": 792,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Common",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Snow.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Snow.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow.png"
+    },
+    {
+      "name": "CatCafe_Cat_Calico",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Calico_Body",
+        "CatCafe_Cat_Calico_Head",
+        "CatCafe_Cat_Calico_Tail"
+      ],
+      "triangles": 864,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Rare",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Calico.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Calico.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico.png"
+    },
+    {
+      "name": "CatCafe_Cat_Siamese",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Siamese_Body",
+        "CatCafe_Cat_Siamese_Head",
+        "CatCafe_Cat_Siamese_Tail"
+      ],
+      "triangles": 804,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Rare",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Siamese.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Siamese.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese.png"
+    },
+    {
+      "name": "CatCafe_Cat_Tortie",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Tortie_Body",
+        "CatCafe_Cat_Tortie_Head",
+        "CatCafe_Cat_Tortie_Tail"
+      ],
+      "triangles": 864,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Rare",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Tortie.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Tortie.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie.png"
+    },
+    {
+      "name": "CatCafe_Cat_Bengal",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Bengal_Body",
+        "CatCafe_Cat_Bengal_Head",
+        "CatCafe_Cat_Bengal_Tail"
+      ],
+      "triangles": 888,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.49,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Rare",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Bengal.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Bengal.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal.png"
+    },
+    {
+      "name": "CatCafe_Cat_Sphynx",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Sphynx_Body",
+        "CatCafe_Cat_Sphynx_Head",
+        "CatCafe_Cat_Sphynx_Tail"
+      ],
+      "triangles": 764,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.57,
+        "z": 1.9
+      },
+      "bounds_min": [
+        -0.49,
+        -1.19,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.38,
+        1.9
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Epic",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx.png"
+    },
+    {
+      "name": "CatCafe_Cat_Ragdoll",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Ragdoll_Body",
+        "CatCafe_Cat_Ragdoll_Head",
+        "CatCafe_Cat_Ragdoll_Tail"
+      ],
+      "triangles": 816,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.19,
+        "y": 3.15,
+        "z": 2.14
+      },
+      "bounds_min": [
+        -0.59,
+        -1.45,
+        0.0
+      ],
+      "bounds_max": [
+        0.59,
+        1.69,
+        2.14
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Epic",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll.png"
+    },
+    {
+      "name": "CatCafe_Cat_Void",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_Void_Body",
+        "CatCafe_Cat_Void_Head",
+        "CatCafe_Cat_Void_Tail"
+      ],
+      "triangles": 828,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.62,
+        "z": 1.78
+      },
+      "bounds_min": [
+        -0.52,
+        -1.21,
+        0.0
+      ],
+      "bounds_max": [
+        0.52,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "rarity": "Legendary",
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "studio": "Head eyes are amber in the texture; add a Neon eye Part or Highlight for the glow.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_Void.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_Void.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void.png"
+    },
+    {
+      "name": "CatCafe_NPC_Customer_A",
+      "category": "NPC",
+      "module": "npc",
+      "objects": [
+        "CatCafe_NPC_Customer_A"
+      ],
+      "triangles": 530,
+      "budget": 1000,
+      "size_studs": {
+        "x": 4.0,
+        "y": 1.3,
+        "z": 5.05
+      },
+      "bounds_min": [
+        -2.0,
+        -0.66,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        0.64,
+        5.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_A.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_A.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_A.png"
+    },
+    {
+      "name": "CatCafe_NPC_Customer_B",
+      "category": "NPC",
+      "module": "npc",
+      "objects": [
+        "CatCafe_NPC_Customer_B"
+      ],
+      "triangles": 530,
+      "budget": 1000,
+      "size_studs": {
+        "x": 3.2,
+        "y": 1.4,
+        "z": 4.08
+      },
+      "bounds_min": [
+        -1.6,
+        -0.88,
+        0.0
+      ],
+      "bounds_max": [
+        1.6,
+        0.52,
+        4.08
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_B.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_B.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_B.png"
+    },
+    {
+      "name": "CatCafe_NPC_Customer_C",
+      "category": "NPC",
+      "module": "npc",
+      "objects": [
+        "CatCafe_NPC_Customer_C"
+      ],
+      "triangles": 634,
+      "budget": 1000,
+      "size_studs": {
+        "x": 4.35,
+        "y": 1.3,
+        "z": 5.05
+      },
+      "bounds_min": [
+        -2.0,
+        -0.66,
+        0.0
+      ],
+      "bounds_max": [
+        2.35,
+        0.64,
+        5.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_C.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Customer_C.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_C.png"
+    },
+    {
+      "name": "CatCafe_Furniture_Counter",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_Counter"
+      ],
+      "triangles": 1180,
+      "budget": 3000,
+      "size_studs": {
+        "x": 8.4,
+        "y": 2.63,
+        "z": 4.2
+      },
+      "bounds_min": [
+        -4.2,
+        -1.33,
+        0.0
+      ],
+      "bounds_max": [
+        4.2,
+        1.3,
+        4.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "sit_point": [
+        2.0,
+        0.0,
+        3.0
+      ],
+      "studio": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_Counter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_Counter.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Counter.png"
+    },
+    {
+      "name": "CatCafe_Furniture_EspressoMachine_L1",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_EspressoMachine_L1"
+      ],
+      "triangles": 606,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.63,
+        "y": 1.65,
+        "z": 1.4
+      },
+      "bounds_min": [
+        -0.7,
+        -1.15,
+        0.0
+      ],
+      "bounds_max": [
+        0.93,
+        0.5,
+        1.4
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L1.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L1.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L1.png"
+    },
+    {
+      "name": "CatCafe_Furniture_EspressoMachine_L2",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_EspressoMachine_L2"
+      ],
+      "triangles": 758,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.63,
+        "y": 1.65,
+        "z": 1.5
+      },
+      "bounds_min": [
+        -0.7,
+        -1.15,
+        0.0
+      ],
+      "bounds_max": [
+        0.93,
+        0.5,
+        1.5
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L2.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L2.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L2.png"
+    },
+    {
+      "name": "CatCafe_Furniture_EspressoMachine_L3",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_EspressoMachine_L3"
+      ],
+      "triangles": 990,
+      "budget": 1000,
+      "size_studs": {
+        "x": 2.46,
+        "y": 1.65,
+        "z": 1.8
+      },
+      "bounds_min": [
+        -1.23,
+        -1.15,
+        0.0
+      ],
+      "bounds_max": [
+        1.23,
+        0.5,
+        1.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L3.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L3.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L3.png"
+    },
+    {
+      "name": "CatCafe_Furniture_Cushion",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_Cushion"
+      ],
+      "triangles": 420,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.78,
+        "y": 1.78,
+        "z": 0.44
+      },
+      "bounds_min": [
+        -0.89,
+        -0.89,
+        0.0
+      ],
+      "bounds_max": [
+        0.89,
+        0.89,
+        0.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "sit_point": [
+        0,
+        0,
+        0.42
+      ],
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_Cushion.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_Cushion.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Cushion.png"
+    },
+    {
+      "name": "CatCafe_Furniture_WallShelf",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_WallShelf"
+      ],
+      "triangles": 252,
+      "budget": 800,
+      "size_studs": {
+        "x": 3.0,
+        "y": 1.2,
+        "z": 1.42
+      },
+      "bounds_min": [
+        -1.5,
+        -1.2,
+        -0.6
+      ],
+      "bounds_max": [
+        1.5,
+        0.0,
+        0.82
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox (Blender -Y)",
+      "sit_point": [
+        0,
+        -0.6,
+        0.12
+      ],
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallShelf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WallShelf.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_WallShelf.png"
+    },
+    {
+      "name": "CatCafe_Furniture_CatTree",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_CatTree"
+      ],
+      "triangles": 1360,
+      "budget": 1200,
+      "size_studs": {
+        "x": 2.35,
+        "y": 2.05,
+        "z": 4.47
+      },
+      "bounds_min": [
+        -1.2,
+        -1.05,
+        0.0
+      ],
+      "bounds_max": [
+        1.15,
+        1.0,
+        4.47
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "sit_point": [
+        0.5,
+        -0.4,
+        4.45
+      ],
+      "studio": "CollisionFidelity Hull.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_CatTree.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_CatTree.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_CatTree.png"
+    },
+    {
+      "name": "CatCafe_Furniture_WindowSeat",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_WindowSeat"
+      ],
+      "triangles": 264,
+      "budget": 800,
+      "size_studs": {
+        "x": 4.0,
+        "y": 1.4,
+        "z": 2.21
+      },
+      "bounds_min": [
+        -2.0,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        0.7,
+        2.21
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "sit_point": [
+        0,
+        -0.1,
+        1.6
+      ],
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_WindowSeat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_WindowSeat.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_WindowSeat.png"
+    },
+    {
+      "name": "CatCafe_Furniture_PatioBench",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_PatioBench"
+      ],
+      "triangles": 528,
+      "budget": 800,
+      "size_studs": {
+        "x": 4.0,
+        "y": 1.42,
+        "z": 3.0
+      },
+      "bounds_min": [
+        -2.0,
+        -0.65,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        0.77,
+        3.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "sit_point": [
+        0,
+        -0.1,
+        1.52
+      ],
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_PatioBench.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_PatioBench.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_PatioBench.png"
+    },
+    {
+      "name": "CatCafe_Furniture_TableRound",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_TableRound"
+      ],
+      "triangles": 876,
+      "budget": 800,
+      "size_studs": {
+        "x": 3.58,
+        "y": 3.58,
+        "z": 2.6
+      },
+      "bounds_min": [
+        -1.79,
+        -1.79,
+        0.0
+      ],
+      "bounds_max": [
+        1.79,
+        1.79,
+        2.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_TableRound.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_TableRound.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_TableRound.png"
+    },
+    {
+      "name": "CatCafe_Furniture_Chair",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_Chair"
+      ],
+      "triangles": 392,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 3.0
+      },
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        0.75,
+        0.75,
+        3.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_Chair.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_Chair.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Chair.png"
+    },
+    {
+      "name": "CatCafe_Decor_WindowPlants",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_WindowPlants"
+      ],
+      "triangles": 476,
+      "budget": 800,
+      "size_studs": {
+        "x": 3.0,
+        "y": 0.6,
+        "z": 1.2
+      },
+      "bounds_min": [
+        -1.5,
+        -0.6,
+        0.0
+      ],
+      "bounds_max": [
+        1.5,
+        0.0,
+        1.2
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_WindowPlants.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_WindowPlants.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_WindowPlants.png"
+    },
+    {
+      "name": "CatCafe_Decor_Rug",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_Rug"
+      ],
+      "triangles": 196,
+      "budget": 500,
+      "size_studs": {
+        "x": 4.0,
+        "y": 4.0,
+        "z": 0.1
+      },
+      "bounds_min": [
+        -2.0,
+        -2.0,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        2.0,
+        0.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_Rug.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_Rug.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_Rug.png"
+    },
+    {
+      "name": "CatCafe_Decor_NeonSign",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_NeonSign_Board",
+        "CatCafe_Decor_NeonSign_Tube"
+      ],
+      "triangles": 184,
+      "budget": 500,
+      "size_studs": {
+        "x": 3.0,
+        "y": 0.22,
+        "z": 2.42
+      },
+      "bounds_min": [
+        -1.5,
+        -0.22,
+        0.0
+      ],
+      "bounds_max": [
+        1.5,
+        0.0,
+        2.42
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_NeonSign.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_NeonSign.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_NeonSign.png"
+    },
+    {
+      "name": "CatCafe_Decor_FishTank",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_FishTank_Stand",
+        "CatCafe_Decor_FishTank_Water",
+        "CatCafe_Decor_FishTank_Glass",
+        "CatCafe_Decor_FishTank_Fish"
+      ],
+      "triangles": 562,
+      "budget": 1200,
+      "size_studs": {
+        "x": 3.3,
+        "y": 1.5,
+        "z": 3.85
+      },
+      "bounds_min": [
+        -1.65,
+        -0.75,
+        0.0
+      ],
+      "bounds_max": [
+        1.65,
+        0.75,
+        3.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Glass: Transparency 0.5. Water: Transparency 0.3, Material Glass.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FishTank.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FishTank.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_FishTank.png"
+    },
+    {
+      "name": "CatCafe_Decor_HangingLamp",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_HangingLamp_Shade",
+        "CatCafe_Decor_HangingLamp_Bulb"
+      ],
+      "triangles": 352,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.51,
+        "y": 1.51,
+        "z": 2.6
+      },
+      "bounds_min": [
+        -0.75,
+        -0.75,
+        -2.6
+      ],
+      "bounds_max": [
+        0.75,
+        0.75,
+        0.0
+      ],
+      "pivot": "ceiling hook (geometry hangs below the pivot)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Bulb: Material Neon + PointLight 255,214,170 range 14.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HangingLamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HangingLamp.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_HangingLamp.png"
+    },
+    {
+      "name": "CatCafe_Decor_PlantPot",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_PlantPot"
+      ],
+      "triangles": 552,
+      "budget": 500,
+      "size_studs": {
+        "x": 1.12,
+        "y": 1.1,
+        "z": 1.9
+      },
+      "bounds_min": [
+        -0.55,
+        -0.55,
+        0.0
+      ],
+      "bounds_max": [
+        0.57,
+        0.55,
+        1.9
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PlantPot.png"
+    },
+    {
+      "name": "CatCafe_Decor_MenuBoard",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_MenuBoard"
+      ],
+      "triangles": 184,
+      "budget": 500,
+      "size_studs": {
+        "x": 2.12,
+        "y": 0.14,
+        "z": 1.5
+      },
+      "bounds_min": [
+        -1.06,
+        -0.14,
+        0.0
+      ],
+      "bounds_max": [
+        1.06,
+        0.0,
+        1.5
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MenuBoard.png"
+    },
+    {
+      "name": "CatCafe_Decor_Cup",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_Cup"
+      ],
+      "triangles": 240,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.7,
+        "y": 0.7,
+        "z": 0.3
+      },
+      "bounds_min": [
+        -0.35,
+        -0.35,
+        0.0
+      ],
+      "bounds_max": [
+        0.35,
+        0.35,
+        0.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_Cup.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_Cup.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_Cup.png"
+    },
+    {
+      "name": "CatCafe_Alley_Dumpster",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_Dumpster"
+      ],
+      "triangles": 860,
+      "budget": 1200,
+      "size_studs": {
+        "x": 6.4,
+        "y": 3.66,
+        "z": 6.67
+      },
+      "bounds_min": [
+        -3.2,
+        -1.8,
+        0.01
+      ],
+      "bounds_max": [
+        3.2,
+        1.86,
+        6.69
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "CollisionFidelity Hull.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Dumpster.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Dumpster.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Dumpster.png"
+    },
+    {
+      "name": "CatCafe_Alley_TrashCan",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_TrashCan"
+      ],
+      "triangles": 624,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.72,
+        "y": 1.72,
+        "z": 2.57
+      },
+      "bounds_min": [
+        -0.86,
+        -0.86,
+        0.0
+      ],
+      "bounds_max": [
+        0.86,
+        0.86,
+        2.57
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_TrashCan.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_TrashCan.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_TrashCan.png"
+    },
+    {
+      "name": "CatCafe_Alley_StreetLamp",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_StreetLamp_Post",
+        "CatCafe_Alley_StreetLamp_Bulb"
+      ],
+      "triangles": 312,
+      "budget": 800,
+      "size_studs": {
+        "x": 0.9,
+        "y": 2.32,
+        "z": 9.5
+      },
+      "bounds_min": [
+        -0.45,
+        -1.95,
+        0.0
+      ],
+      "bounds_max": [
+        0.45,
+        0.37,
+        9.5
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Bulb: Material Neon + SpotLight pointing down, warm.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_StreetLamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_StreetLamp.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StreetLamp.png"
+    },
+    {
+      "name": "CatCafe_Alley_Crate",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_Crate"
+      ],
+      "triangles": 252,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.52,
+        "y": 1.54,
+        "z": 1.5
+      },
+      "bounds_min": [
+        -0.76,
+        -0.78,
+        0.0
+      ],
+      "bounds_max": [
+        0.76,
+        0.76,
+        1.5
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Crate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Crate.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Crate.png"
+    },
+    {
+      "name": "CatCafe_Alley_CardboardBox",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_CardboardBox"
+      ],
+      "triangles": 104,
+      "budget": 800,
+      "size_studs": {
+        "x": 2.79,
+        "y": 2.79,
+        "z": 1.52
+      },
+      "bounds_min": [
+        -1.39,
+        -1.39,
+        0.0
+      ],
+      "bounds_max": [
+        1.39,
+        1.39,
+        1.52
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_CardboardBox.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_CardboardBox.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_CardboardBox.png"
+    },
+    {
+      "name": "CatCafe_Alley_Pallet",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_Pallet"
+      ],
+      "triangles": 132,
+      "budget": 800,
+      "size_studs": {
+        "x": 3.0,
+        "y": 3.0,
+        "z": 0.3
+      },
+      "bounds_min": [
+        -1.5,
+        -1.5,
+        0.0
+      ],
+      "bounds_max": [
+        1.5,
+        1.5,
+        0.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Pallet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Pallet.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Pallet.png"
+    },
+    {
+      "name": "CatCafe_Alley_Puddle",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_Puddle"
+      ],
+      "triangles": 88,
+      "budget": 300,
+      "size_studs": {
+        "x": 2.53,
+        "y": 1.69,
+        "z": 0.03
+      },
+      "bounds_min": [
+        -1.27,
+        -0.84,
+        0.0
+      ],
+      "bounds_max": [
+        1.27,
+        0.84,
+        0.03
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Puddle.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Puddle.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Puddle.png"
+    },
+    {
+      "name": "CatCafe_Park_Bench",
+      "category": "Park",
+      "module": "park",
+      "objects": [
+        "CatCafe_Park_Bench"
+      ],
+      "triangles": 484,
+      "budget": 800,
+      "size_studs": {
+        "x": 4.0,
+        "y": 1.42,
+        "z": 3.0
+      },
+      "bounds_min": [
+        -2.0,
+        -0.65,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        0.77,
+        3.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_Bench.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_Bench.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Bench.png"
+    },
+    {
+      "name": "CatCafe_Park_Tree",
+      "category": "Park",
+      "module": "park",
+      "objects": [
+        "CatCafe_Park_Tree"
+      ],
+      "triangles": 196,
+      "budget": 800,
+      "size_studs": {
+        "x": 4.54,
+        "y": 3.64,
+        "z": 7.4
+      },
+      "bounds_min": [
+        -2.17,
+        -1.94,
+        0.0
+      ],
+      "bounds_max": [
+        2.36,
+        1.7,
+        7.4
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_Tree.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_Tree.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Tree.png"
+    },
+    {
+      "name": "CatCafe_Park_Fountain",
+      "category": "Park",
+      "module": "park",
+      "objects": [
+        "CatCafe_Park_Fountain_Basin",
+        "CatCafe_Park_Fountain_Water"
+      ],
+      "triangles": 1608,
+      "budget": 1200,
+      "size_studs": {
+        "x": 5.0,
+        "y": 5.0,
+        "z": 3.7
+      },
+      "bounds_min": [
+        -2.5,
+        -2.5,
+        0.0
+      ],
+      "bounds_max": [
+        2.5,
+        2.5,
+        3.7
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Water: Transparency 0.3. Optional ParticleEmitter at the top ball.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_Fountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_Fountain.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Fountain.png"
+    },
+    {
+      "name": "CatCafe_Park_Gate",
+      "category": "Park",
+      "module": "park",
+      "objects": [
+        "CatCafe_Park_Gate_Pillars",
+        "CatCafe_Park_Gate_LeafL",
+        "CatCafe_Park_Gate_LeafR"
+      ],
+      "triangles": 1072,
+      "budget": 1200,
+      "size_studs": {
+        "x": 5.8,
+        "y": 1.0,
+        "z": 8.45
+      },
+      "bounds_min": [
+        -2.9,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        2.9,
+        0.5,
+        8.45
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "LeafL and LeafR pivot at their hinge pillars; rotate about Y to open.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_Gate.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Gate.png"
+    },
+    {
+      "name": "CatCafe_Item_FoodBowl",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_FoodBowl"
+      ],
+      "triangles": 440,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.9,
+        "y": 0.9,
+        "z": 0.31
+      },
+      "bounds_min": [
+        -0.45,
+        -0.45,
+        0.0
+      ],
+      "bounds_max": [
+        0.45,
+        0.45,
+        0.31
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_FoodBowl.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_FoodBowl.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_FoodBowl.png"
+    },
+    {
+      "name": "CatCafe_Item_FoodBowl_Premium",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_FoodBowl_Premium"
+      ],
+      "triangles": 622,
+      "budget": 400,
+      "size_studs": {
+        "x": 0.94,
+        "y": 1.01,
+        "z": 0.44
+      },
+      "bounds_min": [
+        -0.47,
+        -0.48,
+        0.0
+      ],
+      "bounds_max": [
+        0.47,
+        0.53,
+        0.44
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Premium.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Premium.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_FoodBowl_Premium.png"
+    },
+    {
+      "name": "CatCafe_Item_Kibble",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_Kibble"
+      ],
+      "triangles": 96,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.72,
+        "y": 0.44,
+        "z": 1.0
+      },
+      "bounds_min": [
+        -0.36,
+        -0.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.36,
+        0.21,
+        1.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_Kibble.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_Kibble.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Kibble.png"
+    },
+    {
+      "name": "CatCafe_Item_TunaCan",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_TunaCan"
+      ],
+      "triangles": 292,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.72,
+        "y": 0.73,
+        "z": 0.3
+      },
+      "bounds_min": [
+        -0.36,
+        -0.37,
+        0.0
+      ],
+      "bounds_max": [
+        0.36,
+        0.36,
+        0.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_TunaCan.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_TunaCan.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_TunaCan.png"
+    },
+    {
+      "name": "CatCafe_Item_Salmon",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_Salmon"
+      ],
+      "triangles": 240,
+      "budget": 400,
+      "size_studs": {
+        "x": 0.38,
+        "y": 1.04,
+        "z": 0.55
+      },
+      "bounds_min": [
+        -0.19,
+        -0.35,
+        0.0
+      ],
+      "bounds_max": [
+        0.19,
+        0.69,
+        0.55
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_Salmon.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_Salmon.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Salmon.png"
+    },
+    {
+      "name": "CatCafe_Item_Gloves",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_Gloves"
+      ],
+      "triangles": 288,
+      "budget": 400,
+      "size_studs": {
+        "x": 2.52,
+        "y": 1.35,
+        "z": 0.3
+      },
+      "bounds_min": [
+        -1.26,
+        -0.55,
+        0.0
+      ],
+      "bounds_max": [
+        1.26,
+        0.8,
+        0.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_Gloves.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_Gloves.glb"
+      ],
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Gloves.png"
+    }
+  ]
+}

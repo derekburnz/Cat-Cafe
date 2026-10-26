@@ -1,0 +1,6 @@
+# Selene lints Luau. `std = "roblox"` makes it download Roblox API definitions on first run (roblox.toml, gitignored).
+std = "roblox"
+
+[lints]
+# Allow `_` prefixed unused variables and shadowing of common names; everything else default (warn or deny).
+shadowing = "allow"

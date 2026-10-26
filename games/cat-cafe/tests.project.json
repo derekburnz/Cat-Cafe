@@ -1,0 +1,43 @@
+{
+  "name": "PurrPotTests",
+  "globIgnorePaths": ["**/README.md", "**/.gitkeep"],
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": { "$path": "src/shared" },
+      "Packages": { "$path": { "optional": true, "path": "Packages" } },
+      "Assets": { "$path": { "optional": true, "path": "../../assets/cat-cafe/rbx" } },
+      "Tests": { "$path": "tests" }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Server": { "$path": "src/server" }
+    },
+
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "ServerPackages": { "$path": { "optional": true, "path": "ServerPackages" } }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": { "$path": "src/client" }
+      }
+    },
+
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": { "FilteringEnabled": true }
+    },
+
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": { "RespectFilteringEnabled": true }
+    }
+  }
+}

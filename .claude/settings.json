@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rojo *)",
+      "Bash(wally *)",
+      "Bash(wally-package-types *)",
+      "Bash(selene *)",
+      "Bash(stylua *)",
+      "Bash(luau-lsp *)",
+      "Bash(rokit *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(./check.ps1*)",
+      "Bash(./check.sh*)",
+      "Bash(pwsh *)",
+      "Bash(powershell *)"
+    ]
+  }
+}

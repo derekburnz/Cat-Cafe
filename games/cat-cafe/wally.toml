@@ -1,0 +1,17 @@
+# Wally is Roblox's package manager. `wally install` downloads into Packages/ (shared) and ServerPackages/ (server only).
+# Rojo maps those folders to ReplicatedStorage.Packages and ServerStorage.ServerPackages.
+# Add packages only when a system needs them; vendoring a single ModuleScript into src/ is fine for one-offs.
+
+[package]
+name = "derekburnz/purr-pot"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
+Promise = "evaera/promise@4.0.0"
+Signal = "sleitnick/signal@2.0.1"
+
+[server-dependencies]
+# Data saving: decide between ProfileStore (vendored into src/server/Vendor/) and a thin DataStore wrapper.
+# See docs/decisions.md "Proposed" and the remote-security-checklist skill (DataStore section).

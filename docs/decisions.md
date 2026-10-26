@@ -1,0 +1,31 @@
+# Decisions
+
+Format: date, decision, why. Append at the bottom. Anyone may add under "Proposed"; the lead moves entries to "Decided" after Derek agrees.
+
+## Decided
+- 2026-10-25: First game is the cat cafe, working title **Purr Pot**. Why: smallest scope, proven Roblox genre (tycoon plus collection), good pipeline trainer. Derek picked it.
+- 2026-10-25: Folder slug is `cat-cafe` (games/cat-cafe, assets/cat-cafe, docs/*/cat-cafe). Why: stable even if the title changes.
+- 2026-10-25: `rokit.toml` lives at the repo root, not inside games/cat-cafe. Why: tool versions are studio wide; a second game shares them.
+- 2026-10-25: Code is Rojo synced from `games/cat-cafe/src`; UI is built in Luau under `src/client/UI` rather than hand-built in Studio. Why: text files diff, review and merge; agents can edit them.
+- 2026-10-25: Shared workspace while there is no GitHub repo is the project folder `cat-cafe/`. Derek creates the private repo and pastes the folder in (docs/setup-guide.md step 2).
+- 2026-10-25: No stealing cats from other players and no trading for now. Derek decided in the design thread; can be revisited after the friends alpha. Why: stealing drives griefing complaints with a young audience and trading drives scams. If the alpha feels flat, the first option is an opt-in raid during the carry phase, never base stealing.
+- 2026-10-25: Art style is Cozy Cream. Derek: cozy game vibes. Why: warm, low-contrast room where the cats are the color; the style guide already uses it.
+
+## Proposed
+- Data saving library: ProfileStore (vendored single file, battle tested session locking) vs own thin wrapper over DataStoreService with UpdateAsync. Lead recommends ProfileStore. Engineer to confirm.
+
+### Proposed by the game-designer thread (2026-10-25, from gdd.md v0.1)
+- 2026-10-25: Cats earn passively once placed on a spot; customers are cosmetic in the slice. Why: one legible formula (cats x cafe multiplier) is easy to tune and to show in the HUD. A customer demand model is a Phase 3 experiment.
+- 2026-10-25: Catching areas are shared; each player owns one plot on an 8-player server. First to grab wins, with a 3 s server lock per stray. Why: the race for rares is the social hook without stealing.
+- 2026-10-25: Catch success is decided on the server from rarity, gloves and lure; the client timing ring adds at most 15%. Why: ring timing cannot be verified server-side, so its value is capped to make cheating worthless.
+- 2026-10-25: Lure food odds are shown as percentages before purchase from day one. Why: if coins are ever sold for Robux, food becomes a paid random item and must already comply.
+- 2026-10-25: Slice roster is 12 cats: Common Tabby, Tuxedo, Ginger, Smoke, Snow; Rare Calico, Siamese, Tortie, Bengal; Epic Sphynx, Ragdoll; Legendary Void. Golden and Galaxy become rate variants of any cat after the slice, not cats of their own. Why: Void is the hero in the sketches; variants reuse every model.
+- 2026-10-25: All 40 launch cats come from one blocky cat rig with pattern, color and accessory variants. Why: content cost is the main scope risk.
+- 2026-10-25: Offline earnings at 25% of the logout rate for up to one hour. Why: rewards returning without making active play pointless.
+- 2026-10-25: Income is accounted lazily (coins plus lastTick) instead of a per-second loop per player. Recommendation to the engineer, who may change it. Why: cheaper and simpler to reason about.
+- 2026-10-25: The vertical slice uses the data-model.md economy (placed cats earn incomePerSecond by rarity on spots, bought cafe_level, lazy lastTick accounting). The engineer's earlier per-serve Economy.luau draft was replaced by shared/Types.luau and Config.luau that follow the doc. Why: one model for engineer, UI and QA; the per-serve payout can return later as a cosmetic cadence on top of the same rate.
+- 2026-10-25: A lured stray never flees from the player who lured it, stays reserved to them until caught or despawn, and the food is refunded on despawn. Why: fair for the player who paid coins, and it is the delivery guarantee the paid random items rules need if coins are ever sold (growth thread's monetization.md section 7).
+- 2026-10-25: If a coins product ever ships, the product is hidden from players whose policy restricts paid random items; BuyLure is never gated. Why: their coins are all earned, so luring stays open to them.
+- 2026-10-25: Genre-standard features (night cycle, events, variants, set rewards, playtime and daily rewards, codes, Renovate, Nap Pod, Catnip, quests, Adoption Van, passes) are scheduled by phase in docs/design/cat-cafe/common-features.md; none enter the slice except fast travel at P2. Derek asked for them on 2026-10-25. Why: they are what players of Steal an Egg and Roll a Fisherman expect, but the loop has to be proven first.
+- 2026-10-25: Designer accepts the growth thread's analytics-plan.md and monetization.md proposals (12-step funnel, three recurring funnels, 12 custom events through one Telemetry module; four passes at soft launch, 2x Tips deferred, no cash product). Why: they extend the GDD without changing it.
+- 2026-10-25: Daily Treat is a seven-stamp card with no reset on a missed day, and Catnip states its numeric effect on the shop card before purchase. Growth thread's notes, accepted by the designer. Why: streak resets are a known parent complaint and conflict with the no-pressure rule; luck boosts must be disclosed before purchase.

@@ -1,0 +1,17 @@
+{
+  "name": "purr-pot-cloudcheck",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Runs Purr Pot Luau unit tests and a strict type check without Roblox Studio, using a WebAssembly build of Luau.",
+  "type": "module",
+  "scripts": {
+    "test": "node run-tests.mjs",
+    "test:verbose": "node run-tests.mjs --verbose",
+    "analyze": "node analyze.mjs",
+    "check": "node analyze.mjs && node run-tests.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@luau-rs/luau": "0.739.0"
+  }
+}

@@ -1,0 +1,136 @@
+--!strict
+-- Visual tokens for the cat cafe UI. "Cozy Cream" from the concept sketches is the default.
+-- Change colors here, not in screens. Rarity colors are shared with the collection, shop and catch prompt.
+
+local Theme = {}
+
+Theme.name = "Cozy Cream"
+Theme.currencySymbol = "$"
+
+-- Palette (hex from docs/concepts: Cozy Cream)
+Theme.colors = {
+	cream = Color3.fromHex("F6EBDD"),
+	paper = Color3.fromHex("FFF9F2"),
+	caramel = Color3.fromHex("C98A4B"),
+	caramelDark = Color3.fromHex("A86F3E"),
+	mint = Color3.fromHex("8FD3C1"),
+	mintDark = Color3.fromHex("5FB3A0"),
+	pink = Color3.fromHex("E8A0A0"),
+	cocoa = Color3.fromHex("5E4634"),
+	cocoaDeep = Color3.fromHex("3A2E2A"),
+	ink = Color3.fromHex("2B2420"),
+	muted = Color3.fromHex("8A7B6E"),
+	line = Color3.fromHex("E3D2BC"),
+	-- semantic
+	good = Color3.fromHex("3FA868"),
+	goodDark = Color3.fromHex("2B7F4C"),
+	goodText = Color3.fromHex("0E2A16"),
+	warn = Color3.fromHex("E07A3A"),
+	warnDark = Color3.fromHex("B65C24"),
+	gold = Color3.fromHex("FFC94D"),
+	goldDark = Color3.fromHex("D19E22"),
+	goldText = Color3.fromHex("3A2A00"),
+	sky = Color3.fromHex("5FA8FF"),
+	skyDark = Color3.fromHex("3B7FD1"),
+	skyText = Color3.fromHex("0B1F3A"),
+	disabled = Color3.fromHex("CFC2B4"),
+	disabledDark = Color3.fromHex("B5A595"),
+	disabledText = Color3.fromHex("7E7267"),
+	white = Color3.fromHex("FFFFFF"),
+	black = Color3.fromHex("000000"),
+}
+
+-- HUD panels float over the 3D world, so they are dark and slightly translucent for contrast.
+Theme.hud = {
+	panel = Theme.colors.cocoaDeep,
+	panelTransparency = 0.12,
+	stroke = Color3.fromHex("FFF9F2"),
+	strokeTransparency = 0.72,
+	text = Theme.colors.paper,
+	subtext = Color3.fromHex("D9CBBA"),
+	income = Color3.fromHex("8DE0A5"),
+}
+
+-- Modal windows sit on a dim backdrop and use the light cafe palette.
+Theme.modal = {
+	backdrop = Theme.colors.ink,
+	backdropTransparency = 0.45,
+	panel = Theme.colors.cream,
+	header = Theme.colors.caramel,
+	headerText = Theme.colors.paper,
+	card = Theme.colors.paper,
+	cardStroke = Theme.colors.line,
+	text = Theme.colors.ink,
+	subtext = Theme.colors.muted,
+}
+
+Theme.rarity = {
+	Common = { color = Color3.fromHex("8E97B2"), text = Color3.fromHex("FFFFFF") },
+	Rare = { color = Color3.fromHex("5FA8FF"), text = Color3.fromHex("FFFFFF") },
+	Epic = { color = Color3.fromHex("C07CFF"), text = Color3.fromHex("FFFFFF") },
+	Legendary = { color = Color3.fromHex("FFC94D"), text = Color3.fromHex("3A2A00") },
+	Secret = { color = Color3.fromHex("44E0FF"), text = Color3.fromHex("0B1F3A") },
+}
+Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Secret" }
+
+-- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).
+Theme.fonts = {
+	display = Font.new(
+		"rbxasset://fonts/families/FredokaOne.json",
+		Enum.FontWeight.Regular,
+		Enum.FontStyle.Normal
+	),
+	body = Font.new(
+		"rbxasset://fonts/families/Nunito.json",
+		Enum.FontWeight.SemiBold,
+		Enum.FontStyle.Normal
+	),
+	bodyBold = Font.new(
+		"rbxasset://fonts/families/Nunito.json",
+		Enum.FontWeight.Bold,
+		Enum.FontStyle.Normal
+	),
+}
+
+-- Sizes are design pixels at 1280x720. Scale.luau maps them to the device.
+Theme.sizes = {
+	radius = 12,
+	radiusSmall = 8,
+	radiusPill = 999,
+	stroke = 2,
+	buttonDepth = 4, -- the chunky bottom edge under buttons
+	touchMin = 44,
+	textTitle = 26,
+	textLarge = 22,
+	textBody = 16,
+	textSmall = 13,
+	textTiny = 11,
+	padding = 12,
+	gap = 8,
+}
+
+-- Optional sound ids ("rbxassetid://..."). nil = silent. The engineer or asset thread fills these in.
+Theme.sounds = {
+	click = nil :: string?,
+	buy = nil :: string?,
+	error = nil :: string?,
+	catFound = nil :: string?,
+}
+
+function Theme.rarityColor(rarity: string?): Color3
+	local entry = (Theme.rarity :: any)[rarity or "Common"]
+	if entry then
+		return entry.color
+	end
+	return Theme.rarity.Common.color
+end
+
+function Theme.rarityTextColor(rarity: string?): Color3
+	local entry = (Theme.rarity :: any)[rarity or "Common"]
+	if entry then
+		return entry.text
+	end
+	return Theme.rarity.Common.text
+end
+
+return Theme

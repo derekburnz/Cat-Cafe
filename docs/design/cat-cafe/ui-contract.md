@@ -1,6 +1,7 @@
 # Cat Cafe UI contract
 
-Owner: UI thread ("Design cat cafe UI"). v4, updated 2026-10-26 (v1 2026-10-25, v2 and v3 earlier on 2026-10-26).
+Owner: UI thread ("Design cat cafe UI"). v4.1, updated 2026-10-26 (v1 2026-10-25, v2, v3 and v4 earlier on 2026-10-26).
+v4.1: `catch.fail` closes a hold that is still down and resets the rescue bar, so a server rejection of `GrabBegin` or `RescueBegin` never shows "Missed" or "Rescued!" and sends nothing more.
 v4 changes (gdd.md v0.2): day and night clock chip (`UI.clock`, F20), the catch tool is the Net so the prompt copy is a swing, and the 4 s Rescue hold bar with `rescueBegan` / `rescueEnded` (F21). The `gloves` upgrade is now `net`; the UI reads it from the catalog, nothing to change.
 v3 changes: ring bands come from shared Config and a full hold sends no GrabEnd (designer, data-model section 10); catalog types are re-exported from shared Types so the controller passes the catalog with no cast (reviewer S9); `equipBest` event and per-cat stats (cat stats thread); mockup page built.
 Readers: engineer (client controller), designer (catalog fields), reviewer, QA.
@@ -98,7 +99,7 @@ Copy follows the Net: "Hold to swing", "Swing!" on release, the mobile button re
 | `startRing(config?)` | `config = { duration?, goodBand?, perfectBand? }`. The outer ring shrinks from 1 to 0 over `duration` (default `Config.GrabHoldSeconds`, 1.5 s). The band is the end of the shrink: good is the last `Config.RingGoodWindow` s (0.80, ring scale 0 to 0.533), perfect the last `Config.RingPerfectWindow` s (0.30, scale 0 to 0.2). Pass bands only to experiment. |
 | `stopRing()` | Call on release. Shows "Perfect!", "Good" or "Too early" from where the ring was and returns `"perfect"`, `"good"` or `"miss"` as a hint. The server scores the real time between GrabBegin and GrabEnd (release 1.20 to 1.50 s perfect, 0.70 to 1.50 s good), so the hint decides nothing. |
 | `expire()` | Call when a manual hold runs its full length with no release. Miss flash, nothing sent. `bindProximityPrompts` does this itself on `PromptTriggered`. |
-| `fail(reason?, retry?)` | `retry = true` keeps the prompt open with "Missed, try again" (Commons, lured strays). Otherwise it flashes "It got away" and hides. |
+| `fail(reason?, retry?)` | `retry = true` keeps the prompt open with the reason, or "Missed, try again" ("Hold again to rescue it" on a rescue), for Commons, lured strays and rescues turned down for now. Otherwise it flashes the reason or "It got away" and hides. A fail that arrives while a hold is still down (the server turned down `GrabBegin` or `RescueBegin`) closes that hold: its release or full length fires no `grabEnded` or `rescueEnded`, and the rescue bar resets and hides. The player holds again to retry. |
 | `success(catId)` is not needed: call `UI.showCatFound` when CatCaught arrives. | |
 | `hide()` / `setProgress(alpha)` / `getActivePrompt()` | Utilities. |
 

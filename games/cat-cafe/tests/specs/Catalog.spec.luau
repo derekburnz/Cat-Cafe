@@ -5,7 +5,14 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
 
-	local SPOT_TYPES: { [string]: boolean } = { counter = true, window = true, cushion = true, shelf = true, cattree = true, patio = true }
+	local SPOT_TYPES: { [string]: boolean } = {
+		counter = true,
+		window = true,
+		cushion = true,
+		shelf = true,
+		cattree = true,
+		patio = true,
+	}
 	local AREAS = { alley = true, park = true, both = true }
 	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Secret" }
 
@@ -52,11 +59,46 @@ return function()
 
 	describe("rarities (section 2)", function()
 		local expected = {
-			Common = { incomePerSecond = 1, baseCatchChance = 0.90, fleesOnMiss = false, sellValue = 25, firstCatchReward = 50, color = "#8E97B2" },
-			Rare = { incomePerSecond = 3, baseCatchChance = 0.65, fleesOnMiss = true, sellValue = 150, firstCatchReward = 300, color = "#5FA8FF" },
-			Epic = { incomePerSecond = 8, baseCatchChance = 0.45, fleesOnMiss = true, sellValue = 600, firstCatchReward = 1500, color = "#C07CFF" },
-			Legendary = { incomePerSecond = 25, baseCatchChance = 0.25, fleesOnMiss = true, sellValue = 3000, firstCatchReward = 8000, color = "#FFC94D" },
-			Secret = { incomePerSecond = 60, baseCatchChance = 0.20, fleesOnMiss = true, sellValue = 10000, firstCatchReward = 25000, color = "#3FD0B5" },
+			Common = {
+				incomePerSecond = 1,
+				baseCatchChance = 0.90,
+				fleesOnMiss = false,
+				sellValue = 25,
+				firstCatchReward = 50,
+				color = "#8E97B2",
+			},
+			Rare = {
+				incomePerSecond = 3,
+				baseCatchChance = 0.65,
+				fleesOnMiss = true,
+				sellValue = 150,
+				firstCatchReward = 300,
+				color = "#5FA8FF",
+			},
+			Epic = {
+				incomePerSecond = 8,
+				baseCatchChance = 0.45,
+				fleesOnMiss = true,
+				sellValue = 600,
+				firstCatchReward = 1500,
+				color = "#C07CFF",
+			},
+			Legendary = {
+				incomePerSecond = 25,
+				baseCatchChance = 0.25,
+				fleesOnMiss = true,
+				sellValue = 3000,
+				firstCatchReward = 8000,
+				color = "#FFC94D",
+			},
+			Secret = {
+				incomePerSecond = 60,
+				baseCatchChance = 0.20,
+				fleesOnMiss = true,
+				sellValue = 10000,
+				firstCatchReward = 25000,
+				color = "#3FD0B5",
+			},
 		}
 		for _, rarity in ipairs(RARITIES) do
 			it(rarity .. " matches the table", function()
@@ -124,7 +166,9 @@ return function()
 				expect(AREAS[def.area]).to.equal(true)
 				expect(#def.color).to.equal(3)
 				for _, channel in ipairs(def.color) do
-					expect(channel >= 0 and channel <= 255 and channel == math.floor(channel)).to.equal(true)
+					expect(channel >= 0 and channel <= 255 and channel == math.floor(channel)).to.equal(
+						true
+					)
 				end
 			end
 		end)
@@ -176,23 +220,59 @@ return function()
 	end)
 
 	describe("upgrades (section 6)", function()
-		local expected: { [string]: { maxLevel: number, costs: { number }, startLevel: number, requiresCafeLevel: number? } } = {
-			cafe_level = { maxLevel = 5, costs = { 0, 250, 800, 2500, 8000 }, startLevel = 1, requiresCafeLevel = nil },
-			tables = { maxLevel = 6, costs = { 100, 250, 600, 1500, 3500, 8000 }, startLevel = 0, requiresCafeLevel = nil },
-			espresso = { maxLevel = 3, costs = { 0, 300, 1200, 4000, 12000 }, startLevel = 1, requiresCafeLevel = nil },
-			net = { maxLevel = 3, costs = { 500, 2500, 10000 }, startLevel = 0, requiresCafeLevel = nil },
-			lure_bowl = { maxLevel = 1, costs = { 400 }, startLevel = 0, requiresCafeLevel = 2 },
-			park_access = { maxLevel = 1, costs = { 1000 }, startLevel = 0, requiresCafeLevel = 3 },
-		}
+		local expected: {
+			[string]: {
+				maxLevel: number,
+				costs: { number },
+				startLevel: number,
+				requiresCafeLevel: number?,
+			},
+		} =
+			{
+				cafe_level = {
+					maxLevel = 5,
+					costs = { 0, 250, 800, 2500, 8000 },
+					startLevel = 1,
+					requiresCafeLevel = nil,
+				},
+				tables = {
+					maxLevel = 6,
+					costs = { 100, 250, 600, 1500, 3500, 8000 },
+					startLevel = 0,
+					requiresCafeLevel = nil,
+				},
+				espresso = {
+					maxLevel = 3,
+					costs = { 0, 300, 1200, 4000, 12000 },
+					startLevel = 1,
+					requiresCafeLevel = nil,
+				},
+				net = {
+					maxLevel = 3,
+					costs = { 500, 2500, 10000 },
+					startLevel = 0,
+					requiresCafeLevel = nil,
+				},
+				lure_bowl = { maxLevel = 1, costs = { 400 }, startLevel = 0, requiresCafeLevel = 2 },
+				park_access = {
+					maxLevel = 1,
+					costs = { 1000 },
+					startLevel = 0,
+					requiresCafeLevel = 3,
+				},
+			}
 
-		it("v0.2 names: the net replaces gloves, the lure bowl is shown as Bait bowl (ids keep lure_)", function()
-			expect(Catalog.getUpgrade("gloves")).never.to.be.ok()
-			local net = Catalog.getUpgrade("net")
-			local bowl = Catalog.getUpgrade("lure_bowl")
-			assert(net and bowl)
-			expect(net.name).to.equal("Net")
-			expect(bowl.name).to.equal("Bait bowl")
-		end)
+		it(
+			"v0.2 names: the net replaces gloves, the lure bowl is shown as Bait bowl (ids keep lure_)",
+			function()
+				expect(Catalog.getUpgrade("gloves")).never.to.be.ok()
+				local net = Catalog.getUpgrade("net")
+				local bowl = Catalog.getUpgrade("lure_bowl")
+				assert(net and bowl)
+				expect(net.name).to.equal("Net")
+				expect(bowl.name).to.equal("Bait bowl")
+			end
+		)
 
 		it("has exactly the six slice upgrades", function()
 			expect(#Catalog.upgrades).to.equal(6)
@@ -237,12 +317,33 @@ return function()
 	end)
 
 	describe("decor (section 7)", function()
-		local expected: { [string]: { cost: number, bonus: number, requiresCafeLevel: number?, asset: string } } = {
-			plants = { cost = 150, bonus = 0.05, requiresCafeLevel = nil, asset = "CatCafe_Decor_WindowPlants" },
-			rug = { cost = 400, bonus = 0.05, requiresCafeLevel = nil, asset = "CatCafe_Decor_Rug" },
-			neon_sign = { cost = 1500, bonus = 0.10, requiresCafeLevel = 4, asset = "CatCafe_Decor_NeonSign" },
-			fish_tank = { cost = 5000, bonus = 0.10, requiresCafeLevel = 4, asset = "CatCafe_Decor_FishTank" },
-		}
+		local expected: { [string]: { cost: number, bonus: number, requiresCafeLevel: number?, asset: string } } =
+			{
+				plants = {
+					cost = 150,
+					bonus = 0.05,
+					requiresCafeLevel = nil,
+					asset = "CatCafe_Decor_WindowPlants",
+				},
+				rug = {
+					cost = 400,
+					bonus = 0.05,
+					requiresCafeLevel = nil,
+					asset = "CatCafe_Decor_Rug",
+				},
+				neon_sign = {
+					cost = 1500,
+					bonus = 0.10,
+					requiresCafeLevel = 4,
+					asset = "CatCafe_Decor_NeonSign",
+				},
+				fish_tank = {
+					cost = 5000,
+					bonus = 0.10,
+					requiresCafeLevel = 4,
+					asset = "CatCafe_Decor_FishTank",
+				},
+			}
 
 		it("has exactly the four slice decor items", function()
 			expect(#Catalog.decor).to.equal(4)
@@ -267,11 +368,24 @@ return function()
 	end)
 
 	describe("lures (section 8)", function()
-		local expected: { [string]: { cost: number, attracts: string, odds: { [string]: number } } } = {
-			kibble = { cost = 25, attracts = "Common", odds = { Common = 70, Rare = 26, Epic = 3.5, Legendary = 0.5 } },
-			tuna = { cost = 100, attracts = "Rare", odds = { Common = 45, Rare = 42, Epic = 11, Legendary = 2 } },
-			salmon = { cost = 500, attracts = "Epic", odds = { Common = 15, Rare = 50, Epic = 28, Legendary = 7 } },
-		}
+		local expected: { [string]: { cost: number, attracts: string, odds: { [string]: number } } } =
+			{
+				kibble = {
+					cost = 25,
+					attracts = "Common",
+					odds = { Common = 70, Rare = 26, Epic = 3.5, Legendary = 0.5 },
+				},
+				tuna = {
+					cost = 100,
+					attracts = "Rare",
+					odds = { Common = 45, Rare = 42, Epic = 11, Legendary = 2 },
+				},
+				salmon = {
+					cost = 500,
+					attracts = "Epic",
+					odds = { Common = 15, Rare = 50, Epic = 28, Legendary = 7 },
+				},
+			}
 
 		it("has exactly the three slice lures with the table odds", function()
 			expect(#Catalog.lures).to.equal(3)
@@ -295,32 +409,36 @@ return function()
 			end
 		end)
 
-		it("attracts means: odds of that rarity or better are at least the free alley's (section 8)", function()
-			local alley = Catalog.getArea("alley")
-			assert(alley)
-			local function orBetter(odds: any, rarity: string): number
-				local total = 0
-				for _, r in ipairs(Catalog.rarityOrder) do
-					if Catalog.rarityRank[r] >= Catalog.rarityRank[rarity] then
-						total += odds[r] or 0
+		it(
+			"attracts means: odds of that rarity or better are at least the free alley's (section 8)",
+			function()
+				local alley = Catalog.getArea("alley")
+				assert(alley)
+				local function orBetter(odds: any, rarity: string): number
+					local total = 0
+					for _, r in ipairs(Catalog.rarityOrder) do
+						if Catalog.rarityRank[r] >= Catalog.rarityRank[rarity] then
+							total += odds[r] or 0
+						end
+					end
+					return total
+				end
+				-- Numbers from the doc: kibble 100 vs 100, tuna 55 vs 25, salmon 35 vs 5.
+				local expected: { [string]: { number } } =
+					{ kibble = { 100, 100 }, tuna = { 55, 25 }, salmon = { 35, 5 } }
+				for _, def in ipairs(Catalog.lures) do
+					expect(Catalog.rarityRank[def.attracts]).to.be.ok()
+					local lure = orBetter(def.odds, def.attracts)
+					local free = orBetter(alley.odds, def.attracts)
+					expect(lure >= free).to.equal(true)
+					local row = expected[def.id]
+					if row ~= nil then
+						expect(lure).to.be.near(row[1], 1e-9)
+						expect(free).to.be.near(row[2], 1e-9)
 					end
 				end
-				return total
 			end
-			-- Numbers from the doc: kibble 100 vs 100, tuna 55 vs 25, salmon 35 vs 5.
-			local expected: { [string]: { number } } = { kibble = { 100, 100 }, tuna = { 55, 25 }, salmon = { 35, 5 } }
-			for _, def in ipairs(Catalog.lures) do
-				expect(Catalog.rarityRank[def.attracts]).to.be.ok()
-				local lure = orBetter(def.odds, def.attracts)
-				local free = orBetter(alley.odds, def.attracts)
-				expect(lure >= free).to.equal(true)
-				local row = expected[def.id]
-				if row ~= nil then
-					expect(lure).to.be.near(row[1], 1e-9)
-					expect(free).to.be.near(row[2], 1e-9)
-				end
-			end
-		end)
+		)
 	end)
 
 	describe("areas (section 9)", function()
@@ -379,7 +497,9 @@ return function()
 					if (weight :: number) > 0 then
 						local found = false
 						for _, def in ipairs(Catalog.cats) do
-							if def.rarity == rarity and (def.area == "both" or def.area == area.id) then
+							if
+								def.rarity == rarity and (def.area == "both" or def.area == area.id)
+							then
 								found = true
 							end
 						end

@@ -40,7 +40,7 @@ Remotes.ServerToClient = {
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a strayId or a rescueSpotId;
 	-- retry keeps the prompt open. For a stray it only refuses GrabBegin; the catch outcome is CatchResult.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
-	"CatchResult", -- (strayId: string, scores: { number }, chance: number, success: boolean)
+	"CatchResult", -- (strayId: string, scores: { number }, chance: number, success: boolean, stayed: boolean)
 }
 
 function Remotes.folder(): Folder

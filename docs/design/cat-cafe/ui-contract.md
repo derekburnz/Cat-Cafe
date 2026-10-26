@@ -137,7 +137,7 @@ A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card 
 
 ### Clock chip (built, F31)
 
-At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier` (0.6 until the constant exists).
+At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier`. The chip stays hidden until that constant exists (F31), because the server pays full tips at night before then. The income line under the money counts only cats in a role slot when `state.cats` is sent, since resting cats earn nothing.
 
 ### Planned in the next UI pull requests
 

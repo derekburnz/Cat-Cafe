@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -39,6 +40,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
+local MENU_TILE = 84
 local LURE_ROW = 70
 -- data-model NightIncomeMultiplier (0.6): tips pay this share at night. The server only applies it once it
 -- is in Config (F31), so the chip stays hidden until then instead of promising a cut that is not paid.
@@ -57,20 +59,19 @@ local function hudPanel(name: string, props: { [string]: any }): Frame
 	for key, value in props do
 		merged[key] = value
 	end
-	return Create("Frame", merged, {
+	local frame: Frame = Create("Frame", merged, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", {
-			Color = Theme.hud.stroke,
-			Transparency = Theme.hud.strokeTransparency,
-			Thickness = Theme.sizes.stroke,
-		}),
 	})
+	Outline.border(frame, Theme.sizes.outline, Theme.hud.stroke)
+	return frame
 end
 
+-- HUD text is the chunky display font with a dark outline, so it reads over any world colour. Wrapped
+-- paragraphs (odds details) skip the outline, which muddies small multi-line text.
 local function label(props: { [string]: any }): TextLabel
 	local merged: { [string]: any } = {
 		BackgroundTransparency = 1,
-		FontFace = Theme.fonts.body,
+		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.hud.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -80,11 +81,15 @@ local function label(props: { [string]: any }): TextLabel
 	for key, value in props do
 		merged[key] = value
 	end
-	return Create("TextLabel", merged)
+	local text: TextLabel = Create("TextLabel", merged)
+	if not text.TextWrapped then
+		Outline.text(text)
+	end
+	return text
 end
 
 local function keycap(parent: Instance, text: string, position: UDim2, anchor: Vector2?): TextLabel
-	return Create("TextLabel", {
+	local key: TextLabel = Create("TextLabel", {
 		Name = "Key",
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
@@ -97,7 +102,9 @@ local function keycap(parent: Instance, text: string, position: UDim2, anchor: V
 		Text = text,
 		ZIndex = 5,
 		Parent = parent,
-	}, { Create("UICorner", { CornerRadius = UDim.new(0, 5) }) })
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 6) }) })
+	Outline.border(key, 2)
+	return key
 end
 
 local function rarityPill(
@@ -231,39 +238,39 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromOffset(276, 80),
 		Parent = root,
 	})
-	Create("Frame", {
+	-- big gold coin with a dark outline and a shaded face, the simulator currency badge
+	local coin: Frame = Create("Frame", {
 		Name = "Coin",
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(14, 14),
-		Size = UDim2.fromOffset(40, 40),
+		Position = UDim2.fromOffset(12, 12),
+		Size = UDim2.fromOffset(48, 48),
 		Parent = money,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIStroke", { Color = Theme.colors.goldDark, Thickness = 3 }),
 		label({
 			Size = UDim2.fromScale(1, 1),
-			FontFace = Theme.fonts.display,
-			TextSize = 22,
-			TextColor3 = Theme.colors.goldText,
+			TextSize = 28,
+			TextColor3 = Theme.colors.white,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = Theme.currencySymbol,
 		}),
 	})
+	Outline.border(coin, Theme.sizes.outline)
+	Outline.shade(coin, 0.2)
 	self._moneyText = label({
 		Name = "Amount",
-		Position = UDim2.fromOffset(66, 10),
-		Size = UDim2.new(1, -78, 0, 34),
-		FontFace = Theme.fonts.display,
-		TextSize = 28,
+		Position = UDim2.fromOffset(72, 8),
+		Size = UDim2.new(1, -84, 0, 38),
+		TextSize = 32,
 		Text = Format.money(0),
 		Parent = money,
 	})
 	self._incomeText = label({
 		Name = "Income",
-		Position = UDim2.fromOffset(66, 46),
-		Size = UDim2.new(1, -78, 0, 22),
-		TextSize = Theme.sizes.textSmall,
+		Position = UDim2.fromOffset(72, 46),
+		Size = UDim2.new(1, -84, 0, 22),
+		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.hud.income,
 		Text = "",
 		Parent = money,
@@ -273,39 +280,39 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local cafe = hudPanel("Cafe", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, MARGIN),
-		Size = UDim2.fromOffset(340, 52),
+		Size = UDim2.fromOffset(340, 56),
 		Parent = root,
 	})
 	self._cafeTitle = label({
 		Name = "Title",
-		Position = UDim2.fromOffset(16, 6),
+		Position = UDim2.fromOffset(16, 4),
 		Size = UDim2.new(1, -32, 0, 24),
-		FontFace = Theme.fonts.display,
-		TextSize = 18,
+		TextSize = 20,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "Cafe Lv 1",
 		Parent = cafe,
 	})
 	self._cafeSub = label({
 		Name = "Sub",
-		Position = UDim2.fromOffset(16, 28),
-		Size = UDim2.new(1, -32, 0, 16),
+		Position = UDim2.fromOffset(16, 27),
+		Size = UDim2.new(1, -32, 0, 15),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Theme.hud.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "",
 		Parent = cafe,
 	})
+	-- chunky XP-style bar: dark trough with an outline, shaded mint fill
 	local track: Frame = Create("Frame", {
 		Name = "Progress",
-		BackgroundColor3 = Theme.colors.paper,
-		BackgroundTransparency = 0.8,
+		BackgroundColor3 = Theme.colors.ink,
 		BorderSizePixel = 0,
-		Position = UDim2.new(0, 16, 1, -8),
-		Size = UDim2.new(1, -32, 0, 4),
+		Position = UDim2.new(0, 16, 1, -12),
+		Size = UDim2.new(1, -32, 0, 8),
 		Visible = false,
 		Parent = cafe,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(track, 1.5)
 	self._cafeTrack = track
 	self._cafeFill = Create("Frame", {
 		Name = "Fill",
@@ -314,6 +321,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromScale(0, 1),
 		Parent = track,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.shade(self._cafeFill, 0.25)
 	-- v0.3: with tiers the pill opens the rank up card, and a gold tag shows when it is ready
 	local cafeButton: TextButton = Create("TextButton", {
 		Name = "Open",
@@ -339,12 +347,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 1, 4),
+		Position = UDim2.new(0.5, 0, 1, 6),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 22),
+		Size = UDim2.fromOffset(0, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.colors.goldText,
+		TextColor3 = Theme.colors.white,
 		Text = "Rank up ready!",
 		Visible = false,
 		Parent = cafe,
@@ -352,21 +360,21 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
 	})
+	Outline.text(self._rankBadge)
 	self._tiersOn = false
 
 	-- Cats pill (top right)
 	local cats = hudPanel("Cats", {
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, MARGIN),
-		Size = UDim2.fromOffset(250, 52),
+		Size = UDim2.fromOffset(272, 52),
 		Parent = root,
 	})
 	self._catsText = label({
 		Name = "Count",
-		Position = UDim2.fromOffset(16, 0),
-		Size = UDim2.new(1, -140, 1, 0),
-		FontFace = Theme.fonts.display,
-		TextSize = 18,
+		Position = UDim2.fromOffset(14, 0),
+		Size = UDim2.new(1, -150, 1, 0),
+		TextSize = 20,
 		Text = "Cats 0 / 0",
 		Parent = cats,
 	})
@@ -375,8 +383,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Button.new({
 			name = "Collection",
 			text = "Collection",
+			icon = Theme.icons.collection,
 			style = "secondary",
-			size = UDim2.fromOffset(110, 36),
+			size = UDim2.fromOffset(122, 38),
 			anchorPoint = Vector2.new(1, 0.5),
 			position = UDim2.new(1, -8, 0.5, 0),
 			textSize = Theme.sizes.textSmall,
@@ -405,7 +414,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = clock,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIStroke", { Color = Theme.colors.goldDark, Thickness = 2 }),
+		Create("UIStroke", { Color = Theme.colors.outline, Thickness = 2 }),
 	})
 	self._moon = Create("Frame", {
 		Name = "Moon",
@@ -431,8 +440,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Phase",
 		Position = UDim2.fromOffset(42, 0),
 		Size = UDim2.new(1, -50, 1, 0),
-		FontFace = Theme.fonts.display,
-		TextSize = 16,
+		TextSize = 18,
 		Text = "",
 		Parent = clock,
 	})
@@ -460,7 +468,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, MARGIN, 0.5, 0),
-		Size = UDim2.fromOffset(124, 3 * 56 + 2 * Theme.sizes.gap),
+		Size = UDim2.fromOffset(MENU_TILE, 3 * MENU_TILE + 2 * Theme.sizes.gap),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -470,19 +478,40 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	local showKeys = UserInputService.KeyboardEnabled
-	type MenuItem = { label: string, screen: Types.ScreenName, key: string, style: Button.Style }
+	type MenuItem = {
+		label: string,
+		icon: string,
+		screen: Types.ScreenName,
+		key: string,
+		style: Button.Style,
+	}
+	-- square icon tiles down the left edge, the simulator convention for shop and inventory buttons
 	local menuItems: { MenuItem } = {
-		{ label = "Upgrades", screen = "Upgrades", key = "U", style = "primary" },
-		{ label = "Decor", screen = "Decor", key = "B", style = "gold" },
-		{ label = "Cats", screen = "Collection", key = "C", style = "secondary" },
+		{
+			label = "Upgrades",
+			icon = Theme.icons.upgrades,
+			screen = "Upgrades",
+			key = "U",
+			style = "primary",
+		},
+		{ label = "Decor", icon = Theme.icons.decor, screen = "Decor", key = "B", style = "gold" },
+		{
+			label = "Cats",
+			icon = Theme.icons.cats,
+			screen = "Collection",
+			key = "C",
+			style = "secondary",
+		},
 	}
 	for index, item in menuItems do
 		local button = Button.new({
 			name = item.label,
 			text = item.label,
+			icon = item.icon,
+			layout = "tile",
 			style = item.style,
-			size = UDim2.fromOffset(124, 56),
-			textSize = Theme.sizes.textBody + 2,
+			size = UDim2.fromOffset(MENU_TILE, MENU_TILE),
+			textSize = Theme.sizes.textBody,
 			layoutOrder = index,
 			parent = menu,
 			onClick = function()
@@ -509,12 +538,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", {
-			Color = Theme.hud.stroke,
-			Transparency = Theme.hud.strokeTransparency,
-			Thickness = Theme.sizes.stroke,
-		}),
 	})
+	Outline.border(lureSlot, Theme.sizes.outline, Theme.hud.stroke)
 	self._lureSlot = lureSlot
 	self._lureName = label({
 		Name = "Name",
@@ -623,8 +648,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 40),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.colors.goldText,
+		TextSize = Theme.sizes.textBody + 1,
+		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "",
 		Visible = false,

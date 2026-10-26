@@ -46,6 +46,7 @@ type Event = { at: number, name: string, text: string }
 local events: { Event } = {}
 local state: Types.PlayerState? = nil
 local running: string? = nil
+local lastSyncAt = 0 -- os.clock() of the newest ProfileSync
 
 local function log(text: string)
 	print("[Abuse] " .. text)
@@ -56,7 +57,13 @@ local function describe(...: any): string
 	for index = 1, select("#", ...) do
 		local value = select(index, ...)
 		if type(value) == "string" then
-			table.insert(parts, string.format("%q", if #value > 24 then string.sub(value, 1, 21) .. "..." else value))
+			table.insert(
+				parts,
+				string.format(
+					"%q",
+					if #value > 24 then string.sub(value, 1, 21) .. "..." else value
+				)
+			)
 		else
 			table.insert(parts, tostring(value))
 		end
@@ -89,7 +96,12 @@ local function since(startedAt: number, name: string?): { Event }
 	return found
 end
 
-local function waitFor(startedAt: number, name: string, timeout: number, matches: ((Event) -> boolean)?): Event?
+local function waitFor(
+	startedAt: number,
+	name: string,
+	timeout: number,
+	matches: ((Event) -> boolean)?
+): Event?
 	local deadline = os.clock() + timeout
 	while os.clock() < deadline do
 		for _, event in since(startedAt, name) do
@@ -114,6 +126,50 @@ local function catCount(): number
 		end
 	end
 	return count
+end
+
+-- Coins against income. Every ProfileSync carries settled income (whole seconds of os.time on the server) and the
+-- server's refusal paths sync too, so a correct server can show more coins than `before` at any check. A case
+-- takes a wallet before it fires and allows the income the cafe could have earned since that sync.
+type Wallet = { money: number, rate: number, at: number }
+
+local function wallet(): Wallet
+	return {
+		money = money(),
+		rate = if state ~= nil then state.incomePerSecond else 0,
+		at = lastSyncAt,
+	}
+end
+
+-- Asks for a sync first so the allowance stays small. RequestSync is limited to 1 per 2 s; when the server drops
+-- the request, the older sync stands and the allowance grows with its age.
+local function freshWallet(): Wallet
+	local startedAt = os.clock()
+	fire("RequestSync")
+	waitFor(startedAt, "ProfileSync", 2.5)
+	return wallet()
+end
+
+-- The most income that can have landed since `before`: the higher of the two rates, one extra second for the
+-- server's whole-second clock and one coin for rounding.
+local function incomeSince(before: Wallet): number
+	local rate = math.max(before.rate, if state ~= nil then state.incomePerSecond else 0)
+	return rate * (os.clock() - before.at + 1) + 1
+end
+
+-- True when coins rose by `expected` plus at most the income since `before`; the text goes on the RESULT line.
+-- A spend still shows as a drop and a second payout as a second `expected`.
+local function coinsMovedBy(before: Wallet, expected: number): (boolean, string)
+	local gained = money() - before.money
+	local allowance = incomeSince(before)
+	local ok = gained >= expected and gained <= expected + allowance
+	return ok,
+		string.format(
+			"coins moved by %d (allowed %d to %d with income)",
+			gained,
+			expected,
+			math.floor(expected + allowance)
+		)
 end
 
 -- The character and the world --------------------------------------------------------------------------------
@@ -150,13 +206,20 @@ local function nearestStray(): StrayInfo?
 		end
 		local lockedBy = instance:GetAttribute("LockedBy")
 		local reservedFor = instance:GetAttribute("ReservedFor")
-		if (lockedBy ~= nil and lockedBy ~= 0) or (reservedFor ~= nil and reservedFor ~= 0 and reservedFor ~= player.UserId) then
+		if
+			(lockedBy ~= nil and lockedBy ~= 0)
+			or (reservedFor ~= nil and reservedFor ~= 0 and reservedFor ~= player.UserId)
+		then
 			continue
 		end
 		local distance = (instance:GetPivot().Position - origin).Magnitude
 		if distance < bestDistance then
 			local rarity = instance:GetAttribute("Rarity")
-			best = { id = id, model = instance :: Model, rarity = (if type(rarity) == "string" then rarity else "Common") :: Types.Rarity }
+			best = {
+				id = id,
+				model = instance :: Model,
+				rarity = (if type(rarity) == "string" then rarity else "Common") :: Types.Rarity,
+			}
 			bestDistance = distance
 		end
 	end
@@ -197,12 +260,20 @@ local function checkInIfCarrying(): boolean
 	return synced ~= nil
 end
 
-local function glovesLevel(): number
-	return if state ~= nil then (state.upgradeLevels["gloves"] or 0) else 0
+-- The catch chance upgrade: "gloves" until design v0.2 renames it "net".
+local CATCH_UPGRADE = if Catalog.getUpgrade("net") ~= nil then "net" else "gloves"
+
+local function catchUpgradeLevel(): number
+	return if state ~= nil then (state.upgradeLevels[CATCH_UPGRADE] or 0) else 0
 end
 
--- One grab with a chosen release time. Returns the GrabResult event (or nil) and how long after GrabBegin it came.
-local function grabWithRelease(stray: StrayInfo, releaseAfter: number?, extraArg: any?): (Event?, number)
+-- One grab with a chosen release time. Returns the GrabResult event (or nil), how long after GrabBegin it came
+-- and the os.clock() of the GrabBegin.
+local function grabWithRelease(
+	stray: StrayInfo,
+	releaseAfter: number?,
+	extraArg: any?
+): (Event?, number, number)
 	standNextTo(stray)
 	local startedAt = os.clock()
 	fire("GrabBegin", stray.id)
@@ -218,7 +289,7 @@ local function grabWithRelease(stray: StrayInfo, releaseAfter: number?, extraArg
 		return string.find(event.text, stray.id, 1, true) ~= nil
 	end)
 	local after = if result ~= nil then result.at - startedAt else -1
-	return result, after
+	return result, after, startedAt
 end
 
 local function resolvedByTimeout(after: number): boolean
@@ -231,7 +302,9 @@ end
 type Verdict = "PASS" | "FAIL" | "SKIP" | "CHECK"
 type Case = { name: string, key: Enum.KeyCode, title: string, run: () -> (Verdict, string) }
 
-local NO_STRAY = "no free stray nearby; on the server run Debug.spawnStray(\"tabby\") (ServerScriptService.Server.Services.Debug)"
+-- From design v0.2 the alley is empty by day apart from the tutorial Common, so a run wants night first.
+local NO_STRAY = 'no free stray nearby; on the server run Debug.spawnStray("tabby") '
+	.. '(ServerScriptService.Server.Services.Debug), or from v0.2 Debug.setPhase("night")'
 
 local cases: { Case } = {}
 
@@ -286,21 +359,26 @@ case("farGrab", Enum.KeyCode.Two, "Far grab: GrabBegin and GrabEnd from 200 stud
 	return "CHECK", "nothing caught but no Too far away result either; read the server output"
 end)
 
-case("endWithoutBegin", Enum.KeyCode.Three, "End without begin: GrabEnd on a stray nobody locked", function()
-	local stray = nearestStray()
-	if stray == nil then
-		return "SKIP", NO_STRAY
+case(
+	"endWithoutBegin",
+	Enum.KeyCode.Three,
+	"End without begin: GrabEnd on a stray nobody locked",
+	function()
+		local stray = nearestStray()
+		if stray == nil then
+			return "SKIP", NO_STRAY
+		end
+		standNextTo(stray)
+		local startedAt = os.clock()
+		fire("GrabEnd", stray.id)
+		task.wait(1)
+		local reactions = #since(startedAt, "GrabResult")
+		if reactions == 0 then
+			return "PASS", "ignored"
+		end
+		return "FAIL", "the server scored a GrabEnd that had no GrabBegin"
 	end
-	standNextTo(stray)
-	local startedAt = os.clock()
-	fire("GrabEnd", stray.id)
-	task.wait(1)
-	local reactions = #since(startedAt, "GrabResult")
-	if reactions == 0 then
-		return "PASS", "ignored"
-	end
-	return "FAIL", "the server scored a GrabEnd that had no GrabBegin"
-end)
+)
 
 case("instantEnd", Enum.KeyCode.Four, "Instant end: GrabEnd 0.05 s after GrabBegin", function()
 	local stray = nearestStray()
@@ -313,7 +391,12 @@ case("instantEnd", Enum.KeyCode.Four, "Instant end: GrabEnd 0.05 s after GrabBeg
 		return "FAIL", "no GrabResult at all; the lock should have resolved itself at 1.75 s"
 	end
 	if resolvedByTimeout(after) then
-		return "PASS", string.format("dropped; the hold resolved itself as a ring miss after %.2f s (%s)", after, result.text)
+		return "PASS",
+			string.format(
+				"dropped; the hold resolved itself as a ring miss after %.2f s (%s)",
+				after,
+				result.text
+			)
 	end
 	return "FAIL", string.format("GrabResult after %.2f s, so the 0.05 s release was scored", after)
 end)
@@ -323,15 +406,21 @@ case("lateEnd", Enum.KeyCode.Five, "Late end: GrabEnd 2.0 s after GrabBegin", fu
 	if stray == nil then
 		return "SKIP", NO_STRAY
 	end
-	local result, after = grabWithRelease(stray, 2.0)
+	local result, after, startedAt = grabWithRelease(stray, 2.0)
 	task.wait(1)
-	local total = #since(os.clock() - 3.5, "GrabResult")
+	local total = 0
+	for _, event in since(startedAt, "GrabResult") do
+		if string.find(event.text, stray.id, 1, true) ~= nil then
+			total += 1
+		end
+	end
 	checkInIfCarrying()
 	if result == nil then
 		return "FAIL", "no GrabResult; the server should resolve the hold at 1.75 s"
 	end
 	if resolvedByTimeout(after) and total == 1 then
-		return "PASS", string.format("resolved at %.2f s by the server, the late GrabEnd was ignored", after)
+		return "PASS",
+			string.format("resolved at %.2f s by the server, the late GrabEnd was ignored", after)
 	end
 	return "FAIL", string.format("%d result(s), first after %.2f s", total, after)
 end)
@@ -347,7 +436,8 @@ case("noEnd", Enum.KeyCode.Six, "No end: GrabBegin and never release", function(
 		return "FAIL", "no GrabResult; a hold with no GrabEnd must resolve at 1.75 s"
 	end
 	if resolvedByTimeout(after) then
-		return "PASS", string.format("resolved as a ring miss after %.2f s (%s)", after, result.text)
+		return "PASS",
+			string.format("resolved as a ring miss after %.2f s (%s)", after, result.text)
 	end
 	return "FAIL", string.format("GrabResult after %.2f s", after)
 end)
@@ -363,8 +453,8 @@ case("perfectFarm", Enum.KeyCode.Seven, "Perfect farming: 10 scripted releases a
 			break
 		end
 		attempts += 1
-		expectedWithPerfect += Catching.chance(stray.rarity, glovesLevel(), false, "perfect")
-		expectedHonest += Catching.chance(stray.rarity, glovesLevel(), false, "miss")
+		expectedWithPerfect += Catching.chance(stray.rarity, catchUpgradeLevel(), false, "perfect")
+		expectedHonest += Catching.chance(stray.rarity, catchUpgradeLevel(), false, "miss")
 		local result = grabWithRelease(stray, 1.6)
 		if result ~= nil and string.find(result.text, "caught", 1, true) then
 			caught += 1
@@ -386,155 +476,281 @@ case("perfectFarm", Enum.KeyCode.Seven, "Perfect farming: 10 scripted releases a
 		)
 end)
 
-case("clientRingValue", Enum.KeyCode.Eight, "Client ring value: GrabEnd(id, \"perfect\") at 0.5 s", function()
-	local stray = nearestStray()
-	if stray == nil then
-		return "SKIP", NO_STRAY
-	end
-	local result, after = grabWithRelease(stray, 0.5, "perfect")
-	checkInIfCarrying()
-	if result == nil then
-		return "FAIL", "no GrabResult"
-	end
-	if after < 1.0 then
-		return "PASS", string.format("extra argument ignored, scored from timing at %.2f s (%s)", after, result.text)
-	end
-	return "CHECK", string.format("GrabResult after %.2f s; read the server output", after)
-end)
-
-case("badIds", Enum.KeyCode.Nine, "Bad ids: wrong types and lengths on shop and tutorial remotes", function()
-	local startedAt = os.clock()
-	local before = money()
-	fire("BuyUpgrade", string.rep("a", Config.MaxIdLength + 1))
-	fire("BuyUpgrade", 123)
-	fire("BuyUpgrade", nil)
-	fire("BuyUpgrade", "jetpack")
-	fire("BuyUpgrade", {})
-	fire("BuyUpgrade", true)
-	fire("BuyDecor", "Neon Sign")
-	fire("PlaceCat", 123, "window_1")
-	fire("ToggleDecor", "plants", "yes")
-	fire("TutorialAdvance", "two")
-	fire("TutorialAdvance", 1e9)
-	fire("EquipLure", 7)
-	task.wait(1.5)
-	local toasts = #since(startedAt, "Toast")
-	if money() ~= before then
-		return "FAIL", string.format("coins moved from %d to %d on bad input", before, money())
-	end
-	if toasts > 0 then
-		return "FAIL", string.format("%d toast(s): the server treated bad input as a real request", toasts)
-	end
-	return "CHECK", "coins unchanged, no toasts. Now read the server output: a [Net] ... handler failed line is a major"
-end)
-
-case("shop", Enum.KeyCode.Zero, "Shop gates and unaffordable: level gated buys and placement, tables with no coins", function()
-	if state == nil then
-		return "SKIP", "no ProfileSync yet"
-	end
-	local startedAt = os.clock()
-	local before = money()
-	local notes = {}
-	if state.cafeLevel == 1 then
-		fire("BuyUpgrade", "lure_bowl")
-		fire("BuyDecor", "neon_sign")
-		local anyUid: string? = nil
-		for uid in state.cats do
-			anyUid = uid
-			break
+case(
+	"clientRingValue",
+	Enum.KeyCode.Eight,
+	'Client ring value: GrabEnd(id, "perfect") at 0.5 s',
+	function()
+		local stray = nearestStray()
+		if stray == nil then
+			return "SKIP", NO_STRAY
 		end
-		if anyUid ~= nil then
-			fire("PlaceCat", anyUid, "cushion_1")
+		local result, after = grabWithRelease(stray, 0.5, "perfect")
+		checkInIfCarrying()
+		if result == nil then
+			return "FAIL", "no GrabResult"
 		end
-	else
-		table.insert(notes, string.format("gates skipped: cafe level is %d, not 1", state.cafeLevel))
+		-- GrabResult carries no ring, so a server that honoured "perfect" would answer at the same moment. The client
+		-- cannot tell the two apart; the proof is CatService.onGrabEnd taking only the stray id (code review 2026-10-26).
+		return "CHECK",
+			string.format(
+				"GrabResult after %.2f s (%s). The ring is not visible from here: confirm onGrabEnd ignores extra arguments",
+				after,
+				result.text
+			)
 	end
-	local tables = Catalog.getUpgrade("tables")
-	local nextCost = if tables ~= nil then tables.costs[(state.upgradeLevels["tables"] or 0) + 1] else nil
-	if nextCost ~= nil and before < nextCost then
-		fire("BuyUpgrade", "tables")
-	else
-		table.insert(notes, "unaffordable skipped: tables is affordable; on the server run Debug.setCoins(player, 0) and rerun")
-	end
-	task.wait(1.5)
-	if money() ~= before then
-		return "FAIL", string.format("coins moved from %d to %d", before, money())
-	end
-	local seen = {}
-	for _, event in since(startedAt, "Toast") do
-		table.insert(seen, event.text)
-	end
-	local verdict: Verdict = if #seen > 0 then "PASS" else "CHECK"
-	return verdict, string.format("coins unchanged; toasts: %s%s", if #seen > 0 then table.concat(seen, " | ") else "none", if #notes > 0 then " (" .. table.concat(notes, "; ") .. ")" else "")
-end)
+)
 
-case("ownership", Enum.KeyCode.Minus, "Ownership: place, sell and unplace a cat uid that is not mine", function()
-	local startedAt = os.clock()
-	local before, cats = money(), catCount()
-	fire("PlaceCat", "not_my_cat", "window_1")
-	fire("SellCat", "not_my_cat")
-	fire("UnplaceCat", "not_my_cat")
-	task.wait(1.5)
-	if money() ~= before or catCount() ~= cats then
-		return "FAIL", "coins or cats changed"
-	end
-	if #since(startedAt, "Toast") > 0 then
-		return "FAIL", "the server answered a uid that is not mine"
-	end
-	return "PASS", "ignored, coins and cats unchanged"
-end)
-
-case("doubleSpend", Enum.KeyCode.Equals, "Double spend: SellCat twice in one frame, ClaimOffline twice", function()
-	if state == nil then
-		return "SKIP", "no ProfileSync yet"
-	end
-	local notes = {}
-	local verdict: Verdict = "PASS"
-	if catCount() >= 2 then
-		local uid: string? = nil
-		local value = 0
-		for candidate, instance in state.cats do
-			local def = Catalog.getCat(instance.catId)
-			if def ~= nil and (uid == nil or instance.spotId == nil) then
-				uid = candidate
-				value = Catalog.rarities[def.rarity].sellValue
+case(
+	"badIds",
+	Enum.KeyCode.Nine,
+	"Bad ids: malformed values, then well-formed ids that do not exist",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local before = freshWallet()
+		-- Malformed: wrong type, bad pattern or too long. Guard drops each one before the handler reads the profile.
+		local malformedAt = os.clock()
+		fire("BuyUpgrade", string.rep("a", Config.MaxIdLength + 1))
+		fire("BuyUpgrade", 123)
+		fire("BuyUpgrade", nil)
+		fire("BuyUpgrade", {})
+		fire("BuyUpgrade", true)
+		fire("BuyDecor", "Neon Sign")
+		fire("PlaceCat", 123, "window_1")
+		fire("ToggleDecor", "plants", "yes")
+		fire("EquipLure", 7)
+		fire("TutorialAdvance", "two")
+		task.wait(1.2) -- TutorialAdvance allows 1 call per second; wait out the bucket so Guard.int's range check runs
+		fire("TutorialAdvance", 1e9)
+		task.wait(1)
+		local malformedToasts = {}
+		for _, event in since(malformedAt, "Toast") do
+			table.insert(malformedToasts, event.text)
+		end
+		-- Well formed but unknown: the server may refuse with a warn toast, since every refused action says why.
+		-- A good toast or a new entry in the profile would be a purchase.
+		local unknownAt = os.clock()
+		fire("BuyUpgrade", "jetpack")
+		fire("BuyDecor", "jetpack")
+		task.wait(1.5)
+		local unknownToasts = {}
+		local bought = state.upgradeLevels["jetpack"] ~= nil or state.decorOwned["jetpack"] ~= nil
+		for _, event in since(unknownAt, "Toast") do
+			table.insert(unknownToasts, event.text)
+			if string.find(event.text, "[good]", 1, true) ~= nil then
+				bought = true
 			end
 		end
-		if uid ~= nil then
-			local before, cats = money(), catCount()
-			log("    selling one cat on purpose (test profile)")
-			fire("SellCat", uid)
-			fire("SellCat", uid)
-			task.wait(1.5)
-			local gained, lost = money() - before, cats - catCount()
-			if gained == value and lost == 1 then
-				table.insert(notes, string.format("one sale for $%d, second call added nothing", value))
-			else
-				verdict = "FAIL"
-				table.insert(notes, string.format("sell: +$%d and %d cat(s) gone for one cat worth $%d", gained, lost, value))
+		local coinsOk, coinsText = coinsMovedBy(before, 0)
+		if not coinsOk then
+			return "FAIL", coinsText .. " on bad input"
+		end
+		if #malformedToasts > 0 then
+			return "FAIL",
+				"malformed input got a toast, so it reached the handler: " .. table.concat(
+					malformedToasts,
+					" | "
+				)
+		end
+		if bought then
+			return "FAIL", "an unknown id was bought: " .. table.concat(unknownToasts, " | ")
+		end
+		return "CHECK",
+			string.format(
+				"%s; malformed: no toast; unknown ids: %s. Now read the server output: a [Net] ... handler failed line is a major",
+				coinsText,
+				if #unknownToasts > 0 then table.concat(unknownToasts, " | ") else "no toast"
+			)
+	end
+)
+
+case(
+	"shop",
+	Enum.KeyCode.Zero,
+	"Shop gates and unaffordable: level gated buys and placement, tables with no coins",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local before = freshWallet()
+		local startedAt = os.clock()
+		local notes = {}
+		-- What a buy or placement would change, read from the state instead of toast wording.
+		local function owned(now: Types.PlayerState): string
+			local onCushion = false
+			for _, view in now.cats do
+				onCushion = onCushion or view.spotId == "cushion_1"
+			end
+			return string.format(
+				"lure_bowl %d, tables %d, neon_sign %s, cushion_1 %s",
+				now.upgradeLevels["lure_bowl"] or 0,
+				now.upgradeLevels["tables"] or 0,
+				tostring(now.decorOwned["neon_sign"] == true),
+				if onCushion then "taken" else "free"
+			)
+		end
+		local ownedBefore = owned(state)
+		if state.cafeLevel == 1 then
+			fire("BuyUpgrade", "lure_bowl")
+			fire("BuyDecor", "neon_sign")
+			local anyUid: string? = nil
+			for uid in state.cats do
+				anyUid = uid
+				break
+			end
+			if anyUid ~= nil then
+				fire("PlaceCat", anyUid, "cushion_1")
+			end
+		else
+			table.insert(
+				notes,
+				string.format("gates skipped: cafe level is %d, not 1", state.cafeLevel)
+			)
+		end
+		local tables = Catalog.getUpgrade("tables")
+		local nextCost = if tables ~= nil
+			then tables.costs[(state.upgradeLevels["tables"] or 0) + 1]
+			else nil
+		-- Unaffordable even after a few seconds of income, so a correct server cannot sell it before the call lands.
+		if nextCost ~= nil and before.money + before.rate * 3 + 1 < nextCost then
+			fire("BuyUpgrade", "tables")
+		else
+			table.insert(
+				notes,
+				"unaffordable skipped: tables is affordable; on the server run Debug.setCoins(player, 0) and rerun"
+			)
+		end
+		task.wait(1.5)
+		local coinsOk, coinsText = coinsMovedBy(before, 0)
+		if not coinsOk then
+			return "FAIL", coinsText
+		end
+		local ownedAfter = owned(state)
+		if ownedAfter ~= ownedBefore then
+			return "FAIL",
+				string.format(
+					"a gated or unaffordable buy went through: %s became %s",
+					ownedBefore,
+					ownedAfter
+				)
+		end
+		local seen = {}
+		for _, event in since(startedAt, "Toast") do
+			table.insert(seen, event.text)
+		end
+		local verdict: Verdict = if #seen > 0 then "PASS" else "CHECK"
+		return verdict,
+			string.format(
+				"%s; toasts: %s%s",
+				coinsText,
+				if #seen > 0 then table.concat(seen, " | ") else "none",
+				if #notes > 0 then " (" .. table.concat(notes, "; ") .. ")" else ""
+			)
+	end
+)
+
+case(
+	"ownership",
+	Enum.KeyCode.Minus,
+	"Ownership: place, sell and unplace a cat uid that is not mine",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local before, cats = freshWallet(), catCount()
+		local startedAt = os.clock()
+		fire("PlaceCat", "not_my_cat", "window_1")
+		fire("SellCat", "not_my_cat")
+		fire("UnplaceCat", "not_my_cat")
+		task.wait(1.5)
+		local coinsOk, coinsText = coinsMovedBy(before, 0)
+		if not coinsOk or catCount() ~= cats then
+			return "FAIL", string.format("%s, cats %d -> %d", coinsText, cats, catCount())
+		end
+		if #since(startedAt, "Toast") > 0 then
+			return "FAIL", "the server answered a uid that is not mine"
+		end
+		return "PASS", string.format("ignored, no toast, cats unchanged, %s", coinsText)
+	end
+)
+
+case(
+	"doubleSpend",
+	Enum.KeyCode.Equals,
+	"Double spend: SellCat twice in one frame, ClaimOffline twice 2 s apart",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local notes = {}
+		local verdict: Verdict = "PASS"
+		if catCount() >= 2 then
+			local uid: string? = nil
+			local value = 0
+			for candidate, instance in state.cats do
+				local def = Catalog.getCat(instance.catId)
+				if def ~= nil and (uid == nil or instance.spotId == nil) then
+					uid = candidate
+					value = Catalog.rarities[def.rarity].sellValue
+				end
+			end
+			if uid ~= nil then
+				local before, cats = freshWallet(), catCount()
+				log("    selling one cat on purpose (test profile)")
+				fire("SellCat", uid)
+				fire("SellCat", uid)
+				task.wait(1.5)
+				local coinsOk, coinsText = coinsMovedBy(before, value)
+				local lost = cats - catCount()
+				if coinsOk and lost == 1 then
+					table.insert(
+						notes,
+						string.format(
+							"one sale for $%d, second call added nothing (%s)",
+							value,
+							coinsText
+						)
+					)
+				else
+					verdict = "FAIL"
+					table.insert(
+						notes,
+						string.format(
+							"sell: %s and %d cat(s) gone for one cat worth $%d",
+							coinsText,
+							lost,
+							value
+						)
+					)
+				end
+			end
+		else
+			table.insert(notes, "sell skipped: fewer than 2 cats")
+		end
+		-- ClaimOffline allows 1 call per 2 s, so the second call waits out the bucket and reaches the handler, which
+		-- must have zeroed the pending amount on the first.
+		local startedAt = os.clock()
+		fire("ClaimOffline")
+		task.wait(2.2)
+		fire("ClaimOffline")
+		task.wait(1.5)
+		local welcomes = 0
+		for _, event in since(startedAt, "Toast") do
+			if string.find(event.text, "Welcome back", 1, true) then
+				welcomes += 1
 			end
 		end
-	else
-		table.insert(notes, "sell skipped: fewer than 2 cats")
-	end
-	local startedAt = os.clock()
-	fire("ClaimOffline")
-	fire("ClaimOffline")
-	task.wait(1.5)
-	local welcomes = 0
-	for _, event in since(startedAt, "Toast") do
-		if string.find(event.text, "Welcome back", 1, true) then
-			welcomes += 1
+		if welcomes > 1 then
+			verdict = "FAIL"
+			table.insert(notes, "offline earnings were paid twice")
+		else
+			table.insert(notes, string.format("offline paid %d time(s)", welcomes))
 		end
+		return verdict, table.concat(notes, "; ")
 	end
-	if welcomes > 1 then
-		verdict = "FAIL"
-		table.insert(notes, "offline earnings were paid twice")
-	else
-		table.insert(notes, string.format("offline paid %d time(s)", welcomes))
-	end
-	return verdict, table.concat(notes, "; ")
-end)
+)
 
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
@@ -545,7 +761,11 @@ case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", func
 	task.wait(1.5)
 	local syncs = #since(startedAt, "ProfileSync")
 	if syncs <= 2 then
-		return "PASS", string.format("%d ProfileSync back; the server output should show one rate limit line, not 29", syncs)
+		return "PASS",
+			string.format(
+				"%d ProfileSync back; the server output should show one rate limit line, not 29",
+				syncs
+			)
 	end
 	return "FAIL", string.format("%d ProfileSync back from 30 calls in one frame", syncs)
 end)
@@ -572,7 +792,13 @@ local function run(name: string): (Verdict, string)
 	local ok, verdict, detail = pcall(chosen.run)
 	running = nil
 	if not ok then
-		log(string.format("RESULT %s: FAIL the case itself errored: %s", chosen.name, tostring(verdict)))
+		log(
+			string.format(
+				"RESULT %s: FAIL the case itself errored: %s",
+				chosen.name,
+				tostring(verdict)
+			)
+		)
 		return "FAIL", tostring(verdict)
 	end
 	log(string.format("RESULT %s: %s %s", chosen.name, verdict, detail))
@@ -634,14 +860,28 @@ end)
 -- Server events worth seeing. ProfileSync keeps the state the cases compare against.
 Remotes.event("ProfileSync").OnClientEvent:Connect(function(s: Types.PlayerState)
 	state = s
-	record("ProfileSync", string.format("money=%d cats=%d carrying=%s", s.money, catCount(), tostring(s.carrying)))
+	lastSyncAt = os.clock()
+	record(
+		"ProfileSync",
+		string.format("money=%d cats=%d carrying=%s", s.money, catCount(), tostring(s.carrying))
+	)
 end)
 Remotes.event("Toast").OnClientEvent:Connect(function(text: string, kind: string?)
 	record("Toast", string.format("[%s] %s", tostring(kind), text))
 end)
-Remotes.event("GrabResult").OnClientEvent:Connect(function(strayId: string, ok: boolean, reason: string, retry: boolean)
-	record("GrabResult", string.format("%s ok=%s reason=%q retry=%s", strayId, tostring(ok), reason, tostring(retry)))
-end)
+Remotes.event("GrabResult").OnClientEvent
+	:Connect(function(strayId: string, ok: boolean, reason: string, retry: boolean)
+		record(
+			"GrabResult",
+			string.format(
+				"%s ok=%s reason=%q retry=%s",
+				strayId,
+				tostring(ok),
+				reason,
+				tostring(retry)
+			)
+		)
+	end)
 Remotes.event("CatCaught").OnClientEvent:Connect(function(catId: string, isNew: boolean)
 	record("CatCaught", string.format("%s new=%s", catId, tostring(isNew)))
 end)
@@ -656,4 +896,6 @@ end
 _G.PurrPotAbuse = { run = run, runAll = runAll, cases = names }
 
 Remotes.event("RequestSync"):FireServer()
-log("loaded (Studio only). Press ` to arm, or use _G.PurrPotAbuse.run(name) from a client command bar.")
+log(
+	"loaded (Studio only). Press ` to arm, or use _G.PurrPotAbuse.run(name) from a client command bar."
+)

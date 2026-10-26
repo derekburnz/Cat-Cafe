@@ -56,6 +56,7 @@ Rokit installs and pins Rojo, Wally, Selene, StyLua and luau-lsp from `rokit.tom
 2. Use **Quick connect** for Claude Code. It writes the server into Claude Code's config. The repo's `.mcp.json` also defines it under the name `Roblox_Studio` using `%LOCALAPPDATA%\Roblox\mcp.bat`; if `/mcp` in Claude Code shows two Studio servers, remove the Quick connect one (`claude mcp remove <name>`) so agents see a single `studio_id`.
 3. Restart Claude Code in the repo root. `/mcp` should show `Roblox_Studio` connected and Studio shows a green indicator.
 4. Keep one Studio window open while agents work. With several open, agents must pass the right `studio_id` (they can call `list_roblox_studios`).
+5. Check the whole setup in one go: in Claude Code type `/roblox-doctor`. It runs `.claude/skills/roblox-doctor/scripts/doctor.sh --json` (needs Git Bash, which came with Git) and reports Rokit tools, Rojo project, Studio MCP, Blender MCP and Open Cloud key status with a fix per line. It is read-only unless you agree to `--fix`.
 
 Roblox's warning applies: an MCP client can read and modify the open place. Only your own Claude Code connects, and only to the dev place.
 
@@ -86,12 +87,15 @@ cd games\cat-cafe
 ```
 First run downloads Roblox API types for luau-lsp and Selene's Roblox standard library. Green "All checks passed" means type check, lint and format are clean. Agents run this before saying "done".
 
+API lookups without Studio: `.mcp.json` also starts `roblox_docs` (`uvx mcp-roblox-docs`, no key, published on PyPI). Agents use it to check classes, members, enums and deprecations; it needs `uv` from step 10. Optional: the `roblox-dev-skill` can read a local API dump at `~/RobloxDocs`. To create it, clone https://github.com/MSayib/roblox-dev-skill, read `install.ps1`, then run `.\install.ps1 -DocsOnly`. Without it the skill falls back to the web docs and says so.
+
 ## 10. Blender and Blender MCP (Phase 1)
-1. Install Blender 4.x from https://www.blender.org/download/.
-2. Install `uv` (Python tool runner): `winget install --id astral-sh.uv -e` (or `irm https://astral.sh/uv/install.ps1 | iex`).
+1. Install Blender 5.2 LTS from https://www.blender.org/download/. The generator scripts in `assets/cat-cafe/blender/` run on 4.2 or newer and were written against 5.2; the third-party `blender-*` skills require 5.2. blender-mcp's README only promises 3.0 or newer, so test the connection (step 4 below) right after installing.
+2. Install `uv` (Python tool runner): `winget install --id astral-sh.uv -e` (or `irm https://astral.sh/uv/install.ps1 | iex`). `uv` also runs the `roblox_docs` MCP server from step 9.
 3. Download `addon.py` from https://github.com/ahujasid/blender-mcp. In Blender: Edit > Preferences > Add-ons > Install > pick the file > enable **Interface: Blender MCP**.
 4. In the 3D Viewport press N, open the **BlenderMCP** tab, press **Connect to Claude** (this starts the socket server inside Blender). Leave it running while the asset-artist works. Run only one Blender MCP server at a time.
-5. The repo's `.mcp.json` already has the `blender` entry (`uvx blender-mcp`). Restart Claude Code; `/mcp` should show both servers.
+5. The repo's `.mcp.json` already has the `blender` entry (`uvx blender-mcp`) with `DISABLE_TELEMETRY=true`, because blender-mcp sends a minimal anonymous usage record by default. Restart Claude Code; `/mcp` should show the Studio, blender and roblox_docs servers.
+6. Optional, for hand edits in the Blender UI: install the free **ACT: Game Asset Creation Toolset** from https://extensions.blender.org/add-ons/act-game-asset-creation-toolset/ (origin alignment, batch rename, UV atlas tools, batch FBX export). The generator already handles pivots and the palette, so this is a convenience, not a requirement.
 
 ## 11. Roblox Blender plugin (Blender -> Studio)
 Download from https://github.com/Roblox/roblox-blender-plugin (see https://create.roblox.com/docs/art/modeling/roblox-blender-plugin), install as a Blender add-on, log in with your Roblox account in the add-on panel. Select objects and Upload; they appear in the open Studio session. Calibrate scale once with the 4-stud cube test in the asset-pipeline skill and write the number into `docs/art/style-guide.md`.

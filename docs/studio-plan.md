@@ -35,12 +35,16 @@ Until the GitHub repo exists, the project folder `cat-cafe/` is the shared works
 | **QA** | qa-playtester (Sonnet; Opus for hard bugs) | playtest-report | Studio MCP playtest tools (start_stop_play, character_navigation, inputs, console, screenshots, subagent playtest), Google Sheets export of the feedback form | engineer test notes, reviewer test line, friends' form responses | docs/playtests/<date>.md |
 | **Growth** | growth-analyst (Opus) | monetization-policy, devlog (metrics section) | web search, Roblox Creator docs, later Roblox analytics dashboard and Creator Rewards page | GDD, playtest results | docs/growth/{comps,analytics-plan,monetization,store-page,launch-plan}.md |
 
+Third-party skills per role (added 2026-10-26, details in `.claude/skills/THIRD_PARTY.md`): engineer and reviewer read `roblox-dev-skill` (plus `roblox-audio`, `roblox-characters-animation`) and verify APIs with the `roblox_docs` MCP; the asset-artist uses `blender-core`, `blender-asset-qa`, `blender-export-pipelines`, `blender-game-optimization`, `blender-retopology-uv`, `blender-to-roblox` and `find-resources`; QA uses `roblox-mobile-playtest` and `roblox-testing`; growth and the designer use `roblox-publishing-discovery`, `roblox-release-operations` and `roblox-policy-compliance`; the lead runs `/roblox-doctor` for setup checks.
+
 ## 4. Connector inventory
 | Connector | Type | Runs where | Needed from | Setup | Status 2026-10-25 |
 |---|---|---|---|---|---|
 | **Roblox Studio MCP server** (built in) | MCP, local | Derek's PC | Phase 0 | setup-guide step 6; `.mcp.json` entry `Roblox_Studio` | to install |
 | **Blender MCP** (ahujasid/blender-mcp) | MCP, local | Derek's PC | Phase 1 | setup-guide step 10; `.mcp.json` entry `blender` | to install |
 | **Roblox Blender plugin** | Blender add-on | Derek's PC | Phase 1 | setup-guide step 11 | to install |
+| **Roblox docs MCP** (n4tivex/mcp-roblox-docs) | MCP, local, no key | Derek's PC (cloud threads if PyPI is reachable) | Phase 0 | `.mcp.json` entry `roblox_docs` (`uvx mcp-roblox-docs`); needs `uv` from setup-guide step 10 | added 2026-10-26 |
+| **Third-party skills** (roblox-dev-skill, blender-*, roblox-doctor, blender-to-roblox, find-resources, AshExplained and EL4CTEO checklists) | Markdown + scripts in `.claude/skills/` | PC and cloud (scripts PC only) | Phase 0 | `.claude/skills/THIRD_PARTY.md`; `/roblox-doctor` checks the PC setup | added 2026-10-26 |
 | **Git + GitHub private repo** | VCS | PC and cloud | Phase 0 | setup-guide step 2; connect GitHub to this project for cloud threads to open PRs | repo not created yet |
 | **Rojo, Wally, Selene, StyLua, luau-lsp via Rokit** | CLI | Derek's PC | Phase 0 | `rokit install` | configs written |
 | **Google Drive / Docs** | connector in this project | claude.ai | now | already connected (plan doc, Game Ideas doc) | connected |
@@ -78,8 +82,8 @@ Cloud threads cannot reach Studio or Blender. Anything that needs them is writte
 
 ## 7. Skills to add later (not yet needed)
 - `check-gate`: a `/check` command that runs check.ps1 and summarises failures (the script already exists).
-- `studio-mcp-playbook`: recipes for common Studio MCP tasks (place a model, light a scene, run a scripted playtest).
-- `release-checklist`: age questionnaire, store page, maturity label, analytics live, dev vs live DataStore names, Group publishing.
+- ~~`studio-mcp-playbook`~~: covered since 2026-10-26 by `roblox-dev-skill` (SKILL.md tool table, `references/mcp-integration.md`, `references/agent-safety.md`).
+- `release-checklist`: age questionnaire, store page, maturity label, analytics live, dev vs live DataStore names, Group publishing. The generic half is now `roblox-release-operations` plus `roblox-policy-compliance`; only the Purr Pot specifics remain to write.
 - `analytics-events`: AnalyticsService wrapper and event naming once growth's plan is agreed.
 - `cat-breeds`: content pipeline for adding a breed (catalog entry, model, icon, odds row).
 

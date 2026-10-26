@@ -6,7 +6,12 @@
     },
     "blender": {
       "command": "cmd.exe",
-      "args": ["/c", "uvx", "blender-mcp"]
+      "args": ["/c", "uvx", "blender-mcp"],
+      "env": { "DISABLE_TELEMETRY": "true" }
+    },
+    "roblox_docs": {
+      "command": "cmd.exe",
+      "args": ["/c", "uvx", "mcp-roblox-docs"]
     }
   }
 }

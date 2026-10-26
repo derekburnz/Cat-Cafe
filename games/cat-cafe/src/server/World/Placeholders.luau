@@ -861,84 +861,100 @@ local builders: { [string]: () -> Model } = {
 	CatCafe_Item_Net_L3 = function()
 		return net(3)
 	end,
-	-- Rescue props (features.md 8b). The stuck cat sits where Layout's rescue spot says: in the top crate,
-	-- at the pipe's mouth, on the branch. Pivots are base centre like every other prop.
+	-- Rescue props (features.md 8b), shaped to the asset round 2 bounds with the real props' pivots (front -Z),
+	-- so Layout.stuckPoses fits both. The tree's low branch reaches along -X; the box lies on its side with the
+	-- opening toward -Z; the drainpipe hangs on a wall (pivot at the back-bottom of its plate) with its outlet
+	-- toward -Z at floor level.
 	CatCafe_Alley_StuckBox = function()
+		local cardboard = Color3.fromRGB(196, 150, 100)
 		return simple("CatCafe_Alley_StuckBox", {
 			{
-				name = "CrateLow",
-				size = Vector3.new(2.6, 2.5, 2.6),
-				offset = Vector3.new(0, 1.25, 0),
-				color = WOOD,
-				material = Enum.Material.WoodPlanks,
+				name = "Back",
+				size = Vector3.new(2.29, 2.1, 0.15),
+				offset = Vector3.new(0.3, 1.05, 1.4),
+				color = cardboard,
+				material = Enum.Material.Cardboard,
 				collide = true,
 			},
 			{
-				name = "CrateSide",
-				size = Vector3.new(2.4, 2.4, 2.4),
-				offset = Vector3.new(2.6, 1.2, 0.2),
-				color = WOOD:Lerp(DARK, 0.15),
-				material = Enum.Material.WoodPlanks,
-				rotation = Vector3.new(0, 12, 0),
+				name = "SideL",
+				size = Vector3.new(0.15, 2.1, 2.19),
+				offset = Vector3.new(-0.78, 1.05, 0.38),
+				color = cardboard,
+				material = Enum.Material.Cardboard,
 				collide = true,
 			},
 			{
-				name = "CrateTop",
-				size = Vector3.new(2.4, 2.5, 2.4),
-				offset = Vector3.new(0, 3.75, 0),
-				color = WOOD:Lerp(CREAM, 0.2),
-				material = Enum.Material.WoodPlanks,
-				rotation = Vector3.new(0, -8, 0),
+				name = "SideR",
+				size = Vector3.new(0.15, 2.1, 2.19),
+				offset = Vector3.new(1.37, 1.05, 0.38),
+				color = cardboard,
+				material = Enum.Material.Cardboard,
+				collide = true,
+			},
+			{
+				name = "Top",
+				size = Vector3.new(2.29, 0.15, 2.19),
+				offset = Vector3.new(0.3, 2.03, 0.38),
+				color = cardboard:Lerp(DARK, 0.1),
+				material = Enum.Material.Cardboard,
 				collide = true,
 			},
 		})
 	end,
 	CatCafe_Alley_Drainpipe = function()
+		local pipe = METAL:Lerp(DARK, 0.3)
 		return simple("CatCafe_Alley_Drainpipe", {
 			{
-				name = "Pipe",
-				size = Vector3.new(5, 2.2, 2.2),
-				offset = Vector3.new(0, 1.1, 0),
-				color = METAL:Lerp(DARK, 0.3),
+				name = "Plate",
+				size = Vector3.new(2.6, 8.3, 0.06),
+				offset = Vector3.new(0, 4.15, -0.03),
+				color = DARK,
 				material = Enum.Material.Metal,
-				shape = Enum.PartType.Cylinder,
+			},
+			{
+				name = "Riser",
+				size = Vector3.new(1, 6.6, 1),
+				offset = Vector3.new(0, 5, -0.7),
+				color = pipe,
+				material = Enum.Material.Metal,
 				collide = true,
 			},
 			{
-				name = "Bend",
-				size = Vector3.new(2.2, 5, 2.2),
-				offset = Vector3.new(-2.5, 3.6, 0),
-				color = METAL:Lerp(DARK, 0.3),
+				name = "Outlet",
+				size = Vector3.new(1.6, 1.7, 2.9),
+				offset = Vector3.new(0, 0.85, -1.5),
+				color = pipe,
 				material = Enum.Material.Metal,
 				collide = true,
 			},
 		})
 	end,
 	CatCafe_Alley_StuckTree = function()
+		local bark = Color3.fromRGB(110, 75, 45)
 		return simple("CatCafe_Alley_StuckTree", {
 			{
 				name = "Trunk",
-				size = Vector3.new(1.2, 7, 1.2),
-				offset = Vector3.new(0, 3.5, 0),
-				color = Color3.fromRGB(110, 75, 45),
+				size = Vector3.new(1.2, 7.2, 1.2),
+				offset = Vector3.new(0, 3.6, 0),
+				color = bark,
 				material = Enum.Material.Wood,
 				collide = true,
 			},
 			{
 				name = "Branch",
-				size = Vector3.new(3.2, 0.5, 0.6),
-				offset = Vector3.new(1.6, 4.95, 0),
-				color = Color3.fromRGB(110, 75, 45),
+				size = Vector3.new(3.1, 0.5, 0.6),
+				offset = Vector3.new(-1.55, 4.0, 0),
+				color = bark,
 				material = Enum.Material.Wood,
 				collide = true,
 			},
 			{
 				name = "Leaves",
-				size = Vector3.new(6, 5, 6),
-				offset = Vector3.new(0, 8.5, 0),
+				size = Vector3.new(4, 2.4, 2.9),
+				offset = Vector3.new(1.2, 6.9, 0),
 				color = GREEN,
 				material = Enum.Material.Grass,
-				shape = Enum.PartType.Ball,
 			},
 		})
 	end,

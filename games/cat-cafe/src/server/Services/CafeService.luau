@@ -96,9 +96,9 @@ local function ensureLockLabel(slot: BasePart, spot: Types.SpotDef): BillboardGu
 	end
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "LockLabel"
-	billboard.Size = UDim2.fromOffset(140, 30)
+	billboard.Size = UDim2.fromOffset(200, 24) -- wide enough for one line
 	billboard.StudsOffset = Vector3.new(0, 2.5, 0)
-	billboard.MaxDistance = 40
+	billboard.MaxDistance = 20 -- only near the slot, so labels from the plots next door do not stack up
 	local text = Instance.new("TextLabel")
 	text.Size = UDim2.fromScale(1, 1)
 	text.BackgroundTransparency = 1
@@ -115,10 +115,18 @@ end
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	plot.model:SetAttribute("Tier", tier)
+	-- one label per role, on the next slot of that role to open: four at Tier 1 instead of every locked slot
+	local nextLocked: { [string]: Types.SpotDef } = {}
+	for _, spot in Catalog.spots do
+		local current = nextLocked[spot.spotType]
+		if tier < spot.tier and (current == nil or spot.tier < current.tier) then
+			nextLocked[spot.spotType] = spot
+		end
+	end
 	for _, spot in Catalog.spots do
 		local slot: BasePart? = plot.spots[spot.id]
 		if slot ~= nil then
-			ensureLockLabel(slot, spot).Enabled = tier < spot.tier
+			ensureLockLabel(slot, spot).Enabled = nextLocked[spot.spotType] == spot
 		end
 	end
 end

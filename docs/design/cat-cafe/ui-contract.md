@@ -48,6 +48,7 @@ UI.init({
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F lure picker, gamepad B closes (default true)
+    playSound = Audio.play,  -- optional; the UI plays its own cues through it and stays silent without it
 })
 
 -- push state whenever ProfileSync arrives (partial tables are fine, they merge at the top level)
@@ -138,6 +139,22 @@ A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card 
 ### Clock chip (built, F31)
 
 At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier`. The chip stays hidden until that constant exists (F31), because the server pays full tips at night before then. The income line under the money counts only cats in a role slot when `state.cats` is sent, since resting cats earn nothing.
+
+### Sounds (built)
+
+`UI.init` takes `playSound`, a function called with a cue id from the sound list (docs/audio/cat-cafe/sound-list.md section 5.8). Pass `Audio.play`; the UI keeps no asset ids and never requires Audio. A failing call warns once and never breaks a button.
+
+| Cue | When the UI plays it |
+|---|---|
+| `uiClick` | Any button press, the lure slot, Cafe and Alley travel. Buttons that only open or close a screen (menu tiles, Collection, Areas, the red X) stay silent and let the swish play. |
+| `uiError` | A press on a greyed button (can't afford, carrying, locked area) and every `warn` toast. |
+| `uiOpen` / `uiClose` | A modal screen opens or closes. |
+| `uiTab` | The Book and Cat room tabs, the decor category chips and a cat cell in the book. |
+| `uiToast` | Every `info`, `good` and `announce` toast. |
+| `uiHint` | A new tutorial line. |
+| `uiRankReady` | The first time each tier's requirements are all met (the red "Rank up!" sticker appears). |
+
+`purchase` and `jingleCatFound` are not played by the UI: Audio plays them from the `Purchase` and `CatFound` moments, so each plays once and only after the server agrees.
 
 ### Planned in the next UI pull requests
 
@@ -243,7 +260,7 @@ Odds visible before any purchase and the detail control is labelled "Details", n
 
 ## Not in scope for the UI thread, and space left for later
 
-Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, sounds (`Theme.sounds.*` hooks are nil), localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: leaderboards and settings (P2, modal screens), event banner (HUD top centre under the travel row, post-slice), a "Closed" state on the HUD rate if tips pause at night (questions-for-gavin.md question 10).
+Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: leaderboards and settings (P2, modal screens), event banner (HUD top centre under the travel row, post-slice), a "Closed" state on the HUD rate if tips pause at night (questions-for-gavin.md question 10).
 
 ## Check gate status
 

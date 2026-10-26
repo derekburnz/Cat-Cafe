@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-26 17:34 UTC",
+  "generated": "2026-10-26 17:40 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -69,16 +69,16 @@
     "carried": {
       "body_position_blender": [
         0.0,
-        -1.2,
-        3.2
+        -1.05,
+        -0.4
       ],
       "body_rotation_xyz_deg_blender": [
-        20.0,
+        0.0,
         -0.0,
-        0.0
+        90.0
       ],
       "head_local_xyz_deg_blender": [
-        -20,
+        -10,
         0,
         0
       ],
@@ -89,30 +89,30 @@
       ],
       "body_position_roblox": [
         0.0,
-        3.2,
-        -1.2
+        -0.4,
+        -1.05
       ],
       "body_angles_roblox_deg": [
-        -20.0,
         0.0,
+        90.0,
         0.0
       ],
       "body_cframe_roblox": [
         0.0,
-        3.2,
-        -1.2,
+        -0.4,
+        -1.05,
+        0.0,
+        0.0,
         1.0,
         0.0,
+        1.0,
         0.0,
+        -1.0,
         0.0,
-        0.9397,
-        0.342,
-        0.0,
-        -0.342,
-        0.9397
+        0.0
       ],
       "head_angles_roblox_deg": [
-        20.0,
+        10.0,
         0.0,
         0.0
       ],
@@ -121,7 +121,7 @@
         0.0,
         0.0
       ],
-      "note": "Held in front of the chest, relative to the character's HumanoidRootPart."
+      "note": "Cradled across the chest, facing the character's left, so the camera behind the player sees the cat side on. Relative to the HumanoidRootPart centre (R15: 3 studs above the floor)."
     }
   },
   "upright_attachments": {

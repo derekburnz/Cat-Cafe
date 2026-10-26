@@ -991,8 +991,9 @@ function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 		self._carryArt.BackgroundColor3 = Theme.rarityColor(rarity)
 		self._carryTitle.Text = "Carrying " .. (info.catName or "a cat")
 		self._carryTitle.TextColor3 = Theme.hud.text
-		self._carry.UIStroke.Color = Theme.rarityColor(rarity)
-		self._carry.UIStroke.Transparency = 0.1
+		-- hudPanel's outline is the "Border" stroke from Components/Outline
+		local border = self._carry:FindFirstChild("Border") :: UIStroke
+		border.Color = Theme.rarityColor(rarity)
 		Tween.popIn(self._carry, 0.92)
 	else
 		self._carry.Visible = false

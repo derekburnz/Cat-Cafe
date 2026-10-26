@@ -376,7 +376,13 @@ function Demo.run(UI: any): () -> ()
 				profile.collection[def.id] = now()
 				UI.showCatFound(def.id, isNew)
 				if def.rarity == "Epic" or def.rarity == "Legendary" then
-					UI.announce(("Someone caught a %s %s!"):format(def.rarity, def.name))
+					UI.announce(
+						("Someone caught %s %s %s!"):format(
+							if def.rarity:match("^[AEIOU]") then "an" else "a",
+							def.rarity,
+							def.name
+						)
+					)
 				end
 			end
 			UI.update({ money = math.floor(profile.money), incomePerSecond = rate() })

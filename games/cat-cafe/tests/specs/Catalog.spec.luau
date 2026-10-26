@@ -918,7 +918,7 @@ return function()
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
 					expect(def.waveSize).to.equal(10)
-					local odds = row[5]
+					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({
 						Common = odds[1],
 						Rare = odds[2],

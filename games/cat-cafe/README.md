@@ -16,23 +16,30 @@ The ten-minute loop (features.md section 8): walk to the alley, hold **E** on a 
 is in the band, walk the cat home at carry speed, step into your door to check in, place it from the Collection (**C**),
 buy a table in Upgrades (**U**). Coins tick up from placed cats; Decor is **B**.
 
+Day and night (design v0.2): a new server starts in day with 2 minutes left. Strays arrive only with a night wave
+(6 in the alley, 6 in the park) plus the tutorial Common at the alley entrance, so the alley is empty until the first
+night. To skip the wait in Studio, run this in the command bar while playing:
+`require(game.ServerScriptService.Server.Services.Debug).setPhase("night")`.
+
 Check gate: `./check.ps1` (Windows) or `./check.sh`. Cloud stand-in without Rokit: `cd tools/cloudcheck && npm test && npm run analyze`.
 
 ## What is in the draft
 
 | Area | Done | Where |
 |---|---|---|
-| World | street, 8 plots (floor, walls, door zone, sign, counter, espresso by level, spot furniture, decor anchors, table anchors, customer waypoints), alley with 8 spawn points and 2 lure spots, park with 10 and 3 plus a gate | `src/server/World/` |
+| World | street, 8 plots (floor, walls, door zone, sign, counter, espresso by level, spot furniture, decor anchors, table anchors, customer waypoints), alley with 8 spawn points, 2 bait spots and 2 rescue spots (drainpipe, crate stack), park with 10, 3 and 3 (two trees, a crate stack) plus a gate | `src/server/World/` |
+| Clock | 3 min day, 2 min night, first night 2 min after the server starts; `ReplicatedStorage.Clock` attributes `Phase` and `PhaseEndsAt` (server time); cafe signs read Closed at night; the client tweens the sky and switches the street lamps | `Services/ClockService.luau`, `shared/Clock.luau`, `client/Controllers/WorldController.luau` |
 | Assets | a Part placeholder for every name in features.md section 5, created only when `ReplicatedStorage.Assets` lacks that name | `World/Placeholders.luau`, `World/AssetRegistry.luau` |
 | Data | ProfileStore sessions, version 1 schema with forward migration, settle on leave, offline gain (25% up to 1 h), BindToClose | `Services/DataService.luau`, `shared/ProfileSchema.luau` |
 | Income | lazy accounting (`Economy.settle`), cafe multiplier, favorite spots, ProfileSync every 10 s and on change, client prediction between | `shared/Economy.luau`, `Services/CafeService.luau` |
-| Strays | spawn loops per area with odds, max 6, despawn, wander, tutorial Common at alley point 1 | `Services/CatService.luau` |
-| Grab | GrabBegin lock (3 s), GrabEnd roll with gloves, lure and a ring bonus the server scores from the hold time (a full hold resolves as a miss at 1.75 s), flee or retry rules | `Services/CatService.luau`, `shared/Catching.luau` |
+| Strays | night waves: at each night start the area's leftovers leave (a stray mid-swing leaves after the swing) and a wave of `waveSize` arrives from the area odds; wander; tutorial Common at alley point 1 day or night | `Services/CatService.luau` |
+| Net | GrabBegin lock (3 s), GrabEnd roll with the net level, bait and a ring bonus the server scores from the hold time (a full hold resolves as a miss at 1.75 s), flee or retry rules | `Services/CatService.luau`, `shared/Catching.luau` |
+| Rescue | at each night start every rescue spot drops last night's cat and holds a new one half the time (area odds with Rare doubled); RescueBegin locks it to one player for 6 s, RescueEnd after the 4 s hold always succeeds; the cat is saved with `rescued` and earns 1.10x | `Services/CatService.luau`, `shared/Catching.luau`, `shared/CatStats.luau` |
 | Carry | held cat welded to the torso, walk speed 13, auto check-in at the own door, saved on leave mid-carry | `CatService.luau`, `client/Controllers/WorldController.luau` |
 | Shop | PlaceCat, UnplaceCat, SellCat, BuyUpgrade, BuyDecor, ToggleDecor, BuyLure, EquipLure, ClaimOffline, TutorialAdvance, all validated and rate limited | `Services/CafeService.luau`, `Services/Net.luau` |
-| Lures | UseLure at a lure spot: bowl and food appear, a stray of the lure's odds comes after 45 s, reserved to the placer, never flees from them, refund on despawn | `Services/CatService.luau` |
-| Client | UI module wired (catalog, state, intents, catch prompt, carry marker, tutorial hints), park gate, cosmetic customers | `src/client/Controllers/` |
-| QA hooks | Studio-only `Services/Debug.luau`: snapshot, setCoins, setLastTick, resetProfile, giveCat, setUpgrade, spawnStray | |
+| Bait | UseLure at a bait spot (ids keep the `lure` name): bowl and food appear, a stray of the food's odds comes after 45 s day or night, reserved to the placer, never flees from them, refund on despawn | `Services/CatService.luau` |
+| Client | UI module wired (catalog, state, intents, swing and rescue prompts, clock chip, carry marker, tutorial hints), park gate, day and night lighting, cosmetic customers by day only | `src/client/Controllers/` |
+| QA hooks | Studio-only `Services/Debug.luau`: snapshot, setCoins, setLastTick, resetProfile, giveCat (optionally rescued), setUpgrade, spawnStray, setPhase, clock, spawnStuckCat, counts | |
 
 ## Known gaps (not in the draft)
 
@@ -40,4 +47,5 @@ Check gate: `./check.ps1` (Windows) or `./check.sh`. Cloud stand-in without Roki
 - Tutorial beats are server-advanced (1 near the alley, 2 catch, 3 place, 4 table) and shown as text hints; no arrows beyond the alley marker.
 - Spot sit offsets are the placeholder numbers in `World/Layout.luau`; real furniture from the asset thread may need the `sit_point` values from its manifest.
 - Customers are client-only and use the placeholder blocky models, one per chair.
-- Selene could not run in the cloud (its Roblox API dump download is blocked there); run `./check.ps1` on the PC for the full gate.
+- Selene's Roblox standard library cannot be downloaded in the cloud; CI runs the real selene. Cloud threads lint with a minimal stand-in std (see the engineering notes in project memory).
+- Rescue props, the net item and the Closed sign are placeholders until the asset thread exports `CatCafe_Alley_StuckTree`, `CatCafe_Alley_StuckBox`, `CatCafe_Alley_Drainpipe` and `CatCafe_Item_Net`.

@@ -275,17 +275,17 @@ Catalog.upgrades = {
 		requiresCafeLevelAtLevel = { [3] = 3 },
 	},
 	{
-		id = "gloves",
-		name = "Catching gloves",
-		description = "Steadier hands: better odds on every grab",
+		id = "net",
+		name = "Net",
+		description = "A better net: higher odds on every swing",
 		maxLevel = 3,
 		costs = { 500, 2500, 10000 },
 		startLevel = 0,
 	},
 	{
-		id = "lure_bowl",
-		name = "Lure bowl",
-		description = "Unlocks luring with food at lure spots",
+		id = "lure_bowl", -- shown as Bait bowl; ids keep the lure_ prefix (data-model section 6)
+		name = "Bait bowl",
+		description = "Unlocks baiting with food at bait spots",
 		maxLevel = 1,
 		costs = { 400 },
 		startLevel = 0,
@@ -310,6 +310,9 @@ end
 function Catalog.getUpgrade(id: string): Types.UpgradeDef?
 	return Catalog.upgradesById[id]
 end
+
+-- Upgrade ids renamed before launch, old id -> new id. ProfileSchema.migrate carries saved levels across.
+Catalog.renamedUpgrades = { gloves = "net" } :: { [string]: string }
 
 -- Section 7
 Catalog.decor = {
@@ -406,16 +409,15 @@ function Catalog.getLure(id: string): Types.LureDef?
 	return Catalog.luresById[id]
 end
 
--- Section 9
+-- Section 9. A full wave of waveSize strays spawns in every area at each night start.
 Catalog.areas = {
 	{
 		id = "alley",
 		name = "Alley",
 		unlock = nil,
 		spawnPoints = 8,
-		maxStrays = 6,
-		spawnInterval = 20,
-		despawnAfter = 120,
+		waveSize = 6,
+		rescueSpots = 2,
 		odds = { Common = 75, Rare = 20, Epic = 4.5, Legendary = 0.5 },
 	},
 	{
@@ -423,9 +425,8 @@ Catalog.areas = {
 		name = "Park",
 		unlock = "park_access",
 		spawnPoints = 10,
-		maxStrays = 6,
-		spawnInterval = 20,
-		despawnAfter = 120,
+		waveSize = 6,
+		rescueSpots = 3,
 		odds = { Common = 55, Rare = 32, Epic = 10, Legendary = 3 },
 	},
 } :: { Types.AreaDef }

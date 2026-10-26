@@ -40,7 +40,7 @@ return function()
 			expect(Economy.level(p, "cafe_level")).to.equal(1)
 			expect(Economy.level(p, "espresso")).to.equal(1)
 			expect(Economy.level(p, "tables")).to.equal(0)
-			expect(Economy.level(p, "gloves")).to.equal(0)
+			expect(Economy.level(p, "net")).to.equal(0)
 			expect(Economy.level(p, "lure_bowl")).to.equal(0)
 			expect(Economy.level(p, "park_access")).to.equal(0)
 			expect(Economy.cafeLevel(p)).to.equal(1)
@@ -103,7 +103,7 @@ return function()
 		end)
 	end)
 
-	describe("catRate = rarity rate x variant x favorite (section 11)", function()
+	describe("catRate = rarity rate x variant x favorite x rescued (section 11, v0.2)", function()
 		it("a Tabby on the counter (its favorite) earns 1.5, on the window 1", function()
 			expect(Economy.catRate(cat("a", "tabby", "counter_1"))).to.be.near(1.5)
 			expect(Economy.catRate(cat("a", "tabby", "window_1"))).to.be.near(1.0)
@@ -126,6 +126,31 @@ return function()
 			expect(Economy.variantMultiplier("galaxy")).to.equal(5)
 			expect(Economy.variantMultiplier("sparkly")).to.equal(1)
 			expect(Economy.catRate(cat("a", "tabby", "counter_1", "galaxy"))).to.be.near(7.5)
+		end)
+
+		it("a rescued cat earns RescuedTipsMultiplier (1.10) on top: a rescued Tabby on the counter earns 1.65", function()
+			local rescued = cat("a", "tabby", "counter_1")
+			rescued.rescued = true
+			expect(Economy.catRate(rescued)).to.be.near(1.5 * Config.RescuedTipsMultiplier)
+			expect(Economy.catRate(rescued)).to.be.near(1.65)
+			rescued.spotId = "window_1"
+			expect(Economy.catRate(rescued)).to.be.near(1.10)
+			rescued.spotId = nil
+			expect(Economy.catRate(rescued)).to.equal(0)
+		end)
+
+		it("only rescued == true counts: absent and false earn the normal rate", function()
+			local plain = cat("a", "tabby", "counter_1")
+			expect(Economy.catRate(plain)).to.be.near(1.5)
+			plain.rescued = false
+			expect(Economy.catRate(plain)).to.be.near(1.5)
+		end)
+
+		it("the rescue bonus is inside the cafe multiplier, not added to it", function()
+			local p = freshProfile()
+			p.cats.starter.rescued = true
+			p.upgradeLevels.tables = 1
+			expect(Economy.incomePerSecond(p)).to.be.near(1.5 * 1.10 * 1.10)
 		end)
 	end)
 

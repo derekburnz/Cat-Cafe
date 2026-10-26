@@ -788,14 +788,104 @@ local builders: { [string]: () -> Model } = {
 			},
 		})
 	end,
-	CatCafe_Item_Gloves = function()
-		return simple("CatCafe_Item_Gloves", {
+	CatCafe_Item_Net = function()
+		return simple("CatCafe_Item_Net", {
 			{
-				name = "Glove",
-				size = Vector3.new(0.8, 0.3, 1),
-				offset = Vector3.new(0, 0.15, 0),
-				color = Color3.fromRGB(120, 90, 60),
+				name = "Handle",
+				size = Vector3.new(0.15, 2.4, 0.15),
+				offset = Vector3.new(0, 1.2, 0),
+				color = WOOD,
+				material = Enum.Material.Wood,
+			},
+			{
+				name = "Hoop",
+				size = Vector3.new(0.1, 1.2, 1.2),
+				offset = Vector3.new(0, 2.9, 0),
+				color = Color3.fromRGB(235, 235, 225),
 				material = Enum.Material.Fabric,
+				shape = Enum.PartType.Cylinder,
+				transparency = 0.3,
+			},
+		})
+	end,
+	-- Rescue props (features.md 8b). The stuck cat sits where Layout's rescue spot says: in the top crate,
+	-- at the pipe's mouth, on the branch. Pivots are base centre like every other prop.
+	CatCafe_Alley_StuckBox = function()
+		return simple("CatCafe_Alley_StuckBox", {
+			{
+				name = "CrateLow",
+				size = Vector3.new(2.6, 2.5, 2.6),
+				offset = Vector3.new(0, 1.25, 0),
+				color = WOOD,
+				material = Enum.Material.WoodPlanks,
+				collide = true,
+			},
+			{
+				name = "CrateSide",
+				size = Vector3.new(2.4, 2.4, 2.4),
+				offset = Vector3.new(2.6, 1.2, 0.2),
+				color = WOOD:Lerp(DARK, 0.15),
+				material = Enum.Material.WoodPlanks,
+				rotation = Vector3.new(0, 12, 0),
+				collide = true,
+			},
+			{
+				name = "CrateTop",
+				size = Vector3.new(2.4, 2.5, 2.4),
+				offset = Vector3.new(0, 3.75, 0),
+				color = WOOD:Lerp(CREAM, 0.2),
+				material = Enum.Material.WoodPlanks,
+				rotation = Vector3.new(0, -8, 0),
+				collide = true,
+			},
+		})
+	end,
+	CatCafe_Alley_Drainpipe = function()
+		return simple("CatCafe_Alley_Drainpipe", {
+			{
+				name = "Pipe",
+				size = Vector3.new(5, 2.2, 2.2),
+				offset = Vector3.new(0, 1.1, 0),
+				color = METAL:Lerp(DARK, 0.3),
+				material = Enum.Material.Metal,
+				shape = Enum.PartType.Cylinder,
+				collide = true,
+			},
+			{
+				name = "Bend",
+				size = Vector3.new(2.2, 5, 2.2),
+				offset = Vector3.new(-2.5, 3.6, 0),
+				color = METAL:Lerp(DARK, 0.3),
+				material = Enum.Material.Metal,
+				collide = true,
+			},
+		})
+	end,
+	CatCafe_Alley_StuckTree = function()
+		return simple("CatCafe_Alley_StuckTree", {
+			{
+				name = "Trunk",
+				size = Vector3.new(1.2, 7, 1.2),
+				offset = Vector3.new(0, 3.5, 0),
+				color = Color3.fromRGB(110, 75, 45),
+				material = Enum.Material.Wood,
+				collide = true,
+			},
+			{
+				name = "Branch",
+				size = Vector3.new(3.2, 0.5, 0.6),
+				offset = Vector3.new(1.6, 4.95, 0),
+				color = Color3.fromRGB(110, 75, 45),
+				material = Enum.Material.Wood,
+				collide = true,
+			},
+			{
+				name = "Leaves",
+				size = Vector3.new(6, 5, 6),
+				offset = Vector3.new(0, 8.5, 0),
+				color = GREEN,
+				material = Enum.Material.Grass,
+				shape = Enum.PartType.Ball,
 			},
 		})
 	end,

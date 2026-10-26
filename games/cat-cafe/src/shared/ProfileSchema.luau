@@ -79,10 +79,15 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.renovations = asInt(raw.renovations, 0)
 
 	if type(raw.upgradeLevels) == "table" then
-		for id, lvl in raw.upgradeLevels do
+		for rawId, lvl in raw.upgradeLevels do
+			-- A renamed upgrade (gloves -> net) carries its level unless the new id was saved too.
+			local renamed = if type(rawId) == "string" then Catalog.renamedUpgrades[rawId] else nil
+			local id = if renamed ~= nil and raw.upgradeLevels[renamed] == nil
+				then renamed
+				else rawId
 			local def = if type(id) == "string" then Catalog.getUpgrade(id) else nil
 			if def ~= nil then
-				profile.upgradeLevels[id] =
+				profile.upgradeLevels[def.id] =
 					math.clamp(asInt(lvl, def.startLevel), def.startLevel, def.maxLevel)
 			end
 		end
@@ -154,6 +159,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 						CatStats.MIN_CHARM,
 						CatStats.MAX_CHARM
 					),
+					rescued = if entry.rescued == true then true else nil,
 				}
 			end
 		end

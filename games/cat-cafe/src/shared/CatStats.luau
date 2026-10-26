@@ -3,6 +3,7 @@
 -- placed, and the rating they combine into. Pure: random rolls are passed in, so tests are deterministic.
 --
 --   rating = rarity rate x charmMultiplier(charm) x levelMultiplier(level) x variantMultiplier(variant)
+--            x rescuedMultiplier(rescued)
 --
 -- The rating is the one number "how good is this cat" that income, equip best and the cat room sort all use.
 -- Everything numeric comes from Config so QA can tune without touching logic. Missing fields (a profile saved
@@ -73,6 +74,11 @@ end
 function CatStats.levelMultiplier(level: number): number
 	local clamped = math.clamp(math.floor(level), CatStats.MIN_LEVEL, Config.CatMaxLevel)
 	return 1 + Config.CatLevelBonus * (clamped - CatStats.MIN_LEVEL)
+end
+
+-- A cat freed from a rescue spot earns RescuedTipsMultiplier for good (data-model section 10); others 1x.
+function CatStats.rescuedMultiplier(rescued: boolean?): number
+	return if rescued == true then Config.RescuedTipsMultiplier else 1
 end
 
 -- Post-slice variants (data-model section 4). "base" and anything unknown is 1x.
@@ -161,6 +167,7 @@ function CatStats.rating(instance: Types.CatInstance): number
 		* CatStats.charmMultiplier(CatStats.charm(instance))
 		* CatStats.levelMultiplier(CatStats.level(instance))
 		* CatStats.variantMultiplier(instance.variant)
+		* CatStats.rescuedMultiplier(instance.rescued)
 end
 
 -- The best rating a cat of this id can reach at max level with 100 charm (collection book "potential").
@@ -226,6 +233,7 @@ function CatStats.view(instance: Types.CatInstance): Types.CatView
 		variant = instance.variant,
 		caughtAt = instance.caughtAt,
 		spotId = instance.spotId,
+		rescued = instance.rescued,
 		level = level,
 		xp = CatStats.xp(instance),
 		xpToNext = CatStats.xpToNext(level),

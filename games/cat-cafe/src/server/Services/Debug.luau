@@ -7,10 +7,12 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ClockService = require(script.Parent.ClockService)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -91,13 +93,17 @@ function Debug.resetProfile(player: (Player | number | string)?)
 	CafeService.sync(p)
 end
 
--- Gives the player a cat as if checked in (skips the alley).
-function Debug.giveCat(player: (Player | number | string)?, catId: string): Types.CatInstance
+-- Gives the player a cat as if checked in (skips the alley). `rescued` true gives it the rescued tips bonus.
+function Debug.giveCat(
+	player: (Player | number | string)?,
+	catId: string,
+	rescued: boolean?
+): Types.CatInstance
 	local p = resolve(player)
 	profileOf(p)
 	local def = Catalog.getCat(catId)
 	assert(def ~= nil, "unknown cat id " .. catId)
-	local instance = CafeService.addCaughtCat(p, def :: Types.CatDef, true)
+	local instance = CafeService.addCaughtCat(p, def :: Types.CatDef, true, nil, nil, rescued)
 	return instance
 end
 
@@ -116,6 +122,37 @@ end
 function Debug.spawnStray(catId: string, areaId: string?): string
 	guard()
 	return CatService.debugSpawnStray(catId, areaId or "alley")
+end
+
+-- Jumps the server clock to the start of "day" or "night" at full length. Night rolls a wave and the rescue
+-- spots at once, so a playtest does not wait two minutes for the first night.
+function Debug.setPhase(phase: Types.ClockPhase)
+	guard()
+	assert(phase == "day" or phase == "night", "phase is day or night")
+	ClockService.debugSetPhase(phase)
+end
+
+-- The clock as the server sees it: phase, server time it ends at, and seconds left.
+function Debug.clock(): { phase: Types.ClockPhase, endsAt: number, secondsLeft: number }
+	guard()
+	local endsAt = ClockService.phaseEndsAt()
+	return {
+		phase = ClockService.phase(),
+		endsAt = endsAt,
+		secondsLeft = endsAt - Workspace:GetServerTimeNow(),
+	}
+end
+
+-- Puts a stuck cat at a rescue spot ("rescue_alley_1" when none is given). Returns the rescueSpotId.
+function Debug.spawnStuckCat(catId: string, rescueSpotId: string?): string
+	guard()
+	return CatService.debugSpawnStuck(catId, rescueSpotId)
+end
+
+-- Number of strays in an area and of stuck cats across all rescue spots.
+function Debug.counts(areaId: string?): { strays: number, stuck: number }
+	guard()
+	return { strays = CatService.strayCount(areaId or "alley"), stuck = CatService.stuckCount() }
 end
 
 function Debug.dataSaves(): boolean

@@ -6,6 +6,7 @@ export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Secret"
 export type Area = "alley" | "park" | "both"
 export type SpotType = "counter" | "window" | "cushion" | "shelf" | "cattree" | "patio"
 export type RingResult = "perfect" | "good" | "miss"
+export type ClockPhase = "day" | "night" -- ReplicatedStorage.Clock attribute Phase (data-model section 9)
 export type ToastKind = "info" | "good" | "warn"
 
 export type RarityDef = {
@@ -69,9 +70,8 @@ export type AreaDef = {
 	name: string,
 	unlock: string?, -- upgrade id that must be level 1+, nil when free
 	spawnPoints: number,
-	maxStrays: number,
-	spawnInterval: number,
-	despawnAfter: number,
+	waveSize: number, -- strays spawned at once at each night start
+	rescueSpots: number,
 	odds: LureOdds,
 }
 
@@ -91,6 +91,7 @@ export type CatInstance = {
 	level: number, -- 1 to Config.CatMaxLevel, rises with XP earned while placed
 	xp: number, -- toward the next level; one XP per second placed
 	charm: number, -- 0 to 100, rolled once when caught; 50 is a 1.0x rate
+	rescued: boolean?, -- true when freed from a rescue spot (earns RescuedTipsMultiplier); absent otherwise
 }
 
 -- One cat as ProfileSync sends it: the saved fields plus the derived numbers the UI shows.
@@ -100,6 +101,7 @@ export type CatView = {
 	variant: string,
 	caughtAt: number,
 	spotId: string?,
+	rescued: boolean?,
 	level: number,
 	xp: number,
 	xpToNext: number, -- 0 at the level cap

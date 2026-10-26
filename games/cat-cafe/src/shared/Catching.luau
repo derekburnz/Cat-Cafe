@@ -35,16 +35,16 @@ function Catching.ringResultFromHold(secondsSinceGrabBegin: number): Types.RingR
 	return "miss"
 end
 
--- chance = clamp(base + gloves x 0.10 + lureBonus + ringBonus, 0.05, 0.95)
+-- chance = clamp(base + net x 0.10 + lureBonus + ringBonus, 0.05, 0.95)
 function Catching.chance(
 	rarity: Types.Rarity,
-	glovesLevel: number,
+	netLevel: number,
 	lured: boolean,
 	ring: Types.RingResult
 ): number
 	local base = Catalog.rarities[rarity].baseCatchChance
 	local chance = base
-		+ glovesLevel * Config.GlovesBonus
+		+ netLevel * Config.NetBonus
 		+ (if lured then Config.LureBonus else 0)
 		+ Catching.ringBonus(ring)
 	return math.clamp(chance, Config.CatchChanceMin, Config.CatchChanceMax)
@@ -59,13 +59,29 @@ function Catching.fleesOnMiss(rarity: Types.Rarity): boolean
 	return Catalog.rarities[rarity].fleesOnMiss
 end
 
--- Picks a rarity from an odds table (percentages). roll is in [0, 1).
+local function oddsTotal(odds: Types.LureOdds): number
+	local total = 0
+	for _, rarity: Types.Rarity in Catalog.rarityOrder do
+		local weight = (odds :: any)[rarity]
+		if type(weight) == "number" and weight > 0 then
+			total += weight
+		end
+	end
+	return total
+end
+
+-- Picks a rarity from an odds table. Weights are scaled by their total, so percentages that sum to 100 read
+-- exactly as written and a reweighted table (rescueOdds) works too. roll is in [0, 1).
 function Catching.pickRarity(odds: Types.LureOdds, roll: number): Types.Rarity
-	local target = math.clamp(roll, 0, 0.999999) * 100
+	local total = oddsTotal(odds)
+	if total <= 0 then
+		return "Common"
+	end
+	local target = math.clamp(roll, 0, 0.999999) * total
 	local acc = 0
 	for _, rarity: Types.Rarity in Catalog.rarityOrder do
 		local weight = (odds :: any)[rarity]
-		if type(weight) == "number" then
+		if type(weight) == "number" and weight > 0 then
 			acc += weight
 			if target < acc then
 				return rarity
@@ -73,6 +89,24 @@ function Catching.pickRarity(odds: Types.LureOdds, roll: number): Types.Rarity
 		end
 	end
 	return "Common"
+end
+
+-- Rescue odds (data-model section 10): the area's odds with the Rare weight doubled, scaled back to 100.
+-- The alley's 75 / 20 / 4.5 / 0.5 becomes 62.5 / 33.3 / 3.75 / 0.42.
+function Catching.rescueOdds(odds: Types.LureOdds): Types.LureOdds
+	local weighted =
+		{ Common = odds.Common, Rare = odds.Rare * 2, Epic = odds.Epic, Legendary = odds.Legendary }
+	local total = weighted.Common + weighted.Rare + weighted.Epic + weighted.Legendary
+	if total <= 0 then
+		return { Common = 100, Rare = 0, Epic = 0, Legendary = 0 }
+	end
+	local scale = 100 / total
+	return {
+		Common = weighted.Common * scale,
+		Rare = weighted.Rare * scale,
+		Epic = weighted.Epic * scale,
+		Legendary = weighted.Legendary * scale,
+	}
 end
 
 -- Cats of a rarity that can spawn in an area, in catalog order.

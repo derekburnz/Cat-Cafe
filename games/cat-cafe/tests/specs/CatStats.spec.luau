@@ -306,4 +306,64 @@ return function()
 			expect(profile.cats.wild.charm).to.equal(100)
 		end)
 	end)
+
+	-- Design v0.2: rescued cats tip more, and the gloves upgrade is now the net.
+	describe("rescued cats and the net (v0.2)", function()
+		it("gives only rescued == true the rescue multiplier", function()
+			expect(CatStats.rescuedMultiplier(true)).to.equal(Config.RescuedTipsMultiplier)
+			expect(CatStats.rescuedMultiplier(false)).to.equal(1)
+			expect(CatStats.rescuedMultiplier(nil)).to.equal(1)
+		end)
+
+		it("puts the rescue bonus inside the rating, so EquipBest and the cat card see it", function()
+			local plain = cat("tabby", 50, 1)
+			local rescued = cat("tabby", 50, 1)
+			rescued.rescued = true
+			expect(CatStats.rating(rescued)).to.be.near(CatStats.rating(plain) * Config.RescuedTipsMultiplier, 1e-9)
+			expect(CatStats.isBetter(rescued, plain)).to.equal(true)
+			local view = CatStats.view(rescued)
+			expect(view.rescued).to.equal(true)
+			expect(view.rating).to.be.near(CatStats.rating(rescued), 1e-9)
+			expect(CatStats.view(plain).rescued).to.equal(nil)
+		end)
+
+		it("migrate keeps rescued only when it was saved as true", function()
+			local raw: any = ProfileSchema.template(0)
+			raw.cats = {
+				saved = { uid = "saved", catId = "tabby", caughtAt = 5, rescued = true },
+				junk = { uid = "junk", catId = "tabby", caughtAt = 5, rescued = "yes" },
+				plain = { uid = "plain", catId = "tabby", caughtAt = 5 },
+			}
+			local profile = ProfileSchema.migrate(raw, 100)
+			expect(profile.cats.saved.rescued).to.equal(true)
+			expect(profile.cats.junk.rescued).to.equal(nil)
+			expect(profile.cats.plain.rescued).to.equal(nil)
+		end)
+
+		it("migrate carries a saved gloves level to the net", function()
+			expect(Catalog.renamedUpgrades.gloves).to.equal("net")
+			local raw: any = ProfileSchema.template(0)
+			raw.upgradeLevels = { gloves = 2 }
+			local profile = ProfileSchema.migrate(raw, 100)
+			expect(profile.upgradeLevels.net).to.equal(2)
+			expect(profile.upgradeLevels.gloves).to.equal(nil)
+		end)
+
+		it("migrate keeps the saved net level when gloves was saved too", function()
+			local raw: any = ProfileSchema.template(0)
+			raw.upgradeLevels = { gloves = 3, net = 1 }
+			local profile = ProfileSchema.migrate(raw, 100)
+			expect(profile.upgradeLevels.net).to.equal(1)
+			expect(profile.upgradeLevels.gloves).to.equal(nil)
+		end)
+
+		it("migrate clamps a carried gloves level to the net's range", function()
+			local net = Catalog.getUpgrade("net")
+			expect(net).to.be.ok()
+			local raw: any = ProfileSchema.template(0)
+			raw.upgradeLevels = { gloves = 99 }
+			local profile = ProfileSchema.migrate(raw, 100)
+			expect(profile.upgradeLevels.net).to.equal(if net ~= nil then net.maxLevel else -1)
+		end)
+	end)
 end

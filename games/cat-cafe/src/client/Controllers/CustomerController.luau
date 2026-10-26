@@ -1,6 +1,7 @@
 --!strict
 -- Cosmetic customers for the local player's own cafe (features.md F15). Runs entirely on this client:
 -- one customer per free chair, walks in from the street, sits a while popping coin text, walks out.
+-- Customers come by day only (F20): at night none arrive and the seated ones finish up and leave.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -18,6 +19,11 @@ local folder: Folder? = nil
 local busySeats: { [BasePart]: boolean } = {}
 local activeCustomers = 0
 local variants = { "A", "B", "C" }
+local clock: Instance? = nil -- ReplicatedStorage.Clock once it has replicated
+
+local function isDay(): boolean
+	return clock == nil or clock:GetAttribute("Phase") ~= "night"
+end
 
 local function container(): Folder
 	if folder ~= nil then
@@ -117,7 +123,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?)
 		end
 		local stay = rng:NextNumber(Config.CustomerStayMin, Config.CustomerStayMax)
 		local elapsed = 0
-		while isAlive() and elapsed < stay do
+		while isAlive() and isDay() and elapsed < stay do
 			task.wait(Config.CustomerCoinPopSeconds)
 			elapsed += Config.CustomerCoinPopSeconds
 			local state = UIController.state
@@ -141,11 +147,14 @@ end
 
 function CustomerController.start()
 	task.spawn(function()
+		clock = ReplicatedStorage:WaitForChild("Clock")
+	end)
+	task.spawn(function()
 		while true do
 			task.wait(Config.CustomerSpawnSeconds)
 			local state = UIController.state
 			local plot = ownPlot()
-			if state == nil or plot == nil or state.incomePerSecond <= 0 then
+			if state == nil or plot == nil or state.incomePerSecond <= 0 or not isDay() then
 				continue
 			end
 			local seat, tableTop = freeSeat(plot)

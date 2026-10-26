@@ -12,11 +12,11 @@ Checked 2026-10-25 against guides, not by playing. Steal an Egg: eggs spawn on a
 
 | # | Feature in the reference games | Purr Pot version | Phase | Size | Policy |
 |---|---|---|---|---|---|
-| 1 | Night cycle with a growth bonus | Closing Time: a 2 minute night every 10 minutes, spawns double, Secret cats appear | Alpha | M | none |
+| 1 | Night cycle with a growth bonus | Now in the slice as the clock (gdd.md): 3 minute day, 2 minute night, strays spawn in night waves. Alpha adds Secret cats at night | Slice (F20) | S | none |
 | 2 | Admin events, weather | Cat Parade: server event every 20 to 30 minutes, rare odds tripled for 2 minutes; Rain later | Alpha | S | none |
 | 3 | Mutations with multipliers | Variants rolled at spawn: Silver 1.25x, Golden 2x, Galaxy 5x | Alpha | S | none |
 | 4 | Pet Index completion rewards | Collection set rewards per rarity, plus the all-40 reward | Alpha | S | none |
-| 5 | Speed stat to reach eggs first | Sneakers upgrade: +2 walk speed per level, 3 levels | Alpha | S | none |
+| 5 | Speed stat to reach eggs first | Sneakers upgrade: +2 walk speed per level, 3 levels; matters more now that waves are a race | Alpha | S | none |
 | 6 | Playtime chests | Tip Jar: a reward at 5, 10, 15, 20 and 30 minutes of a session | Alpha | S | none |
 | 7 | Friend bonus | +10% tips while a friend is on the server | Alpha | S | none |
 | 8 | Equipped pet that follows you | Shoulder Cat: one owned cat follows you and boosts catch chance | Alpha | M | none |
@@ -46,7 +46,7 @@ Only item 26 touches the slice, as a P2 convenience. Everything else lands after
 
 ## 3. Alpha additions (Phase 3), in detail
 
-1. Closing Time. The server runs a 10 minute clock: 8 minutes day, 2 minutes night. At night the street lamps come on, the cafe windows glow, spawn interval halves in both areas, and Secret cats (Midnight in the alley) join the odds at 1%. Nothing is taken away at night and players are never teleported. HUD shows a small sun or moon with a countdown so the group gathers at the alley together. Size M because of lighting and the odds switch.
+1. Closing Time moved into the slice on 2026-10-26 after Gavin's update: the clock, lighting and night waves are feature F20. What stays for the alpha is Secret cats (Midnight in the alley) joining the night odds at 1%. Nothing is taken away at night and players are never teleported.
 2. Cat Parade. Every 20 to 30 minutes the server announces a parade: for 2 minutes Rare, Epic and Legendary odds are tripled and the spawn cap rises to 10. A banner shows the countdown. This is the Admin Abuse style spike without an admin.
 3. Variants. At spawn roll Silver 5%, Golden 1%, Galaxy 0.1% (Galaxy only at night or from the Nap Pod). A variant multiplies the cat's rate and recolors it with the palette swatches already reserved (fur_golden, galaxy_blue, sparkle). The collection book shows the variant as a badge, not a separate entry, so the 40 count stays honest.
 4. Collection set rewards. Complete all Commons: +5% tips permanent and a collar accessory. All Rares: a bow accessory and 2,000 coins. All Epics: +10% tips. All Legendaries: a golden tip jar on the counter. All 40 at launch: a Galaxy Void. Shown in the book with progress bars.

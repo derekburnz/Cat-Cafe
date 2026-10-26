@@ -1,5 +1,5 @@
 --!strict
--- Config.luau against the tuning table in data-model.md section 17 (DesignParity).
+-- Config.luau against the tuning table in data-model.md section 17 (DesignParity), design v0.2.
 -- World layout numbers in Config.World are the engineer's and are not checked here.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -14,14 +14,21 @@ return function()
 		OfflineRate = 0.25,
 		OfflineCapSeconds = 3600,
 		AutosaveSeconds = 60,
-		SpawnIntervalSeconds = 20,
-		MaxStraysPerArea = 6,
+		-- v0.2 clock and night waves (section 9): no trickle spawns, so SpawnIntervalSeconds and MaxStraysPerArea are gone
+		DayLengthSeconds = 180,
+		NightLengthSeconds = 120,
+		ServerStartDaySeconds = 120,
 		StrayDespawnSeconds = 120,
+		-- v0.2 rescue (section 10)
+		RescueSpawnChance = 0.5,
+		RescueHoldSeconds = 4,
+		RescueLockSeconds = 6,
+		RescuedTipsMultiplier = 1.10,
 		GrabRangeStuds = 10,
 		GrabHoldSeconds = 1.5,
 		GrabLockSeconds = 3,
 		GrabRetrySeconds = 2,
-		GlovesBonus = 0.10,
+		NetBonus = 0.10, -- was GlovesBonus
 		LureBonus = 0.20,
 		RingBonusPerfect = 0.15,
 		RingBonusGood = 0.05,
@@ -111,6 +118,29 @@ return function()
 				expect(Config.GrabLockSeconds > Config.GrabHoldSeconds).to.equal(true)
 			end
 		)
+
+		it("the v0.1 names are gone (night waves replace the trickle, the net replaces gloves)", function()
+			local config = Config :: any
+			expect(config.SpawnIntervalSeconds).never.to.be.ok()
+			expect(config.MaxStraysPerArea).never.to.be.ok()
+			expect(config.GlovesBonus).never.to.be.ok()
+		end)
+
+		it("clock: the first night comes by minute two and never later than a normal day (features step 2)", function()
+			expect(Config.ServerStartDaySeconds > 0).to.equal(true)
+			expect(Config.ServerStartDaySeconds <= 120).to.equal(true)
+			expect(Config.ServerStartDaySeconds <= Config.DayLengthSeconds).to.equal(true)
+			expect(Config.NightLengthSeconds > 0).to.equal(true)
+			-- at least two full nights fit in the ten minute loop test
+			expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds + Config.DayLengthSeconds + Config.NightLengthSeconds <= 600).to.equal(true)
+		end)
+
+		it("rescue: the lock outlives the hold, the chance is a probability, rescued cats earn more", function()
+			expect(Config.RescueLockSeconds > Config.RescueHoldSeconds).to.equal(true)
+			expect(Config.RescueHoldSeconds > Config.GrabHoldSeconds).to.equal(true)
+			expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(true)
+			expect(Config.RescuedTipsMultiplier > 1).to.equal(true)
+		end)
 
 		it("lures: the wait is shorter than the lured stray's lifetime", function()
 			expect(Config.LureWaitSeconds < Config.LureDespawnSeconds).to.equal(true)

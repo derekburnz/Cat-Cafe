@@ -34,6 +34,7 @@ local Config = {
 	GrabRangeStuds = 10,
 	GrabRetrySeconds = 2, -- after a failed catch the stray stays (Common, lured), this player waits before trying it again
 	GrabCooldownSeconds = 2, -- per player, between two catches started
+	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
 
 	-- The net: closing circles judged on the server (data-model section 10)
 	CircleLeadInSeconds = 0.6, -- from GrabBegin to the first circle starting to shrink

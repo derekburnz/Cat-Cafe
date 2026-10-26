@@ -1,11 +1,12 @@
-"""Synthesize Purr Pot's own sound effects: UI, net circles, catch results, coins.
+"""Synthesize Purr Pot's own sound effects: UI, net circles, catch results, coins, the door bell, jingles.
 
 Run from the repo root:  python assets/cat-cafe/audio/synth/synth.py [--only CirclePerfect,CoinPop]
                                                                   [--preview DIR]
 
 Every sound is made from sine partials and filtered noise with fixed seeds, so the files are
 original (no samples) and the same on every run. Outputs (overwritten):
-  assets/cat-cafe/audio/ui/CatCafe_Ui_<Name>.ogg and sfx/CatCafe_Sfx_<Name>.ogg (mono, 48 kHz)
+  assets/cat-cafe/audio/ui/CatCafe_Ui_<Name>.ogg and sfx/CatCafe_Sfx_<Name>.ogg (mono, 48 kHz),
+  music/CatCafe_Music_Jingle<Name>.ogg (the same sound on both channels; the music channel is stereo)
   with --preview: DIR/purr-pot-sfx-preview.mp3, every sound in turn, then a five-circle Perfect
   run and a whole catch, for listening without Studio.
 
@@ -205,6 +206,65 @@ def purchase() -> np.ndarray:
     return finish(mix(d, (click, 0.0), (thunk, 0.0), (ching, 0.06)), -3)
 
 
+HARP = ((1.0, 1.0, 0.6), (2.0, 0.45, 0.35), (3.0, 0.2, 0.2), (4.0, 0.08, 0.12))
+PIANO = ((1.0, 1.0, 0.9), (2.003, 0.5, 0.6), (3.01, 0.25, 0.4), (4.02, 0.12, 0.3), (5.04, 0.06, 0.2))
+SHOP_BELL = ((1.0, 1.0, 0.55), (2.32, 0.45, 0.25), (4.1, 0.2, 0.12), (5.4, 0.1, 0.08))
+
+
+def note(name: str) -> float:
+    """Frequency of a note like C6 or F#4 (A4 = 440 Hz)."""
+    steps = {"C": -9, "D": -7, "E": -5, "F": -4, "G": -2, "A": 0, "B": 2}[name[0]]
+    steps += name.count("#") - name.count("b")
+    return 440.0 * 2 ** ((steps + 12 * (int(name[-1]) - 4)) / 12)
+
+
+def check_in_bell() -> np.ndarray:
+    """The bell over your cafe door, swinging: three strikes, each softer."""
+    d = 1.1
+    strikes = [(bell(d, 1760.0, SHOP_BELL) * amp, at) for at, amp in ((0.0, 1.0), (0.12, 0.55), (0.27, 0.3))]
+    jingle = [(bell(d, 3150.0, ((1.0, 1.0, 0.18), (2.1, 0.3, 0.06))) * 0.25, at) for at in (0.02, 0.14)]
+    return finish(mix(d, *strikes, *jingle), -3)
+
+
+def jingle_cat_found() -> np.ndarray:
+    """New friend: a harp sweep up and four rising glockenspiel notes."""
+    d = 2.2
+    sweep_notes = ("C4", "E4", "G4", "C5", "E5", "G5", "C6")
+    harp = [(bell(d, note(n), HARP, attack=0.002) * 0.45, 0.04 * i) for i, n in enumerate(sweep_notes)]
+    glock = [(bell(d, note(n), GLOCK) * amp, at) for n, at, amp in
+             (("C6", 0.3, 0.8), ("E6", 0.42, 0.8), ("G6", 0.54, 0.85), ("C7", 0.72, 1.0))]
+    return finish(mix(d, *harp, *glock), -3)
+
+
+def jingle_rank_up() -> np.ndarray:
+    """The cafe grows: a piano run, a bright chord with glockenspiel on top and a soft horn swell."""
+    d = 3.2
+    run = [(bell(d, note(n), PIANO, attack=0.003) * 0.6, 0.09 * i) for i, n in enumerate(("G4", "B4", "D5", "G5"))]
+    chord = [(bell(d, note(n), PIANO, attack=0.003) * 0.5, 0.45) for n in ("C5", "E5", "G5", "C6")]
+    glock = [(bell(d, note(n), GLOCK) * 0.7, 0.45 + 0.1 * i) for i, n in enumerate(("C6", "E6", "G6", "C7"))]
+    t = seconds(d)
+    swell = np.clip((t - 0.45) / 0.5, 0, 1) * np.clip((d - t) / 1.2, 0, 1)
+    horn = sum(np.sin(2 * np.pi * note(n) * k * t) / k for n in ("C4", "G4") for k in (1, 2, 3)) * swell * 0.12
+    return finish(mix(d, *run, *chord, *glock) + horn, -3)
+
+
+def stray_flee() -> np.ndarray:
+    """A startled "mrrp!" and quick paws running off."""
+    d = 0.55
+    length = 0.16
+    t = seconds(length)
+    pitch = 450 * (650 / 450) ** np.clip(t / 0.1, 0, 1)
+    phase = np.cumsum(pitch) / SR
+    voice = (2 * (phase % 1.0) - 1) * (0.6 + 0.4 * np.sin(2 * np.pi * 28 * t)) * np.sin(np.pi * t / length) ** 0.6
+    spectrum = np.fft.rfft(voice, 2 * len(voice))
+    f = np.fft.rfftfreq(2 * len(voice), 1 / SR)
+    formant = sum(a / (1 + ((f - c) / w) ** 2) for c, a, w in ((900, 1.0, 120), (1800, 0.6, 160), (3000, 0.25, 200)))
+    mrrp = np.fft.irfft(spectrum * formant, 2 * len(voice))
+    paws = [(bandpass(noise(0.03, 20 + i), 2200, 1.5) * envelope(0.03, 0.0008, 0.005) * (0.5 - 0.06 * i), 0.18 + 0.055 * i)
+            for i in range(6)]
+    return finish(mix(d, (mrrp / np.max(np.abs(mrrp)), 0.0), *paws), -3)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -219,6 +279,10 @@ SOUNDS = {
     "CatchMiss": ("sfx", "Sfx", catch_miss),
     "CoinPop": ("sfx", "Sfx", coin_pop),
     "Purchase": ("sfx", "Sfx", purchase),
+    "CheckInBell": ("sfx", "Sfx", check_in_bell),
+    "StrayFlee": ("sfx", "Sfx", stray_flee),
+    "JingleCatFound": ("music", "Music", jingle_cat_found),
+    "JingleRankUp": ("music", "Music", jingle_rank_up),
 }
 
 
@@ -234,10 +298,10 @@ def write_wav(path: Path, x: np.ndarray) -> None:
         w.writeframes(pcm.tobytes())
 
 
-def encode(wav: Path, out: Path, codec: list[str]) -> None:
+def encode(wav: Path, out: Path, codec: list[str], channels: int = 1) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     subprocess.run(
-        ["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-ac", "1", "-ar", str(SR), *codec,
+        ["ffmpeg", "-v", "error", "-y", "-i", str(wav), "-ac", str(channels), "-ar", str(SR), *codec,
          "-fflags", "+bitexact", "-flags:a", "+bitexact", str(out)],  # same bytes every run
         check=True,
     )
@@ -292,7 +356,7 @@ def main() -> int:
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
             out = ROOT / folder / f"CatCafe_{bus}_{name}.ogg"
-            encode(wav, out, ["-c:a", "libvorbis", "-q:a", "6"])
+            encode(wav, out, ["-c:a", "libvorbis", "-q:a", "6"], channels=2 if folder == "music" else 1)
             print(f"synth: {out.relative_to(ROOT.parents[2]).as_posix()}  {len(x) / SR:.2f} s")
         if args.preview:
             folder = Path(args.preview)

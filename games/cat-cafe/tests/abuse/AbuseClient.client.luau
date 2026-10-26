@@ -288,9 +288,15 @@ end
 type Verdict = "PASS" | "FAIL" | "SKIP" | "CHECK"
 type Case = { name: string, key: Enum.KeyCode, title: string, run: () -> (Verdict, string) }
 
+-- The Debug hooks, from the command bar in Server view: never a require there, which gets unstarted copies (PR #50).
+local DEBUG = "game.ServerStorage.PurrPotDebug:Invoke"
+
 -- From design v0.2 the alley is empty by day apart from the tutorial Common, so a run wants night first.
-local NO_STRAY = 'no free stray nearby; on the server run Debug.spawnStray("tabby") '
-	.. '(ServerScriptService.Server.Services.Debug), or from v0.2 Debug.setPhase("night")'
+local NO_STRAY = string.format(
+	'no free stray nearby; on the server run %s("spawnStray", "tabby") or %s("setPhase", "night")',
+	DEBUG,
+	DEBUG
+)
 
 local cases: { Case } = {}
 
@@ -414,7 +420,7 @@ local function longCatch(info: StrayInfo): boolean
 	return circlesOf(info.rarity) >= 2
 end
 
-local NO_LONG_STRAY = 'spawn a Rare next to you with Debug.spawnStray("calico") and rerun'
+local NO_LONG_STRAY = string.format('spawn a Rare with %s("spawnStray", "calico") and rerun', DEBUG)
 
 case("fakeStray", Enum.KeyCode.One, "Fake stray: GrabBegin and CatchPress on an id that does not exist", function()
 	grabReady()
@@ -944,7 +950,7 @@ case(
 			return info.rarity == "Common"
 		end)
 		if stray == nil then
-			return "SKIP", 'no free Common nearby; Debug.spawnStray("tabby") and rerun'
+			return "SKIP", string.format('no free Common nearby; %s("spawnStray", "tabby") and rerun', DEBUG)
 		end
 		local schedule, why, startedAt = beginCatch(stray)
 		if schedule == nil then
@@ -1177,8 +1183,9 @@ case(
 			table.insert(
 				notes,
 				string.format(
-					"gates skipped: tier is %d, not 1; run Debug.setTier(player, 1) and rerun",
-					state.tier
+					'gates skipped: tier is %d, not 1; run %s("setTier", nil, 1) and rerun',
+					state.tier,
+					DEBUG
 				)
 			)
 		end
@@ -1192,7 +1199,10 @@ case(
 		else
 			table.insert(
 				notes,
-				"unaffordable skipped: tables is affordable; on the server run Debug.setCoins(player, 0) and rerun"
+				string.format(
+					'unaffordable skipped: tables is affordable; on the server run %s("setCoins", nil, 0) and rerun',
+					DEBUG
+				)
 			)
 		end
 		task.wait(1.5)

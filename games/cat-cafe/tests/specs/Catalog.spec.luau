@@ -11,7 +11,8 @@ return function()
 	local AREA_ORDER = { "alley", "park", "neighbourhood", "woods", "sewer" }
 	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 	-- Per area: four Common, two Rare, two Epic, one Legendary, one Mythical (section 3).
-	local PER_AREA: { [string]: number } = { Common = 4, Rare = 2, Epic = 2, Legendary = 1, Mythical = 1 }
+	local PER_AREA: { [string]: number } =
+		{ Common = 4, Rare = 2, Epic = 2, Legendary = 1, Mythical = 1 }
 
 	local function assertUniqueSnakeCaseIds(list: { any })
 		local seen = {}
@@ -101,7 +102,8 @@ return function()
 
 		it("rarer means more circles, faster circles and more rescue hits", function()
 			for i = 2, #RARITIES do
-				local lower, higher = Catalog.rarities[RARITIES[i - 1]], Catalog.rarities[RARITIES[i]]
+				local lower, higher =
+					Catalog.rarities[RARITIES[i - 1]], Catalog.rarities[RARITIES[i]]
 				expect(higher.circles > lower.circles).to.equal(true)
 				expect(higher.shrinkSeconds < lower.shrinkSeconds).to.equal(true)
 				expect(higher.rescueHits > lower.rescueHits).to.equal(true)
@@ -126,7 +128,13 @@ return function()
 		-- Sections 3a and 3b: id -> { name, rarity, area, favoriteRole, description }
 		local slice: { [string]: { string } } = {
 			tabby = { "Tabby", "Common", "alley", "barista", "The starter. Stripes, snacks, naps." },
-			tuxedo = { "Tuxedo", "Common", "alley", "waiter", "Dressed for dinner, waiting for it." },
+			tuxedo = {
+				"Tuxedo",
+				"Common",
+				"alley",
+				"waiter",
+				"Dressed for dinner, waiting for it.",
+			},
 			ginger = { "Ginger", "Common", "alley", "greeter", "Warm, round, always in the sun." },
 			smoke = { "Smoke", "Common", "alley", "entertainer", "Grey as a rainy morning." },
 			calico = { "Calico", "Rare", "alley", "greeter", "Three colors, three opinions." },
@@ -169,9 +177,27 @@ return function()
 				"Chocolate stripes, chases every leaf.",
 			},
 			blue = { "Blue", "Common", "park", "greeter", "Silver-blue and very polite." },
-			siamese = { "Siamese", "Rare", "park", "barista", "Loud. Supervises the espresso machine." },
-			bengal = { "Bengal", "Rare", "park", "entertainer", "Spotted and fast. Climbs everything." },
-			ragdoll = { "Ragdoll", "Epic", "park", "greeter", "Huge, fluffy, goes limp when carried." },
+			siamese = {
+				"Siamese",
+				"Rare",
+				"park",
+				"barista",
+				"Loud. Supervises the espresso machine.",
+			},
+			bengal = {
+				"Bengal",
+				"Rare",
+				"park",
+				"entertainer",
+				"Spotted and fast. Climbs everything.",
+			},
+			ragdoll = {
+				"Ragdoll",
+				"Epic",
+				"park",
+				"greeter",
+				"Huge, fluffy, goes limp when carried.",
+			},
 			persian = {
 				"Persian",
 				"Epic",
@@ -255,56 +281,67 @@ return function()
 			end)
 		end
 
-		it("the reserved section 3c ids have the rarity, area and favorite role from the table", function()
-			for id, row in pairs(reserved) do
-				local def = Catalog.getCat(id)
-				assert(def, id)
-				expect(def.name).to.equal(row[1])
-				expect(def.rarity).to.equal(row[2])
-				expect(def.area).to.equal(row[3])
-				expect(def.favoriteRole).to.equal(row[4])
-				expect(def.incomePerSecond).to.equal(Catalog.rarities[def.rarity].incomePerSecond)
-			end
-		end)
-
-		it("each area has four Common, two Rare, two Epic, one Legendary and one Mythical", function()
-			local counts: { [string]: { [string]: number } } = {}
-			for _, area in ipairs(AREA_ORDER) do
-				counts[area] = {}
-			end
-			for _, def in ipairs(Catalog.cats) do
-				local area = counts[def.area]
-				expect(area).to.be.ok()
-				assert(area)
-				area[def.rarity] = (area[def.rarity] or 0) + 1
-			end
-			for _, area in ipairs(AREA_ORDER) do
-				for rarity, n in pairs(PER_AREA) do
-					expect(counts[area][rarity]).to.equal(n)
-				end
-			end
-		end)
-
-		it("every cat has display fields, one area, a role and a valid placeholder color", function()
-			local areaSet: { [string]: boolean } = {}
-			for _, area in ipairs(AREA_ORDER) do
-				areaSet[area] = true
-			end
-			for _, def in ipairs(Catalog.cats) do
-				expect(#def.name > 0).to.equal(true)
-				expect(#def.description > 0).to.equal(true)
-				expect(#def.pattern > 0).to.equal(true)
-				expect(ROLE_SET[def.favoriteRole]).to.equal(true)
-				expect(areaSet[def.area]).to.equal(true)
-				expect((def :: any).favoriteSpot).never.to.be.ok()
-				expect(#def.color).to.equal(3)
-				for _, channel in ipairs(def.color) do
-					expect(channel >= 0 and channel <= 255 and channel == math.floor(channel)).to.equal(
-						true
+		it(
+			"the reserved section 3c ids have the rarity, area and favorite role from the table",
+			function()
+				for id, row in pairs(reserved) do
+					local def = Catalog.getCat(id)
+					assert(def, id)
+					expect(def.name).to.equal(row[1])
+					expect(def.rarity).to.equal(row[2])
+					expect(def.area).to.equal(row[3])
+					expect(def.favoriteRole).to.equal(row[4])
+					expect(def.incomePerSecond).to.equal(
+						Catalog.rarities[def.rarity].incomePerSecond
 					)
 				end
 			end
-		end)
+		)
+
+		it(
+			"each area has four Common, two Rare, two Epic, one Legendary and one Mythical",
+			function()
+				local counts: { [string]: { [string]: number } } = {}
+				for _, area in ipairs(AREA_ORDER) do
+					counts[area] = {}
+				end
+				for _, def in ipairs(Catalog.cats) do
+					local area = counts[def.area]
+					expect(area).to.be.ok()
+					assert(area)
+					area[def.rarity] = (area[def.rarity] or 0) + 1
+				end
+				for _, area in ipairs(AREA_ORDER) do
+					for rarity, n in pairs(PER_AREA) do
+						expect(counts[area][rarity]).to.equal(n)
+					end
+				end
+			end
+		)
+
+		it(
+			"every cat has display fields, one area, a role and a valid placeholder color",
+			function()
+				local areaSet: { [string]: boolean } = {}
+				for _, area in ipairs(AREA_ORDER) do
+					areaSet[area] = true
+				end
+				for _, def in ipairs(Catalog.cats) do
+					expect(#def.name > 0).to.equal(true)
+					expect(#def.description > 0).to.equal(true)
+					expect(#def.pattern > 0).to.equal(true)
+					expect(ROLE_SET[def.favoriteRole]).to.equal(true)
+					expect(areaSet[def.area]).to.equal(true)
+					expect((def :: any).favoriteSpot).never.to.be.ok()
+					expect(#def.color).to.equal(3)
+					for _, channel in ipairs(def.color) do
+						expect(channel >= 0 and channel <= 255 and channel == math.floor(channel)).to.equal(
+							true
+						)
+					end
+				end
+			end
+		)
 
 		it("getCat returns nil for unknown ids", function()
 			expect(Catalog.getCat("golden")).never.to.be.ok()
@@ -537,16 +574,19 @@ return function()
 				},
 			}
 
-		it("has exactly the four v0.3 upgrades; cafe_level, park_access and gloves are gone", function()
-			expect(#Catalog.upgrades).to.equal(4)
-			for _, def in ipairs(Catalog.upgrades) do
-				expect(expected[def.id]).to.be.ok()
+		it(
+			"has exactly the four v0.3 upgrades; cafe_level, park_access and gloves are gone",
+			function()
+				expect(#Catalog.upgrades).to.equal(4)
+				for _, def in ipairs(Catalog.upgrades) do
+					expect(expected[def.id]).to.be.ok()
+				end
+				expect(Catalog.getUpgrade("cafe_level")).never.to.be.ok()
+				expect(Catalog.getUpgrade("park_access")).never.to.be.ok()
+				expect(Catalog.getUpgrade("gloves")).never.to.be.ok()
+				expect(Catalog.renamedUpgrades.gloves).to.equal("net")
 			end
-			expect(Catalog.getUpgrade("cafe_level")).never.to.be.ok()
-			expect(Catalog.getUpgrade("park_access")).never.to.be.ok()
-			expect(Catalog.getUpgrade("gloves")).never.to.be.ok()
-			expect(Catalog.renamedUpgrades.gloves).to.equal("net")
-		end)
+		)
 
 		for id, row in pairs(expected) do
 			it(id .. " matches the table, tier caps included", function()
@@ -634,7 +674,13 @@ return function()
 
 	describe("foods (sections 8 and 8b)", function()
 		local expected: {
-			[string]: { cost: number, source: string, attracts: string, name: string, odds: { [string]: number } },
+			[string]: {
+				cost: number,
+				source: string,
+				attracts: string,
+				name: string,
+				odds: { [string]: number },
+			},
 		} =
 			{
 				kibble = {
@@ -789,10 +835,22 @@ return function()
 			assert(alley and park)
 			expect(alley.tier).to.equal(1)
 			expect(alley.name).to.equal("Alleyway")
-			expect(alley.odds :: any).to.deepEqual({ Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 })
+			expect(alley.odds :: any).to.deepEqual({
+				Common = 72,
+				Rare = 22,
+				Epic = 5,
+				Legendary = 0.9,
+				Mythical = 0.1,
+			})
 			expect(park.tier).to.equal(2)
 			expect(park.name).to.equal("Park")
-			expect(park.odds :: any).to.deepEqual({ Common = 60, Rare = 28, Epic = 9, Legendary = 2.5, Mythical = 0.5 })
+			expect(park.odds :: any).to.deepEqual({
+				Common = 60,
+				Rare = 28,
+				Epic = 9,
+				Legendary = 2.5,
+				Mythical = 0.5,
+			})
 			expect((park :: any).unlock).never.to.be.ok()
 		end)
 
@@ -841,7 +899,37 @@ return function()
 			end
 		end)
 
-		-- F23 brings the other three areas, 14 or 16 spawn points, waves of 10 and the trap lists.
-		it("five areas with the section 9 spawn points, wave sizes and traps (F23)")
+		it(
+			"five areas in tier order with the section 9 spawn points, waves of 10 and odds (F23)",
+			function()
+				-- id -> { name, tier, spawnPoints, odds }
+				local want = {
+					{ "alley", "Alleyway", 1, 14, { 72, 22, 5, 0.9, 0.1 } },
+					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 } },
+					{ "neighbourhood", "Neighbourhood", 3, 14, { 50, 32, 13, 4, 1 } },
+					{ "woods", "Woods", 4, 16, { 42, 34, 17, 5.5, 1.5 } },
+					{ "sewer", "Sewer", 5, 16, { 35, 35, 20, 7.5, 2.5 } },
+				}
+				expect(#Catalog.areas).to.equal(#want)
+				for i, row in want do
+					local def = Catalog.areas[i]
+					expect(def.id).to.equal(row[1])
+					expect(def.name).to.equal(row[2])
+					expect(def.tier).to.equal(row[3])
+					expect(def.spawnPoints).to.equal(row[4])
+					expect(def.waveSize).to.equal(10)
+					local odds = row[5] :: { number }
+					expect(def.odds :: any).to.deepEqual({
+						Common = odds[1],
+						Rare = odds[2],
+						Epic = odds[3],
+						Legendary = odds[4],
+						Mythical = odds[5],
+					})
+				end
+			end
+		)
+
+		it("the trap lists per area (F27)")
 	end)
 end

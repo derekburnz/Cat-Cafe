@@ -339,3 +339,98 @@ def hide_all_meshes():
 def show(objs):
     for ob in objs:
         ob.hide_render = False
+
+
+# ---------------------------------------------------------- view sheets -----
+VIEWS = (
+    # name, camera direction from the asset center, orthographic?
+    ("front", (0.0, -1.0, 0.0), True),          # Blender -Y = Roblox front
+    ("left", (-1.0, 0.0, 0.0), True),
+    ("back", (0.0, 1.0, 0.0), True),
+    ("top", (0.0, -0.0001, 1.0), True),         # tiny -Y keeps the front at the bottom of the tile
+    ("three_quarter", None, False),             # same angle as render_preview
+)
+
+
+def render_views(objs, path, size=256, margin=1.12, bg=(0.96, 0.92, 0.87)):
+    """Five-view inspection sheet (front, left, back, top, three-quarter) with Workbench.
+
+    Flat, fast and textured with the palette, so silhouettes, pivots and swatch mistakes are
+    readable at a glance. Idea from ozanzeng/blender-LPM-skill (render_views.py). Writes one PNG
+    of 5 tiles side by side and returns its path.
+    """
+    import contact_sheet
+
+    sc = bpy.context.scene
+    prev_engine = sc.render.engine
+    sc.render.engine = "BLENDER_WORKBENCH"
+    sh = sc.display.shading
+    sh.light = "STUDIO"
+    sh.color_type = "TEXTURE"
+    sh.show_object_outline = True
+    sh.show_shadows = False
+    sh.show_cavity = False
+    sh.background_type = "VIEWPORT"
+    sh.background_color = bg
+    sc.display.render_aa = "FXAA"
+    sc.render.resolution_x = sc.render.resolution_y = size
+    sc.render.resolution_percentage = 100
+    sc.render.film_transparent = False
+    sc.render.image_settings.file_format = "PNG"
+    sc.view_settings.view_transform = "Standard"
+
+    lo, hi = bounds(objs)
+    center = (lo + hi) / 2
+    corners = [Vector((x, y, z)) for x in (lo.x, hi.x) for y in (lo.y, hi.y) for z in (lo.z, hi.z)]
+    radius = max((hi - lo).length / 2, 0.5)
+    cam = bpy.data.objects.get("_Cam")
+    if cam is None:
+        cd = bpy.data.cameras.new("_Cam")
+        cd.lens = 50
+        cam = bpy.data.objects.new("_Cam", cd)
+        sc.collection.objects.link(cam)
+    sc.camera = cam
+
+    hidden = []
+    for ob in sc.objects:
+        if ob.type == "MESH" and ob not in objs and not ob.hide_render:
+            ob.hide_render = True          # includes _PreviewFloor: the sheet shows the asset alone
+            hidden.append(ob)
+
+    tmp = []
+    for vname, direction, ortho in VIEWS:
+        if direction is None:
+            az, el = math.radians(35), math.radians(22)
+            direction = Vector((math.sin(az) * math.cos(el), -math.cos(az) * math.cos(el), math.sin(el)))
+        d = Vector(direction).normalized()
+        cam.location = center + d * (radius * 4)
+        cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
+        cam.data.type = "ORTHO" if ortho else "PERSP"
+        bpy.context.view_layer.update()
+        if ortho:
+            m = cam.matrix_world.to_3x3()
+            right, up = m @ Vector((1, 0, 0)), m @ Vector((0, 1, 0))
+            ext = max(max(c.dot(right) for c in corners) - min(c.dot(right) for c in corners),
+                      max(c.dot(up) for c in corners) - min(c.dot(up) for c in corners))
+            cam.data.ortho_scale = max(ext, 0.5) * margin
+        else:
+            cam.data.clip_end = radius * 20
+            cam.location = center + d * (radius * margin / math.sin(cam.data.angle_y / 2))
+            cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
+        tile = os.path.join(os.path.dirname(path), f"._view_{vname}.png")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        sc.render.filepath = tile
+        bpy.ops.render.render(write_still=True)
+        tmp.append(tile)
+
+    contact_sheet.sheet(tmp, path, cols=len(tmp), factor=1, bg=(*bg, 1.0))
+    for t in tmp:
+        try:
+            os.remove(t)
+        except OSError:
+            pass
+    for ob in hidden:
+        ob.hide_render = False
+    cam.data.type = "PERSP"
+    sc.render.engine = prev_engine
+    return path

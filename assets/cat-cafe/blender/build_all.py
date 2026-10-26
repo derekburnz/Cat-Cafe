@@ -6,8 +6,11 @@ Run inside the Blender GUI:   Scripting tab, open this file, Run Script (add --n
                                to keep your current scene; objects appear at the origin).
 
 Outputs (relative to the repo root, override with --out and --docs):
-  assets/cat-cafe/exports/<Name>.fbx and .glb, CatCafe_Palette.png, manifest.json
-  docs/concepts/cat-cafe/previews/<Name>.png, contact sheets, vignettes
+  assets/cat-cafe/exports/<Name>.fbx and .glb, CatCafe_Palette.png, manifest.json, gates.md
+  docs/concepts/cat-cafe/previews/<Name>.png, views/<Name>.png (five-view sheet), contact sheets, vignettes
+
+Every asset runs through gates.check (budget, transforms, material, UVs, naming as FAIL; pivot
+and centering as WARN). The build exits 1 on any FAIL; read exports/gates.md for the reasons.
 """
 
 import argparse
@@ -27,6 +30,7 @@ import cats  # noqa: E402
 import common  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
+import gates  # noqa: E402
 import items  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
@@ -62,7 +66,8 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--out", default=os.path.join(ROOT, "assets", "cat-cafe", "exports"))
     p.add_argument("--docs", default=os.path.join(ROOT, "docs", "concepts", "cat-cafe"))
-    p.add_argument("--render", action="store_true", help="render a preview PNG per asset")
+    p.add_argument("--render", action="store_true", help="render a preview PNG and a five-view sheet per asset")
+    p.add_argument("--no-views", action="store_true", help="with --render: skip the five-view sheets")
     p.add_argument("--scenes", action="store_true", help="render the cafe and alley vignettes")
     p.add_argument("--no-export", action="store_true")
     p.add_argument("--no-reset", action="store_true", help="keep the current scene (GUI use)")
@@ -90,7 +95,7 @@ def main():
     mat = common.palette_material(png)
 
     wanted = [s.strip() for s in args.only.split(",") if s.strip()]
-    manifest, over_budget, built = [], [], {}
+    manifest, failed, built = [], [], {}
     for name, (fn, budget, module) in all_assets().items():
         if wanted and not any(w.lower() in name.lower() for w in wanted):
             continue
@@ -117,15 +122,23 @@ def main():
             entry["studio"] = STUDIO_NOTES[name]
         if not args.no_export:
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
+        entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:
             path = os.path.join(args.docs, "previews", name + ".png")
             visible = [o for o in objs if not o.name.endswith("_Glass")] or objs   # glass is opaque in Cycles here
             common.render_preview(visible, path, samples=args.samples,
                                  warm=not name.startswith("CatCafe_Alley_"), floor=lo.z > -0.1)
             entry["preview"] = os.path.relpath(path, ROOT)
-        flag = "OVER BUDGET" if tris > budget else "ok"
-        if tris > budget:
-            over_budget.append(name)
+            if not args.no_views:
+                vpath = os.path.join(args.docs, "views", name + ".png")
+                common.render_views(visible, vpath)
+                entry["views"] = os.path.relpath(vpath, ROOT)
+        g = entry["gates"]
+        flag = "ok" if g["pass"] else "FAIL " + ",".join(g["failed"])
+        if g["warnings"]:
+            flag += "  warn " + ",".join(g["warnings"])
+        if not g["pass"]:
+            failed.append(name)
         print(f"{name:44s} tris {tris:5d} / {budget:5d} {flag}  size {size}")
         manifest.append(entry)
 
@@ -139,6 +152,7 @@ def main():
     with open(mpath, "w") as f:
         json.dump({"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "units": "studs",
                    "palette": os.path.relpath(png, ROOT), "assets": manifest}, f, indent=2)
+    gates.write_report(os.path.join(args.out, "gates.md"), manifest, ROOT)
 
     if args.render:
         import contact_sheet
@@ -147,9 +161,9 @@ def main():
         import scenes
         scenes.render_all(built, mat, args.docs, samples=max(args.samples, 48))
 
-    print(f"built {len(manifest)} assets in {time.time() - t0:.0f}s")
-    if over_budget:
-        print("OVER BUDGET:", ", ".join(over_budget))
+    print(f"built {len(manifest)} assets in {time.time() - t0:.0f}s; gates report: {os.path.join(args.out, 'gates.md')}")
+    if failed:
+        print("GATES FAILED:", ", ".join(failed))
         sys.exit(1)
 
 

@@ -115,8 +115,11 @@ return function()
 			end
 		end)
 
-		-- The closing circles (F26) replace the flat chance; until then Catching.chance still reads it.
-		it("baseCatchChance is gone once the circles land (F26)")
+		it("v0.3: baseCatchChance is gone, the circles decide the chance (F26)", function()
+			for _, def in pairs(Catalog.rarities) do
+				expect((def :: any).baseCatchChance).never.to.be.ok()
+			end
+		end)
 	end)
 
 	describe("cats (section 3)", function()

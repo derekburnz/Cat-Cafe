@@ -704,6 +704,9 @@ function UI.catch.showCircles(
 	if catch then
 		catch:hide() -- activePrompt and activeInfo stay so the card can come back
 	end
+	if hud then
+		hud:setCatching(true)
+	end
 	screen:show(circleList, windows, header, function(index: number)
 		UI.events.catchPressed:Fire(strayId, index)
 	end)
@@ -731,6 +734,9 @@ function UI.catch.showResult(
 		success,
 		if stays then "Missed, try again" else "It got away",
 		function()
+			if hud then
+				hud:setCatching(false)
+			end
 			local current = activeInfo
 			local card = catch
 			if not success and stays and activePrompt ~= nil and current ~= nil and card ~= nil then
@@ -743,6 +749,9 @@ end
 function UI.catch.hideCircles()
 	if circles then
 		circles:hide()
+	end
+	if hud then
+		hud:setCatching(false)
 	end
 end
 

@@ -161,7 +161,8 @@ Rules:
 - `UseLure(lureId)` near the bowl (12 studs) with the bowl empty and food in stock consumes one food at once. The server rolls everything then and saves it in `profile.bait`: rarity from the food's odds, the cat uniformly among that rarity's cats in every area the player has unlocked, charm, and shiny (ShinyChanceBait). Rolling at placement means rejoining cannot reroll.
 - The cat is ready at `placedAt + LureWaitSeconds` (600, server `os.time()`), and the timer runs while the player is offline. The HUD shows the countdown. Until ready, ProfileSync sends only `lureId` and `readyAt`, never the rolled `catId`, `variant` or `charm`, so the reveal is not spoiled (N30).
 - When ready and the owner is in the server, the cat model sits eating at the bowl and the bait card shows its name, rarity, stars and sparkle with two buttons: Tame and Let go. `ResolveBait("tame")` adds the instance (method `bait`) straight to the cat room, fires `CatCaught` and empties the bowl; no net and no carry. `ResolveBait("letgo")` empties the bowl. The food is used either way.
-- Odds are on every food card before purchase, with the per-cat line ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"). A tier up that opens a new area changes the per-cat split, and the card says so.
+- Odds are on every food card before purchase, with the per-cat line ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"). A tier up that opens a new area changes the per-cat split, and the card says so. Every food card (shop and dealer) also shows the shiny chance (2%) and the charm star odds, because both change income: 1 star 7.8%, 2 stars 23.5%, 3 stars 35.7%, 4 stars 24.3%, 5 stars 8.7% (growth thread; required if coins are ever sold, shown from day one).
+- Catnip (common-features item 14, launch) shifts only the wave spawn rolls in the areas. It never changes bait or dealer rolls, so food card odds stay fixed.
 
 Shop foods (`LureDef`, `source = "shop"`):
 
@@ -240,7 +241,7 @@ Net levels (windows are half-widths in seconds either side of the target; jitter
 
 Feel targets for QA: a Common with a Basic Net should be caught by a new player most of the time (one slow circle, Good is 50%, retries are free). A Mythical with a Basic Net should be very hard to perfect and a Master Net should make it fair. Test on a phone on mobile data as well as Wi-Fi: phone ping wanders by 30 to 50 ms against a 45 ms Basic Perfect window (N28). If the Basic Net feels mean on touch, widen `good` before touching anything else, and raise CircleGapMin with it (S24).
 
-Exploit note (reviewer signed off 2026-10-26): the server owns the schedule and the clock, so a client cannot forge a Perfect, but a script that watches the circles and presses on time will score well. That is accepted for the slice (Gavin wants all-Perfect to be 100%). The exploit check uses the server's own stamped errors, never TelemetryReport (S23): flag players whose Perfect rate is above 95% over 50 or more circles. No error-spread test, because network jitter alone spreads a script's arrivals by about 10 ms.
+Exploit note (reviewer signed off 2026-10-26): the server owns the schedule and the clock, so a client cannot forge a Perfect, but a script that watches the circles and presses on time will score well. That is accepted for the slice (Gavin wants all-Perfect to be 100%). The exploit check uses the server's own stamped errors, never TelemetryReport (S23): CatService keeps a 50-circle ring buffer per player and sets `profile.flags.autoPress` when the Perfect rate over the last 50 circles is above 95%. The flag is for review only; nothing is taken away automatically. AnalyticsService has no per-player view, so the check cannot live there. No error-spread test, because network jitter alone spreads a script's arrivals by about 10 ms.
 
 ## 10b. Rescue minigames
 
@@ -328,6 +329,8 @@ Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `D
 | stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions | 0 | new counters added |
 | tutorialStep | 0 to 5 | 0 | 0 new, 1 saw the alley, 2 caught, 3 assigned a role, 4 bought a table, 5 set bait (done) |
 | settings | music, sfx | true, true | |
+| telemetry | `{ onboardingStep, achieved = { [step] = true } }` | `{ onboardingStep = 0, achieved = {} }` | new; the funnel logs each onboarding step once and only in order, because Roblox marks every earlier step complete when a later one is logged, so a rank up before bait would otherwise fake the bait steps (growth, analytics-plan) |
+| flags | `{ autoPress }` | `{ autoPress = false }` | new; set by the circle ring buffer (section 10), review only |
 
 Removed: `equippedLure` (UseLure takes the food id), `renovations`.
 
@@ -380,7 +383,7 @@ Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), 
 
 ## 16. Analytics events (AnalyticsService)
 
-The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `shiny_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`.
+The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `shiny_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`. The growth thread also added `bump`, `drop_outcome` and `left_after_bump` to judge griefing in the alpha (analytics-plan.md, PR #33).
 
 ## 17. Tuning constants (`src/shared/Config.luau`)
 

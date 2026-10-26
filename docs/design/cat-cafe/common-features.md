@@ -25,7 +25,7 @@ Checked 2026-10-25 against guides, not by playing. Steal an Egg: eggs spawn on a
 | 11 | Daily login streak | Daily Treat: a seven-stamp card of coins, food and Catnip, one stamp per day, no reset on a missed day | Launch | S | no pressure: nothing is lost by skipping a day |
 | 12 | Codes | Chalkboard: redeem codes for coins and food | Launch | S | none |
 | 13 | Like and group rewards | Regulars Board: +5% tips for group members (verifiable); likes milestone handled as an announced gift | Launch | S | none |
-| 14 | Luck potions | Catnip: 15 minute buff that shifts spawn odds one tier up, numeric effect on the shop card before purchase and modified odds shown while active | Launch | S | luck boosts must disclose their numeric effect before purchase and while active |
+| 14 | Luck potions | Catnip: 15 minute buff that shifts wave spawn odds in the areas one tier up (never bait or dealer rolls), numeric effect on the shop card before purchase and modified odds shown while active | Launch | S | luck boosts must disclose their numeric effect before purchase and while active |
 | 15 | Daily quests | Customer Requests: three daily tasks for coins and food | Launch | M | none |
 | 16 | Rotating shop, conveyor | The night food dealer (in the slice, F32) is the rotating shop for food. Adoption Van stays at launch: three visible cats for coins every 10 minutes | Slice, Launch | M | none (stock seen before paying) |
 | 17 | Passes and VIP | Long Nap, Second Cat Room, VIP Decor Set, Cat Accessories; 2x Tips deferred | Launch | S each | per monetization.md |

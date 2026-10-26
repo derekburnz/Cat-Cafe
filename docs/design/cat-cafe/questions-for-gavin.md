@@ -26,4 +26,4 @@ Cats and areas
 
 Other
 
-11. Name. Is "Cat Cafe" the final name? Lots of Roblox games already use it, which makes ours harder to find in search. We can keep it as the working title and pick something more unique before launch.
+11. Name. Is "Cat Cafe" the final name? At least seven Roblox games already use it, which makes ours harder to find in search. One fix is a unique name with Cat Cafe behind it, for example "Purr Pot: Cat Cafe". Any name ideas?

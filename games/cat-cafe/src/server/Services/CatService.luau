@@ -677,8 +677,19 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	end
 	local chance = Circles.chance(attempt.scores)
 	local success = forfeit == nil and Catching.succeeds(chance, rng:NextNumber())
+	local lured = stray.calm and stray.reservedFor == player.UserId
+	local flees = not success and Catching.fleesOnFail(stray.def.rarity) and not lured
 	setLock(stray, 0)
-	Net.fire(player, "CatchResult", stray.id, attempt.scores, chance, success)
+	-- `stayed` tells the UI whether to offer the prompt again; it cannot tell from the rarity (reviewer N39).
+	Net.fire(
+		player,
+		"CatchResult",
+		stray.id,
+		attempt.scores,
+		chance,
+		success,
+		not success and not flees
+	)
 	if forfeit ~= nil then
 		Net.toast(player, forfeit, "warn")
 	end
@@ -690,8 +701,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		startCarry(player, def, false)
 		return
 	end
-	local lured = stray.calm and stray.reservedFor == player.UserId
-	if Catching.fleesOnFail(stray.def.rarity) and not lured then
+	if flees then
 		Net.toast(player, "It got away", "warn")
 		despawn(stray)
 		return

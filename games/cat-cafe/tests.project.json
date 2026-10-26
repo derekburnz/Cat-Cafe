@@ -9,7 +9,12 @@
       "Shared": { "$path": "src/shared" },
       "Packages": { "$path": { "optional": "Packages" } },
       "Assets": { "$path": { "optional": "../../assets/cat-cafe/rbx" } },
-      "Tests": { "$path": "tests" }
+      "Tests": {
+        "$className": "Folder",
+        "TestKit": { "$path": "tests/TestKit.luau" },
+        "StudioRunner": { "$path": "tests/StudioRunner.luau" },
+        "specs": { "$path": "tests/specs" }
+      }
     },
 
     "ServerScriptService": {
@@ -26,7 +31,8 @@
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "Client": { "$path": "src/client" }
+        "Client": { "$path": "src/client" },
+        "TestsAbuse": { "$path": "tests/abuse" }
       }
     },
 

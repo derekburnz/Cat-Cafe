@@ -170,11 +170,12 @@ Expectation.__index = function(self: any, key: string): any
 		rawset(self, "_negate", not rawget(self, "_negate"))
 		return self
 	end
-	local check = Expectation[key]
+	local check: any = rawget(Expectation, key)
 	if type(check) == "function" then
 		-- Bind self so TestEZ style `expect(x).to.equal(y)` works with a dot, not a colon.
+		local bound: (any, ...any) -> any = check
 		return function(...)
-			return check(self, ...)
+			return bound(self, ...)
 		end
 	end
 	return check
@@ -322,7 +323,7 @@ local function buildEnvironment(root: Node)
 		if not ok then
 			-- A describe body that errors becomes a single failing test so it is visible.
 			local failing = newNode("it", "(describe block errored)", node)
-			failing.body = function()
+			failing.body = function(): ()
 				error(err, 0)
 			end
 			table.insert(node.children, failing)
@@ -394,23 +395,27 @@ end
 -- Running
 -------------------------------------------------------------------------------
 
+local function hooksOf(node: Node, field: "beforeEach" | "afterEach"): { Hook }
+	return if field == "beforeEach" then node.beforeEach else node.afterEach
+end
+
 local function collectHooks(node: Node, field: "beforeEach" | "afterEach"): { Hook }
-	local chain = {}
+	local chain: { Node } = {}
 	local current: Node? = node.parent
 	while current do
 		table.insert(chain, current)
 		current = current.parent
 	end
-	local hooks = {}
+	local hooks: { Hook } = {}
 	if field == "beforeEach" then
 		for index = #chain, 1, -1 do
-			for _, hook in ipairs(chain[index][field]) do
+			for _, hook in ipairs(hooksOf(chain[index], field)) do
 				table.insert(hooks, hook)
 			end
 		end
 	else
 		for _, ancestor in ipairs(chain) do
-			for _, hook in ipairs(ancestor[field]) do
+			for _, hook in ipairs(hooksOf(ancestor, field)) do
 				table.insert(hooks, hook)
 			end
 		end
@@ -420,7 +425,7 @@ end
 
 local function callProtected(fn: () -> ()): (boolean, string?)
 	local traceback: string? = nil
-	local ok, err = xpcall(fn, function(message)
+	local ok, err = (xpcall :: any)(fn, function(message: any): any
 		traceback = debug.traceback(tostring(message), 2)
 		return message
 	end)
@@ -439,7 +444,8 @@ local function runNode(node: Node, inheritedSkip: boolean, focusMode: boolean, s
 		local shouldRun = not skip and (not focusMode or node.focus or (node.parent ~= nil and hasFocusAncestor(node)))
 		if not shouldRun then
 			summary.skipped += 1
-			table.insert(summary.results, { path = path, status = "skip", message = nil, durationSeconds = 0 })
+			local skipped: Result = { path = path, status = "skip", message = nil, durationSeconds = 0 }
+			table.insert(summary.results, skipped)
 			if options.verbose then
 				output("  [SKIP] " .. path)
 			end
@@ -564,8 +570,9 @@ function TestKit.runSpecs(specs: { SpecEntry }, options: RunOptions?): Summary
 		table.insert(root.children, specNode)
 		local env = buildEnvironment(specNode)
 
-		local setEnvironment = (setfenv :: any)
-		local getEnvironment = (getfenv :: any)
+		-- Typed as optional functions, not `any`: the checker turns `(setfenv :: any)` into an error type.
+		local setEnvironment: ((any, { [string]: any }) -> ())? = setfenv
+		local getEnvironment: ((any) -> { [string]: any })? = getfenv
 		if setEnvironment ~= nil and getEnvironment ~= nil then
 			local ok = pcall(function()
 				local outer = getEnvironment(spec.body)
@@ -582,7 +589,7 @@ function TestKit.runSpecs(specs: { SpecEntry }, options: RunOptions?): Summary
 		end)
 		if not ok then
 			local failing = newNode("it", "(spec file errored while loading)", specNode)
-			failing.body = function()
+			failing.body = function(): ()
 				error(err, 0)
 			end
 			table.insert(specNode.children, failing)

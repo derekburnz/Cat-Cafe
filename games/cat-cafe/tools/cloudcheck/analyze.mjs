@@ -29,6 +29,7 @@ const IGNORE = [/^Packages\//, /^ServerPackages\//, /\/Vendor\//, /^tools\//];
 // 1. Roblox API definitions (same file check.sh downloads), patched for the WebAssembly checker.
 const definitionsPath = resolveDefinitions();
 const definitions = patchDefinitions(fs.readFileSync(definitionsPath, 'utf8'));
+if (process.env.CLOUDCHECK_DUMP_DIR) { fs.mkdirSync(process.env.CLOUDCHECK_DUMP_DIR, { recursive: true }); fs.writeFileSync(path.join(process.env.CLOUDCHECK_DUMP_DIR, '__definitions.d.luau'), definitions); }
 
 // The full ENUM_LIST (650+ enums) makes the WebAssembly checker give up with "Code is too complex".
 // Keep the enums listed in enum-keep.txt, let any other `Enum.X` through as `any`.
@@ -73,6 +74,12 @@ for (const node of [...support, ...scripts]) {
   const rewritten = castServiceAndInstanceNew(step1);
   if (scripts.includes(node)) for (const text of unresolved) notes.push(`${node.rel}: could not resolve ${text} statically (checked as any)`);
   const kind = node.className === 'ModuleScript' ? 'module' : 'script';
+  if (process.env.CLOUDCHECK_DUMP_DIR) {
+    // Debug aid: write the source exactly as the checker sees it (after the rewrites above).
+    const target = path.join(process.env.CLOUDCHECK_DUMP_DIR, node.rel);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, rewritten);
+  }
   analysis.setModule(node.moduleName, rewritten, kind);
 }
 

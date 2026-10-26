@@ -11,7 +11,8 @@ npm run test:verbose           # one line per test
 npm run analyze                # strict type check + lint of src/, Roblox API types included
 npm run check                  # both
 node run-tests.mjs --filter Economy --json report.json
-node analyze.mjs --tests       # also check tests/
+node analyze.mjs --tests       # also check tests/ (specs, TestKit, the abuse client)
+CLOUDCHECK_DUMP_DIR=/tmp/dump node analyze.mjs   # writes each module as the checker sees it, for debugging the rewrites
 ```
 
 | File | What |

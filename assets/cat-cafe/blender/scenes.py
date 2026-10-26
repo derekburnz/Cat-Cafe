@@ -108,13 +108,12 @@ def alley(built, mat, docs, samples, night=False):
     objs += _place(built, "CatCafe_Alley_ShopWindow", (-1.0, 4.95, 2.0))
     objs += _place(built, "CatCafe_Decor_DoorSign", (6.0, 4.75, 5.4))
     objs += _place(built, "CatCafe_Decor_StringLights", (-6.0, 1.5, 8.0))
-    objs += _place(built, "CatCafe_Alley_StuckTree", (-8.5, -5.0, 0))
-    objs += _place(built, "CatCafe_Alley_Drainpipe", (3.5, 4.95, 0))
-    objs += _place(built, "CatCafe_Alley_StuckBox", (-6.0, -2.0, 0), 35)
+    traps = (("CatCafe_Alley_TrashBin", (-7.5, -3.5, 0), 15), ("CatCafe_Alley_GarbageBags", (7.0, -4.0, 0), -20))
+    for prop, loc, rot in traps:
+        objs += _place(built, prop, loc, rot)
     if night:
         import poses
-        for prop, loc, rot in (("CatCafe_Alley_StuckTree", (-8.5, -5.0, 0), 0), ("CatCafe_Alley_Drainpipe", (3.5, 4.95, 0), 0),
-                               ("CatCafe_Alley_StuckBox", (-6.0, -2.0, 0), 35)):
+        for prop, loc, rot in traps:
             W = Matrix.Translation(Vector(loc)) @ Euler((0, 0, math.radians(rot))).to_matrix().to_4x4()
             objs += poses.posed_copies(built["CatCafe_Cat_Ginger"], poses.STUCK_POSES[prop], world=W)
         emit = bpy.data.materials.get("_Emit")

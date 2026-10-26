@@ -24,7 +24,7 @@ Requires use Roblox instance paths (`script.Parent.X`, `ReplicatedStorage.Shared
 
 | Module | Needs Roblox | Public |
 |---|---|---|
-| `World/Layout` | no (requires Config) | `plotPlacement(index) -> {x, z, side}`, `plot` (door, entry, sign, counter, espresso, spots, spotFurniture, decorAnchors, tables, seatOffsets), `alley` and `park` (spawnPoints, lureSpots, rescueSpots, props with an optional `y` for wall props), `stuckPoses` (prop name to the stuck cat's CFrame in prop space, from the asset manifest), `playerSpawn` |
+| `World/Layout` | no (requires Config) | `plotPlacement(index) -> {x, z, side}`, `plot` (door, entry, sign, counter, espresso, spots, spotFurniture, decorAnchors, tables, seatOffsets), `alley` and `park` (spawnPoints, lureSpots, rescueSpots, props with an optional `y` for wall props), `stuckPoses` (prop name to the stuck cat's pose in prop space as the manifest's 12 CFrame numbers), `playerSpawn` |
 | `World/Placeholders` | yes | `names() -> {string}`, `build(name) -> Model?`, `cat(def)`, `customer(variant)` |
 | `World/AssetRegistry` | yes | `folder()`, `ensurePlaceholders() -> count`, `has(name)`, `clone(name) -> Model` |
 | `World/WorldBuilder` | yes | `build() -> World { folder, plots, areas, gate }`; each area has `spawnPoints`, `lureSpots` and `rescueSpots` (anchors tagged `RescueSpot` with `Area`, `RescueSpotId`, `Occupied`, `LockedBy`) |

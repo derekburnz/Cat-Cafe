@@ -96,6 +96,11 @@ local function localCFrame(base: CFrame, p: Layout.Point): CFrame
 	return base * CFrame.new(p.x, p.y, p.z) * CFrame.Angles(0, math.rad(p.rotY or 0), 0)
 end
 
+-- A manifest pose: 12 CFrame numbers, the position and then the rotation matrix by rows.
+local function poseCFrame(p: { number }): CFrame
+	return CFrame.new(p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12])
+end
+
 local function place(asset: string, cframe: CFrame, parent: Instance): Model
 	local model = AssetRegistry.clone(asset)
 	model:PivotTo(cframe)
@@ -405,8 +410,9 @@ local function buildArea(
 		local base = CFrame.new(point.x, spec.floorY, point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
 		place(point.prop, base, props)
-		local spot =
-			anchor(name, base * (Layout.stuckPoses[point.prop] or CFrame.new()), rescueFolder)
+		local pose = Layout.stuckPoses[point.prop]
+		local catAt = if pose ~= nil then base * poseCFrame(pose) else base
+		local spot = anchor(name, catAt, rescueFolder)
 		spot:SetAttribute("Area", id)
 		spot:SetAttribute("RescueSpotId", name)
 		spot:SetAttribute("Occupied", false)

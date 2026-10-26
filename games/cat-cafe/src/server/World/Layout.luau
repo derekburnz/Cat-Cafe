@@ -16,15 +16,16 @@ export type Prop = { asset: string, x: number, y: number?, z: number, rotY: numb
 local Layout = {}
 
 -- Where the stuck cat's pivot sits on each rescue prop, in prop space: the stuck_pose body_cframe_roblox values
--- from assets/cat-cafe/exports/manifest.json. Placeholders share the real props' pivots, so one set fits both.
+-- from assets/cat-cafe/exports/manifest.json, 12 numbers for CFrame.new(table.unpack(pose)). Plain numbers keep
+-- this module free of Roblox types. Placeholders share the real props' pivots, so one set fits both.
 Layout.stuckPoses = {
-	-- Clings to the low branch, rolled toward the trunk.
-	CatCafe_Alley_StuckTree = CFrame.new(-1.4, 4.4, 0) * CFrame.Angles(0, 0, math.rad(20)),
-	-- Head inside the box, tail end out of the opening.
-	CatCafe_Alley_StuckBox = CFrame.new(0, 0, -0.6) * CFrame.Angles(0, math.rad(-180), 0),
+	-- Clings to the low branch, rolled 20 degrees toward the trunk.
+	CatCafe_Alley_StuckTree = { -1.4, 4.4, 0, 0.9397, -0.342, 0, 0.342, 0.9397, 0, 0, 0, 1 },
+	-- Head inside the box, tail end out of the opening (turned 180 degrees).
+	CatCafe_Alley_StuckBox = { 0, 0, -0.6, -1, 0, 0, 0, 1, 0, 0, 0, -1 },
 	-- Body inside the outlet, head poking out.
-	CatCafe_Alley_Drainpipe = CFrame.new(0, 0, -2),
-} :: { [string]: CFrame }
+	CatCafe_Alley_Drainpipe = { 0, 0, -2, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+} :: { [string]: { number } }
 
 local W = Config.World
 

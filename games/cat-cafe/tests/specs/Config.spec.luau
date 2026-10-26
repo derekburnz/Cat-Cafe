@@ -50,6 +50,13 @@ return function()
 		TutorialGuaranteedStrayStep = 2,
 		GrabMinHoldSeconds = 0.15,
 		RingLatencyGraceSeconds = 0.25,
+		-- cat stats (data-model section 4b)
+		CatMaxLevel = 10,
+		CatLevelBonus = 0.05,
+		CatXpBase = 60,
+		CatXpPerSecondPlaced = 1,
+		CharmSpread = 0.20,
+		RenovateBonus = 0.25,
 	}
 
 	describe("data-model section 17 constants", function()
@@ -67,10 +74,22 @@ return function()
 
 		it("has no extra top level tuning numbers the doc does not know about", function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
-			local known = { World = true, ProfileStoreName = true, ProfileKeyPrefix = true, GrabRateLimitSeconds = true, LureReserveSeconds = true }
+			local known = {
+				World = true,
+				ProfileStoreName = true,
+				ProfileKeyPrefix = true,
+				GrabRateLimitSeconds = true,
+				LureReserveSeconds = true,
+			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
-					error(string.format("Config.%s = %s is not in data-model section 17; add it to the doc or remove it", name, tostring(value)))
+					error(
+						string.format(
+							"Config.%s = %s is not in data-model section 17; add it to the doc or remove it",
+							name,
+							tostring(value)
+						)
+					)
 				end
 			end
 		end)
@@ -86,9 +105,12 @@ return function()
 			expect(Config.CarryWalkSpeed / Config.NormalWalkSpeed).to.be.near(0.8, 0.02)
 		end)
 
-		it("the grab lock outlives the hold so a second player cannot steal the stray mid-grab", function()
-			expect(Config.GrabLockSeconds > Config.GrabHoldSeconds).to.equal(true)
-		end)
+		it(
+			"the grab lock outlives the hold so a second player cannot steal the stray mid-grab",
+			function()
+				expect(Config.GrabLockSeconds > Config.GrabHoldSeconds).to.equal(true)
+			end
+		)
 
 		it("lures: the wait is shorter than the lured stray's lifetime", function()
 			expect(Config.LureWaitSeconds < Config.LureDespawnSeconds).to.equal(true)

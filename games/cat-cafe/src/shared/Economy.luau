@@ -1,6 +1,7 @@
 --!strict
 -- Pure income math (data-model section 11) and purchase gates. No Roblox services.
 
+local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
@@ -33,7 +34,8 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	return multiplier
 end
 
--- Rate of one placed cat before the cafe multiplier.
+-- Rate of one placed cat before the cafe multiplier: its rating (rarity x charm x level x variant, see
+-- CatStats) times the favorite spot bonus. Resting cats earn nothing.
 function Economy.catRate(instance: Types.CatInstance): number
 	local def = Catalog.getCat(instance.catId)
 	if def == nil or instance.spotId == nil then
@@ -44,28 +46,54 @@ function Economy.catRate(instance: Types.CatInstance): number
 		return 0
 	end
 	local favorite = if spot.spotType == def.favoriteSpot then Config.FavoriteMultiplier else 1
-	local variant = Economy.variantMultiplier(instance.variant)
-	return def.incomePerSecond * variant * favorite
+	return CatStats.rating(instance) * favorite
 end
 
 function Economy.variantMultiplier(variant: string): number
-	if variant == "golden" then
-		return 2
-	elseif variant == "galaxy" then
-		return 5
-	end
-	return 1
+	return CatStats.variantMultiplier(variant)
 end
 
+-- Renovate (rebirth) seam: 1.0 until the feature ships, then 1 + RenovateBonus per Renovate.
+-- The whole income formula lives in incomePerSecond, so a customer-driven model later replaces one function.
+function Economy.prestigeMultiplier(profile: Types.PlayerProfile): number
+	local renovations = profile.renovations
+	-- type guard for version 1 saves and fixtures that predate the field; the NaN and sign guards for bad data
+	if type(renovations) ~= "number" or renovations ~= renovations or renovations < 0 then
+		return 1
+	end
+	return 1 + Config.RenovateBonus * math.floor(renovations)
+end
+
+-- incomePerSecond = sum over placed cats of (rating x favorite) x cafeMultiplier x prestigeMultiplier
 function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 	local total = 0
 	for _, instance in profile.cats do
 		total += Economy.catRate(instance)
 	end
-	return total * Economy.cafeMultiplier(profile)
+	return total * Economy.cafeMultiplier(profile) * Economy.prestigeMultiplier(profile)
 end
 
--- Lazy accounting: credit everything earned since lastTick. Call before any read or spend.
+-- Placed cats earn one XP per second of settled time (data-model section 4b). Only online time is settled:
+-- DataService.load resets lastTick before the first settle, so the offline gap earns neither coins at the
+-- online rate nor XP. Returns the number of cats that levelled up.
+function Economy.grantPlacedXp(profile: Types.PlayerProfile, seconds: number): number
+	if seconds <= 0 then
+		return 0
+	end
+	local levelled = 0
+	for _, instance in profile.cats do
+		if instance.spotId ~= nil and Catalog.getSpot(instance.spotId :: string) ~= nil then
+			if CatStats.addXp(instance, seconds * Config.CatXpPerSecondPlaced) > 0 then
+				levelled += 1
+			end
+		end
+	end
+	return levelled
+end
+
+-- Lazy accounting: credit everything earned since lastTick, then grant that time as XP to the placed cats.
+-- Coins use the rate from before any level-up in the window (a few seconds at most), which keeps the
+-- credit simple and never overpays. Call before any read or spend.
 function Economy.settle(profile: Types.PlayerProfile, now: number): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
@@ -73,6 +101,7 @@ function Economy.settle(profile: Types.PlayerProfile, now: number): number
 		earned = Economy.incomePerSecond(profile) * elapsed
 		profile.coins += earned
 		profile.lifetimeCoins += earned
+		Economy.grantPlacedXp(profile, elapsed)
 	end
 	profile.lastTick = now
 	return earned

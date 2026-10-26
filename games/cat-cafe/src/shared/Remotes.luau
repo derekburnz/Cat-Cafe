@@ -15,6 +15,7 @@ Remotes.ClientToServer = {
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
+	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
 	"SellCat", -- (uid: string)
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)

@@ -153,6 +153,14 @@ local function wireIntents()
 	UI.events.sellCat:Connect(function(uid: string)
 		Net.fire("SellCat", uid)
 	end)
+	-- Equip best button on the cat room tab (UI thread). Looked up loosely so an older UI build without the
+	-- signal still loads; the server validates the request like any other.
+	local equipBest = (UI.events :: any).equipBest
+	if equipBest ~= nil then
+		equipBest:Connect(function()
+			Net.fire("EquipBest")
+		end)
+	end
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)

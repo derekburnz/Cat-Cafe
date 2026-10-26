@@ -156,8 +156,8 @@ function EquipBest.plan(profile: Types.PlayerProfile): Plan
 	local baseRate = 0
 	local placed = 0
 	for i, spot in spots do
-		local j = assignment[i]
-		local instance = if j ~= nil and j >= 1 then cats[j] else nil
+		local j = assignment[i] -- 0 when the spot stays empty (table.create fills with 0)
+		local instance = if j >= 1 then cats[j] else nil
 		if instance ~= nil then
 			local value = EquipBest.value(instance, spot)
 			if value > 0 then

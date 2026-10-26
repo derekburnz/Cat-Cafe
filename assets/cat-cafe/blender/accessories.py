@@ -23,7 +23,7 @@ ATTACH = {
 # Body accessories move to the belly and turn +90 degrees about X (part-local) to stay upright.
 # (part, offset, rotation_xyz_deg). Head slots are unchanged.
 ATTACH_UPRIGHT = {
-    "BowTie": ("Body", (0.0, -0.62, 0.38), (90, 0, 0)),
+    "BowTie": ("Body", (0.0, -0.72, 0.22), (90, 0, 0)),   # on the collar, above the raised paws
     "Apron":  ("Body", (0.0, -0.45, 0.38), (90, 0, 0)),
 }
 

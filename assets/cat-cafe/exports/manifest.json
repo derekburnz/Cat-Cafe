@@ -1,9 +1,9 @@
 {
-  "generated": "2026-10-26 17:40 UTC",
+  "generated": "2026-10-26 17:48 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
-    "(Z up, -Y forward); the manifest also gives every value in Roblox axes.",
+    "value in Roblox axes.",
     "Roblox: position (x, y, z) -> (-x, z, y), so the front is -Z (LookVector). *_angles_roblox_deg",
     "go to CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)); body_cframe_roblox is the",
     "same Body CFrame as CFrame.new(table.unpack(t)), relative to the prop pivot or HumanoidRootPart."
@@ -58,6 +58,16 @@
         -90.0,
         0.0,
         0.0
+      ],
+      "head_offset_blender": [
+        0,
+        -0.32,
+        0
+      ],
+      "head_offset_roblox": [
+        0.0,
+        0.0,
+        -0.32
       ],
       "tail_angles_roblox_deg": [
         -80.0,
@@ -116,6 +126,16 @@
         0.0,
         0.0
       ],
+      "head_offset_blender": [
+        0,
+        0,
+        0
+      ],
+      "head_offset_roblox": [
+        0.0,
+        0.0,
+        0.0
+      ],
       "tail_angles_roblox_deg": [
         40.0,
         0.0,
@@ -129,8 +149,8 @@
       "part": "Body",
       "offset": [
         0.0,
-        -0.62,
-        0.38
+        -0.72,
+        0.22
       ],
       "rotation_xyz_deg": [
         90,
@@ -139,8 +159,8 @@
       ],
       "offset_roblox": [
         0.0,
-        0.38,
-        -0.62
+        0.22,
+        -0.72
       ],
       "angles_roblox_deg": [
         -90.0,
@@ -3214,6 +3234,16 @@
           0.0,
           0.0
         ],
+        "head_offset_blender": [
+          0,
+          0,
+          0
+        ],
+        "head_offset_roblox": [
+          0.0,
+          0.0,
+          0.0
+        ],
         "tail_angles_roblox_deg": [
           -10.0,
           0.0,
@@ -3322,6 +3352,16 @@
           -1.0
         ],
         "head_angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "head_offset_blender": [
+          0,
+          0,
+          0
+        ],
+        "head_offset_roblox": [
           0.0,
           0.0,
           0.0
@@ -3435,6 +3475,16 @@
         ],
         "head_angles_roblox_deg": [
           10.0,
+          0.0,
+          0.0
+        ],
+        "head_offset_blender": [
+          0,
+          0,
+          0
+        ],
+        "head_offset_roblox": [
+          0.0,
           0.0,
           0.0
         ],

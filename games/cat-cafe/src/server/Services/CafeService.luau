@@ -7,10 +7,12 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
@@ -24,6 +26,7 @@ type Profile = Types.PlayerProfile
 local CafeService = {}
 
 local carrying: { [Player]: string } = {} -- catId while walking a caught stray home
+local rng = Random.new() -- charm rolls for caught cats
 
 -- Settled profile or nil when not loaded yet.
 local function profileFor(player: Player): Profile?
@@ -32,6 +35,15 @@ local function profileFor(player: Player): Profile?
 		Economy.settle(profile, os.time())
 	end
 	return profile
+end
+
+-- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view).
+function CafeService.catViews(profile: Profile): { [string]: Types.CatView }
+	local views: { [string]: Types.CatView } = {}
+	for uid, instance in profile.cats do
+		views[uid] = CatStats.view(instance)
+	end
+	return views
 end
 
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
@@ -50,7 +62,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
 		equippedLure = profile.equippedLure,
-		cats = profile.cats,
+		cats = CafeService.catViews(profile),
 		collection = profile.collection,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
@@ -226,11 +238,14 @@ end
 -- Adds a caught cat to the profile, pays the first-catch reward, auto-places it on a free open spot.
 -- Returns the instance and whether this cat id was new to the collection.
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
+-- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
+-- prompt); otherwise it is rolled here.
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
 	notify: boolean,
-	knownProfile: Profile?
+	knownProfile: Profile?,
+	charm: number?
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
@@ -241,8 +256,10 @@ function CafeService.addCaughtCat(
 	assert(profile ~= nil, "profile not loaded")
 	local now = os.time()
 	local isNew = profile.collection[def.id] == nil
-	local instance: Types.CatInstance =
-		{ uid = newUid(), catId = def.id, variant = "base", caughtAt = now, spotId = nil }
+	local rolled = if charm ~= nil
+		then charm
+		else CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
+	local instance = CatStats.newInstance(newUid(), def.id, now, rolled)
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
 	if isNew then
@@ -272,16 +289,17 @@ function CafeService.addCaughtCat(
 				"good"
 			)
 		end
+		local stars = CatStats.starsText(CatStats.stars(CatStats.charm(instance)))
 		if instance.spotId ~= nil then
 			Net.toast(
 				player,
-				string.format("%s is resting on %s", def.name, instance.spotId :: string),
+				string.format("%s %s is resting on %s", stars, def.name, instance.spotId :: string),
 				"info"
 			)
 		else
 			Net.toast(
 				player,
-				string.format("%s is in the cat room. Open a spot to place it.", def.name),
+				string.format("%s %s is in the cat room. Open a spot to place it.", stars, def.name),
 				"info"
 			)
 		end
@@ -370,6 +388,39 @@ local function onUnplaceCat(player: Player, rawUid: unknown)
 		return
 	end
 	instance.spotId = nil
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
+-- Equip best: one tap places the owned cats on the open spots for the highest rate (shared/EquipBest).
+-- Nothing is bought or sold, so the only check is that the profile is loaded; the plan itself only ever
+-- uses spots this cafe level has opened and cats this player owns.
+local function onEquipBest(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local plan = EquipBest.plan(profile)
+	if EquipBest.isOptimal(profile, plan) then
+		Net.toast(player, "Your cats are already on their best spots.", "info")
+		CafeService.sync(player)
+		return
+	end
+	local changed = EquipBest.apply(profile, plan)
+	if plan.catsPlaced > 0 then
+		advanceTutorial(profile, 3)
+	end
+	Net.toast(
+		player,
+		string.format(
+			"Placed %d cats on %d spots (%d moved): $%d/s",
+			plan.catsPlaced,
+			plan.spotsOpen,
+			changed,
+			math.floor(Economy.incomePerSecond(profile) + 0.5)
+		),
+		"good"
+	)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -585,6 +636,7 @@ function CafeService.start()
 
 	Net.on("PlaceCat", onPlaceCat)
 	Net.on("UnplaceCat", onUnplaceCat)
+	Net.on("EquipBest", onEquipBest)
 	Net.on("SellCat", onSellCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)

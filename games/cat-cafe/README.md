@@ -28,7 +28,7 @@ Check gate: `./check.ps1` (Windows) or `./check.sh`. Cloud stand-in without Roki
 | Area | Done | Where |
 |---|---|---|
 | World | street, 8 plots (floor, walls, door zone, sign, counter, espresso by level, spot furniture, decor anchors, table anchors, customer waypoints), alley with 8 spawn points, 2 bait spots and 2 rescue spots (drainpipe, crate stack), park with 10, 3 and 3 (two trees, a crate stack) plus a gate | `src/server/World/` |
-| Clock | 3 min day, 2 min night, first night 2 min after the server starts; `ReplicatedStorage.Clock` attributes `Phase` and `PhaseEndsAt` (server time); cafe signs read Closed at night; the client tweens the sky and switches the street lamps | `Services/ClockService.luau`, `shared/Clock.luau`, `client/Controllers/WorldController.luau` |
+| Clock | 3 min day, 2 min night, first night 2 min after the server starts; `ReplicatedStorage.Clock` attributes `Phase` and `PhaseEndsAt` (server time); cafe signs read Closed at night; the client tweens the sky to the style guide's section 9 presets and, at night, turns every World part named `_Bulb`, `_Bulbs`, `_Pane` or `_Tube` Neon with its light on | `Services/ClockService.luau`, `shared/Clock.luau`, `client/Controllers/WorldController.luau` |
 | Assets | a Part placeholder for every name in features.md section 5, created only when `ReplicatedStorage.Assets` lacks that name | `World/Placeholders.luau`, `World/AssetRegistry.luau` |
 | Data | ProfileStore sessions, version 1 schema with forward migration, settle on leave, offline gain (25% up to 1 h), BindToClose | `Services/DataService.luau`, `shared/ProfileSchema.luau` |
 | Income | lazy accounting (`Economy.settle`), cafe multiplier, favorite spots, ProfileSync every 10 s and on change, client prediction between | `shared/Economy.luau`, `Services/CafeService.luau` |
@@ -45,6 +45,7 @@ Check gate: `./check.ps1` (Windows) or `./check.sh`. Cloud stand-in without Roki
 
 - Analytics (F16), leaderboards (F17), fast travel (F19), TelemetryReport remote: not started.
 - Tutorial beats are server-advanced (1 near the alley, 2 catch, 3 place, 4 table) and shown as text hints; no arrows beyond the alley marker.
+- Wall props (shop windows, string lights) sit at a `y` above the floor in `Layout.alley.props`, front (-Z) turned into the alley.
 - Spot sit offsets are the placeholder numbers in `World/Layout.luau`; real furniture from the asset thread may need the `sit_point` values from its manifest.
 - Customers are client-only and use the placeholder blocky models, one per chair.
 - Selene's Roblox standard library cannot be downloaded in the cloud; CI runs the real selene. Cloud threads lint with a minimal stand-in std (see the engineering notes in project memory).

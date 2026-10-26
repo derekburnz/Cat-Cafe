@@ -27,6 +27,8 @@ export type Plot = {
 	tables: Folder,
 	customerEntry: BasePart,
 	espresso: BasePart,
+	backDoor: BasePart, -- a wall panel until expansion 1 opens
+	expansions: { Model }, -- Expansions/<n>, hidden until the owner's tier opens them
 }
 
 export type AreaInfo = {
@@ -131,6 +133,24 @@ local function place(asset: string, cframe: CFrame, parent: Instance): Model
 	return model
 end
 
+-- A closed expansion is invisible and walk-through; an open one is solid floor.
+function WorldBuilder.setExpansionOpen(expansion: Model, open: boolean)
+	expansion:SetAttribute("Open", open)
+	for _, descendant in expansion:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local floor = descendant :: BasePart
+			floor.Transparency = if open then 0 else 1
+			floor.CanCollide = open
+			floor.CanQuery = open
+		end
+	end
+end
+
+function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
+	plot.backDoor.CanCollide = not open
+	plot.backDoor.Transparency = if open then 1 else 0
+end
+
 local function buildPlot(index: number, parent: Instance): Plot
 	local placement = Layout.plotPlacement(index)
 	local origin = Vector3.new(placement.x, 0.2, placement.z)
@@ -155,10 +175,30 @@ local function buildPlot(index: number, parent: Instance): Plot
 		model
 	)
 	local walls = folder("Walls", model)
+	-- The back wall has a door-sized panel that opens with the first expansion.
+	local door0 = Layout.plot.backDoor
+	local backLeft = door0.x - door0.width / 2 + halfW + 0.5 -- from the left corner to the door
+	local backRight = halfW + 0.5 - (door0.x + door0.width / 2) -- from the door to the right corner
 	part(
-		"WallBack",
-		Vector3.new(W.PlotWidth + 1, wallH, 1),
-		cframe * CFrame.new(0, wallH / 2, halfD + 0.5),
+		"WallBackL",
+		Vector3.new(backLeft, wallH, 1),
+		cframe * CFrame.new(-halfW - 0.5 + backLeft / 2, wallH / 2, halfD + 0.5),
+		CREAM,
+		Enum.Material.SmoothPlastic,
+		walls
+	)
+	part(
+		"WallBackR",
+		Vector3.new(backRight, wallH, 1),
+		cframe * CFrame.new(halfW + 0.5 - backRight / 2, wallH / 2, halfD + 0.5),
+		CREAM,
+		Enum.Material.SmoothPlastic,
+		walls
+	)
+	local backDoor = part(
+		"BackDoor",
+		Vector3.new(door0.width, wallH, 1),
+		cframe * CFrame.new(door0.x, wallH / 2, halfD + 0.5),
 		CREAM,
 		Enum.Material.SmoothPlastic,
 		walls
@@ -288,6 +328,25 @@ local function buildPlot(index: number, parent: Instance): Plot
 		table.insert(tableAnchors, a)
 	end
 
+	local expansionsFolder = folder("Expansions", model)
+	local expansions: { Model } = {}
+	for n, rect in Layout.plot.expansions do
+		local expansion = Instance.new("Model")
+		expansion.Name = tostring(n)
+		local floor = part(
+			"Floor",
+			Vector3.new(rect.x2 - rect.x1, 0.4, rect.z2 - rect.z1),
+			cframe * CFrame.new((rect.x1 + rect.x2) / 2, -0.2, (rect.z1 + rect.z2) / 2),
+			if n == 3 then Color3.fromRGB(205, 200, 190) else CARAMEL,
+			if n == 3 then Enum.Material.Slate else Enum.Material.WoodPlanks,
+			expansion
+		)
+		expansion.PrimaryPart = floor
+		expansion.Parent = expansionsFolder
+		WorldBuilder.setExpansionOpen(expansion, false)
+		table.insert(expansions, expansion)
+	end
+
 	local waypoints = folder("CustomerWaypoints", model)
 	local entry = anchor("Entry", localCFrame(cframe, Layout.plot.entry), waypoints)
 	anchor("Door", localCFrame(cframe, Layout.plot.door), waypoints)
@@ -307,6 +366,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 		tables = folder("Tables", model),
 		customerEntry = entry,
 		espresso = espresso,
+		backDoor = backDoor,
+		expansions = expansions,
 	}
 	model.Parent = parent
 	return plot

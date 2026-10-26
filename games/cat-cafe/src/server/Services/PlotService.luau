@@ -61,6 +61,7 @@ function PlotService.release(player: Player)
 	plotOf[player] = nil
 	owners[plot.index] = nil
 	plot.model:SetAttribute("OwnerUserId", 0)
+	plot.model:SetAttribute("Tier", 0)
 	plot.sign.Text = "Cafe for rent"
 	plot.cats:ClearAllChildren()
 	plot.decor:ClearAllChildren()
@@ -69,6 +70,10 @@ function PlotService.release(player: Player)
 	if espresso ~= nil then
 		espresso:Destroy()
 	end
+	for _, expansion in plot.expansions do
+		WorldBuilder.setExpansionOpen(expansion, false)
+	end
+	WorldBuilder.setBackDoorOpen(plot, false)
 end
 
 function PlotService.get(player: Player): WorldBuilder.Plot?

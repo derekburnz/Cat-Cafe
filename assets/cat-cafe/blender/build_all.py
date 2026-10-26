@@ -68,6 +68,8 @@ def parse_args():
     p.add_argument("--docs", default=os.path.join(ROOT, "docs", "concepts", "cat-cafe"))
     p.add_argument("--render", action="store_true", help="render a preview PNG and a five-view sheet per asset")
     p.add_argument("--no-views", action="store_true", help="with --render: skip the five-view sheets")
+    p.add_argument("--views-engine", choices=common.VIEW_ENGINES, default="auto",
+                   help="sheet renderer; auto = Workbench where it can run, else Cycles CPU")
     p.add_argument("--scenes", action="store_true", help="render the cafe and alley vignettes")
     p.add_argument("--no-export", action="store_true")
     p.add_argument("--no-reset", action="store_true", help="keep the current scene (GUI use)")
@@ -96,6 +98,8 @@ def main():
 
     wanted = [s.strip() for s in args.only.split(",") if s.strip()]
     manifest, failed, built = [], [], {}
+    if args.render and not args.no_views:
+        print("view sheets:", common.resolve_views_engine(args.views_engine))
     for name, (fn, budget, module) in all_assets().items():
         if wanted and not any(w.lower() in name.lower() for w in wanted):
             continue
@@ -131,7 +135,7 @@ def main():
             entry["preview"] = os.path.relpath(path, ROOT)
             if not args.no_views:
                 vpath = os.path.join(args.docs, "views", name + ".png")
-                common.render_views(visible, vpath)
+                common.render_views(visible, vpath, engine=args.views_engine)
                 entry["views"] = os.path.relpath(vpath, ROOT)
         g = entry["gates"]
         flag = "ok" if g["pass"] else "FAIL " + ",".join(g["failed"])

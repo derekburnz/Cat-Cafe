@@ -6,6 +6,7 @@ Works both as a script inside Blender (blender -b -P build_all.py) and with the
 
 import math
 import os
+import sys
 
 import bmesh
 import bpy
@@ -352,30 +353,71 @@ VIEWS = (
 )
 
 
-def render_views(objs, path, size=256, margin=1.12, bg=(0.96, 0.92, 0.87)):
-    """Five-view inspection sheet (front, left, back, top, three-quarter) with Workbench.
+VIEW_ENGINES = ("auto", "workbench", "cycles")
+
+
+def workbench_available():
+    """True when the Workbench engine can render in this process.
+
+    Workbench draws through a GPU context. The pip ``bpy`` module on Linux opens that context with
+    EGL, and when libEGL is missing (a cloud container) Blender aborts the whole process with
+    SIGABRT rather than raising, so this is checked before any render call. Blender itself (GUI or
+    ``blender -b``) and the module on Windows and macOS are fine.
+    """
+    if sys.platform != "linux":
+        return True
+    import ctypes.util
+
+    return ctypes.util.find_library("EGL") is not None
+
+
+def resolve_views_engine(engine="auto"):
+    """'auto' means Workbench where it can run, Cycles CPU otherwise."""
+    if engine not in VIEW_ENGINES:
+        raise ValueError(f"engine must be one of {VIEW_ENGINES}, got {engine!r}")
+    if engine == "auto":
+        return "workbench" if workbench_available() else "cycles"
+    return engine
+
+
+def render_views(objs, path, size=256, margin=1.12, bg=(0.96, 0.92, 0.87), engine="auto", samples=16):
+    """Five-view inspection sheet (front, left, back, top, three-quarter).
 
     Flat, fast and textured with the palette, so silhouettes, pivots and swatch mistakes are
     readable at a glance. Idea from ozanzeng/blender-LPM-skill (render_views.py). Writes one PNG
-    of 5 tiles side by side and returns its path.
+    of 5 tiles side by side and returns its path. Workbench where it can run (see
+    workbench_available), otherwise Cycles CPU with `samples` samples and a transparent film that
+    contact_sheet composites over `bg`; `engine` forces one of the two.
     """
     import contact_sheet
 
     sc = bpy.context.scene
-    prev_engine = sc.render.engine
-    sc.render.engine = "BLENDER_WORKBENCH"
-    sh = sc.display.shading
-    sh.light = "STUDIO"
-    sh.color_type = "TEXTURE"
-    sh.show_object_outline = True
-    sh.show_shadows = False
-    sh.show_cavity = False
-    sh.background_type = "VIEWPORT"
-    sh.background_color = bg
-    sc.display.render_aa = "FXAA"
+    prev_engine, prev_transparent = sc.render.engine, sc.render.film_transparent
+    engine = resolve_views_engine(engine)
+    restore = []
+    if engine == "workbench":
+        sc.render.engine = "BLENDER_WORKBENCH"
+        sh = sc.display.shading
+        sh.light = "STUDIO"
+        sh.color_type = "TEXTURE"
+        sh.show_object_outline = True
+        sh.show_shadows = False
+        sh.show_cavity = False
+        sh.background_type = "VIEWPORT"
+        sh.background_color = bg
+        sc.display.render_aa = "FXAA"
+        sc.render.film_transparent = False
+    else:
+        sc.render.engine = "CYCLES"
+        sc.cycles.device = "CPU"
+        prev_samples = sc.cycles.samples
+        sc.cycles.samples = samples
+        sc.cycles.use_denoising = True
+        sc.render.film_transparent = True       # same lights as the previews, bg added by the tiler
+        _ensure_lights(True)
+        restore.append(lambda: setattr(sc.cycles, "samples", prev_samples))
     sc.render.resolution_x = sc.render.resolution_y = size
     sc.render.resolution_percentage = 100
-    sc.render.film_transparent = False
     sc.render.image_settings.file_format = "PNG"
     sc.view_settings.view_transform = "Standard"
 
@@ -415,7 +457,7 @@ def render_views(objs, path, size=256, margin=1.12, bg=(0.96, 0.92, 0.87)):
             cam.data.ortho_scale = max(ext, 0.5) * margin
         else:
             cam.data.clip_end = radius * 20
-            cam.location = center + d * (radius * margin / math.sin(cam.data.angle_y / 2))
+            cam.location = center + d * (radius * margin / math.sin(cam.data.angle / 2))   # square tile: fitted fov
             cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
         tile = os.path.join(os.path.dirname(path), f"._view_{vname}.png")
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -431,6 +473,9 @@ def render_views(objs, path, size=256, margin=1.12, bg=(0.96, 0.92, 0.87)):
             pass
     for ob in hidden:
         ob.hide_render = False
+    for fn in restore:
+        fn()
     cam.data.type = "PERSP"
     sc.render.engine = prev_engine
+    sc.render.film_transparent = prev_transparent
     return path

@@ -32,11 +32,26 @@ def _downscale(w, h, px, f):
     return nw, nh, out
 
 
+def _over(px, bg):
+    """Straight-alpha pixels composited over the opaque sheet colour (Cycles view tiles)."""
+    out = list(px)
+    for i in range(0, len(px), 4):
+        a = px[i + 3]
+        if a < 1.0:
+            out[i] = px[i] * a + bg[0] * (1.0 - a)
+            out[i + 1] = px[i + 1] * a + bg[1] * (1.0 - a)
+            out[i + 2] = px[i + 2] * a + bg[2] * (1.0 - a)
+            out[i + 3] = 1.0
+    return out
+
+
 def sheet(paths, out_path, cols=4, factor=2, bg=(0.96, 0.92, 0.87, 1.0)):
     tiles = []
     for p in paths:
         if os.path.exists(p):
             w, h, px = _load(p)
+            if min(px[3::4]) < 1.0:
+                px = _over(px, bg)
             tiles.append(_downscale(w, h, px, factor))
     if not tiles:
         return None

@@ -37,7 +37,7 @@ local SPOT_ROW = 48
 local CONFIRM_SELL_FROM = 2
 -- Shown on the confirm button so the player sees the price before agreeing (data-model section 2).
 local RARITY_SELL_VALUE: { [string]: number } =
-	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Secret = 10000 }
+	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
 
 local CatCollection = {}
 CatCollection.__index = CatCollection
@@ -260,7 +260,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		UDim2.new(1, 0, 1, -(DETAIL_HEIGHT + Theme.sizes.gap))
 	)
 
-	-- Cat room: list of owned cats; spot picker slides in on Place
+	-- Cat room: list of owned cats; the role picker slides in on Assign
 	self._room = Create("Frame", {
 		Name = "Room",
 		BackgroundTransparency = 1,
@@ -275,10 +275,10 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
 		TextWrapped = true,
-		Text = "Placed cats earn. Resting cats wait in the back room.",
+		Text = "Working cats earn. Resting cats wait in the cat room.",
 		Parent = self._room,
 	})
-	-- Equip best: the server picks the highest-rated cats for the open spots (cat stats thread)
+	-- Equip best: the server picks the highest-rated cats for the open role slots (cat stats thread)
 	self._equipBest = Button.new({
 		name = "EquipBest",
 		text = "Equip best",
@@ -314,7 +314,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Size = UDim2.new(1, -70, 0, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
-		Text = "Pick a spot",
+		Text = "Pick a role",
 		ZIndex = 6,
 		Parent = self._spotPicker,
 	})
@@ -374,19 +374,16 @@ function CatCollection._select(self: any, catId: string)
 	self._detailName.Text = if found then def.name else "Not found yet"
 	local meta = {}
 	table.insert(meta, Format.rate(def.incomePerSecond))
-	if def.favoriteSpot then
-		table.insert(meta, "loves the " .. def.favoriteSpot)
+	if def.favoriteRole then
+		table.insert(meta, "loves " .. Format.roleName(def.favoriteRole))
 	end
 	if def.area then
-		table.insert(
-			meta,
-			"found in " .. (if def.area == "both" then "the alley and park" else "the " .. def.area)
-		)
+		table.insert(meta, "found in the " .. Format.areaName(def.area))
 	end
 	self._detailMeta.Text = table.concat(meta, "  ·  ")
 	self._detailDesc.Text = if found
 		then (def.description or "")
-		else "Keep looking in the " .. (if def.area == "park" then "park" else "alley") .. "."
+		else "Keep looking in the " .. Format.areaName(def.area or "alley") .. "."
 	self._detailPill.Visible = true
 	self._detailPill.Text = def.rarity
 	self._detailPill.BackgroundColor3 = Theme.rarityColor(def.rarity)
@@ -536,9 +533,23 @@ function CatCollection._buildSpots(self: any)
 		return
 	end
 	assert(catalog, "catalog not set; call UI.init first")
-	for index, spot in catalog.spots :: { Types.SpotDef } do
+	-- One row per role (F25): Assign picks the first free open slot of that role, so the player chooses
+	-- the job and never a slot number.
+	local slotsByRole: { [string]: { Types.SpotDef } } = {}
+	local roles: { string } = {}
+	for _, spot in catalog.spots :: { Types.SpotDef } do
+		local list = slotsByRole[spot.spotType]
+		if not list then
+			list = {}
+			slotsByRole[spot.spotType] = list
+			table.insert(roles, spot.spotType)
+		end
+		table.insert(list, spot)
+	end
+	for index, role in roles do
+		local entry: { [string]: any } = { role = role, slots = slotsByRole[role], freeSlot = nil }
 		local row: Frame = Create("Frame", {
-			Name = spot.id,
+			Name = role,
 			BackgroundColor3 = Theme.modal.panel,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1, 0, 0, SPOT_ROW),
@@ -552,7 +563,7 @@ function CatCollection._buildSpots(self: any)
 			Size = UDim2.new(1, -100, 0, 22),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textSmall + 1,
-			Text = spot.id,
+			Text = Format.roleName(role),
 			ZIndex = 7,
 			Parent = row,
 		})
@@ -568,7 +579,7 @@ function CatCollection._buildSpots(self: any)
 		})
 		local button = Button.new({
 			name = "Pick",
-			text = "Place",
+			text = "Assign",
 			style = "primary",
 			size = UDim2.fromOffset(78, 38),
 			anchorPoint = Vector2.new(1, 0.5),
@@ -578,17 +589,19 @@ function CatCollection._buildSpots(self: any)
 			zIndex = 7,
 			onClick = function()
 				local uid = self._placing
-				if uid then
-					self._callbacks.placeCat(uid, spot.id)
+				local spotId: string? = entry.freeSlot
+				if uid and spotId then
+					self._callbacks.placeCat(uid, spotId)
 					self._placing = nil
 					self._spotPicker.Visible = false
 				end
 			end,
 		})
-		table.insert(
-			self._spotRows,
-			{ frame = row, label = label, sub = sub, button = button, def = spot }
-		)
+		entry.frame = row
+		entry.label = label
+		entry.sub = sub
+		entry.button = button
+		table.insert(self._spotRows, entry)
 	end
 end
 
@@ -691,9 +704,29 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 		Text = "",
 		Parent = frame,
 	})
+	-- Favorite role tag (F25): a small pill under the status, gold while the cat works that role
+	local favorite = text({
+		Name = "FavoriteRole",
+		Position = UDim2.fromOffset(72, 56),
+		Size = UDim2.fromOffset(0, 16),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.modal.panel,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.modal.subtext,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = if def then "Loves " .. Format.roleName(def.favoriteRole) else "",
+		Visible = def ~= nil,
+		Parent = frame,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = favorite })
+	Create(
+		"UIPadding",
+		{ PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6), Parent = favorite }
+	)
 	local place = Button.new({
 		name = "Place",
-		text = "Place",
+		text = "Assign",
 		style = "secondary",
 		size = UDim2.fromOffset(84, 40),
 		anchorPoint = Vector2.new(1, 0.5),
@@ -755,6 +788,7 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 		frame = frame,
 		name = name,
 		status = status,
+		favorite = favorite,
 		place = place,
 		remove = remove,
 		sell = sell,
@@ -780,28 +814,38 @@ function CatCollection._renderSpots(self: any, state: Types.PlayerState)
 		end
 	end
 	for _, row in self._spotRows do
-		local spot: Types.SpotDef = row.def
-		local open = state.cafeLevel >= spot.cafeLevel
-		local occupant = occupied[spot.id]
-		local favorite = placingDef ~= nil
-			and (placingDef :: Types.CatDef).favoriteSpot == spot.spotType
-		row.label.Text = spot.spotType:sub(1, 1):upper()
-			.. spot.spotType:sub(2)
-			.. " "
-			.. (spot.id:match("%d+$") or "")
-		if not open then
-			row.sub.Text = "Opens at cafe " .. Format.level(spot.cafeLevel)
+		local role: string = row.role
+		local open, free = 0, 0
+		local firstFree: string? = nil
+		local nextTier: number? = nil
+		for _, spot in row.slots :: { Types.SpotDef } do
+			if state.tier >= spot.tier then
+				open += 1
+				if not occupied[spot.id] then
+					free += 1
+					firstFree = firstFree or spot.id
+				end
+			elseif nextTier == nil or spot.tier < (nextTier :: number) then
+				nextTier = spot.tier
+			end
+		end
+		row.freeSlot = firstFree
+		local favorite = placingDef ~= nil and (placingDef :: Types.CatDef).favoriteRole == role
+		row.label.Text = Format.roleName(role) .. (if favorite then "  ★ 1.5x" else "")
+		row.label.TextColor3 = if favorite then Theme.colors.caramelDark else Theme.modal.text
+		row.button:setStyle(if favorite then "gold" else "primary")
+		if open == 0 then
+			row.sub.Text = "Opens at " .. Format.tier(nextTier or 1)
 			row.button:setText("Locked")
 			row.button:setEnabled(false)
-		elseif occupant then
-			local occDef: Types.CatDef? = self._catById[occupant]
-			row.sub.Text = "Taken by " .. (if occDef then occDef.name else occupant)
-			row.button:setText("Taken")
+		elseif free == 0 then
+			row.sub.Text = ("All %d taken"):format(open)
+				.. (if nextTier then ", more at " .. Format.tier(nextTier :: number) else "")
+			row.button:setText("Full")
 			row.button:setEnabled(false)
 		else
-			row.sub.Text = if favorite then "Favorite spot, 1.5x tips" else "Empty"
-			row.button:setText(if favorite then "Place ★" else "Place")
-			row.button:setStyle(if favorite then "gold" else "primary")
+			row.sub.Text = ("%d of %d free"):format(free, open)
+			row.button:setText("Assign")
 			row.button:setEnabled(true)
 		end
 	end
@@ -906,23 +950,34 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 				local spot = spotsById[instance.spotId :: string]
 				local favorite = def ~= nil
 					and spot ~= nil
-					and (def :: Types.CatDef).favoriteSpot == spot.spotType
-				row.status.Text = ("%s%s  ·  On %s%s"):format(
+					and (def :: Types.CatDef).favoriteRole == spot.spotType
+				local slotName = if spot
+					then Format.roleName(spot.spotType) .. " " .. (spot.id:match("%d+$") or "")
+					else instance.spotId :: string
+				row.status.Text = ("%s%s  ·  %s%s"):format(
 					if stats ~= "" then stats .. "  " else "",
 					Format.rate(rate * (if favorite then 1.5 else 1)),
-					instance.spotId :: string,
-					if favorite then "  ·  favorite spot" else ""
+					slotName,
+					if favorite then "  ·  favorite role" else ""
 				)
+				row.favorite.BackgroundColor3 = if favorite
+					then Theme.colors.gold
+					else Theme.modal.panel
+				row.favorite.TextColor3 = if favorite
+					then Theme.colors.goldText
+					else Theme.modal.subtext
 				row.place:setText("Move")
 				row.remove:setEnabled(true)
 				row.remove:setText("Rest")
 			else
 				resting += 1
-				row.status.Text = ("%s%s when placed  ·  Resting"):format(
+				row.status.Text = ("%s%s when working  ·  Resting"):format(
 					if stats ~= "" then stats .. "  " else "",
 					Format.rate(rate)
 				)
-				row.place:setText("Place")
+				row.favorite.BackgroundColor3 = Theme.modal.panel
+				row.favorite.TextColor3 = Theme.modal.subtext
+				row.place:setText("Assign")
 				row.remove:setEnabled(false)
 				row.remove:setText("Rest")
 			end

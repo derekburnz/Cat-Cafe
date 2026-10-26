@@ -64,7 +64,7 @@ local function hasRestingCatAndFreeSpot(s: Types.PlayerState): boolean
 		return false
 	end
 	for _, spot in Catalog.spots do
-		if s.cafeLevel >= spot.cafeLevel and not used[spot.id] then
+		if s.tier >= spot.tier and not used[spot.id] then
 			return true
 		end
 	end
@@ -84,7 +84,7 @@ local function refreshTutorial(s: Types.PlayerState)
 		)
 	elseif s.tutorialStep == 2 then
 		if hasRestingCatAndFreeSpot(s) then
-			UI.tutorial.show("Open the Collection (C) and place your new cat on a spot")
+			UI.tutorial.show("Open the Collection (C) and give your new cat a role")
 		else
 			UI.tutorial.show("Catch more cats in the alley, or buy a table in Upgrades (U)")
 		end
@@ -103,7 +103,7 @@ local function applyState(s: Types.PlayerState)
 	UI.update({
 		money = s.money,
 		incomePerSecond = s.incomePerSecond,
-		cafeLevel = s.cafeLevel,
+		tier = s.tier,
 		cafeProgress = s.cafeProgress,
 		cafeProgressText = s.cafeProgressText,
 		tables = s.tables,
@@ -115,6 +115,7 @@ local function applyState(s: Types.PlayerState)
 		equippedLure = s.equippedLure,
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
+		shinyCollection = s.shinyCollection,
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
 	})
@@ -289,7 +290,7 @@ local function startPrediction()
 end
 
 function UIController.start()
-	-- Same shapes as UI/Types.luau, but our catalogs use literal unions (rarity, area, spot type) where the
+	-- Same shapes as UI/Types.luau, but our catalogs use literal unions (rarity, area, role) where the
 	-- UI declares string; Luau table properties are invariant, so the catalog is handed over as any.
 	local catalog: any = {
 		cats = Catalog.cats,
@@ -297,6 +298,8 @@ function UIController.start()
 		decor = Catalog.decor,
 		lures = Catalog.lures,
 		spots = Catalog.spots,
+		tiers = Catalog.tiers,
+		areas = Catalog.areas,
 	}
 	UI.init({ catalog = catalog, keybinds = true })
 	UI.catch.bindProximityPrompts()

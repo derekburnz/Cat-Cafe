@@ -981,12 +981,9 @@ function Placeholders.build(name: string): Model?
 	if builder ~= nil then
 		return builder()
 	end
-	local catId = name:match("^CatCafe_Cat_(%w+)$")
-	if catId ~= nil then
-		local def = Catalog.getCat(catId:lower())
-		if def ~= nil then
-			return Placeholders.cat(def)
-		end
+	local catDef = Catalog.catsByModelName[name]
+	if catDef ~= nil then
+		return Placeholders.cat(catDef)
 	end
 	local variant = name:match("^CatCafe_NPC_Customer_(%u)$")
 	if variant ~= nil then

@@ -56,7 +56,7 @@ function Catching.succeeds(chance: number, roll: number): boolean
 end
 
 function Catching.fleesOnMiss(rarity: Types.Rarity): boolean
-	return Catalog.rarities[rarity].fleesOnMiss
+	return Catalog.rarities[rarity].fleesOnFail
 end
 
 local function oddsTotal(odds: Types.LureOdds): number
@@ -91,21 +91,23 @@ function Catching.pickRarity(odds: Types.LureOdds, roll: number): Types.Rarity
 	return "Common"
 end
 
--- Rescue odds (data-model section 10): the area's odds with the Rare weight doubled, scaled back to 100.
--- The alley's 75 / 20 / 4.5 / 0.5 becomes 62.5 / 33.3 / 3.75 / 0.42.
+-- Rescue odds (data-model section 10b): the area's odds with every non-Common weight doubled, scaled back to
+-- 100. The Alleyway's 72 / 22 / 5 / 0.9 / 0.1 becomes 56.25 / 34.375 / 7.8125 / 1.40625 / 0.15625.
 function Catching.rescueOdds(odds: Types.LureOdds): Types.LureOdds
-	local weighted =
-		{ Common = odds.Common, Rare = odds.Rare * 2, Epic = odds.Epic, Legendary = odds.Legendary }
-	local total = weighted.Common + weighted.Rare + weighted.Epic + weighted.Legendary
+	local common = odds.Common
+	local rare, epic = odds.Rare * 2, odds.Epic * 2
+	local legendary, mythical = odds.Legendary * 2, odds.Mythical * 2
+	local total = common + rare + epic + legendary + mythical
 	if total <= 0 then
-		return { Common = 100, Rare = 0, Epic = 0, Legendary = 0 }
+		return { Common = 100, Rare = 0, Epic = 0, Legendary = 0, Mythical = 0 }
 	end
 	local scale = 100 / total
 	return {
-		Common = weighted.Common * scale,
-		Rare = weighted.Rare * scale,
-		Epic = weighted.Epic * scale,
-		Legendary = weighted.Legendary * scale,
+		Common = common * scale,
+		Rare = rare * scale,
+		Epic = epic * scale,
+		Legendary = legendary * scale,
+		Mythical = mythical * scale,
 	}
 end
 
@@ -113,7 +115,7 @@ end
 function Catching.candidates(rarity: Types.Rarity, area: string): { Types.CatDef }
 	local out: { Types.CatDef } = {}
 	for _, def in Catalog.cats do
-		if def.rarity == rarity and (def.area == "both" or def.area == area) then
+		if def.rarity == rarity and def.area == area then
 			table.insert(out, def)
 		end
 	end

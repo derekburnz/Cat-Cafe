@@ -1,5 +1,5 @@
 --!strict
--- Client-side world touches: the park gate opens once the Park pass is owned, check-in fires itself at the
+-- Client-side world touches: the park gate opens once the cafe reaches the Park's tier, check-in fires itself at the
 -- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, and the
 -- sky and the parts that glow at night follow the server's day and night clock (features F20). All cosmetic,
 -- all local.
@@ -11,6 +11,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(script.Parent.Parent.Net)
 local UIController = require(script.Parent.UIController)
@@ -18,6 +19,8 @@ local UIController = require(script.Parent.UIController)
 local WorldController = {}
 
 local player = Players.LocalPlayer
+local parkArea = Catalog.getArea("park")
+local parkTier = if parkArea ~= nil then parkArea.tier else 2
 
 local function rootPosition(): Vector3?
 	local character = player.Character
@@ -242,7 +245,7 @@ function WorldController.start()
 				continue
 			end
 
-			local gateOpen = (state.upgradeLevels.park_access or 0) >= 1
+			local gateOpen = state.tier >= parkTier
 			if gateOpen ~= lastGateOpen then
 				lastGateOpen = gateOpen
 				setGateOpen(gateOpen)

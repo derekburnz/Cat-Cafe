@@ -313,7 +313,9 @@ function Popups.showCatFound(self: any, def: Types.CatDef, isNew: boolean?)
 		self._catGlyph.Text = def.name:sub(1, 1)
 		self._catName.Text = def.name
 		self._catMeta.Text = Format.rate(def.incomePerSecond)
-			.. (if def.favoriteSpot then "  ·  loves the " .. def.favoriteSpot else "")
+			.. (
+				if def.favoriteRole then "  ·  loves " .. Format.roleName(def.favoriteRole) else ""
+			)
 		self._catDesc.Text = def.description or ""
 		-- sparkles burst from the portrait
 		for index, sparkle in self._sparkles do

@@ -1,6 +1,8 @@
 --!strict
--- Config.luau against the tuning table in data-model.md section 17 (DesignParity), design v0.2.
--- World layout numbers in Config.World are the engineer's and are not checked here.
+-- Config.luau against the tuning table in data-model.md section 17 (DesignParity), design v0.3.1.
+-- `expected` holds what is built: v0.2 values the code still uses plus the v0.3 changes whose feature has landed.
+-- `pending` lists the v0.3 values still to come, by feature; move a row into `expected` when its feature lands
+-- (and delete the v0.2 row it replaces). World layout numbers in Config.World are the engineer's.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Config = require(Shared.Config)
@@ -23,7 +25,7 @@ return function()
 		RescueSpawnChance = 0.5,
 		RescueHoldSeconds = 4,
 		RescueLockSeconds = 6,
-		RescuedTipsMultiplier = 1.10,
+		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
 		GrabHoldSeconds = 1.5,
 		GrabLockSeconds = 3,
@@ -63,7 +65,51 @@ return function()
 		CatXpBase = 60,
 		CatXpPerSecondPlaced = 1,
 		CharmSpread = 0.20,
-		RenovateBonus = 0.25,
+		ShinyMultiplier = 1.5, -- v0.3 (F22)
+	}
+
+	-- v0.3 section 17 values not built yet: name -> { value, feature }
+	local pending: { [string]: { any } } = {
+		DayLengthSeconds = { 300, "F23" },
+		NightLengthSeconds = { 300, "F23" },
+		WaveSize = { 10, "F23" },
+		CircleLeadInSeconds = { 0.6, "F26" },
+		CircleGapMin = { 0.40, "F26" },
+		CircleGapMax = { 0.75, "F26" },
+		CircleScorePerfect = { 1.0, "F26" },
+		CircleScoreGood = { 0.5, "F26" },
+		CatchLatencyCapSeconds = { 0.15, "F26" },
+		RescueSpawnChance = { 0.6, "F27" },
+		RescueMinStuck = { 1, "F27" },
+		RescueTolerance = { 0.03, "F27" },
+		RescuePatience = { 3, "F27" },
+		RescueRetrySeconds = { 3, "F27" },
+		RescueSelfRetrySeconds = { 6, "F27" },
+		RescueAttemptMaxSeconds = { 15, "F27" },
+		LureWaitSeconds = { 600, "F28" },
+		BaitBowlRangeStuds = { 12, "F28" },
+		BumpEnabled = { true, "F29" },
+		BumpRangeStuds = { 6, "F29" },
+		BumpChance = { 0.5, "F29" },
+		BumpGraceSeconds = { 3, "F29" },
+		BumpSafeRadiusStuds = { 15, "F29" },
+		BumpCooldownSeconds = { 12, "F29" },
+		BumpSameTargetSeconds = { 60, "F29" },
+		DropOwnerPrioritySeconds = { 8, "F29" },
+		DroppedMinStaySeconds = { 120, "F29" },
+		ShinyChanceNet = { 0.02, "F30" },
+		ShinyChanceBait = { 0.02, "F30" },
+		ShinyChanceRescue = { 0.10, "F30" },
+		NightIncomeMultiplier = { 0.6, "F31" },
+		CustomerSpawnSecondsNight = { 12, "F31" },
+		RichCheckSeconds = { 60, "F31" },
+		RichChance = { 0.15, "F31" },
+		RichTipSeconds = { 45, "F31" },
+		RichTipStaySeconds = { 90, "F31" },
+		DealerRangeStuds = { 12, "F32" },
+		DealerWindowSeconds = { 600, "F32" },
+		CatNameMaxLength = { 20, "F33" },
+		RenameCooldownSeconds = { 5, "F33" },
 	}
 
 	describe("data-model section 17 constants", function()
@@ -78,6 +124,14 @@ return function()
 				end
 			end)
 		end
+
+		for name, row in pairs(pending) do
+			it(string.format("%s = %s (%s)", name, tostring(row[1]), row[2]))
+		end
+
+		it("RenovateBonus is gone: tiers replace rebirth and nothing resets (section 5b)", function()
+			expect((Config :: any).RenovateBonus).never.to.be.ok()
+		end)
 
 		it("has no extra top level tuning numbers the doc does not know about", function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
@@ -148,14 +202,14 @@ return function()
 		)
 
 		it(
-			"rescue: the lock outlives the hold, the chance is a probability, rescued cats earn more",
+			"rescue: the lock outlives the hold, the chance is a probability, a rescue pays no more (v0.3)",
 			function()
 				expect(Config.RescueLockSeconds > Config.RescueHoldSeconds).to.equal(true)
 				expect(Config.RescueHoldSeconds > Config.GrabHoldSeconds).to.equal(true)
 				expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(
 					true
 				)
-				expect(Config.RescuedTipsMultiplier > 1).to.equal(true)
+				expect(Config.RescuedTipsMultiplier).to.equal(1)
 			end
 		)
 

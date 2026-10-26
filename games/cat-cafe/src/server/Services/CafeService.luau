@@ -51,7 +51,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = Economy.incomePerSecond(profile),
-		cafeLevel = Economy.cafeLevel(profile),
+		tier = Economy.tier(profile),
 		cafeProgress = nil,
 		cafeProgressText = nil,
 		tables = Economy.level(profile, "tables"),
@@ -64,6 +64,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		equippedLure = profile.equippedLure,
 		cats = CafeService.catViews(profile),
 		collection = profile.collection,
+		shinyCollection = profile.shinyCollection,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
@@ -82,8 +83,14 @@ end
 
 -- World refresh -------------------------------------------------------------------------------------------
 
-local function ensureLockLabel(furniture: Model, spot: Types.SpotDef): BillboardGui
-	local existing = furniture:FindFirstChild("LockLabel", true)
+-- "Barista", "Waiter": the role a slot holds, for labels and toasts.
+local function roleName(spot: Types.SpotDef): string
+	return spot.spotType:sub(1, 1):upper() .. spot.spotType:sub(2)
+end
+
+-- A label over a role slot this tier has not opened yet.
+local function ensureLockLabel(slot: BasePart, spot: Types.SpotDef): BillboardGui
+	local existing = slot:FindFirstChild("LockLabel")
 	if existing ~= nil and existing:IsA("BillboardGui") then
 		return existing :: BillboardGui
 	end
@@ -99,18 +106,18 @@ local function ensureLockLabel(furniture: Model, spot: Types.SpotDef): Billboard
 	text.Font = Enum.Font.Gotham
 	text.TextColor3 = Color3.fromRGB(240, 240, 240)
 	text.TextStrokeTransparency = 0.3
-	text.Text = string.format("Locked: cafe level %d", spot.cafeLevel)
+	text.Text = string.format("%s: opens at Tier %d", roleName(spot), spot.tier)
 	text.Parent = billboard
-	billboard.Parent = furniture.PrimaryPart or furniture
+	billboard.Parent = slot
 	return billboard
 end
 
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
-	local cafeLevel = Economy.cafeLevel(profile)
+	local tier = Economy.tier(profile)
 	for _, spot in Catalog.spots do
-		local furniture: Model? = plot.spotFurniture[spot.id]
-		if furniture ~= nil then
-			ensureLockLabel(furniture, spot).Enabled = cafeLevel < spot.cafeLevel
+		local slot: BasePart? = plot.spots[spot.id]
+		if slot ~= nil then
+			ensureLockLabel(slot, spot).Enabled = tier < spot.tier
 		end
 	end
 end
@@ -237,12 +244,12 @@ local function advanceTutorial(profile: Profile, step: number)
 	end
 end
 
--- Adds a caught cat to the profile, pays the first-catch reward, auto-places it on a free open spot.
+-- Adds a caught cat to the profile, pays the first-catch reward, puts it to work in a free open role slot.
 -- Returns the instance and whether this cat id was new to the collection.
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 -- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
 -- prompt); otherwise it is rolled here.
--- `rescued` marks a cat freed from a rescue spot; it earns RescuedTipsMultiplier for good (data-model section 10).
+-- `rescued` marks a cat freed from a rescue spot (method "rescue"); every other cat here came by net.
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
@@ -266,6 +273,9 @@ function CafeService.addCaughtCat(
 	local instance = CatStats.newInstance(newUid(), def.id, now, rolled)
 	if rescued == true then
 		instance.rescued = true
+		instance.method = "rescue"
+	else
+		instance.method = "net"
 	end
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
@@ -296,28 +306,24 @@ function CafeService.addCaughtCat(
 				"good"
 			)
 		end
-		if rescued == true then
-			Net.toast(
-				player,
-				string.format(
-					"%s is grateful: +%d%% tips for good",
-					def.name,
-					math.floor((Config.RescuedTipsMultiplier - 1) * 100 + 0.5)
-				),
-				"good"
-			)
-		end
 		local stars = CatStats.starsText(CatStats.stars(CatStats.charm(instance)))
-		if instance.spotId ~= nil then
+		local spot = if instance.spotId ~= nil
+			then Catalog.getSpot(instance.spotId :: string)
+			else nil
+		if spot ~= nil then
 			Net.toast(
 				player,
-				string.format("%s %s is resting on %s", stars, def.name, instance.spotId :: string),
+				string.format("%s %s is working as %s", stars, def.name, roleName(spot)),
 				"info"
 			)
 		else
 			Net.toast(
 				player,
-				string.format("%s %s is in the cat room. Open a spot to place it.", stars, def.name),
+				string.format(
+					"%s %s is in the cat room. Every role is taken; give it one from there.",
+					stars,
+					def.name
+				),
 				"info"
 			)
 		end
@@ -374,19 +380,20 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 	if instance == nil then
 		return
 	end
-	if Catalog.getSpot(spotId) == nil then
+	local spot = Catalog.getSpot(spotId)
+	if spot == nil then
 		return
 	end
 	if not Economy.spotIsOpen(profile, spotId) then
-		Net.toast(player, "That spot is locked. Raise the cafe level.", "warn")
+		Net.toast(player, string.format("That role opens at Tier %d.", spot.tier), "warn")
 		return
 	end
 	if Economy.catOnSpot(profile, spotId) ~= nil then
-		Net.toast(player, "That spot is taken.", "warn")
+		Net.toast(player, "Another cat already has that role.", "warn")
 		return
 	end
 	if instance.spotId ~= nil then
-		Net.toast(player, "Remove the cat from its spot first.", "warn")
+		Net.toast(player, "Take the cat off its current role first.", "warn")
 		return
 	end
 	instance.spotId = spotId
@@ -410,9 +417,9 @@ local function onUnplaceCat(player: Player, rawUid: unknown)
 	CafeService.sync(player)
 end
 
--- Equip best: one tap places the owned cats on the open spots for the highest rate (shared/EquipBest).
+-- Equip best: one tap gives the owned cats the open role slots for the highest rate (shared/EquipBest).
 -- Nothing is bought or sold, so the only check is that the profile is loaded; the plan itself only ever
--- uses spots this cafe level has opened and cats this player owns.
+-- uses slots this tier has opened and cats this player owns.
 local function onEquipBest(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -420,7 +427,7 @@ local function onEquipBest(player: Player)
 	end
 	local plan = EquipBest.plan(profile)
 	if EquipBest.isOptimal(profile, plan) then
-		Net.toast(player, "Your cats are already on their best spots.", "info")
+		Net.toast(player, "Your cats are already in their best roles.", "info")
 		CafeService.sync(player)
 		return
 	end
@@ -431,7 +438,7 @@ local function onEquipBest(player: Player)
 	Net.toast(
 		player,
 		string.format(
-			"Placed %d cats on %d spots (%d moved): $%d/s",
+			"%d cats working in %d roles (%d moved): $%d/s",
 			plan.catsPlaced,
 			plan.spotsOpen,
 			changed,
@@ -550,8 +557,8 @@ local function onBuyLure(player: Player, rawId: unknown)
 		return
 	end
 	local def = Catalog.getLure(lureId)
-	if def == nil then
-		return
+	if def == nil or def.source ~= "shop" then
+		return -- dealer foods are only sold by the night dealer
 	end
 	-- Lures cost coins only, so the paid-random-items policy gate is a no-op in the slice. Logged so the hook exists.
 	local policy = DataService.policy(player)
@@ -609,7 +616,7 @@ local function onClaimOffline(player: Player)
 end
 
 local function onTutorialAdvance(player: Player, rawStep: unknown)
-	local step = Guard.int(rawStep, 1, 4)
+	local step = Guard.int(rawStep, 1, 5)
 	local profile = profileFor(player)
 	if profile == nil or step == nil then
 		return
@@ -640,11 +647,11 @@ local function onLoaded(player: Player, profile: Profile)
 	end
 	print(
 		string.format(
-			"[CafeService] %s loaded: $%d, %d cats, cafe level %d, plot %d",
+			"[CafeService] %s loaded: $%d, %d cats, Tier %d, plot %d",
 			player.Name,
 			math.floor(profile.coins),
 			ProfileSchema.catCount(profile),
-			Economy.cafeLevel(profile),
+			Economy.tier(profile),
 			if plot ~= nil then plot.index else 0
 		)
 	)

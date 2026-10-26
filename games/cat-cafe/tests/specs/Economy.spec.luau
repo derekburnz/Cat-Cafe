@@ -8,7 +8,7 @@ return function()
 
 	-- A fresh profile per data-model section 14. Built here because the engineer's DataService
 	-- (which owns the real template) needs DataStoreService and is Studio-only.
-	local function freshProfile(now: number?)
+	local function freshProfile(now: number?): any
 		local t = now or 1000
 		return {
 			version = 1,
@@ -30,7 +30,7 @@ return function()
 		}
 	end
 
-	local function cat(uid: string, catId: string, spotId: string?, variant: string?)
+	local function cat(uid: string, catId: string, spotId: string?, variant: string?): any
 		return { uid = uid, catId = catId, variant = variant or "base", caughtAt = 0, spotId = spotId }
 	end
 

@@ -45,6 +45,7 @@ UI.events = {
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
 	sellCat = Signal.new(), -- (uid)
+	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	grabEnded = Signal.new(), -- (strayId, ringResult, catId)
@@ -62,7 +63,6 @@ local state: Types.PlayerState = {
 	lures = {},
 }
 
-local catalog: Types.Catalog? = nil
 local catById: { [string]: Types.CatDef } = {}
 local initialized = false
 local visible = true
@@ -91,15 +91,21 @@ local function render()
 	if not initialized then
 		return
 	end
-	assert(hud and upgrades and decor and collection)
-	hud:render(state)
-	upgrades:render(state)
-	decor:render(state)
-	collection:render(state)
+	if hud then
+		hud:render(state)
+	end
+	if upgrades then
+		upgrades:render(state)
+	end
+	if decor then
+		decor:render(state)
+	end
+	if collection then
+		collection:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
-	catalog = newCatalog
 	table.clear(catById)
 	for _, def in newCatalog.cats do
 		catById[def.id] = def
@@ -128,11 +134,13 @@ local function deriveState(partial: Types.PartialState)
 	end
 	if partial.upgradeLevels then
 		local levels = partial.upgradeLevels :: { [string]: number }
-		if partial.cafeLevel == nil and levels.cafe_level then
-			state.cafeLevel = levels.cafe_level
+		local cafeLevel: number? = levels.cafe_level
+		if partial.cafeLevel == nil and cafeLevel ~= nil then
+			state.cafeLevel = cafeLevel
 		end
-		if partial.tables == nil and levels.tables then
-			state.tables = levels.tables
+		local tables: number? = levels.tables
+		if partial.tables == nil and tables ~= nil then
+			state.tables = tables
 		end
 	end
 end
@@ -193,12 +201,15 @@ function UI.init(config: Types.InitConfig)
 		sellCat = function(uid: string)
 			UI.events.sellCat:Fire(uid)
 		end,
+		equipBest = function()
+			UI.events.equipBest:Fire()
+		end,
 		close = closeModal,
 	})
-	assert(upgrades and decor and collection)
-	local upgradesScreen = upgrades
-	local decorScreen = decor
-	local collectionScreen = collection
+	-- explicit casts: Luau does not carry nil refinements into the closures below
+	local upgradesScreen = upgrades :: UpgradeShop.UpgradeShop
+	local decorScreen = decor :: DecorShop.DecorShop
+	local collectionScreen = collection :: CatCollection.CatCollection
 	modalInstance:register("Upgrades", {
 		frame = upgradesScreen.frame,
 		onOpen = function()
@@ -451,12 +462,14 @@ end
 
 -- info.door is the player's own cafe Door part; a marker with distance appears over it.
 function UI.setCarrying(info: Types.CarryInfo?)
-	if not hud or not carryMarker then
+	local hudScreen = hud
+	local marker = carryMarker
+	if not hudScreen or not marker then
 		return
 	end
 	local resolved: Types.CarryInfo? = nil
 	if info then
-		assert(info)
+		assert(info, "carry info missing")
 		local def = lookupCat(info.catId)
 		resolved = {
 			catId = info.catId,
@@ -465,15 +478,11 @@ function UI.setCarrying(info: Types.CarryInfo?)
 			door = info.door,
 		}
 	end
-	hud:setCarrying(resolved)
+	hudScreen:setCarrying(resolved)
 	if resolved and resolved.door then
-		carryMarker:show(
-			resolved.door :: BasePart,
-			"Check in here",
-			Theme.rarityColor(resolved.rarity)
-		)
+		marker:show(resolved.door :: BasePart, "Check in here", Theme.rarityColor(resolved.rarity))
 	else
-		carryMarker:hide()
+		marker:hide()
 	end
 end
 
@@ -527,6 +536,8 @@ function UI.catch.show(info: Types.CatchInfo)
 		holdDuration = info.holdDuration,
 		actionText = info.actionText,
 		keyCode = info.keyCode,
+		stars = info.stars,
+		charm = info.charm,
 	}
 	if catch then
 		catch:show(activeInfo :: Types.CatchInfo)
@@ -595,7 +606,11 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local catName = promptAttribute(prompt, "CatName")
 	local rarity = promptAttribute(prompt, "Rarity")
 	local strayId = promptAttribute(prompt, "StrayId")
+	local stars = promptAttribute(prompt, "Stars")
+	local charm = promptAttribute(prompt, "Charm")
 	return {
+		stars = if type(stars) == "number" then stars else nil,
+		charm = if type(charm) == "number" then charm else nil,
 		catId = if type(catId) == "string" then catId else nil,
 		strayId = if type(strayId) == "string" then strayId else nil,
 		catName = if type(catName) == "string"
@@ -628,8 +643,7 @@ function UI.catch.bindProximityPrompts()
 	if #promptConnections > 0 or not catch then
 		return
 	end
-	local catchScreen = catch
-	assert(catchScreen)
+	local catchScreen = catch :: CatchPrompt.CatchPrompt
 
 	table.insert(
 		promptConnections,

@@ -144,4 +144,4 @@ export type PlayerState = {
 	serverTime: number,
 }
 
-return nil
+return {}

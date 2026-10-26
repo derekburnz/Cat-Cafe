@@ -80,6 +80,13 @@ export type CatInstance = {
 	variant: string?,
 	caughtAt: number?,
 	spotId: string?, -- nil when resting in the cat room
+	-- per-cat stats (cat stats thread); all optional, shown when present
+	level: number?, -- 1 to 10
+	xp: number?,
+	xpToNext: number?,
+	charm: number?, -- 0 to 100
+	stars: number?, -- 1 to 5, derived from charm
+	rating: number?, -- this cat's coins per second before spot and cafe multipliers
 }
 
 export type PlayerState = {
@@ -137,6 +144,8 @@ export type CatchInfo = {
 	holdDuration: number?, -- seconds the ring takes to shrink (default Config GrabHoldSeconds 1.5)
 	actionText: string?, -- default "Hold to grab"
 	keyCode: Enum.KeyCode?, -- default E
+	stars: number?, -- 1 to 5 from the stray's Stars attribute
+	charm: number?, -- 0 to 100 from the stray's Charm attribute
 }
 
 export type RingConfig = {
@@ -158,4 +167,5 @@ export type InitConfig = {
 	parent: Instance?, -- default LocalPlayer.PlayerGui
 }
 
-return nil
+-- ModuleScripts must return a non-nil value.
+return {}

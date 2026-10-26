@@ -7,8 +7,8 @@
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
       "Shared": { "$path": "src/shared" },
-      "Packages": { "$path": { "optional": true, "path": "Packages" } },
-      "Assets": { "$path": { "optional": true, "path": "../../assets/cat-cafe/rbx" } }
+      "Packages": { "$path": { "optional": "Packages" } },
+      "Assets": { "$path": { "optional": "../../assets/cat-cafe/rbx" } }
     },
 
     "ServerScriptService": {
@@ -18,7 +18,7 @@
 
     "ServerStorage": {
       "$className": "ServerStorage",
-      "ServerPackages": { "$path": { "optional": true, "path": "ServerPackages" } }
+      "ServerPackages": { "$path": { "optional": "ServerPackages" } }
     },
 
     "StarterPlayer": {

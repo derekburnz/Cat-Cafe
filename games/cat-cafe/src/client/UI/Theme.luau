@@ -69,7 +69,7 @@ Theme.rarity = {
 	Rare = { color = Color3.fromHex("5FA8FF"), text = Color3.fromHex("FFFFFF") },
 	Epic = { color = Color3.fromHex("C07CFF"), text = Color3.fromHex("FFFFFF") },
 	Legendary = { color = Color3.fromHex("FFC94D"), text = Color3.fromHex("3A2A00") },
-	Secret = { color = Color3.fromHex("44E0FF"), text = Color3.fromHex("0B1F3A") },
+	Secret = { color = Color3.fromHex("3FD0B5"), text = Color3.fromHex("0B1F3A") },
 }
 Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Secret" }
 

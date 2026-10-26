@@ -16,9 +16,11 @@ local Signal = require(ReplicatedStorage.Shared.Signal)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 type Profile = Types.PlayerProfile
+-- ProfileStore wants T & JSONAcceptable; optional fields make PlayerProfile fail that test, so the store is typed any
+-- and ProfileSchema.migrate() is the one place raw data becomes a typed Profile.
 type Session = {
 	profile: Profile,
-	store: ProfileStore.Profile<Profile>,
+	store: ProfileStore.Profile<any>,
 	joinedAt: number,
 	pendingOffline: number,
 	pendingOfflineSeconds: number,
@@ -32,7 +34,11 @@ DataService.onReleasing = Signal.new() :: Signal.Signal<Player, Profile>
 
 local sessions: { [Player]: Session } = {}
 local finalizers: { (player: Player, profile: Profile) -> () } = {}
-local store = ProfileStore.New(Config.ProfileStoreName, ProfileSchema.template(os.time()))
+-- Studio playtests get their own store, so "Enable Studio Access to API Services" never touches live profiles
+-- (DataStores are per experience, not per place).
+local storeName = Config.ProfileStoreName .. (if RunService:IsStudio() then "_dev" else "")
+local store: ProfileStore.ProfileStore<any> =
+	ProfileStore.New(storeName, ProfileSchema.template(os.time()) :: any)
 
 local function key(player: Player): string
 	return Config.ProfileKeyPrefix .. player.UserId
@@ -42,16 +48,25 @@ local function finalize(player: Player, session: Session)
 	local profile = session.profile
 	local now = os.time()
 	for _, fn in finalizers do
-		local ok, err = pcall(fn, player, profile)
+		local ok, err = pcall(function()
+			fn(player, profile)
+			return nil :: any
+		end)
 		if not ok then
 			warn("[DataService] finalizer failed:", err)
 		end
 	end
 	Economy.settle(profile, now)
+	if session.pendingOffline > 0 then
+		-- Offline earnings the player never claimed (popup dismissed, left early) are credited, not lost.
+		Economy.credit(profile, session.pendingOffline)
+		session.pendingOffline = 0
+		session.pendingOfflineSeconds = 0
+	end
 	profile.rateAtLogout = Economy.incomePerSecond(profile)
 	profile.lastSeen = now
 	profile.stats.playtimeSeconds += math.max(0, now - session.joinedAt)
-	session.store.Data = profile
+	session.store.Data = profile :: any
 end
 
 local function load(player: Player)
@@ -71,7 +86,7 @@ local function load(player: Player)
 	local offline, offlineSeconds = Economy.offlineGain(profile.rateAtLogout, profile.lastSeen, now)
 	profile.lastTick = now -- never credit the offline gap at the online rate
 	profile.stats.sessions += 1
-	profileStore.Data = profile
+	profileStore.Data = profile :: any
 
 	local session: Session = {
 		profile = profile,
@@ -112,13 +127,24 @@ local function release(player: Player)
 	if session == nil then
 		return
 	end
-	sessions[player] = nil
+	-- Finalizers (for example saving a carried cat) run while DataService.get still answers for this player;
+	-- the session is forgotten only after the profile is final.
 	DataService.onReleasing:Fire(player, session.profile)
-	finalize(player, session)
+	local ok, err = pcall(function()
+		finalize(player, session)
+		return nil :: any
+	end)
+	if not ok then
+		warn("[DataService] finalize failed:", err)
+	end
+	sessions[player] = nil
 	session.store:EndSession()
 end
 
 function DataService.start()
+	-- ProfileStore autosaves every 300 s by default; the design (section 17) wants 60 s.
+	ProfileStore.SetConstant("AUTO_SAVE_PERIOD", Config.AutosaveSeconds)
+
 	Players.PlayerAdded:Connect(function(player)
 		task.spawn(load, player)
 	end)
@@ -136,11 +162,11 @@ function DataService.start()
 		end
 	end)
 
-	ProfileStore.OnError:Connect(function(message, storeName, profileKey)
+	ProfileStore.OnError:Connect(function(message, erroredStore, profileKey)
 		warn(
 			string.format(
 				"[DataService] ProfileStore error (%s / %s): %s",
-				storeName,
+				erroredStore,
 				profileKey,
 				message
 			)

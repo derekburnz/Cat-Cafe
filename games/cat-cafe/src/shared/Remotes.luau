@@ -11,7 +11,7 @@ Remotes.FolderName = "Remotes"
 -- Client -> server: (args) and what the server checks.
 Remotes.ClientToServer = {
 	"GrabBegin", -- (strayId: string)
-	"GrabEnd", -- (strayId: string, ringResult: "perfect" | "good" | "miss")
+	"GrabEnd", -- (strayId: string)  the server scores the ring from the time since GrabBegin; extra args are ignored
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)

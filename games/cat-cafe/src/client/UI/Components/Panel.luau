@@ -1,9 +1,10 @@
 --!strict
--- Rounded window with a caramel header, title, optional close button and a content frame.
--- Used by every modal screen so they all share one look.
+-- Rounded window with a caramel header, outlined title, red X close button and a content frame, in the
+-- simulator style (thick dark outline, shaded header). Used by every modal screen so they all share one look.
 
 local Button = require(script.Parent.Button)
 local Create = require(script.Parent.Create)
+local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Props = {
@@ -23,6 +24,7 @@ export type Panel = {
 }
 
 local HEADER_HEIGHT = 56
+local HEADER_SHADE = 0.86
 
 local Panel = {}
 Panel.__index = Panel
@@ -38,12 +40,8 @@ function Panel.new(props: Props): Panel
 		ClipsDescendants = true,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
-		Create("UIStroke", {
-			Color = Theme.colors.caramelDark,
-			Thickness = Theme.sizes.stroke,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		}),
 	})
+	Outline.border(frame, Theme.sizes.outline + 1)
 
 	local header: Frame = Create("Frame", {
 		Name = "Header",
@@ -53,13 +51,35 @@ function Panel.new(props: Props): Panel
 		Parent = frame,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
+		-- lighter at the top; the bottom 30% is flat so the square-off strip below matches it
+		Create("UIGradient", {
+			Name = "Shade",
+			Rotation = 90,
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+				ColorSequenceKeypoint.new(
+					0.7,
+					Color3.new(HEADER_SHADE, HEADER_SHADE, HEADER_SHADE)
+				),
+				ColorSequenceKeypoint.new(1, Color3.new(HEADER_SHADE, HEADER_SHADE, HEADER_SHADE)),
+			}),
+		}),
 		-- square off the bottom corners of the header
 		Create("Frame", {
 			Name = "Square",
-			BackgroundColor3 = Theme.modal.header,
+			BackgroundColor3 = Theme.modal.header:Lerp(Theme.colors.black, 1 - HEADER_SHADE),
 			BorderSizePixel = 0,
 			Position = UDim2.new(0, 0, 1, -16),
 			Size = UDim2.new(1, 0, 0, 16),
+		}),
+		-- dark rule between the header and the body
+		Create("Frame", {
+			Name = "Rule",
+			BackgroundColor3 = Theme.colors.outline,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0, 0, 1, -2),
+			Size = UDim2.new(1, 0, 0, Theme.sizes.outline),
+			ZIndex = 2,
 		}),
 	})
 
@@ -84,6 +104,7 @@ function Panel.new(props: Props): Panel
 		Text = props.title,
 		Parent = header,
 	})
+	Outline.text(title, Theme.sizes.textOutline + 0.5)
 
 	local subtitle: TextLabel = Create("TextLabel", {
 		Name = "Subtitle",
@@ -93,24 +114,25 @@ function Panel.new(props: Props): Panel
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.headerText,
-		TextTransparency = 0.15,
+		TextTransparency = 0,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = props.subtitle or "",
 		Visible = props.subtitle ~= nil,
 		Parent = header,
 	})
+	Outline.text(subtitle, 1.5)
 
 	local closeButton: Button.Button? = nil
 	if props.onClose then
 		closeButton = Button.new({
 			name = "Close",
 			text = "X",
-			style = "ghost",
+			style = "close",
 			size = UDim2.fromOffset(Theme.sizes.touchMin, Theme.sizes.touchMin),
 			anchorPoint = Vector2.new(1, 0.5),
 			position = UDim2.new(1, -8, 0.5, -2),
-			textSize = Theme.sizes.textLarge,
+			textSize = Theme.sizes.textLarge + 2,
 			onClick = props.onClose,
 			parent = header,
 		})

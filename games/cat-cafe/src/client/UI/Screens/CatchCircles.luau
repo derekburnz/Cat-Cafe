@@ -195,7 +195,7 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		BackgroundTransparency = Theme.hud.panelTransparency,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 84),
+		Position = UDim2.new(0.5, 0, 0, 80), -- the travel row hides during a catch; toasts start at 148
 		Size = UDim2.fromOffset(380, 66),
 		Parent = root,
 	}, {

@@ -779,11 +779,12 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		rejectRescue(player, spotId, "Too far away")
 		return
 	end
-	-- A holder who presses again within the lock window, whether the lock is still theirs or they dropped it
-	-- with a short RescueEnd, continues the same run. A run past RESCUE_TENURE_SECONDS ends, and that player
-	-- waits RescueLockSeconds on this spot so someone else can step in (reviewer S20).
+	-- A holder who presses again within RESCUE_TENURE_SECONDS of their last press continues the same run,
+	-- whether the lock is still theirs, lapsed or dropped by a short RescueEnd, so timing a press just after
+	-- each lapse does not start a fresh run (reviewer N25). A run past RESCUE_TENURE_SECONDS ends, and that
+	-- player waits RescueLockSeconds on this spot so someone else can step in (reviewer S20).
 	local continuing = entry.lastHolder == player.UserId
-		and now - entry.holdAt <= Config.RescueLockSeconds
+		and now - entry.holdAt <= RESCUE_TENURE_SECONDS
 	if not continuing then
 		entry.lockedSince = now
 	elseif now - entry.lockedSince > RESCUE_TENURE_SECONDS then

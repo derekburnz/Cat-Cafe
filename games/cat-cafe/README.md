@@ -18,8 +18,10 @@ buy a table in Upgrades (**U**). Coins tick up from placed cats; Decor is **B**.
 
 Day and night (design v0.2): a new server starts in day with 2 minutes left. Strays arrive only with a night wave
 (6 in the alley, 6 in the park) plus the tutorial Common at the alley entrance, so the alley is empty until the first
-night. To skip the wait in Studio, run this in the command bar while playing:
-`require(game.ServerScriptService.Server.Services.Debug).setPhase("night")`.
+night. To skip the wait in Studio, run this in the command bar (Server view) while playing:
+`game.ServerStorage.PurrPotDebug:Invoke("setPhase", "night")`. Every hook in `src/server/Services/Debug.luau` goes
+through that Studio-only bridge, for example `:Invoke("setCoins", nil, 5000)` or `:Invoke("giveCat", nil, "tabby")`
+(nil means the first player). Requiring the Debug module directly gets a fresh copy whose services never started.
 
 Check gate: `./check.ps1` (Windows) or `./check.sh`. Cloud stand-in without Rokit: `cd tools/cloudcheck && npm test && npm run analyze`.
 

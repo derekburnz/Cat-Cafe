@@ -88,7 +88,7 @@ v0.2 assets stay. New, in the order the engineer needs them:
 
 | priority | asset | name | notes |
 |---|---|---|---|
-| 1 | Role uniforms on the upright rig | `CatCafe_Acc_Apron`, `CatCafe_Acc_BowTie`, `CatCafe_Acc_Sash`, `CatCafe_Acc_PartyHat` | Attach to the upright cat; one set fits all 50 cats |
+| 1 | Role uniforms on the upright rig | `CatCafe_Accessory_Apron`, `CatCafe_Accessory_BowTie`, `CatCafe_Accessory_Sash`, `CatCafe_Accessory_PartyHat` | Attach to the upright cat; one set fits all 50 cats |
 | 2 | Eight new slice cats | Maine Coon, Midnight, Cream, Brownie, Blue, Persian, Blossom, Aurora | Data-model 3a and 3b art notes; Midnight and Aurora are the Mythical hero assets |
 | 3 | Shiny sparkle VFX | `CatCafe_VFX_ShinySparkle` | Readable on a phone at 30 studs |
 | 4 | Alleyway traps | `CatCafe_Alley_TrashBin`, `CatCafe_Alley_GarbageBags` | Stuck pose per trap (head and paws poking out) |

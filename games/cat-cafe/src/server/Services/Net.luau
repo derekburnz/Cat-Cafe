@@ -73,7 +73,7 @@ end
 
 -- Connects a client -> server handler behind the rate limiter. Over the limit: dropped silently, logged once a second.
 function Net.on(name: string, handler: (player: Player, ...any) -> ())
-	local event = events[name]
+	local event: RemoteEvent? = events[name]
 	if event == nil then
 		error("[Net] unknown remote " .. name)
 	end
@@ -107,7 +107,7 @@ function Net.on(name: string, handler: (player: Player, ...any) -> ())
 end
 
 function Net.fire(player: Player, name: string, ...: any)
-	local event = events[name]
+	local event: RemoteEvent? = events[name]
 	if event == nil then
 		error("[Net] unknown remote " .. name)
 	end
@@ -115,7 +115,7 @@ function Net.fire(player: Player, name: string, ...: any)
 end
 
 function Net.fireAll(name: string, ...: any)
-	local event = events[name]
+	local event: RemoteEvent? = events[name]
 	if event == nil then
 		error("[Net] unknown remote " .. name)
 	end

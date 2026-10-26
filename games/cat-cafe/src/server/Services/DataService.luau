@@ -48,7 +48,10 @@ local function finalize(player: Player, session: Session)
 	local profile = session.profile
 	local now = os.time()
 	for _, fn in finalizers do
-		local ok, err = pcall(fn, player, profile)
+		local ok, err = pcall(function()
+			fn(player, profile)
+			return nil :: any
+		end)
 		if not ok then
 			warn("[DataService] finalizer failed:", err)
 		end
@@ -127,7 +130,10 @@ local function release(player: Player)
 	-- Finalizers (for example saving a carried cat) run while DataService.get still answers for this player;
 	-- the session is forgotten only after the profile is final.
 	DataService.onReleasing:Fire(player, session.profile)
-	local ok, err = pcall(finalize, player, session)
+	local ok, err = pcall(function()
+		finalize(player, session)
+		return nil :: any
+	end)
 	if not ok then
 		warn("[DataService] finalize failed:", err)
 	end

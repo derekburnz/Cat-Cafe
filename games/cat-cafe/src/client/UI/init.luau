@@ -63,7 +63,6 @@ local state: Types.PlayerState = {
 	lures = {},
 }
 
-local catalog: Types.Catalog? = nil
 local catById: { [string]: Types.CatDef } = {}
 local initialized = false
 local visible = true
@@ -107,7 +106,6 @@ local function render()
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
-	catalog = newCatalog
 	table.clear(catById)
 	for _, def in newCatalog.cats do
 		catById[def.id] = def
@@ -471,7 +469,7 @@ function UI.setCarrying(info: Types.CarryInfo?)
 	end
 	local resolved: Types.CarryInfo? = nil
 	if info then
-		assert(info)
+		assert(info, "carry info missing")
 		local def = lookupCat(info.catId)
 		resolved = {
 			catId = info.catId,

@@ -26,7 +26,8 @@ function PlotService.assign(player: Player): WorldBuilder.Plot?
 		return existing
 	end
 	for _, plot in (world :: WorldBuilder.World).plots do
-		if owners[plot.index] == nil then
+		local owner: Player? = owners[plot.index]
+		if owner == nil then
 			owners[plot.index] = player
 			plotOf[player] = plot
 			plot.model:SetAttribute("OwnerUserId", player.UserId)

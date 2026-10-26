@@ -125,7 +125,7 @@ local function oddsText(odds: Types.LureOdds?): string
 	if not odds then
 		return "Odds: not set"
 	end
-	assert(odds)
+	assert(odds, "odds not set")
 	return ("Odds: %s Common · %s Rare · %s Epic · %s Legendary"):format(
 		percent(odds.Common),
 		percent(odds.Rare),
@@ -141,7 +141,7 @@ local function oddsDetail(catalog: Types.Catalog, lure: Types.LureDef): string
 	if not odds then
 		return "Odds not set for this food yet."
 	end
-	assert(odds)
+	assert(odds, "odds not set")
 	local areas = { "alley", "park" }
 	local lines = { "Same chance for every cat of a rarity in the area:" }
 	for _, area in areas do
@@ -541,7 +541,7 @@ function HUD._buildLureRows(self: any)
 	if not catalog then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 	for index, lure in catalog.lures do
 		local row: Frame = Create("Frame", {
 			Name = lure.id,
@@ -771,7 +771,7 @@ end
 
 function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 	if info then
-		assert(info)
+		assert(info, "carry info missing")
 		local rarity: string = info.rarity or "Common"
 		self._carry.Visible = true
 		self._carryArt.BackgroundColor3 = Theme.rarityColor(rarity)

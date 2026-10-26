@@ -25,7 +25,7 @@ type Profile = Types.PlayerProfile
 
 local CafeService = {}
 
-local carrying: { [Player]: string } = {} -- catId while walking a caught stray home
+local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
 local rng = Random.new() -- charm rolls for caught cats
 
 -- Settled profile or nil when not loaded yet.
@@ -108,7 +108,7 @@ end
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local cafeLevel = Economy.cafeLevel(profile)
 	for _, spot in Catalog.spots do
-		local furniture = plot.spotFurniture[spot.id]
+		local furniture: Model? = plot.spotFurniture[spot.id]
 		if furniture ~= nil then
 			ensureLockLabel(furniture, spot).Enabled = cafeLevel < spot.cafeLevel
 		end
@@ -132,7 +132,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		end
 	end
 	for uid, instance in wanted do
-		local spot = plot.spots[instance.spotId :: string]
+		local spot: BasePart? = plot.spots[instance.spotId :: string]
 		if spot ~= nil then
 			local model = AssetRegistry.clone(Catalog.catModelName(instance.catId))
 			model.Name = uid
@@ -151,15 +151,15 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 		local shouldShow = profile.decorOwned[def.id] == true
 			and profile.decorPlaced[def.id] == true
 		local existing = plot.decor:FindFirstChild(def.id)
-		if shouldShow and existing == nil then
-			local anchor = plot.decorAnchors[def.id]
-			if anchor ~= nil then
+		if shouldShow then
+			local anchor: BasePart? = plot.decorAnchors[def.id]
+			if existing == nil and anchor ~= nil then
 				local model = AssetRegistry.clone(def.asset)
 				model.Name = def.id
 				model:PivotTo(anchor.CFrame)
 				model.Parent = plot.decor
 			end
-		elseif not shouldShow and existing ~= nil then
+		elseif existing ~= nil then
 			existing:Destroy()
 		end
 	end
@@ -170,7 +170,11 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	for i, anchor in plot.tableAnchors do
 		local name = "table_" .. i
 		local existing = plot.tables:FindFirstChild(name)
-		if i <= count and existing == nil then
+		if i > count then
+			if existing ~= nil then
+				existing:Destroy()
+			end
+		elseif existing == nil then
 			local group = Instance.new("Model")
 			group.Name = name
 			local tableModel = AssetRegistry.clone("CatCafe_Furniture_TableRound")
@@ -187,8 +191,6 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 				chair.Parent = group
 			end
 			group.Parent = plot.tables
-		elseif i > count and existing ~= nil then
-			existing:Destroy()
 		end
 	end
 end
@@ -516,7 +518,11 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 	if not profile.decorOwned[decorId] then
 		return
 	end
-	profile.decorPlaced[decorId] = if placed then true else nil
+	if placed then
+		profile.decorPlaced[decorId] = true
+	else
+		profile.decorPlaced[decorId] = nil
+	end
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end

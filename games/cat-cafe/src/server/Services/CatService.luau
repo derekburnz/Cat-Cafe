@@ -270,7 +270,7 @@ end
 local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity?)
 	local areaDef = Catalog.getArea(areaId) :: Types.AreaDef
 	local area = world.areas[areaId]
-	local picked = rarity or Catching.pickRarity(areaDef.odds, rng:NextNumber())
+	local picked: Types.Rarity = rarity or Catching.pickRarity(areaDef.odds, rng:NextNumber())
 	local def = Catching.pickCat(picked, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
 	spawnStray(
@@ -520,7 +520,7 @@ local function onGrabEnd(player: Player, rawStrayId: unknown)
 		Net.fire(player, "GrabResult", strayId, false, "Too slow", true)
 		return
 	end
-	local ring = Catching.ringResultFromHold(os.clock() - stray.lockAt)
+	local ring: Types.RingResult? = Catching.ringResultFromHold(os.clock() - stray.lockAt)
 	if ring == nil then
 		return -- sooner than GrabMinHoldSeconds: dropped as spam, the lock and the hold timer continue
 	end
@@ -564,7 +564,7 @@ end
 
 local function findLureSpot(spotId: string): (BasePart?, string?)
 	for id, area in world.areas do
-		local candidate = area.lureSpots[spotId]
+		local candidate: BasePart? = area.lureSpots[spotId]
 		if candidate ~= nil then
 			return candidate, id
 		end
@@ -633,11 +633,12 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 		if activeLures[spotId] ~= active then
 			return
 		end
-		if bowl ~= nil then
-			bowl:Destroy()
+		local placedBowl = active.bowl
+		if placedBowl ~= nil then
+			placedBowl:Destroy()
 			active.bowl = nil
 		end
-		local rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
+		local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
 		local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
 		local area = world.areas[areaId]
 		local position = Vector3.new(spotPart.Position.X, area.floorY, spotPart.Position.Z)

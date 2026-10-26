@@ -1,8 +1,11 @@
 --!strict
 -- Studio-only hooks for automated playtests (QA request, docs/decisions.md). Every function errors outside Studio.
--- From the command bar or Studio MCP execute_luau while playing:
---   local Debug = require(game.ServerScriptService.Server.Services.Debug)
---   Debug.setCoins(game.Players:GetPlayers()[1], 5000)
+-- From the command bar (Server view) or Studio MCP execute_luau while playing, go through the bridge that
+-- Main.server.luau sets up, never require this module directly: a direct require gets a fresh copy whose
+-- services never started ("profile not loaded", a clock nobody runs).
+--   local D = game.ServerStorage.PurrPotDebug
+--   D:Invoke("setCoins", nil, 5000)   -- nil means the first player in the server
+--   D:Invoke("setPhase", "night")
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

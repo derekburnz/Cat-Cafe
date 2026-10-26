@@ -18,7 +18,6 @@ Catalog.rarities = {
 		sellValue = 25,
 		firstCatchReward = 50,
 		color = "#8E97B2",
-		baseCatchChance = 0.90,
 	},
 	Rare = {
 		incomePerSecond = 3,
@@ -29,7 +28,6 @@ Catalog.rarities = {
 		sellValue = 150,
 		firstCatchReward = 300,
 		color = "#5FA8FF",
-		baseCatchChance = 0.65,
 	},
 	Epic = {
 		incomePerSecond = 8,
@@ -40,7 +38,6 @@ Catalog.rarities = {
 		sellValue = 600,
 		firstCatchReward = 1500,
 		color = "#C07CFF",
-		baseCatchChance = 0.45,
 	},
 	Legendary = {
 		incomePerSecond = 25,
@@ -51,7 +48,6 @@ Catalog.rarities = {
 		sellValue = 3000,
 		firstCatchReward = 8000,
 		color = "#FFC94D",
-		baseCatchChance = 0.25,
 	},
 	Mythical = {
 		incomePerSecond = 75,
@@ -62,7 +58,6 @@ Catalog.rarities = {
 		sellValue = 12000,
 		firstCatchReward = 30000,
 		color = "#FF5E7E",
-		baseCatchChance = 0.15,
 	},
 } :: { [string]: Types.RarityDef }
 

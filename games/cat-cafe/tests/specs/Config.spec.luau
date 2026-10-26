@@ -5,6 +5,7 @@
 -- (and delete the v0.2 row it replaces). World layout numbers in Config.World are the engineer's.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local Catalog = require(Shared.Catalog)
 	local Config = require(Shared.Config)
 
 	local expected: { [string]: any } = {
@@ -25,17 +26,17 @@ return function()
 		RescueSpawnChance = 0.5,
 		RescueHoldSeconds = 4,
 		RescueLockSeconds = 6,
+		RingLatencyGraceSeconds = 0.25, -- the v0.2 rescue hold's allowance, until F27
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
-		GrabHoldSeconds = 1.5,
-		GrabLockSeconds = 3,
 		GrabRetrySeconds = 2,
-		NetBonus = 0.10, -- was GlovesBonus
-		LureBonus = 0.20,
-		RingBonusPerfect = 0.15,
-		RingBonusGood = 0.05,
-		CatchChanceMin = 0.05,
-		CatchChanceMax = 0.95,
+		-- v0.3 net circles (F26, section 10)
+		CircleLeadInSeconds = 0.6,
+		CircleGapMin = 0.40,
+		CircleGapMax = 0.75,
+		CircleScorePerfect = 1.0,
+		CircleScoreGood = 0.5,
+		CatchLatencyCapSeconds = 0.15,
 		LureWaitSeconds = 45,
 		LureDespawnSeconds = 90,
 		CarryWalkSpeed = 13,
@@ -46,8 +47,6 @@ return function()
 		RemoteRateLimitPerSecond = 10,
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
-		RingPerfectWindow = 0.30,
-		RingGoodWindow = 0.80,
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 16,
 		StrayWanderRadius = 5,
@@ -57,8 +56,6 @@ return function()
 		SeatsPerTable = 2,
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
-		GrabMinHoldSeconds = 0.15,
-		RingLatencyGraceSeconds = 0.25,
 		-- cat stats (data-model section 4b)
 		CatMaxLevel = 10,
 		CatLevelBonus = 0.05,
@@ -73,12 +70,6 @@ return function()
 		DayLengthSeconds = { 300, "F23" },
 		NightLengthSeconds = { 300, "F23" },
 		WaveSize = { 10, "F23" },
-		CircleLeadInSeconds = { 0.6, "F26" },
-		CircleGapMin = { 0.40, "F26" },
-		CircleGapMax = { 0.75, "F26" },
-		CircleScorePerfect = { 1.0, "F26" },
-		CircleScoreGood = { 0.5, "F26" },
-		CatchLatencyCapSeconds = { 0.15, "F26" },
 		RescueSpawnChance = { 0.6, "F27" },
 		RescueMinStuck = { 1, "F27" },
 		RescueTolerance = { 0.03, "F27" },
@@ -137,6 +128,7 @@ return function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
 			local known = {
 				World = true,
+				NetWindows = true, -- a table, checked below
 				ProfileStoreName = true,
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
@@ -157,21 +149,66 @@ return function()
 	end)
 
 	describe("internal consistency", function()
-		it("ring windows are ordered and the hold is longer than the perfect window", function()
-			expect(Config.RingPerfectWindow < Config.RingGoodWindow).to.equal(true)
-			expect(Config.GrabHoldSeconds > Config.RingPerfectWindow).to.equal(true)
+		it("NetWindows matches the section 10 net table, levels 0 to 3", function()
+			local expectedWindows = {
+				[0] = { perfect = 0.045, good = 0.11, jitter = 0.30 },
+				[1] = { perfect = 0.055, good = 0.13, jitter = 0.20 },
+				[2] = { perfect = 0.065, good = 0.155, jitter = 0.10 },
+				[3] = { perfect = 0.08, good = 0.18, jitter = 0 },
+			}
+			local levels = 0
+			for level, row in pairs(Config.NetWindows) do
+				levels += 1
+				local want = expectedWindows[level]
+				expect(want).to.be.ok()
+				assert(want)
+				expect(row.perfect).to.be.near(want.perfect, 1e-9)
+				expect(row.good).to.be.near(want.good, 1e-9)
+				expect(row.jitter).to.be.near(want.jitter, 1e-9)
+			end
+			expect(levels).to.equal(4)
+			local net = Catalog.getUpgrade("net")
+			assert(net)
+			expect(net.maxLevel).to.equal(3)
+		end)
+
+		-- Holds through any retune of the numbers above (from the engineer's spec, 067b953).
+		it("net windows: Perfect inside Good, and a better net is never harder", function()
+			for level = 0, 3 do
+				local windows = Config.NetWindows[level]
+				expect(windows.perfect < windows.good).to.equal(true)
+				if level > 0 then
+					local previous = Config.NetWindows[level - 1]
+					expect(windows.perfect >= previous.perfect).to.equal(true)
+					expect(windows.good >= previous.good).to.equal(true)
+					expect(windows.jitter <= previous.jitter).to.equal(true)
+				end
+			end
+		end)
+
+		it("S24: CircleGapMin is above the widest good window plus the latency cap", function()
+			-- Otherwise a late press for one circle could land on the next. Widening good means raising the gap.
+			local widest = 0
+			for _, row in pairs(Config.NetWindows) do
+				widest = math.max(widest, row.good)
+			end
+			expect(Config.CircleGapMin > widest + Config.CatchLatencyCapSeconds).to.equal(true)
+			expect(Config.CircleGapMin <= Config.CircleGapMax).to.equal(true)
+		end)
+
+		it("circle scores: Perfect beats Good beats a miss, and Perfect is a sure catch", function()
+			expect(Config.CircleScorePerfect).to.equal(1)
+			expect(Config.CircleScoreGood > 0 and Config.CircleScoreGood < 1).to.equal(true)
 		end)
 
 		it("carry speed is about 80% of normal walk speed (features F07)", function()
 			expect(Config.CarryWalkSpeed / Config.NormalWalkSpeed).to.be.near(0.8, 0.02)
 		end)
 
-		it(
-			"the grab lock outlives the hold so a second player cannot steal the stray mid-grab",
-			function()
-				expect(Config.GrabLockSeconds > Config.GrabHoldSeconds).to.equal(true)
-			end
-		)
+		it("the lock covers the late-press allowance, so nobody can take a stray mid-catch", function()
+			-- The lock runs to the last target + good + 1 s; the last press is accepted to target + good + cap.
+			expect(Config.CatchLatencyCapSeconds < 1).to.equal(true)
+		end)
 
 		it(
 			"the v0.1 names are gone (night waves replace the trickle, the net replaces gloves)",
@@ -182,6 +219,32 @@ return function()
 				expect(config.GlovesBonus).never.to.be.ok()
 			end
 		)
+
+		it("v0.3: the hold ring and flat chance constants are gone (F26, section 17 Removed)", function()
+			local config = Config :: any
+			for _, name in
+				ipairs({
+					"GrabHoldSeconds",
+					"GrabMinHoldSeconds",
+					"GrabLockSeconds",
+					"NetBonus",
+					"LureBonus",
+					"RingBonusPerfect",
+					"RingBonusGood",
+					"RingPerfectWindow",
+					"RingGoodWindow",
+					"CatchChanceMin",
+					"CatchChanceMax",
+					"RenovateBonus",
+				})
+			do
+				expect(config[name]).never.to.be.ok()
+			end
+		end)
+
+		-- RingLatencyGraceSeconds, RescueHoldSeconds and RescueLockSeconds go with the rescue minigames.
+		it("the v0.2 rescue hold constants are gone (F27)")
+		it("LureDespawnSeconds and LureReserveSeconds are gone (F28)")
 
 		it(
 			"clock: the first night comes by minute two and never later than a normal day (features step 2)",
@@ -202,10 +265,9 @@ return function()
 		)
 
 		it(
-			"rescue: the lock outlives the hold, the chance is a probability, a rescue pays no more (v0.3)",
+			"rescue: the lock outlives the hold, the chance is a probability, a rescue pays no more",
 			function()
 				expect(Config.RescueLockSeconds > Config.RescueHoldSeconds).to.equal(true)
-				expect(Config.RescueHoldSeconds > Config.GrabHoldSeconds).to.equal(true)
 				expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(
 					true
 				)

@@ -93,6 +93,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = { music = true, sfx = true },
+		flags = { autoPress = false },
 	}
 end
 
@@ -410,6 +411,10 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	if type(raw.settings) == "table" then
 		profile.settings.music = raw.settings.music ~= false
 		profile.settings.sfx = raw.settings.sfx ~= false
+	end
+
+	if fromVersion >= 3 and type(raw.flags) == "table" then
+		profile.flags.autoPress = raw.flags.autoPress == true
 	end
 
 	if fromVersion < 3 then

@@ -1,120 +1,11 @@
 --!strict
--- Catching.luau against data-model v0.3.1 sections 3, 8, 9 and 10b. The ring and flat chance blocks are v0.2 and
--- stay until the closing circles (F26) replace them.
+-- Catching.luau against data-model v0.3.1 sections 2, 3, 8, 9 and 10b: odds, picking a cat, fleeing. The circles
+-- that decide a catch have their own spec (Circles.spec).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
 	local Catching = require(Shared.Catching)
 	local Config = require(Shared.Config)
-
-	describe("ring", function()
-		it("bonus per result (perfect 0.15, good 0.05, miss 0)", function()
-			expect(Catching.ringBonus("perfect")).to.be.near(0.15)
-			expect(Catching.ringBonus("good")).to.be.near(0.05)
-			expect(Catching.ringBonus("miss")).to.equal(0)
-		end)
-
-		-- Section 10 (2026-10-26): the server derives the ring result from the seconds between GrabBegin and
-		-- GrabEnd. Perfect is the last RingPerfectWindow of the hold, good the last RingGoodWindow, both extended
-		-- past the hold by RingLatencyGraceSeconds; earlier is a miss; later is a miss; under GrabMinHoldSeconds
-		-- the GrabEnd is dropped (nil) and the lock continues. Proposed signature, agreed with the engineer thread:
-		--   Catching.ringResultFromHold(secondsSinceGrabBegin: number): Types.RingResult?
-		local ringResultFromHold = (Catching :: any).ringResultFromHold
-
-		it("ringResultFromHold exists (replaces the client reported ring value)", function()
-			expect(ringResultFromHold).to.be.a("function")
-		end)
-
-		it("derives perfect, good, miss or dropped from the hold time", function()
-			local hold = Config.GrabHoldSeconds
-			local grace = (Config :: any).RingLatencyGraceSeconds
-			expect(grace).to.be.a("number")
-			local perfectFrom = hold - Config.RingPerfectWindow
-			local goodFrom = hold - Config.RingGoodWindow
-			local lateEdge = hold + grace
-			-- dropped as spam
-			expect(ringResultFromHold(-1)).to.equal(nil)
-			expect(ringResultFromHold(0)).to.equal(nil)
-			expect(ringResultFromHold(Config.GrabMinHoldSeconds - 0.001)).to.equal(nil)
-			-- released too early: a miss, but the chance is still rolled
-			expect(ringResultFromHold(Config.GrabMinHoldSeconds)).to.equal("miss")
-			expect(ringResultFromHold(goodFrom - 0.001)).to.equal("miss")
-			-- good band
-			expect(ringResultFromHold(goodFrom)).to.equal("good")
-			expect(ringResultFromHold(perfectFrom - 0.001)).to.equal("good")
-			-- perfect band, including the latency grace after the hold completes
-			expect(ringResultFromHold(perfectFrom)).to.equal("perfect")
-			expect(ringResultFromHold(hold)).to.equal("perfect")
-			expect(ringResultFromHold(lateEdge)).to.equal("perfect")
-			-- released too late
-			expect(ringResultFromHold(lateEdge + 0.001)).to.equal("miss")
-			expect(ringResultFromHold(60)).to.equal("miss")
-		end)
-
-		it(
-			"the concrete numbers in the doc: 1.20 to 1.75 s perfect, 0.70 to 1.20 s good, under 0.15 s dropped",
-			function()
-				expect(ringResultFromHold(0.10)).to.equal(nil)
-				expect(ringResultFromHold(0.69)).to.equal("miss")
-				expect(ringResultFromHold(0.70)).to.equal("good")
-				expect(ringResultFromHold(1.19)).to.equal("good")
-				expect(ringResultFromHold(1.20)).to.equal("perfect")
-				expect(ringResultFromHold(1.50)).to.equal("perfect")
-				expect(ringResultFromHold(1.75)).to.equal("perfect")
-				expect(ringResultFromHold(1.76)).to.equal("miss")
-			end
-		)
-
-		it("the ring is a bonus, never a gate: a miss still rolls the full base chance", function()
-			expect(Catching.chance("Common", 0, false, "miss")).to.be.near(0.90)
-			expect(Catching.chance("Legendary", 0, false, "miss")).to.be.near(0.25)
-		end)
-	end)
-
-	describe("chance (section 10): clamp(base + net x 0.10 + lure + ring, 0.05, 0.95)", function()
-		it("bare handed uses the rarity base", function()
-			expect(Catching.chance("Common", 0, false, "miss")).to.be.near(0.90)
-			expect(Catching.chance("Rare", 0, false, "miss")).to.be.near(0.65)
-			expect(Catching.chance("Epic", 0, false, "miss")).to.be.near(0.45)
-			expect(Catching.chance("Legendary", 0, false, "miss")).to.be.near(0.25)
-			expect(Catching.chance("Mythical", 0, false, "miss")).to.be.near(0.15)
-		end)
-
-		it("adds NetBonus (0.10) per net level", function()
-			expect(Config.NetBonus).to.be.near(0.10)
-			expect(Catching.chance("Legendary", 1, false, "miss")).to.be.near(0.35)
-			expect(Catching.chance("Legendary", 3, false, "miss")).to.be.near(0.55)
-		end)
-
-		it("adds the lure bonus and the ring bonus", function()
-			expect(Catching.chance("Legendary", 0, true, "miss")).to.be.near(0.45)
-			expect(Catching.chance("Legendary", 0, false, "good")).to.be.near(0.30)
-			expect(Catching.chance("Legendary", 0, false, "perfect")).to.be.near(0.40)
-			expect(Catching.chance("Legendary", 3, true, "perfect")).to.be.near(0.90)
-		end)
-
-		it(
-			"never exceeds 0.95 (a cheat client with permanent perfect gains at most 15%)",
-			function()
-				expect(Catching.chance("Common", 0, false, "perfect")).to.equal(0.95)
-				expect(Catching.chance("Common", 3, true, "perfect")).to.equal(0.95)
-				expect(Catching.chance("Rare", 3, true, "perfect")).to.equal(0.95)
-				for _, rarity in ipairs(Catalog.rarityOrder) do
-					local best = Catching.chance(rarity, 3, true, "perfect")
-					local honest = Catching.chance(rarity, 3, true, "miss")
-					expect(best - honest <= Config.RingBonusPerfect + 1e-9).to.equal(true)
-				end
-			end
-		)
-
-		it("never drops below 0.05", function()
-			expect(Catching.chance("Mythical", 0, false, "miss") >= Config.CatchChanceMin).to.equal(
-				true
-			)
-			expect(Config.CatchChanceMin).to.equal(0.05)
-			expect(Config.CatchChanceMax).to.equal(0.95)
-		end)
-	end)
 
 	describe("succeeds", function()
 		it("roll strictly below chance wins", function()
@@ -131,13 +22,21 @@ return function()
 		end)
 	end)
 
-	describe("flee on miss (section 10)", function()
+	describe("flee on fail (sections 2 and 10)", function()
 		it("Commons stay, everything rarer flees", function()
-			expect(Catching.fleesOnMiss("Common")).to.equal(false)
-			expect(Catching.fleesOnMiss("Rare")).to.equal(true)
-			expect(Catching.fleesOnMiss("Epic")).to.equal(true)
-			expect(Catching.fleesOnMiss("Legendary")).to.equal(true)
-			expect(Catching.fleesOnMiss("Mythical")).to.equal(true)
+			expect(Catching.fleesOnFail("Common")).to.equal(false)
+			expect(Catching.fleesOnFail("Rare")).to.equal(true)
+			expect(Catching.fleesOnFail("Epic")).to.equal(true)
+			expect(Catching.fleesOnFail("Legendary")).to.equal(true)
+			expect(Catching.fleesOnFail("Mythical")).to.equal(true)
+			expect((Catching :: any).fleesOnMiss).never.to.be.ok()
+		end)
+
+		it("v0.3: the hold ring and flat chance are gone (F26)", function()
+			local catching = Catching :: any
+			expect(catching.ringBonus).never.to.be.ok()
+			expect(catching.ringResultFromHold).never.to.be.ok()
+			expect(catching.chance).never.to.be.ok()
 		end)
 	end)
 

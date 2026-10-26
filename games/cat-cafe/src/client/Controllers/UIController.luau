@@ -1,17 +1,15 @@
 --!strict
 -- Feeds the UI (src/client/UI, ui-designer's) with catalog and state, forwards its intents to remotes,
--- predicts the coin counter between syncs, and drives the catch and rescue prompts, the clock chip, the carry
--- marker and tutorial hints.
+-- predicts the coin counter between syncs, and drives the catch circles, the rescue prompt, the clock chip, the
+-- carry marker and tutorial hints.
 
 local Players = game:GetService("Players")
-local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
-local Config = require(Shared:WaitForChild("Config"))
 local Net = require(script.Parent.Parent.Net)
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
@@ -78,7 +76,7 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	if s.tutorialStep < 2 then
 		UI.tutorial.show(
-			"Walk to the alley at the end of the street and hold E on a cat to swing your net",
+			"Walk to the alley at the end of the street and press E on a cat, then tap as each circle closes",
 			alleyEntrance(),
 			"Alley"
 		)
@@ -166,52 +164,16 @@ local function wireIntents()
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)
-	local grabStartedAt: { [string]: number } = {}
-	local grabCompleted: { [string]: boolean } = {}
-	-- The engine fires PromptTriggered when a hold runs its full duration; that is the authoritative
-	-- "completed hold" signal, independent of our clock and of the order it fires in relative to HoldEnded.
-	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
-		local strayId = prompt:GetAttribute("StrayId")
-		if type(strayId) == "string" then
-			grabCompleted[strayId] = true
-			-- The UI fires no grabEnded for a full hold, so nothing else clears these two entries. Clear them
-			-- shortly after, unless a new hold on the same stray has started since (reviewer's PR #7 nit).
-			local startedAt = grabStartedAt[strayId]
-			task.delay(0.5, function()
-				if grabStartedAt[strayId] == startedAt then
-					grabStartedAt[strayId] = nil
-					grabCompleted[strayId] = nil
-				end
-			end)
-		end
-	end)
+	-- The net (data-model section 10): one press on the prompt asks for the circles. The server answers with
+	-- CatchSchedule (or a GrabResult refusal); each press on a circle sends only its index, since the server
+	-- stamps the time itself.
 	UI.events.grabBegan:Connect(function(strayId: string?)
 		if strayId ~= nil then
-			grabStartedAt[strayId] = os.clock()
-			grabCompleted[strayId] = nil
 			Net.fire("GrabBegin", strayId)
 		end
 	end)
-	-- The server scores the ring from its own clock, so only the stray id goes up. A hold that ran the full
-	-- duration sends nothing: the server resolves it as a ring miss by itself (data-model section 10).
-	-- The decision waits one frame so a PromptTriggered fired in the same frame as the hold's end is seen
-	-- whichever order the two signals arrive in; 16 ms sits well inside RingLatencyGraceSeconds.
-	UI.events.grabEnded:Connect(function(strayId: string?, _result: Types.RingResult)
-		if strayId == nil then
-			return
-		end
-		local startedAt = grabStartedAt[strayId]
-		grabStartedAt[strayId] = nil
-		task.defer(function()
-			local completed = grabCompleted[strayId] == true
-			grabCompleted[strayId] = nil
-			if
-				completed or (startedAt ~= nil and os.clock() - startedAt >= Config.GrabHoldSeconds)
-			then
-				return
-			end
-			Net.fire("GrabEnd", strayId)
-		end)
+	UI.events.catchPressed:Connect(function(strayId: string, index: number)
+		Net.fire("CatchPress", strayId, index)
 	end)
 	-- Rescue (data-model section 10): RescueBegin when the 4 s hold starts, RescueEnd only when it ran its full
 	-- length. An early release sends nothing; the server's lock lapses after RescueLockSeconds. The server
@@ -246,6 +208,24 @@ local function wireServerEvents()
 	Net.on("OfflineEarnings", function(amount: number, seconds: number)
 		UI.showOfflineEarnings(amount, seconds)
 	end)
+	Net.on(
+		"CatchSchedule",
+		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+			UI.catch.showCircles(strayId, circles, windows)
+		end
+	)
+	Net.on(
+		"CatchResult",
+		function(
+			strayId: string,
+			scores: { number },
+			chance: number,
+			success: boolean,
+			stayed: boolean?
+		)
+			UI.catch.showResult(strayId, scores, chance, success, stayed)
+		end
+	)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)
 		-- Strays and rescue spots share this event and the card. A late answer for a target the card has moved
 		-- on from (a stray's auto-resolve landing after the next hold began) is dropped (reviewer N21).
@@ -311,13 +291,7 @@ function UIController.start()
 	wireServerEvents()
 	startPrediction()
 	Net.fire("RequestSync")
-	print(
-		string.format(
-			"[PurrPot] client ready for %s (hold %.1fs to grab)",
-			player.Name,
-			Config.GrabHoldSeconds
-		)
-	)
+	print(string.format("[PurrPot] client ready for %s", player.Name))
 end
 
 return UIController

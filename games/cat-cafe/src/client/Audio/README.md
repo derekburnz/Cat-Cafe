@@ -18,11 +18,12 @@ Nothing here runs until the engineer wires it in. Until a cue has an uploaded id
    Audio.start()
    ```
    `start()` makes the SoundGroups `Music`, `Ambience`, `Sfx` and `Ui` in SoundService, preloads the short P0 cues and starts reading the `Phase` and `PhaseEndsAt` attributes on `ReplicatedStorage.Clock` (read only, the same way WorldController does).
-2. **Settings** on every `ProfileSync` (UIController already handles it) and on each settings toggle:
+2. **Settings and carrying** on every `ProfileSync` (UIController already handles it), and settings again on each toggle:
    ```luau
    Audio.applySettings(state.settings) -- { music: boolean, sfx: boolean }
+   Audio.setCarrying(state.carrying ~= nil)
    ```
-   Music off mutes `Music`; sound off mutes the other three. Music and ambience start on the first call, so a player who turned music off never hears a note.
+   Music off mutes `Music`; sound off mutes the other three, and a muted channel loads nothing (no downloads on mobile data). Music and ambience start on the first call, so a player who turned music off never hears a note. The carry purr follows `carrying`, so a missed moment can never leave it purring.
 3. **Moments**: once `src/client/Moments.luau` exists (one Signal per moment, names and arguments in the sound list section 6):
    ```luau
    Audio.bindMoments(Moments)
@@ -44,6 +45,7 @@ Nothing here runs until the engineer wires it in. Until a cue has an uploaded id
 |---|---|
 | `Audio.start()` | Builds the channels, preloads, follows the clock. |
 | `Audio.applySettings(settings)` | Mutes channels by the player's settings; the first call starts music and ambience. |
+| `Audio.setCarrying(isCarrying)` | Starts or stops the carry purr. |
 | `Audio.play(cueId, at?, step?)` | Plays a cue once. `at` is a BasePart, an Attachment or a Vector3 for 3D; nil plays it flat. `step` raises it one note of the pentatonic scale per step (circles 1 to 5, rescue hits). Returns the Sound or nil. |
 | `Audio.loop(cueId, at?)` | Starts a looped cue and returns a function that fades it out. |
 | `Audio.setZone(zone)` | Picks the ambience bed `amb<Zone><Day/Night>`, crossfading over 1.5 s. |
@@ -51,8 +53,8 @@ Nothing here runs until the engineer wires it in. Until a cue has an uploaded id
 
 ## How it behaves
 
-- Music follows the server clock on every client at once: day beds A then B (B after 150 s), night beds A then B. On a phase change the bed fades out over 2 s, the dusk or dawn stinger plays, and the new A bed fades in. A missing B bed falls back to A.
+- Music follows the server clock on every client at once: day beds A then B (B from halfway through the phase), night beds A then B. On a phase change the bed fades out over 2 s, the dusk or dawn stinger plays, and the new A bed fades in. A missing B bed falls back to A.
 - Stingers, the rank up jingle, the shiny reveal and the Legendary and Mythical jingles duck the music to 40 % while they play. A catch or rescue ducks the music to 60 % and the ambience to 50 % until its result arrives (30 s at most).
 - Each cue has a pool of Sounds (`voices`); when all are busy the oldest restarts, so a coin shower never makes a hundred Sounds. `minGap` drops repeats that come too fast.
-- A Sound on a part goes away with the part (streaming), and its pool slot is rebuilt on the next play.
+- A loop on a part ends when the part is destroyed. A one-shot on something the server may remove in the same frame (a fleeing stray, the leaving dealer cart, a rescue trap) plays at its position instead, so the removal cannot cut it off. A pooled Sound whose part streamed out is simply reparented on its next play.
 - The server never plays sounds, and this module never fires remotes or changes game state.

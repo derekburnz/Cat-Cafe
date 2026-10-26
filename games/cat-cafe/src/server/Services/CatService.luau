@@ -563,6 +563,11 @@ local function attachHeldCat(player: Player, carry: Carry)
 	end
 end
 
+-- "an Epic Maine Coon", "a Tabby": the article for the word that follows it.
+local function withArticle(phrase: string): string
+	return (if phrase:match("^[AEIOUaeiou]") then "an " else "a ") .. phrase
+end
+
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it.
 local function startCarry(player: Player, def: Types.CatDef, rescued: boolean): boolean
 	if carrying[player] ~= nil then
@@ -582,7 +587,7 @@ local function startCarry(player: Player, def: Types.CatDef, rescued: boolean): 
 	local verb = if rescued then "rescued" else "caught"
 	Net.toast(
 		player,
-		string.format("You %s a %s! Walk it home to check in.", verb, def.name),
+		string.format("You %s %s! Walk it home to check in.", verb, withArticle(def.name)),
 		"good"
 	)
 	return true
@@ -839,7 +844,11 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
 			Net.fireAll(
 				"Announce",
-				string.format("%s caught a %s %s!", player.DisplayName, def.rarity, def.name)
+				string.format(
+					"%s caught %s!",
+					player.DisplayName,
+					withArticle(def.rarity .. " " .. def.name)
+				)
 			)
 		end
 	end

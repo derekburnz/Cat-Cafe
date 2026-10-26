@@ -22,16 +22,38 @@ return function()
 			decorPlaced = {},
 			lures = {},
 			equippedLure = nil,
-			cats = { starter = { uid = "starter", catId = "tabby", variant = "base", caughtAt = t, spotId = "counter_1" } },
+			cats = {
+				starter = {
+					uid = "starter",
+					catId = "tabby",
+					variant = "base",
+					caughtAt = t,
+					spotId = "counter_1",
+				},
+			},
 			collection = { tabby = t },
-			stats = { catsCaught = 0, catsSold = 0, grabsAttempted = 0, grabsSucceeded = 0, luresUsed = 0, playtimeSeconds = 0, sessions = 0 },
+			stats = {
+				catsCaught = 0,
+				catsSold = 0,
+				grabsAttempted = 0,
+				grabsSucceeded = 0,
+				luresUsed = 0,
+				playtimeSeconds = 0,
+				sessions = 0,
+			},
 			tutorialStep = 0,
 			settings = { music = true, sfx = true },
 		}
 	end
 
 	local function cat(uid: string, catId: string, spotId: string?, variant: string?): any
-		return { uid = uid, catId = catId, variant = variant or "base", caughtAt = 0, spotId = spotId }
+		return {
+			uid = uid,
+			catId = catId,
+			variant = variant or "base",
+			caughtAt = 0,
+			spotId = spotId,
+		}
 	end
 
 	describe("upgrade levels and start levels (sections 6 and 14)", function()
@@ -54,54 +76,57 @@ return function()
 		end)
 	end)
 
-	describe("cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor (section 11)", function()
-		it("is 1.0 for a fresh profile", function()
-			expect(Economy.cafeMultiplier(freshProfile())).to.be.near(1.0)
-		end)
+	describe(
+		"cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor (section 11)",
+		function()
+			it("is 1.0 for a fresh profile", function()
+				expect(Economy.cafeMultiplier(freshProfile())).to.be.near(1.0)
+			end)
 
-		it("adds 10% per table level", function()
-			local p = freshProfile()
-			p.upgradeLevels.tables = 1
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.10)
-			p.upgradeLevels.tables = 6
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.60)
-		end)
+			it("adds 10% per table level", function()
+				local p = freshProfile()
+				p.upgradeLevels.tables = 1
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.10)
+				p.upgradeLevels.tables = 6
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.60)
+			end)
 
-		it("adds 15% per espresso level above 1", function()
-			local p = freshProfile()
-			p.upgradeLevels.espresso = 3
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
-			p.upgradeLevels.espresso = 0 -- damaged save; must not go below 1.0
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.0)
-		end)
+			it("adds 15% per espresso level above 1", function()
+				local p = freshProfile()
+				p.upgradeLevels.espresso = 3
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
+				p.upgradeLevels.espresso = 0 -- damaged save; must not go below 1.0
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.0)
+			end)
 
-		it("adds decor bonuses only while owned and placed", function()
-			local p = freshProfile()
-			p.decorPlaced.rug = true -- placed but never bought
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.0)
-			p.decorOwned.rug = true
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
-			p.decorOwned.plants = true -- owned but stored
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
-			p.decorPlaced.plants = true
-			p.decorOwned.neon_sign, p.decorPlaced.neon_sign = true, true
-			p.decorOwned.fish_tank, p.decorPlaced.fish_tank = true, true
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
-			p.decorOwned.bogus, p.decorPlaced.bogus = true, true
-			expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
-		end)
+			it("adds decor bonuses only while owned and placed", function()
+				local p = freshProfile()
+				p.decorPlaced.rug = true -- placed but never bought
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.0)
+				p.decorOwned.rug = true
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
+				p.decorOwned.plants = true -- owned but stored
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
+				p.decorPlaced.plants = true
+				p.decorOwned.neon_sign, p.decorPlaced.neon_sign = true, true
+				p.decorOwned.fish_tank, p.decorPlaced.fish_tank = true, true
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
+				p.decorOwned.bogus, p.decorPlaced.bogus = true, true
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
+			end)
 
-		it("everything maxed is 1 + 0.6 + 0.3 + 0.3 = 2.2", function()
-			local p = freshProfile()
-			p.upgradeLevels.tables = 6
-			p.upgradeLevels.espresso = 3
-			for _, def in ipairs(Catalog.decor) do
-				p.decorOwned[def.id] = true
-				p.decorPlaced[def.id] = true
-			end
-			expect(Economy.cafeMultiplier(p)).to.be.near(2.2)
-		end)
-	end)
+			it("everything maxed is 1 + 0.6 + 0.3 + 0.3 = 2.2", function()
+				local p = freshProfile()
+				p.upgradeLevels.tables = 6
+				p.upgradeLevels.espresso = 3
+				for _, def in ipairs(Catalog.decor) do
+					p.decorOwned[def.id] = true
+					p.decorPlaced[def.id] = true
+				end
+				expect(Economy.cafeMultiplier(p)).to.be.near(2.2)
+			end)
+		end
+	)
 
 	describe("catRate = rarity rate x variant x favorite x rescued (section 11, v0.2)", function()
 		it("a Tabby on the counter (its favorite) earns 1.5, on the window 1", function()
@@ -128,16 +153,19 @@ return function()
 			expect(Economy.catRate(cat("a", "tabby", "counter_1", "galaxy"))).to.be.near(7.5)
 		end)
 
-		it("a rescued cat earns RescuedTipsMultiplier (1.10) on top: a rescued Tabby on the counter earns 1.65", function()
-			local rescued = cat("a", "tabby", "counter_1")
-			rescued.rescued = true
-			expect(Economy.catRate(rescued)).to.be.near(1.5 * Config.RescuedTipsMultiplier)
-			expect(Economy.catRate(rescued)).to.be.near(1.65)
-			rescued.spotId = "window_1"
-			expect(Economy.catRate(rescued)).to.be.near(1.10)
-			rescued.spotId = nil
-			expect(Economy.catRate(rescued)).to.equal(0)
-		end)
+		it(
+			"a rescued cat earns RescuedTipsMultiplier (1.10) on top: a rescued Tabby on the counter earns 1.65",
+			function()
+				local rescued = cat("a", "tabby", "counter_1")
+				rescued.rescued = true
+				expect(Economy.catRate(rescued)).to.be.near(1.5 * Config.RescuedTipsMultiplier)
+				expect(Economy.catRate(rescued)).to.be.near(1.65)
+				rescued.spotId = "window_1"
+				expect(Economy.catRate(rescued)).to.be.near(1.10)
+				rescued.spotId = nil
+				expect(Economy.catRate(rescued)).to.equal(0)
+			end
+		)
 
 		it("only rescued == true counts: absent and false earn the normal rate", function()
 			local plain = cat("a", "tabby", "counter_1")
@@ -155,9 +183,12 @@ return function()
 	end)
 
 	describe("incomePerSecond and settle (section 11)", function()
-		it("fresh profile earns 1.5 per second (the HUD must show a positive rate within 5 s)", function()
-			expect(Economy.incomePerSecond(freshProfile())).to.be.near(1.5)
-		end)
+		it(
+			"fresh profile earns 1.5 per second (the HUD must show a positive rate within 5 s)",
+			function()
+				expect(Economy.incomePerSecond(freshProfile())).to.be.near(1.5)
+			end
+		)
 
 		it("sums placed cats and applies the cafe multiplier once", function()
 			local p = freshProfile()
@@ -337,7 +368,10 @@ return function()
 			local p = freshProfile()
 			p.cats.b = cat("b", "tabby", nil)
 			p.cats.c = cat("c", "void", "shelf_1")
-			expect(Economy.countsByCat(p)).to.deepEqual({ tabby = { count = 2 }, void = { count = 1 } })
+			expect(Economy.countsByCat(p)).to.deepEqual({
+				tabby = { count = 2 },
+				void = { count = 1 },
+			})
 		end)
 	end)
 
@@ -368,20 +402,26 @@ return function()
 			expect(Economy.incomePerSecond(p)).to.be.near(before * 1.1)
 		end)
 
-		it("reaching $100 for Table 1 from the start takes about 34 s at the starter rate", function()
-			-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow.
-			local p = freshProfile(0)
-			local seconds = (100 - p.coins) / Economy.incomePerSecond(p)
-			expect(seconds <= 120).to.equal(true)
-		end)
+		it(
+			"reaching $100 for Table 1 from the start takes about 34 s at the starter rate",
+			function()
+				-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow.
+				local p = freshProfile(0)
+				local seconds = (100 - p.coins) / Economy.incomePerSecond(p)
+				expect(seconds <= 120).to.equal(true)
+			end
+		)
 
-		it("cafe level 2 at $250 is reachable inside 10 minutes with two placed Commons and a table", function()
-			local p = freshProfile(0)
-			p.cats.new = cat("new", "ginger", "window_1")
-			p.upgradeLevels.tables = 1
-			p.coins = 0
-			Economy.settle(p, 600 - 90) -- rough: 90 s spent walking and catching
-			expect(p.coins >= 250).to.equal(true)
-		end)
+		it(
+			"cafe level 2 at $250 is reachable inside 10 minutes with two placed Commons and a table",
+			function()
+				local p = freshProfile(0)
+				p.cats.new = cat("new", "ginger", "window_1")
+				p.upgradeLevels.tables = 1
+				p.coins = 0
+				Economy.settle(p, 600 - 90) -- rough: 90 s spent walking and catching
+				expect(p.coins >= 250).to.equal(true)
+			end
+		)
 	end)
 end

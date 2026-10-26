@@ -119,28 +119,45 @@ return function()
 			end
 		)
 
-		it("the v0.1 names are gone (night waves replace the trickle, the net replaces gloves)", function()
-			local config = Config :: any
-			expect(config.SpawnIntervalSeconds).never.to.be.ok()
-			expect(config.MaxStraysPerArea).never.to.be.ok()
-			expect(config.GlovesBonus).never.to.be.ok()
-		end)
+		it(
+			"the v0.1 names are gone (night waves replace the trickle, the net replaces gloves)",
+			function()
+				local config = Config :: any
+				expect(config.SpawnIntervalSeconds).never.to.be.ok()
+				expect(config.MaxStraysPerArea).never.to.be.ok()
+				expect(config.GlovesBonus).never.to.be.ok()
+			end
+		)
 
-		it("clock: the first night comes by minute two and never later than a normal day (features step 2)", function()
-			expect(Config.ServerStartDaySeconds > 0).to.equal(true)
-			expect(Config.ServerStartDaySeconds <= 120).to.equal(true)
-			expect(Config.ServerStartDaySeconds <= Config.DayLengthSeconds).to.equal(true)
-			expect(Config.NightLengthSeconds > 0).to.equal(true)
-			-- at least two full nights fit in the ten minute loop test
-			expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds + Config.DayLengthSeconds + Config.NightLengthSeconds <= 600).to.equal(true)
-		end)
+		it(
+			"clock: the first night comes by minute two and never later than a normal day (features step 2)",
+			function()
+				expect(Config.ServerStartDaySeconds > 0).to.equal(true)
+				expect(Config.ServerStartDaySeconds <= 120).to.equal(true)
+				expect(Config.ServerStartDaySeconds <= Config.DayLengthSeconds).to.equal(true)
+				expect(Config.NightLengthSeconds > 0).to.equal(true)
+				-- at least two full nights fit in the ten minute loop test
+				expect(
+					Config.ServerStartDaySeconds
+							+ Config.NightLengthSeconds
+							+ Config.DayLengthSeconds
+							+ Config.NightLengthSeconds
+						<= 600
+				).to.equal(true)
+			end
+		)
 
-		it("rescue: the lock outlives the hold, the chance is a probability, rescued cats earn more", function()
-			expect(Config.RescueLockSeconds > Config.RescueHoldSeconds).to.equal(true)
-			expect(Config.RescueHoldSeconds > Config.GrabHoldSeconds).to.equal(true)
-			expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(true)
-			expect(Config.RescuedTipsMultiplier > 1).to.equal(true)
-		end)
+		it(
+			"rescue: the lock outlives the hold, the chance is a probability, rescued cats earn more",
+			function()
+				expect(Config.RescueLockSeconds > Config.RescueHoldSeconds).to.equal(true)
+				expect(Config.RescueHoldSeconds > Config.GrabHoldSeconds).to.equal(true)
+				expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(
+					true
+				)
+				expect(Config.RescuedTipsMultiplier > 1).to.equal(true)
+			end
+		)
 
 		it("lures: the wait is shorter than the lured stray's lifetime", function()
 			expect(Config.LureWaitSeconds < Config.LureDespawnSeconds).to.equal(true)

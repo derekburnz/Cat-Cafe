@@ -315,17 +315,23 @@ return function()
 			expect(CatStats.rescuedMultiplier(nil)).to.equal(1)
 		end)
 
-		it("puts the rescue bonus inside the rating, so EquipBest and the cat card see it", function()
-			local plain = cat("tabby", 50, 1)
-			local rescued = cat("tabby", 50, 1)
-			rescued.rescued = true
-			expect(CatStats.rating(rescued)).to.be.near(CatStats.rating(plain) * Config.RescuedTipsMultiplier, 1e-9)
-			expect(CatStats.isBetter(rescued, plain)).to.equal(true)
-			local view = CatStats.view(rescued)
-			expect(view.rescued).to.equal(true)
-			expect(view.rating).to.be.near(CatStats.rating(rescued), 1e-9)
-			expect(CatStats.view(plain).rescued).to.equal(nil)
-		end)
+		it(
+			"puts the rescue bonus inside the rating, so EquipBest and the cat card see it",
+			function()
+				local plain = cat("tabby", 50, 1)
+				local rescued = cat("tabby", 50, 1)
+				rescued.rescued = true
+				expect(CatStats.rating(rescued)).to.be.near(
+					CatStats.rating(plain) * Config.RescuedTipsMultiplier,
+					1e-9
+				)
+				expect(CatStats.isBetter(rescued, plain)).to.equal(true)
+				local view = CatStats.view(rescued)
+				expect(view.rescued).to.equal(true)
+				expect(view.rating).to.be.near(CatStats.rating(rescued), 1e-9)
+				expect(CatStats.view(plain).rescued).to.equal(nil)
+			end
+		)
 
 		it("migrate keeps rescued only when it was saved as true", function()
 			local raw: any = ProfileSchema.template(0)

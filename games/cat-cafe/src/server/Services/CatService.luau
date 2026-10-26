@@ -515,11 +515,6 @@ local function onGrabEnd(player: Player, rawStrayId: unknown)
 	if stray == nil or not stray.alive or stray.lockedBy ~= player.UserId then
 		return
 	end
-	if lockExpired(stray) then
-		setLock(stray, 0)
-		Net.fire(player, "GrabResult", strayId, false, "Too slow", true)
-		return
-	end
 	local ring: Types.RingResult? = Catching.ringResultFromHold(os.clock() - stray.lockAt)
 	if ring == nil then
 		return -- sooner than GrabMinHoldSeconds: dropped as spam, the lock and the hold timer continue

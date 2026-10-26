@@ -7,10 +7,12 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
@@ -23,7 +25,8 @@ type Profile = Types.PlayerProfile
 
 local CafeService = {}
 
-local carrying: { [Player]: string } = {} -- catId while walking a caught stray home
+local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
+local rng = Random.new() -- charm rolls for caught cats
 
 -- Settled profile or nil when not loaded yet.
 local function profileFor(player: Player): Profile?
@@ -32,6 +35,15 @@ local function profileFor(player: Player): Profile?
 		Economy.settle(profile, os.time())
 	end
 	return profile
+end
+
+-- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view).
+function CafeService.catViews(profile: Profile): { [string]: Types.CatView }
+	local views: { [string]: Types.CatView } = {}
+	for uid, instance in profile.cats do
+		views[uid] = CatStats.view(instance)
+	end
+	return views
 end
 
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
@@ -50,7 +62,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
 		equippedLure = profile.equippedLure,
-		cats = profile.cats,
+		cats = CafeService.catViews(profile),
 		collection = profile.collection,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
@@ -73,7 +85,7 @@ end
 local function ensureLockLabel(furniture: Model, spot: Types.SpotDef): BillboardGui
 	local existing = furniture:FindFirstChild("LockLabel", true)
 	if existing ~= nil and existing:IsA("BillboardGui") then
-		return existing
+		return existing :: BillboardGui
 	end
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "LockLabel"
@@ -96,7 +108,7 @@ end
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local cafeLevel = Economy.cafeLevel(profile)
 	for _, spot in Catalog.spots do
-		local furniture = plot.spotFurniture[spot.id]
+		local furniture: Model? = plot.spotFurniture[spot.id]
 		if furniture ~= nil then
 			ensureLockLabel(furniture, spot).Enabled = cafeLevel < spot.cafeLevel
 		end
@@ -120,7 +132,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		end
 	end
 	for uid, instance in wanted do
-		local spot = plot.spots[instance.spotId :: string]
+		local spot: BasePart? = plot.spots[instance.spotId :: string]
 		if spot ~= nil then
 			local model = AssetRegistry.clone(Catalog.catModelName(instance.catId))
 			model.Name = uid
@@ -139,15 +151,15 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 		local shouldShow = profile.decorOwned[def.id] == true
 			and profile.decorPlaced[def.id] == true
 		local existing = plot.decor:FindFirstChild(def.id)
-		if shouldShow and existing == nil then
-			local anchor = plot.decorAnchors[def.id]
-			if anchor ~= nil then
+		if shouldShow then
+			local anchor: BasePart? = plot.decorAnchors[def.id]
+			if existing == nil and anchor ~= nil then
 				local model = AssetRegistry.clone(def.asset)
 				model.Name = def.id
 				model:PivotTo(anchor.CFrame)
 				model.Parent = plot.decor
 			end
-		elseif not shouldShow and existing ~= nil then
+		elseif existing ~= nil then
 			existing:Destroy()
 		end
 	end
@@ -158,7 +170,11 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	for i, anchor in plot.tableAnchors do
 		local name = "table_" .. i
 		local existing = plot.tables:FindFirstChild(name)
-		if i <= count and existing == nil then
+		if i > count then
+			if existing ~= nil then
+				existing:Destroy()
+			end
+		elseif existing == nil then
 			local group = Instance.new("Model")
 			group.Name = name
 			local tableModel = AssetRegistry.clone("CatCafe_Furniture_TableRound")
@@ -175,8 +191,6 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 				chair.Parent = group
 			end
 			group.Parent = plot.tables
-		elseif i > count and existing ~= nil then
-			existing:Destroy()
 		end
 	end
 end
@@ -225,17 +239,29 @@ end
 
 -- Adds a caught cat to the profile, pays the first-catch reward, auto-places it on a free open spot.
 -- Returns the instance and whether this cat id was new to the collection.
+-- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
+-- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
+-- prompt); otherwise it is rolled here.
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
-	notify: boolean
+	notify: boolean,
+	knownProfile: Profile?,
+	charm: number?
 ): (Types.CatInstance, boolean)
-	local profile = profileFor(player)
+	local profile = knownProfile
+	if profile ~= nil then
+		Economy.settle(profile, os.time())
+	else
+		profile = profileFor(player)
+	end
 	assert(profile ~= nil, "profile not loaded")
 	local now = os.time()
 	local isNew = profile.collection[def.id] == nil
-	local instance: Types.CatInstance =
-		{ uid = newUid(), catId = def.id, variant = "base", caughtAt = now, spotId = nil }
+	local rolled = if charm ~= nil
+		then charm
+		else CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
+	local instance = CatStats.newInstance(newUid(), def.id, now, rolled)
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
 	if isNew then
@@ -265,16 +291,17 @@ function CafeService.addCaughtCat(
 				"good"
 			)
 		end
+		local stars = CatStats.starsText(CatStats.stars(CatStats.charm(instance)))
 		if instance.spotId ~= nil then
 			Net.toast(
 				player,
-				string.format("%s is resting on %s", def.name, instance.spotId :: string),
+				string.format("%s %s is resting on %s", stars, def.name, instance.spotId :: string),
 				"info"
 			)
 		else
 			Net.toast(
 				player,
-				string.format("%s is in the cat room. Open a spot to place it.", def.name),
+				string.format("%s %s is in the cat room. Open a spot to place it.", stars, def.name),
 				"info"
 			)
 		end
@@ -363,6 +390,39 @@ local function onUnplaceCat(player: Player, rawUid: unknown)
 		return
 	end
 	instance.spotId = nil
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
+-- Equip best: one tap places the owned cats on the open spots for the highest rate (shared/EquipBest).
+-- Nothing is bought or sold, so the only check is that the profile is loaded; the plan itself only ever
+-- uses spots this cafe level has opened and cats this player owns.
+local function onEquipBest(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local plan = EquipBest.plan(profile)
+	if EquipBest.isOptimal(profile, plan) then
+		Net.toast(player, "Your cats are already on their best spots.", "info")
+		CafeService.sync(player)
+		return
+	end
+	local changed = EquipBest.apply(profile, plan)
+	if plan.catsPlaced > 0 then
+		advanceTutorial(profile, 3)
+	end
+	Net.toast(
+		player,
+		string.format(
+			"Placed %d cats on %d spots (%d moved): $%d/s",
+			plan.catsPlaced,
+			plan.spotsOpen,
+			changed,
+			math.floor(Economy.incomePerSecond(profile) + 0.5)
+		),
+		"good"
+	)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -458,7 +518,11 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 	if not profile.decorOwned[decorId] then
 		return
 	end
-	profile.decorPlaced[decorId] = if placed then true else nil
+	if placed then
+		profile.decorPlaced[decorId] = true
+	else
+		profile.decorPlaced[decorId] = nil
+	end
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -578,6 +642,7 @@ function CafeService.start()
 
 	Net.on("PlaceCat", onPlaceCat)
 	Net.on("UnplaceCat", onUnplaceCat)
+	Net.on("EquipBest", onEquipBest)
 	Net.on("SellCat", onSellCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)

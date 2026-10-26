@@ -248,7 +248,7 @@ function Popups.new(parent: Instance): Popups
 		textSize = Theme.sizes.textBody + 2,
 		parent = offlineCard,
 		onClick = function()
-			local onClaim = self._onClaim
+			local onClaim: (() -> ())? = self._onClaim
 			self._onClaim = nil
 			if onClaim then
 				onClaim()
@@ -275,7 +275,7 @@ end
 
 function Popups._next(self: any)
 	self._busy = false
-	local job = table.remove(self._queue, 1)
+	local job: (() -> ())? = table.remove(self._queue, 1)
 	if job then
 		job()
 	else

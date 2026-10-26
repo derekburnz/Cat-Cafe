@@ -1,65 +1,25 @@
 --!strict
--- Shared type definitions for the cat cafe UI.
--- The engineer's client controller builds tables of these shapes and hands them to UI.init / UI.update.
--- Field names match docs/design/cat-cafe/ui-contract.md and src/shared/Types.luau (engineer).
--- The UI only reads these; it never writes player data.
+-- Type definitions for the cat cafe UI.
+-- Catalog types (Rarity, RingResult, CatDef, UpgradeDef, DecorDef, LureDef, SpotDef) are re-exported from
+-- src/shared/Types.luau (engineer) so the client controller can hand the shared Catalog to UI.init with
+-- no cast. State, event and screen types below are the UI's own; field names follow
+-- docs/design/cat-cafe/ui-contract.md. The UI only reads these; it never writes player data.
 
-export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Secret"
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-export type RingResult = "perfect" | "good" | "miss"
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local SharedTypes = require(Shared:WaitForChild("Types"))
 
-export type CatDef = {
-	id: string,
-	name: string,
-	rarity: Rarity,
-	incomePerSecond: number,
-	area: string?, -- "alley" | "park" | "both"
-	favoriteSpot: string?, -- spot type, e.g. "counter" (1.5x on that spot type)
-	description: string?,
-	imageId: string?, -- rbxassetid://... when art exists; nil draws a placeholder
-	color: { number }?, -- {r, g, b} 0..255 placeholder body colour (engineer's catalog)
-}
-
-export type UpgradeDef = {
-	id: string,
-	name: string,
-	description: string,
-	maxLevel: number,
-	costs: { number }, -- costs[n] is the price of level n
-	startLevel: number?, -- 1 for cafe_level and espresso, else 0
-	requiresCafeLevel: number?, -- whole upgrade gated behind a cafe level
-	requiresCafeLevelAtLevel: { [number]: number }?, -- e.g. { [3] = 3 }: level 3 needs cafe 3
-	icon: string?,
-}
-
-export type DecorDef = {
-	id: string,
-	name: string,
-	cost: number,
-	category: string, -- "Plants", "Floor", "Wall", "Furniture" ... drives the filter chips
-	effect: string?, -- one line, e.g. "+5% tips"
-	description: string?,
-	requiresCafeLevel: number?,
-	imageId: string?,
-}
-
--- Percentages that sum to 100. Shown before purchase (paid random items rule).
-export type LureOdds = { Common: number, Rare: number, Epic: number, Legendary: number }
-
-export type LureDef = {
-	id: string,
-	name: string,
-	cost: number,
-	attracts: Rarity,
-	description: string?,
-	odds: LureOdds?,
-}
-
-export type SpotDef = {
-	id: string, -- "counter_1"
-	spotType: string, -- "counter"
-	cafeLevel: number, -- opens at this cafe level
-}
+export type Rarity = SharedTypes.Rarity
+export type Area = SharedTypes.Area
+export type SpotType = SharedTypes.SpotType
+export type RingResult = SharedTypes.RingResult
+export type CatDef = SharedTypes.CatDef
+export type UpgradeDef = SharedTypes.UpgradeDef
+export type DecorDef = SharedTypes.DecorDef
+export type LureOdds = SharedTypes.LureOdds -- percentages that sum to 100, shown before purchase
+export type LureDef = SharedTypes.LureDef
+export type SpotDef = SharedTypes.SpotDef
 
 export type Catalog = {
 	cats: { CatDef },
@@ -80,6 +40,13 @@ export type CatInstance = {
 	variant: string?,
 	caughtAt: number?,
 	spotId: string?, -- nil when resting in the cat room
+	-- per-cat stats (cat stats thread); all optional, shown when present
+	level: number?, -- 1 to 10
+	xp: number?,
+	xpToNext: number?,
+	charm: number?, -- 0 to 100
+	stars: number?, -- 1 to 5, derived from charm
+	rating: number?, -- this cat's coins per second before spot and cafe multipliers
 }
 
 export type PlayerState = {
@@ -137,12 +104,17 @@ export type CatchInfo = {
 	holdDuration: number?, -- seconds the ring takes to shrink (default Config GrabHoldSeconds 1.5)
 	actionText: string?, -- default "Hold to grab"
 	keyCode: Enum.KeyCode?, -- default E
+	stars: number?, -- 1 to 5 from the stray's Stars attribute
+	charm: number?, -- 0 to 100 from the stray's Charm attribute
 }
 
+-- Ring bands are { min, max } of the ring's scale (1 = full, 0 = collapsed). Defaults come from shared
+-- Config: good = { 0, RingGoodWindow / GrabHoldSeconds }, perfect = { 0, RingPerfectWindow / GrabHoldSeconds },
+-- so the band is the end of the shrink (data-model section 10). Pass bands only to experiment.
 export type RingConfig = {
-	duration: number?, -- seconds from full ring to zero
-	goodBand: { number }?, -- { min, max } ring scale for "good", default { 0.26, 0.48 }
-	perfectBand: { number }?, -- { min, max } ring scale for "perfect", default { 0.33, 0.41 }
+	duration: number?, -- seconds from full ring to zero, default Config.GrabHoldSeconds
+	goodBand: { number }?,
+	perfectBand: { number }?,
 }
 
 export type CarryInfo = {
@@ -158,4 +130,5 @@ export type InitConfig = {
 	parent: Instance?, -- default LocalPlayer.PlayerGui
 }
 
-return nil
+-- ModuleScripts must return a non-nil value.
+return {}

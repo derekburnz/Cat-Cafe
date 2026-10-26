@@ -32,7 +32,13 @@ function isIgnored(relPath, ignore) {
 function instanceFromProjectNode(name, node, projectDir, ignore, id) {
   const inst = { id, name, className: node.$className || null, children: {} };
   if (node.$path !== undefined) {
-    const spec = typeof node.$path === 'string' ? { path: node.$path, optional: false } : node.$path;
+    // Rojo spells an optional path as { "optional": "dir" }; the older { optional: true, path } form is accepted too.
+    const spec =
+      typeof node.$path === 'string'
+        ? { path: node.$path, optional: false }
+        : typeof node.$path.optional === 'string'
+          ? { path: node.$path.optional, optional: true }
+          : { path: node.$path.path, optional: Boolean(node.$path.optional) };
     const target = path.resolve(projectDir, spec.path);
     if (fs.existsSync(target)) {
       const fromDisk = instanceFromPath(name, target, ignore, id);

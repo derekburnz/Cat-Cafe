@@ -67,4 +67,11 @@ function Format.level(level: number): string
 	return "Lv " .. tostring(level)
 end
 
+-- 3 -> "★★★☆☆" (always five glyphs so rows line up)
+function Format.stars(stars: number, max: number?): string
+	local total = max or 5
+	local filled = math.clamp(math.floor(stars + 0.5), 0, total)
+	return string.rep("★", filled) .. string.rep("☆", total - filled)
+end
+
 return Format

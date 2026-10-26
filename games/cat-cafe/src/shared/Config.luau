@@ -16,6 +16,14 @@ local Config = {
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 
+	-- Cat stats (data-model section 4b)
+	CatMaxLevel = 10,
+	CatLevelBonus = 0.05, -- rate bonus per level above 1, so level 10 is 1.45x
+	CatXpBase = 60, -- XP (seconds placed) from level n to n + 1 is CatXpBase x n; level 10 after 45 min placed
+	CatXpPerSecondPlaced = 1, -- XP a placed cat earns per second (Economy.settle grants it)
+	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
+	RenovateBonus = 0.25, -- permanent tips bonus per Renovate (rebirth); the seam exists, the feature does not yet
+
 	-- Strays and catching (data-model sections 9 and 10)
 	SpawnIntervalSeconds = 20,
 	MaxStraysPerArea = 6,
@@ -25,17 +33,17 @@ local Config = {
 	GrabLockSeconds = 3,
 	GrabRetrySeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between GrabBegin calls
-	GrabMinHoldSeconds = 0.15, -- a GrabEnd faster than this after GrabBegin counts as a miss
+	GrabMinHoldSeconds = 0.15, -- a GrabEnd sooner than this after GrabBegin is dropped and the lock continues
 	GlovesBonus = 0.10,
 	LureBonus = 0.20,
 	RingBonusPerfect = 0.15,
 	RingBonusGood = 0.05,
-	RingPerfectWindow = 0.30, -- seconds after the hold completes that count as perfect
-	RingGoodWindow = 0.80, -- seconds after the hold completes that count as good
+	RingPerfectWindow = 0.30, -- the last 0.30 s of the hold count as perfect (the server scores from the lock age)
+	RingGoodWindow = 0.80, -- the last 0.80 s of the hold count as good
+	RingLatencyGraceSeconds = 0.25, -- both windows run this long past the end of the hold; later is a miss
 	CatchChanceMin = 0.05,
 	CatchChanceMax = 0.95,
 	LureWaitSeconds = 45,
-	LureReserveSeconds = 30,
 	LureDespawnSeconds = 90,
 	CarryWalkSpeed = 13,
 	NormalWalkSpeed = 16,

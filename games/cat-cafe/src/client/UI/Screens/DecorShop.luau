@@ -141,7 +141,7 @@ function DecorShop._build(self: any)
 	if not catalog then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 
 	-- chips: All + each category in catalog order
 	local categories = { "All" }
@@ -178,7 +178,7 @@ function DecorShop._build(self: any)
 			Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
 
-		-- art: image when provided, otherwise a coloured block with the first letter
+		-- art
 		local art: Frame = Create("Frame", {
 			Name = "Art",
 			BackgroundColor3 = CATEGORY_COLORS[decor.category] or Theme.colors.mint,
@@ -187,25 +187,17 @@ function DecorShop._build(self: any)
 			Size = UDim2.new(1, -20, 0, 76),
 			Parent = card,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
-		if decor.imageId then
-			Create("ImageLabel", {
-				BackgroundTransparency = 1,
-				Size = UDim2.fromScale(1, 1),
-				Image = decor.imageId,
-				ScaleType = Enum.ScaleType.Fit,
-				Parent = art,
-			})
-		else
-			text({
-				Size = UDim2.fromScale(1, 1),
-				FontFace = Theme.fonts.display,
-				TextSize = 34,
-				TextColor3 = Theme.colors.paper,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = decor.name:sub(1, 1),
-				Parent = art,
-			})
-		end
+		-- placeholder art until decor renders exist: a coloured block with the first letter (DecorDef.asset
+		-- names the 3D model, not an image)
+		text({
+			Size = UDim2.fromScale(1, 1),
+			FontFace = Theme.fonts.display,
+			TextSize = 34,
+			TextColor3 = Theme.colors.paper,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = decor.name:sub(1, 1),
+			Parent = art,
+		})
 		local owned = text({
 			Name = "Owned",
 			BackgroundColor3 = Theme.colors.good,
@@ -288,7 +280,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 	end
 	self._panel:setTitle(
 		"Decor",
-		("%d placed  ·  %s"):format(placedCount, Format.money(state.coins))
+		("%d placed  ·  %s"):format(placedCount, Format.money(state.money))
 	)
 
 	for decorId, card in self._cards do
@@ -316,7 +308,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.mode = "buy"
 			card.action:setText(Format.money(def.cost))
 			card.action:setStyle("primary")
-			card.action:setEnabled(state.coins >= def.cost)
+			card.action:setEnabled(state.money >= def.cost)
 		end
 	end
 end

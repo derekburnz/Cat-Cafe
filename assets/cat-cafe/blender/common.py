@@ -262,6 +262,9 @@ def _ensure_floor(color_name="floor_tile", size=400):
 
 def _ensure_lights(warm=True):
     if bpy.data.objects.get("_Key"):
+        bpy.data.lights["_Key"].color = (1.0, 0.93, 0.85) if warm else (0.85, 0.9, 1.0)
+        bg = bpy.context.scene.world.node_tree.nodes.get("Background")
+        bg.inputs["Color"].default_value = (0.9, 0.86, 0.8, 1) if warm else (0.3, 0.36, 0.5, 1)
         return
     key = bpy.data.lights.new("_Key", "SUN")
     key.energy = 3.0
@@ -300,6 +303,9 @@ def render_preview(objs, path, res=(640, 480), samples=32, azimuth=35, elevation
     sc.view_settings.view_transform = "Standard"
     if floor:
         _ensure_floor()
+    fl = bpy.data.objects.get("_PreviewFloor")
+    if fl:
+        fl.hide_render = not floor
     _ensure_lights(warm)
     lo, hi = bounds(objs)
     center = (lo + hi) / 2

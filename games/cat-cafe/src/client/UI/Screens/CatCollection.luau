@@ -15,6 +15,7 @@ export type Callbacks = {
 	placeCat: (uid: string, spotId: string) -> (),
 	unplaceCat: (uid: string) -> (),
 	sellCat: (uid: string) -> (),
+	equipBest: () -> (),
 	close: () -> (),
 }
 
@@ -270,21 +271,36 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	})
 	self._roomHint = text({
 		Name = "Hint",
-		Size = UDim2.new(1, 0, 0, 22),
+		Size = UDim2.new(1, -150, 0, 36),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
+		TextWrapped = true,
 		Text = "Placed cats earn. Resting cats wait in the back room.",
 		Parent = self._room,
 	})
-	self._roomList = scroller("List", self._room, UDim2.fromOffset(0, 28), UDim2.new(1, 0, 1, -28))
+	-- Equip best: the server picks the highest-rated cats for the open spots (cat stats thread)
+	self._equipBest = Button.new({
+		name = "EquipBest",
+		text = "Equip best",
+		style = "gold",
+		size = UDim2.fromOffset(140, 36),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, 0, 0, 0),
+		textSize = Theme.sizes.textSmall + 1,
+		parent = self._room,
+		onClick = function()
+			self._callbacks.equipBest()
+		end,
+	})
+	self._roomList = scroller("List", self._room, UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -44))
 
 	self._spotPicker = Create("Frame", {
 		Name = "SpotPicker",
 		BackgroundColor3 = Theme.modal.card,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, 28),
-		Size = UDim2.new(0, 280, 1, -28),
+		Position = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(0, 280, 1, -44),
 		Visible = false,
 		ZIndex = 5,
 		Parent = self._room,
@@ -348,7 +364,7 @@ function CatCollection._select(self: any, catId: string)
 	if not def then
 		return
 	end
-	assert(def)
+	assert(def, "cat definition missing")
 	local found = false
 	if state then
 		found = (state.collection and state.collection[catId] ~= nil)
@@ -392,7 +408,7 @@ function CatCollection._buildBook(self: any)
 	if not catalog then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 
 	for order, rarity in Theme.rarityOrder do
 		local cats = {}
@@ -519,7 +535,7 @@ function CatCollection._buildSpots(self: any)
 	if not catalog or not catalog.spots then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 	for index, spot in catalog.spots :: { Types.SpotDef } do
 		local row: Frame = Create("Frame", {
 			Name = spot.id,
@@ -585,19 +601,30 @@ end
 
 -- One row per owned cat instance. Rows are keyed by uid and rebuilt only when the set of uids changes.
 function CatCollection._syncRoomRows(self: any, state: Types.PlayerState)
-	local cats = state.cats or {}
-	local seen = {} :: { [string]: boolean }
-	local order = {} :: { Types.CatInstance }
+	local cats: { [string]: Types.CatInstance } = state.cats or {}
+	local seen: { [string]: boolean } = {}
+	local order: { Types.CatInstance } = {}
 	for _, instance in cats do
 		table.insert(order, instance)
 	end
-	table.sort(order, function(a, b)
+	local function ratingOf(instance: Types.CatInstance): number
+		if instance.rating then
+			return instance.rating :: number
+		end
+		local def: Types.CatDef? = self._catById[instance.catId]
+		return if def then def.incomePerSecond else 0
+	end
+	table.sort(order, function(a: Types.CatInstance, b: Types.CatInstance): boolean
 		local defA = self._catById[a.catId]
 		local defB = self._catById[b.catId]
 		local rarityA = if defA then rarityIndex(defA.rarity) else 0
 		local rarityB = if defB then rarityIndex(defB.rarity) else 0
 		if rarityA ~= rarityB then
 			return rarityA > rarityB
+		end
+		local ratingA, ratingB = ratingOf(a), ratingOf(b)
+		if ratingA ~= ratingB then
+			return ratingA > ratingB
 		end
 		if a.catId ~= b.catId then
 			return a.catId < b.catId
@@ -840,7 +867,8 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 					foundHere += 1
 				end
 			end
-			section.header.Text = ("%s  %d / %d"):format(rarity, foundHere, section.count)
+			local sectionCount: number = section.count
+			section.header.Text = ("%s  %d / %d"):format(tostring(rarity), foundHere, sectionCount)
 		end
 		if self._selected then
 			self:_select(self._selected)
@@ -860,16 +888,29 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 				or row.instance
 			row.instance = instance
 			local def: Types.CatDef? = row.def
-			local rate = if def then def.incomePerSecond else 0
+			local rate = if instance.rating
+				then instance.rating :: number
+				elseif def then def.incomePerSecond
+				else 0
+			-- "Lv 3  ★★★★☆  $3.4/s" when the server sends stats, else just the rate
+			local statBits = {}
+			if instance.level then
+				table.insert(statBits, Format.level(instance.level :: number))
+			end
+			if instance.stars then
+				table.insert(statBits, Format.stars(instance.stars :: number))
+			end
+			local stats = table.concat(statBits, "  ")
 			if instance.spotId then
 				placed += 1
 				local spot = spotsById[instance.spotId :: string]
 				local favorite = def ~= nil
 					and spot ~= nil
 					and (def :: Types.CatDef).favoriteSpot == spot.spotType
-				row.status.Text = ("On %s  ·  %s%s"):format(
-					instance.spotId :: string,
+				row.status.Text = ("%s%s  ·  On %s%s"):format(
+					if stats ~= "" then stats .. "  " else "",
 					Format.rate(rate * (if favorite then 1.5 else 1)),
+					instance.spotId :: string,
 					if favorite then "  ·  favorite spot" else ""
 				)
 				row.place:setText("Move")
@@ -877,7 +918,10 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 				row.remove:setText("Rest")
 			else
 				resting += 1
-				row.status.Text = "Resting in the back  ·  " .. Format.rate(rate) .. " when placed"
+				row.status.Text = ("%s%s when placed  ·  Resting"):format(
+					if stats ~= "" then stats .. "  " else "",
+					Format.rate(rate)
+				)
 				row.place:setText("Place")
 				row.remove:setEnabled(false)
 				row.remove:setText("Rest")
@@ -930,6 +974,7 @@ function CatCollection.destroy(self: any)
 	end
 	self._bookTab:destroy()
 	self._roomTab:destroy()
+	self._equipBest:destroy()
 	self._panel:destroy()
 end
 

@@ -17,14 +17,12 @@ git config --global user.email "<your github email>"
 cd ~\Documents
 git clone https://github.com/derekburnz/purr-pot.git
 ```
-Copy the contents of this project's `cat-cafe/` folder (download it from the project Library) into the clone so that `CLAUDE.md`, `.mcp.json`, `rokit.toml`, `.claude/`, `docs/`, `games/`, `assets/` sit at the repo root. Then:
+The repo already holds the scaffold and the first rough draft (pushed from the lead thread on 2026-10-26), so there is nothing to copy. Check it landed:
 ```powershell
 cd ~\Documents\purr-pot
-git add -A
-git commit -m "chore: studio scaffold (agents, skills, Rojo project, docs)"
-git push -u origin main
+git log --oneline          # three commits: scaffold + code + docs, asset exports, concept previews
 ```
-From here on, the GitHub repo is the source of truth and the project folder is just the drop zone for role threads that run in claude.ai. After each day of work push, and pull before letting agents loose.
+From here on the GitHub repo is the source of truth. Role threads that run in claude.ai open pull requests against it; the project folder `cat-cafe/` is only a mirror for threads that cannot reach GitHub. After each day of work push, and pull before letting agents loose.
 
 ## 3. Claude Code
 ```powershell
@@ -73,9 +71,8 @@ In Studio: Plugins tab > Rojo > Connect (default address localhost:34872). Rojo 
 cd games\cat-cafe
 wally install
 rojo sourcemap default.project.json -o sourcemap.json
-wally-package-types --sourcemap sourcemap.json Packages/
 ```
-`Packages/` and `ServerPackages/` are gitignored; every machine runs `wally install`.
+`Packages/` and `ServerPackages/` are gitignored; every machine runs `wally install`. Optional, for typed package requires: `rokit add JohnnyMorganz/wally-package-types` once at the repo root, then `wally-package-types --sourcemap sourcemap.json Packages/` after each install.
 
 ## 9. Editor and the check gate
 VS Code is optional but makes agent output easier to read. Install extensions: `JohnnyMorganz.luau-lsp`, `JohnnyMorganz.stylua`, `Kampfkarren.selene-vscode`, `evaera.vscode-rojo`. The repo's `games/cat-cafe/.vscode/settings.json` already points luau-lsp at the Rojo project.
@@ -117,7 +114,7 @@ Commit (`git commit -am "chore: phase 0 smoke test"`), delete PH_SmokeTest, and 
 ## 14. Troubleshooting
 - **Studio MCP not listed in `/mcp`:** check `%LOCALAPPDATA%\Roblox\mcp.bat` exists; re-enable the server in Studio; restart Claude Code. `claude mcp list` shows what is configured.
 - **Rojo plugin "version mismatch":** run `rojo plugin install` again after any `rokit update`.
-- **`check.ps1` cannot run:** execution policy (step 3). If `Invoke-WebRequest` fails behind a proxy, download `globalTypes.None.d.luau` manually from the luau-lsp repo's `scripts/` folder into `games/cat-cafe/`.
+- **`check.ps1` cannot run:** execution policy (step 3). If `Invoke-WebRequest` fails behind a proxy, download `globalTypes.None.d.luau` manually from the luau-lsp repo's `scripts/` folder at the tag matching `luau-lsp --version` into `games/cat-cafe/`, and write that version into `games/cat-cafe/.types-version`.
 - **Selene says no Roblox std:** run `selene generate-roblox-std` in `games/cat-cafe`.
 - **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `PurrPotDev` store name from `Config.luau`.
 - **Blender MCP hangs:** only one Connect to Claude session; close extra Blender windows; `uvx blender-mcp` needs internet the first time to fetch the package.

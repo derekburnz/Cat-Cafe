@@ -5,6 +5,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
@@ -269,7 +270,7 @@ end
 local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity?)
 	local areaDef = Catalog.getArea(areaId) :: Types.AreaDef
 	local area = world.areas[areaId]
-	local picked = rarity or Catching.pickRarity(areaDef.odds, rng:NextNumber())
+	local picked: Types.Rarity = rarity or Catching.pickRarity(areaDef.odds, rng:NextNumber())
 	local def = Catching.pickCat(picked, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
 	spawnStray(
@@ -338,11 +339,13 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if character == nil then
 		return
 	end
-	local torso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if torso == nil or not torso:IsA("BasePart") then
+	local torsoInstance = character:FindFirstChild("UpperTorso")
+		or character:FindFirstChild("Torso")
+	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+	if torsoInstance == nil or not torsoInstance:IsA("BasePart") then
 		return
 	end
+	local torso = torsoInstance :: BasePart
 	if carry.model ~= nil then
 		carry.model:Destroy()
 	end
@@ -355,8 +358,9 @@ local function attachHeldCat(player: Player, carry: Carry)
 		nameTag:Destroy()
 	end
 	model:PivotTo(torso.CFrame * CFrame.new(0, 0.4, -1.3) * CFrame.Angles(0, math.pi, 0))
-	for _, part in model:GetDescendants() do
-		if part:IsA("BasePart") then
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local part = descendant :: BasePart
 			part.Anchored = false
 			part.CanCollide = false
 			part.CanQuery = false
@@ -399,11 +403,44 @@ local function endCarry(player: Player): Types.CatDef?
 		carry.model:Destroy()
 	end
 	local character = player.Character
-	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	local humanoid = if character ~= nil
+		then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+		else nil
 	if humanoid ~= nil then
 		humanoid.WalkSpeed = Config.NormalWalkSpeed
 	end
 	return carry.def
+end
+
+-- Rolls the catch for a stray the player has locked and tells them the outcome. The ring result comes from the
+-- server's own clock (Catching.ringResultFromHold), so a scripted client gains nothing by lying about timing.
+local function resolveGrab(
+	player: Player,
+	profile: Types.PlayerProfile,
+	stray: Stray,
+	ring: Types.RingResult
+)
+	local lured = stray.calm and stray.reservedFor == player.UserId
+	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "gloves"), lured, ring)
+	local success = Catching.succeeds(chance, rng:NextNumber())
+	setLock(stray, 0)
+
+	if success then
+		profile.stats.grabsSucceeded += 1
+		local def = stray.def
+		despawn(stray)
+		Net.fire(player, "GrabResult", stray.id, true, "caught", false)
+		startCarry(player, def)
+		return
+	end
+
+	if Catching.fleesOnMiss(stray.def.rarity) and not lured then
+		Net.fire(player, "GrabResult", stray.id, false, "It got away", false)
+		Net.toast(player, "It got away", "warn")
+		despawn(stray)
+	else
+		Net.fire(player, "GrabResult", stray.id, false, "It slipped free, try again", true)
+	end
 end
 
 -- Remote handlers -----------------------------------------------------------------------------------------
@@ -435,11 +472,31 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		return
 	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
 	setLock(stray, player.UserId)
 	profile.stats.grabsAttempted += 1
 	local lockAt = stray.lockAt
+	-- A hold that runs to completion sends no GrabEnd (data-model section 10): once the hold plus the latency
+	-- grace has passed with the lock untouched, the server resolves the attempt itself as a ring miss.
+	task.delay(Config.GrabHoldSeconds + Config.RingLatencyGraceSeconds, function()
+		if not (stray.alive and stray.lockedBy == player.UserId and stray.lockAt == lockAt) then
+			return
+		end
+		local current = DataService.get(player)
+		if current == nil or player.Parent ~= Players then
+			setLock(stray, 0)
+			return
+		end
+		if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+			setLock(stray, 0)
+			Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
+			return
+		end
+		resolveGrab(player, current, stray, "miss")
+	end)
+	-- Whatever happens, the lock never outlives GrabLockSeconds.
 	task.delay(Config.GrabLockSeconds, function()
 		if stray.alive and stray.lockedBy == player.UserId and stray.lockAt == lockAt then
 			setLock(stray, 0)
@@ -447,61 +504,36 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	end)
 end
 
-local function onGrabEnd(player: Player, rawStrayId: unknown, rawRing: unknown)
+local function onGrabEnd(player: Player, rawStrayId: unknown)
+	-- Extra arguments (the old client-reported ring) are ignored: the ring is scored from the lock age.
 	local strayId = Guard.id(rawStrayId)
-	local ring = Guard.oneOf(rawRing, { "perfect", "good", "miss" }) :: Types.RingResult?
 	local profile = DataService.get(player)
-	if strayId == nil or ring == nil or profile == nil then
+	if strayId == nil or profile == nil then
 		return
 	end
 	local stray = strays[strayId]
 	if stray == nil or not stray.alive or stray.lockedBy ~= player.UserId then
 		return
 	end
-	if lockExpired(stray) then
-		setLock(stray, 0)
-		Net.fire(player, "GrabResult", strayId, false, "Too slow", true)
-		return
+	local ring: Types.RingResult? = Catching.ringResultFromHold(os.clock() - stray.lockAt)
+	if ring == nil then
+		return -- sooner than GrabMinHoldSeconds: dropped as spam, the lock and the hold timer continue
 	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		setLock(stray, 0)
 		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
-	-- The ring result is client reported (its bonus is capped at 15%). A release faster than any human
-	-- could time it is treated as a miss.
-	if os.clock() - stray.lockAt < Config.GrabMinHoldSeconds then
-		ring = "miss"
-	end
-	local lured = stray.calm and stray.reservedFor == player.UserId
-	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "gloves"), lured, ring)
-	local success = Catching.succeeds(chance, rng:NextNumber())
-	setLock(stray, 0)
-
-	if success then
-		profile.stats.grabsSucceeded += 1
-		local def = stray.def
-		despawn(stray)
-		Net.fire(player, "GrabResult", strayId, true, "caught", false)
-		startCarry(player, def)
-		return
-	end
-
-	if Catching.fleesOnMiss(stray.def.rarity) and not lured then
-		Net.fire(player, "GrabResult", strayId, false, "It got away", false)
-		Net.toast(player, "It got away", "warn")
-		despawn(stray)
-	else
-		Net.fire(player, "GrabResult", strayId, false, "It slipped free, try again", true)
-	end
+	resolveGrab(player, profile, stray, ring)
 end
 
-local function finishCheckIn(player: Player, notify: boolean)
+-- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
+local function finishCheckIn(player: Player, notify: boolean, profile: Types.PlayerProfile?)
 	local def = endCarry(player)
 	if def == nil then
 		return
 	end
-	local _, isNew = CafeService.addCaughtCat(player, def, notify)
+	local _, isNew = CafeService.addCaughtCat(player, def, notify, profile)
 	if notify then
 		Net.fire(player, "CatCaught", def.id, isNew)
 		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
@@ -525,24 +557,28 @@ local function onCheckIn(player: Player)
 	finishCheckIn(player, true)
 end
 
+local function findLureSpot(spotId: string): (BasePart?, string?)
+	for id, area in world.areas do
+		local candidate: BasePart? = area.lureSpots[spotId]
+		if candidate ~= nil then
+			return candidate, id
+		end
+	end
+	return nil, nil
+end
+
 local function onUseLure(player: Player, rawSpotId: unknown)
 	local spotId = Guard.id(rawSpotId)
 	local profile = DataService.get(player)
 	if spotId == nil or profile == nil then
 		return
 	end
-	local spotPart: BasePart? = nil
-	local areaId: string? = nil
-	for id, area in world.areas do
-		local candidate = area.lureSpots[spotId]
-		if candidate ~= nil then
-			spotPart = candidate
-			areaId = id
-		end
-	end
-	if spotPart == nil or areaId == nil then
+	local foundSpot, foundArea = findLureSpot(spotId)
+	if foundSpot == nil or foundArea == nil then
 		return
 	end
+	local spotPart: BasePart = foundSpot
+	local areaId: string = foundArea
 	if not areaUnlocked(profile, areaId) then
 		Net.toast(player, "You need the Park pass to lure here.", "warn")
 		return
@@ -555,7 +591,7 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 		Net.toast(player, "That bowl is in use.", "warn")
 		return
 	end
-	if not withinRange(player, (spotPart :: BasePart).Position, Config.GrabRangeStuds + 2) then
+	if not withinRange(player, spotPart.Position, Config.GrabRangeStuds + 2) then
 		return
 	end
 	local lure, reason = CafeService.consumeEquippedLure(player)
@@ -568,11 +604,11 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 		then "CatCafe_Item_FoodBowl_Premium"
 		else "CatCafe_Item_FoodBowl"
 	local bowl = AssetRegistry.clone(bowlAsset)
-	bowl:PivotTo(CFrame.new((spotPart :: BasePart).Position))
+	bowl:PivotTo(CFrame.new(spotPart.Position))
 	bowl.Parent = straysFolder
 	local food = AssetRegistry.clone(lure.asset)
 	food.Name = "Food"
-	food:PivotTo(CFrame.new((spotPart :: BasePart).Position))
+	food:PivotTo(CFrame.new(spotPart.Position))
 	food.Parent = bowl
 	local active: ActiveLure =
 		{ spotId = spotId, area = areaId, player = player, lure = lure, bowl = bowl, strayId = nil }
@@ -592,21 +628,18 @@ local function onUseLure(player: Player, rawSpotId: unknown)
 		if activeLures[spotId] ~= active then
 			return
 		end
-		if bowl ~= nil then
-			bowl:Destroy()
+		local placedBowl = active.bowl
+		if placedBowl ~= nil then
+			placedBowl:Destroy()
 			active.bowl = nil
 		end
-		local rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
-		local def = Catching.pickCat(rarity, areaId :: string, rng:NextNumber())
-		local area = world.areas[areaId :: string]
-		local position = Vector3.new(
-			(spotPart :: BasePart).Position.X,
-			area.floorY,
-			(spotPart :: BasePart).Position.Z
-		)
+		local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
+		local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
+		local area = world.areas[areaId]
+		local position = Vector3.new(spotPart.Position.X, area.floorY, spotPart.Position.Z)
 		local stray = spawnStray(
 			def,
-			areaId :: string,
+			areaId,
 			position,
 			nil,
 			spotId,
@@ -635,10 +668,11 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	Net.on("CheckIn", onCheckIn)
 	Net.on("UseLure", onUseLure)
 
-	-- A player who leaves mid-carry keeps the cat.
-	DataService.beforeRelease(function(player)
+	-- A player who leaves mid-carry keeps the cat. The finalizer runs before the session closes and is handed
+	-- the profile, so it never depends on a lookup that is about to go nil.
+	DataService.beforeRelease(function(player, profile)
 		if carrying[player] ~= nil then
-			finishCheckIn(player, false)
+			finishCheckIn(player, false, profile)
 		end
 	end)
 
@@ -652,7 +686,11 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		carrying[player] = nil
+		-- endCarry (via the finalizer above) clears the carry record; this only mops up when the profile is
+		-- already gone, so the handler order between services does not matter.
+		if carrying[player] ~= nil and DataService.get(player) == nil then
+			carrying[player] = nil
+		end
 		local spotId = lureByPlayer[player]
 		if spotId ~= nil then
 			lureByPlayer[player] = nil
@@ -684,6 +722,28 @@ end
 
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
+end
+
+-- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken).
+function CatService.debugSpawnStray(catId: string, areaId: string): string
+	assert(RunService:IsStudio(), "debugSpawnStray is Studio only")
+	local def = Catalog.getCat(catId)
+	local areaDef = Catalog.getArea(areaId)
+	assert(def ~= nil and areaDef ~= nil, "unknown cat or area")
+	local area = world.areas[areaId]
+	local pointIndex = freeSpawnPoint(areaId) or 1
+	local point = area.spawnPoints[pointIndex]
+	local stray = spawnStray(
+		def :: Types.CatDef,
+		areaId,
+		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
+		pointIndex,
+		nil,
+		false,
+		0,
+		(areaDef :: Types.AreaDef).despawnAfter
+	)
+	return stray.id
 end
 
 return CatService

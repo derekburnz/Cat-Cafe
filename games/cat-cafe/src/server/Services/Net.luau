@@ -13,15 +13,30 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local Net = {}
 
 local events: { [string]: RemoteEvent } = {}
+-- Three layers: one bucket for everything a player sends (the ceiling), one per remote, and slower buckets for
+-- remotes that do real work per call (a grab attempt, a full profile serialize, a claim, a tutorial step).
+local globalLimiter = RateLimiter.new(Config.RemoteRateLimitPerSecond * 3, 1)
 local defaultLimiter = RateLimiter.new(Config.RemoteRateLimitPerSecond, 1)
-local grabLimiter = RateLimiter.new(1, Config.GrabRateLimitSeconds)
+local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
+	GrabBegin = RateLimiter.new(1, Config.GrabRateLimitSeconds),
+	RequestSync = RateLimiter.new(1, 2),
+	ClaimOffline = RateLimiter.new(1, 2),
+	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync
+	TutorialAdvance = RateLimiter.new(1, 1),
+}
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 
-local function limiterFor(name: string)
-	if name == "GrabBegin" then
-		return grabLimiter
+local function limiterFor(name: string): RateLimiter.RateLimiter
+	return slowLimiters[name] or defaultLimiter
+end
+
+-- Logged at most once a second per player so a fuzzing client cannot fill the server log.
+local function logOnce(player: Player, message: string)
+	local now = os.clock()
+	if (overLimitLog[player.UserId] or 0) + 1 < now then
+		overLimitLog[player.UserId] = now
+		warn(message)
 	end
-	return defaultLimiter
 end
 
 function Net.start()
@@ -45,37 +60,55 @@ function Net.start()
 		end
 	end
 	Players.PlayerRemoving:Connect(function(player)
+		local key = tostring(player.UserId)
+		globalLimiter:forget(key)
 		for name in events do
-			defaultLimiter:forget(tostring(player.UserId) .. name)
+			defaultLimiter:forget(key .. name)
 		end
-		grabLimiter:forget(player.UserId)
+		for name, limiter in slowLimiters do
+			limiter:forget(key .. name)
+		end
 		overLimitLog[player.UserId] = nil
 	end)
 end
 
 -- Connects a client -> server handler behind the rate limiter. Over the limit: dropped silently, logged once a second.
 function Net.on(name: string, handler: (player: Player, ...any) -> ())
-	local event = events[name]
+	local event: RemoteEvent? = events[name]
 	if event == nil then
 		error("[Net] unknown remote " .. name)
 	end
 	event.OnServerEvent:Connect(function(player: Player, ...: any)
-		local limiter = limiterFor(name)
-		local key = if name == "GrabBegin" then player.UserId else tostring(player.UserId) .. name
-		if not limiter:allow(key) then
-			local now = os.clock()
-			if (overLimitLog[player.UserId] or 0) + 1 < now then
-				overLimitLog[player.UserId] = now
-				warn(string.format("[Net] rate limit hit: user %d on %s", player.UserId, name))
-			end
+		local key = tostring(player.UserId)
+		if not (globalLimiter:allow(key) and limiterFor(name):allow(key .. name)) then
+			logOnce(
+				player,
+				string.format("[Net] rate limit hit: user %d on %s", player.UserId, name)
+			)
 			return
 		end
-		handler(player, ...)
+		local ok, err = xpcall(function(...: any)
+			handler(player, ...)
+			return nil :: any
+		end, function(message: any): string
+			return debug.traceback(tostring(message), 2)
+		end, ...)
+		if not ok then
+			logOnce(
+				player,
+				string.format(
+					"[Net] %s handler failed for user %d: %s",
+					name,
+					player.UserId,
+					tostring(err)
+				)
+			)
+		end
 	end)
 end
 
 function Net.fire(player: Player, name: string, ...: any)
-	local event = events[name]
+	local event: RemoteEvent? = events[name]
 	if event == nil then
 		error("[Net] unknown remote " .. name)
 	end
@@ -83,7 +116,7 @@ function Net.fire(player: Player, name: string, ...: any)
 end
 
 function Net.fireAll(name: string, ...: any)
-	local event = events[name]
+	local event: RemoteEvent? = events[name]
 	if event == nil then
 		error("[Net] unknown remote " .. name)
 	end

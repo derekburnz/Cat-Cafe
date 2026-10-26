@@ -21,7 +21,7 @@ Connectors: Roblox Studio MCP (world, playtests, screenshots), Blender MCP (3D),
 | **Roblox Studio** | the dev place, Team Create with friends later, publishing | |
 | **GitHub (private repo)** | source of truth, rollback, portfolio evidence | |
 
-Until the GitHub repo exists, the project folder `cat-cafe/` is the shared workspace; Derek copies it into the repo (setup-guide step 2) and from then on threads that need to change code should work against the repo.
+The private repo https://github.com/derekburnz/purr-pot (created 2026-10-25, scaffold pushed 2026-10-26) is the source of truth and is saved to this project, so new threads get it. Threads change code on a branch and open a pull request; the project folder `cat-cafe/` stays a mirror for threads that cannot reach GitHub. GitHub Actions runs the check gate and the cloud unit tests on every pull request (`.github/workflows/check.yml`).
 
 ## 3. Processes
 | Process | Agent (model) | Skills it reads | Connectors / tools | Input | Output (owned folder) |
@@ -45,7 +45,7 @@ Third-party skills per role (added 2026-10-26, details in `.claude/skills/THIRD_
 | **Roblox Blender plugin** | Blender add-on | Derek's PC | Phase 1 | setup-guide step 11 | to install |
 | **Roblox docs MCP** (n4tivex/mcp-roblox-docs) | MCP, local, no key | Derek's PC (cloud threads if PyPI is reachable) | Phase 0 | `.mcp.json` entry `roblox_docs` (`uvx mcp-roblox-docs`); needs `uv` from setup-guide step 10 | added 2026-10-26 |
 | **Third-party skills** (roblox-dev-skill, blender-*, roblox-doctor, blender-to-roblox, find-resources, AshExplained and EL4CTEO checklists) | Markdown + scripts in `.claude/skills/` | PC and cloud (scripts PC only) | Phase 0 | `.claude/skills/THIRD_PARTY.md`; `/roblox-doctor` checks the PC setup | added 2026-10-26 |
-| **Git + GitHub private repo** | VCS | PC and cloud | Phase 0 | setup-guide step 2; connect GitHub to this project for cloud threads to open PRs | repo not created yet |
+| **Git + GitHub private repo** | VCS | PC and cloud | Phase 0 | setup-guide step 2; repo saved to this project; CI in `.github/workflows/check.yml` | created, scaffold on main |
 | **Rojo, Wally, Selene, StyLua, luau-lsp via Rokit** | CLI | Derek's PC | Phase 0 | `rokit install` | configs written |
 | **Google Drive / Docs** | connector in this project | claude.ai | now | already connected (plan doc, Game Ideas doc) | connected |
 | **Google Forms -> Sheets** (feedback form) | web + connector | claude.ai + friends | Phase 3 | create the form from the playtest-report fields; QA reads the Sheet export | to create |
@@ -93,3 +93,23 @@ Cloud threads cannot reach Studio or Blender. Anything that needs them is writte
 - Rokit versions pinned from memory; `rokit update` on first install and commit.
 - Studio MCP tool names and Rojo optional-path syntax come from the plan doc and Rojo 7.4+ docs; if `rojo serve` rejects `default.project.json`, replace the `{ "optional": true, ... }` objects with plain paths and create empty `Packages/` folders.
 - Usage: seven agents in parallel burns the Max pool fast. Opus for building, Sonnet for QA chores, Fable only for the design pass.
+
+## 9. Which threads need Fable and which are fine on Opus (2026-10-26)
+Fable burns the shared usage pool fastest, so it goes where a wrong call costs the most downstream work. Everything else runs on Opus, and chores on Sonnet or Haiku. A thread can be switched when it is started or when Derek asks it to switch.
+
+| Thread / role | Model | Why |
+|---|---|---|
+| Design the cat cafe game (game-designer) | Fable | Loop, economy math and balance decisions steer every other thread; low volume, highest leverage. |
+| Review cat cafe code (luau-reviewer) | Fable for the first security review of each feature, Opus for re-checks | A missed exploit or data-loss bug is the costliest mistake; re-reviews after fixes are mechanical. |
+| Plan studio agents, skills and connectors (lead / setup) | Opus, Fable only for an architecture decision | Mostly CI, config and docs; syncing files is a Sonnet job. |
+| Build cat cafe rough draft (luau-engineer) | Opus | Building against a spec; hand one hard bug to Fable, then switch back. |
+| Build cat stats and equip best (luau-engineer) | Opus | Scoped feature from a spec with tests. |
+| Design cat cafe UI (ui-designer) | Opus | Layouts and client code; repetitive component tweaks can go to Sonnet. |
+| Create cat cafe 3D models (asset-artist) | Opus | Blender Python and style guide; re-exports and renames to Sonnet. |
+| Plan cat cafe playtests (qa-playtester) | Sonnet, Opus for test tooling | Test plans, reports and tickets are structured writing; the WebAssembly test runner was a one-off build. |
+| Research cat cafe market and monetization (growth-analyst) | Opus | Web research and summaries; the policy calls are already made. |
+| Find Roblox dev skills and tools | Sonnet or Haiku | Search and inventory, no judgment calls. |
+| Set up purr-pot repo on desktop (remote control) | Sonnet | Terminal chores on Derek's PC. |
+| Coordinator (project chat) | Opus | Routing and summaries; nothing it decides needs Fable. |
+
+Rule of thumb: one Fable pass writes the decision into a doc (GDD, review, decisions.md), then an Opus thread builds from the doc. On Derek's PC the `.claude/agents/*.md` files already pin these models; `game-designer` uses `inherit`, so start design sessions with `/model fable`.

@@ -87,6 +87,25 @@ export type CatInstance = {
 	variant: string, -- "base" in the slice
 	caughtAt: number,
 	spotId: string?, -- nil when resting in the cat room
+	-- Stats (data-model section 4b). Readers go through CatStats, which defaults any missing field.
+	level: number, -- 1 to Config.CatMaxLevel, rises with XP earned while placed
+	xp: number, -- toward the next level; one XP per second placed
+	charm: number, -- 0 to 100, rolled once when caught; 50 is a 1.0x rate
+}
+
+-- One cat as ProfileSync sends it: the saved fields plus the derived numbers the UI shows.
+export type CatView = {
+	uid: string,
+	catId: string,
+	variant: string,
+	caughtAt: number,
+	spotId: string?,
+	level: number,
+	xp: number,
+	xpToNext: number, -- 0 at the level cap
+	charm: number,
+	stars: number, -- 1 to 5, from charm
+	rating: number, -- coins per second before the spot and cafe multipliers
 }
 
 export type Stats = {
@@ -117,6 +136,7 @@ export type PlayerProfile = {
 	stats: Stats,
 	tutorialStep: number,
 	settings: { music: boolean, sfx: boolean },
+	renovations: number, -- Renovate (rebirth) count, 0 until that feature ships; Economy.prestigeMultiplier reads it
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -135,7 +155,7 @@ export type PlayerState = {
 	lures: { [string]: number },
 	equippedLure: string?,
 	-- extras (not in the UI contract, used by the client controller)
-	cats: { [string]: CatInstance },
+	cats: { [string]: CatView },
 	collection: { [string]: number },
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
@@ -144,4 +164,4 @@ export type PlayerState = {
 	serverTime: number,
 }
 
-return nil
+return {}

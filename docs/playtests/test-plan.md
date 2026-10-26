@@ -1,7 +1,10 @@
 # Purr Pot test plan (vertical slice)
 
-Owner: qa-playtester. Draft v0.3.1, 2026-10-26 (v0.1, v0.2 and v0.3 the same day; v0.3.1 follows design v0.3.1). Sources: [gdd.md](../design/cat-cafe/gdd.md)
-(core loop), [features.md](../design/cat-cafe/features.md) (done-when per feature, loop script in section 8),
+Owner: qa-playtester. Draft v0.4, 2026-10-26 (v0.1 to v0.3.1 the same day; v0.4 follows design v0.4, docs PR #62,
+with the reviewer's N45, N46, N47 and S36 folded in). Sources:
+[gdd.md](../design/cat-cafe/gdd.md) (core loop), [features.md](../design/cat-cafe/features.md) (done-when per
+feature, loop script in section 8), [world-and-feel.md](../design/cat-cafe/world-and-feel.md) (v0.4 world, cafes and
+UI, QA acceptance checks in section 8),
 [data-model.md](../design/cat-cafe/data-model.md) (every number), the `playtest-report` skill (report and ticket
 format, severity scale). QA tests, it does not fix: every failure becomes a ticket for its owner.
 
@@ -11,6 +14,12 @@ carry bumps, shinies, the night dealer, night income, rich customers and cat nam
 order of features.md section 1 (F22 first). Every row below names its feature; a row whose feature has not landed
 yet is skipped with the reason "not built", not failed. Until F27 lands, the v0.2 rescue row kept in section 10
 still describes the build on `main`.
+
+**Design v0.4** (Derek's rough draft playtest, 2026-10-26) jumps the queue: F34 catching stakes (the first Miss
+ends the catch with no roll, any mix of Good and Perfect always catches, paws per player per stray, a Perfect charm
+bonus), F35 the Alleyway behind the cafes with walk speed 20, F19 fast travel at P0, then F36 to F39 (cafe shell,
+cafe life, For Rent plots, UI patterns). Rows that change say "(v0.4)" and keep the v0.3 behaviour in a "before
+F34" or "before F35" clause, so the same table works on either build.
 
 ## 1. What runs where
 
@@ -91,7 +100,10 @@ v0.3 specs QA writes as each feature lands (the engineer is asked to keep these 
 | F23 | `Clock.spec`, `Config.spec` | 300 s day and 300 s night after a 120 s first day; WaveSize 10 fits every area's spawn points; RescueMinStuck 1 |
 | F24 | `Economy.spec` | Rank up requirements: cost, distinct cats (shinies not counted twice), rarity needs; Tier 2 with 1,500 coins and 5 cats, refused with 4; tier multiplier 1.25 raises income 25%; tier caps on tables, espresso and net; decor `requiresTier` |
 | F25 | `EquipBest.spec`, `Economy.spec` | Favorite role 1.5x; Equip Best matches brute force on ten slots |
-| F26 | new `Circles.spec` | Schedule: circle count by rarity, lead-in 0.6 s, gaps 0.40 to 0.75 s, shrink times within the net's jitter, Master Net with no jitter, lock length; judging: error within perfect is 1.0, within good 0.5, else 0, latency cap 0.15 s, mean of scores is the chance (all Perfect 100%, all Good 50%); `Config.spec` invariant CircleGapMin above the widest good window plus the latency cap (0.40 > 0.18 + 0.15), so a late press can never land on the next circle |
+| F26 | `Circles.spec` (on main) | Schedule: circle count by rarity, lead-in 0.6 s, gaps 0.40 to 0.75 s, shrink times within the net's jitter, Master Net with no jitter, lock length; judging: error within perfect is Perfect, within good Good, else Miss, latency cap 0.15 s; `Config.spec` invariant CircleGapMin above the widest good window plus the latency cap (0.40 > 0.18 + 0.15), so a late press can never land on the next circle. Before F34 the scores 1.0, 0.5 and 0 and their mean as the chance are tested too; F34 retires them |
+| F34 | `Circles.spec`, `Catalog.spec`, `Config.spec`, a paws module if pure | The attempt ends at the first Miss: grades up to and including it, later circles never judged; success exactly when every circle is Good or Perfect, no roll; `patience` 3, 2, 2, 1, 1 replaces `fleesOnFail`; paws per player per stray, set on the first catch start, one lost per Miss, never below 1 for the `dropOwner` and the tutorial Common; StrayWarySeconds 5 for the player who missed, GrabRetrySeconds 2 for everyone else; charm gain 4 x Perfects, doubled when all are Perfect, 0 with `flags.autoPress` or on a Dropped stray (S36), caught charm `min(100, stray + gain)`; paws are dropped only when the stray despawns, never when the player leaves (N45); the flag sets above 95% Perfect over the last 50 and clears only when the buffer holds a full 50 at 85% or below, so a short buffer after a rejoin never clears a saved flag (N46) |
+| F35 | `Catalog.spec`, `Config.spec`, the spawn pick if pure | 24 alley spawn points, 16 `lane` and 8 `square`; Epic and rarer take only free `square` points (any free point if none is free), Commons and Rares any; NormalWalkSpeed 20, CarryWalkSpeed 16; the tutorial Common at the `lane` point behind the player's own cafe |
+| F19 | a travel check if pure | `home` or an area id; a locked area, carrying, holding a catch or rescue lock (N47) or inside TravelCooldownSeconds 3 is refused |
 | F27 | new `Rescue.spec` | Bar marker position at any server time (speed, bounce, start phase), zone hit with tolerance 0.03, hits per rarity, three paws, `shake_catch` ends in one circle with Pro Net windows |
 | F28 | `Catching.spec` | Bait roll: rarity from food odds, cat uniform over that rarity in unlocked areas, the per-cat percentages the card shows, ready at `placedAt + 600` |
 | F29 | new `Bump.spec` (if the checks are a pure predicate) | Each protection on its own: range 6, grace 3 s, safe radius 15, cooldown 12 s, same target 60 s, immunity, carrying bumper, self as target, `BumpEnabled` false; drop claims: only the old carrier for 8 s, never the bumper, a dropped stray never flees |
@@ -134,10 +146,10 @@ it is scripted; keep the manual tool sequence below as the reference.
 | Step | Tool calls | Expected | Feature |
 |---|---|---|---|
 | S1 Join | `start_stop_play` start. Wait 10 s. `get_console_output`. `execute_luau`: plots tagged `Plot` with `OwnerUserId == player.UserId` | No errors. Exactly one plot owned, `Tier` attribute 1. HUD shows `$50` and `1.5/s` within 5 s: the starter Tabby (charm 50, level 1) works `barista_1`, its favorite role (hook: `snapshot.money == 50`, `incomePerSecond == 1.5`, `tier == 1`). The Tabby stands upright in an apron | F01, F04, F22, F25 |
-| S2 World and gates | `execute_luau`: five area folders under `workspace.World`, a gate per locked area; `CollectionService:GetTagged("Stray")` by `Area` attribute | Alleyway open; Park, Neighbourhood, Woods and Sewer gates solid for a Tier 1 player (`character_navigation` into the Park stops at the gate). By day the alley holds only leftovers and the tutorial Common | F23 |
-| S3 Walk to alley | `character_navigation` to the alley centre (read `Config.World` with `execute_luau`) | Arrives in under 60 s. Tutorial arrow visible on the way (phone emulator run only) | F01, F13 |
-| S4 Catch, Common | Next to the tutorial Common (within 8 studs), trigger the prompt (`user_keyboard_input` `E`). Read the `CatchSchedule` the client received (client `execute_luau`, or the server log hook). Press `E` at the circle's target time | One circle, shrinking over 1.40 s x (1 +/- 0.30) with a Basic Net, starting 0.6 s after the press. A press within 0.045 s of the target grades Perfect (chance 100%, always caught), within 0.11 s Good (50%), else Miss (0%). On a failed roll the Common stays and the prompt reopens after 2 s. Success: carry indicator, walk speed 13 (hook: `Humanoid.WalkSpeed`) | F26, F07 |
-| S5 Check in | `character_navigation` to own plot `Door` | Within 8 studs: Cat found popup, `+50` first-catch reward for a new Common, book `2 / 50`, carry indicator gone, speed back to 16 | F07 |
+| S2 World and gates | `execute_luau`: five area folders under `workspace.World`, a gate per locked area; `CollectionService:GetTagged("Stray")` by `Area` attribute | Alleyway open; Park, Neighbourhood, Woods and Sewer gates solid for a Tier 1 player (`character_navigation` into the Park stops at the gate). By day the alley holds only leftovers and the tutorial Common. (v0.4) The Alleyway is two back alleys behind the cafe rows meeting in the Alley Square; 24 alley spawn points with `Zone` `lane` (16) or `square` (8); every cafe's back door is open at Tier 1; each locked gate shows its tier and the player's progress | F23, F35 |
+| S3 Walk to alley | (v0.4) From the farthest cafe's back door, `character_navigation` to the nearest stray spawn point, then to the far side of the Square, then from the cafe to each unlocked gate; time each with `os.clock()` in `execute_luau` | (v0.4) `Humanoid.WalkSpeed` 20; nearest spawn under 2 s, far side of the Square under 8 s, any unlocked gate under 10 s (world-and-feel 2 and 8.4); the tutorial Common waits at the `lane` point behind the player's own cafe. Before F35: the alley centre in under 60 s. Tutorial arrow visible on the way (phone emulator run only) | F01, F13, F35 |
+| S4 Catch, Common | Next to the tutorial Common (within 8 studs), trigger the prompt (`user_keyboard_input` `E`). Read the `CatchSchedule` the client received (client `execute_luau`, or the server's `[Catch]` line). Press `E` at the circle's target time; on a second stray, press 0.3 s late on purpose | One circle, shrinking over 1.40 s x (1 +/- 0.30) with a Basic Net, starting 0.6 s after the press. Within 0.045 s of the target is Perfect, within 0.11 s Good, else Miss. (v0.4) Perfect or Good always catches, no roll; an all-Perfect catch reports `charmGain` 8 and the caught cat's charm is the stray's `Charm` plus 8 (capped at 100). The late press is a Miss: the overlay ends at once, `CatchResult` grades `{ "miss" }`, success false, `pawsLeft` 2 (nil for a new player on the tutorial Common, who never runs out), toast `It slipped away! 2 paws left`, the cat jumps back 6 to 10 studs and the prompt returns for this player after 5 s. Before F34: Perfect 100%, Good 50%, Miss 0%; a failed Common stays with the prompt back after 2 s. Success: carry indicator, walk speed 16 (13 before F35; hook: `Humanoid.WalkSpeed`) | F26, F34, F07 |
+| S5 Check in | `character_navigation` to own plot `Door`; (v0.4) next time to the back door | Within 8 studs: Cat found popup, `+50` first-catch reward for a new Common, book `2 / 50`, carry indicator gone, speed back to 20 (16 before F35). (v0.4) The back door checks in too | F07, F35 |
 | S6 Role | Open the cat room, pick the new cat, assign it to `waiter_1` | It stands upright in a bow tie. Rate rises by its rating, times 1.5 if `waiter` is its favorite (Tuxedo, Snow): `1 x charmMultiplier` where charm 0 to 100 gives 0.8x to 1.2x (read `snapshot.cats[uid].charm`) | F25 |
 | S7 Buy | At `$100` buy Tables; at `$400` buy the Bait bowl (hook: `Debug.setCoins` to skip the wait) | Table and two chairs appear, rate x1.10 exactly. A bowl appears at the `BaitBowl` anchor by the door | F08, F28 |
 | S8 Refusals | At Tier 1: buy Tables level 3, Espresso level 3, Net level 2, Window plants; assign a cat to `greeter_1`; walk into the Park | Each refused with a toast that names the tier (`Needs Tier 2`), no coins taken, no server error; the gate holds | F24, F23 |
@@ -152,23 +164,29 @@ it is scripted; keep the manual tool sequence below as the reference.
 | S17 Rename | Rename a working cat to `Biscuit` | The name shows over the cat (`DisplayName`) for every player and in the cat room. Empty, whitespace-only, 21 character, newline, `<b>` and control character names are refused with a toast; a 20 emoji name is allowed. A second rename within 5 s is dropped | F33 |
 | S18 Persist (API access on) | `start_stop_play` stop, start again | Coins within rate x gap of the last value, cats, roles, tier, tables, bait (same cat, same ready time) and dealer bought slots back | F10, F28, F32 |
 | S19 Offline | API access on: stop play, wait, start again (with `Debug.setLastSeen` this becomes a 5 s step) | Popup shows `floor(dayRateAtLogout x 0.25 x min(secondsAway, 3600))`, even if the player left at night. Claim adds exactly that once; a second claim adds nothing. A bait placed before leaving is ready if 600 s passed | F12, F28 |
+| S20 Travel (v0.4) | Press Alley, then Areas, then Cafe (`user_mouse_input` on the top centre buttons); at Tier 1 tap the Park card; catch a cat and press Alley while carrying; press Cafe mid-catch | Lands at the alley entry and back home from anywhere; the Areas panel shows five cards, locked ones greyed with their tier; the Park card does nothing at Tier 1; every button is greyed while carrying and nothing moves; mid-catch Travel is refused (N47) | F19, F39 |
+| S21 For Rent plots (v0.4) | One player on the server: `screen_capture` of each of the seven empty plots from the street. Then start a second player (Clients and Servers) and capture their plot | Every empty plot is a For Rent shop (shutters half down, dust sheets, sign, boxes, a sleeping doorstep cat with no prompt, lamp on at night), never grey boxes. The joining player's shutters roll up, the sign flips to OPEN and the Tabby walks in | F38, F36 |
+| S22 Cafe from the street (v0.4) | Stand in the street outside own running cafe, `screen_capture`; walk inside and capture again | Working cats are visible through the glass front; the sign shows the owner's name, tier and rate; customers queue, sit and leave hearts; `+$X/s` tags over working cats within 40 studs; inside, the roof fades on the owner's screen only | F36, F37 |
 
 Record pass or fail per step plus the console text. Any step that cannot run (hook missing, API access off,
 feature not built) is marked skipped with the reason, not failed.
 
 ### 4.2 Circle feel and latency (F26, phone emulator and PC)
 
-The designer's feel targets (data-model section 10): a Common with a Basic Net is caught by a new player most of
-the time; a Mythical with a Basic Net is very hard to perfect; a Master Net makes it fair. Run each line 10 times
-and record the grade of every circle (hook: server circle log) and the final chance.
+The designer's feel targets (data-model section 10, v0.4): a new player with a Basic Net catches a Common within
+its three paws nearly every time; a Rare or Epic feels tense but fair; a Mythical with a Basic Net is a real risk
+(five quick uneven circles on one paw); a Master Net makes it fair. Run each line 10 times and record the grade of
+every circle (the server's `[Catch]` lines), the paws used and whether it was caught (before F34: the final
+chance).
 
 | Line | Setup (hooks) | Record | Target |
 |---|---|---|---|
-| C1 New player, Common | Fresh profile, Basic Net, `Debug.spawnStray("ginger", "alley")`, a person who has not played it | Grades, catches out of 10, retries per catch | Caught in 7 or more of 10 within two tries each |
+| C1 New player, Common | Fresh profile, Basic Net, `Debug.spawnStray("ginger", "alley")`, a person who has not played it | Grades, catches out of 10, paws used per catch | (v0.4) Caught within its three paws nearly every time: 9 or more of 10. Before F34: 7 or more of 10 within two tries |
 | C2 Mythical, Basic Net | `Debug.spawnStray("midnight", "alley")`, net 0 | Grades per circle, how uneven the five shrink times look | Perfect on all five is rare; uneven speeds are visible |
 | C3 Mythical, Master Net | Same with `Debug.setUpgrade(player, "net", 3)` | Grades, final chance | Feels fair: steady speeds, most circles Good or better |
 | C4 Latency | Incoming Replication Lag 0.1 s, then 0.25 s, Common, net 0; record `player:GetNetworkPing()` on the server at each setting | Perfect rate pressing on the visual target, and the ping the server saw | The server subtracts half the ping, capped at 0.15 s. If the ping reflects the simulated lag, 0.1 s should grade like the 0 s run and 0.25 s should grade late. Record, do not ticket: Studio's lag setting may not match a real phone on mobile data, so the friend round on phones is the real test |
 | C5 Touch | Phone emulator, tap the action button | Circle placement (x, y spread), button size, whether the thumb hides the ring | No circle under the thumb zone; button at least 44 px |
+| C7 Sure catch (v0.4) | 20 Commons and 5 Rares; press every circle inside the good window, mixing Good and Perfect (by hand, or the abuse client's on-target presses offset by up to 0.08 s) | Catches out of 25, `charmGain` per catch | 25 of 25 caught, no roll; `charmGain` is 4 per Perfect, doubled when every circle is Perfect (world-and-feel 8.2) |
 | C6 Phone on mobile data | A real phone on mobile data, then on Wi-Fi, a published test place (not Studio), C1 and C2 again | Grades per circle and the ping the server saw | Phone ping wanders 30 to 50 ms against the 45 ms Basic Perfect window (data-model 10). If Good is the best a careful player gets on mobile data, file a balance note for the designer with the numbers |
 
 If the Basic Net feels mean on touch, the designer's rule is to widen `good` before anything else; file it as a
@@ -178,13 +196,20 @@ balance note with the numbers, owner designer.
 
 1. Same stray: A starts a catch, B triggers the prompt a second later. Expected: B is refused while A's schedule
    runs; only one `CatchResult` and at most one carry. (F26.)
+1b. Paws are per player (v0.4, F34; world-and-feel 8.1): A misses circle 1 of a Rare (`Debug.spawnStray("calico")`).
+   Expected: the catch ends at once with no roll, the cat jumps back, A's paw row shows 1 left; B can start a catch
+   after 2 s, A only after 5 s. A misses again: A's prompt is gone and A's `GrabBegin` is refused with "It won't
+   trust you again tonight", while B still sees the prompt and has B's own 2 paws. A's misses never change B's.
+   A leaves and rejoins the same server: still refused on that stray (paws survive a rejoin, reviewer N45).
 2. Bump, 20 tries (F29). A carries a cat in the Alleyway at least 3 s into the carry and outside A's safe zone; B
    stands within 6 studs and bumps. Use two test profiles and the hooks to reset carries (or a forced roll for the
    protection rows). Expected: about half knock the cat loose (6 to 14 of 20 is inside the 95% range of a fair
    50% roll); on success the cat drops as a stray with `Dropped` true, keeps its catId, variant, charm and rescued
    flag, and scurries 6 to 10 studs; for 8 s only A can start a catch on it, then anyone except B, who can never
-   catch a stray B knocked loose; it never flees on a failed catch, whatever its rarity, and stays until caught or
-   the next night wave; whoever catches it is `BumpImmune` for that carry; B never receives the cat. On a fail both see "It held on tight!" and A is immune
+   catch a stray B knocked loose; (v0.4) A never runs out of paws on it: five misses in a row and A can still try
+   again, after the 5 s wary wait each time (world-and-feel 8.3; before F34 it never flees on a failed catch,
+   whatever its rarity); an all-Perfect re-catch adds no charm (`charmGain` 0, reviewer S36); it stays until
+   caught or the next night wave; whoever catches it is `BumpImmune` for that carry; B never receives the cat. On a fail both see "It held on tight!" and A is immune
    for 3 s. Each protection on its own refuses the bump: under 3 s into the carry, within 15 studs of A's door or
    inside A's plot, B more than 6 studs away, B carrying, B bumped anyone in the last 12 s, B bumped A in the last
    60 s, A immune, `BumpEnabled` false (the prompt also hides), B naming itself or a UserId not in the server.
@@ -230,20 +255,23 @@ Catching and rescue (F26, F27, F23)
 | Grab limit (key `[`) | `GrabBegin` on a second stray within 1 s of the first | Dropped by the 1 per 2 s limit: no answer, no schedule |
 | Same stray again (key `[`) | `GrabBegin(id)` 2 s into its own catch | `GrabResult` `Keep going, the circles are coming`, no second schedule, one `CatchResult` |
 | One catch at a time (key `[`) | 2 s into a catch, stand by another stray and `GrabBegin` it | `Finish this catch first`, no schedule |
-| Retry wait (key `;`) | Fail a Common on purpose, `GrabBegin(id)` 2 s after the first `GrabBegin` (inside the 2 s from the fail), then once the wait is over | `CatchResult` stayed true; `Give it a moment` inside the wait; a new schedule after it |
+| Retry wait (key `;`) | Fail a Common on purpose, `GrabBegin(id)` 2 s after the first `GrabBegin` (inside the wait from the fail), then once the wait is over | (v0.4) `CatchResult` success false, `pawsLeft` 2; refused inside StrayWarySeconds 5 from the fail; a new schedule after it. Before F34: stayed true, `Give it a moment` inside 2 s. The abuse client's wait is 2 s and is updated when F34 lands |
+| Out of paws (v0.4, manual until the client update) | Miss a Legendary once (`Debug.spawnStray("void")`, 1 paw), then `GrabBegin(id)` after 5 s | Refused `It won't trust you again tonight`, no schedule, until the stray despawns; a second client still gets a schedule |
 | Far grab (key 2) | Teleport 200 studs away, `GrabBegin(id)` | Refused with `Too far away`, no schedule |
-| Far press (key 8) | `GrabBegin` in range, teleport 200 studs away, press every circle on target | Not caught although the chance is 100%: a failed catch with no roll, toast `Too far away`; a Common stays, a Rare flees |
+| Far press (key 8) | `GrabBegin` in range, teleport 200 studs away, press every circle on target | Not caught although every press is on target. (v0.4) Walking out of range is a Miss: a paw is lost, the cat jumps back. Before F34: a failed catch with no roll, toast `Too far away`; a Common stays, a Rare flees |
 | Locked area | Tier 1, teleport past the Park gate, `GrabBegin(park stray)`, `RescueBegin(park trap)` | Refused, nothing locked, no schedule or challenge |
-| Drop claims (Clients and Servers, 3 players) | After B bumps A loose: C `GrabBegin` within 8 s; B `GrabBegin` at any time; A fails a catch on a dropped Rare | Refused within 8 s for anyone but A; refused for B always; the Rare stays and can be retried after 2 s |
+| Drop claims (Clients and Servers, 3 players) | After B bumps A loose: C `GrabBegin` within 8 s; B `GrabBegin` at any time; A fails a catch on a dropped Rare | Refused within 8 s for anyone but A; refused for B always; the Rare stays; (v0.4) A's `pawsLeft` is nil and A can retry after 5 s however often A misses (before F34: retried after 2 s) |
 | Press without begin (key 3; client B part manual) | `CatchPress(id, 1)`, `CatchPress(id, 2)` on a stray nobody locked, and on one client B locked | Ignored |
 | Press early (key 4) | `CatchPress(id, 1)` right after `GrabBegin`, before circle 1 starts | Ignored, not counted as the first press; the on-target press still grades |
 | Press out of order (key 4) | `CatchPress(id, 2)` before circle 1 is judged | Ignored |
-| Press repeated (key 4) | `CatchPress(id, i - 1)` once circle i is open, then circle i on target | Ignored; circle i still grades, every score above 0 |
-| Press twice (manual) | `CatchPress(id, 1)` twice, the first early but after circle 1 starts, the second on target | Only the first press counts: circle 1 scores 0 |
-| Press with a time (key 5) | `CatchPress(id, 1, target, "perfect", 1)` 0.15 s after circle 1 starts | Extra arguments ignored, the server stamps the arrival time: circle 1 scores 0 |
-| Press spam (key `'`) | `CatchPress(id, i)` every 0.1 s from `GrabBegin` on, moving to the next index once a circle has started | Each circle grades from the first press after its start, which is early, so every circle scores 0; at most 10 presses per second reach the handler |
-| No press (key 6) | `GrabBegin(id)` and never press | Every circle scores 0 at its target + good + 0.15 s, the roll fails, `stayed` is true for a Common and false for a Rare that flees; the lock clears |
-| Scripted perfect (key 7, five runs) | 10 catches pressing each circle on its target, repeated until 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the server's exploit check flags it from its own stamped errors (Perfect rate above 95% over the last 50 circles; no `TelemetryReport` involved), the warn `[CatService] <userId> flagged autoPress`. Log, do not ticket, unless the flag never fires |
+| Press repeated (key 4) | `CatchPress(id, i - 1)` once circle i is open, then circle i on target | Ignored; circle i still grades, every circle Good or Perfect |
+| Press twice (manual) | `CatchPress(id, 1)` twice, the first early but after circle 1 starts, the second on target | Only the first press counts: circle 1 is a Miss (v0.4: and the attempt ends there) |
+| Press with a time (key 5) | `CatchPress(id, 1, target, "perfect", 1)` 0.15 s after circle 1 starts | Extra arguments ignored, the server stamps the arrival time: circle 1 is a Miss (v0.4: the attempt ends, a paw is lost) |
+| Press spam (key `'`) | `CatchPress(id, i)` every 0.1 s from `GrabBegin` on, moving to the next index once a circle has started | The first press after circle 1 starts is early, so circle 1 is a Miss; (v0.4) the attempt ends there and `grades` has one entry. Before F34 every circle scores 0. At most 10 presses per second reach the handler |
+| No press (key 6) | `GrabBegin(id)` and never press | (v0.4) Circle 1 is a Miss at its target + good + 0.15 s and the attempt ends there, later circles never judged; success false, a paw lost; the lock clears. Before F34: every circle scores 0, the roll fails, `stayed` is true for a Common and false for a Rare that flees |
+| Scripted perfect (key 7, five runs) | 10 catches pressing each circle on its target, repeated until 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the server's exploit check flags it from its own stamped errors (Perfect rate above 95% over the last 50 circles; no `TelemetryReport` involved), the warn `[CatService] <userId> flagged autoPress`. (v0.4) While flagged, `charmGain` is 0; then press 8 of 10 circles late (Good) for 50 circles and the flag clears at 85% or below; an `autopress_flag` analytics event on set and on clear. Flag it, rejoin (API access on) and play 10 Good circles: still flagged, since a buffer under 50 never clears a saved flag (N46). Log, do not ticket, unless the flag never fires or never clears |
+| Travel (v0.4, manual) | `Travel("alley")` while carrying; `Travel("home")` during a catch and during a rescue; `Travel("park")` at Tier 1; `Travel("alley")` twice within 3 s; `Travel(123)`, `Travel("moon")`, `Travel(nil)` | Refused while carrying, during a catch or rescue (N47) and into a locked area; the second call inside 3 s refused or dropped; bad ids dropped; nobody moves and no server error |
+| Paws on rejoin (v0.4, manual, API access on not needed) | Miss a Legendary (1 paw), leave and rejoin the same server, `GrabBegin(id)` | Still refused `It won't trust you again tonight` (N45) |
 | Bad index (key 4) | `CatchPress(id, 0)`, `(id, 99)`, `(id, -1)`, `(id, 1.5)`, `(id, 0/0)`, `(id, "1")`, `(id, {})`, `(id, nil)` | Dropped silently by `Guard.int`, no error |
 | Rescue without begin (manual) | `RescuePress(spot)` on an unlocked trap, `RescueCancel(spot)` on a trap client B locked | Ignored |
 | Rescue spam (manual) | `RescuePress(spot)` 10 times a second | Misses cost paws; the attempt ends after 3 misses; the cat stays stuck |
@@ -306,7 +334,9 @@ Bait, dealer, rich tips and names (F28, F32, F31, F33)
 `execute_luau` on the client: average `RunService.Heartbeat` delta over 10 s in the cafe with customers on and
 off (hook or a client attribute), and during a five-circle catch. Budget from F15: customers under 2 ms per frame;
 the whole scene under 16.7 ms on the emulator's default quality. Record `Stats:GetTotalMemoryUsageMb()` at join and
-after 10 minutes, and the count of `ShinySparkle` emitters.
+after 10 minutes, and the count of `ShinySparkle` emitters. (v0.4, F37, world-and-feel 8.8) Standing in the street
+with eight running cafes on a phone-sized viewport: 30 or more frames per second; cafes beyond 80 studs culled and
+roaming paused with nobody within 60 studs.
 
 ## 5. Manual checklist (Derek first, then friends)
 
@@ -314,12 +344,16 @@ Run on a phone preset and once on PC. Tick each line, note the build date. Place
 colored Part uniforms) are expected in the rough draft and are cosmetic tickets only.
 
 Core loop (features.md section 2 done-when lines)
-- [ ] F01 Join, own a plot, walk cafe to alley and back in under 60 s; fast travel shows five area buttons with locked areas greyed (P2)
+- [ ] F01 Join, own a plot, walk out of the back door to a stray in under 2 s (v0.4; before F35 cafe to alley and back in under 60 s)
+- [ ] F19 (v0.4) Cafe, Alley and Areas buttons top centre work from anywhere; the Areas panel greys locked areas with their tier; all greyed while carrying
 - [ ] F22 A v2 save loads as v3: tier 1, cafe level and park pass refunded, two cats working, no coins lost (API access on, an old dev save)
 - [ ] F23 Day 5 minutes, night 5 minutes after a 2 minute first day; ten strays per unlocked area at each night start; uncaught strays vanish at the next night start; locked area gates hold
 - [ ] F24 Rank up card ticks each requirement; Tier 2 with 1,500 coins and 5 different cats, refused with 4; income rises 25%; the Park gate opens; each tier opens its slots and shop caps
 - [ ] F25 Assign a Tabby to Barista: it stands in an apron and earns 1.5x; the cat room shows it on all fours; Equip Best fills every open slot
-- [ ] F26 Circles: one slow circle for a Common, five uneven ones for a Mythical with a Basic Net; all Perfect always catches, all Good is a coin flip; a Rare that fails flees with "It got away", a Common stays
+- [ ] F26 Circles: one slow circle for a Common, five uneven ones for a Mythical with a Basic Net
+- [ ] F34 (v0.4) Any mix of Good and Perfect always catches; a Miss ends the catch at once, the cat jumps back and the paw row loses one; at zero paws the prompt hides for you only; an all-Perfect catch shows the Purrfect burst and "Charm +N" (before F34: all Good is a coin flip, a failed Rare flees)
+- [ ] F35 (v0.4) The Alleyway is right behind the cafes, both back alleys and the Square feel roomy; rarer cats are in the Square
+- [ ] F36 to F38 (v0.4) From the street you see cats at work; signs show name, tier and rate; empty plots are For Rent shops, never grey boxes
 - [ ] F27 Rescue: two hits free a Common from a bin; three misses end the attempt and the cat is still there; a tree rescue ends with one catch circle
 - [ ] F28 Bait: Kibble in, 10:00 countdown, log off 10 minutes, rejoin and the same cat is waiting; Tame adds it, Let go clears it, the food is gone either way; odds and the per-cat split are on the food card before buying
 - [ ] F29 Bump: half the time the cat drops and anyone can net it; no bump near the carrier's door or in the first 3 s; the re-catcher cannot be bumped; the bumper never gets the cat
@@ -336,7 +370,7 @@ Core loop (features.md section 2 done-when lines)
 Phone and UI
 - [ ] All HUD text readable at 390 x 844; no element under the notch or behind the Roblox top bar
 - [ ] Every tappable control at least 44 px; no accidental catches when tapping HUD buttons near a stray
-- [ ] Circles never sit under the thumb or the action button; the grade of each circle and the final percentage are readable
+- [ ] Circles never sit under the thumb or the action button; the grade of each circle is readable (v0.4: PERFECT, GOOD and MISS pops, the paw row, no percentage; before F34 the final percentage)
 - [ ] The rescue bar and its paws are readable on the phone preset
 - [ ] Shop, food and dealer cards show cost, effect and odds before purchase; nothing is bought with one accidental tap
 - [ ] Every refused action shows a toast that says why (tier, distance, cooldown)
@@ -356,9 +390,11 @@ data-model v0.3 and become spec checks as each feature lands.
 
 1. Join. Plot owned, Tabby working as Barista in an apron, HUD `$50` and `1.5/s` within 5 s (Common 1/s, charm 50,
    favorite role 1.5x, tier 1.0, day 1.0).
-2. Follow the arrow to the Alleyway. A Common stray is there even by day (tutorial guarantee below step 2). One slow
-   circle (1.40 s, Basic Net). Perfect catches for sure, Good half the time, a miss allows a retry after 2 s.
-3. Walk home at speed 13, check in. Cat found popup, `+50` reward, book `2 / 50`.
+2. (v0.4) Walk out of the back door into the Alleyway. A Common stray waits right behind your cafe even by day
+   (tutorial guarantee below step 2). One slow circle (1.40 s, Basic Net). Good or Perfect catches it; a Miss
+   costs one of its three paws and you try again after 5 s (the tutorial Common never runs out for a new player).
+   Before F34: Perfect catches for sure, Good half the time, a miss allows a retry after 2 s.
+3. Walk home at speed 16 (13 before F35), check in at either door. Cat found popup, `+50` reward, book `2 / 50`.
 4. Assign the new cat as Waiter. It stands up in a bow tie. Rate rises by 0.8 to 1.2 (charm), or 1.2 to 1.8 for a
    Tuxedo or Snow, so the HUD reads between `2.3/s` and `3.3/s`.
 5. Buy Table 1 at `$100` (rate x1.10), then the Bait bowl at `$400`, then Kibble at `$25` and put it in. The
@@ -373,8 +409,10 @@ data-model v0.3 and become spec checks as each feature lands.
    Hub): onboarding steps `joined`, `saw_alley`, `first_catch`, `first_checkin`, `first_role`, `first_table`,
    `first_bait`, `first_bait_resolved` fired once each, in order; `tier_2` when reached.
 
-Extra checks for v0.3 (features.md section 8): the bump test over 20 tries (section 4.3 item 2); all-Perfect and
-all-Good catches give 100% and 50% (section 4.1 S4 and the `Circles.spec`); the dealer stock is identical after a
+Extra checks for v0.3 and v0.4 (features.md section 8): the bump test over 20 tries (section 4.3 item 2); any mix
+of Good and Perfect always catches and a Miss always ends the attempt (C7 and S4; before F34, all-Perfect and
+all-Good give 100% and 50%); paws per player (section 4.3 item 1b); travel greyed while carrying (S20); For Rent
+plots on a near-empty server (S21); the dealer stock is identical after a
 rejoin in the same night (section 4.4); Tier 2 is reached in 10 to 20 minutes of normal play (time it on two
 fresh accounts and record the minute).
 
@@ -392,6 +430,9 @@ shaped findings go to luau-reviewer as blockers. QA never writes the fix.
    `Debug.setNightIndex(n)` or `Debug.setDealerStock(player?, { lureIds })`; `Debug.spawnRichTip(player?)`; and a
    way to force the next bump roll (`Debug.forceBump(true or false)`). Done: `setTier`, `giveLure`,
    `setLastSeen`, `setSaveVersion`, the `[Catch]` line per graded circle (F26, PR #40) and the bridge (PR #50).
+   v0.4 (F34): `Debug.paws(player?, strayId)` to read a player's paws on a stray (nil when unlimited),
+   `Debug.setAutoPress(player?, true or false)` to set or clear the flag without 50 scripted circles and the
+   `[Catch]` line to print the attempt's end reason (miss, out of range, done) and `charmGain`.
 2. Engineer, pure functions for unit tests (section 3.1): the circle schedule builder and judge, the rescue bar
    position and hit test, the bump checks as a predicate over positions and times, the rank up requirement
    check, the bait roll, the dealer stock roll, `Economy.settle` across phase boundaries, and name trimming, each

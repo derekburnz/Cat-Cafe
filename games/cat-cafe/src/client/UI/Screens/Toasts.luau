@@ -2,6 +2,7 @@
 -- Short messages that drop in under the cafe pill and fade out. Max four on screen.
 
 local Create = require(script.Parent.Parent.Components.Create)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -16,11 +17,12 @@ export type Toasts = {
 local LIFETIME = 2.4
 local MAX_VISIBLE = 4
 
-local KIND_COLORS: { [string]: { bg: Color3, text: Color3 } } = {
-	info = { bg = Theme.colors.cocoaDeep, text = Theme.colors.paper },
-	good = { bg = Theme.colors.good, text = Theme.colors.goodText },
-	warn = { bg = Theme.colors.warn, text = Theme.colors.paper },
-	announce = { bg = Theme.colors.gold, text = Theme.colors.goldText },
+-- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
+local KIND_COLORS: { [string]: Color3 } = {
+	info = Theme.colors.cocoaDeep,
+	good = Theme.colors.good,
+	warn = Theme.colors.warn,
+	announce = Theme.colors.gold,
 }
 
 local Toasts = {}
@@ -59,7 +61,7 @@ function Toasts.new(parent: Instance): Toasts
 	})
 	self.screenGui = screenGui
 	self._order = 0
-	self._alive = {} :: { TextLabel }
+	self._alive = {} :: { Frame }
 	if parent then
 		screenGui.Parent = parent
 	end
@@ -67,27 +69,39 @@ function Toasts.new(parent: Instance): Toasts
 end
 
 function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
-	local colors = KIND_COLORS[kind or "info"] or KIND_COLORS.info
+	local fill = KIND_COLORS[kind or "info"] or KIND_COLORS.info
 	self._order += 1
-	local toast: TextLabel = Create("TextLabel", {
+	local toast: Frame = Create("Frame", {
 		Name = "Toast",
-		BackgroundColor3 = colors.bg,
+		BackgroundColor3 = fill,
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 38),
-		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textBody,
-		TextColor3 = colors.text,
-		TextTransparency = 1,
-		Text = text,
+		Size = UDim2.fromOffset(0, 40),
 		LayoutOrder = self._order,
 		Parent = self._stack,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 16), PaddingRight = UDim.new(0, 16) }),
-		Create("UISizeConstraint", { MaxSize = Vector2.new(420, 38) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18) }),
+		Create("UISizeConstraint", { MaxSize = Vector2.new(460, 40) }),
 	})
+	local border = Outline.border(toast)
+	border.Transparency = 1
+	local message: TextLabel = Create("TextLabel", {
+		Name = "Text",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromScale(0, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 1,
+		TextColor3 = Theme.colors.white,
+		TextTransparency = 1,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = text,
+		Parent = toast,
+	}, { Create("UISizeConstraint", { MaxSize = Vector2.new(424, 40) }) })
+	local textOutline = Outline.text(message)
+	textOutline.Transparency = 1
 	table.insert(self._alive, toast)
 	while #self._alive > MAX_VISIBLE do
 		local oldest = table.remove(self._alive, 1)
@@ -95,13 +109,19 @@ function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
 			oldest:Destroy()
 		end
 	end
-	Tween.to(toast, Tween.FAST, { BackgroundTransparency = 0.08, TextTransparency = 0 })
+	Tween.to(toast, Tween.FAST, { BackgroundTransparency = 0 })
+	Tween.to(border, Tween.FAST, { Transparency = 0 })
+	Tween.to(message, Tween.FAST, { TextTransparency = 0 })
+	Tween.to(textOutline, Tween.FAST, { Transparency = 0 })
+	Tween.popIn(toast, 0.8)
 	task.delay(LIFETIME, function()
 		if not toast.Parent then
 			return
 		end
-		local out =
-			Tween.to(toast, Tween.SETTLE, { BackgroundTransparency = 1, TextTransparency = 1 })
+		Tween.to(border, Tween.SETTLE, { Transparency = 1 })
+		Tween.to(message, Tween.SETTLE, { TextTransparency = 1 })
+		Tween.to(textOutline, Tween.SETTLE, { Transparency = 1 })
+		local out = Tween.to(toast, Tween.SETTLE, { BackgroundTransparency = 1 })
 		out.Completed:Once(function()
 			local index = table.find(self._alive, toast)
 			if index then

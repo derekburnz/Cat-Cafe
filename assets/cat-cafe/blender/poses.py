@@ -21,8 +21,9 @@ import common
 POSES = {
     "upright": dict(pivot=(0, 0.5, 0), rot=(-90, 0, 0), offset=(0, 0, 0.3), head=(90, 0, 0), tail=(80, 0, 0),
                     note="Stands on the hind legs. Same parts; Head pitched back to face forward. Accessories keep their offsets."),
-    "carried": dict(pivot=(0, 0, 0), rot=(20, 0, 0), offset=(0, -1.2, 3.2), head=(-20, 0, 0), tail=(-40, 0, 0),
-                    note="Held in front of the chest, relative to the character's HumanoidRootPart."),
+    "carried": dict(pivot=(0, 0, 0), rot=(0, 0, 90), offset=(0, -1.05, -0.4), head=(-10, 0, 0), tail=(-40, 0, 0),
+                    note="Cradled across the chest, facing the character's left, so the camera behind the player "
+                         "sees the cat side on. Relative to the HumanoidRootPart centre (R15: 3 studs above the floor)."),
 }
 STUCK_POSES = {
     "CatCafe_Alley_StuckTree": dict(pivot=(0, 0, 0), rot=(0, 20, 0), offset=(1.4, 0, 4.4), head=(30, 0, 0), tail=(10, 0, 0),
@@ -119,6 +120,21 @@ def manifest_pose(pose):
     }
 
 
+# R15-sized stand-in, floor at z 0, HumanoidRootPart centre at z 3 (HipHeight 2 + half the 2-stud HRP)
+HRP_HEIGHT = 3.0
+
+
+def r15_proxy(mat):
+    b = common.Builder()
+    for x in (-0.5, 0.5):
+        b.box((x, 0, 1.0), (0.9, 1.0, 2.0), "concrete_dark", bevel=False)       # legs
+    b.box((0, 0, 3.1), (2.0, 1.0, 2.2), "concrete_dark", bevel=False)          # torso
+    b.box((0, 0, 4.85), (1.2, 1.2, 1.2), "concrete_dark", bevel=False)         # head
+    for x in (-1.5, 1.5):
+        b.box((x, 0, 3.2), (1.0, 1.0, 2.0), "concrete_dark", bevel=False)       # arms
+    return b.finalize("_Proxy_R15", mat)
+
+
 def render_pose_previews(built, mat, docs, samples=32, cat="CatCafe_Cat_Tabby"):
     """Rescue props with the stuck cat, the accessory set, the upright and carried poses."""
     cat_objs = built.get(cat)
@@ -155,4 +171,13 @@ def render_pose_previews(built, mat, docs, samples=32, cat="CatCafe_Cat_Tabby"):
     common.render_preview(copies + acc, path, samples=samples, warm=True, azimuth=25, elevation=10)
     cleanup(copies + acc)
     made["Pose_Upright"] = path
+    # carried, against an R15-sized stand-in
+    proxy = r15_proxy(mat)
+    copies = posed_copies(cat_objs, POSES["carried"], world=Matrix.Translation((0, 0, HRP_HEIGHT)))
+    path = os.path.join(docs, "previews", "Pose_Carried.png")
+    common.hide_all_meshes()
+    common.show([proxy] + copies)
+    common.render_preview([proxy] + copies, path, samples=samples, warm=True, azimuth=25, elevation=8)
+    cleanup(copies + [proxy])
+    made["Pose_Carried"] = path
     return made

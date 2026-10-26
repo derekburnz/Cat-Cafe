@@ -132,7 +132,7 @@ A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card 
 |---|---|
 | `catalog.tiers` | `{ TierDef }`, data-model 5b: `{ tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps = { tables, espresso, net } }`. |
 | `state.tier` | 1 to 5. With `catalog.tiers` the top pill shows "Tier 2 · Cozy Cafe", what the next tier still needs and a progress bar, and a gold "Rank up ready!" tag when every requirement is met. Tapping it opens the `RankUp` screen. |
-| `UI.open("RankUp")` | The card: next tier's name, each requirement ticked or not (coins, different cats from `collection`, the rarity from Tier 3), what it opens (area, role slots, tips multiplier, raised upgrade caps, decor with `requiresTier`), and a gold "Rank up · $1,500" button that only lights up when everything is met. A `rankUp` field in ProfileSync is not needed; the card computes progress from the catalog and the state. |
+| `UI.open("RankUp")` | The card: next tier's name, each requirement ticked or not (coins, different cats from `collection`, the rarity from Tier 3, where a rarer cat also counts: "One cat, Epic or better"), what it opens (area, role slots, tips multiplier, raised upgrade caps, decor with `requiresTier`), and a gold "Rank up · $1,500" button that only lights up when everything is met. A `rankUp` field in ProfileSync is not needed; the card computes progress from the catalog and the state. |
 | `events.rankUp()` | Rank up pressed. Forward as `RankUp`; the server checks everything again. |
 
 ### Clock chip (built, F31)

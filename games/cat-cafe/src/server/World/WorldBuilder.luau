@@ -39,6 +39,7 @@ export type AreaInfo = {
 	lureSpots: { [string]: BasePart },
 	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number },
+	arrival: CFrame, -- where fast travel puts a player: just inside the opening, facing in
 }
 
 export type World = {
@@ -523,6 +524,10 @@ local function buildArea(
 		lureSpots = lureSpots,
 		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
+		arrival = CFrame.lookAt(
+			Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
+			Vector3.new(cx, spec.floorY + 3, cz)
+		),
 	}
 end
 

@@ -5,6 +5,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -20,6 +21,8 @@ export type Popups = {
 
 local CAT_AUTO_CLOSE = 5
 local SPARKLES = 10
+local RAY_BARS = 6 -- each bar crosses the centre, so 12 rays
+local RAY_SPIN = TweenInfo.new(8, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
 
 local Popups = {}
 Popups.__index = Popups
@@ -85,25 +88,61 @@ function Popups.new(parent: Instance): Popups
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 6) }),
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 3 }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = Theme.sizes.outline + 1 }),
 		Create("UISizeConstraint", { MaxSize = Vector2.new(380, 330) }),
 	})
 	self._catCard = catCard
+	-- slow spinning light rays behind the portrait, the classic simulator reveal
+	local rays: Frame = Create("Frame", {
+		Name = "Rays",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0, 108),
+		Size = UDim2.fromOffset(200, 200),
+		ZIndex = 1,
+		Parent = catCard,
+	})
+	for index = 1, RAY_BARS do
+		Create("Frame", {
+			Name = "Ray",
+			BackgroundColor3 = Theme.colors.gold,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.new(0, 22, 1, 0),
+			Rotation = (index - 1) * (180 / RAY_BARS),
+			ZIndex = 1,
+			Parent = rays,
+		}, {
+			Create("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.5, 0.35),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+			}),
+		})
+	end
+	self._rays = rays
+	self._raySpin = nil :: Tween?
 	self._catBanner = text({
 		Name = "Banner",
 		BackgroundColor3 = Theme.rarity.Common.color,
 		BackgroundTransparency = 0,
-		Size = UDim2.new(1, 0, 0, 44),
+		Size = UDim2.new(1, 0, 0, 46),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge - 2,
+		TextSize = Theme.sizes.textLarge,
 		TextColor3 = Theme.colors.white,
 		Text = "CAT FOUND",
+		ZIndex = 3,
 		Parent = catCard,
 	})
 	Create(
 		"UICorner",
 		{ CornerRadius = UDim.new(0, Theme.sizes.radius + 6), Parent = self._catBanner }
 	)
+	Outline.text(self._catBanner, Theme.sizes.textOutline + 0.5)
 	self._catArt = Create("Frame", {
 		Name = "Art",
 		BackgroundColor3 = Theme.colors.line,
@@ -111,30 +150,38 @@ function Popups.new(parent: Instance): Popups
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 60),
 		Size = UDim2.fromOffset(96, 96),
+		ZIndex = 2,
 		Parent = catCard,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIStroke", { Color = Theme.colors.paper, Thickness = 4 }),
+		Create("UIStroke", { Color = Theme.colors.outline, Thickness = Theme.sizes.outline + 1 }),
 	})
 	self._catGlyph = text({
 		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
 		TextSize = 44,
-		TextColor3 = Theme.colors.paper,
+		TextColor3 = Theme.colors.white,
 		Text = "",
+		ZIndex = 2,
 		Parent = self._catArt,
 	})
+	Outline.text(self._catGlyph, Theme.sizes.textOutline + 1)
+	-- the name takes the rarity colour with a dark outline
 	self._catName = text({
 		Name = "Name",
-		Position = UDim2.fromOffset(16, 166),
-		Size = UDim2.new(1, -32, 0, 32),
+		Position = UDim2.fromOffset(16, 164),
+		Size = UDim2.new(1, -32, 0, 36),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textTitle,
+		TextSize = Theme.sizes.textTitle + 4,
+		TextColor3 = Theme.colors.white,
 		Text = "",
+		ZIndex = 2,
 		Parent = catCard,
 	})
+	Outline.text(self._catName, Theme.sizes.textOutline + 0.5)
 	self._catMeta = text({
 		Name = "Meta",
+		ZIndex = 2,
 		Position = UDim2.fromOffset(16, 200),
 		Size = UDim2.new(1, -32, 0, 22),
 		TextSize = Theme.sizes.textBody,
@@ -145,6 +192,7 @@ function Popups.new(parent: Instance): Popups
 	})
 	self._catDesc = text({
 		Name = "Description",
+		ZIndex = 2,
 		Position = UDim2.fromOffset(16, 224),
 		Size = UDim2.new(1, -32, 0, 40),
 		TextSize = Theme.sizes.textSmall,
@@ -198,7 +246,7 @@ function Popups.new(parent: Instance): Popups
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 6) }),
-		Create("UIStroke", { Color = Theme.colors.caramel, Thickness = 3 }),
+		Create("UIStroke", { Color = Theme.colors.outline, Thickness = Theme.sizes.outline + 1 }),
 	})
 	self._offlineCard = offlineCard
 	text({
@@ -224,11 +272,12 @@ function Popups.new(parent: Instance): Popups
 		Position = UDim2.fromOffset(16, 86),
 		Size = UDim2.new(1, -32, 0, 54),
 		FontFace = Theme.fonts.display,
-		TextSize = 44,
+		TextSize = 48,
 		TextColor3 = Theme.colors.good,
 		Text = "",
 		Parent = offlineCard,
 	})
+	Outline.text(self._offlineAmount, Theme.sizes.textOutline + 1)
 	text({
 		Name = "Note",
 		Position = UDim2.fromOffset(16, 142),
@@ -290,6 +339,11 @@ function Popups.dismiss(self: any)
 	self._token += 1
 	self._onClaim = nil
 	local card: Frame = if self._catCard.Visible then self._catCard else self._offlineCard
+	local spin: Tween? = self._raySpin
+	if spin then
+		spin:Cancel()
+		self._raySpin = nil
+	end
 	Tween.popOut(card, function()
 		card.Visible = false
 		self:_next()
@@ -304,8 +358,15 @@ function Popups.showCatFound(self: any, def: Types.CatDef, isNew: boolean?)
 			then ("NEW %s CAT!"):format(rarity:upper())
 			else ("%s CAT CAUGHT"):format(rarity:upper())
 		self._catBanner.BackgroundColor3 = Theme.rarityColor(rarity)
-		self._catBanner.TextColor3 = Theme.rarityTextColor(rarity)
 		self._catCard.UIStroke.Color = Theme.rarityColor(rarity)
+		self._catName.TextColor3 = Theme.rarityColor(rarity)
+		for _, ray in self._rays:GetChildren() do
+			if ray:IsA("Frame") then
+				ray.BackgroundColor3 = Theme.rarityColor(rarity):Lerp(Theme.colors.gold, 0.5)
+			end
+		end
+		self._rays.Rotation = 0
+		self._raySpin = Tween.to(self._rays, RAY_SPIN, { Rotation = 360 })
 		local rgb = def.color
 		self._catArt.BackgroundColor3 = if rgb and #rgb >= 3
 			then Color3.fromRGB(rgb[1], rgb[2], rgb[3])

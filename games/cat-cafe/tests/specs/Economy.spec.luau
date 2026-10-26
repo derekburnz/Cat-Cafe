@@ -554,12 +554,15 @@ return function()
 			expect(Economy.distinctCats(p)).to.equal(3)
 		end)
 
-		it("distinctCatsOfRarity counts exactly that rarity and skips unknown ids", function()
+		it("distinctCatsAtLeast counts that rarity or rarer and skips unknown ids", function()
 			local p = profileWith(3, 12, "Epic", 1)
 			p.collection.not_a_cat = 1000
-			expect(Economy.distinctCatsOfRarity(p, "Epic")).to.equal(1)
-			expect(Economy.distinctCatsOfRarity(p, "Legendary")).to.equal(0)
-			expect(Economy.distinctCatsOfRarity(p, "Common") + Economy.distinctCatsOfRarity(p, "Rare")).to.equal(11)
+			expect(Economy.distinctCatsAtLeast(p, "Epic")).to.equal(1)
+			expect(Economy.distinctCatsAtLeast(p, "Legendary")).to.equal(0)
+			expect(Economy.distinctCatsAtLeast(p, "Common")).to.equal(12)
+			p.collection[idsOf("Mythical")[1]] = 1000
+			expect(Economy.distinctCatsAtLeast(p, "Epic")).to.equal(2)
+			expect(Economy.distinctCatsAtLeast(p, "Legendary")).to.equal(1)
 		end)
 
 		it("Tier 1 to 2: 5 different cats and 1,500 coins, the starter Tabby counts", function()
@@ -575,13 +578,13 @@ return function()
 			expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 		end)
 
-		it("Tier 2 to 3 needs one Epic; Tier 3 to 4 one Legendary; Tier 4 to 5 two different Legendaries", function()
-			expect(Economy.rankUpBlocker(profileWith(2, 12))).to.equal("Needs one Epic cat")
+		it("Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary or better; 4 to 5 two of them", function()
+			expect(Economy.rankUpBlocker(profileWith(2, 12))).to.equal("Needs one cat, Epic or better")
 			expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1))).never.to.be.ok()
-			expect(Economy.rankUpBlocker(profileWith(3, 20, "Epic", 3))).to.equal("Needs one Legendary cat")
+			expect(Economy.rankUpBlocker(profileWith(3, 20, "Epic", 3))).to.equal("Needs one cat, Legendary or better")
 			expect(Economy.rankUpBlocker(profileWith(3, 20, "Legendary", 1))).never.to.be.ok()
 			expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 1))).to.equal(
-				"Needs 2 different Legendary cats"
+				"Needs 2 different cats, Legendary or better"
 			)
 			expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 2))).never.to.be.ok()
 		end)
@@ -591,19 +594,23 @@ return function()
 			local legendary = idsOf("Legendary")[1]
 			p.shinyCollection[legendary] = 1000
 			p.cats.shinyLegend = cat("shinyLegend", legendary, nil, "shiny")
-			expect(Economy.rankUpBlocker(p)).to.equal("Needs 2 different Legendary cats")
+			expect(Economy.rankUpBlocker(p)).to.equal("Needs 2 different cats, Legendary or better")
 		end)
 
-		it("a rarer cat does not stand in for the rarity asked (section 5b: of this rarity)", function()
-			-- Pins today's reading of the design: a Mythical is not "one Epic". A design change shows up here.
-			expect(Economy.rankUpBlocker(profileWith(2, 12, "Mythical", 1))).to.equal("Needs one Epic cat")
+		it("a rarer cat counts for the rarity asked (section 5b: or better, reviewer N44)", function()
+			expect(Economy.rankUpBlocker(profileWith(2, 12, "Mythical", 1))).never.to.be.ok()
+			expect(Economy.rankUpBlocker(profileWith(3, 20, "Mythical", 1))).never.to.be.ok()
+			-- Tier 5: a Legendary plus a Mythical are two different cats, Legendary or better.
+			local p = profileWith(4, 30, "Legendary", 1)
+			p.collection[idsOf("Mythical")[1]] = 1000
+			expect(Economy.rankUpBlocker(p)).never.to.be.ok()
 		end)
 
 		it("reasons come in the order a player works through them: cats, then the rarity, then coins", function()
 			expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
 				"Needs 12 different cats (you have 11)"
 			)
-			expect(Economy.rankUpBlocker(profileWith(2, 12, nil, nil, 0))).to.equal("Needs one Epic cat")
+			expect(Economy.rankUpBlocker(profileWith(2, 12, nil, nil, 0))).to.equal("Needs one cat, Epic or better")
 			expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1, 0))).to.equal("Not enough coins")
 		end)
 

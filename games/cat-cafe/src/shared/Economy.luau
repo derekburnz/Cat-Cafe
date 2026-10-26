@@ -3,6 +3,7 @@
 
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
+local Catching = require(script.Parent.Catching)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
@@ -195,12 +196,13 @@ function Economy.distinctCats(profile: Types.PlayerProfile): number
 	return n
 end
 
--- Different cats of exactly this rarity in the collection, for the Tier 3 to 5 requirement.
-function Economy.distinctCatsOfRarity(profile: Types.PlayerProfile, rarity: Types.Rarity): number
+-- Different cats of this rarity or rarer in the collection, for the Tier 3 to 5 requirement (data-model 5b:
+-- "one Epic" means one Epic or better, so a Legendary counts).
+function Economy.distinctCatsAtLeast(profile: Types.PlayerProfile, rarity: Types.Rarity): number
 	local n = 0
 	for catId in profile.collection do
 		local def = Catalog.getCat(catId)
-		if def ~= nil and def.rarity == rarity then
+		if def ~= nil and Catching.rarityAtLeast(def.rarity, rarity) then
 			n += 1
 		end
 	end
@@ -221,10 +223,10 @@ function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
 	local rarity: Types.Rarity? = nextTier.needsRarity
 	if rarity ~= nil then
 		local need = nextTier.needsRarityCount or 1
-		if Economy.distinctCatsOfRarity(profile, rarity) < need then
+		if Economy.distinctCatsAtLeast(profile, rarity) < need then
 			return if need == 1
-				then string.format("Needs one %s cat", rarity)
-				else string.format("Needs %d different %s cats", need, rarity)
+				then string.format("Needs one cat, %s or better", rarity)
+				else string.format("Needs %d different cats, %s or better", need, rarity)
 		end
 	end
 	if not Economy.canAfford(profile, nextTier.cost) then

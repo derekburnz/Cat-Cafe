@@ -38,6 +38,7 @@ export type HUD = {
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
+	setCatching: (self: HUD, active: boolean) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
 }
@@ -789,6 +790,12 @@ end
 -- Carrying comes from two places: the carry banner (UI.setCarrying) and state.carrying.
 function HUD.isCarrying(self: any): boolean
 	return self._carryBanner or self._carryState
+end
+
+-- The catch circles' header takes the top centre during a catch, and the server refuses a trip mid catch
+-- anyway (N47), so the travel row steps aside until the catch ends.
+function HUD.setCatching(self: any, active: boolean)
+	self._travelRow.Visible = not active
 end
 
 function HUD._renderTravel(self: any)

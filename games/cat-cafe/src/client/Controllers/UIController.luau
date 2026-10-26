@@ -155,15 +155,25 @@ local function wireIntents()
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)
+	local grabStartedAt: { [string]: number } = {}
 	UI.events.grabBegan:Connect(function(strayId: string?)
 		if strayId ~= nil then
+			grabStartedAt[strayId] = os.clock()
 			Net.fire("GrabBegin", strayId)
 		end
 	end)
-	UI.events.grabEnded:Connect(function(strayId: string?, result: Types.RingResult)
-		if strayId ~= nil then
-			Net.fire("GrabEnd", strayId, result)
+	-- The server scores the ring from its own clock, so only the stray id goes up. A hold that ran the full
+	-- duration sends nothing: the server resolves it as a ring miss by itself (data-model section 10).
+	UI.events.grabEnded:Connect(function(strayId: string?, _result: Types.RingResult)
+		if strayId == nil then
+			return
 		end
+		local startedAt = grabStartedAt[strayId]
+		grabStartedAt[strayId] = nil
+		if startedAt ~= nil and os.clock() - startedAt >= Config.GrabHoldSeconds then
+			return
+		end
+		Net.fire("GrabEnd", strayId)
 	end)
 end
 

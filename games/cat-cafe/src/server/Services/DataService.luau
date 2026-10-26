@@ -34,8 +34,11 @@ DataService.onReleasing = Signal.new() :: Signal.Signal<Player, Profile>
 
 local sessions: { [Player]: Session } = {}
 local finalizers: { (player: Player, profile: Profile) -> () } = {}
+-- Studio playtests get their own store, so "Enable Studio Access to API Services" never touches live profiles
+-- (DataStores are per experience, not per place).
+local storeName = Config.ProfileStoreName .. (if RunService:IsStudio() then "_dev" else "")
 local store: ProfileStore.ProfileStore<any> =
-	ProfileStore.New(Config.ProfileStoreName, ProfileSchema.template(os.time()) :: any)
+	ProfileStore.New(storeName, ProfileSchema.template(os.time()) :: any)
 
 local function key(player: Player): string
 	return Config.ProfileKeyPrefix .. player.UserId
@@ -51,6 +54,12 @@ local function finalize(player: Player, session: Session)
 		end
 	end
 	Economy.settle(profile, now)
+	if session.pendingOffline > 0 then
+		-- Offline earnings the player never claimed (popup dismissed, left early) are credited, not lost.
+		Economy.credit(profile, session.pendingOffline)
+		session.pendingOffline = 0
+		session.pendingOfflineSeconds = 0
+	end
 	profile.rateAtLogout = Economy.incomePerSecond(profile)
 	profile.lastSeen = now
 	profile.stats.playtimeSeconds += math.max(0, now - session.joinedAt)
@@ -115,13 +124,21 @@ local function release(player: Player)
 	if session == nil then
 		return
 	end
-	sessions[player] = nil
+	-- Finalizers (for example saving a carried cat) run while DataService.get still answers for this player;
+	-- the session is forgotten only after the profile is final.
 	DataService.onReleasing:Fire(player, session.profile)
-	finalize(player, session)
+	local ok, err = pcall(finalize, player, session)
+	if not ok then
+		warn("[DataService] finalize failed:", err)
+	end
+	sessions[player] = nil
 	session.store:EndSession()
 end
 
 function DataService.start()
+	-- ProfileStore autosaves every 300 s by default; the design (section 17) wants 60 s.
+	ProfileStore.SetConstant("AUTO_SAVE_PERIOD", Config.AutosaveSeconds)
+
 	Players.PlayerAdded:Connect(function(player)
 		task.spawn(load, player)
 	end)

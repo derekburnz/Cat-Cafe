@@ -412,6 +412,37 @@ local function endCarry(player: Player): Types.CatDef?
 	return carry.def
 end
 
+-- Rolls the catch for a stray the player has locked and tells them the outcome. The ring result comes from the
+-- server's own clock (Catching.ringResultFromHold), so a scripted client gains nothing by lying about timing.
+local function resolveGrab(
+	player: Player,
+	profile: Types.PlayerProfile,
+	stray: Stray,
+	ring: Types.RingResult
+)
+	local lured = stray.calm and stray.reservedFor == player.UserId
+	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "gloves"), lured, ring)
+	local success = Catching.succeeds(chance, rng:NextNumber())
+	setLock(stray, 0)
+
+	if success then
+		profile.stats.grabsSucceeded += 1
+		local def = stray.def
+		despawn(stray)
+		Net.fire(player, "GrabResult", stray.id, true, "caught", false)
+		startCarry(player, def)
+		return
+	end
+
+	if Catching.fleesOnMiss(stray.def.rarity) and not lured then
+		Net.fire(player, "GrabResult", stray.id, false, "It got away", false)
+		Net.toast(player, "It got away", "warn")
+		despawn(stray)
+	else
+		Net.fire(player, "GrabResult", stray.id, false, "It slipped free, try again", true)
+	end
+end
+
 -- Remote handlers -----------------------------------------------------------------------------------------
 
 local function onGrabBegin(player: Player, rawStrayId: unknown)
@@ -441,11 +472,31 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		return
 	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
 	setLock(stray, player.UserId)
 	profile.stats.grabsAttempted += 1
 	local lockAt = stray.lockAt
+	-- A hold that runs to completion sends no GrabEnd (data-model section 10): once the hold plus the latency
+	-- grace has passed with the lock untouched, the server resolves the attempt itself as a ring miss.
+	task.delay(Config.GrabHoldSeconds + Config.RingLatencyGraceSeconds, function()
+		if not (stray.alive and stray.lockedBy == player.UserId and stray.lockAt == lockAt) then
+			return
+		end
+		local current = DataService.get(player)
+		if current == nil or player.Parent ~= Players then
+			setLock(stray, 0)
+			return
+		end
+		if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+			setLock(stray, 0)
+			Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
+			return
+		end
+		resolveGrab(player, current, stray, "miss")
+	end)
+	-- Whatever happens, the lock never outlives GrabLockSeconds.
 	task.delay(Config.GrabLockSeconds, function()
 		if stray.alive and stray.lockedBy == player.UserId and stray.lockAt == lockAt then
 			setLock(stray, 0)
@@ -453,11 +504,11 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	end)
 end
 
-local function onGrabEnd(player: Player, rawStrayId: unknown, rawRing: unknown)
+local function onGrabEnd(player: Player, rawStrayId: unknown)
+	-- Extra arguments (the old client-reported ring) are ignored: the ring is scored from the lock age.
 	local strayId = Guard.id(rawStrayId)
-	local ring = Guard.oneOf(rawRing, { "perfect", "good", "miss" }) :: Types.RingResult?
 	local profile = DataService.get(player)
-	if strayId == nil or ring == nil or profile == nil then
+	if strayId == nil or profile == nil then
 		return
 	end
 	local stray = strays[strayId]
@@ -469,45 +520,25 @@ local function onGrabEnd(player: Player, rawStrayId: unknown, rawRing: unknown)
 		Net.fire(player, "GrabResult", strayId, false, "Too slow", true)
 		return
 	end
+	local ring = Catching.ringResultFromHold(os.clock() - stray.lockAt)
+	if ring == nil then
+		return -- sooner than GrabMinHoldSeconds: dropped as spam, the lock and the hold timer continue
+	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		setLock(stray, 0)
 		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
-	-- The ring result is client reported (its bonus is capped at 15%). A release faster than any human
-	-- could time it is treated as a miss.
-	if os.clock() - stray.lockAt < Config.GrabMinHoldSeconds then
-		ring = "miss"
-	end
-	local lured = stray.calm and stray.reservedFor == player.UserId
-	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "gloves"), lured, ring)
-	local success = Catching.succeeds(chance, rng:NextNumber())
-	setLock(stray, 0)
-
-	if success then
-		profile.stats.grabsSucceeded += 1
-		local def = stray.def
-		despawn(stray)
-		Net.fire(player, "GrabResult", strayId, true, "caught", false)
-		startCarry(player, def)
-		return
-	end
-
-	if Catching.fleesOnMiss(stray.def.rarity) and not lured then
-		Net.fire(player, "GrabResult", strayId, false, "It got away", false)
-		Net.toast(player, "It got away", "warn")
-		despawn(stray)
-	else
-		Net.fire(player, "GrabResult", strayId, false, "It slipped free, try again", true)
-	end
+	resolveGrab(player, profile, stray, ring)
 end
 
-local function finishCheckIn(player: Player, notify: boolean)
+-- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
+local function finishCheckIn(player: Player, notify: boolean, profile: Types.PlayerProfile?)
 	local def = endCarry(player)
 	if def == nil then
 		return
 	end
-	local _, isNew = CafeService.addCaughtCat(player, def, notify)
+	local _, isNew = CafeService.addCaughtCat(player, def, notify, profile)
 	if notify then
 		Net.fire(player, "CatCaught", def.id, isNew)
 		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
@@ -641,10 +672,11 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	Net.on("CheckIn", onCheckIn)
 	Net.on("UseLure", onUseLure)
 
-	-- A player who leaves mid-carry keeps the cat.
-	DataService.beforeRelease(function(player)
+	-- A player who leaves mid-carry keeps the cat. The finalizer runs before the session closes and is handed
+	-- the profile, so it never depends on a lookup that is about to go nil.
+	DataService.beforeRelease(function(player, profile)
 		if carrying[player] ~= nil then
-			finishCheckIn(player, false)
+			finishCheckIn(player, false, profile)
 		end
 	end)
 
@@ -658,7 +690,11 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		carrying[player] = nil
+		-- endCarry (via the finalizer above) clears the carry record; this only mops up when the profile is
+		-- already gone, so the handler order between services does not matter.
+		if carrying[player] ~= nil and DataService.get(player) == nil then
+			carrying[player] = nil
+		end
 		local spotId = lureByPlayer[player]
 		if spotId ~= nil then
 			lureByPlayer[player] = nil

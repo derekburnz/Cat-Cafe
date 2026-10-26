@@ -225,12 +225,19 @@ end
 
 -- Adds a caught cat to the profile, pays the first-catch reward, auto-places it on a free open spot.
 -- Returns the instance and whether this cat id was new to the collection.
+-- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
-	notify: boolean
+	notify: boolean,
+	knownProfile: Profile?
 ): (Types.CatInstance, boolean)
-	local profile = profileFor(player)
+	local profile = knownProfile
+	if profile ~= nil then
+		Economy.settle(profile, os.time())
+	else
+		profile = profileFor(player)
+	end
 	assert(profile ~= nil, "profile not loaded")
 	local now = os.time()
 	local isNew = profile.collection[def.id] == nil

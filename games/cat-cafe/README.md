@@ -27,7 +27,7 @@ Check gate: `./check.ps1` (Windows) or `./check.sh`. Cloud stand-in without Roki
 | Data | ProfileStore sessions, version 1 schema with forward migration, settle on leave, offline gain (25% up to 1 h), BindToClose | `Services/DataService.luau`, `shared/ProfileSchema.luau` |
 | Income | lazy accounting (`Economy.settle`), cafe multiplier, favorite spots, ProfileSync every 10 s and on change, client prediction between | `shared/Economy.luau`, `Services/CafeService.luau` |
 | Strays | spawn loops per area with odds, max 6, despawn, wander, tutorial Common at alley point 1 | `Services/CatService.luau` |
-| Grab | GrabBegin lock (3 s), GrabEnd roll with gloves, lure and capped ring bonus, flee or retry rules | `Services/CatService.luau`, `shared/Catching.luau` |
+| Grab | GrabBegin lock (3 s), GrabEnd roll with gloves, lure and a ring bonus the server scores from the hold time (a full hold resolves as a miss at 1.75 s), flee or retry rules | `Services/CatService.luau`, `shared/Catching.luau` |
 | Carry | held cat welded to the torso, walk speed 13, auto check-in at the own door, saved on leave mid-carry | `CatService.luau`, `client/Controllers/WorldController.luau` |
 | Shop | PlaceCat, UnplaceCat, SellCat, BuyUpgrade, BuyDecor, ToggleDecor, BuyLure, EquipLure, ClaimOffline, TutorialAdvance, all validated and rate limited | `Services/CafeService.luau`, `Services/Net.luau` |
 | Lures | UseLure at a lure spot: bowl and food appear, a stray of the lure's odds comes after 45 s, reserved to the placer, never flees from them, refund on despawn | `Services/CatService.luau` |

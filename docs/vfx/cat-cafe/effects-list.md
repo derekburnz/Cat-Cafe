@@ -1,141 +1,170 @@
 # Purr Pot animation and VFX list
 
-Draft v0.1, 2026-10-26. Owner: vfx-animator. Readers: luau-engineer (hooks and the cat rig), ui-designer (screen versus world), sound-designer (same moment names), asset-artist (parts and swatches), luau-reviewer, qa-playtester. How each tool works, the style rules and the phone budgets are in `.claude/skills/animation-vfx/SKILL.md`; this file is the what and the when.
+Draft v0.2, 2026-10-26, rewritten for design v0.3 (v0.1 earlier the same day was written for design v0.2). Owner: vfx-animator. Readers: luau-engineer (hooks and the cat rig), ui-designer (screen versus world), sound-designer (same moment names), asset-artist (parts and swatches), game-designer, luau-reviewer, qa-playtester. How each tool works, the style rules and the phone budgets are in `.claude/skills/animation-vfx/SKILL.md`; this file is the what and the when. The mechanics come from `docs/design/cat-cafe/features.md` v0.3 and `data-model.md` sections 4, 5, 5b, 8, 8b, 10, 10b, 10c, 12 and 13.
 
-Nothing here changes gameplay. Every entry runs on the client, reads state the client already has and fits the low tier budget. Priorities: **P1** makes the ten-minute slice loop read (features.md priorities 11 and 12), **P2** ships in the slice if time allows, **P3** after the slice. Tools: **proc** is procedural joint motion (`Motor6D.Transform`), **tween** is TweenService, **clip** is a published Animation Editor clip, **fx** is ParticleEmitter, Beam, Trail or Highlight. Particle counts are high tier; the low tier halves them and drops anything marked "high only".
+Nothing here changes gameplay. Every entry runs on the client, reads state the client already has and fits the low tier budget. Priorities: **P1** makes the ten-minute slice loop read, **P2** ships in the slice if time allows, **P3** after the slice. Tools: **proc** is procedural joint motion (`Motor6D.Transform`), **tween** is TweenService, **clip** is a published Animation Editor clip, **fx** is ParticleEmitter, Beam, Trail or Highlight. Particle counts are high tier; the low tier halves them and drops anything marked "high only".
 
-Moment names match the sound list (agreed with the sound thread) and become Signals in `src/client/Moments.luau`; where each one fires in today's code is in `docs/audio/cat-cafe/sound-list.md` section 6. Effects that other players must see also read replicated state (tags, attributes, the `HeldCat` model), listed in the hook column.
+Moment names are the shared v0.3 list in `docs/audio/cat-cafe/sound-list.md` section 6 (agreed with the sound thread) and become Signals in `src/client/Moments.luau`. Effects that other players must see also read replicated state (tags, attributes, models appearing), listed in the hook column.
+
+What design v0.3 removed from v0.1 of this list: the hold-and-release ring and its windup, the 4 s rescue hold, lure spots in the areas with the calm heart and the expiry, the v0.2 stuck props (box and drainpipe; the tree comes back as the Park rescue tree), the cafe level, the Park pass gate and customers leaving at night.
 
 ## 0. Foundation (build first)
 
 | id | what | owner | P | notes |
 |---|---|---|---|---|
-| A0.1 | Cat rig on clone: invisible anchored `Root` at the floor pivot as PrimaryPart, Motor6D Root to Body, Body to Head, Body to Tail at `joints_roblox`, parts renamed `Body`, `Head`, `Tail`, AnimationController with Animator | engineer (recipe in skill section 3) | P1 | One function for strays, stuck cats, placed cats, the held cat and placeholders. The held cat's weld loop skips parts that already have a Motor6D, and its `HoldWeld` goes from HumanoidRootPart to Root |
-| A0.2 | `src/client/Moments.luau`: one Signal per moment, fired from UIController, WorldController and CustomerController | engineer | P1 | Proposed in decisions.md with the sound thread |
-| A0.3 | `src/client/Effects/` skeleton: `init.luau` (`Effects.start(moments)`), `Presets.luau`, `CatMotion.luau`, `PropMotion.luau`, `NightGlow.luau`, `AnimationIds.luau`, the low or high tier picked once on join, emitter pool under `workspace.Terrain` | vfx-animator | P1 | Started from `Main.client.luau` after the controllers |
-| A0.4 | Stray exit attribute: before removing a stray or stuck cat the server sets `Exit` to `caught`, `fled`, `expired` or `wave`, disables its prompt and destroys it 0.5 s later | engineer | P1 | Lets every client play the right exit (sparkle, dash, puff) on a model that still exists. Today `despawn` destroys at once (CatService.luau:167) |
-| A0.5 | Net on the character: the owned `CatCafe_Item_Net_L<level>` attached to the right hand by a Motor6D named `NetGrip` while the player is in the alley or park and not carrying | engineer, asset-artist for the grip offset | P1 | The net models exist with `_Handle` and `_Bag`; nothing holds them yet |
+| A0.1 | Cat rig on clone: invisible anchored `Root` at the floor pivot as PrimaryPart, Motor6D Root to Body, Body to Head, Body to Tail at `joints_roblox`, parts renamed `Body`, `Head`, `Tail`, AnimationController with Animator | engineer (recipe in skill section 3) | P1 | One function for strays, stuck cats, working cats, the bait cat, the held cat and placeholders. The held cat's weld loop skips parts with a Motor6D and its `HoldWeld` goes from HumanoidRootPart to Root |
+| A0.2 | Upright through the rig, not by moving parts: a working cat is the same rig with the manifest's `poses.upright` (and its `head_offset_roblox`) as the rest offset of the Body and Head joints. Uniforms (Apron, BowTie, Sash, PartyHat) weld to Body or Head at `upright_attachments` so they follow every bob and turn | engineer, vfx-animator | P1 | This answers the "upright pose swap when assigned" risk in gdd.md: standing up and dropping to all fours become a 0.4 s tween of two joint offsets |
+| A0.3 | `src/client/Moments.luau`: one Signal per moment in the shared list, fired from the controllers | engineer | P1 | Proposed in decisions.md with the sound thread |
+| A0.4 | `src/client/Effects/` skeleton: `init.luau`, `Presets.luau`, `CatMotion.luau`, `PropMotion.luau`, `NightGlow.luau`, `AnimationIds.luau`, tier picked once on join, emitter pool under `workspace.Terrain` | vfx-animator | P1 | Started from `Main.client.luau` after the controllers |
+| A0.5 | Exit attribute: before removing a stray, stuck cat or bait cat the server sets `Exit` (`caught`, `fled`, `wave`, `tamed`, `letgo`), disables its prompt and destroys it 0.5 s later | engineer | P1 | Lets every client play the right exit on a model that still exists. Today `despawn` destroys at once (CatService.luau:167) |
+| A0.6 | Net on the character: the owned net's model on the right hand by a Motor6D named `NetGrip` while the player is in an area and not carrying | engineer, asset-artist for the grip offset | P1 | v0.3 nets are Basic, Sturdy, Pro and Master (data-model section 10); the three existing net models cover the upgrades and Basic can reuse the first |
 
-## 1. Cats everywhere (placed, stray, stuck, held)
-
-| moment | what you see | tool | budget | hook | P |
-|---|---|---|---|---|---|
-| idle (placed) | Breathing bob of the Body (0.03 stud, about 4 s cycle), slow tail sway, head turns towards the nearest customer every 3 to 6 s (yaw capped at 35 degrees), cats on a Cushion or Cat bed sleep with the head down | proc | one shared loop, cats within 60 studs | `Plot/Cats` children | P1 |
-| favorite spot | A happy tail curl every 10 to 15 s for a cat sitting on its favorite spot type, so the 1.5x bonus is visible without UI | proc | none | spot `SpotType` vs catalog `favoriteSpot` | P2 |
-| walk (stray) | Head nods in step with Mover's walk bob (it bobs at 9 rad/s), tail up while walking, tail down when it stops | proc | none | the stray's pivot moving | P1 |
-| CatPlaced | The cat lands on its spot with a small hop (Body joint up 0.4 stud and back, 0.25 s) and 4 offwhite dust dots | proc, fx | 4 particles | Moments, or a new child under `Plot/Cats` | P1 |
-| sleepy at night | Placed cats yawn once when NightStart fires (head tilt back, 0.6 s) | proc | none | Clock `Phase` | P3 |
-
-## 2. Net swing
+## 1. Cats at work (roles)
 
 | moment | what you see | tool | budget | hook | P |
 |---|---|---|---|---|---|
-| net at rest | Net held low, sways a little with walking | proc on `NetGrip` | none | A0.5 | P2 |
-| NetWindup | Net lifts back over 0.3 s and trembles more as the ring tightens; the stray flattens and crouches (Body joint down 0.1 stud, head low) | proc | none | `UI.events.grabBegan` | P1 |
-| NetRingGood, NetRingPerfect | A small mint glint on the net rim on entering the good band, a gold glint on perfect: the world echo of the ring for players who watch the cat, not the HUD | fx | 3 and 6 particles | fired by UIController from `Config.RingGoodWindow` and `RingPerfectWindow` after grabBegan | P2 |
-| NetSwing | 0.25 s forward arc (Quad Out) with a soft white Trail on the net rim | proc, fx (Trail 0.2 s) | 1 Trail | `grabEnded`, or the full hold running out | P1 |
-| arm swing | The player's arm swings with the net and other players see it | clip on the player's own Animator, keying the `NetGrip` joint too, so it replicates | 1 track | NetSwing | P2. This is the first published clip, so it also proves the ownership flow in skill section 4 |
+| CatPlaced | The cat hops onto its station and stands up into the upright pose (0.4 s Back Out); its uniform pops in with 6 sparkles | proc, tween, fx | 6 particles | a new child under `Plot/Cats` with `Role` | P1 |
+| barista idle | Upright at the counter: breathing bob, head turns between the espresso machine and the nearest customer, tail sway | proc | shared loop | `Role = barista` | P1 |
+| waiter idle | Upright between the tables: a slow side-to-side sway as if balancing a tray, head follows the nearest seated customer | proc | shared loop | `Role = waiter` | P1 |
+| greeter idle | Upright inside the door: a small bow (Body joint forward 15 degrees, 0.5 s) when a customer walks in, otherwise watches the door | proc | shared loop | `Role = greeter`, customer spawn | P1 |
+| entertainer idle | On the cat tree stage: a bounce and head tilt dance loop, tail swish on the beat | proc | shared loop | `Role = entertainer` | P1 |
+| favorite role | A happy tail curl every 10 to 15 s for a cat in its `favoriteRole`, so the 1.5x is visible without UI | proc | none | catalog `favoriteRole` vs `Role` | P2 |
+| UnplaceCat | The cat drops to all fours (0.3 s) and trots out of the station, then a small puff | proc, fx | 4 particles | the child removed from `Plot/Cats` | P2 |
+| front paw wave | Greeters wave and baristas hold a cup; needs front paws as their own objects | clip or proc | none | asset request, section 10 | P3 |
+| signature effects | Void's eyes glow (exists as Neon), Midnight shows a few star specks drifting over the fur, Blossom trails a petal now and then, Aurora's glow shifts between galaxy_blue and mint. Strays and working cats alike | fx | 1 emitter per signature cat within 40 studs, Rate 2 or less; drifting ones high only | `CatId` | P2 |
 
-## 3. Catch outcomes
-
-| moment | what you see | tool | budget | hook | P |
-|---|---|---|---|---|---|
-| CatchSuccess | Stray hops towards the player (0.25 s), then a burst by rarity: Common 8 offwhite dots; Rare adds 6 blue sparkles; Epic adds a purple ring (one particle that grows from 0.5 to 3 studs and fades); Legendary adds 10 gold sparkles and a 0.8 s gold Highlight on the held cat | proc, fx | 24 particles at most (Legendary), 1 Highlight | local: `GrabResult` ok; everyone else: `Exit = caught` | P1 |
-| CatchFail, retry | Startle hop (Body joint 0.4 stud, 0.2 s), head jerks back, 4 fur puffs in the cat's base color, the net bounces back | proc, fx | 4 particles | `GrabResult` with retry | P1 |
-| StrayFlee | The stray dashes 3 studs away from the player over 0.4 s, then a small soft puff and it is gone | tween on the pivot (the server no longer moves it once `Exit` is set), fx | 6 particles | `Exit = fled` | P1 |
-| RareStrayNearby | Epic and Legendary strays shimmer: 2 sparkles a second in the rarity color | fx | 2 emitters within 40 studs, Rate 2 | `Stray` tag plus `Rarity` | P2 |
-| Legendary outline | A soft gold outline on a Legendary stray within 40 studs, hidden behind walls (`DepthMode = Occluded`) | fx (Highlight) | 2 at once | `Stray` tag plus `Rarity` | P2. See open question 2 |
-| Announce | The catcher's held Epic or Legendary keeps one soft halo in its rarity color for the whole carry, so people on the street can spot it | fx | 1 particle per held cat | `HeldCat` model with an Epic or Legendary `CatId` | P2 |
-
-The "Cat found" popup with its sparkles is the ui-designer's and stays as it is.
-
-## 4. Bait
+## 2. Strays and shiny
 
 | moment | what you see | tool | budget | hook | P |
 |---|---|---|---|---|---|
-| BaitPlaced | The bowl drops in from 1 stud with a Back Out bounce (0.3 s) and 4 crumbs in the food's swatch (kibble, fish_blue, blush for salmon) | tween, fx | 4 particles | the bowl model appearing in the strays folder; needs `LureSpotId` and `PlacedBy` attributes on it | P1 |
-| waiting | A soft scent wisp rises from the bowl, from 1 to 3 particles a second over the 45 s wait, tinted by food | fx | 1 emitter per active bowl | the bowl's `PlacedAt` attribute (new) | P2 |
-| BaitArrive | A soft pop where the bowl was and the cat sits there; the placer alone sees a slow mint heart over it while it is reserved for them | fx | 6 particles, then Rate 0.5 | the lured stray's `ReservedFor` equal to the local UserId | P1 |
-| walk-in | The cat walks in from 3 studs away and eats from the bowl instead of replacing it | proc | none | engineer: keep the bowl until the cat is caught or leaves and spawn the stray 3 studs out (CatService.luau:934 removes it today) | P2 |
-| BaitExpire | The cat yawns, walks off 2 studs and puffs away | proc, fx | 6 particles | `Exit = expired` | P2 |
+| walk and idle | On all fours: head nods in step with Mover's walk bob, tail up while walking and down when it stops, a sit-and-wash idle now and then | proc | shared loop, strays within 60 studs | `Stray` tag | P1 |
+| shiny on sight | A slow sparkle on shiny strays and shiny working cats (`sparkle` swatch, Size 0.4 to 0.6 so it reads at 30 studs on a phone), stronger at night | fx preset `ShinySparkle` | 8 shiny emitters at most (4 on low tier), Rate 3 | `Shiny` attribute | P1 |
+| RareStrayNearby | Epic, Legendary and Mythical strays shimmer in their rarity color | fx | 2 emitters within 40 studs, Rate 2 | `Rarity` | P2 |
+| outline | A soft outline in the rarity color on Legendary and Mythical strays within 40 studs, hidden behind walls | fx (Highlight, `DepthMode = Occluded`) | 2 at once | `Rarity` | P2. Open question 2 |
 
-## 5. Rescue hold
+The placeholder rule in features.md section 3 puts a ParticleEmitter named `ShinySparkle` on the Body. Effects reuses that emitter when it is there and adds its own preset when it is not, so the two never stack. A stuck cat and a bait cat that is not ready yet carry no `Shiny` attribute (reviewer N30), and Effects never reads shininess from anywhere else, so the reveal stays a surprise.
 
-| moment | what you see | tool | budget | hook | P |
-|---|---|---|---|---|---|
-| stuck idle | The cat holds its `stuck_pose` and looks around every 2 to 4 s with a tail flick; one faint sparkle in its rarity color every 2 s so it can be found at night | proc, fx | 1 emitter per stuck cat, Rate 0.5 | `StuckCat` tag | P1 |
-| RescueHold | The prop answers the hold: the tree shakes a little and drops 2 leaves a second, the box flaps wobble, the drainpipe rattles; the cat wriggles faster as the bar fills | tween on the prop (anchored and never moved by the server), proc, fx | 2 particles a second | `UI.events.rescueBegan`; progress is time since the hold began over `Config.RescueHoldSeconds` | P1 |
-| RescueCancel | Prop and cat settle back over 0.3 s | tween, proc | none | `rescueEnded` with completed false | P2 |
-| RescueDone | A burst of 8 blush hearts (plus a shower of 6 leaves for the tree) and the cat is in the player's arms; one "grateful" heart pops over the held cat | fx | 14 particles | local: `rescueEnded` completed; everyone: `Exit = caught` on the stuck cat | P1 |
+## 3. Net: closing circles
 
-## 6. Carry and check-in
+The circles are UI (ui-designer). The world answers each one so a player watching the cat, not the HUD, still feels the rhythm.
 
 | moment | what you see | tool | budget | hook | P |
 |---|---|---|---|---|---|
-| CarryStart | The held cat settles into the carried pose with a small dip (Body joint 0.1 stud, 0.2 s) | proc | none | a `HeldCat` model added under any character | P1 |
-| carried idle | Slow tail sway, head looks ahead, breathing; every player sees it because every client animates every held cat within 60 studs | proc | shared loop | `HeldCat` | P1 |
-| grateful | A rescued cat sends up one heart every 4 s while carried | fx | Rate 0.25, high only | `HeldCat` with a rescued flag (attribute needed) | P2 |
+| CatchStart | The net lifts (0.3 s); the stray crouches and flattens its ears | proc | none | `CatchSchedule` arrives | P1 |
+| CircleAppear | The stray's ears perk and its head tracks the net | proc | none | each circle's start | P2 |
+| NetSwing | A quick net flick towards the cat on every press (0.15 s out, 0.2 s back) with a short Trail | proc on `NetGrip`, fx (Trail 0.15 s) | 1 Trail | every circle press | P1 |
+| CircleGrade | Perfect: a soft gold star pop on the cat (5 particles) and it freezes for a beat; Good: 3 mint dots and a flinch; Miss: the cat side-steps half a stud | fx, proc | 5 particles at most per press | the client's grade at the press, as the UI shows it | P1 |
+| CatchSuccess | The stray hops into the player's arms (0.25 s), then a burst by rarity: Common 8 offwhite dots; Rare adds 6 blue sparkles; Epic adds a purple ring; Legendary adds 10 gold sparkles and a 0.8 s gold Highlight on the held cat; Mythical adds a coral ring and 12 sparkles in its own colors and the Highlight lasts 1.2 s. A shiny adds its sparkle on top | proc, fx | 30 particles at most (a shiny Mythical), 1 Highlight | local: `CatchResult` success; everyone else: `Exit = caught` | P1 |
+| CatchFail, retry | Startle hop (Body joint 0.4 stud, 0.2 s), 4 fur puffs in the cat's base color, the net bounces back | proc, fx | 4 particles | `CatchResult` fail on a Common, or on a dropped stray (which never flees, reviewer S26) | P1 |
+| StrayFlee | The stray dashes 3 studs away over 0.4 s, then a small soft puff and it is gone | tween on the pivot (the server no longer moves it once `Exit` is set), fx | 6 particles | `Exit = fled` | P1 |
+| arm swing | The player's arm swings the net and others see it | clip on the player's own Animator, keying `NetGrip` too, so it replicates | 1 track | NetSwing | P2. The first published clip; it proves the ownership flow in skill section 4 |
+
+## 4. Rescue traps
+
+Traps are `CatCafe_Alley_TrashBin`, `CatCafe_Alley_GarbageBags`, `CatCafe_Park_RescueTree` (its branch is its own part) and `CatCafe_Park_TrashCan`, each with a stuck pose from the asset thread (head and paws poking out). The bar is UI; the trap and the cat answer it.
+
+| moment | what you see | tool | budget | hook | P |
+|---|---|---|---|---|---|
+| stuck idle | Head and paws poke out and look around every 2 to 4 s, a tail flick where the tail shows; one faint sparkle in the rarity color every 2 s so occupied traps can be found at night. Never the shiny sparkle | proc, fx | 1 emitter per occupied trap, Rate 0.5 | `RescueSpot` with `Occupied` | P1 |
+| RescueStart | The bin or can lid lifts a little and settles, the bags rustle, the branch dips | tween | none | `RescueChallenge` arrives | P1 |
+| RescueHit, bar traps | The lid jolts up, the bags puff, the can wobbles, and the cat pokes further out with each hit | tween, proc, fx | 3 particles per hit | each hit, with `trapType` | P1 |
+| RescueHit, tree | The branch shakes (rotation tween on the branch part) and 2 leaves fall per hit | tween, fx | 2 particles per hit | each hit on a `tree` | P1 |
+| RescueMiss | The trap rattles and the cat ducks back in for a moment | tween, proc | none | a paw lost | P1 |
+| RescueDrop | The tree cat falls from the branch in a 0.5 s arc, then its one catch circle; on a miss it lands on its feet and climbs back up over 0.8 s | tween on the pivot, proc | none | the drop, then that circle's grade | P1 |
+| RescueFail, RescueCancel | The cat settles back into its stuck pose and the trap settles | tween, proc | none | out of paws, the tree catch missed, or a cancel | P1 |
+| RescueDone | The cat leaps out into the player's arms with 8 blush hearts (plus 6 leaves from a tree) | proc, fx | 14 particles | local: `RescueResult` success; everyone: `Exit = caught` on the stuck cat | P1 |
+| ShinyReveal | The surprise: a ring of 12 sparkles bursts out with the cat and the shiny sparkle stays on it | fx | 12 particles | `CatCaught` with shiny, or `Shiny` appearing on the held cat | P1 |
+
+## 5. Carry and bumps
+
+| moment | what you see | tool | budget | hook | P |
+|---|---|---|---|---|---|
+| CarryStart | The held cat settles into the carried pose with a small dip (Body joint 0.1 stud, 0.2 s) | proc | none | a `HeldCat` model under any character | P1 |
+| carried idle | Slow tail sway, head looks ahead, breathing; every client animates every held cat within 60 studs. Ragdoll goes limp: head and tail droop | proc | shared loop | `HeldCat`, `CarryingCatId` | P1 |
+| BumpLoose | A soft "boop" of 4 stars where the two players meet; the cat lands at the carrier's feet and scurries 6 to 10 studs with its tail up and a fast head bob, kicking 3 dust dots; a faint ring on the ground under it fades out when `DropProtectUntil` passes, so everyone can see when it can be netted | fx, proc | 7 particles, 1 ring | the new stray with `Dropped` and `DropProtectUntil` | P1 |
+| BumpHeld | The held cat clings (a squeeze wobble, 0.3 s) and a mint shimmer ring circles the carrier while `BumpImmune` lasts | proc, fx | 1 ring | `BumpImmune` on the carrier | P1 |
 | CheckIn | A heart and sparkle burst at the cafe door; the carrier also sees the cat hop towards the door | fx, proc | 10 particles | local: CheckIn; everyone: `HeldCat` removed near a plot `Door` | P1 for the burst, P2 for the hop |
 
-## 7. Coins and purchases
+No effect may make a bump feel like an attack: no impact flash, no knockback on the characters, no sad cat. The cat looks surprised, then playful. If the engineer adds the old carrier's first-claim window from reviewer S25, the protect ring gets a second phase in mint that only the old carrier sees.
+
+## 6. Bait bowl at the cafe
 
 | moment | what you see | tool | budget | hook | P |
 |---|---|---|---|---|---|
-| CoinPop | 3 small gold coins pop 1 stud up from the table and fade (0.6 s), next to the existing `UI.floatText` "+$8" | fx | about 4 particles a second for a full cafe | CustomerController.luau:135; low tier keeps the float text only | P1 |
-| Purchase | The new table, chair set or decor drops in from 0.5 studs with a Back Out bounce and 10 sparkles | tween on a `CFrameValue` driving `PivotTo`, fx | 10 particles | a decor or table model appearing under its anchor | P1 |
-| espresso upgrade | A steam burst on the new machine, then a slow steam wisp on L2 and L3 | fx | 6 particles, then Rate 1, high only | the espresso model swap | P2 |
-| LevelUp | Palette confetti at the cafe door (16 particles) and a soft ring on each spot the new level opens | fx | 16 plus 1 per new spot | `upgradeLevels.cafe_level` rising in ProfileSync | P1 |
-| AreaUnlock | The park gate leaves swing open (`_LeafL` and `_LeafR`, 0.8 s Back Out) and a sparkle arch | tween, fx | 12 particles | WorldController's park gate open; today it only goes see-through | P1 |
+| BaitPlaced | The food model drops into the bowl with a Back Out bounce (0.3 s) and 4 crumbs in the food's swatch | tween, fx | 4 particles | `UseLure` accepted; plot `BaitReadyAt` set | P1 |
+| waiting | A soft scent wisp rises from the bowl for the 10 minutes, tinted by food; dealer foods get a faint twinkle | fx | 1 emitter, Rate 0.5 | plot `BaitReadyAt` in the future | P2 |
+| BaitArrive | The cat walks up the street to the bowl and sits eating: head dips every 1.5 s, tail sway, a crumb now and then. After an offline wait it is already eating when the player joins | proc, fx | Rate 0.5 | `BaitReady`, the bait cat model at `BaitBowl` | P1 |
+| ShinyReveal at the bowl | If the bait cat is shiny, a ring of 12 sparkles the moment it sits down, then the shiny sparkle | fx | 12 particles | the bait cat's `Shiny`, set only once it is ready | P1 |
+| BaitTame | 8 hearts and the cat hops through the door into the cafe | fx, proc | 8 particles | `Exit = tamed` | P1 |
+| BaitLetGo | The cat stretches, flicks its tail and trots off towards the street, then a small puff | proc, fx | 4 particles | `Exit = letgo` | P2 |
 
-## 8. Day and night
-
-The 4 s lighting change and the night parts turning Neon with their lights already exist (WorldController.luau, style guide section 9). These add to it.
+## 7. Coins, rich tips, purchases, rank up
 
 | moment | what you see | tool | budget | hook | P |
 |---|---|---|---|---|---|
-| lamp halos | One soft warm halo per lit bulb (street lamps, string lights, shop windows), fading in with the 4 s lighting change | fx (1 locked particle, LightEmission 1, Size 2.5, Transparency 0.6) | bulbs within 80 studs, about 12 particles | NightStart, night parts by suffix | P1 |
-| door sign | The door sign flips: rotate 90 degrees, swap `DoorSign_Open` and `_Closed`, rotate back (0.4 s) | tween | none | Clock `Phase` | P1 |
-| wave arrival | Each new stray appears with a soft puff, staggered 0.1 s apart so six puffs never land on one frame | fx | 6 particles each, 36 total over 0.6 s | NightStart plus new `Stray` tags | P1 |
+| CoinPop | 3 small gold coins pop 1 stud up from the table and fade (0.6 s), next to `UI.floatText`; night owls pop at half the rate | fx | about 4 particles a second for a full cafe | CustomerController.luau:135; low tier keeps the float text only | P1 |
+| RichArrive | The rich customer's gold tip pile on the table glitters | fx | 1 emitter, Rate 2 | plot `RichTipAmount` and `RichTipExpiresAt` | P1 |
+| RichTipClaim | A fountain of 12 gold coins from the pile; the auto-collect on expiry gets a smaller puff of 4 | fx | 12 particles | `ClaimRichTip` accepted, or the attribute cleared at expiry | P1 |
+| Purchase | The new table, chair set or decor drops in from 0.5 studs with a Back Out bounce and 10 sparkles; espresso upgrades add a steam burst and, on the bigger machines, a slow steam wisp (high only) | tween on a `CFrameValue` driving `PivotTo`, fx | 10 particles; steam Rate 1 | a model appearing under its anchor | P1 |
+| RankUp | Palette confetti at the cafe door (16 particles), the new expansion floor rises into place with sparkles along its edge, each newly opened role station gets a soft ring | tween, fx | 16 plus 1 per new station | plot `Tier` rising | P1 |
+| AreaUnlock | The area's gate leaves swing open (0.8 s Back Out) with a sparkle arch, for the player who ranked up | tween, fx | 12 particles | the player's tier reaching the gate's tier | P1 |
+
+## 8. Day, night and the dealer
+
+The 4 s lighting change and the night parts turning Neon with their lights already exist (WorldController.luau, style guide section 9). Days and nights are 5 minutes each now and the cafe stays open at night.
+
+| moment | what you see | tool | budget | hook | P |
+|---|---|---|---|---|---|
+| lamp halos | One soft warm halo per lit bulb (street lamps, string lights, shop windows, the dealer's lantern), fading in with the lighting change | fx (1 locked particle, LightEmission 1, Size 2.5, Transparency 0.6) | bulbs within 80 studs, about 12 particles | NightStart, night parts by suffix | P1 |
+| cafe sign | The sign flips from sun to moon and back (rotate 90 degrees, swap faces, rotate back, 0.4 s) | tween | none | Clock `Phase` | P1 |
+| wave arrival | Each of the ten new strays per area appears with a soft puff, staggered 0.1 s apart so ten puffs never land on one frame | fx | 6 particles each, 60 per area over 1 s | NightStart plus new `Stray` tags | P1 |
+| DealerArrive | The cart rolls the last 10 studs into place over 3 s (a local tween towards the server position), its lantern lights, the stars on the cart twinkle; the dealer idles with Roblox's own default R15 idle | tween, fx, Roblox-owned idle animation | 1 emitter, Rate 1 | `DealerCart` tag, `Open` | P1 |
+| dealer purchase | A swirl of 6 star sparkles over the cart as the food changes hands | fx | 6 particles | Purchase with a dealer food id | P2 |
+| DealerLeave | The lantern dims and the cart rolls off at dawn | tween | none | `Open` false | P2 |
 | street lamp cone | A faint light cone under each street lamp | fx (Beam, Transparency 0.88, Segments 1) | 1 per lamp within 80 studs | NightStart | P2 |
 | window shafts | One warm light shaft from each lit shop window onto the alley floor | fx (Beam) | 1 per window within 60 studs | NightStart | P2 |
 | fireflies | Three slow fireflies near park plants and the patio | fx | 2 emitters at most, Rate 1, Lifetime 4 s, high only | NightStart | P2 |
-| DayStart | Halos and beams fade out with the lighting; placed cats stretch once (head and tail up, 0.8 s) | fx, proc | none | DayStart | P2 |
+| DayStart | Halos and beams fade with the lighting; working cats stretch once (head and tail up, 0.8 s) | fx, proc | none | DayStart | P2 |
 
 ## 9. Worst case on a phone (low tier)
 
-Night start in the alley, 6 strays arriving, the player catching a Legendary, other players' customers out of range:
+Night start in the Alleyway: ten strays arriving with a shiny among them, a trap rescue going on, one bump nearby, other cafes out of range.
 
 | source | particles alive |
 |---|---|
-| wave arrival puffs (halved) | 18 for 0.6 s |
+| wave arrival puffs (halved, staggered over 1 s) | about 20 at the peak |
 | lamp halos | 12 |
-| Legendary catch burst (halved) | 12 for 0.8 s |
-| stuck cat sparkles (2) | 2 |
-| bait wisp, calm heart | 3 |
-| total | about 47, against the 150 budget |
+| shiny strays (2 at most in view) | 6 |
+| occupied traps (3) | 3 |
+| rescue hits | 2 |
+| BumpLoose boop and dust | 4 |
+| a Mythical catch burst (halved) | 15 for 0.8 s |
+| total | about 62, against the 150 budget |
 
-Highlights in that scene: one from the catch, at most two Legendary outlines. Trails: one. The procedural loop covers about 6 strays, 2 stuck cats and 1 held cat within 60 studs. The cafe on the same phone adds its own placed cats (up to 7) and coin pops (about 2 alive). The numbers get measured in Studio once A0.1 to A0.3 exist.
+Highlights in that scene: one from the catch and at most two outlines. Trails: one. The procedural loop covers about 10 strays, 3 trapped cats and 2 held cats within 60 studs. A Tier 5 cafe on the same phone adds 10 working cats to the loop and about 2 coin particles alive. The numbers get measured in Studio once A0.1 to A0.4 exist.
 
 ## 10. Requests to other roles
 
-- **luau-engineer**: A0.1 cat rig, A0.2 Moments, A0.4 `Exit` attribute, A0.5 net on the hand. Attributes on the lure bowl (`LureSpotId`, `PlacedBy`, `PlacedAt`) and a rescued flag on the held cat. P2: keep the bowl and walk the lured cat in. Noticed while planning, not an Effects matter: strays walk by the server calling `PivotTo` every Heartbeat (Mover.luau), which sends every stray's position every frame; worth a look if the night alley lags on phones.
-- **ui-designer**: none required. Optional: an `UI.events.ringBand(band)` signal when the ring enters good or perfect, if you would rather fire NetRingGood and NetRingPerfect than have the controller time them.
-- **asset-artist**: the `NetGrip` offset for each net level (where the hand holds the `_Handle`), and a sit pose or separate leg objects for customers when they get a sitting animation (P3).
+- **luau-engineer**: A0.1 cat rig, A0.2 upright through the rig with uniforms welded to Body or Head, A0.3 Moments, A0.5 `Exit` attribute (including `tamed` and `letgo` for the bait cat), A0.6 the net on the hand. The bait cat model at the plot's `BaitBowl` once `BaitReadyAt` has passed. The dropped stray's scurry moved by `Mover` on the server at a scurry speed, so Effects only adds the run cycle. Noticed while planning, not an Effects matter: strays walk by the server calling `PivotTo` every Heartbeat (Mover.luau), which sends every stray's position every frame; with ten per area it is worth a look if the night alley lags on phones.
+- **asset-artist**: a palette swatch for Mythical (the designer proposes #FF5E7E; palette row 7 is spare) so the Mythical burst stays on the palette; trap lids (`TrashBin`, `TrashCan`) and the tree branch as their own objects so they can move; the dealer's lantern bulb named with the `_Bulb` suffix so the night glow picks it up; the `NetGrip` offset per net; front paws as their own objects on the upright cat if waving and cup holding are wanted (P3).
+- **game-designer**: features.md section 5 lists "Shiny sparkle VFX, `CatCafe_VFX_ShinySparkle`" for the asset thread. Proposal: it is the vfx-animator's `ShinySparkle` preset in `src/client/Effects/Presets.luau`, built in code like the placeholder, not a model in `assets/`. Also open question 2 below.
+- **ui-designer**: none required. The circles, the rescue bar and the bump prompt stay yours; Effects only answers them in the world.
 - **sound-designer**: same moment names; markers in published clips (`Land`, `Pounce`) can fire sound cues too.
 
 ## 11. Build order
 
-1. A0.1 to A0.3 (rig, Moments, Effects skeleton), then cat idle, stray walk and carried idle. Every later item reuses this.
-2. Catch success by rarity, catch fail, flee (A0.4).
-3. Rescue: stuck idle, hold, done.
-4. Bait: placed, arrive, calm heart.
-5. Coins, purchase, level up, park gate.
-6. Night: halos, door sign flip, wave arrival puffs.
-7. Net on the hand (A0.5), windup and swing; then the first published clip (the R15 arm swing) to prove the ownership flow before anything depends on clips.
-8. P2 items in the order the playtest asks for them.
+1. A0.1 to A0.4 (rig, upright through the rig, Moments, Effects skeleton), then the four role idles, stray walk and carried idle. Every later item reuses these.
+2. Net circles: CatchStart, NetSwing, CircleGrade, CatchSuccess by rarity, CatchFail, StrayFlee (A0.5, A0.6).
+3. Shiny on sight and ShinyReveal.
+4. Rescue traps: stuck idle, hits, misses, the tree drop, done.
+5. Bumps: BumpLoose with the protect ring, BumpHeld.
+6. Bait bowl: placed, arrive and eat, tame.
+7. Coins, rich tips, purchases, rank up, gates.
+8. Night: halos, sign flip, wave arrival, the dealer.
+9. The first published clip (the R15 arm swing) to prove the ownership flow before anything depends on clips; then P2 items in the order the playtest asks for them.
 
 ## 12. Open questions
 
-1. Gavin's question 15 (upright working cats in uniforms): an upright cat bends at the hips, which the three-part rig cannot do. If the answer is yes, the Blender skinned rig (skill section 3, step 3) moves into the slice and needs the asset-artist's split meshes.
-2. Legendary outline: drawing it through walls (`DepthMode = AlwaysOnTop`) would work as a radar in a first-catch-wins race. The draft keeps it `Occluded`; the game-designer decides if any rarity should show through walls.
-3. Reduce Motion: the draft drops idle loops except breathing when the player has Reduce Motion on. Derek, say if you would rather keep the tail wag.
+1. Upright cats (Gavin, question 15) are settled: working cats stand up. The three-part rig handles it through the Body joint (the asset thread proved the pose in PR #24), so Blender skinned rigs still wait until after the slice. Waving greeters and cup-holding baristas need front paws as their own objects (P3, asset-artist).
+2. Outlines: drawing Legendary and Mythical outlines through walls (`DepthMode = AlwaysOnTop`) would work as a radar in a first-catch-wins race, and shiny strays already sparkle on sight. The draft keeps outlines `Occluded`; the game-designer decides.
+3. Reduce Motion: the draft drops idle loops except breathing when the player has Reduce Motion on, which also stills the entertainer's dance. Derek, say if you would rather keep the dance and the tail wag.

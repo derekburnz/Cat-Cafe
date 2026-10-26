@@ -26,11 +26,12 @@ Everything here is cosmetic. It runs on each player's device, never decides game
 
 | Job | Tool | Where it runs | Owner |
 |---|---|---|---|
-| Buttons, popups, coin counter, ring | TweenService on GuiObjects (`UI/Components/Tween.luau`) | client | ui-designer |
+| Buttons, popups, coin counter, catch circles, rescue bar | TweenService on GuiObjects (`UI/Components/Tween.luau`) | client | ui-designer |
 | Props: park gate leaves, door sign flip, bowl drop, espresso steam, decor pop-in | TweenService on anchored parts, or a `CFrameValue` driving `model:PivotTo` | client | vfx-animator |
 | Cat idle, look at customer, tail wag, ear twitch, carried wriggle in the slice | Step 1: procedural `Motor6D.Transform` on the cat's Body, Head and Tail joints | client | vfx-animator (rig set-up by engineer) |
-| Authored cat clips: stretch, pounce, curl up, happy hop, the stuck wiggle per rescue prop | Step 2: the same Motor6D rig keyed in the Animation Editor, published, played by an Animator | client | vfx-animator |
-| Bendy cats: spine, walking legs, ears, an upright working cat | Step 3: Blender armature and skinned mesh, generated in Python | client | vfx-animator with asset-artist |
+| Authored cat clips: stretch, pounce, curl up, happy hop, the stuck wiggle per rescue trap, the role idles once they need hand-keyed timing | Step 2: the same Motor6D rig keyed in the Animation Editor, published, played by an Animator | client | vfx-animator |
+| Working cats standing upright in their role uniform at a station | Step 1 rig with the manifest's upright pose as the Body and Head joints' rest offset; uniforms welded to Body or Head | client | vfx-animator (rig set-up by engineer) |
+| Bendy cats: spine, walking legs, ears, waving front paws | Step 3: Blender armature and skinned mesh, generated in Python | client | vfx-animator with asset-artist |
 | Strays walking and fleeing | Server moves the pivot (`shared/Mover.luau`); the client adds joint motion on top | server pivot, client joints | engineer, vfx-animator |
 | Customers | Walk bob in `Mover`; a Motor6D rig needs separate arm and leg objects from the asset-artist | client (customers are client-only) | vfx-animator |
 | Bursts, sparkles, glows, light shafts, outlines | ParticleEmitter, Beam, Highlight, Neon plus lights | client | vfx-animator |
@@ -40,7 +41,7 @@ Rule of thumb: start on the cheapest row that looks good. Procedural motion cost
 
 ## 3. The rig ladder for cats
 
-The cat ships as three MeshParts, `<Name>_Body`, `<Name>_Head`, `<Name>_Tail`, with the Head pivot at the neck and the Tail pivot at the tail root. `assets/cat-cafe/exports/manifest.json` gives both joints per cat as `joints_roblox` (model space, studs from the floor pivot). Every pose in `poses` (upright, carried) and every `stuck_pose` is Body CFrame plus Head and Tail angles, so it maps straight onto these two joints.
+The cat ships as three MeshParts, `<Name>_Body`, `<Name>_Head`, `<Name>_Tail`, with the Head pivot at the neck and the Tail pivot at the tail root. `assets/cat-cafe/exports/manifest.json` gives both joints per cat as `joints_roblox` (model space, studs from the floor pivot). Every pose in `poses` (upright, carried) and every `stuck_pose` is Body CFrame plus Head and Tail angles, so it maps straight onto the joints. A working cat (design v0.3 roles) is the same rig with `poses.upright` and its `head_offset_roblox` as the rest offset of the Body and Head joints, so standing up at a station and dropping to all fours are a 0.4 s tween of two offsets, and the role uniforms (welded to Body or Head at `upright_attachments`) follow every motion.
 
 ### Step 1: Motor6D rig built in code, procedural motion (the slice)
 
@@ -89,7 +90,7 @@ track:Play(0.2)                                  -- 0.2 s fade in
 
 Play cat clips on the client: each player animates their own copy, nothing goes over the network, and two players seeing a tail wag at slightly different moments does not matter. Only the local player's own character replicates client-played animations to others.
 
-### Step 3: Blender skinned rig (after the slice, and after Gavin's upright question 15)
+### Step 3: Blender skinned rig (after the slice)
 
 Generate the armature and weights in Python next to the asset-artist's meshes so it rebuilds like everything else: `assets/cat-cafe/anim/rig.py` imports the cat from `assets/cat-cafe/blender/cats.py` (read only), adds bones, weights and clips, and exports FBX to `assets/cat-cafe/anim/exports/`. Rules from `blender-to-roblox`: bones frozen (scale 1, rotation 0), root bone at the origin, at most 4 influences per vertex, nothing weighted to the root, one animation per FBX, no leaf bones. Our budget: at most 20 bones per cat, the triangle budget unchanged (1,500). Import with the 3D Importer (Rig on), then each clip through Animation Editor `...` > Import > From FBX Animation, and publish as in step 2. Ask the lead to copy `blender-character-rigging` and `blender-animation` from EL4CTEO/blender-skills (see `.claude/skills/THIRD_PARTY.md`) before starting.
 
@@ -98,7 +99,7 @@ Generate the armature and weights in Python next to the asset-artist's meshes so
 - An animation plays in a live server only if its owner can use it in that experience. Publish every clip under the same creator that owns the experience. In Studio it may still play for its owner, so a clip that works in Studio and not live is almost always this.
 - Moving the game to a Roblox Group later: either re-publish each clip under the Group or grant the experience on each animation's Permissions page in the Creator Hub (Enter Universe IDs). Grants cannot be revoked. Check the current rules in the Creator Docs (`roblox_docs` MCP) before the move; they have changed before.
 - Keep every id in `src/client/Effects/AnimationIds.luau` with its creator, so the Group move is one list to work through, and so the reviewer can see no id came from someone else's account.
-- Never use animation ids found in other games or the Creator Store; they are someone else's asset and break live. Original motion only (CLAUDE.md rule 8).
+- Never use animation ids found in other games or the Creator Store; they are someone else's asset and break live. Original motion only (CLAUDE.md rule 8). The one exception is Roblox's own default character animations (the ids inside the default `Animate` script of a player character in a Studio playtest): Roblox owns them and they play in any experience, which is enough for an R15 NPC such as the night dealer. Copy the ids from that script, not from memory.
 - Particle and beam textures are image assets with the same rule: publish them under the experience's creator, and prefer Roblox's built-in textures (`rbxasset://textures/particles/sparkles_main.dds` is the emitter default) until a custom texture earns its upload.
 
 ## 5. Tweens for UI and props
@@ -114,9 +115,9 @@ Generate the armature and weights in Python next to the asset-artist's meshes so
 The room is calm and low-contrast so the cats are the color. Effects follow the same rule: small, soft, short and warm.
 
 - **Shapes**: soft dots, four-point sparkles, paw prints, hearts, little coins, a puff of fur. Never shards, lightning, fire, smoke plumes or anything that reads as danger. No red "damage" tints.
-- **Colors**: palette only (style guide section 2), as `ColorSequence` stops: `sparkle` #FFF4B0, `lamp_warm` #FFD9A8, `offwhite` #FFF9F2, `mint` #8FD3C1, `blush` #E8A0A0, coins in `rarity_legend` #FFC94D, rarity in `rarity_common` #8E97B2, `rarity_rare` #5FA8FF, `rarity_epic` #C07CFF, `rarity_legend` #FFC94D. Add a new color to row 7 of the palette (with the asset-artist) before using it.
+- **Colors**: palette only (style guide section 2), as `ColorSequence` stops: `sparkle` #FFF4B0, `lamp_warm` #FFD9A8, `offwhite` #FFF9F2, `mint` #8FD3C1, `blush` #E8A0A0, coins in `rarity_legend` #FFC94D, rarity in `rarity_common` #8E97B2, `rarity_rare` #5FA8FF, `rarity_epic` #C07CFF, `rarity_legend` #FFC94D, and Mythical in the designer's proposed #FF5E7E once the asset-artist adds it to palette row 7. Add a new color to row 7 of the palette (with the asset-artist) before using it.
 - **Timing**: feedback bursts last 0.3 to 0.8 s. Transparency fades 0.2 to 1 over the lifetime; size shrinks or holds, never balloons.
-- **Rarity ladder**: Common is a small puff; Rare adds blue sparkles; Epic adds a purple ring; Legendary adds gold sparkles and a short Highlight outline, plus the server announcement. The ladder is the reward for rarity, so the Common burst stays plain.
+- **Rarity ladder**: Common is a small puff; Rare adds blue sparkles; Epic adds a purple ring; Legendary adds gold sparkles and a short Highlight outline, plus the server announcement; Mythical adds a coral ring, more sparkles and a longer outline. A shiny cat adds the `ShinySparkle` preset on top of its rarity. The ladder is the reward for rarity, so the Common burst stays plain.
 - **Day and night**: by day `LightEmission = 0` (normal blending reads on cream walls); at night 0.5 to 1 so sparkles glow in the dark alley. Glow comes from Neon parts and lights under low Bloom; do not raise Bloom to make an effect read.
 - **Night glow**: the night parts (`_Bulb`, `_Bulbs`, `_Pane`, `_Tube`) already turn Neon with a light (WorldController). On top: one soft halo per bulb (a single locked particle, `LightEmission = 1`, Size 2 to 3, Transparency 0.6), a faint Beam cone under the street lamp (Transparency 0.85 or more), and 2 or 3 slow fireflies near park plants. Window panes at night can throw one Beam shaft onto the alley floor.
 - **Young audience and accessibility**: no more than three flashes per second, no full-screen white flash, no camera shake. When `GuiService.ReducedMotionEnabled` is true (the player's Reduce Motion setting; check it reads from a LocalScript with `roblox_docs`), skip screen-space bursts, scale pops and idle loops other than breathing.
@@ -149,7 +150,7 @@ Measure, do not guess: Studio playtest with the device emulator on a phone profi
 
 - `--!strict`, luau-conventions, one module per concern: `init.luau` (public API), `Presets.luau` (every burst and loop as data: colors, sizes, counts per tier), `CatMotion.luau` (procedural joints and track playback), `PropMotion.luau` (gate, sign, bowl), `NightGlow.luau`, `AnimationIds.luau`.
 - Effects only listen. They subscribe to the moment signals in `src/client/Moments.luau` (engineer-owned, one Signal per moment, shared with the sound designer's Audio module) and to replicated world state: CollectionService tags (`Stray`, `StuckCat`, `Plot`), attributes (`LockedBy`, `Rescue`, `Phase`) and models appearing (`HeldCat` under a character). They never fire remotes, never change gameplay attributes, never move a part the server also moves.
-- Moment names (agreed with the sound thread): NetWindup, NetRingGood, NetRingPerfect, NetSwing, CatchSuccess, CatchFail, StrayFlee, BaitPlaced, BaitArrive, BaitExpire, RescueHold, RescueCancel, RescueDone, CarryStart, CheckIn, CatFound, CatPlaced, CatSold, CoinPop, Purchase, LevelUp, AreaUnlock, Announce, OfflineClaim, RareStrayNearby, NightStart, DayStart.
+- Moment names: the shared list in `docs/audio/cat-cafe/sound-list.md` section 6, agreed with the sound designer. Do not keep a second copy here; when a mechanic changes, update that list together with the sound designer.
 - Pool and clean up: one emitter per preset parked under `workspace.Terrain` attachments and moved to the effect point, `Emit(n)`, back to the pool. Anything created per effect is destroyed when it ends. No per-frame table allocation in the motion loop.
 - An effect another player must see (a friend's Legendary catch) is driven by replicated state every client already has, so it needs no new remote. If one is truly needed, ask the engineer for an `UnreliableRemoteEvent` and let the reviewer check it.
 

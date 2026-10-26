@@ -1,7 +1,8 @@
 --!strict
--- Always-on overlay: money and income (top left), cafe level pill (top centre), cat count and the day
--- and night clock chip (top right), menu buttons (left), equipped lure slot with an odds picker (bottom right), carry banner and
--- tutorial strip (bottom centre). Laid out in design pixels under one UIScale from Scale.bind.
+-- Always-on overlay: money and income (top left), cafe tier pill and the Cafe, Alley and Areas travel row
+-- (top centre), cat count and the day and night clock chip (top right), menu tiles (left), equipped lure slot
+-- with an odds picker (bottom right), carry banner and tutorial strip (bottom centre). Laid out in design
+-- pixels under one UIScale from Scale.bind.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -20,6 +21,7 @@ local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
+	travel: (destination: string) -> (), -- "home" or an AreaId
 	buyLure: (lureId: string) -> (),
 	equipLure: (lureId: string) -> (),
 }
@@ -32,6 +34,9 @@ export type HUD = {
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	togglePicker: (self: HUD) -> (),
+	pressTravel: (self: HUD, destination: string) -> boolean,
+	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
+	isCarrying: (self: HUD) -> boolean,
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
 }
@@ -41,6 +46,11 @@ local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
 local MENU_TILE = 84
+local CAFE_HEIGHT = 56
+local TRAVEL_W = 120
+local TRAVEL_H = 46
+-- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
+local TRAVEL_COOLDOWN: number = (Config :: any).TravelCooldownSeconds or 3
 local LURE_ROW = 70
 -- data-model NightIncomeMultiplier (0.6): tips pay this share at night. The server only applies it once it
 -- is in Config (F31), so the chip stays hidden until then instead of promising a cut that is not paid.
@@ -280,7 +290,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local cafe = hudPanel("Cafe", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, MARGIN),
-		Size = UDim2.fromOffset(340, 56),
+		Size = UDim2.fromOffset(340, CAFE_HEIGHT),
 		Parent = root,
 	})
 	self._cafeTitle = label({
@@ -342,19 +352,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end
 		end)
 	)
+	-- a tilted red sticker on the pill's corner, the simulator "something to claim" badge; the travel row
+	-- sits right under the pill, so nothing hangs below it
 	self._rankBadge = Create("TextLabel", {
 		Name = "RankReady",
-		BackgroundColor3 = Theme.colors.gold,
+		BackgroundColor3 = Theme.colors.red,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 1, 6),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -10, 0, 2),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 24),
+		Rotation = 8,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.white,
-		Text = "Rank up ready!",
+		Text = "Rank up!",
 		Visible = false,
+		ZIndex = 4,
 		Parent = cafe,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
@@ -362,6 +376,58 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	Outline.text(self._rankBadge)
 	self._tiersOn = false
+
+	-- Travel row (top centre, under the tier pill): Cafe and Alley jump straight there, Areas opens the five
+	-- area cards. Grow a Garden puts its teleport buttons in the same place (features.md F19). All three
+	-- grey out while carrying a cat, since walking it home is the loop, and for the trip cooldown.
+	local travelRow: Frame = Create("Frame", {
+		Name = "Travel",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, MARGIN + CAFE_HEIGHT + 10),
+		Size = UDim2.fromOffset(3 * TRAVEL_W + 2 * Theme.sizes.gap, TRAVEL_H),
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			Padding = UDim.new(0, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._travelRow = travelRow
+	self._travelButtons = {} :: { [string]: Button.Button }
+	self._travelEnabled = {} :: { [string]: boolean }
+	self._travelUntil = 0
+	self._carryBanner = false
+	self._carryState = false
+	type TravelItem = { key: string, label: string, icon: string, style: Button.Style }
+	local travelItems: { TravelItem } = {
+		{ key = "home", label = "Cafe", icon = Theme.icons.home, style = "gold" },
+		{ key = "alley", label = "Alley", icon = Theme.icons.alley, style = "secondary" },
+		{ key = "areas", label = "Areas", icon = Theme.icons.travel, style = "primary" },
+	}
+	for index, item in travelItems do
+		local button = Button.new({
+			name = item.label,
+			text = item.label,
+			icon = item.icon,
+			style = item.style,
+			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
+			textSize = Theme.sizes.textBody + 1,
+			layoutOrder = index,
+			parent = travelRow,
+			onClick = function()
+				if item.key == "areas" then
+					callbacks.openScreen("Areas")
+				else
+					self:pressTravel(item.key)
+				end
+			end,
+		})
+		self._travelButtons[item.key] = button
+		table.insert(self._buttons, button)
+	end
 
 	-- Cats pill (top right)
 	local cats = hudPanel("Cats", {
@@ -676,6 +742,62 @@ function HUD.togglePicker(self: any)
 	end
 end
 
+-- Fires the travel callback unless the row is greyed (carrying, or inside the trip cooldown). True when it fired.
+function HUD.pressTravel(self: any, destination: string): boolean
+	if self:isCarrying() or os.clock() < self._travelUntil then
+		return false
+	end
+	self._callbacks.travel(destination)
+	self._travelUntil = os.clock() + TRAVEL_COOLDOWN
+	self:_renderTravel()
+	task.delay(TRAVEL_COOLDOWN, function()
+		if os.clock() >= self._travelUntil then
+			self:_renderTravel()
+		end
+	end)
+	return true
+end
+
+-- The server's answer (TravelResult). A refusal lifts the cooldown at once and wobbles the button that
+-- asked; area trips from the Areas panel wobble the Areas button. The server's toast says why.
+function HUD.travelResult(self: any, destination: string, ok: boolean)
+	local button: Button.Button? = self._travelButtons[destination] or self._travelButtons.areas
+	if not button then
+		return
+	end
+	assert(button, "travel button missing")
+	if ok then
+		Tween.popIn(button.instance, 0.85)
+		return
+	end
+	self._travelUntil = 0
+	self:_renderTravel()
+	button.instance.Rotation = -8
+	Tween.to(
+		button.instance,
+		TweenInfo.new(0.45, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
+		{ Rotation = 0 }
+	)
+end
+
+-- Carrying comes from two places: the carry banner (UI.setCarrying) and state.carrying.
+function HUD.isCarrying(self: any): boolean
+	return self._carryBanner or self._carryState
+end
+
+function HUD._renderTravel(self: any)
+	local carrying = self:isCarrying()
+	local cooling = os.clock() < self._travelUntil
+	for key, button in self._travelButtons do
+		-- render runs on every state push, so only touch buttons whose state changed (keeps hover colour)
+		local enabled = not carrying and (key == "areas" or not cooling)
+		if self._travelEnabled[key] ~= enabled then
+			self._travelEnabled[key] = enabled
+			button:setEnabled(enabled)
+		end
+	end
+end
+
 function HUD._buildLureRows(self: any)
 	for _, row in self._lureRows do
 		row.equip:destroy()
@@ -839,6 +961,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 		Tween.to(self._moneyText, Tween.RISE, { TextColor3 = Theme.hud.text })
 	end
 	self._lastMoney = state.money
+	self._carryState = state.carrying ~= nil
+	self:_renderTravel()
 
 	-- income comes only from cats in a role slot, so with instances the count skips resting cats
 	local catCount = 0
@@ -945,6 +1069,10 @@ function HUD._renderTier(self: any, progress: RankUp.Progress)
 	self._cafeFill.BackgroundColor3 = if progress.ready
 		then Theme.colors.gold
 		else Theme.colors.mint
+	if progress.ready then
+		self._cafeSub.Text = "Rank up ready! Tap to see "
+			.. (if nextTier then nextTier.name else "")
+	end
 	local wasVisible = self._rankBadge.Visible
 	self._rankBadge.Visible = progress.ready
 	if progress.ready and not wasVisible then
@@ -984,6 +1112,8 @@ function HUD._renderLures(self: any, state: Types.PlayerState)
 end
 
 function HUD.setCarrying(self: any, info: Types.CarryInfo?)
+	self._carryBanner = info ~= nil
+	self:_renderTravel()
 	if info then
 		assert(info, "carry info missing")
 		local rarity: string = info.rarity or "Common"

@@ -1,5 +1,5 @@
 --!strict
--- Short messages that drop in under the cafe pill and fade out. Max four on screen.
+-- Short messages that drop in under the tier pill and travel row and fade out. Max four on screen.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -48,7 +48,7 @@ function Toasts.new(parent: Instance): Toasts
 		Name = "Stack",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 80),
+		Position = UDim2.new(0.5, 0, 0, 148), -- under the tier pill and the travel row
 		Size = UDim2.fromOffset(420, 300),
 		Parent = root,
 	}, {

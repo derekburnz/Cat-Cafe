@@ -8,6 +8,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Format = require(script.Parent.Components.Format)
 local RankUp = require(script.Parent.Screens.RankUp)
 local Types = require(script.Parent.Types)
 
@@ -219,6 +220,17 @@ function Demo.run(UI: any): () -> ()
 	end)
 	connections[#connections + 1] = UI.events.equipBest:Connect(function()
 		UI.toast("Equip best: the server would place your top cats", "info")
+	end)
+	connections[#connections + 1] = UI.events.travel:Connect(function(destination: string)
+		UI.toast(
+			if destination == "home"
+				then "Travel: the server would take you to your cafe"
+				else ("Travel: the server would take you to %s"):format(
+					Format.areaName(destination)
+				),
+			"info"
+		)
+		UI.travel.result(destination, true)
 	end)
 	connections[#connections + 1] = UI.events.claimOffline:Connect(function()
 		profile.money += 312

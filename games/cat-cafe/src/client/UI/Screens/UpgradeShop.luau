@@ -89,7 +89,7 @@ function UpgradeShop._buildRows(self: any)
 	if not catalog then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 
 	for index, upgrade in catalog.upgrades do
 		local row: Frame = Create("Frame", {

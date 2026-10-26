@@ -1,7 +1,108 @@
 {
-  "generated": "2026-10-26 01:53 UTC",
+  "generated": "2026-10-26 17:23 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
+  "pose_convention": [
+    "to the Head and the Tail about their own joints. Positions are in studs, Blender axes",
+    "(Z up, -Y forward). Roblox conversion: position (x, y, z) -> (x, z, -y); yaw is the",
+    "Z angle (Roblox Y), pitch the X angle (Roblox X), roll the Y angle (Roblox -Z)."
+  ],
+  "poses": {
+    "upright": {
+      "body_position_blender": [
+        0.0,
+        0.5,
+        0.8
+      ],
+      "body_position_roblox": [
+        0.0,
+        0.8,
+        -0.5
+      ],
+      "body_rotation_xyz_deg_blender": [
+        -90.0,
+        -0.0,
+        0.0
+      ],
+      "body_rotation_roblox": {
+        "pitch_x": -90.0,
+        "yaw_y": 0.0,
+        "roll_z": 0.0
+      },
+      "head_local_xyz_deg": [
+        90,
+        0,
+        0
+      ],
+      "tail_local_xyz_deg": [
+        80,
+        0,
+        0
+      ],
+      "note": "Stands on the hind legs. Same parts; Head pitched back to face forward. Accessories keep their offsets."
+    },
+    "carried": {
+      "body_position_blender": [
+        0.0,
+        -1.2,
+        3.2
+      ],
+      "body_position_roblox": [
+        0.0,
+        3.2,
+        1.2
+      ],
+      "body_rotation_xyz_deg_blender": [
+        20.0,
+        -0.0,
+        0.0
+      ],
+      "body_rotation_roblox": {
+        "pitch_x": 20.0,
+        "yaw_y": 0.0,
+        "roll_z": 0.0
+      },
+      "head_local_xyz_deg": [
+        -20,
+        0,
+        0
+      ],
+      "tail_local_xyz_deg": [
+        -40,
+        0,
+        0
+      ],
+      "note": "Held in front of the chest, relative to the character's HumanoidRootPart."
+    }
+  },
+  "upright_attachments": {
+    "BowTie": {
+      "part": "Body",
+      "offset": [
+        0.0,
+        -0.62,
+        0.38
+      ],
+      "rotation_xyz_deg": [
+        90,
+        0,
+        0
+      ]
+    },
+    "Apron": {
+      "part": "Body",
+      "offset": [
+        0.0,
+        -0.45,
+        0.38
+      ],
+      "rotation_xyz_deg": [
+        90,
+        0,
+        0
+      ]
+    }
+  },
   "assets": [
     {
       "name": "CatCafe_Cat_Tabby",
@@ -12,16 +113,16 @@
         "CatCafe_Cat_Tabby_Head",
         "CatCafe_Cat_Tabby_Tail"
       ],
-      "triangles": 876,
+      "triangles": 900,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -44,11 +145,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "900/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "490 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tabby.png"
     },
     {
       "name": "CatCafe_Cat_Tuxedo",
@@ -59,16 +211,16 @@
         "CatCafe_Cat_Tuxedo_Head",
         "CatCafe_Cat_Tuxedo_Tail"
       ],
-      "triangles": 1028,
+      "triangles": 1052,
       "budget": 1500,
       "size_studs": {
         "x": 0.98,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -91,11 +243,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1052/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "578 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tuxedo.png"
     },
     {
       "name": "CatCafe_Cat_Ginger",
@@ -106,16 +309,16 @@
         "CatCafe_Cat_Ginger_Head",
         "CatCafe_Cat_Ginger_Tail"
       ],
-      "triangles": 804,
+      "triangles": 828,
       "budget": 1500,
       "size_studs": {
         "x": 0.99,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.5,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -138,11 +341,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "828/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "454 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ginger.png"
     },
     {
       "name": "CatCafe_Cat_Smoke",
@@ -153,16 +407,16 @@
         "CatCafe_Cat_Smoke_Head",
         "CatCafe_Cat_Smoke_Tail"
       ],
-      "triangles": 792,
+      "triangles": 816,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -185,11 +439,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Smoke.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Smoke.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "816/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "448 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Smoke.png"
     },
     {
       "name": "CatCafe_Cat_Snow",
@@ -200,16 +505,16 @@
         "CatCafe_Cat_Snow_Head",
         "CatCafe_Cat_Snow_Tail"
       ],
-      "triangles": 792,
+      "triangles": 816,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -232,11 +537,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Snow.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Snow.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "816/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "448 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Snow.png"
     },
     {
       "name": "CatCafe_Cat_Calico",
@@ -247,16 +603,16 @@
         "CatCafe_Cat_Calico_Head",
         "CatCafe_Cat_Calico_Tail"
       ],
-      "triangles": 864,
+      "triangles": 888,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -279,11 +635,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Calico.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Calico.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "888/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "484 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Calico.png"
     },
     {
       "name": "CatCafe_Cat_Siamese",
@@ -294,16 +701,16 @@
         "CatCafe_Cat_Siamese_Head",
         "CatCafe_Cat_Siamese_Tail"
       ],
-      "triangles": 804,
+      "triangles": 828,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -326,11 +733,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Siamese.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Siamese.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "828/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "454 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Siamese.png"
     },
     {
       "name": "CatCafe_Cat_Tortie",
@@ -341,16 +799,16 @@
         "CatCafe_Cat_Tortie_Head",
         "CatCafe_Cat_Tortie_Tail"
       ],
-      "triangles": 864,
+      "triangles": 888,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -373,11 +831,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tortie.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tortie.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "888/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "484 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tortie.png"
     },
     {
       "name": "CatCafe_Cat_Bengal",
@@ -388,16 +897,16 @@
         "CatCafe_Cat_Bengal_Head",
         "CatCafe_Cat_Bengal_Tail"
       ],
-      "triangles": 888,
+      "triangles": 912,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.49,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -420,11 +929,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "912/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "496 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Bengal.png"
     },
     {
       "name": "CatCafe_Cat_Sphynx",
@@ -435,16 +995,16 @@
         "CatCafe_Cat_Sphynx_Head",
         "CatCafe_Cat_Sphynx_Tail"
       ],
-      "triangles": 764,
+      "triangles": 788,
       "budget": 1500,
       "size_studs": {
         "x": 0.97,
-        "y": 2.57,
+        "y": 2.59,
         "z": 1.9
       },
       "bounds_min": [
         -0.49,
-        -1.19,
+        -1.2,
         0.0
       ],
       "bounds_max": [
@@ -467,11 +1027,62 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "788/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "434 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Sphynx.png"
     },
     {
       "name": "CatCafe_Cat_Ragdoll",
@@ -482,16 +1093,16 @@
         "CatCafe_Cat_Ragdoll_Head",
         "CatCafe_Cat_Ragdoll_Tail"
       ],
-      "triangles": 816,
+      "triangles": 840,
       "budget": 1500,
       "size_studs": {
         "x": 1.19,
-        "y": 3.15,
+        "y": 3.16,
         "z": 2.14
       },
       "bounds_min": [
         -0.59,
-        -1.45,
+        -1.47,
         0.0
       ],
       "bounds_max": [
@@ -505,20 +1116,71 @@
       "joints": {
         "Head": [
           0.0,
-          -0.6,
-          1.0
+          -0.72,
+          1.2
         ],
         "Tail": [
           0.0,
-          0.75,
-          0.95
+          0.9,
+          1.14
         ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.68,
+            0.24
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.6
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            1.14
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.84,
+            1.2
+          ]
+        }
       },
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "840/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "460 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.11"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ragdoll.png"
     },
     {
       "name": "CatCafe_Cat_Void",
@@ -529,16 +1191,16 @@
         "CatCafe_Cat_Void_Head",
         "CatCafe_Cat_Void_Tail"
       ],
-      "triangles": 828,
+      "triangles": 852,
       "budget": 1500,
       "size_studs": {
         "x": 1.04,
-        "y": 2.62,
+        "y": 2.64,
         "z": 1.78
       },
       "bounds_min": [
         -0.52,
-        -1.21,
+        -1.23,
         0.0
       ],
       "bounds_max": [
@@ -561,12 +1223,63 @@
           0.95
         ]
       },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ]
+        }
+      },
       "studio": "Head eyes are amber in the texture; add a Neon eye Part or Highlight for the glow.",
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Void.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Void.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "852/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "466 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Void.png"
     },
     {
       "name": "CatCafe_NPC_Customer_A",
@@ -598,7 +1311,22 @@
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_A.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_A.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_A.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "530/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "309 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_A.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_NPC_Customer_A.png"
     },
     {
       "name": "CatCafe_NPC_Customer_B",
@@ -630,7 +1358,24 @@
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_B.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_B.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_B.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "530/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "309 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.18"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_B.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_NPC_Customer_B.png"
     },
     {
       "name": "CatCafe_NPC_Customer_C",
@@ -662,7 +1407,24 @@
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_C.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Customer_C.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_C.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "634/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "377 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.17 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Customer_C.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_NPC_Customer_C.png"
     },
     {
       "name": "CatCafe_Furniture_Counter",
@@ -700,7 +1462,22 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_Counter.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_Counter.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Counter.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1180/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "608 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Counter.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_Counter.png"
     },
     {
       "name": "CatCafe_Furniture_EspressoMachine_L1",
@@ -732,7 +1509,24 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L1.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L1.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L1.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "606/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "337 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.11 y=-0.32"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L1.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_EspressoMachine_L1.png"
     },
     {
       "name": "CatCafe_Furniture_EspressoMachine_L2",
@@ -764,7 +1558,24 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L2.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L2.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L2.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "758/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "417 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.11 y=-0.32"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L2.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_EspressoMachine_L2.png"
     },
     {
       "name": "CatCafe_Furniture_EspressoMachine_L3",
@@ -796,7 +1607,24 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L3.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_EspressoMachine_L3.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L3.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "990/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "547 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.32"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_EspressoMachine_L3.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_EspressoMachine_L3.png"
     },
     {
       "name": "CatCafe_Furniture_Cushion",
@@ -833,7 +1661,22 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_Cushion.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_Cushion.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Cushion.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "420/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "210 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Cushion.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_Cushion.png"
     },
     {
       "name": "CatCafe_Furniture_WallShelf",
@@ -870,7 +1713,22 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_WallShelf.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_WallShelf.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_WallShelf.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "252/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "140 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.60"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_WallShelf.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_WallShelf.png"
     },
     {
       "name": "CatCafe_Furniture_CatTree",
@@ -908,7 +1766,22 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_CatTree.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_CatTree.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_CatTree.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "960/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "496 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.03 y=-0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_CatTree.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_CatTree.png"
     },
     {
       "name": "CatCafe_Furniture_WindowSeat",
@@ -945,7 +1818,22 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_WindowSeat.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_WindowSeat.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_WindowSeat.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "264/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "144 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_WindowSeat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_WindowSeat.png"
     },
     {
       "name": "CatCafe_Furniture_PatioBench",
@@ -982,7 +1870,24 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_PatioBench.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_PatioBench.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_PatioBench.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "528/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "300 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.06"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_PatioBench.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_PatioBench.png"
     },
     {
       "name": "CatCafe_Furniture_TableRound",
@@ -1014,7 +1919,22 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_TableRound.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_TableRound.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_TableRound.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "556/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "290 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_TableRound.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_TableRound.png"
     },
     {
       "name": "CatCafe_Furniture_Chair",
@@ -1046,7 +1966,125 @@
         "assets/cat-cafe/exports/CatCafe_Furniture_Chair.fbx",
         "assets/cat-cafe/exports/CatCafe_Furniture_Chair.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Chair.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "392/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "236 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_Chair.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_Chair.png"
+    },
+    {
+      "name": "CatCafe_Decor_DoorSign",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_DoorSign_Open",
+        "CatCafe_Decor_DoorSign_Closed"
+      ],
+      "triangles": 1292,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.35,
+        "y": 0.14,
+        "z": 1.88
+      },
+      "bounds_min": [
+        -1.67,
+        -0.09,
+        -1.88
+      ],
+      "bounds_max": [
+        1.67,
+        0.05,
+        0.0
+      ],
+      "pivot": "hook (geometry hangs below the pivot)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_DoorSign.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_DoorSign.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "1292/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "654 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.88 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_DoorSign.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_DoorSign.png"
+    },
+    {
+      "name": "CatCafe_Decor_StringLights",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_StringLights_Wire",
+        "CatCafe_Decor_StringLights_Bulbs"
+      ],
+      "triangles": 640,
+      "budget": 800,
+      "size_studs": {
+        "x": 8.03,
+        "y": 0.32,
+        "z": 1.18
+      },
+      "bounds_min": [
+        -0.02,
+        -0.16,
+        -1.15
+      ],
+      "bounds_max": [
+        8.02,
+        0.16,
+        0.03
+      ],
+      "pivot": "left end of the strand; it runs +X (Roblox +X) and sags below the pivot",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand; SmoothPlastic by day.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_StringLights.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_StringLights.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "640/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "352 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.15 (want 0)",
+          "centered": "footprint center x=4.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_StringLights.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_StringLights.png"
     },
     {
       "name": "CatCafe_Decor_WindowPlants",
@@ -1078,7 +2116,22 @@
         "assets/cat-cafe/exports/CatCafe_Decor_WindowPlants.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_WindowPlants.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_WindowPlants.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "476/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "332 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.30"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_WindowPlants.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_WindowPlants.png"
     },
     {
       "name": "CatCafe_Decor_Rug",
@@ -1110,7 +2163,22 @@
         "assets/cat-cafe/exports/CatCafe_Decor_Rug.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_Rug.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_Rug.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "196/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "58 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_Rug.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_Rug.png"
     },
     {
       "name": "CatCafe_Decor_NeonSign",
@@ -1144,7 +2212,22 @@
         "assets/cat-cafe/exports/CatCafe_Decor_NeonSign.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_NeonSign.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_NeonSign.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "184/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.11"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_NeonSign.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_NeonSign.png"
     },
     {
       "name": "CatCafe_Decor_FishTank",
@@ -1180,7 +2263,22 @@
         "assets/cat-cafe/exports/CatCafe_Decor_FishTank.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_FishTank.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_FishTank.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "562/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "333 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_FishTank.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_FishTank.png"
     },
     {
       "name": "CatCafe_Decor_HangingLamp",
@@ -1214,7 +2312,22 @@
         "assets/cat-cafe/exports/CatCafe_Decor_HangingLamp.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_HangingLamp.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_HangingLamp.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "352/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "180 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "hook at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_HangingLamp.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_HangingLamp.png"
     },
     {
       "name": "CatCafe_Decor_PlantPot",
@@ -1246,7 +2359,22 @@
         "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_PlantPot.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PlantPot.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "336/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "192 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PlantPot.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PlantPot.png"
     },
     {
       "name": "CatCafe_Decor_MenuBoard",
@@ -1278,7 +2406,22 @@
         "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_MenuBoard.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MenuBoard.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "184/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "96 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.07"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MenuBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MenuBoard.png"
     },
     {
       "name": "CatCafe_Decor_Cup",
@@ -1310,7 +2453,318 @@
         "assets/cat-cafe/exports/CatCafe_Decor_Cup.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_Cup.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_Cup.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "240/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "120 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_Cup.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_Cup.png"
+    },
+    {
+      "name": "CatCafe_Alley_StuckTree",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_StuckTree"
+      ],
+      "triangles": 308,
+      "budget": 800,
+      "size_studs": {
+        "x": 5.11,
+        "y": 2.89,
+        "z": 8.0
+      },
+      "bounds_min": [
+        -1.99,
+        -1.45,
+        0.0
+      ],
+      "bounds_max": [
+        3.11,
+        1.45,
+        8.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "stuck_pose": {
+        "body_position_blender": [
+          1.4,
+          0.0,
+          4.4
+        ],
+        "body_position_roblox": [
+          1.4,
+          4.4,
+          -0.0
+        ],
+        "body_rotation_xyz_deg_blender": [
+          0.0,
+          20.0,
+          0.0
+        ],
+        "body_rotation_roblox": {
+          "pitch_x": 0.0,
+          "yaw_y": 0.0,
+          "roll_z": -20.0
+        },
+        "head_local_xyz_deg": [
+          30,
+          0,
+          0
+        ],
+        "tail_local_xyz_deg": [
+          10,
+          0,
+          0
+        ],
+        "note": "Clings to the low branch, rolled toward the trunk, looking down."
+      },
+      "studio": "Rescue spot. Put the stuck cat at stuck_pose. CollisionFidelity Hull.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_StuckTree.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_StuckTree.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "308/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "188 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.56 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StuckTree.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_StuckTree.png"
+    },
+    {
+      "name": "CatCafe_Alley_StuckBox",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_StuckBox"
+      ],
+      "triangles": 96,
+      "budget": 300,
+      "size_studs": {
+        "x": 2.29,
+        "y": 2.19,
+        "z": 2.1
+      },
+      "bounds_min": [
+        -1.44,
+        -0.72,
+        0.0
+      ],
+      "bounds_max": [
+        0.85,
+        1.47,
+        2.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "stuck_pose": {
+        "body_position_blender": [
+          0.0,
+          -0.6,
+          0.0
+        ],
+        "body_position_roblox": [
+          0.0,
+          0.0,
+          0.6
+        ],
+        "body_rotation_xyz_deg_blender": [
+          0.0,
+          -0.0,
+          -180.0
+        ],
+        "body_rotation_roblox": {
+          "pitch_x": 0.0,
+          "yaw_y": -180.0,
+          "roll_z": 0.0
+        },
+        "head_local_xyz_deg": [
+          0,
+          0,
+          0
+        ],
+        "tail_local_xyz_deg": [
+          30,
+          0,
+          0
+        ],
+        "note": "Head inside the box opening (hidden by the box walls), tail up."
+      },
+      "studio": "Rescue spot. The cat's Head sits inside the box at stuck_pose.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_StuckBox.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_StuckBox.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "96/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "48 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.30 y=0.37"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StuckBox.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_StuckBox.png"
+    },
+    {
+      "name": "CatCafe_Alley_Drainpipe",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_Drainpipe"
+      ],
+      "triangles": 704,
+      "budget": 800,
+      "size_studs": {
+        "x": 2.6,
+        "y": 2.98,
+        "z": 8.36
+      },
+      "bounds_min": [
+        -1.3,
+        -2.98,
+        -0.06
+      ],
+      "bounds_max": [
+        1.3,
+        0.0,
+        8.3
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox (Blender -Y)",
+      "stuck_pose": {
+        "body_position_blender": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "body_position_roblox": [
+          0.0,
+          0.0,
+          2.0
+        ],
+        "body_rotation_xyz_deg_blender": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "body_rotation_roblox": {
+          "pitch_x": 0.0,
+          "yaw_y": 0.0,
+          "roll_z": 0.0
+        },
+        "head_local_xyz_deg": [
+          -10,
+          0,
+          0
+        ],
+        "tail_local_xyz_deg": [
+          60,
+          0,
+          0
+        ],
+        "note": "Body inside the outlet, head poking out of the open end, tail against the back."
+      },
+      "studio": "Rescue spot. Cat Body inside the outlet at stuck_pose. CollisionFidelity Box on the riser is fine.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Drainpipe.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Drainpipe.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "704/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "362 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.49"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Drainpipe.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Drainpipe.png"
+    },
+    {
+      "name": "CatCafe_Alley_ShopWindow",
+      "category": "Alley",
+      "module": "alley",
+      "objects": [
+        "CatCafe_Alley_ShopWindow_Frame",
+        "CatCafe_Alley_ShopWindow_Pane"
+      ],
+      "triangles": 280,
+      "budget": 500,
+      "size_studs": {
+        "x": 4.8,
+        "y": 0.7,
+        "z": 3.7
+      },
+      "bounds_min": [
+        -2.4,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        2.4,
+        0.0,
+        3.7
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, plus a PointLight.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_ShopWindow.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_ShopWindow.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "280/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "160 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.35"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_ShopWindow.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_ShopWindow.png"
     },
     {
       "name": "CatCafe_Alley_Dumpster",
@@ -1343,7 +2797,22 @@
         "assets/cat-cafe/exports/CatCafe_Alley_Dumpster.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Dumpster.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Dumpster.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "860/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "482 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=0.03"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Dumpster.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Dumpster.png"
     },
     {
       "name": "CatCafe_Alley_TrashCan",
@@ -1375,7 +2844,22 @@
         "assets/cat-cafe/exports/CatCafe_Alley_TrashCan.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_TrashCan.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_TrashCan.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "624/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "324 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_TrashCan.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_TrashCan.png"
     },
     {
       "name": "CatCafe_Alley_StreetLamp",
@@ -1409,7 +2893,24 @@
         "assets/cat-cafe/exports/CatCafe_Alley_StreetLamp.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_StreetLamp.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StreetLamp.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "312/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "182 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.79"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StreetLamp.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_StreetLamp.png"
     },
     {
       "name": "CatCafe_Alley_Crate",
@@ -1441,7 +2942,22 @@
         "assets/cat-cafe/exports/CatCafe_Alley_Crate.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Crate.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Crate.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "252/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "126 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Crate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Crate.png"
     },
     {
       "name": "CatCafe_Alley_CardboardBox",
@@ -1473,7 +2989,22 @@
         "assets/cat-cafe/exports/CatCafe_Alley_CardboardBox.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_CardboardBox.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_CardboardBox.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "104/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "56 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_CardboardBox.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_CardboardBox.png"
     },
     {
       "name": "CatCafe_Alley_Pallet",
@@ -1505,7 +3036,22 @@
         "assets/cat-cafe/exports/CatCafe_Alley_Pallet.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Pallet.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Pallet.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "132/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "66 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Pallet.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Pallet.png"
     },
     {
       "name": "CatCafe_Alley_Puddle",
@@ -1537,7 +3083,22 @@
         "assets/cat-cafe/exports/CatCafe_Alley_Puddle.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Puddle.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Puddle.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "88/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "28 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Puddle.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Puddle.png"
     },
     {
       "name": "CatCafe_Park_Bench",
@@ -1569,7 +3130,24 @@
         "assets/cat-cafe/exports/CatCafe_Park_Bench.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Bench.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Bench.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "484/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "286 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.06"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Bench.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Bench.png"
     },
     {
       "name": "CatCafe_Park_Tree",
@@ -1601,7 +3179,24 @@
         "assets/cat-cafe/exports/CatCafe_Park_Tree.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Tree.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Tree.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "196/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.09 y=-0.12"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Tree.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Tree.png"
     },
     {
       "name": "CatCafe_Park_Fountain",
@@ -1635,7 +3230,22 @@
         "assets/cat-cafe/exports/CatCafe_Park_Fountain.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Fountain.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Fountain.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "760/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "362 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Fountain.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Fountain.png"
     },
     {
       "name": "CatCafe_Park_Gate",
@@ -1670,7 +3280,22 @@
         "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Gate.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Gate.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1072/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "620 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Gate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Gate.png"
     },
     {
       "name": "CatCafe_Item_FoodBowl",
@@ -1702,7 +3327,22 @@
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_FoodBowl.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "184/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "76 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_FoodBowl.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_FoodBowl.png"
     },
     {
       "name": "CatCafe_Item_FoodBowl_Premium",
@@ -1734,7 +3374,22 @@
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Premium.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_FoodBowl_Premium.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_FoodBowl_Premium.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "334/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "161 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_FoodBowl_Premium.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_FoodBowl_Premium.png"
     },
     {
       "name": "CatCafe_Item_Kibble",
@@ -1766,7 +3421,22 @@
         "assets/cat-cafe/exports/CatCafe_Item_Kibble.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Kibble.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Kibble.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "96/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "56 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Kibble.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_Kibble.png"
     },
     {
       "name": "CatCafe_Item_TunaCan",
@@ -1798,7 +3468,22 @@
         "assets/cat-cafe/exports/CatCafe_Item_TunaCan.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_TunaCan.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_TunaCan.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "292/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_TunaCan.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_TunaCan.png"
     },
     {
       "name": "CatCafe_Item_Salmon",
@@ -1830,39 +3515,407 @@
         "assets/cat-cafe/exports/CatCafe_Item_Salmon.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Salmon.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Salmon.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "240/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.17"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Salmon.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_Salmon.png"
     },
     {
-      "name": "CatCafe_Item_Gloves",
+      "name": "CatCafe_Item_Net_L1",
       "category": "Item",
       "module": "items",
       "objects": [
-        "CatCafe_Item_Gloves"
+        "CatCafe_Item_Net_L1_Handle",
+        "CatCafe_Item_Net_L1_Bag"
       ],
-      "triangles": 288,
-      "budget": 400,
+      "triangles": 360,
+      "budget": 500,
       "size_studs": {
-        "x": 2.52,
-        "y": 1.35,
+        "x": 1.75,
+        "y": 4.8,
+        "z": 1.17
+      },
+      "bounds_min": [
+        -0.88,
+        -4.8,
+        -1.05
+      ],
+      "bounds_max": [
+        0.88,
+        0.0,
+        0.12
+      ],
+      "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L1.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L1.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "360/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "190 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.40"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Net_L1.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_Net_L1.png"
+    },
+    {
+      "name": "CatCafe_Item_Net_L2",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_Net_L2_Handle",
+        "CatCafe_Item_Net_L2_Bag"
+      ],
+      "triangles": 544,
+      "budget": 600,
+      "size_studs": {
+        "x": 2.05,
+        "y": 5.4,
+        "z": 1.17
+      },
+      "bounds_min": [
+        -1.02,
+        -5.4,
+        -1.05
+      ],
+      "bounds_max": [
+        1.02,
+        0.0,
+        0.12
+      ],
+      "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L2.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L2.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "544/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "290 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.70"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Net_L2.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_Net_L2.png"
+    },
+    {
+      "name": "CatCafe_Item_Net_L3",
+      "category": "Item",
+      "module": "items",
+      "objects": [
+        "CatCafe_Item_Net_L3_Handle",
+        "CatCafe_Item_Net_L3_Bag"
+      ],
+      "triangles": 592,
+      "budget": 650,
+      "size_studs": {
+        "x": 2.5,
+        "y": 6.05,
+        "z": 1.2
+      },
+      "bounds_min": [
+        -1.25,
+        -6.05,
+        -1.05
+      ],
+      "bounds_max": [
+        1.25,
+        0.0,
+        0.15
+      ],
+      "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L3.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_Net_L3.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "592/650 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "314 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-1.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.03"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Net_L3.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_Net_L3.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Glasses",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Glasses"
+      ],
+      "triangles": 84,
+      "budget": 200,
+      "size_studs": {
+        "x": 0.79,
+        "y": 0.7,
         "z": 0.3
       },
       "bounds_min": [
-        -1.26,
-        -0.55,
+        -0.4,
+        -0.05,
+        -0.15
+      ],
+      "bounds_max": [
+        0.4,
+        0.65,
+        0.15
+      ],
+      "pivot": "attachment point (see attach)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "attach": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.57,
+          0.2
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Glasses.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Glasses.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "84/200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "42 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.15 (want 0)",
+          "centered": "footprint center x=0.00 y=0.30"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Glasses.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Glasses.png"
+    },
+    {
+      "name": "CatCafe_Accessory_BowTie",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_BowTie"
+      ],
+      "triangles": 100,
+      "budget": 200,
+      "size_studs": {
+        "x": 0.72,
+        "y": 0.13,
+        "z": 0.29
+      },
+      "bounds_min": [
+        -0.36,
+        -0.06,
+        -0.15
+      ],
+      "bounds_max": [
+        0.36,
+        0.07,
+        0.15
+      ],
+      "pivot": "attachment point (see attach)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "attach": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.72,
+          0.95
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_BowTie.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_BowTie.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "100/200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "62 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.15 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_BowTie.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_BowTie.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Apron",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Apron"
+      ],
+      "triangles": 52,
+      "budget": 200,
+      "size_studs": {
+        "x": 0.7,
+        "y": 0.06,
+        "z": 0.66
+      },
+      "bounds_min": [
+        -0.35,
+        -0.04,
+        -0.62
+      ],
+      "bounds_max": [
+        0.35,
+        0.03,
+        0.04
+      ],
+      "pivot": "attachment point (see attach)",
+      "front": "-Z in Roblox (Blender -Y)",
+      "attach": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.7,
+          1.0
+        ]
+      },
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Apron.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Apron.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "52/200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "30 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.62 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Apron.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Apron.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Hat",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Hat"
+      ],
+      "triangles": 268,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.69,
+        "y": 0.69,
+        "z": 0.32
+      },
+      "bounds_min": [
+        -0.35,
+        -0.35,
         0.0
       ],
       "bounds_max": [
-        1.26,
-        0.8,
-        0.3
+        0.35,
+        0.35,
+        0.32
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "attachment point (see attach)",
       "front": "-Z in Roblox (Blender -Y)",
+      "attach": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.18,
+          0.5
+        ]
+      },
       "files": [
-        "assets/cat-cafe/exports/CatCafe_Item_Gloves.fbx",
-        "assets/cat-cafe/exports/CatCafe_Item_Gloves.glb"
+        "assets/cat-cafe/exports/CatCafe_Accessory_Hat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Hat.glb"
       ],
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Gloves.png"
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "268/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "148 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Hat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Hat.png"
     }
   ]
 }

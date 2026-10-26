@@ -151,6 +151,8 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | category | budget per asset | notes |
 |---|---|---|
 | Cat (Body + Head + Tail) | 1,500 total | Body 900, Head 450, Tail 150 |
+| Accessory | 200 to 300 | glasses, bow tie, apron, hat |
+| Held tool (net) | 500 to 650 | per level |
 | Customer NPC | 1,000 | |
 | Hero furniture (Counter) | 3,000 | |
 | Furniture | 800 | |
@@ -162,7 +164,7 @@ The build script prints the triangle count for every export and fails the build 
 
 ## 6. Naming
 
-`CatCafe_<Category>_<Name>[_<Variant>]`, PascalCase, no spaces, ASCII only. The same name is used for the Blender object, the exported file, the MeshPart or Model in Studio and the asset id in code. Categories: `Cat`, `NPC`, `Furniture`, `Decor`, `Alley`, `Item`.
+`CatCafe_<Category>_<Name>[_<Variant>]`, PascalCase, no spaces, ASCII only. The same name is used for the Blender object, the exported file, the MeshPart or Model in Studio and the asset id in code. Categories: `Cat`, `NPC`, `Furniture`, `Decor`, `Alley`, `Park`, `Item`, `Accessory`. Upgrade levels are `_L1`, `_L2`, `_L3`.
 
 Examples: `CatCafe_Cat_Tabby`, `CatCafe_Cat_Tabby_Head`, `CatCafe_Furniture_Counter`, `CatCafe_Furniture_EspressoMachine_L2`, `CatCafe_NPC_Customer_B`, `CatCafe_Item_FoodBowl_Premium`.
 
@@ -177,6 +179,8 @@ A cat exports as one FBX containing three objects: `<Name>_Body` (legs included)
 - Pivot (object origin) at the base center: the point that touches the floor, centered on the footprint. In Studio the Model's PrimaryPart or the MeshPart pivot sits on the floor, so `CFrame = floor + Vector3.new(0, 0, 0)` places it.
 - Wall-mounted assets (shelf, menu board, window box) pivot at the back center where they touch the wall. Ceiling-mounted (hanging lamp) pivot at the hook.
 - Cat Head pivots at the neck joint, Tail at the tail root, so rotating them in Studio looks right.
+- Held tools (the net) pivot at the grip end with the pole running forward (-Z in Roblox), so the Tool's Handle needs no Grip offset beyond rotation.
+- Accessories pivot at their attachment point. `manifest.json` lists, per cat, where each attachment sits on the Head or Body: Glasses and Hat ride the Head, BowTie and Apron ride the Body, so they survive a pose change (upright, carried, stuck) and any future upright variant without new art.
 - Front faces -Y in Blender. The FBX exporter maps that to Roblox's front (-Z, the LookVector), so `CFrame.lookAt` works without a correction.
 - Apply all transforms before export: location 0, rotation 0, scale 1 on every object except the deliberate offsets of Head and Tail.
 
@@ -190,7 +194,19 @@ A cat exports as one FBX containing three objects: `<Name>_Body` (legs included)
 
 ## 9. Lighting (Studio)
 
-Lighting.Technology Future, ClockTime 15 for the cafe, warm ambient (OutdoorAmbient 170,160,150), one PointLight per hanging lamp, Color 255,214,170, Brightness 1.2, Range 14. Alley: ClockTime 19.5, one street lamp SpotLight, cool ambient (120,130,150), the dumpster area lit by the lamp only. Bloom low, ColorCorrection Saturation +0.05, Contrast +0.05.
+Lighting.Technology Future, Bloom low, ColorCorrection Saturation +0.05, Contrast +0.05. The server clock (3 minutes day, 2 minutes night, `Clock.Phase`) drives two presets; tween between them over 4 seconds.
+
+| setting | day | night |
+|---|---|---|
+| ClockTime | 14.5 | 0.5 |
+| Brightness | 2 | 0.6 |
+| OutdoorAmbient | 170,160,150 | 45,55,85 |
+| Ambient | 120,115,110 | 30,35,55 |
+| ExposureCompensation | 0 | 0.25 |
+| ColorShift_Top | 255,245,230 | 150,170,220 |
+| Atmosphere Density | 0.3 | 0.4, Color 110,120,160 |
+
+Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color lamp_warm (neon_pink for the sign), and the child light enabled: street lamp SpotLight 255,200,150 Brightness 3 Range 30 Angle 100, window and string lights PointLight 255,214,170 Brightness 1.5 Range 16, hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. Customers leave at night. The `vignette_alley_night.png` concept image is the target look.
 
 ## 10. Export and import checklist
 
@@ -202,7 +218,11 @@ Studio import (3D Importer): Scale Unit Studs, Rig Type none, Insert using Scene
 
 After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one-line caption in `docs/concepts/cat-cafe/README.md`. The build script renders a three-quarter view of every asset and a contact sheet for the whole set.
 
-## 12. Rules
+## 12. Poses
+
+The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each rescue prop (StuckTree, StuckBox, Drainpipe), with positions in both Blender and Roblox axes. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
+
+## 13. Rules
 
 - Original work only. No characters, logos or art from reference games (Steal an Egg, Spin for a Fisherman, Cookie Run, AFK Arena).
 - Young audience. No blood, weapons or scary cats. Even the Void cat is cute.

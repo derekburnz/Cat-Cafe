@@ -1,0 +1,152 @@
+"""Cat poses expressed as transforms of the three cat parts, so any cat can take them.
+
+A pose moves the whole cat (Body, Head, Tail together) by `rot` degrees (Blender XYZ
+Euler) about the cat-local point `pivot`, then by `offset`, and adds a local rotation
+to the Head and the Tail about their own joints. Positions are in studs, Blender axes
+(Z up, -Y forward). Roblox conversion: position (x, y, z) -> (x, z, -y); yaw is the
+Z angle (Roblox Y), pitch the X angle (Roblox X), roll the Y angle (Roblox -Z).
+"""
+
+import math
+import os
+
+import bpy
+from mathutils import Euler, Matrix, Vector
+
+import common
+
+# name -> pose. Rescue poses are relative to the prop's pivot.
+POSES = {
+    "upright": dict(pivot=(0, 0.5, 0), rot=(-90, 0, 0), offset=(0, 0, 0.3), head=(90, 0, 0), tail=(80, 0, 0),
+                    note="Stands on the hind legs. Same parts; Head pitched back to face forward. Accessories keep their offsets."),
+    "carried": dict(pivot=(0, 0, 0), rot=(20, 0, 0), offset=(0, -1.2, 3.2), head=(-20, 0, 0), tail=(-40, 0, 0),
+                    note="Held in front of the chest, relative to the character's HumanoidRootPart."),
+}
+STUCK_POSES = {
+    "CatCafe_Alley_StuckTree": dict(pivot=(0, 0, 0), rot=(0, 20, 0), offset=(1.4, 0, 4.4), head=(30, 0, 0), tail=(10, 0, 0),
+                                    note="Clings to the low branch, rolled toward the trunk, looking down."),
+    "CatCafe_Alley_StuckBox": dict(pivot=(0, 0, 0), rot=(0, 0, 180), offset=(0, -0.6, 0), head=(0, 0, 0), tail=(30, 0, 0),
+                                   note="Head inside the box opening (hidden by the box walls), tail up."),
+    "CatCafe_Alley_Drainpipe": dict(pivot=(0, 0, 0), rot=(0, 0, 0), offset=(0, -2.0, 0.0), head=(-10, 0, 0), tail=(60, 0, 0),
+                                    note="Body inside the outlet, head poking out of the open end, tail against the back."),
+}
+
+
+def pose_matrix(pose):
+    p = Vector(pose["pivot"])
+    R = Euler([math.radians(a) for a in pose["rot"]], "XYZ").to_matrix().to_4x4()
+    return Matrix.Translation(Vector(pose["offset"])) @ Matrix.Translation(p) @ R @ Matrix.Translation(-p)
+
+
+def _local(angles):
+    return Euler([math.radians(a) for a in angles], "XYZ").to_matrix().to_4x4()
+
+
+def posed_copies(cat_objs, pose, world=Matrix.Identity(4), prefix="_v_"):
+    """Copy a cat's parts and put them in `pose`, under an optional world transform."""
+    M = world @ pose_matrix(pose)
+    out = []
+    for ob in cat_objs:
+        c = ob.copy()
+        c.name = prefix + ob.name
+        extra = Matrix.Identity(4)
+        if ob.name.endswith("_Head"):
+            extra = _local(pose["head"])
+        elif ob.name.endswith("_Tail"):
+            extra = _local(pose["tail"])
+        c.matrix_world = M @ ob.matrix_world @ extra
+        c.hide_render = False
+        bpy.context.scene.collection.objects.link(c)
+        out.append(c)
+    return out
+
+
+def accessory_copies(built, cat_objs, world=Matrix.Identity(4), pose=None, names=("Glasses", "BowTie", "Apron", "Hat")):
+    """Copies of accessories attached to a cat (optionally posed) for previews."""
+    import accessories
+    import cats
+    out = []
+    parts = {ob.name.split("_")[-1]: ob for ob in cat_objs}
+    M = world @ (pose_matrix(pose) if pose else Matrix.Identity(4))
+    for n in names:
+        src = built.get(f"CatCafe_Accessory_{n}")
+        if not src:
+            continue
+        part, off = accessories.ATTACH[n]
+        acc_rot = Matrix.Identity(4)
+        if pose is POSES["upright"] and n in accessories.ATTACH_UPRIGHT:
+            part, off, r = accessories.ATTACH_UPRIGHT[n]
+            acc_rot = _local(r)
+        extra = Matrix.Identity(4)
+        if pose and part == "Head":
+            extra = _local(pose["head"])
+        elif pose and part == "Tail":
+            extra = _local(pose["tail"])
+        base = parts[part].matrix_world @ extra @ Matrix.Translation(Vector(off)) @ acc_rot
+        for ob in src:
+            c = ob.copy()
+            c.name = "_v_" + ob.name
+            c.matrix_world = M @ base
+            c.hide_render = False
+            bpy.context.scene.collection.objects.link(c)
+            out.append(c)
+    return out
+
+
+def cleanup(objs):
+    for ob in objs:
+        bpy.data.objects.remove(ob, do_unlink=True)
+
+
+def manifest_pose(pose):
+    """Pose as the engineer reads it: Body CFrame relative to the prop pivot plus local part angles."""
+    M = pose_matrix(pose)
+    loc = M.to_translation()
+    rot = [round(math.degrees(a), 1) for a in M.to_euler("XYZ")]
+    return {
+        "body_position_blender": [round(v, 2) for v in loc],
+        "body_position_roblox": [round(loc.x, 2), round(loc.z, 2), round(-loc.y, 2)],
+        "body_rotation_xyz_deg_blender": rot,
+        "body_rotation_roblox": {"pitch_x": rot[0], "yaw_y": rot[2], "roll_z": -rot[1]},
+        "head_local_xyz_deg": list(pose["head"]), "tail_local_xyz_deg": list(pose["tail"]),
+        "note": pose.get("note", ""),
+    }
+
+
+def render_pose_previews(built, mat, docs, samples=32, cat="CatCafe_Cat_Tabby"):
+    """Rescue props with the stuck cat, the accessory set, the upright and carried poses."""
+    cat_objs = built.get(cat)
+    if not cat_objs:
+        return {}
+    made = {}
+    for prop, pose in STUCK_POSES.items():
+        objs = built.get(prop)
+        if not objs:
+            continue
+        copies = posed_copies(cat_objs, pose)
+        path = os.path.join(docs, "previews", prop + ".png")
+        common.hide_all_meshes()
+        common.show(objs + copies)
+        common.render_preview(objs + copies, path, samples=samples, warm=False, floor=True, azimuth=25, elevation=18)
+        cleanup(copies)
+        made[prop] = path
+    # accessory set on a standing cat
+    copies = posed_copies(cat_objs, dict(pivot=(0, 0, 0), rot=(0, 0, 0), offset=(0, 0, 0), head=(0, 0, 0), tail=(0, 0, 0)))
+    acc = accessory_copies(built, cat_objs)
+    path = os.path.join(docs, "previews", "CatCafe_Accessory_Set.png")
+    common.hide_all_meshes()
+    common.show(copies + acc)
+    common.render_preview(copies + acc, path, samples=samples, warm=True, azimuth=25, elevation=12)
+    cleanup(copies + acc)
+    made["CatCafe_Accessory_Set"] = path
+    # upright test with apron, bow tie and glasses
+    pose = POSES["upright"]
+    copies = posed_copies(cat_objs, pose)
+    acc = accessory_copies(built, cat_objs, pose=pose, names=("Glasses", "BowTie", "Apron"))
+    path = os.path.join(docs, "previews", "Pose_Upright.png")
+    common.hide_all_meshes()
+    common.show(copies + acc)
+    common.render_preview(copies + acc, path, samples=samples, warm=True, azimuth=25, elevation=10)
+    cleanup(copies + acc)
+    made["Pose_Upright"] = path
+    return made

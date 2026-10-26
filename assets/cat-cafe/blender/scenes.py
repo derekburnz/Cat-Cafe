@@ -98,13 +98,41 @@ def cafe(built, mat, docs, samples):
     return path
 
 
-def alley(built, mat, docs, samples):
+def alley(built, mat, docs, samples, night=False):
     objs = []
     objs += _slab("_v_Ground", (0, 0, -0.1), (26, 18, 0.2), "concrete", mat)
     objs += _slab("_v_WallBack", (0, 5.2, 5.5), (26, 0.5, 11), "brick", mat)
     objs += _slab("_v_WallLeft", (-12.5, -1, 5.5), (0.5, 14, 11), "brick", mat)
     objs += _slab("_v_Door", (6.0, 4.9, 3.5), (4, 0.2, 7), "dark_wood", mat)
     objs += _slab("_v_DoorLight", (6.0, 4.85, 6.0), (3.2, 0.2, 1.2), "lamp_warm", mat)
+    objs += _place(built, "CatCafe_Alley_ShopWindow", (-1.0, 4.95, 2.0))
+    objs += _place(built, "CatCafe_Decor_DoorSign", (6.0, 4.75, 5.4))
+    objs += _place(built, "CatCafe_Decor_StringLights", (-6.0, 1.5, 8.0))
+    objs += _place(built, "CatCafe_Alley_StuckTree", (-8.5, -5.0, 0))
+    objs += _place(built, "CatCafe_Alley_Drainpipe", (3.5, 4.95, 0))
+    objs += _place(built, "CatCafe_Alley_StuckBox", (-6.0, -2.0, 0), 35)
+    if night:
+        import poses
+        for prop, loc, rot in (("CatCafe_Alley_StuckTree", (-8.5, -5.0, 0), 0), ("CatCafe_Alley_Drainpipe", (3.5, 4.95, 0), 0),
+                               ("CatCafe_Alley_StuckBox", (-6.0, -2.0, 0), 35)):
+            W = Matrix.Translation(Vector(loc)) @ Euler((0, 0, math.radians(rot))).to_matrix().to_4x4()
+            objs += poses.posed_copies(built["CatCafe_Cat_Ginger"], poses.STUCK_POSES[prop], world=W)
+        emit = bpy.data.materials.get("_Emit")
+        if emit is None:
+            emit = bpy.data.materials.new("_Emit")
+            emit.use_nodes = True
+            bsdf = emit.node_tree.nodes["Principled BSDF"]
+            bsdf.inputs["Emission Color"].default_value = (1.0, 0.8, 0.55, 1)
+            bsdf.inputs["Emission Strength"].default_value = 6.0
+        for ob in objs:
+            if ob.name.endswith(("_Bulb", "_Bulbs", "_Pane", "_DoorLight", "_Tube")) or ob.name.endswith("DoorSign_Closed"):
+                if ob.name.endswith("DoorSign_Closed"):
+                    continue
+                ob.material_slots[0].link = "OBJECT"
+                ob.material_slots[0].material = emit
+        for ob in objs:
+            if ob.name.endswith("DoorSign_Open"):
+                ob.hide_render = True
     objs += _slab("_v_Curb", (0, -7.5, 0.15), (26, 1.0, 0.3), "concrete_dark", mat)
     objs += _place(built, "CatCafe_Alley_Dumpster", (-5.0, 3.0, 0))
     objs += _place(built, "CatCafe_Alley_TrashCan", (0.5, 3.8, 0))
@@ -124,7 +152,11 @@ def alley(built, mat, docs, samples):
     objs += _place(built, "CatCafe_Cat_Bengal", (3.5, -3.5, 0), 210)
     objs += _place(built, "CatCafe_NPC_Customer_A", (2.5, -5.0, 0), 160)
     lights = []
-    for loc, e, col in (((9.5, 1.0, 8.6), 2500, (1.0, 0.8, 0.6)), ((6.0, 3.5, 6.0), 400, (1.0, 0.85, 0.7))):
+    lamp_set = (((9.5, 1.0, 8.6), 2500, (1.0, 0.8, 0.6)), ((6.0, 3.5, 6.0), 400, (1.0, 0.85, 0.7)))
+    if night:
+        lamp_set = (((9.5, 1.0, 8.6), 6000, (1.0, 0.78, 0.55)), ((6.0, 3.5, 6.0), 900, (1.0, 0.85, 0.7)),
+                    ((-1.0, 3.0, 3.5), 1500, (1.0, 0.82, 0.6)), ((-2.0, 1.5, 7.2), 700, (1.0, 0.85, 0.65)))
+    for loc, e, col in lamp_set:
         ld = bpy.data.lights.new("_v_lamp", "POINT")
         ld.energy = e
         ld.color = col
@@ -137,12 +169,15 @@ def alley(built, mat, docs, samples):
     old = None
     if key:
         old = key.data.energy
-        key.data.energy = 0.6
+        key.data.energy = 0.05 if night else 0.6
     common.hide_all_meshes()
-    common.show(objs)
-    path = os.path.join(docs, "vignette_alley.png")
-    common.render_preview(objs, path, res=(1280, 720), samples=samples, azimuth=-18, elevation=18, warm=False,
-                          margin=0.7, floor=False)
+    common.show([o for o in objs if not o.hide_render])
+    path = os.path.join(docs, "vignette_alley_night.png" if night else "vignette_alley.png")
+    common.render_preview([o for o in objs if not o.hide_render], path, res=(1280, 720), samples=samples,
+                          azimuth=-18, elevation=18, warm=False, margin=0.7, floor=False)
+    if night:
+        bg = bpy.context.scene.world.node_tree.nodes.get("Background")
+        bg.inputs["Color"].default_value = (0.3, 0.36, 0.5, 1)
     if key:
         key.data.energy = old
     _cleanup(objs + lights)
@@ -151,4 +186,4 @@ def alley(built, mat, docs, samples):
 
 def render_all(built, mat, docs, samples=48):
     os.makedirs(docs, exist_ok=True)
-    return [cafe(built, mat, docs, samples), alley(built, mat, docs, samples)]
+    return [cafe(built, mat, docs, samples), alley(built, mat, docs, samples), alley(built, mat, docs, samples, night=True)]

@@ -59,16 +59,32 @@ def build_salmon(mat):
     return [b.finalize("CatCafe_Item_Salmon", mat)]
 
 
-def build_gloves(mat):
-    """Pair of chunky catching gloves lying on the floor."""
-    b = Builder()
-    for sx in (-1, 1):
-        x = sx * 0.55
-        b.box_base((x, 0, 0), (0.8, 1.0, 0.3), "mint")
-        b.box_base((x, 0.6, 0), (0.7, 0.4, 0.28), "caramel_wood")             # cuff
-        b.box((x + sx * 0.5, -0.1, 0.15), (0.3, 0.45, 0.28), "mint", rot=(math.radians(sx * 30), "Z"))  # thumb
-        b.box((x, -0.52, 0.15), (0.78, 0.06, 0.26), "blush", bevel=False)      # fingertip pad
-    return [b.finalize("CatCafe_Item_Gloves", mat)]
+def build_net(level, mat):
+    """Catching net, a held Tool. Pivot at the grip end; the pole runs forward (-Y in
+    Blender, -Z in Roblox) with the hoop at the far end. Handle + Bag objects: set the
+    Bag MeshPart to Transparency 0.35 in Studio so it reads as netting."""
+    handle_col = ("caramel_wood", "mint", "dark_wood")[level - 1]
+    ring_col = ("dark_wood", "metal", "rarity_legend")[level - 1]
+    pole = 3.0 + 0.3 * (level - 1)
+    hoop_r = 0.9 + 0.15 * (level - 1)
+    h = Builder()
+    h.cyl((0, -pole / 2, 0), 0.1, pole, handle_col, segments=8, rot=(math.radians(90), "X"))
+    h.cyl((0, -0.35, 0), 0.13, 0.7, "fur_black", segments=8, rot=(math.radians(90), "X"))      # grip wrap
+    if level >= 2:
+        for y in (-1.2, -2.0):
+            h.cyl((0, y, 0), 0.12, 0.12, ring_col, segments=8, rot=(math.radians(90), "X"))   # bands
+    hy = -pole - hoop_r
+    h.ring((0, hy, 0), hoop_r, 0.1, 0.12, ring_col, segments=14, bevel=False)                # hoop, flat
+    h.box((0, -pole - 0.05, 0), (0.22, 0.3, 0.22), ring_col)                                   # ferrule
+    if level == 3:
+        for a in (0, 90, 180, 270):
+            r = math.radians(a)
+            h.box((math.cos(r) * hoop_r, hy + math.sin(r) * hoop_r, 0.1), (0.1, 0.1, 0.1), "sparkle", bevel=False)
+    bag = Builder()
+    bag.cyl((0, hy, -0.55), hoop_r - 0.05, 1.0, "offwhite" if level < 3 else "fish_belly", segments=14, radius2=0.25,
+            bevel=False)
+    name = f"CatCafe_Item_Net_L{level}"
+    return [h.finalize(name + "_Handle", mat), bag.finalize(name + "_Bag", mat)]
 
 
 ASSETS = {
@@ -77,5 +93,7 @@ ASSETS = {
     "CatCafe_Item_Kibble": (build_kibble, 300),
     "CatCafe_Item_TunaCan": (build_tuna_can, 300),
     "CatCafe_Item_Salmon": (build_salmon, 400),
-    "CatCafe_Item_Gloves": (build_gloves, 400),
+    "CatCafe_Item_Net_L1": (lambda m: build_net(1, m), 500),
+    "CatCafe_Item_Net_L2": (lambda m: build_net(2, m), 600),
+    "CatCafe_Item_Net_L3": (lambda m: build_net(3, m), 650),
 }

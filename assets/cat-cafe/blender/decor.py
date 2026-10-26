@@ -119,7 +119,72 @@ def build_cup(mat):
     return [b.finalize("CatCafe_Decor_Cup", mat)]
 
 
+FONT = {  # 3 x 5 pixel letters, top row first
+    "O": ["111", "101", "101", "101", "111"], "P": ["111", "101", "111", "100", "100"],
+    "E": ["111", "100", "111", "100", "111"], "N": ["1001", "1101", "1011", "1001", "1001"],
+    "C": ["111", "100", "100", "100", "111"], "L": ["100", "100", "100", "100", "111"],
+    "S": ["111", "100", "111", "001", "111"], "D": ["110", "101", "101", "101", "110"],
+}
+
+
+def _text_cols(text):
+    """Width of a word in pixel columns, one blank column between letters."""
+    return sum(len(FONT[ch][0]) for ch in text) + len(text) - 1
+
+
+def _letters(b, text, center, px, swatch, y):
+    """Pixel letters as flat boxes on the plane y, centered on center=(x, z)."""
+    x = center[0] - _text_cols(text) * px / 2
+    for ch in text:
+        rows = FONT[ch]
+        for r, row in enumerate(rows):
+            for c, bit in enumerate(row):
+                if bit == "1":
+                    b.box((x + c * px + px / 2, y, center[1] + (2 - r) * px), (px, 0.04, px), swatch, bevel=False)
+        x += (len(rows[0]) + 1) * px
+
+
+def build_door_sign(mat):
+    """Hanging Open / Closed sign. Pivot at the hook. Two objects; the engineer shows one
+    per clock phase (Open by day, Closed at night)."""
+    out = []
+    for word, board, ink in (("OPEN", "mint", "cream"), ("CLOSED", "night_sky", "blush")):
+        b = Builder()
+        for x in (-1.1, 1.1):
+            b.cyl((x, 0, -0.25), 0.03, 0.5, "metal", segments=6, bevel=False)                  # chains
+        b.box((0, 0, -1.15), (3.2, 0.1, 1.3), board)
+        b.box((0, 0.02, -1.15), (3.35, 0.06, 1.45), "dark_wood")                               # frame behind
+        px = min(2.8 / _text_cols(word), 0.2)                                                  # fit 2.8 of the 3.2 board, 1.0 tall max
+        _letters(b, word, (0, -1.15), px, ink, -0.07)
+        out.append(b.finalize(f"CatCafe_Decor_DoorSign_{word.title()}", mat))
+    return out
+
+
+def build_string_lights(mat):
+    """8 stud strand of cafe lights. Pivot at the left end; the strand runs +X and sags
+    in the middle. Wire + Bulbs objects; Bulbs get Neon and a soft PointLight at night."""
+    wire = Builder()
+    bulbs = Builder()
+    n, length, sag = 16, 8.0, 0.7
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        pts.append((t * length, 0, -sag * (1 - (2 * t - 1) ** 2)))
+    for a, c in zip(pts, pts[1:]):
+        mid = ((a[0] + c[0]) / 2, 0, (a[2] + c[2]) / 2)
+        dx, dz = c[0] - a[0], c[2] - a[2]
+        ang = math.atan2(dz, dx)
+        wire.box(mid, (math.hypot(dx, dz) + 0.02, 0.05, 0.05), "fur_black", bevel=False, rot=(-ang, "Y"))
+    for i in range(1, n, 2):
+        x, _, z = pts[i]
+        wire.cyl((x, 0, z - 0.1), 0.07, 0.14, "fur_black", segments=6, bevel=False)
+        bulbs.sphere((x, 0, z - 0.3), 0.16, "lamp_warm", segments=6, rings=4)
+    return [wire.finalize("CatCafe_Decor_StringLights_Wire", mat), bulbs.finalize("CatCafe_Decor_StringLights_Bulbs", mat)]
+
+
 ASSETS = {
+    "CatCafe_Decor_DoorSign": (build_door_sign, 1500),   # two boards, one visible at a time
+    "CatCafe_Decor_StringLights": (build_string_lights, 800),
     "CatCafe_Decor_WindowPlants": (build_window_plants, 800),
     "CatCafe_Decor_Rug": (build_rug, 500),
     "CatCafe_Decor_NeonSign": (build_neon_sign, 500),

@@ -108,9 +108,10 @@ def _head(b, spec):
     if spec.get("muzzle"):
         b.box((0, front_y - 0.02, 0.0), (0.38, 0.08, 0.22), spec["muzzle"], bevel=False)
     for x in (-0.2, 0.2):
-        b.box((x, front_y - 0.04, 0.2), (0.16, 0.06, 0.2), spec["eyes"], bevel=False)
+        b.box((x, front_y - 0.04, 0.2), (0.24, 0.06, 0.26), spec["eyes"], bevel=False)
         if not spec.get("glow_eyes"):
-            b.box((x, front_y - 0.06, 0.18), (0.07, 0.04, 0.14), "fur_black", bevel=False)
+            b.box((x, front_y - 0.06, 0.18), (0.12, 0.04, 0.18), "fur_black", bevel=False)
+        b.box((x - 0.05, front_y - 0.08, 0.24), (0.05, 0.03, 0.06), "milk", bevel=False)   # glossy highlight
     b.box((0, front_y - 0.05, 0.02), (0.14, 0.06, 0.1), "nose_pink", bevel=False)
 
 

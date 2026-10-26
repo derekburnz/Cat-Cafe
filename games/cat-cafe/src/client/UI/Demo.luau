@@ -386,7 +386,11 @@ function Demo.run(UI: any): () -> ()
 				}
 				local isNew = profile.collection[def.id] == nil
 				profile.collection[def.id] = now()
-				UI.showCatFound(def.id, isNew)
+				-- the demo rolls stars and a Purrfect bonus so the reveal shows every part
+				UI.showCatFound(def.id, isNew, {
+					stars = math.random(1, 5),
+					charmGain = if math.random() < 0.3 then math.random(2, 6) else nil,
+				})
 				if def.rarity == "Epic" or def.rarity == "Legendary" then
 					UI.announce(
 						("Someone caught %s %s %s!"):format(

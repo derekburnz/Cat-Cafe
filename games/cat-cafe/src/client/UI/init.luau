@@ -483,10 +483,36 @@ function UI.announce(text: string)
 	UI.toast(text, "announce")
 end
 
-function UI.showCatFound(catId: string, isNew: boolean?)
+-- `extra` is optional: { stars, shiny, charmGain }. Missing stars and shiny are read from the newest copy of the
+-- cat in state.cats when ProfileSync already carries it (caught in the last 30 s).
+function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundExtra?)
 	local def = lookupCat(catId)
 	if def and popups then
-		popups:showCatFound(def, isNew)
+		local info: Types.CatFoundExtra = {
+			stars = extra and extra.stars,
+			shiny = extra and extra.shiny,
+			charmGain = extra and extra.charmGain,
+		}
+		local cats: { [string]: Types.CatInstance } = state.cats or {}
+		local newest: Types.CatInstance? = nil
+		for _, instance in cats do
+			local caughtAt = instance.caughtAt
+			if
+				instance.catId == catId
+				and caughtAt ~= nil
+				and os.time() - caughtAt <= 30
+				and (newest == nil or caughtAt > ((newest :: Types.CatInstance).caughtAt or 0))
+			then
+				newest = instance
+			end
+		end
+		if newest then
+			info.stars = info.stars or newest.stars
+			if info.shiny == nil then
+				info.shiny = newest.variant == "shiny"
+			end
+		end
+		popups:showCatFound(def, isNew, info)
 	else
 		UI.toast("Caught a cat!", "good")
 	end

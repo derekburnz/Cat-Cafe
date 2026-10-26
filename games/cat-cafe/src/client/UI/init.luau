@@ -57,7 +57,7 @@ UI.events = {
 local state: Types.PlayerState = {
 	money = 0,
 	incomePerSecond = 0,
-	cafeLevel = 1,
+	tier = 1,
 	catsOwned = {},
 	upgradeLevels = {},
 	decorOwned = {},
@@ -120,7 +120,7 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 end
 
--- Fill in fields the engineer may not send: cafeLevel and tables from upgrade levels, catsOwned from cats.
+-- Fill in fields the engineer may not send: tables from upgrade levels, catsOwned from cats.
 local function deriveState(partial: Types.PartialState)
 	if partial.cats and not partial.catsOwned then
 		local counts: { [string]: Types.OwnedCat } = {}
@@ -136,10 +136,6 @@ local function deriveState(partial: Types.PartialState)
 	end
 	if partial.upgradeLevels then
 		local levels = partial.upgradeLevels :: { [string]: number }
-		local cafeLevel: number? = levels.cafe_level
-		if partial.cafeLevel == nil and cafeLevel ~= nil then
-			state.cafeLevel = cafeLevel
-		end
 		local tables: number? = levels.tables
 		if partial.tables == nil and tables ~= nil then
 			state.tables = tables

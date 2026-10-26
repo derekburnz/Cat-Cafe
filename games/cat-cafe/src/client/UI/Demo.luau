@@ -22,11 +22,14 @@ local CATALOG: Types.Catalog = {
 	decor = Catalog.decor,
 	lures = Catalog.lures,
 	spots = Catalog.spots,
+	tiers = Catalog.tiers,
+	areas = Catalog.areas,
 }
 
 local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
-local SELL_VALUE: { [string]: number } = { Common = 25, Rare = 150, Epic = 600, Legendary = 3000 }
+local SELL_VALUE: { [string]: number } =
+	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
 
 function Demo.run(UI: any): () -> ()
 	local running = true
@@ -43,7 +46,7 @@ function Demo.run(UI: any): () -> ()
 
 	local profile = {
 		money = 50,
-		upgradeLevels = { cafe_level = 1, espresso = 1 } :: { [string]: number },
+		upgradeLevels = { espresso = 1 } :: { [string]: number },
 		decorOwned = {} :: { [string]: boolean },
 		decorPlaced = {} :: { [string]: boolean },
 		lures = {} :: { [string]: number },
@@ -57,7 +60,7 @@ function Demo.run(UI: any): () -> ()
 		catId = "tabby",
 		variant = "base",
 		caughtAt = now(),
-		spotId = "counter_1",
+		spotId = "barista_1",
 		level = 2,
 		stars = 3,
 		rating = 1.2,
@@ -81,7 +84,7 @@ function Demo.run(UI: any): () -> ()
 		for _, instance in profile.cats do
 			if instance.spotId then
 				local def = catById[instance.catId]
-				local favorite = def.favoriteSpot == spotType[instance.spotId]
+				local favorite = def.favoriteRole == spotType[instance.spotId]
 				total += def.incomePerSecond * (if favorite then 1.5 else 1)
 			end
 		end

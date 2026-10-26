@@ -2,8 +2,10 @@
 
 A pose moves the whole cat (Body, Head, Tail together) by `rot` degrees (Blender XYZ
 Euler) about the cat-local point `pivot`, then by `offset`, and adds a local rotation
-to the Head and the Tail about their own joints. Positions are in studs, Blender axes
-(Z up, -Y forward); the manifest also gives every value in Roblox axes.
+to the Head and the Tail about their own joints. An optional `head_offset` (cat-local)
+moves the Head joint, for poses where the neck sits somewhere else on the body.
+Positions are in studs, Blender axes (Z up, -Y forward); the manifest also gives every
+value in Roblox axes.
 Roblox: position (x, y, z) -> (-x, z, y), so the front is -Z (LookVector). *_angles_roblox_deg
 go to CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)); body_cframe_roblox is the
 same Body CFrame as CFrame.new(table.unpack(t)), relative to the prop pivot or HumanoidRootPart.
@@ -20,6 +22,7 @@ import common
 # name -> pose. Rescue poses are relative to the prop's pivot.
 POSES = {
     "upright": dict(pivot=(0, 0.5, 0), rot=(-90, 0, 0), offset=(0, 0, 0.3), head=(90, 0, 0), tail=(80, 0, 0),
+                    head_offset=(0, -0.32, 0),  # standing, -Y is up: seats the head on the collar, clear of the paws
                     note="Stands on the hind legs. Same parts; Head pitched back to face forward. Accessories keep their offsets."),
     "carried": dict(pivot=(0, 0, 0), rot=(0, 0, 90), offset=(0, -1.05, -0.4), head=(-10, 0, 0), tail=(-40, 0, 0),
                     note="Cradled across the chest, facing the character's left, so the camera behind the player "
@@ -45,6 +48,10 @@ def _local(angles):
     return Euler([math.radians(a) for a in angles], "XYZ").to_matrix().to_4x4()
 
 
+def _head_shift(pose):
+    return Matrix.Translation(Vector(pose.get("head_offset", (0, 0, 0))))
+
+
 def posed_copies(cat_objs, pose, world=Matrix.Identity(4), prefix="_v_"):
     """Copy a cat's parts and put them in `pose`, under an optional world transform."""
     M = world @ pose_matrix(pose)
@@ -52,12 +59,13 @@ def posed_copies(cat_objs, pose, world=Matrix.Identity(4), prefix="_v_"):
     for ob in cat_objs:
         c = ob.copy()
         c.name = prefix + ob.name
-        extra = Matrix.Identity(4)
+        extra = shift = Matrix.Identity(4)
         if ob.name.endswith("_Head"):
             extra = _local(pose["head"])
+            shift = _head_shift(pose)
         elif ob.name.endswith("_Tail"):
             extra = _local(pose["tail"])
-        c.matrix_world = M @ ob.matrix_world @ extra
+        c.matrix_world = M @ shift @ ob.matrix_world @ extra
         c.hide_render = False
         bpy.context.scene.collection.objects.link(c)
         out.append(c)
@@ -81,11 +89,13 @@ def accessory_copies(built, cat_objs, world=Matrix.Identity(4), pose=None, names
             part, off, r = accessories.ATTACH_UPRIGHT[n]
             acc_rot = _local(r)
         extra = Matrix.Identity(4)
+        shift = Matrix.Identity(4)
         if pose and part == "Head":
             extra = _local(pose["head"])
+            shift = _head_shift(pose)
         elif pose and part == "Tail":
             extra = _local(pose["tail"])
-        base = parts[part].matrix_world @ extra @ Matrix.Translation(Vector(off)) @ acc_rot
+        base = shift @ parts[part].matrix_world @ extra @ Matrix.Translation(Vector(off)) @ acc_rot
         for ob in src:
             c = ob.copy()
             c.name = "_v_" + ob.name
@@ -115,6 +125,8 @@ def manifest_pose(pose):
         "body_angles_roblox_deg": angles,
         "body_cframe_roblox": pos + [round(Rr[i][j], 4) + 0.0 for i in range(3) for j in range(3)],
         "head_angles_roblox_deg": common.euler_to_roblox(pose["head"]),
+        "head_offset_blender": list(pose.get("head_offset", (0, 0, 0))),
+        "head_offset_roblox": common.to_roblox(pose.get("head_offset", (0, 0, 0))),
         "tail_angles_roblox_deg": common.euler_to_roblox(pose["tail"]),
         "note": pose.get("note", ""),
     }

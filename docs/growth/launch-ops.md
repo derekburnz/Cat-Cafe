@@ -4,6 +4,8 @@ Owner: growth-analyst. Written 2026-10-25 after the designer scheduled the genre
 
 ## 1. Chalkboard (codes)
 
+Name first: guide pages, the group and the board all carry the game's title, so the title should be settled before the first public code (comps.md section 9).
+
 Purpose: codes are a free acquisition channel. Code-guide sites (Sportskeeda, Pocket Tactics, Beebom, Pro Game Guides and dozens of smaller ones) publish a page per game that has codes and refresh it monthly; Roll a Fisherman had at least seven such pages within two months of its August 2026 release (comps.md sources). Each page is a search result that points new players at the details page, which is also what the audience expansion share of Creator Rewards credits.
 
 Rules (design): rewards are coins, food and Catnip only, never cats. Growth owns the list and the cadence.
@@ -41,7 +43,7 @@ Operating rules:
 
 ## 4. Analytics additions for these features
 
-Added to analytics-plan.md as the 2026-10-25 addendum: `code_redeemed`, `regulars_claimed`, `daily_treat_claimed`, `request_completed`, and a `buff` field on `lure_used` for Catnip.
+In analytics-plan.md section 6.5 (v0.3, 2026-10-26): `code_redeemed`, `code_failed`, `regulars_claimed`, `daily_treat_claimed` (stamp and card, no streak field since the card no longer resets) and `request_completed`; Catnip is the `buff` field on `bait_rolled`. Code coins log as economy sources with transaction type `Promo`.
 
 ## 5. Two policy notes on neighbouring launch features
 

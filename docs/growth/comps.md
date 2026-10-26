@@ -2,6 +2,8 @@
 
 Owner: growth-analyst. Written 2026-10-25. Roblox numbers move weekly, so every figure below carries its source date. Re-check anything older than a month before quoting it in a pitch.
 
+Update 2026-10-26: section 9 adds a name check for "Cat Cafe" (Gavin's suggestion) and two direct theme competitors found while doing it. Design v0.3 (Gavin's answers, approved by Derek on 2026-10-26) replaced the no-stealing rule with carry bumps: another player can knock a carried cat loose, and it becomes a stray anyone can net. Nothing is taken from a cafe and the bumper gains nothing directly. Section 5's warning about losing things to other players now applies to bumps, and analytics-plan.md section 6.2 measures it. Trading and paid random items are still out.
+
 ## 1. The short version
 
 The cat cafe hypothesis holds up. On Roblox today there is no polished, progression-based cat cafe game with a real audience. The titles that use the theme are roleplay hangouts with under 100 concurrent players. The cat games that do pull numbers are collection or care loops (Care For Cats, about 9,000 peak concurrent in June 2026) or a roleplay-obby (Kitten Game, about 6,000 concurrent today after 621 million visits). Adopt Me added a cat cafe venue in September 2026, which says the theme has pull with the pet-game audience. The loops that dominate the platform in 2026 are "find a thing, bring it home, it earns money per second, upgrade, repeat" (Steal An Egg, Ride A Pet, Roll a Fisherman). Purr Pot can borrow that idle-income skeleton while leaving out the parts that generate the loudest complaints: stealing from other players, pay-to-win gear and paid gacha.
@@ -111,6 +113,7 @@ The retention benchmarks come from games that already have over a million monthl
 - Loop: the proven 2026 idle-income skeleton (cats earn while serving, income accrues offline up to a cap, catch new cats to grow income) without PvP theft, paid gacha or trading.
 - Audience: Roblox Kids and Select (ages 5 to 15), mobile first. 35% of age-checked users are under 13 and 57% of players touch mobile.
 - Differentiators to test in the vertical slice: cats with visible personalities and moods (not just income numbers), a catching mini-interaction that takes skill or patience rather than a purchase, and a cafe that visibly fills up and gets cozier as you progress.
+- Bumps (design v0.3): the one place Purr Pot borrows the steal genre's tension. It is softer than stealing (only cats in arms, never from a cafe, a grace period, a safe zone and a server switch), but it is still the mechanic most likely to produce the complaint in section 5. Watch left_after_bump and drop_outcome in the friends alpha before keeping it.
 - Realistic outcome: a well-made small game in this space looks like Care For Cats (tens of millions of visits over a year, a few thousand peak concurrent) rather than Steal An Egg. That is a strong portfolio result and enough to learn the pipeline.
 
 ## 8. Decision rules for Phase 4 (soft launch, first two weeks)
@@ -120,6 +123,40 @@ Compare against the Creator Hub genre benchmark set (Simulation) once there is t
 - D1 retention at or above 12% and median session at or above 10 minutes: iterate, add the next content layer, keep the weekly cadence.
 - D1 between 8% and 12%: fix onboarding first (see analytics-plan.md funnel), do not add content.
 - D1 under 8% after two onboarding fixes, or sessions under 6 minutes: the loop is not holding; pivot the catch or serve mechanic before spending on art.
+
+## 9. Name check: "Cat Cafe" (2026-10-26)
+
+Short answer: "Cat Cafe" on its own is a crowded, generic title on Roblox and outside it. Keep it as the descriptor and put a distinctive name in front, for example "Purr Pot: Cat Cafe", or another unique name Gavin likes.
+
+### 9.1 Who already uses the words
+
+| Title | What it is | Numbers | Source |
+|---|---|---|---|
+| Cat Cafe Tycoon (Purrfect Pawductions) | Cat sanctuary tycoon; Update 2 on 2026-07-24 | No servers running when checked 2026-10-25 | Roblox game page |
+| [NEW] Run a Cat Cafe | Hatch eggs for rare cats, assign cats to brew and serve, drink minigames, a Cat Index, earnings while away. The closest loop to Purr Pot found so far. | None published; no clips on Medal | Medal experience page, 2026-10-26 |
+| Build a Cat Cafe | Design and decorate a cozy cafe, adopt and care for cats, unlock rare cats, earn coins | None published; no clips on Medal | Medal experience page, 2026-10-26 |
+| NEKO-neko CAFE // Cat Cafe // ROLEPLAY (2ndPlayerBoi) | Cat cafe roleplay | No servers running 2026-10-26 | Roblox game page |
+| Meow Cafe Game (ARKverse) | Cat cafe roleplay | 18.9 million visits, all-time peak 62 | Rowatcher, 2026-10 |
+| Adopt Me's Cat Cafe | Venue and event in a top-five game (anniversary, September 2026); guide sites title their pages "Adopt Me Cat Cafe" | Adopt Me: about 205,000 concurrent, 44.7 billion visits on 2026-09-19 | Timesaver, 2026-09-19; RPG Stash guide |
+| [Event] My Hello Kitty Cafe (Rock Panda Games) | Licensed cafe builder | 522 million visits, 2.0 million favorites, all-time peak 43,377 (2022-04-26), 1,529 past 30 days | Rolimons, 2026-10-26 |
+| Cat Cafe Manager (Roost Games) | Steam and console management game since 2022 with its own Wikipedia page | Outside Roblox | Wikipedia |
+
+The wider cafe tycoon space is also busy in 2026: Own a Cafe (14.6 million visits, peak 6,113 on 2026-08-09), My Cafe (1.9 million, peak 2,395 on 2026-09-20) and Run a Cafe (2.2 million, peak 343), all from Rolimons, 2026-10-26.
+
+A web search for "Purr Pot" on 2026-10-26 found no Roblox experience or other game with that name.
+
+### 9.2 Why it matters
+
+- Roblox's own discovery guide says search has been based on "relevance based on exact search queries and limited metadata such as titles", tells creators to "avoid publishing content with repetitive titles", and says games whose metadata closely resembles existing games "might rank lower in search results" (create.roblox.com/docs/discovery, read 2026-10-26). A new game titled only "Cat Cafe" starts with the least engagement among at least seven same-word titles, and players typing "cat cafe" are likely to see Adopt Me's venue too.
+- Audience expansion rewards in Creator Rewards credit players who arrive by searching the game's name. A unique name makes that search land on us; a generic one sends it to whoever ranks first.
+- Code-guide sites, the Roblox group, the devlog and friends' clips all repeat the title. A distinctive name is what people can remember and type after seeing a clip.
+- "Cat cafe" is still worth having in the title and the first line of the description, because it is what players search for. Roblox's description guide says to put primary search terms in the opening hook.
+
+### 9.3 Recommendation
+
+- Title pattern: distinctive name first, genre words second, update tag optional at the front: "Purr Pot: Cat Cafe" or "[UPDATE] Purr Pot: Cat Cafe".
+- If Gavin wants a different distinctive name, run the same check: web search the exact name plus "Roblox", look it up on Rolimons, and avoid real brands and other games' names.
+- Decide before the first public code or group creation, since both carry the name. Roblox lets the title change later, but every guide page and clip would point at the old one.
 
 ## Sources
 
@@ -150,5 +187,13 @@ Compare against the Creator Hub genre benchmark set (Simulation) once there is t
 - Fortune on the FTC complaint (2026-05-20): https://fortune.com/2026/05/20/exclusive-advocacy-groups-file-complaint-roblox-manipulative-design/
 - Andy Hall, "The Algorithm Behind Steal a Brainrot" (2025-12-04): https://freesystems.substack.com/p/the-algorithm-behind-steal-a-brainrot
 - DevForum tycoon gamepass poll (2020-03): https://devforum.roblox.com/t/best-gamepasses-for-a-tycoon/485468
+- Roblox discovery guide (read 2026-10-26): https://create.roblox.com/docs/discovery ; game descriptions guide: https://create.roblox.com/docs/production/publishing/descriptions
+- Run a Cat Cafe: https://medal.tv/games/roblox/experiences/1bd2znYLxEmK0G/new-run-a-cat-cafe ; Build a Cat Cafe: https://medal.tv/games/roblox/experiences/1b5zvC6zf3LmVm/build-a-cat-cafe
+- NEKO-neko CAFE: https://www.roblox.com/games/5841305171/NEKO-neko-CAFE-Cat-Cafe-ROLEPLAY
+- My Hello Kitty Cafe: https://www.rolimons.com/game/9346039031 ; Own a Cafe: https://www.rolimons.com/game/131906518201863 ; My Cafe: https://www.rolimons.com/game/133345376331809 ; Run a Cafe: https://www.rolimons.com/game/74677624103005
+- Adopt Me Cat Cafe guide: https://www.rpgstash.com/blog/adopt-me-cat-cafe-guide
+- Cat Cafe Manager: https://en.wikipedia.org/wiki/Cat_Cafe_Manager
+
+Status 2026-10-26: the stealing part of this proposal was superseded by design v0.3 carry bumps (Derek's go-ahead, 2026-10-26); the rest stands.
 
 Proposed for docs/decisions.md: 2026-10-25, Purr Pot targets the Minimal maturity label and the Kids and Select audiences, with PvE cat catching and no PvP stealing, trading or paid random items in v1, because the 2026 comps show those three features drive the complaints and the policy risk while the idle-income loop drives the retention.

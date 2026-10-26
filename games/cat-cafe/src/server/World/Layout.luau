@@ -12,6 +12,18 @@ export type Point = { x: number, y: number, z: number, rotY: number? }
 export type RescuePoint = { prop: string, x: number, z: number, rotY: number? }
 -- y is the height above the area floor (0 when omitted); wall props set it.
 export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
+-- A shared area in world space. Its near wall, the one facing the street's end, has a street-wide opening.
+export type AreaSpec = {
+	floorY: number,
+	center: Point,
+	halfWidth: number,
+	halfDepth: number,
+	gateZ: number?, -- where the tier gate stands across the opening; nil for the Tier 1 alley
+	spawnPoints: { Point },
+	lureSpots: { Point },
+	rescueSpots: { RescuePoint },
+	props: { Prop },
+}
 
 local Layout = {}
 
@@ -109,6 +121,12 @@ Layout.alley = {
 		{ x = 8, y = 0.1, z = W.AlleyCenterZ + 8 },
 		{ x = -14, y = 0.1, z = W.AlleyCenterZ + 15 },
 		{ x = 18, y = 0.1, z = W.AlleyCenterZ + 16 },
+		{ x = 6, y = 0.1, z = W.AlleyCenterZ - 8 },
+		{ x = -10, y = 0.1, z = W.AlleyCenterZ },
+		{ x = 12, y = 0.1, z = W.AlleyCenterZ - 2 },
+		{ x = -4, y = 0.1, z = W.AlleyCenterZ + 12 },
+		{ x = 4, y = 0.1, z = W.AlleyCenterZ + 18 },
+		{ x = -16, y = 0.1, z = W.AlleyCenterZ - 12 },
 	} :: { Point },
 	lureSpots = {
 		{ x = 0, y = 0.1, z = W.AlleyCenterZ + 3 },
@@ -148,7 +166,7 @@ Layout.alley = {
 		{ asset = "CatCafe_Decor_StringLights", x = -20, y = 5.6, z = W.AlleyCenterZ + 21.3 },
 		{ asset = "CatCafe_Decor_StringLights", x = 6, y = 5.6, z = W.AlleyCenterZ + 21.3 },
 	} :: { Prop },
-}
+} :: AreaSpec
 
 Layout.park = {
 	floorY = 0.1,
@@ -167,6 +185,10 @@ Layout.park = {
 		{ x = 34, y = 0.1, z = W.ParkCenterZ - 18 },
 		{ x = -8, y = 0.1, z = W.ParkCenterZ - 22 },
 		{ x = 10, y = 0.1, z = W.ParkCenterZ - 24 },
+		{ x = 0, y = 0.1, z = W.ParkCenterZ + 18 },
+		{ x = -14, y = 0.1, z = W.ParkCenterZ },
+		{ x = 12, y = 0.1, z = W.ParkCenterZ - 2 },
+		{ x = 0, y = 0.1, z = W.ParkCenterZ - 14 },
 	} :: { Point },
 	lureSpots = {
 		{ x = -12, y = 0.1, z = W.ParkCenterZ + 6 },
@@ -190,7 +212,148 @@ Layout.park = {
 		{ asset = "CatCafe_Park_Bench", x = 8, z = W.ParkCenterZ + 10, rotY = 180 },
 		{ asset = "CatCafe_Park_Bench", x = 20, z = W.ParkCenterZ - 16, rotY = 90 },
 	} :: { Prop },
-}
+} :: AreaSpec
+
+-- Points at (dx, dz) from an area's center, on its floor.
+local function around(cx: number, cz: number, offsets: { { number } }): { Point }
+	local points: { Point } = {}
+	for _, offset in offsets do
+		table.insert(points, { x = cx + offset[1], y = 0.1, z = cz + offset[2] })
+	end
+	return points
+end
+
+-- Areas 3 to 5 are grayboxes (features section 3): flat ground, walls, a gate, spawn points and rescue spots.
+-- The rescue props and the scenery reuse alley and park models until each area gets its own set; the rescue
+-- spots become the area's traps in F27. In the alley row the opening is on the -Z side, in the park row on +Z.
+local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
+Layout.neighbourhood = {
+	floorY = 0.1,
+	center = { x = NX, y = 0, z = NZ },
+	halfWidth = W.NeighbourhoodWidth / 2,
+	halfDepth = W.NeighbourhoodDepth / 2,
+	gateZ = W.NeighbourhoodGateZ,
+	spawnPoints = around(NX, NZ, {
+		{ -6, -14 },
+		{ 8, -12 },
+		{ -20, -12 },
+		{ 22, -14 },
+		{ -12, -4 },
+		{ 2, -2 },
+		{ 16, -4 },
+		{ -24, 2 },
+		{ 24, 4 },
+		{ -6, 8 },
+		{ 10, 8 },
+		{ -18, 14 },
+		{ 4, 17 },
+		{ 20, 15 },
+	}),
+	lureSpots = {},
+	rescueSpots = {
+		-- Stand-ins: the box for the shed, the drainpipe for the gutter.
+		{ prop = "CatCafe_Alley_StuckBox", x = NX - 26, z = NZ + 8, rotY = -90 },
+		{ prop = "CatCafe_Alley_Drainpipe", x = NX + 12, z = NZ + 21.5 },
+	},
+	props = {
+		{ asset = "CatCafe_Alley_StreetLamp", x = NX - 14, z = NZ - 19 },
+		{ asset = "CatCafe_Alley_StreetLamp", x = NX + 14, z = NZ - 19 },
+		{ asset = "CatCafe_Alley_TrashCan", x = NX - 26, z = NZ - 6 },
+		{ asset = "CatCafe_Alley_Crate", x = NX + 26, z = NZ - 6 },
+		{ asset = "CatCafe_Park_Tree", x = NX + 26, z = NZ + 12 },
+		{ asset = "CatCafe_Park_Bench", x = NX - 8, z = NZ + 18, rotY = 180 },
+	},
+} :: AreaSpec
+
+local WX, WZ = W.WoodsCenterX, W.WoodsCenterZ
+Layout.woods = {
+	floorY = 0.1,
+	center = { x = WX, y = 0, z = WZ },
+	halfWidth = W.WoodsWidth / 2,
+	halfDepth = W.WoodsDepth / 2,
+	gateZ = W.WoodsGateZ,
+	spawnPoints = around(WX, WZ, {
+		{ -6, 20 },
+		{ 10, 18 },
+		{ -22, 18 },
+		{ 26, 20 },
+		{ -32, 8 },
+		{ -12, 10 },
+		{ 4, 6 },
+		{ 20, 8 },
+		{ 34, 0 },
+		{ -26, -4 },
+		{ -6, -6 },
+		{ 12, -6 },
+		{ 28, -10 },
+		{ -16, -16 },
+		{ 2, -18 },
+		{ 20, -22 },
+	}),
+	lureSpots = {},
+	rescueSpots = {
+		-- Stand-ins for the hollow log and the bramble bush; branches reach toward the middle.
+		{ prop = "CatCafe_Alley_StuckTree", x = WX + 36, z = WZ - 24 },
+		{ prop = "CatCafe_Alley_StuckTree", x = WX - 36, z = WZ + 22, rotY = 180 },
+	},
+	props = {
+		{ asset = "CatCafe_Park_Tree", x = WX + 34, z = WZ + 12 },
+		{ asset = "CatCafe_Park_Tree", x = WX - 34, z = WZ - 14 },
+		{ asset = "CatCafe_Park_Tree", x = WX - 4, z = WZ - 26 },
+		{ asset = "CatCafe_Park_Tree", x = WX - 22, z = WZ + 4 },
+		{ asset = "CatCafe_Park_Tree", x = WX + 14, z = WZ - 14 },
+		{ asset = "CatCafe_Park_Tree", x = WX - 26, z = WZ - 24 },
+	},
+} :: AreaSpec
+
+local SX, SZ = W.SewerCenterX, W.SewerCenterZ
+Layout.sewer = {
+	floorY = 0.1,
+	center = { x = SX, y = 0, z = SZ },
+	halfWidth = W.SewerWidth / 2,
+	halfDepth = W.SewerDepth / 2,
+	gateZ = W.SewerGateZ,
+	spawnPoints = around(SX, SZ, {
+		{ -6, -14 },
+		{ 8, -14 },
+		{ -20, -14 },
+		{ 22, -12 },
+		{ -12, -6 },
+		{ 2, -4 },
+		{ 16, -2 },
+		{ -24, -2 },
+		{ 26, 6 },
+		{ -6, 4 },
+		{ 8, 6 },
+		{ -18, 8 },
+		{ 18, 12 },
+		{ -24, 16 },
+		{ -4, 15 },
+		{ 8, 18 },
+	}),
+	lureSpots = {},
+	rescueSpots = {
+		-- Stand-ins for the drain pipe and the grate, both on the far wall.
+		{ prop = "CatCafe_Alley_Drainpipe", x = SX - 12, z = SZ + 21.5 },
+		{ prop = "CatCafe_Alley_Drainpipe", x = SX + 14, z = SZ + 21.5 },
+	},
+	props = {
+		{ asset = "CatCafe_Alley_StreetLamp", x = SX - 14, z = SZ - 19 },
+		{ asset = "CatCafe_Alley_StreetLamp", x = SX + 14, z = SZ - 19 },
+		{ asset = "CatCafe_Alley_Crate", x = SX - 26, z = SZ - 8 },
+		{ asset = "CatCafe_Alley_Crate", x = SX + 26, z = SZ - 4 },
+		{ asset = "CatCafe_Alley_TrashCan", x = SX - 26, z = SZ + 10 },
+	},
+} :: AreaSpec
+
+-- Every area by id, in the order Catalog.areas lists them.
+Layout.areas = {
+	alley = Layout.alley,
+	park = Layout.park,
+	neighbourhood = Layout.neighbourhood,
+	woods = Layout.woods,
+	sewer = Layout.sewer,
+} :: { [string]: AreaSpec }
 
 -- Player spawn on the street, between the cafes and the alley.
 Layout.playerSpawn = { x = 0, y = 0.6, z = 70 } :: Point

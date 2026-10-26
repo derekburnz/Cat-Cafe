@@ -1,5 +1,5 @@
 --!strict
--- Builds the whole graybox world from code at server start: ground, street, 8 plots, alley, park.
+-- Builds the whole graybox world from code at server start: ground, street, 8 plots, five areas and their gates.
 -- Everything with a name in features.md is a named Part or a clone from AssetRegistry so art swaps in by name.
 
 local CollectionService = game:GetService("CollectionService")
@@ -43,7 +43,7 @@ export type World = {
 	folder: Folder,
 	plots: { Plot },
 	areas: { [string]: AreaInfo },
-	gate: Model,
+	gates: { [string]: Model }, -- area id -> its tier gate (every area but the Tier 1 alley)
 }
 
 local WorldBuilder = {}
@@ -55,6 +55,28 @@ local MINT = Color3.fromRGB(165, 214, 190)
 local ASPHALT = Color3.fromRGB(70, 70, 75)
 local BRICK = Color3.fromRGB(150, 85, 70)
 local GRASS = Color3.fromRGB(110, 170, 90)
+
+-- Floor and wall look per area. Areas 3 to 5 get a distinct flat palette color until their sets exist.
+type AreaLook = { floor: Color3, floorMaterial: Enum.Material, wall: Color3 }
+local AREA_LOOKS: { [string]: AreaLook } = {
+	alley = { floor = ASPHALT, floorMaterial = Enum.Material.Asphalt, wall = BRICK },
+	park = { floor = GRASS, floorMaterial = Enum.Material.Grass, wall = Color3.fromRGB(90, 70, 50) },
+	neighbourhood = {
+		floor = Color3.fromRGB(196, 178, 150),
+		floorMaterial = Enum.Material.Pavement,
+		wall = Color3.fromRGB(205, 160, 120),
+	},
+	woods = {
+		floor = Color3.fromRGB(86, 120, 70),
+		floorMaterial = Enum.Material.LeafyGrass,
+		wall = Color3.fromRGB(70, 55, 40),
+	},
+	sewer = {
+		floor = Color3.fromRGB(95, 105, 100),
+		floorMaterial = Enum.Material.Slate,
+		wall = Color3.fromRGB(80, 90, 85),
+	},
+}
 
 local function part(
 	name: string,
@@ -292,12 +314,11 @@ end
 
 local function buildArea(
 	id: string,
-	spec: typeof(Layout.alley),
-	floorColor: Color3,
-	floorMaterial: Enum.Material,
-	wallColor: Color3,
+	spec: Layout.AreaSpec,
+	look: AreaLook,
 	parent: Instance
 ): AreaInfo
+	local floorColor, floorMaterial, wallColor = look.floor, look.floorMaterial, look.wall
 	local model = Instance.new("Model")
 	model.Name = id:sub(1, 1):upper() .. id:sub(2)
 	model:SetAttribute("Area", id)
@@ -434,6 +455,37 @@ local function buildArea(
 	}
 end
 
+-- A tier gate across an area's opening (data-model section 9): `CatCafe_<Area>_Gate`, named `<Area>Gate` under
+-- World.Gates with `Area` and `RequiresTier`. The client makes it solid for players below the tier; the server
+-- checks the tier on every catch and rescue anyway, so walking around it gains nothing.
+local function buildGate(def: Types.AreaDef, x: number, z: number, parent: Instance): Model
+	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
+	local gate = place("CatCafe_" .. pascal .. "_Gate", CFrame.new(x, 0.1, z), parent)
+	gate.Name = pascal .. "Gate"
+	gate:SetAttribute("Area", def.id)
+	gate:SetAttribute("RequiresTier", def.tier)
+	CollectionService:AddTag(gate, "AreaGate")
+	local bars = gate:FindFirstChild("Bars")
+	if bars ~= nil and bars:IsA("BasePart") then
+		local billboard = Instance.new("BillboardGui")
+		billboard.Size = UDim2.fromOffset(240, 40)
+		billboard.StudsOffset = Vector3.new(0, 4, 0)
+		billboard.MaxDistance = 80
+		local text = Instance.new("TextLabel")
+		text.Name = "Label"
+		text.Size = UDim2.fromScale(1, 1)
+		text.BackgroundTransparency = 1
+		text.TextScaled = true
+		text.Font = Enum.Font.GothamBold
+		text.TextColor3 = Color3.new(1, 1, 1)
+		text.TextStrokeTransparency = 0.3
+		text.Text = string.format("%s: opens at Tier %d", def.name, def.tier)
+		text.Parent = billboard
+		billboard.Parent = bars
+	end
+	return gate
+end
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -476,31 +528,24 @@ function WorldBuilder.build(): World
 	end
 
 	local areas: { [string]: AreaInfo } = {}
-	areas.alley = buildArea("alley", Layout.alley, ASPHALT, Enum.Material.Asphalt, BRICK, root)
-	areas.park =
-		buildArea("park", Layout.park, GRASS, Enum.Material.Grass, Color3.fromRGB(90, 70, 50), root)
-
-	local gate = place("CatCafe_Park_Gate", CFrame.new(0, 0.1, Layout.park.gateZ), root)
-	gate.Name = "ParkGate"
-	local parkTier = (Catalog.getArea("park") :: Types.AreaDef).tier
-	gate:SetAttribute("RequiresTier", parkTier)
-	local gateBars = gate:FindFirstChild("Bars")
-	if gateBars ~= nil and gateBars:IsA("BasePart") then
-		local billboard = Instance.new("BillboardGui")
-		billboard.Size = UDim2.fromOffset(200, 40)
-		billboard.StudsOffset = Vector3.new(0, 4, 0)
-		billboard.MaxDistance = 80
-		local text = Instance.new("TextLabel")
-		text.Name = "Label"
-		text.Size = UDim2.fromScale(1, 1)
-		text.BackgroundTransparency = 1
-		text.TextScaled = true
-		text.Font = Enum.Font.GothamBold
-		text.TextColor3 = Color3.new(1, 1, 1)
-		text.TextStrokeTransparency = 0.3
-		text.Text = string.format("Park: opens at Tier %d", parkTier)
-		text.Parent = billboard
-		billboard.Parent = gateBars
+	local gates: { [string]: Model } = {}
+	local gatesFolder = folder("Gates", root)
+	for _, def in Catalog.areas do
+		local spec = Layout.areas[def.id]
+		assert(spec ~= nil, "no layout for area " .. def.id)
+		assert(
+			#spec.spawnPoints == def.spawnPoints,
+			string.format(
+				"%s: Layout has %d spawn points, Catalog says %d",
+				def.id,
+				#spec.spawnPoints,
+				def.spawnPoints
+			)
+		)
+		areas[def.id] = buildArea(def.id, spec, AREA_LOOKS[def.id], root)
+		if spec.gateZ ~= nil then
+			gates[def.id] = buildGate(def, spec.center.x, spec.gateZ, gatesFolder)
+		end
 	end
 
 	local spawn = Instance.new("SpawnLocation")
@@ -513,7 +558,7 @@ function WorldBuilder.build(): World
 	spawn.Duration = 0
 	spawn.Parent = root
 
-	return { folder = root, plots = plots, areas = areas, gate = gate }
+	return { folder = root, plots = plots, areas = areas, gates = gates }
 end
 
 return WorldBuilder

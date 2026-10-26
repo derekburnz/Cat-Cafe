@@ -25,8 +25,8 @@ local Config = {
 	ShinyMultiplier = 1.5, -- a shiny cat's rating (data-model section 4)
 
 	-- The clock (data-model section 9): a server-wide loop of day then night
-	DayLengthSeconds = 180,
-	NightLengthSeconds = 120,
+	DayLengthSeconds = 300,
+	NightLengthSeconds = 300,
 	ServerStartDaySeconds = 120, -- a new server starts in day with this long left, so the first night comes early
 
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
@@ -105,6 +105,23 @@ local Config = {
 		ParkWidth = 80,
 		ParkDepth = 56,
 		ParkGateZ = -101,
+		-- Areas 3 to 5 (grayboxes) sit beside the alley and the park. Each opening faces the street's end, and a
+		-- path runs between the last cafes and the alley and park walls.
+		NeighbourhoodCenterX = -80, -- west of the alley
+		NeighbourhoodCenterZ = 125,
+		NeighbourhoodWidth = 60,
+		NeighbourhoodDepth = 44,
+		NeighbourhoodGateZ = 102,
+		WoodsCenterX = -95, -- west of the park
+		WoodsCenterZ = -130,
+		WoodsWidth = 80,
+		WoodsDepth = 56,
+		WoodsGateZ = -101,
+		SewerCenterX = 80, -- east of the alley
+		SewerCenterZ = 125,
+		SewerWidth = 60,
+		SewerDepth = 44,
+		SewerGateZ = 102,
 	},
 }
 

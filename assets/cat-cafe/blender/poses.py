@@ -9,6 +9,7 @@ value in Roblox axes.
 Roblox: position (x, y, z) -> (-x, z, y), so the front is -Z (LookVector). *_angles_roblox_deg
 go to CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)); body_cframe_roblox is the
 same Body CFrame as CFrame.new(table.unpack(t)), relative to the prop pivot or HumanoidRootPart.
+For a cat with `scale` s (Ragdoll, Maine Coon 1.2) multiply every pose position by s.
 """
 
 import math
@@ -72,22 +73,22 @@ def posed_copies(cat_objs, pose, world=Matrix.Identity(4), prefix="_v_"):
     return out
 
 
-def accessory_copies(built, cat_objs, world=Matrix.Identity(4), pose=None, names=("Glasses", "BowTie", "Apron", "Hat")):
+def accessory_copies(built, cat_objs, world=Matrix.Identity(4), pose=None, names=("Glasses", "BowTie", "Apron", "Hat"),
+                     spec=None):
     """Copies of accessories attached to a cat (optionally posed) for previews."""
     import accessories
-    import cats
     out = []
+    slots = accessories.attach_for(spec or {}, upright=pose is POSES["upright"])
     parts = {ob.name.split("_")[-1]: ob for ob in cat_objs}
     M = world @ (pose_matrix(pose) if pose else Matrix.Identity(4))
     for n in names:
         src = built.get(f"CatCafe_Accessory_{n}")
         if not src:
             continue
-        part, off = accessories.ATTACH[n]
-        acc_rot = Matrix.Identity(4)
-        if pose is POSES["upright"] and n in accessories.ATTACH_UPRIGHT:
-            part, off, r = accessories.ATTACH_UPRIGHT[n]
-            acc_rot = _local(r)
+        if n not in slots:
+            continue
+        part, off, r = slots[n]
+        acc_rot = _local(r)
         extra = Matrix.Identity(4)
         shift = Matrix.Identity(4)
         if pose and part == "Head":
@@ -183,6 +184,19 @@ def render_pose_previews(built, mat, docs, samples=32, cat="CatCafe_Cat_Tabby"):
     common.render_preview(copies + acc, path, samples=samples, warm=True, azimuth=25, elevation=10)
     cleanup(copies + acc)
     made["Pose_Upright"] = path
+    # the four role uniforms on upright cats, in role order (barista, waiter, greeter, entertainer)
+    import accessories
+    objs = []
+    for i, role in enumerate(("barista", "waiter", "greeter", "entertainer")):
+        world = Matrix.Translation(((i - 1.5) * 1.5, 0, 0))
+        objs += posed_copies(cat_objs, pose, world=world)
+        objs += accessory_copies(built, cat_objs, world=world, pose=pose, names=(accessories.ROLE_UNIFORMS[role],))
+    path = os.path.join(docs, "previews", "Pose_Uniforms.png")
+    common.hide_all_meshes()
+    common.show(objs)
+    common.render_preview(objs, path, samples=samples, warm=True, azimuth=20, elevation=10)
+    cleanup(objs)
+    made["Pose_Uniforms"] = path
     # carried, against an R15-sized stand-in
     proxy = r15_proxy(mat)
     copies = posed_copies(cat_objs, POSES["carried"], world=Matrix.Translation((0, 0, HRP_HEIGHT)))

@@ -137,15 +137,52 @@ class Builder:
         c = (base_center[0], base_center[1], base_center[2] + height / 2)
         return self.cyl(c, radius, height, swatch, segments, bevel, None, radius2, scale)
 
-    def sphere(self, center, radius, swatch, segments=10, rings=6, scale=(1, 1, 1)):
+    def sphere(self, center, radius, swatch, segments=10, rings=6, scale=(1, 1, 1), rot=None):
         r = bmesh.ops.create_uvsphere(self.bm, u_segments=segments, v_segments=rings, radius=radius,
-                                      matrix=_mat(center, scale))
+                                      matrix=_mat(center, scale, rot))
         return self._tag(r["verts"], swatch, False)
 
-    def ico(self, center, radius, swatch, subdivisions=1, scale=(1, 1, 1)):
+    def ico(self, center, radius, swatch, subdivisions=1, scale=(1, 1, 1), rot=None):
         r = bmesh.ops.create_icosphere(self.bm, subdivisions=subdivisions, radius=radius,
-                                       matrix=_mat(center, scale))
+                                       matrix=_mat(center, scale, rot))
         return self._tag(r["verts"], swatch, False)
+
+    def prism(self, center, points, height, swatch, bevel=False, rot=None):
+        """Flat outline extruded `height` along Z, centered on `center`. `points` are (x, y) around
+        (0, 0), counter-clockwise, every point visible from (0, 0) (stars, badges)."""
+        m = _mat(center, (1, 1, 1), rot)
+        h = height / 2
+        bot = [self.bm.verts.new(m @ Vector((x, y, -h))) for x, y in points]
+        top = [self.bm.verts.new(m @ Vector((x, y, h))) for x, y in points]
+        cb, ct = self.bm.verts.new(m @ Vector((0, 0, -h))), self.bm.verts.new(m @ Vector((0, 0, h)))
+        n = len(points)
+        for i in range(n):
+            j = (i + 1) % n
+            self.bm.faces.new((bot[j], bot[i], cb))
+            self.bm.faces.new((top[i], top[j], ct))
+            self.bm.faces.new((bot[i], bot[j], top[j], top[i]))
+        vs = bot + top + [cb, ct]
+        bmesh.ops.recalc_face_normals(self.bm, faces=list({f for v in vs for f in v.link_faces}))
+        return self._tag(vs, swatch, bevel)
+
+    def crescent(self, center, radius, thickness, depth, swatch, segments=7):
+        """Blocky crescent moon standing in the XZ plane (faces -Y), horns toward +X."""
+        a0, a1 = math.radians(50), math.radians(310)
+        seg = (a1 - a0) / segments * radius * 1.2
+        for k in range(segments):
+            t = a0 + (a1 - a0) * (k + 0.5) / segments
+            w = thickness * (0.3 + 0.7 * math.sin(math.pi * (k + 0.5) / segments))
+            c = (center[0] + radius * math.cos(t), center[1], center[2] + radius * math.sin(t))
+            self.box(c, (w, depth, seg), swatch, bevel=False, rot=(-t, "Y"))
+
+    def star(self, center, outer, inner, height, swatch, points=5, rot=None):
+        """Star prism lying flat (rot stands it up), first point toward +Y."""
+        pts = []
+        for k in range(points * 2):
+            a = math.pi / 2 + math.pi * k / points
+            r = outer if k % 2 == 0 else inner
+            pts.append((r * math.cos(a), r * math.sin(a)))
+        return self.prism(center, pts, height, swatch, rot=rot)
 
     def pyramid(self, base_center, size, height, swatch, bevel=False, rot=None):
         """Square pyramid standing on base_center. size = base width."""

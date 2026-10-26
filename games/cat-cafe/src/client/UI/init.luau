@@ -20,6 +20,7 @@ local CatchPrompt = require(script.Screens.CatchPrompt)
 local Create = require(script.Components.Create)
 local DecorShop = require(script.Screens.DecorShop)
 local Format = require(script.Components.Format)
+local GateSigns = require(script.Screens.GateSigns)
 local HUD = require(script.Screens.HUD)
 local Modal = require(script.Components.Modal)
 local Popups = require(script.Screens.Popups)
@@ -86,6 +87,7 @@ local catch: CatchPrompt.CatchPrompt? = nil
 local circles: CatchCircles.CatchCircles? = nil
 local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
+local gateSigns: GateSigns.GateSigns? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
 local carryMarker: WorldMarker.WorldMarker? = nil
@@ -121,6 +123,9 @@ local function render()
 	if areasScreen and hud then
 		areasScreen:render(state, hud:isCarrying())
 	end
+	if gateSigns then
+		gateSigns:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -139,6 +144,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if areasScreen then
 		areasScreen:setCatalog(newCatalog)
+	end
+	if gateSigns then
+		gateSigns:setCatalog(newCatalog)
 	end
 end
 
@@ -292,6 +300,8 @@ function UI.init(config: Types.InitConfig)
 	popups = Popups.new(parent)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	-- signs over every gate tagged AreaGate, including gates that stream in later
+	gateSigns = GateSigns.new(parent)
 
 	setCatalog(config.catalog)
 
@@ -383,6 +393,9 @@ function UI.destroy()
 	if areasScreen then
 		areasScreen:destroy()
 	end
+	if gateSigns then
+		gateSigns:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -398,7 +411,7 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker = nil, nil
-	circles, rankUpScreen, areasScreen = nil, nil, nil
+	circles, rankUpScreen, areasScreen, gateSigns = nil, nil, nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false

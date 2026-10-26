@@ -88,41 +88,51 @@ local Config = {
 	ProfileStoreName = "PurrPotProfiles",
 	ProfileKeyPrefix = "p_",
 
-	-- World layout. The street runs along Z at X = 0. Plots line both sides, the alley is at +Z, the park at -Z.
+	-- World layout v2 (engineer, 2026-10-26; data-model section 9, world-and-feel.md section 2). The street runs
+	-- along Z at X = 0. Cafes line both sides, each with a front garden on the street and a patio yard out back;
+	-- the Alleyway is a back alley behind each row that meets the other in the Alley Square at the street's north
+	-- end. The Park, Woods and Sewer gates are at the south end, the Neighbourhood's through the Square's north wall.
 	World = {
 		PlotCount = 8,
 		PlotWidth = 36, -- along the street (Z)
 		PlotDepth = 28, -- away from the street (X)
-		PlotRowGap = 8,
+		PlotRowGap = 8, -- a side passage from the street to the back alley between neighbouring cafes
+		FrontGardenDepth = 5, -- path, bench and chalkboard between the sidewalk and the front wall
+		YardDepth = 10, -- the patio yard between the back wall and the back alley
 		StreetHalfWidth = 12,
-		StreetLength = 200,
-		GroundSize = 400,
+		StreetSouthZ = -100,
+		StreetNorthZ = 88, -- the street runs into the Alley Square here
+		GroundSize = 560,
 		WallHeight = 9,
 		DoorWidth = 7,
-		AlleyCenterZ = 125, -- alley area center (north end of the street)
-		AlleyWidth = 60, -- along X
-		AlleyDepth = 44, -- along Z
+		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to SquareSouthZ, and the
+		-- Square across the whole width from SquareSouthZ to SquareNorthZ.
+		AlleyInnerX = 59,
+		AlleyOuterX = 89,
+		AlleySouthZ = -101.5,
+		SquareSouthZ = 88,
+		SquareNorthZ = 152,
 		ParkCenterZ = -130,
 		ParkWidth = 80,
 		ParkDepth = 56,
 		ParkGateZ = -101,
-		-- Areas 3 to 5 (grayboxes) sit beside the alley and the park. Each opening faces the street's end, and a
-		-- path runs between the last cafes and the alley and park walls.
-		NeighbourhoodCenterX = -80, -- west of the alley
-		NeighbourhoodCenterZ = 125,
-		NeighbourhoodWidth = 60,
-		NeighbourhoodDepth = 44,
-		NeighbourhoodGateZ = 102,
-		WoodsCenterX = -95, -- west of the park
-		WoodsCenterZ = -130,
-		WoodsWidth = 80,
-		WoodsDepth = 56,
+		-- The Woods and the Sewer sit either side of the Park, their openings at the south end of the west and east
+		-- back alleys; the Neighbourhood sits north of the Square.
+		WoodsCenterX = -74,
+		WoodsCenterZ = -134,
+		WoodsWidth = 66,
+		WoodsDepth = 64,
 		WoodsGateZ = -101,
-		SewerCenterX = 80, -- east of the alley
-		SewerCenterZ = 125,
-		SewerWidth = 60,
-		SewerDepth = 44,
-		SewerGateZ = 102,
+		SewerCenterX = 74,
+		SewerCenterZ = -134,
+		SewerWidth = 66,
+		SewerDepth = 64,
+		SewerGateZ = -101,
+		NeighbourhoodCenterX = 0,
+		NeighbourhoodCenterZ = 180.5,
+		NeighbourhoodWidth = 90,
+		NeighbourhoodDepth = 56,
+		NeighbourhoodGateZ = 151.5,
 	},
 }
 

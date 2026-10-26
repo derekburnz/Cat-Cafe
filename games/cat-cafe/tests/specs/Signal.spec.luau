@@ -75,11 +75,13 @@ return function()
 
 		it("disconnecting inside a handler during Fire is safe", function()
 			local signal = Signal.new()
-			local connection
+			local connection: Signal.Connection? = nil
 			local fired = 0
 			connection = signal:Connect(function()
 				fired += 1
-				connection:Disconnect()
+				if connection ~= nil then
+					connection:Disconnect()
+				end
 			end)
 			signal:Connect(function()
 				fired += 1

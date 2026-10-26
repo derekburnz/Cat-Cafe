@@ -13,15 +13,57 @@ return function()
 			expect(Catching.ringBonus("miss")).to.equal(0)
 		end)
 
-		it("timing windows: early release is a miss, then perfect, good, miss", function()
-			expect(Catching.ringResultFromTiming(nil)).to.equal("miss")
-			expect(Catching.ringResultFromTiming(-0.01)).to.equal("miss")
-			expect(Catching.ringResultFromTiming(0)).to.equal("perfect")
-			expect(Catching.ringResultFromTiming(Config.RingPerfectWindow)).to.equal("perfect")
-			expect(Catching.ringResultFromTiming(Config.RingPerfectWindow + 0.001)).to.equal("good")
-			expect(Catching.ringResultFromTiming(Config.RingGoodWindow)).to.equal("good")
-			expect(Catching.ringResultFromTiming(Config.RingGoodWindow + 0.001)).to.equal("miss")
-			expect(Catching.ringResultFromTiming(60)).to.equal("miss")
+		-- Section 10 (2026-10-26): the server derives the ring result from the seconds between GrabBegin and
+		-- GrabEnd. Perfect is the last RingPerfectWindow of the hold, good the last RingGoodWindow, both extended
+		-- past the hold by RingLatencyGraceSeconds; earlier is a miss; later is a miss; under GrabMinHoldSeconds
+		-- the GrabEnd is dropped (nil) and the lock continues. Proposed signature, agreed with the engineer thread:
+		--   Catching.ringResultFromHold(secondsSinceGrabBegin: number): Types.RingResult?
+		local ringResultFromHold = (Catching :: any).ringResultFromHold
+
+		it("ringResultFromHold exists (replaces the client reported ring value)", function()
+			expect(ringResultFromHold).to.be.a("function")
+		end)
+
+		it("derives perfect, good, miss or dropped from the hold time", function()
+			local hold = Config.GrabHoldSeconds
+			local grace = (Config :: any).RingLatencyGraceSeconds
+			expect(grace).to.be.a("number")
+			local perfectFrom = hold - Config.RingPerfectWindow
+			local goodFrom = hold - Config.RingGoodWindow
+			local lateEdge = hold + grace
+			-- dropped as spam
+			expect(ringResultFromHold(-1)).to.equal(nil)
+			expect(ringResultFromHold(0)).to.equal(nil)
+			expect(ringResultFromHold(Config.GrabMinHoldSeconds - 0.001)).to.equal(nil)
+			-- released too early: a miss, but the chance is still rolled
+			expect(ringResultFromHold(Config.GrabMinHoldSeconds)).to.equal("miss")
+			expect(ringResultFromHold(goodFrom - 0.001)).to.equal("miss")
+			-- good band
+			expect(ringResultFromHold(goodFrom)).to.equal("good")
+			expect(ringResultFromHold(perfectFrom - 0.001)).to.equal("good")
+			-- perfect band, including the latency grace after the hold completes
+			expect(ringResultFromHold(perfectFrom)).to.equal("perfect")
+			expect(ringResultFromHold(hold)).to.equal("perfect")
+			expect(ringResultFromHold(lateEdge)).to.equal("perfect")
+			-- released too late
+			expect(ringResultFromHold(lateEdge + 0.001)).to.equal("miss")
+			expect(ringResultFromHold(60)).to.equal("miss")
+		end)
+
+		it("the concrete numbers in the doc: 1.20 to 1.75 s perfect, 0.70 to 1.20 s good, under 0.15 s dropped", function()
+			expect(ringResultFromHold(0.10)).to.equal(nil)
+			expect(ringResultFromHold(0.69)).to.equal("miss")
+			expect(ringResultFromHold(0.70)).to.equal("good")
+			expect(ringResultFromHold(1.19)).to.equal("good")
+			expect(ringResultFromHold(1.20)).to.equal("perfect")
+			expect(ringResultFromHold(1.50)).to.equal("perfect")
+			expect(ringResultFromHold(1.75)).to.equal("perfect")
+			expect(ringResultFromHold(1.76)).to.equal("miss")
+		end)
+
+		it("the ring is a bonus, never a gate: a miss still rolls the full base chance", function()
+			expect(Catching.chance("Common", 0, false, "miss")).to.be.near(0.90)
+			expect(Catching.chance("Legendary", 0, false, "miss")).to.be.near(0.25)
 		end)
 	end)
 
@@ -108,8 +150,8 @@ return function()
 			expect(Catching.pickRarity(alley, 7)).to.equal("Legendary")
 		end)
 
-		local function distribution(odds)
-			local counts = { Common = 0, Rare = 0, Epic = 0, Legendary = 0, Secret = 0 }
+		local function distribution(odds: any)
+			local counts: { [string]: number } = { Common = 0, Rare = 0, Epic = 0, Legendary = 0, Secret = 0 }
 			local n = 20000
 			for i = 0, n - 1 do
 				local rarity = Catching.pickRarity(odds, i / n)
@@ -118,7 +160,18 @@ return function()
 			return counts, n
 		end
 
-		for _, source in ipairs({ { "alley", Catalog.getArea("alley").odds }, { "park", Catalog.getArea("park").odds }, { "kibble", Catalog.getLure("kibble").odds }, { "tuna", Catalog.getLure("tuna").odds }, { "salmon", Catalog.getLure("salmon").odds } }) do
+		local function oddsOf(def: any)
+			assert(def ~= nil, "catalog entry missing")
+			return def.odds
+		end
+		local sources: { { any } } = {
+			{ "alley", oddsOf(Catalog.getArea("alley")) },
+			{ "park", oddsOf(Catalog.getArea("park")) },
+			{ "kibble", oddsOf(Catalog.getLure("kibble")) },
+			{ "tuna", oddsOf(Catalog.getLure("tuna")) },
+			{ "salmon", oddsOf(Catalog.getLure("salmon")) },
+		}
+		for _, source in ipairs(sources) do
 			it(source[1] .. " produces the advertised percentages over an even sweep of rolls", function()
 				local counts, n = distribution(source[2])
 				for _, rarity in ipairs({ "Common", "Rare", "Epic", "Legendary" }) do
@@ -130,7 +183,7 @@ return function()
 	end)
 
 	describe("candidates and pickCat (section 3 areas)", function()
-		local function idList(list)
+		local function idList(list: { any })
 			local out = {}
 			for _, def in ipairs(list) do
 				table.insert(out, def.id)

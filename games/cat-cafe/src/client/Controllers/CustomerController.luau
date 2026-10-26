@@ -38,13 +38,13 @@ local function ownPlot(): Model?
 	local world = Workspace:FindFirstChild("World")
 	local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
 	local plot = if plots ~= nil then plots:FindFirstChild("Plot_" .. state.plotIndex) else nil
-	return if plot ~= nil and plot:IsA("Model") then plot else nil
+	return if plot ~= nil and plot:IsA("Model") then plot :: Model else nil
 end
 
 local function waypoint(plot: Model, name: string): Vector3?
 	local waypoints = plot:FindFirstChild("CustomerWaypoints")
 	local point = if waypoints ~= nil then waypoints:FindFirstChild(name) else nil
-	return if point ~= nil and point:IsA("BasePart") then point.Position else nil
+	return if point ~= nil and point:IsA("BasePart") then (point :: BasePart).Position else nil
 end
 
 local function freeSeat(plot: Model): (BasePart?, BasePart?)
@@ -59,15 +59,12 @@ local function freeSeat(plot: Model): (BasePart?, BasePart?)
 			if child.Name:match("^Chair_") and child:IsA("Model") then
 				local seat = child.PrimaryPart or child:FindFirstChildWhichIsA("BasePart")
 				if seat ~= nil and not busySeats[seat] then
-					table.insert(
-						candidates,
-						{
-							seat = seat,
-							tableTop = if tableTop ~= nil and tableTop:IsA("BasePart")
-								then tableTop
-								else nil,
-						}
-					)
+					table.insert(candidates, {
+						seat = seat,
+						tableTop = if tableTop ~= nil and tableTop:IsA("BasePart")
+							then tableTop :: BasePart
+							else nil,
+					})
 				end
 			end
 		end
@@ -93,13 +90,14 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?)
 	end
 	busySeats[seat] = true
 	activeCustomers += 1
-	local model = source:Clone()
-	if not model:IsA("Model") then
-		model:Destroy()
+	local cloned = source:Clone()
+	if not cloned:IsA("Model") then
+		cloned:Destroy()
 		busySeats[seat] = nil
 		activeCustomers -= 1
 		return
 	end
+	local model = cloned :: Model
 	local alive = true
 	local function isAlive(): boolean
 		return alive and seat.Parent ~= nil and plot.Parent ~= nil

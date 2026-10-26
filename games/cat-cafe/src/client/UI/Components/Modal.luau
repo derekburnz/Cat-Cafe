@@ -107,7 +107,7 @@ function Modal.open(self: any, name: string)
 		warn(("[CatCafeUI] no modal screen named %q"):format(name))
 		return
 	end
-	assert(screen)
+	assert(screen, "modal screen missing")
 	if self._current == name then
 		return
 	end

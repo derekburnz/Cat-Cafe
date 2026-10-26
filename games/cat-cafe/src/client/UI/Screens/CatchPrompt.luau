@@ -11,6 +11,7 @@
 local RunService = game:GetService("RunService")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local Format = require(script.Parent.Parent.Components.Format)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
@@ -290,7 +291,11 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._failToken += 1
 	self._action.Text = info.actionText or "Hold to grab"
 	self._action.TextColor3 = Theme.hud.text
-	self._catName.Text = info.catName or ""
+	local nameText = info.catName or ""
+	if info.stars then
+		nameText = nameText .. "  " .. Format.stars(info.stars :: number)
+	end
+	self._catName.Text = nameText
 	local rarity: string = info.rarity or "Common"
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)

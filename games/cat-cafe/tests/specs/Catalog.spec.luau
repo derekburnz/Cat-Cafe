@@ -72,7 +72,7 @@ return function()
 	end)
 
 	describe("cats (section 3)", function()
-		local expected = {
+		local expected: { [string]: { string } } = {
 			tabby = { "Common", "both", "counter" },
 			tuxedo = { "Common", "both", "window" },
 			ginger = { "Common", "both", "cushion" },
@@ -137,7 +137,7 @@ return function()
 
 	describe("spots (section 5)", function()
 		it("opens the listed spots at the listed cafe levels", function()
-			local expected = {
+			local expected: { [string]: { any } } = {
 				counter_1 = { "counter", 1 },
 				window_1 = { "window", 1 },
 				cushion_1 = { "cushion", 2 },
@@ -175,7 +175,7 @@ return function()
 	end)
 
 	describe("upgrades (section 6)", function()
-		local expected = {
+		local expected: { [string]: { maxLevel: number, costs: { number }, startLevel: number, requiresCafeLevel: number? } } = {
 			cafe_level = { maxLevel = 5, costs = { 0, 250, 800, 2500, 8000 }, startLevel = 1, requiresCafeLevel = nil },
 			tables = { maxLevel = 6, costs = { 100, 250, 600, 1500, 3500, 8000 }, startLevel = 0, requiresCafeLevel = nil },
 			espresso = { maxLevel = 3, costs = { 0, 300, 1200, 4000, 12000 }, startLevel = 1, requiresCafeLevel = nil },
@@ -227,7 +227,7 @@ return function()
 	end)
 
 	describe("decor (section 7)", function()
-		local expected = {
+		local expected: { [string]: { cost: number, bonus: number, requiresCafeLevel: number?, asset: string } } = {
 			plants = { cost = 150, bonus = 0.05, requiresCafeLevel = nil, asset = "CatCafe_Decor_WindowPlants" },
 			rug = { cost = 400, bonus = 0.05, requiresCafeLevel = nil, asset = "CatCafe_Decor_Rug" },
 			neon_sign = { cost = 1500, bonus = 0.10, requiresCafeLevel = 4, asset = "CatCafe_Decor_NeonSign" },
@@ -257,7 +257,7 @@ return function()
 	end)
 
 	describe("lures (section 8)", function()
-		local expected = {
+		local expected: { [string]: { cost: number, attracts: string, odds: { [string]: number } } } = {
 			kibble = { cost = 25, attracts = "Common", odds = { Common = 70, Rare = 26, Epic = 3.5, Legendary = 0.5 } },
 			tuna = { cost = 100, attracts = "Rare", odds = { Common = 45, Rare = 42, Epic = 11, Legendary = 2 } },
 			salmon = { cost = 500, attracts = "Epic", odds = { Common = 15, Rare = 50, Epic = 28, Legendary = 7 } },
@@ -271,7 +271,7 @@ return function()
 				assert(def)
 				expect(def.cost).to.equal(row.cost)
 				expect(def.attracts).to.equal(row.attracts)
-				expect(def.odds).to.deepEqual(row.odds)
+				expect(def.odds :: any).to.deepEqual(row.odds)
 			end
 		end)
 
@@ -279,18 +279,36 @@ return function()
 			for _, def in ipairs(Catalog.lures) do
 				local total = def.odds.Common + def.odds.Rare + def.odds.Epic + def.odds.Legendary
 				expect(total).to.be.near(100, 1e-9)
-				for _, value in pairs(def.odds) do
-					expect(value >= 0).to.equal(true)
+				for _, value in pairs(def.odds :: any) do
+					expect((value :: number) >= 0).to.equal(true)
 				end
 			end
 		end)
 
-		it("the headline rarity is the one each lure favours most relative to the alley", function()
+		it("attracts means: odds of that rarity or better are at least the free alley's (section 8)", function()
 			local alley = Catalog.getArea("alley")
 			assert(alley)
+			local function orBetter(odds: any, rarity: string): number
+				local total = 0
+				for _, r in ipairs(Catalog.rarityOrder) do
+					if Catalog.rarityRank[r] >= Catalog.rarityRank[rarity] then
+						total += odds[r] or 0
+					end
+				end
+				return total
+			end
+			-- Numbers from the doc: kibble 100 vs 100, tuna 55 vs 25, salmon 35 vs 5.
+			local expected: { [string]: { number } } = { kibble = { 100, 100 }, tuna = { 55, 25 }, salmon = { 35, 5 } }
 			for _, def in ipairs(Catalog.lures) do
-				-- The attracts chip must at least not be a rarity the lure makes rarer than the free alley.
-				expect(def.odds[def.attracts] >= alley.odds[def.attracts]).to.equal(true)
+				expect(Catalog.rarityRank[def.attracts]).to.be.ok()
+				local lure = orBetter(def.odds, def.attracts)
+				local free = orBetter(alley.odds, def.attracts)
+				expect(lure >= free).to.equal(true)
+				local row = expected[def.id]
+				if row ~= nil then
+					expect(lure).to.be.near(row[1], 1e-9)
+					expect(free).to.be.near(row[2], 1e-9)
+				end
 			end
 		end)
 	end)
@@ -332,8 +350,8 @@ return function()
 
 		it("every area can spawn something of every non-Secret rarity it lists odds for", function()
 			for _, area in ipairs(Catalog.areas) do
-				for rarity, weight in pairs(area.odds) do
-					if weight > 0 then
+				for rarity, weight in pairs(area.odds :: any) do
+					if (weight :: number) > 0 then
 						local found = false
 						for _, def in ipairs(Catalog.cats) do
 							if def.rarity == rarity and (def.area == "both" or def.area == area.id) then

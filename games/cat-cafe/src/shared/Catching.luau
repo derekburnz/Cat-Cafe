@@ -16,13 +16,20 @@ function Catching.ringBonus(result: Types.RingResult): number
 	return 0
 end
 
--- Turns "seconds since the hold completed" into a ring result. Negative means released early.
-function Catching.ringResultFromTiming(secondsAfterHold: number?): Types.RingResult
-	if secondsAfterHold == nil or secondsAfterHold < 0 then
+-- Scores the ring from how long after GrabBegin the GrabEnd arrived, on the server's own clock (data-model
+-- section 10). The last RingGoodWindow of the hold is good and the last RingPerfectWindow is perfect, both
+-- running RingLatencyGraceSeconds past the end of the hold. Earlier or later is a miss, and a miss still rolls
+-- the base chance. nil: sooner than GrabMinHoldSeconds, the server drops the GrabEnd and the lock continues.
+function Catching.ringResultFromHold(secondsSinceGrabBegin: number): Types.RingResult?
+	if secondsSinceGrabBegin < Config.GrabMinHoldSeconds then
+		return nil
+	end
+	local hold = Config.GrabHoldSeconds
+	if secondsSinceGrabBegin > hold + Config.RingLatencyGraceSeconds then
 		return "miss"
-	elseif secondsAfterHold <= Config.RingPerfectWindow then
+	elseif secondsSinceGrabBegin >= hold - Config.RingPerfectWindow then
 		return "perfect"
-	elseif secondsAfterHold <= Config.RingGoodWindow then
+	elseif secondsSinceGrabBegin >= hold - Config.RingGoodWindow then
 		return "good"
 	end
 	return "miss"
@@ -56,7 +63,7 @@ end
 function Catching.pickRarity(odds: Types.LureOdds, roll: number): Types.Rarity
 	local target = math.clamp(roll, 0, 0.999999) * 100
 	local acc = 0
-	for _, rarity in Catalog.rarityOrder do
+	for _, rarity: Types.Rarity in Catalog.rarityOrder do
 		local weight = (odds :: any)[rarity]
 		if type(weight) == "number" then
 			acc += weight

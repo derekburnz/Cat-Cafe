@@ -15,14 +15,17 @@ function AssetRegistry.folder(): Folder
 		return folder
 	end
 	local existing = ReplicatedStorage:FindFirstChild("Assets")
+	local result: Instance
 	if existing == nil then
 		local created = Instance.new("Folder")
 		created.Name = "Assets"
 		created.Parent = ReplicatedStorage
-		existing = created
+		result = created
+	else
+		result = existing
 	end
-	folder = existing :: Folder
-	return folder :: Folder
+	folder = result :: Folder
+	return result :: Folder
 end
 
 -- Fills in a placeholder for every asset name that has no real model yet. Returns how many were created.
@@ -63,11 +66,11 @@ function AssetRegistry.clone(name: string): Model
 		wrapper.Name = name
 		clone.Parent = wrapper
 		if clone:IsA("BasePart") then
-			wrapper.PrimaryPart = clone
+			wrapper.PrimaryPart = clone :: BasePart
 		end
 		return wrapper
 	end
-	return clone
+	return clone :: Model
 end
 
 return AssetRegistry

@@ -2,6 +2,7 @@
 
 Working title: **Purr Pot**. Game slug used in paths: `cat-cafe`. One game for now; the repo layout leaves room for a second.
 Phase as of 2026-10-25: Phase 0 (setup on Derek's PC) running in parallel with an early Phase 2 rough draft.
+Repo: https://github.com/derekburnz/purr-pot (private, source of truth). Work on a branch, open a pull request, let CI run the check gate.
 
 ## Read first, in this order
 1. `docs/plan.md` (the master plan: who, goals, rules, phases).

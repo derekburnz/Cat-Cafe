@@ -29,12 +29,11 @@ local function setGateOpen(open: boolean)
 	end
 	for _, descendant in gate:GetDescendants() do
 		if descendant:IsA("BasePart") then
-			descendant.CanCollide = not open
-			descendant.Transparency = if open
-				then 0.85
-				else (if descendant.Name == "Bars" then 0.35 else 0)
+			local part = descendant :: BasePart
+			part.CanCollide = not open
+			part.Transparency = if open then 0.85 else (if part.Name == "Bars" then 0.35 else 0)
 		elseif descendant:IsA("BillboardGui") then
-			descendant.Enabled = not open
+			(descendant :: BillboardGui).Enabled = not open
 		end
 	end
 end

@@ -25,6 +25,7 @@ if HERE not in sys.path:
 
 import bpy  # noqa: E402
 
+import accessories  # noqa: E402
 import alley  # noqa: E402
 import cats  # noqa: E402
 import common  # noqa: E402
@@ -35,9 +36,10 @@ import items  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
+import poses  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, npc, furniture, decor, alley, park, items]
+MODULES = [cats, npc, furniture, decor, alley, park, items, accessories]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -45,6 +47,17 @@ PIVOT_NOTES = {
     "CatCafe_Decor_NeonSign": "wall: back-bottom center",
     "CatCafe_Decor_MenuBoard": "wall: back-bottom center",
     "CatCafe_Decor_HangingLamp": "ceiling hook (geometry hangs below the pivot)",
+    "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
+    "CatCafe_Decor_StringLights": "left end of the strand; it runs +X (Roblox +X) and sags below the pivot",
+    "CatCafe_Alley_Drainpipe": "wall: back-bottom center",
+    "CatCafe_Alley_ShopWindow": "wall: back-bottom center",
+    "CatCafe_Item_Net_L1": "grip end of the pole; the pole runs forward (Roblox -Z)",
+    "CatCafe_Item_Net_L2": "grip end of the pole; the pole runs forward (Roblox -Z)",
+    "CatCafe_Item_Net_L3": "grip end of the pole; the pole runs forward (Roblox -Z)",
+    "CatCafe_Accessory_Glasses": "attachment point (see attach)",
+    "CatCafe_Accessory_BowTie": "attachment point (see attach)",
+    "CatCafe_Accessory_Apron": "attachment point (see attach)",
+    "CatCafe_Accessory_Hat": "attachment point (see attach)",
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
@@ -57,6 +70,15 @@ STUDIO_NOTES = {
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
     "CatCafe_Furniture_CatTree": "CollisionFidelity Hull.",
     "CatCafe_Alley_Dumpster": "CollisionFidelity Hull.",
+    "CatCafe_Alley_StuckTree": "Rescue spot. Put the stuck cat at stuck_pose. CollisionFidelity Hull.",
+    "CatCafe_Alley_StuckBox": "Rescue spot. The cat's Head sits inside the box at stuck_pose.",
+    "CatCafe_Alley_Drainpipe": "Rescue spot. Cat Body inside the outlet at stuck_pose. CollisionFidelity Box on the riser is fine.",
+    "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, plus a PointLight.",
+    "CatCafe_Decor_DoorSign": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
+    "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand; SmoothPlastic by day.",
+    "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+    "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+    "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
 }
 
 
@@ -121,7 +143,14 @@ def main():
         if name.startswith("CatCafe_Cat_"):
             spec = cats.ROSTER[name.split("_")[-1]]
             entry["rarity"] = spec["rarity"]
-            entry["joints"] = {"Head": list(cats.NECK), "Tail": list(cats.TAIL_ROOT)}
+            s_ = spec.get("scale", 1.0)
+            entry["joints"] = {"Head": [round(v * s_, 2) for v in cats.NECK], "Tail": [round(v * s_, 2) for v in cats.TAIL_ROOT]}
+            entry["attachments"] = {k: {"part": p, "offset": [round(v * s_, 2) for v in o]} for k, (p, o) in accessories.ATTACH.items()}
+        if name.startswith("CatCafe_Accessory_"):
+            part, off = accessories.ATTACH[name.split("_")[-1]]
+            entry["attach"] = {"part": part, "offset": list(off)}
+        if name in poses.STUCK_POSES:
+            entry["stuck_pose"] = poses.manifest_pose(poses.STUCK_POSES[name])
         if name in STUDIO_NOTES:
             entry["studio"] = STUDIO_NOTES[name]
         if not args.no_export:
@@ -130,8 +159,13 @@ def main():
         if args.render:
             path = os.path.join(args.docs, "previews", name + ".png")
             visible = [o for o in objs if not o.name.endswith("_Glass")] or objs   # glass is opaque in Cycles here
+            shifted = [o for o in objs if o.name.endswith("_Closed")]            # show both sign faces side by side
+            for o in shifted:
+                o.location.x += 3.2
             common.render_preview(visible, path, samples=args.samples,
-                                 warm=not name.startswith("CatCafe_Alley_"), floor=lo.z > -0.1)
+                                 warm=not name.startswith("CatCafe_Alley_"), floor=True)
+            for o in shifted:
+                o.location.x -= 3.2
             entry["preview"] = os.path.relpath(path, ROOT)
             if not args.no_views:
                 vpath = os.path.join(args.docs, "views", name + ".png")
@@ -155,10 +189,16 @@ def main():
         manifest = sorted(old.values(), key=lambda e: order.index(e["name"]) if e["name"] in order else 999)
     with open(mpath, "w") as f:
         json.dump({"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "units": "studs",
-                   "palette": os.path.relpath(png, ROOT), "assets": manifest}, f, indent=2)
+                   "palette": os.path.relpath(png, ROOT),
+                   "pose_convention": poses.__doc__.strip().splitlines()[-3:],
+                   "poses": {k: poses.manifest_pose(v) for k, v in poses.POSES.items()},
+                   "upright_attachments": {k: {"part": p, "offset": list(o), "rotation_xyz_deg": list(r)}
+                                           for k, (p, o, r) in accessories.ATTACH_UPRIGHT.items()},
+                   "assets": manifest}, f, indent=2)
     gates.write_report(os.path.join(args.out, "gates.md"), manifest, ROOT)
 
     if args.render:
+        poses.render_pose_previews(built, mat, args.docs, samples=args.samples)
         import contact_sheet
         contact_sheet.build_sheets(args.docs, manifest)
     if args.scenes:

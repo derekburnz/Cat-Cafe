@@ -80,8 +80,13 @@ def build_sheets(docs_dir, manifest):
         "sheet_cats": [e for e in manifest if e["category"] == "Cat"],
         "sheet_cafe": [e for e in manifest if e["category"] in ("Furniture", "Decor", "NPC")],
         "sheet_outdoors": [e for e in manifest if e["category"] in ("Alley", "Park")],
-        "sheet_items": [e for e in manifest if e["category"] == "Item"],
+        "sheet_items": [e for e in manifest if e["category"] in ("Item", "Accessory")],
     }
+    extras = [os.path.join(docs_dir, "previews", n + ".png") for n in
+              ("CatCafe_Accessory_Set", "Pose_Upright", "CatCafe_Alley_StuckTree", "CatCafe_Alley_StuckBox", "CatCafe_Alley_Drainpipe")]
+    extras = [p for p in extras if os.path.exists(p)]
+    if extras:
+        sheet(extras, os.path.join(docs_dir, "sheet_poses.png"), cols=3)
     made = []
     for name, entries in groups.items():
         paths = [os.path.join(root, e["preview"]) for e in entries if "preview" in e]

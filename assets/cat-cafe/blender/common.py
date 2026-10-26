@@ -303,11 +303,12 @@ def render_preview(objs, path, res=(640, 480), samples=32, azimuth=35, elevation
     sc.view_settings.view_transform = "Standard"
     if floor:
         _ensure_floor()
+    lo, hi = bounds(objs)
     fl = bpy.data.objects.get("_PreviewFloor")
     if fl:
         fl.hide_render = not floor
+        fl.location.z = min(0.0, lo.z) - 0.001
     _ensure_lights(warm)
-    lo, hi = bounds(objs)
     center = (lo + hi) / 2
     radius = max((hi - lo).length / 2, 0.5)
     cam = bpy.data.objects.get("_Cam")

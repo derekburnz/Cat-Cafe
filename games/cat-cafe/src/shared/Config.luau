@@ -32,20 +32,26 @@ local Config = {
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
 	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
 	GrabRangeStuds = 10,
-	GrabHoldSeconds = 1.5,
-	GrabLockSeconds = 3,
 	GrabRetrySeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between GrabBegin calls
-	GrabMinHoldSeconds = 0.15, -- a GrabEnd sooner than this after GrabBegin is dropped and the lock continues
-	NetBonus = 0.10, -- per net level (the upgrade was called gloves before v0.2)
-	LureBonus = 0.20,
-	RingBonusPerfect = 0.15,
-	RingBonusGood = 0.05,
-	RingPerfectWindow = 0.30, -- the last 0.30 s of the hold count as perfect (the server scores from the lock age)
-	RingGoodWindow = 0.80, -- the last 0.80 s of the hold count as good
-	RingLatencyGraceSeconds = 0.25, -- both windows run this long past the end of the hold; later is a miss
-	CatchChanceMin = 0.05,
-	CatchChanceMax = 0.95,
+
+	-- The net: closing circles judged on the server (data-model section 10)
+	CircleLeadInSeconds = 0.6, -- from GrabBegin to the first circle starting to shrink
+	-- From one circle's target to the next one's start. CircleGapMin must stay above the widest good window plus
+	-- CatchLatencyCapSeconds, so a late press for one circle can never land on the next (reviewer S24).
+	CircleGapMin = 0.40,
+	CircleGapMax = 0.75,
+	CircleScorePerfect = 1.0,
+	CircleScoreGood = 0.5,
+	CatchLatencyCapSeconds = 0.15, -- most of a player's ping taken off a press (half the round trip, capped)
+	-- Per net level (0 Basic, 1 Sturdy, 2 Pro, 3 Master): perfect and good are half-widths in seconds either side of
+	-- the target; jitter spreads each circle's shrink time by up to that fraction either way.
+	NetWindows = {
+		[0] = { perfect = 0.045, good = 0.11, jitter = 0.30 },
+		[1] = { perfect = 0.055, good = 0.13, jitter = 0.20 },
+		[2] = { perfect = 0.065, good = 0.155, jitter = 0.10 },
+		[3] = { perfect = 0.08, good = 0.18, jitter = 0 },
+	} :: { [number]: { perfect: number, good: number, jitter: number } },
 	LureWaitSeconds = 45,
 	LureDespawnSeconds = 90,
 	CarryWalkSpeed = 13,
@@ -59,6 +65,7 @@ local Config = {
 	RescueSpawnChance = 0.5, -- per rescue spot at each night start
 	RescueHoldSeconds = 4,
 	RescueLockSeconds = 6,
+	RingLatencyGraceSeconds = 0.25, -- the v0.2 rescue hold's latency allowance, until the rescue minigames
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher shiny chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1

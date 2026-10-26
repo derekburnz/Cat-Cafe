@@ -1,7 +1,7 @@
 --!strict
--- Strays: night waves per area, the net swing (lock, hold, roll), rescue spots, carrying a caught cat home,
--- check-in, and bait (lures in code). Server authoritative: the client only reports when it pressed and released;
--- distance, locks, timing and odds live here.
+-- Strays: night waves per area, the net (lock, closing circles, roll), rescue spots, carrying a caught cat home,
+-- check-in, and bait (lures in code). Server authoritative: the client only says which circle it pressed for;
+-- distance, locks, the schedule, the press times and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -13,6 +13,7 @@ local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
+local Circles = require(ReplicatedStorage.Shared.Circles)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -38,7 +39,8 @@ type Stray = {
 	lureSpotId: string?,
 	home: Vector3,
 	lockedBy: number,
-	lockAt: number,
+	lockUntil: number, -- server time the lock lapses on its own; 0 when unlocked
+	attempt: Circles.Attempt?, -- the circles of the lock holder's catch in progress
 	reservedFor: number,
 	calm: boolean,
 	alive: boolean,
@@ -78,6 +80,7 @@ local carrying: { [Player]: Carry } = {}
 local activeLures: { [string]: ActiveLure } = {} -- lureSpotId -> lure
 local lureByPlayer: { [Player]: string } = {} -- player -> lureSpotId
 local stuckCats: { [string]: Stuck } = {} -- rescueSpotId -> stuck cat
+local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local rng = Random.new()
 local nextStrayNumber = 0
 
@@ -115,14 +118,22 @@ local function countStrays(areaId: string): number
 	return n
 end
 
-local function setLock(stray: Stray, userId: number)
+local function serverNow(): number
+	return Workspace:GetServerTimeNow()
+end
+
+-- Locks a stray to a player until `untilTime` (server time), or unlocks it (userId 0), dropping any attempt.
+local function setLock(stray: Stray, userId: number, untilTime: number?)
 	stray.lockedBy = userId
-	stray.lockAt = os.clock()
+	stray.lockUntil = if userId ~= 0 then untilTime or 0 else 0
+	if userId == 0 then
+		stray.attempt = nil
+	end
 	stray.model:SetAttribute("LockedBy", userId)
 end
 
 local function lockExpired(stray: Stray): boolean
-	return os.clock() - stray.lockAt > Config.GrabLockSeconds
+	return serverNow() > stray.lockUntil
 end
 
 -- One player's unbroken run of rescue locks on a spot ends after this long: room for two honest tries, and
@@ -220,7 +231,7 @@ local function spawnStray(
 	prompt.Name = "GrabPrompt"
 	prompt.ActionText = "Swing"
 	prompt.ObjectText = def.name
-	prompt.HoldDuration = Config.GrabHoldSeconds
+	prompt.HoldDuration = 0 -- one press starts the circles (data-model section 10)
 	prompt.MaxActivationDistance = Config.GrabRangeStuds
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
@@ -246,7 +257,8 @@ local function spawnStray(
 		lureSpotId = lureSpotId,
 		home = position,
 		lockedBy = 0,
-		lockAt = 0,
+		lockUntil = 0,
+		attempt = nil,
 		reservedFor = reservedFor,
 		calm = calm,
 		alive = true,
@@ -585,15 +597,66 @@ local function endCarry(player: Player): Carry?
 	return carry
 end
 
--- Rolls the catch for a stray the player has locked and tells them the outcome. The ring result comes from the
--- server's own clock (Catching.ringResultFromHold), so a scripted client gains nothing by lying about timing.
-local function resolveGrab(
-	player: Player,
-	profile: Types.PlayerProfile,
-	stray: Stray,
-	ring: Types.RingResult
-)
-	-- A rescue can finish while this swing is in flight (reviewer S21); the carried cat wins.
+local function logCircle(player: Player, strayId: string, attempt: Circles.Attempt, index: number)
+	-- Studio only: QA reads what the server scored; live servers stay quiet.
+	if not RunService:IsStudio() then
+		return
+	end
+	local err = attempt.errors[index]
+	print(
+		string.format(
+			"[Catch] %d %s circle %d/%d: %s, error %s",
+			player.UserId,
+			strayId,
+			index,
+			#attempt.circles,
+			attempt.grades[index],
+			if err ~= nil
+				then string.format("%+d ms", math.floor(err * 1000 + 0.5))
+				else "none (expired)"
+		)
+	)
+end
+
+-- Records judged circles in the player's history and flags the profile when the last 50 look scripted (S23).
+-- The flag is for review only; nothing is taken away.
+local function recordCircles(player: Player, profile: Types.PlayerProfile, attempt: Circles.Attempt)
+	local history = circleHistory[player]
+	if history == nil then
+		history = {}
+		circleHistory[player] = history
+	end
+	for _, grade in attempt.grades do
+		Circles.pushHistory(history, grade == "perfect")
+	end
+	profile.stats.circlesTotal += #attempt.grades
+	profile.stats.perfectCircles += Circles.perfectCount(attempt)
+	if not profile.flags.autoPress and Circles.looksScripted(history) then
+		profile.flags.autoPress = true
+		warn(
+			string.format(
+				"[CatService] %d flagged autoPress: over 95%% Perfect in the last 50 circles",
+				player.UserId
+			)
+		)
+	end
+end
+
+-- Ends a catch once every circle is judged: chance is the mean score, one roll decides it (data-model section 10).
+-- The schedule and the press times are the server's own, so a scripted client can only press on time.
+local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attempt)
+	if stray.attempt ~= attempt or not stray.alive then
+		return -- already finished, or the lock was dropped
+	end
+	stray.attempt = nil
+	local profile = DataService.get(player)
+	if profile == nil or player.Parent ~= Players then
+		setLock(stray, 0)
+		return
+	end
+	Circles.expire(attempt, serverNow())
+	recordCircles(player, profile, attempt)
+	-- A rescue can finish while this catch is in flight (reviewer S21); the carried cat wins.
 	if carrying[player] ~= nil then
 		setLock(stray, 0)
 		Net.fire(
@@ -606,26 +669,27 @@ local function resolveGrab(
 		)
 		return
 	end
-	local lured = stray.calm and stray.reservedFor == player.UserId
-	local chance = Catching.chance(stray.def.rarity, Economy.level(profile, "net"), lured, ring)
+	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
+		setLock(stray, 0)
+		Net.fire(player, "GrabResult", stray.id, false, "Too far away", true)
+		return
+	end
+	local chance = Circles.chance(attempt.scores)
 	local success = Catching.succeeds(chance, rng:NextNumber())
 	setLock(stray, 0)
+	Net.fire(player, "CatchResult", stray.id, attempt.scores, chance, success)
 
 	if success then
 		profile.stats.grabsSucceeded += 1
 		local def = stray.def
 		despawn(stray)
-		Net.fire(player, "GrabResult", stray.id, true, "caught", false)
 		startCarry(player, def, false)
 		return
 	end
-
-	if Catching.fleesOnMiss(stray.def.rarity) and not lured then
-		Net.fire(player, "GrabResult", stray.id, false, "It got away", false)
+	local lured = stray.calm and stray.reservedFor == player.UserId
+	if Catching.fleesOnFail(stray.def.rarity) and not lured then
 		Net.toast(player, "It got away", "warn")
 		despawn(stray)
-	else
-		Net.fire(player, "GrabResult", stray.id, false, "It slipped free, try again", true)
 	end
 end
 
@@ -653,64 +717,75 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		Net.toast(player, "Someone else baited this cat.", "warn")
 		return
 	end
-	if stray.lockedBy ~= 0 and stray.lockedBy ~= player.UserId and not lockExpired(stray) then
-		Net.fire(player, "GrabResult", strayId, false, "Someone else is grabbing it", true)
+	if stray.lockedBy ~= 0 and not lockExpired(stray) then
+		-- Busy, including the player's own catch in progress: a second GrabBegin never restarts the circles.
+		local reason = if stray.lockedBy == player.UserId
+			then "Keep going, the circles are coming"
+			else "Someone else is catching it"
+		Net.fire(player, "GrabResult", strayId, false, reason, true)
 		return
 	end
 	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
-	setLock(stray, player.UserId)
+
+	local now = serverNow()
+	local windows = Circles.windows(Economy.level(profile, "net"))
+	local circles = Circles.schedule(
+		stray.def.rarity,
+		Economy.level(profile, "net"),
+		now,
+		function()
+			return rng:NextNumber()
+		end
+	)
+	local attempt = Circles.newAttempt(circles, windows)
+	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
+	stray.attempt = attempt
 	profile.stats.grabsAttempted += 1
-	local lockAt = stray.lockAt
-	-- A hold that runs to completion sends no GrabEnd (data-model section 10): once the hold plus the latency
-	-- grace has passed with the lock untouched, the server resolves the attempt itself as a ring miss.
-	task.delay(Config.GrabHoldSeconds + Config.RingLatencyGraceSeconds, function()
-		if not (stray.alive and stray.lockedBy == player.UserId and stray.lockAt == lockAt) then
-			return
+	Net.fire(player, "CatchSchedule", strayId, circles, Circles.publicWindows(windows))
+
+	-- Circles nobody presses for score 0 at their deadline; after the last one the catch resolves on its own.
+	task.delay(math.max(0, Circles.endsAt(circles, windows) - now) + 0.05, function()
+		if stray.attempt == attempt then
+			finishCatch(player, stray, attempt)
 		end
-		local current = DataService.get(player)
-		if current == nil or player.Parent ~= Players then
-			setLock(stray, 0)
-			return
-		end
-		if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
-			setLock(stray, 0)
-			Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
-			return
-		end
-		resolveGrab(player, current, stray, "miss")
 	end)
-	-- Whatever happens, the lock never outlives GrabLockSeconds.
-	task.delay(Config.GrabLockSeconds, function()
-		if stray.alive and stray.lockedBy == player.UserId and stray.lockAt == lockAt then
+	-- Whatever happens, the lock never outlives its schedule.
+	task.delay(math.max(0, stray.lockUntil - now) + 0.05, function()
+		if stray.alive and stray.lockedBy == player.UserId and lockExpired(stray) then
 			setLock(stray, 0)
 		end
 	end)
 end
 
-local function onGrabEnd(player: Player, rawStrayId: unknown)
-	-- Extra arguments (the old client-reported ring) are ignored: the ring is scored from the lock age.
+-- One press for circle `index`. The client sends no time: the press is stamped on arrival and half the player's
+-- ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press).
+local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unknown)
 	local strayId = Guard.id(rawStrayId)
-	local profile = DataService.get(player)
-	if strayId == nil or profile == nil then
+	local index = Guard.int(rawIndex, 1, #Catalog.rarityOrder)
+	if strayId == nil or index == nil then
 		return
 	end
 	local stray = strays[strayId]
 	if stray == nil or not stray.alive or stray.lockedBy ~= player.UserId then
 		return
 	end
-	local ring: Types.RingResult? = Catching.ringResultFromHold(os.clock() - stray.lockAt)
-	if ring == nil then
-		return -- sooner than GrabMinHoldSeconds: dropped as spam, the lock and the hold timer continue
-	end
-	if not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
-		setLock(stray, 0)
-		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
+	local attempt = stray.attempt
+	if attempt == nil then
 		return
 	end
-	resolveGrab(player, profile, stray, ring)
+	local arrival = serverNow()
+	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
+	local before = attempt.nextIndex
+	local grade = Circles.press(attempt, index, pressTime, arrival)
+	for judged = before, attempt.nextIndex - 1 do
+		logCircle(player, strayId, attempt, judged)
+	end
+	if grade ~= nil and Circles.isDone(attempt) then
+		finishCatch(player, stray, attempt)
+	end
 end
 
 -- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
@@ -969,7 +1044,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	straysFolder = folder
 
 	Net.on("GrabBegin", onGrabBegin)
-	Net.on("GrabEnd", onGrabEnd)
+	Net.on("CatchPress", onCatchPress)
 	Net.on("RescueBegin", onRescueBegin)
 	Net.on("RescueEnd", onRescueEnd)
 	Net.on("CheckIn", onCheckIn)
@@ -1009,6 +1084,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				activeLures[spotId] = nil
 			end
 		end
+		circleHistory[player] = nil
 		for _, stray in strays do
 			if stray.lockedBy == player.UserId then
 				setLock(stray, 0)

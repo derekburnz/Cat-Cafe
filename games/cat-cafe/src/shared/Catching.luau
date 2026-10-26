@@ -1,61 +1,19 @@
 --!strict
--- Pure catch math (data-model sections 8 to 10). Callers pass random rolls in so tests are deterministic.
+-- Pure catch math (data-model sections 8 to 10): odds, picking a cat, fleeing. The circles themselves are in
+-- Circles. Callers pass random rolls in so tests are deterministic.
 
 local Catalog = require(script.Parent.Catalog)
-local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
 local Catching = {}
-
-function Catching.ringBonus(result: Types.RingResult): number
-	if result == "perfect" then
-		return Config.RingBonusPerfect
-	elseif result == "good" then
-		return Config.RingBonusGood
-	end
-	return 0
-end
-
--- Scores the ring from how long after GrabBegin the GrabEnd arrived, on the server's own clock (data-model
--- section 10). The last RingGoodWindow of the hold is good and the last RingPerfectWindow is perfect, both
--- running RingLatencyGraceSeconds past the end of the hold. Earlier or later is a miss, and a miss still rolls
--- the base chance. nil: sooner than GrabMinHoldSeconds, the server drops the GrabEnd and the lock continues.
-function Catching.ringResultFromHold(secondsSinceGrabBegin: number): Types.RingResult?
-	if secondsSinceGrabBegin < Config.GrabMinHoldSeconds then
-		return nil
-	end
-	local hold = Config.GrabHoldSeconds
-	if secondsSinceGrabBegin > hold + Config.RingLatencyGraceSeconds then
-		return "miss"
-	elseif secondsSinceGrabBegin >= hold - Config.RingPerfectWindow then
-		return "perfect"
-	elseif secondsSinceGrabBegin >= hold - Config.RingGoodWindow then
-		return "good"
-	end
-	return "miss"
-end
-
--- chance = clamp(base + net x 0.10 + lureBonus + ringBonus, 0.05, 0.95)
-function Catching.chance(
-	rarity: Types.Rarity,
-	netLevel: number,
-	lured: boolean,
-	ring: Types.RingResult
-): number
-	local base = Catalog.rarities[rarity].baseCatchChance
-	local chance = base
-		+ netLevel * Config.NetBonus
-		+ (if lured then Config.LureBonus else 0)
-		+ Catching.ringBonus(ring)
-	return math.clamp(chance, Config.CatchChanceMin, Config.CatchChanceMax)
-end
 
 -- roll is in [0, 1).
 function Catching.succeeds(chance: number, roll: number): boolean
 	return roll < chance
 end
 
-function Catching.fleesOnMiss(rarity: Types.Rarity): boolean
+-- A failed catch makes anything rarer than Common run off (data-model section 2).
+function Catching.fleesOnFail(rarity: Types.Rarity): boolean
 	return Catalog.rarities[rarity].fleesOnFail
 end
 

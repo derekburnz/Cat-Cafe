@@ -36,6 +36,6 @@ Sound idea and safe to ship in the repo: the client cannot reach a live build. T
 
 **N19 (nit)** The gate runs StyLua on `src` only. On the trial merge, StyLua reports diffs in 5 files under `tests/`, including the new `AbuseClient.client.luau` (several lines over 100 columns). Either run `stylua tests` before pushing, or add `tests` to `check.sh` (lead's file).
 
-## Stack status at 16:55 UTC
+## Stack status at 17:00 UTC
 
-Merged by Derek: PR #1 (with #3 and #7 inside), #4 and #6. PR #5 merged `main` into its branch; its `docs/decisions.md` append now sits after the cat stats block with no conflict markers, so S15 is resolved, and CI is green at 3ddfd55. PR #8 is stacked on PR #5 and green at ca69191. PR #9 is mergeable, and its CI last ran against the old base (2f1fd3a); the trial merge above is clean.
+Every PR from #1 to #9 is merged; `main` is green at bff2fa4. PR #9 merged at 16:49 UTC at 97b4708, which adds a merge of `main` and a one-line `EquipBest.spec` type fix; `AbuseClient.client.luau` is unchanged from the reviewed e723211, so S17 to S19 and N16 to N19 now apply to `main` and go to QA as a follow-up PR from `main`. S15 (the `docs/decisions.md` conflict) was resolved cleanly on PR #5 before it merged. PR #8 (clock chip, Net copy, rescue bar) is in, with S16 closed.

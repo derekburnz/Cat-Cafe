@@ -162,11 +162,11 @@ function DataService.start()
 		end
 	end)
 
-	ProfileStore.OnError:Connect(function(message, storeName, profileKey)
+	ProfileStore.OnError:Connect(function(message, erroredStore, profileKey)
 		warn(
 			string.format(
 				"[DataService] ProfileStore error (%s / %s): %s",
-				storeName,
+				erroredStore,
 				profileKey,
 				message
 			)

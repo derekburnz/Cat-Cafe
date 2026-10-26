@@ -202,10 +202,13 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		return
 	end
 	self._dirty = false
-	local cafeLevel = state.cafeLevel
+	local tier = state.tier
+	local catalog: Types.Catalog? = self._catalog
 	self._panel:setTitle(
 		"Upgrades",
-		"Cafe " .. Format.level(cafeLevel) .. "  ·  " .. Format.money(state.money)
+		Format.tier(tier, if catalog then catalog.tiers else nil)
+			.. "  ·  "
+			.. Format.money(state.money)
 	)
 
 	for upgradeId, row in self._rows do
@@ -213,12 +216,13 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		local level = state.upgradeLevels[upgradeId] or 0
 		local isMax = level >= def.maxLevel
 		local nextCost = if isMax then nil else def.costs[level + 1]
-		local needsCafe: number? = def.requiresCafeLevel
-		local perLevel = def.requiresCafeLevelAtLevel
+		-- tier gates (data-model section 5b): level 1 needs requiresTier, higher levels the tier caps
+		local needsTier: number? = def.requiresTier
+		local perLevel = def.requiresTierAtLevel
 		if perLevel and perLevel[level + 1] then
-			needsCafe = math.max(needsCafe or 0, perLevel[level + 1])
+			needsTier = math.max(needsTier or 0, perLevel[level + 1])
 		end
-		local locked = needsCafe ~= nil and cafeLevel < (needsCafe :: number)
+		local locked = needsTier ~= nil and tier < (needsTier :: number)
 
 		if isMax then
 			row.level.Text = Format.level(level) .. "  ·  Max"
@@ -237,7 +241,7 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			row.buy:setText("Max")
 			row.buy:setEnabled(false)
 		elseif locked then
-			row.buy:setText("Cafe " .. Format.level(needsCafe :: number))
+			row.buy:setText(Format.tier(needsTier :: number))
 			row.buy:setEnabled(false)
 		elseif nextCost == nil then
 			row.buy:setText("—")

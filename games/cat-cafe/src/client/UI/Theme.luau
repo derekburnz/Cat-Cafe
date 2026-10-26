@@ -69,9 +69,10 @@ Theme.rarity = {
 	Rare = { color = Color3.fromHex("5FA8FF"), text = Color3.fromHex("FFFFFF") },
 	Epic = { color = Color3.fromHex("C07CFF"), text = Color3.fromHex("FFFFFF") },
 	Legendary = { color = Color3.fromHex("FFC94D"), text = Color3.fromHex("3A2A00") },
-	Secret = { color = Color3.fromHex("3FD0B5"), text = Color3.fromHex("0B1F3A") },
+	-- v0.3: Mythical replaces Secret (data-model section 2; the designer's proposed color)
+	Mythical = { color = Color3.fromHex("FF5E7E"), text = Color3.fromHex("FFFFFF") },
 }
-Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Secret" }
+Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).
 Theme.fonts = {

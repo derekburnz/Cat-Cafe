@@ -123,63 +123,66 @@ local function percent(value: number): string
 	return text .. "%"
 end
 
--- "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.5% Legendary" (the growth thread's rule: labelled, never an icon)
+-- "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical" (the growth thread's rule:
+-- labelled, never an icon)
 local function oddsText(odds: Types.LureOdds?): string
 	if not odds then
 		return "Odds: not set"
 	end
 	assert(odds, "odds not set")
-	return ("Odds: %s Common · %s Rare · %s Epic · %s Legendary"):format(
-		percent(odds.Common),
-		percent(odds.Rare),
-		percent(odds.Epic),
-		percent(odds.Legendary)
-	)
+	local parts = {}
+	for _, rarity in Theme.rarityOrder do
+		local share = (odds :: any)[rarity]
+		if type(share) == "number" then
+			table.insert(parts, ("%s %s"):format(percent(share), rarity))
+		end
+	end
+	return "Odds: " .. table.concat(parts, " · ")
 end
 
--- Per-cat split, derived from the catalog: every cat of a rarity in an area has the same chance.
--- "Alley · Rare 42%: Calico 21%, Siamese 21%"
-local function oddsDetail(catalog: Types.Catalog, lure: Types.LureDef): string
+-- Per-cat split, derived from the catalog. Bait picks the cat uniformly among that rarity's cats in every
+-- area the player has unlocked (data-model section 8), so the pool grows with the tier.
+-- "Rare 22%: Calico 11%, Siamese 11%"
+local function oddsDetail(catalog: Types.Catalog, lure: Types.LureDef, tier: number): string
 	local odds = lure.odds
 	if not odds then
 		return "Odds not set for this food yet."
 	end
 	assert(odds, "odds not set")
-	local areas = { "alley", "park" }
-	local lines = { "Same chance for every cat of a rarity in the area:" }
-	for _, area in areas do
-		for _, rarity in Theme.rarityOrder do
-			local share = (odds :: any)[rarity]
-			if type(share) ~= "number" or share <= 0 then
-				continue
-			end
-			local names = {}
-			for _, def in catalog.cats do
-				if
-					def.rarity == rarity
-					and (def.area == nil or def.area == "both" or def.area == area)
-				then
-					table.insert(names, def.name)
-				end
-			end
-			if #names == 0 then
-				continue
-			end
-			local each = share / #names
-			local parts = {}
-			for _, name in names do
-				table.insert(parts, ("%s %s"):format(name, percent(each)))
-			end
-			table.insert(
-				lines,
-				("%s · %s %s: %s"):format(
-					area:sub(1, 1):upper() .. area:sub(2),
-					rarity,
-					percent(share),
-					table.concat(parts, ", ")
-				)
-			)
+	local unlocked: { [string]: boolean } = {}
+	local areaNames = {}
+	local areaList: { Types.AreaDef } = catalog.areas or {}
+	for _, area in areaList do
+		if area.tier <= tier then
+			unlocked[area.id] = true
+			table.insert(areaNames, area.name)
 		end
+	end
+	local lines = {
+		if #areaNames > 0
+			then "Same chance for every cat of a rarity in " .. table.concat(areaNames, ", ") .. ":"
+			else "Same chance for every cat of a rarity:",
+	}
+	for _, rarity in Theme.rarityOrder do
+		local share = (odds :: any)[rarity]
+		if type(share) ~= "number" or share <= 0 then
+			continue
+		end
+		local names = {}
+		for _, def in catalog.cats do
+			if def.rarity == rarity and (#areaNames == 0 or unlocked[def.area]) then
+				table.insert(names, def.name)
+			end
+		end
+		if #names == 0 then
+			continue
+		end
+		local each = share / #names
+		local parts = {}
+		for _, name in names do
+			table.insert(parts, ("%s %s"):format(name, percent(each)))
+		end
+		table.insert(lines, ("%s %s: %s"):format(rarity, percent(share), table.concat(parts, ", ")))
 	end
 	return table.concat(lines, "\n")
 end
@@ -194,6 +197,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._catalog = nil :: Types.Catalog?
 	self._pickerOpen = false
 	self._lastMoney = nil :: number?
+	self._oddsTier = 1
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeHUD",
@@ -644,7 +648,7 @@ function HUD._buildLureRows(self: any)
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
-			Text = oddsDetail(catalog, lure),
+			Text = oddsDetail(catalog, lure, self._oddsTier),
 			Visible = false,
 			Parent = row,
 		})
@@ -765,7 +769,14 @@ function HUD.render(self: any, state: Types.PlayerState)
 		if catCount == 1 then "" else "s"
 	)
 
-	self._cafeTitle.Text = "Cafe " .. Format.level(state.cafeLevel)
+	self._cafeTitle.Text = Format.tier(state.tier, if catalog then catalog.tiers else nil)
+	-- the bait pool grows as tiers open areas, so the per-cat split is rebuilt on a tier change
+	if catalog and state.tier ~= self._oddsTier then
+		self._oddsTier = state.tier
+		for _, lureRow in self._lureRows do
+			lureRow.detail.Text = oddsDetail(catalog, lureRow.def, state.tier)
+		end
+	end
 	local parts = {}
 	if state.tables then
 		table.insert(

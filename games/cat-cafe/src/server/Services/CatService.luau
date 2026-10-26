@@ -487,18 +487,21 @@ end
 
 -- Carrying ------------------------------------------------------------------------------------------------
 
+-- The carried pose from the asset manifest (poses.carried.body_cframe_roblox): cradled across the chest, facing
+-- the character's left so the camera behind the player sees the cat side on. Relative to the HumanoidRootPart.
+local CARRIED_POSE = CFrame.new(0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0)
+
 local function attachHeldCat(player: Player, carry: Carry)
 	local character = player.Character
 	if character == nil then
 		return
 	end
-	local torsoInstance = character:FindFirstChild("UpperTorso")
-		or character:FindFirstChild("Torso")
+	local rootInstance = character:FindFirstChild("HumanoidRootPart")
 	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
-	if torsoInstance == nil or not torsoInstance:IsA("BasePart") then
+	if rootInstance == nil or not rootInstance:IsA("BasePart") then
 		return
 	end
-	local torso = torsoInstance :: BasePart
+	local root = rootInstance :: BasePart
 	if carry.model ~= nil then
 		carry.model:Destroy()
 	end
@@ -510,7 +513,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if nameTag ~= nil then
 		nameTag:Destroy()
 	end
-	model:PivotTo(torso.CFrame * CFrame.new(0, 0.4, -1.3) * CFrame.Angles(0, math.pi, 0))
+	model:PivotTo(root.CFrame * CARRIED_POSE)
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			local part = descendant :: BasePart
@@ -528,7 +531,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	end
 	local hold = Instance.new("WeldConstraint")
 	hold.Name = "HoldWeld"
-	hold.Part0 = torso
+	hold.Part0 = root
 	hold.Part1 = body
 	hold.Parent = body
 	model.Parent = character

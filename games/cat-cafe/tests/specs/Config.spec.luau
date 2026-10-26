@@ -31,6 +31,14 @@ return function()
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
 		GrabRetrySeconds = 2,
+		-- v0.4 catching stakes (F34, section 10 step 5)
+		StrayWarySeconds = 5,
+		StrayJumpBackMin = 6,
+		StrayJumpBackMax = 10,
+		PerfectCharmBonus = 4,
+		PurrfectCharmMultiplier = 2,
+		AutoPressFlagRate = 0.95,
+		AutoPressClearRate = 0.85,
 		-- v0.3 net circles (F26, section 10)
 		CircleLeadInSeconds = 0.6,
 		CircleGapMin = 0.40,
@@ -40,7 +48,7 @@ return function()
 		CatchLatencyCapSeconds = 0.15,
 		LureWaitSeconds = 45,
 		LureDespawnSeconds = 90,
-		CarryWalkSpeed = 13,
+		CarryWalkSpeed = 16, -- v0.4
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,
 		CustomerStayMin = 20,
@@ -49,7 +57,7 @@ return function()
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
 		SyncIntervalSeconds = 10,
-		NormalWalkSpeed = 16,
+		NormalWalkSpeed = 20, -- v0.4
 		StrayWanderRadius = 5,
 		StrayWanderSpeed = 3,
 		CustomerCoinPopSeconds = 3,

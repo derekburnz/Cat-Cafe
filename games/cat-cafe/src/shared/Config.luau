@@ -32,7 +32,10 @@ local Config = {
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
 	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
 	GrabRangeStuds = 10,
-	GrabRetrySeconds = 2, -- after a failed catch the stray stays (Common, lured), this player waits before trying it again
+	GrabRetrySeconds = 2, -- after a miss the stray jumps back; everyone but the player who missed waits this long
+	StrayWarySeconds = 5, -- the player who just missed waits this long before trying the same stray again
+	StrayJumpBackMin = 6, -- a miss makes the stray hiss and jump this far (studs, rolled) away from the player
+	StrayJumpBackMax = 10,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
 
 	-- The net: closing circles judged on the server (data-model section 10)
@@ -41,8 +44,14 @@ local Config = {
 	-- CatchLatencyCapSeconds, so a late press for one circle can never land on the next (reviewer S24).
 	CircleGapMin = 0.40,
 	CircleGapMax = 0.75,
-	CircleScorePerfect = 1.0,
+	CircleScorePerfect = 1.0, -- v0.4: grades decide the catch; the scores stay for tests and analytics only
 	CircleScoreGood = 0.5,
+	PerfectCharmBonus = 4, -- charm added to a caught cat per Perfect circle, capped at 100 (section 10 step 5)
+	PurrfectCharmMultiplier = 2, -- the bonus is doubled when every circle is Perfect
+	-- The scripted-press flag (reviewer S23): set above this Perfect rate over the last 50 circles, cleared at or
+	-- below AutoPressClearRate. While set the profile gets no Perfect charm bonus (v0.4).
+	AutoPressFlagRate = 0.95,
+	AutoPressClearRate = 0.85,
 	CatchLatencyCapSeconds = 0.15, -- most of a player's ping taken off a press (half the round trip, capped)
 	-- Per net level (0 Basic, 1 Sturdy, 2 Pro, 3 Master): perfect and good are half-widths in seconds either side of
 	-- the target; jitter spreads each circle's shrink time by up to that fraction either way.
@@ -54,8 +63,8 @@ local Config = {
 	} :: { [number]: { perfect: number, good: number, jitter: number } },
 	LureWaitSeconds = 45,
 	LureDespawnSeconds = 90,
-	CarryWalkSpeed = 13,
-	NormalWalkSpeed = 16,
+	CarryWalkSpeed = 16,
+	NormalWalkSpeed = 20,
 	CheckInRangeStuds = 8,
 	StrayWanderRadius = 5,
 	StrayWanderSpeed = 3,

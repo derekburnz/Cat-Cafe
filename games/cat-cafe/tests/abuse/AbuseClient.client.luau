@@ -34,7 +34,7 @@ end
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
-local Catching = require(Shared:WaitForChild("Catching"))
+local Circles = require(Shared:WaitForChild("Circles"))
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Types = require(Shared:WaitForChild("Types"))
@@ -49,7 +49,17 @@ type Event = { at: number, server: number, name: string, text: string, id: strin
 
 -- What CatchSchedule and CatchResult carry.
 type Schedule = { circles: { Types.CatchCircle }, windows: Types.CatchWindows }
-type Outcome = { scores: { number }, chance: number, success: boolean, stayed: boolean }
+-- v0.4 CatchResult is (strayId, grades, success, pawsLeft, charmGain); scores and chance are derived from the grades
+-- so the v0.3 cases still read, and a stray now always stays after a miss (it jumps back).
+type Outcome = {
+	grades: { Types.CircleGrade },
+	scores: { number },
+	chance: number,
+	success: boolean,
+	stayed: boolean,
+	pawsLeft: number?,
+	charmGain: number,
+}
 
 local events: { Event } = {}
 local state: Types.PlayerState? = nil
@@ -635,9 +645,9 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 	task.wait(0.3)
 	local gone = stray.model.Parent == nil
 	local lockedBy = stray.model:GetAttribute("LockedBy")
-	-- A lured stray stays whatever its rarity; the others flee unless Common (Catching.fleesOnFail).
+	-- v0.4: a miss never despawns the stray; it jumps back and costs the player a paw (lured strays cost none).
 	local lured = stray.model:GetAttribute("ReservedFor") == player.UserId
-	local shouldStay = lured or not Catching.fleesOnFail(stray.rarity)
+	local shouldStay = true
 	for _, score in outcome.scores do
 		if score ~= 0 then
 			return "FAIL", "an unpressed circle scored " .. scoresText(outcome.scores)
@@ -1480,17 +1490,35 @@ Remotes.event("CatchSchedule").OnClientEvent:Connect(
 	end
 )
 Remotes.event("CatchResult").OnClientEvent:Connect(
-	function(strayId: string, scores: { number }, chance: number, success: boolean, stayed: boolean)
-		local outcome: Outcome = { scores = scores, chance = chance, success = success, stayed = stayed }
+	function(strayId: string, grades: { Types.CircleGrade }, success: boolean, pawsLeft: number?, charmGain: number)
+		local scores: { number } = {}
+		for _, grade in grades do
+			table.insert(
+				scores,
+				if grade == "perfect"
+					then Config.CircleScorePerfect
+					elseif grade == "good" then Config.CircleScoreGood
+					else 0
+			)
+		end
+		local outcome: Outcome = {
+			grades = grades,
+			scores = scores,
+			chance = Circles.chance(scores),
+			success = success,
+			stayed = not success,
+			pawsLeft = pawsLeft,
+			charmGain = charmGain,
+		}
 		record(
 			"CatchResult",
 			string.format(
-				"%s scores=%s chance=%.2f success=%s stayed=%s",
+				"%s grades=%s success=%s pawsLeft=%s charmGain=%d",
 				strayId,
-				scoresText(scores),
-				chance,
+				table.concat(grades, ","),
 				tostring(success),
-				tostring(stayed)
+				tostring(pawsLeft),
+				charmGain
 			),
 			strayId,
 			outcome

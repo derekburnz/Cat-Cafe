@@ -1,5 +1,5 @@
 --!strict
--- Pure catch math (data-model sections 8 to 10): odds, picking a cat, fleeing. The circles themselves are in
+-- Pure catch math (data-model sections 8 to 10): odds, picking a cat, patience. The circles themselves are in
 -- Circles. Callers pass random rolls in so tests are deterministic.
 
 local Catalog = require(script.Parent.Catalog)
@@ -12,9 +12,9 @@ function Catching.succeeds(chance: number, roll: number): boolean
 	return roll < chance
 end
 
--- A failed catch makes anything rarer than Common run off (data-model section 2).
-function Catching.fleesOnFail(rarity: Types.Rarity): boolean
-	return Catalog.rarities[rarity].fleesOnFail
+-- Paws a player starts with on one stray of this rarity; each failed catch costs one (data-model section 10).
+function Catching.patience(rarity: Types.Rarity): number
+	return Catalog.rarities[rarity].patience
 end
 
 local function oddsTotal(odds: Types.LureOdds): number

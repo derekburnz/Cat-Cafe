@@ -186,6 +186,9 @@ def main() -> int:
     print(f"upload: {len(changed)} cues have ids in Cues.luau; record in {RECORD.relative_to(REPO).as_posix()}")
     if failed:
         print(f"upload: stopped at {failed}", file=sys.stderr)
+        if "unauthorized to create" in failed:
+            print("upload: the creator id must be the key owner's: your Roblox user id from your profile URL, "
+                  "or a group id with ROBLOX_CREATOR_GROUP_ID for a group key", file=sys.stderr)
         return 1
     return 0
 

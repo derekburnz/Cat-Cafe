@@ -38,7 +38,7 @@ Creator Store audio used as it is has no file in the repo; its log row and the i
 ## 4. Sourcing and licenses
 In this order:
 1. **Roblox Creator Store audio.** Over 100,000 sound effects and music tracks from Roblox's audio partners, free in experiences, no upload needed. Search with Studio MCP `search_asset` (`scope: "creator_store"`, `assetType: "Audio"`, `priceFilter: "free"`, `verifiedCreatorsOnly: true`, `audioMinDuration`/`audioMaxDuration`) or `find-resources/scripts/search.sh --type sound` (or `music`). Licensed music is for use inside Roblox only: never in a trailer, devlog clip or any video off the platform. Take the audio id; never insert a Model only because it contains a sound.
-2. **Our own.** Record it (Derek's or friends' cats for meows and purrs, a cup, a bell; a phone in a quiet room is enough) or synthesize it (UI blips, coin chimes, timing ticks): add a builder to `assets/cat-cafe/audio/synth/synth.py` and rerun it, the way `build_all.py` makes the models, or use an sfxr-style tool such as jsfxr or ChipTone. Fully original, no license questions.
+2. **Our own.** Record it (Derek's or friends' cats for meows and purrs, a cup, a bell; a phone in a quiet room is enough) or synthesize it (UI blips, coin chimes, timing ticks): add a builder to `assets/cat-cafe/audio/synth/synth.py` (one-shots and jingles) or `synth/ambience.py` (looping beds, built over exactly one loop so they never click) and rerun it, the way `build_all.py` makes the models, or use an sfxr-style tool such as jsfxr or ChipTone. Fully original, no license questions.
 3. **CC0.** Kenney audio packs, Freesound filtered to CC0. Log the page link anyway.
 4. **CC-BY.** Allowed with a credit in `CREDITS.md` and on the in-game credits screen; record the version (3.0 or 4.0).
 5. **Paid royalty-free** (a pack, a commissioned track): only with a license that allows commercial use in a game; log where the license or receipt lives.
@@ -54,6 +54,7 @@ Roblox upload limits: `.mp3`, `.ogg`, `.wav` or `.flac`, under 20 MB, under 7 mi
 | `sfx` | mono (3D needs mono to pan) | 0.05 to 4 s | by ear against `coinPop` | -1 dBTP | at most 20 ms of silence before the sound |
 | `ambience` | stereo | 20 to 120 s, seamless loop | about -26 LUFS | -3 dBTP | no fade at either end |
 | `music` | stereo | 30 to 240 s, seamless loop | about -18 LUFS | -1 dBTP | loop starts and ends on the beat |
+| `music`, named `Jingle*` or `Sting*` (gate kind `stinger`) | stereo | 0.5 to 6 s, no loop | by ear against `jingleCatFound` | -1 dBTP | at most 20 ms of silence before the sound |
 
 LUFS is perceived loudness over the whole file; dBTP is the loudest instant. Master files close to these so the SoundGroup volumes do the mixing, not per-file fixes. Short sounds are too short for LUFS, so match them by ear against the reference cue. Seamless loop: the end flows into the start with no click, gap or fade.
 
@@ -64,7 +65,7 @@ python .claude/skills/audio-pipeline/scripts/audio_gate.py            # assets/c
 It needs `ffmpeg` and `ffprobe` on PATH (Windows: `winget install Gyan.FFmpeg`; cloud containers usually have them). FAIL means a Roblox limit, the name, mono or the peak is wrong. WARN means listen: length outside the budget, loudness off target or a loop seam that may click. PASS only means measured clean; Derek or Gavin still listens.
 
 ## 6. Upload and permissions
-- **Who and where.** Uploads happen on Derek's PC: Creator Dashboard (Creations > Development Items > Audio), Studio's Asset Manager or `blender-to-roblox/scripts/upload-asset.sh FILE --name CatCafe_Sfx_NetSwing --type Audio` with an Open Cloud key in `ROBLOX_API_KEY` (asset write only, never pasted in chat).
+- **Who and where.** Uploads happen on Derek's PC. The quick way is `python assets/cat-cafe/audio/upload.py` with an Open Cloud key in `ROBLOX_API_KEY` (Assets API read and write, never pasted in chat) and `ROBLOX_CREATOR_USER_ID` or `ROBLOX_CREATOR_GROUP_ID`: it uploads every file not yet in `uploaded.json`, P0 first, and writes the ids into `Cues.luau` and the sources log. By hand: Creator Dashboard (Creations > Development Items > Audio), Studio's Asset Manager or `blender-to-roblox/scripts/upload-asset.sh FILE --name CatCafe_Sfx_NetSwing --type Audio`.
 - **Owner.** Upload under the same account or Group that owns the experience. Uploaded audio is private: only its owner can use it until it is shared. To share, open the asset's Permissions on the Creator Dashboard, Experiences tab, and add the experience's universe id; grants are permanent. If the game moves to a Roblox Group later (still an open question), grant every asset to the group's experience or re-upload under the group. Ask Derek before a batch.
 - **Quota.** 100 audio uploads per 30 days on an unverified account, 2,000 when ID-verified. Batch uploads, and do not burn the quota on drafts: get Derek's pick first.
 - **Moderation.** Every upload is reviewed. Upload only files that have a log row with a clean license.

@@ -73,6 +73,11 @@ local MINT = Color3.fromRGB(165, 214, 190)
 local DARK = Color3.fromRGB(60, 60, 65)
 local METAL = Color3.fromRGB(190, 195, 200)
 local GREEN = Color3.fromRGB(90, 160, 80)
+-- Palette swatches the night parts use (style guide sections 2 and 9). These placeholders are built in their
+-- day look; WorldController switches the parts named _Bulb, _Bulbs, _Pane and _Tube at night.
+local LAMP_WARM = Color3.fromRGB(255, 217, 168)
+local NEON_PINK = Color3.fromRGB(255, 107, 129)
+local GLASS = Color3.fromRGB(207, 233, 227)
 
 function Placeholders.cat(def: Types.CatDef): Model
 	local model = newModel(Catalog.catModelName(def.id))
@@ -214,6 +219,32 @@ local function simple(name: string, parts: { PartSpec }): Model
 		end
 	end
 	return finish(model, primary :: BasePart)
+end
+
+-- The net per level (asset round 2): the pivot is the grip and the pole runs forward (-Z), longer each level.
+local function net(level: number): Model
+	local name = "CatCafe_Item_Net_L" .. level
+	local length = 3.6 + 0.6 * level
+	local hoop = 1.1 + 0.2 * level
+	return simple(name, {
+		{
+			name = name .. "_Handle",
+			size = Vector3.new(0.15, 0.15, length),
+			offset = Vector3.new(0, 0, -length / 2),
+			color = WOOD,
+			material = Enum.Material.Wood,
+		},
+		{
+			name = name .. "_Bag",
+			size = Vector3.new(0.1, hoop, hoop),
+			offset = Vector3.new(0, -hoop / 2, -length - hoop / 2),
+			color = Color3.fromRGB(235, 235, 225),
+			material = Enum.Material.Fabric,
+			shape = Enum.PartType.Cylinder,
+			rotation = Vector3.new(0, 90, 0),
+			transparency = 0.35,
+		},
+	})
 end
 
 -- Builders for everything that is not a cat or a customer, keyed by asset name.
@@ -509,21 +540,20 @@ local builders: { [string]: () -> Model } = {
 		})
 	end,
 	CatCafe_Decor_NeonSign = function()
-		local model = simple("CatCafe_Decor_NeonSign", {
+		return simple("CatCafe_Decor_NeonSign", {
 			{
-				name = "Sign",
-				size = Vector3.new(5, 2, 0.3),
+				name = "CatCafe_Decor_NeonSign_Board",
+				size = Vector3.new(5, 2, 0.2),
 				offset = Vector3.new(0, 1, 0),
-				color = Color3.fromRGB(255, 110, 180),
-				material = Enum.Material.Neon,
+				color = DARK,
+			},
+			{
+				name = "CatCafe_Decor_NeonSign_Tube",
+				size = Vector3.new(4.2, 1.2, 0.15),
+				offset = Vector3.new(0, 1, -0.15),
+				color = NEON_PINK,
 			},
 		})
-		local light = Instance.new("PointLight")
-		light.Color = Color3.fromRGB(255, 110, 180)
-		light.Range = 14
-		light.Brightness = 1.5
-		light.Parent = model.PrimaryPart
-		return model
 	end,
 	CatCafe_Decor_FishTank = function()
 		return simple("CatCafe_Decor_FishTank", {
@@ -589,19 +619,53 @@ local builders: { [string]: () -> Model } = {
 				collide = true,
 			},
 			{
-				name = "Lamp",
+				name = "CatCafe_Alley_StreetLamp_Bulb",
 				size = Vector3.new(1.2, 0.8, 1.2),
 				offset = Vector3.new(0, 9.2, 0),
-				color = Color3.fromRGB(255, 230, 170),
-				material = Enum.Material.Neon,
+				color = LAMP_WARM,
 			},
 		})
-		local light = Instance.new("PointLight")
-		light.Color = Color3.fromRGB(255, 225, 160)
-		light.Range = 22
-		light.Brightness = 1.2
-		light.Parent = model:FindFirstChild("Lamp")
 		return model
+	end,
+	-- Wall-mounted: the pivot is the bottom of the back face, the window faces -Z.
+	CatCafe_Alley_ShopWindow = function()
+		return simple("CatCafe_Alley_ShopWindow", {
+			{
+				name = "CatCafe_Alley_ShopWindow_Frame",
+				size = Vector3.new(4.8, 3.7, 0.3),
+				offset = Vector3.new(0, 1.85, -0.15),
+				color = Color3.fromRGB(94, 70, 52),
+				material = Enum.Material.Wood,
+			},
+			{
+				name = "CatCafe_Alley_ShopWindow_Pane",
+				size = Vector3.new(4.2, 3.1, 0.1),
+				offset = Vector3.new(0, 1.85, -0.35),
+				color = GLASS,
+				material = Enum.Material.Glass,
+				transparency = 0.5,
+			},
+		})
+	end,
+	-- The pivot is the strand's left end; it runs +X and the bulbs hang below it.
+	CatCafe_Decor_StringLights = function()
+		local parts: { PartSpec } = {
+			{
+				name = "CatCafe_Decor_StringLights_Wire",
+				size = Vector3.new(8, 0.08, 0.08),
+				offset = Vector3.new(4, -0.3, 0),
+				color = DARK,
+			},
+		}
+		for i = 1, 8 do
+			table.insert(parts, {
+				name = "CatCafe_Decor_StringLights_Bulbs",
+				size = Vector3.new(0.3, 0.4, 0.3),
+				offset = Vector3.new(i - 0.5, -0.55 - 0.15 * math.sin(math.pi * (i - 0.5) / 8), 0),
+				color = LAMP_WARM,
+			})
+		end
+		return simple("CatCafe_Decor_StringLights", parts)
 	end,
 	CatCafe_Alley_Crate = function()
 		return simple("CatCafe_Alley_Crate", {
@@ -788,25 +852,14 @@ local builders: { [string]: () -> Model } = {
 			},
 		})
 	end,
-	CatCafe_Item_Net = function()
-		return simple("CatCafe_Item_Net", {
-			{
-				name = "Handle",
-				size = Vector3.new(0.15, 2.4, 0.15),
-				offset = Vector3.new(0, 1.2, 0),
-				color = WOOD,
-				material = Enum.Material.Wood,
-			},
-			{
-				name = "Hoop",
-				size = Vector3.new(0.1, 1.2, 1.2),
-				offset = Vector3.new(0, 2.9, 0),
-				color = Color3.fromRGB(235, 235, 225),
-				material = Enum.Material.Fabric,
-				shape = Enum.PartType.Cylinder,
-				transparency = 0.3,
-			},
-		})
+	CatCafe_Item_Net_L1 = function()
+		return net(1)
+	end,
+	CatCafe_Item_Net_L2 = function()
+		return net(2)
+	end,
+	CatCafe_Item_Net_L3 = function()
+		return net(3)
 	end,
 	-- Rescue props (features.md 8b), shaped to the asset round 2 bounds with the real props' pivots (front -Z),
 	-- so Layout.stuckPoses fits both. The tree's low branch reaches along -X; the box lies on its side with the

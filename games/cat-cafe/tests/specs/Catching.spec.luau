@@ -50,16 +50,19 @@ return function()
 			expect(ringResultFromHold(60)).to.equal("miss")
 		end)
 
-		it("the concrete numbers in the doc: 1.20 to 1.75 s perfect, 0.70 to 1.20 s good, under 0.15 s dropped", function()
-			expect(ringResultFromHold(0.10)).to.equal(nil)
-			expect(ringResultFromHold(0.69)).to.equal("miss")
-			expect(ringResultFromHold(0.70)).to.equal("good")
-			expect(ringResultFromHold(1.19)).to.equal("good")
-			expect(ringResultFromHold(1.20)).to.equal("perfect")
-			expect(ringResultFromHold(1.50)).to.equal("perfect")
-			expect(ringResultFromHold(1.75)).to.equal("perfect")
-			expect(ringResultFromHold(1.76)).to.equal("miss")
-		end)
+		it(
+			"the concrete numbers in the doc: 1.20 to 1.75 s perfect, 0.70 to 1.20 s good, under 0.15 s dropped",
+			function()
+				expect(ringResultFromHold(0.10)).to.equal(nil)
+				expect(ringResultFromHold(0.69)).to.equal("miss")
+				expect(ringResultFromHold(0.70)).to.equal("good")
+				expect(ringResultFromHold(1.19)).to.equal("good")
+				expect(ringResultFromHold(1.20)).to.equal("perfect")
+				expect(ringResultFromHold(1.50)).to.equal("perfect")
+				expect(ringResultFromHold(1.75)).to.equal("perfect")
+				expect(ringResultFromHold(1.76)).to.equal("miss")
+			end
+		)
 
 		it("the ring is a bonus, never a gate: a miss still rolls the full base chance", function()
 			expect(Catching.chance("Common", 0, false, "miss")).to.be.near(0.90)
@@ -89,19 +92,24 @@ return function()
 			expect(Catching.chance("Legendary", 3, true, "perfect")).to.be.near(0.90)
 		end)
 
-		it("never exceeds 0.95 (a cheat client with permanent perfect gains at most 15%)", function()
-			expect(Catching.chance("Common", 0, false, "perfect")).to.equal(0.95)
-			expect(Catching.chance("Common", 3, true, "perfect")).to.equal(0.95)
-			expect(Catching.chance("Rare", 3, true, "perfect")).to.equal(0.95)
-			for _, rarity in ipairs(Catalog.rarityOrder) do
-				local best = Catching.chance(rarity, 3, true, "perfect")
-				local honest = Catching.chance(rarity, 3, true, "miss")
-				expect(best - honest <= Config.RingBonusPerfect + 1e-9).to.equal(true)
+		it(
+			"never exceeds 0.95 (a cheat client with permanent perfect gains at most 15%)",
+			function()
+				expect(Catching.chance("Common", 0, false, "perfect")).to.equal(0.95)
+				expect(Catching.chance("Common", 3, true, "perfect")).to.equal(0.95)
+				expect(Catching.chance("Rare", 3, true, "perfect")).to.equal(0.95)
+				for _, rarity in ipairs(Catalog.rarityOrder) do
+					local best = Catching.chance(rarity, 3, true, "perfect")
+					local honest = Catching.chance(rarity, 3, true, "miss")
+					expect(best - honest <= Config.RingBonusPerfect + 1e-9).to.equal(true)
+				end
 			end
-		end)
+		)
 
 		it("never drops below 0.05", function()
-			expect(Catching.chance("Secret", 0, false, "miss") >= Config.CatchChanceMin).to.equal(true)
+			expect(Catching.chance("Secret", 0, false, "miss") >= Config.CatchChanceMin).to.equal(
+				true
+			)
 			expect(Config.CatchChanceMin).to.equal(0.05)
 			expect(Config.CatchChanceMax).to.equal(0.95)
 		end)
@@ -152,7 +160,8 @@ return function()
 		end)
 
 		local function distribution(odds: any)
-			local counts: { [string]: number } = { Common = 0, Rare = 0, Epic = 0, Legendary = 0, Secret = 0 }
+			local counts: { [string]: number } =
+				{ Common = 0, Rare = 0, Epic = 0, Legendary = 0, Secret = 0 }
 			local n = 20000
 			for i = 0, n - 1 do
 				local rarity = Catching.pickRarity(odds, i / n)
@@ -173,94 +182,114 @@ return function()
 			{ "salmon", oddsOf(Catalog.getLure("salmon")) },
 		}
 		for _, source in ipairs(sources) do
-			it(source[1] .. " produces the advertised percentages over an even sweep of rolls", function()
-				local counts, n = distribution(source[2])
-				for _, rarity in ipairs({ "Common", "Rare", "Epic", "Legendary" }) do
-					expect(counts[rarity] / n * 100).to.be.near(source[2][rarity], 0.05)
+			it(
+				source[1] .. " produces the advertised percentages over an even sweep of rolls",
+				function()
+					local counts, n = distribution(source[2])
+					for _, rarity in ipairs({ "Common", "Rare", "Epic", "Legendary" }) do
+						expect(counts[rarity] / n * 100).to.be.near(source[2][rarity], 0.05)
+					end
+					expect(counts.Secret).to.equal(0)
 				end
-				expect(counts.Secret).to.equal(0)
+			)
+		end
+	end)
+
+	describe(
+		"pickRarity scales by the odds total (v0.2, so a rescue table need not sum to 100)",
+		function()
+			-- The alley with the Rare weight doubled but not renormalised: 75 / 40 / 4.5 / 0.5, total 120.
+			local heavy: { [string]: number } =
+				{ Common = 75, Rare = 40, Epic = 4.5, Legendary = 0.5 }
+
+			it("cuts the roll at the cumulative share of the total", function()
+				expect(Catching.pickRarity(heavy :: any, 0)).to.equal("Common")
+				expect(Catching.pickRarity(heavy :: any, 0.6249)).to.equal("Common") -- 75 / 120 = 0.625
+				expect(Catching.pickRarity(heavy :: any, 0.6251)).to.equal("Rare")
+				expect(Catching.pickRarity(heavy :: any, 0.9583)).to.equal("Rare") -- 115 / 120 = 0.95833
+				expect(Catching.pickRarity(heavy :: any, 0.9584)).to.equal("Epic")
+				expect(Catching.pickRarity(heavy :: any, 0.9958)).to.equal("Epic") -- 119.5 / 120 = 0.99583
+				expect(Catching.pickRarity(heavy :: any, 0.9959)).to.equal("Legendary")
+				expect(Catching.pickRarity(heavy :: any, 1)).to.equal("Legendary")
+			end)
+
+			it("a sweep matches each weight over the total", function()
+				local counts: { [string]: number } =
+					{ Common = 0, Rare = 0, Epic = 0, Legendary = 0, Secret = 0 }
+				local n = 24000
+				for i = 0, n - 1 do
+					local rarity = Catching.pickRarity(heavy :: any, i / n)
+					counts[rarity] += 1
+				end
+				for rarity, weight in pairs(heavy) do
+					local count: number = counts[rarity]
+					expect(count / n).to.be.near(weight / 120, 0.0005)
+				end
 			end)
 		end
-	end)
+	)
 
-	describe("pickRarity scales by the odds total (v0.2, so a rescue table need not sum to 100)", function()
-		-- The alley with the Rare weight doubled but not renormalised: 75 / 40 / 4.5 / 0.5, total 120.
-		local heavy: { [string]: number } = { Common = 75, Rare = 40, Epic = 4.5, Legendary = 0.5 }
-
-		it("cuts the roll at the cumulative share of the total", function()
-			expect(Catching.pickRarity(heavy :: any, 0)).to.equal("Common")
-			expect(Catching.pickRarity(heavy :: any, 0.6249)).to.equal("Common") -- 75 / 120 = 0.625
-			expect(Catching.pickRarity(heavy :: any, 0.6251)).to.equal("Rare")
-			expect(Catching.pickRarity(heavy :: any, 0.9583)).to.equal("Rare") -- 115 / 120 = 0.95833
-			expect(Catching.pickRarity(heavy :: any, 0.9584)).to.equal("Epic")
-			expect(Catching.pickRarity(heavy :: any, 0.9958)).to.equal("Epic") -- 119.5 / 120 = 0.99583
-			expect(Catching.pickRarity(heavy :: any, 0.9959)).to.equal("Legendary")
-			expect(Catching.pickRarity(heavy :: any, 1)).to.equal("Legendary")
-		end)
-
-		it("a sweep matches each weight over the total", function()
-			local counts: { [string]: number } = { Common = 0, Rare = 0, Epic = 0, Legendary = 0, Secret = 0 }
-			local n = 24000
-			for i = 0, n - 1 do
-				local rarity = Catching.pickRarity(heavy :: any, i / n)
-				counts[rarity] += 1
+	describe(
+		"rescueOdds (section 10): the area odds with the Rare weight doubled, renormalised to 100",
+		function()
+			local function total(odds: any): number
+				return odds.Common + odds.Rare + odds.Epic + odds.Legendary
 			end
-			for rarity, weight in pairs(heavy) do
-				local count: number = counts[rarity]
-				expect(count / n).to.be.near(weight / 120, 0.0005)
-			end
-		end)
-	end)
 
-	describe("rescueOdds (section 10): the area odds with the Rare weight doubled, renormalised to 100", function()
-		local function total(odds: any): number
-			return odds.Common + odds.Rare + odds.Epic + odds.Legendary
-		end
+			it("alley 75 / 20 / 4.5 / 0.5 becomes 62.5 / 33.3 / 3.75 / 0.42", function()
+				local alley = Catalog.getArea("alley")
+				assert(alley)
+				local rescue: any = Catching.rescueOdds(alley.odds)
+				expect(rescue.Common).to.be.near(75 / 120 * 100, 1e-9)
+				expect(rescue.Rare).to.be.near(40 / 120 * 100, 1e-9)
+				expect(rescue.Epic).to.be.near(4.5 / 120 * 100, 1e-9)
+				expect(rescue.Legendary).to.be.near(0.5 / 120 * 100, 1e-9)
+			end)
 
-		it("alley 75 / 20 / 4.5 / 0.5 becomes 62.5 / 33.3 / 3.75 / 0.42", function()
-			local alley = Catalog.getArea("alley")
-			assert(alley)
-			local rescue: any = Catching.rescueOdds(alley.odds)
-			expect(rescue.Common).to.be.near(75 / 120 * 100, 1e-9)
-			expect(rescue.Rare).to.be.near(40 / 120 * 100, 1e-9)
-			expect(rescue.Epic).to.be.near(4.5 / 120 * 100, 1e-9)
-			expect(rescue.Legendary).to.be.near(0.5 / 120 * 100, 1e-9)
-		end)
+			it("park 55 / 32 / 10 / 3 becomes 55 / 64 / 10 / 3 over 132", function()
+				local park = Catalog.getArea("park")
+				assert(park)
+				local rescue: any = Catching.rescueOdds(park.odds)
+				expect(rescue.Common).to.be.near(55 / 132 * 100, 1e-9)
+				expect(rescue.Rare).to.be.near(64 / 132 * 100, 1e-9)
+				expect(rescue.Epic).to.be.near(10 / 132 * 100, 1e-9)
+				expect(rescue.Legendary).to.be.near(3 / 132 * 100, 1e-9)
+			end)
 
-		it("park 55 / 32 / 10 / 3 becomes 55 / 64 / 10 / 3 over 132", function()
-			local park = Catalog.getArea("park")
-			assert(park)
-			local rescue: any = Catching.rescueOdds(park.odds)
-			expect(rescue.Common).to.be.near(55 / 132 * 100, 1e-9)
-			expect(rescue.Rare).to.be.near(64 / 132 * 100, 1e-9)
-			expect(rescue.Epic).to.be.near(10 / 132 * 100, 1e-9)
-			expect(rescue.Legendary).to.be.near(3 / 132 * 100, 1e-9)
-		end)
-
-		it("always sums to 100, doubles Rare relative to every other rarity and leaves the input alone", function()
-			for _, area in ipairs(Catalog.areas) do
-				local before = table.clone(area.odds :: any)
-				local rescue: any = Catching.rescueOdds(area.odds)
-				expect(total(rescue)).to.be.near(100, 1e-9)
-				expect(rescue.Rare / rescue.Common).to.be.near(2 * area.odds.Rare / area.odds.Common, 1e-9)
-				expect(rescue.Epic / rescue.Common).to.be.near(area.odds.Epic / area.odds.Common, 1e-9)
-				expect(area.odds :: any).to.deepEqual(before)
-			end
-		end)
-
-		it("a rescue roll over the alley gives a Rare about a third of the time", function()
-			local alley = Catalog.getArea("alley")
-			assert(alley)
-			local rescue = Catching.rescueOdds(alley.odds)
-			local rares, n = 0, 12000
-			for i = 0, n - 1 do
-				if Catching.pickRarity(rescue, i / n) == "Rare" then
-					rares += 1
+			it(
+				"always sums to 100, doubles Rare relative to every other rarity and leaves the input alone",
+				function()
+					for _, area in ipairs(Catalog.areas) do
+						local before = table.clone(area.odds :: any)
+						local rescue: any = Catching.rescueOdds(area.odds)
+						expect(total(rescue)).to.be.near(100, 1e-9)
+						expect(rescue.Rare / rescue.Common).to.be.near(
+							2 * area.odds.Rare / area.odds.Common,
+							1e-9
+						)
+						expect(rescue.Epic / rescue.Common).to.be.near(
+							area.odds.Epic / area.odds.Common,
+							1e-9
+						)
+						expect(area.odds :: any).to.deepEqual(before)
+					end
 				end
-			end
-			expect(rares / n).to.be.near(1 / 3, 0.001)
-		end)
-	end)
+			)
+
+			it("a rescue roll over the alley gives a Rare about a third of the time", function()
+				local alley = Catalog.getArea("alley")
+				assert(alley)
+				local rescue = Catching.rescueOdds(alley.odds)
+				local rares, n = 0, 12000
+				for i = 0, n - 1 do
+					if Catching.pickRarity(rescue, i / n) == "Rare" then
+						rares += 1
+					end
+				end
+				expect(rares / n).to.be.near(1 / 3, 0.001)
+			end)
+		end
+	)
 
 	describe("candidates and pickCat (section 3 areas)", function()
 		local function idList(list: { any })
@@ -272,14 +301,22 @@ return function()
 		end
 
 		it("the alley never offers park-only cats", function()
-			expect(idList(Catching.candidates("Rare", "alley"))).to.deepEqual({ "calico", "siamese" })
+			expect(idList(Catching.candidates("Rare", "alley"))).to.deepEqual({
+				"calico",
+				"siamese",
+			})
 			expect(idList(Catching.candidates("Epic", "alley"))).to.deepEqual({ "sphynx" })
 			expect(idList(Catching.candidates("Legendary", "alley"))).to.deepEqual({ "void" })
 			expect(#Catching.candidates("Common", "alley")).to.equal(5)
 		end)
 
 		it("the park offers Tortie, Bengal and Ragdoll (F11 done-when)", function()
-			expect(idList(Catching.candidates("Rare", "park"))).to.deepEqual({ "calico", "siamese", "tortie", "bengal" })
+			expect(idList(Catching.candidates("Rare", "park"))).to.deepEqual({
+				"calico",
+				"siamese",
+				"tortie",
+				"bengal",
+			})
 			expect(idList(Catching.candidates("Epic", "park"))).to.deepEqual({ "sphynx", "ragdoll" })
 		end)
 
@@ -291,11 +328,14 @@ return function()
 			expect(Catching.pickCat("Rare", "park", 0.999).id).to.equal(list[4].id)
 		end)
 
-		it("pickCat falls down the rarity ladder when the area has nothing of that rarity", function()
-			-- No Secret cats exist, so a Secret roll in the alley gives the Legendary.
-			expect(Catching.pickCat("Secret", "alley", 0.5).id).to.equal("void")
-			expect(Catching.pickCat("Secret", "park", 0.5).id).to.equal("void")
-		end)
+		it(
+			"pickCat falls down the rarity ladder when the area has nothing of that rarity",
+			function()
+				-- No Secret cats exist, so a Secret roll in the alley gives the Legendary.
+				expect(Catching.pickCat("Secret", "alley", 0.5).id).to.equal("void")
+				expect(Catching.pickCat("Secret", "park", 0.5).id).to.equal("void")
+			end
+		)
 
 		it("pickCat never returns nil for any rarity, area and roll", function()
 			for _, rarity in ipairs(Catalog.rarityOrder) do

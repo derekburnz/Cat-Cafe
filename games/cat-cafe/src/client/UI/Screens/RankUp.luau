@@ -47,6 +47,11 @@ local ROW_HEIGHT = 46
 
 local RARITY_WORDS: { [number]: string } = { "One", "Two", "Three", "Four", "Five" }
 
+-- Common is 1, Mythical 5. Unknown rarities rank 0, so they never meet a requirement.
+local function rarityRank(rarity: string): number
+	return table.find(Theme.rarityOrder, rarity) or 0
+end
+
 local function findTier(tiers: { Types.TierDef }, tier: number): Types.TierDef?
 	for _, def in tiers do
 		if def.tier == tier then
@@ -169,16 +174,20 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 		)
 		local needsRarity = nextTier.needsRarity
 		if needsRarity then
+			-- "or better": a rarer cat also counts (designer, data-model 5b), matching the server's
+			-- Catching.rarityAtLeast over distinct catIds in the collection
 			local count = nextTier.needsRarityCount or 1
+			local minimum = rarityRank(needsRarity)
 			local have = 0
 			for _, catId in ids do
-				if rarityOf[catId] == needsRarity then
+				local rarity = rarityOf[catId]
+				if rarity and rarityRank(rarity) >= minimum then
 					have += 1
 				end
 			end
 			local label = if count == 1
-				then ("One %s cat"):format(needsRarity)
-				else ("%s different %s cats"):format(
+				then ("One cat, %s or better"):format(needsRarity)
+				else ("%s different cats, %s or better"):format(
 					RARITY_WORDS[count] or tostring(count),
 					needsRarity
 				)

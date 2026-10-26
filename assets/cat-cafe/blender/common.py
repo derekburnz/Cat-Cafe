@@ -322,6 +322,9 @@ def render_preview(objs, path, res=(640, 480), samples=32, azimuth=35, elevation
     direction = Vector((math.sin(az) * math.cos(el), -math.cos(az) * math.cos(el), math.sin(el)))
     fov = cam.data.angle_y if res[0] >= res[1] else cam.data.angle_x
     dist = radius * margin / math.sin(fov / 2)
+    cam.data.type = "PERSP"                      # render_views leaves ORTHO or a tight clip_end behind
+    cam.data.clip_start = 0.05
+    cam.data.clip_end = max(dist * 4, 500.0)
     cam.location = center + direction * dist
     cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
     hidden = []

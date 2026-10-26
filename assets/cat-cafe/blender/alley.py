@@ -148,13 +148,16 @@ def build_shop_window(mat):
     """Cafe street window that glows at night. Frame + Pane objects; the Pane is glass by
     day (Transparency 0.5) and Neon lamp_warm at night. Pivot at the wall, back-bottom center."""
     frame = Builder()
-    frame.box((0, -0.15, 1.75), (4.4, 0.3, 3.5), "dark_wood")
-    frame.box((0, -0.35, 0.1), (4.8, 0.7, 0.2), "cream")                                       # sill
-    frame.box((0, -0.3, 3.55), (4.8, 0.6, 0.2), "cream")                                       # lintel
-    frame.box((0, -0.32, 1.75), (0.12, 0.08, 3.1), "dark_wood", bevel=False)                   # mullion
-    frame.box((0, -0.32, 1.75), (4.0, 0.08, 0.12), "dark_wood", bevel=False)
+    frame.box((0, -0.03, 1.75), (4.0, 0.06, 3.1), "night_sky", bevel=False)                  # back plate (hidden by the pane)
+    for c, sz in (((-2.1, -0.15, 1.75), (0.2, 0.3, 3.5)), ((2.1, -0.15, 1.75), (0.2, 0.3, 3.5)),
+                  ((0, -0.15, 0.1), (4.4, 0.3, 0.2)), ((0, -0.15, 3.4), (4.4, 0.3, 0.2))):
+        frame.box(c, sz, "dark_wood")                                                          # border
+    frame.box((0, -0.35, 0.05), (4.8, 0.7, 0.1), "cream")                                      # sill
+    frame.box((0, -0.3, 3.6), (4.8, 0.6, 0.2), "cream")                                        # lintel
+    frame.box((0, -0.24, 1.75), (0.12, 0.08, 3.1), "dark_wood", bevel=False)                   # mullion
+    frame.box((0, -0.24, 1.75), (4.0, 0.08, 0.12), "dark_wood", bevel=False)
     pane = Builder()
-    pane.box((0, -0.25, 1.75), (4.0, 0.06, 3.1), "lamp_warm", bevel=False)
+    pane.box((0, -0.12, 1.75), (4.0, 0.04, 3.1), "lamp_warm", bevel=False)
     return [frame.finalize("CatCafe_Alley_ShopWindow_Frame", mat), pane.finalize("CatCafe_Alley_ShopWindow_Pane", mat)]
 
 

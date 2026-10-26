@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-26 17:09 UTC",
+  "generated": "2026-10-26 17:23 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -2725,12 +2725,12 @@
         "CatCafe_Alley_ShopWindow_Frame",
         "CatCafe_Alley_ShopWindow_Pane"
       ],
-      "triangles": 168,
+      "triangles": 280,
       "budget": 500,
       "size_studs": {
         "x": 4.8,
         "y": 0.7,
-        "z": 3.65
+        "z": 3.7
       },
       "bounds_min": [
         -2.4,
@@ -2740,7 +2740,7 @@
       "bounds_max": [
         2.4,
         0.0,
-        3.65
+        3.7
       ],
       "pivot": "wall: back-bottom center",
       "front": "-Z in Roblox (Blender -Y)",
@@ -2754,10 +2754,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "168/500 tris",
+          "budget": "280/500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "96 faces on swatch centers",
+          "uv": "160 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.35"

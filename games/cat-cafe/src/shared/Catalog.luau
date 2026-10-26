@@ -936,15 +936,15 @@ Catalog.dealerSlotWeights = {
 	{ sardines = 30, caviar = 36, moon_milk = 24, star_treat = 10 },
 } :: { { [string]: number } }
 
--- Section 9. A full wave of waveSize strays spawns in every area at each night start. The three areas after the
--- Park join with their worlds.
+-- Section 9. A full wave of waveSize strays spawns in every area at each night start, whether or not anyone has
+-- it open. Neighbourhood, Woods and Sewer are grayboxes; their rescue spots are stand-ins until the traps (F27).
 Catalog.areas = {
 	{
 		id = "alley",
 		name = "Alleyway",
 		tier = 1,
-		spawnPoints = 8,
-		waveSize = 6,
+		spawnPoints = 14,
+		waveSize = 10,
 		rescueSpots = 2,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 	},
@@ -952,10 +952,37 @@ Catalog.areas = {
 		id = "park",
 		name = "Park",
 		tier = 2,
-		spawnPoints = 10,
-		waveSize = 6,
+		spawnPoints = 14,
+		waveSize = 10,
 		rescueSpots = 3,
 		odds = { Common = 60, Rare = 28, Epic = 9, Legendary = 2.5, Mythical = 0.5 },
+	},
+	{
+		id = "neighbourhood",
+		name = "Neighbourhood",
+		tier = 3,
+		spawnPoints = 14,
+		waveSize = 10,
+		rescueSpots = 2,
+		odds = { Common = 50, Rare = 32, Epic = 13, Legendary = 4, Mythical = 1 },
+	},
+	{
+		id = "woods",
+		name = "Woods",
+		tier = 4,
+		spawnPoints = 16,
+		waveSize = 10,
+		rescueSpots = 2,
+		odds = { Common = 42, Rare = 34, Epic = 17, Legendary = 5.5, Mythical = 1.5 },
+	},
+	{
+		id = "sewer",
+		name = "Sewer",
+		tier = 5,
+		spawnPoints = 16,
+		waveSize = 10,
+		rescueSpots = 2,
+		odds = { Common = 35, Rare = 35, Epic = 20, Legendary = 7.5, Mythical = 2.5 },
 	},
 } :: { Types.AreaDef }
 

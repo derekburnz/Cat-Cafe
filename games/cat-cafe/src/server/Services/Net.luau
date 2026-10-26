@@ -23,6 +23,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	RequestSync = RateLimiter.new(1, 2),
 	ClaimOffline = RateLimiter.new(1, 2),
 	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync
+	RankUp = RateLimiter.new(1, 2), -- data-model section 15: 1 per 2 s
 	TutorialAdvance = RateLimiter.new(1, 1),
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time

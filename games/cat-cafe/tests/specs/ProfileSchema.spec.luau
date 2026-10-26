@@ -146,8 +146,9 @@ return function()
 			end
 		end)
 
-		-- data-model 14 (v0.3.1) adds both rows; the engineer adds flags with the circles (F26).
-		it("has flags = { autoPress = false } (F26)")
+		it("has flags = { autoPress = false } (section 10, reviewer S23)", function()
+			expect(ProfileSchema.template(0).flags :: any).to.deepEqual({ autoPress = false })
+		end)
 		it("has telemetry = { onboardingStep = 0, achieved = {} } (growth analytics-plan)")
 		-- equippedLure goes when the bait bowl replaces the v0.2 lure spots.
 		it("drops equippedLure, in the template and in the migration (F28)")
@@ -594,6 +595,19 @@ return function()
 				variant = "base",
 				charm = 100,
 			})
+		end)
+
+		it("keeps the autoPress flag only when a v3 save holds it as true", function()
+			local raw = v3Save()
+			raw.flags = { autoPress = true }
+			expect(ProfileSchema.migrate(raw, 500).flags.autoPress).to.equal(true)
+			for _, flags in ipairs({ { autoPress = "yes" }, {}, "junk" } :: { any }) do
+				raw.flags = flags
+				expect(ProfileSchema.migrate(raw, 500).flags.autoPress).to.equal(false)
+			end
+			local v2 = v2Save()
+			v2.flags = { autoPress = true }
+			expect(ProfileSchema.migrate(v2, 1000).flags.autoPress).to.equal(false)
 		end)
 
 		it("keeps dealer marks only for slots 1 to 3 saved as true", function()

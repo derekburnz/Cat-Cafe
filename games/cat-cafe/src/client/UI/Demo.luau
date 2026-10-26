@@ -298,12 +298,6 @@ function Demo.run(UI: any): () -> ()
 		end
 	end
 
-	connections[#connections + 1] = UI.events.grabEnded:Connect(
-		function(_strayId: string?, result: string)
-			-- a real server scores the hold time itself; this is only the client's hint
-			UI.toast("Ring hint: " .. result .. " (the server scores the real timing)", "info")
-		end
-	)
 	connections[#connections + 1] = UI.events.rescueEnded:Connect(
 		function(_rescueSpotId: string?, _catId: string?, completed: boolean)
 			if completed then

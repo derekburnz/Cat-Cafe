@@ -50,7 +50,6 @@ UI.events = {
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
-	grabEnded = Signal.new(), -- (strayId, ringHint, catId)  hint only: the server scores the hold time
 	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   hold began on a prompt with Rescue = true
 	rescueEnded = Signal.new(), -- (rescueSpotId, catId, completed)  completed after the full hold: send RescueEnd
 	screenOpened = Signal.new(), -- (name or nil)
@@ -552,7 +551,7 @@ function UI.tutorial.hide()
 end
 
 ----------------------------------------------------------------------------------------------------
--- Catch prompt and timing ring
+-- Catch prompt, closing circles and the rescue hold
 ----------------------------------------------------------------------------------------------------
 
 UI.catch = {}
@@ -585,28 +584,8 @@ function UI.catch.show(info: Types.CatchInfo)
 	end
 end
 
-function UI.catch.startRing(config: Types.RingConfig?)
-	if catch then
-		catch:startRing(config)
-	end
-end
-
-function UI.catch.stopRing(): Types.RingResult
-	if catch then
-		return catch:stopRing()
-	end
-	return "miss"
-end
-
--- The hold ran its full length with no release: miss flash, send nothing, wait for the server.
-function UI.catch.expire()
-	if catch then
-		catch:expire()
-	end
-end
-
--- Rescue prompt (F21): a bar fills over the hold instead of the ring. bindProximityPrompts drives this
--- itself for prompts whose model has Rescue = true.
+-- Rescue prompt (F21): a bar fills over the hold. bindProximityPrompts drives this itself for prompts whose
+-- model has Rescue = true and a hold duration; the rescue minigames replace it.
 function UI.catch.startRescue(duration: number?)
 	if catch then
 		catch:startRescue(duration)
@@ -619,16 +598,10 @@ function UI.catch.stopRescue(completed: boolean)
 	end
 end
 
-function UI.catch.setProgress(alpha: number)
-	if catch then
-		catch:setProgress(alpha)
-	end
-end
-
 -- retry = true keeps the prompt open (Commons, lured strays, a rescue turned down for now). Otherwise it
--- flashes and hides (the cat fled). A fail that lands while a hold is still down (the server turned down
--- GrabBegin or RescueBegin) closes that hold: the server holds no lock, so its release or full length sends
--- nothing and the card keeps the server's reason instead of "Missed" or "Rescued!". Hold again to retry.
+-- flashes and hides (the cat fled). A fail that lands while a rescue hold is still down (the server turned
+-- down RescueBegin) closes that hold: the server holds no lock, so its release or full length sends nothing
+-- and the card keeps the server's reason instead of "Rescued!". Hold again to retry.
 function UI.catch.fail(reason: string?, retry: boolean?)
 	holdOpen = false
 	if catch then
@@ -769,19 +742,6 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	}
 end
 
-local function finishHold(result: Types.RingResult)
-	if not holdOpen then
-		return
-	end
-	holdOpen = false
-	local info = activeInfo
-	UI.events.grabEnded:Fire(
-		if info then info.strayId else nil,
-		result,
-		if info then info.catId else nil
-	)
-end
-
 local function activeIsRescue(): boolean
 	local info = activeInfo
 	return info ~= nil and info.kind == "rescue"
@@ -805,9 +765,9 @@ local function finishRescue(completed: boolean)
 end
 
 -- Drives the prompt UI from every ProximityPrompt with Style = Custom and a CatId attribute
--- (on the prompt, its model, or its parent). Fires events.grabBegan on hold begin and events.grabEnded
--- on release with the ring hint. A hold that runs its full length fires nothing (data-model section 10):
--- the server resolves it as a ring miss and the controller then calls catch.fail or showCatFound.
+-- (on the prompt, its model, or its parent). A stray's prompt has HoldDuration 0: one press fires
+-- events.grabBegan and the server answers with catch.showCircles or catch.fail. A rescue prompt with a hold
+-- fires events.rescueBegan on hold begin and events.rescueEnded on release or after the full hold.
 function UI.catch.bindProximityPrompts()
 	if #promptConnections > 0 or not catch then
 		return
@@ -832,11 +792,7 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			if holdOpen then
-				if activeIsRescue() then
-					finishRescue(false)
-				else
-					finishHold(catchScreen:stopRing())
-				end
+				finishRescue(false)
 			end
 			activePrompt = nil
 			UI.catch.hide()
@@ -845,22 +801,20 @@ function UI.catch.bindProximityPrompts()
 	table.insert(
 		promptConnections,
 		ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt: ProximityPrompt)
-			if prompt ~= activePrompt or prompt.HoldDuration <= 0 then
+			-- only the v0.2 rescue still holds; a press prompt is handled in PromptTriggered
+			local info = activeInfo
+			if
+				prompt ~= activePrompt
+				or prompt.HoldDuration <= 0
+				or not info
+				or info.kind ~= "rescue"
+			then
 				return
 			end
 			holdOpen = true
 			holdSerial += 1
-			local info = activeInfo
-			if info and info.kind == "rescue" then
-				catchScreen:startRescue(prompt.HoldDuration)
-				UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
-			else
-				catchScreen:startRing({ duration = prompt.HoldDuration })
-				UI.events.grabBegan:Fire(
-					if info then info.strayId else nil,
-					if info then info.catId else nil
-				)
-			end
+			catchScreen:startRescue(prompt.HoldDuration)
+			UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
 		end)
 	)
 	table.insert(
@@ -870,24 +824,15 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			-- A full hold fires PromptTriggered and PromptButtonHoldEnded in the same frame, in either
-			-- order (reviewer S12). Decide one frame later: if PromptTriggered closed the hold, or the
-			-- ring already collapsed, the hold ran its full length and nothing is sent.
+			-- order (reviewer S12). Decide one frame later: if PromptTriggered closed the hold, the hold ran
+			-- its full length and was already sent.
 			local serial = holdSerial
 			task.defer(function()
-				if not holdOpen or holdSerial ~= serial then
+				if not holdOpen or holdSerial ~= serial or not activeIsRescue() then
 					return
 				end
-				if activeIsRescue() then
-					-- released before the hold ran out: the bar resets, there is no fail state
-					finishRescue(false)
-					return
-				end
-				if not catchScreen:isRinging() then
-					holdOpen = false
-					catchScreen:expire()
-					return
-				end
-				finishHold(catchScreen:stopRing())
+				-- released before the hold ran out: the bar resets, there is no fail state
+				finishRescue(false)
 			end)
 		end)
 	)
@@ -916,19 +861,10 @@ function UI.catch.bindProximityPrompts()
 				-- the rescue hold ran its full length: the controller sends RescueEnd, the server moves
 				-- the player to carry and the controller then calls showCatFound or hide
 				finishRescue(true)
-				return
 			end
-			-- a swing held the full duration with no release. Send no GrabEnd: the server would score it
-			-- as a 1.5 s release. Close the hold, flash the miss and wait for the server's result. A hold
-			-- that catch.fail already closed keeps the server's reason on screen.
-			if not holdOpen then
-				return
-			end
-			holdOpen = false
-			catchScreen:expire()
 		end)
 	)
-	-- mobile GRAB button drives the real prompt so the server sees an ordinary hold
+	-- the mobile CATCH button drives the real prompt, a press or the rescue hold, so nothing changes server side
 	table.insert(
 		promptConnections,
 		catchScreen.holdBegan:Connect(function()

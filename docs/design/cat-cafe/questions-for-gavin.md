@@ -9,7 +9,7 @@ Loop
 Catching
 
 2. Circle scoring. Perfect counts 100%, Good 50% and Miss 0, and the catch chance is the average of all the circles. Is Good at 50% right, or should it be higher or lower?
-3. Bumps. When you are close to someone carrying a cat you can press Bump, and half the time their cat drops and runs a few steps. They get the first 8 seconds to net it back, then anyone except you can try, and a dropped cat never runs away for good. No bumps in the first 3 seconds after a catch or near their own cafe, and a cat that was knocked loose cannot be bumped again on its next trip. Is that the kind of interrupt you meant?
+3. Bumps. When you are close to someone carrying a cat you can press Bump, and half the time their cat drops and runs a few steps. They get the first 8 seconds to net it back, then anyone except you can try, and a dropped cat never runs away from a failed catch and stays at least 2 minutes, even if night starts. No bumps in the first 3 seconds after a catch or near their own cafe, and a cat that was knocked loose cannot be bumped again on its next trip. Is that the kind of interrupt you meant?
 4. Bait bowl. Your bowl sits at your own cafe and the 10 minute timer keeps going while you are offline. Good, or should bait go out in the areas?
 5. Shinies. A shiny earns 1.5x tips and sparkles. 10% chance from rescues, 2% from the net and bait. OK?
 

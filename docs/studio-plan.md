@@ -89,3 +89,23 @@ Cloud threads cannot reach Studio or Blender. Anything that needs them is writte
 - Rokit versions pinned from memory; `rokit update` on first install and commit.
 - Studio MCP tool names and Rojo optional-path syntax come from the plan doc and Rojo 7.4+ docs; if `rojo serve` rejects `default.project.json`, replace the `{ "optional": true, ... }` objects with plain paths and create empty `Packages/` folders.
 - Usage: seven agents in parallel burns the Max pool fast. Opus for building, Sonnet for QA chores, Fable only for the design pass.
+
+## 9. Which threads need Fable and which are fine on Opus (2026-10-26)
+Fable burns the shared usage pool fastest, so it goes where a wrong call costs the most downstream work. Everything else runs on Opus, and chores on Sonnet or Haiku. A thread can be switched when it is started or when Derek asks it to switch.
+
+| Thread / role | Model | Why |
+|---|---|---|
+| Design the cat cafe game (game-designer) | Fable | Loop, economy math and balance decisions steer every other thread; low volume, highest leverage. |
+| Review cat cafe code (luau-reviewer) | Fable for the first security review of each feature, Opus for re-checks | A missed exploit or data-loss bug is the costliest mistake; re-reviews after fixes are mechanical. |
+| Plan studio agents, skills and connectors (lead / setup) | Opus, Fable only for an architecture decision | Mostly CI, config and docs; syncing files is a Sonnet job. |
+| Build cat cafe rough draft (luau-engineer) | Opus | Building against a spec; hand one hard bug to Fable, then switch back. |
+| Build cat stats and equip best (luau-engineer) | Opus | Scoped feature from a spec with tests. |
+| Design cat cafe UI (ui-designer) | Opus | Layouts and client code; repetitive component tweaks can go to Sonnet. |
+| Create cat cafe 3D models (asset-artist) | Opus | Blender Python and style guide; re-exports and renames to Sonnet. |
+| Plan cat cafe playtests (qa-playtester) | Sonnet, Opus for test tooling | Test plans, reports and tickets are structured writing; the WebAssembly test runner was a one-off build. |
+| Research cat cafe market and monetization (growth-analyst) | Opus | Web research and summaries; the policy calls are already made. |
+| Find Roblox dev skills and tools | Sonnet or Haiku | Search and inventory, no judgment calls. |
+| Set up purr-pot repo on desktop (remote control) | Sonnet | Terminal chores on Derek's PC. |
+| Coordinator (project chat) | Opus | Routing and summaries; nothing it decides needs Fable. |
+
+Rule of thumb: one Fable pass writes the decision into a doc (GDD, review, decisions.md), then an Opus thread builds from the doc. On Derek's PC the `.claude/agents/*.md` files already pin these models; `game-designer` uses `inherit`, so start design sessions with `/model fable`.

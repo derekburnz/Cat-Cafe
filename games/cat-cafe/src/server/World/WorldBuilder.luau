@@ -117,6 +117,16 @@ local function folder(name: string, parent: Instance): Folder
 	return f
 end
 
+-- An invisible box under World.Zones naming the place the player stands in: "Cafe", or an area such as "Alley".
+-- The client reads it for the ambience (Audio.setZone) and the first tutorial step; the server never does.
+local function zone(name: string, size: Vector3, cframe: CFrame, parent: Instance)
+	local box = part(name, size, cframe, Color3.new(1, 1, 1), nil, parent)
+	box.Transparency = 1
+	box.CanCollide = false
+	box.CanQuery = false
+	box.CanTouch = false
+end
+
 local function localCFrame(base: CFrame, p: Layout.Point): CFrame
 	return base * CFrame.new(p.x, p.y, p.z) * CFrame.Angles(0, math.rad(p.rotY or 0), 0)
 end
@@ -582,10 +592,23 @@ function WorldBuilder.build(): World
 		)
 	end
 
+	-- A Model set to Persistent so streaming never drops a far zone the client checks against.
+	local zones = Instance.new("Model")
+	zones.Name = "Zones"
+	zones.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	zones.Parent = root
+
 	local plotsFolder = folder("Plots", root)
 	local plots: { Plot } = {}
 	for i = 1, W.PlotCount do
-		table.insert(plots, buildPlot(i, plotsFolder))
+		local plot = buildPlot(i, plotsFolder)
+		table.insert(plots, plot)
+		zone(
+			"Cafe",
+			Vector3.new(W.PlotWidth, W.WallHeight, W.PlotDepth),
+			plot.cframe * CFrame.new(0, W.WallHeight / 2, 0),
+			zones
+		)
 	end
 
 	local areas: { [string]: AreaInfo } = {}
@@ -604,6 +627,12 @@ function WorldBuilder.build(): World
 			)
 		)
 		areas[def.id] = buildArea(def.id, spec, AREA_LOOKS[def.id], root)
+		zone(
+			def.id:sub(1, 1):upper() .. def.id:sub(2),
+			Vector3.new(spec.halfWidth * 2, 30, spec.halfDepth * 2),
+			CFrame.new(spec.center.x, spec.floorY + 15, spec.center.z),
+			zones
+		)
 		if spec.gateZ ~= nil then
 			gates[def.id] = buildGate(def, spec.center.x, spec.gateZ, gatesFolder)
 		end

@@ -10,6 +10,7 @@ Automated playtests in Studio (through Studio MCP; every call takes a studio_id)
 - Core loop smoke test: new player spawns, a customer arrives, a cat serves them, coins increase, the shop opens, an upgrade is bought and applied, the player walks to the alley and catches a cat, the cat appears in the cafe, then stop and restart play and confirm coins, upgrades and cats persisted.
 - Abuse checks you can do from Studio: spam the interact key, open the shop with 0 coins and buy, try to catch the same cat twice, leave mid-serve. Report anything the server accepted that it should not have, and hand exploit-shaped findings to luau-reviewer.
 - Rough draft rule: placeholders (PH_ parts) are expected; report missing art only as "cosmetic".
+- Audio pass: walk the listening list in docs/audio/cat-cafe/sound-list.md section 8. Report sounds that are missing, too loud or quiet, repeat too often, are heard by the wrong player or keep playing after a settings toggle; suggested owner sound-designer. Missing sounds in the rough draft are "cosmetic".
 
 Human feedback: summarize with the playtest-report format. Separate bugs, balance, confusion, and feature requests. Count how many testers raised each point. Quote one sentence per point.
 

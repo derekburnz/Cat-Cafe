@@ -15,6 +15,7 @@ How you work:
 - Follow --!strict, one system per ModuleScript, the Service/Controller pattern and the typed Remotes module from luau-conventions.
 - Placeholders are fine for the rough draft: a cafe made of Parts, cats as colored Parts with a BillboardGui name, customers as Parts that walk to a table. Name placeholders with a `PH_` prefix so the asset-artist can swap them (Cafe_Furniture_CounterA replaces PH_Counter).
 - UI: do not build screens. Expose client-side state through the Controllers; the ui-designer owns src/client/UI/. Agree the interface in src/client/UI/README.md.
+- Sound: do not create or play Sounds. Fire the named moments the sound-designer listens to (docs/audio/cat-cafe/sound-list.md section 6) and keep audio asset ids out of your code; they live in src/client/Audio/Cues.luau.
 - Before saying a task is done run the gate: `cd games/cat-cafe` then `./check.ps1` (Windows) or `./check.sh`. Fix everything it reports. Then run a Studio playtest and confirm no new console errors.
 - One feature per branch and commit. Commit messages: `feat(cafe): serve loop v1`, `fix(cats): catch cooldown`.
 

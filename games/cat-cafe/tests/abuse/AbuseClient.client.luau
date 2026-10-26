@@ -11,7 +11,7 @@
 	  1 fake stray      2 far grab          3 press without begin  4 bad presses   5 press with a time
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a fail
 	  ' press spam      9 bad ids           0 shop gates           - ownership     = double spend
-	  Backspace flood   ] run everything
+	  , travel          Backspace flood     ] run everything
 	Or from a client-context command bar: _G.PurrPotAbuse.run("fakeStray"), _G.PurrPotAbuse.runAll().
 
 	Every line starts with [Abuse]. RESULT lines say PASS, FAIL, SKIP or CHECK. After a run, read the SERVER
@@ -66,6 +66,7 @@ local state: Types.PlayerState? = nil
 local running: string? = nil
 local lastSyncAt = 0 -- os.clock() of the newest ProfileSync
 local lastGrabAt = -math.huge -- os.clock() of the newest GrabBegin this script fired
+local lastTravelAt = -math.huge -- os.clock() of the newest Travel this script fired
 
 local function log(text: string)
 	print("[Abuse] " .. text)
@@ -111,6 +112,8 @@ local function fire(name: string, ...: any)
 	log(string.format("    -> %s(%s)", name, describe(...)))
 	if name == "GrabBegin" then
 		lastGrabAt = os.clock()
+	elseif name == "Travel" then
+		lastTravelAt = os.clock()
 	end
 	Remotes.event(name):FireServer(...)
 end
@@ -1345,6 +1348,258 @@ case(
 	end
 )
 
+-- Fast travel (features F19, reviewer N47) --------------------------------------------------------------------
+
+-- What TravelResult carries.
+type Travelled = { ok: boolean, reason: string? }
+
+-- The Travel remote takes 1 call per second, so a case spaces the calls it means to land.
+local function travelReady()
+	local left = lastTravelAt + 1.15 - os.clock()
+	if left > 0 then
+		task.wait(left)
+	end
+end
+
+local function horizontal(a: Vector3, b: Vector3): number
+	return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
+end
+
+-- One Travel the limiter lets through: the TravelResult (nil if none came within 1 s) and how far the character
+-- moved.
+local function travel(destination: any): (Travelled?, number)
+	travelReady()
+	local root = rootPart()
+	local from = if root ~= nil then root.Position else Vector3.zero
+	local startedAt = os.clock()
+	fire("Travel", destination)
+	local event = waitFor(startedAt, "TravelResult", 1)
+	task.wait(0.3) -- let a move replicate
+	local now = rootPart()
+	local moved = if now ~= nil then horizontal(now.Position, from) else 0
+	return if event ~= nil then event.data :: Travelled else nil, moved
+end
+
+local function add(list: { string }, pattern: string, ...: any)
+	table.insert(list, string.format(pattern, ...))
+end
+
+-- The area model WorldBuilder made for `id`, read for its floor so a landing can be checked against it.
+local function areaFloor(id: string): BasePart?
+	for _, instance in Workspace:GetDescendants() do
+		if instance:IsA("Model") and instance:GetAttribute("Area") == id then
+			local floor = instance:FindFirstChild("Floor")
+			return if floor ~= nil and floor:IsA("BasePart") then floor :: BasePart else nil
+		end
+	end
+	return nil
+end
+
+case(
+	"travel",
+	Enum.KeyCode.Comma,
+	"Travel: bad ids, a flood, a locked area, while carrying, mid-catch, home, then again inside the cooldown",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		if Remotes.folder():FindFirstChild("Travel") == nil then
+			return "SKIP", "no Travel remote on this build (features F19)"
+		end
+		local failures = {}
+		local checks = {}
+		local notes = {}
+		-- A refusal must not move the character; its reason should name why (`expected` is a plain substring).
+		local function refused(label: string, result: Travelled?, moved: number, expected: string)
+			if moved > 4 then
+				add(failures, "%s moved the character %d studs", label, math.floor(moved))
+			elseif result == nil then
+				table.insert(failures, label .. ": no TravelResult")
+			elseif result.ok then
+				table.insert(failures, label .. ": TravelResult ok=true")
+			elseif string.find(result.reason or "", expected, 1, true) == nil then
+				add(
+					checks,
+					"%s refused with %q, expected %q",
+					label,
+					tostring(result.reason),
+					expected
+				)
+			else
+				add(notes, "%s refused (%s)", label, tostring(result.reason))
+			end
+		end
+
+		-- 1. Malformed ids: Guard.id drops each one before the handler, so no TravelResult, no toast and no move. The
+		-- calls are spaced so every one passes the limiter and reaches Guard.
+		local root = rootPart()
+		local from = if root ~= nil then root.Position else Vector3.zero
+		local malformedAt = os.clock()
+		local tooLong = string.rep("a", Config.MaxIdLength + 1)
+		local malformed: { any } = { "", "HOME", "../x", 123, {}, true, tooLong }
+		for _, bad in malformed do
+			travelReady()
+			fire("Travel", bad)
+		end
+		travelReady()
+		fire("Travel", nil)
+		task.wait(1)
+		local after = rootPart()
+		local malformedMoved = if after ~= nil then horizontal(after.Position, from) else 0
+		local malformedAnswers = #since(malformedAt, "TravelResult") + #since(malformedAt, "Toast")
+		if malformedMoved > 4 or malformedAnswers > 0 then
+			add(
+				failures,
+				"malformed ids reached the handler: %d answer(s), moved %d studs",
+				malformedAnswers,
+				math.floor(malformedMoved)
+			)
+		else
+			table.insert(notes, "malformed ids dropped")
+		end
+
+		-- 2. Flood: ten well-formed calls in one frame. The limiter lets one through, which the handler refuses.
+		travelReady()
+		local floodAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("Travel"):FireServer("moon")
+		end
+		lastTravelAt = os.clock()
+		log('    -> Travel("moon") x10')
+		task.wait(1)
+		local floodAnswers = #since(floodAt, "TravelResult")
+		if floodAnswers > 1 then
+			add(failures, "%d TravelResult from 10 calls in one frame", floodAnswers)
+		elseif floodAnswers == 0 then
+			table.insert(checks, "no TravelResult for the one flood call the limiter lets through")
+		else
+			table.insert(notes, "flood: one answer from ten calls")
+		end
+
+		-- 3. An area this tier has not opened.
+		local tier = state.tier
+		local locked: Types.AreaDef? = nil
+		for _, area in Catalog.areas do
+			local nearer = locked == nil or area.tier < (locked :: Types.AreaDef).tier
+			if area.tier > tier and nearer then
+				locked = area
+			end
+		end
+		if locked ~= nil then
+			local result, moved = travel(locked.id)
+			local label = string.format("%s at Tier %d", locked.id, tier)
+			refused(label, result, moved, "opens at Tier")
+		else
+			add(
+				notes,
+				'locked area skipped: tier %d opens every area; run %s("setTier", nil, 1)',
+				tier,
+				DEBUG
+			)
+		end
+
+		-- 4. Carrying: walking the cat home is the loop and carry bumps depend on it.
+		if state.carrying ~= nil then
+			local result, moved = travel("home")
+			refused("home while carrying", result, moved, "Walk your cat home")
+			if not checkInIfCarrying() then
+				return "FAIL",
+					"could not check the carried cat in; " .. table.concat(failures, "; ")
+			end
+		else
+			table.insert(notes, "carrying skipped: not carrying (catch a cat by hand, then rerun)")
+		end
+
+		-- 5. Mid-catch (reviewer N47): leaving would dodge the Miss.
+		local stray = nearestStray()
+		if stray ~= nil then
+			local schedule, why, startedAt = beginCatch(stray)
+			if schedule ~= nil then
+				local result, moved = travel("home")
+				refused("home mid-catch", result, moved, "Finish this catch")
+				outcomeOf(startedAt, stray.id, schedule) -- the catch ends unpressed
+			else
+				table.insert(notes, "mid-catch skipped: " .. why)
+			end
+		else
+			table.insert(notes, "mid-catch skipped: " .. NO_STRAY)
+		end
+
+		-- 6. Home lands outside the own door; a second travel inside TravelCooldownSeconds is refused; once the
+		-- cooldown is over an open area lands inside its floor.
+		local door = ownDoor()
+		if door == nil then
+			table.insert(notes, "home skipped: no own plot or door found")
+		else
+			local result = travel("home")
+			local landed = rootPart()
+			local fromDoor = if landed ~= nil
+				then horizontal(landed.Position, door.Position)
+				else math.huge
+			if result == nil or not result.ok then
+				local why = if result ~= nil then tostring(result.reason) else "no TravelResult"
+				add(failures, "home refused: %s", why)
+			elseif fromDoor > 12 then
+				add(
+					failures,
+					"home answered ok but landed %d studs from the door",
+					math.floor(fromDoor)
+				)
+			else
+				add(notes, "home landed %d studs from the door", math.floor(fromDoor))
+				local homeAt = lastTravelAt
+				local again, movedAgain = travel("alley")
+				refused("alley 1 s after home", again, movedAgain, "breath")
+				-- Config.TravelCooldownSeconds is new with F19; 3 s in design v0.4
+				local cooldown = (Config :: any).TravelCooldownSeconds or 3
+				local left = homeAt + cooldown + 0.2 - os.clock()
+				if left > 0 then
+					task.wait(left)
+				end
+				local alley, movedAlley = travel("alley")
+				local floor = areaFloor("alley")
+				local inside = rootPart()
+				if alley == nil or not alley.ok then
+					local why = if alley ~= nil then tostring(alley.reason) else "no TravelResult"
+					add(failures, "alley after the cooldown refused: %s", why)
+				elseif floor == nil or inside == nil then
+					add(
+						checks,
+						"alley ok, moved %d studs; no alley floor to check against",
+						math.floor(movedAlley)
+					)
+				else
+					local offset = floor.CFrame:PointToObjectSpace(inside.Position)
+					local outside = math.abs(offset.X) > floor.Size.X / 2
+						or math.abs(offset.Z) > floor.Size.Z / 2
+					if outside then
+						add(
+							failures,
+							"alley answered ok but the character is outside the alley floor"
+						)
+					else
+						table.insert(notes, "alley landed inside the alley after the cooldown")
+					end
+				end
+			end
+		end
+
+		local detail = table.concat(failures, "; ")
+			.. (if #failures > 0 and #checks + #notes > 0 then "; " else "")
+			.. table.concat(checks, "; ")
+			.. (if #checks > 0 and #notes > 0 then "; " else "")
+			.. table.concat(notes, "; ")
+		if #failures > 0 then
+			return "FAIL", detail
+		end
+		if #checks > 0 then
+			return "CHECK", detail
+		end
+		return "PASS",
+			detail .. ". Now read the server output for [Net] Travel handler failed lines"
+	end
+)
+
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
 	for _ = 1, 30 do
@@ -1530,6 +1785,22 @@ Remotes.event("CatCaught").OnClientEvent:Connect(function(catId: string, isNew: 
 end)
 Remotes.event("OfflineEarnings").OnClientEvent:Connect(function(amount: number, seconds: number)
 	record("OfflineEarnings", string.format("$%d for %d s", amount, seconds))
+end)
+-- TravelResult is new with fast travel (F19); an older build has no such remote, so this waits a little, not forever.
+task.spawn(function()
+	local travelResult = Remotes.folder():WaitForChild("TravelResult", 10)
+	if travelResult == nil or not travelResult:IsA("RemoteEvent") then
+		return
+	end
+	(travelResult :: RemoteEvent).OnClientEvent:Connect(function(destination: string, ok: boolean, reason: string?)
+		local travelled: Travelled = { ok = ok, reason = reason }
+		record(
+			"TravelResult",
+			string.format("%s ok=%s reason=%s", destination, tostring(ok), tostring(reason)),
+			destination,
+			travelled
+		)
+	end)
 end)
 
 local names = {}

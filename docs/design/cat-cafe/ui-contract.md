@@ -1,6 +1,7 @@
 # Cat Cafe UI contract
 
-Owner: UI thread ("Design cat cafe UI"). v4.1, updated 2026-10-26 (v1 2026-10-25, v2, v3 and v4 earlier on 2026-10-26).
+Owner: UI thread ("Design cat cafe UI"). v5, updated 2026-10-26 (v1 2026-10-25, v2 to v4.1 earlier on 2026-10-26).
+v5 (design v0.3, features.md section 6): data v3 (tiers, roles, Mythical, five-rarity odds), closing circles for the net, press prompts, rank up card and tier pill, "Tips 60%" at night. Everything v0.3 is in the section "Design v0.3 (v5)" below, with each row marked built or planned. The v0.2 hold ring is gone with F26; the rescue hold bar stays until the rescue minigames.
 v4.1: `catch.fail` closes a hold that is still down and resets the rescue bar, so a server rejection of `GrabBegin` or `RescueBegin` never shows "Missed" or "Rescued!" and sends nothing more.
 v4 changes (gdd.md v0.2): day and night clock chip (`UI.clock`, F20), the catch tool is the Net so the prompt copy is a swing, and the 4 s Rescue hold bar with `rescueBegan` / `rescueEnded` (F21). The `gloves` upgrade is now `net`; the UI reads it from the catalog, nothing to change.
 v3 changes: ring bands come from shared Config and a full hold sends no GrabEnd (designer, data-model section 10); catalog types are re-exported from shared Types so the controller passes the catalog with no cast (reviewer S9); `equipBest` event and per-cat stats (cat stats thread); mockup page built.
@@ -11,7 +12,7 @@ Mockups: `docs/concepts/cat-cafe/ui/index.html`.
 ## Ownership and file boundaries
 
 - The UI thread owns everything under `games/cat-cafe/src/client/UI/`. Nobody else edits there; ask the UI thread instead.
-- Outside its own folder the UI requires only `ReplicatedStorage.Shared.Types` (type re-exports), `Shared.Config` (ring timing) and, in Demo only, `Shared.Catalog`. It does not touch RemoteEvents, DataStores, workspace cats or player data.
+- Outside its own folder the UI requires only `ReplicatedStorage.Shared.Types` (type re-exports), `Shared.Config` (catch and rescue timing) and, in Demo only, `Shared.Catalog`. It does not touch RemoteEvents, DataStores, workspace cats or player data.
 - The engineer owns the client controller that requires `UI`, feeds it state, and forwards UI intents to the server over remotes.
 - Catalog data (cats, upgrades, decor, lures, spots) is passed in at `UI.init`. The UI hardcodes nothing about the game's content.
 - Field names match `src/shared/Types.luau` (engineer) and `data-model.md` (designer). Where the engineer's `PlayerState` has extras (`cats`, `collection`, `carrying`, `tutorialStep`), the UI reads them when present.
@@ -26,7 +27,7 @@ games/cat-cafe/src/client/UI/      -> StarterPlayer.StarterPlayerScripts.Client.
   Scale.luau         viewport-driven UIScale, touch detection
   Demo.luau          the shared Catalog plus a pretend server: UI.demo() shows the whole UI in Studio with no backend
   Components/        Create, Button, Panel, Modal, Tween, Format, Signal, WorldMarker
-  Screens/           HUD, UpgradeShop, DecorShop, CatCollection (Book + Cat room tabs), CatchPrompt (timing ring), Toasts, Popups
+  Screens/           HUD, UpgradeShop, DecorShop, CatCollection (Book + Cat room tabs), CatchPrompt (prompt card and rescue bar), CatchCircles, RankUp, Toasts, Popups
 ```
 
 Pure Luau, no UI framework, no Wally packages. Instances are built in code (no .rbxm), so Rojo syncs the whole UI from files.
@@ -42,7 +43,9 @@ UI.init({
         upgrades = Catalog.upgrades,  -- {UpgradeDef}
         decor = Catalog.decor,        -- {DecorDef}
         lures = Catalog.lures,        -- {LureDef} with odds
-        spots = Catalog.spots,        -- {SpotDef}, needed by the cat room's Place picker
+        spots = Catalog.spots,        -- {SpotDef} role slots, needed by the cat room's Assign picker
+        tiers = Catalog.tiers,        -- {TierDef}, v0.3: tier names, gates and the rank up card
+        areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F lure picker, gamepad B closes (default true)
 })
@@ -55,7 +58,7 @@ UI.update({ cats = profile.cats, collection = profile.collection })   -- catsOwn
 UI.events.buyUpgrade:Connect(function(upgradeId) Remotes.BuyUpgrade:FireServer(upgradeId) end)
 UI.events.placeCat:Connect(function(uid, spotId) Remotes.PlaceCat:FireServer(uid, spotId) end)
 UI.events.grabBegan:Connect(function(strayId) Remotes.GrabBegin:FireServer(strayId) end)
-UI.events.grabEnded:Connect(function(strayId) Remotes.GrabEnd:FireServer(strayId) end)  -- the server scores the hold time itself
+UI.events.catchPressed:Connect(function(strayId, index) Remotes.CatchPress:FireServer(strayId, index) end)  -- the server stamps the time
 
 -- catch flow: one call and every stray's custom ProximityPrompt is drawn by the UI
 UI.catch.bindProximityPrompts()
@@ -68,7 +71,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | Function | Purpose |
 |---|---|
 | `UI.init(config)` | Build all ScreenGuis under PlayerGui. Call once. Returns `UI`. |
-| `UI.update(partialState)` | Merge into current state and re-render. Derives `cafeLevel` from `upgradeLevels.cafe_level`, `tables` from `upgradeLevels.tables`, `catsOwned` from `cats` when those are absent. |
+| `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
 | `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`. One open at a time. |
@@ -86,44 +89,95 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.destroy()` | Tear everything down and disconnect every connection. |
 | `UI.demo()` | Runs Demo.luau. Returns a stop function. Not for production. |
 
-### Catch prompt: swing ring and rescue bar (`UI.catch`)
+### Catch prompt and rescue bar (`UI.catch`)
 
-Copy follows the Net: "Hold to swing", "Swing!" on release, the mobile button reads SWING. A prompt whose model has `Rescue = true` is a stuck cat (F21): "Hold to rescue", a bar fills over the 4 s hold instead of the ring, the button reads HOLD, there is no band and no fail.
+A stray's prompt has `HoldDuration = 0` (F26): the card reads "Catch", the mobile button reads CATCH, and one press asks for the closing circles (see Design v0.3 below). A prompt whose model has `Rescue = true` is a stuck cat (F21): with a hold duration it reads "Hold to rescue", a bar fills over the 4 s hold, the button reads HOLD, there is no band and no fail; with `HoldDuration = 0` it reads "Rescue" and waits for the rescue minigame.
 
 | Function | Purpose |
 |---|---|
-| `bindProximityPrompts()` | Recommended. Watches `ProximityPromptService`. Any prompt with `Style = Custom` and a `CatId` attribute (on the prompt, its Model or its parent) gets the UI. Reads `StrayId`, `CatName`, `Rarity`, `Stars`, `Charm` the same way, falling back to the catalog by `CatId`. Hold begin starts the ring with the prompt's `HoldDuration` and fires `events.grabBegan`. A release fires `events.grabEnded(strayId, ringHint, catId)` once. A hold that runs its full length fires nothing: the ring shows "Missed" and the UI waits for the controller's `catch.fail` or `showCatFound` (the server resolves the attempt itself about 0.25 s later). On touch, the big GRAB button calls `prompt:InputHoldBegin/End`, so the server sees an ordinary hold. |
+| `bindProximityPrompts()` | Recommended. Watches `ProximityPromptService`. Any prompt with `Style = Custom` and a `CatId` attribute (on the prompt, its Model or its parent) gets the UI. Reads `StrayId`, `CatName`, `Rarity`, `Stars`, `Charm` the same way, falling back to the catalog by `CatId`. A press on a stray's prompt fires `events.grabBegan(strayId, catId)` and the card shows "Get ready..." until `showCircles` or `fail`. A rescue hold fires `events.rescueBegan` on hold begin and `events.rescueEnded` on release or after the full hold. On touch, the big CATCH button calls `prompt:InputHoldBegin/End`, so the server sees an ordinary press or hold. |
 | `unbindProximityPrompts()` | Stop watching. |
-| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode?, stars?, charm?, kind?, rescueSpotId? }`. `kind` is `"swing"` (default) or `"rescue"`. |
-| `startRescue(duration?)` / `stopRescue(completed)` | Manual rescue hold. Default duration 4 s (`Config.RescueHoldSeconds` once it exists). `stopRescue(true)` shows "Rescued!" and leaves the card up for `showCatFound` or `hide`; `stopRescue(false)` resets the bar. |
-| `startRing(config?)` | `config = { duration?, goodBand?, perfectBand? }`. The outer ring shrinks from 1 to 0 over `duration` (default `Config.GrabHoldSeconds`, 1.5 s). The band is the end of the shrink: good is the last `Config.RingGoodWindow` s (0.80, ring scale 0 to 0.533), perfect the last `Config.RingPerfectWindow` s (0.30, scale 0 to 0.2). Pass bands only to experiment. |
-| `stopRing()` | Call on release. Shows "Perfect!", "Good" or "Too early" from where the ring was and returns `"perfect"`, `"good"` or `"miss"` as a hint. The server scores the real time between GrabBegin and GrabEnd (release 1.20 to 1.50 s perfect, 0.70 to 1.50 s good), so the hint decides nothing. |
-| `expire()` | Call when a manual hold runs its full length with no release. Miss flash, nothing sent. `bindProximityPrompts` does this itself on `PromptTriggered`. |
-| `fail(reason?, retry?)` | `retry = true` keeps the prompt open with the reason, or "Missed, try again" ("Hold again to rescue it" on a rescue), for Commons, lured strays and rescues turned down for now. Otherwise it flashes the reason or "It got away" and hides. A fail that arrives while a hold is still down (the server turned down `GrabBegin` or `RescueBegin`) closes that hold: its release or full length fires no `grabEnded` or `rescueEnded`, and the rescue bar resets and hides. The player holds again to retry. |
+| `show(info)` | Manual use. `info = { catId?, strayId?, catName?, rarity?, holdDuration?, actionText?, keyCode?, stars?, charm?, kind?, rescueSpotId?, press?, shiny? }`. `kind` is `"swing"` (default, the net) or `"rescue"`. |
+| `startRescue(duration?)` / `stopRescue(completed)` | Manual rescue hold. Default duration `Config.RescueHoldSeconds` (4 s). `stopRescue(true)` shows "Rescued!" and leaves the card up for `showCatFound` or `hide`; `stopRescue(false)` resets the bar. |
+| `fail(reason?, retry?)` | `retry = true` keeps the prompt open with the reason, or "Missed, try again" ("Hold again to rescue it" on a rescue hold), for strays and rescues turned down for now. Otherwise it flashes the reason or "It got away" and hides. A fail that arrives while a rescue hold is still down (the server turned down `RescueBegin`) closes that hold: its release or full length fires no `rescueEnded`, and the rescue bar resets and hides. The player holds again to retry. |
 | `success(catId)` is not needed: call `UI.showCatFound` when CatCaught arrives. | |
-| `hide()` / `setProgress(alpha)` / `getActivePrompt()` | Utilities. |
+| `hide()` / `getActivePrompt()` | Utilities. |
 
-Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holding the whole duration triggers the prompt: the UI shows "Missed", sends no GrabEnd (a GrabEnd then would score as a 1.5 s release) and waits for the server's result. The ring is a bonus, never a gate: a ring miss still rolls the catch chance.
+## Design v0.3 (v5)
+
+The UI stays a view: it never fires remotes. Built rows are in the UI now; planned rows are the API the next UI pull requests add, listed so the engineer can wire against them. Times are server time (`Workspace:GetServerTimeNow()`) unless a row says `os.time()`.
+
+### Data v3 (built, F22 and F25)
+
+`state.tier` (1 to 5) replaces `cafeLevel`. Upgrades and Decor gate on `requiresTier` and `requiresTierAtLevel` and say "Tier 3" on a locked button; the Upgrades subtitle and the top pill say "Tier 2 · Cozy Cafe". Mythical (#FF5E7E) replaces Secret. Lure odds list all five rarities, and Details splits each rarity equally across that rarity's cats in every area the player's tier has opened (bait rule, data-model section 8), rebuilt on a tier change.
+
+Cat room (F25): Assign opens a role picker, one row per role, never a slot number. A row says "2 of 3 free", "All 2 taken, more at Tier 3", "Full" or "Opens at Tier 3"; the cat's favorite role shows a star, "1.5x" and a gold button. Assign fires `placeCat(uid, spotId)` with the first free open slot of that role. Each cat row has a "Loves Barista" tag that turns gold while the cat works that role, and its status names the slot ("Barista 2"). Role display names are the role ids capitalised.
+
+### Press prompts (built)
+
+A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card reads "Catch" or "Rescue" (the prompt's `ActionText` wins when set), the touch button reads CATCH or RESCUE, and one press fires `events.grabBegan(strayId, catId)` or `events.rescueBegan(rescueSpotId, catId)`. The card then shows "Get ready..." until the server answers with `catch.showCircles`, the rescue minigame or `catch.fail(reason, retry)` for a refusal. A rescue prompt with a hold duration keeps the v0.2 rescue bar until the minigames. The `Shiny` attribute on a stray shows on the circles header.
+
+### Closing circles (`UI.catch`, built, F26)
+
+| Function | Purpose |
+|---|---|
+| `showCircles(strayId, circles, windows)` | From `CatchSchedule`. `circles = { { startsAt, shrinkSeconds, x, y } }`, `windows = { perfect, good }` (half-widths in seconds). The prompt card makes way for a full-screen overlay: a header with the cat, rarity and stars, then each circle at its position. Its ring fades in 0.35 s before `startsAt`, the closer shrinks from three times the ring's size and meets the ring at `startsAt + shrinkSeconds`. The Good band (green) and Perfect band (gold) are drawn from `windows` at the closer's speed, so they show the real timing. `x` and `y` (0 to 1) map into the middle 64% by 50% of the screen. |
+| (input) | A tap anywhere, a click, E, Space, or the gamepad's A or R2 is a press. The press goes to the lowest circle still open: a press before that circle's `startsAt` is ignored, and a circle whose window has closed (target + good + `CatchLatencyCapSeconds`, 0.15) counts as a miss so the next press goes to the next circle, the order the server judges in. Each press fires `events.catchPressed(strayId, index)`. The client sends no time. Grades drawn now are hints from the device clock. |
+| `showResult(strayId, scores, chance, success)` | From `CatchResult`. Each circle shows the server's grade (1 Perfect, 0.5 Good, 0 Miss), the banner shows "Catch chance 75%" and "Caught!", "Missed, try again" (Common) or "It got away". The overlay closes after 1.6 s; a Common that stays gets its prompt card back while the player is in range. Call nothing else for a CatchResult. |
+| `hideCircles()` / `circlesActive()` | Utilities. The overlay also closes itself 4 s after the last target if no result came. |
+
+### Tiers and rank up (built, F24)
+
+| API | Purpose |
+|---|---|
+| `catalog.tiers` | `{ TierDef }`, data-model 5b: `{ tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps = { tables, espresso, net } }`. |
+| `state.tier` | 1 to 5. With `catalog.tiers` the top pill shows "Tier 2 · Cozy Cafe", what the next tier still needs and a progress bar, and a gold "Rank up ready!" tag when every requirement is met. Tapping it opens the `RankUp` screen. |
+| `UI.open("RankUp")` | The card: next tier's name, each requirement ticked or not (coins, different cats from `collection`, the rarity from Tier 3), what it opens (area, role slots, tips multiplier, raised upgrade caps, decor with `requiresTier`), and a gold "Rank up · $1,500" button that only lights up when everything is met. A `rankUp` field in ProfileSync is not needed; the card computes progress from the catalog and the state. |
+| `events.rankUp()` | Rank up pressed. Forward as `RankUp`; the server checks everything again. |
+
+### Clock chip (built, F31)
+
+At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier` (0.6 until the constant exists).
+
+### Planned in the next UI pull requests
+
+| API | Purpose |
+|---|---|
+| `UI.rescue.show(rescueSpotId, challenge)` | From `RescueChallenge`. `challenge = { kind = "bar" or "shake_catch", startsAt, phase, speed, zoneWidth, zones = { centre per hit }, hitsNeeded, paws }`. The marker's position at time t is the triangle wave of `phase + speed * (t - startsAt)` with period 2 (0 to 1 and back), the shared `markerAt` helper. Paw lives, a hit count and Cancel. A tree (`shake_catch`) shakes the branch on each hit; the server then sends a second challenge `{ kind = "circle", circle = { startsAt, shrinkSeconds, x, y }, windows }` drawn as one catch circle. Presses fire `events.rescuePressed(rescueSpotId)`, Cancel fires `events.rescueCancelled(rescueSpotId)`. |
+| `UI.rescue.update(hits, pawsLeft, done, success)` | From `RescueResult`. A hit moves the zone to `zones[hits + 1]`, a miss greys a paw. |
+| `UI.bait.openPicker()` | The bowl's food picker: owned foods with counts, five-rarity odds and the per-cat split. Fires `events.useLure(lureId)`. |
+| `state.bait = { lureId, readyAt }` | `readyAt` is server `os.time()`. The HUD shows a countdown chip, then "Cat waiting!". |
+| `UI.bait.showReady(catView)` | From `BaitReady`: the cat, rarity, stars and sparkle with Tame and Let go. Fires `events.resolveBait("tame" or "letgo")`. |
+| Food cards | Every food card shows the five-rarity odds before Buy and the per-cat split for the player's unlocked areas ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"), and says when a rank up will change the split. |
+| `UI.dealer.open(slots)` / `UI.dealer.update(slots)` | From `DealerStock`: `slots = { { lureId, cost, bought } }`, three cards with odds, price and a moon timer to dawn. Fires `events.buyDealerFood(slot)`. |
+| Action pill | Custom-style prompts without a `CatId` (bait bowl, dealer cart, rich tip, Bump) get a small pill with the key and `ActionText`; on touch the pill is the button. The controller handles `PromptTriggered` as today. |
+| `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
+| Shiny | A sparkle badge on cards, the carry banner and the book; the book gets a Shiny page with its own count from `state.shinyCollection`. `CatInstance.variant = "shiny"`. |
+| Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`; the shown name is `CatInstance.name` or the catalog name. |
+| Fast travel | Five area buttons; locked ones grey with "Tier 3". Fires `events.travel(areaId)`. |
+
+Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Retired once the rescue minigames and the bait bowl land: `rescueEnded`, `startRescue`, `stopRescue` and `equipLure`; they stay until the controller drops them so main keeps compiling.
 
 ## Events (UI -> game), all `Signal` with `:Connect(fn)` returning a connection with `:Disconnect()`
 
 | Event | Args | Fired when |
 |---|---|---|
-| `buyUpgrade` | `upgradeId` | Buy pressed (UI only enables it when affordable, not maxed, cafe gate met) |
+| `buyUpgrade` | `upgradeId` | Buy pressed (UI only enables it when affordable, not maxed, tier gate met) |
 | `buyDecor` | `decorId` | Buy pressed in Decor |
 | `toggleDecor` | `decorId, placed` | Place / Remove pressed on an owned decor item |
 | `buyLure` | `lureId` | Buy pressed in the lure picker (odds are on screen before the button) |
 | `equipLure` | `lureId` | Equip pressed |
-| `placeCat` | `uid, spotId` | A free, open spot picked for a cat in the Cat room |
+| `placeCat` | `uid, spotId` | Assign pressed on a role in the Cat room; `spotId` is the first free open slot of that role |
 | `unplaceCat` | `uid` | Rest pressed on a placed cat |
 | `sellCat` | `uid` | Sell confirmed. Rare and above ask twice: Sell turns into "Sell $150", Rest turns into an equal-sized Cancel. |
-| `equipBest` | none | "Equip best" pressed at the top of the Cat room: the server places the highest-rated cats on the open spots |
+| `equipBest` | none | "Equip best" pressed at the top of the Cat room: the server places the highest-rated cats on the open role slots |
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `grabBegan` | `strayId, catId` | Hold began on a bound stray prompt |
-| `grabEnded` | `strayId, ringHint, catId` | The player released during the hold. `ringHint` is the client's `perfect`, `good` or `miss` for feedback only; the server scores timing. Not fired when the hold runs out. |
 | `rescueBegan` | `rescueSpotId, catId` | Hold began on a prompt whose model has `Rescue = true`. Forward as RescueBegin. |
 | `rescueEnded` | `rescueSpotId, catId, completed` | `completed = true` after the full 4 s hold: forward as RescueEnd, the server moves the player to carry. `false` is an early release: the bar reset, send what the server needs to unlock the spot (or nothing). |
 | `screenOpened` | `name or nil` | Modal opened or closed |
+| `catchPressed` | `strayId, index` | v0.3: a press on circle `index` (1-based). Forward as CatchPress. |
+| `rankUp` | none | v0.3: Rank up pressed with every requirement met. Forward as RankUp. |
 
 ## State shape (`Types.PlayerState`)
 
@@ -131,36 +185,39 @@ Set each stray prompt's `HoldDuration` to `Config.GrabHoldSeconds` (1.5). Holdin
 {
     money: number,
     incomePerSecond: number,
-    cafeLevel: number,                       -- or send upgradeLevels.cafe_level and the UI derives it
-    cafeProgress: number?, cafeProgressText: string?,   -- unused in the slice (cafe level is bought)
+    tier: number,                            -- v0.3: 1 to 5, replaces cafeLevel
+    cafeProgress: number?, cafeProgressText: string?,   -- unused (the tier pill computes its own progress)
     tables: number?, customers: number?,
     catsOwned: { [catId]: { count } },       -- derived from cats when cats is sent
     upgradeLevels: { [upgradeId]: number },
     decorOwned: { [decorId]: boolean }, decorPlaced: { [decorId]: boolean },
     lures: { [lureId]: number }, equippedLure: string?,
     -- engineer extras the UI uses when present
-    cats: { [uid]: { uid, catId, variant?, caughtAt?, spotId?,       -- enables the Cat room tab
+    cats: { [uid]: { uid, catId, variant?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
                      level?, xp?, xpToNext?, charm?, stars?, rating? } }, -- cat stats thread; shown when present
-    collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 12 count
+    collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 50 count
+    shinyCollection: { [catId]: firstShinyAt }?,                   -- v0.3: the book's Shiny page (planned)
     carrying: string?, tutorialStep: number?,
 }
 ```
 
 ## Catalog shapes (re-exported from `src/shared/Types.luau`)
 
-`UI.Types.CatDef`, `UpgradeDef`, `DecorDef`, `LureDef`, `SpotDef`, `LureOdds`, `Rarity`, `Area`, `SpotType` and `RingResult` are the shared types, so `Catalog.cats` and friends pass straight into `UI.init`. Fields the UI reads:
+`UI.Types.CatDef`, `UpgradeDef`, `DecorDef`, `LureDef`, `SpotDef`, `TierDef`, `AreaDef`, `LureOdds`, `Rarity`, `Role`, `Area`, `SpotType`, `CatchMethod`, `CatchCircle`, `CatchWindows` and `CircleGrade` are the shared types, so `Catalog.cats` and friends pass straight into `UI.init`. Fields the UI reads:
 
 ```lua
-CatDef     : id, name, rarity, incomePerSecond, area, favoriteSpot, description, color {r,g,b}  (placeholder body colour until renders exist)
-UpgradeDef : id, name, description, maxLevel, costs {n}, startLevel, requiresCafeLevel?, requiresCafeLevelAtLevel? { [level] = cafe }
-DecorDef   : id, name, cost, category, effect, description, requiresCafeLevel?   (asset is the 3D model; the card draws a lettered tile)
-LureDef    : id, name, cost, attracts, description, odds { Common, Rare, Epic, Legendary }  -- percentages, sum 100
-SpotDef    : id, spotType, cafeLevel
+CatDef     : id, name, rarity, incomePerSecond, area (one of five), favoriteRole, description, color {r,g,b}  (placeholder body colour until renders exist)
+UpgradeDef : id, name, description, maxLevel, costs {n}, startLevel, requiresTier?, requiresTierAtLevel? { [level] = tier }
+DecorDef   : id, name, cost, category, effect, description, requiresTier?   (asset is the 3D model; the card draws a lettered tile)
+LureDef    : id, name, cost, attracts, source, description, odds { Common, Rare, Epic, Legendary, Mythical }  -- percentages, sum 100
+SpotDef    : id ("barista_1"), spotType (the role), tier
+TierDef    : tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps { tables, espresso, net }
+AreaDef    : id, name, tier, ...   (the UI reads id, name and tier)
 ```
 
 `CatInstance`, `PlayerState` and `PartialState` stay the UI's own (optional fields for the cat stats extras); the controller passes `cats` with a cast because Luau table fields are invariant.
 
-`costs[n]` is the price of level n. Starting levels (`cafe_level` 1, `espresso` 1) mean `costs[1]` is never offered. Odds are printed on every lure row as "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.5% Legendary" and a labelled Details button expands the per-cat split per area, computed from the catalog (every cat of a rarity in an area has the same chance).
+`costs[n]` is the price of level n. A starting level (`espresso` 1) means `costs[1]` is never offered. Odds are printed on every lure row as "Odds: 70% Common · 22% Rare · 6% Epic · 1.8% Legendary · 0.2% Mythical" and a labelled Details button expands the per-cat split, computed from the catalog: every cat of a rarity in the areas the player's tier has opened has the same chance.
 
 ## Mobile and scaling rules the UI follows
 
@@ -170,7 +227,7 @@ SpotDef    : id, spotType, cafeLevel
 - `ScreenInsets = CoreUISafeInsets`: the HUD keeps clear of the Roblox top bar.
 - Modals are 92% x 86% of the viewport with a UISizeConstraint cap; lists scroll with `AutomaticCanvasSize`.
 - Money uses `Format.money` ("$8,420", "$1.2M") so it never overflows.
-- DisplayOrder: HUD 10, catch prompt 15, modals 20, toasts 30, popups 40.
+- DisplayOrder: HUD 10, catch prompt 15, modals 20, catch circles 25, toasts 30, popups 40.
 
 ## Shop rules followed (growth thread, docs/growth/monetization.md section 6)
 
@@ -178,10 +235,10 @@ Odds visible before any purchase and the detail control is labelled "Details", n
 
 ## Names agreed
 
-- Screens: `Upgrades`, `Decor`, `Collection`. Rarities exactly: `Common`, `Rare`, `Epic`, `Legendary`, `Secret`.
+- Screens: `Upgrades`, `Decor`, `Collection`, `RankUp`. Rarities exactly: `Common`, `Rare`, `Epic`, `Legendary`, `Mythical` (v0.3; Mythical is #FF5E7E with white text).
 - Stray prompt attributes (on the model, data-model section 13): `StrayId`, `CatId`, `CatName`, `Rarity`, plus `Stars` and `Charm` from the cat stats thread; prompt `Style = Custom`. A stuck cat adds `Rescue = true` and `RescueSpotId` (the id RescueBegin and RescueEnd take; falls back to `StrayId`).
 - Clock folder (`ReplicatedStorage.Clock`, data-model section 9): attributes `Phase` ("day" or "night") and `PhaseEndsAt` (server `os.time()` seconds).
-- Ring timing constants live only in `Shared.Config`: `GrabHoldSeconds`, `RingGoodWindow`, `RingPerfectWindow`. The UI derives its bands from them.
+- Catch timing lives in `Shared.Config` and the schedule: the circles' bands come from `CatchSchedule`'s windows, the miss cut-off from `CatchLatencyCapSeconds`, the rescue bar from `RescueHoldSeconds`.
 - Currency is coins shown as `$` (`Theme.currencySymbol`).
 
 ## Not in scope for the UI thread, and space left for later
@@ -190,7 +247,7 @@ Remotes, validation, rate limits, data saving, cat AI, decor placement in the wo
 
 ## Check gate status
 
-StyLua: formatted and parse-clean (20 files). QA's cloud checker (`tools/cloudcheck/analyze.mjs`, strict Luau with the Roblox definitions) reports 0 type errors under `src/client/UI`. `luau-lsp analyze` and `selene` with the real sourcemap have not run yet; first person to run `check.sh` or `check.ps1` on a PC, please send the UI thread the output.
+CI runs the full gate (rojo sourcemap, luau-lsp 1.70 analyze, selene, stylua --check) on every pull request. The UI thread also runs luau-lsp 1.70 with the real sourcemap, selene and StyLua before each push.
 
 ## Mockups
 

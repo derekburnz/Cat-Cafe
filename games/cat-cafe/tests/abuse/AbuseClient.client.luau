@@ -518,7 +518,7 @@ case(
 		fire("BuyUpgrade", {})
 		fire("BuyUpgrade", true)
 		fire("BuyDecor", "Neon Sign")
-		fire("PlaceCat", 123, "window_1")
+		fire("PlaceCat", 123, "waiter_1")
 		fire("ToggleDecor", "plants", "yes")
 		fire("EquipLure", 7)
 		fire("TutorialAdvance", "two")
@@ -569,7 +569,7 @@ case(
 case(
 	"shop",
 	Enum.KeyCode.Zero,
-	"Shop gates and unaffordable: level gated buys and placement, tables with no coins",
+	"Shop gates and unaffordable: Tier 2 and 3 buys and a Tier 2 slot at Tier 1, tables with no coins",
 	function()
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
@@ -579,34 +579,45 @@ case(
 		local notes = {}
 		-- What a buy or placement would change, read from the state instead of toast wording.
 		local function owned(now: Types.PlayerState): string
-			local onCushion = false
+			local onLocked = false
 			for _, view in now.cats do
-				onCushion = onCushion or view.spotId == "cushion_1"
+				onLocked = onLocked or view.spotId == "waiter_2"
 			end
 			return string.format(
-				"lure_bowl %d, tables %d, neon_sign %s, cushion_1 %s",
-				now.upgradeLevels["lure_bowl"] or 0,
+				"tier %d, tables %d, net %d, plants %s, neon_sign %s, waiter_2 %s",
+				now.tier,
 				now.upgradeLevels["tables"] or 0,
+				now.upgradeLevels["net"] or 0,
+				tostring(now.decorOwned["plants"] == true),
 				tostring(now.decorOwned["neon_sign"] == true),
-				if onCushion then "taken" else "free"
+				if onLocked then "taken" else "free"
 			)
 		end
 		local ownedBefore = owned(state)
-		if state.cafeLevel == 1 then
-			fire("BuyUpgrade", "lure_bowl")
+		-- Tier 1 (data-model 5b): plants need Tier 2, the neon sign Tier 3, net level 2 Tier 2, waiter_2 opens at Tier 2.
+		if state.tier == 1 then
+			fire("BuyDecor", "plants")
 			fire("BuyDecor", "neon_sign")
+			if (state.upgradeLevels["net"] or 0) == 1 then
+				fire("BuyUpgrade", "net")
+			else
+				table.insert(notes, "net cap skipped: net is not at level 1")
+			end
 			local anyUid: string? = nil
 			for uid in state.cats do
 				anyUid = uid
 				break
 			end
 			if anyUid ~= nil then
-				fire("PlaceCat", anyUid, "cushion_1")
+				fire("PlaceCat", anyUid, "waiter_2")
 			end
 		else
 			table.insert(
 				notes,
-				string.format("gates skipped: cafe level is %d, not 1", state.cafeLevel)
+				string.format(
+					"gates skipped: tier is %d, not 1; run Debug.setTier(player, 1) and rerun",
+					state.tier
+				)
 			)
 		end
 		local tables = Catalog.getUpgrade("tables")
@@ -661,7 +672,7 @@ case(
 		end
 		local before, cats = freshWallet(), catCount()
 		local startedAt = os.clock()
-		fire("PlaceCat", "not_my_cat", "window_1")
+		fire("PlaceCat", "not_my_cat", "waiter_1")
 		fire("SellCat", "not_my_cat")
 		fire("UnplaceCat", "not_my_cat")
 		task.wait(1.5)

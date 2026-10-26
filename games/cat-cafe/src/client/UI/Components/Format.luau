@@ -98,6 +98,14 @@ function Format.roleName(role: string): string
 	return role:sub(1, 1):upper() .. role:sub(2)
 end
 
+-- 0.6 -> "60%", 0.125 -> "12.5%", 0.004 -> "0.4%" (whole percentages, one decimal under 10%)
+function Format.percent(fraction: number): string
+	local value = fraction * 100
+	local text = string.format(if value >= 10 or value == 0 then "%.0f" else "%.1f", value)
+	text = text:gsub("%.0$", "")
+	return text .. "%"
+end
+
 -- 3 -> "★★★☆☆" (always five glyphs so rows line up)
 function Format.stars(stars: number, max: number?): string
 	local total = max or 5

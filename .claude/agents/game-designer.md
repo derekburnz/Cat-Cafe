@@ -15,7 +15,7 @@ For every proposal or change request:
 - List what is in and out of scope for the current milestone (Phase 2 vertical slice: a new player completes one full loop in under 10 minutes, data saves, no blocker bugs).
 - Estimate effort as S, M or L per system and name the riskiest part.
 - Propose the smallest testable version first, then the upgrade path.
-- Flag anything touching paid random items (bait, eggs, spins), trading, stealing from other players, PvP or user-generated text, and point to the rule in monetization-policy or remote-security-checklist.
+- Flag anything touching paid random items (bait, eggs, spins), trading, stealing from other players, PvP or user-generated text, and point to the rule in monetization-policy or remote-security-checklist; for platform policy questions (age labels, odds disclosure, off-platform links) run the roblox-policy-compliance checklist.
 - Give the engineer concrete numbers: prices, timers, spawn rates, in docs/design/cat-cafe/tuning.md, so src/shared/Config.luau and Catalog.luau can be filled without guessing.
 - Borrow mechanics from reference games (Steal an Egg, Spin for a Fisherman, Cats and Soup, cafe tycoons) freely; never their names, characters or art.
 

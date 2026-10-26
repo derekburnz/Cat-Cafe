@@ -11,6 +11,7 @@ All images here are rendered from the generated Blender assets in `assets/cat-ca
 | `sheet_outdoors.png` | Alley and park sets. |
 | `sheet_items.png` | Food bowls, kibble, tuna, salmon, gloves. |
 | `previews/<Name>.png` | One three-quarter view per asset, same name as the FBX in `assets/cat-cafe/exports/`. |
+| `views/<Name>.png` | Five-view inspection sheet per asset (front, left, back, top, three-quarter), no floor; Workbench shading on a PC, Cycles CPU in a cloud container (see `assets/cat-cafe/blender/README.md`). Written by `build_all.py --render`; pairs with `assets/cat-cafe/exports/gates.md`. |
 | `CatCafe_Palette.png` | The 64-swatch texture every mesh uses (style guide section 2). |
 
 Glass and water parts render opaque or are hidden in these previews; in Studio they get Transparency per `manifest.json`. Neon tubes and bulbs are flat color here and get the Neon material plus a light in Studio.

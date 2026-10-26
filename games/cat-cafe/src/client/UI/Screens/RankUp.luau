@@ -177,7 +177,8 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 			-- "or better": a rarer cat also counts (designer, data-model 5b), matching the server's
 			-- Catching.rarityAtLeast over distinct catIds in the collection
 			local count = nextTier.needsRarityCount or 1
-			local minimum = rarityRank(needsRarity)
+			-- an unknown rarity can never be met, like the server's rarityAtLeast (rank 99)
+			local minimum: number = table.find(Theme.rarityOrder, needsRarity) or math.huge
 			local have = 0
 			for _, catId in ids do
 				local rarity = rarityOf[catId]

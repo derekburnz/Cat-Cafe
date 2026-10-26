@@ -78,7 +78,7 @@ SoundService
   Sfx       SoundGroup  0.8   muted when settings.sfx is false
   Ui        SoundGroup  0.7   muted when settings.sfx is false
 ```
-`src/client/Audio/init.luau` builds the groups at startup from `Cues.luau` and exposes `play(cueId, at)` (2D when `at` is nil, else parented to that Part or Attachment) plus `setMusic(name)` and `setAmbience(name)`. A cue entry:
+`src/client/Audio/init.luau` builds the groups at startup and exposes `start()`, `applySettings(settings)`, `play(cueId, at?, step?)` (2D when `at` is nil, else on that Part, Attachment or Vector3; `step` is the pentatonic note), `loop(cueId, at?)` (returns a stop function), `setZone(zone)` and `bindMoments(moments)`. Music picks its bed from the clock itself. The hook contract for the engineer is `src/client/Audio/README.md`; the rules with no Roblox services live in `Audio/Logic.luau` so they can be unit tested. A cue entry in `Cues.luau`:
 ```luau
 netSwing = {
 	ids = {}, -- "rbxassetid://..." strings; empty means silent, never an error

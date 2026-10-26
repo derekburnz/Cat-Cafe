@@ -40,6 +40,7 @@ Build in this order so there is something playable after each step and every ste
 | F15 | Cosmetic customers on the client with seats per table, coin effects via UI.floatText | P2 | S | engineer, asset | F08 | Customers fill seats, no server cost, under 2 ms per frame on a phone |
 | F16 | Analytics events per data-model section 16 | P2 | S | engineer | F13 | Events appear in the Creator Hub analytics view |
 | F17 | Leaderboards: tips per second and cats found, "Cafe Owner" tag at cafe level 5 | P2 | S | engineer, ui | F04 | Boards update within 60 s |
+| F18 | Cat stats and Equip best (data-model section 4b): charm rolled at catch, stars on the prompt and in the cat room, levels from time placed, rating shown per cat, EquipBest remote and button that places the best cats on the open spots | P1 | M | cat stats thread, ui | F02, F03, F04 | Two Tabbies with different charm earn different rates; a cat levels after 60 s placed; Equip best on a cafe with more cats than spots matches a hand-computed best placement |
 | F18 | Visiting: walk into any cafe and see its placed cats and decor | P2 | S | engineer | F02, F08 | Other players' cafes replicate placed cats |
 | F19 | Fast travel: Home, Alley and Park buttons on the HUD, disabled while carrying | P2 | S | engineer, ui | F01, F07 | Tap Alley from the cafe and arrive at its entrance; button greyed while carrying |
 

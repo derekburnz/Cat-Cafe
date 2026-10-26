@@ -836,11 +836,11 @@ UI.clock = {}
 
 local clockConnections: { RBXScriptConnection } = {}
 
--- phaseEndsAt is server os.time() seconds (the Clock folder's PhaseEndsAt). serverNow, when given
--- (ProfileSync's serverTime), calibrates the countdown so a wrong device clock does not skew it.
-function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number, serverNow: number?)
+-- phaseEndsAt is server os.time() seconds (the Clock folder's PhaseEndsAt). The chip counts down
+-- against Workspace:GetServerTimeNow(), so nothing here reads the device clock.
+function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if hud then
-		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt }, serverNow)
+		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })
 	end
 end
 

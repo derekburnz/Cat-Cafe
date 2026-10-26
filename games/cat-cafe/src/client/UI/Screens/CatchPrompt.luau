@@ -508,7 +508,7 @@ function CatchPrompt.startRescue(self: any, duration: number?)
 	self._action.Text = "Keep holding"
 	self._action.TextColor3 = Theme.hud.text
 	local elapsed = 0
-	self._rescueConnection = RunService.RenderStepped:Connect(function(dt: number)
+	self._rescueConnection = RunService.Heartbeat:Connect(function(dt: number)
 		elapsed += dt
 		local alpha = math.clamp(elapsed / total, 0, 1)
 		self._rescueFill.Size = UDim2.fromScale(alpha, 1)

@@ -230,7 +230,7 @@ function Demo.run(UI: any): () -> ()
 		local phase: Types.ClockPhase = "day"
 		while running do
 			local length = if phase == "day" then 45 else 30
-			UI.clock.set(phase, now() + length, now())
+			UI.clock.set(phase, now() + length)
 			task.wait(length)
 			phase = if phase == "day" then "night" else "day"
 			if running then

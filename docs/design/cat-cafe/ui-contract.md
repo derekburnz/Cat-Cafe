@@ -79,7 +79,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.floatText(worldPosition, text, color?)` | Rising "+$8" at a world point (customers' coin pops). |
 | `UI.setCarrying(info?)` | `info = { catId, catName?, rarity?, door: BasePart? }`. Bottom-centre banner "Carrying Void" plus a world marker with distance over the door. `nil` clears. |
 | `UI.tutorial.show(text, target?, markerLabel?)` / `UI.tutorial.hide()` | One-line gold strip at the bottom and, with a target (BasePart, Attachment or Vector3), a marker in the world. |
-| `UI.clock.set(phase, phaseEndsAt, serverNow?)` | Day and night chip under the cats pill: sun or moon and "Day 2:31" counting down. `phase` is `"day"` or `"night"`, `phaseEndsAt` server `os.time()` seconds. Pass ProfileSync's `serverTime` as `serverNow` so the countdown does not trust the device clock. |
+| `UI.clock.set(phase, phaseEndsAt)` | Day and night chip under the cats pill: sun or moon and "Day 2:31" counting down. `phase` is `"day"` or `"night"`, `phaseEndsAt` server `os.time()` seconds. The countdown runs on `Workspace:GetServerTimeNow()`, never the device clock. |
 | `UI.clock.bind(ReplicatedStorage.Clock)` / `UI.clock.unbind()` | Easiest: reads the folder's `Phase` and `PhaseEndsAt` attributes and follows changes. `UI.clock.clear()` hides the chip. |
 | `UI.setVisible(bool)` | Hide the whole UI for cutscenes or screenshots. |
 | `UI.destroy()` | Tear everything down and disconnect every connection. |

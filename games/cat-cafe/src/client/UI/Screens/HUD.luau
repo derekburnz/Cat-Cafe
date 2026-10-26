@@ -5,6 +5,7 @@
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -26,7 +27,7 @@ export type HUD = {
 	render: (self: HUD, state: Types.PlayerState) -> (),
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
-	setClock: (self: HUD, clock: Types.ClockState?, serverNow: number?) -> (),
+	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	togglePicker: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
@@ -869,23 +870,24 @@ local function clockText(phase: Types.ClockPhase, remaining: number): string
 	)
 end
 
--- Day and night chip. nil hides it. serverNow (ProfileSync's serverTime) calibrates the countdown so a
--- wrong device clock does not skew it; without it the device's os.time() is taken as server time.
-function HUD.setClock(self: any, clock: Types.ClockState?, serverNow: number?)
+-- Day and night chip. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's
+-- synchronised epoch clock, so it compares with the server's os.time() in PhaseEndsAt and never trusts
+-- the device clock (data-model section 1, reviewer S16).
+function HUD.setClock(self: any, clock: Types.ClockState?)
 	self:_stopClock()
 	if not clock then
 		self._clock.Visible = false
 		return
 	end
 	local current: Types.ClockState = clock
-	local offset: number = if serverNow then serverNow - os.time() else 0
 	local isNight = current.phase == "night"
 	self._sun.Visible = not isNight
 	self._moon.Visible = isNight
 	self._clockText.TextColor3 = if isNight then Theme.colors.sky else Theme.hud.text
 	self._clock.Visible = true
 	local function tick()
-		self._clockText.Text = clockText(current.phase, current.phaseEndsAt - (os.time() + offset))
+		self._clockText.Text =
+			clockText(current.phase, current.phaseEndsAt - Workspace:GetServerTimeNow())
 	end
 	tick()
 	local accumulated = 0

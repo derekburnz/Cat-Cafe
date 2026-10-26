@@ -122,8 +122,7 @@ export type RingConfig = {
 }
 
 -- Day and night clock (data-model section 9). phaseEndsAt is server os.time() seconds, as the Clock
--- folder's PhaseEndsAt attribute. Pass ProfileSync's serverTime as serverNow so the countdown does not
--- trust the device clock.
+-- folder's PhaseEndsAt attribute; the HUD counts down against Workspace:GetServerTimeNow().
 export type ClockState = {
 	phase: ClockPhase,
 	phaseEndsAt: number,

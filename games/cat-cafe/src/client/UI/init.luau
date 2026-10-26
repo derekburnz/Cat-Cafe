@@ -49,6 +49,8 @@ UI.events = {
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	grabEnded = Signal.new(), -- (strayId, ringHint, catId)  hint only: the server scores the hold time
+	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   hold began on a prompt with Rescue = true
+	rescueEnded = Signal.new(), -- (rescueSpotId, catId, completed)  completed after the full hold: send RescueEnd
 	screenOpened = Signal.new(), -- (name or nil)
 }
 
@@ -300,6 +302,7 @@ function UI.destroy()
 	end
 	table.clear(connections)
 	UI.catch.unbindProximityPrompts()
+	UI.clock.unbind()
 	if hud then
 		hud:destroy()
 	end
@@ -539,6 +542,8 @@ function UI.catch.show(info: Types.CatchInfo)
 		keyCode = info.keyCode,
 		stars = info.stars,
 		charm = info.charm,
+		kind = info.kind,
+		rescueSpotId = info.rescueSpotId,
 	}
 	if catch then
 		catch:show(activeInfo :: Types.CatchInfo)
@@ -562,6 +567,20 @@ end
 function UI.catch.expire()
 	if catch then
 		catch:expire()
+	end
+end
+
+-- Rescue prompt (F21): a bar fills over the hold instead of the ring. bindProximityPrompts drives this
+-- itself for prompts whose model has Rescue = true.
+function UI.catch.startRescue(duration: number?)
+	if catch then
+		catch:startRescue(duration)
+	end
+end
+
+function UI.catch.stopRescue(completed: boolean)
+	if catch then
+		catch:stopRescue(completed)
 	end
 end
 
@@ -616,7 +635,14 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local strayId = promptAttribute(prompt, "StrayId")
 	local stars = promptAttribute(prompt, "Stars")
 	local charm = promptAttribute(prompt, "Charm")
+	local rescue = promptAttribute(prompt, "Rescue")
+	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 	return {
+		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
+		rescueSpotId = if type(rescueSpotId) == "string"
+			then rescueSpotId
+			elseif type(strayId) == "string" then strayId
+			else nil,
 		stars = if type(stars) == "number" then stars else nil,
 		charm = if type(charm) == "number" then charm else nil,
 		catId = if type(catId) == "string" then catId else nil,
@@ -642,6 +668,28 @@ local function finishHold(result: Types.RingResult)
 		if info then info.strayId else nil,
 		result,
 		if info then info.catId else nil
+	)
+end
+
+local function activeIsRescue(): boolean
+	local info = activeInfo
+	return info ~= nil and info.kind == "rescue"
+end
+
+local function finishRescue(completed: boolean)
+	if not holdOpen then
+		return
+	end
+	holdOpen = false
+	local info = activeInfo
+	local screen = catch
+	if screen then
+		screen:stopRescue(completed)
+	end
+	UI.events.rescueEnded:Fire(
+		if info then info.rescueSpotId else nil,
+		if info then info.catId else nil,
+		completed
 	)
 end
 
@@ -673,7 +721,11 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			if holdOpen then
-				finishHold(catchScreen:stopRing())
+				if activeIsRescue() then
+					finishRescue(false)
+				else
+					finishHold(catchScreen:stopRing())
+				end
 			end
 			activePrompt = nil
 			UI.catch.hide()
@@ -687,12 +739,17 @@ function UI.catch.bindProximityPrompts()
 			end
 			holdOpen = true
 			holdSerial += 1
-			catchScreen:startRing({ duration = prompt.HoldDuration })
 			local info = activeInfo
-			UI.events.grabBegan:Fire(
-				if info then info.strayId else nil,
-				if info then info.catId else nil
-			)
+			if info and info.kind == "rescue" then
+				catchScreen:startRescue(prompt.HoldDuration)
+				UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
+			else
+				catchScreen:startRing({ duration = prompt.HoldDuration })
+				UI.events.grabBegan:Fire(
+					if info then info.strayId else nil,
+					if info then info.catId else nil
+				)
+			end
 		end)
 	)
 	table.insert(
@@ -709,6 +766,11 @@ function UI.catch.bindProximityPrompts()
 				if not holdOpen or holdSerial ~= serial then
 					return
 				end
+				if activeIsRescue() then
+					-- released before the hold ran out: the bar resets, there is no fail state
+					finishRescue(false)
+					return
+				end
 				if not catchScreen:isRinging() then
 					holdOpen = false
 					catchScreen:expire()
@@ -721,11 +783,17 @@ function UI.catch.bindProximityPrompts()
 	table.insert(
 		promptConnections,
 		ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
-			-- the hold ran the full duration with no release. Send no GrabEnd: the server would score it
-			-- as a 1.5 s release. Close the hold, flash the miss and wait for the server's result.
 			if prompt ~= activePrompt then
 				return
 			end
+			if activeIsRescue() then
+				-- the rescue hold ran its full length: the controller sends RescueEnd, the server moves
+				-- the player to carry and the controller then calls showCatFound or hide
+				finishRescue(true)
+				return
+			end
+			-- a swing held the full duration with no release. Send no GrabEnd: the server would score it
+			-- as a 1.5 s release. Close the hold, flash the miss and wait for the server's result.
 			holdOpen = false
 			catchScreen:expire()
 		end)
@@ -758,6 +826,52 @@ function UI.catch.unbindProximityPrompts()
 	table.clear(promptConnections)
 	activePrompt = nil
 	holdOpen = false
+end
+
+----------------------------------------------------------------------------------------------------
+-- Day and night clock (HUD chip, F20)
+----------------------------------------------------------------------------------------------------
+
+UI.clock = {}
+
+local clockConnections: { RBXScriptConnection } = {}
+
+-- phaseEndsAt is server os.time() seconds (the Clock folder's PhaseEndsAt). The chip counts down
+-- against Workspace:GetServerTimeNow(), so nothing here reads the device clock.
+function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
+	if hud then
+		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })
+	end
+end
+
+function UI.clock.clear()
+	if hud then
+		hud:setClock(nil)
+	end
+end
+
+-- Reads Phase and PhaseEndsAt from the Clock folder (ReplicatedStorage.Clock) and follows changes.
+function UI.clock.bind(clock: Instance)
+	UI.clock.unbind()
+	local function read()
+		local phase = clock:GetAttribute("Phase")
+		local endsAt = clock:GetAttribute("PhaseEndsAt")
+		if (phase == "day" or phase == "night") and type(endsAt) == "number" then
+			UI.clock.set(phase :: Types.ClockPhase, endsAt)
+		else
+			UI.clock.clear()
+		end
+	end
+	table.insert(clockConnections, clock:GetAttributeChangedSignal("Phase"):Connect(read))
+	table.insert(clockConnections, clock:GetAttributeChangedSignal("PhaseEndsAt"):Connect(read))
+	read()
+end
+
+function UI.clock.unbind()
+	for _, connection in clockConnections do
+		connection:Disconnect()
+	end
+	table.clear(clockConnections)
 end
 
 ----------------------------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ local V2_COSTS: { [string]: { number } } = {
 local V2_START_LEVELS: { [string]: number } = { cafe_level = 1, espresso = 1 }
 
 local STARTER_UID = "starter_tabby"
-local MAX_NAME_LENGTH = 200 -- bytes kept from a saved name; RenameCat enforces the real limit on the way in
+local MAX_NAME_LENGTH = 200 -- bytes kept from a saved name
 local DEALER_SLOTS = 3
 
 local function asNumber(value: any, default: number): number
@@ -169,12 +169,25 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 	end
 end
 
+-- A saved name, cut to MAX_NAME_LENGTH bytes on a character boundary; nil when empty or not valid UTF-8
+-- (reviewer N36). RenameCat enforces the real rules on the way in.
 local function sanitizeName(value: any): string?
 	if type(value) ~= "string" then
 		return nil
 	end
 	local name: string = value
-	return if #name > 0 then string.sub(name, 1, MAX_NAME_LENGTH) else nil
+	if #name == 0 or utf8.len(name) == nil then
+		return nil
+	end
+	if #name > MAX_NAME_LENGTH then
+		local cut = MAX_NAME_LENGTH
+		-- Step back past continuation bytes (10xxxxxx) so the cut never splits a character.
+		while cut > 0 and bit32.band(string.byte(name, cut + 1), 0xC0) == 0x80 do
+			cut -= 1
+		end
+		name = string.sub(name, 1, cut)
+	end
+	return name
 end
 
 local function sanitizeMethod(value: any): Types.CatchMethod?

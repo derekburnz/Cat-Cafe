@@ -8,7 +8,7 @@ Derek + friends ---ideas/feedback---> game-designer ---GDD, tuning---> luau-engi
                                            |                                  ^
                                            |                                  | assets (.rbxm), UI modules
                                            v                                  |
-                                     asset-artist, ui-designer  <----style guide, mockups----  growth-analyst (store page, analytics plan)
+                                     asset-artist, ui-designer, vfx-animator  <----style guide, mockups----  growth-analyst (store page, analytics plan)
 Lead (Derek's main Claude Code session): breaks work down, delegates, checks the gate, commits, writes decisions and devlog.
 Connectors: Roblox Studio MCP (world, playtests, screenshots), Blender MCP (3D), Git/GitHub (history), Google Forms/Sheets (feedback), web search (research).
 ```
@@ -32,6 +32,7 @@ The private repo https://github.com/derekburnz/purr-pot (created 2026-10-25, sca
 | **Review** | luau-reviewer (Opus, read-only) | remote-security-checklist, luau-conventions, monetization-policy | git diff, check gate (read-only run) | engineer or ui-designer handoff | docs/reviews/<date>-<topic>.md, verdict |
 | **Assets** | asset-artist (Opus) | asset-pipeline, concept-visuals | Blender MCP, Roblox Blender plugin, Studio MCP generation tools and screen_capture, Creator Store (inspected) | style guide, PH_ placeholder list from the engineer | assets/cat-cafe/{blender,exports,rbx}, docs/art/style-guide.md, docs/concepts/cat-cafe/ |
 | **UI** | ui-designer (Opus) | concept-visuals, luau-conventions (UI section), monetization-policy (odds UI) | HTML/SVG mockups, Studio MCP device emulator screenshots, check gate | GDD, style guide, controller interfaces | assets/cat-cafe/ui/*.html, games/cat-cafe/src/client/UI/, docs/concepts/cat-cafe/ |
+| **Animation and VFX** | vfx-animator (Opus) | animation-vfx, asset-pipeline (pivots, Root part), luau-conventions; third-party roblox-characters-animation, roblox-mobile-playtest, roblox-dev-skill performance-optimization.md, blender-to-roblox (rig export) | Studio MCP (execute_luau to tune emitters and rigs in the dev place, start_stop_play, screen_capture, console), Animation Editor, MicroProfiler, device emulator, check gate; Blender MCP from step 3 of the rig ladder | features.md mechanics, style guide palette and lighting, manifest.json joints and poses, Moments signals from the engineer | games/cat-cafe/src/client/Effects/, assets/cat-cafe/{anim,vfx}/, docs/vfx/cat-cafe/ |
 | **QA** | qa-playtester (Sonnet; Opus for hard bugs) | playtest-report | Studio MCP playtest tools (start_stop_play, character_navigation, inputs, console, screenshots, subagent playtest), Google Sheets export of the feedback form | engineer test notes, reviewer test line, friends' form responses | docs/playtests/<date>.md |
 | **Growth** | growth-analyst (Opus) | monetization-policy, devlog (metrics section) | web search, Roblox Creator docs, later Roblox analytics dashboard and Creator Rewards page | GDD, playtest results | docs/growth/{comps,analytics-plan,monetization,store-page,launch-plan}.md |
 | **Sound and music** (added 2026-10-26) | sound-designer (Opus) | audio-pipeline, roblox-audio, find-resources (Creator Store search, license gate, credits), monetization-policy (purchase sounds) | Studio MCP search_asset (Audio) and playtests, ffmpeg for the audio gate, Creator Dashboard or Open Cloud upload on Derek's PC | GDD, Config timings, style guide mood, moments from the engineer | docs/audio/cat-cafe/sound-list.md, assets/cat-cafe/audio/, games/cat-cafe/src/client/Audio/ |
@@ -63,6 +64,7 @@ Third-party skills per role (added 2026-10-26, details in `.claude/skills/THIRD_
 - engineer -> artist: list of `PH_` placeholders with size and pivot; -> ui-designer: controller interface in `src/client/UI/README.md`.
 - artist -> engineer: asset names in `assets/cat-cafe/rbx/`, which PH_ each replaces, tri counts, screenshots.
 - ui-designer -> engineer: state and methods the UI needs; -> reviewer: same handoff as engineer.
+- engineer -> vfx-animator: the moments fired in `src/client/Moments.luau` and the cat rig (Root, Body, Head, Tail joints); vfx-animator -> engineer: hooks it needs (a moment, a rig change, an attribute), written as requests in `docs/vfx/cat-cafe/effects-list.md`; -> reviewer: same handoff as engineer plus the budget numbers measured on a phone profile; -> artist: palette swatches or separate objects it needs (an arm, an ear).
 - reviewer -> QA: verdict and one line of test plan; -> engineer: blockers and should-fixes with file:line.
 - QA -> everyone: ranked tickets with owners in `docs/playtests/<date>.md`.
 - growth -> designer and engineer: analytics event table, monetization table; -> ui-designer and artist: store page brief.
@@ -109,6 +111,7 @@ Fable burns the shared usage pool fastest, so it goes where a wrong call costs t
 | Build cat stats and equip best (luau-engineer) | Opus | Scoped feature from a spec with tests. |
 | Design cat cafe UI (ui-designer) | Opus | Layouts and client code; repetitive component tweaks can go to Sonnet. |
 | Create cat cafe 3D models (asset-artist) | Opus | Blender Python and style guide; re-exports and renames to Sonnet. |
+| Animate cats and add VFX (vfx-animator) | Opus | Client code against a list and a budget; repetitive preset tuning can go to Sonnet. |
 | Plan cat cafe playtests (qa-playtester) | Sonnet, Opus for test tooling | Test plans, reports and tickets are structured writing; the WebAssembly test runner was a one-off build. |
 | Research cat cafe market and monetization (growth-analyst) | Opus | Web research and summaries; the policy calls are already made. |
 | Find Roblox dev skills and tools | Sonnet or Haiku | Search and inventory, no judgment calls. |

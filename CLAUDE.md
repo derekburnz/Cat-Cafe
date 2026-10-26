@@ -23,6 +23,9 @@ Repo: https://github.com/derekburnz/purr-pot (private, source of truth). Work on
 | 3D sources and exports | `assets/cat-cafe/blender/`, `assets/cat-cafe/exports/` | asset-artist |
 | Rojo-synced model files (.rbxm/.rbxmx) | `assets/cat-cafe/rbx/` (becomes `ReplicatedStorage.Assets`) | asset-artist, ui-designer |
 | UI mockups (HTML/SVG) | `assets/cat-cafe/ui/` | ui-designer |
+| Animation and VFX code (client only, carved out of `src/client`) | `games/cat-cafe/src/client/Effects/` | vfx-animator |
+| Animation sources (keyframes, later Blender rigs), VFX textures | `assets/cat-cafe/anim/`, `assets/cat-cafe/vfx/` | vfx-animator |
+| Effects list, captures, measured VFX budgets | `docs/vfx/cat-cafe/` | vfx-animator |
 | Code reviews | `docs/reviews/<date>-<topic>.md` | luau-reviewer |
 | Playtest reports and tickets | `docs/playtests/<date>.md` | qa-playtester |
 | Research, analytics, store page, launch plan | `docs/growth/` | growth-analyst |

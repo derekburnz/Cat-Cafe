@@ -3,8 +3,10 @@
 A pose moves the whole cat (Body, Head, Tail together) by `rot` degrees (Blender XYZ
 Euler) about the cat-local point `pivot`, then by `offset`, and adds a local rotation
 to the Head and the Tail about their own joints. Positions are in studs, Blender axes
-(Z up, -Y forward). Roblox conversion: position (x, y, z) -> (x, z, -y); yaw is the
-Z angle (Roblox Y), pitch the X angle (Roblox X), roll the Y angle (Roblox -Z).
+(Z up, -Y forward); the manifest also gives every value in Roblox axes.
+Roblox: position (x, y, z) -> (-x, z, y), so the front is -Z (LookVector). *_angles_roblox_deg
+go to CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)); body_cframe_roblox is the
+same Body CFrame as CFrame.new(table.unpack(t)), relative to the prop pivot or HumanoidRootPart.
 """
 
 import math
@@ -102,13 +104,17 @@ def manifest_pose(pose):
     """Pose as the engineer reads it: Body CFrame relative to the prop pivot plus local part angles."""
     M = pose_matrix(pose)
     loc = M.to_translation()
-    rot = [round(math.degrees(a), 1) for a in M.to_euler("XYZ")]
+    pos = common.to_roblox(loc)
+    angles, Rr = common.rotation_to_roblox(M)
     return {
         "body_position_blender": [round(v, 2) for v in loc],
-        "body_position_roblox": [round(loc.x, 2), round(loc.z, 2), round(-loc.y, 2)],
-        "body_rotation_xyz_deg_blender": rot,
-        "body_rotation_roblox": {"pitch_x": rot[0], "yaw_y": rot[2], "roll_z": -rot[1]},
-        "head_local_xyz_deg": list(pose["head"]), "tail_local_xyz_deg": list(pose["tail"]),
+        "body_rotation_xyz_deg_blender": [round(math.degrees(a), 1) for a in M.to_euler("XYZ")],
+        "head_local_xyz_deg_blender": list(pose["head"]), "tail_local_xyz_deg_blender": list(pose["tail"]),
+        "body_position_roblox": pos,
+        "body_angles_roblox_deg": angles,
+        "body_cframe_roblox": pos + [round(Rr[i][j], 4) + 0.0 for i in range(3) for j in range(3)],
+        "head_angles_roblox_deg": common.euler_to_roblox(pose["head"]),
+        "tail_angles_roblox_deg": common.euler_to_roblox(pose["tail"]),
         "note": pose.get("note", ""),
     }
 

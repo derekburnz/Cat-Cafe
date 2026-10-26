@@ -48,7 +48,7 @@ PIVOT_NOTES = {
     "CatCafe_Decor_MenuBoard": "wall: back-bottom center",
     "CatCafe_Decor_HangingLamp": "ceiling hook (geometry hangs below the pivot)",
     "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
-    "CatCafe_Decor_StringLights": "left end of the strand; it runs +X (Roblox +X) and sags below the pivot",
+    "CatCafe_Decor_StringLights": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
     "CatCafe_Alley_Drainpipe": "wall: back-bottom center",
     "CatCafe_Alley_ShopWindow": "wall: back-bottom center",
     "CatCafe_Item_Net_L1": "grip end of the pole; the pole runs forward (Roblox -Z)",
@@ -133,22 +133,28 @@ def main():
         entry = {
             "name": name, "category": name.split("_")[1], "module": module,
             "objects": [o.name for o in objs], "triangles": tris, "budget": budget,
-            "size_studs": {"x": size[0], "y": size[1], "z": size[2]},
+            "size_studs": {"x": size[0], "y": size[1], "z": size[2]},     # Blender axes, z is height
+            "size_roblox": [size[0], size[2], size[1]],                    # width, height, depth
             "bounds_min": [round(v, 2) for v in lo], "bounds_max": [round(v, 2) for v in hi],
             "pivot": PIVOT_NOTES.get(name, "base center (floor contact)"),
-            "front": "-Z in Roblox (Blender -Y)",
+            "front": "-Z in Roblox, the LookVector (Blender -Y)",
         }
         if name in furniture.SIT_POINTS:
             entry["sit_point"] = list(furniture.SIT_POINTS[name])
+            entry["sit_point_roblox"] = common.to_roblox(furniture.SIT_POINTS[name])
         if name.startswith("CatCafe_Cat_"):
             spec = cats.ROSTER[name.split("_")[-1]]
             entry["rarity"] = spec["rarity"]
             s_ = spec.get("scale", 1.0)
-            entry["joints"] = {"Head": [round(v * s_, 2) for v in cats.NECK], "Tail": [round(v * s_, 2) for v in cats.TAIL_ROOT]}
-            entry["attachments"] = {k: {"part": p, "offset": [round(v * s_, 2) for v in o]} for k, (p, o) in accessories.ATTACH.items()}
+            joints = {"Head": [v * s_ for v in cats.NECK], "Tail": [v * s_ for v in cats.TAIL_ROOT]}
+            entry["joints"] = {k: [round(v, 2) for v in j] for k, j in joints.items()}
+            entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items()}
+            entry["attachments"] = {k: {"part": p, "offset": [round(v * s_, 2) for v in o],
+                                        "offset_roblox": common.to_roblox([v * s_ for v in o])}
+                                    for k, (p, o) in accessories.ATTACH.items()}
         if name.startswith("CatCafe_Accessory_"):
             part, off = accessories.ATTACH[name.split("_")[-1]]
-            entry["attach"] = {"part": part, "offset": list(off)}
+            entry["attach"] = {"part": part, "offset": list(off), "offset_roblox": common.to_roblox(off)}
         if name in poses.STUCK_POSES:
             entry["stuck_pose"] = poses.manifest_pose(poses.STUCK_POSES[name])
         if name in STUDIO_NOTES:
@@ -171,6 +177,11 @@ def main():
                 vpath = os.path.join(args.docs, "views", name + ".png")
                 common.render_views(visible, vpath, engine=args.views_engine)
                 entry["views"] = os.path.relpath(vpath, ROOT)
+        else:                                     # keep pointing at earlier renders
+            for key, sub_dir in (("preview", "previews"), ("views", "views")):
+                path = os.path.join(args.docs, sub_dir, name + ".png")
+                if os.path.exists(path):
+                    entry[key] = os.path.relpath(path, ROOT)
         g = entry["gates"]
         flag = "ok" if g["pass"] else "FAIL " + ",".join(g["failed"])
         if g["warnings"]:
@@ -190,9 +201,11 @@ def main():
     with open(mpath, "w") as f:
         json.dump({"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "units": "studs",
                    "palette": os.path.relpath(png, ROOT),
-                   "pose_convention": poses.__doc__.strip().splitlines()[-3:],
+                   "pose_convention": poses.__doc__.strip().splitlines()[-4:],
                    "poses": {k: poses.manifest_pose(v) for k, v in poses.POSES.items()},
-                   "upright_attachments": {k: {"part": p, "offset": list(o), "rotation_xyz_deg": list(r)}
+                   "upright_attachments": {k: {"part": p, "offset": list(o), "rotation_xyz_deg": list(r),
+                                               "offset_roblox": common.to_roblox(o),
+                                               "angles_roblox_deg": common.euler_to_roblox(r)}
                                            for k, (p, o, r) in accessories.ATTACH_UPRIGHT.items()},
                    "assets": manifest}, f, indent=2)
     gates.write_report(os.path.join(args.out, "gates.md"), manifest, ROOT)

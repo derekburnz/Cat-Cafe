@@ -21,6 +21,7 @@ Remotes.ClientToServer = {
 	"SellCat", -- (uid: string)
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)
+	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier
 	"ToggleDecor", -- (decorId: string, placed: boolean)
 	"BuyLure", -- (lureId: string)
 	"EquipLure", -- (lureId: string?)

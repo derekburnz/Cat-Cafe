@@ -99,6 +99,19 @@ Layout.plot = {
 		{ x = 9, y = 0, z = 1 },
 	} :: { Point },
 
+	-- The back door, between the counter and the left cat tree, leads out to the expansions.
+	backDoor = { x = -8, width = 6 },
+
+	-- Cafe expansions behind the back wall (data-model section 5b): expansion n opens at Tier n + 1. Each is a
+	-- floor rectangle from (x1, z1) to (x2, z2); the third is the patio. Plot-local, so deeper is farther from
+	-- the street.
+	expansions = {
+		{ x1 = -halfW, z1 = halfD + 1, x2 = 0, z2 = halfD + 11 },
+		{ x1 = 0, z1 = halfD + 1, x2 = halfW, z2 = halfD + 11 },
+		{ x1 = -halfW, z1 = halfD + 11, x2 = halfW, z2 = halfD + 19 },
+		{ x1 = -halfW, z1 = halfD + 19, x2 = halfW, z2 = halfD + 27 },
+	} :: { { x1: number, z1: number, x2: number, z2: number } },
+
 	-- Two seats per table, relative to the table anchor; rotY faces the chair toward the table
 	seatOffsets = {
 		{ x = -2.4, y = 0, z = 0, rotY = -90 },

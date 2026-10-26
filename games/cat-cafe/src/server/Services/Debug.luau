@@ -98,7 +98,7 @@ function Debug.resetProfile(player: (Player | number | string)?)
 	CafeService.sync(p)
 end
 
--- Sets the cafe tier (1 to 5) without the rank up checks, for testing areas, slots and caps before RankUp exists.
+-- Sets the cafe tier (1 to 5) without RankUp's checks or cost, for testing areas, slots, caps and expansions.
 function Debug.setTier(player: (Player | number | string)?, tier: number)
 	local p = resolve(player)
 	local profile = profileOf(p)

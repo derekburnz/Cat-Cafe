@@ -63,7 +63,7 @@ end
 function Catching.pickRarity(odds: Types.LureOdds, roll: number): Types.Rarity
 	local target = math.clamp(roll, 0, 0.999999) * 100
 	local acc = 0
-	for _, rarity in Catalog.rarityOrder do
+	for _, rarity: Types.Rarity in Catalog.rarityOrder do
 		local weight = (odds :: any)[rarity]
 		if type(weight) == "number" then
 			acc += weight

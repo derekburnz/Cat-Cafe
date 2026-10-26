@@ -141,7 +141,7 @@ function DecorShop._build(self: any)
 	if not catalog then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 
 	-- chips: All + each category in catalog order
 	local categories = { "All" }

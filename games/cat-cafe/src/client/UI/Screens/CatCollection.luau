@@ -364,7 +364,7 @@ function CatCollection._select(self: any, catId: string)
 	if not def then
 		return
 	end
-	assert(def)
+	assert(def, "cat definition missing")
 	local found = false
 	if state then
 		found = (state.collection and state.collection[catId] ~= nil)
@@ -408,7 +408,7 @@ function CatCollection._buildBook(self: any)
 	if not catalog then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 
 	for order, rarity in Theme.rarityOrder do
 		local cats = {}
@@ -535,7 +535,7 @@ function CatCollection._buildSpots(self: any)
 	if not catalog or not catalog.spots then
 		return
 	end
-	assert(catalog)
+	assert(catalog, "catalog not set; call UI.init first")
 	for index, spot in catalog.spots :: { Types.SpotDef } do
 		local row: Frame = Create("Frame", {
 			Name = spot.id,

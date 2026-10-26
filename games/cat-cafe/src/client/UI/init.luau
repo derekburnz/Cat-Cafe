@@ -469,7 +469,7 @@ function UI.setCarrying(info: Types.CarryInfo?)
 	end
 	local resolved: Types.CarryInfo? = nil
 	if info then
-		assert(info)
+		assert(info, "carry info missing")
 		local def = lookupCat(info.catId)
 		resolved = {
 			catId = info.catId,

@@ -51,7 +51,8 @@ Catalog.rarities = {
 	},
 } :: { [string]: Types.RarityDef }
 
-Catalog.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Secret" } :: { Types.Rarity }
+local rarityOrder: { Types.Rarity } = { "Common", "Rare", "Epic", "Legendary", "Secret" }
+Catalog.rarityOrder = rarityOrder
 Catalog.rarityRank =
 	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Secret = 5 } :: { [string]: number }
 

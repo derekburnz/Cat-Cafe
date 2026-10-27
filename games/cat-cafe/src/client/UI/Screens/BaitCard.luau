@@ -1,6 +1,6 @@
 --!strict
 -- The cat that came to your bait bowl (F28, data-model section 8): its own 3D model on a rarity disc, its name,
--- rarity, charm stars and a shiny sticker, with Tame and Let go. Tame adds it straight to your cat room; Let go
+-- rarity, charm stars and a GOLD sticker, with Tame and Let go. Tame adds it straight to your cat room; Let go
 -- sends it on its way. The food is used either way, so Let go asks for a second tap. The server takes the choice
 -- only from someone at the bowl (20 studs), so away from it the buttons grey out and the card says where to go.
 -- The X hides the card; the bowl chip brings it back while the cat waits.

@@ -8,7 +8,7 @@ A quiet afternoon in a small cafe. Cream walls, caramel wood, mint accents and w
 
 ## 2. Palette
 
-All colors live in one shared texture, `CatCafe_Palette.png` (256 x 512, 8 swatches across and 16 rows of 32 px swatches; rows 10 to 15 are empty for now). Every mesh in the game UV-maps each face to the center of one swatch, so one material and one texture cover every prop and every cat. Variants (a Tabby versus a Grey cat) are the same mesh with different swatch indices, not different textures.
+All colors live in one shared texture, `CatCafe_Palette.png` (256 x 512, 8 swatches across and 16 rows of 32 px swatches; rows 13 to 15 are empty for now). Every mesh in the game UV-maps each face to the center of one swatch, so one material and one texture cover every prop and every cat. Variants (a Tabby versus a Grey cat) are the same mesh with different swatch indices, not different textures.
 
 Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex values are the source of truth; the texture is generated from them by `assets/cat-cafe/blender/palette.py`.
 
@@ -163,7 +163,20 @@ Rows 10 and 11, the Neighbourhood, Woods and Sewer themed cats (data-model 3c) a
 | 94 | pastel_sky | #A8D8F0 | Comet's and Wisp's glowing eyes, Wisp's mane, fairy wings |
 | 95 | brass | #B8913A | steampunk goggles (plain colour, not metal, unlike the gold swatches) |
 
-**Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
+Row 12, the twelve plain Commons of the Neighbourhood, Woods and Sewer (data-model 3c, 2026-10-27).
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 96 | fur_puddle | #7A96B4 | Puddle (its own blue, because the `puddle` swatch exports as see-through Glass) |
+| 97 | fur_pepper | #6B6C73 | Pepper |
+| 98 | fur_ink | #363C4C | Socks |
+| 99 | fur_moss | #8D9B6E | Moss |
+| 100 | fur_acorn | #A0683A | Acorn |
+| 101 | fur_bramble | #6E5140 | Bramble |
+| 102 | fur_fern | #A4C08F | Fern |
+| 103 | fur_ash | #3A373C | Soot |
+
+**Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose, tail tip, socks (all four paws) and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
 
 | cat | coat | markings | eyes | nose |
 |---|---|---|---|---|
@@ -205,8 +218,20 @@ Rows 10 and 11, the Neighbourhood, Woods and Sewer themed cats (data-model 3c) a
 | Glimmer | fur_teal_grey | white muzzle and chest | copper | pink |
 | Bottlecap | fur_caramel | bronze patches, fur_oat muzzle | green | brick |
 | Eclipse | fur_emerald | sign_teal and dumpster_green gradient | amber, glowing | dark |
+| Biscuit | treat_tan | choco socks and tail tip, white muzzle | green | brick |
+| Pepper | fur_pepper | salt and pepper flecks (fur_white and fur_black), fur_silver muzzle | amber | dark |
+| Socks | fur_ink | fur_white socks, tail tip and muzzle | chartreuse | pink |
+| Butter | pastel_butter | white muzzle, a little rounder | blue | pink |
+| Moss | fur_moss | cream muzzle, ear tufts | amber | brick |
+| Acorn | fur_acorn | fur_brown tail tip, fur_oat muzzle | green | brick |
+| Bramble | fur_bramble | fur_seal stripes, fur_hazel muzzle | chartreuse | dark |
+| Fern | fur_fern | leaf_dark stripes, white muzzle | amber | pink |
+| Rusty | fur_rust_red | fur_smoke_light patches, cream muzzle | green | brick |
+| Soot | fur_ash | fur_soot muzzle and tail tip | copper | dark |
+| Pipes | fur_smoke_light | fur_charcoal stripes, white muzzle | green | dark |
+| Puddle | fur_puddle | fur_mist muzzle and tail tip | amber | dark |
 
-**Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
+**Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff, and a tail tip or socks when the coat names them) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
 
 **Gold Book decor (F48).** Each area's Book reward piece has a gold version for the `gold10` milestone, `CatCafe_Decor_<Piece>_Gold` (`MuralPrint`, `ParkBench`), on the same shapes with the metal golds: the Alley mural print gets a gold_mid frame, a gold_light inner lip and a gold_light name plate (the picture stays in colour); the Park bench gets gold_light slats, gold_dark iron and gold_mid finials (the mint cushion stays). Like gold cats they are Part models only. Previews: `previews/CatCafe_Decor_MuralPrint_Gold.png`, `previews/CatCafe_Decor_ParkBench_Gold.png`.
 

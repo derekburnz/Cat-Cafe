@@ -235,7 +235,7 @@ end
 
 -- Strays nap by day too, not only at night (Derek 2026-10-27: "sleeping doesnt just have to be night it can be idle
 -- also"): a wander pause turns into a nap at NAP_CHANCE, for NAP_MIN to NAP_MAX seconds. Waking, the cat gets up on
--- all fours and stretches (the client's 0.4 s get-up and 3.2 s stretch) for STRETCH_SECONDS before it walks off.
+-- all fours and stretches (the client's get-up and stretch, StretchAt) for STRETCH_SECONDS before it walks off.
 local NAP_CHANCE = 1 / 3
 local NAP_MIN, NAP_MAX = 20, 45
 local STRETCH_SECONDS = 3.6

@@ -42,7 +42,7 @@ Rules:
 
 Bait pays only the first-catch fish. A cat you already have that comes to the bowl pays none, so food bought with coins can't be farmed into fish.
 
-Rough pace: a new player's first crate usually comes free from the Alleyway's `cats6` milestone, and 100 fish for a bought one takes about two hours, mostly from first catches, the Tier 2 rank up and the first Index milestones. Later, when discoveries run out, repeat Epic and better catches, the wheel and the Tip Jar give roughly 8 to 12 an hour, so a bought crate every eight to twelve hours plus the few crates the Index hands out. Fish and crates stay rare, as Derek asked (18:48: "try and make the crates relatively hard to get so people don't find all the cosmetics").
+Rough pace: a new player's first crate usually comes free from the Alleyway's `cats6` milestone, and 60 fish for a bought one takes a bit over an hour, mostly from first catches, the Tier 2 rank up and the first Index milestones. Later, when discoveries run out, repeat Epic and better catches, the wheel and the Tip Jar give roughly 8 to 12 an hour, so a bought crate every five to seven hours plus the crates the Index and the wheel hand out. Crates are medium hard to get and the rare pieces stay rare (Derek, 18:54: "either make the crates medium difficulty to get and keep the odds or up the odds and keep crates hard to get up to you").
 
 ## 3. The Golden Fish Market (a walk-up station)
 
@@ -50,7 +50,7 @@ A fishmonger stall in the street plaza beside the Spin Wheel, run by a cat shopk
 
 | item | cost | what it does |
 |---|---|---|
-| A crate (each unlocked zone's crate and the Classic Crate) | 100 | opens at once, section 4 |
+| A crate (each unlocked zone's crate and the Classic Crate) | 60 | opens at once, section 4 |
 | Star Treat | 80 | the best food (dealer only today, 3% of slots), a fish route to Legendary and Mythical bait cats |
 | Golden Espresso (perk, 5 levels) | 40, 80, 150, 250, 400 | +5% tips per level, forever |
 | Big Bowl (perk, 1 level) | 150 | bait wait 10 to 8 minutes, forever |
@@ -74,10 +74,10 @@ There are six crates: one per zone (Alley, Park, Neighbourhood, Woods and Sewer 
 | Mythical | 1 | 0.5% | +25% and a little effect |
 
 - **Using pieces:** the cafe has one wallpaper, one floor and one paint at a time, and the Decor screen swaps them. Only the one in use counts. Furniture and decorations stand on decor spots: 2 at Tier 1, then 3, 4, 5 and 6 at Tier 5, plus 2 more from the Extra Decor Spot perk. A new furniture or decoration piece takes a free spot by itself, and a new wallpaper, floor or paint is offered with a "Use it" button. The paint shows from the street, so other players see it.
-- **Hard to complete (Derek, 18:48: "try and make the crates relatively hard to get so people don't find all the cosmetics"):** a crate costs 100 fish, and the Index and the wheel hand out only a few. On average a crate's Legendary takes about 40 crates and its Mythical about 190, so very few players will ever fill a Decor Index page, and owning a Mythical means something.
+- **Medium to get, hard to complete:** Derek asked at 18:48 for crates "relatively hard to get so people don't find all the cosmetics", then at 18:54 let the designer pick between medium crates with these odds and better odds with hard crates. We kept the odds and made crates medium: 60 fish each, and the Index and the wheel hand out a fair number. Opening crates often is the fun part, and the low odds keep the rare pieces rare. On average a crate's Legendary takes about 40 crates and its Mythical about 190, so very few players will ever fill a Decor Index page, and owning a Mythical means something.
 - **Golden Crates:** each crate has a golden version with the same 10 pieces and only Epic or better: Epic 80%, Legendary 17.5%, Mythical 2.5%. They're never sold. They come only from the gold Index milestones (that zone's golden crate) and the last All Cats milestones (the Golden Classic Crate).
 - **Lucky twentieth:** if 19 crates of the same kind in a row have no Epic or better, the 20th opens on the golden odds. Any Epic or better resets the count. The crate card says "Epic or better in 3 more crates" and shows the odds that apply to the next crate. It stops a long unlucky streak without making the rare pieces easy.
-- **Duplicates:** a piece you already own gives golden fish back by its rarity instead (Derek, 18:41: "a duplicate piece should give fish back based on rarity of the dupe"): Common 10, Rare 20, Epic 40, Legendary 80, Mythical 150. Nothing is lost, and a duplicate Mythical pays for one and a half more crates. On a 100 fish crate the average refund is about 18.
+- **Duplicates:** a piece you already own gives golden fish back by its rarity instead (Derek, 18:41: "a duplicate piece should give fish back based on rarity of the dupe"): Common 10, Rare 20, Epic 40, Legendary 80, Mythical 150. Nothing is lost, and a duplicate Mythical pays for two and a half more crates. On a 60 fish crate the average refund is about 18.
 - **Decor Index:** the Index gets a Decor tab with one page per crate (Alley, Park, Neighbourhood, Woods, Sewer and Classics). Each page shows its 10 pieces as silhouettes until found, with their rarity, kind and bonus. A page has two milestones: `decor5` (5 of 10) pays 25 golden fish, and `decor10` (all 10) adds +5% tips forever and a gold frame on the page. No milestone gives a crate, so filling a page stays hard.
 - **Odds shown:** every crate card shows the rarity table and each piece's chance before opening (monetization-policy section 2). This applies even though crates are free, so nothing needs a redesign if a coins product ever ships.
 - **Opening:** the server rolls with its own `Random` and pays at once. The window plays a two second reveal, so leaving mid-reveal keeps the piece. The reveal shows the won piece's rarity from the start: it never spins past or flashes a better rarity first, so nothing looks like a near miss (VFX-Agent, monetization-policy). A tap skips it, Reduce Motion cuts it to a short fade, and Low performance mode drops the burst to the low budget.
@@ -108,13 +108,13 @@ Every area page in the Index now has two reward tracks: the normal track for the
 |---|---|---|---|---|---|---|---|
 | `cats3` | 3 of the area's 10 | | 600 s of day rate (min 300), 5 fish, 1 spin | min 1,000, 10 fish, 1 spin | min 3,000, 15 fish, 1 spin | min 10,000, 20 fish, 1 spin | min 30,000, 25 fish, 1 spin |
 | `cats6` | 6 of 10 | +2% | 3 Tuna, 1 Alley Crate | 3 Salmon, 1 Park Crate | 3 Caviar, 1 Neighbourhood Crate | 3 Moon Milk, 1 Woods Crate | 3 Star Treat, 1 Sewer Crate |
-| `cats10` | all 10 | +5% (zone complete) | 2 Salmon, 1 Alley Crate, 25 fish, 2 spins | 2 Caviar, 1 Park Crate, 35 fish, 2 spins | 2 Moon Milk, 1 crate, 50 fish, 2 spins | 2 Star Treat, 1 crate, 75 fish, 2 spins | 3 Star Treat, 1 crate, 100 fish, 2 spins |
+| `cats10` | all 10 | +5% (zone complete) | 2 Salmon, 2 Alley Crates, 25 fish, 2 spins | 2 Caviar, 2 Park Crates, 35 fish, 2 spins | 2 Moon Milk, 2 crates, 50 fish, 2 spins | 2 Star Treat, 2 crates, 75 fish, 2 spins | 3 Star Treat, 2 crates, 100 fish, 2 spins |
 
 **Gold track**, six milestones per area at smaller gaps and with bigger prizes:
 
 | milestone | gold cats | tips forever | Alleyway | Park | Neighbourhood | Woods | Sewer |
 |---|---|---|---|---|---|---|---|
-| `gold1` | 1 | +1% | 20 fish, 1 spin | 25 fish, 1 spin | 30 fish, 1 spin | 35 fish, 1 spin | 40 fish, 1 spin |
+| `gold1` | 1 | +1% | 10 fish, 1 spin, 1 Alley Crate | 15 fish, 1 spin, 1 Park Crate | 20 fish, 1 spin, 1 crate | 25 fish, 1 spin, 1 crate | 30 fish, 1 spin, 1 crate |
 | `gold2` | 2 | +1% | 900 s of day rate (min 1,000), 15 fish, 2 spins | min 3,000, 20 fish, 2 spins | min 10,000, 30 fish, 2 spins | min 30,000, 40 fish, 2 spins | min 100,000, 50 fish, 2 spins |
 | `gold4` | 4 | +2% | 1 Golden Crate, 25 fish | 1 Golden Crate, 35 fish | 1 Golden Crate, 45 fish | 1 Golden Crate, 60 fish | 1 Golden Crate, 75 fish |
 | `gold6` | 6 | +2% | 1,800 s of day rate (min 2,000), 3 Salmon, 40 fish, 3 spins | min 6,000, 3 Caviar, 50 fish, 3 spins | min 20,000, 3 Moon Milk, 60 fish, 3 spins | min 60,000, 3 Star Treat, 80 fish, 3 spins | min 200,000, 4 Star Treat, 100 fish, 3 spins |
@@ -138,7 +138,7 @@ Derek, 18:36: "on top of just overall amount of different cat's captured". A six
 | `total5` | 5 | +2% | 10 fish, 1 spin |
 | `total10` | 10 | +2% | 15 fish, 1 Classic Crate |
 | `total15` | 15 | +2% | 20 fish, 2 spins |
-| `total20` | 20 | +3% | 25 fish, 2 spins |
+| `total20` | 20 | +3% | 25 fish, 1 Classic Crate |
 | `total25` | 25 | +3% | 30 fish, 2 spins |
 | `total30` | 30 | +3% | 40 fish, 1 crate of the highest unlocked zone |
 | `total35` | 35 | +4% | 50 fish, 3 spins |
@@ -153,9 +153,9 @@ The track adds up to +38% tips forever. With both area tracks the whole Index is
 | slice | was | now | weight |
 |---|---|---|---|
 | 5 | 2 Moonlit Sardines | 4 golden fish | 10 |
-| 6 | 1 Caviar | 1 crate (the crate of the highest zone the player has unlocked) | 2 |
+| 6 | 1 Caviar | 1 crate (the crate of the highest zone the player has unlocked) | 5 |
 
-Slice 1 (coins, 120 s) goes from 30 to 33 so the weights still add up to 100, and slices 2 to 4 stay the same. A crate from the wheel is a 2% treat, about one in fifty spins. The slice faces come from data (areas-and-stations B3), so the model doesn't change. The Moonlit Sardines and the Caviar stay in the Tip Jar and with the dealer.
+Slices 1 to 4 stay the same. A crate from the wheel is a 5% treat, about one in twenty spins. The slice faces come from data (areas-and-stations B3), so the model doesn't change. The Moonlit Sardines and the Caviar stay in the Tip Jar and with the dealer.
 
 ## 7. What other Roblox games do, and suggestions for us
 
@@ -193,7 +193,7 @@ Order: F52, then F53, then F54. F54 can ship its coins, food, spins, permanent b
 
 Contract (data-model sections 11b, 11c, 14, 15 and 17 take these when Derek okays the proposal):
 - **Profile, save version 7:** `goldenFish` and `lifetimeGoldenFish` (integers), `crates` (map crateId to count, unopened), `crateLuck` (map crate pool, the zone or `classic`, to opens since the last Epic or better), `fishPerks` (map perkId to level), `stats.cratesOpened` and `stats.fishEarned`. Migration 6 to 7 sets them to 0 or empty. The S60 reasoning applies: an older server would drop them. Sanitise on load: counts must be integers of 0 or more, `crateLuck` 0 to 19 and perk levels 0 to max.
-- **`Catalog.crates[crateId]`:** `{ id, name, area, glyph, price?, odds = { Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 }, pieces = { decorId, ... } }`. The crate ids are `alley_crate` up to `sewer_crate` plus `classic_crate` (`area = "classic"`, open from Tier 1), which have `price = 100`, and `alley_golden_crate` up to `sewer_golden_crate` plus `classic_golden_crate`, which have no price and the odds `{ Epic = 80, Legendary = 17.5, Mythical = 2.5 }`. Each piece's chance is its rarity's odds split equally among that rarity's pieces. A piece is a `DecorDef` with `source = "crate"`, `crate` (its pool), `rarity`, `bonus` from the section 4 table and `kind` = `wallpaper`, `floor`, `paint`, `furniture` or `decoration`.
+- **`Catalog.crates[crateId]`:** `{ id, name, area, glyph, price?, odds = { Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 }, pieces = { decorId, ... } }`. The crate ids are `alley_crate` up to `sewer_crate` plus `classic_crate` (`area = "classic"`, open from Tier 1), which have `price = 60`, and `alley_golden_crate` up to `sewer_golden_crate` plus `classic_golden_crate`, which have no price and the odds `{ Epic = 80, Legendary = 17.5, Mythical = 2.5 }`. Each piece's chance is its rarity's odds split equally among that rarity's pieces. A piece is a `DecorDef` with `source = "crate"`, `crate` (its pool), `rarity`, `bonus` from the section 4 table and `kind` = `wallpaper`, `floor`, `paint`, `furniture` or `decoration`.
 - **`Catalog.indexPrizes[area][milestone]`**, the shape the UI thread asked for: `{ coins?, coinSeconds?, lures? = { [lureId] = n }, fish?, spins?, crates? = { [crateId] = n }, bonus?, tag? }`. `coins` is the minimum, and `coinSeconds` (when set) pays `max(coins, floor(dayRate x coinSeconds))`. `bonus?` is the permanent tip bonus as a fraction (0.02). `decorId` goes away. `Catalog.indexMilestones` becomes two tracks per area, `normal` (`cats3`, `cats6`, `cats10`) and `gold` (`gold1`, `gold2`, `gold4`, `gold6`, `gold8`, `gold10`), each row `{ id, track, needs }`. The Cat Collector track uses the area id `all` with `total5` to `total50`, counted from `collection`. `ClaimIndexReward(areaId, milestoneId)` accepts `all`, and `indexRewards.all` saves those claims. The Decor Index uses the area ids `decor_alley` up to `decor_sewer` and `decor_classic` with the milestones `decor5` and `decor10`, counted from the owned pieces of that crate.
 - **`Catalog.spinWheel`:** slice 5 is `{ kind = "fish", count = 4 }`. Slice 6 is `{ kind = "crate", crate = "highest" }`, which the server resolves to the crate of the player's highest unlocked zone. Index and All Cats prizes name their crate id, and `highest` resolves the same way.
 - **`Catalog.fishShop`:** rows `{ id, kind = "crate" | "lure" | "perk", cost or costs, maxLevel? }` for section 3.
@@ -204,7 +204,7 @@ Contract (data-model sections 11b, 11c, 14, 15 and 17 take these when Derek okay
 - **Style slots and decor spots:** `ToggleDecor(decorId, true)` on a wallpaper, floor or paint takes the place of the one in use of that kind. On furniture or a decoration, it is refused when every decor spot is full. Pieces placed above the cap after a change stay placed. The cafe shell tags its inside wall parts `Wallpaper`, its floor parts `Floor` and its outside facade parts `Paint`, and the client applies the piece in use to every tagged part, so other players see the paint.
 - **Income:** `cafeMultiplier` adds the bonuses of the crate pieces in use, +0.05 for each full Decor Index page, +0.05 per Golden Espresso level and the `bonus` of every claimed Index milestone.
 - **Analytics:** the economy currency `golden_fish`. Its sources are `first_catch`, `repeat_catch`, `rank_up`, `index_reward`, `spin_wheel` and `tip_jar`. Its sinks are `crate`, `lure` and `perk`. There is also a custom event `crate_opened` (crate, rarity, kind, duplicate, lucky twentieth), so the odds can be checked against results.
-- **Constants:** CratePrice 100, CrateDuplicateRefund {Common 10, Rare 20, Epic 40, Legendary 80, Mythical 150}, CrateLuckyEvery 20, FishMarketRange 14, CrateOpenCooldownSeconds 2, DecorSpots {2, 3, 4, 5, 6} by tier, DecorIndexBonus 0.05, DecorIndexHalfFish 25, the crate bonuses {0.02, 0.04, 0.08, 0.15, 0.25}, FishFirstCatch {1, 3, 8, 20, 40}, FishRepeatCatch {Epic 1, Legendary 3, Mythical 8}, FishRankUp {10, 25, 50, 100}, TipJarStep12Fish 5.
+- **Constants:** CratePrice 60, CrateDuplicateRefund {Common 10, Rare 20, Epic 40, Legendary 80, Mythical 150}, CrateLuckyEvery 20, FishMarketRange 14, CrateOpenCooldownSeconds 2, DecorSpots {2, 3, 4, 5, 6} by tier, DecorIndexBonus 0.05, DecorIndexHalfFish 25, the crate bonuses {0.02, 0.04, 0.08, 0.15, 0.25}, FishFirstCatch {1, 3, 8, 20, 40}, FishRepeatCatch {Epic 1, Legendary 3, Mythical 8}, FishRankUp {10, 25, 50, 100}, TipJarStep12Fish 5.
 
 Monetization check (monetization-policy section 6): no Robux path ends in a crate, a fish or a spin. Every crate shows its odds and the lucky twentieth's numbers before opening. Nothing is limited, timed or shown off as spending. If a coins product ever ships (growth option B), bait repeat catches already pay no fish. Crates would then still be unpaid, but the growth thread should re-check any new fish source against this rule.
 

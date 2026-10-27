@@ -1,7 +1,7 @@
 --!strict
 -- What each menu screen has that the player has not seen yet, for the red dots on the menu tiles (F39 P1, the
 -- Pet Simulator 99 and Grow a Garden side menu). A key per thing: an upgrade level or decor item the player can
--- buy right now, a cat (or shiny) in the collection. The HUD remembers which keys were on screen when the player
+-- buy right now, a cat (or gold coat) in the collection. The HUD remembers which keys were on screen when the player
 -- last opened that screen and shows a dot while any key is new. Pure: no services, so it can be unit tested.
 
 local CatVariant = require(script.Parent.Components.CatVariant)
@@ -61,9 +61,9 @@ local function collectionKeys(state: Types.PlayerState): { string }
 	for catId in collection do
 		table.insert(keys, catId)
 	end
-	local shiny: { [string]: number } = CatVariant.collection(state)
-	for catId in shiny do
-		table.insert(keys, "shiny:" .. catId)
+	local gold: { [string]: number } = CatVariant.collection(state)
+	for catId in gold do
+		table.insert(keys, "gold:" .. catId)
 	end
 	return keys
 end

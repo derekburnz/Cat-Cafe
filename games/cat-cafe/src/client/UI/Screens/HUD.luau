@@ -1069,6 +1069,7 @@ end
 
 function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 	self._carryBanner = info ~= nil
+	self._carryState = info ~= nil -- render agrees on the next state push, since UI.setCarrying clears state too
 	self:_renderTravel()
 	if info then
 		assert(info, "carry info missing")

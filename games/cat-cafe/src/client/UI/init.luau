@@ -1013,6 +1013,9 @@ end
 
 -- info.door is the player's own cafe Door part; a marker with distance appears over it.
 function UI.setCarrying(info: Types.CarryInfo?)
+	-- a partial ProfileSync cannot carry a nil, so UI.update never clears state.carrying; this call does, or the
+	-- HUD would keep reading "Walk it home" after a drop or a check in (engineer, 2026-10-27)
+	(state :: any).carrying = if info then info.catId else nil
 	local hudScreen = hud
 	local marker = carryMarker
 	if not hudScreen or not marker then

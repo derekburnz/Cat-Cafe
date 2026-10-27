@@ -54,6 +54,12 @@ get() {
 		sleep "$wait"
 	done
 	body=$(cat "$reply")
+	# The data store only exists once a server has saved the first report, so until then Roblox answers 404.
+	if [ "$status" = 404 ] && [[ $body == *"Data store not found"* ]]; then
+		echo "== 0 reports: no server has saved a bug report yet, so $STORE does not exist."
+		[ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "### 0 bug reports: \`$STORE\` is made by the first report" >>"$GITHUB_STEP_SUMMARY"
+		exit 0
+	fi
 	if [ "$status" != 200 ]; then
 		echo "Open Cloud answered HTTP $status: $body" >&2
 		case "$status" in

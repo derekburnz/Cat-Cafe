@@ -10,7 +10,9 @@
 -- prize or stops on an edge (reviewer N127). Slice 0 means refused, and the line under the button says why. The
 -- button stays off until the wheel has landed. Walking out of range closes the window (N132); a prize that lands
 -- while it is closed comes up as a toast. Spins are free only: nothing here mentions Robux (monetization-policy,
--- N126). The sums live in Components/SpinLogic.
+-- N126). The sums live in Components/SpinLogic. F69 (round 4 Q11): the Odds button opens a list of the six slices
+-- likeliest first, each with its prize picture, a bar and its chance, the same numbers as on the wheel, and the food
+-- prizes wear their grade gems.
 --
 -- The wheel turns by moving the tiles round the hub and turning each spoke about its own middle, so the prizes stay
 -- upright and readable while it spins.
@@ -62,6 +64,7 @@ type Tile = {
 	icon: ItemIcon.ItemIcon,
 	row: Types.SpinRow,
 	crate: string?, -- the crate a crate slice shows now ("highest" resolved for the player's tier)
+	prize: TextLabel?, -- a row of the Odds list: its prize text, kept current with the day rate
 }
 
 type Turn = {
@@ -80,6 +83,11 @@ local RADIUS = 0.34 -- tile middles from the hub, of the face
 local SPOKE = 3
 local RIM_LIGHTS = 12
 local ROW_HEIGHT = 28
+local ODDS_BUTTON = Vector2.new(84, 36)
+local ODDS_ROW = 64
+local ODDS_ICON = 48
+local ODDS_CHANCE = 84 -- the chance column's width
+local BACK = Vector2.new(96, Theme.sizes.touchMin)
 local TURNS = 5
 local SPIN_SECONDS: number = Config.SpinCooldownSeconds or 4 -- the server's cooldown is the animation's length
 local CALM_SECONDS = 1.5 -- with Reduced Motion on: a shorter spin, two turns
@@ -158,6 +166,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	self._income = 0
 	self._night = false
 	self._tiles = {} :: { Tile }
+	self._oddsTiles = {} :: { Tile }
 	self._spokes = {} :: { Frame }
 	self._chances = {} :: { { prize: TextLabel, chance: TextLabel } }
 	self._angle = 0
@@ -284,14 +293,33 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		}),
 		Create("UIPadding", { PaddingRight = UDim.new(0, 8), PaddingBottom = UDim.new(0, 6) }),
 	})
+	local chancesHead: Frame = Create("Frame", {
+		Name = "ChancesHead",
+		LayoutOrder = 1,
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, ODDS_BUTTON.Y + 2),
+		Parent = side,
+	})
 	text({
 		Name = "ChancesTitle",
-		LayoutOrder = 1,
-		Size = UDim2.new(1, 0, 0, 20),
+		Size = UDim2.new(1, -(ODDS_BUTTON.X + 6), 1, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 1,
 		Text = "Prizes and chances",
-		Parent = side,
+		Parent = chancesHead,
+	})
+	self._oddsButton = Button.new({
+		name = "Odds",
+		text = "Odds",
+		style = "secondary",
+		size = UDim2.fromOffset(ODDS_BUTTON.X, ODDS_BUTTON.Y),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, 0, 0.5, 0),
+		textSize = Theme.sizes.textBody,
+		parent = chancesHead,
+		onClick = function()
+			self:_showOdds(true)
+		end,
 	})
 	self._chanceList = Create("Frame", {
 		Name = "Chances",
@@ -349,6 +377,79 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		Parent = side,
 	})
 
+	-- the Odds list (F69), over the whole window until Back
+	local odds: Frame = Create("Frame", {
+		Name = "OddsList",
+		BackgroundColor3 = Theme.modal.panel,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 10,
+		Visible = false,
+		Parent = panel.content,
+	})
+	self._odds = odds
+	text({
+		Name = "Title",
+		Position = UDim2.fromOffset(4, 2),
+		Size = UDim2.new(1, -(BACK.X + 16), 0, 26),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		Text = "Spin odds",
+		Parent = odds,
+	})
+	text({
+		Name = "Sub",
+		Position = UDim2.fromOffset(4, 28),
+		Size = UDim2.new(1, -(BACK.X + 16), 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.modal.subtext,
+		Text = "Likeliest first, the same chances as on the wheel. Together they make 100%.",
+		Parent = odds,
+	})
+	self._oddsBack = Button.new({
+		name = "Back",
+		text = "Back",
+		style = "ghost",
+		size = UDim2.fromOffset(BACK.X, BACK.Y),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -4, 0, 2),
+		textSize = Theme.sizes.textBody,
+		parent = odds,
+		onClick = function()
+			self:_showOdds(false)
+		end,
+	})
+	self._oddsList = Create("ScrollingFrame", {
+		Name = "Rows",
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(0, BACK.Y + 10),
+		Size = UDim2.new(1, 0, 1, -(BACK.Y + 10)),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = Theme.colors.caramel,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		Parent = odds,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 2),
+			PaddingRight = UDim.new(0, 10),
+			PaddingTop = UDim.new(0, 2),
+			PaddingBottom = UDim.new(0, 6),
+		}),
+	})
+	-- closing the window puts the list away, so the wheel is what opens next time
+	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
+		if not self.frame.Visible then
+			self._odds.Visible = false
+		end
+	end)
+
 	-- every frame while turning; four times a second the range check; once a second the counts and the dot
 	local rangeClock, clock = 0, 1
 	self._tick = RunService.Heartbeat:Connect(function(dt: number)
@@ -392,6 +493,9 @@ function SpinWheel.render(self: any, state: Types.PlayerState)
 	if state.tier ~= self._tier then
 		self._tier = state.tier
 		for _, tile: Tile in self._tiles do
+			self:_paintCrate(tile)
+		end
+		for _, tile: Tile in self._oddsTiles do
 			self:_paintCrate(tile)
 		end
 	end
@@ -471,6 +575,11 @@ function SpinWheel._build(self: any)
 		(row.prize.Parent :: Instance):Destroy()
 	end
 	table.clear(self._chances)
+	for _, tile in self._oddsTiles do
+		tile.icon:destroy()
+		tile.holder:Destroy()
+	end
+	table.clear(self._oddsTiles)
 	self._landed = nil
 
 	for index, row: Types.SpinRow in self._rows do
@@ -503,18 +612,10 @@ function SpinWheel._build(self: any)
 			size = UDim2.fromScale(0.6, 0.6),
 			anchorPoint = Vector2.new(0.5, 0),
 			position = UDim2.fromScale(0.5, 0.06),
+			badge = "gem",
 		})
 		local tile: Tile = { holder = holder, stroke = stroke, icon = icon, row = row, crate = nil }
-		if row.kind == "fish" then
-			icon:set(nil, "", "Legendary")
-			FishCoin.fill(icon.frame, 0.66, 2)
-		elseif row.kind == "crate" then
-			self:_paintCrate(tile)
-		elseif lure then
-			icon:set(lure.asset, Theme.foodIcons[lure.id] or Theme.icons.food, lure.attracts)
-		else
-			icon:set(nil, COIN_GLYPH, "Legendary")
-		end
+		self:_paint(tile)
 		local chance = text({
 			Name = "Chance",
 			AnchorPoint = Vector2.new(0.5, 1),
@@ -609,8 +710,101 @@ function SpinWheel._build(self: any)
 		})
 		table.insert(self._chances, { prize = prize, chance = chanceText })
 	end
+	for order, row: Types.SpinRow in SpinLogic.byChance(self._rows) do
+		self:_oddsRow(row, order)
+	end
 	self:_setAngle(self._angle)
 	self:_refresh()
+end
+
+-- A tile's picture: coins, golden fish, the crate it pays now, or the food with its grade gem (F69).
+function SpinWheel._paint(self: any, tile: Tile)
+	local row = tile.row
+	local icon: ItemIcon.ItemIcon = tile.icon
+	if row.kind == "fish" then
+		icon:set(nil, "", "Legendary")
+		FishCoin.fill(icon.frame, 0.66, 2)
+	elseif row.kind == "crate" then
+		self:_paintCrate(tile)
+	elseif row.kind == "lure" then
+		icon:setFood(if row.lureId then self._lureById[row.lureId] else nil, row.lureId)
+	else
+		icon:set(nil, COIN_GLYPH, "Legendary")
+	end
+end
+
+-- One row of the Odds list: the prize picture, its name, a bar as long as its chance and the chance.
+function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
+	local line: Frame = Create("Frame", {
+		Name = "Slice" .. row.slice,
+		LayoutOrder = order,
+		BackgroundColor3 = Theme.modal.card,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, ODDS_ROW),
+		Parent = self._oddsList,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+	})
+	local stroke = Outline.border(line, Theme.sizes.stroke, Theme.modal.cardStroke)
+	local icon = ItemIcon.new({
+		parent = line,
+		size = UDim2.fromOffset(ODDS_ICON, ODDS_ICON),
+		anchorPoint = Vector2.new(0, 0.5),
+		position = UDim2.new(0, 8, 0.5, 0),
+		badge = "gem",
+	})
+	local left = ODDS_ICON + 18
+	local prize = text({
+		Name = "Prize",
+		Position = UDim2.fromOffset(left, 10),
+		Size = UDim2.new(1, -(left + ODDS_CHANCE), 0, 22),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 1,
+		Parent = line,
+	})
+	local track: Frame = Create("Frame", {
+		Name = "Bar",
+		BackgroundColor3 = Theme.colors.line,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(left, 38),
+		Size = UDim2.new(1, -(left + ODDS_CHANCE), 0, 12),
+		Parent = line,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+	local share = math.clamp(SpinLogic.share(self._rows, row) / 100, 0, 1)
+	Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Theme.colors.berry,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(share, 1),
+		Parent = track,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+	local chance = text({
+		Name = "Chance",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -12, 0.5, 0),
+		Size = UDim2.fromOffset(ODDS_CHANCE - 16, 30),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge + 2,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = SpinLogic.chance(self._rows, row),
+		Parent = line,
+	})
+	Outline.text(chance, 1)
+	local tile: Tile =
+		{ holder = line, stroke = stroke, icon = icon, row = row, crate = nil, prize = prize }
+	self:_paint(tile)
+	table.insert(self._oddsTiles, tile)
+end
+
+function SpinWheel._showOdds(self: any, on: boolean)
+	self._odds.Visible = on
+	if on then
+		self:_refresh()
+	end
 end
 
 -- Puts the wheel at `angle` degrees clockwise: each tile round the hub, each spoke between two tiles.
@@ -772,6 +966,14 @@ function SpinWheel._refresh(self: any)
 			line.prize.Text = self:_prize(row, nil)
 		end
 	end
+	if self._odds.Visible then
+		for _, tile: Tile in self._oddsTiles do
+			local prize: TextLabel? = tile.prize
+			if prize then
+				prize.Text = self:_prize(tile.row, nil)
+			end
+		end
+	end
 
 	local spins = SpinLogic.spins(spin, now)
 	local banked = if spin then math.max(0, math.floor(spin.banked)) else 0
@@ -805,7 +1007,13 @@ function SpinWheel.destroy(self: any)
 		tile.icon:destroy()
 	end
 	table.clear(self._tiles)
+	for _, tile in self._oddsTiles do
+		tile.icon:destroy()
+	end
+	table.clear(self._oddsTiles)
 	self._button:destroy()
+	self._oddsButton:destroy()
+	self._oddsBack:destroy()
 	self._panel:destroy()
 end
 

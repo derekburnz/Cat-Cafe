@@ -62,6 +62,13 @@ function Particles.make(preset: Presets.EmitterPreset, tint: Color3?): ParticleE
 	return emitter
 end
 
+-- Recolours an emitter: its particles run through `list` over their life (a signature cat turning gold).
+function Particles.paint(emitter: ParticleEmitter, list: { Color3 })
+	if #list > 0 then
+		emitter.Color = colours(list)
+	end
+end
+
 -- An Attachment at a world position, for a steady emitter that is not on a part.
 function Particles.anchor(name: string, position: Vector3): Attachment
 	local attachment = Instance.new("Attachment")
@@ -235,6 +242,44 @@ function Particles.ring(at: Vector3, colour: Color3, diameter: number?, seconds:
 		:Create(ring, info, { Size = Vector3.new(0.12, r.diameter, r.diameter), Transparency = 1 })
 		:Play()
 	Debris:AddItem(ring, r.seconds + 0.1)
+end
+
+-- A beam of light from `at` straight up: it shoots up to `height` studs over the first part of `seconds`, holds and
+-- fades, narrowing as it goes (Presets.beam). One flash; skipped with Reduce Motion.
+function Particles.beam(at: Vector3, colour: Color3, width: number, height: number, seconds: number)
+	if Context.reducedMotion() then
+		return
+	end
+	local b = Presets.beam
+	-- A cylinder's length runs along its X axis, so it is turned to stand up.
+	local upright = CFrame.Angles(0, 0, math.pi / 2)
+	local beam = Context.effectPart("Beam", Vector3.new(0.1, width, width), colour)
+	beam.Shape = Enum.PartType.Cylinder
+	beam.Material = Enum.Material.Neon
+	beam.Transparency = 0.35
+	beam.CFrame = CFrame.new(at) * upright
+	beam.Parent = Context.folder()
+	local rise = TweenInfo.new(seconds * b.grow, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	TweenService:Create(beam, rise, {
+		Size = Vector3.new(height, width, width),
+		CFrame = CFrame.new(at + Vector3.new(0, height / 2, 0)) * upright,
+	}):Play()
+	local fade = TweenInfo.new(
+		seconds * (1 - b.holdShare),
+		Enum.EasingStyle.Quad,
+		Enum.EasingDirection.In,
+		0,
+		false,
+		seconds * b.holdShare
+	)
+	TweenService
+		:Create(
+			beam,
+			fade,
+			{ Transparency = 1, Size = Vector3.new(height, width * 0.6, width * 0.6) }
+		)
+		:Play()
+	Debris:AddItem(beam, seconds + 0.1)
 end
 
 -- A word or symbol that pops up over a part, rises and fades: the "!" of a hiss.

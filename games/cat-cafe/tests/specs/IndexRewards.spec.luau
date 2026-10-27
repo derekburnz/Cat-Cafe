@@ -85,6 +85,42 @@ return function()
 		end)
 	end)
 
+	describe("IndexRewards Decor Index pages (F53)", function()
+		local catalog = {
+			cats = CATALOG.cats,
+			decor = {
+				{ id = "brick", crate = "alley", rarity = "Common", kind = "wallpaper" },
+				{ id = "stools", crate = "alley", rarity = "Common", kind = "furniture" },
+				{ id = "sky", crate = "alley", rarity = "Mythical", kind = "wallpaper" },
+			},
+			crates = { { id = "alley_crate", area = "alley", golden = false, pieces = {} } },
+			indexMilestones = { { id = "decor5", needs = 2 }, { id = "decor10", needs = 3 } },
+			indexPrizes = { decor_alley = { decor5 = { fish = 25 }, decor10 = { bonus = 0.05 } } },
+		}
+
+		it("counts a page's owned pieces and readies its rewards", function()
+			local state = { decorOwned = { brick = true, sky = true }, indexRewards = {} }
+			local counts = IndexRewards.counts(catalog, state, "decor_alley")
+			expect(counts.total).to.equal(3)
+			expect(counts.found).to.equal(2)
+			local views = IndexRewards.views(catalog, state, "decor_alley")
+			expect(views[1].state).to.equal("ready")
+			expect(views[2].state).to.equal("locked")
+			local perArea, total = IndexRewards.claimable(catalog, state)
+			expect(perArea.decor_alley).to.equal(1)
+			expect(total).to.equal(1)
+		end)
+
+		it("names a page's need in pieces", function()
+			expect(IndexRewards.needLabel({ id = "decor5", needs = 5 }, 10, "decor_alley")).to.equal(
+				"5 pieces"
+			)
+			expect(IndexRewards.needLabel({ id = "decor10", needs = 10 }, 10, "decor_alley")).to.equal(
+				"All 10"
+			)
+		end)
+	end)
+
 	describe("IndexRewards labels", function()
 		it("names the need, saying All once it is the whole page", function()
 			expect(IndexRewards.needLabel({ id = "cats3", need = 3 }, 10)).to.equal("3 cats")

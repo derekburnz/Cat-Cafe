@@ -4,6 +4,7 @@
 --         (dark silhouettes until found), rarest last; tap one for details. Above the cats, the area's reward
 --         strip (Screens/IndexStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Index
 --         tab and on each area tab says a reward is waiting.
+--   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its ten pieces and two rewards.
 --   Cat room: the cats the player owns as an inventory grid under a crew strip of role slots (Screens/CatRoom).
 -- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
@@ -12,6 +13,8 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoom = require(script.Parent.CatRoom)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
+local DecorIndex = require(script.Parent.DecorIndex)
+local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
@@ -37,12 +40,14 @@ export type CatCollection = {
 	frame: Frame,
 	setCatalog: (self: CatCollection, catalog: Types.Catalog) -> (),
 	render: (self: CatCollection, state: Types.PlayerState) -> (),
-	showTab: (self: CatCollection, tab: "Index" | "Room") -> (),
+	showTab: (self: CatCollection, tab: Tab) -> (),
 	showArea: (self: CatCollection, areaId: string) -> (),
 	setNight: (self: CatCollection, night: boolean) -> (),
-	currentTab: (self: CatCollection) -> "Index" | "Room",
+	currentTab: (self: CatCollection) -> Tab,
 	destroy: (self: CatCollection) -> (),
 }
+
+export type Tab = "Index" | "Decor" | "Room"
 
 local CELL = Vector2.new(112, 134)
 local PORTRAIT = 84
@@ -215,13 +220,28 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		end,
 	})
 	self._indexBadge, self._indexBadgeCount = badge(self._indexTab.instance, 24)
+	self._decorTab = Button.new({
+		name = "DecorTab",
+		text = "Decor",
+		style = "ghost",
+		size = UDim2.fromOffset(120, TAB_HEIGHT),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 2,
+		parent = tabs,
+		sound = "uiTab",
+		onClick = function()
+			self:showTab("Decor")
+		end,
+	})
+	self._decorTab.instance.Visible = false
+	self._decorBadge, self._decorBadgeCount = badge(self._decorTab.instance, 24)
 	self._roomTab = Button.new({
 		name = "RoomTab",
 		text = "Cat room",
 		style = "ghost",
 		size = UDim2.fromOffset(120, TAB_HEIGHT),
 		textSize = Theme.sizes.textBody,
-		layoutOrder = 2,
+		layoutOrder = 3,
 		parent = tabs,
 		sound = "uiTab",
 		onClick = function()
@@ -374,6 +394,17 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		}),
 	})
 
+	-- Decor Index: a page per crate (Screens/DecorIndex)
+	self._decor = Create("Frame", {
+		Name = "Decor",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, indexTop),
+		Size = UDim2.new(1, 0, 1, -indexTop),
+		Visible = false,
+		Parent = panel.content,
+	})
+	self._decorIndex = DecorIndex.new(self._decor, { claim = callbacks.claimIndexReward })
+
 	-- Cat room: the inventory grid and the crew strip (Screens/CatRoom)
 	self._room = Create("Frame", {
 		Name = "Room",
@@ -395,15 +426,17 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	return self :: CatCollection
 end
 
-function CatCollection.currentTab(self: any): "Index" | "Room"
+function CatCollection.currentTab(self: any): Tab
 	return self._tab
 end
 
-function CatCollection.showTab(self: any, tab: "Index" | "Room")
+function CatCollection.showTab(self: any, tab: Tab)
 	self._tab = tab
 	self._index.Visible = tab == "Index"
+	self._decor.Visible = tab == "Decor"
 	self._room.Visible = tab == "Room"
 	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
+	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
 	self._roomTab:setStyle(if tab == "Room" then "gold" else "ghost")
 	self._catRoom:reset()
 	if self._lastState then
@@ -666,6 +699,9 @@ function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self:_buildIndex()
 	self._catRoom:setCatalog(catalog)
 	self._strip:setCatalog(catalog)
+	self._decorIndex:setCatalog(catalog)
+	-- the Decor tab shows once the catalog has crates to fill its pages
+	self._decorTab.instance.Visible = #DecorPieces.pools(catalog) > 0
 	self._dirty = true
 end
 
@@ -853,17 +889,29 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		)
 	)
 
-	-- the Index tab's badge counts rewards waiting on every page, whichever tab is open
+	-- the Index and Decor tabs' badges count rewards waiting on their pages, whichever tab is open
 	local ready: { [string]: number } = {}
-	local waiting = 0
 	if catalog then
-		ready, waiting = IndexRewards.claimable(catalog, state)
+		ready = IndexRewards.claimable(catalog, state)
+	end
+	local waiting, decorWaiting = 0, 0
+	for areaId, count in ready do
+		if DecorPieces.poolOf(areaId) then
+			decorWaiting += count
+		else
+			waiting += count
+		end
 	end
 	if waiting > 0 and not self._indexBadge.Visible then
 		Tween.popIn(self._indexBadge, 0.5)
 	end
 	self._indexBadge.Visible = waiting > 0
 	self._indexBadgeCount.Text = tostring(waiting)
+	if decorWaiting > 0 and not self._decorBadge.Visible then
+		Tween.popIn(self._decorBadge, 0.5)
+	end
+	self._decorBadge.Visible = decorWaiting > 0
+	self._decorBadgeCount.Text = tostring(decorWaiting)
 
 	-- room tab only when the engineer sends cat instances
 	local hasRoom = state.cats ~= nil
@@ -878,6 +926,8 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		if self._selected then
 			self:_select(self._selected)
 		end
+	elseif self._tab == "Decor" then
+		self._decorIndex:render(state)
 	else
 		self._catRoom:render(state)
 	end
@@ -895,7 +945,9 @@ function CatCollection.destroy(self: any)
 	self._detailArt:destroy()
 	self._catRoom:destroy()
 	self._strip:destroy()
+	self._decorIndex:destroy()
 	self._indexTab:destroy()
+	self._decorTab:destroy()
 	self._roomTab:destroy()
 	self._panel:destroy()
 end

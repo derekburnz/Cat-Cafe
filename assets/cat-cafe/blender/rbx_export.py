@@ -69,6 +69,9 @@ TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["Fi
         "CatCafe_Park_Fountain": ["Fountain"], "_IndexBoard": ["IndexBoard"],
         "CatCafe_Street_CodesCat": ["CodesCat"], "_NightFence": ["NightFence"],
         "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"]}
+# Tags on every part of an object, by object name suffix: the crate styles (F53, StyleController) recolour the cafe
+# shell's outer wall layer (Paint) and inner wall layer (Wallpaper), and give each part its own look back after.
+PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"]}
 # Root Model properties by asset name suffix: an Index Board streams in whole, so its Screen is there whenever the
 # board is (reviewer S37, as for the cats).
 MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"}}
@@ -227,6 +230,9 @@ def _props(p, asset, uid):
     }
     if transparency:
         props["Transparency"] = transparency
+    part_tags = [t for sfx, tags in PART_TAGS.items() if p["name"].endswith(sfx) for t in tags]
+    if part_tags:
+        props["Tags"] = part_tags
     if p["shape"]:
         props["Shape"] = p["shape"]
     node = {"name": p["name"], "className": p["cls"], "properties": props}

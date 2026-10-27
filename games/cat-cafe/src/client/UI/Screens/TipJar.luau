@@ -236,9 +236,10 @@ function TipJar._build(self: any)
 			size = UDim2.fromOffset(ICON, ICON),
 			anchorPoint = Vector2.new(0.5, 0),
 			position = UDim2.new(0.5, 0, 0, 22),
+			badge = "gem", -- F69: a food's grade in the corner
 		})
 		if lure then
-			icon:set(lure.asset, Theme.foodIcons[lure.id] or Theme.icons.food, lure.attracts)
+			icon:setFood(lure)
 		else
 			icon:set(nil, COIN_GLYPH, "Legendary")
 		end

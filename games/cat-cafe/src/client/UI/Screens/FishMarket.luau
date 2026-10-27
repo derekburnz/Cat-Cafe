@@ -11,7 +11,8 @@
 -- says when the next crate opens on the golden odds. Open fires events.openCrate(crateId); the server rolls with
 -- its own Random, pays at once and answers CrateResult(crateId, decorId, duplicate, refund), which plays the
 -- reveal: the won piece's rarity colour shows from the first frame and never a better one first, so nothing looks
--- like a near miss; a tap skips it and Reduce Motion makes it a short fade. Leaving mid-reveal keeps the piece. A
+-- like a near miss; a tap skips it and Reduce Motion makes it a short fade. A new wallpaper, floor or paint gets a
+-- "Use it" button that fires callbacks.useDecor (ToggleDecor(decorId, true)). Leaving mid-reveal keeps the piece. A
 -- refusal is CrateResult(crateId, "", false, 0) and the server's toast says why. Buying a treat or perk fires
 -- events.buyFishItem(itemId). Golden fish are earned only: nothing here mentions Robux. Sums in
 -- Components/MarketLogic; walking out of range closes the window (as the wheel, N132).
@@ -24,6 +25,7 @@ local RunService = game:GetService("RunService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
@@ -40,6 +42,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 export type Callbacks = {
 	openCrate: (crateId: string) -> (),
 	buyItem: (itemId: string) -> (),
+	useDecor: (decorId: string) -> (), -- "Use it" on a new wallpaper, floor or paint in the reveal
 	toast: (text: string) -> (), -- a crate result that lands while the window is closed
 	close: () -> (),
 }
@@ -112,15 +115,6 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 	},
 }
 
--- A cosmetic's kind (golden-fish.md section 4), read loosely from the piece's DecorDef.
-local KINDS: { [string]: { name: string, icon: string } } = {
-	wallpaper = { name = "Wallpaper", icon = "🖼️" },
-	floor = { name = "Flooring", icon = "🟫" },
-	paint = { name = "Paint", icon = "🎨" },
-	furniture = { name = "Furniture", icon = "🪑" },
-	decoration = { name = "Decoration", icon = "🪴" },
-}
-
 local FishMarket = {}
 FishMarket.__index = FishMarket
 
@@ -176,17 +170,6 @@ local function stationDistance(): number?
 		end
 	end
 	return best
-end
-
--- A piece's rarity, kind and tip bonus, read loosely: SharedTypes.DecorDef gains them with F53's pieces.
-local function pieceInfo(decor: Types.DecorDef?): (string?, string?, number)
-	if decor == nil then
-		return nil, nil, 0
-	end
-	local loose = decor :: any
-	local rarity = if type(loose.rarity) == "string" then loose.rarity else nil
-	local kind = if type(loose.kind) == "string" then loose.kind else nil
-	return rarity, kind, decor.bonus or 0
 end
 
 function FishMarket.new(callbacks: Callbacks): FishMarket
@@ -520,7 +503,10 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	local state: Types.PlayerState? = self._state
 	local luck = if state and state.crateLuck then state.crateLuck[crate.area] else nil
 	local odds = MarketLogic.nextOdds(crate, luck, LUCKY_EVERY, self._goldenOdds[crate.area])
-	local lucky = not crate.golden and odds ~= crate.odds
+	-- N167: the same test nextOdds makes, not a comparison of the odds tables
+	local lucky = not crate.golden
+		and self._goldenOdds[crate.area] ~= nil
+		and MarketLogic.luckLeft(luck, LUCKY_EVERY) <= 1
 	self._oddsTitle.Text = crate.name
 	self._oddsNote.Text = if crate.golden
 		then "Epic or better every time"
@@ -533,8 +519,7 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 		self:_oddsLine(order, row.rarity, row.rarity, nil, row.percent)
 	end
 	local chances = MarketLogic.pieceChances(crate.pieces, function(id: string): string?
-		local rarity = pieceInfo(self._decorById[id])
-		return rarity
+		return DecorPieces.info(self._decorById[id]).rarity
 	end, odds)
 	order += 1
 	text({
@@ -559,8 +544,8 @@ function FishMarket._showOdds(self: any, crate: Types.CrateDef)
 	for _, piece in chances do
 		order += 1
 		local decor: Types.DecorDef? = self._decorById[piece.id]
-		local _, kind, bonus = pieceInfo(decor)
-		local kindName = if kind and KINDS[kind] then KINDS[kind].name else "Cosmetic"
+		local kindName = DecorPieces.kindName(DecorPieces.info(decor).kind)
+		local bonus = if decor then decor.bonus or 0 else 0
 		self:_oddsLine(
 			order,
 			piece.rarity,
@@ -672,6 +657,26 @@ function FishMarket._buildReveal(self: any, body: Frame)
 			self:_hideReveal()
 		end,
 	})
+	-- a new wallpaper, floor or paint: "Use it" beside the Done button swaps it in
+	local use = Button.new({
+		name = "UseIt",
+		text = "Use it",
+		style = "primary",
+		size = UDim2.fromOffset(130, 44),
+		anchorPoint = Vector2.new(1, 1),
+		position = UDim2.new(0.5, -4, 1, -10),
+		textSize = Theme.sizes.textBody + 1,
+		zIndex = 33,
+		parent = sheet,
+		onClick = function()
+			local decorId: string? = self._revealId
+			if decorId then
+				self._callbacks.useDecor(decorId)
+			end
+			self:_hideReveal()
+		end,
+	})
+	use.instance.Visible = false
 	self._reveal = {
 		cover = cover,
 		glow = glow,
@@ -683,6 +688,7 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		detail = detail,
 		status = status,
 		done = done,
+		use = use,
 	}
 	-- a tap while it plays skips to the end; after that a tap outside the card closes it
 	cover.Activated:Connect(function()
@@ -707,6 +713,7 @@ function FishMarket._finishReveal(self: any)
 	reveal.sheet.Size = UDim2.fromOffset(300, 330)
 	reveal.glow.Size = UDim2.fromOffset(300, 300)
 	reveal.done.instance.Visible = true
+	reveal.use.instance.Visible = self._revealUse == true
 end
 
 -- Plays the reveal for the won piece. Its rarity shows from the first frame: the band, the glow and the tile are
@@ -714,29 +721,42 @@ end
 function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, refund: number)
 	local reveal = self._reveal
 	local decor: Types.DecorDef? = self._decorById[decorId]
-	local rarity, kind = pieceInfo(decor)
-	local _, _, bonus = pieceInfo(decor)
-	local color = Theme.rarityColor(rarity)
+	local piece = DecorPieces.info(decor)
+	local bonus = if decor then decor.bonus or 0 else 0
+	local color = Theme.rarityColor(piece.rarity)
 	reveal.band.BackgroundColor3 = color
 	reveal.glow.BackgroundColor3 = color
-	reveal.rarity.Text = rarity or "New piece"
-	local kindInfo = if kind then KINDS[kind] else nil
+	reveal.rarity.Text = piece.rarity or "New piece"
 	reveal.icon:set(
 		if decor then decor.asset else nil,
-		if kindInfo then kindInfo.icon else Theme.icons.decor,
-		rarity
+		DecorPieces.kindIcon(piece.kind, Theme.icons.decor),
+		piece.rarity
 	)
 	reveal.name.Text = if decor then decor.name else decorId
 	reveal.detail.Text = ("%s · +%s tips while in use"):format(
-		if kindInfo then kindInfo.name else "Cosmetic",
+		DecorPieces.kindName(piece.kind),
 		Format.percent(bonus)
 	)
+	-- a new wallpaper, floor or paint can go up now; furniture and decorations take a free spot by themselves
+	local offerUse = not duplicate and DecorPieces.isStyle(piece.kind)
+	self._revealId = decorId
+	self._revealUse = offerUse
 	reveal.status.Text = if duplicate
 		then ("You had this one: +%s golden fish back"):format(Format.short(refund))
+		elseif offerUse then "New! Use it now, or later in Decor."
 		else "New! Find it in Decor."
 	reveal.status.TextColor3 = if duplicate then Theme.colors.goldDark else Theme.colors.goodDark
+	-- two buttons side by side when Use it is offered, else Nice! in the middle
+	reveal.done:setText(if offerUse then "Later" else "Nice!")
+	reveal.done:setStyle(if offerUse then "ghost" else "primary")
+	reveal.done.instance.AnchorPoint = if offerUse then Vector2.new(0, 1) else Vector2.new(0.5, 1)
+	reveal.done.instance.Position = if offerUse
+		then UDim2.new(0.5, 4, 1, -10)
+		else UDim2.new(0.5, 0, 1, -10)
+	reveal.done.instance.Size = UDim2.fromOffset(if offerUse then 130 else 150, 44)
 	reveal.cover.Visible = true
 	reveal.done.instance.Visible = false
+	reveal.use.instance.Visible = false
 	self._revealToken += 1
 	local token = self._revealToken
 	self._revealing = true
@@ -1165,6 +1185,7 @@ function FishMarket.destroy(self: any)
 	end
 	self._reveal.icon:destroy()
 	self._reveal.done:destroy()
+	self._reveal.use:destroy()
 	self._oddsDone:destroy()
 	self._cratesTab:destroy()
 	self._treatsTab:destroy()

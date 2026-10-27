@@ -604,6 +604,9 @@ function UI.init(config: Types.InitConfig)
 		buyItem = function(itemId: string)
 			UI.events.buyFishItem:Fire(itemId)
 		end,
+		useDecor = function(decorId: string)
+			UI.events.toggleDecor:Fire(decorId, true)
+		end,
 		toast = function(text: string)
 			if toasts then
 				toasts:show(text, "good")

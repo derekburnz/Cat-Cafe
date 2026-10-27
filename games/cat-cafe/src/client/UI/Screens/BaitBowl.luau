@@ -102,6 +102,8 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 
 	local panel = Panel.new({
 		name = "Bait",
+		color = Theme.colors.mintDark,
+		icon = Theme.upgradeIcons.lure_bowl,
 		title = "Bait bowl",
 		subtitle = "Put food in and a cat comes to your door",
 		size = UDim2.fromScale(1, 1),

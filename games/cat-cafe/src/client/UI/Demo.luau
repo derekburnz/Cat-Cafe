@@ -361,6 +361,17 @@ function Demo.run(UI: any): () -> ()
 	connections[#connections + 1] = UI.events.equipBest:Connect(function()
 		UI.toast("Equip best: the server would place your top cats", "info")
 	end)
+	connections[#connections + 1] = UI.events.unequipAll:Connect(function()
+		local rested = 0
+		for _, instance in profile.cats do
+			if instance.spotId then
+				instance.spotId = nil
+				rested += 1
+			end
+		end
+		UI.toast(("%d cats are resting in the cat room."):format(rested), "info")
+		push()
+	end)
 	connections[#connections + 1] = UI.events.travel:Connect(function(destination: string)
 		UI.toast(
 			if destination == "home"

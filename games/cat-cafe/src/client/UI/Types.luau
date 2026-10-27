@@ -31,7 +31,7 @@ export type Catalog = {
 	upgrades: { UpgradeDef },
 	decor: { DecorDef },
 	lures: { LureDef },
-	spots: { SpotDef }?, -- role slots; needed for the cat room's Assign picker
+	spots: { SpotDef }?, -- role slots; needed for the cat room's crew strip and Upgrades > Staff
 	tiers: { TierDef }?, -- v0.3: tier names, gates and the rank up card
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
 }
@@ -75,7 +75,8 @@ export type PlayerState = {
 	-- optional extras the engineer's ProfileSync also sends
 	cats: { [string]: CatInstance }?, -- uid -> instance; enables the cat room tab
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
-	shinyCollection: { [string]: number }?, -- catId -> first shiny caught at
+	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
+	shinyCollection: { [string]: number }?, -- the old name, read until the controller sends goldCollection
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
 }
@@ -97,6 +98,7 @@ export type PartialState = {
 	lures: { [string]: number }?,
 	cats: { [string]: CatInstance }?,
 	collection: { [string]: number }?,
+	goldCollection: { [string]: number }?,
 	shinyCollection: { [string]: number }?,
 	carrying: string?,
 	tutorialStep: number?,

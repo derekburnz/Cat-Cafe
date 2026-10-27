@@ -3,15 +3,18 @@
 -- - a rank up: confetti and a smoke puff at the cafe front, for any cafe in range, so the street sees it;
 -- - a claim: the For Rent shutters roll up and the sign fades when a player takes an empty plot;
 -- - a gate: its barrier dissolves with sparkles and confetti the first time it opens for this player this
---   session, played when the player is close enough to see it.
--- Driven by the replicated Plot attributes OwnerUserId and Tier (data-model section 13) and each gate's
--- RequiresTier (tag AreaGate), so nothing here needs a remote. WorldController still opens the gate itself; the
--- dissolve is a copy of the closed barrier fading out over it. Likewise the server removes the For Rent dressing
--- at a claim for everyone, and the roll-up is a copy drawn only near this player.
+--   session, played when the player is close enough to see it;
+-- - dusk and sunrise (F66): a violet haze rolls over the gates this player can use as the areas close for the night,
+--   and a sparkle and a warm ring as they open again.
+-- Driven by the replicated Plot attributes OwnerUserId and Tier (data-model section 13), each gate's RequiresTier
+-- (tag AreaGate) and the Clock's AreasOpen, so nothing here needs a remote. WorldController still opens the gate
+-- itself; the dissolve is a copy of the closed barrier fading out over it. Likewise the server removes the For Rent
+-- dressing at a claim for everyone, and the roll-up is a copy drawn only near this player.
 
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Context = require(script.Parent.Context)
@@ -36,6 +39,7 @@ type PlotState = {
 type GateState = {
 	requires: number,
 	looks: { [BasePart]: number },
+	frame: CFrame,
 	center: Vector3,
 	size: Vector3,
 	pending: boolean,
@@ -250,19 +254,23 @@ local function watchGate(instance: Instance)
 			looks[descendant :: BasePart] = closedLook(descendant :: BasePart)
 		end
 	end
-	local center = Vector3.zero
+	local frame = CFrame.identity
 	local size = Vector3.one
 	if instance:IsA("Model") then
-		local frame, extents = (instance :: Model):GetBoundingBox()
-		center = frame.Position
-		size = extents
+		frame, size = (instance :: Model):GetBoundingBox()
 	elseif instance:IsA("BasePart") then
-		center = (instance :: BasePart).Position
+		frame = (instance :: BasePart).CFrame
 		size = (instance :: BasePart).Size
 		looks[instance :: BasePart] = closedLook(instance :: BasePart)
 	end
-	gates[instance] =
-		{ requires = requires, looks = looks, center = center, size = size, pending = false }
+	gates[instance] = {
+		requires = requires,
+		looks = looks,
+		frame = frame,
+		center = frame.Position,
+		size = size,
+		pending = false,
+	}
 end
 
 local function openGates(previous: number, tier: number)
@@ -306,6 +314,57 @@ local function checkGates()
 			dissolve(state)
 		end
 	end
+end
+
+-- Places spread along a gate's width a stud above its foot, where the haze and the sparkle come from.
+local function alongGate(state: GateState): { Vector3 }
+	local n = Presets.areas.points
+	local size = state.size
+	local wide = size.X >= size.Z
+	local width = if wide then size.X else size.Z
+	local points: { Vector3 } = {}
+	for i = 1, n do
+		local k = ((i - 0.5) / n - 0.5) * width
+		local offset = if wide
+			then Vector3.new(k, 1 - size.Y / 2, 0)
+			else Vector3.new(0, 1 - size.Y / 2, k)
+		table.insert(points, (state.frame * CFrame.new(offset)).Position)
+	end
+	return points
+end
+
+-- The areas closing at dusk or opening at sunrise, at each gate this player's tier lets them through and close
+-- enough to see. A gate still locked for them stays as it is, so nothing plays there.
+local function areasTurned(turn: Logic.AreasTurn)
+	local tier = ownTier or 1
+	for _, state in gates do
+		if state.requires <= tier and Context.distance(state.center) <= Presets.gate.playWithin then
+			local points = alongGate(state)
+			for _, point in points do
+				if turn == "dusk" then
+					Particles.burst("duskHaze", point, Presets.bursts.duskHaze)
+				else
+					Particles.burst("gateSparkle", point, Presets.areas.sparkle)
+				end
+			end
+			if turn == "sunrise" then
+				local foot = state.center - Vector3.new(0, state.size.Y / 2 - 0.2, 0)
+				Particles.ring(foot, Presets.palette.lampWarm, Presets.areas.ringDiameter)
+			end
+		end
+	end
+end
+
+local function watchClock(clock: Instance)
+	local open = clock:GetAttribute("AreasOpen")
+	clock:GetAttributeChangedSignal("AreasOpen"):Connect(function()
+		local now = clock:GetAttribute("AreasOpen")
+		local turn: Logic.AreasTurn? = Logic.areasTurn(open, now)
+		open = now
+		if turn ~= nil then
+			areasTurned(turn)
+		end
+	end)
 end
 
 -- Plots -----------------------------------------------------------------------------------------------------
@@ -394,6 +453,19 @@ function Plots.start()
 		watchGate(gate)
 	end
 	CollectionService:GetInstanceAddedSignal("AreaGate"):Connect(watchGate)
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	if clock ~= nil then
+		watchClock(clock)
+	else
+		local waiting: RBXScriptConnection? = nil
+		waiting = ReplicatedStorage.ChildAdded:Connect(function(child: Instance)
+			if child.Name == "Clock" and waiting ~= nil then
+				waiting:Disconnect()
+				waiting = nil
+				watchClock(child)
+			end
+		end)
+	end
 	task.spawn(function()
 		while true do
 			task.wait(GATE_CHECK_SECONDS)

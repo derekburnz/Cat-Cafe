@@ -6,7 +6,7 @@
 --               cat's square to pick that cat; tap a "+" to put the picked cat to work there.
 --   Toolbar     search (name, breed or rarity), All / Working / Resting with counts, Unequip All and Equip Best.
 --   Grid        a card per cat in Components/CatRoomList order: model, name, level and rate, the role icon while it
---               works, a sparkle when shiny. Models load as cards scroll near view (reviewer N71).
+--               works, a sparkle when gold. Models load as cards scroll near view (reviewer N71).
 --   Detail      the picked cat: name with the rename pencil, rarity, level and stars, rate and where it works, its
 --               favourite role, then Assign (Move while working), Rest and Sell (Rare and up ask first, with the
 --               price). Assign rings every free "+" in gold and marks the cat's favourite role "★ 1.5x".
@@ -655,7 +655,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 			),
 		}),
 	})
-	-- a shiny cat's card has a thicker gold edge; the picked card a thick sky edge (set in render)
+	-- a gold cat's card has a thicker gold edge; the picked card a thick sky edge (set in render)
 	local stroke: UIStroke = Create("UIStroke", {
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = if shiny then Theme.colors.gold else Theme.rarityColor(rarity),
@@ -1143,7 +1143,7 @@ function CatRoom._loadPortraits(self: any)
 		end
 		local y = entry.button.AbsolutePosition.Y
 		if y + entry.button.AbsoluteSize.Y >= top and y <= bottom then
-			entry.portrait:set(entry.def, entry.shiny) -- a shiny cat in its own coat (F42)
+			entry.portrait:set(entry.def, entry.shiny) -- a gold cat in its own coat (F42)
 			entry.loaded = entry.portrait:hasModel()
 		end
 	end

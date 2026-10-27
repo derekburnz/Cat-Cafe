@@ -612,22 +612,23 @@ def build_tier(n, mat):
     b = RB()
     extra = []
     if n == 1:                                                                # chalkboard stand on the path
-        x, z = -2.4, -18.9
-        b.span((x - 0.8, 0.15, z - 0.06), (x + 0.8, 2.3, z + 0.06), "dark_wood")
-        b.span((x - 0.68, 0.45, z - 0.1), (x + 0.68, 2.15, z - 0.06), "fur_black")
-        b.box((x, 1.2, z + 0.45), (1.6, 2.1, 0.1), "dark_wood", rot=rot_x(-25))
-        b.text("CAFE", (x + 0.6, 1.6, z - 0.1), 0.08, 0.03, "offwhite", right=(-1, 0, 0))
-        b.cyl((x + 0.1, 0.95, z - 0.12), 0.2, 0.3, "offwhite", segments=10)               # a cup
-        for dx, dy in ((-0.35, 1.05), (-0.45, 0.85), (-0.25, 0.85), (-0.35, 0.7)):        # a paw
+        x, z, hw = -2.95, -18.9, 0.5                  # path's left edge, clear of Tier 5's rope line at x -2.3
+        b.span((x - hw, 0.15, z - 0.06), (x + hw, 2.3, z + 0.06), "dark_wood")
+        b.span((x - hw + 0.12, 0.45, z - 0.1), (x + hw - 0.12, 2.15, z - 0.06), "fur_black")
+        b.box((x, 1.2, z + 0.45), (2 * hw, 2.1, 0.1), "dark_wood", rot=rot_x(-25))
+        px = 0.66 / text_width("CAFE", 1.0)
+        b.text("CAFE", (x + 0.33, 1.6, z - 0.1), px, 0.03, "offwhite", right=(-1, 0, 0))
+        b.cyl((x + 0.17, 0.95, z - 0.12), 0.18, 0.3, "offwhite", segments=10)             # a cup
+        for dx, dy in ((-0.2, 1.05), (-0.3, 0.85), (-0.1, 0.85), (-0.2, 0.7)):            # a paw
             b.span((x + dx - 0.06, dy, z - 0.14), (x + dx + 0.06, dy + 0.1, z - 0.1), "blush")
     elif n == 2:                                                              # flower boxes and a bistro set
         flowers = RB()                                                        # _Flowers: butterflies by day
-        for cx in WINDOWS:
-            b.span((cx - 4.4, 0.25, -16.0), (cx + 4.4, 0.95, -15.2), "terracotta")
-            flowers.span((cx - 4.3, 0.95, -15.9), (cx + 4.3, 1.1, -15.3), "leaf_green")
+        for cx in WINDOWS:                            # hung under the sill's front edge (z -15.45), above the beds
+            b.span((cx - 4.4, 0.5, -16.2), (cx + 4.4, 1.0, -15.45), "terracotta")
+            flowers.span((cx - 4.3, 1.0, -16.1), (cx + 4.3, 1.15, -15.55), "leaf_green")
             for k in range(9):
                 fx = cx - 3.9 + k * 0.975
-                b.span((fx - 0.2, 1.05, -15.8 + 0.2 * (k % 2)), (fx + 0.2, 1.45, -15.4 + 0.2 * (k % 2)),
+                b.span((fx - 0.2, 1.1, -16.0 + 0.2 * (k % 2)), (fx + 0.2, 1.5, -15.6 + 0.2 * (k % 2)),
                        ("blush", "sparkle", "offwhite", "nose_pink")[k % 4])
         _bistro(b, 11.0, -17.3, "mint")
         extra = [flowers.finalize(name + "_Flowers", mat)]
@@ -641,8 +642,9 @@ def build_tier(n, mat):
         b.span((cx - 2.9, 1.9, -14.15), (cx + 2.9, 4.4, -14.1), "fur_black")
         for x in (cx - 2.2, cx + 2.2):
             b.span((x - 0.03, 4.4, -14.15), (x + 0.03, SPRING + 2.0, -14.1), "metal")
-        _string_lights(b, bulbs, -18.5, -0.5, 12.0, FRONT - 0.5, 1.1, 8)
-        _string_lights(b, bulbs, 0.5, 18.5, 12.0, FRONT - 0.5, 1.1, 8)
+        # a festoon under each awning's scalloped edge (awnings x 5..16 each side, lip at z -18, scallops to y 9.35)
+        _string_lights(b, bulbs, -15.8, -5.2, 9.25, FRONT - 3.2, 0.6, 7)
+        _string_lights(b, bulbs, 5.2, 15.8, 9.25, FRONT - 3.2, 0.6, 7)
         _bistro(b, -7.6, -17.4, "blush")
         extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat)]
     elif n == 4:                                                              # fish tank in the window, back patio
@@ -681,15 +683,18 @@ def build_tier(n, mat):
                  bulbs.finalize(name + "_StringLights_Bulbs", mat)]
     elif n == 5:                                                              # gold trim, rooftop sign, red carpet
         gold = "rarity_legend"
-        b.span((-HW - 0.4, H - 0.75, FRONT - 0.42), (HW + 0.4, H - 0.6, FRONT - 0.3), gold)
+        b.span((-18.2, H - 0.75, FRONT - 0.42), (18.2, H - 0.6, FRONT - 0.3), gold)       # between the pilasters
         x0, x1, y0, y1 = SIGN
-        for (a0, a1, c0, c1) in ((x0 - 0.45, x1 + 0.45, y1 + 0.3, y1 + 0.45), (x0 - 0.45, x1 + 0.45, y0 - 0.45, y0 - 0.3),
-                                 (x0 - 0.45, x0 - 0.3, y0 - 0.45, y1 + 0.45), (x1 + 0.3, x1 + 0.45, y0 - 0.45, y1 + 0.45)):
-            b.span((a0, c0, FRONT - 0.3), (a1, c1, FRONT - 0.18), gold)
+        top = [(x0 - 0.45, -4.6), (-4.4, 4.4), (4.6, x1 + 0.45)]                    # gaps for the gooseneck arms
+        strips = [(a0, a1, y1 + 0.3, y1 + 0.45) for a0, a1 in top]
+        strips += [(x0 - 0.45, x1 + 0.45, y0 - 0.45, y0 - 0.3), (x0 - 0.45, x0 - 0.3, y0 - 0.45, y1 + 0.45),
+                   (x1 + 0.3, x1 + 0.45, y0 - 0.45, y1 + 0.45)]
+        for (a0, a1, c0, c1) in strips:
+            b.span((a0, c0, FRONT - 0.3), (a1, c1, FRONT - 0.21), gold)
         for xx in (DOOR[0] - 0.65, DOOR[1] + 0.55):
-            b.span((xx, 0, FRONT - 0.45), (xx + 0.1, DOOR[2], FRONT - 0.35), gold)
-        # rooftop sign: a cup with cat ears and a star on the front of the ridge
-        cy = RIDGE + 0.6
+            b.span((xx, 0.15, FRONT - 0.45), (xx + 0.1, DOOR[2], FRONT - 0.35), gold)    # from the bed top
+        # rooftop sign: a cup with cat ears and a star, standing on the front of the ridge cap
+        cy = RIDGE + 0.6 / math.cos(PITCH) + 0.45
         b.cyl((0, cy + 1.3, FRONT - 0.2), 1.5, 2.6, "offwhite", r2=1.75, segments=16)
         b.cyl((0, cy + 1.2, FRONT - 0.2), 1.58, 0.5, "blush", segments=16)
         for sgn in (-1, 1):
@@ -700,7 +705,7 @@ def build_tier(n, mat):
         b.b.star(RB.p(0, cy + 4.6, FRONT - 0.2), 0.9, 0.4, 0.25, gold, rot=(math.radians(90), "X"))
         b.span((-0.08, cy, FRONT - 0.25), (0.08, cy + 0.1, FRONT - 0.15), gold)
         # red carpet with gold posts and ropes
-        b.span((-1.6, 0.02, -20.0), (1.6, 0.12, FRONT - 0.2), "shirt_red")
+        b.span((-1.6, 0.08, -20.0), (1.6, 0.15, FRONT - 0.2), "shirt_red")              # over the stones and mat
         for x in (-2.3, 2.3):
             for z in (-19.6, -16.4):
                 b.cyl((x, 0.2, z), 0.3, 0.15, gold, segments=10)

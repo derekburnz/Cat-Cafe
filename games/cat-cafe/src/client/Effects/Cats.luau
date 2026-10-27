@@ -37,6 +37,7 @@ type Entry = {
 	huffAt: number,
 	settleFor: number, -- seconds the settle out of `from` takes
 	stretchAt: number?, -- when the stretch playing now started (os.clock)
+	stretchSeen: number?, -- the last StretchAt the server set on this cat, so each plays once
 	stretchWeight: number, -- 1, or less while a stray that set off mid-stretch lets it go
 	nextStretch: number, -- when a stray standing still next stretches
 	yarn: BasePart?,
@@ -446,6 +447,7 @@ local function bind(model: Model): Entry?
 		huffAt = 0,
 		settleFor = Presets.motion.settle,
 		stretchAt = nil,
+		stretchSeen = nil,
 		stretchWeight = 1,
 		nextStretch = os.clock() + rng:NextNumber(0.3, 1) * Presets.motion.stretch.everyMax,
 		yarn = nil,
@@ -543,14 +545,6 @@ local function pick()
 				entry.from = entry.style
 				entry.changedAt = os.clock()
 				entry.settleFor = Logic.settleSeconds(entry.style, style)
-				-- waking up: it gets up and has a good stretch, each cat in its own time
-				if Logic.wakes(entry.style, style) and entry.hissAt == nil then
-					local s = Presets.motion.stretch
-					entry.stretchAt = entry.changedAt
-						+ s.wakeDelay
-						+ rng:NextNumber(0, s.wakeSpread)
-					entry.stretchWeight = 1
-				end
 				entry.style = style
 				dress(entry)
 			end
@@ -561,11 +555,29 @@ end
 
 local elapsed = 0
 
--- The stretch on top of the rest: one playing (a cat waking up), or a stray standing still now and then. A stray
+-- The stretch on top of the rest: a stray getting up from a nap to walk off, or a stray standing still now and then. A stray
 -- that sets off, or hisses, mid-stretch lets it go over STRETCH_LET_GO seconds instead of snapping out of it.
-local function stretch(entry: Entry, o: Logic.Offsets, now: number, dt: number, fleeing: boolean)
+local function stretch(
+	entry: Entry,
+	o: Logic.Offsets,
+	now: number,
+	serverNow: number,
+	dt: number,
+	fleeing: boolean
+)
 	local s = Presets.motion.stretch
 	local still = entry.rig.speed < Presets.motion.gait.moveFrom
+	-- A stray getting up from a nap on its own: the server sets StretchAt (its time) and waits for the stretch
+	-- before walking it off. One seen late starts as far in; one already over plays nothing.
+	local woke = entry.model:GetAttribute("StretchAt")
+	if type(woke) == "number" and woke ~= entry.stretchSeen then
+		entry.stretchSeen = woke
+		local late = serverNow - woke
+		if late < s.seconds and entry.hissAt == nil then
+			entry.stretchAt = now - math.max(late, 0)
+			entry.stretchWeight = 1
+		end
+	end
 	if
 		entry.stretchAt == nil
 		and entry.style == "stray"
@@ -643,7 +655,7 @@ local function step(dt: number)
 			entry.dustAt = now
 			Particles.burst("kick", Pose.floor(rig).Position, gait.dust)
 		end
-		stretch(entry, o, now, stepDt, fleeing)
+		stretch(entry, o, now, serverNow, stepDt, fleeing)
 		local alpha = -1
 		local hissAt = entry.hissAt
 		if hissAt ~= nil then

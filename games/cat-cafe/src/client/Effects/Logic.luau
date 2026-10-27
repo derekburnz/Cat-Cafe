@@ -562,17 +562,6 @@ function Logic.envelope(
 	return k * k * (3 - 2 * k)
 end
 
--- Whether a style is asleep (curled up or dozing), so leaving it is waking up.
-function Logic.asleep(style: Style?): boolean
-	return style == "nap" or style == "doze"
-end
-
--- Whether a change of style is waking up: out of a nap or a doze into anything but rest. A resting cat turning
--- between its nap and its loaf stays at rest and does not stand up to stretch (review S71).
-function Logic.wakes(from: Style?, to: Style): boolean
-	return Logic.asleep(from) and not (Logic.asleep(to) or to == "loaf")
-end
-
 -- How long a cat takes to settle from one style into the next: lying down is slow, getting up a little quicker,
 -- anything else motion.settle.
 function Logic.settleSeconds(from: Style?, to: Style): number
@@ -587,14 +576,14 @@ function Logic.settleSeconds(from: Style?, to: Style): number
 	return m.settle
 end
 
--- A stretch, layered on the idle while `alpha` runs from 0 to 1 (motion.stretch; Cats plays one as a cat wakes up
--- and now and then while a stray stands still). On all fours (the walking body and the older Part cats) the cat
--- gets up from wherever it lay, bows with its front legs out ahead, chest low, rear up and tail up, lifting its head
--- in a yawn with its eyes shut, then rocks forward and stretches each back leg out behind in turn, and settles
--- back. Sat up (the sitting body) it leans back and reaches both front paws up and forward in a yawn. `weight`
+-- A stretch, layered on the idle while `alpha` runs from 0 to 1 (motion.stretch; Cats plays one as a stray gets up
+-- from a nap to walk off, and now and then while a stray stands still). On all fours (the walking body and the older
+-- Part cats) the cat gets up from wherever it lay, bows with its front legs out ahead, chest low, rear up and tail
+-- up, lifting its head in a yawn with its eyes shut, then rocks forward and stretches each back leg out behind in
+-- turn, and settles back. A seated cat is not going anywhere, so it does not stretch (Derek 2026-10-27). `weight`
 -- (1 if not given) scales it all, so a stray that sets off mid-stretch can let it go smoothly.
 function Logic.stretch(o: Offsets, alpha: number, body: Body?, weight: number?)
-	if alpha < 0 or alpha >= 1 then
+	if alpha < 0 or alpha >= 1 or body == "sit" then
 		return
 	end
 	local s = Presets.motion.stretch
@@ -605,18 +594,6 @@ function Logic.stretch(o: Offsets, alpha: number, body: Body?, weight: number?)
 	o.lick *= 1 - up
 	o.sink *= 1 - up
 	o.belly *= 1 - up
-	if body == "sit" then
-		local reach = Logic.envelope(alpha, 0.1, 0.38, 0.68, 0.92) * w
-		o.bodyPitch += math.rad(s.lean) * reach
-		o.pawFL += math.rad(s.reachUp) * reach
-		o.pawFR += math.rad(s.reachUp) * reach
-		o.headPitch += math.rad(s.yawn) * reach
-		o.tailPitch += math.rad(s.tail * 0.5) * reach
-		o.blink = math.max(o.blink, reach)
-		o.earL = math.max(o.earL, math.rad(s.ears) * reach)
-		o.earR = math.max(o.earR, math.rad(s.ears) * reach)
-		return
-	end
 	local bow = Logic.envelope(alpha, 0.08, 0.3, 0.48, 0.62) * w
 	local rearL = Logic.envelope(alpha, 0.5, 0.6, 0.68, 0.78) * w
 	local rearR = Logic.envelope(alpha, 0.66, 0.76, 0.84, 0.94) * w

@@ -205,8 +205,8 @@ end
 local Z_STYLES = { nap = true, doze = true }
 
 -- The same composition as Effects/Cats.luau's step: the style's idle, a settle from the last style, the gait,
--- the stretch (as a cat wakes, or where a segment says `stretch = true`). Older Effects folders without a
--- function here just skip it.
+-- the stretch (where a segment says `stretch = true`, as when the server sets a stray's StretchAt). Older Effects
+-- folders without a function here just skip it.
 local Presets = modules.Presets
 local fps = scenario.fps or 24
 local frames = {}
@@ -222,9 +222,6 @@ for _, segment in scenario.segments do
 		if segment.style ~= style then
 			if Logic.settleSeconds then
 				settleFor = Logic.settleSeconds(style, segment.style)
-			end
-			if Logic.wakes and Logic.wakes(style, segment.style) then
-				stretchAt = clock + Presets.motion.stretch.wakeDelay
 			end
 			from = style
 			style = segment.style

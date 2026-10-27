@@ -382,11 +382,10 @@ Presets.motion = {
 	settleDown = 1.2, -- lying down (into a nap or a loaf) takes longer
 	settleUp = 0.9, -- and getting up a little less
 	lieGap = 0.02, -- studs a lying cat's belly stays off the floor, at Scale 1 (the manifest's 0.31 on a 0.33 body)
-	-- A stretch (Derek 2026-10-27): as a cat wakes up, and every `every` to `everyMax` seconds while a stray stands
-	-- still. On all fours it rises out of its pose over `rise` of the stretch, bows (front legs `reach` degrees
+	-- A stretch (Derek 2026-10-27): as a stray gets up from a nap to walk off (the server's `StretchAt`), and every
+	-- `every` to `everyMax` seconds while a stray stands still. On all fours it rises out of its pose over `rise` of the stretch, bows (front legs `reach` degrees
 	-- ahead, body `bow` degrees nose down and `drop` studs lower, head up by `yawn`, tail up by `tail`, ears back by
 	-- `ears`, eyes shut, the head kept nearly level), then rocks `rock` degrees forward and stretches each back leg `rear` degrees out behind.
-	-- Sat up it leans back by `lean` and lifts both front paws `reachUp` degrees with the yawn.
 	stretch = {
 		seconds = 3.2,
 		rise = 0.12,
@@ -399,10 +398,6 @@ Presets.motion = {
 		ears = 20,
 		rock = 6,
 		rear = 50,
-		lean = 8,
-		reachUp = 85,
-		wakeDelay = 0.4, -- seconds after waking before it stretches
-		wakeSpread = 1.5, -- and up to this much more, per cat, so a room waking at dawn does not stretch in unison
 		every = 35,
 		everyMax = 80,
 	},
@@ -446,17 +441,18 @@ Presets.motion = {
 -- manifest does not ship with the game: for each hinged piece, the turn about its own joint as
 -- piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees (`angles_roblox_deg`), and how far the whole
 -- cat drops (`lift_roblox` Y, studs at Scale 1). `body` is the body each is for, "walk" (A) or "sit" (B). Copy new
--- numbers here when the manifest changes.
+-- numbers here when the manifest changes. One change of ours: in the sleep and the loaf the folded legs also turn
+-- out to the sides (the last angle, front 30 degrees, back 26), so the paws peek out a little (Derek 2026-10-27).
 export type CatPose = { body: string, lift: number, turns: { [string]: { number } } }
 Presets.catPoses = {
 	sleep = {
 		body = "walk",
 		lift = 0.31,
 		turns = {
-			LegF1 = { -90, 0, 0 },
-			LegF2 = { -90, 0, 0 },
-			LegB1 = { 90, 0, 0 },
-			LegB2 = { 90, 0, 0 },
+			LegF1 = { -90, 0, -30 },
+			LegF2 = { -90, 0, 30 },
+			LegB1 = { 90, 0, -26 },
+			LegB2 = { 90, 0, 26 },
 			Head = { -26.8, 25.4, 12.2 },
 			Tail = { 71.7, 49.6, -66.5 },
 		},
@@ -465,10 +461,10 @@ Presets.catPoses = {
 		body = "walk",
 		lift = 0.31,
 		turns = {
-			LegF1 = { -90, 0, 0 },
-			LegF2 = { -90, 0, 0 },
-			LegB1 = { 90, 0, 0 },
-			LegB2 = { 90, 0, 0 },
+			LegF1 = { -90, 0, -30 },
+			LegF2 = { -90, 0, 30 },
+			LegB1 = { 90, 0, -26 },
+			LegB2 = { 90, 0, 26 },
 			Tail = { 42.1, 23.2, -19.6 },
 		},
 	},

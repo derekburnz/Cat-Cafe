@@ -41,6 +41,8 @@ local FALLBACK_AREA = "alley"
 local ROOM_ROW = 76
 local ROOM_ART = 64 -- the cat's own model on each cat room card, as in the Pet Simulator inventory
 local ROOM_TEXT = ROOM_ART + 22
+-- cards this far above or below the visible part of the list already get their cat model (reviewer N71)
+local PORTRAIT_MARGIN = 240
 local SPOT_ROW = 48
 
 -- Sell asks for confirmation from this rarity up (data-model: Rare and above).
@@ -371,6 +373,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		end,
 	})
 	self._roomList = scroller("List", self._room, UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -44))
+	self._roomScroll = self._roomList:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+		self:_loadPortraits()
+	end)
 
 	self._spotPicker = Create("Frame", {
 		Name = "SpotPicker",
@@ -936,7 +941,6 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 		still = true,
 		zIndex = 2,
 	})
-	portrait:set(def)
 	if shiny then
 		local badge = pill(
 			frame,
@@ -1050,7 +1054,7 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 	return {
 		frame = frame,
 		portrait = portrait,
-		loaded = portrait:hasModel(),
+		loaded = false, -- the model is cloned by _loadPortraits once the card is near the visible window
 		name = name,
 		status = status,
 		favorite = favorite,
@@ -1112,6 +1116,27 @@ function CatCollection._renderSpots(self: any, state: Types.PlayerState)
 			row.sub.Text = ("%d of %d free"):format(free, open)
 			row.button:setText("Assign")
 			row.button:setEnabled(true)
+		end
+	end
+end
+
+-- N71: a cat room card clones its cat model only once it scrolls near the visible part of the list, so a big
+-- collection pays for the cards on screen. A card whose model is not in Assets yet tries again on the next pass.
+function CatCollection._loadPortraits(self: any)
+	local list: ScrollingFrame = self._roomList
+	if self._tab ~= "Room" or not self.frame.Visible then
+		return
+	end
+	local top = list.AbsolutePosition.Y - PORTRAIT_MARGIN
+	local bottom = list.AbsolutePosition.Y + list.AbsoluteSize.Y + PORTRAIT_MARGIN
+	for _, row in self._roomRows do
+		if row.loaded then
+			continue
+		end
+		local y = row.frame.AbsolutePosition.Y
+		if y + row.frame.AbsoluteSize.Y >= top and y <= bottom then
+			row.portrait:set(row.def)
+			row.loaded = row.portrait:hasModel()
 		end
 	end
 end
@@ -1183,11 +1208,6 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 			row.name.Text = if custom and custom ~= ""
 				then ("%s  (%s)"):format(custom, breed)
 				else breed
-			if not row.loaded then
-				-- the model can stream in after the card was made; try again until it is there
-				row.portrait:set(def)
-				row.loaded = row.portrait:hasModel()
-			end
 			local rate = if instance.rating
 				then instance.rating :: number
 				elseif def then def.incomePerSecond
@@ -1265,6 +1285,12 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		if self._spotPicker.Visible then
 			self:_renderSpots(state)
 		end
+		-- after the list layout has placed new cards
+		task.defer(function()
+			if self.frame.Parent ~= nil then
+				self:_loadPortraits()
+			end
+		end)
 	end
 end
 
@@ -1277,6 +1303,7 @@ function CatCollection.destroy(self: any)
 		chip.connection:Disconnect()
 	end
 	self._detailArt:destroy()
+	self._roomScroll:Disconnect()
 	for _, row in self._roomRows do
 		row.place:destroy()
 		row.remove:destroy()

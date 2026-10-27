@@ -141,7 +141,8 @@ local function onReportBug(player: Player, rawText: unknown, rawKind: unknown, r
 		print("[BugReport] " .. HttpService:JSONEncode(report))
 	end
 	local ok, err = pcall(function()
-		store():SetAsync(BugReport.key(report.at, userId), report)
+		-- the userId tags the entry, so a data request finds it (review N148)
+		store():SetAsync(BugReport.key(report.at, userId), report, { userId })
 	end)
 	if not ok then
 		warn(string.format("[BugReport] save failed for user %d: %s", userId, tostring(err)))

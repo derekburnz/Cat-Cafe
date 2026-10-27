@@ -42,6 +42,12 @@ return function()
 			end
 		)
 
+		it("looks at no more than 2,000 bytes of what it is sent", function()
+			-- a bad byte past the bound is never read; the start of the report is kept
+			expect(BugReport.text(string.rep("a", 3000) .. "\255")).to.equal(string.rep("a", 500))
+			expect(BugReport.cut("ab\255\255", 3)).to.equal("ab\255")
+		end)
+
 		it("trims a long run of spaces quickly", function()
 			local started = os.clock()
 			expect(BugReport.text("abc" .. string.rep(" ", 20000) .. "d")).to.equal("abc")

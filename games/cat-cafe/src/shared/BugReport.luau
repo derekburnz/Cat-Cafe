@@ -44,7 +44,8 @@ local function trim(s: string): string
 	return s:sub(first, last)
 end
 
--- `s` (valid UTF-8) cut to at most `bytes` bytes without splitting a character.
+-- `s` cut to at most `bytes` bytes without splitting a character. Safe on any string: it only steps back over
+-- continuation bytes, so it can also bound raw input before the UTF-8 check.
 function BugReport.cut(s: string, bytes: number): string
 	if #s <= bytes then
 		return s
@@ -60,10 +61,12 @@ function BugReport.text(raw: unknown): string?
 	if type(raw) ~= "string" then
 		return nil
 	end
-	if utf8.len(raw) == nil then
+	-- 4 bytes a character at most, so a huge string costs no more than a full report (review N147)
+	local bounded = BugReport.cut(raw, BugReport.MaxBytes * 4)
+	if utf8.len(bounded) == nil then
 		return nil
 	end
-	local text = trim(BugReport.cut(trim(clean(raw, true)), BugReport.MaxBytes))
+	local text = trim(BugReport.cut(trim(clean(bounded, true)), BugReport.MaxBytes))
 	return if #text >= BugReport.MinBytes then text else nil
 end
 
@@ -81,10 +84,11 @@ function BugReport.errorLine(raw: unknown): string?
 	if type(raw) ~= "string" then
 		return nil
 	end
-	if utf8.len(raw) == nil then
+	local bounded = BugReport.cut(raw, BugReport.ErrorBytes * 4)
+	if utf8.len(bounded) == nil then
 		return nil
 	end
-	local line = trim(BugReport.cut(trim(clean(raw, false)), BugReport.ErrorBytes))
+	local line = trim(BugReport.cut(trim(clean(bounded, false)), BugReport.ErrorBytes))
 	return if line ~= "" then line else nil
 end
 

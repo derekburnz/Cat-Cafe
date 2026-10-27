@@ -57,7 +57,7 @@ Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one
 
 Per-cat stats stay as built: charm (rolled at catch, 0.8x to 1.2x), level from time spent working (up to 1.45x) and the star rating.
 
-Shiny (Gavin, Q16 and round 2): every cat has a shiny version with its own coat colour that earns 1.5 times as much and sparkles. A shiny turns up 5% of the time from the net and bait and 10% from a rescue. Which colour style shinies use is a round 3 question. Shiny strays sparkle on sight, so the race for them is visible; a rescued cat's shininess is a surprise when it comes out. The book has a shiny page. There is no merging of duplicates, and Golden and Galaxy variants are dropped. Duplicates still sell for coins.
+Shiny (Gavin, Q16 and round 2): every cat has a gold shiny version that earns 1.5 times as much and sparkles (Derek picked gold on 2026-10-27). A shiny turns up 5% of the time from the net and bait and 10% from a rescue. Shiny strays sparkle on sight, so the race for them is visible; a rescued cat's shininess is a surprise when it comes out. The book has a shiny page. There is no merging of duplicates, and Golden and Galaxy variants are dropped. Duplicates still sell for coins.
 
 Names (Q16): players can name their cats. Names go through Roblox's text filter before anyone else can see them.
 
@@ -160,6 +160,6 @@ Out: trading, the 30 cats of the last three areas (provisional names only), role
 
 ## Open questions
 
-Round 2 is answered (feedback/gavin-2026-10-27.md). Round 3 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): shoving mid-catch, whether a shove knocks a cat loose, the shiny colour style (with a picture), and whether the shared dealer stock runs out.
+Round 2 is answered (feedback/gavin-2026-10-27.md). Round 3 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): shoving mid-catch, whether a shove knocks a cat loose, and whether the shared dealer stock runs out.
 
 Settled 2026-10-25: Cozy Cream art style (Derek: cozy game vibes). No trading. Settled 2026-10-26 by Gavin's answers and Derek's go-ahead: everything in v0.3 above, including carry bumps in place of the no-stealing rule. Settled 2026-10-27 by Gavin's round 2: unlimited tries with a chase after a miss, Shove in place of Bump, the bowl outside, shiny colours at 5%, spending coins to rank up, the cafe closed at night at 60%, one shared dealer stock, area-unique cats, "Cat Cafe" as the placeholder name.

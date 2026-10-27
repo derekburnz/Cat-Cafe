@@ -174,7 +174,7 @@ local NIGHT_LIGHTING = {
 	Brightness = 0.6,
 	OutdoorAmbient = Color3.fromRGB(45, 55, 85),
 	Ambient = Color3.fromRGB(30, 35, 55),
-	ExposureCompensation = 0.25,
+	ExposureCompensation = 0,
 	ColorShift_Top = Color3.fromRGB(150, 170, 220),
 }
 local DAY_ATMOSPHERE_DENSITY = 0.3
@@ -184,10 +184,14 @@ local LIGHTING_TWEEN = TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirect
 -- Parts that glow at night (style guide section 9): any part under the World folder whose name ends in _Bulb,
 -- _Bulbs, _Pane or _Tube, placeholder or real model. By day each keeps the look it was built with; at night it
 -- turns Neon in lamp_warm (neon_pink for a sign's tube) and its light comes on. HangingLamp bulbs are indoors
--- and lit all day, so they stay as built.
+-- and lit all day, so they stay as built. A window pane stays partly see-through at night and the lights are
+-- soft, because solid Neon panes and bright lights washed the cafe inside out to white (laptop playtest, #184).
 local LAMP_WARM = Color3.fromRGB(255, 217, 168)
 local NEON_PINK = Color3.fromRGB(255, 107, 129)
 local NIGHT_SUFFIXES = { "_Bulb", "_Bulbs", "_Pane", "_Tube" }
+local PANE_NIGHT_TRANSPARENCY = 0.3
+local GLOW_LIGHT_BRIGHTNESS = 0.8
+local GLOW_LIGHT_RANGE = 10
 
 type DayLook = { material: Enum.Material, color: Color3, transparency: number, light: Light }
 
@@ -237,8 +241,8 @@ local function lightFor(part: BasePart): Light
 		light = spot
 	else
 		local point = Instance.new("PointLight")
-		point.Range = 16
-		point.Brightness = 1.5
+		point.Range = GLOW_LIGHT_RANGE
+		point.Brightness = GLOW_LIGHT_BRIGHTNESS
 		point.Color = if isTube(part) then NEON_PINK else Color3.fromRGB(255, 214, 170)
 		light = point
 	end
@@ -254,7 +258,7 @@ local function setGlow(part: BasePart, look: DayLook)
 	if isNight then
 		part.Material = Enum.Material.Neon
 		part.Color = if isTube(part) then NEON_PINK else LAMP_WARM
-		part.Transparency = 0
+		part.Transparency = if part.Name:sub(-5) == "_Pane" then PANE_NIGHT_TRANSPARENCY else 0
 	else
 		part.Material = look.material
 		part.Color = look.color
@@ -441,6 +445,9 @@ local function considerCat(instance: Instance)
 		setCatHidden(instance :: Model, true)
 		return
 	end
+	if next(hiddenCats) == nil then
+		return
+	end
 	local hiddenModel = instance:FindFirstAncestorWhichIsA("Model") :: Model?
 	while hiddenModel ~= nil and hiddenCats[hiddenModel] == nil do
 		hiddenModel = hiddenModel:FindFirstAncestorWhichIsA("Model") :: Model?
@@ -519,11 +526,11 @@ local function watchOtherCats()
 	end)
 end
 
--- Follows the player's saved settings (shared/Settings), read off the last ProfileSync on every tick of the loop
--- below; both setters do nothing while their value is unchanged. A missing key keeps its default.
-local function applySettings(settings: { [string]: unknown })
-	setLowPerformance(settings.lowPerformance == true)
-	setShowOtherCats(settings.showOtherCats ~= false)
+-- Follows the two switches as the Settings screen shows them (a tap at once, then the saved value), read on every
+-- tick of the loop below once the first sync is in; both setters do nothing while their value is unchanged.
+local function applySettings()
+	setLowPerformance(UI.settings.value("lowPerformance"))
+	setShowOtherCats(UI.settings.value("showOtherCats"))
 end
 
 -- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
@@ -555,7 +562,7 @@ function WorldController.start()
 			if state == nil then
 				continue
 			end
-			applySettings(state.settings :: any)
+			applySettings()
 
 			local world = Workspace:FindFirstChild("World")
 			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil

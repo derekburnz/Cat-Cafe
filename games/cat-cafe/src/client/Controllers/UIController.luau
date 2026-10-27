@@ -329,17 +329,16 @@ local function refreshRichTip()
 	end)
 end
 
--- The switches read as the Settings screen shows them: a tap at once, then the server's saved value, and back to it
--- if the server dropped the tap (ui-contract Settings, review N111). Every other key of shared/Settings (volumes,
--- screen shake, low performance) is read from the last saved settings until the screen shows it.
-local SCREEN_SWITCHES = { music = true, sfx = true }
+-- Every key of shared/Settings reads as the Settings screen shows it: a tap or a drag step at once, then the
+-- server's saved value, and back to it if the server dropped the change (ui-contract Settings, reviews N111 and
+-- N139). UI.update hands the screen each sync's saved values, so the first read after the first sync matches the save.
 local audioStarted = false -- Audio waits for the first ProfileSync, so a muted player never hears music start
 
 local function setting(key: string): any
-	if SCREEN_SWITCHES[key] then
-		return UI.settings.value(key)
+	if Settings.kinds[key] == "volume" then
+		return UI.settings.volume(key)
 	end
-	return if state ~= nil then (state.settings :: any)[key] else nil
+	return UI.settings.value(key)
 end
 
 -- Audio's channels and volumes and the Effects switches, from the settings above. Both skip what has not changed.
@@ -354,16 +353,6 @@ local function applySettings()
 		screenShake = setting("screenShake"),
 		lowPerformance = setting("lowPerformance"),
 	})
-end
-
--- True when a saved setting the screen does not show moved between two syncs.
-local function savedSettingsMoved(before: Types.Settings, after: Types.Settings): boolean
-	for key in Settings.kinds do
-		if not SCREEN_SWITCHES[key] and (before :: any)[key] ~= (after :: any)[key] then
-			return true
-		end
-	end
-	return false
 end
 
 local function applyState(s: Types.PlayerState)
@@ -400,12 +389,10 @@ local function applyState(s: Types.PlayerState)
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
 		spin = s.spin, -- F49: the free spin and the banked ones, for the Spin window
 	})
-	-- After the first sync, music and sound follow the Settings switches rather than each sync; the purr follows the
+	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
 	if not audioStarted then
 		audioStarted = true
-		applySettings()
-	elseif previous ~= nil and savedSettingsMoved(previous.settings, s.settings) then
 		applySettings()
 	end
 	Audio.setCarrying(s.carrying ~= nil)
@@ -432,8 +419,9 @@ local function wireIntents()
 			Net.fire("SetSetting", key, value)
 		end
 	end)
-	UI.settings.changed:Connect(function(key: string)
-		if audioStarted and SCREEN_SWITCHES[key] then
+	-- Live while a volume drags, so the slider's tick plays at the new volume.
+	UI.settings.changed:Connect(function()
+		if audioStarted then
 			applySettings()
 		end
 	end)

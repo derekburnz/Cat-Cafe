@@ -35,6 +35,7 @@ local Modal = require(script.Components.Modal)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
+local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
@@ -76,6 +77,7 @@ UI.events = {
 	useLure = Signal.new(), -- (lureId)   Use on a food in the Bait bowl screen: forward as UseLure (F28)
 	resolveBait = Signal.new(), -- (choice)   "tame" or "letgo" from the bait card: forward as ResolveBait
 	buyDealerFood = Signal.new(), -- (slot, lureId)   Buy on the night dealer screen: forward both as BuyDealerFood (F32)
+	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 }
 
 local state: Types.PlayerState = {
@@ -109,6 +111,7 @@ local areaTitle: AreaTitle.AreaTitle? = nil
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, tip, Bump)
+local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -435,6 +438,22 @@ function UI.init(config: Types.InitConfig)
 	circles = CatchCircles.new(parent)
 	rescueBar = RescueBar.new(parent)
 	actionPills = ActionPill.new(parent)
+	richTipScreen = RichTip.new(parent, {
+		collect = function()
+			UI.events.claimRichTip:Fire()
+		end,
+		-- claimed or paid into the till at expiry: the server credits it either way
+		collected = function(amount: number, position: Vector3?)
+			if position then
+				UI.floatText(
+					position + Vector3.new(0, 2, 0),
+					"+" .. Format.money(amount),
+					Theme.colors.gold
+				)
+			end
+			UI.toast("Rich tip! +" .. Format.money(amount), "good")
+		end,
+	})
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
@@ -567,6 +586,9 @@ function UI.destroy()
 	if actionPills then
 		actionPills:destroy()
 	end
+	if richTipScreen then
+		richTipScreen:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -586,7 +608,7 @@ function UI.destroy()
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags, actionPills = nil, nil, nil
+	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -857,6 +879,22 @@ end
 function UI.dealer.open()
 	if modal then
 		modal:open("Dealer")
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Rich tip (F31, data-model section 12)
+----------------------------------------------------------------------------------------------------
+
+UI.richTip = {}
+
+-- Your own plot model: a gold marker over its RichTipAnchor whenever RichTipAmount and RichTipExpiresAt (server
+-- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When the tip clears, claimed
+-- or paid at expiry, "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for it.
+-- Call it again when the player gets a new plot; nil stops watching.
+function UI.richTip.bind(plot: Instance?)
+	if richTipScreen then
+		richTipScreen:bind(plot)
 	end
 end
 

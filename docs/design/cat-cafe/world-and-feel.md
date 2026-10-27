@@ -100,9 +100,9 @@ Style rules, from the sketch: one chunky rounded font (FredokaOne) with a dark U
 
 ## 8. Acceptance checks for QA
 
-1. A Miss on circle 1 of a Rare ends the catch at once with no roll and the cat sprints about 16 studs away; nobody can start a catch until it stops, then anyone can, the same player included, as many times as they like.
+1. A Miss on circle 1 of a Rare ends the catch at once with no roll and the cat sprints about 16 studs away; nobody can start a catch until it stops, then anyone can, the same player included after a 1 second wait, as many times as they like. The cat always stops somewhere a player can reach. With two players, the one who did not miss gets the next try within 1 second of the stop.
 2. Any mix of Good and Perfect catches every time over 20 tries. An all-Perfect Common arrives with 8 more charm than the stray showed.
-3. Inside the Alleyway a player can shove another player, carrying or not; on the street or in a cafe they cannot. A player in the middle of a catch cannot be shoved.
+3. Inside the Alleyway a player can shove another player, carrying or not; on the street or in a cafe they cannot. A player in the middle of a catch cannot be shoved or shove. Three players shoving one target land at most one shove every 4 seconds.
 4. From every cafe's back door a stray spawn is under 2 seconds away on foot at walk speed 20. The Alley travel button lands in the Square and the Areas buttons at every unlocked gate. Carrying a cat from the farthest Square spawn point to the farthest cafe's nearer door takes under 25 seconds at carry speed 16.
 5. With one player on the server, the other seven plots show For Rent shops with no grey boxes; joining a second player rolls their shutters up.
 6. From the street, you can see cats working inside a running cafe, and its sign shows the owner's name, tier and rate.

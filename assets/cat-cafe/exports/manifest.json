@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 08:23 UTC",
+  "generated": "2026-10-27 11:44 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -145,11 +145,23 @@
       "note": "Cradled across the chest, facing the character's left, so the camera behind the player sees the cat side on. Relative to the HumanoidRootPart centre (R15: 3 studs above the floor)."
     }
   },
-  "role_uniforms": {
-    "barista": "Apron",
-    "waiter": "BowTie",
-    "greeter": "Sash",
-    "entertainer": "PartyHat"
+  "role_outfits": {
+    "barista": [
+      "Apron",
+      "BaristaCap"
+    ],
+    "waiter": [
+      "BowTie",
+      "Vest"
+    ],
+    "greeter": [
+      "Sash",
+      "Boater"
+    ],
+    "entertainer": [
+      "PartyHat",
+      "Cape"
+    ]
   },
   "upright_attachments": {
     "BowTie": {
@@ -221,6 +233,52 @@
         0.0
       ]
     },
+    "Vest": {
+      "part": "Body",
+      "offset": [
+        0.0,
+        -0.4,
+        0.4
+      ],
+      "rotation_xyz_deg": [
+        90,
+        0,
+        0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.4,
+        -0.4
+      ],
+      "angles_roblox_deg": [
+        -90.0,
+        0.0,
+        0.0
+      ]
+    },
+    "Cape": {
+      "part": "Body",
+      "offset": [
+        0.0,
+        -0.4,
+        0.4
+      ],
+      "rotation_xyz_deg": [
+        90,
+        0,
+        0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.4,
+        -0.4
+      ],
+      "angles_roblox_deg": [
+        -90.0,
+        0.0,
+        0.0
+      ]
+    },
     "PartyHat": {
       "part": "Head",
       "offset": [
@@ -237,6 +295,52 @@
         0.0,
         0.5,
         -0.12
+      ],
+      "angles_roblox_deg": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "BaristaCap": {
+      "part": "Head",
+      "offset": [
+        0.0,
+        -0.16,
+        0.48
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.48,
+        -0.16
+      ],
+      "angles_roblox_deg": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "Boater": {
+      "part": "Head",
+      "offset": [
+        0.0,
+        -0.16,
+        0.48
+      ],
+      "rotation_xyz_deg": [
+        0,
+        0,
+        0
+      ],
+      "offset_roblox": [
+        0.0,
+        0.48,
+        -0.16
       ],
       "angles_roblox_deg": [
         0.0,
@@ -280,25 +384,25 @@
         "CatCafe_Cat_Tabby_Head",
         "CatCafe_Cat_Tabby_Tail"
       ],
-      "triangles": 900,
+      "triangles": 600,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.94,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.94,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.47,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.47,
         1.41,
         1.78
       ],
@@ -439,6 +543,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -456,10 +596,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby.model.json",
-      "rbx_parts": 44,
+      "rbx_parts": 31,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby.glb"
@@ -471,10 +647,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "900/1500 tris",
+          "budget": "600/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "490 faces on swatch centers",
+          "uv": "340 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -492,25 +668,25 @@
         "CatCafe_Cat_Tuxedo_Head",
         "CatCafe_Cat_Tuxedo_Tail"
       ],
-      "triangles": 1052,
+      "triangles": 656,
       "budget": 1500,
       "size_studs": {
-        "x": 0.98,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.98,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -651,6 +827,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -668,10 +880,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo.model.json",
-      "rbx_parts": 42,
+      "rbx_parts": 29,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.glb"
@@ -683,10 +931,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1052/1500 tris",
+          "budget": "656/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "578 faces on swatch centers",
+          "uv": "380 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -704,7 +952,7 @@
         "CatCafe_Cat_Ginger_Head",
         "CatCafe_Cat_Ginger_Tail"
       ],
-      "triangles": 828,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
         "x": 0.99,
@@ -863,6 +1111,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -880,10 +1164,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 25,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger.glb"
@@ -895,10 +1215,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "828/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "454 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -916,25 +1236,25 @@
         "CatCafe_Cat_Smoke_Head",
         "CatCafe_Cat_Smoke_Tail"
       ],
-      "triangles": 816,
+      "triangles": 516,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -1075,6 +1395,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -1092,10 +1448,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Smoke.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Smoke.glb"
@@ -1107,10 +1499,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "816/1500 tris",
+          "budget": "516/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "448 faces on swatch centers",
+          "uv": "298 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -1128,25 +1520,25 @@
         "CatCafe_Cat_Snow_Head",
         "CatCafe_Cat_Snow_Tail"
       ],
-      "triangles": 816,
+      "triangles": 516,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -1287,6 +1679,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -1304,10 +1732,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Snow.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Snow.glb"
@@ -1319,10 +1783,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "816/1500 tris",
+          "budget": "516/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "448 faces on swatch centers",
+          "uv": "298 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -1340,25 +1804,25 @@
         "CatCafe_Cat_Calico_Head",
         "CatCafe_Cat_Calico_Tail"
       ],
-      "triangles": 888,
+      "triangles": 588,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.96,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.96,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.48,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.48,
         1.41,
         1.78
       ],
@@ -1499,6 +1963,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -1516,10 +2016,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Calico.model.json",
-      "rbx_parts": 43,
+      "rbx_parts": 30,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Calico.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Calico.glb"
@@ -1531,10 +2067,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "888/1500 tris",
+          "budget": "588/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "484 faces on swatch centers",
+          "uv": "334 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -1552,25 +2088,25 @@
         "CatCafe_Cat_Siamese_Head",
         "CatCafe_Cat_Siamese_Tail"
       ],
-      "triangles": 828,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -1711,6 +2247,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -1728,10 +2300,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Siamese.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 25,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Siamese.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Siamese.glb"
@@ -1743,10 +2351,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "828/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "454 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -1764,25 +2372,25 @@
         "CatCafe_Cat_Tortie_Head",
         "CatCafe_Cat_Tortie_Tail"
       ],
-      "triangles": 888,
+      "triangles": 588,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.96,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.96,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.48,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.48,
         1.41,
         1.78
       ],
@@ -1923,6 +2531,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -1940,10 +2584,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tortie.model.json",
-      "rbx_parts": 43,
+      "rbx_parts": 30,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tortie.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tortie.glb"
@@ -1955,10 +2635,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "888/1500 tris",
+          "budget": "588/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "484 faces on swatch centers",
+          "uv": "334 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -1976,25 +2656,25 @@
         "CatCafe_Cat_Bengal_Head",
         "CatCafe_Cat_Bengal_Tail"
       ],
-      "triangles": 912,
+      "triangles": 612,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.92,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.92,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.46,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.46,
         1.41,
         1.78
       ],
@@ -2135,6 +2815,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -2152,10 +2868,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal.model.json",
-      "rbx_parts": 45,
+      "rbx_parts": 32,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal.glb"
@@ -2167,10 +2919,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "912/1500 tris",
+          "budget": "612/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "496 faces on swatch centers",
+          "uv": "346 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -2188,25 +2940,25 @@
         "CatCafe_Cat_Sphynx_Head",
         "CatCafe_Cat_Sphynx_Tail"
       ],
-      "triangles": 788,
+      "triangles": 488,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.86,
         "y": 2.59,
         "z": 1.9
       },
       "size_roblox": [
-        0.97,
+        0.86,
         1.9,
         2.59
       ],
       "bounds_min": [
-        -0.49,
+        -0.43,
         -1.2,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.43,
         1.38,
         1.9
       ],
@@ -2347,6 +3099,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -2364,10 +3152,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Sphynx.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Sphynx.glb"
@@ -2379,10 +3203,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "788/1500 tris",
+          "budget": "488/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "434 faces on swatch centers",
+          "uv": "284 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -2400,7 +3224,7 @@
         "CatCafe_Cat_Ragdoll_Head",
         "CatCafe_Cat_Ragdoll_Tail"
       ],
-      "triangles": 840,
+      "triangles": 540,
       "budget": 1500,
       "size_studs": {
         "x": 1.19,
@@ -2559,6 +3383,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -2576,10 +3436,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll.model.json",
-      "rbx_parts": 39,
+      "rbx_parts": 26,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.glb"
@@ -2591,10 +3487,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "840/1500 tris",
+          "budget": "540/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "460 faces on swatch centers",
+          "uv": "310 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.11"
@@ -2612,7 +3508,7 @@
         "CatCafe_Cat_Void_Head",
         "CatCafe_Cat_Void_Tail"
       ],
-      "triangles": 852,
+      "triangles": 552,
       "budget": 1500,
       "size_studs": {
         "x": 1.04,
@@ -2771,6 +3667,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -2788,11 +3720,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "Head eyes are amber in the texture; add a Neon eye Part or Highlight for the glow.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 27,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Void.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Void.glb"
@@ -2804,10 +3772,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "852/1500 tris",
+          "budget": "552/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "466 faces on swatch centers",
+          "uv": "316 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -2825,7 +3793,7 @@
         "CatCafe_Cat_MaineCoon_Head",
         "CatCafe_Cat_MaineCoon_Tail"
       ],
-      "triangles": 956,
+      "triangles": 656,
       "budget": 1500,
       "size_studs": {
         "x": 1.28,
@@ -2984,6 +3952,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -3001,10 +4005,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 38,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon.glb"
@@ -3016,10 +4056,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "956/1500 tris",
+          "budget": "656/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "526 faces on swatch centers",
+          "uv": "376 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.14"
@@ -3037,7 +4077,7 @@
         "CatCafe_Cat_Midnight_Head",
         "CatCafe_Cat_Midnight_Tail"
       ],
-      "triangles": 948,
+      "triangles": 648,
       "budget": 1500,
       "size_studs": {
         "x": 1.04,
@@ -3196,6 +4236,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -3213,10 +4289,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 35,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Midnight.glb"
@@ -3228,10 +4340,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "948/1500 tris",
+          "budget": "648/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "514 faces on swatch centers",
+          "uv": "364 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -3249,25 +4361,25 @@
         "CatCafe_Cat_Cream_Head",
         "CatCafe_Cat_Cream_Tail"
       ],
-      "triangles": 828,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -3408,6 +4520,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -3425,10 +4573,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 25,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Cream.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Cream.glb"
@@ -3440,10 +4624,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "828/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "454 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -3461,25 +4645,25 @@
         "CatCafe_Cat_Brownie_Head",
         "CatCafe_Cat_Brownie_Tail"
       ],
-      "triangles": 900,
+      "triangles": 600,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.94,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.94,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.47,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.47,
         1.41,
         1.78
       ],
@@ -3620,6 +4804,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -3637,10 +4857,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie.model.json",
-      "rbx_parts": 44,
+      "rbx_parts": 31,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie.glb"
@@ -3652,10 +4908,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "900/1500 tris",
+          "budget": "600/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "490 faces on swatch centers",
+          "uv": "340 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -3673,25 +4929,25 @@
         "CatCafe_Cat_Blue_Head",
         "CatCafe_Cat_Blue_Tail"
       ],
-      "triangles": 816,
+      "triangles": 516,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -3832,6 +5088,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -3849,10 +5141,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blue.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blue.glb"
@@ -3864,10 +5192,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "816/1500 tris",
+          "budget": "516/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "448 faces on swatch centers",
+          "uv": "298 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -3885,7 +5213,7 @@
         "CatCafe_Cat_Persian_Head",
         "CatCafe_Cat_Persian_Tail"
       ],
-      "triangles": 1100,
+      "triangles": 704,
       "budget": 1500,
       "size_studs": {
         "x": 1.18,
@@ -4044,6 +5372,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -4061,10 +5425,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Persian.model.json",
-      "rbx_parts": 42,
+      "rbx_parts": 29,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Persian.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Persian.glb"
@@ -4076,10 +5476,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1100/1500 tris",
+          "budget": "704/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "610 faces on swatch centers",
+          "uv": "412 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.18"
@@ -4097,25 +5497,25 @@
         "CatCafe_Cat_Blossom_Head",
         "CatCafe_Cat_Blossom_Tail"
       ],
-      "triangles": 996,
+      "triangles": 696,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.96,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.96,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.48,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.48,
         1.41,
         1.78
       ],
@@ -4256,6 +5656,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -4273,10 +5709,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom.model.json",
-      "rbx_parts": 52,
+      "rbx_parts": 39,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blossom.glb"
@@ -4288,10 +5760,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "996/1500 tris",
+          "budget": "696/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "538 faces on swatch centers",
+          "uv": "388 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -4309,7 +5781,7 @@
         "CatCafe_Cat_Aurora_Head",
         "CatCafe_Cat_Aurora_Tail"
       ],
-      "triangles": 948,
+      "triangles": 648,
       "budget": 1500,
       "size_studs": {
         "x": 1.04,
@@ -4468,6 +5940,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -4485,10 +5993,46 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Aurora.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 35,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Aurora.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Aurora.glb"
@@ -4500,10 +6044,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "948/1500 tris",
+          "budget": "648/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "514 faces on swatch centers",
+          "uv": "364 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -4521,25 +6065,25 @@
         "CatCafe_Cat_Tabby_Shiny_Head",
         "CatCafe_Cat_Tabby_Shiny_Tail"
       ],
-      "triangles": 900,
+      "triangles": 600,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.94,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.94,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.47,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.47,
         1.41,
         1.78
       ],
@@ -4680,6 +6224,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -4691,6 +6271,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -4701,7 +6317,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tabby when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Shiny.model.json",
-      "rbx_parts": 44,
+      "rbx_parts": 31,
       "gates": {
         "pass": true,
         "failed": [],
@@ -4709,16 +6325,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "900/1500 tris",
+          "budget": "600/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "490 faces on swatch centers",
+          "uv": "340 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tabby_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Tuxedo_Shiny",
@@ -4729,25 +6346,25 @@
         "CatCafe_Cat_Tuxedo_Shiny_Head",
         "CatCafe_Cat_Tuxedo_Shiny_Tail"
       ],
-      "triangles": 1052,
+      "triangles": 656,
       "budget": 1500,
       "size_studs": {
-        "x": 0.98,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.98,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -4888,6 +6505,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -4905,11 +6558,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Shiny.model.json",
-      "rbx_parts": 42,
+      "rbx_parts": 29,
       "gates": {
         "pass": true,
         "failed": [],
@@ -4917,16 +6606,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "1052/1500 tris",
+          "budget": "656/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "578 faces on swatch centers",
+          "uv": "380 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tuxedo_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Ginger_Shiny",
@@ -4937,7 +6627,7 @@
         "CatCafe_Cat_Ginger_Shiny_Head",
         "CatCafe_Cat_Ginger_Shiny_Tail"
       ],
-      "triangles": 828,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
         "x": 0.99,
@@ -5096,6 +6786,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -5107,6 +6833,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -5117,7 +6879,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Ginger when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Shiny.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 25,
       "gates": {
         "pass": true,
         "failed": [],
@@ -5125,16 +6887,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "828/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "454 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ginger_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Smoke_Shiny",
@@ -5145,25 +6908,25 @@
         "CatCafe_Cat_Smoke_Shiny_Head",
         "CatCafe_Cat_Smoke_Shiny_Tail"
       ],
-      "triangles": 816,
+      "triangles": 516,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -5304,6 +7067,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -5315,6 +7114,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -5325,7 +7160,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Smoke when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke_Shiny.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "gates": {
         "pass": true,
         "failed": [],
@@ -5333,16 +7168,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "816/1500 tris",
+          "budget": "516/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "448 faces on swatch centers",
+          "uv": "298 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Smoke_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Snow_Shiny",
@@ -5353,25 +7189,25 @@
         "CatCafe_Cat_Snow_Shiny_Head",
         "CatCafe_Cat_Snow_Shiny_Tail"
       ],
-      "triangles": 816,
+      "triangles": 516,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -5512,6 +7348,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -5523,6 +7395,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -5533,7 +7441,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Snow when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Shiny.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "gates": {
         "pass": true,
         "failed": [],
@@ -5541,16 +7449,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "816/1500 tris",
+          "budget": "516/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "448 faces on swatch centers",
+          "uv": "298 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Snow_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Calico_Shiny",
@@ -5561,25 +7470,25 @@
         "CatCafe_Cat_Calico_Shiny_Head",
         "CatCafe_Cat_Calico_Shiny_Tail"
       ],
-      "triangles": 888,
+      "triangles": 588,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.96,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.96,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.48,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.48,
         1.41,
         1.78
       ],
@@ -5720,6 +7629,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -5731,6 +7676,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -5741,7 +7722,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Calico when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Calico_Shiny.model.json",
-      "rbx_parts": 43,
+      "rbx_parts": 30,
       "gates": {
         "pass": true,
         "failed": [],
@@ -5749,16 +7730,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "888/1500 tris",
+          "budget": "588/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "484 faces on swatch centers",
+          "uv": "334 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Calico_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Siamese_Shiny",
@@ -5769,25 +7751,25 @@
         "CatCafe_Cat_Siamese_Shiny_Head",
         "CatCafe_Cat_Siamese_Shiny_Tail"
       ],
-      "triangles": 828,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -5928,6 +7910,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -5939,6 +7957,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -5949,7 +8003,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Siamese when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Siamese_Shiny.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 25,
       "gates": {
         "pass": true,
         "failed": [],
@@ -5957,16 +8011,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "828/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "454 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Siamese_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Tortie_Shiny",
@@ -5977,25 +8032,25 @@
         "CatCafe_Cat_Tortie_Shiny_Head",
         "CatCafe_Cat_Tortie_Shiny_Tail"
       ],
-      "triangles": 888,
+      "triangles": 588,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.96,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.96,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.48,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.48,
         1.41,
         1.78
       ],
@@ -6136,6 +8191,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -6147,6 +8238,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -6157,7 +8284,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tortie when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tortie_Shiny.model.json",
-      "rbx_parts": 43,
+      "rbx_parts": 30,
       "gates": {
         "pass": true,
         "failed": [],
@@ -6165,16 +8292,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "888/1500 tris",
+          "budget": "588/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "484 faces on swatch centers",
+          "uv": "334 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tortie_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Bengal_Shiny",
@@ -6185,25 +8313,25 @@
         "CatCafe_Cat_Bengal_Shiny_Head",
         "CatCafe_Cat_Bengal_Shiny_Tail"
       ],
-      "triangles": 912,
+      "triangles": 612,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.92,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.92,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.46,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.46,
         1.41,
         1.78
       ],
@@ -6344,6 +8472,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -6361,11 +8525,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Bengal when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Shiny.model.json",
-      "rbx_parts": 45,
+      "rbx_parts": 32,
       "gates": {
         "pass": true,
         "failed": [],
@@ -6373,16 +8573,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "912/1500 tris",
+          "budget": "612/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "496 faces on swatch centers",
+          "uv": "346 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Bengal_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Sphynx_Shiny",
@@ -6393,25 +8594,25 @@
         "CatCafe_Cat_Sphynx_Shiny_Head",
         "CatCafe_Cat_Sphynx_Shiny_Tail"
       ],
-      "triangles": 788,
+      "triangles": 488,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.86,
         "y": 2.59,
         "z": 1.9
       },
       "size_roblox": [
-        0.97,
+        0.86,
         1.9,
         2.59
       ],
       "bounds_min": [
-        -0.49,
+        -0.43,
         -1.2,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.43,
         1.38,
         1.9
       ],
@@ -6552,6 +8753,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -6569,11 +8806,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Sphynx when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Sphynx_Shiny.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "gates": {
         "pass": true,
         "failed": [],
@@ -6581,16 +8854,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "788/1500 tris",
+          "budget": "488/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "434 faces on swatch centers",
+          "uv": "284 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Sphynx_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Ragdoll_Shiny",
@@ -6601,7 +8875,7 @@
         "CatCafe_Cat_Ragdoll_Shiny_Head",
         "CatCafe_Cat_Ragdoll_Shiny_Tail"
       ],
-      "triangles": 840,
+      "triangles": 540,
       "budget": 1500,
       "size_studs": {
         "x": 1.19,
@@ -6760,6 +9034,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -6777,11 +9087,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Shiny.model.json",
-      "rbx_parts": 39,
+      "rbx_parts": 26,
       "gates": {
         "pass": true,
         "failed": [],
@@ -6789,16 +9135,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "840/1500 tris",
+          "budget": "540/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "460 faces on swatch centers",
+          "uv": "310 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.11"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ragdoll_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Void_Shiny",
@@ -6809,7 +9156,7 @@
         "CatCafe_Cat_Void_Shiny_Head",
         "CatCafe_Cat_Void_Shiny_Tail"
       ],
-      "triangles": 852,
+      "triangles": 552,
       "budget": 1500,
       "size_studs": {
         "x": 1.04,
@@ -6968,6 +9315,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -6985,11 +9368,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Void when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Shiny.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 27,
       "gates": {
         "pass": true,
         "failed": [],
@@ -6997,16 +9416,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "852/1500 tris",
+          "budget": "552/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "466 faces on swatch centers",
+          "uv": "316 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Void_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_MaineCoon_Shiny",
@@ -7017,7 +9437,7 @@
         "CatCafe_Cat_MaineCoon_Shiny_Head",
         "CatCafe_Cat_MaineCoon_Shiny_Tail"
       ],
-      "triangles": 956,
+      "triangles": 656,
       "budget": 1500,
       "size_studs": {
         "x": 1.28,
@@ -7176,6 +9596,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.48,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.48
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -7193,11 +9649,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.58
+          ],
+          "offset_roblox": [
+            0.0,
+            0.58,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Shiny.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 38,
       "gates": {
         "pass": true,
         "failed": [],
@@ -7205,16 +9697,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "956/1500 tris",
+          "budget": "656/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "526 faces on swatch centers",
+          "uv": "376 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.14"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_MaineCoon_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Midnight_Shiny",
@@ -7225,7 +9718,7 @@
         "CatCafe_Cat_Midnight_Shiny_Head",
         "CatCafe_Cat_Midnight_Shiny_Tail"
       ],
-      "triangles": 948,
+      "triangles": 648,
       "budget": 1500,
       "size_studs": {
         "x": 1.04,
@@ -7384,6 +9877,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -7395,6 +9924,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -7405,7 +9970,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Midnight when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Shiny.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 35,
       "gates": {
         "pass": true,
         "failed": [],
@@ -7413,16 +9978,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "948/1500 tris",
+          "budget": "648/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "514 faces on swatch centers",
+          "uv": "364 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Midnight_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Midnight_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Midnight_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Cream_Shiny",
@@ -7433,25 +9999,25 @@
         "CatCafe_Cat_Cream_Shiny_Head",
         "CatCafe_Cat_Cream_Shiny_Tail"
       ],
-      "triangles": 828,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -7592,6 +10158,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -7603,6 +10205,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -7613,7 +10251,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Cream when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream_Shiny.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 25,
       "gates": {
         "pass": true,
         "failed": [],
@@ -7621,16 +10259,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "828/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "454 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Cream_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Cream_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Cream_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Brownie_Shiny",
@@ -7641,25 +10280,25 @@
         "CatCafe_Cat_Brownie_Shiny_Head",
         "CatCafe_Cat_Brownie_Shiny_Tail"
       ],
-      "triangles": 900,
+      "triangles": 600,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.94,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.94,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.47,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.47,
         1.41,
         1.78
       ],
@@ -7800,6 +10439,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -7811,6 +10486,42 @@
             0.0,
             0.5,
             -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
           ],
           "angles_roblox_deg": [
             0.0,
@@ -7821,7 +10532,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Brownie when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Shiny.model.json",
-      "rbx_parts": 44,
+      "rbx_parts": 31,
       "gates": {
         "pass": true,
         "failed": [],
@@ -7829,16 +10540,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "900/1500 tris",
+          "budget": "600/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "490 faces on swatch centers",
+          "uv": "340 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Brownie_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Blue_Shiny",
@@ -7849,25 +10561,25 @@
         "CatCafe_Cat_Blue_Shiny_Head",
         "CatCafe_Cat_Blue_Shiny_Tail"
       ],
-      "triangles": 816,
+      "triangles": 516,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.9,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.9,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.45,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.45,
         1.41,
         1.78
       ],
@@ -8008,6 +10720,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -8025,11 +10773,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blue when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Shiny.model.json",
-      "rbx_parts": 37,
+      "rbx_parts": 24,
       "gates": {
         "pass": true,
         "failed": [],
@@ -8037,16 +10821,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "816/1500 tris",
+          "budget": "516/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "448 faces on swatch centers",
+          "uv": "298 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blue_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Persian_Shiny",
@@ -8057,7 +10842,7 @@
         "CatCafe_Cat_Persian_Shiny_Head",
         "CatCafe_Cat_Persian_Shiny_Tail"
       ],
-      "triangles": 1100,
+      "triangles": 704,
       "budget": 1500,
       "size_studs": {
         "x": 1.18,
@@ -8216,6 +11001,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -8233,11 +11054,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Persian when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Persian_Shiny.model.json",
-      "rbx_parts": 42,
+      "rbx_parts": 29,
       "gates": {
         "pass": true,
         "failed": [],
@@ -8245,16 +11102,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "1100/1500 tris",
+          "budget": "704/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "610 faces on swatch centers",
+          "uv": "412 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.18"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Persian_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Persian_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Persian_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Blossom_Shiny",
@@ -8265,25 +11123,25 @@
         "CatCafe_Cat_Blossom_Shiny_Head",
         "CatCafe_Cat_Blossom_Shiny_Tail"
       ],
-      "triangles": 996,
+      "triangles": 696,
       "budget": 1500,
       "size_studs": {
-        "x": 0.97,
+        "x": 0.96,
         "y": 2.64,
         "z": 1.78
       },
       "size_roblox": [
-        0.97,
+        0.96,
         1.78,
         2.64
       ],
       "bounds_min": [
-        -0.49,
+        -0.48,
         -1.23,
         0.0
       ],
       "bounds_max": [
-        0.49,
+        0.48,
         1.41,
         1.78
       ],
@@ -8424,6 +11282,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -8441,11 +11335,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blossom when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Shiny.model.json",
-      "rbx_parts": 52,
+      "rbx_parts": 39,
       "gates": {
         "pass": true,
         "failed": [],
@@ -8453,16 +11383,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "996/1500 tris",
+          "budget": "696/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "538 faces on swatch centers",
+          "uv": "388 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blossom_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blossom_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blossom_Shiny.png"
     },
     {
       "name": "CatCafe_Cat_Aurora_Shiny",
@@ -8473,7 +11404,7 @@
         "CatCafe_Cat_Aurora_Shiny_Head",
         "CatCafe_Cat_Aurora_Shiny_Tail"
       ],
-      "triangles": 948,
+      "triangles": 648,
       "budget": 1500,
       "size_studs": {
         "x": 1.04,
@@ -8632,6 +11563,42 @@
             0.0
           ]
         },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.4,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.4
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
         "PartyHat": {
           "part": "Head",
           "offset": [
@@ -8649,11 +11616,47 @@
             0.0,
             0.0
           ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.16,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Aurora when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Aurora_Shiny.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 35,
       "gates": {
         "pass": true,
         "failed": [],
@@ -8661,16 +11664,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "948/1500 tris",
+          "budget": "648/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "514 faces on swatch centers",
+          "uv": "364 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Aurora_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Aurora_Shiny.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Aurora_Shiny.png"
     },
     {
       "name": "CatCafe_NPC_Customer_A",
@@ -11732,22 +14736,22 @@
         "CatCafe_Item_Net_L1_Handle",
         "CatCafe_Item_Net_L1_Bag"
       ],
-      "triangles": 360,
+      "triangles": 412,
       "budget": 500,
       "size_studs": {
         "x": 1.75,
         "y": 4.8,
-        "z": 1.17
+        "z": 1.22
       },
       "size_roblox": [
         1.75,
-        1.17,
+        1.22,
         4.8
       ],
       "bounds_min": [
         -0.88,
         -4.8,
-        -1.05
+        -1.1
       ],
       "bounds_max": [
         0.88,
@@ -11758,7 +14762,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L1.model.json",
-      "rbx_parts": 20,
+      "rbx_parts": 21,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L1.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Net_L1.glb"
@@ -11771,12 +14775,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "360/500 tris",
+          "budget": "412/500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "190 faces on swatch centers",
+          "uv": "206 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-1.05 (want 0)",
+          "pivot": "floor at z=-1.10 (want 0)",
           "centered": "footprint center x=0.00 y=-2.40"
         }
       },
@@ -11791,22 +14795,22 @@
         "CatCafe_Item_Net_L2_Handle",
         "CatCafe_Item_Net_L2_Bag"
       ],
-      "triangles": 544,
+      "triangles": 596,
       "budget": 600,
       "size_studs": {
         "x": 2.05,
         "y": 5.4,
-        "z": 1.17
+        "z": 1.22
       },
       "size_roblox": [
         2.05,
-        1.17,
+        1.22,
         5.4
       ],
       "bounds_min": [
         -1.02,
         -5.4,
-        -1.05
+        -1.1
       ],
       "bounds_max": [
         1.02,
@@ -11817,7 +14821,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L2.model.json",
-      "rbx_parts": 22,
+      "rbx_parts": 23,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L2.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Net_L2.glb"
@@ -11830,12 +14834,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "544/600 tris",
+          "budget": "596/600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "290 faces on swatch centers",
+          "uv": "306 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-1.05 (want 0)",
+          "pivot": "floor at z=-1.10 (want 0)",
           "centered": "footprint center x=0.00 y=-2.70"
         }
       },
@@ -11850,22 +14854,22 @@
         "CatCafe_Item_Net_L3_Handle",
         "CatCafe_Item_Net_L3_Bag"
       ],
-      "triangles": 592,
+      "triangles": 644,
       "budget": 650,
       "size_studs": {
         "x": 2.5,
         "y": 6.05,
-        "z": 1.2
+        "z": 1.25
       },
       "size_roblox": [
         2.5,
-        1.2,
+        1.25,
         6.05
       ],
       "bounds_min": [
         -1.25,
         -6.05,
-        -1.05
+        -1.1
       ],
       "bounds_max": [
         1.25,
@@ -11876,7 +14880,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L3.model.json",
-      "rbx_parts": 26,
+      "rbx_parts": 27,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Net_L3.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Net_L3.glb"
@@ -11889,12 +14893,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "592/650 tris",
+          "budget": "644/650 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "314 faces on swatch centers",
+          "uv": "330 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-1.05 (want 0)",
+          "pivot": "floor at z=-1.10 (want 0)",
           "centered": "footprint center x=0.00 y=-3.03"
         }
       },
@@ -12652,6 +15656,303 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_PartyHat.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_PartyHat.png"
+    },
+    {
+      "name": "CatCafe_Accessory_BaristaCap",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_BaristaCap"
+      ],
+      "triangles": 258,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.47,
+        "y": 0.63,
+        "z": 0.19
+      },
+      "size_roblox": [
+        0.47,
+        0.19,
+        0.63
+      ],
+      "bounds_min": [
+        -0.23,
+        -0.4,
+        -0.02
+      ],
+      "bounds_max": [
+        0.23,
+        0.23,
+        0.17
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "attach_upright": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.16,
+          0.48
+        ],
+        "offset_roblox": [
+          0.0,
+          0.48,
+          -0.16
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_BaristaCap.model.json",
+      "rbx_parts": 6,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_BaristaCap.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_BaristaCap.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "258/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "141 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.08"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_BaristaCap.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_BaristaCap.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Vest",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Vest"
+      ],
+      "triangles": 272,
+      "budget": 300,
+      "size_studs": {
+        "x": 1.04,
+        "y": 0.88,
+        "z": 0.84
+      },
+      "size_roblox": [
+        1.04,
+        0.84,
+        0.88
+      ],
+      "bounds_min": [
+        -0.52,
+        -0.05,
+        -0.6
+      ],
+      "bounds_max": [
+        0.52,
+        0.82,
+        0.24
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "attach_upright": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.4,
+          0.4
+        ],
+        "offset_roblox": [
+          0.0,
+          0.4,
+          -0.4
+        ],
+        "angles_roblox_deg": [
+          -90.0,
+          0.0,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Vest.model.json",
+      "rbx_parts": 12,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Vest.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Vest.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "272/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "168 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.60 (want 0)",
+          "centered": "footprint center x=0.00 y=0.39"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Vest.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Vest.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Boater",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Boater"
+      ],
+      "triangles": 192,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.18
+      },
+      "size_roblox": [
+        0.8,
+        0.18,
+        0.8
+      ],
+      "bounds_min": [
+        -0.4,
+        -0.4,
+        0.0
+      ],
+      "bounds_max": [
+        0.4,
+        0.4,
+        0.18
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "attach_upright": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.16,
+          0.48
+        ],
+        "offset_roblox": [
+          0.0,
+          0.48,
+          -0.16
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Boater.model.json",
+      "rbx_parts": 4,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Boater.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Boater.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "192/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "84 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Boater.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Boater.png"
+    },
+    {
+      "name": "CatCafe_Accessory_Cape",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_Cape"
+      ],
+      "triangles": 136,
+      "budget": 300,
+      "size_studs": {
+        "x": 0.96,
+        "y": 1.11,
+        "z": 1.08
+      },
+      "size_roblox": [
+        0.96,
+        1.08,
+        1.11
+      ],
+      "bounds_min": [
+        -0.48,
+        -0.05,
+        -0.8
+      ],
+      "bounds_max": [
+        0.48,
+        1.06,
+        0.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "attach_upright": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.4,
+          0.4
+        ],
+        "offset_roblox": [
+          0.0,
+          0.4,
+          -0.4
+        ],
+        "angles_roblox_deg": [
+          -90.0,
+          0.0,
+          0.0
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_Cape.model.json",
+      "rbx_parts": 10,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_Cape.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_Cape.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "136/300 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "72 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.80 (want 0)",
+          "centered": "footprint center x=0.00 y=0.50"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_Cape.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Cape.png"
     },
     {
       "name": "CatCafe_Street_DealerCart",
@@ -13447,7 +16748,7 @@
         "CatCafe_Plot_ForRent_Cat_Tail",
         "CatCafe_Plot_ForRent_Zzz"
       ],
-      "triangles": 2812,
+      "triangles": 2512,
       "budget": 4000,
       "size_studs": {
         "x": 31.7,
@@ -13473,7 +16774,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent.model.json",
-      "rbx_parts": 208,
+      "rbx_parts": 195,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.glb"
@@ -13486,10 +16787,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2812/4000 tris",
+          "budget": "2512/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1468 faces on swatch centers",
+          "uv": "1318 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=-2.49"

@@ -19,7 +19,8 @@ Model layout (pivots match the FBX exports and manifest.json, so placement code 
     <object name> parts      the main object: the object named like the asset, else the first one
     <object name>            a Model per other object (Head, Tail, Lid, Branch, LeafL, Bulb...), pivot at that
                              object's origin, which is its hinge or joint (manifest part_pivots_roblox)
-Every part keeps its object's name, so name checks such as the night suffixes keep working.
+Every part keeps its object's name, so name checks such as the night suffixes keep working. An asset can add
+Attachments to the biggest part of one object (a cat's Outfit_<Piece> slots) and attributes on the root Model.
 
 The FBX files stay the detailed source: a MeshPart import saved as <Name>.rbxm replaces the JSON (delete the
 .model.json of that name).
@@ -248,8 +249,25 @@ def _group(asset, label, parts, pivot_pos, pivot_rot, uid, part_name=None):
     return model
 
 
-def model_json(objs, asset):
-    """The .model.json tree for one asset, or None when no object has a primitive log."""
+def _attachment(name, parts, M4):
+    """An Attachment in the biggest of `parts` at the Blender asset-space frame M4 (position and rotation)."""
+    big = max(parts, key=_volume)
+    R, _ = _split(M4.to_3x3())
+    inv = big["rot"].transposed()
+    return {"name": name, "className": "Attachment",
+            "properties": {"CFrame": _cf(inv @ (C @ M4.translation - big["pos"]), inv @ (C @ R @ CT))}}
+
+
+def _add_attachments(node, parts, wanted):
+    """Put the Attachments in `wanted` into the PrimaryPart node of a group made by _group (always children[0])."""
+    if wanted:
+        target = node["children"][0]
+        target.setdefault("children", []).extend(_attachment(n, parts, M4) for n, M4 in wanted)
+
+
+def model_json(objs, asset, attachments=(), attributes=None):
+    """The .model.json tree for one asset, or None when no object has a primitive log. `attachments` is a list of
+    (object name suffix, Attachment name, Blender asset-space 4x4); `attributes` go on the root Model."""
     bpy.context.view_layer.update()
     main = next((o for o in objs if o.name == asset), objs[0])
     groups = []
@@ -269,6 +287,12 @@ def model_json(objs, asset):
         max(main_parts, key=_volume)["name"] = RENAME_BIGGEST[asset]
     root = _group(asset, None, main_parts, Vector((0, 0, 0)), Matrix.Identity(3), f"{asset}/0")
     root["attributes"]["PartBuilt"] = True
+    root["attributes"].update(attributes or {})
+
+    def wanted(o):
+        return [(n, M4) for suffix, n, M4 in attachments if o.name.endswith(suffix)]
+
+    _add_attachments(root, main_parts, wanted(groups[0][0]))
     for k, (o, parts) in enumerate(groups[1:], start=1):
         part_name = next((n for suffix, n in PART_NAMES.items() if o.name.endswith(suffix)), None)
         if part_name == "Bars" and len(parts) == 1:
@@ -278,6 +302,7 @@ def model_json(objs, asset):
             continue
         R, _ = _split(o.matrix_world.to_3x3())
         sub = _group(asset, o.name, parts, C @ o.matrix_world.translation, C @ R @ CT, f"{asset}/{k}", part_name)
+        _add_attachments(sub, parts, wanted(o))
         root["children"].append(sub)
     return root
 
@@ -287,9 +312,9 @@ def count_parts(tree):
     return n + sum(count_parts(c) for c in tree.get("children", []))
 
 
-def write_model(objs, asset, out_dir):
+def write_model(objs, asset, out_dir, attachments=(), attributes=None):
     """Write <out_dir>/<asset>.model.json. Returns (path, part count) or (None, 0)."""
-    tree = model_json(objs, asset)
+    tree = model_json(objs, asset, attachments, attributes)
     if tree is None:
         return None, 0
     os.makedirs(out_dir, exist_ok=True)

@@ -143,7 +143,9 @@ Derek's rule: things you visit now and then become places you walk to, and the H
 | Bait bowl | Already in the world on the back step | |
 | Cats, Upgrades and Staff, Decor | Stay HUD screens; the UI thread's collapsible menus answer the clutter | |
 
-### B2. The street plaza
+### B2. The street plaza (now the Town Square, F76)
+
+Since town layout v3 ([town-layout-v3.md](town-layout-v3.md), Derek 2026-10-27 22:44) the plaza is the Town Square in the middle of a wider Cafe Street: the stations stand around a fountain, one in each quarter, and the place marker reads "Town Square". The rest of this section is kept for the history; where it differs, v3 wins.
 
 - All the stations stand together in the safe zone on Cafe Street, so one place marker ("Plaza") covers them and nobody can be shoved while spinning.
 - Preferred spot: the street's north end in front of the Alley Square arch, where every player passes on the way to the Square. The engineer picks the exact spot from the layout, under 10 seconds on foot from any cafe door at NormalWalkSpeed 20.

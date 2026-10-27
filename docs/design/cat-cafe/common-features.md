@@ -15,9 +15,9 @@ Checked 2026-10-25 against guides, not by playing. Steal an Egg: eggs spawn on a
 | 1 | Night cycle with a growth bonus | In the slice as the clock: 5 minute day, 5 minute night, waves of ten strays, night income at 60% and the night food dealer (v0.3) | Slice (F20, F23, F31, F32) | S | none |
 | 2 | Admin events, weather | Cat Parade: server event every 20 to 30 minutes, rare odds tripled for 2 minutes; Rain later | Alpha | S | none |
 | 3 | Mutations with multipliers | Gold version of every cat, 1.5x and a sparkle; 5% from net and bait, 10% from rescue. Replaces Silver, Golden and Galaxy (Gavin, Q16) | Slice (F30) | S | none |
-| 4 | Pet Index completion rewards | Collection set rewards per area and per rarity, the all-50 reward and a gold page; distinct cats also gate tiers | Alpha | S | none |
+| 4 | Pet Index completion rewards | Collection set rewards per area and per rarity, the all-50 reward and a gold page; distinct cats also gate tiers | Slice for the per-area milestones (F48, 2026-10-27); Alpha for rarity sets and the all-50 reward | S | none |
 | 5 | Speed stat to reach eggs first | Sneakers upgrade: +2 walk speed per level, 3 levels; matters more now that waves are a race | Alpha | S | none |
-| 6 | Playtime chests | Tip Jar: a reward at 5, 10, 15, 20 and 30 minutes of a session | Alpha | S | none |
+| 6 | Playtime chests | Tip Jar: twelve steps from 2 to 120 minutes of a session (data-model 11b) | Slice (F47, 2026-10-27) | S | none |
 | 7 | Friend bonus | +10% tips while a friend is on the server | Alpha | S | none |
 | 8 | Equipped pet that follows you | Shoulder Cat: one owned cat follows you and widens your net's Good window a little | Alpha | M | none |
 | 9 | Fuse Machine | Dropped: Gavin wants no merging of duplicates (Q16); gold cats replace it | | | |

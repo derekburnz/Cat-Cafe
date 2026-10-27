@@ -24,10 +24,13 @@ local Config = {
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
 	GoldMultiplier = 1.5, -- a gold cat's rating (data-model section 4)
 
-	-- The clock (data-model section 9): a server-wide loop of day then night
+	-- The clock (data-model section 9): a server-wide loop of day then night. v0.9 (F66, Derek 2026-10-27): night is a
+	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise.
 	DayLengthSeconds = 300,
-	NightLengthSeconds = 300,
-	ServerStartDaySeconds = 120, -- a new server starts in day with this long left, so the first night comes early
+	NightLengthSeconds = 90,
+	ServerStartDaySeconds = 300, -- a new server opens at sunrise: a full day and a fresh wave
+	DuskWarningSeconds = 15, -- players in a catching area get the "Night falls" banner this long before night
+	NightSweepSeconds = 2, -- during night, anyone found in a catching area is sent home this often
 
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
 	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
@@ -165,7 +168,6 @@ local Config = {
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
 	ShoveTargetImmuneSeconds = 4, -- after a shove lands, nobody can shove that player again for this long (S45)
 	DropOwnerPrioritySeconds = 8, -- only the old carrier can catch a knocked-loose cat for this long
-	DroppedMinStaySeconds = 120, -- a knocked-loose cat survives a night wave that starts this soon after the drop
 
 	-- Naming cats (F33, data-model section 4): pure checks in CatName, the filter in NameService.
 	CatNameMaxLength = 20, -- characters (utf8.len) after trimming

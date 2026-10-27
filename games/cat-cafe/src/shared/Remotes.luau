@@ -35,6 +35,7 @@ Remotes.ClientToServer = {
 	"Bump", -- (targetUserId: number)  Shove: both in one unlocked catching area, range, locks, safe zone, cooldowns
 	-- and target immunity (data-model section 10c, shared/Shove)
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
+	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 }
 
 -- Server -> client.

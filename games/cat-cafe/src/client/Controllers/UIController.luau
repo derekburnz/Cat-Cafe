@@ -371,6 +371,14 @@ local function wireIntents()
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)
+	-- Rename in the cat room (F33): the server validates, filters and answers with a toast and a sync. The UI adds
+	-- events.renameCat with its Rename dialog (ui-contract "Planned"); until then there is nothing to forward.
+	local renameCat = (UI.events :: any).renameCat
+	if renameCat ~= nil then
+		renameCat:Connect(function(uid: string, name: string)
+			Net.fire("RenameCat", uid, name)
+		end)
+	end
 	-- Collect on the rich tip marker (F31). A claim clears the plot's RichTipAmount, which the UI toasts.
 	UI.events.claimRichTip:Connect(function()
 		Net.fire("ClaimRichTip")

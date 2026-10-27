@@ -1,8 +1,8 @@
 --!strict
 -- Always-on overlay: money and income (top left), cafe tier pill and the Cafe, Alley and Areas travel row
--- (top centre), cat count and the day and night clock chip (top right), menu tiles (left), equipped lure slot
--- with an odds picker, or the bait bowl chip in bowl mode (bottom right), carry banner and tutorial strip
--- (bottom centre). Laid out in design pixels under one UIScale from Scale.bind.
+-- (top centre), cat count and the day and night clock chip (top right), menu tiles (left), the bait bowl chip
+-- (bottom right, once the Bait bowl upgrade is owned), carry banner and tutorial strip (bottom centre). Laid out
+-- in design pixels under one UIScale from Scale.bind.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -11,7 +11,6 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
-local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
 local Notices = require(script.Parent.Parent.Notices)
@@ -26,9 +25,7 @@ local Types = require(script.Parent.Parent.Types)
 export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
-	buyLure: (lureId: string) -> (),
-	equipLure: (lureId: string) -> (),
-	openBait: (() -> ())?, -- bowl mode: the slot and F open the bait bowl screen
+	openBait: () -> (), -- the bowl chip opens the bait bowl screen, or the cat waiting at the bowl
 }
 
 export type HUD = {
@@ -38,8 +35,6 @@ export type HUD = {
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
-	togglePicker: (self: HUD) -> (),
-	setBowlMode: (self: HUD, on: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
@@ -60,7 +55,6 @@ local TRAVEL_W = 120
 local TRAVEL_H = 46
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
 local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
-local LURE_ROW = 70
 -- right column: cats pill (52), clock chip (40), then the next goal card; the night tips chip pushes it down
 local CLOCK_TOP = MARGIN + 52 + Theme.sizes.gap
 local GOAL_TOP = CLOCK_TOP + 40 + Theme.sizes.gap
@@ -130,47 +124,14 @@ local function keycap(parent: Instance, text: string, position: UDim2, anchor: V
 	return key
 end
 
-local function rarityPill(
-	parent: Instance,
-	rarity: string,
-	position: UDim2,
-	anchor: Vector2?
-): TextLabel
-	return Create("TextLabel", {
-		Name = "Rarity",
-		BackgroundColor3 = Theme.rarityColor(rarity),
-		BorderSizePixel = 0,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 18),
-		Position = position,
-		AnchorPoint = anchor or Vector2.new(),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.rarityTextColor(rarity),
-		Text = rarity,
-		Parent = parent,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
-	})
-end
-
--- Details under a food: the per-cat split, then the shiny chance and charm star odds.
-local function foodDetail(catalog: Types.Catalog, lure: Types.LureDef, tier: number): string
-	return FoodOdds.split(catalog, lure, tier) .. "\n" .. FoodOdds.extras()
-end
-
 function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local self = setmetatable({}, HUD) :: any
 	self._callbacks = callbacks
 	self._connections = {} :: { RBXScriptConnection }
 	self._clockConnection = nil :: RBXScriptConnection?
 	self._buttons = {} :: { any }
-	self._lureRows = {} :: { [string]: any }
 	self._catalog = nil :: Types.Catalog?
-	self._pickerOpen = false
 	self._lastMoney = nil :: number?
-	self._oddsTier = 1
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
 	self._seen =
@@ -577,9 +538,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		table.insert(self._buttons, button)
 	end
 
-	-- Lure slot (bottom right)
-	local lureSlot: TextButton = Create("TextButton", {
-		Name = "LureSlot",
+	-- Bait bowl chip (bottom right, F28): what is in the bowl and when the cat comes
+	local bowlSlot: TextButton = Create("TextButton", {
+		Name = "BowlSlot",
 		Text = "",
 		AutoButtonColor = false,
 		BackgroundColor3 = Theme.hud.panel,
@@ -592,76 +553,40 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 	})
-	self._lureBorder = Outline.border(lureSlot, Theme.sizes.outline, Theme.hud.stroke)
-	self._lureSlot = lureSlot
-	-- bowl mode (F28): the slot becomes the bait bowl chip
-	self._bowlMode = false
+	self._bowlBorder = Outline.border(bowlSlot, Theme.sizes.outline, Theme.hud.stroke)
+	self._bowlSlot = bowlSlot
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
 	self._baitLoop = nil :: RBXScriptConnection?
 	self._baitReady = false
-	self._lureName = label({
+	self._bowlName = label({
 		Name = "Name",
 		Position = UDim2.fromOffset(12, 8),
 		Size = UDim2.new(1, -24, 0, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
-		Text = "No lure",
-		Parent = lureSlot,
+		Text = "Bait bowl",
+		Parent = bowlSlot,
 	})
-	self._lureCount = label({
-		Name = "Count",
+	self._bowlSub = label({
+		Name = "Sub",
 		Position = UDim2.fromOffset(12, 32),
 		Size = UDim2.new(1, -24, 0, 20),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.hud.subtext,
-		Text = "Tap to choose",
-		Parent = lureSlot,
+		Text = "Empty · add food",
+		Parent = bowlSlot,
 	})
 	if showKeys then
-		keycap(lureSlot, "F", UDim2.new(1, -6, 0, 6), Vector2.new(1, 0))
+		keycap(bowlSlot, "F", UDim2.new(1, -6, 0, 6), Vector2.new(1, 0))
 	end
 	table.insert(
 		self._connections,
-		lureSlot.Activated:Connect(function()
-			if not self._bowlMode then
-				Sound.play("uiClick") -- the bait screen plays uiOpen itself
-			end
-			self:togglePicker()
+		bowlSlot.Activated:Connect(function()
+			-- the bait screen plays uiOpen itself
+			self._callbacks.openBait()
 		end)
 	)
-
-	-- Lure picker (pops up above the slot). Odds are printed on every row, before any purchase.
-	local picker = hudPanel("LurePicker", {
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, -MARGIN, 1, -(MARGIN + 64 + Theme.sizes.gap)),
-		Size = UDim2.fromOffset(420, 60),
-		Visible = false,
-		Parent = root,
-	})
-	self._picker = picker
-	Create("UIListLayout", {
-		FillDirection = Enum.FillDirection.Vertical,
-		Padding = UDim.new(0, Theme.sizes.gap),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = picker,
-	})
-	Create("UIPadding", {
-		PaddingTop = UDim.new(0, Theme.sizes.padding),
-		PaddingBottom = UDim.new(0, Theme.sizes.padding),
-		PaddingLeft = UDim.new(0, Theme.sizes.padding),
-		PaddingRight = UDim.new(0, Theme.sizes.padding),
-		Parent = picker,
-	})
-	label({
-		Name = "Heading",
-		Size = UDim2.new(1, 0, 0, 20),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		Text = "Lure food",
-		LayoutOrder = 0,
-		Parent = picker,
-	})
 
 	-- Carry banner (bottom centre)
 	local carry = hudPanel("Carry", {
@@ -730,42 +655,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	return self :: HUD
 end
 
-function HUD.togglePicker(self: any)
-	if self._bowlMode then
-		local openBait = self._callbacks.openBait
-		if openBait then
-			openBait()
-		end
-		return
-	end
-	self._pickerOpen = not self._pickerOpen
-	self._picker.Visible = self._pickerOpen
-	if self._pickerOpen then
-		Tween.popIn(self._picker, 0.94)
-	end
-end
-
--- Bowl mode (F28): the lure slot becomes the bait bowl chip and the v0.2 picker never opens.
-function HUD.setBowlMode(self: any, on: boolean)
-	self._bowlMode = on
-	if on and self._pickerOpen then
-		self._pickerOpen = false
-		self._picker.Visible = false
-	end
-	if not on then
-		self._lureBorder.Color = Theme.hud.stroke
-		self._lureName.TextColor3 = Theme.hud.text
-	end
-	self:_renderBowl()
-end
-
 -- What is in the bowl: nil when empty. catWaiting is true while the Tame or Let go card has a cat to show.
 function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	self._bait = bait
 	self._catWaiting = catWaiting
 	self:_renderBowl()
 	local loop: RBXScriptConnection? = self._baitLoop
-	if bait == nil or self._baitReady or not self._bowlMode then
+	if bait == nil or self._baitReady then
 		if loop then
 			loop:Disconnect()
 			self._baitLoop = nil
@@ -795,9 +691,6 @@ end
 
 -- "Bait bowl / Empty · add food", "Tuna / Cat in 7m 42s", then "Cat waiting! / Tap to see it" on gold.
 function HUD._renderBowl(self: any)
-	if not self._bowlMode then
-		return
-	end
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
 	local ready = false
@@ -822,12 +715,12 @@ function HUD._renderBowl(self: any)
 		end
 	end
 	self._baitReady = ready
-	self._lureName.Text = name
-	self._lureName.TextColor3 = if ready then Theme.colors.gold else Theme.hud.text
-	self._lureCount.Text = sub
-	self._lureBorder.Color = if ready then Theme.colors.gold else Theme.hud.stroke
-	if ready and not wasReady and self._lureSlot.Visible then
-		Tween.popIn(self._lureSlot, 0.9)
+	self._bowlName.Text = name
+	self._bowlName.TextColor3 = if ready then Theme.colors.gold else Theme.hud.text
+	self._bowlSub.Text = sub
+	self._bowlBorder.Color = if ready then Theme.colors.gold else Theme.hud.stroke
+	if ready and not wasReady and self._bowlSlot.Visible then
+		Tween.popIn(self._bowlSlot, 0.9)
 	end
 end
 
@@ -893,157 +786,9 @@ function HUD._renderTravel(self: any)
 	end
 end
 
-function HUD._buildLureRows(self: any)
-	for _, row in self._lureRows do
-		row.equip:destroy()
-		row.buy:destroy()
-		row.details:destroy()
-		row.frame:Destroy()
-	end
-	table.clear(self._lureRows)
-	local catalog: Types.Catalog? = self._catalog
-	if not catalog then
-		return
-	end
-	assert(catalog, "catalog not set; call UI.init first")
-	for index, lure in catalog.lures do
-		local row: Frame = Create("Frame", {
-			Name = lure.id,
-			BackgroundColor3 = Theme.colors.paper,
-			BackgroundTransparency = 0.92,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1, 0, 0, LURE_ROW),
-			LayoutOrder = index,
-			Parent = self._picker,
-		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
-		label({
-			Name = "Name",
-			Position = UDim2.fromOffset(10, 6),
-			Size = UDim2.new(1, -260, 0, 20),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
-			Text = lure.name,
-			Parent = row,
-		})
-		local countLabel = label({
-			Name = "Count",
-			Position = UDim2.fromOffset(10, 26),
-			Size = UDim2.new(1, -180, 0, 18),
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.hud.subtext,
-			Text = "",
-			Parent = row,
-		})
-		label({
-			Name = "Odds",
-			Position = UDim2.fromOffset(10, 46),
-			Size = UDim2.new(1, -100, 0, 18),
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.hud.text,
-			Text = FoodOdds.line(lure.odds),
-			Parent = row,
-		})
-		rarityPill(row, lure.attracts, UDim2.new(1, -176, 0, 7), Vector2.new(1, 0))
-		local detail = label({
-			Name = "Detail",
-			Position = UDim2.fromOffset(10, LURE_ROW),
-			Size = UDim2.new(1, -20, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.hud.subtext,
-			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
-			TextYAlignment = Enum.TextYAlignment.Top,
-			Text = foodDetail(catalog, lure, self._oddsTier),
-			Visible = false,
-			Parent = row,
-		})
-		-- "Details" is a labelled control, not an icon (Roblox paid random items guidance, growth thread)
-		local details = Button.new({
-			name = "Details",
-			text = "Details",
-			style = "ghost",
-			size = UDim2.fromOffset(78, 32),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -6, 0, 48),
-			textSize = Theme.sizes.textTiny,
-			parent = row,
-			onClick = function()
-				self:_toggleDetail(lure.id)
-			end,
-		})
-		-- Equip and Buy are the same size and weight on purpose (growth thread: no nudging toward the spend)
-		local equip = Button.new({
-			name = "Equip",
-			text = "Equip",
-			style = "secondary",
-			size = UDim2.fromOffset(78, 40),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -92, 0, 4),
-			textSize = Theme.sizes.textSmall,
-			parent = row,
-			onClick = function()
-				self._callbacks.equipLure(lure.id)
-			end,
-		})
-		local buy = Button.new({
-			name = "Buy",
-			text = Format.money(lure.cost),
-			style = "primary",
-			size = UDim2.fromOffset(78, 40),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -6, 0, 4),
-			textSize = Theme.sizes.textSmall,
-			parent = row,
-			onClick = function()
-				self._callbacks.buyLure(lure.id)
-			end,
-		})
-		self._lureRows[lure.id] = {
-			frame = row,
-			count = countLabel,
-			equip = equip,
-			buy = buy,
-			details = details,
-			detail = detail,
-			expanded = false,
-			def = lure,
-		}
-	end
-	self:_resizePicker()
-end
-
-function HUD._resizePicker(self: any)
-	local height = Theme.sizes.padding * 2 + 20
-	for _, row in self._lureRows do
-		local extra = if row.expanded
-			then row.detail.AbsoluteSize.Y / math.max(Scale.get(), 0.01) + 8
-			else 0
-		row.frame.Size = UDim2.new(1, 0, 0, LURE_ROW + extra)
-		height += LURE_ROW + extra + Theme.sizes.gap
-	end
-	self._picker.Size = UDim2.fromOffset(420, height)
-end
-
-function HUD._toggleDetail(self: any, lureId: string)
-	local row = self._lureRows[lureId]
-	if not row then
-		return
-	end
-	row.expanded = not row.expanded
-	row.detail.Visible = row.expanded
-	row.details:setText(if row.expanded then "Hide" else "Details")
-	-- AutomaticSize settles next frame; resize then
-	task.defer(function()
-		if row.frame.Parent then
-			self:_resizePicker()
-		end
-	end)
-end
-
 function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
-	self:_buildLureRows()
+	self:_renderBowl()
 end
 
 function HUD.render(self: any, state: Types.PlayerState)
@@ -1086,13 +831,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 		if catCount == 1 then "" else "s"
 	)
 
-	-- the bait pool grows as tiers open areas, so the per-cat split is rebuilt on a tier change
-	if catalog and state.tier ~= self._oddsTier then
-		self._oddsTier = state.tier
-		for _, lureRow in self._lureRows do
-			lureRow.detail.Text = foodDetail(catalog, lureRow.def, state.tier)
-		end
-	end
 	local tierProgress: RankUp.Progress? = nil
 	if catalog and catalog.tiers and state.tier then
 		tierProgress = RankUp.progress(catalog, state)
@@ -1106,7 +844,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	if tierProgress then
 		self:_renderTier(tierProgress)
-		self:_renderLures(state)
+		self:_renderBowlSlot(state)
 		local total = if catalog then #catalog.cats else 0
 		self._catsText.Text = ("Cats %d / %d"):format(distinct, total)
 		return
@@ -1141,7 +879,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 
 	local total = if catalog then #catalog.cats else 0
 	self._catsText.Text = ("Cats %d / %d"):format(distinct, total)
-	self:_renderLures(state)
+	self:_renderBowlSlot(state)
 end
 
 -- v0.3 top pill: "Tier 2 · Cozy Cafe", what the next tier still needs, and a gold tag when ready.
@@ -1180,42 +918,10 @@ function HUD._renderTier(self: any, progress: RankUp.Progress)
 	end
 end
 
-function HUD._renderLures(self: any, state: Types.PlayerState)
-	local catalog: Types.Catalog? = self._catalog
-	if self._bowlMode then
-		-- the chip shows once the Bait bowl upgrade is owned
-		self._lureSlot.Visible = (state.upgradeLevels.lure_bowl or 0) >= 1
-		self:_renderBowl()
-		return
-	end
-	self._lureSlot.Visible = true
-	-- lure slot and picker
-	local equippedDef: Types.LureDef? = nil
-	if catalog and state.equippedLure then
-		for _, lure in catalog.lures do
-			if lure.id == state.equippedLure then
-				equippedDef = lure
-			end
-		end
-	end
-	if equippedDef then
-		local count = state.lures[equippedDef.id] or 0
-		self._lureName.Text = equippedDef.name
-		self._lureCount.Text = if count > 0
-			then ("x%d  ·  %s cats"):format(count, equippedDef.attracts)
-			else "None left"
-	else
-		self._lureName.Text = "No lure"
-		self._lureCount.Text = "Tap to choose"
-	end
-	for lureId, row in self._lureRows do
-		local count = state.lures[lureId] or 0
-		row.count.Text = if count > 0 then ("You have %d"):format(count) else "None yet"
-		local isEquipped = state.equippedLure == lureId
-		row.equip:setText(if isEquipped then "Using" else "Equip")
-		row.equip:setEnabled(not isEquipped and count > 0)
-		row.buy:setEnabled(state.money >= row.def.cost)
-	end
+-- The bowl chip shows once the Bait bowl upgrade is owned.
+function HUD._renderBowlSlot(self: any, state: Types.PlayerState)
+	self._bowlSlot.Visible = (state.upgradeLevels.lure_bowl or 0) >= 1
+	self:_renderBowl()
 end
 
 function HUD.setCarrying(self: any, info: Types.CarryInfo?)
@@ -1374,11 +1080,6 @@ function HUD.destroy(self: any)
 	end
 	for _, button in self._buttons do
 		button:destroy()
-	end
-	for _, row in self._lureRows do
-		row.equip:destroy()
-		row.buy:destroy()
-		row.details:destroy()
 	end
 	self._goal:destroy()
 	Scale.unbind(self._uiScale)

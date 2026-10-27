@@ -47,8 +47,8 @@ UI.init({
         tiers = Catalog.tiers,        -- {TierDef}, v0.3: tier names, gates and the rank up card
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
     },
-    keybinds = true,  -- U upgrades, B decor, C collection, F lure picker, gamepad B closes (default true)
-    baitBowl = false, -- v0.3 bait bowl: the lure slot becomes the bowl chip and F opens the Bait bowl screen
+    keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
+    baitBowl = true,  -- ignored since the v0.2 lure spots went (#124); the bowl chip is always on
     playSound = Audio.play,  -- optional; the UI plays its own cues through it and stays silent without it
 })
 
@@ -149,7 +149,7 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 
 | Cue | When the UI plays it |
 |---|---|
-| `uiClick` | Any button press, the lure slot, Cafe and Alley travel. Buttons that only open or close a screen (menu tiles, Collection, Areas, the red X) stay silent and let the swish play. |
+| `uiClick` | Any button press, Cafe and Alley travel. Buttons that only open or close a screen (menu tiles, Collection, Areas, the red X) stay silent and let the swish play. |
 | `uiError` | A tap on a greyed button (can't afford, carrying, locked area) and every `warn` toast. A drag that starts on a greyed button, such as a phone scroll, stays quiet. |
 | `uiOpen` / `uiClose` | A modal screen opens or closes. |
 | `uiTab` | The Book and Cat room tabs, the decor category chips and a cat cell in the book. |
@@ -190,7 +190,7 @@ The name signs, rate tags and order bubbles are parented under the models, so th
 
 ### Bait bowl (built, F28, data-model section 8)
 
-Turn it on with `UI.init({ catalog, baitBowl = true })` once the server runs the bowl instead of the v0.2 lure spots. Until then the HUD keeps the v0.2 lure slot and `equipLure`, so main keeps playing.
+Always on. The HUD's bottom right chip shows what is in the bowl once the Bait bowl upgrade is owned, and the chip or F opens the Bait bowl screen (or the cat waiting at the bowl). The v0.2 lure slot, its picker, `equipLure` and `equippedLure` are gone (#124 retired them on the server).
 
 | API | Purpose |
 |---|---|
@@ -200,7 +200,7 @@ Turn it on with `UI.init({ catalog, baitBowl = true })` once the server runs the
 | `UI.bait.showReady(cat)` | From `BaitReady`. `cat = { catId, variant?, charm?, stars?, name? }` (a `CatView` fits). Shows the cat's 3D model, name, rarity, stars, charm and a SHINY sticker, with Tame and Let go (Let go asks for a second tap within 3 s, because the food is used either way). The X only hides the card; the chip and the screen's "See the cat" bring it back. After a choice the buttons wait up to 6 s for `UI.bait.set(nil)` or `hideReady`. |
 | `UI.bait.hideReady()` | The server resolved the cat: closes the card and forgets it. |
 
-The Bait bowl screen has a status card (no bowl yet with an Upgrades button, empty, "<Food> is in the bowl" with a countdown bar, "A cat is at your bowl!" with See the cat) over one card per food: shop foods by price, then dealer foods ("Sold by the night dealer's cart" until owned). Every card shows the five-rarity odds, the shiny chance (`ShinyChanceBait`, 2%) and the charm star odds (`CharmStarOdds`, else 7.8 / 23.5 / 35.7 / 24.3 / 8.7%) before Use or Buy; Details adds the per-cat split for the player's unlocked areas and which area the next rank up adds. Use (green) and Buy are the same size. The HUD's v0.2 lure picker shows the same Details text (`Components/FoodOdds.luau`).
+The Bait bowl screen has a status card (no bowl yet with an Upgrades button, empty, "<Food> is in the bowl" with a countdown bar, "A cat is at your bowl!" with See the cat) over one card per food: shop foods by price, then dealer foods ("Sold by the night dealer's cart" until owned). Every card shows the five-rarity odds, the shiny chance (`ShinyChanceBait`, 2%) and the charm star odds (`CharmStarOdds`, else 7.8 / 23.5 / 35.7 / 24.3 / 8.7%) before Use or Buy; Details adds the per-cat split for the player's unlocked areas and which area the next rank up adds. Use (green) and Buy are the same size. The odds text comes from `Components/FoodOdds.luau`.
 
 In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLevels.lure_bowl >= 1`: "Bait bowl / Empty · add food", "<Food> / Cat in 7m 42s", then "Cat waiting!" in gold.
 
@@ -240,7 +240,7 @@ Events: `rescuePressed(rescueSpotId)` on every press, bar or circle (forward as 
 | Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`. The cat room already shows `CatInstance.name` when the server sends it (filtered), else the catalog name. |
 | Fast travel (built, v0.4 F19) | Top centre under the tier pill: Cafe, Alley and Areas buttons (Grow a Garden style). Cafe and Alley fire `events.travel("home")` and `events.travel("alley")`; Areas opens `UI.open("Areas")`, five area cards with "Epic or better N%" and Go, locked ones greyed with "Opens at Tier n". The row hides while the catch circles show (their header takes the top centre). Every button and Go greys while carrying (`state.carrying` or `UI.setCarrying`) and Cafe and Alley grey for `Config.TravelCooldownSeconds` after a trip. Forward `events.travel(destination)` as `Travel(destination)`; pass `TravelResult(destination, ok, reason?)` to `UI.travel.result`, which lifts the cooldown and wobbles the button on a refusal (the server toast gives the reason). |
 
-Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Removed with F27: `rescueEnded`, `catch.startRescue` and `catch.stopRescue` (the v0.2 rescue hold). `equipLure` stays while the HUD's lure slot does.
+Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Removed with F27: `rescueEnded`, `catch.startRescue` and `catch.stopRescue` (the v0.2 rescue hold). Removed with the lure spots (#124): `equipLure` and the HUD's lure slot and picker.
 
 ## Events (UI -> game), all `Signal` with `:Connect(fn)` returning a connection with `:Disconnect()`
 
@@ -249,8 +249,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `buyUpgrade` | `upgradeId` | Buy pressed (UI only enables it when affordable, not maxed, tier gate met) |
 | `buyDecor` | `decorId` | Buy pressed in Decor |
 | `toggleDecor` | `decorId, placed` | Place / Remove pressed on an owned decor item |
-| `buyLure` | `lureId` | Buy pressed in the lure picker (odds are on screen before the button) |
-| `equipLure` | `lureId` | Equip pressed (v0.2 lure spots; unused in bowl mode) |
+| `buyLure` | `lureId` | Buy pressed on a food card in the Bait bowl screen (odds are on screen before the button) |
 | `useLure` | `lureId` | Use pressed on a food in the Bait bowl screen. Forward as `UseLure(lureId)` |
 | `resolveBait` | `"tame"` or `"letgo"` | A choice on the bait card. Forward as `ResolveBait(choice)` |
 | `buyDealerFood` | `slot` (1 to 3), `lureId` | Buy pressed on the night dealer screen. Forward as `BuyDealerFood(slot, lureId)`; the server refuses it when that slot holds another food after a restock (reviewer S42). Then send `DealerStock` back |
@@ -280,7 +279,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     catsOwned: { [catId]: { count } },       -- derived from cats when cats is sent
     upgradeLevels: { [upgradeId]: number },
     decorOwned: { [decorId]: boolean }, decorPlaced: { [decorId]: boolean },
-    lures: { [lureId]: number }, equippedLure: string?,
+    lures: { [lureId]: number },
     -- engineer extras the UI uses when present
     cats: { [uid]: { uid, catId, variant?, name?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
                      level?, xp?, xpToNext?, charm?, stars?, rating? } }, -- cat stats thread; shown when present

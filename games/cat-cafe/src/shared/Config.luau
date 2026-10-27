@@ -109,8 +109,17 @@ local Config = {
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
 
+	-- Night income and rich customers (F31, data-model sections 11 and 12)
+	NightIncomeMultiplier = 0.6, -- tips pay this share of the day rate at night; offline pay keeps the day rate
+	RichCheckSeconds = 60, -- by day, how often each earning cafe rolls for a rich customer
+	RichChance = 0.15,
+	RichTipSeconds = 45, -- a rich tip is this many seconds of the day rate (at least $50)
+	RichTipStaySeconds = 90, -- unclaimed, it pays itself into the till after this
+	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
+
 	-- Cosmetic customers (client side)
 	CustomerSpawnSeconds = 6,
+	CustomerSpawnSecondsNight = 12, -- night owls come half as often
 	CustomerStayMin = 20,
 	CustomerStayMax = 40,
 	CustomerCoinPopSeconds = 3,

@@ -7,6 +7,7 @@
 --   D:Invoke("setCoins", nil, 5000)   -- nil means the first player in the server
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
+--   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe that pays itself in 20 s
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,6 +25,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local RescueService = require(script.Parent.RescueService)
+local RichTipService = require(script.Parent.RichTipService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -64,14 +66,14 @@ end
 function Debug.snapshot(player: (Player | number | string)?): Types.PlayerState
 	local p = resolve(player)
 	local profile = profileOf(p)
-	Economy.settle(profile, os.time())
+	Economy.settle(profile, os.time(), ClockService.epoch())
 	return CafeService.buildState(p, profile)
 end
 
 function Debug.setCoins(player: (Player | number | string)?, coins: number)
 	local p = resolve(player)
 	local profile = profileOf(p)
-	Economy.settle(profile, os.time())
+	Economy.settle(profile, os.time(), ClockService.epoch())
 	profile.coins = coins
 	CafeService.sync(p)
 end
@@ -105,7 +107,7 @@ end
 function Debug.setTier(player: (Player | number | string)?, tier: number)
 	local p = resolve(player)
 	local profile = profileOf(p)
-	Economy.settle(profile, os.time())
+	Economy.settle(profile, os.time(), ClockService.epoch())
 	profile.tier = math.clamp(math.floor(tier), 1, Catalog.maxTier)
 	CafeService.refreshPlot(p)
 	CafeService.sync(p)
@@ -131,6 +133,13 @@ function Debug.baitReady(player: (Player | number | string)?): string
 	CafeService.refreshPlot(p)
 	CafeService.sync(p)
 	return bait.catId
+end
+
+-- Opens a rich tip at the player's cafe now, whatever the clock and the roll (F31). `staySeconds` shortens the wait
+-- before it pays itself (RichTipStaySeconds by default). Returns the amount.
+function Debug.richTip(player: (Player | number | string)?, staySeconds: number?): number
+	guard()
+	return RichTipService.debugOpen(resolve(player), staySeconds)
 end
 
 -- Pretends the player rejoined after `secondsAgo` away: sets the unclaimed offline earnings to what that gap

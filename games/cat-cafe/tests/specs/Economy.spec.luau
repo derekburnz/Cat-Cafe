@@ -1,6 +1,6 @@
 --!strict
 -- Economy.luau against data-model v0.3.1 sections 5, 5b, 6, 7, 11 and 14, plus the ten minute loop in features.md
--- section 8. Rank up (F24) has its own block at the end; night income (F31) gets one when it lands.
+-- section 8. Rank up (F24) has its own block at the end; night income (F31) is in the income block.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
@@ -224,7 +224,38 @@ return function()
 			expect(p.coins).to.equal(Config.StartCoins)
 		end)
 
-		it("settle splits the window at phase boundaries, 0.6x by night (F31)")
+		it("settle splits the window at phase boundaries, 0.6x by night (F31)", function()
+			-- the clock started at os.time() 1000, so its first night begins at 1000 + ServerStartDaySeconds
+			local epoch = 1000
+			local dusk = epoch + Config.ServerStartDaySeconds
+			local p = freshProfile(dusk - 20) -- 20 s of day, then 30 s of night
+			local earned = Economy.settle(p, dusk + 30, epoch)
+			expect(earned).to.be.near(1.5 * (20 + 30 * Config.NightIncomeMultiplier))
+			expect(p.lastTick).to.equal(dusk + 30)
+			-- all night: 0.6x; and back to day at dawn (each settle grants XP, so read the rate before each)
+			local dawn = dusk + Config.NightLengthSeconds
+			p.lastTick = dawn - 10
+			local rate = Economy.incomePerSecond(p)
+			expect(Economy.settle(p, dawn, epoch)).to.be.near(rate * 10 * Config.NightIncomeMultiplier)
+			rate = Economy.incomePerSecond(p)
+			expect(Economy.settle(p, dawn + 10, epoch)).to.be.near(rate * 10)
+			-- without the clock the whole window pays the day rate
+			p.lastTick = dusk
+			rate = Economy.incomePerSecond(p)
+			expect(Economy.settle(p, dusk + 10)).to.be.near(rate * 10)
+		end)
+
+		it("phaseMultiplier is 1 by day and NightIncomeMultiplier by night", function()
+			expect(Economy.phaseMultiplier("day")).to.equal(1)
+			expect(Economy.phaseMultiplier("night")).to.equal(Config.NightIncomeMultiplier)
+		end)
+
+		it("a rich tip is RichTipSeconds of the day rate, at least $50 (section 12)", function()
+			expect(Economy.richTipAmount(1)).to.equal(50)
+			expect(Economy.richTipAmount(1.5)).to.equal(67)
+			expect(Economy.richTipAmount(10)).to.equal(450)
+			expect(Economy.richTipAmount(33.3)).to.equal(math.floor(33.3 * Config.RichTipSeconds))
+		end)
 	end)
 
 	describe("offlineGain = day rate x 0.25 x min(elapsed, 3600) (section 11)", function()

@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -33,9 +34,14 @@ local rng = Random.new() -- charm rolls for caught cats
 local function profileFor(player: Player): Profile?
 	local profile = DataService.get(player)
 	if profile ~= nil then
-		Economy.settle(profile, os.time())
+		Economy.settle(profile, os.time(), ClockService.epoch())
 	end
 	return profile
+end
+
+-- What the cafe earns per second right now: the day rate, times NightIncomeMultiplier at night (section 11).
+local function currentRate(profile: Profile): number
+	return Economy.incomePerSecond(profile) * Economy.phaseMultiplier(ClockService.phase())
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view).
@@ -76,7 +82,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 	local now = os.time()
 	return {
 		money = math.floor(profile.coins),
-		incomePerSecond = Economy.incomePerSecond(profile),
+		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
 		tier = Economy.tier(profile),
 		cafeProgress = nil,
 		cafeProgressText = nil,
@@ -410,8 +416,15 @@ local function refreshShowcase(player: Player, profile: Profile)
 	refreshCats(player, plot, profile)
 	local tierDef = Catalog.getTier(Economy.tier(profile))
 	local tierName = if tierDef ~= nil then tierDef.name else ""
+	-- the plot's Rate stays the day rate (the street's CafeSigns apply the night share themselves); the sign's own
+	-- line shows what the cafe earns now
 	local rate = Economy.incomePerSecond(profile)
-	PlotService.setShowcase(player, tierName, rate, tierName .. "  " .. rateText(rate))
+	PlotService.setShowcase(
+		player,
+		tierName,
+		rate,
+		tierName .. "  " .. rateText(currentRate(profile))
+	)
 end
 
 function CafeService.sync(player: Player)
@@ -453,7 +466,7 @@ function CafeService.addCaughtCat(
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
-		Economy.settle(profile, os.time())
+		Economy.settle(profile, os.time(), ClockService.epoch())
 	else
 		profile = profileFor(player)
 	end
@@ -612,7 +625,7 @@ local function onEquipBest(player: Player)
 			plan.catsPlaced,
 			plan.spotsOpen,
 			changed,
-			rateText(Economy.incomePerSecond(profile))
+			rateText(currentRate(profile))
 		),
 		"good"
 	)
@@ -886,6 +899,13 @@ function CafeService.start()
 		local offline, seconds = DataService.peekPendingOffline(player)
 		if offline > 0 then
 			Net.fire(player, "OfflineEarnings", offline, seconds)
+		end
+	end)
+
+	-- The rate changes at dusk and dawn: settle the old phase and send the new rate at once.
+	ClockService.changed:Connect(function()
+		for _, player in DataService.loadedPlayers() do
+			CafeService.sync(player)
 		end
 	end)
 

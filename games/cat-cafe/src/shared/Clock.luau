@@ -22,6 +22,22 @@ function Clock.phaseAt(t: number): (Types.ClockPhase, number)
 	return "day", cycle - into
 end
 
+-- Seconds of night between clock times t0 and t1 (t0 <= t1), for settling income across phase boundaries
+-- (data-model section 11). The first stretch of day before the first night counts as day.
+function Clock.nightSecondsBetween(t0: number, t1: number): number
+	local function nightBefore(t: number): number
+		local time = math.max(0, t - Config.ServerStartDaySeconds)
+		local cycle = Config.NightLengthSeconds + Config.DayLengthSeconds
+		local full = math.floor(time / cycle)
+		return full * Config.NightLengthSeconds
+			+ math.min(time - full * cycle, Config.NightLengthSeconds)
+	end
+	if t1 <= t0 then
+		return 0
+	end
+	return nightBefore(t1) - nightBefore(t0)
+end
+
 -- Seconds since the server started at which a phase begins its first full run (used to jump the clock).
 function Clock.startOf(phase: Types.ClockPhase): number
 	if phase == "night" then

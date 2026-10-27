@@ -125,6 +125,10 @@ Layout.plot = {
 		{ x = 9, y = 0, z = 1 },
 	} :: { Point },
 
+	-- The rich customer's coin pile (data-model section 12): on top of table 1 (2.6 tall), where the rich customer
+	-- sits. The UI's gold marker floats over it and ClaimRichTip measures range from it.
+	richTip = { x = -9, y = 2.7, z = -6 } :: Point,
+
 	-- The back door, between the counter and the left cat tree, opens from Tier 1 onto the yard; the yard's gate
 	-- lines up with it so the way out to the back alley is straight.
 	backDoor = { x = -8, width = 6, height = 7.5 },

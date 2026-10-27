@@ -69,6 +69,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
+		settings = { music = profile.settings.music, sfx = profile.settings.sfx },
 		serverTime = os.time(),
 	}
 end
@@ -211,6 +212,16 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	end
 end
 
+-- Cafe expansions (data-model section 5b): expansion n opens at Tier n + 1. In the graybox each is floor behind
+-- the back wall, reached through the back door that opens with the first one.
+local function refreshExpansions(plot: WorldBuilder.Plot, profile: Profile)
+	local tier = Economy.tier(profile)
+	for n, expansion in plot.expansions do
+		WorldBuilder.setExpansionOpen(expansion, tier >= n + 1)
+	end
+	WorldBuilder.setBackDoorOpen(plot, tier >= 2)
+end
+
 local function refreshEspresso(plot: WorldBuilder.Plot, profile: Profile)
 	local level = math.clamp(Economy.level(profile, "espresso"), 1, 3)
 	local assetName = "CatCafe_Furniture_EspressoMachine_L" .. level
@@ -235,6 +246,7 @@ function CafeService.refreshPlot(player: Player)
 		return
 	end
 	refreshSpots(plot, profile)
+	refreshExpansions(plot, profile)
 	refreshEspresso(plot, profile)
 	refreshCats(player, plot, profile)
 	refreshDecor(plot, profile)
@@ -525,6 +537,42 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 	CafeService.sync(player)
 end
 
+-- Next tier (data-model section 5b): every requirement is checked again here, then the cost is spent. Nothing
+-- resets; the new role slots, caps, decor and area open from the tier itself.
+local function onRankUp(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local blocker = Economy.rankUpBlocker(profile)
+	if blocker ~= nil then
+		Net.toast(player, blocker, "warn")
+		CafeService.sync(player)
+		return
+	end
+	local def = Catalog.getTier(Economy.tier(profile) + 1) :: Types.TierDef
+	if not Economy.trySpend(profile, def.cost) then
+		Net.toast(player, "Not enough coins", "warn")
+		return
+	end
+	profile.tier = def.tier
+	local area = Catalog.getArea(def.area)
+	Net.toast(
+		player,
+		string.format(
+			"Your cafe is now a %s! %s is open and %d role slots are ready.",
+			def.name,
+			if area ~= nil then area.name else def.area,
+			def.slots
+		),
+		"good"
+	)
+	Net.fireAll("Announce", string.format("%s's cafe is now a %s!", player.DisplayName, def.name))
+	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
 local function onBuyDecor(player: Player, rawId: unknown)
 	local decorId = Guard.id(rawId)
 	local profile = profileFor(player)
@@ -686,6 +734,7 @@ function CafeService.start()
 	Net.on("SellCat", onSellCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)
+	Net.on("RankUp", onRankUp)
 	Net.on("ToggleDecor", onToggleDecor)
 	Net.on("BuyLure", onBuyLure)
 	Net.on("EquipLure", onEquipLure)

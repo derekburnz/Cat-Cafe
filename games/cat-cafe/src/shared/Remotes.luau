@@ -21,6 +21,7 @@ Remotes.ClientToServer = {
 	"SellCat", -- (uid: string)
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)
+	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier
 	"ToggleDecor", -- (decorId: string, placed: boolean)
 	"BuyLure", -- (lureId: string)
 	"EquipLure", -- (lureId: string?)
@@ -28,6 +29,7 @@ Remotes.ClientToServer = {
 	"ClaimOffline", -- ()
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
+	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
 }
 
 -- Server -> client.
@@ -41,6 +43,7 @@ Remotes.ServerToClient = {
 	-- retry keeps the prompt open. For a stray it only refuses GrabBegin; the catch outcome is CatchResult.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 	"CatchResult", -- (strayId: string, scores: { number }, chance: number, success: boolean, stayed: boolean)
+	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 }
 
 function Remotes.folder(): Folder

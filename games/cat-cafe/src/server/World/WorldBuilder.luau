@@ -1,5 +1,5 @@
 --!strict
--- Builds the whole graybox world from code at server start: ground, street, 8 plots, alley, park.
+-- Builds the whole graybox world from code at server start: ground, street, 8 plots, five areas and their gates.
 -- Everything with a name in features.md is a named Part or a clone from AssetRegistry so art swaps in by name.
 
 local CollectionService = game:GetService("CollectionService")
@@ -27,6 +27,8 @@ export type Plot = {
 	tables: Folder,
 	customerEntry: BasePart,
 	espresso: BasePart,
+	backDoor: BasePart, -- a wall panel until expansion 1 opens
+	expansions: { Model }, -- Expansions/<n>, hidden until the owner's tier opens them
 }
 
 export type AreaInfo = {
@@ -37,13 +39,14 @@ export type AreaInfo = {
 	lureSpots: { [string]: BasePart },
 	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number },
+	arrival: CFrame, -- where fast travel puts a player: just inside the opening, facing in
 }
 
 export type World = {
 	folder: Folder,
 	plots: { Plot },
 	areas: { [string]: AreaInfo },
-	gate: Model,
+	gates: { [string]: Model }, -- area id -> its tier gate (every area but the Tier 1 alley)
 }
 
 local WorldBuilder = {}
@@ -55,6 +58,28 @@ local MINT = Color3.fromRGB(165, 214, 190)
 local ASPHALT = Color3.fromRGB(70, 70, 75)
 local BRICK = Color3.fromRGB(150, 85, 70)
 local GRASS = Color3.fromRGB(110, 170, 90)
+
+-- Floor and wall look per area. Areas 3 to 5 get a distinct flat palette color until their sets exist.
+type AreaLook = { floor: Color3, floorMaterial: Enum.Material, wall: Color3 }
+local AREA_LOOKS: { [string]: AreaLook } = {
+	alley = { floor = ASPHALT, floorMaterial = Enum.Material.Asphalt, wall = BRICK },
+	park = { floor = GRASS, floorMaterial = Enum.Material.Grass, wall = Color3.fromRGB(90, 70, 50) },
+	neighbourhood = {
+		floor = Color3.fromRGB(196, 178, 150),
+		floorMaterial = Enum.Material.Pavement,
+		wall = Color3.fromRGB(205, 160, 120),
+	},
+	woods = {
+		floor = Color3.fromRGB(86, 120, 70),
+		floorMaterial = Enum.Material.LeafyGrass,
+		wall = Color3.fromRGB(70, 55, 40),
+	},
+	sewer = {
+		floor = Color3.fromRGB(95, 105, 100),
+		floorMaterial = Enum.Material.Slate,
+		wall = Color3.fromRGB(80, 90, 85),
+	},
+}
 
 local function part(
 	name: string,
@@ -93,6 +118,16 @@ local function folder(name: string, parent: Instance): Folder
 	return f
 end
 
+-- An invisible box under World.Zones naming the place the player stands in: "Cafe", or an area such as "Alley".
+-- The client reads it for the ambience (Audio.setZone) and the first tutorial step; the server never does.
+local function zone(name: string, size: Vector3, cframe: CFrame, parent: Instance)
+	local box = part(name, size, cframe, Color3.new(1, 1, 1), nil, parent)
+	box.Transparency = 1
+	box.CanCollide = false
+	box.CanQuery = false
+	box.CanTouch = false
+end
+
 local function localCFrame(base: CFrame, p: Layout.Point): CFrame
 	return base * CFrame.new(p.x, p.y, p.z) * CFrame.Angles(0, math.rad(p.rotY or 0), 0)
 end
@@ -107,6 +142,24 @@ local function place(asset: string, cframe: CFrame, parent: Instance): Model
 	model:PivotTo(cframe)
 	model.Parent = parent
 	return model
+end
+
+-- A closed expansion is invisible and walk-through; an open one is solid floor.
+function WorldBuilder.setExpansionOpen(expansion: Model, open: boolean)
+	expansion:SetAttribute("Open", open)
+	for _, descendant in expansion:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local floor = descendant :: BasePart
+			floor.Transparency = if open then 0 else 1
+			floor.CanCollide = open
+			floor.CanQuery = open
+		end
+	end
+end
+
+function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
+	plot.backDoor.CanCollide = not open
+	plot.backDoor.Transparency = if open then 1 else 0
 end
 
 local function buildPlot(index: number, parent: Instance): Plot
@@ -133,10 +186,30 @@ local function buildPlot(index: number, parent: Instance): Plot
 		model
 	)
 	local walls = folder("Walls", model)
+	-- The back wall has a door-sized panel that opens with the first expansion.
+	local door0 = Layout.plot.backDoor
+	local backLeft = door0.x - door0.width / 2 + halfW + 0.5 -- from the left corner to the door
+	local backRight = halfW + 0.5 - (door0.x + door0.width / 2) -- from the door to the right corner
 	part(
-		"WallBack",
-		Vector3.new(W.PlotWidth + 1, wallH, 1),
-		cframe * CFrame.new(0, wallH / 2, halfD + 0.5),
+		"WallBackL",
+		Vector3.new(backLeft, wallH, 1),
+		cframe * CFrame.new(-halfW - 0.5 + backLeft / 2, wallH / 2, halfD + 0.5),
+		CREAM,
+		Enum.Material.SmoothPlastic,
+		walls
+	)
+	part(
+		"WallBackR",
+		Vector3.new(backRight, wallH, 1),
+		cframe * CFrame.new(halfW + 0.5 - backRight / 2, wallH / 2, halfD + 0.5),
+		CREAM,
+		Enum.Material.SmoothPlastic,
+		walls
+	)
+	local backDoor = part(
+		"BackDoor",
+		Vector3.new(door0.width, wallH, 1),
+		cframe * CFrame.new(door0.x, wallH / 2, halfD + 0.5),
 		CREAM,
 		Enum.Material.SmoothPlastic,
 		walls
@@ -266,6 +339,25 @@ local function buildPlot(index: number, parent: Instance): Plot
 		table.insert(tableAnchors, a)
 	end
 
+	local expansionsFolder = folder("Expansions", model)
+	local expansions: { Model } = {}
+	for n, rect in Layout.plot.expansions do
+		local expansion = Instance.new("Model")
+		expansion.Name = tostring(n)
+		local floor = part(
+			"Floor",
+			Vector3.new(rect.x2 - rect.x1, 0.4, rect.z2 - rect.z1),
+			cframe * CFrame.new((rect.x1 + rect.x2) / 2, -0.2, (rect.z1 + rect.z2) / 2),
+			if n == 3 then Color3.fromRGB(205, 200, 190) else CARAMEL,
+			if n == 3 then Enum.Material.Slate else Enum.Material.WoodPlanks,
+			expansion
+		)
+		expansion.PrimaryPart = floor
+		expansion.Parent = expansionsFolder
+		WorldBuilder.setExpansionOpen(expansion, false)
+		table.insert(expansions, expansion)
+	end
+
 	local waypoints = folder("CustomerWaypoints", model)
 	local entry = anchor("Entry", localCFrame(cframe, Layout.plot.entry), waypoints)
 	anchor("Door", localCFrame(cframe, Layout.plot.door), waypoints)
@@ -285,6 +377,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 		tables = folder("Tables", model),
 		customerEntry = entry,
 		espresso = espresso,
+		backDoor = backDoor,
+		expansions = expansions,
 	}
 	model.Parent = parent
 	return plot
@@ -292,12 +386,11 @@ end
 
 local function buildArea(
 	id: string,
-	spec: typeof(Layout.alley),
-	floorColor: Color3,
-	floorMaterial: Enum.Material,
-	wallColor: Color3,
+	spec: Layout.AreaSpec,
+	look: AreaLook,
 	parent: Instance
 ): AreaInfo
+	local floorColor, floorMaterial, wallColor = look.floor, look.floorMaterial, look.wall
 	local model = Instance.new("Model")
 	model.Name = id:sub(1, 1):upper() .. id:sub(2)
 	model:SetAttribute("Area", id)
@@ -431,7 +524,42 @@ local function buildArea(
 		lureSpots = lureSpots,
 		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
+		arrival = CFrame.lookAt(
+			Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
+			Vector3.new(cx, spec.floorY + 3, cz)
+		),
 	}
+end
+
+-- A tier gate across an area's opening (data-model section 9): `CatCafe_<Area>_Gate`, named `<Area>Gate` under
+-- World.Gates with `Area` and `RequiresTier`. The client makes it solid for players below the tier; the server
+-- checks the tier on every catch and rescue anyway, so walking around it gains nothing.
+local function buildGate(def: Types.AreaDef, x: number, z: number, parent: Instance): Model
+	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
+	local gate = place("CatCafe_" .. pascal .. "_Gate", CFrame.new(x, 0.1, z), parent)
+	gate.Name = pascal .. "Gate"
+	gate:SetAttribute("Area", def.id)
+	gate:SetAttribute("RequiresTier", def.tier)
+	CollectionService:AddTag(gate, "AreaGate")
+	local bars = gate:FindFirstChild("Bars")
+	if bars ~= nil and bars:IsA("BasePart") then
+		local billboard = Instance.new("BillboardGui")
+		billboard.Size = UDim2.fromOffset(240, 40)
+		billboard.StudsOffset = Vector3.new(0, 4, 0)
+		billboard.MaxDistance = 80
+		local text = Instance.new("TextLabel")
+		text.Name = "Label"
+		text.Size = UDim2.fromScale(1, 1)
+		text.BackgroundTransparency = 1
+		text.TextScaled = true
+		text.Font = Enum.Font.GothamBold
+		text.TextColor3 = Color3.new(1, 1, 1)
+		text.TextStrokeTransparency = 0.3
+		text.Text = string.format("%s: opens at Tier %d", def.name, def.tier)
+		text.Parent = billboard
+		billboard.Parent = bars
+	end
+	return gate
 end
 
 function WorldBuilder.build(): World
@@ -469,38 +597,50 @@ function WorldBuilder.build(): World
 		)
 	end
 
+	-- A Model set to Persistent so streaming never drops a far zone the client checks against.
+	local zones = Instance.new("Model")
+	zones.Name = "Zones"
+	zones.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	zones.Parent = root
+
 	local plotsFolder = folder("Plots", root)
 	local plots: { Plot } = {}
 	for i = 1, W.PlotCount do
-		table.insert(plots, buildPlot(i, plotsFolder))
+		local plot = buildPlot(i, plotsFolder)
+		table.insert(plots, plot)
+		zone(
+			"Cafe",
+			Vector3.new(W.PlotWidth, W.WallHeight, W.PlotDepth),
+			plot.cframe * CFrame.new(0, W.WallHeight / 2, 0),
+			zones
+		)
 	end
 
 	local areas: { [string]: AreaInfo } = {}
-	areas.alley = buildArea("alley", Layout.alley, ASPHALT, Enum.Material.Asphalt, BRICK, root)
-	areas.park =
-		buildArea("park", Layout.park, GRASS, Enum.Material.Grass, Color3.fromRGB(90, 70, 50), root)
-
-	local gate = place("CatCafe_Park_Gate", CFrame.new(0, 0.1, Layout.park.gateZ), root)
-	gate.Name = "ParkGate"
-	local parkTier = (Catalog.getArea("park") :: Types.AreaDef).tier
-	gate:SetAttribute("RequiresTier", parkTier)
-	local gateBars = gate:FindFirstChild("Bars")
-	if gateBars ~= nil and gateBars:IsA("BasePart") then
-		local billboard = Instance.new("BillboardGui")
-		billboard.Size = UDim2.fromOffset(200, 40)
-		billboard.StudsOffset = Vector3.new(0, 4, 0)
-		billboard.MaxDistance = 80
-		local text = Instance.new("TextLabel")
-		text.Name = "Label"
-		text.Size = UDim2.fromScale(1, 1)
-		text.BackgroundTransparency = 1
-		text.TextScaled = true
-		text.Font = Enum.Font.GothamBold
-		text.TextColor3 = Color3.new(1, 1, 1)
-		text.TextStrokeTransparency = 0.3
-		text.Text = string.format("Park: opens at Tier %d", parkTier)
-		text.Parent = billboard
-		billboard.Parent = gateBars
+	local gates: { [string]: Model } = {}
+	local gatesFolder = folder("Gates", root)
+	for _, def in Catalog.areas do
+		local spec = Layout.areas[def.id]
+		assert(spec ~= nil, "no layout for area " .. def.id)
+		assert(
+			#spec.spawnPoints == def.spawnPoints,
+			string.format(
+				"%s: Layout has %d spawn points, Catalog says %d",
+				def.id,
+				#spec.spawnPoints,
+				def.spawnPoints
+			)
+		)
+		areas[def.id] = buildArea(def.id, spec, AREA_LOOKS[def.id], root)
+		zone(
+			def.id:sub(1, 1):upper() .. def.id:sub(2),
+			Vector3.new(spec.halfWidth * 2, 30, spec.halfDepth * 2),
+			CFrame.new(spec.center.x, spec.floorY + 15, spec.center.z),
+			zones
+		)
+		if spec.gateZ ~= nil then
+			gates[def.id] = buildGate(def, spec.center.x, spec.gateZ, gatesFolder)
+		end
 	end
 
 	local spawn = Instance.new("SpawnLocation")
@@ -513,7 +653,7 @@ function WorldBuilder.build(): World
 	spawn.Duration = 0
 	spawn.Parent = root
 
-	return { folder = root, plots = plots, areas = areas, gate = gate }
+	return { folder = root, plots = plots, areas = areas, gates = gates }
 end
 
 return WorldBuilder

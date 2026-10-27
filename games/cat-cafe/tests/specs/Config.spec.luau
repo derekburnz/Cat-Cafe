@@ -17,9 +17,10 @@ return function()
 		OfflineRate = 0.25,
 		OfflineCapSeconds = 3600,
 		AutosaveSeconds = 60,
-		-- v0.2 clock and night waves (section 9): no trickle spawns, so SpawnIntervalSeconds and MaxStraysPerArea are gone
-		DayLengthSeconds = 180,
-		NightLengthSeconds = 120,
+		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
+		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
+		DayLengthSeconds = 300,
+		NightLengthSeconds = 300,
 		ServerStartDaySeconds = 120,
 		StrayDespawnSeconds = 120,
 		-- v0.2 rescue (section 10)
@@ -47,6 +48,7 @@ return function()
 		RemoteRateLimitPerSecond = 10,
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
+		TravelCooldownSeconds = 3, -- v0.4 (F19)
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 16,
 		StrayWanderRadius = 5,
@@ -67,9 +69,6 @@ return function()
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
 	local pending: { [string]: { any } } = {
-		DayLengthSeconds = { 300, "F23" },
-		NightLengthSeconds = { 300, "F23" },
-		WaveSize = { 10, "F23" },
 		RescueSpawnChance = { 0.6, "F27" },
 		RescueMinStuck = { 1, "F27" },
 		RescueTolerance = { 0.03, "F27" },
@@ -247,20 +246,16 @@ return function()
 		it("LureDespawnSeconds and LureReserveSeconds are gone (F28)")
 
 		it(
-			"clock: the first night comes by minute two and never later than a normal day (features step 2)",
+			"clock: the first night comes by minute two and the whole first night fits in the ten minute loop",
 			function()
 				expect(Config.ServerStartDaySeconds > 0).to.equal(true)
 				expect(Config.ServerStartDaySeconds <= 120).to.equal(true)
 				expect(Config.ServerStartDaySeconds <= Config.DayLengthSeconds).to.equal(true)
 				expect(Config.NightLengthSeconds > 0).to.equal(true)
-				-- at least two full nights fit in the ten minute loop test
-				expect(
-					Config.ServerStartDaySeconds
-							+ Config.NightLengthSeconds
-							+ Config.DayLengthSeconds
-							+ Config.NightLengthSeconds
-						<= 600
-				).to.equal(true)
+				-- v0.3 (Gavin, Q1) runs 5 minute days and nights, so the loop test sees one full night
+				expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds <= 600).to.equal(
+					true
+				)
 			end
 		)
 

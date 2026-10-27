@@ -1,5 +1,5 @@
 --!strict
--- Purr Pot client effects (vfx-animator): cat motion, catch reactions, cafe and gate moments, ambient life and
+-- Cat Cafe client effects (vfx-animator): cat motion, catch reactions, cafe and gate moments, ambient life and
 -- shoves, all on this client only. Effects read replicated world state (tags and attributes) and this player's own
 -- catch events; they never fire a remote, never change game state and never move a part the server moves for
 -- gameplay. Rules: .claude/skills/animation-vfx/SKILL.md. Wiring and file map: README.md next to this file.

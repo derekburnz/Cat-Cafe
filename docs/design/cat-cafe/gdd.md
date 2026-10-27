@@ -1,8 +1,8 @@
-# Cat Cafe Game Design Doc (working title Purr Pot)
+# Cat Cafe Game Design Doc
 
 Draft v0.5, 2026-10-27 (v0.5 after Gavin's round 2 answers in [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md); v0.1 on 2026-10-25, v0.2 after Gavin's Cat Cafe tab, v0.3 after Gavin's answers to our twenty questions, v0.3.1 with the reviewer's bump, dealer, rescue and save fixes, v0.4 after Derek played the rough draft: misses cost the catch, the Alleyway behind the cafes, lively cafes, For Rent plots and borrowed UI patterns, detailed in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. Status: ready for the engineer, asset and UI threads to build. Derek, 2026-10-26: "lets start with those mechanics and see where it goes from there". Every number is a first guess to tune in playtests. Full tables are in [data-model.md](data-model.md), the build order and thread handoffs in [features.md](features.md), genre-standard features for later phases in [common-features.md](common-features.md), Gavin's answers word for word in [feedback/](feedback/) (round 1 2026-10-26, round 2 2026-10-27), the next questions for him in [questions-for-gavin.md](questions-for-gavin.md), and decisions in [docs/decisions.md](../../decisions.md).
 
-Reference games: Steal an Egg (timed spawns in shared stages, place-and-earn pets, chasing players who carry eggs) and Roll a Fisherman, also called Spin for a Fisherman (roll for staff, collect what they produce, expand the dock). We borrow the structure, never the names, art or characters. Gavin keeps "Cat Cafe" as the placeholder name for now (round 2); the working title stays Purr Pot and the repo slug `cat-cafe`.
+Reference games: Steal an Egg (timed spawns in shared stages, place-and-earn pets, chasing players who carry eggs) and Roll a Fisherman, also called Spin for a Fisherman (roll for staff, collect what they produce, expand the dock). We borrow the structure, never the names, art or characters. Gavin keeps "Cat Cafe" as the placeholder name for now (round 2); the working title stays Cat Cafe and the repo slug `cat-cafe`.
 
 ## Pitch
 

@@ -1,4 +1,4 @@
-# Purr Pot monetization plan
+# Cat Cafe monetization plan
 
 Owner: growth-analyst. v0.3, 2026-10-26: re-checked against design v0.3 (bait bowl with Tame or Let go, night food dealer, shinies, charm, tiers, roles, carry bumps, no cat room cap). v0.1 was written 2026-10-25 on design v0.2. Follows the monetization-policy skill and the project rules on young audiences. Numbers cite sources in comps.md; re-verify Roblox rates before any payout math is quoted externally.
 
@@ -20,7 +20,7 @@ Owner: growth-analyst. v0.3, 2026-10-26: re-checked against design v0.3 (bait bo
 | DevEx rate | $0.0038 per earned Robux; 30,000 earned Robux minimum ($114) | Roblox DevEx help page via Studio Insights |
 | Gross sales to reach the first payout | about R$42,860 (30,000 divided by 0.70) | derived |
 | Pass sales to get there | about 290 at R$149, or 215 at R$199, or 172 at R$249 | derived |
-| Creator Rewards, daily engagement | 5 Robux per active spender who plays at least 10 minutes in a day, and only if Purr Pot is one of the first three experiences they launch that day. Active spender means at least $9.99 of qualifying Roblox purchases in the past 60 days. | DevForum Creator Rewards launch, 2025-07-24; Studio Insights |
+| Creator Rewards, daily engagement | 5 Robux per active spender who plays at least 10 minutes in a day, and only if Cat Cafe is one of the first three experiences they launch that day. Active spender means at least $9.99 of qualifying Roblox purchases in the past 60 days. | DevForum Creator Rewards launch, 2025-07-24; Studio Insights |
 | Creator Rewards, audience expansion | 35% of the first $100 of Robux purchases by new or 60-day-lapsed users for two months after they arrive via the game's details page link or a name search and play 10 minutes or more. Requires an ID-verified account in good standing and a DevEx account. | same |
 | Payer conversion | 1.4% of DAU paid in Q1 2026 (Roblox, via Fortune 2026-05-20); 3.8% of tracked players over a year in the GameAnalytics sample | comps.md section 2 |
 | Median revenue per paying user per game | $0.70 | GameAnalytics 2026 |
@@ -50,7 +50,7 @@ Not in the set, and why:
 
 Private servers: free. Friends playing together is goal three of the project, and a free private server is the cheapest way to let a parent host a kid's friends.
 
-Description line on every pass: "Everything in Purr Pot can be earned by playing. Passes add looks and convenience."
+Description line on every pass: "Everything in Cat Cafe can be earned by playing. Passes add looks and convenience."
 
 ## 4. Later options
 
@@ -59,7 +59,7 @@ Description line on every pass: "Everything in Purr Pot can be earned by playing
 | Seasonal cosmetic sets (Autumn Leaves decor, Winter Scarves for cats, holiday uniforms) | After soft launch, one per season | Rotate in and out, but always return next year and say so. No "last chance" copy. R$99 each. |
 | Direct-sale cosmetic cat look | When the catalog has its 50 cats | A specific named look (pattern or color) at a fixed price, never random. Its pay must equal an earnable cat of the same rarity so it is a look, not power. Never a shiny for Robux: shinies are the rescue reward and a collection goal. |
 | Coins developer product | Phase 5, if shop_checkout shows a high `affordable=no` rate and wallets are flat | Section 7.3 in full. Linear pricing (same coins per Robux at every size; a bigger pack may add a stated bonus, never a worse rate). No "best value" badge. Consider a per-day purchase cap per player. |
-| Subscription "Purr Pot Club" | Phase 5, if a monthly cosmetic set is sustainable | Robux price from R$49 or local currency from $2.99. Monthly cosmetic set plus a small daily treat. Benefits must be distinct from passes, identical on every platform, honored for the full term. Creator gets 70% of Robux subscriptions monthly; local-currency ones pay 70% month one and 100% after. Local currency needs ID or phone verification and is unavailable in some countries. |
+| Subscription "Cat Cafe Club" | Phase 5, if a monthly cosmetic set is sustainable | Robux price from R$49 or local currency from $2.99. Monthly cosmetic set plus a small daily treat. Benefits must be distinct from passes, identical on every platform, honored for the full term. Creator gets 70% of Robux subscriptions monthly; local-currency ones pay 70% month one and 100% after. Local currency needs ID or phone verification and is unavailable in some countries. |
 | Regional pricing | On by default for passes; leave it on | Roblox adjusts by region, never above the default and never below 30% of it. Developer product prices must be read with MarketplaceService at runtime and GetUsersPriceLevelsAsync used; no hard-coded prices. |
 | Price optimization | Not for us | Needs about 60,000 transactions in 30 days. |
 
@@ -145,7 +145,7 @@ Cost of option B on top of the current design: S. The two card lines in point 2 
 ## 8. Creator Rewards fit
 
 - Sessions over 10 minutes: one day plus one night is 10 minutes on the v0.3 clock, and the bait timer is also 10 minutes, so a natural session crosses the threshold.
-- First three experiences of the day: the overnight offline earnings and a bait cat waiting at the bowl are the daily reasons to open Purr Pot first. The Daily Treat card does not reset, so there is no fear-based streak.
+- First three experiences of the day: the overnight offline earnings and a bait cat waiting at the bowl are the daily reasons to open Cat Cafe first. The Daily Treat card does not reset, so there is no fear-based streak.
 - Audience expansion credits arrive through the details page link and name search, so the final title must be a searchable, distinctive name (comps.md section 9) and friends share the details-page link, not a server link.
 - Derek needs an ID-verified account and a DevEx account before soft launch for the audience expansion share to count. Both are free.
 

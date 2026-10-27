@@ -1,4 +1,4 @@
-# tools/cloudcheck: run Purr Pot tests without Roblox Studio
+# tools/cloudcheck: run Cat Cafe tests without Roblox Studio
 
 Owner: qa-playtester. Node 20+ only, no Rokit tools needed. Works in the cloud (where GitHub release
 downloads are blocked, so Lune, luau-lsp and friends cannot be installed) and on any PC.

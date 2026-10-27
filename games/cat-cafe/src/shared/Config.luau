@@ -1,5 +1,5 @@
 --!strict
--- Tuning constants for Purr Pot (docs/design/cat-cafe/data-model.md section 17 plus world layout).
+-- Tuning constants for Cat Cafe (docs/design/cat-cafe/data-model.md section 17 plus world layout).
 -- Pure data: no Roblox services, so tests can require it. Nothing numeric lives in a Service.
 -- Distances are studs, times are seconds, money is coins.
 
@@ -150,7 +150,7 @@ local Config = {
 	MaxIdLength = 40,
 
 	-- Data
-	ProfileStoreName = "PurrPotProfiles",
+	ProfileStoreName = "CatCafeProfiles",
 	ProfileKeyPrefix = "p_",
 
 	-- World layout v2 (engineer, 2026-10-26; data-model section 9, world-and-feel.md section 2). The street runs

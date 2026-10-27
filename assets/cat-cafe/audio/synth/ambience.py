@@ -1,4 +1,4 @@
-"""Synthesize Purr Pot's ambience beds: the cafes, the Alleyway and the Park, by day and night.
+"""Synthesize Cat Cafe's ambience beds: the cafes, the Alleyway and the Park, by day and night.
 
 Run from the repo root:  python assets/cat-cafe/audio/synth/ambience.py [--only CafeDay,AlleyNight]
                                                                        [--preview DIR]
@@ -10,7 +10,7 @@ wraps around the loop end, and every steady tone fits a whole number of cycles. 
 into the start with no seam. Outputs (overwritten):
   assets/cat-cafe/audio/ambience/CatCafe_Amb_<Name>.ogg  (stereo, 48 kHz, about -26 LUFS; the 3D
   loop CatCafe_Amb_LoopCafeDoor is mono)
-  with --preview: DIR/purr-pot-ambience-preview.mp3, 20 s of each bed with crossfades.
+  with --preview: DIR/cat-cafe-ambience-preview.mp3, 20 s of each bed with crossfades.
 
 The cafe chatter is a crowd of made-up talkers: pulse-train voices shaped by vowel formants into
 syllables, at a distance, so no word is ever heard. Needs numpy and ffmpeg. Check the files with
@@ -571,7 +571,7 @@ def preview(rendered: dict[str, np.ndarray], folder: Path, tmp: Path) -> Path:
         track = np.concatenate([track, part])
     wav = tmp / "preview.wav"
     write_wav(wav, track * 2.5)  # beds are mastered quiet; louder so they can be heard on a phone
-    out = folder / "purr-pot-ambience-preview.mp3"
+    out = folder / "cat-cafe-ambience-preview.mp3"
     encode(wav, out, ["-c:a", "libmp3lame", "-q:a", "2"])
     return out
 

@@ -1,6 +1,6 @@
 ---
 name: devlog
-description: Writes a Purr Pot devlog entry after each milestone: what was built, what the agents did, what broke, metrics, one screenshot, plus a resume bullet draft. Use at the end of a phase, after a friend playtest, or when Derek asks "write up what we did".
+description: Writes a Cat Cafe devlog entry after each milestone: what was built, what the agents did, what broke, metrics, one screenshot, plus a resume bullet draft. Use at the end of a phase, after a friend playtest, or when Derek asks "write up what we did".
 ---
 
 # Devlog
@@ -17,7 +17,7 @@ The devlog (`docs/devlog.md`, newest entry first) is the raw material for Derek'
 **Metrics:** playtest count, fun score, D1/D7 retention and session length once live; "none yet" is fine.
 **Screenshot:** path under docs/concepts/cat-cafe/ with a caption.
 **Next:** the next milestone's exit criteria in one line.
-**Resume bullet draft:** "Built and launched Purr Pot on Roblox using a multi-agent Claude Code pipeline (7 specialized subagents, Roblox Studio and Blender MCP integrations, automated playtesting); <metric>."
+**Resume bullet draft:** "Built and launched Cat Cafe on Roblox using a multi-agent Claude Code pipeline (7 specialized subagents, Roblox Studio and Blender MCP integrations, automated playtesting); <metric>."
 ```
 
 ## Rules

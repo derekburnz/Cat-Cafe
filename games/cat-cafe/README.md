@@ -1,4 +1,4 @@
-# Purr Pot rough draft: how to run it
+# Cat Cafe rough draft: how to run it
 
 Rough draft of the whole slice loop with Part placeholders (2026-10-26). Everything is built from code at
 server start, so the dev place only needs to be empty (keep or delete the Baseplate, either is fine).
@@ -10,7 +10,7 @@ server start, so the dev place only needs to be empty (keep or delete the Basepl
 3. Game Settings > Security > **Enable Studio Access to API Services** so saves persist between play sessions.
    Without it the game still runs: ProfileStore switches to its in-memory mock and you get a "Studio mode" toast.
 4. Press Play (F5). Expected: a street with 8 cafes, a brick alley at the far end (+Z), a park behind a gate (-Z),
-   you spawn on the street. The output says `[PurrPot] server ready ... 8 plots, N placeholder models`.
+   you spawn on the street. The output says `[CatCafe] server ready ... 8 plots, N placeholder models`.
 
 The ten-minute loop (features.md section 8): walk to the alley, hold **E** on a stray and release while the ring
 is in the band, walk the cat home at carry speed, step into your door to check in, place it from the Collection (**C**),
@@ -19,7 +19,7 @@ buy a table in Upgrades (**U**). Coins tick up from placed cats; Decor is **B**.
 Day and night (design v0.2): a new server starts in day with 2 minutes left. Strays arrive only with a night wave
 (6 in the alley, 6 in the park) plus the tutorial Common at the alley entrance, so the alley is empty until the first
 night. To skip the wait in Studio, run this in the command bar (Server view) while playing:
-`game.ServerStorage.PurrPotDebug:Invoke("setPhase", "night")`. Every hook in `src/server/Services/Debug.luau` goes
+`game.ServerStorage.CatCafeDebug:Invoke("setPhase", "night")`. Every hook in `src/server/Services/Debug.luau` goes
 through that Studio-only bridge, for example `:Invoke("setCoins", nil, 5000)` or `:Invoke("giveCat", nil, "tabby")`
 (nil means the first player). Requiring the Debug module directly gets a fresh copy whose services never started.
 

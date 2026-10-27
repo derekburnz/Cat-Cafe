@@ -728,7 +728,7 @@ function UIController.start()
 	bindDealerCart()
 	startPrediction()
 	Net.fire("RequestSync")
-	print(string.format("[PurrPot] client ready for %s", player.Name))
+	print(string.format("[CatCafe] client ready for %s", player.Name))
 end
 
 return UIController

@@ -1,4 +1,4 @@
-# Code review: Purr Pot first pass
+# Code review: Cat Cafe first pass
 
 Reviewer: luau-reviewer (read-only, no files edited). Snapshot reviewed: `games/cat-cafe` as of **2026-10-26 01:49 UTC**. The engineer and UI threads were still editing while this was written, so line numbers can drift by a few lines. Scope: `src/server`, `src/shared`, `src/client`, `tests`, `tools/cloudcheck`. Checked in the order the role prescribes: client trust and remote validation, rate limiting, data saving, leaks, mobile performance, style.
 
@@ -45,7 +45,7 @@ Two blockers (one already fixed while this was being written), eleven should-fix
 - Fix: pick one (the UI version is built and feels right for touch), move the bands into `Config` as fractions of `GrabHoldSeconds`, have `CatchPrompt` and the server (S1) both read them, delete the unused windows, and update data-model section 10 and 17 so `Config.spec` passes.
 
 ### S3. Studio and live share the same DataStore
-- `src/shared/Config.luau:62` `ProfileStoreName = "PurrPotProfiles"`, used as is at `DataService.luau:35`. With "Enable Studio access to API services" on, a Studio playtest in the dev place writes to the production store (DataStores are per experience, not per place). The remote-security-checklist calls this out.
+- `src/shared/Config.luau:62` `ProfileStoreName = "CatCafeProfiles"`, used as is at `DataService.luau:35`. With "Enable Studio access to API services" on, a Studio playtest in the dev place writes to the production store (DataStores are per experience, not per place). The remote-security-checklist calls this out.
 - Fix: `Config` stays pure, so in `DataService`: `local storeName = Config.ProfileStoreName .. (if RunService:IsStudio() then "_dev" else "")`. Optionally key on `game.PlaceId` so a published dev place also gets its own store.
 
 ### S4. Autosave is 300 s, the design says 60 s

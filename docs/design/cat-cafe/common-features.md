@@ -1,4 +1,4 @@
-# Genre-Standard Features for Purr Pot
+# Genre-Standard Features for Cat Cafe
 
 Draft v0.1, 2026-10-25; v0.3 updates 2026-10-26 after Gavin's answers (rows 1, 3, 4, 8, 9, 10, 16, 21, 26 and 28). Owner: game-designer thread. Derek asked for the common Roblox features found in games like Steal an Egg and Roll a Fisherman (Spin for a Fisherman) to be added to the design. This doc maps each one onto the cat cafe, gives it a phase, a size and any policy flag, and says which ones change the slice (almost none). Numbers go into [data-model.md](data-model.md) when a feature is scheduled; the loop itself stays as written in [gdd.md](gdd.md).
 
@@ -10,7 +10,7 @@ Checked 2026-10-25 against guides, not by playing. Steal an Egg: eggs spawn on a
 
 ## 2. Summary
 
-| # | Feature in the reference games | Purr Pot version | Phase | Size | Policy |
+| # | Feature in the reference games | Cat Cafe version | Phase | Size | Policy |
 |---|---|---|---|---|---|
 | 1 | Night cycle with a growth bonus | In the slice as the clock: 5 minute day, 5 minute night, waves of ten strays, night income at 60% and the night food dealer (v0.3) | Slice (F20, F23, F31, F32) | S | none |
 | 2 | Admin events, weather | Cat Parade: server event every 20 to 30 minutes, rare odds tripled for 2 minutes; Rain later | Alpha | S | none |

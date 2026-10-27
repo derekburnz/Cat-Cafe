@@ -42,7 +42,7 @@ return function()
 			expect({ a = 1, b = { 2, 3 } }).to.deepEqual({ a = 1, b = { 2, 3 } })
 			expect({ a = 1 }).never.to.deepEqual({ a = 2 })
 			expect({ "tabby", "calico" }).to.contain("calico")
-			expect("Purr Pot").to.contain("Purr")
+			expect("Cat Cafe").to.contain("Cat")
 		end)
 	end)
 

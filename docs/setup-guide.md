@@ -1,6 +1,6 @@
 # Setup guide: Derek's Windows PC
 
-Goal: by the end, Claude Code on your PC can edit Purr Pot's code in Git, sync it into Roblox Studio with Rojo, drive Studio over MCP (spawn parts, run playtests, take screenshots), and later drive Blender. Budget about 2 hours the first time. Steps 1 to 9 are Phase 0; 10 and 11 are Phase 1 (Blender); 12 is the smoke test that closes Phase 0.
+Goal: by the end, Claude Code on your PC can edit Cat Cafe's code in Git, sync it into Roblox Studio with Rojo, drive Studio over MCP (spawn parts, run playtests, take screenshots), and later drive Blender. Budget about 2 hours the first time. Steps 1 to 9 are Phase 0; 10 and 11 are Phase 1 (Blender); 12 is the smoke test that closes Phase 0.
 
 Roblox terms you will meet: a **place** is one world file; an **experience** is the published game that groups places; **Studio** is the editor; a **plugin** is a Studio extension; **Rojo** syncs files on disk into the open place; **MCP** (Model Context Protocol) is the standard that lets Claude call tools exposed by Studio and Blender.
 
@@ -45,7 +45,7 @@ Rokit installs and pins Rojo, Wally, Selene, StyLua and luau-lsp from `rokit.tom
 
 ## 5. Roblox Studio and the dev place
 1. Install Studio from https://create.roblox.com and sign in.
-2. Create a new experience (Baseplate template). File > Publish to Roblox As > name it **Purr Pot Dev**, keep it **private**. This is the dev copy agents work in; the public experience comes later and is published from the same place.
+2. Create a new experience (Baseplate template). File > Publish to Roblox As > name it **Cat Cafe Dev**, keep it **private**. This is the dev copy agents work in; the public experience comes later and is published from the same place.
 3. Game Settings > Security > turn on **Enable Studio Access to API Services** (lets DataStores run in Studio playtests). Leave HTTP requests off.
 4. Save often (Ctrl+S publishes to the dev place). Agents can break things; Git has the code, Studio's Version History has the place.
 
@@ -98,7 +98,7 @@ API lookups without Studio: `.mcp.json` also starts `roblox_docs` (`uvx mcp-robl
 Download from https://github.com/Roblox/roblox-blender-plugin (see https://create.roblox.com/docs/art/modeling/roblox-blender-plugin), install as a Blender add-on, log in with your Roblox account in the add-on panel. Select objects and Upload; they appear in the open Studio session. Calibrate scale once with the 4-stud cube test in the asset-pipeline skill and write the number into `docs/art/style-guide.md`.
 
 ## 12. Phase 0 smoke test (closes setup)
-With Studio open on Purr Pot Dev, Rojo connected, `rojo serve` running, and Claude Code in the repo root, ask Claude Code:
+With Studio open on Cat Cafe Dev, Rojo connected, `rojo serve` running, and Claude Code in the repo root, ask Claude Code:
 1. "Using Studio MCP, insert an anchored Part named PH_SmokeTest at 0,5,0 and screenshot it." A grey block appears in the viewport; the screenshot is saved under `docs/concepts/cat-cafe/`.
 2. "Create games/cat-cafe/src/server/Main.server.luau that prints 'Hello from Rojo' and run the check gate." Rojo syncs it; `.\check.ps1` passes.
 3. "Start a playtest, read the console, stop it." The console shows the print and no errors.
@@ -116,6 +116,6 @@ Commit (`git commit -am "chore: phase 0 smoke test"`), delete PH_SmokeTest, and 
 - **Rojo plugin "version mismatch":** run `rojo plugin install` again after any `rokit update`.
 - **`check.ps1` cannot run:** execution policy (step 3). If `Invoke-WebRequest` fails behind a proxy, download `globalTypes.None.d.luau` manually from the luau-lsp repo's `scripts/` folder at the tag matching `luau-lsp --version` into `games/cat-cafe/`, and write that version into `games/cat-cafe/.types-version`.
 - **Selene says no Roblox std:** run `selene generate-roblox-std` in `games/cat-cafe`.
-- **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `PurrPotDev` store name from `Config.luau`.
+- **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `CatCafeProfiles` store name from `Config.luau` (Studio adds `_dev`).
 - **Blender MCP hangs:** only one Connect to Claude session; close extra Blender windows; `uvx blender-mcp` needs internet the first time to fetch the package.
 - **Usage running low:** check Settings > Usage; move chores to Sonnet or Haiku with `/model`.

@@ -1,6 +1,6 @@
 # Cat Cafe art style guide
 
-Game: Cat Cafe (working title "Purr Pot"). Direction: **Cozy Cream** (default from the Three Game Sketches page, 2026-10-25; Pastel Pop and Alley Night remain as alternates if Derek or Gavin pick them). Every asset, Studio placeholder and UI color should come from this file. Change the file first, then the assets.
+Game: Cat Cafe (placeholder name). Direction: **Cozy Cream** (default from the Three Game Sketches page, 2026-10-25; Pastel Pop and Alley Night remain as alternates if Derek or Gavin pick them). Every asset, Studio placeholder and UI color should come from this file. Change the file first, then the assets.
 
 ## 1. Mood in one paragraph
 
@@ -261,7 +261,7 @@ The Alleyway behind the cafes is a city back street at cosy scale: building back
 brick with concrete quoins, cornices and window frames, a few lit windows with curtains (`_Pane`), shutters and
 flower boxes in the street's pastels, AC units, drainpipes and pipes. Variants: `CatCafe_Alley_WallWindows`,
 `WallDoor` (green staff door, teal canopy, lamp), `FireEscape` (two walkable landings, a ladder and stairs) and
-`Mural` (sunset bands, PURR POT and pixel faces of Tabby, Tuxedo, Siamese, Void and Calico). Arches over the mouths
+`Mural` (sunset bands, CAT CAFE and pixel faces of Tabby, Tuxedo, Siamese, Void and Calico). Arches over the mouths
 of the Alley Square (`CatCafe_Alley_ArchStreet`, `CatCafe_Alley_Arch`) are brick posts with lanterns, a teal name
 board and an iron arc of bulbs with a gold cat medallion. Props: a crate stack in climbable steps, a laundry line,
 long string lights and the Sewer manhole with barricades. Area gates are arches over the full opening with a

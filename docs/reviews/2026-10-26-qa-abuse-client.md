@@ -10,7 +10,7 @@ Sound idea and safe to ship in the repo: the client cannot reach a live build. T
 
 ## What checks out
 
-- **Never ships.** The client is mapped only in `tests.project.json` (`StarterPlayerScripts.TestsAbuse`), `default.project.json` has no `tests` path, and the script returns at once unless `RunService:IsStudio()`. `_G.PurrPotAbuse` exists only in that build.
+- **Never ships.** The client is mapped only in `tests.project.json` (`StarterPlayerScripts.TestsAbuse`), `default.project.json` has no `tests` path, and the script returns at once unless `RunService:IsStudio()`. `_G.CatCafeAbuse` exists only in that build.
 - **Grab cases match the server.** Fake stray, end without begin, instant end (dropped under 0.15 s, resolved at 1.75 s), late end (the 1.75 s timer clears the lock, so a GrabEnd at 2.0 s is ignored), no end and far grab all assert what `CatService` on `main` does. `runAll` spaces every GrabBegin more than 2 s apart, so the 1 per 2 s GrabBegin bucket never turns a case into a false FAIL.
 - **Flood** expects at most 2 ProfileSync and one rate-limit log line, which is what `Net.luau` does (`RequestSync` 1 per 2 s, `logOnce` once a second).
 - **Harness types.** The TestKit, StudioRunner and Catalog.spec changes are annotations only; behaviour is unchanged.

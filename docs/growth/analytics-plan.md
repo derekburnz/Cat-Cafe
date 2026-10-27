@@ -1,4 +1,4 @@
-# Purr Pot analytics plan
+# Cat Cafe analytics plan
 
 Owner: growth-analyst. v0.3, 2026-10-26: rebuilt on design v0.3 (data-model.md v0.3: tiers, roles, closing-circle net, rescue minigames, bait bowl, carry bumps, shinies, night dealer, rich customers). v0.1 was written 2026-10-25 on design v0.2. Implementer: luau-engineer, server side only, feature F16 in features.md. Read with comps.md (why these numbers), monetization.md (what the purchase events feed) and launch-ops.md (codes, group bonus, update board).
 
@@ -28,7 +28,7 @@ Source: Roblox event types docs, AnalyticsService reference, economy and funnel 
 - Events send only from the server and only in a published experience. Studio and the client send nothing. Test in a privately published dev experience, then confirm with the View Events tool in Creator Hub. Dashboards take about 24 hours to fill. Data is kept 90 days from the last event.
 - Rate limit: 120 plus 20 times concurrent users events per minute per server. At 8 players that is 280 a minute. Budget in section 9.
 - Custom fields: up to 3 per event. Values are unlimited, but after 8,000 distinct values across all fields the rest become "Other". Keep values to short enum-like strings, never player names, cat names, chat text or free text.
-- Economy: plan for 5 currencies (Purr Pot uses one, coins), transaction types group into "Other" after 20, item SKUs after 100.
+- Economy: plan for 5 currencies (Cat Cafe uses one, coins), transaction types group into "Other" after 20, item SKUs after 100.
 - Funnels: 10 funnels with dashboard tabs, 100 steps each. Logging a step marks every earlier step complete, and repeated steps count once. That makes step order matter: section 3.2 explains how the server keeps it honest. A player's saved onboarding step expires after 180 days away.
 - Custom events: 100 names. This plan uses 28.
 - Funnel session ids: only the 10 most recent per player per funnel are tracked. One GUID per attempt, or a persistent key where the attempt spans sessions (bait).
@@ -209,7 +209,7 @@ Removed from v0.1: grab_failed (the catch_attempt funnel and catch_circles cover
 | tier | 1 to 5 | corner, cozy, busy, famous, grand | Player reaches tier N | Player reaches tier N+1 |
 | area_book | 1 to 5 | alley, park, neighbourhood, woods, sewer | Area unlocked | All 10 of the area's cats in the collection |
 
-LogProgressionStartEvent and LogProgressionCompleteEvent only; nothing in Purr Pot fails. Custom field: `cats_distinct` bucket (1 to 4, 5 to 11, 12 to 19, 20 to 29, 30+), matching the tier thresholds.
+LogProgressionStartEvent and LogProgressionCompleteEvent only; nothing in Cat Cafe fails. Custom field: `cats_distinct` bucket (1 to 4, 5 to 11, 12 to 19, 20 to 29, 30+), matching the tier thresholds.
 
 ## 8. Auto-press check (server side, not analytics)
 

@@ -119,6 +119,19 @@ local Config = {
 	RichTipStaySeconds = 90, -- unclaimed, it pays itself into the till after this
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
 
+	-- Shove (F29 bump rules, v0.5 F41, data-model section 10c); the code keeps the Bump names. Pure rules in Shove.
+	BumpEnabled = true, -- false turns the Bump remote off and hides the Shove button
+	BumpRangeStuds = 6,
+	BumpChance = 0.5, -- a shove on a carrier knocks the cat loose this often
+	BumpGraceSeconds = 3, -- a fresh carry cannot be knocked loose for this long
+	BumpSafeRadiusStuds = 15, -- round both doors of the target's own cafe, as well as its plot
+	BumpCooldownSeconds = 8, -- per shover
+	BumpSameTargetSeconds = 20, -- per shover and target
+	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
+	ShoveTargetImmuneSeconds = 4, -- after a shove lands, nobody can shove that player again for this long (S45)
+	DropOwnerPrioritySeconds = 8, -- only the old carrier can catch a knocked-loose cat for this long
+	DroppedMinStaySeconds = 120, -- a knocked-loose cat survives a night wave that starts this soon after the drop
+
 	-- Cosmetic customers (client side)
 	CustomerSpawnSeconds = 6,
 	CustomerSpawnSecondsNight = 12, -- night owls come half as often

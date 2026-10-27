@@ -32,6 +32,8 @@ Remotes.ClientToServer = {
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
 	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
 	"BuyDealerFood", -- (slot: number, lureId: string)  night, near the cart, the slot still holds lureId (S42)
+	"Bump", -- (targetUserId: number)  Shove: both in one unlocked catching area, range, locks, safe zone, cooldowns
+	-- and target immunity (data-model section 10c, shared/Shove)
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 }
 
@@ -53,6 +55,9 @@ Remotes.ServerToClient = {
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 	"DealerStock", -- (stock: Types.DealerStock?)  this player's three slots at night, nil by day; after every buy
+	"ShoveResult", -- (outcome: "shove" | "loose" | "held" | "refused", shoverUserId: number, targetUserId: number,
+	-- position: Vector3?, direction: Vector3?)  a landed shove goes to everyone; the target's client pushes its own
+	-- character ShoveKnockbackStuds along direction. "refused" goes to the shover alone, with no position
 }
 
 function Remotes.folder(): Folder

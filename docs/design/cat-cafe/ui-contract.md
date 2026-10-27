@@ -76,7 +76,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
-| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`. One open at a time. |
+| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`. One open at a time. |
 | `UI.openCatRoom()` | Opens Collection on the Cat room tab (tutorial step 3). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
 | `UI.announce(text, rarity?)` | Server-wide catch shout-out, on the rarity's colour for 4 s. Pass the rarity from `Announce` once it carries one; without it the last rarity named as a whole word in the text decides, so a DisplayName like "EpicGamer" does not colour it. Silent, since Audio plays the shout-out sting from the remote. |
@@ -204,13 +204,26 @@ The Bait bowl screen has a status card (no bowl yet with an Upgrades button, emp
 
 In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLevels.lure_bowl >= 1`: "Bait bowl / Empty · add food", "<Food> / Cat in 7m 42s", then "Cat waiting!" in gold.
 
+Each food card has the food's picture on the left (`Components/ItemIcon.luau`): the LureDef's `asset` model from `ReplicatedStorage.Assets`, still, on a tile in its rarity colour, with a glyph from `Theme.foodIcons` until the model exists. Per-cat shares keep up to two decimals so they add back up to the rarity's share (reviewer N69).
+
+### Night dealer (built, F32, data-model section 8b)
+
+The Grow a Garden seed shop, for the dealer's cart: "Fresh stock in 4:12" across the top, then one card per food with its picture, name, rarity, "x2 Stock" in green or "Sold out" in red, "You have N", the odds line, the shiny chance and the charm star odds, and one green price button. A food that fills two slots shows once, and Buy sends its first slot not bought yet. Details adds the food's description and the per-cat split. Cards have rarity-coloured borders.
+
+| API | Purpose |
+|---|---|
+| `UI.dealer.setStock(stock?)` | From `DealerStock`: `stock = { slots = { { lureId, cost, bought } }, restocksAt }`, slots in the server's order (the slot number is the index), `restocksAt` in server `os.time()`. Send it at night start, at each window change and after every `BuyDealerFood`, bought or not: a pressed Buy shows "Buying..." until the next stock or 5 s. nil when the cart leaves at dawn, which also closes the screen. |
+| `UI.dealer.open()` | Opens the dealer screen (also `UI.open("Dealer")`). Call it from the cart's ProximityPrompt. It shows "Opening the cart..." until a stock arrives. |
+| `UI.dealer.setCart(part?)` | The cart part. With it, Buy greys out beyond `DealerRangeStuds` (12 until it is in Config) with "Walk back to the cart to buy". Without it the buttons stay on and the server decides. |
+
+Buy also greys out by day (from `UI.clock`, "Closed until nightfall"), once `restocksAt` has passed until the next stock arrives ("Fresh stock coming..."), and when the player cannot afford it. The odds come from the catalog; the price on the button is the slot's `cost` from the server.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
 |---|---|
 | `UI.rescue.show(rescueSpotId, challenge)` | From `RescueChallenge`. `challenge = { kind = "bar" or "shake_catch", startsAt, phase, speed, zoneWidth, zones = { centre per hit }, hitsNeeded, paws }`. The marker's position at time t is the triangle wave of `phase + speed * (t - startsAt)` with period 2 (0 to 1 and back), the shared `markerAt` helper. Paw lives, a hit count and Cancel. A tree (`shake_catch`) shakes the branch on each hit; the server then sends a second challenge `{ kind = "circle", circle = { startsAt, shrinkSeconds, x, y }, windows }` drawn as one catch circle. Presses fire `events.rescuePressed(rescueSpotId)`, Cancel fires `events.rescueCancelled(rescueSpotId)`. |
 | `UI.rescue.update(hits, pawsLeft, done, success)` | From `RescueResult`. A hit moves the zone to `zones[hits + 1]`, a miss greys a paw. |
-| `UI.dealer.open(slots)` / `UI.dealer.update(slots)` | From `DealerStock`: `slots = { { lureId, cost, bought } }`, three cards with odds, price and a moon timer to dawn. Fires `events.buyDealerFood(slot)`. |
 | Action pill | Custom-style prompts without a `CatId` (bait bowl, dealer cart, rich tip, Bump) get a small pill with the key and `ActionText`; on touch the pill is the button. The controller handles `PromptTriggered` as today. |
 | `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
 | Shiny | A sparkle badge on cards, the carry banner and the book; the book gets a Shiny page with its own count from `state.shinyCollection`. `CatInstance.variant = "shiny"`. |
@@ -230,6 +243,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `equipLure` | `lureId` | Equip pressed (v0.2 lure spots; unused in bowl mode) |
 | `useLure` | `lureId` | Use pressed on a food in the Bait bowl screen. Forward as `UseLure(lureId)` |
 | `resolveBait` | `"tame"` or `"letgo"` | A choice on the bait card. Forward as `ResolveBait(choice)` |
+| `buyDealerFood` | `slot` (1 to 3), `lureId` | Buy pressed on the night dealer screen. Forward as `BuyDealerFood(slot, lureId)`; the server refuses it when that slot holds another food after a restock (reviewer S42). Then send `DealerStock` back |
 | `placeCat` | `uid, spotId` | Assign pressed on a role in the Cat room; `spotId` is the first free open slot of that role |
 | `unplaceCat` | `uid` | Rest pressed on a placed cat |
 | `sellCat` | `uid` | Sell confirmed. Rare and above ask twice: Sell turns into "Sell $150", Rest turns into an equal-sized Cancel. |

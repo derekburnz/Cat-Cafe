@@ -143,7 +143,19 @@ Theme.icons = {
 	sewer = "🕳️",
 	lock = "🔒",
 	food = "🐟",
+	moon = "🌙",
 }
+
+-- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets
+Theme.foodIcons = {
+	kibble = "🥣",
+	tuna = "🥫",
+	salmon = "🍣",
+	sardines = "🐟",
+	caviar = "🦪",
+	moon_milk = "🥛",
+	star_treat = "⭐",
+} :: { [string]: string }
 
 function Theme.rarityColor(rarity: string?): Color3
 	local entry = (Theme.rarity :: any)[rarity or "Common"]

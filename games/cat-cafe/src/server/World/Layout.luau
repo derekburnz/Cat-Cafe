@@ -450,6 +450,11 @@ Layout.sewer = {
 	},
 } :: AreaSpec
 
+-- The night dealer's cart (data-model section 8b) parks mid-street between the middle rows of cafes, along the
+-- street with its display side (-Z of the model) toward the west row. The dealer stands at the cart's +X end.
+Layout.dealerCart = { x = 0, y = 0.1, z = 0, rotY = 90 } :: Point
+Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
+
 -- Every area by id, in the order Catalog.areas lists them.
 Layout.areas = {
 	alley = Layout.alley,

@@ -70,6 +70,9 @@ local Config = {
 	StrayWanderRadius = 5,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
+	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window.
+	DealerRangeStuds = 12,
+	DealerWindowSeconds = 600,
 
 	-- Rescue (data-model section 10)
 	RescueSpawnChance = 0.5, -- per rescue spot at each night start

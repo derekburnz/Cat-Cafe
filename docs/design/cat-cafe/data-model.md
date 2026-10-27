@@ -240,7 +240,7 @@ Night waves (Q2, Q3): at every night start each area despawns its uncaught stray
 |---|---|---|---|---|---|---|
 | alley | Alleyway | Tier 1 | 24 | 10 | trash_bin x2, garbage_bag x1 | 72 / 22 / 5 / 0.9 / 0.1 |
 | park | Park | Tier 2 | 14 | 10 | tree x2, trashcan x1 | 60 / 28 / 9 / 2.5 / 0.5 |
-| neighbourhood | Neighbourhood | Tier 3 | 14 | 10 | shed, gutter (provisional) | 50 / 32 / 13 / 4 / 1 |
+| neighbourhood | Neighbourhood | Tier 3 | 18 (was 14; the area grows to about 140 x 140 studs, Derek 2026-10-27 15:26) | 10 | shed, gutter (provisional) | 50 / 32 / 13 / 4 / 1 |
 | woods | Woods | Tier 4 | 16 | 10 | hollow_log, bramble_bush (provisional) | 42 / 34 / 17 / 5.5 / 1.5 |
 | sewer | Sewer | Tier 5 | 16 | 10 | drain_pipe, grate (provisional) | 35 / 35 / 20 / 7.5 / 2.5 |
 

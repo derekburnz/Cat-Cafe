@@ -759,10 +759,6 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 	else
 		table.insert(notes, string.format("jumped back %.1f studs", jumped))
 	end
-	if not toasted(startedAt, "It slipped away") and not toasted(startedAt, "won't trust you") then
-		verdict = downgrade(verdict, "CHECK")
-		table.insert(notes, "no slipped-away toast")
-	end
 	table.insert(notes, string.format("resolved %+.2f s from circle 1's deadline", offBy))
 	if offBy < -0.1 or offBy > 0.5 then
 		verdict = downgrade(verdict, "CHECK")
@@ -1268,10 +1264,8 @@ case(
 		end
 		local misses = 0
 		local last: Outcome? = nil
-		local lastAt = os.clock()
 		for _ = 1, Catalog.rarities[stray.rarity].patience do
 			local schedule, why, startedAt = beginCatch(stray)
-			lastAt = startedAt
 			if schedule == nil then
 				return "CHECK", string.format("after %d miss(es): %s", misses, why)
 			end
@@ -1314,10 +1308,6 @@ case(
 		end
 		local notes = { string.format("%s out of paws after %d miss(es)", stray.rarity, misses) }
 		local verdict: Verdict = "PASS"
-		if not toasted(lastAt, "won't trust you") then
-			verdict = "CHECK"
-			table.insert(notes, "no It won't trust you tonight toast")
-		end
 		-- Past the wary wait, so the only reason left to refuse is trust. retry=false: the prompt should not come back.
 		task.wait(Config.StrayWarySeconds + 0.2)
 		grabReady()

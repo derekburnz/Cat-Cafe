@@ -16,6 +16,7 @@
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
+--   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -149,10 +150,11 @@ function Debug.spins(player: (Player | number | string)?, banked: number, freeDu
 end
 
 -- The newest `count` (default 20) bug reports of UTC day `day` ("YYYYMMDD", default today), oldest first, printed
--- one line each and returned. Reads the BugReports_v1 DataStore, so Studio's API access must be on.
-function Debug.bugReports(count: number?, day: string?): { string }
+-- one line each and returned: the testers' reports, or with `studio` true the ones sent from Studio playtests.
+-- Reads the BugReports_v1 DataStore, so Studio's API access must be on.
+function Debug.bugReports(count: number?, day: string?, studio: boolean?): { string }
 	guard()
-	local lines = BugReportService.debugList(count, day)
+	local lines = BugReportService.debugList(count, day, studio)
 	for _, line in lines do
 		print("[BugReport] " .. line)
 	end

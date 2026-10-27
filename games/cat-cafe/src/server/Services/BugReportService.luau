@@ -4,8 +4,8 @@
 -- player and ServerCap per server, and saved with what the server knows of the moment: who, which build, where,
 -- the clock, the cafe's tier, coins and cats, a carried cat, the device and the server's last error lines. Nothing
 -- from the client is trusted for any of that. Records go to the BugReports_v1 DataStore under a day prefix
--- (BugReport.key) for the team to read with Debug.bugReports or Open Cloud; in Studio each is also printed as one
--- [BugReport] <json> line, so a run with API access off still shows it. The text is never shown to another player.
+-- (BugReport.key; Studio playtests save under s_ instead of r_) for the team to read with Debug.bugReports or Open
+-- Cloud; in Studio each is also printed as one [BugReport] <json> line, so a run with API access off still shows it. The text is never shown to another player.
 --
 -- Roblox terms: a DataStore is Roblox's key-value storage for an experience; SetAsync writes one key and can fail
 -- (budget, outage, API access off in Studio), so it runs in pcall. LogService.MessageOut is the server's output.
@@ -142,7 +142,11 @@ local function onReportBug(player: Player, rawText: unknown, rawKind: unknown, r
 	end
 	local ok, err = pcall(function()
 		-- the userId tags the entry, so a data request finds it (review N148)
-		store():SetAsync(BugReport.key(report.at, userId), report, { userId })
+		store():SetAsync(
+			BugReport.key(report.at, userId, RunService:IsStudio()),
+			report,
+			{ userId }
+		)
 	end)
 	if not ok then
 		warn(string.format("[BugReport] save failed for user %d: %s", userId, tostring(err)))
@@ -187,12 +191,12 @@ local function line(r: any): string
 end
 
 -- Studio-only test hook (Debug.bugReports): the newest `count` reports of UTC day `day` ("YYYYMMDD", default today),
--- oldest first, one line each. Needs Studio's API access on. Keys sort by time within a day, so the newest are the
--- last listed.
-function BugReportService.debugList(count: number?, day: string?): { string }
+-- oldest first, one line each: the live servers' reports, or with `studio` the Studio playtests' ones. Needs
+-- Studio's API access on. Keys sort by time within a day, so the newest are the last listed.
+function BugReportService.debugList(count: number?, day: string?, studio: boolean?): { string }
 	assert(RunService:IsStudio(), "debugList is Studio only")
 	local wanted = math.max(1, math.floor(count or 20))
-	local prefix = "r_" .. (day or BugReport.day(os.time())) .. "_"
+	local prefix = BugReport.prefix(day or BugReport.day(os.time()), studio)
 	local keys: { string } = {}
 	local pages = store():ListKeysAsync(prefix, LIST_PAGE)
 	while true do

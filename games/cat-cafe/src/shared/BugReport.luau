@@ -114,9 +114,15 @@ function BugReport.day(at: number): string
 	return os.date("!%Y%m%d", at)
 end
 
--- r_<YYYYMMDD UTC>_<os.time()>_<userId>: a day's reports list by prefix, oldest first.
-function BugReport.key(at: number, userId: number): string
-	return string.format("r_%s_%d_%d", BugReport.day(at), at, userId)
+-- The key prefix of a day's reports: "r_<YYYYMMDD>_" from live servers, "s_<YYYYMMDD>_" from Studio playtests, so
+-- test reports never land in the list of the testers' ones.
+function BugReport.prefix(day: string, studio: boolean?): string
+	return (if studio then "s_" else "r_") .. day .. "_"
+end
+
+-- r_<YYYYMMDD UTC>_<os.time()>_<userId> (s_ from Studio): a day's reports list by prefix, oldest first.
+function BugReport.key(at: number, userId: number, studio: boolean?): string
+	return string.format("%s%d_%d", BugReport.prefix(BugReport.day(at), studio), at, userId)
 end
 
 return BugReport

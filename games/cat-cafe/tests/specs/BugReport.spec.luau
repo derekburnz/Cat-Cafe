@@ -102,5 +102,18 @@ return function()
 				expect(BugReport.key(at, 1) < BugReport.key(at + 60, 1)).to.equal(true)
 			end
 		)
+
+		it(
+			"starts with s_ from Studio, so playtest reports list apart from the testers' ones",
+			function()
+				local at = 1793115053
+				expect(BugReport.key(at, -1, true)).to.equal("s_20261027_1793115053_-1")
+				expect(BugReport.prefix("20261027", true)).to.equal("s_20261027_")
+				expect(BugReport.prefix("20261027")).to.equal("r_20261027_")
+				expect(BugReport.key(at, 7):sub(1, #BugReport.prefix("20261027"))).to.equal(
+					BugReport.prefix("20261027")
+				)
+			end
+		)
 	end)
 end

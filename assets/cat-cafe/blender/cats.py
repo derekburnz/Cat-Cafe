@@ -30,7 +30,8 @@ from common import Builder, scale_mesh
 # body_scale (x, y, z of the body or the haunches), scale (the whole cat); v0.6: short_legs (A's body 0.12 lower),
 # fold_ears (folded forward), toes (a paint dip per paw: LegF1, LegF2, LegB1 or B's right back paw, LegB2 or left),
 # fluffy (long coat with a normal face), sprinkles (colours of the sprinkle specks), tip (tail tip colour), leafy
-# (spots turned into leaves), mane (colours from the forehead down the back). Themed cats wear a prop (props.py).
+# (spots turned into leaves), mane (colours from the forehead down the back), socks (the colour of all four paws).
+# Themed cats wear a prop (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -104,9 +105,33 @@ ROSTER = {
                         muzzle="fur_oat", nose="nose_brick"),
     "Eclipse":     dict(rarity="Mythical", fur="fur_emerald", second="sign_teal", third="dumpster_green", eyes="eye_amber",
                         pattern="gradient", muzzle=None, glow_eyes=True, nose="nose_dark"),
+    # v0.6 plain Commons of the Neighbourhood, Woods and Sewer (data-model 3c): no prop, a coat that reads at a glance
+    "Biscuit":     dict(rarity="Common", fur="treat_tan", second="treat_tan", eyes="eye_green", pattern="solid",
+                        muzzle="fur_white", nose="nose_brick", socks="choco", tip="choco"),
+    "Pepper":      dict(rarity="Common", fur="fur_pepper", second="fur_pepper", eyes="eye_amber", pattern="solid",
+                        muzzle="fur_silver", nose="nose_dark", sprinkles=("fur_white", "fur_black")),
+    "Socks":       dict(rarity="Common", fur="fur_ink", second="fur_ink", eyes="eye_chartreuse", pattern="solid",
+                        muzzle="fur_white", socks="fur_white", tip="fur_white"),
+    "Butter":      dict(rarity="Common", fur="pastel_butter", second="pastel_butter", eyes="eye_blue", pattern="solid",
+                        muzzle="fur_white", body_scale=(1.08, 1.0, 1.05)),
+    "Moss":        dict(rarity="Common", fur="fur_moss", second="fur_moss", eyes="eye_amber", pattern="solid", muzzle="fur_cream",
+                        nose="nose_brick", ear_tufts=True),
+    "Acorn":       dict(rarity="Common", fur="fur_acorn", second="fur_acorn", eyes="eye_green", pattern="solid", muzzle="fur_oat",
+                        nose="nose_brick", tip="fur_brown"),
+    "Bramble":     dict(rarity="Common", fur="fur_bramble", second="fur_seal", eyes="eye_chartreuse", pattern="stripes",
+                        muzzle="fur_hazel", nose="nose_dark"),
+    "Fern":        dict(rarity="Common", fur="fur_fern", second="leaf_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
+    "Rusty":       dict(rarity="Common", fur="fur_rust_red", second="fur_smoke_light", eyes="eye_green", pattern="patches",
+                        muzzle="fur_cream", nose="nose_brick"),
+    "Soot":        dict(rarity="Common", fur="fur_ash", second="fur_ash", eyes="eye_copper", pattern="solid", muzzle="fur_soot",
+                        nose="nose_dark", tip="fur_soot"),
+    "Pipes":       dict(rarity="Common", fur="fur_smoke_light", second="fur_charcoal", eyes="eye_green", pattern="stripes",
+                        muzzle="fur_white", nose="nose_dark"),
+    "Puddle":      dict(rarity="Common", fur="fur_puddle", second="fur_puddle", eyes="eye_amber", pattern="solid", muzzle="fur_mist",
+                        nose="nose_dark", tip="fur_mist"),
 }
 
-COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip")
+COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks")
 
 
 def coat(spec):
@@ -124,7 +149,8 @@ def look(spec):
     c.setdefault("third", c["second"])
     pat, tux = spec["pattern"], spec.get("tuxedo")
     c["leg"] = c["fur"]
-    c["paw"] = c["second"] if pat == "points" or tux else c["fur"]           # dark socks on points, white on a tuxedo
+    # socks when the coat names them, else dark socks on points and white on a tuxedo
+    c["paw"] = c.get("socks") or (c["second"] if pat == "points" or tux else c["fur"])
     c["ear"] = c["second"] if pat == "points" else c["third"] if pat == "gradient" else c["fur"]
     c.setdefault("tip", c["second"] if pat in ("points", "stripes") or tux else c["third"] if pat == "gradient" else c["fur"])
     belly = c.get("muzzle") or (c["second"] if tux else None)

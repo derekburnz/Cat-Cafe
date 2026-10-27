@@ -3,7 +3,7 @@ every cat has a gold version on the same shapes, `CatCafe_Cat_<Name>_Gold` (walk
 `CatCafe_Cat_<Name>_Gold_Sit` (sitting, body B), gold-modeled as Derek asked. Eyes,
 nose, inner ears and star specks keep their colours, so the cat still reads as itself.
 
-The coat roles of a cat (fur, second, third, ruff; not `sparkle` specks) are ranked lightest first by CIE L*: the
+The coat roles of a cat (fur, second, third, ruff, a tail tip and socks; not `sparkle` specks) are ranked lightest first by CIE L*: the
 lightest takes gold_light, the next gold_mid, the next gold_dark, and any very dark coat colour (black,
 chocolate) takes palette.GOLD_DEEP (gold_dark), so patterns, points and stripes stay visible in three golds. The
 muzzle turns gold_light. The golds are palette.METAL_SWATCHES, so these parts are Material Metal in Roblox and
@@ -16,7 +16,7 @@ MeshPart route would swap the texture instead.
 import cats
 import palette
 
-COAT_KEYS = ("fur", "second", "third", "ruff")
+COAT_KEYS = ("fur", "second", "third", "ruff", "tip", "socks")
 TONES = ("gold_light", "gold_mid", "gold_dark")
 DEEP_LSTAR = 35.0              # coat colours darker than this take the deep gold
 

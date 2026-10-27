@@ -1,7 +1,9 @@
 --!strict
 -- Catch prompt card for strays and stuck cats.
 --   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars, rarity and (v0.4) the
---                       paws this player has left on it.
+--                       paws this player has left on it. v0.5: while the cat sprints off after a miss
+--                       (info.fleeingUntil) it reads "It's running!", then "Get ready..." for the player who
+--                       missed until info.retryAt, and turns back to Catch when it can be tried.
 --   waiting()           one press went to the server: "Get ready..." until the circles (CatchCircles) or the
 --                       rescue bar (RescueBar) come.
 --   fail(reason)        red flash ("It got away"), then hide; with retry the card stays.
@@ -10,6 +12,8 @@
 -- the server for the closing circles or the rescue minigame.
 -- On touch devices a big round CATCH button appears; it drives the real prompt through holdBegan / holdEnded.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
+
+local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -29,6 +33,7 @@ export type CatchPrompt = {
 	waiting: (self: CatchPrompt) -> (),
 	hide: (self: CatchPrompt) -> (),
 	isVisible: (self: CatchPrompt) -> boolean,
+	blockedText: (self: CatchPrompt) -> string?,
 	destroy: (self: CatchPrompt) -> (),
 }
 
@@ -42,6 +47,8 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	self._connections = {} :: { RBXScriptConnection }
 	self._failToken = 0
 	self._kind = "swing" :: Types.PromptKind
+	self._fleeingUntil = nil :: number?
+	self._retryAt = nil :: number?
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeCatch",
@@ -197,7 +204,9 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 			then
 				if holding then
 					holding = false
-					grab.BackgroundColor3 = Theme.colors.good
+					grab.BackgroundColor3 = if self:blockedText()
+						then Theme.colors.disabled
+						else Theme.colors.good
 					self.holdEnded:Fire()
 				end
 			end
@@ -210,8 +219,37 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	return self :: CatchPrompt
 end
 
+-- v0.5: why the cat cannot be grabbed yet, or nil when it can. "It's running!" while it sprints off after a miss
+-- (FleeingUntil still ahead); "Get ready..." for the player who missed, who waits StraySelfRetrySeconds more.
+function CatchPrompt.blockedText(self: any): string?
+	local now = Workspace:GetServerTimeNow()
+	local fleeingUntil: number? = self._fleeingUntil
+	if fleeingUntil ~= nil and now < fleeingUntil then
+		return "It's running!"
+	end
+	local retryAt: number? = self._retryAt
+	if retryAt ~= nil and now < retryAt then
+		return "Get ready..."
+	end
+	return nil
+end
+
 function CatchPrompt._actionText(self: any): string
-	return if self._kind == "rescue" then "Rescue" else "Catch"
+	if self._kind == "rescue" then
+		return "Rescue"
+	end
+	return self:blockedText() or "Catch"
+end
+
+-- The resting look of the action line and the CATCH button: warn and grey while the cat runs.
+function CatchPrompt._paintIdle(self: any, actionText: string?)
+	local blocked = self:blockedText()
+	self._action.Text = blocked or actionText or self:_actionText()
+	self._action.TextColor3 = if blocked == "It's running!"
+		then Theme.colors.warn
+		elseif blocked then Theme.hud.subtext
+		else Theme.hud.text
+	self._grab.BackgroundColor3 = if blocked then Theme.colors.disabled else Theme.colors.good
 end
 
 function CatchPrompt.show(self: any, info: Types.CatchInfo)
@@ -219,8 +257,9 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	local kind: Types.PromptKind = info.kind or "swing"
 	local rescue = kind == "rescue" -- a plain boolean: chained singleton tests confuse the type checker
 	self._kind = kind
-	self._action.Text = info.actionText or self:_actionText()
-	self._action.TextColor3 = Theme.hud.text
+	self._fleeingUntil = if rescue then nil else info.fleeingUntil
+	self._retryAt = if rescue then nil else info.retryAt
+	self:_paintIdle(info.actionText)
 	self._grab.Text = if rescue then "RESCUE" else "CATCH"
 	local nameText = info.catName or ""
 	if info.stars then
@@ -231,13 +270,15 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
-	-- v0.4 strays carry Patience: any miss costs a paw. Without it the v0.3 rule holds (only Commons stay).
+	-- v0.4 strays carry Patience: any miss costs a paw. v0.5 has none: a miss sends the cat running and tries
+	-- never run out.
 	local v04 = info.patience ~= nil and not rescue
+	local blocked = self:blockedText()
 	self._hint.Text = if rescue
 		then "Stop the marker in the zone. The cat never leaves if you miss."
+		elseif blocked then "Wait till it stops, then try again"
 		elseif v04 then "Hit each ring. A miss costs a paw!"
-		elseif rarity == "Common" then "Hit each circle on its ring. Commons stay if you miss."
-		else "Hit each circle on its ring. It runs if you miss!"
+		else "Hit each ring. Miss and it runs off!"
 	self._paws:set(if v04 then info.paws else nil, info.patience)
 	self._hint.Size = UDim2.new(1, if v04 then -140 else -80, 0, 18)
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
@@ -247,6 +288,16 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	if not self.screenGui.Enabled then
 		self.screenGui.Enabled = true
 		Tween.popIn(self._card, 0.9)
+	end
+	if blocked then
+		-- turn back to Catch the moment it may be tried, unless anything else changed the card first
+		local token = self._failToken
+		local ready = math.max(self._fleeingUntil or 0, self._retryAt or 0)
+		task.delay(ready - Workspace:GetServerTimeNow() + 0.05, function()
+			if self._failToken == token and self.screenGui.Enabled then
+				self:show(info)
+			end
+		end)
 	end
 end
 
@@ -264,8 +315,7 @@ function CatchPrompt.fail(self: any, reason: string?, retry: boolean?)
 			return
 		end
 		if retry then
-			self._action.Text = self:_actionText()
-			self._action.TextColor3 = Theme.hud.text
+			self:_paintIdle(nil)
 		else
 			self:hide()
 		end

@@ -65,7 +65,8 @@ function CatPose.upright(model: Model, station: CFrame)
 end
 
 -- Puts `role`'s outfit on a posed cat. A piece is skipped while its asset or the cat's Outfit_<Piece> slot is
--- missing, so new pieces and new cats can land in either order. Returns how many pieces went on.
+-- missing, so new pieces and new cats can land in either order, and when it sits where the cat's own prop does
+-- (the model's PropSlot attribute). Returns how many pieces went on.
 function CatPose.dress(model: Model, role: string): number
 	local pieces = Catalog.roleOutfits[role]
 	if pieces == nil then
@@ -73,8 +74,12 @@ function CatPose.dress(model: Model, role: string): number
 	end
 	local scale = CatPose.scaleOf(model)
 	local head = objectModel(model, "Head")
+	local propSlot = model:GetAttribute("PropSlot")
 	local worn = 0
 	for _, piece in pieces do
+		if propSlot ~= nil and Catalog.outfitPieceSlots[piece] == propSlot then
+			continue
+		end
 		local slot = model:FindFirstChild("Outfit_" .. piece, true)
 		local assetName = Catalog.accessoryModelName(piece)
 		if slot ~= nil and slot:IsA("Attachment") and AssetRegistry.has(assetName) then

@@ -18,7 +18,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every synthesi
    Audio.start()
    ```
    `start()` makes the SoundGroups `Music`, `Ambience`, `Sfx` and `Ui` in SoundService, preloads the short P0 cues and starts reading the `Phase` and `PhaseEndsAt` attributes on `ReplicatedStorage.Clock` (read only, the same way WorldController does).
-2. **Settings and carrying** on every `ProfileSync` (UIController already handles it), and settings again on each toggle:
+2. **Settings and carrying** (UIController already handles both): settings with the first `ProfileSync` and again whenever they change (the settings switches), carrying on every `ProfileSync`. A settings call with nothing changed changes nothing, so calling it more often is harmless:
    ```luau
    Audio.applySettings(state.settings) -- { music: boolean, sfx: boolean }
    Audio.setCarrying(state.carrying ~= nil)

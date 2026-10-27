@@ -23,7 +23,8 @@ local ProfileSchema = {}
 -- Version 8 (F54) adds the All Cats and Decor Index pages to indexRewards and bait.readyAt: an older server would
 -- drop those claims, so a player hopping servers during a rollout could claim them twice.
 -- Version 9 (F65) adds codesRedeemed: an older server would drop it, letting a code pay twice.
-ProfileSchema.VERSION = 9
+-- Version 10 (F72) adds introSeen: an older server would drop it, playing the intro cutscene again.
+ProfileSchema.VERSION = 10
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -113,6 +114,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		crateLuck = {},
 		fishPerks = {},
 		codesRedeemed = {},
+		introSeen = false,
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = Settings.defaults(),
@@ -557,6 +559,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.crateLuck = sanitizeCrateLuck(raw.crateLuck)
 	profile.fishPerks = sanitizeFishPerks(raw.fishPerks)
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none
+	-- F72: every save from before version 10 plays the intro once too (Derek, intro-cutscene.md answer 2)
+	profile.introSeen = raw.introSeen == true
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

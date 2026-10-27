@@ -78,6 +78,9 @@ local function setRoofHidden(plot: Model, hidden: boolean)
 	end
 end
 
+local insidePlot: Model? = nil -- the cafe whose floor the character stands on, its roof faded
+local heldRoof: Model? = nil -- a cafe whose roof the intro holds faded wherever the character is (F72)
+
 -- v0.5 (data-model section 10 step 5): a missed stray sprints off and catches its breath until its FleeingUntil
 -- (server time). Its prompt hides on this client until then; the server refuses GrabBegin meanwhile anyway.
 local function watchStray(model: Instance)
@@ -348,7 +351,16 @@ local function setNight(night: boolean)
 	end
 end
 
-local function applyPhase(phase: any, instant: boolean)
+-- The sky's tweens now playing, cancelled by the next change so an instant one is not overwritten by an old tween.
+local lightingTweens: { Tween } = {}
+-- True while the intro (F72) shows its own night on this screen; the clock's changes wait for endPreview.
+local previewing = false
+
+local function applyPhase(phase: any, instant: boolean, seconds: number?)
+	for _, tween in lightingTweens do
+		tween:Cancel()
+	end
+	table.clear(lightingTweens)
 	local night = phase == "night"
 	local goal = table.clone(if night then NIGHT_LIGHTING else DAY_LIGHTING)
 	-- ClockTime wraps at 24, so the sun always runs forward: dusk goes 14.5 to 24.5 (0.5) and dawn 0.5 to 14.5,
@@ -377,9 +389,18 @@ local function applyPhase(phase: any, instant: boolean)
 			atmosphere.Color = atmosphereGoal.Color
 		end
 	else
-		TweenService:Create(Lighting, LIGHTING_TWEEN, goal :: any):Play()
+		local info = if seconds ~= nil
+			then TweenInfo.new(seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+			else LIGHTING_TWEEN
+		table.insert(lightingTweens, TweenService:Create(Lighting, info, goal :: any))
 		if atmosphere ~= nil and atmosphereGoal ~= nil then
-			TweenService:Create(atmosphere, LIGHTING_TWEEN, atmosphereGoal :: any):Play()
+			table.insert(
+				lightingTweens,
+				TweenService:Create(atmosphere, info, atmosphereGoal :: any)
+			)
+		end
+		for _, tween in lightingTweens do
+			tween:Play()
 		end
 	end
 	setNight(night)
@@ -394,7 +415,9 @@ local function followClock()
 	local clock = ReplicatedStorage:WaitForChild("Clock")
 	applyPhase(clock:GetAttribute("Phase"), true)
 	clock:GetAttributeChangedSignal("Phase"):Connect(function()
-		applyPhase(clock:GetAttribute("Phase"), false)
+		if not previewing then
+			applyPhase(clock:GetAttribute("Phase"), false)
+		end
 	end)
 end
 
@@ -582,6 +605,42 @@ local function applySettings()
 	setShowOtherCats(UI.settings.value("showOtherCats"))
 end
 
+-- The intro (F72, shot 3): `plot`'s roof fades as it does for an owner inside, wherever the character stands. Nil
+-- lets the held roof go back to what the character's place says.
+function WorldController.holdRoofOpen(plot: Model?)
+	local was = heldRoof
+	if was == plot then
+		return
+	end
+	heldRoof = plot
+	if was ~= nil and was ~= insidePlot then
+		setRoofHidden(was, false)
+	end
+	if plot ~= nil and plot ~= insidePlot then
+		setRoofHidden(plot, true)
+	end
+end
+
+-- The intro (F72, shot 8): night falls ("night") or the sun rises ("day") on this screen over `seconds`, whatever
+-- the server's clock says. The clock's own changes wait until endPreview.
+function WorldController.previewPhase(phase: string, seconds: number)
+	previewing = true
+	applyPhase(phase, false, seconds)
+end
+
+-- Puts the sky and the night parts back to the server's phase after previewPhase: over `seconds`, or at once.
+function WorldController.endPreview(seconds: number?)
+	if not previewing then
+		return
+	end
+	previewing = false
+	applyPhase(
+		ReplicatedStorage:WaitForChild("Clock"):GetAttribute("Phase"),
+		seconds == nil,
+		seconds
+	)
+end
+
 -- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
 function WorldController.zoneAt(position: Vector3): string?
 	return zoneAt(position)
@@ -606,7 +665,6 @@ function WorldController.start()
 	local lastCheckIn = 0
 	local sawAlley = false
 	local lastZone: string? = nil
-	local insidePlot: Model? = nil
 
 	task.spawn(function()
 		local clock = ReplicatedStorage:WaitForChild("Clock")
@@ -691,7 +749,7 @@ function WorldController.start()
 			local inside = plotAt(position)
 			local wasInside = insidePlot
 			if inside ~= wasInside then
-				if wasInside ~= nil then
+				if wasInside ~= nil and wasInside ~= heldRoof then
 					setRoofHidden(wasInside, false)
 				end
 				if inside ~= nil then

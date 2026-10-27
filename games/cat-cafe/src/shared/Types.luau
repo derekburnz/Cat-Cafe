@@ -370,6 +370,7 @@ export type Settings = {
 	lowPerformance: boolean,
 	showOtherCats: boolean,
 	markers: boolean, -- the location markers (Place icons)
+	tutorialButton: boolean, -- the HUD's Tutorial tile (F72)
 }
 
 export type PlayerProfile = {
@@ -399,6 +400,7 @@ export type PlayerProfile = {
 	crateLuck: { [string]: number }, -- crate pool (zone id or "classic") -> opens since its last Epic or better
 	fishPerks: { [string]: number }, -- perkId -> level bought
 	codesRedeemed: { [string]: number }, -- code id -> os.time() it was redeemed (F65)
+	introSeen: boolean, -- the intro cutscene has played to the end or been skipped once (F72)
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -437,6 +439,7 @@ export type PlayerState = {
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,
 	tutorialStep: number,
+	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	serverTime: number,
 }

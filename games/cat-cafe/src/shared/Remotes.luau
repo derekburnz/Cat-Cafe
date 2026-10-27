@@ -51,6 +51,8 @@ Remotes.ClientToServer = {
 	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
+	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 9: 0 when the intro cutscene played to the end, else
+	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 }

@@ -71,6 +71,8 @@ function Areas.new(callbacks: Callbacks): Areas
 
 	local panel = Panel.new({
 		name = "Areas",
+		color = Theme.colors.good,
+		icon = Theme.icons.travel,
 		title = "Areas",
 		subtitle = "Pick an area to travel to",
 		size = UDim2.fromScale(1, 1),

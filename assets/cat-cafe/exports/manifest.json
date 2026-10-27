@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 21:37 UTC",
+  "generated": "2026-10-27 22:14 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -66177,6 +66177,1227 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_FishMarket.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Street_FishMarket.png"
+    },
+    {
+      "name": "CatCafe_Decor_MilkCrateStools",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_MilkCrateStools"
+      ],
+      "triangles": 938,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.86,
+        "y": 1.4,
+        "z": 2.97
+      },
+      "size_roblox": [
+        3.86,
+        2.97,
+        1.4
+      ],
+      "bounds_min": [
+        -1.93,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        1.93,
+        0.7,
+        2.97
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MilkCrateStools.model.json",
+      "rbx_parts": 71,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MilkCrateStools.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MilkCrateStools.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "938/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "475 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MilkCrateStools.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MilkCrateStools.png"
+    },
+    {
+      "name": "CatCafe_Decor_RetroJukebox",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_RetroJukebox",
+        "CatCafe_Decor_RetroJukebox_Glow",
+        "CatCafe_Decor_RetroJukebox_Glass"
+      ],
+      "triangles": 1104,
+      "budget": 2400,
+      "size_studs": {
+        "x": 2.5,
+        "y": 1.49,
+        "z": 4.66
+      },
+      "size_roblox": [
+        2.5,
+        4.66,
+        1.49
+      ],
+      "bounds_min": [
+        -1.25,
+        -0.79,
+        0.0
+      ],
+      "bounds_max": [
+        1.25,
+        0.7,
+        4.66
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_RetroJukebox.model.json",
+      "rbx_parts": 99,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_RetroJukebox.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_RetroJukebox.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1104/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "530 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.04"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_RetroJukebox.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_RetroJukebox.png"
+    },
+    {
+      "name": "CatCafe_Decor_JarLights",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_JarLights",
+        "CatCafe_Decor_JarLights_Glow"
+      ],
+      "triangles": 976,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.5,
+        "y": 1.0,
+        "z": 4.28
+      },
+      "size_roblox": [
+        3.5,
+        4.28,
+        1.0
+      ],
+      "bounds_min": [
+        -1.75,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        1.75,
+        0.5,
+        4.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_JarLights.model.json",
+      "rbx_parts": 40,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_JarLights.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_JarLights.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "976/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "436 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_JarLights.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_JarLights.png"
+    },
+    {
+      "name": "CatCafe_Decor_PicnicTableSet",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_PicnicTableSet"
+      ],
+      "triangles": 724,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.6,
+        "y": 2.47,
+        "z": 3.16
+      },
+      "size_roblox": [
+        3.6,
+        3.16,
+        2.47
+      ],
+      "bounds_min": [
+        -1.8,
+        -1.23,
+        -0.0
+      ],
+      "bounds_max": [
+        1.8,
+        1.23,
+        3.16
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PicnicTableSet.model.json",
+      "rbx_parts": 56,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PicnicTableSet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PicnicTableSet.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "724/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "346 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PicnicTableSet.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PicnicTableSet.png"
+    },
+    {
+      "name": "CatCafe_Decor_DuckFountain",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_DuckFountain",
+        "CatCafe_Decor_DuckFountain_Water"
+      ],
+      "triangles": 1012,
+      "budget": 2400,
+      "size_studs": {
+        "x": 2.44,
+        "y": 2.44,
+        "z": 3.16
+      },
+      "size_roblox": [
+        2.44,
+        3.16,
+        2.44
+      ],
+      "bounds_min": [
+        -1.22,
+        -1.22,
+        0.0
+      ],
+      "bounds_max": [
+        1.22,
+        1.22,
+        3.16
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_DuckFountain.model.json",
+      "rbx_parts": 51,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_DuckFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_DuckFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1012/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "540 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_DuckFountain.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_DuckFountain.png"
+    },
+    {
+      "name": "CatCafe_Decor_BlossomTree",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_BlossomTree",
+        "CatCafe_Decor_BlossomTree_Canopy"
+      ],
+      "triangles": 512,
+      "budget": 2400,
+      "size_studs": {
+        "x": 3.46,
+        "y": 1.8,
+        "z": 5.94
+      },
+      "size_roblox": [
+        3.46,
+        5.94,
+        1.8
+      ],
+      "bounds_min": [
+        -1.77,
+        -0.9,
+        0.0
+      ],
+      "bounds_max": [
+        1.69,
+        0.9,
+        5.94
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_BlossomTree.model.json",
+      "rbx_parts": 35,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_BlossomTree.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_BlossomTree.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "512/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "353 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.04 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_BlossomTree.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_BlossomTree.png"
+    },
+    {
+      "name": "CatCafe_Decor_PorchSwing",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_PorchSwing"
+      ],
+      "triangles": 324,
+      "budget": 1800,
+      "size_studs": {
+        "x": 4.0,
+        "y": 2.39,
+        "z": 4.55
+      },
+      "size_roblox": [
+        4.0,
+        4.55,
+        2.39
+      ],
+      "bounds_min": [
+        -2.0,
+        -1.2,
+        -0.0
+      ],
+      "bounds_max": [
+        2.0,
+        1.2,
+        4.55
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PorchSwing.model.json",
+      "rbx_parts": 27,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PorchSwing.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PorchSwing.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "324/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "162 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PorchSwing.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PorchSwing.png"
+    },
+    {
+      "name": "CatCafe_Decor_IceCreamCounter",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_IceCreamCounter",
+        "CatCafe_Decor_IceCreamCounter_Glass"
+      ],
+      "triangles": 708,
+      "budget": 2400,
+      "size_studs": {
+        "x": 3.86,
+        "y": 1.49,
+        "z": 5.86
+      },
+      "size_roblox": [
+        3.86,
+        5.86,
+        1.49
+      ],
+      "bounds_min": [
+        -1.96,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        1.9,
+        0.79,
+        5.86
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_IceCreamCounter.model.json",
+      "rbx_parts": 53,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_IceCreamCounter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_IceCreamCounter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "708/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "372 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.03 y=0.05"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_IceCreamCounter.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_IceCreamCounter.png"
+    },
+    {
+      "name": "CatCafe_Decor_BicyclePlanter",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_BicyclePlanter"
+      ],
+      "triangles": 1440,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.95,
+        "y": 1.14,
+        "z": 2.33
+      },
+      "size_roblox": [
+        3.95,
+        2.33,
+        1.14
+      ],
+      "bounds_min": [
+        -1.98,
+        -0.57,
+        -0.01
+      ],
+      "bounds_max": [
+        1.97,
+        0.57,
+        2.32
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_BicyclePlanter.model.json",
+      "rbx_parts": 128,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_BicyclePlanter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_BicyclePlanter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1440/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "834 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=-0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_BicyclePlanter.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_BicyclePlanter.png"
+    },
+    {
+      "name": "CatCafe_Decor_MailboxPlanter",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_MailboxPlanter"
+      ],
+      "triangles": 608,
+      "budget": 1800,
+      "size_studs": {
+        "x": 1.4,
+        "y": 1.46,
+        "z": 2.8
+      },
+      "size_roblox": [
+        1.4,
+        2.8,
+        1.46
+      ],
+      "bounds_min": [
+        -0.7,
+        -0.76,
+        0.0
+      ],
+      "bounds_max": [
+        0.7,
+        0.7,
+        2.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: its zone's Epic, on the Index anchor or a decor spot; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MailboxPlanter.model.json",
+      "rbx_parts": 53,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MailboxPlanter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MailboxPlanter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "608/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "474 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.03"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MailboxPlanter.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MailboxPlanter.png"
+    },
+    {
+      "name": "CatCafe_Decor_LogStools",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_LogStools"
+      ],
+      "triangles": 740,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.98,
+        "y": 1.57,
+        "z": 1.89
+      },
+      "size_roblox": [
+        3.98,
+        1.89,
+        1.57
+      ],
+      "bounds_min": [
+        -1.99,
+        -0.74,
+        -0.01
+      ],
+      "bounds_max": [
+        1.99,
+        0.83,
+        1.88
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_LogStools.model.json",
+      "rbx_parts": 42,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_LogStools.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_LogStools.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "740/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "335 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=-0.00 y=0.04"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_LogStools.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_LogStools.png"
+    },
+    {
+      "name": "CatCafe_Decor_HollowLogBooth",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_HollowLogBooth",
+        "CatCafe_Decor_HollowLogBooth_Glow"
+      ],
+      "triangles": 992,
+      "budget": 2400,
+      "size_studs": {
+        "x": 4.16,
+        "y": 2.39,
+        "z": 4.7
+      },
+      "size_roblox": [
+        4.16,
+        4.7,
+        2.39
+      ],
+      "bounds_min": [
+        -2.08,
+        -1.22,
+        -0.0
+      ],
+      "bounds_max": [
+        2.08,
+        1.17,
+        4.7
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_HollowLogBooth.model.json",
+      "rbx_parts": 72,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HollowLogBooth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HollowLogBooth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "992/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "548 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.03"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_HollowLogBooth.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_HollowLogBooth.png"
+    },
+    {
+      "name": "CatCafe_Decor_LanternStump",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_LanternStump",
+        "CatCafe_Decor_LanternStump_Glow",
+        "CatCafe_Decor_LanternStump_Glass"
+      ],
+      "triangles": 700,
+      "budget": 1800,
+      "size_studs": {
+        "x": 1.8,
+        "y": 1.74,
+        "z": 2.38
+      },
+      "size_roblox": [
+        1.8,
+        2.38,
+        1.74
+      ],
+      "bounds_min": [
+        -0.93,
+        -0.87,
+        -0.01
+      ],
+      "bounds_max": [
+        0.87,
+        0.87,
+        2.37
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_LanternStump.model.json",
+      "rbx_parts": 47,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_LanternStump.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_LanternStump.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "700/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "344 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=-0.03 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_LanternStump.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_LanternStump.png"
+    },
+    {
+      "name": "CatCafe_Decor_MushroomLamp",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_MushroomLamp",
+        "CatCafe_Decor_MushroomLamp_Glow"
+      ],
+      "triangles": 784,
+      "budget": 1800,
+      "size_studs": {
+        "x": 2.2,
+        "y": 2.24,
+        "z": 3.16
+      },
+      "size_roblox": [
+        2.2,
+        3.16,
+        2.24
+      ],
+      "bounds_min": [
+        -1.1,
+        -1.14,
+        0.0
+      ],
+      "bounds_max": [
+        1.1,
+        1.1,
+        3.16
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: its zone's Epic, on the Index anchor or a decor spot; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MushroomLamp.model.json",
+      "rbx_parts": 40,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MushroomLamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MushroomLamp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "784/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "464 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MushroomLamp.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MushroomLamp.png"
+    },
+    {
+      "name": "CatCafe_Decor_CrateShelf",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_CrateShelf"
+      ],
+      "triangles": 1220,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.85,
+        "y": 1.0,
+        "z": 3.58
+      },
+      "size_roblox": [
+        3.85,
+        3.58,
+        1.0
+      ],
+      "bounds_min": [
+        -1.9,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        1.95,
+        0.5,
+        3.58
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CrateShelf.model.json",
+      "rbx_parts": 62,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_CrateShelf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_CrateShelf.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1220/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "688 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.03 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CrateShelf.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CrateShelf.png"
+    },
+    {
+      "name": "CatCafe_Decor_BathtubSofa",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_BathtubSofa"
+      ],
+      "triangles": 872,
+      "budget": 2400,
+      "size_studs": {
+        "x": 3.79,
+        "y": 1.84,
+        "z": 3.13
+      },
+      "size_roblox": [
+        3.79,
+        3.13,
+        1.84
+      ],
+      "bounds_min": [
+        -1.9,
+        -0.92,
+        -0.0
+      ],
+      "bounds_max": [
+        1.9,
+        0.92,
+        3.13
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_BathtubSofa.model.json",
+      "rbx_parts": 36,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_BathtubSofa.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_BathtubSofa.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "872/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "410 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_BathtubSofa.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_BathtubSofa.png"
+    },
+    {
+      "name": "CatCafe_Decor_RubberDuckRow",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_RubberDuckRow"
+      ],
+      "triangles": 988,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.4,
+        "y": 0.91,
+        "z": 1.95
+      },
+      "size_roblox": [
+        3.4,
+        1.95,
+        0.91
+      ],
+      "bounds_min": [
+        -1.7,
+        -0.43,
+        0.0
+      ],
+      "bounds_max": [
+        1.7,
+        0.48,
+        1.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_RubberDuckRow.model.json",
+      "rbx_parts": 49,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_RubberDuckRow.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_RubberDuckRow.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "988/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "610 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_RubberDuckRow.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_RubberDuckRow.png"
+    },
+    {
+      "name": "CatCafe_Decor_PipeFountain",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_PipeFountain",
+        "CatCafe_Decor_PipeFountain_Water"
+      ],
+      "triangles": 1172,
+      "budget": 1800,
+      "size_studs": {
+        "x": 1.95,
+        "y": 2.0,
+        "z": 2.75
+      },
+      "size_roblox": [
+        1.95,
+        2.75,
+        2.0
+      ],
+      "bounds_min": [
+        -0.97,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        0.97,
+        1.0,
+        2.75
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: its zone's Epic, on the Index anchor or a decor spot; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PipeFountain.model.json",
+      "rbx_parts": 67,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PipeFountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PipeFountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1172/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "566 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PipeFountain.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PipeFountain.png"
+    },
+    {
+      "name": "CatCafe_Decor_BistroSet",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_BistroSet"
+      ],
+      "triangles": 1212,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.44,
+        "y": 1.28,
+        "z": 3.05
+      },
+      "size_roblox": [
+        3.44,
+        3.05,
+        1.28
+      ],
+      "bounds_min": [
+        -1.72,
+        -0.64,
+        0.0
+      ],
+      "bounds_max": [
+        1.72,
+        0.64,
+        3.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_BistroSet.model.json",
+      "rbx_parts": 75,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_BistroSet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_BistroSet.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1212/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "508 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_BistroSet.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_BistroSet.png"
+    },
+    {
+      "name": "CatCafe_Decor_VelvetBooth",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_VelvetBooth"
+      ],
+      "triangles": 732,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.92,
+        "y": 1.91,
+        "z": 4.37
+      },
+      "size_roblox": [
+        3.92,
+        4.37,
+        1.91
+      ],
+      "bounds_min": [
+        -1.96,
+        -0.95,
+        0.0
+      ],
+      "bounds_max": [
+        1.96,
+        0.96,
+        4.37
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_VelvetBooth.model.json",
+      "rbx_parts": 33,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_VelvetBooth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_VelvetBooth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "732/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "354 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_VelvetBooth.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_VelvetBooth.png"
+    },
+    {
+      "name": "CatCafe_Decor_HangingPlants",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_HangingPlants"
+      ],
+      "triangles": 1640,
+      "budget": 1800,
+      "size_studs": {
+        "x": 3.6,
+        "y": 1.1,
+        "z": 4.6
+      },
+      "size_roblox": [
+        3.6,
+        4.6,
+        1.1
+      ],
+      "bounds_min": [
+        -1.8,
+        -0.55,
+        0.0
+      ],
+      "bounds_max": [
+        1.8,
+        0.55,
+        4.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_HangingPlants.model.json",
+      "rbx_parts": 102,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HangingPlants.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HangingPlants.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1640/1800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1274 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_HangingPlants.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_HangingPlants.png"
+    },
+    {
+      "name": "CatCafe_Decor_CatTreeTower",
+      "category": "Decor",
+      "module": "crate_decor",
+      "objects": [
+        "CatCafe_Decor_CatTreeTower"
+      ],
+      "triangles": 1316,
+      "budget": 2400,
+      "size_studs": {
+        "x": 3.27,
+        "y": 2.22,
+        "z": 10.62
+      },
+      "size_roblox": [
+        3.27,
+        10.62,
+        2.22
+      ],
+      "bounds_min": [
+        -1.63,
+        -1.12,
+        0.0
+      ],
+      "bounds_max": [
+        1.63,
+        1.1,
+        10.62
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CatTreeTower.model.json",
+      "rbx_parts": 71,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_CatTreeTower.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_CatTreeTower.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1316/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "525 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.00 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CatTreeTower.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CatTreeTower.png"
     }
   ]
 }

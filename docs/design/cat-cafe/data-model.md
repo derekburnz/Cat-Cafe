@@ -1,6 +1,6 @@
 # Cat Cafe Data Model and Balance Tables
 
-Draft v0.5.4, 2026-10-27 (v0.5.4 renames the Book to the Index, section 11b, and matches the Tip Jar's claimed list to the engineer's build; v0.5.3 adds the Tip Jar and Index rewards, section 11b, and follows the engineer's gold identifiers; v0.5.2 names the gold cats and makes every Rare and up a themed cat with a prop, section 3 and 4, from Derek's 13:18 and 13:22 asks; v0.5.1 adds the reviewer's S44, S45 and N84 to N86 from docs/reviews/2026-10-27-design-v0.5.md: the self-retry wait after a miss, target-side shove immunity, reachable sprint end points, no shoving from a minigame and a still dropped stray during its owner window; v0.5 folds in Gavin's round 2 answers, [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md): a missed cat sprints away with unlimited tries, Shove replaces Bump, the bowl moves outside, shinies get their own colour at 5%, one shared dealer stock, the cafe closes at night; v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md; v0.4 makes a missed circle end the catch, adds patience paws and the Perfect charm bonus, the back alley layout and walk speeds from Derek's playtest, and syncs the engineer's F22 choices; reasoning in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
+Draft v0.6, 2026-10-27 (v0.6 adds the Spin Wheel station, section 11c, and themes the Neighbourhood, Woods and Sewer cats, section 3c, from Derek's 14:35 and 14:36 asks, with looks and kits in [areas-and-stations.md](areas-and-stations.md); v0.5.4 renames the Book to the Index, section 11b, and matches the Tip Jar's claimed list to the engineer's build; v0.5.3 adds the Tip Jar and Index rewards, section 11b, and follows the engineer's gold identifiers; v0.5.2 names the gold cats and makes every Rare and up a themed cat with a prop, section 3 and 4, from Derek's 13:18 and 13:22 asks; v0.5.1 adds the reviewer's S44, S45 and N84 to N86 from docs/reviews/2026-10-27-design-v0.5.md: the self-retry wait after a miss, target-side shove immunity, reachable sprint end points, no shoving from a minigame and a still dropped stray during its owner window; v0.5 folds in Gavin's round 2 answers, [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md): a missed cat sprints away with unlimited tries, Shove replaces Bump, the bowl moves outside, shinies get their own colour at 5%, one shared dealer stock, the cafe closes at night; v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md; v0.4 makes a missed circle end the catch, adds patience paws and the Perfect charm bonus, the back alley layout and walk speeds from Derek's playtest, and syncs the engineer's F22 choices; reasoning in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
 
 ## 1. Conventions
 
@@ -64,15 +64,38 @@ Props: each is its own `CatCafe_Accessory_<Prop>`, attached to the cat model at 
 | blossom | Fairy Cat | Legendary | barista | Leaves a petal on every saucer. | Blossom (rose and white, petal particles); prop fairy wings (Back) |
 | aurora | Astro Cat | Mythical | entertainer | Moonwalks between the tables. | Aurora (galaxy gradient, glow); prop glass bubble helmet (Head) |
 
-### 3c. Neighbourhood, Woods and Sewer (provisional, after the slice)
+### 3c. Neighbourhood, Woods and Sewer (after the slice)
 
-Names and favorite roles are placeholders so ids can be reserved; the asset thread does not model these yet. Their Rares and up become themed cats like 3a and 3b when they are built.
+v0.6 (Derek, 2026-10-27 14:35: "you draft some ideas for models for those places"): the Rares and up are themed cats like 3a and 3b. Ids and favorite roles are unchanged; names, descriptions and props are drafts Gavin can rename (round 3 Q22). Each area's look, kit and coat ideas are in [areas-and-stations.md](areas-and-stations.md) Part A. Effects (Legendary and Mythical) belong to the vfx-animator. The Commons keep their placeholder names in the table after this one.
+
+| id | area | name | rarity | favoriteRole | description | prop (slot) |
+|---|---|---|---|---|---|---|
+| munchkin | neighbourhood | Skater Cat | Rare | entertainer | Lands every trick, eventually. | skateboard on its back (Back) |
+| fold | neighbourhood | Painter Cat | Rare | waiter | Carries every plate like a masterpiece. | beret with a paint splat (Head) |
+| chonk | neighbourhood | Chef Cat | Epic | barista | Taste-tests every pastry, twice. | tall chef hat (Head) |
+| postie | neighbourhood | Mail Cat | Epic | greeter | Knows every customer by name and address. | mail carrier's satchel (Back) |
+| marshmallow | neighbourhood | Super Cat | Legendary | waiter | Catches every falling cup before it lands. | red hero cape (Back); cape flutter and whoosh trail |
+| comet | neighbourhood | Ice Cream Cat | Mythical | entertainer | Hands out a sprinkle with every smile. | ice cream cone hat with a cherry (Head); floating sprinkles |
+| pinecone | woods | Scout Cat | Rare | barista | Always prepared, especially with snacks. | backpack with a bedroll (Back) |
+| forest_cat | woods | Lumberjack Cat | Rare | greeter | Waves every customer in with a mighty paw. | red plaid cap with ear flaps (Head) |
+| toadstool | woods | Mushroom Cat | Epic | entertainer | Bounces between the tables like a little spring. | red-spotted mushroom cap (Head) |
+| firefly | woods | Firefly Cat | Epic | waiter | Lights up every table it visits. | jar of fireflies on its back (Back) |
+| old_oak | woods | Antler Cat | Legendary | barista | Brews tea from leaves only it can find. | mossy antlers with tiny flowers (Head); drifting leaves |
+| wisp | woods | Unicorn Cat | Mythical | greeter | Every customer leaves a little more sparkly. | glowing horn (Head); sparkle trail |
+| lantern | sewer | Miner Cat | Rare | waiter | Lights the way to every table. | hard hat with a lamp (Head) |
+| bubbles | sewer | Bubble Cat | Rare | entertainer | Blows a bubble for every customer. | bubble pipe in its mouth (Face) |
+| gears | sewer | Steampunk Cat | Epic | barista | Fixes the espresso machine with one paw. | brass goggles (Face) |
+| glimmer | sewer | Diver Cat | Epic | greeter | Swims all the way from the canal to say hello. | snorkel and mask (Face) |
+| bottlecap | sewer | King Cat | Legendary | waiter | Rules the canal town and still clears every table. | crown made of bottle caps (Head); glinting caps |
+| eclipse | sewer | Dragon Cat | Mythical | barista | Warms every cup with one tiny puff. | little dragon wings (Back); tiny harmless sparks and smoke puffs |
+
+The full roster for these areas, Commons included:
 
 | area | Common | Rare | Epic | Legendary | Mythical |
 |---|---|---|---|---|---|
-| `neighbourhood` | biscuit Biscuit (barista), pepper Pepper (waiter), socks Socks (greeter), butter Butter (entertainer) | munchkin Munchkin (entertainer), fold Fold (waiter) | chonk Chonk (barista), postie Postie (greeter) | marshmallow Marshmallow (waiter) | comet Comet (entertainer) |
-| `woods` | moss Moss (greeter), acorn Acorn (barista), bramble Bramble (waiter), fern Fern (entertainer) | pinecone Pinecone (barista), forest_cat Forest Cat (greeter) | toadstool Toadstool (entertainer), firefly Firefly (waiter) | old_oak Old Oak (barista) | wisp Wisp (greeter) |
-| `sewer` | rusty Rusty (waiter), soot Soot (barista), pipes Pipes (entertainer), puddle Puddle (greeter) | lantern Lantern (waiter), bubbles Bubbles (entertainer) | gears Gears (barista), glimmer Glimmer (greeter) | bottlecap Bottlecap King (waiter) | eclipse Eclipse (barista) |
+| `neighbourhood` | biscuit Biscuit (barista), pepper Pepper (waiter), socks Socks (greeter), butter Butter (entertainer) | munchkin Skater Cat (entertainer), fold Painter Cat (waiter) | chonk Chef Cat (barista), postie Mail Cat (greeter) | marshmallow Super Cat (waiter) | comet Ice Cream Cat (entertainer) |
+| `woods` | moss Moss (greeter), acorn Acorn (barista), bramble Bramble (waiter), fern Fern (entertainer) | pinecone Scout Cat (barista), forest_cat Lumberjack Cat (greeter) | toadstool Mushroom Cat (entertainer), firefly Firefly Cat (waiter) | old_oak Antler Cat (barista) | wisp Unicorn Cat (greeter) |
+| `sewer` | rusty Rusty (waiter), soot Soot (barista), pipes Pipes (entertainer), puddle Puddle (greeter) | lantern Miner Cat (waiter), bubbles Bubble Cat (entertainer) | gears Steampunk Cat (barista), glimmer Diver Cat (greeter) | bottlecap King Cat (waiter) | eclipse Dragon Cat (barista) |
 
 Which cat within a rarity: a uniform pick among that area's cats of that rarity (four Commons, two Rares, two Epics, one each above). Bait picks across all unlocked areas (section 8).
 
@@ -265,8 +288,8 @@ v0.3 change (Gavin, Q8): the 4 s hold becomes a short minigame on an area-specif
 - At night start each rescue trap holds a stuck cat with RescueSpawnChance 0.6, and every area gets at least RescueMinStuck (1): if no trap rolled a cat, one random trap is filled anyway, so a new player always meets a rescue on the first night (QA, 0.4 cubed is one server in 16 otherwise). Rescue odds are the area odds with every non-Common weight doubled and renormalised (Alleyway 56.3 / 34.4 / 7.8 / 1.4 / 0.16, Park 42.9 / 40.0 / 12.9 / 3.6 / 0.7). Charm and gold (GoldChanceRescue 0.10) are rolled then and kept server-side until the rescue succeeds: not on the stuck cat's model, prompt or attributes (N30). Stuck until rescued or the next night.
 - The stuck cat's Rescue prompt is held for CatchHoldSeconds (0.5), like a stray's (Derek 2026-10-27).
 - `RescueBegin(rescueSpotId)` checks as before (occupied, unlocked area, lock free or own, 10 studs, not carrying), locks the trap to the player for the attempt and fires `RescueChallenge(rescueSpotId, challenge)`.
-- Kind `bar` (trash_bin, garbage_bag, trashcan and the provisional traps): a marker slides back and forth along a bar at RescueBarSpeed[rarity] bar lengths per second, starting at a server-set time and phase, with a target zone RescueZoneWidth[rarity] wide at a server-set position. `RescuePress(rescueSpotId)` is stamped and latency-corrected like a circle press; the server computes where the marker was and allows RescueTolerance 0.03 of the bar. A hit moves the zone to the next server-set position; `rescueHits[rarity]` hits frees the cat. Each miss costs one of RescuePatience (3) paws; out of paws ends the attempt.
-- Kind `shake_catch` (tree): `rescueHits[rarity] - 1` bar hits shake the branch, then the cat drops and one catch circle (Common shrink time, the Pro Net windows whatever net you own) must score Good or Perfect to catch it. A miss means the cat lands, climbs back up and the attempt ends.
+- Kind `bar` (trash_bin, garbage_bag, trashcan and the provisional traps except `gutter`): a marker slides back and forth along a bar at RescueBarSpeed[rarity] bar lengths per second, starting at a server-set time and phase, with a target zone RescueZoneWidth[rarity] wide at a server-set position. `RescuePress(rescueSpotId)` is stamped and latency-corrected like a circle press; the server computes where the marker was and allows RescueTolerance 0.03 of the bar. A hit moves the zone to the next server-set position; `rescueHits[rarity]` hits frees the cat. Each miss costs one of RescuePatience (3) paws; out of paws ends the attempt.
+- Kind `shake_catch` (tree, and the Neighbourhood's `gutter` from F51, where the hits shake the drainpipe): `rescueHits[rarity] - 1` bar hits shake the branch, then the cat drops and one catch circle (Common shrink time, the Pro Net windows whatever net you own) must score Good or Perfect to catch it. A miss means the cat lands, climbs back up and the attempt ends.
 - Every attempt has a deadline (S28): it ends as a fail at RescueAttemptMaxSeconds (15) after RescueBegin, when the player moves more than 14 studs from the trap, dies or leaves, or on RescueCancel. The server keeps the lock and the deadline in its own table.
 - Ending without success: the trap unlocks and the cat stays stuck. Other players can try after RescueRetrySeconds (3); the same player waits RescueSelfRetrySeconds (6), so one player or script cannot re-lock the trap at the instant it opens and hold it all night.
 - Success: the cat is revealed (sparkle if gold), the player enters carry with `rescued = true`.
@@ -329,7 +352,7 @@ Name (Derek, 2026-10-27 14:34: "switch book to index"): the collection screen is
 | 11 | 90 | coins: 300 s of day rate, at least 600 |
 | 12 | 120 | 1 Caviar |
 
-Row shape: `{ step, minutes, kind = "coins" | "lure", seconds?, minCoins?, lureId?, count? }`. A coins row pays `max(minCoins, floor(dayRate x seconds))`, where `dayRate` is the player's day income per second at claim time (the rich tip uses the same shape), so a bigger cafe gets bigger gifts. Foods go into `lures` like a shop food; the dealer's Moonlit Sardines and Caviar are fine here because they are free. When the spin wheel exists, steps 11 and 12 also give a free spin.
+Row shape: `{ step, minutes, kind = "coins" | "lure", seconds?, minCoins?, lureId?, count? }`. A coins row pays `max(minCoins, floor(dayRate x seconds))`, where `dayRate` is the player's day income per second at claim time (the rich tip uses the same shape), so a bigger cafe gets bigger gifts. Foods go into `lures` like a shop food; the dealer's Moonlit Sardines and Caviar are fine here because they are free. With the Spin Wheel (F49, section 11c), steps 11 and 12 also bank one spin each.
 
 - `ClaimTipJar(step)`: profile loaded, `step` an integer from 1 to 12, not claimed this session, `GetServerTimeNow() - sessionStartedAt >= minutes x 60`; 1 per second. Pays, marks the step claimed, fires `TipJarState` and ProfileSync. Coins count toward `lifetimeCoins`.
 - `TipJarState` (server to client): `{ sessionStartedAt, claimed }`, where `claimed` is a list of 12 booleans in step order (a dense array, because a sparse table loses entries over a remote; engineer #206, UI N116), sent when the profile loads and after every claim. The UI works out each countdown from `sessionStartedAt`, `Catalog.tipJar` and `GetServerTimeNow()`, and estimates a coin prize from the synced day rate; the server's figure at claim time is final.
@@ -349,6 +372,33 @@ Row shape: `{ step, minutes, kind = "coins" | "lure", seconds?, minCoins?, lureI
 - The Index tab and the HUD Index button show a red badge while any milestone is claimable (UI).
 - Analytics: custom event `index_reward` (area, milestone) and economy source `index_reward`.
 - Later (Alpha, common-features 4): rarity sets across all areas (all Commons, all Rares and so on) and the all-50 reward.
+
+## 11c. The Spin Wheel station (F49)
+
+Derek, 2026-10-27 14:36: "things like spins could be an area you walk up to". The wheel is a station in the street plaza ([areas-and-stations.md](areas-and-stations.md) Part B), not a HUD button. Spins are free and never sold: no Robux button, no pass and no product gives spins (monetization-policy), and every slice shows its chance. A spin never gives a cat (round 3 Q17).
+
+`Catalog.spinWheel`, six slices in order around the wheel:
+
+| slice | prize | weight (chance) |
+|---|---|---|
+| 1 | coins: 120 s of day rate, at least 200 | 30 |
+| 2 | 3 Tuna | 22 |
+| 3 | coins: 600 s of day rate, at least 1,000 | 18 |
+| 4 | 2 Salmon | 15 |
+| 5 | 2 Moonlit Sardines | 10 |
+| 6 | 1 Caviar | 5 |
+
+Row shape: `{ slice, kind = "coins" | "lure", seconds?, minCoins?, lureId?, count?, weight }`, the Tip Jar's shape plus `weight`. The weights add up to 100, so each is the slice's chance in percent, shown on the slice and in the window. Coins pay `max(minCoins, floor(dayRate x seconds))` and count toward `lifetimeCoins`; foods go into `lures`.
+
+Spins:
+- One free spin a day: due when `floor(os.time() / 86400)` (the UTC day) is above `spin.lastFreeDay`. Missed days do not stack.
+- Banked spins in `spin.banked`, up to SpinBankCap (20): one each from Tip Jar steps 11 and 12, and later the Daily Treat's day 7. A claim that would pass the cap still pays the step's other prize and drops the extra spin, and the Tip Jar row says "Spins full".
+- A spin uses the free spin first, then a banked one.
+
+- `SpinWheel()`: profile loaded; the character within SpinStationRange (14) studs of a station tagged `SpinWheel`; a free spin due or `spin.banked` of 1 or more; at least SpinCooldownSeconds (4, the spin animation) since the caller's last spin. The server picks the slice with its own `Random`, weighted by `weight`, pays at once (so leaving mid-animation keeps the prize), updates `spin`, adds to `stats.spins`, fires `SpinResult(slice, amount)` to the caller and ProfileSync with `spin`, and sets the station's `LastSpinAt` so every client turns the world wheel for show. A refused spin fires `SpinResult(0, 0)` and the window says why ("Next free spin in 5h 12m").
+- The UI works out when the next free spin is due from `spin.lastFreeDay` and `GetServerTimeNow()`; the server's check at spin time is final.
+- `spin` is saved and F49 raises the save version to 6, for the same reason as S60: an older server would drop `spin` during a rollout, giving a second free spin and losing banked ones. Migration 5 to 6 sets `spin = { lastFreeDay = 0, banked = 0 }`.
+- Analytics: custom event `spin` (slice, free or banked) and economy source `spin_wheel`.
 
 ## 12. Customers and rich customers
 
@@ -371,15 +421,19 @@ Attributes are for display. Server decisions (locks, deadlines, bump grace and c
 
 Dealer cart (tag `DealerCart`): `Open` (bool).
 
+Spin Wheel station (tag `SpinWheel`, F49): `LastSpinAt` (server time of the latest spin by anyone; show only).
+
+Index Board (tag `IndexBoard`, F50): `Area` (the area id). The board is drawn on each client from that client's own `collection` and `goldCollection`; the prompt opens the Index on that area's page.
+
 Plot model (tag `Plot`): `OwnerUserId`, `PlotIndex`, `Tier`, `RichTipAmount`, `RichTipExpiresAt`, `BaitReadyAt` (0 when empty). Children: `Spots/<slotId>` station parts with attribute `SpotType` (the role), `DecorAnchors/<decorId>`, `BaitBowl`, `RichTipAnchor`, `Door`, `CustomerWaypoints`, `Expansions/<n>`.
 
 Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `DisplayName` (the filtered name or the catalog name), `Gold`, `Napping` (bool, naps any cat), and the CollectionService tag `WorkingCat` while it works a station. v0.5 night nap (F44): each client naps every `WorkingCat` while the Clock `Phase` is night, so the server writes nothing at dusk and dawn; income stays the server's 60%.
 
-## 14. Player profile (save data, version 5 from F48)
+## 14. Player profile (save data, version 5 from F48, 6 from F49)
 
 | field | type | default | notes |
 |---|---|---|---|
-| version | integer | 5 | 3 (2026-10-26, design v0.3); 4 (2026-10-27, the engineer's gold rename: `shiny` becomes `gold`, `shinyCollection` becomes `goldCollection`); 5 (F48: adds `indexRewards` and `stats.tipJarClaims`; migration 4 to 5 sets `indexRewards = {}` and the counter to 0) |
+| version | integer | 6 | 3 (2026-10-26, design v0.3); 4 (2026-10-27, the engineer's gold rename: `shiny` becomes `gold`, `shinyCollection` becomes `goldCollection`); 5 (F48: adds `indexRewards` and `stats.tipJarClaims`; migration 4 to 5 sets `indexRewards = {}` and the counter to 0); 6 (F49: adds `spin` and `stats.spins`; migration 5 to 6 sets `spin = { lastFreeDay = 0, banked = 0 }`) |
 | coins | integer | 50 | |
 | lifetimeCoins | integer | 0 | |
 | lastTick, lastSeen | integer | join time | |
@@ -394,7 +448,8 @@ Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `D
 | collection | map catId to firstCaughtAt | tabby | drives the Index and "different cats" |
 | goldCollection | map catId to firstCaughtAt | empty | new, the gold page |
 | indexRewards | map area id to `{ [milestoneId] = true }` | empty | F48, section 11b; a missing field loads as empty |
-| stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions, tipJarClaims (F47) | 0 | new counters added |
+| spin | `{ lastFreeDay, banked }` | `{ lastFreeDay = 0, banked = 0 }` | F49, section 11c; `lastFreeDay` is the UTC day number of the last free spin, `banked` 0 to SpinBankCap |
+| stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions, tipJarClaims (F47), spins (F49) | 0 | new counters added |
 | tutorialStep | 0 to 5 | 0 | 0 new, 1 saw the alley, 2 caught, 3 assigned a role, 4 bought a table, 5 set bait (done) |
 | settings | music, sfx | true, true | |
 | telemetry | `{ onboardingStep, achieved = { [step] = true } }` | `{ onboardingStep = 0, achieved = {} }` | new; the funnel logs each onboarding step once and only in order, because Roblox marks every earlier step complete when a later one is logged, so a rank up before bait would otherwise fake the bait steps (growth, analytics-plan) |
@@ -438,6 +493,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | ClaimOffline | event | none | pending above 0 | adds coins |
 | ClaimTipJar | event | step | F47 (section 11b): integer 1 to 12, unclaimed this session, session minutes reached; 1 per second | pays the step, fires TipJarState and ProfileSync |
 | ClaimIndexReward | event | areaId, milestoneId | F48 (section 11b): known area and milestone, count met from `collection` or `goldCollection`, not claimed; 1 per second | pays, marks `indexRewards`, ProfileSync |
+| SpinWheel | event | none | F49 (section 11c): within 14 studs of a `SpinWheel` station, a free or banked spin, SpinCooldownSeconds since the last spin | pays the slice, fires SpinResult and ProfileSync, sets `LastSpinAt` |
 | TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
 | SetSetting | event | key, value | engineer #202: `key` is `music` or `sfx`, `value` a boolean; 4 per second | saves to `profile.settings`, answered by ProfileSync |
 | CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |
@@ -447,7 +503,8 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | DealerStock | server to client | slots = { { lureId, cost, bought } }, restocksAt | | sent at night start, at each window change during night, when the screen opens and after every BuyDealerFood, bought or refused |
 | BaitReady | server to client | catView | | UI bait card |
 | TipJarState | server to client | `{ sessionStartedAt, claimed }` | | on profile load and after each ClaimTipJar (F47) |
-| ProfileSync | server to client | partial `PlayerState` | | adds `tier`, `bait`, `goldCollection`, `rankUp` progress; F48 adds `indexRewards` |
+| SpinResult | server to client | slice, amount | | the window lands on `slice` (0 means refused) and shows `amount` (F49) |
+| ProfileSync | server to client | partial `PlayerState` | | adds `tier`, `bait`, `goldCollection`, `rankUp` progress; F48 adds `indexRewards`, F49 adds `spin` |
 | CatCaught | server to client | catId, isNew, gold, isNewGold | | cat found popup |
 | OfflineEarnings, Toast | server to client | as before | | |
 | Announce | server to all | text | | Epic and up, every gold cat, every rank up to Tier 3 and up |
@@ -541,6 +598,14 @@ Changed or new in v0.5 (Gavin's round 2):
 | DealerSlotWeights | 50 / 33 / 14 / 3, one row | per tier | DealerService |
 
 Removed in v0.5: patience, StrayWarySeconds, StrayJumpBackStuds, CustomerSpawnSecondsNight.
+
+New in v0.6 (F49, the Spin Wheel station):
+
+| constant | value | was | used by |
+|---|---|---|---|
+| SpinStationRange | 14 | new | SpinService |
+| SpinCooldownSeconds | 4 | new | SpinService, Spin window animation |
+| SpinBankCap | 20 | new | SpinService, TipJarService |
 
 CircleScorePerfect and CircleScoreGood no longer decide anything in v0.4; keep them only if a test or analytics wants a number.
 

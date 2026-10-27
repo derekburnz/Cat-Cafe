@@ -8,9 +8,7 @@ pivot at base center between the feet.
 
 import math
 
-from mathutils import Matrix
-
-from common import Builder
+from common import Builder, scale_mesh
 
 # pattern: solid | stripes | patches | points | spots | gradient; extra flags: sparkle (star specks),
 # petals, flower, ruff, ear_tufts, persian (long coat, flat face), tail_thick
@@ -203,7 +201,7 @@ def build_cat(name, mat):
     ]
     if s != 1.0:
         for ob in objs:
-            ob.data.transform(Matrix.Scale(s, 4))
+            scale_mesh(ob, s)
     return objs
 
 

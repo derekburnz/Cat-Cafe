@@ -34,8 +34,8 @@ SWATCHES = [
     ("leaf_dark", "#3E7F4E"), ("terracotta", "#C47A58"), ("glass", "#CFE9E3"), ("sign_teal", "#1FA58F"),
     ("night_sky", "#1F2A44"), ("neon_pink", "#FF6B81"), ("sparkle", "#FFF4B0"), ("galaxy_blue", "#3B4C8C"),
     # row 7: v0.3 additions, then spare
-    ("rarity_mythic", "#FF5E7E"), ("fur_blue", "#9AA9C2"), ("aurora_violet", "#8E7CF0"), ("spare_59", "#FF00FF"),
-    ("spare_60", "#FF00FF"), ("spare_61", "#FF00FF"), ("spare_62", "#FF00FF"), ("spare_63", "#FF00FF"),
+    ("rarity_mythic", "#FF5E7E"), ("fur_blue", "#9AA9C2"), ("aurora_violet", "#8E7CF0"), ("pastel_butter", "#F6DFA0"),
+    ("pastel_lilac", "#C9B8E8"), ("spare_61", "#FF00FF"), ("spare_62", "#FF00FF"), ("spare_63", "#FF00FF"),
 ]
 assert len(SWATCHES) == GRID * GRID
 

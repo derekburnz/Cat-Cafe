@@ -186,6 +186,19 @@ local function despawn(stray: Stray)
 	stray.model:Destroy()
 end
 
+-- Reviewer S35: every wander step moves every part of the cat and replicates to every client, so a stray only
+-- wanders while a player is close enough to see it.
+local WANDER_WATCH_STUDS = 80
+
+local function anyoneNear(position: Vector3): boolean
+	for _, player in Players:GetPlayers() do
+		if withinRange(player, position, WANDER_WATCH_STUDS) then
+			return true
+		end
+	end
+	return false
+end
+
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
 	local alive = function()
@@ -193,7 +206,7 @@ local function wander(stray: Stray)
 	end
 	while stray.alive do
 		task.wait(rng:NextNumber(3, 7))
-		if not stray.alive or stray.lockedBy ~= 0 then
+		if not stray.alive or stray.lockedBy ~= 0 or not anyoneNear(stray.home) then
 			continue
 		end
 		local radius = Config.StrayWanderRadius
@@ -1156,6 +1169,25 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			tutorialTick()
 		end
 	end)
+end
+
+-- Why the player cannot leave by fast travel right now, or nil: carrying a cat (walking it home is the loop and
+-- bumps depend on it), or in the middle of a catch or a rescue hold.
+function CatService.busyReason(player: Player): string?
+	if carrying[player] ~= nil then
+		return "Walk your cat home first"
+	end
+	for _, stray in strays do
+		if stray.lockedBy == player.UserId and stray.attempt ~= nil and not lockExpired(stray) then
+			return "Finish this catch first"
+		end
+	end
+	for _, entry in stuckCats do
+		if entry.lockedBy == player.UserId and not rescueLockExpired(entry) then
+			return "Finish this rescue first"
+		end
+	end
+	return nil
 end
 
 function CatService.strayCount(areaId: string): number

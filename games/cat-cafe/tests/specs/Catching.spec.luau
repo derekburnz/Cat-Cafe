@@ -286,7 +286,54 @@ return function()
 		end)
 
 		-- F28: bait picks among that rarity's cats in every area the player has unlocked (section 8).
-		it("the bait pick spreads a rarity over every unlocked area (F28)")
+		it("the bait pick spreads a rarity over every unlocked area (F28)", function()
+			-- 240 evenly spaced rolls: every pool size here (1 to 5, 2 to 10, 4 to 20 cats) divides 240, so a
+			-- uniform pick lands on each cat of the pool exactly 240 / pool times.
+			local ROLLS = 240
+			for tier = 1, 5 do
+				for _, rarity in Catalog.rarityOrder do
+					local pool: { [string]: boolean } = {}
+					local size = 0
+					for _, def in Catalog.cats do
+						local area = Catalog.getArea(def.area)
+						if def.rarity == rarity and area ~= nil and area.tier <= tier then
+							pool[def.id] = true
+							size += 1
+						end
+					end
+					expect(size > 0).to.equal(true)
+					local hits: { [string]: number } = {}
+					for i = 0, ROLLS - 1 do
+						local def = Catching.pickBaitCat(rarity, tier, (i + 0.5) / ROLLS)
+						if not pool[def.id] then
+							error(string.format("tier %d %s picked %s from outside the pool", tier, rarity, def.id))
+						end
+						hits[def.id] = (hits[def.id] or 0) + 1
+					end
+					for id in pool do
+						if hits[id] ~= ROLLS / size then
+							error(string.format("tier %d %s: %s picked %s of %d times", tier, rarity, id, tostring(hits[id]), ROLLS / size))
+						end
+					end
+				end
+			end
+		end)
+
+		it("the bait pick stays in the pool at the roll edges and never returns nil (QA)", function()
+			for tier = 0, 6 do
+				for _, rarity in Catalog.rarityOrder do
+					for _, roll in { 0, 0.999999, 1 } do
+						local def = Catching.pickBaitCat(rarity, tier, roll)
+						expect(def).to.be.ok()
+						local area = Catalog.getArea(def.area)
+						if tier >= 1 then
+							expect(def.rarity).to.equal(rarity)
+							expect(area ~= nil and area.tier <= tier).to.equal(true)
+						end
+					end
+				end
+			end
+		end)
 	end)
 
 	describe("rarityAtLeast and percentText", function()

@@ -95,6 +95,41 @@ return function()
 		end)
 	end)
 
+	describe("FoodOdds.split and the bait roll", function()
+		it("names exactly the cats the server's bait roll can pick, at every tier (QA, F28)", function()
+			local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+			local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+			local Catching = require(Shared:WaitForChild("Catching")) :: any
+			local catalog = { cats = Catalog.cats, lures = Catalog.lures, areas = Catalog.areas }
+			local wrong: { string } = {}
+			for tier = 1, 5 do
+				local split: string = FoodOdds.split(catalog, Catalog.luresById.kibble, tier)
+				for _, rarity in Catalog.rarityOrder do
+					local rolled: { [string]: boolean } = {}
+					for i = 0, 239 do
+						rolled[Catching.pickBaitCat(rarity, tier, (i + 0.5) / 240).name] = true
+					end
+					local shown: { [string]: boolean } = {}
+					local cats = split:match("\n" .. rarity .. " [%d%.]+%%: ([^\n]+)") or ""
+					for name in cats:gmatch("([^,]+) [%d%.]+%%") do
+						shown[(name:gsub("^ ", ""))] = true
+					end
+					for name in rolled do
+						if not shown[name] then
+							table.insert(wrong, ("tier %d: the roll can pick %s, the card does not show it"):format(tier, name))
+						end
+					end
+					for name in shown do
+						if not rolled[name] then
+							table.insert(wrong, ("tier %d: the card shows %s, the roll never picks it"):format(tier, name))
+						end
+					end
+				end
+			end
+			expect(wrong).to.deepEqual({})
+		end)
+	end)
+
 	describe("FoodOdds.line", function()
 		it("lists the five rarities in order", function()
 			local line =

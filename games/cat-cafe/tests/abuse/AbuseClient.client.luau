@@ -48,8 +48,8 @@ local player = Players.LocalPlayer
 type Event = { at: number, server: number, name: string, text: string, id: string?, data: any }
 
 -- What CatchSchedule and CatchResult carry (design v0.4). `pawsLeft` is nil when this player cannot run out of paws
--- on the stray (a beginner on a Common, or the player who baited it). `grades` runs up to and including the first
--- Miss, which ends the catch; every circle Good or Perfect is a sure catch.
+-- on the stray (a beginner on a Common; bait cats come to the bowl, never the net). `grades` runs up to and
+-- including the first Miss, which ends the catch; every circle Good or Perfect is a sure catch.
 type Schedule = { circles: { Types.CatchCircle }, windows: Types.CatchWindows, pawsLeft: number? }
 type Outcome = {
 	grades: { Types.CircleGrade },
@@ -239,11 +239,7 @@ local function nearestStray(accept: ((StrayInfo) -> boolean)?): StrayInfo?
 			continue
 		end
 		local lockedBy = instance:GetAttribute("LockedBy")
-		local reservedFor = instance:GetAttribute("ReservedFor")
-		if
-			(lockedBy ~= nil and lockedBy ~= 0)
-			or (reservedFor ~= nil and reservedFor ~= 0 and reservedFor ~= player.UserId)
-		then
+		if lockedBy ~= nil and lockedBy ~= 0 then
 			continue
 		end
 		local distance = (instance:GetPivot().Position - origin).Magnitude
@@ -718,7 +714,7 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 				"unlimited paws in the schedule, " .. pawsText(outcome.pawsLeft) .. " in the result"
 			)
 		else
-			table.insert(notes, "unlimited paws (a beginner's Common or a stray I baited)")
+			table.insert(notes, "unlimited paws (a beginner's Common)")
 		end
 	elseif
 		outcome.pawsLeft ~= math.max(0, schedule.pawsLeft - 1)
@@ -1252,12 +1248,9 @@ case(
 			return "SKIP", "carrying a cat that could not be checked in"
 		end
 		-- The stray that runs out soonest: Legendary and Mythical start with one paw, Rare and Epic two, Common three.
-		local function notMine(info: StrayInfo): boolean
-			return info.model:GetAttribute("ReservedFor") ~= player.UserId
-		end
 		local stray = nearestStray(function(info)
-			return notMine(info) and Catalog.rarities[info.rarity].patience == 1
-		end) or nearestStray(notMine)
+			return Catalog.rarities[info.rarity].patience == 1
+		end) or nearestStray()
 		if stray == nil then
 			return "SKIP",
 				string.format('%s; or %s("spawnStray", "void") for a one-paw stray', NO_STRAY, DEBUG)
@@ -1371,7 +1364,8 @@ case(
 		fire("BuyDecor", "Neon Sign")
 		fire("PlaceCat", 123, "waiter_1")
 		fire("ToggleDecor", "plants", "yes")
-		fire("EquipLure", 7)
+		fire("UseLure", 7)
+		fire("ResolveBait", "keep")
 		fire("TutorialAdvance", "two")
 		task.wait(1.2) -- TutorialAdvance allows 1 call per second; wait out the bucket so Guard.int's range check runs
 		fire("TutorialAdvance", 1e9)
@@ -1383,11 +1377,17 @@ case(
 		-- Well formed but unknown: the server may refuse with a warn toast, since every refused action says why.
 		-- A good toast or a new entry in the profile would be a purchase.
 		local unknownAt = os.clock()
+		local baitBefore = if state.bait ~= nil then state.bait.lureId else "empty"
 		fire("BuyUpgrade", "jetpack")
 		fire("BuyDecor", "jetpack")
+		fire("UseLure", "jetpack")
 		task.wait(1.5)
 		local unknownToasts = {}
-		local bought = state.upgradeLevels["jetpack"] ~= nil or state.decorOwned["jetpack"] ~= nil
+		local baitAfter = if state.bait ~= nil then state.bait.lureId else "empty"
+		local bought = state.upgradeLevels["jetpack"] ~= nil
+			or state.decorOwned["jetpack"] ~= nil
+			or state.lures["jetpack"] ~= nil
+			or baitAfter ~= baitBefore
 		for _, event in since(unknownAt, "Toast") do
 			table.insert(unknownToasts, event.text)
 			if string.find(event.text, "[good]", 1, true) ~= nil then

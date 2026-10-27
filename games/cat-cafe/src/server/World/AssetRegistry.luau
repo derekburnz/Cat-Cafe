@@ -79,15 +79,29 @@ function AssetRegistry.clone(name: string): Model
 	return clone :: Model
 end
 
--- A cat's model: its gold coat (v0.5 F42) when `variant` is "gold" and the asset is there, else the base cat.
-function AssetRegistry.cloneCat(catId: string, variant: string?): Model
-	if variant == "gold" then
-		local gold = Catalog.goldModelName(catId)
-		if AssetRegistry.has(gold) then
-			return AssetRegistry.clone(gold)
+-- A cat's model: its gold coat (v0.5 F42) when `variant` is "gold" and the asset is there, else the base cat, which
+-- is the walking body (A). `sitting` asks for the seated body (B, the _Sit models) a working cat wears at its
+-- station, trying the gold seat, the seat, the gold walker and the walker in that order, so a cat whose seat is not
+-- exported yet still shows. The second result is true when a seated body came back.
+function AssetRegistry.cloneCat(
+	catId: string,
+	variant: string?,
+	sitting: boolean?
+): (Model, boolean)
+	local base = Catalog.catModelName(catId)
+	local gold = Catalog.goldModelName(catId)
+	local walkers: { string } = if variant == "gold" then { gold, base } else { base }
+	if sitting then
+		for _, name in walkers do
+			if AssetRegistry.has(Catalog.sitModelName(name)) then
+				return AssetRegistry.clone(Catalog.sitModelName(name)), true
+			end
 		end
 	end
-	return AssetRegistry.clone(Catalog.catModelName(catId))
+	if variant == "gold" and AssetRegistry.has(gold) then
+		return AssetRegistry.clone(gold), false
+	end
+	return AssetRegistry.clone(base), false
 end
 
 return AssetRegistry

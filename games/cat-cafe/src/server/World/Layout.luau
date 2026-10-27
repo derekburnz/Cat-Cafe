@@ -101,12 +101,13 @@ Layout.plot = {
 	-- On the counter's espresso plate (its top is 3 up); the level 3 machine fills it to the till.
 	espresso = { x = 3, y = 3, z = halfD - 3 } :: Point,
 
-	-- Where a working cat stands, per role slot: baristas at the counter, waiters between the tables, greeters
-	-- inside the door, entertainers on the cat trees. An upright cat (CatPose) stands on the point and fills about
-	-- 1 stud across and from 0.72 in front of it to 0.43 behind. The counter's top (3 up) holds the pastry case
+	-- Where a working cat sits, per role slot: baristas at the counter, waiters between the tables, greeters inside
+	-- the door, entertainers on the cat trees. A seated cat (the _Sit body) has its pivot on the point and fills from
+	-- 0.6 left of it (its tail) to 0.5 right and from 0.65 in front to 0.6 behind; a Scale 1.2 cat (Maine Coon,
+	-- Ragdoll) 0.75 left, 0.6 right, 0.78 in front and 0.76 behind. The counter's top (3 up) holds the pastry case
 	-- (x -3.75 to -1.05), a saucer and a tip jar at the front, the till (0.7 to 1.7) and the espresso machine, so the
-	-- first barista stands on the gap behind the saucer and the tip jar, and the later two on the floor at either
-	-- end of the counter (Derek 2026-10-27: models sinking into each other).
+	-- first barista sits on the gap behind the saucer and the tip jar, and the later two on the floor at either end
+	-- of the counter (Derek 2026-10-27: models sinking into each other).
 	spots = {
 		barista_1 = { x = -0.2, y = 3, z = halfD - 2.55 },
 		barista_2 = { x = -5.2, y = 0, z = halfD - 3 },

@@ -20,6 +20,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -204,7 +205,8 @@ function IndexBoards.new(parent: Instance, callbacks: Callbacks): IndexBoards
 end
 
 function IndexBoards._attach(self: any, model: Instance)
-	if self._boards[model] then
+	-- only boards placed in the world: the tagged templates in ReplicatedStorage.Assets get no page (review S75)
+	if self._boards[model] or not model:IsDescendantOf(Workspace) then
 		return
 	end
 	local areaId = areaOf(model)
@@ -389,7 +391,6 @@ function IndexBoards._attach(self: any, model: Instance)
 	self:_renderBoard(board)
 end
 
--- Puts the page on the Screen part and wires the prompt: the model's own, else one made here.
 -- Marks boards the player has come near and draws their cats.
 function IndexBoards._checkNear(self: any)
 	local character = Players.LocalPlayer.Character
@@ -410,6 +411,7 @@ function IndexBoards._checkNear(self: any)
 	end
 end
 
+-- Puts the page on the Screen part and wires the prompt: the model's own, else one made here.
 function IndexBoards._hang(self: any, board: Board)
 	-- a prompt that went away with the model's parts (streamed out with Screen) is forgotten, so a new one is
 	-- found or made when they stream back in (review S72)

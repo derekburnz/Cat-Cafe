@@ -141,6 +141,7 @@ function Demo.run(UI: any): () -> ()
 		settings = Settings.defaults() :: any,
 		-- today's free spin waiting plus one banked from the Tip Jar, so the wheel spins twice (Y opens it)
 		spin = { lastFreeDay = 0, banked = 1 } :: Types.SpinState,
+		goldenFish = 37,
 	}
 	local starter = uid()
 	profile.cats[starter] = {
@@ -196,6 +197,7 @@ function Demo.run(UI: any): () -> ()
 			tier = profile.tier,
 			settings = profile.settings,
 			spin = { lastFreeDay = profile.spin.lastFreeDay, banked = profile.spin.banked },
+			goldenFish = profile.goldenFish,
 		})
 	end
 

@@ -13,6 +13,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Create = require(script.Parent.Create)
+local FishCoin = require(script.Parent.FishCoin)
 local Format = require(script.Parent.Format)
 local IndexRewards = require(script.Parent.IndexRewards)
 local ItemIcon = require(script.Parent.ItemIcon)
@@ -153,7 +154,7 @@ function PrizeChips._partLook(
 	if kind == "coins" then
 		return nil, COIN_GLYPH, "Legendary", Format.money(part.amount)
 	elseif kind == "fish" then
-		return nil, Theme.icons.goldenFish, "Legendary", amount
+		return nil, "", "Legendary", amount -- the cat-face coin is drawn over the tile in set
 	elseif kind == "lure" then
 		local lure: Types.LureDef? = self._lures[part.id or ""]
 		return if lure then lure.asset else nil,
@@ -307,6 +308,15 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 				name = "Picture",
 			})
 			icon:set(asset, glyph, rarity)
+			if part.kind == "fish" then
+				FishCoin.new({
+					parent = icon.frame,
+					size = math.floor(tile * 0.62),
+					position = UDim2.fromScale(0.5, 0.58),
+					anchorPoint = Vector2.new(0.5, 0.5),
+					zIndex = 2,
+				})
+			end
 			table.insert(self._icons, icon)
 			if amount ~= "" then
 				entry.label = self:_amountLabel(chip, amount, tile)

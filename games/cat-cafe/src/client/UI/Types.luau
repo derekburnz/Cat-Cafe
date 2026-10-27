@@ -146,6 +146,7 @@ export type PlayerState = {
 	settings: { [string]: boolean | number }?, -- profile.settings (shared/Settings): switches and 0 to 1 volumes
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 	spin: SpinState?, -- F49: the free spin and the banked ones
+	goldenFish: number?, -- F52: the rare currency; nil hides its HUD counter
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,

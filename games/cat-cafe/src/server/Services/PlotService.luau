@@ -79,6 +79,8 @@ function PlotService.release(player: Player)
 	plot.cats:ClearAllChildren()
 	plot.decor:ClearAllChildren()
 	plot.tables:ClearAllChildren()
+	plot.bait:ClearAllChildren()
+	plot.model:SetAttribute("BaitReadyAt", 0)
 	local espresso = plot.model:FindFirstChild("Espresso")
 	if espresso ~= nil then
 		espresso:Destroy()

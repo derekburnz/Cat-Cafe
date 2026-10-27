@@ -33,6 +33,9 @@ export type Plot = {
 	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
 	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first
 	dressing: Folder, -- Dressing/ForRent on an empty plot, Dressing/Tier<n> up to the owner's tier
+	baitBowl: BasePart, -- BaitBowl, in the front garden: range checks, and the owner's client puts its prompt here
+	baitCat: BasePart, -- BaitCat, where the cat that came to the bowl sits
+	bait: Folder, -- Bait/, the bowl, its food and the cat while the owner has the Bait bowl upgrade
 }
 
 export type AreaInfo = {
@@ -40,7 +43,6 @@ export type AreaInfo = {
 	model: Model,
 	floorY: number,
 	spawnPoints: { BasePart },
-	lureSpots: { [string]: BasePart },
 	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number }, -- the bounding box, 2 studs in
 	rects: { Layout.Rect }, -- the floor pieces; strays stay on these (WorldBuilder.clampToArea)
@@ -526,6 +528,11 @@ local function buildPlot(index: number, parent: Instance): Plot
 	anchor("Door", localCFrame(cframe, Layout.plot.door), waypoints)
 	anchor("Order", localCFrame(cframe, Layout.plot.orderPoint), waypoints)
 
+	-- The bait bowl's anchors (data-model section 8). CafeService puts the bowl, the food and the cat in Bait/;
+	-- the owner's client makes the bowl's prompt itself, so nobody else sees one at this cafe.
+	local baitBowl = anchor("BaitBowl", localCFrame(cframe, Layout.plot.baitBowl), model)
+	local baitCat = anchor("BaitCat", localCFrame(cframe, Layout.plot.baitCat), model)
+
 	local napFolder = folder("NapSpots", model)
 	local napSpots: { BasePart } = {}
 	for n, point in Layout.plot.napSpots do
@@ -552,6 +559,9 @@ local function buildPlot(index: number, parent: Instance): Plot
 		expansions = expansions,
 		napSpots = napSpots,
 		dressing = folder("Dressing", model),
+		baitBowl = baitBowl,
+		baitCat = baitCat,
+		bait = folder("Bait", model),
 	}
 	WorldBuilder.setDressing(plot, 0)
 	model.Parent = parent
@@ -751,27 +761,6 @@ local function buildArea(
 		table.insert(spawnPoints, sp)
 	end
 
-	local lureFolder = folder("LureSpots", model)
-	local lureSpots: { [string]: BasePart } = {}
-	for i, point in spec.lureSpots do
-		local name = "lure_" .. id .. "_" .. i
-		local ring = part(
-			name,
-			Vector3.new(0.1, 3, 3),
-			CFrame.new(point.x, point.y, point.z) * CFrame.Angles(0, 0, math.rad(90)),
-			MINT,
-			Enum.Material.Neon,
-			lureFolder
-		)
-		ring.Shape = Enum.PartType.Cylinder
-		ring.Transparency = 0.5
-		ring.CanCollide = false
-		ring:SetAttribute("Area", id)
-		ring:SetAttribute("LureSpotId", name)
-		CollectionService:AddTag(ring, "LureSpot")
-		lureSpots[name] = ring
-	end
-
 	-- Rescue spots (data-model section 13): the prop is always there, the stuck cat only some nights.
 	local rescueFolder = folder("RescueSpots", model)
 	local rescueSpots: { [string]: BasePart } = {}
@@ -797,7 +786,6 @@ local function buildArea(
 		model = model,
 		floorY = spec.floorY,
 		spawnPoints = spawnPoints,
-		lureSpots = lureSpots,
 		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
 		rects = rects,

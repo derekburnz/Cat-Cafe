@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 03:48 UTC",
+  "generated": "2026-10-27 08:23 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -4511,6 +4511,4166 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Aurora.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Aurora.png"
+    },
+    {
+      "name": "CatCafe_Cat_Tabby_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Tabby_Shiny_Body",
+        "CatCafe_Cat_Tabby_Shiny_Head",
+        "CatCafe_Cat_Tabby_Shiny_Tail"
+      ],
+      "triangles": 900,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Tabby when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Shiny.model.json",
+      "rbx_parts": 44,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "900/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "490 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Tuxedo_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Tuxedo_Shiny_Body",
+        "CatCafe_Cat_Tuxedo_Shiny_Head",
+        "CatCafe_Cat_Tuxedo_Shiny_Tail"
+      ],
+      "triangles": 1052,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.98,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.98,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Shiny.model.json",
+      "rbx_parts": 42,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1052/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "578 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Ginger_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Ginger_Shiny_Body",
+        "CatCafe_Cat_Ginger_Shiny_Head",
+        "CatCafe_Cat_Ginger_Shiny_Tail"
+      ],
+      "triangles": 828,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.99,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.99,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.5,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Ginger when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Shiny.model.json",
+      "rbx_parts": 38,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "828/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "454 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Smoke_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Smoke_Shiny_Body",
+        "CatCafe_Cat_Smoke_Shiny_Head",
+        "CatCafe_Cat_Smoke_Shiny_Tail"
+      ],
+      "triangles": 816,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Smoke when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke_Shiny.model.json",
+      "rbx_parts": 37,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "816/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "448 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Snow_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Snow_Shiny_Body",
+        "CatCafe_Cat_Snow_Shiny_Head",
+        "CatCafe_Cat_Snow_Shiny_Tail"
+      ],
+      "triangles": 816,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Snow when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Shiny.model.json",
+      "rbx_parts": 37,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "816/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "448 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Calico_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Calico_Shiny_Body",
+        "CatCafe_Cat_Calico_Shiny_Head",
+        "CatCafe_Cat_Calico_Shiny_Tail"
+      ],
+      "triangles": 888,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Calico when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Calico_Shiny.model.json",
+      "rbx_parts": 43,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "888/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "484 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Siamese_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Siamese_Shiny_Body",
+        "CatCafe_Cat_Siamese_Shiny_Head",
+        "CatCafe_Cat_Siamese_Shiny_Tail"
+      ],
+      "triangles": 828,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Siamese when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Siamese_Shiny.model.json",
+      "rbx_parts": 38,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "828/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "454 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Tortie_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Tortie_Shiny_Body",
+        "CatCafe_Cat_Tortie_Shiny_Head",
+        "CatCafe_Cat_Tortie_Shiny_Tail"
+      ],
+      "triangles": 888,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Tortie when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tortie_Shiny.model.json",
+      "rbx_parts": 43,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "888/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "484 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Bengal_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Bengal_Shiny_Body",
+        "CatCafe_Cat_Bengal_Shiny_Head",
+        "CatCafe_Cat_Bengal_Shiny_Tail"
+      ],
+      "triangles": 912,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Rare",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Bengal when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Shiny.model.json",
+      "rbx_parts": 45,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "912/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "496 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Sphynx_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Sphynx_Shiny_Body",
+        "CatCafe_Cat_Sphynx_Shiny_Head",
+        "CatCafe_Cat_Sphynx_Shiny_Tail"
+      ],
+      "triangles": 788,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.59,
+        "z": 1.9
+      },
+      "size_roblox": [
+        0.97,
+        1.9,
+        2.59
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.2,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.38,
+        1.9
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Epic",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Sphynx when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Sphynx_Shiny.model.json",
+      "rbx_parts": 37,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "788/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "434 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Ragdoll_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Ragdoll_Shiny_Body",
+        "CatCafe_Cat_Ragdoll_Shiny_Head",
+        "CatCafe_Cat_Ragdoll_Shiny_Tail"
+      ],
+      "triangles": 840,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.19,
+        "y": 3.16,
+        "z": 2.14
+      },
+      "size_roblox": [
+        1.19,
+        2.14,
+        3.16
+      ],
+      "bounds_min": [
+        -0.59,
+        -1.47,
+        0.0
+      ],
+      "bounds_max": [
+        0.59,
+        1.69,
+        2.14
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Epic",
+      "scale": 1.2,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.72,
+          1.2
+        ],
+        "Tail": [
+          0.0,
+          0.9,
+          1.14
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.2,
+          -0.72
+        ],
+        "Tail": [
+          0.0,
+          1.14,
+          0.9
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.68,
+            0.24
+          ],
+          "offset_roblox": [
+            0.0,
+            0.24,
+            -0.68
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.22
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            1.14
+          ],
+          "offset_roblox": [
+            0.0,
+            1.14,
+            -0.86
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.84,
+            1.2
+          ],
+          "offset_roblox": [
+            0.0,
+            1.2,
+            -0.84
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            0.26
+          ],
+          "offset_roblox": [
+            0.0,
+            0.26,
+            -0.86
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.54,
+            0.46
+          ],
+          "offset_roblox": [
+            0.0,
+            0.46,
+            -0.54
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.38,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.38
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.14,
+            0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.14
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Shiny.model.json",
+      "rbx_parts": 39,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "840/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "460 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.11"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Void_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Void_Shiny_Body",
+        "CatCafe_Cat_Void_Shiny_Head",
+        "CatCafe_Cat_Void_Shiny_Tail"
+      ],
+      "triangles": 852,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        1.04,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.52,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.52,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Legendary",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Void when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Shiny.model.json",
+      "rbx_parts": 40,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "852/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "466 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_MaineCoon_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_MaineCoon_Shiny_Body",
+        "CatCafe_Cat_MaineCoon_Shiny_Head",
+        "CatCafe_Cat_MaineCoon_Shiny_Tail"
+      ],
+      "triangles": 956,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.28,
+        "y": 3.21,
+        "z": 2.28
+      },
+      "size_roblox": [
+        1.28,
+        2.28,
+        3.21
+      ],
+      "bounds_min": [
+        -0.64,
+        -1.47,
+        0.0
+      ],
+      "bounds_max": [
+        0.64,
+        1.74,
+        2.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Epic",
+      "scale": 1.2,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.72,
+          1.2
+        ],
+        "Tail": [
+          0.0,
+          0.9,
+          1.14
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.2,
+          -0.72
+        ],
+        "Tail": [
+          0.0,
+          1.14,
+          0.9
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.68,
+            0.24
+          ],
+          "offset_roblox": [
+            0.0,
+            0.24,
+            -0.68
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.22
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            1.14
+          ],
+          "offset_roblox": [
+            0.0,
+            1.14,
+            -0.86
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.84,
+            1.2
+          ],
+          "offset_roblox": [
+            0.0,
+            1.2,
+            -0.84
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.86,
+            0.26
+          ],
+          "offset_roblox": [
+            0.0,
+            0.26,
+            -0.86
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.54,
+            0.46
+          ],
+          "offset_roblox": [
+            0.0,
+            0.46,
+            -0.54
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.38,
+            0.48
+          ],
+          "offset_roblox": [
+            0.0,
+            0.48,
+            -0.38
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.14,
+            0.6
+          ],
+          "offset_roblox": [
+            0.0,
+            0.6,
+            -0.14
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Shiny.model.json",
+      "rbx_parts": 51,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "956/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "526 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.14"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Midnight_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Midnight_Shiny_Body",
+        "CatCafe_Cat_Midnight_Shiny_Head",
+        "CatCafe_Cat_Midnight_Shiny_Tail"
+      ],
+      "triangles": 948,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        1.04,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.52,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.52,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Mythical",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Midnight when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Shiny.model.json",
+      "rbx_parts": 48,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "948/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "514 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Midnight_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Cream_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Cream_Shiny_Body",
+        "CatCafe_Cat_Cream_Shiny_Head",
+        "CatCafe_Cat_Cream_Shiny_Tail"
+      ],
+      "triangles": 828,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Cream when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream_Shiny.model.json",
+      "rbx_parts": 38,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "828/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "454 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Cream_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Brownie_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Brownie_Shiny_Body",
+        "CatCafe_Cat_Brownie_Shiny_Head",
+        "CatCafe_Cat_Brownie_Shiny_Tail"
+      ],
+      "triangles": 900,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Brownie when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Shiny.model.json",
+      "rbx_parts": 44,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "900/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "490 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Blue_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Blue_Shiny_Body",
+        "CatCafe_Cat_Blue_Shiny_Head",
+        "CatCafe_Cat_Blue_Shiny_Tail"
+      ],
+      "triangles": 816,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Common",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Blue when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Shiny.model.json",
+      "rbx_parts": 37,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "816/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "448 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Persian_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Persian_Shiny_Body",
+        "CatCafe_Cat_Persian_Shiny_Head",
+        "CatCafe_Cat_Persian_Shiny_Tail"
+      ],
+      "triangles": 1100,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.18,
+        "y": 2.57,
+        "z": 1.77
+      },
+      "size_roblox": [
+        1.18,
+        1.77,
+        2.57
+      ],
+      "bounds_min": [
+        -0.59,
+        -1.11,
+        0.0
+      ],
+      "bounds_max": [
+        0.59,
+        1.46,
+        1.77
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Epic",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.45,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.45
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Persian when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Persian_Shiny.model.json",
+      "rbx_parts": 42,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1100/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "610 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.18"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Persian_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Blossom_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Blossom_Shiny_Body",
+        "CatCafe_Cat_Blossom_Shiny_Head",
+        "CatCafe_Cat_Blossom_Shiny_Tail"
+      ],
+      "triangles": 996,
+      "budget": 1500,
+      "size_studs": {
+        "x": 0.97,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        0.97,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.49,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.49,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Legendary",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Blossom when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Shiny.model.json",
+      "rbx_parts": 52,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "996/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "538 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blossom_Shiny.png"
+    },
+    {
+      "name": "CatCafe_Cat_Aurora_Shiny",
+      "category": "Cat",
+      "module": "shiny",
+      "objects": [
+        "CatCafe_Cat_Aurora_Shiny_Body",
+        "CatCafe_Cat_Aurora_Shiny_Head",
+        "CatCafe_Cat_Aurora_Shiny_Tail"
+      ],
+      "triangles": 948,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.04,
+        "y": 2.64,
+        "z": 1.78
+      },
+      "size_roblox": [
+        1.04,
+        1.78,
+        2.64
+      ],
+      "bounds_min": [
+        -0.52,
+        -1.23,
+        0.0
+      ],
+      "bounds_max": [
+        0.52,
+        1.41,
+        1.78
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Mythical",
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.6,
+          1.0
+        ],
+        "Tail": [
+          0.0,
+          0.75,
+          0.95
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          1.0,
+          -0.6
+        ],
+        "Tail": [
+          0.0,
+          0.95,
+          0.75
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.57,
+            0.2
+          ],
+          "offset_roblox": [
+            0.0,
+            0.2,
+            -0.57
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.18,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.18
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.72
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.7,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.7
+          ]
+        }
+      },
+      "uniform_attachments": {
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.72,
+            0.22
+          ],
+          "offset_roblox": [
+            0.0,
+            0.22,
+            -0.72
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.45,
+            0.38
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            -0.45
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.32,
+            0.4
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.12,
+            0.5
+          ],
+          "offset_roblox": [
+            0.0,
+            0.5,
+            -0.12
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "studio": "F42: clone this instead of CatCafe_Cat_Aurora when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Aurora_Shiny.model.json",
+      "rbx_parts": 48,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "948/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "514 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Aurora_Shiny.png"
     },
     {
       "name": "CatCafe_NPC_Customer_A",
@@ -9631,6 +13791,65 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier5.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_Tier5.png"
+    },
+    {
+      "name": "CatCafe_Plot_ClosedSign",
+      "category": "Plot",
+      "module": "plot",
+      "objects": [
+        "CatCafe_Plot_ClosedSign",
+        "CatCafe_Plot_ClosedSign_Moon_Bulb"
+      ],
+      "triangles": 1166,
+      "budget": 1500,
+      "size_studs": {
+        "x": 6.04,
+        "y": 0.26,
+        "z": 1.97
+      },
+      "size_roblox": [
+        6.04,
+        1.97,
+        0.26
+      ],
+      "bounds_min": [
+        -3.02,
+        -14.63,
+        5.38
+      ],
+      "bounds_max": [
+        3.02,
+        -14.37,
+        7.35
+      ],
+      "pivot": "Plot.cframe: floor top centre of the cafe",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F44: owned cafes at night only (Clock.Phase), at the Plot pivot. Hangs in the front door above head height; nothing collides. The child Model _Moon_Bulb glows at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ClosedSign.model.json",
+      "rbx_parts": 108,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_ClosedSign.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_ClosedSign.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1166/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "583 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=5.38 (want 0)",
+          "centered": "footprint center x=0.00 y=-14.50"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_ClosedSign.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_ClosedSign.png"
     },
     {
       "name": "CatCafe_Alley_ArchStreet",

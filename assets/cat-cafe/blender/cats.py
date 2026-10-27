@@ -184,9 +184,10 @@ def _tail(b, spec):
         pos = [pos[0], pos[1] + d[1] * seg, pos[2] + d[2] * seg]
 
 
-def build_cat(name, mat):
-    spec = ROSTER[name]
-    base = f"CatCafe_Cat_{name}"
+def build_cat(name, mat, spec=None, base=None):
+    """`spec` and `base` override the roster entry and the asset name (shiny.py builds the shiny coats here)."""
+    spec = spec or ROSTER[name]
+    base = base or f"CatCafe_Cat_{name}"
     s = spec.get("scale", 1.0)
     body = Builder()
     _body(body, spec)

@@ -23,7 +23,7 @@ from mathutils import Matrix
 
 import cats
 import poses
-from common import RB, bake_transform
+from common import RB, bake_transform, text_width
 
 H = 12.8                 # wall height to the eave
 HW = 19.0                # outer half width (walls x 18..19)
@@ -712,7 +712,40 @@ def build_tier(n, mat):
     return [b.finalize(name, mat)] + extra
 
 
+def build_closed_sign(mat):
+    """F44: the cafe closes at night. A night-sky board hung from the front door's transom bar on two chains, with a
+    crescent moon through it and CLOSED on both faces, so it reads from the street and from inside. It hangs above
+    head height (5.5 to 7.1) and nothing on it collides. Place it at the Plot pivot like the tiers, nights only."""
+    name = "CatCafe_Plot_ClosedSign"
+    b, moon = RB(), RB()
+    zc, t = -14.5, 0.12                                   # in the doorway, centred under the transom (z -14.75..-14.25)
+    x0, x1, y0, y1 = -2.9, 2.9, 5.5, 7.1
+    zf, zb = zc - t / 2 - 0.04, zc + t / 2 + 0.04         # board faces, proud of the frame
+    for x in (-2.2, 2.2):
+        b.span((x - 0.04, y1 + 0.1, zc - 0.04), (x + 0.04, DOOR[2] - 0.15, zc + 0.04), "metal")      # chains
+    b.span((x0 - 0.12, y0 - 0.12, zc - t / 2), (x1 + 0.12, y1 + 0.12, zc + t / 2), "dark_wood")    # frame
+    b.span((x0, y0, zf), (x1, y1, zb), "night_sky")
+    px = 0.16
+    w = text_width("CLOSED", px)
+    cx = -0.75                                            # text left of the moon from the street, right of it inside
+    b.text("CLOSED", (cx + w / 2, 5.8, zf), px, 0.03, "offwhite", right=(-1, 0, 0))
+    b.text("CLOSED", (cx - w / 2, 5.8, zb), px, 0.03, "offwhite", right=(1, 0, 0))
+    rows = ("..##.....", ".##......", "###......", "###......", "###......", "###......", "###......", ".####....",
+            "..#####..")
+    mx, mtop, mp = 2.05, 6.9, 0.13                        # a tilted crescent through the board, horns toward the text
+    for r, row in enumerate(rows):
+        for c, ch in enumerate(row):
+            if ch == "#":
+                x = mx - (c - 4) * mp
+                moon.span((x - mp / 2, mtop - (r + 1) * mp, zf - 0.03), (x + mp / 2, mtop - r * mp, zb + 0.03), "sparkle")
+    for x, y in ((1.62, 6.5), (1.2, 6.92)):               # two stars by the horns, both faces
+        for z0, z1 in ((zf - 0.03, zf), (zb, zb + 0.03)):
+            b.span((x - 0.06, y - 0.06, z0), (x + 0.06, y + 0.06, z1), "sparkle")
+    return [b.finalize(name, mat), moon.finalize(name + "_Moon_Bulb", mat)]
+
+
 ASSETS = {f"CatCafe_Plot_Cafe_{c}": (lambda m, c=c: build_cafe(c, m), 12000) for c in COLOURS}
 ASSETS["CatCafe_Plot_Interior"] = (build_interior, 8000)
 ASSETS["CatCafe_Plot_ForRent"] = (build_for_rent, 4000)
 ASSETS.update({f"CatCafe_Plot_Tier{n}": (lambda m, n=n: build_tier(n, m), 3000) for n in range(1, 6)})
+ASSETS["CatCafe_Plot_ClosedSign"] = (build_closed_sign, 1500)

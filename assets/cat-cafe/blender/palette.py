@@ -10,6 +10,16 @@ GRID = 8          # 8 x 8 swatches
 SWATCH_PX = 32    # 256 x 256 texture
 TEXTURE_NAME = "CatCafe_Palette"
 
+# Shiny coats (features.md F42): each cat's coat colours map onto these three swatches plus a deep one
+# (shiny.py), so one style line restyles every shiny cat. Gavin picks the style in round 3; frost until then.
+SHINY_STYLES = {
+    "frost": (("#C3E0F7", "#94BCE4", "#6B8FC6"), "galaxy_blue"),      # silver blue
+    "gold": (("#FBE49A", "#F2C14E", "#C98F2A"), "rust"),
+    "lavender": (("#E6D2FA", "#C7A3EE", "#9A74D6"), "galaxy_blue"),
+}
+SHINY_STYLE = "frost"
+SHINY_TONES, SHINY_DEEP = SHINY_STYLES[SHINY_STYLE]
+
 # (name, hex) in index order. Row comments match the style guide tables.
 SWATCHES = [
     # row 0: cafe interior
@@ -33,9 +43,10 @@ SWATCHES = [
     # row 6: extra plants and glass
     ("leaf_dark", "#3E7F4E"), ("terracotta", "#C47A58"), ("glass", "#CFE9E3"), ("sign_teal", "#1FA58F"),
     ("night_sky", "#1F2A44"), ("neon_pink", "#FF6B81"), ("sparkle", "#FFF4B0"), ("galaxy_blue", "#3B4C8C"),
-    # row 7: v0.3 additions, then spare
+    # row 7: v0.3 and v0.4 additions, then the shiny coat tones (v0.5)
     ("rarity_mythic", "#FF5E7E"), ("fur_blue", "#9AA9C2"), ("aurora_violet", "#8E7CF0"), ("pastel_butter", "#F6DFA0"),
-    ("pastel_lilac", "#C9B8E8"), ("spare_61", "#FF00FF"), ("spare_62", "#FF00FF"), ("spare_63", "#FF00FF"),
+    ("pastel_lilac", "#C9B8E8"), ("shiny_light", SHINY_TONES[0]), ("shiny_mid", SHINY_TONES[1]),
+    ("shiny_dark", SHINY_TONES[2]),
 ]
 assert len(SWATCHES) == GRID * GRID
 

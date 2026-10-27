@@ -32,6 +32,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ResolveBait = RateLimiter.new(1, 1), -- the card retries after 6 s at most
 	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
 	Bump = RateLimiter.new(2, 1), -- a flood guard; ShoveService answers BumpCooldownSeconds with a reason
+	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

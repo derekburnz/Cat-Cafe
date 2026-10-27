@@ -17,6 +17,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
+local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -44,11 +45,14 @@ local function currentRate(profile: Profile): number
 	return Economy.incomePerSecond(profile) * Economy.phaseMultiplier(ClockService.phase())
 end
 
--- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view).
-function CafeService.catViews(profile: Profile): { [string]: Types.CatView }
+-- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is
+-- the filtered text NameService shows (F33), nil while it is unfiltered or failed, so the catalog name shows.
+function CafeService.catViews(player: Player, profile: Profile): { [string]: Types.CatView }
 	local views: { [string]: Types.CatView } = {}
 	for uid, instance in profile.cats do
-		views[uid] = CatStats.view(instance)
+		local view = CatStats.view(instance)
+		view.name = NameService.displayName(player, instance)
+		views[uid] = view
 	end
 	return views
 end
@@ -94,7 +98,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
 		bait = baitView(profile, now),
-		cats = CafeService.catViews(profile),
+		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		shinyCollection = profile.shinyCollection,
 		plotIndex = if plot ~= nil then plot.index else 0,
@@ -159,9 +163,18 @@ end
 
 -- Working cats stand at their slots; up to #plot.napSpots cats without a job nap in the cafe, highest rating first,
 -- so the collection is on show from the street (world-and-feel.md section 4, F37). Each model carries what the
--- world labels and effects read: Slot, Napping, Rarity, Shiny and Rate (its coins per second after the cafe and
--- tier multipliers, 0 while napping); working cats are tagged WorkingCat.
+-- world labels and effects read: Slot, Napping, Rarity, Shiny, Rate (its coins per second after the cafe and
+-- tier multipliers, 0 while napping) and DisplayName (its filtered name, else the catalog name; F33); working cats
+-- are tagged WorkingCat.
 type CatPlacement = { instance: Types.CatInstance, slot: string, anchor: BasePart }
+
+-- The name over a cat model; a named cat not filtered yet asks NameService, which refreshes once it has the text.
+local function shownName(player: Player, instance: Types.CatInstance): string
+	NameService.request(player, instance)
+	local def = Catalog.getCat(instance.catId)
+	return NameService.displayName(player, instance)
+		or (if def ~= nil then def.name else instance.catId)
+end
 
 local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Profile)
 	local multiplier = Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
@@ -216,6 +229,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		else
 			wanted[uid :: string] = nil
 			child:SetAttribute("Rate", Economy.catRate(placement.instance) * multiplier)
+			child:SetAttribute("DisplayName", shownName(player, placement.instance))
 		end
 	end
 	for uid, placement in wanted do
@@ -231,6 +245,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
 		model:SetAttribute("Shiny", instance.variant == "shiny")
 		model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
+		model:SetAttribute("DisplayName", shownName(player, instance))
 		model:SetAttribute("OwnerUserId", player.UserId)
 		if instance.spotId ~= nil then
 			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
@@ -857,6 +872,10 @@ end
 
 function CafeService.start()
 	DataService.onLoaded:Connect(onLoaded)
+	NameService.changed:Connect(function(player: Player)
+		CafeService.refreshPlot(player)
+		CafeService.sync(player)
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		carrying[player] = nil
 	end)

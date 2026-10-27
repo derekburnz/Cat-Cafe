@@ -1,9 +1,9 @@
 --!strict
 -- The night food dealer (F32, data-model section 8b). A cart parks mid-street at night start and leaves at day
--- start. Each player sees three slots of dealer food from shared/Dealer, the same on every server for the same
--- window and tier, and can buy each slot once per window. BuyDealerFood(slot, lureId) recomputes the stock and
--- refuses when the slot holds another food by now (reviewer S42). DealerStock goes to each player whenever their
--- stock changes (night start, a new window, a rank up, a join), nil by day, and after every buy, bought or not.
+-- start. Everyone sees the same three slots of dealer food from shared/Dealer, on every server for the same window
+-- (v0.5 F43), and each player can buy each slot once per window. BuyDealerFood(slot, lureId) recomputes the stock
+-- and refuses when the slot holds another food by now (reviewer S42). DealerStock goes to each player whenever their
+-- stock or bought marks change (night start, a new window, a join), nil by day, and after every buy, bought or not.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -103,13 +103,13 @@ local function leave()
 	end
 end
 
--- This player's stock right now, with the bought marks of the current window.
-local function stockFor(player: Player, profile: Types.PlayerProfile): Types.DealerStock
+-- Everyone's stock right now, with this player's bought marks of the current window.
+local function stockFor(profile: Types.PlayerProfile): Types.DealerStock
 	local window = Dealer.window(os.time())
 	Dealer.refresh(profile.dealer, window)
 	local behind = Dealer.behind(profile.dealer, window)
 	local slots: { Types.DealerSlot } = {}
-	for slot, lureId in Dealer.stock(player.UserId, window, Economy.tier(profile)) do
+	for slot, lureId in Dealer.stock(window) do
 		local def = Catalog.getLure(lureId)
 		table.insert(slots, {
 			lureId = lureId,
@@ -141,7 +141,7 @@ local function sendStock(player: Player, force: boolean)
 		end
 		return
 	end
-	local stock = stockFor(player, profile)
+	local stock = stockFor(profile)
 	local key = stockKey(stock)
 	if force or sentKey[player] ~= key then
 		sentKey[player] = key
@@ -184,7 +184,7 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 	end
 	local window = Dealer.window(os.time())
 	Dealer.refresh(profile.dealer, window)
-	local foods = Dealer.stock(player.UserId, window, Economy.tier(profile))
+	local foods = Dealer.stock(window)
 	if foods[slot] ~= lureId then
 		refuse("Fresh stock just arrived. Take another look.")
 		return
@@ -233,7 +233,7 @@ function DealerService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		sentKey[player] = nil
 	end)
-	-- A new window, a rank up or a join changes someone's stock; one check a second catches them all.
+	-- A new window or a join changes someone's stock; one check a second catches them all.
 	task.spawn(function()
 		while true do
 			task.wait(1)

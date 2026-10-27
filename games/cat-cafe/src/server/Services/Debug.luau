@@ -8,6 +8,8 @@
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe that pays itself in 20 s
+--   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
+--   D:Invoke("shove", "Player1", "Player2", "loose")  -- a real shove with every check, the roll forced
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,6 +28,8 @@ local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
+local Shove = require(ReplicatedStorage.Shared.Shove)
+local ShoveService = require(script.Parent.ShoveService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -201,6 +205,33 @@ end
 function Debug.spawnStray(catId: string, areaId: string?, shiny: boolean?): string
 	guard()
 	return CatService.debugSpawnStray(catId, areaId or "alley", shiny)
+end
+
+-- Drops the player's carried cat where they stand as a shove would, whatever the grace or immunity, with nobody
+-- barred as the shover: only they can catch it for DropOwnerPrioritySeconds. Stand in a catching area. Returns
+-- the new StrayId.
+function Debug.knockLoose(player: (Player | number | string)?): string
+	guard()
+	return CatService.debugKnockLoose(resolve(player))
+end
+
+-- `shover` shoves `target` through every section 10c check (the two must stand together in an area: teleport
+-- both). `outcome` "loose" or "held" forces the roll on a carrier that can be knocked loose; nil rolls BumpChance.
+function Debug.shove(
+	shover: (Player | number | string)?,
+	target: Player | number | string,
+	outcome: string?
+)
+	guard()
+	assert(
+		outcome == nil or outcome == "loose" or outcome == "held",
+		"outcome is loose, held or nil"
+	)
+	local forced: Shove.KnockResult? = if outcome == "loose"
+		then "loose"
+		elseif outcome == "held" then "held"
+		else nil
+	ShoveService.debugShove(resolve(shover), resolve(target), forced)
 end
 
 -- Moves the player's character onto an area's first spawn point, past its gate whatever their tier, so a

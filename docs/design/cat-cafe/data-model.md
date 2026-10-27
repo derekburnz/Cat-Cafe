@@ -296,11 +296,11 @@ v0.5 change (Gavin, round 2 Q3: "Instead of Bump, make it a shove mechanic. Play
 
 ## 13. Instance attributes (world data, no remote needed)
 
-Stray cat model (tag `Stray`): `StrayId`, `CatId`, `CatName`, `Rarity`, `Area`, `LockedBy` (UserId or 0), `SpawnedAt`, `Charm`, `Stars`, `Shiny` (bool, never set on a stuck cat before its rescue), `Dropped` (bool), `DropOwnerUntil` (display of the old carrier's priority window), `FleeingUntil` (v0.5, server time the sprint and rest end, display only). v0.3 change: `ReservedFor` is gone (no lured strays in areas).
+Stray cat model (tag `Stray`): `StrayId`, `CatId`, `CatName`, `Rarity`, `Area`, `LockedBy` (UserId or 0), `SpawnedAt`, `Charm`, `Stars`, `Shiny` (bool, never set on a stuck cat before its rescue), `Dropped` (bool), `DropOwner` (the old carrier's UserId), `DropOwnerUntil` (display of the old carrier's priority window), `FleeingUntil` (v0.5, server time the sprint and rest end), `HissAt` (server time of the latest Miss, for the hiss everyone nearby sees). All display only; the drop records live in the server's table (S25). v0.3 change: `ReservedFor` is gone (no lured strays in areas).
 
 Rescue trap (tag `RescueSpot`): `RescueSpotId`, `Area`, `TrapType` (`trash_bin`, `garbage_bag`, `tree`, `trashcan`, ...), `Occupied`, `LockedBy`, `RetryAt`. The stuck cat model shows `CatId`, `CatName`, `Rarity` (shown before the attempt so players can choose) but not `Shiny`.
 
-Carrier character: `CarryingCatId`, `CarryStartedAt`, `BumpImmune`.
+Carrier character: `CarryingCatId`, `CarryStartedAt`, `BumpImmune`. Display only; the carry grace and immunity checks read the server's carry table.
 
 Shoved character (v0.5, asked by the vfx-animator for the shove puff and dizzy stars): `ShovedAt` (server time of the latest shove that landed on this player) and `ShovedBy` (the shover's UserId). Display only; the cooldowns and ShoveTargetImmuneSeconds read the server's shove table.
 
@@ -312,7 +312,7 @@ Dealer cart (tag `DealerCart`): `Open` (bool).
 
 Plot model (tag `Plot`): `OwnerUserId`, `PlotIndex`, `Tier`, `RichTipAmount`, `RichTipExpiresAt`, `BaitReadyAt` (0 when empty). Children: `Spots/<slotId>` station parts with attribute `SpotType` (the role), `DecorAnchors/<decorId>`, `BaitBowl`, `RichTipAnchor`, `Door`, `CustomerWaypoints`, `Expansions/<n>`.
 
-Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `DisplayName` (the filtered name or the catalog name), `Shiny`.
+Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `DisplayName` (the filtered name or the catalog name), `Shiny`, `Napping` (bool, naps any cat), and the CollectionService tag `WorkingCat` while it works a station. v0.5 night nap (F44): each client naps every `WorkingCat` while the Clock `Phase` is night, so the server writes nothing at dusk and dawn; income stays the server's 60%.
 
 ## 14. Player profile (save data, version 3)
 

@@ -1,7 +1,8 @@
 --!strict
--- The night dealer's stock (data-model section 8b): three slots per player, each a dealer food rolled from the
--- tier's DealerSlotWeights. The roll is seeded from the UserId, the global dealer window and the tier, so a rejoin
--- or a server hop shows the same stock, and it uses its own generator so every server and the specs agree.
+-- The night dealer's stock (data-model section 8b, v0.5 F43): three slots, each a dealer food rolled from
+-- DealerSlotWeights. The roll is seeded only from the global dealer window, so every player on every server sees
+-- the same three foods and a rejoin or a server hop cannot reroll; it uses its own generator so every server and the
+-- specs agree. Each player's bought marks stay their own.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -26,11 +27,12 @@ function Dealer.restocksAt(window: number): number
 	return (window + 1) * Config.DealerWindowSeconds
 end
 
--- One seed from the three inputs, the same on every server. Every product stays under 2^53, so it is exact.
-function Dealer.seed(userId: number, window: number, tier: number): number
-	local hash = 7
-	for _, value in { userId, window, tier } do
-		hash = (hash * 1000003 + math.floor(value) % MODULUS) % MODULUS
+-- The window's seed, the same on every server. Every product stays under 2^53, so it is exact.
+function Dealer.seed(window: number): number
+	local hash = (7 * 1000003 + math.floor(window) % MODULUS) % MODULUS
+	-- two more rounds so neighbouring windows do not start the generator at neighbouring states
+	for _ = 1, 2 do
+		hash = (hash * MULTIPLIER) % MODULUS
 	end
 	return if hash == 0 then 1 else hash
 end
@@ -60,15 +62,13 @@ function Dealer.pick(weights: { [string]: number }, roll: number): string
 	return last :: string
 end
 
--- The three foods this player sees in `window` at `tier`, by slot.
-function Dealer.stock(userId: number, window: number, tier: number): { string }
-	local rows = Catalog.dealerSlotWeights
-	local weights = rows[math.clamp(math.floor(tier), 1, #rows)]
-	local state = Dealer.seed(userId, window, tier)
+-- The three foods everyone sees in `window`, by slot.
+function Dealer.stock(window: number): { string }
+	local state = Dealer.seed(window)
 	local foods: { string } = {}
 	for _ = 1, Dealer.SLOTS do
 		state = (state * MULTIPLIER) % MODULUS
-		table.insert(foods, Dealer.pick(weights, state / MODULUS))
+		table.insert(foods, Dealer.pick(Catalog.dealerSlotWeights, state / MODULUS))
 	end
 	return foods
 end

@@ -287,6 +287,56 @@ function Logic.fishPickup(gain: number): (number, number)
 	return sparkles, ring
 end
 
+-- The potion whose glow a drinker shows: the newest (last) id in their `ActivePotions` ("tip_potion,swift_potion",
+-- oldest drink first), or nil for none or an unknown kind.
+function Logic.newestPotion(value: unknown): string?
+	if type(value) ~= "string" then
+		return nil
+	end
+	local newest: string? = nil
+	for id in string.gmatch(value, "[^,%s]+") do
+		newest = id
+	end
+	if newest ~= nil and Presets.potions[newest] ~= nil then
+		return newest
+	end
+	return nil
+end
+
+-- The potion you just drank, from your own ProfileSync `buffs` (potion id to endsAt) before and after: the one whose
+-- end moved furthest later, or nil for the first sync, a buff running out or nothing new.
+function Logic.potionDrunk(previous: unknown, current: unknown): string?
+	if type(previous) ~= "table" or type(current) ~= "table" then
+		return nil
+	end
+	local before = previous :: { [unknown]: unknown }
+	local best: string? = nil
+	local most = 0
+	for id, ends in current :: { [unknown]: unknown } do
+		if type(id) == "string" and type(ends) == "number" then
+			local was = before[id]
+			local moved = ends - (if type(was) == "number" then was else 0)
+			if moved > most then
+				best, most = id, moved
+			end
+		end
+	end
+	return best
+end
+
+-- The colour of what a Mystery Visitor gift held (MysteryGiftResult kind and id): a potion in its own colour, the
+-- rest by kind, and the ribbon pink for anything else.
+function Logic.giftColour(kind: unknown, id: unknown): Color3
+	if kind == "potion" and type(id) == "string" then
+		local spec = Presets.potions[id]
+		if spec ~= nil then
+			return spec.colour
+		end
+	end
+	local byKind = if type(kind) == "string" then Presets.mystery.kinds[kind] else nil
+	return byKind or Presets.palette.neonPink
+end
+
 local function wave(t: number, seconds: number): number
 	return math.sin(t * 2 * math.pi / seconds)
 end

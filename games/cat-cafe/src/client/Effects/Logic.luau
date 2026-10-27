@@ -287,6 +287,44 @@ function Logic.loafing(t: number, phase: number): boolean
 	return (t + phase * l.every) % l.every < l.hold
 end
 
+-- How far round a spin of the world wheel is after `k` (0 to 1) of its time: fast at first, easing to a stop.
+function Logic.wheelEase(k: number): number
+	local left = 1 - math.clamp(k, 0, 1)
+	return 1 - left * left * left
+end
+
+-- Where the world wheel comes to rest after a spin at server time `at`, in radians from where the server placed
+-- it: on the won slice when the station says which (`slice`, 1 to `slices`, slice 1 under the pointer at rest and
+-- the rest counted round the way the wheel turns), somewhere inside it rather than dead centre, never near an
+-- edge, so it can never seem to just miss a better prize. With no slice, anywhere. Every client works out the
+-- same angle, so everyone sees the wheel stop in the same place.
+function Logic.wheelRest(at: number, slice: number?, slices: number): number
+	local jitter = Logic.phaseOf(string.format("%.3f", at))
+	if slice == nil or slice ~= math.floor(slice) or slice < 1 or slice > slices then
+		return jitter * 2 * math.pi
+	end
+	local inside = (jitter - 0.5) * Presets.wheel.landWithin
+	return -((slice - 1) + inside) * 2 * math.pi / slices
+end
+
+-- The angle a spin turns to from `from`: `turns` whole turns, then on to `rest`, always forward.
+function Logic.wheelTarget(from: number, rest: number, turns: number): number
+	local tau = 2 * math.pi
+	return from + turns * tau + (rest - from) % tau
+end
+
+-- How far the pointer is knocked aside, in degrees, at a wheel angle: `tilt` just as a slice edge passes it, back
+-- to nothing `share` of a slice later.
+function Logic.pointerTilt(angle: number, slices: number, tilt: number, share: number): number
+	local into = (angle / (2 * math.pi / slices)) % 1
+	return tilt * math.max(0, 1 - into / share)
+end
+
+-- Whether rim light `index` is on `t` seconds into a spin: every other one, stepping round each `step` seconds.
+function Logic.chaseOn(index: number, t: number, step: number): boolean
+	return (index + math.floor(t / step)) % 2 == 0
+end
+
 -- The leg a part of the body is ("pawFL", "pawFR", "pawBL" or "pawBR"), or nil. `at` is the part's centre in
 -- the body part's own axes (the cat faces -Z, +X is its right), so a cat stood upright reads like one on all
 -- fours. The exported cats name every body part like the body, legs included, so a leg is told by shape and place:

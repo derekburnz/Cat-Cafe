@@ -223,13 +223,12 @@ local function wander(stray: Stray)
 			continue
 		end
 		local radius = Config.StrayWanderRadius
-		local target = stray.home
-			+ Vector3.new(rng:NextNumber(-radius, radius), 0, rng:NextNumber(-radius, radius))
-		local bounds = area.bounds
-		target = Vector3.new(
-			math.clamp(target.X, bounds.minX, bounds.maxX),
-			area.floorY,
-			math.clamp(target.Z, bounds.minZ, bounds.maxZ)
+		local target = WorldBuilder.clampToArea(
+			area,
+			stray.home
+				+ Vector3.new(rng:NextNumber(-radius, radius), 0, rng:NextNumber(-radius, radius)),
+			2,
+			stray.model:GetPivot().Position
 		)
 		Mover.walkTo(stray.model, target, Config.StrayWanderSpeed, alive)
 	end
@@ -345,14 +344,23 @@ local function spawnStray(
 	return stray
 end
 
-local function freeSpawnPoint(areaId: string): number?
+-- A free spawn point in the area, or nil. Epic and rarer strays take only points tagged "square" when one is
+-- free (data-model section 9: the exciting cats are a short run from everyone, no cafe's lane is the lucky one).
+local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
 	local free: { number } = {}
-	for i = 1, #area.spawnPoints do
+	local square: { number } = {}
+	for i, point in area.spawnPoints do
 		if occupied[i] == nil then
 			table.insert(free, i)
+			if point:GetAttribute("Zone") == "square" then
+				table.insert(square, i)
+			end
 		end
+	end
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and #square > 0 then
+		return square[rng:NextInteger(1, #square)]
 	end
 	if #free == 0 then
 		return nil
@@ -360,11 +368,9 @@ local function freeSpawnPoint(areaId: string): number?
 	return free[rng:NextInteger(1, #free)]
 end
 
-local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity?)
-	local areaDef = Catalog.getArea(areaId) :: Types.AreaDef
+local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)
 	local area = world.areas[areaId]
-	local picked: Types.Rarity = rarity or Catching.pickRarity(areaDef.odds, rng:NextNumber())
-	local def = Catching.pickCat(picked, areaId, rng:NextNumber())
+	local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
 	spawnStray(
 		def,
@@ -378,31 +384,36 @@ local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity?
 	)
 end
 
-local function anyPlayerInTutorial(): boolean
+-- A beginner always finds a Common stray waiting in the back alley right outside their own yard gate: plot p's
+-- lane points are alley points 2p - 1 and 2p (Layout.alley).
+local function tutorialTick()
+	local occupied = occupiedPoints.alley or {}
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
-		if profile ~= nil and profile.tutorialStep < Config.TutorialGuaranteedStrayStep then
-			return true
+		local plot = PlotService.get(player)
+		if
+			profile == nil
+			or plot == nil
+			or profile.tutorialStep >= Config.TutorialGuaranteedStrayStep
+		then
+			continue
+		end
+		local lane = { 2 * plot.index - 1, 2 * plot.index }
+		local waiting = false
+		local freePoint: number? = nil
+		for _, pointIndex in lane do
+			local strayId = occupied[pointIndex]
+			local stray = if strayId ~= nil then strays[strayId] else nil
+			if stray ~= nil and stray.alive and stray.def.rarity == "Common" then
+				waiting = true
+			elseif strayId == nil and freePoint == nil then
+				freePoint = pointIndex
+			end
+		end
+		if not waiting and freePoint ~= nil then
+			spawnAt("alley", freePoint :: number, "Common")
 		end
 	end
-	return false
-end
-
-local function tutorialTick()
-	-- A beginner always finds a Common stray at alley point 1.
-	if not anyPlayerInTutorial() then
-		return
-	end
-	local occupied = occupiedPoints.alley or {}
-	if occupied[1] ~= nil then
-		return
-	end
-	for _, stray in strays do
-		if stray.area == "alley" and stray.def.rarity == "Common" and stray.alive then
-			return
-		end
-	end
-	spawnAt("alley", 1, "Common")
 end
 
 -- Night start (data-model section 9): last night's leftovers leave, then a full wave arrives at once. Bait
@@ -427,11 +438,12 @@ local function startWave(areaDef: Types.AreaDef)
 		end
 	end
 	for _ = 1, areaDef.waveSize do
-		local point = freeSpawnPoint(areaDef.id)
+		local rarity: Types.Rarity = Catching.pickRarity(areaDef.odds, rng:NextNumber())
+		local point = freeSpawnPoint(areaDef.id, rarity)
 		if point == nil then
 			break
 		end
-		spawnAt(areaDef.id, point)
+		spawnAt(areaDef.id, point, rarity)
 	end
 end
 
@@ -734,11 +746,11 @@ local function jumpBack(stray: Stray, player: Player)
 		away = Vector3.new(math.cos(angle), 0, math.sin(angle))
 	end
 	local area = world.areas[stray.area]
-	local target = at + away.Unit * rng:NextNumber(Config.StrayJumpBackMin, Config.StrayJumpBackMax)
-	target = Vector3.new(
-		math.clamp(target.X, area.bounds.minX, area.bounds.maxX),
-		area.floorY,
-		math.clamp(target.Z, area.bounds.minZ, area.bounds.maxZ)
+	local target = WorldBuilder.clampToArea(
+		area,
+		at + away.Unit * rng:NextNumber(Config.StrayJumpBackMin, Config.StrayJumpBackMax),
+		2,
+		at
 	)
 	stray.model:SetAttribute("HissAt", serverNow())
 	stray.jumping = true
@@ -992,7 +1004,11 @@ local function onCheckIn(player: Player)
 	if carry == nil or plot == nil then
 		return
 	end
-	if not withinRange(player, plot.door.Position, Config.CheckInRangeStuds) then
+	-- Either door works (layout v2): the back door is the short way in from the back alley.
+	if
+		not withinRange(player, plot.door.Position, Config.CheckInRangeStuds)
+		and not withinRange(player, plot.backDoorZone.Position, Config.CheckInRangeStuds)
+	then
 		return
 	end
 	finishCheckIn(player, true)
@@ -1334,7 +1350,7 @@ function CatService.debugSpawnStray(catId: string, areaId: string): string
 	local areaDef = Catalog.getArea(areaId)
 	assert(def ~= nil and areaDef ~= nil, "unknown cat or area")
 	local area = world.areas[areaId]
-	local pointIndex = freeSpawnPoint(areaId) or 1
+	local pointIndex = freeSpawnPoint(areaId, def.rarity) or 1
 	local point = area.spawnPoints[pointIndex]
 	local stray = spawnStray(
 		def :: Types.CatDef,

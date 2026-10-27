@@ -1209,10 +1209,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	task.spawn(function()
 		while true do
 			-- one bad board or profile must not end the loop for the server's life (review N185)
-			local ok, err = pcall(refreshLuckBoards)
-			if not ok then
+			xpcall(refreshLuckBoards, function(err: unknown)
 				warn("[CatService] luck boards: " .. tostring(err))
-			end
+			end)
 			task.wait(LUCK_BOARD_SECONDS)
 		end
 	end)

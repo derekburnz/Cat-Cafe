@@ -26,6 +26,8 @@ export type AreaSpec = {
 	halfDepth: number,
 	gateZ: number?, -- where the tier gate stands across the opening; nil for the Tier 1 alley
 	openingHalfWidth: number?, -- half the opening of a box area; the street's half width when omitted
+	nearWall: boolean?, -- false when a neighbour's wall already closes a box area's near side, opening and all
+	paths: { Rect }?, -- a box area's roads and paths, laid flat on its floor
 	rects: { Rect }?,
 	walls: { Rect }?, -- wall footprints for a rects area
 	roam: { Rect }?, -- where strays may walk when props line the walls; the floor pieces when nil
@@ -216,7 +218,7 @@ Layout.plot = {
 local AI, AO = W.AlleyInnerX, W.AlleyOuterX
 local SQ1, SQ2 = W.SquareSouthZ, W.SquareNorthZ
 local SH = W.StreetHalfWidth + 2 -- the street and its sidewalks
-local NH = W.NeighbourhoodWidth / 2 -- the Neighbourhood's near wall closes the middle of the Square's north side
+local NG = W.StreetHalfWidth -- the Square's north wall is also the Neighbourhood's near wall, open for its gate
 
 -- Two lane spawn points behind every cafe, in plot order: plot p owns alley points 2p - 1 and 2p, so the tutorial
 -- stray waits right outside a beginner's own yard gate. Then eight in the Square, where Epic and rarer strays go.
@@ -324,8 +326,8 @@ Layout.alley = {
 	walls = {
 		{ x1 = -AO - 1, z1 = W.AlleySouthZ, x2 = -AO, z2 = SQ2 + 1 }, -- west outer wall
 		{ x1 = AO, z1 = W.AlleySouthZ, x2 = AO + 1, z2 = SQ2 + 1 }, -- east outer wall
-		{ x1 = -AO, z1 = SQ2, x2 = -NH, z2 = SQ2 + 1 }, -- north wall, west of the Neighbourhood
-		{ x1 = NH, z1 = SQ2, x2 = AO, z2 = SQ2 + 1 }, -- north wall, east of the Neighbourhood
+		{ x1 = -AO, z1 = SQ2, x2 = -NG, z2 = SQ2 + 1 }, -- north wall, west of the Neighbourhood gate
+		{ x1 = NG, z1 = SQ2, x2 = AO, z2 = SQ2 + 1 }, -- north wall, east of the Neighbourhood gate
 		{ x1 = -AI, z1 = SQ1 - 1, x2 = -SH, z2 = SQ1 }, -- south wall between the west alley and the street
 		{ x1 = SH, z1 = SQ1 - 1, x2 = AI, z2 = SQ1 }, -- south wall between the street and the east alley
 	},
@@ -368,7 +370,7 @@ Layout.alley = {
 		-- spawn point (82, 31), so a stray there never takes the rescue's prompt (reviewer N77).
 		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = -AO + 4.5, z = -30, rotY = -90 },
 		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = AO - 4.5, z = 22, rotY = 90 },
-		-- between the mural and the Neighbourhood
+		-- between the mural and the Neighbourhood gate
 		{ prop = "CatCafe_Alley_GarbageBags", trap = "garbage_bag", x = -49, z = SQ2 - 1.6 },
 	} :: { RescuePoint },
 	-- The building backs, crate stacks, lights and laundry from alleyDressing, then the loose props in front of
@@ -475,42 +477,72 @@ end
 -- spots become the area's traps in F27. The Neighbourhood opens on its -Z side into the Alley Square; the Woods
 -- and the Sewer open on their +Z side onto the south ends of the back alleys.
 local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
-local NHD = W.NeighbourhoodDepth / 2
+local NHW, NHD = W.NeighbourhoodWidth / 2, W.NeighbourhoodDepth / 2
+-- The Neighbourhood (areas-and-stations.md, design #240): the gate opens onto Whisker Lane, which runs 58 studs
+-- north to a square loop road around the playground hub; five houses ring the loop and two back gardens sit in the
+-- far corners. The houses are not built yet, so the spawn points stand where their porches, driveways, flower beds
+-- and fences will be. Offsets below are from the area's center.
+local HUB = 18 -- the hub's center, north of the area's center
+local LOOP, ROAD = 30, 8 -- the loop road's outer half size and its width
+local LS, LN = NZ + HUB - LOOP, NZ + HUB + LOOP -- the loop's south and north edges
 Layout.neighbourhood = {
 	floorY = 0.1,
 	center = { x = NX, y = 0, z = NZ },
-	halfWidth = W.NeighbourhoodWidth / 2,
+	halfWidth = NHW,
 	halfDepth = NHD,
 	gateZ = W.NeighbourhoodGateZ,
+	nearWall = false, -- the Square's north wall closes this side
+	paths = {
+		{ x1 = NX - 5, z1 = NZ - NHD, x2 = NX + 5, z2 = LS }, -- Whisker Lane
+		{ x1 = NX - LOOP, z1 = LS, x2 = NX + LOOP, z2 = LS + ROAD }, -- the loop, south
+		{ x1 = NX - LOOP, z1 = LN - ROAD, x2 = NX + LOOP, z2 = LN }, -- north
+		{ x1 = NX - LOOP, z1 = LS + ROAD, x2 = NX - LOOP + ROAD, z2 = LN - ROAD }, -- west
+		{ x1 = NX + LOOP - ROAD, z1 = LS + ROAD, x2 = NX + LOOP, z2 = LN - ROAD }, -- east
+	},
 	spawnPoints = around(NX, NZ, {
-		{ -8, -18 },
-		{ 10, -16 },
-		{ -26, -16 },
-		{ 28, -18 },
-		{ -14, -6 },
-		{ 2, -2 },
-		{ 20, -6 },
-		{ -34, 2 },
-		{ 34, 4 },
-		{ -8, 10 },
-		{ 12, 10 },
-		{ -24, 18 },
-		{ 4, 21 },
-		{ 26, 19 },
+		-- Whisker Lane: four driveways, then the lane houses' porch steps and flower beds
+		{ -9, -56 },
+		{ 9, -50 },
+		{ -9, -32 },
+		{ 9, -26 },
+		{ -27, -54 },
+		{ 27, -38 },
+		{ -27, -26 },
+		{ 20, -14 }, -- under the ice cream van at the end of the lane
+		-- The hub: under the slide, in the sandbox, by the tyre swing
+		{ 0, 10 },
+		{ -10, 22 },
+		{ 10, 26 },
+		-- The five loop houses' porches, west to east
+		{ -44, 4 },
+		{ -38, 36 },
+		{ 0, 56 },
+		{ 38, 36 },
+		{ 44, 4 },
+		-- The back gardens: the trampoline and the fence tops
+		{ -58, 58 },
+		{ 58, 58 },
 	}),
 	rescueSpots = {
-		-- Stand-ins: the box for the shed, the drainpipe for the gutter.
-		{ prop = "CatCafe_Alley_StuckBox", trap = "shed", x = NX - 41, z = NZ + 8, rotY = -90 },
-		{ prop = "CatCafe_Alley_Drainpipe", trap = "gutter", x = NX + 12, z = NZ + NHD - 0.5 },
+		-- Stand-ins: the box for the shed in the west back garden, the drainpipe for the gutter on the far wall.
+		{
+			prop = "CatCafe_Alley_StuckBox",
+			trap = "shed",
+			x = NX - NHW + 4,
+			z = NZ + 40,
+			rotY = -90,
+		},
+		{ prop = "CatCafe_Alley_Drainpipe", trap = "gutter", x = NX + 14, z = NZ + NHD - 0.5 },
 	},
 	props = {
 		{ asset = "CatCafe_Alley_StreetLamp", x = NX - 16, z = NZ - NHD + 3 },
 		{ asset = "CatCafe_Alley_StreetLamp", x = NX + 16, z = NZ - NHD + 3 },
-		{ asset = "CatCafe_Alley_TrashCan", x = NX - 40, z = NZ - 6 },
-		{ asset = "CatCafe_Alley_Crate", x = NX + 40, z = NZ - 6 },
-		{ asset = "CatCafe_Park_Tree", x = NX + 36, z = NZ + 16 },
-		{ asset = "CatCafe_Park_Tree", x = NX - 32, z = NZ + 20 },
-		{ asset = "CatCafe_Park_Bench", x = NX - 8, z = NZ + 22, rotY = 180 },
+		{ asset = "CatCafe_Alley_TrashCan", x = NX - 40, z = NZ - 60 }, -- the recycling bins
+		{ asset = "CatCafe_Alley_Crate", x = NX + 40, z = NZ - 60 },
+		{ asset = "CatCafe_Park_Tree", x = NX, z = NZ + HUB }, -- the big oak in the hub
+		{ asset = "CatCafe_Park_Tree", x = NX - 56, z = NZ + 20 },
+		{ asset = "CatCafe_Park_Tree", x = NX + 56, z = NZ + 20 },
+		{ asset = "CatCafe_Park_Bench", x = NX - 14, z = NZ + 6, rotY = 90 },
 	},
 } :: AreaSpec
 

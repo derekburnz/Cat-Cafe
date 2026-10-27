@@ -175,7 +175,7 @@ local Config = {
 		StreetHalfWidth = 12,
 		StreetSouthZ = -100,
 		StreetNorthZ = 88, -- the street runs into the Alley Square here
-		GroundSize = 560,
+		GroundSize = 600, -- reaches past the Neighbourhood's far wall (z 292.5)
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to SquareSouthZ, and the
@@ -201,10 +201,11 @@ local Config = {
 		SewerWidth = 66,
 		SewerDepth = 64,
 		SewerGateZ = -101,
+		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger").
 		NeighbourhoodCenterX = 0,
-		NeighbourhoodCenterZ = 180.5,
-		NeighbourhoodWidth = 90,
-		NeighbourhoodDepth = 56,
+		NeighbourhoodCenterZ = 222.5,
+		NeighbourhoodWidth = 140,
+		NeighbourhoodDepth = 140,
 		NeighbourhoodGateZ = 151.5,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
 		-- this range of its camera, up to CustomersMax at once across the street.

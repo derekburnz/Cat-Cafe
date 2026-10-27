@@ -15,6 +15,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
+local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Settings = require(Shared:WaitForChild("Settings"))
@@ -300,14 +301,41 @@ local function refreshRichTip()
 	end)
 end
 
--- The settings Audio follows; every key of shared/Settings is saved by the server.
-local AUDIO_SETTINGS = { music = true, sfx = true }
+-- The switches read as the Settings screen shows them: a tap at once, then the server's saved value, and back to it
+-- if the server dropped the tap (ui-contract Settings, review N111). Every other key of shared/Settings (volumes,
+-- screen shake, low performance) is read from the last saved settings until the screen shows it.
+local SCREEN_SWITCHES = { music = true, sfx = true }
 local audioStarted = false -- Audio waits for the first ProfileSync, so a muted player never hears music start
 
--- Mutes or restores the Audio channels from the switches as shown: a tap at once, then the server's saved value,
--- and back to it if the server dropped the tap (ui-contract Settings, review N111).
+local function setting(key: string): any
+	if SCREEN_SWITCHES[key] then
+		return UI.settings.value(key)
+	end
+	return if state ~= nil then (state.settings :: any)[key] else nil
+end
+
+-- Audio's channels and volumes and the Effects switches, from the settings above. Both skip what has not changed.
 local function applySettings()
-	Audio.applySettings({ music = UI.settings.value("music"), sfx = UI.settings.value("sfx") })
+	Audio.applySettings({
+		music = setting("music"),
+		sfx = setting("sfx"),
+		musicVolume = setting("musicVolume"),
+		sfxVolume = setting("sfxVolume"),
+	})
+	Effects.applySettings({
+		screenShake = setting("screenShake"),
+		lowPerformance = setting("lowPerformance"),
+	})
+end
+
+-- True when a saved setting the screen does not show moved between two syncs.
+local function savedSettingsMoved(before: Types.Settings, after: Types.Settings): boolean
+	for key in Settings.kinds do
+		if not SCREEN_SWITCHES[key] and (before :: any)[key] ~= (after :: any)[key] then
+			return true
+		end
+	end
+	return false
 end
 
 local function applyState(s: Types.PlayerState)
@@ -343,6 +371,8 @@ local function applyState(s: Types.PlayerState)
 	if not audioStarted then
 		audioStarted = true
 		applySettings()
+	elseif previous ~= nil and savedSettingsMoved(previous.settings, s.settings) then
+		applySettings()
 	end
 	Audio.setCarrying(s.carrying ~= nil)
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
@@ -369,7 +399,7 @@ local function wireIntents()
 		end
 	end)
 	UI.settings.changed:Connect(function(key: string)
-		if audioStarted and AUDIO_SETTINGS[key] then
+		if audioStarted and SCREEN_SWITCHES[key] then
 			applySettings()
 		end
 	end)

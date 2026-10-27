@@ -364,4 +364,187 @@ return function()
 			expect(Economy.lureWaitSeconds(profile)).to.equal(480)
 		end)
 	end)
+
+	-- QA edges (qa-playtester): the odds a crate card shows are the odds the server rolls, the lucky twentieth
+	-- holds over a long seeded run, and what opens or sells follows golden-fish.md sections 3 and 4 for every crate,
+	-- tier, bank and wallet.
+	describe("Crates edges (QA)", function()
+		-- Park and Miller's generator: every product stays below 2^53, so each step is exact in a double
+		local seed = 1793059200
+		local function uniform(): number
+			seed = seed * 48271 % 2147483647
+			return seed / 2147483647
+		end
+
+		it(
+			"rolls each piece exactly as often as the card's chance says, plain and lucky, on every crate",
+			function()
+				-- A grid of rarity rolls and piece rolls stands in for the server's Random: the share of the grid each
+				-- piece gets is its real chance, to within one rarity step (1 / N).
+				local N, M = 2000, 12 -- 12 splits 1, 2, 3 or 4 pieces of a rarity evenly
+				for _, crate in Catalog.crates do
+					for _, luck in { 0, Config.CrateLuckyEvery - 1 } do
+						local shown = Crates.pieceChances(crate, Crates.oddsFor(crate, luck))
+						local hits: { [string]: number } = {}
+						for i = 1, N do
+							for j = 1, M do
+								local decorId =
+									Crates.roll(crate, luck, (i - 0.5) / N, (j - 0.5) / M)
+								hits[decorId] = (hits[decorId] or 0) + 1
+							end
+						end
+						for decorId, chance in shown do
+							local got = 100 * (hits[decorId] or 0) / (N * M)
+							if math.abs(got - chance) > 100 / N then
+								error(
+									string.format(
+										"%s luck %d: %s shows %.3f%%, rolls %.3f%%",
+										crate.id,
+										luck,
+										decorId,
+										chance,
+										got
+									)
+								)
+							end
+						end
+						for decorId in hits do
+							expect(shown[decorId] ~= nil and shown[decorId] > 0).to.equal(true)
+						end
+					end
+				end
+			end
+		)
+
+		it(
+			"never lets 20 opens of a pool pass without Epic or better over 60,000 seeded opens",
+			function()
+				for _, pool in { "alley", "classic" } do
+					local crate = assert(Catalog.getCrate(pool .. "_crate"))
+					local luck, dry, longest = 0, 0, 0
+					local count: { [string]: number } = {}
+					local refunds = 0
+					local opens = 60000
+					for _ = 1, opens do
+						local decorId, lucky = Crates.roll(crate, luck, uniform(), uniform())
+						local def = assert(Catalog.getDecor(decorId))
+						local rarity = def.rarity :: any
+						expect(def.crate).to.equal(pool)
+						expect(lucky).to.equal(luck == Config.CrateLuckyEvery - 1)
+						count[rarity] = (count[rarity] or 0) + 1
+						refunds += Crates.refund(rarity)
+						if Catalog.rarityRank[rarity] >= Catalog.rarityRank.Epic then
+							dry = 0
+						else
+							dry += 1
+							longest = math.max(longest, dry)
+						end
+						luck = Crates.luckAfter(luck, rarity)
+						expect(luck).to.equal(dry)
+					end
+					expect(longest).to.equal(Config.CrateLuckyEvery - 1)
+					-- Legendary and Mythical reset the count, so each is a renewal: one every ~37.8 and ~192.4 opens
+					local legendary = opens / (count.Legendary or 1)
+					local mythical = opens / (count.Mythical or 1)
+					expect(legendary > 34 and legendary < 42).to.equal(true)
+					expect(mythical > 165 and mythical < 225).to.equal(true)
+					-- section 4: "on a 60 fish crate the average refund is about 18" (18.15 at plain odds, a little
+					-- more with the lucky twentieth)
+					local average = refunds / opens
+					expect(average > 17.5 and average < 19.5).to.equal(true)
+				end
+			end
+		)
+
+		it("opens what section 4 says for every crate, tier, bank and wallet", function()
+			for _, crate in Catalog.crates do
+				local area = Catalog.getArea(crate.area)
+				local opensAt = if crate.area == "classic" then 1 else (assert(area)).tier
+				for tier = 1, 6 do
+					for _, banked in { 0, 1 } do
+						for _, fish in { 0, 59, 60, 1000 } do
+							local profile = fresh()
+							profile.goldenFish = fish
+							if banked > 0 then
+								profile.crates[crate.id] = banked
+							end
+							local want: string? = nil
+							if tier < opensAt then
+								want = "Unlock this zone first"
+							elseif banked > 0 then
+								want = nil
+							elseif crate.golden then
+								want = "Golden crates come from the Index"
+							elseif fish < 60 then
+								want = "Not enough golden fish"
+							end
+							expect(Crates.openBlocker(profile, tier, crate.id)).to.equal(want)
+						end
+					end
+				end
+			end
+			for _, odd in { "", "alley", "ALLEY_CRATE", "alley_crate ", "golden_crate", "highest" } do
+				expect(Crates.openBlocker(fresh(), 5, odd)).to.equal("Unknown crate")
+			end
+		end)
+
+		it(
+			"sells each perk level once at its price, refusing one fish short and past the top",
+			function()
+				for _, row in Catalog.fishShop do
+					if row.kind == "perk" then
+						local costs = assert(row.costs)
+						local profile = fresh()
+						for level = 0, #costs do
+							if level > 0 then
+								profile.fishPerks[row.id] = level
+							end
+							for _, extra in { -1, 0, 1000 } do
+								profile.goldenFish = (costs[level + 1] or 0) + extra
+								local cost, reason = Crates.buyCost(profile, row)
+								if level >= (row.maxLevel or 1) then
+									expect(cost).to.equal(nil)
+									expect(reason).to.equal("Already at the top level")
+								elseif extra < 0 then
+									expect(cost).to.equal(nil)
+									expect(reason).to.equal("Not enough golden fish")
+								else
+									expect(cost).to.equal(costs[level + 1])
+								end
+							end
+						end
+					end
+				end
+			end
+		)
+
+		it(
+			"counts decor spots from the tier, clamped, plus only positive Extra Decor Spot levels",
+			function()
+				local spots = Config.DecorSpots
+				for tier = -1, 8 do
+					for _, extra in { -3, 0, 1, 2 } do
+						local want = spots[math.clamp(tier, 1, #spots)] + math.max(0, extra)
+						expect(Crates.spotCap(tier, extra)).to.equal(want)
+					end
+				end
+			end
+		)
+	end)
+
+	describe("GoldenFish guards (QA, after F53)", function()
+		local GoldenFish = require(Shared.GoldenFish)
+
+		it("ignores NaN and infinite amounts, so a bad number never reaches the save", function()
+			local profile = fresh()
+			GoldenFish.credit(profile, 40)
+			for _, bad in { 0 / 0, math.huge, -math.huge } do
+				GoldenFish.credit(profile, bad)
+				expect(GoldenFish.trySpend(profile, bad)).to.equal(false)
+			end
+			expect(profile.goldenFish).to.equal(40)
+			expect(profile.lifetimeGoldenFish).to.equal(40)
+			expect(profile.stats.fishEarned).to.equal(40)
+		end)
+	end)
 end

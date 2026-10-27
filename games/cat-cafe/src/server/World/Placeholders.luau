@@ -794,6 +794,90 @@ local builders: { [string]: () -> Model } = {
 	CatCafe_Sewer_Gate = function()
 		return gate("CatCafe_Sewer_Gate", Color3.fromRGB(60, 75, 70), 30)
 	end,
+	-- The Spin Wheel station (F49, areas-and-stations B3) until the art is synced: a striped booth, a six-slice
+	-- wheel facing -Z on two posts, a paw pointer on top and rim lights. Wheel is a Model pivoted at the hub that
+	-- turns about its own Z axis, with its Face inside; PromptAnchor sits at the front, 3 studs up. At rest slice 1 is
+	-- under the pointer and the rest follow clockwise seen from the front (toward -X), in Catalog.spinWheel order.
+	CatCafe_Street_SpinWheel = function()
+		local model = newModel("CatCafe_Street_SpinWheel")
+		local booth = addPart(model, {
+			name = "Booth",
+			size = Vector3.new(7, 3, 4),
+			offset = Vector3.new(0, 1.5, 0),
+			color = CREAM,
+			collide = true,
+		})
+		local anchor = Instance.new("Attachment")
+		anchor.Name = "PromptAnchor"
+		anchor.Position = Vector3.new(0, 1.5, -2.3) -- relative to the booth's centre: the front, 3 studs up
+		anchor.Parent = booth
+		for _, x in { -2.6, 2.6 } do
+			addPart(model, {
+				name = "Post",
+				size = Vector3.new(0.6, 5, 0.6),
+				offset = Vector3.new(x, 5.5, 0.6),
+				color = WOOD,
+				collide = true,
+			})
+		end
+		local hub = Vector3.new(0, 7.6, 0)
+		local wheel = Instance.new("Model")
+		wheel.Name = "Wheel"
+		local disc = addPart(model, {
+			name = "Disc",
+			size = Vector3.new(0.5, 8, 8),
+			offset = hub,
+			rotation = Vector3.new(0, 90, 0),
+			color = CREAM,
+		})
+		disc.Parent = wheel
+		local face = addPart(model, {
+			name = "Face",
+			size = Vector3.new(0.1, 7.6, 7.6),
+			offset = hub + Vector3.new(0, 0, -0.3),
+			rotation = Vector3.new(0, 90, 0),
+			color = CREAM,
+		})
+		face.Parent = wheel
+		local sliceColors =
+			{ MINT, LAMP_WARM, NEON_PINK, GLASS, Color3.fromRGB(200, 170, 230), WOOD }
+		for index, color in sliceColors do
+			local angle = (index - 1) * 60
+			local slice = addPart(model, {
+				name = "Slice" .. index,
+				size = Vector3.new(1.4, 3.4, 0.12),
+				offset = hub + Vector3.new(
+					-math.sin(math.rad(angle)) * 1.9,
+					math.cos(math.rad(angle)) * 1.9,
+					-0.4
+				),
+				rotation = Vector3.new(0, 0, angle),
+				color = color,
+			})
+			slice.Parent = wheel
+		end
+		wheel.PrimaryPart = disc
+		wheel.WorldPivot = CFrame.new(hub)
+		wheel.Parent = model
+		addPart(model, {
+			name = "Pointer",
+			size = Vector3.new(0.9, 1.1, 0.4),
+			offset = hub + Vector3.new(0, 4.4, -0.5),
+			color = NEON_PINK,
+		})
+		for index = 1, 8 do
+			local angle = math.rad((index - 1) * 45 + 22.5)
+			addPart(model, {
+				name = "RimLight",
+				size = Vector3.new(0.35, 0.35, 0.35),
+				offset = hub + Vector3.new(math.sin(angle) * 4.35, math.cos(angle) * 4.35, 0),
+				color = LAMP_WARM,
+				material = Enum.Material.Neon,
+				shape = Enum.PartType.Ball,
+			})
+		end
+		return finish(model, booth)
+	end,
 	-- Stand-ins for the night dealer's cart and the dealer (section 8b) until the art is synced.
 	CatCafe_Street_DealerCart = function()
 		return simple("CatCafe_Street_DealerCart", {

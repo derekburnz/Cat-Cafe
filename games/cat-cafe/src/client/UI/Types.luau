@@ -134,6 +134,27 @@ export type CatchCircle = SharedTypes.CatchCircle
 export type CatchWindows = SharedTypes.CatchWindows
 export type CircleGrade = SharedTypes.CircleGrade
 
+-- Rescue minigame (F27, data-model section 10b), as RescueChallenge sends it. Times are server time
+-- (Workspace:GetServerTimeNow()). "bar": the marker slides along a bar (Components/RescueMarker) and each press
+-- in the zone is a hit; zones holds the zone centre (0 to 1) for each hit in order. "shake_catch": the same bar,
+-- where each hit shakes the branch; the server then sends a second challenge of kind "circle", one catch
+-- circle with its windows.
+export type RescueKind = "bar" | "shake_catch" | "circle"
+
+export type RescueChallenge = {
+	kind: RescueKind,
+	startsAt: number,
+	phase: number?, -- 0 to 2, where on the back-and-forth the marker starts
+	speed: number?, -- bar lengths per second (RescueBarSpeed)
+	zoneWidth: number?, -- fraction of the bar (RescueZoneWidth)
+	zones: { number }?,
+	hitsNeeded: number?,
+	paws: number?, -- misses allowed (RescuePatience); nil hides the paw row
+	endsAt: number?, -- the attempt's deadline; else startsAt + RescueAttemptMaxSeconds
+	circle: CatchCircle?, -- kind "circle"
+	windows: CatchWindows?, -- kind "circle"
+}
+
 -- Day and night clock (data-model section 9). phaseEndsAt is server os.time() seconds, as the Clock
 -- folder's PhaseEndsAt attribute; the HUD counts down against Workspace:GetServerTimeNow().
 export type ClockState = {

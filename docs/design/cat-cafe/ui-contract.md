@@ -177,15 +177,16 @@ Copied from the Pet Simulator index. The Book tab opens on a row of area tabs in
 
 `UI.showAreaTitle(areaId)` shows the area's name in big outlined letters for two seconds with its "Epic or better N%" line in the area's colour (Pet Simulator 99 and Fisch zone names). `"home"` shows the cafe's tier name over "Your cafe". `UI.travel.result(destination, true)` already calls it; the controller also calls it when the player walks into an area (the zone check that picks the ambience). The same area twice within 4 s shows once. `UI.announce(text, rarity?)` shout-outs take the rarity's colour (or the last rarity named in the text) and stay 4 s.
 
-### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
+### Cafe name signs, rate tags, order bubbles and role slot labels (built, world-and-feel sections 3 and 4)
 
-Nothing to call: `UI.init` starts all three and they read attributes the server and `CustomerController` already set.
+Nothing to call: `UI.init` starts all four and they read attributes the server and `CustomerController` already set, plus the player state.
 
 - **Name sign** (Steal a Brainrot base signs, `Screens/CafeSigns.luau`): on every model tagged `Plot`, a local SurfaceGui on the street face of the shell's `SignBoard` part, else the code-built `Sign` part. Owned: the owner's round avatar headshot (`rbxthumb://type=AvatarHeadShot`), "<OwnerName>'s Cafe" and "<TierName>  ·  +$X/s" from the plot's `Rate`; at night (`ReplicatedStorage.Clock` `Phase == "night"`) the rate stays behind a moon ("Cozy Cafe  ·  🌙 +$25/s"), times `NightIncomeMultiplier` once F31 puts it in Config, because cafes keep earning at night (reviewer S41). Empty plots read "FOR RENT" over "A cosy spot for a new cafe". Your own cafe has a gold edge. The server's `SignGui` in the plot is disabled on this client only, so it stays as the fallback if the UI fails to load.
 - **Rate tags** (Steal a Brainrot, `Screens/WorldTags.luau`): over every model tagged `WorkingCat`, "+$X/s" from its `Rate` in its `Rarity` colour, shown within 40 studs. Hidden while `Napping` is true or `Rate` is 0.
 - **Order bubbles** (`Screens/WorldTags.luau`): over each customer in `Workspace.LocalCustomers` once `Order` is set ("coffee", "cake" or "milk", drawn as emoji). When `Served` turns true it pops into a pink bubble with a red heart for 1.6 s, then pops out. Customers are client-side models, so this costs no network traffic.
+- **Role slot labels** (tycoon locked pads and empty "+" slots, `Screens/SlotLabels.luau`, rules in `Components/SlotLabelState.luau`): your own cafe only (the `Plot` whose `OwnerUserId` is you), at most one per role so the three counter slots never stack. A role with a free open slot (no cat's `spotId` on it) gets a green pill with a plus, "Barista" over "Tap to add a cat" ("2 free · tap to add cats"); a tap opens the cat room (`UI.openCatRoom`). With every cat already in a role it reads "Catch a cat for it" and does not take taps. Otherwise the role's next locked slot, the one `CafeService.refreshSpots` labels, gets a dark pill with a gold lock, "Barista" over "Opens at Tier 3". Pills are 4.4 studs wide, hang 5.2 studs above `Plot/Spots/<spotId>` (above the cats' rate tags) with a pointer down, show within 36 studs and are hidden by walls. The server's `LockLabel` text is hidden on this client for every plot (it overlapped the HUD and showed from inside other cafes, QA 2026-10-26) and stays as the fallback. Free slots need `state.cats`; without it only the locked pills show.
 
-All three are BillboardGuis or SurfaceGuis parented under the models, so they leave with the plot, cat or customer.
+The name signs, rate tags and order bubbles are parented under the models, so they leave with the plot, cat or customer. The slot labels sit in PlayerGui, adorned to the slot parts.
 
 ### Bait bowl (built, F28, data-model section 8)
 

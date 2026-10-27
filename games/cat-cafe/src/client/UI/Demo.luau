@@ -44,6 +44,9 @@ local DEMO_PATIENCE: { [string]: number } =
 
 local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
+-- the bait bowl's wait, short so the demo shows the cat arriving (the design's LureWaitSeconds is 600)
+local DEMO_BAIT_SECONDS = 20
+
 local SELL_VALUE: { [string]: number } =
 	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
 
@@ -133,7 +136,7 @@ function Demo.run(UI: any): () -> ()
 		return true
 	end
 
-	UI.init({ catalog = CATALOG })
+	UI.init({ catalog = CATALOG, baitBowl = true })
 
 	local connections: { any } = {}
 	connections[#connections + 1] = UI.events.buyUpgrade:Connect(function(upgradeId: string)
@@ -179,6 +182,83 @@ function Demo.run(UI: any): () -> ()
 				end
 				push()
 			end
+		end
+	end)
+	-- Bait bowl (F28): the food goes in, the cat is rolled at once and shows up DEMO_BAIT_SECONDS later
+	local bait: Types.BaitView? = nil
+	local baitCat: Types.BaitCat? = nil
+	connections[#connections + 1] = UI.events.useLure:Connect(function(lureId: string)
+		local lure: Types.LureDef? = nil
+		for _, def in CATALOG.lures do
+			if def.id == lureId then
+				lure = def
+			end
+		end
+		if not lure or bait or (profile.upgradeLevels.lure_bowl or 0) < 1 then
+			return
+		end
+		local food = lure :: Types.LureDef
+		if (profile.lures[lureId] or 0) < 1 then
+			return
+		end
+		profile.lures[lureId] -= 1
+		local roll = math.random() * 100
+		local rarity: string = "Common"
+		for _, name in { "Common", "Rare", "Epic", "Legendary", "Mythical" } do
+			local share = (food.odds :: any)[name] or 0
+			if roll < share then
+				rarity = name
+				break
+			end
+			roll -= share
+		end
+		local pool: { Types.CatDef } = {}
+		for _, def in CATALOG.cats do
+			if def.rarity == rarity then
+				table.insert(pool, def)
+			end
+		end
+		local picked = if #pool > 0 then pool[math.random(1, #pool)] else CATALOG.cats[1]
+		local charm = math.floor((math.random() + math.random()) / 2 * 101)
+		local view: Types.BaitView = { lureId = lureId, readyAt = now() + DEMO_BAIT_SECONDS }
+		bait = view
+		baitCat = {
+			catId = picked.id,
+			variant = if math.random() < 0.2 then "shiny" else "base",
+			charm = charm,
+			stars = math.clamp(math.ceil(charm / 20), 1, 5),
+		}
+		UI.bait.set(view)
+		UI.toast(food.name .. " is in the bowl. A cat comes by soon!", "good")
+		push()
+		task.delay(DEMO_BAIT_SECONDS, function()
+			if running and bait == view and baitCat then
+				UI.bait.showReady(baitCat)
+			end
+		end)
+	end)
+	connections[#connections + 1] = UI.events.resolveBait:Connect(function(choice: Types.BaitChoice)
+		local cat = baitCat
+		if not cat or not bait then
+			return
+		end
+		bait, baitCat = nil, nil
+		UI.bait.set(nil)
+		if choice == "tame" then
+			local newUid = uid()
+			profile.cats[newUid] = {
+				uid = newUid,
+				catId = cat.catId,
+				variant = cat.variant or "base",
+				caughtAt = now(),
+				spotId = nil,
+			}
+			local isNew = profile.collection[cat.catId] == nil
+			profile.collection[cat.catId] = now()
+			UI.showCatFound(cat.catId, isNew, { stars = cat.stars, shiny = cat.variant == "shiny" })
+			push()
+		else
+			UI.toast("It wandered off. Maybe next time!", "info")
 		end
 	end)
 	connections[#connections + 1] = UI.events.equipLure:Connect(function(lureId: string)

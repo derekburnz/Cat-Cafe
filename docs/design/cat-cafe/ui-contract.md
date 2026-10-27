@@ -48,6 +48,7 @@ UI.init({
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F lure picker, gamepad B closes (default true)
+    baitBowl = false, -- v0.3 bait bowl: the lure slot becomes the bowl chip and F opens the Bait bowl screen
     playSound = Audio.play,  -- optional; the UI plays its own cues through it and stays silent without it
 })
 
@@ -125,7 +126,7 @@ v0.4 paws: when the stray carries a `Patience` attribute the card shows a paw ro
 | Function | Purpose |
 |---|---|
 | `showCircles(strayId, circles, windows, pawsLeft?)` | From `CatchSchedule`. `pawsLeft` (v0.4) fills the paw row in the header; nil hides it (the player cannot run out on this stray). `circles = { { startsAt, shrinkSeconds, x, y } }`, `windows = { perfect, good }` (half-widths in seconds). The prompt card makes way for a full-screen overlay: a header with the cat, rarity and stars, then each circle at its position. Its ring fades in 0.35 s before `startsAt`, the closer shrinks from three times the ring's size and meets the ring at `startsAt + shrinkSeconds`. The Good band (green) and Perfect band (gold) are drawn from `windows` at the closer's speed, so they show the real timing. `x` and `y` (0 to 1) map into the middle 64% by 50% of the screen. |
-| (input) | A tap anywhere, a click, E, Space, or the gamepad's A or R2 is a press. The press goes to the lowest circle still open: a press before that circle's `startsAt` is ignored, and a circle whose window has closed (target + good + `CatchLatencyCapSeconds`, 0.15) counts as a miss so the next press goes to the next circle, the order the server judges in. Each press fires `events.catchPressed(strayId, index)`. The client sends no time. Grades drawn now are hints from the device clock. |
+| (input) | A tap anywhere, a click, E, Space, or the gamepad's A or R2 is a press. The press goes to the lowest circle still open: a press before that circle's `startsAt` is ignored, and a circle whose window has closed (target + good + `CatchLatencyCapSeconds`, 0.15) counts as a miss so the next press goes to the next circle, the order the server judges in. Each press fires `events.catchPressed(strayId, index, grade)`, where `grade` is this device's hint ("perfect", "good" or "miss") so the grade sound can play the instant the press lands. Forward only `strayId` and `index`: the client sends no time and no grade, and the server judges. |
 | `showGrades(strayId, grades, success, pawsLeft?, charmGain?)` | From the v0.4 `CatchResult`. `grades` run up to and including the first Miss. Each circle pops PERFECT (gold), GOOD (green) or MISS (red) at its ring. A catch shows the banner "Caught!", or "PURRFECT!" in gold when every circle was Perfect, over "Charm +N" (or "1/3 Perfect" when no charm) for 1.6 s. A miss wobbles the MISS word (not with reduced motion), shrinks away the circles left over, takes a paw off the header with a pop, closes after 1 s and toasts "It slipped away! 2 paws left", "It slipped away! 1 paw left", "It won't trust you tonight" at 0, or "It slipped away! Try again" when `pawsLeft` is nil. The toast is silent; the hiss is the sound-designer's and the camera shake the vfx-animator's. While paws are left the prompt card comes back with the new count. Call nothing else for a CatchResult. |
 | `showResult(strayId, scores, chance, success, stayed?)` | The v0.3 `CatchResult`, kept until the controller calls `showGrades`: scores of 1, 0.5 and 0 become Perfect, Good and Miss and it runs the same end with no paw row and no toast, since the server still toasts the miss until the switch (reviewer S39). When the controller moves to `showGrades`, the server drops its three slipped away toasts and keeps only forfeit reasons such as "Too far away". |
 | `hideCircles()` / `circlesActive()` | Utilities. The overlay also closes itself 4 s after the last target if no result came. |
@@ -187,16 +188,28 @@ Nothing to call: `UI.init` starts all three and they read attributes the server 
 
 All three are BillboardGuis or SurfaceGuis parented under the models, so they leave with the plot, cat or customer.
 
+### Bait bowl (built, F28, data-model section 8)
+
+Turn it on with `UI.init({ catalog, baitBowl = true })` once the server runs the bowl instead of the v0.2 lure spots. Until then the HUD keeps the v0.2 lure slot and `equipLure`, so main keeps playing.
+
+| API | Purpose |
+|---|---|
+| `UI.bait.setBowl(part?)` | The player's own `BaitBowl` part (call when the plot is known, like `ownDoor()`). With it, Use greys out beyond `BaitBowlRangeStuds` (12) and the bait card's buttons beyond `BaitResolveRangeStuds` (20), each with a "walk to your bowl" line. Without it the buttons stay on and the server decides. |
+| `UI.bait.set(bait?)` | What is in the bowl: `{ lureId, readyAt }` with `readyAt` in server `os.time()`, nil when empty. Call it from every ProfileSync (a plain `UI.update` cannot clear a field to nil, so the bowl has its own setter). nil also closes the bait card. The rolled cat is never needed here (N30). |
+| `UI.bait.openPicker()` | Opens the Bait bowl screen (also `UI.open("Bait")`, the HUD bowl chip and F). Call it from the bowl's ProximityPrompt. |
+| `UI.bait.showReady(cat)` | From `BaitReady`. `cat = { catId, variant?, charm?, stars?, name? }` (a `CatView` fits). Shows the cat's 3D model, name, rarity, stars, charm and a SHINY sticker, with Tame and Let go (Let go asks for a second tap within 3 s, because the food is used either way). The X only hides the card; the chip and the screen's "See the cat" bring it back. After a choice the buttons wait up to 6 s for `UI.bait.set(nil)` or `hideReady`. |
+| `UI.bait.hideReady()` | The server resolved the cat: closes the card and forgets it. |
+
+The Bait bowl screen has a status card (no bowl yet with an Upgrades button, empty, "<Food> is in the bowl" with a countdown bar, "A cat is at your bowl!" with See the cat) over one card per food: shop foods by price, then dealer foods ("Sold by the night dealer's cart" until owned). Every card shows the five-rarity odds, the shiny chance (`ShinyChanceBait`, 2%) and the charm star odds (`CharmStarOdds`, else 7.8 / 23.5 / 35.7 / 24.3 / 8.7%) before Use or Buy; Details adds the per-cat split for the player's unlocked areas and which area the next rank up adds. Use (green) and Buy are the same size. The HUD's v0.2 lure picker shows the same Details text (`Components/FoodOdds.luau`).
+
+In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLevels.lure_bowl >= 1`: "Bait bowl / Empty · add food", "<Food> / Cat in 7m 42s", then "Cat waiting!" in gold.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
 |---|---|
 | `UI.rescue.show(rescueSpotId, challenge)` | From `RescueChallenge`. `challenge = { kind = "bar" or "shake_catch", startsAt, phase, speed, zoneWidth, zones = { centre per hit }, hitsNeeded, paws }`. The marker's position at time t is the triangle wave of `phase + speed * (t - startsAt)` with period 2 (0 to 1 and back), the shared `markerAt` helper. Paw lives, a hit count and Cancel. A tree (`shake_catch`) shakes the branch on each hit; the server then sends a second challenge `{ kind = "circle", circle = { startsAt, shrinkSeconds, x, y }, windows }` drawn as one catch circle. Presses fire `events.rescuePressed(rescueSpotId)`, Cancel fires `events.rescueCancelled(rescueSpotId)`. |
 | `UI.rescue.update(hits, pawsLeft, done, success)` | From `RescueResult`. A hit moves the zone to `zones[hits + 1]`, a miss greys a paw. |
-| `UI.bait.openPicker()` | The bowl's food picker: owned foods with counts, five-rarity odds and the per-cat split. Fires `events.useLure(lureId)`. |
-| `state.bait = { lureId, readyAt }` | `readyAt` is server `os.time()`. The HUD shows a countdown chip, then "Cat waiting!". |
-| `UI.bait.showReady(catView)` | From `BaitReady`: the cat, rarity, stars and sparkle with Tame and Let go. Fires `events.resolveBait("tame" or "letgo")`. |
-| Food cards | Every food card shows the five-rarity odds before Buy and the per-cat split for the player's unlocked areas ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"), and says when a rank up will change the split. |
 | `UI.dealer.open(slots)` / `UI.dealer.update(slots)` | From `DealerStock`: `slots = { { lureId, cost, bought } }`, three cards with odds, price and a moon timer to dawn. Fires `events.buyDealerFood(slot)`. |
 | Action pill | Custom-style prompts without a `CatId` (bait bowl, dealer cart, rich tip, Bump) get a small pill with the key and `ActionText`; on touch the pill is the button. The controller handles `PromptTriggered` as today. |
 | `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
@@ -214,7 +227,9 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `buyDecor` | `decorId` | Buy pressed in Decor |
 | `toggleDecor` | `decorId, placed` | Place / Remove pressed on an owned decor item |
 | `buyLure` | `lureId` | Buy pressed in the lure picker (odds are on screen before the button) |
-| `equipLure` | `lureId` | Equip pressed |
+| `equipLure` | `lureId` | Equip pressed (v0.2 lure spots; unused in bowl mode) |
+| `useLure` | `lureId` | Use pressed on a food in the Bait bowl screen. Forward as `UseLure(lureId)` |
+| `resolveBait` | `"tame"` or `"letgo"` | A choice on the bait card. Forward as `ResolveBait(choice)` |
 | `placeCat` | `uid, spotId` | Assign pressed on a role in the Cat room; `spotId` is the first free open slot of that role |
 | `unplaceCat` | `uid` | Rest pressed on a placed cat |
 | `sellCat` | `uid` | Sell confirmed. Rare and above ask twice: Sell turns into "Sell $150", Rest turns into an equal-sized Cancel. |
@@ -224,7 +239,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `rescueBegan` | `rescueSpotId, catId` | Hold began on a prompt whose model has `Rescue = true`. Forward as RescueBegin. |
 | `rescueEnded` | `rescueSpotId, catId, completed` | `completed = true` after the full 4 s hold: forward as RescueEnd, the server moves the player to carry. `false` is an early release: the bar reset, send what the server needs to unlock the spot (or nothing). |
 | `screenOpened` | `name or nil` | Modal opened or closed |
-| `catchPressed` | `strayId, index` | v0.3: a press on circle `index` (1-based). Forward as CatchPress. |
+| `catchPressed` | `strayId, index, grade` | A press on circle `index` (1-based) with the device's grade hint. Forward `strayId, index` as CatchPress; `grade` is for the instant NetSwing and CircleGrade sounds only. |
 | `rankUp` | none | v0.3: Rank up pressed with every requirement met. Forward as RankUp. |
 
 ## State shape (`Types.PlayerState`)

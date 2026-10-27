@@ -1,12 +1,15 @@
 --!strict
 -- Collection screen with two tabs.
---   Book: every catalog cat grouped by rarity, "?" silhouettes for cats not found yet, tap for details.
+--   Book: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
+--         (dark silhouettes until found), rarest last; tap one for details.
 --   Cat room: the cats the player owns (instances with a uid), Place / Move, Remove and Sell.
 -- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -28,9 +31,13 @@ export type CatCollection = {
 	destroy: (self: CatCollection) -> (),
 }
 
-local CELL = Vector2.new(108, 124)
+local CELL = Vector2.new(112, 134)
+local PORTRAIT = 84
 local TAB_HEIGHT = 40
 local DETAIL_HEIGHT = 92
+local AREA_TAB_HEIGHT = 46
+local PROGRESS_HEIGHT = 28
+local FALLBACK_AREA = "alley"
 local ROOM_ROW = 76
 local SPOT_ROW = 48
 
@@ -131,7 +138,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._catalog = nil :: Types.Catalog?
 	self._catById = {} :: { [string]: Types.CatDef }
 	self._cells = {} :: { [string]: any }
-	self._sections = {} :: { [string]: any }
+	self._areaChips = {} :: { any }
+	self._area = nil :: string? -- the book's open area tab
+	self._detailId = nil :: string? -- the cat in the detail strip's portrait
 	self._roomRows = {} :: { [string]: any }
 	self._spotRows = {} :: { any }
 	self._buttons = {} :: { any }
@@ -212,14 +221,12 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
-	self._detailArt = Create("Frame", {
-		Name = "Art",
-		BackgroundColor3 = Theme.colors.line,
-		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(12, 12),
-		Size = UDim2.fromOffset(DETAIL_HEIGHT - 24, DETAIL_HEIGHT - 24),
-		Parent = detail,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._detailArt = CatPortrait.new({
+		parent = detail,
+		size = UDim2.fromOffset(DETAIL_HEIGHT - 16, DETAIL_HEIGHT - 16),
+		position = UDim2.fromOffset(8, 8),
+		still = true,
+	})
 	self._detailName = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(DETAIL_HEIGHT, 10),
@@ -256,12 +263,86 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	)
 	self._detailPill.Visible = false
 
-	self._grid = scroller(
-		"Grid",
-		self._book,
-		UDim2.fromOffset(0, DETAIL_HEIGHT + Theme.sizes.gap),
-		UDim2.new(1, 0, 1, -(DETAIL_HEIGHT + Theme.sizes.gap))
-	)
+	-- area tabs, one per area like the index's world tabs
+	local gap = Theme.sizes.gap
+	local areaTop = DETAIL_HEIGHT + gap
+	self._areaBar = Create("Frame", {
+		Name = "Areas",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, areaTop),
+		Size = UDim2.new(1, 0, 0, AREA_TAB_HEIGHT),
+		Parent = self._book,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+
+	-- the open area's completion: name, bar, count and percent
+	local progressTop = areaTop + AREA_TAB_HEIGHT + gap
+	local progress: Frame = Create("Frame", {
+		Name = "Progress",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, progressTop),
+		Size = UDim2.new(1, 0, 0, PROGRESS_HEIGHT),
+		Parent = self._book,
+	})
+	self._progressName = text({
+		Name = "Area",
+		Size = UDim2.new(0, 190, 1, 0),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.colors.white,
+		Parent = progress,
+	})
+	Outline.text(self._progressName, 2)
+	local track: Frame = Create("Frame", {
+		Name = "Track",
+		BackgroundColor3 = Theme.colors.line,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 196, 0.5, 0),
+		Size = UDim2.new(1, -196 - 130, 0, 16),
+		Parent = progress,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(track, 2)
+	self._progressFill = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Theme.colors.mint,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(0, 1),
+		Parent = track,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.shade(self._progressFill, 0.2)
+	self._progressCount = text({
+		Name = "Count",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, 0, 0, 0),
+		Size = UDim2.new(0, 124, 1, 0),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = progress,
+	})
+
+	local gridTop = progressTop + PROGRESS_HEIGHT + gap
+	self._grid =
+		scroller("Grid", self._book, UDim2.fromOffset(0, gridTop), UDim2.new(1, 0, 1, -gridTop))
+	self._cellsFrame = Create("Frame", {
+		Name = "Cells",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.new(1, 0, 0, 0),
+		Parent = self._grid,
+	}, {
+		Create("UIGridLayout", {
+			CellSize = UDim2.fromOffset(CELL.X, CELL.Y),
+			CellPadding = UDim2.fromOffset(gap, gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
 
 	-- Cat room: list of owned cats; the role picker slides in on Assign
 	self._room = Create("Frame", {
@@ -373,7 +454,12 @@ function CatCollection._select(self: any, catId: string)
 		found = (state.collection and state.collection[catId] ~= nil)
 			or state.catsOwned[catId] ~= nil
 	end
-	self._detailArt.BackgroundColor3 = if found then catColor(def) else Theme.colors.line
+	-- render calls this on every state push while a cat is selected, so the model is cloned once per pick
+	if self._detailId ~= catId then
+		self._detailId = catId
+		self._detailArt:set(def)
+	end
+	self._detailArt:setSilhouette(not found)
 	self._detailName.Text = if found then def.name else "Not found yet"
 	local meta = {}
 	table.insert(meta, Format.rate(def.incomePerSecond))
@@ -393,15 +479,42 @@ function CatCollection._select(self: any, catId: string)
 	self._detailPill.TextColor3 = Theme.rarityTextColor(def.rarity)
 end
 
+-- The book's areas in tier order: the catalog's areas, else the areas the cats name in catalog order.
+type BookArea = { id: string, name: string, tier: number }
+
+local function bookAreas(catalog: Types.Catalog): { BookArea }
+	local list: { BookArea } = {}
+	local seen: { [string]: boolean } = {}
+	local areas: { Types.AreaDef } = catalog.areas or {}
+	for _, area in areas do
+		seen[area.id] = true
+		table.insert(list, { id = area.id, name = area.name, tier = area.tier })
+	end
+	table.sort(list, function(a: BookArea, b: BookArea): boolean
+		return a.tier < b.tier
+	end)
+	for _, def in catalog.cats do
+		local areaId: string = def.area or FALLBACK_AREA
+		if not seen[areaId] then
+			seen[areaId] = true
+			table.insert(list, { id = areaId, name = Format.areaName(areaId), tier = 0 })
+		end
+	end
+	return list
+end
+
 function CatCollection._buildBook(self: any)
 	for _, cell in self._cells do
 		cell.connection:Disconnect()
+		cell.portrait:destroy()
+		cell.frame:Destroy()
 	end
 	table.clear(self._cells)
-	for _, section in self._sections do
-		section.frame:Destroy()
+	for _, chip in self._areaChips do
+		chip.connection:Disconnect()
+		chip.frame:Destroy()
 	end
-	table.clear(self._sections)
+	table.clear(self._areaChips)
 	table.clear(self._catById)
 
 	local catalog: Types.Catalog? = self._catalog
@@ -410,119 +523,143 @@ function CatCollection._buildBook(self: any)
 	end
 	assert(catalog, "catalog not set; call UI.init first")
 
-	for order, rarity in Theme.rarityOrder do
-		local cats = {}
-		for _, def in catalog.cats do
-			self._catById[def.id] = def
-			if def.rarity == rarity then
-				table.insert(cats, def)
-			end
-		end
-		if #cats == 0 then
-			continue
-		end
-		local section: Frame = Create("Frame", {
-			Name = rarity,
-			BackgroundTransparency = 1,
-			AutomaticSize = Enum.AutomaticSize.Y,
-			Size = UDim2.new(1, 0, 0, 0),
+	local areas = bookAreas(catalog)
+	local gap = Theme.sizes.gap
+	for order, area in areas do
+		local color = Theme.areaColors[area.id] or Theme.colors.caramel
+		local chip: TextButton = Create("TextButton", {
+			Name = area.id,
+			Text = "",
+			AutoButtonColor = false,
+			BackgroundColor3 = Theme.modal.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1 / #areas, -gap * (#areas - 1) / #areas, 1, 0),
 			LayoutOrder = order,
-			Parent = self._grid,
-		})
-		local header = text({
-			Name = "Header",
-			Size = UDim2.new(1, 0, 0, 24),
+			Parent = self._areaBar,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+		local border = Outline.border(chip, Theme.sizes.outline)
+		local name = text({
+			Name = "Name",
+			Position = UDim2.fromOffset(6, 3),
+			Size = UDim2.new(1, -12, 0, 22),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
-			TextColor3 = Theme.rarityColor(rarity),
-			Text = rarity,
-			Parent = section,
+			TextSize = Theme.sizes.textSmall + 1,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = area.name,
+			Parent = chip,
 		})
-		local cells: Frame = Create("Frame", {
-			Name = "Cells",
-			BackgroundTransparency = 1,
-			AutomaticSize = Enum.AutomaticSize.Y,
-			Position = UDim2.fromOffset(0, 28),
-			Size = UDim2.new(1, 0, 0, 0),
-			Parent = section,
-		}, {
-			Create("UIGridLayout", {
-				CellSize = UDim2.fromOffset(CELL.X, CELL.Y),
-				CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-			}),
+		local count = text({
+			Name = "Count",
+			Position = UDim2.fromOffset(6, 24),
+			Size = UDim2.new(1, -12, 0, 16),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textTiny,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Parent = chip,
 		})
-		self._sections[rarity] = { frame = section, header = header, cells = cells, count = #cats }
+		local entry = {
+			id = area.id,
+			name = area.name,
+			tier = area.tier,
+			color = color,
+			frame = chip,
+			border = border,
+			label = name,
+			count = count,
+			connection = nil :: RBXScriptConnection?,
+		}
+		entry.connection = chip.Activated:Connect(function()
+			if self._area == area.id then
+				return
+			end
+			Sound.play("uiTab")
+			self._area = area.id
+			self._grid.CanvasPosition = Vector2.zero
+			local state: Types.PlayerState? = self._lastState
+			if state then
+				self:render(state)
+			end
+		end)
+		table.insert(self._areaChips, entry)
+	end
 
-		for index, def in cats do
-			local cell: TextButton = Create("TextButton", {
-				Name = def.id,
-				Text = "",
-				AutoButtonColor = false,
-				BackgroundColor3 = Theme.modal.card,
-				BorderSizePixel = 0,
-				LayoutOrder = index,
-				Parent = cells,
-			}, {
-				Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-				Create(
-					"UIStroke",
-					{ Color = Theme.rarityColor(rarity), Thickness = Theme.sizes.stroke }
-				),
-			})
-			local art: Frame = Create("Frame", {
-				Name = "Art",
-				BackgroundColor3 = Theme.colors.line,
-				BorderSizePixel = 0,
-				AnchorPoint = Vector2.new(0.5, 0),
-				Position = UDim2.new(0.5, 0, 0, 12),
-				Size = UDim2.fromOffset(56, 56),
-				Parent = cell,
-			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-			local glyph = text({
-				Name = "Glyph",
-				Size = UDim2.fromScale(1, 1),
-				FontFace = Theme.fonts.display,
-				TextSize = 26,
-				TextColor3 = Theme.colors.paper,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = "?",
-				Parent = art,
-			})
-			local name = text({
-				Name = "Name",
-				Position = UDim2.fromOffset(6, 74),
-				Size = UDim2.new(1, -12, 0, 20),
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textSmall + 1,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = "???",
-				Parent = cell,
-			})
-			local count = text({
-				Name = "Count",
-				Position = UDim2.fromOffset(6, 96),
-				Size = UDim2.new(1, -12, 0, 18),
-				TextSize = Theme.sizes.textTiny,
-				TextColor3 = Theme.modal.subtext,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = "",
-				Parent = cell,
-			})
-			local connection = cell.Activated:Connect(function()
-				Sound.play("uiTab")
-				self:_select(def.id)
-			end)
-			self._cells[def.id] = {
-				frame = cell,
-				art = art,
-				glyph = glyph,
-				name = name,
-				count = count,
-				def = def,
-				connection = connection,
-			}
-		end
+	for index, def in catalog.cats do
+		self._catById[def.id] = def
+		local rarity = def.rarity
+		local cell: TextButton = Create("TextButton", {
+			Name = def.id,
+			Text = "",
+			AutoButtonColor = false,
+			BackgroundColor3 = Theme.modal.card,
+			BorderSizePixel = 0,
+			LayoutOrder = rarityIndex(rarity) * 1000 + index,
+			Visible = false,
+			Parent = self._cellsFrame,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+		Outline.border(cell, Theme.sizes.outline + 1, Theme.rarityColor(rarity))
+		-- a soft disc in the rarity colour behind the cat, like the index's rarity backdrop
+		local glow: Frame = Create("Frame", {
+			Name = "Glow",
+			BackgroundColor3 = Theme.rarityColor(rarity),
+			BackgroundTransparency = 0.7,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 8),
+			Size = UDim2.fromOffset(PORTRAIT - 8, PORTRAIT - 8),
+			Parent = cell,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		local portrait = CatPortrait.new({
+			parent = cell,
+			size = UDim2.fromOffset(PORTRAIT, PORTRAIT),
+			anchorPoint = Vector2.new(0.5, 0),
+			position = UDim2.new(0.5, 0, 0, 4),
+			still = true,
+			zIndex = 2,
+		})
+		local name = text({
+			Name = "Name",
+			Position = UDim2.fromOffset(6, PORTRAIT + 6),
+			Size = UDim2.new(1, -12, 0, 20),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall + 1,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = "???",
+			Parent = cell,
+		})
+		local sub = text({
+			Name = "Sub",
+			Position = UDim2.fromOffset(6, PORTRAIT + 26),
+			Size = UDim2.new(1, -12, 0, 18),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textTiny,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Parent = cell,
+		})
+		local shiny = pill(
+			cell,
+			"Shiny",
+			Theme.colors.gold,
+			Theme.colors.goldText,
+			UDim2.new(1, -4, 0, 4),
+			Vector2.new(1, 0)
+		)
+		shiny.ZIndex = 3
+		shiny.Visible = false
+		local connection = cell.Activated:Connect(function()
+			Sound.play("uiTab")
+			self:_select(def.id)
+		end)
+		self._cells[def.id] = {
+			frame = cell,
+			glow = glow,
+			portrait = portrait,
+			loaded = false,
+			name = name,
+			sub = sub,
+			shiny = shiny,
+			def = def,
+			connection = connection,
+		}
 	end
 end
 
@@ -614,6 +751,104 @@ function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self:_buildBook()
 	self:_buildSpots()
 	self._dirty = true
+end
+
+-- The open area's page: chips with each area's count, the progress strip, and that area's cells. Each cell's
+-- model is cloned the first time its area opens, and again on later renders until Assets has it.
+function CatCollection._renderBook(
+	self: any,
+	state: Types.PlayerState,
+	found: { [string]: boolean }
+)
+	local totals: { [string]: number } = {}
+	local foundIn: { [string]: number } = {}
+	for catId, cell in self._cells do
+		local areaId: string = cell.def.area or FALLBACK_AREA
+		totals[areaId] = (totals[areaId] or 0) + 1
+		if found[catId] then
+			foundIn[areaId] = (foundIn[areaId] or 0) + 1
+		end
+	end
+
+	-- first open: the first area the player can reach that still has cats to find
+	if self._area == nil then
+		for _, chip in self._areaChips do
+			if state.tier >= chip.tier and (foundIn[chip.id] or 0) < (totals[chip.id] or 0) then
+				self._area = chip.id
+				break
+			end
+		end
+		local first = self._areaChips[1]
+		if self._area == nil and first then
+			self._area = first.id
+		end
+	end
+	local open: string? = self._area
+
+	for _, chip in self._areaChips do
+		local selected = chip.id == open
+		local locked = state.tier < chip.tier
+		local have, all = foundIn[chip.id] or 0, totals[chip.id] or 0
+		chip.frame.BackgroundColor3 = if selected then chip.color else Theme.modal.card
+		chip.border.Color = if selected then Theme.colors.outline else Theme.modal.cardStroke
+		chip.label.TextColor3 = if selected then Theme.colors.white else Theme.modal.text
+		chip.count.Text = if locked and have == 0
+			then "Tier " .. tostring(chip.tier)
+			elseif have >= all and all > 0 then "Complete!"
+			else ("%d / %d"):format(have, all)
+		chip.count.TextColor3 = if selected
+			then Theme.colors.cream
+			elseif have >= all and all > 0 then Theme.colors.goodDark
+			else Theme.modal.subtext
+		if selected then
+			local fraction = if all > 0 then have / all else 0
+			self._progressName.Text = chip.name
+			self._progressName.TextColor3 = chip.color
+			self._progressFill.BackgroundColor3 = if have >= all
+				then Theme.colors.gold
+				else chip.color
+			self._progressFill.Size = UDim2.fromScale(fraction, 1)
+			self._progressCount.Text = ("%d / %d  ·  %s"):format(
+				have,
+				all,
+				Format.percent(fraction)
+			)
+		end
+	end
+
+	local shinies: { [string]: number } = state.shinyCollection or {}
+	for catId, cell in self._cells do
+		local def: Types.CatDef = cell.def
+		local inArea = (def.area or FALLBACK_AREA) == open
+		cell.frame.Visible = inArea
+		if not inArea then
+			continue
+		end
+		if not cell.loaded then
+			cell.portrait:set(def)
+			cell.loaded = cell.portrait:hasModel()
+		end
+		local isFound = found[catId] == true
+		local owned = state.catsOwned[catId]
+		cell.portrait:setSilhouette(not isFound)
+		cell.glow.BackgroundColor3 = if isFound
+			then Theme.rarityColor(def.rarity)
+			else Theme.colors.line
+		cell.name.Text = if isFound then def.name else "???"
+		cell.name.TextColor3 = if isFound then Theme.modal.text else Theme.modal.subtext
+		cell.sub.TextColor3 = Theme.modal.subtext
+		if owned and owned.count > 1 then
+			cell.sub.Text = ("x%d"):format(owned.count)
+		elseif owned then
+			cell.sub.Text = "in your cafe"
+		elseif isFound then
+			cell.sub.Text = "found"
+		else
+			cell.sub.Text = def.rarity
+			cell.sub.TextColor3 = Theme.rarityColor(def.rarity)
+		end
+		cell.shiny.Visible = shinies[catId] ~= nil
+	end
 end
 
 -- One row per owned cat instance. Rows are keyed by uid and rebuilt only when the set of uids changes.
@@ -879,7 +1114,14 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	for _ in found do
 		foundCount += 1
 	end
-	self._panel:setTitle("Cat collection", ("%d / %d found"):format(foundCount, total))
+	self._panel:setTitle(
+		"Cat collection",
+		("%d / %d found  ·  %s"):format(
+			foundCount,
+			total,
+			Format.percent(if total > 0 then foundCount / total else 0)
+		)
+	)
 
 	-- room tab only when the engineer sends cat instances
 	local hasRoom = state.cats ~= nil
@@ -890,34 +1132,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 
 	if self._tab == "Book" then
-		for catId, cell in self._cells do
-			local def: Types.CatDef = cell.def
-			local isFound = found[catId] == true
-			local owned = state.catsOwned[catId]
-			cell.art.BackgroundColor3 = if isFound then catColor(def) else Theme.colors.line
-			cell.glyph.Text = if isFound then def.name:sub(1, 1) else "?"
-			cell.name.Text = if isFound then def.name else "???"
-			cell.name.TextColor3 = if isFound then Theme.modal.text else Theme.modal.subtext
-			if owned and owned.count > 1 then
-				cell.count.Text = ("x%d"):format(owned.count)
-			elseif owned then
-				cell.count.Text = "in your cafe"
-			elseif isFound then
-				cell.count.Text = "found"
-			else
-				cell.count.Text = def.rarity
-			end
-		end
-		for rarity, section in self._sections do
-			local foundHere = 0
-			for catId, cell in self._cells do
-				if cell.def.rarity == rarity and found[catId] then
-					foundHere += 1
-				end
-			end
-			local sectionCount: number = section.count
-			section.header.Text = ("%s  %d / %d"):format(tostring(rarity), foundHere, sectionCount)
-		end
+		self:_renderBook(state, found)
 		if self._selected then
 			self:_select(self._selected)
 		end
@@ -1019,7 +1234,12 @@ end
 function CatCollection.destroy(self: any)
 	for _, cell in self._cells do
 		cell.connection:Disconnect()
+		cell.portrait:destroy()
 	end
+	for _, chip in self._areaChips do
+		chip.connection:Disconnect()
+	end
+	self._detailArt:destroy()
 	for _, row in self._roomRows do
 		row.place:destroy()
 		row.remove:destroy()

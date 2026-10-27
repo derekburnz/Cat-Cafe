@@ -47,12 +47,12 @@ MIN_COLLIDE = 0.35                # thinner parts (trim, handles, bulbs) never c
 ALWAYS_LIT = ("HangingLamp",)     # matches WorldController: indoor lamps glow all day
 ROUND = 4
 
-# Names the game looks up. The old Park gate's biggest part is its Bars (WorldBuilder hangs the gate label on it),
-# the round table's is its Top (CustomerController turns a seated customer toward it).
+# Names the game looks up. The round table's biggest part is its Top (CustomerController turns a seated customer
+# toward it).
 # An object ending in _SignBoard keeps its child Model but its part is named SignBoard (found with a recursive
 # FindFirstChild); a one-part object ending in _Bars goes straight into the root as a ForceField part named Bars,
 # because the gate code looks for a direct child.
-RENAME_BIGGEST = {"CatCafe_Park_Gate": "Bars", "CatCafe_Furniture_TableRound": "Top"}
+RENAME_BIGGEST = {"CatCafe_Furniture_TableRound": "Top"}
 PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars"}
 # CollectionService tags the audio code plays world loops from (assets/cat-cafe/audio, PR #69), keyed by object
 # name, or by name suffix when the key starts with "_". The tag goes on the object's Model, whose PrimaryPart is

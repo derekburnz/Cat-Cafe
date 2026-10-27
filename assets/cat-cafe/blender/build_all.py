@@ -28,6 +28,7 @@ import bpy  # noqa: E402
 
 import accessories  # noqa: E402
 import alley  # noqa: E402
+import alleyway  # noqa: E402
 import areas  # noqa: E402
 import cats  # noqa: E402
 import common  # noqa: E402
@@ -45,7 +46,7 @@ import street  # noqa: E402
 import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, npc, furniture, decor, alley, park, items, accessories, street, areas, plot]
+MODULES = [cats, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -70,6 +71,12 @@ PIVOT_NOTES = {
     "CatCafe_Plot_Interior": "Plot.cframe: floor top centre of the cafe",
     "CatCafe_Plot_ForRent": "Plot.cframe: floor top centre of the cafe",
     **{f"CatCafe_Plot_Tier{n}": "Plot.cframe: floor top centre of the cafe" for n in range(1, 6)},
+    **{n: "wall: back plane at the bottom centre; -Z faces into the alley" for n in
+       ("CatCafe_Alley_WallWindows", "CatCafe_Alley_WallDoor", "CatCafe_Alley_FireEscape", "CatCafe_Alley_Mural")},
+    "CatCafe_Alley_ArchStreet": "base centre of the 28 stud opening; -Z faces the street",
+    "CatCafe_Alley_Arch": "base centre of the 26 stud opening; -Z faces the back alley",
+    **{f"CatCafe_{a}_Gate": "base centre of the opening; -Z faces the side players come from" for a in
+       ("Park", "Neighbourhood", "Woods", "Sewer")},
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
@@ -77,7 +84,26 @@ STUDIO_NOTES = {
     "CatCafe_Decor_HangingLamp": "Bulb: Material Neon + PointLight 255,214,170 range 14.",
     "CatCafe_Alley_StreetLamp": "Bulb: Material Neon + SpotLight pointing down, warm.",
     "CatCafe_Park_Fountain": "Water: Transparency 0.3. Optional ParticleEmitter at the top ball.",
-    "CatCafe_Park_Gate": "LeafL and LeafR pivot at their hinge pillars; rotate about Y to open.",
+    **{f"CatCafe_{a}_Gate": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: "
+                            "keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. "
+                            "Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). "
+                            "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley."
+       for a in ("Park", "Neighbourhood", "Woods", "Sewer")},
+    "CatCafe_Alley_ArchStreet": "Over the street's north end at (0, 87.5). Posts collide; ALLEY SQUARE reads from the "
+                                "street, CAFE STREET from the square.",
+    "CatCafe_Alley_Arch": "Over each back alley's north end at (+-74, 87.5). Posts collide; ALLEY SQUARE reads from the "
+                          "back alley, BACK ALLEY from the square.",
+    **{n: "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow "
+          "at night." for n in ("CatCafe_Alley_WallWindows", "CatCafe_Alley_WallDoor", "CatCafe_Alley_Mural")},
+    "CatCafe_Alley_FireEscape": "As the other wall pieces. Landings and the ladder rungs collide: landing_1 (top 9.35) "
+                                "is reachable from CatCafe_Alley_CrateStack (top 7.7) placed just past its open left end "
+                                "(local x -8) with the tall column toward it, or up the ladder at x 5.5; stairs lead to "
+                                "landing_2 (17.35). See ledges_roblox.",
+    "CatCafe_Alley_CrateStack": "Solid crates in steps of 2.6 (tops 0.5, 2.5, 5.1, 7.7 from -X to +X).",
+    "CatCafe_Alley_LaundryLine": "Poles collide, the line and clothes (_Decor) do not. Lines at 9.5 to 10.5 studs.",
+    "CatCafe_Alley_StringLightsLong": "Poles 28 apart, so it spans a 30 stud back alley; _Bulbs glow at night.",
+    "CatCafe_Sewer_Manhole": "Slide or hide the child Model _Cover to open it; the requirement SurfaceGui goes on the "
+                             "-Z face of the part named SignBoard on the post.",
     "CatCafe_Cat_Void": "Head eyes are amber in the texture; add a Neon eye Part or Highlight for the glow.",
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
     "CatCafe_Furniture_CatTree": "CollisionFidelity Hull.",
@@ -102,10 +128,10 @@ STUDIO_NOTES = {
                                  "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "
                                  "Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15."
        for c in plot.COLOURS},
-    "CatCafe_Plot_Interior": "Every plot. No collision. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
+    "CatCafe_Plot_Interior": "Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
     "CatCafe_Plot_ForRent": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, "
-                            "boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable). No collision.",
-    **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier. No collision." for n in range(1, 6)},
+                            "boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
+    **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier." for n in range(1, 6)},
 }
 
 
@@ -208,6 +234,10 @@ def main():
             entry["display_slots_roblox"] = [common.to_roblox(p) for p in street.DISPLAY_SLOTS]
         if name.startswith("CatCafe_Item_") and name.split("_")[-1] in items.FOODS:
             entry["food_in_bowl_roblox"] = [0, items.FOOD_IN_BOWL, 0]
+        if name in alleyway.LEDGES:
+            entry["ledges_roblox"] = {k: list(v) for k, v in alleyway.LEDGES[name].items()}
+        if name.endswith("_Gate") and name in areas.ASSETS:
+            entry["sign_board_roblox"] = areas.SIGN_INFO
         if name.startswith("CatCafe_Plot_Cafe_"):
             entry["chimney_top_roblox"] = list(plot.CHIMNEY_TOP)
             entry["sign_board_roblox"] = plot.SIGN_INFO

@@ -147,12 +147,34 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		end
 	end
 	table.sort(resting, CatStats.isBetter)
-	for n, anchor in plot.napSpots do
-		local instance = resting[n]
-		if instance == nil then
-			break
+	local nappers: { [string]: Types.CatInstance } = {} -- the best few resting cats, by uid
+	for n = 1, math.min(#resting, #plot.napSpots) do
+		nappers[resting[n].uid] = resting[n]
+	end
+	-- A napper still among the best keeps its spot, so a change in the order does not shuffle every cat
+	-- (reviewer N60); the others take the free spots in order.
+	local takenSpots: { [number]: boolean } = {}
+	for _, child in plot.cats:GetChildren() do
+		local uid, slot = child:GetAttribute("Uid"), child:GetAttribute("Slot")
+		local instance = if type(uid) == "string" then nappers[uid] else nil
+		local n = if type(slot) == "string" then tonumber(slot:match("^nap_(%d+)$")) else nil
+		if instance ~= nil and n ~= nil and n <= #plot.napSpots and not takenSpots[n] then
+			takenSpots[n] = true
+			wanted[instance.uid] =
+				{ instance = instance, slot = slot :: string, anchor = plot.napSpots[n] }
 		end
-		wanted[instance.uid] = { instance = instance, slot = "nap_" .. n, anchor = anchor }
+	end
+	local nextSpot = 1
+	for n = 1, math.min(#resting, #plot.napSpots) do
+		local instance = resting[n]
+		if wanted[instance.uid] == nil then
+			while takenSpots[nextSpot] do
+				nextSpot += 1
+			end
+			takenSpots[nextSpot] = true
+			wanted[instance.uid] =
+				{ instance = instance, slot = "nap_" .. nextSpot, anchor = plot.napSpots[nextSpot] }
+		end
 	end
 	for _, child in plot.cats:GetChildren() do
 		local uid = child:GetAttribute("Uid")

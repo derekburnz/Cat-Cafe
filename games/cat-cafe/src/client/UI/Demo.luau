@@ -264,8 +264,7 @@ function Demo.run(UI: any): () -> ()
 	local dealerStock: Types.DealerStock? = nil
 	local dealerGift = false
 	local function rollDealer()
-		local weights =
-			Catalog.dealerSlotWeights[math.clamp(profile.tier, 1, #Catalog.dealerSlotWeights)]
+		local weights = Catalog.dealerSlotWeights -- v0.5 F43: one row for everyone
 		local total = 0
 		for _, weight in weights do
 			total += weight

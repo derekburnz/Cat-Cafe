@@ -106,13 +106,13 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 	return table.concat(lines, "\n")
 end
 
--- "Shiny 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"
+-- "Gold 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"
 function FoodOdds.extras(): string
 	local stars: { string } = {}
 	for count, share in STAR_ODDS do
 		table.insert(stars, ("%d★ %s"):format(count, percent(share)))
 	end
-	return ("Shiny %s · Charm %s"):format(percent(SHINY_CHANCE * 100), table.concat(stars, ", "))
+	return ("Gold %s · Charm %s"):format(percent(SHINY_CHANCE * 100), table.concat(stars, ", "))
 end
 
 return FoodOdds

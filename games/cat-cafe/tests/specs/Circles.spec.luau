@@ -368,6 +368,90 @@ return function()
 		end)
 	end)
 
+	describe("catching stakes (v0.4, F34, data-model section 10 step 5)", function()
+		-- Presses circle i at target + offsets[i]. At a Basic Net 0 is Perfect, 0.08 Good, -0.3 a pressed Miss (after
+		-- the circle starts, outside Good) and 0.5 a Miss by expiry (past the deadline, so the press is ignored).
+		local function run(rarity: string, offsets: { number })
+			local attempt, circles = attemptFor(rarity, 0)
+			for i, offset in ipairs(offsets) do
+				local at = Circles.target(circles[i]) + offset
+				Circles.press(attempt, i, at, at)
+			end
+			return attempt, circles
+		end
+
+		local function same(value: number, count: number): { number }
+			local out = {}
+			for i = 1, count do
+				out[i] = value
+			end
+			return out
+		end
+
+		it("every circle Good or Perfect is a sure catch, for every rarity", function()
+			for _, rarity in ipairs(Catalog.rarityOrder) do
+				local count = Catalog.rarities[rarity].circles
+				for _, offset in ipairs({ 0, 0.08, -0.08 }) do
+					local attempt = run(rarity, same(offset, count))
+					expect(Circles.isDone(attempt)).to.equal(true)
+					expect(Circles.succeeded(attempt)).to.equal(true)
+				end
+			end
+		end)
+
+		it("one Miss fails the catch, even on the last circle", function()
+			local attempt = run("Mythical", { 0, 0.08, 0, -0.08, 0.5 })
+			expect(attempt.grades :: any).to.deepEqual({ "perfect", "good", "perfect", "good", "miss" })
+			expect(Circles.isDone(attempt)).to.equal(true)
+			expect(Circles.succeeded(attempt)).to.equal(false)
+		end)
+
+		it("a run that is not over has not succeeded yet, and its next deadline is the waiting circle's", function()
+			local attempt, circles = run("Rare", { 0 })
+			expect(Circles.isDone(attempt)).to.equal(false)
+			expect(Circles.succeeded(attempt)).to.equal(false)
+			expect(Circles.nextDeadline(attempt)).to.be.near(Circles.deadline(circles[2], attempt.windows), 1e-9)
+			local fresh, freshCircles = attemptFor("Epic", 0)
+			expect(Circles.nextDeadline(fresh)).to.be.near(Circles.deadline(freshCircles[1], fresh.windows), 1e-9)
+		end)
+
+		it("a missed press ends the attempt at once: no deadline left and later circles are ignored", function()
+			local attempt, circles = run("Epic", { 0, -0.3 })
+			expect(attempt.errors[2]).to.be.near(-0.3, 1e-9) -- judged as a press, not expired
+			expect(attempt.grades :: any).to.deepEqual({ "perfect", "miss" })
+			expect(Circles.isDone(attempt)).to.equal(true)
+			expect(Circles.nextDeadline(attempt)).never.to.be.ok()
+			local at = Circles.target(circles[3])
+			expect(Circles.press(attempt, 3, at, at)).never.to.be.ok()
+			expect(Circles.expire(attempt, Circles.endsAt(circles, attempt.windows) + 1)).to.equal(0)
+			expect(#attempt.grades).to.equal(2)
+		end)
+
+		it("nothing is left to expire after a sure catch", function()
+			local attempt, circles = run("Legendary", same(0, 4))
+			expect(Circles.nextDeadline(attempt)).never.to.be.ok()
+			expect(Circles.expire(attempt, Circles.endsAt(circles, attempt.windows) + 1)).to.equal(0)
+			expect(Circles.succeeded(attempt)).to.equal(true)
+		end)
+
+		it("charm: 4 per Perfect, doubled when every circle is Perfect", function()
+			expect(Circles.charmGain((run("Common", { 0 })))).to.equal(8)
+			expect(Circles.charmGain((run("Legendary", same(0, 4))))).to.equal(32)
+			expect(Circles.charmGain((run("Mythical", same(0, 5))))).to.equal(40)
+			expect(Circles.charmGain((run("Epic", { 0, 0.08, 0 })))).to.equal(8)
+			expect(Circles.charmGain((run("Rare", { 0, -0.08 })))).to.equal(4)
+			expect(Circles.charmGain((run("Rare", { 0.08, 0.08 })))).to.equal(0)
+		end)
+
+		it("charm: nothing for a failed or unfinished catch, however many Perfects came first", function()
+			expect(Circles.charmGain((run("Mythical", { 0, 0, 0, 0, 0.5 })))).to.equal(0)
+			expect(Circles.charmGain((run("Rare", { 0 })))).to.equal(0)
+			local attempt, circles = attemptFor("Common", 0)
+			Circles.expire(attempt, Circles.deadline(circles[1], attempt.windows) + 0.01)
+			expect(Circles.charmGain(attempt)).to.equal(0)
+		end)
+	end)
+
 	describe("scripted press check (reviewer S23)", function()
 		it("keeps only the last 50 judged circles", function()
 			local history = {}
@@ -395,6 +479,34 @@ return function()
 			expect(Circles.looksScripted(history(48, 50))).to.equal(true) -- 96%
 			expect(Circles.looksScripted(history(47, 50))).to.equal(false) -- 94%
 			expect(Circles.looksScripted({})).to.equal(false)
+		end)
+
+		it("clears only on a full window at or below 85% Perfect, never a partial one (v0.4, reviewer N46)", function()
+			expect(Circles.AUTO_PRESS_CLEAR_RATE).to.be.near(0.85, 1e-9)
+			expect(Circles.AUTO_PRESS_RATE).to.equal(Config.AutoPressFlagRate)
+			expect(Circles.AUTO_PRESS_CLEAR_RATE).to.equal(Config.AutoPressClearRate)
+			local function history(perfect: number, total: number): { boolean }
+				local out = {}
+				for i = 1, total do
+					table.insert(out, i <= perfect)
+				end
+				return out
+			end
+			expect(Circles.looksHonest(history(0, 49))).to.equal(false) -- a rejoin's short history
+			expect(Circles.looksHonest(history(0, 50))).to.equal(true)
+			expect(Circles.looksHonest(history(42, 50))).to.equal(true) -- 84%
+			expect(Circles.looksHonest(history(43, 50))).to.equal(false) -- 86%
+			expect(Circles.looksHonest(history(85, 100))).to.equal(true) -- exactly 85%
+			expect(Circles.looksHonest({})).to.equal(false)
+		end)
+
+		it("between 85% and 95% Perfect the flag neither sets nor clears", function()
+			local history = {}
+			for i = 1, 50 do
+				table.insert(history, i <= 45)
+			end
+			expect(Circles.looksScripted(history)).to.equal(false)
+			expect(Circles.looksHonest(history)).to.equal(false)
 		end)
 	end)
 end

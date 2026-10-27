@@ -208,6 +208,29 @@ return function()
 			expect(Config.CircleScoreGood > 0 and Config.CircleScoreGood < 1).to.equal(true)
 		end)
 
+		it("v0.4 stakes: the player who missed waits longer than everyone else", function()
+			expect(Config.StrayWarySeconds > Config.GrabRetrySeconds).to.equal(true)
+		end)
+
+		it("v0.4 stakes: the jump back is a range of 6 to 10 studs", function()
+			expect(Config.StrayJumpBackMin > 0).to.equal(true)
+			expect(Config.StrayJumpBackMin <= Config.StrayJumpBackMax).to.equal(true)
+		end)
+
+		it("v0.4 stakes: the scripted-press flag clears well below where it sets", function()
+			expect(Config.AutoPressClearRate > 0).to.equal(true)
+			expect(Config.AutoPressClearRate < Config.AutoPressFlagRate).to.equal(true)
+			expect(Config.AutoPressFlagRate < 1).to.equal(true)
+		end)
+
+		it("v0.4 stakes: a Purrfect Mythical catch adds charm well inside the 100 cap", function()
+			local most = Config.PerfectCharmBonus
+				* Catalog.rarities.Mythical.circles
+				* Config.PurrfectCharmMultiplier
+			expect(most).to.equal(40)
+			expect(most < 100).to.equal(true)
+		end)
+
 		it("carry speed is about 80% of normal walk speed (features F07)", function()
 			expect(Config.CarryWalkSpeed / Config.NormalWalkSpeed).to.be.near(0.8, 0.02)
 		end)

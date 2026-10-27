@@ -33,6 +33,16 @@ return function()
 			expect((Catching :: any).fleesOnMiss).never.to.be.ok()
 		end)
 
+		it("every stray gives at least one try, and a rarer cat never trusts you longer", function()
+			local previous = math.huge
+			for _, rarity in ipairs(Catalog.rarityOrder) do
+				local paws = Catching.patience(rarity)
+				expect(paws >= 1).to.equal(true)
+				expect(paws <= previous).to.equal(true)
+				previous = paws
+			end
+		end)
+
 		it("v0.3: the hold ring and flat chance are gone (F26)", function()
 			local catching = Catching :: any
 			expect(catching.ringBonus).never.to.be.ok()

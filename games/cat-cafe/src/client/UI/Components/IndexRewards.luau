@@ -70,7 +70,7 @@ local KNOWN_FIELDS = {
 
 local IndexRewards = {}
 
-IndexRewards.ALL_AREA = "all" -- the Cat Collector page: every area's cats together (F54)
+IndexRewards.ALL_AREA = "all" -- the All Cats page: every area's cats together (F54)
 
 -- How many cats a milestone needs: `needs` (F54) or `need` (F48).
 function IndexRewards.need(milestone: Milestone): number

@@ -15,6 +15,7 @@ export type Row = {
 	lureId: string?, -- lure: the food and how many
 	count: number?,
 	spins: number?, -- F49: Spin Wheel spins it also banks (steps 11 and 12)
+	fish: number?, -- F52: golden fish it also gives (step 12)
 }
 
 export type Jar = {

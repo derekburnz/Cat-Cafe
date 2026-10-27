@@ -127,6 +127,16 @@ local Config = {
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
 	SpinBankCap = 20, -- banked spins (Tip Jar steps 11 and 12) stop here
 
+	-- Golden fish (F52, golden-fish.md sections 1 and 2): the rare currency, earned only, never sold or given for
+	-- Robux. Pure rules in GoldenFish.
+	-- a cat new to the Index, any way it was found; its first gold pays twice this
+	FishFirstCatch = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 } :: { [string]: number },
+	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
+	FishRepeatCatch = { Epic = 1, Legendary = 3, Mythical = 8 } :: { [string]: number },
+	FishRankUp = { 10, 25, 50, 100 } :: { number }, -- reaching Tier 2, 3, 4 and 5
+	TipJarStep12Fish = 5,
+	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
+
 	-- Shove (F29 bump rules, v0.5 F41, data-model section 10c); the code keeps the Bump names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Bump remote off and hides the Shove button
 	BumpRangeStuds = 6,

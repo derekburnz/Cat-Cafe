@@ -388,6 +388,10 @@ local function applyState(s: Types.PlayerState)
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
 		spin = s.spin, -- F49: the free spin and the banked ones, for the Spin window
+		goldenFish = s.goldenFish, -- F52: the HUD's fish counter
+		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
+		crateLuck = s.crateLuck,
+		fishPerks = s.fishPerks,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.

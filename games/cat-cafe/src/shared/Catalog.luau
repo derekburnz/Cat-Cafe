@@ -3,6 +3,7 @@
 -- Pure data plus lookups. Ids never change once saved; display names can.
 -- Model names derive from ids: cat "tabby" is ReplicatedStorage.Assets.CatCafe_Cat_Tabby.
 
+local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
 local Catalog = {}
@@ -1089,7 +1090,15 @@ Catalog.tipJar = {
 	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
 	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
 	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600, spins = 1 },
-	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1, spins = 1 },
+	{
+		step = 12,
+		minutes = 120,
+		kind = "lure",
+		lureId = "caviar",
+		count = 1,
+		spins = 1,
+		fish = Config.TipJarStep12Fish, -- F52
+	},
 } :: { Types.TipJarStep }
 
 -- Section 11c (F49): the Spin Wheel's six slices in order around the wheel. Free spins only: no Robux button, pass
@@ -1232,6 +1241,80 @@ table.freeze(Catalog.indexPrizes)
 
 function Catalog.getArea(id: string): Types.AreaDef?
 	return Catalog.areasById[id]
+end
+
+-- Cafe Crates (F53, golden-fish.md section 4): a crate per zone and the Classic Crate, each with a golden version
+-- that holds the same pieces at Epic or better odds and is never sold. A piece's chance is its rarity's odds split
+-- equally among that rarity's pieces. Every crate shows these odds before it opens (monetization-policy).
+local CRATE_ODDS =
+	{ Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 } :: { [string]: number }
+local GOLDEN_CRATE_ODDS =
+	{ Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 } :: { [string]: number }
+local CRATE_POOLS = {
+	{ area = "alley", name = "Alley" },
+	{ area = "park", name = "Park" },
+	{ area = "neighbourhood", name = "Neighbourhood" },
+	{ area = "woods", name = "Woods" },
+	{ area = "sewer", name = "Sewer" },
+	{ area = "classic", name = "Classic" },
+}
+Catalog.crates = {} :: { Types.CrateDef }
+for _, pool in CRATE_POOLS do
+	table.insert(Catalog.crates, {
+		id = pool.area .. "_crate",
+		name = pool.name .. " Crate",
+		area = pool.area,
+		golden = false,
+		price = 60,
+		odds = CRATE_ODDS,
+		pieces = {},
+	})
+	table.insert(Catalog.crates, {
+		id = pool.area .. "_golden_crate",
+		name = "Golden " .. pool.name .. " Crate",
+		area = pool.area,
+		golden = true,
+		price = nil,
+		odds = GOLDEN_CRATE_ODDS,
+		pieces = {},
+	})
+end
+
+Catalog.cratesById = {} :: { [string]: Types.CrateDef }
+Catalog.cratePools = {} :: { [string]: boolean } -- the zone ids and "classic": crateLuck's keys
+for _, def in Catalog.crates do
+	Catalog.cratesById[def.id] = def
+	Catalog.cratePools[def.area] = true
+end
+
+function Catalog.getCrate(id: string): Types.CrateDef?
+	return Catalog.cratesById[id]
+end
+
+-- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is
+-- forever: Golden Espresso +5% tips a level, Big Bowl a shorter bait wait, Extra Decor Spot one more decor spot a
+-- level.
+Catalog.fishShop = {} :: { Types.FishShopRow }
+local function shopRow(row: Types.FishShopRow)
+	table.insert(Catalog.fishShop, row)
+end
+for _, def in Catalog.crates do
+	if def.price ~= nil then
+		shopRow({ id = def.id, kind = "crate", cost = def.price })
+	end
+end
+shopRow({ id = "star_treat", kind = "lure", cost = 80 })
+shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
+shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
+shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })
+
+Catalog.fishShopById = {} :: { [string]: Types.FishShopRow }
+for _, row in Catalog.fishShop do
+	Catalog.fishShopById[row.id] = row
+end
+
+function Catalog.getFishShopRow(id: string): Types.FishShopRow?
+	return Catalog.fishShopById[id]
 end
 
 return Catalog

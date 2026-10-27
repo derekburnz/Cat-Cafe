@@ -40,16 +40,21 @@ export type Catalog = {
 	indexPrizes: { [string]: { [string]: IndexPrize } }?, -- F48: area id -> milestone id -> prize (S61: not indexRewards)
 	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
 	spinWheel: { SpinRow }?, -- F49: the Spin Wheel's six slices, clockwise from the top (data-model section 11c)
+	crates: { [string]: CrateDef }?, -- F53: Catalog.crates, the Cafe Crates by id (golden-fish.md section 4)
 }
+
+-- A Cafe Crate (F53): ten cosmetics of one pool (a zone id or "classic"); golden ones are Epic or better.
+export type CrateDef = SharedTypes.CrateDef
 
 -- One Spin Wheel slice (F49): the Tip Jar row's prize plus a weight; the weights add up to 100.
 export type SpinRow = {
 	slice: number,
-	kind: string, -- "coins" or "lure"
+	kind: string, -- "coins", "lure", F54 "fish" (golden fish) or "crate"
 	seconds: number?,
 	minCoins: number?,
 	lureId: string?,
-	count: number?,
+	count: number?, -- foods, golden fish or crates
+	crate: string?, -- F54: the crate id, or "highest" for the crate of the player's highest open area
 	weight: number,
 }
 
@@ -69,6 +74,7 @@ export type TipJarRow = {
 	lureId: string?,
 	count: number?,
 	spins: number?, -- F49: Spin Wheel spins it also banks (steps 11 and 12), up to SpinBankCap
+	fish: number?, -- F52: golden fish it also gives (step 12)
 }
 
 -- An Index milestone (F48, data-model section 11b): `need` of the area's cats found, or as gold cats. F54
@@ -147,6 +153,9 @@ export type PlayerState = {
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 	spin: SpinState?, -- F49: the free spin and the banked ones
 	goldenFish: number?, -- F52: the rare currency; nil hides its HUD counter
+	crates: { [string]: number }?, -- F53: crate id -> unopened count
+	crateLuck: { [string]: number }?, -- F53: crate pool -> opens since its last Epic or better (0 to 19)
+	fishPerks: { [string]: number }?, -- F53: Golden Fish Market perk id -> level
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -172,6 +181,10 @@ export type PartialState = {
 	settings: { [string]: boolean | number }?,
 	indexRewards: { [string]: { [string]: boolean } }?,
 	spin: SpinState?,
+	goldenFish: number?,
+	crates: { [string]: number }?,
+	crateLuck: { [string]: number }?,
+	fishPerks: { [string]: number }?,
 }
 
 export type ScreenName =

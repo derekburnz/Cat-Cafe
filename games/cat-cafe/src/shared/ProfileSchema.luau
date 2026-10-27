@@ -18,7 +18,9 @@ local ProfileSchema = {}
 -- server would drop them, and a player hopping servers could claim every Index reward again (reviewer S60).
 -- Version 6 (F49) adds spin and stats.spins, for the same reason: an older server would drop spin during a
 -- rollout, giving a second free spin and losing banked ones.
-ProfileSchema.VERSION = 6
+-- Version 7 (F52 and F53, golden-fish.md) adds goldenFish, lifetimeGoldenFish, crates, crateLuck, fishPerks,
+-- stats.cratesOpened and stats.fishEarned: an older server would drop them, losing fish, crates and perks.
+ProfileSchema.VERSION = 7
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -66,6 +68,8 @@ local function newStats(): Types.Stats
 		sessions = 0,
 		tipJarClaims = 0,
 		spins = 0,
+		cratesOpened = 0,
+		fishEarned = 0,
 	}
 end
 
@@ -100,6 +104,11 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		goldCollection = {},
 		indexRewards = {},
 		spin = { lastFreeDay = 0, banked = 0 },
+		goldenFish = 0,
+		lifetimeGoldenFish = 0,
+		crates = {},
+		crateLuck = {},
+		fishPerks = {},
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = Settings.defaults(),
@@ -321,6 +330,55 @@ local function sanitizeBait(value: any): Types.BaitState?
 	}
 end
 
+-- Unopened crates (F53): known crate ids with a whole count above 0.
+local function sanitizeCrates(value: any): { [string]: number }
+	local out: { [string]: number } = {}
+	if type(value) == "table" then
+		for id, count in value do
+			if type(id) == "string" and Catalog.getCrate(id) ~= nil then
+				local n = asInt(count, 0)
+				if n > 0 then
+					out[id] = n
+				end
+			end
+		end
+	end
+	return out
+end
+
+-- Opens since each pool's last Epic or better (F53): known pools, 0 to CrateLuckyEvery - 1.
+local function sanitizeCrateLuck(value: any): { [string]: number }
+	local out: { [string]: number } = {}
+	if type(value) == "table" then
+		for pool, count in value do
+			if type(pool) == "string" and Catalog.cratePools[pool] then
+				local n = math.min(asInt(count, 0), Config.CrateLuckyEvery - 1)
+				if n > 0 then
+					out[pool] = n
+				end
+			end
+		end
+	end
+	return out
+end
+
+-- Golden Fish Market perks (F53): known perk ids, 1 to the perk's maxLevel.
+local function sanitizeFishPerks(value: any): { [string]: number }
+	local out: { [string]: number } = {}
+	if type(value) == "table" then
+		for id, level in value do
+			local row = if type(id) == "string" then Catalog.getFishShopRow(id) else nil
+			if row ~= nil and row.kind == "perk" then
+				local n = math.min(asInt(level, 0), row.maxLevel or 0)
+				if n > 0 then
+					out[id] = n
+				end
+			end
+		end
+	end
+	return out
+end
+
 local function sanitizeTelemetry(value: any): Types.TelemetryState
 	local telemetry: Types.TelemetryState = { onboardingStep = 0, achieved = {} }
 	if type(value) ~= "table" then
@@ -461,6 +519,13 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 
 	-- The Spin Wheel (F49); saves before version 6 have no spins banked and today's free spin due.
 	profile.spin = Spin.sanitize(raw.spin, now)
+
+	-- Golden fish, crates and Market perks (F52, F53); saves before version 7 start with none.
+	profile.goldenFish = asInt(raw.goldenFish, 0)
+	profile.lifetimeGoldenFish = math.max(asInt(raw.lifetimeGoldenFish, 0), profile.goldenFish)
+	profile.crates = sanitizeCrates(raw.crates)
+	profile.crateLuck = sanitizeCrateLuck(raw.crateLuck)
+	profile.fishPerks = sanitizeFishPerks(raw.fishPerks)
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

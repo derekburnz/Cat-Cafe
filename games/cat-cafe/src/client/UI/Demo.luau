@@ -8,6 +8,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local BugReport = require(Shared:WaitForChild("BugReport"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Format = require(script.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Components.IndexRewards)
@@ -35,7 +36,7 @@ local DEMO_TIP_JAR: { Types.TipJarRow } = {
 	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
 	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
 	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600, spins = 1 },
-	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1, spins = 1 },
+	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1, spins = 1, fish = 5 },
 }
 
 -- data-model section 11c's Spin Wheel slices, until the engineer's Catalog.spinWheel lands
@@ -44,8 +45,8 @@ local DEMO_SPIN_WHEEL: { Types.SpinRow } = {
 	{ slice = 2, kind = "lure", lureId = "tuna", count = 3, weight = 22 },
 	{ slice = 3, kind = "coins", seconds = 600, minCoins = 1000, weight = 18 },
 	{ slice = 4, kind = "lure", lureId = "salmon", count = 2, weight = 15 },
-	{ slice = 5, kind = "lure", lureId = "sardines", count = 2, weight = 10 },
-	{ slice = 6, kind = "lure", lureId = "caviar", count = 1, weight = 5 },
+	{ slice = 5, kind = "fish", count = 4, weight = 10 }, -- F54, golden-fish.md section 6
+	{ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 5 },
 }
 
 -- data-model section 11b's Index milestones and prizes, until the engineer's Catalog.indexMilestones and
@@ -77,6 +78,70 @@ local DEMO_INDEX_PRIZES: { [string]: { [string]: Types.IndexPrize } } = {
 	sewer = indexPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
 }
 
+-- golden-fish.md section 4's crates, names and pools only, until the engineer's Catalog.crates lands
+local DEMO_CRATES: { [string]: Types.CrateDef } = {}
+for _, pool in { "alley", "park", "neighbourhood", "woods", "sewer", "classic" } do
+	local name = if pool == "alley" then "Alley" else Format.areaName(pool)
+	local plain, golden = pool .. "_crate", pool .. "_golden_crate"
+	DEMO_CRATES[plain] = {
+		id = plain,
+		name = name .. " Crate",
+		area = pool,
+		golden = false,
+		price = 60,
+		odds = {},
+		pieces = {},
+	}
+	DEMO_CRATES[golden] = {
+		id = golden,
+		name = "Golden " .. name .. " Crate",
+		area = pool,
+		golden = true,
+		odds = {},
+		pieces = {},
+	}
+end
+
+-- golden-fish.md section 5b's All Cats page, until the engineer's F54 milestones and prizes land
+local DEMO_ALL_PRIZES: { [string]: Types.IndexPrize } = {
+	total5 = { fish = 10, spins = 1, bonus = 0.02 },
+	total10 = { fish = 15, crates = { classic_crate = 1 }, bonus = 0.02 },
+	total15 = { fish = 20, spins = 2, bonus = 0.02 },
+	total20 = { fish = 25, crates = { classic_crate = 1 }, bonus = 0.03 },
+	total25 = { fish = 30, spins = 2, bonus = 0.03 },
+	total30 = { fish = 40, crates = { highest = 1 }, bonus = 0.03 },
+	total35 = { fish = 50, spins = 3, bonus = 0.04 },
+	total40 = { fish = 60, crates = { classic_golden_crate = 1 }, bonus = 0.04 },
+	total45 = { fish = 75, spins = 3, bonus = 0.05 },
+	total50 = {
+		fish = 150,
+		crates = { classic_golden_crate = 1 },
+		tag = "Cat Master",
+		bonus = 0.10,
+	},
+}
+
+-- The catalog's Index with the All Cats page added when it has none yet, so the demo shows that page's rewards.
+local function withAllCats(
+	milestones: { Types.IndexMilestone },
+	prizes: { [string]: { [string]: Types.IndexPrize } }
+): ({ Types.IndexMilestone }, { [string]: { [string]: Types.IndexPrize } })
+	if prizes.all ~= nil then
+		return milestones, prizes
+	end
+	local outMilestones = table.clone(milestones)
+	for count = 5, 50, 5 do
+		table.insert(outMilestones, { id = "total" .. count, needs = count, track = "normal" })
+	end
+	local outPrizes = table.clone(prizes)
+	outPrizes.all = DEMO_ALL_PRIZES
+	return outMilestones, outPrizes
+end
+local demoMilestones, demoPrizes = withAllCats(
+	(Catalog :: any).indexMilestones or DEMO_INDEX_MILESTONES,
+	(Catalog :: any).indexPrizes or DEMO_INDEX_PRIZES
+)
+
 -- The real catalog (src/shared/Catalog.luau), so the demo shows the slice's actual cats and prices.
 local CATALOG: Types.Catalog = {
 	cats = Catalog.cats,
@@ -87,9 +152,10 @@ local CATALOG: Types.Catalog = {
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
 	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
-	indexMilestones = (Catalog :: any).indexMilestones or DEMO_INDEX_MILESTONES,
-	indexPrizes = (Catalog :: any).indexPrizes or DEMO_INDEX_PRIZES,
+	indexMilestones = demoMilestones,
+	indexPrizes = demoPrizes,
 	spinWheel = (Catalog :: any).spinWheel or DEMO_SPIN_WHEEL,
+	crates = (Catalog :: any).crates or DEMO_CRATES,
 	rarities = Catalog.rarities,
 }
 
@@ -580,14 +646,14 @@ function Demo.run(UI: any): () -> ()
 			print(("[Demo] ReportBug %s %q, %d client errors"):format(kind, text, #clientErrors))
 			task.delay(0.5, function()
 				if os.clock() - lastReport < 20 then
-					UI.toast("You just sent one, try again in a moment", "warn")
+					UI.toast(BugReport.Messages.limited, "warn")
 					return
 				end
 				lastReport = os.clock() -- like the server's limiter, a failed write still counts
 				if string.find(text, "fail", 1, true) then
-					UI.toast("Couldn't send that, try again in a minute", "warn")
+					UI.toast(BugReport.Messages.failed, "warn")
 				else
-					UI.toast("Thanks! Your report was sent.", "good")
+					UI.toast(BugReport.Messages.sent, "good")
 				end
 			end)
 		end

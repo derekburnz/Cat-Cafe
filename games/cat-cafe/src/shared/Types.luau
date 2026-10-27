@@ -133,6 +133,29 @@ export type LureDef = {
 	asset: string, -- food model shown in the bowl while the lure is active
 }
 
+-- A Cafe Crate (F53, golden-fish.md section 4): ten cosmetics of one pool, opened at the Golden Fish Market. The
+-- zone crates open with their zone; the Classic Crate (area "classic") is open from Tier 1. A golden crate has the
+-- same pieces at Epic or better odds and is never sold.
+export type CrateDef = {
+	id: string,
+	name: string,
+	area: string, -- its pool: a zone id or "classic"
+	golden: boolean,
+	price: number?, -- golden fish at the Market; nil for a golden crate
+	odds: { [string]: number }, -- percent by rarity, adding up to 100; a piece's chance is its rarity's share
+	pieces: { string }, -- decor ids
+}
+
+-- One row of the Golden Fish Market (F53, golden-fish.md section 3). A crate or a food has one `cost`; a perk has a
+-- cost per level in `costs` and stops at `maxLevel`.
+export type FishShopRow = {
+	id: string, -- the crate id, the lure id or the perk id
+	kind: "crate" | "lure" | "perk",
+	cost: number?,
+	costs: { number }?,
+	maxLevel: number?,
+}
+
 -- Data-model section 11b (F47): one Tip Jar gift, unlocked `minutes` into a session. A "coins" step pays
 -- max(minCoins, floor(day rate x seconds)) at claim time; a "lure" step adds `count` of the food `lureId`.
 export type TipJarStep = {
@@ -144,6 +167,7 @@ export type TipJarStep = {
 	lureId: string?,
 	count: number?,
 	spins: number?, -- F49: banked spins this step also gives, up to SpinBankCap
+	fish: number?, -- F52: golden fish this step also gives (step 12)
 }
 
 -- One slice of the Spin Wheel (F49, data-model section 11c): the Tip Jar's prize shape plus its weight. The weights
@@ -255,6 +279,8 @@ export type Stats = {
 	sessions: number,
 	tipJarClaims: number, -- F47
 	spins: number, -- F49
+	cratesOpened: number, -- F53
+	fishEarned: number, -- F52: golden fish earned, every source
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).
@@ -324,6 +350,13 @@ export type PlayerProfile = {
 	goldCollection: { [string]: number }, -- catId -> first gold caught at
 	indexRewards: { [string]: { [string]: boolean } }, -- areaId -> milestoneId -> claimed (F48)
 	spin: SpinState, -- F49
+	-- Golden fish (F52, golden-fish.md): the rare currency, earned only. Crates, their luck and the Market's perks
+	-- (F53) came in the same save version 7.
+	goldenFish: number,
+	lifetimeGoldenFish: number,
+	crates: { [string]: number }, -- crateId -> unopened count
+	crateLuck: { [string]: number }, -- crate pool (zone id or "classic") -> opens since its last Epic or better
+	fishPerks: { [string]: number }, -- perkId -> level bought
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -352,6 +385,10 @@ export type PlayerState = {
 	goldCollection: { [string]: number },
 	indexRewards: { [string]: { [string]: boolean } }, -- F48
 	spin: SpinState, -- F49
+	goldenFish: number, -- F52
+	crates: { [string]: number }, -- F53
+	crateLuck: { [string]: number },
+	fishPerks: { [string]: number },
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,

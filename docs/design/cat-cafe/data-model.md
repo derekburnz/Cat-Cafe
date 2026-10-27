@@ -377,7 +377,7 @@ Row shape: `{ step, minutes, kind = "coins" | "lure", seconds?, minCoins?, lureI
 
 Derek, 2026-10-27 14:36: "things like spins could be an area you walk up to". The wheel is a station in the street plaza ([areas-and-stations.md](areas-and-stations.md) Part B), not a HUD button. Spins are free and never sold: no Robux button, no pass and no product gives spins (monetization-policy), and every slice shows its chance. A spin never gives a cat (round 3 Q17).
 
-`Catalog.spinWheel`, six slices in order around the wheel:
+`Catalog.spinWheel`, six slices in wheel order, clockwise from slice 1, which sits under the pointer when the wheel is at rest:
 
 | slice | prize | weight (chance) |
 |---|---|---|
@@ -395,7 +395,7 @@ Spins:
 - Banked spins in `spin.banked`, up to SpinBankCap (20): one each from Tip Jar steps 11 and 12, and later the Daily Treat's day 7. A claim that would pass the cap still pays the step's other prize and drops the extra spin, and the Tip Jar row says "Spins full".
 - A spin uses the free spin first, then a banked one.
 
-- `SpinWheel()`: profile loaded; the character within SpinStationRange (14) studs of a station tagged `SpinWheel`; a free spin due or `spin.banked` of 1 or more; at least SpinCooldownSeconds (4, the spin animation) since the caller's last spin; 1 call per second, since a refusal also answers with a remote (N125). The server picks the slice with its own `Random`, weighted by `weight`, pays at once (so leaving mid-animation keeps the prize), updates `spin`, adds to `stats.spins`, fires `SpinResult(slice, amount)` to the caller and ProfileSync with `spin`, and sets the station's `LastSpinAt` so every client turns the world wheel for show. A refused spin fires `SpinResult(0, 0)` and the window says why ("Next free spin in 5h 12m").
+- `SpinWheel()`: profile loaded; the character within SpinStationRange (14) studs of a station tagged `SpinWheel`; a free spin due or `spin.banked` of 1 or more; at least SpinCooldownSeconds (4, the spin animation) since the caller's last spin; 1 call per second, since a refusal also answers with a remote (N125). The server picks the slice with its own `Random`, weighted by `weight`, pays at once (so leaving mid-animation keeps the prize), updates `spin`, adds to `stats.spins`, fires `SpinResult(slice, amount)` to the caller and ProfileSync with `spin`, and sets the station's `LastSlice` and then `LastSpinAt`, so every client turns the world wheel for show and stops it on the won slice (S64). A refused spin fires `SpinResult(0, 0)` and the window says why ("Next free spin in 5h 12m").
 - No Robux item may add a spin or speed up a spin source (no product that resets the free spin, no pass that shortens the Tip Jar) (N126).
 - On load a version 6 `spin` is sanitised: `banked` clamped to 0 to SpinBankCap and `lastFreeDay` to 0 to today, so a bad value cannot bank spins or block the free one (N128).
 - The UI works out when the next free spin is due from `spin.lastFreeDay` and `GetServerTimeNow()`; the server's check at spin time is final.
@@ -423,7 +423,7 @@ Attributes are for display. Server decisions (locks, deadlines, bump grace and c
 
 Dealer cart (tag `DealerCart`): `Open` (bool).
 
-Spin Wheel station (tag `SpinWheel`, F49): `LastSpinAt` (server time of the latest spin by anyone; show only).
+Spin Wheel station (tag `SpinWheel`, F49): `LastSlice` (1 to 6, the slice the latest spinner won) and `LastSpinAt` (server time of the latest spin by anyone). The server sets `LastSlice` just before `LastSpinAt`, so every client's world wheel stops on the slice that was really won (reviewer S64). Show only.
 
 Index Board (tag `IndexBoard`, F50): `Area` (the area id). The board is drawn on each client from that client's own `collection` and `goldCollection`; the prompt opens the Index on that area's page.
 
@@ -495,7 +495,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | ClaimOffline | event | none | pending above 0 | adds coins |
 | ClaimTipJar | event | step | F47 (section 11b): integer 1 to 12, unclaimed this session, session minutes reached; 1 per second | pays the step, fires TipJarState and ProfileSync |
 | ClaimIndexReward | event | areaId, milestoneId | F48 (section 11b): known area and milestone, count met from `collection` or `goldCollection`, not claimed; 1 per second | pays, marks `indexRewards`, ProfileSync |
-| SpinWheel | event | none | F49 (section 11c): within 14 studs of a `SpinWheel` station, a free or banked spin, SpinCooldownSeconds since the last spin; 1 per second | pays the slice, fires SpinResult and ProfileSync, sets `LastSpinAt` |
+| SpinWheel | event | none | F49 (section 11c): within 14 studs of a `SpinWheel` station, a free or banked spin, SpinCooldownSeconds since the last spin; 1 per second | pays the slice, fires SpinResult and ProfileSync, sets `LastSlice` then `LastSpinAt` |
 | TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
 | SetSetting | event | key, value | engineer #202 and #215: `key` one of the eight `settings` keys; `value` a number from 0 to 1 for `musicVolume` and `sfxVolume` (rounded to 0.01), a boolean for the rest; 4 per second | saves to `profile.settings`, answered by ProfileSync |
 | CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |

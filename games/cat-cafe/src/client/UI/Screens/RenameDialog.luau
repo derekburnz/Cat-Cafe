@@ -224,9 +224,13 @@ end
 function RenameDialog.open(self: any, uid: string, current: string?, breed: string)
 	self._uid = uid
 	self._current = if current ~= nil and current ~= "" then current else nil
-	self._title.Text = "Rename " .. (self._current or breed)
+	-- a name the filter turned to "Mo##i" starts the box empty: # fails the name rules, so it would open in red
+	-- (reviewer N96)
+	local named: string? = self._current
+	local hashed = named ~= nil and string.find(named, "#", 1, true) ~= nil
+	self._title.Text = "Rename " .. (if hashed then breed else self._current or breed)
 	self._box.PlaceholderText = breed
-	self._box.Text = self._current or ""
+	self._box.Text = if hashed then "" else self._current or ""
 	self:_check()
 	self.frame.Visible = true
 	Tween.popIn(self._card, 0.9)

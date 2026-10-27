@@ -830,18 +830,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	stray.waryUntil[player.UserId] = now + Config.StrayWarySeconds
 	stray.landsAt = now + Config.GrabRetrySeconds
 	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, paws, 0)
+	-- The catch HUD shows "It slipped away!" with the paws left (UI.catch.showGrades); only a forfeit needs words
+	-- from here (reviewer S39).
 	if forfeit ~= nil then
 		Net.toast(player, forfeit, "warn")
-	elseif paws == 0 then
-		Net.toast(player, "It won't trust you tonight", "warn")
-	elseif paws ~= nil then
-		Net.toast(
-			player,
-			string.format("It slipped away! %d %s left", paws, if paws == 1 then "paw" else "paws"),
-			"warn"
-		)
-	else
-		Net.toast(player, "It slipped away! Try again", "warn")
 	end
 	jumpBack(stray, player)
 end

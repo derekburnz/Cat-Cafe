@@ -17,6 +17,7 @@ local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
 local WorldController = {}
@@ -66,14 +67,19 @@ local function zoneAt(position: Vector3): string?
 	return nil
 end
 
+-- Only the gate's barrier (its parts named Bars) changes; the arch stays solid. The barrier keeps its own look
+-- while closed and vanishes once open (Effects draws the dissolve the first time).
+local closedTransparency: { [BasePart]: number } = setmetatable({}, { __mode = "k" }) :: any
+
 local function setGateOpen(gate: Instance, open: boolean)
 	for _, descendant in gate:GetDescendants() do
-		if descendant:IsA("BasePart") then
+		if descendant:IsA("BasePart") and descendant.Name == "Bars" then
 			local part = descendant :: BasePart
+			if closedTransparency[part] == nil then
+				closedTransparency[part] = part.Transparency
+			end
 			part.CanCollide = not open
-			part.Transparency = if open then 0.85 else (if part.Name == "Bars" then 0.35 else 0)
-		elseif descendant:IsA("BillboardGui") then
-			(descendant :: BillboardGui).Enabled = not open
+			part.Transparency = if open then 1 else closedTransparency[part]
 		end
 	end
 end
@@ -271,8 +277,8 @@ function WorldController.start()
 	end
 	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 
-	-- Gates under World.Gates (WorldBuilder): solid below the gate's RequiresTier, see-through and passable at
-	-- or above it. Only this player's copy changes; the server checks the tier on every catch and rescue.
+	-- Gates under World.Gates (WorldBuilder): the barrier is solid below the gate's RequiresTier and gone at or
+	-- above it. Only this player's copy changes; the server checks the tier on every catch and rescue.
 	local gateOpen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local lastCheckIn = 0
 	local sawAlley = false
@@ -332,6 +338,10 @@ function WorldController.start()
 			if zone ~= lastZone then
 				lastZone = zone
 				Audio.setZone(zone)
+				-- walking into an area shows its title card (F39); the card skips a repeat within 4 s
+				if zone ~= nil and zone ~= "Cafe" then
+					UI.showAreaTitle(zone:lower())
+				end
 			end
 
 			if not sawAlley and state.tutorialStep == 0 and zone == "Alley" then

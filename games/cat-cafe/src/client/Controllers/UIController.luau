@@ -15,6 +15,7 @@ local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
+local UITypes = require(script.Parent.Parent.UI.Types)
 
 local UIController = {}
 
@@ -24,6 +25,7 @@ local predictedMoney = 0
 local lastCarrying: string? = nil
 local lastPushedMoney = -1
 local lastTier: number? = nil
+local pendingCharmGain = 0 -- the last catch's Purrfect bonus, shown on the cat reveal at check-in
 
 UIController.state = nil :: Types.PlayerState?
 
@@ -252,7 +254,11 @@ local function wireServerEvents()
 		Moments.Announce:Fire(text, rarity)
 	end)
 	Net.on("CatCaught", function(catId: string, isNew: boolean)
-		UI.showCatFound(catId, isNew)
+		local extra: UITypes.CatFoundExtra? = if pendingCharmGain > 0
+			then { charmGain = pendingCharmGain }
+			else nil
+		pendingCharmGain = 0
+		UI.showCatFound(catId, isNew, extra)
 		Moments.CatFound:Fire(catId, isNew)
 	end)
 	Net.on("TravelResult", function(destination: string, ok: boolean, reason: string?)
@@ -267,15 +273,15 @@ local function wireServerEvents()
 			strayId: string,
 			circles: { Types.CatchCircle },
 			windows: Types.CatchWindows,
-			_pawsLeft: number?
+			pawsLeft: number?
 		)
-			UI.catch.showCircles(strayId, circles, windows)
+			UI.catch.showCircles(strayId, circles, windows, pawsLeft)
 			Moments.CatchStart:Fire(strayId)
 		end
 	)
-	-- v0.4 (data-model section 10 step 5) sends grades, not scores, and no chance. Until the UI takes grades, the
-	-- grades are turned back into the v0.3 scores and a 0 or 100% chance; the stray stays unless this player is
-	-- out of paws.
+	-- v0.4 (data-model section 10 step 5): grades up to and including the first Miss, the paws left (nil when this
+	-- player cannot run out) and the Purrfect charm bonus. The HUD shows the grades, the paw row and the
+	-- "slipped away" line.
 	Net.on(
 		"CatchResult",
 		function(
@@ -285,27 +291,17 @@ local function wireServerEvents()
 			pawsLeft: number?,
 			charmGain: number
 		)
-			local scores: { number } = {}
 			local allPerfect = #grades > 0
 			for index, grade in grades do
 				Moments.CircleGrade:Fire(index, grade)
 				allPerfect = allPerfect and grade == "perfect"
-				table.insert(
-					scores,
-					if grade == "perfect" then 1 elseif grade == "good" then 0.5 else 0
-				)
 			end
-			UI.catch.showResult(
-				strayId,
-				scores,
-				if success then 1 else 0,
-				success,
-				not success and pawsLeft ~= 0
-			)
+			UI.catch.showGrades(strayId, grades, success, pawsLeft, charmGain)
 			if success then
 				local model = strayModel(strayId)
 				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil
 				Moments.CatchSuccess:Fire(strayId, if type(rarity) == "string" then rarity else nil)
+				pendingCharmGain = charmGain
 				if allPerfect and charmGain > 0 then
 					Moments.Purrfect:Fire(charmGain)
 				end
@@ -372,7 +368,14 @@ function UIController.start()
 		tiers = Catalog.tiers,
 		areas = Catalog.areas,
 	}
-	UI.init({ catalog = catalog, keybinds = true })
+	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
+	UI.init({
+		catalog = catalog,
+		keybinds = true,
+		playSound = function(cueId: string)
+			return Audio.play(cueId)
+		end,
+	})
 	UI.catch.bindProximityPrompts()
 	-- The HUD clock chip reads Phase and PhaseEndsAt off the server's Clock folder and follows its changes.
 	task.spawn(function()

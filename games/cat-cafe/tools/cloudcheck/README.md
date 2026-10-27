@@ -9,10 +9,10 @@ npm install --no-bin-links     # once; --no-bin-links only matters on network dr
 npm test                       # tests/specs/*.spec.luau through tests/StudioRunner.luau
 npm run test:verbose           # one line per test
 npm run analyze                # strict type check + lint of src/, Roblox API types included
-npm run check                  # both
+npm run analyze:tests          # the same over src/ and tests/ (specs, TestKit, the abuse client)
+npm run check                  # analyze:tests, then the tests (what CI runs)
 node run-tests.mjs --filter Economy --json report.json
 node run-tests.mjs --shared   # every spec in one Luau state (the old way; see below)
-node analyze.mjs --tests       # also check tests/ (specs, TestKit, the abuse client)
 CLOUDCHECK_DUMP_DIR=/tmp/dump node analyze.mjs   # writes each module as the checker sees it, for debugging the rewrites
 ```
 

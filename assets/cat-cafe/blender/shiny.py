@@ -1,6 +1,6 @@
 """Shiny coats (features.md F42, data-model.md section 4): every cat has a shiny version on the same shapes with
-its coat recoloured, `CatCafe_Cat_<Name>_Shiny`. Eyes, nose, inner ears, collar, muzzle and star specks keep
-their colours, so the cat still reads as itself.
+its coat recoloured, `CatCafe_Cat_<Name>_Shiny`. Eyes, nose, inner ears, muzzle and star specks keep their
+colours, so the cat still reads as itself.
 
 The coat roles of a cat (fur, second, third; not `sparkle` specks) are ranked lightest first by CIE L*: the
 lightest takes shiny_light, the next shiny_mid, the next shiny_dark, and any very dark coat colour (black,

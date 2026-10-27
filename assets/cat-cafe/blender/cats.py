@@ -3,7 +3,8 @@
 Roster and swatches follow docs/design/cat-cafe/data-model.md section 3.
 Each cat exports as three objects (Body with legs, Head, Tail) so Studio can
 tween head and tail without a rig. Facing -Y in Blender (Roblox front),
-pivot at base center between the feet.
+pivot at base center between the feet. No collars (Derek, 2026-10-27): a working cat
+dresses for its role instead (accessories.ROLE_OUTFITS).
 """
 
 import math
@@ -40,10 +41,6 @@ ROSTER = {
     "Aurora":    dict(rarity="Mythical", fur="galaxy_blue", second="aurora_violet", third="mint", eyes="mint", pattern="gradient",
                       muzzle=None, glow_eyes=True, sparkle=True),
 }
-
-COLLAR = {"Common": "rarity_common", "Rare": "rarity_rare", "Epic": "rarity_epic", "Legendary": "rarity_legend",
-          "Mythical": "rarity_mythic"}
-TAG = {"Legendary": "rarity_legend", "Mythical": "sparkle"}
 
 # Skeleton in studs. Head and Tail objects hang off these joints.
 BODY_C = (0.0, 0.05, 0.78)
@@ -106,12 +103,6 @@ def _body(b, spec):
     if spec.get("sparkle"):
         for (x, y, z) in [(-hx - 0.03, 0.2, 0.9), (hx + 0.03, -0.1, 0.7), (0.2, 0.4, top + 0.03), (-0.25, -0.3, top + 0.03), (hx + 0.03, 0.45, 0.95)]:
             b.box((x, y, z), (0.08, 0.08, 0.08), "sparkle", bevel=False)
-    # collar in the rarity color, tag below it
-    # collar: a vertical ring just in front of the body, under the chin, in the rarity color
-    r = 0.5
-    cy = center[1] - hy - 0.05
-    b.ring((0, cy, 0.95), r, 0.12, 0.16, COLLAR[spec["rarity"]], segments=12, rot=(math.pi / 2, "X"))
-    b.box((0, cy, 0.95 - r - 0.06), (0.16, 0.12, 0.16), TAG.get(spec["rarity"], "metal"), bevel=False)
 
 
 def _head(b, spec):

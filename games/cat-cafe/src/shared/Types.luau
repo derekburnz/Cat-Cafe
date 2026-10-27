@@ -139,6 +139,16 @@ export type IndexPrize = {
 	tag: string?,
 }
 
+-- A code (F65, data-model section 11d), keyed in Catalog.codes by its lowercased text. Its prize uses the Index
+-- prize shape. An inactive or ended code has expired; a requiresGroup code needs membership of Config.GroupId.
+export type CodeDef = {
+	id: string,
+	prize: IndexPrize,
+	active: boolean,
+	endsAt: number?, -- os.time()
+	requiresGroup: boolean?,
+}
+
 export type LureOdds = {
 	Common: number,
 	Rare: number,
@@ -387,6 +397,7 @@ export type PlayerProfile = {
 	crates: { [string]: number }, -- crateId -> unopened count
 	crateLuck: { [string]: number }, -- crate pool (zone id or "classic") -> opens since its last Epic or better
 	fishPerks: { [string]: number }, -- perkId -> level bought
+	codesRedeemed: { [string]: number }, -- code id -> os.time() it was redeemed (F65)
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,

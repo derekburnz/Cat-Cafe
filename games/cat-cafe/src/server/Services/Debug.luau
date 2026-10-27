@@ -17,6 +17,7 @@
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
+--   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
 
@@ -30,6 +31,7 @@ local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
+local CodeService = require(script.Parent.CodeService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -167,6 +169,13 @@ end
 function Debug.giveCrate(player: (Player | number | string)?, crateId: string, count: number?)
 	local p = resolve(player)
 	FishMarketService.debugGive(p, profileOf(p), crateId, count or 1)
+end
+
+-- Forgets the player's redeemed codes and clears the wrong-code lock, so `playtest` can be redeemed again (F65).
+-- Returns how many codes were forgotten.
+function Debug.codes(player: (Player | number | string)?): number
+	local p = resolve(player)
+	return CodeService.debugReset(p, profileOf(p))
 end
 
 -- The newest `count` (default 20) bug reports of UTC day `day` ("YYYYMMDD", default today), oldest first, printed

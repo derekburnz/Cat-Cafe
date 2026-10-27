@@ -671,6 +671,10 @@ Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The Golden Fish Market (F53, golden-fish.md section 3): south of the Spin Wheel on the west half of the street,
 -- its counter (-Z of the model) facing the middle of the street (+X), clear of the spawn and the walk to the arch.
 Layout.fishMarket = { x = -8.5, y = 0.1, z = 64, rotY = -90 } :: Point
+-- The Codes Cat (F65, data-model section 11d): across the street from the Market on the east half, facing south (-Z)
+-- down the street like the wheel, so its CodesCircle (6 studs in front, radius 4) lies at x 3.5 to 11.5 beside the
+-- walk from the spawn rather than across it.
+Layout.codesCat = { x = 7.5, y = 0.1, z = 66, rotY = 0 } :: Point
 
 -- The manhole in the middle of the Alley Square (world-and-feel.md section 2: "the Sewer down a manhole in the
 -- middle of the Square"): a shortcut into the Sewer once it opens, alongside its gate at the east back alley's

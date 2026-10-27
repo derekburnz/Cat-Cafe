@@ -22,7 +22,8 @@ local ProfileSchema = {}
 -- stats.cratesOpened and stats.fishEarned: an older server would drop them, losing fish, crates and perks.
 -- Version 8 (F54) adds the All Cats and Decor Index pages to indexRewards and bait.readyAt: an older server would
 -- drop those claims, so a player hopping servers during a rollout could claim them twice.
-ProfileSchema.VERSION = 8
+-- Version 9 (F65) adds codesRedeemed: an older server would drop it, letting a code pay twice.
+ProfileSchema.VERSION = 9
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -111,6 +112,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		crates = {},
 		crateLuck = {},
 		fishPerks = {},
+		codesRedeemed = {},
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = Settings.defaults(),
@@ -388,6 +390,25 @@ local function sanitizeFishPerks(value: any): { [string]: number }
 	return out
 end
 
+-- Redeemed codes (F65): any code id a code could have had (letters and digits, up to CodeMaxLength) with a time, so
+-- a code row removed and later added back still counts as used.
+local function sanitizeCodes(value: any): { [string]: number }
+	local out: { [string]: number } = {}
+	if type(value) == "table" then
+		for id, at in value do
+			if
+				type(id) == "string"
+				and #id <= Config.CodeMaxLength
+				and string.match(id, "^%w+$") ~= nil
+				and type(at) == "number"
+			then
+				out[id] = asInt(at, 0)
+			end
+		end
+	end
+	return out
+end
+
 local function sanitizeTelemetry(value: any): Types.TelemetryState
 	local telemetry: Types.TelemetryState = { onboardingStep = 0, achieved = {} }
 	if type(value) ~= "table" then
@@ -535,6 +556,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.crates = sanitizeCrates(raw.crates)
 	profile.crateLuck = sanitizeCrateLuck(raw.crateLuck)
 	profile.fishPerks = sanitizeFishPerks(raw.fishPerks)
+	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

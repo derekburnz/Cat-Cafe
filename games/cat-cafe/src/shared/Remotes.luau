@@ -48,6 +48,9 @@ Remotes.ClientToServer = {
 	-- crate (used first) or its price in golden fish, CrateOpenCooldownSeconds between opens (F53, shared/Crates)
 	"BuyFishItem", -- (itemId: string)  within FishMarketRange of a FishMarket, a lure or perk row of Catalog.fishShop,
 	-- below its max level, its cost in golden fish (F53); answered with a toast and a ProfileSync
+	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
+	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
+	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 }
@@ -75,6 +78,8 @@ Remotes.ServerToClient = {
 	-- when refused (F49)
 	"CrateResult", -- (crateId: string, decorId: string, duplicate: boolean, refund: number)  the piece an OpenCrate
 	-- gave (its rarity and kind are on its DecorDef) and the golden fish a duplicate paid back; decorId "" when refused
+	"CodeResult", -- (ok: boolean, message: string, prize: Types.IndexPrize?)  the answer to RedeemCode: the code box's
+	-- answer line and, when ok, the prize pictures (F65)
 	"ShoveResult", -- (outcome: "shove" | "loose" | "held" | "refused", shoverUserId: number, targetUserId: number,
 	-- position: Vector3?, direction: Vector3?)  a landed shove goes to everyone; the target's client pushes its own
 	-- character ShoveKnockbackStuds along direction. "refused" goes to the shover alone, with no position

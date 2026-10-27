@@ -46,8 +46,11 @@ return function()
 		CircleScorePerfect = 1.0,
 		CircleScoreGood = 0.5,
 		CatchLatencyCapSeconds = 0.15,
-		LureWaitSeconds = 45,
-		LureDespawnSeconds = 90,
+		-- the bait bowl (F28, section 8)
+		LureWaitSeconds = 600,
+		BaitBowlRangeStuds = 12,
+		BaitResolveRangeStuds = 20,
+		ShinyChanceBait = 0.02,
 		CarryWalkSpeed = 16, -- v0.4
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,
@@ -73,6 +76,9 @@ return function()
 		CatXpPerSecondPlaced = 1,
 		CharmSpread = 0.20,
 		ShinyMultiplier = 1.5, -- v0.3 (F22)
+		-- the night dealer (F32, section 8b)
+		DealerRangeStuds = 12,
+		DealerWindowSeconds = 600,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -84,8 +90,6 @@ return function()
 		RescueRetrySeconds = { 3, "F27" },
 		RescueSelfRetrySeconds = { 6, "F27" },
 		RescueAttemptMaxSeconds = { 15, "F27" },
-		LureWaitSeconds = { 600, "F28" },
-		BaitBowlRangeStuds = { 12, "F28" },
 		BumpEnabled = { true, "F29" },
 		BumpRangeStuds = { 6, "F29" },
 		BumpChance = { 0.5, "F29" },
@@ -96,7 +100,6 @@ return function()
 		DropOwnerPrioritySeconds = { 8, "F29" },
 		DroppedMinStaySeconds = { 120, "F29" },
 		ShinyChanceNet = { 0.02, "F30" },
-		ShinyChanceBait = { 0.02, "F30" },
 		ShinyChanceRescue = { 0.10, "F30" },
 		NightIncomeMultiplier = { 0.6, "F31" },
 		CustomerSpawnSecondsNight = { 12, "F31" },
@@ -104,8 +107,6 @@ return function()
 		RichChance = { 0.15, "F31" },
 		RichTipSeconds = { 45, "F31" },
 		RichTipStaySeconds = { 90, "F31" },
-		DealerRangeStuds = { 12, "F32" },
-		DealerWindowSeconds = { 600, "F32" },
 		CatNameMaxLength = { 20, "F33" },
 		RenameCooldownSeconds = { 5, "F33" },
 	}
@@ -136,6 +137,7 @@ return function()
 			local known = {
 				World = true,
 				NetWindows = true, -- a table, checked below
+				CharmStarOdds = true, -- a table, checked below
 				ProfileStoreName = true,
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
@@ -274,7 +276,11 @@ return function()
 
 		-- RingLatencyGraceSeconds, RescueHoldSeconds and RescueLockSeconds go with the rescue minigames.
 		it("the v0.2 rescue hold constants are gone (F27)")
-		it("LureDespawnSeconds and LureReserveSeconds are gone (F28)")
+		it("LureDespawnSeconds and LureReserveSeconds are gone (F28)", function()
+			local config = Config :: any
+			expect(config.LureDespawnSeconds).never.to.be.ok()
+			expect(config.LureReserveSeconds).never.to.be.ok()
+		end)
 
 		it(
 			"clock: the first night comes by minute two and the whole first night fits in the ten minute loop",
@@ -301,8 +307,18 @@ return function()
 			end
 		)
 
-		it("lures: the wait is shorter than the lured stray's lifetime", function()
-			expect(Config.LureWaitSeconds < Config.LureDespawnSeconds).to.equal(true)
+		it("bait bowl: the card reaches further than Use, and shiny is a probability", function()
+			expect(Config.BaitResolveRangeStuds >= Config.BaitBowlRangeStuds).to.equal(true)
+			expect(Config.ShinyChanceBait > 0 and Config.ShinyChanceBait < 1).to.equal(true)
+		end)
+
+		it("CharmStarOdds has five shares that sum to 100 (pinned to rollCharm in CatStats.spec)", function()
+			expect(#Config.CharmStarOdds).to.equal(5)
+			local total = 0
+			for _, share in Config.CharmStarOdds do
+				total += share
+			end
+			expect(total).to.be.near(100, 1e-6)
 		end)
 
 		it("customers never stay a negative or zero time", function()

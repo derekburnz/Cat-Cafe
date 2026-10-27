@@ -790,6 +790,34 @@ local builders: { [string]: () -> Model } = {
 	CatCafe_Sewer_Gate = function()
 		return gate("CatCafe_Sewer_Gate", Color3.fromRGB(60, 75, 70), 30)
 	end,
+	-- Stand-ins for the night dealer's cart and the dealer (section 8b) until the art is synced.
+	CatCafe_Street_DealerCart = function()
+		return simple("CatCafe_Street_DealerCart", {
+			{
+				name = "Cart",
+				size = Vector3.new(6, 2.4, 3),
+				offset = Vector3.new(0, 1.6, 0),
+				color = Color3.fromRGB(95, 75, 130),
+				material = Enum.Material.Wood,
+			},
+			{
+				name = "Awning",
+				size = Vector3.new(6.6, 0.3, 3.8),
+				offset = Vector3.new(0, 5.5, 0),
+				color = Color3.fromRGB(240, 205, 110),
+			},
+		})
+	end,
+	CatCafe_NPC_Dealer = function()
+		return simple("CatCafe_NPC_Dealer", {
+			{
+				name = "Body",
+				size = Vector3.new(2, 5, 1.2),
+				offset = Vector3.new(0, 2.5, 0),
+				color = Color3.fromRGB(70, 60, 110),
+			},
+		})
+	end,
 	CatCafe_Item_FoodBowl = function()
 		return simple("CatCafe_Item_FoodBowl", {
 			{

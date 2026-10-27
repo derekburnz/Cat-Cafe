@@ -33,6 +33,9 @@ export type Plot = {
 	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
 	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first
 	dressing: Folder, -- Dressing/ForRent on an empty plot, Dressing/Tier<n> up to the owner's tier
+	baitBowl: BasePart, -- BaitBowl, in the front garden: range checks, and the owner's client puts its prompt here
+	baitCat: BasePart, -- BaitCat, where the cat that came to the bowl sits
+	bait: Folder, -- Bait/, the bowl, its food and the cat while the owner has the Bait bowl upgrade
 }
 
 export type AreaInfo = {
@@ -40,10 +43,10 @@ export type AreaInfo = {
 	model: Model,
 	floorY: number,
 	spawnPoints: { BasePart },
-	lureSpots: { [string]: BasePart },
 	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number }, -- the bounding box, 2 studs in
-	rects: { Layout.Rect }, -- the floor pieces; strays stay on these (WorldBuilder.clampToArea)
+	rects: { Layout.Rect }, -- the floor pieces (one zone box each)
+	roam: { Layout.Rect }, -- where strays stay (WorldBuilder.clampToArea): the floors, less any dressed wall strip
 	arrival: CFrame, -- where fast travel puts a player: just inside the entrance, facing in
 }
 
@@ -52,6 +55,7 @@ export type World = {
 	plots: { Plot },
 	areas: { [string]: AreaInfo },
 	gates: { [string]: Model }, -- area id -> its tier gate (every area but the Tier 1 alley)
+	manhole: Model?, -- the Square's way down into its area, when the art is there; its prompt is ManholePrompt
 }
 
 local WorldBuilder = {}
@@ -200,10 +204,10 @@ function WorldBuilder.clampToArea(
 	margin: number,
 	from: Vector3?
 ): Vector3
-	local rects = info.rects
+	local rects = info.roam
 	if from ~= nil then
 		local start = from :: Vector3
-		for _, rect in info.rects do
+		for _, rect in info.roam do
 			if
 				start.X >= rect.x1
 				and start.X <= rect.x2
@@ -526,6 +530,11 @@ local function buildPlot(index: number, parent: Instance): Plot
 	anchor("Door", localCFrame(cframe, Layout.plot.door), waypoints)
 	anchor("Order", localCFrame(cframe, Layout.plot.orderPoint), waypoints)
 
+	-- The bait bowl's anchors (data-model section 8). CafeService puts the bowl, the food and the cat in Bait/;
+	-- the owner's client makes the bowl's prompt itself, so nobody else sees one at this cafe.
+	local baitBowl = anchor("BaitBowl", localCFrame(cframe, Layout.plot.baitBowl), model)
+	local baitCat = anchor("BaitCat", localCFrame(cframe, Layout.plot.baitCat), model)
+
 	local napFolder = folder("NapSpots", model)
 	local napSpots: { BasePart } = {}
 	for n, point in Layout.plot.napSpots do
@@ -552,22 +561,31 @@ local function buildPlot(index: number, parent: Instance): Plot
 		expansions = expansions,
 		napSpots = napSpots,
 		dressing = folder("Dressing", model),
+		baitBowl = baitBowl,
+		baitCat = baitCat,
+		bait = folder("Bait", model),
 	}
 	WorldBuilder.setDressing(plot, 0)
 	model.Parent = parent
 	return plot
 end
 
--- An archway over an entrance (the street and both back alleys into the Alley Square): two brick posts, a beam
--- and a name board facing both ways. A placeholder until the alley kit's arch arrives.
+-- An archway over an entrance (the street and both back alleys into the Alley Square). The alley kit's arch when
+-- its art is there (pivot at the base centre of the opening, -Z toward the street or the back alley, its own name
+-- boards); otherwise two brick posts, a beam and a name board facing both ways.
 local function buildArch(
 	x: number,
 	z: number,
 	span: number,
 	label: string,
+	asset: string?,
 	color: Color3,
 	parent: Instance
 )
+	if asset ~= nil and AssetRegistry.has(asset) then
+		place(asset, CFrame.new(x, 0.1, z), parent).Name = "Arch"
+		return
+	end
 	local arch = Instance.new("Model")
 	arch.Name = "Arch"
 	local height = 12
@@ -657,9 +675,10 @@ local function buildArea(
 				walls
 			)
 		end
-		local arches: { { x: number, z: number, span: number, label: string } } = spec.arches or {}
+		local arches: { { x: number, z: number, span: number, label: string, asset: string? } } = spec.arches
+			or {}
 		for _, arch in arches do
-			buildArch(arch.x, arch.z, arch.span, arch.label, wallColor, model)
+			buildArch(arch.x, arch.z, arch.span, arch.label, arch.asset, wallColor, model)
 		end
 		local at = spec.arrival or spec.center
 		arrival = CFrame.new(at.x, spec.floorY + 3, at.z)
@@ -730,6 +749,17 @@ local function buildArea(
 
 	local props = folder("Props", model)
 	for _, prop in spec.props do
+		if not AssetRegistry.known(prop.asset) then
+			-- Dressing only: a piece whose art has not landed is left out rather than stopping the world build.
+			warn(
+				string.format(
+					"[WorldBuilder] %s: no model or placeholder for %s, skipped",
+					id,
+					prop.asset
+				)
+			)
+			continue
+		end
 		place(
 			prop.asset,
 			CFrame.new(prop.x, spec.floorY + (prop.y or 0), prop.z)
@@ -749,27 +779,6 @@ local function buildArea(
 		end
 		CollectionService:AddTag(sp, "SpawnPoint")
 		table.insert(spawnPoints, sp)
-	end
-
-	local lureFolder = folder("LureSpots", model)
-	local lureSpots: { [string]: BasePart } = {}
-	for i, point in spec.lureSpots do
-		local name = "lure_" .. id .. "_" .. i
-		local ring = part(
-			name,
-			Vector3.new(0.1, 3, 3),
-			CFrame.new(point.x, point.y, point.z) * CFrame.Angles(0, 0, math.rad(90)),
-			MINT,
-			Enum.Material.Neon,
-			lureFolder
-		)
-		ring.Shape = Enum.PartType.Cylinder
-		ring.Transparency = 0.5
-		ring.CanCollide = false
-		ring:SetAttribute("Area", id)
-		ring:SetAttribute("LureSpotId", name)
-		CollectionService:AddTag(ring, "LureSpot")
-		lureSpots[name] = ring
 	end
 
 	-- Rescue spots (data-model section 13): the prop is always there, the stuck cat only some nights.
@@ -797,10 +806,10 @@ local function buildArea(
 		model = model,
 		floorY = spec.floorY,
 		spawnPoints = spawnPoints,
-		lureSpots = lureSpots,
 		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
 		rects = rects,
+		roam = spec.roam or rects,
 		arrival = arrival,
 	}
 end
@@ -808,14 +817,49 @@ end
 -- A tier gate across an area's opening (data-model section 9): `CatCafe_<Area>_Gate`, named `<Area>Gate` under
 -- World.Gates with `Area` and `RequiresTier`. The client makes its Bars solid for players below the tier; the
 -- server checks the tier on every catch and rescue anyway, so walking around it gains nothing.
-local function buildGate(def: Types.AreaDef, x: number, z: number, parent: Instance): Model
+local function buildGate(
+	def: Types.AreaDef,
+	x: number,
+	z: number,
+	turn: number,
+	parent: Instance
+): Model
 	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
-	local gate = place("CatCafe_" .. pascal .. "_Gate", CFrame.new(x, 0.1, z), parent)
+	local gate = place(
+		"CatCafe_" .. pascal .. "_Gate",
+		CFrame.new(x, 0.1, z) * CFrame.Angles(0, turn, 0),
+		parent
+	)
 	gate.Name = pascal .. "Gate"
 	gate:SetAttribute("Area", def.id)
 	gate:SetAttribute("RequiresTier", def.tier)
 	CollectionService:AddTag(gate, "AreaGate") -- the UI hangs its gate sign (lock, tier, progress) on this tag
 	return gate
+end
+
+-- The manhole in the Square (Layout.manhole): under World.Gates and tagged AreaGate like a gate, so the client
+-- slides its _Cover off and the UI hangs the area's sign over it once the player's tier opens the area. Its prompt
+-- is a fast travel button the server answers like Travel(area).
+local function buildManhole(parent: Instance): Model?
+	local spec = Layout.manhole
+	local def = Catalog.getArea(spec.area)
+	if def == nil or not AssetRegistry.has("CatCafe_Sewer_Manhole") then
+		return nil
+	end
+	local model = place("CatCafe_Sewer_Manhole", CFrame.new(spec.x, spec.y, spec.z), parent)
+	model.Name = "SewerManhole"
+	model:SetAttribute("Area", def.id)
+	model:SetAttribute("RequiresTier", def.tier)
+	CollectionService:AddTag(model, "AreaGate")
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "ManholePrompt"
+	prompt.ActionText = "Climb down"
+	prompt.ObjectText = def.name
+	prompt.HoldDuration = 0.3
+	prompt.MaxActivationDistance = 8
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	return model
 end
 
 function WorldBuilder.build(): World
@@ -901,9 +945,13 @@ function WorldBuilder.build(): World
 			)
 		end
 		if spec.gateZ ~= nil then
-			gates[def.id] = buildGate(def, spec.center.x, spec.gateZ, gatesFolder)
+			-- The gate's front (-Z, its sign) faces the way players come from, so it turns round when the area
+			-- lies toward -Z of it: the Park, the Woods and the Sewer (alley kit notes, reviewer N68).
+			local turn = if spec.center.z < spec.gateZ then math.pi else 0
+			gates[def.id] = buildGate(def, spec.center.x, spec.gateZ, turn, gatesFolder)
 		end
 	end
+	local manhole = buildManhole(gatesFolder)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"
@@ -915,7 +963,7 @@ function WorldBuilder.build(): World
 	spawn.Duration = 0
 	spawn.Parent = root
 
-	return { folder = root, plots = plots, areas = areas, gates = gates }
+	return { folder = root, plots = plots, areas = areas, gates = gates, manhole = manhole }
 end
 
 return WorldBuilder

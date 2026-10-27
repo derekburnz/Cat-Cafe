@@ -94,6 +94,26 @@ function Catching.pickCat(rarity: Types.Rarity, area: string, roll: number): Typ
 	return Catalog.cats[1]
 end
 
+-- The bait bowl's pick (data-model section 8): uniform among the rarity's cats in every area `tier` opens, so the
+-- pool grows with the tier, the same split the food cards show. Falls back down the rarity ladder like pickCat.
+function Catching.pickBaitCat(rarity: Types.Rarity, tier: number, roll: number): Types.CatDef
+	local rank = Catalog.rarityRank[rarity]
+	while rank >= 1 do
+		local list: { Types.CatDef } = {}
+		for _, def in Catalog.cats do
+			local area = Catalog.getArea(def.area)
+			if def.rarity == Catalog.rarityOrder[rank] and area ~= nil and area.tier <= tier then
+				table.insert(list, def)
+			end
+		end
+		if #list > 0 then
+			return list[math.clamp(math.floor(roll * #list) + 1, 1, #list)]
+		end
+		rank -= 1
+	end
+	return Catalog.cats[1]
+end
+
 function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 	return (Catalog.rarityRank[rarity] or 0) >= (Catalog.rarityRank[minimum] or 99)
 end

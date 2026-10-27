@@ -185,12 +185,24 @@ export type BaitState = {
 	charm: number,
 }
 
+-- The bowl as ProfileSync sends it: the food and when its cat arrives. `cat` is only there once it has arrived,
+-- so the roll is not spoiled before then (reviewer N30).
+export type BaitView = {
+	lureId: string,
+	readyAt: number, -- server os.time()
+	cat: { catId: string, variant: string, charm: number, stars: number }?,
+}
+
 -- What the night dealer sold this player (section 8b): stock and bought marks are keyed on the dealer window
 -- floor(os.time() / 600). Slot numbers are string keys ("1" to "3") because a DataStore cannot hold a sparse array.
 export type DealerState = {
 	window: number,
 	bought: { [string]: boolean },
 }
+
+-- One player's dealer stock as DealerStock sends it: the slot number is the index, restocksAt is os.time().
+export type DealerSlot = { lureId: string, cost: number, bought: boolean }
+export type DealerStock = { slots: { DealerSlot }, restocksAt: number }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 export type PlayerProfile = {
@@ -232,6 +244,7 @@ export type PlayerState = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	equippedLure: string?,
+	bait: BaitView?, -- nil when the bowl is empty
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },

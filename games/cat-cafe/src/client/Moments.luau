@@ -24,6 +24,8 @@ local Moments = {
 	PlotOpened = Signal.new() :: Signal.Signal<Vector3, number>, -- (door position, plotIndex) a For Rent plot opened
 	CoinPop = Signal.new() :: Signal.Signal<Vector3>, -- (position) a customer's tip floated up over your cafe
 	Purchase = Signal.new() :: Signal.Signal<()>, -- a sync shows an upgrade, decor or lure you bought
+	DealerArrive = Signal.new() :: Signal.Signal<()>, -- the night dealer's cart parked on the street
+	DealerLeave = Signal.new() :: Signal.Signal<()>, -- the cart left at dawn
 }
 
 return Moments

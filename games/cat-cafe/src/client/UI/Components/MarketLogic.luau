@@ -76,7 +76,8 @@ function MarketLogic.rarityRows(odds: { [string]: number }): { RarityRow }
 end
 
 -- Each piece's chance: its rarity's odds split equally among that rarity's pieces, rarest first and in catalog
--- order within a rarity. `rarityOf` names a piece's rarity (nil leaves it out).
+-- order within a rarity. `rarityOf` names a piece's rarity (nil leaves it out). A rarity these odds never give (a
+-- golden crate's Common and Rare) is left out too (N166).
 function MarketLogic.pieceChances(
 	pieces: { string },
 	rarityOf: (string) -> string?,
@@ -86,7 +87,7 @@ function MarketLogic.pieceChances(
 	local known: { Known } = {}
 	for order, id in pieces do
 		local rarity = rarityOf(id)
-		if rarity ~= nil and RANK[rarity] ~= nil then
+		if rarity ~= nil and RANK[rarity] ~= nil and (odds[rarity] or 0) > 0 then
 			count[rarity] = (count[rarity] or 0) + 1
 			table.insert(known, { id = id, rarity = rarity, order = order })
 		end

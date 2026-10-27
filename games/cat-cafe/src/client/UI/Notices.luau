@@ -1,10 +1,11 @@
 --!strict
 -- What each menu screen has that the player has not seen yet, for the red dots on the menu tiles (F39 P1, the
 -- Pet Simulator 99 and Grow a Garden side menu). A key per thing: an upgrade level or decor item the player can
--- buy right now, a cat (or gold coat) in the collection. The HUD remembers which keys were on screen when the player
+-- buy right now, a crate piece the player owns, a cat (or gold coat) in the collection. The HUD remembers which keys were on screen when the player
 -- last opened that screen and shows a dot while any key is new. Pure: no services, so it can be unit tested.
 
 local CatVariant = require(script.Parent.Components.CatVariant)
+local DecorPieces = require(script.Parent.Components.DecorPieces)
 local IndexRewards = require(script.Parent.Components.IndexRewards)
 local Types = require(script.Parent.Types)
 
@@ -42,7 +43,14 @@ end
 
 local function decorKeys(catalog: Types.Catalog, state: Types.PlayerState): { string }
 	local keys = {}
-	for _, def in catalog.decor do
+	for _, def in DecorPieces.all(catalog) do
+		if DecorPieces.isPiece(def) then
+			-- a crate piece (F53) is never bought: a new one lights the dot until the Decor screen is opened
+			if state.decorOwned[def.id] then
+				table.insert(keys, "piece:" .. def.id)
+			end
+			continue
+		end
 		if state.decorOwned[def.id] or IndexRewards.isIndexDecor(def) then
 			continue
 		end

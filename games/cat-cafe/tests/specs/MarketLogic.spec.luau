@@ -86,6 +86,17 @@ return function()
 			expect(chances[7].id).to.equal("brick")
 			expect(chances[7].percent).to.be.near(15)
 		end)
+
+		it("leaves out the rarities the odds never give (N166)", function()
+			local rarity = { brick = "Common", puddle = "Rare", mural = "Epic", sky = "Mythical" }
+			local pieces = { "brick", "puddle", "mural", "sky" }
+			local chances = MarketLogic.pieceChances(pieces, function(id: string)
+				return rarity[id]
+			end, GOLDEN)
+			expect(#chances).to.equal(2)
+			expect(chances[1].id).to.equal("sky")
+			expect(chances[2].percent).to.be.near(80)
+		end)
 	end)
 
 	describe("MarketLogic.percent", function()

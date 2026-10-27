@@ -3,8 +3,10 @@
 --   top left      money and income
 --   top centre    cafe tier pill
 --   top right     small icon buttons (Invite) and the day and night clock chip, the next goal card under them
---   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots
---   bottom centre Equip Best, the big gold My Cafe teleport, Alley and Areas; above them the carry banner with
+--   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots, and an arrow
+--                 tab under them that folds them off the edge
+--   bottom centre Equip Best, the big gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away);
+--                 above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
 --   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
 -- Laid out in design pixels under one UIScale from Scale.bind.
@@ -54,6 +56,8 @@ export type HUD = {
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
 	setCatching: (self: HUD, active: boolean) -> (),
+	setMenuFolded: (self: HUD, folded: boolean) -> (),
+	setTravelFolded: (self: HUD, folded: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
@@ -64,22 +68,29 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
-local PILL_W = 176
+local PILL_W = 192
 local PILL_H = 54
+local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
+local TRAVEL_ICON = 28
+local HOME_ICON = 40
 local CAFE_HEIGHT = 56
-local TRAVEL_W = 128
+local TRAVEL_W = 136
 local TRAVEL_H = 50
 local HOME_W = 176
 local HOME_H = 62 -- My Cafe stands taller than the rest of the bottom row
-local ICON = 52 -- top right icon buttons
+local ICON = 58 -- top right icon buttons
 local CARRY_W = 420
 local CARRY_H = 56
 local DROP_W = 104
+-- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
+local FOLD_W = 44
+local FOLD_H = 34
+local MENU_FOLDED_X = -(PILL_W + 40) -- past the left edge, ears and dots too
 local HOME_TEXT = "My Cafe"
 local HOME_CARRYING_TEXT = "Walk it home" -- the server refuses trips while carrying, so the button says why
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
 local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
--- right column: icon row (52), clock chip (40), then the next goal card; the night tips chip pushes it down
+-- right column: icon row (58), clock chip (40), then the next goal card; the night tips chip pushes it down
 local CLOCK_TOP = MARGIN + ICON + Theme.sizes.gap
 local GOAL_TOP = CLOCK_TOP + 40 + Theme.sizes.gap
 local NIGHT_CHIP = 24 + 4
@@ -562,6 +573,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = item.name,
 			text = item.name,
 			icon = item.icon,
+			iconSize = PILL_ICON,
 			style = item.style,
 			size = UDim2.fromOffset(PILL_W, PILL_H),
 			textSize = Theme.sizes.textLarge,
@@ -617,6 +629,42 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		table.insert(self._buttons, button)
 	end
+	self._menu = menu
+	self._menuFolded = false
+	-- The arrow tab under the pills folds them off the left edge and back. Key binds still open every screen while
+	-- they are folded, and the tab carries a red dot whenever a folded pill has one, so news is never hidden.
+	local menuFold = Button.new({
+		name = "MenuFold",
+		text = "◀",
+		style = "ghost",
+		size = UDim2.fromOffset(FOLD_W, FOLD_H),
+		position = UDim2.new(
+			0,
+			MARGIN,
+			0.5,
+			(#menuItems * PILL_H + (#menuItems - 1) * Theme.sizes.gap) / 2 + Theme.sizes.gap + 4
+		),
+		textSize = Theme.sizes.textBody,
+		parent = root,
+		onClick = function()
+			self:setMenuFolded(not self._menuFolded)
+		end,
+	})
+	table.insert(self._buttons, menuFold)
+	self._menuFold = menuFold
+	local foldDot: Frame = Create("Frame", {
+		Name = "Dot",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(18, 18),
+		Visible = false,
+		ZIndex = 6,
+		Parent = menuFold.instance,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(foldDot, 2)
+	self._menuFoldDot = foldDot
 
 	-- Bait bowl chip (bottom right, F28): what is in the bowl and when the cat comes
 	local bowlSlot: TextButton = Create("TextButton", {
@@ -700,6 +748,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = "EquipBest",
 			text = "Equip Best",
 			icon = Theme.icons.equipBest,
+			iconSize = TRAVEL_ICON,
 			style = "berry",
 			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
 			textSize = Theme.sizes.textBody,
@@ -734,6 +783,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = item.name,
 			text = item.label,
 			icon = item.icon,
+			iconSize = if home then HOME_ICON else TRAVEL_ICON,
 			style = item.style,
 			size = if home
 				then UDim2.fromOffset(HOME_W, HOME_H)
@@ -758,6 +808,28 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		self._travelButtons[item.key] = button
 		table.insert(self._buttons, button)
 	end
+	-- the arrow tab right of the row folds it below the screen edge and back; it stays where it is
+	self._travelFolded = false
+	local travelFold = Button.new({
+		name = "TravelFold",
+		text = "▼",
+		style = "ghost",
+		size = UDim2.fromOffset(FOLD_W, FOLD_H),
+		anchorPoint = Vector2.new(0, 1),
+		position = UDim2.new(
+			0.5,
+			(HOME_W + 3 * TRAVEL_W + 3 * Theme.sizes.gap) / 2 + Theme.sizes.gap,
+			1,
+			-MARGIN
+		),
+		textSize = Theme.sizes.textBody,
+		parent = root,
+		onClick = function()
+			self:setTravelFolded(not self._travelFolded)
+		end,
+	})
+	table.insert(self._buttons, travelFold)
+	self._travelFold = travelFold
 
 	-- Carry banner (bottom centre, above the bottom row): the cat you carry and a red Drop button (G)
 	local carry = hudPanel("Carry", {
@@ -798,6 +870,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		name = "Drop",
 		text = "Drop",
 		icon = Theme.icons.drop,
+		iconSize = 26,
 		style = "close",
 		size = UDim2.fromOffset(DROP_W, 40),
 		anchorPoint = Vector2.new(1, 0.5),
@@ -974,7 +1047,44 @@ end
 -- until the catch ends.
 function HUD.setCatching(self: any, active: boolean)
 	self._travelRow.Visible = not active
+	self._travelFold.instance.Visible = not active
 	self:_layoutBottom()
+end
+
+-- The arrow tabs (Derek 2026-10-27): fold the left pills off the edge, or the bottom row below it, and back.
+function HUD.setMenuFolded(self: any, folded: boolean)
+	self._menuFolded = folded
+	self._menuFold:setText(if folded then "▶" else "◀")
+	Tween.to(self._menu, Tween.POP, {
+		Position = UDim2.new(0, if folded then MENU_FOLDED_X else MARGIN, 0.5, 0),
+	})
+	self:_renderFoldDot()
+end
+
+function HUD.setTravelFolded(self: any, folded: boolean)
+	self._travelFolded = folded
+	self._travelFold:setText(if folded then "▲" else "▼")
+	Tween.to(self._travelRow, Tween.POP, {
+		Position = UDim2.new(0.5, 0, 1, if folded then HOME_H + 24 else -MARGIN),
+	})
+	self:_layoutBottom()
+end
+
+-- The menu tab's red dot: lit while the pills are folded and one of them has a dot.
+function HUD._renderFoldDot(self: any)
+	local any = false
+	if self._menuFolded then
+		for _, dot in self._dots do
+			if dot.Visible then
+				any = true
+				break
+			end
+		end
+	end
+	if any and not self._menuFoldDot.Visible then
+		Tween.popIn(self._menuFoldDot, 0.5)
+	end
+	self._menuFoldDot.Visible = any
 end
 
 function HUD._renderTravel(self: any)
@@ -1170,7 +1280,7 @@ end
 -- Bottom up: the bottom row, the carry banner, then the tutorial strip, each above the ones showing below it.
 function HUD._layoutBottom(self: any)
 	local y = -MARGIN
-	if self._travelRow.Visible then
+	if self._travelRow.Visible and not self._travelFolded then
 		y -= HOME_H + Theme.sizes.gap
 	end
 	if self._carry.Visible then
@@ -1249,15 +1359,23 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 	-- the Index's dot also stays lit while an Index reward waits to be claimed (F48), even after the Index is opened
 	local _, indexReady = IndexRewards.claimable(catalog, state)
 	self._indexReady = indexReady
+	local lit = false
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
 		local show = Notices.hasNew(keys, self._seen[screen])
 			or (screen == "Collection" and indexReady > 0)
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
+			lit = true
 		end
 		dot.Visible = show
 	end
+	-- one uiBadge however many dots light, and none for the dots the first state already lights
+	if lit and self._dotsRendered then
+		Sound.play("uiBadge")
+	end
+	self._dotsRendered = true
+	self:_renderFoldDot()
 end
 
 -- The Gifts tile (F47): "Claim!" with a red count while gifts are ready, else the time to the next one, "Done"
@@ -1277,6 +1395,12 @@ function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, lef
 		self._giftText = text
 		gifts:setText(text)
 	end
+	-- uiGiftReady when another gift becomes ready, never for the gifts the first TipJarState already has
+	local before: number? = self._giftReady
+	self._giftReady = summary.ready
+	if before ~= nil and summary.ready > before then
+		Sound.play("uiGiftReady")
+	end
 	local ready = summary.ready > 0
 	if ready and not self._giftDot.Visible then
 		Tween.popIn(self._giftDot, 0.5)
@@ -1295,6 +1419,7 @@ function HUD.screenOpened(self: any, name: string?)
 		if dot then
 			dot.Visible = name == "Collection" and (self._indexReady or 0) > 0
 		end
+		self:_renderFoldDot()
 	end
 end
 

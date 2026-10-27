@@ -220,15 +220,22 @@ local function floorOf(plot: Model): BasePart?
 	return best
 end
 
--- Where the Blossom Tree's petals fall from: a part named for its canopy, else the top of the model.
+-- Where the Blossom Tree's petals fall from: the box round a child model named for its canopy (the blossom balls,
+-- CatCafe_Decor_BlossomTree_Canopy), else a part named for it, else the top of the model.
 local function canopyOf(model: Model): (CFrame, Vector3)
+	local part: BasePart? = nil
 	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			local name = descendant.Name
-			if name:sub(-6) == "Canopy" or name:sub(-7) == "Blossom" then
-				return (descendant :: BasePart).CFrame, (descendant :: BasePart).Size
+		local name = descendant.Name
+		if name:sub(-6) == "Canopy" or name:sub(-7) == "Blossom" then
+			if descendant:IsA("Model") then
+				return (descendant :: Model):GetBoundingBox()
+			elseif part == nil and descendant:IsA("BasePart") then
+				part = descendant :: BasePart
 			end
 		end
+	end
+	if part ~= nil then
+		return part.CFrame, part.Size
 	end
 	local frame, size = model:GetBoundingBox()
 	return frame * CFrame.new(0, size.Y / 2 - 0.3, 0), size

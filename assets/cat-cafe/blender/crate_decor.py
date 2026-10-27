@@ -119,8 +119,8 @@ def build_milk_crate_stools(mat):
     b = RB()
     for x, sw, cushion in ((-1.3, "shirt_red", "blush"), (1.3, "sign_teal", "mint")):
         _milk_crate(b, x, 0, sw)
-        b.box((x, CRATE + 0.14, 0), (1.26, 0.3, 1.26), cushion)
-        b.cyl((x, CRATE + 0.29, 0), 0.08, 0.04, "offwhite", segments=8)
+        b.cyl((x, CRATE + 0.11, 0), 0.6, 0.26, cushion, segments=14)                           # a round seat pad
+        b.cyl((x, CRATE + 0.25, 0), 0.08, 0.04, "offwhite", segments=8)
     _milk_crate(b, 0, 0, "shirt_blue")
     _milk_crate(b, 0, CRATE, "rarity_legend")
     top = 2 * CRATE + 0.09
@@ -751,12 +751,12 @@ def build_velvet_booth(mat):
     b.cyl((0, 1.08, -0.78), 0.17, 3.8, vel, axis="X", segments=10)
     for x in (-1.0, 0.0, 1.0):
         b.cyl((x, 1.205, -0.23), 0.05, 0.03, button, segments=6)
-    for k in range(6):
-        x = -1.55 + 0.62 * k
-        t = (k - 2.5) / 2.5
-        top = 3.2 + 0.9 * (1 - t * t)
-        b.cyl((x, (1.2 + top) / 2, 0.65), 0.31, top - 1.2, vel, segments=10)
-        b.ball((x, top, 0.65), 0.31, vel)
+    for k in range(7):                                           # channels that touch, rising to a shell
+        x = -1.62 + 0.54 * k
+        t = (k - 3) / 3
+        top = 3.0 + 0.8 * (1 - t * t)
+        b.cyl((x, (1.2 + top) / 2, 0.65), 0.3, top - 1.2, vel, segments=10)
+        b.ball((x, top, 0.65), 0.3, vel)
         for y in (2.0, 2.8):
             if y < top - 0.2:
                 b.cyl((x, y, 0.345), 0.05, 0.03, button, axis="Z", segments=6)

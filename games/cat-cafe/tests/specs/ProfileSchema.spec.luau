@@ -88,10 +88,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 3 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 4 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(3)
-			expect(profile.version).to.equal(3)
+			expect(ProfileSchema.VERSION).to.equal(4)
+			expect(profile.version).to.equal(4)
 			expect(profile.tier).to.equal(1)
 			expect(profile.coins).to.equal(Config.StartCoins)
 			expect(profile.lifetimeCoins).to.equal(0)
@@ -125,7 +125,8 @@ return function()
 			local profile: any = ProfileSchema.template(1000)
 			expect(profile.bait).never.to.be.ok()
 			expect(profile.dealer).to.deepEqual({ window = 0, bought = {} })
-			expect(profile.shinyCollection).to.deepEqual({})
+			expect(profile.goldCollection).to.deepEqual({})
+			expect(profile.shinyCollection).never.to.be.ok() -- renamed gold in version 4
 			expect(profile.renovations).never.to.be.ok()
 			expect(profile.upgradeLevels.cafe_level).never.to.be.ok()
 			expect(profile.upgradeLevels.park_access).never.to.be.ok()
@@ -199,8 +200,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 4 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 5 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 4 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 3 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 2 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({})).to.equal(false)
@@ -219,7 +221,7 @@ return function()
 				park_access = 1,
 			})
 			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(3)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.tier).to.equal(1)
 			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 2, espresso = 2, net = 1, lure_bowl = 1 })
 			-- cafe_level 2 and 3 (250 + 800), park_access (1000), tables 3 and 4 (600 + 1500), espresso 3 (1200),
@@ -451,7 +453,7 @@ return function()
 			end
 			expect(ProfileSchema.collectionCount(profile)).to.equal(5)
 			expect(ProfileSchema.catCount(profile)).to.equal(5)
-			expect(count(profile.shinyCollection)).to.equal(0)
+			expect(count(profile.goldCollection)).to.equal(0)
 		end)
 
 		it("drops cats with unknown ids or a broken entry", function()
@@ -476,6 +478,8 @@ return function()
 	describe("migrate on a version 3 save", function()
 		local function v3Save(): any
 			local raw: any = ProfileSchema.template(100)
+			raw.version = 3
+			raw.goldCollection = nil
 			raw.tier = 3
 			raw.coins = 4321
 			raw.upgradeLevels = { tables = 6, espresso = 4, net = 3, lure_bowl = 1 }
@@ -516,7 +520,7 @@ return function()
 			expect(ProfileSchema.migrate(ProfileSchema.template(100), 500) :: any).to.deepEqual(template)
 		end)
 
-		it("a full v3 save loads unchanged: tier, slots, names, method, shiny, bait and dealer", function()
+		it("a full v3 save loads unchanged apart from shiny becoming gold: tier, slots, names, method, bait and dealer", function()
 			local raw = v3Save()
 			local before = ProfileSchema.migrate(v3Save(), 500)
 			expect(before.coins).to.equal(4321)
@@ -529,11 +533,14 @@ return function()
 			})
 			expect(before.cats.c1.name).to.equal("Zoom")
 			expect(before.cats.c1.method).to.equal("bait")
-			expect(before.cats.c1.variant).to.equal("shiny")
+			expect(before.cats.c1.variant).to.equal("gold") -- Derek 2026-10-27: shiny is gold now
 			expect(before.cats.c2.method).to.equal("rescue")
-			expect(before.bait :: any).to.deepEqual(raw.bait)
+			local bait = table.clone(raw.bait)
+			bait.variant = "gold"
+			expect(before.bait :: any).to.deepEqual(bait)
 			expect(before.dealer :: any).to.deepEqual(raw.dealer)
-			expect(before.shinyCollection :: any).to.deepEqual({ bengal = 95 })
+			expect(before.goldCollection :: any).to.deepEqual({ bengal = 95 })
+			expect((before :: any).shinyCollection).never.to.be.ok()
 			-- and loading the result again changes nothing
 			expect(ProfileSchema.migrate(before, 900) :: any).to.deepEqual(before)
 		end)
@@ -585,11 +592,22 @@ return function()
 			expect(profile.cats.starter_tabby.method).to.equal("starter")
 		end)
 
-		it("adds a shiny cat to the shiny page if the save missed it", function()
+		it("adds a gold cat to the gold page if the save missed it", function()
 			local raw = v3Save()
 			raw.shinyCollection = {}
 			local profile = ProfileSchema.migrate(raw, 500)
-			expect(profile.shinyCollection :: any).to.deepEqual({ bengal = 95 })
+			expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95 })
+		end)
+
+		it("a version 4 save keeps gold cats, gold bait and its gold page, and ignores a stray shinyCollection", function()
+			local raw = ProfileSchema.migrate(v3Save(), 500) :: any
+			raw.goldCollection = { bengal = 95, calico = 96 }
+			raw.shinyCollection = { snow = 1 }
+			local profile = ProfileSchema.migrate(raw, 900)
+			expect(profile.version).to.equal(4)
+			expect(profile.cats.c1.variant).to.equal("gold")
+			expect((profile.bait :: any).variant).to.equal("gold")
+			expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95, calico = 96 })
 		end)
 
 		it("drops a bait with an unknown food or cat or a bad time, and fixes its variant and charm", function()
@@ -685,7 +703,7 @@ return function()
 
 		it("an empty table is a version 1 save: the starter works as Barista with 50 coins", function()
 			local profile = ProfileSchema.migrate({}, 100)
-			expect(profile.version).to.equal(3)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.tier).to.equal(1)
 			expect(profile.coins).to.equal(Config.StartCoins)
 			expect(working(profile) :: any).to.deepEqual({ starter_tabby = "barista_1" })

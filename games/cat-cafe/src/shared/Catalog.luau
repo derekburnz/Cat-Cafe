@@ -607,9 +607,9 @@ function Catalog.catModelName(catId: string): string
 	return "CatCafe_Cat_" .. table.concat(words)
 end
 
--- v0.5 F42: every cat's shiny coat is its own model on the same rig, "tabby" -> "CatCafe_Cat_Tabby_Shiny".
-function Catalog.shinyModelName(catId: string): string
-	return Catalog.catModelName(catId) .. "_Shiny"
+-- v0.5 F42: every cat's gold coat is its own model on the same rig, "tabby" -> "CatCafe_Cat_Tabby_Gold".
+function Catalog.goldModelName(catId: string): string
+	return Catalog.catModelName(catId) .. "_Gold"
 end
 
 -- What a working cat wears at its station (features.md F25; Derek 2026-10-27: outfits by role, no collars on any
@@ -912,7 +912,7 @@ Catalog.lures = {
 		cost = 3000,
 		attracts = "Epic",
 		source = "dealer",
-		description = "Tiny, shiny and very fancy.",
+		description = "Tiny, glossy and very fancy.",
 		odds = { Common = 10, Rare = 35, Epic = 38, Legendary = 14, Mythical = 3 },
 		asset = "CatCafe_Item_Caviar",
 	},

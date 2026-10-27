@@ -146,7 +146,7 @@ export type TierDef = {
 export type CatInstance = {
 	uid: string,
 	catId: string,
-	variant: string, -- "base" or "shiny"
+	variant: string, -- "base" or "gold"
 	caughtAt: number,
 	spotId: string?, -- the role slot it works, nil when resting in the cat room
 	-- Stats (data-model section 4b). Readers go through CatStats, which defaults any missing field.
@@ -247,7 +247,7 @@ export type PlayerProfile = {
 	dealer: DealerState,
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
-	shinyCollection: { [string]: number }, -- catId -> first shiny caught at
+	goldCollection: { [string]: number }, -- catId -> first gold caught at
 	stats: Stats,
 	tutorialStep: number,
 	settings: { music: boolean, sfx: boolean },
@@ -273,7 +273,7 @@ export type PlayerState = {
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },
-	shinyCollection: { [string]: number },
+	goldCollection: { [string]: number },
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,

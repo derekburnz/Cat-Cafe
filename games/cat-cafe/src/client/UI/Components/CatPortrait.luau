@@ -1,7 +1,7 @@
 --!strict
 -- A live 3D cat for reveal cards and the book: the cat's own model, cloned from ReplicatedStorage.Assets (the
 -- asset thread's mesh, or the server's placeholder until it lands), in a ViewportFrame that sways it slowly.
--- set(def, true) shows a shiny cat's own coat (v0.5 F42, Catalog.shinyModelName), else its base coat.
+-- set(def, true) shows a shiny cat's own coat (v0.5 F42, Catalog.goldModelName), else its base coat.
 -- When the model is not there yet it falls back to the cat's initial on its body colour. A silhouette (the
 -- book's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
 --
@@ -61,7 +61,7 @@ local function cloneModel(catId: string, shiny: boolean): Model?
 		return nil
 	end
 	local source: Instance? = if shiny
-		then assets:FindFirstChild(Catalog.shinyModelName(catId))
+		then assets:FindFirstChild(Catalog.goldModelName(catId))
 		else nil
 	if not source then
 		source = assets:FindFirstChild(Catalog.catModelName(catId))

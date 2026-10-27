@@ -1117,6 +1117,15 @@ Presets.fishPickup = {
 	},
 }
 
+-- A cat levelling up (F75, data-model 4b v0.12): a small mint sparkle over one of your own cafe cats, `above` studs
+-- over its head, and a few glints floating up. Small, since cats level often early on.
+Presets.levelUp = {
+	sparkles = 6, -- catchSparkle particles
+	glints = 3, -- fishRise particles, tinted
+	above = 0.4,
+	colour = Presets.palette.mint,
+}
+
 -- Mythical cafe styles and decor (F53, golden-fish.md section 4: each "gets one steady emitter or a texture scroll.
 -- It runs only near the player, counts against the steady-emitter budget and shows a still look in Low performance
 -- mode"), by decor id. `on` is a plot style attribute (the style shows on the plot's parts with that tag) or

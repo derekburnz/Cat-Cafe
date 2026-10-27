@@ -15,8 +15,10 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
+local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local Settings = require(Shared:WaitForChild("Settings"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UITypes = require(script.Parent.Parent.UI.Types)
@@ -164,6 +166,34 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 end
 
+-- Role changes since the last sync, for the sounds (sound list: place and unplace): a cat newly in a role or moved
+-- to another fires CatPlaced with the role, a cat taken off fires UnplaceCat. Unequip all fires one per cat.
+local function firePlacements(old: Types.PlayerState, new: Types.PlayerState)
+	for uid, cat in new.cats do
+		local before = old.cats[uid]
+		local was = if before ~= nil then before.spotId else nil
+		local spotId = cat.spotId
+		if spotId ~= nil and spotId ~= was then
+			local spot = Catalog.getSpot(spotId)
+			Moments.CatPlaced:Fire(uid, if spot ~= nil then spot.spotType :: string else spotId)
+		elseif spotId == nil and was ~= nil then
+			Moments.UnplaceCat:Fire(uid)
+		end
+	end
+end
+
+-- Index rewards claimed since the last sync (F48), one IndexReward each.
+local function fireIndexRewards(old: Types.PlayerState, new: Types.PlayerState)
+	for areaId, claims in new.indexRewards do
+		local before = old.indexRewards[areaId]
+		for milestoneId in claims do
+			if before == nil or not before[milestoneId] then
+				Moments.IndexReward:Fire(areaId, milestoneId)
+			end
+		end
+	end
+end
+
 -- Something bought since the last sync: an upgrade level, a decor item or a lure count went up.
 local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): boolean
 	for id, level in new.upgradeLevels do
@@ -299,20 +329,51 @@ local function refreshRichTip()
 	end)
 end
 
--- The Settings switches the server saves (data-model section 14); Place icons ("markers") stays on the client.
-local SAVED_SETTINGS = { music = true, sfx = true }
+-- The switches read as the Settings screen shows them: a tap at once, then the server's saved value, and back to it
+-- if the server dropped the tap (ui-contract Settings, review N111). Every other key of shared/Settings (volumes,
+-- screen shake, low performance) is read from the last saved settings until the screen shows it.
+local SCREEN_SWITCHES = { music = true, sfx = true }
 local audioStarted = false -- Audio waits for the first ProfileSync, so a muted player never hears music start
 
--- Mutes or restores the Audio channels from the switches as shown: a tap at once, then the server's saved value,
--- and back to it if the server dropped the tap (ui-contract Settings, review N111).
+local function setting(key: string): any
+	if SCREEN_SWITCHES[key] then
+		return UI.settings.value(key)
+	end
+	return if state ~= nil then (state.settings :: any)[key] else nil
+end
+
+-- Audio's channels and volumes and the Effects switches, from the settings above. Both skip what has not changed.
 local function applySettings()
-	Audio.applySettings({ music = UI.settings.value("music"), sfx = UI.settings.value("sfx") })
+	Audio.applySettings({
+		music = setting("music"),
+		sfx = setting("sfx"),
+		musicVolume = setting("musicVolume"),
+		sfxVolume = setting("sfxVolume"),
+	})
+	Effects.applySettings({
+		screenShake = setting("screenShake"),
+		lowPerformance = setting("lowPerformance"),
+	})
+end
+
+-- True when a saved setting the screen does not show moved between two syncs.
+local function savedSettingsMoved(before: Types.Settings, after: Types.Settings): boolean
+	for key in Settings.kinds do
+		if not SCREEN_SWITCHES[key] and (before :: any)[key] ~= (after :: any)[key] then
+			return true
+		end
+	end
+	return false
 end
 
 local function applyState(s: Types.PlayerState)
 	local previous = state
 	if previous ~= nil and boughtSomething(previous, s) then
 		Moments.Purchase:Fire()
+	end
+	if previous ~= nil then
+		firePlacements(previous, s)
+		fireIndexRewards(previous, s)
 	end
 	state = s
 	UIController.state = s
@@ -336,11 +397,14 @@ local function applyState(s: Types.PlayerState)
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
 		settings = s.settings :: any, -- the UI reads it as a map of switches
+		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
 	})
 	-- After the first sync, music and sound follow the Settings switches rather than each sync; the purr follows the
 	-- server's carry state.
 	if not audioStarted then
 		audioStarted = true
+		applySettings()
+	elseif previous ~= nil and savedSettingsMoved(previous.settings, s.settings) then
 		applySettings()
 	end
 	Audio.setCarrying(s.carrying ~= nil)
@@ -362,15 +426,19 @@ local function applyState(s: Types.PlayerState)
 end
 
 local function wireIntents()
-	UI.events.setSetting:Connect(function(key: string, value: boolean)
-		if SAVED_SETTINGS[key] then
+	UI.events.setSetting:Connect(function(key: string, value: any)
+		if Settings.clean(key, value) ~= nil then
 			Net.fire("SetSetting", key, value)
 		end
 	end)
 	UI.settings.changed:Connect(function(key: string)
-		if audioStarted and SAVED_SETTINGS[key] then
+		if audioStarted and SCREEN_SWITCHES[key] then
 			applySettings()
 		end
+	end)
+	-- An Index reward's Claim (F48); the server answers with a toast and a ProfileSync.
+	UI.events.claimIndexReward:Connect(function(areaId: string, milestoneId: string)
+		Net.fire("ClaimIndexReward", areaId, milestoneId)
 	end)
 	UI.events.claimTipJar:Connect(function(step: number)
 		Net.fire("ClaimTipJar", step)
@@ -424,6 +492,13 @@ local function wireIntents()
 	local dropCat = (UI.events :: any).dropCat
 	if dropCat ~= nil then
 		dropCat:Connect(function()
+			local character = player.Character
+			local root = if character ~= nil
+				then character:FindFirstChild("HumanoidRootPart")
+				else nil
+			if lastCarrying ~= nil and root ~= nil and root:IsA("BasePart") then
+				Moments.CatDrop:Fire((root :: BasePart).Position)
+			end
 			Net.fire("DropCat")
 		end)
 	end
@@ -577,6 +652,20 @@ local function reportDevice()
 	)
 end
 
+-- The circle sounds (sound list: circle pop): one CircleAppear per circle at its startsAt, until CatchResult or the
+-- next CatchSchedule cancels the rest.
+local circleTimers: { thread } = {}
+local function cancelCircleTimers()
+	for _, timer in circleTimers do
+		if coroutine.status(timer) ~= "dead" then
+			task.cancel(timer)
+		end
+	end
+	table.clear(circleTimers)
+end
+
+local tipJarClaimed: { boolean }? = nil -- the claimed steps last shown, nil before this session's first state
+
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
@@ -603,6 +692,15 @@ local function wireServerEvents()
 	-- The Tip Jar's session start and claimed steps (F47), on profile load and after every claim.
 	Net.on("TipJarState", function(jar: Types.TipJarState)
 		UI.tipJar.set(jar :: any) -- the UI reads claimed as a map; the dense array indexes the same way
+		-- the first state of a session sets what was already claimed; after that, each new claim plays once
+		if tipJarClaimed ~= nil then
+			for step, claimed in jar.claimed do
+				if claimed and not tipJarClaimed[step] then
+					Moments.TipJarClaim:Fire(step)
+				end
+			end
+		end
+		tipJarClaimed = table.clone(jar.claimed)
 	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
 		UI.dealer.setStock(stock)
@@ -612,6 +710,9 @@ local function wireServerEvents()
 	end)
 	Net.on("TravelResult", function(destination: string, ok: boolean, reason: string?)
 		UI.travel.result(destination, ok, reason)
+		if ok then
+			Moments.Travel:Fire(destination)
+		end
 	end)
 	Net.on("OfflineEarnings", function(amount: number, seconds: number)
 		UI.showOfflineEarnings(amount, seconds)
@@ -621,6 +722,20 @@ local function wireServerEvents()
 		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 			UI.catch.showCircles(strayId, circles, windows)
 			Moments.CatchStart:Fire(strayId)
+			cancelCircleTimers()
+			for index, circle in circles do
+				local wait = math.max(0, circle.startsAt - Workspace:GetServerTimeNow())
+				local shrink = circle.shrinkSeconds
+				table.insert(
+					circleTimers,
+					task.delay(wait, function()
+						-- a stray that despawned mid-catch sends no CatchResult (review N133)
+						if strayModel(strayId) ~= nil then
+							Moments.CircleAppear:Fire(index, shrink)
+						end
+					end)
+				)
+			end
 		end
 	)
 	-- Data-model section 10 step 5: grades up to and including the first Miss and the Purrfect charm bonus. The HUD
@@ -638,6 +753,7 @@ local function wireServerEvents()
 				allPerfect = allPerfect and grade == "perfect"
 			end
 			UI.catch.showGrades(strayId, grades, success, charmGain)
+			cancelCircleTimers()
 			if success then
 				local model = strayModel(strayId)
 				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil

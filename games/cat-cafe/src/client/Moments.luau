@@ -9,6 +9,8 @@ local Signal = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Si
 
 local Moments = {
 	CatchStart = Signal.new() :: Signal.Signal<string>, -- (strayId) the circles arrived
+	CircleAppear = Signal.new() :: Signal.Signal<number, number>, -- (index, shrinkSeconds) a circle starts closing,
+	-- at its startsAt in server time; none after CatchResult
 	NetSwing = Signal.new() :: Signal.Signal<number>, -- (index) a press on a circle, the instant it lands
 	CircleGrade = Signal.new() :: Signal.Signal<number, string>, -- (index, "perfect" | "good" | "miss") this
 	-- device's estimate at press time; the server's grades come with CatchSuccess or CatchFail
@@ -17,6 +19,17 @@ local Moments = {
 	Purrfect = Signal.new() :: Signal.Signal<number>, -- (charmGain) every circle Perfect
 	CatFound = Signal.new() :: Signal.Signal<string, boolean>, -- (catId, isNew) checked in at the cafe
 	CheckIn = Signal.new() :: Signal.Signal<()>, -- the carried cat went into the cafe
+	CatDrop = Signal.new() :: Signal.Signal<Vector3>, -- (position) this player pressed Drop or G while carrying, at
+	-- the press (like NetSwing); position is the character's root
+	Travel = Signal.new() :: Signal.Signal<string>, -- (destination) the server allowed a Travel: "home", an area id
+	-- or the manhole's area
+	CatPlaced = Signal.new() :: Signal.Signal<string, string>, -- (uid, role) a sync shows a cat newly in a role, or
+	-- moved to another one
+	UnplaceCat = Signal.new() :: Signal.Signal<string>, -- (uid) a sync shows a cat off its role; Unequip all fires
+	-- one per cat in the same frame
+	TipJarClaim = Signal.new() :: Signal.Signal<number>, -- (step) a TipJarState shows this step newly claimed (F47)
+	IndexReward = Signal.new() :: Signal.Signal<string, string>, -- (areaId, milestoneId) a sync shows this Index
+	-- reward newly claimed (F48)
 	RankUp = Signal.new() :: Signal.Signal<number>, -- (tier) this player's cafe ranked up
 	AreaUnlock = Signal.new() :: Signal.Signal<string, Vector3>, -- (areaId, gate position) a gate opened for you
 	Announce = Signal.new() :: Signal.Signal<string, string?>, -- (text, rarity) a server shout-out

@@ -11,6 +11,7 @@
 local CollectionService = game:GetService("CollectionService")
 local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
@@ -18,14 +19,16 @@ local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 local Cues = require(script.Cues)
+local Effects = require(script.Parent.Effects)
 local Logic = require(script.Logic)
 
 local Audio = {}
 
 export type Target = BasePart | Attachment | Vector3
-export type Settings = { music: boolean, sfx: boolean }
+-- musicVolume and sfxVolume are the settings sliders, 0 to 1 (missing means full volume).
+export type Settings = { music: boolean, sfx: boolean, musicVolume: number?, sfxVolume: number? }
 
--- Channel start volumes and the setting that mutes each (sound list section 2).
+-- Channel start volumes and the setting that mutes each; its slider is musicVolume or sfxVolume (sound list section 2).
 local GROUPS: { [string]: { volume: number, mutedBy: "music" | "sfx" } } = {
 	Music = { volume = 0.5, mutedBy = "music" },
 	Ambience = { volume = 0.6, mutedBy = "sfx" },
@@ -37,7 +40,7 @@ local MUSIC_FADE = 2
 local AMBIENCE_FADE = 1.5
 local LOOP_FADE = 0.3
 local DUCK_FADE = 0.3
-local STINGER_DUCK = 0.4 -- music level under a stinger, the rank up jingle, a shiny reveal, the big fanfares
+local STINGER_DUCK = 0.4 -- music level under a stinger, the rank up jingle, a gold reveal, the big fanfares
 local CATCH_MUSIC = 0.6 -- music level during a catch or rescue
 local CATCH_AMBIENCE = 0.5
 local CATCH_DUCK_LIMIT = 30 -- seconds; a catch that never reports back still lets the music up again
@@ -502,7 +505,10 @@ local carryStop: (() -> ())? = nil
 local carrying = false
 local dealerStop: (() -> ())? = nil
 local rescueSpot: BasePart? = nil
-local shimmering: { [string]: Instance } = {}
+local ZONE_GAP = 4 -- seconds between zone chimes, so walking along an area's open edge plays one
+local TRAVEL_QUIET = 2 -- seconds after a trip with no zone chime: the travel sound already says where you went
+local lastZoneCueAt: number? = nil
+local lastTravelAt: number? = nil
 
 -- The plot model a tagged thing sits in (tag Plot), or nil.
 local function plotOf(instance: Instance): Instance?
@@ -521,16 +527,22 @@ local function cafeOpen(door: Instance): boolean
 	return phase ~= "night" and type(owner) == "number" and owner ~= 0
 end
 
+-- A stray twinkles for everyone nearby while it is gold or Epic and up (F42), so it can be found in the dark.
+local function shimmers(stray: Instance): boolean
+	return Logic.shimmers(stray:GetAttribute("Gold"), stray:GetAttribute("Rarity"))
+end
+
 -- World loops by CollectionService tag: the world builder tags a part or model and its loop plays while it
--- exists, streaming in and out with it. A tag with `near` plays only on the few closest within that many studs,
--- so a full server never runs dozens of purrs at once. A tag with `when` plays only while that is true, checked
--- on the same tick.
-type LoopDef = { cue: string, near: number?, when: ((Instance) -> boolean)? }
+-- exists, streaming in and out with it. A tag with `near` plays only on the `max` (default 3) closest within that
+-- many studs, so a full server never runs dozens of purrs at once. A tag with `when` plays only while that is
+-- true, checked on the same tick.
+type LoopDef = { cue: string, near: number?, max: number?, when: ((Instance) -> boolean)? }
 local TAGGED_LOOPS: { [string]: LoopDef } = {
 	CafeDoor = { cue = "loopCafeDoor", when = cafeOpen },
 	Fountain = { cue = "loopFountain" },
 	FishTank = { cue = "loopFishTank" },
 	WorkingCat = { cue = "purr", near = 14 },
+	Stray = { cue = "shimmerRare", near = 40, when = shimmers },
 }
 local MAX_NEAR_LOOPS = 3
 local LOOP_CHECK_SECONDS = 0.5
@@ -579,9 +591,44 @@ local function refreshWorldLoops()
 	end
 end
 
+-- A resting cafe cat purrs while it loafs (Effects.isLoafing: napping with no station, by day, part of every
+-- minute). Only the nearest one within LOAF_NEAR, because Effects animates a budget of cats and a purr from a cat
+-- that is not moving would sound wrong (reviewer N131). Resting cats are the Napping children of each Plot's Cats.
+local LOAF_NEAR = 14
+local loafing: Instance? = nil
+
+local function followLoaf(root: BasePart?)
+	local best: Instance? = nil
+	local bestDistance = LOAF_NEAR
+	if root ~= nil then
+		for _, plot in CollectionService:GetTagged("Plot") do
+			local cats = plot:FindFirstChild("Cats")
+			for _, cat in if cats ~= nil then cats:GetChildren() else {} do
+				local part = if cat:IsA("Model") and cat:GetAttribute("Napping") == true
+					then partOf(cat)
+					else nil
+				local distance = if part ~= nil
+					then (part.Position - root.Position).Magnitude
+					else math.huge
+				if distance <= bestDistance and Effects.isLoafing(cat :: Model) then
+					best, bestDistance = cat, distance
+				end
+			end
+		end
+	end
+	local was = loafing
+	if was ~= nil and was ~= best then
+		stopWorldLoop(was)
+	end
+	loafing = best
+	if best ~= nil then
+		startWorldLoop(best, "purr") -- nothing while it purrs; restarts it after a settings change stopped it
+	end
+end
+
 -- Twice a second: restarts a loop whose part streamed out from under its model, starts loops on tagged models
 -- whose parts streamed in after the tag (reviewer N55), follows each `when` (a cafe opening or closing for the
--- night) and keeps the `near` loops on the closest tagged things.
+-- night), keeps the `near` loops on the closest tagged things and the purr on the nearest loafing cat.
 local function followWorldLoops()
 	while true do
 		task.wait(LOOP_CHECK_SECONDS)
@@ -598,17 +645,18 @@ local function followWorldLoops()
 					syncWorldLoop(instance, def)
 				end
 			else
+				local when = def.when
 				local instances: { Instance } = {}
 				local distances: { number } = {}
 				for _, instance in CollectionService:GetTagged(tag) do
 					local part = partOf(instance)
-					if root ~= nil and part ~= nil then
+					if root ~= nil and part ~= nil and (when == nil or when(instance)) then
 						table.insert(instances, instance)
 						table.insert(distances, (part.Position - root.Position).Magnitude)
 					end
 				end
 				local keep: { [Instance]: boolean } = {}
-				for _, index in Logic.nearest(distances, radius, MAX_NEAR_LOOPS) do
+				for _, index in Logic.nearest(distances, radius, def.max or MAX_NEAR_LOOPS) do
 					keep[instances[index]] = true
 					startWorldLoop(instances[index], def.cue)
 				end
@@ -619,6 +667,7 @@ local function followWorldLoops()
 				end
 			end
 		end
+		followLoaf(root)
 	end
 end
 
@@ -709,6 +758,104 @@ local function refreshCarry()
 	stopCarry()
 	if carrying then
 		carryStop = Audio.loop("carryPurr")
+	end
+end
+
+-- Hold to catch (F45): a stray's or stuck cat's prompt (and a manhole's) is held for its HoldDuration before it
+-- fires. The fill sound runs with the UI's fill, stretched so its pop lands on the trigger, and fades out if the
+-- key is let go early. A cat that is still running shows no fill, so it plays nothing either.
+local HOLD_FADE = 0.06
+local holdSound: Sound? = nil
+local holdPrompt: ProximityPrompt? = nil
+local holdStartedAt = 0
+local holdFade: Tween? = nil -- a let-go fade still running; a new hold cancels it so it cannot stop the new fill
+
+local function running(prompt: ProximityPrompt): boolean
+	local model = prompt:FindFirstAncestorWhichIsA("Model")
+	local untilTime = if model ~= nil then model:GetAttribute("FleeingUntil") else nil
+	return type(untilTime) == "number" and untilTime > Workspace:GetServerTimeNow()
+end
+
+local function holdBegan(prompt: ProximityPrompt)
+	local playSpeed = Logic.holdSpeed(prompt.HoldDuration)
+	if playSpeed == nil or prompt.Style ~= Enum.ProximityPromptStyle.Custom or running(prompt) then
+		return
+	end
+	local sound = Audio.play("holdFill")
+	if sound ~= nil then
+		-- holdFill has one voice, so play() has just restarted the Sound a let-go fade was turning down; cancel
+		-- that fade (its handler stops the Sound only when the fade completes) so the new fill keeps playing
+		local fade = holdFade
+		if fade ~= nil then
+			holdFade = nil
+			fade:Cancel()
+		end
+		sound.Volume = Cues.holdFill.volume
+		sound.PlaybackSpeed = playSpeed
+		holdSound, holdPrompt, holdStartedAt = sound, prompt, os.clock()
+	end
+end
+
+local function holdEnded(prompt: ProximityPrompt)
+	local sound = holdSound
+	if sound == nil or prompt ~= holdPrompt then
+		return
+	end
+	holdSound, holdPrompt = nil, nil
+	if os.clock() - holdStartedAt >= prompt.HoldDuration - 0.05 then
+		return -- the hold finished: the pop rings out
+	end
+	local fade = tweenVolume(sound, 0, HOLD_FADE)
+	holdFade = fade
+	fade.Completed:Once(function(state: Enum.PlaybackState)
+		if holdFade == fade then
+			holdFade = nil
+		end
+		if state == Enum.PlaybackState.Completed then
+			sound:Stop()
+		end
+		sound.Volume = Cues.holdFill.volume
+	end)
+end
+
+local function followHolds()
+	ProximityPromptService.PromptButtonHoldBegan:Connect(holdBegan)
+	ProximityPromptService.PromptButtonHoldEnded:Connect(holdEnded)
+end
+
+-- A gold cat in your arms (F42) plays the gold reveal, with the effects' burst: when the HeldCat arrives gold or
+-- its Gold turns on (a rescued cat's surprise). Once per HeldCat; one already held when this starts stays quiet.
+local function watchHeld(child: Instance, fresh: boolean)
+	if child.Name ~= "HeldCat" or not child:IsA("Model") then
+		return
+	end
+	local played = not fresh and child:GetAttribute("Gold") == true
+	local function check()
+		if not played and child:GetAttribute("Gold") == true then
+			played = true
+			Audio.play("goldReveal")
+		end
+	end
+	child:GetAttributeChangedSignal("Gold"):Connect(check)
+	check()
+end
+
+local function followHeldCats()
+	local function watchCharacter(character: Model, fresh: boolean)
+		character.ChildAdded:Connect(function(child: Instance)
+			watchHeld(child, true)
+		end)
+		for _, child in character:GetChildren() do
+			watchHeld(child, fresh)
+		end
+	end
+	local player = Players.LocalPlayer
+	player.CharacterAdded:Connect(function(character: Model)
+		watchCharacter(character, true)
+	end)
+	local character = player.Character
+	if character ~= nil then
+		watchCharacter(character, false)
 	end
 end
 
@@ -823,25 +970,26 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		Audio.play("baitLetGo")
 	end,
 
-	ShinyReveal = function()
-		Audio.play("shinyReveal")
+	-- F42: a bait or rescue cat that turns out gold; a gold cat in your arms plays it by itself (watchHeld), and a
+	-- gold or Epic stray twinkles through the Stray world loop, so RareStrayNearby is gone.
+	GoldReveal = function()
+		Audio.play("goldReveal")
 	end,
-	RareStrayNearby = function(strayId: any)
-		local id = str(strayId)
-		for key, part in shimmering do
-			if part.Parent == nil then
-				shimmering[key] = nil
-			end
-		end
-		local part = taggedPart("Stray", "StrayId", id)
-		local known: Instance? = if id ~= nil then shimmering[id] else nil
-		if id ~= nil and part ~= nil and known == nil then
-			shimmering[id] = part
-			Audio.loop("shimmerRare", part) -- removed with the stray's part
-		end
+	-- Drop (F45, the Drop button or G): the cat hops down at your feet.
+	CatDrop = function(position: any)
+		Audio.play("catDrop", vec(position) or you())
 	end,
+	-- Fast travel, the My Cafe button and the manholes, once the server says the trip worked.
+	Travel = function()
+		lastTravelAt = os.clock()
+		Audio.play("travelPoof")
+	end,
+	-- Roles (Staff tab, Equip Best, Unequip All): one sound however many cats change in the same sync.
 	CatPlaced = function()
 		Audio.play("catPlaced")
+	end,
+	UnplaceCat = function()
+		Audio.play("catRest")
 	end,
 	CatSold = function()
 		Audio.play("catSold")
@@ -886,6 +1034,19 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	OfflineClaim = function()
 		Audio.play("offlineClaim")
 	end,
+	TipJarClaim = function() -- F47
+		Audio.play("giftClaim")
+	end,
+	IndexReward = function() -- F48
+		Audio.play("indexReward")
+	end,
+	-- The spin wheel (coming): a tick per slice passing the pointer, at the wheel when its position comes along.
+	WheelTick = function(_index: any, position: any)
+		Audio.play("wheelTick", vec(position))
+	end,
+	WheelWin = function()
+		Audio.play("wheelWin")
+	end,
 	Announce = function(_text: any, rarity: any)
 		Audio.play("announce", nil, Logic.rarityStep(str(rarity)))
 	end,
@@ -905,18 +1066,24 @@ function Audio.start()
 	task.spawn(followClock)
 	followTags()
 	followStrays()
+	followHolds()
+	followHeldCats()
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,
--- Sfx and Ui. A muted channel loads nothing. Call it with the first settings and again whenever they change (the
+-- Sfx and Ui. The music slider scales Music and the sound slider the other three; a switch that is off wins, and a
+-- slider at 0 counts as off. A muted channel loads nothing. Call it with the first settings and again whenever they change (the
 -- settings switches); a call with unchanged settings changes nothing, so calling it more often is harmless.
 function Audio.applySettings(settings: Settings)
 	build()
 	local musicWas, ambienceWas, sfxWas = enabled.Music, enabled.Ambience, enabled.Sfx
 	for name, def in GROUPS do
-		local on = if def.mutedBy == "music" then settings.music ~= false else settings.sfx ~= false
+		local isMusic = def.mutedBy == "music"
+		local switch = if isMusic then settings.music else settings.sfx
+		local gain = Logic.sliderGain(if isMusic then settings.musicVolume else settings.sfxVolume)
+		local on = switch ~= false and gain > 0
 		enabled[name] = on
-		groups[name].Volume = Logic.groupVolume(def.volume, on)
+		groups[name].Volume = Logic.groupVolume(def.volume, on, gain)
 	end
 	if enabled.Sfx ~= sfxWas then
 		refreshCarry()
@@ -949,9 +1116,21 @@ function Audio.setCarrying(isCarrying: boolean)
 end
 
 -- The zone the ambience follows: "Cafe", "Alley", "Park" (later "Neighbourhood", "Woods", "Sewer"); nil for none.
+-- Walking between the safe street (nil or "Cafe") and a catching area also plays a chime with the Safe zone chip:
+-- zoneArea in, zoneSafe out, one per ZONE_GAP and none right after a trip.
 function Audio.setZone(newZone: string?)
+	local cueId = Logic.zoneCue(zone, newZone)
 	zone = newZone
 	refreshAmbience()
+	local now = os.clock()
+	if
+		cueId ~= nil
+		and Logic.canPlay(lastZoneCueAt, now, ZONE_GAP)
+		and Logic.canPlay(lastTravelAt, now, TRAVEL_QUIET)
+	then
+		lastZoneCueAt = now
+		Audio.play(cueId)
+	end
 end
 
 -- Connects every moment Audio knows to its sounds. `moments` maps a moment name to a signal with :Connect

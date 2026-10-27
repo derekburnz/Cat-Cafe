@@ -111,9 +111,21 @@ function Logic.duckLevel(ducks: { [any]: number }): number
 	return level
 end
 
--- A channel's volume: its start volume, or 0 when the player's setting turns it off.
-function Logic.groupVolume(base: number, enabled: boolean): number
-	return if enabled then base else 0
+-- A channel's volume: its start volume times the player's slider gain (1 when there is none), or 0 when the
+-- player's switch turns it off.
+function Logic.groupVolume(base: number, enabled: boolean, gain: number?): number
+	return if enabled then base * (gain or 1) else 0
+end
+
+-- A settings volume slider (0 to 1) as a channel gain. Squared, because loudness follows decibels rather than
+-- amplitude: half way is about -12 dB, which sounds roughly half as loud, where a straight line would barely change
+-- until the bottom. Missing or not a number (an old save) is full volume; out of range is clamped.
+function Logic.sliderGain(value: any): number
+	if type(value) ~= "number" or value ~= value then
+		return 1
+	end
+	local clamped = math.clamp(value, 0, 1)
+	return clamped * clamped
 end
 
 -- The catch jingle for a rarity (sound list section 3); Common has none. Secret is the v0.2 name for Mythical.
@@ -199,6 +211,42 @@ function Logic.trapCue(trapType: string?): string?
 		return nil
 	end
 	return TRAPS[trapType]
+end
+
+-- The holdFill file lands on its pop this many seconds in; HoldDuration 0.5 plays it at 0.96 so the pop meets the
+-- trigger. Very short or long holds are clamped so the pitch stays friendly.
+Logic.HOLD_FILL_SECONDS = 0.48
+
+-- PlaybackSpeed for the hold sound of a prompt held for `holdDuration` seconds; nil when the prompt has no hold.
+function Logic.holdSpeed(holdDuration: number): number?
+	if holdDuration ~= holdDuration or holdDuration <= 0 then
+		return nil
+	end
+	return math.clamp(Logic.HOLD_FILL_SECONDS / holdDuration, 0.5, 2)
+end
+
+-- Whether a World.Zones name is the safe street and cafes (nil or "Cafe") rather than a catching area.
+function Logic.isSafeZone(zone: string?): boolean
+	return zone == nil or zone == "Cafe"
+end
+
+-- The cue for walking from one zone into another: zoneSafe back onto the street, zoneArea into a catching area,
+-- nil when both are safe or both are areas (one area into the next, or the same zone).
+function Logic.zoneCue(previous: string?, current: string?): string?
+	local was, now = Logic.isSafeZone(previous), Logic.isSafeZone(current)
+	if was == now then
+		return nil
+	end
+	return if now then "zoneSafe" else "zoneArea"
+end
+
+-- Whether a stray twinkles for nearby players (shimmerRare): a gold cat, or Epic and up.
+function Logic.shimmers(gold: any, rarity: any): boolean
+	if gold == true then
+		return true
+	end
+	local step = if type(rarity) == "string" then Logic.rarityStep(rarity) else nil
+	return step ~= nil and step >= 3
 end
 
 return Logic

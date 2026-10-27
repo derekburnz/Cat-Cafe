@@ -323,7 +323,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local halfD = W.PlotDepth / 2
 	local wallH = W.WallHeight
 
-	local floor = part(
+	local plotFloor = part(
 		"Floor",
 		Vector3.new(W.PlotWidth, 0.4, W.PlotDepth),
 		cframe * CFrame.new(0, -0.2, 0),
@@ -331,7 +331,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		Enum.Material.WoodPlanks,
 		model
 	)
-	CollectionService:AddTag(floor, "Floor") -- the crate floor in use colours it (F53, StyleController)
+	CollectionService:AddTag(plotFloor, "Floor") -- the crate floor in use colours it (F53, StyleController)
 	-- The front garden strip and its path to the door, a little below the cafe floor.
 	local gardenRect, pathRect = Layout.plot.frontGarden, Layout.plot.frontPath
 	part(
@@ -566,11 +566,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 
 	local decorFolder = folder("DecorAnchors", model)
 	local decorAnchors: { [string]: BasePart } = {}
-	for _, def in Catalog.decor do
-		local point = Layout.plot.decorAnchors[def.id]
-		if point ~= nil then
-			decorAnchors[def.id] = anchor(def.id, localCFrame(cframe, point), decorFolder)
-		end
+	for decorId, point in Layout.plot.decorAnchors do
+		decorAnchors[decorId] = anchor(decorId, localCFrame(cframe, point), decorFolder)
 	end
 
 	local tableFolder = folder("TableAnchors", model)

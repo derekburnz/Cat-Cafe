@@ -826,7 +826,8 @@ end
 -- Upgrade ids renamed before launch, old id -> new id. ProfileSchema.migrate carries saved levels across.
 Catalog.renamedUpgrades = { gloves = "net" } :: { [string]: string }
 
--- Section 7. Shop decor has no `source`; Index decor says "index".
+-- Section 7: the coin Decor shop (no `source`). Crate pieces (F53), the F48 Index pieces among them, are in
+-- Catalog.crateDecor below.
 Catalog.decor = {
 	{
 		id = "plants",
@@ -871,123 +872,6 @@ Catalog.decor = {
 		requiresTier = 4,
 		bonus = 0.10,
 		asset = "CatCafe_Decor_FishTank",
-	},
-	-- Index decor (F48, section 11b): never sold, granted by an area's cats10 and gold10 Index rewards. A gold piece
-	-- shares its normal piece's spot and stands in for it while both are placed, so only its +10% counts.
-	{
-		id = "index_alley",
-		name = "Alley Mural Print",
-		cost = 0,
-		category = "Wall",
-		effect = "+5% tips",
-		description = "The Alleyway mural in a frame, for finding every alley cat.",
-		bonus = 0.05,
-		asset = "CatCafe_Decor_MuralPrint",
-		source = "index",
-	},
-	{
-		id = "index_park",
-		name = "Park Bench",
-		cost = 0,
-		category = "Furniture",
-		effect = "+5% tips",
-		description = "A bench from the Park, for finding every park cat.",
-		bonus = 0.05,
-		asset = "CatCafe_Decor_ParkBench",
-		source = "index",
-	},
-	{
-		id = "index_neighbourhood",
-		name = "Mailbox Planter",
-		cost = 0,
-		category = "Plants",
-		effect = "+5% tips",
-		description = "A mailbox full of flowers, for finding every Neighbourhood cat.",
-		bonus = 0.05,
-		asset = "CatCafe_Decor_MailboxPlanter",
-		source = "index",
-	},
-	{
-		id = "index_woods",
-		name = "Mushroom Lamp",
-		cost = 0,
-		category = "Furniture",
-		effect = "+5% tips",
-		description = "A glowing toadstool, for finding every Woods cat.",
-		bonus = 0.05,
-		asset = "CatCafe_Decor_MushroomLamp",
-		source = "index",
-	},
-	{
-		id = "index_sewer",
-		name = "Pipe Fountain",
-		cost = 0,
-		category = "Furniture",
-		effect = "+5% tips",
-		description = "A clean little fountain, for finding every Sewer cat.",
-		bonus = 0.05,
-		asset = "CatCafe_Decor_PipeFountain",
-		source = "index",
-	},
-	{
-		id = "index_alley_gold",
-		name = "Gold Alley Mural Print",
-		cost = 0,
-		category = "Wall",
-		effect = "+10% tips",
-		description = "The same piece in gold, for finding every one of them as a gold cat.",
-		bonus = 0.10,
-		asset = "CatCafe_Decor_MuralPrint_Gold",
-		source = "index",
-		replaces = "index_alley",
-	},
-	{
-		id = "index_park_gold",
-		name = "Gold Park Bench",
-		cost = 0,
-		category = "Furniture",
-		effect = "+10% tips",
-		description = "The same piece in gold, for finding every one of them as a gold cat.",
-		bonus = 0.10,
-		asset = "CatCafe_Decor_ParkBench_Gold",
-		source = "index",
-		replaces = "index_park",
-	},
-	{
-		id = "index_neighbourhood_gold",
-		name = "Gold Mailbox Planter",
-		cost = 0,
-		category = "Plants",
-		effect = "+10% tips",
-		description = "The same piece in gold, for finding every one of them as a gold cat.",
-		bonus = 0.10,
-		asset = "CatCafe_Decor_MailboxPlanter_Gold",
-		source = "index",
-		replaces = "index_neighbourhood",
-	},
-	{
-		id = "index_woods_gold",
-		name = "Gold Mushroom Lamp",
-		cost = 0,
-		category = "Furniture",
-		effect = "+10% tips",
-		description = "The same piece in gold, for finding every one of them as a gold cat.",
-		bonus = 0.10,
-		asset = "CatCafe_Decor_MushroomLamp_Gold",
-		source = "index",
-		replaces = "index_woods",
-	},
-	{
-		id = "index_sewer_gold",
-		name = "Gold Pipe Fountain",
-		cost = 0,
-		category = "Furniture",
-		effect = "+10% tips",
-		description = "The same piece in gold, for finding every one of them as a gold cat.",
-		bonus = 0.10,
-		asset = "CatCafe_Decor_PipeFountain_Gold",
-		source = "index",
-		replaces = "index_sewer",
 	},
 } :: { Types.DecorDef }
 
@@ -1108,8 +992,8 @@ Catalog.spinWheel = {
 	{ slice = 2, kind = "lure", lureId = "tuna", count = 3, weight = 22 },
 	{ slice = 3, kind = "coins", seconds = 600, minCoins = 1000, weight = 18 },
 	{ slice = 4, kind = "lure", lureId = "salmon", count = 2, weight = 15 },
-	{ slice = 5, kind = "lure", lureId = "sardines", count = 2, weight = 10 },
-	{ slice = 6, kind = "lure", lureId = "caviar", count = 1, weight = 5 },
+	{ slice = 5, kind = "fish", count = 4, weight = 10 }, -- F54 (was 2 Moonlit Sardines)
+	{ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 5 }, -- F54 (was 1 Caviar)
 } :: { Types.SpinSlice }
 for _, row in Catalog.spinWheel do
 	table.freeze(row)
@@ -1185,53 +1069,249 @@ for _, def in Catalog.areas do
 	Catalog.areasById[def.id] = def
 end
 
--- Section 11b (F48): the four reward bar milestones every area page of the Index has, in order.
+-- Section 11b and golden-fish.md sections 5 and 5b (F54): every Index milestone, in order. An area page has the
+-- normal track (its cats) and the gold track (its gold cats), the All Cats page (area id "all") counts different
+-- cats across every area, and a Decor Index page (area id "decor_<pool>") counts that crate's pieces owned. A page
+-- shows the milestones it has a prize for.
 Catalog.indexMilestones = {
-	{ id = "cats3", need = 3 },
-	{ id = "cats6", need = 6 },
-	{ id = "cats10", need = 10 },
-	{ id = "gold10", need = 10, gold = true },
+	{ id = "cats3", track = "normal", needs = 3 },
+	{ id = "cats6", track = "normal", needs = 6 },
+	{ id = "cats10", track = "normal", needs = 10 },
+	{ id = "gold1", track = "gold", needs = 1 },
+	{ id = "gold2", track = "gold", needs = 2 },
+	{ id = "gold4", track = "gold", needs = 4 },
+	{ id = "gold6", track = "gold", needs = 6 },
+	{ id = "gold8", track = "gold", needs = 8 },
+	{ id = "gold10", track = "gold", needs = 10 },
+	{ id = "total5", track = "normal", needs = 5 },
+	{ id = "total10", track = "normal", needs = 10 },
+	{ id = "total15", track = "normal", needs = 15 },
+	{ id = "total20", track = "normal", needs = 20 },
+	{ id = "total25", track = "normal", needs = 25 },
+	{ id = "total30", track = "normal", needs = 30 },
+	{ id = "total35", track = "normal", needs = 35 },
+	{ id = "total40", track = "normal", needs = 40 },
+	{ id = "total45", track = "normal", needs = 45 },
+	{ id = "total50", track = "normal", needs = 50 },
+	{ id = "decor5", track = "decor", needs = 5 },
+	{ id = "decor10", track = "decor", needs = 10 },
 } :: { Types.IndexMilestone }
 
--- What each milestone pays per area (section 11b). Everything is free and only the server pays it. Named apart
--- from profile.indexRewards (the claims) and frozen, so a write meant for a profile errors instead of changing the
--- prize for everyone on the server (reviewer S61).
+-- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
+-- pays it. The normal track adds tips forever (`bonus`), the gold track gold luck (`goldLuck`) and All Cats faster
+-- bait (`baitSpeed`). Named apart from profile.indexRewards (the claims) and frozen, so a write meant for a profile
+-- errors instead of changing the prize for everyone on the server (reviewer S61).
 Catalog.indexPrizes = {
 	alley = {
-		cats3 = { coins = 300 },
-		cats6 = { lures = { tuna = 2 } },
-		cats10 = { lures = { salmon = 1 }, decorId = "index_alley" },
-		gold10 = { decorId = "index_alley_gold" },
+		cats3 = { coins = 300, coinSeconds = 600, fish = 5, spins = 1 },
+		cats6 = { lures = { tuna = 3 }, crates = { alley_crate = 1 }, bonus = 0.02 },
+		cats10 = {
+			lures = { salmon = 2 },
+			crates = { alley_crate = 2, alley_golden_crate = 1 },
+			fish = 25,
+			spins = 2,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 10, spins = 1, crates = { alley_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 1000, coinSeconds = 900, fish = 15, spins = 2, goldLuck = 0.03 },
+		gold4 = { crates = { alley_golden_crate = 1 }, fish = 25, goldLuck = 0.05 },
+		gold6 = {
+			coins = 2000,
+			coinSeconds = 1800,
+			lures = { salmon = 3 },
+			fish = 40,
+			spins = 3,
+			goldLuck = 0.05,
+		},
+		gold8 = { crates = { alley_golden_crate = 1 }, fish = 60, goldLuck = 0.05 },
+		gold10 = {
+			coins = 5000,
+			coinSeconds = 3600,
+			crates = { alley_golden_crate = 2 },
+			fish = 100,
+			spins = 5,
+			tag = "Alleyway Gold Master",
+			goldLuck = 0.10,
+		},
 	},
 	park = {
-		cats3 = { coins = 1000 },
-		cats6 = { lures = { salmon = 2 } },
-		cats10 = { lures = { caviar = 1 }, decorId = "index_park" },
-		gold10 = { decorId = "index_park_gold" },
+		cats3 = { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 },
+		cats6 = { lures = { salmon = 3 }, crates = { park_crate = 1 }, bonus = 0.02 },
+		cats10 = {
+			lures = { caviar = 2 },
+			crates = { park_crate = 2, park_golden_crate = 1 },
+			fish = 35,
+			spins = 2,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 15, spins = 1, crates = { park_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 3000, coinSeconds = 900, fish = 20, spins = 2, goldLuck = 0.03 },
+		gold4 = { crates = { park_golden_crate = 1 }, fish = 35, goldLuck = 0.05 },
+		gold6 = {
+			coins = 6000,
+			coinSeconds = 1800,
+			lures = { caviar = 3 },
+			fish = 50,
+			spins = 3,
+			goldLuck = 0.05,
+		},
+		gold8 = { crates = { park_golden_crate = 1 }, fish = 75, goldLuck = 0.05 },
+		gold10 = {
+			coins = 15000,
+			coinSeconds = 3600,
+			crates = { park_golden_crate = 2 },
+			fish = 125,
+			spins = 5,
+			tag = "Park Gold Master",
+			goldLuck = 0.10,
+		},
 	},
 	neighbourhood = {
-		cats3 = { coins = 3000 },
-		cats6 = { lures = { caviar = 2 } },
-		cats10 = { lures = { moon_milk = 1 }, decorId = "index_neighbourhood" },
-		gold10 = { decorId = "index_neighbourhood_gold" },
+		cats3 = { coins = 3000, coinSeconds = 600, fish = 15, spins = 1 },
+		cats6 = { lures = { caviar = 3 }, crates = { neighbourhood_crate = 1 }, bonus = 0.02 },
+		cats10 = {
+			lures = { moon_milk = 2 },
+			crates = { neighbourhood_crate = 2, neighbourhood_golden_crate = 1 },
+			fish = 50,
+			spins = 2,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 20, spins = 1, crates = { neighbourhood_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 10000, coinSeconds = 900, fish = 30, spins = 2, goldLuck = 0.03 },
+		gold4 = { crates = { neighbourhood_golden_crate = 1 }, fish = 45, goldLuck = 0.05 },
+		gold6 = {
+			coins = 20000,
+			coinSeconds = 1800,
+			lures = { moon_milk = 3 },
+			fish = 60,
+			spins = 3,
+			goldLuck = 0.05,
+		},
+		gold8 = { crates = { neighbourhood_golden_crate = 1 }, fish = 90, goldLuck = 0.05 },
+		gold10 = {
+			coins = 50000,
+			coinSeconds = 3600,
+			crates = { neighbourhood_golden_crate = 2 },
+			fish = 150,
+			spins = 5,
+			tag = "Neighbourhood Gold Master",
+			goldLuck = 0.10,
+		},
 	},
 	woods = {
-		cats3 = { coins = 10000 },
-		cats6 = { lures = { moon_milk = 2 } },
-		cats10 = { lures = { star_treat = 1 }, decorId = "index_woods" },
-		gold10 = { decorId = "index_woods_gold" },
+		cats3 = { coins = 10000, coinSeconds = 600, fish = 20, spins = 1 },
+		cats6 = { lures = { moon_milk = 3 }, crates = { woods_crate = 1 }, bonus = 0.02 },
+		cats10 = {
+			lures = { star_treat = 2 },
+			crates = { woods_crate = 2, woods_golden_crate = 1 },
+			fish = 75,
+			spins = 2,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 25, spins = 1, crates = { woods_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 30000, coinSeconds = 900, fish = 40, spins = 2, goldLuck = 0.03 },
+		gold4 = { crates = { woods_golden_crate = 1 }, fish = 60, goldLuck = 0.05 },
+		gold6 = {
+			coins = 60000,
+			coinSeconds = 1800,
+			lures = { star_treat = 3 },
+			fish = 80,
+			spins = 3,
+			goldLuck = 0.05,
+		},
+		gold8 = { crates = { woods_golden_crate = 1 }, fish = 120, goldLuck = 0.05 },
+		gold10 = {
+			coins = 150000,
+			coinSeconds = 3600,
+			crates = { woods_golden_crate = 2 },
+			fish = 200,
+			spins = 5,
+			tag = "Woods Gold Master",
+			goldLuck = 0.10,
+		},
 	},
 	sewer = {
-		cats3 = { coins = 30000 },
-		cats6 = { lures = { star_treat = 2 } },
-		cats10 = { lures = { star_treat = 2 }, decorId = "index_sewer" },
-		gold10 = { decorId = "index_sewer_gold" },
+		cats3 = { coins = 30000, coinSeconds = 600, fish = 25, spins = 1 },
+		cats6 = { lures = { star_treat = 3 }, crates = { sewer_crate = 1 }, bonus = 0.02 },
+		cats10 = {
+			lures = { star_treat = 3 },
+			crates = { sewer_crate = 2, sewer_golden_crate = 1 },
+			fish = 100,
+			spins = 2,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 30, spins = 1, crates = { sewer_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 100000, coinSeconds = 900, fish = 50, spins = 2, goldLuck = 0.03 },
+		gold4 = { crates = { sewer_golden_crate = 1 }, fish = 75, goldLuck = 0.05 },
+		gold6 = {
+			coins = 200000,
+			coinSeconds = 1800,
+			lures = { star_treat = 4 },
+			fish = 100,
+			spins = 3,
+			goldLuck = 0.05,
+		},
+		gold8 = { crates = { sewer_golden_crate = 1 }, fish = 150, goldLuck = 0.05 },
+		gold10 = {
+			coins = 500000,
+			coinSeconds = 3600,
+			crates = { sewer_golden_crate = 2 },
+			fish = 250,
+			spins = 5,
+			tag = "Sewer Gold Master",
+			goldLuck = 0.10,
+		},
+	},
+	all = {
+		total5 = { fish = 10, spins = 1, baitSpeed = 0.02 },
+		total10 = { fish = 15, crates = { classic_crate = 1 }, baitSpeed = 0.02 },
+		total15 = { fish = 20, spins = 2, baitSpeed = 0.02 },
+		total20 = { fish = 25, crates = { classic_crate = 1 }, baitSpeed = 0.03 },
+		total25 = { fish = 30, spins = 2, crates = { classic_golden_crate = 1 }, baitSpeed = 0.03 },
+		total30 = { fish = 40, crates = { highest = 1 }, baitSpeed = 0.03 },
+		total35 = { fish = 50, spins = 3, baitSpeed = 0.04 },
+		total40 = { fish = 60, crates = { classic_golden_crate = 1 }, baitSpeed = 0.04 },
+		total45 = { fish = 75, spins = 3, baitSpeed = 0.05 },
+		total50 = {
+			fish = 150,
+			crates = { classic_golden_crate = 2 },
+			spins = 10,
+			tag = "Cat Master",
+			baitSpeed = 0.10,
+		},
+	},
+	decor_alley = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_park = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_neighbourhood = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_woods = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_sewer = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_classic = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
 	},
 } :: { [string]: { [string]: Types.IndexPrize } }
 for _, prizes in Catalog.indexPrizes do
 	for _, prize in prizes do
 		if prize.lures ~= nil then
 			table.freeze(prize.lures)
+		end
+		if prize.crates ~= nil then
+			table.freeze(prize.crates)
 		end
 		table.freeze(prize)
 	end
@@ -1261,14 +1341,16 @@ local CRATE_POOLS = {
 -- The pieces in each pool (F53, golden-fish.md section 4): ten, two of each kind, 4 Common, 3 Rare and one each of
 -- Epic, Legendary and Mythical. A wallpaper, floor or paint is a colour and a material on the cafe's tagged shell
 -- parts; furniture and decorations are models (CatCafe_Decor_<Name>) on decor spots. The F48 Index pieces are their
--- zones' Epics and keep their ids, assets and spots. Every piece is a DecorDef in Catalog.crateDecor.
+-- zones' Epics and keep their ids, models and anchors (F54: no Index prize hands out decor any more). Every piece
+-- is a DecorDef in Catalog.crateDecor.
 type PieceRow = {
 	id: string,
-	name: string?, -- nil on an F48 Index piece, which keeps its own
+	name: string,
 	kind: Types.DecorKind,
 	rarity: Types.Rarity,
 	color: Color3?,
 	material: Enum.Material?,
+	asset: string?, -- an F48 Index piece keeps its model; the rest are named after the piece
 	description: string?,
 }
 local CRATE_PIECES: { [string]: { PieceRow } } = {
@@ -1348,7 +1430,14 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Rare",
 			description = "Fairy lights in old jam jars.",
 		},
-		{ id = "index_alley", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+		{
+			id = "index_alley",
+			name = "Alley Mural Print",
+			kind = "decoration",
+			rarity = "Epic",
+			asset = "CatCafe_Decor_MuralPrint", -- the F48 Index piece, on its own anchor
+			description = "The Alleyway mural in a frame.",
+		},
 	},
 	park = {
 		{
@@ -1412,7 +1501,14 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Rare",
 			description = "A picnic table with a checked cloth.",
 		},
-		{ id = "index_park", kind = "furniture", rarity = "Epic" }, -- the F48 Index piece
+		{
+			id = "index_park",
+			name = "Park Bench",
+			kind = "furniture",
+			rarity = "Epic",
+			asset = "CatCafe_Decor_ParkBench", -- the F48 Index piece, on its own anchor
+			description = "A bench from the Park, for long afternoons.",
+		},
 		{
 			id = "park_duck_fountain",
 			name = "Duck Fountain",
@@ -1504,7 +1600,14 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Rare",
 			description = "An old bike with a basket of flowers.",
 		},
-		{ id = "index_neighbourhood", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+		{
+			id = "index_neighbourhood",
+			name = "Mailbox Planter",
+			kind = "decoration",
+			rarity = "Epic",
+			asset = "CatCafe_Decor_MailboxPlanter", -- the F48 Index piece, on its own anchor
+			description = "A mailbox full of flowers.",
+		},
 	},
 	woods = {
 		{
@@ -1582,7 +1685,14 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Rare",
 			description = "A tree stump holding a little lantern.",
 		},
-		{ id = "index_woods", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+		{
+			id = "index_woods",
+			name = "Mushroom Lamp",
+			kind = "decoration",
+			rarity = "Epic",
+			asset = "CatCafe_Decor_MushroomLamp", -- the F48 Index piece, on its own anchor
+			description = "A glowing toadstool from the Woods.",
+		},
 	},
 	sewer = {
 		{
@@ -1660,7 +1770,14 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Rare",
 			description = "A line of rubber ducks on parade.",
 		},
-		{ id = "index_sewer", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+		{
+			id = "index_sewer",
+			name = "Pipe Fountain",
+			kind = "decoration",
+			rarity = "Epic",
+			asset = "CatCafe_Decor_PipeFountain", -- the F48 Index piece, on its own anchor
+			description = "A clean little fountain made of pipes.",
+		},
 	},
 	classic = {
 		{
@@ -1763,34 +1880,27 @@ for _, pool in CRATE_POOLS do
 	for _, row in CRATE_PIECES[pool.area] do
 		local bonus = Config.CratePieceBonus[row.rarity]
 		local effect = string.format("+%d%% tips while in use", math.floor(bonus * 100 + 0.5))
-		local def: Types.DecorDef? = Catalog.decorById[row.id]
-		if def ~= nil then
-			def.crate, def.rarity, def.kind = pool.area, row.rarity, row.kind
-			def.bonus, def.effect = bonus, effect
-		else
-			local name = row.name :: string
-			local styled = row.kind == "wallpaper" or row.kind == "floor" or row.kind == "paint"
-			local asset = (if styled then "CatCafe_Style_" else "CatCafe_Decor_")
-				.. (name:gsub("[^%w]", ""))
-			def = {
-				id = row.id,
-				name = name,
-				cost = 0,
-				category = KIND_CATEGORY[row.kind],
-				effect = effect,
-				description = row.description or "",
-				bonus = bonus,
-				asset = asset,
-				source = "crate",
-				crate = pool.area,
-				rarity = row.rarity,
-				kind = row.kind,
-				color = row.color,
-				material = row.material,
-			}
-			Catalog.decorById[row.id] = def :: Types.DecorDef
-		end
-		table.insert(Catalog.crateDecor, def :: Types.DecorDef)
+		local styled = row.kind == "wallpaper" or row.kind == "floor" or row.kind == "paint"
+		local def: Types.DecorDef = {
+			id = row.id,
+			name = row.name,
+			cost = 0,
+			category = KIND_CATEGORY[row.kind],
+			effect = effect,
+			description = row.description or "",
+			bonus = bonus,
+			asset = row.asset
+				or (if styled then "CatCafe_Style_" else "CatCafe_Decor_")
+					.. (row.name:gsub("[^%w]", "")),
+			source = "crate",
+			crate = pool.area,
+			rarity = row.rarity,
+			kind = row.kind,
+			color = row.color,
+			material = row.material,
+		}
+		Catalog.decorById[row.id] = def
+		table.insert(Catalog.crateDecor, def)
 		table.insert(ids, row.id)
 	end
 	poolPieces[pool.area] = ids

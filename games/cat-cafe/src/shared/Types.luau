@@ -82,9 +82,9 @@ export type UpgradeDef = {
 	requiresTierAtLevel: { [number]: number }?, -- e.g. espresso level 3 needs Tier 2 (the tier caps, section 5b)
 }
 
--- "shop" decor is bought with BuyDecor; "index" decor (F48) is never sold and only ClaimIndexReward grants it;
--- "crate" decor (F53) only comes out of a Cafe Crate.
-export type DecorSource = "shop" | "index" | "crate"
+-- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
+-- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
+export type DecorSource = "shop" | "crate"
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time; furniture and decorations stand on decor spots.
@@ -101,7 +101,7 @@ export type DecorDef = {
 	bonus: number, -- added to the cafe multiplier while placed
 	asset: string, -- model name in ReplicatedStorage.Assets
 	source: DecorSource?, -- missing means "shop"
-	replaces: string?, -- a gold Index piece: the normal piece it stands in for while both are placed (N114)
+	replaces: string?, -- a piece this one stands in for while both are placed (N114; no piece has one since F54)
 	-- a crate piece (F53): its pool (a zone id or "classic"), rarity and kind; a wallpaper, floor or paint also has
 	-- its colour and material, which the client puts on the cafe's tagged shell parts
 	crate: string?,
@@ -111,19 +111,32 @@ export type DecorDef = {
 	material: Enum.Material?,
 }
 
--- Data-model section 11b (F48): a reward bar milestone on every area page of the Index. `need` cats of the area
--- in the collection, or in the gold collection when `gold` is set.
+-- Data-model section 11b and golden-fish.md sections 5 and 5b (F54): a milestone on an Index page, `needs` of what
+-- its track counts. "normal": different cats of the page's area (every area on the All Cats page, area id "all");
+-- "gold": gold cats of the area; "decor": pieces of the Decor Index page's crate (area ids "decor_<pool>").
+export type IndexTrack = "normal" | "gold" | "decor"
+
 export type IndexMilestone = {
 	id: string,
-	need: number,
-	gold: boolean?,
+	track: IndexTrack,
+	needs: number,
 }
 
--- What one Index milestone pays: coins, foods by lure id and an Index decor piece, any of them.
+-- What one Index milestone pays (golden-fish.md section 8), any of it. `coins` is the minimum and `coinSeconds`
+-- (when set) pays max(coins, floor(dayRate x coinSeconds)). `crates` maps a crate id, or "highest" (the plain crate
+-- of the player's highest open zone), to a count. `bonus` (tips), `goldLuck` and `baitSpeed` are permanent fractions
+-- from the claim on; a milestone has one kind. `tag` names a title the prize unlocks.
 export type IndexPrize = {
 	coins: number?,
+	coinSeconds: number?,
 	lures: { [string]: number }?,
-	decorId: string?,
+	fish: number?,
+	spins: number?,
+	crates: { [string]: number }?,
+	bonus: number?,
+	goldLuck: number?,
+	baitSpeed: number?,
+	tag: string?,
 }
 
 export type LureOdds = {
@@ -186,11 +199,12 @@ export type TipJarStep = {
 -- add up to 100, so each is the slice's chance in percent.
 export type SpinSlice = {
 	slice: number,
-	kind: "coins" | "lure",
+	kind: "coins" | "lure" | "fish" | "crate", -- F54: golden fish and a crate
 	seconds: number?,
 	minCoins: number?,
 	lureId: string?,
-	count: number?,
+	count: number?, -- foods, golden fish or crates
+	crate: string?, -- F54: the crate id, or "highest"
 	weight: number,
 }
 
@@ -298,7 +312,10 @@ export type Stats = {
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).
 export type BaitState = {
 	lureId: string,
-	placedAt: number, -- os.time(); ready at placedAt + LureWaitSeconds
+	placedAt: number, -- os.time()
+	-- os.time() the cat comes, fixed when the food goes in (F54: the wait less the Index's bait speed), so a later
+	-- claim or perk never moves a filling bowl; nil on saves from before it, which wait LureWaitSeconds
+	readyAt: number?,
 	catId: string,
 	variant: string,
 	charm: number,
@@ -401,6 +418,8 @@ export type PlayerState = {
 	crates: { [string]: number }, -- F53
 	crateLuck: { [string]: number },
 	fishPerks: { [string]: number },
+	goldLuck: number, -- F54: the Index gold track's summed luck, capped at GoldLuckMax
+	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,

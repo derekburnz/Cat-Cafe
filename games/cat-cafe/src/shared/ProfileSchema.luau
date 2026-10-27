@@ -317,9 +317,16 @@ local function sanitizeBait(value: any): Types.BaitState?
 	if type(value.placedAt) ~= "number" or value.placedAt ~= value.placedAt then
 		return nil
 	end
+	local placedAt = math.floor(value.placedAt)
+	-- F54: the arrival UseLure fixed, inside the longest wait (an old save has none and waits LureWaitSeconds)
+	local readyAt: number? = nil
+	if type(value.readyAt) == "number" and value.readyAt == value.readyAt then
+		readyAt = math.clamp(math.floor(value.readyAt), placedAt, placedAt + Config.LureWaitSeconds)
+	end
 	return {
 		lureId = value.lureId,
-		placedAt = math.floor(value.placedAt),
+		placedAt = placedAt,
+		readyAt = readyAt,
 		catId = value.catId,
 		variant = variantOf(value.variant),
 		charm = math.clamp(

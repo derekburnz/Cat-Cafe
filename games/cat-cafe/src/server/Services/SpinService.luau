@@ -15,7 +15,9 @@ local CafeService = require(script.Parent.CafeService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Net = require(script.Parent.Net)
+local Prizes = require(ReplicatedStorage.Shared.Prizes)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -47,11 +49,21 @@ local function stationNear(player: Player): Model?
 	return nil
 end
 
+-- Pays the slice: coins, golden fish, a crate (banked for the Golden Fish Market; "highest" is the crate of the
+-- player's highest open zone, F54) or foods. Returns the amount.
 local function pay(player: Player, profile: Types.PlayerProfile, row: Types.SpinSlice): number
 	local amount = Spin.amount(row, Economy.incomePerSecond(profile))
 	if row.kind == "coins" then
 		Economy.credit(profile, amount)
 		Telemetry.source(player, profile, amount, "Gameplay", "spin_wheel")
+	elseif row.kind == "fish" then
+		GoldenFish.credit(profile, amount)
+		Telemetry.fishSource(player, profile, amount, "Gameplay", "spin_wheel")
+	elseif row.kind == "crate" then
+		local crateId = Prizes.crateFor(row.crate or Prizes.HIGHEST, Economy.tier(profile))
+		if crateId ~= nil then
+			profile.crates[crateId] = (profile.crates[crateId] or 0) + amount
+		end
 	else
 		local lureId = row.lureId :: string
 		profile.lures[lureId] = (profile.lures[lureId] or 0) + amount

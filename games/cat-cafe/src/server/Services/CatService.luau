@@ -20,6 +20,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
@@ -50,7 +51,7 @@ type Stray = {
 	selfRetryAt: { [number]: number },
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
-	variant: string, -- "gold" (GoldChanceNet, rolled at spawn and shown as a sparkle) or "base"
+	variant: string, -- "gold" (GoldChanceNet with gold luck, rolled at spawn and shown as a sparkle) or "base"
 	method: Types.CatchMethod, -- "net", or what a knocked-loose cat was before it fell (its rescued flag, 10c)
 	drop: Shove.Drop?, -- set on a cat a shove knocked out of someone's arms (section 10c, S25)
 	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
@@ -120,6 +121,24 @@ local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boole
 		return false
 	end
 	return Economy.tier(profile) >= area.tier
+end
+
+-- The gold luck a stray or a rescue trap in the area rolls with (F54, golden-fish.md section 5): the highest among
+-- the players in the server whose tier has the area open, 0 when nobody has. The coat shows from the spawn, the
+-- same for everyone.
+function CatService.goldLuckFor(areaId: string): number
+	local area = Catalog.getArea(areaId)
+	if area == nil then
+		return 0
+	end
+	local profiles: { Types.PlayerProfile } = {}
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			table.insert(profiles, profile)
+		end
+	end
+	return IndexRewards.bestGoldLuck(profiles, area.tier, Economy.tier)
 end
 
 local function countStrays(areaId: string): number
@@ -297,7 +316,10 @@ local function spawnStray(
 ): Stray
 	local variant = if kept ~= nil
 		then kept.variant or "base"
-		elseif forceGold == true or rng:NextNumber() < Config.GoldChanceNet then "gold"
+		elseif forceGold == true or rng:NextNumber() < IndexRewards.goldChance(
+			Config.GoldChanceNet,
+			CatService.goldLuckFor(areaId)
+		) then "gold"
 		else "base"
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)

@@ -136,15 +136,10 @@ Layout.plot = {
 		neon_sign = { x = 0, y = 5.5, z = halfD - 0.7 },
 		fish_tank = { x = -halfW + 2, y = 0, z = 0, rotY = 90 },
 		index_alley = INDEX_SPOTS.alley,
-		index_alley_gold = INDEX_SPOTS.alley,
 		index_park = INDEX_SPOTS.park,
-		index_park_gold = INDEX_SPOTS.park,
 		index_neighbourhood = INDEX_SPOTS.neighbourhood,
-		index_neighbourhood_gold = INDEX_SPOTS.neighbourhood,
 		index_woods = INDEX_SPOTS.woods,
-		index_woods_gold = INDEX_SPOTS.woods,
 		index_sewer = INDEX_SPOTS.sewer,
-		index_sewer_gold = INDEX_SPOTS.sewer,
 	} :: { [string]: Point },
 
 	-- Decor spots (F53, golden-fish.md section 4): where crate furniture and decorations stand, filled in order, so

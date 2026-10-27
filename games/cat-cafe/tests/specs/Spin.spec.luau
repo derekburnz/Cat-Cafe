@@ -51,20 +51,17 @@ return function()
 				count = 2,
 				weight = 15,
 			})
-			expect(rows[5]).to.deepEqual({
-				slice = 5,
-				kind = "lure",
-				lureId = "sardines",
-				count = 2,
-				weight = 10,
-			})
+			-- F54 (golden-fish.md section 6): four golden fish, and the crate of the highest open zone
+			expect(rows[5]).to.deepEqual({ slice = 5, kind = "fish", count = 4, weight = 10 })
 			expect(rows[6]).to.deepEqual({
 				slice = 6,
-				kind = "lure",
-				lureId = "caviar",
+				kind = "crate",
+				crate = "highest",
 				count = 1,
 				weight = 5,
 			})
+			expect(Spin.amount(rows[5], 100)).to.equal(4)
+			expect(Spin.amount(rows[6], 100)).to.equal(1)
 		end)
 
 		it("names real foods and is frozen", function()

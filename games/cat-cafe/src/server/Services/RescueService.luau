@@ -22,6 +22,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Net = require(script.Parent.Net)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
 local Telemetry = require(script.Parent.Telemetry)
@@ -182,13 +183,16 @@ local function spawnStuck(
 	return entry
 end
 
--- Rolls the cat, its charm and its gold chance now, at night start, from the area's rescue odds.
+-- Rolls the cat, its charm and its gold chance now, from the area's rescue odds; the gold chance has the best gold
+-- luck among the players with the area open (F54).
 local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePart): Stuck
 	local rarity: Types.Rarity =
 		Catching.pickRarity(Catching.rescueOdds(areaDef.odds), rng:NextNumber())
 	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
 	local charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
-	local variant = if rng:NextNumber() < Config.GoldChanceRescue then "gold" else "base"
+	local chance =
+		IndexRewards.goldChance(Config.GoldChanceRescue, CatService.goldLuckFor(areaDef.id))
+	local variant = if rng:NextNumber() < chance then "gold" else "base"
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end
 

@@ -26,6 +26,7 @@ return function()
 			bait = nil,
 			dealer = { window = 0, bought = {} },
 			fishPerks = {}, -- F52 (version 7), read by cafeMultiplier and lureWaitSeconds since F53
+			indexRewards = {}, -- F48 (version 5), whose claimed bonuses cafeMultiplier adds since F54
 			cats = {
 				starter = {
 					uid = "starter",
@@ -164,40 +165,31 @@ return function()
 				expect(Economy.cafeMultiplier(p)).to.be.near(2.5)
 			end)
 
-			it(
-				"Index decor adds +8% a piece (its zone's Epic since F53), and a placed gold piece stands in for its normal one (F48, N114)",
-				function()
-					local p = freshProfile()
-					local function give(id: string)
-						p.decorOwned[id] = true
-						p.decorPlaced[id] = true
-					end
-					give("index_alley")
-					expect(Economy.cafeMultiplier(p)).to.be.near(1.08)
-					give("index_alley_gold")
-					expect(Economy.cafeMultiplier(p)).to.be.near(1.10)
-					expect(Economy.replacedDecor(p) :: any).to.deepEqual({ index_alley = true })
-					p.decorPlaced.index_alley_gold = nil
-					expect(Economy.cafeMultiplier(p)).to.be.near(1.08)
-					expect(next(Economy.replacedDecor(p))).never.to.be.ok()
-					-- every area with both pieces placed tops out at +50%
-					for _, def in ipairs(Catalog.decor) do
-						if def.source == "index" then
-							give(def.id)
-						end
-					end
-					expect(Economy.cafeMultiplier(p)).to.be.near(1.5)
-				end
-			)
+			it("an Index piece is its zone's Epic crate piece: +8% while placed (F53, F54)", function()
+				local p = freshProfile()
+				p.decorOwned.index_alley = true
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.0)
+				p.decorPlaced.index_alley = true
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.08)
+				expect(next(Economy.replacedDecor(p))).never.to.be.ok()
+			end)
 
-			it("Index decor is never for sale", function()
+			it("adds the tips forever of claimed Index milestones (F54)", function()
+				local p = freshProfile()
+				p.indexRewards.alley = { cats3 = true, cats6 = true, gold1 = true }
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.02) -- gold1 is gold luck, not tips
+				p.indexRewards.decor_classic = { decor10 = true }
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.07)
+			end)
+
+			it("crate and Index pieces are never for sale", function()
 				local p = freshProfile()
 				p.coins = 1e9
 				p.tier = 5
-				expect(Economy.decorBlocker(p, "index_park")).to.equal("An Index reward, not for sale")
-				expect(Economy.decorBlocker(p, "index_park_gold")).to.equal(
-					"An Index reward, not for sale"
+				expect(Economy.decorBlocker(p, "index_park")).to.equal(
+					"Found in Cafe Crates, not for sale"
 				)
+				expect(Economy.decorBlocker(p, "index_park_gold")).to.equal("Unknown decor")
 				expect(Economy.decorBlocker(p, "rug")).never.to.be.ok()
 			end)
 		end

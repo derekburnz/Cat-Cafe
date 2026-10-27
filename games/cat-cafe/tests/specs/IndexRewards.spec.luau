@@ -358,9 +358,13 @@ return function()
 		-- Every card on every page against the server; returns how many the server would pay now.
 		local function agree(profile: any): number
 			local ready = 0
-			for areaId in pairs(Catalog.indexPrizes) do
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
 				local views = IndexRewards.views(Catalog, profile, areaId)
-				expect(#views).to.equal(#Catalog.indexMilestones)
+				local cards = 0 -- F54: a page shows the milestones it has a prize for
+				for _ in pairs(prizes) do
+					cards += 1
+				end
+				expect(#views).to.equal(cards)
 				for _, view in ipairs(views) do
 					local card = areaId .. "." .. view.milestone.id .. " "
 					local state, left = serverCard(profile, areaId, view.milestone.id)
@@ -391,17 +395,25 @@ return function()
 				profile.goldCollection[def.id] = 1000
 				agree(profile)
 			end
-			-- Every page full: every milestone is reachable; a claim ticks its own card, no other.
+			-- Every cat page full: every cat milestone is reachable (a Decor Index page counts crate pieces, none
+			-- owned here); a claim ticks its own card, no other.
 			local open = 0
-			for _ in pairs(Catalog.indexPrizes) do
-				open += #Catalog.indexMilestones
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
+				if string.sub(areaId, 1, 6) ~= "decor_" then
+					for _ in pairs(prizes) do
+						open += 1
+					end
+				end
 			end
 			expect(agree(profile)).to.equal(open)
-			for areaId in pairs(Catalog.indexPrizes) do
-				for _, milestone in ipairs(Catalog.indexMilestones) do
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
+				for milestoneId in pairs(prizes) do
+					local wasReady = SharedRewards.blocker(profile, areaId, milestoneId) == nil
 					profile.indexRewards[areaId] = profile.indexRewards[areaId] or {}
-					profile.indexRewards[areaId][milestone.id] = true
-					open -= 1
+					profile.indexRewards[areaId][milestoneId] = true
+					if wasReady then
+						open -= 1
+					end
 					expect(agree(profile)).to.equal(open)
 				end
 			end

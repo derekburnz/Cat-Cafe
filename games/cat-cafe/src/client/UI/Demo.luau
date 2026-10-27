@@ -10,8 +10,11 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BugReport = require(Shared:WaitForChild("BugReport"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Config = require(Shared:WaitForChild("Config"))
+local DecorPieces = require(script.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Components.IndexRewards)
+local MarketLogic = require(script.Parent.Components.MarketLogic)
 local RankUp = require(script.Parent.Screens.RankUp)
 local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 local Settings = require(Shared:WaitForChild("Settings"))
@@ -98,29 +101,129 @@ local DEMO_INDEX_PRIZES: { [string]: { [string]: Types.IndexPrize } } = {
 	sewer = indexPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
 }
 
--- golden-fish.md section 4's crates, names and pools only, until the engineer's Catalog.crates lands
-local DEMO_CRATES: { [string]: Types.CrateDef } = {}
-for _, pool in { "alley", "park", "neighbourhood", "woods", "sewer", "classic" } do
-	local name = if pool == "alley" then "Alley" else Format.areaName(pool)
-	local plain, golden = pool .. "_crate", pool .. "_golden_crate"
-	DEMO_CRATES[plain] = {
-		id = plain,
-		name = name .. " Crate",
-		area = pool,
-		golden = false,
-		price = 60,
-		odds = {},
-		pieces = {},
-	}
-	DEMO_CRATES[golden] = {
-		id = golden,
-		name = "Golden " .. name .. " Crate",
-		area = pool,
-		golden = true,
-		odds = {},
-		pieces = {},
-	}
+-- golden-fish.md section 4's draft pieces (names can change), until the engineer's F53 pieces land: per crate,
+-- "name/rarity/kind" for its ten cosmetics. They stand in for Catalog.crateDecor and fill the crates, so the
+-- Market's odds card and reveal, the Decor screen's style slots and spots, and the Decor Index have something to
+-- show.
+local DEMO_PIECE_ROWS: { [string]: { string } } = {
+	alley = {
+		"Brick Wall/C/wallpaper",
+		"Midnight Sky/M/wallpaper",
+		"Subway Tile/C/floor",
+		"Puddle Glass/R/floor",
+		"Fire Escape Red/C/paint",
+		"Graffiti Pastel/R/paint",
+		"Milk Crate Stools/C/furniture",
+		"Retro Jukebox/L/furniture",
+		"Jar Lights/R/decoration",
+		"Alley Mural Print/E/decoration",
+	},
+	park = {
+		"Leafy Vines/C/wallpaper",
+		"Meadow Mural/R/wallpaper",
+		"Garden Path/C/floor",
+		"Clover Carpet/R/floor",
+		"Meadow Green/C/paint",
+		"Duck Pond Blue/C/paint",
+		"Picnic Table Set/R/furniture",
+		"Park Bench/E/furniture",
+		"Duck Fountain/L/decoration",
+		"Blossom Tree/M/decoration",
+	},
+	neighbourhood = {
+		"Picket Stripes/C/wallpaper",
+		"Kitchen Gingham/R/wallpaper",
+		"Checker Kitchen/C/floor",
+		"Porch Planks/C/floor",
+		"Pastel Pink/C/paint",
+		"Rainbow Shimmer/M/paint",
+		"Porch Swing/R/furniture",
+		"Ice Cream Counter/L/furniture",
+		"Bicycle Planter/R/decoration",
+		"Mailbox Planter/E/decoration",
+	},
+	woods = {
+		"Birch Bark/C/wallpaper",
+		"Aurora Sky/M/wallpaper",
+		"Mossy Planks/C/floor",
+		"Leaf Litter/R/floor",
+		"Forest Green/C/paint",
+		"Toadstool Red/R/paint",
+		"Log Stools/C/furniture",
+		"Hollow Log Booth/L/furniture",
+		"Lantern Stump/R/decoration",
+		"Mushroom Lamp/E/decoration",
+	},
+	sewer = {
+		"Pipe Works/C/wallpaper",
+		"Bottle Cap Mosaic/R/wallpaper",
+		"Canal Tile/C/floor",
+		"Glimmer Canal/M/floor",
+		"Brass Teal/C/paint",
+		"Copper Patina/R/paint",
+		"Crate Shelf/C/furniture",
+		"Bathtub Sofa/L/furniture",
+		"Rubber Duck Row/R/decoration",
+		"Pipe Fountain/E/decoration",
+	},
+	classic = {
+		"Cream Stripes/C/wallpaper",
+		"Paw Print/R/wallpaper",
+		"Oak Boards/C/floor",
+		"Black and White Tile/C/floor",
+		"Latte Brown/C/paint",
+		"Gold Leaf/M/paint",
+		"Bistro Set/R/furniture",
+		"Velvet Booth/E/furniture",
+		"Hanging Plants/R/decoration",
+		"Cat Tree Tower/L/decoration",
+	},
+}
+local DEMO_RARITY: { [string]: string } =
+	{ C = "Common", R = "Rare", E = "Epic", L = "Legendary", M = "Mythical" }
+local DEMO_BONUS: { [string]: number } =
+	{ Common = 0.02, Rare = 0.04, Epic = 0.08, Legendary = 0.15, Mythical = 0.25 }
+local catalogPieces: { Types.DecorDef }? = (Catalog :: any).crateDecor
+local DEMO_CRATE_DECOR: { Types.DecorDef } = catalogPieces or {}
+local DEMO_POOL_PIECES: { [string]: { string } } = {}
+if catalogPieces == nil then
+	for pool, rows in DEMO_PIECE_ROWS do
+		DEMO_POOL_PIECES[pool] = {}
+		for _, row in rows do
+			local name, letter, kind = row:match("^(.-)/(%a)/(%a+)$")
+			assert(name and letter and kind, row)
+			local rarity = DEMO_RARITY[letter]
+			local id = pool .. "_" .. name:lower():gsub("%W+", "_")
+			local piece: any = {
+				id = id,
+				name = name,
+				cost = 0,
+				category = DecorPieces.kindName(kind),
+				effect = "",
+				description = "",
+				bonus = DEMO_BONUS[rarity],
+				asset = "",
+				source = "crate",
+				crate = pool,
+				rarity = rarity,
+				kind = kind,
+			}
+			table.insert(DEMO_CRATE_DECOR, piece)
+			table.insert(DEMO_POOL_PIECES[pool], id)
+		end
+	end
 end
+local DEMO_CRATES: { Types.CrateDef } = {}
+for _, def in Catalog.crates do
+	local crate = table.clone(def)
+	if #crate.pieces == 0 then
+		crate.pieces = DEMO_POOL_PIECES[crate.area] or {}
+	end
+	table.insert(DEMO_CRATES, crate)
+end
+-- golden-fish.md section 4: a duplicate gives golden fish back by its rarity
+local DEMO_REFUND: { [string]: number } =
+	{ Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 }
 
 -- golden-fish.md section 5b's All Cats page, until the engineer's F54 milestones and prizes land
 local DEMO_ALL_PRIZES: { [string]: Types.IndexPrize } = {
@@ -155,6 +258,12 @@ local function withAllCats(
 	end
 	local outPrizes = table.clone(prizes)
 	outPrizes.all = DEMO_ALL_PRIZES
+	-- golden-fish.md section 4's Decor Index: 25 golden fish at 5 of 10 pieces, +5% tips forever at all 10
+	table.insert(outMilestones, { id = "decor5", needs = 5, track = "normal" })
+	table.insert(outMilestones, { id = "decor10", needs = 10, track = "normal" })
+	for pool in DEMO_PIECE_ROWS do
+		outPrizes[DecorPieces.areaOf(pool)] = { decor5 = { fish = 25 }, decor10 = { bonus = 0.05 } }
+	end
 	return outMilestones, outPrizes
 end
 local demoMilestones, demoPrizes = withAllCats(
@@ -167,6 +276,7 @@ local CATALOG: Types.Catalog = {
 	cats = Catalog.cats,
 	upgrades = Catalog.upgrades,
 	decor = Catalog.decor,
+	crateDecor = DEMO_CRATE_DECOR,
 	lures = Catalog.lures,
 	spots = Catalog.spots,
 	tiers = Catalog.tiers,
@@ -175,9 +285,12 @@ local CATALOG: Types.Catalog = {
 	indexMilestones = demoMilestones,
 	indexPrizes = demoPrizes,
 	spinWheel = (Catalog :: any).spinWheel or DEMO_SPIN_WHEEL,
-	crates = (Catalog :: any).crates or DEMO_CRATES,
+	crates = DEMO_CRATES,
+	fishShop = Catalog.fishShop,
 	rarities = Catalog.rarities,
 }
+-- every decor item, the shop's and the crates', for the demo's ToggleDecor and OpenCrate
+local DEMO_DECOR = DecorPieces.all(CATALOG)
 
 -- data-model section 10: circles and shrink time per rarity, Basic Net windows
 local DEMO_CIRCLES: { [string]: { count: number, shrink: number } } = {
@@ -227,8 +340,26 @@ function Demo.run(UI: any): () -> ()
 		settings = Settings.defaults() :: any,
 		-- today's free spin waiting plus one banked from the Tip Jar, so the wheel spins twice (Y opens it)
 		spin = { lastFreeDay = 0, banked = 1 } :: Types.SpinState,
-		goldenFish = 37,
+		-- enough golden fish for a crate and a perk, a banked Classic Crate and an Alley lucky twentieth one open away
+		-- (M opens the Market)
+		goldenFish = 137,
+		crates = { classic_crate = 1, alley_golden_crate = 1 } :: { [string]: number },
+		crateLuck = { alley = 19 } :: { [string]: number },
+		fishPerks = {} :: { [string]: number },
 	}
+	-- six Alley crate pieces, so the Decor Index's first reward is ready; a wallpaper in use and both Tier 1 decor
+	-- spots taken, so the Retro Jukebox says "Spots full"
+	if DEMO_POOL_PIECES.alley then
+		local owned =
+			{ "brick_wall", "subway_tile", "fire_escape_red", "milk_crate_stools", "jar_lights" }
+		for _, name in owned do
+			profile.decorOwned["alley_" .. name] = true
+		end
+		profile.decorOwned.alley_retro_jukebox = true
+		for _, name in { "brick_wall", "milk_crate_stools", "jar_lights" } do
+			profile.decorPlaced["alley_" .. name] = true
+		end
+	end
 	local starter = uid()
 	profile.cats[starter] = {
 		uid = starter,
@@ -284,6 +415,9 @@ function Demo.run(UI: any): () -> ()
 			settings = profile.settings,
 			spin = { lastFreeDay = profile.spin.lastFreeDay, banked = profile.spin.banked },
 			goldenFish = profile.goldenFish,
+			crates = table.clone(profile.crates),
+			crateLuck = table.clone(profile.crateLuck),
+			fishPerks = table.clone(profile.fishPerks),
 		})
 	end
 
@@ -357,22 +491,19 @@ function Demo.run(UI: any): () -> ()
 					need, gold = IndexRewards.need(milestone), IndexRewards.isGold(milestone)
 				end
 			end
-			local have = 0
-			for _, def in CATALOG.cats do
-				local found = if gold
-					then profile.goldCollection[def.id]
-					else profile.collection[def.id]
-				if
-					(areaId == IndexRewards.ALL_AREA or (def.area or "alley") == areaId) and found
-				then
-					have += 1
-				end
-			end
+			-- the page's count as the client shows it: cats (or gold cats), or a Decor Index page's pieces
+			local counts = IndexRewards.counts(CATALOG, UI.getState(), areaId)
+			local have = if gold then counts.gold else counts.found
 			if have < need then
-				UI.toast("Find more cats first", "warn")
+				UI.toast("Find more first", "warn")
 				return
 			end
 			profile.money += prize.coins or 0
+			profile.goldenFish += prize.fish or 0
+			local crates: { [string]: number } = prize.crates or {}
+			for crateId, count in crates do
+				profile.crates[crateId] = (profile.crates[crateId] or 0) + count
+			end
 			local lures: { [string]: number } = prize.lures or {}
 			for lureId, count in lures do
 				profile.lures[lureId] = (profile.lures[lureId] or 0) + count
@@ -416,12 +547,35 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 	end)
+	-- ToggleDecor (F53): a wallpaper, floor or paint takes the place of the one in use; furniture and decorations
+	-- need a free decor spot
 	connections[#connections + 1] = UI.events.toggleDecor:Connect(
 		function(decorId: string, placed: boolean)
-			if profile.decorOwned[decorId] then
-				profile.decorPlaced[decorId] = placed
-				push()
+			if not profile.decorOwned[decorId] then
+				return
 			end
+			local def: Types.DecorDef? = nil
+			for _, entry in DEMO_DECOR do
+				if entry.id == decorId then
+					def = entry
+				end
+			end
+			local kind = DecorPieces.info(def).kind
+			if placed and DecorPieces.isStyle(kind) then
+				for _, other in DEMO_DECOR do
+					if DecorPieces.info(other).kind == kind then
+						profile.decorPlaced[other.id] = false
+					end
+				end
+			elseif placed and kind then
+				local spots = DecorPieces.spots(profile.tier, profile.fishPerks)
+				if DecorPieces.spotsUsed(DEMO_DECOR, profile.decorPlaced) >= spots then
+					UI.toast("Every decor spot is taken", "warn")
+					return
+				end
+			end
+			profile.decorPlaced[decorId] = placed
+			push()
 		end
 	)
 	connections[#connections + 1] = UI.events.buyLure:Connect(function(lureId: string)
@@ -600,12 +754,99 @@ function Demo.run(UI: any): () -> ()
 		push()
 		task.delay(0.2, UI.spin.result, picked.slice, amount)
 	end)
+	-- OpenCrate as the server runs it (golden-fish.md section 8): a banked crate first, else its price in fish; the
+	-- lucky twentieth opens on the golden odds; a duplicate pays its rarity's refund; a refusal is ("", false, 0).
+	local cratesById: { [string]: Types.CrateDef } = {}
+	local goldenOdds: { [string]: { [string]: number } } = {}
+	for _, crate in DEMO_CRATES do
+		cratesById[crate.id] = crate
+		if crate.golden then
+			goldenOdds[crate.area] = crate.odds
+		end
+	end
+	local rarityOf: { [string]: string } = {}
+	for _, piece in DEMO_DECOR do
+		rarityOf[piece.id] = (piece :: any).rarity
+	end
+	local lastOpen = -math.huge
+	connections[#connections + 1] = UI.events.openCrate:Connect(function(crateId: string)
+		local crate = cratesById[crateId]
+		local banked = profile.crates[crateId] or 0
+		local areas: { MarketLogic.Area } = (CATALOG.areas or {}) :: any
+		if
+			crate == nil
+			or os.clock() - lastOpen < 2
+			or not MarketLogic.isOpen(crate, profile.tier, areas)
+			or (banked < 1 and (crate.price == nil or profile.goldenFish < crate.price))
+		then
+			UI.toast("Not enough golden fish", "warn")
+			task.delay(0.2, UI.market.result, crateId, "", false, 0)
+			return
+		end
+		lastOpen = os.clock()
+		if banked > 0 then
+			profile.crates[crateId] = banked - 1
+		else
+			profile.goldenFish -= crate.price or 0
+		end
+		local luck = profile.crateLuck[crate.area]
+		local odds =
+			MarketLogic.nextOdds(crate, luck, Config.CrateLuckyEvery, goldenOdds[crate.area])
+		local chances = MarketLogic.pieceChances(crate.pieces, function(id: string): string?
+			return rarityOf[id]
+		end, odds)
+		local roll = math.random() * 100
+		local picked = chances[#chances]
+		for _, chance in chances do
+			roll -= chance.percent
+			if roll < 0 then
+				picked = chance
+				break
+			end
+		end
+		local lucky = picked.rarity ~= "Common" and picked.rarity ~= "Rare" -- Epic or better
+		profile.crateLuck[crate.area] = if lucky then 0 else (luck or 0) + 1
+		local duplicate = profile.decorOwned[picked.id] == true
+		local refund = if duplicate then DEMO_REFUND[picked.rarity] or 0 else 0
+		if duplicate then
+			profile.goldenFish += refund
+		else
+			profile.decorOwned[picked.id] = true
+		end
+		push()
+		task.delay(0.2, UI.market.result, crateId, picked.id, duplicate, refund)
+	end)
+	-- BuyFishItem: a known row, affordable and below its max level; a perk goes up a level, a food goes in the bag
+	connections[#connections + 1] = UI.events.buyFishItem:Connect(function(itemId: string)
+		local row: Types.FishShopRow? = nil
+		local rows: { Types.FishShopRow } = CATALOG.fishShop or {}
+		for _, entry in rows do
+			if entry.id == itemId then
+				row = entry
+			end
+		end
+		local level = profile.fishPerks[itemId]
+		local cost = if row then MarketLogic.cost(row, level) else nil
+		if row == nil or cost == nil or profile.goldenFish < cost then
+			UI.toast("Not enough golden fish", "warn")
+			return
+		end
+		profile.goldenFish -= cost
+		if row.kind == "perk" then
+			profile.fishPerks[itemId] = (level or 0) + 1
+		else
+			profile.lures[itemId] = (profile.lures[itemId] or 0) + 1
+		end
+		push()
+	end)
 	connections[#connections + 1] = UserInputService.InputBegan:Connect(
 		function(input: InputObject, processed: boolean)
 			if not processed and input.KeyCode == Enum.KeyCode.N then
 				UI.dealer.open()
 			elseif not processed and input.KeyCode == Enum.KeyCode.Y then
 				UI.spin.open()
+			elseif not processed and input.KeyCode == Enum.KeyCode.M then
+				UI.market.open()
 			end
 		end
 	)

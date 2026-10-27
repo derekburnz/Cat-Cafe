@@ -6,7 +6,11 @@
 --          the order they open (Components/StaffSlots): the working cat's initial on its rarity colour, a green
 --          "+" for a free slot (a tap opens the cat room) or a grey lock with the tier that opens it. A rank up
 --          card on top names the next tier and what it opens; its button opens the rank up card.
--- Rows are built once per catalog and only their text, colours and buttons change on render.
+-- Rows are built once per catalog and only their text, colours and buttons change on render. When a row's level goes
+-- up its price button pops, the new stars pop in and flash mint before turning gold, and the row flashes mint, in
+-- step with the sparkle VFX plays where the upgrade shows in the cafe (Reduce Motion keeps only the colour flash).
+
+local GuiService = game:GetService("GuiService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -16,7 +20,10 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local RankUp = require(script.Parent.RankUp)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
+local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+
+local FLASH = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 export type Links = {
 	openCatRoom: () -> (), -- a free slot's "+" and Add cat
@@ -495,8 +502,14 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		end
 		local locked = needsTier ~= nil and tier < (needsTier :: number)
 
-		for index, star in row.stars do
-			star.TextColor3 = if index <= level then Theme.colors.gold else Theme.colors.line
+		local before: number? = row.level
+		row.level = level
+		if before ~= nil and level > before then
+			self:_celebrate(row, before, level)
+		else
+			for index, star in row.stars do
+				star.TextColor3 = if index <= level then Theme.colors.gold else Theme.colors.line
+			end
 		end
 
 		if isMax then
@@ -513,6 +526,29 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			row.buy:setEnabled(state.money >= nextCost)
 		end
 	end
+end
+
+-- A level bought: the price button pops, the stars from `before` + 1 to `level` pop in mint and settle gold, and
+-- the row flashes mint. Reduce Motion keeps the colours and drops the pops.
+function UpgradeShop._celebrate(_self: any, row: any, before: number, level: number)
+	local calm = GuiService.ReducedMotionEnabled
+	if not calm then
+		Tween.popIn(row.buy.instance, 0.85)
+	end
+	for index, star: TextLabel in row.stars do
+		if index > before and index <= level then
+			star.TextColor3 = Theme.colors.mint
+			Tween.to(star, FLASH, { TextColor3 = Theme.colors.gold })
+			if not calm then
+				Tween.popIn(star, 0.4)
+			end
+		else
+			star.TextColor3 = if index <= level then Theme.colors.gold else Theme.colors.line
+		end
+	end
+	local frame: Frame = row.frame
+	frame.BackgroundColor3 = Theme.colors.mint
+	Tween.to(frame, FLASH, { BackgroundColor3 = Theme.modal.card })
 end
 
 function UpgradeShop._renderStaff(self: any, state: Types.PlayerState)

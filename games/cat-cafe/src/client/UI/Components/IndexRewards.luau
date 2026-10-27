@@ -11,8 +11,12 @@
 -- (gold1 to gold10), milestone rows { id, track, needs }, and an "All Cats" page (area id "all", total5 to
 -- total50) that counts different cats across every area. Both row shapes are read here, so the UI works before
 -- and after the engineer's catalog change.
+--
+-- F53 (golden-fish.md section 4) adds the Decor Index: area ids "decor_alley" to "decor_classic" with decor5 and
+-- decor10, counted from the owned pieces of that crate (Components/DecorPieces).
 
 local CatVariant = require(script.Parent.CatVariant)
+local DecorPieces = require(script.Parent.DecorPieces)
 local Types = require(script.Parent.Parent.Types)
 
 export type Milestone = Types.IndexMilestone
@@ -88,8 +92,14 @@ function IndexRewards.track(milestone: Milestone): Track
 	return if IndexRewards.isGold(milestone) then "gold" else "normal"
 end
 
--- The area's cats in the catalog and how many are found and gold. The "all" page counts every area's cats.
+-- The area's cats in the catalog and how many are found and gold. The "all" page counts every area's cats, and a
+-- Decor Index page its crate's pieces and how many the player owns.
 function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Counts
+	local pool = DecorPieces.poolOf(areaId)
+	if pool then
+		local owned, total = DecorPieces.pageCounts(catalog, state, pool)
+		return { total = total, found = owned, gold = 0 }
+	end
 	local collection: { [string]: number } = state.collection or {}
 	local gold = CatVariant.collection(state)
 	local counts: Counts = { total = 0, found = 0, gold = 0 }
@@ -167,10 +177,13 @@ function IndexRewards.claimable(catalog: Catalog, state: State): ({ [string]: nu
 end
 
 -- "3 cats", "All 10", "All 10 gold"; "5 gold" for a gold milestone short of the whole page.
--- "1 cat" for a milestone of one (the gold track starts at "1 gold").
-function IndexRewards.needLabel(milestone: Milestone, total: number): string
+-- "1 cat" for a milestone of one (the gold track starts at "1 gold"). On a Decor Index page "5 pieces".
+function IndexRewards.needLabel(milestone: Milestone, total: number, areaId: string?): string
 	local need = IndexRewards.need(milestone)
 	local all = total > 0 and need >= total
+	if areaId and DecorPieces.poolOf(areaId) then
+		return if all then ("All %d"):format(need) else ("%d pieces"):format(need)
+	end
 	if IndexRewards.isGold(milestone) then
 		return if all then ("All %d gold"):format(need) else ("%d gold"):format(need)
 	end

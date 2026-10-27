@@ -32,6 +32,7 @@ local ClientErrors = require(script.Components.ClientErrors)
 local Create = require(script.Components.Create)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
+local FishMarket = require(script.Screens.FishMarket)
 local Format = require(script.Components.Format)
 local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
@@ -102,6 +103,8 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
+	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 }
@@ -161,6 +164,7 @@ local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), 
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
+local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
@@ -233,6 +237,9 @@ local function render()
 	if spinScreen then
 		spinScreen:render(state)
 	end
+	if marketScreen then
+		marketScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -273,6 +280,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if spinScreen then
 		spinScreen:setCatalog(newCatalog)
+	end
+	if marketScreen then
+		marketScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -587,6 +597,30 @@ function UI.init(config: Types.InitConfig)
 			spinView:render(state)
 		end,
 	})
+	marketScreen = FishMarket.new({
+		openCrate = function(crateId: string)
+			UI.events.openCrate:Fire(crateId)
+		end,
+		buyItem = function(itemId: string)
+			UI.events.buyFishItem:Fire(itemId)
+		end,
+		useDecor = function(decorId: string)
+			UI.events.toggleDecor:Fire(decorId, true)
+		end,
+		toast = function(text: string)
+			if toasts then
+				toasts:show(text, "good")
+			end
+		end,
+		close = closeModal,
+	})
+	local marketView = marketScreen :: FishMarket.FishMarket
+	modalInstance:register("Market", {
+		frame = marketView.frame,
+		onOpen = function()
+			marketView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -758,6 +792,10 @@ function UI.destroy()
 		spinScreen:destroy()
 	end
 	spinScreen = nil
+	if marketScreen then
+		marketScreen:destroy()
+	end
+	marketScreen = nil
 	if bugReportScreen then
 		bugReportScreen:destroy()
 	end
@@ -1204,6 +1242,30 @@ end
 function UI.spin.result(slice: number, amount: number)
 	if spinScreen then
 		spinScreen:result(slice, amount)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Golden Fish Market (F53, golden-fish.md sections 3 and 4)
+----------------------------------------------------------------------------------------------------
+
+UI.market = {}
+
+-- Opens the Market window: call it from the stall's "Market" prompt (FishMarket tag, Triggered). It reads
+-- goldenFish, crates, crateLuck, fishPerks and lures from ProfileSync and Catalog.crates and Catalog.fishShop;
+-- walking out of range closes it again.
+function UI.market.open()
+	if modal then
+		modal:open("Market")
+	end
+end
+
+-- From CrateResult(crateId, decorId, duplicate, refund): plays the reveal for the won piece, with "+N golden fish
+-- back" for a duplicate. A refusal is CrateResult(crateId, "", false, 0): the Open button frees up and the server's
+-- toast says why. A result that lands while the window is closed is a toast.
+function UI.market.result(crateId: string, decorId: string, duplicate: boolean, refund: number)
+	if marketScreen then
+		marketScreen:result(crateId, decorId, duplicate, refund)
 	end
 end
 

@@ -40,11 +40,16 @@ export type Catalog = {
 	indexPrizes: { [string]: { [string]: IndexPrize } }?, -- F48: area id -> milestone id -> prize (S61: not indexRewards)
 	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
 	spinWheel: { SpinRow }?, -- F49: the Spin Wheel's six slices, clockwise from the top (data-model section 11c)
-	crates: { [string]: CrateDef }?, -- F53: Catalog.crates, the Cafe Crates by id (golden-fish.md section 4)
+	crates: { CrateDef }?, -- F53: Catalog.crates, the Cafe Crates in Market order (golden-fish.md section 4)
+	fishShop: { FishShopRow }?, -- F53: Catalog.fishShop, what golden fish buy at the Market (section 3)
+	crateDecor: { DecorDef }?, -- F53: Catalog.crateDecor, the crate pieces that are not in Catalog.decor
 }
 
 -- A Cafe Crate (F53): ten cosmetics of one pool (a zone id or "classic"); golden ones are Epic or better.
 export type CrateDef = SharedTypes.CrateDef
+
+-- One row of the Golden Fish Market (F53): a crate, a food or a perk with a cost per level.
+export type FishShopRow = SharedTypes.FishShopRow
 
 -- One Spin Wheel slice (F49): the Tip Jar row's prize plus a weight; the weights add up to 100.
 export type SpinRow = {
@@ -202,6 +207,7 @@ export type ScreenName =
 	| "Settings"
 	| "TipJar"
 	| "Spin"
+	| "Market"
 	| "BugReport"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"

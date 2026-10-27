@@ -44,6 +44,7 @@ export type PartKind =
 	| "tag"
 	| "decor"
 	| "bonus"
+	| "potion"
 	| "other"
 export type PrizePart = { kind: PartKind, id: string?, amount: number }
 export type Track = "normal" | "gold"
@@ -66,6 +67,7 @@ local KNOWN_FIELDS = {
 	bonus = true,
 	tag = true,
 	decorId = true,
+	potions = true,
 }
 
 local IndexRewards = {}
@@ -216,9 +218,9 @@ function IndexRewards.coins(prize: Prize, dayRate: number?): number
 end
 
 -- What a prize pays, one part per thing, in a steady order: coins (at `dayRate` when the prize grows with the
--- cafe), golden fish, foods (by id), spins, crates (by id), the name tag, the decor piece, the tips-forever bonus,
--- then any number field the UI does not know yet (Derek 2026-10-27: Index rewards give crates and wheel spins
--- rather than decor outright; golden-fish.md section 5 adds fish, bonuses and a tag).
+-- cafe), golden fish, foods (by id), spins, crates (by id), potions (by id), the name tag, the decor piece, the
+-- tips-forever bonus, then any number field the UI does not know yet (Derek 2026-10-27: Index rewards give crates
+-- and wheel spins rather than decor outright; golden-fish.md section 5 adds fish, bonuses and a tag).
 function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 	local parts: { PrizePart } = {}
 	local coins = IndexRewards.coins(prize, dayRate)
@@ -249,6 +251,20 @@ function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 		return (a.id or "") < (b.id or "")
 	end)
 	for _, part in crateParts do
+		table.insert(parts, part)
+	end
+	-- v0.10 potions (the Tip Jar's step 12, codes and the Daily Treat), by id
+	local potions: { [string]: number } = prize.potions or {}
+	local potionParts: { PrizePart } = {}
+	for id, count in potions do
+		if count > 0 then
+			table.insert(potionParts, { kind = "potion" :: PartKind, id = id, amount = count })
+		end
+	end
+	table.sort(potionParts, function(a: PrizePart, b: PrizePart): boolean
+		return (a.id or "") < (b.id or "")
+	end)
+	for _, part in potionParts do
 		table.insert(parts, part)
 	end
 	local tag = prize.tag

@@ -15,6 +15,7 @@ local IndexRewards = require(script.Parent.Components.IndexRewards)
 local RankUp = require(script.Parent.Screens.RankUp)
 local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 local Settings = require(Shared:WaitForChild("Settings"))
+local TipJarLogic = require(script.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Types)
 
 local Demo = {}
@@ -23,21 +24,40 @@ local function now(): number
 	return os.time()
 end
 
--- data-model section 11b's Tip Jar rows, until the engineer's Catalog.tipJar lands
+-- data-model section 11b's Tip Jar rows in the v0.10 prize shape (F68), until the engineer's Catalog.tipJar moves over
 local DEMO_TIP_JAR: { Types.TipJarRow } = {
-	{ step = 1, minutes = 2, kind = "coins", seconds = 30, minCoins = 50 },
-	{ step = 2, minutes = 5, kind = "lure", lureId = "kibble", count = 2 },
-	{ step = 3, minutes = 10, kind = "coins", seconds = 60, minCoins = 100 },
-	{ step = 4, minutes = 15, kind = "lure", lureId = "tuna", count = 1 },
-	{ step = 5, minutes = 20, kind = "coins", seconds = 90, minCoins = 150 },
-	{ step = 6, minutes = 30, kind = "lure", lureId = "tuna", count = 2 },
-	{ step = 7, minutes = 40, kind = "coins", seconds = 120, minCoins = 250 },
-	{ step = 8, minutes = 50, kind = "lure", lureId = "salmon", count = 1 },
-	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
-	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
-	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600, spins = 1 },
-	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1, spins = 1, fish = 5 },
+	{ step = 1, minutes = 2, prize = { coins = 50, coinSeconds = 30 } },
+	{ step = 2, minutes = 5, prize = { lures = { kibble = 2 } } },
+	{ step = 3, minutes = 10, prize = { coins = 100, coinSeconds = 60 } },
+	{ step = 4, minutes = 15, prize = { lures = { tuna = 1 } } },
+	{ step = 5, minutes = 20, prize = { coins = 150, coinSeconds = 90 } },
+	{ step = 6, minutes = 30, prize = { lures = { tuna = 2 } } },
+	{ step = 7, minutes = 40, prize = { coins = 250, coinSeconds = 120 } },
+	{ step = 8, minutes = 50, prize = { lures = { salmon = 1 } } },
+	{ step = 9, minutes = 60, prize = { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 } },
+	{ step = 10, minutes = 75, prize = { lures = { sardines = 1 } } },
+	{ step = 11, minutes = 90, prize = { coins = 600, coinSeconds = 300, spins = 1 } },
+	{
+		step = 12,
+		minutes = 120,
+		prize = {
+			lures = { caviar = 1 },
+			crates = { classic_crate = 1 },
+			fish = 25,
+			spins = 2,
+			potions = { tip_potion = 1 },
+		},
+	},
 }
+
+-- The engineer's Tip Jar once its rows carry F68's prizes, else the demo's.
+local function tipJarRows(): { Types.TipJarRow }
+	local rows: { Types.TipJarRow }? = (Catalog :: any).tipJar
+	if rows and rows[1] and rows[1].prize then
+		return rows
+	end
+	return DEMO_TIP_JAR
+end
 
 -- data-model section 11c's Spin Wheel slices, until the engineer's Catalog.spinWheel lands
 local DEMO_SPIN_WHEEL: { Types.SpinRow } = {
@@ -151,7 +171,7 @@ local CATALOG: Types.Catalog = {
 	spots = Catalog.spots,
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
-	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
+	tipJar = tipJarRows(),
 	indexMilestones = demoMilestones,
 	indexPrizes = demoPrizes,
 	spinWheel = (Catalog :: any).spinWheel or DEMO_SPIN_WHEEL,
@@ -292,17 +312,27 @@ function Demo.run(UI: any): () -> ()
 			if row.step ~= step or claimed[step] or not due then
 				continue
 			end
-			if row.kind == "coins" then
-				local coins = math.max(row.minCoins or 0, math.floor(rate() * (row.seconds or 0)))
-				profile.money += coins
-				UI.toast(("Tip Jar: +%s"):format(Format.money(coins)), "good")
-			elseif row.lureId then
-				profile.lures[row.lureId] = (profile.lures[row.lureId] or 0) + (row.count or 1)
-				UI.toast("Tip Jar: a food for your bait bowl", "good")
+			-- pays every part of the gift (F68); crates and potions only show in the toast here
+			local prize = TipJarLogic.prize(row)
+			local coins = IndexRewards.coins(prize, rate())
+			profile.money += coins
+			local lures: { [string]: number } = prize.lures or {}
+			for lureId, count in lures do
+				profile.lures[lureId] = (profile.lures[lureId] or 0) + count
 			end
-			if (row.spins or 0) > 0 then
-				profile.spin.banked = math.min(20, profile.spin.banked + (row.spins or 0))
+			profile.goldenFish += prize.fish or 0
+			if (prize.spins or 0) > 0 then
+				profile.spin.banked = math.min(20, profile.spin.banked + (prize.spins or 0))
 			end
+			local parts = #IndexRewards.prizeParts(prize, rate())
+			UI.toast(
+				if parts > 1
+					then ("Tip Jar: %d gifts claimed!"):format(parts)
+					else ("Tip Jar: +%s"):format(
+						if coins > 0 then Format.money(coins) else "a food for your bait bowl"
+					),
+				"good"
+			)
 			claimed[step] = true
 			jar = { sessionStartedAt = jar.sessionStartedAt, claimed = claimed }
 			task.delay(0.3, function()

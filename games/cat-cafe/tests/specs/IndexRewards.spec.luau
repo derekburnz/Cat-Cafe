@@ -210,6 +210,16 @@ return function()
 			)
 		end)
 
+		it("shows potions after the crates, by id (v0.10)", function()
+			local prize = {
+				crates = { classic_crate = 1 },
+				potions = { tip_potion = 1, luck_potion = 2, none = 0 },
+			}
+			expect(kinds(IndexRewards.prizeParts(prize))).to.equal(
+				"crate:classic_crate=1,potion:luck_potion=2,potion:tip_potion=1"
+			)
+		end)
+
 		it("shows a prize kind it does not know yet, and skips empty amounts", function()
 			local prize = { goldenFish = 5, coins = 0, lures = { tuna = 0 }, spins = 0, note = "x" }
 			expect(kinds(IndexRewards.prizeParts(prize))).to.equal("other:goldenFish=5")

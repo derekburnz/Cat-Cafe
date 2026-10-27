@@ -185,7 +185,7 @@ Row 9, eyes, noses and markings for the coats.
 |---|---|---|
 | Cat | 1.0 x 2.6 x 1.8 | nose to tail tip 2.6, head top at 1.5, ear tips at 1.8. Ragdoll is 1.2 times this |
 | Customer NPC | 2.0 x 1.0 x 5.0 | Roblox blocky proportions: legs 2, torso 2, head 1 |
-| Counter | 8.0 x 2.6 x 3.0 | hero asset. Espresso machine sits on top at the left end |
+| Counter | 8.0 x 2.6 x 3.0 | hero asset. Espresso machine sits on top at the left end, the pastry case at the right end; the barista cat's pad (sit point) is between them, behind the tip jar |
 | Espresso machine | 1.4 x 1.0 x 1.4 (L1, L2), 2.0 x 1.0 x 1.7 (L3) | three upgrade looks: painted, chrome trim, double boiler |
 | Table round | 3.5 dia x 2.6 | |
 | Table square | 3.0 x 3.0 x 2.6 | |

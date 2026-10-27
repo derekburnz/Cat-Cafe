@@ -1,7 +1,7 @@
 # Merge queue for Cat Cafe PRs. A thread adds the `automerge` label once its PR would be merged by hand except
 # for waiting on CI (project rule: green CI on a head that includes the latest main, review findings addressed).
-# This workflow handles the moment the label goes on; the last job of check.yml handles every later CI run.
-# The rules live in .github/scripts/automerge.sh.
+# When the label goes on, this workflow only starts check.yml on the PR's branch; the last job of that run (and of
+# every later run on the PR) merges. The rules live in .github/scripts/automerge.sh.
 name: automerge
 
 on:
@@ -12,7 +12,6 @@ permissions:
   contents: write
   pull-requests: write
   actions: write
-  checks: read
 
 concurrency:
   group: automerge-${{ github.event.pull_request.number }}
@@ -20,18 +19,17 @@ concurrency:
 
 jobs:
   automerge:
-    # Same name as check.yml's last job, so the script can leave both out when it reads the head's checks.
     name: Merge if labeled automerge
     if: github.event.label.name == 'automerge'
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v5
         with:
           sparse-checkout: .github/scripts
-      # --wait: the label often goes on while the push's CI is still running, and that run's last job skipped
-      # itself because the label was not there when it started.
-      - run: bash .github/scripts/automerge.sh "${{ github.event.pull_request.number }}" --wait
+      # A run of check.yml that was already going when the label went on skips its last job (no label at push
+      # time), so the script starts a fresh one.
+      - run: bash .github/scripts/automerge.sh "${{ github.event.pull_request.number }}"
         env:
           GH_TOKEN: ${{ github.token }}
           AUTO_PUBLISH: ${{ vars.AUTO_PUBLISH }}

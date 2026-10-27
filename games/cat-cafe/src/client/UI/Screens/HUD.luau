@@ -59,7 +59,7 @@ local CAFE_HEIGHT = 56
 local TRAVEL_W = 120
 local TRAVEL_H = 46
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
-local TRAVEL_COOLDOWN: number = (Config :: any).TravelCooldownSeconds or 3
+local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
 local LURE_ROW = 70
 -- right column: cats pill (52), clock chip (40), then the next goal card; the night tips chip pushes it down
 local CLOCK_TOP = MARGIN + 52 + Theme.sizes.gap

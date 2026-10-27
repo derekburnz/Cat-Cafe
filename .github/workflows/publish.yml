@@ -1,0 +1,79 @@
+# Publish Cat Cafe to Roblox from GitHub, with no Studio window (Open Cloud place publishing).
+# Start it from the Actions tab (publish > Run workflow) or from any thread with the GitHub actions_run_trigger
+# tool. Needs the repo secret ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 15). With the repo variable
+# AUTO_PUBLISH set to true, every main commit whose check run passed also goes live.
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Published goes live for players; Saved only adds a version to the place history"
+        type: choice
+        options: [Published, Saved]
+        default: Published
+  workflow_run:
+    workflows: [check]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+  PLACE_ID: "119569792798199" # its start place
+
+jobs:
+  publish:
+    name: Build with Rojo, engine smoke test, upload
+    # workflow_run fires for every finished check run on main; only a passing push to main publishes, and only
+    # when AUTO_PUBLISH is on. The automerge script starts this workflow itself after it merges.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (vars.AUTO_PUBLISH == 'true' && github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+    defaults:
+      run:
+        working-directory: games/cat-cafe
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Check the publish key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: Install Rokit
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+
+      - name: Install the pinned toolchain (rokit.toml)
+        run: rokit install --no-trust-check
+
+      - name: Build the place (default.project.json, no tests)
+        run: rojo build default.project.json -o CatCafe.rbxl
+
+      - name: Upload a Saved version
+        id: saved
+        run: bash tools/opencloud/publish.sh Saved CatCafe.rbxl
+
+      # Loads every server and shared module and builds the world in a real Roblox server. Report only until it
+      # has passed once on Roblox; then drop continue-on-error so a failing smoke test stops the publish.
+      - name: Engine smoke test (Open Cloud Luau Execution)
+        continue-on-error: true
+        run: bash tools/opencloud/run-luau.sh tools/opencloud/Smoke.luau "${{ steps.saved.outputs.version }}"
+
+      - name: Publish (goes live)
+        if: github.event_name != 'workflow_dispatch' || inputs.version_type == 'Published'
+        run: bash tools/opencloud/publish.sh Published CatCafe.rbxl

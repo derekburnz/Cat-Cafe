@@ -91,6 +91,17 @@ return function()
 			expect(Logic.asleep("nap") and Logic.asleep("doze")).to.equal(true)
 			expect(Logic.asleep("loaf") or Logic.asleep("sit") or Logic.asleep(nil)).to.equal(false)
 		end)
+
+		it("stretches on waking, not between a nap and a loaf", function()
+			expect(Logic.wakes("nap", "stray")).to.equal(true)
+			expect(Logic.wakes("doze", "waiter")).to.equal(true)
+			expect(Logic.wakes("doze", "sit")).to.equal(true)
+			expect(Logic.wakes("nap", "loaf")).to.equal(false) -- review S71
+			expect(Logic.wakes("loaf", "nap")).to.equal(false)
+			expect(Logic.wakes("loaf", "stray")).to.equal(false) -- a loafing cat is already awake
+			expect(Logic.wakes("doze", "nap")).to.equal(false)
+			expect(Logic.wakes(nil, "sit")).to.equal(false)
+		end)
 	end)
 
 	describe("Effects walk", function()

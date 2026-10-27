@@ -223,7 +223,7 @@ for _, segment in scenario.segments do
 			if Logic.settleSeconds then
 				settleFor = Logic.settleSeconds(style, segment.style)
 			end
-			if Logic.asleep and Logic.asleep(style) and not Logic.asleep(segment.style) then
+			if Logic.wakes and Logic.wakes(style, segment.style) then
 				stretchAt = clock + Presets.motion.stretch.wakeDelay
 			end
 			from = style

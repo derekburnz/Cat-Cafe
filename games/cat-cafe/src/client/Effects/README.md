@@ -50,7 +50,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Blinks and ear flicks | every cat with `Eye1`/`Eye2` and `EarL`/`EarR` pieces (or parts): a blink about every 4 s, eyes shut asleep or dozing and half shut in a loaf; an ear flick every 5 to 8 s, half as often asleep |
 | Doze on its feet or seat | the nap rule on a cat with `Pose = "upright"` (F25) or `Pose = "sit"` (PR #260): head droop and nod, no sink; `Pose` changing rebinds the cat |
 | Walk, trot and gallop | the speed the server moves the cat: one leg at a time below 3.4 studs a second, a trot from 4, a gallop from 9, full at 18 |
-| Stretch | leaving a nap or a doze (style change); a `Stray` standing still, every 35 to 80 s |
+| Stretch | leaving a nap or a doze for anything but a loaf (style change, `Logic.wakes`); a `Stray` standing still, every 35 to 80 s |
 | Pant | a `Stray` standing still while its `FleeingUntil` is ahead of the server time |
 | Gold sparkle | `Gold = true` (or the old `Shiny = true`) on a stray, a working or napping cat, or a player's `HeldCat` |
 | Gold burst | a gold `HeldCat` appearing (a gold cat caught or rescued), or `Gold` (or `Shiny`) turning true |

@@ -543,13 +543,12 @@ local function pick()
 				entry.from = entry.style
 				entry.changedAt = os.clock()
 				entry.settleFor = Logic.settleSeconds(entry.style, style)
-				-- waking up: it gets up and has a good stretch
-				if
-					Logic.asleep(entry.style)
-					and not Logic.asleep(style)
-					and entry.hissAt == nil
-				then
-					entry.stretchAt = entry.changedAt + Presets.motion.stretch.wakeDelay
+				-- waking up: it gets up and has a good stretch, each cat in its own time
+				if Logic.wakes(entry.style, style) and entry.hissAt == nil then
+					local s = Presets.motion.stretch
+					entry.stretchAt = entry.changedAt
+						+ s.wakeDelay
+						+ rng:NextNumber(0, s.wakeSpread)
 					entry.stretchWeight = 1
 				end
 				entry.style = style

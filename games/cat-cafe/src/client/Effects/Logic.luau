@@ -567,6 +567,12 @@ function Logic.asleep(style: Style?): boolean
 	return style == "nap" or style == "doze"
 end
 
+-- Whether a change of style is waking up: out of a nap or a doze into anything but rest. A resting cat turning
+-- between its nap and its loaf stays at rest and does not stand up to stretch (review S71).
+function Logic.wakes(from: Style?, to: Style): boolean
+	return Logic.asleep(from) and not (Logic.asleep(to) or to == "loaf")
+end
+
 -- How long a cat takes to settle from one style into the next: lying down is slow, getting up a little quicker,
 -- anything else motion.settle.
 function Logic.settleSeconds(from: Style?, to: Style): number

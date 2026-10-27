@@ -23,11 +23,16 @@ return {
 		attributes = { Pose = "sit" },
 		segments = { { style = "doze", seconds = 7.2 } },
 	},
-	-- A resting cat waking from its nap: it gets up, stretches (bow, then each back leg) and sits up into a loaf.
-	wake = {
+	-- A resting cafe cat by day: asleep, it sits up into its loaf for a while and curls back up. It is still resting,
+	-- so no stretch (review S71); lying back down is the slower settle.
+	loaf = {
 		model = "CatCafe_Cat_Tabby",
-		camera = "side",
-		segments = { { style = "nap", seconds = 1.5 }, { style = "loaf", seconds = 5.5 } },
+		camera = "three",
+		segments = {
+			{ style = "nap", seconds = 1.5 },
+			{ style = "loaf", seconds = 4.5 },
+			{ style = "nap", seconds = 3.5 },
+		},
 	},
 	-- A stray standing still having a stretch.
 	stretch = {
@@ -35,23 +40,13 @@ return {
 		camera = "side",
 		segments = { { style = "stray", seconds = 4, stretch = true } },
 	},
-	-- A working cat waking at dawn on the sitting body: the seated reach and yawn.
+	-- A waiter waking at dawn in its seat at the station: the seated reach and yawn, then back to work.
 	wakeSit = {
 		model = "CatCafe_Cat_Tabby_Sit",
 		role = "waiter",
 		camera = "three",
 		attributes = { Pose = "sit" },
-		segments = { { style = "doze", seconds = 1.5 }, { style = "sit", seconds = 4.5 } },
-	},
-	-- Lying down and getting up again: standing, settling into the nap, then waking.
-	lieDown = {
-		model = "CatCafe_Cat_Tabby",
-		camera = "three",
-		segments = {
-			{ style = "stray", seconds = 1 },
-			{ style = "nap", seconds = 3.5 },
-			{ style = "stray", seconds = 4.5 },
-		},
+		segments = { { style = "doze", seconds = 1.5 }, { style = "waiter", seconds = 4.5 } },
 	},
 	-- A stray wandering at StrayWanderSpeed (3, a walk), then trotting, then standing.
 	walk = {

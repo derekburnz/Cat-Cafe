@@ -401,6 +401,7 @@ Presets.motion = {
 		lean = 8,
 		reachUp = 85,
 		wakeDelay = 0.4, -- seconds after waking before it stretches
+		wakeSpread = 1.5, -- and up to this much more, per cat, so a room waking at dawn does not stretch in unison
 		every = 35,
 		everyMax = 80,
 	},

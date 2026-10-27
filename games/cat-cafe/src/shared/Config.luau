@@ -83,6 +83,9 @@ local Config = {
 	NormalWalkSpeed = 20,
 	CheckInRangeStuds = 8,
 	StrayWanderRadius = 5,
+	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
+	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
+	StraySpawnSpacingStuds = 12,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
 	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window.

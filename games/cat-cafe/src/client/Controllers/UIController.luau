@@ -398,6 +398,7 @@ local function applyState(s: Types.PlayerState)
 		tutorialStep = s.tutorialStep,
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
+		spin = s.spin, -- F49: the free spin and the banked ones, for the Spin window
 	})
 	-- After the first sync, music and sound follow the Settings switches rather than each sync; the purr follows the
 	-- server's carry state.
@@ -442,6 +443,10 @@ local function wireIntents()
 	end)
 	UI.events.claimTipJar:Connect(function(step: number)
 		Net.fire("ClaimTipJar", step)
+	end)
+	-- Spin on the Spin window (F49); the server answers with SpinResult and a ProfileSync.
+	UI.events.spinWheel:Connect(function()
+		Net.fire("SpinWheel")
 	end)
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
@@ -631,6 +636,37 @@ local function bindDealerCart()
 	end
 end
 
+-- The Spin Wheel station in the street plaza (F49): its "Spin" prompt opens the Spin window, which closes itself
+-- when the player walks out of range. The station is the server's, tagged SpinWheel and Persistent; a prompt that
+-- streams in after its model is bound too, and each prompt only once.
+local function bindSpinStations()
+	local bound: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+	local function bindPrompt(instance: Instance)
+		if
+			bound[instance]
+			or instance.Name ~= "SpinPrompt"
+			or not instance:IsA("ProximityPrompt")
+		then
+			return
+		end
+		bound[instance] = true
+		local prompt = instance :: ProximityPrompt
+		prompt.Triggered:Connect(function()
+			UI.spin.open()
+		end)
+	end
+	local function station(instance: Instance)
+		for _, descendant in instance:GetDescendants() do
+			bindPrompt(descendant)
+		end
+		instance.DescendantAdded:Connect(bindPrompt)
+	end
+	CollectionService:GetInstanceAddedSignal("SpinWheel"):Connect(station)
+	for _, instance in CollectionService:GetTagged("SpinWheel") do
+		station(instance)
+	end
+end
+
 -- Analytics only (F16): the device kind goes on the onboarding funnel's joined step and on session_end. Sent on the
 -- first ProfileSync, when the server's telemetry session is sure to exist (reviewer S49).
 local deviceReported = false
@@ -701,6 +737,10 @@ local function wireServerEvents()
 			end
 		end
 		tipJarClaimed = table.clone(jar.claimed)
+	end)
+	-- The slice a spin landed on and its coins or foods; 0, 0 when the server refused it (F49).
+	Net.on("SpinResult", function(slice: number, amount: number)
+		UI.spin.result(slice, amount)
 	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
 		UI.dealer.setStock(stock)
@@ -875,6 +915,7 @@ function UIController.start()
 		tipJar = Catalog.tipJar,
 		indexMilestones = Catalog.indexMilestones,
 		indexPrizes = Catalog.indexPrizes,
+		spinWheel = Catalog.spinWheel,
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
@@ -892,6 +933,7 @@ function UIController.start()
 	wireIntents()
 	wireServerEvents()
 	bindDealerCart()
+	bindSpinStations()
 	startPrediction()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))

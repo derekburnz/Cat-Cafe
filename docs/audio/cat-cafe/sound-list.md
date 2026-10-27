@@ -196,7 +196,7 @@ The engineer adds `src/client/Moments.luau`, one signal per moment fired from th
 | RescueDone, RescueFail, RescueCancel | rescueSpotId, rarity, shiny | freed; out of paws or tree catch missed; the player cancels | `RescueResult` done; `RescueCancel` sent |
 | CarryStart | catId, rarity | any successful catch or rescue | `CatchResult` or `RescueResult` success |
 | BumpLoose, BumpHeld | role (bumper, carrier, bystander), position | a bump lands or fails | Toasts to both players; a stray with `Dropped` appears for everyone else |
-| CheckIn, CatFound | catId, isNew, shiny, isNewShiny | the cat reaches the cat room | `CatCaught` (CatFound when `isNew`) |
+| CheckIn; CatFound | none; catId, isNew | the carried cat goes into the cafe; it is checked in (the jingle plays only when `isNew` is not false) | ProfileSync `carrying` clears; `CatCaught` |
 | BaitPlaced | lureId | food goes in the bowl | `UseLure` accepted (`BaitReadyAt` set on the plot) |
 | BaitArrive | catView | the bait cat is ready and you are in the server | `BaitReady` |
 | BaitTame, BaitLetGo | rarity, shiny | the player chooses | `ResolveBait` accepted |

@@ -48,8 +48,10 @@ Layout.stuckPoses = {
 	CatCafe_Alley_TrashBin = { 0, 2.05, -0.8, 1, 0, 0, 0, 0, -1, 0, 1, 0 },
 	-- Wedged between the bags, front half showing.
 	CatCafe_Alley_GarbageBags = { -0.45, 0, 0.4, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
-	-- Along the shakeable branch, head toward the trunk.
-	CatCafe_Park_RescueTree = { -1.7, 4, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 },
+	-- Draped across the shakeable branch between the trunk and the leaf tuft at its tip, facing the tree's front.
+	-- The manifest's pose (along the branch, head toward the trunk) put the longer cats' heads and tails in the
+	-- trunk and the leaves.
+	CatCafe_Park_RescueTree = { -2.35, 3.96, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
 	-- Head first into the can under the lid.
 	CatCafe_Park_TrashCan = { 0, 1.75, -0.8, 1, 0, 0, 0, 0, -1, 0, 1, 0 },
 	-- Stand-ins for the provisional traps of the grayboxes.
@@ -243,8 +245,9 @@ local function onOuterWall(
 end
 
 -- Six building backs (30.6 wide) along each back alley's outer wall, from the Woods and Sewer gates north to the
--- Square, so the lane reads as the backs of buildings rather than a bare wall (world-and-feel.md section 2).
-local BACK_SLOTS = { -84.7, -53.7, -22.7, 8.3, 39.3, 70.3 }
+-- Square, so the lane reads as the backs of buildings rather than a bare wall (world-and-feel.md section 2). The
+-- first back clears the gate's pillar and the last stops 0.1 short of the Square arch.
+local BACK_SLOTS = { -84.2, -53.2, -22.2, 8.8, 39.8, 70.8 }
 -- The fire escape's first landing (top 9.35) is reached from the crate stack's tall column (top 7.7), which
 -- stands just past the landing's open end at local x -8 (asset manifest, ledges_roblox).
 local CRATES_ALONG, CRATES_OUT = -12, -2.8
@@ -267,7 +270,7 @@ local function alleyDressing(): { Prop }
 			end
 		end
 		-- String lights across the lane in the gaps between buildings, a laundry line in front of a windowed back.
-		for _, z in { -69.2, -38.2, 23.8, 54.8 } do
+		for _, z in { -68.7, -37.7, 24.3, 55.3 } do
 			add({ asset = "CatCafe_Alley_StringLightsLong", x = side * (AI + AO) / 2, z = z })
 		end
 		add({

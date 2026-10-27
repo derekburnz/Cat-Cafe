@@ -187,6 +187,12 @@ Derek: "symbols to locations also that disappear when close enough so its not cl
 - **Location markers** (`Screens/LocationMarkers.luau`, nothing to call): a round icon with the name and distance ("120 m") over My Cafe (gold 🏠, over the own `Plot`'s pivot), every area (its icon and colour, over the `AreaGate` model's pivot, else the middle of its biggest `World.Zones` box) and the night dealer's cart (🛒, tag `DealerCart` while `Open`). Seen through walls from anywhere; each fades out between 60 and 30 studs (`Components/Wayfinding.luau`, with a spec), so the place in front of the player is never covered. A locked area's icon is grey and reads "🔒 Tier 3 · 120 m". My Cafe hides while carrying (the carry marker leads to the door) and the area the player stands in hides its own. Points come from model pivots and the persistent Zones boxes, so they show before the parts stream in.
 - **Safe zone chip** (`Screens/ZoneChip.luau`): a pill under the tier pill, "🛡️ Safe zone" in green on the street and in the cafes, "🐾 Catching area · shoves on" in orange in an area. Walking from an area back to the street pops it and toasts "Safe zone: no shoving here" at most once every 20 s, so walking along an area's open edge does not repeat it. **Engineer:** call `UI.setZone(zone)` with the `World.Zones` name each time the controller's zone check changes (next to `Audio.setZone`); the chip stays hidden until the first call.
 
+### Settings (built, UI plan 2026-10-27, wave 2)
+
+A gear in the HUD's top-right icon row (left of Invite) opens Settings (`Screens/Settings.luau`, rows and logic in `Components/SettingsList.luau` with a spec): a cocoa window with one row per setting, its icon, name, a line on what it does and a chunky green ON or red OFF switch, like the settings lists of Pet Simulator 99 and Grow a Garden. The rows: 🎵 Music, 🔊 Sound effects and 📍 Place icons (the location markers). Every setting is on until the player turns it off. A tap flips the switch at once and fires `events.setSetting(key, value)`; the switch then follows `state.settings` from ProfileSync, keeping the tap for 5 s while the server catches up. A key the server does not save yet keeps the tap for the session, so Place icons works before `markers` is in the profile. Place icons hides every location marker while off.
+
+**Engineer:** pass `settings = s.settings` in `UI.update` (cast `:: any` if the sealed table type complains). Forward `events.setSetting(key, value)` as `SetSetting(key, value)`: the server accepts only `"music"`, `"sfx"` (and `"markers"` once the data model has it) with a boolean, rate-limits it, saves it to `profile.settings` and sends it back in ProfileSync. On the client, apply music and sfx to `Audio.applySettings` on the event as well, so the music stops on the tap rather than a round trip later.
+
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 
 Nothing to call: `UI.init` starts all three and they read attributes the server and `CustomerController` already set, plus the player state.
@@ -287,6 +293,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `unequipAll` | none | "Unequip All" pressed in the cat room toolbar: every working cat rests (forward as `UnequipAll`, engineer #175) |
 | `dropCat` | none | Drop pressed on the carry banner, or G while carrying (HUD v3). Forward as `DropCat`: the server sets the cat down at the player's feet with their first try |
 | `claimOffline` | none | Claim pressed on the offline popup |
+| `setSetting` | `key, value` | A switch on the Settings screen: `"music"`, `"sfx"` or `"markers"`, and the new boolean. Forward as `SetSetting`; also apply music and sfx to Audio at once (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |
 | `rescuePressed` | `rescueSpotId` | A press on the rescue bar or the tree's catch circle. Forward as `RescuePress(rescueSpotId)` (F27) |
@@ -316,6 +323,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 50 count
     goldCollection: { [catId]: firstGoldAt }?,                     -- the book's Gold pill (was shinyCollection, still read)
     carrying: string?, tutorialStep: number?,
+    settings: { music: boolean, sfx: boolean, markers: boolean? }?, -- profile.settings; a missing key reads as on
 }
 ```
 

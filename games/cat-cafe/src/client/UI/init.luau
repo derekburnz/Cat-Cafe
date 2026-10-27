@@ -40,6 +40,7 @@ local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
+local Settings = require(script.Screens.Settings)
 local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
 local SlotLabels = require(script.Screens.SlotLabels)
@@ -88,6 +89,8 @@ UI.events = {
 	shove = Signal.new(), -- (targetUserId)   the Shove button or Q on the nearest player within 6 studs: forward as Bump (F41)
 	-- 2026-10-27 HUD v3
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
+	-- 2026-10-27 wave 2
+	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting; apply music and sfx to Audio at once
 }
 
 local state: Types.PlayerState = {
@@ -141,6 +144,7 @@ local baitCat: Types.BaitCat? = nil -- the cat at the bowl (UI.bait.showReady), 
 local bowlPart: BasePart? = nil -- the player's own BaitBowl part (UI.bait.setBowl), for the range hints
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
+local settingsScreen: Settings.Settings? = nil -- music, sound and place icons switches (gear in the HUD)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
@@ -199,6 +203,9 @@ local function render()
 	end
 	if dealerScreen then
 		dealerScreen:render(state)
+	end
+	if settingsScreen then
+		settingsScreen:render(state)
 	end
 end
 
@@ -458,6 +465,24 @@ function UI.init(config: Types.InitConfig)
 			dealerView:render(state)
 		end,
 	})
+	settingsScreen = Settings.new({
+		setSetting = function(key: string, value: boolean)
+			UI.events.setSetting:Fire(key, value)
+		end,
+		changed = function(key: string, value: boolean)
+			if key == "markers" and locationMarkers then
+				locationMarkers:setEnabled(value)
+			end
+		end,
+		close = closeModal,
+	})
+	local settingsView = settingsScreen :: Settings.Settings
+	modalInstance:register("Settings", {
+		frame = settingsView.frame,
+		onOpen = function()
+			settingsView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -523,7 +548,9 @@ function UI.init(config: Types.InitConfig)
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
 	-- icons over My Cafe, every area and the dealer's cart, fading out up close; the Safe zone chip under the tier
-	locationMarkers = LocationMarkers.new(parent)
+	local markers = LocationMarkers.new(parent)
+	markers:setEnabled(settingsView:value("markers")) -- the Place icons switch
+	locationMarkers = markers
 	zoneChip = ZoneChip.new(parent)
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
@@ -611,6 +638,10 @@ function UI.destroy()
 		dealerScreen:destroy()
 	end
 	dealerScreen, cartPart = nil, nil
+	if settingsScreen then
+		settingsScreen:destroy()
+	end
+	settingsScreen = nil
 	if upgrades then
 		upgrades:destroy()
 	end

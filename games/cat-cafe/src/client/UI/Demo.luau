@@ -73,6 +73,7 @@ function Demo.run(UI: any): () -> ()
 		cats = {} :: { [string]: Types.CatInstance },
 		collection = { tabby = now() } :: { [string]: number },
 		tier = 1,
+		settings = { music = true, sfx = true } :: { [string]: boolean },
 	}
 	local starter = uid()
 	profile.cats[starter] = {
@@ -124,6 +125,7 @@ function Demo.run(UI: any): () -> ()
 			collection = profile.collection,
 			customers = 2 * (profile.upgradeLevels.tables or 0),
 			tier = profile.tier,
+			settings = profile.settings,
 		})
 	end
 
@@ -361,6 +363,17 @@ function Demo.run(UI: any): () -> ()
 	connections[#connections + 1] = UI.events.equipBest:Connect(function()
 		UI.toast("Equip best: the server would place your top cats", "info")
 	end)
+	-- like the server: music and sfx are saved, markers is not yet, so that switch stays a session choice
+	connections[#connections + 1] = UI.events.setSetting:Connect(
+		function(key: string, value: boolean)
+			if key == "music" or key == "sfx" then
+				task.delay(0.3, function()
+					profile.settings[key] = value
+					push()
+				end)
+			end
+		end
+	)
 	connections[#connections + 1] = UI.events.unequipAll:Connect(function()
 		local rested = 0
 		for _, instance in profile.cats do

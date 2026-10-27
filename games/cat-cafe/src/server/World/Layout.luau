@@ -24,6 +24,7 @@ export type AreaSpec = {
 	halfWidth: number,
 	halfDepth: number,
 	gateZ: number?, -- where the tier gate stands across the opening; nil for the Tier 1 alley
+	openingHalfWidth: number?, -- half the opening of a box area; the street's half width when omitted
 	rects: { Rect }?,
 	walls: { Rect }?, -- wall footprints for a rects area
 	wallHeight: number?,
@@ -360,6 +361,7 @@ Layout.woods = {
 	halfWidth = WHW,
 	halfDepth = WHD,
 	gateZ = W.WoodsGateZ,
+	openingHalfWidth = (AO - AI) / 2, -- the whole back alley's width opens into it
 	spawnPoints = around(WX, WZ, {
 		{ -5, 24 },
 		{ 8, 22 },
@@ -402,6 +404,7 @@ Layout.sewer = {
 	halfWidth = SHW,
 	halfDepth = SHD,
 	gateZ = W.SewerGateZ,
+	openingHalfWidth = (AO - AI) / 2, -- the whole back alley's width opens into it
 	spawnPoints = around(SX, SZ, {
 		{ -5, 18 },
 		{ 6, 18 },

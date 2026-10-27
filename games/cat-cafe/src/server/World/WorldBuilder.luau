@@ -27,6 +27,7 @@ export type Plot = {
 	decor: Folder,
 	tables: Folder,
 	customerEntry: BasePart,
+	counter: Model, -- Counter; out of the plot while the For Rent set's dust-sheeted counter stands in for it
 	espresso: BasePart,
 	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
@@ -193,6 +194,9 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 	for n = 1, Catalog.maxTier do
 		show("Tier" .. n, "CatCafe_Plot_Tier" .. n, tier >= n)
 	end
+	-- The For Rent set drapes its own dust sheet where the counter stands, so the real counter, whose pastry case
+	-- and till would poke through the sheet, waits out of the plot until the cafe opens.
+	plot.counter.Parent = if plot.dressing:FindFirstChild("ForRent") ~= nil then nil else plot.model
 end
 
 -- The Closed sign with its moon (v0.5 F44) hangs in an owned cafe's front door at night: Dressing/ClosedSign at
@@ -534,8 +538,9 @@ local function buildPlot(index: number, parent: Instance): Plot
 	label.Parent = gui
 
 	-- Counter, espresso machine, spot furniture
-	place("CatCafe_Furniture_Counter", localCFrame(cframe, Layout.plot.counter), model).Name =
-		"Counter"
+	local counter =
+		place("CatCafe_Furniture_Counter", localCFrame(cframe, Layout.plot.counter), model)
+	counter.Name = "Counter"
 	local espresso = anchor("EspressoAnchor", localCFrame(cframe, Layout.plot.espresso), model)
 
 	local spotsFolder = folder("Spots", model)
@@ -623,6 +628,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		decor = folder("Decor", model),
 		tables = folder("Tables", model),
 		customerEntry = entry,
+		counter = counter,
 		espresso = espresso,
 		backDoor = backDoor,
 		backDoorZone = backDoorZone,

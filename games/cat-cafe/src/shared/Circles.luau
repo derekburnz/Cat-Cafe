@@ -5,8 +5,9 @@
 -- GrabBegin builds a schedule: circles[rarity] circles, each shrinking for shrinkSeconds[rarity] x (1 + u) with u
 -- uniform in [-jitter, +jitter] for the net level, separated by CircleGapMin to CircleGapMax. A circle's target is
 -- startsAt + shrinkSeconds. The server stamps each CatchPress on arrival, takes off half the player's ping (capped
--- at CatchLatencyCapSeconds) and scores |press - target|: within perfect 1.0, within good 0.5, else 0. The catch
--- chance is the mean score.
+-- at CatchLatencyCapSeconds) and grades |press - target|: within perfect Perfect, within good Good, else Miss.
+-- v0.4: the first Miss (a press outside Good, or no press by a circle's deadline) ends the attempt, and an attempt
+-- with every circle Good or Perfect is a sure catch. No roll.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -22,16 +23,19 @@ export type Attempt = {
 	scores: { number },
 	grades: { Types.CircleGrade },
 	errors: { [number]: number },
-	nextIndex: number, -- the next circle to judge; #circles + 1 when done
+	nextIndex: number, -- the next circle to judge; #circles + 1 after the last
+	missed: boolean, -- a circle was a Miss, which ends the attempt
 }
 
 -- Where circles may appear on screen, as fractions of its width and height.
 local SCREEN_MIN_X, SCREEN_MAX_X = 0.25, 0.75
 local SCREEN_MIN_Y, SCREEN_MAX_Y = 0.3, 0.7
 
--- The scripted-press check (reviewer S23): the last AUTO_PRESS_WINDOW circles, flagged above AUTO_PRESS_RATE.
+-- The scripted-press check (reviewer S23): the last AUTO_PRESS_WINDOW circles, flagged above AUTO_PRESS_RATE and
+-- cleared at or below AUTO_PRESS_CLEAR_RATE (v0.4).
 Circles.AUTO_PRESS_WINDOW = 50
-Circles.AUTO_PRESS_RATE = 0.95
+Circles.AUTO_PRESS_RATE = Config.AutoPressFlagRate
+Circles.AUTO_PRESS_CLEAR_RATE = Config.AutoPressClearRate
 
 local function clampNetLevel(netLevel: number): number
 	local highest = 0
@@ -82,7 +86,7 @@ function Circles.target(circle: Types.CatchCircle): number
 	return circle.startsAt + circle.shrinkSeconds
 end
 
--- After this a circle with no press scores 0.
+-- After this a circle with no press is a Miss.
 function Circles.deadline(circle: Types.CatchCircle, windows: Types.NetWindows): number
 	return Circles.target(circle) + windows.good + Config.CatchLatencyCapSeconds
 end
@@ -123,28 +127,44 @@ function Circles.newAttempt(circles: { Types.CatchCircle }, windows: Types.NetWi
 		grades = {},
 		errors = {},
 		nextIndex = 1,
+		missed = false,
 	}
 end
 
--- Scores 0 for every unjudged circle whose deadline has passed by `now`. Returns how many expired.
-function Circles.expire(attempt: Attempt, now: number): number
-	local expired = 0
-	while attempt.nextIndex <= #attempt.circles do
-		local circle = attempt.circles[attempt.nextIndex]
-		if now <= Circles.deadline(circle, attempt.windows) then
-			break
-		end
-		attempt.scores[attempt.nextIndex] = 0
-		attempt.grades[attempt.nextIndex] = "miss"
-		attempt.nextIndex += 1
-		expired += 1
+function Circles.isDone(attempt: Attempt): boolean
+	return attempt.missed or attempt.nextIndex > #attempt.circles
+end
+
+-- Every circle judged Good or Perfect: a sure catch (v0.4).
+function Circles.succeeded(attempt: Attempt): boolean
+	return not attempt.missed and attempt.nextIndex > #attempt.circles
+end
+
+-- The deadline of the circle waiting to be judged, or nil once the attempt is over.
+function Circles.nextDeadline(attempt: Attempt): number?
+	if Circles.isDone(attempt) then
+		return nil
 	end
-	return expired
+	return Circles.deadline(attempt.circles[attempt.nextIndex], attempt.windows)
+end
+
+-- Marks the waiting circle a Miss once its deadline has passed by `now`, which ends the attempt. Returns how many
+-- circles expired: 0 or 1, since nothing after a Miss is judged.
+function Circles.expire(attempt: Attempt, now: number): number
+	local deadline = Circles.nextDeadline(attempt)
+	if deadline == nil or now <= deadline then
+		return 0
+	end
+	attempt.scores[attempt.nextIndex] = 0
+	attempt.grades[attempt.nextIndex] = "miss"
+	attempt.nextIndex += 1
+	attempt.missed = true
+	return 1
 end
 
 -- Judges a press for circle `index`. `pressTime` is the latency-corrected press, `now` the arrival time. Returns
--- the grade, or nil when the press is ignored: not the next circle (out of order, a repeat, or already judged)
--- or earlier than the circle's start.
+-- the grade, or nil when the press is ignored: the attempt is over, not the next circle (out of order, a repeat,
+-- or already judged) or earlier than the circle's start.
 function Circles.press(
 	attempt: Attempt,
 	index: number,
@@ -152,7 +172,7 @@ function Circles.press(
 	now: number
 ): Types.CircleGrade?
 	Circles.expire(attempt, now)
-	if index ~= attempt.nextIndex or index > #attempt.circles then
+	if Circles.isDone(attempt) or index ~= attempt.nextIndex then
 		return nil
 	end
 	local circle = attempt.circles[index]
@@ -165,14 +185,14 @@ function Circles.press(
 	attempt.grades[index] = grade
 	attempt.errors[index] = err
 	attempt.nextIndex += 1
+	if grade == "miss" then
+		attempt.missed = true
+	end
 	return grade
 end
 
-function Circles.isDone(attempt: Attempt): boolean
-	return attempt.nextIndex > #attempt.circles
-end
-
--- The catch chance: the mean of the circle scores (all Perfect 1.0, all Good 0.5). 0 for no circles.
+-- v0.3's catch chance, the mean of the circle scores (all Perfect 1.0, all Good 0.5); 0 for no circles. v0.4
+-- decides a catch by its grades (Circles.succeeded); this stays for the specs and analytics.
 function Circles.chance(scores: { number }): number
 	if #scores == 0 then
 		return 0
@@ -192,6 +212,21 @@ function Circles.perfectCount(attempt: Attempt): number
 		end
 	end
 	return n
+end
+
+-- Charm a successful catch adds (data-model section 10 step 5): PerfectCharmBonus per Perfect, times
+-- PurrfectCharmMultiplier when every circle is Perfect. 0 for a failed attempt; the caller caps charm at 100 and
+-- gives nothing to a profile flagged autoPress.
+function Circles.charmGain(attempt: Attempt): number
+	if not Circles.succeeded(attempt) then
+		return 0
+	end
+	local perfect = Circles.perfectCount(attempt)
+	local gain = Config.PerfectCharmBonus * perfect
+	if perfect == #attempt.circles then
+		gain *= Config.PurrfectCharmMultiplier
+	end
+	return gain
 end
 
 -- Adds one judged circle to a player's recent history (true for Perfect), keeping the last AUTO_PRESS_WINDOW.
@@ -215,6 +250,22 @@ function Circles.looksScripted(history: { boolean }): boolean
 		end
 	end
 	return perfect / #history > Circles.AUTO_PRESS_RATE
+end
+
+-- True when a full window of circles is Perfect at most AUTO_PRESS_CLEAR_RATE of the time, which clears the flag.
+-- The history lives in memory and the flag in the save, so a partial window after a rejoin never clears it
+-- (reviewer N46).
+function Circles.looksHonest(history: { boolean }): boolean
+	if #history < Circles.AUTO_PRESS_WINDOW then
+		return false
+	end
+	local perfect = 0
+	for _, isPerfect in history do
+		if isPerfect then
+			perfect += 1
+		end
+	end
+	return perfect / #history <= Circles.AUTO_PRESS_CLEAR_RATE
 end
 
 return Circles

@@ -1,6 +1,6 @@
 # Questions for Gavin, round 3 (2026-10-27)
 
-Rounds 1 and 2 are answered and saved word for word in [feedback/](feedback/) (round 2: [gavin-2026-10-27.md](feedback/gavin-2026-10-27.md)), and the design is updated from them (v0.5). These are the quick follow-ups, also in the Cat Cafe tab of the Game Ideas Google Doc under "Questions for Gavin (round 3)", where question 4 has a picture of the shiny options ([round3-shiny-options.png](feedback/round3-shiny-options.png), recoloured from the asset thread's Tabby render). Each one has our current plan in it, so a yes is enough. We build the plan as written until he says otherwise.
+Rounds 1 and 2 are answered and saved word for word in [feedback/](feedback/) (round 2: [gavin-2026-10-27.md](feedback/gavin-2026-10-27.md)), and the design is updated from them (v0.5). These are the quick follow-ups, also in the Cat Cafe tab of the Game Ideas Google Doc under "Questions for Gavin (round 3)", where question 4 refers to a picture of the shiny options ([round3-shiny-options.png](feedback/round3-shiny-options.png), recoloured from the asset thread's Tabby render; Derek pastes it under that question because the Docs connector cannot upload images). Each one has our current plan in it, so a yes is enough. We build the plan as written until he says otherwise.
 
 Shove
 
@@ -9,7 +9,7 @@ Shove
 
 Catching
 
-3. The chase. After a miss the cat sprints off, about 12 studs for a Common up to 32 for a Mythical, faster than you can walk, then stops for a second and a half. Is that "for a bit", or should rarer cats run farther or hide?
+3. The chase. After a miss the cat sprints off, about 12 studs (two player heights) for a Common up to 32 studs (six player heights) for a Mythical, faster than you can walk, then stops for a second and a half so you can try again. Is that "for a bit", or should rarer cats run farther or hide?
 
 Cats
 

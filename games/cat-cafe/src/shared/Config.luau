@@ -163,6 +163,16 @@ local Config = {
 	GoldLuckMax = 1.5,
 	BaitSpeedMax = 0.5,
 
+	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters and digits, typed in any case.
+	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
+	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
+	CodeMaxLength = 20,
+	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box
+	CodeWrongWindowSeconds = 60,
+	CodeLockSeconds = 60,
+	GroupId = 0, -- the community group a requiresGroup code needs; 0 while the game is on Derek's own account
+	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
+
 	-- Shove (F29 bump rules, v0.5 F41, data-model section 10c); the code keeps the Bump names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Bump remote off and hides the Shove button
 	BumpRangeStuds = 6,

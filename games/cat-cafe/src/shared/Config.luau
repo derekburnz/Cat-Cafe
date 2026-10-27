@@ -132,6 +132,10 @@ local Config = {
 	DropOwnerPrioritySeconds = 8, -- only the old carrier can catch a knocked-loose cat for this long
 	DroppedMinStaySeconds = 120, -- a knocked-loose cat survives a night wave that starts this soon after the drop
 
+	-- Naming cats (F33, data-model section 4): pure checks in CatName, the filter in NameService.
+	CatNameMaxLength = 20, -- characters (utf8.len) after trimming
+	RenameCooldownSeconds = 5, -- between one player's renames, each of which costs a TextService filter
+
 	-- Cosmetic customers (client side)
 	CustomerSpawnSeconds = 6,
 	CustomerSpawnSecondsNight = 12, -- night owls come half as often

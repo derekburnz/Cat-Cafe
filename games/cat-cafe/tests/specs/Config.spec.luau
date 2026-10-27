@@ -103,13 +103,13 @@ return function()
 		ShoveTargetImmuneSeconds = 4,
 		DropOwnerPrioritySeconds = 8,
 		DroppedMinStaySeconds = 120,
+		-- naming cats (F33, section 4)
+		CatNameMaxLength = 20,
+		RenameCooldownSeconds = 5,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
-	local pending: { [string]: { any } } = {
-		CatNameMaxLength = { 20, "F33" },
-		RenameCooldownSeconds = { 5, "F33" },
-	}
+	local pending: { [string]: { any } } = {}
 
 	describe("data-model section 17 constants", function()
 		for name, value in pairs(expected) do

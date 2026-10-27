@@ -10,6 +10,7 @@
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe that pays itself in 20 s
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
 --   D:Invoke("shove", "Player1", "Player2", "loose")  -- a real shove with every check, the roll forced
+--   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,6 +25,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Layout = require(script.Parent.Parent.World.Layout)
+local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local RescueService = require(script.Parent.RescueService)
@@ -232,6 +234,27 @@ function Debug.shove(
 		elseif outcome == "held" then "held"
 		else nil
 	ShoveService.debugShove(resolve(shover), resolve(target), forced)
+end
+
+-- RenameCat as if the player sent it, with every check and the real filter (F33). `uid` defaults to a working cat,
+-- else any cat. Returns the uid.
+function Debug.renameCat(player: (Player | number | string)?, name: string, uid: string?): string
+	local who = resolve(player)
+	local profile = profileOf(who)
+	local chosen = uid
+	if chosen == nil then
+		for catUid, instance in profile.cats do
+			if chosen == nil or instance.spotId ~= nil then
+				chosen = catUid
+			end
+			if instance.spotId ~= nil then
+				break
+			end
+		end
+	end
+	assert(chosen ~= nil, "no cat to rename")
+	NameService.debugRename(who, chosen :: string, name)
+	return chosen :: string
 end
 
 -- Moves the player's character onto an area's first spawn point, past its gate whatever their tier, so a

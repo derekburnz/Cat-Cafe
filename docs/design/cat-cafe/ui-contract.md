@@ -82,7 +82,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
-| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`. One open at a time. |
+| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"BugReport"`. One open at a time. |
 | `UI.setZone(zone?)` | The `World.Zones` name the player stands in, from the controller's zone check: nil or `"Cafe"` is the safe street and cafes, else the area (`"Alley"`). Drives the Safe zone chip and its toast on coming back, and hides that area's location marker. |
 | `UI.openCatRoom()` | Opens Collection on the Cat room tab (tutorial step 3). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
@@ -233,6 +233,20 @@ The **Plaza** location marker (🎡, orange) sits 16 studs over the `SpinWheel` 
 
 Sounds: `uiSpinStart` when the wheel starts, `uiSpinTick` as each slice passes the pointer, `uiSpinWin` on landing (Sound-Agent adds the files); a refusal plays `uiError`. Coin estimates in the list use the day rate worked back from `incomePerSecond`, as in the Tip Jar; the server's figure is final.
 
+### Report a bug (built, docs/playtests/bug-reports.md section 1)
+
+For the friends alpha (Derek 2026-10-27, "and bug reports"). Settings gets a third section, **Help**, under Sound and Screen, with one row: 🐞 Report a bug, "Tell us what broke, got stuck or could be better", and a blue Report button where switch rows have their switch. It opens the **Report a bug** window (`Screens/BugReport.luau`, rules in `Components/BugReportLogic.luau` with a spec): a sky blue window with "What happened, and what were you doing right before?", three chips 🐞 Bug (picked at first), 🧱 Stuck and 💡 Idea, a multi-line box ("I was carrying a cat home when..."), the line "Please don't type passwords or personal info" with a "123 / 500" counter, and Cancel and Send. The box holds 500 bytes, as the server counts them (a letter is one, an emoji four), and a paste past that is cut at once without splitting a letter; the counter turns red at 500. Send stays grey until `Shared.BugReport.text` would keep the text (3 bytes once control characters other than newlines are out and it is trimmed), so a pasted `\r` cannot light it (QA). The window takes every limit, the kinds and the Send rule from `Shared.BugReport`, the module the server checks with (#265).
+
+Send fires `events.reportBug(text, kind, clientErrors)` with the text as `BugReport.text` keeps it, `"bug"`, `"stuck"` or `"idea"`, and the newest 3 client error lines since join (`Components/ClientErrors.luau` reads `LogService`'s history at `UI.init`, then `MessageOut`; each kept as `BugReport.errorLine` would, at most 200 bytes). The button reads "Sending..." and the box locks until the server's toast, matched exactly against `BugReport.Messages`: `sent` ("Thanks! Your report was sent.") clears the box and closes the window; `failed`, `short` and `limited` keep every word and light Send again; any other toast leaves the report waiting (N151); after 10 s with no toast the line under the box says "No answer yet. Your words are still here, try Send again". Cancel goes back to Settings; Cancel, the X and the backdrop all keep the draft for later.
+
+On a phone, while the keyboard is up the window moves to the top of the screen and ends above it (the keyboard's reported size, else 55% of the screen): the chips, Cancel and Send share one row over the box, and the prompt line, privacy line and counter hide. It goes back 0.4 s after the keyboard hides, so the tap that hid it still lands. On a PC the box takes the keyboard when the window opens.
+
+| API | Purpose |
+|---|---|
+| `events.reportBug(text, kind, clientErrors)` | Forward all three as `ReportBug(text, kind, clientErrors)`. The server checks everything again and answers with a toast. |
+| `UI.bugReport.open()` | Opens the window (the Settings row already does). |
+| `UI.bugReport.result(ok)` | Only if the answer ever comes some other way than a toast: true clears and closes, false keeps the words. |
+
 ### Index rewards (built, F48, data-model section 11b)
 
 The Book is called the **Index** since 2026-10-27 (Derek), in player text and in code alike, before save version 5 ships: `Catalog.indexMilestones`, `Catalog.indexPrizes` (the prize table; not `indexRewards`, which is the claimed map, S61), `state.indexRewards`, `events.claimIndexReward` / `ClaimIndexReward`, decor `source = "index"` and decor ids `index_<area>` and `index_<area>_gold`. Milestone ids stay `cats3`, `cats6`, `cats10`, `gold10`.
@@ -353,6 +367,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `claimTipJar` | `step` | Claim on a ready Tip Jar gift. Forward as `ClaimTipJar(step)` (F47). |
 | `claimIndexReward` | `areaId, milestoneId` | Claim on a reached Index reward card. Forward as `ClaimIndexReward(areaId, milestoneId)` (F48). |
 | `spinWheel` | none | Spin on the Spin Wheel window. Forward as `SpinWheel()` (F49); the server checks the range, spins and cooldown, pays and answers `SpinResult`. |
+| `reportBug` | `text, kind, clientErrors` | Send on the Report a bug window: the trimmed text (3 to 500 bytes), `"bug"`, `"stuck"` or `"idea"`, and up to 3 client error lines of up to 200 bytes. Forward all three as `ReportBug`; the server answers with a toast (see Report a bug). |
 | `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |

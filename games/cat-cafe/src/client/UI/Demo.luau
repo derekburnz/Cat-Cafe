@@ -565,6 +565,25 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 	)
+	-- the server's answers to ReportBug, as toasts; "fail" in the text shows the refusal that keeps the words
+	local lastReport = -math.huge
+	connections[#connections + 1] = UI.events.reportBug:Connect(
+		function(text: string, kind: string, clientErrors: { string })
+			print(("[Demo] ReportBug %s %q, %d client errors"):format(kind, text, #clientErrors))
+			task.delay(0.5, function()
+				if os.clock() - lastReport < 20 then
+					UI.toast("You just sent one, try again in a moment", "warn")
+					return
+				end
+				lastReport = os.clock() -- like the server's limiter, a failed write still counts
+				if string.find(text, "fail", 1, true) then
+					UI.toast("Couldn't send that, try again in a minute", "warn")
+				else
+					UI.toast("Thanks! Your report was sent.", "good")
+				end
+			end)
+		end
+	)
 	connections[#connections + 1] = UI.events.unequipAll:Connect(function()
 		local rested = 0
 		for _, instance in profile.cats do

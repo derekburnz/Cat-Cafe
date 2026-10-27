@@ -84,6 +84,23 @@ return function()
 				end
 			end
 		)
+
+		it(
+			"a seated body (B) is the walking model's name plus _Sit, gold coats included",
+			function()
+				expect(Catalog.sitModelName(Catalog.catModelName("tabby"))).to.equal(
+					"CatCafe_Cat_Tabby_Sit"
+				)
+				expect(Catalog.sitModelName(Catalog.goldModelName("maine_coon"))).to.equal(
+					"CatCafe_Cat_MaineCoon_Gold_Sit"
+				)
+				for _, def in Catalog.cats do
+					expect(
+						Catalog.catsByModelName[Catalog.sitModelName(Catalog.catModelName(def.id))]
+					).never.to.be.ok()
+				end
+			end
+		)
 	end)
 
 	describe("rarities (section 2)", function()

@@ -13,7 +13,8 @@
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
-	  J tip jar         K index rewards     L spin wheel           Backspace flood
+	  J tip jar         K index rewards     L spin wheel           R bug report
+	  Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -37,6 +38,7 @@ if not RunService:IsStudio() then
 end
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local BugReport = require(Shared:WaitForChild("BugReport"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Circles = require(Shared:WaitForChild("Circles"))
 local Config = require(Shared:WaitForChild("Config"))
@@ -3311,6 +3313,147 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 		notes ..= "; none left refused"
 	end
 	return done(verdict, notes)
+end)
+
+-- Bug reports (engineer PR #265, docs/playtests/bug-reports.md) ------------------------------------------------
+
+-- ReportBug's toasts by their BugReport.Messages key.
+local BUG_ANSWERS: { { key: string, text: string } } = {
+	{ key = "sent", text = BugReport.Messages.sent },
+	{ key = "failed", text = BugReport.Messages.failed },
+	{ key = "short", text = BugReport.Messages.short },
+	{ key = "limited", text = BugReport.Messages.limited },
+}
+
+-- ReportBug's answers since `startedAt`, counted by key: sent, failed, short and limited.
+local function bugAnswers(startedAt: number): { [string]: number }
+	local counts: { [string]: number } = { sent = 0, failed = 0, short = 0, limited = 0 }
+	for _, event in since(startedAt, "Toast") do
+		for _, answer in BUG_ANSWERS do
+			if string.find(event.text, answer.text, 1, true) ~= nil then
+				counts[answer.key] += 1
+			end
+		end
+	end
+	return counts
+end
+
+-- Waits up to `timeout` for a saved, failed or too-soon answer (the save can take a moment), then counts.
+local function bugAnswered(startedAt: number, timeout: number): { [string]: number }
+	waitFor(startedAt, "Toast", timeout, function(event: Event): boolean
+		for _, answer in BUG_ANSWERS do
+			if answer.key ~= "short" and string.find(event.text, answer.text, 1, true) ~= nil then
+				return true
+			end
+		end
+		return false
+	end)
+	return bugAnswers(startedAt)
+end
+
+-- Every report this case sends starts with "[QA abuse]". From Studio they save under s_ keys, apart from the
+-- testers' reports (BugReport.prefix).
+case("reportBug", Enum.KeyCode.R, "Bug reports: bad texts, huge, flood, 21 s on", function()
+	if table.find(Remotes.ClientToServer, "ReportBug") == nil then
+		return "SKIP", "no ReportBug remote (engineer PR #265)"
+	end
+	-- Bad texts, 1.1 s apart for the 1 a second flood guard: each gets the short toast and nothing is written.
+	local bad: { any } = { 5, true, {}, "", "   ", "ab", " \n\t ", "a\0b", "broken \255\254 text" }
+	local badAt = os.clock()
+	fire("ReportBug")
+	task.wait(1.1)
+	for _, text in bad do
+		fire("ReportBug", text, "bug")
+		task.wait(1.1)
+	end
+	local tries = #bad + 1
+	local badCounts = bugAnswers(badAt)
+	if badCounts.sent + badCounts.failed > 0 then
+		return "FAIL",
+			string.format(
+				"%d of %d bad texts were written",
+				badCounts.sent + badCounts.failed,
+				tries
+			)
+	end
+	local verdict: Verdict = "PASS"
+	local notes = "no bad text written"
+	if badCounts.short ~= tries then
+		verdict = "CHECK"
+		notes ..= string.format(" (%d short toasts for %d bad texts)", badCounts.short, tries)
+	end
+
+	-- A huge report: 10,000 bytes, a kind the server does not know, 50 error lines, the first three 10,000 bytes.
+	local errors: { string } = {}
+	for index = 1, 50 do
+		errors[index] = if index <= 3 then string.rep("e", 10000) else "error " .. index
+	end
+	local bigAt = os.clock()
+	fire("ReportBug", "[QA abuse] " .. string.rep("x", 10000), "admin", errors)
+	local big = bugAnswered(bigAt, 8)
+	if big.limited > 0 then
+		return "CHECK",
+			notes
+				.. "; the big report was refused as too soon: a report in the last 20 s or 10 this session (rejoin)"
+	end
+	if big.sent + big.failed ~= 1 then
+		return "FAIL",
+			string.format(
+				"%s; the big report got %d saved and %d failed answers",
+				notes,
+				big.sent,
+				big.failed
+			)
+	end
+	notes ..= if big.sent == 1
+		then "; big report saved"
+		else "; big report answered failed (API access off?)"
+
+	-- 30 in one frame a second later: the flood guard lets one through and the 20 s limit refuses it.
+	task.wait(1.1)
+	local floodAt = os.clock()
+	for _ = 1, 30 do
+		Remotes.event("ReportBug"):FireServer("[QA abuse] flood", "bug")
+	end
+	log('    -> ReportBug("[QA abuse] flood", "bug") x30')
+	task.wait(2)
+	local flood = bugAnswers(floodAt)
+	if flood.sent + flood.failed > 0 then
+		return "FAIL",
+			string.format(
+				"%s; %d of 30 in one frame were written inside 20 s",
+				notes,
+				flood.sent + flood.failed
+			)
+	end
+	if flood.limited ~= 1 then
+		verdict = "CHECK"
+		notes ..= string.format("; %d too-soon toasts for 30 in one frame, not 1", flood.limited)
+	else
+		notes ..= "; 30 in one frame: one too-soon toast, none written"
+	end
+
+	-- 21 s after the big report the next one goes through.
+	local left = 21 - (os.clock() - bigAt)
+	if left > 0 then
+		task.wait(left)
+	end
+	local laterAt = os.clock()
+	fire("ReportBug", "[QA abuse] a report 21 s later", "idea")
+	local later = bugAnswered(laterAt, 8)
+	if later.sent + later.failed ~= 1 then
+		return "FAIL",
+			string.format(
+				"%s; 21 s later: %d saved, %d failed, %d too soon",
+				notes,
+				later.sent,
+				later.failed,
+				later.limited
+			)
+	end
+	return verdict,
+		notes
+			.. "; 21 s later went through. Server output: the big report's [BugReport] line keeps 500 bytes of text, kind bug and 3 client errors of 200 bytes; no [Net] ReportBug handler failed line"
 end)
 
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()

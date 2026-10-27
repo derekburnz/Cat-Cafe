@@ -614,9 +614,16 @@ function Catalog.goldModelName(catId: string): string
 	return Catalog.catModelName(catId) .. "_Gold"
 end
 
+-- The seated body (B) of a walking model, "CatCafe_Cat_Tabby" -> "CatCafe_Cat_Tabby_Sit" and
+-- "CatCafe_Cat_Tabby_Gold" -> "CatCafe_Cat_Tabby_Gold_Sit" (Derek 2026-10-27: A walks, B sits).
+function Catalog.sitModelName(modelName: string): string
+	return modelName .. "_Sit"
+end
+
 -- What a working cat wears at its station (features.md F25; Derek 2026-10-27: outfits by role, no collars on any
--- cat). Each piece is the asset CatCafe_Accessory_<Piece>, and each cat model carries an Attachment named
--- Outfit_<Piece> at that piece's upright slot (asset thread's role_outfits). Cats resting in the cat room wear none.
+-- cat). Each piece is the asset CatCafe_Accessory_<Piece>, and each seated cat model (the _Sit bodies) carries an
+-- Attachment named Outfit_<Piece> at that piece's slot (asset thread's sit_slots). Cats resting in the cat room wear
+-- none.
 Catalog.roleOutfits = {
 	barista = { "Apron", "BaristaCap" },
 	waiter = { "BowTie", "Vest" },

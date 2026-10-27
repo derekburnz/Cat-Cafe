@@ -1,7 +1,7 @@
 --!strict
 -- Which cats move on this client and how (design v0.4 sections 1 and 4, v0.5 F40 and F44): role idles at the
 -- cafe stations, naps (and every working cat asleep at its station at night, when the cafe is closed: curled up,
--- or dozing on its feet when it stands upright in its outfit, F25), stuck
+-- or dozing where it sits or stands in its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
 -- pant after a sprint and the hiss hop on a missed catch. Only the nearest few within range move
 -- (budget.animatedCats within budget.animRadius); the rest stand as the server placed them. Gold cats in range
@@ -238,30 +238,47 @@ local function isWorking(model: Model): boolean
 	return CollectionService:HasTag(model, "WorkingCat") or model:GetAttribute("SpotId") ~= nil
 end
 
--- Whether a resting cafe cat (Napping, no station) is sat up in a loaf right now: by day, for a while now and then
--- (Derek 2026-10-27). Every client works it out the same from the server clock and the cat's Uid.
-function Cats.isLoafing(model: Model): boolean
+local function phaseOf(model: Model): number
 	local uid = model:GetAttribute("Uid")
+	return Logic.phaseOf(if type(uid) == "string" then uid else model.Name)
+end
+
+-- A cat that sits rather than lying down: the sitting body (PR #259), or Pose "sit" at its station (PR #260).
+local function seated(model: Model): boolean
+	return model:GetAttribute("Pose") == "sit" or Pose.kindOf(model) == "sit"
+end
+
+-- Whether a resting cafe cat (Napping, no station) is sat up in a loaf right now: by day, for a while now and then
+-- (Derek 2026-10-27). Every client works it out the same from the server clock and the cat's Uid. A seated cat
+-- never loafs (the loaf is the walking body's).
+function Cats.isLoafing(model: Model): boolean
 	return model:GetAttribute("Napping") == true
 		and not hidden(model)
 		and not isWorking(model)
 		and not Context.isNight()
-		and Logic.loafing(
-			Workspace:GetServerTimeNow(),
-			Logic.phaseOf(if type(uid) == "string" then uid else model.Name)
-		)
+		and not seated(model)
+		and Logic.loafing(Workspace:GetServerTimeNow(), phaseOf(model))
 end
 
 local function styleOf(model: Model): Logic.Style
 	local pose = model:GetAttribute("Pose")
+	local night = Context.isNight()
 	if
 		model:GetAttribute("Napping") == true
 		or pose == "nap"
-		or (Context.isNight() and isWorking(model)) -- the cafe is closed at night (F44)
+		or (night and isWorking(model)) -- the cafe is closed at night (F44)
 	then
-		-- A cat stood upright at its station (F25) dozes on its feet; one on all fours curls up.
+		-- A cat stood upright (F25) or seated (PR #260) at its station dozes where it is; one on all fours curls up.
 		if pose == "upright" then
 			return "doze"
+		elseif seated(model) then
+			if night or isWorking(model) then
+				return "doze"
+			end
+			-- resting by day on the sitting body: washes a paw now and then
+			return if Logic.licking(Workspace:GetServerTimeNow(), phaseOf(model))
+				then "lick"
+				else "sit"
 		end
 		return if Cats.isLoafing(model) then "loaf" else "nap"
 	elseif CollectionService:HasTag(model, "StuckCat") then
@@ -533,14 +550,14 @@ local function step(dt: number)
 			continue
 		end
 		local t = now + entry.phase
-		local o = Logic.idle(entry.style, t)
+		local o = Logic.idle(entry.style, t, rig.kind)
 		local from: Logic.Style? = entry.from
 		if from ~= nil then
 			local k = (now - entry.changedAt) / motion.settle
 			if k >= 1 then
 				entry.from = nil
 			else
-				o = Logic.mix(Logic.idle(from, t), o, k * k * (3 - 2 * k))
+				o = Logic.mix(Logic.idle(from, t, rig.kind), o, k * k * (3 - 2 * k))
 			end
 		end
 		-- F40: a stray that ran from a missed catch catches its breath until FleeingUntil.

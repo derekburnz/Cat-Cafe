@@ -205,7 +205,13 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 	for uid, placement in wanted do
 		local instance = placement.instance
 		local def = Catalog.getCat(instance.catId)
-		local model = AssetRegistry.cloneCat(instance.catId, instance.variant)
+		local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
+		-- A working cat sits on the seated body (B). Resting cats mix their idles (Derek 2026-10-27: "use a mix of
+		-- idle animations"): the odd nap spots sit on B and wash a paw, the even ones lie on the walking body (A),
+		-- where they sleep and sit up into a loaf with its purr.
+		local napIndex = tonumber(placement.slot:match("^nap_(%d+)$"))
+		local sitting = spot ~= nil or (napIndex ~= nil and napIndex % 2 == 1)
+		local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, sitting)
 		model.Name = uid
 		model:SetAttribute("Uid", uid)
 		model:SetAttribute("CatId", instance.catId)
@@ -218,15 +224,15 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("DisplayName", shownName(player, instance))
 		model:SetAttribute("OwnerUserId", player.UserId)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
-		local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
+		model:PivotTo(placement.anchor.CFrame)
+		if seated then
+			model:SetAttribute("Pose", "sit") -- the client's Effects keep a seated cat seated
+		end
 		if spot ~= nil then
-			-- F25: a working cat stands upright at its station in its role's outfit
+			-- F25: a working cat sits at its station in its role's outfit
 			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
 			model:SetAttribute("Role", spot.spotType)
-			CatPose.upright(model, placement.anchor.CFrame)
 			CatPose.dress(model, spot.spotType)
-		else
-			model:PivotTo(placement.anchor.CFrame)
 		end
 		model.Parent = plot.cats
 	end

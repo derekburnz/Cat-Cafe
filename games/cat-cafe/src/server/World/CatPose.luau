@@ -1,12 +1,11 @@
 --!strict
--- A working cat stands upright at its station in its role's outfit (features.md F25, data-model section 5; Derek
--- 2026-10-27: outfits by role). Cats in the cat room stay on all fours with nothing on.
+-- A working cat sits at its station in its role's outfit (features.md F25, data-model section 5; Derek 2026-10-27:
+-- outfits by role, A walks and B sits). CafeService clones the seated body (AssetRegistry.cloneCat with sitting) with
+-- its pivot on the station point; resting cats at the odd nap spots sit on it too, with nothing on.
 --
--- The pose is assets/cat-cafe/exports/manifest.json `poses.upright` in Roblox axes: a CFrame for the body relative
--- to the station point, then a turn for the Head and the Tail about their joints (the exporter's Head and Tail are
--- Models pivoted at the joint), with every position times the cat's Scale. Outfit pieces go on the cat's
--- Outfit_<Piece> Attachments, which ride the Body or the Head, so the asset thread can move a slot without a code
--- change. Each piece's parts get Follows = "Body" or "Head", which the client's idles (Effects/Pose) read.
+-- Outfit pieces go on the seated cat's Outfit_<Piece> Attachments (manifest sit_slots), which ride the Body or the
+-- Head, so the asset thread can move a slot without a code change. Each piece's parts get Follows = "Body" or
+-- "Head", which the client's idles (Effects/Pose) read.
 --
 -- Roblox terms: an Attachment is a named point and rotation inside a part; its WorldCFrame follows the part.
 
@@ -16,16 +15,6 @@ local AssetRegistry = require(script.Parent.AssetRegistry)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 
 local CatPose = {}
-
--- manifest poses.upright, for a cat of Scale 1
-local BODY = CFrame.new(0, 0.8, -0.72, 1, 0, 0, 0, 0, -1, 0, 1, 0) -- body_cframe_roblox
-local HEAD_OFFSET = Vector3.new(0, 0, -0.32) -- head_offset_roblox, in the body's own frame
-local HEAD_TURN = CFrame.Angles(math.rad(-90), 0, 0) -- head_angles_roblox_deg
-local TAIL_TURN = CFrame.Angles(math.rad(-80), 0, 0) -- tail_angles_roblox_deg
-
-local function scaled(frame: CFrame, scale: number): CFrame
-	return frame.Rotation + frame.Position * scale
-end
 
 -- The exporter's object Model whose name ends in _<suffix> ("Head", "Tail"), or nil (placeholder cats have none).
 local function objectModel(model: Model, suffix: string): Model?
@@ -43,28 +32,7 @@ function CatPose.scaleOf(model: Model): number
 	return if type(scale) == "number" and scale > 0 then scale else 1
 end
 
--- Stands the cat up with its pivot on `station`. A cat with no Head or Tail object (a placeholder) gets the body
--- turn and nothing more. Posing is done once, on a fresh clone; a cat already upright is left alone (reviewer N98).
-function CatPose.upright(model: Model, station: CFrame)
-	if model:GetAttribute("Pose") == "upright" then
-		return
-	end
-	local scale = CatPose.scaleOf(model)
-	local rest = model:GetPivot()
-	local head = objectModel(model, "Head")
-	if head ~= nil then
-		local joint = rest:ToObjectSpace(head:GetPivot())
-		head:PivotTo(rest * CFrame.new(HEAD_OFFSET * scale) * joint * HEAD_TURN)
-	end
-	local tail = objectModel(model, "Tail")
-	if tail ~= nil then
-		tail:PivotTo(tail:GetPivot() * TAIL_TURN)
-	end
-	model:PivotTo(station * scaled(BODY, scale))
-	model:SetAttribute("Pose", "upright")
-end
-
--- Puts `role`'s outfit on a posed cat. A piece is skipped while its asset or the cat's Outfit_<Piece> slot is
+-- Puts `role`'s outfit on a seated cat. A piece is skipped while its asset or the cat's Outfit_<Piece> slot is
 -- missing, so new pieces and new cats can land in either order, and when it sits where the cat's own prop does
 -- (the model's PropSlot attribute). Returns how many pieces went on.
 function CatPose.dress(model: Model, role: string): number

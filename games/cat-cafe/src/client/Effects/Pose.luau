@@ -1,9 +1,12 @@
 --!strict
--- Moves a cat's body, head, tail and front paws on this client only. Parts are found by name (Body, Head, Tail,
--- or names ending _Body, _Head, _Tail, plus ears, eyes and legs named EarL, Eye1, LegF1 and so on, or ending so),
--- so one set of idles fits every breed. A working cat stood upright at its station (Pose "upright", F25) turns in
--- the floor's axes instead of its turned model's, and outfit parts ride what their Follows attribute names. Two
--- ways in, picked per model:
+-- Moves a cat's body, head, tail, legs, eyes and ears on this client only. Parts are found by name (Body, Head,
+-- Tail, or names ending _Body, _Head, _Tail, plus ears, eyes and legs named EarL, Eye1, LegF1 and so on, or ending
+-- so), so one set of idles fits every breed. On the bodies with hinged pieces (PR #259: walking A and sitting B)
+-- each piece is a Model pivoted at its joint, the eyes and ears nested in the head's, and every piece turns about
+-- its own pivot: Model-Agent's piece poses (Presets.catPoses) exactly as the manifest gives them, the idles on top,
+-- an eye squashed flat to blink and an ear flicked back. A working cat stood upright at its station (Pose
+-- "upright", F25) turns in the floor's axes instead of its turned model's, and outfit parts ride what their
+-- Follows attribute names. Two ways in, picked per model:
 -- - Anchored parts (the placeholder cats and today's Part cats): each part is drawn at its server CFrame times a
 --   small turn around its joint. The server's CFrame is read again whenever it changes, so a walking stray keeps
 --   walking and only the turn is ours. A client's write to a server part stays on that client.
@@ -20,7 +23,8 @@ local Presets = require(script.Parent.Presets)
 
 local Pose = {}
 
--- "body", "head", "tail", "pawFL", "pawFR", "pawBL" or "pawBR". A plain string so it can key tables.
+-- "body", "head", "tail", "pawFL", "pawFR", "pawBL", "pawBR", "eye1", "eye2", "earL" or "earR". A plain string
+-- so it can key tables.
 export type Group = string
 
 export type Rig = {
@@ -44,37 +48,50 @@ export type Rig = {
 	stride: number, -- leg cycles covered, counted from the distance moved
 	lastAt: number,
 	restDrop: number, -- studs the body drops to lie on its belly (Offsets.sink = 1); 0 for an upright cat
+	kind: Logic.Body,
+	poseTurns: { [string]: { [Group]: CFrame } }, -- each piece pose's turn per joint, in the joint's axes
+	lifts: { [string]: number }, -- studs each piece pose lowers the cat, at its scale
+	eyes: { number }, -- which of parts are eye parts, squashed to blink
+	eyeSizes: { Vector3 },
+	eyeAxes: { number }, -- the eye part's own axis that runs up the face: 1 X, 2 Y, 3 Z
+	squash: number, -- the eye height last drawn, 1 open
 	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
 	frames: { CFrame },
 }
 
-local LEGS: { [string]: Group } =
-	{ LegF1 = "pawFL", LegF2 = "pawFR", LegB1 = "pawBL", LegB2 = "pawBR" }
-local HEAD_PIECES: { [string]: boolean } = { EarL = true, EarR = true, Eye1 = true, Eye2 = true }
+-- Pieces named for what they are, as the placeholder names them (LegF1, EarL) or as the exporter does, after
+-- the object they sit in (<Cat>_LegF1, <Cat>_EarL). Body is the root, not a piece.
+local PIECES: { [string]: Group } = {
+	Head = "head",
+	Tail = "tail",
+	LegF1 = "pawFL",
+	LegF2 = "pawFR",
+	LegB1 = "pawBL",
+	LegB2 = "pawBR",
+	Eye1 = "eye1",
+	Eye2 = "eye2",
+	EarL = "earL",
+	EarR = "earR",
+}
+local EAR_OUT = 0.6 -- an ear flicks out sideways this much for each bit it flicks back
+local IDENTITY: CFrame = CFrame.identity -- a local, as selene's Roblox library has no methods on CFrame.identity
 
 local function isNamed(instance: Instance, name: string): boolean
 	local text = instance.Name
 	return text == name or (#text > #name + 1 and text:sub(-(#name + 1)) == "_" .. name)
 end
 
--- Pieces named for what they are, as the placeholder names them (LegF1, EarL) or as the exporter does, after
--- the object they sit in (<Cat>_LegF1, <Cat>_EarL).
-local function namedLeg(part: BasePart): Group?
-	for name, group in LEGS do
-		if isNamed(part, name) then
+local function pieceGroup(instance: Instance): Group?
+	for name, group in PIECES do
+		if isNamed(instance, name) then
 			return group
 		end
 	end
 	return nil
 end
 
-local function isHeadPiece(part: BasePart): boolean
-	for name in HEAD_PIECES do
-		if isNamed(part, name) then
-			return true
-		end
-	end
-	return false
+local function isLeg(group: Group): boolean
+	return string.sub(group, 1, 3) == "paw"
 end
 
 local function findPart(model: Model, name: string): BasePart?
@@ -97,15 +114,9 @@ local function groupOf(part: BasePart, body: BasePart, head: BasePart?): Group
 	elseif follows == "Body" or part == body then
 		return "body"
 	end
-	if isNamed(part, "Tail") then
-		return "tail"
-	end
-	if isNamed(part, "Head") or isHeadPiece(part) then
-		return "head"
-	end
-	local leg: Group? = namedLeg(part)
-	if leg ~= nil then
-		return leg
+	local named: Group? = pieceGroup(part)
+	if named ~= nil then
+		return named
 	end
 	if head ~= nil then
 		local toHead = (part.Position - head.Position).Magnitude
@@ -234,9 +245,51 @@ local function newRig(model: Model, body: BasePart): Rig
 		stride = 0,
 		lastAt = os.clock(),
 		restDrop = 0,
+		kind = "parts",
+		poseTurns = {},
+		lifts = {},
+		eyes = {},
+		eyeSizes = {},
+		eyeAxes = {},
+		squash = 1,
 		moves = {},
 		frames = {},
 	}
+end
+
+-- Which body a cat has: "walk" with hinged back legs (body A), "sit" with hinged front legs only (body B), or
+-- "parts" with no hinged pieces (the placeholder and older Part cats). The pieces are the model's own children.
+function Pose.kindOf(model: Model): Logic.Body
+	local front = false
+	for _, child in model:GetChildren() do
+		if child:IsA("Model") then
+			if isNamed(child, "LegB1") then
+				return "walk"
+			elseif isNamed(child, "LegF1") then
+				front = true
+			end
+		end
+	end
+	return if front then "sit" else "parts"
+end
+
+-- Whether a part can be squashed to blink: a block or a mesh. A ball or cylinder keeps its proportions.
+local function squashable(part: BasePart): boolean
+	if part:IsA("Part") then
+		return (part :: Part).Shape == Enum.PartType.Block
+	end
+	return part:IsA("MeshPart")
+end
+
+-- The part's own axis that lines up best with `up`: 1 X, 2 Y, 3 Z.
+local function axisAlong(frame: CFrame, up: Vector3): number
+	local x = math.abs(frame.RightVector:Dot(up))
+	local y = math.abs(frame.UpVector:Dot(up))
+	local z = math.abs(frame.LookVector:Dot(up))
+	if y >= x and y >= z then
+		return 2
+	end
+	return if x >= z then 1 else 3
 end
 
 -- Reads a cat model once. Nil when it has no body yet (its parts are still streaming in), or when its body is
@@ -266,13 +319,44 @@ function Pose.bind(model: Model): Rig?
 		return bodyFrame:PointToObjectSpace(hipOf(leg)).Y
 	end
 	local legs: { [Group]: BasePart } = {} -- the highest part of each leg, whose top is the hip
+	local pieces: { [Group]: Model } = {} -- the hinged pieces, each pivoted at its joint
+	local faces: { [Group]: BasePart } = {} -- an eye or ear part, for one with no hinge of its own
+	local namedLegs = false
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("Model") then
+			local group = pieceGroup(descendant)
+			local found: Model? = if group ~= nil then pieces[group] else nil
+			if group ~= nil and found == nil then
+				pieces[group] = descendant :: Model
+			end
+		elseif descendant:IsA("BasePart") then
+			local group = pieceGroup(descendant)
+			if group ~= nil and isLeg(group) then
+				namedLegs = true
+			end
+		end
+	end
+	rig.kind = Pose.kindOf(model)
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and (descendant :: BasePart).Anchored then
 			local part = descendant :: BasePart
 			local group = groupOf(part, body, head)
-			-- An outfit piece says what it rides (Follows), so only an unmarked part of the body can be a leg.
-			if group == "body" and part ~= body and part:GetAttribute("Follows") == nil then
+			-- An outfit piece says what it rides (Follows), so only an unmarked part of the body can be a leg, and
+			-- only on a cat whose legs are not named (the exported cats before PR #259 named every part like the body).
+			if
+				group == "body"
+				and not namedLegs
+				and part ~= body
+				and part:GetAttribute("Follows") == nil
+			then
 				group = legOf(part, body) or group
+			end
+			if (group == "eye1" or group == "eye2") and squashable(part) then
+				table.insert(rig.eyes, #rig.parts + 1)
+				table.insert(rig.eyeSizes, part.Size)
+			end
+			if group == "eye1" or group == "eye2" or group == "earL" or group == "earR" then
+				faces[group] = faces[group] or part
 			end
 			table.insert(rig.parts, part)
 			table.insert(rig.groups, group)
@@ -281,7 +365,7 @@ function Pose.bind(model: Model): Rig?
 			if part == body then
 				rig.bodyIndex = #rig.parts
 			end
-			if string.sub(group, 1, 3) == "paw" then
+			if isLeg(group) then
 				local highest: BasePart? = legs[group]
 				if highest == nil or hipY(part) > hipY(highest) then
 					legs[group] = part
@@ -308,6 +392,10 @@ function Pose.bind(model: Model): Rig?
 		rig.restDrop = math.max(0, (-body.Size.Y / 2 - floorY) * 0.8)
 	end
 
+	-- A seated cat (the sitting body, or Pose "sit" at its station, PR #260) never lies down either.
+	if rig.kind == "sit" or model:GetAttribute("Pose") == "sit" then
+		rig.restDrop = 0
+	end
 	-- A cat stood upright turns in the floor's axes about the floor under its body, and never lies down: at night
 	-- it dozes on its feet, so even a nap style cannot sink it into the counter.
 	local axes = pivot.Rotation
@@ -333,6 +421,45 @@ function Pose.bind(model: Model): Rig?
 	for group, leg in legs do
 		rig.joints[group] = joint(hipOf(leg))
 	end
+	-- A hinged piece turns about its own pivot; an eye or ear with none, about its middle.
+	for group, piece in pieces do
+		rig.joints[group] = joint(piece:GetPivot().Position)
+	end
+	for group, part in faces do
+		local hinged: CFrame? = rig.joints[group]
+		if hinged == nil then
+			rig.joints[group] = joint(hingeOf(part, model) or part.Position)
+		end
+	end
+	for k, index in rig.eyes do
+		rig.eyeAxes[k] = axisAlong(rig.base[index], axes.UpVector)
+	end
+
+	-- Model-Agent's piece poses, each turn put into its joint's axes once here. The manifest turns a piece in its
+	-- own axes (its pivot's), which can lean away from the model's, as the tail's do.
+	local attribute = model:GetAttribute("Scale")
+	local scale = (if type(attribute) == "number" then attribute else 1) * model:GetScale()
+	for name, pose in Presets.catPoses do
+		if pose.body ~= rig.kind then
+			continue -- a sitting cat cannot take the walking body's poses, nor the other way round
+		end
+		local turns: { [Group]: CFrame } = {}
+		for pieceName, angles in pose.turns do
+			local group: Group? = PIECES[pieceName]
+			local at: CFrame? = if group ~= nil then rig.joints[group] else nil
+			if group ~= nil and at ~= nil then
+				local piece: Model? = pieces[group]
+				local own = if piece ~= nil
+					then (bodyBase * at):ToObjectSpace(piece:GetPivot()).Rotation
+					else CFrame.identity
+				local turn =
+					CFrame.Angles(math.rad(angles[1]), math.rad(angles[2]), math.rad(angles[3]))
+				turns[group] = own * turn * own:Inverse()
+			end
+		end
+		rig.poseTurns[name] = turns
+		rig.lifts[name] = pose.lift * scale
+	end
 	return rig
 end
 
@@ -349,6 +476,66 @@ local function around(
 	end
 	local world = bodyBase * joint
 	return world * rotation * world:Inverse()
+end
+
+-- How far into a piece pose the cat is (Offsets.sleep, loaf and lick).
+local function weightOf(o: Logic.Offsets, name: string): number
+	if name == "sleep" then
+		return o.sleep
+	elseif name == "loaf" then
+		return o.loaf
+	elseif name == "lick" then
+		return o.lick
+	end
+	return 0
+end
+
+-- The idle's turn at a joint with the piece poses inside it, each blended by how far into it the cat is.
+local function posed(rig: Rig, o: Logic.Offsets, group: Group, rotation: CFrame): CFrame
+	local out = rotation
+	for name, turns in rig.poseTurns do
+		local weight = weightOf(o, name)
+		local turn: CFrame? = turns[group]
+		if weight > 0 and turn ~= nil then
+			out *= if weight >= 1 then turn else IDENTITY:Lerp(turn, weight)
+		end
+	end
+	return out
+end
+
+local function liftOf(rig: Rig, o: Logic.Offsets): number
+	local drop = 0
+	for name, lift in rig.lifts do
+		drop += lift * weightOf(o, name)
+	end
+	return drop
+end
+
+-- Squashes each eye towards its middle, up and down, to `squash` of its height (1 puts it back). Positions go into
+-- frames; sizes are set only when the squash changes.
+local function squashEyes(rig: Rig, squash: number, bodyBase: CFrame)
+	local resize = squash ~= rig.squash
+	rig.squash = squash
+	local frames = rig.frames
+	for k, index in rig.eyes do
+		local group = rig.groups[index]
+		local joint: CFrame? = rig.joints[group]
+		if joint ~= nil and squash < 1 then
+			local centre = rig.moves[group] * bodyBase * joint
+			local inEye = centre:ToObjectSpace(frames[index])
+			local at = inEye.Position
+			frames[index] = centre * CFrame.new(at.X, at.Y * squash, at.Z) * inEye.Rotation
+		end
+		if resize then
+			local size = rig.eyeSizes[k]
+			local axis = rig.eyeAxes[k]
+			rig.parts[index].Size = Vector3.new(
+				if axis == 1 then size.X * squash else size.X,
+				if axis == 2 then size.Y * squash else size.Y,
+				if axis == 3 then size.Z * squash else size.Z
+			)
+		end
+	end
 end
 
 local function applyMotors(rig: Rig, o: Logic.Offsets)
@@ -450,23 +637,48 @@ function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
 			joints,
 			bodyBase,
 			"body",
-			CFrame.new(0, o.bodyY - o.sink * rig.restDrop, 0)
+			CFrame.new(0, o.bodyY - o.sink * rig.restDrop - liftOf(rig, o), 0)
 				* CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
 		)
 	local moves = rig.moves
 	moves.body = bodyMove
 	moves.head = bodyMove
-		* around(joints, bodyBase, "head", CFrame.Angles(o.headPitch, o.headYaw, o.headRoll))
+		* around(
+			joints,
+			bodyBase,
+			"head",
+			posed(rig, o, "head", CFrame.Angles(o.headPitch, o.headYaw, o.headRoll))
+		)
 	moves.tail = bodyMove
-		* around(joints, bodyBase, "tail", CFrame.Angles(-o.tailPitch, o.tailYaw, 0))
-	moves.pawFL = bodyMove * around(joints, bodyBase, "pawFL", CFrame.Angles(o.pawFL, 0, 0))
-	moves.pawFR = bodyMove * around(joints, bodyBase, "pawFR", CFrame.Angles(o.pawFR, 0, 0))
-	moves.pawBL = bodyMove * around(joints, bodyBase, "pawBL", CFrame.Angles(o.pawBL, 0, 0))
-	moves.pawBR = bodyMove * around(joints, bodyBase, "pawBR", CFrame.Angles(o.pawBR, 0, 0))
+		* around(
+			joints,
+			bodyBase,
+			"tail",
+			posed(rig, o, "tail", CFrame.Angles(-o.tailPitch, o.tailYaw, 0))
+		)
+	moves.pawFL = bodyMove
+		* around(joints, bodyBase, "pawFL", posed(rig, o, "pawFL", CFrame.Angles(o.pawFL, 0, 0)))
+	moves.pawFR = bodyMove
+		* around(joints, bodyBase, "pawFR", posed(rig, o, "pawFR", CFrame.Angles(o.pawFR, 0, 0)))
+	moves.pawBL = bodyMove
+		* around(joints, bodyBase, "pawBL", posed(rig, o, "pawBL", CFrame.Angles(o.pawBL, 0, 0)))
+	moves.pawBR = bodyMove
+		* around(joints, bodyBase, "pawBR", posed(rig, o, "pawBR", CFrame.Angles(o.pawBR, 0, 0)))
+	-- the eyes and ears ride the head; an ear flicks back and out about its base
+	moves.eye1 = moves.head
+	moves.eye2 = moves.head
+	moves.earL = moves.head
+		* around(joints, bodyBase, "earL", CFrame.Angles(o.earL, 0, o.earL * EAR_OUT))
+	moves.earR = moves.head
+		* around(joints, bodyBase, "earR", CFrame.Angles(o.earR, 0, -o.earR * EAR_OUT))
 
 	local frames = rig.frames
 	for i, group in rig.groups do
 		frames[i] = moves[group] * base[i]
+	end
+	local squash = 1 - (1 - Presets.motion.blink.squash) * math.clamp(o.blink, 0, 1)
+	if #rig.eyes > 0 and (squash < 1 or rig.squash < 1) then
+		squashEyes(rig, squash, bodyBase)
 	end
 	Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
 	for i, part in parts do
@@ -499,6 +711,15 @@ function Pose.release(rig: Rig)
 			motor.Transform = CFrame.identity
 		end
 		return
+	end
+	if rig.squash < 1 then
+		rig.squash = 1
+		for k, index in rig.eyes do
+			local part = rig.parts[index]
+			if part.Parent ~= nil then
+				part.Size = rig.eyeSizes[k]
+			end
+		end
 	end
 	local parts: { BasePart } = {}
 	local frames: { CFrame } = {}

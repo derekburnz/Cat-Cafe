@@ -185,13 +185,17 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 	end
 	local window = Dealer.window(os.time())
 	Dealer.refresh(profile.dealer, window)
-	local foods = Dealer.stock(window)
-	if foods[slot] ~= lureId then
-		refuse("Fresh stock just arrived. Take another look.")
-		return
-	end
 	if Dealer.behind(profile.dealer, window) then
 		refuse("Fresh stock is on its way. Try again in a moment.")
+		return
+	end
+	if Dealer.stock(window)[slot] ~= lureId then
+		-- Only a list from the window before means the stock moved on while the player looked.
+		if Dealer.stock(window - 1)[slot] == lureId then
+			refuse("Fresh stock just arrived. Take another look.")
+		else
+			refuse("That food isn't on the cart.")
+		end
 		return
 	end
 	local key = tostring(slot)

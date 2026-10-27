@@ -440,6 +440,17 @@ local function wireIntents()
 	UI.events.spinWheel:Connect(function()
 		Net.fire("SpinWheel")
 	end)
+	-- Open on a Market crate card and Buy on a Market row (F53); the server answers with CrateResult or a toast, and
+	-- a ProfileSync.
+	local uiEvents: any = UI.events
+	if uiEvents.openCrate ~= nil then
+		uiEvents.openCrate:Connect(function(crateId: string)
+			Net.fire("OpenCrate", crateId)
+		end)
+		uiEvents.buyFishItem:Connect(function(itemId: string)
+			Net.fire("BuyFishItem", itemId)
+		end)
+	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
 	UI.events.reportBug:Connect(function(text: string, kind: string, clientErrors: { string })
 		Net.fire("ReportBug", text, kind, clientErrors)
@@ -632,15 +643,21 @@ local function bindDealerCart()
 	end
 end
 
--- The Spin Wheel station in the street plaza (F49): its "Spin" prompt opens the Spin window, which closes itself
--- when the player walks out of range. The station is the server's, tagged SpinWheel and Persistent; a prompt that
--- streams in after its model is bound too, and each prompt only once.
-local function bindSpinStations()
+-- The Golden Fish Market window (F53) and its two events come with UI #312. Until that is on main the UI module may
+-- not have them, so they are reached loosely and skipped when missing. Drop the casts once #312 merges.
+local function marketUI(): any
+	return (UI :: any).market
+end
+
+-- A street station's prompt opens its window, which closes itself when the player walks out of range. The station is
+-- the server's, tagged and Persistent; a prompt that streams in after its model is bound too, and each prompt only
+-- once.
+local function bindStationPrompts(tag: string, promptName: string, open: () -> ())
 	local bound: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local function bindPrompt(instance: Instance)
 		if
 			bound[instance]
-			or instance.Name ~= "SpinPrompt"
+			or instance.Name ~= promptName
 			or not instance:IsA("ProximityPrompt")
 		then
 			return
@@ -648,7 +665,7 @@ local function bindSpinStations()
 		bound[instance] = true
 		local prompt = instance :: ProximityPrompt
 		prompt.Triggered:Connect(function()
-			UI.spin.open()
+			open()
 		end)
 	end
 	local function station(instance: Instance)
@@ -657,10 +674,23 @@ local function bindSpinStations()
 		end
 		instance.DescendantAdded:Connect(bindPrompt)
 	end
-	CollectionService:GetInstanceAddedSignal("SpinWheel"):Connect(station)
-	for _, instance in CollectionService:GetTagged("SpinWheel") do
+	CollectionService:GetInstanceAddedSignal(tag):Connect(station)
+	for _, instance in CollectionService:GetTagged(tag) do
 		station(instance)
 	end
+end
+
+-- The Spin Wheel (F49) and the Golden Fish Market (F53) in the street plaza.
+local function bindStations()
+	bindStationPrompts("SpinWheel", "SpinPrompt", function()
+		UI.spin.open()
+	end)
+	bindStationPrompts("FishMarket", "MarketPrompt", function()
+		local market = marketUI()
+		if market ~= nil then
+			market.open()
+		end
+	end)
 end
 
 -- Analytics only (F16): the device kind goes on the onboarding funnel's joined step and on session_end. Sent on the
@@ -738,6 +768,16 @@ local function wireServerEvents()
 	Net.on("SpinResult", function(slice: number, amount: number)
 		UI.spin.result(slice, amount)
 	end)
+	-- The piece a crate gave, whether it was a duplicate and its refund; "", false, 0 when the server refused (F53).
+	Net.on(
+		"CrateResult",
+		function(crateId: string, decorId: string, duplicate: boolean, refund: number)
+			local market = marketUI()
+			if market ~= nil then
+				market.result(crateId, decorId, duplicate, refund)
+			end
+		end
+	)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
 		UI.dealer.setStock(stock)
 	end)
@@ -913,6 +953,8 @@ function UIController.start()
 		indexPrizes = Catalog.indexPrizes,
 		spinWheel = Catalog.spinWheel,
 		crates = Catalog.crates, -- F53: names and models for the crate prizes (review S77)
+		crateDecor = Catalog.crateDecor, -- F53: the 60 crate pieces (the Decor shop keeps reading decor)
+		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
@@ -930,7 +972,7 @@ function UIController.start()
 	wireIntents()
 	wireServerEvents()
 	bindDealerCart()
-	bindSpinStations()
+	bindStations()
 	startPrediction()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))

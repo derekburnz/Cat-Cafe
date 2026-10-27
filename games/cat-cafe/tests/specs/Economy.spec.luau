@@ -25,6 +25,7 @@ return function()
 			lures = {},
 			bait = nil,
 			dealer = { window = 0, bought = {} },
+			fishPerks = {}, -- F52 (version 7), read by cafeMultiplier and lureWaitSeconds since F53
 			cats = {
 				starter = {
 					uid = "starter",
@@ -164,7 +165,7 @@ return function()
 			end)
 
 			it(
-				"Index decor adds +5% a piece, and a placed gold piece stands in for its normal one (F48, N114)",
+				"Index decor adds +8% a piece (its zone's Epic since F53), and a placed gold piece stands in for its normal one (F48, N114)",
 				function()
 					local p = freshProfile()
 					local function give(id: string)
@@ -172,12 +173,12 @@ return function()
 						p.decorPlaced[id] = true
 					end
 					give("index_alley")
-					expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
+					expect(Economy.cafeMultiplier(p)).to.be.near(1.08)
 					give("index_alley_gold")
 					expect(Economy.cafeMultiplier(p)).to.be.near(1.10)
 					expect(Economy.replacedDecor(p) :: any).to.deepEqual({ index_alley = true })
 					p.decorPlaced.index_alley_gold = nil
-					expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
+					expect(Economy.cafeMultiplier(p)).to.be.near(1.08)
 					expect(next(Economy.replacedDecor(p))).never.to.be.ok()
 					-- every area with both pieces placed tops out at +50%
 					for _, def in ipairs(Catalog.decor) do

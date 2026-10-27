@@ -121,7 +121,7 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 		return
 	end
 	local bait = profile.bait
-	if bait == nil or os.time() < CafeService.baitReadyAt(bait) then
+	if bait == nil or os.time() < CafeService.baitReadyAt(profile, bait) then
 		CafeService.sync(player) -- the card waits for a fresh bowl state
 		return
 	end
@@ -176,7 +176,7 @@ local function checkArrivals()
 		local bait = if profile ~= nil then profile.bait else nil
 		if
 			bait ~= nil
-			and now >= CafeService.baitReadyAt(bait)
+			and now >= CafeService.baitReadyAt(profile :: Types.PlayerProfile, bait)
 			and shownArrival[player] ~= bait.placedAt
 		then
 			shownArrival[player] = bait.placedAt

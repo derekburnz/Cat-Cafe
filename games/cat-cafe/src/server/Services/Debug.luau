@@ -16,6 +16,7 @@
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
+--   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
 
@@ -32,6 +33,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FishMarketService = require(script.Parent.FishMarketService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
@@ -158,6 +160,13 @@ end
 function Debug.spins(player: (Player | number | string)?, banked: number, freeDue: boolean?): number
 	local p = resolve(player)
 	return SpinService.debugSet(p, profileOf(p), banked, freeDue == true)
+end
+
+-- Sets the player's banked crates of `crateId` to `count` (default 1) and clears the Market cooldown (F53). Walk
+-- to the Golden Fish Market to open them; a banked crate costs no fish.
+function Debug.giveCrate(player: (Player | number | string)?, crateId: string, count: number?)
+	local p = resolve(player)
+	FishMarketService.debugGive(p, profileOf(p), crateId, count or 1)
 end
 
 -- The newest `count` (default 20) bug reports of UTC day `day` ("YYYYMMDD", default today), oldest first, printed

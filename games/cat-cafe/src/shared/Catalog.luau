@@ -1265,6 +1265,544 @@ local CRATE_POOLS = {
 	{ area = "sewer", name = "Sewer" },
 	{ area = "classic", name = "Classic" },
 }
+-- The pieces in each pool (F53, golden-fish.md section 4): ten, two of each kind, 4 Common, 3 Rare and one each of
+-- Epic, Legendary and Mythical. A wallpaper, floor or paint is a colour and a material on the cafe's tagged shell
+-- parts; furniture and decorations are models (CatCafe_Decor_<Name>) on decor spots. The F48 Index pieces are their
+-- zones' Epics and keep their ids, assets and spots. Every piece is a DecorDef in Catalog.crateDecor.
+type PieceRow = {
+	id: string,
+	name: string?, -- nil on an F48 Index piece, which keeps its own
+	kind: Types.DecorKind,
+	rarity: Types.Rarity,
+	color: Color3?,
+	material: Enum.Material?,
+	description: string?,
+}
+local CRATE_PIECES: { [string]: { PieceRow } } = {
+	alley = {
+		{
+			id = "alley_brick_wall",
+			name = "Brick Wall",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(170, 90, 70),
+			material = Enum.Material.Brick,
+			description = "Warm red brick, straight from the back alley.",
+		},
+		{
+			id = "alley_midnight_sky",
+			name = "Midnight Sky",
+			kind = "wallpaper",
+			rarity = "Mythical",
+			color = Color3.fromRGB(30, 35, 80),
+			material = Enum.Material.SmoothPlastic,
+			description = "Stars twinkle and a moon drifts across the walls.",
+		},
+		{
+			id = "alley_subway_tile",
+			name = "Subway Tile",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(230, 230, 225),
+			material = Enum.Material.CeramicTiles,
+			description = "Clean white tiles, city style.",
+		},
+		{
+			id = "alley_puddle_glass",
+			name = "Puddle Glass",
+			kind = "floor",
+			rarity = "Rare",
+			color = Color3.fromRGB(70, 80, 95),
+			material = Enum.Material.Glass,
+			description = "Shines like a wet street after rain.",
+		},
+		{
+			id = "alley_fire_escape_red",
+			name = "Fire Escape Red",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(180, 50, 45),
+			material = Enum.Material.SmoothPlastic,
+			description = "The red of every fire escape on the block.",
+		},
+		{
+			id = "alley_graffiti_pastel",
+			name = "Graffiti Pastel",
+			kind = "paint",
+			rarity = "Rare",
+			color = Color3.fromRGB(240, 170, 200),
+			material = Enum.Material.SmoothPlastic,
+			description = "Soft spray paint colours for the cafe front.",
+		},
+		{
+			id = "alley_milk_crate_stools",
+			name = "Milk Crate Stools",
+			kind = "furniture",
+			rarity = "Common",
+			description = "Stacked crates with cushions on top.",
+		},
+		{
+			id = "alley_retro_jukebox",
+			name = "Retro Jukebox",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "Plays the old songs, lights and all.",
+		},
+		{
+			id = "alley_jar_lights",
+			name = "Jar Lights",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "Fairy lights in old jam jars.",
+		},
+		{ id = "index_alley", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+	},
+	park = {
+		{
+			id = "park_leafy_vines",
+			name = "Leafy Vines",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(110, 150, 80),
+			material = Enum.Material.Plaster,
+			description = "Vines climbing every wall.",
+		},
+		{
+			id = "park_meadow_mural",
+			name = "Meadow Mural",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(150, 200, 120),
+			material = Enum.Material.Plaster,
+			description = "A painted meadow all the way round.",
+		},
+		{
+			id = "park_garden_path",
+			name = "Garden Path",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(160, 150, 130),
+			material = Enum.Material.Pebble,
+			description = "Pebbles underfoot, like the Park.",
+		},
+		{
+			id = "park_clover_carpet",
+			name = "Clover Carpet",
+			kind = "floor",
+			rarity = "Rare",
+			color = Color3.fromRGB(90, 160, 80),
+			material = Enum.Material.Carpet,
+			description = "Soft green, lucky to step on.",
+		},
+		{
+			id = "park_meadow_green",
+			name = "Meadow Green",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(120, 180, 100),
+			material = Enum.Material.SmoothPlastic,
+			description = "Fresh grass green for the cafe front.",
+		},
+		{
+			id = "park_duck_pond_blue",
+			name = "Duck Pond Blue",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(110, 170, 210),
+			material = Enum.Material.SmoothPlastic,
+			description = "The calm blue of the duck pond.",
+		},
+		{
+			id = "park_picnic_table_set",
+			name = "Picnic Table Set",
+			kind = "furniture",
+			rarity = "Rare",
+			description = "A picnic table with a checked cloth.",
+		},
+		{ id = "index_park", kind = "furniture", rarity = "Epic" }, -- the F48 Index piece
+		{
+			id = "park_duck_fountain",
+			name = "Duck Fountain",
+			kind = "decoration",
+			rarity = "Legendary",
+			description = "A fountain the ducks would approve of.",
+		},
+		{
+			id = "park_blossom_tree",
+			name = "Blossom Tree",
+			kind = "decoration",
+			rarity = "Mythical",
+			description = "A blossom tree with petals drifting down.",
+		},
+	},
+	neighbourhood = {
+		{
+			id = "neighbourhood_picket_stripes",
+			name = "Picket Stripes",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(240, 235, 225),
+			material = Enum.Material.Plaster,
+			description = "White stripes like a picket fence.",
+		},
+		{
+			id = "neighbourhood_kitchen_gingham",
+			name = "Kitchen Gingham",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(220, 120, 120),
+			material = Enum.Material.Fabric,
+			description = "Red gingham, like a farmhouse kitchen.",
+		},
+		{
+			id = "neighbourhood_checker_kitchen",
+			name = "Checker Kitchen",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(235, 235, 235),
+			material = Enum.Material.CeramicTiles,
+			description = "A black and white kitchen checker.",
+		},
+		{
+			id = "neighbourhood_porch_planks",
+			name = "Porch Planks",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(170, 130, 90),
+			material = Enum.Material.WoodPlanks,
+			description = "Sun warmed porch boards.",
+		},
+		{
+			id = "neighbourhood_pastel_pink",
+			name = "Pastel Pink",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(245, 190, 205),
+			material = Enum.Material.SmoothPlastic,
+			description = "A sweet pink cafe front.",
+		},
+		{
+			id = "neighbourhood_rainbow_shimmer",
+			name = "Rainbow Shimmer",
+			kind = "paint",
+			rarity = "Mythical",
+			color = Color3.fromRGB(200, 160, 240),
+			material = Enum.Material.SmoothPlastic,
+			description = "A slow rainbow over the cafe front.",
+		},
+		{
+			id = "neighbourhood_porch_swing",
+			name = "Porch Swing",
+			kind = "furniture",
+			rarity = "Rare",
+			description = "A swing seat for lazy afternoons.",
+		},
+		{
+			id = "neighbourhood_ice_cream_counter",
+			name = "Ice Cream Counter",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "Every flavour, cats included.",
+		},
+		{
+			id = "neighbourhood_bicycle_planter",
+			name = "Bicycle Planter",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "An old bike with a basket of flowers.",
+		},
+		{ id = "index_neighbourhood", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+	},
+	woods = {
+		{
+			id = "woods_birch_bark",
+			name = "Birch Bark",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(225, 220, 205),
+			material = Enum.Material.Wood,
+			description = "Pale birch from the Woods.",
+		},
+		{
+			id = "woods_aurora_sky",
+			name = "Aurora Sky",
+			kind = "wallpaper",
+			rarity = "Mythical",
+			color = Color3.fromRGB(40, 90, 110),
+			material = Enum.Material.SmoothPlastic,
+			description = "Northern lights ripple across the walls.",
+		},
+		{
+			id = "woods_mossy_planks",
+			name = "Mossy Planks",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(95, 110, 70),
+			material = Enum.Material.WoodPlanks,
+			description = "Old boards with a little moss.",
+		},
+		{
+			id = "woods_leaf_litter",
+			name = "Leaf Litter",
+			kind = "floor",
+			rarity = "Rare",
+			color = Color3.fromRGB(160, 100, 50),
+			material = Enum.Material.Ground,
+			description = "Crunchy autumn leaves underfoot.",
+		},
+		{
+			id = "woods_forest_green",
+			name = "Forest Green",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(50, 100, 60),
+			material = Enum.Material.SmoothPlastic,
+			description = "Deep pine green for the cafe front.",
+		},
+		{
+			id = "woods_toadstool_red",
+			name = "Toadstool Red",
+			kind = "paint",
+			rarity = "Rare",
+			color = Color3.fromRGB(200, 50, 45),
+			material = Enum.Material.SmoothPlastic,
+			description = "Bright red with a toadstool spot or two.",
+		},
+		{
+			id = "woods_log_stools",
+			name = "Log Stools",
+			kind = "furniture",
+			rarity = "Common",
+			description = "Sawn logs to sit on.",
+		},
+		{
+			id = "woods_hollow_log_booth",
+			name = "Hollow Log Booth",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "A booth carved inside a giant log.",
+		},
+		{
+			id = "woods_lantern_stump",
+			name = "Lantern Stump",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "A tree stump holding a little lantern.",
+		},
+		{ id = "index_woods", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+	},
+	sewer = {
+		{
+			id = "sewer_pipe_works",
+			name = "Pipe Works",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(120, 130, 130),
+			material = Enum.Material.Metal,
+			description = "Pipes and valves along every wall.",
+		},
+		{
+			id = "sewer_bottle_cap_mosaic",
+			name = "Bottle Cap Mosaic",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(200, 160, 60),
+			material = Enum.Material.CeramicTiles,
+			description = "A mosaic of bright bottle caps.",
+		},
+		{
+			id = "sewer_canal_tile",
+			name = "Canal Tile",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(90, 140, 140),
+			material = Enum.Material.CeramicTiles,
+			description = "Teal tiles from the canal walk.",
+		},
+		{
+			id = "sewer_glimmer_canal",
+			name = "Glimmer Canal",
+			kind = "floor",
+			rarity = "Mythical",
+			color = Color3.fromRGB(60, 140, 180),
+			material = Enum.Material.Glass,
+			description = "Water shimmers under a glass floor.",
+		},
+		{
+			id = "sewer_brass_teal",
+			name = "Brass Teal",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(60, 140, 130),
+			material = Enum.Material.SmoothPlastic,
+			description = "Teal with brass trim.",
+		},
+		{
+			id = "sewer_copper_patina",
+			name = "Copper Patina",
+			kind = "paint",
+			rarity = "Rare",
+			color = Color3.fromRGB(100, 170, 150),
+			material = Enum.Material.SmoothPlastic,
+			description = "Old copper gone green.",
+		},
+		{
+			id = "sewer_crate_shelf",
+			name = "Crate Shelf",
+			kind = "furniture",
+			rarity = "Common",
+			description = "Shelves made from salvaged crates.",
+		},
+		{
+			id = "sewer_bathtub_sofa",
+			name = "Bathtub Sofa",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "A clawfoot tub full of cushions.",
+		},
+		{
+			id = "sewer_rubber_duck_row",
+			name = "Rubber Duck Row",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "A line of rubber ducks on parade.",
+		},
+		{ id = "index_sewer", kind = "decoration", rarity = "Epic" }, -- the F48 Index piece
+	},
+	classic = {
+		{
+			id = "classic_cream_stripes",
+			name = "Cream Stripes",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(245, 235, 210),
+			material = Enum.Material.Plaster,
+			description = "Timeless cream stripes.",
+		},
+		{
+			id = "classic_paw_print",
+			name = "Paw Print",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(230, 200, 180),
+			material = Enum.Material.Fabric,
+			description = "Little paw prints everywhere.",
+		},
+		{
+			id = "classic_oak_boards",
+			name = "Oak Boards",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(160, 115, 70),
+			material = Enum.Material.WoodPlanks,
+			description = "Honest oak floorboards.",
+		},
+		{
+			id = "classic_black_white_tile",
+			name = "Black and White Tile",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(240, 240, 240),
+			material = Enum.Material.CeramicTiles,
+			description = "The classic cafe floor.",
+		},
+		{
+			id = "classic_latte_brown",
+			name = "Latte Brown",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(170, 125, 90),
+			material = Enum.Material.SmoothPlastic,
+			description = "The colour of a good latte.",
+		},
+		{
+			id = "classic_gold_leaf",
+			name = "Gold Leaf",
+			kind = "paint",
+			rarity = "Mythical",
+			color = Color3.fromRGB(220, 180, 70),
+			material = Enum.Material.Foil,
+			description = "Gold trim that glints in the light.",
+		},
+		{
+			id = "classic_bistro_set",
+			name = "Bistro Set",
+			kind = "furniture",
+			rarity = "Rare",
+			description = "A little round table and two chairs.",
+		},
+		{
+			id = "classic_velvet_booth",
+			name = "Velvet Booth",
+			kind = "furniture",
+			rarity = "Epic",
+			description = "A deep red velvet booth.",
+		},
+		{
+			id = "classic_hanging_plants",
+			name = "Hanging Plants",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "Plants in macrame hangers.",
+		},
+		{
+			id = "classic_cat_tree_tower",
+			name = "Cat Tree Tower",
+			kind = "decoration",
+			rarity = "Legendary",
+			description = "A cat tree that nearly touches the ceiling.",
+		},
+	},
+}
+
+local KIND_CATEGORY: { [string]: string } = {
+	wallpaper = "Wallpaper",
+	floor = "Flooring",
+	paint = "Paint",
+	furniture = "Furniture",
+	decoration = "Decoration",
+}
+
+Catalog.crateDecor = {} :: { Types.DecorDef }
+local poolPieces: { [string]: { string } } = {}
+for _, pool in CRATE_POOLS do
+	local ids: { string } = {}
+	for _, row in CRATE_PIECES[pool.area] do
+		local bonus = Config.CratePieceBonus[row.rarity]
+		local effect = string.format("+%d%% tips while in use", math.floor(bonus * 100 + 0.5))
+		local def: Types.DecorDef? = Catalog.decorById[row.id]
+		if def ~= nil then
+			def.crate, def.rarity, def.kind = pool.area, row.rarity, row.kind
+			def.bonus, def.effect = bonus, effect
+		else
+			local name = row.name :: string
+			local styled = row.kind == "wallpaper" or row.kind == "floor" or row.kind == "paint"
+			local asset = (if styled then "CatCafe_Style_" else "CatCafe_Decor_")
+				.. (name:gsub("[^%w]", ""))
+			def = {
+				id = row.id,
+				name = name,
+				cost = 0,
+				category = KIND_CATEGORY[row.kind],
+				effect = effect,
+				description = row.description or "",
+				bonus = bonus,
+				asset = asset,
+				source = "crate",
+				crate = pool.area,
+				rarity = row.rarity,
+				kind = row.kind,
+				color = row.color,
+				material = row.material,
+			}
+			Catalog.decorById[row.id] = def :: Types.DecorDef
+		end
+		table.insert(Catalog.crateDecor, def :: Types.DecorDef)
+		table.insert(ids, row.id)
+	end
+	poolPieces[pool.area] = ids
+end
+
 Catalog.crates = {} :: { Types.CrateDef }
 for _, pool in CRATE_POOLS do
 	table.insert(Catalog.crates, {
@@ -1272,9 +1810,9 @@ for _, pool in CRATE_POOLS do
 		name = pool.name .. " Crate",
 		area = pool.area,
 		golden = false,
-		price = 60,
+		price = Config.CratePrice,
 		odds = CRATE_ODDS,
-		pieces = {},
+		pieces = poolPieces[pool.area],
 	})
 	table.insert(Catalog.crates, {
 		id = pool.area .. "_golden_crate",
@@ -1283,7 +1821,7 @@ for _, pool in CRATE_POOLS do
 		golden = true,
 		price = nil,
 		odds = GOLDEN_CRATE_ODDS,
-		pieces = {},
+		pieces = poolPieces[pool.area],
 	})
 end
 

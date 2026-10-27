@@ -13,6 +13,7 @@ local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
+local Crates = require(ReplicatedStorage.Shared.Crates)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
@@ -62,9 +63,10 @@ function CafeService.catViews(player: Player, profile: Profile): { [string]: Typ
 	return views
 end
 
--- When the bowl's cat arrives (data-model section 8): LureWaitSeconds after the food went in, online or not.
-function CafeService.baitReadyAt(bait: Types.BaitState): number
-	return bait.placedAt + Config.LureWaitSeconds
+-- When the bowl's cat arrives (data-model section 8): LureWaitSeconds after the food went in, online or not, or
+-- BigBowlLureWaitSeconds with the Big Bowl perk (F53).
+function CafeService.baitReadyAt(profile: Types.PlayerProfile, bait: Types.BaitState): number
+	return bait.placedAt + Economy.lureWaitSeconds(profile)
 end
 
 -- The bowl as ProfileSync sends it: the rolled cat only once it has arrived, so the reveal is not spoiled (N30).
@@ -73,7 +75,7 @@ local function baitView(profile: Profile, now: number): Types.BaitView?
 	if bait == nil then
 		return nil
 	end
-	local readyAt = CafeService.baitReadyAt(bait)
+	local readyAt = CafeService.baitReadyAt(profile, bait)
 	local view: Types.BaitView = { lureId = bait.lureId, readyAt = readyAt }
 	if now >= readyAt then
 		view.cat = {
@@ -248,24 +250,59 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 	end
 end
 
-local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
-	local replaced = Economy.replacedDecor(profile) -- a placed gold Index piece takes its normal piece's spot
-	for _, def in Catalog.decor do
-		local shouldShow = profile.decorOwned[def.id] == true
-			and profile.decorPlaced[def.id] == true
-			and not replaced[def.id]
-		local existing = plot.decor:FindFirstChild(def.id)
-		if shouldShow then
-			local anchor: BasePart? = plot.decorAnchors[def.id]
-			if existing == nil and anchor ~= nil then
-				local model = AssetRegistry.clone(def.asset)
-				model.Name = def.id
-				model:PivotTo(anchor.CFrame)
-				model.Parent = plot.decor
-			end
-		elseif existing ~= nil then
+-- Puts the piece's model at `at` (moving it when its place changed), or takes it away when `at` is nil. Every
+-- placed piece carries DecorId, for the client's effects (F53).
+local function showDecor(plot: WorldBuilder.Plot, def: Types.DecorDef, at: BasePart?)
+	local existing = plot.decor:FindFirstChild(def.id)
+	if at == nil then
+		if existing ~= nil then
 			existing:Destroy()
 		end
+		return
+	end
+	if existing ~= nil and existing:IsA("Model") then
+		if existing:GetAttribute("DecorAt") ~= at.Name then
+			existing:SetAttribute("DecorAt", at.Name)
+			existing:PivotTo(at.CFrame)
+		end
+		return
+	end
+	local model = AssetRegistry.clone(def.asset)
+	model.Name = def.id
+	model:SetAttribute("DecorId", def.id)
+	model:SetAttribute("DecorAt", at.Name)
+	model:PivotTo(at.CFrame)
+	model.Parent = plot.decor
+end
+
+local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
+	local replaced = Economy.replacedDecor(profile) -- a placed gold Index piece takes its normal piece's spot
+	local function inUse(def: Types.DecorDef): boolean
+		return profile.decorOwned[def.id] == true
+			and profile.decorPlaced[def.id] == true
+			and not replaced[def.id]
+	end
+	-- Shop and Index pieces, each on its own anchor.
+	for _, def in Catalog.decor do
+		showDecor(plot, def, if inUse(def) then plot.decorAnchors[def.id] else nil)
+	end
+	-- Crate furniture and decorations (F53) take the decor spots in catalog order; the F48 Index pieces among them
+	-- kept their anchors above.
+	local nextSpot = 1
+	for _, def in Catalog.crateDecor do
+		if not Crates.takesSpot(def) or plot.decorAnchors[def.id] then
+			continue
+		end
+		local spot: BasePart? = nil
+		if inUse(def) then
+			spot = plot.decorSpots[nextSpot]
+			nextSpot += 1
+		end
+		showDecor(plot, def, spot)
+	end
+	-- The wallpaper, floor and paint in use, by decor id, for the client to colour the cafe's tagged shell parts.
+	for _, slot in Crates.STYLE_SLOTS do
+		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))
 	end
 end
 
@@ -335,7 +372,7 @@ local FOOD_SCALE = 1.2 -- the food item sits in the bowl
 local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Profile)
 	local owned = Economy.level(profile, "lure_bowl") >= 1
 	local bait = if owned then profile.bait else nil
-	local readyAt = if bait ~= nil then CafeService.baitReadyAt(bait) else 0
+	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
 	local ready = bait ~= nil and os.time() >= readyAt
 	plot.model:SetAttribute("BaitReadyAt", readyAt)
 	if not owned then
@@ -872,8 +909,23 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 	if profile == nil or decorId == nil or placed == nil then
 		return
 	end
-	if not profile.decorOwned[decorId] then
+	local def = Catalog.getDecor(decorId)
+	if def == nil or not profile.decorOwned[decorId] then
 		return
+	end
+	if placed and Crates.isStyle(def.kind) then
+		-- one wallpaper, one floor and one paint: the new one takes the old one's place (F53)
+		local current = Crates.styleInUse(profile, def.kind :: Types.DecorKind)
+		if current ~= nil then
+			profile.decorPlaced[current] = nil
+		end
+	elseif placed and Crates.takesSpot(def) and not profile.decorPlaced[decorId] then
+		local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
+		if Crates.spotsUsed(profile, Economy.replacedDecor(profile)) >= cap then
+			Net.toast(player, "Every decor spot is full. Put a piece away first.", "warn")
+			CafeService.sync(player)
+			return
+		end
 	end
 	if placed then
 		profile.decorPlaced[decorId] = true

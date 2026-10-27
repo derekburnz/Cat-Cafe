@@ -183,6 +183,18 @@ function EquipBest.apply(profile: Types.PlayerProfile, plan: Plan): number
 	return changed
 end
 
+-- Unequip all: rests every working cat in the cat room. Returns how many cats left a role.
+function EquipBest.restAll(profile: Types.PlayerProfile): number
+	local rested = 0
+	for _, instance in profile.cats do
+		if instance.spotId ~= nil then
+			instance.spotId = nil
+			rested += 1
+		end
+	end
+	return rested
+end
+
 -- True when the current placement already earns the plan's rate (nothing to do).
 function EquipBest.isOptimal(profile: Types.PlayerProfile, plan: Plan): boolean
 	local current = 0

@@ -660,6 +660,32 @@ local function onEquipBest(player: Player)
 	CafeService.sync(player)
 end
 
+-- Unequip all (UI thread, the cat inventory's Unequip All button): every working cat rests in the cat room. Like
+-- equip best, nothing is bought or sold, so the only check is that the profile is loaded.
+local function onUnequipAll(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local rested = EquipBest.restAll(profile)
+	if rested == 0 then
+		Net.toast(player, "No cats are working right now.", "info")
+		CafeService.sync(player)
+		return
+	end
+	Net.toast(
+		player,
+		string.format(
+			"%d %s resting in the cat room.",
+			rested,
+			if rested == 1 then "cat is" else "cats are"
+		),
+		"info"
+	)
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
 local function onSellCat(player: Player, rawUid: unknown)
 	local uid = Guard.id(rawUid)
 	local profile = profileFor(player)
@@ -915,6 +941,7 @@ function CafeService.start()
 	Net.on("PlaceCat", onPlaceCat)
 	Net.on("UnplaceCat", onUnplaceCat)
 	Net.on("EquipBest", onEquipBest)
+	Net.on("UnequipAll", onUnequipAll)
 	Net.on("SellCat", onSellCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)

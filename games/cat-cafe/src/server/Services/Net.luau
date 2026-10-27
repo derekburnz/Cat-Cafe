@@ -25,6 +25,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	RequestSync = RateLimiter.new(1, 2),
 	ClaimOffline = RateLimiter.new(1, 2),
 	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync
+	UnequipAll = RateLimiter.new(1, 2), -- rebuilds the plot and sends a full sync, like EquipBest
 	RankUp = RateLimiter.new(1, 2), -- data-model section 15: 1 per 2 s
 	TutorialAdvance = RateLimiter.new(1, 1),
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason

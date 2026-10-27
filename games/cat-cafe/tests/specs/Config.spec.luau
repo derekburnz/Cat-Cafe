@@ -109,6 +109,13 @@ return function()
 		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
+		-- codes (F65, section 11d, v0.10 circle and group codes)
+		CodesCatRange = 12,
+		CodesCircleRadius = 4,
+		CodeMaxLength = 20,
+		CodeWrongLimit = 5,
+		CodeLockSeconds = 60,
+		GroupId = 0,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45)
 		BumpEnabled = true,
 		BumpRangeStuds = 6,
@@ -171,6 +178,8 @@ return function()
 				CratePieceBonus = true, -- a table, checked below
 				CrateDuplicateRefund = true, -- a table, checked below
 				DecorSpots = true, -- a table, checked below
+				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
+				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

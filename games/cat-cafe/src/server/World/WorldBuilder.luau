@@ -1250,6 +1250,39 @@ local function buildFishMarket(parent: Instance): Model
 	return model
 end
 
+-- The Codes Cat (F65): `CatCafe_Street_CodesCat` tagged CodesCat with its CodesCircle on the ground in front.
+-- Walking into the circle opens the code box on the client (no prompt, v0.10); CodeService measures CodesCatRange
+-- from the pivot. A model without a circle gets a plain one where the asset's would be.
+local function buildCodesCat(parent: Instance): Model
+	local spec = Layout.codesCat
+	local model = place(
+		"CatCafe_Street_CodesCat",
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "CodesCat"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, "CodesCat")
+	if model:FindFirstChild("CodesCircle", true) == nil then
+		local circle = Instance.new("Part")
+		circle.Name = "CodesCircle"
+		circle.Shape = Enum.PartType.Cylinder
+		circle.Size = Vector3.new(0.1, Config.CodesCircleRadius * 2, Config.CodesCircleRadius * 2)
+		circle.CFrame = model:GetPivot()
+			* CFrame.new(0, 0.05, -6)
+			* CFrame.Angles(0, 0, math.rad(90))
+		circle.Material = Enum.Material.Neon
+		circle.Color = Color3.fromRGB(255, 214, 120)
+		circle.Transparency = 0.4
+		circle.Anchored = true
+		circle.CanCollide = false
+		circle.CanQuery = false
+		circle.CanTouch = false
+		circle.Parent = model
+	end
+	return model
+end
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -1345,6 +1378,7 @@ function WorldBuilder.build(): World
 	buildSafeZoneMarks(root)
 	buildSpinWheel(root)
 	buildFishMarket(root)
+	buildCodesCat(root)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

@@ -278,6 +278,7 @@ local function spawnStray(
 	prompt.Parent = body
 
 	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 	model.Parent = straysFolder
 
 	local stray: Stray = {
@@ -351,16 +352,21 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local occupied = occupiedPoints[areaId] or {}
 	local free: { number } = {}
 	local square: { number } = {}
+	local hasSquare = false
 	for i, point in area.spawnPoints do
+		local inSquare = point:GetAttribute("Zone") == "square"
+		hasSquare = hasSquare or inSquare
 		if occupied[i] == nil then
 			table.insert(free, i)
-			if point:GetAttribute("Zone") == "square" then
+			if inSquare then
 				table.insert(square, i)
 			end
 		end
 	end
-	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and #square > 0 then
-		return square[rng:NextInteger(1, #square)]
+	-- Epic and rarer spawn only in the Alley Square, never in a back alley lane (F35); with the Square full that
+	-- stray waits for the next wave. startWave places the rarer strays first, so this is rare.
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasSquare then
+		return if #square > 0 then square[rng:NextInteger(1, #square)] else nil
 	end
 	if #free == 0 then
 		return nil
@@ -437,13 +443,19 @@ local function startWave(areaDef: Types.AreaDef)
 			despawn(stray)
 		end
 	end
+	-- Roll the whole wave, then place the rarest first so Epic and rarer always find a Square point.
+	local rarities: { Types.Rarity } = {}
 	for _ = 1, areaDef.waveSize do
-		local rarity: Types.Rarity = Catching.pickRarity(areaDef.odds, rng:NextNumber())
+		table.insert(rarities, Catching.pickRarity(areaDef.odds, rng:NextNumber()))
+	end
+	table.sort(rarities, function(a, b)
+		return Catalog.rarityRank[a] > Catalog.rarityRank[b]
+	end)
+	for _, rarity: Types.Rarity in rarities do
 		local point = freeSpawnPoint(areaDef.id, rarity)
-		if point == nil then
-			break
+		if point ~= nil then
+			spawnAt(areaDef.id, point, rarity)
 		end
-		spawnAt(areaDef.id, point, rarity)
 	end
 end
 
@@ -493,6 +505,7 @@ local function spawnStuck(spotId: string, areaId: string, spot: BasePart, def: T
 	prompt.Parent = body
 
 	model:PivotTo(spot.CFrame)
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 	model.Parent = straysFolder
 	spot:SetAttribute("Occupied", true)
 	spot:SetAttribute("LockedBy", 0)

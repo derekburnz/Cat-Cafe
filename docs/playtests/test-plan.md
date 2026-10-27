@@ -29,7 +29,7 @@ QA branches from `main`, keeps to `games/cat-cafe/tests/`, `games/cat-cafe/tools
 
 | Layer | Where | When | How |
 |---|---|---|---|
-| Unit tests of pure shared modules (`tests/specs/*.spec.luau`) | Cloud threads, or any PC with Node 20 | Every change under `src/shared`, before every review | `cd games/cat-cafe/tools/cloudcheck && npm test` |
+| Unit tests of pure modules (`tests/specs/*.spec.luau`) | Cloud threads, or any PC with Node 20 | Every change under `src/shared`, `src/server/World/Layout.luau` or the pure client `Audio` and `Effects` logic, before every review | `cd games/cat-cafe/tools/cloudcheck && npm test` |
 | Strict type check and lint, cloud stand-in | Same | Same | `npm run analyze` (game), `npm run analyze -- --tests` (specs too) |
 | The real done gate | Derek's PC, Rokit toolchain, and CI | Before any task is called done | `cd games/cat-cafe && ./check.ps1` (Windows) or `./check.sh` |
 | Unit tests inside Studio (real Roblox globals) | Derek's PC | Before every playtest build | Section 3.2 |
@@ -90,6 +90,7 @@ Results of every run go to `docs/playtests/YYYY-MM-DD.md` in the `playtest-repor
 | `Clock.spec` | Phase at any time, countdown without jumps, start of each phase | data-model 9 |
 | `Config.spec` | Every constant in data-model section 17 by name and value, no undocumented constant, internal ordering | data-model 17 |
 | `Signal.spec` | Connect, disconnect, once, disconnect all, one erroring handler does not stop the rest | |
+| `EffectsLogic.spec` | Effects v1 pure logic (vfx-animator, PR #77; QA edges): touch-only devices get the low budget; Purrfect only when every grade is Perfect, a CatchResult with no success flag is a failure; nearest picks within the radius (the edge counts), nearest first, at most the limit; a plot claim, release, owner swap and rank up told apart, a tier rise inside the 2 s claim grace or from tier 0 is not a rank up; every gate a skipped tier crosses opens, none already open; pulse, hiss, landing, confetti and butterfly curves stay bounded; phone bursts 12 or fewer, 4 steady emitters | effects list, Effects v1 |
 
 v0.3 specs QA writes as each feature lands (the engineer is asked to keep these as pure functions in
 `src/shared`, section 8):
@@ -114,7 +115,8 @@ v0.3 specs QA writes as each feature lands (the engineer is asked to keep these 
 
 Not covered by unit tests, by design: anything that needs DataStores, Players, RemoteEvents, TextService,
 physics or the world. `DataService`, `CatService`, `CafeService`, `Net`, `WorldBuilder` and all of `src/client`
-are Studio-only and covered by sections 4 to 6.
+except the pure `Audio/Logic`, `Audio/Cues`, `Effects/Logic` and `Effects/Presets` are Studio-only and covered by
+sections 4 to 6.
 
 ### 3.2 Running them
 
@@ -148,7 +150,7 @@ it is scripted; keep the manual tool sequence below as the reference.
 | S1 Join | `start_stop_play` start. Wait 10 s. `get_console_output`. `execute_luau`: plots tagged `Plot` with `OwnerUserId == player.UserId` | No errors. Exactly one plot owned, `Tier` attribute 1. HUD shows `$50` and `1.5/s` within 5 s: the starter Tabby (charm 50, level 1) works `barista_1`, its favorite role (hook: `snapshot.money == 50`, `incomePerSecond == 1.5`, `tier == 1`). The Tabby stands upright in an apron | F01, F04, F22, F25 |
 | S2 World and gates | `execute_luau`: five area folders under `workspace.World`, a gate per locked area; `CollectionService:GetTagged("Stray")` by `Area` attribute | Alleyway open; Park, Neighbourhood, Woods and Sewer gates solid for a Tier 1 player (`character_navigation` into the Park stops at the gate). By day the alley holds only leftovers and the tutorial Common. (v0.4) The Alleyway is two back alleys behind the cafe rows meeting in the Alley Square; 24 alley spawn points with `Zone` `lane` (16) or `square` (8); every cafe's back door is open at Tier 1; each locked gate shows its tier and the player's progress | F23, F35 |
 | S3 Walk to alley | (v0.4) From the farthest cafe's back door, `character_navigation` to the nearest stray spawn point, then to the far side of the Square, then from the cafe to each unlocked gate; time each with `os.clock()` in `execute_luau` | (v0.4) `Humanoid.WalkSpeed` 20; nearest spawn under 2 s, far side of the Square under 8 s, any unlocked gate under 10 s (world-and-feel 2 and 8.4); the tutorial Common waits at the `lane` point behind the player's own cafe. Before F35: the alley centre in under 60 s. Tutorial arrow visible on the way (phone emulator run only) | F01, F13, F35 |
-| S4 Catch, Common | Next to the tutorial Common (within 8 studs), trigger the prompt (`user_keyboard_input` `E`). Read the `CatchSchedule` the client received (client `execute_luau`, or the server's `[Catch]` line). Press `E` at the circle's target time; on a second stray, press 0.3 s late on purpose | One circle, shrinking over 1.40 s x (1 +/- 0.30) with a Basic Net, starting 0.6 s after the press. Within 0.045 s of the target is Perfect, within 0.11 s Good, else Miss. (v0.4) Perfect or Good always catches, no roll; an all-Perfect catch reports `charmGain` 8 and the caught cat's charm is the stray's `Charm` plus 8 (capped at 100). The late press is a Miss: the overlay ends at once, `CatchResult` grades `{ "miss" }`, success false, `pawsLeft` 2 (nil for a new player on the tutorial Common, who never runs out), toast `It slipped away! 2 paws left`, the cat jumps back 6 to 10 studs and the prompt returns for this player after 5 s. Before F34: Perfect 100%, Good 50%, Miss 0%; a failed Common stays with the prompt back after 2 s. Success: carry indicator, walk speed 16 (13 before F35; hook: `Humanoid.WalkSpeed`) | F26, F34, F07 |
+| S4 Catch, Common | Next to the tutorial Common (within 8 studs), trigger the prompt (`user_keyboard_input` `E`). Read the `CatchSchedule` the client received (client `execute_luau`, or the server's `[Catch]` line). Press `E` at the circle's target time; on a second stray, press 0.3 s late on purpose | One circle, shrinking over 1.40 s x (1 +/- 0.30) with a Basic Net, starting 0.6 s after the press. Within 0.045 s of the target is Perfect, within 0.11 s Good, else Miss. (v0.4) Perfect or Good always catches, no roll; an all-Perfect catch reports `charmGain` 8 and the caught cat's charm is the stray's `Charm` plus 8 (capped at 100). The late press is a Miss: the overlay ends at once, `CatchResult` grades `{ "miss" }`, success false, `pawsLeft` 2 (nil for a new player on the tutorial Common, who never runs out), the catch HUD shows `It slipped away! 2 paws left` with the paw row one down (a server toast before engineer PR #91, reviewer S39; never both), the cat jumps back 6 to 10 studs and the prompt returns for this player after 5 s. Before F34: Perfect 100%, Good 50%, Miss 0%; a failed Common stays with the prompt back after 2 s. Success: carry indicator, walk speed 16 (13 before F35; hook: `Humanoid.WalkSpeed`) | F26, F34, F07 |
 | S5 Check in | `character_navigation` to own plot `Door`; (v0.4) next time to the back door | Within 8 studs: Cat found popup, `+50` first-catch reward for a new Common, book `2 / 50`, carry indicator gone, speed back to 20 (16 before F35). (v0.4) The back door checks in too | F07, F35 |
 | S6 Role | Open the cat room, pick the new cat, assign it to `waiter_1` | It stands upright in a bow tie. Rate rises by its rating, times 1.5 if `waiter` is its favorite (Tuxedo, Snow): `1 x charmMultiplier` where charm 0 to 100 gives 0.8x to 1.2x (read `snapshot.cats[uid].charm`) | F25 |
 | S7 Buy | At `$100` buy Tables; at `$400` buy the Bait bowl (hook: `Debug.setCoins` to skip the wait) | Table and two chairs appear, rate x1.10 exactly. A bowl appears at the `BaitBowl` anchor by the door | F08, F28 |
@@ -256,7 +258,7 @@ Catching and rescue (F26, F27, F23)
 | Same stray again (key `[`) | `GrabBegin(id)` 2 s into its own catch | `GrabResult` `Keep going, the circles are coming`, no second schedule, one `CatchResult` |
 | One catch at a time (key `[`) | 2 s into a catch, stand by another stray and `GrabBegin` it | `Finish this catch first`, no schedule |
 | Retry wait (key `;`) | Miss a Common on purpose, `GrabBegin(id)` 2 s after the first `GrabBegin` (inside the wary wait), then once the wait is over, pressing on target | (v0.4) `CatchResult` success false, `pawsLeft` one fewer (2 on a fresh Common); refused `It's wary of you, give it a moment` inside StrayWarySeconds 5 from the miss; after it a new schedule carrying the paws the miss left, and the on-target presses catch it. Before F34: stayed true, `Give it a moment` inside 2 s |
-| Out of paws (v0.4, key `.`; second client manual) | Miss the nearest stray until `pawsLeft` is 0 (one miss for a Legendary or Mythical: `Debug.spawnStray("void")`), then `GrabBegin(id)` once the wary wait is over | Toast `It won't trust you tonight`; refused `It won't trust you again tonight` with retry false, no schedule, until the stray despawns; the stray stays with `Paws_<UserId>` 0 on its model; a second client still gets a schedule |
+| Out of paws (v0.4, key `.`; second client manual) | Miss the nearest stray until `pawsLeft` is 0 (one miss for a Legendary or Mythical: `Debug.spawnStray("void")`), then `GrabBegin(id)` once the wary wait is over | The last Miss's `CatchResult` has `pawsLeft` 0 and the catch HUD says `It won't trust you tonight` (a toast before PR #91); refused `It won't trust you again tonight` with retry false, no schedule, until the stray despawns; the stray stays with `Paws_<UserId>` 0 on its model; a second client still gets a schedule |
 | Far grab (key 2) | Teleport 200 studs away, `GrabBegin(id)` | Refused with `Too far away`, no schedule |
 | Far press (key 8) | `GrabBegin` in range, teleport 200 studs away, press every circle on target | Not caught although every press is on target. (v0.4) Walking out of range is a Miss: a paw is lost, the cat jumps back. Before F34: a failed catch with no roll, toast `Too far away`; a Common stays, a Rare flees |
 | Locked area | Tier 1, teleport past the Park gate, `GrabBegin(park stray)`, `RescueBegin(park trap)` | Refused, nothing locked, no schedule or challenge |
@@ -337,6 +339,31 @@ the whole scene under 16.7 ms on the emulator's default quality. Record `Stats:G
 after 10 minutes, and the count of `ShinySparkle` emitters. (v0.4, F37, world-and-feel 8.8) Standing in the street
 with eight running cafes on a phone-sized viewport: 30 or more frames per second; cafes beyond 80 studs culled and
 roaming paused with nobody within 60 studs.
+(Effects v1, reviewer S35 and the 2026-10-27 build review) At night on the phone emulator with all five areas
+spawned (50 strays; hook `Debug.setPhase("night")` at Tier 5 so every gate is open), stand where the most strays
+are in view and open the MicroProfiler (Ctrl+F6, or Settings, MicroProfiler): record the client frame time over
+10 s and the share under the Effects labels. Target: the frame stays under 33 ms (30 frames per second) and no more
+than 8 cats move on the client at once (the low budget). Record, do not ticket, unless the frame rate drops below
+30.
+
+### 4.6 Effects (v0.4, effects list "Effects v1", world-and-feel 7)
+
+Precondition: `Main.client.luau` calls `Effects.start()` (on main since engineer PR #85). On an older build mark
+every row skipped with that reason. Run on PC, then repeat E1, E2 and E6 on the phone emulator. Watch
+the client output for anything from `Effects` through the whole section (E8). Every effect lives on this client
+only: client parts go in `workspace.ClientEffects` and burst emitters on `Burst_*` attachments under
+`workspace.Terrain`; neither exists on the server (server `execute_luau`: both absent).
+
+| Row | Do | Expected |
+|---|---|---|
+| E1 Miss | Miss circle 1 of a Common on purpose (S4's late press). A second client watches from 20 studs. Then turn on Reduce Motion (Roblox settings) and miss again | A grey puff, a pink "!" over the head, the cat rears and hops back with its tail up; the server's 6 to 10 stud jump-back is drawn as travel during the hop, never a snap. The player who missed gets one small camera shake (about 0.18 s); the watcher sees the puff, "!" and hop (from `HissAt`) but no shake. The hiss sound plays with the puff (audio PR #69). With Reduce Motion on: no shake and no flash |
+| E2 Catch and Purrfect | Catch a Common with one Good circle, then an all-Perfect catch (`Debug.spawnStray` and the abuse client's on-target presses, or by hand), then a Mythical all-Perfect | The Good catch bursts sparkles in the rarity colour, no gold. The all-Perfect catch adds a gold burst, a gold ring on the ground and gold confetti. On the phone emulator each burst is visibly smaller than on PC (12 particles at most) |
+| E3 Claim | Clients and Servers: a second player joins and claims a For Rent plot while the first player watches from the street | The shutters roll up into their top edge with a dust puff, the For Rent sign flips and fades, a little confetti at the door. Before the asset thread's `CatCafe_Plot_ForRent` with `_Shutter` and `_Sign` parts: only the dust puff and confetti |
+| E4 Rank up | Rank up to Tier 2 (S14) with the second player within 120 studs, then again with them 150 studs away. Then rejoin a profile saved at Tier 3 | Confetti and a smoke puff at the cafe door for every player within 120 studs, more confetti for the owner; nothing for the player 150 studs away. A rejoin at a saved tier plays the claim effect only, never rank up confetti (claim grace 2 s) |
+| E5 Gate | After E4, walk to the Park gate, then away past 70 studs and back | Within 70 studs the barrier copy fades and swells with rising sparkles, confetti and a mint ring, once; walking away and back does not replay it in this session. A gate that opened while the player was far away dissolves when they first walk up |
+| E6 Day ambient | By day, `screen_capture` at a running cafe front | A thin steam wisp over the espresso machine and two pastel butterflies looping over the flowers (or the pavement in front of each door until `_Flowers` exists). Chimney smoke only once the cafe roofs have `_Chimney` parts |
+| E7 Night ambient | `Debug.setPhase("night")`, capture the street and the Square | Warm fireflies drifting near the street lamps (or `_Fireflies` boxes); no butterflies at night; they return at dawn |
+| E8 Console | The whole section | No new error or warning naming `Effects` on the client, none on the server |
 
 ## 5. Manual checklist (Derek first, then friends)
 

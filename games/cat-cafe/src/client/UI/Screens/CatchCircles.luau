@@ -4,18 +4,25 @@
 -- position. The player presses (tap anywhere, E, Space, click or the gamepad's A) as each circle meets
 -- its ring. The UI only says which circle a press was for; the server stamps the time on arrival and
 -- judges it. Grades drawn before showResult are hints from this device; showResult replaces them with
--- the server's scores.
+-- the server's grades.
+--
+-- v0.4 (data-model section 10 step 5): the first Miss ends the catch and no Miss means caught. Each circle pops
+-- PERFECT, GOOD or MISS at its ring; on a Miss the word wobbles, the circles left over vanish and the header's
+-- paw row loses a paw. The camera shake and the hiss are the vfx-animator's and the sound-designer's.
 --
 -- Bands: the closing circle moves at a constant speed, so a timing window of w seconds is a band of
 -- w x speed pixels either side of the ring. Good is the wide green band, Perfect the thin gold one.
 
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local Outline = require(script.Parent.Parent.Components.Outline)
+local PawRow = require(script.Parent.Parent.Components.PawRow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -30,6 +37,17 @@ export type Header = {
 	stars: number?,
 	shiny: boolean?,
 	title: string?, -- replaces the hint line, e.g. "Catch it as it falls!" on a tree rescue
+	paws: number?, -- v0.4 paws this player has left on the stray; nil hides the paw row (cannot run out)
+	patience: number?, -- the stray's full paw count, for the spent paws
+}
+
+-- The server's verdict (CatchResult, v0.4): grades up to and including the first Miss, and the paws left after
+-- it (nil when the player cannot run out). charmGain is what the Perfects added; 0 or nil on a fail.
+export type Outcome = {
+	grades: { Types.CircleGrade },
+	success: boolean,
+	pawsLeft: number?,
+	charmGain: number?,
 }
 
 export type CatchCircles = {
@@ -41,14 +59,7 @@ export type CatchCircles = {
 		header: Header?,
 		onPress: (index: number) -> ()
 	) -> (),
-	showResult: (
-		self: CatchCircles,
-		scores: { number },
-		chance: number,
-		success: boolean,
-		failText: string?,
-		onDone: (() -> ())?
-	) -> (),
+	showResult: (self: CatchCircles, outcome: Outcome, onDone: (() -> ())?) -> (),
 	gradeLocal: (self: CatchCircles, index: number) -> Types.CircleGrade?,
 	isActive: (self: CatchCircles) -> boolean,
 	hide: (self: CatchCircles) -> (),
@@ -60,6 +71,7 @@ type CircleView = {
 	target: number,
 	speed: number, -- design pixels per second the closer travels
 	holder: Frame,
+	scale: UIScale,
 	closer: Frame,
 	closerStroke: UIStroke,
 	ring: Frame,
@@ -79,23 +91,49 @@ local RING_THICKNESS = 4
 -- after the good window closes. Read from Config once the engineer adds it.
 local LATENCY_CAP: number = Config.CatchLatencyCapSeconds
 local RESULT_SECONDS = 1.6
+local MISS_SECONDS = 1 -- a miss closes faster: the toast carries the paws left
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"
 local PRESS_KEYS =
 	{ Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 
-local GRADE_TEXT: { [string]: string } = { perfect = "Perfect!", good = "Good", miss = "Miss" }
+local GRADE_TEXT: { [string]: string } = { perfect = "PERFECT!", good = "GOOD", miss = "MISS" }
 local GRADE_COLOR: { [string]: Color3 } = {
 	perfect = Theme.colors.gold,
 	good = Theme.colors.good,
-	miss = Theme.colors.warn,
+	miss = Theme.colors.red,
 }
+local WOBBLE = { 9, -8, 6, -4, 0 } -- design pixels, the MISS word shaking its head
+local WOBBLE_STEP = TweenInfo.new(0.045, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+local VANISH = TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 
 local CatchCircles = {}
 CatchCircles.__index = CatchCircles
 
 local function now(): number
 	return Workspace:GetServerTimeNow()
+end
+
+-- A quick sideways shake, skipped when the player asked for reduced motion.
+local function wobble(label: GuiObject)
+	if GuiService.ReducedMotionEnabled then
+		return
+	end
+	local base = label.Position
+	local step = 0
+	local function nextStep()
+		step += 1
+		local offset = WOBBLE[step]
+		if offset == nil then
+			return
+		end
+		local tween =
+			Tween.to(label, WOBBLE_STEP, { Position = base + UDim2.fromOffset(offset, 0) })
+		tween.Completed:Once(function()
+			nextStep()
+		end)
+	end
+	nextStep()
 end
 
 local function circleFrame(name: string, radius: number, parent: Instance): Frame
@@ -247,8 +285,15 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		Text = "",
 		Parent = header,
 	})
+	-- v0.4 paw row, bottom right of the header (rhythm game lives, Fisch's line strength)
+	self._paws = PawRow.new({
+		parent = header,
+		paw = 20,
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -12, 0, 38),
+	})
 
-	-- Result banner: per-circle grades sit on the circles, the chance and the outcome sit here
+	-- Result banner on a catch: per-circle grades sit on the circles, the outcome and the charm sit here
 	local banner: Frame = Create("Frame", {
 		Name = "Result",
 		BackgroundColor3 = Theme.hud.panel,
@@ -264,25 +309,26 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 2 }),
 	})
 	self._banner = banner
-	self._chance = Create("TextLabel", {
-		Name = "Chance",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.new(1, 0, 0, 22),
-		FontFace = Theme.fonts.body,
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.hud.subtext,
-		Text = "",
-		Parent = banner,
-	})
 	self._outcome = Create("TextLabel", {
 		Name = "Outcome",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 28),
+		Position = UDim2.fromOffset(0, 6),
 		Size = UDim2.new(1, 0, 0, 36),
 		FontFace = Theme.fonts.display,
-		TextSize = 28,
+		TextSize = 30,
 		TextColor3 = Theme.hud.text,
+		Text = "",
+		Parent = banner,
+	})
+	Outline.text(self._outcome, 3)
+	self._detail = Create("TextLabel", {
+		Name = "Detail",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(0, 44),
+		Size = UDim2.new(1, 0, 0, 22),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.hud.subtext,
 		Text = "",
 		Parent = banner,
 	})
@@ -317,6 +363,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		ZIndex = 10 - index, -- earlier circles on top
 		Parent = self._circleLayer,
 	})
+	local scale: UIScale = Create("UIScale", { Parent = holder })
 	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, Theme.colors.good, 0.45, holder)
 	band(
 		"PerfectBand",
@@ -355,22 +402,22 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		Name = "Grade",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 0.5, -(RING_RADIUS + 10)),
-		Size = UDim2.fromOffset(160, 32),
+		Position = UDim2.new(0.5, 0, 0.5, -(RING_RADIUS + 8)),
+		Size = UDim2.fromOffset(180, 36),
 		FontFace = Theme.fonts.display,
-		TextSize = 24,
+		TextSize = 30,
 		TextColor3 = Theme.colors.paper,
-		TextStrokeColor3 = Theme.colors.ink,
-		TextStrokeTransparency = 0.3,
 		Text = "",
 		Visible = false,
 		Parent = holder,
 	})
+	Outline.text(grade, 3)
 	return {
 		circle = circle,
 		target = circle.startsAt + shrink,
 		speed = speed,
 		holder = holder,
+		scale = scale,
 		closer = closer,
 		closerStroke = closerStroke,
 		ring = ring,
@@ -415,6 +462,8 @@ function CatchCircles.show(
 				else "Press E or click as each circle meets its ring"
 		)
 	self._header.UIStroke.Color = if info.shiny then Theme.colors.gold else Theme.hud.stroke
+	self._paws:set(info.paws, info.patience)
+	self._hint.Size = UDim2.new(1, if info.paws ~= nil then -110 else -28, 0, 22)
 	self._banner.Visible = false
 
 	for index, circle in circles do
@@ -525,20 +574,22 @@ function CatchCircles._press(self: any)
 	end
 end
 
+-- The word pops when it first appears and again if the server's grade differs from this device's hint.
 function CatchCircles._showGrade(self: any, index: number, grade: Types.CircleGrade, final: boolean)
 	local view: CircleView? = self._views[index]
 	if not view then
 		return
 	end
+	local changed = not view.grade.Visible or view.grade.Text ~= GRADE_TEXT[grade]
 	view.judged = true
 	view.grade.Text = GRADE_TEXT[grade]
 	view.grade.TextColor3 = GRADE_COLOR[grade]
-	view.grade.TextTransparency = if final then 0 else 0.25
+	view.grade.TextTransparency = if final then 0 else 0.15
 	view.grade.Visible = true
 	view.closerStroke.Color = GRADE_COLOR[grade]
 	view.ringStroke.Color = GRADE_COLOR[grade]
-	if final then
-		Tween.popIn(view.grade, 0.6)
+	if changed then
+		Tween.popIn(view.grade, if grade == "perfect" then 0.4 else 0.6)
 	end
 end
 
@@ -557,17 +608,11 @@ function CatchCircles.gradeLocal(self: any, index: number): Types.CircleGrade?
 	return nil
 end
 
--- The server's verdict (CatchResult): scores per circle (1, 0.5 or 0), the chance (0 to 1) and the roll.
--- failText is the outcome line on a failed roll ("It got away", "Missed, try again"). onDone runs after the
--- banner has shown, when the overlay hides.
-function CatchCircles.showResult(
-	self: any,
-	scores: { number },
-	chance: number,
-	success: boolean,
-	failText: string?,
-	onDone: (() -> ())?
-)
+-- The server's verdict. Each graded circle shows the server's word; circles after a Miss vanish. A catch shows
+-- the banner ("Caught!", or "PURRFECT!" when every circle was Perfect, with the charm it added) for 1.6 s; a
+-- miss wobbles the MISS word, takes a paw off the header and closes after 1 s. onDone runs when the overlay
+-- hides.
+function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())?)
 	if not self._active then
 		if onDone then
 			onDone()
@@ -578,25 +623,54 @@ function CatchCircles.showResult(
 	local token = self._token
 	self._awaitingResult = true
 	ContextActionService:UnbindAction(ACTION_NAME)
+	local grades = outcome.grades
+	local perfects = 0
+	local missed: CircleView? = nil
 	for index, view in self._views :: { CircleView } do
-		local score = scores[index] or 0
-		local grade: Types.CircleGrade = if score >= 1
-			then "perfect"
-			elseif score >= 0.5 then "good"
-			else "miss"
 		view.pressed = true
 		view.closer.Visible = false
+		local grade: Types.CircleGrade? = grades[index]
+		if grade == nil then
+			-- after the Miss: the server never judged it
+			view.judged = true
+			Tween.to(view.scale, VANISH, { Scale = 0 })
+			continue
+		end
 		self:_showGrade(index, grade, true)
+		if grade == "perfect" then
+			perfects += 1
+		elseif grade == "miss" and missed == nil then
+			missed = view
+		end
 	end
-	local percentText = tostring(math.floor(math.clamp(chance, 0, 1) * 100 + 0.5)) .. "%"
-	self._chance.Text = "Catch chance " .. percentText
-	self._outcome.Text = if success then "Caught!" else (failText or "It got away")
-	self._outcome.TextColor3 = if success then Theme.colors.good else Theme.colors.warn
-	self._banner.UIStroke.Color = if success then Theme.colors.good else Theme.colors.warn
-	self._banner.Visible = true
-	Tween.popIn(self._banner, 0.8)
-	self._hint.Text = if success then "Carry it home to check in" else ""
-	task.delay(RESULT_SECONDS, function()
+
+	local success = outcome.success
+	if success then
+		local purrfect = #grades > 0 and perfects == #grades
+		local charm = outcome.charmGain or 0
+		self._outcome.Text = if purrfect then "PURRFECT!" else "Caught!"
+		self._outcome.TextColor3 = if purrfect then Theme.colors.gold else Theme.colors.good
+		-- "Charm +8", or how many Perfects there were so the next catch has something to aim for
+		self._detail.Text = if charm > 0
+			then ("Charm +%d"):format(charm)
+			else ("%d/%d Perfect"):format(perfects, #grades)
+		self._detail.TextColor3 = if charm > 0 then Theme.colors.gold else Theme.hud.subtext
+		self._banner.UIStroke.Color = if purrfect then Theme.colors.gold else Theme.colors.good
+		self._banner.Visible = true
+		Tween.popIn(self._banner, 0.8)
+		self._hint.Text = "Carry it home to check in"
+	else
+		local view = missed
+		if view then
+			wobble(view.grade)
+		end
+		local left = outcome.pawsLeft
+		if left ~= nil then
+			self._paws:lose(left)
+		end
+		self._hint.Text = if left == 0 then "It won't trust you tonight" else "It slipped away!"
+	end
+	task.delay(if success then RESULT_SECONDS else MISS_SECONDS, function()
 		if self._token ~= token then
 			return
 		end

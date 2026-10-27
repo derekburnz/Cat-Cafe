@@ -32,6 +32,7 @@ export type Plot = {
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
 	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
 	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first
+	dressing: Folder, -- Dressing/ForRent on an empty plot, Dressing/Tier<n> up to the owner's tier
 }
 
 export type AreaInfo = {
@@ -65,6 +66,8 @@ local GRASS = Color3.fromRGB(110, 170, 90)
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local DECK = Color3.fromRGB(205, 160, 110)
+-- The cafe shell's facade pastel, by plot number (world-and-feel.md section 3).
+local SHELL_COLORS = { "Mint", "Blush", "Butter", "Lilac" }
 
 -- Floor and wall look per area. Areas 3 to 5 get a distinct flat palette color until their sets exist.
 type AreaLook = { floor: Color3, floorMaterial: Enum.Material, wall: Color3 }
@@ -169,6 +172,24 @@ function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
 	plot.backDoor.Transparency = if open then 1 else 0
 end
 
+-- What a cafe shows from the street (F36, F38): tier 0 is an empty plot, dressed For Rent (shutters half down, the
+-- sign, dust sheets and a sleeping doorstep cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its
+-- tier. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
+function WorldBuilder.setDressing(plot: Plot, tier: number)
+	local function show(name: string, asset: string, wanted: boolean)
+		local existing = plot.dressing:FindFirstChild(name)
+		if wanted and existing == nil and AssetRegistry.has(asset) then
+			place(asset, plot.cframe, plot.dressing).Name = name
+		elseif not wanted and existing ~= nil then
+			existing:Destroy()
+		end
+	end
+	show("ForRent", "CatCafe_Plot_ForRent", tier == 0)
+	for n = 1, Catalog.maxTier do
+		show("Tier" .. n, "CatCafe_Plot_Tier" .. n, tier >= n)
+	end
+end
+
 -- The nearest point to `position` on the area's floor, at least `margin` studs inside one of its rects, so a stray
 -- that wanders or jumps back never leaves the area (or lands in a cafe yard beside the back alley).
 function WorldBuilder.clampToArea(info: AreaInfo, position: Vector3, margin: number): Vector3
@@ -227,44 +248,69 @@ local function buildPlot(index: number, parent: Instance): Plot
 		Enum.Material.Grass,
 		model
 	)
-	part(
-		"FrontPath",
-		Vector3.new(pathRect.x2 - pathRect.x1, 0.4, pathRect.z2 - pathRect.z1),
-		cframe * CFrame.new((pathRect.x1 + pathRect.x2) / 2, -0.23, (pathRect.z1 + pathRect.z2) / 2),
-		PATH,
-		Enum.Material.Cobblestone,
-		model
-	)
+	-- The cafe shell (F36): the asset-artist's storefront in one of four pastels by plot number, plus the interior
+	-- dressing. Its roof is the child Model <name>_Roof, which the client fades while the player is inside. Without
+	-- the art, the code-built path, walls, windows and sign below stand in.
+	local shellName = "CatCafe_Plot_Cafe_" .. SHELL_COLORS[(index - 1) % #SHELL_COLORS + 1]
+	local shell: Model? = nil
+	if AssetRegistry.has(shellName) then
+		local placed = place(shellName, cframe, model)
+		placed.Name = "Shell"
+		shell = placed
+		if AssetRegistry.has("CatCafe_Plot_Interior") then
+			place("CatCafe_Plot_Interior", cframe, model).Name = "Interior"
+		end
+	end
+	local codeBuilt = shell == nil
+
+	if codeBuilt then
+		part(
+			"FrontPath",
+			Vector3.new(pathRect.x2 - pathRect.x1, 0.4, pathRect.z2 - pathRect.z1),
+			cframe
+				* CFrame.new(
+					(pathRect.x1 + pathRect.x2) / 2,
+					-0.23,
+					(pathRect.z1 + pathRect.z2) / 2
+				),
+			PATH,
+			Enum.Material.Cobblestone,
+			model
+		)
+	end
 
 	local walls = folder("Walls", model)
-	-- The back wall has a door panel that is open from Tier 1, under a header.
+	-- The back wall has a door panel that is open from Tier 1, under a header; the shell has its own wall and header
+	-- around the same doorway, so only the panel is built over it.
 	local door0 = Layout.plot.backDoor
-	local backLeft = door0.x - door0.width / 2 + halfW + 0.5 -- from the left corner to the door
-	local backRight = halfW + 0.5 - (door0.x + door0.width / 2) -- from the door to the right corner
-	part(
-		"WallBackL",
-		Vector3.new(backLeft, wallH, 1),
-		cframe * CFrame.new(-halfW - 0.5 + backLeft / 2, wallH / 2, halfD + 0.5),
-		CREAM,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
-	part(
-		"WallBackR",
-		Vector3.new(backRight, wallH, 1),
-		cframe * CFrame.new(halfW + 0.5 - backRight / 2, wallH / 2, halfD + 0.5),
-		CREAM,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
-	part(
-		"BackDoorHeader",
-		Vector3.new(door0.width, wallH - door0.height, 1),
-		cframe * CFrame.new(door0.x, (wallH + door0.height) / 2, halfD + 0.5),
-		CREAM,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
+	if codeBuilt then
+		local backLeft = door0.x - door0.width / 2 + halfW + 0.5 -- from the left corner to the door
+		local backRight = halfW + 0.5 - (door0.x + door0.width / 2) -- from the door to the right corner
+		part(
+			"WallBackL",
+			Vector3.new(backLeft, wallH, 1),
+			cframe * CFrame.new(-halfW - 0.5 + backLeft / 2, wallH / 2, halfD + 0.5),
+			CREAM,
+			Enum.Material.SmoothPlastic,
+			walls
+		)
+		part(
+			"WallBackR",
+			Vector3.new(backRight, wallH, 1),
+			cframe * CFrame.new(halfW + 0.5 - backRight / 2, wallH / 2, halfD + 0.5),
+			CREAM,
+			Enum.Material.SmoothPlastic,
+			walls
+		)
+		part(
+			"BackDoorHeader",
+			Vector3.new(door0.width, wallH - door0.height, 1),
+			cframe * CFrame.new(door0.x, (wallH + door0.height) / 2, halfD + 0.5),
+			CREAM,
+			Enum.Material.SmoothPlastic,
+			walls
+		)
+	end
 	local backDoor = part(
 		"BackDoor",
 		Vector3.new(door0.width, door0.height, 0.6),
@@ -300,59 +346,61 @@ local function buildPlot(index: number, parent: Instance): Plot
 			fence
 		)
 	end
-	part(
-		"WallLeft",
-		Vector3.new(1, wallH, W.PlotDepth),
-		cframe * CFrame.new(-halfW - 0.5, wallH / 2, 0),
-		CREAM,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
-	part(
-		"WallRight",
-		Vector3.new(1, wallH, W.PlotDepth),
-		cframe * CFrame.new(halfW + 0.5, wallH / 2, 0),
-		CREAM,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
-	local segment = (W.PlotWidth - W.DoorWidth) / 2
-	local segX = W.DoorWidth / 2 + segment / 2
-	part(
-		"WallFrontL",
-		Vector3.new(segment, wallH, 1),
-		cframe * CFrame.new(-segX, wallH / 2, -halfD - 0.5),
-		CREAM,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
-	part(
-		"WallFrontR",
-		Vector3.new(segment, wallH, 1),
-		cframe * CFrame.new(segX, wallH / 2, -halfD - 0.5),
-		CREAM,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
-	part(
-		"DoorHeader",
-		Vector3.new(W.DoorWidth, 2, 1),
-		cframe * CFrame.new(0, wallH - 1, -halfD - 0.5),
-		MINT,
-		Enum.Material.SmoothPlastic,
-		walls
-	)
-	-- Windows either side of the door (glass)
-	for _, x in { -11, 11 } do
-		local glass = part(
-			"Window",
-			Vector3.new(6, 4, 0.3),
-			cframe * CFrame.new(x, 4.5, -halfD - 0.5),
-			Color3.fromRGB(180, 220, 240),
-			Enum.Material.Glass,
+	if codeBuilt then
+		part(
+			"WallLeft",
+			Vector3.new(1, wallH, W.PlotDepth),
+			cframe * CFrame.new(-halfW - 0.5, wallH / 2, 0),
+			CREAM,
+			Enum.Material.SmoothPlastic,
 			walls
 		)
-		glass.Transparency = 0.6
+		part(
+			"WallRight",
+			Vector3.new(1, wallH, W.PlotDepth),
+			cframe * CFrame.new(halfW + 0.5, wallH / 2, 0),
+			CREAM,
+			Enum.Material.SmoothPlastic,
+			walls
+		)
+		local segment = (W.PlotWidth - W.DoorWidth) / 2
+		local segX = W.DoorWidth / 2 + segment / 2
+		part(
+			"WallFrontL",
+			Vector3.new(segment, wallH, 1),
+			cframe * CFrame.new(-segX, wallH / 2, -halfD - 0.5),
+			CREAM,
+			Enum.Material.SmoothPlastic,
+			walls
+		)
+		part(
+			"WallFrontR",
+			Vector3.new(segment, wallH, 1),
+			cframe * CFrame.new(segX, wallH / 2, -halfD - 0.5),
+			CREAM,
+			Enum.Material.SmoothPlastic,
+			walls
+		)
+		part(
+			"DoorHeader",
+			Vector3.new(W.DoorWidth, 2, 1),
+			cframe * CFrame.new(0, wallH - 1, -halfD - 0.5),
+			MINT,
+			Enum.Material.SmoothPlastic,
+			walls
+		)
+		-- Windows either side of the door (glass)
+		for _, x in { -11, 11 } do
+			local glass = part(
+				"Window",
+				Vector3.new(6, 4, 0.3),
+				cframe * CFrame.new(x, 4.5, -halfD - 0.5),
+				Color3.fromRGB(180, 220, 240),
+				Enum.Material.Glass,
+				walls
+			)
+			glass.Transparency = 0.6
+		end
 	end
 
 	-- Door zone for check-in (invisible, no collision)
@@ -361,15 +409,21 @@ local function buildPlot(index: number, parent: Instance): Plot
 	door.CFrame = cframe * CFrame.new(0, 3, -halfD)
 	CollectionService:AddTag(door, "CafeDoor") -- the client's Audio rings the door bell here
 
-	-- Sign above the door
-	local signPart = part(
-		"Sign",
-		Vector3.new(10, 2.2, 0.4),
-		localCFrame(cframe, Layout.plot.sign),
-		MINT,
-		Enum.Material.SmoothPlastic,
-		model
-	)
+	-- The name sign: the street face of the shell's SignBoard, or a code-built board above the door.
+	local board = if shell ~= nil then shell:FindFirstChild("SignBoard", true) else nil
+	local signPart: BasePart
+	if board ~= nil and board:IsA("BasePart") then
+		signPart = board :: BasePart
+	else
+		signPart = part(
+			"Sign",
+			Vector3.new(10, 2.2, 0.4),
+			localCFrame(cframe, Layout.plot.sign),
+			MINT,
+			Enum.Material.SmoothPlastic,
+			model
+		)
+	end
 	local gui = Instance.new("SurfaceGui")
 	gui.Name = "SignGui"
 	gui.Face = Enum.NormalId.Front
@@ -475,7 +529,9 @@ local function buildPlot(index: number, parent: Instance): Plot
 		backDoorZone = backDoorZone,
 		expansions = expansions,
 		napSpots = napSpots,
+		dressing = folder("Dressing", model),
 	}
+	WorldBuilder.setDressing(plot, 0)
 	model.Parent = parent
 	return plot
 end

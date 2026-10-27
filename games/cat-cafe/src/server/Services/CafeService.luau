@@ -109,6 +109,7 @@ end
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	plot.model:SetAttribute("Tier", tier)
+	WorldBuilder.setDressing(plot, tier)
 	-- one label per role, on the next slot of that role to open: four at Tier 1 instead of every locked slot
 	local nextLocked: { [string]: Types.SpotDef } = {}
 	for _, spot in Catalog.spots do

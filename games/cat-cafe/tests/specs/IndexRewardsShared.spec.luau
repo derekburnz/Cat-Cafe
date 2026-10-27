@@ -373,4 +373,388 @@ return function()
 			expect(IndexRewards.bestGoldLuck({}, 1, tierOf)).to.equal(0)
 		end)
 	end)
+
+	describe("Index rewards and Prizes edges (QA, after F54)", function()
+		local Client = game:GetService("StarterPlayer")
+			:WaitForChild("StarterPlayerScripts")
+			:WaitForChild("Client")
+		local Components = Client:WaitForChild("UI"):WaitForChild("Components")
+		local CrateLogic = require(Components:WaitForChild("CrateLogic")) :: any
+		local UIRewards = require(Components:WaitForChild("IndexRewards")) :: any
+		local Economy = require(ReplicatedStorage.Shared.Economy)
+		local Types = require(ReplicatedStorage.Shared.Types)
+
+		-- Park and Miller's generator: exact in doubles, so a run is the same everywhere
+		local seed = 54
+		local function uniform(): number
+			seed = seed * 48271 % 2147483647
+			return seed / 2147483647
+		end
+
+		local function pages(): { string }
+			local out: { string } = {}
+			for areaId in pairs(Catalog.indexPrizes) do
+				table.insert(out, areaId)
+			end
+			table.sort(out)
+			return out
+		end
+
+		local function milestonesOf(areaId: string): { string }
+			local out: { string } = {}
+			for milestoneId in pairs(Catalog.indexPrizes[areaId]) do
+				table.insert(out, milestoneId)
+			end
+			table.sort(out)
+			return out
+		end
+
+		local function fullProfile(): any
+			local profile: any = ProfileSchema.template(1000)
+			for _, def in Catalog.cats do
+				profile.collection[def.id] = 1000
+				profile.goldCollection[def.id] = 1000
+			end
+			for _, def in Catalog.crateDecor do
+				profile.decorOwned[def.id] = true
+			end
+			return profile
+		end
+
+		local function claim(profile: any, areaId: string, milestoneId: string)
+			profile.indexRewards[areaId] = profile.indexRewards[areaId] or {}
+			profile.indexRewards[areaId][milestoneId] = true
+		end
+
+		-- What a page counts, worked out here from the profile rather than through IndexRewards.count.
+		local function ownCount(profile: any, areaId: string, track: string): number
+			local n = 0
+			if track == "decor" then
+				for _, def in Catalog.crateDecor do
+					if "decor_" .. tostring(def.crate) == areaId and profile.decorOwned[def.id] then
+						n += 1
+					end
+				end
+				return n
+			end
+			local collection = if track == "gold"
+				then profile.goldCollection
+				else profile.collection
+			for _, def in Catalog.cats do
+				if collection[def.id] ~= nil and (areaId == "all" or def.area == areaId) then
+					n += 1
+				end
+			end
+			return n
+		end
+
+		-- A crate chip shows CrateLogic.resolve and the claim or the wheel pays Prizes.crateFor, so the
+		-- player gets the crate the card pictured at any tier.
+		it("pays the crate the card shows, for highest and every crate id at any tier", function()
+			local crates = CrateLogic.byId(Catalog.crates)
+			local ids: { string } = { Prizes.HIGHEST }
+			for _, crate in Catalog.crates do
+				table.insert(ids, crate.id)
+			end
+			for _, tier in { 1, 2, 3, 4, 5, 6, 99, 1.5, 2.5, 4.99 } do
+				for _, id in ids do
+					local at = string.format("%s at tier %s: ", id, tostring(tier))
+					local shown = CrateLogic.resolve(id, crates, Catalog.areas, tier)
+					expect(at .. tostring(Prizes.crateFor(id, tier))).to.equal(at .. shown)
+				end
+			end
+			-- Below Tier 1 (never: Economy.tier reads 1 to 5) the server pays no crate and the card keeps
+			-- "highest", which it draws as a plain crate.
+			for _, tier in { 0, 0.5, -1 } do
+				expect(Prizes.crateFor(Prizes.HIGHEST, tier)).never.to.be.ok()
+				local shown = CrateLogic.resolve(Prizes.HIGHEST, crates, Catalog.areas, tier)
+				expect(shown).to.equal(CrateLogic.HIGHEST)
+			end
+		end)
+
+		it(
+			"pays a real crate for every crate an Index prize or a wheel slice names, at every tier",
+			function()
+				local named: { string } = {}
+				for _, areaId in pages() do
+					for _, prize in pairs(Catalog.indexPrizes[areaId]) do
+						for crateId in pairs(prize.crates or {}) do
+							table.insert(named, crateId)
+						end
+					end
+				end
+				for _, row in Catalog.spinWheel do
+					if row.kind == "crate" then
+						table.insert(named, row.crate or Prizes.HIGHEST)
+					end
+				end
+				expect(#named > 0).to.equal(true)
+				for tier = 1, 5 do
+					for _, crateId in named do
+						local paid = Prizes.crateFor(crateId, tier)
+						local real = paid ~= nil and Catalog.getCrate(paid) ~= nil
+						expect(string.format("%s at tier %d %s", crateId, tier, tostring(real))).to.equal(
+							string.format("%s at tier %d true", crateId, tier)
+						)
+					end
+				end
+			end
+		)
+
+		-- The card prices coinSeconds with the UI's IndexRewards.coins; the claim pays Prizes.coins.
+		-- At the same day rate they must agree on every card, odd rates included.
+		it("prices every card's coins as the claim pays them, at any day rate", function()
+			local rates = { 0, 0.4, 1, 1.5, 2.75, 7.3, 123.456, 1e4, 3.3e6, -5, -math.huge, 0 / 0 }
+			local checked = 0
+			for _, areaId in pages() do
+				for _, milestoneId in milestonesOf(areaId) do
+					local prize = Catalog.indexPrizes[areaId][milestoneId]
+					for _, rate in rates do
+						local at =
+							string.format("%s.%s at %s: ", areaId, milestoneId, tostring(rate))
+						local pays = Prizes.coins(prize.coins, prize.coinSeconds, rate)
+						expect(at .. UIRewards.coins(prize, rate)).to.equal(at .. pays)
+						local shown = 0
+						for _, part in UIRewards.prizeParts(prize, rate) do
+							if part.kind == "coins" then
+								shown += part.amount
+							end
+						end
+						expect(at .. shown).to.equal(at .. pays)
+						checked += 1
+					end
+				end
+			end
+			expect(checked > 0).to.equal(true)
+		end)
+
+		-- ClaimIndexReward takes any two strings Guard.id lets through. Only a pair the prize table has
+		-- can pay; every other pair, odd page ids and track mixes included, is "Unknown reward".
+		it(
+			"pays only the pairs the prize table has, whatever page and milestone ids arrive",
+			function()
+				local profile = fullProfile()
+				local pageIds = pages()
+				for _, odd in
+					{
+						"decor_",
+						"decor",
+						"decor_decor_alley",
+						"decor_alley_crate",
+						"decor_alley_golden",
+						"decor_all",
+						"all_",
+						"alley_crate",
+						"classic",
+						"golden",
+						"street",
+						"__index",
+					}
+				do
+					table.insert(pageIds, odd)
+				end
+				local milestoneIds: { string } = {}
+				for _, milestone in Catalog.indexMilestones do
+					table.insert(milestoneIds, milestone.id)
+				end
+				for _, odd in
+					{
+						"cats0",
+						"cats3_",
+						"gold0",
+						"gold3",
+						"total0",
+						"total55",
+						"decor0",
+						"decor15",
+						"__index",
+					}
+				do
+					table.insert(milestoneIds, odd)
+				end
+				local function sweep(claimed: boolean): number
+					local paying = 0
+					for _, areaId in pageIds do
+						for _, milestoneId in milestoneIds do
+							local page = Catalog.indexPrizes[areaId]
+							local has = page ~= nil and page[milestoneId] ~= nil
+							local want = if not has
+								then "Unknown reward"
+								elseif claimed then "Already claimed"
+								else "nil"
+							local at = string.format('"%s" "%s": ', areaId, milestoneId)
+							local blocker = IndexRewards.blocker(profile, areaId, milestoneId)
+							expect(at .. tostring(blocker)).to.equal(at .. want)
+							if blocker == nil then
+								paying += 1
+							end
+						end
+					end
+					return paying
+				end
+				local total = 0
+				for _, areaId in pages() do
+					total += #milestonesOf(areaId)
+				end
+				expect(sweep(false)).to.equal(total)
+				for _, areaId in pages() do
+					for _, milestoneId in milestonesOf(areaId) do
+						claim(profile, areaId, milestoneId)
+					end
+				end
+				expect(sweep(true)).to.equal(0)
+			end
+		)
+
+		-- golden-fish.md sections 4, 5 and 5b: +7% tips a normal track, +5% a full Decor page, +30% gold
+		-- luck a gold track up to GoldLuckMax, 38% faster bait. No cap may eat a bonus a card promises.
+		it("sums the whole Index once: +65% tips, gold luck at its cap, 38% faster bait", function()
+			local profile = fullProfile()
+			local sums = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
+			for _, areaId in pages() do
+				for _, prize in pairs(Catalog.indexPrizes[areaId]) do
+					sums.bonus += prize.bonus or 0
+					sums.goldLuck += prize.goldLuck or 0
+					sums.baitSpeed += prize.baitSpeed or 0
+				end
+			end
+			expect(sums.goldLuck <= Config.GoldLuckMax + 1e-9).to.equal(true)
+			expect(sums.baitSpeed <= Config.BaitSpeedMax + 1e-9).to.equal(true)
+			local before = Economy.cafeMultiplier(profile)
+			for _, areaId in pages() do
+				for _, milestoneId in milestonesOf(areaId) do
+					claim(profile, areaId, milestoneId)
+				end
+			end
+			local totals = IndexRewards.totals(profile)
+			expect(math.abs(totals.bonus - 0.65) < 1e-9).to.equal(true)
+			expect(math.abs(totals.goldLuck - Config.GoldLuckMax) < 1e-9).to.equal(true)
+			expect(math.abs(totals.baitSpeed - 0.38) < 1e-9).to.equal(true)
+			-- the full Decor pages count through their decor10 claims only, not a second time for being full
+			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.65) < 1e-9).to.equal(true)
+			expect(
+				math.abs(IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck) - 0.125)
+					< 1e-9
+			).to.equal(true)
+		end)
+
+		-- The Collection header's "Forever" pills read the UI's IndexRewards.totals (UI PR #332), and the
+		-- server rolls and pays with the shared one; any set of claims must give the same three numbers.
+		it("shows the forever totals the server applies, for any set of claims", function()
+			expect(UIRewards.GOLD_LUCK_MAX).to.equal(Config.GoldLuckMax)
+			expect(UIRewards.BAIT_SPEED_MAX).to.equal(Config.BaitSpeedMax)
+			expect(UIRewards.GOLD_CHANCE).to.equal(Config.GoldChanceBait)
+			local all: { { string } } = {}
+			for _, areaId in pages() do
+				for _, milestoneId in milestonesOf(areaId) do
+					table.insert(all, { areaId, milestoneId })
+				end
+			end
+			for run = 0, 40 do
+				local profile: any = ProfileSchema.template(1000)
+				local share = run / 40
+				for _, pair in all do
+					if uniform() < share then
+						claim(profile, pair[1], pair[2])
+					end
+				end
+				local server = IndexRewards.totals(profile)
+				local shown = UIRewards.totals(Catalog, { indexRewards = profile.indexRewards })
+				for _, key in { "bonus", "goldLuck", "baitSpeed" } do
+					local gap = math.abs((shown :: any)[key] - (server :: any)[key])
+					expect(string.format("run %d %s %s", run, key, tostring(gap < 1e-9))).to.equal(
+						string.format("run %d %s true", run, key)
+					)
+				end
+				for _, luck in { 0, server.goldLuck, 0.3, Config.GoldLuckMax, 2, -1 } do
+					local ui = UIRewards.goldChance(Config.GoldChanceBait, luck)
+					local real = IndexRewards.goldChance(Config.GoldChanceBait, luck)
+					expect(math.abs(ui - real) < 1e-12).to.equal(true)
+				end
+			end
+			expect(UIRewards.perkLabel("goldLuck", 0.3)).to.equal("+30% gold luck (gold 6.5%)")
+			expect(UIRewards.perkLabel("goldLuck", Config.GoldLuckMax)).to.equal(
+				"+150% gold luck (gold 12.5%)"
+			)
+			expect(UIRewards.perkLabel("baitSpeed", 0.38)).to.equal("+38% faster bait")
+		end)
+
+		it(
+			"keeps blockers, claims and bonuses in step over 60 seeded collections and claim orders",
+			function()
+				local all: { { string } } = {}
+				for _, areaId in pages() do
+					for _, milestoneId in milestonesOf(areaId) do
+						table.insert(all, { areaId, milestoneId })
+					end
+				end
+				for _ = 1, 60 do
+					local profile: any = ProfileSchema.template(1000)
+					table.clear(profile.collection)
+					local keep = uniform()
+					for _, def in Catalog.cats do
+						if uniform() < keep then
+							profile.collection[def.id] = 1000
+							if uniform() < keep then
+								profile.goldCollection[def.id] = 1000
+							end
+						end
+					end
+					for _, def in Catalog.crateDecor do
+						if uniform() < keep then
+							profile.decorOwned[def.id] = true
+						end
+					end
+					local order = table.clone(all)
+					for i = #order, 2, -1 do
+						local j = 1 + math.floor(uniform() * i)
+						order[i], order[j] = order[j], order[i]
+					end
+					local want = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
+					for _, pair in order do
+						local areaId, milestoneId = pair[1], pair[2]
+						local milestone =
+							IndexRewards.milestone(milestoneId) :: Types.IndexMilestone
+						local left = milestone.needs - ownCount(profile, areaId, milestone.track)
+						local blocker = IndexRewards.blocker(profile, areaId, milestoneId)
+						local at = areaId .. "." .. milestoneId .. ": "
+						if left > 0 then
+							local what = if milestone.track == "decor"
+								then "piece"
+								elseif milestone.track == "gold" then "gold cat"
+								else "cat"
+							local text = string.format(
+								"Find %d more %s%s first",
+								left,
+								what,
+								if left == 1 then "" else "s"
+							)
+							expect(at .. tostring(blocker)).to.equal(at .. text)
+							continue
+						end
+						expect(at .. tostring(blocker)).to.equal(at .. "nil")
+						claim(profile, areaId, milestoneId)
+						expect(IndexRewards.blocker(profile, areaId, milestoneId)).to.equal(
+							"Already claimed"
+						)
+						local prize = Catalog.indexPrizes[areaId][milestoneId]
+						want.bonus += prize.bonus or 0
+						want.goldLuck += prize.goldLuck or 0
+						want.baitSpeed += prize.baitSpeed or 0
+						local totals = IndexRewards.totals(profile)
+						expect(math.abs(totals.bonus - want.bonus) < 1e-9).to.equal(true)
+						expect(
+							math.abs(totals.goldLuck - math.min(want.goldLuck, Config.GoldLuckMax))
+								< 1e-9
+						).to.equal(true)
+						expect(
+							math.abs(
+								totals.baitSpeed - math.min(want.baitSpeed, Config.BaitSpeedMax)
+							) < 1e-9
+						).to.equal(true)
+					end
+				end
+			end
+		)
+	end)
 end

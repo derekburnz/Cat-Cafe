@@ -11,13 +11,13 @@
 -- server's count.
 
 local ContextActionService = game:GetService("ContextActionService")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PawRow = require(script.Parent.Parent.Components.PawRow)
 local Scale = require(script.Parent.Parent.Scale)
@@ -87,9 +87,9 @@ local function now(): number
 	return Workspace:GetServerTimeNow()
 end
 
--- A quick sideways shake, skipped when the player asked for reduced motion.
+-- A quick sideways shake, skipped when the player turned Screen shake off or asked for reduced motion.
 local function wobble(gui: GuiObject, base: UDim2)
-	if GuiService.ReducedMotionEnabled then
+	if not Motion.canShake() then
 		return
 	end
 	local step = 0

@@ -98,7 +98,7 @@ export type PlayerState = {
 	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
-	settings: { [string]: boolean }?, -- profile.settings: music, sfx, later markers; a missing key reads as on
+	settings: { [string]: boolean | number }?, -- profile.settings (shared/Settings): switches and 0 to 1 volumes
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -121,7 +121,7 @@ export type PartialState = {
 	goldCollection: { [string]: number }?,
 	carrying: string?,
 	tutorialStep: number?,
-	settings: { [string]: boolean }?,
+	settings: { [string]: boolean | number }?,
 }
 
 export type ScreenName =

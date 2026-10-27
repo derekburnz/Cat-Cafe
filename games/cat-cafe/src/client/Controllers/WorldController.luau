@@ -3,7 +3,8 @@
 -- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray hides its
 -- prompt while it runs off after a miss, the ambience follows the zone the player stands in, the roof of
 -- the cafe the player is inside fades out, and the sky and the parts that glow at night follow the server's day and
--- night clock (features F20). All cosmetic, all local.
+-- night clock (features F20). It also follows two of the player's settings: Low performance and Show other cats.
+-- All cosmetic, all local.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -194,6 +195,7 @@ local dayLooks: { [BasePart]: DayLook } = setmetatable({}, { __mode = "k" }) :: 
 local modelLights: { [Instance]: Light } = setmetatable({}, { __mode = "k" }) :: any
 local isNight = false
 local atmosphereDayColor: Color3? = nil
+local lowPerformance = false -- the Low performance setting: no night Light objects, shadows or post effects
 
 local function glowsAtNight(part: BasePart): boolean
 	local name = part.Name
@@ -258,7 +260,7 @@ local function setGlow(part: BasePart, look: DayLook)
 		part.Color = look.color
 		part.Transparency = look.transparency
 	end
-	look.light.Enabled = isNight
+	look.light.Enabled = isNight and not lowPerformance
 end
 
 -- Records a night part's day look the first time it is seen, then gives it the current phase's look.
@@ -344,12 +346,177 @@ local function followClock()
 end
 
 -- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
+-- Low performance (Derek's settings menu): the night parts still turn Neon but their Light objects stay off, and
+-- the place's global shadows and its Bloom, SunRays and DepthOfField go off. Turning it back restores what the
+-- place had. Effects follows the same setting for particles (Effects.applySettings).
+local savedShadows: boolean? = nil
+local savedPostEffects: { [PostEffect]: boolean } = {}
+
+local function setLowPerformance(on: boolean)
+	if on == lowPerformance then
+		return
+	end
+	lowPerformance = on
+	for part, look in dayLooks do
+		setGlow(part, look)
+	end
+	if on then
+		savedShadows = Lighting.GlobalShadows
+		Lighting.GlobalShadows = false
+		for _, child in Lighting:GetChildren() do
+			if
+				child:IsA("BloomEffect")
+				or child:IsA("SunRaysEffect")
+				or child:IsA("DepthOfFieldEffect")
+			then
+				local effect = child :: PostEffect
+				savedPostEffects[effect] = effect.Enabled
+				effect.Enabled = false
+			end
+		end
+	else
+		if savedShadows ~= nil then
+			Lighting.GlobalShadows = savedShadows
+			savedShadows = nil
+		end
+		for effect, enabled in savedPostEffects do
+			effect.Enabled = enabled
+		end
+		table.clear(savedPostEffects)
+	end
+end
+
+-- Show other cats (Derek's settings menu): off hides every cat another player owns, in their cafe, at their bait
+-- bowl and in their arms, on this client only. A hidden cat's parts get LocalTransparencyModifier 1, its
+-- billboards turn off, and it carries the local attribute HiddenLocal = true so Effects can skip it.
+local showOtherCats = true
+local hiddenCats: { [Model]: { [Instance]: boolean } } = {} -- each hidden cat's billboards and their Enabled before
+
+local function isOtherCat(instance: Instance): boolean
+	if not instance:IsA("Model") or instance:GetAttribute("CatId") == nil then
+		return false
+	end
+	if instance.Name == "HeldCat" then
+		local character = instance.Parent
+		local owner = if character ~= nil and character:IsA("Model")
+			then Players:GetPlayerFromCharacter(character :: Model)
+			else nil
+		return owner ~= nil and owner ~= player
+	end
+	local ownerId = instance:GetAttribute("OwnerUserId")
+	return type(ownerId) == "number" and ownerId ~= 0 and ownerId ~= player.UserId
+end
+
+local function setCatHidden(model: Model, hidden: boolean)
+	if (hiddenCats[model] ~= nil) == hidden then
+		return
+	end
+	local billboards: { [Instance]: boolean } = {}
+	if hidden then
+		hiddenCats[model] = billboards
+		model:SetAttribute("HiddenLocal", true)
+	else
+		billboards = hiddenCats[model] or billboards
+		hiddenCats[model] = nil
+		model:SetAttribute("HiddenLocal", nil)
+	end
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			(descendant :: BasePart).LocalTransparencyModifier = if hidden then 1 else 0
+		elseif descendant:IsA("BillboardGui") then
+			local gui = descendant :: BillboardGui
+			if hidden then
+				billboards[gui] = gui.Enabled
+				gui.Enabled = false
+			elseif billboards[gui] ~= nil then
+				gui.Enabled = billboards[gui]
+			end
+		end
+	end
+end
+
+local function considerCat(instance: Instance)
+	if not showOtherCats and isOtherCat(instance) then
+		setCatHidden(instance :: Model, true)
+	end
+end
+
+local function eachOtherCat(visit: (Model) -> ())
+	local world = Workspace:FindFirstChild("World")
+	local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
+	if plots ~= nil then
+		for _, descendant in plots:GetDescendants() do
+			if isOtherCat(descendant) then
+				visit(descendant :: Model)
+			end
+		end
+	end
+	for _, other in Players:GetPlayers() do
+		local held = if other ~= player and other.Character ~= nil
+			then other.Character:FindFirstChild("HeldCat")
+			else nil
+		if held ~= nil and isOtherCat(held) then
+			visit(held :: Model)
+		end
+	end
+end
+
+local function setShowOtherCats(on: boolean)
+	if on == showOtherCats then
+		return
+	end
+	showOtherCats = on
+	if on then
+		for model in hiddenCats do
+			setCatHidden(model, false)
+		end
+	else
+		eachOtherCat(function(model)
+			setCatHidden(model, true)
+		end)
+	end
+end
+
+-- Watches for cats that arrive while Show other cats is off: a cafe's cats are rebuilt on every refresh, and a
+-- carried cat is a HeldCat model under its carrier's character.
+local function watchOtherCats()
+	local function watchCharacter(character: Model)
+		character.ChildAdded:Connect(considerCat)
+	end
+	local function watchPlayer(other: Player)
+		if other == player then
+			return
+		end
+		other.CharacterAdded:Connect(watchCharacter)
+		if other.Character ~= nil then
+			watchCharacter(other.Character)
+		end
+	end
+	Players.PlayerAdded:Connect(watchPlayer)
+	for _, other in Players:GetPlayers() do
+		watchPlayer(other)
+	end
+	task.spawn(function()
+		local world = Workspace:WaitForChild("World")
+		local plots = world:WaitForChild("Plots")
+		plots.DescendantAdded:Connect(considerCat)
+	end)
+end
+
+-- Follows the player's saved settings (shared/Settings), read off the last ProfileSync on every tick of the loop
+-- below; both setters do nothing while their value is unchanged. A missing key keeps its default.
+local function applySettings(settings: { [string]: unknown })
+	setLowPerformance(settings.lowPerformance == true)
+	setShowOtherCats(settings.showOtherCats ~= false)
+end
+
 function WorldController.zoneAt(position: Vector3): string?
 	return zoneAt(position)
 end
 
 function WorldController.start()
 	task.spawn(followClock)
+	watchOtherCats()
 
 	for _, model in CollectionService:GetTagged("Stray") do
 		watchStray(model)
@@ -371,6 +538,7 @@ function WorldController.start()
 			if state == nil then
 				continue
 			end
+			applySettings(state.settings :: any)
 
 			local world = Workspace:FindFirstChild("World")
 			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil

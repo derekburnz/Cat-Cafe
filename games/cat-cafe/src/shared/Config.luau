@@ -32,10 +32,12 @@ local Config = {
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
 	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
 	GrabRangeStuds = 10,
-	GrabRetrySeconds = 2, -- after a miss the stray jumps back; everyone but the player who missed waits this long
-	StrayWarySeconds = 5, -- the player who just missed waits this long before trying the same stray again
-	StrayJumpBackMin = 6, -- a miss makes the stray hiss and jump this far (studs, rolled) away from the player
-	StrayJumpBackMax = 10,
+	GrabRetrySeconds = 2, -- after a miss nobody can start a catch on that stray for at least this long
+	-- v0.5 (F40): a miss makes the stray hiss and sprint its rarity's fleeStuds away at this speed (studs per second,
+	-- faster than NormalWalkSpeed), then catch its breath this long; tries are unlimited
+	StrayFleeSpeed = 26,
+	StrayRestSeconds = 1.5,
+	StraySelfRetrySeconds = 1, -- the player who missed waits this much longer than everyone else (v0.5.1, S44)
 	GrabCooldownSeconds = 2, -- per player, between two catches started
 	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
 

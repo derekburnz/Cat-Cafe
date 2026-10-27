@@ -59,7 +59,6 @@ UI.events = {
 	buyDecor = Signal.new(), -- (decorId)
 	toggleDecor = Signal.new(), -- (decorId, placed: boolean)
 	buyLure = Signal.new(), -- (lureId)
-	equipLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
 	sellCat = Signal.new(), -- (uid)
@@ -263,27 +262,22 @@ function UI.init(config: Types.InitConfig)
 	local modalInstance = Modal.new(parent)
 	modal = modalInstance
 
+	-- the bowl chip and F: a cat at the bowl comes first; otherwise the food screen
+	local function openBait()
+		if baitCat and baitCard and not baitCard:isShowing() then
+			UI.bait.showReady(baitCat :: Types.BaitCat)
+		else
+			modalInstance:toggle("Bait")
+		end
+	end
 	hud = HUD.new(parent, {
 		openScreen = function(name: Types.ScreenName)
 			modalInstance:toggle(name)
 		end,
-		buyLure = function(lureId: string)
-			UI.events.buyLure:Fire(lureId)
-		end,
-		equipLure = function(lureId: string)
-			UI.events.equipLure:Fire(lureId)
-		end,
 		travel = function(destination: string)
 			UI.events.travel:Fire(destination)
 		end,
-		openBait = function()
-			-- a cat at the bowl comes first; otherwise the food screen
-			if baitCat and baitCard and not baitCard:isShowing() then
-				UI.bait.showReady(baitCat :: Types.BaitCat)
-			else
-				modalInstance:toggle("Bait")
-			end
-		end,
+		openBait = openBait,
 	})
 	local hudInstance = hud :: HUD.HUD
 
@@ -397,9 +391,6 @@ function UI.init(config: Types.InitConfig)
 			UI.events.resolveBait:Fire(choice)
 		end,
 	})
-	if config.baitBowl then
-		hudInstance:setBowlMode(true)
-	end
 	dealerScreen = Dealer.new({
 		buy = function(slot: number, lureId: string)
 			UI.events.buyDealerFood:Fire(slot, lureId)
@@ -496,9 +487,7 @@ function UI.init(config: Types.InitConfig)
 				elseif key == Enum.KeyCode.C then
 					modalInstance:toggle("Collection")
 				elseif key == Enum.KeyCode.F then
-					if hud then
-						hud:togglePicker()
-					end
+					openBait()
 				elseif key == Enum.KeyCode.ButtonB then
 					modalInstance:close()
 				end
@@ -786,8 +775,8 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and
--- the bait card offers Tame or Let go (events.resolveBait). Turn on the HUD's bowl chip with
--- UI.init({ baitBowl = true }) once the server runs the bowl instead of the v0.2 lure spots.
+-- the bait card offers Tame or Let go (events.resolveBait). The HUD's bowl chip shows once the Bait bowl upgrade
+-- is owned.
 UI.bait = {}
 
 local function foodName(lureId: string): string?

@@ -19,7 +19,7 @@ export type RarityDef = {
 	incomePerSecond: number,
 	circles: number, -- closing circles in a net catch (data-model section 10)
 	shrinkSeconds: number, -- base shrink time of each circle
-	patience: number, -- failed catches each player gets on one stray before it stops trusting them (v0.4)
+	fleeStuds: number, -- how far a stray sprints after a missed catch (v0.5, data-model section 10 step 5)
 	rescueHits: number, -- bar hits that free a stuck cat (section 10b)
 	sellValue: number,
 	firstCatchReward: number,

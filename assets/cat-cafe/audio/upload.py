@@ -48,9 +48,10 @@ CONTENT_TYPES = {".ogg": "audio/ogg", ".mp3": "audio/mpeg", ".wav": "audio/wav",
 # Uploaded first, so a small monthly allowance still covers the playtest essentials (sound list P0).
 PRIORITY = (
     "uiClick", "uiError", "netSwing", "circlePerfect", "circleGood", "circleMiss", "catchSparkle",
-    "catchMiss", "catHiss", "pawLost", "purrfectChime", "coinPop", "purchase", "checkInBell", "jingleCatFound",
+    "catchMiss", "catHiss", "straySprint", "purrfectChime", "coinPop", "purchase", "checkInBell", "jingleCatFound",
     "ambCafeDay", "ambAlleyNight", "loopCafeDoor", "jingleRankUp", "shuttersUp", "gateOpen", "announce",
     "catchStart", "circleAppear", "ambAlleyDay", "ambCafeNight", "carryPurr", "purr", "signFlip", "strayFlee",
+    "shove", "bumpHeld",
 )
 
 

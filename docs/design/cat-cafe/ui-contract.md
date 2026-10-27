@@ -47,8 +47,8 @@ UI.init({
         tiers = Catalog.tiers,        -- {TierDef}, v0.3: tier names, gates and the rank up card
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
     },
-    keybinds = true,  -- U upgrades, B decor, C collection, F lure picker, gamepad B closes (default true)
-    baitBowl = false, -- v0.3 bait bowl: the lure slot becomes the bowl chip and F opens the Bait bowl screen
+    keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
+    baitBowl = true,  -- ignored since the v0.2 lure spots went (#124); the bowl chip is always on
     playSound = Audio.play,  -- optional; the UI plays its own cues through it and stays silent without it
 })
 
@@ -141,7 +141,7 @@ v0.4 paws: when the stray carries a `Patience` attribute the card shows a paw ro
 
 ### Clock chip (built, F31)
 
-At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier`. The chip stays hidden until that constant exists (F31), because the server pays full tips at night before then. The income line under the money counts only cats in a role slot when `state.cats` is sent, since resting cats earn nothing.
+At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier`. The income line under the money counts only cats in a role slot when `state.cats` is sent, since resting cats earn nothing.
 
 ### Sounds (built)
 
@@ -149,7 +149,7 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 
 | Cue | When the UI plays it |
 |---|---|
-| `uiClick` | Any button press, the lure slot, Cafe and Alley travel. Buttons that only open or close a screen (menu tiles, Collection, Areas, the red X) stay silent and let the swish play. |
+| `uiClick` | Any button press, Cafe and Alley travel. Buttons that only open or close a screen (menu tiles, Collection, Areas, the red X) stay silent and let the swish play. |
 | `uiError` | A tap on a greyed button (can't afford, carrying, locked area) and every `warn` toast. A drag that starts on a greyed button, such as a phone scroll, stays quiet. |
 | `uiOpen` / `uiClose` | A modal screen opens or closes. |
 | `uiTab` | The Book and Cat room tabs, the decor category chips and a cat cell in the book. |
@@ -181,7 +181,7 @@ Copied from the Pet Simulator index. The Book tab opens on a row of area tabs in
 
 Nothing to call: `UI.init` starts all four and they read attributes the server and `CustomerController` already set, plus the player state.
 
-- **Name sign** (Steal a Brainrot base signs, `Screens/CafeSigns.luau`): on every model tagged `Plot`, a local SurfaceGui on the street face of the shell's `SignBoard` part, else the code-built `Sign` part. Owned: the owner's round avatar headshot (`rbxthumb://type=AvatarHeadShot`), "<OwnerName>'s Cafe" and "<TierName>  ·  +$X/s" from the plot's `Rate`; at night (`ReplicatedStorage.Clock` `Phase == "night"`) the rate stays behind a moon ("Cozy Cafe  ·  🌙 +$25/s"), times `NightIncomeMultiplier` once F31 puts it in Config, because cafes keep earning at night (reviewer S41). Empty plots read "FOR RENT" over "A cosy spot for a new cafe". Your own cafe has a gold edge. The server's `SignGui` in the plot is disabled on this client only, so it stays as the fallback if the UI fails to load.
+- **Name sign** (Steal a Brainrot base signs, `Screens/CafeSigns.luau`): on every model tagged `Plot`, a local SurfaceGui on the street face of the shell's `SignBoard` part, else the code-built `Sign` part. Owned: the owner's round avatar headshot (`rbxthumb://type=AvatarHeadShot`), "<OwnerName>'s Cafe" and "<TierName>  ·  +$X/s" from the plot's `Rate`; at night (`ReplicatedStorage.Clock` `Phase == "night"`) the rate stays behind a moon ("Cozy Cafe  ·  🌙 +$25/s"), times `NightIncomeMultiplier` (0.6), because cafes keep earning at night (reviewer S41). Empty plots read "FOR RENT" over "A cosy spot for a new cafe". Your own cafe has a gold edge. The server's `SignGui` in the plot is disabled on this client only, so it stays as the fallback if the UI fails to load.
 - **Rate tags** (Steal a Brainrot, `Screens/WorldTags.luau`): over every model tagged `WorkingCat`, "+$X/s" from its `Rate` in its `Rarity` colour, shown within 40 studs. Hidden while `Napping` is true or `Rate` is 0.
 - **Order bubbles** (`Screens/WorldTags.luau`): over each customer in `Workspace.LocalCustomers` once `Order` is set ("coffee", "cake" or "milk", drawn as emoji). When `Served` turns true it pops into a pink bubble with a red heart for 1.6 s, then pops out. Customers are client-side models, so this costs no network traffic.
 - **Role slot labels** (tycoon locked pads and empty "+" slots, `Screens/SlotLabels.luau`, rules in `Components/SlotLabelState.luau`): your own cafe only (the `Plot` whose `OwnerUserId` is you), at most one per role so the three counter slots never stack. A role with a free open slot (no cat's `spotId` on it) gets a green pill with a plus, "Barista" over "Tap to add a cat" ("2 free · tap to add cats"); a tap opens the cat room (`UI.openCatRoom`). With every cat already in a role it reads "Catch a cat for it" and does not take taps. Otherwise the role's next locked slot, the one `CafeService.refreshSpots` labels, gets a dark pill with a gold lock, "Barista" over "Opens at Tier 3". Pills are 4.4 studs wide, hang 5.2 studs above `Plot/Spots/<spotId>` (above the cats' rate tags) with a pointer down, show within 36 studs and are hidden by walls. The server's `LockLabel` text is hidden on this client for every plot (it overlapped the HUD and showed from inside other cafes, QA 2026-10-26) and stays as the fallback. Free slots need `state.cats`; without it only the locked pills show.
@@ -190,7 +190,7 @@ The name signs, rate tags and order bubbles are parented under the models, so th
 
 ### Bait bowl (built, F28, data-model section 8)
 
-Turn it on with `UI.init({ catalog, baitBowl = true })` once the server runs the bowl instead of the v0.2 lure spots. Until then the HUD keeps the v0.2 lure slot and `equipLure`, so main keeps playing.
+Always on. The HUD's bottom right chip shows what is in the bowl once the Bait bowl upgrade is owned, and the chip or F opens the Bait bowl screen (or the cat waiting at the bowl). The v0.2 lure slot, its picker, `equipLure` and `equippedLure` are gone (#124 retired them on the server).
 
 | API | Purpose |
 |---|---|
@@ -200,7 +200,7 @@ Turn it on with `UI.init({ catalog, baitBowl = true })` once the server runs the
 | `UI.bait.showReady(cat)` | From `BaitReady`. `cat = { catId, variant?, charm?, stars?, name? }` (a `CatView` fits). Shows the cat's 3D model, name, rarity, stars, charm and a SHINY sticker, with Tame and Let go (Let go asks for a second tap within 3 s, because the food is used either way). The X only hides the card; the chip and the screen's "See the cat" bring it back. After a choice the buttons wait up to 6 s for `UI.bait.set(nil)` or `hideReady`. |
 | `UI.bait.hideReady()` | The server resolved the cat: closes the card and forgets it. |
 
-The Bait bowl screen has a status card (no bowl yet with an Upgrades button, empty, "<Food> is in the bowl" with a countdown bar, "A cat is at your bowl!" with See the cat) over one card per food: shop foods by price, then dealer foods ("Sold by the night dealer's cart" until owned). Every card shows the five-rarity odds, the shiny chance (`ShinyChanceBait`, 2%) and the charm star odds (`CharmStarOdds`, else 7.8 / 23.5 / 35.7 / 24.3 / 8.7%) before Use or Buy; Details adds the per-cat split for the player's unlocked areas and which area the next rank up adds. Use (green) and Buy are the same size. The HUD's v0.2 lure picker shows the same Details text (`Components/FoodOdds.luau`).
+The Bait bowl screen has a status card (no bowl yet with an Upgrades button, empty, "<Food> is in the bowl" with a countdown bar, "A cat is at your bowl!" with See the cat) over one card per food: shop foods by price, then dealer foods ("Sold by the night dealer's cart" until owned). Every card shows the five-rarity odds, the shiny chance (`ShinyChanceBait`, 2%) and the charm star odds (`CharmStarOdds`, else 7.8 / 23.5 / 35.7 / 24.3 / 8.7%) before Use or Buy; Details adds the per-cat split for the player's unlocked areas and which area the next rank up adds. Use (green) and Buy are the same size. The odds text comes from `Components/FoodOdds.luau`.
 
 In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLevels.lure_bowl >= 1`: "Bait bowl / Empty · add food", "<Food> / Cat in 7m 42s", then "Cat waiting!" in gold.
 
@@ -235,12 +235,12 @@ Events: `rescuePressed(rescueSpotId)` on every press, bar or circle (forward as 
 | API | Purpose |
 |---|---|
 | Action pill (built) | Every `Style = Custom` prompt without a `CatId` (on the prompt, its model or its parent) gets our pill: a dark rounded pill over the prompt's part or attachment (a model's PrimaryPart) with a key cap, `ObjectText` small above and `ActionText` big ("Use" when empty), like the custom prompts in Pet Simulator 99 and Adopt Me. The key cap names the prompt's `KeyboardKeyCode` or `GamepadKeyCode` for the input it was shown for; a hold fills the cap with gold over `HoldDuration`; a trigger squashes the pill. On touch, and with a mouse when `ClickablePrompt` is on, the pill is the button and drives the real prompt (`InputHoldBegin` / `InputHoldEnd`). `UIOffset` moves it in pixels. Nothing to call: `UI.catch.bindProximityPrompts()` already draws them and raises no event, so the game handles `Triggered` as it does today. Engineer: set `Style = Enum.ProximityPromptStyle.Custom` on the bait bowl, dealer cart, manhole and Bump prompts to switch them from the default Roblox prompt to the pill; parent each to a part or an attachment at the height it should float. |
-| `UI.richTip.bind(plot)` (built) | Call with your own plot model when you get it (nil to stop). Whenever its `RichTipAmount` and `RichTipExpiresAt` (server `os.time()`) show an unexpired tip, a gold bubble bobs over the plot's `RichTipAnchor` ("RICH TIP · 1:12", "💰 $1.2K", a draining timer bar) with a green Collect button under it, like the cash drops in Steal a Brainrot and Pet Simulator 99. Collect fires `events.claimRichTip()` within `RichTipRangeStuds` (12 until it is in Config) and reads "Walk closer" further away; after a press it shows "Collecting..." for 3 s or until the tip clears. When `RichTipAmount` clears (claimed or paid at expiry) "+$X" rises gold from the coin pile and a toast says "Rich tip! +$X", so the server needs no Notify for it; a tip already waiting when you bind is shown, never toasted. The timer reads `RichTipStaySeconds` (90 until it is in Config). Sounds stay with Audio (`RichArrive`, `RichTipClaim`). |
+| `UI.richTip.bind(plot)` (built) | Call with your own plot model when you get it (nil to stop). Whenever its `RichTipAmount` and `RichTipExpiresAt` (server `os.time()`) show an unexpired tip, a gold bubble bobs over the plot's `RichTipAnchor` ("RICH TIP · 1:12", "💰 $1.2K", a draining timer bar) with a green Collect button under it, like the cash drops in Steal a Brainrot and Pet Simulator 99. Collect fires `events.claimRichTip()` within `RichTipRangeStuds` (12) and reads "Walk closer" further away; after a press it shows "Collecting..." for 3 s or until the tip clears. When `RichTipAmount` clears (claimed or paid at expiry) "+$X" rises gold from the coin pile and a toast says "Rich tip! +$X", so the server needs no Notify for it; a tip already waiting when you bind is shown, never toasted. The timer reads `RichTipStaySeconds` (90). Sounds stay with Audio (`RichArrive`, `RichTipClaim`). |
 | Shiny | Built: the book's Shiny pill (from `state.shinyCollection`), the catch header and the reveal's sticker, and the cat room's gold cards. Still planned: the carry banner, and a Shiny page in the book with its own count. |
 | Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`. The cat room already shows `CatInstance.name` when the server sends it (filtered), else the catalog name. |
 | Fast travel (built, v0.4 F19) | Top centre under the tier pill: Cafe, Alley and Areas buttons (Grow a Garden style). Cafe and Alley fire `events.travel("home")` and `events.travel("alley")`; Areas opens `UI.open("Areas")`, five area cards with "Epic or better N%" and Go, locked ones greyed with "Opens at Tier n". The row hides while the catch circles show (their header takes the top centre). Every button and Go greys while carrying (`state.carrying` or `UI.setCarrying`) and Cafe and Alley grey for `Config.TravelCooldownSeconds` after a trip. Forward `events.travel(destination)` as `Travel(destination)`; pass `TravelResult(destination, ok, reason?)` to `UI.travel.result`, which lifts the cooldown and wobbles the button on a refusal (the server toast gives the reason). |
 
-Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Removed with F27: `rescueEnded`, `catch.startRescue` and `catch.stopRescue` (the v0.2 rescue hold). `equipLure` stays while the HUD's lure slot does.
+Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Removed with F27: `rescueEnded`, `catch.startRescue` and `catch.stopRescue` (the v0.2 rescue hold). Removed with the lure spots (#124): `equipLure` and the HUD's lure slot and picker.
 
 ## Events (UI -> game), all `Signal` with `:Connect(fn)` returning a connection with `:Disconnect()`
 
@@ -249,8 +249,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `buyUpgrade` | `upgradeId` | Buy pressed (UI only enables it when affordable, not maxed, tier gate met) |
 | `buyDecor` | `decorId` | Buy pressed in Decor |
 | `toggleDecor` | `decorId, placed` | Place / Remove pressed on an owned decor item |
-| `buyLure` | `lureId` | Buy pressed in the lure picker (odds are on screen before the button) |
-| `equipLure` | `lureId` | Equip pressed (v0.2 lure spots; unused in bowl mode) |
+| `buyLure` | `lureId` | Buy pressed on a food card in the Bait bowl screen (odds are on screen before the button) |
 | `useLure` | `lureId` | Use pressed on a food in the Bait bowl screen. Forward as `UseLure(lureId)` |
 | `resolveBait` | `"tame"` or `"letgo"` | A choice on the bait card. Forward as `ResolveBait(choice)` |
 | `buyDealerFood` | `slot` (1 to 3), `lureId` | Buy pressed on the night dealer screen. Forward as `BuyDealerFood(slot, lureId)`; the server refuses it when that slot holds another food after a restock (reviewer S42). Then send `DealerStock` back |
@@ -280,7 +279,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     catsOwned: { [catId]: { count } },       -- derived from cats when cats is sent
     upgradeLevels: { [upgradeId]: number },
     decorOwned: { [decorId]: boolean }, decorPlaced: { [decorId]: boolean },
-    lures: { [lureId]: number }, equippedLure: string?,
+    lures: { [lureId]: number },
     -- engineer extras the UI uses when present
     cats: { [uid]: { uid, catId, variant?, name?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
                      level?, xp?, xpToNext?, charm?, stars?, rating? } }, -- cat stats thread; shown when present

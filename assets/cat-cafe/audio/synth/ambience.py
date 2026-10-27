@@ -290,12 +290,49 @@ def cafe_door() -> np.ndarray:
     return np.stack([mono, mono], axis=1)
 
 
+def sleeper(seed: int, rate: float, breath: float) -> np.ndarray:
+    """A cat purring in its sleep for the whole loop: slow breaths, soft rumbling pulses, now and then quieter."""
+    t = np.arange(N) / SR
+    pulses = round(rate * LOOP)  # whole numbers of pulses and breaths per loop: no seam
+    pulse = np.exp(-((t * pulses / LOOP) % 1.0) / 0.2)
+    breaths = round(LOOP / breath)
+    inhale = np.sin(np.pi * breaths * t / LOOP) ** 2
+    rumble = unit(shape(rng(seed).standard_normal(N), band(60, 450, order=4)))
+    deeper = 0.45 + 0.55 * np.clip(lfo(seed + 1, (1, 2, 3)) + 0.4, 0, 1)
+    return rumble * pulse * (0.3 + 0.7 * inhale) * deeper
+
+
+def dream_chirp(seed: int) -> np.ndarray:
+    """A dreaming cat's tiny "mrrp": a short rising trill through a small mouth."""
+    r = rng(seed)
+    d = r.uniform(0.14, 0.22)
+    t = np.arange(int(d * SR)) / SR
+    pitch = r.uniform(380, 480) * 1.35 ** np.clip(t / (d * 0.6), 0, 1)
+    phase = np.cumsum(pitch) / SR
+    voice = (2 * (phase % 1.0) - 1) * (0.55 + 0.45 * np.sin(2 * np.pi * 26 * t)) * np.sin(np.pi * t / d) ** 0.8
+    mouth = ((850, 1.0, 120), (1700, 0.5, 160), (2900, 0.2, 200))
+    return unit(shape(voice, lambda f: sum(a / (1 + ((f - c) / w) ** 2) for c, a, w in mouth)))
+
+
 def cafe_night() -> np.ndarray:
-    mix = cafe(200, people=3, chatty=0.6, laughs=1, clinks=5.0, busy=False) * 0.8
-    mix += pan(wall_clock(210), 0.4) * 0.05
+    """The cafe is closed at night (design v0.5, F44): no customers, the clock, the fridge and the cats asleep."""
+    mix = pan(pink(200, 30, 250), 0) * 0.015  # room tone, under the cats
+    mix += pan(wall_clock(210), 0.4) * 0.1
     t = np.arange(N) / SR
     fridge = sum(a * np.sin(2 * np.pi * f * t) for f, a in ((100, 1.0), (200, 0.4), (300, 0.15)))  # whole cycles
     mix += pan(fridge * (0.8 + 0.2 * lfo(211)), -0.3) * 0.006
+    cats = stereo()
+    for i, (rate, breath, position) in enumerate(((22.0, 3.4, -0.55), (25.0, 2.9, 0.35), (20.0, 4.0, 0.75))):
+        cats += pan(sleeper(220 + 10 * i, rate, breath), position) * (0.14, 0.1, 0.08)[i]
+    for at, r in events(250, 19.0):
+        put(cats, pan(dream_chirp(r.integers(1 << 30)) * 0.05, r.uniform(-0.7, 0.7)), at)
+    for at, r in events(260, 13.0):  # the espresso machine cooling down, tick by tick
+        put(cats, pan(burst(r.integers(1 << 30), 0.03, 2500, 6000, 0.004) * 0.04, -0.6), at)
+    mix += room(cats, 0.7, 270, wet=0.35, hi=6000)
+    outside = car(280) * 0.08  # one car passes the shut door, muffled by the glass
+    passing = stereo()
+    put(passing, outside, rng(281).uniform(0, LOOP))
+    mix += shape_stereo(passing, band(hi=500))
     return mix
 
 

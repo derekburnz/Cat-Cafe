@@ -1,5 +1,5 @@
 --!strict
--- Pure catch math (data-model sections 8 to 10): odds, picking a cat, patience. The circles themselves are in
+-- Pure catch math (data-model sections 8 to 10): odds, picking a cat, the chase after a miss. The circles are in
 -- Circles. Callers pass random rolls in so tests are deterministic.
 
 local Catalog = require(script.Parent.Catalog)
@@ -13,9 +13,16 @@ function Catching.succeeds(chance: number, roll: number): boolean
 	return roll < chance
 end
 
--- Paws a player starts with on one stray of this rarity; each failed catch costs one (data-model section 10).
-function Catching.patience(rarity: Types.Rarity): number
-	return Catalog.rarities[rarity].patience
+-- Studs a stray of this rarity sprints away from the player who missed (v0.5, data-model section 10 step 5).
+function Catching.fleeStuds(rarity: Types.Rarity): number
+	return Catalog.rarities[rarity].fleeStuds
+end
+
+-- Server time from which anyone may try a stray again after a miss: the sprint at StrayFleeSpeed, then the
+-- StrayRestSeconds breather, and never sooner than GrabRetrySeconds after the miss.
+function Catching.fleeUntil(missedAt: number, sprintStuds: number): number
+	local sprint = math.max(0, sprintStuds) / Config.StrayFleeSpeed
+	return missedAt + math.max(Config.GrabRetrySeconds, sprint + Config.StrayRestSeconds)
 end
 
 local function oddsTotal(odds: Types.LureOdds): number

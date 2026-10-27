@@ -10,7 +10,7 @@
 	  press ` (backquote) to arm it, the menu prints, then one key per case:
 	  1 fake stray      2 far grab          3 press without begin  4 bad presses   5 press with a time
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
-	  ' press spam      . out of paws       9 bad ids              0 shop gates    - ownership
+	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            Backspace flood        ] run everything
 	Or from a client-context command bar: _G.PurrPotAbuse.run("fakeStray"), _G.PurrPotAbuse.runAll().
 
@@ -47,14 +47,13 @@ local player = Players.LocalPlayer
 -- the stray or spot the event is about; `data` keeps a CatchSchedule or CatchResult for the cases to read.
 type Event = { at: number, server: number, name: string, text: string, id: string?, data: any }
 
--- What CatchSchedule and CatchResult carry (design v0.4). `pawsLeft` is nil when this player cannot run out of paws
--- on the stray (a beginner on a Common; bait cats come to the bowl, never the net). `grades` runs up to and
--- including the first Miss, which ends the catch; every circle Good or Perfect is a sure catch.
-type Schedule = { circles: { Types.CatchCircle }, windows: Types.CatchWindows, pawsLeft: number? }
+-- What CatchSchedule and CatchResult carry (design v0.5: no paws, tries are unlimited). `grades` runs up to and
+-- including the first Miss, which ends the catch and sends the stray running; every circle Good or Perfect is a sure
+-- catch.
+type Schedule = { circles: { Types.CatchCircle }, windows: Types.CatchWindows }
 type Outcome = {
 	grades: { Types.CircleGrade },
 	success: boolean,
-	pawsLeft: number?,
 	charmGain: number,
 }
 
@@ -314,7 +313,7 @@ local function case(name: string, key: Enum.KeyCode, title: string, run: () -> (
 	table.insert(cases, { name = name, key = key, title = title, run = run })
 end
 
--- Catching (closing circles; design v0.4 stakes) --------------------------------------------------------------
+-- Catching (closing circles; design v0.5 chase) ---------------------------------------------------------------
 
 local function circlesOf(rarity: Types.Rarity): number
 	local def = Catalog.rarities[rarity]
@@ -421,8 +420,10 @@ local function gradesText(grades: { Types.CircleGrade }): string
 	return "{" .. table.concat(grades, ", ") .. "}"
 end
 
-local function pawsText(paws: number?): string
-	return if paws == nil then "unlimited" else tostring(paws)
+-- Seconds until the stray stops running after a miss (its FleeingUntil, server time); 0 when it is not running.
+local function fleeLeft(model: Model): number
+	local fleeingUntil = model:GetAttribute("FleeingUntil")
+	return if type(fleeingUntil) == "number" then math.max(0, fleeingUntil - serverNow()) else 0
 end
 
 -- True when all `count` circles were graded and none was a Miss: a sure catch (v0.4).
@@ -685,9 +686,11 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 		+ schedule.windows.good
 		+ Config.CatchLatencyCapSeconds
 	local offBy = event.server - deadline
-	task.wait(0.7) -- the jump back runs at 24 studs per second; after landing the stray wanders again (N52)
+	local running = fleeLeft(stray.model)
+	-- v0.5: the sprint runs at StrayFleeSpeed; measure once it has stopped, before it wanders again (N52)
+	task.wait(math.max(0.7, running - Config.StrayRestSeconds + 0.1))
 	if stray.model.Parent == nil then
-		return "FAIL", "the stray despawned after a miss; v0.4 keeps it and makes it jump back"
+		return "FAIL", "the stray despawned after a miss; it stays and runs off (v0.5)"
 	end
 	local lockedBy = stray.model:GetAttribute("LockedBy")
 	if lockedBy ~= nil and lockedBy ~= 0 then
@@ -704,56 +707,31 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 	end
 	local verdict: Verdict = "PASS"
 	local notes = {}
-	-- One paw fewer than the schedule said, mirrored on the model for the prompt; unlimited stays unlimited.
-	local attribute = stray.model:GetAttribute("Paws_" .. player.UserId)
-	if schedule.pawsLeft == nil then
-		if outcome.pawsLeft ~= nil then
-			verdict = "FAIL"
-			table.insert(
-				notes,
-				"unlimited paws in the schedule, " .. pawsText(outcome.pawsLeft) .. " in the result"
-			)
-		else
-			table.insert(notes, "unlimited paws (a beginner's Common)")
-		end
-	elseif
-		outcome.pawsLeft ~= math.max(0, schedule.pawsLeft - 1)
-		or attribute ~= outcome.pawsLeft
-	then
+	-- v0.5: the miss sets FleeingUntil, the sprint plus the breather, so nobody can grab it while it runs.
+	if running <= 0 then
 		verdict = "FAIL"
-		table.insert(
-			notes,
-			string.format(
-				"paws %d before, %s in the result, %s on the model",
-				schedule.pawsLeft,
-				pawsText(outcome.pawsLeft),
-				tostring(attribute)
-			)
-		)
+		table.insert(notes, "no FleeingUntil in the future after the miss")
 	else
-		table.insert(
-			notes,
-			string.format("paws %d to %s", schedule.pawsLeft, pawsText(outcome.pawsLeft))
-		)
+		table.insert(notes, string.format("running for %.1f s", running))
 	end
 	if outcome.charmGain ~= 0 then
 		verdict = "FAIL"
 		table.insert(notes, string.format("charmGain %d on a miss", outcome.charmGain))
 	end
-	local jumped = horizontal(stray.model:GetPivot().Position, from)
-	if jumped < Config.StrayJumpBackMin - 1 or jumped > Config.StrayJumpBackMax + 2 then
+	local ran = horizontal(stray.model:GetPivot().Position, from)
+	local fleeStuds = Catalog.rarities[stray.rarity].fleeStuds
+	if ran < 2 or ran > fleeStuds + 2 then
 		verdict = downgrade(verdict, "CHECK")
 		table.insert(
 			notes,
 			string.format(
-				"it moved %.1f studs, expected %d to %d (less is right at an area edge)",
-				jumped,
-				Config.StrayJumpBackMin,
-				Config.StrayJumpBackMax
+				"it ran %.1f studs, expected up to %d (less is right at an area edge or a prop)",
+				ran,
+				fleeStuds
 			)
 		)
 	else
-		table.insert(notes, string.format("jumped back %.1f studs", jumped))
+		table.insert(notes, string.format("ran %.1f of %d studs", ran, fleeStuds))
 	end
 	table.insert(notes, string.format("resolved %+.2f s from circle 1's deadline", offBy))
 	if offBy < -0.1 or offBy > 0.5 then
@@ -902,17 +880,10 @@ case(
 		if outcome.success then
 			return "FAIL", "caught from 200 studs away: " .. gradesText(outcome.grades)
 		end
-		-- Walking out of range is a Miss (reviewer S33), so it costs a paw like any other.
-		local pawsOk = (schedule.pawsLeft == nil and outcome.pawsLeft == nil)
-			or (schedule.pawsLeft ~= nil and outcome.pawsLeft == math.max(0, schedule.pawsLeft - 1))
-		local text = string.format(
-			"not caught, grades %s, paws %s to %s",
-			gradesText(outcome.grades),
-			pawsText(schedule.pawsLeft),
-			pawsText(outcome.pawsLeft)
-		)
-		if not pawsOk then
-			return "FAIL", text .. ": walking away must cost a paw like a Miss"
+		-- Walking out of range is a Miss (reviewer S33), so the stray runs off like after any other (v0.5).
+		local text = string.format("not caught, grades %s", gradesText(outcome.grades))
+		if stray.model.Parent ~= nil and fleeLeft(stray.model) <= 0 then
+			return "FAIL", text .. ": walking away must send the stray running like a Miss"
 		end
 		if not tooFar then
 			return "CHECK", text .. ", but no Too far away toast; read the server output"
@@ -1077,7 +1048,7 @@ case(
 case(
 	"retry",
 	Enum.KeyCode.Semicolon,
-	"Retry: miss a Common, GrabBegin it 2 s later (inside the 5 s wary wait), then again once the wait is over",
+	"Retry: miss a Common, GrabBegin it while it runs, then once it stops, then after my extra second",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -1104,63 +1075,53 @@ case(
 		if stray.model.Parent == nil then
 			return "FAIL", "the Common despawned after a miss"
 		end
-		if outcome.pawsLeft == 0 then
-			return "CHECK",
-				"this Common is out of paws for me now (no retry to test); pick another Common and rerun"
-		end
-		local failedAt = os.clock()
 		local notes = {}
 		local verdict: Verdict = "PASS"
-		-- The GrabBegin limit and the catch cooldown both count 2 s from the first GrabBegin; the wary wait counts
-		-- StrayWarySeconds from the miss, which comes later.
+		-- v0.5 (F40): while it runs, GrabBegin from anyone is "It's running!". The GrabBegin limit and the catch
+		-- cooldown count 2 s from the first GrabBegin, so wait those out first.
 		task.wait(math.max(0, startedAt + Config.GrabRateLimitSeconds + 0.15 - os.clock()))
-		if os.clock() > failedAt + Config.StrayWarySeconds - 0.5 then
+		local running = fleeLeft(stray.model)
+		if running < 0.4 then
 			verdict = "CHECK"
-			table.insert(
-				notes,
-				"wary-wait check skipped: the miss came too early to test inside the wait"
-			)
+			table.insert(notes, "running check skipped: the stray had stopped before the cooldowns were over")
 		else
-			standNextTo(stray) -- it jumped back from the miss
+			standNextTo(stray)
 			local againAt = os.clock()
 			fire("GrabBegin", stray.id)
 			local answer = answerTo(againAt, stray.id, 1.5)
 			if answer ~= nil and answer.name == "CatchSchedule" then
-				return "FAIL",
-					string.format(
-						"a new catch started %.2f s after the miss, inside the %d s wary wait",
-						againAt - failedAt,
-						Config.StrayWarySeconds
-					)
-			elseif answer ~= nil and string.find(answer.text, "wary", 1, true) ~= nil then
-				table.insert(
-					notes,
-					string.format("%.2f s after the miss: %s", againAt - failedAt, answer.text)
-				)
+				return "FAIL", string.format("a new catch started while the stray ran (%.1f s left)", running)
+			elseif answer ~= nil and string.find(answer.text, "running", 1, true) ~= nil then
+				table.insert(notes, string.format("%.1f s before it stopped: %s", running, answer.text))
 			else
 				verdict = "CHECK"
-				table.insert(
-					notes,
-					"inside the wary wait: " .. (if answer ~= nil then answer.text else "no answer")
-				)
+				table.insert(notes, "while it ran: " .. (if answer ~= nil then answer.text else "no answer"))
 			end
 		end
-		-- After the wait the same player may try again with the paws the miss left them and catch it on target.
-		task.wait(math.max(0, failedAt + Config.StrayWarySeconds + 0.2 - os.clock()))
-		local schedule2, why2, startedAt2 = beginCatch(stray)
-		if schedule2 == nil then
-			return "FAIL", table.concat(notes, "; ") .. "; after the wait: " .. why2
-		end
-		if schedule2.pawsLeft ~= outcome.pawsLeft then
-			verdict = "FAIL"
+		-- Once it stops, the player who missed waits StraySelfRetrySeconds longer than everyone else (S44).
+		task.wait(fleeLeft(stray.model) + 0.1)
+		grabReady()
+		standNextTo(stray)
+		local selfAt = os.clock()
+		fire("GrabBegin", stray.id)
+		local selfAnswer = answerTo(selfAt, stray.id, 1.5)
+		if selfAnswer ~= nil and selfAnswer.name == "CatchSchedule" then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(notes, "a catch started for me right as it stopped; S44 wants my extra second")
+			outcomeOf(selfAt, stray.id, selfAnswer.data)
+		else
 			table.insert(
 				notes,
-				string.format(
-					"the new schedule says %s paws, the miss left %s",
-					pawsText(schedule2.pawsLeft),
-					pawsText(outcome.pawsLeft)
-				)
+				"right as it stopped: " .. (if selfAnswer ~= nil then selfAnswer.text else "no answer")
 			)
+		end
+		-- After that the same player may try again, as often as they like, and catch it on target.
+		task.wait(Config.StraySelfRetrySeconds + 0.2)
+		grabReady()
+		standNextTo(stray)
+		local schedule2, why2, startedAt2 = beginCatch(stray)
+		if schedule2 == nil then
+			return "FAIL", table.concat(notes, "; ") .. "; after it stopped: " .. why2
 		end
 		for index, circle in schedule2.circles do
 			pressOnTarget(stray.id, index, circle)
@@ -1169,15 +1130,9 @@ case(
 		checkInIfCarrying()
 		if outcome2 == nil or not outcome2.success then
 			verdict = downgrade(verdict, "FAIL")
-			table.insert(notes, "after the wait: pressed on target but not caught")
+			table.insert(notes, "after it stopped: pressed on target but not caught")
 		else
-			table.insert(
-				notes,
-				string.format(
-					"after the wait: a new schedule with %s paws, caught on target",
-					pawsText(schedule2.pawsLeft)
-				)
-			)
+			table.insert(notes, "after it stopped: a new schedule, caught on target")
 		end
 		return verdict, table.concat(notes, "; ")
 	end
@@ -1231,41 +1186,32 @@ case(
 		end
 		return "PASS",
 			string.format(
-				"%d presses; circle 1 was graded from the first press after it started, a Miss that ended the catch (paws %s to %s)",
-				sent,
-				pawsText(schedule.pawsLeft),
-				pawsText(outcome.pawsLeft)
+				"%d presses; circle 1 was graded from the first press after it started, a Miss that ended the catch",
+				sent
 			)
 	end
 )
 
 case(
-	"outOfPaws",
+	"unlimitedTries",
 	Enum.KeyCode.Period,
-	"Out of paws: miss one stray until it stops trusting me, then GrabBegin it again",
+	"Unlimited tries: miss one stray three times, each after it stops running; every GrabBegin starts a catch",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
 		end
-		-- The stray that runs out soonest: Legendary and Mythical start with one paw, Rare and Epic two, Common three.
+		-- v0.5 (F40): no paws. A Legendary or Mythical ran out after one miss in v0.4, so they show it best.
 		local stray = nearestStray(function(info)
-			return Catalog.rarities[info.rarity].patience == 1
+			return info.rarity == "Legendary" or info.rarity == "Mythical"
 		end) or nearestStray()
 		if stray == nil then
-			return "SKIP",
-				string.format('%s; or %s("spawnStray", "void") for a one-paw stray', NO_STRAY, DEBUG)
+			return "SKIP", string.format('%s; or %s("spawnStray", "void") for a Mythical', NO_STRAY, DEBUG)
 		end
 		local misses = 0
-		local last: Outcome? = nil
-		for _ = 1, Catalog.rarities[stray.rarity].patience do
+		for _ = 1, 3 do
 			local schedule, why, startedAt = beginCatch(stray)
 			if schedule == nil then
-				return "CHECK", string.format("after %d miss(es): %s", misses, why)
-			end
-			if schedule.pawsLeft == nil then
-				outcomeOf(startedAt, stray.id, schedule)
-				return "SKIP",
-					"unlimited paws on this stray (a beginner's Common); finish the tutorial or pick a rarer stray"
+				return "FAIL", string.format("after %d miss(es): %s", misses, why)
 			end
 			missOnPurpose(stray.id, schedule)
 			local outcome = outcomeOf(startedAt, stray.id, schedule)
@@ -1277,71 +1223,20 @@ case(
 				return "FAIL", "an early press still caught the cat"
 			end
 			misses += 1
-			if outcome.pawsLeft ~= math.max(0, schedule.pawsLeft - 1) then
-				return "FAIL",
-					string.format(
-						"paws %d before the miss, %s after",
-						schedule.pawsLeft,
-						pawsText(outcome.pawsLeft)
-					)
+			if stray.model.Parent == nil then
+				return "FAIL", string.format("the stray despawned after %d miss(es)", misses)
 			end
-			last = outcome
-			if outcome.pawsLeft == 0 then
-				break
-			end
-			task.wait(Config.StrayWarySeconds + 0.2)
+			task.wait(fleeLeft(stray.model) + Config.StraySelfRetrySeconds + 0.2)
+			grabReady()
+			standNextTo(stray)
 		end
-		if last == nil or last.pawsLeft ~= 0 then
-			return "FAIL",
-				string.format(
-					"still %s paws after %d misses",
-					pawsText(if last ~= nil then last.pawsLeft else nil),
-					misses
-				)
+		local schedule, why, startedAt = beginCatch(stray)
+		if schedule == nil then
+			return "FAIL", string.format("after %d misses: %s", misses, why)
 		end
-		local notes = { string.format("%s out of paws after %d miss(es)", stray.rarity, misses) }
-		local verdict: Verdict = "PASS"
-		-- Past the wary wait, so the only reason left to refuse is trust. retry=false: the prompt should not come back.
-		task.wait(Config.StrayWarySeconds + 0.2)
-		grabReady()
-		standNextTo(stray)
-		local againAt = os.clock()
-		fire("GrabBegin", stray.id)
-		local answer = answerTo(againAt, stray.id, 1.5)
-		if answer ~= nil and answer.name == "CatchSchedule" then
-			return "FAIL", "a catch started on a stray I have no paws left for"
-		elseif answer == nil then
-			verdict = "CHECK"
-			table.insert(notes, "no answer to the GrabBegin at 0 paws")
-		elseif
-			string.find(answer.text, "won't trust you", 1, true) == nil
-			or string.find(answer.text, "retry=false", 1, true) == nil
-		then
-			verdict = "CHECK"
-			table.insert(notes, "at 0 paws: " .. answer.text)
-		else
-			table.insert(
-				notes,
-				"GrabBegin at 0 paws: It won't trust you again tonight, retry=false"
-			)
-		end
-		local attribute = stray.model:GetAttribute("Paws_" .. player.UserId)
-		if stray.model.Parent == nil then
-			verdict = "FAIL"
-			table.insert(notes, "the stray despawned; it must stay for other players")
-		elseif attribute ~= 0 then
-			verdict = "FAIL"
-			table.insert(
-				notes,
-				string.format("Paws_%d on the model is %s, not 0", player.UserId, tostring(attribute))
-			)
-		else
-			table.insert(
-				notes,
-				"still in the world with Paws_<me> = 0; a second player should still see its prompt"
-			)
-		end
-		return verdict, table.concat(notes, "; ")
+		outcomeOf(startedAt, stray.id, schedule)
+		return "PASS",
+			string.format("%s: %d misses and a fourth catch still started; no paws, no trust lost", stray.rarity, misses)
 	end
 )
 
@@ -1992,24 +1887,18 @@ Remotes.event("GrabResult").OnClientEvent
 		)
 	end)
 Remotes.event("CatchSchedule").OnClientEvent:Connect(
-	function(
-		strayId: string,
-		circles: { Types.CatchCircle },
-		windows: Types.CatchWindows,
-		pawsLeft: number?
-	)
-		local schedule: Schedule = { circles = circles, windows = windows, pawsLeft = pawsLeft }
+	function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+		local schedule: Schedule = { circles = circles, windows = windows }
 		local firstIn = if #circles > 0 then targetOf(circles[1]) - serverNow() else 0
 		record(
 			"CatchSchedule",
 			string.format(
-				"%s %d circle(s), first target in %.2f s, perfect +-%d ms, good +-%d ms, paws %s",
+				"%s %d circle(s), first target in %.2f s, perfect +-%d ms, good +-%d ms",
 				strayId,
 				#circles,
 				firstIn,
 				math.floor(windows.perfect * 1000 + 0.5),
-				math.floor(windows.good * 1000 + 0.5),
-				pawsText(pawsLeft)
+				math.floor(windows.good * 1000 + 0.5)
 			),
 			strayId,
 			schedule
@@ -2017,23 +1906,15 @@ Remotes.event("CatchSchedule").OnClientEvent:Connect(
 	end
 )
 Remotes.event("CatchResult").OnClientEvent:Connect(
-	function(
-		strayId: string,
-		grades: { Types.CircleGrade },
-		success: boolean,
-		pawsLeft: number?,
-		charmGain: number
-	)
-		local outcome: Outcome =
-			{ grades = grades, success = success, pawsLeft = pawsLeft, charmGain = charmGain }
+	function(strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number)
+		local outcome: Outcome = { grades = grades, success = success, charmGain = charmGain }
 		record(
 			"CatchResult",
 			string.format(
-				"%s grades=%s success=%s pawsLeft=%s charmGain=%d",
+				"%s grades=%s success=%s charmGain=%d",
 				strayId,
 				gradesText(grades),
 				tostring(success),
-				pawsText(pawsLeft),
 				charmGain
 			),
 			strayId,

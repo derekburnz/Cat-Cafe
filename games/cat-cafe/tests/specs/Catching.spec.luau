@@ -22,25 +22,42 @@ return function()
 		end)
 	end)
 
-	describe("patience (sections 2 and 10, v0.4)", function()
-		it("paws per player per stray: Common 3, Rare 2, Epic 2, Legendary 1, Mythical 1; nothing flees", function()
-			expect(Catching.patience("Common")).to.equal(3)
-			expect(Catching.patience("Rare")).to.equal(2)
-			expect(Catching.patience("Epic")).to.equal(2)
-			expect(Catching.patience("Legendary")).to.equal(1)
-			expect(Catching.patience("Mythical")).to.equal(1)
+	describe("the chase after a miss (sections 2 and 10, v0.5)", function()
+		it("sprint studs: Common 12, Rare 16, Epic 20, Legendary 26, Mythical 32; the v0.4 paws are gone", function()
+			expect(Catching.fleeStuds("Common")).to.equal(12)
+			expect(Catching.fleeStuds("Rare")).to.equal(16)
+			expect(Catching.fleeStuds("Epic")).to.equal(20)
+			expect(Catching.fleeStuds("Legendary")).to.equal(26)
+			expect(Catching.fleeStuds("Mythical")).to.equal(32)
+			expect((Catching :: any).patience).never.to.be.ok()
 			expect((Catching :: any).fleesOnFail).never.to.be.ok()
-			expect((Catching :: any).fleesOnMiss).never.to.be.ok()
 		end)
 
-		it("every stray gives at least one try, and a rarer cat never trusts you longer", function()
-			local previous = math.huge
+		it("a rarer cat always runs at least as far", function()
+			local previous = 0
 			for _, rarity in ipairs(Catalog.rarityOrder) do
-				local paws = Catching.patience(rarity)
-				expect(paws >= 1).to.equal(true)
-				expect(paws <= previous).to.equal(true)
-				previous = paws
+				local studs = Catching.fleeStuds(rarity)
+				expect(studs > 0).to.equal(true)
+				expect(studs >= previous).to.equal(true)
+				previous = studs
 			end
+		end)
+
+		it("nobody may try again until the sprint at StrayFleeSpeed and the breather are over", function()
+			local sprint = 26
+			local expected = 100 + sprint / Config.StrayFleeSpeed + Config.StrayRestSeconds
+			expect(Catching.fleeUntil(100, sprint)).to.be.near(expected, 1e-9)
+		end)
+
+		it("a sprint cut short by a wall still waits at least GrabRetrySeconds", function()
+			expect(Catching.fleeUntil(100, 0)).to.be.near(100 + Config.GrabRetrySeconds, 1e-9)
+			expect(Catching.fleeUntil(100, -5)).to.be.near(100 + Config.GrabRetrySeconds, 1e-9)
+		end)
+
+		it("a Mythical's chase is longer than a Common's", function()
+			local common = Catching.fleeUntil(0, Catching.fleeStuds("Common"))
+			local mythical = Catching.fleeUntil(0, Catching.fleeStuds("Mythical"))
+			expect(mythical > common).to.equal(true)
 		end)
 
 		it("v0.3: the hold ring and flat chance are gone (F26)", function()

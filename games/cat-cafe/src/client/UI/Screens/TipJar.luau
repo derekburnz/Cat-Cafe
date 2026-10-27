@@ -1,11 +1,13 @@
 --!strict
 -- Tip Jar screen (F47, data-model section 11b): the twelve free playtime gifts of this session, like the Free
 -- Gifts grid in Pet Simulator 99. A strip on top says how long you have played and when the next gift opens;
--- each card shows when it opens, the prize (coins from your day rate, or a food) and a green Claim button once
--- it is ready. Opened from the Gifts tile in the HUD's top-right icon row. The sums live in
--- Components/TipJarLogic; the jar resets when the player leaves, which the subtitle says. A gift that also banks
--- a Spin Wheel spin (F49, steps 11 and 12) wears a "+1 spin" badge, or "Spins full" while the bank is at
--- SpinBankCap, since the server then drops the spin and pays the rest.
+-- each card shows when it opens, the prize as pictures with amounts (Components/PrizeChips: coins from your day
+-- rate, foods, golden fish, crates, spins, potions) and a green Claim button once it is ready. Opened from the Gifts
+-- tile in the HUD's top-right icon row. The sums live in Components/TipJarLogic; the jar resets when the player
+-- leaves, which the subtitle says. A one-prize gift that also banks a Spin Wheel spin (F49, step 11) wears a
+-- "+1 spin" badge, or "Spins full" while the bank is at SpinBankCap, since the server then drops the spin and pays
+-- the rest. F68 (round 4 Q10): the 60 and 120 minute gifts pay several things, so their cards are wider and gold,
+-- "Big gift" and "Best gift", with every prize as a picture (spins too, reading "Full" when the bank is full).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -13,11 +15,8 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
-local FishCoin = require(script.Parent.Parent.Components.FishCoin)
-local Format = require(script.Parent.Parent.Components.Format)
-local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
-local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
@@ -40,11 +39,13 @@ export type TipJar = {
 }
 
 local CARD = Vector2.new(150, 132)
+local GAP = Theme.sizes.gap + 4
 local ICON = 52
+local BIG_ICON = 46 -- the pictures on a big gift's card
+local BIG_FILL = Theme.colors.gold:Lerp(Theme.colors.paper, 0.72)
 local STRIP_HEIGHT = 52
 local PENDING_SECONDS = 3 -- a pressed Claim waits this long for TipJarState before it can be pressed again
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
-local COIN_GLYPH = "💰"
 local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
 
 local TipJar = {}
@@ -70,7 +71,7 @@ function TipJar.new(callbacks: Callbacks): TipJar
 	local self = setmetatable({}, TipJar) :: any
 	self._callbacks = callbacks
 	self._rows = {} :: { TipJarLogic.Row }
-	self._lureById = {} :: { [string]: Types.LureDef }
+	self._catalog = nil :: Types.Catalog?
 	self._jar = nil :: TipJarLogic.Jar?
 	self._income = 0
 	self._night = false
@@ -140,9 +141,12 @@ function TipJar.new(callbacks: Callbacks): TipJar
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = panel.content,
 	}, {
-		Create("UIGridLayout", {
-			CellSize = UDim2.fromOffset(CARD.X, CARD.Y),
-			CellPadding = UDim2.fromOffset(Theme.sizes.gap + 4, Theme.sizes.gap + 4),
+		-- a wrapping row of cards: the bigger gifts are wider (F68), so not a grid; each card's cell carries the gap
+		-- under it
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Wraps = true,
+			Padding = UDim.new(0, GAP),
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
@@ -169,10 +173,7 @@ function TipJar.new(callbacks: Callbacks): TipJar
 end
 
 function TipJar.setCatalog(self: any, catalog: Types.Catalog)
-	table.clear(self._lureById)
-	for _, lure in catalog.lures do
-		self._lureById[lure.id] = lure
-	end
+	self._catalog = catalog
 	self._rows = catalog.tipJar or {}
 	self:_build()
 end
@@ -197,17 +198,39 @@ end
 function TipJar._build(self: any)
 	for _, card in self._cards do
 		card.claim:destroy()
-		card.icon:destroy()
-		card.frame:Destroy()
+		card.chips:destroy()
+		card.cell:Destroy()
 	end
 	table.clear(self._cards)
+	local catalog: Types.Catalog? = self._catalog
 	for _, row: TipJarLogic.Row in self._rows do
-		local frame: Frame = Create("Frame", {
+		local prize = TipJarLogic.prize(row)
+		local size = TipJarLogic.size(prize)
+		local big = size ~= "small"
+		local spins = prize.spins or 0
+		-- a small card shows its spins as the badge; bigger gifts show them as a picture among the rest
+		local shown: TipJarLogic.Prize = prize
+		if not big and spins > 0 then
+			local copy = table.clone(prize)
+			copy.spins = nil
+			shown = copy
+		end
+		local cell: Frame = Create("Frame", {
 			Name = "Gift" .. row.step,
-			BackgroundColor3 = Theme.modal.card,
-			BorderSizePixel = 0,
+			BackgroundTransparency = 1,
+			Size = if size == "full"
+				then UDim2.new(1, 0, 0, CARD.Y + GAP)
+				elseif big then UDim2.fromOffset(CARD.X * 2 + GAP, CARD.Y + GAP)
+				else UDim2.fromOffset(CARD.X, CARD.Y + GAP),
 			LayoutOrder = row.step,
 			Parent = self._grid,
+		})
+		local frame: Frame = Create("Frame", {
+			Name = "Card",
+			BackgroundColor3 = if big then BIG_FILL else Theme.modal.card,
+			BorderSizePixel = 0,
+			Size = UDim2.new(1, 0, 0, CARD.Y),
+			Parent = cell,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		})
@@ -216,42 +239,37 @@ function TipJar._build(self: any)
 			Thickness = Theme.sizes.stroke,
 			Parent = frame,
 		})
+		local minutes = ("%d min"):format(row.minutes)
 		local when = text({
 			Name = "When",
 			Position = UDim2.fromOffset(6, 4),
 			Size = UDim2.new(1, -12, 0, 18),
-			FontFace = Theme.fonts.bodyBold,
+			FontFace = if big then Theme.fonts.display else Theme.fonts.bodyBold,
 			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
-			Text = ("%d min"):format(row.minutes),
+			TextColor3 = if big then Theme.colors.goldDark else Theme.modal.subtext,
+			Text = if size == "full"
+				then minutes .. "  ·  Best gift"
+				elseif big then minutes .. "  ·  Big gift"
+				else minutes,
 			-- a spin badge takes the right of the top line, so the minutes move left
-			TextXAlignment = if (row.spins or 0) > 0
+			TextXAlignment = if not big and spins > 0
 				then Enum.TextXAlignment.Left
 				else Enum.TextXAlignment.Center,
 			Parent = frame,
 		})
-		local lure: Types.LureDef? = if row.lureId then self._lureById[row.lureId] else nil
-		local icon = ItemIcon.new({
+		local chips = PrizeChips.new({
 			parent = frame,
-			size = UDim2.fromOffset(ICON, ICON),
+			tile = if big then BIG_ICON else ICON,
+			textSize = Theme.sizes.textBody,
+			name = "Prize",
+			position = UDim2.new(0.5, 0, 0, 24),
 			anchorPoint = Vector2.new(0.5, 0),
-			position = UDim2.new(0.5, 0, 0, 22),
-			badge = "gem", -- F69: a food's grade in the corner
+			fitTo = frame,
+			fitPad = 12,
 		})
-		if lure then
-			icon:setFood(lure)
-		else
-			icon:set(nil, COIN_GLYPH, "Legendary")
+		if catalog then
+			chips:setCatalog(catalog)
 		end
-		local prize = text({
-			Name = "Prize",
-			Position = UDim2.fromOffset(6, 22 + ICON + 2),
-			Size = UDim2.new(1, -12, 0, 20),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
-			Parent = frame,
-		})
-		Outline.text(prize, 1)
 		local waiting = text({
 			Name = "Wait",
 			AnchorPoint = Vector2.new(0.5, 1),
@@ -266,7 +284,7 @@ function TipJar._build(self: any)
 		})
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = waiting })
 		local spinBadge: TextLabel? = nil
-		if (row.spins or 0) > 0 then
+		if not big and spins > 0 then
 			local badge = text({
 				Name = "Spin",
 				AnchorPoint = Vector2.new(1, 0),
@@ -282,37 +300,6 @@ function TipJar._build(self: any)
 			})
 			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = badge })
 			spinBadge = badge
-		end
-		-- golden fish the gift also gives (F52, step 12): the cat-face coin and "+5" left of the picture
-		local fishBadge: Frame? = nil
-		if (row.fish or 0) > 0 then
-			local badge: Frame = Create("Frame", {
-				Name = "Fish",
-				BackgroundTransparency = 1,
-				AnchorPoint = Vector2.new(0, 0.5),
-				Position = UDim2.fromOffset(6, 22 + ICON / 2),
-				Size = UDim2.fromOffset(42, 22),
-				Parent = frame,
-			})
-			FishCoin.new({
-				parent = badge,
-				size = 16,
-				position = UDim2.new(0, 0, 0.5, 2),
-				anchorPoint = Vector2.new(0, 0.5),
-			})
-			local amount = text({
-				Name = "Amount",
-				Position = UDim2.fromOffset(19, 0),
-				Size = UDim2.new(1, -19, 1, 0),
-				FontFace = Theme.fonts.display,
-				TextSize = Theme.sizes.textSmall,
-				TextColor3 = Theme.fish.text,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				Text = "+" .. Format.short(row.fish or 0),
-				Parent = badge,
-			})
-			Outline.text(amount, 1.5)
-			fishBadge = badge
 		end
 		local step = row.step
 		local claim = Button.new({
@@ -331,16 +318,17 @@ function TipJar._build(self: any)
 			end,
 		})
 		self._cards[step] = {
+			cell = cell,
 			frame = frame,
 			stroke = stroke,
 			when = when,
-			icon = icon,
-			lure = lure,
-			prize = prize,
+			chips = chips,
+			shown = shown,
+			spins = spins,
+			big = big,
 			waiting = waiting,
 			claim = claim,
 			spinBadge = spinBadge,
-			fishBadge = fishBadge,
 		}
 	end
 	self:_refresh()
@@ -356,21 +344,16 @@ function TipJar._refresh(self: any)
 		return
 	end
 	local dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE)
+	local spin: Types.SpinState? = self._spin
+	local banked = if spin then spin.banked else nil
+	local look: PrizeChips.Look = { dayRate = dayRate, spinsBanked = banked }
 	for _, view in views do
 		local row = view.row
 		local card = self._cards[row.step]
 		if not card then
 			continue
 		end
-		if row.kind == "coins" then
-			card.prize.Text = Format.money(TipJarLogic.coins(row, dayRate))
-		else
-			local lure: Types.LureDef? = card.lure
-			card.prize.Text = ("%d %s"):format(
-				row.count or 1,
-				if lure then lure.name else (row.lureId or "food")
-			)
-		end
+		card.chips:set(card.shown, look) -- coins follow the day rate; a full spin bank reads "Full"
 		local pressedAt: number? = self._pending[row.step]
 		local pending = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 		local claimed = view.state == "claimed"
@@ -381,25 +364,21 @@ function TipJar._refresh(self: any)
 		card.waiting.Visible = not ready
 		card.waiting.Text = if claimed then "✓ Claimed" else TipJarLogic.clock(view.remaining)
 		card.waiting.TextColor3 = if claimed then Theme.colors.goodDark else Theme.modal.subtext
-		card.stroke.Color = if ready then Theme.colors.good else Theme.modal.cardStroke
-		card.stroke.Thickness = Theme.sizes.stroke + (if ready then 1 else 0)
+		card.stroke.Color = if ready
+			then Theme.colors.good
+			elseif card.big then Theme.colors.goldDark
+			else Theme.modal.cardStroke
+		card.stroke.Thickness = Theme.sizes.stroke + (if ready or card.big then 1 else 0)
 		card.frame.BackgroundTransparency = if claimed then 0.35 else 0
-		local fishBadge: Frame? = card.fishBadge
-		if fishBadge then
-			fishBadge.Visible = not claimed
-		end
 		local badge: TextLabel? = card.spinBadge
 		if badge then
-			local spin: Types.SpinState? = self._spin
-			local full = spin ~= nil and spin.banked >= SPIN_BANK_CAP
+			local full = banked ~= nil and banked >= SPIN_BANK_CAP
+			local spins: number = card.spins
+			local plural = if spins == 1 then "" else "s"
 			badge.Visible = not claimed
 			badge.Text = if full
 				then "Spins full"
-				else ("%s +%d spin%s"):format(
-					Theme.icons.spin,
-					row.spins or 1,
-					if (row.spins or 1) == 1 then "" else "s"
-				)
+				else ("%s +%d spin%s"):format(Theme.icons.spin, spins, plural)
 			badge.BackgroundColor3 = if full then Theme.colors.disabledDark else Theme.colors.berry
 		end
 	end
@@ -442,7 +421,7 @@ function TipJar.destroy(self: any)
 	self._tick:Disconnect()
 	for _, card in self._cards do
 		card.claim:destroy()
-		card.icon:destroy()
+		card.chips:destroy()
 	end
 	table.clear(self._cards)
 	self._panel:destroy()

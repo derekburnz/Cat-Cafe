@@ -84,6 +84,9 @@ UI.events = {
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   a press on a stuck cat's prompt: forward as RescueBegin
+	-- (strayId, catId)   the hold on a dropped cat's Pick up prompt (PickUp = true): forward as PickUpCat (v0.8 F56,
+	-- v0.10 F67)
+	pickUpBegan = Signal.new(),
 	rescuePressed = Signal.new(), -- (rescueSpotId)   a press on the rescue bar or its catch circle: forward as RescuePress (F27)
 	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
@@ -1540,7 +1543,9 @@ UI.catch = {}
 local activePrompt: ProximityPrompt? = nil
 local activeInfo: Types.CatchInfo? = nil
 local promptConnections: { RBXScriptConnection } = {}
-local fleeWatch: RBXScriptConnection? = nil -- v0.5: the active stray's FleeingUntil
+-- the active stray's FleeingUntil (v0.5), and its PickUp, Returning and Dropped (F67: a walking cat that gets home
+-- turns back into one that needs the circles)
+local strayWatch: { RBXScriptConnection } = {}
 -- v0.5.1 (reviewer S44): the player who missed a stray tries again StraySelfRetrySeconds after it stops
 local SELF_RETRY: number = Config.StraySelfRetrySeconds
 local missedAt: { [string]: number } = {} -- strayId -> server time of this player's last miss on it
@@ -1869,6 +1874,12 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 	local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
+	local pickUp = promptAttribute(prompt, "PickUp") == true -- v0.8 F56: no circles, the hold picks it up
+	local returning = promptAttribute(prompt, "Returning") == true -- v0.10 F67: walking home
+	local kind: Types.PromptKind = if rescue == true
+		then "rescue"
+		elseif pickUp then "pickup"
+		else "swing"
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
 	local dropOwner = promptAttribute(prompt, "DropOwner")
@@ -1877,6 +1888,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local othersDrop = promptAttribute(prompt, "Dropped") == true
 		and type(dropOwner) == "number"
 		and (player == nil or dropOwner ~= player.UserId)
+		and not pickUp -- v0.8 F56: a pick up has no owner window
 	return {
 		fleeingUntil = if type(fleeingUntil) == "number" then fleeingUntil else nil,
 		ownerTurnUntil = if othersDrop and type(dropOwnerUntil) == "number"
@@ -1884,7 +1896,8 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 			else nil,
 		press = prompt.HoldDuration <= 0,
 		shiny = gold == true,
-		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
+		kind = kind,
+		returning = pickUp and returning,
 		rescueSpotId = if type(rescueSpotId) == "string"
 			then rescueSpotId
 			elseif type(strayId) == "string" then strayId
@@ -1908,19 +1921,20 @@ end
 -- (on the prompt, its model, or its parent). Cat prompts are held for HoldDuration (0.5 s since 2026-10-27; the
 -- card and the CATCH button fill over the hold), and the trigger fires
 -- events.grabBegan (a stray) or events.rescueBegan (a stuck cat, Rescue = true) and the server answers with
--- catch.showCircles, UI.rescue.show or catch.fail. A press while the circles or the rescue bar are up is theirs,
--- so it never asks again.
+-- catch.showCircles, UI.rescue.show or catch.fail. A dropped cat with PickUp = true fires events.pickUpBegan
+-- instead, and the carry starting (or catch.fail) is the answer. A press while the circles or the rescue bar are
+-- up is theirs, so it never asks again.
 -- Any other Style = Custom prompt (no CatId) gets an action pill (Screens/ActionPill) and raises no event: the
 -- game handles its Triggered as it would a default prompt's.
 -- v0.5: someone's miss sends the active stray running (its model's FleeingUntil changes). The card shows
 -- "It's running!" at once; during the circles or the rescue bar only the stored info changes, so the card is right
 -- when it comes back.
-local function watchFleeing(prompt: ProximityPrompt?)
-	local old = fleeWatch
-	if old then
-		old:Disconnect()
-		fleeWatch = nil
+-- F67: a dropped cat's PickUp, Returning and Dropped change as it walks home and arrives, so the card follows them too.
+local function watchStray(prompt: ProximityPrompt?)
+	for _, connection in strayWatch do
+		connection:Disconnect()
 	end
+	table.clear(strayWatch)
 	if prompt == nil then
 		return
 	end
@@ -1929,20 +1943,32 @@ local function watchFleeing(prompt: ProximityPrompt?)
 		return
 	end
 	local model = holder :: Instance
-	fleeWatch = model:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
+	local function refresh()
 		if prompt ~= activePrompt then
 			return
-		end
-		local value = model:GetAttribute("FleeingUntil")
-		local info = activeInfo
-		if info then
-			info.fleeingUntil = if type(value) == "number" then value else nil
-			info.retryAt = retryAtFor(info.strayId, info.fleeingUntil)
 		end
 		if not UI.rescue.isActive() and not UI.catch.circlesActive() then
 			UI.catch.show(infoFromPrompt(prompt))
 		end
-	end)
+	end
+	table.insert(
+		strayWatch,
+		model:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
+			if prompt ~= activePrompt then
+				return
+			end
+			local value = model:GetAttribute("FleeingUntil")
+			local info = activeInfo
+			if info then
+				info.fleeingUntil = if type(value) == "number" then value else nil
+				info.retryAt = retryAtFor(info.strayId, info.fleeingUntil)
+			end
+			refresh()
+		end)
+	)
+	for _, name in { "PickUp", "Returning", "Dropped" } do
+		table.insert(strayWatch, model:GetAttributeChangedSignal(name):Connect(refresh))
+	end
 end
 
 function UI.catch.bindProximityPrompts()
@@ -1962,7 +1988,7 @@ function UI.catch.bindProximityPrompts()
 			return
 		end
 		activePrompt = prompt
-		watchFleeing(prompt)
+		watchStray(prompt)
 		UI.catch.show(infoFromPrompt(prompt))
 	end
 	table.insert(promptConnections, ProximityPromptService.PromptShown:Connect(onShown))
@@ -1976,7 +2002,7 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			activePrompt = nil
-			watchFleeing(nil)
+			watchStray(nil)
 			UI.catch.hide()
 		end)
 	)
@@ -2031,6 +2057,8 @@ function UI.catch.bindProximityPrompts()
 			catchScreen:waiting()
 			if info and info.kind == "rescue" then
 				UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
+			elseif info and info.kind == "pickup" then
+				UI.events.pickUpBegan:Fire(info.strayId, info.catId)
 			else
 				UI.events.grabBegan:Fire(
 					if info then info.strayId else nil,
@@ -2065,7 +2093,7 @@ function UI.catch.unbindProximityPrompts()
 		(connection :: any):Disconnect()
 	end
 	table.clear(promptConnections)
-	watchFleeing(nil)
+	watchStray(nil)
 	activePrompt = nil
 end
 

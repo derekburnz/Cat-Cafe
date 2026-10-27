@@ -215,6 +215,7 @@ Theme.icons = {
 	goldenFish = "🐟", -- in text only; tiles and the HUD draw the cat-face coin (Components/FishCoin)
 	crate = "📦",
 	tag = "🏷️",
+	potion = "🧪", -- v0.10 potions in prizes until the asset thread draws the bottles
 }
 
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons

@@ -28,6 +28,7 @@ export type Body = "parts" | "walk" | "sit"
 -- and right, roll tilts sideways. tailPitch lifts the tail, a paw value swings that leg forward from the hip.
 export type Offsets = {
 	bodyY: number,
+	belly: number, -- studs the top of the body rises as the belly fills with a breath (Pose swells the body parts)
 	bodyPitch: number,
 	bodyRoll: number,
 	headPitch: number,
@@ -170,6 +171,21 @@ local function wave(t: number, seconds: number): number
 	return math.sin(t * 2 * math.pi / seconds)
 end
 
+-- One breath every `seconds`, 0 (out) to 1 (in): a slow fill, a longer let-out, then a short rest before the next
+-- (motion.breath), the way a sleeping cat's belly rises and falls rather than a plain sine.
+function Logic.breath(t: number, seconds: number): number
+	local b = Presets.motion.breath
+	local into = (t / seconds) % 1
+	if into < b.inhale then
+		local k = into / b.inhale
+		return k * k * (3 - 2 * k)
+	elseif into < b.inhale + b.exhale then
+		local k = (into - b.inhale) / b.exhale
+		return 1 - k * k * (3 - 2 * k)
+	end
+	return 0
+end
+
 -- 0 most of the time; once every `every` seconds it rises to 1 and back over `length` seconds.
 function Logic.pulse(t: number, every: number, length: number): number
 	local into = t % every
@@ -182,6 +198,7 @@ end
 function Logic.blank(): Offsets
 	return {
 		bodyY = 0,
+		belly = 0,
 		bodyPitch = 0,
 		bodyRoll = 0,
 		headPitch = 0,
@@ -245,16 +262,18 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 	o.tailYaw = math.rad(m.tailSwish.degrees) * wave(t, m.tailSwish.seconds)
 	face(o, style, t)
 	if style == "nap" and pieces then
-		-- Curled up asleep (manifest sleep): the pose lays it down and turns its head and tail; only a slow breath
-		-- and the tip of the tail move.
+		-- Curled up asleep (manifest sleep): the pose lays it down and turns its head and tail; only the belly
+		-- rising and falling with each slow breath and the tip of the tail move.
 		o.sleep = 1
-		o.bodyY = (wave(t, m.nap.seconds) * 0.5 + 0.5) * m.nap.breathe
+		o.bodyY = 0
+		o.belly = Logic.breath(t, m.nap.seconds) * m.nap.breathe
 		o.tailYaw *= 0.1
 	elseif style == "loaf" and pieces then
 		-- Tucked in and awake (manifest loaf): a slow breath and a slow look to one side and back now and then.
 		local l = m.loaf
 		o.loaf = 1
-		o.bodyY = (wave(t, l.seconds) * 0.5 + 0.5) * l.breathe
+		o.bodyY = 0
+		o.belly = Logic.breath(t, l.seconds) * l.breathe
 		local side = if math.floor(t / l.lookEvery) % 2 == 0 then 1 else -1
 		o.headYaw = math.rad(l.look) * side * Logic.pulse(t, l.lookEvery, l.lookSeconds)
 		o.tailYaw *= 0.1
@@ -272,7 +291,8 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		-- Curled up: down on its belly, front paws out in front, back legs folded under, head tucked round to the
 		-- left and the tail wrapped along the left side to meet it.
 		o.sink = m.nap.sink
-		o.bodyY = (wave(t, m.nap.seconds) * 0.5 + 0.5) * m.nap.breathe
+		o.bodyY = 0
+		o.belly = Logic.breath(t, m.nap.seconds) * m.nap.breathe
 		o.headPitch = -math.rad(m.nap.headDroop)
 		o.headYaw = math.rad(m.nap.headTuck)
 		o.tailYaw = -math.rad(m.nap.tailWrap) + o.tailYaw * 0.1
@@ -286,7 +306,8 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		-- a slow look to one side and back every so often, and a quick flick of the head like an ear.
 		local l = m.loaf
 		o.sink = 1
-		o.bodyY = (wave(t, l.seconds) * 0.5 + 0.5) * l.breathe
+		o.bodyY = 0
+		o.belly = Logic.breath(t, l.seconds) * l.breathe
 		local side = if math.floor(t / l.lookEvery) % 2 == 0 then 1 else -1
 		o.headYaw = math.rad(l.look) * side * Logic.pulse(t, l.lookEvery, l.lookSeconds)
 		o.headPitch = -math.rad(l.headDroop)
@@ -297,12 +318,14 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.pawBL = math.rad(90)
 		o.pawBR = math.rad(90)
 	elseif style == "doze" then
-		-- Asleep on its feet: an upright cat at its station at night (F25, F44). The head droops and nods with
-		-- each slow breath, the body sways a little and the tail hangs; no sink and no folded legs.
-		local breath = wave(t, m.doze.seconds)
-		o.bodyY = (breath * 0.5 + 0.5) * m.doze.breathe
+		-- Asleep where it sits or stands at its station at night (F25, F44, PR #262). The belly fills with each
+		-- slow breath and the head lifts a little with it, the body sways a little and the tail hangs; no sink and
+		-- no folded legs.
+		local breath = Logic.breath(t, m.doze.seconds)
+		o.bodyY = 0
+		o.belly = breath * m.doze.breathe
 		o.bodyRoll = math.rad(m.doze.sway) * wave(t, m.doze.seconds * 2.3)
-		o.headPitch = -math.rad(m.doze.headDroop + m.doze.nod * breath)
+		o.headPitch = -math.rad(m.doze.headDroop + m.doze.nod * (1 - 2 * breath))
 		o.headRoll = -o.bodyRoll * 0.5
 		o.tailYaw *= m.doze.tail
 	elseif style == "stuck" then
@@ -360,6 +383,50 @@ end
 function Logic.licking(t: number, phase: number): boolean
 	local k = Presets.motion.lick
 	return (t + phase * k.every) % k.every < k.hold
+end
+
+-- How long one breath takes in a style: slow asleep, a little slower again dozing or in a loaf.
+function Logic.breathSeconds(style: Style): number
+	local m = Presets.motion
+	if style == "nap" then
+		return m.nap.seconds
+	elseif style == "doze" then
+		return m.doze.seconds
+	elseif style == "loaf" then
+		return m.loaf.seconds
+	end
+	return m.breathe.seconds
+end
+
+-- One of the floating z's over a sleeping cat at time `t` (the same t as its idle, so the z's keep time with its
+-- breath, every `seconds`): z number `index` of `count` takes every `count`th breath. It pops up small as the cat
+-- breathes out, rises, grows and drifts to the right with a little sway over nap.life breaths, fades out at the
+-- top and waits for its next turn, where it starts again from the bottom. Returns where it is in the z's box (0 to
+-- 1 across from the left, 0 to 1 down from the top), its size (1 a full z), how see-through it is (1 hidden) and
+-- its tilt in degrees.
+function Logic.napZ(
+	index: number,
+	count: number,
+	t: number,
+	seconds: number
+): (number, number, number, number, number)
+	local z = Presets.nap
+	local breaths = t / seconds - Presets.motion.breath.inhale -- counted from the first breath out
+	local along = ((breaths - (index - 1)) % count) / z.life
+	if along >= 1 then
+		return z.x, z.y, z.size, 1, 0
+	end
+	local x = z.x + z.drift * along + z.sway * math.sin(along * 2 * math.pi)
+	local y = z.y - z.rise * along
+	local size = z.size + (1 - z.size) * along
+	local fade = 0
+	if along < z.fadeIn then
+		fade = 1 - along / z.fadeIn
+	elseif along > 1 - z.fadeOut then
+		fade = (along - (1 - z.fadeOut)) / z.fadeOut
+	end
+	local tilt = z.tilt * math.sin(along * 2 * math.pi + 0.6)
+	return x, y, size, fade, tilt
 end
 
 -- How far round a spin of the world wheel is after `k` (0 to 1) of its time: fast at first, easing to a stop.

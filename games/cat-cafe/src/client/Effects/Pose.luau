@@ -55,6 +55,19 @@ export type Rig = {
 	eyeSizes: { Vector3 },
 	eyeAxes: { number }, -- the eye part's own axis that runs up the face: 1 X, 2 Y, 3 Z
 	squash: number, -- the eye height last drawn, 1 open
+	-- The belly filling with a breath (Offsets.belly): the body's parts swell up from the bottom of the body and
+	-- out to the sides, and each piece rides up by how high its joint sits. Off for an upright cat or a Motor6D
+	-- rig, which lift the whole body instead.
+	canSwell: boolean,
+	bellyFrame: CFrame, -- the bottom middle of the body, in the body part's own space
+	bellyHeight: number, -- studs from there to the top of the body
+	bellyParts: { number }, -- which of parts ride the body, moved with the swell
+	bellySized: { number }, -- which of those are the body's own blocks, which also grow
+	bellySizes: { Vector3 },
+	bellyUp: { number }, -- each sized part's own axis that runs up the body: 1 X, 2 Y, 3 Z
+	bellySide: { number }, -- and across it
+	bellyRise: { [Group]: number }, -- of the rise each piece rides, 0 at the bottom of the body to 1 at the top
+	swell: number, -- the swell last drawn, as a share of bellyHeight; 0 at rest
 	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
 	frames: { CFrame },
 }
@@ -74,6 +87,8 @@ local PIECES: { [string]: Group } = {
 	EarR = "earR",
 }
 local EAR_OUT = 0.6 -- an ear flicks out sideways this much for each bit it flicks back
+local SWELL_STEP = 0.002 -- the swell is drawn in steps this big, so a body at rest between breaths writes nothing
+local SWELL_RIDERS: { Group } = { "head", "tail", "pawFL", "pawFR", "pawBL", "pawBR" } -- eyes and ears ride the head
 local IDENTITY: CFrame = CFrame.identity -- a local, as selene's Roblox library has no methods on CFrame.identity
 
 local function isNamed(instance: Instance, name: string): boolean
@@ -252,6 +267,16 @@ local function newRig(model: Model, body: BasePart): Rig
 		eyeSizes = {},
 		eyeAxes = {},
 		squash = 1,
+		canSwell = false,
+		bellyFrame = CFrame.identity,
+		bellyHeight = 0,
+		bellyParts = {},
+		bellySized = {},
+		bellySizes = {},
+		bellyUp = {},
+		bellySide = {},
+		bellyRise = {},
+		swell = 0,
 		moves = {},
 		frames = {},
 	}
@@ -290,6 +315,50 @@ local function axisAlong(frame: CFrame, up: Vector3): number
 		return 2
 	end
 	return if x >= z then 1 else 3
+end
+
+-- How far a part reaches up and down the body from its middle, in the body part's own space.
+local function halfHeight(inBody: CFrame, size: Vector3): number
+	return math.abs(inBody.RightVector.Y) * size.X / 2
+		+ math.abs(inBody.UpVector.Y) * size.Y / 2
+		+ math.abs(inBody.LookVector.Y) * size.Z / 2
+end
+
+-- Sets up the breath's swell (Rig.canSwell): the bottom and height of the body from its own blocks (the parts
+-- named Body), the parts that ride the body, and how high up the body each piece's joint is.
+local function bindBelly(rig: Rig, bodyBase: CFrame)
+	local low, high = math.huge, -math.huge
+	for i, part in rig.parts do
+		if rig.groups[i] == "body" then
+			table.insert(rig.bellyParts, i)
+			if isNamed(part, "Body") then
+				local inBody = bodyBase:ToObjectSpace(rig.base[i])
+				local half = halfHeight(inBody, part.Size)
+				low = math.min(low, inBody.Y - half)
+				high = math.max(high, inBody.Y + half)
+				if squashable(part) then
+					local up = axisAlong(rig.base[i], bodyBase.UpVector)
+					local side = axisAlong(rig.base[i], bodyBase.RightVector)
+					table.insert(rig.bellySized, i)
+					table.insert(rig.bellySizes, part.Size)
+					table.insert(rig.bellyUp, up)
+					table.insert(rig.bellySide, if side == up then 0 else side)
+				end
+			end
+		end
+	end
+	if high - low < 0.05 then
+		return
+	end
+	rig.canSwell = true
+	rig.bellyFrame = CFrame.new(0, low, 0)
+	rig.bellyHeight = high - low
+	for _, group in SWELL_RIDERS do
+		local joint: CFrame? = rig.joints[group]
+		if joint ~= nil then
+			rig.bellyRise[group] = math.clamp((joint.Y - low) / (high - low), 0, 1)
+		end
+	end
 end
 
 -- Reads a cat model once. Nil when it has no body yet (its parts are still streaming in), or when its body is
@@ -434,6 +503,9 @@ function Pose.bind(model: Model): Rig?
 	for k, index in rig.eyes do
 		rig.eyeAxes[k] = axisAlong(rig.base[index], axes.UpVector)
 	end
+	if upright == nil then
+		bindBelly(rig, bodyBase)
+	end
 
 	-- Model-Agent's piece poses, each turn put into its joint's axes once here. The manifest turns a piece in its
 	-- own axes (its pivot's), which can lean away from the model's, as the tail's do.
@@ -538,11 +610,42 @@ local function squashEyes(rig: Rig, squash: number, bodyBase: CFrame)
 	end
 end
 
+-- Spreads the parts riding the body away from its bottom middle (`bottom`, in world space): up by the swell and
+-- out to the sides by motion.belly.side of it.
+local function swellBody(rig: Rig, frames: { CFrame }, bottom: CFrame, swell: number)
+	local up = 1 + swell
+	local side = 1 + swell * Presets.motion.belly.side
+	for _, index in rig.bellyParts do
+		local inBody = bottom:ToObjectSpace(frames[index])
+		local at = inBody.Position
+		frames[index] = bottom * CFrame.new(at.X * side, at.Y * up, at.Z) * inBody.Rotation
+	end
+end
+
+-- Grows the body's own blocks by the swell (0 puts them back), along their axes that run up and across the body.
+local function resizeBody(rig: Rig, swell: number)
+	rig.swell = swell
+	local up = 1 + swell
+	local side = 1 + swell * Presets.motion.belly.side
+	for k, index in rig.bellySized do
+		local part = rig.parts[index]
+		if part.Parent ~= nil then
+			local size = rig.bellySizes[k]
+			local alongUp, across = rig.bellyUp[k], rig.bellySide[k]
+			part.Size = Vector3.new(
+				size.X * (if alongUp == 1 then up elseif across == 1 then side else 1),
+				size.Y * (if alongUp == 2 then up elseif across == 2 then side else 1),
+				size.Z * (if alongUp == 3 then up elseif across == 3 then side else 1)
+			)
+		end
+	end
+end
+
 local function applyMotors(rig: Rig, o: Logic.Offsets)
 	local motors = rig.motors
 	local body: Motor6D? = motors.body
 	if body ~= nil then
-		body.Transform = CFrame.new(0, o.bodyY - o.sink * rig.restDrop, 0)
+		body.Transform = CFrame.new(0, o.bodyY + o.belly - o.sink * rig.restDrop, 0)
 			* CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
 	end
 	local head: Motor6D? = motors.head
@@ -632,13 +735,20 @@ function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
 	end
 
 	local joints = rig.joints
+	-- A body that cannot swell (an upright cat) lifts whole with the breath instead.
+	local swell = 0
+	local lift = o.bodyY - o.sink * rig.restDrop - liftOf(rig, o)
+	if rig.canSwell then
+		swell = math.floor(math.max(o.belly, 0) / rig.bellyHeight / SWELL_STEP + 0.5) * SWELL_STEP
+	else
+		lift += o.belly
+	end
 	local bodyMove = CFrame.new(shift)
 		* around(
 			joints,
 			bodyBase,
 			"body",
-			CFrame.new(0, o.bodyY - o.sink * rig.restDrop - liftOf(rig, o), 0)
-				* CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
+			CFrame.new(0, lift, 0) * CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
 		)
 	local moves = rig.moves
 	moves.body = bodyMove
@@ -664,6 +774,15 @@ function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
 		* around(joints, bodyBase, "pawBL", posed(rig, o, "pawBL", CFrame.Angles(o.pawBL, 0, 0)))
 	moves.pawBR = bodyMove
 		* around(joints, bodyBase, "pawBR", posed(rig, o, "pawBR", CFrame.Angles(o.pawBR, 0, 0)))
+	local bottom: CFrame = IDENTITY
+	if swell > 0 then
+		-- each piece rides the swell by how high up the body its joint is
+		bottom = bodyMove * bodyBase * rig.bellyFrame
+		local rise = bottom.UpVector * (swell * rig.bellyHeight)
+		for group, share in rig.bellyRise do
+			moves[group] = CFrame.new(rise * share) * moves[group]
+		end
+	end
 	-- the eyes and ears ride the head; an ear flicks back and out about its base
 	moves.eye1 = moves.head
 	moves.eye2 = moves.head
@@ -675,6 +794,12 @@ function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
 	local frames = rig.frames
 	for i, group in rig.groups do
 		frames[i] = moves[group] * base[i]
+	end
+	if swell > 0 then
+		swellBody(rig, frames, bottom, swell)
+	end
+	if swell ~= rig.swell then
+		resizeBody(rig, swell)
 	end
 	local squash = 1 - (1 - Presets.motion.blink.squash) * math.clamp(o.blink, 0, 1)
 	if #rig.eyes > 0 and (squash < 1 or rig.squash < 1) then
@@ -711,6 +836,9 @@ function Pose.release(rig: Rig)
 			motor.Transform = CFrame.identity
 		end
 		return
+	end
+	if rig.swell ~= 0 then
+		resizeBody(rig, 0)
 	end
 	if rig.squash < 1 then
 		rig.squash = 1

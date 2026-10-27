@@ -526,11 +526,11 @@ local function watchOtherCats()
 	end)
 end
 
--- Follows the player's saved settings (shared/Settings), read off the last ProfileSync on every tick of the loop
--- below; both setters do nothing while their value is unchanged. A missing key keeps its default.
-local function applySettings(settings: { [string]: unknown })
-	setLowPerformance(settings.lowPerformance == true)
-	setShowOtherCats(settings.showOtherCats ~= false)
+-- Follows the two switches as the Settings screen shows them (a tap at once, then the saved value), read on every
+-- tick of the loop below once the first sync is in; both setters do nothing while their value is unchanged.
+local function applySettings()
+	setLowPerformance(UI.settings.value("lowPerformance"))
+	setShowOtherCats(UI.settings.value("showOtherCats"))
 end
 
 -- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
@@ -562,7 +562,7 @@ function WorldController.start()
 			if state == nil then
 				continue
 			end
-			applySettings(state.settings :: any)
+			applySettings()
 
 			local world = Workspace:FindFirstChild("World")
 			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil

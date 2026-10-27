@@ -104,7 +104,7 @@ export type PartialState = {
 	tutorialStep: number?,
 }
 
-export type ScreenName = "Upgrades" | "Decor" | "Collection" | "RankUp" | "Areas" | "Bait"
+export type ScreenName = "Upgrades" | "Decor" | "Collection" | "RankUp" | "Areas" | "Bait" | "Dealer"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -185,6 +185,20 @@ export type BaitCat = {
 }
 
 export type BaitChoice = "tame" | "letgo"
+
+-- The night dealer's stock for this player (data-model section 8b), as the DealerStock remote sends it: three
+-- slots in the order the server rolled them (the slot number Buy sends is the index here), and restocksAt in
+-- server os.time() when the next dealer window starts.
+export type DealerSlot = {
+	lureId: string,
+	cost: number,
+	bought: boolean,
+}
+
+export type DealerStock = {
+	slots: { DealerSlot },
+	restocksAt: number,
+}
 
 -- ModuleScripts must return a non-nil value.
 return {}

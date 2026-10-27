@@ -18,7 +18,7 @@ export type Row = {
 
 export type Jar = {
 	sessionStartedAt: number,
-	claimed: { [any]: boolean }?, -- step -> true; keys may arrive as strings over a RemoteEvent
+	claimed: { [any]: boolean }?, -- 12 booleans by step; a sparse map's keys may arrive as strings
 }
 
 export type StepState = "claimed" | "ready" | "waiting"

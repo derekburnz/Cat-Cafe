@@ -77,6 +77,7 @@ local CATALOG: Types.Catalog = {
 	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
 	bookMilestones = (Catalog :: any).bookMilestones or DEMO_BOOK_MILESTONES,
 	bookRewards = (Catalog :: any).bookRewards or DEMO_BOOK_REWARDS,
+	rarities = Catalog.rarities,
 }
 
 -- data-model section 10: circles and shrink time per rarity, Basic Net windows

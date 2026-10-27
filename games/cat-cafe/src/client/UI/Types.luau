@@ -22,6 +22,7 @@ export type UpgradeDef = SharedTypes.UpgradeDef
 export type DecorDef = SharedTypes.DecorDef
 export type LureOdds = SharedTypes.LureOdds -- percentages that sum to 100, shown before purchase
 export type LureDef = SharedTypes.LureDef
+export type RarityDef = SharedTypes.RarityDef
 export type SpotDef = SharedTypes.SpotDef
 export type TierDef = SharedTypes.TierDef -- data-model section 5b
 export type AreaDef = SharedTypes.AreaDef
@@ -37,6 +38,7 @@ export type Catalog = {
 	tipJar: { TipJarRow }?, -- F47: the twelve playtime gifts (data-model section 11b)
 	bookMilestones: { BookMilestone }?, -- F48: the Book's milestones, the same on every area page
 	bookRewards: { [string]: { [string]: BookPrize } }?, -- F48: area id -> milestone id -> prize
+	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
 }
 
 -- One Tip Jar gift (F47): unlocks `minutes` into the session; coins pay max(minCoins, dayRate * seconds).

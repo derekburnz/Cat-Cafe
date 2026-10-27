@@ -19,6 +19,7 @@ export type Callbacks = {
 export type Areas = {
 	frame: Frame,
 	setCatalog: (self: Areas, catalog: Types.Catalog) -> (),
+	setAreasOpen: (self: Areas, open: boolean) -> (),
 	render: (self: Areas, state: Types.PlayerState, carrying: boolean) -> (),
 	destroy: (self: Areas) -> (),
 }
@@ -217,11 +218,20 @@ function Areas.setCatalog(self: any, catalog: Types.Catalog)
 	self:_buildCards()
 end
 
+-- F66: false from dusk to sunrise. The next render greys every Go with "🌙 Sunrise".
+function Areas.setAreasOpen(self: any, open: boolean)
+	self._areasOpen = open
+end
+
 function Areas.render(self: any, state: Types.PlayerState, carrying: boolean)
 	local tier = state.tier or 1
+	local closed = self._areasOpen == false
 	self._panel:setTitle(
 		"Areas",
-		if carrying then "Walk your cat home first" else "Pick an area to travel to"
+		if carrying
+			then "Walk your cat home first"
+			elseif closed then "The areas are closed at night. They open at sunrise."
+			else "Pick an area to travel to"
 	)
 	for _, card in self._cards do
 		local def: Types.AreaDef = card.def
@@ -231,8 +241,8 @@ function Areas.render(self: any, state: Types.PlayerState, carrying: boolean)
 		card.art.BackgroundTransparency = if unlocked then 0 else 0.45
 		card.name.TextColor3 = if unlocked then Theme.modal.text else Theme.modal.subtext
 		if unlocked then
-			card.go:setText("Go")
-			card.go:setEnabled(not carrying)
+			card.go:setText(if closed then Theme.icons.moon .. " Sunrise" else "Go")
+			card.go:setEnabled(not carrying and not closed)
 		else
 			card.go:setText(("Opens at Tier %d"):format(def.tier))
 			card.go:setEnabled(false)

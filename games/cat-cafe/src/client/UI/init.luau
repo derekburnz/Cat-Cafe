@@ -40,6 +40,7 @@ local IndexBoards = require(script.Screens.IndexBoards)
 local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
 local Motion = require(script.Components.Motion)
+local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
@@ -56,6 +57,7 @@ local TipJar = require(script.Screens.TipJar)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
 local UpgradeShop = require(script.Screens.UpgradeShop)
+local Wayfinding = require(script.Components.Wayfinding)
 local WorldMarker = require(script.Components.WorldMarker)
 local WorldTags = require(script.Screens.WorldTags)
 local ZoneChip = require(script.Screens.ZoneChip)
@@ -136,6 +138,7 @@ local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
 local zoneChip: ZoneChip.ZoneChip? = nil -- "Safe zone" or "Catching area" under the tier pill (UI.setZone)
 local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so an area's open edge cannot spam it
+local currentZone: string? = nil -- the World.Zones name from UI.setZone, for the dusk banner (F66)
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
@@ -1358,12 +1361,66 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	end
 end
 
+-- The short night (F66, data-model v0.9): in the last DuskWarningSeconds of a day a player in a catching area gets
+-- "Night falls in 15 s! The areas close until sunrise." (once per dusk, or when they walk in during it), and at
+-- sunrise everyone gets "Sunrise! Fresh cats in every area." Both are quiet: Audio rings its own dusk bell.
+local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
+local SUNRISE_HOLD = 3
+local clockPhase: Types.ClockPhase? = nil
+local duskToken = 0 -- the latest dusk timer's, so a newer clock reading cancels an older one
+local duskEndsAt: number? = nil -- the day's end while the dusk warning runs, else nil
+local duskShown = false
+
+local function showDusk()
+	local endsAt = duskEndsAt
+	local card = areaTitle
+	if endsAt == nil or duskShown or card == nil or Wayfinding.isSafe(currentZone) then
+		return
+	end
+	local remaining = endsAt - Workspace:GetServerTimeNow()
+	if remaining <= 0 then
+		return
+	end
+	duskShown = true
+	card:banner(
+		"dusk",
+		NightClock.duskTitle(remaining),
+		"The areas close until sunrise.",
+		Theme.colors.sky,
+		math.min(remaining, 4)
+	)
+end
+
+local function watchDusk(phase: Types.ClockPhase, phaseEndsAt: number)
+	duskToken += 1
+	local token = duskToken
+	duskEndsAt = nil
+	if phase ~= "day" then
+		return
+	end
+	local function start()
+		if duskToken == token then
+			duskEndsAt = phaseEndsAt
+			duskShown = false
+			showDusk()
+		end
+	end
+	local wait = phaseEndsAt - DUSK_SECONDS - Workspace:GetServerTimeNow()
+	if wait > 0 then
+		task.delay(wait, start)
+	elseif NightClock.isDusk(phase, phaseEndsAt - Workspace:GetServerTimeNow(), DUSK_SECONDS) then
+		start()
+	end
+end
+
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
 -- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). The chip under the tier pill says
 -- "Safe zone" or "Catching area"; walking back to safety pops the chip every time and toasts at most once in
 -- SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times); the area's own marker hides.
 local SAFE_TOAST_SECONDS = 20
 function UI.setZone(zone: string?)
+	currentZone = zone
+	showDusk() -- walking into an area during the dusk warning
 	if locationMarkers then
 		locationMarkers:setZone(zone)
 	end
@@ -1961,6 +2018,18 @@ local clockConnections: { RBXScriptConnection } = {}
 -- phaseEndsAt is server os.time() seconds (the Clock folder's PhaseEndsAt). The chip counts down
 -- against Workspace:GetServerTimeNow(), so nothing here reads the device clock.
 function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
+	local previous = clockPhase
+	clockPhase = phase
+	if previous == "night" and phase == "day" and areaTitle then
+		areaTitle:banner(
+			"sunrise",
+			"Sunrise!",
+			"Fresh cats in every area.",
+			Theme.colors.gold,
+			SUNRISE_HOLD
+		)
+	end
+	watchDusk(phase, phaseEndsAt)
 	if hud then
 		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })
 	end
@@ -1982,6 +2051,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 end
 
 function UI.clock.clear()
+	clockPhase = nil
+	duskToken += 1
+	duskEndsAt = nil
 	if hud then
 		hud:setClock(nil)
 	end
@@ -1990,7 +2062,23 @@ function UI.clock.clear()
 	end
 end
 
--- Reads Phase and PhaseEndsAt from the Clock folder (ReplicatedStorage.Clock) and follows changes.
+-- F66: false from dusk to sunrise. The Alley button and every Go in the Areas panel grey with a moon, so nobody asks
+-- for a trip the server refuses. The server's fences and sends-home do the rest.
+function UI.clock.setAreasOpen(open: boolean)
+	if hud then
+		hud:setAreasOpen(open)
+	end
+	if areasScreen then
+		areasScreen:setAreasOpen(open)
+		if hud then
+			areasScreen:render(state, hud:isCarrying())
+		end
+	end
+end
+
+-- Reads Phase, PhaseEndsAt and AreasOpen from the Clock folder (ReplicatedStorage.Clock) and follows changes. The
+-- server sets Phase and PhaseEndsAt together, so a change is read once at the end of the frame: a new Phase with
+-- the old PhaseEndsAt would read as the last second of the day and show the dusk banner at sunrise.
 function UI.clock.bind(clock: Instance)
 	UI.clock.unbind()
 	local function read()
@@ -2001,9 +2089,22 @@ function UI.clock.bind(clock: Instance)
 		else
 			UI.clock.clear()
 		end
+		UI.clock.setAreasOpen(NightClock.areasOpen(clock:GetAttribute("AreasOpen")))
 	end
-	table.insert(clockConnections, clock:GetAttributeChangedSignal("Phase"):Connect(read))
-	table.insert(clockConnections, clock:GetAttributeChangedSignal("PhaseEndsAt"):Connect(read))
+	local queued = false
+	local function queueRead()
+		if queued then
+			return
+		end
+		queued = true
+		task.defer(function()
+			queued = false
+			read()
+		end)
+	end
+	for _, name in { "Phase", "PhaseEndsAt", "AreasOpen" } do
+		table.insert(clockConnections, clock:GetAttributeChangedSignal(name):Connect(queueRead))
+	end
 	read()
 end
 

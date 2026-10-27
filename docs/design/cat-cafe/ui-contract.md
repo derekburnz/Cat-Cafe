@@ -152,6 +152,22 @@ v0.5 chase (F40, data-model section 10 step 5): tries are unlimited, so the card
 
 At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier`. The income line under the money counts only cats in a role slot when `state.cats` is sent, since resting cats earn nothing.
 
+### Short night (built, F66, data-model v0.9 night closing)
+
+Derek 2026-10-27: a 90 second night that resets the areas, and nobody in an area at night. Words and sums are in `Components/NightClock.luau` (pure, with a spec).
+
+- **Dusk:** in the last `DuskWarningSeconds` (15) of a day the clock chip reads "Night in 0:12" in orange. A player in a catching area (from `UI.setZone`) gets the banner "Night falls in 15 s!" with "The areas close until sunrise." under it, once per dusk, or when they walk into an area during it. It is quiet: Audio rings its own dusk bell.
+- **Night:** while the Clock folder's `AreasOpen` is false, the HUD's Alley button greys and reads "🌙 Closed", the Areas panel says "The areas are closed at night. They open at sunrise." and every Go greys with "🌙 Sunrise". A key bind or a press during the night wobbles the button instead of asking the server. The server's "Night fell, so you headed home." stays a server toast.
+- **Sunrise:** when the phase turns from night to day, everyone gets the banner "Sunrise!" with "Fresh cats in every area." in gold. Joining in the day shows nothing.
+
+The banners use `Screens/AreaTitle.luau`'s new `banner` (the line as written, no capitals forced). `UI.clock.bind` reads `Phase`, `PhaseEndsAt` and `AreasOpen` once at the end of the frame after any of them changes, so a new `Phase` read with the old `PhaseEndsAt` cannot show the dusk banner at sunrise.
+
+| API | Purpose |
+|---|---|
+| `UI.clock.bind(clock)` | Already called by UIController. Now also follows `AreasOpen` (only `false` closes; missing reads as open). |
+| `UI.clock.setAreasOpen(open)` | For a caller without the Clock folder (the Demo). |
+| `Config.DuskWarningSeconds` | Read with a default of 15 until the engineer adds it. |
+
 ### Sounds (built)
 
 `UI.init` takes `playSound`, a function called with a cue id from the sound list (docs/audio/cat-cafe/sound-list.md section 5.8). Pass `Audio.play`; the UI keeps no asset ids and never requires Audio. A failing call warns once and never breaks a button.

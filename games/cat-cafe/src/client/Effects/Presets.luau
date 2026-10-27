@@ -996,6 +996,7 @@ Presets.decor = {
 -- front take `floorPixels`. Times are seconds; positions and sizes in UI scale unless they say pixels.
 Presets.decorFx = {
 	checkEvery = 1,
+	retry = { first = 2, most = 30 }, -- a piece whose walls, floor or front are missing waits, doubling, between tries
 	layer = 0.2,
 	lift = 0.03,
 	wallFrom = 1,

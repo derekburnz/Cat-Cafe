@@ -39,6 +39,8 @@ type Piece = {
 	mode: Mode?, -- what is built now; nil until its walls, floor or front have streamed in
 	made: { Instance },
 	tweens: { Tween },
+	retryAt: number, -- os.clock() of the next try after a failed build
+	backoff: number,
 }
 
 -- A plot-space box round a plot's tagged parts, and the top of its side walls (the front and back carry gables).
@@ -62,6 +64,8 @@ local function newPiece(plot: Model, decorId: string, spec: Presets.DecorSpec, m
 		mode = nil,
 		made = {},
 		tweens = {},
+		retryAt = 0,
+		backoff = 0,
 	}
 end
 
@@ -515,10 +519,11 @@ local function build(piece: Piece, mode: Mode): boolean
 	local plot = piece.plot
 	if look == "stars" or look == "aurora" then
 		local box = measure(plot, "Wallpaper")
-		if box == nil then
+		local walls: { Sheet } = if box ~= nil then wallSheets(plot, box) else {}
+		if #walls == 0 then
 			return false
 		end
-		for i, wall in wallSheets(plot, box) do
+		for i, wall in walls do
 			local size = Vector3.new(wall.width, wall.height, 0.05)
 			local gui =
 				sheet(piece, "Decor_" .. look, wall.frame, size, Enum.NormalId.Front, fx.pixels, 0)
@@ -694,19 +699,28 @@ local function choose()
 	for _, piece in picked do
 		chosen[piece] = true
 	end
-	using = #picked
 	local calm = Context.reducedMotion()
+	local now = os.clock()
+	local retry = Presets.decorFx.retry
+	local moving = 0
 	for _, piece in all do
 		local wanted: Mode = if not chosen[piece] then "still" elseif calm then "calm" else "full"
-		if piece.mode ~= wanted then
+		if piece.mode ~= wanted and now >= piece.retryAt then
 			stop(piece)
 			if build(piece, wanted) then
 				piece.mode = wanted
+				piece.backoff = 0
 			else
 				stop(piece)
+				piece.backoff = math.min(retry.most, math.max(retry.first, piece.backoff * 2))
+				piece.retryAt = now + piece.backoff
 			end
 		end
+		if chosen[piece] and piece.mode ~= nil then
+			moving += 1
+		end
 	end
+	using = moving -- only pieces that built, so Ambient never gives up emitters for nothing
 end
 
 -- How many Mythical pieces are moving now; Ambient leaves them that many of the steady emitters.
@@ -720,9 +734,17 @@ function Decor.start()
 	end
 	started = true
 	task.spawn(function()
+		local warned = false
 		while true do
-			scan()
-			choose()
+			-- One bad plot or piece must not end every style for the session: report it once and keep going.
+			local ok, problem = pcall(function()
+				scan()
+				choose()
+			end)
+			if not ok and not warned then
+				warned = true
+				warn("[Effects] Decor: " .. tostring(problem))
+			end
 			task.wait(Presets.decorFx.checkEvery)
 		end
 	end)

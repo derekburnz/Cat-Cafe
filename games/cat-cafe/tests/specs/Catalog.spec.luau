@@ -905,7 +905,7 @@ return function()
 			function()
 				-- id -> { name, tier, spawnPoints, odds }
 				local want = {
-					{ "alley", "Alleyway", 1, 14, { 72, 22, 5, 0.9, 0.1 } },
+					{ "alley", "Alleyway", 1, 24, { 72, 22, 5, 0.9, 0.1 } }, -- v0.4 layout: 24 spawn points
 					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 } },
 					{ "neighbourhood", "Neighbourhood", 3, 14, { 50, 32, 13, 4, 1 } },
 					{ "woods", "Woods", 4, 16, { 42, 34, 17, 5.5, 1.5 } },

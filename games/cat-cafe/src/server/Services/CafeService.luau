@@ -212,14 +212,14 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	end
 end
 
--- Cafe expansions (data-model section 5b): expansion n opens at Tier n + 1. In the graybox each is floor behind
--- the back wall, reached through the back door that opens with the first one.
+-- Cafe expansions (data-model section 5b): expansion n opens at Tier n + 1 as a patio section in the yard. The
+-- back door is open whenever the plot has an owner (layout v2).
 local function refreshExpansions(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	for n, expansion in plot.expansions do
 		WorldBuilder.setExpansionOpen(expansion, tier >= n + 1)
 	end
-	WorldBuilder.setBackDoorOpen(plot, tier >= 2)
+	WorldBuilder.setBackDoorOpen(plot, tier >= 1) -- layout v2: every owned cafe's back door opens onto the alley
 end
 
 local function refreshEspresso(plot: WorldBuilder.Plot, profile: Profile)

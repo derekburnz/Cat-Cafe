@@ -9,6 +9,9 @@
 -- Audio can follow) and fires setSetting once on release, and the "−" and "+" buttons after a short pause, since
 -- SetSetting is rate limited and only the last value matters (review N120). The saved value arrives back in
 -- state.settings through ProfileSync.
+--
+-- Under them a Help section (docs/playtests/bug-reports.md, 2026-10-27) holds one button row, Report a bug, which
+-- calls callbacks.reportBug to open the Report a bug window. It is not a setting, so it is not in SettingsList.
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -25,6 +28,7 @@ export type Callbacks = {
 	setSetting: (key: string, value: boolean | number) -> (),
 	changed: (key: string, value: boolean | number) -> (), -- the shown value moved (a tap, a drag or the server)
 	close: () -> (),
+	reportBug: (() -> ())?, -- the Help section's Report a bug row; no Help section without it
 }
 
 export type Settings = {
@@ -43,6 +47,8 @@ local STEP_BUTTON = Vector2.new(50, 44) -- "−" and "+", side by side where a s
 local NUDGE = 0.1 -- what one "−" or "+" press moves a volume
 local NUDGE_PAUSE = 0.5 -- seconds after the last "−" or "+" before the volume is sent
 local KNOB = 28
+local TEXT_LEFT = 12 + TILE + 12 -- a row's name and detail start right of its icon tile
+local TEXT_RIGHT = TEXT_LEFT + SWITCH.X + 24 -- and end left of its switch
 -- each row's icon tile colour, by setting key
 local TILE_COLORS: { [string]: Color3 } = {
 	music = Theme.colors.berry,
@@ -53,9 +59,18 @@ local TILE_COLORS: { [string]: Color3 } = {
 	lowPerformance = Theme.colors.mintDark,
 	showOtherCats = Theme.colors.caramel,
 	markers = Theme.colors.good,
+	reportBug = Theme.colors.sky,
 }
 -- a volume row's switch: the slider greys while that switch is off
 local VOLUME_SWITCH: { [string]: string } = { musicVolume = "music", sfxVolume = "sfx" }
+-- the Help section's one row: a button where a switch row has its switch
+local HELP_ROW = {
+	key = "reportBug",
+	icon = "🐞",
+	name = "Report a bug",
+	detail = "Tell us what broke, got stuck or could be better",
+	button = "Report",
+}
 
 local Settings = {}
 Settings.__index = Settings
@@ -153,6 +168,22 @@ function Settings.new(callbacks: Callbacks): Settings
 			self:_buildRow(row, order)
 		end
 	end
+	local reportBug = callbacks.reportBug
+	if reportBug then
+		order += 1
+		text({
+			Name = "Help",
+			LayoutOrder = order,
+			Size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textLarge,
+			TextColor3 = Theme.modal.subtext,
+			Text = "Help",
+			Parent = list,
+		})
+		order += 1
+		self:_buildHelpRow(order, reportBug)
+	end
 
 	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
 	-- its own finger (the same InputObject); a mouse drag follows the mouse and ends on its button.
@@ -196,9 +227,10 @@ function Settings.new(callbacks: Callbacks): Settings
 	return self :: Settings
 end
 
-function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
+-- A row's card with its icon tile at the left.
+function Settings._buildCard(self: any, key: string, icon: string, order: number): Frame
 	local card: Frame = Create("Frame", {
-		Name = row.key,
+		Name = key,
 		BackgroundColor3 = Theme.modal.card,
 		BorderSizePixel = 0,
 		LayoutOrder = order,
@@ -210,7 +242,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 	})
 	local tile: Frame = Create("Frame", {
 		Name = "Icon",
-		BackgroundColor3 = TILE_COLORS[row.key] or Theme.colors.caramel,
+		BackgroundColor3 = TILE_COLORS[key] or Theme.colors.caramel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, 12, 0.5, 0),
@@ -223,19 +255,47 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			Size = UDim2.fromScale(1, 1),
 			TextXAlignment = Enum.TextXAlignment.Center,
 			TextSize = 30,
-			Text = row.icon,
+			Text = icon,
 		}),
 	})
 	Outline.border(tile, 2)
 	Outline.shade(tile, 0.2)
-	local textLeft = 12 + TILE + 12
-	local textRight = textLeft + SWITCH.X + 24
+	return card
+end
+
+-- A switch or button row's name over its one-line detail, left of the switch.
+local function nameAndDetail(card: Frame, name: string, detail: string)
+	text({
+		Name = "Name",
+		Position = UDim2.fromOffset(TEXT_LEFT, 12),
+		Size = UDim2.new(1, -TEXT_RIGHT, 0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		Text = name,
+		Parent = card,
+	})
+	text({
+		Name = "Detail",
+		Position = UDim2.fromOffset(TEXT_LEFT, 42),
+		Size = UDim2.new(1, -TEXT_RIGHT, 0, 26),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.modal.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		Text = detail,
+		Parent = card,
+	})
+end
+
+function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
+	local card = self:_buildCard(row.key, row.icon, order)
 	local key = row.key
 	if row.kind == "volume" then
 		text({
 			Name = "Name",
-			Position = UDim2.fromOffset(textLeft, 10),
-			Size = UDim2.new(1, -(textRight + 60), 0, 28),
+			Position = UDim2.fromOffset(TEXT_LEFT, 10),
+			Size = UDim2.new(1, -(TEXT_RIGHT + 60), 0, 28),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textLarge,
 			Text = row.name,
@@ -252,7 +312,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			TextXAlignment = Enum.TextXAlignment.Right,
 			Parent = card,
 		})
-		self:_buildSlider(card, key, textLeft, textRight, percent)
+		self:_buildSlider(card, key, TEXT_LEFT, TEXT_RIGHT, percent)
 		local function nudge(delta: number)
 			self:_nudge(key, delta)
 		end
@@ -289,27 +349,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 		self._sliders[key].minus = minus
 		self._sliders[key].plus = plus
 	else
-		text({
-			Name = "Name",
-			Position = UDim2.fromOffset(textLeft, 12),
-			Size = UDim2.new(1, -textRight, 0, 28),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textLarge,
-			Text = row.name,
-			Parent = card,
-		})
-		text({
-			Name = "Detail",
-			Position = UDim2.fromOffset(textLeft, 42),
-			Size = UDim2.new(1, -textRight, 0, 26),
-			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
-			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
-			TextYAlignment = Enum.TextYAlignment.Top,
-			Text = row.detail,
-			Parent = card,
-		})
+		nameAndDetail(card, row.name, row.detail)
 		local switch = Button.new({
 			name = "Switch",
 			text = "ON",
@@ -328,6 +368,27 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 		table.insert(self._buttons, switch)
 	end
 	self._shown[key] = SettingsList.default(key)
+end
+
+-- The Report a bug row: a row card like a switch row's, with a button that opens the window.
+function Settings._buildHelpRow(self: any, order: number, onClick: () -> ())
+	local card = self:_buildCard(HELP_ROW.key, HELP_ROW.icon, order)
+	nameAndDetail(card, HELP_ROW.name, HELP_ROW.detail)
+	table.insert(
+		self._buttons,
+		Button.new({
+			name = "Open",
+			text = HELP_ROW.button,
+			style = "secondary",
+			size = UDim2.fromOffset(SWITCH.X, SWITCH.Y),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -12, 0.5, -2),
+			textSize = Theme.sizes.textLarge,
+			parent = card,
+			sound = false, -- the window's open swish is the sound
+			onClick = onClick,
+		})
+	)
 end
 
 -- The bar under a volume row's name: a track to press or drag, the fill and a round knob at its end.

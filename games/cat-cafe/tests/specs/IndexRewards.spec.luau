@@ -137,4 +137,79 @@ return function()
 			expect(#IndexRewards.lureList({ coins = 5 })).to.equal(0)
 		end)
 	end)
+
+	describe("IndexRewards edges (QA)", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local Catalog = require(ReplicatedStorage.Shared.Catalog) :: any
+		local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+		local SharedRewards = require(ReplicatedStorage.Shared.IndexRewards)
+
+		-- The card the server's answer stands for: no blocker is a Claim button, "Already claimed"
+		-- a tick, and "Find n more" a bar with n to go.
+		local function serverCard(
+			profile: any,
+			areaId: string,
+			milestoneId: string
+		): (string, number?)
+			local blocker = SharedRewards.blocker(profile, areaId, milestoneId)
+			if blocker == nil then
+				return "ready", nil
+			elseif blocker == "Already claimed" then
+				return "claimed", nil
+			end
+			return "locked", tonumber(string.match(blocker, "^Find (%d+) more"))
+		end
+
+		-- Every card on every page against the server; returns how many the server would pay now.
+		local function agree(profile: any): number
+			local ready = 0
+			for areaId in pairs(Catalog.indexPrizes) do
+				local views = IndexRewards.views(Catalog, profile, areaId)
+				expect(#views).to.equal(#Catalog.indexMilestones)
+				for _, view in ipairs(views) do
+					local card = areaId .. "." .. view.milestone.id .. " "
+					local state, left = serverCard(profile, areaId, view.milestone.id)
+					expect(card .. view.state).to.equal(card .. state)
+					if state == "locked" then
+						expect(view.milestone.need - view.have).to.equal(left)
+					elseif state == "ready" then
+						ready += 1
+					end
+				end
+			end
+			local _, badges = IndexRewards.claimable(Catalog, profile)
+			expect(badges).to.equal(ready)
+			return ready
+		end
+
+		-- The Claim button and the red badges promise a payout, so they light exactly where
+		-- ClaimIndexReward pays.
+		it("shows Claim where the server pays, as every page fills and is claimed", function()
+			local profile: any = ProfileSchema.template(1000)
+			table.clear(profile.collection)
+			expect(agree(profile)).to.equal(0)
+			for _, def in ipairs(Catalog.cats) do
+				profile.collection[def.id] = 1000
+				agree(profile)
+			end
+			for _, def in ipairs(Catalog.cats) do
+				profile.goldCollection[def.id] = 1000
+				agree(profile)
+			end
+			-- Every page full: every milestone is reachable; a claim ticks its own card, no other.
+			local open = 0
+			for _ in pairs(Catalog.indexPrizes) do
+				open += #Catalog.indexMilestones
+			end
+			expect(agree(profile)).to.equal(open)
+			for areaId in pairs(Catalog.indexPrizes) do
+				for _, milestone in ipairs(Catalog.indexMilestones) do
+					profile.indexRewards[areaId] = profile.indexRewards[areaId] or {}
+					profile.indexRewards[areaId][milestone.id] = true
+					open -= 1
+					expect(agree(profile)).to.equal(open)
+				end
+			end
+		end)
+	end)
 end

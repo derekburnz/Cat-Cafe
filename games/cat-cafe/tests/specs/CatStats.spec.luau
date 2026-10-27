@@ -93,15 +93,18 @@ return function()
 			expect(CatStats.levelMultiplier(0)).to.equal(1)
 		end)
 
-		it("variants: base 1x, gold GoldMultiplier (1.5x); Golden and Galaxy are gone (v0.3)", function()
-			expect(Config.GoldMultiplier).to.equal(1.5)
-			expect(CatStats.variantMultiplier("base")).to.equal(1)
-			expect(CatStats.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
-			expect(CatStats.variantMultiplier("golden")).to.equal(1)
-			expect(CatStats.variantMultiplier("galaxy")).to.equal(1)
-			expect(CatStats.variantMultiplier(nil)).to.equal(1)
-			expect(Economy.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
-		end)
+		it(
+			"variants: base 1x, gold GoldMultiplier (1.5x); Golden and Galaxy are gone (v0.3)",
+			function()
+				expect(Config.GoldMultiplier).to.equal(1.5)
+				expect(CatStats.variantMultiplier("base")).to.equal(1)
+				expect(CatStats.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
+				expect(CatStats.variantMultiplier("golden")).to.equal(1)
+				expect(CatStats.variantMultiplier("galaxy")).to.equal(1)
+				expect(CatStats.variantMultiplier(nil)).to.equal(1)
+				expect(Economy.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
+			end
+		)
 
 		it("stars: five equal bands of 20 charm", function()
 			expect(CatStats.stars(0)).to.equal(1)
@@ -169,7 +172,7 @@ return function()
 			end
 		end)
 
-		it("a perfect max level Tabby rates 1.74, a Void 43.5", function()
+		it("a perfect max level Tabby rates 1.74, a Ninja Cat 43.5", function()
 			expect(CatStats.rating(cat("tabby", 100, Config.CatMaxLevel))).to.be.near(1.2 * 1.45)
 			expect(CatStats.maxRating("tabby")).to.be.near(1.2 * 1.45)
 			expect(CatStats.maxRating("void")).to.be.near(25 * 1.2 * 1.45)
@@ -193,17 +196,23 @@ return function()
 			expect(CatStats.rating(cat("dragon"))).to.equal(0)
 		end)
 
-		it("the section 4b example: a perfect max level gold Midnight rates 195.75", function()
+		it("the section 4b example: a perfect max level gold Wizard Cat rates 195.75", function()
 			local best = cat("midnight", 100, Config.CatMaxLevel)
 			best.variant = "gold"
 			expect(CatStats.rating(best)).to.be.near(75 * 1.2 * 1.45 * 1.5, 1e-9)
 			expect(CatStats.rating(best)).to.be.near(195.75, 1e-9)
 		end)
 
-		it("maxRating is the base variant figure; the Index's gold line is that times 1.5", function()
-			expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.45, 1e-9)
-			expect(CatStats.maxRating("midnight") * Config.GoldMultiplier).to.be.near(195.75, 1e-9)
-		end)
+		it(
+			"maxRating is the base variant figure; the book's gold line is that times 1.5",
+			function()
+				expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.45, 1e-9)
+				expect(CatStats.maxRating("midnight") * Config.GoldMultiplier).to.be.near(
+					195.75,
+					1e-9
+				)
+			end
+		)
 
 		it("isBetter orders by rating, then rarity, then id, then uid", function()
 			local a = cat("tabby", 100)
@@ -265,10 +274,13 @@ return function()
 			expect(Economy.incomePerSecond(profile)).to.be.near(1.5)
 		end)
 
-		it("catRate uses the rating: a perfect Tabby as Barista earns 1.8, as Waiter 1.2", function()
-			expect(Economy.catRate(cat("tabby", 100, 1, "barista_1"))).to.be.near(1.8)
-			expect(Economy.catRate(cat("tabby", 100, 1, "waiter_1"))).to.be.near(1.2)
-		end)
+		it(
+			"catRate uses the rating: a perfect Tabby as Barista earns 1.8, as Waiter 1.2",
+			function()
+				expect(Economy.catRate(cat("tabby", 100, 1, "barista_1"))).to.be.near(1.8)
+				expect(Economy.catRate(cat("tabby", 100, 1, "waiter_1"))).to.be.near(1.2)
+			end
+		)
 
 		it("settle grants one XP per second to placed cats only", function()
 			local profile = ProfileSchema.template(1000)
@@ -341,7 +353,7 @@ return function()
 		end)
 	end)
 
-	-- Design v0.3: a rescued cat keeps its flag for the Index and analytics but pays no more (RescuedTipsMultiplier 1.0).
+	-- Design v0.3: a rescued cat keeps its flag for the book and analytics but pays no more (RescuedTipsMultiplier 1.0).
 	-- The gloves to net carry-over is a v1 and v2 save rule, so it lives in ProfileSchema.spec now.
 	describe("rescued cats (v0.3)", function()
 		it("rescuedMultiplier is 1 for everyone", function()

@@ -74,13 +74,16 @@ return function()
 			expect(count).to.equal(#Catalog.cats)
 		end)
 
-		it("a gold coat is its own model, the base name plus _Gold (v0.5 F42, renamed from shiny 2026-10-27)", function()
-			expect(Catalog.goldModelName("tabby")).to.equal("CatCafe_Cat_Tabby_Gold")
-			expect(Catalog.goldModelName("maine_coon")).to.equal("CatCafe_Cat_MaineCoon_Gold")
-			for _, def in Catalog.cats do
-				expect(Catalog.catsByModelName[Catalog.goldModelName(def.id)]).never.to.be.ok()
+		it(
+			"a gold coat is its own model, the base name plus _Gold (v0.5 F42, renamed from shiny 2026-10-27)",
+			function()
+				expect(Catalog.goldModelName("tabby")).to.equal("CatCafe_Cat_Tabby_Gold")
+				expect(Catalog.goldModelName("maine_coon")).to.equal("CatCafe_Cat_MaineCoon_Gold")
+				for _, def in Catalog.cats do
+					expect(Catalog.catsByModelName[Catalog.goldModelName(def.id)]).never.to.be.ok()
+				end
 			end
-		end)
+		)
 	end)
 
 	describe("rarities (section 2)", function()
@@ -147,29 +150,47 @@ return function()
 			},
 			ginger = { "Ginger", "Common", "alley", "greeter", "Warm, round, always in the sun." },
 			smoke = { "Smoke", "Common", "alley", "entertainer", "Grey as a rainy morning." },
-			calico = { "Calico", "Rare", "alley", "greeter", "Three colors, three opinions." },
-			tortie = { "Tortie", "Rare", "alley", "barista", "Brindled and bossy." },
-			sphynx = { "Sphynx", "Epic", "alley", "entertainer", "No fur, all attitude." },
-			maine_coon = {
-				"Maine Coon",
-				"Epic",
+			calico = {
+				"Pirate Cat",
+				"Rare",
 				"alley",
 				"waiter",
-				"Big as a backpack, gentle as a pillow.",
+				"Carries every tray like buried treasure.",
 			},
-			void = {
-				"Void",
-				"Legendary",
+			tortie = {
+				"Rocker Cat",
+				"Rare",
 				"alley",
-				"barista",
-				"Pure black with glowing eyes. Makes the darkest espresso.",
+				"entertainer",
+				"Knows one chord and plays it very loudly.",
 			},
-			midnight = {
-				"Midnight",
-				"Mythical",
+			sphynx = {
+				"DJ Cat",
+				"Epic",
 				"alley",
 				"greeter",
-				"Fur like the night sky, freckled with stars.",
+				"Drops a beat every time the door opens.",
+			},
+			maine_coon = {
+				"Bandit Cat",
+				"Epic",
+				"alley",
+				"barista",
+				"Sneaks extra foam onto every latte.",
+			},
+			void = {
+				"Ninja Cat",
+				"Legendary",
+				"alley",
+				"waiter",
+				"Silent, fast and never spills a drop.",
+			},
+			midnight = {
+				"Wizard Cat",
+				"Mythical",
+				"alley",
+				"barista",
+				"Stirs a little starlight into every cup.",
 			},
 			snow = { "Snow", "Common", "park", "waiter", "All white, hates the muddy paths." },
 			cream = {
@@ -188,46 +209,46 @@ return function()
 			},
 			blue = { "Blue", "Common", "park", "greeter", "Silver-blue and very polite." },
 			siamese = {
-				"Siamese",
+				"Nerd Cat",
 				"Rare",
 				"park",
 				"barista",
-				"Loud. Supervises the espresso machine.",
+				"Measures every latte to the last drop.",
 			},
 			bengal = {
-				"Bengal",
+				"Explorer Cat",
 				"Rare",
 				"park",
 				"entertainer",
-				"Spotted and fast. Climbs everything.",
+				"Tells tall tales about the wild side of the Park.",
 			},
 			ragdoll = {
-				"Ragdoll",
+				"Sleepy Cat",
 				"Epic",
 				"park",
 				"greeter",
-				"Huge, fluffy, goes limp when carried.",
+				"Says hello with an enormous yawn.",
 			},
 			persian = {
-				"Persian",
+				"Fancy Cat",
 				"Epic",
 				"park",
 				"waiter",
-				"A cloud with a squashed face and opinions about cushions.",
+				"Serves every cup on a silver tray.",
 			},
 			blossom = {
-				"Blossom",
+				"Fairy Cat",
 				"Legendary",
 				"park",
-				"greeter",
-				"Pink-cream fur, and petals follow her everywhere.",
+				"barista",
+				"Leaves a petal on every saucer.",
 			},
 			aurora = {
-				"Aurora",
+				"Astro Cat",
 				"Mythical",
 				"park",
 				"entertainer",
-				"Fur that shifts color like the northern lights.",
+				"Moonwalks between the tables.",
 			},
 		}
 		-- Section 3c, provisional: id -> { name, rarity, area, favoriteRole }. Descriptions are placeholders.
@@ -441,8 +462,42 @@ return function()
 			for role in pairs(Catalog.roleOutfits) do
 				expect(ROLE_SET[role]).to.equal(true)
 			end
-			expect(Catalog.accessoryModelName("BaristaCap")).to.equal("CatCafe_Accessory_BaristaCap")
+			expect(Catalog.accessoryModelName("BaristaCap")).to.equal(
+				"CatCafe_Accessory_BaristaCap"
+			)
 		end)
+
+		it(
+			"a themed cat's prop slot drops at most one piece of any outfit (v0.5.2 section 3)",
+			function()
+				local pieceSet: { [string]: boolean } = {}
+				for _, pieces in pairs(Catalog.roleOutfits) do
+					for _, piece in pieces do
+						pieceSet[piece] = true
+					end
+				end
+				for piece, slot in pairs(Catalog.outfitPieceSlots) do
+					expect(pieceSet[piece]).to.equal(true)
+					expect(slot == "Head" or slot == "Back").to.equal(true)
+				end
+				expect(Catalog.outfitPieceSlots.BaristaCap).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.Boater).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.PartyHat).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.Cape).to.equal("Back")
+				-- Whatever the prop's slot, every role keeps at least one piece, so a working cat still reads as staff.
+				for _, propSlot in ipairs({ "Head", "Face", "Back" }) do
+					for _, role in ipairs(ROLES) do
+						local kept = 0
+						for _, piece in Catalog.roleOutfits[role] do
+							if Catalog.outfitPieceSlots[piece] ~= propSlot then
+								kept += 1
+							end
+						end
+						expect(kept >= 1).to.equal(true)
+					end
+				end
+			end
+		)
 	end)
 
 	describe("tiers (section 5b)", function()
@@ -825,22 +880,25 @@ return function()
 			end
 		end)
 
-		it("dealer slot weights are the one v0.5 row of section 8b and name only dealer foods (F43)", function()
-			expect(Catalog.dealerSlotWeights :: any).to.deepEqual({
-				sardines = 50,
-				caviar = 33,
-				moon_milk = 14,
-				star_treat = 3,
-			})
-			local total = 0
-			for id, weight in pairs(Catalog.dealerSlotWeights) do
-				local def = Catalog.getLure(id)
-				assert(def, id)
-				expect(def.source).to.equal("dealer")
-				total += weight
+		it(
+			"dealer slot weights are the one v0.5 row of section 8b and name only dealer foods (F43)",
+			function()
+				expect(Catalog.dealerSlotWeights :: any).to.deepEqual({
+					sardines = 50,
+					caviar = 33,
+					moon_milk = 14,
+					star_treat = 3,
+				})
+				local total = 0
+				for id, weight in pairs(Catalog.dealerSlotWeights) do
+					local def = Catalog.getLure(id)
+					assert(def, id)
+					expect(def.source).to.equal("dealer")
+					total += weight
+				end
+				expect(total).to.be.near(100, 1e-9)
 			end
-			expect(total).to.be.near(100, 1e-9)
-		end)
+		)
 	end)
 
 	describe("areas (section 9)", function()
@@ -946,5 +1004,32 @@ return function()
 		)
 
 		it("the trap lists per area (F27)")
+	end)
+
+	describe("player-facing words (QA)", function()
+		-- Derek 2026-10-27 13:18: players see Gold, never Shiny. Any string the Catalog holds can reach a card, a
+		-- toast or the book, so none may say shiny. Asset names (CatCafe_...) are never shown and are left out.
+		it("no name, description or label in the Catalog says shiny", function()
+			local found: { string } = {}
+			local seen: { [any]: boolean } = {}
+			local function walk(value: any, path: string)
+				if type(value) == "string" then
+					local text = value :: string
+					local said = string.find(string.lower(text), "shiny", 1, true) ~= nil
+					if said and string.sub(text, 1, 8) ~= "CatCafe_" then
+						table.insert(found, path .. " = " .. text)
+					end
+				elseif type(value) == "table" and not seen[value] then
+					seen[value] = true
+					for key, child in value do
+						walk(key, path .. " (key)")
+						walk(child, path .. "." .. tostring(key))
+					end
+				end
+			end
+			walk(Catalog, "Catalog")
+			expect(found).to.deepEqual({})
+			expect((Catalog :: any).shinyModelName).never.to.be.ok()
+		end)
 	end)
 end

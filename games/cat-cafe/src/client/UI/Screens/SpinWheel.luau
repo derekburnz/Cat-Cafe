@@ -24,7 +24,9 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CrateLogic = require(script.Parent.Parent.Components.CrateLogic)
 local Create = require(script.Parent.Parent.Components.Create)
+local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -58,6 +60,8 @@ type Tile = {
 	holder: Frame,
 	stroke: UIStroke,
 	icon: ItemIcon.ItemIcon,
+	row: Types.SpinRow,
+	crate: string?, -- the crate a crate slice shows now ("highest" resolved for the player's tier)
 }
 
 type Turn = {
@@ -147,6 +151,9 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	self._callbacks = callbacks
 	self._rows = {} :: { Types.SpinRow }
 	self._lureById = {} :: { [string]: Types.LureDef }
+	self._crates = {} :: { [string]: CrateLogic.Crate }
+	self._areas = {} :: { CrateLogic.Area }
+	self._tier = 1
 	self._spin = nil :: Types.SpinState?
 	self._income = 0
 	self._night = false
@@ -368,6 +375,8 @@ function SpinWheel.setCatalog(self: any, catalog: Types.Catalog)
 	for _, lure in catalog.lures do
 		self._lureById[lure.id] = lure
 	end
+	self._crates = CrateLogic.byId(catalog.crates)
+	self._areas = (catalog.areas or {}) :: any
 	self._rows = catalog.spinWheel or {}
 	self:_build()
 end
@@ -380,7 +389,41 @@ end
 function SpinWheel.render(self: any, state: Types.PlayerState)
 	self._spin = state.spin
 	self._income = state.incomePerSecond
+	if state.tier ~= self._tier then
+		self._tier = state.tier
+		for _, tile: Tile in self._tiles do
+			self:_paintCrate(tile)
+		end
+	end
 	self:_refresh()
+end
+
+-- The crate id a crate slice pays this player now (F54: "highest" is the crate of their highest open area).
+function SpinWheel._crateOf(self: any, row: Types.SpinRow): string
+	return CrateLogic.resolve(
+		row.crate or CrateLogic.HIGHEST,
+		self._crates,
+		self._areas,
+		self._tier
+	)
+end
+
+-- A crate slice's picture, again whenever a new area changes which crate it pays.
+function SpinWheel._paintCrate(self: any, tile: Tile)
+	if tile.row.kind ~= "crate" then
+		return
+	end
+	local id = self:_crateOf(tile.row)
+	if id == tile.crate then
+		return
+	end
+	tile.crate = id
+	local crate: CrateLogic.Crate? = self._crates[id]
+	tile.icon:set(
+		if crate then crate.asset else nil,
+		Theme.icons.crate,
+		if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare"
+	)
 end
 
 -- SpinResult from the server: turn to `slice` and show what `amount` paid, or say why a 0 was refused.
@@ -461,7 +504,13 @@ function SpinWheel._build(self: any)
 			anchorPoint = Vector2.new(0.5, 0),
 			position = UDim2.fromScale(0.5, 0.06),
 		})
-		if lure then
+		local tile: Tile = { holder = holder, stroke = stroke, icon = icon, row = row, crate = nil }
+		if row.kind == "fish" then
+			icon:set(nil, "", "Legendary")
+			FishCoin.fill(icon.frame, 0.66, 2)
+		elseif row.kind == "crate" then
+			self:_paintCrate(tile)
+		elseif lure then
 			icon:set(lure.asset, Theme.foodIcons[lure.id] or Theme.icons.food, lure.attracts)
 		else
 			icon:set(nil, COIN_GLYPH, "Legendary")
@@ -498,7 +547,7 @@ function SpinWheel._build(self: any)
 			Create("UITextSizeConstraint", { MaxTextSize = 16, MinTextSize = 8, Parent = count })
 			Outline.text(count, 1.5)
 		end
-		table.insert(self._tiles, { holder = holder, stroke = stroke, icon = icon })
+		table.insert(self._tiles, tile)
 
 		-- the side list: a swatch in the slice's colour, the prize and its chance
 		local line: Frame = Create("Frame", {
@@ -521,14 +570,26 @@ function SpinWheel._build(self: any)
 			BorderSizePixel = 0,
 			Parent = line,
 		})
-		text({
-			Name = "Glyph",
-			Size = UDim2.fromScale(1, 1),
-			TextScaled = true,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Text = if lure then Theme.foodIcons[lure.id] or Theme.icons.food else COIN_GLYPH,
-			Parent = swatch,
-		})
+		if row.kind == "fish" then
+			FishCoin.new({
+				parent = swatch,
+				size = ROW_HEIGHT - 14,
+				position = UDim2.fromScale(0.5, 0.56),
+				anchorPoint = Vector2.new(0.5, 0.5),
+			})
+		else
+			text({
+				Name = "Glyph",
+				Size = UDim2.fromScale(1, 1),
+				TextScaled = true,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = if row.kind == "crate"
+					then Theme.icons.crate
+					elseif lure then Theme.foodIcons[lure.id] or Theme.icons.food
+					else COIN_GLYPH,
+				Parent = swatch,
+			})
+		end
 		local prize = text({
 			Name = "Prize",
 			Position = UDim2.fromOffset(ROW_HEIGHT + 4, 0),
@@ -654,15 +715,22 @@ function SpinWheel._say(self: any, message: string, color: Color3)
 	self._message.TextColor3 = color
 end
 
--- "3 Tuna", "$1,200"; `amount` is what SpinResult paid, else the estimate at the current day rate.
+-- "3 Tuna", "$1,200", "4 golden fish", "1 Woods Crate"; `amount` is what SpinResult paid, else the estimate at the
+-- current day rate.
 function SpinWheel._prize(self: any, row: Types.SpinRow, amount: number?): string
 	if row.kind == "coins" then
 		local dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE)
 		local coins = if amount and amount > 0 then amount else SpinLogic.coins(row, dayRate)
 		return Format.money(coins)
 	end
-	local lure: Types.LureDef? = if row.lureId then self._lureById[row.lureId] else nil
 	local count = if amount and amount > 0 then amount else row.count or 1
+	if row.kind == "fish" then
+		return ("%s golden fish"):format(Format.short(count))
+	elseif row.kind == "crate" then
+		local id = self:_crateOf(row)
+		return ("%d %s"):format(count, CrateLogic.name(id, self._crates[id]))
+	end
+	local lure: Types.LureDef? = if row.lureId then self._lureById[row.lureId] else nil
 	return ("%d %s"):format(count, if lure then lure.name else (row.lureId or "food"))
 end
 

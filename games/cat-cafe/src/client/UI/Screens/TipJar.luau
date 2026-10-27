@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -281,6 +282,37 @@ function TipJar._build(self: any)
 			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = badge })
 			spinBadge = badge
 		end
+		-- golden fish the gift also gives (F52, step 12): the cat-face coin and "+5" left of the picture
+		local fishBadge: Frame? = nil
+		if (row.fish or 0) > 0 then
+			local badge: Frame = Create("Frame", {
+				Name = "Fish",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0, 0.5),
+				Position = UDim2.fromOffset(6, 22 + ICON / 2),
+				Size = UDim2.fromOffset(42, 22),
+				Parent = frame,
+			})
+			FishCoin.new({
+				parent = badge,
+				size = 16,
+				position = UDim2.new(0, 0, 0.5, 2),
+				anchorPoint = Vector2.new(0, 0.5),
+			})
+			local amount = text({
+				Name = "Amount",
+				Position = UDim2.fromOffset(19, 0),
+				Size = UDim2.new(1, -19, 1, 0),
+				FontFace = Theme.fonts.display,
+				TextSize = Theme.sizes.textSmall,
+				TextColor3 = Theme.fish.text,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Text = "+" .. Format.short(row.fish or 0),
+				Parent = badge,
+			})
+			Outline.text(amount, 1.5)
+			fishBadge = badge
+		end
 		local step = row.step
 		local claim = Button.new({
 			name = "Claim",
@@ -307,6 +339,7 @@ function TipJar._build(self: any)
 			waiting = waiting,
 			claim = claim,
 			spinBadge = spinBadge,
+			fishBadge = fishBadge,
 		}
 	end
 	self:_refresh()
@@ -350,6 +383,10 @@ function TipJar._refresh(self: any)
 		card.stroke.Color = if ready then Theme.colors.good else Theme.modal.cardStroke
 		card.stroke.Thickness = Theme.sizes.stroke + (if ready then 1 else 0)
 		card.frame.BackgroundTransparency = if claimed then 0.35 else 0
+		local fishBadge: Frame? = card.fishBadge
+		if fishBadge then
+			fishBadge.Visible = not claimed
+		end
 		local badge: TextLabel? = card.spinBadge
 		if badge then
 			local spin: Types.SpinState? = self._spin

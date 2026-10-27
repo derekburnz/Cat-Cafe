@@ -331,7 +331,8 @@ end
 -- named Body), the parts that ride the body, and how high up the body each piece's joint is. Only the big blocks
 -- grow (at least SWELL_SIZED of the body's height); stripes, patches and other small markings just ride the swell,
 -- so a breathing cat sets a few sizes rather than every part's (review S70).
-local function bindBelly(rig: Rig, bodyBase: CFrame)
+-- Also returns the bottom of the body, in the body's axes (math.huge with no body blocks).
+local function bindBelly(rig: Rig, bodyBase: CFrame): number
 	local low, high = math.huge, -math.huge
 	local blocks: { number } = {}
 	local heights: { number } = {}
@@ -351,7 +352,7 @@ local function bindBelly(rig: Rig, bodyBase: CFrame)
 		end
 	end
 	if high - low < 0.05 then
-		return
+		return low
 	end
 	rig.canSwell = true
 	rig.bellyFrame = CFrame.new(0, low, 0)
@@ -372,6 +373,7 @@ local function bindBelly(rig: Rig, bodyBase: CFrame)
 			rig.bellyRise[group] = math.clamp((joint.Y - low) / (high - low), 0, 1)
 		end
 	end
+	return low
 end
 
 -- Reads a cat model once. Nil when it has no body yet (its parts are still streaming in), or when its body is
@@ -516,8 +518,9 @@ function Pose.bind(model: Model): Rig?
 	for k, index in rig.eyes do
 		rig.eyeAxes[k] = axisAlong(rig.base[index], axes.UpVector)
 	end
+	local clearance = math.huge -- how high the bottom of the body stands off the floor
 	if upright == nil then
-		bindBelly(rig, bodyBase)
+		clearance = bindBelly(rig, bodyBase) - floorY
 	end
 
 	-- Model-Agent's piece poses, each turn put into its joint's axes once here. The manifest turns a piece in its
@@ -543,7 +546,10 @@ function Pose.bind(model: Model): Rig?
 			end
 		end
 		rig.poseTurns[name] = turns
-		rig.lifts[name] = pose.lift * scale
+		-- The manifest lowers every cat by the same amount at its scale, but a short-legged cat (Munchkin) stands
+		-- lower: never drop the body further than to just above the floor.
+		rig.lifts[name] =
+			math.min(pose.lift * scale, math.max(0, clearance - Presets.motion.lieGap * scale))
 	end
 	return rig
 end

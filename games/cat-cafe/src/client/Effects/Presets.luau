@@ -381,6 +381,7 @@ Presets.motion = {
 	settle = 0.8, -- seconds a cat takes to move from one style to the next
 	settleDown = 1.2, -- lying down (into a nap or a loaf) takes longer
 	settleUp = 0.9, -- and getting up a little less
+	lieGap = 0.02, -- studs a lying cat's belly stays off the floor, at Scale 1 (the manifest's 0.31 on a 0.33 body)
 	-- A stretch (Derek 2026-10-27): as a cat wakes up, and every `every` to `everyMax` seconds while a stray stands
 	-- still. On all fours it rises out of its pose over `rise` of the stretch, bows (front legs `reach` degrees
 	-- ahead, body `bow` degrees nose down and `drop` studs lower, head up by `yawn`, tail up by `tail`, ears back by

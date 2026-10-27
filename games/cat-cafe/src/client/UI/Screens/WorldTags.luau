@@ -2,6 +2,8 @@
 -- Small labels over the life in every cafe (world-and-feel section 4):
 --   Rate tags (Steal a Brainrot): "+$3/s" over each working cat in its rarity colour, within 40 studs. Cats are
 --   the server's models tagged WorkingCat with Rate, Rarity and Napping attributes; a napping cat shows no tag.
+--   At night (Clock Phase "night") the tag shows the night share behind a moon, "🌙 +$2/s", Rate x
+--   NightIncomeMultiplier, the same number as the cafe's name sign (reviewer N88): the cats curl up but still earn.
 --   Order bubbles: a white bubble with the customer's order (coffee, cake or milk) over their head from the
 --   counter on, which pops into a heart once they are served, then fades. Customers are this client's own models
 --   in Workspace.LocalCustomers with Order and Served attributes (CustomerController).
@@ -11,6 +13,7 @@
 -- in UDim2 scale is in studs, so it shrinks with distance. MaxDistance hides it past that many studs.
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
@@ -18,6 +21,8 @@ local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
+
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 export type WorldTags = {
 	destroy: (self: WorldTags) -> (),
@@ -32,6 +37,9 @@ local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
 -- Emoji draw in colour in Roblox text, so the bubbles need no image upload.
 local ORDER_ICONS: { [string]: string } = { coffee = "☕", cake = "🍰", milk = "🥛" }
 local HEART = "❤"
+local MOON = "🌙"
+-- data-model NightIncomeMultiplier (0.6): the night share of the day rate; the cat's Rate stays the day rate
+local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
 local WorldTags = {}
 WorldTags.__index = WorldTags
@@ -63,6 +71,9 @@ function WorldTags.new(): WorldTags
 	self._connections = {} :: { RBXScriptConnection }
 	self._watched = {} :: { [Instance]: { RBXScriptConnection } }
 	self._labels = {} :: { [Instance]: BillboardGui }
+	self._renders = {} :: { [Instance]: () -> () } -- rate tags redraw when day turns to night
+	self._night = false
+	self._destroyed = false
 
 	for _, cat in CollectionService:GetTagged(CAT_TAG) do
 		self:_attachCat(cat)
@@ -97,6 +108,22 @@ function WorldTags.new(): WorldTags
 			end)
 		)
 	end
+	-- day and night from the Clock folder (data-model section 9)
+	task.spawn(function()
+		local clock = ReplicatedStorage:WaitForChild("Clock", 30)
+		if not clock or self._destroyed then
+			return
+		end
+		local function read()
+			self._night = clock:GetAttribute("Phase") == "night"
+			for _, render in self._renders do
+				render()
+			end
+		end
+		table.insert(self._connections, clock:GetAttributeChangedSignal("Phase"):Connect(read))
+		read()
+	end)
+
 	local existing = Workspace:FindFirstChild(CUSTOMERS)
 	if existing then
 		watchCustomers(existing)
@@ -153,12 +180,16 @@ function WorldTags._attachCat(self: any, cat: Instance)
 		local show = not napping and type(rate) == "number" and rate > 0
 		billboard.Enabled = show
 		if show then
-			label.Text = Format.rate(rate :: number)
+			local night: boolean = self._night
+			label.Text = if night
+				then MOON .. " " .. Format.rate((rate :: number) * NIGHT_TIPS)
+				else Format.rate(rate :: number)
 			label.TextColor3 = Theme.rarityColor(if type(rarity) == "string" then rarity else nil)
 		end
 	end
 	billboard.Parent = part
 	self._labels[cat] = billboard
+	self._renders[cat] = render
 	self._watched[cat] = {
 		cat:GetAttributeChangedSignal("Rate"):Connect(render),
 		cat:GetAttributeChangedSignal("Napping"):Connect(render),
@@ -263,6 +294,7 @@ function WorldTags._detach(self: any, model: Instance)
 		end
 	end
 	self._watched[model] = nil
+	self._renders[model] = nil
 	local label: BillboardGui? = self._labels[model]
 	if label then
 		label:Destroy()
@@ -271,6 +303,7 @@ function WorldTags._detach(self: any, model: Instance)
 end
 
 function WorldTags.destroy(self: any)
+	self._destroyed = true
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

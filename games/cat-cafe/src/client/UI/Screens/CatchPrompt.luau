@@ -1,9 +1,9 @@
 --!strict
 -- Catch prompt card for strays and stuck cats.
---   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars, rarity and (v0.4) the
---                       paws this player has left on it. v0.5: while the cat sprints off after a miss
---                       (info.fleeingUntil) it reads "It's running!", then "Catch your breath..." for the player who
---                       missed until info.retryAt, and turns back to Catch when it can be tried.
+--   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars and rarity. v0.5: tries
+--                       are unlimited; while the cat sprints off after a miss (info.fleeingUntil) it reads "It's
+--                       running!", then "Catch your breath..." for the player who missed until info.retryAt, and
+--                       turns back to Catch when it can be tried.
 --   waiting()           one press went to the server: "Get ready..." until the circles (CatchCircles) or the
 --                       rescue bar (RescueBar) come.
 --   fail(reason)        red flash ("It got away"), then hide; with retry the card stays.
@@ -17,7 +17,6 @@ local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
-local PawRow = require(script.Parent.Parent.Components.PawRow)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
@@ -152,14 +151,8 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Text = "Hit each circle on its ring",
 		Parent = card,
 	})
-	self._paws = PawRow.new({
-		parent = card,
-		paw = 16,
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -12, 0, 62),
-	})
 
-	-- Mobile CATCH button (bottom right, above the lure slot); reads RESCUE on a stuck cat
+	-- Mobile CATCH button (bottom right, right of the Shove button); reads RESCUE on a stuck cat
 	local grab: TextButton = Create("TextButton", {
 		Name = "Grab",
 		Text = "CATCH",
@@ -271,17 +264,11 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
-	-- v0.4 strays carry Patience: any miss costs a paw. v0.5 has none: a miss sends the cat running and tries
-	-- never run out.
-	local v04 = info.patience ~= nil and not rescue
 	local blocked = self:blockedText()
 	self._hint.Text = if rescue
 		then "Stop the marker in the zone. The cat never leaves if you miss."
 		elseif blocked then "Wait till it stops, then try again"
-		elseif v04 then "Hit each ring. A miss costs a paw!"
 		else "Hit each ring. Miss and it runs off!"
-	self._paws:set(if v04 then info.paws else nil, info.patience)
-	self._hint.Size = UDim2.new(1, if v04 then -140 else -80, 0, 18)
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
 	self._keycap.Text = key.Name
 	self._keycap.Visible = not Scale.isTouch()

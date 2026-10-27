@@ -117,7 +117,7 @@ local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local shoveButton: ShoveButton.ShoveButton? = nil -- v0.5 Shove inside catching areas (UI.shove)
-local slotLabels: SlotLabels.SlotLabels? = nil -- free and locked role slots in your own cafe
+local slotLabels: SlotLabels.SlotLabels? = nil -- hides the server's LockLabel text (role slots: Upgrades > Staff)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -188,9 +188,6 @@ local function render()
 	if dealerScreen then
 		dealerScreen:render(state)
 	end
-	if slotLabels then
-		slotLabels:render(state)
-	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -219,9 +216,6 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if dealerScreen then
 		dealerScreen:setCatalog(newCatalog)
-	end
-	if slotLabels then
-		slotLabels:setCatalog(newCatalog)
 	end
 end
 
@@ -290,9 +284,20 @@ function UI.init(config: Types.InitConfig)
 	local function closeModal()
 		modalInstance:close()
 	end
-	upgrades = UpgradeShop.new(function(upgradeId: string)
-		UI.events.buyUpgrade:Fire(upgradeId)
-	end, closeModal)
+	upgrades = UpgradeShop.new(
+		function(upgradeId: string)
+			UI.events.buyUpgrade:Fire(upgradeId)
+		end,
+		closeModal,
+		{
+			openCatRoom = function()
+				UI.openCatRoom()
+			end,
+			openRankUp = function()
+				modalInstance:open("RankUp")
+			end,
+		}
+	)
 	decor = DecorShop.new({
 		buyDecor = function(decorId: string)
 			UI.events.buyDecor:Fire(decorId)
@@ -481,12 +486,8 @@ function UI.init(config: Types.InitConfig)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	worldTags = WorldTags.new()
-	-- "+ Barista" over a free role slot (opens the cat room) and the next locked slot per role, own cafe only
-	slotLabels = SlotLabels.new(parent, {
-		openCatRoom = function()
-			UI.openCatRoom()
-		end,
-	})
+	-- the role slots live in Upgrades > Staff; this only hides the server's LockLabel text until it is removed
+	slotLabels = SlotLabels.new()
 
 	setCatalog(config.catalog)
 

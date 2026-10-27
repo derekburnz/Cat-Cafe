@@ -6,9 +6,9 @@ Owner: sound-designer (Luau reviewed by luau-reviewer). Rules: `.claude/skills/a
 |---|---|
 | `init.luau` | The Audio module: builds the four channels, plays cues, runs music by the day and night clock and ambience by zone, turns moments into sounds. |
 | `Cues.luau` | Every cue id with its channel, volume, pitch range, spam gap, voices, 3D range and asset ids. The only place asset ids live. Pure. |
-| `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which music bed or ambience plays, ducking, slider gain, rarity jingles, grade, food and trap cues, the hold fill speed, zone chimes, which strays twinkle), so they can be unit tested. |
+| `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which music bed or ambience plays, ducking, slider gain, rarity jingles, grade, food and trap cues, the hold fill speed, zone chimes, which strays twinkle, which resting cat purrs, the dusk bell's timing, the Mythical sting and the plot cues), so they can be unit tested. |
 
-Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). The first 44 synthesized files have uploaded ids; the 16 for the 2026-10-27 features wait for Derek's next upload. A cue with no id yet (music, those 16) plays nothing, so a hook is safe to add before its file exists.
+Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). The first 44 synthesized files have uploaded ids; the 17 for the 2026-10-27 features and the 15 for design v0.8 and v0.9 wait for Derek's next upload. A cue with no id yet (music, those 32) plays nothing, so a hook is safe to add before its file exists.
 
 ## Hooks for the luau-engineer
 
@@ -48,6 +48,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). The first 44 s
    The nearest resting cafe cat within 14 studs purrs too, by day (`Logic.restingPurrs`): the Napping children of each `Plot`'s `Cats` folder, one sitting on the seated body (`Pose` "sit", PR #266) the whole day, one on the lying body only while `Effects.isLoafing(model)` (vfx-animator PR #222). Only one, so it is always a cat Effects is animating (reviewer N131, N150).
 7. **Holding a prompt** needs nothing: Audio listens to ProximityPromptService's hold events and plays `holdFill` on any Custom prompt with a HoldDuration (a stray's, a stuck cat's, a manhole's), stretched so its pop lands on the trigger, faded out if the key is let go early, silent while the cat is still running.
 8. **A gold cat in your arms** needs nothing either: Audio watches your character for a `HeldCat` model with `Gold` (or `Gold` turning on) and plays `goldReveal` once per cat.
+9. **Design v0.8 and v0.9** need only the attributes in data-model section 13, which Audio follows itself: the `Clock` (`duskBell` DuskWarningSeconds before night, read from `Config.DuskWarningSeconds` once it exists, else 15), every character's `RushUntil` (`getaway`, 3D on the catcher) and `CarryStartedAt` (`catPickUp`, 3D on the carrier; your own stays quiet for 2 s after your catch or rescue), and your own plot's `TipPiles` going down (`tipPile`), `CollectorUntil` arriving (`visitorCollector`) and `MysteryGiftAt` appearing and clearing (`visitorMystery`, `giftOpen`). An `Announce` with rarity Mythical plays `announceMythical` once it has a file. The UI plays `uiCodeRedeem` (or `uiError`) from `CodeResult`, `uiTrade` and `potionDrink`.
 
    Anything else that loops while something is out (like the dealer cart) uses `Audio.loop(cueId, part)`, which returns a function that fades it out.
 

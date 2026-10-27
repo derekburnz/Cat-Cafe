@@ -397,6 +397,26 @@ local function refreshAmbience()
 	end
 end
 
+-- F66: the town bell rings DuskWarningSeconds before night, with the warning banner. Rescheduled on every clock
+-- change; a generation number drops a bell that a newer schedule replaced.
+local DUSK_WARNING = 15 -- until Config has DuskWarningSeconds
+local duskGeneration = 0
+
+local function scheduleDuskBell()
+	duskGeneration += 1
+	local generation = duskGeneration
+	local configured = (Config :: any).DuskWarningSeconds
+	local warning = if type(configured) == "number" then configured else DUSK_WARNING
+	local inSeconds = Logic.duskBellIn(phase, phaseEndsAt, Workspace:GetServerTimeNow(), warning)
+	if inSeconds ~= nil then
+		task.delay(inSeconds, function()
+			if generation == duskGeneration then
+				Audio.play("duskBell")
+			end
+		end)
+	end
+end
+
 local function followClock()
 	local clock = ReplicatedStorage:WaitForChild("Clock")
 	local function read()
@@ -404,6 +424,7 @@ local function followClock()
 		phase = if type(value) == "string" then value else nil
 		local endsAt = clock:GetAttribute("PhaseEndsAt")
 		phaseEndsAt = if type(endsAt) == "number" then endsAt else nil
+		scheduleDuskBell()
 	end
 	read()
 	clock:GetAttributeChangedSignal("Phase"):Connect(function()
@@ -874,6 +895,116 @@ local function followHeldCats()
 	end
 end
 
+-- F55 and F56 on every player's character, so everyone nearby hears them: a catch's getaway follows RushUntil (the
+-- server time the Catch Rush ends) and a carry starting follows CarryStartedAt, which is how a dropped cat being
+-- picked up sounds. Your own catch already rings with CatchSuccess or RescueDone, so your carry start stays quiet for
+-- CATCH_QUIET after one; the check waits a moment in case the attribute lands before the moment.
+local CHARACTER_GAP = 1
+local CATCH_QUIET = 2
+local lastCatchAt: number? = nil
+
+local function watchCharacter(character: Model, isLocal: boolean)
+	local last: { [string]: number } = {}
+	local function once(cueId: string)
+		local now = os.clock()
+		local root = character:FindFirstChild("HumanoidRootPart")
+		if
+			root ~= nil
+			and root:IsA("BasePart")
+			and Logic.canPlay(last[cueId], now, CHARACTER_GAP)
+		then
+			last[cueId] = now
+			Audio.play(cueId, root :: BasePart)
+		end
+	end
+	character:GetAttributeChangedSignal("RushUntil"):Connect(function()
+		local untilTime = character:GetAttribute("RushUntil")
+		if type(untilTime) == "number" and untilTime > Workspace:GetServerTimeNow() then
+			once("getaway")
+		end
+	end)
+	character:GetAttributeChangedSignal("CarryStartedAt"):Connect(function()
+		if
+			not Logic.freshStart(
+				character:GetAttribute("CarryStartedAt"),
+				Workspace:GetServerTimeNow()
+			)
+		then
+			return
+		end
+		task.delay(0.2, function()
+			if not isLocal or Logic.canPlay(lastCatchAt, os.clock(), CATCH_QUIET) then
+				once("catPickUp")
+			end
+		end)
+	end)
+end
+
+local function followCharacters()
+	local function watchPlayer(player: Player)
+		local isLocal = player == Players.LocalPlayer
+		player.CharacterAdded:Connect(function(character: Model)
+			watchCharacter(character, isLocal)
+		end)
+		if player.Character ~= nil then
+			watchCharacter(player.Character, isLocal)
+		end
+	end
+	Players.PlayerAdded:Connect(watchPlayer)
+	for _, player in Players:GetPlayers() do
+		watchPlayer(player)
+	end
+end
+
+-- F61, F63 and F64 on your own plot, from its display attributes (Logic.plotCue): the tip piles being collected, the
+-- Cat Collector arriving, the Mystery Visitor's gift appearing and being opened. A plot that streams out and back in
+-- is watched once.
+local PLOT_ATTRIBUTES = { "TipPiles", "CollectorUntil", "MysteryGiftAt" }
+local plotWatches: { [Instance]: { RBXScriptConnection } } = {}
+
+local function watchPlot(plot: Instance)
+	if plotWatches[plot] ~= nil then
+		return
+	end
+	local connections: { RBXScriptConnection } = {}
+	plotWatches[plot] = connections
+	for _, attribute in PLOT_ATTRIBUTES do
+		local before = plot:GetAttribute(attribute)
+		table.insert(
+			connections,
+			plot:GetAttributeChangedSignal(attribute):Connect(function()
+				local after = plot:GetAttribute(attribute)
+				local cueId = Logic.plotCue(attribute, before, after)
+				before = after
+				if
+					cueId ~= nil
+					and plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId
+				then
+					Audio.play(cueId)
+				end
+			end)
+		)
+	end
+end
+
+local function unwatchPlot(plot: Instance)
+	local connections: { RBXScriptConnection }? = plotWatches[plot]
+	if connections then
+		for _, connection in connections do
+			connection:Disconnect()
+		end
+	end
+	plotWatches[plot] = nil
+end
+
+local function followPlots()
+	CollectionService:GetInstanceAddedSignal("Plot"):Connect(watchPlot)
+	CollectionService:GetInstanceRemovedSignal("Plot"):Connect(unwatchPlot)
+	for _, plot in CollectionService:GetTagged("Plot") do
+		watchPlot(plot)
+	end
+end
+
 local function rarityJingle(rarity: any)
 	local jingle = Logic.jingleFor(str(rarity))
 	if jingle ~= nil then
@@ -904,6 +1035,7 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		end
 	end,
 	CatchSuccess = function(_strayId: any, rarity: any)
+		lastCatchAt = os.clock()
 		duckForCatch(false)
 		Audio.play("catchSparkle")
 		rarityJingle(rarity)
@@ -938,6 +1070,7 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		Audio.play("rescueDrop", spot(rescueSpot))
 	end,
 	RescueDone = function(_rescueSpotId: any, rarity: any)
+		lastCatchAt = os.clock()
 		duckForCatch(false)
 		Audio.play("rescueDone")
 		rarityJingle(rarity)
@@ -1055,8 +1188,14 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	IndexReward = function() -- F48
 		Audio.play("indexReward")
 	end,
+	-- F58: a Mythical shout-out (the sunrise wave's or a catch) plays its own sting once it has a file.
 	Announce = function(_text: any, rarity: any)
-		Audio.play("announce", nil, Logic.rarityStep(str(rarity)))
+		local cueId = Logic.announceCue(str(rarity))
+		if cueId ~= "announce" and has(cueId) then
+			Audio.play(cueId)
+		else
+			Audio.play("announce", nil, Logic.rarityStep(str(rarity)))
+		end
 	end,
 }
 
@@ -1076,6 +1215,8 @@ function Audio.start()
 	followStrays()
 	followHolds()
 	followHeldCats()
+	followCharacters()
+	followPlots()
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,

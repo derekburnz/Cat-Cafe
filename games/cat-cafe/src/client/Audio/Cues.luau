@@ -264,6 +264,8 @@ local Cues: { [string]: Cue } = {
 		preload = true,
 	},
 	catDrop = { ids = {}, group = "Sfx", volume = 0.6, minGap = 0.5, range = 40 }, -- F45: Drop or G
+	catPickUp = { ids = {}, group = "Sfx", volume = 0.6, minGap = 0.3, range = 40 }, -- F56: a carry starts (pick up)
+	getaway = { ids = {}, group = "Sfx", volume = 0.7, minGap = 1, range = 40 }, -- F55: a catch pushes the crowd back
 	catPlaced = { ids = {}, group = "Sfx", volume = 0.6, minGap = 0.15 }, -- a cat starts a role (Staff tab)
 	catRest = { ids = {}, group = "Sfx", volume = 0.55, minGap = 0.3 }, -- a cat leaves its role; Unequip All plays one
 	catSold = { ids = {}, group = "Sfx", volume = 0.6 },
@@ -335,6 +337,7 @@ local Cues: { [string]: Cue } = {
 	}, -- a For Rent plot becomes a cafe
 	richArrive = { ids = {}, group = "Sfx", volume = 0.7 },
 	richTip = { ids = {}, group = "Sfx", volume = 0.8 },
+	tipPile = { ids = {}, group = "Sfx", volume = 0.6, minGap = 0.3 }, -- F61: the tip piles are collected
 	dealerArrive = { ids = {}, group = "Sfx", volume = 0.7, range = 60 },
 	dealerLeave = { ids = {}, group = "Sfx", volume = 0.6, range = 60 },
 
@@ -348,6 +351,14 @@ local Cues: { [string]: Cue } = {
 		voices = 4,
 		range = 20,
 	},
+
+	duskBell = { ids = {}, group = "Sfx", volume = 0.5 }, -- F66: DuskWarningSeconds before night
+
+	-- Visitors, codes and potions (5.11) -------------------------------------------------------------------
+	visitorCollector = { ids = {}, group = "Sfx", volume = 0.6, minGap = 2 }, -- F63: the Cat Collector comes by
+	visitorMystery = { ids = {}, group = "Sfx", volume = 0.6, minGap = 2 }, -- F64: the Mystery Visitor's gift appears
+	giftOpen = { ids = {}, group = "Sfx", volume = 0.7, minGap = 0.5 }, -- F64: the gift is opened
+	potionDrink = { ids = {}, group = "Sfx", volume = 0.7, minGap = 0.3 }, -- F64: the UI plays it on UsePotion
 
 	-- UI (5.8) ----------------------------------------------------------------------------------------------
 	uiClick = {
@@ -399,7 +410,10 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 	},
 	uiSpinWin = { ids = {}, group = "Ui", volume = 0.7, minGap = 1, duck = true },
+	uiCodeRedeem = { ids = {}, group = "Ui", volume = 0.7, minGap = 1 }, -- F65: a code worked (a wrong one is uiError)
+	uiTrade = { ids = {}, group = "Ui", volume = 0.7, minGap = 1 }, -- F63: a trade with the Cat Collector
 	announce = { ids = { "rbxassetid://140320161816899" }, group = "Ui", volume = 0.6, minGap = 1 },
+	announceMythical = { ids = {}, group = "Ui", volume = 0.7, minGap = 1, duck = true }, -- F58: a Mythical shout-out
 }
 
 return Cues

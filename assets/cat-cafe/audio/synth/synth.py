@@ -449,6 +449,221 @@ def bump_held() -> np.ndarray:
     return finish(mix(d, *parts, *shimmer), -5)
 
 
+# --- 2026-10-27 features: hold to catch, Drop, zones, travel, roles, gifts, Index, gold, the wheel ------------
+
+
+def cat_voice(length: float, f0: float, f_peak: float, f_end: float, trill: float, seed: int) -> np.ndarray:
+    """A small cat voice: a buzzy tone that rises to f_peak and falls to f_end through mouth formants.
+    trill (0 to 1) is how much of the rolled "rr" there is; 0 is a plain "mew"."""
+    t = seconds(length)
+    k = t / length
+    pitch = np.where(k < 0.4, f0 * (f_peak / f0) ** (k / 0.4), f_peak * (f_end / f_peak) ** ((k - 0.4) / 0.6))
+    pitch = pitch * (1 + 0.01 * np.random.default_rng(seed).standard_normal(len(t)).cumsum() / np.sqrt(len(t)))
+    phase = np.cumsum(pitch) / SR
+    buzz = (2 * (phase % 1.0) - 1) * (1 - trill * 0.4 + trill * 0.4 * np.sin(2 * np.pi * 28 * t))
+    buzz *= np.sin(np.pi * np.clip(k, 0, 1)) ** 0.6
+    spectrum = np.fft.rfft(buzz, 2 * len(buzz))
+    f = np.fft.rfftfreq(2 * len(buzz), 1 / SR)
+    mouth = sum(a / (1 + ((f - c) / w) ** 2) for c, a, w in ((900, 1.0, 130), (1900, 0.6, 170), (3100, 0.25, 220)))
+    out = np.fft.irfft(spectrum * mouth, 2 * len(buzz))[: len(buzz)]
+    return out / np.max(np.abs(out))
+
+
+def pad_step(seed: int, centre: float = 1100.0) -> np.ndarray:
+    """One soft paw landing: a padded tap with a little low thump."""
+    pad = bandpass(bandpass(noise(0.04, seed), centre, 1.5), centre, 1.5) * envelope(0.04, 0.001, 0.01)
+    return pad / np.max(np.abs(pad)) + glide(0.04, 240, 170, 0.02) * envelope(0.04, 0.001, 0.012) * 0.6
+
+
+def hold_fill() -> np.ndarray:
+    """Holding E on a stray (F45): a soft rising whirr over the 0.5 s hold that lands on a little pop and tink.
+    Audio stretches it to the prompt's HoldDuration and fades it out if the key is let go early."""
+    d = 0.62
+    rise = 0.48
+    t = seconds(rise)
+    swell = 0.1 + 0.9 * (t / rise) ** 1.4  # audible at once, so the hold answers the key
+    air = bandpass(bandpass(noise(rise, 110), sweep(rise, 500, 2600), 2.0), sweep(rise, 500, 2600), 2.0) * swell
+    tone = glide(rise, 330, 660, rise) * (0.8 + 0.2 * np.sin(2 * np.pi * 14 * t)) * swell * 0.35
+    pop = glide(0.06, 600, 1250, 0.02) * envelope(0.06, 0.001, 0.015) * 0.8
+    tink = bell(0.14, note("E6"), GLOCK) * 0.45
+    return finish(mix(d, (air / np.max(np.abs(air)) * 0.6 + tone, 0.0), (pop, rise), (tink, rise + 0.005)), -6)
+
+
+def cat_drop() -> np.ndarray:
+    """Drop (F45, the Drop button or G): the cat hops down with a small "mrrp", lands on soft paws and shakes off."""
+    d = 0.6
+    mrrp = cat_voice(0.16, 520, 640, 560, 0.8, 111) * 0.7
+    land = [(pad_step(112 + i, 1000 + 120 * i) * amp, at) for i, (at, amp) in enumerate(((0.2, 0.9), (0.225, 0.7)))]
+    shake = bandpass(bandpass(noise(0.14, 116), 2400, 1.2), 2400, 1.2) * envelope(0.14, 0.01, 0.05)
+    shake *= 0.6 + 0.4 * np.sin(2 * np.pi * 18 * seconds(0.14))
+    pats = [(pad_step(117 + i, 1300) * 0.35, 0.42 + 0.06 * i) for i in range(2)]
+    return finish(mix(d, (mrrp, 0.0), *land, (shake / np.max(np.abs(shake)) * 0.25, 0.27), *pats), -5)
+
+
+FELT = ((1.0, 1.0, 0.5), (2.0, 0.25, 0.2), (3.0, 0.08, 0.1))
+
+
+def zone_safe() -> np.ndarray:
+    """Back on the safe street (the Safe zone chip): a calm, warm settle; two felt notes falling to a soft chord."""
+    d = 0.75
+    notes = [(bell(d - at, note(n), FELT, attack=0.012) * amp, at) for n, at, amp in
+             (("D5", 0.0, 0.7), ("B4", 0.09, 0.7), ("G4", 0.18, 0.6), ("D5", 0.18, 0.35))]
+    air = bandpass(bandpass(noise(0.3, 120), sweep(0.3, 2400, 900), 1.2), sweep(0.3, 2400, 900), 1.2)
+    air *= np.sin(np.pi * seconds(0.3) / 0.3) * 0.15
+    return finish(mix(d, *notes, (air / np.max(np.abs(air)) * 0.15, 0.0)), -10)
+
+
+def zone_area() -> np.ndarray:
+    """Into a catching area (shoves on): an alert little pluck up a fifth with a paw tap, playful, not a warning."""
+    d = 0.5
+    plucks = [(bell(d - at, note(n), MARIMBA, attack=0.001) * amp, at) for n, at, amp in
+              (("D5", 0.0, 0.8), ("A5", 0.08, 1.0))]
+    return finish(mix(d, *plucks, (pad_step(121, 1500) * 0.3, 0.16)), -10)
+
+
+def travel_poof() -> np.ndarray:
+    """Fast travel and the My Cafe button: a whoosh up, a soft poof where you land and a few sparkles."""
+    d = 0.95
+    up = 0.34
+    t = seconds(up)
+    whoosh = bandpass(bandpass(noise(up, 130), sweep(up, 400, 3800), 1.6), sweep(up, 400, 3800), 1.6)
+    whoosh *= 0.12 + 0.88 * (t / up) ** 1.5  # audible from the first frame: the trip starts on the press
+    poof = bandpass(noise(0.2, 131), sweep(0.2, 900, 300), 0.8) * envelope(0.2, 0.004, 0.05)
+    thump = glide(0.15, 180, 110, 0.05) * envelope(0.15, 0.002, 0.04) * 0.6
+    sparkle = [(bell(0.3, f, ((1.0, 1.0, 0.07), (2.76, 0.2, 0.03))) * 0.3, up + 0.06 + 0.05 * i)
+               for i, f in enumerate((3520.0, 3136.0, 2637.0, 3951.1))]
+    return finish(mix(d, (whoosh / np.max(np.abs(whoosh)) * 0.7, 0.0), (poof / np.max(np.abs(poof)), up),
+                      (thump, up), *sparkle), -4)
+
+
+def cat_placed() -> np.ndarray:
+    """A cat starts a role at its station (Staff tab, Equip Best): a soft hop thump, a happy "mrrp" and 3 sparkles."""
+    d = 0.6
+    thump = (glide(0.12, 200, 120, 0.05) * envelope(0.12, 0.002, 0.03)
+             + bandpass(noise(0.12, 140), 700, 1.0) * envelope(0.12, 0.001, 0.015) * 0.3)
+    mrrp = cat_voice(0.17, 560, 760, 700, 0.7, 141) * 0.7
+    sparkle = [(bell(0.25, f, ((1.0, 1.0, 0.06),)) * 0.25, 0.3 + 0.05 * i) for i, f in enumerate((2637.0, 3136.0, 3520.0))]
+    return finish(mix(d, (thump, 0.0), (mrrp, 0.07), *sparkle), -5)
+
+
+def cat_rest() -> np.ndarray:
+    """A cat leaves its role to rest (Unequip, Unequip All): a sleepy sigh, a small falling "mew" and a soft flop."""
+    d = 0.65
+    sigh = bandpass(bandpass(noise(0.3, 150), sweep(0.3, 1300, 500), 1.3), sweep(0.3, 1300, 500), 1.3)
+    sigh *= np.sin(np.pi * seconds(0.3) / 0.3) ** 1.5
+    mew = cat_voice(0.2, 620, 650, 430, 0.0, 151) * 0.55
+    flop = glide(0.14, 170, 110, 0.05) * envelope(0.14, 0.004, 0.04) * 0.6
+    return finish(mix(d, (sigh / np.max(np.abs(sigh)) * 0.35, 0.0), (mew, 0.12), (flop, 0.4)), -6)
+
+
+def gift_claim() -> np.ndarray:
+    """A Tip Jar gift is claimed (F47): a ribbon tug and paper pop, then coins tumbling into the jar and a chime."""
+    d = 1.05
+    tug = bandpass(bandpass(noise(0.12, 160), sweep(0.12, 1500, 3000), 1.5), sweep(0.12, 1500, 3000), 1.5)
+    tug *= np.sin(np.pi * seconds(0.12) / 0.12)
+    pop = glide(0.07, 380, 900, 0.025) * envelope(0.07, 0.001, 0.02)
+    coins = [(bell(0.18, 2400.0 * (1 + 0.06 * ((i * 5) % 7 - 3)), COIN, attack=0.0005) * (0.5 - 0.04 * i), 0.2 + 0.055 * i)
+             for i in range(7)]
+    chime = [(bell(0.6, note(n), GLOCK) * 0.6, at) for n, at in (("C6", 0.3), ("G6", 0.42))]
+    return finish(mix(d, (tug / np.max(np.abs(tug)) * 0.4, 0.0), (pop * 0.8, 0.12), *coins, *chime), -4)
+
+
+def index_reward() -> np.ndarray:
+    """An Index reward is claimed (F48): a page turns, a stamp lands on it, and a bright run rises to a sparkle."""
+    d = 1.5
+    turn = 0.2
+    page = bandpass(bandpass(noise(turn, 170), sweep(turn, 900, 3000), 1.2), sweep(turn, 900, 3000), 1.2)
+    page *= np.sin(np.pi * seconds(turn) / turn) ** 1.2
+    flap = bandpass(noise(0.03, 171), 1800, 1.5) * envelope(0.03, 0.0008, 0.008)
+    stamp = (glide(0.18, 160, 95, 0.05) * envelope(0.18, 0.002, 0.04)
+             + bandpass(noise(0.18, 172), 1200, 1.0) * envelope(0.18, 0.0008, 0.012) * 0.6)
+    run = [(bell(d - at, note(n), GLOCK) * 0.75, at) for n, at in
+           (("C6", 0.36), ("E6", 0.45), ("G6", 0.54), ("C7", 0.66))]
+    sparkle = [(bell(0.3, f, ((1.0, 1.0, 0.06),)) * 0.22, 0.78 + 0.05 * i) for i, f in enumerate((4186.0, 4698.6, 5274.0))]
+    return finish(mix(d, (page / np.max(np.abs(page)) * 0.5, 0.0), (flap * 0.4, turn - 0.02), (stamp, 0.24), *run, *sparkle), -3)
+
+
+# Metal bar partials: a gold "ting" that is brighter and longer than the glockenspiel
+GOLD = ((1.0, 1.0, 0.8), (2.76, 0.5, 0.4), (5.40, 0.3, 0.22), (8.93, 0.15, 0.12), (13.3, 0.06, 0.06))
+
+
+def gold_reveal() -> np.ndarray:
+    """A gold cat (F42): a shimmer rising into a rich gold bell, the sparkle settling around it. Ducks the music."""
+    d = 1.8
+    rise = 0.55
+    t = seconds(rise)
+    shimmer = bandpass(bandpass(noise(rise, 180), sweep(rise, 2000, 7000), 4.0), sweep(rise, 2000, 7000), 4.0)
+    shimmer *= (t / rise) ** 2
+    steps = (1760.0, 2217.5, 2637.0, 3520.0, 4434.9, 5274.0)
+    climb = [(bell(0.25, f, ((1.0, 1.0, 0.05),)) * (0.2 + 0.03 * i), 0.07 * i) for i, f in enumerate(steps)]
+    chord = [(bell(d - rise, note(n), GOLD, attack=0.002) * amp, rise) for n, amp in (("E6", 0.9), ("B6", 0.6), ("E7", 0.35))]
+    settle = [(bell(0.3, f, ((1.0, 1.0, 0.07),)) * 0.18, rise + 0.25 + 0.09 * i)
+              for i, f in enumerate((5274.0, 4434.9, 3951.1, 3520.0))]
+    return finish(mix(d, (shimmer / np.max(np.abs(shimmer)) * 0.35, 0.0), *climb, *chord, *settle), -3)
+
+
+def shimmer_rare() -> np.ndarray:
+    """Near a gold or Epic-and-up stray: faint twinkles in a seamless 2 s loop, so you can find it in the dark."""
+    length = 2.0
+    n = int(length * SR)
+    track = np.zeros(n)
+    rng = np.random.default_rng(190)
+    for i in range(7):
+        at = int((i + 0.4 * rng.random()) * n / 7)
+        f = rng.choice((3520.0, 3951.1, 4434.9, 5274.0, 5919.9))
+        tink = bell(0.5, f, ((1.0, 1.0, 0.09), (2.76, 0.2, 0.03))) * (0.5 + 0.5 * rng.random())
+        end = at + len(tink)
+        track[at:min(end, n)] += tink[: min(end, n) - at]
+        if end > n:  # wrap the tail round to the start, so the loop has no seam
+            track[: end - n] += tink[n - at :]
+    hum = np.fft.rfft(np.random.default_rng(191).standard_normal(n))
+    f = np.fft.rfftfreq(n, 1 / SR)
+    air = np.fft.irfft(hum * np.exp(-(((f - 7000) / 2500) ** 2)), n)  # circular, so it loops too
+    x = track + air / np.max(np.abs(air)) * 0.05
+    return x / np.max(np.abs(x)) * 10 ** (-10 / 20)  # no end fade: it is a loop
+
+
+def wheel_tick() -> np.ndarray:
+    """The spin wheel (coming): one peg clicking past the pointer. Played once per slice, so it slows with the wheel."""
+    d = 0.05
+    knock = bell(d, 1800.0, MARIMBA, attack=0.0005)
+    click = bandpass(bandpass(noise(d, 200), 4000, 3), 4000, 3) * envelope(d, 0.0003, 0.003)
+    return finish(knock + click / np.max(np.abs(click)) * 0.5, -6)
+
+
+def wheel_win() -> np.ndarray:
+    """The spin wheel stops on a prize: a quick run up into a bright chord, coins sparkling on top."""
+    d = 1.4
+    run = [(bell(d - at, note(n), GLOCK) * 0.6, at) for n, at in
+           (("C6", 0.0), ("D6", 0.06), ("E6", 0.12), ("G6", 0.18))]
+    chord = [(bell(d - 0.28, note(n), PIANO, attack=0.003) * 0.5, 0.28) for n in ("C5", "E5", "G5", "C6")]
+    top = [(bell(d - 0.28, note("C7"), GLOCK) * 0.7, 0.28)]
+    coins = [(bell(0.18, 2400.0 * (1 + 0.05 * (i % 3)), COIN, attack=0.0005) * 0.35, 0.36 + 0.07 * i) for i in range(5)]
+    return finish(mix(d, *run, *chord, *top, *coins), -3)
+
+
+def ui_slider() -> np.ndarray:
+    """A volume slider moves a 5 % step: a tiny soft tick (it plays through the sound channel, so it previews it)."""
+    d = 0.035
+    tick = bell(d, 1500.0, ((1.0, 1.0, 0.006), (2.4, 0.3, 0.003)), attack=0.0003)
+    return finish(tick, -12)
+
+
+def ui_gift_ready() -> np.ndarray:
+    """A Tip Jar gift is ready to claim: a glass jar "ting" and a small two-note chime."""
+    d = 0.6
+    jar = bell(0.5, 2650.0, ((1.0, 1.0, 0.25), (2.32, 0.4, 0.12), (4.25, 0.2, 0.06)), attack=0.0005)
+    chime = [(bell(d - at, note(n), GLOCK) * 0.6, at) for n, at in (("A5", 0.08), ("E6", 0.17))]
+    return finish(mix(d, (jar * 0.6, 0.0), *chime), -8)
+
+
+def ui_badge() -> np.ndarray:
+    """A red dot appears on a menu button: a tiny bubble blip."""
+    d = 0.11
+    blip = glide(d, 700, 1450, 0.03) * envelope(d, 0.001, 0.025)
+    return finish(blip, -11)
+
+
 def purr_loop(length: float, seed: int, rate: float) -> np.ndarray:
     """A cat's purr over exactly `length` seconds so it loops: rumbling pulses on every breath in and out."""
     n = int(length * SR)
@@ -512,6 +727,22 @@ SOUNDS = {
     "StraySprint": ("sfx", "Sfx", stray_sprint),
     "Shove": ("sfx", "Sfx", shove),
     "BumpHeld": ("sfx", "Sfx", bump_held),
+    "HoldFill": ("sfx", "Sfx", hold_fill),
+    "CatDrop": ("sfx", "Sfx", cat_drop),
+    "ZoneSafe": ("sfx", "Sfx", zone_safe),
+    "ZoneArea": ("sfx", "Sfx", zone_area),
+    "TravelPoof": ("sfx", "Sfx", travel_poof),
+    "CatPlaced": ("sfx", "Sfx", cat_placed),
+    "CatRest": ("sfx", "Sfx", cat_rest),
+    "GiftClaim": ("sfx", "Sfx", gift_claim),
+    "IndexReward": ("sfx", "Sfx", index_reward),
+    "GoldReveal": ("sfx", "Sfx", gold_reveal),
+    "ShimmerRare": ("sfx", "Sfx", shimmer_rare),
+    "WheelTick": ("sfx", "Sfx", wheel_tick),
+    "WheelWin": ("sfx", "Sfx", wheel_win),
+    "Slider": ("ui", "Ui", ui_slider),
+    "GiftReady": ("ui", "Ui", ui_gift_ready),
+    "Badge": ("ui", "Ui", ui_badge),
 }
 
 

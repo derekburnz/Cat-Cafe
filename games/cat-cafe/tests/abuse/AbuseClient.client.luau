@@ -12,7 +12,8 @@
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
-	  Home drop         End unequip all     PageUp settings        Backspace flood
+	  Home drop         End unequip all     PageUp settings        PageDown saved settings
+	  Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -2451,6 +2452,149 @@ case(
 				floodSyncs,
 				note
 			)
+	end
+)
+
+-- Saved settings (engineer PR #215): every key of shared/Settings is saved. A volume clamps to 0 to 1 at two
+-- decimals and refuses NaN, infinities and text; the new switches take only a boolean; the same value again sends
+-- no sync.
+
+case(
+	"savedSettings",
+	Enum.KeyCode.PageDown,
+	"Saved settings: volumes clamp, bad volumes and switch values refused, a repeat sends no sync",
+	function()
+		local SWITCHES = { "screenShake", "lowPerformance", "showOtherCats", "markers" }
+		local VOLUMES = { "musicVolume", "sfxVolume" }
+		local function saved(): { [string]: any }?
+			local current = if state ~= nil then (state :: any).settings else nil
+			return if type(current) == "table" then current else nil
+		end
+		-- One call 0.3 s after the last, so the 4 a second limit drops none; true when a ProfileSync shows `expected`.
+		local function set(key: string, value: any, expected: any): boolean
+			task.wait(0.3)
+			local at = os.clock()
+			fire("SetSetting", key, value)
+			return waitFor(at, "ProfileSync", 2, function()
+				local now = saved()
+				return now ~= nil and now[key] == expected
+			end) ~= nil
+		end
+		freshWallet()
+		local start = saved()
+		if start == nil or start.musicVolume == nil then
+			return "SKIP", "the ProfileSync carries no volumes (needs engineer PR #215)"
+		end
+		local before = table.clone(start)
+		local function restore()
+			for key, value in before do
+				local now = saved()
+				if now ~= nil and now[key] ~= value then
+					set(key, value, value)
+				end
+			end
+		end
+
+		-- Volumes: from a middle value, 2 saves as 1, -1 as 0 and 0.333333 as 0.33.
+		for _, key in VOLUMES do
+			local middle = if before[key] == 0.5 then 0.6 else 0.5
+			if not set(key, middle, middle) then
+				restore()
+				return "FAIL",
+					string.format("SetSetting(%q, %s) did not save", key, tostring(middle))
+			end
+		end
+		local clamps: { { key: string, value: number, expected: number } } = {
+			{ key = "musicVolume", value = 2, expected = 1 },
+			{ key = "musicVolume", value = -1, expected = 0 },
+			{ key = "sfxVolume", value = 7, expected = 1 },
+			{ key = "sfxVolume", value = 0.333333, expected = 0.33 },
+		}
+		for _, call in clamps do
+			if not set(call.key, call.value, call.expected) then
+				restore()
+				return "FAIL",
+					string.format(
+						"SetSetting(%q, %s) did not save as %s",
+						call.key,
+						tostring(call.value),
+						tostring(call.expected)
+					)
+			end
+		end
+
+		-- Bad values for every volume and every new switch: nothing changes and nothing toasts.
+		local held = table.clone(saved() :: { [string]: any })
+		local badAt = os.clock()
+		for _, key in VOLUMES do
+			for _, value in { 0 / 0, math.huge, -math.huge, "0.5", true, {} } :: { any } do
+				task.wait(0.3)
+				fire("SetSetting", key, value)
+			end
+		end
+		for _, key in SWITCHES do
+			for _, value in { 1, "true", {} } :: { any } do
+				task.wait(0.3)
+				fire("SetSetting", key, value)
+			end
+		end
+		task.wait(0.5)
+		local badToasts = #since(badAt, "Toast")
+		local afterBad = saved()
+		local moved: { string } = {}
+		for key, value in held do
+			if afterBad == nil or afterBad[key] ~= value then
+				table.insert(moved, key)
+			end
+		end
+
+		-- Each new switch saves a flip and comes back.
+		local unsaved: { string } = {}
+		for _, key in SWITCHES do
+			if
+				not set(key, not before[key], not before[key])
+				or not set(key, before[key], before[key])
+			then
+				table.insert(unsaved, key)
+			end
+		end
+
+		-- The same value three times: no sync for any of them (one may be the 10 s periodic sync).
+		task.wait(1.1)
+		local repeatAt = os.clock()
+		for _ = 1, 3 do
+			fire("SetSetting", "markers", before.markers)
+			task.wait(0.3)
+		end
+		task.wait(0.5)
+		local repeatSyncs = #since(repeatAt, "ProfileSync")
+
+		restore()
+		local final = saved()
+		if #moved > 0 then
+			return "FAIL", "a bad value changed " .. table.concat(moved, ", ")
+		end
+		if badToasts > 0 then
+			return "FAIL", string.format("%d toast(s) for bad SetSetting calls", badToasts)
+		end
+		if #unsaved > 0 then
+			return "FAIL", "a flip did not save for " .. table.concat(unsaved, ", ")
+		end
+		if repeatSyncs > 1 then
+			return "FAIL",
+				string.format(
+					"%d ProfileSync back from SetSetting with the value already saved",
+					repeatSyncs
+				)
+		end
+		for key, value in before do
+			if final == nil or final[key] ~= value then
+				return "CHECK",
+					"the settings did not come back to where they started; set them by hand"
+			end
+		end
+		return "PASS",
+			"volumes clamped to 1, 0 and 0.33, NaN, infinities and text refused, the new switches took only booleans and saved their flips, a repeat sent no sync; read the server output for no [Net] SetSetting handler failed line"
 	end
 )
 

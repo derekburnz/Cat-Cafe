@@ -213,4 +213,40 @@ function Logic.trapCue(trapType: string?): string?
 	return TRAPS[trapType]
 end
 
+-- The holdFill file lands on its pop this many seconds in; HoldDuration 0.5 plays it at 0.96 so the pop meets the
+-- trigger. Very short or long holds are clamped so the pitch stays friendly.
+Logic.HOLD_FILL_SECONDS = 0.48
+
+-- PlaybackSpeed for the hold sound of a prompt held for `holdDuration` seconds; nil when the prompt has no hold.
+function Logic.holdSpeed(holdDuration: number): number?
+	if holdDuration ~= holdDuration or holdDuration <= 0 then
+		return nil
+	end
+	return math.clamp(Logic.HOLD_FILL_SECONDS / holdDuration, 0.5, 2)
+end
+
+-- Whether a World.Zones name is the safe street and cafes (nil or "Cafe") rather than a catching area.
+function Logic.isSafeZone(zone: string?): boolean
+	return zone == nil or zone == "Cafe"
+end
+
+-- The cue for walking from one zone into another: zoneSafe back onto the street, zoneArea into a catching area,
+-- nil when both are safe or both are areas (one area into the next, or the same zone).
+function Logic.zoneCue(previous: string?, current: string?): string?
+	local was, now = Logic.isSafeZone(previous), Logic.isSafeZone(current)
+	if was == now then
+		return nil
+	end
+	return if now then "zoneSafe" else "zoneArea"
+end
+
+-- Whether a stray twinkles for nearby players (shimmerRare): a gold cat, or Epic and up.
+function Logic.shimmers(gold: any, rarity: any): boolean
+	if gold == true then
+		return true
+	end
+	local step = if type(rarity) == "string" then Logic.rarityStep(rarity) else nil
+	return step ~= nil and step >= 3
+end
+
 return Logic

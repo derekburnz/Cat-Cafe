@@ -1,0 +1,52 @@
+# Read the friends' in-game bug reports from Roblox (Open Cloud data stores), so threads see them without Studio.
+# Start it from the Actions tab (bug-reports > Run workflow) or from any thread with the GitHub actions_run_trigger
+# tool; the job log and the run summary list the reports. Read only. Needs the repo secret ROBLOX_PUBLISH_KEY with
+# the data store List and Read permissions (docs/setup-guide.md step 17).
+name: bug-reports
+
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "UTC day as YYYYMMDD (empty: today)"
+        required: false
+        default: ""
+      count:
+        description: "Newest this many reports of that day"
+        required: false
+        default: "50"
+      studio:
+        description: "Studio playtests' reports instead of the players'"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  read:
+    name: List the bug reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      DAY: ${{ inputs.day }}
+      COUNT: ${{ inputs.count }}
+      STUDIO: ${{ inputs.studio && 'studio' || '' }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: games/cat-cafe/tools/opencloud
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: Read the reports
+        run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "$DAY" "$COUNT" $STUDIO

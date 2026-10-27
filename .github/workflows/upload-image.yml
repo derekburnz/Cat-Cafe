@@ -1,0 +1,80 @@
+# Upload an image from the repo to Roblox and print its rbxassetid (Open Cloud Assets API), so UI and art threads need
+# no Studio Asset Manager. Start it from the Actions tab (upload-image > Run workflow) or from any thread with the
+# GitHub actions_run_trigger tool on main; the job log and the run summary show the id. The image can come from an
+# unmerged branch. Each run makes a new asset owned by Derek's account, so upload a file once and commit its id.
+# Needs the repo secret ROBLOX_PUBLISH_KEY with the assets Read and Write permissions (docs/setup-guide.md step 17).
+name: upload-image
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Image in the repo (.png, .jpg, .bmp or .tga), e.g. assets/cat-cafe/ui/textures/UI_ButtonTiles.png"
+        required: true
+      branch:
+        description: "Branch that holds the image (empty: the branch this run starts on)"
+        required: false
+        default: ""
+      name:
+        description: "Name on Roblox (empty: the file name without extension)"
+        required: false
+        default: ""
+      type:
+        description: "Image goes straight into ImageLabel.Image and textures; Decal is for parts via the Toolbox"
+        type: choice
+        options: [Image, Decal]
+        default: Image
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upload-image
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    name: Upload the image
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ROBLOX_CREATOR_USER_ID: "40908216" # Derek, who owns the experience
+      ASSET_TYPE: ${{ inputs.type }}
+      IMAGE_PATH: ${{ inputs.path }}
+      IMAGE_BRANCH: ${{ inputs.branch }}
+      IMAGE_NAME: ${{ inputs.name }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      # The image comes out of git (this checkout, or the named branch), so the path must be a file in the repo.
+      - name: Take the image from the repo
+        run: |
+          case "$IMAGE_PATH" in
+          /* | *..*)
+            echo "::error::path must be relative to the repo root, without '..': $IMAGE_PATH"
+            exit 1
+            ;;
+          esac
+          rev=HEAD
+          if [ -n "$IMAGE_BRANCH" ]; then
+            git fetch --no-tags --depth 1 origin "$IMAGE_BRANCH"
+            rev=FETCH_HEAD
+          fi
+          mkdir -p "$(dirname "$IMAGE_PATH")"
+          if ! git show "$rev:$IMAGE_PATH" >"$IMAGE_PATH.upload"; then
+            echo "::error::$IMAGE_PATH is not a file on ${IMAGE_BRANCH:-$GITHUB_REF_NAME}"
+            exit 1
+          fi
+          mv "$IMAGE_PATH.upload" "$IMAGE_PATH"
+          echo "Taking $IMAGE_PATH from ${IMAGE_BRANCH:-$GITHUB_REF_NAME} ($(git rev-parse --short "$rev"))"
+
+      - name: Upload to Roblox
+        run: bash games/cat-cafe/tools/opencloud/upload-image.sh "$IMAGE_PATH" "$IMAGE_NAME"

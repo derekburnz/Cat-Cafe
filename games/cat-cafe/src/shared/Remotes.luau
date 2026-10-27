@@ -12,8 +12,9 @@ Remotes.FolderName = "Remotes"
 Remotes.ClientToServer = {
 	"GrabBegin", -- (strayId: string)  locks the stray and answers with CatchSchedule
 	"CatchPress", -- (strayId: string, index: number)  no time is sent: the server stamps the press on arrival
-	"RescueBegin", -- (rescueSpotId: string)  spot holds a stuck cat, not locked by another player, in range, not carrying
-	"RescueEnd", -- (rescueSpotId: string)  sent after the full hold; the server checks RescueHoldSeconds on its own clock
+	"RescueBegin", -- (rescueSpotId: string)  trap holds a stuck cat, unlocked, past its retry waits, in range, not carrying
+	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
+	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
@@ -47,6 +48,9 @@ Remotes.ServerToClient = {
 	-- pawsLeft is nil when this player cannot run out of paws on the stray (data-model section 10 step 5)
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, pawsLeft: number?,
 	-- charmGain: number)  grades up to and including the first Miss; the stray stays after a miss (v0.4)
+	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
+	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean)
+	-- after every judged press and when the attempt ends; refusals of RescueBegin come as GrabResult
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 	"DealerStock", -- (stock: Types.DealerStock?)  this player's three slots at night, nil by day; after every buy

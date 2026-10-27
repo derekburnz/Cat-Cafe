@@ -781,19 +781,23 @@ local function buildArea(
 		table.insert(spawnPoints, sp)
 	end
 
-	-- Rescue spots (data-model section 13): the prop is always there, the stuck cat only some nights.
+	-- Rescue traps (data-model sections 10b and 13): the trap is always there, the stuck cat only some nights.
+	-- The trap model sits next to its anchor as "<rescueSpotId>_Trap", so a client can find a tree's branch.
 	local rescueFolder = folder("RescueSpots", model)
 	local rescueSpots: { [string]: BasePart } = {}
 	for i, point in spec.rescueSpots do
 		local name = "rescue_" .. id .. "_" .. i
 		local base = CFrame.new(point.x, spec.floorY, point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
-		place(point.prop, base, props)
+		local trap = place(point.prop, base, rescueFolder)
+		trap.Name = name .. "_Trap"
 		local pose = Layout.stuckPoses[point.prop]
 		local catAt = if pose ~= nil then base * poseCFrame(pose) else base
 		local spot = anchor(name, catAt, rescueFolder)
 		spot:SetAttribute("Area", id)
 		spot:SetAttribute("RescueSpotId", name)
+		spot:SetAttribute("TrapType", point.trap)
+		spot:SetAttribute("RetryAt", 0)
 		spot:SetAttribute("Occupied", false)
 		spot:SetAttribute("LockedBy", 0)
 		CollectionService:AddTag(spot, "RescueSpot")

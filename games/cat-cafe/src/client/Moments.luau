@@ -26,6 +26,14 @@ local Moments = {
 	Purchase = Signal.new() :: Signal.Signal<()>, -- a sync shows an upgrade, decor or lure you bought
 	DealerArrive = Signal.new() :: Signal.Signal<()>, -- the night dealer's cart parked on the street
 	DealerLeave = Signal.new() :: Signal.Signal<()>, -- the cart left at dawn
+	-- Rescue minigames (F27), from RescueChallenge and RescueResult: the server's count, not this device's guess
+	RescueStart = Signal.new() :: Signal.Signal<string>, -- (rescueSpotId) the bar came up
+	RescueHit = Signal.new() :: Signal.Signal<number, number, number, string?>, -- (hits, needed, pawsLeft, trapType)
+	RescueMiss = Signal.new() :: Signal.Signal<number>, -- (pawsLeft)
+	RescueDrop = Signal.new() :: Signal.Signal<string>, -- (rescueSpotId) a tree's cat fell after the last shake
+	RescueDone = Signal.new() :: Signal.Signal<string, string?>, -- (rescueSpotId, rarity) the cat is free
+	RescueFail = Signal.new() :: Signal.Signal<string>, -- (rescueSpotId) out of paws or time, or walked away
+	RescueCancel = Signal.new() :: Signal.Signal<string>, -- (rescueSpotId) Give up
 }
 
 return Moments

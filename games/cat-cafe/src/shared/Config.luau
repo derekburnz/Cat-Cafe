@@ -218,41 +218,51 @@ local Config = {
 		PlotRowGap = 8, -- a side passage from the street to the back alley between neighbouring cafes
 		FrontGardenDepth = 5, -- path, bench and chalkboard between the sidewalk and the front wall
 		YardDepth = 10, -- the patio yard between the back wall and the back alley
-		StreetHalfWidth = 12,
-		StreetSouthZ = -100,
-		StreetNorthZ = 88, -- the street runs into the Alley Square here
-		GroundSize = 600, -- reaches past the Neighbourhood's far wall (z 292.5)
+		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
+		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
+		StreetHalfWidth = 16,
+		StreetSouthZ = -124,
+		StreetNorthZ = 124, -- the street runs into the Alley Square here
+		GroundSize = 680, -- reaches past the Neighbourhood's far wall (z 328.5)
 		WallHeight = 9,
 		DoorWidth = 7,
+		-- The Town Square: paved, centred on the origin across the street, with the stations round a fountain and a
+		-- cross of open paving (the street's line and an east to west lane to the two side arches into the back
+		-- alleys). Its gardens fill the rest of the width out to the back alleys.
+		TownSquareHalfWidth = 48,
+		TownSquareHalfDepth = 32,
+		TownSquareLaneHalfWidth = 8, -- the street's line through the square
+		TownSquareCrossHalfWidth = 6, -- the east to west lane
+		TownSquareArchWidth = 10, -- each side arch from the gardens into a back alley
 		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to SquareSouthZ, and the
 		-- Square across the whole width from SquareSouthZ to SquareNorthZ.
-		AlleyInnerX = 59,
-		AlleyOuterX = 89,
-		AlleySouthZ = -101.5,
-		SquareSouthZ = 88,
-		SquareNorthZ = 152,
-		ParkCenterZ = -130,
+		AlleyInnerX = 63,
+		AlleyOuterX = 93,
+		AlleySouthZ = -125.5,
+		SquareSouthZ = 124,
+		SquareNorthZ = 188,
+		ParkCenterZ = -154,
 		ParkWidth = 80,
 		ParkDepth = 56,
-		ParkGateZ = -101,
+		ParkGateZ = -125,
 		-- The Woods and the Sewer sit either side of the Park, their openings at the south end of the west and east
 		-- back alleys; the Neighbourhood sits north of the Square.
-		WoodsCenterX = -74,
-		WoodsCenterZ = -134,
+		WoodsCenterX = -78,
+		WoodsCenterZ = -158,
 		WoodsWidth = 66,
 		WoodsDepth = 64,
-		WoodsGateZ = -101,
-		SewerCenterX = 74,
-		SewerCenterZ = -134,
+		WoodsGateZ = -125,
+		SewerCenterX = 78,
+		SewerCenterZ = -158,
 		SewerWidth = 66,
 		SewerDepth = 64,
-		SewerGateZ = -101,
+		SewerGateZ = -125,
 		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger").
 		NeighbourhoodCenterX = 0,
-		NeighbourhoodCenterZ = 222.5,
+		NeighbourhoodCenterZ = 258.5,
 		NeighbourhoodWidth = 140,
 		NeighbourhoodDepth = 140,
-		NeighbourhoodGateZ = 151.5,
+		NeighbourhoodGateZ = 187.5,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
 		-- this range of its camera, up to CustomersMax at once across the street.
 		CafeLifeRangeStuds = 80,

@@ -10,33 +10,31 @@ So v0.4 changes five things: missing a circle costs you the catch, the Alleyway 
 
 Today a Miss only lowers the averaged chance, and a Common stays put with a 2 second retry, so missing costs nothing. v0.4 borrows from Fisch, where letting the fish slip means it is gone:
 
-- Any Miss ends the catch on the spot. A press outside the Good band, no press by the circle's deadline or walking out of range all count. The cat hisses, jumps back 6 to 10 studs and the circles left over vanish. There is no roll.
+- Any Miss ends the catch on the spot. A press outside the Good band, no press by the circle's deadline or walking out of range all count. The circles left over vanish and there is no roll.
+- v0.5, Gavin's round 2 answer: "Any miss ends the catch and the cat sprints away for a bit making the player catch up to it again to retry. unlimited tries for all cats regardless of rarity but the rarer the cat the harder it is to catch". The cat hisses and sprints away, 12 studs for a Common up to 32 for a Mythical, faster than you walk, then catches its breath for 1.5 seconds. Nobody can start a catch while it runs; then anyone can, you included. Tries are unlimited for every cat, so the cost of a miss is the chase, and someone else might reach it first.
 - No Miss means caught. Every circle Good or Perfect is a sure catch. Pressing well always works, so a near miss never turns into a coin-flip loss.
-- Patience paws. Each stray has a row of paws per player: Common 3, Rare 2, Epic 2, Legendary 1, Mythical 1. A failed catch costs you one paw on that cat. At zero the cat stops trusting you for the rest of its stay: your prompt disappears and a small hiss icon sits over it for you. Other players still have their own paws, so nobody can burn a Legendary for everyone by missing on purpose (reviewer, 2026-10-26).
-- After a miss you wait StrayWarySeconds (5) before trying that cat again; everyone else waits GrabRetrySeconds (2) while it lands from its jump.
-- Perfects pay. Every Perfect circle adds 4 charm to the cat you catch, and an all-Perfect "Purrfect" catch doubles it, capped at 100. A Purrfect Mythical (five circles) gains 40 charm, which is up to two stars and about 16% more income for that cat. The card shows "Charm +8" and the stars ticking up. Re-catching a cat knocked loose by a bump gives no bonus, since it already has its charm (reviewer S36).
-- Never lost to bad luck: on a Dropped stray the player who was carrying it has unlimited paws (the S26 rule that a bump never loses a kid's cat), and so does a new player (tutorialStep below 2) on the tutorial Common.
+- Perfects pay. Every Perfect circle adds 4 charm to the cat you catch, and an all-Perfect "Purrfect" catch doubles it, capped at 100. A Purrfect Mythical (five circles) gains 40 charm, which is up to two stars and about 16% more income for that cat. The card shows "Charm +8" and the stars ticking up. Re-catching a cat knocked loose by a shove gives no bonus, since it already has its charm (reviewer S36).
 
-Why this shape: the server already judges every press on its own clock, so the change is in what happens after a judged Miss, not in timing. Paws make a Legendary tense (one chance) without letting a griefer delete it for others. Charm from Perfects keeps a reason to aim for the centre now that Good also catches. Net durability was considered and dropped: repairing nets is a chore, punishes the youngest players and drifts toward pay-to-repair.
+Why this shape: the server already judges every press on its own clock, so the change is in what happens after a judged Miss, not in timing. v0.4 used per-player patience paws; Gavin replaced them with the chase in round 2, which keeps a miss costly without ever taking a cat away from anyone. Charm from Perfects keeps a reason to aim for the centre now that Good also catches. Net durability was considered and dropped: repairing nets is a chore, punishes the youngest players and drifts toward pay-to-repair.
 
-Readability, copied from rhythm games and Fisch: each circle pops PERFECT (gold), GOOD (green) or MISS (red) at the ring; a Miss gives a small camera shake, the hiss sound and the cat leaping back; the paw row sits under the ring and over the stray's head, losing a paw with a little pop. "It slipped away! 2 paws left" and, at zero, "It won't trust you tonight". A Purrfect plays a gold burst and a chime.
+Readability, copied from rhythm games and Fisch: each circle pops PERFECT (gold), GOOD (green) or MISS (red) at the ring; a Miss gives a small camera shake, the hiss sound and the cat bolting with a dust puff, and "It got away! Chase it!". A Purrfect plays a gold burst and a chime.
 
 ## 2. The world: Alleyway out back
 
 The engineer moved the Alleyway behind the cafes (2026-10-26), matching the concept sketch's back door to the alley. The design follows it:
 
 - Every cafe has a back door that opens from Tier 1 onto a back alley running behind its row. The two back alleys meet in a big Alley Square at the north end. Check-in works at either door.
-- Distance targets for the engineer to tune against (revised 2026-10-27 after QA measured layout v2): on foot, under 2 seconds from a back door to the nearest stray spawn. The travel buttons count for everything farther: the Alley button lands in the Square, and the Areas buttons land at each area's entry, so the Square and every unlocked gate are one tap away from anywhere. The walk that cannot be skipped is the carry home, since travel is greyed while carrying: under 25 seconds at CarryWalkSpeed 16 from any Square spawn point to the carrier's nearer door, back door included. The Square sits at one end of the street on purpose, so the far cafes walk a little longer with a rare cat; that walk is where bumps happen, and 25 seconds keeps it a short chase rather than a trek.
+- Distance targets for the engineer to tune against (revised 2026-10-27 after QA measured layout v2): on foot, under 2 seconds from a back door to the nearest stray spawn. The travel buttons count for everything farther: the Alley button lands in the Square, and the Areas buttons land at each area's entry, so the Square and every unlocked gate are one tap away from anywhere. The walk that cannot be skipped is the carry home, since travel is greyed while carrying: under 25 seconds at CarryWalkSpeed 16 from any Square spawn point to the carrier's nearer door, back door included. The Square sits at one end of the street on purpose, so the far cafes walk a little longer with a rare cat; that walk is where shoves happen, and 25 seconds keeps it a short chase rather than a trek.
 - Size target: at least 8 times the old 60 x 44 stud box, so 10 strays, 3 traps and 8 players never crowd. The back alleys are the narrow, cosy part; the Square is the open hub.
 - Spawn points: 24 in the Alleyway, two behind every cafe (16) and 8 in the Square. Commons and Rares can spawn anywhere; Epic, Legendary and Mythical spawn only in the Square, so the exciting cats are a short run from everyone and nobody's cafe is the lucky one.
 - Traps: one trash bin in each back alley and the garbage bags in the Square.
 - Square landmarks so it is not a flat box: a dumpster corner, stacked crates you can hop on, a fire escape with a ledge (one spawn point up there), a laundry line, puddles that shine at night, string lights across the gap, a big wall mural of our own cats, a bench under a street lamp.
 - The other areas open off the hubs: the Park gate at the south end of the street, the Woods beyond the far side of the Park, the Neighbourhood through a fence gate on the Square's east side, the Sewer down a manhole in the middle of the Square (it opens at Tier 5). Final spots are the engineer's.
-- Walk speed rises to NormalWalkSpeed 20 and CarryWalkSpeed 16 (still 80%), the Roblox default of 16 felt slow for this map. Bump range and safe radius are unchanged.
+- Walk speed rises to NormalWalkSpeed 20 and CarryWalkSpeed 16 (still 80%), the Roblox default of 16 felt slow for this map. Shove range and safe radius are unchanged.
 
 Gates, copied from Pet Simulator 99 and Bee Swarm Simulator: an arch with a glowing barrier you can see through, a sign with a lock icon and "Park, needs Cozy Cafe (Tier 2)", and under it your progress ("3 / 5 cats, $900 / $1,500"). The first time a gate opens for you the barrier dissolves with confetti. Walking into an area shows its name as a big title card for two seconds ("THE ALLEYWAY"), the way Pet Simulator and Fisch name zones.
 
-Fast travel (F19, now P0), copied from Grow a Garden's buttons along the top of the screen: three buttons top centre, Cafe, Alley and Areas. Areas opens a small panel of five area cards, locked ones greyed with the tier they need. Travel lands you at the area's entry, not in the middle. All of them are greyed while you carry a cat ("Walk your cat home first"), so carrying and bumps still matter. A 3 second cooldown.
+Fast travel (F19, now P0), copied from Grow a Garden's buttons along the top of the screen: three buttons top centre, Cafe, Alley and Areas. Areas opens a small panel of five area cards, locked ones greyed with the tier they need. Travel lands you at the area's entry, not in the middle. All of them are greyed while you carry a cat ("Walk your cat home first"), so carrying and shoves still matter. A 3 second cooldown.
 
 ## 3. Cafes that look like the sketch
 
@@ -76,7 +74,7 @@ Players already know these from the top Roblox games, so they need no teaching. 
 | Pattern | Where it comes from | What we copy | P |
 |---|---|---|---|
 | Travel buttons | Grow a Garden | Cafe, Alley and Areas buttons top centre, greyed while carrying | P0 |
-| Catch circles | rhythm games, Fisch | Approach circle onto a ring, PERFECT, GOOD and MISS pops, paw row, shake and hiss on a miss | P0 |
+| Catch circles | rhythm games, Fisch | Approach circle onto a ring, PERFECT, GOOD and MISS pops, shake, hiss and a sprint on a miss | P0 |
 | Gate signs | Pet Simulator 99, Bee Swarm Simulator | Lock, requirement and your progress on a billboard at the gate; barrier dissolves when you qualify | P0 |
 | Money and rate | Steal a Brainrot, most tycoons | Coins top left with "+$42/s" under them, as in the sketch | P0 |
 | Next goal tracker | Pet Simulator 99 quests | One card on the right: "Next: Cozy Cafe" with a bar per requirement; tap opens the rank up card | P1 |
@@ -95,16 +93,16 @@ Style rules, from the sketch: one chunky rounded font (FredokaOne) with a dark U
 
 - Engineer: F34 catching stakes, F35 world layout v2 with back doors and the Square, F19 Travel remote, plot state (For Rent or owned) and the tier dressing swap, the roaming cats and customer life in F37.
 - Asset-artist: the cafe shell (roof, windows, awning, trim, back door) with tier dressing sets, the For Rent dressing, Alley Square landmarks, back alley dressing, gates with see-through barriers, a sleeping doorstep cat pose, customer order bubbles as world props if they are not UI.
-- UI-designer: the table in section 6, starting with the P0 rows, and the paw row and miss feedback on the catch HUD.
+- UI-designer: the table in section 6, starting with the P0 rows, and the miss feedback on the catch HUD (v0.5: no paw row).
 - VFX-animator: miss hiss and jump-back, Purrfect burst, gate dissolve, rank up confetti, shutter roll-up, station idles for the four roles, napping loops, steam, smoke, butterflies and fireflies within the budget.
-- Sound-designer: hiss, paw lost, Purrfect chime, gate open, shutters, cafe ambience bed, purr near working cats, shout-out sting.
+- Sound-designer: hiss and sprint, Purrfect chime, gate open, shutters, cafe ambience bed, purr near working cats, shout-out sting.
 - QA: the checks in section 8.
 
 ## 8. Acceptance checks for QA
 
-1. A Miss on circle 1 of a Rare ends the catch at once with no roll; the cat jumps back and the paw row shows 1 left. A second Miss and the prompt is gone for you but still there for a second player.
+1. A Miss on circle 1 of a Rare ends the catch at once with no roll and the cat sprints about 16 studs away; nobody can start a catch until it stops, then anyone can, the same player included, as many times as they like.
 2. Any mix of Good and Perfect catches every time over 20 tries. An all-Perfect Common arrives with 8 more charm than the stray showed.
-3. A bumped carrier can miss their own dropped cat five times and still try again.
+3. Inside the Alleyway a player can shove another player, carrying or not; on the street or in a cafe they cannot. A player in the middle of a catch cannot be shoved.
 4. From every cafe's back door a stray spawn is under 2 seconds away on foot at walk speed 20. The Alley travel button lands in the Square and the Areas buttons at every unlocked gate. Carrying a cat from the farthest Square spawn point to the farthest cafe's nearer door takes under 25 seconds at carry speed 16.
 5. With one player on the server, the other seven plots show For Rent shops with no grey boxes; joining a second player rolls their shutters up.
 6. From the street, you can see cats working inside a running cafe, and its sign shows the owner's name, tier and rate.

@@ -1285,6 +1285,17 @@ case(
 			return "FAIL", string.format("after %d misses: %s", misses, why)
 		end
 		outcomeOf(startedAt, stray.id, schedule)
+		-- The v0.4 paw attributes went with the paws.
+		local leftover = {}
+		for _, name in { "Patience", "Paws_" .. player.UserId } do
+			if stray.model:GetAttribute(name) ~= nil then
+				table.insert(leftover, name)
+			end
+		end
+		if #leftover > 0 then
+			return "FAIL",
+				"v0.4 paw attributes still on the stray: " .. table.concat(leftover, ", ")
+		end
 		return "PASS",
 			string.format(
 				"%s: %d misses and a fourth catch still started; no paws, no trust lost",

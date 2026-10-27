@@ -733,8 +733,14 @@ return function()
 				},
 			}
 
-		it("has exactly the four decor items with their tiers", function()
-			expect(#Catalog.decor).to.equal(4)
+		it("has exactly the four shop decor items with their tiers", function()
+			local shop = 0
+			for _, def in ipairs(Catalog.decor) do
+				if def.source == nil or def.source == "shop" then
+					shop += 1
+				end
+			end
+			expect(shop).to.equal(4)
 			for id, row in pairs(expected) do
 				local def = Catalog.getDecor(id)
 				expect(def).to.be.ok()

@@ -26,6 +26,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	RankUp = RateLimiter.new(1, 2), -- data-model section 15: 1 per 2 s
 	TutorialAdvance = RateLimiter.new(1, 1),
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason
+	BuyDealerFood = RateLimiter.new(2, 1), -- recomputes the stock and answers with DealerStock every time
 	UseLure = RateLimiter.new(1, 1), -- rolls a cat and rebuilds the bowl
 	ResolveBait = RateLimiter.new(1, 1), -- the card retries after 6 s at most
 }

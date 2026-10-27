@@ -200,6 +200,10 @@ export type DealerState = {
 	bought: { [string]: boolean },
 }
 
+-- One player's dealer stock as DealerStock sends it: the slot number is the index, restocksAt is os.time().
+export type DealerSlot = { lureId: string, cost: number, bought: boolean }
+export type DealerStock = { slots: { DealerSlot }, restocksAt: number }
+
 -- Saved per player (data-model section 14). JSON-safe values only.
 export type PlayerProfile = {
 	version: number,

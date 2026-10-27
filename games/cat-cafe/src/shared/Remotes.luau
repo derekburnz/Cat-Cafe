@@ -31,6 +31,7 @@ Remotes.ClientToServer = {
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
 	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
+	"BuyDealerFood", -- (slot: number, lureId: string)  night, near the cart, the slot still holds lureId (S42)
 }
 
 -- Server -> client.
@@ -48,6 +49,7 @@ Remotes.ServerToClient = {
 	-- charmGain: number)  grades up to and including the first Miss; the stray stays after a miss (v0.4)
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
+	"DealerStock", -- (stock: Types.DealerStock?)  this player's three slots at night, nil by day; after every buy
 }
 
 function Remotes.folder(): Folder

@@ -336,9 +336,10 @@ Layout.alley = {
 	} :: { Point },
 	rescueSpots = {
 		-- A trash bin in each back alley against the outer wall, lid toward the lane, and the garbage bags in the
-		-- Square against the north wall (data-model section 9).
+		-- Square against the north wall (data-model section 9). The east bin keeps 9 studs from plot 6's lane
+		-- spawn point (82, 31), so a stray there never takes the rescue's prompt (reviewer N77).
 		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = -AO + 4.5, z = -30, rotY = -90 },
-		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = AO - 4.5, z = 30, rotY = 90 },
+		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = AO - 4.5, z = 22, rotY = 90 },
 		-- between the mural and the Neighbourhood
 		{ prop = "CatCafe_Alley_GarbageBags", trap = "garbage_bag", x = -49, z = SQ2 - 1.6 },
 	} :: { RescuePoint },

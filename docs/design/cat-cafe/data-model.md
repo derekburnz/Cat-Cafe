@@ -437,6 +437,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | ClaimTipJar | event | step | F47 (section 11b): integer 1 to 12, unclaimed this session, session minutes reached; 1 per second | pays the step, fires TipJarState and ProfileSync |
 | ClaimBookReward | event | areaId, milestoneId | F48 (section 11b): known area and milestone, count met from `collection` or `goldCollection`, not claimed; 1 per second | pays, marks `bookRewards`, ProfileSync |
 | TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
+| SetSetting | event | key, value | engineer #202: `key` is `music` or `sfx`, `value` a boolean; 4 per second | saves to `profile.settings`, answered by ProfileSync |
 | CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |
 | CatchResult | server to client | strayId, grades, success, charmGain | | UI grades, charm line and toast (v0.5) |
 | RescueChallenge | server to client | rescueSpotId, challenge | | UI draws the bar or the shake |

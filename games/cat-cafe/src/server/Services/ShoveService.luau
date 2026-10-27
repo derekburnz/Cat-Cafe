@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -74,6 +75,7 @@ local function check(
 		shoverArea = shoverArea,
 		targetArea = targetArea,
 		areaUnlocked = area ~= nil and Economy.tier(profile) >= area.tier,
+		areasClosed = not ClockService.areasOpen(),
 		distance = if shoverRoot ~= nil and targetRoot ~= nil
 			then (shoverRoot.Position - targetRoot.Position).Magnitude
 			else nil,

@@ -35,6 +35,10 @@ type Entry = {
 	head: BasePart?,
 	dustAt: number,
 	huffAt: number,
+	settleFor: number, -- seconds the settle out of `from` takes
+	stretchAt: number?, -- when the stretch playing now started (os.clock)
+	stretchWeight: number, -- 1, or less while a stray that set off mid-stretch lets it go
+	nextStretch: number, -- when a stray standing still next stretches
 	yarn: BasePart?,
 	naps: { TextLabel }?,
 	napGui: BillboardGui?,
@@ -49,6 +53,7 @@ local ROLES: { [string]: Logic.Style } = {
 local DARK_WOOD = Color3.fromRGB(94, 70, 52)
 local PICK_SECONDS = 0.5
 local RETRY_SECONDS = 2 -- a cat with no body yet, or a held one, is tried again after this
+local STRETCH_LET_GO = 0.35 -- seconds a stray takes to let go of a stretch when it sets off mid-stretch
 
 local known: { [Model]: boolean } = {}
 local watched: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
@@ -439,6 +444,10 @@ local function bind(model: Model): Entry?
 		head = partNamed(model, "Head"),
 		dustAt = 0,
 		huffAt = 0,
+		settleFor = Presets.motion.settle,
+		stretchAt = nil,
+		stretchWeight = 1,
+		nextStretch = os.clock() + rng:NextNumber(0.3, 1) * Presets.motion.stretch.everyMax,
 		yarn = nil,
 		naps = nil,
 		napGui = nil,
@@ -533,6 +542,16 @@ local function pick()
 			if style ~= entry.style then
 				entry.from = entry.style
 				entry.changedAt = os.clock()
+				entry.settleFor = Logic.settleSeconds(entry.style, style)
+				-- waking up: it gets up and has a good stretch
+				if
+					Logic.asleep(entry.style)
+					and not Logic.asleep(style)
+					and entry.hissAt == nil
+				then
+					entry.stretchAt = entry.changedAt + Presets.motion.stretch.wakeDelay
+					entry.stretchWeight = 1
+				end
 				entry.style = style
 				dress(entry)
 			end
@@ -543,11 +562,44 @@ end
 
 local elapsed = 0
 
+-- The stretch on top of the rest: one playing (a cat waking up), or a stray standing still now and then. A stray
+-- that sets off, or hisses, mid-stretch lets it go over STRETCH_LET_GO seconds instead of snapping out of it.
+local function stretch(entry: Entry, o: Logic.Offsets, now: number, dt: number, fleeing: boolean)
+	local s = Presets.motion.stretch
+	local still = entry.rig.speed < Presets.motion.gait.moveFrom
+	if
+		entry.stretchAt == nil
+		and entry.style == "stray"
+		and still
+		and not fleeing
+		and entry.hissAt == nil
+		and now >= entry.nextStretch
+	then
+		entry.stretchAt = now
+		entry.stretchWeight = 1
+	end
+	local at: number? = entry.stretchAt
+	if at == nil then
+		return
+	end
+	if not still or entry.hissAt ~= nil then
+		entry.stretchWeight -= dt / STRETCH_LET_GO
+	end
+	local alpha = (now - at) / s.seconds
+	if alpha >= 1 or entry.stretchWeight <= 0 then
+		entry.stretchAt = nil
+		entry.nextStretch = now + rng:NextNumber(s.every, s.everyMax)
+		return
+	end
+	Logic.stretch(o, alpha, entry.rig.kind, entry.stretchWeight)
+end
+
 local function step(dt: number)
 	elapsed += dt
 	if elapsed < 1 / Context.budget.animHz then
 		return
 	end
+	local stepDt = elapsed
 	elapsed = 0
 	local now = os.clock()
 	local serverNow = Workspace:GetServerTimeNow()
@@ -565,7 +617,7 @@ local function step(dt: number)
 		local o = Logic.idle(entry.style, t, rig.kind)
 		local from: Logic.Style? = entry.from
 		if from ~= nil then
-			local k = (now - entry.changedAt) / motion.settle
+			local k = (now - entry.changedAt) / entry.settleFor
 			if k >= 1 then
 				entry.from = nil
 			else
@@ -592,6 +644,7 @@ local function step(dt: number)
 			entry.dustAt = now
 			Particles.burst("kick", Pose.floor(rig).Position, gait.dust)
 		end
+		stretch(entry, o, now, stepDt, fleeing)
 		local alpha = -1
 		local hissAt = entry.hissAt
 		if hissAt ~= nil then

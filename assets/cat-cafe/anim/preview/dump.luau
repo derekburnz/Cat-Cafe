@@ -113,6 +113,46 @@ for key, value in scenario.attributes or {} do
 	model:SetAttribute(key, value)
 end
 
+-- A working cat in its role's outfit, put on the way the server's CatPose.dress does it: each piece's model pivoted
+-- onto the cat's Outfit_<Piece> attachment, its parts following the Head or the Body. Pieces as Catalog.roleOutfits.
+local ROLE_OUTFITS = {
+	barista = { "Apron", "BaristaCap" },
+	waiter = { "BowTie", "Vest" },
+	greeter = { "Sash", "Boater" },
+	entertainer = { "PartyHat", "Cape" },
+}
+local function pivotTo(piece, target)
+	local move = target * piece:GetPivot():Inverse()
+	for _, descendant in piece:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.CFrame = move * descendant.CFrame
+		end
+	end
+end
+if scenario.role then
+	local head = nil
+	for _, child in model:GetChildren() do
+		if child:IsA("Model") and string.sub(child.Name, -5) == "_Head" then
+			head = child
+		end
+	end
+	for _, pieceName in assert(ROLE_OUTFITS[scenario.role], "no outfit for " .. scenario.role) do
+		local slot = model:FindFirstChild("Outfit_" .. pieceName, true)
+		local asset = folder:FindFirstChild("CatCafe_Accessory_" .. pieceName)
+		if slot and asset then
+			local piece = asset:Clone()
+			pivotTo(piece, slot.Parent.CFrame * slot.CFrame) -- the attachment's WorldCFrame
+			local follows = if head and slot:IsDescendantOf(head) then "Head" else "Body"
+			for _, descendant in piece:GetDescendants() do
+				if descendant:IsA("BasePart") then
+					descendant:SetAttribute("Follows", follows)
+				end
+			end
+			piece.Parent = model
+		end
+	end
+end
+
 -- Every part, with what render.py needs to draw it.
 local parts = {}
 for _, descendant in model:GetDescendants() do
@@ -164,10 +204,15 @@ for i, part in parts do
 end
 local Z_STYLES = { nap = true, doze = true }
 
--- The same composition as Effects/Cats.luau's step: the style's idle, a settle from the last style, the gait.
+-- The same composition as Effects/Cats.luau's step: the style's idle, a settle from the last style, the gait,
+-- the stretch (as a cat wakes, or where a segment says `stretch = true`). Older Effects folders without a
+-- function here just skip it.
+local Presets = modules.Presets
 local fps = scenario.fps or 24
 local frames = {}
 local style, from, changedAt = nil, nil, 0
+local settleFor = Presets.motion.settle
+local stretchAt = nil
 local segmentStart = 0
 local travelled = Vector3.zero
 for _, segment in scenario.segments do
@@ -175,9 +220,18 @@ for _, segment in scenario.segments do
 	for f = 0, count - 1 do
 		clock = segmentStart + f / fps
 		if segment.style ~= style then
+			if Logic.settleSeconds then
+				settleFor = Logic.settleSeconds(style, segment.style)
+			end
+			if Logic.asleep and Logic.asleep(style) and not Logic.asleep(segment.style) then
+				stretchAt = clock + Presets.motion.stretch.wakeDelay
+			end
 			from = style
 			style = segment.style
 			changedAt = clock
+		end
+		if segment.stretch and f == 0 then
+			stretchAt = clock
 		end
 		local speed = segment.speed or 0
 		if speed > 0 then
@@ -192,7 +246,7 @@ for _, segment in scenario.segments do
 		local t = clock + (scenario.phase or 0)
 		local o = Logic.idle(style, t, rig.kind)
 		if from ~= nil then
-			local k = (clock - changedAt) / modules.Presets.motion.settle
+			local k = (clock - changedAt) / settleFor
 			if k >= 1 then
 				from = nil
 			else
@@ -200,6 +254,14 @@ for _, segment in scenario.segments do
 			end
 		end
 		Logic.gait(o, rig.speed, rig.stride)
+		if stretchAt ~= nil and Logic.stretch then
+			local alpha = (clock - stretchAt) / Presets.motion.stretch.seconds
+			if alpha >= 1 then
+				stretchAt = nil
+			elseif alpha >= 0 then
+				Logic.stretch(o, alpha, rig.kind)
+			end
+		end
 		Pose.draw(rig, o, -1)
 		local frame = {
 			t = clock,
@@ -209,7 +271,7 @@ for _, segment in scenario.segments do
 		}
 		if Z_STYLES[style] and Logic.napZ ~= nil then
 			-- the same calls Cats.luau's animateNaps makes for each label
-			local nap = modules.Presets.nap
+			local nap = Presets.nap
 			frame.zs = {}
 			for i = 1, nap.labels do
 				local x, y, size, fade, tilt =

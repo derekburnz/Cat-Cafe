@@ -378,7 +378,32 @@ Presets.motion = {
 	-- An ear flicks back and out by `twitch` degrees for `seconds`, the left every `everyL` seconds and the right
 	-- every `everyR` (the new bodies' EarL and EarR); asleep, half as often.
 	ears = { twitch = 22, seconds = 0.22, everyL = 5.3, everyR = 7.7 },
-	settle = 0.8, -- seconds a cat takes to move from one style to the next (lying down at nightfall)
+	settle = 0.8, -- seconds a cat takes to move from one style to the next
+	settleDown = 1.2, -- lying down (into a nap or a loaf) takes longer
+	settleUp = 0.9, -- and getting up a little less
+	-- A stretch (Derek 2026-10-27): as a cat wakes up, and every `every` to `everyMax` seconds while a stray stands
+	-- still. On all fours it rises out of its pose over `rise` of the stretch, bows (front legs `reach` degrees
+	-- ahead, body `bow` degrees nose down and `drop` studs lower, head up by `yawn`, tail up by `tail`, ears back by
+	-- `ears`, eyes shut, the head kept nearly level), then rocks `rock` degrees forward and stretches each back leg `rear` degrees out behind.
+	-- Sat up it leans back by `lean` and lifts both front paws `reachUp` degrees with the yawn.
+	stretch = {
+		seconds = 3.2,
+		rise = 0.12,
+		bow = 22,
+		drop = 0.17,
+		reach = 70,
+		yawn = 8,
+		headLevel = 0.6, -- of the bow the head turns back up, so it looks ahead rather than at the floor
+		tail = 45,
+		ears = 20,
+		rock = 6,
+		rear = 50,
+		lean = 8,
+		reachUp = 85,
+		wakeDelay = 0.4, -- seconds after waking before it stretches
+		every = 35,
+		everyMax = 80,
+	},
 	-- Legs swing with the distance the server moves the cat, so the feet keep pace with the ground: a trot at
 	-- walking speed, a gallop once it runs (F40's sprint is 26 studs a second). Speeds in studs a second.
 	gait = {
@@ -387,9 +412,16 @@ Presets.motion = {
 		runFull = 18, -- and is full from here
 		walkStride = 1.3, -- studs travelled per leg cycle
 		runStride = 3.2,
+		trotFrom = 3.4, -- slower than this it walks one leg at a time (strays wander at 3)
+		trotFull = 4, -- and trots from here
 		walkSwing = 28, -- degrees each leg swings either way
 		runSwing = 50,
 		walkBob = 0.04,
+		walkRoll = 3, -- degrees the body sways side to side once a cycle at a walk
+		walkNod = 4, -- degrees the head nods with each step
+		walkTail = 18, -- degrees the tail is held up while it walks or trots
+		tailSway = 10, -- degrees the tail sways with the steps
+		lookAhead = 0.7, -- how much of its look around a moving cat drops to watch where it is going
 		runBob = 0.16,
 		runRock = 9, -- degrees the body rocks nose up and down in a gallop
 		runHead = 12, -- the head stretches forward and down

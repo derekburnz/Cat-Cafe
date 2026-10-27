@@ -1,34 +1,76 @@
 --!nocheck
 -- What dump.luau plays: which cat model, which styles (Logic.Style) for how long, and how fast the server walks
--- it (studs a second, straight ahead). `camera` is the view render.py takes: "side", "front" or "three".
+-- it (studs a second, straight ahead). `camera` is the view render.py takes: "side", "front" or "three". `role`
+-- dresses a seated cat in that role's outfit, as at a station. The Tabby is the orange cat of Model-Agent's sheets.
 return {
 	-- A resting cat asleep on the walking body (A), curled up: the breath and nothing else.
 	sleep = {
-		model = "CatCafe_Cat_Ginger",
+		model = "CatCafe_Cat_Tabby",
 		camera = "three",
 		segments = { { style = "nap", seconds = 6.4 } },
 	},
 	-- The same nap from the side, where the rise of the back reads best.
 	sleepSide = {
-		model = "CatCafe_Cat_Ginger",
+		model = "CatCafe_Cat_Tabby",
 		camera = "side",
 		segments = { { style = "nap", seconds = 6.4 } },
 	},
 	-- A working cat dozing on the sitting body (B) at night.
 	doze = {
-		model = "CatCafe_Cat_Ginger_Sit",
+		model = "CatCafe_Cat_Tabby_Sit",
+		role = "waiter",
 		camera = "three",
 		attributes = { Pose = "sit" },
 		segments = { { style = "doze", seconds = 7.2 } },
 	},
-	-- A stray walking, then trotting faster, then standing.
+	-- A resting cat waking from its nap: it gets up, stretches (bow, then each back leg) and sits up into a loaf.
+	wake = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "side",
+		segments = { { style = "nap", seconds = 1.5 }, { style = "loaf", seconds = 5.5 } },
+	},
+	-- A stray standing still having a stretch.
+	stretch = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "side",
+		segments = { { style = "stray", seconds = 4, stretch = true } },
+	},
+	-- A working cat waking at dawn on the sitting body: the seated reach and yawn.
+	wakeSit = {
+		model = "CatCafe_Cat_Tabby_Sit",
+		role = "waiter",
+		camera = "three",
+		attributes = { Pose = "sit" },
+		segments = { { style = "doze", seconds = 1.5 }, { style = "sit", seconds = 4.5 } },
+	},
+	-- Lying down and getting up again: standing, settling into the nap, then waking.
+	lieDown = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		segments = {
+			{ style = "stray", seconds = 1 },
+			{ style = "nap", seconds = 3.5 },
+			{ style = "stray", seconds = 4.5 },
+		},
+	},
+	-- A stray wandering at StrayWanderSpeed (3, a walk), then trotting, then standing.
 	walk = {
-		model = "CatCafe_Cat_Ginger",
+		model = "CatCafe_Cat_Tabby",
 		camera = "side",
 		segments = {
 			{ style = "stray", seconds = 0.6 },
-			{ style = "stray", seconds = 3, speed = 4 },
-			{ style = "stray", seconds = 1.2 },
+			{ style = "stray", seconds = 3, speed = 3 },
+			{ style = "stray", seconds = 2, speed = 6 },
+			{ style = "stray", seconds = 1 },
+		},
+	},
+	-- The same walk from the front three quarters.
+	walkThree = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		segments = {
+			{ style = "stray", seconds = 0.4 },
+			{ style = "stray", seconds = 3, speed = 3 },
 		},
 	},
 }

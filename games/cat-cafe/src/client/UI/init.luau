@@ -40,6 +40,7 @@ local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
+local Settings = require(script.Screens.Settings)
 local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
@@ -87,6 +88,8 @@ UI.events = {
 	shove = Signal.new(), -- (targetUserId)   the Shove button or Q on the nearest player within 6 studs: forward as Bump (F41)
 	-- 2026-10-27 HUD v3
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
+	-- 2026-10-27 wave 2
+	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting (Audio follows UI.settings.changed)
 }
 
 local state: Types.PlayerState = {
@@ -139,6 +142,7 @@ local baitCat: Types.BaitCat? = nil -- the cat at the bowl (UI.bait.showReady), 
 local bowlPart: BasePart? = nil -- the player's own BaitBowl part (UI.bait.setBowl), for the range hints
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
+local settingsScreen: Settings.Settings? = nil -- music, sound and place icons switches (gear in the HUD)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
@@ -197,6 +201,9 @@ local function render()
 	end
 	if dealerScreen then
 		dealerScreen:render(state)
+	end
+	if settingsScreen then
+		settingsScreen:render(state)
 	end
 end
 
@@ -456,6 +463,25 @@ function UI.init(config: Types.InitConfig)
 			dealerView:render(state)
 		end,
 	})
+	settingsScreen = Settings.new({
+		setSetting = function(key: string, value: boolean)
+			UI.events.setSetting:Fire(key, value)
+		end,
+		changed = function(key: string, value: boolean)
+			if key == "markers" and locationMarkers then
+				locationMarkers:setEnabled(value)
+			end
+			UI.settings.changed:Fire(key, value)
+		end,
+		close = closeModal,
+	})
+	local settingsView = settingsScreen :: Settings.Settings
+	modalInstance:register("Settings", {
+		frame = settingsView.frame,
+		onOpen = function()
+			settingsView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -521,7 +547,9 @@ function UI.init(config: Types.InitConfig)
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
 	-- icons over My Cafe, every area and the dealer's cart, fading out up close; the Safe zone chip under the tier
-	locationMarkers = LocationMarkers.new(parent)
+	local markers = LocationMarkers.new(parent)
+	markers:setEnabled(settingsView:value("markers")) -- the Place icons switch
+	locationMarkers = markers
 	zoneChip = ZoneChip.new(parent)
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
@@ -607,6 +635,10 @@ function UI.destroy()
 		dealerScreen:destroy()
 	end
 	dealerScreen, cartPart = nil, nil
+	if settingsScreen then
+		settingsScreen:destroy()
+	end
+	settingsScreen = nil
 	if upgrades then
 		upgrades:destroy()
 	end
@@ -851,6 +883,19 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and
+-- Settings as the switches show them: a tap at once, then the server's saved value, and back to it if the server
+-- drops the tap. Apply music and sfx to Audio from `changed` rather than from state.settings, so a sync sent
+-- before the server saw the tap cannot flip the music back during the hold (review N111).
+UI.settings = {}
+UI.settings.changed = Signal.new() -- (key, on)   whenever a key's shown value moves; read value(key) once after UI.init
+
+function UI.settings.value(key: string): boolean
+	if settingsScreen then
+		return settingsScreen:value(key)
+	end
+	return true
+end
+
 -- the bait card offers Tame or Let go (events.resolveBait). The HUD's bowl chip shows once the Bait bowl upgrade
 -- is owned.
 UI.bait = {}

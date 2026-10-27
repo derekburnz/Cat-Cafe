@@ -29,6 +29,7 @@ export type LocationMarkers = {
 	render: (self: LocationMarkers, state: Types.PlayerState, carrying: boolean) -> (),
 	setZone: (self: LocationMarkers, zone: string?) -> (),
 	setVisible: (self: LocationMarkers, visible: boolean) -> (),
+	setEnabled: (self: LocationMarkers, enabled: boolean) -> (),
 	destroy: (self: LocationMarkers) -> (),
 }
 
@@ -180,6 +181,7 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 	self._carrying = false
 	self._zoneArea = nil :: string?
 	self._visible = true
+	self._enabled = true -- the Place icons switch in Settings
 	self._home = newMarker(parent, "home", Theme.icons.home, "My Cafe", Theme.colors.gold)
 	self._markers.home = self._home
 	self._dealer = newMarker(parent, "dealer", "🛒", "Night dealer", Theme.colors.berry)
@@ -250,6 +252,12 @@ end
 
 function LocationMarkers.setVisible(self: any, visible: boolean)
 	self._visible = visible
+	self:_fade()
+end
+
+-- The player's Place icons setting; off hides every marker until it is turned back on.
+function LocationMarkers.setEnabled(self: any, enabled: boolean)
+	self._enabled = enabled
 	self:_fade()
 end
 
@@ -337,6 +345,7 @@ function LocationMarkers._fade(self: any)
 		local hidden = point == nil
 			or from == nil
 			or not self._visible
+			or not self._enabled
 			or (key == "home" and self._carrying)
 			or (self._zoneArea ~= nil and key == "area:" .. self._zoneArea)
 		if hidden or not point or not from then

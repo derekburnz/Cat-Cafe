@@ -18,7 +18,7 @@ export type Style =
 	| "sit"
 
 -- Turns and lifts for one cat at one moment. Pitch lifts the nose (or the front of the body), yaw turns left
--- and right, roll tilts sideways. tailPitch lifts the tail, a paw value swings that front paw forward.
+-- and right, roll tilts sideways. tailPitch lifts the tail, a paw value swings that leg forward from the hip.
 export type Offsets = {
 	bodyY: number,
 	bodyPitch: number,
@@ -30,6 +30,9 @@ export type Offsets = {
 	tailYaw: number,
 	pawFL: number,
 	pawFR: number,
+	pawBL: number,
+	pawBR: number,
+	sink: number, -- 0 standing, 1 lying on its belly (Pose turns it into studs from the cat's leg length)
 	yarn: number, -- the entertainer's yarn ball, -1 (left) to 1 (right) in front of the cat
 }
 
@@ -151,8 +154,20 @@ function Logic.blank(): Offsets
 		tailYaw = 0,
 		pawFL = 0,
 		pawFR = 0,
+		pawBL = 0,
+		pawBR = 0,
+		sink = 0,
 		yarn = 0,
 	}
+end
+
+-- Blends two sets of offsets, k = 0 giving a and 1 giving b: a cat settling from one style into the next.
+function Logic.mix(a: Offsets, b: Offsets, k: number): Offsets
+	local out = Logic.blank()
+	for key, value in a :: any do
+		(out :: any)[key] = value + ((b :: any)[key] - value) * k
+	end
+	return out
 end
 
 -- The idle for a style at time t. Every cat breathes and swishes its tail; the style adds the rest.
@@ -162,9 +177,17 @@ function Logic.idle(style: Style, t: number): Offsets
 	o.bodyY = (wave(t, m.breathe.seconds) * 0.5 + 0.5) * m.breathe.studs
 	o.tailYaw = math.rad(m.tailSwish.degrees) * wave(t, m.tailSwish.seconds)
 	if style == "nap" then
+		-- Curled up: down on its belly, front paws out in front, back legs folded under, head tucked round to the
+		-- left and the tail wrapped along the left side to meet it.
+		o.sink = m.nap.sink
 		o.bodyY = (wave(t, m.nap.seconds) * 0.5 + 0.5) * m.nap.breathe
 		o.headPitch = -math.rad(m.nap.headDroop)
-		o.tailYaw *= 0.2
+		o.headYaw = math.rad(m.nap.headTuck)
+		o.tailYaw = -math.rad(m.nap.tailWrap) + o.tailYaw * 0.1
+		o.pawFL = math.rad(90)
+		o.pawFR = math.rad(90)
+		o.pawBL = math.rad(90)
+		o.pawBR = math.rad(90)
 	elseif style == "stuck" then
 		local struggle = Logic.pulse(t, m.stuck.every, m.stuck.seconds)
 		o.headYaw = math.rad(m.stuck.shake) * math.sin(t * 40) * struggle
@@ -194,6 +217,56 @@ function Logic.idle(style: Style, t: number): Offsets
 		o.headYaw = math.rad(m.headLook.degrees * 0.6) * wave(t, m.headLook.seconds)
 	end
 	return o
+end
+
+-- How far into a run a cat moving at `speed` studs a second is: 0 at a walk or standing, 1 at a full gallop.
+function Logic.runFactor(speed: number): number
+	local g = Presets.motion.gait
+	return math.clamp((speed - g.runFrom) / (g.runFull - g.runFrom), 0, 1)
+end
+
+-- Studs a cat covers in one leg cycle at this speed; Pose counts cycles from the distance the server moves it.
+function Logic.strideLength(speed: number): number
+	local g = Presets.motion.gait
+	return g.walkStride + (g.runStride - g.walkStride) * Logic.runFactor(speed)
+end
+
+-- Legs, bob and lean for a cat on the move, layered on the idle. `stride` counts leg cycles covered. A walk is a
+-- trot (diagonal legs together); a run is a gallop (front legs together, back legs half a cycle behind) with the
+-- body rocking, the head stretched forward and the tail out straight behind.
+function Logic.gait(o: Offsets, speed: number, stride: number)
+	local g = Presets.motion.gait
+	if speed < g.moveFrom then
+		return
+	end
+	local start = math.clamp((speed - g.moveFrom) / g.moveFrom, 0, 1) -- eases in from a standstill
+	local run = Logic.runFactor(speed)
+	local walk = 1 - run
+	local phase = stride * 2 * math.pi
+	local s = math.sin(phase)
+	local swing = math.rad(g.walkSwing + (g.runSwing - g.walkSwing) * run) * start
+	o.pawFL += swing * s
+	o.pawFR += swing * (walk * -s + run * math.sin(phase + 0.3))
+	o.pawBL += swing * (walk * -s + run * math.sin(phase + math.pi))
+	o.pawBR += swing * (walk * s + run * math.sin(phase + math.pi + 0.3))
+	local trotBob = g.walkBob * (0.5 - 0.5 * math.cos(2 * phase))
+	local gallopBob = g.runBob * (0.5 + 0.5 * math.cos(phase))
+	o.bodyY += (walk * trotBob + run * gallopBob) * start
+	local rock = math.rad(g.runRock) * math.sin(phase) * run
+	o.bodyPitch += rock
+	o.headPitch += -rock * 0.6 - math.rad(g.runHead) * run
+	o.tailPitch += math.rad(8) * run
+	o.tailYaw *= 1 - 0.8 * run
+end
+
+-- Catching its breath after a sprint: quick shallow breaths, head low, tail down. Replaces the idle's breathing.
+function Logic.pant(o: Offsets, t: number)
+	local p = Presets.motion.pant
+	o.bodyY = (wave(t, p.seconds) * 0.5 + 0.5) * p.studs
+	o.headPitch = -math.rad(p.headDown)
+	o.headYaw *= 0.3
+	o.tailPitch = -math.rad(p.tailDown)
+	o.tailYaw *= 0.4
 end
 
 -- The hiss on a missed catch, layered on the idle while `alpha` runs from 0 to 1: the cat rears and hops back

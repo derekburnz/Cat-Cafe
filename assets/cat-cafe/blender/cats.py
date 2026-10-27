@@ -17,6 +17,8 @@ cat dresses for its role instead (accessories.ROLE_OUTFITS).
 
 import math
 
+from mathutils import Matrix, Vector
+
 import palette
 from common import Builder, scale_mesh
 
@@ -25,7 +27,10 @@ from common import Builder, scale_mesh
 # for an odd-eyed cat, right eye), muzzle, nose, ruff. No two cats share a main coat color.
 # pattern: solid | stripes | patches | points | spots | gradient; extra flags: sparkle (star specks),
 # petals, flower, ruff, ear_tufts, persian (long coat, flat face), tail_thick, sphynx (thin, big ears),
-# body_scale (x, y, z of the body or the haunches), scale (the whole cat)
+# body_scale (x, y, z of the body or the haunches), scale (the whole cat); v0.6: short_legs (A's body 0.12 lower),
+# fold_ears (folded forward), toes (a paint dip per paw: LegF1, LegF2, LegB1 or B's right back paw, LegB2 or left),
+# fluffy (long coat with a normal face), sprinkles (colours of the sprinkle specks), tip (tail tip colour), leafy
+# (spots turned into leaves), mane (colours from the forehead down the back). Themed cats wear a prop (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -62,9 +67,46 @@ ROSTER = {
                       muzzle=None, petals=True, flower=True),
     "Aurora":    dict(rarity="Mythical", fur="galaxy_blue", second="aurora_violet", third="mint", eyes="mint", pattern="gradient",
                       muzzle=None, glow_eyes=True, sparkle=True),
+    # v0.6 themed cats of the Neighbourhood, Woods and Sewer (data-model 3c, coats from areas-and-stations Part A)
+    "Munchkin":    dict(rarity="Rare", fur="fur_grey", second="fur_white", third="fur_white", eyes="eye_copper", pattern="patches",
+                        muzzle="fur_white", nose="nose_dark", short_legs=True),
+    "Fold":        dict(rarity="Rare", fur="fur_oat", second="fur_oat", eyes="eye_green", pattern="solid", muzzle="fur_vanilla",
+                        fold_ears=True, toes=("neon_pink", "sign_teal", "rarity_legend", "shirt_blue")),
+    "Chonk":       dict(rarity="Epic", fur="fur_apricot", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white",
+                        tuxedo=True, scale=1.25, body_scale=(1.25, 1.05, 1.15)),
+    "Postie":      dict(rarity="Epic", fur="fur_slate", second="fur_slate", eyes="eye_copper", pattern="solid", muzzle="fur_blue",
+                        nose="nose_dark"),
+    "Marshmallow": dict(rarity="Legendary", fur="milk", second="fur_white", eyes="eye_blue", pattern="solid", muzzle=None,
+                        ruff="fur_white", fluffy=True, tail_thick=0.3, body_scale=(1.1, 1.0, 1.08)),
+    "Comet":       dict(rarity="Mythical", fur="fur_vanilla", second="fur_strawberry", eyes="pastel_sky", pattern="stripes",
+                        muzzle=None, glow_eyes=True, sprinkles=("neon_pink", "sign_teal", "rarity_legend", "shirt_blue", "mint")),
+    "Pinecone":    dict(rarity="Rare", fur="fur_hazel", second="fur_brown", eyes="eye_green", pattern="stripes", muzzle="fur_cream",
+                        nose="nose_brick"),
+    "ForestCat":   dict(rarity="Rare", fur="fur_russet", second="fur_seal", eyes="eye_amber", pattern="stripes", muzzle="fur_cream",
+                        nose="nose_brick", scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_cream", ear_tufts=True, tail_thick=0.28),
+    "Toadstool":   dict(rarity="Epic", fur="cream", second="fur_rust_red", third="fur_rust_red", eyes="eye_amber", pattern="patches",
+                        muzzle=None),
+    "Firefly":     dict(rarity="Epic", fur="choco", second="choco", eyes="eye_amber", pattern="solid", muzzle="fur_brown",
+                        nose="nose_brick", tip="sparkle"),
+    "OldOak":      dict(rarity="Legendary", fur="dark_wood", second="leaf_green", eyes="eye_amber", pattern="spots", muzzle="fur_hazel",
+                        nose="nose_brick", leafy=True),
+    "Wisp":        dict(rarity="Mythical", fur="fur_white", second="fur_white", eyes="pastel_sky", pattern="solid", muzzle=None,
+                        glow_eyes=True, sparkle=True,
+                        mane=("fur_rose", "fur_apricot", "pastel_butter", "mint", "pastel_sky", "pastel_lilac")),
+    "Lantern":     dict(rarity="Rare", fur="fur_soot", second="fur_soot", eyes="eye_amber", pattern="solid", muzzle="fur_grey",
+                        nose="nose_dark"),
+    "Bubbles":     dict(rarity="Rare", fur="fur_mist", second="fur_mist", eyes="eye_blue", pattern="solid", muzzle="fur_white"),
+    "Gears":       dict(rarity="Epic", fur="fur_copper", second="rust", eyes="eye_green", pattern="stripes", muzzle="fur_cream",
+                        nose="nose_brick"),
+    "Glimmer":     dict(rarity="Epic", fur="fur_teal_grey", second="fur_teal_grey", eyes="eye_copper", pattern="solid",
+                        muzzle="fur_white"),
+    "Bottlecap":   dict(rarity="Legendary", fur="fur_caramel", second="bronze", third="bronze", eyes="eye_green", pattern="patches",
+                        muzzle="fur_oat", nose="nose_brick"),
+    "Eclipse":     dict(rarity="Mythical", fur="fur_emerald", second="sign_teal", third="dumpster_green", eyes="eye_amber",
+                        pattern="gradient", muzzle=None, glow_eyes=True, nose="nose_dark"),
 }
 
-COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose")
+COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip")
 
 
 def coat(spec):
@@ -84,7 +126,7 @@ def look(spec):
     c["leg"] = c["fur"]
     c["paw"] = c["second"] if pat == "points" or tux else c["fur"]           # dark socks on points, white on a tuxedo
     c["ear"] = c["second"] if pat == "points" else c["third"] if pat == "gradient" else c["fur"]
-    c["tip"] = c["second"] if pat in ("points", "stripes") or tux else c["third"] if pat == "gradient" else c["fur"]
+    c.setdefault("tip", c["second"] if pat in ("points", "stripes") or tux else c["third"] if pat == "gradient" else c["fur"])
     belly = c.get("muzzle") or (c["second"] if tux else None)
     c["belly"] = belly if belly != c["fur"] else None
     return c
@@ -102,6 +144,7 @@ A_BODY_C, A_BODY_S = (0.0, 0.12, 0.62), (0.78, 0.95, 0.58)
 A_BELLY_Z, A_HIP_Z = 0.33, 0.42
 A_LEG_XY = {"LegF1": (0.22, -0.2), "LegF2": (-0.22, -0.2), "LegB1": (0.22, 0.42), "LegB2": (-0.22, 0.42)}
 A_NECK, A_TAIL = (0.0, -0.3, 0.85), (0.0, 0.58, 0.8)
+SHORT_LEGS = 0.12           # how much lower a short-legged cat's body is on A (the Munchkin)
 # Body B sitting up: haunches on the floor and an upright chest, the same on every cat so one outfit fits all.
 B_HAUNCH_C, B_HAUNCH_S = (0.0, 0.18, 0.28), (0.9, 0.75, 0.56)
 B_CHEST_C, B_CHEST_S = (0.0, -0.06, 0.74), (0.7, 0.55, 0.72)
@@ -137,6 +180,8 @@ def _head_dims(spec, body):
         ew, eh = ew * 1.25, eh * 1.45
     if spec.get("persian"):
         ew, eh = ew * 0.72, eh * 0.7
+    if spec.get("fold_ears"):                           # short and folded forward (_ear)
+        ew, eh = ew * 0.95, eh * 0.6
     h["ear"] = (ew, eh)
     h["fy"] = cy - sy / 2                               # the face plane
     h["top"] = cz + sz / 2
@@ -150,12 +195,14 @@ def dims(spec, body="walk"):
     tt = spec.get("tail_thick", 0.2) / 0.2
     tail_k = 0.7 if spec.get("sphynx") else 1 + (tt - 1) * 0.6
     if body == "walk":
+        low = -SHORT_LEGS if spec.get("short_legs") else 0.0
         size = (A_BODY_S[0] * bs[0], A_BODY_S[1] * bs[1], A_BODY_S[2] * bs[2])
-        d["body"] = ((A_BODY_C[0], A_BODY_C[1], A_BELLY_Z + size[2] / 2), size)
-        dy, dz = (size[1] - A_BODY_S[1]) / 2, size[2] - A_BODY_S[2]
+        d["body"] = ((A_BODY_C[0], A_BODY_C[1], A_BELLY_Z + low + size[2] / 2), size)
+        dy, dz = (size[1] - A_BODY_S[1]) / 2, size[2] - A_BODY_S[2] + low
         d["neck"] = (A_NECK[0], A_NECK[1] - dy, A_NECK[2] + dz)
         d["tail"] = (A_TAIL[0], A_TAIL[1] + dy, A_TAIL[2] + dz)
-        d["legs"] = {n: (x * bs[0], A_BODY_C[1] + (y - A_BODY_C[1]) * bs[1], A_HIP_Z) for n, (x, y) in A_LEG_XY.items()}
+        d["legs"] = {n: (x * bs[0], A_BODY_C[1] + (y - A_BODY_C[1]) * bs[1], A_HIP_Z + low)
+                     for n, (x, y) in A_LEG_XY.items()}
         d["tail_chain"] = dict(angles=(35, 80), seg=0.3, thick=0.24 * tail_k, plane="X", taper=0.02)
     else:
         size = (B_HAUNCH_S[0] * bs[0], B_HAUNCH_S[1] * bs[1], B_HAUNCH_S[2] * bs[2])
@@ -181,6 +228,15 @@ def joints(spec, body="walk"):
     """Each piece's pivot in the built model's space (scale included): where the Roblox Model of that piece pivots."""
     k = scale_of(spec, body)
     return {p: tuple(v * k for v in at) for p, at in dims(spec, body)["pivots"].items()}
+
+
+def pose_lift(spec, pose):
+    """A CAT_POSES lift for this cat, unscaled: a short-legged cat's body is already nearer the floor, so it drops
+    less to lie down."""
+    x, y, z = pose.get("lift", (0.0, 0.0, 0.0))
+    if z < 0 and spec.get("short_legs") and pose["body"] == "walk":
+        z = min(0.0, z + SHORT_LEGS)
+    return (x, y, z)
 
 
 # -------------------------------------------------------------------------------------------- builders --
@@ -217,7 +273,7 @@ def _head(spec, c, h):
     for side in (-1, 1):
         bx = side * (h["eye_dx"] + 0.15) * k
         b.box((bx, fy, fz - 0.14 * k), (0.12 * k, 0.05, 0.05 * k), "blush", bevel=False)
-    if spec.get("persian"):                             # cheek fluff either side of the flat face
+    if spec.get("persian") or spec.get("fluffy"):       # cheek fluff either side of the face
         for side in (-1, 1):
             b.box((side * (sx / 2 + 0.02), fy + 0.14, fz - 0.2), (0.14, 0.26, 0.3), c["second"])
     if spec.get("moon"):                                # crescent on the forehead
@@ -226,6 +282,18 @@ def _head(spec, c, h):
     if spec.get("sparkle") and spec["rarity"] == "Mythical":   # star specks on the face too
         for (x, z) in ((0.36 * w, fz + 0.2), (-0.37 * w, fz - 0.17)):
             b.box((x, fy - 0.015, z), (0.06, 0.04, 0.06), "sparkle", bevel=False)      # proud of the blush
+    if spec.get("sprinkles"):                           # a few sprinkles on the cheeks and brow
+        for i, (x, z, a) in enumerate(((0.37 * w, fz + 0.18, 30), (-0.36 * w, fz - 0.2, -40), (-0.3 * w, fz + 0.27, 70))):
+            b.box((x, fy - 0.012, z), (0.1, 0.04, 0.035), spec["sprinkles"][i % len(spec["sprinkles"])], bevel=False,
+                  rot=_rot(a, "Y"))
+    if spec.get("mane"):                                # over the crown from the brow and down the back of the head
+        m = spec["mane"]
+        for i in range(3):
+            b.box((0, cy - 0.12 + i * 0.13, top + 0.03 + 0.01 * (i % 2)), (0.16 + 0.02 * (i % 2), 0.15, 0.1 + 0.02 * (i % 2)),
+                  m[i % len(m)], bevel=False)
+        for i in range(2):
+            b.box((0, cy + sy / 2 + 0.03 + 0.01 * (i % 2), top - 0.1 - i * 0.16), (0.17 + 0.02 * ((i + 1) % 2), 0.1, 0.17),
+                  m[(i + 3) % len(m)], bevel=False)
     if spec.get("flower"):                              # a blossom tucked by the left ear
         fx, fzz = h["ear_x"] + 0.16, top + 0.02
         b.box((fx, cy - 0.12, fzz), (0.08, 0.08, 0.08), "sparkle", bevel=False)
@@ -261,6 +329,11 @@ def _ear(spec, c, h, side):
     """One ear about the middle of its base, splayed outward, with a pink inside (and a lynx tuft on the Maine Coon)."""
     b = Builder()
     ew, eh = h["ear"]
+    if spec.get("fold_ears"):                           # Scottish Fold: tipped forward over the brow, no pink showing
+        fold = Matrix.Rotation(math.radians(side * 14), 3, "Y") @ Matrix.Rotation(math.radians(62), 3, "X")
+        mid = fold @ Vector((0, 0, eh / 2))
+        b.pyramid((mid.x, mid.y, mid.z - eh / 2), ew, eh, c["ear"], rot=fold)
+        return b
     tilt = _rot(side * 12, "Y")
     b.pyramid((0, 0, 0), ew, eh, c["ear"], rot=tilt)
     lean = math.sin(math.radians(12)) * side
@@ -289,12 +362,21 @@ def _tail(c, t):
     return b
 
 
-def _leg(c, hip_z, w, paw, paw_y=-0.01):
-    """A leg hanging from its hip pivot to the floor, with a paw."""
+def _leg(c, hip_z, w, paw, paw_y=-0.01, toe=None):
+    """A leg hanging from its hip pivot to the floor, with a paw (its front dipped in paint when `toe` is set)."""
     b = Builder()
     b.box_base((0, 0, 0.05 - hip_z), (w, w, hip_z - 0.05), c["leg"])          # the leg ends inside the paw
     b.box_base((0, paw_y, -hip_z), paw, c["paw"])
+    if toe:
+        _toe(b, (0, paw_y, -hip_z), paw, toe)
     return b
+
+
+def _toe(b, base, paw, swatch):
+    """Paint on the front third of a paw standing at `base` (bottom centre), a little proud all round."""
+    x, y, z = base
+    front = y - paw[1] / 2
+    b.box_base((x, front + 0.045, z + 0.004), (paw[0] + 0.02, 0.11, paw[2] + 0.012), swatch, bevel=False)
 
 
 def _coat_extras(b, spec, c, centre, size, sides=True, front=True, top=True):
@@ -303,7 +385,7 @@ def _coat_extras(b, spec, c, centre, size, sides=True, front=True, top=True):
     hx, hy, tz = sx / 2, sy / 2, z0 + sz / 2
     if spec.get("ruff") and front:                      # chest ruff under the chin
         b.box((0, y0 - hy - 0.04, z0 + sz * 0.1), (sx * 1.08, 0.12, sz * 0.7), spec["ruff"])
-    if spec.get("persian"):                             # long coat: fringe along the flanks and down the chest
+    if spec.get("persian") or spec.get("fluffy"):       # long coat: fringe along the flanks and down the chest
         if sides:
             for side in (-1, 1):
                 b.box((side * (hx + 0.03), y0, z0 - sz * 0.22), (0.08, sy * 0.9, sz * 0.55), c["second"])
@@ -330,6 +412,18 @@ def _coat_extras(b, spec, c, centre, size, sides=True, front=True, top=True):
                 specks += [(0.0, y0, tz + 0.03)]
         for at in specks:
             b.box(at, (0.08, 0.08, 0.08), "sparkle", bevel=False)
+    if spec.get("sprinkles"):                           # sprinkles, each at its own angle, proud of the fur
+        cols, i = spec["sprinkles"], 0
+        if top:
+            for (x, y, a) in ((0.18, 0.2, 30), (-0.16, -0.12, -50), (0.05, 0.02, 80), (-0.2, 0.3, 10), (0.2, -0.25, -20)):
+                b.box((x * sx / 0.78, y0 + y * sy / 0.95, tz + 0.02), (0.12, 0.04, 0.05), cols[i % len(cols)], bevel=False,
+                      rot=_rot(a, "Z"))
+                i += 1
+        if sides:
+            for (side, y, z, a) in ((1, 0.15, 0.06, 40), (1, -0.18, -0.04, -30), (-1, 0.05, 0.08, -60), (-1, -0.25, -0.06, 20)):
+                b.box((side * (hx + 0.01), y0 + y * sy / 0.95, z0 + z), (0.04, 0.12, 0.04), cols[i % len(cols)], bevel=False,
+                      rot=_rot(a, "X"))
+                i += 1
 
 
 def _body_a(spec, c, d):
@@ -349,17 +443,23 @@ def _body_a(spec, c, d):
         b.box((hx + 0.01, y0 - 0.15, z0 - 0.02), (0.04, 0.34, 0.26), c["third"], bevel=False)        # left flank
         b.box((0.12, y0 + 0.2, top + 0.01), (0.36, 0.42, 0.04), c["third"], bevel=False)             # saddle
         b.box((-0.16, y0 - 0.18, top + 0.01), (0.28, 0.32, 0.04), c["second"], bevel=False)
-    elif pat == "spots":
+    elif pat == "spots":                                # leafy: each spot a leaf, a long diamond
+        top_rot, side_rot, ls = (_rot(45, "Z"), _rot(45, "X"), 0.13) if spec.get("leafy") else (None, None, 0.16)
         for (x, y) in ((0.15, 0.2), (-0.18, -0.15), (0.2, -0.3), (-0.1, 0.35)):
-            b.box((x, y0 + y, top + 0.01), (0.16, 0.16, 0.04), c["second"], bevel=False)
+            b.box((x, y0 + y, top + 0.01), (ls, ls * (1.6 if top_rot else 1), 0.04), c["second"], bevel=False, rot=top_rot)
         for (side, y, z) in ((-1, 0.2, 0.06), (-1, -0.2, -0.06), (1, 0.0, 0.04), (1, 0.32, -0.08)):
-            b.box((side * (hx + 0.01), y0 + y, z0 + z), (0.04, 0.16, 0.16), c["second"], bevel=False)
+            b.box((side * (hx + 0.01), y0 + y, z0 + z), (0.04, ls * (1.6 if side_rot else 1), ls), c["second"], bevel=False,
+                  rot=side_rot)
     elif pat == "gradient":                             # front to back: fur, second, third
         b.box((0, y0 + 0.04, z0), (sx + 0.03, sy * 0.3, sz + 0.03), c["second"], bevel=False)
         b.box((0, y0 + hy * 0.66, z0), (sx + 0.04, sy * 0.36, sz + 0.04), c["third"], bevel=False)
     if c["belly"] and not spec.get("tuxedo") and not spec.get("ruff"):    # a pale chest under the chin (the ruff covers it)
         b.box((0, y0 - hy - 0.01, z0 - 0.04), (0.36, 0.06, sz * 0.6), c["belly"], bevel=False)
     _coat_extras(b, spec, c, d["body"][0], d["body"][1])
+    if spec.get("mane"):                                # down the neck and along the front of the back
+        for i in range(3):
+            b.box((0, y0 - hy + 0.08 + i * 0.15, top + 0.03 + 0.01 * (i % 2)), (0.16 + 0.02 * (i % 2), 0.17, 0.1),
+                  spec["mane"][(i + 5) % len(spec["mane"])], bevel=False)
     return b
 
 
@@ -369,8 +469,10 @@ def _body_b(spec, c, d):
     (cx0, cy0, cz0), (csx, csy, csz) = d["chest"]
     b.box(d["haunch"][0], d["haunch"][1], c["fur"])
     b.box(d["chest"][0], d["chest"][1], c["fur"])
-    for (x, y) in d["back_paws"]:
+    for i, (x, y) in enumerate(d["back_paws"]):
         b.box_base((x, y, 0.01), (0.24, 0.4, 0.11), c["paw"])                  # 0.01 up: no shared floor plane
+        if spec.get("toes"):
+            _toe(b, (x, y, 0.01), (0.24, 0.4, 0.11), spec["toes"][2 + i])
     front, htop = cy0 - csy / 2, hsz
     pat = spec["pattern"]
     if spec.get("tuxedo"):
@@ -387,17 +489,23 @@ def _body_b(spec, c, d):
         b.box((csx / 2 + 0.01, cy0 + 0.05, 0.85), (0.04, 0.3, 0.3), c["third"], bevel=False)          # left of the chest
         b.box((0.1, hy0 + 0.12, htop + 0.01), (0.4, 0.3, 0.04), c["third"], bevel=False)              # on the haunches
     elif pat == "spots":
+        top_rot, side_rot, ls = (_rot(45, "Z"), _rot(45, "X"), 0.13) if spec.get("leafy") else (None, None, 0.16)
+        lw = ls * (1.6 if top_rot else 1)
         for (side, y, z) in ((-1, 0.25, 0.3), (-1, 0.0, 0.18), (1, 0.08, 0.36), (1, 0.34, 0.2)):
-            b.box((side * (hsx / 2 + 0.01), y, z), (0.04, 0.16, 0.16), c["second"], bevel=False)
+            b.box((side * (hsx / 2 + 0.01), y, z), (0.04, lw, ls), c["second"], bevel=False, rot=side_rot)
         for (x, y) in ((0.16, 0.36), (-0.2, 0.3)):
-            b.box((x, y, htop + 0.01), (0.16, 0.16, 0.04), c["second"], bevel=False)
+            b.box((x, y, htop + 0.01), (ls, lw, 0.04), c["second"], bevel=False, rot=top_rot)
         for side in (-1, 1):
-            b.box((side * (csx / 2 + 0.01), cy0, 0.86), (0.04, 0.16, 0.16), c["second"], bevel=False)
+            b.box((side * (csx / 2 + 0.01), cy0, 0.86), (0.04, lw, ls), c["second"], bevel=False, rot=side_rot)
     elif pat == "gradient":                             # chest in the fur, haunches in second, the rump in third
         b.box_base((0, hy0 - 0.02, 0.005), (hsx + 0.03, hsy * 0.62, hsz + 0.01), c["second"], bevel=False)   # off the floor
         b.box_base((0, hy0 + hsy * 0.36, 0.008), (hsx + 0.04, hsy * 0.3, hsz + 0.012), c["third"], bevel=False)
     _coat_extras(b, spec, c, d["haunch"][0], d["haunch"][1], front=False)
     _coat_extras(b, {**spec, "petals": False}, c, d["chest"][0], d["chest"][1], top=False)
+    if spec.get("mane"):                                # down the back of the chest
+        for i in range(3):
+            b.box((0, cy0 + csy / 2 + 0.03 + 0.01 * (i % 2), 1.0 - i * 0.16), (0.16 + 0.02 * (i % 2), 0.1, 0.17),
+                  spec["mane"][(i + 5) % len(spec["mane"])], bevel=False)
     return b
 
 
@@ -418,13 +526,23 @@ def build_cat(name, mat, spec=None, base=None, body="walk"):
               ("Eye1", _eye(spec, c, h, 1)), ("Eye2", _eye(spec, c, h, -1)),
               ("EarL", _ear(spec, c, h, 1)), ("EarR", _ear(spec, c, h, -1)),
               ("Tail", _tail(c, d["tail_chain"]))]
-    pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y)) for n in LEGS[body]]
+    toes = spec.get("toes") or (None,) * 4
+    pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i])) for i, n in enumerate(LEGS[body])]
+    import props                                        # themed cats' props (props imports this module)
+    rides = {}
+    if name in props.PROPS:
+        slot = props.PROPS[name][0]
+        for suffix, b in props.build(name, spec, body, d).items():
+            pieces.append((suffix, b))
+            rides[suffix] = "Body" if slot == "Back" else "Head"
     objs = []
     for piece, b in pieces:
-        at = d["pivots"][piece]
+        at = d["pivots"][rides.get(piece, piece)]
         ob = b.finalize(f"{base}_{piece}", mat, location=tuple(v * k for v in at))
         if k != 1.0:
             scale_mesh(ob, k)
+        if piece in rides:
+            ob["rides"] = rides[piece]                  # poses.py turns a prop with the piece it rides
         objs.append(ob)
     return objs
 

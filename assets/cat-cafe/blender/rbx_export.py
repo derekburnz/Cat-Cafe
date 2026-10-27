@@ -20,7 +20,8 @@ Model layout (pivots match the FBX exports and manifest.json, so placement code 
     <object name> parts      the main object: the object named like the asset, else the first one
     <object name>            a Model per other object (Head, Tail, Lid, Branch, LeafL, Bulb...), pivot at that
                              object's origin, which is its hinge or joint (manifest part_pivots_roblox)
-      <object name>          a Model nested in another (NEST): a cat's Eye1, Eye2, EarL and EarR ride its Head
+      <object name>          a Model nested in another (NEST): a cat's Eye1, Eye2, EarL and EarR ride its Head,
+                             and so does a themed cat's Head or Face prop (_Prop, _Prop_Glass)
 Every part keeps its object's name, so name checks such as the night suffixes keep working. An asset can add
 Attachments to the biggest part of one object (a cat's Outfit_<Piece> slots) and attributes on the root Model.
 
@@ -272,9 +273,12 @@ def _add_attachments(node, parts, wanted):
         target.setdefault("children", []).extend(_attachment(n, parts, M4) for n, M4 in wanted)
 
 
-def model_json(objs, asset, attachments=(), attributes=None):
+def model_json(objs, asset, attachments=(), attributes=None, nest=None, part_attributes=None):
     """The .model.json tree for one asset, or None when no object has a primitive log. `attachments` is a list of
-    (object name suffix, Attachment name, Blender asset-space 4x4); `attributes` go on the root Model."""
+    (object name suffix, Attachment name, Blender asset-space 4x4); `attributes` go on the root Model. `nest` adds
+    to NEST for this asset (a themed cat's Head or Face prop rides the Head), and `part_attributes` puts attributes
+    on every part of the objects whose names end with a key (a prop's parts say what they follow)."""
+    nests = {**NEST, **(nest or {})}
     bpy.context.view_layer.update()
     main = next((o for o in objs if o.name == asset), objs[0])
     groups = []
@@ -310,9 +314,13 @@ def model_json(objs, asset, attachments=(), attributes=None):
             continue
         R, _ = _split(o.matrix_world.to_3x3())
         sub = _group(asset, o.name, parts, C @ o.matrix_world.translation, C @ R @ CT, f"{asset}/{k}", part_name)
+        for suffix, attrs in (part_attributes or {}).items():
+            if o.name.endswith(suffix):
+                for node in sub["children"]:
+                    node.setdefault("attributes", {}).update(attrs)
         _add_attachments(sub, parts, wanted(o))
         subs[o.name] = sub
-        host = next((o.name[:-len(sfx)] + to for sfx, to in NEST.items() if o.name.endswith(sfx)), None)
+        host = next((o.name[:-len(sfx)] + to for sfx, to in nests.items() if o.name.endswith(sfx)), None)
         nested.append((sub, host))
     for sub, host in nested:
         (subs[host]["children"] if host in subs else root["children"]).append(sub)
@@ -324,9 +332,9 @@ def count_parts(tree):
     return n + sum(count_parts(c) for c in tree.get("children", []))
 
 
-def write_model(objs, asset, out_dir, attachments=(), attributes=None):
+def write_model(objs, asset, out_dir, attachments=(), attributes=None, nest=None, part_attributes=None):
     """Write <out_dir>/<asset>.model.json. Returns (path, part count) or (None, 0)."""
-    tree = model_json(objs, asset, attachments, attributes)
+    tree = model_json(objs, asset, attachments, attributes, nest, part_attributes)
     if tree is None:
         return None, 0
     os.makedirs(out_dir, exist_ok=True)

@@ -26,6 +26,8 @@ local lastCarrying: string? = nil
 local lastPushedMoney = -1
 local lastTier: number? = nil
 local pendingCharmGain = 0 -- the last catch's Purrfect bonus, shown on the cat reveal at check-in
+local bowlPrompt: ProximityPrompt? = nil -- the own bait bowl's prompt, made here so only the owner sees it
+local shownBaitKey: string? = nil -- the bowl cat whose card has been shown, so each arrival pops it once
 
 UIController.state = nil :: Types.PlayerState?
 
@@ -50,6 +52,13 @@ function UIController.ownBackDoor(): BasePart?
 	local plot = ownPlot()
 	local door = if plot ~= nil then plot:FindFirstChild("BackDoorZone") else nil
 	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
+end
+
+-- The own cafe's bait bowl anchor (F28), for the UI's range hints and the bowl prompt.
+function UIController.ownBaitBowl(): BasePart?
+	local plot = ownPlot()
+	local bowl = if plot ~= nil then plot:FindFirstChild("BaitBowl") else nil
+	return if bowl ~= nil and bowl:IsA("BasePart") then bowl :: BasePart else nil
 end
 
 -- The stray model with this id, for its rarity, or nil once it has gone.
@@ -146,6 +155,69 @@ local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): 
 	return false
 end
 
+-- The cat at the bowl as the bait card wants it, or nil while the bowl is empty or its cat is on the way.
+local function baitCat(s: Types.PlayerState): UITypes.BaitCat?
+	local bait = s.bait
+	local cat = if bait ~= nil then bait.cat else nil
+	if cat == nil then
+		return nil
+	end
+	return { catId = cat.catId, variant = cat.variant, charm = cat.charm, stars = cat.stars }
+end
+
+-- The bait bowl (F28, data-model section 8): what is in it, the owner's prompt on it and the card the moment its
+-- cat arrives. ProfileSync names the cat only once it has arrived, so its first appearance is the arrival.
+local function refreshBait(s: Types.PlayerState)
+	local bait = s.bait
+	UI.bait.set(if bait ~= nil then { lureId = bait.lureId, readyAt = bait.readyAt } else nil)
+	local bowl = UIController.ownBaitBowl()
+	UI.bait.setBowl(bowl)
+
+	local cat = baitCat(s)
+	local owned = (s.upgradeLevels.lure_bowl or 0) >= 1
+	local prompt = bowlPrompt
+	if owned and bowl ~= nil then
+		if prompt == nil or prompt.Parent ~= bowl then
+			if prompt ~= nil then
+				prompt:Destroy()
+			end
+			local made = Instance.new("ProximityPrompt")
+			made.Name = "BaitPrompt"
+			made.ObjectText = "Bait bowl"
+			made.HoldDuration = 0
+			made.MaxActivationDistance = 8
+			made.RequiresLineOfSight = false
+			made.Triggered:Connect(function()
+				local waiting = if state ~= nil then baitCat(state) else nil
+				if waiting ~= nil then
+					UI.bait.showReady(waiting)
+				else
+					UI.bait.openPicker()
+				end
+			end)
+			made.Parent = bowl
+			bowlPrompt = made
+			prompt = made
+		end
+		local shown = prompt :: ProximityPrompt
+		shown.ActionText = if cat ~= nil
+			then "See the cat"
+			elseif bait ~= nil then "Check"
+			else "Add food"
+	elseif prompt ~= nil then
+		prompt:Destroy()
+		bowlPrompt = nil
+	end
+
+	if cat ~= nil and bait ~= nil then
+		local key = string.format("%s@%d", cat.catId, bait.readyAt)
+		if key ~= shownBaitKey then
+			shownBaitKey = key
+			UI.bait.showReady(cat)
+		end
+	end
+end
+
 local function applyState(s: Types.PlayerState)
 	local previous = state
 	if previous ~= nil and boughtSomething(previous, s) then
@@ -189,6 +261,7 @@ local function applyState(s: Types.PlayerState)
 			UI.setCarrying(nil)
 		end
 	end
+	refreshBait(s)
 	refreshTutorial(s)
 end
 
@@ -205,8 +278,12 @@ local function wireIntents()
 	UI.events.buyLure:Connect(function(lureId: string)
 		Net.fire("BuyLure", lureId)
 	end)
-	UI.events.equipLure:Connect(function(lureId: string?)
-		Net.fire("EquipLure", lureId)
+	-- The bait bowl (F28): Use on a food, then Tame or Let go on the card. The answer is the next ProfileSync.
+	UI.events.useLure:Connect(function(lureId: string)
+		Net.fire("UseLure", lureId)
+	end)
+	UI.events.resolveBait:Connect(function(choice: string)
+		Net.fire("ResolveBait", choice)
 	end)
 	UI.events.placeCat:Connect(function(uid: string, spotId: string)
 		Net.fire("PlaceCat", uid, spotId)
@@ -288,7 +365,8 @@ local function wireServerEvents()
 			else nil
 		pendingCharmGain = 0
 		UI.showCatFound(catId, isNew, extra)
-		-- CatCaught comes only from a check-in, so a bump that drops the carried cat plays no check-in sound.
+		-- CatCaught comes from a check-in or a tamed bait cat, so a bump that drops the carried cat plays no
+		-- check-in sound.
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
 	end)
@@ -405,6 +483,7 @@ function UIController.start()
 	UI.init({
 		catalog = catalog,
 		keybinds = true,
+		baitBowl = true, -- F28: the HUD's bowl chip and the Bait bowl screen replace the v0.2 lure slot
 		playSound = function(cueId: string)
 			return Audio.play(cueId)
 		end,

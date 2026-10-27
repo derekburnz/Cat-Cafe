@@ -6,6 +6,7 @@
 --   local D = game.ServerStorage.PurrPotDebug
 --   D:Invoke("setCoins", nil, 5000)   -- nil means the first player in the server
 --   D:Invoke("setPhase", "night")
+--   D:Invoke("baitReady")              -- the bowl's cat arrives now
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,6 +17,7 @@ local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
+local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -115,6 +117,19 @@ function Debug.giveLure(player: (Player | number | string)?, lureId: string, cou
 	assert(Catalog.getLure(lureId) ~= nil, "unknown lure " .. lureId)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + math.max(1, math.floor(count or 1))
 	CafeService.sync(p)
+end
+
+-- Brings the cat at the bait bowl now instead of after LureWaitSeconds (F28). Errors when the bowl is empty.
+-- Returns the rolled cat id, so a test can check what the card shows.
+function Debug.baitReady(player: (Player | number | string)?): string
+	local p = resolve(player)
+	local profile = profileOf(p)
+	local bait = profile.bait
+	assert(bait ~= nil, "the bait bowl is empty")
+	bait.placedAt = os.time() - Config.LureWaitSeconds
+	CafeService.refreshPlot(p)
+	CafeService.sync(p)
+	return bait.catId
 end
 
 -- Pretends the player rejoined after `secondsAgo` away: sets the unclaimed offline earnings to what that gap

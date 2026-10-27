@@ -291,6 +291,7 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	modalInstance.changed:Connect(function(name: string?)
+		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
 	end)
 

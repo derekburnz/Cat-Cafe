@@ -6,6 +6,11 @@
 --
 -- Catalog.indexMilestones lists the milestones (the same on every page) and Catalog.indexPrizes[areaId][id] the
 -- prize; an area or milestone without a prize has no card. state.indexRewards[areaId][id] is true once claimed.
+--
+-- F54 (golden-fish.md sections 5 and 8) gives each area a normal track (cats3, cats6, cats10) and a gold track
+-- (gold1 to gold10), milestone rows { id, track, needs }, and an "All Cats" page (area id "all", total5 to
+-- total50) that counts different cats across every area. Both row shapes are read here, so the UI works before
+-- and after the engineer's catalog change.
 
 local CatVariant = require(script.Parent.CatVariant)
 local Types = require(script.Parent.Parent.Types)
@@ -26,6 +31,23 @@ export type View = {
 
 export type LureEntry = { id: string, count: number }
 
+-- One thing a prize pays, for the little pictures with amounts (Derek 2026-10-27: "showing little symbols of
+-- whatever they are going to get as next reward and how much"). `id` is the lure, crate or decor id, or the prize
+-- field's name for a kind the UI does not know yet.
+-- `bonus` is a fraction (0.02 for "+2% tips forever") and `tag` carries the tag's name in `id`.
+export type PartKind =
+	"coins"
+	| "fish"
+	| "lure"
+	| "spins"
+	| "crate"
+	| "tag"
+	| "decor"
+	| "bonus"
+	| "other"
+export type PrizePart = { kind: PartKind, id: string?, amount: number }
+export type Track = "normal" | "gold"
+
 export type Counts = {
 	total: number, -- the area's cats in the catalog
 	found: number, -- of those, in collection
@@ -33,15 +55,45 @@ export type Counts = {
 }
 
 local FALLBACK_AREA = "alley" -- a cat without an area is an Alleyway cat, as in the Index
+-- prize fields prizeParts reads by name; any other number field shows as an "other" part
+local KNOWN_FIELDS = {
+	coins = true,
+	coinSeconds = true,
+	lures = true,
+	fish = true,
+	spins = true,
+	crates = true,
+	bonus = true,
+	tag = true,
+	decorId = true,
+}
 
 local IndexRewards = {}
 
+IndexRewards.ALL_AREA = "all" -- the Cat Collector page: every area's cats together (F54)
+
+-- How many cats a milestone needs: `needs` (F54) or `need` (F48).
+function IndexRewards.need(milestone: Milestone): number
+	return milestone.needs or milestone.need or 0
+end
+
+-- Whether a milestone counts gold cats: `track = "gold"` (F54) or `gold = true` (F48).
+function IndexRewards.isGold(milestone: Milestone): boolean
+	return milestone.track == "gold" or milestone.gold == true
+end
+
+function IndexRewards.track(milestone: Milestone): Track
+	return if IndexRewards.isGold(milestone) then "gold" else "normal"
+end
+
+-- The area's cats in the catalog and how many are found and gold. The "all" page counts every area's cats.
 function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Counts
 	local collection: { [string]: number } = state.collection or {}
 	local gold = CatVariant.collection(state)
 	local counts: Counts = { total = 0, found = 0, gold = 0 }
+	local all = areaId == IndexRewards.ALL_AREA
 	for _, def in catalog.cats do
-		if (def.area or FALLBACK_AREA) ~= areaId then
+		if not all and (def.area or FALLBACK_AREA) ~= areaId then
 			continue
 		end
 		counts.total += 1
@@ -75,17 +127,18 @@ function IndexRewards.views(catalog: Catalog, state: State, areaId: string): { V
 		if prize == nil then
 			continue
 		end
-		local count = if milestone.gold then counts.gold else counts.found
+		local need = IndexRewards.need(milestone)
+		local count = if IndexRewards.isGold(milestone) then counts.gold else counts.found
 		local claimed = IndexRewards.isClaimed(state, areaId, milestone.id)
 		local milestoneState: MilestoneState = if claimed
 			then "claimed"
-			elseif count >= milestone.need then "ready"
+			elseif count >= need then "ready"
 			else "locked"
 		table.insert(views, {
 			milestone = milestone,
 			prize = prize,
 			state = milestoneState,
-			have = math.min(count, milestone.need),
+			have = math.min(count, need),
 		})
 	end
 	return views
@@ -112,14 +165,123 @@ function IndexRewards.claimable(catalog: Catalog, state: State): ({ [string]: nu
 end
 
 -- "3 cats", "All 10", "All 10 gold"; "5 gold" for a gold milestone short of the whole page.
+-- "1 cat" for a milestone of one (the gold track starts at "1 gold").
 function IndexRewards.needLabel(milestone: Milestone, total: number): string
-	local all = total > 0 and milestone.need >= total
-	if milestone.gold then
-		return if all
-			then ("All %d gold"):format(milestone.need)
-			else ("%d gold"):format(milestone.need)
+	local need = IndexRewards.need(milestone)
+	local all = total > 0 and need >= total
+	if IndexRewards.isGold(milestone) then
+		return if all then ("All %d gold"):format(need) else ("%d gold"):format(need)
 	end
-	return if all then ("All %d"):format(milestone.need) else ("%d cats"):format(milestone.need)
+	return if all
+		then ("All %d"):format(need)
+		elseif need == 1 then "1 cat"
+		else ("%d cats"):format(need)
+end
+
+-- The milestone to show as the next reward: the first one ready to claim, else the first still to reach, in
+-- catalog order (the normal track before the gold one). With `track`, only that track's milestones. Nil once
+-- every milestone is claimed (or there are none).
+function IndexRewards.nextView(views: { View }, track: Track?): View?
+	for _, view in views do
+		if
+			view.state == "ready" and (track == nil or IndexRewards.track(view.milestone) == track)
+		then
+			return view
+		end
+	end
+	for _, view in views do
+		if
+			view.state == "locked" and (track == nil or IndexRewards.track(view.milestone) == track)
+		then
+			return view
+		end
+	end
+	return nil
+end
+
+-- How many more cats (or gold cats) the milestone needs.
+function IndexRewards.toGo(view: View): number
+	return math.max(0, IndexRewards.need(view.milestone) - view.have)
+end
+
+-- The coins a prize pays at this day rate: max(coins, floor(dayRate * coinSeconds)), the Tip Jar's rule, so the
+-- card shows what a claim would pay now. Without coinSeconds it is just `coins`.
+function IndexRewards.coins(prize: Prize, dayRate: number?): number
+	local least = prize.coins or 0
+	local seconds = prize.coinSeconds
+	if seconds == nil or dayRate == nil then
+		return least
+	end
+	return math.max(least, math.floor(math.max(0, dayRate) * seconds))
+end
+
+-- What a prize pays, one part per thing, in a steady order: coins (at `dayRate` when the prize grows with the
+-- cafe), golden fish, foods (by id), spins, crates (by id), the name tag, the decor piece, the tips-forever bonus,
+-- then any number field the UI does not know yet (Derek 2026-10-27: Index rewards give crates and wheel spins
+-- rather than decor outright; golden-fish.md section 5 adds fish, bonuses and a tag).
+function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
+	local parts: { PrizePart } = {}
+	local coins = IndexRewards.coins(prize, dayRate)
+	if coins > 0 then
+		table.insert(parts, { kind = "coins" :: PartKind, amount = coins })
+	end
+	local fish = prize.fish
+	if fish and fish > 0 then
+		table.insert(parts, { kind = "fish" :: PartKind, amount = fish })
+	end
+	for _, entry in IndexRewards.lureList(prize) do
+		if entry.count > 0 then
+			table.insert(parts, { kind = "lure" :: PartKind, id = entry.id, amount = entry.count })
+		end
+	end
+	local spins = prize.spins
+	if spins and spins > 0 then
+		table.insert(parts, { kind = "spins" :: PartKind, amount = spins })
+	end
+	local crates: { [string]: number } = prize.crates or {}
+	local crateParts: { PrizePart } = {}
+	for id, count in crates do
+		if count > 0 then
+			table.insert(crateParts, { kind = "crate" :: PartKind, id = id, amount = count })
+		end
+	end
+	table.sort(crateParts, function(a: PrizePart, b: PrizePart): boolean
+		return (a.id or "") < (b.id or "")
+	end)
+	for _, part in crateParts do
+		table.insert(parts, part)
+	end
+	local tag = prize.tag
+	if tag and tag ~= "" then
+		table.insert(parts, { kind = "tag" :: PartKind, id = tag, amount = 1 })
+	end
+	local decorId: string? = prize.decorId
+	if decorId then
+		table.insert(parts, { kind = "decor" :: PartKind, id = decorId, amount = 1 })
+	end
+	local bonus = prize.bonus
+	if bonus and bonus > 0 then
+		table.insert(parts, { kind = "bonus" :: PartKind, amount = bonus })
+	end
+	local loose = prize :: any
+	local others: { PrizePart } = {}
+	for key, value in loose :: { [any]: any } do
+		if
+			type(key) == "string"
+			and KNOWN_FIELDS[key] == nil
+			and type(value) == "number"
+			and value > 0
+		then
+			table.insert(others, { kind = "other" :: PartKind, id = key, amount = value })
+		end
+	end
+	table.sort(others, function(a: PrizePart, b: PrizePart): boolean
+		return (a.id or "") < (b.id or "")
+	end)
+	for _, part in others do
+		table.insert(parts, part)
+	end
+	return parts
 end
 
 -- Index decor (data-model section 7) is never sold: only ClaimIndexReward grants it, so the Decor shop shows it as
@@ -159,10 +321,13 @@ end
 
 -- What unlocks an Index decor piece, for its Decor shop card: "All 10 Alleyway cats", "All 10 Alleyway cats as gold".
 function IndexRewards.unlockLabel(milestone: Milestone, areaName: string, total: number): string
-	local count = if total > 0 and milestone.need >= total
-		then ("All %d"):format(milestone.need)
-		else tostring(milestone.need)
-	return ("%s %s cats%s"):format(count, areaName, if milestone.gold then " as gold" else "")
+	local need = IndexRewards.need(milestone)
+	local count = if total > 0 and need >= total then ("All %d"):format(need) else tostring(need)
+	return ("%s %s cats%s"):format(
+		count,
+		areaName,
+		if IndexRewards.isGold(milestone) then " as gold" else ""
+	)
 end
 
 -- A prize's foods in a steady order (the map has none), for the card's text.

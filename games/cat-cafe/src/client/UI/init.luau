@@ -36,6 +36,7 @@ local Format = require(script.Components.Format)
 local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
+local IndexBoards = require(script.Screens.IndexBoards)
 local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
 local Motion = require(script.Components.Motion)
@@ -130,6 +131,7 @@ local rescueBar: RescueBar.RescueBar? = nil
 local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
 local gateSigns: GateSigns.GateSigns? = nil
+local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
 local zoneChip: ZoneChip.ZoneChip? = nil -- "Safe zone" or "Catching area" under the tier pill (UI.setZone)
@@ -207,6 +209,9 @@ local function render()
 	if gateSigns then
 		gateSigns:render(state)
 	end
+	if indexBoards then
+		indexBoards:render(state)
+	end
 	if locationMarkers and hud then
 		locationMarkers:render(state, hud:isCarrying())
 	end
@@ -247,6 +252,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if gateSigns then
 		gateSigns:setCatalog(newCatalog)
+	end
+	if indexBoards then
+		indexBoards:setCatalog(newCatalog)
 	end
 	if locationMarkers then
 		locationMarkers:setCatalog(newCatalog)
@@ -640,6 +648,12 @@ function UI.init(config: Types.InitConfig)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
+	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
+	indexBoards = IndexBoards.new(parent, {
+		open = function(areaId: string)
+			UI.openIndex(areaId)
+		end,
+	})
 	-- icons over My Cafe, every area and the dealer's cart, fading out up close; the Safe zone chip under the tier
 	local markers = LocationMarkers.new(parent)
 	markers:setEnabled(settingsView:value("markers")) -- the Place icons switch
@@ -777,6 +791,10 @@ function UI.destroy()
 	if gateSigns then
 		gateSigns:destroy()
 	end
+	if indexBoards then
+		indexBoards:destroy()
+	end
+	indexBoards = nil
 	if areaTitle then
 		areaTitle:destroy()
 	end
@@ -849,6 +867,14 @@ function UI.isOpen(): string?
 		return modal:current()
 	end
 	return nil
+end
+
+-- Opens the Index on an area's page (an Index Board's prompt, F50).
+function UI.openIndex(areaId: string)
+	if collection then
+		collection:showArea(areaId)
+	end
+	UI.open("Collection")
 end
 
 -- "Index" or "Room" tab of the Collection screen, then open it.
@@ -1946,6 +1972,12 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	end
 	if spinScreen then
 		spinScreen:setNight(phase == "night")
+	end
+	if collection then
+		collection:setNight(phase == "night")
+	end
+	if indexBoards then
+		indexBoards:setNight(phase == "night")
 	end
 end
 

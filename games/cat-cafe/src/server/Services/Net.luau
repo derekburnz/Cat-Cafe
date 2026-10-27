@@ -21,6 +21,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	GrabBegin = RateLimiter.new(1, Config.GrabRateLimitSeconds),
 	RescueBegin = RateLimiter.new(1, 1),
 	RescueCancel = RateLimiter.new(1, 1),
+	DropCat = RateLimiter.new(1, 1),
 	RequestSync = RateLimiter.new(1, 2),
 	ClaimOffline = RateLimiter.new(1, 2),
 	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync

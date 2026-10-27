@@ -391,6 +391,14 @@ local function wireIntents()
 			Net.fire("EquipBest")
 		end)
 	end
+	-- Drop cat: the carry banner's Drop button and the G key (UI thread, reviewer S53). Looked up loosely the same
+	-- way, so this lands before or after the UI build that adds the signal.
+	local dropCat = (UI.events :: any).dropCat
+	if dropCat ~= nil then
+		dropCat:Connect(function()
+			Net.fire("DropCat")
+		end)
+	end
 	UI.events.rankUp:Connect(function()
 		Net.fire("RankUp")
 	end)
@@ -579,8 +587,7 @@ local function wireServerEvents()
 	Net.on(
 		"CatchSchedule",
 		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
-			-- v0.5: tries are unlimited, so no paw row (nil)
-			UI.catch.showCircles(strayId, circles, windows, nil)
+			UI.catch.showCircles(strayId, circles, windows)
 			Moments.CatchStart:Fire(strayId)
 		end
 	)
@@ -721,7 +728,6 @@ function UIController.start()
 	UI.init({
 		catalog = catalog,
 		keybinds = true,
-		baitBowl = true, -- F28: the HUD's bowl chip and the Bait bowl screen replace the v0.2 lure slot
 		playSound = function(cueId: string)
 			return Audio.play(cueId)
 		end,

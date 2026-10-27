@@ -91,19 +91,22 @@ return function()
 		RichChance = 0.15,
 		RichTipSeconds = 45,
 		RichTipStaySeconds = 90,
+		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45)
+		BumpEnabled = true,
+		BumpRangeStuds = 6,
+		BumpChance = 0.5,
+		BumpGraceSeconds = 3,
+		BumpSafeRadiusStuds = 15,
+		BumpCooldownSeconds = 8,
+		BumpSameTargetSeconds = 20,
+		ShoveKnockbackStuds = 10,
+		ShoveTargetImmuneSeconds = 4,
+		DropOwnerPrioritySeconds = 8,
+		DroppedMinStaySeconds = 120,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
 	local pending: { [string]: { any } } = {
-		BumpEnabled = { true, "F29" },
-		BumpRangeStuds = { 6, "F29" },
-		BumpChance = { 0.5, "F29" },
-		BumpGraceSeconds = { 3, "F29" },
-		BumpSafeRadiusStuds = { 15, "F29" },
-		BumpCooldownSeconds = { 12, "F29" },
-		BumpSameTargetSeconds = { 60, "F29" },
-		DropOwnerPrioritySeconds = { 8, "F29" },
-		DroppedMinStaySeconds = { 120, "F29" },
 		CatNameMaxLength = { 20, "F33" },
 		RenameCooldownSeconds = { 5, "F33" },
 	}

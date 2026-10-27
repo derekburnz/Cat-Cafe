@@ -13873,7 +13873,7 @@
       ],
       "pivot": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand; SmoothPlastic by day.",
+      "studio": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_StringLights.model.json",
       "rbx_parts": 32,
       "files": [
@@ -14843,7 +14843,7 @@
       ],
       "pivot": "wall: back-bottom center",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, plus a PointLight.",
+      "studio": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, Transparency 0.3, plus a PointLight (Brightness 0.8, Range 10).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_ShopWindow.model.json",
       "rbx_parts": 10,
       "files": [

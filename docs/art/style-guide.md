@@ -276,11 +276,11 @@ Lighting.Technology Future, Bloom low, ColorCorrection Saturation +0.05, Contras
 | Brightness | 2 | 0.6 |
 | OutdoorAmbient | 170,160,150 | 45,55,85 |
 | Ambient | 120,115,110 | 30,35,55 |
-| ExposureCompensation | 0 | 0.25 |
+| ExposureCompensation | 0 | 0 (0.25 washed the lit cafe out to white; changed in PR #239) |
 | ColorShift_Top | 255,245,230 | 150,170,220 |
 | Atmosphere Density | 0.3 | 0.4, Color 110,120,160 |
 
-Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color lamp_warm (neon_pink for the sign), and the child light enabled: street lamp SpotLight 255,200,150 Brightness 3 Range 30 Angle 100, window and string lights PointLight 255,214,170 Brightness 1.5 Range 16, hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. From v0.5 (F44) cafes close at night and customers leave: owned cafes hang `CatCafe_Plot_ClosedSign` in the front door, a night_sky board with CLOSED on both faces, two stars and a crescent moon (`_Moon_Bulb`, so it glows lamp_warm). The `vignette_alley_night.png` concept image is the target look.
+Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color lamp_warm (neon_pink for the sign); bulbs and tubes are solid, window panes keep Transparency 0.3 so you can see into the cafe. The child light is enabled: street lamp SpotLight 255,200,150 Brightness 3 Range 30 Angle 100; window, string light and sign tube PointLight 255,214,170 Brightness 0.8 Range 10; hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). Stronger window and string lights (the old 1.5 and 16) wash the cafe interior out to white, so keep new lights at or under these values (PR #239, playtest #184). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. From v0.5 (F44) cafes close at night and customers leave: owned cafes hang `CatCafe_Plot_ClosedSign` in the front door, a night_sky board with CLOSED on both faces, two stars and a crescent moon (`_Moon_Bulb`, so it glows lamp_warm). The `vignette_alley_night.png` concept image is the target look.
 
 ## 10. Export and import checklist
 

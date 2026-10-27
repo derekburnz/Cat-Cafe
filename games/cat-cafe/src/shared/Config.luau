@@ -80,11 +80,31 @@ local Config = {
 	DealerRangeStuds = 12,
 	DealerWindowSeconds = 600,
 
-	-- Rescue (data-model section 10)
-	RescueSpawnChance = 0.5, -- per rescue spot at each night start
-	RescueHoldSeconds = 4,
-	RescueLockSeconds = 6,
-	RingLatencyGraceSeconds = 0.25, -- the v0.2 rescue hold's latency allowance, until the rescue minigames
+	-- Rescue minigames (data-model section 10b)
+	RescueSpawnChance = 0.6, -- per trap at each night start
+	RescueMinStuck = 1, -- stuck cats every area gets at night start even when no trap rolled one
+	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar
+	RescueBarSpeed = {
+		Common = 0.8,
+		Rare = 1.0,
+		Epic = 1.2,
+		Legendary = 1.4,
+		Mythical = 1.6,
+	} :: { [string]: number },
+	RescueZoneWidth = {
+		Common = 0.30,
+		Rare = 0.24,
+		Epic = 0.19,
+		Legendary = 0.15,
+		Mythical = 0.12,
+	} :: { [string]: number },
+	RescueTolerance = 0.03, -- of the bar, either side of the zone
+	RescuePatience = 3, -- misses one attempt can take
+	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
+	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
+	RescueAttemptMaxSeconds = 15,
+	ShinyChanceRescue = 0.10, -- rolled at night start, hidden until the rescue succeeds
+	RescueHoldSeconds = 4, -- the v0.2 hold, read only by the UI's old hold bar until it drops it
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher shiny chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1

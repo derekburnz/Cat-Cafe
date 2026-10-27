@@ -23,11 +23,16 @@ return function()
 		NightLengthSeconds = 300,
 		ServerStartDaySeconds = 120,
 		StrayDespawnSeconds = 120,
-		-- v0.2 rescue (section 10)
-		RescueSpawnChance = 0.5,
-		RescueHoldSeconds = 4,
-		RescueLockSeconds = 6,
-		RingLatencyGraceSeconds = 0.25, -- the v0.2 rescue hold's allowance, until F27
+		-- rescue minigames (F27, section 10b); RescueBarSpeed and RescueZoneWidth are tables, checked below
+		RescueSpawnChance = 0.6,
+		RescueMinStuck = 1,
+		RescueTolerance = 0.03,
+		RescuePatience = 3,
+		RescueRetrySeconds = 3,
+		RescueSelfRetrySeconds = 6,
+		RescueAttemptMaxSeconds = 15,
+		ShinyChanceRescue = 0.10,
+		RescueHoldSeconds = 4, -- the v0.2 hold, until the UI's old hold bar drops it
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
 		GrabRetrySeconds = 2,
@@ -83,13 +88,6 @@ return function()
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
 	local pending: { [string]: { any } } = {
-		RescueSpawnChance = { 0.6, "F27" },
-		RescueMinStuck = { 1, "F27" },
-		RescueTolerance = { 0.03, "F27" },
-		RescuePatience = { 3, "F27" },
-		RescueRetrySeconds = { 3, "F27" },
-		RescueSelfRetrySeconds = { 6, "F27" },
-		RescueAttemptMaxSeconds = { 15, "F27" },
 		BumpEnabled = { true, "F29" },
 		BumpRangeStuds = { 6, "F29" },
 		BumpChance = { 0.5, "F29" },
@@ -100,7 +98,6 @@ return function()
 		DropOwnerPrioritySeconds = { 8, "F29" },
 		DroppedMinStaySeconds = { 120, "F29" },
 		ShinyChanceNet = { 0.02, "F30" },
-		ShinyChanceRescue = { 0.10, "F30" },
 		NightIncomeMultiplier = { 0.6, "F31" },
 		CustomerSpawnSecondsNight = { 12, "F31" },
 		RichCheckSeconds = { 60, "F31" },
@@ -128,9 +125,12 @@ return function()
 			it(string.format("%s = %s (%s)", name, tostring(row[1]), row[2]))
 		end
 
-		it("RenovateBonus is gone: tiers replace rebirth and nothing resets (section 5b)", function()
-			expect((Config :: any).RenovateBonus).never.to.be.ok()
-		end)
+		it(
+			"RenovateBonus is gone: tiers replace rebirth and nothing resets (section 5b)",
+			function()
+				expect((Config :: any).RenovateBonus).never.to.be.ok()
+			end
+		)
 
 		it("has no extra top level tuning numbers the doc does not know about", function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
@@ -138,6 +138,8 @@ return function()
 				World = true,
 				NetWindows = true, -- a table, checked below
 				CharmStarOdds = true, -- a table, checked below
+				RescueBarSpeed = true, -- a table, checked below
+				RescueZoneWidth = true, -- a table, checked below
 				ProfileStoreName = true,
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
@@ -237,10 +239,13 @@ return function()
 			expect(Config.CarryWalkSpeed / Config.NormalWalkSpeed).to.be.near(0.8, 0.02)
 		end)
 
-		it("the lock covers the late-press allowance, so nobody can take a stray mid-catch", function()
-			-- The lock runs to the last target + good + 1 s; the last press is accepted to target + good + cap.
-			expect(Config.CatchLatencyCapSeconds < 1).to.equal(true)
-		end)
+		it(
+			"the lock covers the late-press allowance, so nobody can take a stray mid-catch",
+			function()
+				-- The lock runs to the last target + good + 1 s; the last press is accepted to target + good + cap.
+				expect(Config.CatchLatencyCapSeconds < 1).to.equal(true)
+			end
+		)
 
 		it(
 			"the v0.1 names are gone (night waves replace the trickle, the net replaces gloves)",
@@ -252,10 +257,11 @@ return function()
 			end
 		)
 
-		it("v0.3: the hold ring and flat chance constants are gone (F26, section 17 Removed)", function()
-			local config = Config :: any
-			for _, name in
-				ipairs({
+		it(
+			"v0.3: the hold ring and flat chance constants are gone (F26, section 17 Removed)",
+			function()
+				local config = Config :: any
+				for _, name in ipairs({
 					"GrabHoldSeconds",
 					"GrabMinHoldSeconds",
 					"GrabLockSeconds",
@@ -268,14 +274,18 @@ return function()
 					"CatchChanceMin",
 					"CatchChanceMax",
 					"RenovateBonus",
-				})
-			do
-				expect(config[name]).never.to.be.ok()
+				}) do
+					expect(config[name]).never.to.be.ok()
+				end
 			end
-		end)
+		)
 
-		-- RingLatencyGraceSeconds, RescueHoldSeconds and RescueLockSeconds go with the rescue minigames.
-		it("the v0.2 rescue hold constants are gone (F27)")
+		-- RescueHoldSeconds goes too once the UI's CatchPrompt stops reading it.
+		it("the v0.2 rescue hold's lock and latency constants are gone (F27)", function()
+			local config = Config :: any
+			expect(config.RescueLockSeconds).never.to.be.ok()
+			expect(config.RingLatencyGraceSeconds).never.to.be.ok()
+		end)
 		it("LureDespawnSeconds and LureReserveSeconds are gone (F28)", function()
 			local config = Config :: any
 			expect(config.LureDespawnSeconds).never.to.be.ok()
@@ -297,29 +307,54 @@ return function()
 		)
 
 		it(
-			"rescue: the lock outlives the hold, the chance is a probability, a rescue pays no more",
+			"rescue: the player who failed waits longer, the chances are probabilities, a rescue pays no more",
 			function()
-				expect(Config.RescueLockSeconds > Config.RescueHoldSeconds).to.equal(true)
+				expect(Config.RescueSelfRetrySeconds > Config.RescueRetrySeconds).to.equal(true)
 				expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(
 					true
 				)
+				expect(Config.ShinyChanceRescue > 0 and Config.ShinyChanceRescue < 1).to.equal(true)
 				expect(Config.RescuedTipsMultiplier).to.equal(1)
 			end
 		)
+
+		it("the rescue bar matches the section 10b table: rarer is faster and narrower", function()
+			local rows = {
+				Common = { 0.8, 0.30 },
+				Rare = { 1.0, 0.24 },
+				Epic = { 1.2, 0.19 },
+				Legendary = { 1.4, 0.15 },
+				Mythical = { 1.6, 0.12 },
+			}
+			local previous: { number }? = nil
+			for _, rarity in Catalog.rarityOrder do
+				local row = rows[rarity]
+				expect(Config.RescueBarSpeed[rarity]).to.be.near(row[1], 1e-9)
+				expect(Config.RescueZoneWidth[rarity]).to.be.near(row[2], 1e-9)
+				if previous ~= nil then
+					expect(row[1] > previous[1]).to.equal(true)
+					expect(row[2] < previous[2]).to.equal(true)
+				end
+				previous = row
+			end
+		end)
 
 		it("bait bowl: the card reaches further than Use, and shiny is a probability", function()
 			expect(Config.BaitResolveRangeStuds >= Config.BaitBowlRangeStuds).to.equal(true)
 			expect(Config.ShinyChanceBait > 0 and Config.ShinyChanceBait < 1).to.equal(true)
 		end)
 
-		it("CharmStarOdds has five shares that sum to 100 (pinned to rollCharm in CatStats.spec)", function()
-			expect(#Config.CharmStarOdds).to.equal(5)
-			local total = 0
-			for _, share in Config.CharmStarOdds do
-				total += share
+		it(
+			"CharmStarOdds has five shares that sum to 100 (pinned to rollCharm in CatStats.spec)",
+			function()
+				expect(#Config.CharmStarOdds).to.equal(5)
+				local total = 0
+				for _, share in Config.CharmStarOdds do
+					total += share
+				end
+				expect(total).to.be.near(100, 1e-6)
 			end
-			expect(total).to.be.near(100, 1e-6)
-		end)
+		)
 
 		it("customers never stay a negative or zero time", function()
 			expect(Config.CustomerStayMin > 0).to.equal(true)

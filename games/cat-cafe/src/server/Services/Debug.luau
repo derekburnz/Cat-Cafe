@@ -23,6 +23,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local RescueService = require(script.Parent.RescueService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -164,7 +165,14 @@ function Debug.giveCat(
 	profileOf(p)
 	local def = Catalog.getCat(catId)
 	assert(def ~= nil, "unknown cat id " .. catId)
-	local instance = CafeService.addCaughtCat(p, def :: Types.CatDef, true, nil, nil, rescued)
+	local instance = CafeService.addCaughtCat(
+		p,
+		def :: Types.CatDef,
+		true,
+		nil,
+		nil,
+		if rescued then "rescue" else nil
+	)
 	return instance
 end
 
@@ -216,16 +224,17 @@ function Debug.clock(): { phase: Types.ClockPhase, endsAt: number, secondsLeft: 
 	}
 end
 
--- Puts a stuck cat at a rescue spot ("rescue_alley_1" when none is given). Returns the rescueSpotId.
-function Debug.spawnStuckCat(catId: string, rescueSpotId: string?): string
+-- Puts a stuck cat at a rescue trap ("rescue_alley_1" when none is given; the park's trees are rescue_park_1 and
+-- rescue_park_2). `shiny` true forces the hidden shiny roll. Returns the rescueSpotId.
+function Debug.spawnStuckCat(catId: string, rescueSpotId: string?, shiny: boolean?): string
 	guard()
-	return CatService.debugSpawnStuck(catId, rescueSpotId)
+	return RescueService.debugSpawnStuck(catId, rescueSpotId, shiny)
 end
 
--- Number of strays in an area and of stuck cats across all rescue spots.
+-- Number of strays in an area and of stuck cats across all rescue traps.
 function Debug.counts(areaId: string?): { strays: number, stuck: number }
 	guard()
-	return { strays = CatService.strayCount(areaId or "alley"), stuck = CatService.stuckCount() }
+	return { strays = CatService.strayCount(areaId or "alley"), stuck = RescueService.stuckCount() }
 end
 
 function Debug.dataSaves(): boolean

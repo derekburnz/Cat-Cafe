@@ -29,6 +29,16 @@ local lastTier: number? = nil
 local pendingCharmGain = 0 -- the last catch's Purrfect bonus, shown on the cat reveal at check-in
 local bowlPrompt: ProximityPrompt? = nil -- the own bait bowl's prompt, made here so only the owner sees it
 local shownBaitKey: string? = nil -- the bowl cat whose card has been shown, so each arrival pops it once
+-- The rescue on screen, for the sounds: the server's count so far, so each RescueResult fires one hit or miss.
+type RescueRun = {
+	spotId: string,
+	trap: string?,
+	rarity: string?,
+	needed: number,
+	hits: number,
+	paws: number,
+}
+local rescue: RescueRun? = nil
 
 UIController.state = nil :: Types.PlayerState?
 
@@ -336,21 +346,45 @@ local function wireIntents()
 			end
 		end
 	)
-	-- Rescue (data-model section 10): RescueBegin when the 4 s hold starts, RescueEnd only when it ran its full
-	-- length. An early release sends nothing; the server's lock lapses after RescueLockSeconds. The server
-	-- answers both with GrabResult, keyed by the rescue spot id.
+	-- Rescue minigames (data-model section 10b): one press on a stuck cat's prompt asks for the bar. The server
+	-- answers with RescueChallenge (or a GrabResult refusal). A press or Give up sends only the trap id: the
+	-- server stamps the time itself and judges where the marker was.
 	UI.events.rescueBegan:Connect(function(rescueSpotId: string?, _catId: string?)
 		if rescueSpotId ~= nil then
 			Net.fire("RescueBegin", rescueSpotId)
 		end
 	end)
-	UI.events.rescueEnded:Connect(
-		function(rescueSpotId: string?, _catId: string?, completed: boolean)
-			if rescueSpotId ~= nil and completed then
-				Net.fire("RescueEnd", rescueSpotId)
-			end
+	UI.events.rescuePressed:Connect(function(rescueSpotId: string)
+		Net.fire("RescuePress", rescueSpotId)
+	end)
+	UI.events.rescueCancelled:Connect(function(rescueSpotId: string)
+		Net.fire("RescueCancel", rescueSpotId)
+		if rescue ~= nil and rescue.spotId == rescueSpotId then
+			rescue = nil -- the server's closing RescueResult plays no fail sound on top of this one
+			Moments.RescueCancel:Fire(rescueSpotId)
 		end
-	)
+	end)
+end
+
+-- The trap type and the stuck cat's rarity for the sounds, from the trap's anchor and the cat's model.
+local function rescueInfo(rescueSpotId: string): (string?, string?)
+	local trap: string? = nil
+	for _, spot in CollectionService:GetTagged("RescueSpot") do
+		if spot:GetAttribute("RescueSpotId") == rescueSpotId then
+			local value = spot:GetAttribute("TrapType")
+			trap = if type(value) == "string" then value else nil
+			break
+		end
+	end
+	local rarity: string? = nil
+	for _, model in CollectionService:GetTagged("StuckCat") do
+		if model:GetAttribute("RescueSpotId") == rescueSpotId then
+			local value = model:GetAttribute("Rarity")
+			rarity = if type(value) == "string" then value else nil
+			break
+		end
+	end
+	return trap, rarity
 end
 
 -- The night dealer's cart (F32): the UI's range hint follows it and its prompt opens the dealer screen. The cart
@@ -462,6 +496,56 @@ local function wireServerEvents()
 				Moments.CatchFail:Fire(strayId)
 				if pawsLeft ~= nil then
 					Moments.PawLost:Fire(pawsLeft)
+				end
+			end
+		end
+	)
+	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
+	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
+		UI.rescue.show(rescueSpotId, challenge)
+		if challenge.kind == "circle" then
+			Moments.RescueDrop:Fire(rescueSpotId)
+			return
+		end
+		local trap, rarity = rescueInfo(rescueSpotId)
+		rescue = {
+			spotId = rescueSpotId,
+			trap = trap,
+			rarity = rarity,
+			needed = challenge.hitsNeeded or 0,
+			hits = 0,
+			paws = challenge.paws or 0,
+		}
+		Moments.RescueStart:Fire(rescueSpotId)
+	end)
+	Net.on(
+		"RescueResult",
+		function(
+			rescueSpotId: string,
+			hits: number,
+			pawsLeft: number,
+			done: boolean,
+			success: boolean
+		)
+			UI.rescue.update(rescueSpotId, hits, pawsLeft, done, success)
+			local current = rescue
+			if current == nil or current.spotId ~= rescueSpotId then
+				return
+			end
+			if hits > current.hits then
+				Moments.RescueHit:Fire(hits, current.needed, pawsLeft, current.trap)
+			end
+			if pawsLeft < current.paws then
+				Moments.RescueMiss:Fire(pawsLeft)
+			end
+			current.hits = hits
+			current.paws = pawsLeft
+			if done then
+				rescue = nil
+				if success then
+					Moments.RescueDone:Fire(rescueSpotId, current.rarity)
+				else
+					Moments.RescueFail:Fire(rescueSpotId)
 				end
 			end
 		end

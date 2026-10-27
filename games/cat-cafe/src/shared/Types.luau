@@ -40,6 +40,25 @@ export type CatchCircle = {
 export type NetWindows = { perfect: number, good: number, jitter: number }
 export type CatchWindows = { perfect: number, good: number }
 
+-- A rescue minigame as RescueChallenge sends it (data-model section 10b), times in server time. "bar": a marker
+-- slides back and forth along a bar (shared/RescueMarker) and each press inside the zone is a hit; zones holds
+-- the zone centre (0 to 1) for each hit in order. "shake_catch": the same bar on a tree, where each hit shakes
+-- the branch; the server then sends a second challenge of kind "circle", one catch circle with its windows.
+export type RescueKind = "bar" | "shake_catch" | "circle"
+export type RescueChallenge = {
+	kind: RescueKind,
+	startsAt: number,
+	phase: number?, -- 0 to 2, where on the back-and-forth the marker starts
+	speed: number?, -- bar lengths per second (RescueBarSpeed)
+	zoneWidth: number?, -- fraction of the bar (RescueZoneWidth)
+	zones: { number }?,
+	hitsNeeded: number?,
+	paws: number?, -- misses the attempt can take (RescuePatience)
+	endsAt: number?, -- the attempt's deadline
+	circle: CatchCircle?, -- kind "circle"
+	windows: CatchWindows?, -- kind "circle"
+}
+
 export type CatDef = {
 	id: string,
 	name: string,

@@ -136,7 +136,7 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
 		local _, isNew =
-			CafeService.addCaughtCat(player, def, true, nil, bait.charm, nil, bait.variant)
+			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)
 		Net.fire(player, "CatCaught", def.id, isNew)
 		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
 			Net.fireAll(

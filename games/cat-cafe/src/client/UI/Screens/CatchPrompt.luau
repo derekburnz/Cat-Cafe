@@ -9,8 +9,12 @@
 --                       rescue bar (RescueBar) come.
 --   fail(reason)        red flash ("It got away"), then hide; with retry the card stays.
 --   hide()
--- Nothing holds any more: a stray's prompt (F26) and a stuck cat's (F27) have HoldDuration 0, and one press asks
--- the server for the closing circles or the rescue minigame.
+--   holdStart() / holdStop()   the player began or let go of the prompt's hold (PromptButtonHoldBegan/Ended):
+--                       the key cap and the CATCH button fill with gold over info.holdDuration, letting go drains
+--                       them (reviewer S52)
+-- 2026-10-27: a stray's prompt (F26) and a stuck cat's (F27) are held for HoldDuration (0.5 s), so a passing
+-- player never starts a catch by accident; the trigger asks the server for the closing circles or the rescue
+-- minigame. The key cap says HOLD under it.
 -- On touch devices a big round CATCH button appears; it drives the real prompt through holdBegan / holdEnded.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
 
@@ -36,6 +40,8 @@ export type CatchPrompt = {
 	hide: (self: CatchPrompt) -> (),
 	isVisible: (self: CatchPrompt) -> boolean,
 	blockedText: (self: CatchPrompt) -> string?,
+	holdStart: (self: CatchPrompt) -> (),
+	holdStop: (self: CatchPrompt) -> (),
 	destroy: (self: CatchPrompt) -> (),
 }
 
@@ -52,6 +58,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	self._fleeingUntil = nil :: number?
 	self._retryAt = nil :: number?
 	self._ownerTurnUntil = nil :: number?
+	self._holdDuration = 0
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeCatch",
@@ -88,18 +95,50 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		),
 	})
 	self._card = card
-	self._keycap = Create("TextLabel", {
+	-- Key cap: a light key whose gold fill rises over the hold, with HOLD under it
+	local keyFrame: Frame = Create("Frame", {
 		Name = "Key",
 		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(14, 14),
+		ClipsDescendants = true,
+		Position = UDim2.fromOffset(14, 10),
 		Size = UDim2.fromOffset(40, 40),
+		Parent = card,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
+	self._keyFrame = keyFrame
+	self._keyFill = Create("Frame", {
+		Name = "Fill",
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.fromScale(1, 0),
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		ZIndex = 1,
+		Parent = keyFrame,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
+	self._keycap = Create("TextLabel", {
+		Name = "Glyph",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 2,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextColor3 = Theme.colors.ink,
 		Text = "E",
+		Parent = keyFrame,
+	})
+	self._holdTag = Create("TextLabel", {
+		Name = "Hold",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(10, 54),
+		Size = UDim2.fromOffset(48, 16),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.gold,
+		Text = "HOLD",
+		Visible = false,
 		Parent = card,
-	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
+	})
 	self._action = Create("TextLabel", {
 		Name = "Action",
 		BackgroundTransparency = 1,
@@ -159,16 +198,13 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	-- Mobile CATCH button (bottom right, right of the Shove button); reads RESCUE on a stuck cat
 	local grab: TextButton = Create("TextButton", {
 		Name = "Grab",
-		Text = "CATCH",
+		Text = "",
 		AutoButtonColor = false,
 		BackgroundColor3 = Theme.colors.good,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 1),
 		Position = UDim2.new(1, -28, 1, -100),
 		Size = UDim2.fromOffset(108, 108),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
-		TextColor3 = Theme.colors.goodText,
 		Visible = Scale.isTouch(),
 		Parent = root,
 	}, {
@@ -176,6 +212,28 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Create("UIStroke", { Color = Theme.colors.goodDark, Thickness = 4 }),
 	})
 	self._grab = grab
+	-- a gold disc that grows from the centre over the hold, under the word
+	self._grabFill = Create("Frame", {
+		Name = "Fill",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0, 0),
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+		Parent = grab,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._grabLabel = Create("TextLabel", {
+		Name = "Label",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 3,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.colors.goodText,
+		Text = "CATCH",
+		Parent = grab,
+	})
 	local holding = false
 	table.insert(
 		self._connections,
@@ -263,7 +321,8 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._retryAt = if rescue then nil else info.retryAt
 	self._ownerTurnUntil = if rescue then nil else info.ownerTurnUntil
 	self:_paintIdle(info.actionText)
-	self._grab.Text = if rescue then "RESCUE" else "CATCH"
+	self._grabLabel.Text = if rescue then "RESCUE" else "CATCH"
+	self._holdDuration = info.holdDuration or 0
 	local nameText = info.catName or ""
 	if info.stars then
 		nameText = nameText .. "  " .. Format.stars(info.stars :: number)
@@ -281,7 +340,8 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 		else "Hit each ring. Miss and it runs off!"
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
 	self._keycap.Text = key.Name
-	self._keycap.Visible = not Scale.isTouch()
+	self._keyFrame.Visible = not Scale.isTouch()
+	self._holdTag.Visible = self._holdDuration > 0 and not Scale.isTouch()
 	self._grab.Visible = Scale.isTouch()
 	if not self.screenGui.Enabled then
 		self.screenGui.Enabled = true
@@ -321,8 +381,28 @@ function CatchPrompt.fail(self: any, reason: string?, retry: boolean?)
 	end)
 end
 
+-- The hold began: fill the key cap and the CATCH button over the prompt's HoldDuration.
+function CatchPrompt.holdStart(self: any)
+	local duration: number = self._holdDuration
+	if duration <= 0 or self:blockedText() then
+		return
+	end
+	local info = TweenInfo.new(duration, Enum.EasingStyle.Linear)
+	self._keyFill.Size = UDim2.fromScale(1, 0)
+	self._grabFill.Size = UDim2.fromScale(0, 0)
+	Tween.to(self._keyFill, info, { Size = UDim2.fromScale(1, 1) })
+	Tween.to(self._grabFill, info, { Size = UDim2.fromScale(1, 1) })
+end
+
+-- Let go before the hold finished, or the hold triggered: drain both fills.
+function CatchPrompt.holdStop(self: any)
+	Tween.to(self._keyFill, Tween.FAST, { Size = UDim2.fromScale(1, 0) })
+	Tween.to(self._grabFill, Tween.FAST, { Size = UDim2.fromScale(0, 0) })
+end
+
 -- The press went to the server; dim the card until the circles or the minigame come.
 function CatchPrompt.waiting(self: any)
+	self:holdStop()
 	self._failToken += 1
 	self._action.Text = "Get ready..."
 	self._action.TextColor3 = Theme.hud.subtext
@@ -330,6 +410,8 @@ end
 
 function CatchPrompt.hide(self: any)
 	self._failToken += 1
+	self._keyFill.Size = UDim2.fromScale(1, 0)
+	self._grabFill.Size = UDim2.fromScale(0, 0)
 	self.screenGui.Enabled = false
 end
 

@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
+local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local UIController = require(script.Parent.UIController)
 
@@ -291,9 +292,20 @@ function WorldController.start()
 				for _, gate in gates:GetChildren() do
 					local requires = gate:GetAttribute("RequiresTier")
 					local open = type(requires) == "number" and state.tier >= requires
-					if gateOpen[gate] ~= open then
+					local was = gateOpen[gate]
+					if was ~= open then
 						gateOpen[gate] = open
 						setGateOpen(gate, open)
+						-- a gate opening while you play (not one already open when you joined)
+						local area = gate:GetAttribute("Area")
+						if
+							was == false
+							and open
+							and type(area) == "string"
+							and gate:IsA("Model")
+						then
+							Moments.AreaUnlock:Fire(area, (gate :: Model):GetPivot().Position)
+						end
 					end
 				end
 			end

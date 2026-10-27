@@ -9,10 +9,12 @@ ReplicatedStorage:WaitForChild("Remotes")
 
 local Audio = require(script.Parent.Audio)
 local CustomerController = require(script.Parent.Controllers.CustomerController)
+local Moments = require(script.Parent.Moments)
 local UIController = require(script.Parent.Controllers.UIController)
 local WorldController = require(script.Parent.Controllers.WorldController)
 
 Audio.start()
+Audio.bindMoments(Moments :: any)
 UIController.start()
 WorldController.start()
 CustomerController.start()

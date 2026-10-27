@@ -992,7 +992,8 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 					"%s caught %s!",
 					player.DisplayName,
 					withArticle(def.rarity .. " " .. def.name)
-				)
+				),
+				def.rarity -- the shout-out chime rises with rarity
 			)
 		end
 	end

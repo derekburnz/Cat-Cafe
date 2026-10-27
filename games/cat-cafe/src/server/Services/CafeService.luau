@@ -827,11 +827,11 @@ local function onRankUp(player: Player)
 	Net.toast(
 		player,
 		string.format(
-			"Your cafe is now a %s! %s is open, %d role slots are ready and you got %d golden fish.",
+			"Your cafe is now a %s! %s is open and %d role slots are ready%s.",
 			def.name,
 			if area ~= nil then area.name else def.area,
 			def.slots,
-			fish
+			if fish > 0 then string.format(", and you got %d golden fish", fish) else ""
 		),
 		"good"
 	)

@@ -1,14 +1,19 @@
 --!strict
--- Which cats move on this client and how (design v0.4 sections 1 and 4): role idles at the cafe stations, naps,
--- stuck cats struggling in their traps, strays looking around, and the hiss hop on a missed catch. Only the
--- nearest few within range move (budget.animatedCats within budget.animRadius); the rest stand as the server
--- placed them. Shiny cats in range sparkle, and napping cats show floating z's.
+-- Which cats move on this client and how (design v0.4 sections 1 and 4, v0.5 F40 and F44): role idles at the
+-- cafe stations, naps (and every working cat curled up at its station at night, when the cafe is closed), stuck
+-- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
+-- pant after a sprint and the hiss hop on a missed catch. Only the nearest few within range move
+-- (budget.animatedCats within budget.animRadius); the rest stand as the server placed them. Shiny cats in range
+-- sparkle, a shiny coat seen for the first time bursts with frost sparkles, and napping cats show floating z's.
 --
--- Cats come from replicated world state only: the Stray and StuckCat tags, and models inside a Plot with a
--- CatId, Napping or Pose attribute (working cats under Plot/Cats, napping cats; data-model section 13).
+-- Cats come from replicated world state only: the Stray and StuckCat tags, models inside a Plot with a CatId,
+-- Napping or Pose attribute (working cats under Plot/Cats, napping cats; data-model section 13), and the HeldCat
+-- a player carries (for its sparkle only; it rides its holder's arms).
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -22,8 +27,13 @@ type Entry = {
 	model: Model,
 	rig: Pose.Rig,
 	style: Logic.Style,
+	from: Logic.Style?, -- the style it is settling out of, for motion.settle seconds after changedAt
+	changedAt: number,
 	phase: number,
 	hissAt: number?,
+	head: BasePart?,
+	dustAt: number,
+	huffAt: number,
 	yarn: BasePart?,
 	naps: { TextLabel }?,
 	napGui: BillboardGui?,
@@ -44,6 +54,7 @@ local watched: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local retryAt: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local active: { [Model]: Entry } = {}
 local sparkles: { [Model]: ParticleEmitter } = setmetatable({}, { __mode = "k" }) :: any
+local held: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local rng = Random.new()
 local started = false
 
@@ -63,6 +74,18 @@ local function onPartAdded(model: Model, descendant: Instance)
 	end
 end
 
+-- A shiny coat seen for the first time: a burst of frost sparkles and a pale blue ring (F42). A stuck cat is never
+-- marked shiny before its rescue (N30), so this is also the rescued shiny's reveal.
+local function reveal(model: Model)
+	local frame, size = model:GetBoundingBox()
+	local at = frame.Position + Vector3.new(0, size.Y / 2, 0)
+	if Context.distance(at) > Context.budget.ambientRadius then
+		return
+	end
+	Particles.burst("shiny", at, Presets.reveal.sparkles)
+	Particles.ring(frame.Position - Vector3.new(0, size.Y / 2 - 0.1, 0), Presets.palette.eyeBlue)
+end
+
 local function consider(instance: Instance)
 	if not instance:IsA("Model") then
 		return
@@ -74,7 +97,38 @@ local function consider(instance: Instance)
 		model.DescendantAdded:Connect(function(descendant: Instance)
 			onPartAdded(model, descendant)
 		end)
+		model:GetAttributeChangedSignal("Shiny"):Connect(function()
+			if model:GetAttribute("Shiny") == true then
+				reveal(model)
+			end
+		end)
 	end
+end
+
+-- The cat a player carries is welded to them, so it never poses, but a shiny one sparkles and a rescued or
+-- caught shiny bursts as it is picked up.
+local function watchCharacter(character: Model)
+	local function onChild(child: Instance, picked: boolean)
+		if child.Name == "HeldCat" and child:IsA("Model") then
+			held[child :: Model] = true
+			if picked and child:GetAttribute("Shiny") == true then
+				reveal(child :: Model)
+			end
+		end
+	end
+	for _, child in character:GetChildren() do
+		onChild(child, false) -- already held when this client joined: it sparkles, with no burst
+	end
+	character.ChildAdded:Connect(function(child: Instance)
+		onChild(child, true)
+	end)
+end
+
+local function watchPlayer(player: Player)
+	if player.Character ~= nil then
+		watchCharacter(player.Character)
+	end
+	player.CharacterAdded:Connect(watchCharacter)
 end
 
 local function isPlotCat(instance: Instance): boolean
@@ -129,8 +183,17 @@ local function roleOf(model: Model): string?
 	return if type(spotType) == "string" then string.lower(spotType) else nil
 end
 
+-- A cat with a job: the server tags it WorkingCat and sets its station's SpotId.
+local function isWorking(model: Model): boolean
+	return CollectionService:HasTag(model, "WorkingCat") or model:GetAttribute("SpotId") ~= nil
+end
+
 local function styleOf(model: Model): Logic.Style
-	if model:GetAttribute("Napping") == true or model:GetAttribute("Pose") == "nap" then
+	if
+		model:GetAttribute("Napping") == true
+		or model:GetAttribute("Pose") == "nap"
+		or (Context.isNight() and isWorking(model)) -- the cafe is closed at night (F44)
+	then
 		return "nap"
 	elseif CollectionService:HasTag(model, "StuckCat") then
 		return "stuck"
@@ -271,8 +334,13 @@ local function bind(model: Model): Entry?
 		model = model,
 		rig = rig,
 		style = styleOf(model),
+		from = nil,
+		changedAt = 0,
 		phase = rng:NextNumber(0, 20),
 		hissAt = nil,
+		head = partNamed(model, "Head"),
+		dustAt = 0,
+		huffAt = 0,
 		yarn = nil,
 		naps = nil,
 		napGui = nil,
@@ -325,6 +393,16 @@ local function pick()
 	local now = os.clock()
 	local moving: { Logic.Candidate<Model> } = {}
 	local shiny: { Logic.Candidate<Model> } = {}
+	for model in held do
+		if model.Parent == nil then
+			held[model] = nil
+		elseif model:GetAttribute("Shiny") == true then
+			table.insert(
+				shiny,
+				{ key = model, distance = (model:GetPivot().Position - focus).Magnitude }
+			)
+		end
+	end
 	for model in known do
 		if model.Parent == nil then
 			known[model] = nil
@@ -353,6 +431,8 @@ local function pick()
 		else
 			local style: Logic.Style = styleOf(model)
 			if style ~= entry.style then
+				entry.from = entry.style
+				entry.changedAt = os.clock()
 				entry.style = style
 				dress(entry)
 			end
@@ -370,9 +450,48 @@ local function step(dt: number)
 	end
 	elapsed = 0
 	local now = os.clock()
-	local hiss = Presets.motion.hiss
+	local serverNow = Workspace:GetServerTimeNow()
+	local motion = Presets.motion
+	local hiss = motion.hiss
+	local gait = motion.gait
+	local pant = motion.pant
 	for model, entry in active do
-		local o = Logic.idle(entry.style, now + entry.phase)
+		local rig = entry.rig
+		if not Pose.read(rig) then
+			drop(model, entry)
+			continue
+		end
+		local t = now + entry.phase
+		local o = Logic.idle(entry.style, t)
+		local from: Logic.Style? = entry.from
+		if from ~= nil then
+			local k = (now - entry.changedAt) / motion.settle
+			if k >= 1 then
+				entry.from = nil
+			else
+				o = Logic.mix(Logic.idle(from, t), o, k * k * (3 - 2 * k))
+			end
+		end
+		-- F40: a stray that ran from a missed catch catches its breath until FleeingUntil.
+		local fleeing = false
+		if entry.style == "stray" then
+			local untilAt = model:GetAttribute("FleeingUntil")
+			fleeing = type(untilAt) == "number" and untilAt > serverNow
+		end
+		if fleeing and rig.speed < gait.moveFrom then
+			Logic.pant(o, t)
+			local head = entry.head
+			if head ~= nil and head.Parent ~= nil and now - entry.huffAt >= pant.huffEvery then
+				entry.huffAt = now
+				Particles.burst("huff", head.Position + head.CFrame.LookVector * 0.3, pant.huff)
+			end
+		else
+			Logic.gait(o, rig.speed, rig.stride)
+		end
+		if Logic.runFactor(rig.speed) > 0.3 and now - entry.dustAt >= gait.dustEvery then
+			entry.dustAt = now
+			Particles.burst("kick", Pose.floor(rig).Position, gait.dust)
+		end
 		local alpha = -1
 		local hissAt = entry.hissAt
 		if hissAt ~= nil then
@@ -384,10 +503,7 @@ local function step(dt: number)
 				Logic.hiss(o, alpha)
 			end
 		end
-		if not Pose.apply(entry.rig, o, alpha) then
-			drop(model, entry)
-			continue
-		end
+		Pose.draw(rig, o, alpha)
 		local yarn = entry.yarn
 		if yarn ~= nil then
 			yarn.CFrame = Pose.floor(entry.rig)
@@ -430,6 +546,10 @@ function Cats.start()
 		watchPlot(plot)
 	end
 	CollectionService:GetInstanceAddedSignal("Plot"):Connect(watchPlot)
+	for _, player in Players:GetPlayers() do
+		watchPlayer(player)
+	end
+	Players.PlayerAdded:Connect(watchPlayer)
 
 	task.spawn(function()
 		while true do

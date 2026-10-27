@@ -37,6 +37,11 @@ export type Rig = {
 	jumpAt: number,
 	shift: Vector3, -- a server jump still being drawn as travel during a hiss hop
 	shiftFrom: number,
+	jumped: boolean, -- read saw a jump that draw has not handled yet
+	speed: number, -- studs a second the server is moving the cat across the ground, smoothed
+	stride: number, -- leg cycles covered, counted from the distance moved
+	lastAt: number,
+	restDrop: number, -- studs the body drops to lie on its belly (Offsets.sink = 1)
 	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
 	frames: { CFrame },
 }
@@ -136,6 +141,28 @@ local function hipOf(leg: BasePart): Vector3
 	return leg.Position + leg.CFrame.UpVector * (leg.Size.Y / 2)
 end
 
+-- The leg a part of the body is, or nil. The exported cats name every body part like the body, legs included, so
+-- a leg is told by shape and place: taller than it is wide, its top at or below the underside of the body, off
+-- the middle line. Front or back by which side of the body's centre it stands (the cat faces -Z), left or right
+-- by X (+X is the cat's right).
+local function legOf(part: BasePart, body: BasePart, pivot: CFrame): Group?
+	local size = part.Size
+	if size.Y < 1.2 * math.min(size.X, size.Z) then
+		return nil
+	end
+	local at = pivot:PointToObjectSpace(part.Position)
+	local centre = pivot:PointToObjectSpace(body.Position)
+	local underside = centre.Y - body.Size.Y / 2
+	if at.Y + size.Y / 2 > underside + 0.1 or math.abs(at.X) < 0.05 then
+		return nil
+	end
+	local front = at.Z < centre.Z
+	if at.X > 0 then
+		return if front then "pawFR" else "pawBR"
+	end
+	return if front then "pawFL" else "pawBL"
+end
+
 local function motorsOf(model: Model): { [Group]: Motor6D }
 	local motors: { [Group]: Motor6D } = {}
 	for _, descendant in model:GetDescendants() do
@@ -173,6 +200,11 @@ local function newRig(model: Model, body: BasePart): Rig
 		jumpAt = -math.huge,
 		shift = Vector3.zero,
 		shiftFrom = 0,
+		jumped = false,
+		speed = 0,
+		stride = 0,
+		lastAt = os.clock(),
+		restDrop = 0,
 		moves = {},
 		frames = {},
 	}
@@ -199,11 +231,15 @@ function Pose.bind(model: Model): Rig?
 	local rig = newRig(model, body)
 	local head = findPart(model, "Head")
 	local tail = findPart(model, "Tail")
-	local legs: { [Group]: BasePart } = {}
+	local pivot = model:GetPivot()
+	local legs: { [Group]: BasePart } = {} -- the highest part of each leg, whose top is the hip
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and (descendant :: BasePart).Anchored then
 			local part = descendant :: BasePart
 			local group = groupOf(part, body, head)
+			if group == "body" and part ~= body then
+				group = legOf(part, body, pivot) or group
+			end
 			table.insert(rig.parts, part)
 			table.insert(rig.groups, group)
 			table.insert(rig.base, part.CFrame)
@@ -211,9 +247,11 @@ function Pose.bind(model: Model): Rig?
 			if part == body then
 				rig.bodyIndex = #rig.parts
 			end
-			local legGroup: Group? = LEGS[part.Name]
-			if legGroup ~= nil then
-				legs[group] = part
+			if string.sub(group, 1, 3) == "paw" then
+				local highest: BasePart? = legs[group]
+				if highest == nil or hipOf(part).Y > hipOf(highest).Y then
+					legs[group] = part
+				end
 			end
 		end
 	end
@@ -221,7 +259,21 @@ function Pose.bind(model: Model): Rig?
 		return nil
 	end
 
-	local pivot = model:GetPivot()
+	-- How far the body drops to lie down: the hips come down to half a leg's thickness off the floor, or with no
+	-- legs found most of the gap under the body.
+	local hips, count, thickness = 0, 0, math.huge
+	for _, leg in legs do
+		hips += pivot:PointToObjectSpace(hipOf(leg)).Y
+		count += 1
+		thickness = math.min(thickness, leg.Size.X, leg.Size.Z)
+	end
+	if count > 0 then
+		rig.restDrop = math.max(0, hips / count - thickness / 2)
+	else
+		local underside = pivot:PointToObjectSpace(body.Position).Y - body.Size.Y / 2
+		rig.restDrop = math.max(0, underside * 0.8)
+	end
+
 	local axes = pivot.Rotation
 	local bodyBase = body.CFrame
 	local function joint(position: Vector3): CFrame
@@ -260,7 +312,8 @@ local function applyMotors(rig: Rig, o: Logic.Offsets)
 	local motors = rig.motors
 	local body: Motor6D? = motors.body
 	if body ~= nil then
-		body.Transform = CFrame.new(0, o.bodyY, 0) * CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
+		body.Transform = CFrame.new(0, o.bodyY - o.sink * rig.restDrop, 0)
+			* CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
 	end
 	local head: Motor6D? = motors.head
 	if head ~= nil then
@@ -272,39 +325,70 @@ local function applyMotors(rig: Rig, o: Logic.Offsets)
 	end
 end
 
--- Draws one frame of offsets. `hopAlpha` is the hiss progress (0 to 1), or -1 when no hiss plays: a server jump
--- that lands during a hiss is drawn as the hop's travel instead of a snap. False once the cat has gone.
-function Pose.apply(rig: Rig, o: Logic.Offsets, hopAlpha: number): boolean
+-- How fast the server is moving the cat and how many leg cycles that covers. A jump (a teleport) is not walking.
+local function track(rig: Rig, moved: Vector3, now: number)
+	local dt = now - rig.lastAt
+	rig.lastAt = now
+	if dt <= 0 then
+		return
+	end
+	if moved.Magnitude > Presets.motion.hiss.jumpStuds then
+		rig.jump = moved
+		rig.jumpAt = now
+		rig.jumped = true
+		return
+	end
+	local ground = Vector3.new(moved.X, 0, moved.Z).Magnitude
+	rig.speed += (ground / dt - rig.speed) * math.min(1, dt * 10)
+	rig.stride += ground / Logic.strideLength(rig.speed)
+end
+
+-- Reads where the server has the cat this frame: re-reads any part the server moved and updates the speed and
+-- stride. False once the cat has gone or lost a part (Cats then drops the rig and binds the cat afresh).
+function Pose.read(rig: Rig): boolean
 	if rig.model.Parent == nil or rig.body.Parent == nil then
 		return false
 	end
+	local now = os.clock()
 	if rig.usesMotors then
-		applyMotors(rig, o)
+		local position = rig.body.Position
+		track(rig, position - rig.lastBody, now)
+		rig.lastBody = position
 		return true
 	end
+	local base = rig.base
+	local written = rig.written
+	for i, part in rig.parts do
+		if part.Parent == nil then
+			return false -- a part streamed out or was removed
+		end
+		local frame = part.CFrame
+		if frame ~= written[i] then
+			base[i] = frame
+		end
+	end
+	local position = base[rig.bodyIndex].Position
+	track(rig, position - rig.lastBody, now)
+	rig.lastBody = position
+	return true
+end
 
+-- Draws one frame of offsets on what read found. `hopAlpha` is the hiss progress (0 to 1), or -1 when no hiss
+-- plays: a server jump that lands during a hiss is drawn as the hop's travel instead of a snap.
+function Pose.draw(rig: Rig, o: Logic.Offsets, hopAlpha: number)
+	if rig.usesMotors then
+		applyMotors(rig, o)
+		return
+	end
 	local parts = rig.parts
 	local base = rig.base
 	local written = rig.written
-	for i, part in parts do
-		if part.Parent == nil then
-			return false -- a part streamed out or was removed: Cats drops this rig and binds the cat afresh
-		end
-		local now = part.CFrame
-		if now ~= written[i] then
-			base[i] = now
-		end
-	end
-
 	local bodyBase = base[rig.bodyIndex]
-	local moved = bodyBase.Position - rig.lastBody
-	rig.lastBody = bodyBase.Position
 	local hopping = hopAlpha >= 0 and hopAlpha < 1
-	if moved.Magnitude > Presets.motion.hiss.jumpStuds then
-		rig.jump = moved
-		rig.jumpAt = os.clock()
+	if rig.jumped then
+		rig.jumped = false
 		if hopping then
-			rig.shift = -moved
+			rig.shift = -rig.jump
 			rig.shiftFrom = hopAlpha
 		end
 	end
@@ -323,7 +407,8 @@ function Pose.apply(rig: Rig, o: Logic.Offsets, hopAlpha: number): boolean
 			joints,
 			bodyBase,
 			"body",
-			CFrame.new(0, o.bodyY, 0) * CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
+			CFrame.new(0, o.bodyY - o.sink * rig.restDrop, 0)
+				* CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
 		)
 	local moves = rig.moves
 	moves.body = bodyMove
@@ -333,8 +418,8 @@ function Pose.apply(rig: Rig, o: Logic.Offsets, hopAlpha: number): boolean
 		* around(joints, bodyBase, "tail", CFrame.Angles(-o.tailPitch, o.tailYaw, 0))
 	moves.pawFL = bodyMove * around(joints, bodyBase, "pawFL", CFrame.Angles(o.pawFL, 0, 0))
 	moves.pawFR = bodyMove * around(joints, bodyBase, "pawFR", CFrame.Angles(o.pawFR, 0, 0))
-	moves.pawBL = bodyMove
-	moves.pawBR = bodyMove
+	moves.pawBL = bodyMove * around(joints, bodyBase, "pawBL", CFrame.Angles(o.pawBL, 0, 0))
+	moves.pawBR = bodyMove * around(joints, bodyBase, "pawBR", CFrame.Angles(o.pawBR, 0, 0))
 
 	local frames = rig.frames
 	for i, group in rig.groups do
@@ -344,7 +429,6 @@ function Pose.apply(rig: Rig, o: Logic.Offsets, hopAlpha: number): boolean
 	for i, part in parts do
 		written[i] = part.CFrame
 	end
-	return true
 end
 
 -- Starts a hiss hop. A server jump that landed just before the hiss arrived is drawn as the hop's travel too.

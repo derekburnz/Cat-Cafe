@@ -1,12 +1,31 @@
 # Purr Pot animation and VFX list
 
-Draft v0.3, 2026-10-26: adds the design v0.4 build below (Effects v1). v0.2 earlier the same day was rewritten for design v0.3; v0.1 was written for design v0.2. Owner: vfx-animator. Readers: luau-engineer (hooks and the cat rig), ui-designer (screen versus world), sound-designer (same moment names), asset-artist (parts and swatches), game-designer, luau-reviewer, qa-playtester. How each tool works, the style rules and the phone budgets are in `.claude/skills/animation-vfx/SKILL.md`; this file is the what and the when. The mechanics come from `docs/design/cat-cafe/features.md` v0.3 and `data-model.md` sections 4, 5, 5b, 8, 8b, 10, 10b, 10c, 12 and 13.
+Draft v0.4, 2026-10-27: adds the design v0.5 build below (Effects v1.1). v0.3, 2026-10-26, added the design v0.4 build (Effects v1); v0.2 earlier the same day was rewritten for design v0.3; v0.1 was written for design v0.2. Owner: vfx-animator. Readers: luau-engineer (hooks and the cat rig), ui-designer (screen versus world), sound-designer (same moment names), asset-artist (parts and swatches), game-designer, luau-reviewer, qa-playtester. How each tool works, the style rules and the phone budgets are in `.claude/skills/animation-vfx/SKILL.md`; this file is the what and the when. The mechanics come from `docs/design/cat-cafe/features.md` v0.3 and `data-model.md` sections 4, 5, 5b, 8, 8b, 10, 10b, 10c, 12 and 13.
 
 Nothing here changes gameplay. Every entry runs on the client, reads state the client already has and fits the low tier budget. Priorities: **P1** makes the ten-minute slice loop read, **P2** ships in the slice if time allows, **P3** after the slice. Tools: **proc** is procedural joint motion (`Motor6D.Transform`), **tween** is TweenService, **clip** is a published Animation Editor clip, **fx** is ParticleEmitter, Beam, Trail or Highlight. Particle counts are high tier; the low tier halves them and drops anything marked "high only".
 
 Moment names are the shared v0.3 list in `docs/audio/cat-cafe/sound-list.md` section 6 (agreed with the sound thread) and become Signals in `src/client/Moments.luau`. Effects that other players must see also read replicated state (tags, attributes, models appearing), listed in the hook column.
 
 What design v0.3 removed from v0.1 of this list: the hold-and-release ring and its windup, the 4 s rescue hold, lure spots in the areas with the calm heart and the expiry, the v0.2 stuck props (box and drainpipe; the tree comes back as the Park rescue tree), the cafe level, the Park pass gate and customers leaving at night.
+
+## Design v0.5 build: Effects v1.1 (2026-10-27)
+
+Design v0.5 (`docs/design/cat-cafe/features.md` F40 to F44, PR #122) gave this role four effects, F40 first. All four are in `games/cat-cafe/src/client/Effects/`; the numbers are in `Presets.luau` (`motion.gait`, `motion.pant`, `motion.nap`, `shove`, `reveal`).
+
+| effect | what you see | trigger | status |
+|---|---|---|---|
+| F40 sprint after a miss | Every cat that moves now walks: a trot (diagonal legs together) at a walk, a gallop (front pair then back pair, body rocking, head stretched forward and down, tail out) from 9 studs a second, full at 18; StrayFleeSpeed 26 is a flat-out gallop. Dust kicks from the feet while it runs. When it stops it pants for the rest of the sprint: quick shallow breaths, head and tail low, a small breath puff every 0.7 s | the cat's measured speed (the server moves it; nothing extra needed); the pant reads `FleeingUntil` (server time the sprint and rest end) | works with the engineer's chase PR (#130); the gait works now for any moving cat |
+| Settle between poses | A cat eases from one pose into the next over 0.8 s (sit to nap, stray to carried) instead of snapping | any change of style | works now |
+| F44 night nap | Working cats curl up at their stations at night: the body sinks to lie down, legs tucked under, head turned and tucked toward the tail, tail wrapped round to meet it, slow breathing and z, z, Z. They stand up again at dawn | Clock `Phase` is `"night"` on a cat tagged `WorkingCat` (or with a `SpotId`); `Napping = true` still naps any cat | works now (read on the client from the Clock, no new hook) |
+| F42 shiny sparkle | The steady sparkle is now frost coloured (milk, pale blue, ice blue) to match the round 2 frost coats, and also shows on a shiny cat someone is carrying. A shiny cat gets a one-off burst and ring when it is revealed: on a catch, when `Shiny` turns on, or when a shiny is picked up | `Shiny = true` on the cat or on a `HeldCat` model under a character | works with the engineer's shiny strays PR; the ShinySparkle sprite still waits on Derek's upload |
+| F41 shove | A puff where the shove lands (between the two players), a skid of dust at the shoved player's feet, three dizzy stars circling their head for 1.2 s, and for the shoved player a 0.3 s camera bump bigger than a missed catch's. Stars hold still and the bump is off under Reduce Motion | `ShovedAt` (server time) and `ShovedBy` (shover's UserId) on the shoved player's character | needs the engineer to set those two attributes in the shove PR; nothing plays until then |
+
+Budget: the gait and pant add no emitters; dust is 3 particles a kick every 0.14 s per running cat (about 1 on a phone after halving), the pant puff 2, the shove puff 10 and the reveal 20, all capped at 12 on a phone. Only one shove star loop runs however many players are dizzy.
+
+Requests from this build:
+- Engineer: on a shove, set `ShovedAt = Workspace:GetServerTimeNow()` and `ShovedBy = <shover UserId>` on the shoved player's character (README hook 9). `FleeingUntil` (#130) is read as is.
+- Game-designer: add `ShovedAt` and `ShovedBy` (character attributes) to data-model section 13.
+- QA: five more cases in `docs/vfx/cat-cafe/specs/EffectsMotion.spec.luau` (curl, settle, trot and gallop, pant, presets) pass in cloudcheck; move it into `tests/specs/`. Studio checks: a missed stray gallops off with dust and pants when it stops; working cats curl up at nightfall and stand at dawn; a forced shiny shows the frost sparkle and the reveal burst, and keeps sparkling while carried; a shove shows the puff, dust, stars and the bump for the target only; a sprinting stray moves smoothly rather than in steps (anchored server moves can look choppy; say if so and I will add client smoothing).
 
 ## Design v0.4 build: Effects v1 (2026-10-26)
 

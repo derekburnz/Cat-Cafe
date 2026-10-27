@@ -7,7 +7,6 @@
 -- player nearby sees a hiss, not only the catcher. Listening only: nothing here fires a remote.
 
 local CollectionService = game:GetService("CollectionService")
-local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Cats = require(script.Parent.Cats)
@@ -21,11 +20,8 @@ local Catch = {}
 
 type Scheduled = { model: Model, position: Vector3, rarity: string }
 
-local SHAKE_STEP = "PurrPotEffectsShake"
-
 local scheduled: { [string]: Scheduled } = {}
 local lastHiss: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
-local rng = Random.new()
 local started = false
 
 local function strayById(strayId: string): Model?
@@ -53,30 +49,6 @@ local function headOf(model: Model): BasePart?
 		return primary
 	end
 	return model:FindFirstChildWhichIsA("BasePart", true) :: BasePart?
-end
-
--- A small camera shake for the player who missed. Runs after the camera scripts each frame, so the offset never
--- piles up; off with Reduce Motion.
-local function shake()
-	if Context.reducedMotion() then
-		return
-	end
-	local camera = Workspace.CurrentCamera
-	if camera == nil then
-		return
-	end
-	local s = Presets.shake
-	local began = os.clock()
-	RunService:UnbindFromRenderStep(SHAKE_STEP)
-	RunService:BindToRenderStep(SHAKE_STEP, Enum.RenderPriority.Camera.Value + 1, function()
-		local t = os.clock() - began
-		if t >= s.seconds then
-			RunService:UnbindFromRenderStep(SHAKE_STEP)
-			return
-		end
-		local k = (1 - t / s.seconds) * s.studs
-		camera.CFrame = camera.CFrame * CFrame.new(rng:NextNumber(-k, k), rng:NextNumber(-k, k), 0)
-	end)
 end
 
 -- The hiss: a puff, a "!" over the head and the hop. Once per cat per second, so the catcher's CatchResult and
@@ -181,7 +153,7 @@ function Catch.start()
 				end
 			elseif model ~= nil then
 				-- v0.4: a catch only fails on a Miss (a late or wild press, or walking out of range).
-				shake()
+				Context.shake(Presets.shake.seconds, Presets.shake.studs) -- for the player who missed
 				hiss(model)
 			end
 		end

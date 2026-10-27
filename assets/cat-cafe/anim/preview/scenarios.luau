@@ -40,13 +40,16 @@ return {
 		camera = "side",
 		segments = { { style = "stray", seconds = 4, stretch = true } },
 	},
-	-- A waiter waking at dawn in its seat at the station: the seated reach and yawn, then back to work.
-	wakeSit = {
-		model = "CatCafe_Cat_Tabby_Sit",
-		role = "waiter",
-		camera = "three",
-		attributes = { Pose = "sit" },
-		segments = { { style = "doze", seconds = 1.5 }, { style = "waiter", seconds = 4.5 } },
+	-- A stray napping in a pause of its wander gets up when the server sets StretchAt, stretches onto all fours and,
+	-- once the server stops waiting, walks off.
+	strayNap = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "side",
+		segments = {
+			{ style = "nap", seconds = 2.5 },
+			{ style = "stray", seconds = 3.6, stretch = true },
+			{ style = "stray", seconds = 3, speed = 3 },
+		},
 	},
 	-- A stray wandering at StrayWanderSpeed (3, a walk), then trotting, then standing.
 	walk = {

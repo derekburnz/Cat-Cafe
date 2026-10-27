@@ -30,11 +30,13 @@ OFFWHITE = (1.0, 0.976, 0.949)  # palette offwhite, the z's fill
 DARK_WOOD = (94 / 255, 70 / 255, 52 / 255)  # the z's outline
 # Where the camera sits for each view, as a direction from the cat in Roblox axes (the cat faces -Z, +X is its right).
 # "three" is Model-Agent's pose sheet camera (azimuth 35, elevation 22: front left, the face towards the camera) and
-# "side" sees the left side, a little from the front, so the cat faces left on screen as in the sheets.
+# "side" sees the left side, a little from the front, so the cat faces left on screen as in the sheets. "high" looks
+# down on a cat lying down.
 VIEWS = {
     "side": Vector((-1.0, 0.3, -0.45)),
     "front": Vector((0.0, 0.3, -1.0)),
     "three": Vector((-0.53, 0.37, -0.76)),
+    "high": Vector((-0.6, 1.0, -0.7)),
 }
 
 

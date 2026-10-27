@@ -14,6 +14,7 @@
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
+--   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -35,6 +36,7 @@ local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
+local SpinService = require(script.Parent.SpinService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -136,6 +138,12 @@ end
 -- Ages this session's Tip Jar by `minutes` so its steps unlock now (F47). Returns the session minutes played.
 function Debug.tipJar(player: (Player | number | string)?, minutes: number): number
 	return TipJarService.debugAge(resolve(player), minutes)
+end
+
+-- Sets the banked spins and, with `freeDue`, makes today's free spin due again (F49). Returns the spins available.
+function Debug.spins(player: (Player | number | string)?, banked: number, freeDue: boolean?): number
+	local p = resolve(player)
+	return SpinService.debugSet(p, profileOf(p), banked, freeDue == true)
 end
 
 -- Brings the cat at the bait bowl now instead of after LureWaitSeconds (F28). Errors when the bowl is empty.

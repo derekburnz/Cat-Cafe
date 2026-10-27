@@ -91,6 +91,10 @@ return function()
 		RichChance = 0.15,
 		RichTipSeconds = 45,
 		RichTipStaySeconds = 90,
+		-- the Spin Wheel station (F49, section 11c, design v0.6)
+		SpinStationRange = 14,
+		SpinCooldownSeconds = 4,
+		SpinBankCap = 20,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45)
 		BumpEnabled = true,
 		BumpRangeStuds = 6,

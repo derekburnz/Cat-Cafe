@@ -623,8 +623,25 @@ def shimmer_rare() -> np.ndarray:
     return x / np.max(np.abs(x)) * 10 ** (-10 / 20)  # no end fade: it is a loop
 
 
+def spin_start() -> np.ndarray:
+    """The Spin Wheel window (F49) starts turning: a wooden ratchet winding up quickly into a whoosh."""
+    d = 0.6
+    clicks = []
+    at, gap = 0.0, 0.065
+    for i in range(6):
+        knock = bell(0.05, 1200.0 * (1 + 0.04 * i), MARIMBA, attack=0.0005)
+        click = bandpass(bandpass(noise(0.05, 205 + i), 3800, 3), 3800, 3) * envelope(0.05, 0.0003, 0.003)
+        clicks.append(((knock + click / np.max(np.abs(click)) * 0.4) * (0.6 + 0.06 * i), at))
+        at += gap
+        gap *= 0.8
+    up = 0.36
+    whoosh = bandpass(bandpass(noise(up, 211), sweep(up, 500, 2600), 1.6), sweep(up, 500, 2600), 1.6)
+    whoosh *= np.sin(np.pi * seconds(up) / up) ** 1.2
+    return finish(mix(d, *clicks, (whoosh / np.max(np.abs(whoosh)) * 0.6, 0.2)), -6)
+
+
 def wheel_tick() -> np.ndarray:
-    """The spin wheel (coming): one peg clicking past the pointer. Played once per slice, so it slows with the wheel."""
+    """The Spin Wheel window: one peg clicking past the pointer. Played once per slice, so it slows with the wheel."""
     d = 0.05
     knock = bell(d, 1800.0, MARIMBA, attack=0.0005)
     click = bandpass(bandpass(noise(d, 200), 4000, 3), 4000, 3) * envelope(d, 0.0003, 0.003)
@@ -632,7 +649,7 @@ def wheel_tick() -> np.ndarray:
 
 
 def wheel_win() -> np.ndarray:
-    """The spin wheel stops on a prize: a quick run up into a bright chord, coins sparkling on top."""
+    """The Spin Wheel stops on a prize: a quick run up into a bright chord, coins sparkling on top."""
     d = 1.4
     run = [(bell(d - at, note(n), GLOCK) * 0.6, at) for n, at in
            (("C6", 0.0), ("D6", 0.06), ("E6", 0.12), ("G6", 0.18))]
@@ -738,8 +755,9 @@ SOUNDS = {
     "IndexReward": ("sfx", "Sfx", index_reward),
     "GoldReveal": ("sfx", "Sfx", gold_reveal),
     "ShimmerRare": ("sfx", "Sfx", shimmer_rare),
-    "WheelTick": ("sfx", "Sfx", wheel_tick),
-    "WheelWin": ("sfx", "Sfx", wheel_win),
+    "SpinStart": ("ui", "Ui", spin_start),
+    "SpinTick": ("ui", "Ui", wheel_tick),
+    "SpinWin": ("ui", "Ui", wheel_win),
     "Slider": ("ui", "Ui", ui_slider),
     "GiftReady": ("ui", "Ui", ui_gift_ready),
     "Badge": ("ui", "Ui", ui_badge),

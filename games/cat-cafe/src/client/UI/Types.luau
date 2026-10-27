@@ -121,6 +121,8 @@ export type CatchInfo = {
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
 	shiny: boolean?, -- v0.3: the stray's Shiny attribute (rescued cats hide it until freed)
+	patience: number?, -- v0.4: the stray's Patience attribute, its full paw count; nil on a v0.3 server
+	paws: number?, -- v0.4: paws this player has left on it (Paws_<UserId>, else Patience)
 }
 
 -- Net circles (F26, data-model section 10), from shared Types. Times are server time
@@ -145,10 +147,21 @@ export type CarryInfo = {
 	door: BasePart?, -- own cafe door; shows a world marker with distance
 }
 
+-- Optional extras for UI.showCatFound, all from the catch: the cat's charm stars (CatView.stars), whether it is
+-- shiny, and the charm the Purrfect bonus added (CatchResult charmGain, v0.4).
+export type CatFoundExtra = {
+	stars: number?,
+	shiny: boolean?,
+	charmGain: number?,
+}
+
 export type InitConfig = {
 	catalog: Catalog,
 	keybinds: boolean?, -- default true: U upgrades, B decor, C collection, F lure
 	parent: Instance?, -- default LocalPlayer.PlayerGui
+	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
+	-- uiHint and uiRankReady; nil keeps the UI silent.
+	playSound: ((cueId: string) -> ...any)?,
 }
 
 -- ModuleScripts must return a non-nil value.

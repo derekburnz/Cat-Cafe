@@ -1,12 +1,14 @@
 --!strict
 -- Chunky rounded button in the Roblox simulator style: dark outline, shaded face over a darker bottom edge,
 -- white outlined label with an optional icon, press squash and hover grow (mouse only).
--- Works with mouse, touch and gamepad through GuiButton.Activated.
+-- Works with mouse, touch and gamepad through GuiButton.Activated. A press plays uiClick (or the `sound` prop's cue);
+-- a press on a greyed button plays uiError so the player hears why nothing happened.
 
 local UserInputService = game:GetService("UserInputService")
 
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
+local Sound = require(script.Parent.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
 
@@ -29,6 +31,8 @@ export type Props = {
 	layoutOrder: number?,
 	enabled: boolean?,
 	onClick: (() -> ())?,
+	-- cue played on press; default "uiClick", false when the action already sounds (a modal's open or close swish)
+	sound: (string | false)?,
 	name: string?,
 	zIndex: number?,
 }
@@ -195,6 +199,7 @@ function Button.new(props: Props): Button
 	self._enabled = enabled
 	self._connections = {} :: { RBXScriptConnection }
 	self._onClick = props.onClick
+	self._sound = if props.sound == nil then "uiClick" else props.sound
 
 	local function applyStyle()
 		local colors = STYLES[if self._enabled then self._style else "disabled"]
@@ -231,13 +236,16 @@ function Button.new(props: Props): Button
 	table.insert(
 		self._connections,
 		face.InputBegan:Connect(function(input: InputObject)
+			local isPress = input.UserInputType == Enum.UserInputType.MouseButton1
+				or input.UserInputType == Enum.UserInputType.Touch
 			if not self._enabled then
+				-- Activated does not fire while Active is false, so the greyed bonk comes from the raw input
+				if isPress then
+					Sound.play("uiError")
+				end
 				return
 			end
-			if
-				input.UserInputType == Enum.UserInputType.MouseButton1
-				or input.UserInputType == Enum.UserInputType.Touch
-			then
+			if isPress then
 				setPressed(true)
 			end
 		end)
@@ -279,6 +287,10 @@ function Button.new(props: Props): Button
 		face.Activated:Connect(function()
 			if not self._enabled then
 				return
+			end
+			local sound = self._sound
+			if sound then
+				Sound.play(sound)
 			end
 			local onClick = self._onClick
 			if onClick then

@@ -13,6 +13,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local CatCollection = require(script.Screens.CatCollection)
 local CatchCircles = require(script.Screens.CatchCircles)
@@ -20,12 +21,14 @@ local CatchPrompt = require(script.Screens.CatchPrompt)
 local Create = require(script.Components.Create)
 local DecorShop = require(script.Screens.DecorShop)
 local Format = require(script.Components.Format)
+local GateSigns = require(script.Screens.GateSigns)
 local HUD = require(script.Screens.HUD)
 local Modal = require(script.Components.Modal)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
 local Scale = require(script.Scale)
 local Signal = require(script.Components.Signal)
+local Sound = require(script.Components.Sound)
 local Theme = require(script.Theme)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
@@ -85,6 +88,9 @@ local catch: CatchPrompt.CatchPrompt? = nil
 local circles: CatchCircles.CatchCircles? = nil
 local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
+local gateSigns: GateSigns.GateSigns? = nil
+local areaTitle: AreaTitle.AreaTitle? = nil
+local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
 local carryMarker: WorldMarker.WorldMarker? = nil
@@ -120,9 +126,13 @@ local function render()
 	if areasScreen and hud then
 		areasScreen:render(state, hud:isCarrying())
 	end
+	if gateSigns then
+		gateSigns:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
+	currentCatalog = newCatalog
 	table.clear(catById)
 	for _, def in newCatalog.cats do
 		catById[def.id] = def
@@ -138,6 +148,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if areasScreen then
 		areasScreen:setCatalog(newCatalog)
+	end
+	if gateSigns then
+		gateSigns:setCatalog(newCatalog)
 	end
 end
 
@@ -175,6 +188,7 @@ function UI.init(config: Types.InitConfig)
 	end
 	initialized = true
 	Scale.start()
+	Sound.set(config.playSound)
 
 	local player = Players.LocalPlayer
 	local parent: Instance = config.parent or player:WaitForChild("PlayerGui")
@@ -281,6 +295,7 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	modalInstance.changed:Connect(function(name: string?)
+		hudInstance:screenOpened(name)
 		UI.events.screenOpened:Fire(name)
 	end)
 
@@ -290,6 +305,9 @@ function UI.init(config: Types.InitConfig)
 	popups = Popups.new(parent)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	-- signs over every gate tagged AreaGate, including gates that stream in later
+	gateSigns = GateSigns.new(parent)
+	areaTitle = AreaTitle.new(parent)
 
 	setCatalog(config.catalog)
 
@@ -381,6 +399,12 @@ function UI.destroy()
 	if areasScreen then
 		areasScreen:destroy()
 	end
+	if gateSigns then
+		gateSigns:destroy()
+	end
+	if areaTitle then
+		areaTitle:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -396,8 +420,9 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker = nil, nil
-	circles, rankUpScreen, areasScreen = nil, nil, nil
+	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	Scale.stop()
+	Sound.set(nil)
 	initialized = false
 end
 
@@ -466,10 +491,36 @@ function UI.announce(text: string)
 	UI.toast(text, "announce")
 end
 
-function UI.showCatFound(catId: string, isNew: boolean?)
+-- `extra` is optional: { stars, shiny, charmGain }. Missing stars and shiny are read from the newest copy of the
+-- cat in state.cats when ProfileSync already carries it (caught in the last 30 s).
+function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundExtra?)
 	local def = lookupCat(catId)
 	if def and popups then
-		popups:showCatFound(def, isNew)
+		local info: Types.CatFoundExtra = {
+			stars = extra and extra.stars,
+			shiny = extra and extra.shiny,
+			charmGain = extra and extra.charmGain,
+		}
+		local cats: { [string]: Types.CatInstance } = state.cats or {}
+		local newest: Types.CatInstance? = nil
+		for _, instance in cats do
+			local caughtAt = instance.caughtAt
+			if
+				instance.catId == catId
+				and caughtAt ~= nil
+				and os.time() - caughtAt <= 30
+				and (newest == nil or caughtAt > ((newest :: Types.CatInstance).caughtAt or 0))
+			then
+				newest = instance
+			end
+		end
+		if newest then
+			info.stars = info.stars or newest.stars
+			if info.shiny == nil then
+				info.shiny = newest.variant == "shiny"
+			end
+		end
+		popups:showCatFound(def, isNew, info)
 	else
 		UI.toast("Caught a cat!", "good")
 	end
@@ -598,6 +649,44 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	if hud then
 		hud:travelResult(destination, ok)
 	end
+	if ok then
+		UI.showAreaTitle(destination)
+	end
+end
+
+-- Area title card (F39 P1): the area's name in big letters for two seconds. Call it when the player walks into
+-- an area (the same zone check that picks the ambience); a successful trip shows it already, and the same area
+-- twice within 4 s shows once. `areaId` is an AreaId or "home" (the player's own cafe, named by its tier).
+function UI.showAreaTitle(areaId: string)
+	local card = areaTitle
+	if not card then
+		return
+	end
+	local catalog = currentCatalog
+	if areaId == "home" then
+		local tierName: string? = nil
+		local tiers: { Types.TierDef } = if catalog then catalog.tiers or {} else {}
+		for _, def in tiers do
+			if def.tier == state.tier then
+				tierName = def.name
+			end
+		end
+		card:show("home", tierName or "Your Cafe", if tierName then "Your cafe" else nil)
+		return
+	end
+	local areas: { Types.AreaDef } = if catalog then catalog.areas or {} else {}
+	for _, area in areas do
+		if area.id == areaId then
+			local color = Theme.areaColors[area.id]
+			card:show(
+				area.id,
+				area.name,
+				Areas.rareShare(area),
+				if color then color:Lerp(Theme.colors.white, 0.35) else nil
+			)
+			return
+		end
+	end
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -628,6 +717,8 @@ function UI.catch.show(info: Types.CatchInfo)
 		rescueSpotId = info.rescueSpotId,
 		press = info.press,
 		shiny = info.shiny,
+		patience = info.patience,
+		paws = info.paws,
 	}
 	if catch then
 		catch:show(activeInfo :: Types.CatchInfo)
@@ -670,15 +761,17 @@ function UI.catch.getActivePrompt(): ProximityPrompt?
 	return activePrompt
 end
 
--- v0.3 net (F26, data-model section 10). CatchSchedule(strayId, circles, windows) -> showCircles: the
--- prompt card makes way for the circles and every press fires events.catchPressed(strayId, index).
--- CatchResult(strayId, scores, chance, success, stayed) -> showResult: each circle shows the server's grade,
--- then the chance and the outcome, and the overlay closes after 1.6 s. A stray that stayed gets its card back
--- while the player is still in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
+-- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows, pawsLeft) -> showCircles:
+-- the prompt card makes way for the circles and every press fires events.catchPressed(strayId, index).
+-- CatchResult(strayId, grades, success, pawsLeft, charmGain) -> showGrades (v0.4): each circle shows the
+-- server's grade. A catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss takes a paw, closes the
+-- overlay after 1 s and toasts the paws left. The card comes back while the player still has paws and is in
+-- range. Call nothing else for a CatchResult; catch.fail stays for refusals.
 function UI.catch.showCircles(
 	strayId: string,
 	circleList: { Types.CatchCircle },
-	windows: Types.CatchWindows
+	windows: Types.CatchWindows,
+	pawsLeft: number?
 )
 	local screen = circles
 	if not screen then
@@ -694,7 +787,12 @@ function UI.catch.showCircles(
 			stars = info.stars,
 			shiny = info.shiny,
 			title = nil,
+			paws = pawsLeft,
+			patience = info.patience,
 		}
+		header = built
+	elseif pawsLeft ~= nil then
+		local built: CatchCircles.Header = { paws = pawsLeft }
 		header = built
 	end
 	holdOpen = false
@@ -709,38 +807,98 @@ function UI.catch.showCircles(
 	end)
 end
 
--- stayed is the server's word on whether a failed catch left the stray in place (reviewer N39: a lured or
--- dropped stray can stay whatever its rarity). Without it, only a Common stays (data-model section 2).
-function UI.catch.showResult(
+-- "It slipped away! 2 paws left", "It won't trust you tonight" (data-model section 10 step 5, world-and-feel 1)
+local function slippedText(pawsLeft: number?): string
+	if pawsLeft == nil then
+		return "It slipped away! Try again"
+	elseif pawsLeft <= 0 then
+		return "It won't trust you tonight"
+	elseif pawsLeft == 1 then
+		return "It slipped away! 1 paw left"
+	end
+	return ("It slipped away! %d paws left"):format(pawsLeft)
+end
+
+-- Shared end of a catch. failToast is the toast after a miss (nil for none); stays brings the card back.
+local function finishCatch(
 	strayId: string,
-	scores: { number },
-	chance: number,
-	success: boolean,
-	stayed: boolean?
+	outcome: CatchCircles.Outcome,
+	failToast: string?,
+	stays: boolean
 )
 	local screen = circles
 	if not screen then
 		return
 	end
+	local current = activeInfo
+	if current and current.strayId == strayId and outcome.pawsLeft ~= nil then
+		current.paws = outcome.pawsLeft
+	end
+	if not outcome.success and failToast and toasts then
+		toasts:show(failToast, "warn", true) -- quiet: the hiss is the miss sound
+	end
+	screen:showResult(outcome, function()
+		if hud then
+			hud:setCatching(false)
+		end
+		local info = activeInfo
+		local card = catch
+		if
+			not outcome.success
+			and stays
+			and activePrompt ~= nil
+			and info ~= nil
+			and card ~= nil
+		then
+			card:show(info)
+		end
+	end)
+end
+
+-- v0.4 CatchResult. grades run up to and including the first Miss; pawsLeft is nil when this player cannot
+-- run out on the stray; charmGain is 0 on a miss.
+function UI.catch.showGrades(
+	strayId: string,
+	grades: { Types.CircleGrade },
+	success: boolean,
+	pawsLeft: number?,
+	charmGain: number?
+)
+	finishCatch(strayId, {
+		grades = grades,
+		success = success,
+		pawsLeft = pawsLeft,
+		charmGain = charmGain,
+	}, slippedText(pawsLeft), pawsLeft ~= 0)
+end
+
+-- v0.3 CatchResult(strayId, scores, chance, success, stayed), kept until the controller calls showGrades.
+-- Scores of 1, 0.5 and 0 are Perfect, Good and Miss. No toast here: until the switch the server sends the
+-- slipped away toast itself (reviewer S39), and showGrades takes it over.
+function UI.catch.showResult(
+	strayId: string,
+	scores: { number },
+	_chance: number,
+	success: boolean,
+	stayed: boolean?
+)
 	local info = activeInfo
 	local rarity: string? = if info and info.strayId == strayId then info.rarity else nil
 	local stays = if stayed ~= nil then stayed else rarity == "Common"
-	screen:showResult(
-		scores,
-		chance,
-		success,
-		if stays then "Missed, try again" else "It got away",
-		function()
-			if hud then
-				hud:setCatching(false)
-			end
-			local current = activeInfo
-			local card = catch
-			if not success and stays and activePrompt ~= nil and current ~= nil and card ~= nil then
-				card:show(current)
-			end
-		end
-	)
+	local grades: { Types.CircleGrade } = {}
+	for _, score in scores do
+		local grade: Types.CircleGrade = if score >= 1
+			then "perfect"
+			elseif score >= 0.5 then "good"
+			else "miss"
+		table.insert(grades, grade)
+	end
+	finishCatch(strayId, {
+		grades = grades,
+		success = success,
+		pawsLeft = nil,
+		charmGain = nil,
+	}, nil, stays)
 end
 
 function UI.catch.hideCircles()
@@ -786,7 +944,16 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 	local shiny = promptAttribute(prompt, "Shiny")
+	-- v0.4: Patience is the stray's full paw count; Paws_<UserId> appears once this player has missed (nil = full)
+	local patience = promptAttribute(prompt, "Patience")
+	local player = Players.LocalPlayer
+	local paws = if player then promptAttribute(prompt, "Paws_" .. tostring(player.UserId)) else nil
 	return {
+		patience = if type(patience) == "number" then patience else nil,
+		paws = if type(paws) == "number"
+			then paws
+			elseif type(patience) == "number" then patience
+			else nil,
 		press = prompt.HoldDuration <= 0,
 		shiny = shiny == true,
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,

@@ -80,6 +80,15 @@ Theme.rarity = {
 }
 Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
+-- Each area's colour, close to its ground in the world (style guide palette): area cards and title cards.
+Theme.areaColors = {
+	alley = Color3.fromHex("8A7B6E"),
+	park = Color3.fromHex("5FB3A0"),
+	neighbourhood = Color3.fromHex("5FA8FF"),
+	woods = Color3.fromHex("2B7F4C"),
+	sewer = Color3.fromHex("6E7F86"),
+} :: { [string]: Color3 }
+
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).
 Theme.fonts = {
 	display = Font.new(
@@ -134,14 +143,6 @@ Theme.icons = {
 	sewer = "🕳️",
 	lock = "🔒",
 	food = "🐟",
-}
-
--- Optional sound ids ("rbxassetid://..."). nil = silent. The engineer or asset thread fills these in.
-Theme.sounds = {
-	click = nil :: string?,
-	buy = nil :: string?,
-	error = nil :: string?,
-	catFound = nil :: string?,
 }
 
 function Theme.rarityColor(rarity: string?): Color3

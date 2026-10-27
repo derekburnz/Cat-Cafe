@@ -1,10 +1,12 @@
 --!strict
 -- One ScreenGui that hosts every modal screen (Upgrades, Decor, Collection). Only one is open at a time.
 -- Tapping the dim backdrop closes. Screens register a frame plus optional onOpen/onClose callbacks.
+-- Opening plays uiOpen and closing uiClose, so the buttons that only open or close a screen stay silent.
 
 local Create = require(script.Parent.Create)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Signal)
+local Sound = require(script.Parent.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
 
@@ -127,6 +129,7 @@ function Modal.open(self: any, name: string)
 		{ BackgroundTransparency = Theme.modal.backdropTransparency }
 	)
 	screen.frame.Visible = true
+	Sound.play("uiOpen")
 	Tween.popIn(screen.frame)
 	if screen.onOpen then
 		screen.onOpen()
@@ -142,6 +145,7 @@ function Modal.close(self: any)
 	local screen: Screen = self._screens[name]
 	self._closing = true
 	self._current = nil
+	Sound.play("uiClose")
 	Tween.to(self._backdrop, Tween.FAST, { BackgroundTransparency = 1 })
 	Tween.popOut(screen.frame, function()
 		if self._closing then

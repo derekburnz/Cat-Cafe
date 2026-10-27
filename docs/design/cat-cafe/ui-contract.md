@@ -113,7 +113,7 @@ The UI stays a view: it never fires remotes. Built rows are in the UI now; plann
 
 `state.tier` (1 to 5) replaces `cafeLevel`. Upgrades and Decor gate on `requiresTier` and `requiresTierAtLevel` and say "Tier 3" on a locked button; the Upgrades subtitle and the top pill say "Tier 2 · Cozy Cafe". Mythical (#FF5E7E) replaces Secret. Lure odds list all five rarities, and Details splits each rarity equally across that rarity's cats in every area the player's tier has opened (bait rule, data-model section 8), rebuilt on a tier change.
 
-Cat room (F25): Assign opens a role picker, one row per role, never a slot number. A row says "2 of 3 free", "All 2 taken, more at Tier 3", "Full" or "Opens at Tier 3"; the cat's favorite role shows a star, "1.5x" and a gold button. Assign fires `placeCat(uid, spotId)` with the first free open slot of that role. Each cat row has a "Loves Barista" tag that turns gold while the cat works that role, and its status names the slot ("Barista 2"). Role display names are the role ids capitalised.
+Cat room (F25): Assign opens a role picker, one row per role, never a slot number. A row says "2 of 3 free", "All 2 taken, more at Tier 3", "Full" or "Opens at Tier 3"; the cat's favorite role shows a star, "1.5x" and a gold button. Assign fires `placeCat(uid, spotId)` with the first free open slot of that role. Each cat row has a "Loves Barista" tag that turns gold while the cat works that role, and its status names the slot ("Barista 2"). Role display names are the role ids capitalised. Each card shows the cat's own model, still, on a disc in its rarity colour (the Pet Simulator inventory look); a shiny cat (`variant = "shiny"`) gets a gold ✨ badge and a thicker gold edge, and a cat with a `name` reads "Mochi  (Tabby)".
 
 ### Press prompts (built)
 
@@ -213,8 +213,8 @@ In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLe
 | `UI.dealer.open(slots)` / `UI.dealer.update(slots)` | From `DealerStock`: `slots = { { lureId, cost, bought } }`, three cards with odds, price and a moon timer to dawn. Fires `events.buyDealerFood(slot)`. |
 | Action pill | Custom-style prompts without a `CatId` (bait bowl, dealer cart, rich tip, Bump) get a small pill with the key and `ActionText`; on touch the pill is the button. The controller handles `PromptTriggered` as today. |
 | `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
-| Shiny | A sparkle badge on cards, the carry banner and the book; the book gets a Shiny page with its own count from `state.shinyCollection`. `CatInstance.variant = "shiny"`. |
-| Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`; the shown name is `CatInstance.name` or the catalog name. |
+| Shiny | Built: the book's Shiny pill (from `state.shinyCollection`), the catch header and the reveal's sticker, and the cat room's gold cards. Still planned: the carry banner, and a Shiny page in the book with its own count. |
+| Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`. The cat room already shows `CatInstance.name` when the server sends it (filtered), else the catalog name. |
 | Fast travel (built, v0.4 F19) | Top centre under the tier pill: Cafe, Alley and Areas buttons (Grow a Garden style). Cafe and Alley fire `events.travel("home")` and `events.travel("alley")`; Areas opens `UI.open("Areas")`, five area cards with "Epic or better N%" and Go, locked ones greyed with "Opens at Tier n". The row hides while the catch circles show (their header takes the top centre). Every button and Go greys while carrying (`state.carrying` or `UI.setCarrying`) and Cafe and Alley grey for `Config.TravelCooldownSeconds` (3 until it exists) after a trip. Forward `events.travel(destination)` as `Travel(destination)`; pass `TravelResult(destination, ok, reason?)` to `UI.travel.result`, which lifts the cooldown and wobbles the button on a refusal (the server toast gives the reason). |
 
 Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Retired once the rescue minigames and the bait bowl land: `rescueEnded`, `startRescue`, `stopRescue` and `equipLure`; they stay until the controller drops them so main keeps compiling.
@@ -256,7 +256,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     decorOwned: { [decorId]: boolean }, decorPlaced: { [decorId]: boolean },
     lures: { [lureId]: number }, equippedLure: string?,
     -- engineer extras the UI uses when present
-    cats: { [uid]: { uid, catId, variant?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
+    cats: { [uid]: { uid, catId, variant?, name?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
                      level?, xp?, xpToNext?, charm?, stars?, rating? } }, -- cat stats thread; shown when present
     collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 50 count
     shinyCollection: { [catId]: firstShinyAt }?,                   -- v0.3: the book's Shiny page (planned)

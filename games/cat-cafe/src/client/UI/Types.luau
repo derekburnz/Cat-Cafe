@@ -48,6 +48,7 @@ export type CatInstance = {
 	caughtAt: number?,
 	spotId: string?, -- the role slot it works ("barista_1"), nil when resting in the cat room
 	rescued: boolean?,
+	name: string?, -- the player's name for it, filtered by the server; nil shows the catalog name
 	method: CatchMethod?, -- how it was found
 	-- per-cat stats (cat stats thread); all optional, shown when present
 	level: number?, -- 1 to 10

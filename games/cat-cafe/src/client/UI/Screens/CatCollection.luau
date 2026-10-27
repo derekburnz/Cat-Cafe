@@ -39,6 +39,8 @@ local AREA_TAB_HEIGHT = 46
 local PROGRESS_HEIGHT = 28
 local FALLBACK_AREA = "alley"
 local ROOM_ROW = 76
+local ROOM_ART = 64 -- the cat's own model on each cat room card, as in the Pet Simulator inventory
+local ROOM_TEXT = ROOM_ART + 22
 local SPOT_ROW = 48
 
 -- Sell asks for confirmation from this rarity up (data-model: Rare and above).
@@ -68,14 +70,6 @@ end
 
 local function rarityIndex(rarity: string): number
 	return table.find(Theme.rarityOrder, rarity) or 1
-end
-
-local function catColor(def: Types.CatDef): Color3
-	local rgb = def.color
-	if rgb and #rgb >= 3 then
-		return Color3.fromRGB(rgb[1], rgb[2], rgb[3])
-	end
-	return Theme.rarityColor(def.rarity)
 end
 
 local function pill(
@@ -898,6 +892,7 @@ function CatCollection._syncRoomRows(self: any, state: Types.PlayerState)
 			row.place:destroy()
 			row.remove:destroy()
 			row.sell:destroy()
+			row.portrait:destroy()
 			row.frame:Destroy()
 			self._roomRows[uid] = nil
 		end
@@ -907,6 +902,7 @@ end
 function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local rarity = if def then def.rarity else "Common"
+	local shiny = instance.variant == "shiny"
 	local frame: Frame = Create("Frame", {
 		Name = instance.uid,
 		BackgroundColor3 = Theme.modal.card,
@@ -915,20 +911,48 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 		Parent = self._roomList,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.rarityColor(rarity), Thickness = Theme.sizes.stroke }),
+		-- a shiny cat's card has a thicker gold edge, so it stands out in a long list
+		Create("UIStroke", {
+			Color = if shiny then Theme.colors.gold else Theme.rarityColor(rarity),
+			Thickness = Theme.sizes.stroke + (if shiny then 1 else 0),
+		}),
 	})
+	-- the cat's own model on a soft disc in its rarity colour (the book's look), held still so a long list is free
 	Create("Frame", {
-		Name = "Art",
-		BackgroundColor3 = if def then catColor(def) else Theme.colors.line,
+		Name = "Glow",
+		BackgroundColor3 = Theme.rarityColor(rarity),
+		BackgroundTransparency = 0.7,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(12, 14),
-		Size = UDim2.fromOffset(48, 48),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 14, 0.5, 0),
+		Size = UDim2.fromOffset(ROOM_ART - 8, ROOM_ART - 8),
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local portrait = CatPortrait.new({
+		parent = frame,
+		size = UDim2.fromOffset(ROOM_ART, ROOM_ART),
+		anchorPoint = Vector2.new(0, 0.5),
+		position = UDim2.new(0, 10, 0.5, 0),
+		still = true,
+		zIndex = 2,
+	})
+	portrait:set(def)
+	if shiny then
+		local badge = pill(
+			frame,
+			"✨",
+			Theme.colors.gold,
+			Theme.colors.goldText,
+			UDim2.fromOffset(ROOM_ART - 2, 4),
+			Vector2.new(1, 0)
+		)
+		badge.Name = "Shiny"
+		badge.ZIndex = 3
+	end
 	local name = text({
 		Name = "Name",
-		Position = UDim2.fromOffset(72, 10),
-		Size = UDim2.new(1, -360, 0, 24),
+		Position = UDim2.fromOffset(ROOM_TEXT, 10),
+		Size = UDim2.new(1, -(ROOM_TEXT + 288), 0, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		Text = if def then def.name else instance.catId,
@@ -936,8 +960,8 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 	})
 	local status = text({
 		Name = "Status",
-		Position = UDim2.fromOffset(72, 36),
-		Size = UDim2.new(1, -360, 0, 18),
+		Position = UDim2.fromOffset(ROOM_TEXT, 36),
+		Size = UDim2.new(1, -(ROOM_TEXT + 288), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
 		Text = "",
@@ -946,7 +970,7 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 	-- Favorite role tag (F25): a small pill under the status, gold while the cat works that role
 	local favorite = text({
 		Name = "FavoriteRole",
-		Position = UDim2.fromOffset(72, 56),
+		Position = UDim2.fromOffset(ROOM_TEXT, 56),
 		Size = UDim2.fromOffset(0, 16),
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 0,
@@ -1025,6 +1049,8 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 	})
 	return {
 		frame = frame,
+		portrait = portrait,
+		loaded = portrait:hasModel(),
 		name = name,
 		status = status,
 		favorite = favorite,
@@ -1151,6 +1177,17 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 				or row.instance
 			row.instance = instance
 			local def: Types.CatDef? = row.def
+			-- the player's name for the cat (filtered by the server), with the breed after it
+			local custom: string? = instance.name
+			local breed = if def then def.name else instance.catId
+			row.name.Text = if custom and custom ~= ""
+				then ("%s  (%s)"):format(custom, breed)
+				else breed
+			if not row.loaded then
+				-- the model can stream in after the card was made; try again until it is there
+				row.portrait:set(def)
+				row.loaded = row.portrait:hasModel()
+			end
 			local rate = if instance.rating
 				then instance.rating :: number
 				elseif def then def.incomePerSecond
@@ -1244,6 +1281,7 @@ function CatCollection.destroy(self: any)
 		row.place:destroy()
 		row.remove:destroy()
 		row.sell:destroy()
+		row.portrait:destroy()
 	end
 	for _, row in self._spotRows do
 		row.button:destroy()

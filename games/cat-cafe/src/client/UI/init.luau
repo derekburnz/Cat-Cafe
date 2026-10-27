@@ -24,6 +24,8 @@ local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
 local BugReportLogic = require(script.Components.BugReportLogic)
 local CafeSigns = require(script.Screens.CafeSigns)
+local CatCard = require(script.Screens.CatCard)
+local CatCardLogic = require(script.Components.CatCardLogic)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
@@ -162,6 +164,7 @@ local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so a
 local currentZone: string? = nil -- the World.Zones name from UI.setZone, for the dusk banner (F66)
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
+local catCard: CatCard.CatCard? = nil -- the hover card over a cat in any cafe (F75)
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local tackleBar: TackleBar.TackleBar? = nil -- the Tackle inside catching areas (UI.shove, F74)
@@ -280,6 +283,9 @@ local function render()
 	if myCats then
 		myCats:render(state)
 	end
+	if catCard then
+		catCard:render(state)
+	end
 	if rankUpScreen then
 		rankUpScreen:render(state)
 	end
@@ -365,6 +371,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if codesScreen then
 		codesScreen:setCatalog(newCatalog)
+	end
+	if catCard then
+		catCard:setCatalog(newCatalog)
 	end
 end
 
@@ -842,6 +851,12 @@ function UI.init(config: Types.InitConfig)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	worldTags = WorldTags.new()
+	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
+	catCard = CatCard.new(parent, {
+		blocked = function()
+			return not visible or modalInstance:current() ~= nil
+		end,
+	})
 
 	setCatalog(config.catalog)
 
@@ -1006,6 +1021,9 @@ function UI.destroy()
 	if worldTags then
 		worldTags:destroy()
 	end
+	if catCard then
+		catCard:destroy()
+	end
 	if actionPills then
 		actionPills:destroy()
 	end
@@ -1036,6 +1054,7 @@ function UI.destroy()
 	locationMarkers, zoneChip = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
+	catCard = nil
 	tackleBar = nil
 	Scale.stop()
 	Sound.set(nil)
@@ -1162,6 +1181,50 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 	else
 		UI.toast("Caught a cat!", "good")
 	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Cat levels (F75)
+----------------------------------------------------------------------------------------------------
+
+local LEVEL_UP_GATHER = 0.6 -- seconds: level ups that land together share one toast
+local levelUps: { [string]: number } = {} -- uid -> the newest level, until the toast
+local levelUpOrder: { string } = {}
+
+local function toastLevelUps()
+	local list: { CatCardLogic.LevelUp } = {}
+	local cats: { [string]: Types.CatInstance } = state.cats or {}
+	for _, uid in levelUpOrder do
+		local instance = cats[uid]
+		local def = lookupCat(if instance then instance.catId else nil)
+		local name = CatCardLogic.names(
+			if instance then instance.name else nil,
+			if def then def.name else "Your cat"
+		)
+		table.insert(list, { name = name, level = levelUps[uid] })
+	end
+	table.clear(levelUpOrder)
+	table.clear(levelUps)
+	local text = CatCardLogic.levelUpToast(list)
+	if text and toasts then
+		toasts:show(text, "good", true) -- quiet: Audio plays the level up chime from the same moment
+	end
+end
+
+-- From the engineer's CatLevelUp(uid, level), the owner only: "Biscuit reached level 12!". Level ups that land
+-- within LEVEL_UP_GATHER share one toast ("Biscuit and 2 more cats reached a new level!"), since a room of resting
+-- cats can level together. The sparkle comes from the model's Level attribute (Effects) and the chime from Audio.
+function UI.catLevelUp(uid: string, level: number)
+	if type(uid) ~= "string" or type(level) ~= "number" then
+		return
+	end
+	if levelUps[uid] == nil then
+		table.insert(levelUpOrder, uid)
+		if #levelUpOrder == 1 then
+			task.delay(LEVEL_UP_GATHER, toastLevelUps)
+		end
+	end
+	levelUps[uid] = math.max(levelUps[uid] or 0, level)
 end
 
 function UI.showOfflineEarnings(amount: number, seconds: number)

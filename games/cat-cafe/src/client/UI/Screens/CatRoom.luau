@@ -766,17 +766,21 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		ZIndex = 2,
 		Parent = button,
 	})
+	-- "Lv 24  +$12.5/s": levels run to 50 (F75), so the line shrinks a little rather than cut the rate off
 	local rate = text({
 		Name = "Rate",
 		Position = UDim2.fromOffset(4, CARD_ART + 30),
 		Size = UDim2.new(1, -8, 0, 16),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textTiny,
+		TextScaled = true,
 		TextColor3 = Theme.colors.goodDark,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		ZIndex = 2,
 		Parent = button,
 	})
+	local fit = Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textTiny })
+	fit.MinTextSize = 9
+	fit.Parent = rate
 	local entry = {
 		button = button,
 		stroke = stroke,

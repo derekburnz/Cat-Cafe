@@ -95,6 +95,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
 | `UI.announce(text, rarity?)` | Server-wide catch shout-out, on the rarity's colour for 4 s. Pass the rarity from `Announce` once it carries one; without it the last rarity named as a whole word in the text decides, so a DisplayName like "EpicGamer" does not colour it. Silent, since Audio plays the shout-out sting from the remote. |
 | `UI.showCatFound(catId, isNew?, extra?)` | The hatch style reveal (F39 P1): rays in the rarity colour, the cat's own model from `ReplicatedStorage.Assets` popping in and swaying (its initial when the model is missing), a NEW sticker when `isNew`, charm stars filling one by one and "Purrfect catch! Charm +N". `extra = { stars?, shiny?, charmGain? }`; stars and shiny fall back to the newest copy of the cat in `state.cats` from the last 30 s, and the stars row hides without them. Pass `charmGain` from the v0.4 `CatchResult`. Auto-closes in 5 s. |
+| `UI.catLevelUp(uid, level)` | F75, from `CatLevelUp` for the owner: toasts "Biscuit reached level 12!" (one toast for several cats within 0.6 s). Silent, since Audio plays the chime. The hover card and the Cats screen read the new level from ProfileSync. |
 | `UI.showOfflineEarnings(amount, seconds)` | "While you were away" popup with Claim, fires `events.claimOffline`. |
 | `UI.floatText(worldPosition, text, color?)` | Rising "+$8" at a world point (customers' coin pops). |
 | `UI.setCarrying(info?)` | `info = { catId, catName?, rarity?, door: BasePart? }`. Bottom-centre banner "Carrying Void" plus a world marker with distance over the door. `nil` clears the banner, the marker and `state.carrying` (a partial `UI.update` cannot set a field back to nil, so this is the only way to end a carry). |
@@ -397,6 +398,18 @@ Nothing to call: `UI.init` starts all three and they read attributes the server 
 - **Role slot labels: removed** (Derek, 2026-10-27: "remove the place holder texts its ugly. Turn it into a section inside upgrades"). The role slots now live in the Staff tab of Upgrades (below) and the cat room's crew strip. `CafeService` no longer makes `LockLabel` (#166), so `Screens/SlotLabels.luau` and `Components/SlotLabelState.luau` are deleted.
 
 The name signs, rate tags and order bubbles are parented under the models, so they leave with the plot, cat or customer.
+
+### Cat hover card and level ups (built, F75, data-model section 4b v0.12)
+
+Derek 2026-10-27: "cats should level up overtime making slight increases and when you hover over your cat in cafe it should display what they are and their lvl / xp bar". `Screens/CatCard.luau`, words and numbers in `Components/CatCardLogic.luau` with a spec. One small card over one cat in any cafe, working or napping, drawn over walls, sitting above the rate tag when that shows:
+
+- **Your own cat** (the model's `OwnerUserId` is you, the uid is in `state.cats`): the name, with the catalog name under it when the cat is named ("Biscuit", then "Pirate Cat"); the rarity badge in its colour and a Gold tag for a gold cat; the charm stars; the role with its icon and a berry heart in its favourite role, or 💤 "Resting"; "Level 12" and an XP bar with "340 / 1,440 XP" (from `xp` and `xpToNext`, else `CatStats.xpToNext`), "MAX" and a full gold bar at `Config.CatMaxLevel`. The bar slides up as ProfileSync brings new XP and jumps on a level up or a new cat. No network traffic: it reads the profile the UI already has.
+- **Another player's cat:** a smaller card from the model's attributes: `DisplayName` (with the catalog name from `CatId` under it), `Rarity`, `Gold`, `Role` (else Resting) and `Level`; no stars and no bar. Without a `Level` attribute the level line hides.
+- **How it opens:** mouse hover (checked every 0.1 s against every cafe's `Cats` folder only); on touch a tap opens it, a second tap on the same cat or a tap anywhere else closes it, and it closes by itself after 4 s; on gamepad it shows for the nearest own cat within 8 studs. It hides while a window is open and while the UI is hidden (the intro).
+- **Level up toast:** `UI.catLevelUp(uid, level)` from the engineer's `CatLevelUp` toasts "Biscuit reached level 12!" in green, without its own sound (Audio plays the chime from the same moment). Level ups that land within 0.6 s share one toast: "Biscuit and 2 more cats reached a new level!". The sparkle is the vfx-animator's, from the model's `Level` attribute.
+- **Two digit levels:** the Cats screen's card line "Lv 24  +$12.5/s" shrinks a little to fit rather than cutting the rate off; the detail's "Lv 24" already fits.
+
+**Engineer:** keep `level`, `xp` and `xpToNext` in each `CatView` of ProfileSync's `cats`, set `Level` on every cat model under `Plot/Cats`, and call `UI.catLevelUp(uid, level)` on `CatLevelUp` (the controller may check that the function exists while both PRs land).
 
 ### Upgrades tabs: Cafe and Staff (built, UI plan 2026-10-27)
 

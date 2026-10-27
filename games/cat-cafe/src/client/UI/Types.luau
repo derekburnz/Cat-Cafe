@@ -136,7 +136,7 @@ export type CatInstance = {
 	method: CatchMethod?, -- how it was found
 	locked: boolean?, -- F62: true cannot be sold or traded; the lock shows once the server sends it as a boolean
 	-- per-cat stats (cat stats thread); all optional, shown when present
-	level: number?, -- 1 to 10
+	level: number?, -- 1 to Config.CatMaxLevel (50 from v0.12, F75)
 	xp: number?,
 	xpToNext: number?,
 	charm: number?, -- 0 to 100

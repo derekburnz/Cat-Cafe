@@ -1,9 +1,9 @@
 ---
 name: monetization-policy
-description: Roblox monetization rules Purr Pot must follow: paid random items odds disclosure, PolicyService checks per player, game passes vs developer products, Creator Rewards behaviour, no dark patterns for a young audience, and the specific Purr Pot calls (bait, eggs, coin packs). Use when designing, building or reviewing anything that costs Robux or looks like gambling.
+description: Roblox monetization rules Cat Cafe must follow: paid random items odds disclosure, PolicyService checks per player, game passes vs developer products, Creator Rewards behaviour, no dark patterns for a young audience, and the specific Cat Cafe calls (bait, eggs, coin packs). Use when designing, building or reviewing anything that costs Robux or looks like gambling.
 ---
 
-# Monetization policy (Purr Pot)
+# Monetization policy (Cat Cafe)
 
 Facts below are from Roblox's paid random items guidelines and monetization docs as of 2026-10-25. Verify against the live pages before launch: https://create.roblox.com/docs/production/monetization/paid-random-items and https://create.roblox.com/docs/creator-rewards.
 
@@ -19,7 +19,7 @@ Random here means eggs, spins, chests, gacha, re-roll tokens, random bait, myste
 2. Luck boosts, pity systems and rate-ups must state their numeric effect before purchase, and the displayed odds must update while they are active.
 3. Call `PolicyService:GetPolicyInfoForPlayerAsync(player)` on the server when the player joins; cache it; respect `ArePaidRandomItemsRestricted` (hide or replace the random feature for that player) and `IsPaidItemTradingAllowed` (no trading of paid items where false).
 4. Offer a free, earnable route to the same random items where possible (coins earned in the cafe can buy bait too).
-5. If coins can be bought with Robux **and** coins buy random bait or eggs, the bait/egg counts as a paid random item. Either keep coins unbuyable, or show odds on every random purchase. Purr Pot default: **coins are not buyable**; Robux buys passes and cosmetic decoration packs only.
+5. If coins can be bought with Robux **and** coins buy random bait or eggs, the bait/egg counts as a paid random item. Either keep coins unbuyable, or show odds on every random purchase. Cat Cafe default: **coins are not buyable**; Robux buys passes and cosmetic decoration packs only.
 
 ## 3. No dark patterns (young audience)
 No fake countdown timers, no "only 2 left", no "your friend just bought", no spending streaks, no nagging popups after a decline, no pay-to-win walls that stop the core loop, no confusing currency stacks. Prices shown in Robux before any confirm. Declines are respected for the session.
@@ -69,7 +69,7 @@ end
 return PolicyService
 ```
 
-## 5. Purr Pot monetization decisions (proposed, growth-analyst confirms)
+## 5. Cat Cafe monetization decisions (proposed, growth-analyst confirms)
 | Idea | Type | Policy | Verdict |
 |---|---|---|---|
 | Double Coins | game pass | none | yes, launch |

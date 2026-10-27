@@ -1,4 +1,4 @@
-# Purr Pot launch operations: codes, group bonus, update board
+# Cat Cafe launch operations: codes, group bonus, update board
 
 Owner: growth-analyst. Written 2026-10-25 after the designer scheduled the genre-standard features in docs/design/cat-cafe/common-features.md and handed three launch-phase features to growth: Chalkboard codes (12), Regulars Board (13) and the What's New board (19). This is the operating plan for those three, plus two policy notes on neighbouring features. The store page and the full launch plan are separate docs to write before Phase 4.
 
@@ -15,7 +15,7 @@ Operating rules:
 - Value: small enough to be a welcome, not a progression skip. Launch code about 250 coins (the gdd's cafe level 2 price), milestone codes 500 coins or one Tuna, seasonal codes one Salmon or one Catnip. Never more than about ten minutes of mid-game income.
 - Cadence: one code at soft launch, one per visits milestone (10k, 100k, 1M), one per seasonal update. Codes expire 60 days after release so guide pages stay accurate; the chalkboard shows "expired" rather than "invalid" for a known old code.
 - Redemption is one per account per code, checked on the server from the saved profile, with a rate limit of five attempts per minute so the chalkboard cannot be brute-forced.
-- The likes milestone gift (design 13) is released as a code announced on the What's New board, which turns an unverifiable like into a verifiable redemption. A June 2025 DevForum thread (community answer, not Roblox staff) treats a like-milestone code as allowed; what is not done anywhere in Purr Pot is a per-player reward for liking, since the client cannot verify it and Roblox's media-feed ruling shows metric-farming mechanics draw moderation.
+- The likes milestone gift (design 13) is released as a code announced on the What's New board, which turns an unverifiable like into a verifiable redemption. A June 2025 DevForum thread (community answer, not Roblox staff) treats a like-milestone code as allowed; what is not done anywhere in Cat Cafe is a per-player reward for liking, since the client cannot verify it and Roblox's media-feed ruling shows metric-farming mechanics draw moderation.
 - Track every redemption (section 4) and watch the acquisition dashboard the week after each code: a code that moves visits without moving D1 is a code that attracted the wrong players, and the next one gets smaller.
 
 ## 2. Regulars Board (group bonus)
@@ -27,7 +27,7 @@ Rules (design): +5% tips for group members, verified on the server with GroupSer
 Operating rules:
 - Verify with GroupService (IsInGroup or GetGroupsAsync) on join and cache; recheck at most once per session. Treat a failed call as "not a member" and retry later, never as an error the player sees.
 - Keep the bonus at 5%. It sits below one decor item's bonus, so it is a thank-you rather than a wall. Do not stack it with any future paid multiplier in a way that exceeds the pass's own stated value.
-- Say it plainly on the board: "Join the Purr Pot group for +5% tips." No countdown, no "limited".
+- Say it plainly on the board: "Join the Cat Cafe group for +5% tips." No countdown, no "limited".
 - Group settings before soft launch: wall posts limited to members with a role above guest, and the group description carries the details-page link so searches for the group name land on the game.
 - The group also becomes the place where friends get builder or tester roles for Team Create (plan.md open question on roles).
 

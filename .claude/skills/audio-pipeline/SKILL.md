@@ -1,6 +1,6 @@
 ---
 name: audio-pipeline
-description: How Purr Pot sound effects, music and ambience go from an idea to the game - Roblox audio basics, sourcing and licenses, file prep and the audio gate, naming, uploads and permissions, SoundGroups and client playback, the Cozy Cream day and night music rules, mixing for phones. Use for any sound, music, ambience or volume task.
+description: How Cat Cafe sound effects, music and ambience go from an idea to the game - Roblox audio basics, sourcing and licenses, file prep and the audio gate, naming, uploads and permissions, SoundGroups and client playback, the Cozy Cream day and night music rules, mixing for phones. Use for any sound, music, ambience or volume task.
 ---
 
 # Audio pipeline (cue -> file -> Roblox asset -> game)
@@ -13,9 +13,9 @@ The "what" lives in `docs/audio/cat-cafe/sound-list.md` (every cue, the music br
 - **2D or 3D.** A Sound inside a Part or Attachment is positional: it pans left and right and fades with distance between `RollOffMinDistance` and `RollOffMaxDistance` (studs). A Sound in `SoundService` plays flat in both ears; music, UI and ambience beds go there.
 - **SoundService** holds the game's audio settings and our SoundGroups.
 - **SoundGroup** is a mixer channel. Each Sound points at one through its `SoundGroup` property; the group's `Volume` scales all of them, and effects parented to the group (`EqualizerSoundEffect`, `ReverbSoundEffect`, `CompressorSoundEffect`) process the whole channel. Settings toggles mute groups, never single sounds.
-- **Client or server.** A Sound started by a client script is heard only by that player. One started by the server replicates to everyone and ignores each player's settings. Purr Pot plays every sound on the client.
+- **Client or server.** A Sound started by a client script is heard only by that player. One started by the server replicates to everyone and ignores each player's settings. Cat Cafe plays every sound on the client.
 - **Loading.** A Sound downloads before it can play, so the first play of a cold sound can be late. Preload only the few that must be instant (`ContentProvider:PreloadAsync`); preloading everything slows joins.
-- **Two audio engines.** Classic `Sound` and the newer Audio API (`AudioPlayer` -> `Wire` -> `AudioDeviceOutput`, with `AudioFader` and effect objects in between). The engine docs tag classic Sound members with the `LegacySound` capability, but the class is not deprecated. Purr Pot uses classic Sound plus SoundGroups for the slice: one object per sound, the most examples, and enough for a cozy game. All of it sits behind `src/client/Audio/`, so a later move to the Audio API (for acoustic simulation or voice effects) changes one folder. Never mix the two engines in one feature.
+- **Two audio engines.** Classic `Sound` and the newer Audio API (`AudioPlayer` -> `Wire` -> `AudioDeviceOutput`, with `AudioFader` and effect objects in between). The engine docs tag classic Sound members with the `LegacySound` capability, but the class is not deprecated. Cat Cafe uses classic Sound plus SoundGroups for the slice: one object per sound, the most examples, and enough for a cozy game. All of it sits behind `src/client/Audio/`, so a later move to the Audio API (for acoustic simulation or voice effects) changes one folder. Never mix the two engines in one feature.
 
 ## 2. Where things live
 | What | Path | Owner |

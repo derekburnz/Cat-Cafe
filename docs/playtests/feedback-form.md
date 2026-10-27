@@ -1,4 +1,4 @@
-# Purr Pot friend playtest: feedback form
+# Cat Cafe friend playtest: feedback form
 
 Owner: qa-playtester. Paste the questions into a Google Form (responses to a Sheet shared with QA and growth) or
 use the Discord template at the bottom. Target: under 3 minutes to fill in, one form per tester per session.
@@ -37,7 +37,7 @@ response per person per session (ask them to add the date in the nickname if the
 ## Discord template (for people who will not open a form)
 
 ```
-**Purr Pot playtest** (date: ____)
+**Cat Cafe playtest** (date: ____)
 Device: phone / tablet / PC / console
 Played for: <5 / 5-15 / 15-30 / 30+ min
 Knew what to do in minute one? yes / mostly / no. Confusing bit: ____

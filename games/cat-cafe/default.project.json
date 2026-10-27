@@ -1,5 +1,5 @@
 {
-  "name": "PurrPot",
+  "name": "CatCafe",
   "globIgnorePaths": ["**/README.md", "**/.gitkeep"],
   "tree": {
     "$className": "DataModel",

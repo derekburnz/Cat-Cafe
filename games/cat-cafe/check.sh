@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Done gate for Purr Pot (macOS/Linux/Git Bash). Run from games/cat-cafe: ./check.sh
+# Done gate for Cat Cafe (macOS/Linux/Git Bash). Run from games/cat-cafe: ./check.sh
 set -euo pipefail
 cd "$(dirname "$0")"
 

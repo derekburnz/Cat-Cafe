@@ -1,6 +1,6 @@
 ---
 name: playtest-report
-description: How Purr Pot playtests are run and written up: the feedback form fields, the automated Studio smoke test, summary format, ticket format and severity scale. Use after any feature lands, after any friend playtest, and when turning raw feedback into tickets in docs/playtests/.
+description: How Cat Cafe playtests are run and written up: the feedback form fields, the automated Studio smoke test, summary format, ticket format and severity scale. Use after any feature lands, after any friend playtest, and when turning raw feedback into tickets in docs/playtests/.
 ---
 
 # Playtest report

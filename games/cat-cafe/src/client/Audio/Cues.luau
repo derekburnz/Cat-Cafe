@@ -1,5 +1,5 @@
 --!strict
--- Every sound Purr Pot can play, by cue id (docs/audio/cat-cafe/sound-list.md). The only place asset ids live.
+-- Every sound Cat Cafe can play, by cue id (docs/audio/cat-cafe/sound-list.md). The only place asset ids live.
 -- A cue with no ids yet is silent and never an error, so code can play every cue from day one.
 -- Pure: no Roblox services, so tests can require it.
 --

@@ -35,10 +35,10 @@ return function()
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
 		GrabRetrySeconds = 2,
-		-- v0.4 catching stakes (F34, section 10 step 5)
-		StrayWarySeconds = 5,
-		StrayJumpBackMin = 6,
-		StrayJumpBackMax = 10,
+		-- v0.4 catching stakes (F34, section 10 step 5); v0.5 the chase after a miss (F40)
+		StrayFleeSpeed = 26,
+		StrayRestSeconds = 1.5,
+		StraySelfRetrySeconds = 1, -- v0.5.1 (S44)
 		PerfectCharmBonus = 4,
 		PurrfectCharmMultiplier = 2,
 		AutoPressFlagRate = 0.95,
@@ -213,13 +213,17 @@ return function()
 			expect(Config.CircleScoreGood > 0 and Config.CircleScoreGood < 1).to.equal(true)
 		end)
 
-		it("v0.4 stakes: the player who missed waits longer than everyone else", function()
-			expect(Config.StrayWarySeconds > Config.GrabRetrySeconds).to.equal(true)
+		it("v0.5 chase: a missed stray outruns a walking player and the one who missed waits a little longer", function()
+			expect(Config.StrayFleeSpeed > Config.NormalWalkSpeed).to.equal(true)
+			expect(Config.StrayRestSeconds > 0).to.equal(true)
+			expect(Config.StraySelfRetrySeconds > 0).to.equal(true)
 		end)
 
-		it("v0.4 stakes: the jump back is a range of 6 to 10 studs", function()
-			expect(Config.StrayJumpBackMin > 0).to.equal(true)
-			expect(Config.StrayJumpBackMin <= Config.StrayJumpBackMax).to.equal(true)
+		it("v0.5 chase: the v0.4 wary wait and jump back are gone (F40)", function()
+			local config = Config :: any
+			expect(config.StrayWarySeconds).never.to.be.ok()
+			expect(config.StrayJumpBackMin).never.to.be.ok()
+			expect(config.StrayJumpBackMax).never.to.be.ok()
 		end)
 
 		it("v0.4 stakes: the scripted-press flag clears well below where it sets", function()

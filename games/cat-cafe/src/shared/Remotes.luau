@@ -44,10 +44,9 @@ Remotes.ServerToClient = {
 	"Announce", -- (text: string, rarity: Types.Rarity?)  fired to everyone; rarity on a rare catch
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a strayId or a rescueSpotId;
 	-- retry keeps the prompt open. For a stray it only refuses GrabBegin; the catch outcome is CatchResult.
-	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows, pawsLeft: number?)
-	-- pawsLeft is nil when this player cannot run out of paws on the stray (data-model section 10 step 5)
-	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, pawsLeft: number?,
-	-- charmGain: number)  grades up to and including the first Miss; the stray stays after a miss (v0.4)
+	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number)  grades
+	-- up to and including the first Miss; after a miss the stray sprints off and anyone may try again (v0.5)
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean)
 	-- after every judged press and when the attempt ends; refusals of RescueBegin come as GrabResult

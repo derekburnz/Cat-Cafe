@@ -73,7 +73,6 @@ function Demo.run(UI: any): () -> ()
 		decorOwned = {} :: { [string]: boolean },
 		decorPlaced = {} :: { [string]: boolean },
 		lures = {} :: { [string]: number },
-		equippedLure = nil :: string?,
 		cats = {} :: { [string]: Types.CatInstance },
 		collection = { tabby = now() } :: { [string]: number },
 		tier = 1,
@@ -124,7 +123,6 @@ function Demo.run(UI: any): () -> ()
 			decorOwned = profile.decorOwned,
 			decorPlaced = profile.decorPlaced,
 			lures = profile.lures,
-			equippedLure = profile.equippedLure,
 			cats = profile.cats,
 			collection = profile.collection,
 			customers = 2 * (profile.upgradeLevels.tables or 0),
@@ -141,7 +139,7 @@ function Demo.run(UI: any): () -> ()
 		return true
 	end
 
-	UI.init({ catalog = CATALOG, baitBowl = true })
+	UI.init({ catalog = CATALOG })
 
 	local connections: { any } = {}
 	connections[#connections + 1] = UI.events.buyUpgrade:Connect(function(upgradeId: string)
@@ -182,9 +180,6 @@ function Demo.run(UI: any): () -> ()
 		for _, def in CATALOG.lures do
 			if def.id == lureId and spend(def.cost) then
 				profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
-				if not profile.equippedLure then
-					profile.equippedLure = lureId
-				end
 				push()
 			end
 		end
@@ -322,12 +317,6 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 	)
-	connections[#connections + 1] = UI.events.equipLure:Connect(function(lureId: string)
-		if (profile.lures[lureId] or 0) > 0 then
-			profile.equippedLure = lureId
-			push()
-		end
-	end)
 	connections[#connections + 1] = UI.events.placeCat:Connect(
 		function(catUid: string, spotId: string)
 			local instance = profile.cats[catUid]

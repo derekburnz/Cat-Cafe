@@ -14,7 +14,6 @@ local Moments = {
 	-- device's estimate at press time; the server's grades come with CatchSuccess or CatchFail
 	CatchSuccess = Signal.new() :: Signal.Signal<string, string?>, -- (strayId, rarity)
 	CatchFail = Signal.new() :: Signal.Signal<string>, -- (strayId) a Miss ended the catch
-	PawLost = Signal.new() :: Signal.Signal<number>, -- (pawsLeft) after a Miss, when this player can run out
 	Purrfect = Signal.new() :: Signal.Signal<number>, -- (charmGain) every circle Perfect
 	CatFound = Signal.new() :: Signal.Signal<string, boolean>, -- (catId, isNew) checked in at the cafe
 	CheckIn = Signal.new() :: Signal.Signal<()>, -- the carried cat went into the cafe

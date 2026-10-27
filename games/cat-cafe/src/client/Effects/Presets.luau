@@ -40,7 +40,7 @@ Presets.rarity = {
 Presets.textures = {
 	sparkle = "rbxasset://textures/particles/sparkles_main.dds",
 	smoke = "rbxasset://textures/particles/smoke_main.dds",
-	shinySparkle = "", -- CatCafe_VFX_ShinySparkle.png (asset thread, PR #46) once uploaded
+	goldSparkle = "", -- the sparkle sprite CatCafe_VFX_ShinySparkle.png (asset thread, PR #46) once uploaded
 }
 
 export type Budget = {
@@ -48,7 +48,7 @@ export type Budget = {
 	animRadius: number, -- studs from the player within which a cat can move
 	animHz: number, -- pose updates per second
 	steadyEmitters: number, -- steam, chimney smoke and fireflies on at once
-	shinyEmitters: number,
+	goldEmitters: number, -- gold cats sparkling at once
 	butterflies: number,
 	ambientRadius: number, -- studs; steam, butterflies and fireflies beyond it are off
 	chimneyRadius: number, -- smoke reads from far away, so it gets a longer range
@@ -66,7 +66,7 @@ Presets.budget = {
 		animRadius = 60,
 		animHz = 30,
 		steadyEmitters = 4,
-		shinyEmitters = 3,
+		goldEmitters = 3,
 		butterflies = 6,
 		ambientRadius = 80,
 		chimneyRadius = 140,
@@ -80,7 +80,7 @@ Presets.budget = {
 		animRadius = 80,
 		animHz = 60,
 		steadyEmitters = 10,
-		shinyEmitters = 8,
+		goldEmitters = 8,
 		butterflies = 14,
 		ambientRadius = 110,
 		chimneyRadius = 200,
@@ -145,9 +145,10 @@ Presets.emitters = {
 		drag = 0.5,
 	},
 	shiny = {
-		-- Frost, the shiny coat style for now (features F42, a round 3 question): icy white with a blue glint.
+		-- A gold cat's sparkle (F42; Derek picked gold coats on 2026-10-27): warm white glints off the gold. The key
+		-- keeps its old name because QA's EffectsMotion spec checks it.
 		texture = Presets.textures.sparkle,
-		colors = { Presets.palette.milk, Presets.palette.fishBelly, Presets.palette.eyeBlue },
+		colors = { Presets.palette.offwhite, Presets.palette.sparkle, Presets.palette.golden },
 		size = { 0.45, 0 },
 		transparency = { 0, 1 },
 		lifetime = { 0.6, 1 },
@@ -253,8 +254,8 @@ Presets.bursts = {
 	purrfect = 28,
 }
 
--- A shiny coat seen for the first time (a shiny caught or rescued, F42): this many frost sparkles from the shiny
--- emitter and a pale blue ring.
+-- A gold coat seen for the first time (a gold cat caught or rescued, F42): this many sparkles from the gold
+-- cat's emitter and a golden ring.
 Presets.reveal = { sparkles = 20 }
 Presets.catchSparkle = {
 	Common = 8,
@@ -275,7 +276,6 @@ Presets.confettiColors = {
 }
 Presets.purrfectColors =
 	{ Presets.palette.golden, Presets.palette.sparkle, Presets.palette.offwhite }
-Presets.frostColors = { Presets.palette.milk, Presets.palette.fishBelly, Presets.palette.eyeBlue }
 
 Presets.confetti = {
 	size = Vector3.new(0.35, 0.05, 0.22),

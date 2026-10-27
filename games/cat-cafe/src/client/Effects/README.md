@@ -12,7 +12,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | `Context.luau` | The budget, where the player is, day or night, Reduce Motion, the `Workspace.ClientEffects` folder, the client-only effect part and the camera shake. |
 | `Particles.luau` | Emitters from presets, one pooled hidden emitter per burst kind, part confetti on one shared loop, the flat flash ring, the pop-up "!" mark. |
 | `Pose.luau` | Moves a cat's body, head, tail and four legs. Head and tail by name, legs by name (`LegF1` and so on) or, on the exported cats where every body part is named like the body, by shape and place, in the body part's own axes. Outfit parts ride what their `Follows` attribute names and are never taken for a leg. A cat with `Pose = "upright"` (F25) turns in the floor's axes about the floor under its body and never sinks. Anchored parts get the server CFrame times a turn around each joint (the server's CFrame is re-read whenever it changes), and the speed the server moves the cat is measured so the legs keep pace; a Motor6D rig, once there is one, gets the same turns in `Transform`. |
-| `Cats.luau` | Which cats move: the nearest few in range. Role idles (barista taps, waiter sways, greeter waves, entertainer bats a yarn ball), naps curled up with floating z's (every working cat at night, when the cafe is closed), stuck cats struggling, strays looking around, a trot or gallop whenever the server moves a cat with dust kicked up at a run, the pant after a sprint, the hiss hop. Shiny cats in range sparkle (a carried one too), and a shiny picked up bursts with frost sparkles. |
+| `Cats.luau` | Which cats move: the nearest few in range. Role idles (barista taps, waiter sways, greeter waves, entertainer bats a yarn ball), naps curled up with floating z's (every working cat at night, when the cafe is closed), stuck cats struggling, strays looking around, a trot or gallop whenever the server moves a cat with dust kicked up at a run, the pant after a sprint, the hiss hop. Gold cats in range sparkle (a carried one too), and a gold cat picked up bursts with gold sparkles. |
 | `Catch.luau` | A Miss: hiss puff, "!" and the hop, plus a small camera shake for the player who missed. A catch: a sparkle in the rarity colour. A Purrfect: gold burst, ring and confetti. |
 | `Plots.luau` | Rank up confetti and a smoke puff at the cafe front, the For Rent shutters rolling up when a plot is claimed, an area gate's barrier dissolving the first time it opens for this player. |
 | `Ambient.luau` | Espresso steam, chimney smoke, butterflies by day and fireflies at night, the nearest sources only. |
@@ -43,8 +43,8 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Doze on its feet | the nap rule on a cat with `Pose = "upright"` (F25): head droop and nod, no sink; `Pose` changing rebinds the cat |
 | Walk and gallop | the speed the server moves the cat; a gallop from 9 studs a second, full at 18 |
 | Pant | a `Stray` standing still while its `FleeingUntil` is ahead of the server time |
-| Shiny sparkle | `Shiny = true` on a stray, a working or napping cat, or a player's `HeldCat` |
-| Shiny burst | a `HeldCat` with `Shiny = true` appearing (a shiny caught or rescued), or `Shiny` turning true |
+| Gold sparkle | `Gold = true` (or the old `Shiny = true`) on a stray, a working or napping cat, or a player's `HeldCat` |
+| Gold burst | a gold `HeldCat` appearing (a gold cat caught or rescued), or `Gold` (or `Shiny`) turning true |
 | Shove | `ShovedAt` changing on a character to a server time under 0.6 s old; `ShovedBy` places the puff |
 | Hiss | CatchResult not a success (the catcher), `HissAt` changing to a server time under 0.6 s old (everyone) |
 | Catch sparkle, Purrfect | CatchResult success; every grade `"perfect"` is a Purrfect (the v0.3 scores, all 1, still work) |
@@ -59,6 +59,6 @@ Everything here runs on this client only. Effects read replicated world state (t
 
 ## Budgets
 
-`Presets.budget.low` (touch with no keyboard) and `.high`. Phone: 8 moving cats within 60 studs at 30 updates a second, 4 steady emitters, 3 shiny sparkles, 6 butterflies, bursts of 12 at most, 14 confetti pieces, 80 confetti pieces alive at most on any device. Everything is chosen by distance once a second (cats twice a second), not every frame. Reduce Motion turns off the camera shake and the flash ring, holds the z's still and cuts confetti to 40 %.
+`Presets.budget.low` (touch with no keyboard) and `.high`. Phone: 8 moving cats within 60 studs at 30 updates a second, 4 steady emitters, 3 gold sparkles, 6 butterflies, bursts of 12 at most, 14 confetti pieces, 80 confetti pieces alive at most on any device. Everything is chosen by distance once a second (cats twice a second), not every frame. Reduce Motion turns off the camera shake and the flash ring, holds the z's still and cuts confetti to 40 %.
 
-Textures are Roblox's built-in particle sprites until our own are uploaded; put the uploaded id in `Presets.textures` (`shinySparkle` first). No animation ids are used yet, so there is no `AnimationIds.luau` until the first Animation Editor clip.
+Textures are Roblox's built-in particle sprites until our own are uploaded; put the uploaded id in `Presets.textures` (`goldSparkle` first). No animation ids are used yet, so there is no `AnimationIds.luau` until the first Animation Editor clip.

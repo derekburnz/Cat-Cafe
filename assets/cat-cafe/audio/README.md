@@ -43,9 +43,9 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `strayFlee`, `bumpLoose` | `sfx/CatCafe_Sfx_StrayFlee.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 115429958262894 | 2026-10-26 |
 | `jingleCatFound` | `music/CatCafe_Music_JingleCatFound.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 102912195564834 | 2026-10-26 |
 | `jingleRankUp` | `music/CatCafe_Music_JingleRankUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 77815750894397 | 2026-10-26 |
-| `musicDayA` | `music/CatCafe_Music_DayA.ogg` | composed and synthesized by `synth/music.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
-| `musicDayB` | `music/CatCafe_Music_DayB.ogg` | composed and synthesized by `synth/music.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
-| `musicNightA` | `music/CatCafe_Music_NightA.ogg` | composed and synthesized by `synth/music.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `musicDayA` | `music/CatCafe_Music_DayA.ogg` | composed and synthesized by `synth/music.py` | original (Cat Cafe) | sound-designer | this repo | 92150429408895 | 2026-10-27 |
+| `musicDayB` | `music/CatCafe_Music_DayB.ogg` | composed and synthesized by `synth/music.py` | original (Cat Cafe) | sound-designer | this repo | 73896733157878 | 2026-10-27 |
+| `musicNightA` | `music/CatCafe_Music_NightA.ogg` | composed and synthesized by `synth/music.py` | original (Cat Cafe) | sound-designer | this repo | 131746689332910 | 2026-10-27 |
 | `loopCafeDoor` | `ambience/CatCafe_Amb_LoopCafeDoor.ogg` (removed 2026-10-27) | synthesized by `synth/ambience.py`; retired 2026-10-27, Derek replaced the ambience with quiet music (last upload 98253223255392) | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `catHiss` | `sfx/CatCafe_Sfx_CatHiss.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 133059376390215 | 2026-10-26 |
 | `pawLost` | `sfx/CatCafe_Sfx_PawLost.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 120814540941175 | 2026-10-26 |
@@ -54,8 +54,8 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `shuttersUp` | `sfx/CatCafe_Sfx_ShuttersUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 137368825957454 | 2026-10-26 |
 | `signFlip` | `sfx/CatCafe_Sfx_SignFlip.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 108862500995197 | 2026-10-26 |
 | `announce` | `sfx/CatCafe_Sfx_Announce.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 140320161816899 | 2026-10-26 |
-| `purr` | `sfx/CatCafe_Sfx_Purr.ogg` | synthesized by `synth/synth.py`; rebuilt 2026-10-27 as a real purr (the upload 134709393284855 was a low rumble and plays until the new one is uploaded) | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
-| `carryPurr` | `sfx/CatCafe_Sfx_CarryPurr.ogg` | synthesized by `synth/synth.py`; rebuilt 2026-10-27 as a real purr (the upload 73628889177188 was a low rumble and plays until the new one is uploaded) | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `purr` | `sfx/CatCafe_Sfx_Purr.ogg` | synthesized by `synth/synth.py`; rebuilt 2026-10-27 as a real purr (replaces the upload 134709393284855, a low rumble) | original (Cat Cafe) | sound-designer | this repo | 110254245469370 | 2026-10-27 |
+| `carryPurr` | `sfx/CatCafe_Sfx_CarryPurr.ogg` | synthesized by `synth/synth.py`; rebuilt 2026-10-27 as a real purr (replaces the upload 73628889177188, a low rumble) | original (Cat Cafe) | sound-designer | this repo | 104398552389386 | 2026-10-27 |
 | `uiOpen` | `ui/CatCafe_Ui_Open.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 114730761775875 | 2026-10-27 |
 | `uiClose` | `ui/CatCafe_Ui_Close.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 129207225359334 | 2026-10-27 |
 | `uiToast` | `ui/CatCafe_Ui_Toast.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 97064648437698 | 2026-10-27 |
@@ -100,6 +100,6 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `visitorMystery` | `sfx/CatCafe_Sfx_VisitorMystery.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 76865491597271 | 2026-10-27 |
 | `giftOpen` | `sfx/CatCafe_Sfx_GiftOpen.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 116810371894969 | 2026-10-27 |
 | `potionDrink` | `sfx/CatCafe_Sfx_PotionDrink.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 135212660589235 | 2026-10-27 |
-| `tackleLunge` | `sfx/CatCafe_Sfx_TackleLunge.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
-| `tackleMiss` | `sfx/CatCafe_Sfx_TackleMiss.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
-| `catLevelUp` | `sfx/CatCafe_Sfx_CatLevelUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `tackleLunge` | `sfx/CatCafe_Sfx_TackleLunge.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 119010397581874 | 2026-10-27 |
+| `tackleMiss` | `sfx/CatCafe_Sfx_TackleMiss.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 85126153307905 | 2026-10-27 |
+| `catLevelUp` | `sfx/CatCafe_Sfx_CatLevelUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 122201546356974 | 2026-10-27 |

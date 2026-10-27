@@ -11,6 +11,8 @@ local Config = require(ReplicatedStorage.Shared.Config)
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- An axis-aligned rectangle on the ground, world or plot space depending on where it is used.
 export type Rect = { x1: number, z1: number, x2: number, z2: number }
+-- An archway over an entrance (WorldBuilder.buildArch): the alley kit's `asset` when there is one.
+export type Arch = { x: number, z: number, span: number, label: string, asset: string? }
 -- A rescue trap: the prop stands at (x, floor, z) turned by rotY; the stuck cat sits at Layout.stuckPoses[prop].
 -- `trap` is the TrapType (data-model section 9): a "tree" is shaken then caught, every other trap is the bar.
 export type RescuePoint = { prop: string, trap: string, x: number, z: number, rotY: number? }
@@ -33,7 +35,7 @@ export type AreaSpec = {
 	roam: { Rect }?, -- where strays may walk when props line the walls; the floor pieces when nil
 	wallHeight: number?,
 	-- archways a rects area is entered by: the alley kit's asset when it is there, else posts, beam and label
-	arches: { { x: number, z: number, span: number, label: string, asset: string? } }?,
+	arches: { Arch }?,
 	arrival: Point?, -- where fast travel lands; a box area lands just inside its opening
 	spawnPoints: { Point },
 	rescueSpots: { RescuePoint },

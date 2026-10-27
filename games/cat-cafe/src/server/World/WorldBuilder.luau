@@ -849,8 +849,7 @@ local function buildArea(
 				walls
 			)
 		end
-		local arches: { { x: number, z: number, span: number, label: string, asset: string? } } = spec.arches
-			or {}
+		local arches: { Layout.Arch } = spec.arches or {}
 		for _, arch in arches do
 			buildArch(arch.x, arch.z, arch.span, arch.label, arch.asset, wallColor, model)
 		end
@@ -1038,10 +1037,15 @@ local function buildIndexBoards(gates: { [string]: Model }, parent: Instance)
 	for areaId, at in Layout.indexBoards do
 		local pascal = areaId:sub(1, 1):upper() .. areaId:sub(2)
 		local asset = "CatCafe_" .. pascal .. "_IndexBoard"
-		local host: CFrame? = if gates[areaId] ~= nil then gates[areaId]:GetPivot() else nil
+		local gate: Model? = gates[areaId]
+		local host: CFrame? = if gate ~= nil then gate:GetPivot() else nil
 		if host == nil then
 			local spec = Layout.areas[areaId]
-			for _, arch in (if spec ~= nil then spec.arches else nil) or {} do
+			local arches: { Layout.Arch } = {}
+			if spec ~= nil and spec.arches ~= nil then
+				arches = spec.arches
+			end
+			for _, arch in arches do
 				if arch.asset == Layout.streetArchAsset then
 					host = CFrame.new(arch.x, 0.1, arch.z) -- buildArch's pivot
 				end

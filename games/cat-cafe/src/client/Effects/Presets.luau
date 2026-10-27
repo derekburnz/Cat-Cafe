@@ -335,6 +335,22 @@ Presets.motion = {
 	-- A cat stood upright at its station (F25) dozes on its feet at night instead: chin down on its chest with a
 	-- slow nod, a little sway, the tail hanging still. Nothing sinks, so it never dips into the counter.
 	doze = { headDroop = 26, nod = 5, sway = 2, tail = 0.15, breathe = 0.04, seconds = 3.6 },
+	-- A loaf (Derek 2026-10-27, from draft E): a resting cafe cat sits up from its nap now and then, tucked in and
+	-- still. On its belly with every leg folded under and the front paws peeking out, head up and level, the tail laid along its right side, a slow
+	-- breath, a slow look aside once in a while and a quick ear flick. `hold` seconds of every `every`, by day.
+	loaf = {
+		headDroop = 4,
+		look = 16,
+		lookEvery = 11,
+		lookSeconds = 3.5,
+		flick = 4,
+		flickEvery = 6.5,
+		tailWrap = 60,
+		breathe = 0.03,
+		seconds = 4.2,
+		every = 75,
+		hold = 24,
+	},
 	settle = 0.8, -- seconds a cat takes to move from one style to the next (lying down at nightfall)
 	-- Legs swing with the distance the server moves the cat, so the feet keep pace with the ground: a trot at
 	-- walking speed, a gallop once it runs (F40's sprint is 26 studs a second). Speeds in studs a second.

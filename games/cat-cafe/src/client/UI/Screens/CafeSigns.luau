@@ -1,8 +1,8 @@
 --!strict
 -- Cafe name signs (world-and-feel section 3, copied from the Steal a Brainrot base signs): over every cafe door the
 -- owner's avatar headshot, "Derek's Cafe" and a line with the tier name and the cafe's tips per second
--- ("Cozy Cafe  ·  +$42/s"), with a moon at night, when cafes keep earning (common-features note 1). An empty plot
--- reads FOR RENT. Your own cafe gets a gold edge so you can spot it down the street.
+-- ("Cozy Cafe  ·  +$42/s"). At night the cafe closes but keeps earning the night share, so the line reads
+-- "🌙 Closed  ·  +$25/s" (data-model section 11). An empty plot reads FOR RENT. Your own cafe gets a gold edge so you can spot it down the street.
 --
 -- Plots are the server's models tagged "Plot" with OwnerUserId, OwnerName, TierName and Rate attributes. The sign
 -- board is the shell's SignBoard part, else the code-built Sign part. This draws a local SurfaceGui on its street
@@ -276,13 +276,15 @@ function CafeSigns._render(self: any, sign: Sign)
 	local tierName = plot:GetAttribute("TierName")
 	local rate = plot:GetAttribute("Rate")
 	local parts: { string } = {}
-	if type(tierName) == "string" and tierName ~= "" then
+	-- v0.5 (data-model section 11): the cafe closes at night and the sign says so with a moon, but the cats keep
+	-- earning the night share (reviewer S41), so the rate stays
+	if self._night then
+		table.insert(parts, MOON .. " Closed")
+	elseif type(tierName) == "string" and tierName ~= "" then
 		table.insert(parts, tierName)
 	end
-	-- cafes keep earning at night (reviewer S41), so the rate stays, behind a moon
 	if type(rate) == "number" and rate > 0 then
-		local shown = if self._night then rate * NIGHT_TIPS else rate
-		table.insert(parts, (if self._night then MOON .. " " else "") .. Format.rate(shown))
+		table.insert(parts, Format.rate(if self._night then rate * NIGHT_TIPS else rate))
 	end
 	sign.info.TextColor3 = if self._night then Theme.colors.sky else Theme.hud.income
 	sign.info.Text = table.concat(parts, "  ·  ")

@@ -105,7 +105,6 @@ local Config = {
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
 	RescueAttemptMaxSeconds = 15,
 	ShinyChanceRescue = 0.10, -- rolled at night start, hidden until the rescue succeeds
-	RescueHoldSeconds = 4, -- the v0.2 hold, read only by the UI's old hold bar until it drops it
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher shiny chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1

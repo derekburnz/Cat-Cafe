@@ -443,6 +443,12 @@ function WorldController.start()
 			if zone ~= lastZone then
 				lastZone = zone
 				Audio.setZone(zone)
+				-- the HUD's zone chip (UI thread): nil or "Cafe" is the safe street, anything else a catching area.
+				-- Looked up loosely so this loads before or after the UI build that adds it.
+				local setZone: ((string?) -> ())? = (UI :: any).setZone
+				if setZone ~= nil then
+					setZone(zone)
+				end
 				-- walking into an area shows its title card (F39); the card skips a repeat within 4 s
 				if zone ~= nil and zone ~= "Cafe" then
 					UI.showAreaTitle(zone:lower())

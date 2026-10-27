@@ -73,7 +73,7 @@ v0.6 (Derek, 2026-10-27 14:35: "you draft some ideas for models for those places
 | munchkin | neighbourhood | Skater Cat | Rare | entertainer | Lands every trick, eventually. | skateboard on its back (Back) |
 | fold | neighbourhood | Painter Cat | Rare | waiter | Carries every plate like a masterpiece. | beret with a paint splat (Head) |
 | chonk | neighbourhood | Chef Cat | Epic | barista | Taste-tests every pastry, twice. | tall chef hat (Head) |
-| postie | neighbourhood | Mail Cat | Epic | greeter | Knows every customer by name and address. | mail carrier's satchel (Back) |
+| postie | neighbourhood | Mail Cat | Epic | greeter | Knows every customer by name and address. | mail carrier's cap (Head; a satchel would clip the greeter sash, N130) |
 | marshmallow | neighbourhood | Super Cat | Legendary | waiter | Catches every falling cup before it lands. | red hero cape (Back); cape flutter and whoosh trail |
 | comet | neighbourhood | Ice Cream Cat | Mythical | entertainer | Hands out a sprinkle with every smile. | ice cream cone hat with a cherry (Head); floating sprinkles |
 | pinecone | woods | Scout Cat | Rare | barista | Always prepared, especially with snacks. | backpack with a bedroll (Back) |
@@ -395,7 +395,9 @@ Spins:
 - Banked spins in `spin.banked`, up to SpinBankCap (20): one each from Tip Jar steps 11 and 12, and later the Daily Treat's day 7. A claim that would pass the cap still pays the step's other prize and drops the extra spin, and the Tip Jar row says "Spins full".
 - A spin uses the free spin first, then a banked one.
 
-- `SpinWheel()`: profile loaded; the character within SpinStationRange (14) studs of a station tagged `SpinWheel`; a free spin due or `spin.banked` of 1 or more; at least SpinCooldownSeconds (4, the spin animation) since the caller's last spin. The server picks the slice with its own `Random`, weighted by `weight`, pays at once (so leaving mid-animation keeps the prize), updates `spin`, adds to `stats.spins`, fires `SpinResult(slice, amount)` to the caller and ProfileSync with `spin`, and sets the station's `LastSpinAt` so every client turns the world wheel for show. A refused spin fires `SpinResult(0, 0)` and the window says why ("Next free spin in 5h 12m").
+- `SpinWheel()`: profile loaded; the character within SpinStationRange (14) studs of a station tagged `SpinWheel`; a free spin due or `spin.banked` of 1 or more; at least SpinCooldownSeconds (4, the spin animation) since the caller's last spin; 1 call per second, since a refusal also answers with a remote (N125). The server picks the slice with its own `Random`, weighted by `weight`, pays at once (so leaving mid-animation keeps the prize), updates `spin`, adds to `stats.spins`, fires `SpinResult(slice, amount)` to the caller and ProfileSync with `spin`, and sets the station's `LastSpinAt` so every client turns the world wheel for show. A refused spin fires `SpinResult(0, 0)` and the window says why ("Next free spin in 5h 12m").
+- No Robux item may add a spin or speed up a spin source (no product that resets the free spin, no pass that shortens the Tip Jar) (N126).
+- On load a version 6 `spin` is sanitised: `banked` clamped to 0 to SpinBankCap and `lastFreeDay` to 0 to today, so a bad value cannot bank spins or block the free one (N128).
 - The UI works out when the next free spin is due from `spin.lastFreeDay` and `GetServerTimeNow()`; the server's check at spin time is final.
 - `spin` is saved and F49 raises the save version to 6, for the same reason as S60: an older server would drop `spin` during a rollout, giving a second free spin and losing banked ones. Migration 5 to 6 sets `spin = { lastFreeDay = 0, banked = 0 }`.
 - Analytics: custom event `spin` (slice, free or banked) and economy source `spin_wheel`.
@@ -493,7 +495,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | ClaimOffline | event | none | pending above 0 | adds coins |
 | ClaimTipJar | event | step | F47 (section 11b): integer 1 to 12, unclaimed this session, session minutes reached; 1 per second | pays the step, fires TipJarState and ProfileSync |
 | ClaimIndexReward | event | areaId, milestoneId | F48 (section 11b): known area and milestone, count met from `collection` or `goldCollection`, not claimed; 1 per second | pays, marks `indexRewards`, ProfileSync |
-| SpinWheel | event | none | F49 (section 11c): within 14 studs of a `SpinWheel` station, a free or banked spin, SpinCooldownSeconds since the last spin | pays the slice, fires SpinResult and ProfileSync, sets `LastSpinAt` |
+| SpinWheel | event | none | F49 (section 11c): within 14 studs of a `SpinWheel` station, a free or banked spin, SpinCooldownSeconds since the last spin; 1 per second | pays the slice, fires SpinResult and ProfileSync, sets `LastSpinAt` |
 | TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
 | SetSetting | event | key, value | engineer #202: `key` is `music` or `sfx`, `value` a boolean; 4 per second | saves to `profile.settings`, answered by ProfileSync |
 | CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |

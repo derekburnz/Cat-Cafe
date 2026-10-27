@@ -43,7 +43,7 @@ Themed cats (ids and favorite roles unchanged; names, one-line descriptions and 
 | munchkin | Skater Cat | Rare | entertainer | skateboard strapped to its back (Back) | Munchkin, short legs, grey and white |
 | fold | Painter Cat | Rare | waiter | beret with a paint splat (Head) | Scottish Fold, folded ears, cream with paint-coloured toe tips |
 | chonk | Chef Cat | Epic | barista | tall chef hat (Head) | big orange and white, scale 1.25 |
-| postie | Mail Cat | Epic | greeter | mail carrier's satchel (Back) | blue-grey shorthair |
+| postie | Mail Cat | Epic | greeter | mail carrier's cap (Head; a satchel would clip the greeter sash) | blue-grey shorthair |
 | marshmallow | Super Cat | Legendary | waiter | red hero cape (Back); effect: the cape flutters and leaves a short whoosh trail | fluffy white long coat |
 | comet | Ice Cream Cat | Mythical | entertainer | ice cream cone hat with a cherry (Head); effect: sprinkles float off it | strawberry and vanilla swirl with sprinkle specks, soft glow |
 
@@ -149,16 +149,16 @@ Model `CatCafe_Street_SpinWheel`, about 12 studs tall: an upright wheel with six
 
 How it plays:
 1. Walk up and hold E on the "Spin" prompt (0.5 s, like a catch). The Spin window opens (UI). It shows the six slices, each with its prize and its chance, your spins ("Spins: 2"), the time to the next free spin and a big Spin button.
-2. Press Spin. The server picks the slice and pays straight away, so leaving mid-spin never loses a prize. Your window spins for about 4 seconds and lands on the prize with a burst. The world wheel turns for everyone at the same time (show only), so the plaza looks busy.
+2. Press Spin. The server picks the slice and pays straight away, so leaving mid-spin never loses a prize. Your window spins for about 4 seconds and lands in the middle of the prize's slice with a burst. It never creeps past a bigger prize or stops on a slice edge to look like a near miss (reviewer N127). The world wheel turns for everyone at the same time (show only), so the plaza looks busy.
 3. Spins come free: one free spin every day (it resets at 00:00 UTC, and missed days do not stack), plus one banked spin from each of Tip Jar steps 11 and 12. The Daily Treat's day 7 adds one later. You can bank up to 20.
-4. Spins are never sold for Robux, no pass gives spins and no Robux button appears in the window (monetization-policy). A spin never gives a cat: cats only come from catching, rescuing and bait (round 3 Q17).
+4. Spins are never sold for Robux, no pass gives spins, no Robux item adds a spin or speeds up a spin source and no Robux button appears in the window (monetization-policy, reviewer N126). A spin never gives a cat: cats only come from catching, rescuing and bait (round 3 Q17).
 
 Slices, prizes and server checks are in data-model section 11c.
 
 ### B4. Index Boards (F50)
 
 - Model `CatCafe_<Area>_IndexBoard` for every area: a noticeboard at the area's entry, inside the gate, styled to the area (brick for the Alleyway, wood for the Park and the Woods, cork for the Neighbourhood, tin for the Sewer).
-- Its `Screen` part, 8 x 5 studs, holds a SurfaceGui that shows the area's ten cats: silhouettes for the ones you have not found and portraits for the ones you have, with "6 / 10", the gold count and a red dot when an Index reward is ready.
+- Its `Screen` part, 8 x 5 studs, shows a SurfaceGui. Because the board differs for every player, the SurfaceGui lives in PlayerGui with its Adornee set to `Screen`, and it is re-adorned when the board streams back in (reviewer N129). It shows the area's ten cats: silhouettes for the ones you have not found and portraits for the ones you have, with "6 / 10", the gold count and a red dot when an Index reward is ready.
 - The prompt "Index" (hold E 0.5 s) opens the Index on that area's page, where the Claim buttons already are (F48), so the board needs no new remote.
 - A locked area's board still shows from outside the gate, with the silhouettes and "Opens at Tier 3", as a teaser.
 

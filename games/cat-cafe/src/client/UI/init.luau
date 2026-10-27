@@ -13,6 +13,7 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+local Areas = require(script.Screens.Areas)
 local CatCollection = require(script.Screens.CatCollection)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
@@ -56,6 +57,7 @@ UI.events = {
 	-- design v0.3
 	catchPressed = Signal.new(), -- (strayId, index)   a press on circle `index`: forward as CatchPress
 	rankUp = Signal.new(), -- ()   Rank up pressed on the card with every requirement met: forward as RankUp
+	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
 }
 
 local state: Types.PlayerState = {
@@ -82,6 +84,7 @@ local collection: CatCollection.CatCollection? = nil
 local catch: CatchPrompt.CatchPrompt? = nil
 local circles: CatchCircles.CatchCircles? = nil
 local rankUpScreen: RankUp.RankUp? = nil
+local areasScreen: Areas.Areas? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
 local carryMarker: WorldMarker.WorldMarker? = nil
@@ -114,6 +117,9 @@ local function render()
 	if rankUpScreen then
 		rankUpScreen:render(state)
 	end
+	if areasScreen and hud then
+		areasScreen:render(state, hud:isCarrying())
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -129,6 +135,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if rankUpScreen then
 		rankUpScreen:setCatalog(newCatalog)
+	end
+	if areasScreen then
+		areasScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -184,7 +193,11 @@ function UI.init(config: Types.InitConfig)
 		equipLure = function(lureId: string)
 			UI.events.equipLure:Fire(lureId)
 		end,
+		travel = function(destination: string)
+			UI.events.travel:Fire(destination)
+		end,
 	})
+	local hudInstance = hud :: HUD.HUD
 
 	local function closeModal()
 		modalInstance:close()
@@ -222,6 +235,15 @@ function UI.init(config: Types.InitConfig)
 		end,
 		close = closeModal,
 	})
+	areasScreen = Areas.new({
+		travel = function(areaId: string)
+			-- the HUD owns the carrying check and the trip cooldown; close the panel once the trip is asked
+			if hudInstance:pressTravel(areaId) then
+				modalInstance:close()
+			end
+		end,
+		close = closeModal,
+	})
 	-- explicit casts: Luau does not carry nil refinements into the closures below
 	local upgradesScreen = upgrades :: UpgradeShop.UpgradeShop
 	local decorScreen = decor :: DecorShop.DecorShop
@@ -249,6 +271,13 @@ function UI.init(config: Types.InitConfig)
 		frame = rankUpView.frame,
 		onOpen = function()
 			rankUpView:render(state)
+		end,
+	})
+	local areasView = areasScreen :: Areas.Areas
+	modalInstance:register("Areas", {
+		frame = areasView.frame,
+		onOpen = function()
+			areasView:render(state, hudInstance:isCarrying())
 		end,
 	})
 	modalInstance.changed:Connect(function(name: string?)
@@ -349,6 +378,9 @@ function UI.destroy()
 	if rankUpScreen then
 		rankUpScreen:destroy()
 	end
+	if areasScreen then
+		areasScreen:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -364,7 +396,7 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker = nil, nil
-	circles, rankUpScreen = nil, nil
+	circles, rankUpScreen, areasScreen = nil, nil, nil
 	Scale.stop()
 	initialized = false
 end
@@ -514,6 +546,9 @@ function UI.setCarrying(info: Types.CarryInfo?)
 		}
 	end
 	hudScreen:setCarrying(resolved)
+	if areasScreen then
+		areasScreen:render(state, hudScreen:isCarrying())
+	end
 	if resolved and resolved.door then
 		marker:show(resolved.door :: BasePart, "Check in here", Theme.rarityColor(resolved.rarity))
 	else
@@ -547,6 +582,21 @@ function UI.tutorial.hide()
 	end
 	if tutorialMarker then
 		tutorialMarker:hide()
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Fast travel (F19)
+----------------------------------------------------------------------------------------------------
+
+-- The travel row (Cafe, Alley, Areas) and the Areas panel fire events.travel(destination) with "home" or an
+-- AreaId. The server answers TravelResult(destination, ok, reason?); pass it here so a refused trip lifts the
+-- cooldown and wobbles its button. The server's own toast gives the reason.
+UI.travel = {}
+
+function UI.travel.result(destination: string, ok: boolean, _reason: string?)
+	if hud then
+		hud:travelResult(destination, ok)
 	end
 end
 
@@ -651,6 +701,9 @@ function UI.catch.showCircles(
 	if catch then
 		catch:hide() -- activePrompt and activeInfo stay so the card can come back
 	end
+	if hud then
+		hud:setCatching(true)
+	end
 	screen:show(circleList, windows, header, function(index: number)
 		UI.events.catchPressed:Fire(strayId, index)
 	end)
@@ -678,6 +731,9 @@ function UI.catch.showResult(
 		success,
 		if stays then "Missed, try again" else "It got away",
 		function()
+			if hud then
+				hud:setCatching(false)
+			end
 			local current = activeInfo
 			local card = catch
 			if not success and stays and activePrompt ~= nil and current ~= nil and card ~= nil then
@@ -690,6 +746,9 @@ end
 function UI.catch.hideCircles()
 	if circles then
 		circles:hide()
+	end
+	if hud then
+		hud:setCatching(false)
 	end
 end
 

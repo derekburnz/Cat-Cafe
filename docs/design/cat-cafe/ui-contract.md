@@ -131,7 +131,7 @@ A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card 
 | API | Purpose |
 |---|---|
 | `catalog.tiers` | `{ TierDef }`, data-model 5b: `{ tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps = { tables, espresso, net } }`. |
-| `state.tier` | 1 to 5. With `catalog.tiers` the top pill shows "Tier 2 · Cozy Cafe", what the next tier still needs and a progress bar, and a gold "Rank up ready!" tag when every requirement is met. Tapping it opens the `RankUp` screen. |
+| `state.tier` | 1 to 5. With `catalog.tiers` the top pill shows "Tier 2 · Cozy Cafe", what the next tier still needs and a progress bar, and, when every requirement is met, a tilted red "Rank up!" sticker on its corner with "Rank up ready! Tap to see" as the sub line. Tapping it opens the `RankUp` screen. |
 | `UI.open("RankUp")` | The card: next tier's name, each requirement ticked or not (coins, different cats from `collection`, the rarity from Tier 3, where a rarer cat also counts: "One cat, Epic or better"), what it opens (area, role slots, tips multiplier, raised upgrade caps, decor with `requiresTier`), and a gold "Rank up · $1,500" button that only lights up when everything is met. A `rankUp` field in ProfileSync is not needed; the card computes progress from the catalog and the state. |
 | `events.rankUp()` | Rank up pressed. Forward as `RankUp`; the server checks everything again. |
 
@@ -154,7 +154,7 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 | `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
 | Shiny | A sparkle badge on cards, the carry banner and the book; the book gets a Shiny page with its own count from `state.shinyCollection`. `CatInstance.variant = "shiny"`. |
 | Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`; the shown name is `CatInstance.name` or the catalog name. |
-| Fast travel | Five area buttons; locked ones grey with "Tier 3". Fires `events.travel(areaId)`. |
+| Fast travel (built, v0.4 F19) | Top centre under the tier pill: Cafe, Alley and Areas buttons (Grow a Garden style). Cafe and Alley fire `events.travel("home")` and `events.travel("alley")`; Areas opens `UI.open("Areas")`, five area cards with "Epic or better N%" and Go, locked ones greyed with "Opens at Tier n". The row hides while the catch circles show (their header takes the top centre). Every button and Go greys while carrying (`state.carrying` or `UI.setCarrying`) and Cafe and Alley grey for `Config.TravelCooldownSeconds` (3 until it exists) after a trip. Forward `events.travel(destination)` as `Travel(destination)`; pass `TravelResult(destination, ok, reason?)` to `UI.travel.result`, which lifts the cooldown and wobbles the button on a refusal (the server toast gives the reason). |
 
 Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Retired once the rescue minigames and the bait bowl land: `rescueEnded`, `startRescue`, `stopRescue` and `equipLure`; they stay until the controller drops them so main keeps compiling.
 
@@ -243,7 +243,7 @@ Odds visible before any purchase and the detail control is labelled "Details", n
 
 ## Not in scope for the UI thread, and space left for later
 
-Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, sounds (`Theme.sounds.*` hooks are nil), localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: fast travel buttons (F19, HUD left stack under the menu, greyed while carrying), leaderboards and settings (P2, modal screens), event banner (HUD top centre under the cafe pill, post-slice), a "Closed" state on the HUD rate if tips pause at night (questions-for-gavin.md question 10).
+Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, sounds (`Theme.sounds.*` hooks are nil), localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: leaderboards and settings (P2, modal screens), event banner (HUD top centre under the travel row, post-slice), a "Closed" state on the HUD rate if tips pause at night (questions-for-gavin.md question 10).
 
 ## Check gate status
 

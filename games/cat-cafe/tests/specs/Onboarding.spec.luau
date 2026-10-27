@@ -1,6 +1,8 @@
 --!strict
 -- Onboarding.luau against growth analytics-plan section 3: twelve steps, each logged once and only in order. A step
 -- reached early is held until every step before it is logged, so a rank up before bait never fakes the bait steps.
+-- The "edges (QA)" block is QA's: 500 seeded play orders with every step reached twice, names that are not steps, a
+-- finished funnel and the shipped names.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Onboarding = require(Shared.Onboarding)
@@ -92,6 +94,69 @@ return function()
 			for i, step in logged do
 				expect(step).to.equal(i)
 			end
+		end)
+	end)
+
+	describe("edges (QA)", function()
+		it("logs 1 to 12 once each and holds nothing, over 500 seeded orders", function()
+			local rng = Random.new(16)
+			for _ = 1, 500 do
+				local order = table.clone(Onboarding.STEPS)
+				for i = #order, 2, -1 do
+					local j = rng:NextInteger(1, i)
+					order[i], order[j] = order[j], order[i]
+				end
+				local state = fresh()
+				local logged: { number } = {}
+				for _, step in order do
+					-- every step twice in a row, as a second check-in or rank up would
+					for _ = 1, 2 do
+						for _, name in Onboarding.reach(state, step) do
+							table.insert(logged, Onboarding.index(name))
+						end
+					end
+				end
+				expect(#logged).to.equal(Onboarding.COUNT)
+				for i, step in logged do
+					expect(step).to.equal(i)
+				end
+				expect(state.onboardingStep).to.equal(Onboarding.COUNT)
+				expect(next(state.achieved)).never.to.be.ok()
+			end
+		end)
+
+		it("ignores a name that is not a step", function()
+			local state = fresh()
+			Onboarding.reach(state, "joined")
+			expect(#Onboarding.reach(state, "first_lure" :: any)).to.equal(0)
+			expect(state.onboardingStep).to.equal(1)
+			expect(next(state.achieved)).never.to.be.ok()
+			expect(Onboarding.index("first_lure")).to.equal(0)
+		end)
+
+		it("logs nothing more once the last step is logged", function()
+			local state: Types.TelemetryState = { onboardingStep = Onboarding.COUNT, achieved = {} }
+			for _, step in Onboarding.STEPS do
+				expect(#Onboarding.reach(state, step)).to.equal(0)
+			end
+			expect(next(state.achieved)).never.to.be.ok()
+		end)
+
+		it("keeps the shipped step names in the plan's order (analytics-plan 3.1)", function()
+			expect(Onboarding.STEPS :: any).to.deepEqual({
+				"joined",
+				"saw_alley",
+				"first_catch",
+				"first_checkin",
+				"first_role",
+				"first_table",
+				"first_bait",
+				"first_bait_resolved",
+				"tier_2",
+				"returned_next_day",
+				"first_offline_claim",
+				"tier_3",
+			})
 		end)
 	end)
 end

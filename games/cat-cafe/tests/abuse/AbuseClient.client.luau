@@ -11,7 +11,7 @@
 	  1 fake stray      2 far grab          3 press without begin  4 bad presses   5 press with a time
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
-	  = double spend    , travel            / shove targets        \ rename
+	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
 	  Backspace flood   ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -2061,6 +2061,48 @@ case(
 			"uids not mine: silent; every bad name refused in words; cooldown holds; "
 				.. detail
 				.. ". The test cat keeps its new name. Now read the server output for [Net] RenameCat handler failed lines"
+	end
+)
+
+-- Analytics reports (F16, data-model section 15) --------------------------------------------------------------
+
+case(
+	"telemetry",
+	Enum.KeyCode.Insert,
+	"Telemetry: names, devices and screens off the allow list, a second device, then one good screen",
+	function()
+		-- TelemetryReport takes 10 calls a minute and the client has already sent its device and maybe a screen or
+		-- two, so this sends 8 bad calls and one good one. The server logs nothing back to the client: the verdict
+		-- is in the server's own telemetry log.
+		local bad: { { any } } = {
+			{ "nil", "pc" },
+			{ 5, "pc" },
+			{ "DEVICE", "pc" },
+			{ "catch_circles", 1e308 },
+			{ "device", "toaster" },
+			{ "device", "console" }, -- allowed, but this session's device is already reported
+			{ "ui_opened", "upgrades" }, -- the server's names are the UI's ScreenNames, case and all
+			{ "ui_opened", {} },
+		}
+		local startedAt = os.clock()
+		for _, call in bad do
+			fire("TelemetryReport", if call[1] == "nil" then nil else call[1], call[2])
+		end
+		fire("TelemetryReport", "ui_opened", "Dealer")
+		task.wait(1)
+		local answers = since(startedAt, "Toast")
+		if #answers > 0 then
+			return "FAIL", "TelemetryReport answered with a toast: " .. answers[1].text
+		end
+		return "CHECK",
+			"sent 8 bad reports and ui_opened Dealer. On the server run "
+				.. "print(table.concat("
+				.. DEBUG
+				.. '("telemetry", 40), "\\n")): '
+				.. "PASS when the newest lines hold one custom ui_opened [dealer] and nothing for toaster, console, "
+				.. "upgrades or catch_circles, and the onboarding joined line carries [pc], not [unknown]; no ui_opened "
+				.. "line at all means the limiter was spent, so rerun after a minute. Also no "
+				.. "[Net] TelemetryReport handler failed line"
 	end
 )
 

@@ -320,7 +320,6 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		name = "Spin",
 		text = "Spin!",
 		icon = Theme.icons.spin,
-		iconSize = 34,
 		style = "gold",
 		size = UDim2.new(1, 0, 0, 56),
 		textSize = Theme.sizes.textLarge + 2,

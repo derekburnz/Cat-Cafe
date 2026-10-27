@@ -15,9 +15,12 @@ Presets.palette = {
 	lampWarm = Color3.fromRGB(255, 217, 168), -- 6 lamp_warm
 	furGrey = Color3.fromRGB(142, 150, 163), -- 12 fur_grey
 	golden = Color3.fromRGB(242, 193, 78), -- 15 fur_golden
+	eyeBlue = Color3.fromRGB(95, 168, 255), -- 18 eye_blue
 	nosePink = Color3.fromRGB(224, 122, 140), -- 19 nose_pink
 	leaf = Color3.fromRGB(95, 184, 90), -- 47 leaf_green
 	fishBlue = Color3.fromRGB(110, 193, 255), -- 42 fish_blue
+	fishBelly = Color3.fromRGB(221, 242, 255), -- 43 fish_belly
+	milk = Color3.fromRGB(255, 255, 255), -- 46 milk
 	neonPink = Color3.fromRGB(255, 107, 129), -- 53 neon_pink
 	sparkle = Color3.fromRGB(255, 244, 176), -- 54 sparkle
 	aurora = Color3.fromRGB(142, 124, 240), -- 58 aurora_violet
@@ -142,8 +145,9 @@ Presets.emitters = {
 		drag = 0.5,
 	},
 	shiny = {
+		-- Frost, the shiny coat style for now (features F42, a round 3 question): icy white with a blue glint.
 		texture = Presets.textures.sparkle,
-		colors = { Presets.palette.sparkle, Presets.palette.offwhite },
+		colors = { Presets.palette.milk, Presets.palette.fishBelly, Presets.palette.eyeBlue },
 		size = { 0.45, 0 },
 		transparency = { 0, 1 },
 		lifetime = { 0.6, 1 },
@@ -187,6 +191,30 @@ Presets.emitters = {
 		rate = 0,
 		drag = 3,
 	},
+	-- Little puffs kicked up behind a running cat's feet (F40).
+	kick = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.cream },
+		size = { 0.3, 0.9 },
+		transparency = { 0.5, 1 },
+		lifetime = { 0.35, 0.55 },
+		speed = { 0.5, 1.5 },
+		spread = 70,
+		rate = 0,
+		drag = 3,
+	},
+	-- A small huff of breath from a cat catching its breath (F40).
+	huff = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.2, 0.55 },
+		transparency = { 0.35, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 1, 2 },
+		spread = 30,
+		rate = 0,
+		drag = 2,
+	},
 	catchSparkle = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.offwhite }, -- tinted by rarity when the burst is made
@@ -224,6 +252,10 @@ Presets.bursts = {
 	gateSparkle = 24,
 	purrfect = 28,
 }
+
+-- A shiny coat seen for the first time (a shiny caught or rescued, F42): this many frost sparkles from the shiny
+-- emitter and a pale blue ring.
+Presets.reveal = { sparkles = 20 }
 Presets.catchSparkle = {
 	Common = 8,
 	Rare = 12,
@@ -243,6 +275,7 @@ Presets.confettiColors = {
 }
 Presets.purrfectColors =
 	{ Presets.palette.golden, Presets.palette.sparkle, Presets.palette.offwhite }
+Presets.frostColors = { Presets.palette.milk, Presets.palette.fishBelly, Presets.palette.eyeBlue }
 
 Presets.confetti = {
 	size = Vector3.new(0.35, 0.05, 0.22),
@@ -277,10 +310,52 @@ Presets.motion = {
 	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
 	entertainer = { swatEvery = 1.4, swat = 55, yarnStuds = 1.2 },
 	stuck = { every = 2.6, shake = 9, seconds = 0.5 },
-	nap = { headDroop = 10, breathe = 0.05, seconds = 3.2 },
+	-- A nap curls the cat up: it lies on its belly with its legs folded (front paws out in front), tucks its head
+	-- round towards its tail and wraps the tail along its side. sink 1 is right down on its belly.
+	nap = { headDroop = 18, headTuck = 35, tailWrap = 70, sink = 1, breathe = 0.05, seconds = 3.2 },
+	settle = 0.8, -- seconds a cat takes to move from one style to the next (lying down at nightfall)
+	-- Legs swing with the distance the server moves the cat, so the feet keep pace with the ground: a trot at
+	-- walking speed, a gallop once it runs (F40's sprint is 26 studs a second). Speeds in studs a second.
+	gait = {
+		moveFrom = 0.8, -- slower than this the cat stands
+		runFrom = 9, -- the gallop starts to blend in here
+		runFull = 18, -- and is full from here
+		walkStride = 1.3, -- studs travelled per leg cycle
+		runStride = 3.2,
+		walkSwing = 28, -- degrees each leg swings either way
+		runSwing = 50,
+		walkBob = 0.04,
+		runBob = 0.16,
+		runRock = 9, -- degrees the body rocks nose up and down in a gallop
+		runHead = 12, -- the head stretches forward and down
+		dustEvery = 0.14, -- seconds between dust kicks while it runs
+		dust = 3,
+	},
+	-- Catching its breath after the sprint (FleeingUntil still ahead, standing still): quick shallow breaths,
+	-- head low, tail down, a small huff of breath now and then.
+	pant = {
+		seconds = 0.32,
+		studs = 0.035,
+		headDown = 14,
+		tailDown = 15,
+		huffEvery = 0.7,
+		huff = 2,
+	},
 }
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
+
+-- A shove (F41): a puff where it lands, dizzy stars over the shoved player's head and, for them, a bigger
+-- camera bump than a missed catch. The knockback itself is the engineer's, on the target's own client.
+Presets.shove = {
+	puff = 10, -- hissPuff particles where it lands
+	starSeconds = 1.2,
+	stars = 3,
+	starRadius = 0.9,
+	starHz = 1.4,
+	shake = 0.3,
+	shakeStuds = 0.4,
+}
 
 Presets.butterfly = {
 	wing = Vector3.new(0.34, 0.03, 0.28),

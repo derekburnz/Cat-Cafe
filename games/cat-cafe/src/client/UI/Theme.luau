@@ -226,6 +226,33 @@ Theme.icons = {
 	replay = "🎬", -- F72: Settings' Replay tutorial row
 }
 
+-- The drawn icon sheet (assets/cat-cafe/ui/icons/UI_IconSheet.png, Derek 2026-10-27: "a lot of the symbols like
+-- index upgrades and cats could use a tiny bit more quality also"): sixteen 256 px icons in a 4 x 4 grid, one upload.
+-- Each glyph above that has a picture maps to its cell (column, row); Components/IconArt draws the picture over the
+-- glyph wherever a button, window badge, prize tile or place icon shows it, with the emoji as the fallback.
+Theme.iconSheet = {
+	image = "rbxassetid://105899778786945",
+	cell = 256,
+	cells = {
+		[Theme.icons.cats] = Vector2.new(0, 0),
+		[Theme.icons.collection] = Vector2.new(1, 0),
+		[Theme.icons.upgrades] = Vector2.new(2, 0),
+		[Theme.icons.decor] = Vector2.new(3, 0),
+		[Theme.icons.home] = Vector2.new(0, 1),
+		[Theme.icons.travel] = Vector2.new(1, 1),
+		[Theme.icons.alley] = Vector2.new(2, 1),
+		[Theme.icons.equipBest] = Vector2.new(3, 1),
+		[Theme.icons.gifts] = Vector2.new(0, 2),
+		[Theme.icons.settings] = Vector2.new(1, 2),
+		[Theme.icons.invite] = Vector2.new(2, 2),
+		[Theme.icons.tutorial] = Vector2.new(3, 2),
+		[Theme.icons.spin] = Vector2.new(0, 3),
+		[Theme.icons.lock] = Vector2.new(1, 3),
+		[Theme.icons.crate] = Vector2.new(2, 3),
+		[Theme.icons.potion] = Vector2.new(3, 3),
+	} :: { [string]: Vector2 },
+}
+
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons
 Theme.upgradeIcons = {
 	tables = "🪑",

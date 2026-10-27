@@ -58,7 +58,7 @@ local SettingsList = require(script.Components.SettingsList)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
-local TackleButton = require(script.Screens.TackleButton)
+local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
 local TipJar = require(script.Screens.TipJar)
@@ -167,7 +167,7 @@ local worldTags: WorldTags.WorldTags? = nil
 local catCard: CatCard.CatCard? = nil -- the hover card over a cat in any cafe (F75)
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
-local tackleButton: TackleButton.TackleButton? = nil -- the Tackle inside catching areas (UI.shove, F74)
+local tackleBar: TackleBar.TackleBar? = nil -- the Tackle inside catching areas (UI.shove, F74)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -811,13 +811,16 @@ function UI.init(config: Types.InitConfig)
 			UI.toast("Rich tip! +" .. Format.money(amount), "good")
 		end,
 	})
-	tackleButton = TackleButton.new(parent, {
+	tackleBar = TackleBar.new(parent, {
 		tackle = function()
 			UI.events.tackle:Fire()
 		end,
 		-- hidden while carrying or during the circles or the rescue bar (reviewer N85)
 		blocked = function()
 			return hudInstance:isCarrying() or UI.catch.circlesActive() or UI.rescue.isActive()
+		end,
+		lift = function()
+			return hudInstance:bottomTop()
 		end,
 	})
 	toasts = Toasts.new(parent)
@@ -1027,8 +1030,8 @@ function UI.destroy()
 	if richTipScreen then
 		richTipScreen:destroy()
 	end
-	if tackleButton then
-		tackleButton:destroy()
+	if tackleBar then
+		tackleBar:destroy()
 	end
 	if toasts then
 		toasts:destroy()
@@ -1052,7 +1055,7 @@ function UI.destroy()
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
 	catCard = nil
-	tackleButton = nil
+	tackleBar = nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -1562,16 +1565,16 @@ UI.shove = {}
 -- the street, the cafes and the yards are false. The button fires events.tackle() and shows its reach on the
 -- ground; it hides itself while carrying, during the catch circles and during the rescue bar.
 function UI.shove.setEnabled(on: boolean)
-	if tackleButton then
-		tackleButton:setEnabled(on)
+	if tackleBar then
+		tackleBar:setEnabled(on)
 	end
 end
 
 -- The tackler's ShoveResult: false after a refusal gives the cooldown back at once. With the outcome ("miss",
 -- "shove", "loose" or "held") and the target's UserId it toasts "Missed!" or "Tackled Alex!"; both are optional.
 function UI.shove.result(ok: boolean, outcome: string?, targetUserId: number?)
-	if tackleButton then
-		tackleButton:result(ok, outcome)
+	if tackleBar then
+		tackleBar:result(ok, outcome)
 	end
 	local target = if type(targetUserId) == "number" and targetUserId > 0
 		then Players:GetPlayerByUserId(targetUserId)

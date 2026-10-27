@@ -1,10 +1,13 @@
 --!strict
--- Shove (data-model section 10c: the F29 carry bumps as v0.5 F41 and v0.5.1). The Bump(targetUserId) remote: the
--- checks are Shove.refusal over facts gathered here, the cooldowns and the target immunity (S45) live in this
--- service's own tables, and the carried cat is CatService's (tryKnockLoose). A landed shove goes to every client as
--- ShoveResult; the target's client pushes its own character ShoveKnockbackStuds along the direction, since
--- characters are client-owned, and every client fires Moments.Shove, then BumpLoose or BumpHeld. Since v0.8 F56 a
--- shove on a carrier past BumpGraceSeconds always drops the cat (BumpChance 1.0) and anyone picks it up.
+-- Shove, a Tackle since v0.11 (data-model section 10c: the F29 carry bumps as v0.5 F41, v0.5.1 and v0.11 F74). The
+-- Tackle() remote: a press is checked by Shove.tackleRefusal and, when it is not refused, starts the
+-- TackleCooldownSeconds cooldown (hit or miss, never refunded) and a hit window of the lunge plus
+-- TackleHitGraceSeconds. Every frame of the window the server looks for the nearest player in reach (Shove.inReach,
+-- from the tackler's root as the server sees it) who could be shoved (Shove.targetRefusal); the first one is hit as a
+-- landed shove: ShoveResult to every client, where the target's client pushes its own character ShoveKnockbackStuds
+-- along the direction (characters are client-owned) and every client fires Moments.Shove, then BumpLoose or
+-- BumpHeld; the carried cat is CatService's (tryKnockLoose). No hit by the window's end is a miss: TackleMissAt on
+-- the tackler and ShoveResult "miss" to them alone. The tackler's own client moves its character for the lunge.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,22 +21,17 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
-local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local Telemetry = require(script.Parent.Telemetry)
-local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local ShoveService = {}
 
--- Studio test players have negative UserIds, so the range is symmetric; Players:GetPlayerByUserId does the rest.
-local MAX_USER_ID = 2 ^ 53
-
-local lastShoveAt: { [Player]: number } = {} -- server time of each shover's last landed shove
-local lastShoveOf: { [Player]: { [number]: number } } = {} -- shover -> target UserId -> server time
-local lastShovedAt: { [number]: number } = {} -- target UserId -> server time anyone last shoved them (S45)
+local lastTackleAt: { [Player]: number } = {} -- server time of each tackler's last press that was not refused
+local lastShoveOf: { [Player]: { [number]: number } } = {} -- tackler -> target UserId -> server time of the hit
+local lastShovedAt: { [number]: number } = {} -- target UserId -> server time anyone last hit them (S45)
 
 local function serverNow(): number
 	return Workspace:GetServerTimeNow()
@@ -52,72 +50,76 @@ local function since(at: number?, now: number): number?
 	return if at ~= nil then now - at else nil
 end
 
--- Everything section 10c checks, or the reason this shove is refused. On success also the area and the push.
-local function check(
+local function areaAt(position: Vector3): string?
+	return WorldBuilder.areaAt(PlotService.world(), position)
+end
+
+-- Why the lunge passes through `target` standing at `position`, or nil when it would hit them.
+local function targetRefusal(
 	player: Player,
 	target: Player,
-	profile: Types.PlayerProfile
-): (string?, string?, Vector3?, Vector3?)
-	local shoverRoot, targetRoot = rootOf(player), rootOf(target)
-	local world = PlotService.world()
-	local shoverArea = if shoverRoot ~= nil
-		then WorldBuilder.areaAt(world, shoverRoot.Position)
-		else nil
-	local targetArea = if targetRoot ~= nil
-		then WorldBuilder.areaAt(world, targetRoot.Position)
-		else nil
-	local area = if shoverArea ~= nil then Catalog.getArea(shoverArea :: string) else nil
+	areaId: string,
+	position: Vector3,
+	now: number
+): string?
 	local plot = PlotService.get(target)
-	local now = serverNow()
-	local reason = Shove.refusal({
+	return Shove.targetRefusal({
 		self = target == player,
-		shoverCarrying = CatService.isCarrying(player),
-		shoverBusy = CatService.inMinigame(player),
-		shoverArea = shoverArea,
-		targetArea = targetArea,
-		areaUnlocked = area ~= nil and Economy.tier(profile) >= area.tier,
-		areasClosed = not ClockService.areasOpen(),
-		distance = if shoverRoot ~= nil and targetRoot ~= nil
-			then (shoverRoot.Position - targetRoot.Position).Magnitude
-			else nil,
+		sameArea = areaAt(position) == areaId,
 		targetBusy = CatService.inMinigame(target),
-		targetSafe = targetRoot ~= nil
-			and plot ~= nil
-			and WorldBuilder.inSafeZone(plot, targetRoot.Position, Config.BumpSafeRadiusStuds),
-		sinceShove = since(lastShoveAt[player], now),
+		targetSafe = plot ~= nil
+			and WorldBuilder.inSafeZone(plot, position, Config.BumpSafeRadiusStuds),
 		sinceShoveTarget = since((lastShoveOf[player] or {})[target.UserId], now),
 		sinceTargetShoved = since(lastShovedAt[target.UserId], now),
 	})
-	if reason ~= nil or shoverRoot == nil or targetRoot == nil then
-		return reason or "Too far away", nil, nil, nil
-	end
-	local look = shoverRoot.CFrame.LookVector
-	local direction = Shove.direction(
-		shoverRoot.Position,
-		targetRoot.Position,
-		Vector3.new(look.X, 0, look.Z).Unit
-	)
-	return nil, shoverArea, targetRoot.Position, direction
 end
 
-local function shove(player: Player, target: Player, forced: Shove.KnockResult?)
-	local profile = DataService.get(player)
-	if profile == nil then
-		return
+-- The nearest player the lunge hits with the tackler at `at`, and where they stand, or nil.
+local function firstHit(
+	player: Player,
+	areaId: string,
+	start: Vector3,
+	facing: Vector3,
+	at: Vector3,
+	now: number
+): (Player?, Vector3?)
+	local best: Player? = nil
+	local bestAt: Vector3? = nil
+	local bestDistance = math.huge
+	for _, other in Players:GetPlayers() do
+		local root = if other ~= player then rootOf(other) else nil
+		if root == nil then
+			continue
+		end
+		local position = root.Position
+		local distance = (position - at).Magnitude
+		if
+			distance < bestDistance
+			and Shove.inReach(start, facing, at, position)
+			and targetRefusal(player, other, areaId, position, now) == nil
+		then
+			best, bestAt, bestDistance = other, position, distance
+		end
 	end
-	local reason, areaId, position, direction = check(player, target, profile)
-	if reason ~= nil or areaId == nil or position == nil or direction == nil then
-		Net.toast(player, reason or "Too far away", "warn")
-		Net.fire(player, "ShoveResult", "refused", player.UserId, target.UserId, nil, nil)
-		return
-	end
+	return best, bestAt
+end
+
+-- A landed tackle: everything a landed shove did (v0.11 changes none of it).
+local function land(
+	player: Player,
+	target: Player,
+	areaId: string,
+	from: Vector3,
+	position: Vector3,
+	facing: Vector3,
+	forced: Shove.KnockResult?
+)
 	local now = serverNow()
-	lastShoveAt[player] = now
 	local mine = lastShoveOf[player] or {}
 	mine[target.UserId] = now
 	lastShoveOf[player] = mine
 	lastShovedAt[target.UserId] = now
-	-- Display only, for Effects' puff, skid and dizzy stars (effects README hook 9)
+	-- Display only, for Effects' puff, skid and dizzy stars (effects README hook 9) and the target's fall
 	local character = target.Character
 	if character ~= nil then
 		character:SetAttribute("ShovedAt", now)
@@ -128,54 +130,117 @@ local function shove(player: Player, target: Player, forced: Shove.KnockResult?)
 	local carried = if carriedId ~= nil then Catalog.getCat(carriedId) else nil
 	local rarity: string = if carried ~= nil then carried.rarity else "none"
 	local knock = CatService.tryKnockLoose(target, player.UserId, areaId, forced)
-	profile.stats.bumpsGiven += 1
+	local profile = DataService.get(player)
+	if profile ~= nil then
+		profile.stats.bumpsLanded += 1
+	end
+	local targetProfile = DataService.get(target)
+	if targetProfile ~= nil then
+		targetProfile.stats.bumpsTaken += 1
+	end
 	Telemetry.custom(player, "shove", 1, { knock or "shove", rarity, areaId })
 	if knock == "loose" then
 		Telemetry.knockedLoose(target, rarity)
-	end
-	if knock == "loose" then
-		profile.stats.bumpsLanded += 1
-		local targetProfile = DataService.get(target)
-		if targetProfile ~= nil then
-			targetProfile.stats.bumpsTaken += 1
-		end
-		-- v0.8 F56: anyone picks the cat up, and the old carrier can shove back once that carry is 3 s old
+		-- v0.8 F56: anyone picks the cat up, and the old carrier can tackle back once that carry is 3 s old
 		Net.toast(player, "It dropped! Pick it up quick!", "good")
-		Net.toast(target, "You got shoved and dropped your cat! Grab it back!", "warn")
+		Net.toast(target, "You got tackled and dropped your cat! Grab it back!", "warn")
 	elseif knock == "held" then
 		Net.toast(player, "It held on tight!", "info")
 		Net.toast(target, "It held on tight!", "good")
 	else
-		Net.toast(target, "You got shoved!", "info")
+		Net.toast(target, "You got tackled!", "info")
 	end
+	local direction = Shove.direction(from, position, facing)
 	Net.fireAll("ShoveResult", knock or "shove", player.UserId, target.UserId, position, direction)
 end
 
-local function onBump(player: Player, rawTargetUserId: unknown)
-	local targetUserId = Guard.int(rawTargetUserId, -MAX_USER_ID, MAX_USER_ID)
-	if not Config.BumpEnabled or targetUserId == nil then
+-- One press. `forced` is Studio's hook for the knock-loose roll.
+local function tackle(player: Player, forced: Shove.KnockResult?)
+	local profile = DataService.get(player)
+	if profile == nil or not Config.BumpEnabled then
 		return
 	end
-	local target = Players:GetPlayerByUserId(targetUserId)
-	if target == nil then
+	local now = serverNow()
+	local root = rootOf(player)
+	-- the catching area the tackler stands in, "" outside every area
+	local tackleArea: string = if root ~= nil then areaAt(root.Position) or "" else ""
+	local area = Catalog.getArea(tackleArea)
+	local reason = Shove.tackleRefusal({
+		carrying = CatService.isCarrying(player),
+		busy = CatService.inMinigame(player),
+		area = if tackleArea ~= "" then tackleArea else nil,
+		areaUnlocked = area ~= nil and Economy.tier(profile) >= area.tier,
+		areasClosed = not ClockService.areasOpen(),
+		sinceTackle = since(lastTackleAt[player], now),
+	})
+	if reason ~= nil or root == nil then
+		-- a refusal spends nothing; the button is hidden or greyed in these states anyway
+		Net.toast(player, reason or "You can only tackle inside a catching area", "warn")
+		Net.fire(player, "ShoveResult", "refused", player.UserId, 0, nil, nil)
 		return
 	end
-	shove(player, target, nil)
+	lastTackleAt[player] = now
+	profile.stats.bumpsGiven += 1
+	local character = player.Character
+	if character ~= nil then
+		character:SetAttribute("TackleAt", now) -- display only: the lunge pose and dust on every screen
+	end
+	local start = root.Position
+	local look = root.CFrame.LookVector
+	local flat = Vector3.new(look.X, 0, look.Z)
+	local facing = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+	local endsAt = now + Shove.window()
+
+	task.spawn(function()
+		local at = start
+		while player.Parent == Players do
+			local current = rootOf(player)
+			if current == nil then
+				break
+			end
+			at = current.Position
+			local hitNow = serverNow()
+			local target, position = firstHit(player, tackleArea, start, facing, at, hitNow)
+			if target ~= nil and position ~= nil then
+				land(player, target, tackleArea, at, position, facing, forced)
+				return
+			end
+			if hitNow >= endsAt then
+				break
+			end
+			RunService.Heartbeat:Wait()
+		end
+		if player.Parent ~= Players then
+			return
+		end
+		local missAt = serverNow()
+		local tackler = player.Character
+		if tackler ~= nil then
+			tackler:SetAttribute("TackleMissAt", missAt) -- display only: the belly slide and the get up
+		end
+		Telemetry.custom(player, "shove", 1, { "miss", "none", tackleArea })
+		Net.fire(player, "ShoveResult", "miss", player.UserId, 0, at, facing)
+	end)
+end
+
+local function onTackle(player: Player)
+	tackle(player, nil)
 end
 
 function ShoveService.start()
-	Net.on("Bump", onBump)
+	Net.on("Tackle", onTackle)
 	Players.PlayerRemoving:Connect(function(player)
-		lastShoveAt[player] = nil
+		lastTackleAt[player] = nil
 		lastShoveOf[player] = nil
 		-- lastShovedAt stays by UserId: a rejoin does not lift the few seconds of immunity early or late
 	end)
 end
 
--- Studio-only test hook: `shover` shoves `target` with every check, the roll forced to `forced` when given.
-function ShoveService.debugShove(shover: Player, target: Player, forced: Shove.KnockResult?)
-	assert(RunService:IsStudio(), "debugShove is Studio only")
-	shove(shover, target, forced)
+-- Studio-only test hook: `player` presses Tackle with every check, the knock-loose roll forced to `forced` when
+-- given. Face the target first.
+function ShoveService.debugTackle(player: Player, forced: Shove.KnockResult?)
+	assert(RunService:IsStudio(), "debugTackle is Studio only")
+	tackle(player, forced)
 end
 
 return ShoveService

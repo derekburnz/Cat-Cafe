@@ -125,6 +125,16 @@ return function()
 		BumpSameTargetSeconds = 20,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 4,
+		-- the Tackle (v0.11 F74, section 10c)
+		TackleLungeStuds = 12,
+		TackleLungeSeconds = 0.35,
+		TackleHitGraceSeconds = 0.25,
+		TackleHitRadiusStuds = 3,
+		TackleHitSlackStuds = 1.5,
+		TackleCooldownSeconds = 8,
+		TackleHitRecoverSeconds = 0.4,
+		TackleMissRecoverSeconds = 1.2,
+		TackledDownSeconds = 0.8,
 		-- naming cats (F33, section 4)
 		CatNameMaxLength = 20,
 		RenameCooldownSeconds = 5,

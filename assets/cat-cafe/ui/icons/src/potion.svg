@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><defs><clipPath id="flaskC"><circle cx="128" cy="160" r="76"/></clipPath><linearGradient id="liqG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8FC0"/><stop offset="1" stop-color="#E0407F"/></linearGradient></defs>
+<g fill="#2A1C15" stroke="#2A1C15" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"><rect x="102" y="36" width="52" height="64" rx="8"/><circle cx="128" cy="160" r="76"/><rect x="92" y="18" width="72" height="34" rx="10"/></g>
+<rect x="102" y="36" width="52" height="64" rx="8" fill="#DDF3FF"/>
+<circle cx="128" cy="160" r="76" fill="#DDF3FF"/>
+<g clip-path="url(#flaskC)"><path d="M40,150 C 76,132 104,166 128,150 C 152,134 180,166 216,148 L216,240 L40,240 Z" fill="url(#liqG)"/></g>
+<path d="M40,150 C 76,132 104,166 128,150 C 152,134 180,166 216,148" fill="none" stroke="#2A1C15" stroke-width="5" clip-path="url(#flaskC)"/>
+<rect x="92" y="18" width="72" height="34" rx="10" fill="#C98A4B" stroke="#2A1C15" stroke-width="6"/>
+<g fill="#fff" opacity="0.85"><circle cx="104" cy="186" r="9"/><circle cx="148" cy="200" r="6"/><circle cx="160" cy="176" r="4"/></g>
+<ellipse cx="96" cy="120" rx="14" ry="30" transform="rotate(30 96 120)" fill="#fff" opacity="0.55"/></svg>

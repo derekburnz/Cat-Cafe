@@ -13,7 +13,7 @@
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
-	  J tip jar         K index rewards     Backspace flood
+	  J tip jar         K index rewards     L spin wheel           Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -25,6 +25,7 @@
 	Owner: qa-playtester. Never ships: it is not in default.project.json.
 ]]
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -40,6 +41,7 @@ local Catalog = require(Shared:WaitForChild("Catalog"))
 local Circles = require(Shared:WaitForChild("Circles"))
 local Config = require(Shared:WaitForChild("Config"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
+local Spin = require(Shared:WaitForChild("Spin"))
 local Types = require(Shared:WaitForChild("Types"))
 
 local player = Players.LocalPlayer
@@ -2616,11 +2618,15 @@ local function tipStep(ready: boolean): number?
 	return nil
 end
 
--- "Tip Jar: ..." toasts since `startedAt`, the server's word that a step paid.
+-- "Tip Jar: ..." toasts since `startedAt`, the server's word that a step paid. Steps 11 and 12 also bank a spin
+-- with a toast of its own ("Tip Jar: +1 spin", F49), left out here.
 local function tipToasts(startedAt: number): { Event }
 	local found = {}
 	for _, event in since(startedAt, "Toast") do
-		if string.find(event.text, "Tip Jar:", 1, true) ~= nil then
+		if
+			string.find(event.text, "Tip Jar:", 1, true) ~= nil
+			and string.find(event.text, "Tip Jar: %+%d+ spin") == nil
+		then
 			table.insert(found, event)
 		end
 	end
@@ -2698,6 +2704,9 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 	local lureBefore = if state ~= nil and def.lureId ~= nil
 		then state.lures[def.lureId] or 0
 		else 0
+	local bankedBefore = if state ~= nil and (state :: any).spin ~= nil
+		then state.spin.banked
+		else nil
 	local claimAt = os.clock()
 	fire("ClaimTipJar", ready)
 	Remotes.event("ClaimTipJar"):FireServer(ready)
@@ -2756,6 +2765,16 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 				)
 		end
 		prize = string.format("%d %s", def.count or 1, def.lureId :: string)
+	end
+	-- Steps 11 and 12 bank a spin too (F49), unless the bank is full, which the server says in a toast.
+	local spins = def.spins
+	if spins ~= nil and bankedBefore ~= nil then
+		local banked = (if state ~= nil then state.spin.banked else 0) - bankedBefore
+		if banked ~= spins and not toasted(claimAt, "Spins full") then
+			return "FAIL",
+				string.format("step %d should bank %d spin and banked %d", ready, spins, banked)
+		end
+		prize ..= string.format(" and %d spin", banked)
 	end
 	return "PASS",
 		string.format(
@@ -3011,6 +3030,248 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 		)
 end)
 
+-- Spin Wheel (F49, engineer PR #223, data-model 11c) -------------------------------------------------------------
+
+type Spun = { slice: number, amount: number }
+
+-- The station tagged SpinWheel nearest the character, or nil.
+local function spinStation(): Model?
+	local root = rootPart()
+	local origin = if root ~= nil then root.Position else Vector3.zero
+	local best: Model? = nil
+	local bestDistance = math.huge
+	for _, instance in CollectionService:GetTagged("SpinWheel") do
+		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
+			local distance = (instance:GetPivot().Position - origin).Magnitude
+			if distance < bestDistance then
+				best = instance :: Model
+				bestDistance = distance
+			end
+		end
+	end
+	return best
+end
+
+local function spinsLeft(): number
+	return if state ~= nil then Spin.available(state.spin, serverNow()) else 0
+end
+
+local function sliceRow(slice: number): Types.SpinSlice?
+	for _, row in Catalog.spinWheel do
+		if row.slice == slice then
+			return row
+		end
+	end
+	return nil
+end
+
+-- The SpinResult answers since `startedAt`: the paid ones, and how many were refusals (0, 0).
+local function spinAnswers(startedAt: number): ({ Spun }, number)
+	local paid: { Spun } = {}
+	local refused = 0
+	for _, event in since(startedAt, "SpinResult") do
+		local spun = event.data :: Spun
+		if spun.slice > 0 then
+			table.insert(paid, spun)
+		else
+			refused += 1
+		end
+	end
+	return paid, refused
+end
+
+local function lureCounts(): { [string]: number }
+	return if state ~= nil then table.clone(state.lures) else {}
+end
+
+-- True when one paid spin moved coins or the slice's food by exactly what SpinResult said, and the slice and
+-- amount are ones the wheel can pay; the text goes on the RESULT line.
+local function spinPaid(spun: Spun, before: Wallet, lures: { [string]: number }): (boolean, string)
+	local row = sliceRow(spun.slice)
+	if row == nil then
+		return false, string.format("slice %d is not on the wheel", spun.slice)
+	end
+	if row.kind == "coins" then
+		if spun.amount < (row.minCoins or 0) then
+			return false,
+				string.format("slice %d paid $%d, under its floor", spun.slice, spun.amount)
+		end
+		local ok, text = coinsMovedBy(before, spun.amount)
+		return ok, string.format("slice %d $%d, %s", spun.slice, spun.amount, text)
+	end
+	local lureId = row.lureId :: string
+	local gained = (if state ~= nil then state.lures[lureId] or 0 else 0) - (lures[lureId] or 0)
+	local ok = spun.amount == (row.count or 1) and gained == spun.amount
+	return ok,
+		string.format("slice %d %d %s, food up by %d", spun.slice, spun.amount, lureId, gained)
+end
+
+case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left", function()
+	if state == nil then
+		return "SKIP", "no ProfileSync yet"
+	end
+	if (state :: any).spin == nil then
+		return "SKIP", "the ProfileSync carries no spin (needs engineer PR #223)"
+	end
+	local station = spinStation()
+	if station == nil then
+		return "SKIP", "no station tagged SpinWheel in the world"
+	end
+	local root = rootPart()
+	local home = if root ~= nil then root.Position else nil
+	local pivot = station:GetPivot()
+	local function done(verdict: Verdict, detail: string): (Verdict, string)
+		if home ~= nil then
+			teleportTo(home)
+		end
+		return verdict, detail
+	end
+
+	-- 20 studs out (SpinStationRange is 14): refused with SpinResult(0, 0), nothing paid, no spin used.
+	teleportTo(pivot.Position + pivot.LookVector * 20)
+	local w = freshWallet()
+	local f, left = foods(), spinsLeft()
+	local farAt = os.clock()
+	fire("SpinWheel")
+	local farAnswer = waitFor(farAt, "SpinResult", 2)
+	task.wait(0.5)
+	local farPaid = spinAnswers(farAt)
+	if
+		#farPaid > 0
+		or money() - w.money > incomeSince(w)
+		or foods() ~= f
+		or spinsLeft() ~= left
+	then
+		return done("FAIL", "a SpinWheel from 20 studs paid or used a spin")
+	end
+	local verdict: Verdict = if farAnswer ~= nil then "PASS" else "CHECK"
+	local notes = if farAnswer ~= nil
+		then "20 studs refused"
+		else "20 studs paid nothing but got no SpinResult(0, 0)"
+
+	-- Beside the wheel: two spins in one frame. One paid answer, one refusal, one spin used.
+	teleportTo(pivot.Position + pivot.LookVector * 6)
+	if spinsLeft() < 1 then
+		return done(
+			"CHECK",
+			string.format(
+				'%s; no spin left for the rest, so on the server run %s("spins", nil, 1, true) and run again',
+				notes,
+				DEBUG
+			)
+		)
+	end
+	w = freshWallet()
+	left = spinsLeft()
+	local lures = lureCounts()
+	local spinAt = os.clock()
+	fire("SpinWheel")
+	Remotes.event("SpinWheel"):FireServer()
+	log("    -> SpinWheel() again in the same frame")
+	waitFor(spinAt, "ProfileSync", 2, function()
+		return spinsLeft() < left
+	end)
+	task.wait(0.5)
+	local paid, refused = spinAnswers(spinAt)
+	if #paid ~= 1 then
+		return done(
+			"FAIL",
+			string.format("%d paid SpinResults for two SpinWheel calls in one frame", #paid)
+		)
+	end
+	if spinsLeft() ~= left - 1 then
+		return done(
+			"FAIL",
+			string.format("spins went from %d to %d for one paid spin", left, spinsLeft())
+		)
+	end
+	local ok, paidText = spinPaid(paid[1], w, lures)
+	if not ok then
+		return done("FAIL", paidText)
+	end
+	notes ..= string.format("; double spin paid once (%s)", paidText)
+	if refused ~= 1 then
+		verdict = downgrade(verdict, "CHECK")
+		notes ..= string.format(", %d SpinResult(0, 0) for the second call", refused)
+	end
+	if station:GetAttribute("LastSlice") ~= paid[1].slice then
+		verdict = downgrade(verdict, "CHECK")
+		notes ..= string.format(
+			", but the station's LastSlice is %s",
+			tostring(station:GetAttribute("LastSlice"))
+		)
+	end
+
+	-- Inside SpinCooldownSeconds: refused, even with a spin left.
+	local coolAt = os.clock()
+	fire("SpinWheel")
+	waitFor(coolAt, "SpinResult", 2)
+	if #(spinAnswers(coolAt)) > 0 then
+		return done("FAIL", string.format("a spin %.1f s after the last one paid", coolAt - spinAt))
+	end
+	notes ..= string.format("; %.1f s later refused (%d left)", coolAt - spinAt, spinsLeft())
+
+	-- After the cooldown: a spin left pays once; with none left the spin is refused.
+	local function afterCooldown()
+		local wait = spinAt + Config.SpinCooldownSeconds + 0.5 - os.clock()
+		if wait > 0 then
+			task.wait(wait)
+		end
+	end
+	if spinsLeft() >= 1 then
+		afterCooldown()
+		w = freshWallet()
+		lures = lureCounts()
+		left = spinsLeft()
+		spinAt = os.clock()
+		fire("SpinWheel")
+		waitFor(spinAt, "ProfileSync", 2, function()
+			return spinsLeft() < left
+		end)
+		task.wait(0.3)
+		local later = spinAnswers(spinAt)
+		if #later ~= 1 then
+			return done(
+				"FAIL",
+				string.format("%d paid SpinResults after the cooldown with %d left", #later, left)
+			)
+		end
+		local nextOk, nextText = spinPaid(later[1], w, lures)
+		if not nextOk then
+			return done("FAIL", nextText)
+		end
+		notes ..= string.format("; after the cooldown paid once (%s)", nextText)
+	end
+	if spinsLeft() >= 1 then
+		return done(
+			verdict,
+			string.format(
+				'%s; %d spins still left, so the none-left refusal was not tried (%s("spins", nil, 1, true) leaves two)',
+				notes,
+				spinsLeft(),
+				DEBUG
+			)
+		)
+	end
+	afterCooldown()
+	w = freshWallet()
+	f = foods()
+	local noneAt = os.clock()
+	fire("SpinWheel")
+	local noneAnswer = waitFor(noneAt, "SpinResult", 2)
+	task.wait(0.3)
+	if #(spinAnswers(noneAt)) > 0 or money() - w.money > incomeSince(w) or foods() ~= f then
+		return done("FAIL", "a spin with none left paid")
+	end
+	if noneAnswer == nil then
+		verdict = downgrade(verdict, "CHECK")
+		notes ..= "; none left paid nothing but got no SpinResult(0, 0)"
+	else
+		notes ..= "; none left refused"
+	end
+	return done(verdict, notes)
+end)
+
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
 	for _ = 1, 30 do
@@ -3139,6 +3400,10 @@ Remotes.event("ProfileSync").OnClientEvent:Connect(function(s: Types.PlayerState
 end)
 Remotes.event("Toast").OnClientEvent:Connect(function(text: string, kind: string?)
 	record("Toast", string.format("[%s] %s", tostring(kind), text))
+end)
+Remotes.event("SpinResult").OnClientEvent:Connect(function(slice: number, amount: number)
+	local spun: Spun = { slice = slice, amount = amount }
+	record("SpinResult", string.format("slice=%d amount=%d", slice, amount), nil, spun)
 end)
 Remotes.event("TipJarState").OnClientEvent:Connect(function(jar: Types.TipJarState)
 	tipJar = jar

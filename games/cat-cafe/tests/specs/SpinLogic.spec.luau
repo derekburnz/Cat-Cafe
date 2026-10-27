@@ -110,4 +110,82 @@ return function()
 			expect(SpinLogic.slotAt(360 * 4 - 120, 6)).to.equal(3)
 		end)
 	end)
+
+	describe("SpinLogic edges (QA)", function()
+		local ReplicatedStorage = game:GetService("ReplicatedStorage")
+		local Catalog = require(ReplicatedStorage.Shared.Catalog)
+		local Config = require(ReplicatedStorage.Shared.Config)
+		local Spin = require(ReplicatedStorage.Shared.Spin)
+
+		-- The window's spin count, Spin button and countdown come from SpinLogic and the answer
+		-- from Spin, so the two agree at any second, the last one before 00:00 UTC included.
+		it("agrees with the server on spins and the next free one at any time of day", function()
+			for _, offset in { 0, 0.5, 1, 3600, 43200, 86399, 86399.75, DAY } do
+				local now = 20000 * DAY + offset
+				for _, lastFreeDay in { 0, 19998, 19999, 20000 } do
+					for _, banked in { 0, 1, Config.SpinBankCap } do
+						local spin = { lastFreeDay = lastFreeDay, banked = banked }
+						local at = ("+%s s, last %d, banked %d: "):format(
+							tostring(offset),
+							lastFreeDay,
+							banked
+						)
+						local spins = SpinLogic.spins(spin, now)
+						expect(at .. spins).to.equal(at .. Spin.available(spin, now))
+						expect(SpinLogic.freeDue(spin, now)).to.equal(Spin.freeDue(spin, now))
+						local wait = Spin.nextFreeAt(spin, now) - now
+						local gap = math.abs(SpinLogic.nextFreeIn(spin, now) - wait)
+						expect(gap < 1e-6).to.equal(true)
+						if spins == 0 then
+							expect(SpinLogic.refusal(spin, now)).to.equal(
+								"Next free spin in " .. SpinLogic.wait(wait)
+							)
+						end
+					end
+				end
+			end
+		end)
+
+		-- The chance printed beside a slice is what the player is told they get, so it must be the
+		-- share of rolls the server's pick lands on, and the printed chances must add up to 100%.
+		it("prints each slice's true chance: the share of rolls the server lands on", function()
+			local rows = Catalog.spinWheel
+			local hits: { [number]: number } = {}
+			local rolls = 100000
+			for k = 0, rolls - 1 do
+				local slice = Spin.pick(k / rolls).slice
+				hits[slice] = (hits[slice] or 0) + 1
+			end
+			local printed = 0
+			for index, row in rows do
+				expect(SpinLogic.indexOf(rows, row.slice)).to.equal(index)
+				local text = SpinLogic.chance(rows, row)
+				local percent = tonumber(string.match(text, "^([%d%.]+)%%$")) :: number
+				local share = (hits[row.slice] or 0) / rolls * 100
+				expect(math.abs(share - percent) <= 0.05 + 1e-9).to.equal(true)
+				printed += percent
+			end
+			expect(math.abs(printed - 100) < 1e-9).to.equal(true)
+		end)
+
+		it("estimates a coin slice as the server pays it, at any day rate", function()
+			for _, row in Catalog.spinWheel do
+				if row.kind ~= "coins" then
+					continue
+				end
+				local floor = row.minCoins or 0
+				for _, rate in { 0 / 0, -math.huge, -1, 0 } do
+					expect(Spin.amount(row, rate)).to.equal(floor)
+					expect(SpinLogic.coins(row, rate)).to.equal(floor)
+				end
+				local last = -1
+				for step = 0, 400 do
+					local paid = Spin.amount(row, step * 0.37)
+					expect(SpinLogic.coins(row, step * 0.37)).to.equal(paid)
+					expect(paid % 1 == 0 and paid >= last).to.equal(true)
+					last = paid
+				end
+			end
+		end)
+	end)
 end

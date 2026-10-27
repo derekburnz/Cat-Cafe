@@ -1,6 +1,7 @@
 --!strict
 -- Catch prompt card for strays and stuck cats.
---   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars and rarity.
+--   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars, rarity and (v0.4) the
+--                       paws this player has left on it.
 --   waiting()           one press went to the server: "Get ready..." until the circles (CatchCircles) come.
 --   startRescue(d)      rescue hold (stuck cat, F21): a bar fills over the hold.
 --   stopRescue(done)    done = true after the full hold ("Rescued!"); false resets the bar, there is no fail.
@@ -18,6 +19,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local PawRow = require(script.Parent.Parent.Components.PawRow)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
@@ -201,6 +203,12 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Text = "Hit each circle on its ring",
 		Parent = card,
 	})
+	self._paws = PawRow.new({
+		parent = card,
+		paw = 16,
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -12, 0, 62),
+	})
 
 	-- Mobile CATCH button (bottom right, above the lure slot); reads RESCUE or HOLD on a rescue prompt
 	local grab: TextButton = Create("TextButton", {
@@ -291,13 +299,18 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
+	-- v0.4 strays carry Patience: any miss costs a paw. Without it the v0.3 rule holds (only Commons stay).
+	local v04 = info.patience ~= nil and not rescue
 	self._hint.Text = if press and rescue
 		then "Stop the marker in the zone. The cat never leaves if you miss."
+		elseif v04 then "Hit each ring. A miss costs a paw!"
 		elseif
 			press and rarity == "Common"
 		then "Hit each circle on its ring. Commons stay if you miss."
 		elseif press then "Hit each circle on its ring. It runs if you miss!"
 		else "Hold still for 4 seconds. No swing, no miss."
+	self._paws:set(if v04 then info.paws else nil, info.patience)
+	self._hint.Size = UDim2.new(1, if v04 then -140 else -80, 0, 18)
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
 	self._keycap.Text = key.Name
 	self._keycap.Visible = not Scale.isTouch()

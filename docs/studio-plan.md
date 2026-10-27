@@ -21,7 +21,7 @@ Connectors: Roblox Studio MCP (world, playtests, screenshots), Blender MCP (3D),
 | **Roblox Studio** | the dev place, Team Create with friends later, publishing | |
 | **GitHub (private repo)** | source of truth, rollback, portfolio evidence | |
 
-The private repo https://github.com/derekburnz/Cat-Cafe (created 2026-10-25 as purr-pot, scaffold pushed 2026-10-26, renamed 2026-10-27) is the source of truth and is saved to this project, so new threads get it. Threads change code on a branch and open a pull request; the project folder `cat-cafe/` stays a mirror for threads that cannot reach GitHub. GitHub Actions runs the check gate and the cloud unit tests on every pull request (`.github/workflows/check.yml`), merges PRs labeled `automerge` once they are green on the latest main (`automerge.yml`), and publishes the place to Roblox through Open Cloud (`publish.yml`); see the `merge-and-publish` skill.
+The repo https://github.com/derekburnz/Cat-Cafe (created 2026-10-25 as purr-pot, scaffold pushed 2026-10-26, renamed 2026-10-27, public since 2026-10-27 20:59 so GitHub Actions minutes are free) is the source of truth and is saved to this project, so new threads get it. Threads change code on a branch and open a pull request; the project folder `cat-cafe/` stays a mirror for threads that cannot reach GitHub. GitHub Actions runs the check gate and the cloud unit tests on every pull request (`.github/workflows/check.yml`), merges PRs labeled `automerge` once they are green on the latest main (`automerge.yml`), and publishes the place to Roblox through Open Cloud (`publish.yml`); see the `merge-and-publish` skill.
 
 ## 3. Processes
 | Process | Agent (model) | Skills it reads | Connectors / tools | Input | Output (owned folder) |

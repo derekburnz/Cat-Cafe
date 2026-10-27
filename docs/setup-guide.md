@@ -146,3 +146,14 @@ After this, threads upload UI and art images (`.github/workflows/upload-image.ym
 5. Try it: **Actions > bug-reports > Run workflow**. The run summary lists today's reports, or says there are 0.
 
 The key still accepts any IP (GitHub's runners need that), so whoever holds it could also upload images as you and read the reports. It lives only in the GitHub secret.
+
+## 18. Required checks for auto-merge (once, about 2 minutes)
+GitHub's auto-merge (Settings > General > Allow auto-merge, on since 2026-10-27) waits only for checks that main requires. Without this step there is nothing to wait for, so GitHub refuses to turn auto-merge on and threads fall back to the `automerge` label. Phone browser works.
+1. [github.com/derekburnz/Cat-Cafe/settings/rules](https://github.com/derekburnz/Cat-Cafe/settings/rules) > **New ruleset** > **New branch ruleset**.
+2. **Ruleset name**: `main`. **Enforcement status**: **Active**. Leave the bypass list empty.
+3. **Target branches** > **Add target** > **Include default branch**.
+4. **Rules**: keep **Restrict deletions** and **Block force pushes** ticked. Tick **Require status checks to pass**. Leave **Require branches to be up to date before merging** unticked: nothing pushes main into PR branches any more (that was the email noise), and each check run already tests the PR merged with the latest main.
+5. **Add checks**: type `Rojo sourcemap` and pick **Rojo sourcemap, luau-lsp, Selene, StyLua**, then type `Luau unit tests` and pick **Luau unit tests and strict type check (WebAssembly Luau)**. Leave the other rules as they are.
+6. **Create**.
+
+After that, a thread turns auto-merge on for each reviewed PR and GitHub merges it once both checks pass. Merges by hand still work once the checks are green.

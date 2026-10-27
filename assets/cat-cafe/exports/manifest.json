@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 14:12 UTC",
+  "generated": "2026-10-27 14:37 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -14339,6 +14339,214 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_Cup.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_Cup.png"
+    },
+    {
+      "name": "CatCafe_Decor_MuralPrint",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_MuralPrint"
+      ],
+      "triangles": 1090,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.6,
+        "y": 0.19,
+        "z": 1.8
+      },
+      "size_roblox": [
+        3.6,
+        1.8,
+        0.19
+      ],
+      "bounds_min": [
+        -1.8,
+        -0.19,
+        0.0
+      ],
+      "bounds_max": [
+        1.8,
+        0.0,
+        1.8
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MuralPrint.model.json",
+      "rbx_parts": 89,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MuralPrint.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MuralPrint.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1090/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "537 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MuralPrint.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MuralPrint.png"
+    },
+    {
+      "name": "CatCafe_Decor_MuralPrint_Gold",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_MuralPrint_Gold"
+      ],
+      "triangles": 1102,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.6,
+        "y": 0.2,
+        "z": 1.8
+      },
+      "size_roblox": [
+        3.6,
+        1.8,
+        0.2
+      ],
+      "bounds_min": [
+        -1.8,
+        -0.2,
+        0.0
+      ],
+      "bounds_max": [
+        1.8,
+        0.0,
+        1.8
+      ],
+      "pivot": "wall: back-bottom center",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MuralPrint_Gold.model.json",
+      "rbx_parts": 90,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1102/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "543 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.10"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MuralPrint_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MuralPrint_Gold.png"
+    },
+    {
+      "name": "CatCafe_Decor_ParkBench",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_ParkBench"
+      ],
+      "triangles": 1088,
+      "budget": 1200,
+      "size_studs": {
+        "x": 3.0,
+        "y": 1.28,
+        "z": 2.38
+      },
+      "size_roblox": [
+        3.0,
+        2.38,
+        1.28
+      ],
+      "bounds_min": [
+        -1.5,
+        -0.69,
+        0.0
+      ],
+      "bounds_max": [
+        1.5,
+        0.6,
+        2.38
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_ParkBench.model.json",
+      "rbx_parts": 26,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_ParkBench.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_ParkBench.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1088/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "656 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_ParkBench.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_ParkBench.png"
+    },
+    {
+      "name": "CatCafe_Decor_ParkBench_Gold",
+      "category": "Decor",
+      "module": "decor",
+      "objects": [
+        "CatCafe_Decor_ParkBench_Gold"
+      ],
+      "triangles": 1088,
+      "budget": 1200,
+      "size_studs": {
+        "x": 3.0,
+        "y": 1.28,
+        "z": 2.38
+      },
+      "size_roblox": [
+        3.0,
+        2.38,
+        1.28
+      ],
+      "bounds_min": [
+        -1.5,
+        -0.69,
+        0.0
+      ],
+      "bounds_max": [
+        1.5,
+        0.6,
+        2.38
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_ParkBench_Gold.model.json",
+      "rbx_parts": 26,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1088/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "656 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_ParkBench_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_ParkBench_Gold.png"
     },
     {
       "name": "CatCafe_Alley_TrashBin",

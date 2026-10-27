@@ -57,23 +57,19 @@ return function()
 	end)
 
 	describe("SettingsList edges (QA)", function()
-		-- The server saves what the profile template holds (SetSetting takes the same keys, engineer PR #202).
-		-- Place icons is session-only (PR #207, test plan S33); when the server starts saving it, update S33 and
-		-- this list together.
-		it("has an ON switch per saved setting; only Place icons is session-only", function()
+		-- Before the first ProfileSync a switch shows ON (SettingsList.shown); the profile template is what a new
+		-- player saves, so the two must agree. Place icons may be session-only (PR #207) until the server saves it
+		-- (engineer PR #215); no other switch may be.
+		it("shows each switch's saved default before the first sync", function()
 			local saved = ProfileSchema.template(0).settings :: any
-			for key, value in saved do
-				expect(SettingsList.isKey(key)).to.equal(true)
-				expect(value).to.equal(true)
-				expect(SettingsList.shown(nil, {}, key, 0)).to.equal(value)
-			end
-			local unsaved: { string } = {}
 			for _, row in SettingsList.ROWS do
-				if saved[row.key] == nil then
-					table.insert(unsaved, row.key)
+				local default = saved[row.key]
+				if default == nil then
+					expect(row.key).to.equal("markers")
+				elseif type(default) == "boolean" then
+					expect(SettingsList.shown(nil, {}, row.key, 0)).to.equal(default)
 				end
 			end
-			expect(unsaved).to.deepEqual({ "markers" })
 		end)
 	end)
 end

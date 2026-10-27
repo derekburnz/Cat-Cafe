@@ -48,6 +48,7 @@ export type Budget = {
 	animRadius: number, -- studs from the player within which a cat can move
 	animHz: number, -- pose updates per second
 	steadyEmitters: number, -- steam, chimney smoke and fireflies on at once
+	rateScale: number, -- multiplies every steady emitter's rate
 	goldEmitters: number, -- gold cats sparkling at once
 	butterflies: number,
 	ambientRadius: number, -- studs; steam, butterflies and fireflies beyond it are off
@@ -59,13 +60,15 @@ export type Budget = {
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
--- (skill section 7). "high" is a PC or console.
+-- (skill section 7). "high" is a PC or console. "lowPerformance" is the Low performance setting on any device:
+-- under the phone budget everywhere, with half the steady particles.
 Presets.budget = {
 	low = {
 		animatedCats = 8,
 		animRadius = 60,
 		animHz = 30,
 		steadyEmitters = 4,
+		rateScale = 1,
 		goldEmitters = 3,
 		butterflies = 6,
 		ambientRadius = 80,
@@ -80,6 +83,7 @@ Presets.budget = {
 		animRadius = 80,
 		animHz = 60,
 		steadyEmitters = 10,
+		rateScale = 1,
 		goldEmitters = 8,
 		butterflies = 14,
 		ambientRadius = 110,
@@ -88,6 +92,21 @@ Presets.budget = {
 		maxBurst = 30,
 		confetti = 28,
 		napLabels = 10,
+	},
+	lowPerformance = {
+		animatedCats = 4,
+		animRadius = 45,
+		animHz = 20,
+		steadyEmitters = 2,
+		rateScale = 0.5,
+		goldEmitters = 1,
+		butterflies = 2,
+		ambientRadius = 60,
+		chimneyRadius = 100,
+		burstScale = 0.35,
+		maxBurst = 8,
+		confetti = 8,
+		napLabels = 2,
 	},
 } :: { [string]: Budget }
 

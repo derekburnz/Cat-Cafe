@@ -453,7 +453,7 @@ Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `D
 | spin | `{ lastFreeDay, banked }` | `{ lastFreeDay = 0, banked = 0 }` | F49, section 11c; `lastFreeDay` is the UTC day number of the last free spin, `banked` 0 to SpinBankCap |
 | stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions, tipJarClaims (F47), spins (F49) | 0 | new counters added |
 | tutorialStep | 0 to 5 | 0 | 0 new, 1 saw the alley, 2 caught, 3 assigned a role, 4 bought a table, 5 set bait (done) |
-| settings | music, sfx | true, true | |
+| settings | music, sfx, musicVolume, sfxVolume, screenShake, lowPerformance, showOtherCats, markers | music, sfx, screenShake, showOtherCats and markers true; volumes 1; lowPerformance false | engineer #215: volumes are 0 to 1 rounded to 0.01; `markers` shows the place icons; a missing key loads as its default, so no version bump |
 | telemetry | `{ onboardingStep, achieved = { [step] = true } }` | `{ onboardingStep = 0, achieved = {} }` | new; the funnel logs each onboarding step once and only in order, because Roblox marks every earlier step complete when a later one is logged, so a rank up before bait would otherwise fake the bait steps (growth, analytics-plan) |
 | flags | `{ autoPress }` | `{ autoPress = false }` | new; set by the circle ring buffer (section 10), review only |
 
@@ -497,7 +497,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | ClaimIndexReward | event | areaId, milestoneId | F48 (section 11b): known area and milestone, count met from `collection` or `goldCollection`, not claimed; 1 per second | pays, marks `indexRewards`, ProfileSync |
 | SpinWheel | event | none | F49 (section 11c): within 14 studs of a `SpinWheel` station, a free or banked spin, SpinCooldownSeconds since the last spin; 1 per second | pays the slice, fires SpinResult and ProfileSync, sets `LastSpinAt` |
 | TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
-| SetSetting | event | key, value | engineer #202: `key` is `music` or `sfx`, `value` a boolean; 4 per second | saves to `profile.settings`, answered by ProfileSync |
+| SetSetting | event | key, value | engineer #202 and #215: `key` one of the eight `settings` keys; `value` a number from 0 to 1 for `musicVolume` and `sfxVolume` (rounded to 0.01), a boolean for the rest; 4 per second | saves to `profile.settings`, answered by ProfileSync |
 | CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |
 | CatchResult | server to client | strayId, grades, success, charmGain | | UI grades, charm line and toast (v0.5) |
 | RescueChallenge | server to client | rescueSpotId, challenge | | UI draws the bar or the shake |

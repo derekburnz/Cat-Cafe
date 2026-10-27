@@ -205,7 +205,7 @@ local function enable(source: Source, position: Vector3)
 		anchor.Position = position
 	end
 	if emitter ~= nil then
-		emitter.Enabled = true
+		Particles.switchOn(emitter, source.kind)
 	end
 end
 

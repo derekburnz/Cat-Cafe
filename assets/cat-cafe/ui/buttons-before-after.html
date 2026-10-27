@@ -1,0 +1,64 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--outline:#2A1C15}
+*{box-sizing:border-box}
+body{margin:0;background:#2b2420;font-family:'Fredoka',sans-serif;color:#fff}
+.wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px;width:1280px}
+.col{border-radius:16px;overflow:hidden;border:3px solid #000}
+.title{font-size:26px;padding:10px 16px;background:#3A2E2A;-webkit-text-stroke:0;letter-spacing:.3px}
+.title small{font-family:'Nunito';font-size:15px;color:#E6D8C6;margin-left:8px}
+.world{background:linear-gradient(#9fd5ff 0%,#cfeaff 38%,#8fcf6a 38%,#6fb84e 100%);padding:22px 18px 18px;position:relative}
+.row{display:flex;gap:12px;align-items:flex-end;margin-bottom:22px;flex-wrap:wrap}
+.panel{background:#F6EBDD;border:3px solid var(--outline);border-radius:14px;padding:14px;margin-top:4px}
+.panel h3{margin:0 0 10px;color:#2B2420;font-size:20px}
+.lbl{font-family:'Nunito';font-size:13px;color:#2B2420;margin:2px 0 6px;font-weight:800}
+/* one button: root = outline + depth colour; face moves over it */
+.btn{isolation:isolate;position:relative;display:inline-block;border-radius:12px;border:3px solid var(--outline);background:var(--depth);height:var(--h,46px);min-width:var(--w,120px);}
+.face{position:absolute;left:0;right:0;top:0;bottom:5px;border-radius:9px;background:linear-gradient(var(--face),color-mix(in srgb,var(--face) 84%,#000));display:flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;overflow:hidden}
+.txt{font-size:var(--ts,18px);font-weight:600;color:var(--tc,#fff);paint-order:stroke fill;-webkit-text-stroke:var(--stroke,4px) var(--outline);white-space:nowrap;position:relative;z-index:2}
+.ghost .txt{-webkit-text-stroke:0}
+.ico{font-size:calc(var(--ts,18px) + 4px);position:relative;z-index:2;font-family:'Noto Color Emoji',sans-serif}
+.tile{--h:64px;--w:64px}
+.tile .face{flex-direction:column;gap:0;padding:2px}
+.tile .ico{font-size:26px;line-height:28px}
+.tile .txt{--ts:13px}
+.ears{position:absolute;top:-9px;left:0;right:0;height:14px;z-index:-1}
+.ears i{position:absolute;width:20px;height:20px;background:var(--face);border:3px solid var(--outline);border-radius:4px 3px 3px 3px;transform:rotate(45deg);top:0}
+.ears i:first-child{left:14%}.ears i:last-child{right:14%}
+.pill{--h:50px;--w:132px}
+/* AFTER: brighter fills, stronger shade, gloss band, light inner rim, thicker text outline */
+.new .face{background:linear-gradient(var(--top),var(--bot))}
+.new .face{background-blend-mode:normal}
+.new .face .tiles{position:absolute;inset:0;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAtUlEQVR4nO3awQ2EMAwFUUP/PYcKEmQQGhzPu60E0mc2x0RIktTW8eCd8fL9XzmTz4+b3+VkAsw+tnSE7AnYjgHoATQD0ANoBqAH0AxAD6AZgB5AMwA9gGYAegDNAPQAmgHoATQD0ANoBqAH0AxAD6AZgB5AMwA9gGYAegDNAPQAmgHoATQD0ANomXt+VW+DLb+xwwlY/nEdAkQsInQJMGWAxLOVL0ZPt2dPQMUIFTdLkiTpcxf9EwhbvjUHEwAAAABJRU5ErkJggg==) -4px -6px/18px 18px;opacity:.1;z-index:0}
+.new .face::before{content:"";position:absolute;left:4px;right:4px;top:3px;height:42%;border-radius:7px 7px 10px 10px;background:linear-gradient(rgba(255,255,255,.38),rgba(255,255,255,.06));z-index:1}
+.new .face::after{content:"";position:absolute;inset:2px;border-radius:7px;border:1.5px solid rgba(255,255,255,.4);border-bottom:2.5px solid rgba(255,255,255,.55);z-index:1}
+.new .txt{--stroke:5px}
+.new .ghost .face::before{background:linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,0))}
+.new .ghost .face::after{border-color:rgba(255,255,255,.8)}
+.new .dis .face::before,.new .dis .face::after{opacity:.4}
+.note{font-family:'Nunito';font-weight:800;font-size:14px;color:#E6D8C6;padding:10px 16px;background:#3A2E2A}
+</style></head><body>
+<div class="wrap">
+ <div class="col old" id="old"></div>
+ <div class="col new" id="new"></div>
+</div>
+<script>
+const OLD={primary:['#3FA868','#2B7F4C'],secondary:['#5FA8FF','#3B7FD1'],gold:['#FFC94D','#D19E22'],berry:['#F2679E','#C2477A'],ghost:['#FFF9F2','#E3D2BC'],danger:['#E07A3A','#B65C24'],close:['#F0524F','#BE3330'],disabled:['#CFC2B4','#B5A595']};
+const NEW={primary:['#7BE85A','#2A8A2E','#3DBF3F'],secondary:['#5CC8FF','#1F66B8','#2E8FEA'],gold:['#FFE14A','#D9820F','#FFAE1F'],berry:['#FF86CF','#B8336F','#F0479F'],ghost:['#FFFFFF','#D9C3A5','#F3E6D4'],danger:['#FFAD55','#C9561A','#FF7A26'],close:['#FF7062','#A82525','#E83A3A'],disabled:['#D8CDBF','#A6978A','#C2B5A6']};
+function b(pal,style,text,icon,cls='',ears=false,ts){const [f,d,bot]=pal[style];const tc=style==='ghost'?'#5E4634':(style==='disabled'?'#FFF9F2':'#fff');
+ return `<span class="btn ${cls} ${style==='ghost'?'ghost':''} ${style==='disabled'?'dis':''}" style="--face:${f};--depth:${d};--top:${f};--bot:${bot||f};--tc:${tc};${ts?'--ts:'+ts+'px':''}">${ears?'<span class="ears"><i></i><i></i></span>':''}<span class="face"><span class="tiles"></span>${icon?`<span class="ico">${icon}</span>`:''}${text?`<span class="txt">${text}</span>`:''}</span></span>`}
+function col(pal,title,sub){return `<div class="title">${title}<small>${sub}</small></div><div class="world">
+ <div class="lbl">HUD menu pills (cat ears kept)</div>
+ <div class="row">${b(pal,'secondary','Cats','🐱','pill',true,20)}${b(pal,'gold','Index','📖','pill',true,20)}${b(pal,'close','Upgrades','⬆️','pill',true,20)}${b(pal,'primary','Decor','🪴','pill',true,20)}</div>
+ <div class="lbl">HUD icon tiles and actions</div>
+ <div class="row">${b(pal,'berry','Gifts','🎁','tile')}${b(pal,'ghost','Settings','⚙️','tile')}${b(pal,'secondary','Invite','👥','tile')}${b(pal,'berry','Equip Best','✨','',false,18)}${b(pal,'close','Drop','⬇️','',false,18)}</div>
+ <div class="panel"><h3>In a window</h3>
+ <div class="row" style="margin-bottom:12px">${b(pal,'primary','Claim','','',false,18)}${b(pal,'gold','$1,200','💰','',false,18)}${b(pal,'secondary','Spin (3)','','',false,18)}${b(pal,'danger','Sell','','',false,18)}</div>
+ <div class="row" style="margin-bottom:0">${b(pal,'berry','Place','','',false,18)}${b(pal,'ghost','Cancel','','',false,18)}${b(pal,'disabled','Need $500','','',false,18)}</div></div>
+</div>`}
+document.getElementById('old').innerHTML=col(OLD,'Before','live now');
+document.getElementById('new').innerHTML=col(NEW,'After','game-style fill: two-tone gradient, faint tile marks, light rim, gloss');
+</script></body></html>
+<style>.old .tiles{display:none}</style>

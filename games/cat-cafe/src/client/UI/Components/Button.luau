@@ -1,6 +1,8 @@
 --!strict
--- Chunky rounded button in the Roblox simulator style: dark outline, shaded face over a darker bottom edge,
--- white outlined label with an optional icon, press squash and hover grow (mouse only).
+-- Chunky rounded button in the Roblox simulator style (Derek 2026-10-27: "copy the ui button background from the
+-- popular games"): a dark outline round a face that runs from a light top colour to a deeper bottom one over a
+-- darker lip, with faint tile marks, a light inner rim and a gloss on its top half (Theme.button), a white label
+-- with a thick dark outline and an optional icon, press squash and hover grow (mouse only).
 -- Works with mouse, touch and gamepad through GuiButton.Activated. A press plays uiClick (or the `sound` prop's cue);
 -- a press on a greyed button plays uiError so the player hears why nothing happened.
 
@@ -52,60 +54,37 @@ export type Button = {
 	destroy: (self: Button) -> (),
 }
 
--- `outlined` labels are white with a dark outline (coloured buttons); the light ghost button keeps dark text.
-local STYLES: { [string]: { face: Color3, depth: Color3, text: Color3, outlined: boolean } } = {
-	primary = {
-		face = Theme.colors.good,
-		depth = Theme.colors.goodDark,
-		text = Theme.colors.white,
-		outlined = true,
-	},
-	secondary = {
-		face = Theme.colors.sky,
-		depth = Theme.colors.skyDark,
-		text = Theme.colors.white,
-		outlined = true,
-	},
-	gold = {
-		face = Theme.colors.gold,
-		depth = Theme.colors.goldDark,
-		text = Theme.colors.white,
-		outlined = true,
-	},
-	-- pink, for Equip Best and other "make my team better" buttons
-	berry = {
-		face = Theme.colors.berry,
-		depth = Theme.colors.berryDark,
-		text = Theme.colors.white,
-		outlined = true,
-	},
-	ghost = {
-		face = Theme.colors.paper,
-		depth = Theme.colors.line,
-		text = Theme.colors.cocoa,
-		outlined = false,
-	},
-	danger = {
-		face = Theme.colors.warn,
-		depth = Theme.colors.warnDark,
-		text = Theme.colors.white,
-		outlined = true,
-	},
-	close = {
-		face = Theme.colors.red,
-		depth = Theme.colors.redDark,
-		text = Theme.colors.white,
-		outlined = true,
-	},
-	disabled = {
-		face = Theme.colors.disabled,
-		depth = Theme.colors.disabledDark,
-		text = Theme.colors.paper,
-		outlined = true,
-	},
+-- Each style's colours come from Theme.button. `outlined` labels are white with a dark outline (coloured
+-- buttons); the light ghost button keeps dark text. Berry (pink) is for Equip Best and other "make my team
+-- better" buttons.
+type Look = { top: Color3, bottom: Color3, depth: Color3, text: Color3, outlined: boolean }
+
+local function look(name: string, text: Color3, outlined: boolean): Look
+	local fill = Theme.button[name]
+	return {
+		top = fill.top,
+		bottom = fill.bottom,
+		depth = fill.depth,
+		text = text,
+		outlined = outlined,
+	}
+end
+
+local STYLES: { [string]: Look } = {
+	primary = look("primary", Theme.colors.white, true),
+	secondary = look("secondary", Theme.colors.white, true),
+	gold = look("gold", Theme.colors.white, true),
+	berry = look("berry", Theme.colors.white, true),
+	ghost = look("ghost", Theme.colors.cocoa, false),
+	danger = look("danger", Theme.colors.white, true),
+	close = look("close", Theme.colors.white, true),
+	disabled = look("disabled", Theme.colors.paper, true),
 }
 
 local HOVER_SCALE = 1.05
+local TILE = 18 -- px between the face's tile marks
+local TILE_TRANSPARENCY = 0.9
+local GLOSS = NumberSequence.new(0.62, 0.94) -- the top half's shine, strongest at the top
 local EAR_SIZE = 18 -- the `ears` prop: about 8 px of each ear shows above the button, inside the 8 px list gap
 local EAR_INSET = 0.16
 
@@ -114,6 +93,11 @@ Button.__index = Button
 
 local function brighten(color: Color3, amount: number): Color3
 	return color:Lerp(Theme.colors.white, amount)
+end
+
+-- The face is white under a UIGradient, so the gradient's colours are the face's colours.
+local function fill(colors: Look, lighten: number): ColorSequence
+	return ColorSequence.new(brighten(colors.top, lighten), brighten(colors.bottom, lighten))
 end
 
 function Button.new(props: Props): Button
@@ -147,7 +131,7 @@ function Button.new(props: Props): Button
 		Name = "Face",
 		Text = "",
 		AutoButtonColor = false,
-		BackgroundColor3 = STYLES[style].face,
+		BackgroundColor3 = Theme.colors.white,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 1, -depth),
 		ZIndex = (props.zIndex or 1) + 1,
@@ -155,7 +139,57 @@ function Button.new(props: Props): Button
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 	})
-	Outline.shade(face)
+	local gradient: UIGradient = Create("UIGradient", {
+		Name = "Fill",
+		Rotation = 90,
+		Color = fill(STYLES[style], 0),
+		Parent = face,
+	})
+	local radius = Theme.sizes.radius
+	-- faint tile marks over the fill, once the texture is uploaded (Theme.textures.buttonTiles)
+	local tiles = Theme.textures.buttonTiles
+	if tiles ~= "" then
+		Create("ImageLabel", {
+			Name = "Tiles",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			Image = tiles,
+			ImageColor3 = Theme.colors.black,
+			ImageTransparency = TILE_TRANSPARENCY,
+			ScaleType = Enum.ScaleType.Tile,
+			TileSize = UDim2.fromOffset(TILE, TILE),
+			ZIndex = (props.zIndex or 1) + 1,
+			Parent = face,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, radius) }) })
+	end
+	-- the shine on the top half and a light rim just inside the outline
+	Create("Frame", {
+		Name = "Gloss",
+		BackgroundColor3 = Theme.colors.white,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(4, 3),
+		Size = UDim2.new(1, -8, 0.42, 0),
+		ZIndex = (props.zIndex or 1) + 1,
+		Parent = face,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 3)) }),
+		Create("UIGradient", { Rotation = 90, Transparency = GLOSS }),
+	})
+	Create("Frame", {
+		Name = "Rim",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(2, 2),
+		Size = UDim2.new(1, -4, 1, -4),
+		ZIndex = (props.zIndex or 1) + 1,
+		Parent = face,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, math.max(2, radius - 2)) }),
+		Create("UIStroke", {
+			Color = Theme.colors.white,
+			Thickness = 1.5,
+			Transparency = 0.6,
+		}),
+	})
 
 	local isTile = layout == "tile"
 	local iconSize: number? = if not isTile and props.icon then props.iconSize else nil
@@ -187,7 +221,7 @@ function Button.new(props: Props): Button
 	if iconSize then
 		Create("UITextSizeConstraint", { MaxTextSize = textSize, MinTextSize = 10, Parent = label })
 	end
-	local textOutline = Outline.text(label)
+	local textOutline = Outline.text(label, if textSize >= 20 then 3 else 2)
 
 	-- Tiles carry a big icon above the label; rows with iconSize a big icon left of it.
 	local icon: TextLabel? = nil
@@ -223,7 +257,7 @@ function Button.new(props: Props): Button
 
 	-- behind the depth frame, so only the tips show above the button; they squash and grow with it
 	local ears: { Frame }? = if props.ears
-		then CatEars.add(root, STYLES[style].face, {
+		then CatEars.add(root, STYLES[style].top, {
 			size = EAR_SIZE,
 			inset = EAR_INSET,
 			y = 5,
@@ -251,12 +285,12 @@ function Button.new(props: Props): Button
 
 	local function applyStyle()
 		local colors = STYLES[if self._enabled then self._style else "disabled"]
-		face.BackgroundColor3 = colors.face
+		gradient.Color = fill(colors, 0)
 		depthFrame.BackgroundColor3 = colors.depth
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
 		if ears then
-			CatEars.setColor(ears, colors.face)
+			CatEars.setColor(ears, colors.top)
 		end
 		if icon then
 			icon.TextTransparency = if self._enabled then 0 else 0.45
@@ -314,7 +348,7 @@ function Button.new(props: Props): Button
 		face.MouseEnter:Connect(function()
 			if self._enabled and UserInputService.MouseEnabled then
 				hovered = true
-				face.BackgroundColor3 = brighten(STYLES[self._style].face, 0.12)
+				gradient.Color = fill(STYLES[self._style], 0.12)
 				if not pressed then
 					Tween.to(uiScale, Tween.FAST, { Scale = HOVER_SCALE })
 				end

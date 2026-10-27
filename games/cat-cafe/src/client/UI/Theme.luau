@@ -46,6 +46,58 @@ Theme.colors = {
 	berryDark = Color3.fromHex("C2477A"),
 }
 
+-- Button fills (Derek 2026-10-27: "copy the ui button background from the popular games"): each face is a
+-- gradient from `top` to `bottom` over a darker `depth` lip, under faint tile marks, a light rim and a gloss
+-- (Components/Button). Brighter than the cafe palette above, as in popular simulators, in the same hues.
+Theme.button = {
+	primary = {
+		top = Color3.fromHex("7BE85A"),
+		bottom = Color3.fromHex("3DBF3F"),
+		depth = Color3.fromHex("2A8A2E"),
+	},
+	secondary = {
+		top = Color3.fromHex("5CC8FF"),
+		bottom = Color3.fromHex("2E8FEA"),
+		depth = Color3.fromHex("1F66B8"),
+	},
+	gold = {
+		top = Color3.fromHex("FFE14A"),
+		bottom = Color3.fromHex("FFAE1F"),
+		depth = Color3.fromHex("D9820F"),
+	},
+	berry = {
+		top = Color3.fromHex("FF86CF"),
+		bottom = Color3.fromHex("F0479F"),
+		depth = Color3.fromHex("B8336F"),
+	},
+	ghost = {
+		top = Color3.fromHex("FFFFFF"),
+		bottom = Color3.fromHex("F3E6D4"),
+		depth = Color3.fromHex("D9C3A5"),
+	},
+	danger = {
+		top = Color3.fromHex("FFAD55"),
+		bottom = Color3.fromHex("FF7A26"),
+		depth = Color3.fromHex("C9561A"),
+	},
+	close = {
+		top = Color3.fromHex("FF7062"),
+		bottom = Color3.fromHex("E83A3A"),
+		depth = Color3.fromHex("A82525"),
+	},
+	disabled = {
+		top = Color3.fromHex("D8CDBF"),
+		bottom = Color3.fromHex("C2B5A6"),
+		depth = Color3.fromHex("A6978A"),
+	},
+} :: { [string]: { top: Color3, bottom: Color3, depth: Color3 } }
+
+-- Uploaded images. Empty until the image is on Roblox; whatever uses one draws without it until then.
+Theme.textures = {
+	-- the faint L-shaped tile mark repeated over button faces (assets/cat-cafe/ui/textures/UI_ButtonTiles.png)
+	buttonTiles = "",
+}
+
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
 -- and a lighter top edge like the HUDs of popular Roblox simulators.
 Theme.hud = {

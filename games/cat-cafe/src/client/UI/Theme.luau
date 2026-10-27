@@ -151,6 +151,7 @@ Theme.icons = {
 	drop = "⬇️",
 	settings = "⚙️",
 	gifts = "🎁",
+	spin = "🎡",
 }
 
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons

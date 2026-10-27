@@ -1,0 +1,113 @@
+--!strict
+-- UI/Components/SpinLogic.luau: the Spin Wheel window's spins, countdown, chances and landing (F49, data-model 11c).
+return function()
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local Components = Client:WaitForChild("UI"):WaitForChild("Components")
+	local SpinLogic = require(Components:WaitForChild("SpinLogic")) :: any
+
+	local DAY = 86400
+	local ROWS = {
+		{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 30 },
+		{ slice = 2, kind = "lure", lureId = "tuna", count = 3, weight = 22 },
+		{ slice = 3, kind = "coins", seconds = 600, minCoins = 1000, weight = 18 },
+		{ slice = 4, kind = "lure", lureId = "salmon", count = 2, weight = 15 },
+		{ slice = 5, kind = "lure", lureId = "sardines", count = 2, weight = 10 },
+		{ slice = 6, kind = "lure", lureId = "caviar", count = 1, weight = 5 },
+	}
+
+	describe("SpinLogic spins", function()
+		it("has today's free spin due once the UTC day passes lastFreeDay", function()
+			local now = 20000 * DAY + 3600
+			expect(SpinLogic.freeDue({ lastFreeDay = 19999, banked = 0 }, now)).to.equal(true)
+			expect(SpinLogic.freeDue({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(false)
+			expect(SpinLogic.freeDue(nil, now)).to.equal(true)
+		end)
+
+		it("counts the banked spins plus the free one, and missed days do not stack", function()
+			local now = 20000 * DAY
+			expect(SpinLogic.spins({ lastFreeDay = 19990, banked = 2 }, now)).to.equal(3)
+			expect(SpinLogic.spins({ lastFreeDay = 20000, banked = 2 }, now)).to.equal(2)
+			expect(SpinLogic.spins({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(0)
+			expect(SpinLogic.spins(nil, now)).to.equal(1)
+		end)
+
+		it("counts down to 00:00 UTC once today's free spin is used", function()
+			local now = 20000 * DAY + 5 * 3600
+			expect(SpinLogic.nextFreeIn({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(
+				19 * 3600
+			)
+			expect(SpinLogic.nextFreeIn({ lastFreeDay = 19999, banked = 0 }, now)).to.equal(0)
+		end)
+
+		it("says why a spin was refused", function()
+			local now = 20000 * DAY + 23 * 3600 + 30 * 60
+			local used = { lastFreeDay = 20000, banked = 0 }
+			expect(SpinLogic.refusal(used, now)).to.equal("Next free spin in 30m 0s")
+			expect(SpinLogic.refusal({ lastFreeDay = 20000, banked = 1 }, now)).to.equal(
+				"Walk up to the wheel and try again"
+			)
+		end)
+
+		it("writes waits as hours and minutes, minutes and seconds, or seconds", function()
+			expect(SpinLogic.wait(5 * 3600 + 12 * 60 + 40)).to.equal("5h 12m")
+			expect(SpinLogic.wait(12 * 60 + 30)).to.equal("12m 30s")
+			expect(SpinLogic.wait(44.2)).to.equal("45s")
+			expect(SpinLogic.wait(-3)).to.equal("0s")
+		end)
+	end)
+
+	describe("SpinLogic prizes", function()
+		it("shows each slice's chance, and the chances add up to 100%", function()
+			local total = 0
+			for _, row in ROWS do
+				local text = SpinLogic.chance(ROWS, row)
+				expect(text).to.equal(("%d%%"):format(row.weight))
+				total += tonumber(text:sub(1, -2)) :: number
+			end
+			expect(total).to.equal(100)
+			local halves = {
+				{ slice = 1, kind = "coins", weight = 1 },
+				{ slice = 2, kind = "coins", weight = 39 },
+			}
+			expect(SpinLogic.chance(halves, halves[1])).to.equal("2.5%")
+			expect(SpinLogic.chance({}, ROWS[1])).to.equal("0%")
+		end)
+
+		it("estimates coins as the server pays them, never under minCoins", function()
+			expect(SpinLogic.coins(ROWS[1], 10)).to.equal(1200)
+			expect(SpinLogic.coins(ROWS[1], 1)).to.equal(200)
+			expect(SpinLogic.coins(ROWS[3], 2.5)).to.equal(1500)
+			expect(SpinLogic.coins(ROWS[3], -4)).to.equal(1000)
+		end)
+
+		it("finds a slice's place on the wheel", function()
+			expect(SpinLogic.indexOf(ROWS, 6)).to.equal(6)
+			expect(SpinLogic.indexOf(ROWS, 0)).to.equal(nil)
+		end)
+	end)
+
+	describe("SpinLogic landing", function()
+		it("stops in the middle of the paid slice after the full turns, clockwise", function()
+			for index = 1, 6 do
+				for _, from in { 0, 37, -125, 721.5 } do
+					local to = SpinLogic.landing(from, index, 6, 5)
+					expect(to >= from + 5 * 360).to.equal(true)
+					expect(to < from + 6 * 360).to.equal(true)
+					-- the slice's middle, (index - 1) * 60 degrees round, sits under the pointer at the top
+					local offset = (to + (index - 1) * 60) % 360
+					expect(math.min(offset, 360 - offset) < 1e-6).to.equal(true)
+					expect(SpinLogic.slotAt(to, 6)).to.equal(index)
+				end
+			end
+		end)
+
+		it("reads the slot under the pointer as the wheel turns", function()
+			expect(SpinLogic.slotAt(0, 6)).to.equal(1)
+			expect(SpinLogic.slotAt(-60, 6)).to.equal(2)
+			expect(SpinLogic.slotAt(29, 6)).to.equal(1)
+			expect(SpinLogic.slotAt(31, 6)).to.equal(6)
+			expect(SpinLogic.slotAt(360 * 4 - 120, 6)).to.equal(3)
+		end)
+	end)
+end

@@ -33,8 +33,18 @@ local DEMO_TIP_JAR: { Types.TipJarRow } = {
 	{ step = 8, minutes = 50, kind = "lure", lureId = "salmon", count = 1 },
 	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
 	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
-	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600 },
-	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 },
+	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600, spins = 1 },
+	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1, spins = 1 },
+}
+
+-- data-model section 11c's Spin Wheel slices, until the engineer's Catalog.spinWheel lands
+local DEMO_SPIN_WHEEL: { Types.SpinRow } = {
+	{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 30 },
+	{ slice = 2, kind = "lure", lureId = "tuna", count = 3, weight = 22 },
+	{ slice = 3, kind = "coins", seconds = 600, minCoins = 1000, weight = 18 },
+	{ slice = 4, kind = "lure", lureId = "salmon", count = 2, weight = 15 },
+	{ slice = 5, kind = "lure", lureId = "sardines", count = 2, weight = 10 },
+	{ slice = 6, kind = "lure", lureId = "caviar", count = 1, weight = 5 },
 }
 
 -- data-model section 11b's Index milestones and prizes, until the engineer's Catalog.indexMilestones and
@@ -78,6 +88,7 @@ local CATALOG: Types.Catalog = {
 	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
 	indexMilestones = (Catalog :: any).indexMilestones or DEMO_INDEX_MILESTONES,
 	indexPrizes = (Catalog :: any).indexPrizes or DEMO_INDEX_PRIZES,
+	spinWheel = (Catalog :: any).spinWheel or DEMO_SPIN_WHEEL,
 	rarities = Catalog.rarities,
 }
 
@@ -127,6 +138,8 @@ function Demo.run(UI: any): () -> ()
 		indexRewards = {} :: { [string]: { [string]: boolean } },
 		tier = 1,
 		settings = Settings.defaults() :: any,
+		-- today's free spin waiting plus one banked from the Tip Jar, so the wheel spins twice (Y opens it)
+		spin = { lastFreeDay = 0, banked = 1 } :: Types.SpinState,
 	}
 	local starter = uid()
 	profile.cats[starter] = {
@@ -181,6 +194,7 @@ function Demo.run(UI: any): () -> ()
 			customers = 2 * (profile.upgradeLevels.tables or 0),
 			tier = profile.tier,
 			settings = profile.settings,
+			spin = { lastFreeDay = profile.spin.lastFreeDay, banked = profile.spin.banked },
 		})
 	end
 
@@ -216,6 +230,9 @@ function Demo.run(UI: any): () -> ()
 			elseif row.lureId then
 				profile.lures[row.lureId] = (profile.lures[row.lureId] or 0) + (row.count or 1)
 				UI.toast("Tip Jar: a food for your bait bowl", "good")
+			end
+			if (row.spins or 0) > 0 then
+				profile.spin.banked = math.min(20, profile.spin.banked + (row.spins or 0))
 			end
 			claimed[step] = true
 			jar = { sessionStartedAt = jar.sessionStartedAt, claimed = claimed }
@@ -436,10 +453,55 @@ function Demo.run(UI: any): () -> ()
 		UI.dealer.setStock(stock)
 	end
 	connections[#connections + 1] = UI.events.buyDealerFood:Connect(buyDealer)
+	-- SpinWheel as the server runs it (data-model 11c): the free spin first, then a banked one; a weighted slice,
+	-- paid at once; SpinResult(0, 0) when there is no spin. The demo has no station, so range is not checked.
+	local lastSpin = -math.huge
+	connections[#connections + 1] = UI.events.spinWheel:Connect(function()
+		local today = math.floor(Workspace:GetServerTimeNow() / 86400)
+		local spin = profile.spin
+		local rows: { Types.SpinRow } = CATALOG.spinWheel or {}
+		local free = today > spin.lastFreeDay
+		if (not free and spin.banked < 1) or os.clock() - lastSpin < 4 or #rows == 0 then
+			task.delay(0.2, UI.spin.result, 0, 0)
+			return
+		end
+		lastSpin = os.clock()
+		if free then
+			spin.lastFreeDay = today
+		else
+			spin.banked -= 1
+		end
+		local total = 0
+		for _, row in rows do
+			total += row.weight
+		end
+		local roll = math.random() * total
+		local picked = rows[#rows]
+		for _, row in rows do
+			roll -= row.weight
+			if roll < 0 then
+				picked = row
+				break
+			end
+		end
+		local amount
+		if picked.kind == "coins" then
+			amount = math.max(picked.minCoins or 0, math.floor(rate() * (picked.seconds or 0)))
+			profile.money += amount
+		else
+			amount = picked.count or 1
+			local lureId = picked.lureId or "tuna"
+			profile.lures[lureId] = (profile.lures[lureId] or 0) + amount
+		end
+		push()
+		task.delay(0.2, UI.spin.result, picked.slice, amount)
+	end)
 	connections[#connections + 1] = UserInputService.InputBegan:Connect(
 		function(input: InputObject, processed: boolean)
 			if not processed and input.KeyCode == Enum.KeyCode.N then
 				UI.dealer.open()
+			elseif not processed and input.KeyCode == Enum.KeyCode.Y then
+				UI.spin.open()
 			end
 		end
 	)

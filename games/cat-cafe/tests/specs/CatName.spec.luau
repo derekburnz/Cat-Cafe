@@ -1,6 +1,7 @@
 --!strict
 -- shared/CatName.luau against data-model section 4 (F33, reviewer S30): what RenameCat accepts before it filters,
--- and when the filtered text counts as refused.
+-- and when the filtered text counts as refused. The "edges (QA)" block is QA's: the ends of every allowed range,
+-- every ASCII character, the reasons the abuse client keys on and the byte cap.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local CatName = require(Shared.CatName)
@@ -98,6 +99,106 @@ return function()
 		it("is false when any of the name survives", function()
 			expect(CatName.allHashes("Mochi")).to.equal(false)
 			expect(CatName.allHashes("Mo###")).to.equal(false)
+		end)
+	end)
+
+	describe("edges (QA)", function()
+		local TOO_LONG = string.format("Names can be up to %d characters", Config.CatNameMaxLength)
+		local BAD = "That name has characters we can't use"
+		local EMPTY = "Type a name first"
+
+		local function reasonFor(raw: any): string?
+			local _, reason = CatName.validate(raw)
+			return reason
+		end
+
+		it("allows both ends of every range and refuses the code point just outside", function()
+			-- { first, last } of each allowed range in CatName, and the neighbours that must stay out
+			local ranges = {
+				{ 0x00C0, 0x00D6 },
+				{ 0x00D8, 0x00F6 },
+				{ 0x00F8, 0x024F },
+				{ 0x3041, 0x3096 },
+				{ 0x309B, 0x30FF },
+				{ 0x4E00, 0x9FFF },
+				{ 0xAC00, 0xD7A3 },
+				{ 0x1F300, 0x1FAFF },
+			}
+			for _, range in ranges do
+				for _, code in { range[1], range[2] } do
+					local raw = "a" .. utf8.char(code)
+					expect((CatName.validate(raw))).to.equal(raw)
+				end
+			end
+			local outside = {
+				0xBF, -- inverted question mark, before the Latin-1 letters
+				0xD7, -- multiplication sign
+				0xF7, -- division sign
+				0x250, -- IPA, after Latin Extended-B
+				0x3040, -- before Hiragana
+				0x3097, -- after Hiragana
+				0x3099, -- the combining sound marks
+				0x309A,
+				0x3100, -- Bopomofo, after Katakana
+				0x4DFF, -- before the CJK ideographs
+				0xA000, -- Yi, after them
+				0xABFF, -- before the Hangul syllables
+				0xD7A4, -- after them
+				0x1F2FF, -- before the emoji
+				0x1FB00, -- after them
+			}
+			for _, code in outside do
+				expect(reasonFor("a" .. utf8.char(code))).to.equal(BAD)
+			end
+		end)
+
+		it("takes ASCII letters, digits, space and ' - . ! ?, and no other ASCII", function()
+			local letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			local allowed = letters .. "0123456789 '-.!?"
+			for code = 0, 0x7F do
+				local char = string.char(code)
+				local raw = "a" .. char .. "b"
+				if string.find(allowed, char, 1, true) ~= nil then
+					expect((CatName.validate(raw))).to.equal(raw)
+				else
+					expect(reasonFor(raw)).to.equal(BAD)
+				end
+			end
+		end)
+
+		it("refuses joined emoji, flags and keycaps", function()
+			local cases = {
+				"\u{1F468}\u{200D}\u{1F469}", -- a family joined by U+200D
+				"\u{1F1EF}\u{1F1F5}", -- a flag from regional indicators
+				"1\u{FE0F}\u{20E3}", -- a keycap
+			}
+			for _, raw in cases do
+				expect(reasonFor(raw)).to.equal(BAD)
+			end
+		end)
+
+		it("gives the abuse client's three reasons, length first and then characters", function()
+			expect(reasonFor(nil)).to.equal(EMPTY)
+			expect(reasonFor(" \t\n ")).to.equal(EMPTY)
+			expect(reasonFor(string.rep("a", Config.CatNameMaxLength + 1))).to.equal(TOO_LONG)
+			-- too long and a bad character: the length is checked first
+			expect(reasonFor(string.rep("#", Config.CatNameMaxLength + 1))).to.equal(TOO_LONG)
+			expect(reasonFor("Mo\255chi")).to.equal(BAD)
+		end)
+
+		it("counts a 4 byte emoji as one character", function()
+			local max = Config.CatNameMaxLength
+			expect((CatName.validate(string.rep("\u{1F43E}", max)))).to.be.ok()
+			expect(reasonFor(string.rep("\u{1F43E}", max + 1))).to.equal(TOO_LONG)
+		end)
+
+		it("trims ASCII whitespace at the ends and caps the raw string at MAX_BYTES", function()
+			expect((CatName.validate("\tMochi\n"))).to.equal("Mochi")
+			local padding = string.rep(" ", CatName.MAX_BYTES - 5)
+			expect((CatName.validate(padding .. "Mochi"))).to.equal("Mochi")
+			expect(reasonFor(padding .. " Mochi")).to.equal(BAD)
+			-- room for CatNameMaxLength 4 byte characters
+			expect(CatName.MAX_BYTES >= 4 * Config.CatNameMaxLength).to.equal(true)
 		end)
 	end)
 end

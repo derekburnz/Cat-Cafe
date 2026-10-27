@@ -1,6 +1,8 @@
 --!strict
 -- One ScreenGui that hosts every modal screen (Upgrades, Decor, Collection). Only one is open at a time.
--- Tapping the dim backdrop closes. Screens register a frame plus optional onOpen/onClose callbacks.
+-- Only a screen's own X (or its key) closes it: the dim backdrop takes taps without closing, so a tap on an empty
+-- part of a window or beside it never shuts it (Derek 2026-10-27). Screens register a frame plus optional
+-- onOpen/onClose callbacks.
 -- Opening plays uiOpen and closing uiClose, so the buttons that only open or close a screen stay silent.
 
 local Create = require(script.Parent.Create)
@@ -42,10 +44,10 @@ function Modal.new(parent: Instance): Modal
 		Enabled = false,
 	})
 
-	local backdrop: TextButton = Create("TextButton", {
+	-- Active, so a tap on it stops here instead of reaching the world under the window
+	local backdrop: Frame = Create("Frame", {
 		Name = "Backdrop",
-		Text = "",
-		AutoButtonColor = false,
+		Active = true,
 		BackgroundColor3 = Theme.modal.backdrop,
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
@@ -82,10 +84,6 @@ function Modal.new(parent: Instance): Modal
 	self._screens = {} :: { [string]: Screen }
 	self._current = nil :: string?
 	self._closing = false
-
-	self._backdropConnection = backdrop.Activated:Connect(function()
-		self:close()
-	end)
 
 	if parent then
 		screenGui.Parent = parent
@@ -170,7 +168,6 @@ function Modal.toggle(self: any, name: string)
 end
 
 function Modal.destroy(self: any)
-	self._backdropConnection:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.changed:DisconnectAll()
 	self.screenGui:Destroy()

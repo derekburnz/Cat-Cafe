@@ -49,10 +49,16 @@ local ROW_HEIGHT = 80
 local HEADER_HEIGHT = 26
 local TILE = 56
 local SWITCH = Vector2.new(108, 48)
-local STEP_BUTTON = Vector2.new(50, 44) -- "−" and "+", side by side where a switch row has its switch
+-- "−" and "+", small and side by side at the slider's right end, well clear of its knob (Derek 2026-10-27: they
+-- were too big and the knob ran into them)
+local STEP_BUTTON = Vector2.new(36, 32)
+local STEPS_W = STEP_BUTTON.X * 2 + 6
 local NUDGE = 0.1 -- what one "−" or "+" press moves a volume
 local NUDGE_PAUSE = 0.5 -- seconds after the last "−" or "+" before the volume is sent
 local KNOB = 28
+local SLIDER_Y = 54 -- the middle of a volume row's slider, in its card
+local SLIDER_HIT = 44 -- the band that takes presses and drags, taller than the track so the slider is easy to grab
+local SLIDER_RIGHT = 12 + STEPS_W + 14 -- the slider's band ends this far from the card's right edge
 local TEXT_LEFT = 12 + TILE + 12 -- a row's name and detail start right of its icon tile
 local TEXT_RIGHT = TEXT_LEFT + SWITCH.X + 24 -- and end left of its switch
 -- each row's icon tile colour, by setting key
@@ -322,7 +328,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 		text({
 			Name = "Name",
 			Position = UDim2.fromOffset(TEXT_LEFT, 10),
-			Size = UDim2.new(1, -(TEXT_RIGHT + 60), 0, 28),
+			Size = UDim2.new(1, -(TEXT_LEFT + SLIDER_RIGHT + 64), 0, 28),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textLarge,
 			Text = row.name,
@@ -331,7 +337,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 		local percent = text({
 			Name = "Percent",
 			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -(SWITCH.X + 24), 0, 10),
+			Position = UDim2.new(1, -SLIDER_RIGHT, 0, 10),
 			Size = UDim2.fromOffset(60, 28),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textBody,
@@ -339,7 +345,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			TextXAlignment = Enum.TextXAlignment.Right,
 			Parent = card,
 		})
-		self:_buildSlider(card, key, TEXT_LEFT, TEXT_RIGHT, percent)
+		self:_buildSlider(card, key, percent)
 		local function nudge(delta: number)
 			self:_nudge(key, delta)
 		end
@@ -349,8 +355,8 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			style = "secondary",
 			size = UDim2.fromOffset(STEP_BUTTON.X, STEP_BUTTON.Y),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -(12 + STEP_BUTTON.X + 8), 0.5, -2),
-			textSize = Theme.sizes.textLarge,
+			position = UDim2.new(1, -(12 + STEP_BUTTON.X + 6), 0, SLIDER_Y),
+			textSize = Theme.sizes.textBody + 2,
 			parent = card,
 			sound = false, -- the slider's tick is the sound
 			onClick = function()
@@ -363,8 +369,8 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			style = "secondary",
 			size = UDim2.fromOffset(STEP_BUTTON.X, STEP_BUTTON.Y),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -12, 0.5, -2),
-			textSize = Theme.sizes.textLarge,
+			position = UDim2.new(1, -12, 0, SLIDER_Y),
+			textSize = Theme.sizes.textBody + 2,
 			parent = card,
 			sound = false, -- the slider's tick is the sound
 			onClick = function()
@@ -419,23 +425,17 @@ function Settings._buildButtonRow(self: any, row: ButtonRow, order: number, onCl
 	)
 end
 
--- The bar under a volume row's name: a track to press or drag, the fill and a round knob at its end.
-function Settings._buildSlider(
-	self: any,
-	card: Frame,
-	key: string,
-	left: number,
-	right: number,
-	percent: TextLabel
-)
-	local track: TextButton = Create("TextButton", {
+-- The bar under a volume row's name: the track with its fill and a round knob at its end, under a clear band
+-- SLIDER_HIT tall that takes the press anywhere along it, knob included, and the drag that follows.
+function Settings._buildSlider(self: any, card: Frame, key: string, percent: TextLabel)
+	local inset = TEXT_LEFT + KNOB / 2 -- the knob's centre at 0%
+	local track: Frame = Create("Frame", {
 		Name = "Track",
-		Text = "",
-		AutoButtonColor = false,
 		BackgroundColor3 = Theme.colors.line,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(left + KNOB / 2, 48),
-		Size = UDim2.new(1, -(right + KNOB / 2), 0, 14),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromOffset(inset, SLIDER_Y),
+		Size = UDim2.new(1, -(inset + SLIDER_RIGHT + KNOB / 2), 0, 14),
 		Parent = card,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(track, 2)
@@ -457,9 +457,20 @@ function Settings._buildSlider(
 		Parent = track,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(knob, 3)
+	local hit: TextButton = Create("TextButton", {
+		Name = "Hit",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromOffset(TEXT_LEFT, SLIDER_Y),
+		Size = UDim2.new(1, -(TEXT_LEFT + SLIDER_RIGHT), 0, SLIDER_HIT),
+		ZIndex = 4,
+		Parent = card,
+	})
 	table.insert(
 		self._connections,
-		track.InputBegan:Connect(function(input: InputObject)
+		hit.InputBegan:Connect(function(input: InputObject)
 			if isPress(input) and self._dragging == nil then
 				self._dragging = key
 				self._dragInput = input
@@ -472,7 +483,7 @@ function Settings._buildSlider(
 end
 
 function Settings._dragTo(self: any, key: string, x: number)
-	local track: TextButton = self._sliders[key].track
+	local track: Frame = self._sliders[key].track
 	local width = track.AbsoluteSize.X
 	if width <= 0 then
 		return

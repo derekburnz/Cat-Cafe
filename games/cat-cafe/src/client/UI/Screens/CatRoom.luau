@@ -1,5 +1,5 @@
 --!strict
--- The Cat room tab of Collection as an inventory (UI plan 2026-10-27, from the Pet Simulator inventory Derek sent:
+-- The Cats screen (Screens/MyCats) as an inventory (UI plan 2026-10-27, from the Pet Simulator inventory Derek sent:
 -- "slots for each role of the cafe and locked if its locked still").
 --   Crew strip  a square per role slot in the order they open (Components/StaffSlots): the working cat's own model
 --               on its rarity colour, a green "+" for a free slot, a grey lock with the tier that opens it. Tap a
@@ -12,7 +12,7 @@
 --               price). Assign rings every free "+" in gold and marks the cat's favourite role "★ 1.5x".
 --   Lock (F62)  a locked cat shows a lock on its card, cannot be sold, and its detail has the Lock row that sets it
 --               (Components/CatLock). Gold, Legendary and Mythical cats arrive locked from the server.
--- CatCollection owns the tab; this view only reads state and calls back.
+-- MyCats owns the window; this view only reads state and calls back.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatLock = require(script.Parent.Parent.Components.CatLock)
@@ -60,6 +60,8 @@ local CARD = Vector2.new(104, 134)
 local CARD_ART = 76
 local RENAME_W = 34
 local LOCK_H = 36
+local FAV_H = 32 -- the favourite role row: its icon on the side, "Favourite role" over the role in bold
+local FAV_ICON = 28
 -- cards this far above or below the visible part of the grid already get their cat model (reviewer N71)
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
@@ -426,20 +428,68 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextColor3 = Theme.colors.goodDark,
 		Parent = body,
 	})
+	-- a notice or the Assign hint, in the favourite row's place while it shows
+	local favTop = DETAIL_ART + 36
 	self._detailInfo = text({
 		Name = "Info",
-		Position = UDim2.fromOffset(10, DETAIL_ART + 34),
-		Size = UDim2.new(1, -20, 0, 18),
+		Position = UDim2.fromOffset(10, favTop),
+		Size = UDim2.new(1, -20, 0, FAV_H),
 		TextSize = Theme.sizes.textSmall,
+		TextWrapped = true,
 		TextColor3 = Theme.modal.subtext,
 		Parent = body,
 	})
+	-- the favourite role (Derek 2026-10-27: "favourite position should be bolded writing and a symbol for that
+	-- role on the side"): the role's icon on a round chip, then "Favourite role" over "Barista · 1.5x there"
+	local fav: Frame = Create("Frame", {
+		Name = "Favourite",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(10, favTop),
+		Size = UDim2.new(1, -20, 0, FAV_H),
+		Visible = false,
+		Parent = body,
+	})
+	self._detailFav = fav
+	local chip: TextLabel = text({
+		Name = "Icon",
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.gold:Lerp(Theme.colors.paper, 0.55),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		Size = UDim2.fromOffset(FAV_ICON, FAV_ICON),
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = fav,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = chip })
+	Outline.border(chip, Theme.sizes.stroke)
+	self._detailFavIcon = chip
+	text({
+		Name = "Caption",
+		Position = UDim2.fromOffset(FAV_ICON + 8, 0),
+		Size = UDim2.new(1, -(FAV_ICON + 8), 0, 13),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.modal.subtext,
+		Text = "Favourite role",
+		Parent = fav,
+	})
+	self._detailFavName = text({
+		Name = "Role",
+		Position = UDim2.fromOffset(FAV_ICON + 8, 13),
+		Size = UDim2.new(1, -(FAV_ICON + 8), 0, 19),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall + 1,
+		RichText = true,
+		Parent = fav,
+	})
 	-- the breed's line from the catalog, where the window is tall enough for it
 	local actionsH = Theme.sizes.touchMin
-	self._descBottom = DETAIL_ART + 56 + actionsH + 18 -- grows by the Lock row while it shows
+	local descTop = favTop + FAV_H + 6
+	self._descBottom = descTop + actionsH + 18 -- grows by the Lock row while it shows
 	self._detailDesc = text({
 		Name = "Description",
-		Position = UDim2.fromOffset(10, DETAIL_ART + 56),
+		Position = UDim2.fromOffset(10, descTop),
 		Size = UDim2.new(1, -20, 1, -self._descBottom),
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.AtEnd,
@@ -1149,24 +1199,26 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	else
 		self._detailRate.Text = Format.rate(rate) .. " when working  ·  Resting"
 	end
-	local loves = if def and def.favoriteRole then Format.roleName(def.favoriteRole) else nil
+	local role: string? = if def then def.favoriteRole else nil
+	local showFav = false
 	if self._notice then
 		self._detailInfo.Text = self._notice
 		self._detailInfo.TextColor3 = Theme.colors.warnDark
 	elseif self._placing then
 		self._detailInfo.Text = "Tap a gold-ringed + above."
 		self._detailInfo.TextColor3 = Theme.colors.caramelDark
-	else
-		self._detailInfo.Text = if loves
-			then ("Loves %s%s"):format(
-				loves,
-				if favorite then "  ·  1.5x now" else "  ·  1.5x there"
-			)
-			else ""
-		self._detailInfo.TextColor3 = if favorite
-			then Theme.colors.caramelDark
-			else Theme.modal.subtext
+	elseif role then
+		showFav = true
+		self._detailFavIcon.Text = Theme.roleIcons[role] or "★"
+		-- the role in bold ink, then how much it pays there in the lighter weight
+		self._detailFavName.Text = ('%s<font weight="400" color="#%s">  ·  1.5x %s</font>'):format(
+			Format.roleName(role),
+			(if favorite then Theme.colors.goodDark else Theme.modal.subtext):ToHex(),
+			if favorite then "now" else "there"
+		)
 	end
+	self._detailInfo.Visible = not showFav
+	self._detailFav.Visible = showFav
 	self._detailDesc.Text = if def then def.description or "" else ""
 
 	-- F62: the Lock row, and Sell greyed while the cat is locked

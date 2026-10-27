@@ -2,17 +2,16 @@
 -- Collection screen with two tabs.
 --   Book: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
 --         (dark silhouettes until found), rarest last; tap one for details.
---   Cat room: the cats the player owns (instances with a uid), Place / Move, Remove and Sell, and a pencil that
---         opens the Rename box (F33, Screens/RenameDialog).
+--   Cat room: the cats the player owns as an inventory grid under a crew strip of role slots (Screens/CatRoom).
 -- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
+local CatRoom = require(script.Parent.CatRoom)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
-local RenameDialog = require(script.Parent.RenameDialog)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -23,6 +22,7 @@ export type Callbacks = {
 	sellCat: (uid: string) -> (),
 	renameCat: (uid: string, name: string) -> (),
 	equipBest: () -> (),
+	unequipAll: () -> (),
 	close: () -> (),
 }
 
@@ -42,19 +42,6 @@ local DETAIL_HEIGHT = 92
 local AREA_TAB_HEIGHT = 46
 local PROGRESS_HEIGHT = 28
 local FALLBACK_AREA = "alley"
-local ROOM_ROW = 76
-local ROOM_ART = 64 -- the cat's own model on each cat room card, as in the Pet Simulator inventory
-local ROOM_TEXT = ROOM_ART + 22
--- cards this far above or below the visible part of the list already get their cat model (reviewer N71)
-local PORTRAIT_MARGIN = 240
-local SPOT_ROW = 48
-local RENAME_BUTTON = 34
-
--- Sell asks for confirmation from this rarity up (data-model: Rare and above).
-local CONFIRM_SELL_FROM = 2
--- Shown on the confirm button so the player sees the price before agreeing (data-model section 2).
-local RARITY_SELL_VALUE: { [string]: number } =
-	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
 
 local CatCollection = {}
 CatCollection.__index = CatCollection
@@ -142,13 +129,8 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._areaChips = {} :: { any }
 	self._area = nil :: string? -- the book's open area tab
 	self._detailId = nil :: string? -- the cat in the detail strip's portrait
-	self._roomRows = {} :: { [string]: any }
-	self._spotRows = {} :: { any }
-	self._buttons = {} :: { any }
 	self._tab = "Book"
 	self._selected = nil :: string?
-	self._placing = nil :: string? -- uid waiting for a spot pick
-	self._confirmSell = nil :: string? -- uid waiting for sell confirmation
 	self._dirty = true
 	self._lastState = nil :: Types.PlayerState?
 
@@ -345,7 +327,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		}),
 	})
 
-	-- Cat room: list of owned cats; the role picker slides in on Assign
+	-- Cat room: the inventory grid and the crew strip (Screens/CatRoom)
 	self._room = Create("Frame", {
 		Name = "Room",
 		BackgroundTransparency = 1,
@@ -354,82 +336,14 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Visible = false,
 		Parent = panel.content,
 	})
-	self._roomHint = text({
-		Name = "Hint",
-		Size = UDim2.new(1, -150, 0, 36),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
-		TextWrapped = true,
-		Text = "Working cats earn. Resting cats wait in the cat room.",
-		Parent = self._room,
+	self._catRoom = CatRoom.new(self._room, {
+		placeCat = callbacks.placeCat,
+		unplaceCat = callbacks.unplaceCat,
+		sellCat = callbacks.sellCat,
+		renameCat = callbacks.renameCat,
+		equipBest = callbacks.equipBest,
+		unequipAll = callbacks.unequipAll,
 	})
-	-- Equip best: the server picks the highest-rated cats for the open role slots (cat stats thread)
-	self._equipBest = Button.new({
-		name = "EquipBest",
-		text = "Equip best",
-		style = "gold",
-		size = UDim2.fromOffset(140, 36),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, 0),
-		textSize = Theme.sizes.textSmall + 1,
-		parent = self._room,
-		onClick = function()
-			self._callbacks.equipBest()
-		end,
-	})
-	self._roomList = scroller("List", self._room, UDim2.fromOffset(0, 44), UDim2.new(1, 0, 1, -44))
-	self._roomScroll = self._roomList:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
-		self:_loadPortraits()
-	end)
-
-	self._spotPicker = Create("Frame", {
-		Name = "SpotPicker",
-		BackgroundColor3 = Theme.modal.card,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, 44),
-		Size = UDim2.new(0, 280, 1, -44),
-		Visible = false,
-		ZIndex = 5,
-		Parent = self._room,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = Theme.colors.caramel, Thickness = Theme.sizes.stroke }),
-	})
-	text({
-		Name = "Title",
-		Position = UDim2.fromOffset(12, 8),
-		Size = UDim2.new(1, -70, 0, 24),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		Text = "Pick a role",
-		ZIndex = 6,
-		Parent = self._spotPicker,
-	})
-	table.insert(
-		self._buttons,
-		Button.new({
-			name = "Cancel",
-			text = "X",
-			style = "ghost",
-			size = UDim2.fromOffset(40, 36),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -6, 0, 4),
-			parent = self._spotPicker,
-			zIndex = 6,
-			onClick = function()
-				self._placing = nil
-				self._spotPicker.Visible = false
-			end,
-		})
-	)
-	self._spotList =
-		scroller("Spots", self._spotPicker, UDim2.fromOffset(8, 44), UDim2.new(1, -16, 1, -52))
-	self._spotList.ZIndex = 6
-
-	self._rename = RenameDialog.new(self._room, function(uid: string, name: string)
-		self._callbacks.renameCat(uid, name)
-	end)
 
 	return self :: CatCollection
 end
@@ -444,10 +358,7 @@ function CatCollection.showTab(self: any, tab: "Book" | "Room")
 	self._room.Visible = tab == "Room"
 	self._bookTab:setStyle(if tab == "Book" then "gold" else "ghost")
 	self._roomTab:setStyle(if tab == "Room" then "gold" else "ghost")
-	self._placing = nil
-	self._confirmSell = nil
-	self._spotPicker.Visible = false
-	self._rename:close()
+	self._catRoom:reset()
 	if self._lastState then
 		self._dirty = true
 		self:render(self._lastState)
@@ -676,93 +587,10 @@ function CatCollection._buildBook(self: any)
 	end
 end
 
-function CatCollection._buildSpots(self: any)
-	for _, row in self._spotRows do
-		row.button:destroy()
-		row.frame:Destroy()
-	end
-	table.clear(self._spotRows)
-	local catalog: Types.Catalog? = self._catalog
-	if not catalog or not catalog.spots then
-		return
-	end
-	assert(catalog, "catalog not set; call UI.init first")
-	-- One row per role (F25): Assign picks the first free open slot of that role, so the player chooses
-	-- the job and never a slot number.
-	local slotsByRole: { [string]: { Types.SpotDef } } = {}
-	local roles: { string } = {}
-	for _, spot in catalog.spots :: { Types.SpotDef } do
-		local list = slotsByRole[spot.spotType]
-		if not list then
-			list = {}
-			slotsByRole[spot.spotType] = list
-			table.insert(roles, spot.spotType)
-		end
-		table.insert(list, spot)
-	end
-	for index, role in roles do
-		local entry: { [string]: any } = { role = role, slots = slotsByRole[role], freeSlot = nil }
-		local row: Frame = Create("Frame", {
-			Name = role,
-			BackgroundColor3 = Theme.modal.panel,
-			BorderSizePixel = 0,
-			Size = UDim2.new(1, 0, 0, SPOT_ROW),
-			LayoutOrder = index,
-			ZIndex = 6,
-			Parent = self._spotList,
-		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
-		local label = text({
-			Name = "Label",
-			Position = UDim2.fromOffset(10, 4),
-			Size = UDim2.new(1, -100, 0, 22),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + 1,
-			Text = Format.roleName(role),
-			ZIndex = 7,
-			Parent = row,
-		})
-		local sub = text({
-			Name = "Sub",
-			Position = UDim2.fromOffset(10, 26),
-			Size = UDim2.new(1, -100, 0, 18),
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = Theme.modal.subtext,
-			Text = "",
-			ZIndex = 7,
-			Parent = row,
-		})
-		local button = Button.new({
-			name = "Pick",
-			text = "Assign",
-			style = "primary",
-			size = UDim2.fromOffset(78, 38),
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -6, 0.5, 0),
-			textSize = Theme.sizes.textSmall,
-			parent = row,
-			zIndex = 7,
-			onClick = function()
-				local uid = self._placing
-				local spotId: string? = entry.freeSlot
-				if uid and spotId then
-					self._callbacks.placeCat(uid, spotId)
-					self._placing = nil
-					self._spotPicker.Visible = false
-				end
-			end,
-		})
-		entry.frame = row
-		entry.label = label
-		entry.sub = sub
-		entry.button = button
-		table.insert(self._spotRows, entry)
-	end
-end
-
 function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_buildBook()
-	self:_buildSpots()
+	self._catRoom:setCatalog(catalog)
 	self._dirty = true
 end
 
@@ -864,321 +692,6 @@ function CatCollection._renderBook(
 	end
 end
 
--- One row per owned cat instance. Rows are keyed by uid and rebuilt only when the set of uids changes.
-function CatCollection._syncRoomRows(self: any, state: Types.PlayerState)
-	local cats: { [string]: Types.CatInstance } = state.cats or {}
-	local seen: { [string]: boolean } = {}
-	local order: { Types.CatInstance } = {}
-	for _, instance in cats do
-		table.insert(order, instance)
-	end
-	local function ratingOf(instance: Types.CatInstance): number
-		if instance.rating then
-			return instance.rating :: number
-		end
-		local def: Types.CatDef? = self._catById[instance.catId]
-		return if def then def.incomePerSecond else 0
-	end
-	table.sort(order, function(a: Types.CatInstance, b: Types.CatInstance): boolean
-		local defA = self._catById[a.catId]
-		local defB = self._catById[b.catId]
-		local rarityA = if defA then rarityIndex(defA.rarity) else 0
-		local rarityB = if defB then rarityIndex(defB.rarity) else 0
-		if rarityA ~= rarityB then
-			return rarityA > rarityB
-		end
-		local ratingA, ratingB = ratingOf(a), ratingOf(b)
-		if ratingA ~= ratingB then
-			return ratingA > ratingB
-		end
-		if a.catId ~= b.catId then
-			return a.catId < b.catId
-		end
-		return a.uid < b.uid
-	end)
-
-	for index, instance in order do
-		seen[instance.uid] = true
-		local row = self._roomRows[instance.uid]
-		if not row then
-			row = self:_makeRoomRow(instance)
-			self._roomRows[instance.uid] = row
-		end
-		row.frame.LayoutOrder = index
-	end
-	for uid, row in self._roomRows do
-		if not seen[uid] then
-			row.place:destroy()
-			row.remove:destroy()
-			row.sell:destroy()
-			row.rename:destroy()
-			row.portrait:destroy()
-			if self._rename:editing() == uid then
-				self._rename:close() -- the cat was sold
-			end
-			row.frame:Destroy()
-			self._roomRows[uid] = nil
-		end
-	end
-end
-
-function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
-	local def: Types.CatDef? = self._catById[instance.catId]
-	local rarity = if def then def.rarity else "Common"
-	local shiny = instance.variant == "shiny"
-	local frame: Frame = Create("Frame", {
-		Name = instance.uid,
-		BackgroundColor3 = Theme.modal.card,
-		BorderSizePixel = 0,
-		Size = UDim2.new(1, 0, 0, ROOM_ROW),
-		Parent = self._roomList,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		-- a shiny cat's card has a thicker gold edge, so it stands out in a long list
-		Create("UIStroke", {
-			Color = if shiny then Theme.colors.gold else Theme.rarityColor(rarity),
-			Thickness = Theme.sizes.stroke + (if shiny then 1 else 0),
-		}),
-	})
-	-- the cat's own model on a soft disc in its rarity colour (the book's look), held still so a long list is free
-	Create("Frame", {
-		Name = "Glow",
-		BackgroundColor3 = Theme.rarityColor(rarity),
-		BackgroundTransparency = 0.7,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 14, 0.5, 0),
-		Size = UDim2.fromOffset(ROOM_ART - 8, ROOM_ART - 8),
-		Parent = frame,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	local portrait = CatPortrait.new({
-		parent = frame,
-		size = UDim2.fromOffset(ROOM_ART, ROOM_ART),
-		anchorPoint = Vector2.new(0, 0.5),
-		position = UDim2.new(0, 10, 0.5, 0),
-		still = true,
-		zIndex = 2,
-	})
-	if shiny then
-		local badge = pill(
-			frame,
-			"✨",
-			Theme.colors.gold,
-			Theme.colors.goldText,
-			UDim2.fromOffset(ROOM_ART - 2, 4),
-			Vector2.new(1, 0)
-		)
-		badge.Name = "Shiny"
-		badge.ZIndex = 3
-	end
-	local name = text({
-		Name = "Name",
-		Position = UDim2.fromOffset(ROOM_TEXT, 10),
-		Size = UDim2.new(1, -(ROOM_TEXT + 288 + RENAME_BUTTON + 4), 0, 24),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 2,
-		Text = if def then def.name else instance.catId,
-		Parent = frame,
-	})
-	local status = text({
-		Name = "Status",
-		Position = UDim2.fromOffset(ROOM_TEXT, 36),
-		Size = UDim2.new(1, -(ROOM_TEXT + 288), 0, 18),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.modal.subtext,
-		Text = "",
-		Parent = frame,
-	})
-	-- Favorite role tag (F25): a small pill under the status, gold while the cat works that role
-	local favorite = text({
-		Name = "FavoriteRole",
-		Position = UDim2.fromOffset(ROOM_TEXT, 56),
-		Size = UDim2.fromOffset(0, 16),
-		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundTransparency = 0,
-		BackgroundColor3 = Theme.modal.panel,
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.modal.subtext,
-		TextTruncate = Enum.TextTruncate.None,
-		Text = if def then "Loves " .. Format.roleName(def.favoriteRole) else "",
-		Visible = def ~= nil,
-		Parent = frame,
-	})
-	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = favorite })
-	Create(
-		"UIPadding",
-		{ PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6), Parent = favorite }
-	)
-	-- the pencil after the name opens the Rename box, as on Pet Simulator's pet cards
-	local rename = Button.new({
-		name = "Rename",
-		text = "✏️",
-		style = "ghost",
-		size = UDim2.fromOffset(RENAME_BUTTON, 28),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -290, 0, 8),
-		textSize = Theme.sizes.textSmall,
-		parent = frame,
-		onClick = function()
-			self._confirmSell = nil
-			self._placing = nil
-			self._spotPicker.Visible = false
-			local row = self._roomRows[instance.uid]
-			local latest: Types.CatInstance = if row then row.instance else instance
-			self._rename:open(instance.uid, latest.name, if def then def.name else instance.catId)
-		end,
-	})
-	local place = Button.new({
-		name = "Place",
-		text = "Assign",
-		style = "secondary",
-		size = UDim2.fromOffset(84, 40),
-		anchorPoint = Vector2.new(1, 0.5),
-		position = UDim2.new(1, -196, 0.5, 0),
-		textSize = Theme.sizes.textSmall,
-		parent = frame,
-		onClick = function()
-			self._confirmSell = nil
-			self._placing = instance.uid
-			self._spotPicker.Visible = true
-			if self._lastState then
-				self:_renderSpots(self._lastState)
-			end
-		end,
-	})
-	local remove = Button.new({
-		name = "Remove",
-		text = "Rest",
-		style = "ghost",
-		size = UDim2.fromOffset(84, 40),
-		anchorPoint = Vector2.new(1, 0.5),
-		position = UDim2.new(1, -104, 0.5, 0),
-		textSize = Theme.sizes.textSmall,
-		parent = frame,
-		onClick = function()
-			if self._confirmSell == instance.uid then
-				self._confirmSell = nil
-				if self._lastState then
-					self:render(self._lastState)
-				end
-				return
-			end
-			self._callbacks.unplaceCat(instance.uid)
-		end,
-	})
-	local sell = Button.new({
-		name = "Sell",
-		text = "Sell",
-		style = "danger",
-		size = UDim2.fromOffset(84, 40),
-		anchorPoint = Vector2.new(1, 0.5),
-		position = UDim2.new(1, -12, 0.5, 0),
-		textSize = Theme.sizes.textSmall,
-		parent = frame,
-		onClick = function()
-			local needsConfirm = rarityIndex(rarity) >= CONFIRM_SELL_FROM
-			if needsConfirm and self._confirmSell ~= instance.uid then
-				self._confirmSell = instance.uid
-				if self._lastState then
-					self:render(self._lastState)
-				end
-				return
-			end
-			self._confirmSell = nil
-			self._callbacks.sellCat(instance.uid)
-		end,
-	})
-	return {
-		frame = frame,
-		portrait = portrait,
-		loaded = false, -- the model is cloned by _loadPortraits once the card is near the visible window
-		name = name,
-		status = status,
-		favorite = favorite,
-		place = place,
-		remove = remove,
-		sell = sell,
-		rename = rename,
-		instance = instance,
-		def = def,
-	}
-end
-
-function CatCollection._renderSpots(self: any, state: Types.PlayerState)
-	local occupied = {} :: { [string]: string }
-	if state.cats then
-		for _, instance in state.cats :: { [string]: Types.CatInstance } do
-			if instance.spotId then
-				occupied[instance.spotId :: string] = instance.catId
-			end
-		end
-	end
-	local placingDef: Types.CatDef? = nil
-	if self._placing and state.cats then
-		local instance = (state.cats :: { [string]: Types.CatInstance })[self._placing]
-		if instance then
-			placingDef = self._catById[instance.catId]
-		end
-	end
-	for _, row in self._spotRows do
-		local role: string = row.role
-		local open, free = 0, 0
-		local firstFree: string? = nil
-		local nextTier: number? = nil
-		for _, spot in row.slots :: { Types.SpotDef } do
-			if state.tier >= spot.tier then
-				open += 1
-				if not occupied[spot.id] then
-					free += 1
-					firstFree = firstFree or spot.id
-				end
-			elseif nextTier == nil or spot.tier < (nextTier :: number) then
-				nextTier = spot.tier
-			end
-		end
-		row.freeSlot = firstFree
-		local favorite = placingDef ~= nil and (placingDef :: Types.CatDef).favoriteRole == role
-		row.label.Text = Format.roleName(role) .. (if favorite then "  ★ 1.5x" else "")
-		row.label.TextColor3 = if favorite then Theme.colors.caramelDark else Theme.modal.text
-		row.button:setStyle(if favorite then "gold" else "primary")
-		if open == 0 then
-			row.sub.Text = "Opens at " .. Format.tier(nextTier or 1)
-			row.button:setText("Locked")
-			row.button:setEnabled(false)
-		elseif free == 0 then
-			row.sub.Text = ("All %d taken"):format(open)
-				.. (if nextTier then ", more at " .. Format.tier(nextTier :: number) else "")
-			row.button:setText("Full")
-			row.button:setEnabled(false)
-		else
-			row.sub.Text = ("%d of %d free"):format(free, open)
-			row.button:setText("Assign")
-			row.button:setEnabled(true)
-		end
-	end
-end
-
--- N71: a cat room card clones its cat model only once it scrolls near the visible part of the list, so a big
--- collection pays for the cards on screen. A card whose model is not in Assets yet tries again on the next pass.
-function CatCollection._loadPortraits(self: any)
-	local list: ScrollingFrame = self._roomList
-	if self._tab ~= "Room" or not self.frame.Visible then
-		return
-	end
-	local top = list.AbsolutePosition.Y - PORTRAIT_MARGIN
-	local bottom = list.AbsolutePosition.Y + list.AbsoluteSize.Y + PORTRAIT_MARGIN
-	for _, row in self._roomRows do
-		if row.loaded then
-			continue
-		end
-		local y = row.frame.AbsolutePosition.Y
-		if y + row.frame.AbsoluteSize.Y >= top and y <= bottom then
-			row.portrait:set(row.def, row.instance.variant == "shiny") -- a shiny cat in its own coat (F42)
-			row.loaded = row.portrait:hasModel()
-		end
-	end
-end
-
 function CatCollection.render(self: any, state: Types.PlayerState)
 	self._lastState = state
 	if not self.frame.Visible then
@@ -1226,109 +739,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 			self:_select(self._selected)
 		end
 	else
-		self:_syncRoomRows(state)
-		local spotsById = {} :: { [string]: Types.SpotDef }
-		if catalog and catalog.spots then
-			for _, spot in catalog.spots :: { Types.SpotDef } do
-				spotsById[spot.id] = spot
-			end
-		end
-		local placed = 0
-		local resting = 0
-		for _, row in self._roomRows do
-			local instance: Types.CatInstance = (state.cats :: { [string]: Types.CatInstance })[row.instance.uid]
-				or row.instance
-			row.instance = instance
-			local def: Types.CatDef? = row.def
-			-- the player's name for the cat (filtered by the server), with the breed after it
-			local custom: string? = instance.name
-			local breed = if def then def.name else instance.catId
-			row.name.Text = if custom and custom ~= ""
-				then ("%s  (%s)"):format(custom, breed)
-				else breed
-			local rate = if instance.rating
-				then instance.rating :: number
-				elseif def then def.incomePerSecond
-				else 0
-			-- "Lv 3  ★★★★☆  $3.4/s" when the server sends stats, else just the rate
-			local statBits = {}
-			if instance.level then
-				table.insert(statBits, Format.level(instance.level :: number))
-			end
-			if instance.stars then
-				table.insert(statBits, Format.stars(instance.stars :: number))
-			end
-			local stats = table.concat(statBits, "  ")
-			if instance.spotId then
-				placed += 1
-				local spot = spotsById[instance.spotId :: string]
-				local favorite = def ~= nil
-					and spot ~= nil
-					and (def :: Types.CatDef).favoriteRole == spot.spotType
-				local slotName = if spot
-					then Format.roleName(spot.spotType) .. " " .. (spot.id:match("%d+$") or "")
-					else instance.spotId :: string
-				row.status.Text = ("%s%s  ·  %s%s"):format(
-					if stats ~= "" then stats .. "  " else "",
-					Format.rate(rate * (if favorite then 1.5 else 1)),
-					slotName,
-					if favorite then "  ·  favorite role" else ""
-				)
-				row.favorite.BackgroundColor3 = if favorite
-					then Theme.colors.gold
-					else Theme.modal.panel
-				row.favorite.TextColor3 = if favorite
-					then Theme.colors.goldText
-					else Theme.modal.subtext
-				row.place:setText("Move")
-				row.remove:setEnabled(true)
-				row.remove:setText("Rest")
-			else
-				resting += 1
-				row.status.Text = ("%s%s when working  ·  Resting"):format(
-					if stats ~= "" then stats .. "  " else "",
-					Format.rate(rate)
-				)
-				row.favorite.BackgroundColor3 = Theme.modal.panel
-				row.favorite.TextColor3 = Theme.modal.subtext
-				row.place:setText("Assign")
-				row.remove:setEnabled(false)
-				row.remove:setText("Rest")
-			end
-			row.place:setEnabled(catalog ~= nil and catalog.spots ~= nil)
-			-- Sell confirmation: Sell turns into "Sell $150" and the middle button becomes an equal-sized Cancel
-			if self._confirmSell == instance.uid then
-				local value = if def then (RARITY_SELL_VALUE[def.rarity] or 0) else 0
-				row.sell:setText(if value > 0 then "Sell " .. Format.money(value) else "Confirm")
-				row.sell:setStyle("gold")
-				row.remove:setText("Cancel")
-				row.remove:setStyle("ghost")
-				row.remove:setEnabled(true)
-				row.confirming = true
-			else
-				row.sell:setText("Sell")
-				row.sell:setStyle("danger")
-				if row.confirming then
-					row.confirming = false
-					row.remove:setText("Rest")
-					row.remove:setStyle("ghost")
-					row.remove:setEnabled(instance.spotId ~= nil)
-				end
-			end
-		end
-		self._roomHint.Text = ("%d placed, %d resting. Placed cats earn, resting cats wait in the back."):format(
-			placed,
-			resting
-		)
-		if self._spotPicker.Visible then
-			self:_renderSpots(state)
-		end
-		-- after the list layout has placed new cards
-		task.defer(function()
-			if self.frame.Parent ~= nil then
-				self:_loadPortraits()
-			end
-		end)
+		self._catRoom:render(state)
 	end
 end
 
@@ -1341,24 +752,9 @@ function CatCollection.destroy(self: any)
 		chip.connection:Disconnect()
 	end
 	self._detailArt:destroy()
-	self._roomScroll:Disconnect()
-	for _, row in self._roomRows do
-		row.place:destroy()
-		row.remove:destroy()
-		row.sell:destroy()
-		row.rename:destroy()
-		row.portrait:destroy()
-	end
-	self._rename:destroy()
-	for _, row in self._spotRows do
-		row.button:destroy()
-	end
-	for _, button in self._buttons do
-		button:destroy()
-	end
+	self._catRoom:destroy()
 	self._bookTab:destroy()
 	self._roomTab:destroy()
-	self._equipBest:destroy()
 	self._panel:destroy()
 end
 

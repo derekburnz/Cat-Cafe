@@ -32,9 +32,10 @@ fi
 
 view() { gh pr view "$PR" --repo "$REPO" --json state,isDraft,baseRefName,headRefName,headRefOid,mergeable,labels; }
 
+# REST calls for the label and comment: `gh pr edit` also reads project cards, which the workflow token cannot.
 drop() {
-	gh pr edit "$PR" --repo "$REPO" --remove-label "$LABEL" >/dev/null || true
-	gh pr comment "$PR" --repo "$REPO" --body "$1
+	gh api -X DELETE "repos/$REPO/issues/$PR/labels/$LABEL" >/dev/null || true
+	gh api "repos/$REPO/issues/$PR/comments" -f body="$1
 
 The \`$LABEL\` label is off; put it back after fixing and the merge goes ahead once CI is green.
 
@@ -66,7 +67,7 @@ read_checks() {
 }
 checks=$(read_checks)
 if [ "$WAIT" = --wait ]; then
-	for _ in $(seq 1 40); do
+	for _ in $(seq 1 28); do # under the job's 6 minute timeout
 		if [ "$(jq 'length' <<<"$checks")" -gt 0 ] &&
 			[ "$(jq '[.[] | select(.status != "completed")] | length' <<<"$checks")" -eq 0 ]; then
 			break
@@ -109,7 +110,7 @@ if [ "$behind" -gt 0 ]; then
 	exit 0
 fi
 
-if gh pr merge "$PR" --repo "$REPO" --merge --match-head-commit "$head"; then
+if gh api -X PUT "repos/$REPO/pulls/$PR/merge" -f merge_method=merge -f sha="$head" >/dev/null; then
 	echo "Merged PR #$PR at $head."
 	gh workflow run check.yml --repo "$REPO" --ref main || true
 	if [ "${AUTO_PUBLISH:-}" = true ]; then
@@ -119,9 +120,11 @@ if gh pr merge "$PR" --repo "$REPO" --merge --match-head-commit "$head"; then
 	exit 0
 fi
 
-# A push that landed while we looked changes the head and makes the merge refuse; that push's CI comes back here.
-if [ "$(view | jq -r .headRefOid)" != "$head" ]; then
-	echo "The head moved while merging; the new head's CI decides."
+# Another run merged it first, or a push landed while we looked (the head moved, so the merge refused and that
+# push's CI comes back here).
+pr=$(view)
+if [ "$(jq -r .state <<<"$pr")" != OPEN ] || [ "$(jq -r .headRefOid <<<"$pr")" != "$head" ]; then
+	echo "PR #$PR was merged elsewhere or its head moved; nothing to do."
 	exit 0
 fi
 drop "Automerge stopped: GitHub refused the merge. A PR that changes .github/workflows has to be merged by hand (the workflow token may not), otherwise see this job's log."

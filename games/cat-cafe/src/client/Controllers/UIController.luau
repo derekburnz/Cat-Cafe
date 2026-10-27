@@ -143,13 +143,15 @@ local function refreshTutorial(s: Types.PlayerState)
 		UI.tutorial.show("Buy your first table in Upgrades (U): more tips from every cat")
 	elseif s.tutorialStep == 4 then
 		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
+		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
 		if (s.upgradeLevels.lure_bowl or 0) < 1 then
-			UI.tutorial.show(
-				"Buy the Bait bowl in Upgrades (U): put food in and a cat comes by in 10 minutes, even while you're away"
-			)
+			UI.tutorial.show("Buy the Bait bowl in Upgrades (U)")
+		elseif s.bait ~= nil then
+			-- baited before the first table on an older save: the server moved new ones to 5 (S48)
+			UI.tutorial.show("A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
 		else
 			UI.tutorial.show(
-				"Open the Bait bowl (F), buy Kibble and put it in. A cat comes by in 10 minutes",
+				"Put Kibble in your bowl on the back step (F)",
 				UIController.ownBaitBowl(),
 				"Bowl"
 			)

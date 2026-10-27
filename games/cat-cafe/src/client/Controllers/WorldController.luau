@@ -441,9 +441,9 @@ local function considerCat(instance: Instance)
 		setCatHidden(instance :: Model, true)
 		return
 	end
-	local hiddenModel = instance:FindFirstAncestorWhichIsA("Model")
+	local hiddenModel = instance:FindFirstAncestorWhichIsA("Model") :: Model?
 	while hiddenModel ~= nil and hiddenCats[hiddenModel] == nil do
-		hiddenModel = hiddenModel:FindFirstAncestorWhichIsA("Model")
+		hiddenModel = hiddenModel:FindFirstAncestorWhichIsA("Model") :: Model?
 	end
 	if hiddenModel == nil then
 		return

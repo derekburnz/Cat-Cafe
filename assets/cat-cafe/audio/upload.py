@@ -55,16 +55,19 @@ PRIORITY = (
     "giftClaim", "indexReward", "catPlaced", "catRest", "uiSlider", "uiGiftReady", "uiBadge", "uiSpinStart", "uiSpinTick", "uiSpinWin",
     "duskBell", "stingDusk", "stingDawn", "catPickUp", "getaway", "announceMythical", "tipPile", "richArrive", "richTip",
     "uiCodeRedeem", "visitorCollector", "uiTrade", "visitorMystery", "giftOpen", "potionDrink",
+    "musicDayA", "musicNightA", "musicDayB",
 )
 
 
 def cue_for(stem: str) -> str:
     """CatCafe_Ui_Click -> uiClick, CatCafe_Amb_CafeDay -> ambCafeDay, CatCafe_Amb_LoopCafeDoor -> loopCafeDoor,
-    CatCafe_Sfx_NetSwing -> netSwing."""
+    CatCafe_Sfx_NetSwing -> netSwing, CatCafe_Music_DayA -> musicDayA (jingles and stings keep their own names)."""
     _, bus, name = stem.split("_", 2)
     name = name.replace("_", "")
     if bus == "Ui":
         return "ui" + name
+    if bus == "Music" and not name.startswith(("Jingle", "Sting")):
+        return "music" + name
     if bus == "Amb":
         return "loop" + name[4:] if name.startswith("Loop") else "amb" + name
     return name[0].lower() + name[1:]

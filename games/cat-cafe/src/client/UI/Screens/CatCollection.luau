@@ -1,5 +1,5 @@
 --!strict
--- Collection screen with two tabs.
+-- The Index screen with two tabs (the Cats screen is its own window since 2026-10-27, Screens/MyCats).
 --   Index: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
 --         (dark silhouettes until found), rarest last; tap one for details. Above the cats, the area's reward
 --         strip (Screens/IndexStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Index
@@ -7,12 +7,9 @@
 --   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its ten pieces and two rewards.
 --   Beside the tabs, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
 --   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals).
---   Cat room: the cats the player owns as an inventory grid under a crew strip of role slots (Screens/CatRoom).
--- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
-local CatRoom = require(script.Parent.CatRoom)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorIndex = require(script.Parent.DecorIndex)
@@ -29,13 +26,6 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {
-	placeCat: (uid: string, spotId: string) -> (),
-	unplaceCat: (uid: string) -> (),
-	sellCat: (uid: string) -> (),
-	lockCat: (uid: string, locked: boolean) -> (),
-	renameCat: (uid: string, name: string) -> (),
-	equipBest: () -> (),
-	unequipAll: () -> (),
 	claimIndexReward: (areaId: string, milestoneId: string) -> (),
 	close: () -> (),
 }
@@ -51,7 +41,7 @@ export type CatCollection = {
 	destroy: (self: CatCollection) -> (),
 }
 
-export type Tab = "Index" | "Decor" | "Room"
+export type Tab = "Index" | "Decor"
 
 local CELL = Vector2.new(112, 134)
 local PORTRAIT = 84
@@ -187,9 +177,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 
 	local panel = Panel.new({
 		name = "Collection",
-		color = Theme.colors.sky,
-		icon = Theme.icons.cats,
-		title = "Cat collection",
+		color = Theme.colors.good,
+		icon = Theme.icons.collection,
+		title = "Index",
 		subtitle = "0 / 0 found",
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
@@ -240,19 +230,6 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	})
 	self._decorTab.instance.Visible = false
 	self._decorBadge, self._decorBadgeCount = badge(self._decorTab.instance, 24)
-	self._roomTab = Button.new({
-		name = "RoomTab",
-		text = "Cat room",
-		style = "ghost",
-		size = UDim2.fromOffset(120, TAB_HEIGHT),
-		textSize = Theme.sizes.textBody,
-		layoutOrder = 3,
-		parent = tabs,
-		sound = "uiTab",
-		onClick = function()
-			self:showTab("Room")
-		end,
-	})
 
 	-- the forever bonuses, right of the tabs; shrinks to fit the room the tabs leave on a narrow screen
 	local perks: Frame = Create("Frame", {
@@ -361,7 +338,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Position = UDim2.fromOffset(DETAIL_HEIGHT, 58),
 		Size = UDim2.new(1, -(DETAIL_HEIGHT + 20), 0, 24),
 		TextSize = Theme.sizes.textSmall,
-		Text = "Each cat earns on its own. A cat on its favorite spot earns 1.5x.",
+		Text = "Each cat earns on its own. A cat in its favourite role earns 1.5x.",
 		Parent = detail,
 	})
 	self._detailPill = pill(
@@ -469,25 +446,6 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	})
 	self._decorIndex = DecorIndex.new(self._decor, { claim = callbacks.claimIndexReward })
 
-	-- Cat room: the inventory grid and the crew strip (Screens/CatRoom)
-	self._room = Create("Frame", {
-		Name = "Room",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, indexTop),
-		Size = UDim2.new(1, 0, 1, -indexTop),
-		Visible = false,
-		Parent = panel.content,
-	})
-	self._catRoom = CatRoom.new(self._room, {
-		placeCat = callbacks.placeCat,
-		unplaceCat = callbacks.unplaceCat,
-		sellCat = callbacks.sellCat,
-		lockCat = callbacks.lockCat,
-		renameCat = callbacks.renameCat,
-		equipBest = callbacks.equipBest,
-		unequipAll = callbacks.unequipAll,
-	})
-
 	return self :: CatCollection
 end
 
@@ -499,11 +457,8 @@ function CatCollection.showTab(self: any, tab: Tab)
 	self._tab = tab
 	self._index.Visible = tab == "Index"
 	self._decor.Visible = tab == "Decor"
-	self._room.Visible = tab == "Room"
 	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
 	self._decorTab:setStyle(if tab == "Decor" then "gold" else "ghost")
-	self._roomTab:setStyle(if tab == "Room" then "gold" else "ghost")
-	self._catRoom:reset()
 	if self._lastState then
 		self._dirty = true
 		self:render(self._lastState)
@@ -762,7 +717,6 @@ end
 function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_buildIndex()
-	self._catRoom:setCatalog(catalog)
 	self._strip:setCatalog(catalog)
 	self._decorIndex:setCatalog(catalog)
 	-- the Decor tab shows once the catalog has crates to fill its pages
@@ -946,7 +900,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		foundCount += 1
 	end
 	self._panel:setTitle(
-		"Cat collection",
+		"Index",
 		("%d / %d found  ·  %s"):format(
 			foundCount,
 			total,
@@ -979,23 +933,13 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	self._decorBadgeCount.Text = tostring(decorWaiting)
 	self:_renderPerks(state)
 
-	-- room tab only when the engineer sends cat instances
-	local hasRoom = state.cats ~= nil
-	self._roomTab.instance.Visible = hasRoom
-	if not hasRoom and self._tab == "Room" then
-		self:showTab("Index")
-		return
-	end
-
 	if self._tab == "Index" then
 		self:_renderIndex(state, found, ready)
 		if self._selected then
 			self:_select(self._selected)
 		end
-	elseif self._tab == "Decor" then
-		self._decorIndex:render(state)
 	else
-		self._catRoom:render(state)
+		self._decorIndex:render(state)
 	end
 end
 
@@ -1013,7 +957,7 @@ function CatCollection._renderPerks(self: any, state: Types.PlayerState)
 			any = any or label ~= nil
 		end
 	end
-	self._perks.Visible = any and self._tab ~= "Room"
+	self._perks.Visible = any
 end
 
 function CatCollection.destroy(self: any)
@@ -1026,12 +970,10 @@ function CatCollection.destroy(self: any)
 		chip.connection:Disconnect()
 	end
 	self._detailArt:destroy()
-	self._catRoom:destroy()
 	self._strip:destroy()
 	self._decorIndex:destroy()
 	self._indexTab:destroy()
 	self._decorTab:destroy()
-	self._roomTab:destroy()
 	self._panel:destroy()
 end
 

@@ -1,0 +1,94 @@
+# Upload the game's new sounds to Roblox and print their ids, so audio no longer waits on Derek's laptop and his
+# SecretStore key. Start it from the Actions tab (upload-audio > Run workflow) or from any thread with the GitHub
+# actions_run_trigger tool on main. It runs assets/cat-cafe/audio/upload.py (the sound-designer's script) on the
+# sounds of the named branch: every .ogg not in uploaded.json yet goes up as an Audio asset owned by Derek's account.
+# Nothing is pushed: the job log and the run summary list each id and show the diff to uploaded.json, Cues.luau and
+# the sources log, and the thread commits that on its branch. Audio counts against Derek's monthly upload allowance,
+# so try dry_run first when unsure what a branch would send. Needs the repo secret ROBLOX_PUBLISH_KEY with the assets
+# Read and Write permissions (docs/setup-guide.md step 17).
+name: upload-audio
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch that holds the new .ogg files (empty: the branch this run starts on)"
+        required: false
+        default: ""
+      only:
+        description: "Only these files, comma separated, names without .ogg (empty: every sound not uploaded yet)"
+        required: false
+        default: ""
+      dry_run:
+        description: "List what would be uploaded and upload nothing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# One upload at a time, so two runs never send the same file twice.
+concurrency:
+  group: upload-audio
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    name: Upload the sounds
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ROBLOX_API_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ROBLOX_CREATOR_USER_ID: "40908216" # Derek, who owns the experience and the earlier sounds
+      AUDIO_BRANCH: ${{ inputs.branch }}
+      ONLY: ${{ inputs.only }}
+      DRY_RUN: ${{ inputs.dry_run && 'yes' || '' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_API_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      # The sounds, cues and records come from the branch; the script itself is always the one on this run's own
+      # branch (main), so only reviewed code ever holds the key. A change to upload.py has to reach main first.
+      - name: Take the sounds from the branch
+        run: |
+          cp assets/cat-cafe/audio/upload.py "$RUNNER_TEMP/upload.py"
+          if [ -n "$AUDIO_BRANCH" ]; then
+            git fetch --no-tags --depth 1 origin "$AUDIO_BRANCH"
+            git checkout --quiet --detach FETCH_HEAD
+          fi
+          cp "$RUNNER_TEMP/upload.py" assets/cat-cafe/audio/upload.py
+          echo "Sounds from ${AUDIO_BRANCH:-$GITHUB_REF_NAME} ($(git rev-parse --short HEAD)), upload.py from $GITHUB_REF_NAME"
+
+      - name: Upload to Roblox
+        run: |
+          set -o pipefail
+          args=()
+          [ -z "$ONLY" ] || args+=(--only "$ONLY")
+          [ -z "$DRY_RUN" ] || args+=(--dry-run)
+          python3 assets/cat-cafe/audio/upload.py "${args[@]}" 2>&1 | tee "$RUNNER_TEMP/upload.log"
+
+      # Runs after a failed upload too: a run that stops at the monthly limit still has ids for the files before it.
+      - name: Show the ids to commit
+        if: ${{ !cancelled() }}
+        run: |
+          changed=(assets/cat-cafe/audio/uploaded.json assets/cat-cafe/audio/README.md games/cat-cafe/src/client/Audio/Cues.luau)
+          echo "== Commit this on ${AUDIO_BRANCH:-$GITHUB_REF_NAME} (git apply), then run stylua on Cues.luau:"
+          git --no-pager diff -- "${changed[@]}"
+          {
+            echo "### Sounds"
+            echo '```text'
+            grep -E '^(uploaded |would upload |upload: )' "$RUNNER_TEMP/upload.log" || echo "(no output)"
+            echo '```'
+            if ! git diff --quiet -- "${changed[@]}"; then
+              echo "### Diff to commit on \`${AUDIO_BRANCH:-$GITHUB_REF_NAME}\`"
+              echo '```diff'
+              git --no-pager diff -- "${changed[@]}"
+              echo '```'
+            fi
+          } >>"$GITHUB_STEP_SUMMARY"

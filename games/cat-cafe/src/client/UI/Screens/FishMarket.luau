@@ -420,10 +420,7 @@ function FishMarket._buildOdds(self: any, body: Frame)
 			cover.Visible = false
 		end,
 	})
-	self._oddsCover = cover
-	cover.Activated:Connect(function()
-		cover.Visible = false
-	end)
+	self._oddsCover = cover -- only Got it closes it: a tap on the card or beside it does nothing (Derek 2026-10-27)
 end
 
 -- One line of the odds card: a rarity dot, the name, a small line under it and the chance on the right.
@@ -690,12 +687,10 @@ function FishMarket._buildReveal(self: any, body: Frame)
 		done = done,
 		use = use,
 	}
-	-- a tap while it plays skips to the end; after that a tap outside the card closes it
+	-- a tap while it plays skips to the end; after that only the card's own buttons close it
 	cover.Activated:Connect(function()
 		if self._revealing then
 			self:_finishReveal()
-		else
-			self:_hideReveal()
 		end
 	end)
 end

@@ -34,7 +34,7 @@ The engineer moved the Alleyway behind the cafes (2026-10-26), matching the conc
 
 Gates, copied from Pet Simulator 99 and Bee Swarm Simulator: an arch with a glowing barrier you can see through, a sign with a lock icon and "Park, needs Cozy Cafe (Tier 2)", and under it your progress ("3 / 5 cats, $900 / $1,500"). The first time a gate opens for you the barrier dissolves with confetti. Walking into an area shows its name as a big title card for two seconds ("THE ALLEYWAY"), the way Pet Simulator and Fisch name zones.
 
-Fast travel (F19, now P0), copied from Grow a Garden's buttons along the top of the screen: three buttons top centre, Cafe, Alley and Areas. Areas opens a small panel of five area cards, locked ones greyed with the tier they need. Travel lands you at the area's entry, not in the middle. All of them are greyed while you carry a cat ("Walk your cat home first"), so carrying and shoves still matter. A 3 second cooldown.
+Fast travel (F19, now P0), copied from Grow a Garden's buttons along the top of the screen: three buttons top centre, Cafe, Alley and Areas. Areas opens a small panel of area cards (as built since #358: only the areas the player's tier has opened, with "More open as you rank up." under them). Travel lands you at the area's entry, not in the middle. All of them are greyed while you carry a cat ("Walk your cat home first"), so carrying and shoves still matter. A 3 second cooldown.
 
 ## 3. Cafes that look like the sketch
 

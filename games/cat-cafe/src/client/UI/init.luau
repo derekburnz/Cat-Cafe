@@ -93,6 +93,7 @@ UI.events = {
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 	-- 2026-10-27 wave 2
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
+	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 }
 
@@ -309,8 +310,8 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
-		-- Cats and Book are two tabs of one screen: a pill switches tabs, or closes the screen on its own tab
-		openCollection = function(tab: "Book" | "Room")
+		-- Cats and Index are two tabs of one screen: a pill switches tabs, or closes the screen on its own tab
+		openCollection = function(tab: "Index" | "Room")
 			local screen = collection
 			if
 				screen
@@ -378,6 +379,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		unequipAll = function()
 			UI.events.unequipAll:Fire()
+		end,
+		claimIndexReward = function(areaId: string, milestoneId: string)
+			UI.events.claimIndexReward:Fire(areaId, milestoneId)
 		end,
 		close = closeModal,
 	})
@@ -778,7 +782,7 @@ function UI.isOpen(): string?
 	return nil
 end
 
--- "Book" or "Room" tab of the Collection screen, then open it.
+-- "Index" or "Room" tab of the Collection screen, then open it.
 function UI.openCatRoom()
 	if collection then
 		collection:showTab("Room")

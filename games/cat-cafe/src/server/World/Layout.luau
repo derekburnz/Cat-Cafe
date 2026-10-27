@@ -11,6 +11,8 @@ local Config = require(ReplicatedStorage.Shared.Config)
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- An axis-aligned rectangle on the ground, world or plot space depending on where it is used.
 export type Rect = { x1: number, z1: number, x2: number, z2: number }
+-- An archway over an entrance (WorldBuilder.buildArch): the alley kit's `asset` when there is one.
+export type Arch = { x: number, z: number, span: number, label: string, asset: string? }
 -- A rescue trap: the prop stands at (x, floor, z) turned by rotY; the stuck cat sits at Layout.stuckPoses[prop].
 -- `trap` is the TrapType (data-model section 9): a "tree" is shaken then caught, every other trap is the bar.
 export type RescuePoint = { prop: string, trap: string, x: number, z: number, rotY: number? }
@@ -33,7 +35,7 @@ export type AreaSpec = {
 	roam: { Rect }?, -- where strays may walk when props line the walls; the floor pieces when nil
 	wallHeight: number?,
 	-- archways a rects area is entered by: the alley kit's asset when it is there, else posts, beam and label
-	arches: { { x: number, z: number, span: number, label: string, asset: string? } }?,
+	arches: { Arch }?,
 	arrival: Point?, -- where fast travel lands; a box area lands just inside its opening
 	spawnPoints: { Point },
 	rescueSpots: { RescuePoint },
@@ -661,6 +663,18 @@ Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- middle of the Square"): a shortcut into the Sewer once it opens, alongside its gate at the east back alley's
 -- south end. Its sign (-Z) faces the street arch.
 Layout.manhole = { area = "sewer", x = 0, y = 0.1, z = (SQ1 + SQ2) / 2 + 4 }
+
+-- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one 8 studs inside each area's
+-- entrance, to the right of the path for a player walking in and turned 20 degrees toward it. In the space of the
+-- area's gate, or of the street arch for the Alleyway, whose +Z both run into the area.
+Layout.indexBoards = {
+	alley = { x = -9, y = 0, z = 8, rotY = -20 },
+	park = { x = -7, y = 0, z = 8, rotY = -20 },
+	neighbourhood = { x = -7, y = 0, z = 8, rotY = -20 },
+	woods = { x = -10, y = 0, z = 8, rotY = -20 },
+	sewer = { x = -10, y = 0, z = 8, rotY = -20 },
+} :: { [string]: Point }
+Layout.streetArchAsset = "CatCafe_Alley_ArchStreet" -- the Alleyway's board stands off this arch
 
 -- Every area by id, in the order Catalog.areas lists them.
 Layout.areas = {

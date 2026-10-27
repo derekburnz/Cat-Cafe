@@ -38,10 +38,16 @@ jobs:
         id: main
         run: bash .github/scripts/merge-main.sh "${{ inputs.main }}"
 
+      # Both the installer and `rokit install` look releases up through the GitHub API. Unauthenticated, that is 60
+      # calls an hour per runner IP, which a burst of runs used up on 2026-10-27 (HTTP 403 in this step); with the
+      # job's own token the limit is per repo and far higher. GITHUB_PAT is the name the installer reads.
       - name: Install Rokit
+        env:
+          GITHUB_PAT: ${{ github.token }}
         run: |
           curl -fsSL https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
           echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+          "$HOME/.rokit/bin/rokit" authenticate github --token "$GITHUB_PAT" --skip-verify
 
       - name: Install the pinned toolchain (rokit.toml)
         run: rokit install --no-trust-check

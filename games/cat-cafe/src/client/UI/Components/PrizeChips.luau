@@ -164,6 +164,8 @@ function PrizeChips._partLook(
 			Theme.icons.crate,
 			if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare",
 			amount
+	elseif kind == "potion" then
+		return nil, Theme.icons.potion, "Epic", amount
 	elseif kind == "tag" then
 		return nil, Theme.icons.tag, "Mythical", part.id or ""
 	elseif kind == "decor" then

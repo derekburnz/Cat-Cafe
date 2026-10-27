@@ -70,10 +70,13 @@ export type SpinState = {
 }
 
 -- One Tip Jar gift (F47): unlocks `minutes` into the session; coins pay max(minCoins, dayRate * seconds).
+-- v0.10 (F68, data-model 11b): rows carry `prize` in the Index prize shape instead, so one step pays several things;
+-- the old fields are read until the engineer's catalog moves over (Components/TipJarLogic.prize).
 export type TipJarRow = {
 	step: number,
 	minutes: number,
-	kind: string, -- "coins" or "lure"
+	prize: IndexPrize?, -- F68
+	kind: string?, -- before F68: "coins" or "lure"
 	seconds: number?,
 	minCoins: number?,
 	lureId: string?,
@@ -104,6 +107,7 @@ export type IndexPrize = {
 	bonus: number?, -- tips forever, as a fraction (0.02)
 	tag: string?, -- a name tag ("Cat Master")
 	decorId: string?,
+	potions: { [string]: number }?, -- v0.10: potion id -> count (Tip Jar step 12, codes, the Daily Treat)
 }
 
 -- TipJarState from the server (F47): sessionStartedAt in Workspace:GetServerTimeNow() time, claimed steps.

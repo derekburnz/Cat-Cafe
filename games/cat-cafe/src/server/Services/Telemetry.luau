@@ -57,6 +57,7 @@ export type CustomEvent =
 	| "travel"
 	| "tutorial_step"
 	| "ui_opened"
+	| "tip_jar"
 	| "index_reward"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller

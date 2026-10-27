@@ -372,6 +372,9 @@ local function wireIntents()
 			applySettings()
 		end
 	end)
+	UI.events.claimTipJar:Connect(function(step: number)
+		Net.fire("ClaimTipJar", step)
+	end)
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
 	end)
@@ -597,6 +600,10 @@ local function wireServerEvents()
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
 	end)
+	-- The Tip Jar's session start and claimed steps (F47), on profile load and after every claim.
+	Net.on("TipJarState", function(jar: Types.TipJarState)
+		UI.tipJar.set(jar :: any) -- the UI reads claimed as a map; the dense array indexes the same way
+	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
 		UI.dealer.setStock(stock)
 	end)
@@ -749,6 +756,7 @@ function UIController.start()
 		tiers = Catalog.tiers,
 		areas = Catalog.areas,
 		rarities = Catalog.rarities,
+		tipJar = Catalog.tipJar,
 		indexMilestones = Catalog.indexMilestones,
 		indexPrizes = Catalog.indexPrizes,
 	}

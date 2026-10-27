@@ -1011,4 +1011,31 @@ return function()
 
 		it("the trap lists per area (F27)")
 	end)
+
+	describe("player-facing words (QA)", function()
+		-- Derek 2026-10-27 13:18: players see Gold, never Shiny. Any string the Catalog holds can reach a card, a
+		-- toast or the book, so none may say shiny. Asset names (CatCafe_...) are never shown and are left out.
+		it("no name, description or label in the Catalog says shiny", function()
+			local found: { string } = {}
+			local seen: { [any]: boolean } = {}
+			local function walk(value: any, path: string)
+				if type(value) == "string" then
+					local text = value :: string
+					local said = string.find(string.lower(text), "shiny", 1, true) ~= nil
+					if said and string.sub(text, 1, 8) ~= "CatCafe_" then
+						table.insert(found, path .. " = " .. text)
+					end
+				elseif type(value) == "table" and not seen[value] then
+					seen[value] = true
+					for key, child in value do
+						walk(key, path .. " (key)")
+						walk(child, path .. "." .. tostring(key))
+					end
+				end
+			end
+			walk(Catalog, "Catalog")
+			expect(found).to.deepEqual({})
+			expect((Catalog :: any).shinyModelName).never.to.be.ok()
+		end)
+	end)
 end

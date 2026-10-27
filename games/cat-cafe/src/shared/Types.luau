@@ -133,6 +133,26 @@ export type LureDef = {
 	asset: string, -- food model shown in the bowl while the lure is active
 }
 
+-- Data-model section 11b (F47): one Tip Jar gift, unlocked `minutes` into a session. A "coins" step pays
+-- max(minCoins, floor(day rate x seconds)) at claim time; a "lure" step adds `count` of the food `lureId`.
+export type TipJarStep = {
+	step: number,
+	minutes: number,
+	kind: "coins" | "lure",
+	seconds: number?,
+	minCoins: number?,
+	lureId: string?,
+	count: number?,
+}
+
+-- TipJarState (server to client): when this session's jar started (workspace:GetServerTimeNow(), the clock the
+-- client counts down against) and one claimed flag per step in order. A dense array, because a sparse table of
+-- step numbers would lose entries past its first gap on the way through a remote.
+export type TipJarState = {
+	sessionStartedAt: number,
+	claimed: { boolean },
+}
+
 export type AreaDef = {
 	id: string,
 	name: string,
@@ -213,6 +233,7 @@ export type Stats = {
 	luresUsed: number,
 	playtimeSeconds: number,
 	sessions: number,
+	tipJarClaims: number, -- F47
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).

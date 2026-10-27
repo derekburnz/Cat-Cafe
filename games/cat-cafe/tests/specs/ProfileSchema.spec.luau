@@ -725,9 +725,17 @@ return function()
 			local raw: any = ProfileSchema.template(500)
 			raw.version = 4
 			raw.indexRewards = nil
+			raw.stats.tipJarClaims = nil
 			local profile = ProfileSchema.migrate(raw, 900)
 			expect(profile.version).to.equal(5)
 			expect(profile.indexRewards :: any).to.deepEqual({})
+			expect(profile.stats.tipJarClaims).to.equal(0)
+		end)
+
+		it("keeps the Tip Jar claim count (F47)", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.stats.tipJarClaims = 7
+			expect(ProfileSchema.migrate(raw, 900).stats.tipJarClaims).to.equal(7)
 		end)
 
 		it("keeps claimed milestones of known areas and drops anything else", function()

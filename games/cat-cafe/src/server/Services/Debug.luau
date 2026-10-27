@@ -12,6 +12,7 @@
 --   D:Invoke("shove", "Player1", "Player2", "loose")  -- a real shove with every check, the roll forced
 --   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
+--   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
 
 local Players = game:GetService("Players")
@@ -35,6 +36,7 @@ local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
 local Telemetry = require(script.Parent.Telemetry)
+local TipJarService = require(script.Parent.TipJarService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -129,6 +131,11 @@ function Debug.giveLure(player: (Player | number | string)?, lureId: string, cou
 	assert(Catalog.getLure(lureId) ~= nil, "unknown lure " .. lureId)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + math.max(1, math.floor(count or 1))
 	CafeService.sync(p)
+end
+
+-- Ages this session's Tip Jar by `minutes` so its steps unlock now (F47). Returns the session minutes played.
+function Debug.tipJar(player: (Player | number | string)?, minutes: number): number
+	return TipJarService.debugAge(resolve(player), minutes)
 end
 
 -- Brings the cat at the bait bowl now instead of after LureWaitSeconds (F28). Errors when the bowl is empty.

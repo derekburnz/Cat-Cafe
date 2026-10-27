@@ -1,8 +1,8 @@
 --!strict
 -- Cafe name signs (world-and-feel section 3, copied from the Steal a Brainrot base signs): over every cafe door the
 -- owner's avatar headshot, "Derek's Cafe" and a line with the tier name and the cafe's tips per second
--- ("Cozy Cafe  ·  +$42/s"), or "Closed till morning" at night. An empty plot reads FOR RENT. Your own cafe gets a
--- gold edge so you can spot it down the street.
+-- ("Cozy Cafe  ·  +$42/s"), with a moon at night, when cafes keep earning (common-features note 1). An empty plot
+-- reads FOR RENT. Your own cafe gets a gold edge so you can spot it down the street.
 --
 -- Plots are the server's models tagged "Plot" with OwnerUserId, OwnerName, TierName and Rate attributes. The sign
 -- board is the shell's SignBoard part, else the code-built Sign part. This draws a local SurfaceGui on its street
@@ -20,6 +20,8 @@ local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+
 export type CafeSigns = {
 	destroy: (self: CafeSigns) -> (),
 }
@@ -29,6 +31,9 @@ local BOARD_NAMES = { "SignBoard", "Sign" }
 local PIXELS_PER_STUD = 50
 local MAX_DISTANCE = 150
 local WATCHED = { "OwnerUserId", "OwnerName", "TierName", "Rate" }
+-- data-model NightIncomeMultiplier (0.6): the night share of the day rate once F31 is built, 1 until then
+local NIGHT_TIPS: number = (Config :: any).NightIncomeMultiplier or 1
+local MOON = "🌙"
 
 type Sign = {
 	plot: Instance,
@@ -153,6 +158,7 @@ function CafeSigns._attach(self: any, plot: Instance)
 		ClipsDescendants = true,
 		ResetOnSpawn = false,
 		Enabled = false,
+		ZOffset = 1, -- in front of the server's SignGui if it shows for a moment after a stream-in
 		Parent = self._parent,
 	})
 	local card: Frame = Create("Frame", {
@@ -220,6 +226,11 @@ function CafeSigns._attach(self: any, plot: Instance)
 		plot.DescendantAdded:Connect(function(descendant: Instance)
 			if table.find(BOARD_NAMES, descendant.Name) and descendant:IsA("BasePart") then
 				hang(sign)
+			elseif descendant.Name == "SignGui" and descendant:IsA("SurfaceGui") and sign.board then
+				-- a board's children can replicate after the board itself (reviewer N66)
+				local serverGui = descendant :: SurfaceGui
+				sign.serverGui = serverGui
+				serverGui.Enabled = false
 			end
 		end)
 	)
@@ -268,15 +279,12 @@ function CafeSigns._render(self: any, sign: Sign)
 	if type(tierName) == "string" and tierName ~= "" then
 		table.insert(parts, tierName)
 	end
-	if self._night then
-		table.insert(parts, "Closed till morning")
-		sign.info.TextColor3 = Theme.colors.cream
-	else
-		if type(rate) == "number" and rate > 0 then
-			table.insert(parts, Format.rate(rate))
-		end
-		sign.info.TextColor3 = Theme.hud.income
+	-- cafes keep earning at night (reviewer S41), so the rate stays, behind a moon
+	if type(rate) == "number" and rate > 0 then
+		local shown = if self._night then rate * NIGHT_TIPS else rate
+		table.insert(parts, (if self._night then MOON .. " " else "") .. Format.rate(shown))
 	end
+	sign.info.TextColor3 = if self._night then Theme.colors.sky else Theme.hud.income
 	sign.info.Text = table.concat(parts, "  ·  ")
 
 	local mine = Players.LocalPlayer ~= nil and Players.LocalPlayer.UserId == userId

@@ -1,4 +1,4 @@
-"""Upload Purr Pot's audio files to Roblox and write their ids into the game.
+"""Upload Cat Cafe's audio files to Roblox and write their ids into the game.
 
 Run from the repo root on your own PC (never in a shared or cloud machine with your key):
 
@@ -90,7 +90,7 @@ def upload(path: Path, key: str, creator: dict) -> tuple[str, str]:
     meta = {
         "assetType": "Audio",
         "displayName": path.stem[:50],
-        "description": "Purr Pot sound effect or ambience, original (made for the game).",
+        "description": "Cat Cafe sound effect or ambience, original (made for the game).",
         "creationContext": {"creator": creator},
     }
     boundary = uuid.uuid4().hex

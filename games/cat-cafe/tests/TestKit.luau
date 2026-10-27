@@ -1,6 +1,6 @@
 --!strict
 --[[
-	TestKit: a small test framework for Purr Pot that runs both inside Roblox Studio
+	TestKit: a small test framework for Cat Cafe that runs both inside Roblox Studio
 	and in the cloud (plain Luau VM, no Roblox APIs needed).
 
 	The API is a subset of TestEZ (Roblox's test framework), so specs written here

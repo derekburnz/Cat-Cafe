@@ -13,7 +13,7 @@
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename
 	  Backspace flood   ] run everything
-	Or from a client-context command bar: _G.PurrPotAbuse.run("fakeStray"), _G.PurrPotAbuse.runAll().
+	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
 	Every line starts with [Abuse]. RESULT lines say PASS, FAIL, SKIP or CHECK. After a run, read the SERVER
 	output too: any "[Net] <remote> handler failed" line means the server errored on bad input, a major ticket
@@ -307,7 +307,7 @@ type Verdict = "PASS" | "FAIL" | "SKIP" | "CHECK"
 type Case = { name: string, key: Enum.KeyCode, title: string, run: () -> (Verdict, string) }
 
 -- The Debug hooks, from the command bar in Server view: never a require there, which gets unstarted copies (PR #50).
-local DEBUG = "game.ServerStorage.PurrPotDebug:Invoke"
+local DEBUG = "game.ServerStorage.CatCafeDebug:Invoke"
 
 -- From design v0.2 the alley is empty by day apart from the tutorial Common, so a run wants night first.
 local NO_STRAY = string.format(
@@ -2276,9 +2276,9 @@ local names = {}
 for _, entry in cases do
 	table.insert(names, entry.name)
 end
-_G.PurrPotAbuse = { run = run, runAll = runAll, cases = names }
+_G.CatCafeAbuse = { run = run, runAll = runAll, cases = names }
 
 Remotes.event("RequestSync"):FireServer()
 log(
-	"loaded (Studio only). Press ` to arm, or use _G.PurrPotAbuse.run(name) from a client command bar."
+	"loaded (Studio only). Press ` to arm, or use _G.CatCafeAbuse.run(name) from a client command bar."
 )

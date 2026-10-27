@@ -1,5 +1,5 @@
 --!strict
--- Purr Pot client audio (sound-designer). Builds the four SoundGroup channels, plays cues from Cues.luau, runs the
+-- Cat Cafe client audio (sound-designer). Builds the four SoundGroup channels, plays cues from Cues.luau, runs the
 -- day and night music and the zone ambience, and turns moments into sounds. Client only: the server never plays a
 -- sound. Asset ids live only in Cues.luau; a cue with no ids yet, or a file that fails to load, stays silent.
 -- Rules: .claude/skills/audio-pipeline/SKILL.md section 7. How to wire it in: README.md next to this file.

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Runs the Purr Pot TestKit specs without Roblox Studio.
+// Runs the Cat Cafe TestKit specs without Roblox Studio.
 //
 //   node run-tests.mjs [--project ../../tests.project.json] [--filter Economy] [--verbose] [--json out.json] [--shared]
 //
@@ -123,7 +123,7 @@ async function runInFreshState(only, print) {
 }
 
 const probe = await Lua.create({ sandbox: false, libraries: 'all' });
-console.log(`Purr Pot cloud tests (Luau ${probe.version}) using ${path.relative(gameRoot, projectFile)}`);
+console.log(`Cat Cafe cloud tests (Luau ${probe.version}) using ${path.relative(gameRoot, projectFile)}`);
 
 let total;
 try {

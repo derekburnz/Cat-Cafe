@@ -3,7 +3,7 @@
 -- From the command bar (Server view) or Studio MCP execute_luau while playing, go through the bridge that
 -- Main.server.luau sets up, never require this module directly: a direct require gets a fresh copy whose
 -- services never started ("profile not loaded", a clock nobody runs).
---   local D = game.ServerStorage.PurrPotDebug
+--   local D = game.ServerStorage.CatCafeDebug
 --   D:Invoke("setCoins", nil, 5000)   -- nil means the first player in the server
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
@@ -165,7 +165,7 @@ end
 
 -- Marks the in-memory profile as written by a newer version, so it saves that way on leave and the next join hits
 -- the newer-save guard (kicked, data untouched). The dev profile then stays unloadable: clear it from the command
--- bar with game:GetService("DataStoreService"):GetDataStore("PurrPotProfiles_dev"):RemoveAsync("p_" .. userId).
+-- bar with game:GetService("DataStoreService"):GetDataStore("CatCafeProfiles_dev"):RemoveAsync("p_" .. userId).
 function Debug.setSaveVersion(player: (Player | number | string)?, version: number)
 	local p = resolve(player)
 	local profile = profileOf(p)

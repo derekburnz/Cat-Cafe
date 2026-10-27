@@ -1,9 +1,9 @@
 ---
 name: animation-vfx
-description: How Purr Pot cats, customers, props and moments move and sparkle: picking procedural motion, a Motor6D rig with the Animation Editor or a Blender skinned rig, AnimationController and Animator playback, publishing animations and who must own them, client-side tweens, ParticleEmitters, Beams, Highlights and night glow in the Cozy Cream style, and the low-end and mobile budgets. Use for any animation, tween, particle, glow or "make it feel good" task.
+description: How Cat Cafe cats, customers, props and moments move and sparkle: picking procedural motion, a Motor6D rig with the Animation Editor or a Blender skinned rig, AnimationController and Animator playback, publishing animations and who must own them, client-side tweens, ParticleEmitters, Beams, Highlights and night glow in the Cozy Cream style, and the low-end and mobile budgets. Use for any animation, tween, particle, glow or "make it feel good" task.
 ---
 
-# Animation and VFX for Purr Pot
+# Animation and VFX for Cat Cafe
 
 Everything here is cosmetic. It runs on each player's device, never decides gameplay, and must look the same on a cheap phone as on a PC, only with fewer particles. Read with `asset-pipeline` (pivots, naming, palette) and `docs/art/style-guide.md` (colors, lighting table, poses). Third-party references: `roblox-characters-animation` (Animator, tracks, priorities, tweens), `roblox-dev-skill/references/performance-optimization.md` (MicroProfiler, shadows), `roblox-mobile-playtest` (phone pass), `blender-to-roblox/references/export-rules.md` (rig export rules).
 

@@ -1,5 +1,5 @@
 --!strict
--- Purr Pot server bootstrap. Order matters: remotes and the world exist before any player loads.
+-- Cat Cafe server bootstrap. Order matters: remotes and the world exist before any player loads.
 
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
@@ -43,12 +43,12 @@ DataService.start()
 -- Studio only: the command bar and Studio MCP's execute_luau get a fresh copy of any module they require, with
 -- its own empty state and unstarted services, so the Debug hooks are reached through this bridge instead. It
 -- runs them on the live services in this script's thread:
---   game.ServerStorage.PurrPotDebug:Invoke("setPhase", "night")
+--   game.ServerStorage.CatCafeDebug:Invoke("setPhase", "night")
 -- A BindableFunction in ServerStorage is invisible to clients.
 if RunService:IsStudio() then
 	local Debug = require(script.Parent.Services.Debug) :: any
 	local bridge = Instance.new("BindableFunction")
-	bridge.Name = "PurrPotDebug"
+	bridge.Name = "CatCafeDebug"
 	bridge.OnInvoke = function(name: unknown, ...: any): ...any
 		local hook: any = if type(name) == "string" then Debug[name] else nil
 		if type(hook) ~= "function" then
@@ -61,7 +61,7 @@ end
 
 print(
 	string.format(
-		"[PurrPot] server ready in %.2fs: %d plots, %d placeholder models",
+		"[CatCafe] server ready in %.2fs: %d plots, %d placeholder models",
 		os.clock() - started,
 		#world.plots,
 		placeholders

@@ -390,7 +390,7 @@ def build_mural(mat):
         a = math.radians(22.5 + 45 * k)
         sun.box((10.4 + 2.0 * math.cos(a), 10.4 + 2.0 * math.sin(a), -1.2), (0.7, 0.2, 0.06), "sparkle",
                 rot=rot_z(math.degrees(a)))
-    label(b, "PURR POT", -1.5, 9.7, -1.17, 0.48, 0.05, "offwhite", -1)
+    label(b, "CAT CAFE", -1.5, 9.7, -1.17, 0.48, 0.05, "offwhite", -1)
     px = 0.55
     for k, (_, colours, override) in enumerate(MURAL_CATS):
         rows = [override.get(r, row) for r, row in enumerate(FACE)]

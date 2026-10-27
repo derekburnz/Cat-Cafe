@@ -1,4 +1,4 @@
-# Purr Pot sound list
+# Cat Cafe sound list
 
 Draft v0.4, 2026-10-27 (v0.1 and v0.2 on 2026-10-26, v0.3 for design v0.4, v0.4 for design v0.5). Owner: sound-designer. Built from gdd.md v0.5, data-model.md v0.5 (sections 2, 8 to 13, 15 and 17), features.md v0.5 (sections 2b and 2c), world-and-feel.md and style guide section 1. Status: 44 files synthesized and gated: 37 effects and jingles (every UI sound in 5.8, the whole net catch with the hiss, the v0.5 sprint away and the Purrfect chime, the shove and its held-tight squeeze, coins, purchase, the door bell, the stray flee, both purrs, the gate, the shutters and sign, the shout-out chime, the cat found and rank up jingles; `assets/cat-cafe/audio/synth/synth.py`), 6 ambience beds (cafe, Alleyway and Park, day and night; the night cafe rebuilt as the closed cafe for v0.5) and the cafe door loop (`synth/ambience.py`). The code that plays them is in `games/cat-cafe/src/client/Audio/`; the engineer wired start, settings, carrying and zones (PR #66) and the moments (`src/client/Moments.luau`, PR #91). 31 files are on Roblox (uploaded by Derek on 2026-10-26 with `assets/cat-cafe/audio/upload.py`; ids in `Cues.luau` and the sources log); 13 wait for the next run: the 9 UI sounds, the sprint, the shove, the held-tight squeeze and the rebuilt night cafe. Waiting for Derek's ear; music is still a plan. Every row is a cue: one named sound the game plays, with the moment that fires it. How to source, prepare, upload and wire them is in `.claude/skills/audio-pipeline/SKILL.md`.
 
@@ -10,7 +10,7 @@ What v0.4 changed here (world-and-feel.md): the first Miss ends a catch, so a Mi
 
 What v0.5 changed here (Gavin's round 2, features.md 2c): a Miss still hisses, then the cat sprints 12 to 32 studs away and anyone can chase it and try again, so the paw pop is retired and a paw patter runs off with the cat. Bump becomes Shove: any player can shove another inside a catching area, so every shove gets a playful whoosh and boop, and a shoved carrier still drops the cat (or holds on) with its own sound. The cafe closes at night: the night bed inside is cats asleep, not customers, and the door chatter stops at nightfall and on For Rent shops.
 
-## 1. How Purr Pot should sound
+## 1. How Cat Cafe should sound
 
 A quiet afternoon cafe, then a small friendly adventure after dark. By day: soft acoustic music, cups and murmur, the occasional meow from a station. At night: the music turns curious and tiptoes, the alley hums and drips, a street lamp buzzes, strays chirp from behind the bins and a mysterious cart jingles on the street, while the cafe keeps a few night owls. Every effect is soft and rounded, like the blocky toy shapes: pops, tinks, chimes and patters, never buzzers, crashes or anything that startles a young player. A missed circle says "aww, try again", not "wrong". The cats are the stars in sound too: short, cute, readable meows.
 

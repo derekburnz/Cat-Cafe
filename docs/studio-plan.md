@@ -1,4 +1,4 @@
-# Studio plan: agents, skills and connectors per process (Purr Pot)
+# Studio plan: agents, skills and connectors per process (Cat Cafe)
 
 Date: 2026-10-25. Owner: lead. Companion to docs/plan.md (strategy) and CLAUDE.md (rules). This file answers "who does what, with which tools, and where does the output go".
 
@@ -88,7 +88,7 @@ Cloud threads cannot reach Studio or Blender. Anything that needs them is writte
 ## 7. Skills to add later (not yet needed)
 - `check-gate`: a `/check` command that runs check.ps1 and summarises failures (the script already exists).
 - ~~`studio-mcp-playbook`~~: covered since 2026-10-26 by `roblox-dev-skill` (SKILL.md tool table, `references/mcp-integration.md`, `references/agent-safety.md`).
-- `release-checklist`: age questionnaire, store page, maturity label, analytics live, dev vs live DataStore names, Group publishing. The generic half is now `roblox-release-operations` plus `roblox-policy-compliance`; only the Purr Pot specifics remain to write.
+- `release-checklist`: age questionnaire, store page, maturity label, analytics live, dev vs live DataStore names, Group publishing. The generic half is now `roblox-release-operations` plus `roblox-policy-compliance`; only the Cat Cafe specifics remain to write.
 - `analytics-events`: AnalyticsService wrapper and event naming once growth's plan is agreed.
 - `cat-breeds`: content pipeline for adding a breed (catalog entry, model, icon, odds row).
 

@@ -1,4 +1,4 @@
-# Purr Pot CI: the same done gate agents run locally (rule 6 in CLAUDE.md), plus the Studio-free unit tests.
+# Cat Cafe CI: the same done gate agents run locally (rule 6 in CLAUDE.md), plus the Studio-free unit tests.
 name: check
 
 on:

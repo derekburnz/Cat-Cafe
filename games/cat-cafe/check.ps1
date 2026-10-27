@@ -1,4 +1,4 @@
-# Done gate for Purr Pot. Run from games/cat-cafe in PowerShell: ./check.ps1
+# Done gate for Cat Cafe. Run from games/cat-cafe in PowerShell: ./check.ps1
 # Steps: Rojo sourcemap -> luau-lsp type check -> Selene lint -> StyLua format check.
 # Exit code is non-zero if any step fails, so agents can tell pass from fail.
 $ErrorActionPreference = "Stop"

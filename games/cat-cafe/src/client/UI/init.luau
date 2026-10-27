@@ -91,7 +91,7 @@ UI.events = {
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 	-- 2026-10-27 wave 2
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
-	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting; apply music and sfx to Audio at once
+	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting (Audio follows UI.settings.changed)
 }
 
 local state: Types.PlayerState = {
@@ -480,6 +480,7 @@ function UI.init(config: Types.InitConfig)
 			if key == "markers" and locationMarkers then
 				locationMarkers:setEnabled(value)
 			end
+			UI.settings.changed:Fire(key, value)
 		end,
 		close = closeModal,
 	})
@@ -909,6 +910,19 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Bait bowl (F28, data-model section 8)
 ----------------------------------------------------------------------------------------------------
+
+-- Settings as the switches show them: a tap at once, then the server's saved value, and back to it if the server
+-- drops the tap. Apply music and sfx to Audio from `changed` rather than from state.settings, so a sync sent
+-- before the server saw the tap cannot flip the music back during the hold (review N111).
+UI.settings = {}
+UI.settings.changed = Signal.new() -- (key, on)   whenever a key's shown value moves; read value(key) once after UI.init
+
+function UI.settings.value(key: string): boolean
+	if settingsScreen then
+		return settingsScreen:value(key)
+	end
+	return true
+end
 
 -- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and
 -- the bait card offers Tame or Let go (events.resolveBait). The HUD's bowl chip shows once the Bait bowl upgrade

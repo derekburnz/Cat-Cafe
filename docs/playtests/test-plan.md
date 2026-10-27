@@ -348,8 +348,8 @@ than 8 cats move on the client at once (the low budget). Record, do not ticket, 
 
 ### 4.6 Effects (v0.4, effects list "Effects v1", world-and-feel 7)
 
-Precondition: `Main.client.luau` calls `Effects.start()` (engineer, after #77; not on main at 4f21b6f). Until it
-does, mark every row skipped with that reason. Run on PC, then repeat E1, E2 and E6 on the phone emulator. Watch
+Precondition: `Main.client.luau` calls `Effects.start()` (on main since engineer PR #85). On an older build mark
+every row skipped with that reason. Run on PC, then repeat E1, E2 and E6 on the phone emulator. Watch
 the client output for anything from `Effects` through the whole section (E8). Every effect lives on this client
 only: client parts go in `workspace.ClientEffects` and burst emitters on `Burst_*` attachments under
 `workspace.Terrain`; neither exists on the server (server `execute_luau`: both absent).

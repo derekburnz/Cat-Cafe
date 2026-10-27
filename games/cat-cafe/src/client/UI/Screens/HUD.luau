@@ -623,7 +623,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = carry,
 	})
 
-	-- Tutorial strip (bottom centre, above the carry banner when both show)
+	-- Tutorial strip (bottom centre, above the carry banner when both show). It grows to 520 px wide, then wraps
+	-- onto a second line (reviewer N94: the step hints run to about 100 characters), growing upwards from the
+	-- bottom anchor so the carry banner stacking is unchanged.
 	self._tutorial = label({
 		Name = "Tutorial",
 		BackgroundColor3 = Theme.colors.gold,
@@ -631,22 +633,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -MARGIN),
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 40),
+		AutomaticSize = Enum.AutomaticSize.XY,
+		Size = UDim2.fromOffset(0, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 1,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
 		Visible = false,
 		Parent = root,
 	})
-	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = self._tutorial })
+	Outline.text(self._tutorial) -- label() skips the outline on wrapped text
+	Create("UICorner", { CornerRadius = UDim.new(0, 20), Parent = self._tutorial })
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 18),
+		PaddingRight = UDim.new(0, 18),
+		PaddingTop = UDim.new(0, 9),
+		PaddingBottom = UDim.new(0, 9),
+		Parent = self._tutorial,
+	})
+	-- one line is 40 px tall; two lines stop at 64, and a longer hint truncates there
 	Create(
-		"UIPadding",
-		{ PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18), Parent = self._tutorial }
+		"UISizeConstraint",
+		{ MinSize = Vector2.new(0, 40), MaxSize = Vector2.new(520, 64), Parent = self._tutorial }
 	)
-	Create("UISizeConstraint", { MaxSize = Vector2.new(520, 40), Parent = self._tutorial })
 
 	if parent then
 		screenGui.Parent = parent

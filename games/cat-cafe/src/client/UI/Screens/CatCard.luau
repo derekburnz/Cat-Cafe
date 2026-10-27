@@ -359,7 +359,7 @@ function CatCard._catAt(self: any, ray: Ray): Model?
 end
 
 -- The nearest of the player's own cats within GAMEPAD_STUDS of their character.
-function CatCard._nearestOwn(self: any): Model?
+function CatCard._nearestOwn(_self: any): Model?
 	local player = Players.LocalPlayer
 	local character = player.Character
 	local root = if character

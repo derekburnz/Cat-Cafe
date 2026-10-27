@@ -48,7 +48,7 @@ local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Ga
 local TEXT_LEFT = ICON + 28
 local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X * 2 + 32)
 -- data-model LureWaitSeconds: 600 in the design, shorter in the dev Config
-local WAIT_SECONDS: number = (Config :: any).LureWaitSeconds or 600
+local WAIT_SECONDS: number = Config.LureWaitSeconds
 
 local BaitBowl = {}
 BaitBowl.__index = BaitBowl

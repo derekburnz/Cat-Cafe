@@ -182,10 +182,16 @@ local timing = {
 -- Each scenario: the characters and their start, the press time and, for a hit, who is hit.
 local PRESS = 0.5
 local scenarios = {
-	miss = { seconds = 3.2, camera = "side", people = { { name = "Tackler", z = 0, face = 0, shirt = "red" } } },
+	miss = {
+		seconds = 3.2,
+		camera = "profile",
+		box = { { -1, 0, -15 }, { 1, 5, 2 } },
+		people = { { name = "Tackler", z = 0, face = 0, shirt = "red" } },
+	},
 	hit = {
 		seconds = 2.4,
-		camera = "side",
+		camera = "profile",
+		box = { { -1, 0, -21 }, { 1, 5, 2 } },
 		people = {
 			{ name = "Tackler", z = 0, face = 0, shirt = "red" },
 			{ name = "Target", z = -9, face = 180, shirt = "blue", skin = "tan" },
@@ -193,7 +199,8 @@ local scenarios = {
 	},
 	behind = {
 		seconds = 2.4,
-		camera = "side",
+		camera = "profile",
+		box = { { -1, 0, -21 }, { 1, 5, 2 } },
 		people = {
 			{ name = "Tackler", z = 0, face = 0, shirt = "red" },
 			{ name = "Target", z = -9, face = 0, shirt = "blue", skin = "tan" },
@@ -290,7 +297,7 @@ fs.writeFile(
 		parts = info,
 		frames = frames,
 		-- frame the whole run, not just the first frame, and show the floor's squares
-		box = { { -2, 0, -24 }, { 2, 5, 2 } },
+		box = scenario.box,
 		checker = true,
 	})
 )

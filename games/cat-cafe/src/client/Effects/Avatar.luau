@@ -175,12 +175,13 @@ function Avatar.landing(seconds: number): Pose
 end
 
 -- A miss, `alpha` 0 to 1 of the stand-up time: it slides on its belly with a wobble that dies away, pushes up onto
--- its hands and knees and stands.
+-- its hands and knees, gets its feet under it and stands.
 function Avatar.missed(alpha: number): Pose
 	local pose = through({
 		{ at = 0, pose = key("belly") },
 		{ at = 0.5, pose = key("belly") },
-		{ at = 0.72, pose = key("allFours") },
+		{ at = 0.7, pose = key("allFours") },
+		{ at = 0.86, pose = key("crouch") },
 		{ at = 1, pose = STAND },
 	}, alpha)
 	local s = Presets.tacklePose.slide
@@ -214,7 +215,8 @@ function Avatar.tackled(alpha: number, forward: boolean, side: number): Pose
 			{ at = 0.1, pose = key("recoilForward") },
 			{ at = 0.3, pose = key("belly") },
 			{ at = 0.55, pose = key("belly") },
-			{ at = 0.8, pose = key("allFours") },
+			{ at = 0.75, pose = key("allFours") },
+			{ at = 0.88, pose = key("crouch") },
 			{ at = 1, pose = STAND },
 		}, alpha)
 		else through({

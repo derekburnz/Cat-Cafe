@@ -103,7 +103,7 @@ Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex val
 | 54 | sparkle | #FFF4B0 | Legendary sparkles, star specks |
 | 55 | galaxy_blue | #3B4C8C | Galaxy cat base |
 
-Row 7, v0.3 additions (2026-10-26). 61 to 63 are still spare; add new colors there and record them here before using them.
+Row 7, v0.3 to v0.5 additions. The row is full: a new color now means growing the texture, which moves every UV, so reuse a swatch where you can.
 
 | idx | name | hex | use |
 |---|---|---|---|
@@ -112,6 +112,11 @@ Row 7, v0.3 additions (2026-10-26). 61 to 63 are still spare; add new colors the
 | 58 | aurora_violet | #8E7CF0 | Aurora's middle band between galaxy_blue and mint |
 | 59 | pastel_butter | #F6DFA0 | Butter cafe facade (plot shells come in mint, blush, pastel_butter, pastel_lilac) |
 | 60 | pastel_lilac | #C9B8E8 | Lilac cafe facade |
+| 61 | shiny_light | #C3E0F7 | Shiny coat, lightest coat color of a cat (frost style) |
+| 62 | shiny_mid | #94BCE4 | Shiny coat, second coat color (frost) |
+| 63 | shiny_dark | #6B8FC6 | Shiny coat, third coat color (frost) |
+
+**Shiny coats (v0.5, features.md F42).** Every cat has `CatCafe_Cat_<Name>_Shiny`: the same shapes with the coat recolored, eyes, nose, inner ears, muzzle, collar and star specks unchanged (a cream muzzle turns white). The cat's coat colors (fur, second, third) are ranked lightest first by CIE L*: the lightest takes shiny_light, the next shiny_mid, the next shiny_dark, and any coat darker than L* 35 (black, chocolate) takes the style's deep swatch, galaxy_blue for frost, so stripes, points and patches still show; a dark coat already in the deep swatch's color family (Midnight's night_sky, Aurora's galaxy_blue under frost) takes shiny_dark instead so it still changes. `palette.SHINY_STYLE` picks the style: frost (silver blue, the default until Gavin's round 3 answer), gold (#FBE49A, #F2C14E, #C98F2A, deep rust) or lavender (#E6D2FA, #C7A3EE, #9A74D6, deep galaxy_blue). Changing that line and rebuilding `--only _Shiny` restyles every shiny cat. Shiny cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_shiny.png`.
 
 ## 3. Shape language
 
@@ -220,7 +225,7 @@ Lighting.Technology Future, Bloom low, ColorCorrection Saturation +0.05, Contras
 | ColorShift_Top | 255,245,230 | 150,170,220 |
 | Atmosphere Density | 0.3 | 0.4, Color 110,120,160 |
 
-Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color lamp_warm (neon_pink for the sign), and the child light enabled: street lamp SpotLight 255,200,150 Brightness 3 Range 30 Angle 100, window and string lights PointLight 255,214,170 Brightness 1.5 Range 16, hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. Customers leave at night. The `vignette_alley_night.png` concept image is the target look.
+Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color lamp_warm (neon_pink for the sign), and the child light enabled: street lamp SpotLight 255,200,150 Brightness 3 Range 30 Angle 100, window and string lights PointLight 255,214,170 Brightness 1.5 Range 16, hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. From v0.5 (F44) cafes close at night and customers leave: owned cafes hang `CatCafe_Plot_ClosedSign` in the front door, a night_sky board with CLOSED on both faces, two stars and a crescent moon (`_Moon_Bulb`, so it glows lamp_warm). The `vignette_alley_night.png` concept image is the target look.
 
 ## 10. Export and import checklist
 

@@ -405,7 +405,12 @@ end
 
 -- The CatchResult of the catch that started at `startedAt`, waiting until a little past the schedule's end.
 local function outcomeOf(startedAt: number, id: string, schedule: Schedule): (Outcome?, Event?)
-	local event = waitFor(startedAt, "CatchResult", math.max(0, endsAt(schedule) - serverNow()) + 1.5, about(id))
+	local event = waitFor(
+		startedAt,
+		"CatchResult",
+		math.max(0, endsAt(schedule) - serverNow()) + 1.5,
+		about(id)
+	)
 	return if event ~= nil then event.data :: Outcome else nil, event
 end
 
@@ -424,6 +429,23 @@ end
 local function fleeLeft(model: Model): number
 	local fleeingUntil = model:GetAttribute("FleeingUntil")
 	return if type(fleeingUntil) == "number" then math.max(0, fleeingUntil - serverNow()) else 0
+end
+
+-- fleeLeft once a miss's FleeingUntil has arrived. The server sets the attribute just after it fires CatchResult,
+-- so it can land a frame after the result, and until then the model still holds the last miss's time.
+local function fleeAfterMiss(model: Model): number
+	local deadline = os.clock() + 0.5
+	local left = fleeLeft(model)
+	while left <= 0 and os.clock() < deadline do
+		task.wait(0.05)
+		left = fleeLeft(model)
+	end
+	return left
+end
+
+-- Waits out the sprint itself, so the stray stands still for StrayRestSeconds where it stopped.
+local function waitForSprint(model: Model)
+	task.wait(math.max(0, fleeAfterMiss(model) - Config.StrayRestSeconds + 0.1))
 end
 
 -- True when all `count` circles were graded and none was a Miss: a sure catch (v0.4).
@@ -470,21 +492,26 @@ end
 
 local NO_LONG_STRAY = string.format('spawn a Rare with %s("spawnStray", "calico") and rerun', DEBUG)
 
-case("fakeStray", Enum.KeyCode.One, "Fake stray: GrabBegin and CatchPress on an id that does not exist", function()
-	grabReady()
-	local startedAt = os.clock()
-	fire("GrabBegin", "not_a_stray")
-	fire("CatchPress", "not_a_stray", 1)
-	task.wait(1)
-	local reactions = #since(startedAt, "GrabResult")
-		+ #since(startedAt, "CatchSchedule")
-		+ #since(startedAt, "CatchResult")
-		+ #since(startedAt, "Toast")
-	if reactions == 0 then
-		return "PASS", "ignored, no GrabResult, schedule, result or toast"
+case(
+	"fakeStray",
+	Enum.KeyCode.One,
+	"Fake stray: GrabBegin and CatchPress on an id that does not exist",
+	function()
+		grabReady()
+		local startedAt = os.clock()
+		fire("GrabBegin", "not_a_stray")
+		fire("CatchPress", "not_a_stray", 1)
+		task.wait(1)
+		local reactions = #since(startedAt, "GrabResult")
+			+ #since(startedAt, "CatchSchedule")
+			+ #since(startedAt, "CatchResult")
+			+ #since(startedAt, "Toast")
+		if reactions == 0 then
+			return "PASS", "ignored, no GrabResult, schedule, result or toast"
+		end
+		return "FAIL", string.format("%d reaction(s) to a fake id", reactions)
 	end
-	return "FAIL", string.format("%d reaction(s) to a fake id", reactions)
-end)
+)
 
 case("farGrab", Enum.KeyCode.Two, "Far grab: GrabBegin from 200 studs away", function()
 	local stray = nearestStray()
@@ -686,7 +713,7 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 		+ schedule.windows.good
 		+ Config.CatchLatencyCapSeconds
 	local offBy = event.server - deadline
-	local running = fleeLeft(stray.model)
+	local running = fleeAfterMiss(stray.model)
 	-- v0.5: the sprint runs at StrayFleeSpeed; measure once it has stopped, before it wanders again (N52)
 	task.wait(math.max(0.7, running - Config.StrayRestSeconds + 0.1))
 	if stray.model.Parent == nil then
@@ -739,7 +766,10 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 		table.insert(notes, "expected within -0.10 to +0.50 s")
 	end
 	return verdict,
-		string.format("%s %s: ", stray.rarity, gradesText(outcome.grades)) .. table.concat(notes, "; ")
+		string.format("%s %s: ", stray.rarity, gradesText(outcome.grades)) .. table.concat(
+			notes,
+			"; "
+		)
 end)
 
 -- Perfect circles in a row that perfectFarm pressed this session. The server flags autoPress once the last 50
@@ -948,7 +978,10 @@ case(
 		task.wait(math.max(0, startedAt + Config.GrabRateLimitSeconds + 0.15 - os.clock()))
 		if serverNow() > endsAt(schedule) - 0.3 then
 			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, "same-stray check skipped: the catch ended inside 2 s; " .. NO_LONG_STRAY)
+			table.insert(
+				notes,
+				"same-stray check skipped: the catch ended inside 2 s; " .. NO_LONG_STRAY
+			)
 		else
 			local againAt = os.clock()
 			fire("GrabBegin", stray.id)
@@ -999,7 +1032,7 @@ case(
 		else
 			pressAllOnTarget(secondId, schedule2)
 			-- Just before the limit allows the GrabBegin, stand where both strays are in grab range if they are close
-			-- enough, so catch 2 is not forfeit by its range check (a forfeit costs a paw); else by the third stray.
+			-- enough, so catch 2 is not forfeit by its range check (a forfeit is a Miss); else by the third stray.
 			task.wait(math.max(0, startedAt2 + Config.GrabRateLimitSeconds - 0.3 - os.clock()))
 			local secondPosition = second.model:GetPivot().Position
 			local thirdPosition = third.model:GetPivot().Position
@@ -1026,7 +1059,10 @@ case(
 				if answer ~= nil and answer.name == "CatchSchedule" then
 					verdict = downgrade(verdict, "FAIL")
 					table.insert(notes, "a second catch started while catch 2 was running")
-				elseif answer ~= nil and string.find(answer.text, "Finish this catch", 1, true) ~= nil then
+				elseif
+					answer ~= nil
+					and string.find(answer.text, "Finish this catch", 1, true) ~= nil
+				then
 					table.insert(notes, "another stray during catch 2: Finish this catch first")
 				else
 					verdict = downgrade(verdict, "CHECK")
@@ -1048,7 +1084,7 @@ case(
 case(
 	"retry",
 	Enum.KeyCode.Semicolon,
-	"Retry: miss a Common, GrabBegin it while it runs, then once it stops, then after my extra second",
+	"Retry: miss a Common, GrabBegin it while it runs; miss it again, GrabBegin it in my extra second; then catch it",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -1057,82 +1093,97 @@ case(
 			return info.rarity == "Common"
 		end)
 		if stray == nil then
-			return "SKIP", string.format('no free Common nearby; %s("spawnStray", "tabby") and rerun', DEBUG)
+			return "SKIP",
+				string.format('no free Common nearby; %s("spawnStray", "tabby") and rerun', DEBUG)
 		end
-		local schedule, why, startedAt = beginCatch(stray)
-		if schedule == nil then
-			return "CHECK", why
-		end
-		missOnPurpose(stray.id, schedule)
-		local outcome = outcomeOf(startedAt, stray.id, schedule)
-		if outcome == nil then
-			return "FAIL", "no CatchResult"
-		end
-		if outcome.success then
-			checkInIfCarrying()
-			return "FAIL", "an early press on the only circle still caught the cat"
-		end
-		if stray.model.Parent == nil then
-			return "FAIL", "the Common despawned after a miss"
-		end
+		-- v0.5 (F40, S44): after a miss GrabBegin is "It's running!" for everyone until FleeingUntil, and the player
+		-- who missed waits StraySelfRetrySeconds more. GrabBegin takes one call per 2 s, too few for both checks
+		-- after one miss, so the running check follows miss 1 and the extra-second check follows miss 2.
 		local notes = {}
 		local verdict: Verdict = "PASS"
-		-- v0.5 (F40): while it runs, GrabBegin from anyone is "It's running!". The GrabBegin limit and the catch
-		-- cooldown count 2 s from the first GrabBegin, so wait those out first.
-		task.wait(math.max(0, startedAt + Config.GrabRateLimitSeconds + 0.15 - os.clock()))
-		local running = fleeLeft(stray.model)
-		if running < 0.4 then
-			verdict = "CHECK"
-			table.insert(notes, "running check skipped: the stray had stopped before the cooldowns were over")
-		else
-			standNextTo(stray)
-			local againAt = os.clock()
-			fire("GrabBegin", stray.id)
-			local answer = answerTo(againAt, stray.id, 1.5)
-			if answer ~= nil and answer.name == "CatchSchedule" then
-				return "FAIL", string.format("a new catch started while the stray ran (%.1f s left)", running)
-			elseif answer ~= nil and string.find(answer.text, "running", 1, true) ~= nil then
-				table.insert(notes, string.format("%.1f s before it stopped: %s", running, answer.text))
-			else
-				verdict = "CHECK"
-				table.insert(notes, "while it ran: " .. (if answer ~= nil then answer.text else "no answer"))
+		for round = 1, 2 do
+			local schedule, why, startedAt = beginCatch(stray)
+			if schedule == nil then
+				if round == 1 then
+					return "CHECK", why
+				end
+				return "FAIL",
+					table.concat(notes, "; ") .. "; miss 2 after my extra second: " .. why
 			end
+			missOnPurpose(stray.id, schedule)
+			local outcome = outcomeOf(startedAt, stray.id, schedule)
+			if outcome == nil then
+				return "FAIL", string.format("no CatchResult for miss %d", round)
+			end
+			if outcome.success then
+				checkInIfCarrying()
+				return "FAIL", "an early press on the only circle still caught the cat"
+			end
+			if stray.model.Parent == nil then
+				return "FAIL", "the Common despawned after a miss"
+			end
+			-- The stray stands still while it catches its breath, so stand by it and wait out the GrabBegin limit.
+			waitForSprint(stray.model)
+			standNextTo(stray)
+			grabReady()
+			local probe: string
+			if round == 1 then
+				probe = "while it ran"
+			else
+				probe = "in my extra second"
+				task.wait(fleeLeft(stray.model) + 0.1)
+			end
+			local window = if round == 1
+				then fleeLeft(stray.model)
+				else (stray.model:GetAttribute("FleeingUntil") :: number? or 0)
+					+ Config.StraySelfRetrySeconds
+					- serverNow()
+			if window < 0.2 then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(notes, probe .. ": skipped, too little of the window left to probe")
+			else
+				local probeAt = os.clock()
+				fire("GrabBegin", stray.id)
+				local answer = answerTo(probeAt, stray.id, 1.5)
+				local expected = if round == 1 then "It's running!" else "Catch your breath"
+				if answer ~= nil and answer.name == "CatchSchedule" then
+					outcomeOf(probeAt, stray.id, answer.data)
+					return "FAIL",
+						string.format(
+							"a new catch started %s (%.1f s of the window left)",
+							probe,
+							window
+						)
+				elseif answer ~= nil and string.find(answer.text, expected, 1, true) ~= nil then
+					table.insert(
+						notes,
+						string.format("%s (%.1f s left): %s", probe, window, answer.text)
+					)
+				else
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(
+						notes,
+						probe .. ": " .. (if answer ~= nil then answer.text else "no answer")
+					)
+				end
+			end
+			-- Then I may try again, as often as I like.
+			task.wait(fleeLeft(stray.model) + Config.StraySelfRetrySeconds + 0.2)
 		end
-		-- Once it stops, the player who missed waits StraySelfRetrySeconds longer than everyone else (S44).
-		task.wait(fleeLeft(stray.model) + 0.1)
-		grabReady()
-		standNextTo(stray)
-		local selfAt = os.clock()
-		fire("GrabBegin", stray.id)
-		local selfAnswer = answerTo(selfAt, stray.id, 1.5)
-		if selfAnswer ~= nil and selfAnswer.name == "CatchSchedule" then
-			verdict = downgrade(verdict, "CHECK")
-			table.insert(notes, "a catch started for me right as it stopped; S44 wants my extra second")
-			outcomeOf(selfAt, stray.id, selfAnswer.data)
-		else
-			table.insert(
-				notes,
-				"right as it stopped: " .. (if selfAnswer ~= nil then selfAnswer.text else "no answer")
-			)
+		local schedule3, why3, startedAt3 = beginCatch(stray)
+		if schedule3 == nil then
+			return "FAIL", table.concat(notes, "; ") .. "; after two misses: " .. why3
 		end
-		-- After that the same player may try again, as often as they like, and catch it on target.
-		task.wait(Config.StraySelfRetrySeconds + 0.2)
-		grabReady()
-		standNextTo(stray)
-		local schedule2, why2, startedAt2 = beginCatch(stray)
-		if schedule2 == nil then
-			return "FAIL", table.concat(notes, "; ") .. "; after it stopped: " .. why2
-		end
-		for index, circle in schedule2.circles do
+		for index, circle in schedule3.circles do
 			pressOnTarget(stray.id, index, circle)
 		end
-		local outcome2 = outcomeOf(startedAt2, stray.id, schedule2)
+		local outcome3 = outcomeOf(startedAt3, stray.id, schedule3)
 		checkInIfCarrying()
-		if outcome2 == nil or not outcome2.success then
+		if outcome3 == nil or not outcome3.success then
 			verdict = downgrade(verdict, "FAIL")
-			table.insert(notes, "after it stopped: pressed on target but not caught")
+			table.insert(notes, "after two misses: pressed on target but not caught")
 		else
-			table.insert(notes, "after it stopped: a new schedule, caught on target")
+			table.insert(notes, "after two misses: a new schedule, caught on target")
 		end
 		return verdict, table.concat(notes, "; ")
 	end
@@ -1205,7 +1256,8 @@ case(
 			return info.rarity == "Legendary" or info.rarity == "Mythical"
 		end) or nearestStray()
 		if stray == nil then
-			return "SKIP", string.format('%s; or %s("spawnStray", "void") for a Mythical', NO_STRAY, DEBUG)
+			return "SKIP",
+				string.format('%s; or %s("spawnStray", "void") for a Legendary', NO_STRAY, DEBUG)
 		end
 		local misses = 0
 		for _ = 1, 3 do
@@ -1226,17 +1278,30 @@ case(
 			if stray.model.Parent == nil then
 				return "FAIL", string.format("the stray despawned after %d miss(es)", misses)
 			end
-			task.wait(fleeLeft(stray.model) + Config.StraySelfRetrySeconds + 0.2)
-			grabReady()
-			standNextTo(stray)
+			task.wait(fleeAfterMiss(stray.model) + Config.StraySelfRetrySeconds + 0.2)
 		end
 		local schedule, why, startedAt = beginCatch(stray)
 		if schedule == nil then
 			return "FAIL", string.format("after %d misses: %s", misses, why)
 		end
 		outcomeOf(startedAt, stray.id, schedule)
+		-- The v0.4 paw attributes went with the paws.
+		local leftover = {}
+		for _, name in { "Patience", "Paws_" .. player.UserId } do
+			if stray.model:GetAttribute(name) ~= nil then
+				table.insert(leftover, name)
+			end
+		end
+		if #leftover > 0 then
+			return "FAIL",
+				"v0.4 paw attributes still on the stray: " .. table.concat(leftover, ", ")
+		end
 		return "PASS",
-			string.format("%s: %d misses and a fourth catch still started; no paws, no trust lost", stray.rarity, misses)
+			string.format(
+				"%s: %d misses and a fourth catch still started; no paws, no trust lost",
+				stray.rarity,
+				misses
+			)
 	end
 )
 
@@ -1886,8 +1951,8 @@ Remotes.event("GrabResult").OnClientEvent
 			id
 		)
 	end)
-Remotes.event("CatchSchedule").OnClientEvent:Connect(
-	function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+Remotes.event("CatchSchedule").OnClientEvent
+	:Connect(function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 		local schedule: Schedule = { circles = circles, windows = windows }
 		local firstIn = if #circles > 0 then targetOf(circles[1]) - serverNow() else 0
 		record(
@@ -1903,8 +1968,7 @@ Remotes.event("CatchSchedule").OnClientEvent:Connect(
 			strayId,
 			schedule
 		)
-	end
-)
+	end)
 Remotes.event("CatchResult").OnClientEvent:Connect(
 	function(strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number)
 		local outcome: Outcome = { grades = grades, success = success, charmGain = charmGain }
@@ -1934,15 +1998,17 @@ task.spawn(function()
 	if travelResult == nil or not travelResult:IsA("RemoteEvent") then
 		return
 	end
-	(travelResult :: RemoteEvent).OnClientEvent:Connect(function(destination: string, ok: boolean, reason: string?)
-		local travelled: Travelled = { ok = ok, reason = reason }
-		record(
-			"TravelResult",
-			string.format("%s ok=%s reason=%s", destination, tostring(ok), tostring(reason)),
-			destination,
-			travelled
-		)
-	end)
+	(travelResult :: RemoteEvent).OnClientEvent:Connect(
+		function(destination: string, ok: boolean, reason: string?)
+			local travelled: Travelled = { ok = ok, reason = reason }
+			record(
+				"TravelResult",
+				string.format("%s ok=%s reason=%s", destination, tostring(ok), tostring(reason)),
+				destination,
+				travelled
+			)
+		end
+	)
 end)
 
 local names = {}

@@ -42,11 +42,12 @@ import park  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
 import rbx_export  # noqa: E402
+import shiny  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway]
+MODULES = [cats, shiny, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -71,6 +72,7 @@ PIVOT_NOTES = {
     "CatCafe_Plot_Interior": "Plot.cframe: floor top centre of the cafe",
     "CatCafe_Plot_ForRent": "Plot.cframe: floor top centre of the cafe",
     **{f"CatCafe_Plot_Tier{n}": "Plot.cframe: floor top centre of the cafe" for n in range(1, 6)},
+    "CatCafe_Plot_ClosedSign": "Plot.cframe: floor top centre of the cafe",
     **{n: "wall: back plane at the bottom centre; -Z faces into the alley" for n in
        ("CatCafe_Alley_WallWindows", "CatCafe_Alley_WallDoor", "CatCafe_Alley_FireEscape", "CatCafe_Alley_Mural")},
     "CatCafe_Alley_ArchStreet": "base centre of the 28 stud opening; -Z faces the street",
@@ -132,6 +134,11 @@ STUDIO_NOTES = {
     "CatCafe_Plot_ForRent": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, "
                             "boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
     **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier." for n in range(1, 6)},
+    "CatCafe_Plot_ClosedSign": "F44: owned cafes at night only (Clock.Phase), at the Plot pivot. Hangs in the front door "
+                               "above head height; nothing collides. The child Model _Moon_Bulb glows at night.",
+    **{f"CatCafe_Cat_{n}_Shiny": f"F42: clone this instead of CatCafe_Cat_{n} when the cat's variant is shiny. Same "
+                                 "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
+       for n in cats.ROSTER},
 }
 
 
@@ -205,7 +212,7 @@ def main():
             entry["sit_point"] = list(furniture.SIT_POINTS[name])
             entry["sit_point_roblox"] = common.to_roblox(furniture.SIT_POINTS[name])
         if name.startswith("CatCafe_Cat_"):
-            spec = cats.ROSTER[name.split("_")[-1]]
+            spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Shiny")]
             entry["rarity"] = spec["rarity"]
             s_ = spec.get("scale", 1.0)
             entry["scale"] = s_                     # scale accessories by this too
@@ -248,7 +255,7 @@ def main():
         if rbx_path:
             entry["rbx_model"] = os.path.relpath(rbx_path, ROOT)
             entry["rbx_parts"] = rbx_parts
-        if not args.no_export:
+        if not args.no_export and not name.endswith("_Shiny"):           # shiny coats are Part models only
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:

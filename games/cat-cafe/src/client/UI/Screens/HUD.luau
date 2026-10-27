@@ -505,6 +505,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			layoutOrder = index,
 			parent = menu,
 			sound = false, -- the modal swish is the sound
+			ears = true,
 			onClick = item.open,
 		})
 		local key = item.key
@@ -677,6 +678,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = if home then Theme.sizes.textLarge else Theme.sizes.textBody + 1,
 			layoutOrder = index + 1,
 			parent = travelRow,
+			ears = home,
 			-- Areas only opens the panel, which swishes; Cafe and Alley click
 			sound = if item.key == "areas" then false else nil,
 			onClick = function()

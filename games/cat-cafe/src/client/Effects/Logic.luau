@@ -294,9 +294,17 @@ function Logic.wheelEase(k: number): number
 end
 
 -- Where the world wheel comes to rest after a spin at server time `at`, in radians from where the server placed
--- it. Every client works out the same angle, so everyone sees the wheel stop in the same place.
-function Logic.wheelRest(at: number): number
-	return Logic.phaseOf(string.format("%.3f", at)) * 2 * math.pi
+-- it: on the won slice when the station says which (`slice`, 1 to `slices`, slice 1 under the pointer at rest and
+-- the rest counted round the way the wheel turns), somewhere inside it rather than dead centre, never near an
+-- edge, so it can never seem to just miss a better prize. With no slice, anywhere. Every client works out the
+-- same angle, so everyone sees the wheel stop in the same place.
+function Logic.wheelRest(at: number, slice: number?, slices: number): number
+	local jitter = Logic.phaseOf(string.format("%.3f", at))
+	if slice == nil or slice ~= math.floor(slice) or slice < 1 or slice > slices then
+		return jitter * 2 * math.pi
+	end
+	local inside = (jitter - 0.5) * Presets.wheel.landWithin
+	return -((slice - 1) + inside) * 2 * math.pi / slices
 end
 
 -- The angle a spin turns to from `from`: `turns` whole turns, then on to `rest`, always forward.

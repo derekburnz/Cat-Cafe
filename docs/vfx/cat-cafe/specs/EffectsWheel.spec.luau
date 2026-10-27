@@ -26,11 +26,36 @@ return function()
 			expect(Logic.wheelEase(0.5) > 0.8).to.equal(true)
 		end)
 
+		it("stops inside the won slice, well clear of its edges", function()
+			local w = Presets.wheel
+			local width = TAU / w.slices
+			for slice = 1, w.slices do
+				for _, at in { 1793113500.25, 1793113504.9, 12.5, 99.001 } do
+					local rest = Logic.wheelRest(at, slice, w.slices)
+					-- turning by `rest` brings slice `slice`'s centre to within this much of the pointer
+					local off = ((slice - 1) * width + rest) % TAU
+					if off > TAU / 2 then
+						off -= TAU
+					end
+					expect(math.abs(off) <= width * w.landWithin / 2 + 1e-9).to.equal(true)
+					expect(math.abs(off) < width * 0.4).to.equal(true)
+				end
+			end
+			-- no slice, or a slice the wheel does not have: it stops anywhere
+			for _, bad in { 0, 7, 2.5 } do
+				local rest = Logic.wheelRest(12.5, bad, w.slices)
+				expect(rest >= 0 and rest < TAU).to.equal(true)
+			end
+			expect(Logic.wheelRest(12.5, nil, w.slices)).to.equal(
+				Logic.wheelRest(12.5, 0, w.slices)
+			)
+		end)
+
 		it("turns forward through the whole turns and stops where every client agrees", function()
 			for _, at in { 1793113500.25, 1793113504.9, 12.5 } do
-				local rest = Logic.wheelRest(at)
+				local rest = Logic.wheelRest(at, nil, 6)
 				expect(rest >= 0 and rest < TAU).to.equal(true)
-				expect(Logic.wheelRest(at)).to.equal(rest)
+				expect(Logic.wheelRest(at, nil, 6)).to.equal(rest)
 				for _, from in { 0, 1.2, 40.7, -3 } do
 					local to = Logic.wheelTarget(from, rest, 3)
 					expect(to - from >= 3 * TAU - 1e-9 and to - from < 4 * TAU).to.equal(true)
@@ -41,7 +66,9 @@ return function()
 					).to.equal(true)
 				end
 			end
-			expect(Logic.wheelRest(1793113500.25) ~= Logic.wheelRest(1793113504.9)).to.equal(true)
+			expect(Logic.wheelRest(1793113500.25, nil, 6) ~= Logic.wheelRest(1793113504.9, nil, 6)).to.equal(
+				true
+			)
 		end)
 
 		it("knocks the pointer as each slice edge passes and lets it spring back", function()
@@ -72,6 +99,7 @@ return function()
 			)
 			-- SpinCooldownSeconds is 4: a player's next spin starts from a wheel at rest
 			expect(w.seconds < 4).to.equal(true)
+			expect(w.stillTurns >= 1 and w.stillTurns < w.turns).to.equal(true)
 		end)
 	end)
 end

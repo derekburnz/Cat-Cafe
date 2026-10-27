@@ -2,12 +2,14 @@
 -- The Spin Wheel station (F49, areas-and-stations B3): whenever anyone spins, the server sets the station's
 -- LastSpinAt (server time) and every client nearby turns its Wheel about the hub, easing to a stop, with the rim
 -- lights chasing round, the pointer knocked aside by each slice edge and a sparkle at the pointer when it stops.
--- Show only: the wheel comes to rest where every client agrees (worked out from LastSpinAt), not on the prize; the
--- Spin window shows the real slice. A player who joins later sees the wheel at the same resting angle.
+-- It stops on the won slice, which the server sets as LastSlice just before LastSpinAt (somewhere inside the slice,
+-- never by an edge, so it never looks like a near miss), at an angle every client works out the same from the two.
+-- A player who joins later sees the wheel at the same resting angle. With no LastSlice it stops anywhere.
 --
 -- The station is a model tagged SpinWheel. Its `Wheel` (or `..._Wheel`) is a Model pivoted at the hub that turns
--- about its own Z axis; `Pointer` and the `RimLight` parts sit outside it. Every part is the server's; the turn is
--- drawn on this client only.
+-- about its own Z axis, with slice 1 under the pointer at rest and slice n (n - 1) sixths of a turn round from it,
+-- the way the wheel turns (the placeholder's layout); `Pointer` and the `RimLight` parts sit outside it. Every part
+-- is the server's; the turn is drawn on this client only.
 
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
@@ -230,7 +232,8 @@ local function spun(model: Model)
 		return
 	end
 	local w = Presets.wheel
-	local rest = Logic.wheelRest(at)
+	local slice = model:GetAttribute("LastSlice")
+	local rest = Logic.wheelRest(at, if type(slice) == "number" then slice else nil, w.slices)
 	local late = math.max(0, Workspace:GetServerTimeNow() - at)
 	if late >= w.seconds or Context.distance(station.rest.Position) > w.within then
 		station.spinning = false
@@ -239,7 +242,11 @@ local function spun(model: Model)
 		return
 	end
 	station.from = station.angle
-	station.to = Logic.wheelTarget(station.angle, rest, w.turns)
+	station.to = Logic.wheelTarget(
+		station.angle,
+		rest,
+		if Context.reducedMotion() then w.stillTurns else w.turns
+	)
 	station.began = os.clock() - late
 	station.spinning = true
 	if loop == nil then

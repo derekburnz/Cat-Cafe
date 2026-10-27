@@ -742,6 +742,7 @@ local function jumpBack(stray: Stray, player: Player)
 	)
 	stray.model:SetAttribute("HissAt", serverNow())
 	stray.jumping = true
+	stray.home = target -- it wanders from where it landed, not back toward whoever missed (reviewer N52)
 	task.spawn(function()
 		Mover.walkTo(stray.model, target, JUMP_SPEED, function()
 			return stray.alive and stray.lockedBy == 0

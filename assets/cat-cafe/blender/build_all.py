@@ -7,6 +7,7 @@ Run inside the Blender GUI:   Scripting tab, open this file, Run Script (add --n
 
 Outputs (relative to the repo root, override with --out and --docs):
   assets/cat-cafe/exports/<Name>.fbx and .glb, CatCafe_Palette.png, CatCafe_VFX_ShinySparkle.png, manifest.json, gates.md
+  assets/cat-cafe/rbx/<Name>.model.json (the same model as Roblox Parts, Rojo synced into ReplicatedStorage.Assets)
   docs/concepts/cat-cafe/previews/<Name>.png, views/<Name>.png (five-view sheet), contact sheets, vignettes
 
 Every asset runs through gates.check (budget, transforms, material, UVs, naming as FAIL; pivot
@@ -27,6 +28,7 @@ import bpy  # noqa: E402
 
 import accessories  # noqa: E402
 import alley  # noqa: E402
+import areas  # noqa: E402
 import cats  # noqa: E402
 import common  # noqa: E402
 import decor  # noqa: E402
@@ -36,11 +38,14 @@ import items  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
+import plot  # noqa: E402
 import poses  # noqa: E402
+import rbx_export  # noqa: E402
+import street  # noqa: E402
 import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, npc, furniture, decor, alley, park, items, accessories]
+MODULES = [cats, npc, furniture, decor, alley, park, items, accessories, street, areas, plot]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -61,6 +66,10 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
     "CatCafe_Park_RescueTree": "base center; the Branch pivots at its root on the trunk (part_pivots_roblox)",
+    **{f"CatCafe_Plot_Cafe_{c}": "Plot.cframe: floor top centre of the cafe, front -Z to the street" for c in plot.COLOURS},
+    "CatCafe_Plot_Interior": "Plot.cframe: floor top centre of the cafe",
+    "CatCafe_Plot_ForRent": "Plot.cframe: floor top centre of the cafe",
+    **{f"CatCafe_Plot_Tier{n}": "Plot.cframe: floor top centre of the cafe" for n in range(1, 6)},
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
@@ -88,6 +97,15 @@ STUDIO_NOTES = {
     "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
     "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
     "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+    **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
+                                 "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "
+                                 "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "
+                                 "Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15."
+       for c in plot.COLOURS},
+    "CatCafe_Plot_Interior": "Every plot. No collision. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
+    "CatCafe_Plot_ForRent": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, "
+                            "boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable). No collision.",
+    **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier. No collision." for n in range(1, 6)},
 }
 
 
@@ -103,6 +121,9 @@ def parse_args():
                    help="sheet renderer; auto = Workbench where it can run, else Cycles CPU")
     p.add_argument("--scenes", action="store_true", help="render the cafe and alley vignettes")
     p.add_argument("--no-export", action="store_true")
+    p.add_argument("--rbx", default=os.path.join(ROOT, "assets", "cat-cafe", "rbx"),
+                   help="where the Part-built .model.json files go (Rojo syncs them into ReplicatedStorage.Assets)")
+    p.add_argument("--no-rbx", action="store_true", help="skip the Part-built Roblox models")
     p.add_argument("--no-reset", action="store_true", help="keep the current scene (GUI use)")
     p.add_argument("--only", default="", help="comma list of name fragments to build")
     p.add_argument("--samples", type=int, default=32)
@@ -137,6 +158,7 @@ def main():
             continue
         objs = fn(mat)
         built[name] = objs
+        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
         size = [round(v, 2) for v in (hi - lo)]
@@ -181,16 +203,27 @@ def main():
                 part, off, r = accessories.ATTACH_UPRIGHT[n]
                 entry["attach_upright"] = {"part": part, "offset": list(off), "offset_roblox": common.to_roblox(off),
                                            "angles_roblox_deg": common.euler_to_roblox(r)}
+        if name == "CatCafe_Street_DealerCart":
+            entry["display_slots"] = [list(p) for p in street.DISPLAY_SLOTS]
+            entry["display_slots_roblox"] = [common.to_roblox(p) for p in street.DISPLAY_SLOTS]
+        if name.startswith("CatCafe_Item_") and name.split("_")[-1] in items.FOODS:
+            entry["food_in_bowl_roblox"] = [0, items.FOOD_IN_BOWL, 0]
+        if name.startswith("CatCafe_Plot_Cafe_"):
+            entry["chimney_top_roblox"] = list(plot.CHIMNEY_TOP)
+            entry["sign_board_roblox"] = plot.SIGN_INFO
         if name in poses.STUCK_POSES:
             entry["stuck_pose"] = poses.manifest_pose(poses.STUCK_POSES[name])
         if name in STUDIO_NOTES:
             entry["studio"] = STUDIO_NOTES[name]
+        if rbx_path:
+            entry["rbx_model"] = os.path.relpath(rbx_path, ROOT)
+            entry["rbx_parts"] = rbx_parts
         if not args.no_export:
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:
             path = os.path.join(args.docs, "previews", name + ".png")
-            visible = [o for o in objs if not o.name.endswith("_Glass")] or objs   # glass is opaque in Cycles here
+            visible = [o for o in objs if not o.name.endswith(("_Glass", "_Fireflies"))] or objs   # glass is opaque in Cycles here; firefly volumes are air
             shifted = [o for o in objs if o.name.endswith("_Closed")]            # show both sign faces side by side
             for o in shifted:
                 o.location.x += 3.2
@@ -214,7 +247,7 @@ def main():
             flag += "  warn " + ",".join(g["warnings"])
         if not g["pass"]:
             failed.append(name)
-        print(f"{name:44s} tris {tris:5d} / {budget:5d} {flag}  size {size}")
+        print(f"{name:44s} tris {tris:5d} / {budget:5d} parts {rbx_parts:4d} {flag}  size {size}")
         manifest.append(entry)
 
     mpath = os.path.join(args.out, "manifest.json")

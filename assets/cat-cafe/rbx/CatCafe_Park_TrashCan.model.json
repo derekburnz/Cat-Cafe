@@ -1,0 +1,2734 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Park_TrashCan/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.05,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.1,
+     1.8,
+     1.8
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": true,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       -1.05,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Park_TrashCan/0"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.1,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     1.7,
+     1.7
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.99,
+       1.075,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.8574,
+       1.075,
+       0.495
+      ],
+      "orientation": [
+       [
+        -0.5,
+        0.0,
+        0.866
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.866,
+        0.0,
+        -0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.495,
+       1.075,
+       0.8574
+      ],
+      "orientation": [
+       [
+        -0.866,
+        0.0,
+        0.5
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5,
+        0.0,
+        -0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.075,
+       0.99
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.495,
+       1.075,
+       0.8574
+      ],
+      "orientation": [
+       [
+        -0.866,
+        0.0,
+        -0.5
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5,
+        0.0,
+        -0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8574,
+       1.075,
+       0.495
+      ],
+      "orientation": [
+       [
+        -0.5,
+        0.0,
+        -0.866
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.866,
+        0.0,
+        -0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.99,
+       1.075,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8574,
+       1.075,
+       -0.495
+      ],
+      "orientation": [
+       [
+        0.5,
+        0.0,
+        -0.866
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.866,
+        0.0,
+        0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.495,
+       1.075,
+       -0.8574
+      ],
+      "orientation": [
+       [
+        0.866,
+        0.0,
+        -0.5
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5,
+        0.0,
+        0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.075,
+       -0.99
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.495,
+       1.075,
+       -0.8574
+      ],
+      "orientation": [
+       [
+        0.866,
+        0.0,
+        0.5
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5,
+        0.0,
+        0.866
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.8574,
+       1.075,
+       -0.495
+      ],
+      "orientation": [
+       [
+        0.5,
+        0.0,
+        0.866
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.866,
+        0.0,
+        0.5
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     1.95,
+     0.1
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0046,
+       0.5,
+       0.2692
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.7354,
+       0.5,
+       0.7354
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2692,
+       0.5,
+       1.0046
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2692,
+       0.5,
+       1.0046
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.7354,
+       0.5,
+       0.7354
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.0046,
+       0.5,
+       0.2692
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.0046,
+       0.5,
+       -0.2692
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.7354,
+       0.5,
+       -0.7354
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2692,
+       0.5,
+       -1.0046
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2692,
+       0.5,
+       -1.0046
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.7354,
+       0.5,
+       -0.7354
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0046,
+       0.5,
+       -0.2692
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0046,
+       1.7,
+       0.2692
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.7354,
+       1.7,
+       0.7354
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2692,
+       1.7,
+       1.0046
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2692,
+       1.7,
+       1.0046
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.7354,
+       1.7,
+       0.7354
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.0046,
+       1.7,
+       0.2692
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.0046,
+       1.7,
+       -0.2692
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.7354,
+       1.7,
+       -0.7354
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2692,
+       1.7,
+       -1.0046
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2692,
+       1.7,
+       -1.0046
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.7354,
+       1.7,
+       -0.7354
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.0046,
+       1.7,
+       -0.2692
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.12,
+     0.5982
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9563,
+       2.15,
+       0.2562
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.7,
+       2.15,
+       0.7
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2562,
+       2.15,
+       0.9563
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2562,
+       2.15,
+       0.9563
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.7,
+       2.15,
+       0.7
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9563,
+       2.15,
+       0.2562
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9563,
+       2.15,
+       -0.2562
+      ],
+      "orientation": [
+       [
+        -0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.7,
+       2.15,
+       -0.7
+      ],
+      "orientation": [
+       [
+        -0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2562,
+       2.15,
+       -0.9563
+      ],
+      "orientation": [
+       [
+        -0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2562,
+       2.15,
+       -0.9563
+      ],
+      "orientation": [
+       [
+        0.2588,
+        0.0,
+        -0.9659
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.9659,
+        0.0,
+        0.2588
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.7,
+       2.15,
+       -0.7
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        -0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9563,
+       2.15,
+       -0.2562
+      ],
+      "orientation": [
+       [
+        0.9659,
+        0.0,
+        -0.2588
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2588,
+        0.0,
+        0.9659
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.12,
+     0.1,
+     0.587
+    ],
+    "Color": [
+     0.3569,
+     0.3725,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Park_TrashCan_Can",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.05,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1,
+     2.2,
+     2.2
+    ],
+    "Color": [
+     0.5451,
+     0.5608,
+     0.6
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Park_TrashCan/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Park_TrashCan_Lid",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.1397,
+         1.392
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          -0.342,
+          0.0,
+          -0.9397
+         ],
+         [
+          0.9397,
+          0.0,
+          -0.342
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.08,
+       2.0,
+       2.0
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.342,
+          0.9397
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.9397,
+          -0.342
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Park_TrashCan/1"
+     }
+    },
+    {
+     "name": "CatCafe_Park_TrashCan_Lid",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         3.1055,
+         1.486
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          -0.342,
+          0.0,
+          -0.9397
+         ],
+         [
+          0.9397,
+          0.0,
+          -0.342
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       0.32,
+       0.32
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       2.2,
+       1.05
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Park_TrashCan_Lid"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

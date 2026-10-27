@@ -783,6 +783,8 @@ local function holdBegan(prompt: ProximityPrompt)
 	end
 	local sound = Audio.play("holdFill")
 	if sound ~= nil then
+		-- holdFill has one voice, so play() has just restarted the Sound a let-go fade was turning down; cancel
+		-- that fade (its handler stops the Sound only when the fade completes) so the new fill keeps playing
 		local fade = holdFade
 		if fade ~= nil then
 			holdFade = nil

@@ -110,7 +110,7 @@ local Cues: { [string]: Cue } = {
 	loopEspresso = { ids = {}, group = "Ambience", volume = 0.4, range = 15 },
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------
-	holdFill = { ids = {}, group = "Sfx", volume = 0.5, minGap = 0.1 }, -- F45: hold E; stretched to the prompt's hold
+	holdFill = { ids = {}, group = "Sfx", volume = 0.5, minGap = 0.1, voices = 1 }, -- F45: hold E; one voice (Audio's fade relies on it)
 	catchStart = { ids = { "rbxassetid://92586398019542" }, group = "Sfx", volume = 0.6 },
 	circleAppear = {
 		ids = { "rbxassetid://135049952895026" },

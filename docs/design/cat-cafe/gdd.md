@@ -1,8 +1,8 @@
 # Cat Cafe Game Design Doc (working title Purr Pot)
 
-Draft v0.4, 2026-10-26 (v0.1 on 2026-10-25, v0.2 after Gavin's Cat Cafe tab, v0.3 after Gavin's answers to our twenty questions, v0.3.1 with the reviewer's bump, dealer, rescue and save fixes, v0.4 after Derek played the rough draft: misses cost the catch, the Alleyway behind the cafes, lively cafes, For Rent plots and borrowed UI patterns, detailed in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. Status: ready for the engineer, asset and UI threads to build. Derek, 2026-10-26: "lets start with those mechanics and see where it goes from there". Every number is a first guess to tune in playtests. Full tables are in [data-model.md](data-model.md), the build order and thread handoffs in [features.md](features.md), genre-standard features for later phases in [common-features.md](common-features.md), Gavin's answers word for word in [feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md), the next questions for him in [questions-for-gavin.md](questions-for-gavin.md), and decisions in [docs/decisions.md](../../decisions.md).
+Draft v0.5, 2026-10-27 (v0.5 after Gavin's round 2 answers in [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md); v0.1 on 2026-10-25, v0.2 after Gavin's Cat Cafe tab, v0.3 after Gavin's answers to our twenty questions, v0.3.1 with the reviewer's bump, dealer, rescue and save fixes, v0.4 after Derek played the rough draft: misses cost the catch, the Alleyway behind the cafes, lively cafes, For Rent plots and borrowed UI patterns, detailed in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. Status: ready for the engineer, asset and UI threads to build. Derek, 2026-10-26: "lets start with those mechanics and see where it goes from there". Every number is a first guess to tune in playtests. Full tables are in [data-model.md](data-model.md), the build order and thread handoffs in [features.md](features.md), genre-standard features for later phases in [common-features.md](common-features.md), Gavin's answers word for word in [feedback/](feedback/) (round 1 2026-10-26, round 2 2026-10-27), the next questions for him in [questions-for-gavin.md](questions-for-gavin.md), and decisions in [docs/decisions.md](../../decisions.md).
 
-Reference games: Steal an Egg (timed spawns in shared stages, place-and-earn pets, chasing players who carry eggs) and Roll a Fisherman, also called Spin for a Fisherman (roll for staff, collect what they produce, expand the dock). We borrow the structure, never the names, art or characters. Gavin suggested "Cat Cafe" as the name; whether that is final is a round 2 question, and the repo slug stays `cat-cafe` either way.
+Reference games: Steal an Egg (timed spawns in shared stages, place-and-earn pets, chasing players who carry eggs) and Roll a Fisherman, also called Spin for a Fisherman (roll for staff, collect what they produce, expand the dock). We borrow the structure, never the names, art or characters. Gavin keeps "Cat Cafe" as the placeholder name for now (round 2); the working title stays Purr Pot and the repo slug `cat-cafe`.
 
 ## Pitch
 
@@ -11,7 +11,7 @@ A cozy cat cafe tycoon where the cats do the work and you do the collecting. Str
 ## Core loop
 
 - By day (5 minutes): cats serve and tips flow at the full rate, rich customers drop big tips, you assign cats to roles, buy upgrades, set bait and hunt any stray left over from last night.
-- By night (5 minutes): a fresh wave of ten strays appears in every area you have unlocked, cats stuck in traps wait to be rescued, the mysterious food dealer opens his cart and the cafe keeps earning at 60%. Net or rescue a cat, carry it home without getting bumped, check it in.
+- By night (5 minutes): a fresh wave of ten strays appears in every area you have unlocked, cats stuck in traps wait to be rescued, the mysterious food dealer opens his cart and the cafe closes but keeps earning at 60% while the cats nap. Net or rescue a cat, carry it home without getting shoved, check it in.
 - Every session (10 to 15 minutes): one or two nights, two to four cats, a role filled, an upgrade or two, a bait cat waiting when you come back.
 - Over weeks: rank up from Tier 1 to Tier 5, open all five areas, fill the book of 50 and the shiny book.
 
@@ -27,7 +27,7 @@ Cafes look like the concept sketch and feel busy: a proper roof, big windows you
 
 A cafe has role slots instead of the v0.2 spots: Barista at the counter, Waiter by the tables, Greeter at the door, Entertainer on the cat tree. Tier 1 opens two slots (Barista and Waiter) and Tier 5 opens ten. Cats without a role rest in the cat room on all fours and earn nothing. Every cat can do every role, and each cat has one favorite role where it earns 1.5 times as much (Gavin, Q12, with role boosts for specific cats later). Equip Best fills the slots with the best cats in one tap.
 
-Customers come and go as the visual proof the cafe works: a full house by day, a few night owls at night. They do not change the math except for the rich customer below.
+Customers come and go as the visual proof the cafe works: a full house by day. At night the cafe is closed (Gavin, round 2): no customers, the sign says Closed and the working cats nap at their stations while they earn 60%. They do not change the math except for the rich customer below.
 
 ## Tiers (replaces cafe level and Renovate)
 
@@ -45,7 +45,7 @@ Whether ranking up spends the coins or only needs you to hold them is a round 2 
 
 ## Cats
 
-Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one Mythical (Gavin, Q5 and Q14). Every area can spawn every rarity, and later areas tilt the odds upward. Each cat is unique to its area in v0.3 (a round 2 question). The slice builds the Alleyway and Park cats (20); the other thirty have provisional names in the catalog and arrive with their areas.
+Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one Mythical (Gavin, Q5 and Q14). Every area can spawn every rarity, and later areas tilt the odds upward. Each cat lives only in its own area, and several of the same cat can be out at once there (Gavin confirmed in round 2). The slice builds the Alleyway and Park cats (20); the other thirty have provisional names in the catalog and arrive with their areas.
 
 | Rarity | Base tips per second | Net circles | Notes |
 |---|---|---|---|
@@ -57,7 +57,7 @@ Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one
 
 Per-cat stats stay as built: charm (rolled at catch, 0.8x to 1.2x), level from time spent working (up to 1.45x) and the star rating.
 
-Shiny (Gavin, Q16): every cat has a shiny version that earns 1.5 times as much and sparkles. A shiny turns up 2% of the time from the net and bait and 10% from a rescue. Shiny strays sparkle on sight, so the race for them is visible; a rescued cat's shininess is a surprise when it comes out. The book has a shiny page. There is no merging of duplicates, and Golden and Galaxy variants are dropped. Duplicates still sell for coins.
+Shiny (Gavin, Q16 and round 2): every cat has a shiny version with its own coat colour that earns 1.5 times as much and sparkles. A shiny turns up 5% of the time from the net and bait and 10% from a rescue. Which colour style shinies use is a round 3 question. Shiny strays sparkle on sight, so the race for them is visible; a rescued cat's shininess is a surprise when it comes out. The book has a shiny page. There is no merging of duplicates, and Golden and Galaxy variants are dropped. Duplicates still sell for coins.
 
 Names (Q16): players can name their cats. Names go through Roblox's text filter before anyone else can see them.
 
@@ -71,15 +71,15 @@ The server runs a 10 minute loop: 5 minutes of day, 5 minutes of night (Gavin, Q
 
 Three ways, from Gavin's list, plus the carry home.
 
-Net (Q6): walk up to a stray and start a catch. Closing circles pop up one after another: one for a Common, up to five for a Mythical. The rarer the cat the faster they close. Press as each circle meets its ring. Each press is Perfect, Good or Miss. v0.4 (Derek: missing has to matter): the first Miss ends the catch: the cat hisses and jumps back and you lose one of its paws; every circle Good or Perfect is a sure catch, and each Perfect makes the cat a little more charming, double for an all-Perfect Purrfect. Every stray gives each player its own paws, three for a Common down to one for a Legendary or Mythical; run out and that cat will not trust you again tonight, though other players can still try. Your net decides how wide the Perfect and Good windows are and how steady the circle speed is. With the basic net a Mythical's five quick, uneven circles on a single paw are a real gamble; a Master net makes them fair. The server sets the circle timings and judges every press on its own clock, so a modified client cannot claim a perfect it did not get.
+Net (Q6): walk up to a stray and start a catch. Closing circles pop up one after another: one for a Common, up to five for a Mythical. The rarer the cat the faster they close. Press as each circle meets its ring. Each press is Perfect, Good or Miss. v0.4 (Derek: missing has to matter) and v0.5 (Gavin, round 2): the first Miss ends the catch and the cat sprints away, farther the rarer it is, so you have to chase it down before you can try again. Tries are unlimited for every cat, and anyone can have the next go once it stops. Every circle Good or Perfect is a sure catch, and each Perfect makes the cat a little more charming, double for an all-Perfect Purrfect. Your net decides how wide the Perfect and Good windows are and how steady the circle speed is. With the basic net a Mythical's five quick, uneven circles mean several tries and chases; a Master net makes them fair. The server sets the circle timings and judges every press on its own clock, so a modified client cannot claim a perfect it did not get.
 
 Rescue (Q8): at night some cats are stuck in traps that fit their area. In the Alleyway they are in trash bins and garbage bags, in the Park up trees and in trash cans; the other three areas get their own traps when they are built. A rescue is a short minigame: stop a sliding marker in the target zone a few times, or for a tree, shake the branch and catch the cat with one closing circle. The rarer the cat, the more hits, the narrower the zone and the faster the marker. A failed rescue never loses the cat: it stays stuck and you or anyone else can try again a few seconds later. A rescued cat has a 10% shiny chance, five times the net's.
 
-Bait (Q7): buy a bait bowl for your cafe once, then put food in it at any time of day. Ten minutes later a cat is sitting at the bowl eating, even if you logged off in between. You see exactly which cat it is and choose Tame (it joins your cafe, no catch needed) or Let go. The food is used either way. Better food gives better odds, and the odds are on the shop card before you buy, so lure food already meets the paid random items rules if coins are ever sold for Robux.
+Bait (Q7): buy a bait bowl for your cafe once. It sits outside on your back step facing the Alleyway (Gavin, round 2). Put food in it at any time of day. Ten minutes later a cat is sitting at the bowl eating, even if you logged off in between. You see exactly which cat it is and choose Tame (it joins your cafe, no catch needed) or Let go. The food is used either way. Better food gives better odds, and the odds are on the shop card before you buy, so lure food already meets the paid random items rules if coins are ever sold for Robux.
 
-Night food dealer (Q10): a mysterious dealer parks his cart on the street every night and leaves at dawn. He sells rare foods with better odds than the shop, including the only foods with a real Mythical chance. Each player sees three stock slots that restock every 10 minutes of real time, the same on every server, each bought once per restock. The higher your tier the better his rolls. The stock is shown before you buy, so nothing about the cart is a paid random item.
+Night food dealer (Q10): a mysterious dealer parks his cart on the street every night and leaves at dawn. He sells rare foods with better odds than the shop, including the only foods with a real Mythical chance. Everyone sees the same three foods, on every server, restocked every 10 minutes of real time (Gavin, round 2), and each player can buy each one once per restock. The stock is shown before you buy, so nothing about the cart is a paid random item.
 
-Carry and bump (Q9): a caught or rescued cat rides in your arms at 80% walk speed until you check in at your cafe door. You can carry one cat at a time. On the way home other players can bump you, and half the time it knocks the cat loose: the cat scurries a few steps, you get the first 8 seconds to net it back, and after that anyone except the bumper can try. The old carrier never runs out of paws on a knocked-loose cat, and it stays for at least two minutes, even if a new night starts. This replaces the v0.2 "no stealing" rule, with protections so it stays playful for an everyone audience: no bumps in the first three seconds after a catch or near the carrier's own cafe, a cooldown per bumper and per target, the bumper can never catch the cat they knocked loose, and a cat that was knocked loose once cannot be bumped again on its next trip. Baited cats are tamed at home and are never carried.
+Carry and shove (Q9, round 2 Q3): a caught or rescued cat rides in your arms at 80% walk speed until you check in at your cafe door. You can carry one cat at a time. Inside the catching areas players can shove each other, carrying or not; the street and the cafes are safe. Shoving a carrier knocks the cat loose half the time: the cat scurries a few steps, you get the first 8 seconds to net it back and after that anyone except the shover can try. A knocked-loose cat never leaves its area and stays for at least two minutes, even if a new night starts. This replaces the v0.2 "no stealing" rule, with protections so it stays playful for an everyone audience: no knock-loose in the first three seconds after a catch or near the carrier's own cafe, no shoving someone in the middle of a catch or rescue, a cooldown per shover and per target, the shover can never catch the cat they knocked loose and a cat that was knocked loose once cannot be knocked loose again on its next trip. Baited cats are tamed at home and are never carried.
 
 ## Income and customers
 
@@ -116,7 +116,7 @@ Start with 50 coins and a Tabby as Barista earning 1.5 per second. Table 1 at 10
 
 ## Social
 
-Shared spawns and the race for rares and shinies. Bumping a carrier on the way home. A server-wide announcement when anyone catches an Epic, Legendary, Mythical or any shiny. Walk into any cafe to see its cats at work under their names. Leaderboards for tips per second and cats found. No trading and no player text beyond Roblox chat and filtered cat names at launch.
+Shared spawns and the race for rares and shinies. Shoving in the catching areas and knocking a carrier's cat loose. A server-wide announcement when anyone catches an Epic, Legendary, Mythical or any shiny. Walk into any cafe to see its cats at work under their names. Leaderboards for tips per second and cats found. No trading and no player text beyond Roblox chat and filtered cat names at launch.
 
 ## Monetization
 
@@ -128,7 +128,7 @@ The features players expect from Steal an Egg and Roll a Fisherman style games a
 
 ## Vertical slice scope
 
-In: one street with 8 plots, the Alleyway and the Park with their 20 cats, Neighbourhood, Woods and Sewer as gated grayboxes, the 5 and 5 minute clock with waves of ten, tiers 1 to 5, four roles with favorite-role pay and upright uniforms, Equip Best, the closing-circle net with three upgrades, rescue minigames with Alleyway and Park traps, the bait bowl at your cafe with Tame or Let go, carry with bumps, shinies, naming cats, night income at 60%, rich customers, the night food dealer, the collection and shiny books, selling duplicates, offline earnings, data saving, tutorial beats, analytics events.
+In: one street with 8 plots, the Alleyway and the Park with their 20 cats, Neighbourhood, Woods and Sewer as gated grayboxes, the 5 and 5 minute clock with waves of ten, tiers 1 to 5, four roles with favorite-role pay and upright uniforms, Equip Best, the closing-circle net with three upgrades, rescue minigames with Alleyway and Park traps, the bait bowl at your cafe with Tame or Let go, carry with shoves, shinies, naming cats, night income at 60%, rich customers, the night food dealer, the collection and shiny books, selling duplicates, offline earnings, data saving, tutorial beats, analytics events.
 
 Out: trading, the 30 cats of the last three areas (provisional names only), role boosts for specific cats, free decor placement, patio and second floor content, game passes, a coins product, friends list features.
 
@@ -140,7 +140,7 @@ Out: trading, the 30 cats of the last three areas (provisional names only), role
 | Net circles (server schedule, press judging) | M | Feel on touch and latency fairness |
 | Rescue minigames | M | Two minigame kinds and their props |
 | Bait bowl with an offline timer | S | Rolling the cat at placement so rejoining cannot reroll |
-| Carry bumps | M | Griefing; must be easy to switch off |
+| Carry and shove | M | Griefing; must be easy to switch off |
 | Shiny | S | None |
 | Night income, rich customers | S | Settling income across a phase change |
 | Night food dealer | M | Stock that cannot be rerolled by rejoining |
@@ -150,16 +150,16 @@ Out: trading, the 30 cats of the last three areas (provisional names only), role
 ## Risks
 
 - Net timing exploit. Gavin wants all-Perfect to be 100%, and v0.4 makes any run without a Miss a sure catch, so a script that presses on time catches anything. The server judges presses on its own clock against a schedule it sets, which stops forged results but not a perfect auto-presser. Supply is the real limit (ten strays per area per night, shared). The server flags accounts whose Perfect rate stays above 95% over 50 or more circles; a flagged account gets no Perfect charm bonus until it drops to 85%, and nothing else is taken away. Reviewer signed off on the v0.3 net on 2026-10-26; v0.4 goes back to the reviewer.
-- Bump griefing. Bumps are the first player-versus-player contact in the game and the audience is everyone. Protections are in the catching section, there is a server switch to turn bumps off and the friends alpha decides whether they stay.
+- Shove griefing. Shoves are the first player-versus-player contact in the game and the audience is everyone, and v0.5 lets anyone in a catching area be shoved, not only carriers. Protections are in the catching section, there is a server switch to turn shoves off and the friends alpha decides whether they stay.
 - Ten minute bait. Long enough to feel like a timer game. The tutorial says up front that the cat will be there when you come back, and the timer runs offline.
 - Scope. Fifty cats, five areas, two rescue minigames and a dealer is a lot for one builder. The slice builds two areas of content and grayboxes the rest, and everything else is one feature per branch.
-- Catch feel. Circles have to feel good on touch, and with v0.4 a Miss costs a paw, so an unfair Basic Net window on a phone would hurt more. Widen `good` before anything else if QA finds it mean.
+- Catch feel. Circles have to feel good on touch, and a Miss sends the cat running, so an unfair Basic Net window on a phone would feel bad. Widen `good` before anything else if QA finds it mean.
 - Performance. Lively cafes times eight on a phone. Culling distances and the roaming cat cap are in world-and-feel.md section 4.
 - Economy. Tier costs, night income and dealer prices are guesses; QA's loop script measures minute-10 and Tier 2 timing.
 - Data loss. Session locking is built; the v3 migration needs a test against real v2 saves.
 
 ## Open questions
 
-Round 2 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): the main loop, how bumps should feel, where bait goes, spending versus holding coins to rank up, the role list, shiny numbers, night pay, area-unique cats, the dealer's stock, the name and the v0.4 miss rule.
+Round 2 is answered (feedback/gavin-2026-10-27.md). Round 3 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): shoving mid-catch, whether a shove knocks a cat loose, the shiny colour style (with a picture), and whether the shared dealer stock runs out.
 
-Settled 2026-10-25: Cozy Cream art style (Derek: cozy game vibes). No trading. Settled 2026-10-26 by Gavin's answers and Derek's go-ahead: everything in v0.3 above, including carry bumps in place of the no-stealing rule.
+Settled 2026-10-25: Cozy Cream art style (Derek: cozy game vibes). No trading. Settled 2026-10-26 by Gavin's answers and Derek's go-ahead: everything in v0.3 above, including carry bumps in place of the no-stealing rule. Settled 2026-10-27 by Gavin's round 2: unlimited tries with a chase after a miss, Shove in place of Bump, the bowl outside, shiny colours at 5%, spending coins to rank up, the cafe closed at night at 60%, one shared dealer stock, area-unique cats, "Cat Cafe" as the placeholder name.

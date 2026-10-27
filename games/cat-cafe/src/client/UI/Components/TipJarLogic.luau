@@ -5,11 +5,19 @@
 -- The server sends TipJarState { sessionStartedAt, claimed } (server time, GetServerTimeNow) when the profile
 -- loads and after each claim; the UI counts down from it with Catalog.tipJar. A coin gift pays
 -- max(minCoins, floor(dayRate * seconds)) at claim time, so the card shows an estimate from the synced rate.
+--
+-- v0.10 (F68, data-model 11b, round 4 Q10): rows carry `prize` in the Index prize shape plus potions, so the 60 and
+-- 120 minute gifts pay several things; `prize` reads either row shape, and `size` makes those gifts' cards bigger.
+
+local IndexRewards = require(script.Parent.IndexRewards)
+
+export type Prize = IndexRewards.Prize
 
 export type Row = {
 	step: number,
 	minutes: number,
-	kind: string, -- "coins" or "lure"
+	prize: Prize?, -- F68
+	kind: string?, -- before F68: "coins" or "lure"
 	seconds: number?, -- coins: seconds of day rate
 	minCoins: number?,
 	lureId: string?, -- lure: the food and how many
@@ -24,6 +32,9 @@ export type Jar = {
 }
 
 export type StepState = "claimed" | "ready" | "waiting"
+
+-- small: one thing, with any spins as a badge; wide: two or three pictures; full: four or more, across the grid
+export type Size = "small" | "wide" | "full"
 
 export type StepView = {
 	row: Row,
@@ -48,7 +59,45 @@ function TipJarLogic.dayRate(incomePerSecond: number, night: boolean, nightShare
 end
 
 function TipJarLogic.coins(row: Row, dayRate: number): number
-	return math.max(row.minCoins or 0, math.floor(math.max(0, dayRate) * (row.seconds or 0)))
+	return IndexRewards.coins(TipJarLogic.prize(row), dayRate)
+end
+
+-- The row's prize in the Index prize shape: its own `prize` (F68), or the old fields read into it.
+function TipJarLogic.prize(row: Row): Prize
+	local own = row.prize
+	if own then
+		return own
+	end
+	local prize: Prize = {}
+	if row.kind == "coins" then
+		prize.coins = row.minCoins or 0
+		prize.coinSeconds = row.seconds
+	elseif row.lureId then
+		prize.lures = { [row.lureId] = row.count or 1 }
+	end
+	if (row.fish or 0) > 0 then
+		prize.fish = row.fish
+	end
+	if (row.spins or 0) > 0 then
+		prize.spins = row.spins
+	end
+	return prize
+end
+
+-- How big the gift's card is: one thing (spins aside, which then wear a badge) fits a small card, two or three
+-- pictures take a wide one, and four or more the whole row, so the bigger gifts stand out.
+function TipJarLogic.size(prize: Prize): Size
+	local parts = IndexRewards.prizeParts(prize, nil)
+	local things = 0
+	for _, part in parts do
+		if part.kind ~= "spins" then
+			things += 1
+		end
+	end
+	if things <= 1 then
+		return "small"
+	end
+	return if #parts <= 3 then "wide" else "full"
 end
 
 -- A sparse { [step] = true } crosses a RemoteEvent with string keys, so look under both.

@@ -1202,6 +1202,112 @@ for piece, parts in INDEX_DECOR do
 	end
 end
 
+-- Cafe Crate furniture and decorations (F53) until the asset thread models them: a block in the piece's rarity colour
+-- at a rough footprint, furniture low and wide, a decoration tall and thin, with its name on a little board on the
+-- front (-Z). The F48 Index pieces among them have their own stand-ins above.
+for _, def in Catalog.crateDecor do
+	if (def.kind ~= "furniture" and def.kind ~= "decoration") or builders[def.asset] ~= nil then
+		continue
+	end
+	local name, rarity = def.asset, def.rarity or "Common"
+	local furniture = def.kind == "furniture"
+	local size = if furniture then Vector3.new(4, 2.4, 2.4) else Vector3.new(1.6, 4, 1.6)
+	builders[name] = function()
+		local model = simple(name, {
+			{
+				name = "Body",
+				size = size,
+				offset = Vector3.new(0, size.Y / 2, 0),
+				color = hexColor(Catalog.rarities[rarity].color),
+				collide = furniture,
+			},
+		})
+		local board = addPart(model, {
+			name = "NameBoard",
+			size = Vector3.new(math.max(size.X, 2.4), 0.8, 0.1),
+			offset = Vector3.new(0, size.Y + 0.5, -size.Z / 2),
+			color = CREAM,
+		})
+		local gui = Instance.new("SurfaceGui")
+		gui.Face = Enum.NormalId.Front
+		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		gui.PixelsPerStud = 40
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.fromScale(1, 1)
+		label.BackgroundTransparency = 1
+		label.TextScaled = true
+		label.Font = Enum.Font.FredokaOne
+		label.TextColor3 = DARK
+		label.Text = def.name
+		label.Parent = gui
+		gui.Parent = board
+		return model
+	end
+end
+
+-- The Golden Fish Market (F53, golden-fish.md section 3) until the art is synced: a fishmonger's counter under a
+-- striped awning, a crate of golden fish on top and a sign, front toward -Z. PromptAnchor sits at the front, 3 up.
+builders.CatCafe_Street_FishMarket = function()
+	local model = newModel("CatCafe_Street_FishMarket")
+	local counter = addPart(model, {
+		name = "Counter",
+		size = Vector3.new(7, 3, 3),
+		offset = Vector3.new(0, 1.5, 0),
+		color = WOOD,
+		material = Enum.Material.WoodPlanks,
+		collide = true,
+	})
+	local anchor = Instance.new("Attachment")
+	anchor.Name = "PromptAnchor"
+	anchor.Position = Vector3.new(0, 1.5, -1.8) -- relative to the counter's centre: the front, 3 studs up
+	anchor.Parent = counter
+	addPart(model, {
+		name = "FishCrate",
+		size = Vector3.new(3, 0.8, 1.6),
+		offset = Vector3.new(0, 3.4, 0),
+		color = INDEX_GOLD,
+		material = Enum.Material.Metal,
+	})
+	for _, x in { -3.2, 3.2 } do
+		addPart(model, {
+			name = "Post",
+			size = Vector3.new(0.4, 6.5, 0.4),
+			offset = Vector3.new(x, 3.25, 1.2),
+			color = CREAM,
+			collide = true,
+		})
+	end
+	for index = 1, 5 do
+		addPart(model, {
+			name = "Awning",
+			size = Vector3.new(1.4, 0.2, 3.6),
+			offset = Vector3.new(-2.8 + (index - 1) * 1.4, 6.6, -0.2),
+			rotation = Vector3.new(-12, 0, 0),
+			color = if index % 2 == 1 then Color3.fromRGB(64, 170, 180) else CREAM,
+		})
+	end
+	local sign = addPart(model, {
+		name = "Sign",
+		size = Vector3.new(6, 1.2, 0.2),
+		offset = Vector3.new(0, 7.6, 1.2),
+		color = CREAM,
+	})
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Front
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 40
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.Font = Enum.Font.FredokaOne
+	label.TextColor3 = DARK
+	label.Text = "Golden Fish Market"
+	label.Parent = gui
+	gui.Parent = sign
+	return finish(model, counter)
+end
+
 -- Every asset name the game can ask for.
 function Placeholders.names(): { string }
 	local names: { string } = {}

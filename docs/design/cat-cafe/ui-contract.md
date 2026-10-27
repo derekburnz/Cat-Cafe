@@ -54,6 +54,9 @@ UI.init({
         indexMilestones = Catalog.indexMilestones,  -- {IndexMilestone}, F48: the Index's milestones
         indexPrizes = Catalog.indexPrizes,          -- F48: area id -> milestone id -> IndexPrize
         spinWheel = Catalog.spinWheel,  -- {SpinSlice}, F49: the Spin Wheel's six slices in wheel order
+        crates = Catalog.crates,      -- {CrateDef}, F53: the Cafe Crates in Market order
+        fishShop = Catalog.fishShop,  -- {FishShopRow}, F53: what golden fish buy at the Market
+        crateDecor = Catalog.crateDecor,  -- {DecorDef}, F53: the crate pieces (the five Index pieces stay in decor)
         rarities = Catalog.rarities,  -- {[Rarity]: RarityDef}: the cat room's sell prices (sellValue)
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
@@ -84,7 +87,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
-| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"BugReport"`. One open at a time. |
+| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"Market"`, `"BugReport"`. One open at a time. |
 | `UI.setZone(zone?)` | The `World.Zones` name the player stands in, from the controller's zone check: nil or `"Cafe"` is the safe street and cafes, else the area (`"Alley"`). Drives the Safe zone chip and its toast on coming back, and hides that area's location marker. |
 | `UI.openCatRoom()` | Opens Collection on the Cat room tab (tutorial step 3). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
@@ -127,6 +130,8 @@ Cat room (inventory, UI plan 2026-10-27, `Screens/CatRoom.luau`, order and searc
 ### Press prompts (built)
 
 A stray or stuck-cat prompt is a hold prompt (0.5 s, 2026-10-27; it was a press prompt with `HoldDuration = 0` before). The card reads "Catch" or "Rescue" (the prompt's `ActionText` wins when set), the touch button reads CATCH or RESCUE, and one press fires `events.grabBegan(strayId, catId)` or `events.rescueBegan(rescueSpotId, catId)`. The card then shows "Get ready..." until the server answers with `catch.showCircles`, the rescue minigame or `catch.fail(reason, retry)` for a refusal. The `Gold` attribute on a stray adds "Gold" to the circles header.
+
+**Pick up (built, UI side of v0.8 F56 and v0.10 F67, data-model 10c).** A dropped stray that anyone can pick up with the hold and no circles: set `PickUp = true` on its model (or its prompt) while it is Dropped under the v0.8 rules, with `ActionText = "Pick up"`. The card then reads "Pick up", the touch button PICK UP, and the hint "No circles. Hold to pick it up!"; with `Returning = true` (F67, walking back to where it was caught) the hint says "It's walking home. Grab it before it gets there!". The hold fires `events.pickUpBegan(strayId, catId)` and the card shows "Picking up..." until the carry starts (`UI.setCarrying` and the prompt going away) or `catch.fail(reason, true)` for a refusal. A pick up has no owner window, so "Owner's turn" never shows on one. The card follows `PickUp`, `Returning` and `Dropped` while it is up, so a cat that gets home turns back into a Catch card with the circles. Without `PickUp` a Dropped stray stays a Catch card, so nothing changes until the server's pick up is live.
 
 v0.5 chase (F40, data-model section 10 step 5): tries are unlimited, so the card has no paw row and the hint reads "Hit each ring. Miss and it runs off!". While the stray model's `FleeingUntil` (server time) is ahead the card reads "It's running!" in orange over "Wait till it stops, then try again", the CATCH button greys and a press asks the server nothing; the card turns back to Catch the moment the cat stops, and redraws at once when `FleeingUntil` changes while it is up (someone else missed it). The player who missed reads "Catch your breath..." for `StraySelfRetrySeconds` (1, from Config) after the stop (reviewer S44); the UI notes its own misses from `CatchResult`, so the server sends nothing extra for it. A cat knocked loose by a shove (`Dropped`, F41) reads "Owner's turn" over "Its owner gets the first try" for everyone but its `DropOwner` until `DropOwnerUntil` (reviewer N90), then turns to Catch; the server keeps refusing the shover for good with its own toast.
 
@@ -221,11 +226,13 @@ A gear in the HUD's top-right icon row (left of Invite) opens Settings (`Screens
 
 ### Tip Jar (built, F47, data-model section 11b)
 
-The twelve free playtime gifts of the session, like the Free Gifts grid in Pet Simulator 99 (`Screens/TipJar.luau`, sums in `Components/TipJarLogic.luau` with a spec). A pink **Gifts** tile joins the HUD's top-right icon row (left of the gear) with the first `TipJarState`: it counts down to the next gift ("4:05"), reads "Claim!" with a red count while gifts are ready, and "Done" once all twelve are claimed. It opens the **Tip Jar** window (orange, 🎁): a strip with "Played 12:34 · next gift in 2:26" over a bar filling toward the next gift, then a card per gift with its minute, the prize (a 💰 coin estimate from the day rate, or the food's picture and "2 Kibble") and a timer pill, a green Claim button once ready, or "✓ Claimed". The subtitle says the jar resets when you leave. A pressed Claim shows "..." for 3 s or until the next `TipJarState`.
+The twelve free playtime gifts of the session, like the Free Gifts grid in Pet Simulator 99 (`Screens/TipJar.luau`, sums in `Components/TipJarLogic.luau` with a spec). A pink **Gifts** tile joins the HUD's top-right icon row (left of the gear) with the first `TipJarState`: it counts down to the next gift ("4:05"), reads "Claim!" with a red count while gifts are ready, and "Done" once all twelve are claimed. It opens the **Tip Jar** window (orange, 🎁): a strip with "Played 12:34 · next gift in 2:26" over a bar filling toward the next gift, then a card per gift with its minute, the prize as pictures with amounts (`Components/PrizeChips`, as on the Index: a 💰 coin estimate from the day rate, the food with its grade gem and "x2", golden fish, crates, spins, potions) and a timer pill, a green Claim button once ready, or "✓ Claimed". The subtitle says the jar resets when you leave. A pressed Claim shows "..." for 3 s or until the next `TipJarState`.
+
+F68 (built, data-model 11b v0.10, round 4 Q10): a gift that pays several things gets a bigger gold card (`TipJarLogic.size`). One thing, with any spins as the berry "+1 spin" badge, stays a small card; two or three pictures take a wide card titled "60 min · Big gift"; four or more take the whole row, titled "120 min · Best gift". On the bigger cards spins are a picture too and read "Full" while the bank is at `SpinBankCap`. The cards wrap in rows instead of a grid. Potions show as a 🧪 tile with "x1" until the asset thread draws bottles.
 
 | API | Purpose |
 |---|---|
-| `catalog.tipJar` | `Catalog.tipJar`, the rows `{ step, minutes, kind = "coins" \| "lure", seconds?, minCoins?, lureId?, count? }`. No rows, no tile. |
+| `catalog.tipJar` | `Catalog.tipJar`, the rows `{ step, minutes, prize }` (F68), where `prize` is an IndexPrize plus `potions = { [potionId] = count }?`. Rows in the older shape `{ step, minutes, kind = "coins" \| "lure", seconds?, minCoins?, lureId?, count?, spins?, fish? }` still read (`TipJarLogic.prize`). No rows, no tile. |
 | `UI.tipJar.set(jar?)` | From `TipJarState`: `{ sessionStartedAt, claimed }`, `sessionStartedAt` in `Workspace:GetServerTimeNow()` time and `claimed` a dense array of 12 booleans (`claimed[step]`, as the server sends it); a sparse `{ [step] = true }` with string keys also reads fine. Send it when the profile loads and after every claim. nil hides the tile. |
 | `UI.tipJar.open()` | Opens the window. |
 | `events.claimTipJar(step)` | Forward as `ClaimTipJar(step)`. |
@@ -234,9 +241,11 @@ Coin cards show `max(minCoins, floor(dayRate * seconds))` with the day rate work
 
 ### Spin Wheel (built, F49, data-model section 11c, areas-and-stations B3)
 
-Derek: "things like spins could be an area you walk up to". The wheel is a station in the street plaza, not a HUD button. Holding E on its "Spin" prompt opens the **Spin Wheel** window (`Screens/SpinWheel.luau`, sums in `Components/SpinLogic.luau` with a spec), like Pet Simulator 99's wheel: on the left a wheel of six round prize tiles in the Cozy Cream pastels (the food's picture or 💰, the chance, "x3" for more than one) on a cream face with spokes, a caramel rim with gold lights, a paw hub and a red pointer at the top; on the right "Prizes and chances" (a swatch, the prize as "$1,200" or "3 Tuna", and "30%" for every slice), "Spins: 2", "Free spin ready!" or "Next free spin in 5h 12m" (plus "· 1 saved" for banked spins) and a big gold Spin button. Nothing in the window mentions Robux (N126).
+Derek: "things like spins could be an area you walk up to". The wheel is a station in the street plaza, not a HUD button. Holding E on its "Spin" prompt opens the **Spin Wheel** window (`Screens/SpinWheel.luau`, sums in `Components/SpinLogic.luau` with a spec), like Pet Simulator 99's wheel: on the left a wheel of six round prize tiles in the Cozy Cream pastels (the food's picture or 💰, the chance, "x3" for more than one) on a cream face with spokes, a caramel rim with gold lights, a paw hub and a red pointer at the top; on the right "Prizes and chances" (a swatch, the prize as "$1,200" or "3 Tuna", and "30%" for every slice) with an **Odds** button, "Spins: 2", "Free spin ready!" or "Next free spin in 5h 12m" (plus "· 1 saved" for banked spins) and a big gold Spin button. Nothing in the window mentions Robux (N126).
 
 Spin fires `events.spinWheel()` and the button shows "..." until `SpinResult` (5 s at most). On a slice, the wheel turns clockwise for `SpinCooldownSeconds` (4 s; 1.5 s and two turns with Reduced Motion) and stops in the middle of that slice (N127). It slows at a steady rate (Quad Out), so it crosses into the prize's slice at about two slices a second and never crawls past a bigger prize. The landed tile pops with a gold burst and a gold ring, and "You won 3 Tuna!" shows under the button, using the paid `amount`. The button stays off until the wheel has landed and the cooldown has passed. Slice 0 says why: "Next free spin in 5h 12m" with no spin left, else "Walk up to the wheel and try again". The window closes itself when the player walks more than `SpinStationRange` + 2 studs from the nearest `SpinWheel` station (N132); a prize that lands while it is closed is a toast ("Spin Wheel: You won $1,200!").
+
+Odds (F69, round 4 Q11: "have the odds be a button you can click for the spin so you can see whats likely to hit"): the Odds button covers the window with "Spin odds", the six slices likeliest first (`SpinLogic.byChance`; equal chances keep wheel order), each with its prize picture (foods with their grade gem), the prize, a bar as long as its chance and the chance in big text, the same numbers as on the wheel, adding up to 100%. Back, or closing the window, puts it away. Nothing to call.
 
 The **Plaza** location marker (🎡, orange) sits 16 studs over the `SpinWheel` station's pivot, fades up close like the others, and shows a red dot while today's free spin waits (from `state.spin` and `GetServerTimeNow()`; no dot before the first `spin` arrives). In the Tip Jar, a gift with `spins` wears a pink "🎡 +1 spin" badge until claimed, or a grey "Spins full" while `spin.banked` is at `SpinBankCap` (20), since the server then drops the spin and pays the rest.
 
@@ -244,8 +253,7 @@ The **Plaza** location marker (🎡, orange) sits 16 studs over the `SpinWheel` 
 |---|---|
 | `catalog.spinWheel` | `Catalog.spinWheel`: `{ { slice, kind = "coins" \| "lure" \| "fish" \| "crate", seconds?, minCoins?, lureId?, count?, crate?, weight } }` in wheel order, clockwise from the top. Chances are `weight` over the sum. No rows, no Spin. F54 (golden-fish.md section 6): a `fish` slice shows the cat-face coin with "x4" and reads "4 golden fish"; a `crate` slice shows a crate tile (gold for a golden crate) and reads "1 Woods Crate", where `crate = "highest"` names the plain crate of the highest area the player's tier opens (`Components/CrateLogic.luau`, with a spec) and changes when a new area opens. |
 | `state.spin` | From ProfileSync: `{ lastFreeDay, banked }`. Pass it in `UI.update`. |
-| `catalog.tipJar[i].spins` | Optional: spins the gift also banks (steps 11 and 12). |
-| `catalog.tipJar[i].fish` | Optional (F52): golden fish the gift also gives (step 12). The card shows the coin and "+5" left of its picture until claimed. |
+| `catalog.tipJar[i].prize.spins` | Optional: spins the gift also banks (steps 9, 11 and 12 in v0.10). Before F68 the row's own `spins` and `fish` fields. |
 | `UI.spin.open()` | Opens the window. Call it from the station's `SpinPrompt` `Triggered`. |
 | `UI.spin.result(slice, amount)` | From `SpinResult(slice, amount)`: `amount` is the coins paid, or the number of foods, golden fish or crates. `(0, 0)` means refused. |
 | `events.spinWheel()` | Forward as `SpinWheel()`. |
@@ -283,8 +291,8 @@ In the Decor shop, Index decor (`source = "index"`, cost 0) never shows a Buy bu
 | API | Purpose |
 |---|---|
 | `catalog.indexMilestones` | `Catalog.indexMilestones`: rows in card order, the same on every page. F48: `{ id, need, gold? }` (`cats3` 3, `cats6` 6, `cats10` 10, `gold10` 10 gold). F54 (golden-fish.md section 8): `{ id, track = "normal" \| "gold", needs }` with `cats3`, `cats6`, `cats10`, `gold1` to `gold10`, and `total5` to `total50` for the All Cats page. The UI reads both (`IndexRewards.need`, `IndexRewards.isGold`). |
-| `catalog.indexPrizes` | `Catalog.indexPrizes` (not `indexRewards`, which is the claimed map, S61): `{ [areaId] = { [milestoneId] = IndexPrize } }`, where an IndexPrize is any of `{ coins?, coinSeconds?, lures = { [lureId] = count }?, fish?, spins?, crates = { [crateId] = count }?, bonus?, tag?, decorId? }` (F54 adds all but `coins`, `lures` and `decorId`; `bonus` is a fraction, 0.02). Area id `all` is the All Cats page. An area or milestone without a prize has no card. |
-| `catalog.crates` | F53 `Catalog.crates` (`Types.CrateDef`, re-exported from `SharedTypes.CrateDef`): `{ [crateId] = { id, name, area, golden, price?, odds, pieces } }`. Pass it in `UI.init`'s catalog. Crate chips and wheel slices show 📦 on a Rare tile, or a Legendary tile when `golden`, and a model named in an optional `asset` once Assets has one. A prize's `crates = { highest = 1 }` shows the crate it pays now, from `state.tier` and `catalog.areas`. |
+| `catalog.indexPrizes` | `Catalog.indexPrizes` (not `indexRewards`, which is the claimed map, S61): `{ [areaId] = { [milestoneId] = IndexPrize } }`, where an IndexPrize is any of `{ coins?, coinSeconds?, lures = { [lureId] = count }?, fish?, spins?, crates = { [crateId] = count }?, bonus?, tag?, decorId?, potions = { [potionId] = count }? }` (F54 adds all but `coins`, `lures`, `decorId` and `potions`; `bonus` is a fraction, 0.02; `potions` is v0.10's, for the Tip Jar, codes and the Daily Treat). Area id `all` is the All Cats page. An area or milestone without a prize has no card. |
+| `catalog.crates` | F53 `Catalog.crates` (`Types.CrateDef`, re-exported from `SharedTypes.CrateDef`): a list of `{ id, name, area, golden, price?, odds, pieces }` in Market order (the UI also reads a map by id). Pass it in `UI.init`'s catalog. Crate chips and wheel slices show 📦 on a Rare tile, or a Legendary tile when `golden`, and a model named in an optional `asset` once Assets has one. A prize's `crates = { highest = 1 }` shows the crate it pays now, from `state.tier` and `catalog.areas`. |
 | `state.indexRewards` | From ProfileSync: `{ [areaId] = { [milestoneId] = true } }` once claimed. Pass it in `UI.update`. |
 | `events.claimIndexReward(areaId, milestoneId)` | Forward as `ClaimIndexReward(areaId, milestoneId)`; the server pays, places the decor, marks the milestone and sends ProfileSync. |
 | `UI.openIndex(areaId)` | Opens the Index on that area's page (an Index Board's prompt calls it). |
@@ -307,6 +315,39 @@ Every short number in the UI (both counters, prices, prize amounts) comes from `
 
 **Engineer:** add `goldenFish = s.goldenFish` to the `UI.update` call in UIController once ProfileSync sends it.
 
+### Golden Fish Market (built, F53, golden-fish.md sections 3 and 4)
+
+The fishmonger stall in the street plaza beside the Spin Wheel. Holding E on its "Market" prompt opens the **Golden Fish Market** window (`Screens/FishMarket.luau`, sums in `Components/MarketLogic.luau` with a spec), like the wheel: a station, not a HUD button. Two tabs on the left (Crates, Treats and perks) and the player's golden fish on a card at the top right, with the cat-face coin. Nothing in the window mentions Robux: golden fish are earned only.
+
+- **Crates:** a card per crate: the crate's picture (📦 on a Rare tile, a Legendary tile for golden ones, a model named in an optional `asset` later), an "x2" pill when the player has some, the name, "You have 2", "60 golden fish" or "Opens at Tier 3", and the lucky twentieth countdown in small print ("Epic or better in 4 more crates", gold "Your next crate is Epic or better!" on the twentieth). Under it an Odds button and the Open button: green "Open" for a crate the player has (used first, as the server does), gold "Open · 60" to buy one, grey when short of fish, "🔒 Locked" until the crate's zone opens. The Classic Crate is open from Tier 1. Golden crates show only while the player has one, since they are never sold.
+- **Odds** (before every open, monetization-policy section 2): a sheet over the window with each rarity's chance, then every piece with its rarity dot, kind and "+4% tips while in use" and its own chance (its rarity's odds split equally among that rarity's pieces, rarest first). It shows the odds the next crate opens on: on the lucky twentieth the golden odds, with "Lucky! Your next crate opens on these golden odds". Until the pieces land it says "The pieces arrive with the next update."
+- **Reveal:** Open fires `events.openCrate(crateId)` and the button shows "..." until `CrateResult` (5 s at most). The won piece's card pops in with a band, a glow and a tile in its rarity colour from the first frame, never a better colour first, so nothing looks like a near miss. Under it the name, the kind and bonus, and "New! Find it in Decor." or "You had this one: +20 golden fish back". "Nice!" closes it after 2 s; a tap skips to the end. A new wallpaper, floor or paint offers "Use it" and "Later" instead: Use it fires `events.toggleDecor(decorId, true)`, which swaps it for the one of that kind in use. Reduce Motion makes it a short fade. A refusal `("", false, 0)` plays the error sound and frees the button; the server's toast says why. A result that lands while the window is closed is a toast.
+- **Treats and perks:** a row per non-crate `Catalog.fishShop` row: the Star Treat ("You have 2") and the perks (Golden Espresso +5% tips a level, Big Bowl food ready in 8 minutes, Extra Decor Spot), each with what it does, "Level 2 / 5" and a gold Buy button with the next level's cost, "Maxed" at the last level. Buy fires `events.buyFishItem(itemId)` and waits for the perk level or food count to change (5 s at most).
+
+The window closes when the player walks more than `FishMarketRange` (14) + 2 studs from the nearest `FishMarket`-tagged stall, as the wheel does. In the demo, M opens it with 137 golden fish, a banked Classic Crate, a Golden Alley Crate and an Alley crate one open from the lucky twentieth; golden-fish.md's 60 draft pieces stand in for `Catalog.crateDecor` until it lands, six Alley pieces are owned (the Decor Index's first reward is ready) and both Tier 1 decor spots are taken.
+
+| API | Purpose |
+|---|---|
+| `UI.market.open()` | Opens the Market window. Call it from the stall's "Market" prompt (Triggered). |
+| `UI.market.result(crateId, decorId, duplicate, refund)` | From `CrateResult`: plays the reveal. `decorId = ""` is a refusal. |
+| `catalog.fishShop` | `Catalog.fishShop` (`Types.FishShopRow`, from `SharedTypes.FishShopRow`): `{ id, kind = "crate" \| "lure" \| "perk", cost?, costs?, maxLevel? }`. Crate rows are skipped (the crates have their own cards). |
+| `state.crates`, `state.crateLuck`, `state.fishPerks` | Unopened crates by id, opens since the last Epic or better by pool (0 to 19), and perk levels by id. |
+| `catalog.crateDecor` | `Catalog.crateDecor`: the crate pieces (`DecorDef` with `source = "crate"`, `crate`, `rarity`, `kind`), looked up with `catalog.decor` by id, since the five F48 Index pieces stay in `Catalog.decor` as their zones' Epics. |
+| `DecorDef.rarity`, `DecorDef.kind` | Read loosely for the odds card and the reveal (`"wallpaper"`, `"floor"`, `"paint"`, `"furniture"`, `"decoration"`). |
+
+**Engineer (F53):** add `fishShop = Catalog.fishShop` and `crateDecor = Catalog.crateDecor` to the catalog passed to `UI.init`; call `UI.market.open()` from the `FishMarket` stall prompt's `Triggered`; forward `UI.events.openCrate` as `OpenCrate(crateId)` and `UI.events.buyFishItem` as `BuyFishItem(itemId)`; pass `CrateResult(crateId, decorId, duplicate, refund)` to `UI.market.result`. `crateLuck` and `fishPerks` already go through `UI.update`.
+
+### Decor Index, style slots and decor spots (built, F53 part 2, golden-fish.md section 4)
+
+**Decor Index:** the Collection screen gets a third tab, Decor, between Index and Cat room (`Screens/DecorIndex.luau`), shown once the catalog has crates. A page per crate (Alley, Park, Neighbourhood, Woods, Sewer, Classic) with "4 / 10" or "Complete!" on its tab, the page's progress bar, and its ten pieces rarest last: a "?" tile and "???" with the rarity in its colour until owned, then the piece's tile in its rarity colour, its kind glyph, its name and "Epic · +8%". Above the pieces the usual reward strip (`Screens/IndexStrip`) shows `decor5` ("5 pieces", 25 golden fish) and `decor10` ("All 10", +5% tips forever) with Claim, which fires `events.claimIndexReward("decor_alley", "decor5")` as the cat pages do. Once `decor10` is claimed the page wears a gold frame. The Decor tab and each page tab carry a red badge while a reward waits; the Index tab's badge now counts only cat pages. Counts come from `state.decorOwned` (`Components/DecorPieces.luau`, with a spec; `IndexRewards.counts` and `needLabel` know the `decor_` pages).
+
+**Decor screen:** the crate pieces the player owns (from `catalog.decor` and `catalog.crateDecor`) join the grid under their kind's chip (Wallpaper, Floor, Paint, Furniture, Decoration), each with its rarity pill and "+4% tips while in use"; unowned pieces stay out of the shop (the Decor Index shows them). A "Your cafe" strip under the chips shows the wallpaper, floor and paint in use (or "Plain") and "Decor spots 2 / 4", red when full; tapping one filters the grid to that kind. A wallpaper, floor or paint card says "Use it", or Remove with an "In use" tag (Remove fires `toggleDecor(id, false)` and the cafe goes back to its plain look); furniture and decorations say Place, Remove (also tagged "In use") or "Spots full". Spots are `Config.DecorSpots[tier]` plus the Extra Decor Spot level; placed crate furniture and decorations use them (the five Index pieces count, coin-shop decor does not, and a normal Index piece replaced by its placed gold piece drops out), the same rule as the server's. A new crate piece lights the Decor menu dot.
+
+| API | Purpose |
+|---|---|
+| `catalog.indexPrizes["decor_<pool>"]` | The Decor Index rewards: `{ decor5 = IndexPrize, decor10 = IndexPrize }`, with `decor5` and `decor10` rows in `catalog.indexMilestones`. A page without prizes shows no strip. |
+| `toggleDecor(decorId, true)` | Also fired by "Use it" on a style piece; the server swaps out the piece of that kind in use, and refuses a furniture or decoration Place when every spot is full. |
+
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 
 Nothing to call: `UI.init` starts all three and they read attributes the server and `CustomerController` already set, plus the player state.
@@ -322,7 +363,7 @@ The name signs, rate tags and order bubbles are parented under the models, so th
 
 Nothing new to call or forward: `UI.open("Upgrades")` opens it and the tabs read the state the UI already gets.
 
-- **Cafe** (the upgrade list, fishing simulator style): one row per `Catalog.upgrades` entry with an icon box (`Theme.upgradeIcons`), the name, a star per level (gold up to the level owned), the effect line and a gold price button that reads "MAX" when maxed and "Tier 3" while a tier gate holds it. Buying fires `events.buyUpgrade(id)` as before.
+- **Cafe** (the upgrade list, fishing simulator style): one row per `Catalog.upgrades` entry with an icon box (`Theme.upgradeIcons`), the name, a star per level (gold up to the level owned), the effect line and a gold price button that reads "MAX" when maxed and "Tier 3" while a tier gate holds it. When `upgradeLevels` raises a row's level, its price button pops, the new stars pop in mint and settle gold and the row flashes mint, in step with the VFX sparkle where the upgrade appears in the cafe (Reduce Motion keeps only the colour flash). Buying fires `events.buyUpgrade(id)` as before.
 - **Staff** (Derek: "slots for each role of the cafe and locked if its locked still"): a rank up card on top ("Tier 2 · Cozy Cafe", "Next: <tier> opens <what>", a "Rank up!" button in gold when every requirement is met, else "See goals"; both open the rank up card; hidden at the top tier). Under it one row per role in catalog order (`Components/StaffSlots.luau`, pure, with a spec): the role icon (`Theme.roleIcons`), the name, a summary ("1 working · 1 free · next at Tier 3", "Opens at Tier 2", "All 2 working") and a 44 px square per slot in the order the slots open. A working slot shows the cat's initial on its rarity colour, a free slot a green "+" (a tap opens the cat room, `UI.openCatRoom`), a locked slot a grey lock with "T3". "Add cat" shows when the role has a free slot and lights when a cat is resting in the cat room. Working and free need `state.cats`; without it every opened slot counts as free.
 
 ### Bait bowl (built, F28, data-model section 8)
@@ -343,9 +384,11 @@ In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLe
 
 Each food card has the food's picture on the left (`Components/ItemIcon.luau`): the LureDef's `asset` model from `ReplicatedStorage.Assets`, still, on a tile in its rarity colour, with a glyph from `Theme.foodIcons` until the model exists. Per-cat shares keep up to two decimals so they add back up to the rarity's share (reviewer N69).
 
+**Food grades (built, F69, data-model section 8, round 4 Q11).** Every food has a grade in the cat rarity names, which says how good the food is: Kibble Common, Tuna and Moonlit Sardines Rare, Salmon and Caviar Epic, Moon Milk Legendary, Star Treat Mythical (`Components/FoodGrade.luau`, with a spec). Wherever a food appears its picture's tile is in the grade's colour and wears a grade badge: a word pill ("LEGENDARY") across the bottom of a big picture (the Bait bowl's food cards, the food in the bowl on its status card and the dealer's cards), or a lettered gem ("L") in the corner of a small one (the Spin Wheel's tiles and Odds list, Tip Jar gifts and every prize picture from `Components/PrizeChips`). The Bait bowl and dealer cards also take a border in the grade's colour. The odds line stays on every card, and the chip by the food's name now reads "Attracts Epic" on paper with a border in that rarity's colour, so the solid badge is always the grade. `ItemIcon:setFood(lure, id?)` draws all of this; `ItemIcon.new{ badge = "gem" }` picks the small form. Engineer: add `rarity` to each `LureDef` (data-model section 8); until then the UI uses the grades above and falls back to `attracts` for a food it does not know.
+
 ### Night dealer (built, F32, data-model section 8b)
 
-The Grow a Garden seed shop, for the dealer's cart: "Fresh stock in 4:12" across the top, then one card per food with its picture, name, rarity, "x2 Stock" in green or "Sold out" in red, "You have N", the odds line, the gold chance and the charm star odds, and one green price button. A food that fills two slots shows once, and Buy sends its first slot not bought yet. Details adds the food's description and the per-cat split. Cards have rarity-coloured borders.
+The Grow a Garden seed shop, for the dealer's cart: "Fresh stock in 4:12" across the top, then one card per food with its picture, name, rarity, "x2 Stock" in green or "Sold out" in red, "You have N", the odds line, the gold chance and the charm star odds, and one green price button. A food that fills two slots shows once, and Buy sends its first slot not bought yet. Details adds the food's description and the per-cat split. Cards have borders and picture badges in the food's grade colour (F69, see Food grades).
 
 | API | Purpose |
 |---|---|
@@ -410,10 +453,13 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `claimTipJar` | `step` | Claim on a ready Tip Jar gift. Forward as `ClaimTipJar(step)` (F47). |
 | `claimIndexReward` | `areaId, milestoneId` | Claim on a reached Index reward card. Forward as `ClaimIndexReward(areaId, milestoneId)` (F48). |
 | `spinWheel` | none | Spin on the Spin Wheel window. Forward as `SpinWheel()` (F49); the server checks the range, spins and cooldown, pays and answers `SpinResult`. |
+| `openCrate` | `crateId` | Open on a Golden Fish Market crate card. Forward as `OpenCrate(crateId)` (F53); the server checks the range, area, crate or fish and cooldown, rolls and answers `CrateResult`. |
+| `buyFishItem` | `itemId` | Buy on a Market treat or perk row. Forward as `BuyFishItem(itemId)` (F53). |
 | `reportBug` | `text, kind, clientErrors` | Send on the Report a bug window: the trimmed text (3 to 500 bytes), `"bug"`, `"stuck"` or `"idea"`, and up to 3 client error lines of up to 200 bytes. Forward all three as `ReportBug`; the server answers with a toast (see Report a bug). |
 | `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |
+| `pickUpBegan` | `strayId, catId` | The hold on a dropped cat's prompt whose model has `PickUp = true` (v0.8 F56, v0.10 F67). Forward as `PickUpCat(strayId)`; a refusal comes back as `catch.fail(reason, true)`. |
 | `rescuePressed` | `rescueSpotId` | A press on the rescue bar or the tree's catch circle. Forward as `RescuePress(rescueSpotId)` (F27) |
 | `rescueCancelled` | `rescueSpotId` | Give up on the rescue bar. Forward as `RescueCancel(rescueSpotId)` (F27) |
 | `claimRichTip` | none | Collect on the rich tip marker, within 12 studs of the anchor. Forward as `ClaimRichTip()` (F31); the server checks the owner, range and expiry |
@@ -445,6 +491,9 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     indexRewards: { [areaId]: { [milestoneId]: true } }?,           -- F48: claimed Index rewards; missing reads as none
     spin: { lastFreeDay: number, banked: number }?,                 -- F49: the free spin's UTC day and banked spins
     goldenFish: number?,                                           -- F52: the rare currency; nil hides its HUD counter
+    crates: { [crateId]: number }?,                                -- F53: unopened crates
+    crateLuck: { [pool]: number }?,                                -- F53: opens since the last Epic or better, per zone or "classic"
+    fishPerks: { [perkId]: number }?,                              -- F53: Golden Fish Market perk levels
 }
 ```
 
@@ -457,6 +506,7 @@ CatDef     : id, name, rarity, incomePerSecond, area (one of five), favoriteRole
 UpgradeDef : id, name, description, maxLevel, costs {n}, startLevel, requiresTier?, requiresTierAtLevel? { [level] = tier }
 DecorDef   : id, name, cost, category, effect, description, requiresTier?   (asset is the 3D model; the card draws a lettered tile)
 LureDef    : id, name, cost, attracts, source, description, odds { Common, Rare, Epic, Legendary, Mythical }  -- percentages, sum 100
+             rarity?  -- F69: the food's grade, read loosely (Components/FoodGrade) until SharedTypes.LureDef has it
 SpotDef    : id ("barista_1"), spotType (the role), tier
 TierDef    : tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps { tables, espresso, net }
 AreaDef    : id, name, tier, ...   (the UI reads id, name and tier)

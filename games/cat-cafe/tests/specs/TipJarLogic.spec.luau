@@ -27,6 +27,57 @@ return function()
 		end)
 	end)
 
+	-- F68 (data-model 11b v0.10): rows move to the Index prize shape, and the 60 and 120 minute gifts pay several
+	-- things on bigger cards
+	describe("TipJarLogic.prize and size", function()
+		local STEP9 = {
+			step = 9,
+			minutes = 60,
+			prize = { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 },
+		}
+		local STEP12 = {
+			step = 12,
+			minutes = 120,
+			prize = {
+				lures = { caviar = 1 },
+				crates = { classic_crate = 1 },
+				fish = 25,
+				spins = 2,
+				potions = { tip_potion = 1 },
+			},
+		}
+
+		it("reads the old row shape into the prize shape", function()
+			local coins = TipJarLogic.prize(ROWS[2])
+			expect(coins.coins).to.equal(50)
+			expect(coins.coinSeconds).to.equal(30)
+			expect(TipJarLogic.prize(ROWS[1]).lures.kibble).to.equal(2)
+			local old12 = { step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 }
+			old12.spins = 1
+			old12.fish = 5
+			local prize = TipJarLogic.prize(old12)
+			expect(prize.lures.caviar).to.equal(1)
+			expect(prize.spins).to.equal(1)
+			expect(prize.fish).to.equal(5)
+			expect(TipJarLogic.prize(STEP9)).to.equal(STEP9.prize)
+		end)
+
+		it("prices a new-shape coin gift from the day rate, never under its least", function()
+			expect(TipJarLogic.coins(STEP9, 10)).to.equal(6000)
+			expect(TipJarLogic.coins(STEP9, 1)).to.equal(1000)
+			expect(TipJarLogic.coins(STEP12, 10)).to.equal(0)
+		end)
+
+		it("sizes a one-prize gift small, spins aside, and the big gifts wide or full", function()
+			expect(TipJarLogic.size(TipJarLogic.prize(ROWS[1]))).to.equal("small")
+			local coinsAndSpin = { coins = 600, coinSeconds = 300, spins = 1 }
+			expect(TipJarLogic.size(coinsAndSpin)).to.equal("small")
+			expect(TipJarLogic.size(STEP9.prize)).to.equal("wide")
+			expect(TipJarLogic.size(STEP12.prize)).to.equal("full")
+			expect(TipJarLogic.size({})).to.equal("small")
+		end)
+	end)
+
 	describe("TipJarLogic.views", function()
 		it("orders by step and counts down from the session start", function()
 			local views = TipJarLogic.views(ROWS, { sessionStartedAt = 1000, claimed = {} }, 1000 + 90)

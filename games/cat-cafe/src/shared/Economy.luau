@@ -6,6 +6,7 @@ local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local IndexRewards = require(script.Parent.IndexRewards)
 local Types = require(script.Parent.Types)
 
 local Economy = {}
@@ -34,7 +35,8 @@ function Economy.tierMultiplier(profile: Types.PlayerProfile): number
 	return if def ~= nil then def.multiplier else 1
 end
 
--- Placed decor that a placed gold Index piece stands in for (N114): it stays out of the bonus and off the plot.
+-- Placed decor that another placed piece stands in for (N114): it stays out of the bonus and off the plot. Empty
+-- since F54 retired the gold Index pieces, the only ones with `replaces`; kept so a future stand-in works the same.
 function Economy.replacedDecor(profile: Types.PlayerProfile): { [string]: boolean }
 	local replaced: { [string]: boolean } = {}
 	for decorId, placed in profile.decorPlaced do
@@ -46,7 +48,9 @@ function Economy.replacedDecor(profile: Types.PlayerProfile): { [string]: boolea
 	return replaced
 end
 
--- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses
+-- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses, plus GoldenEspressoBonus per
+-- Golden Espresso level (F53) and the tips forever of every claimed Index milestone (F54, a full Decor Index
+-- page's decor10 among them)
 function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	local multiplier = 1 + Config.TableBonus * Economy.level(profile, "tables")
 	multiplier += Config.EspressoBonus * math.max(0, Economy.level(profile, "espresso") - 1)
@@ -57,7 +61,24 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 			multiplier += def.bonus
 		end
 	end
+	multiplier += Config.GoldenEspressoBonus * (profile.fishPerks.golden_espresso or 0)
+	multiplier += IndexRewards.totals(profile).bonus
 	return multiplier
+end
+
+-- How long the bait bowl's cat takes to come (data-model section 8): shorter with the Big Bowl perk (F53).
+function Economy.lureWaitSeconds(profile: Types.PlayerProfile): number
+	return if (profile.fishPerks.big_bowl or 0) >= 1
+		then Config.BigBowlLureWaitSeconds
+		else Config.LureWaitSeconds
+end
+
+-- The wait for food going in now: lureWaitSeconds less the Index's bait speed (F54, golden-fish.md section 5),
+-- whole seconds. UseLure fixes it in the bowl's readyAt.
+function Economy.baitWaitSeconds(profile: Types.PlayerProfile): number
+	return math.floor(
+		Economy.lureWaitSeconds(profile) * (1 - IndexRewards.totals(profile).baitSpeed)
+	)
 end
 
 -- Rate of one working cat before the cafe multiplier: its rating (rarity x charm x level x variant, see CatStats)
@@ -210,8 +231,8 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	if def == nil then
 		return "Unknown decor"
 	end
-	if def.source == "index" then
-		return "An Index reward, not for sale"
+	if def.source == "crate" then
+		return "Found in Cafe Crates, not for sale"
 	end
 	if profile.decorOwned[decorId] then
 		return "Already owned"

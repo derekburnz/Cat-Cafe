@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 21:23 UTC",
+  "generated": "2026-10-27 21:29 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -63515,9 +63515,11 @@
         "CatCafe_Plot_Cafe_Mint_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Mint_Chimney",
         "CatCafe_Plot_Cafe_Mint_Flowers",
-        "CatCafe_Plot_Cafe_Mint_Fireflies"
+        "CatCafe_Plot_Cafe_Mint_Fireflies",
+        "CatCafe_Plot_Cafe_Mint_Paint",
+        "CatCafe_Plot_Cafe_Mint_Wallpaper"
       ],
-      "triangles": 5474,
+      "triangles": 5552,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -63559,7 +63561,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15.",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint.model.json",
       "rbx_parts": 515,
       "files": [
@@ -63574,10 +63576,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5474/12000 tris",
+          "budget": "5552/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2603 faces on swatch centers",
+          "uv": "2658 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -63600,9 +63602,11 @@
         "CatCafe_Plot_Cafe_Blush_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Blush_Chimney",
         "CatCafe_Plot_Cafe_Blush_Flowers",
-        "CatCafe_Plot_Cafe_Blush_Fireflies"
+        "CatCafe_Plot_Cafe_Blush_Fireflies",
+        "CatCafe_Plot_Cafe_Blush_Paint",
+        "CatCafe_Plot_Cafe_Blush_Wallpaper"
       ],
-      "triangles": 5474,
+      "triangles": 5552,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -63644,7 +63648,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15.",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush.model.json",
       "rbx_parts": 515,
       "files": [
@@ -63659,10 +63663,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5474/12000 tris",
+          "budget": "5552/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2603 faces on swatch centers",
+          "uv": "2658 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -63685,9 +63689,11 @@
         "CatCafe_Plot_Cafe_Butter_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Butter_Chimney",
         "CatCafe_Plot_Cafe_Butter_Flowers",
-        "CatCafe_Plot_Cafe_Butter_Fireflies"
+        "CatCafe_Plot_Cafe_Butter_Fireflies",
+        "CatCafe_Plot_Cafe_Butter_Paint",
+        "CatCafe_Plot_Cafe_Butter_Wallpaper"
       ],
-      "triangles": 5474,
+      "triangles": 5552,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -63729,7 +63735,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15.",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter.model.json",
       "rbx_parts": 515,
       "files": [
@@ -63744,10 +63750,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5474/12000 tris",
+          "budget": "5552/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2603 faces on swatch centers",
+          "uv": "2658 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"
@@ -63770,9 +63776,11 @@
         "CatCafe_Plot_Cafe_Lilac_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Lilac_Chimney",
         "CatCafe_Plot_Cafe_Lilac_Flowers",
-        "CatCafe_Plot_Cafe_Lilac_Fireflies"
+        "CatCafe_Plot_Cafe_Lilac_Fireflies",
+        "CatCafe_Plot_Cafe_Lilac_Paint",
+        "CatCafe_Plot_Cafe_Lilac_Wallpaper"
       ],
-      "triangles": 5474,
+      "triangles": 5552,
       "budget": 12000,
       "size_studs": {
         "x": 41.86,
@@ -63814,7 +63822,7 @@
           -15.35
         ]
       },
-      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15.",
+      "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac.model.json",
       "rbx_parts": 515,
       "files": [
@@ -63829,10 +63837,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "5474/12000 tris",
+          "budget": "5552/12000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2603 faces on swatch centers",
+          "uv": "2658 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.20 (want 0)",
           "centered": "footprint center x=0.00 y=-1.60"

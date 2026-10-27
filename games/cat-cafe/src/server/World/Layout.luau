@@ -136,16 +136,26 @@ Layout.plot = {
 		neon_sign = { x = 0, y = 5.5, z = halfD - 0.7 },
 		fish_tank = { x = -halfW + 2, y = 0, z = 0, rotY = 90 },
 		index_alley = INDEX_SPOTS.alley,
-		index_alley_gold = INDEX_SPOTS.alley,
 		index_park = INDEX_SPOTS.park,
-		index_park_gold = INDEX_SPOTS.park,
 		index_neighbourhood = INDEX_SPOTS.neighbourhood,
-		index_neighbourhood_gold = INDEX_SPOTS.neighbourhood,
 		index_woods = INDEX_SPOTS.woods,
-		index_woods_gold = INDEX_SPOTS.woods,
 		index_sewer = INDEX_SPOTS.sewer,
-		index_sewer_gold = INDEX_SPOTS.sewer,
 	} :: { [string]: Point },
+
+	-- Decor spots (F53, golden-fish.md section 4): where crate furniture and decorations stand, filled in order, so
+	-- the first two are the Tier 1 ones (DecorSpots 2, 3, 4, 5, 6 by tier, plus 2 from the Extra Decor Spot perk).
+	-- Against the walls clear of the tables, the cat spots, the nap spots and the back door, facing into the room;
+	-- a piece's pivot is its base centre with its front toward -Z. The F48 Index pieces keep their own spots.
+	decorSpots = {
+		{ x = -9.5, y = 0, z = -halfD + 1.4, rotY = 180 }, -- front wall, left of the door
+		{ x = 9.5, y = 0, z = -halfD + 1.4, rotY = 180 }, -- front wall, right of the door
+		{ x = halfW - 1.4, y = 0, z = -6.5, rotY = 90 }, -- right wall, between the window corner and the bench
+		{ x = -halfW + 1.4, y = 0, z = -7.5, rotY = -90 }, -- left wall, between the window corner and the planter
+		{ x = 8, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the counter
+		{ x = -12.6, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, left of the back door
+		{ x = -8.5, y = 0, z = 6.5, rotY = 0 }, -- between the left tables and the cat tree
+		{ x = 8.5, y = 0, z = 6.5, rotY = 0 }, -- between the right tables and the cat tree
+	} :: { Point },
 
 	tables = {
 		{ x = -9, y = 0, z = -6 },
@@ -658,6 +668,9 @@ Layout.sewer = {
 Layout.spinWheel = { x = -7.5, y = 0.1, z = 79, rotY = 0 } :: Point
 Layout.dealerCart = { x = 8, y = 0.1, z = 79, rotY = 90 } :: Point
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
+-- The Golden Fish Market (F53, golden-fish.md section 3): south of the Spin Wheel on the west half of the street,
+-- its counter (-Z of the model) facing the middle of the street (+X), clear of the spawn and the walk to the arch.
+Layout.fishMarket = { x = -8.5, y = 0.1, z = 64, rotY = -90 } :: Point
 
 -- The manhole in the middle of the Alley Square (world-and-feel.md section 2: "the Sewer down a manhole in the
 -- middle of the Square"): a shortcut into the Sewer once it opens, alongside its gate at the east back alley's

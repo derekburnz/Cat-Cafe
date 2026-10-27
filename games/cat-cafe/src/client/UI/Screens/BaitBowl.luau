@@ -4,7 +4,8 @@
 -- the wait, even while you are offline, and you choose Tame or Let go when it comes. Every food card shows its
 -- five-rarity odds, the gold chance and the charm star odds before Buy or Use, with the per-cat split under
 -- Details (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
--- one, so the screen never nudges toward spending.
+-- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
+-- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it.
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
@@ -69,22 +71,25 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
-local function pill(parent: Instance, rarity: string, order: number): TextLabel
+-- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
+-- badge on the picture stays the food's own grade (F69)
+local function attractsChip(parent: Instance, lure: Types.LureDef, order: number): TextLabel
 	return Create("TextLabel", {
-		Name = "Rarity",
-		BackgroundColor3 = Theme.rarityColor(rarity),
+		Name = "Attracts",
+		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.rarityTextColor(rarity),
-		Text = rarity .. " food",
+		TextColor3 = Theme.modal.text,
+		Text = FoodGrade.attracts(lure),
 		LayoutOrder = order,
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+		Create("UIStroke", { Color = Theme.rarityColor(lure.attracts), Thickness = 2 }),
 	})
 end
 
@@ -136,6 +141,17 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	})
 	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = bowlTile })
 	Outline.border(bowlTile, 2)
+	self._bowlTile = bowlTile
+	-- F69: the food in the bowl, with its grade badge, in place of the bowl while it waits
+	self._bowlFood = ItemIcon.new({
+		parent = status,
+		size = UDim2.fromOffset(64, 64),
+		anchorPoint = Vector2.new(0, 0.5),
+		position = UDim2.new(0, 12, 0.5, -4),
+		name = "Food",
+	})
+	self._bowlFood.frame.Visible = false
+	self._bowlLure = nil :: string?
 	self._statusTitle = text({
 		Name = "Title",
 		Position = UDim2.fromOffset(90, 12),
@@ -233,6 +249,7 @@ function BaitBowl._buildRows(self: any)
 		row.frame:Destroy()
 	end
 	table.clear(self._rows)
+	self._bowlLure = nil -- the bowl's picture follows the new catalog's food
 	local catalog: Types.Catalog? = self._catalog
 	if not catalog then
 		return
@@ -260,7 +277,11 @@ function BaitBowl._buildRows(self: any)
 			Parent = self._list,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
+			-- F69: the card's border in the food's grade colour, like its badge
+			Create("UIStroke", {
+				Color = Theme.rarityColor(FoodGrade.of(lure)),
+				Thickness = Theme.sizes.stroke + 1,
+			}),
 			Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder }),
 		})
 		local top: Frame = Create("Frame", {
@@ -275,7 +296,7 @@ function BaitBowl._buildRows(self: any)
 			size = UDim2.fromOffset(ICON, ICON),
 			position = UDim2.fromOffset(12, 12),
 		})
-		icon:set(lure.asset, Theme.foodIcons[lure.id] or Theme.icons.food, lure.attracts)
+		icon:setFood(lure)
 		local heading: Frame = Create("Frame", {
 			Name = "Heading",
 			BackgroundTransparency = 1,
@@ -300,7 +321,7 @@ function BaitBowl._buildRows(self: any)
 			LayoutOrder = 1,
 			Parent = heading,
 		})
-		pill(heading, lure.attracts, 2)
+		attractsChip(heading, lure, 2)
 		local count = text({
 			Name = "Count",
 			Position = UDim2.fromOffset(TEXT_LEFT, 38),
@@ -495,10 +516,16 @@ function BaitBowl._renderStatus(self: any)
 	else
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		local foodName = bait.lureId
+		local food: Types.LureDef? = nil
 		for _, row in self._rows do
 			if row.def.id == bait.lureId then
 				foodName = row.def.name
+				food = row.def
 			end
+		end
+		if self._bowlLure ~= bait.lureId then
+			self._bowlLure = bait.lureId
+			self._bowlFood:setFood(food, bait.lureId)
 		end
 		if left > 0 then
 			title = foodName .. " is in the bowl"
@@ -519,6 +546,8 @@ function BaitBowl._renderStatus(self: any)
 			end
 		end
 	end
+	self._bowlFood.frame.Visible = bait ~= nil and ownsBowl(state)
+	self._bowlTile.Visible = not self._bowlFood.frame.Visible
 	self._statusTitle.Text = title
 	self._statusTitle.TextColor3 = if ready then Theme.colors.gold else Theme.colors.white
 	self._statusSub.Text = sub
@@ -549,6 +578,7 @@ function BaitBowl.destroy(self: any)
 		row.icon:destroy()
 	end
 	self._action:destroy()
+	self._bowlFood:destroy()
 	self._panel:destroy()
 end
 

@@ -4,7 +4,9 @@
 -- lights chasing round, the pointer knocked aside by each slice edge and a sparkle at the pointer when it stops.
 -- It stops on the won slice, which the server sets as LastSlice just before LastSpinAt (somewhere inside the slice,
 -- never by an edge, so it never looks like a near miss), at an angle every client works out the same from the two.
--- A player who joins later sees the wheel at the same resting angle. With no LastSlice it stops anywhere.
+-- A player who joins later sees the wheel at the same resting angle. With no LastSlice it stops anywhere. Once it
+-- has stopped, a rarer prize gets more: a ring and confetti for a "good" one, and for a "jackpot" gold confetti, a
+-- gold ring, falling sparkles and longer blinking (Logic.prizeTier, from the slice's chance in Catalog.spinWheel).
 --
 -- The station is a model tagged SpinWheel. Its `Wheel` (or `..._Wheel`) is a Model pivoted at the hub that turns
 -- about its own Z axis, with slice 1 under the pointer at rest and slice n (n - 1) sixths of a turn round from it,
@@ -12,8 +14,11 @@
 -- is the server's; the turn is drawn on this client only.
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+
+local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -38,9 +43,15 @@ type Station = {
 	to: number,
 	began: number, -- os.clock() the turn started, moved back by how late LastSpinAt replicated
 	spinning: boolean,
+	prize: Logic.PrizeTier, -- how the slice it is turning to is celebrated when it stops
 }
 
 local stations: { [Model]: Station } = {}
+local weights: { [number]: number } = {}
+for _, row in Catalog.spinWheel do
+	weights[row.slice] = row.weight
+end
+local rng = Random.new()
 local watched: { [Model]: boolean } = {}
 local loop: RBXScriptConnection? = nil
 local started = false
@@ -83,6 +94,7 @@ local function bind(model: Model): Station?
 		to = 0,
 		began = 0,
 		spinning = false,
+		prize = "small",
 	}
 	for _, descendant in wheel:GetDescendants() do
 		if descendant:IsA("BasePart") then
@@ -154,6 +166,49 @@ local function setLights(station: Station, on: (index: number) -> boolean)
 	end
 end
 
+local function flashesOf(station: Station): (number, number)
+	local w = Presets.wheel
+	if station.prize == "jackpot" then
+		return w.jackpotFlashes, w.jackpotFlashSeconds
+	end
+	return w.flashes, w.flashSeconds
+end
+
+-- A good or jackpot prize, once the wheel has stopped on it: a ring at the foot of the station and confetti from the
+-- top of the wheel; a jackpot's are gold, with sparkles falling from above the wheel too.
+local function celebrate(station: Station)
+	local w = Presets.wheel
+	if station.prize == "small" then
+		return
+	end
+	local frame, size = station.model:GetBoundingBox()
+	local foot = frame.Position - Vector3.new(0, size.Y / 2 - 0.1, 0)
+	local top = frame.Position + Vector3.new(0, size.Y / 2, 0)
+	if station.prize == "good" then
+		Particles.ring(foot, Presets.palette.mint, w.goodRing, w.ringSeconds)
+		Particles.confetti(top, math.ceil(Context.budget.confetti * w.goodConfetti))
+		return
+	end
+	Particles.ring(foot, Presets.palette.golden, w.jackpotRing, w.ringSeconds)
+	Particles.confetti(
+		top,
+		math.ceil(Context.budget.confetti * w.jackpotConfetti),
+		Presets.purrfectColors
+	)
+	local wide = math.max(size.X, size.Z) / 2
+	for i = 1, w.showers do
+		task.delay(0.15 + (i - 1) * w.showerEvery, function()
+			local across = station.rest.RightVector * rng:NextNumber(-wide, wide)
+			Particles.burst(
+				"shower",
+				top + across + Vector3.new(0, 1, 0),
+				Presets.bursts.shower,
+				Presets.palette.golden
+			)
+		end)
+	end
+end
+
 local function finish(station: Station)
 	station.spinning = false
 	draw(station, station.to)
@@ -177,7 +232,8 @@ local function step()
 			continue
 		end
 		local t = now - station.began
-		if t >= w.seconds + w.flashSeconds then
+		local flashes, flashSeconds = flashesOf(station)
+		if t >= w.seconds + flashSeconds then
 			finish(station)
 			continue
 		end
@@ -205,8 +261,9 @@ local function step()
 					Presets.palette.golden
 				)
 			end
+			celebrate(station)
 		elseif not still then
-			local flash = math.floor((t - w.seconds) / (w.flashSeconds / (w.flashes * 2)))
+			local flash = math.floor((t - w.seconds) / (flashSeconds / (flashes * 2)))
 			setLights(station, function(): boolean
 				return flash % 2 == 0
 			end)
@@ -233,7 +290,9 @@ local function spun(model: Model)
 	end
 	local w = Presets.wheel
 	local slice = model:GetAttribute("LastSlice")
-	local rest = Logic.wheelRest(at, if type(slice) == "number" then slice else nil, w.slices)
+	local won = if type(slice) == "number" then slice else nil
+	local rest = Logic.wheelRest(at, won, w.slices)
+	station.prize = Logic.prizeTier(weights, won)
 	local late = math.max(0, Workspace:GetServerTimeNow() - at)
 	if late >= w.seconds or Context.distance(station.rest.Position) > w.within then
 		station.spinning = false

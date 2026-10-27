@@ -391,6 +391,11 @@ flower boxes and a bistro set; neon OPEN, string lights and a second bistro set;
 back patio pergola; gold trim, the cup-with-ears rooftop sign and a red carpet. Previews:
 `previews/CatCafe_Plot_*.png`, the Part versions in `rbx/`.
 
+Cafe styles (F53, golden-fish.md): the shell's walls are two child Models the server recolours. `<shell>_Paint` is
+the pastel outer layer (facade, side and back walls, gables, the spandrels round the arches), every Part tagged
+`Paint`; `<shell>_Wallpaper` is the cream inner layer, tagged `Wallpaper`. Trim, pilasters, plinth, roof, door and
+garden stay in the shell's own parts, so a paint never reaches them. The floor is code-built and tagged by the server.
+
 The Alleyway behind the cafes is a city back street at cosy scale: building backs 30 wide and 16 to 24 tall in
 brick with concrete quoins, cornices and window frames, a few lit windows with curtains (`_Pane`), shutters and
 flower boxes in the street's pastels, AC units, drainpipes and pipes. Variants: `CatCafe_Alley_WallWindows`,

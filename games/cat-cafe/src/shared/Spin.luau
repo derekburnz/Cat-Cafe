@@ -7,6 +7,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local Prizes = require(script.Parent.Prizes)
 local Types = require(script.Parent.Types)
 
 local Spin = {}
@@ -73,10 +74,10 @@ function Spin.pick(roll: number): Types.SpinSlice
 end
 
 -- What a slice pays at `dayRate` (the day income per second at spin time): coins for a coins slice, else the
--- number of foods.
+-- number of foods, golden fish or crates.
 function Spin.amount(row: Types.SpinSlice, dayRate: number): number
 	if row.kind == "coins" then
-		return math.max(row.minCoins or 0, math.floor(math.max(dayRate, 0) * (row.seconds or 0)))
+		return Prizes.coins(row.minCoins, row.seconds, dayRate)
 	end
 	return row.count or 1
 end

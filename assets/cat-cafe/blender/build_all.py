@@ -144,7 +144,9 @@ STUDIO_NOTES = {
     **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
                                  "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "
                                  "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "
-                                 "Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15."
+                                 "Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. "
+                                 "F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged "
+                                 "Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper)."
        for c in plot.COLOURS},
     "CatCafe_Plot_Interior": "Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
     "CatCafe_Plot_ForRent": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, "

@@ -32,6 +32,7 @@ local ClientErrors = require(script.Components.ClientErrors)
 local Create = require(script.Components.Create)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
+local FishMarket = require(script.Screens.FishMarket)
 local Format = require(script.Components.Format)
 local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
@@ -83,6 +84,9 @@ UI.events = {
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   a press on a stuck cat's prompt: forward as RescueBegin
+	-- (strayId, catId)   the hold on a dropped cat's Pick up prompt (PickUp = true): forward as PickUpCat (v0.8 F56,
+	-- v0.10 F67)
+	pickUpBegan = Signal.new(),
 	rescuePressed = Signal.new(), -- (rescueSpotId)   a press on the rescue bar or its catch circle: forward as RescuePress (F27)
 	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
@@ -102,6 +106,8 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
+	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 }
@@ -161,6 +167,7 @@ local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), 
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
+local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
@@ -233,6 +240,9 @@ local function render()
 	if spinScreen then
 		spinScreen:render(state)
 	end
+	if marketScreen then
+		marketScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -273,6 +283,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if spinScreen then
 		spinScreen:setCatalog(newCatalog)
+	end
+	if marketScreen then
+		marketScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -587,6 +600,30 @@ function UI.init(config: Types.InitConfig)
 			spinView:render(state)
 		end,
 	})
+	marketScreen = FishMarket.new({
+		openCrate = function(crateId: string)
+			UI.events.openCrate:Fire(crateId)
+		end,
+		buyItem = function(itemId: string)
+			UI.events.buyFishItem:Fire(itemId)
+		end,
+		useDecor = function(decorId: string)
+			UI.events.toggleDecor:Fire(decorId, true)
+		end,
+		toast = function(text: string)
+			if toasts then
+				toasts:show(text, "good")
+			end
+		end,
+		close = closeModal,
+	})
+	local marketView = marketScreen :: FishMarket.FishMarket
+	modalInstance:register("Market", {
+		frame = marketView.frame,
+		onOpen = function()
+			marketView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -758,6 +795,10 @@ function UI.destroy()
 		spinScreen:destroy()
 	end
 	spinScreen = nil
+	if marketScreen then
+		marketScreen:destroy()
+	end
+	marketScreen = nil
 	if bugReportScreen then
 		bugReportScreen:destroy()
 	end
@@ -1208,6 +1249,30 @@ function UI.spin.result(slice: number, amount: number)
 end
 
 ----------------------------------------------------------------------------------------------------
+-- Golden Fish Market (F53, golden-fish.md sections 3 and 4)
+----------------------------------------------------------------------------------------------------
+
+UI.market = {}
+
+-- Opens the Market window: call it from the stall's "Market" prompt (FishMarket tag, Triggered). It reads
+-- goldenFish, crates, crateLuck, fishPerks and lures from ProfileSync and Catalog.crates and Catalog.fishShop;
+-- walking out of range closes it again.
+function UI.market.open()
+	if modal then
+		modal:open("Market")
+	end
+end
+
+-- From CrateResult(crateId, decorId, duplicate, refund): plays the reveal for the won piece, with "+N golden fish
+-- back" for a duplicate. A refusal is CrateResult(crateId, "", false, 0): the Open button frees up and the server's
+-- toast says why. A result that lands while the window is closed is a toast.
+function UI.market.result(crateId: string, decorId: string, duplicate: boolean, refund: number)
+	if marketScreen then
+		marketScreen:result(crateId, decorId, duplicate, refund)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Report a bug (docs/playtests/bug-reports.md section 1)
 ----------------------------------------------------------------------------------------------------
 
@@ -1478,7 +1543,9 @@ UI.catch = {}
 local activePrompt: ProximityPrompt? = nil
 local activeInfo: Types.CatchInfo? = nil
 local promptConnections: { RBXScriptConnection } = {}
-local fleeWatch: RBXScriptConnection? = nil -- v0.5: the active stray's FleeingUntil
+-- the active stray's FleeingUntil (v0.5), and its PickUp, Returning and Dropped (F67: a walking cat that gets home
+-- turns back into one that needs the circles)
+local strayWatch: { RBXScriptConnection } = {}
 -- v0.5.1 (reviewer S44): the player who missed a stray tries again StraySelfRetrySeconds after it stops
 local SELF_RETRY: number = Config.StraySelfRetrySeconds
 local missedAt: { [string]: number } = {} -- strayId -> server time of this player's last miss on it
@@ -1807,6 +1874,12 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 	local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
+	local pickUp = promptAttribute(prompt, "PickUp") == true -- v0.8 F56: no circles, the hold picks it up
+	local returning = promptAttribute(prompt, "Returning") == true -- v0.10 F67: walking home
+	local kind: Types.PromptKind = if rescue == true
+		then "rescue"
+		elseif pickUp then "pickup"
+		else "swing"
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
 	local dropOwner = promptAttribute(prompt, "DropOwner")
@@ -1815,6 +1888,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local othersDrop = promptAttribute(prompt, "Dropped") == true
 		and type(dropOwner) == "number"
 		and (player == nil or dropOwner ~= player.UserId)
+		and not pickUp -- v0.8 F56: a pick up has no owner window
 	return {
 		fleeingUntil = if type(fleeingUntil) == "number" then fleeingUntil else nil,
 		ownerTurnUntil = if othersDrop and type(dropOwnerUntil) == "number"
@@ -1822,7 +1896,8 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 			else nil,
 		press = prompt.HoldDuration <= 0,
 		shiny = gold == true,
-		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
+		kind = kind,
+		returning = pickUp and returning,
 		rescueSpotId = if type(rescueSpotId) == "string"
 			then rescueSpotId
 			elseif type(strayId) == "string" then strayId
@@ -1846,19 +1921,20 @@ end
 -- (on the prompt, its model, or its parent). Cat prompts are held for HoldDuration (0.5 s since 2026-10-27; the
 -- card and the CATCH button fill over the hold), and the trigger fires
 -- events.grabBegan (a stray) or events.rescueBegan (a stuck cat, Rescue = true) and the server answers with
--- catch.showCircles, UI.rescue.show or catch.fail. A press while the circles or the rescue bar are up is theirs,
--- so it never asks again.
+-- catch.showCircles, UI.rescue.show or catch.fail. A dropped cat with PickUp = true fires events.pickUpBegan
+-- instead, and the carry starting (or catch.fail) is the answer. A press while the circles or the rescue bar are
+-- up is theirs, so it never asks again.
 -- Any other Style = Custom prompt (no CatId) gets an action pill (Screens/ActionPill) and raises no event: the
 -- game handles its Triggered as it would a default prompt's.
 -- v0.5: someone's miss sends the active stray running (its model's FleeingUntil changes). The card shows
 -- "It's running!" at once; during the circles or the rescue bar only the stored info changes, so the card is right
 -- when it comes back.
-local function watchFleeing(prompt: ProximityPrompt?)
-	local old = fleeWatch
-	if old then
-		old:Disconnect()
-		fleeWatch = nil
+-- F67: a dropped cat's PickUp, Returning and Dropped change as it walks home and arrives, so the card follows them too.
+local function watchStray(prompt: ProximityPrompt?)
+	for _, connection in strayWatch do
+		connection:Disconnect()
 	end
+	table.clear(strayWatch)
 	if prompt == nil then
 		return
 	end
@@ -1867,20 +1943,32 @@ local function watchFleeing(prompt: ProximityPrompt?)
 		return
 	end
 	local model = holder :: Instance
-	fleeWatch = model:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
+	local function refresh()
 		if prompt ~= activePrompt then
 			return
-		end
-		local value = model:GetAttribute("FleeingUntil")
-		local info = activeInfo
-		if info then
-			info.fleeingUntil = if type(value) == "number" then value else nil
-			info.retryAt = retryAtFor(info.strayId, info.fleeingUntil)
 		end
 		if not UI.rescue.isActive() and not UI.catch.circlesActive() then
 			UI.catch.show(infoFromPrompt(prompt))
 		end
-	end)
+	end
+	table.insert(
+		strayWatch,
+		model:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
+			if prompt ~= activePrompt then
+				return
+			end
+			local value = model:GetAttribute("FleeingUntil")
+			local info = activeInfo
+			if info then
+				info.fleeingUntil = if type(value) == "number" then value else nil
+				info.retryAt = retryAtFor(info.strayId, info.fleeingUntil)
+			end
+			refresh()
+		end)
+	)
+	for _, name in { "PickUp", "Returning", "Dropped" } do
+		table.insert(strayWatch, model:GetAttributeChangedSignal(name):Connect(refresh))
+	end
 end
 
 function UI.catch.bindProximityPrompts()
@@ -1900,7 +1988,7 @@ function UI.catch.bindProximityPrompts()
 			return
 		end
 		activePrompt = prompt
-		watchFleeing(prompt)
+		watchStray(prompt)
 		UI.catch.show(infoFromPrompt(prompt))
 	end
 	table.insert(promptConnections, ProximityPromptService.PromptShown:Connect(onShown))
@@ -1914,7 +2002,7 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			activePrompt = nil
-			watchFleeing(nil)
+			watchStray(nil)
 			UI.catch.hide()
 		end)
 	)
@@ -1969,6 +2057,8 @@ function UI.catch.bindProximityPrompts()
 			catchScreen:waiting()
 			if info and info.kind == "rescue" then
 				UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
+			elseif info and info.kind == "pickup" then
+				UI.events.pickUpBegan:Fire(info.strayId, info.catId)
 			else
 				UI.events.grabBegan:Fire(
 					if info then info.strayId else nil,
@@ -2003,7 +2093,7 @@ function UI.catch.unbindProximityPrompts()
 		(connection :: any):Disconnect()
 	end
 	table.clear(promptConnections)
-	watchFleeing(nil)
+	watchStray(nil)
 	activePrompt = nil
 end
 

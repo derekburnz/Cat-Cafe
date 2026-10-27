@@ -1,6 +1,9 @@
 --!strict
 -- Effects that follow the cafes and the area gates (design v0.4 sections 2, 3 and 5):
--- - a rank up: confetti and a smoke puff at the cafe front, for any cafe in range, so the street sees it;
+-- - a rank up: confetti and a smoke puff at the cafe front, for any cafe in range, so the street sees it, and for
+--   your own cafe a gold beam, a gold ring, confetti from both sides of the door and sparkle fountains;
+-- - a purchase: whatever it adds to your cafe sparkles as it appears, with a ring and a few confetti, or a sparkle
+--   swirl at your feet when nothing new appears (the game's Purchase moment);
 -- - a claim: the For Rent shutters roll up and the sign fades when a player takes an empty plot;
 -- - a gate: its barrier dissolves with sparkles and confetti the first time it opens for this player this
 --   session, played when the player is close enough to see it;
@@ -19,12 +22,15 @@ local TweenService = game:GetService("TweenService")
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
+local Moments = require(script.Parent.Parent.Moments)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
 
 local Plots = {}
 
 type Cached = { source: BasePart, copy: BasePart, hinge: CFrame }
+
+type Added = { piece: Model, at: number }
 
 type PlotState = {
 	owner: number,
@@ -34,6 +40,7 @@ type PlotState = {
 	signs: { Cached },
 	hidden: { BasePart },
 	queued: boolean,
+	added: { Added }, -- pieces that appeared at this player's own cafe in the last few seconds
 }
 
 type GateState = {
@@ -50,6 +57,9 @@ local GATE_CHECK_SECONDS = 0.5
 local plots: { [Model]: PlotState } = {}
 local gates: { [Instance]: GateState } = {}
 local ownTier: number? = nil
+local purchaseUntil = 0 -- os.clock() until which a piece appearing belongs to the last purchase
+local purchaseToken = 0
+local purchasePopped = false
 local started = false
 
 local function numberAttribute(instance: Instance, name: string): number
@@ -61,12 +71,21 @@ local function endsWith(text: string, suffix: string): boolean
 	return #text >= #suffix and text:sub(-#suffix) == suffix
 end
 
-local function frontOf(plot: Model): Vector3
+local function doorOf(plot: Model): BasePart?
 	local door = plot:FindFirstChild("Door")
-	if door ~= nil and door:IsA("BasePart") then
-		return (door :: BasePart).Position + Vector3.new(0, 3, 0)
+	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
+end
+
+local function frontOf(plot: Model): Vector3
+	local door = doorOf(plot)
+	if door ~= nil then
+		return door.Position + Vector3.new(0, 3, 0)
 	end
 	return plot:GetPivot().Position + Vector3.new(0, 6, 0)
+end
+
+local function mineOf(state: PlotState): boolean
+	return state.owner ~= 0 and state.owner == Players.LocalPlayer.UserId
 end
 
 -- True for parts of the For Rent dressing (CatCafe_Plot_ForRent, or any model with ForRent in its name).
@@ -221,14 +240,156 @@ local function rollUp(plot: Model, state: PlotState)
 	end
 end
 
+-- Your own rank up: a gold beam from roof height over the door, a gold ring across the street, confetti from both
+-- sides of the door and sparkle fountains rising in turn.
+local function ownRankUp(plot: Model, door: BasePart)
+	local r = Presets.rankUp
+	local foot = door.Position - Vector3.new(0, door.Size.Y / 2 - 0.1, 0)
+	local right = door.CFrame.RightVector
+	local frame, size = plot:GetBoundingBox()
+	local roof = frame.Position.Y + size.Y / 2
+	Particles.beam(
+		Vector3.new(foot.X, roof, foot.Z),
+		Presets.palette.golden,
+		r.beam.width,
+		r.beam.height,
+		r.beam.seconds
+	)
+	Particles.ring(foot, Presets.palette.golden, r.ring, r.ringSeconds)
+	local count = math.ceil(Context.budget.confetti * r.sideConfetti)
+	for _, side in { -1, 1 } do
+		Particles.confetti(foot + right * (side * r.sideStuds) + Vector3.new(0, 2, 0), count)
+	end
+	for i = 1, r.fountains do
+		task.delay((i - 1) * r.fountainEvery, function()
+			local across = (i - (r.fountains + 1) / 2) * 2
+			Particles.burst("gateSparkle", foot + right * across + Vector3.new(0, 2, 0), r.fountain)
+		end)
+	end
+end
+
 local function rankUp(plot: Model, mine: boolean)
 	local front = frontOf(plot)
 	if Context.distance(front) > Presets.rankUp.within then
 		return
 	end
-	local count = if mine then math.ceil(Context.budget.confetti * 1.5) else Context.budget.confetti
-	Particles.confetti(front + Vector3.new(0, 2, 0), count)
 	Particles.burst("smokePuff", front, Presets.bursts.smokePuff)
+	local door = doorOf(plot)
+	if mine and door ~= nil then
+		ownRankUp(plot, door)
+	else
+		local count = if mine
+			then math.ceil(Context.budget.confetti * 1.5)
+			else Context.budget.confetti
+		Particles.confetti(front + Vector3.new(0, 2, 0), count)
+	end
+end
+
+-- Purchases --------------------------------------------------------------------------------------------------
+
+-- A piece something you bought puts in your cafe: a table set in Tables, decor in Decor, the bait bowl, the
+-- espresso machine (CafeService puts each in place; cats, food in the bowl and the dressing are not pieces).
+local function isPiece(plot: Model, instance: Instance): boolean
+	if not instance:IsA("Model") then
+		return false
+	end
+	local parent = instance.Parent
+	if parent == plot then
+		return instance.Name == "Espresso"
+	end
+	if parent == nil or parent.Parent ~= plot or not parent:IsA("Folder") then
+		return false
+	end
+	return parent.Name == "Tables"
+		or parent.Name == "Decor"
+		or (parent.Name == "Bait" and instance.Name == "Bowl")
+end
+
+local function popPiece(piece: Model)
+	if piece.Parent == nil then
+		return
+	end
+	local p = Presets.purchase
+	local frame, size = piece:GetBoundingBox()
+	if Context.distance(frame.Position) > p.within then
+		return
+	end
+	local top = frame.Position + Vector3.new(0, size.Y / 2, 0)
+	local foot = frame.Position - Vector3.new(0, size.Y / 2 - 0.1, 0)
+	Particles.burst("gateSparkle", top, p.sparkle)
+	Particles.burst("dust", foot, p.dust)
+	Particles.ring(
+		foot,
+		Presets.palette.mint,
+		math.min(math.max(size.X, size.Z) + p.ringPad, p.ringMost),
+		p.ringSeconds
+	)
+	Particles.confetti(top, math.ceil(Context.budget.confetti * p.confetti))
+end
+
+-- A purchase with nothing new to show: sparkles swirl up from the player's feet.
+local function swirl()
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return
+	end
+	local p = Presets.purchase
+	local part = root :: BasePart
+	local humanoid = (character :: Model):FindFirstChildOfClass("Humanoid")
+	local hip = if humanoid ~= nil then humanoid.HipHeight else 2
+	local feet = part.Position - Vector3.new(0, hip + part.Size.Y / 2, 0)
+	Particles.ring(feet + Vector3.new(0, 0.1, 0), Presets.palette.mint, p.swirlRing, p.ringSeconds)
+	for i, count in p.swirl do
+		task.delay((i - 1) * p.swirlGap, function()
+			Particles.burst("gateSparkle", feet + Vector3.new(0, 0.3, 0), count)
+		end)
+	end
+end
+
+local function noteAdded(plot: Model, state: PlotState, instance: Instance)
+	if not mineOf(state) or not isPiece(plot, instance) then
+		return
+	end
+	local now = os.clock()
+	if now < purchaseUntil then
+		purchasePopped = true
+		popPiece(instance :: Model)
+		return
+	end
+	local kept: { Added } = {}
+	for _, added in state.added do
+		if now - added.at <= Presets.purchase.before then
+			table.insert(kept, added)
+		end
+	end
+	table.insert(kept, { piece = instance :: Model, at = now })
+	state.added = kept
+end
+
+-- The game shows a purchase (Moments.Purchase): pieces that appeared just before it pop now, and one appearing
+-- within `after` seconds pops as it comes; with neither, the swirl.
+local function purchased()
+	local p = Presets.purchase
+	local now = os.clock()
+	purchaseToken += 1
+	local token = purchaseToken
+	purchasePopped = false
+	for _, state in plots do
+		for _, added in state.added do
+			if now - added.at <= p.before then
+				purchasePopped = true
+				popPiece(added.piece)
+			end
+		end
+		table.clear(state.added)
+	end
+	purchaseUntil = now + p.after
+	task.delay(p.after, function()
+		if token == purchaseToken and not purchasePopped then
+			swirl()
+		end
+	end)
 end
 
 -- Gates -----------------------------------------------------------------------------------------------------
@@ -419,6 +580,7 @@ local function watchPlot(instance: Instance)
 		signs = {},
 		hidden = {},
 		queued = false,
+		added = {},
 	}
 	plots[plot] = state
 	if state.owner ~= 0 and state.owner == Players.LocalPlayer.UserId then
@@ -429,6 +591,7 @@ local function watchPlot(instance: Instance)
 	end
 	plot.DescendantAdded:Connect(function(descendant: Instance)
 		cache(state, plot, descendant)
+		noteAdded(plot, state, descendant)
 	end)
 	local function queue()
 		if not state.queued then
@@ -453,6 +616,7 @@ function Plots.start()
 		watchGate(gate)
 	end
 	CollectionService:GetInstanceAddedSignal("AreaGate"):Connect(watchGate)
+	Moments.Purchase:Connect(purchased)
 	local clock = ReplicatedStorage:FindFirstChild("Clock")
 	if clock ~= nil then
 		watchClock(clock)

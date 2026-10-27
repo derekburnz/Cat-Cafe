@@ -1,8 +1,8 @@
 --!strict
 -- What an Index reward pays, as little pictures with amounts (Derek 2026-10-27: "showing little symbols of whatever
 -- they are going to get as next reward and how much"): a coin tile "$300", golden fish "x10", the food's own model
--- "x2", a crate "x1", the wheel "x1" for spins, a name tag, and a gold "+2% tips forever" pill (golden-fish.md
--- section 5). One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
+-- with its grade gem (F69) "x2", a crate "x1", the wheel "x1" for spins, a name tag, and a gold "+2% tips forever"
+-- pill (golden-fish.md section 5). One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
 -- shows without a UI change; a kind the UI does not know yet shows a gift.
 --   PrizeChips.new(props)   a row that sizes itself to its chips, or wraps them inside its width (props.wrap)
 --   chips:setCatalog(catalog)   foods, decor and crates by id, for their names and models
@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CrateLogic = require(script.Parent.CrateLogic)
 local Create = require(script.Parent.Create)
 local FishCoin = require(script.Parent.FishCoin)
+local FoodGrade = require(script.Parent.FoodGrade)
 local Format = require(script.Parent.Format)
 local IndexRewards = require(script.Parent.IndexRewards)
 local ItemIcon = require(script.Parent.ItemIcon)
@@ -150,7 +151,7 @@ function PrizeChips._partLook(
 		local lure: Types.LureDef? = self._lures[part.id or ""]
 		return if lure then lure.asset else nil,
 			Theme.foodIcons[part.id or ""] or Theme.icons.food,
-			if lure then lure.attracts else nil,
+			if lure then FoodGrade.of(lure) else nil,
 			amount
 	elseif kind == "spins" then
 		local banked = look.spinsBanked
@@ -163,6 +164,8 @@ function PrizeChips._partLook(
 			Theme.icons.crate,
 			if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare",
 			amount
+	elseif kind == "potion" then
+		return nil, Theme.icons.potion, "Epic", amount
 	elseif kind == "tag" then
 		return nil, Theme.icons.tag, "Mythical", part.id or ""
 	elseif kind == "decor" then
@@ -304,8 +307,13 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 				parent = chip,
 				size = UDim2.fromOffset(tile, tile),
 				name = "Picture",
+				badge = "gem",
 			})
-			icon:set(asset, glyph, rarity)
+			if part.kind == "lure" then
+				icon:setFood(self._lures[part.id or ""], part.id) -- F69: the food's grade gem
+			else
+				icon:set(asset, glyph, rarity)
+			end
 			if part.kind == "fish" then
 				FishCoin.new({
 					parent = icon.frame,

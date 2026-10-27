@@ -9,7 +9,10 @@ two arched front windows, a gable roof with its ridge running front to back, and
 z -20 to -15 with a path, beds, a bench and a lamp post.
 
 Objects per shell (the exporter turns each extra object into a child Model):
-  CatCafe_Plot_Cafe_<Colour>             walls, trim, awning, garden (collidable walls)
+  CatCafe_Plot_Cafe_<Colour>             trim, awning, garden
+  ..._Paint                              the pastel outer layer of every wall and gable (collidable); each part is
+                                         tagged Paint, so a crate paint recolours the cafe front (F53)
+  ..._Wallpaper                          the cream inner layer of the same walls; each part is tagged Wallpaper
   ..._Glass                              window and fanlight glass (collidable, Transparency 0.45)
   ..._Roof                               roof, ridge and chimney: the engineer fades this Model for the owner
   ..._SignBoard                          one part named SignBoard; its -Z face takes the owner's SurfaceGui
@@ -78,30 +81,32 @@ def arch_ring(b, cx, cy, r, w, z0, z1, swatch, n=10):
               rot=rot_z(math.degrees(a)))
 
 
-def spandrels(b, cx, cy, r, z_out, z_in, facade, n=5):
+def spandrels(walls, cx, cy, r, z_out, z_in, facade, n=5):
     """The wall left in the two corners above an arch (between the arc and its bounding box), pastel outside
-    and cream inside like the rest of the wall."""
+    and cream inside like the rest of the wall. `walls` is the (paint, wallpaper) pair of builders."""
     split = z_out + (z_in - z_out) * 0.8
-    for (za, zb), sw in (((z_out, split), facade), ((split, z_in), INNER)):
+    for (za, zb), sw, w in (((z_out, split), facade, walls[0]), ((split, z_in), INNER, walls[1])):
         zc, d = (za + zb) / 2, abs(zb - za)
-        b.fan_z(zc, (cx + r, cy + r), arc(cx, cy, r, 0, 90, n), d, sw)
-        b.fan_z(zc, (cx - r, cy + r), arc(cx, cy, r, 90, 180, n), d, sw)
+        w.fan_z(zc, (cx + r, cy + r), arc(cx, cy, r, 0, 90, n), d, sw)
+        w.fan_z(zc, (cx - r, cy + r), arc(cx, cy, r, 90, 180, n), d, sw)
 
 
-def layered(b, x0, x1, y0, y1, z_out, z_in, facade, axis="z"):
-    """A wall piece in two layers: pastel outside (0.8) and cream inside (0.2). For axis z the piece spans
-    x0..x1 at depth z_out (outer face) to z_in (inner face); for axis x the roles of x and z swap."""
+def layered(walls, x0, x1, y0, y1, z_out, z_in, facade, axis="z"):
+    """A wall piece in two layers: pastel outside (0.8) on the paint builder and cream inside (0.2) on the
+    wallpaper builder. For axis z the piece spans x0..x1 at depth z_out (outer face) to z_in (inner face); for
+    axis x the roles of x and z swap."""
+    paint, paper = walls
     split = z_out + (z_in - z_out) * 0.8
     if axis == "z":
-        b.span((x0, y0, min(z_out, split)), (x1, y1, max(z_out, split)), facade)
-        b.span((x0, y0, min(split, z_in)), (x1, y1, max(split, z_in)), INNER)
+        paint.span((x0, y0, min(z_out, split)), (x1, y1, max(z_out, split)), facade)
+        paper.span((x0, y0, min(split, z_in)), (x1, y1, max(split, z_in)), INNER)
     else:
-        b.span((min(z_out, split), y0, x0), (max(z_out, split), y1, x1), facade)
-        b.span((min(split, z_in), y0, x0), (max(split, z_in), y1, x1), INNER)
+        paint.span((min(z_out, split), y0, x0), (max(z_out, split), y1, x1), facade)
+        paper.span((min(split, z_in), y0, x0), (max(split, z_in), y1, x1), INNER)
 
 
 # --------------------------------------------------------------------------------------------- shell --
-def _front_wall(b, glass, facade, accent):
+def _front_wall(b, glass, walls, facade, accent):
     zo, zi = FRONT, FRONT + 1
     d0, d1, dh = DOOR
     x_edges = [-HW]
@@ -114,11 +119,11 @@ def _front_wall(b, glass, facade, accent):
     # full-height piers between openings
     for x0, x1 in ((x_edges[0], x_edges[1]), (x_edges[2], x_edges[3]), (x_edges[4], x_edges[5]),
                    (x_edges[6], x_edges[7])):
-        layered(b, x0, x1, 0, H, zo, zi, facade)
+        layered(walls, x0, x1, 0, H, zo, zi, facade)
     for cx in WINDOWS:
-        layered(b, cx - WIN_R, cx + WIN_R, 0, SILL, zo, zi, facade)                 # under the sill
-        layered(b, cx - WIN_R, cx + WIN_R, SPRING + WIN_R, H, zo, zi, facade)       # over the arch
-        spandrels(b, cx, SPRING, WIN_R, zo, zi, facade)
+        layered(walls, cx - WIN_R, cx + WIN_R, 0, SILL, zo, zi, facade)             # under the sill
+        layered(walls, cx - WIN_R, cx + WIN_R, SPRING + WIN_R, H, zo, zi, facade)   # over the arch
+        spandrels(walls, cx, SPRING, WIN_R, zo, zi, facade)
         # glass and its cross bars
         glass.span((cx - WIN_R, SILL, -14.58), (cx + WIN_R, SPRING, -14.42), "glass")
         glass.fan_z(-14.5, (cx, SPRING), arc(cx, SPRING, WIN_R, 0, 180, 6), 0.16, "glass")
@@ -131,8 +136,8 @@ def _front_wall(b, glass, facade, accent):
         b.span((cx - WIN_R - 0.6, SILL - 0.35, zo - 0.45), (cx + WIN_R + 0.6, SILL + 0.01, zi - 0.01), TRIM)   # off both wall faces
         b.span((cx - 0.4, SPRING + WIN_R - 0.1, zo - 0.35), (cx + 0.4, SPRING + WIN_R + 0.7, zo + 0.05), accent)
     # door: open arch with a sunburst fanlight
-    layered(b, d0, d1, dh + (d1 - d0) / 2, H, zo, zi, facade)
-    spandrels(b, 0, dh, (d1 - d0) / 2, zo, zi, facade)
+    layered(walls, d0, d1, dh + (d1 - d0) / 2, H, zo, zi, facade)
+    spandrels(walls, 0, dh, (d1 - d0) / 2, zo, zi, facade)
     r = (d1 - d0) / 2
     glass.fan_z(-14.5, (0, dh), arc(0, dh, r, 0, 180, 6), 0.16, "glass")
     for a in (30, 60, 90, 120, 150):
@@ -145,14 +150,14 @@ def _front_wall(b, glass, facade, accent):
     b.span((-0.35, dh + r - 0.1, zo - 0.45), (0.35, dh + r + 0.75, zo + 0.05), TRIM)
 
 
-def _side_walls(b, glass, facade, accent):
+def _side_walls(b, glass, walls, facade, accent):
     z0, z1, y0, y1 = SIDE_WIN
     for s in (-1, 1):
         xo, xi = s * HW, s * (HW - 1)
         for (a0, a1, b0, b1) in ((-14, z0, 0, H), (z1, 14, 0, H), (z0, z1, 0, y0), (z0, z1, y1, H)):
             split = xo + (xi - xo) * 0.8
-            b.span((min(xo, split), b0, a0), (max(xo, split), b1, a1), facade)
-            b.span((min(split, xi), b0, a0), (max(split, xi), b1, a1), INNER)
+            walls[0].span((min(xo, split), b0, a0), (max(xo, split), b1, a1), facade)
+            walls[1].span((min(split, xi), b0, a0), (max(split, xi), b1, a1), INNER)
         gx = s * (HW - 0.5)
         glass.span((gx - 0.08, y0, z0), (gx + 0.08, y1, z1), "glass")
         b.span((min(gx - 0.1, gx + 0.1), (y0 + y1) / 2 - 0.08, z0), (max(gx - 0.1, gx + 0.1), (y0 + y1) / 2 + 0.08, z1),
@@ -172,15 +177,15 @@ def _side_walls(b, glass, facade, accent):
         b.cyl((s * (HW + 0.3), (H - 0.4) / 2, 13.6), 0.18, H - 0.4, "metal", axis="Y", segments=8)  # downpipe
 
 
-def _back_wall(b, glass, facade, accent):
+def _back_wall(b, glass, walls, facade, accent):
     zo, zi = BACK, BACK - 1
     bd0, bd1, bdh = BACK_DOOR
     w0, w1, wy0, wy1 = BACK_WIN
     for x0, x1 in ((-HW, bd0), (bd1, w0), (w1, HW)):
-        layered(b, x0, x1, 0, H, zo, zi, facade)
-    layered(b, bd0, bd1, bdh, H, zo, zi, facade)
-    layered(b, w0, w1, 0, wy0, zo, zi, facade)
-    layered(b, w0, w1, wy1, H, zo, zi, facade)
+        layered(walls, x0, x1, 0, H, zo, zi, facade)
+    layered(walls, bd0, bd1, bdh, H, zo, zi, facade)
+    layered(walls, w0, w1, 0, wy0, zo, zi, facade)
+    layered(walls, w0, w1, wy1, H, zo, zi, facade)
     glass.span((w0, wy0, 14.42), (w1, wy1, 14.58), "glass")
     b.span((w0, (wy0 + wy1) / 2 - 0.08, 14.62), (w1, (wy0 + wy1) / 2 + 0.08, 14.72), TRIM)
     b.span((w0 - 0.3, wy1 - 0.01, zo - 0.05), (w1 + 0.3, wy1 + 0.35, zo + 0.25), TRIM)
@@ -211,12 +216,12 @@ def _base_and_trim(b):
         b.span((min(s * HW, s * (HW + 0.35)), H - 0.6, FRONT), (max(s * HW, s * (HW + 0.35)), H, BACK), TRIM)
 
 
-def _gables(b, facade):
+def _gables(b, walls, facade):
     tri = [(-HW, H), (HW, H)]
     for zo, zi in ((FRONT, FRONT + 1), (BACK, BACK - 1)):
         split = zo + (zi - zo) * 0.8
-        b.fan_z((zo + split) / 2, (0, RIDGE), tri, abs(split - zo), facade)
-        b.fan_z((split + zi) / 2, (0, RIDGE), tri, abs(zi - split), INNER)
+        walls[0].fan_z((zo + split) / 2, (0, RIDGE), tri, abs(split - zo), facade)
+        walls[1].fan_z((split + zi) / 2, (0, RIDGE), tri, abs(zi - split), INNER)
     b.cyl((0, 19.1, FRONT - 0.05), 1.25, 0.3, TRIM, axis="Z", segments=16)              # attic vent
     b.cyl((0, 19.1, FRONT - 0.2), 0.85, 0.12, "night_sky", axis="Z", segments=16)
     for a in (0, 90):
@@ -337,12 +342,13 @@ def build_cafe(colour, mat):
     facade, accent = COLOURS[colour]
     name = f"CatCafe_Plot_Cafe_{colour}"
     b, glass, roof, sign, bulbs_post, bulbs_sign, bulbs_back = RB(), RB(), RB(), RB(), RB(), RB(), RB()
-    chimney, flowers, fireflies = RB(), RB(), RB()
-    _front_wall(b, glass, facade, accent)
-    _side_walls(b, glass, facade, accent)
-    _back_wall(b, glass, facade, accent)
+    chimney, flowers, fireflies, paint, paper = RB(), RB(), RB(), RB(), RB()
+    walls = (paint, paper)
+    _front_wall(b, glass, walls, facade, accent)
+    _side_walls(b, glass, walls, facade, accent)
+    _back_wall(b, glass, walls, facade, accent)
     _base_and_trim(b)
-    _gables(b, facade)
+    _gables(b, walls, facade)
     _awning(b, accent, -16.0, -5.0)
     _awning(b, accent, 5.0, 16.0)
     _sign(b, sign, bulbs_sign, accent)
@@ -355,7 +361,8 @@ def build_cafe(colour, mat):
             sign.finalize(name + "_SignBoard", mat), bulbs_post.finalize(name + "_LampPost_Bulb", mat),
             bulbs_sign.finalize(name + "_SignLamp_Bulb", mat), bulbs_back.finalize(name + "_BackLamp_Bulb", mat),
             chimney.finalize(name + "_Chimney", mat), flowers.finalize(name + "_Flowers", mat),
-            fireflies.finalize(name + "_Fireflies", mat)]
+            fireflies.finalize(name + "_Fireflies", mat), paint.finalize(name + "_Paint", mat),
+            paper.finalize(name + "_Wallpaper", mat)]
 
 
 # ------------------------------------------------------------------------------------------ interior --

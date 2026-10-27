@@ -85,6 +85,42 @@ return function()
 		end)
 	end)
 
+	describe("IndexRewards Decor Index pages (F53)", function()
+		local catalog = {
+			cats = CATALOG.cats,
+			decor = {
+				{ id = "brick", crate = "alley", rarity = "Common", kind = "wallpaper" },
+				{ id = "stools", crate = "alley", rarity = "Common", kind = "furniture" },
+				{ id = "sky", crate = "alley", rarity = "Mythical", kind = "wallpaper" },
+			},
+			crates = { { id = "alley_crate", area = "alley", golden = false, pieces = {} } },
+			indexMilestones = { { id = "decor5", needs = 2 }, { id = "decor10", needs = 3 } },
+			indexPrizes = { decor_alley = { decor5 = { fish = 25 }, decor10 = { bonus = 0.05 } } },
+		}
+
+		it("counts a page's owned pieces and readies its rewards", function()
+			local state = { decorOwned = { brick = true, sky = true }, indexRewards = {} }
+			local counts = IndexRewards.counts(catalog, state, "decor_alley")
+			expect(counts.total).to.equal(3)
+			expect(counts.found).to.equal(2)
+			local views = IndexRewards.views(catalog, state, "decor_alley")
+			expect(views[1].state).to.equal("ready")
+			expect(views[2].state).to.equal("locked")
+			local perArea, total = IndexRewards.claimable(catalog, state)
+			expect(perArea.decor_alley).to.equal(1)
+			expect(total).to.equal(1)
+		end)
+
+		it("names a page's need in pieces", function()
+			expect(IndexRewards.needLabel({ id = "decor5", needs = 5 }, 10, "decor_alley")).to.equal(
+				"5 pieces"
+			)
+			expect(IndexRewards.needLabel({ id = "decor10", needs = 10 }, 10, "decor_alley")).to.equal(
+				"All 10"
+			)
+		end)
+	end)
+
 	describe("IndexRewards labels", function()
 		it("names the need, saying All once it is the whole page", function()
 			expect(IndexRewards.needLabel({ id = "cats3", need = 3 }, 10)).to.equal("3 cats")
@@ -207,6 +243,16 @@ return function()
 			local prize = { coins = 1000, spins = 2, crates = { decor_park = 1, decor_alley = 3 } }
 			expect(kinds(IndexRewards.prizeParts(prize))).to.equal(
 				"coins=1000,spins=2,crate:decor_alley=3,crate:decor_park=1"
+			)
+		end)
+
+		it("shows potions after the crates, by id (v0.10)", function()
+			local prize = {
+				crates = { classic_crate = 1 },
+				potions = { tip_potion = 1, luck_potion = 2, none = 0 },
+			}
+			expect(kinds(IndexRewards.prizeParts(prize))).to.equal(
+				"crate:classic_crate=1,potion:luck_potion=2,potion:tip_potion=1"
 			)
 		end)
 
@@ -358,9 +404,13 @@ return function()
 		-- Every card on every page against the server; returns how many the server would pay now.
 		local function agree(profile: any): number
 			local ready = 0
-			for areaId in pairs(Catalog.indexPrizes) do
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
 				local views = IndexRewards.views(Catalog, profile, areaId)
-				expect(#views).to.equal(#Catalog.indexMilestones)
+				local cards = 0 -- F54: a page shows the milestones it has a prize for
+				for _ in pairs(prizes) do
+					cards += 1
+				end
+				expect(#views).to.equal(cards)
 				for _, view in ipairs(views) do
 					local card = areaId .. "." .. view.milestone.id .. " "
 					local state, left = serverCard(profile, areaId, view.milestone.id)
@@ -391,17 +441,25 @@ return function()
 				profile.goldCollection[def.id] = 1000
 				agree(profile)
 			end
-			-- Every page full: every milestone is reachable; a claim ticks its own card, no other.
+			-- Every cat page full: every cat milestone is reachable (a Decor Index page counts crate pieces, none
+			-- owned here); a claim ticks its own card, no other.
 			local open = 0
-			for _ in pairs(Catalog.indexPrizes) do
-				open += #Catalog.indexMilestones
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
+				if string.sub(areaId, 1, 6) ~= "decor_" then
+					for _ in pairs(prizes) do
+						open += 1
+					end
+				end
 			end
 			expect(agree(profile)).to.equal(open)
-			for areaId in pairs(Catalog.indexPrizes) do
-				for _, milestone in ipairs(Catalog.indexMilestones) do
+			for areaId, prizes in pairs(Catalog.indexPrizes) do
+				for milestoneId in pairs(prizes) do
+					local wasReady = SharedRewards.blocker(profile, areaId, milestoneId) == nil
 					profile.indexRewards[areaId] = profile.indexRewards[areaId] or {}
-					profile.indexRewards[areaId][milestone.id] = true
-					open -= 1
+					profile.indexRewards[areaId][milestoneId] = true
+					if wasReady then
+						open -= 1
+					end
 					expect(agree(profile)).to.equal(open)
 				end
 			end

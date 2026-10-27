@@ -3,12 +3,18 @@
 -- ReplicatedStorage.Assets (the LureDef's `asset` name) held still at a three-quarter view on a round tile in the
 -- rarity colour. Until the asset thread's model is there, the food's glyph from Theme.foodIcons stands in.
 -- A still ViewportFrame only redraws when its contents change, so a list of these costs no frames.
+-- setFood (F69) colours the tile by the food's grade (Components/FoodGrade) and adds the grade badge: a word pill
+-- across the bottom edge, or a lettered gem in the top right corner of a picture too small for the word.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Create = require(script.Parent.Create)
+local FoodGrade = require(script.Parent.FoodGrade)
 local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
+local Types = require(script.Parent.Parent.Types)
+
+export type Badge = "word" | "gem"
 
 export type Props = {
 	parent: Instance,
@@ -16,12 +22,15 @@ export type Props = {
 	position: UDim2?,
 	anchorPoint: Vector2?,
 	name: string?,
+	badge: Badge?, -- how setFood shows the grade; "word" by default, "gem" for small pictures
 }
 
 export type ItemIcon = {
 	frame: Frame,
 	-- asset: the model name in ReplicatedStorage.Assets; glyph: shown when there is no model
 	set: (self: ItemIcon, asset: string?, glyph: string, rarity: string?) -> (),
+	-- a food by its LureDef, or by `id` alone when the catalog does not have it: tile, picture and grade badge
+	setFood: (self: ItemIcon, lure: Types.LureDef?, id: string?) -> (),
 	destroy: (self: ItemIcon) -> (),
 }
 
@@ -101,10 +110,64 @@ function ItemIcon.new(props: Props): ItemIcon
 	})
 	self._model = nil :: Model?
 	self._asset = nil :: string?
+	self._badgeKind = props.badge or "word"
+	self._badge = nil :: TextLabel?
 	return self :: ItemIcon
 end
 
+-- The grade badge, made the first time a food is shown.
+function ItemIcon._badgeLabel(self: any): TextLabel
+	local existing: TextLabel? = self._badge
+	if existing then
+		return existing
+	end
+	local gem = self._badgeKind == "gem"
+	local label: TextLabel = Create("TextLabel", {
+		Name = "Grade",
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = if gem then UDim2.fromScale(0.86, 0.14) else UDim2.fromScale(0.5, 1),
+		Size = if gem then UDim2.fromScale(0.38, 0.38) else UDim2.new(1, 8, 0.24, 0),
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		Text = "",
+		ZIndex = 4,
+		Parent = self.frame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UITextSizeConstraint", { MaxTextSize = if gem then 14 else 13, MinTextSize = 6 }),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, if gem then 1 else 5),
+			PaddingRight = UDim.new(0, if gem then 1 else 5),
+			PaddingTop = UDim.new(0, 1),
+			PaddingBottom = UDim.new(0, 1),
+		}),
+	})
+	if gem then
+		Create("UIAspectRatioConstraint", { AspectRatio = 1, Parent = label })
+	end
+	Outline.border(label, 1.5)
+	self._badge = label
+	return label
+end
+
+function ItemIcon.setFood(self: any, lure: Types.LureDef?, id: string?)
+	local grade = FoodGrade.of(lure)
+	local key = if lure then lure.id else id or ""
+	local asset = if lure then lure.asset else nil
+	self:set(asset, Theme.foodIcons[key] or Theme.icons.food, grade)
+	local badge = self:_badgeLabel()
+	badge.BackgroundColor3 = Theme.rarityColor(grade)
+	badge.TextColor3 = Theme.rarityTextColor(grade)
+	badge.Text = FoodGrade.badge(grade, self._badgeKind == "gem")
+	badge.Visible = true
+end
+
 function ItemIcon.set(self: any, asset: string?, glyph: string, rarity: string?)
+	local badge: TextLabel? = self._badge
+	if badge then
+		badge.Visible = false -- setFood shows it again; anything else has no grade
+	end
 	local color = Theme.rarityColor(rarity)
 	self.frame.BackgroundColor3 = color:Lerp(Theme.colors.cream, TILE_SHADE)
 	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)

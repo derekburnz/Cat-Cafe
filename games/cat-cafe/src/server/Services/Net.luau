@@ -40,6 +40,8 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
+	OpenCrate = RateLimiter.new(1, 1), -- golden-fish.md section 8: 1 a second; FishMarketService holds 2 s between opens
+	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time

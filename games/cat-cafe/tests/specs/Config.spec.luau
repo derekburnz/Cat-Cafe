@@ -32,7 +32,6 @@ return function()
 		RescueSelfRetrySeconds = 6,
 		RescueAttemptMaxSeconds = 15,
 		ShinyChanceRescue = 0.10,
-		RescueHoldSeconds = 4, -- the v0.2 hold, until the UI's old hold bar drops it
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
 		GrabRetrySeconds = 2,
@@ -280,9 +279,9 @@ return function()
 			end
 		)
 
-		-- RescueHoldSeconds goes too once the UI's CatchPrompt stops reading it.
-		it("the v0.2 rescue hold's lock and latency constants are gone (F27)", function()
+		it("the v0.2 rescue hold's constants are gone (F27)", function()
 			local config = Config :: any
+			expect(config.RescueHoldSeconds).never.to.be.ok()
 			expect(config.RescueLockSeconds).never.to.be.ok()
 			expect(config.RingLatencyGraceSeconds).never.to.be.ok()
 		end)

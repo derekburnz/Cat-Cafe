@@ -996,6 +996,4 @@ function Catalog.getArea(id: string): Types.AreaDef?
 	return Catalog.areasById[id]
 end
 
-Catalog.lureSpotsPerArea = { alley = 2, park = 3 } :: { [string]: number }
-
 return Catalog

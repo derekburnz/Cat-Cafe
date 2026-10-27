@@ -150,8 +150,15 @@ return function()
 			expect(ProfileSchema.template(0).flags :: any).to.deepEqual({ autoPress = false })
 		end)
 		it("has telemetry = { onboardingStep = 0, achieved = {} } (growth analytics-plan)")
-		-- equippedLure goes when the bait bowl replaces the v0.2 lure spots.
-		it("drops equippedLure, in the template and in the migration (F28)")
+		it("drops equippedLure, in the template and in the migration (F28)", function()
+			expect((ProfileSchema.template(0) :: any).equippedLure).never.to.be.ok()
+			local raw = v2Save()
+			raw.lures = { kibble = 2 }
+			raw.equippedLure = "kibble"
+			local profile = ProfileSchema.migrate(raw, 1000) :: any
+			expect(profile.equippedLure).never.to.be.ok()
+			expect(profile.lures.kibble).to.equal(2)
+		end)
 	end)
 
 	describe("versionOf and isNewerThanCode (S31 newer-save guard)", function()

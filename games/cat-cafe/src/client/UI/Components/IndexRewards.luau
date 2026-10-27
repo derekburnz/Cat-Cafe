@@ -1,17 +1,17 @@
 --!strict
--- Book rewards (F48, data-model section 11b): each area page of the Book pays out at 3, 6 and 10 of its cats
+-- Index rewards (F48, data-model section 11b): each area page of the Index pays out at 3, 6 and 10 of its cats
 -- and at all of them as gold cats. The server counts from `collection` and `goldCollection`, which the client
 -- already has, so this works out which milestones are claimed, ready or still to go, for the reward strip, the
--- red badges on the area tabs and the Book. Pure: no Theme, so the cloud spec runner can load it.
+-- red badges on the area tabs and the Index. Pure: no Theme, so the cloud spec runner can load it.
 --
--- Catalog.bookMilestones lists the milestones (the same on every page) and Catalog.bookPrizes[areaId][id] the
--- prize; an area or milestone without a prize has no card. state.bookRewards[areaId][id] is true once claimed.
+-- Catalog.indexMilestones lists the milestones (the same on every page) and Catalog.indexPrizes[areaId][id] the
+-- prize; an area or milestone without a prize has no card. state.indexRewards[areaId][id] is true once claimed.
 
 local CatVariant = require(script.Parent.CatVariant)
 local Types = require(script.Parent.Parent.Types)
 
-export type Milestone = Types.BookMilestone
-export type Prize = Types.BookPrize
+export type Milestone = Types.IndexMilestone
+export type Prize = Types.IndexPrize
 type Catalog = Types.Catalog
 type State = Types.PlayerState
 
@@ -32,11 +32,11 @@ export type Counts = {
 	gold: number, -- of those, in goldCollection
 }
 
-local FALLBACK_AREA = "alley" -- a cat without an area is an Alleyway cat, as in the Book
+local FALLBACK_AREA = "alley" -- a cat without an area is an Alleyway cat, as in the Index
 
-local BookRewards = {}
+local IndexRewards = {}
 
-function BookRewards.counts(catalog: Catalog, state: State, areaId: string): Counts
+function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Counts
 	local collection: { [string]: number } = state.collection or {}
 	local gold = CatVariant.collection(state)
 	local counts: Counts = { total = 0, found = 0, gold = 0 }
@@ -55,28 +55,28 @@ function BookRewards.counts(catalog: Catalog, state: State, areaId: string): Cou
 	return counts
 end
 
-function BookRewards.isClaimed(state: State, areaId: string, milestoneId: string): boolean
-	local claimed = state.bookRewards and state.bookRewards[areaId]
+function IndexRewards.isClaimed(state: State, areaId: string, milestoneId: string): boolean
+	local claimed = state.indexRewards and state.indexRewards[areaId]
 	return claimed ~= nil and claimed[milestoneId] == true
 end
 
 -- The area's milestones in catalog order, each with its prize and state. Empty when the catalog has no
 -- milestones or no prizes for this area, so the strip hides until the engineer sends them.
-function BookRewards.views(catalog: Catalog, state: State, areaId: string): { View }
+function IndexRewards.views(catalog: Catalog, state: State, areaId: string): { View }
 	local views: { View } = {}
-	local milestones: { Milestone } = catalog.bookMilestones or {}
-	local prizes = catalog.bookPrizes and catalog.bookPrizes[areaId]
+	local milestones: { Milestone } = catalog.indexMilestones or {}
+	local prizes = catalog.indexPrizes and catalog.indexPrizes[areaId]
 	if prizes == nil then
 		return views
 	end
-	local counts = BookRewards.counts(catalog, state, areaId)
+	local counts = IndexRewards.counts(catalog, state, areaId)
 	for _, milestone in milestones do
 		local prize: Prize? = prizes[milestone.id]
 		if prize == nil then
 			continue
 		end
 		local count = if milestone.gold then counts.gold else counts.found
-		local claimed = BookRewards.isClaimed(state, areaId, milestone.id)
+		local claimed = IndexRewards.isClaimed(state, areaId, milestone.id)
 		local milestoneState: MilestoneState = if claimed
 			then "claimed"
 			elseif count >= milestone.need then "ready"
@@ -92,13 +92,13 @@ function BookRewards.views(catalog: Catalog, state: State, areaId: string): { Vi
 end
 
 -- Milestones ready to claim, per area and in all, for the badges.
-function BookRewards.claimable(catalog: Catalog, state: State): ({ [string]: number }, number)
+function IndexRewards.claimable(catalog: Catalog, state: State): ({ [string]: number }, number)
 	local perArea: { [string]: number } = {}
 	local total = 0
-	local rewards: { [string]: { [string]: Prize } } = catalog.bookPrizes or {}
+	local rewards: { [string]: { [string]: Prize } } = catalog.indexPrizes or {}
 	for areaId in rewards do
 		local ready = 0
-		for _, view in BookRewards.views(catalog, state, areaId) do
+		for _, view in IndexRewards.views(catalog, state, areaId) do
 			if view.state == "ready" then
 				ready += 1
 			end
@@ -112,7 +112,7 @@ function BookRewards.claimable(catalog: Catalog, state: State): ({ [string]: num
 end
 
 -- "3 cats", "All 10", "All 10 gold"; "5 gold" for a gold milestone short of the whole page.
-function BookRewards.needLabel(milestone: Milestone, total: number): string
+function IndexRewards.needLabel(milestone: Milestone, total: number): string
 	local all = total > 0 and milestone.need >= total
 	if milestone.gold then
 		return if all
@@ -122,16 +122,16 @@ function BookRewards.needLabel(milestone: Milestone, total: number): string
 	return if all then ("All %d"):format(milestone.need) else ("%d cats"):format(milestone.need)
 end
 
--- Book decor (data-model section 7) is never sold: only ClaimBookReward grants it, so the Decor shop shows it as
--- a Book reward and it never lights the shop's dot. `source` is read loosely until SharedTypes.DecorDef has it.
-function BookRewards.isBookDecor(def: Types.DecorDef): boolean
-	return (def :: any).source == "book"
+-- Index decor (data-model section 7) is never sold: only ClaimIndexReward grants it, so the Decor shop shows it as
+-- an Index reward and it never lights the shop's dot. `source` is read loosely until SharedTypes.DecorDef has it.
+function IndexRewards.isIndexDecor(def: Types.DecorDef): boolean
+	return (def :: any).source == "index"
 end
 
--- A gold Book piece names the normal piece it stands in for (`replaces`, N114). While the gold piece is owned and
+-- A gold Index piece names the normal piece it stands in for (`replaces`, N114). While the gold piece is owned and
 -- placed the server takes the normal one off the plot and out of the bonus, so its card says so (N117).
 -- Returns normal piece id -> gold piece id. `replaces` is read loosely until SharedTypes.DecorDef has it.
-function BookRewards.replacedBy(catalog: Catalog, state: State): { [string]: string }
+function IndexRewards.replacedBy(catalog: Catalog, state: State): { [string]: string }
 	local replaced: { [string]: string } = {}
 	for _, def in catalog.decor do
 		local normalId: string? = (def :: any).replaces
@@ -142,10 +142,10 @@ function BookRewards.replacedBy(catalog: Catalog, state: State): { [string]: str
 	return replaced
 end
 
--- The area and milestone whose prize is this Book decor, or nil when no prize names it.
-function BookRewards.decorSource(catalog: Catalog, decorId: string): (string?, Milestone?)
-	local rewards: { [string]: { [string]: Prize } } = catalog.bookPrizes or {}
-	local milestones: { Milestone } = catalog.bookMilestones or {}
+-- The area and milestone whose prize is this Index decor, or nil when no prize names it.
+function IndexRewards.decorSource(catalog: Catalog, decorId: string): (string?, Milestone?)
+	local rewards: { [string]: { [string]: Prize } } = catalog.indexPrizes or {}
+	local milestones: { Milestone } = catalog.indexMilestones or {}
 	for areaId, prizes in rewards do
 		for _, milestone in milestones do
 			local prize: Prize? = prizes[milestone.id]
@@ -157,8 +157,8 @@ function BookRewards.decorSource(catalog: Catalog, decorId: string): (string?, M
 	return nil, nil
 end
 
--- What unlocks a Book decor piece, for its Decor shop card: "All 10 Alleyway cats", "All 10 Alleyway cats as gold".
-function BookRewards.unlockLabel(milestone: Milestone, areaName: string, total: number): string
+-- What unlocks an Index decor piece, for its Decor shop card: "All 10 Alleyway cats", "All 10 Alleyway cats as gold".
+function IndexRewards.unlockLabel(milestone: Milestone, areaName: string, total: number): string
 	local count = if total > 0 and milestone.need >= total
 		then ("All %d"):format(milestone.need)
 		else tostring(milestone.need)
@@ -166,7 +166,7 @@ function BookRewards.unlockLabel(milestone: Milestone, areaName: string, total: 
 end
 
 -- A prize's foods in a steady order (the map has none), for the card's text.
-function BookRewards.lureList(prize: Prize): { LureEntry }
+function IndexRewards.lureList(prize: Prize): { LureEntry }
 	local list: { LureEntry } = {}
 	local lures: { [string]: number } = prize.lures or {}
 	for id, count in lures do
@@ -178,4 +178,4 @@ function BookRewards.lureList(prize: Prize): { LureEntry }
 	return list
 end
 
-return BookRewards
+return IndexRewards

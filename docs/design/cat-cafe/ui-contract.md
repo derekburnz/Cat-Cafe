@@ -27,12 +27,12 @@ games/cat-cafe/src/client/UI/      -> StarterPlayer.StarterPlayerScripts.Client.
   Scale.luau         viewport-driven UIScale, touch detection
   Demo.luau          the shared Catalog plus a pretend server: UI.demo() shows the whole UI in Studio with no backend
   Components/        Create, Button, Panel, Modal, Tween, Format, Signal, WorldMarker
-  Screens/           HUD, UpgradeShop, DecorShop, CatCollection (Book + Cat room tabs), CatchPrompt (prompt card and rescue bar), CatchCircles, RankUp, Toasts, Popups
+  Screens/           HUD, UpgradeShop, DecorShop, CatCollection (Index + Cat room tabs), CatchPrompt (prompt card and rescue bar), CatchCircles, RankUp, Toasts, Popups
 ```
 
 Pure Luau, no UI framework, no Wally packages. Instances are built in code (no .rbxm), so Rojo syncs the whole UI from files.
 
-Windows (`Components/Panel.luau`, cat cafe dress from the UI plan 2026-10-27): every modal screen is a rounded cream window with a thick dark outline, a shaded header, an outlined title and a red X. Two cat ears in the header colour, pink inside, poke up behind the header; a round icon badge, tilted like a sticker, sits over the top-left corner; faint paw prints dot the body behind the content. Each screen has its own header colour and icon so it is known at a glance: Upgrades red ⬆️, Decor gold 🪴, Cats and Book sky 🐱, Bait bowl mint 🥣, Night dealer berry 🌙, Areas green 🧭, Rank up gold 🏆. `Panel.new` takes `color` and `icon` (both optional; caramel and no badge by default). `panel.frame` is a see-through holder that does not clip, so the ears and badge can stick out; the window itself is `panel.body`, and screens keep building inside `panel.content`. The ears come from `Components/CatEars.luau`, which `Button` also uses: `ears = true` puts a small pair, in the face colour, behind the top edge of the HUD's menu pills (Cats, Book, Upgrades, Decor) and the big My Cafe button.
+Windows (`Components/Panel.luau`, cat cafe dress from the UI plan 2026-10-27): every modal screen is a rounded cream window with a thick dark outline, a shaded header, an outlined title and a red X. Two cat ears in the header colour, pink inside, poke up behind the header; a round icon badge, tilted like a sticker, sits over the top-left corner; faint paw prints dot the body behind the content. Each screen has its own header colour and icon so it is known at a glance: Upgrades red ⬆️, Decor gold 🪴, Cats and Index sky 🐱, Bait bowl mint 🥣, Night dealer berry 🌙, Areas green 🧭, Rank up gold 🏆. `Panel.new` takes `color` and `icon` (both optional; caramel and no badge by default). `panel.frame` is a see-through holder that does not clip, so the ears and badge can stick out; the window itself is `panel.body`, and screens keep building inside `panel.content`. The ears come from `Components/CatEars.luau`, which `Button` also uses: `ears = true` puts a small pair, in the face colour, behind the top edge of the HUD's menu pills (Cats, Index, Upgrades, Decor) and the big My Cafe button.
 
 ## How the engineer uses it
 
@@ -49,8 +49,8 @@ UI.init({
         tiers = Catalog.tiers,        -- {TierDef}, v0.3: tier names, gates and the rank up card
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
         tipJar = Catalog.tipJar,      -- {TipJarRow}, F47: the Tip Jar's twelve playtime gifts
-        bookMilestones = Catalog.bookMilestones,  -- {BookMilestone}, F48: the Book's milestones
-        bookPrizes = Catalog.bookPrizes,          -- F48: area id -> milestone id -> BookPrize
+        indexMilestones = Catalog.indexMilestones,  -- {IndexMilestone}, F48: the Index's milestones
+        indexPrizes = Catalog.indexPrizes,          -- F48: area id -> milestone id -> IndexPrize
         rarities = Catalog.rarities,  -- {[Rarity]: RarityDef}: the cat room's sell prices (sellValue)
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
@@ -158,7 +158,7 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 | `uiClick` | Any button press, Cafe and Alley travel. Buttons that only open or close a screen (menu tiles, Collection, Areas, the red X) stay silent and let the swish play. |
 | `uiError` | A tap on a greyed button (can't afford, carrying, locked area) and every `warn` toast. A drag that starts on a greyed button, such as a phone scroll, stays quiet. |
 | `uiOpen` / `uiClose` | A modal screen opens or closes. |
-| `uiTab` | The Book and Cat room tabs, the decor category chips and a cat cell in the book. |
+| `uiTab` | The Index and Cat room tabs, the decor category chips and a cat cell in the Index. |
 | `uiToast` | Every `info` and `good` toast. Shout-outs are silent here because Audio plays their sting. |
 | `uiHint` | A new tutorial line. |
 | `uiRankReady` | The first time each tier's requirements are all met (the red "Rank up!" sticker appears). |
@@ -173,11 +173,11 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 
 The HUD's right column has a next goal card under the clock (Pet Simulator 99 quest style): "NEXT GOAL", the next tier's name and one bar per rank up requirement from `RankUp.progress`, gold when met. All met reads "READY! TAP TO RANK UP" with a gold edge. A tap opens the rank up card; the card hides at the top tier. The tier pill now only says "Next: <tier name>" under the title.
 
-Each menu pill gets a red "!" dot when its screen has something new (`Notices.luau`): an upgrade level or decor item the player can now afford and is allowed to buy, or a cat or gold coat added to the collection since the book was last open (cats caught before the session are not news). Opening the screen clears its dot, and anything that appears while it is open counts as seen. No new fields: it reads the state the UI already gets.
+Each menu pill gets a red "!" dot when its screen has something new (`Notices.luau`): an upgrade level or decor item the player can now afford and is allowed to buy, or a cat or gold coat added to the collection since the Index was last open (cats caught before the session are not news). Opening the screen clears its dot, and anything that appears while it is open counts as seen. No new fields: it reads the state the UI already gets.
 
-### Collection book index (built, F39 P1)
+### Collection Index (built, F39 P1)
 
-Copied from the Pet Simulator index. The Index tab (tab id `"Book"`, labelled Index since 2026-10-27) opens on a row of area tabs in tier order, each in its area colour when open, reading "3 / 10", "Complete!" or "Tier 4" for an area the player has not reached and found nothing in. Under it the open area's name, a progress bar in the area colour (gold when complete) and "3 / 10 · 30%". The grid shows that area's cats, rarest last, as still 3D models from `ReplicatedStorage.Assets` on a disc in the rarity colour; a cat not found yet is a dark silhouette with "???" and its rarity. A Gold pill marks cats in `state.goldCollection`; the book shows the base coat, while the cat room cards, the catch reveal and the bait card show a gold cat in its own coat (`Catalog.goldModelName`, F42, falling back to the base model). The panel title reads "12 / 50 found · 24%". Tapping a cell fills the detail strip with the same model (or silhouette). A cell's model is cloned the first time its area opens, so the book never holds more than the areas the player has looked at. No new fields: it reads `catalog.areas`, `cat.area`, `state.collection`, `state.catsOwned` and `state.goldCollection`.
+Copied from the Pet Simulator index. The Index tab (`UI.openCollection("Index")`; it was the Book until 2026-10-27) opens on a row of area tabs in tier order, each in its area colour when open, reading "3 / 10", "Complete!" or "Tier 4" for an area the player has not reached and found nothing in. Under it the open area's name, a progress bar in the area colour (gold when complete) and "3 / 10 · 30%". The grid shows that area's cats, rarest last, as still 3D models from `ReplicatedStorage.Assets` on a disc in the rarity colour; a cat not found yet is a dark silhouette with "???" and its rarity. A Gold pill marks cats in `state.goldCollection`; the Index shows the base coat, while the cat room cards, the catch reveal and the bait card show a gold cat in its own coat (`Catalog.goldModelName`, F42, falling back to the base model). The panel title reads "12 / 50 found · 24%". Tapping a cell fills the detail strip with the same model (or silhouette). A cell's model is cloned the first time its area opens, so the Index never holds more than the areas the player has looked at. No new fields: it reads `catalog.areas`, `cat.area`, `state.collection`, `state.catsOwned` and `state.goldCollection`.
 
 ### Area title card and shout-outs (built, F39 P1)
 
@@ -211,20 +211,20 @@ Coin cards show `max(minCoins, floor(dayRate * seconds))` with the day rate work
 
 ### Index rewards (built, F48, data-model section 11b)
 
-Players see the Book as the **Index** (Derek 2026-10-27): the HUD pill, the Collection tab, the Decor shop text and toasts say Index. Code, events and remotes keep the Book names (`BookRewards`, `claimBookReward`, `ClaimBookReward`, the `"Book"` tab id of `UI.openCollection`).
+The Book is called the **Index** since 2026-10-27 (Derek), in player text and in code alike, before save version 5 ships: `Catalog.indexMilestones`, `Catalog.indexPrizes` (the prize table; not `indexRewards`, which is the claimed map, S61), `state.indexRewards`, `events.claimIndexReward` / `ClaimIndexReward`, decor `source = "index"` and decor ids `index_<area>` and `index_<area>_gold`. Milestone ids stay `cats3`, `cats6`, `cats10`, `gold10`.
 
-Each area page of the Index pays out as you find its cats, like the index rewards in Pet Simulator 99 (`Screens/BookStrip.luau`, sums in `Components/BookRewards.luau` with a spec). Above the open area's cats, a strip of four cards scrolls with the grid: "3 cats", "6 cats", "All 10" and "All 10 gold", each with the prize's picture (the Book decor's model, else the food's, else 💰) and text ("$300", "2 Tuna", "Salmon + Alley Mural Print"), then a bar with "2 / 3", a green Claim button once reached, or "✓ Claimed". The gold card has a gold border and bar. A pressed Claim shows "..." for 3 s or until ProfileSync marks it. A red count badge sits on each area tab with a reward waiting and on the Index tab (all areas), and the HUD's Index pill keeps its red dot lit while any reward waits, even after the Index is opened. Progress is counted on the client from `state.collection` and `state.goldCollection` (cats without an `area` count as Alleyway, as in the Book), the same counts the server checks. Without milestones or prizes for an area the strip hides.
+Each area page of the Index pays out as you find its cats, like the index rewards in Pet Simulator 99 (`Screens/IndexStrip.luau`, sums in `Components/IndexRewards.luau` with a spec). Above the open area's cats, a strip of four cards scrolls with the grid: "3 cats", "6 cats", "All 10" and "All 10 gold", each with the prize's picture (the Index decor's model, else the food's, else 💰) and text ("$300", "2 Tuna", "Salmon + Alley Mural Print"), then a bar with "2 / 3", a green Claim button once reached, or "✓ Claimed". The gold card has a gold border and bar. A pressed Claim shows "..." for 3 s or until ProfileSync marks it. A red count badge sits on each area tab with a reward waiting and on the Index tab (all areas), and the HUD's Index pill keeps its red dot lit while any reward waits, even after the Index is opened. Progress is counted on the client from `state.collection` and `state.goldCollection` (cats without an `area` count as Alleyway, as in the Index), the same counts the server checks. Without milestones or prizes for an area the strip hides.
 
-In the Decor shop, Book decor (`source = "book"`, cost 0) never shows a Buy button: the card reads "📖 Index reward" and a dark ribbon over its picture names the milestone, "🔒 All 10 Alleyway cats" or "🔒 All 10 Alleyway cats as gold", until it is owned; then it offers Place or Remove like any decor. It never lights the Decor shop's red dot. A gold piece names the normal piece it stands in for (`replaces`, N114); while the gold piece is owned and placed, the normal piece's card shows "✨ Replaced by its gold piece" on its ribbon, since the server takes it off the plot and out of the bonus (N117, `BookRewards.replacedBy`).
+In the Decor shop, Index decor (`source = "index"`, cost 0) never shows a Buy button: the card reads "📖 Index reward" and a dark ribbon over its picture names the milestone, "🔒 All 10 Alleyway cats" or "🔒 All 10 Alleyway cats as gold", until it is owned; then it offers Place or Remove like any decor. It never lights the Decor shop's red dot. A gold piece names the normal piece it stands in for (`replaces`, N114); while the gold piece is owned and placed, the normal piece's card shows "✨ Replaced by its gold piece" on its ribbon, since the server takes it off the plot and out of the bonus (N117, `IndexRewards.replacedBy`).
 
 | API | Purpose |
 |---|---|
-| `catalog.bookMilestones` | `Catalog.bookMilestones`: `{ { id, need, gold? } }` in card order, the same on every page (`cats3` 3, `cats6` 6, `cats10` 10, `gold10` 10 gold). |
-| `catalog.bookPrizes` | `Catalog.bookPrizes` (not `bookRewards`, which is the claimed map, S61): `{ [areaId] = { [milestoneId] = { coins?, lures = { [lureId] = count }?, decorId? } } }`. An area or milestone without a prize has no card. |
-| `state.bookRewards` | From ProfileSync: `{ [areaId] = { [milestoneId] = true } }` once claimed. Pass it in `UI.update`. |
-| `events.claimBookReward(areaId, milestoneId)` | Forward as `ClaimBookReward(areaId, milestoneId)`; the server pays, places the decor, marks the milestone and sends ProfileSync. |
+| `catalog.indexMilestones` | `Catalog.indexMilestones`: `{ { id, need, gold? } }` in card order, the same on every page (`cats3` 3, `cats6` 6, `cats10` 10, `gold10` 10 gold). |
+| `catalog.indexPrizes` | `Catalog.indexPrizes` (not `indexRewards`, which is the claimed map, S61): `{ [areaId] = { [milestoneId] = { coins?, lures = { [lureId] = count }?, decorId? } } }`. An area or milestone without a prize has no card. |
+| `state.indexRewards` | From ProfileSync: `{ [areaId] = { [milestoneId] = true } }` once claimed. Pass it in `UI.update`. |
+| `events.claimIndexReward(areaId, milestoneId)` | Forward as `ClaimIndexReward(areaId, milestoneId)`; the server pays, places the decor, marks the milestone and sends ProfileSync. |
 
-**Engineer:** add `source: "shop" | "book"` (optional, `"shop"` when missing) and `replaces: string?` to `SharedTypes.DecorDef`; the UI reads both with a cast until then (`BookRewards.isBookDecor`, `BookRewards.replacedBy`).
+**Engineer:** add `source: "shop" | "index"` (optional, `"shop"` when missing) and `replaces: string?` to `SharedTypes.DecorDef`; the UI reads both with a cast until then (`IndexRewards.isIndexDecor`, `IndexRewards.replacedBy`).
 
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 
@@ -301,7 +301,7 @@ A round orange button with a hand at the bottom right, left of the touch CATCH b
 |---|---|
 | Action pill (built) | Every `Style = Custom` prompt without a `CatId` (on the prompt, its model or its parent) gets our pill: a dark rounded pill over the prompt's part or attachment (a model's PrimaryPart) with a key cap, `ObjectText` small above and `ActionText` big ("Use" when empty), like the custom prompts in Pet Simulator 99 and Adopt Me. The key cap names the prompt's `KeyboardKeyCode` or `GamepadKeyCode` for the input it was shown for; a hold fills the cap with gold over `HoldDuration`; a trigger squashes the pill. On touch, and with a mouse when `ClickablePrompt` is on, the pill is the button and drives the real prompt (`InputHoldBegin` / `InputHoldEnd`). `UIOffset` moves it in pixels. Nothing to call: `UI.catch.bindProximityPrompts()` already draws them and raises no event, so the game handles `Triggered` as it does today. Engineer: set `Style = Enum.ProximityPromptStyle.Custom` on the bait bowl, dealer cart, manhole and Bump prompts to switch them from the default Roblox prompt to the pill; parent each to a part or an attachment at the height it should float. |
 | `UI.richTip.bind(plot)` (built) | Call with your own plot model when you get it (nil to stop). Whenever its `RichTipAmount` and `RichTipExpiresAt` (server `os.time()`) show an unexpired tip, a gold bubble bobs over the plot's `RichTipAnchor` ("RICH TIP · 1:12", "💰 $1.2K", a draining timer bar) with a green Collect button under it, like the cash drops in Steal a Brainrot and Pet Simulator 99. Collect fires `events.claimRichTip()` within `RichTipRangeStuds` (12) and reads "Walk closer" further away; after a press it shows "Collecting..." for 3 s or until the tip clears. When `RichTipAmount` clears (claimed or paid at expiry) "+$X" rises gold from the coin pile and a toast says "Rich tip! +$X", so the server needs no Notify for it; a tip already waiting when you bind is shown, never toasted. The timer reads `RichTipStaySeconds` (90). Sounds stay with Audio (`RichArrive`, `RichTipClaim`). |
-| Gold (was Shiny) | Built: the book's Gold pill (from `state.goldCollection`), the catch header and the reveal's sticker, and the cat room's gold cards. Still planned: the carry banner, and a Gold page in the book with its own count. Players see "Gold" everywhere since 2026-10-27; the server sends variant `"gold"`, the `Gold` attribute and `goldCollection` and migrates older saves, so the UI reads only those (`Components/CatVariant.luau`). The UI's own `shiny?` fields (`showCatFound` extra, catch `show(info)`) keep their names. |
+| Gold (was Shiny) | Built: the Index's Gold pill (from `state.goldCollection`), the catch header and the reveal's sticker, and the cat room's gold cards. Still planned: the carry banner, and a Gold page in the Index with its own count. Players see "Gold" everywhere since 2026-10-27; the server sends variant `"gold"`, the `Gold` attribute and `goldCollection` and migrates older saves, so the UI reads only those (`Components/CatVariant.luau`). The UI's own `shiny?` fields (`showCatFound` extra, catch `show(info)`) keep their names. |
 | Rename (built, F33) | A pencil next to the picked cat's name in the cat room opens the Rename box (`Screens/RenameDialog.luau`, Pet Simulator's "Rename Pet"): the breed as placeholder, a "7/20" counter, the reason in red for a name the server would refuse (checked live with `Shared.CatName.validate`, so the rules match), and Rename / Cancel. Enter also renames. Rename fires `events.renameCat(uid, name)` with the trimmed name and closes; the server's toast and ProfileSync do the rest (the card shows "Mochi" and the picked cat "Rare Tabby" under it, from the filtered `CatInstance.name`). Rename stays grey until the name differs from the current one. Over working cats the rate tag shows the model's `DisplayName` (filtered, else the breed) in white above "+$X/s". |
 | Fast travel (built, v0.4 F19; HUD v3 2026-10-27) | Bottom centre (Grow a Garden style): Equip Best (pink), a big gold My Cafe button (H), Alley and Areas. My Cafe and Alley fire `events.travel("home")` and `events.travel("alley")`; Areas opens `UI.open("Areas")`, five area cards with "Epic or better N%" and Go, locked ones greyed with "Opens at Tier n". The row hides while the catch circles show. Every travel button and Go greys while carrying (`state.carrying` or `UI.setCarrying`), and My Cafe then reads "Walk it home", since the server refuses trips while carrying; My Cafe and Alley grey for `Config.TravelCooldownSeconds` after a trip. Forward `events.travel(destination)` as `Travel(destination)`; pass `TravelResult(destination, ok, reason?)` to `UI.travel.result`, which lifts the cooldown and wobbles the button on a refusal (the server toast gives the reason). |
 
@@ -327,7 +327,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `dropCat` | none | Drop pressed on the carry banner, or G while carrying (HUD v3). Forward as `DropCat`: the server sets the cat down at the player's feet with their first try |
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `claimTipJar` | `step` | Claim on a ready Tip Jar gift. Forward as `ClaimTipJar(step)` (F47). |
-| `claimBookReward` | `areaId, milestoneId` | Claim on a reached Book reward card. Forward as `ClaimBookReward(areaId, milestoneId)` (F48). |
+| `claimIndexReward` | `areaId, milestoneId` | Claim on a reached Index reward card. Forward as `ClaimIndexReward(areaId, milestoneId)` (F48). |
 | `setSetting` | `key, value` | A switch on the Settings screen: `"music"`, `"sfx"` or `"markers"`, and the new boolean. Forward as `SetSetting`; Audio follows `UI.settings.changed` (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |
@@ -356,10 +356,10 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     cats: { [uid]: { uid, catId, variant?, name?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
                      level?, xp?, xpToNext?, charm?, stars?, rating? } }, -- cat stats thread; shown when present
     collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 50 count
-    goldCollection: { [catId]: firstGoldAt }?,                     -- the book's Gold pill (was shinyCollection before 2026-10-27)
+    goldCollection: { [catId]: firstGoldAt }?,                     -- the Index's Gold pill (was shinyCollection before 2026-10-27)
     carrying: string?, tutorialStep: number?,
     settings: { music: boolean, sfx: boolean, markers: boolean? }?, -- profile.settings; a missing key reads as on
-    bookRewards: { [areaId]: { [milestoneId]: true } }?,           -- F48: claimed Book rewards; missing reads as none
+    indexRewards: { [areaId]: { [milestoneId]: true } }?,           -- F48: claimed Index rewards; missing reads as none
 }
 ```
 
@@ -413,4 +413,4 @@ CI runs the full gate (rojo sourcemap, luau-lsp 1.70 analyze, selene, stylua --c
 
 ## Mockups
 
-`docs/concepts/cat-cafe/ui/index.html`: HUD at 1280x720, phone at 812x375 with the catch ring and GRAB button, carry banner, Upgrades, Decor, Collection (Book and Cat room tabs), lure picker with odds and Details, popups and toasts, tokens and rules. Built from the asset thread's cat renders.
+`docs/concepts/cat-cafe/ui/index.html`: HUD at 1280x720, phone at 812x375 with the catch ring and GRAB button, carry banner, Upgrades, Decor, Collection (Index and Cat room tabs), lure picker with odds and Details, popups and toasts, tokens and rules. Built from the asset thread's cat renders.

@@ -4,8 +4,8 @@
 -- buy right now, a cat (or gold coat) in the collection. The HUD remembers which keys were on screen when the player
 -- last opened that screen and shows a dot while any key is new. Pure: no services, so it can be unit tested.
 
-local BookRewards = require(script.Parent.Components.BookRewards)
 local CatVariant = require(script.Parent.Components.CatVariant)
+local IndexRewards = require(script.Parent.Components.IndexRewards)
 local Types = require(script.Parent.Types)
 
 export type Candidates = {
@@ -43,7 +43,7 @@ end
 local function decorKeys(catalog: Types.Catalog, state: Types.PlayerState): { string }
 	local keys = {}
 	for _, def in catalog.decor do
-		if state.decorOwned[def.id] or BookRewards.isBookDecor(def) then
+		if state.decorOwned[def.id] or IndexRewards.isIndexDecor(def) then
 			continue
 		end
 		if def.requiresTier ~= nil and state.tier < (def.requiresTier :: number) then

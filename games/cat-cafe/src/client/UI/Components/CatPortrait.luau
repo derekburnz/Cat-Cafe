@@ -1,9 +1,9 @@
 --!strict
--- A live 3D cat for reveal cards and the book: the cat's own model, cloned from ReplicatedStorage.Assets (the
+-- A live 3D cat for reveal cards and the Index: the cat's own model, cloned from ReplicatedStorage.Assets (the
 -- asset thread's mesh, or the server's placeholder until it lands), in a ViewportFrame that sways it slowly.
 -- set(def, true) shows a gold cat's own coat (v0.5 F42, Catalog.goldModelName), else its base coat.
 -- When the model is not there yet it falls back to the cat's initial on its body colour. A silhouette (the
--- book's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
+-- Index's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
 --
 -- Roblox terms: a ViewportFrame draws 3D parts inside 2D UI through its own Camera. Nothing in it is simulated,
 -- so the clone needs no anchoring, but scripts inside a model would still run under PlayerGui, so they are
@@ -25,7 +25,7 @@ export type Props = {
 	position: UDim2?,
 	anchorPoint: Vector2?,
 	zIndex: number?,
-	still: boolean?, -- no sway: a book cell holds the three-quarter pose, so a page of cells costs no frames
+	still: boolean?, -- no sway: an Index cell holds the three-quarter pose, so a page of cells costs no frames
 }
 
 export type CatPortrait = {
@@ -219,7 +219,7 @@ function CatPortrait.setSilhouette(self: any, on: boolean)
 	self:_paintGlyph()
 end
 
--- False while Assets had no model for the cat (the initial shows); the book retries on its next render.
+-- False while Assets had no model for the cat (the initial shows); the Index retries on its next render.
 function CatPortrait.hasModel(self: any): boolean
 	return self._model ~= nil
 end

@@ -36,33 +36,33 @@ local DEMO_TIP_JAR: { Types.TipJarRow } = {
 	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 },
 }
 
--- data-model section 11b's Book milestones and prizes, until the engineer's Catalog.bookMilestones and
--- Catalog.bookPrizes land
-local DEMO_BOOK_MILESTONES: { Types.BookMilestone } = {
+-- data-model section 11b's Index milestones and prizes, until the engineer's Catalog.indexMilestones and
+-- Catalog.indexPrizes land
+local DEMO_INDEX_MILESTONES: { Types.IndexMilestone } = {
 	{ id = "cats3", need = 3 },
 	{ id = "cats6", need = 6 },
 	{ id = "cats10", need = 10 },
 	{ id = "gold10", need = 10, gold = true },
 }
-local function bookPrizes(
+local function indexPrizes(
 	coins: number,
 	six: string,
 	ten: { [string]: number },
 	areaId: string
-): { [string]: Types.BookPrize }
+): { [string]: Types.IndexPrize }
 	return {
 		cats3 = { coins = coins },
 		cats6 = { lures = { [six] = 2 } },
-		cats10 = { lures = ten, decorId = "book_" .. areaId },
-		gold10 = { decorId = "book_" .. areaId .. "_gold" },
+		cats10 = { lures = ten, decorId = "index_" .. areaId },
+		gold10 = { decorId = "index_" .. areaId .. "_gold" },
 	}
 end
-local DEMO_BOOK_PRIZES: { [string]: { [string]: Types.BookPrize } } = {
-	alley = bookPrizes(300, "tuna", { salmon = 1 }, "alley"),
-	park = bookPrizes(1000, "salmon", { caviar = 1 }, "park"),
-	neighbourhood = bookPrizes(3000, "caviar", { moon_milk = 1 }, "neighbourhood"),
-	woods = bookPrizes(10000, "moon_milk", { star_treat = 1 }, "woods"),
-	sewer = bookPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
+local DEMO_INDEX_PRIZES: { [string]: { [string]: Types.IndexPrize } } = {
+	alley = indexPrizes(300, "tuna", { salmon = 1 }, "alley"),
+	park = indexPrizes(1000, "salmon", { caviar = 1 }, "park"),
+	neighbourhood = indexPrizes(3000, "caviar", { moon_milk = 1 }, "neighbourhood"),
+	woods = indexPrizes(10000, "moon_milk", { star_treat = 1 }, "woods"),
+	sewer = indexPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
 }
 
 -- The real catalog (src/shared/Catalog.luau), so the demo shows the slice's actual cats and prices.
@@ -75,8 +75,8 @@ local CATALOG: Types.Catalog = {
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
 	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
-	bookMilestones = (Catalog :: any).bookMilestones or DEMO_BOOK_MILESTONES,
-	bookPrizes = (Catalog :: any).bookPrizes or DEMO_BOOK_PRIZES,
+	indexMilestones = (Catalog :: any).indexMilestones or DEMO_INDEX_MILESTONES,
+	indexPrizes = (Catalog :: any).indexPrizes or DEMO_INDEX_PRIZES,
 	rarities = Catalog.rarities,
 }
 
@@ -120,10 +120,10 @@ function Demo.run(UI: any): () -> ()
 		decorPlaced = {} :: { [string]: boolean },
 		lures = {} :: { [string]: number },
 		cats = {} :: { [string]: Types.CatInstance },
-		-- three Alleyway cats already found, so the Book's first reward is ready to claim
+		-- three Alleyway cats already found, so the Index's first reward is ready to claim
 		collection = { tabby = now(), tuxedo = now(), ginger = now() } :: { [string]: number },
 		goldCollection = {} :: { [string]: number },
-		bookRewards = {} :: { [string]: { [string]: boolean } },
+		indexRewards = {} :: { [string]: { [string]: boolean } },
 		tier = 1,
 		settings = { music = true, sfx = true } :: { [string]: boolean },
 	}
@@ -176,7 +176,7 @@ function Demo.run(UI: any): () -> ()
 			cats = profile.cats,
 			collection = profile.collection,
 			goldCollection = profile.goldCollection,
-			bookRewards = profile.bookRewards,
+			indexRewards = profile.indexRewards,
 			customers = 2 * (profile.upgradeLevels.tables or 0),
 			tier = profile.tier,
 			settings = profile.settings,
@@ -224,16 +224,16 @@ function Demo.run(UI: any): () -> ()
 			end)
 		end
 	end)
-	-- ClaimBookReward as the server checks it: a known prize, the count met, not claimed yet (data-model 11b)
-	connections[#connections + 1] = UI.events.claimBookReward:Connect(
+	-- ClaimIndexReward as the server checks it: a known prize, the count met, not claimed yet (data-model 11b)
+	connections[#connections + 1] = UI.events.claimIndexReward:Connect(
 		function(areaId: string, milestoneId: string)
-			local rewards: { [string]: { [string]: Types.BookPrize } } = CATALOG.bookPrizes or {}
+			local rewards: { [string]: { [string]: Types.IndexPrize } } = CATALOG.indexPrizes or {}
 			local prize = rewards[areaId] and rewards[areaId][milestoneId]
-			local claimed = profile.bookRewards[areaId] or {}
+			local claimed = profile.indexRewards[areaId] or {}
 			if prize == nil or claimed[milestoneId] then
 				return
 			end
-			local milestones: { Types.BookMilestone } = CATALOG.bookMilestones or {}
+			local milestones: { Types.IndexMilestone } = CATALOG.indexMilestones or {}
 			local need, gold = math.huge, false
 			for _, milestone in milestones do
 				if milestone.id == milestoneId then
@@ -263,7 +263,7 @@ function Demo.run(UI: any): () -> ()
 				profile.decorPlaced[prize.decorId] = true
 			end
 			claimed[milestoneId] = true
-			profile.bookRewards[areaId] = claimed
+			profile.indexRewards[areaId] = claimed
 			UI.toast("Index reward claimed!", "good")
 			task.delay(0.3, push)
 		end

@@ -1,13 +1,13 @@
 --!strict
--- The Book's reward strip (F48, data-model section 11b): a row of milestone cards above the open area's cats,
+-- The Index's reward strip (F48, data-model section 11b): a row of milestone cards above the open area's cats,
 -- like the index rewards in Pet Simulator 99. Each card shows what it needs ("3 cats", "All 10 gold"), the prize
--- and either a bar toward it, a green Claim button or "✓ Claimed". The sums live in Components/BookRewards;
+-- and either a bar toward it, a green Claim button or "✓ Claimed". The sums live in Components/IndexRewards;
 -- the strip hides itself when the catalog has no prizes for the area.
 
-local BookRewards = require(script.Parent.Parent.Components.BookRewards)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -16,11 +16,11 @@ export type Callbacks = {
 	claim: (areaId: string, milestoneId: string) -> (),
 }
 
-export type BookStrip = {
+export type IndexStrip = {
 	frame: Frame,
-	setCatalog: (self: BookStrip, catalog: Types.Catalog) -> (),
-	render: (self: BookStrip, state: Types.PlayerState, areaId: string?) -> (),
-	destroy: (self: BookStrip) -> (),
+	setCatalog: (self: IndexStrip, catalog: Types.Catalog) -> (),
+	render: (self: IndexStrip, state: Types.PlayerState, areaId: string?) -> (),
+	destroy: (self: IndexStrip) -> (),
 }
 
 local HEIGHT = 68
@@ -29,8 +29,8 @@ local TEXT_LEFT = ICON + 16
 local PENDING_SECONDS = 3 -- a pressed Claim waits this long for ProfileSync before it can be pressed again
 local COIN_GLYPH = "💰"
 
-local BookStrip = {}
-BookStrip.__index = BookStrip
+local IndexStrip = {}
+IndexStrip.__index = IndexStrip
 
 local function text(props: { [string]: any }): TextLabel
 	local merged: { [string]: any } = {
@@ -48,8 +48,8 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
-function BookStrip.new(parent: Instance, callbacks: Callbacks): BookStrip
-	local self = setmetatable({}, BookStrip) :: any
+function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
+	local self = setmetatable({}, IndexStrip) :: any
 	self._callbacks = callbacks
 	self._catalog = nil :: Types.Catalog?
 	self._lureById = {} :: { [string]: Types.LureDef }
@@ -74,10 +74,10 @@ function BookStrip.new(parent: Instance, callbacks: Callbacks): BookStrip
 		}),
 	})
 
-	return self :: BookStrip
+	return self :: IndexStrip
 end
 
-function BookStrip.setCatalog(self: any, catalog: Types.Catalog)
+function IndexStrip.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	table.clear(self._lureById)
 	for _, lure in catalog.lures do
@@ -93,13 +93,13 @@ function BookStrip.setCatalog(self: any, catalog: Types.Catalog)
 		card.frame:Destroy()
 	end
 	table.clear(self._cards)
-	local milestones: { Types.BookMilestone } = catalog.bookMilestones or {}
+	local milestones: { Types.IndexMilestone } = catalog.indexMilestones or {}
 	for order, milestone in milestones do
 		self:_buildCard(milestone, order)
 	end
 end
 
-function BookStrip._buildCard(self: any, milestone: Types.BookMilestone, order: number)
+function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order: number)
 	local frame: Frame = Create("Frame", {
 		Name = milestone.id,
 		BackgroundColor3 = Theme.modal.card,
@@ -213,14 +213,14 @@ function BookStrip._buildCard(self: any, milestone: Types.BookMilestone, order: 
 end
 
 -- "$300", "2 Tuna", "Salmon + Alley Mural Print"; the icon is the decor, else the food, else coins.
-function BookStrip._showPrize(self: any, card: any, prize: Types.BookPrize, gold: boolean)
+function IndexStrip._showPrize(self: any, card: any, prize: Types.IndexPrize, gold: boolean)
 	local parts: { string } = {}
 	local coins: number? = prize.coins
 	if coins and coins > 0 then
 		table.insert(parts, Format.money(coins))
 	end
 	local firstLure: Types.LureDef? = nil
-	for _, entry in BookRewards.lureList(prize) do
+	for _, entry in IndexRewards.lureList(prize) do
 		local lure: Types.LureDef? = self._lureById[entry.id]
 		firstLure = firstLure or lure
 		local name = if lure then lure.name else entry.id
@@ -249,13 +249,13 @@ function BookStrip._showPrize(self: any, card: any, prize: Types.BookPrize, gold
 	end
 end
 
-function BookStrip.render(self: any, state: Types.PlayerState, areaId: string?)
+function IndexStrip.render(self: any, state: Types.PlayerState, areaId: string?)
 	self._state = state
 	self._area = areaId
 	self:_refresh()
 end
 
-function BookStrip._refresh(self: any)
+function IndexStrip._refresh(self: any)
 	local catalog: Types.Catalog? = self._catalog
 	local state: Types.PlayerState? = self._state
 	local area: string? = self._area
@@ -263,8 +263,8 @@ function BookStrip._refresh(self: any)
 		self.frame.Visible = false
 		return
 	end
-	local views = BookRewards.views(catalog, state, area)
-	local total = BookRewards.counts(catalog, state, area).total
+	local views = IndexRewards.views(catalog, state, area)
+	local total = IndexRewards.counts(catalog, state, area).total
 	self.frame.Visible = #views > 0
 	for _, card in self._cards do
 		card.frame.Visible = false
@@ -284,7 +284,7 @@ function BookStrip._refresh(self: any)
 			self:_showPrize(card, view.prize, card.gold)
 		end
 		local need = view.milestone.need
-		card.need.Text = BookRewards.needLabel(view.milestone, total)
+		card.need.Text = IndexRewards.needLabel(view.milestone, total)
 		card.count.Text = ("%d / %d"):format(view.have, need)
 		local pressedAt: number? = self._pending[area .. ":" .. view.milestone.id]
 		local pending = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
@@ -306,7 +306,7 @@ function BookStrip._refresh(self: any)
 	end
 end
 
-function BookStrip.destroy(self: any)
+function IndexStrip.destroy(self: any)
 	for _, card in self._cards do
 		card.claim:destroy()
 		card.icon:destroy()
@@ -315,4 +315,4 @@ function BookStrip.destroy(self: any)
 	self.frame:Destroy()
 end
 
-return BookStrip
+return IndexStrip

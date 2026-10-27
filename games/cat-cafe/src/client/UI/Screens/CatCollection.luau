@@ -1,20 +1,20 @@
 --!strict
 -- Collection screen with two tabs.
---   Book: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
+--   Index: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
 --         (dark silhouettes until found), rarest last; tap one for details. Above the cats, the area's reward
---         strip (Screens/BookStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Book
+--         strip (Screens/IndexStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Index
 --         tab and on each area tab says a reward is waiting.
 --   Cat room: the cats the player owns as an inventory grid under a crew strip of role slots (Screens/CatRoom).
 -- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
-local BookRewards = require(script.Parent.Parent.Components.BookRewards)
-local BookStrip = require(script.Parent.BookStrip)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoom = require(script.Parent.CatRoom)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
+local IndexStrip = require(script.Parent.IndexStrip)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -29,7 +29,7 @@ export type Callbacks = {
 	renameCat: (uid: string, name: string) -> (),
 	equipBest: () -> (),
 	unequipAll: () -> (),
-	claimBookReward: (areaId: string, milestoneId: string) -> (),
+	claimIndexReward: (areaId: string, milestoneId: string) -> (),
 	close: () -> (),
 }
 
@@ -37,8 +37,8 @@ export type CatCollection = {
 	frame: Frame,
 	setCatalog: (self: CatCollection, catalog: Types.Catalog) -> (),
 	render: (self: CatCollection, state: Types.PlayerState) -> (),
-	showTab: (self: CatCollection, tab: "Book" | "Room") -> (),
-	currentTab: (self: CatCollection) -> "Book" | "Room",
+	showTab: (self: CatCollection, tab: "Index" | "Room") -> (),
+	currentTab: (self: CatCollection) -> "Index" | "Room",
 	destroy: (self: CatCollection) -> (),
 }
 
@@ -162,9 +162,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._catById = {} :: { [string]: Types.CatDef }
 	self._cells = {} :: { [string]: any }
 	self._areaChips = {} :: { any }
-	self._area = nil :: string? -- the book's open area tab
+	self._area = nil :: string? -- the Index's open area tab
 	self._detailId = nil :: string? -- the cat in the detail strip's portrait
-	self._tab = "Book"
+	self._tab = "Index"
 	self._selected = nil :: string?
 	self._dirty = true
 	self._lastState = nil :: Types.PlayerState?
@@ -195,8 +195,8 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	self._bookTab = Button.new({
-		name = "BookTab",
+	self._indexTab = Button.new({
+		name = "IndexTab",
 		text = "Index",
 		style = "gold",
 		size = UDim2.fromOffset(120, TAB_HEIGHT),
@@ -205,10 +205,10 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		parent = tabs,
 		sound = "uiTab",
 		onClick = function()
-			self:showTab("Book")
+			self:showTab("Index")
 		end,
 	})
-	self._bookBadge, self._bookBadgeCount = badge(self._bookTab.instance, 24)
+	self._indexBadge, self._indexBadgeCount = badge(self._indexTab.instance, 24)
 	self._roomTab = Button.new({
 		name = "RoomTab",
 		text = "Cat room",
@@ -223,13 +223,13 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		end,
 	})
 
-	-- Book: detail strip + grid of sections
-	local bookTop = TAB_HEIGHT + Theme.sizes.gap
-	self._book = Create("Frame", {
-		Name = "Book",
+	-- Index: detail strip + grid of sections
+	local indexTop = TAB_HEIGHT + Theme.sizes.gap
+	self._index = Create("Frame", {
+		Name = "Index",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, bookTop),
-		Size = UDim2.new(1, 0, 1, -bookTop),
+		Position = UDim2.fromOffset(0, indexTop),
+		Size = UDim2.new(1, 0, 1, -indexTop),
 		Parent = panel.content,
 	})
 	local detail: Frame = Create("Frame", {
@@ -237,7 +237,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		BackgroundColor3 = Theme.modal.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, DETAIL_HEIGHT),
-		Parent = self._book,
+		Parent = self._index,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
@@ -292,7 +292,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, areaTop),
 		Size = UDim2.new(1, 0, 0, AREA_TAB_HEIGHT),
-		Parent = self._book,
+		Parent = self._index,
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
@@ -308,7 +308,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(0, progressTop),
 		Size = UDim2.new(1, 0, 0, PROGRESS_HEIGHT),
-		Parent = self._book,
+		Parent = self._index,
 	})
 	self._progressName = text({
 		Name = "Area",
@@ -350,9 +350,9 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 
 	local gridTop = progressTop + PROGRESS_HEIGHT + gap
 	self._grid =
-		scroller("Grid", self._book, UDim2.fromOffset(0, gridTop), UDim2.new(1, 0, 1, -gridTop))
+		scroller("Grid", self._index, UDim2.fromOffset(0, gridTop), UDim2.new(1, 0, 1, -gridTop))
 	-- the area's reward strip scrolls with the cats, so the grid keeps its height
-	self._strip = BookStrip.new(self._grid, { claim = callbacks.claimBookReward })
+	self._strip = IndexStrip.new(self._grid, { claim = callbacks.claimIndexReward })
 	self._cellsFrame = Create("Frame", {
 		Name = "Cells",
 		BackgroundTransparency = 1,
@@ -372,8 +372,8 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._room = Create("Frame", {
 		Name = "Room",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, bookTop),
-		Size = UDim2.new(1, 0, 1, -bookTop),
+		Position = UDim2.fromOffset(0, indexTop),
+		Size = UDim2.new(1, 0, 1, -indexTop),
 		Visible = false,
 		Parent = panel.content,
 	})
@@ -389,15 +389,15 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	return self :: CatCollection
 end
 
-function CatCollection.currentTab(self: any): "Book" | "Room"
+function CatCollection.currentTab(self: any): "Index" | "Room"
 	return self._tab
 end
 
-function CatCollection.showTab(self: any, tab: "Book" | "Room")
+function CatCollection.showTab(self: any, tab: "Index" | "Room")
 	self._tab = tab
-	self._book.Visible = tab == "Book"
+	self._index.Visible = tab == "Index"
 	self._room.Visible = tab == "Room"
-	self._bookTab:setStyle(if tab == "Book" then "gold" else "ghost")
+	self._indexTab:setStyle(if tab == "Index" then "gold" else "ghost")
 	self._roomTab:setStyle(if tab == "Room" then "gold" else "ghost")
 	self._catRoom:reset()
 	if self._lastState then
@@ -444,18 +444,18 @@ function CatCollection._select(self: any, catId: string)
 	self._detailPill.TextColor3 = Theme.rarityTextColor(def.rarity)
 end
 
--- The book's areas in tier order: the catalog's areas, else the areas the cats name in catalog order.
-type BookArea = { id: string, name: string, tier: number }
+-- The Index's areas in tier order: the catalog's areas, else the areas the cats name in catalog order.
+type IndexArea = { id: string, name: string, tier: number }
 
-local function bookAreas(catalog: Types.Catalog): { BookArea }
-	local list: { BookArea } = {}
+local function indexAreas(catalog: Types.Catalog): { IndexArea }
+	local list: { IndexArea } = {}
 	local seen: { [string]: boolean } = {}
 	local areas: { Types.AreaDef } = catalog.areas or {}
 	for _, area in areas do
 		seen[area.id] = true
 		table.insert(list, { id = area.id, name = area.name, tier = area.tier })
 	end
-	table.sort(list, function(a: BookArea, b: BookArea): boolean
+	table.sort(list, function(a: IndexArea, b: IndexArea): boolean
 		return a.tier < b.tier
 	end)
 	for _, def in catalog.cats do
@@ -468,7 +468,7 @@ local function bookAreas(catalog: Types.Catalog): { BookArea }
 	return list
 end
 
-function CatCollection._buildBook(self: any)
+function CatCollection._buildIndex(self: any)
 	for _, cell in self._cells do
 		cell.connection:Disconnect()
 		cell.portrait:destroy()
@@ -488,7 +488,7 @@ function CatCollection._buildBook(self: any)
 	end
 	assert(catalog, "catalog not set; call UI.init first")
 
-	local areas = bookAreas(catalog)
+	local areas = indexAreas(catalog)
 	local gap = Theme.sizes.gap
 	for order, area in areas do
 		local color = Theme.areaColors[area.id] or Theme.colors.caramel
@@ -633,7 +633,7 @@ end
 
 function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
-	self:_buildBook()
+	self:_buildIndex()
 	self._catRoom:setCatalog(catalog)
 	self._strip:setCatalog(catalog)
 	self._dirty = true
@@ -641,7 +641,7 @@ end
 
 -- The open area's page: chips with each area's count, the progress strip, and that area's cells. Each cell's
 -- model is cloned the first time its area opens, and again on later renders until Assets has it.
-function CatCollection._renderBook(
+function CatCollection._renderIndex(
 	self: any,
 	state: Types.PlayerState,
 	found: { [string]: boolean },
@@ -778,28 +778,28 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		)
 	)
 
-	-- the Book tab's badge counts rewards waiting on every page, whichever tab is open
+	-- the Index tab's badge counts rewards waiting on every page, whichever tab is open
 	local ready: { [string]: number } = {}
 	local waiting = 0
 	if catalog then
-		ready, waiting = BookRewards.claimable(catalog, state)
+		ready, waiting = IndexRewards.claimable(catalog, state)
 	end
-	if waiting > 0 and not self._bookBadge.Visible then
-		Tween.popIn(self._bookBadge, 0.5)
+	if waiting > 0 and not self._indexBadge.Visible then
+		Tween.popIn(self._indexBadge, 0.5)
 	end
-	self._bookBadge.Visible = waiting > 0
-	self._bookBadgeCount.Text = tostring(waiting)
+	self._indexBadge.Visible = waiting > 0
+	self._indexBadgeCount.Text = tostring(waiting)
 
 	-- room tab only when the engineer sends cat instances
 	local hasRoom = state.cats ~= nil
 	self._roomTab.instance.Visible = hasRoom
 	if not hasRoom and self._tab == "Room" then
-		self:showTab("Book")
+		self:showTab("Index")
 		return
 	end
 
-	if self._tab == "Book" then
-		self:_renderBook(state, found, ready)
+	if self._tab == "Index" then
+		self:_renderIndex(state, found, ready)
 		if self._selected then
 			self:_select(self._selected)
 		end
@@ -819,7 +819,7 @@ function CatCollection.destroy(self: any)
 	self._detailArt:destroy()
 	self._catRoom:destroy()
 	self._strip:destroy()
-	self._bookTab:destroy()
+	self._indexTab:destroy()
 	self._roomTab:destroy()
 	self._panel:destroy()
 end

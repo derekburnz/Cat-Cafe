@@ -200,7 +200,7 @@ return function()
 			expect(CatStats.rating(best)).to.be.near(195.75, 1e-9)
 		end)
 
-		it("maxRating is the base variant figure; the book's gold line is that times 1.5", function()
+		it("maxRating is the base variant figure; the Index's gold line is that times 1.5", function()
 			expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.45, 1e-9)
 			expect(CatStats.maxRating("midnight") * Config.GoldMultiplier).to.be.near(195.75, 1e-9)
 		end)
@@ -341,7 +341,7 @@ return function()
 		end)
 	end)
 
-	-- Design v0.3: a rescued cat keeps its flag for the book and analytics but pays no more (RescuedTipsMultiplier 1.0).
+	-- Design v0.3: a rescued cat keeps its flag for the Index and analytics but pays no more (RescuedTipsMultiplier 1.0).
 	-- The gloves to net carry-over is a v1 and v2 save rule, so it lives in ProfileSchema.spec now.
 	describe("rescued cats (v0.3)", function()
 		it("rescuedMultiplier is 1 for everyone", function()

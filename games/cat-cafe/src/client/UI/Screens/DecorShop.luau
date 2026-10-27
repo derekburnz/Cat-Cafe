@@ -2,10 +2,10 @@
 -- Decor screen: category chips across the top, a grid of cards below.
 -- A card shows cost, Place or Remove depending on what the player owns.
 
-local BookRewards = require(script.Parent.Parent.Components.BookRewards)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -202,9 +202,9 @@ function DecorShop._build(self: any)
 			Text = decor.name:sub(1, 1),
 			Parent = art,
 		})
-		-- Book decor (F48): a dark ribbon over the art says which Book milestone wins it, until it is claimed
+		-- Index decor (F48): a dark ribbon over the art says which Index milestone wins it, until it is claimed
 		local unlock: TextLabel? = nil
-		if BookRewards.isBookDecor(decor) then
+		if IndexRewards.isIndexDecor(decor) then
 			unlock = text({
 				Name = "Unlock",
 				BackgroundColor3 = Theme.colors.outline,
@@ -322,7 +322,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		("%d placed  ·  %s"):format(placedCount, Format.money(state.money))
 	)
 
-	local replaced = if self._catalog then BookRewards.replacedBy(self._catalog, state) else {}
+	local replaced = if self._catalog then IndexRewards.replacedBy(self._catalog, state) else {}
 	for decorId, card in self._cards do
 		local def: Types.DecorDef = card.def
 		local isOwned = state.decorOwned[decorId] == true
@@ -337,12 +337,12 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			local catalog: Types.Catalog? = self._catalog
 			local areaId, milestone = nil, nil
 			if catalog then
-				areaId, milestone = BookRewards.decorSource(catalog, decorId)
+				areaId, milestone = IndexRewards.decorSource(catalog, decorId)
 			end
 			local label = "From the Index"
 			if catalog and areaId and milestone then
-				local total = BookRewards.counts(catalog, state, areaId).total
-				label = BookRewards.unlockLabel(milestone, Format.areaName(areaId), total)
+				local total = IndexRewards.counts(catalog, state, areaId).total
+				label = IndexRewards.unlockLabel(milestone, Format.areaName(areaId), total)
 			end
 			unlock.Text = if isReplaced
 				then "✨ Replaced by its gold piece"
@@ -358,9 +358,9 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.action:setText("Place")
 			card.action:setStyle("secondary")
 			card.action:setEnabled(true)
-		elseif BookRewards.isBookDecor(def) then
-			-- F48: won from the Book, never bought (BuyDecor refuses it)
-			card.mode = "book"
+		elseif IndexRewards.isIndexDecor(def) then
+			-- F48: won from the Index, never bought (BuyDecor refuses it)
+			card.mode = "index"
 			card.action:setText(Theme.icons.collection .. " Index reward")
 			card.action:setStyle("ghost")
 			card.action:setEnabled(false)

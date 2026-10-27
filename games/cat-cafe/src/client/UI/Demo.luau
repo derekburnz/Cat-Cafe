@@ -38,6 +38,9 @@ local DEMO_CIRCLES: { [string]: { count: number, shrink: number } } = {
 	Mythical = { count = 5, shrink = 0.65 },
 }
 local DEMO_WINDOWS: Types.CatchWindows = { perfect = 0.045, good = 0.11 }
+-- v0.4 patience paws per rarity (world-and-feel section 1)
+local DEMO_PATIENCE: { [string]: number } =
+	{ Common = 3, Rare = 2, Epic = 2, Legendary = 1, Mythical = 1 }
 
 local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
@@ -248,14 +251,29 @@ function Demo.run(UI: any): () -> ()
 		end
 	end)
 
-	-- Pretend server for the closing circles: the schedule is made here, presses are stamped on
-	-- arrival and judged against each circle's target, then the chance is rolled (data-model 10).
+	-- Pretend server for the closing circles: the schedule is made here, presses are stamped on arrival and
+	-- graded against each circle's target. v0.4 (data-model 10 step 5): the first Miss ends the catch and costs a
+	-- paw, no Miss catches, and every Perfect adds 4 charm (doubled when all are Perfect).
+	local demoPaws: { [string]: number } = {}
 	local function demoCatch(catId: string)
 		local def = catById[catId]
 		local rarity: string = if def then def.rarity else "Common"
 		local spec = DEMO_CIRCLES[rarity] or DEMO_CIRCLES.Common
 		local strayId = "demo_stray_" .. catId
-		UI.catch.show({ catId = catId, strayId = strayId, stars = 3, press = true })
+		local patience = DEMO_PATIENCE[rarity] or 1
+		local paws = demoPaws[strayId] or patience
+		if paws <= 0 then
+			UI.toast("It won't trust you tonight", "warn")
+			return
+		end
+		UI.catch.show({
+			catId = catId,
+			strayId = strayId,
+			stars = 3,
+			press = true,
+			patience = patience,
+			paws = paws,
+		})
 		task.wait(1.2)
 		local start = Workspace:GetServerTimeNow() + 0.6
 		local schedule: { Types.CatchCircle } = {}
@@ -269,38 +287,51 @@ function Demo.run(UI: any): () -> ()
 			})
 			start += shrink + 0.35 + math.random() * 0.35
 		end
-		local scores: { number } = table.create(#schedule, 0)
-		local pressed: { [number]: boolean } = {}
+		local grades: { Types.CircleGrade } = {}
+		local missed = false
 		local connection = UI.events.catchPressed:Connect(function(id: string, index: number)
 			local circle = schedule[index]
-			if id ~= strayId or not circle or pressed[index] then
+			if id ~= strayId or not circle or missed or index ~= #grades + 1 then
 				return
 			end
-			pressed[index] = true
 			local offset =
 				math.abs(Workspace:GetServerTimeNow() - (circle.startsAt + circle.shrinkSeconds))
-			scores[index] = if offset <= DEMO_WINDOWS.perfect
-				then 1
-				elseif offset <= DEMO_WINDOWS.good then 0.5
-				else 0
+			local grade: Types.CircleGrade = if offset <= DEMO_WINDOWS.perfect
+				then "perfect"
+				elseif offset <= DEMO_WINDOWS.good then "good"
+				else "miss"
+			table.insert(grades, grade)
+			missed = grade == "miss"
 		end)
-		UI.catch.showCircles(strayId, schedule, DEMO_WINDOWS)
-		local last = schedule[#schedule]
-		task.wait(
-			last.startsAt
-				+ last.shrinkSeconds
-				+ DEMO_WINDOWS.good
-				+ 0.2
-				- Workspace:GetServerTimeNow()
-		)
-		connection:Disconnect()
-		local total = 0
-		for _, score in scores do
-			total += score
+		UI.catch.showCircles(strayId, schedule, DEMO_WINDOWS, paws)
+		-- judge until a Miss, the last circle, or a circle's deadline passing with no press
+		while not missed and #grades < #schedule do
+			local circle = schedule[#grades + 1]
+			if
+				Workspace:GetServerTimeNow()
+				> circle.startsAt + circle.shrinkSeconds + DEMO_WINDOWS.good + 0.15
+			then
+				local miss: Types.CircleGrade = "miss"
+				table.insert(grades, miss)
+				missed = true
+			else
+				task.wait(0.05)
+			end
 		end
-		local chance = total / #scores
-		local success = math.random() < chance
-		UI.catch.showResult(strayId, scores, chance, success)
+		connection:Disconnect()
+		local success = not missed
+		local perfects = 0
+		for _, grade in grades do
+			if grade == "perfect" then
+				perfects += 1
+			end
+		end
+		local charm = if success then perfects * 4 * (if perfects == #schedule then 2 else 1) else 0
+		if not success then
+			paws -= 1
+			demoPaws[strayId] = paws
+		end
+		UI.catch.showGrades(strayId, grades, success, paws, charm)
 		task.wait(1.8)
 		UI.catch.hide()
 		if success then

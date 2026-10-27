@@ -11,7 +11,7 @@ local Types = require(script.Parent.Parent.Types)
 
 export type Toasts = {
 	screenGui: ScreenGui,
-	show: (self: Toasts, text: string, kind: Types.ToastKind?) -> (),
+	show: (self: Toasts, text: string, kind: Types.ToastKind?, quiet: boolean?) -> (),
 	destroy: (self: Toasts) -> (),
 }
 
@@ -85,7 +85,8 @@ local function announceColor(text: string): Color3?
 	return best
 end
 
-function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
+-- quiet skips the toast's own sound when the moment already has one (a miss hisses).
+function Toasts.show(self: any, text: string, kind: Types.ToastKind?, quiet: boolean?)
 	local fill = KIND_COLORS[kind or "info"] or KIND_COLORS.info
 	local lifetime = LIFETIME
 	if kind == "announce" then
@@ -93,7 +94,9 @@ function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
 		lifetime = ANNOUNCE_LIFETIME
 	end
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
-	Sound.play(if kind == "warn" then "uiError" else "uiToast")
+	if not quiet then
+		Sound.play(if kind == "warn" then "uiError" else "uiToast")
+	end
 	self._order += 1
 	local toast: Frame = Create("Frame", {
 		Name = "Toast",

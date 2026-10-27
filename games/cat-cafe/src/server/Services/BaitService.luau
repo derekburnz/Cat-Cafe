@@ -1,5 +1,6 @@
 --!strict
--- The bait bowl (F28, data-model section 8): one bowl in the cafe's front garden, bought as the lure_bowl upgrade.
+-- The bait bowl (F28, data-model section 8): one bowl on the cafe's back step (v0.5 F44), bought as the lure_bowl
+-- upgrade.
 -- UseLure(lureId) puts one food in and rolls the cat in the same step (rarity from the food's odds, the cat among
 -- that rarity's cats in every area the tier opens, charm and shiny), so a rejoin cannot reroll it. The cat arrives
 -- LureWaitSeconds later, online or not, and sits eating at the bowl. ResolveBait("tame") adds it to the cat room,

@@ -758,7 +758,7 @@ Catalog.upgrades = {
 	{
 		id = "lure_bowl", -- shown as Bait bowl; ids keep the lure_ prefix (data-model section 6)
 		name = "Bait bowl",
-		description = "Unlocks baiting with food at bait spots",
+		description = "A bowl on your back step. Food in, a cat in 10 min",
 		maxLevel = 1,
 		costs = { 400 },
 		startLevel = 0,

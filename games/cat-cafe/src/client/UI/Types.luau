@@ -72,7 +72,6 @@ export type PlayerState = {
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
-	equippedLure: string?,
 	-- optional extras the engineer's ProfileSync also sends
 	cats: { [string]: CatInstance }?, -- uid -> instance; enables the cat room tab
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
@@ -96,7 +95,6 @@ export type PartialState = {
 	decorOwned: { [string]: boolean }?,
 	decorPlaced: { [string]: boolean }?,
 	lures: { [string]: number }?,
-	equippedLure: string?,
 	cats: { [string]: CatInstance }?,
 	collection: { [string]: number }?,
 	shinyCollection: { [string]: number }?,
@@ -185,13 +183,13 @@ export type CatFoundExtra = {
 
 export type InitConfig = {
 	catalog: Catalog,
-	keybinds: boolean?, -- default true: U upgrades, B decor, C collection, F lure
+	keybinds: boolean?, -- default true: U upgrades, B decor, C collection, F bait bowl
 	parent: Instance?, -- default LocalPlayer.PlayerGui
 	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
 	-- uiHint and uiRankReady; nil keeps the UI silent.
 	playSound: ((cueId: string) -> ...any)?,
-	-- v0.3 bait bowl (F28): the HUD lure slot becomes the bowl chip and F opens the Bait bowl screen. Leave it
-	-- off while the server still runs the v0.2 lure spots (equipLure).
+	-- Ignored: the bait bowl (F28) is always on now that the v0.2 lure spots are gone. Kept so a controller that
+	-- still passes `baitBowl = true` type checks.
 	baitBowl: boolean?,
 }
 

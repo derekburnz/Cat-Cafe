@@ -28,8 +28,8 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 -- data-model section 12: ClaimRichTip within 12 studs of the anchor; a tip stays RichTipStaySeconds (90)
-local RANGE: number = (Config :: any).RichTipRangeStuds or 12
-local STAY: number = (Config :: any).RichTipStaySeconds or 90
+local RANGE: number = Config.RichTipRangeStuds
+local STAY: number = Config.RichTipStaySeconds
 local PENDING_SECONDS = 3 -- Collect shows "Collecting..." this long unless the tip clears first
 local OFFSET = 3.2 -- studs above the anchor
 local BOB = 0.18 -- studs of gentle bobbing (off with Reduced Motion)

@@ -1,40 +1,45 @@
 --!strict
--- Shove (data-model section 10c: the F29 carry bumps, v0.5 F41 and v0.5.1). Pure: times are server time, the caller
--- measures positions and looks up areas, so the specs can walk every protection without a world. The remote and the
--- constants keep their Bump names; players see the word Shove.
+-- Shove, a Tackle since v0.11 (data-model section 10c: the F29 carry bumps, v0.5 F41, v0.5.1 and v0.11 F74). Pure:
+-- times are server time, the caller measures positions and looks up areas, so the specs can walk every protection
+-- without a world. The code keeps the Shove and Bump names; players see the word Tackle.
 --
--- Any player may shove another while both stand inside one catching area the shover has unlocked, within
--- BumpRangeStuds, outside the target's safe zone (its plot and BumpSafeRadiusStuds round both of its doors), with
--- neither holding a catch or rescue lock (N85). The shover waits BumpCooldownSeconds between shoves and
--- BumpSameTargetSeconds before shoving the same player again; nobody may shove a player for
--- ShoveTargetImmuneSeconds after a shove lands on them (S45). A landed shove pushes the target ShoveKnockbackStuds.
--- If the target carries a cat and is BumpGraceSeconds into the carry, BumpChance (1.0 since v0.8 F56) knocks it
--- loose: the cat lands where they stood as a Dropped stray with no circles that anyone picks up with PickUpCat,
--- the shover and the old carrier included, and at dusk it is checked in for that carrier (v0.9, F66).
+-- A press lunges TackleLungeStuds straight ahead. It is refused (spending nothing) unless the tackler stands inside a
+-- catching area their tier opens, the areas are open, they carry no cat, hold no catch or rescue lock (N85) and are
+-- off TackleCooldownSeconds, which starts at the press, hit or miss. For the lunge plus TackleHitGraceSeconds the
+-- server hits the first player in reach (inReach) who could be shoved (targetRefusal): in the same area, outside
+-- their safe zone (their plot and BumpSafeRadiusStuds round both of their doors), in no minigame, not shoved by
+-- anyone for ShoveTargetImmuneSeconds (S45) and not by this tackler for BumpSameTargetSeconds. A hit pushes the
+-- target ShoveKnockbackStuds. If the target carries a cat and is BumpGraceSeconds into the carry, BumpChance (1.0
+-- since v0.8 F56) knocks it loose: the cat lands where they stood as a Dropped stray with no circles that anyone
+-- picks up with PickUpCat, the tackler and the old carrier included, and at dusk it is checked in for that carrier
+-- (v0.9, F66).
 
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 
 local Shove = {}
 
-Shove.RANGE_SLACK = 2 -- studs on top of BumpRangeStuds, as for every range check on client-owned positions
+Shove.RANGE_SLACK = 2 -- studs on top of GrabRangeStuds for a pick up, as for every check on client-owned positions
 Shove.HELD_IMMUNE_SECONDS = 3 -- after "It held on tight!" (only when BumpChance is tuned below 1) no knock loose
 
--- What the server knows when a Bump arrives. Times since are nil when it never happened.
-export type Check = {
-	self: boolean, -- the target is the shover
-	shoverCarrying: boolean,
-	shoverBusy: boolean, -- the shover holds a catch or rescue lock (N85)
-	shoverArea: string?, -- the catching area each stands in, nil outside every area
-	targetArea: string?,
-	areaUnlocked: boolean, -- the shover's tier opens shoverArea
+-- What the server knows when a Tackle press arrives. Times since are nil when it never happened.
+export type TackleCheck = {
+	carrying: boolean,
+	busy: boolean, -- the tackler holds a catch or rescue lock (N85)
+	area: string?, -- the catching area the tackler stands in, nil outside every area
+	areaUnlocked: boolean, -- the tackler's tier opens `area`
 	areasClosed: boolean, -- night: the catching areas are closed (v0.9, F66)
-	distance: number?, -- nil when either has no character
-	targetBusy: boolean, -- the target holds a catch or rescue lock
+	sinceTackle: number?, -- since this tackler's last press that was not refused
+}
+
+-- What the server knows about one player in the lunge's reach.
+export type TargetCheck = {
+	self: boolean, -- the tackler
+	sameArea: boolean, -- standing in the tackler's catching area
+	targetBusy: boolean, -- holds a catch or rescue lock
 	targetSafe: boolean, -- on its own plot or near one of its doors
-	sinceShove: number?, -- since this shover's last landed shove
-	sinceShoveTarget: number?, -- since this shover last shoved this target
-	sinceTargetShoved: number?, -- since anyone last shoved this target (S45)
+	sinceShoveTarget: number?, -- since this tackler last hit this player
+	sinceTargetShoved: number?, -- since anyone last hit this player (S45)
 }
 
 -- A shove on a carrier who can be knocked loose: the cat drops, or "It held on tight!" (BumpChance below 1 only).
@@ -65,19 +70,16 @@ export type PickUpCheck = {
 	sinceGrab: number?, -- since the caller last started a catch or a pick up
 }
 
--- Why this shove is refused, in words for the shover, or nil when it lands. Checked in the order of section 10c.
-function Shove.refusal(check: Check): string?
-	if check.self then
-		return "You can't shove yourself"
-	end
-	if check.shoverCarrying then
+-- Why this press is refused, in words for the tackler, or nil when it lunges. A refusal spends no cooldown.
+function Shove.tackleRefusal(check: TackleCheck): string?
+	if check.carrying then
 		return "Check in the cat you are carrying first"
 	end
-	if check.shoverBusy then
+	if check.busy then
 		return "Finish what you are doing first"
 	end
-	if check.shoverArea == nil or check.shoverArea ~= check.targetArea then
-		return "You can only shove inside a catching area"
+	if check.area == nil then
+		return "You can only tackle inside a catching area"
 	end
 	if not check.areaUnlocked then
 		return "This area opens at a higher tier"
@@ -85,17 +87,25 @@ function Shove.refusal(check: Check): string?
 	if check.areasClosed then
 		return Clock.CLOSED_TEXT
 	end
-	if check.distance == nil or check.distance > Config.BumpRangeStuds + Shove.RANGE_SLACK then
-		return "Too far away"
+	if check.sinceTackle ~= nil and check.sinceTackle < Config.TackleCooldownSeconds then
+		return "Catch your breath before the next tackle"
+	end
+	return nil
+end
+
+-- Why the lunge passes through this player, or nil when it hits them. The words are for Studio and the specs.
+function Shove.targetRefusal(check: TargetCheck): string?
+	if check.self then
+		return "That's you"
+	end
+	if not check.sameArea then
+		return "They're not in this area"
 	end
 	if check.targetBusy then
 		return "They're busy catching a cat"
 	end
 	if check.targetSafe then
 		return "They're safe by their own cafe"
-	end
-	if check.sinceShove ~= nil and check.sinceShove < Config.BumpCooldownSeconds then
-		return "Catch your breath before the next shove"
 	end
 	if check.sinceShoveTarget ~= nil and check.sinceShoveTarget < Config.BumpSameTargetSeconds then
 		return "Give them a break"
@@ -104,9 +114,30 @@ function Shove.refusal(check: Check): string?
 		check.sinceTargetShoved ~= nil
 		and check.sinceTargetShoved < Config.ShoveTargetImmuneSeconds
 	then
-		return "They were just shoved"
+		return "They were just tackled"
 	end
 	return nil
+end
+
+-- Seconds after the press reaches the server during which the lunge can hit.
+function Shove.window(): number
+	return Config.TackleLungeSeconds + Config.TackleHitGraceSeconds
+end
+
+-- Whether a player standing at `target` is hit by a lunge that started at `start` facing `facing` (flat, unit) with
+-- the tackler now at `at`: within TackleHitRadiusStuds plus TackleHitSlackStuds of the tackler and not behind the
+-- start. A tackler the server sees farther than TackleLungeStuds plus the slack from the start reaches nobody, so a
+-- teleport cannot reach far.
+function Shove.inReach(start: Vector3, facing: Vector3, at: Vector3, target: Vector3): boolean
+	local slack = Config.TackleHitSlackStuds
+	if (at - start).Magnitude > Config.TackleLungeStuds + slack then
+		return false
+	end
+	if (target - at).Magnitude > Config.TackleHitRadiusStuds + slack then
+		return false
+	end
+	local ahead = Vector3.new(target.X - start.X, 0, target.Z - start.Z)
+	return ahead:Dot(Vector3.new(facing.X, 0, facing.Z)) >= 0
 end
 
 -- True when a shove on this carrier rolls BumpChance: carrying, past the grace and any held immunity.

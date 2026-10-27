@@ -17,6 +17,15 @@ return function()
 		return map
 	end
 
+	describe("StaffSlots.initial", function()
+		it("takes the first whole letter, upper-cased", function()
+			expect(StaffSlots.initial("mochi")).to.equal("M")
+			expect(StaffSlots.initial("Émile")).to.equal("É")
+			expect(StaffSlots.initial("ねこ")).to.equal("ね")
+			expect(StaffSlots.initial("")).to.equal("?")
+		end)
+	end)
+
 	describe("StaffSlots.rows", function()
 		it("lists the four roles in catalog order with every slot", function()
 			local rows = StaffSlots.rows(Catalog.spots, 1, {})

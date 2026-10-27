@@ -6,6 +6,8 @@
 --     "locked" until its tier. Without cats (state.cats not sent) an opened slot counts as open.
 --   Row.summary   "2 working · 1 free", then "· next at Tier 3" while a slot is still locked; "Opens at Tier 3"
 --                 for a role with no slot open yet; "All 3 working" when nothing is free or locked.
+--   initial(name)  the first letter of a cat's name for its slot square, a whole code point (reviewer S55: names
+--                  may start with an accent, kana or an emoji), upper-cased when it is ASCII.
 -- Pure, no Theme, so the cloud spec runner can load it.
 
 local Types = require(script.Parent.Parent.Types)
@@ -35,6 +37,15 @@ export type Row = {
 -- "barista" -> "Barista", as Format.roleName (Format needs Theme, which the cloud spec runner cannot load)
 local function roleName(role: string): string
 	return role:sub(1, 1):upper() .. role:sub(2)
+end
+
+function StaffSlots.initial(name: string): string
+	if name == "" then
+		return "?"
+	end
+	local stop = utf8.offset(name, 2)
+	local first = if stop then name:sub(1, stop - 1) else name
+	return first:upper()
 end
 
 function StaffSlots.rows(

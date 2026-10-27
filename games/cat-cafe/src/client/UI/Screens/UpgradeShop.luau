@@ -33,11 +33,11 @@ export type UpgradeShop = {
 	destroy: (self: UpgradeShop) -> (),
 }
 
-local TAB_HEIGHT = 40
-local ROW_HEIGHT = 96
+local TAB_HEIGHT = Theme.sizes.touchMin
+local ROW_HEIGHT = 104
 local ICON_BOX = 72
 local STAR = 22
-local SLOT = 40
+local SLOT = Theme.sizes.touchMin -- reviewer N102: tappable slot squares
 local RANK_HEIGHT = 76
 local TEXT_LEFT = 12 + ICON_BOX + 14
 local BUTTON_W = 136
@@ -571,11 +571,12 @@ function UpgradeShop._renderStaff(self: any, state: Types.PlayerState)
 							then self._catDefs[instance.catId]
 							else nil
 						color = Theme.rarityColor(if def then def.rarity else nil)
-						local name = if instance and instance.name
-							then instance.name
-							elseif def then def.name
-							else "?"
-						label = name:sub(1, 1):upper()
+						label = StaffSlots.initial(
+							if instance and instance.name
+								then instance.name
+								elseif def then def.name
+								else "?"
+						)
 					elseif slot.kind == "open" then
 						color = Theme.colors.good
 						label = "+"

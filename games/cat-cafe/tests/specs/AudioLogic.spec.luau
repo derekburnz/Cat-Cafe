@@ -310,6 +310,108 @@ return function()
 		end)
 	end)
 
+	-- QA for Sound-Agent's PR #303 (v0.8 and the short night, data-model sections 12, 12b and 13): when the dusk
+	-- bell rings, which shout-out sting a rarity gets, a fresh carry start, and the plot attribute cues.
+	describe("Audio.Logic v0.8 cues (QA)", function()
+		local Catalog = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+		) :: any
+
+		it("rings the dusk bell warning seconds before night, by day only", function()
+			expect(Logic.duskBellIn("day", 100, 50, 15)).to.equal(35)
+			expect(Logic.duskBellIn("day", 100, 85, 15)).to.equal(0)
+			expect(Logic.duskBellIn("day", 100, 85.5, 15)).to.equal(0)
+			expect(Logic.duskBellIn("day", 100, 86, 15)).to.equal(0)
+			expect(Logic.duskBellIn("day", 100, 86.5, 15)).never.to.be.ok()
+			for _, phase in { "night", "Day", "", 5 } :: { any } do
+				expect(Logic.duskBellIn(phase, 100, 50, 15)).never.to.be.ok()
+			end
+			expect(Logic.duskBellIn(nil, 100, 50, 15)).never.to.be.ok()
+			expect(Logic.duskBellIn("day", nil, 50, 15)).never.to.be.ok()
+			-- a sweep through the last 20 s of a day: never negative, and the bell lands on its second or is skipped
+			for step = 0, 80 do
+				local now = 80 + step * 0.25
+				local wait = Logic.duskBellIn("day", 100, now, 15)
+				if now <= 85 then
+					expect(wait).to.equal(85 - now)
+				elseif now <= 86 then
+					expect(wait).to.equal(0)
+				else
+					expect(wait).never.to.be.ok()
+				end
+			end
+		end)
+
+		it("gives the Mythical sting to Mythical and the old Secret only, in any case", function()
+			for rarity in Catalog.rarities do
+				local want = if string.lower(rarity) == "mythical"
+					then "announceMythical"
+					else "announce"
+				expect(Logic.announceCue(rarity)).to.equal(want)
+				expect(Logic.announceCue(string.upper(rarity))).to.equal(want)
+				expect(Logic.announceCue(string.lower(rarity))).to.equal(want)
+			end
+			expect(Logic.announceCue("Secret")).to.equal("announceMythical")
+			expect(Logic.announceCue("SECRET")).to.equal("announceMythical")
+			for _, rarity in { "", "Mythic", "gold", "Unknown" } do
+				expect(Logic.announceCue(rarity)).to.equal("announce")
+			end
+			expect(Logic.announceCue(nil)).to.equal("announce")
+		end)
+
+		it("takes a carry start as fresh from 2 s before now to 1 s after", function()
+			local now = 1000
+			for step = -16, 12 do
+				local startedAt = now + step * 0.25
+				expect(Logic.freshStart(startedAt, now)).to.equal(step >= -8 and step <= 4)
+			end
+			for _, odd in { nil, "1000", true, {}, 0 / 0, math.huge, -math.huge } :: { any } do
+				expect(Logic.freshStart(odd, now)).to.equal(false)
+			end
+		end)
+
+		it("cues each plot attribute change as the data model's display attributes move", function()
+			local values: { any } = { nil, 0, -1, 1, 6, "3", true }
+			local names = {
+				"TipPiles",
+				"CollectorUntil",
+				"MysteryGiftAt",
+				"TipPilesAmount",
+				"CollectorCatId",
+				"tippiles",
+			}
+			for _, name in names do
+				for i = 1, 7 do
+					for j = 1, 7 do
+						local before, after = values[i], values[j]
+						local was = if type(before) == "number" then before else 0
+						local is = if type(after) == "number" then after else 0
+						local want: string? = nil
+						if name == "TipPiles" and is < was then
+							want = "tipPile"
+						elseif name == "CollectorUntil" and was <= 0 and is > 0 then
+							want = "visitorCollector"
+						elseif name == "MysteryGiftAt" and was <= 0 and is > 0 then
+							want = "visitorMystery" -- a clearing is silent: giftOpen plays with the result card
+						end
+						expect(Logic.plotCue(name, before, after)).to.equal(want)
+					end
+				end
+			end
+		end)
+
+		it("names only cues the table has; giftOpen stays for the result card", function()
+			local names: { string } =
+				{ "duskBell", "announce", "announceMythical", "tipPile", "visitorCollector" }
+			for _, name in { "visitorMystery", "giftOpen" } do
+				table.insert(names, name)
+			end
+			for _, name in names do
+				expect(Cues[name] ~= nil).to.equal(true)
+			end
+		end)
+	end)
+
 	describe("Audio.Cues", function()
 		it("gives every cue a known channel, a sane volume and only asset ids", function()
 			local channels = { Music = true, Ambience = true, Sfx = true, Ui = true }

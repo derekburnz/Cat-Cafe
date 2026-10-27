@@ -15,6 +15,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+local ActionPill = require(script.Screens.ActionPill)
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local BaitBowl = require(script.Screens.BaitBowl)
@@ -103,6 +104,7 @@ local gateSigns: GateSigns.GateSigns? = nil
 local areaTitle: AreaTitle.AreaTitle? = nil
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
+local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, tip, Bump)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -427,6 +429,7 @@ function UI.init(config: Types.InitConfig)
 
 	catch = CatchPrompt.new(parent)
 	circles = CatchCircles.new(parent)
+	actionPills = ActionPill.new(parent)
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
@@ -552,6 +555,9 @@ function UI.destroy()
 	if worldTags then
 		worldTags:destroy()
 	end
+	if actionPills then
+		actionPills:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -571,7 +577,7 @@ function UI.destroy()
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags = nil, nil
+	cafeSigns, worldTags, actionPills = nil, nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -1215,6 +1221,12 @@ local function isCatPrompt(prompt: ProximityPrompt): boolean
 		and promptAttribute(prompt, "CatId") ~= nil
 end
 
+-- Every other custom prompt (bait bowl, dealer cart, rich tip, Bump) gets an action pill
+local function isActionPrompt(prompt: ProximityPrompt): boolean
+	return prompt.Style == Enum.ProximityPromptStyle.Custom
+		and promptAttribute(prompt, "CatId") == nil
+end
+
 local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local catId = promptAttribute(prompt, "CatId")
 	local def = lookupCat(if type(catId) == "string" then catId else nil)
@@ -1284,26 +1296,35 @@ end
 -- (on the prompt, its model, or its parent). A stray's prompt has HoldDuration 0: one press fires
 -- events.grabBegan and the server answers with catch.showCircles or catch.fail. A rescue prompt with a hold
 -- fires events.rescueBegan on hold begin and events.rescueEnded on release or after the full hold.
+-- Any other Style = Custom prompt (no CatId) gets an action pill (Screens/ActionPill) and raises no event: the
+-- game handles its Triggered as it would a default prompt's.
 function UI.catch.bindProximityPrompts()
 	if #promptConnections > 0 or not catch then
 		return
 	end
 	local catchScreen = catch :: CatchPrompt.CatchPrompt
 
-	table.insert(
-		promptConnections,
-		ProximityPromptService.PromptShown:Connect(function(prompt: ProximityPrompt)
-			if not isCatPrompt(prompt) then
-				return
+	local function onShown(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
+		if isActionPrompt(prompt) then
+			if actionPills then
+				actionPills:show(prompt, inputType)
 			end
-			activePrompt = prompt
-			holdOpen = false
-			UI.catch.show(infoFromPrompt(prompt))
-		end)
-	)
+			return
+		end
+		if not isCatPrompt(prompt) then
+			return
+		end
+		activePrompt = prompt
+		holdOpen = false
+		UI.catch.show(infoFromPrompt(prompt))
+	end
+	table.insert(promptConnections, ProximityPromptService.PromptShown:Connect(onShown))
 	table.insert(
 		promptConnections,
 		ProximityPromptService.PromptHidden:Connect(function(prompt: ProximityPrompt)
+			if actionPills then
+				actionPills:hide(prompt)
+			end
 			if prompt ~= activePrompt then
 				return
 			end
@@ -1317,6 +1338,10 @@ function UI.catch.bindProximityPrompts()
 	table.insert(
 		promptConnections,
 		ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt: ProximityPrompt)
+			if actionPills and actionPills:isShown(prompt) then
+				actionPills:holdBegan(prompt)
+				return
+			end
 			-- only the v0.2 rescue still holds; a press prompt is handled in PromptTriggered
 			local info = activeInfo
 			if
@@ -1336,6 +1361,10 @@ function UI.catch.bindProximityPrompts()
 	table.insert(
 		promptConnections,
 		ProximityPromptService.PromptButtonHoldEnded:Connect(function(prompt: ProximityPrompt)
+			if actionPills and actionPills:isShown(prompt) then
+				actionPills:holdEnded(prompt)
+				return
+			end
 			if prompt ~= activePrompt then
 				return
 			end
@@ -1355,6 +1384,11 @@ function UI.catch.bindProximityPrompts()
 	table.insert(
 		promptConnections,
 		ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
+			if actionPills and actionPills:isShown(prompt) then
+				-- the game's own Triggered handler does the work; the pill only answers the press
+				actionPills:triggered(prompt)
+				return
+			end
 			if prompt ~= activePrompt then
 				return
 			end

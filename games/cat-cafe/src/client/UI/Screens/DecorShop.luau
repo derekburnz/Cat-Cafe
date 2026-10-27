@@ -566,7 +566,9 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		local isOwned = state.decorOwned[decorId] == true
 		local isPlaced = state.decorPlaced[decorId] == true
 		local locked = def.requiresTier ~= nil and state.tier < (def.requiresTier :: number)
-		card.owned.Visible = isOwned and not card.piece
+		-- crate pieces say when they are in use; coin decor says it is owned
+		card.owned.Visible = if card.piece then isPlaced else isOwned
+		card.owned.Text = if card.piece then "In use" else "Owned"
 		local unlock: TextLabel? = card.unlock
 		if unlock then
 			-- a placed gold piece takes over from its normal piece (N117)
@@ -587,11 +589,12 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 				else Theme.icons.lock .. " " .. label
 		end
 		if card.piece and DecorPieces.isStyle(card.kind) then
-			-- a wallpaper, floor or paint: one in use of each kind; Use it swaps it in
-			card.mode = if isPlaced then "inuse" else "use"
-			card.action:setText(if isPlaced then "✓ In use" else "Use it")
+			-- a wallpaper, floor or paint: one in use of each kind; Use it swaps it in, Remove brings back the plain
+			-- look (reviewer N171)
+			card.mode = if isPlaced then "remove" else "use"
+			card.action:setText(if isPlaced then "Remove" else "Use it")
 			card.action:setStyle(if isPlaced then "ghost" else "primary")
-			card.action:setEnabled(isOwned and not isPlaced)
+			card.action:setEnabled(isOwned)
 		elseif card.piece and isOwned and not isPlaced and used >= spots then
 			-- furniture or a decoration with every decor spot taken
 			card.mode = "full"

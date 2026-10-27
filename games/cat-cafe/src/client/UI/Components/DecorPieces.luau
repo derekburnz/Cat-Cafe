@@ -35,6 +35,11 @@ local KIND_INFO: { [string]: { name: string, icon: string } } = {
 local RARITY_RANK: { [string]: number } =
 	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 }
 
+-- Each catalog's pages, sorted once (reviewer N172): pageCounts runs per chip and per Index page on every sync. Keyed
+-- weakly by the catalog table, so a new catalog table starts afresh and an old one is let go.
+type Pages = { [string]: { Types.DecorDef } }
+local pageCache: { [Types.Catalog]: Pages } = setmetatable({}, { __mode = "k" }) :: any
+
 -- Every decor item: Catalog.decor, then the crate pieces in Catalog.crateDecor that are not already in it.
 function DecorPieces.all(catalog: Types.Catalog): { Types.DecorDef }
 	local list: { Types.DecorDef } = table.clone(catalog.decor)
@@ -173,8 +178,20 @@ function DecorPieces.pools(catalog: Types.Catalog): { string }
 end
 
 -- A page's pieces: the plain crate's `pieces` when it lists any, else every piece whose `crate` is the pool. Sorted
--- by rarity (rarest last, as the cat Index) and then in that order. Unknown ids are left out.
+-- by rarity (rarest last, as the cat Index) and then in that order. Unknown ids are left out. The list is worked out
+-- once per catalog table and shared, so callers must not change it.
 function DecorPieces.poolPieces(catalog: Types.Catalog, pool: string): { Types.DecorDef }
+	local pages: Pages? = pageCache[catalog]
+	if pages == nil then
+		local fresh: Pages = {}
+		pageCache[catalog] = fresh
+		pages = fresh
+	end
+	assert(pages, "pages")
+	local cached = pages[pool]
+	if cached then
+		return cached
+	end
 	local decor = DecorPieces.all(catalog)
 	local byId: { [string]: Types.DecorDef } = {}
 	for _, def in decor do
@@ -212,6 +229,8 @@ function DecorPieces.poolPieces(catalog: Types.Catalog, pool: string): { Types.D
 		end
 		return order[a.id] < order[b.id]
 	end)
+	table.freeze(list)
+	pages[pool] = list
 	return list
 end
 

@@ -113,6 +113,15 @@ return function()
 			expect(total).to.equal(5)
 		end)
 
+		it("sorts each page once per catalog table (N172)", function()
+			local first = DecorPieces.poolPieces(CATALOG, "alley")
+			expect(DecorPieces.poolPieces(CATALOG, "alley")).to.equal(first)
+			local copy = table.clone(CATALOG)
+			local again = DecorPieces.poolPieces(copy, "alley")
+			expect(again == first).to.equal(false)
+			expect(#again).to.equal(#first)
+		end)
+
 		it("uses the crate's own piece list when it has one", function()
 			local catalog = {
 				decor = DECOR,

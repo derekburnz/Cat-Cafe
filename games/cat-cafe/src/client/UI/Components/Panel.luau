@@ -96,7 +96,7 @@ function Panel.new(props: Props): Panel
 			Rotation = paw[3],
 			Text = "🐾",
 			TextSize = 30,
-			TextTransparency = 0.9,
+			TextTransparency = 0.95, -- fainter since 2026-10-27, so text over them reads clean
 			Parent = body,
 		})
 	end

@@ -242,7 +242,8 @@ end
 type StrayInfo = { id: string, model: Model, rarity: Types.Rarity }
 
 -- Nearest stray nobody holds or reserved, of those `accept` takes. The server marks every stray model with these
--- attributes.
+-- attributes. A Dropped stray has no circles (v0.8 F56: it is picked up with PickUpCat), so the catch cases never
+-- pick one; the drop case finds its own with droppedStray.
 local function nearestStray(accept: ((StrayInfo) -> boolean)?): StrayInfo?
 	local root = rootPart()
 	local origin = if root ~= nil then root.Position else Vector3.zero
@@ -257,7 +258,7 @@ local function nearestStray(accept: ((StrayInfo) -> boolean)?): StrayInfo?
 			continue
 		end
 		local lockedBy = instance:GetAttribute("LockedBy")
-		if lockedBy ~= nil and lockedBy ~= 0 then
+		if (lockedBy ~= nil and lockedBy ~= 0) or instance:GetAttribute("Dropped") == true then
 			continue
 		end
 		local distance = (instance:GetPivot().Position - origin).Magnitude
@@ -2165,29 +2166,49 @@ local function dropToasts(startedAt: number): number
 	return count
 end
 
--- The dropped stray I own the first try on, within `radius` studs of me.
-local function myDrop(radius: number): Model?
+-- The nearest Dropped stray (v0.8 F56: Dropped and PickUp set, picked up with PickUpCat) of cat `catId` within
+-- `radius` studs of me, and its StrayId.
+local function droppedStray(catId: string?, radius: number): (Model?, string?)
 	local root = rootPart()
 	if root == nil then
-		return nil
+		return nil, nil
 	end
+	local best: Model? = nil
+	local bestId: string? = nil
+	local bestDistance = radius
 	for _, instance in Workspace:GetDescendants() do
 		if
 			instance:IsA("Model")
 			and instance:GetAttribute("Dropped") == true
-			and instance:GetAttribute("DropOwner") == player.UserId
-			and horizontal(instance:GetPivot().Position, root.Position) <= radius
+			and instance:GetAttribute("PickUp") == true
+			and (catId == nil or instance:GetAttribute("CatId") == catId)
 		then
-			return instance :: Model
+			local id = instance:GetAttribute("StrayId")
+			local distance = horizontal(instance:GetPivot().Position, root.Position)
+			if type(id) == "string" and distance <= bestDistance then
+				best, bestId, bestDistance = instance :: Model, id, distance
+			end
 		end
 	end
-	return nil
+	return best, bestId
+end
+
+-- The GrabResult reasons for `id` since `startedAt`.
+local function grabReasons(startedAt: number, id: string): { string }
+	local reasons: { string } = {}
+	for _, event in since(startedAt, "GrabResult") do
+		if event.id == id then
+			local reason = string.match(event.text, 'reason="(.-)"')
+			table.insert(reasons, reason or event.text)
+		end
+	end
+	return reasons
 end
 
 case(
 	"drop",
 	Enum.KeyCode.Home,
-	"Drop: not carrying, junk arguments, CheckIn and 10 DropCat in one frame at my door, then a drop in the alley",
+	"Drop: not carrying, junk arguments, CheckIn and 10 DropCat in one frame at my door, then a drop in the alley and its pick up",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -2248,12 +2269,15 @@ case(
 				if drops == 1 then "door race: dropped once" else "door race: checked in once"
 			)
 		end
-		-- 3. In the alley: the cat hops down at my feet as a dropped stray whose first try is mine.
+		-- 3. In the alley: the cat lands at my feet as a Dropped stray with no circles that anyone picks up with
+		-- PickUpCat (v0.8 F56). GrabBegin on it is refused, bad ids and a call from too far pick up nothing, and ten
+		-- PickUpCat in one frame start one carry of the same cat.
 		why = catchOne()
 		if why ~= "" then
 			table.insert(notes, "alley drop skipped: " .. why)
 			return verdict, table.concat(notes, "; ")
 		end
+		local catId = if state ~= nil then state.carrying else nil
 		task.wait(1.05)
 		local alleyAt = os.clock()
 		fire("DropCat")
@@ -2261,25 +2285,159 @@ case(
 			return state ~= nil and state.carrying == nil
 		end)
 		task.wait(0.5)
-		local dropped = myDrop(30)
-		local until_ = if dropped ~= nil then dropped:GetAttribute("DropOwnerUntil") else nil
 		if not toasted(alleyAt, " go.") then
 			verdict = "FAIL"
 			table.insert(notes, 'alley drop: no "You let <Cat> go." toast')
-		elseif dropped == nil then
+		end
+		local dropped, dropId = droppedStray(catId, 30)
+		if dropped == nil or dropId == nil then
+			table.insert(
+				notes,
+				string.format(
+					"alley drop: no %s with Dropped and PickUp within 30 studs",
+					tostring(catId)
+				)
+			)
+			return "FAIL", table.concat(notes, "; ")
+		end
+		local droppedModel = dropped :: Model
+		local strayId = dropId :: string
+		local spot = droppedModel:GetPivot().Position
+
+		-- GrabBegin on it: no circles, only "Hold to pick it up".
+		grabReady()
+		local grabAt = os.clock()
+		fire("GrabBegin", strayId)
+		local answer = answerTo(grabAt, strayId, 2)
+		if
+			answer == nil
+			or answer.name ~= "GrabResult"
+			or string.find(answer.text, "Hold to pick it up", 1, true) == nil
+		then
 			verdict = "FAIL"
 			table.insert(
 				notes,
-				"alley drop: no stray with Dropped and my DropOwner within 30 studs"
+				string.format(
+					'GrabBegin on the Dropped stray answered %s, not GrabResult "Hold to pick it up"',
+					if answer ~= nil then answer.name .. " " .. answer.text else "nothing"
+				)
 			)
-		elseif type(until_) ~= "number" or until_ <= serverNow() then
-			verdict = "FAIL"
-			table.insert(notes, "alley drop: DropOwnerUntil is not in the future")
+		end
+
+		-- Bad ids, 0.55 s apart (PickUpCat takes 2 calls a second): nothing is picked up and the cat stays.
+		local badIds: { any } =
+			{ "nil", 5, 0 / 0, {}, true, "", string.rep("a", 300), strayId .. "x" }
+		local badAt = os.clock()
+		for _, value in badIds do
+			fire("PickUpCat", if value == "nil" then nil else value)
+			task.wait(0.55)
+		end
+		task.wait(0.5)
+		if (state ~= nil and state.carrying ~= nil) or droppedModel.Parent == nil then
+			return "FAIL",
+				table.concat(notes, "; ")
+					.. "; a bad PickUpCat id picked up the Dropped cat or another one"
+		end
+		local badAnswers = #since(badAt, "GrabResult")
+		table.insert(
+			notes,
+			string.format("%d bad pick up ids took nothing (%d GrabResult)", #badIds, badAnswers)
+		)
+
+		-- From too far (GrabRangeStuds plus 2 of slack): "Too far away", nothing taken.
+		teleportTo(spot + Vector3.new(Config.GrabRangeStuds + 8, 0, 0))
+		local root = rootPart()
+		local farOff = if root ~= nil then (root.Position - spot).Magnitude else 0
+		if farOff <= Config.GrabRangeStuds + 4 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format(
+					"could not stand far from the cat (settled %.1f studs out), far pick up not tried",
+					farOff
+				)
+			)
 		else
+			local farAt = os.clock()
+			fire("PickUpCat", strayId)
+			task.wait(1)
+			local reasons = grabReasons(farAt, strayId)
+			if (state ~= nil and state.carrying ~= nil) or droppedModel.Parent == nil then
+				return "FAIL",
+					table.concat(notes, "; ") .. string.format(
+						"; PickUpCat from %.1f studs picked the cat up",
+						farOff
+					)
+			end
+			if reasons[1] ~= "Too far away" then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format(
+						'far pick up from %.1f studs refused with %q, not "Too far away"',
+						farOff,
+						reasons[1] or "nothing"
+					)
+				)
+			else
+				table.insert(notes, string.format("far pick up from %.1f studs refused", farOff))
+			end
+		end
+
+		-- Beside it: ten PickUpCat in one frame start one carry of the same cat, and the stray is gone.
+		teleportTo(spot + Vector3.new(3, 0, 0))
+		task.wait(0.6)
+		local pickAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("PickUpCat"):FireServer(strayId)
+		end
+		log(string.format("    -> PickUpCat(%q) x10", strayId))
+		waitFor(pickAt, "ProfileSync", 3, function()
+			return state ~= nil and state.carrying ~= nil
+		end)
+		local gone = os.clock() + 3
+		while droppedModel:IsDescendantOf(Workspace) and os.clock() < gone do
+			task.wait(0.1)
+		end
+		task.wait(0.5)
+		local picked = 0
+		for _, event in since(pickAt, "Toast") do
+			if string.find(event.text, "You picked up", 1, true) ~= nil then
+				picked += 1
+			end
+		end
+		local carried = if state ~= nil then state.carrying else nil
+		if carried == nil then
+			return "FAIL",
+				table.concat(notes, "; ")
+					.. "; ten PickUpCat beside the Dropped cat picked nothing up"
+		end
+		if catId ~= nil and carried ~= catId then
+			return "FAIL",
+				table.concat(notes, "; ") .. string.format(
+					"; picked up %s, but the dropped cat was %s",
+					carried,
+					catId
+				)
+		end
+		if picked ~= 1 then
+			verdict = "FAIL"
 			table.insert(
 				notes,
-				string.format("alley drop: mine to catch for %.1f s more", until_ - serverNow())
+				string.format('%d "You picked up" toasts from ten PickUpCat in one frame', picked)
 			)
+		end
+		if droppedModel:IsDescendantOf(Workspace) then
+			verdict = "FAIL"
+			table.insert(notes, "the Dropped stray is still in the world after the pick up")
+		end
+		table.insert(notes, string.format("ten PickUpCat in one frame carried %s once", carried))
+		local cats = catCount()
+		if checkInIfCarrying() then
+			waitFor(pickAt, "ProfileSync", 3, function()
+				return catCount() > cats
+			end)
+			table.insert(notes, string.format("checked in (cats %d to %d)", cats, catCount()))
 		end
 		return verdict, table.concat(notes, "; ")
 	end
@@ -2738,10 +2896,14 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 			)
 	end
 	local def = Catalog.tipJar[ready]
+	local stepPrize = def.prize -- F68: the Index prize shape
 	local w = freshWallet()
-	local lureBefore = if state ~= nil and def.lureId ~= nil
-		then state.lures[def.lureId] or 0
-		else 0
+	local stepLures: { [string]: number } = stepPrize.lures or {}
+	local luresBefore: { [string]: number } = {}
+	local before = state
+	for lureId in stepLures do
+		luresBefore[lureId] = if before ~= nil then before.lures[lureId] or 0 else 0
+	end
 	local bankedBefore = if state ~= nil and (state :: any).spin ~= nil
 		then state.spin.banked
 		else nil
@@ -2769,17 +2931,13 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 		return "FAIL", string.format("no TipJarState back for the claimed step %d", ready)
 	end
 	local prize: string
-	if def.kind == "coins" then
+	if stepPrize.coins ~= nil then
 		local paid = tonumber(string.match(toasts[1].text, "%+%$(%d+)")) or 0
 		local gained = money() - w.money
-		if paid < (def.minCoins or 0) then
+		local floor: number = stepPrize.coins or 0
+		if paid < floor then
 			return "FAIL",
-				string.format(
-					"step %d paid $%d, under its floor of $%d",
-					ready,
-					paid,
-					def.minCoins or 0
-				)
+				string.format("step %d paid $%d, under its floor of $%d", ready, paid, floor)
 		end
 		if gained < paid or gained > paid + incomeSince(w) then
 			return "FAIL",
@@ -2792,21 +2950,26 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 		end
 		prize = string.format("$%d", paid)
 	else
-		local lureAfter = if state ~= nil then state.lures[def.lureId :: string] or 0 else 0
-		if lureAfter - lureBefore ~= (def.count or 1) then
-			return "FAIL",
-				string.format(
-					"step %d should give %d %s and gave %d",
-					ready,
-					def.count or 1,
-					def.lureId :: string,
-					lureAfter - lureBefore
-				)
+		prize = ""
+		local after = state
+		for lureId, count in stepLures do
+			local lureAfter = if after ~= nil then after.lures[lureId] or 0 else 0
+			local gave = lureAfter - (luresBefore[lureId] or 0)
+			if gave ~= count then
+				return "FAIL",
+					string.format(
+						"step %d should give %d %s and gave %d",
+						ready,
+						count,
+						lureId,
+						gave
+					)
+			end
+			prize ..= string.format("%s%d %s", if prize == "" then "" else " and ", count, lureId)
 		end
-		prize = string.format("%d %s", def.count or 1, def.lureId :: string)
 	end
-	-- Steps 11 and 12 bank a spin too (F49), unless the bank is full, which the server says in a toast.
-	local spins = def.spins
+	-- Steps 9, 11 and 12 bank spins too (F49, v0.10), unless the bank is full, which the toast says.
+	local spins = stepPrize.spins
 	if spins ~= nil and bankedBefore ~= nil then
 		local banked = (if state ~= nil then state.spin.banked else 0) - bankedBefore
 		if banked ~= spins and not toasted(claimAt, "Spins full") then
@@ -2815,8 +2978,8 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 		end
 		prize ..= string.format(" and %d spin", banked)
 	end
-	-- Step 12 also pays golden fish (F52).
-	local stepFish = def.fish
+	-- Steps 9 and 12 also pay golden fish (F52, v0.10).
+	local stepFish = stepPrize.fish
 	if stepFish ~= nil then
 		local gained = fish() - fishBefore
 		if gained ~= stepFish then

@@ -1,5 +1,5 @@
 --!strict
--- The Cat room tab of Collection as an inventory (UI plan 2026-10-27, from the Pet Simulator inventory Derek sent:
+-- The Cats screen (Screens/MyCats) as an inventory (UI plan 2026-10-27, from the Pet Simulator inventory Derek sent:
 -- "slots for each role of the cafe and locked if its locked still").
 --   Crew strip  a square per role slot in the order they open (Components/StaffSlots): the working cat's own model
 --               on its rarity colour, a green "+" for a free slot, a grey lock with the tier that opens it. Tap a
@@ -10,9 +10,12 @@
 --   Detail      the picked cat: name with the rename pencil, rarity, level and stars, rate and where it works, its
 --               favourite role, then Assign (Move while working), Rest and Sell (Rare and up ask first, with the
 --               price). Assign rings every free "+" in gold and marks the cat's favourite role "★ 1.5x".
--- CatCollection owns the tab; this view only reads state and calls back.
+--   Lock (F62)  a locked cat shows a lock on its card, cannot be sold, and its detail has the Lock row that sets it
+--               (Components/CatLock). Gold, Legendary and Mythical cats arrive locked from the server.
+-- MyCats owns the window; this view only reads state and calls back.
 
 local Button = require(script.Parent.Parent.Components.Button)
+local CatLock = require(script.Parent.Parent.Components.CatLock)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
@@ -29,6 +32,7 @@ export type Callbacks = {
 	placeCat: (uid: string, spotId: string) -> (),
 	unplaceCat: (uid: string) -> (),
 	sellCat: (uid: string) -> (),
+	lockCat: (uid: string, locked: boolean) -> (),
 	renameCat: (uid: string, name: string) -> (),
 	equipBest: () -> (),
 	unequipAll: () -> (),
@@ -55,6 +59,9 @@ local DETAIL_ART = 64
 local CARD = Vector2.new(104, 134)
 local CARD_ART = 76
 local RENAME_W = 34
+local LOCK_H = 36
+local FAV_H = 32 -- the favourite role row: its icon on the side, "Favourite role" over the role in bold
+local FAV_ICON = 28
 -- cards this far above or below the visible part of the grid already get their cat model (reviewer N71)
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
@@ -143,6 +150,8 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	self._selected = nil :: string? -- the picked cat's uid
 	self._placing = false -- Assign pressed: the next "+" tap puts the picked cat there
 	self._confirmSell = false
+	self._lockTaps = {} :: { [string]: CatLock.Tap } -- uid -> the player's last lock tap (F62)
+	self._lockLive = false -- the server sends `locked` on its cats
 	self._notice = nil :: string?
 	self._noticeToken = 0
 	self._state = nil :: Types.PlayerState?
@@ -419,20 +428,69 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextColor3 = Theme.colors.goodDark,
 		Parent = body,
 	})
+	-- a notice or the Assign hint, in the favourite row's place while it shows
+	local favTop = DETAIL_ART + 36
 	self._detailInfo = text({
 		Name = "Info",
-		Position = UDim2.fromOffset(10, DETAIL_ART + 34),
-		Size = UDim2.new(1, -20, 0, 18),
+		Position = UDim2.fromOffset(10, favTop),
+		Size = UDim2.new(1, -20, 0, FAV_H),
 		TextSize = Theme.sizes.textSmall,
+		TextWrapped = true,
 		TextColor3 = Theme.modal.subtext,
 		Parent = body,
 	})
+	-- the favourite role (Derek 2026-10-27: "favourite position should be bolded writing and a symbol for that
+	-- role on the side"): the role's icon on a round chip, then "Favourite role" over "Barista · 1.5x there"
+	local fav: Frame = Create("Frame", {
+		Name = "Favourite",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(10, favTop),
+		Size = UDim2.new(1, -20, 0, FAV_H),
+		Visible = false,
+		Parent = body,
+	})
+	self._detailFav = fav
+	local chip: TextLabel = text({
+		Name = "Icon",
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.gold:Lerp(Theme.colors.paper, 0.55),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		Size = UDim2.fromOffset(FAV_ICON, FAV_ICON),
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Parent = fav,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = chip })
+	Outline.border(chip, Theme.sizes.stroke)
+	self._detailFavIcon = chip
+	text({
+		Name = "Caption",
+		Position = UDim2.fromOffset(FAV_ICON + 8, 0),
+		Size = UDim2.new(1, -(FAV_ICON + 8), 0, 13),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.modal.subtext,
+		Text = "Favourite role",
+		Parent = fav,
+	})
+	self._detailFavName = text({
+		Name = "Role",
+		Position = UDim2.fromOffset(FAV_ICON + 8, 13),
+		Size = UDim2.new(1, -(FAV_ICON + 8), 0, 19),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall + 1,
+		RichText = true,
+		Parent = fav,
+	})
 	-- the breed's line from the catalog, where the window is tall enough for it
 	local actionsH = Theme.sizes.touchMin
+	local descTop = favTop + FAV_H + 6
+	self._descBottom = descTop + actionsH + 18 -- grows by the Lock row while it shows
 	self._detailDesc = text({
 		Name = "Description",
-		Position = UDim2.fromOffset(10, DETAIL_ART + 56),
-		Size = UDim2.new(1, -20, 1, -(DETAIL_ART + 56 + actionsH + 18)),
+		Position = UDim2.fromOffset(10, descTop),
+		Size = UDim2.new(1, -20, 1, -self._descBottom),
 		TextWrapped = true,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -440,6 +498,22 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextColor3 = Theme.modal.subtext,
 		Parent = body,
 	})
+
+	-- F62: the lock, a full-width row over the actions so it is easy to find and to tap
+	self._lock = Button.new({
+		name = "Lock",
+		text = "",
+		style = "ghost",
+		size = UDim2.new(1, -16, 0, LOCK_H),
+		anchorPoint = Vector2.new(0, 1),
+		position = UDim2.new(0, 8, 1, -(10 + actionsH + 6)),
+		textSize = Theme.sizes.textSmall,
+		parent = body,
+		onClick = function()
+			self:_pressLock()
+		end,
+	})
+	self._lock.instance.Visible = false
 
 	local actions: Frame = Create("Frame", {
 		Name = "Actions",
@@ -677,6 +751,11 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		sparkle.AnchorPoint = Vector2.new(1, 0)
 		sparkle.Position = UDim2.new(1, -4, 0, 4)
 	end
+	-- F62: on the picture's lower right corner while the cat is locked
+	local lock = badge(button, Theme.icons.lock, Theme.colors.cocoaDeep, Theme.colors.white)
+	lock.AnchorPoint = Vector2.new(1, 1)
+	lock.Position = UDim2.new(1, -4, 0, CARD_ART + 4)
+	lock.Visible = false
 	local name = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(4, CARD_ART + 10),
@@ -704,6 +783,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		portrait = portrait,
 		loaded = false, -- the model is cloned by _loadPortraits once the card is near the visible window
 		role = role,
+		lock = lock,
 		name = name,
 		rate = rate,
 		def = def,
@@ -822,8 +902,8 @@ function CatRoom._pressSell(self: any)
 	local state: Types.PlayerState? = self._state
 	local cats = if state then state.cats else nil
 	local instance = if cats and uid then cats[uid] else nil
-	if not (uid and instance) then
-		return
+	if not (uid and instance) or self:_locked(instance) then
+		return -- a locked cat's Sell is greyed (F62)
 	end
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local needsConfirm = def ~= nil and rarityRank(def.rarity) >= CONFIRM_SELL_FROM
@@ -835,6 +915,35 @@ function CatRoom._pressSell(self: any)
 	end
 	self._confirmSell = false
 	self._callbacks.sellCat(uid)
+end
+
+-- Whether this cat shows as locked: never before the server sends `locked`, else its saved value or a fresh tap.
+function CatRoom._locked(self: any, instance: Types.CatInstance): boolean
+	local tap = self._lockTaps[instance.uid]
+	return self._lockLive and CatLock.shown(instance.locked, tap, os.clock())
+end
+
+-- F62: the Lock row flips the picked cat's lock at once and sends it; the server's answer settles it.
+function CatRoom._pressLock(self: any)
+	local uid = self._selected
+	local state: Types.PlayerState? = self._state
+	local cats = if state then state.cats else nil
+	local instance = if cats and uid then cats[uid] else nil
+	if not (uid and instance) or not self._lockLive then
+		return
+	end
+	local locked = not self:_locked(instance)
+	self._lockTaps[uid] = { value = locked, at = os.clock() }
+	self._placing = false
+	self._confirmSell = false
+	self._callbacks.lockCat(uid, locked)
+	-- if the server never agrees, the row goes back to the saved value once the hold is over
+	task.delay(CatLock.HOLD_SECONDS, function()
+		if self._lockTaps[uid] ~= nil and self.frame.Parent ~= nil then
+			self:_refresh()
+		end
+	end)
+	self:_refresh()
 end
 
 function CatRoom._openRename(self: any)
@@ -904,6 +1013,12 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 			self:_dropCard(uid)
 		end
 	end
+	for uid in self._lockTaps do
+		if cats[uid] == nil then
+			self._lockTaps[uid] = nil
+		end
+	end
+	self._lockLive = CatLock.live(cats)
 	for uid, instance in cats do
 		local entry = self._cards[uid]
 		local index = order[uid]
@@ -934,6 +1049,7 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		if spot then
 			entry.role.Text = Theme.roleIcons[spot.spotType] or "✓"
 		end
+		entry.lock.Visible = self:_locked(instance)
 		local picked = uid == selected
 		entry.stroke.Color = if picked
 			then Theme.colors.sky
@@ -1083,25 +1199,43 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	else
 		self._detailRate.Text = Format.rate(rate) .. " when working  ·  Resting"
 	end
-	local loves = if def and def.favoriteRole then Format.roleName(def.favoriteRole) else nil
+	local role: string? = if def then def.favoriteRole else nil
+	local showFav = false
 	if self._notice then
 		self._detailInfo.Text = self._notice
 		self._detailInfo.TextColor3 = Theme.colors.warnDark
 	elseif self._placing then
 		self._detailInfo.Text = "Tap a gold-ringed + above."
 		self._detailInfo.TextColor3 = Theme.colors.caramelDark
-	else
-		self._detailInfo.Text = if loves
-			then ("Loves %s%s"):format(
-				loves,
-				if favorite then "  ·  1.5x now" else "  ·  1.5x there"
-			)
-			else ""
-		self._detailInfo.TextColor3 = if favorite
-			then Theme.colors.caramelDark
-			else Theme.modal.subtext
+	elseif role then
+		showFav = true
+		self._detailFavIcon.Text = Theme.roleIcons[role] or "★"
+		-- the role in bold ink, then how much it pays there in the lighter weight
+		self._detailFavName.Text = ('%s<font weight="400" color="#%s">  ·  1.5x %s</font>'):format(
+			Format.roleName(role),
+			(if favorite then Theme.colors.goodDark else Theme.modal.subtext):ToHex(),
+			if favorite then "now" else "there"
+		)
 	end
+	self._detailInfo.Visible = not showFav
+	self._detailFav.Visible = showFav
 	self._detailDesc.Text = if def then def.description or "" else ""
+
+	-- F62: the Lock row, and Sell greyed while the cat is locked
+	local live = self._lockLive
+	local locked = self:_locked(instance)
+	if locked then
+		self._confirmSell = false
+	end
+	self._lock.instance.Visible = live
+	self._lock:setText(
+		if locked
+			then Theme.icons.lock .. " Locked: tap to unlock"
+			else Theme.icons.unlock .. " Lock so it can't be sold"
+	)
+	self._lock:setStyle(if locked then "gold" else "ghost")
+	local descBottom = self._descBottom + (if live then LOCK_H + 6 else 0)
+	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
 
 	-- actions: Assign (Move), Rest, Sell; a sell to confirm becomes Cancel and a wide "Sell $150"
 	if self._confirmSell then
@@ -1116,6 +1250,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._rest.instance.Size = UDim2.new(1 / 3, -3, 1, 0)
 		self._sell:setText(if value > 0 then "Sell " .. Format.money(value) else "Confirm")
 		self._sell:setStyle("gold")
+		self._sell:setEnabled(true)
 		self._sell.instance.Size = UDim2.new(2 / 3, -3, 1, 0)
 	else
 		self._assign.instance.Visible = true
@@ -1127,6 +1262,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 		self._rest.instance.Size = UDim2.new(1 / 3, -4, 1, 0)
 		self._sell:setText("Sell")
 		self._sell:setStyle("danger")
+		self._sell:setEnabled(not locked)
 		self._sell.instance.Size = UDim2.new(1 / 3, -4, 1, 0)
 	end
 end
@@ -1176,6 +1312,7 @@ function CatRoom.destroy(self: any)
 	self._assign:destroy()
 	self._rest:destroy()
 	self._sell:destroy()
+	self._lock:destroy()
 	self._detailArt:destroy()
 	self._rename:destroy()
 	self._noticeToken += 1

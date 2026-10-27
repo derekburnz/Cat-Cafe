@@ -71,9 +71,9 @@ Theme.button = {
 		depth = Color3.fromHex("B8336F"),
 	},
 	ghost = {
-		top = Color3.fromHex("FFFFFF"),
-		bottom = Color3.fromHex("F3E6D4"),
-		depth = Color3.fromHex("D9C3A5"),
+		top = Color3.fromHex("FFF8EE"),
+		bottom = Color3.fromHex("EFE0CB"),
+		depth = Color3.fromHex("D2B895"),
 	},
 	danger = {
 		top = Color3.fromHex("FFAD55"),
@@ -102,7 +102,9 @@ Theme.fish = {
 -- Uploaded images. Empty until the image is on Roblox; whatever uses one draws without it until then.
 Theme.textures = {
 	-- the faint L-shaped tile mark repeated over button faces (assets/cat-cafe/ui/textures/UI_ButtonTiles.png)
-	buttonTiles = "",
+	buttonTiles = "rbxassetid://79710930693221",
+	-- the golden fish coin with its cat face and ears (assets/cat-cafe/exports/icons/CatCafe_Icon_GoldenFish.png)
+	fishCoin = "rbxassetid://77287948377172",
 }
 
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
@@ -119,16 +121,19 @@ Theme.hud = {
 }
 
 -- Modal windows sit on a dim backdrop and use the light cafe palette.
+-- Derek 2026-10-27: "the menu's should be less bright and easier to read through". The window body is a toasted
+-- latte instead of bright cream, cards sit a step lighter so rows stand apart, and small grey text is dark enough
+-- to read on both (6A5B4F is 4.7:1 on the body and 5.9:1 on a card; the old 8A7B6E was 3.5:1 on cream).
 Theme.modal = {
 	backdrop = Theme.colors.ink,
 	backdropTransparency = 0.45,
-	panel = Theme.colors.cream,
+	panel = Color3.fromHex("E9DAC6"),
 	header = Theme.colors.caramel,
 	headerText = Theme.colors.paper,
-	card = Theme.colors.paper,
-	cardStroke = Color3.fromHex("CDB08E"), -- warm caramel edge so cards read as chunky tiles
+	card = Color3.fromHex("FAF3E8"),
+	cardStroke = Color3.fromHex("C4A57F"), -- warm caramel edge so cards read as chunky tiles
 	text = Theme.colors.ink,
-	subtext = Theme.colors.muted,
+	subtext = Color3.fromHex("6A5B4F"),
 }
 
 Theme.rarity = {
@@ -204,9 +209,10 @@ Theme.icons = {
 	woods = "🌲",
 	sewer = "🕳️",
 	lock = "🔒",
+	unlock = "🔓",
 	food = "🐟",
 	moon = "🌙",
-	invite = "👥",
+	invite = "💌",
 	equipBest = "✨",
 	drop = "⬇️",
 	settings = "⚙️",

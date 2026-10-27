@@ -44,21 +44,21 @@ SettingsList.SECTIONS = {
 			{
 				key = "musicVolume",
 				kind = "volume",
-				icon = "🎚️",
+				icon = "🎧",
 				name = "Music volume",
 				detail = "",
 			},
 			{
 				key = "sfx",
 				kind = "switch",
-				icon = "🔊",
+				icon = "🔔",
 				name = "Sound effects",
 				detail = "Meows, coins, buttons and the street",
 			},
 			{
 				key = "sfxVolume",
 				kind = "volume",
-				icon = "🔉",
+				icon = "🔊",
 				name = "Sound volume",
 				detail = "",
 			},
@@ -72,7 +72,7 @@ SettingsList.SECTIONS = {
 				kind = "switch",
 				icon = "📳",
 				name = "Screen shake",
-				detail = "The camera bump on shoves and catches",
+				detail = "The camera bump on tackles and catches",
 			},
 			{
 				key = "lowPerformance",

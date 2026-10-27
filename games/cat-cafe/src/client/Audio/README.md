@@ -8,7 +8,7 @@ Owner: sound-designer (Luau reviewed by luau-reviewer). Rules: `.claude/skills/a
 | `Cues.luau` | Every cue id with its channel, volume, pitch range, spam gap, voices, 3D range and asset ids. The only place asset ids live. Pure. |
 | `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which music bed or ambience plays, ducking, slider gain, rarity jingles, grade, food and trap cues, the hold fill speed, zone chimes, which strays twinkle, which resting cat purrs, the dusk bell's timing, the Mythical sting and the plot cues), so they can be unit tested. |
 
-Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). All 76 synthesized files have uploaded ids (44 on 2026-10-26 and 27, the last 32 on 2026-10-27 evening). A cue with no id yet (the music beds) plays nothing, so a hook is safe to add before its file exists.
+Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect and jingle has an uploaded id. On 2026-10-27 Derek replaced the ambience with quiet music: the beds and the cafe door loop lost their files (their cues stay, silent), and the three music tracks, the rebuilt purrs, the tackle's whoosh and miss skid (F74, from each character's `TackleAt` and `TackleMissAt`) and the cat level up chime (F75, the `CatLevelUp` moment) were uploaded from GitHub Actions (upload-audio) the same night. A cue with no id yet plays nothing, so a hook is safe to add before its file exists.
 
 ## Hooks for the luau-engineer
 

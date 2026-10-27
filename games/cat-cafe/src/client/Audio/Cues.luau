@@ -31,10 +31,25 @@ export type Cue = {
 
 local Cues: { [string]: Cue } = {
 	-- Music (sound list section 3) -------------------------------------------------------------------------
-	musicDayA = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "Open for Business"
-	musicDayB = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "Second Cup"
-	musicNightA = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "After Hours"
-	musicNightB = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "Night Owls"
+	musicDayA = {
+		ids = { "rbxassetid://92150429408895" },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+	}, -- "Open for Business"
+	musicDayB = {
+		ids = { "rbxassetid://73896733157878" },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+	}, -- "Second Cup"
+	musicNightA = {
+		ids = { "rbxassetid://131746689332910" },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+	}, -- "After Hours"
+	musicNightB = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Night Owls"
 	stingDusk = {
 		ids = { "rbxassetid://72211264391144" },
 		group = "Music",
@@ -67,42 +82,14 @@ local Cues: { [string]: Cue } = {
 	},
 
 	-- Ambience beds by zone and phase, and 3D world loops (section 4) ---------------------------------------
-	ambCafeDay = {
-		ids = { "rbxassetid://136952289794282" },
-		group = "Ambience",
-		volume = 0.4,
-		looped = true,
-	},
-	ambCafeNight = {
-		ids = { "rbxassetid://104494733188299" },
-		group = "Ambience",
-		volume = 0.3,
-		looped = true,
-	}, -- v0.5: the closed cafe, cats asleep
-	ambAlleyDay = {
-		ids = { "rbxassetid://83744712629616" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
-	ambAlleyNight = {
-		ids = { "rbxassetid://82664754116384" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
-	ambParkDay = {
-		ids = { "rbxassetid://75896689856230" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
-	ambParkNight = {
-		ids = { "rbxassetid://120595462689856" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
+	-- Derek 2026-10-27: no ambience beds or cafe door loop, the quiet music plays instead; their files were
+	-- removed, so these stay silent unless a bed comes back.
+	ambCafeDay = { ids = {}, group = "Ambience", volume = 0.4, looped = true },
+	ambCafeNight = { ids = {}, group = "Ambience", volume = 0.3, looped = true }, -- v0.5: the closed cafe, cats asleep
+	ambAlleyDay = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
+	ambAlleyNight = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
+	ambParkDay = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
+	ambParkNight = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambNeighbourhood = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambWoods = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambSewer = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
@@ -110,13 +97,7 @@ local Cues: { [string]: Cue } = {
 	loopStreetLamp = { ids = {}, group = "Ambience", volume = 0.3, looped = true, range = 15 },
 	loopDealerCart = { ids = {}, group = "Ambience", volume = 0.6, looped = true, range = 25 },
 	loopFishTank = { ids = {}, group = "Ambience", volume = 0.4, looped = true, range = 10 },
-	loopCafeDoor = {
-		ids = { "rbxassetid://98253223255392" },
-		group = "Ambience",
-		volume = 0.7,
-		looped = true,
-		range = 30,
-	}, -- tag CafeDoor
+	loopCafeDoor = { ids = {}, group = "Ambience", volume = 0.7, looped = true, range = 30 }, -- tag CafeDoor
 	loopEspresso = { ids = {}, group = "Ambience", volume = 0.4, range = 15 },
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------
@@ -250,7 +231,7 @@ local Cues: { [string]: Cue } = {
 
 	-- Carry, shoves and check-in (5.3; v0.5 Shove keeps the Bump names in code) ------------------------------
 	carryPurr = {
-		ids = { "rbxassetid://73628889177188" },
+		ids = { "rbxassetid://104398552389386" },
 		group = "Sfx",
 		volume = 0.25,
 		looped = true,
@@ -271,6 +252,19 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	},
 	bumpHeld = { ids = { "rbxassetid://83302918660784" }, group = "Sfx", volume = 0.7, range = 40 },
+	tackleLunge = {
+		ids = { "rbxassetid://119010397581874" },
+		group = "Sfx",
+		volume = 0.6,
+		pitch = { 0.95, 1.05 },
+		range = 40,
+	}, -- F74: the dive's whoosh on the press; a hit adds the shove sound, a miss tackleMiss
+	tackleMiss = {
+		ids = { "rbxassetid://85126153307905" },
+		group = "Sfx",
+		volume = 0.7,
+		range = 40,
+	}, -- F74: belly flop, skid, "bonk bonk"
 	checkInBell = {
 		ids = { "rbxassetid://75991488445164" },
 		group = "Sfx",
@@ -334,7 +328,7 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	},
 	purr = {
-		ids = { "rbxassetid://134709393284855" },
+		ids = { "rbxassetid://110254245469370" },
 		group = "Sfx",
 		volume = 0.2,
 		looped = true,
@@ -456,6 +450,12 @@ local Cues: { [string]: Cue } = {
 		volume = 0.7,
 		minGap = 0.3,
 	}, -- F64: the UI plays it on UsePotion
+	catLevelUp = {
+		ids = { "rbxassetid://122201546356974" },
+		group = "Sfx",
+		volume = 0.4,
+		minGap = 1.5,
+	}, -- F75: one of your cats levels up
 
 	-- UI (5.8) ----------------------------------------------------------------------------------------------
 	uiClick = {

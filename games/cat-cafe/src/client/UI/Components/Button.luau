@@ -8,7 +8,6 @@
 
 local UserInputService = game:GetService("UserInputService")
 
-local CatEars = require(script.Parent.CatEars)
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
 local Sound = require(script.Parent.Sound)
@@ -40,7 +39,6 @@ export type Props = {
 	sound: (string | false)?,
 	name: string?,
 	zIndex: number?,
-	ears: boolean?, -- two cat ears in the face colour poke up from behind the top edge (the HUD's menu pills)
 }
 
 export type Button = {
@@ -85,8 +83,6 @@ local HOVER_SCALE = 1.05
 local TILE = 18 -- px between the face's tile marks
 local TILE_TRANSPARENCY = 0.9
 local GLOSS = NumberSequence.new(0.62, 0.94) -- the top half's shine, strongest at the top
-local EAR_SIZE = 18 -- the `ears` prop: about 8 px of each ear shows above the button, inside the 8 px list gap
-local EAR_INSET = 0.16
 
 local Button = {}
 Button.__index = Button
@@ -255,16 +251,6 @@ function Button.new(props: Props): Button
 		})
 	end
 
-	-- behind the depth frame, so only the tips show above the button; they squash and grow with it
-	local ears: { Frame }? = if props.ears
-		then CatEars.add(root, STYLES[style].top, {
-			size = EAR_SIZE,
-			inset = EAR_INSET,
-			y = 5,
-			zIndex = (props.zIndex or 1) - 1,
-		})
-		else nil
-
 	local uiScale: UIScale = Create("UIScale", { Parent = root })
 
 	local self = setmetatable({}, Button) :: any
@@ -289,9 +275,6 @@ function Button.new(props: Props): Button
 		depthFrame.BackgroundColor3 = colors.depth
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
-		if ears then
-			CatEars.setColor(ears, colors.top)
-		end
 		if icon then
 			icon.TextTransparency = if self._enabled then 0 else 0.45
 		end

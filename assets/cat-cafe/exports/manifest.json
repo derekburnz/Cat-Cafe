@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 22:14 UTC",
+  "generated": "2026-10-27 23:06 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -63222,23 +63222,23 @@
       "triangles": 2776,
       "budget": 6000,
       "size_studs": {
-        "x": 34.15,
-        "y": 5.6,
+        "x": 32.95,
+        "y": 6.32,
         "z": 17.1
       },
       "size_roblox": [
-        34.15,
+        32.95,
         17.1,
-        5.6
+        6.32
       ],
       "bounds_min": [
-        -17.07,
-        -2.8,
+        -16.47,
+        -3.22,
         0.0
       ],
       "bounds_max": [
-        17.07,
-        2.8,
+        16.47,
+        3.1,
         17.1
       ],
       "pivot": "base centre of the opening; -Z faces the side players come from",
@@ -63266,7 +63266,9 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
           "budget": "2776/6000 tris",
           "transforms": "scale 1, rotation 0",
@@ -63274,7 +63276,7 @@
           "uv": "1442 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=0.00 y=-0.06"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Gate.png",
@@ -63295,22 +63297,22 @@
       "budget": 6000,
       "size_studs": {
         "x": 36.62,
-        "y": 4.1,
+        "y": 7.15,
         "z": 15.9
       },
       "size_roblox": [
         36.62,
         15.9,
-        4.1
+        7.15
       ],
       "bounds_min": [
         -18.82,
-        -2.4,
+        -5.2,
         0.0
       ],
       "bounds_max": [
         17.8,
-        1.7,
+        1.95,
         15.9
       ],
       "pivot": "base centre of the opening; -Z faces the side players come from",
@@ -63348,7 +63350,7 @@
           "uv": "1898 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.51 y=-0.35"
+          "centered": "footprint center x=-0.51 y=-1.62"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Neighbourhood_Gate.png",
@@ -63365,26 +63367,26 @@
         "CatCafe_Woods_Gate_Lamp_Bulb",
         "CatCafe_Woods_Gate_Flowers"
       ],
-      "triangles": 3364,
+      "triangles": 3228,
       "budget": 6000,
       "size_studs": {
-        "x": 43.23,
-        "y": 5.99,
+        "x": 42.23,
+        "y": 11.59,
         "z": 16.95
       },
       "size_roblox": [
-        43.23,
+        42.23,
         16.95,
-        5.99
+        11.59
       ],
       "bounds_min": [
-        -21.62,
-        -3.59,
+        -21.12,
+        -3.6,
         0.0
       ],
       "bounds_max": [
-        21.62,
-        2.4,
+        21.12,
+        7.99,
         16.95
       ],
       "pivot": "base centre of the opening; -Z faces the side players come from",
@@ -63404,7 +63406,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Gate.model.json",
-      "rbx_parts": 247,
+      "rbx_parts": 257,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.glb"
@@ -63416,13 +63418,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "3364/6000 tris",
+          "budget": "3228/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1500 faces on swatch centers",
+          "uv": "1496 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.60"
+          "centered": "footprint center x=0.00 y=2.20"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_Gate.png",
@@ -63442,13 +63444,13 @@
       "budget": 6000,
       "size_studs": {
         "x": 37.1,
-        "y": 5.15,
+        "y": 5.6,
         "z": 17.3
       },
       "size_roblox": [
         37.1,
         17.3,
-        5.15
+        5.6
       ],
       "bounds_min": [
         -18.55,
@@ -63457,7 +63459,7 @@
       ],
       "bounds_max": [
         18.55,
-        1.5,
+        1.95,
         17.3
       ],
       "pivot": "base centre of the opening; -Z faces the side players come from",
@@ -63495,7 +63497,7 @@
           "uv": "1213 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-1.08"
+          "centered": "footprint center x=0.00 y=-0.85"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_Gate.png",
@@ -66185,25 +66187,25 @@
       "objects": [
         "CatCafe_Decor_MilkCrateStools"
       ],
-      "triangles": 938,
+      "triangles": 1018,
       "budget": 1500,
       "size_studs": {
-        "x": 3.86,
+        "x": 3.82,
         "y": 1.4,
         "z": 2.97
       },
       "size_roblox": [
-        3.86,
+        3.82,
         2.97,
         1.4
       ],
       "bounds_min": [
-        -1.93,
+        -1.91,
         -0.7,
         0.0
       ],
       "bounds_max": [
-        1.93,
+        1.91,
         0.7,
         2.97
       ],
@@ -66221,10 +66223,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "938/1500 tris",
+          "budget": "1018/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "475 faces on swatch centers",
+          "uv": "495 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -67241,17 +67243,17 @@
       "objects": [
         "CatCafe_Decor_VelvetBooth"
       ],
-      "triangles": 732,
+      "triangles": 788,
       "budget": 1800,
       "size_studs": {
         "x": 3.92,
-        "y": 1.91,
-        "z": 4.37
+        "y": 1.9,
+        "z": 4.1
       },
       "size_roblox": [
         3.92,
-        4.37,
-        1.91
+        4.1,
+        1.9
       ],
       "bounds_min": [
         -1.96,
@@ -67260,14 +67262,14 @@
       ],
       "bounds_max": [
         1.96,
-        0.96,
-        4.37
+        0.95,
+        4.1
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_VelvetBooth.model.json",
-      "rbx_parts": 33,
+      "rbx_parts": 35,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_VelvetBooth.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_VelvetBooth.glb"
@@ -67277,10 +67279,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "732/1800 tris",
+          "budget": "788/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "354 faces on swatch centers",
+          "uv": "386 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

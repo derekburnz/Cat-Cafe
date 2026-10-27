@@ -406,8 +406,14 @@ of the Alley Square (`CatCafe_Alley_ArchStreet`, `CatCafe_Alley_Arch`) are brick
 board and an iron arc of bulbs with a gold cat medallion. Props: a crate stack in climbable steps, a laundry line,
 long string lights and the Sewer manhole with barricades. Area gates are arches over the full opening with a
 ForceField barrier and a hanging sign board, themed: the Park in brick with ivy, planters and a green iron frame;
-the Woods in logs with moss, mushrooms and small spruces; the Sewer in concrete with hazard stripes, a big pipe
-and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+the Woods in timber posts and a log beam with moss, mushrooms and small spruces; the Sewer in concrete with hazard
+stripes, a big pipe and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+
+Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
+are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never
+flush with its face, or the two faces flicker. Posts reach 0.12 into the opening and past the wall's back face, and
+nothing beside a post sits on the wall's line. Check a placed piece in its scene, not alone: the toolkit only sees
+one model, so a gate that passes on its own can still cut through the walls around it.
 
 ## 14. Part-built models in Roblox
 
@@ -436,11 +442,12 @@ Attachment named `PromptAnchor` on the counter front, 3 studs up (WorldBuilder h
 `FishMarket` tag), the coin on the counter front as `_Coin`, the sign lamp as `_Bulb`, the sou'wester nested under
 `_Head`. The golden fish coin (`CatCafe_Prop_FishCoin`, `coins.py`) is gold swatches, so Metal; its HUD picture is
 `exports/icons/CatCafe_Icon_GoldenFish.png` from `icons.py` (front view, transparent, a 10 px dark gold outline at 512,
-readable down to 24 px). The crate furniture and decorations (`CatCafe_Decor_<Piece>`, `crate_decor.py`) stand on a
-decor spot 1.4 studs off a wall, so each keeps to about 4 wide and 2.5 deep around a base-centre pivot, front -Z,
-and never collides; tall pieces are fine (the Cat Tree Tower is 10.6). Lamps and neon are `_Glow`, fountain water
-`_Water`, a window to look through `_Glass`, and the Blossom Tree's flowers are the child Model `_Canopy` that the
-petal effect falls from. `_Glow` parts are Neon day and night, and WorldController leaves them alone. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+readable down to 24 px), uploaded as `rbxassetid://77287948377172`. The crate furniture and decorations
+(`CatCafe_Decor_<Piece>`, `crate_decor.py`) stand on a decor spot 1.4 studs off a wall, so each keeps to about 4
+wide and 2.5 deep around a base-centre pivot, front -Z, and never collides; tall pieces are fine (the Cat Tree Tower
+is 10.6). Lamps and neon are `_Glow`, fountain water `_Water`, a window to look through `_Glass`, and the Blossom
+Tree's flowers are the child Model `_Canopy` that the petal effect falls from. `_Glow` parts are Neon day and night,
+and WorldController leaves them alone. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
 `Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).

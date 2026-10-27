@@ -268,10 +268,10 @@ function Logic.announceCue(rarity: string?): string
 	return if step ~= nil and step >= 5 then "announceMythical" else "announce"
 end
 
--- Whether a server time attribute (a carry's CarryStartedAt) is fresh: set within the last 2 seconds, not a stale
--- value seen on join. Anything but a number is not.
-function Logic.freshStart(startedAt: any, now: number): boolean
-	return type(startedAt) == "number" and startedAt <= now + 1 and now - startedAt <= 2
+-- Whether a server time attribute (a carry's CarryStartedAt, a tackle's TackleAt) is fresh: set within the last
+-- `window` seconds (2 unless given), not a stale value seen on join. Anything but a number is not.
+function Logic.freshStart(startedAt: any, now: number, window: number?): boolean
+	return type(startedAt) == "number" and startedAt <= now + 1 and now - startedAt <= (window or 2)
 end
 
 -- The cue for a change to one of your plot's display attributes (data-model section 13): the tip piles being

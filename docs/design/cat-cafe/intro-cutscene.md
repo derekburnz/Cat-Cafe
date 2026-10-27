@@ -31,6 +31,23 @@ Total 23.7 s. Studs, y up. Shots 1 to 3 and 9 are relative to the player's plot:
 
 Fallbacks: if no `CodesCat` station is in the Workspace yet (F65), shot 7's caption is "Spin the wheel for a free prize every day!". If an area has not streamed in by its cut, that cut is skipped and the others take its time.
 
+### 2b. Shot positions for town layout v3 (game-designer thread, 2026-10-27)
+
+[town-layout-v3.md](town-layout-v3.md) (F76) widens the street, adds the Town Square in the middle and moves the areas. When F76 ships, these positions replace the ones in the table above; the timings, captions and moves stay. The back alleys move out by 4 on X, so the plot-relative shots change only there: shot 1 ends at (64s, 7, pz - 17) looking at the stray (70s, 1, pz - 7), shot 2 runs from (65s, 4.5, pz - 15) to (67s, 3.2, pz - 12), and the tutorial stray point is (70s, 0, pz - 7).
+
+| # | Camera from (position, look) | Camera to (position, look) |
+|---|---|---|
+| 4 | (0, 45, -14), (0, 0, -64) | (0, 12, -106), the Park gate (0, 4, -126) |
+| 5 | Park (0, 40, -119), (0, 0, -156); Neighbourhood (0, 60, 196), (0, 0, 264); Woods (-78, 40, -120), (-78, 0, -160); Sewer (78, 40, -120), (78, 0, -160) | each pushes 6% toward its look point |
+| 6 | (-4, 5, 120), the Alleyway Index Board (-9, 4, 131.5) | (-6.5, 4.5, 125), the board |
+| 7 | (0, 24, -36), the fountain (0, 2, 0) | (-8, 10, 0), between the wheel and the Codes Cat (-28, 4, 0) |
+| 8 | (0, 70, 96), (0, 0, 161) | (0, 66, 100), (0, 0, 161) |
+| 9 | (0, 66, 100), (0, 0, 161) | 12 studs behind and 6 above the character, looking at its head |
+
+Shot 7 is now a hard cut, then Quad InOut: a sweep down into the Town Square from its south side that ends with the Spin Wheel and the Codes Cat both in frame. In v3 it cannot tween on from shot 6, which ends at the north arch about 125 studs from the square, so the Move column's "continuous sweep out through the street arch" no longer applies. The world wheel still turns two spins on this client.
+
+Shot 9's swoop is longer in v3, about 210 studs in 2.0 s down to a plot 5 or 6 cafe (v2's longest was about 150). If it looks like a whip in Studio, route it through a via point over the square such as (0, 45, 0), the way shot 1 uses one. That is tuning only; the start, end and timing stay. Better still, the engineer can compute shots 4 to 8 from the Layout and Config points they look at, so a later layout change moves them too.
+
 ## 3. Gameplay-Engineer
 
 - Profile `introSeen` (boolean, default false) in the next save version bump, sent in ProfileSync. Settings key `tutorialButton` (boolean, default true) as a ninth `SetSetting` key.

@@ -98,7 +98,6 @@ return function()
 		SpinCooldownSeconds = 4,
 		SpinBankCap = 20,
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
-		TipJarStep12Fish = 5,
 		CrateLuckyEvery = 20,
 		CratePrice = 60,
 		FishMarketRange = 14,
@@ -189,6 +188,7 @@ return function()
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
+				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

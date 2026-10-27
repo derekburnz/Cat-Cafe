@@ -12,7 +12,7 @@ A Quests button on the HUD opens the Quests window with three tabs: Daily, Weekl
 
 - **Daily:** five quests a day, new at 00:00 UTC. Four normal ones and one Big Request that pays more. Finishing all five pays a Big Tip Potion and a Gold Rush Potion (section 4), which go into the potion bag to drink whenever the player likes.
 - **Weekly:** three bigger quests a week, new on Monday at 00:00 UTC. Finishing all three pays three Big Tip Potions, three Gold Rush Potions, two Quick Bait Potions and a Golden Classic Crate.
-- **Achievements:** 42 goals, each on its own. They are all open from the start, any of them can be finished first and each pays once. They count from what the player has already done, so a player who has caught 300 cats can claim Cat Catcher on day one.
+- **Achievements:** 44 goals, each on its own. They are all open from the start, any of them can be finished first and each pays once. They count from what the player has already done, so a player who has caught 300 cats can claim Cat Catcher on day one.
 
 The HUD tracker under the next goal card shows the closest unfinished daily ("Catch 5 cats 3/5"). The Quests button gets a dot when something can be claimed.
 
@@ -40,6 +40,7 @@ Each day the server picks five quests: slots 1 and 2 from the Streets pool (neve
 | Extra | `d_tipjar3` | Claim 3 Tip Jar gifts | `tipJarClaims` | 3 | |
 | Extra | `d_fish5` | Earn 5 golden fish | `fishEarned` | 5 | |
 | Extra | `d_crate1` | Open a Cafe Crate | `cratesOpened` | 1 | a banked crate or 60 golden fish when rolled |
+| Extra | `d_levelup1` | Level up a cat | `catLevelUps` | 1 | F75 (v0.12 cat levels) |
 | Big Request | `d_rare3` | Catch 3 Rare or better cats | `rareCatches` | 3 | |
 | Big Request | `d_catch12` | Catch 12 cats | `catsCaught` | 12 | |
 | Big Request | `d_rescue5` | Rescue 5 stuck cats | `rescues` | 5 | |
@@ -99,7 +100,7 @@ Three new potions join F64's four in the potion bag, so they reuse `potions`, `U
 
 ## 5. Achievements
 
-Each achievement is one goal with one prize. All 42 are open from the start and can be finished in any order; the ones that share a counter (Cat Catcher, Cat Wrangler, Cat Legend) are separate goals, not steps. Each reads a lifetime value, so progress is kept forever and old saves get credit for what they did before.
+Each achievement is one goal with one prize. All 44 are open from the start and can be finished in any order; the ones that share a counter (Cat Catcher, Cat Wrangler, Cat Legend) are separate goals, not steps. Each reads a lifetime value, so progress is kept forever and old saves get credit for what they did before.
 
 Prizes by size, coins scaled to the player's day rate when claimed:
 
@@ -154,8 +155,10 @@ Prizes by size, coins scaled to the player's day rate when claimed:
 | `a_quests100` | Quest Keeper | Finish 100 daily quests | `dailyQuestsDone` | 100 | L |
 | `a_week1` | Full Week | Finish every weekly quest in a week | `weeklySetsDone` | 1 | M |
 | `a_week10` | Week Champion | Finish every weekly quest in 10 weeks | `weeklySetsDone` | 10 | XL |
+| `a_level25` | Top Cat | Raise a cat to level 25 | `topCatLevel` | 25 | L |
+| `a_level50` | Master Cat | Raise a cat to level 50 | `topCatLevel` | 50 | XL |
 
-That is 8 S, 14 M, 12 L and 8 XL. All 42 together pay about 18 hours of day income, 112 spins, 20 crates and 42 potions, spread over a long time. No achievement pays golden fish or a permanent bonus. Shoves and pickups are left out on purpose, so nothing rewards pushing other players around. Rows that need a feature not built yet (tip piles, potions, the Cat Collector, the Mystery Visitor) show once it ships.
+That is 8 S, 14 M, 13 L and 9 XL. All 44 together pay about 20 hours of day income, 120 spins, 22 crates and 45 potions, spread over a long time. No achievement pays golden fish or a permanent bonus. Shoves and pickups are left out on purpose, so nothing rewards pushing other players around. Rows that need a feature not built yet (tip piles, potions, the Cat Collector, the Mystery Visitor, the level 50 cap of F75) show once it ships. Top Cat and Master Cat were added with the v0.12 cat levels (Derek, 22:40).
 
 ## 6. Contract for the engineer
 
@@ -163,7 +166,7 @@ That is 8 S, 14 M, 12 L and 8 XL. All 42 together pay about 18 hours of day inco
 
 **Quest progress.** Each picked quest saves `base`, the counter's value when it was picked, and `needs`. Progress is `min(needs, value - base)`. A coins quest fixes `needs = max(min, floor(dayRate x seconds))` when it is picked. `w_new2` counts distinct catIds in `collection`. Rows that need something the player lacks are skipped when picking; every pool has a row with no requirement.
 
-**Achievement progress.** A `measure` is a key of `stats`, `lifetimeCoins`, `tier`, `distinctCats` (entries in `collection`), `goldCats` (entries in `goldCollection`), `mythicalCats` (distinct Mythical catIds in `collection`), `decorOwned` (pieces owned) or `upgrade:<id>` (that upgrade's level). An achievement is met when the measure reaches `needs`.
+**Achievement progress.** A `measure` is a key of `stats`, `lifetimeCoins`, `tier`, `distinctCats` (entries in `collection`), `goldCats` (entries in `goldCollection`), `mythicalCats` (distinct Mythical catIds in `collection`), `decorOwned` (pieces owned), `topCatLevel` (the highest level among owned cats, F75) or `upgrade:<id>` (that upgrade's level). An achievement is met when the measure reaches `needs`.
 
 **Catalog.**
 - `Catalog.quests.daily` keyed by pool (`streets`, `cafe`, `extra`, `big`) and `Catalog.quests.weekly` keyed by pool (`a`, `b`, `c`): lists of `{ id, text, stat, needs?, needsSeconds?, needsMin?, requires? = { upgrade?, feature?, fishOrCrate?, uncaught? } }`.
@@ -200,6 +203,6 @@ ProfileSync adds `quests`, `achievements` and `stats`, which the client needs fo
 
 - A Quests button on the HUD with a dot while anything is claimable, opening a window with the tabs Daily, Weekly and Achievements.
 - Daily and Weekly rows: the quest text, a progress bar, the prize chips (the PrizeChips component), Claim when done and a small Reroll button while the reroll is unused. Above the rows: "3 of 5 done" with the set prize card, and "New quests in 5 h".
-- Achievements: a grid of cards, claimable ones first, then the closest to done. Each card shows the name, the goal, a progress bar, the prize chips and Claim when met. A count at the top reads "12 of 42".
+- Achievements: a grid of cards, claimable ones first, then the closest to done. Each card shows the name, the goal, a progress bar, the prize chips and Claim when met. A count at the top reads "12 of 44".
 - The HUD tracker: one line under the next goal card with the closest unfinished daily, shown after onboarding.
 - The quest potions sit in the potion bag with F64's potions and a Use button, and their timers show in the HUD buff chips.

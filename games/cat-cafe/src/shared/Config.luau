@@ -83,6 +83,9 @@ local Config = {
 	NormalWalkSpeed = 20,
 	CheckInRangeStuds = 8,
 	StrayWanderRadius = 5,
+	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
+	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
+	StraySpawnSpacingStuds = 12,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
 	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window.
@@ -137,7 +140,6 @@ local Config = {
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
 	FishRepeatCatch = { Epic = 1, Legendary = 3, Mythical = 8 } :: { [string]: number },
 	FishRankUp = { 10, 25, 50, 100 } :: { number }, -- reaching Tier 2, 3, 4 and 5
-	TipJarStep12Fish = 5,
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.

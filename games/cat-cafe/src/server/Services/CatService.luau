@@ -438,8 +438,8 @@ local function spawnStray(
 	return stray
 end
 
--- A free spawn point in the area, or nil. Epic and rarer strays take only points tagged "square" when one is
--- free (data-model section 9: the exciting cats are a short run from everyone, no cafe's lane is the lucky one).
+-- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Epic and
+-- rarer strays take only points tagged "square" when one is free (data-model section 9: the exciting cats are a short run from everyone, no cafe's lane is the lucky one).
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
@@ -458,13 +458,23 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	end
 	-- Epic and rarer spawn only in the Alley Square, never in a back alley lane (F35); with the Square full that
 	-- stray waits for the next wave. spawnWave places the rarer strays first, so this is rare.
+	local pool: { number } = free
 	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasSquare then
-		return if #square > 0 then square[rng:NextInteger(1, #square)] else nil
+		pool = square
 	end
-	if #free == 0 then
-		return nil
+	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
+	local points: { Vector3 } = {}
+	for _, index in pool do
+		table.insert(points, area.spawnPoints[index].Position)
 	end
-	return free[rng:NextInteger(1, #free)]
+	local taken: { Vector3 } = {}
+	for _, stray in strays do
+		if stray.alive and stray.area == areaId then
+			table.insert(taken, stray.model:GetPivot().Position)
+		end
+	end
+	local pick = Catching.spreadPick(points, taken, rng:NextNumber())
+	return if pick ~= nil then pool[pick] else nil
 end
 
 local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)

@@ -1,6 +1,9 @@
 """Upload Cat Cafe's audio files to Roblox and write their ids into the game.
 
-Run from the repo root on your own PC (never in a shared or cloud machine with your key):
+Usually it runs in GitHub Actions: Actions > upload-audio > Run workflow (or actions_run_trigger on main) with
+the branch that holds the new sounds. The key is the repo secret ROBLOX_PUBLISH_KEY; the run prints each id and the
+diff, and the branch's thread commits it. It can also run from the repo root on your own PC, with your key in the
+environment (never on a shared or cloud machine where the key would sit in a file or a shell history):
 
     export ROBLOX_API_KEY=...            # PowerShell: $env:ROBLOX_API_KEY = "..."
     export ROBLOX_CREATOR_USER_ID=...    # or ROBLOX_CREATOR_GROUP_ID when a Group owns the game
@@ -17,7 +20,8 @@ A rerun skips what is already uploaded, so it is safe to stop and start again (f
 after hitting the monthly upload limit). Commit the changed files on a branch afterwards.
 
 The API key: Creator Dashboard > Open Cloud > API Keys > Create API Key, add the Assets API with
-Read and Write, allow your IP. The key stays in the environment variable, never in a file or chat.
+Read and Write, allow your IP. The key stays in the environment variable or the repo
+secret, never in a file, a log or chat.
 Uploaded audio goes through Roblox moderation; an id can take a few minutes before it plays.
 Only the Python standard library is needed.
 """
@@ -55,16 +59,19 @@ PRIORITY = (
     "giftClaim", "indexReward", "catPlaced", "catRest", "uiSlider", "uiGiftReady", "uiBadge", "uiSpinStart", "uiSpinTick", "uiSpinWin",
     "duskBell", "stingDusk", "stingDawn", "catPickUp", "getaway", "announceMythical", "tipPile", "richArrive", "richTip",
     "uiCodeRedeem", "visitorCollector", "uiTrade", "visitorMystery", "giftOpen", "potionDrink",
+    "musicDayA", "musicNightA", "musicDayB", "tackleLunge", "tackleMiss", "catLevelUp",
 )
 
 
 def cue_for(stem: str) -> str:
     """CatCafe_Ui_Click -> uiClick, CatCafe_Amb_CafeDay -> ambCafeDay, CatCafe_Amb_LoopCafeDoor -> loopCafeDoor,
-    CatCafe_Sfx_NetSwing -> netSwing."""
+    CatCafe_Sfx_NetSwing -> netSwing, CatCafe_Music_DayA -> musicDayA (jingles and stings keep their own names)."""
     _, bus, name = stem.split("_", 2)
     name = name.replace("_", "")
     if bus == "Ui":
         return "ui" + name
+    if bus == "Music" and not name.startswith(("Jingle", "Sting")):
+        return "music" + name
     if bus == "Amb":
         return "loop" + name[4:] if name.startswith("Loop") else "amb" + name
     return name[0].lower() + name[1:]

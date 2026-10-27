@@ -803,16 +803,136 @@ Presets.catPoses = {
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
 
--- A shove (F41): a puff where it lands, dizzy stars over the shoved player's head and, for them, a bigger
--- camera bump than a missed catch. The knockback itself is the engineer's, on the target's own client.
+-- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
+-- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
+-- client.
 Presets.shove = {
 	puff = 10, -- hissPuff particles where it lands
-	starSeconds = 1.2,
 	stars = 3,
 	starRadius = 0.9,
 	starHz = 1.4,
 	shake = 0.3,
 	shakeStuds = 0.4,
+}
+
+-- A tackle (F74, data-model 10c v0.11): a streak of dust along the ground behind the tackler while they lunge, and
+-- after a miss a skid of dust kicked up as they slide on their belly with a puff where they stop. The seconds come
+-- from the shared Config once it has them (TackleLungeSeconds, TackleHitGraceSeconds, TackledDownSeconds); these
+-- until then.
+Presets.tackle = {
+	lungeSeconds = 0.35, -- TackleLungeSeconds
+	graceSeconds = 0.25, -- TackleHitGraceSeconds: the streak may run this much longer for lag
+	downSeconds = 0.8, -- TackledDownSeconds: a tackled player's stars circle this long
+	starsAfter = 0.4, -- and this much longer while they get up, fading out over the last 0.3 s
+	lungeSpeed = 28, -- studs a second: a lunge (12 in 0.35 s) beats this, a Catch Rush walk (24) does not
+	streakWidth = 1.4, -- studs: the flat ribbon of dust along the ground
+	streakSeconds = 0.45, -- how long the ribbon trails behind before it fades
+	every = 0.06, -- seconds between looks at how fast the tackler moves, and between kicks
+	kick = 2, -- kick particles at the feet each time while lunging fast
+	skidSeconds = 0.6, -- the longest a missed tackler's slide is followed
+	skidSpeed = 3, -- studs a second: slower than this they have stopped
+	skidKick = 3, -- kick particles each time while sliding
+	skidDust = 8, -- dust particles where they stop
+}
+
+-- The Tackle (design v0.11, F74), drawn on R15 characters by Tackle.luau with Avatar.luau's poses. Seconds as the
+-- engineer's timers (Config Tackle* once it has them: the lunge, the hit window's grace, the stand-up after a hit
+-- and after a miss, the target's push and how long it stays down), so a pose ends when the player can move again.
+-- Each key pose is degrees about the R15 joints (Avatar.Pose; `sh`, `sp`, `el`, `hip` and `kn` set both sides,
+-- `shL`... one side) and `air`, studs from the floor to the lowest part (0: resting on the floor). A pose eases in
+-- over `blendIn` from whatever the character was playing and back out over `blendOut`. A character that moves
+-- faster than `cutSpeed` studs a second after the moving part of its tackle is up again, so its pose eases out.
+Presets.tacklePose = {
+	lunge = 0.35, -- TackleLungeSeconds
+	grace = 0.25, -- TackleHitGraceSeconds: the window runs this much past the lunge before a miss is known
+	hitRecover = 0.4, -- TackleHitRecoverSeconds
+	missRecover = 1.2, -- TackleMissRecoverSeconds
+	push = 0.25, -- the target's knockback: ShoveController's PUSH_SECONDS, keep the two together
+	down = 0.8, -- TackledDownSeconds, after the push
+	land = 0.15, -- after the lunge the diver comes down on its belly over this long
+	lost = 0.5, -- after the window, no hit and no TackleMissAt for this long: it gets up anyway
+	blendIn = 0.06,
+	blendOut = 0.12,
+	cutSpeed = 8,
+	cutAfter = 0.15, -- seconds after the moving part before speed counts: the push or lunge dies away
+	cutSeconds = 0.15, -- how fast the pose lets go once the player moves
+	sideRoll = 20, -- most a tackled player tips towards a push from the side
+	slide = { neck = 6, kick = 25, roll = 3, hz = 6 }, -- the belly slide's wobble, fading as it stops
+	poses = {
+		coil = { lean = 20, waist = 15, neck = 20, sh = -50, sp = 15, el = 25, hip = 70, kn = 85 },
+		launch = { lean = 55, neck = 40, sh = 120, sp = 15, el = 20, hip = 5, kn = 25, air = 0.5 },
+		fly = {
+			lean = 82,
+			waist = -5,
+			neck = 55,
+			sh = 165,
+			sp = 22,
+			el = 10,
+			hip = -8,
+			kn = 35,
+			air = 0.5,
+		},
+		belly = {
+			lean = 90,
+			waist = -6,
+			neck = 50,
+			sh = 168,
+			sp = 28,
+			el = 15,
+			hip = -4,
+			kn = 40,
+			air = 0.04,
+		},
+		allFours = { lean = 60, neck = 40, sh = 60, sp = 5, el = 5, hip = 62, kn = 92 },
+		stumble = {
+			lean = 28,
+			waist = 10,
+			neck = 25,
+			shL = 85,
+			shR = 55,
+			sp = 35,
+			el = 30,
+			hipL = 55,
+			knL = 35,
+			hipR = -22,
+			knR = 30,
+		},
+		recoil = {
+			lean = -22,
+			waist = -10,
+			neck = -20,
+			sh = 70,
+			sp = 40,
+			el = 30,
+			hip = 25,
+			kn = 25,
+			air = 0.3,
+		},
+		recoilForward = {
+			lean = 28,
+			waist = 10,
+			neck = 30,
+			sh = 100,
+			sp = 30,
+			el = 20,
+			hip = -20,
+			kn = 35,
+			air = 0.3,
+		},
+		back = {
+			lean = -90,
+			waist = 5,
+			neck = -15,
+			sh = 35,
+			sp = 70,
+			el = 20,
+			hip = 40,
+			kn = 50,
+			air = 0.04,
+		},
+		sit = { lean = -10, waist = 12, neck = 5, sh = 25, sp = 30, el = 35, hip = 88, kn = 20 },
+		crouch = { lean = 30, waist = 15, neck = 20, sh = 30, sp = 20, el = 30, hip = 95, kn = 115 },
+	} :: { [string]: { [string]: number } },
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
@@ -847,6 +967,11 @@ Presets.areas = {
 	ringDiameter = 12,
 }
 
+-- Butterflies by day (design v0.4 section 4; Derek 2026-10-27 22:43: round more than the door, and they come and
+-- go). The `perSource` butterflies of a flower bed wander all of it and `pad` studs past its edges (at least `least`
+-- from its middle each way): a flight to a random spot at about `speed` studs a second, often then a hover over it,
+-- with a little loop of `roam` on top all the time. Each is out for a spell of `out` seconds, then away for `away`;
+-- it comes down from `rise` studs up as it fades in, and rises as it fades out, over `fade` seconds.
 Presets.butterfly = {
 	wing = Vector3.new(0.34, 0.03, 0.28),
 	colors = {
@@ -857,8 +982,19 @@ Presets.butterfly = {
 	},
 	flapHz = 2.2,
 	flapDegrees = 55,
-	roam = Vector3.new(2.4, 0.6, 1.8), -- half size of the box it loops around its flowers in
-	height = 1.6,
+	roam = Vector3.new(0.7, 0.35, 0.6), -- half size of the little loop it flutters in on top of its flight
+	height = 1.6, -- studs over the flowers
+	speed = 2.6,
+	legShortest = 1.2, -- seconds of one flight
+	legLongest = 5,
+	hover = { chance = 0.45, shortest = 0.6, longest = 1.8 },
+	pad = 1,
+	least = Vector3.new(1.5, 0, 1.2),
+	out = { 6, 14 }, -- seconds, shortest and longest
+	away = { 8, 20 },
+	firstAway = { 0, 10 }, -- the first wait once a bed is near, so they do not all arrive at once
+	fade = 1,
+	rise = 1.5,
 	perSource = 2,
 }
 
@@ -1079,6 +1215,15 @@ Presets.fishPickup = {
 		{ from = 10, sparkles = 14, ring = 4.5 },
 		{ from = 40, sparkles = 22, ring = 6 },
 	},
+}
+
+-- A cat levelling up (F75, data-model 4b v0.12): a small mint sparkle over one of your own cafe cats, `above` studs
+-- over its head, and a few glints floating up. Small, since cats level often early on.
+Presets.levelUp = {
+	sparkles = 6, -- catchSparkle particles
+	glints = 3, -- fishRise particles, tinted
+	above = 0.4,
+	colour = Presets.palette.mint,
 }
 
 -- Mythical cafe styles and decor (F53, golden-fish.md section 4: each "gets one steady emitter or a texture scroll.

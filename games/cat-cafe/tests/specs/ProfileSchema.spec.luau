@@ -88,10 +88,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 4 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 5 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(4)
-			expect(profile.version).to.equal(4)
+			expect(ProfileSchema.VERSION).to.equal(5)
+			expect(profile.version).to.equal(5)
 			expect(profile.tier).to.equal(1)
 			expect(profile.coins).to.equal(Config.StartCoins)
 			expect(profile.lifetimeCoins).to.equal(0)
@@ -209,8 +209,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 5 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 6 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 5 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 4 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 3 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 2 })).to.equal(false)
@@ -618,12 +619,12 @@ return function()
 			expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95 })
 		end)
 
-		it("a version 4 save keeps gold cats, gold bait and its gold page, and ignores a stray shinyCollection", function()
+		it("a version 4 or later save keeps gold cats, gold bait and its gold page, and ignores a stray shinyCollection", function()
 			local raw = ProfileSchema.migrate(v3Save(), 500) :: any
 			raw.goldCollection = { bengal = 95, calico = 96 }
 			raw.shinyCollection = { snow = 1 }
 			local profile = ProfileSchema.migrate(raw, 900)
-			expect(profile.version).to.equal(4)
+			expect(profile.version).to.equal(5)
 			expect(profile.cats.c1.variant).to.equal("gold")
 			expect((profile.bait :: any).variant).to.equal("gold")
 			expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95, calico = 96 })
@@ -735,6 +736,41 @@ return function()
 				raw.coins = bad
 				expect(ProfileSchema.migrate(raw, 1000).coins).to.equal(Config.StartCoins + 1000)
 			end
+		end)
+	end)
+	describe("migrate to version 5: Index rewards (F48, S60)", function()
+		it("a version 4 save starts with no Index rewards claimed", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 4
+			raw.indexRewards = nil
+			raw.stats.tipJarClaims = nil
+			local profile = ProfileSchema.migrate(raw, 900)
+			expect(profile.version).to.equal(5)
+			expect(profile.indexRewards :: any).to.deepEqual({})
+			expect(profile.stats.tipJarClaims).to.equal(0)
+		end)
+
+		it("keeps the Tip Jar claim count (F47)", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.stats.tipJarClaims = 7
+			expect(ProfileSchema.migrate(raw, 900).stats.tipJarClaims).to.equal(7)
+		end)
+
+		it("keeps claimed milestones of known areas and drops anything else", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.indexRewards = {
+				alley = { cats3 = true, cats6 = true, cats99 = true, gold10 = "yes" },
+				park = { cats10 = true },
+				moon = { cats3 = true },
+				woods = "all",
+				sewer = { cats3 = false },
+				[7] = { cats3 = true },
+			}
+			local profile = ProfileSchema.migrate(raw, 900)
+			expect(profile.indexRewards :: any).to.deepEqual({
+				alley = { cats3 = true, cats6 = true },
+				park = { cats10 = true },
+			})
 		end)
 	end)
 end

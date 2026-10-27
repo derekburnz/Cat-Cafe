@@ -1,6 +1,6 @@
 --!strict
 -- The world layout (server World/Layout.luau, pure geometry) against design v0.4: world-and-feel.md section 2 (the
--- Alleyway out back) and its section 8 acceptance check 4 (F35, layout v2).
+-- Alleyway out back) and its section 8 acceptance check 4 (F35, layout v2; check 4 as reworded in docs PR #83).
 return function()
 	local ServerScriptService = game:GetService("ServerScriptService")
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -181,7 +181,7 @@ return function()
 			expect(square).to.equal(1)
 		end)
 
-		it("fast travel lands inside the Square, clear of its walls", function()
+		it("the Alley travel button lands inside the Square, clear of its walls (check 4)", function()
 			local arrival = alley.arrival :: Point
 			expect(arrival).to.be.ok()
 			expect(arrival.z > W.SquareSouthZ and arrival.z < W.SquareNorthZ).to.equal(true)
@@ -205,8 +205,87 @@ return function()
 		end)
 	end)
 
-	describe("walk times at NormalWalkSpeed 20 (acceptance check 4)", function()
-		it("from every cafe's back door a stray spawn is under 2 seconds away", function()
+	-- Shortest walks over the Alleyway floor on a 1 stud grid, moving along x or z only, so every distance is at least
+	-- the real walk. A cell is walkable when the floor reaches 1 stud past its centre every way (across the seams
+	-- where one floor meets the next) and it is 1 stud clear of every wall.
+	local GRID_X0 = -W.AlleyOuterX
+	local GRID_Z0 = W.AlleySouthZ
+	local GRID_NX = math.ceil(2 * W.AlleyOuterX)
+	local GRID_NZ = math.ceil(W.SquareNorthZ - W.AlleySouthZ)
+
+	local function cellOf(x: number, z: number): number?
+		local i = math.floor(x - GRID_X0)
+		local j = math.floor(z - GRID_Z0)
+		if i < 0 or i >= GRID_NX or j < 0 or j >= GRID_NZ then
+			return nil
+		end
+		return j * GRID_NX + i
+	end
+
+	local walkable: { boolean } = {}
+	for j = 0, GRID_NZ - 1 do
+		for i = 0, GRID_NX - 1 do
+			local x, z = GRID_X0 + i + 0.5, GRID_Z0 + j + 0.5
+			local clear = onFloor(x - 1, z - 1, alleyRects, 0)
+				and onFloor(x + 1, z - 1, alleyRects, 0)
+				and onFloor(x - 1, z + 1, alleyRects, 0)
+				and onFloor(x + 1, z + 1, alleyRects, 0)
+			walkable[j * GRID_NX + i + 1] = clear and not inWall(x, z, alleyWalls, 1)
+		end
+	end
+
+	-- Studs from the cell at (x, z) to every reachable cell, by cell index + 1; nil where it cannot be reached.
+	local walks: { [number]: { number } } = {}
+	local function walkFrom(x: number, z: number): { number }
+		local key = (cellOf(x, z) or -1) + 1
+		local cached = walks[key]
+		if cached ~= nil then
+			return cached
+		end
+		local start = cellOf(x, z)
+		assert(start ~= nil and walkable[start + 1], "the walk starts off the Alleyway floor")
+		local dist: { number } = { [start + 1] = 0 }
+		local queue = { start }
+		local head = 1
+		while head <= #queue do
+			local cell = queue[head]
+			head += 1
+			local i, j = cell % GRID_NX, cell // GRID_NX
+			local here = dist[cell + 1]
+			for _, step in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
+				local ni, nj = i + step[1], j + step[2]
+				if ni >= 0 and ni < GRID_NX and nj >= 0 and nj < GRID_NZ then
+					local next = nj * GRID_NX + ni
+					if walkable[next + 1] and dist[next + 1] == nil then
+						dist[next + 1] = here + 1
+						table.insert(queue, next)
+					end
+				end
+			end
+		end
+		walks[key] = dist
+		return dist
+	end
+
+	-- A cafe's back door to its yard gate (the yard is open inside its fence), and the gate's alley-side point.
+	local function yardWalk(index: number): (number, number, number)
+		local doorX, doorZ = backDoor(index)
+		local gate = Layout.plot.yardGate
+		local gateX, gateZ = plotToWorld(index, (gate.x1 + gate.x2) / 2, Layout.plot.yard.z2)
+		local side = Layout.plotPlacement(index).side
+		local outX = side * (W.AlleyInnerX + 1.5)
+		return math.abs(gateX - doorX) + math.abs(gateZ - doorZ) + math.abs(outX - gateX), outX, gateZ
+	end
+
+	local squarePoints: { Point } = {}
+	for _, point in alley.spawnPoints do
+		if point.zone == "square" then
+			table.insert(squarePoints, point)
+		end
+	end
+
+	describe("walk times (acceptance check 4, docs PR #83)", function()
+		it("from every cafe's back door a stray spawn is under 2 seconds away at NormalWalkSpeed", function()
 			-- Out of the back door, through the yard and its gate, to the nearest lane point: at most the walk along
 			-- x plus the walk along z.
 			for index = 1, W.PlotCount do
@@ -223,8 +302,43 @@ return function()
 			end
 		end)
 
-		-- Layout v2 puts the far side of the Square about 17 s from the south cafes' back doors on foot (10 s from
-		-- the north ones), so this waits on the designer: retune the layout, or count the Alley travel button.
-		it("from the farthest cafe's back door the far side of the Square is under 8 seconds")
+		it("every spawn point can be walked to from every yard gate", function()
+			for index = 1, W.PlotCount do
+				local _, outX, outZ = yardWalk(index)
+				local dist = walkFrom(outX, outZ)
+				for n, point in alley.spawnPoints do
+					local cell = cellOf(point.x, point.z)
+					if cell == nil or dist[cell + 1] == nil then
+						fail("plot %d: spawn point %d at (%g, %g) cannot be reached", index, n, point.x, point.z)
+					end
+				end
+			end
+		end)
+
+		it("carrying a cat from any Square spawn to any cafe's back door takes under 25 seconds", function()
+			-- The check names the farthest cafe's nearer door; the back door is never farther than that, so this bounds
+			-- it from above. Travel is greyed while carrying, so this is the one walk that cannot be skipped.
+			local worst, worstPlot, worstPoint = 0, 0, 0
+			for index = 1, W.PlotCount do
+				local yard, outX, outZ = yardWalk(index)
+				local dist = walkFrom(outX, outZ)
+				for n, point in squarePoints do
+					local walked = dist[(cellOf(point.x, point.z) or -1) + 1]
+					if walked == nil then
+						fail("plot %d cannot reach Square point %d", index, n)
+					end
+					local seconds = (yard + walked) / Config.CarryWalkSpeed
+					if seconds > worst then
+						worst, worstPlot, worstPoint = seconds, index, n
+					end
+				end
+			end
+			expect(#squarePoints).to.equal(8)
+			if worst >= 25 then
+				fail("plot %d to Square point %d is %.1f s at carry speed", worstPlot, worstPoint, worst)
+			end
+			-- Layout v2 measures about 21 s here (designer, docs PR #83); a much shorter walk means the grid broke.
+			expect(worst > 10).to.equal(true)
+		end)
 	end)
 end

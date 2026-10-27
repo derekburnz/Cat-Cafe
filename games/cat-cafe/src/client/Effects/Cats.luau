@@ -396,7 +396,7 @@ local function lightGold(gold: { Logic.Candidate<Model> })
 				sparkles[model] = made
 			end
 		else
-			emitter.Enabled = true
+			Particles.switchOn(emitter, "shiny")
 		end
 	end
 	for model, emitter in sparkles do

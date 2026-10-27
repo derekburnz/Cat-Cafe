@@ -423,21 +423,27 @@ only: client parts go in `workspace.ClientEffects` and burst emitters on `Burst_
 | E12 Shove (v0.5, F41) | (`ShovedAt` and `ShovedBy` on the shoved character since PR #139) A shoves B in the Alleyway with a third client watching; then B turns on Reduce Motion and A shoves again after the cooldowns | A puff between A and B, a skid of dust at B's feet and three dizzy stars circling B's head for 1.2 s; only B's camera bumps (about 0.3 s, bigger than E1's shake), A's and the watcher's do not. With Reduce Motion on, B's stars hold still and there is no bump |
 | E8 Console | The whole section | No new error or warning naming `Effects` on the client, none on the server |
 
-### 4.7 Sound (v0.4, sound list v0.3, `src/client/Audio`)
+### 4.7 Sound (v0.4 and v0.5, sound list v0.4, `src/client/Audio`)
 
 Run with the sound setting on, PC first, in the same session as 4.6 so each effect and its sound are judged
 together. Every Sound the client plays is named after its cue (`catHiss`, `purr`, `shuttersUp`...), so client
 `execute_luau` can list the playing ones: descendants of `workspace` and `SoundService` with `IsA("Sound")` and
-`IsPlaying`. Cues still waiting for an upload play nothing; record them as skipped, not failed.
+`IsPlaying`. Since PR #160 every synthesized cue has an uploaded id (all 44 files), so a cue that stays silent
+where its row expects it is a fail. Music, the dusk and dawn stings and the Rare to Mythical catch jingles have no
+files yet, and nothing plays `uiDealerOpen`, `uiToggle` or `uiRename` yet (section 8, item 6): record those as
+skipped, not failed.
 
 | Row | Do | Expected |
 |---|---|---|
-| A1 Miss | E1's miss, with the second client 20 studs away | `circleMiss`, then the `catchMiss` whiff (2D, catcher only) and no `pawLost` pop (gone with the paws, F40); the hiss (`catHiss`) plays 3D from the stray for both clients, from `HissAt` |
-| A2 Catch and Purrfect | E2's catches | `catchSparkle` and the rarity jingle on every catch; `purrfectChime` only on the all-Perfect one |
+| A1 Miss | E1's miss, with the second client 20 studs away | `circleMiss`, then the `catchMiss` whiff (2D, catcher only) and no `pawLost` pop (gone with the paws, F40); the hiss (`catHiss`) plays 3D from the stray for both clients, from `HissAt`; then `straySprint` 3D from the stray as it runs off (F40), once per sprint |
+| A2 Catch and Purrfect | E2's catches | `catchSparkle` on every catch, and from Rare up the rarity jingle (no file yet: skipped); `purrfectChime` only on the all-Perfect one |
 | A3 Claim and gate | E3 and E5 | `shuttersUp` and `signFlip` 3D at the claimed plot for everyone near it; `gateOpen` 3D at the gate, heard within about 60 studs |
 | A4 Lively street | Walk the street past running cafes, then stand inside a cafe with five working cats | Each cafe door plays its chatter and cups loop 3D, loudest at the nearest door; at most 3 `purr` Sounds play at once, only for cats within 14 studs |
 | A5 Carry and settings | Catch a cat and carry it; turn Sound off, then on, then check in; turn Music off | A quiet purr while carrying. Sound off silences ambience, effects and UI at once and the purr comes back when it is on again; it stops at check in. Music has its own toggle and only silences music |
 | A6 Shout-outs | `Debug.giveCat` a Common, then an Epic and a Mythical shout-out (S15 or catches) | The shout-out chime climbs one step per rarity (Common lowest, Mythical highest, the `rarityStep` table in `AudioLogic.spec`) |
+| A8 Shove (v0.5, F41) | E12's shoves with the watcher 20 studs away, then once more with the watcher 50 studs away. Then B carries a cat and the server runs `CatCafeDebug:Invoke("shove", "Player1", "Player2", "loose")` with A as Player1, and again with `"held"` | `shove` plays 3D at B for A, B and the watcher on every landed shove (a whoosh into a soft "boop", never a hit); the watcher at 50 studs hears nothing (range 40). With the cat: `bumpLoose` (a startled mrrp and scurry) right after `shove` on "loose", `bumpHeld` (a rubbery double squeeze) on "held", both 3D at B |
+| A9 Closed cafe (v0.5, F44) | Inside own cafe by day, then `CatCafeDebug:Invoke("setPhase", "night")`, wait 10 s, then `"day"` | By day `ambCafeDay` loops. At night it switches to `ambCafeNight` (a wall clock, the fridge, cats purring in their sleep), quieter than the day bed (volume 0.3 against 0.4); at dawn `ambCafeDay` comes back. Only one cafe bed plays at a time |
+| A10 UI sounds (sound list 5.8) | Open and close Upgrades, the cat room and the dealer screen (at night, S13); switch tabs in the cat room and Decor; set off a refusal toast (S8) and an info toast (a rename, S17); on a fresh profile follow the tutorial strip through two steps; meet every Tier 2 requirement (S14) and leave the card ready for 10 s | `uiOpen` on each open and `uiClose` on each close, heard by this player only (the dealer screen plays `uiOpen` too until `uiDealerOpen` is wired); `uiTab` on each tab switch; `uiError` (the gentle bonk) with the refusal and `uiToast` with the info toast; `uiHint` once per new tutorial line, never again for the same line; `uiRankReady` once, when the last requirement is met, and not again while the card stays ready |
 | A7 Console | The whole section | No new error naming `Audio`; a missing asset id warns at most once per cue |
 
 ## 5. Manual checklist (Derek first, then friends)
@@ -553,6 +559,9 @@ shaped findings go to luau-reviewer as blockers. QA never writes the fix.
 4. Designer, answered in design v0.3.1: every area gets at least one stuck cat each night (RescueMinStuck 1).
 5. Studio plan thread: the `playtest-report` skill section 2 still describes the per-serve loop ("tap a cat to
    serve"); replace it with section 4.1 of this plan.
+6. UI and sound threads: `uiDealerOpen`, `uiToggle` and `uiRename` have uploaded ids since PR #160, but no code
+   plays them. The dealer screen opens through the shared Modal and plays `uiOpen`; the settings toggles and a
+   saved rename play nothing (sound list 5.8, all P2). Until they are wired A5, A10 and S17 expect none of them.
 
 ## 9. Known gaps
 

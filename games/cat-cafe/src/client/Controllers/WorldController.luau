@@ -132,7 +132,7 @@ end
 -- Only the gate's barrier changes: the ForceField part named Bars across the whole opening, or the lid of the
 -- Square's manhole (the parts of its child Model named <asset>_Cover). The arch stays solid. The barrier keeps
 -- its own look while closed and vanishes once open (Effects draws the dissolve the first time); a lid keeps its
--- own collision.
+-- own collision. A sign on the bars (the Alleyway's night fence) shows only while they are closed.
 local closedTransparency: { [BasePart]: number } = setmetatable({}, { __mode = "k" }) :: any
 
 local function isLid(part: BasePart): boolean
@@ -153,6 +153,11 @@ local function setGateOpen(gate: Instance, open: boolean)
 			end
 			if bars then
 				part.CanCollide = not open
+				for _, child in part:GetChildren() do
+					if child:IsA("SurfaceGui") then
+						(child :: SurfaceGui).Enabled = not open
+					end
+				end
 			end
 			part.Transparency = if open then 1 else closedTransparency[part]
 		end
@@ -548,14 +553,18 @@ function WorldController.start()
 	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 
 	-- Gates under World.Gates (WorldBuilder): the barrier is solid below the gate's RequiresTier and gone at or
-	-- above it. Only this player's copy changes; the server checks the tier on every catch and rescue.
+	-- above it, and solid on every gate while the Clock's AreasOpen is false (v0.9, F66: the areas close at night;
+	-- the Alleyway's night fence is a gate that only ever closes for that). Only this player's copy changes; the
+	-- server checks the tier and the clock on every catch and rescue.
 	local gateOpen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+	local gateLocked: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- seen below its tier
 	local lastCheckIn = 0
 	local sawAlley = false
 	local lastZone: string? = nil
 	local insidePlot: Model? = nil
 
 	task.spawn(function()
+		local clock = ReplicatedStorage:WaitForChild("Clock")
 		while true do
 			task.wait(0.25)
 			local state = UIController.state
@@ -568,23 +577,29 @@ function WorldController.start()
 			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil
 			if gates ~= nil then
 				-- An area opening while you play (not one already open when you joined) is one moment, from the
-				-- nearest of its ways in: the Sewer has its gate and the Square's manhole.
+				-- nearest of its ways in: the Sewer has its gate and the Square's manhole. A rank up at night waits
+				-- for the sunrise to open the gate, so the moment does too.
 				local opened: { [string]: Vector3 } = {}
 				local here = rootPosition()
+				local areasOpen = clock:GetAttribute("AreasOpen") ~= false
 				for _, gate in gates:GetChildren() do
 					local requires = gate:GetAttribute("RequiresTier")
-					local open = type(requires) == "number" and state.tier >= requires
-					local was = gateOpen[gate]
-					if was ~= open then
+					local unlocked = type(requires) == "number" and state.tier >= requires
+					local open = unlocked and areasOpen
+					if not unlocked then
+						gateLocked[gate] = true
+					end
+					if gateOpen[gate] ~= open then
 						gateOpen[gate] = open
 						setGateOpen(gate, open)
 						local area = gate:GetAttribute("Area")
 						if
-							was == false
-							and open
+							open
+							and gateLocked[gate] == true
 							and type(area) == "string"
 							and gate:IsA("Model")
 						then
+							gateLocked[gate] = nil
 							local at = (gate :: Model):GetPivot().Position
 							local best: Vector3? = opened[area]
 							if

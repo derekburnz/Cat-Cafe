@@ -20,8 +20,10 @@ return function()
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
 		DayLengthSeconds = 300,
-		NightLengthSeconds = 300,
-		ServerStartDaySeconds = 120,
+		NightLengthSeconds = 90, -- v0.9 (F66): a short night between hunts
+		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise
+		DuskWarningSeconds = 15,
+		NightSweepSeconds = 2,
 		StrayDespawnSeconds = 120,
 		-- rescue minigames (F27, section 10b); RescueBarSpeed and RescueZoneWidth are tables, checked below
 		RescueSpawnChance = 0.6,
@@ -118,7 +120,6 @@ return function()
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 4,
 		DropOwnerPrioritySeconds = 8,
-		DroppedMinStaySeconds = 120,
 		-- naming cats (F33, section 4)
 		CatNameMaxLength = 20,
 		RenameCooldownSeconds = 5,
@@ -353,13 +354,16 @@ return function()
 		end)
 
 		it(
-			"clock: the first night comes by minute two and the whole first night fits in the ten minute loop",
+			"clock (v0.9, F66): a new server opens at sunrise, nights are short, the warning fits in the day",
 			function()
 				expect(Config.ServerStartDaySeconds > 0).to.equal(true)
-				expect(Config.ServerStartDaySeconds <= 120).to.equal(true)
 				expect(Config.ServerStartDaySeconds <= Config.DayLengthSeconds).to.equal(true)
 				expect(Config.NightLengthSeconds > 0).to.equal(true)
-				-- v0.3 (Gavin, Q1) runs 5 minute days and nights, so the loop test sees one full night
+				expect(Config.NightLengthSeconds < Config.DayLengthSeconds).to.equal(true)
+				expect(Config.DuskWarningSeconds < Config.ServerStartDaySeconds).to.equal(true)
+				expect(Config.NightSweepSeconds > 0).to.equal(true)
+				expect(Config.NightSweepSeconds < Config.NightLengthSeconds).to.equal(true)
+				-- the loop test still sees one full night inside its ten minutes
 				expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds <= 600).to.equal(
 					true
 				)

@@ -1,5 +1,6 @@
 --!strict
--- Rescue traps (data-model section 10b, F27): some nights a cat is stuck at a trap, and a short minigame frees it.
+-- Rescue traps (data-model section 10b, F27): some days a cat is stuck at a trap, and a short minigame frees it.
+-- NightService empties the traps at dusk and fills them at sunrise (v0.9, F66).
 -- RescueBegin locks the trap to one player and sends the challenge; RescuePress presses carry no time, the server
 -- stamps them on arrival and takes off half the player's ping; enough hits free the cat into the player's arms, out
 -- of paws, out of time, walking away, Give up, dying or leaving ends the attempt and the cat stays stuck. A failed
@@ -17,6 +18,7 @@ local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
 local Circles = require(ReplicatedStorage.Shared.Circles)
+local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -39,7 +41,7 @@ type Stuck = {
 	area: string,
 	trap: string, -- TrapType: "trash_bin", "garbage_bag", "tree", "trashcan" or a provisional trap
 	def: Types.CatDef,
-	charm: number, -- rolled at night start, kept here until the rescue succeeds (N30)
+	charm: number, -- rolled at sunrise, kept here until the rescue succeeds (N30)
 	variant: string, -- "base" or "gold", likewise hidden until then
 	model: Model,
 	spot: BasePart,
@@ -183,8 +185,8 @@ local function spawnStuck(
 	return entry
 end
 
--- Rolls the cat, its charm and its gold chance now, from the area's rescue odds; the gold chance has the best gold
--- luck among the players with the area open (F54).
+-- Rolls the cat, its charm and its gold chance now, at sunrise, from the area's rescue odds; the gold chance has the
+-- best gold luck among the players with the area open (F54).
 local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePart): Stuck
 	local rarity: Types.Rarity =
 		Catching.pickRarity(Catching.rescueOdds(areaDef.odds), rng:NextNumber())
@@ -196,9 +198,9 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end
 
--- Night start: each trap drops last night's cat and rolls RescueSpawnChance for a new one, and an area where no
--- trap rolled a cat gets RescueMinStuck anyway, so a new player always meets a rescue on the first night. A trap
--- someone is mid-attempt on keeps its cat and rolls again next night.
+-- Sunrise: each trap drops any cat still in it and rolls RescueSpawnChance for a new one, and an area where no trap
+-- rolled a cat gets RescueMinStuck anyway, so a new player always meets a rescue on the first day. A trap someone is
+-- mid-attempt on keeps its cat (dusk emptied the rest, so that only happens after Studio's setPhase).
 local function rollRescues(areaDef: Types.AreaDef)
 	local area = world.areas[areaDef.id]
 	local stuck = 0
@@ -229,15 +231,6 @@ local function rollRescues(areaDef: Types.AreaDef)
 		local spotId = table.remove(free, rng:NextInteger(1, #free)) :: string
 		rollStuckCat(spotId, areaDef, area.rescueSpots[spotId])
 		stuck += 1
-	end
-end
-
-local function onPhaseChanged(phase: Types.ClockPhase)
-	if phase ~= "night" then
-		return
-	end
-	for _, areaDef in Catalog.areas do
-		rollRescues(areaDef)
 	end
 end
 
@@ -361,6 +354,10 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	end
 	if not areaUnlocked(profile, entry.area) then
 		refuse(player, spotId, "This area opens at a higher tier. Rank up to rescue cats here")
+		return
+	end
+	if not ClockService.areasOpen() then
+		refuse(player, spotId, Clock.CLOSED_TEXT) -- a trap still held by an attempt at dusk (v0.9, F66)
 		return
 	end
 	if entry.lockedBy == player.UserId and entry.attempt ~= nil then
@@ -515,10 +512,33 @@ function RescueService.start(builtWorld: WorldBuilder.World)
 			finish(player, entry, entry.attempt, nil)
 		end
 	end)
+end
 
-	ClockService.changed:Connect(onPhaseChanged)
-	if ClockService.isNight() then
-		onPhaseChanged("night")
+-- Dusk (v0.9, F66): every trap empties. A trap someone is mid-attempt on empties when that attempt ends, freed into
+-- their arms or not.
+function RescueService.nightFalls()
+	local clearing: { Stuck } = {}
+	for _, entry in stuckCats do
+		table.insert(clearing, entry)
+	end
+	for _, entry in clearing do
+		if entry.attempt == nil then
+			clearStuck(entry)
+			continue
+		end
+		task.spawn(function()
+			while entry.alive and entry.attempt ~= nil do
+				task.wait(0.5)
+			end
+			clearStuck(entry)
+		end)
+	end
+end
+
+-- Sunrise (v0.9, F66): every area's traps roll their cats.
+function RescueService.sunrise()
+	for _, areaDef in Catalog.areas do
+		rollRescues(areaDef)
 	end
 end
 

@@ -10,8 +10,10 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BugReport = require(Shared:WaitForChild("BugReport"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Config = require(Shared:WaitForChild("Config"))
 local Format = require(script.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Components.IndexRewards)
+local MarketLogic = require(script.Parent.Components.MarketLogic)
 local RankUp = require(script.Parent.Screens.RankUp)
 local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 local Settings = require(Shared:WaitForChild("Settings"))
@@ -78,29 +80,29 @@ local DEMO_INDEX_PRIZES: { [string]: { [string]: Types.IndexPrize } } = {
 	sewer = indexPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
 }
 
--- golden-fish.md section 4's crates, names and pools only, until the engineer's Catalog.crates lands
-local DEMO_CRATES: { [string]: Types.CrateDef } = {}
-for _, pool in { "alley", "park", "neighbourhood", "woods", "sewer", "classic" } do
-	local name = if pool == "alley" then "Alley" else Format.areaName(pool)
-	local plain, golden = pool .. "_crate", pool .. "_golden_crate"
-	DEMO_CRATES[plain] = {
-		id = plain,
-		name = name .. " Crate",
-		area = pool,
-		golden = false,
-		price = 60,
-		odds = {},
-		pieces = {},
-	}
-	DEMO_CRATES[golden] = {
-		id = golden,
-		name = "Golden " .. name .. " Crate",
-		area = pool,
-		golden = true,
-		odds = {},
-		pieces = {},
-	}
+-- golden-fish.md section 4's pieces, until the engineer's F53 pieces land: the slice's decor in turn gets a rarity
+-- and a kind, and a crate with no pieces holds all of it, so the Market's odds card and reveal have something to show
+local DEMO_KINDS = { "furniture", "decoration", "wallpaper", "floor", "paint" }
+local DEMO_DECOR: { Types.DecorDef } = {}
+local DEMO_PIECES: { string } = {}
+for index, def in Catalog.decor do
+	local piece = table.clone(def) :: any
+	piece.rarity = piece.rarity or MarketLogic.RARITIES[(index - 1) % #MarketLogic.RARITIES + 1]
+	piece.kind = piece.kind or DEMO_KINDS[(index - 1) % #DEMO_KINDS + 1]
+	table.insert(DEMO_DECOR, piece)
+	table.insert(DEMO_PIECES, def.id)
 end
+local DEMO_CRATES: { Types.CrateDef } = {}
+for _, def in Catalog.crates do
+	local crate = table.clone(def)
+	if #crate.pieces == 0 then
+		crate.pieces = DEMO_PIECES
+	end
+	table.insert(DEMO_CRATES, crate)
+end
+-- golden-fish.md section 4: a duplicate gives golden fish back by its rarity
+local DEMO_REFUND: { [string]: number } =
+	{ Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 }
 
 -- golden-fish.md section 5b's All Cats page, until the engineer's F54 milestones and prizes land
 local DEMO_ALL_PRIZES: { [string]: Types.IndexPrize } = {
@@ -146,7 +148,7 @@ local demoMilestones, demoPrizes = withAllCats(
 local CATALOG: Types.Catalog = {
 	cats = Catalog.cats,
 	upgrades = Catalog.upgrades,
-	decor = Catalog.decor,
+	decor = DEMO_DECOR,
 	lures = Catalog.lures,
 	spots = Catalog.spots,
 	tiers = Catalog.tiers,
@@ -155,7 +157,8 @@ local CATALOG: Types.Catalog = {
 	indexMilestones = demoMilestones,
 	indexPrizes = demoPrizes,
 	spinWheel = (Catalog :: any).spinWheel or DEMO_SPIN_WHEEL,
-	crates = (Catalog :: any).crates or DEMO_CRATES,
+	crates = DEMO_CRATES,
+	fishShop = Catalog.fishShop,
 	rarities = Catalog.rarities,
 }
 
@@ -207,7 +210,12 @@ function Demo.run(UI: any): () -> ()
 		settings = Settings.defaults() :: any,
 		-- today's free spin waiting plus one banked from the Tip Jar, so the wheel spins twice (Y opens it)
 		spin = { lastFreeDay = 0, banked = 1 } :: Types.SpinState,
-		goldenFish = 37,
+		-- enough golden fish for a crate and a perk, a banked Classic Crate and an Alley lucky twentieth one open away
+		-- (M opens the Market)
+		goldenFish = 137,
+		crates = { classic_crate = 1, alley_golden_crate = 1 } :: { [string]: number },
+		crateLuck = { alley = 19 } :: { [string]: number },
+		fishPerks = {} :: { [string]: number },
 	}
 	local starter = uid()
 	profile.cats[starter] = {
@@ -264,6 +272,9 @@ function Demo.run(UI: any): () -> ()
 			settings = profile.settings,
 			spin = { lastFreeDay = profile.spin.lastFreeDay, banked = profile.spin.banked },
 			goldenFish = profile.goldenFish,
+			crates = table.clone(profile.crates),
+			crateLuck = table.clone(profile.crateLuck),
+			fishPerks = table.clone(profile.fishPerks),
 		})
 	end
 
@@ -570,12 +581,99 @@ function Demo.run(UI: any): () -> ()
 		push()
 		task.delay(0.2, UI.spin.result, picked.slice, amount)
 	end)
+	-- OpenCrate as the server runs it (golden-fish.md section 8): a banked crate first, else its price in fish; the
+	-- lucky twentieth opens on the golden odds; a duplicate pays its rarity's refund; a refusal is ("", false, 0).
+	local cratesById: { [string]: Types.CrateDef } = {}
+	local goldenOdds: { [string]: { [string]: number } } = {}
+	for _, crate in DEMO_CRATES do
+		cratesById[crate.id] = crate
+		if crate.golden then
+			goldenOdds[crate.area] = crate.odds
+		end
+	end
+	local rarityOf: { [string]: string } = {}
+	for _, piece in DEMO_DECOR do
+		rarityOf[piece.id] = (piece :: any).rarity
+	end
+	local lastOpen = -math.huge
+	connections[#connections + 1] = UI.events.openCrate:Connect(function(crateId: string)
+		local crate = cratesById[crateId]
+		local banked = profile.crates[crateId] or 0
+		local areas: { MarketLogic.Area } = (CATALOG.areas or {}) :: any
+		if
+			crate == nil
+			or os.clock() - lastOpen < 2
+			or not MarketLogic.isOpen(crate, profile.tier, areas)
+			or (banked < 1 and (crate.price == nil or profile.goldenFish < crate.price))
+		then
+			UI.toast("Not enough golden fish", "warn")
+			task.delay(0.2, UI.market.result, crateId, "", false, 0)
+			return
+		end
+		lastOpen = os.clock()
+		if banked > 0 then
+			profile.crates[crateId] = banked - 1
+		else
+			profile.goldenFish -= crate.price or 0
+		end
+		local luck = profile.crateLuck[crate.area]
+		local odds =
+			MarketLogic.nextOdds(crate, luck, Config.CrateLuckyEvery, goldenOdds[crate.area])
+		local chances = MarketLogic.pieceChances(crate.pieces, function(id: string): string?
+			return rarityOf[id]
+		end, odds)
+		local roll = math.random() * 100
+		local picked = chances[#chances]
+		for _, chance in chances do
+			roll -= chance.percent
+			if roll < 0 then
+				picked = chance
+				break
+			end
+		end
+		local lucky = picked.rarity ~= "Common" and picked.rarity ~= "Rare" -- Epic or better
+		profile.crateLuck[crate.area] = if lucky then 0 else (luck or 0) + 1
+		local duplicate = profile.decorOwned[picked.id] == true
+		local refund = if duplicate then DEMO_REFUND[picked.rarity] or 0 else 0
+		if duplicate then
+			profile.goldenFish += refund
+		else
+			profile.decorOwned[picked.id] = true
+		end
+		push()
+		task.delay(0.2, UI.market.result, crateId, picked.id, duplicate, refund)
+	end)
+	-- BuyFishItem: a known row, affordable and below its max level; a perk goes up a level, a food goes in the bag
+	connections[#connections + 1] = UI.events.buyFishItem:Connect(function(itemId: string)
+		local row: Types.FishShopRow? = nil
+		local rows: { Types.FishShopRow } = CATALOG.fishShop or {}
+		for _, entry in rows do
+			if entry.id == itemId then
+				row = entry
+			end
+		end
+		local level = profile.fishPerks[itemId]
+		local cost = if row then MarketLogic.cost(row, level) else nil
+		if row == nil or cost == nil or profile.goldenFish < cost then
+			UI.toast("Not enough golden fish", "warn")
+			return
+		end
+		profile.goldenFish -= cost
+		if row.kind == "perk" then
+			profile.fishPerks[itemId] = (level or 0) + 1
+		else
+			profile.lures[itemId] = (profile.lures[itemId] or 0) + 1
+		end
+		push()
+	end)
 	connections[#connections + 1] = UserInputService.InputBegan:Connect(
 		function(input: InputObject, processed: boolean)
 			if not processed and input.KeyCode == Enum.KeyCode.N then
 				UI.dealer.open()
 			elseif not processed and input.KeyCode == Enum.KeyCode.Y then
 				UI.spin.open()
+			elseif not processed and input.KeyCode == Enum.KeyCode.M then
+				UI.market.open()
 			end
 		end
 	)

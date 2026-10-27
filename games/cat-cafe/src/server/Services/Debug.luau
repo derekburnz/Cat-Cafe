@@ -348,8 +348,8 @@ function Debug.teleport(player: (Player | number | string)?, areaId: string)
 	character:PivotTo(CFrame.new(point.x + 3, spec.floorY + 4, point.z))
 end
 
--- Jumps the server clock to the start of "day" or "night" at full length. Night rolls a wave and the rescue
--- spots at once, so a playtest does not wait two minutes for the first night.
+-- Jumps the server clock to the start of "day" or "night" at full length. Night closes the areas at once (every
+-- stray and trap clears, everyone in an area goes home); day brings the sunrise wave and fills the traps.
 function Debug.setPhase(phase: Types.ClockPhase)
 	guard()
 	assert(phase == "day" or phase == "night", "phase is day or night")

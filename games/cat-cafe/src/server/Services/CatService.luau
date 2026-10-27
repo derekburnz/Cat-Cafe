@@ -1,7 +1,8 @@
 --!strict
--- Strays: night waves per area, the net (lock, closing circles, the chase after a miss), carrying a caught or rescued
--- cat home and check-in. The bait bowl is BaitService. Server authoritative: the client only says which circle it
--- pressed for; distance, locks, the schedule, the press times, the chase and odds live here.
+-- Strays: sunrise waves per area, the net (lock, closing circles, the chase after a miss), carrying a caught or rescued
+-- cat home and check-in. The bait bowl is BaitService; NightService closes the areas at night and calls nightFalls,
+-- sunriseWave and forceCheckIn (v0.9, F66). Server authoritative: the client only says which circle it pressed for;
+-- distance, locks, the schedule, the press times, the chase and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -15,6 +16,7 @@ local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
 local Circles = require(ReplicatedStorage.Shared.Circles)
+local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -310,7 +312,7 @@ local function spawnStray(
 	areaId: string,
 	position: Vector3,
 	pointIndex: number?,
-	lifetime: number?, -- nil: stays until the next night start clears it
+	lifetime: number?, -- nil: stays until the next dusk clears it
 	forceGold: boolean?, -- Studio's debug hook
 	kept: Kept? -- a cat knocked out of someone's arms keeps its charm, gold and rescued flag
 ): Stray
@@ -429,7 +431,7 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 		end
 	end
 	-- Epic and rarer spawn only in the Alley Square, never in a back alley lane (F35); with the Square full that
-	-- stray waits for the next wave. startWave places the rarer strays first, so this is rare.
+	-- stray waits for the next wave. spawnWave places the rarer strays first, so this is rare.
 	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasSquare then
 		return if #square > 0 then square[rng:NextInteger(1, #square)] else nil
 	end
@@ -455,6 +457,9 @@ end
 -- A beginner always finds a Common stray waiting in the back alley right outside their own yard gate: plot p's
 -- lane points are alley points 2p - 1 and 2p (Layout.alley).
 local function tutorialTick()
+	if not ClockService.areasOpen() then
+		return -- nothing spawns at night (v0.9, F66); the beginner's stray comes with the sunrise
+	end
 	local occupied = occupiedPoints.alley or {}
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
@@ -484,29 +489,9 @@ local function tutorialTick()
 	end
 end
 
--- Night start (data-model section 9): last night's leftovers leave, then a full wave arrives at once. A stray
--- someone is mid-swing on leaves once that swing is over.
-local function startWave(areaDef: Types.AreaDef)
-	local leaving: { Stray } = {}
-	local now = serverNow()
-	for _, stray in strays do
-		-- a cat knocked loose just before nightfall stays for its owner (S32)
-		if stray.area == areaDef.id and Shove.leavesWithWave(stray.drop, now) then
-			table.insert(leaving, stray)
-		end
-	end
-	for _, stray in leaving do
-		if stray.lockedBy ~= 0 and not lockExpired(stray) then
-			task.spawn(function()
-				while stray.alive and stray.lockedBy ~= 0 and not lockExpired(stray) do
-					task.wait(0.5)
-				end
-				despawn(stray)
-			end)
-		else
-			despawn(stray)
-		end
-	end
+-- Sunrise (data-model section 9, v0.9): a full wave arrives at once. Dusk already cleared the area, so this only
+-- fills free points; a cat let go during night is still there and keeps its point.
+local function spawnWave(areaDef: Types.AreaDef)
 	-- Roll the whole wave, then place the rarest first so Epic and rarer always find a Square point.
 	local rarities: { Types.Rarity } = {}
 	for _ = 1, areaDef.waveSize do
@@ -523,13 +508,21 @@ local function startWave(areaDef: Types.AreaDef)
 	end
 end
 
-local function onPhaseChanged(phase: Types.ClockPhase)
-	if phase ~= "night" then
+-- Runs `after` once nobody holds the stray's lock: at once when it is free, else when the catch in progress ends
+-- (the catch wins a stray it lands, which leaves it dead here).
+local function whenUnlocked(stray: Stray, after: (Stray) -> ())
+	if stray.lockedBy == 0 or lockExpired(stray) then
+		after(stray)
 		return
 	end
-	for _, areaDef in Catalog.areas do
-		startWave(areaDef)
-	end
+	task.spawn(function()
+		while stray.alive and stray.lockedBy ~= 0 and not lockExpired(stray) do
+			task.wait(0.5)
+		end
+		if stray.alive then
+			after(stray)
+		end
+	end)
 end
 
 -- Carrying ------------------------------------------------------------------------------------------------
@@ -913,6 +906,11 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		Net.toast(player, "This area opens at a higher tier. Rank up to catch cats here.", "warn")
 		return
 	end
+	if not ClockService.areasOpen() then
+		-- a stray still waiting out someone's catch at dusk, or a modified client past the fence (v0.9, F66)
+		Net.toast(player, Clock.CLOSED_TEXT, "warn")
+		return
+	end
 	if stray.lockedBy ~= 0 and not lockExpired(stray) then
 		-- Busy, including the player's own catch in progress: a second GrabBegin never restarts the circles.
 		local reason = if stray.lockedBy == player.UserId
@@ -1033,12 +1031,9 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 	end
 end
 
--- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
-local function finishCheckIn(player: Player, notify: boolean, profile: Types.PlayerProfile?)
-	local carry = endCarry(player)
-	if carry == nil then
-		return
-	end
+-- Adds the cat to the player's cafe and, with `notify`, tells them and the server (CatCaught, the shout-out). The
+-- carry has already ended, or never began: dusk checks a Dropped stray in for its last carrier this way.
+local function checkIn(player: Player, carry: Carry, notify: boolean, profile: Types.PlayerProfile?)
 	local def = carry.def
 	local instance, isNew = CafeService.addCaughtCat(
 		player,
@@ -1064,6 +1059,39 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 			Net.fireAll("Announce", text, def.rarity) -- the shout-out chime rises with rarity
 		end
 	end
+end
+
+-- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
+local function finishCheckIn(player: Player, notify: boolean, profile: Types.PlayerProfile?)
+	local carry = endCarry(player)
+	if carry ~= nil then
+		checkIn(player, carry, notify, profile)
+	end
+end
+
+-- Dusk (data-model section 9, v0.9): a Dropped stray goes to its last carrier while they are in the server, checked
+-- in as if they had walked it home, so a shove or a Drop never loses a cat; every other stray just leaves.
+local function leaveAtDusk(stray: Stray)
+	local drop = stray.drop
+	local owner = if drop ~= nil then Players:GetPlayerByUserId(drop.owner) else nil
+	if owner == nil or DataService.get(owner) == nil then
+		despawn(stray)
+		return
+	end
+	local carry: Carry = {
+		def = stray.def,
+		model = nil,
+		method = stray.method,
+		charm = stray.charm,
+		variant = stray.variant,
+		startedAt = serverNow(),
+		immune = false,
+		immuneUntil = 0,
+		funnel = nil,
+	}
+	despawn(stray, owner)
+	checkIn(owner, carry, true)
+	Net.toast(owner, string.format("%s followed you home at dusk.", carry.def.name), "good")
 end
 
 local function onCheckIn(player: Player)
@@ -1189,17 +1217,40 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end
 	end)
 
-	-- No trickle by day: every stray arrives with a night wave (or the tutorial rule, or bait).
-	ClockService.changed:Connect(onPhaseChanged)
-	if ClockService.isNight() then
-		onPhaseChanged("night")
-	end
+	-- No trickle by day: every stray arrives with the sunrise wave (NightService), the tutorial rule or bait.
 	task.spawn(function()
 		while true do
 			task.wait(5)
 			tutorialTick()
 		end
 	end)
+end
+
+-- Dusk (v0.9, F66): every stray leaves, a Dropped one to its last carrier (leaveAtDusk). A stray someone is catching
+-- goes once that catch ends, unless the catch lands it.
+function CatService.nightFalls()
+	local leaving: { Stray } = {}
+	for _, stray in strays do
+		table.insert(leaving, stray)
+	end
+	for _, stray in leaving do
+		whenUnlocked(stray, leaveAtDusk)
+	end
+end
+
+-- Sunrise (v0.9, F66): every area gets its wave of WaveSize strays at once, whether or not anyone has it unlocked.
+function CatService.sunriseWave()
+	for _, areaDef in Catalog.areas do
+		spawnWave(areaDef)
+	end
+end
+
+-- Checks in the cat the player carries, wherever they are: NightService sends a carrier home at dusk and the cat
+-- is checked in on arrival (CatCaught as usual).
+function CatService.forceCheckIn(player: Player)
+	if carrying[player] ~= nil then
+		finishCheckIn(player, true)
+	end
 end
 
 -- True while the player's catch circles are running.

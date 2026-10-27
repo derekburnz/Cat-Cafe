@@ -498,6 +498,13 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 	end
 end
 
+-- The device this player's client reported this session ("phone", "tablet", "pc" or "console"), or nil before it
+-- has (bug reports carry it).
+function Telemetry.device(player: Player): string?
+	local session = sessions[player]
+	return if session ~= nil then session.device else nil
+end
+
 -- The last LOG_SIZE events, oldest first (Studio only; empty on a live server).
 function Telemetry.recent(count: number?): { LogEntry }
 	local first = math.max(1, #log - (count or #log) + 1)

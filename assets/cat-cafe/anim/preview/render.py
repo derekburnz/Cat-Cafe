@@ -196,7 +196,7 @@ def main():
     sc.view_settings.view_transform = "Standard"
     common._ensure_floor()
     common._ensure_lights(True)
-    if frames[0]["pivot"] != frames[-1]["pivot"]:
+    if frames[0]["pivot"] != frames[-1]["pivot"] or data.get("checker"):
         checker_floor()  # so a walking cat is seen to move while the camera follows it
 
     objs = []
@@ -206,7 +206,8 @@ def main():
         sc.collection.objects.link(ob)
         objs.append(ob)
 
-    # Frame the cat as it lies in its first frame, from the scenario's view; a walking cat is followed.
+    # Frame the cat as it lies in its first frame, from the scenario's view; a walking cat is followed. A `box`
+    # (two Roblox corners) frames that instead, for a run the camera watches from one place.
     first = frames[0]
     lo = Vector((1e9, 1e9, 1e9))
     hi = Vector((-1e9, -1e9, -1e9))
@@ -215,6 +216,8 @@ def main():
         r = Vector(part["size"]) / 2
         lo = Vector(map(min, lo, c - r))
         hi = Vector(map(max, hi, c + r))
+    if data.get("box"):
+        lo, hi = Vector(data["box"][0]), Vector(data["box"][1])
     has_z = any(fr.get("zs") for fr in frames)
     if has_z:
         hi.y += 1.6  # room for the z's above the head

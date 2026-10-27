@@ -482,4 +482,91 @@ return function()
 			expect(worst > 10).to.equal(true)
 		end)
 	end)
+
+	-- QA (engineer PR #171): the red stripes and SAFE ZONE paint must match the rule they show. A shove lands only
+	-- when both players are in the same catching area (Shove.refusal over WorldBuilder.areaAt, which tests these
+	-- floor rects). The mark positions restate WorldBuilder.buildSafeZoneMarks.
+	describe("safe zone marks match the catching areas (QA)", function()
+		local SQ1 = W.SquareSouthZ
+		local street = W.StreetHalfWidth + 2 -- the Square stripe's half length
+		local parkEdge = W.ParkCenterZ + W.ParkDepth / 2 - 0.8 -- the Park stripe, on the Park floor
+
+		-- WorldBuilder.areaAt at floor height: the Alleyway's floor rects, one floor for a box area.
+		local function areaAt(x: number, z: number): string?
+			for id, spec in Layout.areas do
+				local box = {
+					x1 = spec.center.x - spec.halfWidth,
+					z1 = spec.center.z - spec.halfDepth,
+					x2 = spec.center.x + spec.halfWidth,
+					z2 = spec.center.z + spec.halfDepth,
+				}
+				for _, rect in spec.rects or { box } do
+					if x >= rect.x1 and x <= rect.x2 and z >= rect.z1 and z <= rect.z2 then
+						return id
+					end
+				end
+			end
+			return nil
+		end
+
+		local function expectArea(x: number, z: number, want: string?, what: string)
+			local got = areaAt(x, z)
+			if got ~= want then
+				local wanted = tostring(want)
+				fail("%s at (%.1f, %.1f): %s, wants %s", what, x, z, tostring(got), wanted)
+			end
+		end
+
+		it("stripes lie in their area, and a stud toward the cafes is in none", function()
+			for _, side in { -1, 1 } do
+				local x = side * (W.AlleyInnerX + 0.3)
+				for z = W.AlleySouthZ, SQ1 - 1, 2 do
+					expectArea(x, z, "alley", "back alley stripe")
+					expectArea(x - side, z, nil, "a stud off the back alley stripe")
+				end
+			end
+			for x = -street, street, 2 do
+				expectArea(x, SQ1 + 0.3, "alley", "Square stripe")
+				expectArea(x, SQ1 - 0.7, nil, "a stud off the Square stripe")
+				if math.abs(x) <= W.StreetHalfWidth then
+					expectArea(x, parkEdge, "park", "Park stripe")
+					expectArea(x, parkEdge + 1, nil, "a stud off the Park stripe")
+				end
+			end
+		end)
+
+		it("every SAFE ZONE sits in no area, in a side passage or on the street", function()
+			local rows = math.ceil(W.PlotCount / 2)
+			for _, side in { -1, 1 } do
+				for row = 1, rows - 1 do
+					local z = (row - rows / 2) * (W.PlotWidth + W.PlotRowGap)
+					expectArea(side * (W.AlleyInnerX - 2.5), z, nil, "side passage SAFE ZONE")
+					-- in the gap between two neighbouring yards, not on one
+					for index = 1, W.PlotCount do
+						local placement = Layout.plotPlacement(index)
+						local onYard = math.abs(placement.z - z) < W.PlotWidth / 2
+						if placement.side == side and onYard then
+							fail("side passage SAFE ZONE at z %.1f is on plot %d", z, index)
+						end
+					end
+				end
+			end
+			expectArea(0, SQ1 - 4, nil, "street SAFE ZONE before the arch")
+			expectArea(0, W.ParkGateZ + 4, nil, "street SAFE ZONE before the Park gate")
+		end)
+
+		it("the street stripes span the whole way in", function()
+			-- The Square's way in is the gap between its two south wall pieces; the Park's is its opening.
+			local gap = math.huge
+			for _, wall in Layout.alley.walls :: { Rect } do
+				if wall.z2 == SQ1 and wall.x1 > 0 then
+					gap = math.min(gap, wall.x1)
+				end
+			end
+			expect(gap < math.huge).to.equal(true)
+			expect(street >= gap).to.equal(true)
+			local parkOpening = Layout.park.openingHalfWidth or W.StreetHalfWidth
+			expect(W.StreetHalfWidth >= parkOpening).to.equal(true)
+		end)
+	end)
 end

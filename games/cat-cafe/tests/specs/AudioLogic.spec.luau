@@ -106,6 +106,37 @@ return function()
 			expect(Logic.groupVolume(0.5, true)).to.equal(0.5)
 			expect(Logic.groupVolume(0.5, false)).to.equal(0)
 		end)
+
+		it("scales a channel by its settings slider, squared, full volume when missing", function()
+			expect(Logic.sliderGain(nil)).to.equal(1)
+			expect(Logic.sliderGain("loud")).to.equal(1)
+			expect(Logic.sliderGain(0 / 0)).to.equal(1)
+			expect(Logic.sliderGain(1)).to.equal(1)
+			expect(Logic.sliderGain(0.5)).to.equal(0.25)
+			expect(Logic.sliderGain(0)).to.equal(0)
+			expect(Logic.sliderGain(-2)).to.equal(0)
+			expect(Logic.sliderGain(7)).to.equal(1)
+			expect(Logic.groupVolume(0.8, true, 0.25)).to.equal(0.2)
+			expect(Logic.groupVolume(0.5, true, 0.25)).to.equal(0.125)
+			expect(Logic.groupVolume(0.8, false, 0.25)).to.equal(0)
+		end)
+
+		it("never lowers a channel as its slider rises; gain stays in 0 to 1 (QA)", function()
+			local last = -1
+			for step = -20, 120 do
+				local gain = Logic.sliderGain(step / 100)
+				expect(gain >= 0 and gain <= 1).to.equal(true)
+				expect(gain >= last).to.equal(true)
+				last = gain
+			end
+			expect(Logic.sliderGain(math.huge)).to.equal(1)
+			expect(Logic.sliderGain(-math.huge)).to.equal(0)
+			for _, base in { 0, 0.3, 0.8, 1 } do
+				expect(Logic.groupVolume(base, true, nil)).to.equal(base)
+				expect(Logic.groupVolume(base, true, Logic.sliderGain(1))).to.equal(base)
+				expect(Logic.groupVolume(base, false, Logic.sliderGain(0.5))).to.equal(0)
+			end
+		end)
 	end)
 
 	describe("Audio.Logic moment lookups", function()

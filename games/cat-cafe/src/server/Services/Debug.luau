@@ -187,10 +187,11 @@ function Debug.setUpgrade(player: (Player | number | string)?, upgradeId: string
 	CafeService.sync(p)
 end
 
--- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default). Returns its StrayId.
-function Debug.spawnStray(catId: string, areaId: string?): string
+-- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default), shiny when `shiny` is
+-- true. Returns its StrayId.
+function Debug.spawnStray(catId: string, areaId: string?, shiny: boolean?): string
 	guard()
-	return CatService.debugSpawnStray(catId, areaId or "alley")
+	return CatService.debugSpawnStray(catId, areaId or "alley", shiny)
 end
 
 -- Moves the player's character onto an area's first spawn point, past its gate whatever their tier, so a

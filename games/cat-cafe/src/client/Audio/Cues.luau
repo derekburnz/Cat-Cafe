@@ -63,12 +63,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.4,
 		looped = true,
 	},
-	ambCafeNight = {
-		ids = { "rbxassetid://84916609751628" },
-		group = "Ambience",
-		volume = 0.4,
-		looped = true,
-	},
+	ambCafeNight = { ids = {}, group = "Ambience", volume = 0.3, looped = true }, -- v0.5: the closed cafe, cats asleep
 	ambAlleyDay = {
 		ids = { "rbxassetid://83744712629616" },
 		group = "Ambience",
@@ -168,7 +163,7 @@ local Cues: { [string]: Cue } = {
 		pitch = { 0.95, 1.05 },
 		range = 40,
 	}, -- v0.4: a Miss ends the catch
-	pawLost = { ids = { "rbxassetid://120814540941175" }, group = "Sfx", volume = 0.6 },
+	pawLost = { ids = { "rbxassetid://120814540941175" }, group = "Sfx", volume = 0.6 }, -- v0.4; retired by F40 (no paws), kept for its upload record
 	purrfectChime = {
 		ids = { "rbxassetid://115362387345274" },
 		group = "Sfx",
@@ -183,6 +178,7 @@ local Cues: { [string]: Cue } = {
 		pitch = { 0.95, 1.05 },
 		range = 40,
 	},
+	straySprint = { ids = {}, group = "Sfx", volume = 0.7, pitch = { 0.95, 1.08 }, range = 50 }, -- v0.5 F40
 
 	-- Rescue minigames (5.2) --------------------------------------------------------------------------------
 	rescueStart = { ids = {}, group = "Sfx", volume = 0.6 },
@@ -224,14 +220,28 @@ local Cues: { [string]: Cue } = {
 	rescueFail = { ids = {}, group = "Sfx", volume = 0.6 },
 	rescueDone = { ids = {}, group = "Sfx", volume = 0.8 },
 
-	-- Carry, bumps and check-in (5.3) -----------------------------------------------------------------------
+	-- Carry, shoves and check-in (5.3; v0.5 Shove keeps the Bump names in code) ------------------------------
 	carryPurr = {
 		ids = { "rbxassetid://73628889177188" },
 		group = "Sfx",
 		volume = 0.25,
 		looped = true,
 	},
-	bumpLoose = { ids = {}, group = "Sfx", volume = 0.8, range = 40 },
+	shove = {
+		ids = {},
+		group = "Sfx",
+		volume = 0.7,
+		pitch = { 0.95, 1.05 },
+		minGap = 0.2,
+		range = 40,
+	},
+	bumpLoose = { -- the StrayFlee file: a startled mrrp and paws scurrying off
+		ids = { "rbxassetid://115429958262894" },
+		group = "Sfx",
+		volume = 0.8,
+		pitch = { 1.0, 1.1 },
+		range = 40,
+	},
 	bumpHeld = { ids = {}, group = "Sfx", volume = 0.7, range = 40 },
 	checkInBell = {
 		ids = { "rbxassetid://75991488445164" },

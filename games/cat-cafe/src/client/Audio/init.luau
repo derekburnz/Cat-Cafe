@@ -504,11 +504,30 @@ local dealerStop: (() -> ())? = nil
 local rescueSpot: BasePart? = nil
 local shimmering: { [string]: Instance } = {}
 
+-- The plot model a tagged thing sits in (tag Plot), or nil.
+local function plotOf(instance: Instance): Instance?
+	local at = instance.Parent
+	while at ~= nil and not CollectionService:HasTag(at, "Plot") do
+		at = at.Parent
+	end
+	return at
+end
+
+-- A cafe door only chatters while the cafe is open: someone owns the plot (a For Rent shop is shut, F38) and it is
+-- day (the cafe closes at night, design v0.5 F44).
+local function cafeOpen(door: Instance): boolean
+	local plot = plotOf(door)
+	local owner = if plot ~= nil then plot:GetAttribute("OwnerUserId") else nil
+	return phase ~= "night" and type(owner) == "number" and owner ~= 0
+end
+
 -- World loops by CollectionService tag: the world builder tags a part or model and its loop plays while it
 -- exists, streaming in and out with it. A tag with `near` plays only on the few closest within that many studs,
--- so a full server never runs dozens of purrs at once.
-local TAGGED_LOOPS: { [string]: { cue: string, near: number? } } = {
-	CafeDoor = { cue = "loopCafeDoor" },
+-- so a full server never runs dozens of purrs at once. A tag with `when` plays only while that is true, checked
+-- on the same tick.
+type LoopDef = { cue: string, near: number?, when: ((Instance) -> boolean)? }
+local TAGGED_LOOPS: { [string]: LoopDef } = {
+	CafeDoor = { cue = "loopCafeDoor", when = cafeOpen },
 	Fountain = { cue = "loopFountain" },
 	FishTank = { cue = "loopFishTank" },
 	WorkingCat = { cue = "purr", near = 14 },
@@ -535,6 +554,16 @@ local function stopWorldLoop(instance: Instance)
 	end
 end
 
+-- Starts or stops the loop of a tagged thing without `near` by its `when`.
+local function syncWorldLoop(instance: Instance, def: LoopDef)
+	local when = def.when
+	if when == nil or when(instance) then
+		startWorldLoop(instance, def.cue)
+	else
+		stopWorldLoop(instance)
+	end
+end
+
 -- Restarts every world loop, on the first settings and after the sound setting changes (a muted channel starts
 -- nothing).
 local function refreshWorldLoops()
@@ -544,14 +573,15 @@ local function refreshWorldLoops()
 	for tag, def in TAGGED_LOOPS do
 		if def.near == nil then
 			for _, instance in CollectionService:GetTagged(tag) do
-				startWorldLoop(instance, def.cue)
+				syncWorldLoop(instance, def)
 			end
 		end
 	end
 end
 
 -- Twice a second: restarts a loop whose part streamed out from under its model, starts loops on tagged models
--- whose parts streamed in after the tag (reviewer N55), and keeps the `near` loops on the closest tagged things.
+-- whose parts streamed in after the tag (reviewer N55), follows each `when` (a cafe opening or closing for the
+-- night) and keeps the `near` loops on the closest tagged things.
 local function followWorldLoops()
 	while true do
 		task.wait(LOOP_CHECK_SECONDS)
@@ -565,7 +595,7 @@ local function followWorldLoops()
 			local radius = def.near
 			if radius == nil then
 				for _, instance in CollectionService:GetTagged(tag) do
-					startWorldLoop(instance, def.cue)
+					syncWorldLoop(instance, def)
 				end
 			else
 				local instances: { Instance } = {}
@@ -597,45 +627,66 @@ local function followTags()
 		CollectionService:GetInstanceRemovedSignal(tag):Connect(stopWorldLoop)
 		if def.near == nil then
 			CollectionService:GetInstanceAddedSignal(tag):Connect(function(instance: Instance)
-				startWorldLoop(instance, def.cue)
+				syncWorldLoop(instance, def)
 			end)
 			for _, instance in CollectionService:GetTagged(tag) do
-				startWorldLoop(instance, def.cue)
+				syncWorldLoop(instance, def)
 			end
 		end
 	end
 	task.spawn(followWorldLoops)
 end
 
--- The hiss follows the stray's HissAt attribute, which the server sets on a Miss, so every player nearby hears it
--- (reviewer N56). At most once per cat per second, like the Effects hiss.
-local HISS_GAP = 1
-local hissWatches: { [Instance]: RBXScriptConnection } = {}
-local lastHiss: { [Instance]: number } = {}
+-- A missed cat hisses and bolts, and every player nearby hears both (reviewer N56): the hiss follows the stray's
+-- HissAt attribute, which the server sets on a Miss, and the sprint its FleeingUntil (design v0.5, F40), playing
+-- on the cat itself so it runs off with it. Each at most once per cat per second, like the Effects hiss.
+local STRAY_GAP = 1
+type StrayWatch = { connections: { RBXScriptConnection }, last: { [string]: number } }
+local strayWatches: { [Instance]: StrayWatch } = {}
 
 local function watchStray(instance: Instance)
-	local existing: RBXScriptConnection? = hissWatches[instance]
+	local existing: StrayWatch? = strayWatches[instance]
 	if existing then
 		return
 	end
-	hissWatches[instance] = instance:GetAttributeChangedSignal("HissAt"):Connect(function()
+	local watch: StrayWatch = { connections = {}, last = {} }
+	strayWatches[instance] = watch
+	-- part is nil while the cat streams in: no sound rather than a flat one everywhere
+	local function once(cueId: string, onCat: boolean)
 		local now = os.clock()
-		local last: number? = lastHiss[instance]
-		local part = partOf(instance) -- nil while the cat streams in: no hiss rather than a flat one everywhere
-		if part ~= nil and (last == nil or now - last >= HISS_GAP) then
-			lastHiss[instance] = now
-			Audio.play("catHiss", part.Position)
+		local last: number? = watch.last[cueId]
+		local part = partOf(instance)
+		if part ~= nil and (last == nil or now - last >= STRAY_GAP) then
+			watch.last[cueId] = now
+			local at: Target = if onCat then part else part.Position
+			Audio.play(cueId, at)
 		end
-	end)
+	end
+	table.insert(
+		watch.connections,
+		instance:GetAttributeChangedSignal("HissAt"):Connect(function()
+			once("catHiss", false)
+		end)
+	)
+	table.insert(
+		watch.connections,
+		instance:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
+			local untilTime = instance:GetAttribute("FleeingUntil")
+			if type(untilTime) == "number" and untilTime > Workspace:GetServerTimeNow() then
+				once("straySprint", true)
+			end
+		end)
+	)
 end
 
 local function unwatchStray(instance: Instance)
-	local watch: RBXScriptConnection? = hissWatches[instance]
+	local watch: StrayWatch? = strayWatches[instance]
 	if watch then
-		watch:Disconnect()
+		for _, connection in watch.connections do
+			connection:Disconnect()
+		end
 	end
-	hissWatches[instance] = nil
-	lastHiss[instance] = nil
+	strayWatches[instance] = nil
 end
 
 local function followStrays()
@@ -699,13 +750,10 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		duckForCatch(false)
 		Audio.play("catchMiss") -- the cat's hiss follows its HissAt attribute, for everyone nearby
 	end,
-	PawLost = function()
-		Audio.play("pawLost")
-	end,
 	Purrfect = function()
 		Audio.play("purrfectChime")
 	end,
-	StrayFlee = function(strayId: any)
+	StrayFlee = function(strayId: any) -- a stray leaving the area; the sprint after a miss follows FleeingUntil
 		Audio.play("strayFlee", spot(taggedPart("Stray", "StrayId", strayId)))
 	end,
 
@@ -741,10 +789,12 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		Audio.play("rescueFail")
 	end,
 
-	BumpLoose = function(role: any, position: any)
-		if role == "carrier" then
-			Audio.play("uiError")
-		end
+	-- Shove (v0.5, F41; Bump in code): every landed shove, then the knock-loose roll's result when the target
+	-- was carrying. The toasts play their own bonk.
+	Shove = function(_role: any, position: any)
+		Audio.play("shove", vec(position))
+	end,
+	BumpLoose = function(_role: any, position: any)
 		Audio.play("bumpLoose", vec(position))
 	end,
 	BumpHeld = function(_role: any, position: any)

@@ -34,13 +34,13 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `coinPop` | `sfx/CatCafe_Sfx_CoinPop.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 80305681313349 | 2026-10-26 |
 | `purchase` | `sfx/CatCafe_Sfx_Purchase.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 135044364239461 | 2026-10-26 |
 | `ambCafeDay` | `ambience/CatCafe_Amb_CafeDay.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 136952289794282 | 2026-10-26 |
-| `ambCafeNight` | `ambience/CatCafe_Amb_CafeNight.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 84916609751628 | 2026-10-26 |
+| `ambCafeNight` | `ambience/CatCafe_Amb_CafeNight.ogg` | synthesized by `synth/ambience.py`; rebuilt for design v0.5 as the closed cafe (the 2026-10-26 upload 84916609751628 had night customers and is no longer used) | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
 | `ambAlleyDay` | `ambience/CatCafe_Amb_AlleyDay.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 83744712629616 | 2026-10-26 |
 | `ambAlleyNight` | `ambience/CatCafe_Amb_AlleyNight.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 82664754116384 | 2026-10-26 |
 | `ambParkDay` | `ambience/CatCafe_Amb_ParkDay.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 75896689856230 | 2026-10-26 |
 | `ambParkNight` | `ambience/CatCafe_Amb_ParkNight.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 120595462689856 | 2026-10-26 |
 | `checkInBell` | `sfx/CatCafe_Sfx_CheckInBell.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 75991488445164 | 2026-10-26 |
-| `strayFlee` | `sfx/CatCafe_Sfx_StrayFlee.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 115429958262894 | 2026-10-26 |
+| `strayFlee`, `bumpLoose` | `sfx/CatCafe_Sfx_StrayFlee.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 115429958262894 | 2026-10-26 |
 | `jingleCatFound` | `music/CatCafe_Music_JingleCatFound.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 102912195564834 | 2026-10-26 |
 | `jingleRankUp` | `music/CatCafe_Music_JingleRankUp.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 77815750894397 | 2026-10-26 |
 | `loopCafeDoor` | `ambience/CatCafe_Amb_LoopCafeDoor.ogg` | synthesized by `synth/ambience.py` | original (Purr Pot) | sound-designer | this repo | 98253223255392 | 2026-10-26 |
@@ -62,3 +62,6 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `uiRankReady` | `ui/CatCafe_Ui_RankReady.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
 | `uiDealerOpen` | `ui/CatCafe_Ui_DealerOpen.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
 | `uiRename` | `ui/CatCafe_Ui_Rename.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `straySprint` | `sfx/CatCafe_Sfx_StraySprint.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `shove` | `sfx/CatCafe_Sfx_Shove.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `bumpHeld` | `sfx/CatCafe_Sfx_BumpHeld.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |

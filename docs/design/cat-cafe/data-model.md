@@ -128,7 +128,7 @@ Built 2026-10-26 by the cat stats thread and unchanged in v0.3 except the multip
 
 ## 5. Roles (replaces spot types)
 
-v0.3 change (Gavin, Q12): the six spot types become four roles. Each role slot is a station in the plot model where the assigned cat stands upright in that role's uniform. All roles pay the same in v0.3: `rating x favoriteMultiplier` where favoriteMultiplier is 1.5 when the slot's role equals the cat's `favoriteRole`. Role-specific boosts for certain cats are later content.
+v0.3 change (Gavin, Q12): the six spot types become four roles. Each role slot is a station in the plot model where the assigned cat sits on the seated body (`CatCafe_Cat_<Name>_Sit`) in that role's outfit (v0.6, Derek's body picks on 2026-10-27; it stood upright before). All roles pay the same in v0.3: `rating x favoriteMultiplier` where favoriteMultiplier is 1.5 when the slot's role equals the cat's `favoriteRole`. Role-specific boosts for certain cats are later content.
 
 | role (`spotType`) | station | uniform | slot ids in opening order |
 |---|---|---|---|
@@ -477,7 +477,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | CheckIn | event | none | carrying, 8 studs of own Door | adds instance, CatCaught, first-catch reward |
 | DropCat | event | none | carrying; 1 per second | in a catching area the cat drops at the feet, elsewhere it runs back to its own area; a Dropped stray owned by the player, no shover (section 10c) |
 | Bump | event | targetUserId | integer UserId of another player in the server, then section 10c (caller holds no lock, target not shoved by anyone within ShoveTargetImmuneSeconds); 1 per BumpCooldownSeconds | v0.5 Shove: pushes the target; if it is carrying, rolls and drops the cat as a stray on success; Toast both ways |
-| PlaceCat | event | uid, spotId | owns uid, slot exists in own plot, slot open at the player's tier, slot empty, cat not already working | sets spotId, rate, upright model with uniform |
+| PlaceCat | event | uid, spotId | owns uid, slot exists in own plot, slot open at the player's tier, slot empty, cat not already working | sets spotId, rate, seated model with outfit |
 | UnplaceCat | event | uid | owns uid, working | clears spotId, cat to the cat room |
 | EquipBest | event | none | profile loaded; 1 per 2 s | best placement over open slots |
 | SellCat | event | uid | owns uid, not the last working cat | removes, adds sellValue |

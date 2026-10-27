@@ -6,7 +6,7 @@ Reference games: Steal an Egg (timed spawns in shared stages, place-and-earn pet
 
 ## Pitch
 
-A cozy cat cafe tycoon where the cats do the work and you do the collecting. Strays roam five areas around your street: the Alleyway, the Park, the Neighbourhood, the Woods and the Sewer. You catch them with a net and a quick timing game, rescue the ones stuck in bins and trees, or leave food in your bait bowl and see who turns up. Carry each one home, give it a job (Barista, Waiter, Greeter or Entertainer) and watch it stand up in its uniform and start earning. Tips buy tables, decor and a better net, and ranking your cafe up through five tiers opens the next area. Fifty cats to find, ten per area, each with a gold version.
+A cozy cat cafe tycoon where the cats do the work and you do the collecting. Strays roam five areas around your street: the Alleyway, the Park, the Neighbourhood, the Woods and the Sewer. You catch them with a net and a quick timing game, rescue the ones stuck in bins and trees, or leave food in your bait bowl and see who turns up. Carry each one home, give it a job (Barista, Waiter, Greeter or Entertainer) and watch it sit down at its station in its uniform and start earning. Tips buy tables, decor and a better net, and ranking your cafe up through five tiers opens the next area. Fifty cats to find, ten per area, each with a gold version.
 
 ## Core loop
 
@@ -61,7 +61,7 @@ Gold cats (Gavin, Q16 and round 2; called shiny until Derek renamed them on 2026
 
 Names (Q16): players can name their cats. Names go through Roblox's text filter before anyone else can see them.
 
-Look (Q15): strays walk on all fours and look like strays. A cat with a role stands upright in that role's uniform: Barista apron, Waiter bow tie, Greeter sash, Entertainer party hat. The cat room shows them on all fours. All fifty come from one rig with pattern, color and accessory variants.
+Look (Q15, updated by Derek's body picks on 2026-10-27): strays walk on all fours (body A) and look like strays. A cat with a role sits at its station on the seated body (B) in that role's two-piece outfit: Barista apron and cap, Waiter bow tie and vest, Greeter sash and straw hat, Entertainer party hat and cape. It used to stand upright, but that pose looked bad. The cat room shows them relaxing without the outfit. All fifty share the two bodies with pattern, color and prop variants.
 
 ## The clock
 
@@ -109,7 +109,7 @@ Start with 50 coins and a Tabby as Barista earning 1.5 per second. Table 1 at 10
 
 1. Spawn inside your cafe. Tabby is already behind the counter in an apron. A toast shows the rate.
 2. An arrow points to your back door. A Common stray is waiting right behind your cafe even by day. Start a catch, hit the one circle, carry it back, check in.
-3. Give it the Waiter job. It stands up in a bow tie and the rate rises. Prompt to buy Table 1.
+3. Give it the Waiter job. It sits at its station in a bow tie and vest and the rate rises. Prompt to buy Table 1.
 4. Prompt to buy the bait bowl and put Kibble in it: "a cat will come by in 10 minutes".
 5. The first night arrives at minute two with ten strays and a stuck cat in a bin. Rescue it.
 6. Minute 10 target: three or four different cats, two roles filled, two tables, a bait cat on the way, the Tier 2 card showing what is left. That is one full loop and the Phase 2 exit test.
@@ -128,7 +128,7 @@ The features players expect from Steal an Egg and Roll a Fisherman style games a
 
 ## Vertical slice scope
 
-In: one street with 8 plots, the Alleyway and the Park with their 20 cats, Neighbourhood, Woods and Sewer as gated grayboxes, the 5 and 5 minute clock with waves of ten, tiers 1 to 5, four roles with favorite-role pay and upright uniforms, Equip Best, the closing-circle net with three upgrades, rescue minigames with Alleyway and Park traps, the bait bowl at your cafe with Tame or Let go, carry with shoves, gold cats, naming cats, night income at 60%, rich customers, the night food dealer, the collection and gold Index pages, selling duplicates, offline earnings, data saving, tutorial beats, analytics events.
+In: one street with 8 plots, the Alleyway and the Park with their 20 cats, Neighbourhood, Woods and Sewer as gated grayboxes, the 5 and 5 minute clock with waves of ten, tiers 1 to 5, four roles with favorite-role pay and seated workers in role outfits, Equip Best, the closing-circle net with three upgrades, rescue minigames with Alleyway and Park traps, the bait bowl at your cafe with Tame or Let go, carry with shoves, gold cats, naming cats, night income at 60%, rich customers, the night food dealer, the collection and gold Index pages, selling duplicates, offline earnings, data saving, tutorial beats, analytics events.
 
 Out: trading, the 30 cats of the last three areas (provisional names only), role boosts for specific cats, free decor placement, patio and second floor content, game passes, a coins product, friends list features.
 
@@ -136,7 +136,7 @@ Out: trading, the 30 cats of the last three areas (provisional names only), role
 |---|---|---|
 | Catalog v3, profile v3 migration | M | Migrating v2 saves without loss |
 | Tiers and rank up | M | Requirement checks and balance |
-| Roles, uniforms, Equip Best over 10 slots | M | Upright pose swap when assigned |
+| Roles, uniforms, Equip Best over 10 slots | M | Swap to the seated body with the outfit when assigned |
 | Net circles (server schedule, press judging) | M | Feel on touch and latency fairness |
 | Rescue minigames | M | Two minigame kinds and their props |
 | Bait bowl with an offline timer | S | Rolling the cat at placement so rejoining cannot reroll |

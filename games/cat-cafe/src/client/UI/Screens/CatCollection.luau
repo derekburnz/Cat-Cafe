@@ -31,6 +31,7 @@ export type CatCollection = {
 	setCatalog: (self: CatCollection, catalog: Types.Catalog) -> (),
 	render: (self: CatCollection, state: Types.PlayerState) -> (),
 	showTab: (self: CatCollection, tab: "Book" | "Room") -> (),
+	currentTab: (self: CatCollection) -> "Book" | "Room",
 	destroy: (self: CatCollection) -> (),
 }
 
@@ -431,6 +432,10 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	end)
 
 	return self :: CatCollection
+end
+
+function CatCollection.currentTab(self: any): "Book" | "Room"
+	return self._tab
 end
 
 function CatCollection.showTab(self: any, tab: "Book" | "Room")

@@ -8,7 +8,7 @@ Owner: sound-designer (Luau reviewed by luau-reviewer). Rules: `.claude/skills/a
 | `Cues.luau` | Every cue id with its channel, volume, pitch range, spam gap, voices, 3D range and asset ids. The only place asset ids live. Pure. |
 | `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which music bed or ambience plays, ducking, rarity jingles, grade, food and trap cues), so they can be unit tested. |
 
-Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). A cue with no id yet (music, the sounds waiting for the next upload) plays nothing, so a hook is safe to add before its file exists.
+Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every synthesized cue has an uploaded id (all 44 files, 2026-10-27). A cue with no id yet (music, later sounds) plays nothing, so a hook is safe to add before its file exists.
 
 ## Hooks for the luau-engineer
 
@@ -28,7 +28,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). A cue with no 
    ```luau
    Audio.bindMoments(Moments)
    ```
-   Moments that do not exist yet are skipped, so the table can grow one feature at a time. Arguments are checked, so a missing one only loses a sound. Grades work as `"perfect"` or `"Perfect"`. Design v0.4 adds `PawLost`, `Purrfect`, `PlotOpened(position)` (a For Rent plot opens: shutters and sign, for everyone nearby), a `position` on `AreaUnlock(areaId, position)` so the gate sound comes from the gate, and an optional `rarity` on `Announce(text, rarity)` so the shout-out chime rises with rarity. Design v0.5 retires `PawLost` (F40) and adds `Shove(role, position)` for every shove that lands (F41), fired on the shover's and the target's devices before `BumpLoose` or `BumpHeld` when the target was carrying; `role` is `"shover"` or `"target"` and `position` the target's.
+   Moments that do not exist yet are skipped, so the table can grow one feature at a time. Arguments are checked, so a missing one only loses a sound. Grades work as `"perfect"` or `"Perfect"`. Design v0.4 adds `PawLost`, `Purrfect`, `PlotOpened(position)` (a For Rent plot opens: shutters and sign, for everyone nearby), a `position` on `AreaUnlock(areaId, position)` so the gate sound comes from the gate, and an optional `rarity` on `Announce(text, rarity)` so the shout-out chime rises with rarity. Design v0.5 retires `PawLost` (F40) and adds `Shove(role, position)` for every shove that lands (F41), fired on every nearby player's device before `BumpLoose` or `BumpHeld` when the target was carrying; `role` is `"shover"`, `"target"` or `"bystander"` and `position` the target's, so the sounds play in 3D from where it happened.
 4. **Zone** for ambience, from whatever already knows where the player is (WorldController's alley check, a zone part):
    ```luau
    Audio.setZone("Alley") -- "Cafe", "Alley", "Park"; later "Neighbourhood", "Woods", "Sewer"; nil for none

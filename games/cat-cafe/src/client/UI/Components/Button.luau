@@ -12,7 +12,7 @@ local Sound = require(script.Parent.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
 
-export type Style = "primary" | "secondary" | "gold" | "ghost" | "danger" | "close"
+export type Style = "primary" | "secondary" | "gold" | "berry" | "ghost" | "danger" | "close"
 
 -- "row": icon then text on one line. "tile": a big icon above a short label (the HUD menu squares).
 export type Layout = "row" | "tile"
@@ -65,6 +65,13 @@ local STYLES: { [string]: { face: Color3, depth: Color3, text: Color3, outlined:
 	gold = {
 		face = Theme.colors.gold,
 		depth = Theme.colors.goldDark,
+		text = Theme.colors.white,
+		outlined = true,
+	},
+	-- pink, for Equip Best and other "make my team better" buttons
+	berry = {
+		face = Theme.colors.berry,
+		depth = Theme.colors.berryDark,
 		text = Theme.colors.white,
 		outlined = true,
 	},

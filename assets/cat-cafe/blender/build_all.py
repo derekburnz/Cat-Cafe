@@ -16,6 +16,7 @@ and centering as WARN). The build exits 1 on any FAIL; read exports/gates.md for
 
 import argparse
 import json
+import math
 import os
 import sys
 import time
@@ -25,6 +26,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import bpy  # noqa: E402
+from mathutils import Euler, Matrix, Vector  # noqa: E402
 
 import accessories  # noqa: E402
 import alley  # noqa: E402
@@ -142,6 +144,22 @@ STUDIO_NOTES = {
 }
 
 
+def cat_rbx_extras(name):
+    """A cat's Part model carries its Scale and one Attachment per role outfit piece (Outfit_<Piece>) at that piece's
+    upright slot, times the scale, in the Body or Head part, so the game needs no manifest at runtime."""
+    spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Shiny")]
+    s = spec.get("scale", 1.0)
+    origin = {"Body": Vector((0, 0, 0)), "Head": Vector(cats.NECK) * s}
+    pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
+    slots = accessories.attach_for(spec, upright=True)
+    def frame(part, off, r):
+        turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
+        return Matrix.Translation(origin[part] + Vector(off) * s) @ turn
+
+    attachments = [("_" + part, "Outfit_" + n, frame(part, off, r)) for n, (part, off, r) in slots.items() if n in pieces]
+    return {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
+
+
 def parse_args():
     argv = sys.argv
     argv = argv[argv.index("--") + 1:] if "--" in argv else (argv[1:] if not bpy.app.binary_path or argv[0].endswith(".py") else [])
@@ -191,7 +209,8 @@ def main():
             continue
         objs = fn(mat)
         built[name] = objs
-        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx)
+        extra = cat_rbx_extras(name) if name.startswith("CatCafe_Cat_") else {}
+        rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
         size = [round(v, 2) for v in (hi - lo)]
@@ -226,7 +245,7 @@ def main():
                                                 "offset_roblox": common.to_roblox([v * s_ for v in o]),
                                                 "angles_roblox_deg": common.euler_to_roblox(r)}
                                             for k, (p, o, r) in accessories.attach_for(spec, upright=True).items()
-                                            if k in accessories.ROLE_UNIFORMS.values()}
+                                            if any(k in pieces for pieces in accessories.ROLE_OUTFITS.values())}
         if name.startswith("CatCafe_Accessory_"):
             n = name.split("_")[-1]
             if n in accessories.ATTACH:
@@ -299,7 +318,7 @@ def main():
                    "palette": os.path.relpath(png, ROOT),
                    "pose_convention": poses.__doc__.strip().splitlines()[-5:],
                    "poses": {k: poses.manifest_pose(v) for k, v in poses.POSES.items()},
-                   "role_uniforms": accessories.ROLE_UNIFORMS,
+                   "role_outfits": accessories.ROLE_OUTFITS,
                    "upright_attachments": {k: {"part": p, "offset": list(o), "rotation_xyz_deg": list(r),
                                                "offset_roblox": common.to_roblox(o),
                                                "angles_roblox_deg": common.euler_to_roblox(r)}

@@ -111,7 +111,7 @@ export type CatchInfo = {
 	catId: string?,
 	strayId: string?,
 	rarity: Rarity?,
-	holdDuration: number?, -- the prompt's HoldDuration: 0 for a press, the rescue hold's length otherwise
+	holdDuration: number?, -- the prompt's HoldDuration: the card fills over it (0.5 s on cat prompts), 0 for a press
 	actionText: string?, -- default "Catch", "Rescue" or "Hold to rescue"
 	keyCode: Enum.KeyCode?, -- default E
 	stars: number?, -- 1 to 5 from the stray's Stars attribute

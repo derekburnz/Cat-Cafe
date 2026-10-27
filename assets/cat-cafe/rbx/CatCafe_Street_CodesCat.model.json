@@ -8054,7 +8054,7 @@
       "Material": "Neon",
       "Anchored": true,
       "CanCollide": false,
-      "CanTouch": false,
+      "CanTouch": true,
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth",

@@ -48,6 +48,7 @@ COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "Ca
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle")
 INVISIBLE_OBJECTS = ("_Fireflies",)   # volumes the effects code reads (where fireflies drift), never drawn
+TOUCH_OBJECTS = ("_CodesCircle",)    # parts the game code may watch with Touched; every other part has CanTouch off
 MIN_COLLIDE = 0.35                # thinner parts (trim, handles, bulbs) never collide
 ALWAYS_LIT = ("HangingLamp",)     # matches WorldController: indoor lamps glow all day
 ROUND = 4
@@ -219,7 +220,7 @@ def _props(p, asset, uid):
         "Material": material,
         "Anchored": True,
         "CanCollide": bool(collide),
-        "CanTouch": False,
+        "CanTouch": p["name"].endswith(TOUCH_OBJECTS),
         "CastShadow": material not in ("Glass", "ForceField") and transparency < 1,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",

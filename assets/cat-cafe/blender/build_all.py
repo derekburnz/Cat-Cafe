@@ -159,9 +159,9 @@ STUDIO_NOTES = {
                                    "the back alley (+Z) and its child Model _Sign_Bulb glows. Tag NightFence.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
                                "CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, "
-                               "CanCollide off, inside the child Model _CodesCircle) opens the code box; _Glow (its "
-                               "rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 studs up) "
-                               "stays for a prompt if one is wanted. The kiosk collides; the cat is decor "
+                               "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
+                               "_Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 "
+                               "studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor "
                                "with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, "
                                "_Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. "
                                "_Bulb (the sign lamp) glows at night.",

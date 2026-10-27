@@ -302,7 +302,6 @@ local function applyState(s: Types.PlayerState)
 		decorOwned = s.decorOwned,
 		decorPlaced = s.decorPlaced,
 		lures = s.lures,
-		equippedLure = s.equippedLure,
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
 		shinyCollection = s.shinyCollection,

@@ -82,7 +82,6 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		decorOwned = {},
 		decorPlaced = {},
 		lures = {},
-		equippedLure = nil,
 		bait = nil,
 		dealer = { window = 0, bought = {} },
 		cats = {
@@ -328,7 +327,8 @@ end
 -- Version 2 to 3 (data-model section 14): Tier 1; refunds cafe_level levels above 1, park_access, and tables,
 -- espresso and net levels above the Tier 1 caps at the version 2 prices; clears every cat's spot and runs Equip
 -- Best once to fill barista_1 and waiter_1; method "starter" for the first Tabby, "rescue" for rescued cats and
--- "net" for the rest; equippedLure stays while the v0.2 lure spots do; renovations is dropped.
+-- "net" for the rest; equippedLure (the v0.2 lure spots, replaced by the bait bowl in F28) and renovations are
+-- dropped.
 function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	local profile = ProfileSchema.template(now)
 	if type(raw) ~= "table" then
@@ -376,9 +376,6 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 				end
 			end
 		end
-	end
-	if type(raw.equippedLure) == "string" and (profile.lures[raw.equippedLure] or 0) > 0 then
-		profile.equippedLure = raw.equippedLure
 	end
 	if fromVersion >= 3 then
 		profile.bait = sanitizeBait(raw.bait)

@@ -93,7 +93,6 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorOwned = profile.decorOwned,
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
-		equippedLure = profile.equippedLure,
 		bait = baitView(profile, now),
 		cats = CafeService.catViews(profile),
 		collection = profile.collection,
@@ -795,28 +794,7 @@ local function onBuyLure(player: Player, rawId: unknown)
 		return
 	end
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
-	if profile.equippedLure == nil then
-		profile.equippedLure = lureId
-	end
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
-	CafeService.sync(player)
-end
-
-local function onEquipLure(player: Player, rawId: unknown)
-	local profile = profileFor(player)
-	if profile == nil then
-		return
-	end
-	if rawId == nil then
-		profile.equippedLure = nil
-		CafeService.sync(player)
-		return
-	end
-	local lureId = Guard.id(rawId)
-	if lureId == nil or (profile.lures[lureId] or 0) < 1 then
-		return
-	end
-	profile.equippedLure = lureId
 	CafeService.sync(player)
 end
 
@@ -891,7 +869,6 @@ function CafeService.start()
 	Net.on("RankUp", onRankUp)
 	Net.on("ToggleDecor", onToggleDecor)
 	Net.on("BuyLure", onBuyLure)
-	Net.on("EquipLure", onEquipLure)
 	Net.on("ClaimOffline", onClaimOffline)
 	Net.on("TutorialAdvance", onTutorialAdvance)
 	Net.on("RequestSync", function(player)

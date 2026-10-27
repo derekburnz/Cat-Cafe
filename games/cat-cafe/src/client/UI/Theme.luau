@@ -149,6 +149,7 @@ Theme.icons = {
 	invite = "👥",
 	equipBest = "✨",
 	drop = "⬇️",
+	settings = "⚙️",
 }
 
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons

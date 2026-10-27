@@ -294,6 +294,32 @@ return function()
 			local dz = plot.baitCat.z - plot.baitBowl.z
 			expect(math.sqrt(dx * dx + dz * dz)).to.be.near(1.6, 0.01)
 		end)
+
+		it("the cat is turned to face the bowl (QA)", function()
+			-- WorldBuilder turns a point by CFrame.Angles(0, rad(rotY), 0), whose LookVector is (-sin, 0, -cos).
+			local yaw = math.rad(plot.baitCat.rotY or 0)
+			local dx = plot.baitBowl.x - plot.baitCat.x
+			local dz = plot.baitBowl.z - plot.baitCat.z
+			local length = math.sqrt(dx * dx + dz * dz)
+			expect((-math.sin(yaw) * dx - math.cos(yaw) * dz) / length > 0.95).to.equal(true)
+		end)
+
+		it("fills from the back door, and Tame reaches the door to gate walk (QA)", function()
+			local bowl, door, gate, yard = plot.baitBowl, plot.backDoor, plot.yardGate, plot.yard
+			local function from(x: number, z: number): number
+				return math.sqrt((x - bowl.x) ^ 2 + (z - bowl.z) ^ 2)
+			end
+			-- UseLure measures from the character's root, so 2 studs of slack for standing a step away.
+			expect(from(door.x, halfD + 1) <= Config.BaitBowlRangeStuds - 2).to.equal(true)
+			-- Tame and Let go reach from every corner of the straight walk from the back door to the gate.
+			local x1 = math.min(door.x - door.width / 2, gate.x1)
+			local x2 = math.max(door.x + door.width / 2, gate.x2)
+			for _, x in { x1, x2 } do
+				for _, z in { halfD + 1, yard.z2 } do
+					expect(from(x, z) <= Config.BaitResolveRangeStuds - 2).to.equal(true)
+				end
+			end
+		end)
 	end)
 
 	-- Shortest walks over the Alleyway floor on a 1 stud grid, moving along x or z only, so every distance is at least

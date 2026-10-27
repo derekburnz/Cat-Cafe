@@ -12,6 +12,7 @@ local Catalog = require(Shared:WaitForChild("Catalog"))
 local Format = require(script.Parent.Components.Format)
 local RankUp = require(script.Parent.Screens.RankUp)
 local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
+local Settings = require(Shared:WaitForChild("Settings"))
 local Types = require(script.Parent.Types)
 
 local Demo = {}
@@ -125,7 +126,7 @@ function Demo.run(UI: any): () -> ()
 		goldCollection = {} :: { [string]: number },
 		indexRewards = {} :: { [string]: { [string]: boolean } },
 		tier = 1,
-		settings = { music = true, sfx = true } :: { [string]: boolean },
+		settings = Settings.defaults() :: any,
 	}
 	local starter = uid()
 	profile.cats[starter] = {
@@ -490,12 +491,13 @@ function Demo.run(UI: any): () -> ()
 	connections[#connections + 1] = UI.events.equipBest:Connect(function()
 		UI.toast("Equip best: the server would place your top cats", "info")
 	end)
-	-- like the server: music and sfx are saved, markers is not yet, so that switch stays a session choice
+	-- like the server (PR #215): every key of shared/Settings is saved, volumes to two decimals
 	connections[#connections + 1] = UI.events.setSetting:Connect(
-		function(key: string, value: boolean)
-			if key == "music" or key == "sfx" then
+		function(key: string, value: boolean | number)
+			local clean = Settings.clean(key, value)
+			if clean ~= nil then
 				task.delay(0.3, function()
-					profile.settings[key] = value
+					profile.settings[key] = clean
 					push()
 				end)
 			end

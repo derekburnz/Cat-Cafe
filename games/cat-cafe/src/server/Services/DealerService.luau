@@ -68,6 +68,8 @@ local function park()
 	standOnStreet(npc, at * CFrame.new(spot.x, spot.y, spot.z))
 	npc.Parent = model
 
+	-- Custom: the UI draws it as its action pill (ui-contract), floating where the prompt's attachment sits, over
+	-- the cart at head height.
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "DealerPrompt"
 	prompt.ObjectText = "Night dealer"
@@ -75,7 +77,15 @@ local function park()
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = Config.DealerRangeStuds - 2
 	prompt.RequiresLineOfSight = false
-	prompt.Parent = firstPart(model)
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local part = firstPart(model)
+	if part ~= nil then
+		local float = Instance.new("Attachment")
+		float.Name = "PromptPoint"
+		float.Parent = part
+		float.WorldPosition = at.Position + Vector3.new(0, 4, 0)
+		prompt.Parent = float
+	end
 
 	model:SetAttribute("Open", true)
 	CollectionService:AddTag(model, "DealerCart")

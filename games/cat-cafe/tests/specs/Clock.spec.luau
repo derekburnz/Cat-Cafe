@@ -1,5 +1,6 @@
 --!strict
--- Clock.luau against data-model section 9: a short first day, then night and day forever.
+-- Clock.luau against data-model section 9: a first day of ServerStartDaySeconds, then night and day forever, and
+-- v0.9's night closing texts (F66).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Clock = require(Shared.Clock)
@@ -8,6 +9,13 @@ return function()
 	local firstDay = Config.ServerStartDaySeconds
 	local night = Config.NightLengthSeconds
 	local day = Config.DayLengthSeconds
+
+	describe("night closing texts (v0.9, F66)", function()
+		it("say what data-model section 9 says", function()
+			expect(Clock.CLOSED_TEXT).to.equal("The areas are closed at night. They open at sunrise.")
+			expect(Clock.SENT_HOME_TEXT).to.equal("Night fell, so you headed home.")
+		end)
+	end)
 
 	describe("phaseAt", function()
 		it("starts in day with the whole first day left", function()

@@ -40,6 +40,7 @@ import furniture  # noqa: E402
 import gold  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
+import night  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
@@ -47,11 +48,13 @@ import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
 import rbx_export  # noqa: E402
+import stations  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards]
+MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
+           night, stations]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -85,6 +88,10 @@ PIVOT_NOTES = {
     "CatCafe_Alley_Arch": "base centre of the 26 stud opening; -Z faces the back alley",
     **{f"CatCafe_{a}_Gate": "base centre of the opening; -Z faces the side players come from" for a in
        ("Park", "Neighbourhood", "Woods", "Sewer")},
+    **{n: f"the pivot of {h}: place it there with no offset" for n, h in night.HOSTS.items()},
+    "CatCafe_Alley_NightFenceSegment": "base centre of the 8 stud piece; -Z faces the cafe side",
+    "CatCafe_Plot_BackDoorClosed": "Plot.cframe: floor top centre of the cafe",
+    "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
@@ -141,6 +148,25 @@ STUDIO_NOTES = {
     "CatCafe_Plot_ForRent": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, "
                             "boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
     **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier." for n in range(1, 6)},
+    **{n: f"F66: only while the areas are closed (Clock AreasOpen false), at the pivot of {h}. The fence collides "
+          "(8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the "
+          "requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) "
+          "glows at night and does not collide. Tag NightFence." for n, h in night.HOSTS.items()},
+    "CatCafe_Alley_NightFenceSegment": "F66: only while the areas are closed. Tile it end to end every 8 studs along the "
+                                       "back alleys' inner edges (the SAFE ZONE stripes) and across the side passages, -Z "
+                                       "toward the cafes; each piece has a post at both ends. Collides, 8 studs to the rail "
+                                       "tops; _Moon_Bulb glows. Tag NightFence.",
+    "CatCafe_Plot_BackDoorClosed": "F66: owned cafes while the areas are closed, at the Plot pivot. A door shut in the "
+                                   "6 x 7.5 back door (x -11..-5), so it collides; the CLOSED UNTIL SUNRISE sign faces "
+                                   "the back alley (+Z) and its child Model _Sign_Bulb glows. Tag NightFence.",
+    "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
+                               "CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, "
+                               "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
+                               "_Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 "
+                               "studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor "
+                               "with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, "
+                               "_Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. "
+                               "_Bulb (the sign lamp) glows at night.",
     "CatCafe_Plot_ClosedSign": "F44: owned cafes at night only (Clock.Phase), at the Plot pivot. Hangs in the front door "
                                "above head height; nothing collides. The child Model _Moon_Bulb glows at night.",
     **{f"CatCafe_Cat_{n}_Sit": f"Body B, sitting up: clone this instead of CatCafe_Cat_{n} for a cat resting in the "
@@ -253,6 +279,8 @@ def main():
         extra = cat_rbx_extras(name) if name.startswith("CatCafe_Cat_") else {}
         if name in boards.AREA_OF:                # the UI finds an Index Board by its tag and Area
             extra = {"attributes": {"Area": boards.AREA_OF[name]}}
+        if name == "CatCafe_Street_CodesCat":     # the prompt's spot, and the cap rides the cat's Head
+            extra = {"attachments": [stations.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
@@ -320,6 +348,13 @@ def main():
             entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [boards.W, boards.H]}
             entry["placement"] = {"relative_to": host, "offset_roblox": [px, py, pz], "turn_y_deg": turn,
                                   "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"}
+        if name in night.HOSTS:
+            entry["placement"] = {"relative_to": night.HOSTS[name], "offset_roblox": [0, 0, 0], "turn_y_deg": 0,
+                                  "use": "host:GetPivot()"}
+        if name == "CatCafe_Street_CodesCat":
+            entry["prompt_anchor_roblox"] = list(stations.PROMPT_ROBLOX)
+            entry["codes_circle"] = {"part": "CodesCircle", "centre_roblox": [0, 0.05, stations.CIRCLE_Z],
+                                     "radius": stations.CIRCLE_R}
         if name in poses.STUCK_POSES:
             entry["stuck_pose"] = poses.manifest_pose(poses.STUCK_POSES[name])
         if name in STUDIO_NOTES:

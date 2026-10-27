@@ -10,8 +10,9 @@
 -- ShoveTargetImmuneSeconds after a shove lands on them (S45). A landed shove pushes the target ShoveKnockbackStuds.
 -- If the target carries a cat, is not immune and is BumpGraceSeconds into the carry, BumpChance knocks it loose:
 -- the cat drops as a stray only its old carrier can catch for DropOwnerPrioritySeconds, the shover never can, and
--- it survives a night wave that starts within DroppedMinStaySeconds of the drop.
+-- at dusk it is checked in for that carrier (v0.9, F66).
 
+local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 
 local Shove = {}
@@ -29,6 +30,7 @@ export type Check = {
 	shoverArea: string?, -- the catching area each stands in, nil outside every area
 	targetArea: string?,
 	areaUnlocked: boolean, -- the shover's tier opens shoverArea
+	areasClosed: boolean, -- night: the catching areas are closed (v0.9, F66)
 	distance: number?, -- nil when either has no character
 	targetBusy: boolean, -- the target holds a catch or rescue lock
 	targetSafe: boolean, -- on its own plot or near one of its doors
@@ -71,6 +73,9 @@ function Shove.refusal(check: Check): string?
 	end
 	if not check.areaUnlocked then
 		return "This area opens at a higher tier"
+	end
+	if check.areasClosed then
+		return Clock.CLOSED_TEXT
 	end
 	if check.distance == nil or check.distance > Config.BumpRangeStuds + Shove.RANGE_SLACK then
 		return "Too far away"
@@ -150,11 +155,6 @@ end
 -- A missed knocked-loose cat sits still while its owner window runs (N86); after that it sprints like any stray.
 function Shove.sprintsAfterMiss(drop: Drop?, now: number): boolean
 	return drop == nil or now >= drop.ownerUntil
-end
-
--- A night wave clears last night's strays, but a knocked-loose cat only once DroppedMinStaySeconds have passed (S32).
-function Shove.leavesWithWave(drop: Drop?, now: number): boolean
-	return drop == nil or now - drop.droppedAt >= Config.DroppedMinStaySeconds
 end
 
 return Shove

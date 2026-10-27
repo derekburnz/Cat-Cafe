@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 20:50 UTC",
+  "generated": "2026-10-27 21:05 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -65290,6 +65290,650 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_IndexBoard.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_IndexBoard.png"
+    },
+    {
+      "name": "CatCafe_Park_NightFence",
+      "category": "Park",
+      "module": "night",
+      "objects": [
+        "CatCafe_Park_NightFence",
+        "CatCafe_Park_NightFence_Moon_Bulb"
+      ],
+      "triangles": 2878,
+      "budget": 6000,
+      "size_studs": {
+        "x": 24.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        24.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -12.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        12.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_Park_Gate: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_Park_Gate",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Park_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_NightFence.model.json",
+      "rbx_parts": 309,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2878/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1529 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_NightFence.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_NightFence.png"
+    },
+    {
+      "name": "CatCafe_Neighbourhood_NightFence",
+      "category": "Neighbourhood",
+      "module": "night",
+      "objects": [
+        "CatCafe_Neighbourhood_NightFence",
+        "CatCafe_Neighbourhood_NightFence_Moon_Bulb"
+      ],
+      "triangles": 2878,
+      "budget": 6000,
+      "size_studs": {
+        "x": 24.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        24.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -12.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        12.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_Neighbourhood_Gate: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_Neighbourhood_Gate",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Neighbourhood_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_NightFence.model.json",
+      "rbx_parts": 309,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2878/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1529 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Neighbourhood_NightFence.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Neighbourhood_NightFence.png"
+    },
+    {
+      "name": "CatCafe_Woods_NightFence",
+      "category": "Woods",
+      "module": "night",
+      "objects": [
+        "CatCafe_Woods_NightFence",
+        "CatCafe_Woods_NightFence_Moon_Bulb"
+      ],
+      "triangles": 3074,
+      "budget": 6000,
+      "size_studs": {
+        "x": 30.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        30.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -15.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        15.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_Woods_Gate: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_Woods_Gate",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Woods_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_NightFence.model.json",
+      "rbx_parts": 329,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Woods_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Woods_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3074/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1651 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_NightFence.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_NightFence.png"
+    },
+    {
+      "name": "CatCafe_Sewer_NightFence",
+      "category": "Sewer",
+      "module": "night",
+      "objects": [
+        "CatCafe_Sewer_NightFence",
+        "CatCafe_Sewer_NightFence_Moon_Bulb"
+      ],
+      "triangles": 3074,
+      "budget": 6000,
+      "size_studs": {
+        "x": 30.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        30.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -15.03,
+        -0.05,
+        0.0
+      ],
+      "bounds_max": [
+        15.03,
+        0.88,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_Sewer_Gate: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_Sewer_Gate",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Sewer_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_NightFence.model.json",
+      "rbx_parts": 329,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sewer_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sewer_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3074/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1651 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.41"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_NightFence.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_NightFence.png"
+    },
+    {
+      "name": "CatCafe_Alley_NightFence",
+      "category": "Alley",
+      "module": "night",
+      "objects": [
+        "CatCafe_Alley_NightFence",
+        "CatCafe_Alley_NightFence_Moon_Bulb"
+      ],
+      "triangles": 3034,
+      "budget": 6000,
+      "size_studs": {
+        "x": 32.06,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        32.06,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -16.03,
+        1.0,
+        0.0
+      ],
+      "bounds_max": [
+        16.03,
+        1.93,
+        8.64
+      ],
+      "pivot": "the pivot of CatCafe_Alley_ArchStreet: place it there with no offset",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placement": {
+        "relative_to": "CatCafe_Alley_ArchStreet",
+        "offset_roblox": [
+          0,
+          0,
+          0
+        ],
+        "turn_y_deg": 0,
+        "use": "host:GetPivot()"
+      },
+      "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Alley_ArchStreet. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_NightFence.model.json",
+      "rbx_parts": 327,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_NightFence.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_NightFence.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3034/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1611 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.46"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_NightFence.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_NightFence.png"
+    },
+    {
+      "name": "CatCafe_Alley_NightFenceSegment",
+      "category": "Alley",
+      "module": "night",
+      "objects": [
+        "CatCafe_Alley_NightFenceSegment",
+        "CatCafe_Alley_NightFenceSegment_Moon_Bulb"
+      ],
+      "triangles": 420,
+      "budget": 2000,
+      "size_studs": {
+        "x": 8.1,
+        "y": 0.93,
+        "z": 8.64
+      },
+      "size_roblox": [
+        8.1,
+        8.64,
+        0.93
+      ],
+      "bounds_min": [
+        -4.05,
+        -0.6,
+        0.0
+      ],
+      "bounds_max": [
+        4.05,
+        0.33,
+        8.64
+      ],
+      "pivot": "base centre of the 8 stud piece; -Z faces the cafe side",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F66: only while the areas are closed. Tile it end to end every 8 studs along the back alleys' inner edges (the SAFE ZONE stripes) and across the side passages, -Z toward the cafes; each piece has a post at both ends. Collides, 8 studs to the rail tops; _Moon_Bulb glows. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_NightFenceSegment.model.json",
+      "rbx_parts": 36,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_NightFenceSegment.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_NightFenceSegment.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "420/2000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "226 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.14"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_NightFenceSegment.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_NightFenceSegment.png"
+    },
+    {
+      "name": "CatCafe_Plot_BackDoorClosed",
+      "category": "Plot",
+      "module": "night",
+      "objects": [
+        "CatCafe_Plot_BackDoorClosed",
+        "CatCafe_Plot_BackDoorClosed_Sign_Bulb"
+      ],
+      "triangles": 1614,
+      "budget": 2500,
+      "size_studs": {
+        "x": 5.98,
+        "y": 0.65,
+        "z": 7.49
+      },
+      "size_roblox": [
+        5.98,
+        7.49,
+        0.65
+      ],
+      "bounds_min": [
+        5.01,
+        14.4,
+        0.0
+      ],
+      "bounds_max": [
+        10.99,
+        15.05,
+        7.49
+      ],
+      "pivot": "Plot.cframe: floor top centre of the cafe",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F66: owned cafes while the areas are closed, at the Plot pivot. A door shut in the 6 x 7.5 back door (x -11..-5), so it collides; the CLOSED UNTIL SUNRISE sign faces the back alley (+Z) and its child Model _Sign_Bulb glows. Tag NightFence.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_BackDoorClosed.model.json",
+      "rbx_parts": 142,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_BackDoorClosed.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_BackDoorClosed.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1614/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "807 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=8.00 y=14.73"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_BackDoorClosed.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_BackDoorClosed.png"
+    },
+    {
+      "name": "CatCafe_Street_CodesCat",
+      "category": "Street",
+      "module": "stations",
+      "objects": [
+        "CatCafe_Street_CodesCat",
+        "CatCafe_Street_CodesCat_Bulb",
+        "CatCafe_Street_CodesCat_CodesCircle",
+        "CatCafe_Street_CodesCat_Glow",
+        "CatCafe_Street_CodesCat_Cat_Body",
+        "CatCafe_Street_CodesCat_Cat_Head",
+        "CatCafe_Street_CodesCat_Cat_Eye1",
+        "CatCafe_Street_CodesCat_Cat_Eye2",
+        "CatCafe_Street_CodesCat_Cat_EarL",
+        "CatCafe_Street_CodesCat_Cat_EarR",
+        "CatCafe_Street_CodesCat_Cat_Tail",
+        "CatCafe_Street_CodesCat_Cat_LegF1",
+        "CatCafe_Street_CodesCat_Cat_LegF2",
+        "CatCafe_Street_CodesCat_Cat_Prop"
+      ],
+      "triangles": 3422,
+      "budget": 6000,
+      "size_studs": {
+        "x": 8.1,
+        "y": 12.25,
+        "z": 8.6
+      },
+      "size_roblox": [
+        8.1,
+        8.6,
+        12.25
+      ],
+      "bounds_min": [
+        -4.05,
+        -10.05,
+        0.0
+      ],
+      "bounds_max": [
+        4.05,
+        2.2,
+        8.6
+      ],
+      "pivot": "base centre; the desk front (-Z) faces the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_CodesCat_Cat_Body": [
+          0.0,
+          0.9,
+          2.01
+        ],
+        "CatCafe_Street_CodesCat_Cat_Head": [
+          0.0,
+          0.76,
+          3.46
+        ],
+        "CatCafe_Street_CodesCat_Cat_Eye1": [
+          0.31,
+          0.02,
+          3.81
+        ],
+        "CatCafe_Street_CodesCat_Cat_Eye2": [
+          -0.31,
+          0.02,
+          3.81
+        ],
+        "CatCafe_Street_CodesCat_Cat_EarL": [
+          0.4,
+          0.64,
+          4.36
+        ],
+        "CatCafe_Street_CodesCat_Cat_EarR": [
+          -0.4,
+          0.64,
+          4.36
+        ],
+        "CatCafe_Street_CodesCat_Cat_Tail": [
+          0.28,
+          1.67,
+          2.17
+        ],
+        "CatCafe_Street_CodesCat_Cat_LegF1": [
+          0.24,
+          0.47,
+          2.89
+        ],
+        "CatCafe_Street_CodesCat_Cat_LegF2": [
+          -0.24,
+          0.47,
+          2.89
+        ],
+        "CatCafe_Street_CodesCat_Cat_Prop": [
+          0.0,
+          0.76,
+          3.46
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_CodesCat_Cat_Body": [
+          0.0,
+          2.01,
+          0.9
+        ],
+        "CatCafe_Street_CodesCat_Cat_Head": [
+          0.0,
+          3.46,
+          0.76
+        ],
+        "CatCafe_Street_CodesCat_Cat_Eye1": [
+          -0.31,
+          3.81,
+          0.02
+        ],
+        "CatCafe_Street_CodesCat_Cat_Eye2": [
+          0.31,
+          3.81,
+          0.02
+        ],
+        "CatCafe_Street_CodesCat_Cat_EarL": [
+          -0.4,
+          4.36,
+          0.64
+        ],
+        "CatCafe_Street_CodesCat_Cat_EarR": [
+          0.4,
+          4.36,
+          0.64
+        ],
+        "CatCafe_Street_CodesCat_Cat_Tail": [
+          -0.28,
+          2.17,
+          1.67
+        ],
+        "CatCafe_Street_CodesCat_Cat_LegF1": [
+          -0.24,
+          2.89,
+          0.47
+        ],
+        "CatCafe_Street_CodesCat_Cat_LegF2": [
+          0.24,
+          2.89,
+          0.47
+        ],
+        "CatCafe_Street_CodesCat_Cat_Prop": [
+          0.0,
+          3.46,
+          0.76
+        ]
+      },
+      "prompt_anchor_roblox": [
+        0.0,
+        3.0,
+        -1.4
+      ],
+      "codes_circle": {
+        "part": "CodesCircle",
+        "centre_roblox": [
+          0,
+          0.05,
+          -6.0
+        ],
+        "radius": 4.0
+      },
+      "studio": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; _Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, _Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. _Bulb (the sign lamp) glows at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_CodesCat.model.json",
+      "rbx_parts": 235,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_CodesCat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_CodesCat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3422/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1669 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-3.93"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_CodesCat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Street_CodesCat.png"
     }
   ]
 }

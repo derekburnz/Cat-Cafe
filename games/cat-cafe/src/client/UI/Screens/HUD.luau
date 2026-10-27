@@ -1,6 +1,6 @@
 --!strict
 -- Always-on overlay in the simulator layout (docs/design/cat-cafe/ui-contract.md, HUD v3):
---   top left      money and income
+--   top left      money and income, the golden fish under them (F52); a tap on either shows the exact amount
 --   top centre    cafe tier pill
 --   top right     small icon buttons (Invite) and the day and night clock chip, the next goal card under them
 --   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots, and an arrow
@@ -22,6 +22,7 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
@@ -68,6 +69,12 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
+local MONEY_W = 276
+local MONEY_H = 80
+local FISH_W = 196
+local FISH_H = 48
+local FISH_TOP = MARGIN + MONEY_H + 8
+local EXACT_SECONDS = 2.5 -- how long a tapped counter's exact amount stays up
 local PILL_W = 192
 local PILL_H = 54
 local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
@@ -166,6 +173,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._buttons = {} :: { any }
 	self._catalog = nil :: Types.Catalog?
 	self._lastMoney = nil :: number?
+	self._lastFish = nil :: number?
+	self._exactToken = 0 -- the latest tap's, so an older timer leaves a newer amount up
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
 	self._seen =
@@ -196,7 +205,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Money panel (top left)
 	local money = hudPanel("Money", {
 		Position = UDim2.fromOffset(MARGIN, MARGIN),
-		Size = UDim2.fromOffset(276, 80),
+		Size = UDim2.fromOffset(MONEY_W, MONEY_H),
 		Parent = root,
 	})
 	-- big gold coin with a dark outline and a shaded face, the simulator currency badge
@@ -236,6 +245,72 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		Parent = money,
 	})
+
+	-- Golden fish (F52): the rare currency's counter under the money, with the cat-face coin. Hidden until
+	-- ProfileSync sends goldenFish.
+	local fish = hudPanel("Fish", {
+		Position = UDim2.fromOffset(MARGIN, FISH_TOP),
+		Size = UDim2.fromOffset(FISH_W, FISH_H),
+		Visible = false,
+		Parent = root,
+	})
+	self._fishPanel = fish
+	FishCoin.new({
+		parent = fish,
+		size = 32,
+		position = UDim2.new(0, 12, 0.5, 2),
+		anchorPoint = Vector2.new(0, 0.5),
+	})
+	self._fishText = label({
+		Name = "Amount",
+		Position = UDim2.fromOffset(54, 0),
+		Size = UDim2.new(1, -64, 1, 0),
+		TextSize = 26,
+		TextColor3 = Theme.fish.text,
+		Text = "0",
+		Parent = fish,
+	})
+
+	-- A tap on a counter shows its exact amount beside it for a moment (golden-fish.md section 1), since big
+	-- numbers are cut down to "1.99M".
+	self._exact = hudPanel("Exact", {
+		AnchorPoint = Vector2.new(0, 0.5),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 36),
+		Visible = false,
+		ZIndex = 5,
+		Parent = root,
+	})
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 12),
+		PaddingRight = UDim.new(0, 12),
+		Parent = self._exact,
+	})
+	self._exactText = label({
+		Name = "Amount",
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromScale(0, 1),
+		TextSize = 20,
+		TextTruncate = Enum.TextTruncate.None,
+		ZIndex = 5,
+		Parent = self._exact,
+	})
+	for _, counter in { money, fish } do
+		local tap: TextButton = Create("TextButton", {
+			Name = "ShowExact",
+			Text = "",
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+			ZIndex = 4,
+			Parent = counter,
+		})
+		table.insert(
+			self._connections,
+			tap.Activated:Connect(function()
+				self:_showExact(counter)
+			end)
+		)
+	end
 
 	-- Cafe pill (top centre)
 	local cafe = hudPanel("Cafe", {
@@ -1119,6 +1194,18 @@ function HUD.render(self: any, state: Types.PlayerState)
 		Tween.to(self._moneyText, Tween.RISE, { TextColor3 = Theme.hud.text })
 	end
 	self._lastMoney = state.money
+	-- golden fish, with a white flash when they go up
+	local fish = state.goldenFish
+	self._fishPanel.Visible = fish ~= nil
+	if fish then
+		self._fishText.Text = Format.short(fish)
+		if self._lastFish and fish > self._lastFish then
+			self._fishText.TextColor3 = Theme.colors.white
+			Tween.to(self._fishText, Tween.RISE, { TextColor3 = Theme.fish.text })
+		end
+	end
+	self._lastFish = fish
+	self._state = state
 	self._carryState = state.carrying ~= nil
 	self:_renderTravel()
 
@@ -1433,6 +1520,31 @@ end
 
 function HUD.setVisible(self: any, visible: boolean)
 	self.screenGui.Enabled = visible
+end
+
+-- The exact amount behind a counter: "$1,999,999" or "1,234 golden fish", beside it for EXACT_SECONDS.
+function HUD._showExact(self: any, counter: Frame)
+	local state: Types.PlayerState? = self._state
+	if state == nil then
+		return
+	end
+	local fishCounter = counter == self._fishPanel
+	self._exactText.Text = if fishCounter
+		then Format.commas(math.floor(state.goldenFish or 0)) .. " golden fish"
+		else Theme.currencySymbol .. Format.commas(math.floor(state.money))
+	self._exactText.TextColor3 = if fishCounter then Theme.fish.text else Theme.hud.text
+	local top = if fishCounter then FISH_TOP + FISH_H / 2 else MARGIN + MONEY_H / 2
+	local width = if fishCounter then FISH_W else MONEY_W
+	self._exact.Position = UDim2.fromOffset(MARGIN + width + 8, top)
+	self._exact.Visible = true
+	Sound.play("uiClick")
+	self._exactToken += 1
+	local token = self._exactToken
+	task.delay(EXACT_SECONDS, function()
+		if self._exactToken == token then
+			self._exact.Visible = false
+		end
+	end)
 end
 
 function HUD.destroy(self: any)

@@ -1,6 +1,7 @@
 --!strict
 -- Number and text formatting shared by all screens.
 
+local ShortNumber = require(script.Parent.ShortNumber)
 local Theme = require(script.Parent.Parent.Theme)
 
 local Format = {}
@@ -18,23 +19,9 @@ local function commas(n: number): string
 end
 Format.commas = commas
 
--- 8420 -> "8,420", 1_240_000 -> "1.24M", 2_500_000_000 -> "2.5B"
+-- 8420 -> "8,420", 1_240_000 -> "1.24M", 1_999_999 -> "1.99M": cut down, never rounded up (Components/ShortNumber)
 function Format.short(n: number): string
-	local abs = math.abs(n)
-	local sign = if n < 0 then "-" else ""
-	if abs < 100000 then
-		return sign .. commas(abs)
-	end
-	local suffixes = { "K", "M", "B", "T" }
-	local value = abs
-	local index = 0
-	while value >= 1000 and index < #suffixes do
-		value /= 1000
-		index += 1
-	end
-	local text = string.format(if value >= 100 then "%.0f" else "%.1f", value)
-	text = text:gsub("%.0$", "")
-	return sign .. text .. suffixes[index]
+	return ShortNumber.format(n)
 end
 
 function Format.money(n: number): string

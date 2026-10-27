@@ -57,16 +57,16 @@ return function()
 
 	describe("TackleLogic.toast", function()
 		it("says Missed! on a miss", function()
-			local text, kind = TackleLogic.toast(true, "miss", nil)
+			local text, good = TackleLogic.toast(true, "miss", nil)
 			expect(text).to.equal("Missed!")
-			expect(kind).to.equal("warn")
+			expect(good).to.equal(false)
 		end)
 
 		it("names who you tackled on any hit", function()
 			for _, outcome in { "shove", "loose", "held" } do
-				local text, kind = TackleLogic.toast(true, outcome, "Alex")
+				local text, good = TackleLogic.toast(true, outcome, "Alex")
 				expect(text).to.equal("Tackled Alex!")
-				expect(kind).to.equal("good")
+				expect(good).to.equal(true)
 			end
 			expect(TackleLogic.toast(true, "shove", nil)).to.equal("Tackled!")
 			expect(TackleLogic.toast(true, "loose", "")).to.equal("Tackled!")

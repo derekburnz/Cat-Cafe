@@ -1513,9 +1513,9 @@ function UI.shove.result(ok: boolean, outcome: string?, targetUserId: number?)
 	local target = if type(targetUserId) == "number" and targetUserId > 0
 		then Players:GetPlayerByUserId(targetUserId)
 		else nil
-	local text, kind = TackleLogic.toast(ok, outcome, if target then target.DisplayName else nil)
+	local text, good = TackleLogic.toast(ok, outcome, if target then target.DisplayName else nil)
 	if text then
-		UI.toast(text, kind)
+		UI.toast(text, if good then "good" else "warn")
 	end
 end
 
@@ -1746,7 +1746,7 @@ function UI.setZone(zone: string?)
 		safeToastAt = os.clock()
 		-- quiet: Audio plays its own zone chime from Audio.setZone
 		if toasts then
-			toasts:show("Safe zone: no shoving here", "good", true)
+			toasts:show("Safe zone: no tackling here", "good", true)
 		end
 	end
 end

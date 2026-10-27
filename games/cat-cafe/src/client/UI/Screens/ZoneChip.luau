@@ -2,7 +2,7 @@
 -- Safe zone chip (UI plan 2026-10-27; Derek: "if you get back to the area with the cafes that can be considered
 -- safe"): a small pill under the cafe tier pill at the top centre. On the street and in the cafes it reads
 -- "🛡️ Safe zone" in green; in a catching area "🐾 Catching area · tackles on" in orange. Walking back from an area
--- pops it, and init toasts "Safe zone: no shoving here". Hidden until the controller first calls UI.setZone.
+-- pops it, and init toasts "Safe zone: no tackling here". Hidden until the controller first calls UI.setZone.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)

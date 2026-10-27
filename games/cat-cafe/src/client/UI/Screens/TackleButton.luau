@@ -229,6 +229,7 @@ function TackleButton.new(parent: Instance, callbacks: Callbacks): TackleButton
 	rayParams.FilterType = Enum.RaycastFilterType.Exclude
 	rayParams.IgnoreWater = true
 	self._rayParams = rayParams
+	self._rayFor = nil :: Model?
 
 	table.insert(
 		self._connections,
@@ -364,7 +365,11 @@ function TackleButton._placeArrow(self: any)
 	local feetDrop = root.Size.Y / 2 + humanoid.HipHeight
 	local floorY = root.Position.Y - feetDrop
 	local params: RaycastParams = self._rayParams
-	params.FilterDescendantsInstances = { model, self._arrowFolder }
+	if self._rayFor ~= model then
+		-- the floor ray skips this character and the arrow; set once per character, not every frame
+		self._rayFor = model
+		params.FilterDescendantsInstances = { model, self._arrowFolder }
+	end
 	local hit = Workspace:Raycast(root.Position, Vector3.new(0, -(feetDrop + 4), 0), params)
 	if hit then
 		floorY = hit.Position.Y

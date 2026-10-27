@@ -30,8 +30,6 @@ export type Marks = { tackleAt: number?, missAt: number?, shovedAt: number? }
 
 export type Look = "ready" | "cooling" | "down"
 
-export type Kind = "warn" | "good" -- the toast kinds it uses
-
 local HITS: { [string]: boolean } = { shove = true, loose = true, held = true }
 
 -- The server time until which this player cannot tackle because of their own lunge, a miss or a tackle on them.
@@ -67,20 +65,19 @@ function TackleLogic.isHit(outcome: string?): boolean
 	return outcome ~= nil and HITS[outcome] == true
 end
 
--- The tackler's toast for a ShoveResult: "Missed!" or "Tackled Alex!", nothing for a refusal or an unknown outcome.
-function TackleLogic.toast(ok: boolean, outcome: string?, name: string?): (string?, Kind?)
+-- The tackler's toast for a ShoveResult and whether it is good news: "Missed!" (false) or "Tackled Alex!" (true),
+-- nothing for a refusal or an unknown outcome.
+function TackleLogic.toast(ok: boolean, outcome: string?, name: string?): (string?, boolean)
 	if not ok then
-		return nil, nil
+		return nil, false
 	end
 	if outcome == "miss" then
-		local warn: Kind = "warn"
-		return "Missed!", warn
+		return "Missed!", false
 	end
 	if TackleLogic.isHit(outcome) then
-		local good: Kind = "good"
-		return if name and name ~= "" then ("Tackled %s!"):format(name) else "Tackled!", good
+		return if name and name ~= "" then ("Tackled %s!"):format(name) else "Tackled!", true
 	end
-	return nil, nil
+	return nil, false
 end
 
 return TackleLogic

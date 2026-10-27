@@ -114,13 +114,18 @@ local function zoneAt(position: Vector3): string?
 	return nil
 end
 
--- Only the gate's barrier (its parts named Bars) changes; the arch stays solid. The barrier keeps its own look
--- while closed and vanishes once open (Effects draws the dissolve the first time).
+-- Only the gate's barrier changes: its parts named Bars and its two leaves (parts named <asset>_LeafL and
+-- <asset>_LeafR). The arch and pillars stay solid. The barrier keeps its own look while closed and vanishes once
+-- open (Effects draws the dissolve the first time).
 local closedTransparency: { [BasePart]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+local function isBarrier(name: string): boolean
+	return name == "Bars" or name:sub(-6) == "_LeafL" or name:sub(-6) == "_LeafR"
+end
 
 local function setGateOpen(gate: Instance, open: boolean)
 	for _, descendant in gate:GetDescendants() do
-		if descendant:IsA("BasePart") and descendant.Name == "Bars" then
+		if descendant:IsA("BasePart") and isBarrier(descendant.Name) then
 			local part = descendant :: BasePart
 			if closedTransparency[part] == nil then
 				closedTransparency[part] = part.Transparency

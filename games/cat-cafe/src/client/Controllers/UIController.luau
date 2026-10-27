@@ -182,9 +182,6 @@ local function applyState(s: Types.PlayerState)
 	end
 	lastTier = s.tier
 	if s.carrying ~= lastCarrying then
-		if lastCarrying ~= nil and s.carrying == nil then
-			Moments.CheckIn:Fire()
-		end
 		lastCarrying = s.carrying
 		if s.carrying ~= nil then
 			UI.setCarrying({ catId = s.carrying, door = UIController.ownDoor() })
@@ -291,6 +288,8 @@ local function wireServerEvents()
 			else nil
 		pendingCharmGain = 0
 		UI.showCatFound(catId, isNew, extra)
+		-- CatCaught comes only from a check-in, so a bump that drops the carried cat plays no check-in sound.
+		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)

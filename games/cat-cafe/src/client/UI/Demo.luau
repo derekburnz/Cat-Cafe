@@ -1299,7 +1299,7 @@ function Demo.run(UI: any): () -> ()
 			demoCatch("tabby")
 			task.wait(2)
 			demoCatch("sphynx")
-			UI.tutorial.show("Place your new cat: open Cats, then the Cat room tab")
+			UI.tutorial.show("Place your new cat: open Cats, then tap a green +")
 			task.wait(6)
 			UI.tutorial.hide()
 			-- rescue minigame (F27): a Rare in a bin, three hits with Rare speed and zone width

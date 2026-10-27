@@ -2,25 +2,21 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-76 files: 76 PASS, 0 WARN, 0 FAIL.
+72 files: 72 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `ambience/CatCafe_Amb_AlleyDay.ogg` | ambience | 48.00 | 2 | 48000 | 617 | -26.1 | -12.6 | - | ok | PASS |  |
-| `ambience/CatCafe_Amb_AlleyNight.ogg` | ambience | 48.00 | 2 | 48000 | 621 | -26.1 | -12.0 | - | ok | PASS |  |
-| `ambience/CatCafe_Amb_CafeDay.ogg` | ambience | 48.00 | 2 | 48000 | 714 | -26.0 | -11.2 | - | ok | PASS |  |
-| `ambience/CatCafe_Amb_CafeNight.ogg` | ambience | 48.00 | 2 | 48000 | 1154 | -26.0 | -7.7 | - | ok | PASS |  |
-| `ambience/CatCafe_Amb_LoopCafeDoor.ogg` | ambience | 48.00 | 1 | 48000 | 352 | -26.0 | -9.3 | - | ok | PASS |  |
-| `ambience/CatCafe_Amb_ParkDay.ogg` | ambience | 48.00 | 2 | 48000 | 664 | -26.3 | -10.3 | - | ok | PASS |  |
-| `ambience/CatCafe_Amb_ParkNight.ogg` | ambience | 48.00 | 2 | 48000 | 677 | -26.2 | -12.0 | - | ok | PASS |  |
+| `music/CatCafe_Music_DayA.ogg` | music | 87.27 | 2 | 48000 | 1501 | -18.0 | -3.3 | - | ok | PASS |  |
+| `music/CatCafe_Music_DayB.ogg` | music | 91.43 | 2 | 48000 | 1597 | -18.0 | -3.6 | - | ok | PASS |  |
 | `music/CatCafe_Music_JingleCatFound.ogg` | stinger | 2.20 | 2 | 48000 | 28 | -15.1 | -5.8 | 0 | - | PASS |  |
 | `music/CatCafe_Music_JingleRankUp.ogg` | stinger | 3.20 | 2 | 48000 | 43 | -18.4 | -6.0 | 0 | - | PASS |  |
+| `music/CatCafe_Music_NightA.ogg` | music | 80.00 | 2 | 48000 | 1537 | -18.0 | -4.4 | - | ok | PASS |  |
 | `music/CatCafe_Music_StingDawn.ogg` | stinger | 3.20 | 2 | 48000 | 42 | -17.9 | -5.8 | 0 | - | PASS |  |
 | `music/CatCafe_Music_StingDusk.ogg` | stinger | 3.20 | 2 | 48000 | 38 | -16.6 | -6.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Announce.ogg` | sfx | 0.90 | 1 | 48000 | 9 | -16.8 | -3.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_AnnounceMythical.ogg` | sfx | 2.40 | 1 | 48000 | 26 | -17.9 | -2.7 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_BumpHeld.ogg` | sfx | 0.60 | 1 | 48000 | 7 | -13.9 | -4.8 | 0 | - | PASS |  |
-| `sfx/CatCafe_Sfx_CarryPurr.ogg` | sfx | 3.00 | 1 | 48000 | 42 | -26.1 | -5.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CarryPurr.ogg` | sfx | 2.64 | 1 | 48000 | 37 | -29.7 | -5.9 | 3 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatDrop.ogg` | sfx | 0.60 | 1 | 48000 | 9 | -23.6 | -5.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatHiss.ogg` | sfx | 0.50 | 1 | 48000 | 10 | -19.0 | -3.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatPickUp.ogg` | sfx | 0.42 | 1 | 48000 | 6 | -18.7 | -4.9 | 0 | - | PASS |  |
@@ -47,7 +43,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_PawLost.ogg` | sfx | 0.16 | 1 | 48000 | 5 | - | -5.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_PotionDrink.ogg` | sfx | 1.25 | 1 | 48000 | 16 | -25.1 | -5.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Purchase.ogg` | sfx | 0.65 | 1 | 48000 | 7 | -16.6 | -3.0 | 0 | - | PASS |  |
-| `sfx/CatCafe_Sfx_Purr.ogg` | sfx | 3.00 | 1 | 48000 | 42 | -26.9 | -5.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_Purr.ogg` | sfx | 2.49 | 1 | 48000 | 35 | -29.8 | -5.9 | 4 | - | PASS |  |
 | `sfx/CatCafe_Sfx_PurrfectChime.ogg` | sfx | 1.60 | 1 | 48000 | 16 | -15.4 | -2.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_RichArrive.ogg` | sfx | 1.10 | 1 | 48000 | 12 | -17.6 | -5.6 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_RichTip.ogg` | sfx | 1.30 | 1 | 48000 | 15 | -14.8 | -3.8 | 0 | - | PASS |  |

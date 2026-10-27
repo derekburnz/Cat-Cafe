@@ -31,10 +31,10 @@ export type Cue = {
 
 local Cues: { [string]: Cue } = {
 	-- Music (sound list section 3) -------------------------------------------------------------------------
-	musicDayA = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "Open for Business"
-	musicDayB = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "Second Cup"
-	musicNightA = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "After Hours"
-	musicNightB = { ids = {}, group = "Music", volume = 0.5, looped = true }, -- "Night Owls"
+	musicDayA = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Open for Business"
+	musicDayB = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Second Cup"
+	musicNightA = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "After Hours"
+	musicNightB = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Night Owls"
 	stingDusk = {
 		ids = { "rbxassetid://72211264391144" },
 		group = "Music",
@@ -67,42 +67,14 @@ local Cues: { [string]: Cue } = {
 	},
 
 	-- Ambience beds by zone and phase, and 3D world loops (section 4) ---------------------------------------
-	ambCafeDay = {
-		ids = { "rbxassetid://136952289794282" },
-		group = "Ambience",
-		volume = 0.4,
-		looped = true,
-	},
-	ambCafeNight = {
-		ids = { "rbxassetid://104494733188299" },
-		group = "Ambience",
-		volume = 0.3,
-		looped = true,
-	}, -- v0.5: the closed cafe, cats asleep
-	ambAlleyDay = {
-		ids = { "rbxassetid://83744712629616" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
-	ambAlleyNight = {
-		ids = { "rbxassetid://82664754116384" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
-	ambParkDay = {
-		ids = { "rbxassetid://75896689856230" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
-	ambParkNight = {
-		ids = { "rbxassetid://120595462689856" },
-		group = "Ambience",
-		volume = 0.5,
-		looped = true,
-	},
+	-- Derek 2026-10-27: no ambience beds or cafe door loop, the quiet music plays instead; their files were
+	-- removed, so these stay silent unless a bed comes back.
+	ambCafeDay = { ids = {}, group = "Ambience", volume = 0.4, looped = true },
+	ambCafeNight = { ids = {}, group = "Ambience", volume = 0.3, looped = true }, -- v0.5: the closed cafe, cats asleep
+	ambAlleyDay = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
+	ambAlleyNight = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
+	ambParkDay = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
+	ambParkNight = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambNeighbourhood = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambWoods = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
 	ambSewer = { ids = {}, group = "Ambience", volume = 0.5, looped = true },
@@ -110,13 +82,7 @@ local Cues: { [string]: Cue } = {
 	loopStreetLamp = { ids = {}, group = "Ambience", volume = 0.3, looped = true, range = 15 },
 	loopDealerCart = { ids = {}, group = "Ambience", volume = 0.6, looped = true, range = 25 },
 	loopFishTank = { ids = {}, group = "Ambience", volume = 0.4, looped = true, range = 10 },
-	loopCafeDoor = {
-		ids = { "rbxassetid://98253223255392" },
-		group = "Ambience",
-		volume = 0.7,
-		looped = true,
-		range = 30,
-	}, -- tag CafeDoor
+	loopCafeDoor = { ids = {}, group = "Ambience", volume = 0.7, looped = true, range = 30 }, -- tag CafeDoor
 	loopEspresso = { ids = {}, group = "Ambience", volume = 0.4, range = 15 },
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------

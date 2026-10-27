@@ -918,28 +918,50 @@ def potion_drink() -> np.ndarray:
                   -5)
 
 
-def purr_loop(length: float, seed: int, rate: float) -> np.ndarray:
-    """A cat's purr over exactly `length` seconds so it loops: rumbling pulses on every breath in and out."""
+def purr_loop(seed: int, rate: float, out_s: float, in_s: float) -> np.ndarray:
+    """A cat's purr over exactly one breath out and one breath in, so it loops. A purr is a fast train of tiny
+    clicks (the voice box opening and closing about 25 times a second) heard through the mouth and nose, louder
+    breathing out, softer and a little quicker breathing in, with a short pause at each turn and a soft airy
+    breath under it. Rebuilt 2026-10-27: the first version was low noise pulsing, and read as a rumble."""
+    gap = 0.12
+    length = out_s + in_s + 2 * gap
     n = int(length * SR)
+    rng = np.random.default_rng(seed)
     t = np.arange(n) / SR
-    pulses = round(rate * length)
-    phase = (t * pulses / length) % 1.0  # a whole number of pulses per loop
-    pulse = np.exp(-phase / 0.18)
-    breaths = 2  # in and out, twice per loop
-    breath = 0.65 + 0.35 * np.sin(2 * np.pi * breaths * t / length) ** 2
-    hum = np.fft.rfft(np.random.default_rng(seed).standard_normal(n))
+    clicks = np.zeros(n)
+    for start, d, hz, loud in ((0.0, out_s, rate, 1.0), (out_s + gap, in_s, rate * 1.08, 0.65)):
+        at = start + rng.uniform(0, 0.01)
+        while at < start + d:
+            k = int(at * SR) % n
+            into = (at - start) / d
+            clicks[k] += loud * np.sin(np.pi * into) ** 0.5 * rng.uniform(0.75, 1.0)
+            at += (1 / hz) * (1 + 0.06 * np.sin(2 * np.pi * 1.3 * at) + rng.normal(0, 0.03))  # a slight waver
+    kernel_t = np.arange(int(0.012 * SR)) / SR
+    kernel = np.random.default_rng(7).standard_normal(len(kernel_t)) * np.exp(-kernel_t / 0.0018)  # one click
+    kernel += 0.3 * np.sin(2 * np.pi * 220 * kernel_t) * np.exp(-kernel_t / 0.004)
+    padded = np.zeros(n)
+    padded[: len(kernel)] = kernel
+    voice = np.fft.irfft(np.fft.rfft(clicks) * np.fft.rfft(padded), n)  # circular, so the loop has no seam
     f = np.fft.rfftfreq(n, 1 / SR)
-    rumble = np.fft.irfft(hum * (1 / (1 + (f / 350) ** 4)) * (1 / (1 + (60 / np.maximum(f, 1)) ** 4)), n)
-    x = rumble / np.max(np.abs(rumble)) * pulse * breath
+    nose = sum(a / (1 + ((f - c) / w) ** 2) for c, a, w in ((350, 0.8, 150), (900, 1.0, 300), (1800, 0.5, 400),
+                                                            (3000, 0.15, 600)))
+    highpass = 1 / np.sqrt(1 + (90 / np.maximum(f, 1)) ** 4)
+    voice = np.fft.irfft(np.fft.rfft(voice) * nose * highpass, n)
+    turns = np.clip(np.minimum(t, np.abs(t - (out_s + gap))) / 0.05, 0, 1)  # soften each start
+    breathing = np.where(t < out_s + gap, np.sin(np.pi * np.clip(t / out_s, 0, 1)),
+                         0.6 * np.sin(np.pi * np.clip((t - out_s - gap) / in_s, 0, 1)))
+    air = np.fft.irfft(np.fft.rfft(rng.standard_normal(n)) * (1 / (1 + ((f - 1800) / 900) ** 2)), n)
+    x = voice / np.max(np.abs(voice)) + 0.08 * air / np.max(np.abs(air)) * breathing
+    x *= 0.15 + 0.85 * np.maximum(breathing, 0) ** 0.6 * turns
     return x / np.max(np.abs(x)) * 10 ** (-6 / 20)  # no end fade: it is a loop
 
 
 def purr() -> np.ndarray:
-    return purr_loop(3.0, 70, 26.0)
+    return purr_loop(70, 25.0, 1.25, 1.0)
 
 
 def carry_purr() -> np.ndarray:
-    return purr_loop(3.0, 71, 24.0)
+    return purr_loop(71, 23.5, 1.35, 1.05)
 
 
 SOUNDS = {

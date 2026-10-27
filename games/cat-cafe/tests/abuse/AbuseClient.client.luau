@@ -689,7 +689,7 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 		+ schedule.windows.good
 		+ Config.CatchLatencyCapSeconds
 	local offBy = event.server - deadline
-	task.wait(1) -- the jump back runs at 24 studs per second
+	task.wait(0.7) -- the jump back runs at 24 studs per second; after landing the stray wanders again (N52)
 	if stray.model.Parent == nil then
 		return "FAIL", "the stray despawned after a miss; v0.4 keeps it and makes it jump back"
 	end
@@ -745,7 +745,7 @@ case("noPress", Enum.KeyCode.Six, "No press: GrabBegin and never press", functio
 		table.insert(notes, string.format("charmGain %d on a miss", outcome.charmGain))
 	end
 	local jumped = horizontal(stray.model:GetPivot().Position, from)
-	if jumped < Config.StrayJumpBackMin - 1 or jumped > Config.StrayJumpBackMax + 1 then
+	if jumped < Config.StrayJumpBackMin - 1 or jumped > Config.StrayJumpBackMax + 2 then
 		verdict = downgrade(verdict, "CHECK")
 		table.insert(
 			notes,

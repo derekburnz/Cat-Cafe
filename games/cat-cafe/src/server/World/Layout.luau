@@ -553,6 +553,11 @@ Layout.sewer = {
 	},
 } :: AreaSpec
 
+-- The night dealer's cart (data-model section 8b) parks mid-street between the middle rows of cafes, along the
+-- street with its display side (-Z of the model) toward the west row. The dealer stands at the cart's +X end.
+Layout.dealerCart = { x = 0, y = 0.1, z = 0, rotY = 90 } :: Point
+Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
+
 -- The manhole in the middle of the Alley Square (world-and-feel.md section 2: "the Sewer down a manhole in the
 -- middle of the Square"): a shortcut into the Sewer once it opens, alongside its gate at the east back alley's
 -- south end. Its sign (-Z) faces the street arch.

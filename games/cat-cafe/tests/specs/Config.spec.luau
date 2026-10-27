@@ -76,6 +76,9 @@ return function()
 		CatXpPerSecondPlaced = 1,
 		CharmSpread = 0.20,
 		ShinyMultiplier = 1.5, -- v0.3 (F22)
+		-- the night dealer (F32, section 8b)
+		DealerRangeStuds = 12,
+		DealerWindowSeconds = 600,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -104,8 +107,6 @@ return function()
 		RichChance = { 0.15, "F31" },
 		RichTipSeconds = { 45, "F31" },
 		RichTipStaySeconds = { 90, "F31" },
-		DealerRangeStuds = { 12, "F32" },
-		DealerWindowSeconds = { 600, "F32" },
 		CatNameMaxLength = { 20, "F33" },
 		RenameCooldownSeconds = { 5, "F33" },
 	}

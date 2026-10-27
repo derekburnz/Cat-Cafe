@@ -3,6 +3,7 @@
 -- predicts the coin counter between syncs, and drives the catch circles, the rescue prompt, the clock chip, the
 -- carry marker and tutorial hints.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -308,6 +309,10 @@ local function wireIntents()
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)
+	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused.
+	UI.events.buyDealerFood:Connect(function(slot: number, lureId: string)
+		Net.fire("BuyDealerFood", slot, lureId)
+	end)
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)
@@ -348,6 +353,40 @@ local function wireIntents()
 	)
 end
 
+-- The night dealer's cart (F32): the UI's range hint follows it and its prompt opens the dealer screen. The cart
+-- is the server's, tagged DealerCart, there from night start to day start.
+local function bindDealerCart()
+	-- `cue` is false for a cart already out when this client starts, so a player who joins at night does not
+	-- hear it arrive (reviewer note on #110).
+	local function arrived(instance: Instance, cue: boolean)
+		if not instance:IsA("Model") then
+			return
+		end
+		local model = instance :: Model
+		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		UI.dealer.setCart(if found ~= nil and found:IsA("BasePart") then found :: BasePart else nil)
+		local prompt = model:FindFirstChild("DealerPrompt", true)
+		if prompt ~= nil and prompt:IsA("ProximityPrompt") then
+			(prompt :: ProximityPrompt).Triggered:Connect(function()
+				UI.dealer.open()
+			end)
+		end
+		if cue then
+			Moments.DealerArrive:Fire()
+		end
+	end
+	CollectionService:GetInstanceAddedSignal("DealerCart"):Connect(function(instance)
+		arrived(instance, true)
+	end)
+	CollectionService:GetInstanceRemovedSignal("DealerCart"):Connect(function()
+		UI.dealer.setCart(nil)
+		Moments.DealerLeave:Fire()
+	end)
+	for _, instance in CollectionService:GetTagged("DealerCart") do
+		arrived(instance, false)
+	end
+end
+
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
@@ -369,6 +408,9 @@ local function wireServerEvents()
 		-- check-in sound.
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
+	end)
+	Net.on("DealerStock", function(stock: Types.DealerStock?)
+		UI.dealer.setStock(stock)
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
 		Moments.PlotOpened:Fire(position, plotIndex)
@@ -495,6 +537,7 @@ function UIController.start()
 	end)
 	wireIntents()
 	wireServerEvents()
+	bindDealerCart()
 	startPrediction()
 	Net.fire("RequestSync")
 	print(string.format("[PurrPot] client ready for %s", player.Name))

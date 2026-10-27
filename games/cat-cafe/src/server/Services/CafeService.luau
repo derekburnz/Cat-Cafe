@@ -19,6 +19,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Leaderstats = require(script.Parent.Leaderstats)
 local NameService = require(script.Parent.NameService)
@@ -63,10 +64,10 @@ function CafeService.catViews(player: Player, profile: Profile): { [string]: Typ
 	return views
 end
 
--- When the bowl's cat arrives (data-model section 8): LureWaitSeconds after the food went in, online or not, or
--- BigBowlLureWaitSeconds with the Big Bowl perk (F53).
+-- When the bowl's cat arrives (data-model section 8), online or not: the readyAt UseLure fixed (the wait, Big Bowl
+-- and the Index's bait speed in it, F54), or for a bowl filled before that, the wait after the food went in.
 function CafeService.baitReadyAt(profile: Types.PlayerProfile, bait: Types.BaitState): number
-	return bait.placedAt + Economy.lureWaitSeconds(profile)
+	return bait.readyAt or bait.placedAt + Economy.lureWaitSeconds(profile)
 end
 
 -- The bowl as ProfileSync sends it: the rolled cat only once it has arrived, so the reveal is not spoiled (N30).
@@ -91,6 +92,7 @@ end
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	local plot = PlotService.get(player)
 	local now = os.time()
+	local totals = IndexRewards.totals(profile)
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
@@ -114,6 +116,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		crates = profile.crates,
 		crateLuck = profile.crateLuck,
 		fishPerks = profile.fishPerks,
+		goldLuck = totals.goldLuck,
+		baitSpeed = totals.baitSpeed,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
@@ -276,25 +280,28 @@ local function showDecor(plot: WorldBuilder.Plot, def: Types.DecorDef, at: BaseP
 end
 
 local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
-	local replaced = Economy.replacedDecor(profile) -- a placed gold Index piece takes its normal piece's spot
+	local replaced = Economy.replacedDecor(profile) -- a placed stand-in takes its piece's spot (none since F54)
 	local function inUse(def: Types.DecorDef): boolean
 		return profile.decorOwned[def.id] == true
 			and profile.decorPlaced[def.id] == true
 			and not replaced[def.id]
 	end
-	-- Shop and Index pieces, each on its own anchor.
+	-- Shop pieces, each on its own anchor.
 	for _, def in Catalog.decor do
 		showDecor(plot, def, if inUse(def) then plot.decorAnchors[def.id] else nil)
 	end
 	-- Crate furniture and decorations (F53) take the decor spots in catalog order; the F48 Index pieces among them
-	-- kept their anchors above.
+	-- keep their own anchors.
 	local nextSpot = 1
 	for _, def in Catalog.crateDecor do
-		if not Crates.takesSpot(def) or plot.decorAnchors[def.id] then
+		if not Crates.takesSpot(def) then
 			continue
 		end
+		local anchor: BasePart? = plot.decorAnchors[def.id]
 		local spot: BasePart? = nil
-		if inUse(def) then
+		if anchor ~= nil then
+			spot = if inUse(def) then anchor else nil
+		elseif inUse(def) then
 			spot = plot.decorSpots[nextSpot]
 			nextSpot += 1
 		end

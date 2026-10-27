@@ -153,9 +153,15 @@ local Config = {
 	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
 	CrateOpenCooldownSeconds = 2,
 	DecorSpots = { 2, 3, 4, 5, 6 } :: { number }, -- furniture and decorations in use, by tier
-	DecorIndexBonus = 0.05, -- every tip, for each Decor Index page with all ten pieces
+	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all ten pieces, F54)
+	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
 	BigBowlLureWaitSeconds = 480, -- the bait wait with the Big Bowl perk (LureWaitSeconds without it)
+
+	-- Index rewards (F54, golden-fish.md sections 5 and 5b): the permanent bonuses the gold and All Cats tracks add
+	-- up to. Gold rolls use chance x (1 + goldLuck); a bait wait is the wait x (1 - baitSpeed).
+	GoldLuckMax = 1.5,
+	BaitSpeedMax = 0.5,
 
 	-- Shove (F29 bump rules, v0.5 F41, data-model section 10c); the code keeps the Bump names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Bump remote off and hides the Shove button

@@ -218,12 +218,22 @@ The Grow a Garden seed shop, for the dealer's cart: "Fresh stock in 4:12" across
 
 Buy also greys out by day (from `UI.clock`, "Closed until nightfall"), once `restocksAt` has passed until the next stock arrives ("Fresh stock coming..."), and when the player cannot afford it. The odds come from the catalog; the price on the button is the slot's `cost` from the server.
 
+### Rescue minigame (built, F27, data-model section 10b)
+
+A timing bar like the ones in Fisch and other fishing games: a white marker slides back and forth along a dark bar and turns gold while it is inside the green zone; the player presses (tap anywhere, E, Space, click or the gamepad's A) while it is in the zone. Pips over the bar fill gold per hit and the zone slides to its next spot; a miss shakes the bar and greys a paw in the header (the catch circles' header, with the cat's name and rarity). A thin bar under it drains to the attempt's deadline, and Give up sits under the right end. "Rescued!" or "Still stuck" closes it; on a fail the prompt card comes back while the player is still at the trap.
+
+| API | Purpose |
+|---|---|
+| `UI.rescue.show(rescueSpotId, challenge)` | From `RescueChallenge`. `challenge = { kind, startsAt, phase?, speed?, zoneWidth?, zones?, hitsNeeded?, paws?, endsAt?, circle?, windows? }`, times in server time. `kind` is `"bar"`, `"shake_catch"` (the same bar; the hint says each hit shakes the branch) or `"circle"` (the tree's falling cat after the shakes: one catch circle from `circle` and `windows`, header "Catch it as it falls!"). The marker is at `Components/RescueMarker.position(startsAt, phase, speed, t)`: the triangle wave of `phase + speed * (t - startsAt)` with period 2, 0 at the left end and 1 at the right, so the server can judge a press with the same three numbers; `RescueMarker.inZone(position, centre, width, RescueTolerance)` is the hit test. `zones` holds the zone centre for each hit in order. `endsAt` defaults to `startsAt + RescueAttemptMaxSeconds` (15). |
+| `UI.rescue.update(rescueSpotId, hits, pawsLeft, done, success)` | From `RescueResult`, arguments in the remote's order. The server's hit count and paws replace this device's guesses (a press draws NICE! or MISS at once); `done` ends the attempt. On the circle, `done` shows the circle's result. A success then goes to carry as after a catch. |
+| `UI.rescue.hide()` / `UI.rescue.isActive()` | Close without a result (the controller saw the attempt end another way), and whether an attempt is on screen. |
+
+Events: `rescuePressed(rescueSpotId)` on every press, bar or circle (forward as `RescuePress`; the server stamps the time), and `rescueCancelled(rescueSpotId)` on Give up (forward as `RescueCancel`; the bar closes after 0.5 s without waiting). The press prompt's `rescueBegan` stays the way an attempt starts. Optional Config keys read when present: `RescueTolerance` (0.03), `RescueAttemptMaxSeconds` (15).
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
 |---|---|
-| `UI.rescue.show(rescueSpotId, challenge)` | From `RescueChallenge`. `challenge = { kind = "bar" or "shake_catch", startsAt, phase, speed, zoneWidth, zones = { centre per hit }, hitsNeeded, paws }`. The marker's position at time t is the triangle wave of `phase + speed * (t - startsAt)` with period 2 (0 to 1 and back), the shared `markerAt` helper. Paw lives, a hit count and Cancel. A tree (`shake_catch`) shakes the branch on each hit; the server then sends a second challenge `{ kind = "circle", circle = { startsAt, shrinkSeconds, x, y }, windows }` drawn as one catch circle. Presses fire `events.rescuePressed(rescueSpotId)`, Cancel fires `events.rescueCancelled(rescueSpotId)`. |
-| `UI.rescue.update(hits, pawsLeft, done, success)` | From `RescueResult`. A hit moves the zone to `zones[hits + 1]`, a miss greys a paw. |
 | Action pill | Custom-style prompts without a `CatId` (bait bowl, dealer cart, rich tip, Bump) get a small pill with the key and `ActionText`; on touch the pill is the button. The controller handles `PromptTriggered` as today. |
 | `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
 | Shiny | Built: the book's Shiny pill (from `state.shinyCollection`), the catch header and the reveal's sticker, and the cat room's gold cards. Still planned: the carry banner, and a Shiny page in the book with its own count. |
@@ -252,6 +262,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `grabBegan` | `strayId, catId` | Hold began on a bound stray prompt |
 | `rescueBegan` | `rescueSpotId, catId` | Hold began on a prompt whose model has `Rescue = true`. Forward as RescueBegin. |
 | `rescueEnded` | `rescueSpotId, catId, completed` | `completed = true` after the full 4 s hold: forward as RescueEnd, the server moves the player to carry. `false` is an early release: the bar reset, send what the server needs to unlock the spot (or nothing). |
+| `rescuePressed` | `rescueSpotId` | A press on the rescue bar or the tree's catch circle. Forward as `RescuePress(rescueSpotId)` (F27) |
+| `rescueCancelled` | `rescueSpotId` | Give up on the rescue bar. Forward as `RescueCancel(rescueSpotId)` (F27) |
 | `screenOpened` | `name or nil` | Modal opened or closed |
 | `catchPressed` | `strayId, index, grade` | A press on circle `index` (1-based) with the device's grade hint. Forward `strayId, index` as CatchPress; `grade` is for the instant NetSwing and CircleGrade sounds only. |
 | `rankUp` | none | v0.3: Rank up pressed with every requirement met. Forward as RankUp. |

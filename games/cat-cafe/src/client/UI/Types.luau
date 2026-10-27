@@ -31,7 +31,7 @@ export type Catalog = {
 	upgrades: { UpgradeDef },
 	decor: { DecorDef },
 	lures: { LureDef },
-	spots: { SpotDef }?, -- role slots; needed for the cat room's Assign picker
+	spots: { SpotDef }?, -- role slots; needed for the cat room's crew strip and Upgrades > Staff
 	tiers: { TierDef }?, -- v0.3: tier names, gates and the rank up card
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
 }

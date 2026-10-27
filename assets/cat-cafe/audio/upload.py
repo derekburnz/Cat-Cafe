@@ -51,7 +51,8 @@ PRIORITY = (
     "catchMiss", "catHiss", "straySprint", "purrfectChime", "coinPop", "purchase", "checkInBell", "jingleCatFound",
     "ambCafeDay", "ambAlleyNight", "loopCafeDoor", "jingleRankUp", "shuttersUp", "gateOpen", "announce",
     "catchStart", "circleAppear", "ambAlleyDay", "ambCafeNight", "carryPurr", "purr", "signFlip", "strayFlee",
-    "shove", "bumpHeld",
+    "shove", "bumpHeld", "holdFill", "zoneArea", "zoneSafe", "travelPoof", "catDrop", "goldReveal", "shimmerRare",
+    "giftClaim", "indexReward", "catPlaced", "catRest", "uiSlider", "uiGiftReady", "uiBadge", "wheelTick", "wheelWin",
 )
 
 

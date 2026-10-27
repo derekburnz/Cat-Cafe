@@ -139,7 +139,7 @@ def _woods(b, lamps, flowers, half):
     bw = text_width("THE WOODS", px) + 2.4
     b.span((-bw / 2, 14.4, -0.2), (bw / 2, 16.9, 0.2), "caramel_wood")                    # carved plank
     for s in (-1, 1):
-        b.span((s * bw / 2 - 0.3, 14.4, -0.25), (s * bw / 2 + 0.3, 16.9, 0.25), "dark_wood")
+        b.span((s * bw / 2 - 0.3, 14.35, -0.25), (s * bw / 2 + 0.3, 16.95, 0.25), "dark_wood")
     _title(b, "THE WOODS", 14.52, px, -0.2, 0.2, "dark_wood")
     for x in (-half / 2, half / 2):                                                        # hanging lanterns
         b.span((x - 0.05, 11.6, -1.3), (x + 0.05, 12.25, -1.2), "fur_black")
@@ -176,7 +176,7 @@ def _sewer(b, lamps, flowers, half):
     for x in (-half - PILLAR / 2, -half / 2, 0.0, half / 2, half + PILLAR / 2):
         b.cyl((x, 13.4, 0), 1.45, 0.3, "rust", axis="X", segments=14)
     for (x, ln) in ((-9.0, 0.9), (-3.5, 0.5), (4.0, 1.1), (10.5, 0.6)):                    # slime drips
-        b.span((x - 0.15, 12.15 - ln, -1.05), (x + 0.15, 12.2, -0.85), "leaf_green")
+        b.span((x - 0.15, 12.15 - ln, -0.25), (x + 0.15, 12.25, -0.05), "leaf_green")         # hanging from the pipe
     px = 0.45
     bw = text_width("THE SEWER", px) + 2.4
     b.span((-bw / 2, 14.6, -0.18), (bw / 2, 17.0, 0.18), "concrete_dark")                 # name plate
@@ -234,9 +234,9 @@ def _neighbourhood(b, lamps, flowers, half):
     bw = text_width("NEIGHBOURHOOD", px) + 2.0
     for x in (-bw / 2 + 1.0, bw / 2 - 1.0):
         b.span((x - 0.12, 13.15, -0.12), (x + 0.12, 13.6, 0.12), "fur_black")
-    b.span((-bw / 2, 13.6, -0.15), (bw / 2, 15.9, 0.15), "sign_teal")
+    b.span((-bw / 2, 13.62, -0.15), (bw / 2, 15.88, 0.15), "sign_teal")
     for (ya, yb) in ((13.6, 13.78), (15.72, 15.9)):
-        b.span((-bw / 2, ya, -0.2), (bw / 2, yb, 0.2), TRIM)
+        b.span((-bw / 2 - 0.05, ya, -0.2), (bw / 2 + 0.05, yb, 0.2), TRIM)
     _title(b, "NEIGHBOURHOOD", 13.75, px, -0.15, 0.15, "offwhite")
     for s in (-1, 1):
         lantern(b, lamps, s * (half + PILLAR / 2), 13.15, 0, 0.8)

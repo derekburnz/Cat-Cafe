@@ -12,7 +12,7 @@ def build_window_plants(mat):
     """Planter on a sill. Pivot back-bottom center (window side +Y)."""
     b = Builder()
     b.box((0, -0.3, 0.3), (3.0, 0.6, 0.6), "terracotta")
-    b.box((0, -0.3, 0.57), (2.8, 0.5, 0.06), "choco", bevel=False)
+    b.box((0, -0.3, 0.58), (2.8, 0.5, 0.06), "choco", bevel=False)                          # soil, 0.01 proud
     for i, x in enumerate((-1.1, -0.55, 0.0, 0.55, 1.1)):
         b.ico((x, -0.3, 0.85), 0.24, "leaf_green" if i % 2 == 0 else "leaf_dark")
         b.sphere((x + 0.08, -0.4, 1.08), 0.12, ("blush", "offwhite", "rarity_legend")[i % 3], segments=8, rings=5)
@@ -44,8 +44,8 @@ def build_neon_sign(mat):
         tube.box((sx * 0.5, y, 2.2), (0.55, t, t), "neon_pink", bevel=False, rot=(math.radians(sx * -35), "Y"))
     # eyes and nose
     for sx in (-1, 1):
-        tube.box((sx * 0.4, y, 1.3), (0.3, t, t), "sign_teal", bevel=False)
-        tube.box((sx * 0.9, y, 0.85), (0.5, t, t), "sign_teal", bevel=False, rot=(math.radians(sx * 10), "Y"))
+        tube.box((sx * 0.4, y - 0.01, 1.3), (0.3, t, t), "sign_teal", bevel=False)             # teal sits 0.01 in front of pink
+        tube.box((sx * 0.9, y - 0.01, 0.85), (0.5, t, t), "sign_teal", bevel=False, rot=(math.radians(sx * 10), "Y"))
     tube.box((0, y, 0.95), (0.25, t, 0.12), "neon_pink", bevel=False)
     return [board.finalize("CatCafe_Decor_NeonSign_Board", mat), tube.finalize("CatCafe_Decor_NeonSign_Tube", mat)]
 
@@ -57,7 +57,7 @@ def build_fish_tank(mat):
     stand.box_base((0, 0, 0), (3.2, 1.4, 1.6), "dark_wood")
     stand.box((0, -0.71, 0.8), (2.6, 0.04, 1.0), "caramel_wood", bevel=False)
     stand.box_base((0, 0, 1.6), (3.3, 1.5, 0.12), "concrete_dark")
-    stand.box_base((0, 0, 1.72), (3.0, 1.2, 0.25), "kibble")                  # gravel
+    stand.box_base((0, 0, 1.72), (2.96, 1.16, 0.25), "kibble")                # gravel, inside the glass
     for i, x in enumerate((-1.0, -0.2, 0.9)):
         stand.cyl_base((x, 0.2 - i * 0.15, 1.97), 0.08, 0.9 + i * 0.2, "leaf_dark", segments=6, bevel=False)
     stand.sphere((0.4, -0.2, 2.15), 0.22, "concrete", segments=8, rings=5)   # rock
@@ -101,7 +101,7 @@ def build_menu_board(mat):
     """Wall board, pivot back-bottom center."""
     b = Builder()
     b.box((0, -0.05, 0.75), (2.0, 0.1, 1.5), "dark_wood")
-    for (c, s) in [((0, -0.07, 1.46), (2.1, 0.14, 0.08)), ((0, -0.07, 0.04), (2.1, 0.14, 0.08)), ((-1.02, -0.07, 0.75), (0.08, 0.14, 1.5)), ((1.02, -0.07, 0.75), (0.08, 0.14, 1.5))]:
+    for (c, s) in [((0, -0.075, 1.46), (2.1, 0.14, 0.08)), ((0, -0.075, 0.04), (2.1, 0.14, 0.08)), ((-1.02, -0.075, 0.75), (0.08, 0.14, 1.5)), ((1.02, -0.075, 0.75), (0.08, 0.14, 1.5))]:
         b.box(c, s, "caramel_wood", bevel=False)
     for i, z in enumerate((1.25, 1.0, 0.75, 0.5)):
         b.box((-0.15, -0.115, z), (1.2 - i * 0.15, 0.03, 0.1), "offwhite" if i else "mint", bevel=False)
@@ -113,7 +113,7 @@ def build_menu_board(mat):
 def build_cup(mat):
     b = Builder()
     b.cyl_base((0, 0, 0), 0.16, 0.3, "offwhite", segments=12, radius2=0.19)
-    b.cyl_base((0, 0, 0.27), 0.16, 0.03, "choco", segments=12, bevel=False)
+    b.cyl_base((0, 0, 0.28), 0.16, 0.03, "choco", segments=12, bevel=False)                 # coffee, 0.01 above the rim
     b.box((0.25, 0, 0.16), (0.06, 0.06, 0.18), "offwhite", bevel=False)
     b.box((0.21, 0, 0.25), (0.14, 0.06, 0.05), "offwhite", bevel=False)
     b.box((0.21, 0, 0.07), (0.14, 0.06, 0.05), "offwhite", bevel=False)
@@ -155,7 +155,7 @@ def build_door_sign(mat):
         for x in (-1.1, 1.1):
             b.cyl((x, 0, -0.25), 0.03, 0.5, "metal", segments=6, bevel=False)                  # chains
         b.box((0, 0, -1.15), (3.2, 0.1, 1.3), board)
-        b.box((0, 0.02, -1.15), (3.35, 0.06, 1.45), "dark_wood")                               # frame behind
+        b.box((0, 0.03, -1.15), (3.35, 0.06, 1.45), "dark_wood")                               # frame behind
         px = min(2.8 / _text_cols(word), 0.2)                                                  # fit 2.8 of the 3.2 board, 1.0 tall max
         _letters(b, word, (0, -1.15), px, ink, -0.07)
         out.append(b.finalize(f"CatCafe_Decor_DoorSign_{word.title()}", mat))

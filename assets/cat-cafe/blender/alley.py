@@ -53,7 +53,7 @@ def build_crate(mat):
     b = Builder()
     for x in (-0.68, 0.68):
         for y in (-0.68, 0.68):
-            b.box_base((x, y, 0), (0.15, 0.15, 1.5), "dark_wood", bevel=False)
+            b.box_base((x, y, 0), (0.15, 0.15, 1.48), "dark_wood", bevel=False)                   # tops hidden in the slats
     for z in (0.2, 0.65, 1.1):
         for sgn in (-1, 1):
             b.box((0, sgn * 0.72, z + 0.15), (1.5, 0.08, 0.3), "caramel_wood", bevel=False)
@@ -111,6 +111,8 @@ def build_trash_bin(mat):
     a = math.radians(75)                                                                     # flung back past upright
     lid.box((0, 0.85 * math.cos(a), 0.85 * math.sin(a)), (w + 0.1, 1.7, 0.1), "concrete_dark", rot=(a, "X"))
     b.box((0, d / 2 + 0.16, h - 0.25), (w * 0.8, 0.12, 0.12), "metal")                       # handle bar
+    for x in (-w * 0.35, w * 0.35):
+        b.box((x, d / 2 + 0.09, h - 0.25), (0.08, 0.2, 0.08), "metal", bevel=False)            # brackets to the bin
     for x in (-0.7, 0.7):
         b.cyl((x, d / 2 - 0.1, 0.2), 0.22, 0.18, "fur_black", segments=10, rot=(math.radians(90), "Y"))  # wheels
     b.box((0, -d / 2 - 0.01, 1.3), (0.9, 0.02, 0.5), "offwhite", bevel=False)                  # faded label
@@ -141,7 +143,7 @@ def build_shop_window(mat):
     for c, sz in (((-2.1, -0.15, 1.75), (0.2, 0.3, 3.5)), ((2.1, -0.15, 1.75), (0.2, 0.3, 3.5)),
                   ((0, -0.15, 0.1), (4.4, 0.3, 0.2)), ((0, -0.15, 3.4), (4.4, 0.3, 0.2))):
         frame.box(c, sz, "dark_wood")                                                          # border
-    frame.box((0, -0.35, 0.05), (4.8, 0.7, 0.1), "cream")                                      # sill
+    frame.box((0, -0.35, 0.04), (4.8, 0.7, 0.1), "cream")                                      # sill, under the border
     frame.box((0, -0.3, 3.6), (4.8, 0.6, 0.2), "cream")                                        # lintel
     frame.box((0, -0.24, 1.75), (0.12, 0.08, 3.1), "dark_wood", bevel=False)                   # mullion
     frame.box((0, -0.24, 1.75), (4.0, 0.08, 0.12), "dark_wood", bevel=False)

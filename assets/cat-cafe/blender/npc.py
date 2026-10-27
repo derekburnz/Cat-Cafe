@@ -67,7 +67,7 @@ def build_dealer(mat):
     b.cyl_base((0, 0, 0), 1.33, 0.25, "aurora_violet", segments=8, radius2=1.31, bevel=False)  # hem
     for (x, z, r) in ((-0.45, 0.9, 0.16), (0.35, 1.6, 0.12), (-0.2, 2.5, 0.1), (0.5, 0.55, 0.1), (0.1, 3.1, 0.09)):
         rad = 1.3 - 0.35 * z / 3.9
-        b.star((x, -rad * math.cos(math.radians(22.5)) - 0.02, z), r, r * 0.45, 0.03, "rarity_legend",
+        b.star((x, -rad * math.cos(math.radians(22.5)) + 0.01, z), r, r * 0.45, 0.03, "rarity_legend",
                rot=(math.radians(90), "X"))
     b.ring((0, 0, 3.85), 0.7, 0.2, 0.22, "aurora_violet", segments=8, bevel=False)            # scarf
     b.crescent((0.0, -0.72, 3.62), 0.12, 0.08, 0.04, "sparkle")                                 # moon pin

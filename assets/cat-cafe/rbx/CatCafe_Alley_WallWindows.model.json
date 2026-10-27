@@ -7058,7 +7058,7 @@
        "CFrame": {
         "position": [
          -10.4466,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7081,9 +7081,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7092,7 +7092,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7156,7 +7156,7 @@
        "CFrame": {
         "position": [
          -9.8066,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7179,9 +7179,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7190,7 +7190,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7254,7 +7254,7 @@
        "CFrame": {
         "position": [
          -9.1666,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7277,9 +7277,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7288,7 +7288,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7352,7 +7352,7 @@
        "CFrame": {
         "position": [
          -8.5266,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7375,9 +7375,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7386,7 +7386,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7450,7 +7450,7 @@
        "CFrame": {
         "position": [
          -7.8866,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7473,9 +7473,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7484,7 +7484,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7597,7 +7597,7 @@
        "CFrame": {
         "position": [
          7.5534,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7620,9 +7620,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7631,7 +7631,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7695,7 +7695,7 @@
        "CFrame": {
         "position": [
          8.1934,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7718,9 +7718,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7729,7 +7729,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7793,7 +7793,7 @@
        "CFrame": {
         "position": [
          8.8334,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7816,9 +7816,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7827,7 +7827,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7891,7 +7891,7 @@
        "CFrame": {
         "position": [
          9.4734,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -7914,9 +7914,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -7925,7 +7925,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -7989,7 +7989,7 @@
        "CFrame": {
         "position": [
          10.1134,
-         10.38,
+         10.368,
          -1.4068
         ],
         "orientation": [
@@ -8012,9 +8012,9 @@
        }
       },
       "Size": [
-       0.36,
-       0.36,
-       0.36
+       0.336,
+       0.336,
+       0.336
       ],
       "Color": [
        1.0,
@@ -8023,7 +8023,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": true,
+      "CanCollide": false,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",

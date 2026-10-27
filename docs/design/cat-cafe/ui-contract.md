@@ -56,6 +56,7 @@ UI.init({
         spinWheel = Catalog.spinWheel,  -- {SpinSlice}, F49: the Spin Wheel's six slices in wheel order
         crates = Catalog.crates,      -- {CrateDef}, F53: the Cafe Crates in Market order
         fishShop = Catalog.fishShop,  -- {FishShopRow}, F53: what golden fish buy at the Market
+        crateDecor = Catalog.crateDecor,  -- {DecorDef}, F53: the crate pieces (the five Index pieces stay in decor)
         rarities = Catalog.rarities,  -- {[Rarity]: RarityDef}: the cat room's sell prices (sellValue)
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
@@ -326,9 +327,10 @@ The window closes when the player walks more than `FishMarketRange` (14) + 2 stu
 | `UI.market.result(crateId, decorId, duplicate, refund)` | From `CrateResult`: plays the reveal. `decorId = ""` is a refusal. |
 | `catalog.fishShop` | `Catalog.fishShop` (`Types.FishShopRow`, from `SharedTypes.FishShopRow`): `{ id, kind = "crate" \| "lure" \| "perk", cost?, costs?, maxLevel? }`. Crate rows are skipped (the crates have their own cards). |
 | `state.crates`, `state.crateLuck`, `state.fishPerks` | Unopened crates by id, opens since the last Epic or better by pool (0 to 19), and perk levels by id. |
-| `DecorDef.rarity`, `DecorDef.kind` | Read loosely for the odds card and the reveal once the F53 pieces add them (`"wallpaper"`, `"floor"`, `"paint"`, `"furniture"`, `"decoration"`). |
+| `catalog.crateDecor` | `Catalog.crateDecor`: the crate pieces (`DecorDef` with `source = "crate"`, `crate`, `rarity`, `kind`), looked up with `catalog.decor` by id, since the five F48 Index pieces stay in `Catalog.decor` as their zones' Epics. |
+| `DecorDef.rarity`, `DecorDef.kind` | Read loosely for the odds card and the reveal (`"wallpaper"`, `"floor"`, `"paint"`, `"furniture"`, `"decoration"`). |
 
-**Engineer (F53):** add `fishShop = Catalog.fishShop` to the catalog passed to `UI.init`; call `UI.market.open()` from the `FishMarket` stall prompt's `Triggered`; forward `UI.events.openCrate` as `OpenCrate(crateId)` and `UI.events.buyFishItem` as `BuyFishItem(itemId)`; pass `CrateResult(crateId, decorId, duplicate, refund)` to `UI.market.result`. `crateLuck` and `fishPerks` already go through `UI.update`.
+**Engineer (F53):** add `fishShop = Catalog.fishShop` and `crateDecor = Catalog.crateDecor` to the catalog passed to `UI.init`; call `UI.market.open()` from the `FishMarket` stall prompt's `Triggered`; forward `UI.events.openCrate` as `OpenCrate(crateId)` and `UI.events.buyFishItem` as `BuyFishItem(itemId)`; pass `CrateResult(crateId, decorId, duplicate, refund)` to `UI.market.result`. `crateLuck` and `fishPerks` already go through `UI.update`.
 
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 

@@ -770,6 +770,11 @@ function FishMarket.setCatalog(self: any, catalog: Types.Catalog)
 	for _, decor in catalog.decor do
 		self._decorById[decor.id] = decor
 	end
+	-- the crate pieces live in Catalog.crateDecor; the five Index pieces in Catalog.decor are zone Epics too
+	local pieces: { Types.DecorDef } = catalog.crateDecor or {}
+	for _, decor in pieces do
+		self._decorById[decor.id] = decor
+	end
 	table.clear(self._lureById)
 	for _, lure in catalog.lures do
 		self._lureById[lure.id] = lure

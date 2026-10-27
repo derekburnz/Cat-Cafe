@@ -42,6 +42,7 @@ export type Catalog = {
 	spinWheel: { SpinRow }?, -- F49: the Spin Wheel's six slices, clockwise from the top (data-model section 11c)
 	crates: { CrateDef }?, -- F53: Catalog.crates, the Cafe Crates in Market order (golden-fish.md section 4)
 	fishShop: { FishShopRow }?, -- F53: Catalog.fishShop, what golden fish buy at the Market (section 3)
+	crateDecor: { DecorDef }?, -- F53: Catalog.crateDecor, the crate pieces that are not in Catalog.decor
 }
 
 -- A Cafe Crate (F53): ten cosmetics of one pool (a zone id or "classic"); golden ones are Epic or better.

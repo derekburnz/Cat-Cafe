@@ -63,7 +63,12 @@ local Cues: { [string]: Cue } = {
 		volume = 0.4,
 		looped = true,
 	},
-	ambCafeNight = { ids = {}, group = "Ambience", volume = 0.3, looped = true }, -- v0.5: the closed cafe, cats asleep
+	ambCafeNight = {
+		ids = { "rbxassetid://104494733188299" },
+		group = "Ambience",
+		volume = 0.3,
+		looped = true,
+	}, -- v0.5: the closed cafe, cats asleep
 	ambAlleyDay = {
 		ids = { "rbxassetid://83744712629616" },
 		group = "Ambience",
@@ -178,7 +183,13 @@ local Cues: { [string]: Cue } = {
 		pitch = { 0.95, 1.05 },
 		range = 40,
 	},
-	straySprint = { ids = {}, group = "Sfx", volume = 0.7, pitch = { 0.95, 1.08 }, range = 50 }, -- v0.5 F40
+	straySprint = {
+		ids = { "rbxassetid://77220581372843" },
+		group = "Sfx",
+		volume = 0.7,
+		pitch = { 0.95, 1.08 },
+		range = 50,
+	}, -- v0.5 F40
 
 	-- Rescue minigames (5.2) --------------------------------------------------------------------------------
 	rescueStart = { ids = {}, group = "Sfx", volume = 0.6 },
@@ -228,7 +239,7 @@ local Cues: { [string]: Cue } = {
 		looped = true,
 	},
 	shove = {
-		ids = {},
+		ids = { "rbxassetid://135377461302918" },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
@@ -242,7 +253,7 @@ local Cues: { [string]: Cue } = {
 		pitch = { 1.0, 1.1 },
 		range = 40,
 	},
-	bumpHeld = { ids = {}, group = "Sfx", volume = 0.7, range = 40 },
+	bumpHeld = { ids = { "rbxassetid://83302918660784" }, group = "Sfx", volume = 0.7, range = 40 },
 	checkInBell = {
 		ids = { "rbxassetid://75991488445164" },
 		group = "Sfx",
@@ -343,15 +354,25 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.3,
 		preload = true,
 	},
-	uiOpen = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.1 },
-	uiClose = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.1 },
-	uiDealerOpen = { ids = {}, group = "Ui", volume = 0.6 },
-	uiRankReady = { ids = {}, group = "Ui", volume = 0.6, minGap = 1 },
-	uiToast = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.2 },
-	uiHint = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.5 },
-	uiTab = { ids = {}, group = "Ui", volume = 0.4, minGap = 0.05 },
-	uiToggle = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.05 },
-	uiRename = { ids = {}, group = "Ui", volume = 0.5 },
+	uiOpen = { ids = { "rbxassetid://114730761775875" }, group = "Ui", volume = 0.5, minGap = 0.1 },
+	uiClose = { ids = { "rbxassetid://129207225359334" }, group = "Ui", volume = 0.5, minGap = 0.1 },
+	uiDealerOpen = { ids = { "rbxassetid://109906464637138" }, group = "Ui", volume = 0.6 },
+	uiRankReady = {
+		ids = { "rbxassetid://98501439978038" },
+		group = "Ui",
+		volume = 0.6,
+		minGap = 1,
+	},
+	uiToast = { ids = { "rbxassetid://97064648437698" }, group = "Ui", volume = 0.5, minGap = 0.2 },
+	uiHint = { ids = { "rbxassetid://110637750950745" }, group = "Ui", volume = 0.5, minGap = 0.5 },
+	uiTab = { ids = { "rbxassetid://122895842124214" }, group = "Ui", volume = 0.4, minGap = 0.05 },
+	uiToggle = {
+		ids = { "rbxassetid://75685910002998" },
+		group = "Ui",
+		volume = 0.5,
+		minGap = 0.05,
+	},
+	uiRename = { ids = { "rbxassetid://109980626119711" }, group = "Ui", volume = 0.5 },
 	announce = { ids = { "rbxassetid://140320161816899" }, group = "Ui", volume = 0.6, minGap = 1 },
 }
 

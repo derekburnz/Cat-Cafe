@@ -992,7 +992,8 @@ local function buildNightFences(
 		end
 	end
 	local floor = Layout.alley.floorY
-	local from, to = W.AlleySouthZ, W.SquareSouthZ - 1
+	-- the end posts clear the Woods and Sewer gate pillars and the Alleyway arch plinths (Model-Agent, after #375)
+	local from, to = W.AlleySouthZ + 2.1, W.SquareSouthZ - 1.9
 	local count = math.ceil((to - from) / NIGHT_FENCE_SEGMENT)
 	local step = (to - from) / count
 	for _, side in { -1, 1 } do

@@ -54,6 +54,10 @@ local Moments = {
 	Shove = Signal.new() :: Signal.Signal<string, Vector3>,
 	BumpLoose = Signal.new() :: Signal.Signal<string, Vector3>, -- the cat fell out of the target's arms
 	BumpHeld = Signal.new() :: Signal.Signal<string, Vector3>, -- "It held on tight!"
+	-- The Tackle (v0.11 F74) on the tackler's own screen, so the dive starts on the press and not a round trip later
+	-- (other screens read the character's TackleAt): position is the root at the press, as the lunge starts.
+	TacklePress = Signal.new() :: Signal.Signal<Vector3>,
+	TackleRefused = Signal.new() :: Signal.Signal<()>, -- a "refused" ShoveResult ended this player's lunge
 	-- The intro cutscene (F72) on this screen: started (replay), each shot as it starts (1 to 9, shot 5 once), and
 	-- ended, played out or skipped, once everything is back.
 	IntroStart = Signal.new() :: Signal.Signal<boolean>,

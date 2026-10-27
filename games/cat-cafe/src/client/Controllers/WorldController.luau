@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
+local DayLight = require(Shared:WaitForChild("DayLight"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local UI = require(script.Parent.Parent.UI)
@@ -211,27 +212,12 @@ local function nightFenceWanted(model: Instance, night: boolean): boolean
 	return true
 end
 
--- Lighting presets from the style guide (section 9). Visual only, so the numbers live here rather than in Config.
--- Technology, Bloom and ColorCorrection are place settings in Studio; Atmosphere is tweened when the place has one.
-local DAY_LIGHTING = {
-	ClockTime = 14.5,
-	Brightness = 2,
-	OutdoorAmbient = Color3.fromRGB(170, 160, 150),
-	Ambient = Color3.fromRGB(120, 115, 110),
-	ExposureCompensation = 0,
-	ColorShift_Top = Color3.fromRGB(255, 245, 230),
-}
-local NIGHT_LIGHTING = {
-	ClockTime = 0.5,
-	Brightness = 0.6,
-	OutdoorAmbient = Color3.fromRGB(45, 55, 85),
-	Ambient = Color3.fromRGB(30, 35, 55),
-	ExposureCompensation = 0,
-	ColorShift_Top = Color3.fromRGB(150, 170, 220),
-}
-local DAY_ATMOSPHERE_DENSITY = 0.3
-local NIGHT_ATMOSPHERE = { Density = 0.4, Color = Color3.fromRGB(110, 120, 160) }
-local LIGHTING_TWEEN = TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+-- The sky follows DayLight's curve through the server's day and night (Derek 2026-10-27 22:37). Technology, Bloom and
+-- ColorCorrection are place settings in Studio; the Atmosphere is the place's, or one this client adds.
+local SKY_STEP_SECONDS = 0.1 -- how often the sky moves on (a day of 300 s moves it about 14 game seconds a step)
+local SKY_STEP_LOW_SECONDS = 0.5 -- the same with Low performance on
+local SKY_JUMP_SECONDS = 4 -- a phase change eases over this long, so a jump of the clock (Studio's debug) is no snap
+local SKY_NAME = "CatCafe_Sky" -- a simple sky under ReplicatedStorage.Assets replaces the place's Roblox default
 
 -- Parts that glow at night (style guide section 9): any part under the World folder whose name ends in _Bulb,
 -- _Bulbs, _Pane or _Tube, placeholder or real model. By day each keeps the look it was built with; at night it
@@ -250,7 +236,6 @@ type DayLook = { material: Enum.Material, color: Color3, transparency: number, l
 local dayLooks: { [BasePart]: DayLook } = setmetatable({}, { __mode = "k" }) :: any
 local modelLights: { [Instance]: Light } = setmetatable({}, { __mode = "k" }) :: any
 local isNight = false
-local atmosphereDayColor: Color3? = nil
 local lowPerformance = false -- the Low performance setting: no night Light objects, shadows or post effects
 
 local function glowsAtNight(part: BasePart): boolean
@@ -351,59 +336,92 @@ local function setNight(night: boolean)
 	end
 end
 
--- The sky's tweens now playing, cancelled by the next change so an instant one is not overwritten by an old tween.
-local lightingTweens: { Tween } = {}
--- True while the intro (F72) shows its own night on this screen; the clock's changes wait for endPreview.
-local previewing = false
+local applied: DayLight.Look? = nil -- the look last put on Lighting
+local blendFrom: DayLight.Look? = nil -- set while the sky eases from here to where it should be
+local blendStart = 0
+local blendSeconds = 0
+-- Set while the intro (F72) shows its own night or sunrise on this screen; the clock's sky waits for endPreview.
+local previewLook: DayLight.Look? = nil
 
-local function applyPhase(phase: any, instant: boolean, seconds: number?)
-	for _, tween in lightingTweens do
-		tween:Cancel()
+local function atmosphere(): Atmosphere
+	local found = Lighting:FindFirstChildOfClass("Atmosphere")
+	if found ~= nil then
+		return found :: Atmosphere
 	end
-	table.clear(lightingTweens)
-	local night = phase == "night"
-	local goal = table.clone(if night then NIGHT_LIGHTING else DAY_LIGHTING)
-	-- ClockTime wraps at 24, so the sun always runs forward: dusk goes 14.5 to 24.5 (0.5) and dawn 0.5 to 14.5,
-	-- never backwards (reviewer N23).
-	if not instant and goal.ClockTime < Lighting.ClockTime then
-		goal.ClockTime += 24
+	local made = Instance.new("Atmosphere")
+	made.Parent = Lighting
+	return made
+end
+
+-- The place's Sky is Roblox's default; the art's own Sky, when the Assets folder has one, replaces it here.
+local function installSky()
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local sky = if assets ~= nil then assets:FindFirstChild(SKY_NAME) else nil
+	if sky == nil or not sky:IsA("Sky") or Lighting:FindFirstChild(SKY_NAME) ~= nil then
+		return
 	end
-	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere") :: Atmosphere?
-	local atmosphereGoal = nil
-	if atmosphere ~= nil then
-		local dayColor = atmosphereDayColor or atmosphere.Color
-		atmosphereDayColor = dayColor
-		atmosphereGoal = if night
-			then NIGHT_ATMOSPHERE
-			else { Density = DAY_ATMOSPHERE_DENSITY, Color = dayColor }
-	end
-	if instant then
-		Lighting.ClockTime = goal.ClockTime
-		Lighting.Brightness = goal.Brightness
-		Lighting.OutdoorAmbient = goal.OutdoorAmbient
-		Lighting.Ambient = goal.Ambient
-		Lighting.ExposureCompensation = goal.ExposureCompensation
-		Lighting.ColorShift_Top = goal.ColorShift_Top
-		if atmosphere ~= nil and atmosphereGoal ~= nil then
-			atmosphere.Density = atmosphereGoal.Density
-			atmosphere.Color = atmosphereGoal.Color
-		end
-	else
-		local info = if seconds ~= nil
-			then TweenInfo.new(seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-			else LIGHTING_TWEEN
-		table.insert(lightingTweens, TweenService:Create(Lighting, info, goal :: any))
-		if atmosphere ~= nil and atmosphereGoal ~= nil then
-			table.insert(
-				lightingTweens,
-				TweenService:Create(atmosphere, info, atmosphereGoal :: any)
-			)
-		end
-		for _, tween in lightingTweens do
-			tween:Play()
+	for _, child in Lighting:GetChildren() do
+		if child:IsA("Sky") then
+			child.Parent = nil
 		end
 	end
-	setNight(night)
+	sky:Clone().Parent = Lighting
+end
+
+local function write(look: DayLight.Look)
+	Lighting.ClockTime = look.ClockTime % 24
+	Lighting.Brightness = look.Brightness
+	Lighting.OutdoorAmbient = look.OutdoorAmbient
+	Lighting.Ambient = look.Ambient
+	Lighting.ExposureCompensation = look.ExposureCompensation
+	Lighting.ColorShift_Top = look.ColorShift_Top
+	local air = atmosphere()
+	air.Density = look.Density
+	air.Color = look.Color
+	air.Decay = look.Decay
+	air.Glare = look.Glare
+	air.Haze = look.Haze
+	applied = look
+end
+
+-- Eases the sky from where it is now to where it should be over `seconds`; nil or 0 jumps there on the next step.
+local function blendOver(seconds: number?)
+	if seconds == nil or seconds <= 0 or applied == nil then
+		blendFrom = nil
+		return
+	end
+	blendFrom = applied
+	blendStart = os.clock()
+	blendSeconds = seconds
+end
+
+-- Where the sky should be: the intro's preview, or the curve at the server's clock.
+local function targetLook(clock: Instance): DayLight.Look
+	local preview = previewLook
+	if preview ~= nil then
+		return preview
+	end
+	local phase = clock:GetAttribute("Phase")
+	local endsAt = clock:GetAttribute("PhaseEndsAt")
+	local name = if phase == "night" then "night" else "day"
+	local progress = if type(endsAt) == "number"
+		then DayLight.progress(name, endsAt, Workspace:GetServerTimeNow())
+		else 0.45
+	return DayLight.at(name, progress)
+end
+
+local function stepSky(clock: Instance)
+	local look = targetLook(clock)
+	local from = blendFrom
+	if from ~= nil then
+		local t = (os.clock() - blendStart) / blendSeconds
+		if t >= 1 then
+			blendFrom = nil
+		else
+			look = DayLight.blend(from, look, (1 - math.cos(math.pi * t)) / 2)
+		end
+	end
+	write(look)
 end
 
 local function followClock()
@@ -412,13 +430,21 @@ local function followClock()
 	task.spawn(function()
 		Workspace:WaitForChild("World").DescendantAdded:Connect(track)
 	end)
+	installSky()
 	local clock = ReplicatedStorage:WaitForChild("Clock")
-	applyPhase(clock:GetAttribute("Phase"), true)
+	stepSky(clock)
+	setNight(clock:GetAttribute("Phase") == "night")
 	clock:GetAttributeChangedSignal("Phase"):Connect(function()
-		if not previewing then
-			applyPhase(clock:GetAttribute("Phase"), false)
+		if previewLook == nil then
+			-- each phase starts where the last ended, so this only shows when the clock jumps
+			blendOver(SKY_JUMP_SECONDS)
+			setNight(clock:GetAttribute("Phase") == "night")
 		end
 	end)
+	while true do
+		task.wait(if lowPerformance then SKY_STEP_LOW_SECONDS else SKY_STEP_SECONDS)
+		stepSky(clock)
+	end
 end
 
 -- Low performance (Derek's settings menu): the night parts still turn Neon but their Light objects stay off, and
@@ -624,21 +650,19 @@ end
 -- The intro (F72, shot 8): night falls ("night") or the sun rises ("day") on this screen over `seconds`, whatever
 -- the server's clock says. The clock's own changes wait until endPreview.
 function WorldController.previewPhase(phase: string, seconds: number)
-	previewing = true
-	applyPhase(phase, false, seconds)
+	previewLook = if phase == "night" then DayLight.at("night", 0.5) else DayLight.at("day", 0.1)
+	blendOver(seconds)
+	setNight(phase == "night")
 end
 
--- Puts the sky and the night parts back to the server's phase after previewPhase: over `seconds`, or at once.
+-- Puts the sky and the night parts back to the server's clock after previewPhase: over `seconds`, or at once.
 function WorldController.endPreview(seconds: number?)
-	if not previewing then
+	if previewLook == nil then
 		return
 	end
-	previewing = false
-	applyPhase(
-		ReplicatedStorage:WaitForChild("Clock"):GetAttribute("Phase"),
-		seconds == nil,
-		seconds
-	)
+	previewLook = nil
+	blendOver(seconds)
+	setNight(ReplicatedStorage:WaitForChild("Clock"):GetAttribute("Phase") == "night")
 end
 
 -- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).

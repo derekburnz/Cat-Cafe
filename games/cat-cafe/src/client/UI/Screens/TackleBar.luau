@@ -1,17 +1,20 @@
 --!strict
--- The Tackle (F74, data-model section 10c v0.11; was the Shove, F41): a round orange button at the bottom right, left
--- of the CATCH button, and the Q key (gamepad Y), shown only while the controller says you stand in a catching area
--- you have unlocked (setEnabled). There is no lock-on (Derek 2026-10-27: "so you can just spam it and chase people
--- it needs to be like skill"): a press fires tackle() and the character lunges straight ahead. While the button is
--- ready, a faint orange arrow on the ground in front of your character shows the TackleLungeStuds (12) reach.
--- A press starts the TackleCooldownSeconds (8) cooldown at once: a dark wipe drains down the button with the
--- seconds left. A miss never gives it back; result(false) after a refusal does. The button also greys while you
--- cannot tackle: mid-lunge, down after a miss or a hit, and while someone else's tackle has you down
--- (Components/TackleLogic). Hidden while you carry a cat or play the catch circles or the rescue bar (reviewer N85),
--- so Q never fights the keys those sink (E, Space, gamepad A and R2). The toasts live in UI.shove.result.
+-- The Tackle (F74, data-model section 10c v0.11; was the Shove, F41): a slim bar at the bottom centre, just above the
+-- bottom row, and the Q key (gamepad Y), shown only while the controller says you stand in a catching area you have
+-- unlocked (setEnabled). Derek 2026-10-27 23:25: "dont need a tackle button taking up a lot of the screen make a bar
+-- that slowly recharges after tackle so people can tell when ready". The bar is full and bright orange when a tackle
+-- is ready; a press empties it and it refills from the left over the TackleCooldownSeconds (8), then pops once when
+-- it is full again. On touch the bar itself is the tap target, since phones have no Q.
+-- There is no lock-on (Derek 2026-10-27: "so you can just spam it and chase people it needs to be like skill"): a
+-- press fires tackle() and the character lunges straight ahead. While a tackle is ready, a faint orange arrow on the
+-- ground in front of your character shows the TackleLungeStuds (12) reach. A miss never gives the cooldown back;
+-- result(false) after a refusal does. The bar also greys while you cannot tackle: mid-lunge, down after a miss or a
+-- hit, and while someone else's tackle has you down (Components/TackleLogic). Hidden while you carry a cat or play
+-- the catch circles or the rescue bar (reviewer N85), so Q never fights the keys those sink (E, Space, gamepad A and
+-- R2). The toasts live in UI.shove.result.
 --
 --   setEnabled(on)          inside a catching area this player has unlocked, and tackles are switched on
---   result(ok, outcome?)    the server refused (false) or took (true) the tackle; a hit outcome holds the button
+--   result(ok, outcome?)    the server refused (false) or took (true) the tackle; a hit outcome holds the bar
 --
 -- Roblox terms: HumanoidRootPart is the invisible box that carries a character's position. The arrow is a few flat
 -- parts made by this client only, so nobody else sees it; they do not collide and are skipped by raycasts.
@@ -29,8 +32,11 @@ local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
 local KEYS = { Enum.KeyCode.Q, Enum.KeyCode.ButtonY }
-local TICK = 0.1 -- seconds between button updates
-local SIZE = 92
+local TICK = 0.1 -- seconds between look checks; the fill itself moves every frame while it recharges
+local WIDTH = 240 -- design pixels
+local HEIGHT = 30
+local TOUCH_HEIGHT = 44 -- Theme.sizes.touchMin, so a thumb can hit it
+local INSET = 4 -- the fill sits this far inside the bar's dark edge
 local ICON = "💨"
 -- the ground arrow: three dashes, then a chevron whose tip sits at the reach
 local ARROW_START = 1.5 -- studs ahead of the character's centre
@@ -45,19 +51,22 @@ local ARROW_TRANSPARENCY = 0.5
 
 export type Callbacks = {
 	tackle: () -> (),
-	-- true while the button must stay hidden: carrying, catch circles or the rescue bar up
+	-- true while the bar must stay hidden: carrying, catch circles or the rescue bar up
 	blocked: () -> boolean,
+	-- the bar's bottom, in design pixels from the screen's bottom edge (negative): above the HUD's bottom row,
+	-- carry banner and tutorial strip, whichever show
+	lift: () -> number,
 }
 
-export type TackleButton = {
+export type TackleBar = {
 	screenGui: ScreenGui,
-	setEnabled: (self: TackleButton, on: boolean) -> (),
-	result: (self: TackleButton, ok: boolean, outcome: string?) -> (),
-	destroy: (self: TackleButton) -> (),
+	setEnabled: (self: TackleBar, on: boolean) -> (),
+	result: (self: TackleBar, ok: boolean, outcome: string?) -> (),
+	destroy: (self: TackleBar) -> (),
 }
 
-local TackleButton = {}
-TackleButton.__index = TackleButton
+local TackleBar = {}
+TackleBar.__index = TackleBar
 
 local function character(): (Model?, BasePart?, Humanoid?)
 	local me = Players.LocalPlayer
@@ -92,12 +101,13 @@ local function arrowOffsets(): { CFrame }
 	return offsets
 end
 
-function TackleButton.new(parent: Instance, callbacks: Callbacks): TackleButton
-	local self = setmetatable({}, TackleButton) :: any
+function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
+	local self = setmetatable({}, TackleBar) :: any
 	self._callbacks = callbacks
 	self._enabled = false
 	self._coolUntil = 0 -- os.clock()
 	self._holdUntil = 0 -- os.clock() a hit's hold ends
+	self._state = nil :: TackleLogic.Look? -- the look last drawn, nil while hidden
 	self._loop = nil :: RBXScriptConnection?
 	self._arrowLoop = nil :: RBXScriptConnection?
 	self._connections = {} :: { RBXScriptConnection }
@@ -119,86 +129,65 @@ function TackleButton.new(parent: Instance, callbacks: Callbacks): TackleButton
 	})
 	self._uiScale = Scale.bind(root)
 
-	local button: TextButton = Create("TextButton", {
+	local height = if Scale.isTouch() then TOUCH_HEIGHT else HEIGHT
+	self._height = height
+	-- the bar: a dark pill (a TextButton, so a tap or click tackles too) with the orange fill inside
+	local bar: TextButton = Create("TextButton", {
 		Name = "Tackle",
 		Text = "",
 		AutoButtonColor = false,
-		BackgroundColor3 = Theme.colors.warn,
+		BackgroundColor3 = Theme.hud.panel,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, -150, 1, -100),
-		Size = UDim2.fromOffset(SIZE, SIZE),
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, callbacks.lift()),
+		Size = UDim2.fromOffset(WIDTH, height),
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
-	self._border = Outline.border(button, 4, Theme.colors.warnDark)
-	Outline.shade(button)
-	self._button = button
-	self._pressScale = Create("UIScale", { Parent = button })
-	Create("TextLabel", {
-		Name = "Icon",
-		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(0, 10),
-		Size = UDim2.new(1, 0, 0, 44),
-		FontFace = Theme.fonts.display,
-		TextSize = 38,
-		Text = ICON,
-		Parent = button,
+	Outline.border(bar, Theme.sizes.outline, Theme.hud.stroke)
+	self._bar = bar
+	self._pressScale = Create("UIScale", { Parent = bar })
+	local fill: Frame = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Theme.colors.warn,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(INSET, INSET),
+		Size = UDim2.new(1, -2 * INSET, 1, -2 * INSET),
+		Parent = bar,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
+	Outline.shade(fill, 0.22)
+	self._fill = fill
 	local word: TextLabel = Create("TextLabel", {
 		Name = "Word",
 		BackgroundTransparency = 1,
-		Position = UDim2.new(0, 0, 1, -34),
-		Size = UDim2.new(1, 0, 0, 22),
+		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall + 2,
+		TextSize = Theme.sizes.textBody + 1,
 		TextColor3 = Theme.colors.white,
-		Text = "TACKLE",
-		Parent = button,
+		Text = ICON .. " TACKLE",
+		ZIndex = 3,
+		Parent = bar,
 	})
 	Outline.text(word, 2)
-
-	-- cooldown: a dark layer whose lower part shows (UIGradient transparency), with the seconds left
-	local cool: Frame = Create("Frame", {
-		Name = "Cooldown",
-		BackgroundColor3 = Theme.colors.black,
-		BackgroundTransparency = 0.4,
-		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
-		Visible = false,
-		ZIndex = 3,
-		Parent = button,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._cool = cool
-	self._coolGradient = Create("UIGradient", { Rotation = 90, Parent = cool })
-	local seconds: TextLabel = Create("TextLabel", {
-		Name = "Seconds",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		FontFace = Theme.fonts.display,
-		TextSize = 36,
-		TextColor3 = Theme.colors.white,
-		Text = "",
-		ZIndex = 4,
-		Parent = cool,
-	})
-	Outline.text(seconds, 2)
-	self._seconds = seconds
+	self._word = word
 
 	if UserInputService.KeyboardEnabled and not Scale.isTouch() then
 		local key: TextLabel = Create("TextLabel", {
 			Name = "Key",
 			BackgroundColor3 = Theme.colors.paper,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(-4, -4),
-			Size = UDim2.fromOffset(26, 26),
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, INSET + 2, 0.5, 0),
+			Size = UDim2.fromOffset(height - 2 * INSET - 2, height - 2 * INSET - 2),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = Theme.colors.ink,
 			Text = "Q",
-			ZIndex = 5,
-			Parent = button,
+			ZIndex = 4,
+			Parent = bar,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, 6) }) })
 		Outline.border(key, 2)
 	end
@@ -233,7 +222,7 @@ function TackleButton.new(parent: Instance, callbacks: Callbacks): TackleButton
 
 	table.insert(
 		self._connections,
-		button.InputBegan:Connect(function(input: InputObject)
+		bar.InputBegan:Connect(function(input: InputObject)
 			if
 				input.UserInputType == Enum.UserInputType.Touch
 				or input.UserInputType == Enum.UserInputType.MouseButton1
@@ -244,7 +233,7 @@ function TackleButton.new(parent: Instance, callbacks: Callbacks): TackleButton
 	)
 	table.insert(
 		self._connections,
-		button.InputEnded:Connect(function(input: InputObject)
+		bar.InputEnded:Connect(function(input: InputObject)
 			if
 				input.UserInputType == Enum.UserInputType.Touch
 				or input.UserInputType == Enum.UserInputType.MouseButton1
@@ -255,7 +244,7 @@ function TackleButton.new(parent: Instance, callbacks: Callbacks): TackleButton
 	)
 	table.insert(
 		self._connections,
-		button.Activated:Connect(function()
+		bar.Activated:Connect(function()
 			self:_press()
 		end)
 	)
@@ -263,18 +252,18 @@ function TackleButton.new(parent: Instance, callbacks: Callbacks): TackleButton
 		self._connections,
 		UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
 			if not gameProcessed and table.find(KEYS, input.KeyCode) and self.screenGui.Enabled then
-				Tween.popIn(button, 0.9)
+				Tween.popIn(bar, 0.9)
 				self:_press()
 			end
 		end)
 	)
 
 	screenGui.Parent = parent
-	return self :: TackleButton
+	return self :: TackleBar
 end
 
 -- Whether a lunge, a miss slide, a hit's hold or someone else's tackle has this player down right now.
-function TackleButton._down(self: any): boolean
+function TackleBar._down(self: any): boolean
 	if os.clock() < self._holdUntil then
 		return true
 	end
@@ -290,11 +279,11 @@ function TackleButton._down(self: any): boolean
 	return Workspace:GetServerTimeNow() < untilAt
 end
 
-function TackleButton._look(self: any): TackleLogic.Look
+function TackleBar._look(self: any): TackleLogic.Look
 	return TackleLogic.look(self._coolUntil - os.clock(), self:_down())
 end
 
-function TackleButton._press(self: any)
+function TackleBar._press(self: any)
 	if not self.screenGui.Enabled or self:_look() ~= "ready" then
 		return
 	end
@@ -303,35 +292,41 @@ function TackleButton._press(self: any)
 	self:_tick()
 end
 
--- Every TICK while enabled: show or hide, draw the cooldown, and the arrow while ready.
-function TackleButton._tick(self: any)
+-- Every TICK while enabled: show or hide, sit above the HUD's bottom stack, colour the bar, and the arrow while
+-- ready. The fill moves every frame while it recharges (_drawFill).
+function TackleBar._tick(self: any)
 	local show = self._enabled and not self._callbacks.blocked()
 	self.screenGui.Enabled = show
 	local look: TackleLogic.Look = if show then self:_look() else "down"
 	self:_showArrow(show and look == "ready")
 	if not show then
+		self._state = nil
 		return
 	end
-	local ready = look == "ready"
-	self._button.BackgroundColor3 = if ready then Theme.colors.warn else Theme.colors.disabled
-	self._border.Color = if ready then Theme.colors.warnDark else Theme.colors.disabledDark
-	local cooling = look == "cooling"
-	self._cool.Visible = cooling
-	if cooling then
-		-- the dark part covers the lower share of the button that is still cooling
-		local left = self._coolUntil - os.clock()
-		local edge = math.clamp(1 - TackleLogic.share(left), 0.001, 0.998)
-		self._coolGradient.Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 1),
-			NumberSequenceKeypoint.new(edge, 1),
-			NumberSequenceKeypoint.new(edge + 0.001, 0),
-			NumberSequenceKeypoint.new(1, 0),
-		})
-		self._seconds.Text = tostring(math.ceil(left))
+	self._bar.Position = UDim2.new(0.5, 0, 1, self._callbacks.lift())
+	local was: TackleLogic.Look? = self._state
+	self._state = look
+	if look == "ready" and was ~= nil and was ~= "ready" then
+		Tween.popIn(self._bar, 0.88) -- full again: one pop so the eye catches it
 	end
+	self._fill.BackgroundColor3 = if look == "ready"
+		then Theme.colors.warn
+		elseif look == "cooling" then Theme.colors.warnDark
+		else Theme.colors.disabledDark
+	self._word.Text = if look == "cooling" then "Recharging" else ICON .. " TACKLE"
+	self:_drawFill()
 end
 
-function TackleButton._showArrow(self: any, on: boolean)
+-- The fill's share of the bar: empty at the press, full when the cooldown is over (and while down, in grey).
+function TackleBar._drawFill(self: any)
+	local share = if self._state == "cooling"
+		then 1 - TackleLogic.share(self._coolUntil - os.clock())
+		else 1
+	self._fill.Size = UDim2.new(share, -2 * INSET * share, 1, -2 * INSET)
+	self._fill.Visible = share > 0.02
+end
+
+function TackleBar._showArrow(self: any, on: boolean)
 	local loop: RBXScriptConnection? = self._arrowLoop
 	if not on then
 		if loop then
@@ -351,7 +346,7 @@ function TackleButton._showArrow(self: any, on: boolean)
 end
 
 -- Lays the arrow flat on the floor under the character, pointing where it faces.
-function TackleButton._placeArrow(self: any)
+function TackleBar._placeArrow(self: any)
 	local model, root, humanoid = character()
 	if model == nil or root == nil or humanoid == nil then
 		self._arrowFolder.Parent = nil
@@ -383,7 +378,7 @@ function TackleButton._placeArrow(self: any)
 	self._arrowFolder.Parent = Workspace
 end
 
-function TackleButton.setEnabled(self: any, on: boolean)
+function TackleBar.setEnabled(self: any, on: boolean)
 	if self._enabled == on then
 		return
 	end
@@ -400,15 +395,16 @@ function TackleButton.setEnabled(self: any, on: boolean)
 	local accumulator = TICK
 	self._loop = RunService.Heartbeat:Connect(function(dt: number)
 		accumulator += dt
-		if accumulator < TICK then
-			return
+		if accumulator >= TICK then
+			accumulator = 0
+			self:_tick()
+		elseif self._state == "cooling" then
+			self:_drawFill()
 		end
-		accumulator = 0
-		self:_tick()
 	end)
 end
 
-function TackleButton.result(self: any, ok: boolean, outcome: string?)
+function TackleBar.result(self: any, ok: boolean, outcome: string?)
 	if not ok then
 		-- a refusal spends nothing (carrying, in a minigame, outside an area)
 		self._coolUntil = 0
@@ -418,7 +414,7 @@ function TackleButton.result(self: any, ok: boolean, outcome: string?)
 	self:_tick()
 end
 
-function TackleButton.destroy(self: any)
+function TackleBar.destroy(self: any)
 	local loop: RBXScriptConnection? = self._loop
 	if loop then
 		loop:Disconnect()
@@ -433,4 +429,4 @@ function TackleButton.destroy(self: any)
 	self.screenGui:Destroy()
 end
 
-return TackleButton
+return TackleBar

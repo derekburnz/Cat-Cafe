@@ -1139,7 +1139,7 @@ Catalog.areas = {
 		id = "neighbourhood",
 		name = "Neighbourhood",
 		tier = 3,
-		spawnPoints = 14,
+		spawnPoints = 18,
 		waveSize = 10,
 		rescueSpots = 2,
 		odds = { Common = 50, Rare = 32, Epic = 13, Legendary = 4, Mythical = 1 },

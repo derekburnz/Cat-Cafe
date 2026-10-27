@@ -81,8 +81,8 @@ local AREA_LOOKS: { [string]: AreaLook } = {
 	alley = { floor = ASPHALT, floorMaterial = Enum.Material.Asphalt, wall = BRICK },
 	park = { floor = GRASS, floorMaterial = Enum.Material.Grass, wall = Color3.fromRGB(90, 70, 50) },
 	neighbourhood = {
-		floor = Color3.fromRGB(196, 178, 150),
-		floorMaterial = Enum.Material.Pavement,
+		floor = Color3.fromRGB(130, 185, 100), -- front lawns; the roads are laid on top (Layout paths)
+		floorMaterial = Enum.Material.Grass,
 		wall = Color3.fromRGB(205, 160, 120),
 	},
 	woods = {
@@ -898,23 +898,38 @@ local function buildArea(
 			Enum.Material.Brick,
 			walls
 		)
-		local seg = hw - openingHalf
-		part(
-			"WallNearL",
-			Vector3.new(seg, wallH, 1),
-			CFrame.new(cx - openingHalf - seg / 2, wallH / 2, nearZ),
-			wallColor,
-			Enum.Material.Brick,
-			walls
-		)
-		part(
-			"WallNearR",
-			Vector3.new(seg, wallH, 1),
-			CFrame.new(cx + openingHalf + seg / 2, wallH / 2, nearZ),
-			wallColor,
-			Enum.Material.Brick,
-			walls
-		)
+		-- The Neighbourhood's near side is the Square's north wall, built with the Alleyway.
+		if spec.nearWall ~= false then
+			local seg = hw - openingHalf
+			part(
+				"WallNearL",
+				Vector3.new(seg, wallH, 1),
+				CFrame.new(cx - openingHalf - seg / 2, wallH / 2, nearZ),
+				wallColor,
+				Enum.Material.Brick,
+				walls
+			)
+			part(
+				"WallNearR",
+				Vector3.new(seg, wallH, 1),
+				CFrame.new(cx + openingHalf + seg / 2, wallH / 2, nearZ),
+				wallColor,
+				Enum.Material.Brick,
+				walls
+			)
+		end
+		-- Roads and paths sit 0.05 above the floor, so their tops never fight with it.
+		local paths: { Layout.Rect } = spec.paths or {}
+		for n, rect in paths do
+			part(
+				"Path" .. n,
+				Vector3.new(rect.x2 - rect.x1, 0.2, rect.z2 - rect.z1),
+				CFrame.new((rect.x1 + rect.x2) / 2, 0.05, (rect.z1 + rect.z2) / 2),
+				ASPHALT,
+				Enum.Material.Asphalt,
+				model
+			)
+		end
 		arrival = CFrame.lookAt(
 			Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
 			Vector3.new(cx, spec.floorY + 3, cz)

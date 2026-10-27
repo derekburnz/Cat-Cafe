@@ -353,4 +353,35 @@ return function()
 			expect(Catching.percentText(1)).to.equal("100%")
 		end)
 	end)
+
+	describe("shoutOut (F30): who hears about a catch", function()
+		local function cat(rarity: string, name: string): any
+			return { id = "test", name = name, rarity = rarity }
+		end
+
+		it("announces Epic and rarer, with the right article", function()
+			expect(Catching.shoutOut("Dee", "caught", cat("Epic", "Moonpaw"), "base")).to.equal(
+				"Dee caught an Epic Moonpaw!"
+			)
+			expect(Catching.shoutOut("Dee", "rescued", cat("Legendary", "Sunny"), nil)).to.equal(
+				"Dee rescued a Legendary Sunny!"
+			)
+		end)
+
+		it("stays quiet for a plain Common or Rare", function()
+			expect(Catching.shoutOut("Dee", "caught", cat("Rare", "Pip"), "base")).to.equal(nil)
+			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), nil)).to.equal(nil)
+		end)
+
+		it("always announces a shiny, whatever its rarity", function()
+			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "shiny")).to.equal(
+				"Dee caught a shiny Common Tabby!"
+			)
+		end)
+
+		it("adds where it happened", function()
+			local text = Catching.shoutOut("Dee", "tamed", cat("Epic", "Moonpaw"), "base", " at their bait bowl")
+			expect(text).to.equal("Dee tamed an Epic Moonpaw at their bait bowl!")
+		end)
+	end)
 end

@@ -82,6 +82,8 @@ UI.events = {
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	shove = Signal.new(), -- (targetUserId)   the Shove button or Q on the nearest player within 6 studs: forward as Bump (F41)
+	-- 2026-10-27 HUD v3
+	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 }
 
 local state: Types.PlayerState = {
@@ -284,6 +286,28 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
+		-- Cats and Book are two tabs of one screen: a pill switches tabs, or closes the screen on its own tab
+		openCollection = function(tab: "Book" | "Room")
+			local screen = collection
+			if
+				screen
+				and modalInstance:current() == "Collection"
+				and screen:currentTab() == tab
+			then
+				modalInstance:close()
+				return
+			end
+			if screen then
+				screen:showTab(tab)
+			end
+			modalInstance:open("Collection")
+		end,
+		equipBest = function()
+			UI.events.equipBest:Fire()
+		end,
+		dropCat = function()
+			UI.events.dropCat:Fire()
+		end,
 	})
 	local hudInstance = hud :: HUD.HUD
 
@@ -506,6 +530,10 @@ function UI.init(config: Types.InitConfig)
 					modalInstance:toggle("Collection")
 				elseif key == Enum.KeyCode.F then
 					openBait()
+				elseif key == Enum.KeyCode.H then
+					hudInstance:pressTravel("home")
+				elseif key == Enum.KeyCode.G and hudInstance:isCarrying() then
+					UI.events.dropCat:Fire()
 				elseif key == Enum.KeyCode.ButtonB then
 					modalInstance:close()
 				end
@@ -1452,7 +1480,8 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 end
 
 -- Drives the prompt UI from every ProximityPrompt with Style = Custom and a CatId attribute
--- (on the prompt, its model, or its parent). Every cat prompt has HoldDuration 0: one press fires
+-- (on the prompt, its model, or its parent). Cat prompts are held for HoldDuration (0.5 s since 2026-10-27; the
+-- card and the CATCH button fill over the hold), and the trigger fires
 -- events.grabBegan (a stray) or events.rescueBegan (a stuck cat, Rescue = true) and the server answers with
 -- catch.showCircles, UI.rescue.show or catch.fail. A press while the circles or the rescue bar are up is theirs,
 -- so it never asks again.
@@ -1531,6 +1560,8 @@ function UI.catch.bindProximityPrompts()
 		ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt: ProximityPrompt)
 			if actionPills and actionPills:isShown(prompt) then
 				actionPills:holdBegan(prompt)
+			elseif prompt == activePrompt then
+				catchScreen:holdStart()
 			end
 		end)
 	)
@@ -1539,6 +1570,8 @@ function UI.catch.bindProximityPrompts()
 		ProximityPromptService.PromptButtonHoldEnded:Connect(function(prompt: ProximityPrompt)
 			if actionPills and actionPills:isShown(prompt) then
 				actionPills:holdEnded(prompt)
+			elseif prompt == activePrompt then
+				catchScreen:holdStop()
 			end
 		end)
 	)

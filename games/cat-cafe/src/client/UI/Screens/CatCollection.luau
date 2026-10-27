@@ -38,6 +38,8 @@ export type CatCollection = {
 	setCatalog: (self: CatCollection, catalog: Types.Catalog) -> (),
 	render: (self: CatCollection, state: Types.PlayerState) -> (),
 	showTab: (self: CatCollection, tab: "Index" | "Room") -> (),
+	showArea: (self: CatCollection, areaId: string) -> (),
+	setNight: (self: CatCollection, night: boolean) -> (),
 	currentTab: (self: CatCollection) -> "Index" | "Room",
 	destroy: (self: CatCollection) -> (),
 }
@@ -404,6 +406,18 @@ function CatCollection.showTab(self: any, tab: "Index" | "Room")
 		self._dirty = true
 		self:render(self._lastState)
 	end
+end
+
+-- The Index tab on an area's page (an Index Board's prompt, F50).
+function CatCollection.showArea(self: any, areaId: string)
+	self._area = areaId
+	self._grid.CanvasPosition = Vector2.zero
+	self:showTab("Index")
+end
+
+-- The reward strip prices prizes that grow with the cafe from the day rate (the synced income drops after dark).
+function CatCollection.setNight(self: any, night: boolean)
+	self._strip:setNight(night)
 end
 
 function CatCollection._select(self: any, catId: string)

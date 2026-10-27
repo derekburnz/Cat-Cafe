@@ -152,6 +152,9 @@ Theme.icons = {
 	settings = "⚙️",
 	gifts = "🎁",
 	spin = "🎡",
+	goldenFish = "🐟", -- on a gold tile until the cat-face coin (F52) is in Assets
+	crate = "📦",
+	tag = "🏷️",
 }
 
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons

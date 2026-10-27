@@ -71,17 +71,27 @@ export type TipJarRow = {
 	spins: number?, -- F49: Spin Wheel spins it also banks (steps 11 and 12), up to SpinBankCap
 }
 
--- An Index milestone (F48, data-model section 11b): `need` of the area's cats found, or as gold cats.
+-- An Index milestone (F48, data-model section 11b): `need` of the area's cats found, or as gold cats. F54
+-- (golden-fish.md section 8) renames `need` to `needs` and `gold` to `track = "gold"`; read both through
+-- Components/IndexRewards.need and .isGold.
 export type IndexMilestone = {
-	id: string, -- cats3, cats6, cats10, gold10
-	need: number,
+	id: string, -- cats3, cats6, cats10, gold1 to gold10; total5 to total50 on the "all" page
+	need: number?,
+	needs: number?,
 	gold: boolean?,
+	track: string?, -- "normal" or "gold"
 }
 
--- What an Index milestone pays: coins, foods (lure id -> count) and an Index decor piece, any of them.
+-- What an Index milestone pays, any of these (F54 adds all but coins, lures and decorId; decorId goes away).
 export type IndexPrize = {
-	coins: number?,
+	coins: number?, -- the coins, or the least they pay when coinSeconds is set
+	coinSeconds: number?, -- pays max(coins, floor(dayRate * coinSeconds)), like a Tip Jar gift
 	lures: { [string]: number }?,
+	fish: number?, -- golden fish
+	spins: number?, -- banked Spin Wheel spins, up to SpinBankCap
+	crates: { [string]: number }?, -- crate id -> count
+	bonus: number?, -- tips forever, as a fraction (0.02)
+	tag: string?, -- a name tag ("Cat Master")
 	decorId: string?,
 }
 

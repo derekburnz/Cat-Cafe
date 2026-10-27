@@ -1,33 +1,47 @@
 --!strict
--- The Index's reward strip (F48, data-model section 11b): a row of milestone cards above the open area's cats,
--- like the index rewards in Pet Simulator 99. Each card shows what it needs ("3 cats", "All 10 gold"), the prize
--- and either a bar toward it, a green Claim button or "✓ Claimed". The sums live in Components/IndexRewards;
--- the strip hides itself when the catalog has no prizes for the area.
+-- The Index's reward strip (F48, data-model section 11b; F54, golden-fish.md section 5): a row of milestone cards
+-- above the open area's cats, like the index rewards in Pet Simulator 99. Each card shows what it needs ("3 cats",
+-- "4 gold"), the prize as little pictures with amounts (Components/PrizeChips: "$300", golden fish "x10", the food
+-- "x2", a crate, spins), a gold "+2% tips forever" band when the milestone adds a permanent bonus, and either a bar
+-- toward it, a green Claim button or "✓ Claimed". The next card to work toward on each track (normal and gold)
+-- wears a NEXT sticker and says how many cats are left (Derek 2026-10-27: show what the next reward is and how
+-- much). With F54's nine milestones an area the row scrolls sideways and opens on the first NEXT card. The sums
+-- live in Components/IndexRewards; the strip hides itself when the catalog has no prizes for the area.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
-local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
-local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local Outline = require(script.Parent.Parent.Components.Outline)
+local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Theme = require(script.Parent.Parent.Theme)
+local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
+
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Callbacks = {
 	claim: (areaId: string, milestoneId: string) -> (),
 }
 
 export type IndexStrip = {
-	frame: Frame,
+	frame: ScrollingFrame,
 	setCatalog: (self: IndexStrip, catalog: Types.Catalog) -> (),
+	setNight: (self: IndexStrip, night: boolean) -> (),
 	render: (self: IndexStrip, state: Types.PlayerState, areaId: string?) -> (),
 	destroy: (self: IndexStrip) -> (),
 }
 
-local HEIGHT = 68
-local ICON = 52
-local TEXT_LEFT = ICON + 16
+local CARD = Vector2.new(200, 144)
+local STICKER = 10 -- room above the cards for the NEXT sticker
+local EDGE = 4 -- room round the cards for their outline inside the scrolling row
+local SCROLLBAR = 6
+local TILE = 26 -- a prize picture
+local PAD = 10
+local BAND = 18 -- the tips-forever band
 local PENDING_SECONDS = 3 -- a pressed Claim waits this long for ProfileSync before it can be pressed again
-local COIN_GLYPH = "💰"
+local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 
 local IndexStrip = {}
 IndexStrip.__index = IndexStrip
@@ -52,17 +66,23 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 	local self = setmetatable({}, IndexStrip) :: any
 	self._callbacks = callbacks
 	self._catalog = nil :: Types.Catalog?
-	self._lureById = {} :: { [string]: Types.LureDef }
-	self._decorById = {} :: { [string]: Types.DecorDef }
 	self._cards = {} :: { [string]: any }
 	self._pending = {} :: { [string]: number } -- "area:milestone" -> os.clock() of the press
 	self._state = nil :: Types.PlayerState?
 	self._area = nil :: string?
+	self._night = false
+	self._scrolledFor = nil :: string? -- "area:milestone" the row last scrolled to, so it scrolls once per change
 
-	self.frame = Create("Frame", {
+	self.frame = Create("ScrollingFrame", {
 		Name = "Rewards",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, HEIGHT),
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, CARD.Y + STICKER + EDGE * 2 + SCROLLBAR),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.X,
+		ScrollingDirection = Enum.ScrollingDirection.X,
+		ScrollBarThickness = SCROLLBAR,
+		ScrollBarImageColor3 = Theme.modal.subtext,
 		LayoutOrder = 0,
 		Visible = false,
 		Parent = parent,
@@ -72,6 +92,11 @@ function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, STICKER + EDGE),
+			PaddingLeft = UDim.new(0, EDGE),
+			PaddingRight = UDim.new(0, EDGE),
+		}),
 	})
 
 	return self :: IndexStrip
@@ -79,17 +104,9 @@ end
 
 function IndexStrip.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
-	table.clear(self._lureById)
-	for _, lure in catalog.lures do
-		self._lureById[lure.id] = lure
-	end
-	table.clear(self._decorById)
-	for _, decor in catalog.decor do
-		self._decorById[decor.id] = decor
-	end
 	for _, card in self._cards do
 		card.claim:destroy()
-		card.icon:destroy()
+		card.chips:destroy()
 		card.frame:Destroy()
 	end
 	table.clear(self._cards)
@@ -97,13 +114,21 @@ function IndexStrip.setCatalog(self: any, catalog: Types.Catalog)
 	for order, milestone in milestones do
 		self:_buildCard(milestone, order)
 	end
+	self._scrolledFor = nil
+end
+
+function IndexStrip.setNight(self: any, night: boolean)
+	self._night = night
+	self:_refresh()
 end
 
 function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order: number)
+	local gold = IndexRewards.isGold(milestone)
 	local frame: Frame = Create("Frame", {
 		Name = milestone.id,
 		BackgroundColor3 = Theme.modal.card,
 		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(CARD.X, CARD.Y),
 		LayoutOrder = order,
 		Parent = self.frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
@@ -112,16 +137,22 @@ function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order
 		Thickness = Theme.sizes.stroke,
 		Parent = frame,
 	})
-	local icon = ItemIcon.new({
+	local chips = PrizeChips.new({
 		parent = frame,
-		size = UDim2.fromOffset(ICON, ICON),
-		anchorPoint = Vector2.new(0, 0.5),
-		position = UDim2.new(0, 8, 0.5, 0),
+		tile = TILE,
+		textSize = Theme.sizes.textSmall,
+		wrap = true,
+		showBonus = false,
+		size = UDim2.new(1, -PAD * 2, 0, 0),
+		position = UDim2.fromOffset(PAD, 28),
 	})
+	if self._catalog then
+		chips:setCatalog(self._catalog)
+	end
 	local need = text({
 		Name = "Need",
-		Position = UDim2.fromOffset(TEXT_LEFT, 5),
-		Size = UDim2.new(1, -(TEXT_LEFT + 8), 0, 16),
+		Position = UDim2.fromOffset(PAD, 8),
+		Size = UDim2.new(1, -(PAD + 64), 0, 16),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Theme.modal.subtext,
@@ -130,7 +161,7 @@ function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order
 	local count = text({
 		Name = "Count",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -8, 0, 5),
+		Position = UDim2.new(1, -8, 0, 8),
 		Size = UDim2.fromOffset(56, 16),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
@@ -138,45 +169,73 @@ function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = frame,
 	})
-	local prize = text({
-		Name = "Prize",
-		Position = UDim2.fromOffset(TEXT_LEFT, 21),
-		Size = UDim2.new(1, -(TEXT_LEFT + 8), 0, 18),
+	-- a permanent tip bonus gets a band of its own, so it never wraps under the pictures
+	local band = text({
+		Name = "Bonus",
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.gold,
+		Position = UDim2.new(0, PAD, 1, -54),
+		Size = UDim2.new(1, -PAD * 2, 0, BAND),
 		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Visible = false,
 		Parent = frame,
 	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = band })
+	Outline.text(band, 1.5)
 	local track: Frame = Create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = Theme.colors.line,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(TEXT_LEFT, 46),
-		Size = UDim2.new(1, -(TEXT_LEFT + 8), 0, 10),
+		Position = UDim2.new(0, PAD, 1, -20),
+		Size = UDim2.new(1, -PAD * 2, 0, 10),
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	local fill: Frame = Create("Frame", {
 		Name = "Fill",
-		BackgroundColor3 = if milestone.gold then Theme.colors.gold else Theme.colors.mint,
+		BackgroundColor3 = if gold then Theme.colors.gold else Theme.colors.mint,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(0, 1),
 		Parent = track,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	local done = text({
 		Name = "Done",
-		Position = UDim2.fromOffset(TEXT_LEFT, 40),
-		Size = UDim2.new(1, -(TEXT_LEFT + 8), 0, 22),
+		Position = UDim2.new(0, PAD, 1, -32),
+		Size = UDim2.new(1, -PAD * 2, 0, 24),
 		FontFace = Theme.fonts.display,
 		TextColor3 = Theme.colors.goodDark,
 		Text = "✓ Claimed",
 		Visible = false,
 		Parent = frame,
 	})
+	-- the card to work toward next: a sticker over its top edge, gold on the gold track
+	local sticker: TextLabel = Create("TextLabel", {
+		Name = "Next",
+		BackgroundColor3 = if gold then Theme.colors.gold else Theme.colors.good,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -10, 0, 0),
+		Size = UDim2.fromOffset(52, 20),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.white,
+		Text = "NEXT",
+		Rotation = 4,
+		Visible = false,
+		ZIndex = 3,
+		Parent = frame,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(sticker, 2)
+	Outline.text(sticker, 1.5)
 	local id = milestone.id
 	local claim = Button.new({
 		name = "Claim",
 		text = "Claim",
 		style = "primary",
-		size = UDim2.new(1, -(TEXT_LEFT + 8), 0, 26),
-		position = UDim2.fromOffset(TEXT_LEFT, 38),
+		size = UDim2.new(1, -PAD * 2, 0, 28),
+		position = UDim2.new(0, PAD, 1, -34),
 		textSize = Theme.sizes.textSmall,
 		parent = frame,
 		onClick = function()
@@ -199,54 +258,18 @@ function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order
 	self._cards[id] = {
 		frame = frame,
 		stroke = stroke,
-		icon = icon,
+		chips = chips,
 		need = need,
 		count = count,
-		prize = prize,
+		band = band,
+		sticker = sticker,
 		track = track,
 		fill = fill,
 		done = done,
 		claim = claim,
-		gold = milestone.gold == true,
-		shown = nil :: string?, -- the area whose prize the icon and text show
+		gold = gold,
+		order = order,
 	}
-end
-
--- "$300", "2 Tuna", "Salmon + Alley Mural Print"; the icon is the decor, else the food, else coins.
-function IndexStrip._showPrize(self: any, card: any, prize: Types.IndexPrize, gold: boolean)
-	local parts: { string } = {}
-	local coins: number? = prize.coins
-	if coins and coins > 0 then
-		table.insert(parts, Format.money(coins))
-	end
-	local firstLure: Types.LureDef? = nil
-	for _, entry in IndexRewards.lureList(prize) do
-		local lure: Types.LureDef? = self._lureById[entry.id]
-		firstLure = firstLure or lure
-		local name = if lure then lure.name else entry.id
-		table.insert(parts, if entry.count > 1 then ("%d %s"):format(entry.count, name) else name)
-	end
-	local decorId: string? = prize.decorId
-	local decor: Types.DecorDef? = if decorId then self._decorById[decorId] else nil
-	if decorId then
-		table.insert(parts, if decor then decor.name else "Index decor")
-	end
-	card.prize.Text = table.concat(parts, " + ")
-	if decorId then
-		card.icon:set(
-			if decor then decor.asset else nil,
-			Theme.icons.decor,
-			if gold then "Legendary" else "Epic"
-		)
-	elseif firstLure then
-		card.icon:set(
-			firstLure.asset,
-			Theme.foodIcons[firstLure.id] or Theme.icons.food,
-			firstLure.attracts
-		)
-	else
-		card.icon:set(nil, COIN_GLYPH, "Legendary")
-	end
 end
 
 function IndexStrip.render(self: any, state: Types.PlayerState, areaId: string?)
@@ -265,27 +288,37 @@ function IndexStrip._refresh(self: any)
 	end
 	local views = IndexRewards.views(catalog, state, area)
 	local total = IndexRewards.counts(catalog, state, area).total
+	local nextNormal = IndexRewards.nextView(views, "normal")
+	local nextGold = IndexRewards.nextView(views, "gold")
+	local look: PrizeChips.Look = {
+		dayRate = TipJarLogic.dayRate(state.incomePerSecond, self._night, NIGHT_SHARE),
+		spinsBanked = if state.spin then state.spin.banked else nil,
+	}
 	self.frame.Visible = #views > 0
 	for _, card in self._cards do
 		card.frame.Visible = false
 	end
-	local gap = Theme.sizes.gap
-	local width =
-		UDim2.new(1 / math.max(1, #views), -gap * (#views - 1) / math.max(1, #views), 1, 0)
 	for _, view in views do
 		local card = self._cards[view.milestone.id]
 		if not card then
 			continue
 		end
 		card.frame.Visible = true
-		card.frame.Size = width
-		if card.shown ~= area then
-			card.shown = area
-			self:_showPrize(card, view.prize, card.gold)
-		end
-		local need = view.milestone.need
-		card.need.Text = IndexRewards.needLabel(view.milestone, total)
+		card.chips:set(
+			view.prize,
+			{ gold = card.gold, dayRate = look.dayRate, spinsBanked = look.spinsBanked }
+		)
+		local need = IndexRewards.need(view.milestone)
+		local isNext = view == nextNormal or view == nextGold
+		local toGo = IndexRewards.toGo(view)
+		card.need.Text = if isNext and view.state == "locked"
+			then ("%s · %d to go"):format(IndexRewards.needLabel(view.milestone, total), toGo)
+			else IndexRewards.needLabel(view.milestone, total)
+		card.sticker.Visible = isNext
 		card.count.Text = ("%d / %d"):format(view.have, need)
+		local bonus = view.prize.bonus
+		card.band.Visible = bonus ~= nil and bonus > 0
+		card.band.Text = if bonus then "★ " .. PrizeChips.bonusText(bonus) else ""
 		local pressedAt: number? = self._pending[area .. ":" .. view.milestone.id]
 		local pending = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 		local ready = view.state == "ready"
@@ -299,17 +332,46 @@ function IndexStrip._refresh(self: any)
 		card.count.Visible = not claimed
 		card.stroke.Color = if ready
 			then Theme.colors.good
-			elseif card.gold then Theme.colors.gold
+			elseif isNext or card.gold then Theme.colors.gold
 			else Theme.modal.cardStroke
-		card.stroke.Thickness = Theme.sizes.stroke + (if ready then 1 else 0)
+		card.stroke.Thickness = Theme.sizes.stroke + (if ready or isNext then 1 else 0)
 		card.frame.BackgroundTransparency = if claimed then 0.35 else 0
 	end
+	self:_scrollToNext(views, area, IndexRewards.nextView(views))
+end
+
+-- Opens the row on the next card once per area and per next card, so a player who scrolls away is left alone.
+function IndexStrip._scrollToNext(
+	self: any,
+	views: { IndexRewards.View },
+	area: string,
+	nextView: IndexRewards.View?
+)
+	local key = area .. ":" .. (if nextView then nextView.milestone.id else "")
+	if key == self._scrolledFor then
+		return
+	end
+	self._scrolledFor = key
+	local before = 0 -- shown cards to the left of the next one
+	if nextView then
+		for _, view in views do
+			if view == nextView then
+				break
+			end
+			if self._cards[view.milestone.id] then
+				before += 1
+			end
+		end
+	end
+	-- keep one card of the past in view, so the row reads as progress
+	local x = math.max(0, before - 1) * (CARD.X + Theme.sizes.gap)
+	self.frame.CanvasPosition = Vector2.new(x, 0)
 end
 
 function IndexStrip.destroy(self: any)
 	for _, card in self._cards do
 		card.claim:destroy()
-		card.icon:destroy()
+		card.chips:destroy()
 	end
 	table.clear(self._cards)
 	self.frame:Destroy()

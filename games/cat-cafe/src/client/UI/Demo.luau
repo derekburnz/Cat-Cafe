@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Format = require(script.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Components.IndexRewards)
 local RankUp = require(script.Parent.Screens.RankUp)
 local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 local Settings = require(Shared:WaitForChild("Settings"))
@@ -255,7 +256,7 @@ function Demo.run(UI: any): () -> ()
 			local need, gold = math.huge, false
 			for _, milestone in milestones do
 				if milestone.id == milestoneId then
-					need, gold = milestone.need, milestone.gold == true
+					need, gold = IndexRewards.need(milestone), IndexRewards.isGold(milestone)
 				end
 			end
 			local have = 0
@@ -263,7 +264,9 @@ function Demo.run(UI: any): () -> ()
 				local found = if gold
 					then profile.goldCollection[def.id]
 					else profile.collection[def.id]
-				if (def.area or "alley") == areaId and found then
+				if
+					(areaId == IndexRewards.ALL_AREA or (def.area or "alley") == areaId) and found
+				then
 					have += 1
 				end
 			end
@@ -275,6 +278,9 @@ function Demo.run(UI: any): () -> ()
 			local lures: { [string]: number } = prize.lures or {}
 			for lureId, count in lures do
 				profile.lures[lureId] = (profile.lures[lureId] or 0) + count
+			end
+			if prize.spins then
+				profile.spin.banked = math.min(20, profile.spin.banked + prize.spins)
 			end
 			if prize.decorId then
 				profile.decorOwned[prize.decorId] = true

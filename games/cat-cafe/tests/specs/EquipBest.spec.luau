@@ -73,18 +73,21 @@ return function()
 	end
 
 	describe("value", function()
-		it("is the rating, times 1.5 in a slot of the favorite role, 0 for an unknown cat", function()
-			local tabby = CatStats.newInstance("t", "tabby", 0)
-			expect(EquipBest.value(tabby, Catalog.getSpot("barista_1") :: any)).to.be.near(
-				Config.FavoriteMultiplier
-			)
-			expect(EquipBest.value(tabby, Catalog.getSpot("barista_3") :: any)).to.be.near(
-				Config.FavoriteMultiplier
-			)
-			expect(EquipBest.value(tabby, Catalog.getSpot("waiter_1") :: any)).to.equal(1)
-			local nope = CatStats.newInstance("n", "nope", 0)
-			expect(EquipBest.value(nope, Catalog.getSpot("waiter_1") :: any)).to.equal(0)
-		end)
+		it(
+			"is the rating, times 1.5 in a slot of the favorite role, 0 for an unknown cat",
+			function()
+				local tabby = CatStats.newInstance("t", "tabby", 0)
+				expect(EquipBest.value(tabby, Catalog.getSpot("barista_1") :: any)).to.be.near(
+					Config.FavoriteMultiplier
+				)
+				expect(EquipBest.value(tabby, Catalog.getSpot("barista_3") :: any)).to.be.near(
+					Config.FavoriteMultiplier
+				)
+				expect(EquipBest.value(tabby, Catalog.getSpot("waiter_1") :: any)).to.equal(1)
+				local nope = CatStats.newInstance("n", "nope", 0)
+				expect(EquipBest.value(nope, Catalog.getSpot("waiter_1") :: any)).to.equal(0)
+			end
+		)
 	end)
 
 	describe("restAll", function()
@@ -113,19 +116,16 @@ return function()
 	end)
 
 	describe("plan", function()
-		it(
-			"a fresh cafe is already optimal: Tabby stays Barista, nothing changes",
-			function()
-				local profile = profileAt(1, true)
-				local plan = EquipBest.plan(profile)
-				expect(plan.placements.starter_tabby).to.equal("barista_1")
-				expect(plan.spotsOpen).to.equal(2)
-				expect(plan.catsPlaced).to.equal(1)
-				expect(plan.baseRate).to.be.near(1.5)
-				expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
-				expect(EquipBest.apply(profile, plan)).to.equal(0)
-			end
-		)
+		it("a fresh cafe is already optimal: Tabby stays Barista, nothing changes", function()
+			local profile = profileAt(1, true)
+			local plan = EquipBest.plan(profile)
+			expect(plan.placements.starter_tabby).to.equal("barista_1")
+			expect(plan.spotsOpen).to.equal(2)
+			expect(plan.catsPlaced).to.equal(1)
+			expect(plan.baseRate).to.be.near(1.5)
+			expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
+			expect(EquipBest.apply(profile, plan)).to.equal(0)
+		end)
 
 		it("fills open spots with favorites first and rests the overflow", function()
 			local profile = profileAt(1)
@@ -196,38 +196,36 @@ return function()
 			addCat(profile, "b", "tabby", 50, 1, "counter_1") -- a v0.2 spot id
 			local plan = EquipBest.plan(profile)
 			expect(plan.spotsOpen).to.equal(2)
-			expect(plan.placements.a).to.equal("barista_1")
-			expect(plan.placements.b).to.equal("waiter_1")
+			expect(plan.placements.a).to.equal("waiter_1")
+			expect(plan.placements.b).to.equal("barista_1")
 			expect(EquipBest.isOptimal(profile, plan)).to.equal(false)
 		end)
 
 		it("ten slots at Tier 5: the hand-computed best of eleven cats (F25 done-when)", function()
 			-- Slots: three barista, three waiter, two greeter, two entertainer. Every slot can take a cat that
 			-- loves its role, so the best plan pays 1.5x everywhere and rests the weakest spare, Ginger:
-			-- greeter Midnight 112.5 + Calico 4.5, barista Void 37.5 + Tortie 4.5 + Tabby 1.5, waiter Maine Coon 12
-			-- + Tuxedo 1.5 + Snow 1.5, entertainer Sphynx 12 + Smoke 1.5 = 189.
+			-- barista Wizard 112.5 + Bandit 12 + Tabby 1.5, waiter Ninja 37.5 + Pirate 4.5 + Tuxedo 1.5, greeter
+			-- DJ 12 + Sleepy 12, entertainer Rocker 4.5 + Smoke 1.5 = 199.5.
 			local profile = profileAt(5)
-			for _, id in
-				ipairs({
-					"tabby",
-					"tuxedo",
-					"ginger",
-					"smoke",
-					"calico",
-					"tortie",
-					"sphynx",
-					"maine_coon",
-					"void",
-					"midnight",
-					"snow",
-				})
-			do
+			for _, id in ipairs({
+				"tabby",
+				"tuxedo",
+				"ginger",
+				"smoke",
+				"calico",
+				"tortie",
+				"sphynx",
+				"maine_coon",
+				"void",
+				"midnight",
+				"ragdoll",
+			}) do
 				addCat(profile, id, id)
 			end
 			local plan = EquipBest.plan(profile)
 			expect(plan.spotsOpen).to.equal(10)
 			expect(plan.catsPlaced).to.equal(10)
-			expect(plan.baseRate).to.be.near(189, 1e-9)
+			expect(plan.baseRate).to.be.near(199.5, 1e-9)
 			expect(plan.placements.ginger).never.to.be.ok()
 			for uid, spotId in pairs(plan.placements) do
 				local spot = Catalog.getSpot(spotId)
@@ -285,7 +283,9 @@ return function()
 				expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
 				if trial == 40 then
 					expect(Economy.incomePerSecond(profile)).to.be.near(
-						plan.baseRate * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile),
+						plan.baseRate
+							* Economy.cafeMultiplier(profile)
+							* Economy.tierMultiplier(profile),
 						1e-6
 					)
 				end

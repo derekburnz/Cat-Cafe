@@ -11,7 +11,7 @@ v0.2 (F01 to F21) is built on main. v0.3 replaces parts of it with Gavin's mecha
 1. F22 Data v3: rarities with Mythical, the 20-cat catalog plus reserved ids, roles, tiers, profile v3 and its migration. Everything else reads these tables.
 2. F26 Net circles. The riskiest feel and the most fun; prototype it early on touch.
 3. F23 Clock 5 and 5, waves of ten, five areas with gates (three as grayboxes).
-4. F24 Tiers and rank up, then F25 roles with upright uniforms and Equip Best over ten slots.
+4. F24 Tiers and rank up, then F25 roles with seated workers in role outfits and Equip Best over ten slots.
 5. F28 Bait bowl at the cafe.
 6. F27 Rescue minigames.
 7. F30 Gold.
@@ -54,7 +54,7 @@ v0.4 (Derek, 2026-10-26 23:03, after playing the rough draft) jumps the queue: F
 | F22 | Data v3: `Mythical` rarity with circles, shrinkSeconds, rescueHits; catalog sections 3a and 3b (20 cats) with `area` and `favoriteRole`, 3c ids reserved; `TierDef` table; role `SpotDef`s with `tier`; upgrades without cafe_level and park_access; shop and dealer `LureDef`s with `source` and five-rarity odds; profile v3 and the 2 to 3 migration (data-model 14) | P0 | M | engineer | | A v2 save loads as v3 with tier 1, refunds applied, two cats working, no coins lost; specs cover the migration |
 | F23 | Clock 300 and 300 s; waves of 10 per area; five areas with spawn points and trap anchors, Neighbourhood, Woods and Sewer as grayboxes; gates solid for locked players; server refuses catch, rescue and bump in locked areas | P0 | S | engineer, asset for gates | F22 | Ten strays per unlocked area at each night start; a Tier 1 player inside the Park gate cannot catch |
 | F24 | Tiers: `RankUp` with cost, distinct cats and rarity checks; tier multiplier in income; tier caps on tables, espresso and net; decor `requiresTier`; area unlocks; cafe expansions as plot variants; rank up card data in ProfileSync | P0 | M | engineer, ui | F22, F23 | Rank to Tier 2 with 1,500 coins and 5 different cats; refused with 4; income rises 25%; the Park gate opens |
-| F25 | Roles: Barista, Waiter, Greeter, Entertainer slots by tier; `favoriteRole` 1.5x; a working cat stands upright in its uniform at its station, the cat room shows it on all fours; Equip Best over up to 10 slots | P0 | M | engineer, asset for poses and uniforms, ui | F22, F24 | Assign a Tabby to Barista and it stands in an apron earning 1.5x; Equip Best matches a hand-computed best on ten slots |
+| F25 | Roles: Barista, Waiter, Greeter, Entertainer slots by tier; `favoriteRole` 1.5x; a working cat sits at its station on the seated body B (the `CatCafe_Cat_<Name>_Sit` model) in its two-piece role outfit, the cat room shows it relaxing without the outfit; Equip Best over up to 10 slots | P0 | M | engineer, asset for poses and uniforms, ui | F22, F24 | Assign a Tabby to Barista and it sits at the counter in its apron and cap earning 1.5x; Equip Best matches a hand-computed best on ten slots |
 | F26 | Net circles: `GrabBegin` builds the schedule from rarity and net level; `CatchSchedule`, `CatchPress`, `CatchResult`; latency-corrected judging; per-circle telemetry. v0.4: the retry and flee rules and the scoring move to F34 | P0 | M | engineer, ui | F22 | A forged early or late press is a Miss; a Mythical with a Basic Net shows uneven circle speeds |
 | F27 | Rescue minigames: traps by area (Alleyway trash_bin and garbage_bag, Park tree and trashcan); `bar` and `shake_catch` kinds; `RescueBegin`, `RescuePress`, `RescueCancel`, `RescueChallenge`, `RescueResult`; paws, retry, the cat never lost; 10% gold hidden until freed | P1 | M | engineer, ui, asset for traps | F22, F23 | Free a Common from a bin in two hits; three misses end the attempt and the cat is still there; a tree rescue ends with one catch circle |
 | F28 | Bait bowl: `lure_bowl` at the plot's BaitBowl anchor; `UseLure(lureId)` rolls and saves the cat; 600 s timer runs offline; `BaitReady`, bait card with Tame and Let go; `ResolveBait`; odds and per-cat split on food cards | P1 | S | engineer, ui | F22 | Put Kibble in, log off for 10 minutes, rejoin and see the same cat waiting; Tame adds it, Let go clears it, the food is gone either way |
@@ -106,7 +106,7 @@ Derek's 14:35 and 14:36 asks: walk-up stations instead of HUD buttons, and draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.
 
-- Cats: `CatCafe_Cat_<Name>` with `Body`, `Head`, `Tail`, PrimaryPart `Body`, facing -Z. Working cats use the upright pose the asset thread already delivered (PR #24) plus a colored Part for the uniform (apron, bow tie, sash, hat) until uniforms exist.
+- Cats: `CatCafe_Cat_<Name>` with `Body`, `Head`, `Tail`, PrimaryPart `Body`, facing -Z. Working cats use the seated body B (`CatCafe_Cat_<Name>_Sit`, PR #259) with their two-piece role outfit attached at the model's `Outfit_<Piece>` attachments; strays walk on body A.
 - Gold: a sparkle on `Body` while the cat's `Gold` attribute is true (the vfx-animator's Effects/Cats; sprite `CatCafe_VFX_ShinySparkle`).
 - Traps: colored Parts named `CatCafe_Alley_TrashBin`, `CatCafe_Alley_GarbageBags`, `CatCafe_Park_RescueTree`, `CatCafe_Park_TrashCan` with a `CatAnchor` attachment.
 - Areas 3 to 5: flat ground in a distinct palette color, walls, a gate Part named `CatCafe_<Area>_Gate`, spawn points and trap anchors.
@@ -128,12 +128,12 @@ v0.2 assets stay. New, in the order the engineer needs them:
 
 | priority | asset | name | notes |
 |---|---|---|---|
-| 1 | Role uniforms on the upright rig | `CatCafe_Accessory_Apron`, `CatCafe_Accessory_BowTie`, `CatCafe_Accessory_Sash`, `CatCafe_Accessory_PartyHat` | Attach to the upright cat; one set fits all 50 cats |
+| 1 | Role outfits on the seated body | `CatCafe_Accessory_Apron`, `CatCafe_Accessory_BaristaCap`, `CatCafe_Accessory_BowTie`, `CatCafe_Accessory_Vest`, `CatCafe_Accessory_Sash`, `CatCafe_Accessory_Boater`, `CatCafe_Accessory_PartyHat`, `CatCafe_Accessory_Cape` | Attach to the seated cat at its `Outfit_<Piece>` attachments; one set fits all 50 cats |
 | 2 | Eight new slice cats | Maine Coon, Midnight, Cream, Brownie, Blue, Persian, Blossom, Aurora | Data-model 3a and 3b art notes; Midnight and Aurora are the Mythical hero assets |
 | 3 | Gold sparkle VFX | `CatCafe_VFX_ShinySparkle` | Readable on a phone at 30 studs |
 | 4 | Alleyway traps | `CatCafe_Alley_TrashBin`, `CatCafe_Alley_GarbageBags` | Stuck pose per trap (head and paws poking out) |
 | 5 | Park traps | `CatCafe_Park_RescueTree` (with a shakeable branch), `CatCafe_Park_TrashCan` | Branch is its own part so it can wobble |
-| 6 | Role stations | `CatCafe_Furniture_GreeterPodium`, `CatCafe_Furniture_StageCatTree` | Barista uses the counter, Waiter stands between tables |
+| 6 | Role stations | `CatCafe_Furniture_GreeterPodium`, `CatCafe_Furniture_StageCatTree` | Barista sits at the counter, Waiter sits between tables |
 | 7 | Bait bowl by the door | reuse `CatCafe_Item_FoodBowl`, plus food models for the four dealer foods `CatCafe_Item_Sardines`, `_Caviar`, `_MoonMilk`, `_StarTreat` | Food sits in the bowl while waiting |
 | 8 | Night dealer | `CatCafe_NPC_Dealer`, `CatCafe_Street_DealerCart` | Mysterious but friendly: hood, lantern, star-patterned cart |
 | 9 | Rich customer | `CatCafe_NPC_Customer_Rich`, `CatCafe_Prop_TipPile` | Top hat; the tip pile is gold coins |
@@ -175,7 +175,7 @@ Fresh account, phone-sized viewport, 10 minute limit.
 1. Join. Plot assigned, Tabby working as Barista in an apron, HUD shows $50 and a positive rate within 5 s.
 2. Walk out of the back door into the Alleyway. A Common stray is waiting right behind your cafe even by day. Start a catch: one slow circle. Good or Perfect catches it; a Miss costs one of its three paws and you try again after 5 s.
 3. Walk home at carry speed, check in. Cat found popup, Index shows 2 / 50.
-4. Assign the new cat as Waiter. It stands up in a bow tie. Rate rises.
+4. Assign the new cat as Waiter. It sits at its station in a bow tie and vest. Rate rises.
 5. Buy Table 1 at $100, then the bait bowl at $400 when affordable, and put Kibble in. The countdown shows 10:00.
 6. First night by minute two: ten strays and at least one stuck cat (guaranteed per area). Rescue it with the bar.
 7. Free play until minute 10. Expected: three or four different cats, two roles filled, two tables, a bait cat on the way, the rank up card showing what Tier 2 still needs.

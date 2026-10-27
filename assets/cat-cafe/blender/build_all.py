@@ -123,9 +123,9 @@ STUDIO_NOTES = {
                                "weld its Body to the Branch so it moves with it. CollisionFidelity Hull on the Trunk.",
     "CatCafe_Park_TrashCan": "Rescue trap trashcan. Put the stuck cat at stuck_pose. The Lid turns about its "
                              "part_pivots_roblox point (the back of the rim). CollisionFidelity Hull on the Can.",
-    "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, plus a PointLight.",
+    "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, Transparency 0.3, plus a PointLight (Brightness 0.8, Range 10).",
     "CatCafe_Decor_DoorSign": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
-    "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand; SmoothPlastic by day.",
+    "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
     "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
     "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
     "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",

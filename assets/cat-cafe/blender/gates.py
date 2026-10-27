@@ -17,7 +17,8 @@ import time
 
 import palette
 
-CATEGORIES = ("Cat", "NPC", "Furniture", "Decor", "Alley", "Park", "Item", "Accessory")
+CATEGORIES = ("Cat", "NPC", "Furniture", "Decor", "Alley", "Park", "Item", "Accessory", "Prop", "Street", "Plot",
+              "Neighbourhood", "Woods", "Sewer")
 FAIL_CHECKS = ("budget", "transforms", "material", "uv", "naming")
 WARN_CHECKS = ("pivot", "centered")
 EPS = 0.02           # studs, pivot and centering tolerance

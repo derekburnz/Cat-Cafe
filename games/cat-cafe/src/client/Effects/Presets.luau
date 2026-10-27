@@ -867,6 +867,11 @@ Presets.areas = {
 	ringDiameter = 12,
 }
 
+-- Butterflies by day (design v0.4 section 4; Derek 2026-10-27 22:43: round more than the door, and they come and
+-- go). The `perSource` butterflies of a flower bed wander all of it and `pad` studs past its edges (at least `least`
+-- from its middle each way): a flight to a random spot at about `speed` studs a second, often then a hover over it,
+-- with a little loop of `roam` on top all the time. Each is out for a spell of `out` seconds, then away for `away`;
+-- it comes down from `rise` studs up as it fades in, and rises as it fades out, over `fade` seconds.
 Presets.butterfly = {
 	wing = Vector3.new(0.34, 0.03, 0.28),
 	colors = {
@@ -877,8 +882,19 @@ Presets.butterfly = {
 	},
 	flapHz = 2.2,
 	flapDegrees = 55,
-	roam = Vector3.new(2.4, 0.6, 1.8), -- half size of the box it loops around its flowers in
-	height = 1.6,
+	roam = Vector3.new(0.7, 0.35, 0.6), -- half size of the little loop it flutters in on top of its flight
+	height = 1.6, -- studs over the flowers
+	speed = 2.6,
+	legShortest = 1.2, -- seconds of one flight
+	legLongest = 5,
+	hover = { chance = 0.45, shortest = 0.6, longest = 1.8 },
+	pad = 1,
+	least = Vector3.new(1.5, 0, 1.2),
+	out = { 6, 14 }, -- seconds, shortest and longest
+	away = { 8, 20 },
+	firstAway = { 0, 10 }, -- the first wait once a bed is near, so they do not all arrive at once
+	fade = 1,
+	rise = 1.5,
 	perSource = 2,
 }
 

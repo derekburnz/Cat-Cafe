@@ -828,7 +828,27 @@ function Logic.confettiOffset(velocity: Vector3, t: number, phase: number): Vect
 	return Vector3.new(velocity.X / k * slow + sway, y, velocity.Z / k * slow)
 end
 
--- A butterfly's loop around its flowers: its offset at time t and its wing angle.
+-- Where a butterfly is `k` (0 to 1 of the flight's time) into a flight from one spot to the next: eased, so it
+-- sets off and settles gently, and still at either end.
+function Logic.butterflyLeg(from: Vector3, to: Vector3, k: number): Vector3
+	local x = math.clamp(k, 0, 1)
+	return from + (to - from) * (x * x * (3 - 2 * x))
+end
+
+-- How much of a butterfly shows `age` seconds into a spell out `length` long: fading in over the first `fade`
+-- seconds and out over the last, none before or after it.
+function Logic.spell(age: number, length: number, fade: number): number
+	if age <= 0 or age >= length then
+		return 0
+	end
+	local edge = math.min(fade, length / 2)
+	if edge <= 0 then
+		return 1
+	end
+	return math.min(1, age / edge, (length - age) / edge)
+end
+
+-- A butterfly's little loop on top of its flight: its offset at time t and its wing angle.
 function Logic.butterfly(t: number, phase: number): (Vector3, number)
 	local b = Presets.butterfly
 	local roam = b.roam

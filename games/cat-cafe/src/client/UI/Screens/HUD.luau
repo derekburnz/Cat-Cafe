@@ -1359,15 +1359,22 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 	-- the Index's dot also stays lit while an Index reward waits to be claimed (F48), even after the Index is opened
 	local _, indexReady = IndexRewards.claimable(catalog, state)
 	self._indexReady = indexReady
+	local lit = false
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
 		local show = Notices.hasNew(keys, self._seen[screen])
 			or (screen == "Collection" and indexReady > 0)
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
+			lit = true
 		end
 		dot.Visible = show
 	end
+	-- one uiBadge however many dots light, and none for the dots the first state already lights
+	if lit and self._dotsRendered then
+		Sound.play("uiBadge")
+	end
+	self._dotsRendered = true
 	self:_renderFoldDot()
 end
 
@@ -1387,6 +1394,12 @@ function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, lef
 	if text ~= self._giftText then
 		self._giftText = text
 		gifts:setText(text)
+	end
+	-- uiGiftReady when another gift becomes ready, never for the gifts the first TipJarState already has
+	local before: number? = self._giftReady
+	self._giftReady = summary.ready
+	if before ~= nil and summary.ready > before then
+		Sound.play("uiGiftReady")
 	end
 	local ready = summary.ready > 0
 	if ready and not self._giftDot.Visible then

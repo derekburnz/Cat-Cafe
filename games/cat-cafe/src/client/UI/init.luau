@@ -1208,7 +1208,10 @@ function UI.setZone(zone: string?)
 	local chip = zoneChip
 	if chip and chip:set(zone) and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
 		safeToastAt = os.clock()
-		UI.toast("Safe zone: no shoving here", "good")
+		-- quiet: Audio plays its own zone chime from Audio.setZone
+		if toasts then
+			toasts:show("Safe zone: no shoving here", "good", true)
+		end
 	end
 end
 

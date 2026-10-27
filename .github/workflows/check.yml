@@ -1,13 +1,18 @@
 # Cat Cafe CI: the same done gate agents run locally (rule 6 in CLAUDE.md), plus the Studio-free unit tests.
-# PR runs check the PR merged with main (.github/scripts/merge-main.sh), and the last job merges PRs labeled
-# `automerge` (.github/scripts/automerge.sh). workflow_dispatch is how that script starts a run on a PR branch
-# with a newer main merged in; nothing is pushed to the branch.
+# PR runs check the PR merged with main (.github/scripts/merge-main.sh). The gate and cloudcheck jobs are the
+# required checks of main's ruleset (docs/setup-guide.md step 18), so GitHub's auto-merge merges a PR once both
+# pass. The last job is the older merger, for PRs labeled `automerge` (.github/scripts/automerge.sh);
+# workflow_dispatch is how that script starts a run on a PR branch with a newer main merged in. Nothing is pushed
+# to the branch.
 name: check
 
 on:
   push:
     branches: [main]
   pull_request:
+    # GitHub's three defaults, plus auto_merge_enabled: turning auto-merge on checks the PR again against the
+    # main of that moment, and GitHub waits for that run before it merges.
+    types: [opened, synchronize, reopened, auto_merge_enabled]
   workflow_dispatch:
     inputs:
       main:

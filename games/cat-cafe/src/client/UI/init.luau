@@ -22,6 +22,7 @@ local Areas = require(script.Screens.Areas)
 local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
+local BugReportLogic = require(script.Components.BugReportLogic)
 local CafeSigns = require(script.Screens.CafeSigns)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
@@ -160,7 +161,6 @@ local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, op
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
 local BOWL_RANGE: number = Config.BaitBowlRangeStuds
-local REPORT_SENT = "report was sent" -- in the server's "Thanks! Your report was sent." toast
 local RESOLVE_RANGE: number = Config.BaitResolveRangeStuds
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
 local CART_RANGE: number = Config.DealerRangeStuds
@@ -889,12 +889,12 @@ end
 ----------------------------------------------------------------------------------------------------
 
 function UI.toast(text: string, kind: Types.ToastKind?)
-	-- a bug report waiting on the server: its "Thanks!" toast closes the window, a warn toast keeps the words
+	-- a bug report waiting on the server: its "Thanks!" closes the window, its refusals keep the words, and any
+	-- other toast leaves the report waiting (review N151)
 	if bugReportScreen and bugReportScreen:pending() then
-		if kind == "good" and string.find(text, REPORT_SENT, 1, true) then
-			bugReportScreen:result(true)
-		elseif kind == "warn" then
-			bugReportScreen:result(false)
+		local answer = BugReportLogic.answer(text)
+		if answer ~= nil then
+			bugReportScreen:result(answer)
 		end
 	end
 	if toasts then

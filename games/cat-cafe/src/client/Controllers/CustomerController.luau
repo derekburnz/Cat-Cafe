@@ -2,8 +2,8 @@
 -- Cosmetic customers (features.md F15, F37). Runs entirely on this client: customers walk into every running cafe
 -- within Config.World.CafeLifeRangeStuds of the camera, not just this player's own, so the street looks busy
 -- (world-and-feel.md section 4). Each one walks in from the street, orders at the counter, takes a free chair,
--- sits a while and walks out. Coin text pops only over this player's own cafe. Cafes stay open at night (F31): night
--- owls come every CustomerSpawnSecondsNight instead of CustomerSpawnSeconds.
+-- sits a while and walks out. Coin text pops only over this player's own cafe. The cafe closes at night (v0.5 F44):
+-- no customers come, and at nightfall the ones inside skip the rest of their visit and walk out.
 -- A rich customer (F31, data-model section 12) comes to any nearby cafe whose plot shows a rich tip
 -- (RichTipAmount), sits at table 1 beside the gold coin pile on its RichTipAnchor and stays until the tip is paid.
 -- The server decides the tip; this is only what the street sees.
@@ -169,7 +169,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	local speed = Config.CustomerWalkSpeed
 	local arrived = Mover.walkTo(model, door, speed, isAlive)
 	-- order at the counter, standing a little to one side so a queue spreads out
-	if arrived and order ~= nil then
+	if arrived and order ~= nil and (visit ~= nil or isDay()) then
 		local counter = order :: Vector3
 		local inward = ((counter - door) * Vector3.new(1, 0, 1)).Unit -- from the door toward the counter
 		local spot = Vector3.new(counter.X, entry.Y, counter.Z)
@@ -181,7 +181,11 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 			task.wait(Config.World.CustomerOrderSeconds)
 		end
 	end
-	if arrived and Mover.walkTo(model, seatPosition, speed, isAlive) then
+	if
+		arrived
+		and (visit ~= nil or isDay())
+		and Mover.walkTo(model, seatPosition, speed, isAlive)
+	then
 		if tableTop ~= nil then
 			Mover.face(model, tableTop.Position)
 		end
@@ -194,7 +198,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 			if staysWhile ~= nil then
 				return staysWhile()
 			end
-			return elapsed < stay
+			return elapsed < stay and isDay()
 		end
 		while isAlive() and staying() do
 			task.wait(Config.CustomerCoinPopSeconds)
@@ -213,10 +217,11 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 				Moments.CoinPop:Fire(above)
 			end
 		end
-		if isAlive() then
-			Mover.walkTo(model, door, speed, isAlive)
-			Mover.walkTo(model, entry, speed, isAlive)
-		end
+	end
+	-- out again: after the visit, or at once when the cafe closes for the night on the way in
+	if isAlive() then
+		Mover.walkTo(model, door, speed, isAlive)
+		Mover.walkTo(model, entry, speed, isAlive)
 	end
 	alive = false
 	model:Destroy()
@@ -312,7 +317,7 @@ local function updateRich()
 		if anchor ~= nil and not coinPiles[plot] then
 			coinPiles[plot] = buildCoinPile(anchor)
 		end
-		if not richVisits[plot] then
+		if not richVisits[plot] and isDay() then -- a rich customer already seated stays for its tip at nightfall
 			local seat, tableTop = richSeat(plot)
 			if seat ~= nil then
 				richVisits[plot] = true
@@ -343,9 +348,10 @@ function CustomerController.start()
 	end)
 	task.spawn(function()
 		while true do
-			task.wait(
-				if isDay() then Config.CustomerSpawnSeconds else Config.CustomerSpawnSecondsNight
-			)
+			task.wait(Config.CustomerSpawnSeconds)
+			if not isDay() then
+				continue -- closed for the night (F44)
+			end
 			-- one new customer per running cafe per tick, while seats and the street-wide cap allow (reviewer N59:
 			-- fewer on a phone)
 			local cap = if Effects.tier() == "low"

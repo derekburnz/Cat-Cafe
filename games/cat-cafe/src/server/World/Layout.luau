@@ -141,11 +141,12 @@ Layout.plot = {
 	} :: Rect,
 	frontPath = { x1 = -2.5, z1 = -halfD - 1 - W.FrontGardenDepth, x2 = 2.5, z2 = -halfD - 1 } :: Rect,
 
-	-- The bait bowl (data-model section 8) just inside the garden fence, right of the path, so the street sees
-	-- the cat that comes to eat. Clear of the shells' pots, flowers and fence posts and of the Tier 2 bench; the
-	-- cat stands beside it with its head over the bowl.
-	baitBowl = { x = 9, y = 0, z = -halfD - W.FrontGardenDepth } :: Point,
-	baitCat = { x = 10.6, y = 0, z = -halfD - W.FrontGardenDepth, rotY = 90 } :: Point,
+	-- The bait bowl (data-model section 8; v0.5 F44, Gavin: "The bowl sits out side of your cafe") on the back
+	-- step, right of the back door and under the shell's back lamp, facing the yard gate and the Alleyway the strays
+	-- come from. Clear of the door's mat, the path from the door to the gate and the Tier 4 planter; the cat stands
+	-- beside it with its head over the bowl.
+	baitBowl = { x = -2.6, y = 0, z = halfD + 2.6 } :: Point,
+	baitCat = { x = -1, y = 0, z = halfD + 2.6, rotY = 90 } :: Point,
 
 	-- The patio yard behind the back wall, fenced, with a gate in its back fence onto the back alley.
 	yard = { x1 = -halfW - 1, z1 = yardZ1, x2 = halfW + 1, z2 = yardZ2 } :: Rect,

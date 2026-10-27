@@ -138,7 +138,6 @@ local Config = {
 
 	-- Cosmetic customers (client side)
 	CustomerSpawnSeconds = 6,
-	CustomerSpawnSecondsNight = 12, -- night owls come half as often
 	CustomerStayMin = 20,
 	CustomerStayMax = 40,
 	CustomerCoinPopSeconds = 3,

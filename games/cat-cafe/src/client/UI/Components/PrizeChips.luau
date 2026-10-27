@@ -7,11 +7,13 @@
 --   PrizeChips.new(props)   a row that sizes itself to its chips, or wraps them inside its width (props.wrap)
 --   chips:setCatalog(catalog)   foods, decor and crates by id, for their names and models
 --   chips:set(prize, look?)   look.dayRate prices coins that grow with the cafe, look.spinsBanked marks spins that
---                             would not fit the Spin Wheel bank, look.gold tints a decor tile gold
+--                             would not fit the Spin Wheel bank, look.gold tints a decor tile gold, look.tier names
+--                             the "highest" crate (CrateLogic.resolve)
 --   PrizeChips.bonusText(0.02)   "+2% tips forever"
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CrateLogic = require(script.Parent.CrateLogic)
 local Create = require(script.Parent.Create)
 local FishCoin = require(script.Parent.FishCoin)
 local Format = require(script.Parent.Format)
@@ -45,6 +47,7 @@ export type Look = {
 	gold: boolean?, -- the all-gold milestone of F48
 	dayRate: number?, -- prices coinSeconds; without it coins shows the least it pays
 	spinsBanked: number?, -- spins already banked; spins over SpinBankCap read "Full"
+	tier: number?, -- the player's tier: a "highest" crate shows the crate of the highest area it opens
 }
 
 export type PrizeChips = {
@@ -53,9 +56,6 @@ export type PrizeChips = {
 	set: (self: PrizeChips, prize: Types.IndexPrize?, look: Look?) -> (),
 	destroy: (self: PrizeChips) -> (),
 }
-
--- a crate in the catalog (F53 Catalog.crates), read loosely until SharedTypes has one
-type CrateLook = { name: string?, glyph: string?, asset: string?, price: number? }
 
 -- one chip on show: its amount label, kept to change the text without rebuilding the pictures
 type Chip = { frame: Frame, label: TextLabel? }
@@ -73,7 +73,8 @@ function PrizeChips.new(props: Props): PrizeChips
 	self._props = props
 	self._lures = {} :: { [string]: Types.LureDef }
 	self._decor = {} :: { [string]: Types.DecorDef }
-	self._crates = {} :: { [string]: CrateLook }
+	self._crates = {} :: { [string]: CrateLogic.Crate }
+	self._areas = {} :: { CrateLogic.Area }
 	self._icons = {} :: { ItemIcon.ItemIcon }
 	self._chips = {} :: { Chip }
 	self._prize = nil :: Types.IndexPrize?
@@ -125,18 +126,8 @@ function PrizeChips.setCatalog(self: any, catalog: Types.Catalog)
 	for _, decor in catalog.decor do
 		self._decor[decor.id] = decor
 	end
-	table.clear(self._crates)
-	local crates = (catalog :: any).crates
-	if type(crates) == "table" then
-		for key, crate in crates :: { [any]: any } do
-			if type(crate) == "table" then
-				local id = if type(crate.id) == "string" then crate.id else key
-				if type(id) == "string" then
-					self._crates[id] = crate :: CrateLook
-				end
-			end
-		end
-	end
+	self._crates = CrateLogic.byId(catalog.crates)
+	self._areas = (catalog.areas or {}) :: any
 	self._shape = "" -- names and models may have changed
 	if self._prize ~= nil then
 		self:set(self._prize, self._look)
@@ -166,12 +157,11 @@ function PrizeChips._partLook(
 		local full = banked ~= nil and banked + part.amount > SPIN_BANK_CAP
 		return nil, Theme.icons.spin, "Epic", if full then "Full" else amount
 	elseif kind == "crate" then
-		local id = part.id or ""
-		local crate: CrateLook? = self._crates[id]
-		local golden = string.find(id, "golden", 1, true) ~= nil
+		local id = part.id or "" -- already resolved by set
+		local crate: CrateLogic.Crate? = self._crates[id]
 		return if crate then crate.asset else nil,
-			if crate and crate.glyph then crate.glyph else Theme.icons.crate,
-			if golden then "Legendary" else "Rare",
+			Theme.icons.crate,
+			if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare",
 			amount
 	elseif kind == "tag" then
 		return nil, Theme.icons.tag, "Mythical", part.id or ""
@@ -256,7 +246,15 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 		return
 	end
 	local parts: { IndexRewards.PrizePart } = {}
-	for _, part in IndexRewards.prizeParts(prize, shown.dayRate) do
+	for _, raw in IndexRewards.prizeParts(prize, shown.dayRate) do
+		local part: IndexRewards.PrizePart = raw
+		if raw.kind == "crate" then
+			-- "highest" becomes the crate it pays now, so the picture changes when a new area opens
+			local id = CrateLogic.resolve(raw.id or "", self._crates, self._areas, shown.tier)
+			local resolved: IndexRewards.PrizePart =
+				{ kind = "crate", id = id, amount = raw.amount }
+			part = resolved
+		end
 		if part.kind ~= "bonus" or props.showBonus ~= false then
 			table.insert(parts, part)
 		end

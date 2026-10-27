@@ -16,6 +16,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
+local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Leaderstats = require(script.Parent.Leaderstats)
@@ -107,6 +108,10 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		goldCollection = profile.goldCollection,
 		indexRewards = profile.indexRewards,
 		spin = table.clone(profile.spin),
+		goldenFish = profile.goldenFish,
+		crates = profile.crates,
+		crateLuck = profile.crateLuck,
+		fishPerks = profile.fishPerks,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
@@ -117,6 +122,11 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 end
 
 -- World refresh -------------------------------------------------------------------------------------------
+
+-- "+1 golden fish", "+8 golden fish": the fish part of a toast.
+local function fishText(fish: number): string
+	return string.format("+%d golden fish", fish)
+end
 
 -- "Barista", "Waiter": the role a slot holds, for toasts.
 local function roleName(spot: Types.SpotDef): string
@@ -487,10 +497,11 @@ function CafeService.addCaughtCat(
 	if method == "rescue" then
 		instance.rescued = true
 	end
+	local firstGold = false
 	if variant ~= nil then
 		instance.variant = variant
 		if variant == "gold" then
-			local firstGold = profile.goldCollection[def.id] == nil
+			firstGold = profile.goldCollection[def.id] == nil
 			if firstGold then
 				profile.goldCollection[def.id] = now
 			end
@@ -520,6 +531,18 @@ function CafeService.addCaughtCat(
 		)
 		Telemetry.collected(player, profile, def)
 	end
+	-- Golden fish (F52): a new Index entry, a first gold, or an Epic and better repeat by net or rescue
+	local fish = GoldenFish.forCatch(def.rarity, isNew, firstGold, how)
+	if fish > 0 then
+		GoldenFish.credit(profile, fish)
+		Telemetry.fishSource(
+			player,
+			profile,
+			fish,
+			"Gameplay",
+			if isNew or firstGold then "first_catch" else "repeat_catch"
+		)
+	end
 	CafeService.advanceTutorial(profile, 2)
 
 	for _, spot in Catalog.spots do
@@ -540,10 +563,19 @@ function CafeService.addCaughtCat(
 			Net.toast(
 				player,
 				string.format(
-					"New cat! %s joins the collection (+$%d)",
+					"New cat! %s joins the collection (+$%d, %s)",
 					def.name,
-					Catalog.rarities[def.rarity].firstCatchReward
+					Catalog.rarities[def.rarity].firstCatchReward,
+					fishText(fish)
 				),
+				"good"
+			)
+		elseif firstGold then
+			Net.toast(player, string.format("First gold %s! %s", def.name, fishText(fish)), "good")
+		elseif fish > 0 then
+			Net.toast(
+				player,
+				string.format("%s %s again: %s", def.rarity, def.name, fishText(fish)),
 				"good"
 			)
 		end
@@ -788,14 +820,18 @@ local function onRankUp(player: Player)
 	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
 	Telemetry.rankedUp(player, profile)
+	local fish = GoldenFish.forRankUp(def.tier) -- F52
+	GoldenFish.credit(profile, fish)
+	Telemetry.fishSource(player, profile, fish, "Gameplay", "rank_up")
 	local area = Catalog.getArea(def.area)
 	Net.toast(
 		player,
 		string.format(
-			"Your cafe is now a %s! %s is open and %d role slots are ready.",
+			"Your cafe is now a %s! %s is open and %d role slots are ready%s.",
 			def.name,
 			if area ~= nil then area.name else def.area,
-			def.slots
+			def.slots,
+			if fish > 0 then string.format(", and you got %d golden fish", fish) else ""
 		),
 		"good"
 	)

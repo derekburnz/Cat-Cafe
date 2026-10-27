@@ -95,6 +95,9 @@ return function()
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
 		SpinBankCap = 20,
+		-- golden fish and crates (F52, F53, golden-fish.md section 8)
+		TipJarStep12Fish = 5,
+		CrateLuckyEvery = 20,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45)
 		BumpEnabled = true,
 		BumpRangeStuds = 6,
@@ -152,6 +155,9 @@ return function()
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
+				FishFirstCatch = true, -- a table, checked below
+				FishRepeatCatch = true, -- a table, checked below
+				FishRankUp = true, -- a table, checked below
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -168,6 +174,12 @@ return function()
 	end)
 
 	describe("internal consistency", function()
+		it("golden fish by rarity and rank (F52, golden-fish.md section 2)", function()
+			expect(Config.FishFirstCatch :: any).to.deepEqual({ Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 })
+			expect(Config.FishRepeatCatch :: any).to.deepEqual({ Epic = 1, Legendary = 3, Mythical = 8 })
+			expect(Config.FishRankUp :: any).to.deepEqual({ 10, 25, 50, 100 })
+		end)
+
 		it("NetWindows matches the section 10 net table, levels 0 to 3", function()
 			local expectedWindows = {
 				[0] = { perfect = 0.045, good = 0.11, jitter = 0.30 },

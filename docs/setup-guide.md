@@ -136,3 +136,13 @@ The experience and place ids (10773193456 and 119569792798199) are in the workfl
 Threads open, push and merge PRs from Derek's GitHub account, so GitHub mails that account about all of it. Since PR #248 automerge no longer pushes into PR branches; these two settings stop the rest. Everything stays visible on GitHub, and threads report in the project anyway.
 1. [github.com/settings/notifications](https://github.com/settings/notifications) > **System** > **Actions**: open the dropdown and untick **Email**. That ends the "Run failed" mails from threads' unfinished pushes.
 2. Same page, **Subscriptions** > **Participating, @mentions and custom**: untick **Email**. That ends the merge, push and comment mails on PRs the threads open.
+
+## 17. Let threads upload images and read bug reports (once, about 2 minutes)
+After this, threads upload UI and art images (`.github/workflows/upload-image.yml`) and read the friends' in-game bug reports (`.github/workflows/bug-reports.yml`) themselves, with the publish key from step 15. Nothing waits on Studio's Asset Manager or a Studio session any more. Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key (the one saved as `ROBLOX_PUBLISH_KEY`) > **Edit**.
+2. **Access Permissions** > **Add API System**: **assets**, operations **Read** and **Write** (uploading images, which belong to your account like the sounds).
+3. **Add API System** again: **universe-datastores**, select the **Cat Cafe** experience, operations `universe-datastores.objects:list` and `universe-datastores.objects:read` only (listing and reading the bug reports; nothing that writes or deletes).
+4. **Save Changes**. The key stays the same, so the GitHub secret needs no change. Don't press Regenerate, which would.
+5. Try it: **Actions > bug-reports > Run workflow**. The run summary lists today's reports, or says there are 0.
+
+The key still accepts any IP (GitHub's runners need that), so whoever holds it could also upload images as you and read the reports. It lives only in the GitHub secret.

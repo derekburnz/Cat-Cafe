@@ -4,6 +4,7 @@
 -- drawn from frames so it needs no uploaded image. When the asset thread's coin picture lands, this is the one
 -- place to swap.
 --   FishCoin.new({ parent, size }) -> Frame   the size is the coin's; the ears reach a third of it higher
+--   FishCoin.fill(parent, share) -> Frame   a coin `share` of a scale-sized parent's width, kept so as it resizes
 
 local CatEars = require(script.Parent.CatEars)
 local Create = require(script.Parent.Create)
@@ -20,6 +21,8 @@ export type Props = {
 }
 
 local FishCoin = {}
+
+local FILL_BASE = 40 -- px the filling coin is drawn at before its UIScale
 
 function FishCoin.new(props: Props): Frame
 	local size = props.size
@@ -88,6 +91,25 @@ function FishCoin.new(props: Props): Frame
 		ZIndex = z + 2,
 		Parent = coin,
 	})
+	return holder
+end
+
+-- For a parent sized by scale (a Spin Wheel tile): the coin is drawn once at FILL_BASE and a UIScale keeps it at
+-- `share` of the parent's width, centred a little low so the ears fit. The parent's own signal ends with it.
+function FishCoin.fill(parent: GuiObject, share: number, zIndex: number?): Frame
+	local holder = FishCoin.new({
+		parent = parent,
+		size = FILL_BASE,
+		position = UDim2.fromScale(0.5, 0.56),
+		anchorPoint = Vector2.new(0.5, 0.5),
+		zIndex = zIndex,
+	})
+	local scale: UIScale = Create("UIScale", { Parent = holder })
+	local function fit()
+		scale.Scale = math.max(0.05, parent.AbsoluteSize.X * share / FILL_BASE)
+	end
+	fit()
+	parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
 	return holder
 end
 

@@ -1,6 +1,6 @@
 # Cat Cafe Game Design Doc
 
-Draft v0.8, 2026-10-27 (v0.8 after Gavin's round 3 answers 1 to 6 in [feedback/gavin-2026-10-27-round3.md](feedback/gavin-2026-10-27-round3.md) and Derek's Codes Cat; v0.7 the golden fish, crates and Index rewards in [golden-fish.md](golden-fish.md), okayed by Derek; v0.5 after Gavin's round 2 answers in [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md); v0.1 on 2026-10-25, v0.2 after Gavin's Cat Cafe tab, v0.3 after Gavin's answers to our twenty questions, v0.3.1 with the reviewer's bump, dealer, rescue and save fixes, v0.4 after Derek played the rough draft: misses cost the catch, the Alleyway behind the cafes, lively cafes, For Rent plots and borrowed UI patterns, detailed in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. Status: ready for the engineer, asset and UI threads to build. Derek, 2026-10-26: "lets start with those mechanics and see where it goes from there". Every number is a first guess to tune in playtests. Full tables are in [data-model.md](data-model.md), the build order and thread handoffs in [features.md](features.md), genre-standard features for later phases in [common-features.md](common-features.md), Gavin's answers word for word in [feedback/](feedback/) (round 1 2026-10-26, round 2 2026-10-27), the next questions for him in [questions-for-gavin.md](questions-for-gavin.md), and decisions in [docs/decisions.md](../../decisions.md).
+Draft v0.9, 2026-10-27 (v0.9 makes night a 90 second reset with the areas closed, from Derek; v0.8 after Gavin's round 3 answers 1 to 6 in [feedback/gavin-2026-10-27-round3.md](feedback/gavin-2026-10-27-round3.md) and Derek's Codes Cat; v0.7 the golden fish, crates and Index rewards in [golden-fish.md](golden-fish.md), okayed by Derek; v0.5 after Gavin's round 2 answers in [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md); v0.1 on 2026-10-25, v0.2 after Gavin's Cat Cafe tab, v0.3 after Gavin's answers to our twenty questions, v0.3.1 with the reviewer's bump, dealer, rescue and save fixes, v0.4 after Derek played the rough draft: misses cost the catch, the Alleyway behind the cafes, lively cafes, For Rent plots and borrowed UI patterns, detailed in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. Status: ready for the engineer, asset and UI threads to build. Derek, 2026-10-26: "lets start with those mechanics and see where it goes from there". Every number is a first guess to tune in playtests. Full tables are in [data-model.md](data-model.md), the build order and thread handoffs in [features.md](features.md), genre-standard features for later phases in [common-features.md](common-features.md), Gavin's answers word for word in [feedback/](feedback/) (round 1 2026-10-26, round 2 2026-10-27), the next questions for him in [questions-for-gavin.md](questions-for-gavin.md), and decisions in [docs/decisions.md](../../decisions.md).
 
 Reference games: Steal an Egg (timed spawns in shared stages, place-and-earn pets, chasing players who carry eggs) and Roll a Fisherman, also called Spin for a Fisherman (roll for staff, collect what they produce, expand the dock). We borrow the structure, never the names, art or characters. Gavin keeps "Cat Cafe" as the placeholder name for now (round 2); the working title stays Cat Cafe and the repo slug `cat-cafe`.
 
@@ -11,7 +11,7 @@ A cozy cat cafe tycoon where the cats do the work and you do the collecting. Str
 ## Core loop
 
 - By day (5 minutes): cats serve and customers leave tip piles on the tables for you to collect, rich visitors drop big tips, the Cat Collector and the Mystery Visitor sometimes call, you assign cats to roles, buy upgrades, set bait and hunt any stray left over from last night.
-- By night (5 minutes): a fresh wave of ten strays appears in every area you have unlocked, cats stuck in traps wait to be rescued, the mysterious food dealer opens his cart, bait set now is ready in half the time and the cafe closes but keeps earning the full rate while the cats nap (v0.8, Gavin round 3). Net or rescue a cat, carry it home without getting shoved, check it in.
+- By night (90 seconds since v0.9): the catching areas close and send everyone home, the mysterious food dealer opens his cart in the plaza, bait set now is ready in half the time and the cafe closes but keeps earning the full rate while the cats nap. At sunrise a fresh wave of ten strays fills every area and cats wait in traps to be rescued. By day, net or rescue a cat, carry it home without getting shoved and check it in.
 - Every session (10 to 15 minutes): one or two nights, two to four cats, a role filled, an upgrade or two, a bait cat waiting when you come back.
 - Over weeks: rank up from Tier 1 to Tier 5, open all five areas, fill the Index of 50 and the gold Index.
 
@@ -65,7 +65,7 @@ Look (Q15, updated by Derek's body picks on 2026-10-27): strays walk on all four
 
 ## The clock
 
-The server runs a 10 minute loop: 5 minutes of day, 5 minutes of night (Gavin, Q1). At every night start each unlocked area spawns a fresh wave of ten strays and the uncaught ones from last night vanish; leftovers stay catchable by day until then (Q2). A new server starts two minutes before its first night so a new player meets one early. Bait ignores the clock.
+The server runs a 10 minute loop: 5 minutes of day, 5 minutes of night (Gavin, Q1). Since v0.9 (Derek: night is "mostly just to reset cat spawns") night lasts 90 seconds: at dusk the catching areas close, everyone in them is sent home with any cat they carry checked in, and at sunrise a fresh wave fills every area, so you hunt by day and spend the short night at the cafe and the plaza. The rest of this paragraph is the v0.3 loop. At every night start each unlocked area spawns a fresh wave of ten strays and the uncaught ones from last night vanish; leftovers stay catchable by day until then (Q2). A new server starts two minutes before its first night so a new player meets one early. Bait ignores the clock.
 
 ## Catching
 
@@ -111,7 +111,7 @@ Start with 50 coins and a Tabby as Barista earning 1.5 per second. Table 1 at 10
 2. An arrow points to your back door. A Common stray is waiting right behind your cafe even by day. Start a catch, hit the one circle, carry it back, check in.
 3. Give it the Waiter job. It sits at its station in a bow tie and vest and the rate rises. Prompt to buy Table 1.
 4. Prompt to buy the bait bowl and put Kibble in it: "a cat will come by in 10 minutes".
-5. The first night arrives at minute two with ten strays and a stuck cat in a bin. Rescue it.
+5. The server opens at sunrise with ten strays in every area and a stuck cat in a bin (v0.9; the first night used to bring them at minute two). Rescue it.
 6. Minute 10 target: three or four different cats, two roles filled, two tables, a bait cat on the way, the Tier 2 card showing what is left. That is one full loop and the Phase 2 exit test.
 
 ## Social

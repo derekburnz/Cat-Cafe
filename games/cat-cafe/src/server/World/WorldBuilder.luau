@@ -849,8 +849,7 @@ local function buildArea(
 				walls
 			)
 		end
-		local arches: { { x: number, z: number, span: number, label: string, asset: string? } } = spec.arches
-			or {}
+		local arches: { Layout.Arch } = spec.arches or {}
 		for _, arch in arches do
 			buildArch(arch.x, arch.z, arch.span, arch.label, arch.asset, wallColor, model)
 		end
@@ -1030,6 +1029,39 @@ local function buildGate(
 	return gate
 end
 
+-- The Index Boards (F50): CatCafe_<Area>_IndexBoard inside each area's entrance at Layout.indexBoards, in the
+-- space of the area's gate or, for the Alleyway, of its street arch. The model comes tagged IndexBoard with Area;
+-- the UI draws that area's Index on its Screen part and adds its own hold-E prompt. It streams whole (Atomic, as
+-- cats do: reviewer S37), so the Screen never arrives without its board. Skipped while an asset is missing.
+local function buildIndexBoards(gates: { [string]: Model }, parent: Instance)
+	for areaId, at in Layout.indexBoards do
+		local pascal = areaId:sub(1, 1):upper() .. areaId:sub(2)
+		local asset = "CatCafe_" .. pascal .. "_IndexBoard"
+		local gate: Model? = gates[areaId]
+		local host: CFrame? = if gate ~= nil then gate:GetPivot() else nil
+		if host == nil then
+			local spec = Layout.areas[areaId]
+			local arches: { Layout.Arch } = {}
+			if spec ~= nil and spec.arches ~= nil then
+				arches = spec.arches
+			end
+			for _, arch in arches do
+				if arch.asset == Layout.streetArchAsset then
+					host = CFrame.new(arch.x, 0.1, arch.z) -- buildArch's pivot
+				end
+			end
+		end
+		if host == nil or not AssetRegistry.has(asset) then
+			continue
+		end
+		local board = place(asset, localCFrame(host :: CFrame, at), parent)
+		board.Name = pascal .. "IndexBoard"
+		board.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+		board:SetAttribute("Area", areaId)
+		CollectionService:AddTag(board, "IndexBoard")
+	end
+end
+
 -- The manhole in the Square (Layout.manhole): under World.Gates and tagged AreaGate like a gate, so the client
 -- slides its _Cover off and the UI hangs the area's sign over it once the player's tier opens the area. Its prompt
 -- is a fast travel button the server answers like Travel(area).
@@ -1195,6 +1227,7 @@ function WorldBuilder.build(): World
 		end
 	end
 	local manhole = buildManhole(gatesFolder)
+	buildIndexBoards(gates, folder("IndexBoards", root))
 	buildSafeZoneMarks(root)
 	buildSpinWheel(root)
 

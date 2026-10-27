@@ -60,6 +60,7 @@ local AREA_NAMES: { [string]: string } = {
 	neighbourhood = "Neighbourhood",
 	woods = "Woods",
 	sewer = "Sewer",
+	all = "All Cats", -- the Index's all-areas page (F54)
 }
 
 -- "park" -> "Park" (data-model section 9 names), unknown ids are capitalised

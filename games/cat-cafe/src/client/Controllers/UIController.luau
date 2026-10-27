@@ -243,6 +243,44 @@ local function refreshBait(s: Types.PlayerState)
 	end
 end
 
+-- The rich tip (F31): the UI's gold marker watches the own plot, and the tip's arrival and payout are Moments for
+-- the sounds. Its RichTipAmount clears both on a claim and when the tip pays itself at expiry; either way the
+-- coins went into the till.
+local richTipPlot: Model? = nil
+local richTipConnection: RBXScriptConnection? = nil
+local richTipAmount = 0
+
+local function tipAmount(plot: Model): number
+	local value = plot:GetAttribute("RichTipAmount")
+	return if type(value) == "number" then value else 0
+end
+
+local function refreshRichTip()
+	local plot = ownPlot()
+	if plot == richTipPlot then
+		return
+	end
+	if richTipConnection ~= nil then
+		richTipConnection:Disconnect()
+		richTipConnection = nil
+	end
+	richTipPlot = plot
+	UI.richTip.bind(plot)
+	if plot == nil then
+		return
+	end
+	richTipAmount = tipAmount(plot) -- a tip already waiting when this client binds plays no arrival sound
+	richTipConnection = plot:GetAttributeChangedSignal("RichTipAmount"):Connect(function()
+		local amount = tipAmount(plot)
+		if amount > 0 and richTipAmount <= 0 then
+			Moments.RichArrive:Fire()
+		elseif amount <= 0 and richTipAmount > 0 then
+			Moments.RichTipClaim:Fire()
+		end
+		richTipAmount = amount
+	end)
+end
+
 local function applyState(s: Types.PlayerState)
 	local previous = state
 	if previous ~= nil and boughtSomething(previous, s) then
@@ -264,7 +302,6 @@ local function applyState(s: Types.PlayerState)
 		decorOwned = s.decorOwned,
 		decorPlaced = s.decorPlaced,
 		lures = s.lures,
-		equippedLure = s.equippedLure,
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
 		shinyCollection = s.shinyCollection,
@@ -288,6 +325,7 @@ local function applyState(s: Types.PlayerState)
 	end
 	refreshBait(s)
 	refreshTutorial(s)
+	refreshRichTip()
 end
 
 local function wireIntents()
@@ -332,6 +370,10 @@ local function wireIntents()
 	end)
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
+	end)
+	-- Collect on the rich tip marker (F31). A claim clears the plot's RichTipAmount, which the UI toasts.
+	UI.events.claimRichTip:Connect(function()
+		Net.fire("ClaimRichTip")
 	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused.
 	UI.events.buyDealerFood:Connect(function(slot: number, lureId: string)

@@ -3,7 +3,7 @@
 -- `speed` bar lengths per second, starting at server time `startsAt` at `phase` (0 to 2: 0 to 1 is the way out
 -- from the left end, 1 to 2 the way back). Its position is a triangle wave from 0 (left) to 1 (right). The server
 -- judges RescuePress with these two functions and the UI draws the bar with them, so both sides agree (reviewer
--- N74). Same API as the UI's first copy in Components/RescueMarker.
+-- N74).
 
 local RescueMarker = {}
 

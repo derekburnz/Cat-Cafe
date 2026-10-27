@@ -34,7 +34,6 @@ export type AreaSpec = {
 	arches: { { x: number, z: number, span: number, label: string, asset: string? } }?,
 	arrival: Point?, -- where fast travel lands; a box area lands just inside its opening
 	spawnPoints: { Point },
-	lureSpots: { Point },
 	rescueSpots: { RescuePoint },
 	props: { Prop },
 }
@@ -124,6 +123,10 @@ Layout.plot = {
 		{ x = 0, y = 0, z = 1 },
 		{ x = 9, y = 0, z = 1 },
 	} :: { Point },
+
+	-- The rich customer's coin pile (data-model section 12): on top of table 1 (2.6 tall), where the rich customer
+	-- sits. The UI's gold marker floats over it and ClaimRichTip measures range from it.
+	richTip = { x = -9, y = 2.7, z = -6 } :: Point,
 
 	-- The back door, between the counter and the left cat tree, opens from Tier 1 onto the yard; the yard's gate
 	-- lines up with it so the way out to the back alley is straight.
@@ -330,10 +333,6 @@ Layout.alley = {
 	},
 	arrival = { x = 0, y = 0.1, z = SQ1 + 6, rotY = 180 }, -- just inside the street arch, facing into the Square
 	spawnPoints = alleySpawnPoints(),
-	lureSpots = {
-		{ x = -30, y = 0.1, z = SQ1 + 14 },
-		{ x = 30, y = 0.1, z = SQ1 + 14 },
-	} :: { Point },
 	rescueSpots = {
 		-- A trash bin in each back alley against the outer wall, lid toward the lane, and the garbage bags in the
 		-- Square against the north wall (data-model section 9). The east bin keeps 9 studs from plot 6's lane
@@ -401,11 +400,6 @@ Layout.park = {
 		{ x = -14, y = 0.1, z = W.ParkCenterZ },
 		{ x = 12, y = 0.1, z = W.ParkCenterZ - 2 },
 		{ x = 0, y = 0.1, z = W.ParkCenterZ - 14 },
-	} :: { Point },
-	lureSpots = {
-		{ x = -12, y = 0.1, z = W.ParkCenterZ + 6 },
-		{ x = 12, y = 0.1, z = W.ParkCenterZ - 12 },
-		{ x = 28, y = 0.1, z = W.ParkCenterZ + 22 },
 	} :: { Point },
 	rescueSpots = {
 		-- Branches reach toward the middle of the park (a tree's branch points along its -X).
@@ -475,7 +469,6 @@ Layout.neighbourhood = {
 		{ 4, 21 },
 		{ 26, 19 },
 	}),
-	lureSpots = {},
 	rescueSpots = {
 		-- Stand-ins: the box for the shed, the drainpipe for the gutter.
 		{ prop = "CatCafe_Alley_StuckBox", trap = "shed", x = NX - 41, z = NZ + 8, rotY = -90 },
@@ -519,7 +512,6 @@ Layout.woods = {
 		{ 2, -22 },
 		{ 16, -26 },
 	}),
-	lureSpots = {},
 	rescueSpots = {
 		-- Stand-ins for the hollow log and the bramble bush; branches reach toward the middle.
 		{ prop = "CatCafe_Alley_StuckTree", trap = "hollow_log", x = WX + WHW - 4, z = WZ - 26 },
@@ -568,7 +560,6 @@ Layout.sewer = {
 		{ -3, -19 },
 		{ 6, -23 },
 	}),
-	lureSpots = {},
 	rescueSpots = {
 		-- Stand-ins for the drain pipe and the grate, both on the far wall, outlets toward the opening.
 		{

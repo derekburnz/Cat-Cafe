@@ -38,6 +38,7 @@ local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
 local Signal = require(script.Components.Signal)
+local SlotLabels = require(script.Screens.SlotLabels)
 local Sound = require(script.Components.Sound)
 local Theme = require(script.Theme)
 local Toasts = require(script.Screens.Toasts)
@@ -65,8 +66,7 @@ UI.events = {
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
-	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   hold began on a prompt with Rescue = true
-	rescueEnded = Signal.new(), -- (rescueSpotId, catId, completed)  completed after the full hold: send RescueEnd
+	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   a press on a stuck cat's prompt: forward as RescueBegin
 	rescuePressed = Signal.new(), -- (rescueSpotId)   a press on the rescue bar or its catch circle: forward as RescuePress (F27)
 	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
@@ -112,6 +112,7 @@ local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
+local slotLabels: SlotLabels.SlotLabels? = nil -- free and locked role slots in your own cafe
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -182,6 +183,9 @@ local function render()
 	if dealerScreen then
 		dealerScreen:render(state)
 	end
+	if slotLabels then
+		slotLabels:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -210,6 +214,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if dealerScreen then
 		dealerScreen:setCatalog(newCatalog)
+	end
+	if slotLabels then
+		slotLabels:setCatalog(newCatalog)
 	end
 end
 
@@ -465,6 +472,12 @@ function UI.init(config: Types.InitConfig)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	worldTags = WorldTags.new()
+	-- "+ Barista" over a free role slot (opens the cat room) and the next locked slot per role, own cafe only
+	slotLabels = SlotLabels.new(parent, {
+		openCatRoom = function()
+			UI.openCatRoom()
+		end,
+	})
 
 	setCatalog(config.catalog)
 
@@ -589,6 +602,9 @@ function UI.destroy()
 	if richTipScreen then
 		richTipScreen:destroy()
 	end
+	if slotLabels then
+		slotLabels:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -608,7 +624,7 @@ function UI.destroy()
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
+	cafeSigns, worldTags, actionPills, richTipScreen, slotLabels = nil, nil, nil, nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -1025,15 +1041,13 @@ function UI.showAreaTitle(areaId: string)
 end
 
 ----------------------------------------------------------------------------------------------------
--- Catch prompt, closing circles and the rescue hold
+-- Catch prompt and closing circles
 ----------------------------------------------------------------------------------------------------
 
 UI.catch = {}
 
 local activePrompt: ProximityPrompt? = nil
 local activeInfo: Types.CatchInfo? = nil
-local holdOpen = false
-local holdSerial = 0 -- bumps on every hold begin so a deferred hold end cannot act on a later hold
 local promptConnections: { RBXScriptConnection } = {}
 
 function UI.catch.show(info: Types.CatchInfo)
@@ -1060,26 +1074,9 @@ function UI.catch.show(info: Types.CatchInfo)
 	end
 end
 
--- Rescue prompt (F21): a bar fills over the hold. bindProximityPrompts drives this itself for prompts whose
--- model has Rescue = true and a hold duration; the rescue minigames replace it.
-function UI.catch.startRescue(duration: number?)
-	if catch then
-		catch:startRescue(duration)
-	end
-end
-
-function UI.catch.stopRescue(completed: boolean)
-	if catch then
-		catch:stopRescue(completed)
-	end
-end
-
 -- retry = true keeps the prompt open (Commons, lured strays, a rescue turned down for now). Otherwise it
--- flashes and hides (the cat fled). A fail that lands while a rescue hold is still down (the server turned
--- down RescueBegin) closes that hold: the server holds no lock, so its release or full length sends nothing
--- and the card keeps the server's reason instead of "Rescued!". Hold again to retry.
+-- flashes and hides (the cat fled).
 function UI.catch.fail(reason: string?, retry: boolean?)
-	holdOpen = false
 	if catch then
 		catch:fail(reason, retry)
 	end
@@ -1130,7 +1127,6 @@ function UI.catch.showCircles(
 		local built: CatchCircles.Header = { paws = pawsLeft }
 		header = built
 	end
-	holdOpen = false
 	if catch then
 		catch:hide() -- activePrompt and activeInfo stay so the card can come back
 	end
@@ -1291,7 +1287,6 @@ function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
 	local catName: string? = if own and info then info.catName else nil
 	local rarity: string? = if own and info then info.rarity else nil
 	rescueTarget = rescueSpotId
-	holdOpen = false
 	if catch then
 		catch:hide() -- activePrompt and activeInfo stay so the card can come back
 	end
@@ -1450,32 +1445,11 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	}
 end
 
-local function activeIsRescue(): boolean
-	local info = activeInfo
-	return info ~= nil and info.kind == "rescue"
-end
-
-local function finishRescue(completed: boolean)
-	if not holdOpen then
-		return
-	end
-	holdOpen = false
-	local info = activeInfo
-	local screen = catch
-	if screen then
-		screen:stopRescue(completed)
-	end
-	UI.events.rescueEnded:Fire(
-		if info then info.rescueSpotId else nil,
-		if info then info.catId else nil,
-		completed
-	)
-end
-
 -- Drives the prompt UI from every ProximityPrompt with Style = Custom and a CatId attribute
--- (on the prompt, its model, or its parent). A stray's prompt has HoldDuration 0: one press fires
--- events.grabBegan and the server answers with catch.showCircles or catch.fail. A rescue prompt with a hold
--- fires events.rescueBegan on hold begin and events.rescueEnded on release or after the full hold.
+-- (on the prompt, its model, or its parent). Every cat prompt has HoldDuration 0: one press fires
+-- events.grabBegan (a stray) or events.rescueBegan (a stuck cat, Rescue = true) and the server answers with
+-- catch.showCircles, UI.rescue.show or catch.fail. A press while the circles or the rescue bar are up is theirs,
+-- so it never asks again.
 -- Any other Style = Custom prompt (no CatId) gets an action pill (Screens/ActionPill) and raises no event: the
 -- game handles its Triggered as it would a default prompt's.
 function UI.catch.bindProximityPrompts()
@@ -1495,7 +1469,6 @@ function UI.catch.bindProximityPrompts()
 			return
 		end
 		activePrompt = prompt
-		holdOpen = false
 		UI.catch.show(infoFromPrompt(prompt))
 	end
 	table.insert(promptConnections, ProximityPromptService.PromptShown:Connect(onShown))
@@ -1508,9 +1481,6 @@ function UI.catch.bindProximityPrompts()
 			if prompt ~= activePrompt then
 				return
 			end
-			if holdOpen then
-				finishRescue(false)
-			end
 			activePrompt = nil
 			UI.catch.hide()
 		end)
@@ -1520,22 +1490,7 @@ function UI.catch.bindProximityPrompts()
 		ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt: ProximityPrompt)
 			if actionPills and actionPills:isShown(prompt) then
 				actionPills:holdBegan(prompt)
-				return
 			end
-			-- only the v0.2 rescue still holds; a press prompt is handled in PromptTriggered
-			local info = activeInfo
-			if
-				prompt ~= activePrompt
-				or prompt.HoldDuration <= 0
-				or not info
-				or info.kind ~= "rescue"
-			then
-				return
-			end
-			holdOpen = true
-			holdSerial += 1
-			catchScreen:startRescue(prompt.HoldDuration)
-			UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
 		end)
 	)
 	table.insert(
@@ -1543,22 +1498,7 @@ function UI.catch.bindProximityPrompts()
 		ProximityPromptService.PromptButtonHoldEnded:Connect(function(prompt: ProximityPrompt)
 			if actionPills and actionPills:isShown(prompt) then
 				actionPills:holdEnded(prompt)
-				return
 			end
-			if prompt ~= activePrompt then
-				return
-			end
-			-- A full hold fires PromptTriggered and PromptButtonHoldEnded in the same frame, in either
-			-- order (reviewer S12). Decide one frame later: if PromptTriggered closed the hold, the hold ran
-			-- its full length and was already sent.
-			local serial = holdSerial
-			task.defer(function()
-				if not holdOpen or holdSerial ~= serial or not activeIsRescue() then
-					return
-				end
-				-- released before the hold ran out: the bar resets, there is no fail state
-				finishRescue(false)
-			end)
 		end)
 	)
 	table.insert(
@@ -1572,29 +1512,26 @@ function UI.catch.bindProximityPrompts()
 			if prompt ~= activePrompt then
 				return
 			end
-			if prompt.HoldDuration <= 0 then
-				-- v0.3 press prompt: one press asks the server to start. GrabBegin answers with the circles
-				-- (catch.showCircles), RescueBegin with the minigame, a refusal with catch.fail.
-				local info = activeInfo
-				catchScreen:waiting()
-				if info and info.kind == "rescue" then
-					UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
-				else
-					UI.events.grabBegan:Fire(
-						if info then info.strayId else nil,
-						if info then info.catId else nil
-					)
-				end
+			-- E or the CATCH button while the circles or the bar are up is a press on them, not a new ask
+			-- (the server would only answer "Keep going, the bar is up")
+			if UI.rescue.isActive() or UI.catch.circlesActive() then
 				return
 			end
-			if activeIsRescue() then
-				-- the rescue hold ran its full length: the controller sends RescueEnd, the server moves
-				-- the player to carry and the controller then calls showCatFound or hide
-				finishRescue(true)
+			-- one press asks the server to start: GrabBegin answers with the circles (catch.showCircles),
+			-- RescueBegin with the minigame (UI.rescue.show), a refusal with catch.fail
+			local info = activeInfo
+			catchScreen:waiting()
+			if info and info.kind == "rescue" then
+				UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
+			else
+				UI.events.grabBegan:Fire(
+					if info then info.strayId else nil,
+					if info then info.catId else nil
+				)
 			end
 		end)
 	)
-	-- the mobile CATCH button drives the real prompt, a press or the rescue hold, so nothing changes server side
+	-- the mobile CATCH button drives the real prompt, so nothing changes server side
 	table.insert(
 		promptConnections,
 		catchScreen.holdBegan:Connect(function()
@@ -1621,7 +1558,6 @@ function UI.catch.unbindProximityPrompts()
 	end
 	table.clear(promptConnections)
 	activePrompt = nil
-	holdOpen = false
 end
 
 ----------------------------------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
+local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
@@ -93,20 +94,41 @@ function Economy.grantPlacedXp(profile: Types.PlayerProfile, seconds: number): n
 	return levelled
 end
 
+-- The share of the day rate a cafe earns in this phase: 1 by day, NightIncomeMultiplier by night (section 11).
+function Economy.phaseMultiplier(phase: Types.ClockPhase): number
+	return if phase == "night" then Config.NightIncomeMultiplier else 1
+end
+
 -- Lazy accounting: credit everything earned since lastTick, then grant that time as XP to the placed cats.
 -- Coins use the rate from before any level-up in the window (a few seconds at most), which keeps the
 -- credit simple and never overpays. Call before any read or spend.
-function Economy.settle(profile: Types.PlayerProfile, now: number): number
+-- `clockEpoch` is the os.time() at which the server's clock started (ClockService.epoch): the window is split at
+-- phase boundaries and its night part pays NightIncomeMultiplier (section 11). Without it the whole window pays
+-- the day rate, which only the specs and offline maths want.
+function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: number?): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
 	if elapsed > 0 then
-		earned = Economy.incomePerSecond(profile) * elapsed
+		local nightSeconds = if clockEpoch ~= nil
+			then math.clamp(
+				Clock.nightSecondsBetween(profile.lastTick - clockEpoch, now - clockEpoch),
+				0,
+				elapsed
+			)
+			else 0
+		local paidSeconds = elapsed - nightSeconds + nightSeconds * Config.NightIncomeMultiplier
+		earned = Economy.incomePerSecond(profile) * paidSeconds
 		profile.coins += earned
 		profile.lifetimeCoins += earned
 		Economy.grantPlacedXp(profile, elapsed)
 	end
 	profile.lastTick = now
 	return earned
+end
+
+-- A rich customer's tip (section 12): RichTipSeconds of the day rate, never less than $50.
+function Economy.richTipAmount(dayRate: number): number
+	return math.max(50, math.floor(dayRate * Config.RichTipSeconds))
 end
 
 function Economy.offlineGain(rateAtLogout: number, lastSeen: number, now: number): (number, number)

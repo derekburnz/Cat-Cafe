@@ -32,7 +32,6 @@ return function()
 		RescueSelfRetrySeconds = 6,
 		RescueAttemptMaxSeconds = 15,
 		ShinyChanceRescue = 0.10,
-		RescueHoldSeconds = 4, -- the v0.2 hold, until the UI's old hold bar drops it
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
 		GrabRetrySeconds = 2,
@@ -56,6 +55,7 @@ return function()
 		BaitBowlRangeStuds = 12,
 		BaitResolveRangeStuds = 20,
 		ShinyChanceBait = 0.02,
+		ShinyChanceNet = 0.02, -- F30
 		CarryWalkSpeed = 16, -- v0.4
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,
@@ -84,6 +84,13 @@ return function()
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
 		DealerWindowSeconds = 600,
+		-- night income and rich customers (F31, sections 11 and 12)
+		NightIncomeMultiplier = 0.6,
+		CustomerSpawnSecondsNight = 12,
+		RichCheckSeconds = 60,
+		RichChance = 0.15,
+		RichTipSeconds = 45,
+		RichTipStaySeconds = 90,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -97,13 +104,6 @@ return function()
 		BumpSameTargetSeconds = { 60, "F29" },
 		DropOwnerPrioritySeconds = { 8, "F29" },
 		DroppedMinStaySeconds = { 120, "F29" },
-		ShinyChanceNet = { 0.02, "F30" },
-		NightIncomeMultiplier = { 0.6, "F31" },
-		CustomerSpawnSecondsNight = { 12, "F31" },
-		RichCheckSeconds = { 60, "F31" },
-		RichChance = { 0.15, "F31" },
-		RichTipSeconds = { 45, "F31" },
-		RichTipStaySeconds = { 90, "F31" },
 		CatNameMaxLength = { 20, "F33" },
 		RenameCooldownSeconds = { 5, "F33" },
 	}
@@ -144,6 +144,7 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
+				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -280,9 +281,9 @@ return function()
 			end
 		)
 
-		-- RescueHoldSeconds goes too once the UI's CatchPrompt stops reading it.
-		it("the v0.2 rescue hold's lock and latency constants are gone (F27)", function()
+		it("the v0.2 rescue hold's constants are gone (F27)", function()
 			local config = Config :: any
+			expect(config.RescueHoldSeconds).never.to.be.ok()
 			expect(config.RescueLockSeconds).never.to.be.ok()
 			expect(config.RingLatencyGraceSeconds).never.to.be.ok()
 		end)

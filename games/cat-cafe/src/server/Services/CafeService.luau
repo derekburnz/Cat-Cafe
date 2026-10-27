@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -33,9 +34,14 @@ local rng = Random.new() -- charm rolls for caught cats
 local function profileFor(player: Player): Profile?
 	local profile = DataService.get(player)
 	if profile ~= nil then
-		Economy.settle(profile, os.time())
+		Economy.settle(profile, os.time(), ClockService.epoch())
 	end
 	return profile
+end
+
+-- What the cafe earns per second right now: the day rate, times NightIncomeMultiplier at night (section 11).
+local function currentRate(profile: Profile): number
+	return Economy.incomePerSecond(profile) * Economy.phaseMultiplier(ClockService.phase())
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view).
@@ -76,7 +82,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 	local now = os.time()
 	return {
 		money = math.floor(profile.coins),
-		incomePerSecond = Economy.incomePerSecond(profile),
+		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
 		tier = Economy.tier(profile),
 		cafeProgress = nil,
 		cafeProgressText = nil,
@@ -87,7 +93,6 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorOwned = profile.decorOwned,
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
-		equippedLure = profile.equippedLure,
 		bait = baitView(profile, now),
 		cats = CafeService.catViews(profile),
 		collection = profile.collection,
@@ -410,8 +415,15 @@ local function refreshShowcase(player: Player, profile: Profile)
 	refreshCats(player, plot, profile)
 	local tierDef = Catalog.getTier(Economy.tier(profile))
 	local tierName = if tierDef ~= nil then tierDef.name else ""
+	-- the plot's Rate stays the day rate (the street's CafeSigns apply the night share themselves); the sign's own
+	-- line shows what the cafe earns now
 	local rate = Economy.incomePerSecond(profile)
-	PlotService.setShowcase(player, tierName, rate, tierName .. "  " .. rateText(rate))
+	PlotService.setShowcase(
+		player,
+		tierName,
+		rate,
+		tierName .. "  " .. rateText(currentRate(profile))
+	)
 end
 
 function CafeService.sync(player: Player)
@@ -453,7 +465,7 @@ function CafeService.addCaughtCat(
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
-		Economy.settle(profile, os.time())
+		Economy.settle(profile, os.time(), ClockService.epoch())
 	else
 		profile = profileFor(player)
 	end
@@ -612,7 +624,7 @@ local function onEquipBest(player: Player)
 			plan.catsPlaced,
 			plan.spotsOpen,
 			changed,
-			rateText(Economy.incomePerSecond(profile))
+			rateText(currentRate(profile))
 		),
 		"good"
 	)
@@ -782,28 +794,7 @@ local function onBuyLure(player: Player, rawId: unknown)
 		return
 	end
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
-	if profile.equippedLure == nil then
-		profile.equippedLure = lureId
-	end
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
-	CafeService.sync(player)
-end
-
-local function onEquipLure(player: Player, rawId: unknown)
-	local profile = profileFor(player)
-	if profile == nil then
-		return
-	end
-	if rawId == nil then
-		profile.equippedLure = nil
-		CafeService.sync(player)
-		return
-	end
-	local lureId = Guard.id(rawId)
-	if lureId == nil or (profile.lures[lureId] or 0) < 1 then
-		return
-	end
-	profile.equippedLure = lureId
 	CafeService.sync(player)
 end
 
@@ -878,7 +869,6 @@ function CafeService.start()
 	Net.on("RankUp", onRankUp)
 	Net.on("ToggleDecor", onToggleDecor)
 	Net.on("BuyLure", onBuyLure)
-	Net.on("EquipLure", onEquipLure)
 	Net.on("ClaimOffline", onClaimOffline)
 	Net.on("TutorialAdvance", onTutorialAdvance)
 	Net.on("RequestSync", function(player)
@@ -886,6 +876,13 @@ function CafeService.start()
 		local offline, seconds = DataService.peekPendingOffline(player)
 		if offline > 0 then
 			Net.fire(player, "OfflineEarnings", offline, seconds)
+		end
+	end)
+
+	-- The rate changes at dusk and dawn: settle the old phase and send the new rate at once.
+	ClockService.changed:Connect(function()
+		for _, player in DataService.loadedPlayers() do
+			CafeService.sync(player)
 		end
 	end)
 

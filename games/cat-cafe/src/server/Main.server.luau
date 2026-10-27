@@ -14,6 +14,7 @@ local DealerService = require(script.Parent.Services.DealerService)
 local Net = require(script.Parent.Services.Net)
 local PlotService = require(script.Parent.Services.PlotService)
 local RescueService = require(script.Parent.Services.RescueService)
+local RichTipService = require(script.Parent.Services.RichTipService)
 local TravelService = require(script.Parent.Services.TravelService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
 
@@ -30,6 +31,7 @@ CatService.start(world)
 RescueService.start(world)
 TravelService.start(world)
 DealerService.start()
+RichTipService.start()
 DataService.start()
 
 -- Studio only: the command bar and Studio MCP's execute_luau get a fresh copy of any module they require, with

@@ -203,7 +203,7 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 		sendStock(player, true)
 		return
 	end
-	Economy.settle(profile, os.time())
+	Economy.settle(profile, os.time(), ClockService.epoch())
 	if not Economy.trySpend(profile, def.cost) then
 		refuse("Not enough coins")
 		return

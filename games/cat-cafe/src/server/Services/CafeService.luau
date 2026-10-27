@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
@@ -249,11 +250,17 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
 		model:SetAttribute("DisplayName", shownName(player, instance))
 		model:SetAttribute("OwnerUserId", player.UserId)
-		if instance.spotId ~= nil then
-			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
-		end
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
-		model:PivotTo(placement.anchor.CFrame)
+		local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
+		if spot ~= nil then
+			-- F25: a working cat stands upright at its station in its role's outfit
+			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
+			model:SetAttribute("Role", spot.spotType)
+			CatPose.upright(model, placement.anchor.CFrame)
+			CatPose.dress(model, spot.spotType)
+		else
+			model:PivotTo(placement.anchor.CFrame)
+		end
 		model.Parent = plot.cats
 	end
 end

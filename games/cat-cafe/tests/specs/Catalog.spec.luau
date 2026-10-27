@@ -424,6 +424,25 @@ return function()
 				expect(string.sub(furniture, 1, 18)).to.equal("CatCafe_Furniture_")
 			end
 		end)
+
+		it("every role has a two-piece outfit of distinct accessories (F25)", function()
+			local seen: { [string]: boolean } = {}
+			for _, role in ipairs(ROLES) do
+				local pieces = Catalog.roleOutfits[role]
+				expect(pieces).to.be.ok()
+				assert(pieces)
+				expect(#pieces).to.equal(2)
+				for _, piece in pieces do
+					expect(string.match(piece, "^%u%a+$") ~= nil).to.equal(true)
+					expect(seen[piece]).never.to.be.ok()
+					seen[piece] = true
+				end
+			end
+			for role in pairs(Catalog.roleOutfits) do
+				expect(ROLE_SET[role]).to.equal(true)
+			end
+			expect(Catalog.accessoryModelName("BaristaCap")).to.equal("CatCafe_Accessory_BaristaCap")
+		end)
 	end)
 
 	describe("tiers (section 5b)", function()

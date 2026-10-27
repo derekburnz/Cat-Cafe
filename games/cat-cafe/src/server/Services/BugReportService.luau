@@ -1,11 +1,12 @@
 --!strict
 -- In-game bug reports for the friends alpha (docs/playtests/bug-reports.md). ReportBug(text, kind?, clientErrors?)
--- from the Settings window is checked by shared/BugReport, held to one per ReportSeconds per player, PlayerCap per
--- player and ServerCap per server, and saved with what the server knows of the moment: who, which build, where,
+-- from the Settings window is checked by shared/BugReport, held to one per REPORT_SECONDS per player, PLAYER_CAP per
+-- player and SERVER_CAP per server, and saved with what the server knows of the moment: who, which build, where,
 -- the clock, the cafe's tier, coins and cats, a carried cat, the device and the server's last error lines. Nothing
 -- from the client is trusted for any of that. Records go to the BugReports_v1 DataStore under a day prefix
 -- (BugReport.key; Studio playtests save under s_ instead of r_) for the team to read with Debug.bugReports or Open
--- Cloud; in Studio each is also printed as one [BugReport] <json> line, so a run with API access off still shows it. The text is never shown to another player.
+-- Cloud. In Studio each is also printed as one [BugReport] <json> line, so a run with API access off still shows
+-- it. The text is never shown to another player.
 --
 -- Roblox terms: a DataStore is Roblox's key-value storage for an experience; SetAsync writes one key and can fail
 -- (budget, outage, API access off in Studio), so it runs in pcall. LogService.MessageOut is the server's output.

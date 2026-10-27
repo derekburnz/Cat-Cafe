@@ -1194,7 +1194,7 @@
        "CFrame": {
         "position": [
          -12.25,
-         10.9963,
+         11.0863,
          0.0
         ],
         "orientation": [
@@ -1237,7 +1237,7 @@
        "CFrame": {
         "position": [
          12.25,
-         -10.9963,
+         -11.0863,
          0.0
         ],
         "orientation": [
@@ -1272,7 +1272,7 @@
        "CFrame": {
         "position": [
          -10.5,
-         10.59,
+         10.68,
          0.0
         ],
         "orientation": [
@@ -1321,7 +1321,7 @@
        "CFrame": {
         "position": [
          -8.75,
-         10.2463,
+         10.3363,
          0.0
         ],
         "orientation": [
@@ -1370,7 +1370,7 @@
        "CFrame": {
         "position": [
          -7.0,
-         9.965,
+         10.055,
          0.0
         ],
         "orientation": [
@@ -1419,7 +1419,7 @@
        "CFrame": {
         "position": [
          -5.25,
-         9.7463,
+         9.8363,
          0.0
         ],
         "orientation": [
@@ -1468,7 +1468,7 @@
        "CFrame": {
         "position": [
          -3.5,
-         9.59,
+         9.68,
          0.0
         ],
         "orientation": [
@@ -1517,7 +1517,7 @@
        "CFrame": {
         "position": [
          -1.75,
-         9.4963,
+         9.5863,
          0.0
         ],
         "orientation": [
@@ -1566,7 +1566,7 @@
        "CFrame": {
         "position": [
          0.0,
-         9.465,
+         9.555,
          0.0
         ],
         "orientation": [
@@ -1615,7 +1615,7 @@
        "CFrame": {
         "position": [
          1.75,
-         9.4963,
+         9.5863,
          0.0
         ],
         "orientation": [
@@ -1664,7 +1664,7 @@
        "CFrame": {
         "position": [
          3.5,
-         9.59,
+         9.68,
          0.0
         ],
         "orientation": [
@@ -1713,7 +1713,7 @@
        "CFrame": {
         "position": [
          5.25,
-         9.7463,
+         9.8363,
          0.0
         ],
         "orientation": [
@@ -1762,7 +1762,7 @@
        "CFrame": {
         "position": [
          7.0,
-         9.965,
+         10.055,
          0.0
         ],
         "orientation": [
@@ -1811,7 +1811,7 @@
        "CFrame": {
         "position": [
          8.75,
-         10.2463,
+         10.3363,
          0.0
         ],
         "orientation": [
@@ -1860,7 +1860,7 @@
        "CFrame": {
         "position": [
          10.5,
-         10.59,
+         10.68,
          0.0
         ],
         "orientation": [
@@ -1909,7 +1909,7 @@
        "CFrame": {
         "position": [
          12.25,
-         10.9963,
+         11.0863,
          0.0
         ],
         "orientation": [

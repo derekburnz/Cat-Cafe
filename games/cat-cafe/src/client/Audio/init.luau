@@ -596,9 +596,10 @@ local function refreshWorldLoops()
 	end
 end
 
--- A resting cafe cat purrs while it loafs (Effects.isLoafing: napping with no station, by day, part of every
--- minute). Only the nearest one within LOAF_NEAR, because Effects animates a budget of cats and a purr from a cat
--- that is not moving would sound wrong (reviewer N131). Resting cats are the Napping children of each Plot's Cats.
+-- A resting cafe cat purrs by day (Logic.restingPurrs): one sitting on the seated body (Pose "sit", PR #266) the whole
+-- day, one still on the lying body while it loafs (Effects.isLoafing). Only the nearest one within LOAF_NEAR, because
+-- Effects animates a budget of cats and a purr from a cat that is not moving would sound wrong (reviewer N131).
+-- Resting cats are the Napping children of each Plot's Cats.
 local LOAF_NEAR = 14
 local loafing: Instance? = nil
 
@@ -617,7 +618,14 @@ local function followLoaf(root: BasePart?)
 				local distance = if part ~= nil
 					then (part.Position - root.Position).Magnitude
 					else math.huge
-				if distance <= bestDistance and Effects.isLoafing(cat :: Model) then
+				if
+					distance <= bestDistance
+					and Logic.restingPurrs(
+						cat:GetAttribute("Pose"),
+						phase == "night",
+						Effects.isLoafing(cat :: Model)
+					)
+				then
 					best, bestDistance = cat, distance
 				end
 			end
@@ -635,7 +643,7 @@ end
 
 -- Twice a second: restarts a loop whose part streamed out from under its model, starts loops on tagged models
 -- whose parts streamed in after the tag (reviewer N55), follows each `when` (a cafe opening or closing for the
--- night), keeps the `near` loops on the closest tagged things and the purr on the nearest loafing cat.
+-- night), keeps the `near` loops on the closest tagged things and the purr on the nearest resting cat.
 local function followWorldLoops()
 	while true do
 		task.wait(LOOP_CHECK_SECONDS)

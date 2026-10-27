@@ -60,7 +60,8 @@ def flower_clump(f, x, y, z, colours=("blush", "sparkle", "offwhite", "nose_pink
     for k in range(n):
         a = 2.3 * k
         fx, fz = x + spread * math.cos(a) * (k % 2 + 0.5) / 1.5, z + spread * math.sin(a) * 0.5
-        f.span((fx - 0.18, y, fz - 0.18), (fx + 0.18, y + 0.36, fz + 0.18), colours[k % len(colours)])
+        s = 0.18 - 0.012 * k                                                               # sizes differ: no shared faces
+        f.span((fx - s, y, fz - s), (fx + s, y + 2 * s, fz + s), colours[k % len(colours)])
 
 
 # ------------------------------------------------------------------------------------------------ arches --
@@ -86,7 +87,7 @@ def _arch(name, mat, inner, front, back):
     # iron beam, sign board and the curved top
     b.span((-half, 10.0, -0.35), (half, 10.5, 0.35), "fur_black")
     bw = inner - 3.0
-    b.span((-bw / 2, 10.5, -0.25), (bw / 2, 13.3, 0.25), "sign_teal")
+    b.span((-bw / 2, 10.52, -0.25), (bw / 2, 13.28, 0.25), "sign_teal")                   # edges tucked into the trim
     for (xa, xb, ya, yb) in ((-bw / 2 - 0.2, bw / 2 + 0.2, 10.5, 10.75), (-bw / 2 - 0.2, bw / 2 + 0.2, 13.05, 13.3),
                              (-bw / 2 - 0.2, -bw / 2 + 0.05, 10.5, 13.3), (bw / 2 - 0.05, bw / 2 + 0.2, 10.5, 13.3)):
         b.span((xa, ya, -0.32), (xb, yb, 0.32), TRIM)
@@ -104,7 +105,7 @@ def _arch(name, mat, inner, front, back):
         b.span((x - 0.1, y0, -0.1), (x + 0.1, yt, 0.1), "fur_black")
         b.cyl((x, y0 + 0.55, 0), 0.4, 0.2, "fur_black", axis="Z", segments=10)
     # cat medallion at the top: gold disc with ears and a paw on both faces
-    b.cyl((0, y0 + rise + 0.55, 0), 1.1, 0.3, "rarity_legend", axis="Z", segments=14)
+    b.cyl((0, y0 + rise + 0.55, 0), 1.1, 0.32, "rarity_legend", axis="Z", segments=14)   # 0.01 proud of the bars
     for s in (-1, 1):
         b.box((s * 0.65, y0 + rise + 1.45, 0), (0.6, 0.6, 0.3), "rarity_legend", rot=rot_z(45))
         zf = s * 0.17
@@ -235,7 +236,7 @@ def build_wall_door(mat):
     b.span((dx - 2.5, 7.2, -1.4), (dx + 2.5, 7.7, -1.0), "concrete")
     b.span((dx - 2.0, 0.6, -1.15), (dx + 2.0, 7.2, -1.0), "dumpster_green")
     b.span((dx - 1.6, 3.4, -1.32), (dx + 1.6, 3.65, -1.15), "metal")                      # push bar
-    b.span((dx - 2.0, 0.6, -1.2), (dx + 2.0, 1.4, -1.15), "metal")                        # kick plate
+    b.span((dx - 2.0, 0.6, -1.22), (dx + 2.0, 1.4, -1.15), "metal")                       # kick plate, proud of the plinth
     b.span((dx - 1.2, 5.3, -1.22), (dx + 1.2, 6.2, -1.15), "offwhite")                    # STAFF plate
     label(b, "STAFF", dx, 5.5, -1.22, 0.1, 0.03, "fur_black", -1)
     b.span((dx - 2.8, 0, -3.4), (dx + 2.8, 0.3, -1.0), "concrete")                        # steps
@@ -401,8 +402,7 @@ def build_mural(mat):
         b.span((x - 0.22, y, -1.22), (x + 0.22, y + 0.32, -1.17), "offwhite")
         for dx, dy in ((-0.28, 0.42), (0, 0.55), (0.28, 0.42)):
             b.span((x + dx - 0.09, y + dy, -1.22), (x + dx + 0.09, y + dy + 0.16, -1.17), "offwhite")
-    for k, (x, sw) in enumerate(((12.2, "blush"), (13.1, "mint"), (12.6, "sign_teal"))):    # paint cans and brush
-        z = -1.9 - 0.8 * (k % 2)
+    for x, z, sw in ((12.2, -1.9, "blush"), (13.1, -2.7, "mint"), (12.3, -2.95, "sign_teal")):  # paint cans, apart
         b.cyl((x, 0.45, z), 0.38, 0.9, "metal", segments=10)
         b.cyl((x, 0.92, z), 0.34, 0.06, sw, segments=10)
     b.box((11.2, 0.12, -2.4), (1.2, 0.12, 0.25), "caramel_wood", rot=rot_z(8))
@@ -416,8 +416,8 @@ def _crate(b, x, y, z, s=2.6, stencil=None):
     b.span((x - i / 2, y, z - i / 2), (x + i / 2, y + i, z + i / 2), "caramel_wood")
     for dx in (-1, 1):
         for dz in (-1, 1):
-            b.span((x + dx * s / 2 - (0.25 if dx > 0 else 0), y, z + dz * s / 2 - (0.25 if dz > 0 else 0)),
-                   (x + dx * s / 2 + (0.25 if dx < 0 else 0), y + i, z + dz * s / 2 + (0.25 if dz < 0 else 0)),
+            b.span((x + dx * s / 2 - (0.25 if dx > 0 else 0), y - 0.01, z + dz * s / 2 - (0.25 if dz > 0 else 0)),
+                   (x + dx * s / 2 + (0.25 if dx < 0 else 0), y + i + 0.01, z + dz * s / 2 + (0.25 if dz < 0 else 0)),
                    "dark_wood")
     for k in (1, 2):                                                                       # plank seams
         yy = y + i * k / 3
@@ -477,7 +477,7 @@ def build_laundry_line(mat):
             decor.span((x - 0.8, y - 2.0, zz[0]), (x + 0.8, y, zz[1]), sw)
             for s in (-1, 1):
                 decor.span((min(x + s * 0.8, x + s * 1.4), y - 0.9, zz[0]), (max(x + s * 0.8, x + s * 1.4), y, zz[1]), sw)
-            decor.span((x - 0.25, y - 0.35, zz[0] - 0.01), (x + 0.25, y, zz[1] + 0.01), "offwhite")
+            decor.span((x - 0.25, y - 0.35, zz[0] - 0.01), (x + 0.25, y + 0.01, zz[1] + 0.01), "offwhite")
         elif kind == "pants":
             decor.span((x - 0.8, y - 0.6, zz[0]), (x + 0.8, y, zz[1]), sw)
             for s in (-1, 1):
@@ -485,7 +485,7 @@ def build_laundry_line(mat):
         elif kind == "towel":
             decor.span((x - 1.0, y - 2.2, zz[0]), (x + 1.0, y, zz[1]), sw)
             for yy in (y - 1.7, y - 0.5):
-                decor.span((x - 1.0, yy - 0.12, zz[0] - 0.01), (x + 1.0, yy + 0.12, zz[1] + 0.01), "blush")
+                decor.span((x - 1.01, yy - 0.12, zz[0] - 0.01), (x + 1.01, yy + 0.12, zz[1] + 0.01), "blush")
             for dx, dy in ((0, -1.15), (-0.28, -0.8), (0, -0.7), (0.28, -0.8)):            # a paw on the towel
                 r = 0.22 if dy == -1.15 else 0.1
                 decor.span((x + dx - r, y + dy - r, zz[0] - 0.02), (x + dx + r, y + dy + r, zz[1] + 0.02), "offwhite")
@@ -509,7 +509,7 @@ def build_string_lights_long(mat):
         bar(wire, p0, p1, 0.06, -0.03, 0.03, "fur_black")
     colours = ("lamp_warm", "sparkle", "neon_pink", "lamp_warm", "mint")
     for k, (x, y) in enumerate(pts[1:-1]):
-        bulbs.span((x - 0.16, y - 0.55, -0.16), (x + 0.16, y - 0.12, 0.16), colours[k % len(colours)])
+        bulbs.span((x - 0.16, y - 0.46, -0.16), (x + 0.16, y - 0.03, 0.16), colours[k % len(colours)])   # hung on the wire
     return [b.finalize(name, mat), wire.finalize(name + "_Decor", mat), bulbs.finalize(name + "_Bulbs", mat)]
 
 
@@ -538,7 +538,7 @@ def build_manhole(mat):
             o = -1.4 + 0.7 * j
             b.box((cx + o * tx, 1.55, cz + o * tz), (0.7, 0.45, 0.12), "shirt_red" if j % 2 == 0 else "offwhite",
                   rot=turn)
-        lamps.box((cx, 1.95, cz), (0.3, 0.3, 0.3), "eye_amber", rot=turn)
+        lamps.box((cx, 1.9, cz), (0.3, 0.3, 0.3), "eye_amber", rot=turn)                    # sits on the top rail
     # sign on a post at the front: name and a board for the requirement
     b.span((-0.12, 0, -5.4), (0.12, 4.6, -5.16), "metal")
     b.span((-1.8, 3.4, -5.5), (1.8, 4.6, -5.4), "concrete_dark")

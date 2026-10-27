@@ -76,7 +76,7 @@ def build_net(level, mat):
     hoop_r = 0.9 + 0.15 * (level - 1)
     h = Builder()
     h.cyl((0, -pole / 2, 0), 0.1, pole, handle_col, segments=8, rot=(math.radians(90), "X"))
-    h.cyl((0, -0.35, 0), 0.13, 0.7, "fur_black", segments=8, rot=(math.radians(90), "X"))      # grip wrap
+    h.cyl((0, -0.36, 0), 0.13, 0.68, "fur_black", segments=8, rot=(math.radians(90), "X"))     # grip wrap
     if level >= 2:
         for y in (-1.2, -2.0):
             h.cyl((0, y, 0), 0.12, 0.12, ring_col, segments=8, rot=(math.radians(90), "X"))   # bands

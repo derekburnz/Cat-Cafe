@@ -4,7 +4,7 @@ Cart + Bulb objects: the lantern's Bulb goes Neon at night (style guide section 
 
 import math
 
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 
 from common import Builder
 
@@ -29,7 +29,7 @@ def build_dealer_cart(mat):
     b.box((0, -1.55, 2.58), (5.4, 0.08, 0.2), "rarity_legend", bevel=False)                    # gold edge
     for (x, y, z) in DISPLAY_SLOTS:                                                            # three stock pads
         b.cyl_base((x, y, 2.66), 0.5, 0.06, "cream", segments=12, bevel=False)
-        b.ring((x, y, 2.69), 0.52, 0.06, 0.06, "rarity_legend", segments=12, bevel=False)
+        b.ring((x, y, 2.7), 0.52, 0.06, 0.06, "rarity_legend", segments=12, bevel=False)    # 0.01 above the pad
     for x in (-2.55, 2.55):                                                                    # canopy posts
         for y in (-1.4, 1.2):
             b.cyl_base((x, y, 2.66), 0.08, 2.7, "dark_wood", segments=6, bevel=False)
@@ -44,7 +44,8 @@ def build_dealer_cart(mat):
         b.cyl((x, -1.88, 5.13), 5.6 / stripes / 2, 0.08, ("galaxy_blue", "aurora_violet")[i % 2], segments=8,
               bevel=False, rot=(math.radians(90), "X"))                                         # scallops
     for (x, y) in ((-1.9, -0.6), (0.4, 0.3), (1.8, -0.9), (-0.6, -1.2)):
-        b.star((x, y, 5.72 + 0.2 * y), 0.2, 0.09, 0.04, "rarity_legend", rot=tilt)
+        p = Vector((x, -0.15, 5.55)) + tilt.to_3x3() @ Vector((0, (y + 0.15) / math.cos(math.radians(12)), 0.09))
+        b.star(tuple(p), 0.2, 0.09, 0.04, "rarity_legend", rot=tilt)                          # lying on the canopy
     b.box((0, -1.92, 5.95), (1.6, 0.1, 0.8), "night_sky")                                      # moon sign
     b.crescent((-0.35, -1.98, 5.95), 0.26, 0.16, 0.05, "sparkle")
     b.star((0.35, -1.98, 5.95), 0.22, 0.1, 0.05, "rarity_legend", rot=(math.radians(90), "X"))

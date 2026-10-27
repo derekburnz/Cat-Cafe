@@ -151,6 +151,21 @@ Theme.icons = {
 	drop = "⬇️",
 }
 
+-- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons
+Theme.upgradeIcons = {
+	tables = "🪑",
+	espresso = "☕",
+	net = "🥅",
+	lure_bowl = "🥣",
+} :: { [string]: string }
+
+Theme.roleIcons = {
+	barista = "☕",
+	waiter = "🍰",
+	greeter = "👋",
+	entertainer = "🎈",
+} :: { [string]: string }
+
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets
 Theme.foodIcons = {
 	kibble = "🥣",

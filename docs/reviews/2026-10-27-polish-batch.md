@@ -13,7 +13,7 @@ This batch answers Derek's 2026-10-26 23:03 playtest: cafes that look like the s
 | #84 greyed-button bonk and announce colour | ui-designer | a44965b | Sound. Closes N57 and N58 |
 | #82 collection book with area tabs | ui-designer | 9620639 | Sound. One phone check (below) |
 | #88 cafe shells, For Rent, tier dressing, roof cutaway | engineer | 9c5137c | Sound. Nits N61 to N63 |
-| #91 UI wiring and Moments | engineer | f7497f1 | Sound. Closes S39. S40 (gate art), nits N64, N65 |
+| #91 UI wiring and Moments | engineer | f7497f1 | Sound. Closes S39. S40 (gate art, fixed by #96), nits N64, N65 |
 | #93 cat found jingle only for a new cat | sound-designer | 6b76ce3 | Sound |
 | #90 cafe name signs, rate tags, order bubbles | ui-designer | 0380353 | Sound. S41 (night sign), nit N66 |
 | #94 grade hint on press | ui-designer | 6ea78a1 | Sound |
@@ -37,7 +37,9 @@ This batch answers Derek's 2026-10-26 23:03 playtest: cafes that look like the s
 
 ## Findings
 
-**S40 (should-fix, asset-artist, then engineer; #91) Three of the four real gates have no `Bars`, and no gate spans its opening.** `setGateOpen` now changes only parts named `Bars`. Of the real gates, only `CatCafe_Park_Gate` has one, and it is 5.6 studs wide. Neighbourhood, Woods and Sewer are posts plus `_LeafL` and `_LeafR` models. With #91 those three gates look the same below and above the tier, and once open their leaves stay shut and you walk through them. The openings are 24 studs (Park, Neighbourhood) and 30 studs (Woods, Sewer), but the gates are 6 to 8 studs wide, so no gate has blocked anyone since the art landed. The server checks the tier on every catch and rescue, so this is not an exploit, but the gates feel broken. Fix: the asset-artist adds a `Bars` part across the full opening, the same shape as the placeholder (width = opening, 5 high, 0.35 transparency). The engineer hides the leaf parts when the gate opens.
+**S40 (should-fix, asset-artist and engineer; #91; fixed by #96) The gates did not match `setGateOpen`.** #91 changes only parts named `Bars`. On main at 699f5d3, only the Park gate art had a `Bars` part (5.6 studs wide). Neighbourhood, Woods and Sewer had only posts and swinging `_LeafL` and `_LeafR` models, and no gate spanned its 24 or 30 stud opening. So the gates looked the same at any tier and blocked nobody. The server checks the tier on every catch and rescue, so this was never an exploit. The asset-artist's #96 (merged as cbf0d8d) rebuilt all four as arches over the full opening. Each has a ForceField `Bars` (24 x 12 for Park and Neighbourhood, 30 x 12 for Woods and Sewer) directly under the model and no leaves. #91's Bars-only `setGateOpen` now fits, and nothing more is needed for S40.
+
+**N68 (nit, engineer; follow-up to #96) Turn three gates to face the approach.** #96's notes say the gates' -Z faces the approach, so Park, Woods and Sewer need a 180 degree turn. `buildGate` places every gate with `CFrame.new(x, 0.1, z)` and no rotation. Without the turn, those three arches and their `SignBoard` face into the area. Add the turn per area, and hang GateSigns on the new `SignBoard` if the UI wants it there.
 
 **S41 (should-fix, ui-designer and engineer; #90 and #85) The night sign says the cafe is closed while it keeps earning.** At night `CafeSigns` writes "Closed till morning" and the server fallback `PlotService.signText` writes "Closed". The design takes nothing away at night (common-features note 1): income runs at 60% once F31 lands (100% today) and customers keep walking in under the sign. Fix: keep the tier and rate line at night with a moon. Once F31 lands, show the rate times NightIncomeMultiplier, matching the clock chip's "Tips 60%".
 
@@ -64,4 +66,4 @@ This batch answers Derek's 2026-10-26 23:03 playtest: cafes that look like the s
 
 ## Build checklist status
 
-Closed: S39 (#91), N57 and N58 (#84), N59 and N60 (#85). Open: S40 and S41, N61 to N67, and from the last batch N51, N53, N55 and N56. S36 waits on the bump build. Still to build from v0.3: S25, S26, S32 and N29 (bump), S27 and N32 (dealer), S28 (rescue), S29 (rich tip), S30 and N35 (rename), N30 (bait reveal).
+Closed: S39 (#91), S40 (#96), N57 and N58 (#84), N59 and N60 (#85). Open: S41, N61 to N68, and from the last batch N51, N53, N55 and N56. S36 waits on the bump build. Still to build from v0.3: S25, S26, S32 and N29 (bump), S27 and N32 (dealer), S28 (rescue), S29 (rich tip), S30 and N35 (rename), N30 (bait reveal).

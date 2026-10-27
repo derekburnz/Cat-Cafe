@@ -60,6 +60,7 @@ export type CustomEvent =
 	| "tip_jar"
 	| "index_reward"
 	| "spin"
+	| "crate_opened"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

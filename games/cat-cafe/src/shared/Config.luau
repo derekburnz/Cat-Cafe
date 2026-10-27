@@ -140,6 +140,23 @@ local Config = {
 	TipJarStep12Fish = 5,
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
+	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.
+	CratePrice = 60, -- golden fish for a zone or Classic Crate at the Market
+	-- every tip in the cafe while the piece is in use
+	CratePieceBonus = { Common = 0.02, Rare = 0.04, Epic = 0.08, Legendary = 0.15, Mythical = 0.25 } :: {
+		[string]: number,
+	},
+	-- golden fish back for a piece already owned
+	CrateDuplicateRefund = { Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 } :: {
+		[string]: number,
+	},
+	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
+	CrateOpenCooldownSeconds = 2,
+	DecorSpots = { 2, 3, 4, 5, 6 } :: { number }, -- furniture and decorations in use, by tier
+	DecorIndexBonus = 0.05, -- every tip, for each Decor Index page with all ten pieces
+	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
+	BigBowlLureWaitSeconds = 480, -- the bait wait with the Big Bowl perk (LureWaitSeconds without it)
+
 	-- Shove (F29 bump rules, v0.5 F41, data-model section 10c); the code keeps the Bump names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Bump remote off and hides the Shove button
 	BumpRangeStuds = 6,

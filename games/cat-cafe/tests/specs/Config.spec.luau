@@ -100,6 +100,12 @@ return function()
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
 		TipJarStep12Fish = 5,
 		CrateLuckyEvery = 20,
+		CratePrice = 60,
+		FishMarketRange = 14,
+		CrateOpenCooldownSeconds = 2,
+		DecorIndexBonus = 0.05,
+		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
+		BigBowlLureWaitSeconds = 480, -- section 3: the Big Bowl takes the bait wait from 10 to 8 minutes
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45)
 		BumpEnabled = true,
 		BumpRangeStuds = 6,
@@ -159,6 +165,9 @@ return function()
 				FishFirstCatch = true, -- a table, checked below
 				FishRepeatCatch = true, -- a table, checked below
 				FishRankUp = true, -- a table, checked below
+				CratePieceBonus = true, -- a table, checked below
+				CrateDuplicateRefund = true, -- a table, checked below
+				DecorSpots = true, -- a table, checked below
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -179,6 +188,25 @@ return function()
 			expect(Config.FishFirstCatch :: any).to.deepEqual({ Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 })
 			expect(Config.FishRepeatCatch :: any).to.deepEqual({ Epic = 1, Legendary = 3, Mythical = 8 })
 			expect(Config.FishRankUp :: any).to.deepEqual({ 10, 25, 50, 100 })
+		end)
+
+		it("crate bonuses, refunds and decor spots (F53, golden-fish.md sections 4 and 8)", function()
+			expect(Config.CratePieceBonus :: any).to.deepEqual({
+				Common = 0.02,
+				Rare = 0.04,
+				Epic = 0.08,
+				Legendary = 0.15,
+				Mythical = 0.25,
+			})
+			expect(Config.CrateDuplicateRefund :: any).to.deepEqual({
+				Common = 10,
+				Rare = 20,
+				Epic = 40,
+				Legendary = 80,
+				Mythical = 150,
+			})
+			expect(Config.DecorSpots :: any).to.deepEqual({ 2, 3, 4, 5, 6 })
+			expect(Config.BigBowlLureWaitSeconds < Config.LureWaitSeconds).to.equal(true)
 		end)
 
 		it("NetWindows matches the section 10 net table, levels 0 to 3", function()

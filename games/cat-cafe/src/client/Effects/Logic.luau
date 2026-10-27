@@ -56,6 +56,7 @@ export type Candidate<K> = { key: K, distance: number }
 
 export type PlotChange = "claim" | "release" | "rankUp"
 export type AreasTurn = "dusk" | "sunrise"
+export type PrizeTier = "small" | "good" | "jackpot"
 
 -- A phone or tablet (touch with no keyboard) gets the low budget.
 function Logic.tier(touch: boolean, keyboard: boolean): Presets.Tier
@@ -195,6 +196,65 @@ function Logic.areasTurn(previous: unknown, open: unknown): AreasTurn?
 		return "sunrise"
 	end
 	return "dusk"
+end
+
+-- How a catch of `rarity` pops (Presets.catchPop): the ring's width in studs, the share of the budget's confetti
+-- (0 for none) and whether a beam shoots up. An unknown rarity pops like a Common.
+function Logic.catchPop(rarity: string): (number, number, boolean)
+	local c = Presets.catchPop
+	local ring = c.ring[rarity]
+	if ring == nil then
+		return c.ring.Common, 0, false
+	end
+	return ring, c.confetti[rarity] or 0, c.beams[rarity] == true
+end
+
+-- How a spin prize is celebrated, from its slice's chance among `weights` (slice number to weight, as in
+-- Catalog.spinWheel): "jackpot" at or under Presets.wheel.jackpot, "good" at or under .good, else "small". An
+-- unknown slice is "small".
+function Logic.prizeTier(weights: { [number]: number }, slice: number?): PrizeTier
+	local total = 0
+	for _, weight in weights do
+		total += weight
+	end
+	local weight = if slice ~= nil then weights[slice] else nil
+	if weight == nil or total <= 0 then
+		return "small"
+	end
+	local chance = weight / total
+	if chance <= Presets.wheel.jackpot then
+		return "jackpot"
+	elseif chance <= Presets.wheel.good then
+		return "good"
+	end
+	return "small"
+end
+
+-- The colours of a signature cat's effect (Presets.signature): its gold ones on a gold cat (round 4 Q8), else its
+-- own. A cat with no signature has none.
+function Logic.signatureColors(catId: unknown, gold: boolean): { Color3 }?
+	local spec = if type(catId) == "string" then Presets.signature[catId] else nil
+	if spec == nil then
+		return nil
+	end
+	return if gold then spec.gold else spec.colors
+end
+
+-- Whether you stand in a walk-in circle (the Codes Cat's, F65) at `distance` flat studs from its centre: in at
+-- `radius` or less, out only past `radius + leaveAfter`, and between the two as you were, so the edge never
+-- flickers.
+function Logic.insideCircle(
+	wasInside: boolean,
+	distance: number,
+	radius: number,
+	leaveAfter: number
+): boolean
+	if distance <= radius then
+		return true
+	elseif distance > radius + leaveAfter then
+		return false
+	end
+	return wasInside
 end
 
 local function wave(t: number, seconds: number): number

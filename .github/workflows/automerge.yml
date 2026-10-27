@@ -1,7 +1,7 @@
 # Merge queue for Cat Cafe PRs. A thread adds the `automerge` label once its PR would be merged by hand except
-# for waiting on CI (project rule: green CI on a head that includes the latest main, review findings addressed).
-# When the label goes on, this workflow only starts check.yml on the PR's branch; the last job of that run (and of
-# every later run on the PR) merges. The rules live in .github/scripts/automerge.sh.
+# for waiting on CI (project rule: green CI with the latest main in, review findings addressed).
+# When the label goes on, this workflow only starts check.yml on the PR's branch with main merged in (not pushed);
+# the last job of that run (and of every later run on the PR) merges. The rules live in .github/scripts/automerge.sh.
 name: automerge
 
 on:

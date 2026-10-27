@@ -612,6 +612,20 @@ function Catalog.shinyModelName(catId: string): string
 	return Catalog.catModelName(catId) .. "_Shiny"
 end
 
+-- What a working cat wears at its station (features.md F25; Derek 2026-10-27: outfits by role, no collars on any
+-- cat). Each piece is the asset CatCafe_Accessory_<Piece>, and each cat model carries an Attachment named
+-- Outfit_<Piece> at that piece's upright slot (asset thread's role_outfits). Cats resting in the cat room wear none.
+Catalog.roleOutfits = {
+	barista = { "Apron", "BaristaCap" },
+	waiter = { "BowTie", "Vest" },
+	greeter = { "Sash", "Boater" },
+	entertainer = { "PartyHat", "Cape" },
+} :: { [string]: { string } } -- keyed by Types.Role
+
+function Catalog.accessoryModelName(piece: string): string
+	return "CatCafe_Accessory_" .. piece
+end
+
 Catalog.catsById = {} :: { [string]: Types.CatDef }
 Catalog.catsByModelName = {} :: { [string]: Types.CatDef }
 for _, def in Catalog.cats do

@@ -110,7 +110,7 @@ local gateSigns: GateSigns.GateSigns? = nil
 local areaTitle: AreaTitle.AreaTitle? = nil
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
-local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, tip, Bump)
+local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
@@ -1401,7 +1401,7 @@ local function isCatPrompt(prompt: ProximityPrompt): boolean
 		and promptAttribute(prompt, "CatId") ~= nil
 end
 
--- Every other custom prompt (bait bowl, dealer cart, rich tip, Bump) gets an action pill
+-- Every other custom prompt (bait bowl, dealer cart, manhole, Bump) gets an action pill
 local function isActionPrompt(prompt: ProximityPrompt): boolean
 	return prompt.Style == Enum.ProximityPromptStyle.Custom
 		and promptAttribute(prompt, "CatId") == nil

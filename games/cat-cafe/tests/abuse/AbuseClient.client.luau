@@ -2738,10 +2738,14 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 			)
 	end
 	local def = Catalog.tipJar[ready]
+	local stepPrize = def.prize -- F68: the Index prize shape
 	local w = freshWallet()
-	local lureBefore = if state ~= nil and def.lureId ~= nil
-		then state.lures[def.lureId] or 0
-		else 0
+	local stepLures: { [string]: number } = stepPrize.lures or {}
+	local luresBefore: { [string]: number } = {}
+	local before = state
+	for lureId in stepLures do
+		luresBefore[lureId] = if before ~= nil then before.lures[lureId] or 0 else 0
+	end
 	local bankedBefore = if state ~= nil and (state :: any).spin ~= nil
 		then state.spin.banked
 		else nil
@@ -2769,17 +2773,12 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 		return "FAIL", string.format("no TipJarState back for the claimed step %d", ready)
 	end
 	local prize: string
-	if def.kind == "coins" then
+	if stepPrize.coins ~= nil then
 		local paid = tonumber(string.match(toasts[1].text, "%+%$(%d+)")) or 0
 		local gained = money() - w.money
-		if paid < (def.minCoins or 0) then
-			return "FAIL",
-				string.format(
-					"step %d paid $%d, under its floor of $%d",
-					ready,
-					paid,
-					def.minCoins or 0
-				)
+		local floor: number = stepPrize.coins or 0
+		if paid < floor then
+			return "FAIL", string.format("step %d paid $%d, under its floor of $%d", ready, paid, floor)
 		end
 		if gained < paid or gained > paid + incomeSince(w) then
 			return "FAIL",
@@ -2792,21 +2791,19 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 		end
 		prize = string.format("$%d", paid)
 	else
-		local lureAfter = if state ~= nil then state.lures[def.lureId :: string] or 0 else 0
-		if lureAfter - lureBefore ~= (def.count or 1) then
-			return "FAIL",
-				string.format(
-					"step %d should give %d %s and gave %d",
-					ready,
-					def.count or 1,
-					def.lureId :: string,
-					lureAfter - lureBefore
-				)
+		prize = ""
+		local after = state
+		for lureId, count in stepLures do
+			local lureAfter = if after ~= nil then after.lures[lureId] or 0 else 0
+			local gave = lureAfter - (luresBefore[lureId] or 0)
+			if gave ~= count then
+				return "FAIL", string.format("step %d should give %d %s and gave %d", ready, count, lureId, gave)
+			end
+			prize ..= string.format("%s%d %s", if prize == "" then "" else " and ", count, lureId)
 		end
-		prize = string.format("%d %s", def.count or 1, def.lureId :: string)
 	end
-	-- Steps 11 and 12 bank a spin too (F49), unless the bank is full, which the server says in a toast.
-	local spins = def.spins
+	-- Steps 9, 11 and 12 bank spins too (F49, v0.10), unless the bank is full, which the toast says.
+	local spins = stepPrize.spins
 	if spins ~= nil and bankedBefore ~= nil then
 		local banked = (if state ~= nil then state.spin.banked else 0) - bankedBefore
 		if banked ~= spins and not toasted(claimAt, "Spins full") then
@@ -2815,8 +2812,8 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 		end
 		prize ..= string.format(" and %d spin", banked)
 	end
-	-- Step 12 also pays golden fish (F52).
-	local stepFish = def.fish
+	-- Steps 9 and 12 also pay golden fish (F52, v0.10).
+	local stepFish = stepPrize.fish
 	if stepFish ~= nil then
 		local gained = fish() - fishBefore
 		if gained ~= stepFish then

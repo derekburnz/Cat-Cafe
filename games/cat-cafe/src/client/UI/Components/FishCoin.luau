@@ -1,8 +1,8 @@
 --!strict
 -- The golden fish coin (golden-fish.md section 1, Derek 2026-10-27: "it can be a cute coin with like a cat face on
 -- it"): a gold coin with a lighter rim, two cat ears behind it and a little cat face (two eyes and an "ω" mouth),
--- drawn from frames so it needs no uploaded image. When the asset thread's coin picture lands, this is the one
--- place to swap.
+-- drawn from frames. Once Theme.textures.fishCoin holds the asset thread's picture (CatCafe_Icon_GoldenFish, Derek
+-- okayed it 2026-10-27) the coin is that picture instead, in the same place and size.
 --   FishCoin.new({ parent, size }) -> Frame   the size is the coin's; the ears reach a third of it higher
 --   FishCoin.fill(parent, share) -> Frame   a coin `share` of a scale-sized parent's width, kept so as it resizes
 
@@ -23,6 +23,10 @@ export type Props = {
 local FishCoin = {}
 
 local FILL_BASE = 40 -- px the filling coin is drawn at before its UIScale
+-- the picture's round face is 88% of its width with its centre 55% down (the ears take the top), so the picture is
+-- drawn this much bigger than the coin and lifted until its face covers the coin's square
+local PICTURE_SCALE = 1 / 0.88
+local PICTURE_FACE_Y = 0.55
 
 function FishCoin.new(props: Props): Frame
 	local size = props.size
@@ -37,6 +41,21 @@ function FishCoin.new(props: Props): Frame
 		ZIndex = z,
 		Parent = props.parent,
 	})
+	local picture = Theme.textures.fishCoin
+	if picture ~= "" then
+		Create("ImageLabel", {
+			Name = "Coin",
+			BackgroundTransparency = 1,
+			Image = picture,
+			ScaleType = Enum.ScaleType.Fit,
+			AnchorPoint = Vector2.new(0.5, PICTURE_FACE_Y),
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(PICTURE_SCALE, PICTURE_SCALE),
+			ZIndex = z + 1,
+			Parent = holder,
+		})
+		return holder
+	end
 	CatEars.add(holder, Theme.fish.coin, {
 		size = math.floor(size * 0.42),
 		inset = 0.24,

@@ -134,6 +134,7 @@ export type CatInstance = {
 	rescued: boolean?,
 	name: string?, -- the player's name for it, filtered by the server; nil shows the catalog name
 	method: CatchMethod?, -- how it was found
+	locked: boolean?, -- F62: true cannot be sold or traded; the lock shows once the server sends it as a boolean
 	-- per-cat stats (cat stats thread); all optional, shown when present
 	level: number?, -- 1 to 10
 	xp: number?,

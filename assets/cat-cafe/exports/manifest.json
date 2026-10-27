@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 22:14 UTC",
+  "generated": "2026-10-27 22:20 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -66185,25 +66185,25 @@
       "objects": [
         "CatCafe_Decor_MilkCrateStools"
       ],
-      "triangles": 938,
+      "triangles": 1018,
       "budget": 1500,
       "size_studs": {
-        "x": 3.86,
+        "x": 3.82,
         "y": 1.4,
         "z": 2.97
       },
       "size_roblox": [
-        3.86,
+        3.82,
         2.97,
         1.4
       ],
       "bounds_min": [
-        -1.93,
+        -1.91,
         -0.7,
         0.0
       ],
       "bounds_max": [
-        1.93,
+        1.91,
         0.7,
         2.97
       ],
@@ -66221,10 +66221,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "938/1500 tris",
+          "budget": "1018/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "475 faces on swatch centers",
+          "uv": "495 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -67241,17 +67241,17 @@
       "objects": [
         "CatCafe_Decor_VelvetBooth"
       ],
-      "triangles": 732,
+      "triangles": 788,
       "budget": 1800,
       "size_studs": {
         "x": 3.92,
-        "y": 1.91,
-        "z": 4.37
+        "y": 1.9,
+        "z": 4.1
       },
       "size_roblox": [
         3.92,
-        4.37,
-        1.91
+        4.1,
+        1.9
       ],
       "bounds_min": [
         -1.96,
@@ -67260,14 +67260,14 @@
       ],
       "bounds_max": [
         1.96,
-        0.96,
-        4.37
+        0.95,
+        4.1
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_VelvetBooth.model.json",
-      "rbx_parts": 33,
+      "rbx_parts": 35,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_VelvetBooth.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_VelvetBooth.glb"
@@ -67277,10 +67277,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "732/1800 tris",
+          "budget": "788/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "354 faces on swatch centers",
+          "uv": "386 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

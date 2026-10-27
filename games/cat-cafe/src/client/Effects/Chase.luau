@@ -118,6 +118,8 @@ local function rush(character: Model, state: Watched)
 	end
 	local root = partOf(character, "HumanoidRootPart")
 	if root == nil or not inRange(character, root) then
+		-- The new token has cancelled any pending end, so lines already on the body go now (review S78).
+		endLines(state)
 		return
 	end
 	if fresh then
@@ -171,22 +173,24 @@ local function pushed(character: Model)
 	end
 end
 
-local function watchCharacter(character: Model)
+local function watchCharacter(character: Model): { RBXScriptConnection }
 	local state: Watched = {
 		rushEnds = character:GetAttribute("RushUntil"),
 		startledEnds = character:GetAttribute("StartledUntil"),
 		lines = {},
 		token = 0,
 	}
-	character:GetAttributeChangedSignal("RushUntil"):Connect(function()
-		rush(character, state)
-	end)
-	character:GetAttributeChangedSignal("StartledUntil"):Connect(function()
-		startle(character, state)
-	end)
-	character:GetAttributeChangedSignal("PushedAt"):Connect(function()
-		pushed(character)
-	end)
+	local connections = {
+		character:GetAttributeChangedSignal("RushUntil"):Connect(function()
+			rush(character, state)
+		end),
+		character:GetAttributeChangedSignal("StartledUntil"):Connect(function()
+			startle(character, state)
+		end),
+		character:GetAttributeChangedSignal("PushedAt"):Connect(function()
+			pushed(character)
+		end),
+	}
 	-- A character that arrives mid-rush gets its lines for the rest of it, without the ring.
 	if
 		Logic.timedState(state.rushEnds, nil, Workspace:GetServerTimeNow(), Presets.chase.longest)
@@ -194,13 +198,27 @@ local function watchCharacter(character: Model)
 	then
 		task.defer(rush, character, state)
 	end
+	return connections
 end
 
+-- One character's listeners at a time per player: the old ones go when it respawns (review N164).
 local function watchPlayer(player: Player)
-	if player.Character ~= nil then
-		watchCharacter(player.Character)
+	local connections: { RBXScriptConnection } = {}
+	local function drop()
+		for _, connection in connections do
+			connection:Disconnect()
+		end
+		connections = {}
 	end
-	player.CharacterAdded:Connect(watchCharacter)
+	local function watch(character: Model)
+		drop()
+		connections = watchCharacter(character)
+	end
+	if player.Character ~= nil then
+		watch(player.Character)
+	end
+	player.CharacterAdded:Connect(watch)
+	player.CharacterRemoving:Connect(drop)
 end
 
 function Chase.start()

@@ -31,13 +31,25 @@ if [ ! -f "$PLACE_FILE" ]; then
 	rojo build default.project.json -o "$PLACE_FILE"
 fi
 
-response=$(curl -sS -w '\n%{http_code}' -X POST \
-	"https://apis.roblox.com/universes/v1/$UNIVERSE_ID/places/$PLACE_ID/versions?versionType=$VERSION_TYPE" \
-	-H "x-api-key: $ROBLOX_PUBLISH_KEY" \
-	-H "Content-Type: application/octet-stream" \
-	--data-binary @"$PLACE_FILE")
-status=${response##*$'\n'}
-body=${response%$'\n'*}
+# Roblox answers 5xx, or 409 "Server is busy ... try again in a couple minutes", now and then (both stopped a
+# publish on 2026-10-27), so those and 429 get three more tries over about two and a half minutes. A retry after
+# one that went through anyway only adds a version with the same file.
+for wait in 20 40 80 0; do
+	response=$(curl -sS -w '\n%{http_code}' -X POST \
+		"https://apis.roblox.com/universes/v1/$UNIVERSE_ID/places/$PLACE_ID/versions?versionType=$VERSION_TYPE" \
+		-H "x-api-key: $ROBLOX_PUBLISH_KEY" \
+		-H "Content-Type: application/octet-stream" \
+		--data-binary @"$PLACE_FILE")
+	status=${response##*$'\n'}
+	body=${response%$'\n'*}
+	case "$status" in
+	5?? | 429 | 409) ;;
+	*) break ;;
+	esac
+	[ "$wait" = 0 ] && break
+	echo "Open Cloud answered HTTP $status; trying again in ${wait}s." >&2
+	sleep "$wait"
+done
 
 if [ "$status" != 200 ]; then
 	echo "Open Cloud answered HTTP $status: $body" >&2

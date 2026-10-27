@@ -32,7 +32,19 @@ call() { # method url [json body] -> sets $status and $body
 }
 
 request=$(jq -n --rawfile script "$SCRIPT" '{script: $script, timeout: "180s"}')
-call POST "$API/universes/$UNIVERSE_ID/places/$PLACE_ID/versions/$VERSION/luau-execution-session-tasks" "$request"
+# Roblox answers 5xx or a busy 409 now and then (a 502 here stopped a publish on 2026-10-27), so those and 429 get
+# three more tries over about two and a half minutes. A task started by one that went through anyway just runs on
+# its own; this script follows the last one.
+for wait in 20 40 80 0; do
+	call POST "$API/universes/$UNIVERSE_ID/places/$PLACE_ID/versions/$VERSION/luau-execution-session-tasks" "$request"
+	case "$status" in
+	5?? | 429 | 409) ;;
+	*) break ;;
+	esac
+	[ "$wait" = 0 ] && break
+	echo "Creating the task answered HTTP $status; trying again in ${wait}s." >&2
+	sleep "$wait"
+done
 created=$body
 if [ "$status" != 200 ]; then
 	echo "Creating the task answered HTTP $status: $created" >&2

@@ -908,7 +908,8 @@ function Audio.start()
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,
--- Sfx and Ui. A muted channel loads nothing. Call it on every ProfileSync and on each toggle; it is cheap.
+-- Sfx and Ui. A muted channel loads nothing. Call it with the first settings and again whenever they change (the
+-- settings switches); a call with unchanged settings changes nothing, so calling it more often is harmless.
 function Audio.applySettings(settings: Settings)
 	build()
 	local musicWas, ambienceWas, sfxWas = enabled.Music, enabled.Ambience, enabled.Sfx

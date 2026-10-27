@@ -29,10 +29,12 @@ CT = common.TO_ROBLOX.transposed().to_4x4()  # Roblox -> Blender
 OFFWHITE = (1.0, 0.976, 0.949)  # palette offwhite, the z's fill
 DARK_WOOD = (94 / 255, 70 / 255, 52 / 255)  # the z's outline
 # Where the camera sits for each view, as a direction from the cat in Roblox axes (the cat faces -Z, +X is its right).
+# "three" is Model-Agent's pose sheet camera (azimuth 35, elevation 22: front left, the face towards the camera) and
+# "side" sees the left side, a little from the front, so the cat faces left on screen as in the sheets.
 VIEWS = {
-    "side": Vector((1.0, 0.28, 0.0)),
+    "side": Vector((-1.0, 0.3, -0.45)),
     "front": Vector((0.0, 0.3, -1.0)),
-    "three": Vector((0.85, 0.55, -0.95)),
+    "three": Vector((-0.53, 0.37, -0.76)),
 }
 
 
@@ -130,6 +132,20 @@ def z_text(text, rgb, outline):
     return ob, fac
 
 
+def checker_floor():
+    """Two-stud squares in two floor tones on the preview floor."""
+    mat = bpy.data.materials["_PreviewFloor"]
+    nodes, links = mat.node_tree.nodes, mat.node_tree.links
+    coords = nodes.new("ShaderNodeTexCoord")
+    checker = nodes.new("ShaderNodeTexChecker")
+    checker.inputs["Scale"].default_value = 0.5
+    base = nodes["Principled BSDF"].inputs["Base Color"].default_value
+    checker.inputs["Color1"].default_value = base
+    checker.inputs["Color2"].default_value = (base[0] * 0.85, base[1] * 0.85, base[2] * 0.85, 1)
+    links.new(coords.outputs["Object"], checker.inputs["Vector"])
+    links.new(checker.outputs["Color"], nodes["Principled BSDF"].inputs["Base Color"])
+
+
 def setup_camera(res, lens=50):
     sc = bpy.context.scene
     cd = bpy.data.cameras.new("_Cam")
@@ -157,7 +173,7 @@ def main():
     p.add_argument("--res", type=int, default=480)
     p.add_argument("--strip", type=int, default=6, help="frames in the contact strip")
     p.add_argument("--every", type=int, default=1, help="render every nth frame")
-    p.add_argument("--zoom", type=float, default=0.8, help="under 1 frames the cat tighter")
+    p.add_argument("--zoom", type=float, default=0.65, help="under 1 frames the cat tighter")
     args = p.parse_args(argv)
 
     with open(args.frames) as f:
@@ -178,6 +194,8 @@ def main():
     sc.view_settings.view_transform = "Standard"
     common._ensure_floor()
     common._ensure_lights(True)
+    if frames[0]["pivot"] != frames[-1]["pivot"]:
+        checker_floor()  # so a walking cat is seen to move while the camera follows it
 
     objs = []
     for i, info in enumerate(data["parts"]):

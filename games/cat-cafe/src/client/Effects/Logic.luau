@@ -497,9 +497,12 @@ function Logic.strideLength(speed: number): number
 	return g.walkStride + (g.runStride - g.walkStride) * Logic.runFactor(speed)
 end
 
--- Legs, bob and lean for a cat on the move, layered on the idle. `stride` counts leg cycles covered. A walk is a
--- trot (diagonal legs together); a run is a gallop (front legs together, back legs half a cycle behind) with the
--- body rocking, the head stretched forward and the tail out straight behind.
+-- Legs, bob and lean for a cat on the move, layered on the idle. `stride` counts leg cycles covered. Slow, it walks
+-- the way cats do, one leg at a time (back left, front left, back right, front right, a quarter cycle apart), its
+-- body swaying a little side to side, its head nodding with each step and its tail held up and swaying; from
+-- gait.trotFrom it blends into a trot (diagonal legs together) and from gait.runFrom into a gallop (front legs
+-- together, back legs half a cycle behind) with the body rocking, the head stretched forward and down and the tail
+-- out straight behind.
 function Logic.gait(o: Offsets, speed: number, stride: number)
 	local g = Presets.motion.gait
 	if speed < g.moveFrom then
@@ -507,22 +510,132 @@ function Logic.gait(o: Offsets, speed: number, stride: number)
 	end
 	local start = math.clamp((speed - g.moveFrom) / g.moveFrom, 0, 1) -- eases in from a standstill
 	local run = Logic.runFactor(speed)
-	local walk = 1 - run
+	local trot = math.clamp((speed - g.trotFrom) / (g.trotFull - g.trotFrom), 0, 1)
+	local walk = 1 - trot -- the one-leg-at-a-time walk
+	trot *= 1 - run
 	local phase = stride * 2 * math.pi
 	local s = math.sin(phase)
+	local quarter = math.pi / 2
 	local swing = math.rad(g.walkSwing + (g.runSwing - g.walkSwing) * run) * start
-	o.pawFL += swing * s
-	o.pawFR += swing * (walk * -s + run * math.sin(phase + 0.3))
-	o.pawBL += swing * (walk * -s + run * math.sin(phase + math.pi))
-	o.pawBR += swing * (walk * s + run * math.sin(phase + math.pi + 0.3))
-	local trotBob = g.walkBob * (0.5 - 0.5 * math.cos(2 * phase))
+	o.pawFL += swing * (walk * math.sin(phase - quarter) + trot * s + run * s)
+	o.pawFR += swing * (walk * math.sin(phase - 3 * quarter) - trot * s + run * math.sin(
+		phase + 0.3
+	))
+	o.pawBL += swing * (walk * s - trot * s + run * math.sin(phase + math.pi))
+	o.pawBR += swing * (walk * math.sin(phase - math.pi) + trot * s + run * math.sin(
+		phase + math.pi + 0.3
+	))
+	local stepBob = g.walkBob * (0.5 - 0.5 * math.cos(2 * phase)) -- two steps a cycle
 	local gallopBob = g.runBob * (0.5 + 0.5 * math.cos(phase))
-	o.bodyY += (walk * trotBob + run * gallopBob) * start
-	local rock = math.rad(g.runRock) * math.sin(phase) * run
+	o.bodyY += ((1 - run) * stepBob + run * gallopBob) * start
+	local rock = math.rad(g.runRock) * s * run
 	o.bodyPitch += rock
-	o.headPitch += -rock * 0.6 - math.rad(g.runHead) * run
-	o.tailPitch += math.rad(8) * run
-	o.tailYaw *= 1 - 0.8 * run
+	o.bodyRoll += math.rad(g.walkRoll) * s * walk * start
+	local steady = (1 - run) * start
+	o.headPitch += -rock * 0.6 - math.rad(g.runHead) * run + math.rad(g.walkNod) * math.sin(
+		2 * phase
+	) * steady
+	o.headRoll -= math.rad(g.walkRoll) * s * walk * start * 0.6 -- the head stays level as the body sways
+	o.headYaw *= 1 - g.lookAhead * start -- on the move it mostly looks where it is going
+	o.tailPitch += math.rad(8) * run + math.rad(g.walkTail) * steady
+	o.tailYaw = o.tailYaw * (1 - 0.8 * run) + math.rad(g.tailSway) * math.sin(phase + 1) * steady
+end
+
+-- An action's weight at `alpha` (0 to 1 of the action): 0 until `start`, easing up to 1 by `full`, holding to
+-- `hold`, easing back to 0 by `stop`.
+function Logic.envelope(
+	alpha: number,
+	start: number,
+	full: number,
+	hold: number,
+	stop: number
+): number
+	if alpha <= start or alpha >= stop then
+		return 0
+	elseif alpha < full then
+		local k = (alpha - start) / (full - start)
+		return k * k * (3 - 2 * k)
+	elseif alpha <= hold then
+		return 1
+	end
+	local k = (stop - alpha) / (stop - hold)
+	return k * k * (3 - 2 * k)
+end
+
+-- Whether a style is asleep (curled up or dozing), so leaving it is waking up.
+function Logic.asleep(style: Style?): boolean
+	return style == "nap" or style == "doze"
+end
+
+-- Whether a change of style is waking up: out of a nap or a doze into anything but rest. A resting cat turning
+-- between its nap and its loaf stays at rest and does not stand up to stretch (review S71).
+function Logic.wakes(from: Style?, to: Style): boolean
+	return Logic.asleep(from) and not (Logic.asleep(to) or to == "loaf")
+end
+
+-- How long a cat takes to settle from one style into the next: lying down is slow, getting up a little quicker,
+-- anything else motion.settle.
+function Logic.settleSeconds(from: Style?, to: Style): number
+	local m = Presets.motion
+	local down = to == "nap" or to == "loaf"
+	local wasDown = from == "nap" or from == "loaf"
+	if down and not wasDown then
+		return m.settleDown
+	elseif wasDown and not down then
+		return m.settleUp
+	end
+	return m.settle
+end
+
+-- A stretch, layered on the idle while `alpha` runs from 0 to 1 (motion.stretch; Cats plays one as a cat wakes up
+-- and now and then while a stray stands still). On all fours (the walking body and the older Part cats) the cat
+-- gets up from wherever it lay, bows with its front legs out ahead, chest low, rear up and tail up, lifting its head
+-- in a yawn with its eyes shut, then rocks forward and stretches each back leg out behind in turn, and settles
+-- back. Sat up (the sitting body) it leans back and reaches both front paws up and forward in a yawn. `weight`
+-- (1 if not given) scales it all, so a stray that sets off mid-stretch can let it go smoothly.
+function Logic.stretch(o: Offsets, alpha: number, body: Body?, weight: number?)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local s = Presets.motion.stretch
+	local w = math.clamp(weight or 1, 0, 1)
+	local up = Logic.envelope(alpha, 0, s.rise, 1 - s.rise, 1) * w
+	o.sleep *= 1 - up
+	o.loaf *= 1 - up
+	o.lick *= 1 - up
+	o.sink *= 1 - up
+	o.belly *= 1 - up
+	if body == "sit" then
+		local reach = Logic.envelope(alpha, 0.1, 0.38, 0.68, 0.92) * w
+		o.bodyPitch += math.rad(s.lean) * reach
+		o.pawFL += math.rad(s.reachUp) * reach
+		o.pawFR += math.rad(s.reachUp) * reach
+		o.headPitch += math.rad(s.yawn) * reach
+		o.tailPitch += math.rad(s.tail * 0.5) * reach
+		o.blink = math.max(o.blink, reach)
+		o.earL = math.max(o.earL, math.rad(s.ears) * reach)
+		o.earR = math.max(o.earR, math.rad(s.ears) * reach)
+		return
+	end
+	local bow = Logic.envelope(alpha, 0.08, 0.3, 0.48, 0.62) * w
+	local rearL = Logic.envelope(alpha, 0.5, 0.6, 0.68, 0.78) * w
+	local rearR = Logic.envelope(alpha, 0.66, 0.76, 0.84, 0.94) * w
+	local rock = math.max(rearL, rearR)
+	local pitch = -math.rad(s.bow) * bow + math.rad(s.rock) * rock
+	o.bodyPitch += pitch
+	o.bodyY -= s.drop * bow -- the body turns about its middle, so drop it to keep the back feet down
+	-- front legs reach out ahead in the bow, then stand straight under the chest
+	o.pawFL += math.rad(s.reach) * bow - math.rad(s.rock) * rock
+	o.pawFR += math.rad(s.reach) * bow - math.rad(s.rock) * rock
+	-- back legs stay upright under the raised rear, then each stretches out behind
+	o.pawBL += -pitch - math.rad(s.rear) * rearL
+	o.pawBR += -pitch - math.rad(s.rear) * rearR
+	o.headPitch += -pitch * s.headLevel + math.rad(s.yawn) * bow
+	o.tailPitch += math.rad(s.tail) * math.max(bow, rock * 0.5)
+	o.tailYaw *= 1 - bow
+	o.blink = math.max(o.blink, bow)
+	o.earL = math.max(o.earL, math.rad(s.ears) * bow)
+	o.earR = math.max(o.earR, math.rad(s.ears) * bow)
 end
 
 -- Catching its breath after a sprint: quick shallow breaths, head low, tail down. Replaces the idle's breathing.

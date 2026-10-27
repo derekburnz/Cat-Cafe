@@ -18,6 +18,11 @@ export type Style =
 	| "greeter"
 	| "entertainer"
 	| "sit"
+	| "lick"
+
+-- Which body a cat has (Pose finds it): "walk" and "sit" are the bodies with hinged pieces (PR #259: walking A,
+-- sitting B), "parts" the placeholder and older Part cats, which lie down by folding their legs themselves.
+export type Body = "parts" | "walk" | "sit"
 
 -- Turns and lifts for one cat at one moment. Pitch lifts the nose (or the front of the body), yaw turns left
 -- and right, roll tilts sideways. tailPitch lifts the tail, a paw value swings that leg forward from the hip.
@@ -36,6 +41,14 @@ export type Offsets = {
 	pawBR: number,
 	sink: number, -- 0 standing, 1 lying on its belly (Pose turns it into studs from the cat's leg length)
 	yarn: number, -- the entertainer's yarn ball, -1 (left) to 1 (right) in front of the cat
+	-- How far into each of Model-Agent's piece poses (Presets.catPoses) the cat is, 0 to 1, on the bodies with
+	-- hinged pieces. The idle's own turns ride on top.
+	sleep: number,
+	loaf: number,
+	lick: number,
+	blink: number, -- 0 eyes open, 1 shut
+	earL: number, -- how far each ear is flicked back, radians
+	earR: number,
 }
 
 export type Candidate<K> = { key: K, distance: number }
@@ -182,6 +195,12 @@ function Logic.blank(): Offsets
 		pawBR = 0,
 		sink = 0,
 		yarn = 0,
+		sleep = 0,
+		loaf = 0,
+		lick = 0,
+		blink = 0,
+		earL = 0,
+		earR = 0,
 	}
 end
 
@@ -194,13 +213,62 @@ function Logic.mix(a: Offsets, b: Offsets, k: number): Offsets
 	return out
 end
 
--- The idle for a style at time t. Every cat breathes and swishes its tail; the style adds the rest.
-function Logic.idle(style: Style, t: number): Offsets
+-- Eyes and ears for a style at time t: blinks now and then, eyes shut asleep, and an ear flick now and then.
+local function face(o: Offsets, style: Style, t: number)
+	local m = Presets.motion
+	local b = m.blink
+	local asleep = style == "nap" or style == "doze"
+	if asleep then
+		o.blink = 1
+	elseif style == "loaf" then
+		-- half shut and content, with a slow blink
+		o.blink = b.sleepy + (1 - b.sleepy) * Logic.pulse(t, b.every * 2, b.slowSeconds)
+	elseif style == "lick" then
+		o.blink = m.lick.eyes
+	else
+		o.blink = Logic.pulse(t, b.every, b.seconds)
+	end
+	local e = m.ears
+	local pace = if asleep then 0.5 else 1
+	o.earL = math.rad(e.twitch) * Logic.pulse(t * pace, e.everyL, e.seconds)
+	o.earR = math.rad(e.twitch) * Logic.pulse(t * pace + 2.3, e.everyR, e.seconds)
+end
+
+-- The idle for a style at time t on a body (Logic.Body; none means "parts"). Every cat breathes, swishes its tail,
+-- blinks and flicks its ears; the style adds the rest. On the bodies with hinged pieces a nap, loaf and paw lick
+-- are Model-Agent's piece poses (sleep, loaf, lick) with the idle on top; the "parts" cats fold their own legs.
+function Logic.idle(style: Style, t: number, body: Body?): Offsets
 	local m = Presets.motion
 	local o = Logic.blank()
+	local pieces = body == "walk" or body == "sit"
 	o.bodyY = (wave(t, m.breathe.seconds) * 0.5 + 0.5) * m.breathe.studs
 	o.tailYaw = math.rad(m.tailSwish.degrees) * wave(t, m.tailSwish.seconds)
-	if style == "nap" then
+	face(o, style, t)
+	if style == "nap" and pieces then
+		-- Curled up asleep (manifest sleep): the pose lays it down and turns its head and tail; only a slow breath
+		-- and the tip of the tail move.
+		o.sleep = 1
+		o.bodyY = (wave(t, m.nap.seconds) * 0.5 + 0.5) * m.nap.breathe
+		o.tailYaw *= 0.1
+	elseif style == "loaf" and pieces then
+		-- Tucked in and awake (manifest loaf): a slow breath and a slow look to one side and back now and then.
+		local l = m.loaf
+		o.loaf = 1
+		o.bodyY = (wave(t, l.seconds) * 0.5 + 0.5) * l.breathe
+		local side = if math.floor(t / l.lookEvery) % 2 == 0 then 1 else -1
+		o.headYaw = math.rad(l.look) * side * Logic.pulse(t, l.lookEvery, l.lookSeconds)
+		o.tailYaw *= 0.1
+	elseif style == "lick" then
+		-- Washing a paw (manifest lick): the paw is up at the mouth; in bursts the head bobs to it and the paw rubs.
+		local k = m.lick
+		o.lick = 1
+		local cycle = k.strokes + k.pause
+		local stroking = if t % cycle < k.strokes then 1 else 0
+		local lap = math.sin(t * k.hz * 2 * math.pi) * stroking
+		o.headPitch = -math.rad(k.bob) * (0.5 + 0.5 * lap)
+		o.pawFL = math.rad(k.paw) * lap
+		o.tailYaw *= 0.5
+	elseif style == "nap" then
 		-- Curled up: down on its belly, front paws out in front, back legs folded under, head tucked round to the
 		-- left and the tail wrapped along the left side to meet it.
 		o.sink = m.nap.sink
@@ -285,6 +353,13 @@ end
 function Logic.loafing(t: number, phase: number): boolean
 	local l = Presets.motion.loaf
 	return (t + phase * l.every) % l.every < l.hold
+end
+
+-- Whether a resting cat on the sitting body is washing a paw at server time `t`, the way Logic.loafing takes turns:
+-- `hold` seconds out of every `every` (motion.lick), from its own `phase`.
+function Logic.licking(t: number, phase: number): boolean
+	local k = Presets.motion.lick
+	return (t + phase * k.every) % k.every < k.hold
 end
 
 -- How far round a spin of the world wheel is after `k` (0 to 1) of its time: fast at first, easing to a stop.

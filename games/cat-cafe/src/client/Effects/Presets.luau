@@ -351,6 +351,25 @@ Presets.motion = {
 		every = 75,
 		hold = 24,
 	},
+	-- A sitting cat (the _Sit body, PR #259) washing a paw now and then (Derek 2026-10-27: the paw-up sit is a
+	-- lick), the way a walking cat loafs: `hold` seconds of every `every`, by day. In bursts of `strokes` seconds a
+	-- `pause` apart, the head bobs and the raised paw rubs at `hz` licks a second, eyes half shut.
+	lick = {
+		every = 60,
+		hold = 9,
+		strokes = 1.6,
+		pause = 1.1,
+		hz = 2.4,
+		bob = 6,
+		paw = 10,
+		eyes = 0.6,
+	},
+	-- Blinks squash each eye to `squash` of its height for `seconds`, every `every` seconds or so. A sleeping or
+	-- dozing cat keeps its eyes shut; a loafing cat keeps them `sleepy` shut and blinks slowly.
+	blink = { every = 4.3, seconds = 0.16, squash = 0.12, sleepy = 0.4, slowSeconds = 0.6 },
+	-- An ear flicks back and out by `twitch` degrees for `seconds`, the left every `everyL` seconds and the right
+	-- every `everyR` (the new bodies' EarL and EarR); asleep, half as often.
+	ears = { twitch = 22, seconds = 0.22, everyL = 5.3, everyR = 7.7 },
 	settle = 0.8, -- seconds a cat takes to move from one style to the next (lying down at nightfall)
 	-- Legs swing with the distance the server moves the cat, so the feet keep pace with the ground: a trot at
 	-- walking speed, a gallop once it runs (F40's sprint is 26 studs a second). Speeds in studs a second.
@@ -380,6 +399,46 @@ Presets.motion = {
 		huff = 2,
 	},
 }
+
+-- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the
+-- manifest does not ship with the game: for each hinged piece, the turn about its own joint as
+-- piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees (`angles_roblox_deg`), and how far the whole
+-- cat drops (`lift_roblox` Y, studs at Scale 1). `body` is the body each is for, "walk" (A) or "sit" (B). Copy new
+-- numbers here when the manifest changes.
+export type CatPose = { body: string, lift: number, turns: { [string]: { number } } }
+Presets.catPoses = {
+	sleep = {
+		body = "walk",
+		lift = 0.31,
+		turns = {
+			LegF1 = { -90, 0, 0 },
+			LegF2 = { -90, 0, 0 },
+			LegB1 = { 90, 0, 0 },
+			LegB2 = { 90, 0, 0 },
+			Head = { -26.8, 25.4, 12.2 },
+			Tail = { 71.7, 49.6, -66.5 },
+		},
+	},
+	loaf = {
+		body = "walk",
+		lift = 0.31,
+		turns = {
+			LegF1 = { -90, 0, 0 },
+			LegF2 = { -90, 0, 0 },
+			LegB1 = { 90, 0, 0 },
+			LegB2 = { 90, 0, 0 },
+			Tail = { 42.1, 23.2, -19.6 },
+		},
+	},
+	lick = {
+		body = "sit",
+		lift = 0,
+		turns = {
+			LegF1 = { 128.8, -11.0, 8.7 },
+			Head = { -16.5, 13.4, 3.9 },
+		},
+	},
+} :: { [string]: CatPose }
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
 

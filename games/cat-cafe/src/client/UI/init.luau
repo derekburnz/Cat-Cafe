@@ -486,9 +486,12 @@ function UI.toast(text: string, kind: Types.ToastKind?)
 	end
 end
 
--- Server-wide announcement (Epic and Legendary catches). Gold toast.
-function UI.announce(text: string)
-	UI.toast(text, "announce")
+-- Server-wide shout-out (Epic and better catches), Announce(text, rarity?). The rarity colours it; without it the
+-- last rarity named as a whole word in the text decides. Silent: Audio plays the sting from the remote.
+function UI.announce(text: string, rarity: string?)
+	if toasts then
+		toasts:announce(text, rarity)
+	end
 end
 
 -- `extra` is optional: { stars, shiny, charmGain }. Missing stars and shiny are read from the newest copy of the

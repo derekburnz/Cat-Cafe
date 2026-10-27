@@ -236,16 +236,13 @@ function Button.new(props: Props): Button
 	table.insert(
 		self._connections,
 		face.InputBegan:Connect(function(input: InputObject)
-			local isPress = input.UserInputType == Enum.UserInputType.MouseButton1
-				or input.UserInputType == Enum.UserInputType.Touch
 			if not self._enabled then
-				-- Activated does not fire while Active is false, so the greyed bonk comes from the raw input
-				if isPress then
-					Sound.play("uiError")
-				end
 				return
 			end
-			if isPress then
+			if
+				input.UserInputType == Enum.UserInputType.MouseButton1
+				or input.UserInputType == Enum.UserInputType.Touch
+			then
 				setPressed(true)
 			end
 		end)
@@ -285,7 +282,10 @@ function Button.new(props: Props): Button
 	table.insert(
 		self._connections,
 		face.Activated:Connect(function()
+			-- A greyed button stays Active so a tap on it bonks; a drag that starts on it (a phone scroll) never
+			-- fires Activated, so scrolling past "can't afford" rows stays quiet (reviewer N57).
 			if not self._enabled then
+				Sound.play("uiError")
 				return
 			end
 			local sound = self._sound
@@ -316,7 +316,6 @@ end
 
 function Button.setEnabled(self: any, enabled: boolean)
 	self._enabled = enabled
-	self.face.Active = enabled
 	self._applyStyle()
 end
 

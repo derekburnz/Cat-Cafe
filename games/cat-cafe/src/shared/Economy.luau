@@ -34,7 +34,7 @@ function Economy.tierMultiplier(profile: Types.PlayerProfile): number
 	return if def ~= nil then def.multiplier else 1
 end
 
--- Placed decor that a placed gold Book piece stands in for (N114): it stays out of the bonus and off the plot.
+-- Placed decor that a placed gold Index piece stands in for (N114): it stays out of the bonus and off the plot.
 function Economy.replacedDecor(profile: Types.PlayerProfile): { [string]: boolean }
 	local replaced: { [string]: boolean } = {}
 	for decorId, placed in profile.decorPlaced do
@@ -210,8 +210,8 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	if def == nil then
 		return "Unknown decor"
 	end
-	if def.source == "book" then
-		return "A Book reward, not for sale"
+	if def.source == "index" then
+		return "An Index reward, not for sale"
 	end
 	if profile.decorOwned[decorId] then
 		return "Already owned"

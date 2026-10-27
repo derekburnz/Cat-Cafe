@@ -1006,10 +1006,10 @@ local builders: { [string]: () -> Model } = {
 	end,
 }
 
--- Book decor (F48) until the asset thread models it: each piece is a rough stand-in at its final footprint, and
+-- Index decor (F48) until the asset thread models it: each piece is a rough stand-in at its final footprint, and
 -- the gold piece is the same shape in gold. The print hangs from its base like the neon sign, face toward -Z.
-local BOOK_GOLD = Color3.fromRGB(232, 184, 64)
-local BOOK_DECOR: { [string]: { PartSpec } } = {
+local INDEX_GOLD = Color3.fromRGB(232, 184, 64)
+local INDEX_DECOR: { [string]: { PartSpec } } = {
 	MuralPrint = {
 		{
 			name = "Frame",
@@ -1102,7 +1102,7 @@ local BOOK_DECOR: { [string]: { PartSpec } } = {
 		},
 	},
 }
-for piece, parts in BOOK_DECOR do
+for piece, parts in INDEX_DECOR do
 	local name = "CatCafe_Decor_" .. piece
 	builders[name] = function()
 		return simple(name, parts)
@@ -1111,7 +1111,7 @@ for piece, parts in BOOK_DECOR do
 		local gold = table.clone(parts)
 		for i, spec in gold do
 			gold[i] = table.clone(spec)
-			gold[i].color = BOOK_GOLD
+			gold[i].color = INDEX_GOLD
 			gold[i].material = Enum.Material.Metal
 		end
 		return simple(name .. "_Gold", gold)

@@ -818,7 +818,7 @@ end
 -- Upgrade ids renamed before launch, old id -> new id. ProfileSchema.migrate carries saved levels across.
 Catalog.renamedUpgrades = { gloves = "net" } :: { [string]: string }
 
--- Section 7. Shop decor has no `source`; Book decor says "book".
+-- Section 7. Shop decor has no `source`; Index decor says "index".
 Catalog.decor = {
 	{
 		id = "plants",
@@ -864,10 +864,10 @@ Catalog.decor = {
 		bonus = 0.10,
 		asset = "CatCafe_Decor_FishTank",
 	},
-	-- Book decor (F48, section 11b): never sold, granted by an area's cats10 and gold10 Book rewards. A gold piece
+	-- Index decor (F48, section 11b): never sold, granted by an area's cats10 and gold10 Index rewards. A gold piece
 	-- shares its normal piece's spot and stands in for it while both are placed, so only its +10% counts.
 	{
-		id = "book_alley",
+		id = "index_alley",
 		name = "Alley Mural Print",
 		cost = 0,
 		category = "Wall",
@@ -875,10 +875,10 @@ Catalog.decor = {
 		description = "The Alleyway mural in a frame, for finding every alley cat.",
 		bonus = 0.05,
 		asset = "CatCafe_Decor_MuralPrint",
-		source = "book",
+		source = "index",
 	},
 	{
-		id = "book_park",
+		id = "index_park",
 		name = "Park Bench",
 		cost = 0,
 		category = "Furniture",
@@ -886,10 +886,10 @@ Catalog.decor = {
 		description = "A bench from the Park, for finding every park cat.",
 		bonus = 0.05,
 		asset = "CatCafe_Decor_ParkBench",
-		source = "book",
+		source = "index",
 	},
 	{
-		id = "book_neighbourhood",
+		id = "index_neighbourhood",
 		name = "Mailbox Planter",
 		cost = 0,
 		category = "Plants",
@@ -897,10 +897,10 @@ Catalog.decor = {
 		description = "A mailbox full of flowers, for finding every Neighbourhood cat.",
 		bonus = 0.05,
 		asset = "CatCafe_Decor_MailboxPlanter",
-		source = "book",
+		source = "index",
 	},
 	{
-		id = "book_woods",
+		id = "index_woods",
 		name = "Mushroom Lamp",
 		cost = 0,
 		category = "Furniture",
@@ -908,10 +908,10 @@ Catalog.decor = {
 		description = "A glowing toadstool, for finding every Woods cat.",
 		bonus = 0.05,
 		asset = "CatCafe_Decor_MushroomLamp",
-		source = "book",
+		source = "index",
 	},
 	{
-		id = "book_sewer",
+		id = "index_sewer",
 		name = "Pipe Fountain",
 		cost = 0,
 		category = "Furniture",
@@ -919,10 +919,10 @@ Catalog.decor = {
 		description = "A clean little fountain, for finding every Sewer cat.",
 		bonus = 0.05,
 		asset = "CatCafe_Decor_PipeFountain",
-		source = "book",
+		source = "index",
 	},
 	{
-		id = "book_alley_gold",
+		id = "index_alley_gold",
 		name = "Gold Alley Mural Print",
 		cost = 0,
 		category = "Wall",
@@ -930,11 +930,11 @@ Catalog.decor = {
 		description = "The same piece in gold, for finding every one of them as a gold cat.",
 		bonus = 0.10,
 		asset = "CatCafe_Decor_MuralPrint_Gold",
-		source = "book",
-		replaces = "book_alley",
+		source = "index",
+		replaces = "index_alley",
 	},
 	{
-		id = "book_park_gold",
+		id = "index_park_gold",
 		name = "Gold Park Bench",
 		cost = 0,
 		category = "Furniture",
@@ -942,11 +942,11 @@ Catalog.decor = {
 		description = "The same piece in gold, for finding every one of them as a gold cat.",
 		bonus = 0.10,
 		asset = "CatCafe_Decor_ParkBench_Gold",
-		source = "book",
-		replaces = "book_park",
+		source = "index",
+		replaces = "index_park",
 	},
 	{
-		id = "book_neighbourhood_gold",
+		id = "index_neighbourhood_gold",
 		name = "Gold Mailbox Planter",
 		cost = 0,
 		category = "Plants",
@@ -954,11 +954,11 @@ Catalog.decor = {
 		description = "The same piece in gold, for finding every one of them as a gold cat.",
 		bonus = 0.10,
 		asset = "CatCafe_Decor_MailboxPlanter_Gold",
-		source = "book",
-		replaces = "book_neighbourhood",
+		source = "index",
+		replaces = "index_neighbourhood",
 	},
 	{
-		id = "book_woods_gold",
+		id = "index_woods_gold",
 		name = "Gold Mushroom Lamp",
 		cost = 0,
 		category = "Furniture",
@@ -966,11 +966,11 @@ Catalog.decor = {
 		description = "The same piece in gold, for finding every one of them as a gold cat.",
 		bonus = 0.10,
 		asset = "CatCafe_Decor_MushroomLamp_Gold",
-		source = "book",
-		replaces = "book_woods",
+		source = "index",
+		replaces = "index_woods",
 	},
 	{
-		id = "book_sewer_gold",
+		id = "index_sewer_gold",
 		name = "Gold Pipe Fountain",
 		cost = 0,
 		category = "Furniture",
@@ -978,8 +978,8 @@ Catalog.decor = {
 		description = "The same piece in gold, for finding every one of them as a gold cat.",
 		bonus = 0.10,
 		asset = "CatCafe_Decor_PipeFountain_Gold",
-		source = "book",
-		replaces = "book_sewer",
+		source = "index",
+		replaces = "index_sewer",
 	},
 } :: { Types.DecorDef }
 
@@ -1136,50 +1136,50 @@ for _, def in Catalog.areas do
 	Catalog.areasById[def.id] = def
 end
 
--- Section 11b (F48): the four reward bar milestones every area page of the Book has, in order.
-Catalog.bookMilestones = {
+-- Section 11b (F48): the four reward bar milestones every area page of the Index has, in order.
+Catalog.indexMilestones = {
 	{ id = "cats3", need = 3 },
 	{ id = "cats6", need = 6 },
 	{ id = "cats10", need = 10 },
 	{ id = "gold10", need = 10, gold = true },
-} :: { Types.BookMilestone }
+} :: { Types.IndexMilestone }
 
 -- What each milestone pays per area (section 11b). Everything is free and only the server pays it. Named apart
--- from profile.bookRewards (the claims) and frozen, so a write meant for a profile errors instead of changing the
+-- from profile.indexRewards (the claims) and frozen, so a write meant for a profile errors instead of changing the
 -- prize for everyone on the server (reviewer S61).
-Catalog.bookPrizes = {
+Catalog.indexPrizes = {
 	alley = {
 		cats3 = { coins = 300 },
 		cats6 = { lures = { tuna = 2 } },
-		cats10 = { lures = { salmon = 1 }, decorId = "book_alley" },
-		gold10 = { decorId = "book_alley_gold" },
+		cats10 = { lures = { salmon = 1 }, decorId = "index_alley" },
+		gold10 = { decorId = "index_alley_gold" },
 	},
 	park = {
 		cats3 = { coins = 1000 },
 		cats6 = { lures = { salmon = 2 } },
-		cats10 = { lures = { caviar = 1 }, decorId = "book_park" },
-		gold10 = { decorId = "book_park_gold" },
+		cats10 = { lures = { caviar = 1 }, decorId = "index_park" },
+		gold10 = { decorId = "index_park_gold" },
 	},
 	neighbourhood = {
 		cats3 = { coins = 3000 },
 		cats6 = { lures = { caviar = 2 } },
-		cats10 = { lures = { moon_milk = 1 }, decorId = "book_neighbourhood" },
-		gold10 = { decorId = "book_neighbourhood_gold" },
+		cats10 = { lures = { moon_milk = 1 }, decorId = "index_neighbourhood" },
+		gold10 = { decorId = "index_neighbourhood_gold" },
 	},
 	woods = {
 		cats3 = { coins = 10000 },
 		cats6 = { lures = { moon_milk = 2 } },
-		cats10 = { lures = { star_treat = 1 }, decorId = "book_woods" },
-		gold10 = { decorId = "book_woods_gold" },
+		cats10 = { lures = { star_treat = 1 }, decorId = "index_woods" },
+		gold10 = { decorId = "index_woods_gold" },
 	},
 	sewer = {
 		cats3 = { coins = 30000 },
 		cats6 = { lures = { star_treat = 2 } },
-		cats10 = { lures = { star_treat = 2 }, decorId = "book_sewer" },
-		gold10 = { decorId = "book_sewer_gold" },
+		cats10 = { lures = { star_treat = 2 }, decorId = "index_sewer" },
+		gold10 = { decorId = "index_sewer_gold" },
 	},
-} :: { [string]: { [string]: Types.BookPrize } }
-for _, prizes in Catalog.bookPrizes do
+} :: { [string]: { [string]: Types.IndexPrize } }
+for _, prizes in Catalog.indexPrizes do
 	for _, prize in prizes do
 		if prize.lures ~= nil then
 			table.freeze(prize.lures)
@@ -1188,7 +1188,7 @@ for _, prizes in Catalog.bookPrizes do
 	end
 	table.freeze(prizes)
 end
-table.freeze(Catalog.bookPrizes)
+table.freeze(Catalog.indexPrizes)
 
 function Catalog.getArea(id: string): Types.AreaDef?
 	return Catalog.areasById[id]

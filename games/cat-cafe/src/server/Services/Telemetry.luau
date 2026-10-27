@@ -1,6 +1,6 @@
 --!strict
 -- Analytics (feature F16, growth analytics-plan.md): the onboarding funnel, the catch_attempt and bait_cycle funnels,
--- coin sources and sinks, tier and area book progression and the custom events, sent through AnalyticsService.
+-- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
 -- Server only; Roblox records nothing from Studio or a client. What only the client knows (its device, a screen it
 -- opened) arrives through TelemetryReport, allowlisted and limited to 10 a minute.
 -- Every Log call is wrapped in pcall: telemetry must never throw into gameplay. In Studio the last LOG_SIZE events
@@ -57,7 +57,7 @@ export type CustomEvent =
 	| "travel"
 	| "tutorial_step"
 	| "ui_opened"
-	| "book_reward"
+	| "index_reward"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -400,7 +400,7 @@ function Telemetry.knockedLoose(player: Player, rarity: string)
 	end
 end
 
-local function areaBook(player: Player, profile: Profile, complete: boolean, areaId: string)
+local function areaIndex(player: Player, profile: Profile, complete: boolean, areaId: string)
 	local area = Catalog.getArea(areaId)
 	if area == nil then
 		return
@@ -409,15 +409,15 @@ local function areaBook(player: Player, profile: Profile, complete: boolean, are
 	remember(
 		player,
 		if complete then "progress_complete" else "progress_start",
-		"area_book",
+		"area_index",
 		area.tier,
 		values
 	)
-	send("progression area_book", function()
+	send("progression area_index", function()
 		if complete then
 			AnalyticsService:LogProgressionCompleteEvent(
 				player,
-				"area_book",
+				"area_index",
 				area.tier,
 				areaId,
 				customFields(values)
@@ -425,7 +425,7 @@ local function areaBook(player: Player, profile: Profile, complete: boolean, are
 		else
 			AnalyticsService:LogProgressionStartEvent(
 				player,
-				"area_book",
+				"area_index",
 				area.tier,
 				areaId,
 				customFields(values)
@@ -434,14 +434,14 @@ local function areaBook(player: Player, profile: Profile, complete: boolean, are
 	end)
 end
 
--- After a new cat joins the collection: area_book completes when every catalog cat of its area is in the book.
+-- After a new cat joins the collection: area_index completes when every catalog cat of its area is in the Index.
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then
 			return
 		end
 	end
-	areaBook(player, profile, true, def.area)
+	areaIndex(player, profile, true, def.area)
 end
 
 local function progression(player: Player, profile: Profile, complete: boolean, tier: number)
@@ -483,7 +483,7 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 	progression(player, profile, false, tier)
 	local tierDef = Catalog.getTier(tier)
 	if tierDef ~= nil then
-		areaBook(player, profile, false, tierDef.area)
+		areaIndex(player, profile, false, tierDef.area)
 	end
 	local session = sessions[player]
 	local seconds = profile.stats.playtimeSeconds
@@ -571,7 +571,7 @@ local function onLoaded(player: Player, profile: Profile)
 			"start_coins"
 		)
 		progression(player, profile, false, Economy.tier(profile))
-		areaBook(player, profile, false, "alley")
+		areaIndex(player, profile, false, "alley")
 	end
 	task.delay(DEVICE_WAIT_SECONDS, logJoined, player)
 end

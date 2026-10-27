@@ -40,7 +40,7 @@ Remotes.ClientToServer = {
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSetting", -- (key: string, value: boolean)  "music" or "sfx"; saved in profile.settings, answered by ProfileSync
-	"ClaimBookReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
+	"ClaimIndexReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
 }
 
 -- Server -> client.

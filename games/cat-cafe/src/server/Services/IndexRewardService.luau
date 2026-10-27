@@ -1,30 +1,34 @@
 --!strict
--- Book rewards (F48, data-model section 11b). ClaimBookReward(areaId, milestoneId) pays a milestone on an area's
--- Book page once the collection (or, for gold10, the gold collection) holds enough of that area's cats and it has
--- not been claimed. The claim is marked before anything is paid, so one milestone pays once. Book decor goes into
+-- Index rewards (F48, data-model section 11b). ClaimIndexReward(areaId, milestoneId) pays a milestone on an area's
+-- Index page once the collection (or, for gold10, the gold collection) holds enough of that area's cats and it has
+-- not been claimed. The claim is marked before anything is paid, so one milestone pays once. Index decor goes into
 -- decorOwned and is placed at once, like a bought piece; nothing here can be bought.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local BookRewards = require(ReplicatedStorage.Shared.BookRewards)
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
-local BookRewardService = {}
+local IndexRewardService = {}
 
 -- Pays the prize and returns what it paid, for the toast: "+$300", "2 Tuna", "Alley Mural Print".
-local function pay(player: Player, profile: Types.PlayerProfile, prize: Types.BookPrize): { string }
+local function pay(
+	player: Player,
+	profile: Types.PlayerProfile,
+	prize: Types.IndexPrize
+): { string }
 	local paid: { string } = {}
 	local coins = prize.coins
 	if coins ~= nil and coins > 0 then
 		Economy.credit(profile, coins)
-		Telemetry.source(player, profile, coins, "Gameplay", "book_reward")
+		Telemetry.source(player, profile, coins, "Gameplay", "index_reward")
 		table.insert(paid, string.format("+$%d", coins))
 	end
 	if prize.lures ~= nil then
@@ -47,32 +51,32 @@ local function pay(player: Player, profile: Types.PlayerProfile, prize: Types.Bo
 	return paid
 end
 
-local function onClaimBookReward(player: Player, rawArea: unknown, rawMilestone: unknown)
+local function onClaimIndexReward(player: Player, rawArea: unknown, rawMilestone: unknown)
 	local areaId, milestoneId = Guard.id(rawArea), Guard.id(rawMilestone)
 	local profile = DataService.get(player)
 	if areaId == nil or milestoneId == nil or profile == nil then
 		return
 	end
-	local blocker = BookRewards.blocker(profile, areaId, milestoneId)
+	local blocker = IndexRewards.blocker(profile, areaId, milestoneId)
 	if blocker ~= nil then
 		Net.toast(player, blocker, "warn")
 		CafeService.sync(player)
 		return
 	end
-	local prize = BookRewards.prize(areaId, milestoneId) :: Types.BookPrize
-	local claims = profile.bookRewards[areaId]
+	local prize = IndexRewards.prize(areaId, milestoneId) :: Types.IndexPrize
+	local claims = profile.indexRewards[areaId]
 	if claims == nil then
 		claims = {}
-		profile.bookRewards[areaId] = claims
+		profile.indexRewards[areaId] = claims
 	end
 	claims[milestoneId] = true
 	local paid = pay(player, profile, prize)
-	Telemetry.custom(player, "book_reward", prize.coins or 0, { areaId, milestoneId })
+	Telemetry.custom(player, "index_reward", prize.coins or 0, { areaId, milestoneId })
 	local area = Catalog.getArea(areaId)
 	Net.toast(
 		player,
 		string.format(
-			"%s Book reward: %s",
+			"%s Index reward: %s",
 			if area ~= nil then area.name else areaId,
 			table.concat(paid, ", ")
 		),
@@ -84,8 +88,8 @@ local function onClaimBookReward(player: Player, rawArea: unknown, rawMilestone:
 	CafeService.sync(player)
 end
 
-function BookRewardService.start()
-	Net.on("ClaimBookReward", onClaimBookReward)
+function IndexRewardService.start()
+	Net.on("ClaimIndexReward", onClaimIndexReward)
 end
 
-return BookRewardService
+return IndexRewardService

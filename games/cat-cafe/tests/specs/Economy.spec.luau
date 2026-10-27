@@ -155,7 +155,7 @@ return function()
 				p.upgradeLevels.tables = 6
 				p.upgradeLevels.espresso = 5
 				for _, def in ipairs(Catalog.decor) do
-					if def.source ~= "book" then
+					if def.source ~= "index" then
 						p.decorOwned[def.id] = true
 						p.decorPlaced[def.id] = true
 					end
@@ -164,24 +164,24 @@ return function()
 			end)
 
 			it(
-				"Book decor adds +5% a piece, and a placed gold piece stands in for its normal one (F48, N114)",
+				"Index decor adds +5% a piece, and a placed gold piece stands in for its normal one (F48, N114)",
 				function()
 					local p = freshProfile()
 					local function give(id: string)
 						p.decorOwned[id] = true
 						p.decorPlaced[id] = true
 					end
-					give("book_alley")
+					give("index_alley")
 					expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
-					give("book_alley_gold")
+					give("index_alley_gold")
 					expect(Economy.cafeMultiplier(p)).to.be.near(1.10)
-					expect(Economy.replacedDecor(p) :: any).to.deepEqual({ book_alley = true })
-					p.decorPlaced.book_alley_gold = nil
+					expect(Economy.replacedDecor(p) :: any).to.deepEqual({ index_alley = true })
+					p.decorPlaced.index_alley_gold = nil
 					expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
 					expect(next(Economy.replacedDecor(p))).never.to.be.ok()
 					-- every area with both pieces placed tops out at +50%
 					for _, def in ipairs(Catalog.decor) do
-						if def.source == "book" then
+						if def.source == "index" then
 							give(def.id)
 						end
 					end
@@ -189,13 +189,13 @@ return function()
 				end
 			)
 
-			it("Book decor is never for sale", function()
+			it("Index decor is never for sale", function()
 				local p = freshProfile()
 				p.coins = 1e9
 				p.tier = 5
-				expect(Economy.decorBlocker(p, "book_park")).to.equal("A Book reward, not for sale")
-				expect(Economy.decorBlocker(p, "book_park_gold")).to.equal(
-					"A Book reward, not for sale"
+				expect(Economy.decorBlocker(p, "index_park")).to.equal("An Index reward, not for sale")
+				expect(Economy.decorBlocker(p, "index_park_gold")).to.equal(
+					"An Index reward, not for sale"
 				)
 				expect(Economy.decorBlocker(p, "rug")).never.to.be.ok()
 			end)
@@ -209,10 +209,10 @@ return function()
 			expect(Economy.catRate(cat("a", "tabby", "waiter_1"))).to.be.near(1.0)
 		end)
 
-		it("a Void as Barista earns 37.5, a Midnight as Greeter 112.5", function()
-			expect(Economy.catRate(cat("a", "void", "barista_1"))).to.be.near(37.5)
+		it("a Ninja Cat as Waiter earns 37.5, a Wizard Cat as Barista 112.5", function()
+			expect(Economy.catRate(cat("a", "void", "waiter_1"))).to.be.near(37.5)
 			expect(Economy.catRate(cat("a", "void", "entertainer_1"))).to.be.near(25)
-			expect(Economy.catRate(cat("a", "midnight", "greeter_1"))).to.be.near(112.5)
+			expect(Economy.catRate(cat("a", "midnight", "barista_1"))).to.be.near(112.5)
 		end)
 
 		it("resting cats, v0.2 spot ids, unknown spots and unknown cats earn nothing", function()

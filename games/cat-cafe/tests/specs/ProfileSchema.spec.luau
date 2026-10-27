@@ -720,19 +720,19 @@ return function()
 			end
 		end)
 	end)
-	describe("migrate to version 5: Book rewards (F48, S60)", function()
-		it("a version 4 save starts with no Book rewards claimed", function()
+	describe("migrate to version 5: Index rewards (F48, S60)", function()
+		it("a version 4 save starts with no Index rewards claimed", function()
 			local raw: any = ProfileSchema.template(500)
 			raw.version = 4
-			raw.bookRewards = nil
+			raw.indexRewards = nil
 			local profile = ProfileSchema.migrate(raw, 900)
 			expect(profile.version).to.equal(5)
-			expect(profile.bookRewards :: any).to.deepEqual({})
+			expect(profile.indexRewards :: any).to.deepEqual({})
 		end)
 
 		it("keeps claimed milestones of known areas and drops anything else", function()
 			local raw: any = ProfileSchema.template(500)
-			raw.bookRewards = {
+			raw.indexRewards = {
 				alley = { cats3 = true, cats6 = true, cats99 = true, gold10 = "yes" },
 				park = { cats10 = true },
 				moon = { cats3 = true },
@@ -741,7 +741,7 @@ return function()
 				[7] = { cats3 = true },
 			}
 			local profile = ProfileSchema.migrate(raw, 900)
-			expect(profile.bookRewards :: any).to.deepEqual({
+			expect(profile.indexRewards :: any).to.deepEqual({
 				alley = { cats3 = true, cats6 = true },
 				park = { cats10 = true },
 			})

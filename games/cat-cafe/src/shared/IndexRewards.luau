@@ -1,29 +1,29 @@
 --!strict
--- Book rewards (F48, data-model section 11b): each area page of the Book has four milestones counted from the
--- collection (distinct catIds of that area) or, for gold10, the gold collection. Shared so the Book's reward bar
--- and the server's ClaimBookReward check agree. Pure.
+-- Index rewards (F48, data-model section 11b): each area page of the Index has four milestones counted from the
+-- collection (distinct catIds of that area) or, for gold10, the gold collection. Shared so the Index's reward bar
+-- and the server's ClaimIndexReward check agree. Pure.
 
 local Catalog = require(script.Parent.Catalog)
 local Types = require(script.Parent.Types)
 
-local BookRewards = {}
+local IndexRewards = {}
 
-local milestonesById: { [string]: Types.BookMilestone } = {}
-for _, milestone in Catalog.bookMilestones do
+local milestonesById: { [string]: Types.IndexMilestone } = {}
+for _, milestone in Catalog.indexMilestones do
 	milestonesById[milestone.id] = milestone
 end
 
-function BookRewards.milestone(id: string): Types.BookMilestone?
+function IndexRewards.milestone(id: string): Types.IndexMilestone?
 	return milestonesById[id]
 end
 
-function BookRewards.prize(areaId: string, milestoneId: string): Types.BookPrize?
-	local area = Catalog.bookPrizes[areaId]
+function IndexRewards.prize(areaId: string, milestoneId: string): Types.IndexPrize?
+	local area = Catalog.indexPrizes[areaId]
 	return if area ~= nil then area[milestoneId] else nil
 end
 
 -- Different cats of the area in `collection` (a collection or a gold collection: catId -> first caught at).
-function BookRewards.progress(collection: { [string]: number }, areaId: string): number
+function IndexRewards.progress(collection: { [string]: number }, areaId: string): number
 	local n = 0
 	for catId in collection do
 		local def = Catalog.getCat(catId)
@@ -34,30 +34,30 @@ function BookRewards.progress(collection: { [string]: number }, areaId: string):
 	return n
 end
 
-function BookRewards.claimed(
+function IndexRewards.claimed(
 	profile: Types.PlayerProfile,
 	areaId: string,
 	milestoneId: string
 ): boolean
-	local area = profile.bookRewards[areaId]
+	local area = profile.indexRewards[areaId]
 	return area ~= nil and area[milestoneId] == true
 end
 
 -- Why the milestone cannot be claimed now, or nil when it can.
-function BookRewards.blocker(
+function IndexRewards.blocker(
 	profile: Types.PlayerProfile,
 	areaId: string,
 	milestoneId: string
 ): string?
 	local milestone = milestonesById[milestoneId]
-	if milestone == nil or BookRewards.prize(areaId, milestoneId) == nil then
+	if milestone == nil or IndexRewards.prize(areaId, milestoneId) == nil then
 		return "Unknown reward"
 	end
-	if BookRewards.claimed(profile, areaId, milestoneId) then
+	if IndexRewards.claimed(profile, areaId, milestoneId) then
 		return "Already claimed"
 	end
 	local collection = if milestone.gold then profile.goldCollection else profile.collection
-	local left = milestone.need - BookRewards.progress(collection, areaId)
+	local left = milestone.need - IndexRewards.progress(collection, areaId)
 	if left > 0 then
 		return string.format(
 			"Find %d more%s cat%s first",
@@ -69,4 +69,4 @@ function BookRewards.blocker(
 	return nil
 end
 
-return BookRewards
+return IndexRewards

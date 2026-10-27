@@ -1,8 +1,8 @@
 --!strict
--- shared/BookRewards.luau and the Book reward tables (F48, data-model section 11b).
+-- shared/IndexRewards.luau and the Index reward tables (F48, data-model section 11b).
 return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local BookRewards = require(ReplicatedStorage.Shared.BookRewards)
+	local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 	local Catalog = require(ReplicatedStorage.Shared.Catalog)
 	local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 
@@ -10,7 +10,7 @@ return function()
 
 	describe("Catalog tables (section 11b)", function()
 		it("has the four milestones in order", function()
-			expect(Catalog.bookMilestones :: any).to.deepEqual({
+			expect(Catalog.indexMilestones :: any).to.deepEqual({
 				{ id = "cats3", need = 3 },
 				{ id = "cats6", need = 6 },
 				{ id = "cats10", need = 10 },
@@ -29,34 +29,34 @@ return function()
 			}
 			for _, areaId in ipairs(AREAS) do
 				local row = expected[areaId]
-				local prizes = Catalog.bookPrizes[areaId]
+				local prizes = Catalog.indexPrizes[areaId]
 				expect(prizes).to.be.ok()
 				expect(prizes.cats3 :: any).to.deepEqual({ coins = row[1] })
 				expect(prizes.cats6 :: any).to.deepEqual({ lures = { [row[2]] = row[3] } })
 				expect(prizes.cats10 :: any).to.deepEqual({
 					lures = { [row[4]] = row[5] },
-					decorId = "book_" .. areaId,
+					decorId = "index_" .. areaId,
 				})
-				expect(prizes.gold10 :: any).to.deepEqual({ decorId = "book_" .. areaId .. "_gold" })
+				expect(prizes.gold10 :: any).to.deepEqual({ decorId = "index_" .. areaId .. "_gold" })
 				expect(Catalog.getArea(areaId)).to.be.ok()
 			end
-			for areaId in pairs(Catalog.bookPrizes) do
+			for areaId in pairs(Catalog.indexPrizes) do
 				expect(table.find(AREAS, areaId) ~= nil).to.equal(true)
 			end
 		end)
 
 		it("the prize table is frozen, so no write can change a prize (S61)", function()
-			expect(table.isfrozen(Catalog.bookPrizes)).to.equal(true)
-			expect(table.isfrozen(Catalog.bookPrizes.alley)).to.equal(true)
-			expect(table.isfrozen(Catalog.bookPrizes.alley.cats3)).to.equal(true)
-			expect(table.isfrozen(Catalog.bookPrizes.alley.cats6.lures :: any)).to.equal(true)
+			expect(table.isfrozen(Catalog.indexPrizes)).to.equal(true)
+			expect(table.isfrozen(Catalog.indexPrizes.alley)).to.equal(true)
+			expect(table.isfrozen(Catalog.indexPrizes.alley.cats3)).to.equal(true)
+			expect(table.isfrozen(Catalog.indexPrizes.alley.cats6.lures :: any)).to.equal(true)
 			expect(pcall(function()
-				(Catalog.bookPrizes.alley :: any).cats3 = true
+				(Catalog.indexPrizes.alley :: any).cats3 = true
 			end)).to.equal(false)
 		end)
 
-		it("every prize names real foods and Book decor", function()
-			for _, prizes in pairs(Catalog.bookPrizes) do
+		it("every prize names real foods and Index decor", function()
+			for _, prizes in pairs(Catalog.indexPrizes) do
 				for _, prize in pairs(prizes) do
 					for lureId, count in pairs(prize.lures or {}) do
 						expect(Catalog.getLure(lureId)).to.be.ok()
@@ -65,23 +65,23 @@ return function()
 					if prize.decorId ~= nil then
 						local decor = Catalog.getDecor(prize.decorId)
 						expect(decor).to.be.ok()
-						expect((decor :: any).source).to.equal("book")
+						expect((decor :: any).source).to.equal("index")
 					end
 				end
 			end
 		end)
 
 		it(
-			"has a Book decor piece and a gold one per area, never sold, the gold one replacing the normal one",
+			"has an Index decor piece and a gold one per area, never sold, the gold one replacing the normal one",
 			function()
 				for _, areaId in ipairs(AREAS) do
-					local piece = Catalog.getDecor("book_" .. areaId)
-					local gold = Catalog.getDecor("book_" .. areaId .. "_gold")
+					local piece = Catalog.getDecor("index_" .. areaId)
+					local gold = Catalog.getDecor("index_" .. areaId .. "_gold")
 					assert(piece and gold)
 					expect(piece.cost).to.equal(0)
 					expect(gold.cost).to.equal(0)
-					expect(piece.source).to.equal("book")
-					expect(gold.source).to.equal("book")
+					expect(piece.source).to.equal("index")
+					expect(gold.source).to.equal("index")
 					expect(piece.bonus).to.be.near(0.05)
 					expect(gold.bonus).to.be.near(0.10)
 					expect(piece.replaces).never.to.be.ok()
@@ -120,48 +120,48 @@ return function()
 
 		it("counts only the area's cats in the collection", function()
 			local profile = profileWith({ "tabby", "tuxedo", "snow", "cream" })
-			expect(BookRewards.progress(profile.collection, "alley")).to.equal(2)
-			expect(BookRewards.progress(profile.collection, "park")).to.equal(2)
-			expect(BookRewards.progress(profile.collection, "woods")).to.equal(0)
+			expect(IndexRewards.progress(profile.collection, "alley")).to.equal(2)
+			expect(IndexRewards.progress(profile.collection, "park")).to.equal(2)
+			expect(IndexRewards.progress(profile.collection, "woods")).to.equal(0)
 			profile.collection.dragon = 5 -- not a cat
-			expect(BookRewards.progress(profile.collection, "alley")).to.equal(2)
+			expect(IndexRewards.progress(profile.collection, "alley")).to.equal(2)
 		end)
 
 		it("a milestone is claimable once the count is met, and only once", function()
 			local profile = profileWith({ "tabby", "tuxedo" })
 			profile.collection.tabby = nil -- the template's starter is already in; start from one cat
-			expect(BookRewards.blocker(profile, "alley", "cats3")).to.equal(
+			expect(IndexRewards.blocker(profile, "alley", "cats3")).to.equal(
 				"Find 2 more cats first"
 			)
 			profile.collection.tabby = 1000
-			expect(BookRewards.blocker(profile, "alley", "cats3")).to.equal("Find 1 more cat first")
+			expect(IndexRewards.blocker(profile, "alley", "cats3")).to.equal("Find 1 more cat first")
 			profile.collection.ginger = 1000
-			expect(BookRewards.blocker(profile, "alley", "cats3")).never.to.be.ok()
-			profile.bookRewards.alley = { cats3 = true }
-			expect(BookRewards.blocker(profile, "alley", "cats3")).to.equal("Already claimed")
-			expect(BookRewards.claimed(profile, "alley", "cats3")).to.equal(true)
-			expect(BookRewards.claimed(profile, "park", "cats3")).to.equal(false)
+			expect(IndexRewards.blocker(profile, "alley", "cats3")).never.to.be.ok()
+			profile.indexRewards.alley = { cats3 = true }
+			expect(IndexRewards.blocker(profile, "alley", "cats3")).to.equal("Already claimed")
+			expect(IndexRewards.claimed(profile, "alley", "cats3")).to.equal(true)
+			expect(IndexRewards.claimed(profile, "park", "cats3")).to.equal(false)
 		end)
 
 		it("gold10 counts the gold collection", function()
 			local profile = profileWith(ALLEY_CATS, { "tabby", "tuxedo" })
-			expect(BookRewards.blocker(profile, "alley", "cats10")).never.to.be.ok()
-			expect(BookRewards.blocker(profile, "alley", "gold10")).to.equal(
+			expect(IndexRewards.blocker(profile, "alley", "cats10")).never.to.be.ok()
+			expect(IndexRewards.blocker(profile, "alley", "gold10")).to.equal(
 				"Find 8 more gold cats first"
 			)
 			for _, catId in ipairs(ALLEY_CATS) do
 				profile.goldCollection[catId] = 1000
 			end
-			expect(BookRewards.blocker(profile, "alley", "gold10")).never.to.be.ok()
+			expect(IndexRewards.blocker(profile, "alley", "gold10")).never.to.be.ok()
 		end)
 
 		it("refuses unknown areas and milestones", function()
 			local profile = profileWith(ALLEY_CATS)
-			expect(BookRewards.blocker(profile, "moon", "cats3")).to.equal("Unknown reward")
-			expect(BookRewards.blocker(profile, "alley", "cats99")).to.equal("Unknown reward")
-			expect(BookRewards.milestone("cats6")).to.equal(Catalog.bookMilestones[2])
-			expect(BookRewards.prize("alley", "cats3")).to.equal(Catalog.bookPrizes.alley.cats3)
-			expect(BookRewards.prize("alley", "nope")).never.to.be.ok()
+			expect(IndexRewards.blocker(profile, "moon", "cats3")).to.equal("Unknown reward")
+			expect(IndexRewards.blocker(profile, "alley", "cats99")).to.equal("Unknown reward")
+			expect(IndexRewards.milestone("cats6")).to.equal(Catalog.indexMilestones[2])
+			expect(IndexRewards.prize("alley", "cats3")).to.equal(Catalog.indexPrizes.alley.cats3)
+			expect(IndexRewards.prize("alley", "nope")).never.to.be.ok()
 		end)
 	end)
 end

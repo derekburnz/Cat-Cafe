@@ -343,6 +343,11 @@ local function followClock()
 	end)
 end
 
+-- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
+function WorldController.zoneAt(position: Vector3): string?
+	return zoneAt(position)
+end
+
 function WorldController.start()
 	task.spawn(followClock)
 

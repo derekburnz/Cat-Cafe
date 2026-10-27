@@ -236,6 +236,50 @@ function WorldBuilder.clampToArea(
 	return best
 end
 
+-- The catching area whose floor `position` stands over (the same boxes as World.Zones: a floor rect, up to 30 studs
+-- above it), or nil on the street, in a cafe or in a yard.
+function WorldBuilder.areaAt(world: World, position: Vector3): string?
+	for id, info in world.areas do
+		if position.Y < info.floorY - 2 or position.Y > info.floorY + 30 then
+			continue
+		end
+		for _, rect in info.rects do
+			if
+				position.X >= rect.x1
+				and position.X <= rect.x2
+				and position.Z >= rect.z1
+				and position.Z <= rect.z2
+			then
+				return id
+			end
+		end
+	end
+	return nil
+end
+
+-- True on the plot itself (front garden to the back of its yard) or within `radius` studs of either of its doors:
+-- where its owner cannot be shoved (data-model section 10c).
+function WorldBuilder.inSafeZone(plot: Plot, position: Vector3, radius: number): boolean
+	local offset = plot.cframe:PointToObjectSpace(position)
+	local halfW = W.PlotWidth / 2 + 1
+	local back = W.PlotDepth / 2 + 1 + W.YardDepth
+	if
+		math.abs(offset.X) <= halfW
+		and offset.Z >= Layout.plot.frontGarden.z1
+		and offset.Z <= back
+	then
+		return true
+	end
+	local flat = Vector3.new(position.X, 0, position.Z)
+	for _, door in { plot.door, plot.backDoorZone } do
+		local at = door.Position
+		if (flat - Vector3.new(at.X, 0, at.Z)).Magnitude <= radius then
+			return true
+		end
+	end
+	return false
+end
+
 local function buildPlot(index: number, parent: Instance): Plot
 	local placement = Layout.plotPlacement(index)
 	local origin = Vector3.new(placement.x, 0.2, placement.z)

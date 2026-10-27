@@ -11,7 +11,8 @@
 	  1 fake stray      2 far grab          3 press without begin  4 bad presses   5 press with a time
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
-	  = double spend    , travel            / shove targets        Backspace flood        ] run everything
+	  = double spend    , travel            / shove targets        \ rename
+	  Backspace flood   ] run everything
 	Or from a client-context command bar: _G.PurrPotAbuse.run("fakeStray"), _G.PurrPotAbuse.runAll().
 
 	Every line starts with [Abuse]. RESULT lines say PASS, FAIL, SKIP or CHECK. After a run, read the SERVER
@@ -1908,6 +1909,158 @@ case(
 				"bad and unknown targets: silent; myself: refused with its toast; flood: %d of 10 answered. A real shove needs two players (section 4.3 item 2)",
 				answers
 			)
+	end
+)
+
+-- Rename (F33, data-model section 4, reviewer S30 and S47) ------------------------------------------------------
+
+case(
+	"rename",
+	Enum.KeyCode.BackSlash,
+	"Rename: uids that are not mine, bad names, the cooldown, then 10 renames in one frame",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		-- A working cat if there is one, so its DisplayName over the model can be checked by eye too.
+		local uid: string? = nil
+		for candidate, view in state.cats do
+			if uid == nil or (view.spotId ~= nil and state.cats[uid :: string].spotId == nil) then
+				uid = candidate
+			end
+		end
+		if uid == nil then
+			return "SKIP", "no cat to rename: catch one first"
+		end
+		local mine = uid :: string
+		local function shownName(): string?
+			local view = if state ~= nil then state.cats[mine] else nil
+			return if view ~= nil then view.name else nil
+		end
+		local failures, checks, notes = {}, {}, {}
+		-- RenameCat takes 1 call a second, so each call a step means to land waits the bucket out.
+		local function send(uidValue: any, name: any)
+			fire("RenameCat", uidValue, name)
+			task.wait(1.05)
+		end
+
+		-- 1. Not my cat, or not a uid at all: dropped without a word.
+		local quietAt = os.clock()
+		local badUids: { any } = { "nil", 5, {}, "NOT_MINE", "not_my_cat", string.rep("a", 500) }
+		for _, value in badUids do
+			send(if value == "nil" then nil else value, "Probe")
+		end
+		for _, event in since(quietAt, "Toast") do
+			add(failures, "a uid that is not mine got an answer: %s", event.text)
+		end
+
+		-- 2. Bad names on my own cat: each refused in its own words before the filter, and the name stays.
+		local before = shownName()
+		local bad = "characters we can't use"
+		local badNames: { { value: any, label: string, reason: string } } = {
+			{ value = "nil", label = "nil", reason = "Type a name first" },
+			{ value = 42, label = "a number", reason = "Type a name first" },
+			{ value = {}, label = "a table", reason = "Type a name first" },
+			{ value = "   ", label = "spaces", reason = "Type a name first" },
+			{
+				value = string.rep("a", Config.CatNameMaxLength + 1),
+				label = "one too long",
+				reason = "Names can be up to",
+			},
+			{ value = string.rep("a", 5000), label = "5000 bytes", reason = bad },
+			{ value = "Mo\255chi", label = "invalid UTF-8", reason = bad },
+			{ value = "Mo\nchi", label = "a newline", reason = bad },
+			{ value = "<b>Mochi</b>", label = "rich text tags", reason = bad },
+			{ value = "Mo\u{202E}chi", label = "a bidi override", reason = bad },
+			{ value = "\u{3164}", label = "a Hangul filler", reason = bad },
+		}
+		for _, entry in badNames do
+			local at = os.clock()
+			send(mine, if entry.value == "nil" then nil else entry.value)
+			if toasted(at, "Renamed") then
+				add(failures, "%s was accepted", entry.label)
+			elseif not toasted(at, entry.reason) then
+				add(checks, 'no "%s" toast for %s', entry.reason, entry.label)
+			end
+		end
+		if shownName() ~= before then
+			add(
+				failures,
+				"the shown name moved from %s to %s",
+				tostring(before),
+				tostring(shownName())
+			)
+		end
+
+		-- 3. One good rename, and a second inside RenameCooldownSeconds. The filter is a web call, so its answer
+		-- is collected over a few seconds; the cooldown starts before it.
+		local goodAt = os.clock()
+		send(mine, "Probe")
+		local renamedAt = goodAt
+		send(mine, "Probe Two")
+		task.wait(3)
+		local filtered = toasted(goodAt, "Renamed to")
+		if toasted(goodAt, "Couldn't check that name") then
+			add(
+				checks,
+				"the filter failed here: use Play Solo signed in to Studio for the rename itself"
+			)
+		elseif not filtered then
+			add(checks, 'no "Renamed to" toast for Probe')
+		end
+		if not toasted(goodAt, "Wait a moment before renaming again") then
+			add(failures, "a second rename 1 s after the first was not refused by the cooldown")
+		end
+		if #since(goodAt, "Toast") > 2 then
+			add(failures, "%d toasts for two renames", #since(goodAt, "Toast"))
+		end
+		if filtered then
+			if shownName() == "Probe" then
+				table.insert(notes, 'renamed to "Probe" and the cat room view shows it')
+			else
+				add(checks, 'renamed, but the view shows %s, not "Probe"', tostring(shownName()))
+			end
+		end
+
+		-- 4. Ten in one frame once the cooldown is over: the flood guard lets one through.
+		local left = renamedAt + Config.RenameCooldownSeconds + 0.3 - os.clock()
+		if left > 0 then
+			task.wait(left)
+		end
+		local burstAt = os.clock()
+		for n = 1, 10 do
+			Remotes.event("RenameCat"):FireServer(mine, "Burst" .. n)
+		end
+		log(string.format('    -> RenameCat(%q, "BurstN") x10', mine))
+		task.wait(3)
+		local answers = #since(burstAt, "Toast")
+		local renames = 0
+		for _, event in since(burstAt, "Toast") do
+			if string.find(event.text, "Renamed", 1, true) ~= nil then
+				renames += 1
+			end
+		end
+		if renames > 1 or answers > 1 then
+			add(failures, "10 renames in one frame: %d renamed, %d toasts", renames, answers)
+		else
+			add(notes, "burst: %d of 10 answered", answers)
+		end
+
+		local detail = table.concat(failures, "; ")
+			.. (if #failures > 0 and #checks + #notes > 0 then "; " else "")
+			.. table.concat(checks, "; ")
+			.. (if #checks > 0 and #notes > 0 then "; " else "")
+			.. table.concat(notes, "; ")
+		if #failures > 0 then
+			return "FAIL", detail
+		end
+		if #checks > 0 then
+			return "CHECK", detail
+		end
+		return "PASS",
+			"uids not mine: silent; every bad name refused in words; cooldown holds; "
+				.. detail
+				.. ". The test cat keeps its new name. Now read the server output for [Net] RenameCat handler failed lines"
 	end
 )
 

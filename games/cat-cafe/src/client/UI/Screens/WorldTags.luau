@@ -1,7 +1,8 @@
 --!strict
 -- Small labels over the life in every cafe (world-and-feel section 4):
---   Rate tags (Steal a Brainrot): "+$3/s" over each working cat in its rarity colour, within 40 studs. Cats are
---   the server's models tagged WorkingCat with Rate, Rarity and Napping attributes; a napping cat shows no tag.
+--   Rate tags (Steal a Brainrot): the cat's name in white over "+$3/s" in its rarity colour, over each working cat
+--   within 40 studs. Cats are the server's models tagged WorkingCat with Rate, Rarity, Napping and DisplayName (the
+--   owner's name for it after the server's filter, else the breed; F33) attributes; a napping cat shows no tag.
 --   At night (Clock Phase "night") the tag shows the night share behind a moon, "🌙 +$2/s", Rate x
 --   NightIncomeMultiplier, the same number as the cafe's name sign (reviewer N88): the cats curl up but still earn.
 --   Order bubbles: a white bubble with the customer's order (coffee, cake or milk) over their head from the
@@ -32,6 +33,7 @@ local CAT_TAG = "WorkingCat"
 local CUSTOMERS = "LocalCustomers"
 local MAX_DISTANCE = 40 -- world-and-feel section 4: rate tags within 40 studs
 local RATE_SIZE = Vector2.new(4, 1.1) -- studs
+local NAME_HEIGHT = 0.7 -- studs, the name line over the rate
 local BUBBLE_SIZE = 1.7 -- studs, square
 local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
 -- Emoji draw in colour in Roblox text, so the bubbles need no image upload.
@@ -156,16 +158,29 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	end
 	local billboard: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeRateTag",
-		Size = UDim2.fromScale(RATE_SIZE.X, RATE_SIZE.Y),
-		StudsOffsetWorldSpace = Vector3.new(0, height + RATE_SIZE.Y / 2 + 0.3, 0),
+		Size = UDim2.fromScale(RATE_SIZE.X, RATE_SIZE.Y + NAME_HEIGHT),
+		StudsOffsetWorldSpace = Vector3.new(0, height + (RATE_SIZE.Y + NAME_HEIGHT) / 2 + 0.3, 0),
 		MaxDistance = MAX_DISTANCE,
 		LightInfluence = 0,
 		ResetOnSpawn = false,
 	})
+	local nameShare = NAME_HEIGHT / (RATE_SIZE.Y + NAME_HEIGHT)
+	local nameLabel: TextLabel = Create("TextLabel", {
+		Name = "CatName",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, nameShare),
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		TextColor3 = Theme.colors.white,
+		Text = "",
+		Parent = billboard,
+	})
+	Outline.text(nameLabel, 2)
 	local label: TextLabel = Create("TextLabel", {
 		Name = "Rate",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromScale(0, nameShare),
+		Size = UDim2.fromScale(1, 1 - nameShare),
 		FontFace = Theme.fonts.display,
 		TextScaled = true,
 		TextColor3 = Theme.colors.white,
@@ -185,6 +200,9 @@ function WorldTags._attachCat(self: any, cat: Instance)
 				then MOON .. " " .. Format.rate((rate :: number) * NIGHT_TIPS)
 				else Format.rate(rate :: number)
 			label.TextColor3 = Theme.rarityColor(if type(rarity) == "string" then rarity else nil)
+			-- already filtered by the server for everyone (data-model section 4), so it is safe to show as is
+			local displayName = cat:GetAttribute("DisplayName")
+			nameLabel.Text = if type(displayName) == "string" then displayName else ""
 		end
 	end
 	billboard.Parent = part
@@ -194,6 +212,7 @@ function WorldTags._attachCat(self: any, cat: Instance)
 		cat:GetAttributeChangedSignal("Rate"):Connect(render),
 		cat:GetAttributeChangedSignal("Napping"):Connect(render),
 		cat:GetAttributeChangedSignal("Rarity"):Connect(render),
+		cat:GetAttributeChangedSignal("DisplayName"):Connect(render),
 	}
 	render()
 end

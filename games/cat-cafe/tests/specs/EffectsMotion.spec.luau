@@ -1,13 +1,15 @@
 --!strict
 -- Design v0.5 motion in the client Effects module (src/client/Effects/Logic.luau and Presets.luau, effects list
 -- v0.4): the nap curl, settling from one style into the next, the walk and gallop, and the pant after a sprint.
--- Written by the vfx-animator for QA to move into tests/specs next to EffectsLogic.spec.luau.
+-- Written by the vfx-animator (PR #133); the "speeds the server moves cats at (QA)" block ties the gait to Config.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Effects = Client:WaitForChild("Effects")
 	local Logic = require(Effects:WaitForChild("Logic")) :: any
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
+	local Config =
+		require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config"))
 
 	describe("Effects.Logic v0.5 motion", function()
 		it("curls a napping cat up on its belly", function()
@@ -84,6 +86,52 @@ return function()
 				expect(math.min(math.floor(count * low.burstScale + 0.5), low.maxBurst) <= 12).to.equal(
 					true
 				)
+			end
+		end)
+	end)
+
+	describe("Effects.Logic gait at the speeds the server moves cats at (QA)", function()
+		it("a wandering stray trots and a missed stray gallops flat out (F40)", function()
+			local g = Presets.motion.gait
+			expect(Config.StrayWanderSpeed >= g.moveFrom).to.equal(true) -- it moves its legs at all
+			expect(Logic.runFactor(Config.StrayWanderSpeed)).to.equal(0)
+			expect(Logic.strideLength(Config.StrayWanderSpeed)).to.equal(g.walkStride)
+			expect(Logic.runFactor(Config.StrayFleeSpeed)).to.equal(1)
+			expect(Logic.strideLength(Config.StrayFleeSpeed)).to.equal(g.runStride)
+			-- A walking customer never breaks into a gallop either.
+			expect(Logic.runFactor(Config.CustomerWalkSpeed)).to.equal(0)
+		end)
+
+		it("blends from trot to gallop without a jump, and holds outside the blend", function()
+			local g = Presets.motion.gait
+			expect(g.moveFrom < g.runFrom and g.runFrom < g.runFull).to.equal(true)
+			expect(g.walkStride < g.runStride).to.equal(true)
+			local previousRun, previousStride = -1, 0
+			for speed = 0, 60, 0.5 do
+				local run, stride = Logic.runFactor(speed), Logic.strideLength(speed)
+				expect(run >= 0 and run <= 1).to.equal(true)
+				expect(run >= previousRun).to.equal(true)
+				expect(stride >= previousStride - 1e-9).to.equal(true)
+				expect(stride >= g.walkStride - 1e-9 and stride <= g.runStride + 1e-9).to.equal(
+					true
+				)
+				-- 0.5 studs a second more never moves the blend by more than its share of the range
+				if previousRun >= 0 then
+					expect(run - previousRun <= 0.5 / (g.runFull - g.runFrom) + 1e-9).to.equal(true)
+				end
+				previousRun, previousStride = run, stride
+			end
+			expect(Logic.runFactor((g.runFrom + g.runFull) / 2)).to.be.near(0.5, 1e-9)
+		end)
+
+		it("a cat below moveFrom keeps every leg still, at any stride", function()
+			local g = Presets.motion.gait
+			for _, stride in { 0, 0.25, 0.5, 0.75, 3.1 } do
+				local o = Logic.blank()
+				Logic.gait(o, g.moveFrom - 0.01, stride)
+				for key, value in o :: any do
+					expect(value).to.equal((Logic.blank() :: any)[key])
+				end
 			end
 		end)
 	end)

@@ -102,7 +102,9 @@ Theme.fish = {
 -- Uploaded images. Empty until the image is on Roblox; whatever uses one draws without it until then.
 Theme.textures = {
 	-- the faint L-shaped tile mark repeated over button faces (assets/cat-cafe/ui/textures/UI_ButtonTiles.png)
-	buttonTiles = "",
+	buttonTiles = "rbxassetid://79710930693221",
+	-- the golden fish coin with its cat face and ears (assets/cat-cafe/exports/icons/CatCafe_Icon_GoldenFish.png)
+	fishCoin = "rbxassetid://77287948377172",
 }
 
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
@@ -204,6 +206,7 @@ Theme.icons = {
 	woods = "🌲",
 	sewer = "🕳️",
 	lock = "🔒",
+	unlock = "🔓",
 	food = "🐟",
 	moon = "🌙",
 	invite = "👥",

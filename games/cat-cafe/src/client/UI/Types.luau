@@ -126,6 +126,10 @@ export type CatchInfo = {
 	-- v0.5.1: server time this player may try again after their own miss (StraySelfRetrySeconds after the cat
 	-- stops); init.luau fills it from this player's CatchResult, the card reads "Catch your breath..." until then.
 	retryAt: number?,
+	-- v0.5 F41: server time until which only the old carrier may catch a cat knocked loose by a shove (the
+	-- stray's DropOwnerUntil while its DropOwner is someone else); nil when that is you or the cat was not dropped.
+	-- The card reads "Owner's turn" until then (reviewer N90).
+	ownerTurnUntil: number?,
 }
 
 -- Net circles (F26, data-model section 10), from shared Types. Times are server time

@@ -1115,6 +1115,7 @@ function UI.catch.show(info: Types.CatchInfo)
 		shiny = info.shiny,
 		fleeingUntil = info.fleeingUntil,
 		retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
+		ownerTurnUntil = info.ownerTurnUntil,
 	}
 	if catch then
 		catch:show(activeInfo :: Types.CatchInfo)
@@ -1416,8 +1417,18 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 	local shiny = promptAttribute(prompt, "Shiny")
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
+	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
+	local dropOwner = promptAttribute(prompt, "DropOwner")
+	local dropOwnerUntil = promptAttribute(prompt, "DropOwnerUntil")
+	local player = Players.LocalPlayer
+	local othersDrop = promptAttribute(prompt, "Dropped") == true
+		and type(dropOwner) == "number"
+		and (player == nil or dropOwner ~= player.UserId)
 	return {
 		fleeingUntil = if type(fleeingUntil) == "number" then fleeingUntil else nil,
+		ownerTurnUntil = if othersDrop and type(dropOwnerUntil) == "number"
+			then dropOwnerUntil
+			else nil,
 		press = prompt.HoldDuration <= 0,
 		shiny = shiny == true,
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,

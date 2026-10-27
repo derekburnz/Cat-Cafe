@@ -594,7 +594,7 @@ function Demo.run(UI: any): () -> ()
 				local pool = CATALOG.cats
 				local def = pool[math.random(1, #pool)]
 				local newUid = uid()
-				-- one in five is shiny here (2% in the game) so the cat room's gold cards show up
+				-- one in five is shiny here (5% in the game) so the cat room's gold cards show up
 				local shiny = math.random() < 0.2
 				profile.cats[newUid] = {
 					uid = newUid,

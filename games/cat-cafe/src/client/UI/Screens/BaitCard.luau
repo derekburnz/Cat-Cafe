@@ -261,7 +261,7 @@ function BaitCard.show(self: any, def: Types.CatDef, cat: Types.BaitCat, foodNam
 	self._banner.BackgroundColor3 = color
 	self._disc.BackgroundColor3 = color
 	self._border.Color = color
-	self._portrait:set(def)
+	self._portrait:set(def, cat.variant == "shiny")
 	self._shiny.Visible = cat.variant == "shiny"
 	self._name.Text = cat.name or def.name
 	self._name.TextColor3 = if rarity == "Common" then Theme.colors.white else color

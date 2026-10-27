@@ -53,10 +53,11 @@ local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
 local Settings = require(script.Screens.Settings)
 local SettingsList = require(script.Components.SettingsList)
-local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
+local TackleButton = require(script.Screens.TackleButton)
+local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
 local TipJar = require(script.Screens.TipJar)
 local Toasts = require(script.Screens.Toasts)
@@ -104,7 +105,9 @@ UI.events = {
 	buyDealerFood = Signal.new(), -- (slot, lureId)   Buy on the night dealer screen: forward both as BuyDealerFood (F32)
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
-	shove = Signal.new(), -- (targetUserId)   the Shove button or Q on the nearest player within 6 studs: forward as Bump (F41)
+	-- (targetUserId)   the old Shove's event, never fired since the Tackle (F74); kept while the controller connects it
+	shove = Signal.new(),
+	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
 	-- 2026-10-27 HUD v3
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 	-- 2026-10-27 wave 2
@@ -161,7 +164,7 @@ local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
-local shoveButton: ShoveButton.ShoveButton? = nil -- v0.5 Shove inside catching areas (UI.shove)
+local tackleButton: TackleButton.TackleButton? = nil -- the Tackle inside catching areas (UI.shove, F74)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -799,9 +802,9 @@ function UI.init(config: Types.InitConfig)
 			UI.toast("Rich tip! +" .. Format.money(amount), "good")
 		end,
 	})
-	shoveButton = ShoveButton.new(parent, {
-		shove = function(targetUserId: number)
-			UI.events.shove:Fire(targetUserId)
+	tackleButton = TackleButton.new(parent, {
+		tackle = function()
+			UI.events.tackle:Fire()
 		end,
 		-- hidden while carrying or during the circles or the rescue bar (reviewer N85)
 		blocked = function()
@@ -1006,8 +1009,8 @@ function UI.destroy()
 	if richTipScreen then
 		richTipScreen:destroy()
 	end
-	if shoveButton then
-		shoveButton:destroy()
+	if tackleButton then
+		tackleButton:destroy()
 	end
 	if toasts then
 		toasts:destroy()
@@ -1030,7 +1033,7 @@ function UI.destroy()
 	locationMarkers, zoneChip = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
-	shoveButton = nil
+	tackleButton = nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -1487,25 +1490,32 @@ function UI.richTip.bind(plot: Instance?)
 end
 
 ----------------------------------------------------------------------------------------------------
--- Shove (F41, data-model section 10c)
+-- Tackle (F74, data-model section 10c v0.11; the API keeps the Shove name)
 ----------------------------------------------------------------------------------------------------
 
 UI.shove = {}
 
--- True while the player stands inside a catching area they have unlocked and shoves are on (Config.BumpEnabled);
--- the street, the cafes and the yards are false. The button then aims at the nearest other player within
--- BumpRangeStuds and fires events.shove(targetUserId); it hides itself while carrying, during the catch circles
--- and during the rescue bar.
+-- True while the player stands inside a catching area they have unlocked and tackles are on (Config.BumpEnabled);
+-- the street, the cafes and the yards are false. The button fires events.tackle() and shows its reach on the
+-- ground; it hides itself while carrying, during the catch circles and during the rescue bar.
 function UI.shove.setEnabled(on: boolean)
-	if shoveButton then
-		shoveButton:setEnabled(on)
+	if tackleButton then
+		tackleButton:setEnabled(on)
 	end
 end
 
--- Optional: false when the server refused the shove, which lifts the button's cooldown at once.
-function UI.shove.result(ok: boolean)
-	if shoveButton then
-		shoveButton:result(ok)
+-- The tackler's ShoveResult: false after a refusal gives the cooldown back at once. With the outcome ("miss",
+-- "shove", "loose" or "held") and the target's UserId it toasts "Missed!" or "Tackled Alex!"; both are optional.
+function UI.shove.result(ok: boolean, outcome: string?, targetUserId: number?)
+	if tackleButton then
+		tackleButton:result(ok, outcome)
+	end
+	local target = if type(targetUserId) == "number" and targetUserId > 0
+		then Players:GetPlayerByUserId(targetUserId)
+		else nil
+	local text, kind = TackleLogic.toast(ok, outcome, if target then target.DisplayName else nil)
+	if text then
+		UI.toast(text, kind)
 	end
 end
 

@@ -27,7 +27,8 @@ local guards: { [Player]: Codes.WrongGuard } = {} -- wrong codes and the lock, i
 local busy: { [Player]: boolean } = {} -- a redeem waiting on the group check
 local groupAnswers: { [Player]: { member: boolean, at: number } } = {}
 
--- True when the player stands within CodesCatRange of a Codes Cat station.
+-- True when the player stands within CodesCatRange of a Codes Cat station, measured flat so a tall avatar on the far
+-- edge of the circle (11 studs out) is still in range (review N176).
 local function nearStation(player: Player): boolean
 	local character = player.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -36,12 +37,14 @@ local function nearStation(player: Player): boolean
 	end
 	local position = (root :: BasePart).Position
 	for _, instance in CollectionService:GetTagged(Codes.TAG) do
-		if
-			instance:IsA("Model")
-			and instance:IsDescendantOf(Workspace)
-			and (instance:GetPivot().Position - position).Magnitude <= Config.CodesCatRange
-		then
-			return true
+		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
+			local pivot = (instance :: Model):GetPivot().Position
+			if
+				Vector2.new(pivot.X - position.X, pivot.Z - position.Z).Magnitude
+				<= Config.CodesCatRange
+			then
+				return true
+			end
 		end
 	end
 	return false

@@ -27,9 +27,18 @@ local function codesUI(): any
 	return (UI :: any).codes
 end
 
+-- Each station's circle, found once (review N177); a circle that streams out is looked up again.
+local circles: { [Instance]: Instance } = setmetatable({}, { __mode = "k" }) :: any
+
 -- The centre of a station's circle: the CodesCircle part, or the pivot of a CodesCircle Model.
 local function circleCentre(station: Instance): Vector3?
-	local circle = station:FindFirstChild(Codes.CIRCLE, true)
+	local circle: Instance? = circles[station]
+	if circle == nil or not circle:IsDescendantOf(station) then
+		circle = station:FindFirstChild(Codes.CIRCLE, true)
+		if circle ~= nil then
+			circles[station] = circle
+		end
+	end
 	if circle ~= nil and circle:IsA("BasePart") then
 		return (circle :: BasePart).Position
 	elseif circle ~= nil and circle:IsA("Model") then

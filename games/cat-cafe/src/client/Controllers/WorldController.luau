@@ -167,6 +167,50 @@ local function setGateOpen(gate: Instance, open: boolean)
 	end
 end
 
+-- The night fence art (F66): models tagged NightFence come hidden and walk-through from the server, each part's own
+-- look and collision in attributes (WorldBuilder.hideForDay). This client shows them while the areas are closed:
+-- the gate fences, the Alleyway's street mouth and back alley lines, and a cafe's closed back door when the cafe has
+-- an owner (an empty plot's back door is shut anyway).
+local function setNightShown(model: Instance, shown: boolean)
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local piece = descendant :: BasePart
+			local look = piece:GetAttribute("NightTransparency")
+			piece.Transparency = if shown and type(look) == "number" then look else 1
+			piece.CanCollide = shown and piece:GetAttribute("NightCollide") == true
+			piece.CanQuery = piece.CanCollide -- the camera's occlusion rays stop at a closed fence (review N180)
+		elseif descendant:IsA("Decal") then
+			local decal = descendant :: Decal
+			local look = decal:GetAttribute("NightTransparency")
+			decal.Transparency = if shown and type(look) == "number" then look else 1
+		elseif
+			descendant:IsA("Light")
+			or descendant:IsA("LayerCollector")
+			or descendant:IsA("ParticleEmitter")
+			or descendant:IsA("Beam")
+			or descendant:IsA("Trail")
+		then
+			(descendant :: any).Enabled = shown and descendant:GetAttribute("NightEnabled") == true
+		end
+	end
+end
+
+-- Whether a night fence shows now: at night, and for a cafe's back door only on an owned cafe.
+local function nightFenceWanted(model: Instance, night: boolean): boolean
+	if not night then
+		return false
+	end
+	local node = model.Parent
+	while node ~= nil do
+		if CollectionService:HasTag(node, "Plot") then
+			local owner = node:GetAttribute("OwnerUserId")
+			return type(owner) == "number" and owner > 0
+		end
+		node = node.Parent
+	end
+	return true
+end
+
 -- Lighting presets from the style guide (section 9). Visual only, so the numbers live here rather than in Config.
 -- Technology, Bloom and ColorCorrection are place settings in Studio; Atmosphere is tweened when the place has one.
 local DAY_LIGHTING = {
@@ -616,6 +660,7 @@ function WorldController.start()
 	-- the Alleyway's night fence is a gate that only ever closes for that). Only this player's copy changes; the
 	-- server checks the tier and the clock on every catch and rescue.
 	local gateOpen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+	local fenceShown: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local gateLocked: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any -- seen below its tier
 	local lastCheckIn = 0
 	local sawAlley = false
@@ -671,6 +716,15 @@ function WorldController.start()
 				end
 				for area, at in opened do
 					Moments.AreaUnlock:Fire(area, at)
+				end
+			end
+			for _, fence in CollectionService:GetTagged("NightFence") do
+				if fence:IsDescendantOf(Workspace) then
+					local shown = nightFenceWanted(fence, clock:GetAttribute("AreasOpen") == false)
+					if fenceShown[fence] ~= shown then
+						fenceShown[fence] = shown
+						setNightShown(fence, shown)
+					end
 				end
 			end
 

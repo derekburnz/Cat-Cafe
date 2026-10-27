@@ -195,7 +195,9 @@ local function onBuyFishItem(player: Player, rawItemId: unknown)
 			"good"
 		)
 		if itemId == "big_bowl" then
-			CafeService.refreshPlot(player) -- the bowl's BaitReadyAt moves up
+			-- the next food waits less; a bowl filled since F54 keeps the readyAt UseLure gave it, as with Index
+			-- claims, and only an older bowl without one moves up
+			CafeService.refreshPlot(player)
 		end
 	end
 	CafeService.sync(player)

@@ -14,7 +14,7 @@
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
-	  Backspace flood
+	  P fish market     Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -42,6 +42,8 @@ local BugReport = require(Shared:WaitForChild("BugReport"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Circles = require(Shared:WaitForChild("Circles"))
 local Config = require(Shared:WaitForChild("Config"))
+local Crates = require(Shared:WaitForChild("Crates"))
+local Prizes = require(Shared:WaitForChild("Prizes"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Spin = require(Shared:WaitForChild("Spin"))
 local Types = require(Shared:WaitForChild("Types"))
@@ -2621,13 +2623,15 @@ local function tipStep(ready: boolean): number?
 end
 
 -- "Tip Jar: ..." toasts since `startedAt`, the server's word that a step paid. Steps 11 and 12 also bank a spin
--- with a toast of its own ("Tip Jar: +1 spin", F49), left out here.
+-- with a toast of its own ("Tip Jar: +1 spin", F49) and step 12 pays golden fish in another ("Tip Jar: +5 golden
+-- fish", F52), both left out here.
 local function tipToasts(startedAt: number): { Event }
 	local found = {}
 	for _, event in since(startedAt, "Toast") do
 		if
 			string.find(event.text, "Tip Jar:", 1, true) ~= nil
 			and string.find(event.text, "Tip Jar: %+%d+ spin") == nil
+			and string.find(event.text, "Tip Jar: %+%d+ golden fish") == nil
 		then
 			table.insert(found, event)
 		end
@@ -2643,6 +2647,36 @@ local function foods(): number
 		end
 	end
 	return total
+end
+
+local function fish(): number
+	return if state ~= nil and state.goldenFish ~= nil then state.goldenFish else 0
+end
+
+local function crateCount(crateId: string): number
+	return if state ~= nil and state.crates ~= nil then state.crates[crateId] or 0 else 0
+end
+
+-- Foods, golden fish and banked crates (F52, F53), so a case can tell what a call paid or that a refusal paid none.
+type Holdings = { lures: { [string]: number }, fish: number, crates: { [string]: number } }
+
+local function holdings(): Holdings
+	return {
+		lures = if state ~= nil then table.clone(state.lures) else {},
+		fish = fish(),
+		crates = if state ~= nil and state.crates ~= nil then table.clone(state.crates) else {},
+	}
+end
+
+local function holdingsText(held: Holdings): string
+	local lures, crates = 0, 0
+	for _, count in held.lures do
+		lures += count
+	end
+	for _, count in held.crates do
+		crates += count
+	end
+	return string.format("%d foods, %d golden fish, %d crates", lures, held.fish, crates)
 end
 
 case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double claim", function()
@@ -2709,6 +2743,7 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 	local bankedBefore = if state ~= nil and (state :: any).spin ~= nil
 		then state.spin.banked
 		else nil
+	local fishBefore = fish()
 	local claimAt = os.clock()
 	fire("ClaimTipJar", ready)
 	Remotes.event("ClaimTipJar"):FireServer(ready)
@@ -2778,6 +2813,21 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 		end
 		prize ..= string.format(" and %d spin", banked)
 	end
+	-- Step 12 also pays golden fish (F52).
+	local stepFish = def.fish
+	if stepFish ~= nil then
+		local gained = fish() - fishBefore
+		if gained ~= stepFish then
+			return "FAIL",
+				string.format(
+					"step %d should pay %d golden fish and paid %d",
+					ready,
+					stepFish,
+					gained
+				)
+		end
+		prize ..= string.format(" and %d golden fish", gained)
+	end
 	return "PASS",
 		string.format(
 			"8 bad steps paid nothing (%d TipJarState back)%s; step %d paid %s once for three claims",
@@ -2792,20 +2842,51 @@ end)
 
 -- Index rewards (F48, engineer PR #211, data-model 11b) ----------------------------------------------------------
 
--- Cats of `areaId` in the collection, or the gold collection, counted the way the Index counts them.
-local function pageCount(areaId: string, gold: boolean): number
+-- What a page counts for a track, the way the Index counts it (F54): the area's cats, or every area's on the All
+-- Cats page "all", in the collection or the gold collection; on a Decor Index page "decor_<pool>" the pool's crate
+-- pieces owned.
+local function pageCount(areaId: string, track: string): number
 	local s = state
 	if s == nil then
 		return 0
 	end
-	local collection = if gold then s.goldCollection else s.collection
 	local count = 0
+	if track == "decor" then
+		for _, def in Catalog.crateDecor do
+			if "decor_" .. tostring(def.crate) == areaId and s.decorOwned[def.id] then
+				count += 1
+			end
+		end
+		return count
+	end
+	local collection = if track == "gold" then s.goldCollection else s.collection
 	for _, def in Catalog.cats do
-		if def.area == areaId and collection[def.id] ~= nil then
+		if (areaId == "all" or def.area == areaId) and collection[def.id] ~= nil then
 			count += 1
 		end
 	end
 	return count
+end
+
+-- Every Index page with prizes: the areas in order, then All Cats and the Decor Index pages by id.
+local function indexPages(): { string }
+	local pages: { string } = {}
+	for _, area in Catalog.areas do
+		if Catalog.indexPrizes[area.id] ~= nil then
+			table.insert(pages, area.id)
+		end
+	end
+	local rest: { string } = {}
+	for areaId in Catalog.indexPrizes do
+		if Catalog.getArea(areaId) == nil then
+			table.insert(rest, areaId)
+		end
+	end
+	table.sort(rest)
+	for _, areaId in rest do
+		table.insert(pages, areaId)
+	end
+	return pages
 end
 
 local function rewardClaimed(areaId: string, milestoneId: string): boolean
@@ -2813,43 +2894,65 @@ local function rewardClaimed(areaId: string, milestoneId: string): boolean
 	return claims ~= nil and claims[milestoneId] == true
 end
 
--- Claims, decor owned and foods held, so a case can tell that a refused call marked or paid nothing.
+-- Claims, foods, golden fish, banked crates and spins, and the forever bonuses, so a case can tell that a refused
+-- call marked or paid nothing.
 local function indexHoldings(): string
-	local claims, decor = 0, 0
+	local claims = 0
 	if state ~= nil then
 		for _, area in state.indexRewards do
 			for _, claimed in area do
 				claims += if claimed then 1 else 0
 			end
 		end
-		for _, owned in state.decorOwned do
-			decor += if owned then 1 else 0
-		end
 	end
-	return string.format("%d claims, %d decor, %d foods", claims, decor, foods())
+	return string.format(
+		"%d claims, %s, %d spins banked, gold luck %s, bait speed %s",
+		claims,
+		holdingsText(holdings()),
+		if state ~= nil then state.spin.banked else 0,
+		tostring(if state ~= nil then state.goldLuck else nil),
+		tostring(if state ~= nil then state.baitSpeed else nil)
+	)
 end
 
-type IndexMilestone = { areaId: string, id: string, left: number, gold: boolean }
+type IndexMilestone = { areaId: string, id: string, left: number, track: string }
 
--- The first unclaimed milestone, in area order, that has its cats (`ready` true) or is still short of them.
+-- The first unclaimed milestone, in page order, that has its cats or pieces (`ready` true) or is still short.
 local function indexMilestone(ready: boolean): IndexMilestone?
-	for _, area in Catalog.areas do
-		local prizes = Catalog.indexPrizes[area.id]
-		if prizes == nil then
-			continue
-		end
+	for _, areaId in indexPages() do
+		local prizes = Catalog.indexPrizes[areaId]
 		for _, milestone in Catalog.indexMilestones do
-			if prizes[milestone.id] == nil or rewardClaimed(area.id, milestone.id) then
+			if prizes[milestone.id] == nil or rewardClaimed(areaId, milestone.id) then
 				continue
 			end
-			local gold = milestone.track == "gold" -- F54 rows: { id, track, needs }
-			local left = milestone.needs - pageCount(area.id, gold)
+			local left = milestone.needs - pageCount(areaId, milestone.track)
 			if (left <= 0) == ready then
-				return { areaId = area.id, id = milestone.id, left = left, gold = gold }
+				return { areaId = areaId, id = milestone.id, left = left, track = milestone.track }
 			end
 		end
 	end
 	return nil
+end
+
+-- The refusal for a milestone still short: "Find 2 more cats first", "... gold cats ...", "... pieces ...".
+local function shortText(milestone: IndexMilestone): string
+	local plural = if milestone.left == 1 then "" else "s"
+	if milestone.track == "decor" then
+		return string.format("Find %d more piece%s first", milestone.left, plural)
+	end
+	return string.format(
+		"Find %d more%s cat%s first",
+		milestone.left,
+		if milestone.track == "gold" then " gold" else "",
+		plural
+	)
+end
+
+-- The day rate the server prices coinSeconds with: the synced rate is the phase's (data-model section 9).
+local function dayRateOf(rate: number): number
+	local clock = ReplicatedStorage:FindFirstChild("Clock")
+	local night = clock ~= nil and clock:GetAttribute("Phase") == "night"
+	return if night then rate / Config.NightIncomeMultiplier else rate
 end
 
 local function rewardToasts(startedAt: number): number
@@ -2881,6 +2984,15 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 		{ "alley", {} },
 		{ "alley", 0 / 0 },
 		{ string.rep("a", 300), "cats3" },
+		-- F54 pages: a milestone on another page's track, odd page ids
+		{ "all", "cats3" },
+		{ "alley", "total5" },
+		{ "alley", "decor5" },
+		{ "decor_alley", "cats3" },
+		{ "decor_", "decor5" },
+		{ "decor_moon", "decor5" },
+		{ "ALL", "total5" },
+		{ "all", "total55" },
 	}
 	local before = freshWallet()
 	local held = indexHoldings()
@@ -2909,12 +3021,7 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 	if locked ~= nil then
 		local w = freshWallet()
 		local h = indexHoldings()
-		local expected = string.format(
-			"Find %d more%s cat%s first",
-			locked.left,
-			if locked.gold then " gold" else "",
-			if locked.left == 1 then "" else "s"
-		)
+		local expected = shortText(locked)
 		local lockedAt = os.clock()
 		fire("ClaimIndexReward", locked.areaId, locked.id)
 		local answer = waitFor(lockedAt, "Toast", 2)
@@ -2926,7 +3033,7 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 		then
 			return "FAIL",
 				string.format(
-					"%s %s paid with %d cat(s) still to find",
+					"%s %s paid with %d still to find",
 					locked.areaId,
 					locked.id,
 					locked.left
@@ -2956,7 +3063,7 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 	if ready == nil then
 		return "CHECK",
 			string.format(
-				'%d bad calls paid nothing%s; no milestone ready for the double claim, so on the server run %s("fillIndex", nil, "alley", 3) (after %s("resetProfile") if the Alleyway is all claimed) and run again',
+				'%d bad calls paid nothing%s; no milestone ready for the double claim, so on the server run %s("fillIndex", nil, "alley", 3) (after %s("resetProfile") if every page is claimed) and run again',
 				#bad,
 				lockedNote,
 				DEBUG,
@@ -2967,11 +3074,12 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 	local name = areaId .. " " .. milestoneId
 	local prize = Catalog.indexPrizes[areaId][milestoneId]
 	local w = freshWallet()
-	local lures: { [string]: number } = prize.lures or {}
-	local luresBefore: { [string]: number } = {}
-	for lureId in lures do
-		luresBefore[lureId] = if state ~= nil then state.lures[lureId] or 0 else 0
-	end
+	local s0 = state :: Types.PlayerState
+	local held = holdings()
+	local bankedBefore = s0.spin.banked
+	local luckBefore, speedBefore = s0.goldLuck or 0, s0.baitSpeed or 0
+	local bowlBefore = if s0.bait ~= nil then s0.bait.readyAt else nil
+	local tier = s0.tier
 	local claimAt = os.clock()
 	fire("ClaimIndexReward", areaId, milestoneId)
 	Remotes.event("ClaimIndexReward"):FireServer(areaId, milestoneId)
@@ -2998,31 +3106,146 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 	if not rewardClaimed(areaId, milestoneId) then
 		return "FAIL", string.format("%s paid but the ProfileSync does not show it claimed", name)
 	end
-	local coinsOk, coinsText = coinsMovedBy(w, prize.coins or 0)
-	if not coinsOk then
-		return "FAIL", string.format("%s should pay $%d: %s", name, prize.coins or 0, coinsText)
+	local s1 = state :: Types.PlayerState
+	local toast = ""
+	for _, event in since(claimAt, "Toast") do
+		if string.find(event.text, "Index reward:", 1, true) ~= nil then
+			toast = event.text
+		end
 	end
-	for lureId, count in lures do
-		local gained = (if state ~= nil then state.lures[lureId] or 0 else 0) - luresBefore[lureId]
+	local notes = ""
+	-- Coins (F54): at least `coins`, or seconds of the day rate (Prizes.coins); the toast says what was paid.
+	local paidCoins = tonumber(string.match(toast, "%+%$(%d+)")) or 0
+	if paidCoins < (prize.coins or 0) then
+		return "FAIL",
+			string.format("%s paid $%d, under its $%d", name, paidCoins, prize.coins or 0)
+	end
+	local coinsOk, coinsText = coinsMovedBy(w, paidCoins)
+	if not coinsOk then
+		return "FAIL", string.format("%s toasted $%d but %s", name, paidCoins, coinsText)
+	end
+	if prize.coinSeconds ~= nil then
+		local low = Prizes.coins(
+			prize.coins,
+			prize.coinSeconds,
+			dayRateOf(math.min(w.rate, s1.incomePerSecond))
+		)
+		local high = Prizes.coins(
+			prize.coins,
+			prize.coinSeconds,
+			dayRateOf(math.max(w.rate, s1.incomePerSecond))
+		)
+		if paidCoins < low or paidCoins > high + 1 then
+			verdict = downgrade(verdict, "CHECK")
+			notes ..= string.format(
+				", $%d paid where the day rate gives $%d to $%d",
+				paidCoins,
+				low,
+				high
+			)
+		end
+	end
+	local prizeLures: { [string]: number } = prize.lures or {}
+	for lureId, count in prizeLures do
+		local gained = (s1.lures[lureId] or 0) - (held.lures[lureId] or 0)
 		if gained ~= count then
 			return "FAIL",
 				string.format("%s should give %d %s and gave %d", name, count, lureId, gained)
 		end
 	end
-	-- F54: no Index prize gives decor any more (crates, fish and spins instead)
-	local againNote = ""
+	local gainedFish = fish() - held.fish
+	if gainedFish ~= (prize.fish or 0) then
+		return "FAIL",
+			string.format(
+				"%s should pay %d golden fish and paid %d",
+				name,
+				prize.fish or 0,
+				gainedFish
+			)
+	end
+	-- Spins bank up to SpinBankCap and the rest are dropped, which the toast says ("1 of 2 spins (Spins full)").
+	local spins = prize.spins or 0
+	local banked = s1.spin.banked - bankedBefore
+	local fits = math.max(0, math.min(spins, Config.SpinBankCap - bankedBefore))
+	if banked ~= fits then
+		return "FAIL",
+			string.format("%s should bank %d of %d spins and banked %d", name, fits, spins, banked)
+	end
+	if fits < spins and string.find(toast, "Spins full", 1, true) == nil then
+		verdict = downgrade(verdict, "CHECK")
+		notes ..= string.format(
+			', %d spins dropped at the cap but the toast never said "Spins full"',
+			spins - fits
+		)
+	elseif spins > 0 and fits == spins then
+		notes ..= string.format(
+			' (bank was %d; %s("spins", nil, %d) first shows the cap)',
+			bankedBefore,
+			DEBUG,
+			Config.SpinBankCap
+		)
+	end
+	-- Crates (F54): banked for the Market; "highest" is the plain crate of the highest zone the tier opens.
+	local wantCrates: { [string]: number } = {}
+	local prizeCrates: { [string]: number } = prize.crates or {}
+	for crateId, count in prizeCrates do
+		local paidId = Prizes.crateFor(crateId, tier)
+		if paidId == nil then
+			return "FAIL",
+				string.format("%s names crate %s, which tier %d cannot get", name, crateId, tier)
+		end
+		wantCrates[paidId] = (wantCrates[paidId] or 0) + count
+	end
+	for crateId, count in wantCrates do
+		local gained = crateCount(crateId) - (held.crates[crateId] or 0)
+		if gained ~= count then
+			return "FAIL",
+				string.format("%s should bank %d %s and banked %d", name, count, crateId, gained)
+		end
+	end
+	-- The forever bonuses come in ProfileSync, capped (GoldLuckMax, BaitSpeedMax).
+	local luckWant = math.min(Config.GoldLuckMax, luckBefore + (prize.goldLuck or 0))
+	local speedWant = math.min(Config.BaitSpeedMax, speedBefore + (prize.baitSpeed or 0))
+	if
+		math.abs((s1.goldLuck or 0) - luckWant) > 1e-6
+		or math.abs((s1.baitSpeed or 0) - speedWant) > 1e-6
+	then
+		return "FAIL",
+			string.format(
+				"%s: gold luck %s and bait speed %s, expected %s and %s",
+				name,
+				tostring(s1.goldLuck),
+				tostring(s1.baitSpeed),
+				tostring(luckWant),
+				tostring(speedWant)
+			)
+	end
+	-- A claim never moves food already in the bowl: UseLure fixed its readyAt (F54).
+	if bowlBefore ~= nil and s1.bait ~= nil and s1.bait.readyAt ~= bowlBefore then
+		return "FAIL",
+			string.format(
+				"%s moved the filling bowl from %d to %d",
+				name,
+				bowlBefore,
+				s1.bait.readyAt
+			)
+	end
+	if bowlBefore ~= nil then
+		notes ..= ", the filling bowl kept its time"
+	end
 	if not toasted(againAt, "Already claimed") then
 		verdict = downgrade(verdict, "CHECK")
-		againNote = ', but the third claim got no "Already claimed" toast'
+		notes ..= ', but the third claim got no "Already claimed" toast'
 	end
 	return verdict,
 		string.format(
-			"%d bad calls paid nothing%s; %s paid once for three claims (%s)%s",
+			'%d bad calls paid nothing%s; %s paid once for three claims ("%s", %s)%s',
 			#bad,
 			lockedNote,
 			name,
+			toast,
 			coinsText,
-			againNote
+			notes
 		)
 end)
 
@@ -3030,13 +3253,13 @@ end)
 
 type Spun = { slice: number, amount: number }
 
--- The station tagged SpinWheel nearest the character, or nil.
-local function spinStation(): Model?
+-- The model tagged `tag` nearest the character, or nil.
+local function nearestTagged(tag: string): Model?
 	local root = rootPart()
 	local origin = if root ~= nil then root.Position else Vector3.zero
 	local best: Model? = nil
 	local bestDistance = math.huge
-	for _, instance in CollectionService:GetTagged("SpinWheel") do
+	for _, instance in CollectionService:GetTagged(tag) do
 		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
 			local distance = (instance:GetPivot().Position - origin).Magnitude
 			if distance < bestDistance then
@@ -3046,6 +3269,10 @@ local function spinStation(): Model?
 		end
 	end
 	return best
+end
+
+local function spinStation(): Model?
+	return nearestTagged("SpinWheel")
 end
 
 local function spinsLeft(): number
@@ -3076,13 +3303,9 @@ local function spinAnswers(startedAt: number): ({ Spun }, number)
 	return paid, refused
 end
 
-local function lureCounts(): { [string]: number }
-	return if state ~= nil then table.clone(state.lures) else {}
-end
-
--- True when one paid spin moved coins or the slice's food by exactly what SpinResult said, and the slice and
--- amount are ones the wheel can pay; the text goes on the RESULT line.
-local function spinPaid(spun: Spun, before: Wallet, lures: { [string]: number }): (boolean, string)
+-- True when one paid spin moved coins, the slice's food, golden fish or crate (F54) by exactly what SpinResult said,
+-- and the slice and amount are ones the wheel can pay; the text goes on the RESULT line.
+local function spinPaid(spun: Spun, before: Wallet, held: Holdings): (boolean, string)
 	local row = sliceRow(spun.slice)
 	if row == nil then
 		return false, string.format("slice %d is not on the wheel", spun.slice)
@@ -3095,8 +3318,33 @@ local function spinPaid(spun: Spun, before: Wallet, lures: { [string]: number })
 		local ok, text = coinsMovedBy(before, spun.amount)
 		return ok, string.format("slice %d $%d, %s", spun.slice, spun.amount, text)
 	end
+	if row.kind == "fish" then
+		local gained = fish() - held.fish
+		local ok = spun.amount == (row.count or 1) and gained == spun.amount
+		return ok,
+			string.format("slice %d %d golden fish, fish up by %d", spun.slice, spun.amount, gained)
+	end
+	if row.kind == "crate" then
+		local tier = if state ~= nil then state.tier else 1
+		local crateId = Prizes.crateFor(row.crate or Prizes.HIGHEST, tier)
+		if crateId == nil then
+			return false,
+				string.format("slice %d names a crate tier %d cannot get", spun.slice, tier)
+		end
+		local gained = crateCount(crateId) - (held.crates[crateId] or 0)
+		local ok = spun.amount == (row.count or 1) and gained == spun.amount
+		return ok,
+			string.format(
+				"slice %d %d %s, banked up by %d",
+				spun.slice,
+				spun.amount,
+				crateId,
+				gained
+			)
+	end
 	local lureId = row.lureId :: string
-	local gained = (if state ~= nil then state.lures[lureId] or 0 else 0) - (lures[lureId] or 0)
+	local gained = (if state ~= nil then state.lures[lureId] or 0 else 0)
+		- (held.lures[lureId] or 0)
 	local ok = spun.amount == (row.count or 1) and gained == spun.amount
 	return ok,
 		string.format("slice %d %d %s, food up by %d", spun.slice, spun.amount, lureId, gained)
@@ -3157,7 +3405,7 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 		)
 	end
 	local w = freshWallet()
-	local f, left = foods(), spinsLeft()
+	local f, left = holdingsText(holdings()), spinsLeft()
 	local farAt = os.clock()
 	fire("SpinWheel")
 	local farAnswer = waitFor(farAt, "SpinResult", 2)
@@ -3166,7 +3414,7 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 	if
 		#farPaid > 0
 		or money() - w.money > incomeSince(w)
-		or foods() ~= f
+		or holdingsText(holdings()) ~= f
 		or spinsLeft() ~= left
 	then
 		return done("FAIL", string.format("a SpinWheel from %.1f studs paid or used a spin", far))
@@ -3200,7 +3448,7 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 	end
 	w = freshWallet()
 	left = spinsLeft()
-	local lures = lureCounts()
+	local held = holdings()
 	local spinAt = os.clock()
 	fire("SpinWheel")
 	Remotes.event("SpinWheel"):FireServer()
@@ -3222,7 +3470,7 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 			string.format("spins went from %d to %d for one paid spin", left, spinsLeft())
 		)
 	end
-	local ok, paidText = spinPaid(paid[1], w, lures)
+	local ok, paidText = spinPaid(paid[1], w, held)
 	if not ok then
 		return done("FAIL", paidText)
 	end
@@ -3258,7 +3506,7 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 	if spinsLeft() >= 1 then
 		afterCooldown()
 		w = freshWallet()
-		lures = lureCounts()
+		held = holdings()
 		left = spinsLeft()
 		spinAt = os.clock()
 		fire("SpinWheel")
@@ -3273,7 +3521,7 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 				string.format("%d paid SpinResults after the cooldown with %d left", #later, left)
 			)
 		end
-		local nextOk, nextText = spinPaid(later[1], w, lures)
+		local nextOk, nextText = spinPaid(later[1], w, held)
 		if not nextOk then
 			return done("FAIL", nextText)
 		end
@@ -3292,12 +3540,16 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 	end
 	afterCooldown()
 	w = freshWallet()
-	f = foods()
+	f = holdingsText(holdings())
 	local noneAt = os.clock()
 	fire("SpinWheel")
 	local noneAnswer = waitFor(noneAt, "SpinResult", 2)
 	task.wait(0.3)
-	if #(spinAnswers(noneAt)) > 0 or money() - w.money > incomeSince(w) or foods() ~= f then
+	if
+		#(spinAnswers(noneAt)) > 0
+		or money() - w.money > incomeSince(w)
+		or holdingsText(holdings()) ~= f
+	then
 		return done("FAIL", "a spin with none left paid")
 	end
 	if noneAnswer == nil then
@@ -3308,6 +3560,449 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 	end
 	return done(verdict, notes)
 end)
+
+-- Golden Fish Market (F53, engineer PR #316, golden-fish.md sections 3, 4 and 8) ---------------------------------
+
+-- What CrateResult carries: decorId "" when the open was refused.
+type Opened = { crateId: string, decorId: string, duplicate: boolean, refund: number }
+
+local function crateAnswers(startedAt: number): ({ Opened }, number)
+	local opened: { Opened } = {}
+	local refused = 0
+	for _, event in since(startedAt, "CrateResult") do
+		local answer = event.data :: Opened
+		if answer.decorId ~= "" then
+			table.insert(opened, answer)
+		else
+			refused += 1
+		end
+	end
+	return opened, refused
+end
+
+local function perkLevel(perkId: string): number
+	return if state ~= nil and state.fishPerks ~= nil then state.fishPerks[perkId] or 0 else 0
+end
+
+-- Fish, crates, foods, pieces owned, crate luck and perk levels in one line, so a case can tell that a refused call
+-- changed none of them.
+local function marketHoldings(): string
+	local s = state
+	if s == nil then
+		return "no ProfileSync"
+	end
+	local owned, luck, perks = 0, 0, 0
+	for _, flag in s.decorOwned do
+		owned += if flag then 1 else 0
+	end
+	for _, count in s.crateLuck do
+		luck += count
+	end
+	for _, level in s.fishPerks do
+		perks += level
+	end
+	return string.format(
+		"%s, %d pieces, %d crate luck, %d perk levels",
+		holdingsText(holdings()),
+		owned,
+		luck,
+		perks
+	)
+end
+
+local function toastCount(startedAt: number, text: string): number
+	local count = 0
+	for _, event in since(startedAt, "Toast") do
+		if string.find(event.text, text, 1, true) ~= nil then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- A crate the player could open now: a banked one in an open zone (plain first), else a plain one they can buy.
+local function openableCrate(): Types.CrateDef?
+	local s = state
+	if s == nil then
+		return nil
+	end
+	local function open(crate: Types.CrateDef): boolean
+		if crate.area == "classic" then
+			return true
+		end
+		local area = Catalog.getArea(crate.area)
+		return area ~= nil and s.tier >= area.tier
+	end
+	for _, golden in { false, true } do
+		for _, crate in Catalog.crates do
+			if crate.golden == golden and open(crate) and crateCount(crate.id) > 0 then
+				return crate
+			end
+		end
+	end
+	for _, crate in Catalog.crates do
+		if not crate.golden and open(crate) and fish() >= (crate.price or math.huge) then
+			return crate
+		end
+	end
+	return nil
+end
+
+case(
+	"fishMarket",
+	Enum.KeyCode.P,
+	"Golden Fish Market: far, bad ids, locked, double open, perk past max",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		if (state :: any).crates == nil then
+			return "SKIP", "the ProfileSync carries no crates (needs engineer PR #316)"
+		end
+		local stall = nearestTagged("FishMarket")
+		if stall == nil then
+			return "SKIP", "no stall tagged FishMarket in the world"
+		end
+		local root = rootPart()
+		local home = if root ~= nil then root.Position else nil
+		local function done(verdict: Verdict, detail: string): (Verdict, string)
+			if home ~= nil then
+				teleportTo(home)
+			end
+			return verdict, detail
+		end
+		local verdict: Verdict = "PASS"
+
+		-- 24 studs out (FishMarketRange is 14): both remotes refused, nothing opened or bought.
+		local far = standFromStation(stall, 24)
+		if far < Config.FishMarketRange + 4 then
+			return done(
+				"CHECK",
+				string.format(
+					"could not stand 24 studs from the stall on any side (settled %.1f studs out); stand there and run again",
+					far
+				)
+			)
+		end
+		local held = marketHoldings()
+		local farAt = os.clock()
+		fire("OpenCrate", "alley_crate")
+		task.wait(1.1)
+		fire("BuyFishItem", "star_treat")
+		task.wait(1)
+		if #(crateAnswers(farAt)) > 0 or marketHoldings() ~= held then
+			return done(
+				"FAIL",
+				string.format(
+					"a Market call from %.1f studs opened or bought something: %s before, %s after",
+					far,
+					held,
+					marketHoldings()
+				)
+			)
+		end
+		local walks = toastCount(farAt, "Walk to the Golden Fish Market first")
+		local notes = string.format("%.1f studs refused", far)
+		if walks ~= 2 then
+			verdict = downgrade(verdict, "CHECK")
+			notes ..= string.format(
+				' with %d of 2 "Walk to the Golden Fish Market first" toasts',
+				walks
+			)
+		end
+
+		-- Beside the stall: bad ids for both remotes, nothing opens or sells.
+		local near = standFromStation(stall, 6)
+		if near > Config.FishMarketRange - 4 then
+			return done(
+				"CHECK",
+				string.format(
+					"%s; could not stand by the stall (settled %.1f studs out); stand there and run again",
+					notes,
+					near
+				)
+			)
+		end
+		local badIds: { { any } } = {
+			{},
+			{ "" },
+			{ "ALLEY_CRATE" },
+			{ "moon_crate" },
+			{ "alley_crate " },
+			{ string.rep("a", 300) },
+			{ 7 },
+			{ 0 / 0 },
+			{ {} },
+			{ true },
+		}
+		held = marketHoldings()
+		local badAt = os.clock()
+		for _, args in badIds do
+			fire("OpenCrate", table.unpack(args))
+			task.wait(1.1)
+		end
+		local badBuys: { { any } } = table.clone(badIds)
+		table.insert(badBuys, { "alley_crate" }) -- a crate row: crates open through OpenCrate
+		table.insert(badBuys, { "alley_golden_crate" })
+		table.insert(badBuys, { "kibble" }) -- a food the Market does not sell
+		for _, args in badBuys do
+			fire("BuyFishItem", table.unpack(args))
+			task.wait(0.6)
+		end
+		task.wait(0.5)
+		if #(crateAnswers(badAt)) > 0 or marketHoldings() ~= held then
+			return done(
+				"FAIL",
+				string.format(
+					"a bad Market id opened or bought something: %s before, %s after",
+					held,
+					marketHoldings()
+				)
+			)
+		end
+		notes ..= string.format("; %d bad ids paid nothing", #badIds + #badBuys)
+
+		-- Blocked opens: a zone the tier has not opened, a golden crate with none banked, a plain crate without
+		-- the fish. Each answers CrateResult with "" and a toast that says why.
+		local s = state :: Types.PlayerState
+		local blocked: { { id: string, text: string } } = {}
+		for _, crate in Catalog.crates do
+			local area = if crate.area ~= "classic" then Catalog.getArea(crate.area) else nil
+			local locked = area ~= nil and s.tier < area.tier
+			if locked and #blocked == 0 then
+				table.insert(blocked, { id = crate.id, text = "Unlock this zone first" })
+			end
+		end
+		for _, crate in Catalog.crates do
+			local area = if crate.area ~= "classic" then Catalog.getArea(crate.area) else nil
+			local open = area == nil or s.tier >= area.tier
+			if crate.golden and open and crateCount(crate.id) == 0 then
+				table.insert(blocked, { id = crate.id, text = "Golden crates come from the Index" })
+				break
+			end
+		end
+		if crateCount("alley_crate") == 0 and fish() < 60 then
+			table.insert(blocked, { id = "alley_crate", text = "Not enough golden fish" })
+		end
+		held = marketHoldings()
+		for _, entry in blocked do
+			local at = os.clock()
+			fire("OpenCrate", entry.id)
+			local answer = waitFor(at, "CrateResult", 2)
+			task.wait(1.1)
+			if #(crateAnswers(at)) > 0 or marketHoldings() ~= held then
+				return done(
+					"FAIL",
+					string.format("%s opened when it should say %q", entry.id, entry.text)
+				)
+			end
+			if answer == nil or not toasted(at, entry.text) then
+				verdict = downgrade(verdict, "CHECK")
+				notes ..= string.format(", %s refused but not with %q", entry.id, entry.text)
+			else
+				notes ..= string.format(", %s %q", entry.id, entry.text)
+			end
+		end
+
+		-- One open: twice in one frame (OpenCrate allows 1 a second), then again inside CrateOpenCooldownSeconds.
+		-- One piece, paid once.
+		local crate = openableCrate()
+		if crate == nil then
+			return done(
+				if verdict == "PASS" then "CHECK" else verdict,
+				string.format(
+					'%s; nothing to open, so on the server run %s("giveCrate", nil, "alley_crate", 3) or %s("setFish", nil, 1000) and run again',
+					notes,
+					DEBUG,
+					DEBUG
+				)
+			)
+		end
+		s = state :: Types.PlayerState
+		local bankedBefore = crateCount(crate.id)
+		local fishBefore = fish()
+		local luckBefore = s.crateLuck[crate.area] or 0
+		local ownedBefore = table.clone(s.decorOwned)
+		local openAt = os.clock()
+		fire("OpenCrate", crate.id)
+		Remotes.event("OpenCrate"):FireServer(crate.id)
+		log(string.format('    -> OpenCrate("%s") again in the same frame', crate.id))
+		waitFor(openAt, "CrateResult", 3, function(event: Event): boolean
+			return (event.data :: Opened).decorId ~= ""
+		end)
+		task.wait(1.1)
+		local coolAt = os.clock()
+		fire("OpenCrate", crate.id)
+		waitFor(coolAt, "CrateResult", 2)
+		task.wait(0.5)
+		local opened = crateAnswers(openAt)
+		if #opened ~= 1 then
+			return done(
+				"FAIL",
+				string.format("%d pieces for three OpenCrate(%s) calls in 1.1 s", #opened, crate.id)
+			)
+		end
+		local piece = opened[1]
+		local def = Catalog.getDecor(piece.decorId)
+		if def == nil or def.crate ~= crate.area then
+			return done(
+				"FAIL",
+				string.format("%s gave %q, not one of its pool's pieces", crate.id, piece.decorId)
+			)
+		end
+		local rarity = def.rarity or "Common"
+		local rank = Catalog.rarityRank[rarity] or 0
+		if crate.golden and rank < Catalog.rarityRank.Epic then
+			return done("FAIL", string.format("%s gave a %s piece", crate.id, rarity))
+		end
+		local wasOwned = ownedBefore[piece.decorId] == true
+		local refund = if wasOwned then Config.CrateDuplicateRefund[rarity] or 0 else 0
+		if piece.duplicate ~= wasOwned or piece.refund ~= refund then
+			return done(
+				"FAIL",
+				string.format(
+					"%s: duplicate=%s refund %d for a piece %s, expected refund %d",
+					piece.decorId,
+					tostring(piece.duplicate),
+					piece.refund,
+					if wasOwned then "already owned" else "new",
+					refund
+				)
+			)
+		end
+		local paidWith = if bankedBefore > 0 then "a banked crate" else "fish"
+		local wantFish = fishBefore + refund - (if bankedBefore > 0 then 0 else crate.price or 0)
+		local wantBanked = if bankedBefore > 0 then bankedBefore - 1 else 0
+		if fish() ~= wantFish or crateCount(crate.id) ~= wantBanked then
+			return done(
+				"FAIL",
+				string.format(
+					"%s paid with %s: fish %d -> %d (expected %d), banked %d -> %d (expected %d)",
+					crate.id,
+					paidWith,
+					fishBefore,
+					fish(),
+					wantFish,
+					bankedBefore,
+					crateCount(crate.id),
+					wantBanked
+				)
+			)
+		end
+		s = state :: Types.PlayerState
+		local luckWant = if rank >= Catalog.rarityRank.Epic
+			then 0
+			else math.min(luckBefore + 1, Config.CrateLuckyEvery - 1)
+		if (s.crateLuck[crate.area] or 0) ~= luckWant or s.decorOwned[piece.decorId] ~= true then
+			return done(
+				"FAIL",
+				string.format(
+					"after a %s piece the %s luck is %d (expected %d) and owned=%s",
+					rarity,
+					crate.area,
+					s.crateLuck[crate.area] or 0,
+					luckWant,
+					tostring(s.decorOwned[piece.decorId])
+				)
+			)
+		end
+		notes ..= string.format(
+			"; double open paid once with %s (%s %s%s)",
+			paidWith,
+			rarity,
+			piece.decorId,
+			if wasOwned then string.format(", duplicate +%d fish", refund) else ""
+		)
+		if not toasted(coolAt, "One crate at a time") then
+			verdict = downgrade(verdict, "CHECK")
+			notes ..= ', but the open 1.1 s later got no "One crate at a time"'
+		end
+
+		-- Perks: one at its top level is refused; one level short of the top, two buys in one frame (the limit
+		-- allows 2 a second) take exactly one level and its cost.
+		local maxed: Types.FishShopRow? = nil
+		local last: Types.FishShopRow? = nil
+		for _, row in Catalog.fishShop do
+			if row.kind ~= "perk" then
+				continue
+			end
+			local level = perkLevel(row.id)
+			local top = row.maxLevel or 1
+			if level >= top and maxed == nil then
+				maxed = row
+			elseif level == top - 1 and last == nil then
+				last = row
+			end
+		end
+		if last ~= nil then
+			local perkId = last.id
+			local costs = last.costs or {}
+			local cost = costs[perkLevel(perkId) + 1] or math.huge
+			if fish() >= cost then
+				local levelBefore, fishAt = perkLevel(perkId), fish()
+				local buyAt = os.clock()
+				fire("BuyFishItem", perkId)
+				Remotes.event("BuyFishItem"):FireServer(perkId)
+				log(string.format('    -> BuyFishItem("%s") again in the same frame', perkId))
+				waitFor(buyAt, "ProfileSync", 2, function()
+					return perkLevel(perkId) > levelBefore
+				end)
+				task.wait(0.6)
+				if perkLevel(perkId) ~= levelBefore + 1 or fish() ~= fishAt - cost then
+					return done(
+						"FAIL",
+						string.format(
+							"two BuyFishItem(%s) in a frame: level %d -> %d, fish %d -> %d (cost %d)",
+							perkId,
+							levelBefore,
+							perkLevel(perkId),
+							fishAt,
+							fish(),
+							cost
+						)
+					)
+				end
+				notes ..= string.format(
+					"; %s bought once for %d fish from two calls (yours forever in this Studio save)",
+					perkId,
+					cost
+				)
+				maxed = maxed or last
+			end
+		end
+		if maxed ~= nil then
+			held = marketHoldings()
+			local topAt = os.clock()
+			fire("BuyFishItem", maxed.id)
+			task.wait(1)
+			if marketHoldings() ~= held then
+				return done(
+					"FAIL",
+					string.format(
+						"%s at its top level sold another: %s",
+						maxed.id,
+						marketHoldings()
+					)
+				)
+			end
+			if not toasted(topAt, "Already at the top level") then
+				verdict = downgrade(verdict, "CHECK")
+				notes ..= string.format(
+					', %s at the top refused but not with "Already at the top level"',
+					maxed.id
+				)
+			else
+				notes ..= string.format(", %s at the top refused", maxed.id)
+			end
+		else
+			notes ..= string.format(
+				'; no perk at or one short of its top level, so the past-max buy was not tried (%s("setFish", nil, 1000) lets this case buy the Big Bowl)',
+				DEBUG
+			)
+		end
+		return done(verdict, notes)
+	end
+)
 
 -- Bug reports (engineer PR #265, docs/playtests/bug-reports.md) ------------------------------------------------
 
@@ -3583,6 +4278,23 @@ Remotes.event("SpinResult").OnClientEvent:Connect(function(slice: number, amount
 	local spun: Spun = { slice = slice, amount = amount }
 	record("SpinResult", string.format("slice=%d amount=%d", slice, amount), nil, spun)
 end)
+Remotes.event("CrateResult").OnClientEvent
+	:Connect(function(crateId: string, decorId: string, duplicate: boolean, refund: number)
+		local opened: Opened =
+			{ crateId = crateId, decorId = decorId, duplicate = duplicate, refund = refund }
+		record(
+			"CrateResult",
+			string.format(
+				"%s -> %q duplicate=%s refund=%d",
+				crateId,
+				decorId,
+				tostring(duplicate),
+				refund
+			),
+			crateId,
+			opened
+		)
+	end)
 Remotes.event("TipJarState").OnClientEvent:Connect(function(jar: Types.TipJarState)
 	tipJar = jar
 	local claimed = 0

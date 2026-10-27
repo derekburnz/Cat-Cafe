@@ -19,6 +19,7 @@ Remotes.ClientToServer = {
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
+	"UnequipAll", -- ()  rests every working cat in the cat room (shared/EquipBest.restAll)
 	"SellCat", -- (uid: string)
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)

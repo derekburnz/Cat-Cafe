@@ -375,6 +375,14 @@ local function wireIntents()
 	UI.events.sellCat:Connect(function(uid: string)
 		Net.fire("SellCat", uid)
 	end)
+	-- Unequip all on the cat inventory (UI thread). Looked up loosely like equip best below; the UI shows the
+	-- button only once something is connected to the signal.
+	local unequipAll = (UI.events :: any).unequipAll
+	if unequipAll ~= nil then
+		unequipAll:Connect(function()
+			Net.fire("UnequipAll")
+		end)
+	end
 	-- Equip best button on the cat room tab (UI thread). Looked up loosely so an older UI build without the
 	-- signal still loads; the server validates the request like any other.
 	local equipBest = (UI.events :: any).equipBest

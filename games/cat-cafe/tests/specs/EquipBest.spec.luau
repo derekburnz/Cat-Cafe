@@ -87,6 +87,31 @@ return function()
 		end)
 	end)
 
+	describe("restAll", function()
+		it("rests every working cat, counts them and leaves resting cats alone", function()
+			local profile = profileAt(3)
+			addCat(profile, "a", "tabby", nil, nil, "barista_1")
+			addCat(profile, "b", "tabby", nil, nil, "waiter_1")
+			addCat(profile, "c", "tabby")
+			expect(EquipBest.restAll(profile)).to.equal(2)
+			for _, instance in pairs(profile.cats) do
+				expect(instance.spotId).to.equal(nil)
+			end
+			expect(Economy.incomePerSecond(profile)).to.equal(0)
+			expect(EquipBest.restAll(profile)).to.equal(0)
+		end)
+
+		it("leaves equip best a clean slate to place from", function()
+			local profile = profileAt(3)
+			addCat(profile, "a", "tabby", nil, nil, "waiter_1")
+			addCat(profile, "b", "tabby")
+			EquipBest.restAll(profile)
+			local plan = EquipBest.plan(profile)
+			expect(EquipBest.apply(profile, plan)).to.equal(plan.catsPlaced)
+			expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
+		end)
+	end)
+
 	describe("plan", function()
 		it(
 			"a fresh cafe is already optimal: Tabby stays Barista, nothing changes",

@@ -32,6 +32,7 @@ import accessories  # noqa: E402
 import alley  # noqa: E402
 import alleyway  # noqa: E402
 import areas  # noqa: E402
+import boards  # noqa: E402
 import cats  # noqa: E402
 import common  # noqa: E402
 import decor  # noqa: E402
@@ -50,7 +51,7 @@ import street  # noqa: E402
 import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway]
+MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -248,6 +249,8 @@ def main():
         objs = fn(mat)
         built[name] = objs
         extra = cat_rbx_extras(name) if name.startswith("CatCafe_Cat_") else {}
+        if name in boards.AREA_OF:                # the UI finds an Index Board by its tag and Area
+            extra = {"attributes": {"Area": boards.AREA_OF[name]}}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
@@ -309,6 +312,12 @@ def main():
         if name.startswith("CatCafe_Plot_Cafe_"):
             entry["chimney_top_roblox"] = list(plot.CHIMNEY_TOP)
             entry["sign_board_roblox"] = plot.SIGN_INFO
+        if name in boards.AREA_OF:
+            host, (px, py, pz, turn) = boards.PLACEMENT[boards.AREA_OF[name]]
+            entry["area"] = boards.AREA_OF[name]
+            entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [boards.W, boards.H]}
+            entry["placement"] = {"relative_to": host, "offset_roblox": [px, py, pz], "turn_y_deg": turn,
+                                  "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"}
         if name in poses.STUCK_POSES:
             entry["stuck_pose"] = poses.manifest_pose(poses.STUCK_POSES[name])
         if name in STUDIO_NOTES:

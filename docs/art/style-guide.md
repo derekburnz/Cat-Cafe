@@ -269,6 +269,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
+| Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Alleyway set pieces | 5,000 to 6,000 | arches and building backs; crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
 | Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier | built from blocks for the Part export (section 14); the FBX is the reference |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
@@ -389,7 +390,9 @@ Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),
 `_Steam` (espresso cups), `_Chimney` (chimney opening), `_Flowers` (beds and flower boxes, butterflies),
 `_Fireflies` (invisible volume over the beds), `_Shutter` and `_Sign` inside ForRent (rolled up and flipped on a
-claim), `_Zzz` (sleeping cat). Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+claim), `_Zzz` (sleeping cat). Index Boards (`CatCafe_<Area>_IndexBoard`, `boards.py`): the part named `Screen` (8 x 5, its
+Front face carries the player's Index page), the `IndexBoard` tag, an `Area` attribute and ModelStreamingMode
+Atomic on the root Model; `placement` in the manifest gives the spot in its gate's frame. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
 `Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).

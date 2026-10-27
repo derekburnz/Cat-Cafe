@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 19:08 UTC",
+  "generated": "2026-10-27 19:29 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -51056,6 +51056,380 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_Manhole.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_Manhole.png"
+    },
+    {
+      "name": "CatCafe_Alley_IndexBoard",
+      "category": "Alley",
+      "module": "boards",
+      "objects": [
+        "CatCafe_Alley_IndexBoard",
+        "CatCafe_Alley_IndexBoard_Screen"
+      ],
+      "triangles": 776,
+      "budget": 1500,
+      "size_studs": {
+        "x": 11.6,
+        "y": 1.5,
+        "z": 10.89
+      },
+      "size_roblox": [
+        11.6,
+        10.89,
+        1.5
+      ],
+      "bounds_min": [
+        -5.8,
+        -0.65,
+        0.0
+      ],
+      "bounds_max": [
+        5.8,
+        0.85,
+        10.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "alley",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_Alley_ArchStreet",
+        "offset_roblox": [
+          -9.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_IndexBoard.model.json",
+      "rbx_parts": 72,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "776/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "392 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.10"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_IndexBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_IndexBoard.png"
+    },
+    {
+      "name": "CatCafe_Park_IndexBoard",
+      "category": "Park",
+      "module": "boards",
+      "objects": [
+        "CatCafe_Park_IndexBoard",
+        "CatCafe_Park_IndexBoard_Screen"
+      ],
+      "triangles": 854,
+      "budget": 1500,
+      "size_studs": {
+        "x": 11.7,
+        "y": 1.85,
+        "z": 11.95
+      },
+      "size_roblox": [
+        11.7,
+        11.95,
+        1.85
+      ],
+      "bounds_min": [
+        -5.85,
+        -0.9,
+        0.0
+      ],
+      "bounds_max": [
+        5.85,
+        0.95,
+        11.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "park",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_Park_Gate",
+        "offset_roblox": [
+          -7.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_IndexBoard.model.json",
+      "rbx_parts": 65,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "854/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "533 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.03"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_IndexBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_IndexBoard.png"
+    },
+    {
+      "name": "CatCafe_Neighbourhood_IndexBoard",
+      "category": "Neighbourhood",
+      "module": "boards",
+      "objects": [
+        "CatCafe_Neighbourhood_IndexBoard",
+        "CatCafe_Neighbourhood_IndexBoard_Screen"
+      ],
+      "triangles": 732,
+      "budget": 1500,
+      "size_studs": {
+        "x": 10.25,
+        "y": 0.97,
+        "z": 10.04
+      },
+      "size_roblox": [
+        10.25,
+        10.04,
+        0.97
+      ],
+      "bounds_min": [
+        -5.12,
+        -0.49,
+        0.0
+      ],
+      "bounds_max": [
+        5.12,
+        0.47,
+        10.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "neighbourhood",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_Neighbourhood_Gate",
+        "offset_roblox": [
+          -7.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_IndexBoard.model.json",
+      "rbx_parts": 63,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "732/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "354 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Neighbourhood_IndexBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Neighbourhood_IndexBoard.png"
+    },
+    {
+      "name": "CatCafe_Woods_IndexBoard",
+      "category": "Woods",
+      "module": "boards",
+      "objects": [
+        "CatCafe_Woods_IndexBoard",
+        "CatCafe_Woods_IndexBoard_Screen"
+      ],
+      "triangles": 876,
+      "budget": 1500,
+      "size_studs": {
+        "x": 11.02,
+        "y": 0.95,
+        "z": 10.89
+      },
+      "size_roblox": [
+        11.02,
+        10.89,
+        0.95
+      ],
+      "bounds_min": [
+        -5.51,
+        -0.4,
+        0.0
+      ],
+      "bounds_max": [
+        5.51,
+        0.55,
+        10.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "woods",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_Woods_Gate",
+        "offset_roblox": [
+          -10.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_IndexBoard.model.json",
+      "rbx_parts": 62,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Woods_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Woods_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "876/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "440 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.08"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_IndexBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_IndexBoard.png"
+    },
+    {
+      "name": "CatCafe_Sewer_IndexBoard",
+      "category": "Sewer",
+      "module": "boards",
+      "objects": [
+        "CatCafe_Sewer_IndexBoard",
+        "CatCafe_Sewer_IndexBoard_Screen"
+      ],
+      "triangles": 1140,
+      "budget": 1500,
+      "size_studs": {
+        "x": 10.59,
+        "y": 1.1,
+        "z": 11.65
+      },
+      "size_roblox": [
+        10.59,
+        11.65,
+        1.1
+      ],
+      "bounds_min": [
+        -5.3,
+        -0.53,
+        0.0
+      ],
+      "bounds_max": [
+        5.3,
+        0.57,
+        11.65
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "area": "sewer",
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          8.0,
+          5.0
+        ]
+      },
+      "placement": {
+        "relative_to": "CatCafe_Sewer_Gate",
+        "offset_roblox": [
+          -10.0,
+          0.0,
+          8.0
+        ],
+        "turn_y_deg": -20.0,
+        "use": "host:GetPivot() * CFrame.new(offset) * CFrame.Angles(0, math.rad(turn), 0)"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_IndexBoard.model.json",
+      "rbx_parts": 68,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sewer_IndexBoard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sewer_IndexBoard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1140/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "506 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_IndexBoard.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_IndexBoard.png"
     }
   ]
 }

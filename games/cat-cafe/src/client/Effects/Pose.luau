@@ -308,6 +308,11 @@ function Pose.bind(model: Model): Rig?
 		rig.restDrop = math.max(0, (-body.Size.Y / 2 - floorY) * 0.8)
 	end
 
+	-- A cat seated at its station (Pose "sit", PR #260: the sitting body, in the floor's own axes) never lies down,
+	-- so a nap style cannot sink it into the counter.
+	if model:GetAttribute("Pose") == "sit" then
+		rig.restDrop = 0
+	end
 	-- A cat stood upright turns in the floor's axes about the floor under its body, and never lies down: at night
 	-- it dozes on its feet, so even a nap style cannot sink it into the counter.
 	local axes = pivot.Rotation

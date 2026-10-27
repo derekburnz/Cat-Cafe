@@ -1,7 +1,7 @@
 --!strict
 -- Which cats move on this client and how (design v0.4 sections 1 and 4, v0.5 F40 and F44): role idles at the
 -- cafe stations, naps (and every working cat asleep at its station at night, when the cafe is closed: curled up,
--- or dozing on its feet when it stands upright in its outfit, F25), stuck
+-- or dozing where it stands or sits in its outfit, F25 and PR #260), stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
 -- pant after a sprint and the hiss hop on a missed catch. Only the nearest few within range move
 -- (budget.animatedCats within budget.animRadius); the rest stand as the server placed them. Gold cats in range
@@ -259,8 +259,9 @@ local function styleOf(model: Model): Logic.Style
 		or pose == "nap"
 		or (Context.isNight() and isWorking(model)) -- the cafe is closed at night (F44)
 	then
-		-- A cat stood upright at its station (F25) dozes on its feet; one on all fours curls up.
-		if pose == "upright" then
+		-- A cat stood upright (F25) or seated (Pose "sit", PR #260) at its station dozes where it is; one on all
+		-- fours curls up.
+		if pose == "upright" or pose == "sit" then
 			return "doze"
 		end
 		return if Cats.isLoafing(model) then "loaf" else "nap"

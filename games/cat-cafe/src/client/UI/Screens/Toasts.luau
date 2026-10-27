@@ -16,6 +16,7 @@ export type Toasts = {
 }
 
 local LIFETIME = 2.4
+local ANNOUNCE_LIFETIME = 4 -- server shout-outs stay a little longer
 local MAX_VISIBLE = 4
 
 -- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
@@ -69,8 +70,28 @@ function Toasts.new(parent: Instance): Toasts
 	return self :: Toasts
 end
 
+-- Server shout-outs (Pet Simulator 99 style) take the colour of the first rarity they name, so "Derek caught a
+-- Mythical Midnight!" shows on the Mythical colour.
+local function announceColor(text: string): Color3?
+	local best: Color3? = nil
+	local bestAt = math.huge
+	for _, rarity in Theme.rarityOrder do
+		local at = text:find(rarity, 1, true)
+		if at and at < bestAt then
+			best = Theme.rarityColor(rarity)
+			bestAt = at
+		end
+	end
+	return best
+end
+
 function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
 	local fill = KIND_COLORS[kind or "info"] or KIND_COLORS.info
+	local lifetime = LIFETIME
+	if kind == "announce" then
+		fill = announceColor(text) or fill
+		lifetime = ANNOUNCE_LIFETIME
+	end
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
 	Sound.play(if kind == "warn" then "uiError" else "uiToast")
 	self._order += 1
@@ -117,7 +138,7 @@ function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
 	Tween.to(message, Tween.FAST, { TextTransparency = 0 })
 	Tween.to(textOutline, Tween.FAST, { Transparency = 0 })
 	Tween.popIn(toast, 0.8)
-	task.delay(LIFETIME, function()
+	task.delay(lifetime, function()
 		if not toast.Parent then
 			return
 		end

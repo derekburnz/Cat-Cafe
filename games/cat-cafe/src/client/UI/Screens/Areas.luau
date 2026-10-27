@@ -25,15 +25,6 @@ export type Areas = {
 
 local CARD = Vector2.new(226, 196)
 
--- Card art colours, close to each area's ground in the world (style guide palette).
-local AREA_COLORS: { [string]: Color3 } = {
-	alley = Color3.fromHex("8A7B6E"),
-	park = Color3.fromHex("5FB3A0"),
-	neighbourhood = Color3.fromHex("5FA8FF"),
-	woods = Color3.fromHex("2B7F4C"),
-	sewer = Color3.fromHex("6E7F86"),
-}
-
 local Areas = {}
 Areas.__index = Areas
 
@@ -69,6 +60,8 @@ local function rareShare(area: Types.AreaDef): string?
 	-- catalog odds are percentages; Format.percent takes a fraction
 	return "Epic or better " .. Format.percent(total / 100)
 end
+
+Areas.rareShare = rareShare
 
 function Areas.new(callbacks: Callbacks): Areas
 	local self = setmetatable({}, Areas) :: any
@@ -140,7 +133,7 @@ function Areas._buildCards(self: any)
 		})
 		local art: Frame = Create("Frame", {
 			Name = "Art",
-			BackgroundColor3 = AREA_COLORS[area.id] or Theme.colors.caramel,
+			BackgroundColor3 = Theme.areaColors[area.id] or Theme.colors.caramel,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(10, 10),
 			Size = UDim2.new(1, -20, 0, 78),

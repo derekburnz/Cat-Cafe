@@ -8,10 +8,9 @@ local Types = require(script.Parent.Types)
 
 local Clock = {}
 
--- v0.9 (F66): what Travel, a catch, a rescue and a shove answer while the catching areas are closed at night.
+-- v0.9 (F66): what Travel, a catch, a rescue and a shove answer while the catching areas are closed at night, and
+-- the toast for the sweep home. The dusk and sunrise banners are the client's, from the Clock attributes.
 Clock.CLOSED_TEXT = "The areas are closed at night. They open at sunrise."
-Clock.DUSK_TEXT = "Night falls in %d s! The areas close until sunrise." -- the seconds left
-Clock.SUNRISE_TEXT = "Sunrise! Fresh cats in every area."
 Clock.SENT_HOME_TEXT = "Night fell, so you headed home."
 
 -- The phase at time t and how many seconds of it are left.

@@ -3,8 +3,8 @@
 -- AreasOpen, which closes the fences on the clients; this service does the closing and opening on the server. At
 -- dusk every stray and rescue trap clears (CatService, RescueService) and anyone standing in a catching area is sent
 -- home, then again every NightSweepSeconds, a carried cat checked in on arrival. A player mid catch or rescue
--- finishes it first. DuskWarningSeconds before night, players in an area get the warning banner. At sunrise each
--- area gets its wave and its traps, then everyone gets the sunrise banner.
+-- finishes it first. At sunrise each area gets its wave and its traps. The dusk warning and sunrise banners and the
+-- dusk bell are the client's own, from the Clock attributes.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -60,30 +60,17 @@ local function nightFalls()
 	end)
 end
 
--- `announce` is false for the quiet first sunrise of a new server, before anyone has joined.
-local function sunrise(announce: boolean)
+local function sunrise()
 	nightNumber += 1
 	CatService.sunriseWave()
 	RescueService.sunrise()
-	if announce then
-		Net.fireAll("Announce", Clock.SUNRISE_TEXT)
-	end
 end
 
 local function onPhase(phase: Types.ClockPhase)
 	if phase == "night" then
 		nightFalls()
 	else
-		sunrise(true)
-	end
-end
-
-local function onDusk(secondsLeft: number)
-	local text = string.format(Clock.DUSK_TEXT, secondsLeft)
-	for _, player in Players:GetPlayers() do
-		if areaOf(player) ~= nil then
-			Net.fire(player, "Announce", text)
-		end
+		sunrise()
 	end
 end
 
@@ -91,10 +78,9 @@ end
 function NightService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	ClockService.changed:Connect(onPhase)
-	ClockService.dusk:Connect(onDusk)
 	-- ClockService published the first phase before this connected; a new server opens at sunrise (ServerStartDaySeconds)
 	if ClockService.areasOpen() then
-		sunrise(false)
+		sunrise()
 	else
 		nightFalls()
 	end

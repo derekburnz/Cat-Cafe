@@ -835,6 +835,7 @@ end
 local function buildAlleyNightFence(parent: Instance): Model
 	local fence = Instance.new("Model")
 	fence.Name = "AlleyNightFence"
+	fence.ModelStreamingMode = Enum.ModelStreamingMode.Persistent -- never streams back in with its day look (N165)
 	fence:SetAttribute("Area", "alley")
 	fence:SetAttribute("RequiresTier", 1)
 	local floor = Layout.alley.floorY

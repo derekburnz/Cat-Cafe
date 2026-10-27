@@ -12,11 +12,7 @@ return function()
 
 	describe("night closing texts (v0.9, F66)", function()
 		it("say what data-model section 9 says", function()
-			expect(string.format(Clock.DUSK_TEXT, Config.DuskWarningSeconds)).to.equal(
-				"Night falls in 15 s! The areas close until sunrise."
-			)
 			expect(Clock.CLOSED_TEXT).to.equal("The areas are closed at night. They open at sunrise.")
-			expect(Clock.SUNRISE_TEXT).to.equal("Sunrise! Fresh cats in every area.")
 			expect(Clock.SENT_HOME_TEXT).to.equal("Night fell, so you headed home.")
 		end)
 	end)

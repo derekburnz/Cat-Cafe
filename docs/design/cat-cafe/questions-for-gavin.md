@@ -13,7 +13,7 @@ Catching
 
 Cats
 
-4. Shiny colours (picture in the doc). Every cat gets its own shiny coat. Which style: A Frost (silver blue), B Gold, C Lavender or a completely different colour for each cat? Our plan: A, Frost.
+4. Shiny colours (picture in the doc). Every cat gets its own shiny coat. Which style: A Frost (silver blue), B Gold, C Lavender or a completely different colour for each cat? Our plan: A, Frost. **Answered by Derek, 2026-10-27: B, gold ("change shiny to gold and make it gold modeled").**
 
 Dealer
 

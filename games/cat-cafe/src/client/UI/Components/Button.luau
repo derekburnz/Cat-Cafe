@@ -9,6 +9,7 @@
 local UserInputService = game:GetService("UserInputService")
 
 local Create = require(script.Parent.Create)
+local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
 local Sound = require(script.Parent.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -251,6 +252,10 @@ function Button.new(props: Props): Button
 		})
 	end
 
+	if icon then
+		IconArt.set(icon, props.icon) -- the drawn picture from the icon sheet, when it has one for this glyph
+	end
+
 	local uiScale: UIScale = Create("UIScale", { Parent = root })
 
 	local self = setmetatable({}, Button) :: any
@@ -276,7 +281,7 @@ function Button.new(props: Props): Button
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
 		if icon then
-			icon.TextTransparency = if self._enabled then 0 else 0.45
+			IconArt.setTransparency(icon, if self._enabled then 0 else 0.45)
 		end
 	end
 	self._applyStyle = applyStyle

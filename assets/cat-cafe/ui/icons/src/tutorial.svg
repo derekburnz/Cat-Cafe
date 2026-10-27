@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><defs><linearGradient id="tutG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7CC4FF"/><stop offset="1" stop-color="#2E8FEA"/></linearGradient></defs>
+<g fill="#2A1C15" stroke="#2A1C15" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"><circle cx="128" cy="128" r="102"/></g>
+<circle cx="128" cy="128" r="102" fill="url(#tutG)"/>
+<ellipse cx="94" cy="70" rx="40" ry="16" transform="rotate(-30 94 70)" fill="#fff" opacity="0.4"/>
+<path d="M90,98 C90,52 166,50 166,96 C166,126 128,128 128,158" fill="none" stroke="#2A1C15" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="128" cy="200" r="24" fill="#2A1C15"/>
+<path d="M90,98 C90,52 166,50 166,96 C166,126 128,128 128,158" fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="128" cy="200" r="14" fill="#fff"/></svg>

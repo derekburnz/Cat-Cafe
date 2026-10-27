@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Create = require(script.Parent.Create)
 local FoodGrade = require(script.Parent.FoodGrade)
+local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -172,6 +173,8 @@ function ItemIcon.set(self: any, asset: string?, glyph: string, rarity: string?)
 	self.frame.BackgroundColor3 = color:Lerp(Theme.colors.cream, TILE_SHADE)
 	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)
 	self._glyph.Text = glyph
+	-- spins, crates, potions and decor tiles get the drawn icon; the Decor Index's unknown piece stays a plain "?"
+	IconArt.set(self._glyph, if glyph ~= "?" then glyph else nil)
 	if asset == self._asset and (self._model ~= nil or asset == nil) then
 		-- the same picture as before; a tile that never had a model shows its glyph (the coin tiles were blank)
 		self._glyph.Visible = self._model == nil

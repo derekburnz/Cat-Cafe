@@ -12,6 +12,7 @@
 local Button = require(script.Parent.Button)
 local CatEars = require(script.Parent.CatEars)
 local Create = require(script.Parent.Create)
+local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 
@@ -40,6 +41,7 @@ local EAR_SIZE = 46 -- the square before it turns; about 26 px pokes above the w
 local EAR_X = 0.17 -- each ear's centre, from either side
 local BADGE_SIZE = 60
 local BADGE_OVERHANG = 12 -- how far the badge sticks out past the window's top and left edges
+local BADGE_ART = 0.78 -- the drawn icon's share of the badge, inside its outline
 -- faint paw prints behind the content: x and y scale, rotation
 local PAWS: { { number } } = {
 	{ 0.06, 0.3, -20 },
@@ -241,6 +243,8 @@ function Panel.new(props: Props): Panel
 		})
 		Outline.border(badge, Theme.sizes.outline + 1)
 		Outline.shade(badge, 0.2)
+		local iconLabel = badge:FindFirstChild("Icon") :: TextLabel
+		IconArt.set(iconLabel, props.icon, BADGE_ART)
 	end
 
 	local self = setmetatable({}, Panel) :: any

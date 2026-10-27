@@ -1237,6 +1237,11 @@ function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
 	if not bar or not circleScreen then
 		return
 	end
+	-- a "circle" challenge without its circle changes nothing, so the HUD never sticks in catching mode (N75)
+	if challenge.kind == "circle" and challenge.circle == nil then
+		warn(("[CatCafeUI] rescue %q: circle challenge without its circle"):format(rescueSpotId))
+		return
+	end
 	local info = activeInfo
 	local own = info ~= nil and info.rescueSpotId == rescueSpotId
 	local catName: string? = if own and info then info.catName else nil
@@ -1250,10 +1255,7 @@ function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
 		hud:setCatching(true)
 	end
 	if challenge.kind == "circle" then
-		local circle: Types.CatchCircle? = challenge.circle
-		if circle == nil then
-			return
-		end
+		local circle = challenge.circle :: Types.CatchCircle
 		bar:hide()
 		rescueOnCircle = true
 		local header: CatchCircles.Header = {

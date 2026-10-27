@@ -3,7 +3,8 @@
 -- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray hides its
 -- prompt while it runs off after a miss, the ambience follows the zone the player stands in, the roof of
 -- the cafe the player is inside fades out, and the sky and the parts that glow at night follow the server's day and
--- night clock (features F20). All cosmetic, all local.
+-- night clock (features F20). It also follows two of the player's settings: Low performance and Show other cats.
+-- All cosmetic, all local.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -173,7 +174,7 @@ local NIGHT_LIGHTING = {
 	Brightness = 0.6,
 	OutdoorAmbient = Color3.fromRGB(45, 55, 85),
 	Ambient = Color3.fromRGB(30, 35, 55),
-	ExposureCompensation = 0.25,
+	ExposureCompensation = 0,
 	ColorShift_Top = Color3.fromRGB(150, 170, 220),
 }
 local DAY_ATMOSPHERE_DENSITY = 0.3
@@ -183,10 +184,14 @@ local LIGHTING_TWEEN = TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirect
 -- Parts that glow at night (style guide section 9): any part under the World folder whose name ends in _Bulb,
 -- _Bulbs, _Pane or _Tube, placeholder or real model. By day each keeps the look it was built with; at night it
 -- turns Neon in lamp_warm (neon_pink for a sign's tube) and its light comes on. HangingLamp bulbs are indoors
--- and lit all day, so they stay as built.
+-- and lit all day, so they stay as built. A window pane stays partly see-through at night and the lights are
+-- soft, because solid Neon panes and bright lights washed the cafe inside out to white (laptop playtest, #184).
 local LAMP_WARM = Color3.fromRGB(255, 217, 168)
 local NEON_PINK = Color3.fromRGB(255, 107, 129)
 local NIGHT_SUFFIXES = { "_Bulb", "_Bulbs", "_Pane", "_Tube" }
+local PANE_NIGHT_TRANSPARENCY = 0.3
+local GLOW_LIGHT_BRIGHTNESS = 0.8
+local GLOW_LIGHT_RANGE = 10
 
 type DayLook = { material: Enum.Material, color: Color3, transparency: number, light: Light }
 
@@ -194,6 +199,7 @@ local dayLooks: { [BasePart]: DayLook } = setmetatable({}, { __mode = "k" }) :: 
 local modelLights: { [Instance]: Light } = setmetatable({}, { __mode = "k" }) :: any
 local isNight = false
 local atmosphereDayColor: Color3? = nil
+local lowPerformance = false -- the Low performance setting: no night Light objects, shadows or post effects
 
 local function glowsAtNight(part: BasePart): boolean
 	local name = part.Name
@@ -235,8 +241,8 @@ local function lightFor(part: BasePart): Light
 		light = spot
 	else
 		local point = Instance.new("PointLight")
-		point.Range = 16
-		point.Brightness = 1.5
+		point.Range = GLOW_LIGHT_RANGE
+		point.Brightness = GLOW_LIGHT_BRIGHTNESS
 		point.Color = if isTube(part) then NEON_PINK else Color3.fromRGB(255, 214, 170)
 		light = point
 	end
@@ -252,13 +258,13 @@ local function setGlow(part: BasePart, look: DayLook)
 	if isNight then
 		part.Material = Enum.Material.Neon
 		part.Color = if isTube(part) then NEON_PINK else LAMP_WARM
-		part.Transparency = 0
+		part.Transparency = if part.Name:sub(-5) == "_Pane" then PANE_NIGHT_TRANSPARENCY else 0
 	else
 		part.Material = look.material
 		part.Color = look.color
 		part.Transparency = look.transparency
 	end
-	look.light.Enabled = isNight
+	look.light.Enabled = isNight and not lowPerformance
 end
 
 -- Records a night part's day look the first time it is seen, then gives it the current phase's look.
@@ -343,6 +349,190 @@ local function followClock()
 	end)
 end
 
+-- Low performance (Derek's settings menu): the night parts still turn Neon but their Light objects stay off, and
+-- the place's global shadows and its Bloom, SunRays and DepthOfField go off. Turning it back restores what the
+-- place had. Effects follows the same setting for particles (Effects.applySettings).
+local savedShadows: boolean? = nil
+local savedPostEffects: { [PostEffect]: boolean } = {}
+
+local function setLowPerformance(on: boolean)
+	if on == lowPerformance then
+		return
+	end
+	lowPerformance = on
+	for part, look in dayLooks do
+		setGlow(part, look)
+	end
+	if on then
+		savedShadows = Lighting.GlobalShadows
+		Lighting.GlobalShadows = false
+		for _, child in Lighting:GetChildren() do
+			if
+				child:IsA("BloomEffect")
+				or child:IsA("SunRaysEffect")
+				or child:IsA("DepthOfFieldEffect")
+			then
+				local effect = child :: PostEffect
+				savedPostEffects[effect] = effect.Enabled
+				effect.Enabled = false
+			end
+		end
+	else
+		if savedShadows ~= nil then
+			Lighting.GlobalShadows = savedShadows
+			savedShadows = nil
+		end
+		for effect, enabled in savedPostEffects do
+			effect.Enabled = enabled
+		end
+		table.clear(savedPostEffects)
+	end
+end
+
+-- Show other cats (Derek's settings menu): off hides every cat another player owns, in their cafe, at their bait
+-- bowl and in their arms, on this client only. A hidden cat's parts get LocalTransparencyModifier 1, its
+-- billboards turn off, and it carries the local attribute HiddenLocal = true so Effects can skip it.
+local showOtherCats = true
+local hiddenCats: { [Model]: { [Instance]: boolean } } = {} -- each hidden cat's billboards and their Enabled before
+
+local function isOtherCat(instance: Instance): boolean
+	if not instance:IsA("Model") or instance:GetAttribute("CatId") == nil then
+		return false
+	end
+	if instance.Name == "HeldCat" then
+		local character = instance.Parent
+		local owner = if character ~= nil and character:IsA("Model")
+			then Players:GetPlayerFromCharacter(character :: Model)
+			else nil
+		return owner ~= nil and owner ~= player
+	end
+	local ownerId = instance:GetAttribute("OwnerUserId")
+	return type(ownerId) == "number" and ownerId ~= 0 and ownerId ~= player.UserId
+end
+
+local function setCatHidden(model: Model, hidden: boolean)
+	if (hiddenCats[model] ~= nil) == hidden then
+		return
+	end
+	local billboards: { [Instance]: boolean } = {}
+	if hidden then
+		hiddenCats[model] = billboards
+		model:SetAttribute("HiddenLocal", true)
+	else
+		billboards = hiddenCats[model] or billboards
+		hiddenCats[model] = nil
+		model:SetAttribute("HiddenLocal", nil)
+	end
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			(descendant :: BasePart).LocalTransparencyModifier = if hidden then 1 else 0
+		elseif descendant:IsA("BillboardGui") then
+			local gui = descendant :: BillboardGui
+			if hidden then
+				billboards[gui] = gui.Enabled
+				gui.Enabled = false
+			elseif billboards[gui] ~= nil then
+				gui.Enabled = billboards[gui]
+			end
+		end
+	end
+end
+
+-- A cat that arrives while Show other cats is off is hidden whole; a part or billboard that arrives later under a
+-- hidden cat (an outfit piece, a name tag) is hidden with it (review N137).
+local function considerCat(instance: Instance)
+	if not showOtherCats and isOtherCat(instance) then
+		setCatHidden(instance :: Model, true)
+		return
+	end
+	if next(hiddenCats) == nil then
+		return
+	end
+	local hiddenModel = instance:FindFirstAncestorWhichIsA("Model") :: Model?
+	while hiddenModel ~= nil and hiddenCats[hiddenModel] == nil do
+		hiddenModel = hiddenModel:FindFirstAncestorWhichIsA("Model") :: Model?
+	end
+	if hiddenModel == nil then
+		return
+	end
+	if instance:IsA("BasePart") then
+		(instance :: BasePart).LocalTransparencyModifier = 1
+	elseif instance:IsA("BillboardGui") then
+		local gui = instance :: BillboardGui
+		hiddenCats[hiddenModel][gui] = gui.Enabled
+		gui.Enabled = false
+	end
+end
+
+local function eachOtherCat(visit: (Model) -> ())
+	local world = Workspace:FindFirstChild("World")
+	local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
+	if plots ~= nil then
+		for _, descendant in plots:GetDescendants() do
+			if isOtherCat(descendant) then
+				visit(descendant :: Model)
+			end
+		end
+	end
+	for _, other in Players:GetPlayers() do
+		local held = if other ~= player and other.Character ~= nil
+			then other.Character:FindFirstChild("HeldCat")
+			else nil
+		if held ~= nil and isOtherCat(held) then
+			visit(held :: Model)
+		end
+	end
+end
+
+local function setShowOtherCats(on: boolean)
+	if on == showOtherCats then
+		return
+	end
+	showOtherCats = on
+	if on then
+		for model in hiddenCats do
+			setCatHidden(model, false)
+		end
+	else
+		eachOtherCat(function(model)
+			setCatHidden(model, true)
+		end)
+	end
+end
+
+-- Watches for cats that arrive while Show other cats is off: a cafe's cats are rebuilt on every refresh, and a
+-- carried cat is a HeldCat model under its carrier's character.
+local function watchOtherCats()
+	local function watchCharacter(character: Model)
+		character.DescendantAdded:Connect(considerCat)
+	end
+	local function watchPlayer(other: Player)
+		if other == player then
+			return
+		end
+		other.CharacterAdded:Connect(watchCharacter)
+		if other.Character ~= nil then
+			watchCharacter(other.Character)
+		end
+	end
+	Players.PlayerAdded:Connect(watchPlayer)
+	for _, other in Players:GetPlayers() do
+		watchPlayer(other)
+	end
+	task.spawn(function()
+		local world = Workspace:WaitForChild("World")
+		local plots = world:WaitForChild("Plots")
+		plots.DescendantAdded:Connect(considerCat)
+	end)
+end
+
+-- Follows the two switches as the Settings screen shows them (a tap at once, then the saved value), read on every
+-- tick of the loop below once the first sync is in; both setters do nothing while their value is unchanged.
+local function applySettings()
+	setLowPerformance(UI.settings.value("lowPerformance"))
+	setShowOtherCats(UI.settings.value("showOtherCats"))
+end
+
 -- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
 function WorldController.zoneAt(position: Vector3): string?
 	return zoneAt(position)
@@ -350,6 +540,7 @@ end
 
 function WorldController.start()
 	task.spawn(followClock)
+	watchOtherCats()
 
 	for _, model in CollectionService:GetTagged("Stray") do
 		watchStray(model)
@@ -371,6 +562,7 @@ function WorldController.start()
 			if state == nil then
 				continue
 			end
+			applySettings()
 
 			local world = Workspace:FindFirstChild("World")
 			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil

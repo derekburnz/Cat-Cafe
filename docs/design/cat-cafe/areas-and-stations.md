@@ -20,15 +20,15 @@ Part A gives each locked area a theme, a layout, its landmarks, where strays hid
 
 ### A2. Neighbourhood (Tier 3): a sunny cul-de-sac
 
-Look: a pastel suburb at the end of a quiet street. Five or six house fronts face a loop road, with front lawns and low picket fences. Gaps in the fences lead to two back gardens, and cats squeeze through those gaps. By day the sprinklers tick and a radio plays somewhere. At night porch lights and windows glow, one window has a cat silhouette and crickets chirp.
+Look: a pastel suburb at the end of a quiet street. Nine house fronts line a short entry street and a loop road, with front lawns and low picket fences. Gaps in the fences lead to two back gardens, and cats squeeze through those gaps. By day the sprinklers tick and a radio plays somewhere. At night porch lights and windows glow, one window has a cat silhouette and crickets chirp.
 
 Borrowed from: Brookhaven and Welcome to Bloxburg (suburban lots with driveways, mailboxes and lawns), Adopt Me (a friendly neighbourhood of houses), Pet Simulator 99's Backyard and Cozy Village (fenced yards, sheds and garden clutter).
 
-Layout: the gate opens onto the loop road. The circle in the middle of the loop is the hub: a playground with a slide, swings and a sandbox under a big oak with a tyre swing. Houses ring the loop, and the two back gardens sit behind them.
+Layout (Derek approved the look on 2026-10-27 at 15:26 and asked to "extend it a little bigger"): the gate opens onto Whisker Lane, an entry street about 50 studs long with two houses on each side and their driveways, which ends in the loop road. The circle in the middle of the loop is the hub: a playground with a slide, swings and a sandbox under a big oak with a tyre swing. Five houses ring the loop, and the two back gardens sit behind them. The whole area is about 140 x 140 studs, bigger than the 100 x 90 minimum, with 18 spawn points.
 
 Landmarks: the playground and the tyre swing oak, a parked ice cream van (decor only, no shop), a garage with its door half up, a kiddie pool and a trampoline in one back garden, a BBQ grill and garden gnomes in the other.
 
-Strays hide: on porch steps and under porch benches, in flower beds, on fence tops, under the slide, in the sandbox, on the trampoline, behind recycling bins, under the ice cream van.
+Strays hide: on porch steps and under porch benches, on the driveways along Whisker Lane, in flower beds, on fence tops, under the slide, in the sandbox, on the trampoline, behind recycling bins, under the ice cream van.
 
 Rescue traps:
 - `shed`, kind `bar`: a cat is stuck in a garden shed with a jammed door, and the bar wiggles the door loose.

@@ -51,6 +51,7 @@ UI.init({
         tipJar = Catalog.tipJar,      -- {TipJarRow}, F47: the Tip Jar's twelve playtime gifts
         indexMilestones = Catalog.indexMilestones,  -- {IndexMilestone}, F48: the Index's milestones
         indexPrizes = Catalog.indexPrizes,          -- F48: area id -> milestone id -> IndexPrize
+        spinWheel = Catalog.spinWheel,  -- {SpinSlice}, F49: the Spin Wheel's six slices in wheel order
         rarities = Catalog.rarities,  -- {[Rarity]: RarityDef}: the cat room's sell prices (sellValue)
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
@@ -175,6 +176,10 @@ The HUD's right column has a next goal card under the clock (Pet Simulator 99 qu
 
 Each menu pill gets a red "!" dot when its screen has something new (`Notices.luau`): an upgrade level or decor item the player can now afford and is allowed to buy, or a cat or gold coat added to the collection since the Index was last open (cats caught before the session are not news). Opening the screen clears its dot, and anything that appears while it is open counts as seen. No new fields: it reads the state the UI already gets.
 
+### Bigger pictures and fold tabs (built, Derek 2026-10-27)
+
+The HUD's pills and bottom row draw their emoji as a picture bigger than the text, at the left of the button (`Button` prop `iconSize`: 36 px on the menu pills, 28 on Equip Best, Alley and Areas, 40 on My Cafe, 26 on Drop); the pills are 192 wide and the bottom row buttons 136 to fit it, and text next to a big picture reads from it, shrinking or wrapping rather than cut off. The top right tiles (Gifts, Settings, Invite) are 58 square with a bigger icon. Two ghost arrow tabs cut clutter, like the collapse arrows in other simulators: "◀" under the menu pills slides them off the left edge ("▶" brings them back), and "▼" right of the bottom row slides it below the screen ("▲"). Key binds keep working while folded, and the menu tab shows a red dot while a folded pill has one. Folding is per session and needs nothing from the engineer (`hud:setMenuFolded`, `hud:setTravelFolded`).
+
 ### Collection Index (built, F39 P1)
 
 Copied from the Pet Simulator index. The Index tab (`UI.openCollection("Index")`; it was the Book until 2026-10-27) opens on a row of area tabs in tier order, each in its area colour when open, reading "3 / 10", "Complete!" or "Tier 4" for an area the player has not reached and found nothing in. Under it the open area's name, a progress bar in the area colour (gold when complete) and "3 / 10 · 30%". The grid shows that area's cats, rarest last, as still 3D models from `ReplicatedStorage.Assets` on a disc in the rarity colour; a cat not found yet is a dark silhouette with "???" and its rarity. A Gold pill marks cats in `state.goldCollection`; the Index shows the base coat, while the cat room cards, the catch reveal and the bait card show a gold cat in its own coat (`Catalog.goldModelName`, F42, falling back to the base model). The panel title reads "12 / 50 found · 24%". Tapping a cell fills the detail strip with the same model (or silhouette). A cell's model is cloned the first time its area opens, so the Index never holds more than the areas the player has looked at. No new fields: it reads `catalog.areas`, `cat.area`, `state.collection`, `state.catsOwned` and `state.goldCollection`.
@@ -187,14 +192,14 @@ Copied from the Pet Simulator index. The Index tab (`UI.openCollection("Index")`
 
 Derek: "symbols to locations also that disappear when close enough so its not clutter", and the cafe street counts as safe.
 
-- **Location markers** (`Screens/LocationMarkers.luau`, nothing to call): a round icon with the name and distance ("120 m") over My Cafe (gold 🏠, over the own `Plot`'s pivot), every area (its icon and colour, over the `AreaGate` model's pivot, else the middle of its biggest `World.Zones` box) and the night dealer's cart (🛒, tag `DealerCart` while `Open`). Seen through walls from anywhere; each fades out between 60 and 30 studs (`Components/Wayfinding.luau`, with a spec), so the place in front of the player is never covered. A locked area's icon is grey and reads "🔒 Tier 3 · 120 m". My Cafe hides while carrying (the carry marker leads to the door) and the area the player stands in hides its own. Points come from model pivots and the persistent Zones boxes, so they show before the parts stream in.
+- **Location markers** (`Screens/LocationMarkers.luau`, nothing to call): a round icon with the name and distance ("120 m") over My Cafe (gold 🏠, over the own `Plot`'s pivot), every area (its icon and colour, over the `AreaGate` model's pivot, else the middle of its biggest `World.Zones` box), the night dealer's cart (🛒, tag `DealerCart` while `Open`) and the Plaza (🎡, over the `SpinWheel` station, with a red dot while a free spin waits; see Spin Wheel). Seen through walls from anywhere; each fades out between 60 and 30 studs (`Components/Wayfinding.luau`, with a spec), so the place in front of the player is never covered. A locked area's icon is grey and reads "🔒 Tier 3 · 120 m". My Cafe hides while carrying (the carry marker leads to the door) and the area the player stands in hides its own. Points come from model pivots and the persistent Zones boxes, so they show before the parts stream in.
 - **Safe zone chip** (`Screens/ZoneChip.luau`): a pill under the tier pill, "🛡️ Safe zone" in green on the street and in the cafes, "🐾 Catching area · shoves on" in orange in an area. Walking from an area back to the street pops it and toasts "Safe zone: no shoving here" at most once every 20 s, so walking along an area's open edge does not repeat it. **Engineer:** call `UI.setZone(zone)` with the `World.Zones` name each time the controller's zone check changes (next to `Audio.setZone`); the chip stays hidden until the first call.
 
-### Settings (built, UI plan 2026-10-27, wave 2)
+### Settings (built, UI plan 2026-10-27, wave 2; v2 the same day)
 
-A gear in the HUD's top-right icon row (left of Invite) opens Settings (`Screens/Settings.luau`, rows and logic in `Components/SettingsList.luau` with a spec): a cocoa window with one row per setting, its icon, name, a line on what it does and a chunky green ON or red OFF switch, like the settings lists of Pet Simulator 99 and Grow a Garden. The rows: 🎵 Music, 🔊 Sound effects and 📍 Place icons (the location markers). Every setting is on until the player turns it off. A tap flips the switch at once and fires `events.setSetting(key, value)`; the switch then follows `state.settings` from ProfileSync, keeping the tap for 5 s while the server catches up. A key the server does not save yet keeps the tap for the session, so Place icons works before `markers` is in the profile. Place icons hides every location marker while off.
+A gear in the HUD's top-right icon row (left of Invite) opens Settings (`Screens/Settings.luau`, rows and logic in `Components/SettingsList.luau` with a spec): a cocoa window like the settings lists of Pet Simulator 99 and Grow a Garden, in two sections. **Sound:** 🎵 Music (switch), 🎚️ Music volume (slider), 🔊 Sound effects (switch), 🔉 Sound volume (slider). **Screen:** 📳 Screen shake, 🐢 Low performance, 🐈 Other players' cats and 📍 Place icons (the location markers), all switches. Each row has its icon, name and a line on what it does; a switch is a chunky green ON or red OFF button, a volume a bar with a round knob, a percent and "−" and "+" buttons (10% a press, for gamepads). Every key starts at `shared/Settings.defaults()`: on and at full volume, except Low performance, which starts off (N122). A tap flips a switch at once and fires `events.setSetting(key, value)`. A slider follows the finger live and fires `setSetting(key, volume)` once on release, and "−" or "+" after a 0.5 s pause, since SetSetting is limited to 4 a second and only the last value matters (N120); volumes move in 5% steps, so the server's two decimals match. The row then follows `state.settings` from ProfileSync, keeping the player's choice for 5 s while the server catches up. A volume slider greys while its switch is off. Place icons hides every location marker while off, and Screen shake off also stops the catch circles' and the rescue bar's wobble (`Components/Motion.luau`, with Roblox's reduced motion).
 
-**Engineer:** pass `settings = s.settings` in `UI.update` (cast `:: any` if the sealed table type complains). Forward `events.setSetting(key, value)` as `SetSetting(key, value)`: the server accepts only `"music"`, `"sfx"` (and `"markers"` once the data model has it) with a boolean, rate-limits it, saves it to `profile.settings` and sends it back in ProfileSync. On the client, apply music and sfx to Audio from `UI.settings.changed(key, on)` instead of from `s.settings` (read `UI.settings.value("music")` and `"sfx"` once after `UI.init` for the start): it fires on the tap (so the music stops at once), on the server's answer and when a tap the server dropped falls back, so a sync sent before the server saw the tap cannot flip the music back during the hold (review N111).
+**Engineer:** pass `settings = s.settings` in `UI.update` (cast `:: any` if the sealed table type complains). Forward `events.setSetting(key, value)` as `SetSetting(key, value)` for any value `Settings.clean` accepts (booleans for switches, 0 to 1 for volumes; PR #215 saves every key). On the client, apply settings from `UI.settings.changed(key, value)` instead of from `s.settings` (read `UI.settings.value(key)` for switches and `UI.settings.volume(key)` for `musicVolume` and `sfxVolume` once after `UI.init` for the start): it fires on the tap or while a volume drags (so the sound follows at once), on the server's answer and when a choice the server dropped falls back, so a sync sent before the server saw the change cannot undo it during the hold (review N111). Audio reads music, sfx and the volumes; Effects reads `screenShake` and `lowPerformance` (VFX #216); `showOtherCats` is for whoever hides other players' cats.
 
 ### Tip Jar (built, F47, data-model section 11b)
 
@@ -208,6 +213,25 @@ The twelve free playtime gifts of the session, like the Free Gifts grid in Pet S
 | `events.claimTipJar(step)` | Forward as `ClaimTipJar(step)`. |
 
 Coin cards show `max(minCoins, floor(dayRate * seconds))` with the day rate worked back from `incomePerSecond` at night (`NightIncomeMultiplier`); the server's figure at claim time is final.
+
+### Spin Wheel (built, F49, data-model section 11c, areas-and-stations B3)
+
+Derek: "things like spins could be an area you walk up to". The wheel is a station in the street plaza, not a HUD button. Holding E on its "Spin" prompt opens the **Spin Wheel** window (`Screens/SpinWheel.luau`, sums in `Components/SpinLogic.luau` with a spec), like Pet Simulator 99's wheel: on the left a wheel of six round prize tiles in the Cozy Cream pastels (the food's picture or 💰, the chance, "x3" for more than one) on a cream face with spokes, a caramel rim with gold lights, a paw hub and a red pointer at the top; on the right "Prizes and chances" (a swatch, the prize as "$1,200" or "3 Tuna", and "30%" for every slice), "Spins: 2", "Free spin ready!" or "Next free spin in 5h 12m" (plus "· 1 saved" for banked spins) and a big gold Spin button. Nothing in the window mentions Robux (N126).
+
+Spin fires `events.spinWheel()` and the button shows "..." until `SpinResult` (5 s at most). On a slice, the wheel turns clockwise for `SpinCooldownSeconds` (4 s; 1.5 s and two turns with Reduced Motion) and stops in the middle of that slice (N127). It slows at a steady rate (Quad Out), so it crosses into the prize's slice at about two slices a second and never crawls past a bigger prize. The landed tile pops with a gold burst and a gold ring, and "You won 3 Tuna!" shows under the button, using the paid `amount`. The button stays off until the wheel has landed and the cooldown has passed. Slice 0 says why: "Next free spin in 5h 12m" with no spin left, else "Walk up to the wheel and try again". The window closes itself when the player walks more than `SpinStationRange` + 2 studs from the nearest `SpinWheel` station (N132); a prize that lands while it is closed is a toast ("Spin Wheel: You won $1,200!").
+
+The **Plaza** location marker (🎡, orange) sits 16 studs over the `SpinWheel` station's pivot, fades up close like the others, and shows a red dot while today's free spin waits (from `state.spin` and `GetServerTimeNow()`; no dot before the first `spin` arrives). In the Tip Jar, a gift with `spins` wears a pink "🎡 +1 spin" badge until claimed, or a grey "Spins full" while `spin.banked` is at `SpinBankCap` (20), since the server then drops the spin and pays the rest.
+
+| API | Purpose |
+|---|---|
+| `catalog.spinWheel` | `Catalog.spinWheel`: `{ { slice, kind = "coins" \| "lure", seconds?, minCoins?, lureId?, count?, weight } }` in wheel order, clockwise from the top. Chances are `weight` over the sum. No rows, no Spin. |
+| `state.spin` | From ProfileSync: `{ lastFreeDay, banked }`. Pass it in `UI.update`. |
+| `catalog.tipJar[i].spins` | Optional: spins the gift also banks (steps 11 and 12). |
+| `UI.spin.open()` | Opens the window. Call it from the station's `SpinPrompt` `Triggered`. |
+| `UI.spin.result(slice, amount)` | From `SpinResult(slice, amount)`: `amount` is the coins paid or the number of foods. `(0, 0)` means refused. |
+| `events.spinWheel()` | Forward as `SpinWheel()`. |
+
+Sounds: `uiSpinStart` when the wheel starts, `uiSpinTick` as each slice passes the pointer, `uiSpinWin` on landing (Sound-Agent adds the files); a refusal plays `uiError`. Coin estimates in the list use the day rate worked back from `incomePerSecond`, as in the Tip Jar; the server's figure is final.
 
 ### Index rewards (built, F48, data-model section 11b)
 
@@ -328,7 +352,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `claimTipJar` | `step` | Claim on a ready Tip Jar gift. Forward as `ClaimTipJar(step)` (F47). |
 | `claimIndexReward` | `areaId, milestoneId` | Claim on a reached Index reward card. Forward as `ClaimIndexReward(areaId, milestoneId)` (F48). |
-| `setSetting` | `key, value` | A switch on the Settings screen: `"music"`, `"sfx"` or `"markers"`, and the new boolean. Forward as `SetSetting`; Audio follows `UI.settings.changed` (see Settings). |
+| `spinWheel` | none | Spin on the Spin Wheel window. Forward as `SpinWheel()` (F49); the server checks the range, spins and cooldown, pays and answers `SpinResult`. |
+| `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |
 | `rescuePressed` | `rescueSpotId` | A press on the rescue bar or the tree's catch circle. Forward as `RescuePress(rescueSpotId)` (F27) |
@@ -358,8 +383,9 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 50 count
     goldCollection: { [catId]: firstGoldAt }?,                     -- the Index's Gold pill (was shinyCollection before 2026-10-27)
     carrying: string?, tutorialStep: number?,
-    settings: { music: boolean, sfx: boolean, markers: boolean? }?, -- profile.settings; a missing key reads as on
+    settings: { [key]: boolean | number }?,                        -- profile.settings (shared/Settings); a missing key reads as its default
     indexRewards: { [areaId]: { [milestoneId]: true } }?,           -- F48: claimed Index rewards; missing reads as none
+    spin: { lastFreeDay: number, banked: number }?,                 -- F49: the free spin's UTC day and banked spins
 }
 ```
 

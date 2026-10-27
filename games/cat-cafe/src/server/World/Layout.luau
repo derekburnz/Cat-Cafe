@@ -615,9 +615,13 @@ Layout.sewer = {
 	},
 } :: AreaSpec
 
--- The night dealer's cart (data-model section 8b) parks mid-street between the middle rows of cafes, along the
--- street with its display side (-Z of the model) toward the west row. The dealer stands at the cart's +X end.
-Layout.dealerCart = { x = 0, y = 0.1, z = 0, rotY = 90 } :: Point
+-- The street plaza (areas-and-stations B2): the street's north end in front of the arch into the Alley Square, by
+-- the player spawn and in the safe zone. The Spin Wheel station (F49) stands on the west half facing south (-Z)
+-- down the street, the night dealer's cart (data-model section 8b) parks on the east half with its display side
+-- (-Z of the model) toward the wheel, and the middle stays clear for the walk to the arch. The dealer stands at
+-- the cart's +X end. The farthest cafe door is about 150 studs away, under 8 seconds at NormalWalkSpeed.
+Layout.spinWheel = { x = -7.5, y = 0.1, z = 79, rotY = 0 } :: Point
+Layout.dealerCart = { x = 8, y = 0.1, z = 79, rotY = 90 } :: Point
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 
 -- The manhole in the middle of the Alley Square (world-and-feel.md section 2: "the Sewer down a manhole in the

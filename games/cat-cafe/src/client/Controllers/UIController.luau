@@ -329,17 +329,16 @@ local function refreshRichTip()
 	end)
 end
 
--- The switches read as the Settings screen shows them: a tap at once, then the server's saved value, and back to it
--- if the server dropped the tap (ui-contract Settings, review N111). Every other key of shared/Settings (volumes,
--- screen shake, low performance) is read from the last saved settings until the screen shows it.
-local SCREEN_SWITCHES = { music = true, sfx = true }
+-- Every key of shared/Settings reads as the Settings screen shows it: a tap or a drag step at once, then the
+-- server's saved value, and back to it if the server dropped the change (ui-contract Settings, reviews N111 and
+-- N139). UI.update hands the screen each sync's saved values, so the first read after the first sync matches the save.
 local audioStarted = false -- Audio waits for the first ProfileSync, so a muted player never hears music start
 
 local function setting(key: string): any
-	if SCREEN_SWITCHES[key] then
-		return UI.settings.value(key)
+	if Settings.kinds[key] == "volume" then
+		return UI.settings.volume(key)
 	end
-	return if state ~= nil then (state.settings :: any)[key] else nil
+	return UI.settings.value(key)
 end
 
 -- Audio's channels and volumes and the Effects switches, from the settings above. Both skip what has not changed.
@@ -354,16 +353,6 @@ local function applySettings()
 		screenShake = setting("screenShake"),
 		lowPerformance = setting("lowPerformance"),
 	})
-end
-
--- True when a saved setting the screen does not show moved between two syncs.
-local function savedSettingsMoved(before: Types.Settings, after: Types.Settings): boolean
-	for key in Settings.kinds do
-		if not SCREEN_SWITCHES[key] and (before :: any)[key] ~= (after :: any)[key] then
-			return true
-		end
-	end
-	return false
 end
 
 local function applyState(s: Types.PlayerState)
@@ -398,13 +387,12 @@ local function applyState(s: Types.PlayerState)
 		tutorialStep = s.tutorialStep,
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
+		spin = s.spin, -- F49: the free spin and the banked ones, for the Spin window
 	})
-	-- After the first sync, music and sound follow the Settings switches rather than each sync; the purr follows the
+	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
 	if not audioStarted then
 		audioStarted = true
-		applySettings()
-	elseif previous ~= nil and savedSettingsMoved(previous.settings, s.settings) then
 		applySettings()
 	end
 	Audio.setCarrying(s.carrying ~= nil)
@@ -431,8 +419,9 @@ local function wireIntents()
 			Net.fire("SetSetting", key, value)
 		end
 	end)
-	UI.settings.changed:Connect(function(key: string)
-		if audioStarted and SCREEN_SWITCHES[key] then
+	-- Live while a volume drags, so the slider's tick plays at the new volume.
+	UI.settings.changed:Connect(function()
+		if audioStarted then
 			applySettings()
 		end
 	end)
@@ -442,6 +431,10 @@ local function wireIntents()
 	end)
 	UI.events.claimTipJar:Connect(function(step: number)
 		Net.fire("ClaimTipJar", step)
+	end)
+	-- Spin on the Spin window (F49); the server answers with SpinResult and a ProfileSync.
+	UI.events.spinWheel:Connect(function()
+		Net.fire("SpinWheel")
 	end)
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
@@ -631,6 +624,37 @@ local function bindDealerCart()
 	end
 end
 
+-- The Spin Wheel station in the street plaza (F49): its "Spin" prompt opens the Spin window, which closes itself
+-- when the player walks out of range. The station is the server's, tagged SpinWheel and Persistent; a prompt that
+-- streams in after its model is bound too, and each prompt only once.
+local function bindSpinStations()
+	local bound: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+	local function bindPrompt(instance: Instance)
+		if
+			bound[instance]
+			or instance.Name ~= "SpinPrompt"
+			or not instance:IsA("ProximityPrompt")
+		then
+			return
+		end
+		bound[instance] = true
+		local prompt = instance :: ProximityPrompt
+		prompt.Triggered:Connect(function()
+			UI.spin.open()
+		end)
+	end
+	local function station(instance: Instance)
+		for _, descendant in instance:GetDescendants() do
+			bindPrompt(descendant)
+		end
+		instance.DescendantAdded:Connect(bindPrompt)
+	end
+	CollectionService:GetInstanceAddedSignal("SpinWheel"):Connect(station)
+	for _, instance in CollectionService:GetTagged("SpinWheel") do
+		station(instance)
+	end
+end
+
 -- Analytics only (F16): the device kind goes on the onboarding funnel's joined step and on session_end. Sent on the
 -- first ProfileSync, when the server's telemetry session is sure to exist (reviewer S49).
 local deviceReported = false
@@ -701,6 +725,10 @@ local function wireServerEvents()
 			end
 		end
 		tipJarClaimed = table.clone(jar.claimed)
+	end)
+	-- The slice a spin landed on and its coins or foods; 0, 0 when the server refused it (F49).
+	Net.on("SpinResult", function(slice: number, amount: number)
+		UI.spin.result(slice, amount)
 	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
 		UI.dealer.setStock(stock)
@@ -875,6 +903,7 @@ function UIController.start()
 		tipJar = Catalog.tipJar,
 		indexMilestones = Catalog.indexMilestones,
 		indexPrizes = Catalog.indexPrizes,
+		spinWheel = Catalog.spinWheel,
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({
@@ -892,6 +921,7 @@ function UIController.start()
 	wireIntents()
 	wireServerEvents()
 	bindDealerCart()
+	bindSpinStations()
 	startPrediction()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))

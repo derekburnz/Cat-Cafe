@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-60 files: 60 PASS, 0 WARN, 0 FAIL.
+61 files: 61 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -48,8 +48,6 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_StrayFlee.ogg` | sfx | 0.55 | 1 | 48000 | 9 | -20.1 | -3.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StraySprint.ogg` | sfx | 1.00 | 1 | 48000 | 16 | -23.2 | -4.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_TravelPoof.ogg` | sfx | 0.95 | 1 | 48000 | 12 | -19.5 | -3.7 | 0 | - | PASS |  |
-| `sfx/CatCafe_Sfx_WheelTick.ogg` | sfx | 0.05 | 1 | 48000 | 4 | - | -5.8 | 0 | - | PASS |  |
-| `sfx/CatCafe_Sfx_WheelWin.ogg` | sfx | 1.40 | 1 | 48000 | 17 | -17.9 | -2.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneArea.ogg` | sfx | 0.50 | 1 | 48000 | 7 | -22.9 | -9.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneSafe.ogg` | sfx | 0.75 | 1 | 48000 | 9 | -20.6 | -9.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Badge.ogg` | ui | 0.11 | 1 | 48000 | 4 | - | -11.0 | 0 | - | PASS |  |
@@ -63,6 +61,9 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `ui/CatCafe_Ui_RankReady.ogg` | ui | 0.75 | 1 | 48000 | 9 | -15.7 | -4.7 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Rename.ogg` | ui | 0.50 | 1 | 48000 | 8 | -17.6 | -7.3 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Slider.ogg` | ui | 0.04 | 1 | 48000 | 4 | - | -12.1 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_SpinStart.ogg` | ui | 0.60 | 1 | 48000 | 11 | -18.8 | -5.9 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_SpinTick.ogg` | ui | 0.05 | 1 | 48000 | 4 | - | -5.8 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_SpinWin.ogg` | ui | 1.40 | 1 | 48000 | 17 | -17.9 | -2.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Tab.ogg` | ui | 0.04 | 1 | 48000 | 4 | - | -9.1 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Toast.ogg` | ui | 0.30 | 1 | 48000 | 5 | - | -6.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Toggle.ogg` | ui | 0.09 | 1 | 48000 | 5 | - | -8.0 | 0 | - | PASS |  |

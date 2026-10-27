@@ -39,6 +39,24 @@ export type Catalog = {
 	indexMilestones: { IndexMilestone }?, -- F48: the Index's milestones, the same on every area page
 	indexPrizes: { [string]: { [string]: IndexPrize } }?, -- F48: area id -> milestone id -> prize (S61: not indexRewards)
 	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
+	spinWheel: { SpinRow }?, -- F49: the Spin Wheel's six slices, clockwise from the top (data-model section 11c)
+}
+
+-- One Spin Wheel slice (F49): the Tip Jar row's prize plus a weight; the weights add up to 100.
+export type SpinRow = {
+	slice: number,
+	kind: string, -- "coins" or "lure"
+	seconds: number?,
+	minCoins: number?,
+	lureId: string?,
+	count: number?,
+	weight: number,
+}
+
+-- state.spin (F49): lastFreeDay is the UTC day number (floor(serverTime / 86400)) of the last free spin.
+export type SpinState = {
+	lastFreeDay: number,
+	banked: number,
 }
 
 -- One Tip Jar gift (F47): unlocks `minutes` into the session; coins pay max(minCoins, dayRate * seconds).
@@ -50,6 +68,7 @@ export type TipJarRow = {
 	minCoins: number?,
 	lureId: string?,
 	count: number?,
+	spins: number?, -- F49: Spin Wheel spins it also banks (steps 11 and 12), up to SpinBankCap
 }
 
 -- An Index milestone (F48, data-model section 11b): `need` of the area's cats found, or as gold cats.
@@ -114,8 +133,9 @@ export type PlayerState = {
 	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
-	settings: { [string]: boolean }?, -- profile.settings: music, sfx, later markers; a missing key reads as on
+	settings: { [string]: boolean | number }?, -- profile.settings (shared/Settings): switches and 0 to 1 volumes
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
+	spin: SpinState?, -- F49: the free spin and the banked ones
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -138,8 +158,9 @@ export type PartialState = {
 	goldCollection: { [string]: number }?,
 	carrying: string?,
 	tutorialStep: number?,
-	settings: { [string]: boolean }?,
+	settings: { [string]: boolean | number }?,
 	indexRewards: { [string]: { [string]: boolean } }?,
+	spin: SpinState?,
 }
 
 export type ScreenName =
@@ -152,6 +173,7 @@ export type ScreenName =
 	| "Dealer"
 	| "Settings"
 	| "TipJar"
+	| "Spin"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

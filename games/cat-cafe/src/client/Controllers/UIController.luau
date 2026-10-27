@@ -141,6 +141,19 @@ local function refreshTutorial(s: Types.PlayerState)
 		end
 	elseif s.tutorialStep == 3 then
 		UI.tutorial.show("Buy your first table in Upgrades (U): more tips from every cat")
+	elseif s.tutorialStep == 4 then
+		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
+		if (s.upgradeLevels.lure_bowl or 0) < 1 then
+			UI.tutorial.show(
+				"Buy the Bait bowl in Upgrades (U): put food in and a cat comes by in 10 minutes, even while you're away"
+			)
+		else
+			UI.tutorial.show(
+				"Open the Bait bowl (F), buy Kibble and put it in. A cat comes by in 10 minutes",
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
+		end
 	else
 		UI.tutorial.hide()
 	end

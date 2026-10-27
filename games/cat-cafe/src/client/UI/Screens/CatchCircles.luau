@@ -15,13 +15,13 @@
 -- w x speed pixels either side of the ring. Good is the wide green band, Perfect the thin gold one.
 
 local ContextActionService = game:GetService("ContextActionService")
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -111,9 +111,9 @@ local function now(): number
 	return Workspace:GetServerTimeNow()
 end
 
--- A quick sideways shake, skipped when the player asked for reduced motion.
+-- A quick sideways shake, skipped when the player turned Screen shake off or asked for reduced motion.
 local function wobble(label: GuiObject)
-	if GuiService.ReducedMotionEnabled then
+	if not Motion.canShake() then
 		return
 	end
 	local base = label.Position

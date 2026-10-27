@@ -122,6 +122,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
+		introSeen = profile.introSeen,
 		settings = Settings.copy(profile.settings),
 		serverTime = now,
 	}

@@ -57,6 +57,11 @@ local function ownPlot(): Model?
 	return if plot ~= nil and plot:IsA("Model") then plot :: Model else nil
 end
 
+-- This player's cafe under World.Plots, or nil before it has one (the intro fades its roof, F72).
+function UIController.ownPlot(): Model?
+	return ownPlot()
+end
+
 function UIController.ownDoor(): BasePart?
 	local plot = ownPlot()
 	local door = if plot ~= nil then plot:FindFirstChild("Door") else nil
@@ -385,6 +390,7 @@ local function applyState(s: Types.PlayerState)
 		goldCollection = s.goldCollection,
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
+		introSeen = s.introSeen, -- F72: the Tutorial tile and its Settings rows wait for this
 		settings = s.settings :: any, -- the UI reads it as a map of switches
 		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
 		spin = s.spin, -- F49: the free spin and the banked ones, for the Spin window

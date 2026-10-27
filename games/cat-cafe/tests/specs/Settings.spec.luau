@@ -7,7 +7,7 @@ return function()
 
 	describe("defaults", function()
 		it(
-			"has every key: sound on at full volume, shake on, low performance off, other cats and markers shown",
+			"has every key: sound on at full volume, shake on, low performance off, other cats, markers and the Tutorial tile shown",
 			function()
 				expect(Settings.defaults() :: any).to.deepEqual({
 					music = true,
@@ -18,6 +18,7 @@ return function()
 					lowPerformance = false,
 					showOtherCats = true,
 					markers = true,
+					tutorialButton = true,
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -33,6 +34,8 @@ return function()
 			expect(Settings.clean("lowPerformance", 1)).never.to.be.ok()
 			expect(Settings.clean("markers", "true")).never.to.be.ok()
 			expect(Settings.clean("showOtherCats", nil)).never.to.be.ok()
+			expect(Settings.clean("tutorialButton", false)).to.equal(false)
+			expect(Settings.clean("tutorialButton", "off")).never.to.be.ok()
 		end)
 
 		it("a volume takes a number, clamped to 0 to 1 and kept to two decimals", function()
@@ -76,6 +79,7 @@ return function()
 				lowPerformance = true,
 				showOtherCats = true,
 				markers = true,
+				tutorialButton = true,
 			})
 		end)
 

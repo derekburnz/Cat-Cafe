@@ -88,10 +88,11 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 9 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 10 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(9)
-			expect(profile.version).to.equal(9)
+			expect(ProfileSchema.VERSION).to.equal(10)
+			expect(profile.version).to.equal(10)
+			expect(profile.introSeen).to.equal(false)
 			expect(next(profile.codesRedeemed)).never.to.be.ok()
 			expect(profile.goldenFish).to.equal(0)
 			expect(profile.lifetimeGoldenFish).to.equal(0)
@@ -118,6 +119,7 @@ return function()
 				lowPerformance = false,
 				showOtherCats = true,
 				markers = true,
+				tutorialButton = true,
 			})
 		end)
 
@@ -217,8 +219,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 10 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 11 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 10 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 9 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 8 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 7 })).to.equal(false)
@@ -382,6 +385,7 @@ return function()
 				lowPerformance = false,
 				showOtherCats = true,
 				markers = true,
+				tutorialButton = true,
 			})
 			-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 			expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
@@ -1059,6 +1063,33 @@ return function()
 				local again = ProfileSchema.migrate(copy(profile), 600)
 				expect(again :: any).to.deepEqual(profile)
 			end
+		end)
+	end)
+
+	describe("migrate to version 10: the intro cutscene (F72)", function()
+		it("plays the intro once for every older save, and a seen intro stays seen", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 9
+			raw.introSeen = nil
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
+			expect(profile.introSeen).to.equal(false)
+			raw.version = 10
+			raw.introSeen = true
+			expect(ProfileSchema.migrate(raw, 1000).introSeen).to.equal(true)
+			for _, bad in { "yes", 1, {}, false } do
+				raw.introSeen = bad
+				expect(ProfileSchema.migrate(raw, 1000).introSeen).to.equal(false)
+			end
+		end)
+
+		it("keeps the Tutorial tile switch and turns it on for saves without it", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 9
+			raw.settings.tutorialButton = nil
+			expect(ProfileSchema.migrate(raw, 1000).settings.tutorialButton).to.equal(true)
+			raw.settings.tutorialButton = false
+			expect(ProfileSchema.migrate(raw, 1000).settings.tutorialButton).to.equal(false)
 		end)
 	end)
 end

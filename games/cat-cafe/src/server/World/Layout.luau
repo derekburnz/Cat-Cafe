@@ -173,6 +173,9 @@ Layout.plot = {
 	-- The back door, between the counter and the left cat tree, opens from Tier 1 onto the yard; the yard's gate
 	-- lines up with it so the way out to the back alley is straight.
 	backDoor = { x = -8, width = 6, height = 7.5 },
+	-- Where a player who has not seen the intro lands (F72, intro-cutscene.md section 1): just inside the back
+	-- door, 3 studs in from the back wall, facing it. y is the root's height above the floor, as homeLanding's.
+	introSpot = { x = -8, y = 3, z = halfD - 3 } :: Point,
 
 	-- The front garden strip between the sidewalk and the front wall, and the path through it to the door.
 	frontGarden = {

@@ -166,7 +166,7 @@ return function()
 				huge = math.huge,
 			}
 			local profile = ProfileSchema.migrate(raw, 2000)
-			expect(profile.version).to.equal(9)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.codesRedeemed :: any).to.deepEqual({ playtest = 1234, oldcode = 50, huge = 0 })
 		end)
 	end)

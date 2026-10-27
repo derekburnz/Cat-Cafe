@@ -54,6 +54,11 @@ local Moments = {
 	Shove = Signal.new() :: Signal.Signal<string, Vector3>,
 	BumpLoose = Signal.new() :: Signal.Signal<string, Vector3>, -- the cat fell out of the target's arms
 	BumpHeld = Signal.new() :: Signal.Signal<string, Vector3>, -- "It held on tight!"
+	-- The intro cutscene (F72) on this screen: started (replay), each shot as it starts (1 to 9, shot 5 once), and
+	-- ended, played out or skipped, once everything is back.
+	IntroStart = Signal.new() :: Signal.Signal<boolean>,
+	IntroShot = Signal.new() :: Signal.Signal<number>,
+	IntroEnd = Signal.new() :: Signal.Signal<()>,
 }
 
 return Moments

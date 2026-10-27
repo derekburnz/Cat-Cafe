@@ -283,14 +283,7 @@ local function onShoveResult(
 end
 
 function ShoveController.start()
-	-- The old Shove button still fires shove(targetUserId); the Tackle has no target, so any press is a lunge.
-	UI.events.shove:Connect(function()
-		press()
-	end)
-	local tackleEvent = (UI.events :: any).tackle -- the Tackle button's own event, once the UI has it (F74)
-	if tackleEvent ~= nil then
-		tackleEvent:Connect(press)
-	end
+	UI.events.tackle:Connect(press) -- the Tackle button or Q (F74)
 	Net.on("ShoveResult", onShoveResult)
 	player.CharacterAdded:Connect(function()
 		-- a new character starts free

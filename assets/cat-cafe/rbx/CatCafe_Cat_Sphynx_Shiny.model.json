@@ -2,7 +2,10 @@
  "className": "Model",
  "attributes": {
   "Rojo_Target_PrimaryPart": "CatCafe_Cat_Sphynx_Shiny/0",
-  "PartBuilt": true
+  "PartBuilt": true,
+  "Scale": {
+   "Float64": 1.0
+  }
  },
  "children": [
   {
@@ -81,7 +84,169 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Cat_Sphynx_Shiny/0"
-   }
+   },
+   "children": [
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.5075,
+         -0.77
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.3475,
+         -0.5
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.3275,
+         -0.37
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.3275,
+         -0.45
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.3275,
+         -0.45
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
   },
   {
    "name": "CatCafe_Cat_Sphynx_Shiny_Body",
@@ -269,643 +434,6 @@
      0.7647,
      0.8784,
      0.9686
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.425,
-       1.0639,
-       -0.665
-      ],
-      "orientation": [
-       [
-        0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        -0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3111,
-       1.2611,
-       -0.665
-      ],
-      "orientation": [
-       [
-        0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        -0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1139,
-       1.375,
-       -0.665
-      ],
-      "orientation": [
-       [
-        0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        -0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1139,
-       1.375,
-       -0.665
-      ],
-      "orientation": [
-       [
-        -0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        -0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3111,
-       1.2611,
-       -0.665
-      ],
-      "orientation": [
-       [
-        -0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        -0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.425,
-       1.0639,
-       -0.665
-      ],
-      "orientation": [
-       [
-        -0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        -0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.425,
-       0.8361,
-       -0.665
-      ],
-      "orientation": [
-       [
-        -0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3111,
-       0.6389,
-       -0.665
-      ],
-      "orientation": [
-       [
-        -0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1139,
-       0.525,
-       -0.665
-      ],
-      "orientation": [
-       [
-        -0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1139,
-       0.525,
-       -0.665
-      ],
-      "orientation": [
-       [
-        0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3111,
-       0.6389,
-       -0.665
-      ],
-      "orientation": [
-       [
-        0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.425,
-       0.8361,
-       -0.665
-      ],
-      "orientation": [
-       [
-        0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.12,
-     0.16,
-     0.2795
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_Sphynx_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       0.39,
-       -0.665
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     0.16,
-     0.12
-    ],
-    "Color": [
-     0.6627,
-     0.6863,
-     0.7216
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -998,7 +526,105 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_Sphynx_Shiny/1"
-     }
+     },
+     "children": [
+      {
+       "name": "Outfit_PartyHat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.32,
+           0.06
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BaristaCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3,
+           0.02
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Boater",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3,
+           0.02
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Cat_Sphynx_Shiny_Head",

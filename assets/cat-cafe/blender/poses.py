@@ -198,13 +198,13 @@ def render_pose_previews(built, mat, docs, samples=32, cat="CatCafe_Cat_Tabby"):
     common.render_preview(copies + acc, path, samples=samples, warm=True, azimuth=25, elevation=10)
     cleanup(copies + acc)
     made["Pose_Upright"] = path
-    # the four role uniforms on upright cats, in role order (barista, waiter, greeter, entertainer)
+    # the four role outfits on upright cats, in role order (barista, waiter, greeter, entertainer)
     import accessories
     objs = []
     for i, role in enumerate(("barista", "waiter", "greeter", "entertainer")):
         world = Matrix.Translation(((i - 1.5) * 1.5, 0, 0))
         objs += posed_copies(cat_objs, pose, world=world)
-        objs += accessory_copies(built, cat_objs, world=world, pose=pose, names=(accessories.ROLE_UNIFORMS[role],))
+        objs += accessory_copies(built, cat_objs, world=world, pose=pose, names=accessories.ROLE_OUTFITS[role])
     path = os.path.join(docs, "previews", "Pose_Uniforms.png")
     common.hide_all_meshes()
     common.show(objs)

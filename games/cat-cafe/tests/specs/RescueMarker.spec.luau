@@ -1,10 +1,9 @@
 --!strict
--- UI/Components/RescueMarker.luau: the rescue bar's marker and zone (data-model section 10b).
+-- shared/RescueMarker.luau: the rescue bar's marker and zone (data-model section 10b), which the bar draws and
+-- the server judges presses with (reviewer N74).
 return function()
-	local Client =
-		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local Components = Client:WaitForChild("UI"):WaitForChild("Components")
-	local RescueMarker = require(Components:WaitForChild("RescueMarker")) :: any
+	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local RescueMarker = require(Shared:WaitForChild("RescueMarker")) :: any
 
 	local function near(a: number, b: number): boolean
 		return math.abs(a - b) < 1e-9

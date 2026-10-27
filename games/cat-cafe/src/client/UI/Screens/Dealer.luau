@@ -1,7 +1,7 @@
 --!strict
 -- Night dealer screen (F32, data-model section 8b), in the Grow a Garden seed shop style: "Fresh stock in
 -- 4:12" across the top, then each food the dealer has for you this window with its stock, its odds and one
--- green price button. A food in two slots shows once as "x2 Stock" (Components/DealerRows). Odds, the shiny
+-- green price button. A food in two slots shows once as "x2 Stock" (Components/DealerRows). Odds, the gold
 -- chance and the charm star odds sit on every row before Buy (the growth thread's rules for random items), with
 -- the per-cat split under Details. What is for sale comes only from UI.dealer.setStock (the DealerStock remote);
 -- the screen never guesses stock, and the server recomputes it on every BuyDealerFood.

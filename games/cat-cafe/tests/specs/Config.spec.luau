@@ -54,8 +54,8 @@ return function()
 		LureWaitSeconds = 600,
 		BaitBowlRangeStuds = 12,
 		BaitResolveRangeStuds = 20,
-		ShinyChanceBait = 0.02,
-		ShinyChanceNet = 0.02, -- F30
+		ShinyChanceBait = 0.05, -- v0.5 F42 (was 0.02)
+		ShinyChanceNet = 0.05, -- F30, v0.5 F42 (was 0.02)
 		CarryWalkSpeed = 16, -- v0.4
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,

@@ -662,6 +662,18 @@ Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- south end. Its sign (-Z) faces the street arch.
 Layout.manhole = { area = "sewer", x = 0, y = 0.1, z = (SQ1 + SQ2) / 2 + 4 }
 
+-- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one 8 studs inside each area's
+-- entrance, to the right of the path for a player walking in and turned 20 degrees toward it. In the space of the
+-- area's gate, or of the street arch for the Alleyway, whose +Z both run into the area.
+Layout.indexBoards = {
+	alley = { x = -9, y = 0, z = 8, rotY = -20 },
+	park = { x = -7, y = 0, z = 8, rotY = -20 },
+	neighbourhood = { x = -7, y = 0, z = 8, rotY = -20 },
+	woods = { x = -10, y = 0, z = 8, rotY = -20 },
+	sewer = { x = -10, y = 0, z = 8, rotY = -20 },
+} :: { [string]: Point }
+Layout.streetArchAsset = "CatCafe_Alley_ArchStreet" -- the Alleyway's board stands off this arch
+
 -- Every area by id, in the order Catalog.areas lists them.
 Layout.areas = {
 	alley = Layout.alley,

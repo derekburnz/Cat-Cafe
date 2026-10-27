@@ -171,6 +171,7 @@ export type PlayerState = {
 	fishPerks: { [string]: number }?, -- F53: Golden Fish Market perk id -> level
 	goldLuck: number?, -- F54: the Index's gold luck, capped (GoldLuckMax); nil adds it up from the claims
 	baitSpeed: number?, -- F54: the Index's faster bait, capped (BaitSpeedMax); nil adds it up from the claims
+	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -202,6 +203,7 @@ export type PartialState = {
 	fishPerks: { [string]: number }?,
 	goldLuck: number?,
 	baitSpeed: number?,
+	introSeen: boolean?,
 }
 
 export type ScreenName =
@@ -277,6 +279,12 @@ export type RescueChallenge = {
 	endsAt: number?, -- the attempt's deadline; else startsAt + RescueAttemptMaxSeconds
 	circle: CatchCircle?, -- kind "circle"
 	windows: CatchWindows?, -- kind "circle"
+}
+
+-- UI.intro.start (F72): Skip shows after skipAfter seconds (default 2.0, or at once on a replay)
+export type IntroOptions = {
+	skipAfter: number?,
+	replay: boolean?,
 }
 
 -- Day and night clock (data-model section 9). phaseEndsAt is server os.time() seconds, as the Clock

@@ -5,7 +5,8 @@
 -- Redeem beside it, and an answer line: "Code redeemed!" in green with the prize as little pictures under it
 -- (Components/PrizeChips), or the server's refusal in red ("That code doesn't exist", "You already used that code",
 -- "Too many tries, wait a minute"). The box takes letters and digits only, up to CodeMaxLength
--- (Components/CodeEntry), and Enter redeems too. Redeem shows "..." until CodeResult answers, or for 5 s.
+-- (Components/CodeEntry), and Enter redeems too. Redeem shows "..." until CodeResult answers, or for 5 s, and stays
+-- grey until 2 s after the last send, since the server drops a second try inside that (review N183).
 --
 -- The window sits near the top of the screen, so a phone's keyboard never covers it and the Codes Cat stays in view
 -- below. It does not take the keyboard when it opens: the player is walking into the circle, so W, A, S and D keep
@@ -86,6 +87,7 @@ function Codes.new(callbacks: Callbacks): Codes
 	self._open = false
 	self._alive = true
 	self._failed = false -- the answer line shows a refusal, which typing again clears
+	self._sentAt = -math.huge -- os.clock() of the last Redeem
 	self._state = nil :: Types.PlayerState?
 	self._night = false
 	self._connections = {} :: { RBXScriptConnection }
@@ -244,18 +246,24 @@ function Codes._setAnswer(self: any, ok: boolean?, message: string?, prize: Type
 	end
 end
 
+function Codes._resting(self: any): boolean
+	return os.clock() - self._sentAt < CodeEntry.RESEND_SECONDS
+end
+
 function Codes._refresh(self: any)
 	self._box.TextEditable = not self._pending
 	self._redeem:setText(if self._pending then "..." else "Redeem")
-	self._redeem:setEnabled(not self._pending and CodeEntry.canRedeem(self._box.Text))
+	local ready = not self._pending and not self:_resting()
+	self._redeem:setEnabled(ready and CodeEntry.canRedeem(self._box.Text))
 end
 
 function Codes._submit(self: any)
 	local code = CodeEntry.clean(self._box.Text)
-	if self._pending or code == "" then
+	if self._pending or code == "" or self:_resting() then
 		return
 	end
 	self._pending = true
+	self._sentAt = os.clock()
 	self._token += 1
 	local token = self._token
 	if self._box:IsFocused() then
@@ -284,6 +292,15 @@ function Codes.result(self: any, ok: boolean, message: string, prize: Types.Inde
 	end
 	self:_setAnswer(ok, message, if ok then prize else nil)
 	self:_refresh()
+	-- light Redeem again once the server would take another try
+	local wait = CodeEntry.RESEND_SECONDS - (os.clock() - self._sentAt)
+	if wait > 0 then
+		task.delay(wait, function()
+			if self._alive then
+				self:_refresh()
+			end
+		end)
+	end
 end
 
 -- A fresh box each time the player steps in.

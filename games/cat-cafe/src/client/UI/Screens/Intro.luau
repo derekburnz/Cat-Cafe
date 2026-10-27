@@ -1,0 +1,565 @@
+--!strict
+-- The intro cutscene's screen (F72, docs/design/cat-cafe/intro-cutscene.md section 4; Derek 2026-10-27 20:45: a
+-- quick fly-through before a new player plays, the important things first, a small Skip after a couple of
+-- seconds). The engineer's IntroController moves the camera and calls UI.intro; this draws over it:
+--   letterbox bars   9% of the screen each, near black; they slide in on start and out over 0.45 s at the end
+--   caption          one line just above the lower bar, popping from 0.9 to full size on each shot
+--   shot dots        nine on the top bar, the current one gold
+--   title card       shot 5's area names, one per cut, slammed in the middle of the screen
+--   demo ring        shot 2's closing catch circle over the stray: PERFECT at 1.3 s, a sparkle to 2.0 s
+--   Skip             an outlined "Skip »" pill on the lower bar at the right, fading in after skipAfter, gamepad B
+--                    too. A press fires callbacks.skip(shot) once; the controller ends the intro and calls finish.
+-- Numbers live in Components/IntroLogic.
+--
+-- Roblox terms: Camera:WorldToViewportPoint turns a world position into a screen pixel for the current camera,
+-- and a ScreenGui with IgnoreGuiInset covers the whole screen (Roblox's top bar strip too), so the two agree.
+
+local ContextActionService = game:GetService("ContextActionService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local Create = require(script.Parent.Parent.Components.Create)
+local IntroLogic = require(script.Parent.Parent.Components.IntroLogic)
+local Outline = require(script.Parent.Parent.Components.Outline)
+local Scale = require(script.Parent.Parent.Scale)
+local Signal = require(script.Parent.Parent.Components.Signal)
+local Sound = require(script.Parent.Parent.Components.Sound)
+local Theme = require(script.Parent.Parent.Theme)
+local Tween = require(script.Parent.Parent.Components.Tween)
+local Types = require(script.Parent.Parent.Types)
+
+export type Callbacks = {
+	skip: (shot: number) -> (), -- Skip or gamepad B, once per play
+	ended: (replay: boolean) -> (), -- the end began (finish, or the Skip fallback): bring the HUD back
+}
+
+export type Intro = {
+	screenGui: ScreenGui,
+	start: (self: Intro, options: Types.IntroOptions?) -> (),
+	setShot: (self: Intro, index: number, caption: string, titleCard: string?) -> (),
+	demoCatch: (self: Intro, worldPosition: Vector3) -> (),
+	finish: (self: Intro) -> (),
+	playing: (self: Intro) -> boolean,
+	destroy: (self: Intro) -> (),
+}
+
+local BAR = IntroLogic.BAR
+local BAR_TRANSPARENCY = 0.08 -- near black, the world just showing through
+local BARS_IN = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local OUT = IntroLogic.OUT_SECONDS
+local BARS_OUT = TweenInfo.new(OUT, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+local FADE = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local CAPTION_POP = TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+local TITLE_SLAM = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local SIDE = 24 -- design pixels kept clear at the screen's sides
+local CAPTION_HEIGHT = 44
+local CAPTION_TEXT = 30
+local TITLE_TEXT = 64
+local DOT = 10
+local DOT_NOW = 14
+local DOT_GAP = 8
+local SKIP_WIDTH = 116
+local SKIP_ACTION = "CatCafeIntroSkip"
+-- the demo ring in the catch circles' look (Screens/CatchCircles)
+local RING_RADIUS = IntroLogic.RING_RADIUS
+local RING_THICKNESS = 4
+local GOOD_BAND = 14
+local PERFECT_BAND = 5
+local SPARKLES = 8
+local SPARKLE_REACH = RING_RADIUS + 36
+local SPARKLE_OUT = TweenInfo.new(
+	IntroLogic.END - IntroLogic.CLOSE,
+	Enum.EasingStyle.Quad,
+	Enum.EasingDirection.Out
+)
+
+local Intro = {}
+Intro.__index = Intro
+
+-- A ring from `inner` to `outer` radius: a circle of the inner radius with its stroke outside it, as the catch
+-- circles are drawn.
+local function ring(
+	name: string,
+	inner: number,
+	outer: number,
+	color: Color3,
+	transparency: number,
+	parent: Instance
+): (Frame, UIStroke)
+	local frame: Frame = Create("Frame", {
+		Name = name,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(inner * 2, inner * 2),
+		Parent = parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local stroke: UIStroke = Create("UIStroke", {
+		Color = color,
+		Thickness = math.max(1, outer - inner),
+		Transparency = transparency,
+		Parent = frame,
+	})
+	return frame, stroke
+end
+
+-- Eight gold diamonds flying out from the ring as PERFECT pops, gone by the end of the demo.
+local function sparkle(holder: Frame)
+	for index = 1, SPARKLES do
+		local angle = (index - 1) / SPARKLES * math.pi * 2
+		local dx, dy = math.cos(angle), math.sin(angle)
+		local spark: Frame = Create("Frame", {
+			Name = "Sparkle",
+			BackgroundColor3 = Theme.colors.gold,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.new(0.5, dx * RING_RADIUS, 0.5, dy * RING_RADIUS),
+			Rotation = 45,
+			Size = UDim2.fromOffset(10, 10),
+			Parent = holder,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, 2) }) })
+		Tween.to(spark, SPARKLE_OUT, {
+			Position = UDim2.new(0.5, dx * SPARKLE_REACH, 0.5, dy * SPARKLE_REACH),
+			Size = UDim2.fromOffset(4, 4),
+			BackgroundTransparency = 1,
+		})
+	end
+end
+
+function Intro.new(parent: Instance, callbacks: Callbacks): Intro
+	local self = setmetatable({}, Intro) :: any
+	self._callbacks = callbacks
+	self._alive = true
+	self._playing = false
+	self._replay = false
+	self._skipped = false
+	self._skipShown = false
+	self._shot = 0
+	self._caption = nil :: string?
+	self._token = 0 -- one per start and finish, so a late timer cannot touch a newer play
+	self._ring = nil :: Frame?
+	self._ringLoop = nil :: RBXScriptConnection?
+	self._connections = {} :: { RBXScriptConnection }
+
+	local screenGui: ScreenGui = Create("ScreenGui", {
+		Name = "CatCafeIntro",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 50, -- over the popups (40) and everything else while it plays
+		Enabled = false,
+	})
+	self.screenGui = screenGui
+
+	local function bar(name: string): Frame
+		return Create("Frame", {
+			Name = name,
+			BackgroundColor3 = Theme.colors.black,
+			BackgroundTransparency = BAR_TRANSPARENCY,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, BAR),
+			Parent = screenGui,
+		})
+	end
+	self._top = bar("TopBar")
+	self._bottom = bar("BottomBar")
+
+	local root: Frame = Create("Frame", {
+		Name = "Root",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 2,
+		Parent = screenGui,
+	})
+	self._root = root
+	self._uiScale = Scale.bind(root)
+
+	self._ringLayer = Create("Frame", {
+		Name = "Ring",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		Parent = root,
+	})
+
+	-- the shot dots, centred on the top bar
+	local dots: Frame = Create("Frame", {
+		Name = "Dots",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, BAR / 2),
+		Size = UDim2.fromOffset(IntroLogic.SHOTS * (DOT_NOW + DOT_GAP), DOT_NOW),
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, DOT_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._dots = {} :: { Frame }
+	for index = 1, IntroLogic.SHOTS do
+		self._dots[index] = Create("Frame", {
+			Name = "Dot" .. index,
+			BackgroundColor3 = Theme.colors.paper,
+			BorderSizePixel = 0,
+			LayoutOrder = index,
+			Size = UDim2.fromOffset(DOT, DOT),
+			Parent = dots,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	end
+
+	-- the caption, just above the lower bar; a long one shrinks to stay on one line
+	local caption: TextLabel = Create("TextLabel", {
+		Name = "Caption",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1 - BAR, -10),
+		Size = UDim2.new(1, -2 * SIDE, 0, CAPTION_HEIGHT),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.white,
+		TextScaled = true,
+		Text = "",
+		Parent = root,
+	}, { Create("UITextSizeConstraint", { MaxTextSize = CAPTION_TEXT, MinTextSize = 14 }) })
+	Outline.text(caption, 3)
+	self._captionLabel = caption
+	self._captionScale = Create("UIScale", { Parent = caption })
+
+	-- shot 5's area name
+	local title: TextLabel = Create("TextLabel", {
+		Name = "TitleCard",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.45),
+		Size = UDim2.new(1, -2 * SIDE, 0, TITLE_TEXT + 16),
+		FontFace = Theme.fonts.display,
+		TextColor3 = Theme.colors.white,
+		TextScaled = true,
+		Text = "",
+		Visible = false,
+		Parent = root,
+	}, { Create("UITextSizeConstraint", { MaxTextSize = TITLE_TEXT, MinTextSize = 24 }) })
+	Outline.text(title, 4)
+	self._title = title
+	self._titleScale = Create("UIScale", { Parent = title })
+
+	-- Skip: a dark pill with a light outline on the lower bar at the right
+	local skip: TextButton = Create("TextButton", {
+		Name = "Skip",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.ink,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 1),
+		Size = UDim2.fromOffset(SKIP_WIDTH, IntroLogic.SKIP_HEIGHT),
+		Visible = false,
+		Parent = root,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._skipStroke = Outline.border(skip, 2, Theme.colors.paper)
+	self._skipStroke.Transparency = 1
+	local skipLabel: TextLabel = Create("TextLabel", {
+		Name = "Label",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = 20,
+		TextColor3 = Theme.colors.white,
+		TextTransparency = 1,
+		Text = "Skip »",
+		Parent = skip,
+	})
+	self._skipButton = skip
+	self._skipLabel = skipLabel
+	table.insert(
+		self._connections,
+		skip.Activated:Connect(function()
+			self:_skip()
+		end)
+	)
+
+	self._scaleConnection = Scale.changed:Connect(function()
+		self:_layout()
+	end) :: Signal.Connection
+	self:_layout()
+	screenGui.Parent = parent
+	return self :: Intro
+end
+
+-- The Skip pill grows to a finger's size on touch and sits on the lower bar however tall the screen is.
+function Intro._layout(self: any)
+	local camera = Workspace.CurrentCamera
+	local viewport = if camera then camera.ViewportSize else Scale.DESIGN
+	local height, below = IntroLogic.skipPlace(viewport.Y, Scale.get(), Scale.isTouch())
+	self._skipButton.Size = UDim2.fromOffset(SKIP_WIDTH + height - IntroLogic.SKIP_HEIGHT, height)
+	self._skipButton.Position = UDim2.new(1, -SIDE, 1, -below)
+end
+
+function Intro._renderDots(self: any)
+	for index, dot: Frame in self._dots do
+		local look = IntroLogic.dot(index, self._shot)
+		local size = if look == "now" then DOT_NOW else DOT
+		dot.Size = UDim2.fromOffset(size, size)
+		dot.BackgroundColor3 = if look == "now" then Theme.colors.gold else Theme.colors.paper
+		dot.BackgroundTransparency = if look == "next" then 0.6 else 0
+	end
+end
+
+-- Plays from the top: bars in, dots reset, Skip after skipAfter seconds (IntroLogic.skipAfter).
+function Intro.start(self: any, options: Types.IntroOptions?)
+	self._token += 1
+	local token = self._token
+	self:_clearRing()
+	self:_hideSkip()
+	self._playing = true
+	self._replay = options ~= nil and options.replay == true
+	self._skipped = false
+	self._shot = 0
+	self._caption = nil
+	self._captionLabel.Text = ""
+	self._title.Visible = false
+	self._root.Visible = true
+	self:_renderDots()
+	self:_layout()
+	self._top.Position = UDim2.fromScale(0, -BAR)
+	self._bottom.Position = UDim2.fromScale(0, 1)
+	Tween.to(self._top, BARS_IN, { Position = UDim2.fromScale(0, 0) })
+	Tween.to(self._bottom, BARS_IN, { Position = UDim2.fromScale(0, 1 - BAR) })
+	self.screenGui.Enabled = true
+	task.delay(IntroLogic.skipAfter(options), function()
+		if self._alive and self._playing and token == self._token then
+			self:_showSkip()
+		end
+	end)
+end
+
+-- A new shot: its dot turns gold and its caption pops. Within shot 5 the controller calls again for each cut with
+-- the next title card; the caption then stays put and only the card slams in.
+function Intro.setShot(self: any, index: number, caption: string, titleCard: string?)
+	if not self._playing then
+		return
+	end
+	local shot = math.clamp(math.floor(index), 1, IntroLogic.SHOTS)
+	if shot ~= self._shot or caption ~= self._caption then
+		self._captionLabel.Text = caption
+		self._captionScale.Scale = 0.9
+		Tween.to(self._captionScale, CAPTION_POP, { Scale = 1 })
+	end
+	self._shot = shot
+	self._caption = caption
+	self:_renderDots()
+	if titleCard and titleCard ~= "" then
+		self._title.Text = titleCard
+		self._title.Visible = true
+		self._titleScale.Scale = 1.25
+		Tween.to(self._titleScale, TITLE_SLAM, { Scale = 1 })
+	else
+		self._title.Visible = false
+	end
+end
+
+-- Shot 2's demo catch over the stray: the circle closes onto its ring in 1.3 s, PERFECT pops with the catch
+-- sound and a gold sparkle, and it all fades by 2.0 s. It follows the stray's screen position while the camera
+-- pushes in, and hides while the point is behind the camera.
+function Intro.demoCatch(self: any, worldPosition: Vector3)
+	self:_clearRing()
+	if not self._playing then
+		return
+	end
+	local holder: Frame = Create("Frame", {
+		Name = "DemoRing",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Size = UDim2.fromOffset(0, 0),
+		Visible = false,
+		Parent = self._ringLayer,
+	})
+	local scale: UIScale = Create("UIScale", { Parent = holder })
+	ring(
+		"GoodBand",
+		RING_RADIUS - GOOD_BAND,
+		RING_RADIUS + GOOD_BAND,
+		Theme.colors.good,
+		0.45,
+		holder
+	)
+	ring(
+		"PerfectBand",
+		RING_RADIUS - PERFECT_BAND,
+		RING_RADIUS + PERFECT_BAND,
+		Theme.colors.gold,
+		0.1,
+		holder
+	)
+	local half = RING_THICKNESS / 2
+	local _, ringStroke =
+		ring("Ring", RING_RADIUS - half, RING_RADIUS + half, Theme.colors.paper, 0, holder)
+	local start = IntroLogic.START_RADIUS
+	local closer = ring("Closer", start, start + RING_THICKNESS, Theme.colors.paper, 0, holder)
+	local grade: TextLabel = Create("TextLabel", {
+		Name = "Grade",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 0.5, -(RING_RADIUS + 8)),
+		Size = UDim2.fromOffset(180, 36),
+		FontFace = Theme.fonts.display,
+		TextSize = 30,
+		TextColor3 = Theme.colors.gold,
+		Text = "PERFECT!",
+		Visible = false,
+		Parent = holder,
+	})
+	Outline.text(grade, 3)
+	self._ring = holder
+
+	local started = os.clock()
+	local popped = false
+	local fading = false
+	self._ringLoop = RunService.RenderStepped:Connect(function()
+		local t = os.clock() - started
+		if t >= IntroLogic.END then
+			self:_clearRing()
+			return
+		end
+		local camera = Workspace.CurrentCamera
+		if camera then
+			local point = camera:WorldToViewportPoint(worldPosition)
+			local viewport = camera.ViewportSize
+			holder.Visible = point.Z > 0 and viewport.X > 0 and viewport.Y > 0
+			if holder.Visible then
+				holder.Position = UDim2.fromScale(point.X / viewport.X, point.Y / viewport.Y)
+			end
+		end
+		local radius = IntroLogic.closerRadius(t)
+		closer.Size = UDim2.fromOffset(radius * 2, radius * 2)
+		if not popped and t >= IntroLogic.CLOSE then
+			popped = true
+			closer.Visible = false
+			ringStroke.Color = Theme.colors.gold
+			grade.Visible = true
+			Tween.popIn(grade, 0.6)
+			scale.Scale = 1.12
+			Tween.to(scale, Tween.POP, { Scale = 1 })
+			Sound.play("circlePerfect")
+			sparkle(holder)
+		end
+		if not fading and t >= IntroLogic.FADE_FROM then
+			fading = true
+			for _, part in holder:GetDescendants() do
+				if part:IsA("UIStroke") then
+					Tween.to(part, FADE, { Transparency = 1 })
+				elseif part:IsA("TextLabel") then
+					Tween.to(part, FADE, { TextTransparency = 1 })
+				end
+			end
+		end
+	end)
+end
+
+function Intro._clearRing(self: any)
+	local loop: RBXScriptConnection? = self._ringLoop
+	if loop then
+		loop:Disconnect()
+		self._ringLoop = nil
+	end
+	local holder: Frame? = self._ring
+	if holder then
+		holder:Destroy()
+		self._ring = nil
+	end
+end
+
+function Intro._showSkip(self: any)
+	self._skipShown = true
+	local skip: TextButton = self._skipButton
+	skip.Visible = true
+	Tween.to(skip, FADE, { BackgroundTransparency = 0.35 })
+	Tween.to(self._skipStroke, FADE, { Transparency = 0 })
+	Tween.to(self._skipLabel, FADE, { TextTransparency = 0 })
+	ContextActionService:BindActionAtPriority(
+		SKIP_ACTION,
+		function(_name: string, inputState: Enum.UserInputState): Enum.ContextActionResult
+			if inputState == Enum.UserInputState.Begin then
+				self:_skip()
+			end
+			return Enum.ContextActionResult.Sink
+		end,
+		false,
+		Enum.ContextActionPriority.High.Value,
+		Enum.KeyCode.ButtonB
+	)
+end
+
+function Intro._hideSkip(self: any)
+	if self._skipShown then
+		ContextActionService:UnbindAction(SKIP_ACTION)
+	end
+	self._skipShown = false
+	self._skipButton.Visible = false
+	self._skipButton.BackgroundTransparency = 1
+	self._skipStroke.Transparency = 1
+	self._skipLabel.TextTransparency = 1
+end
+
+-- Fires callbacks.skip once with the shot showing. If the controller has not ended the intro SKIP_FALLBACK
+-- seconds later (a script error mid-intro), the screen ends itself so the HUD comes back.
+function Intro._skip(self: any)
+	if not self._playing or self._skipped or not self._skipShown then
+		return
+	end
+	self._skipped = true
+	Sound.play("uiClick")
+	Tween.to(self._skipLabel, FADE, { TextTransparency = 0.5 })
+	local token = self._token
+	self._callbacks.skip(IntroLogic.skipShot(self._shot))
+	task.delay(IntroLogic.SKIP_FALLBACK, function()
+		if self._alive and self._playing and token == self._token then
+			self:finish()
+		end
+	end)
+end
+
+-- The end: the caption, dots and Skip go at once and the bars slide off over OUT_SECONDS while the HUD comes
+-- back under them (callbacks.ended).
+function Intro.finish(self: any)
+	if not self._playing then
+		return
+	end
+	self._playing = false
+	self._token += 1
+	local token = self._token
+	self:_clearRing()
+	self:_hideSkip()
+	self._root.Visible = false
+	Tween.to(self._top, BARS_OUT, { Position = UDim2.fromScale(0, -BAR) })
+	Tween.to(self._bottom, BARS_OUT, { Position = UDim2.fromScale(0, 1) })
+	task.delay(IntroLogic.OUT_SECONDS, function()
+		if self._alive and token == self._token then
+			self.screenGui.Enabled = false
+		end
+	end)
+	self._callbacks.ended(self._replay)
+end
+
+function Intro.playing(self: any): boolean
+	return self._playing
+end
+
+function Intro.destroy(self: any)
+	self._alive = false
+	self._playing = false
+	self:_clearRing()
+	self:_hideSkip()
+	for _, connection in self._connections do
+		connection:Disconnect()
+	end
+	table.clear(self._connections)
+	self._scaleConnection:Disconnect()
+	Scale.unbind(self._uiScale)
+	self.screenGui:Destroy()
+end
+
+return Intro

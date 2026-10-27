@@ -67,6 +67,24 @@ local DEMO_CODES: { [string]: { prize: Types.IndexPrize, active: boolean? } } = 
 	launch = { prize = { coins = 1000, coinSeconds = 600, fish = 25, spins = 2 }, active = false },
 }
 
+-- The intro's shots (F72, intro-cutscene.md section 2): seconds, caption and shot 5's title cards. The camera is the
+-- controller's, so the demo only runs the bars, captions, cards, demo ring and Skip over whatever is on screen.
+local DEMO_SHOTS: { { seconds: number, caption: string, cards: { string }? } } = {
+	{ seconds = 3.5, caption = "Catch stray cats behind your cafe!" },
+	{ seconds = 2.5, caption = "Tap as each circle closes!" },
+	{ seconds = 3.0, caption = "Bring cats home. Give them jobs. Earn tips!" },
+	{ seconds = 2.7, caption = "Rank up your cafe to open new areas" },
+	{
+		seconds = 1.8,
+		caption = "Every area has its own cats",
+		cards = { "THE PARK", "THE NEIGHBOURHOOD", "THE WOODS", "THE SEWER" },
+	},
+	{ seconds = 2.5, caption = "Find all 50 cats for Index rewards" },
+	{ seconds = 2.7, caption = "Free spin every day. Codes at the Codes Cat!" },
+	{ seconds = 3.0, caption = "Night closes the areas. Fresh cats at sunrise!" },
+	{ seconds = 2.0, caption = "Go catch your first cat!" },
+}
+
 -- The engineer's Tip Jar once its rows carry F68's prizes, else the demo's.
 local function tipJarRows(): { Types.TipJarRow }
 	local rows: { Types.TipJarRow }? = (Catalog :: any).tipJar
@@ -362,6 +380,7 @@ function Demo.run(UI: any): () -> ()
 		crates = { classic_crate = 1, alley_golden_crate = 1 } :: { [string]: number },
 		crateLuck = { alley = 19 } :: { [string]: number },
 		fishPerks = {} :: { [string]: number },
+		introSeen = false, -- T plays the intro as a first play; the Tutorial tile replays it
 	}
 	-- six Alley crate pieces, so the Decor Index's first reward is ready; a wallpaper in use and both Tier 1 decor
 	-- spots taken, so the Retro Jukebox says "Spots full"
@@ -434,6 +453,7 @@ function Demo.run(UI: any): () -> ()
 			crates = table.clone(profile.crates),
 			crateLuck = table.clone(profile.crateLuck),
 			fishPerks = table.clone(profile.fishPerks),
+			introSeen = profile.introSeen,
 		})
 	end
 
@@ -855,6 +875,43 @@ function Demo.run(UI: any): () -> ()
 		end
 		push()
 	end)
+	-- the intro's shots on a timer, as the controller would run them; a newer play or a Skip stops an older one
+	local introToken = 0
+	local function playIntro(replay: boolean)
+		introToken += 1
+		local token = introToken
+		UI.intro.start({ replay = replay })
+		task.spawn(function()
+			for index, shot in DEMO_SHOTS do
+				if token ~= introToken or not running then
+					return
+				end
+				local cards = shot.cards
+				if cards then
+					for _, card in cards do
+						UI.intro.setShot(index, shot.caption, card)
+						task.wait(shot.seconds / #cards)
+						if token ~= introToken then
+							return
+						end
+					end
+				else
+					UI.intro.setShot(index, shot.caption)
+					local camera = Workspace.CurrentCamera
+					if index == 2 and camera then
+						UI.intro.demoCatch(camera.CFrame.Position + camera.CFrame.LookVector * 14)
+					end
+					task.wait(shot.seconds)
+				end
+			end
+			if token == introToken then
+				print("[Demo] IntroDone(0, finished)")
+				UI.intro.finish()
+				profile.introSeen = true
+				push()
+			end
+		end)
+	end
 	connections[#connections + 1] = UserInputService.InputBegan:Connect(
 		function(input: InputObject, processed: boolean)
 			if not processed and input.KeyCode == Enum.KeyCode.N then
@@ -865,9 +922,22 @@ function Demo.run(UI: any): () -> ()
 				UI.market.open()
 			elseif not processed and input.KeyCode == Enum.KeyCode.K then
 				UI.codes.open() -- the Codes Cat's circle, without walking to it
+			elseif not processed and input.KeyCode == Enum.KeyCode.T and not UI.intro.playing() then
+				playIntro(false)
 			end
 		end
 	)
+	-- IntroDone as the controller sends it (intro-cutscene.md section 3): the first play sets introSeen
+	connections[#connections + 1] = UI.events.introSkip:Connect(function(shot: number)
+		print(("[Demo] IntroDone(%d, skipped)"):format(shot))
+		introToken += 1
+		UI.intro.finish()
+		profile.introSeen = true
+		push()
+	end)
+	connections[#connections + 1] = UI.events.introReplay:Connect(function()
+		playIntro(true)
+	end)
 	-- RedeemCode as the server answers it (data-model 11d): any case, once per code, an inactive code has expired
 	local redeemed: { [string]: boolean } = {}
 	connections[#connections + 1] = UI.events.redeemCode:Connect(function(text: string)
@@ -952,6 +1022,9 @@ function Demo.run(UI: any): () -> ()
 	connections[#connections + 1] = UI.events.setSetting:Connect(
 		function(key: string, value: boolean | number)
 			local clean = Settings.clean(key, value)
+			if clean == nil and key == "tutorialButton" and type(value) == "boolean" then
+				clean = value -- F72's ninth key, until shared/Settings saves it
+			end
 			if clean ~= nil then
 				task.delay(0.3, function()
 					profile.settings[key] = clean

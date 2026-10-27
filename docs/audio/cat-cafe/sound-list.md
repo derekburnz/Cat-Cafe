@@ -10,7 +10,7 @@ What v0.4 changed here (world-and-feel.md): the first Miss ends a catch, so a Mi
 
 What v0.5 changed here (Gavin's round 2, features.md 2c): a Miss still hisses, then the cat sprints 12 to 32 studs away and anyone can chase it and try again, so the paw pop is retired and a paw patter runs off with the cat. Bump becomes Shove: any player can shove another inside a catching area, so every shove gets a playful whoosh and boop, and a shoved carrier still drops the cat (or holds on) with its own sound. The cafe closes at night: the night bed inside is cats asleep, not customers, and the door chatter stops at nightfall and on For Rent shops.
 
-What the 2026-10-27 features changed here (features.md F42 and F45 to F48, Derek's UI round): holding E to catch fills with a rising whirr that pops on the trigger, and each circle pips as it appears; Drop sets the cat down with a mrrp and soft paws; walking between the safe street and a catching area plays a calm or a playful chime with the Safe zone chip; fast travel and My Cafe poof; a cat starting or leaving a role (Staff tab, Unequip All) hops in or sighs off; Tip Jar gifts and Index rewards get a ready chime, a claim and a red dot blip; the volume sliders tick; gold replaces shiny (a gold reveal and a twinkle on gold strays); a loafing cafe cat purrs; and the coming spin wheel has its ticks and win fanfare ready.
+What the 2026-10-27 features changed here (features.md F42 and F45 to F48, Derek's UI round): holding E to catch fills with a rising whirr that pops on the trigger, and each circle pips as it appears; Drop sets the cat down with a mrrp and soft paws; walking between the safe street and a catching area plays a calm or a playful chime with the Safe zone chip; fast travel and My Cafe poof; a cat starting or leaving a role (Staff tab, Unequip All) hops in or sighs off; Tip Jar gifts and Index rewards get a ready chime, a claim and a red dot blip; the volume sliders tick; gold replaces shiny (a gold reveal and a twinkle on gold strays); a loafing cafe cat purrs; and the Spin Wheel window (F49) winds up, ticks past each slice and lands on a fanfare.
 
 ## 1. How Cat Cafe should sound
 
@@ -140,7 +140,7 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 | Cue | Moment | 2D/3D | Length | What it sounds like | P |
 |---|---|---|---|---|---|
 | `meow` (5 variants) | idle strays and working cats, every 8 to 20 s each, at most two at once | 3D, 40 studs | 0.3 to 0.8 s | short, cute, varied; pitch shifts a little per play | P1 |
-| `purr` | a working cat (tag `WorkingCat`), only the 3 nearest within 14 studs; and the nearest loafing cafe cat within 14 studs (`Effects.isLoafing`, VFX PR #222; one only, so it is always a cat Effects animates, reviewer N131) | 3D, 8 studs | 3 s loop | very quiet purr, so a busy cafe sounds cosy up close | P1 |
+| `purr` | a working cat (tag `WorkingCat`), only the 3 nearest within 14 studs, never a cat the player hid (`HiddenLocal`, Show other cats off); and the nearest loafing cafe cat within 14 studs (`Effects.isLoafing`, VFX PR #222; one only, so it is always a cat Effects animates, reviewer N131) | 3D, 8 studs | 3 s loop | very quiet purr, so a busy cafe sounds cosy up close | P1 |
 | `shimmerRare` | a gold stray, or Epic and up (the `Stray` world loop: `Gold` or `Rarity` on the model, the 3 nearest within 40 studs; replaces RareStrayNearby) | 3D on the stray | 2 s loop | faint gold twinkles over a whisper of air, so you can find it in the dark | P1 |
 | `goldReveal` | a gold cat comes into your arms (a `HeldCat` under your character with `Gold`, or `Gold` turning on), and GoldReveal for a bait cat (F42; was shinyReveal) | 2D | 1.8 s | a shimmer climbing into a rich gold bell chord, sparkles settling round it; ducks the music | P1 |
 
@@ -203,14 +203,17 @@ Zone chimes play one per 4 s, so walking along an area's open edge plays one, an
 |---|---|---|---|---|---|
 | `giftClaim` | TipJarClaim (F47, a gift newly claimed in TipJarState) | 2D | 1 s | a ribbon tug and paper pop, coins tumbling into the jar, a two-note chime | P1 |
 | `indexReward` | IndexReward (F48, a milestone newly claimed) | 2D | 1.5 s | a page turns, a stamp lands, a bright run rises to a sparkle; ducks the music | P1 |
-| `wheelTick` | WheelTick (the coming spin wheel: once per slice passing the pointer, so it slows with the wheel) | 3D on the wheel when given a position | 0.05 s | a wooden peg click | P2 |
-| `wheelWin` | WheelWin (the wheel stops on a prize) | 2D | 1.4 s | a quick run up into a bright chord with coins on top; ducks the music | P2 |
+| `uiSpinStart` | the Spin Wheel window (F49) starts turning (the UI's playSound) | 2D | 0.6 s | a wooden ratchet winding up into a whoosh | P1 |
+| `uiSpinTick` | each slice passing the pointer (the UI; it can fire every frame early in the 4 s spin, so a 0.04 s gap and 2 voices) | 2D | 0.05 s | a wooden peg click, so the ticks slow down with the wheel | P1 |
+| `uiSpinWin` | the wheel lands on a prize (the UI) | 2D | 1.4 s | a quick run up into a bright chord with coins on top; ducks the music | P1 |
+
+The spinner hears the window's own cues; Audio binds no wheel moment, so nothing doubles. Other players near the world wheel (VFX PR #226, which turns on `LastSpinAt`) hear nothing yet; a bystander tick could follow that attribute later.
 
 P0 set (20): `musicDayA`, `musicNightA`, `jingleCatFound`, `jingleRankUp`, `ambAlleyNight`, `netSwing`, `circlePerfect`, `circleGood`, `circleMiss`, `catchSparkle`, `catchMiss`, `catHiss`, `straySprint`, `purrfectChime`, `checkInBell`, `coinPop`, `purchase`, `uiClick` and `uiError`. The three circle grades come first: the net is the riskiest feel (features.md build order), and sound is half of a timing game's feel. The upload order in `upload.py` follows this list, so a small monthly allowance covers the whole catch first.
 
 ## 6. Moments and hooks
 
-The engineer adds `src/client/Moments.luau`, one signal per moment fired from the controllers; Audio and the vfx-animator's Effects only listen, so a Perfect sounds and sparkles on the same frame. The names are shared with `docs/vfx/cat-cafe/effects-list.md`. v0.3 removed NetWindup, NetRingGood, NetRingPerfect, RescueHold, BaitExpire and LevelUp. v0.4 removes StrayFlee and adds PawLost, Purrfect and PlotOpened. v0.5 retires PawLost (F40) and adds Shove (F41); the sprint after a miss follows the stray's `FleeingUntil` attribute like the hiss, so it needs no moment. The 2026-10-27 features add CatDrop, Travel, UnplaceCat, TipJarClaim, IndexReward and the wheel's WheelSpin, WheelTick and WheelWin (engineer PR #224 and the Index and wheel PRs), fire CircleAppear and CatPlaced for the first time, rename ShinyReveal to GoldReveal and drop RareStrayNearby (the Stray world loop does it). The hold fill needs no moment either: Audio follows ProximityPromptService's hold events.
+The engineer adds `src/client/Moments.luau`, one signal per moment fired from the controllers; Audio and the vfx-animator's Effects only listen, so a Perfect sounds and sparkles on the same frame. The names are shared with `docs/vfx/cat-cafe/effects-list.md`. v0.3 removed NetWindup, NetRingGood, NetRingPerfect, RescueHold, BaitExpire and LevelUp. v0.4 removes StrayFlee and adds PawLost, Purrfect and PlotOpened. v0.5 retires PawLost (F40) and adds Shove (F41); the sprint after a miss follows the stray's `FleeingUntil` attribute like the hiss, so it needs no moment. The 2026-10-27 features add CatDrop, Travel, UnplaceCat, TipJarClaim, IndexReward and the wheel's WheelSpin, WheelTick and WheelWin for Effects (engineer PR #224 and the Index and wheel PRs), fire CircleAppear and CatPlaced for the first time, rename ShinyReveal to GoldReveal and drop RareStrayNearby (the Stray world loop does it). The hold fill needs no moment either: Audio follows ProximityPromptService's hold events.
 
 | Moment | Args | Fired when | Source (data-model v0.3) |
 |---|---|---|---|
@@ -239,7 +242,7 @@ The engineer adds `src/client/Moments.luau`, one signal per moment fired from th
 | Travel | destination ("home", an area id) | a trip worked: fast travel, My Cafe, a manhole | `TravelResult` ok (PR #224) |
 | TipJarClaim | step | F47: a gift newly claimed | `TipJarState` diff (PR #224) |
 | IndexReward | areaId, milestoneId | F48: a milestone newly claimed | `indexRewards` diff (PR #211) |
-| WheelSpin, WheelTick, WheelWin | none; index and an optional position; prizeKind ("coins" or "lure") | the coming spin wheel: it starts, a slice passes the pointer, it stops on a prize | the Spin window wiring (engineer, later) |
+| WheelSpin, WheelTick, WheelWin | none; index; prizeKind ("coins" or "lure") | the Spin Wheel: it starts, a slice passes the pointer, it stops on a prize; Audio binds none (the window plays `uiSpinStart`, `uiSpinTick` and `uiSpinWin` itself) | the Spin window wiring (engineer, later) |
 | CoinPop | position | a customer drops coins | CustomerController coin float text |
 | Purchase, RankUp | id, tier | a new upgrade, decor or food in ProfileSync; `tier` rises | ProfileSync diff |
 | AreaUnlock | areaId, position (the gate) | a gate's barrier dissolves for you | ProfileSync diff and the gate part |

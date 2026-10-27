@@ -305,15 +305,6 @@ local Cues: { [string]: Cue } = {
 	-- Rewards (5.10) ----------------------------------------------------------------------------------------
 	giftClaim = { ids = {}, group = "Sfx", volume = 0.7, minGap = 0.2 }, -- F47 Tip Jar
 	indexReward = { ids = {}, group = "Sfx", volume = 0.75, minGap = 0.5, duck = true }, -- F48 Index rewards
-	wheelTick = {
-		ids = {},
-		group = "Sfx",
-		volume = 0.5,
-		pitch = { 0.97, 1.03 },
-		voices = 3,
-		range = 40,
-	}, -- the spin wheel (coming): once per slice passing the pointer
-	wheelWin = { ids = {}, group = "Sfx", volume = 0.75, minGap = 1, duck = true },
 
 	-- Coins, tiers and the night economy (5.6) --------------------------------------------------------------
 	coinPop = {
@@ -397,6 +388,17 @@ local Cues: { [string]: Cue } = {
 	uiSlider = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.03 }, -- a volume slider's 5 % step
 	uiGiftReady = { ids = {}, group = "Ui", volume = 0.6, minGap = 1 }, -- a Tip Jar gift is ready
 	uiBadge = { ids = {}, group = "Ui", volume = 0.4, minGap = 0.5 }, -- a red dot turns on
+	-- The Spin Wheel window (F49): it starts, a slice passes the pointer (can fire every frame early on), it lands
+	uiSpinStart = { ids = {}, group = "Ui", volume = 0.6, minGap = 0.5 },
+	uiSpinTick = {
+		ids = {},
+		group = "Ui",
+		volume = 0.45,
+		pitch = { 0.97, 1.03 },
+		minGap = 0.04,
+		voices = 2,
+	},
+	uiSpinWin = { ids = {}, group = "Ui", volume = 0.7, minGap = 1, duck = true },
 	announce = { ids = { "rbxassetid://140320161816899" }, group = "Ui", volume = 0.6, minGap = 1 },
 }
 

@@ -1,7 +1,8 @@
 --!strict
 -- Moves a cat's body, head, tail and front paws on this client only. Parts are found by name (Body, Head, Tail,
 -- or names ending _Body, _Head, _Tail, plus the placeholder's ears, eyes and legs), so one set of idles fits every
--- breed. Two ways in, picked per model:
+-- breed. A working cat stood upright at its station (Pose "upright", F25) turns in the floor's axes instead of
+-- its turned model's, and outfit parts ride what their Follows attribute names. Two ways in, picked per model:
 -- - Anchored parts (the placeholder cats and today's Part cats): each part is drawn at its server CFrame times a
 --   small turn around its joint. The server's CFrame is read again whenever it changes, so a walking stray keeps
 --   walking and only the turn is ours. A client's write to a server part stays on that client.
@@ -41,7 +42,7 @@ export type Rig = {
 	speed: number, -- studs a second the server is moving the cat across the ground, smoothed
 	stride: number, -- leg cycles covered, counted from the distance moved
 	lastAt: number,
-	restDrop: number, -- studs the body drops to lie on its belly (Offsets.sink = 1)
+	restDrop: number, -- studs the body drops to lie on its belly (Offsets.sink = 1); 0 for an upright cat
 	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
 	frames: { CFrame },
 }
@@ -141,26 +142,33 @@ local function hipOf(leg: BasePart): Vector3
 	return leg.Position + leg.CFrame.UpVector * (leg.Size.Y / 2)
 end
 
--- The leg a part of the body is, or nil. The exported cats name every body part like the body, legs included, so
--- a leg is told by shape and place: taller than it is wide, its top at or below the underside of the body, off
--- the middle line. Front or back by which side of the body's centre it stands (the cat faces -Z), left or right
--- by X (+X is the cat's right).
-local function legOf(part: BasePart, body: BasePart, pivot: CFrame): Group?
-	local size = part.Size
-	if size.Y < 1.2 * math.min(size.X, size.Z) then
+-- The leg a part of the body is, or nil (Logic.legOf), worked out in the body part's own axes: a cat stood
+-- upright has its whole model turned, legs and all, so the world's up says nothing about which part is a leg.
+local function legOf(part: BasePart, body: BasePart): Group?
+	return Logic.legOf(body.CFrame:PointToObjectSpace(part.Position), part.Size, body.Size)
+end
+
+-- The axes an upright cat's idles turn in (Pose "upright", F25: the server stands the body on its back legs by
+-- turning the whole model about its X axis). Up is the world's up and right is the body's right, so a bob still
+-- lifts the cat, a sway still rocks it side to side and a nod still dips its head. Nil if the model is turned
+-- some other way.
+local function standing(pivot: CFrame): CFrame?
+	local right = pivot.RightVector
+	local flat = right - Vector3.yAxis * right.Y
+	if flat.Magnitude < 0.5 then
 		return nil
 	end
-	local at = pivot:PointToObjectSpace(part.Position)
-	local centre = pivot:PointToObjectSpace(body.Position)
-	local underside = centre.Y - body.Size.Y / 2
-	if at.Y + size.Y / 2 > underside + 0.1 or math.abs(at.X) < 0.05 then
-		return nil
-	end
-	local front = at.Z < centre.Z
-	if at.X > 0 then
-		return if front then "pawFR" else "pawBR"
-	end
-	return if front then "pawFL" else "pawBL"
+	return CFrame.fromMatrix(Vector3.zero, flat.Unit, Vector3.yAxis)
+end
+
+-- The floor under a body part: straight down from its centre by its height as it stands in the world.
+local function floorUnder(body: BasePart): Vector3
+	local frame = body.CFrame
+	local size = body.Size
+	local half = math.abs(frame.RightVector.Y) * size.X / 2
+		+ math.abs(frame.UpVector.Y) * size.Y / 2
+		+ math.abs(frame.LookVector.Y) * size.Z / 2
+	return body.Position - Vector3.new(0, half, 0)
 end
 
 local function motorsOf(model: Model): { [Group]: Motor6D }
@@ -232,13 +240,18 @@ function Pose.bind(model: Model): Rig?
 	local head = findPart(model, "Head")
 	local tail = findPart(model, "Tail")
 	local pivot = model:GetPivot()
+	local bodyFrame = body.CFrame
+	local function hipY(leg: BasePart): number -- the top of a leg, up the body's own axes
+		return bodyFrame:PointToObjectSpace(hipOf(leg)).Y
+	end
 	local legs: { [Group]: BasePart } = {} -- the highest part of each leg, whose top is the hip
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and (descendant :: BasePart).Anchored then
 			local part = descendant :: BasePart
 			local group = groupOf(part, body, head)
-			if group == "body" and part ~= body then
-				group = legOf(part, body, pivot) or group
+			-- An outfit piece says what it rides (Follows), so only an unmarked part of the body can be a leg.
+			if group == "body" and part ~= body and part:GetAttribute("Follows") == nil then
+				group = legOf(part, body) or group
 			end
 			table.insert(rig.parts, part)
 			table.insert(rig.groups, group)
@@ -249,7 +262,7 @@ function Pose.bind(model: Model): Rig?
 			end
 			if string.sub(group, 1, 3) == "paw" then
 				local highest: BasePart? = legs[group]
-				if highest == nil or hipOf(part).Y > hipOf(highest).Y then
+				if highest == nil or hipY(part) > hipY(highest) then
 					legs[group] = part
 				end
 			end
@@ -259,28 +272,37 @@ function Pose.bind(model: Model): Rig?
 		return nil
 	end
 
-	-- How far the body drops to lie down: the hips come down to half a leg's thickness off the floor, or with no
-	-- legs found most of the gap under the body.
+	-- How far the body drops to lie down, up the body's own axes from the floor at the model pivot: the hips come
+	-- down to half a leg's thickness off the floor, or with no legs found most of the gap under the body.
+	local floorY = bodyFrame:PointToObjectSpace(pivot.Position).Y
 	local hips, count, thickness = 0, 0, math.huge
 	for _, leg in legs do
-		hips += pivot:PointToObjectSpace(hipOf(leg)).Y
+		hips += hipY(leg) - floorY
 		count += 1
 		thickness = math.min(thickness, leg.Size.X, leg.Size.Z)
 	end
 	if count > 0 then
 		rig.restDrop = math.max(0, hips / count - thickness / 2)
 	else
-		local underside = pivot:PointToObjectSpace(body.Position).Y - body.Size.Y / 2
-		rig.restDrop = math.max(0, underside * 0.8)
+		rig.restDrop = math.max(0, (-body.Size.Y / 2 - floorY) * 0.8)
 	end
 
+	-- A cat stood upright turns in the floor's axes about the floor under its body, and never lies down: at night
+	-- it dozes on its feet, so even a nap style cannot sink it into the counter.
 	local axes = pivot.Rotation
-	local bodyBase = body.CFrame
+	local floor = pivot.Position
+	local upright = if model:GetAttribute("Pose") == "upright" then standing(pivot) else nil
+	if upright ~= nil then
+		rig.restDrop = 0
+		axes = upright
+		floor = floorUnder(body)
+	end
+	local bodyBase = bodyFrame
 	local function joint(position: Vector3): CFrame
 		local relative: CFrame = (bodyBase:ToObjectSpace(CFrame.new(position) * axes))
 		return relative
 	end
-	rig.joints.body = joint(pivot.Position)
+	rig.joints.body = joint(floor)
 	if head ~= nil then
 		rig.joints.head = joint(neckOf(head, axes, model))
 	end

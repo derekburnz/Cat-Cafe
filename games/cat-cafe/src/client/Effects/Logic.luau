@@ -9,6 +9,7 @@ local Logic = {}
 
 export type Style =
 	"nap"
+	| "doze"
 	| "stuck"
 	| "stray"
 	| "barista"
@@ -188,6 +189,15 @@ function Logic.idle(style: Style, t: number): Offsets
 		o.pawFR = math.rad(90)
 		o.pawBL = math.rad(90)
 		o.pawBR = math.rad(90)
+	elseif style == "doze" then
+		-- Asleep on its feet: an upright cat at its station at night (F25, F44). The head droops and nods with
+		-- each slow breath, the body sways a little and the tail hangs; no sink and no folded legs.
+		local breath = wave(t, m.doze.seconds)
+		o.bodyY = (breath * 0.5 + 0.5) * m.doze.breathe
+		o.bodyRoll = math.rad(m.doze.sway) * wave(t, m.doze.seconds * 2.3)
+		o.headPitch = -math.rad(m.doze.headDroop + m.doze.nod * breath)
+		o.headRoll = -o.bodyRoll * 0.5
+		o.tailYaw *= m.doze.tail
 	elseif style == "stuck" then
 		local struggle = Logic.pulse(t, m.stuck.every, m.stuck.seconds)
 		o.headYaw = math.rad(m.stuck.shake) * math.sin(t * 40) * struggle
@@ -217,6 +227,24 @@ function Logic.idle(style: Style, t: number): Offsets
 		o.headYaw = math.rad(m.headLook.degrees * 0.6) * wave(t, m.headLook.seconds)
 	end
 	return o
+end
+
+-- The leg a part of the body is ("pawFL", "pawFR", "pawBL" or "pawBR"), or nil. `at` is the part's centre in
+-- the body part's own axes (the cat faces -Z, +X is its right), so a cat stood upright reads like one on all
+-- fours. The exported cats name every body part like the body, legs included, so a leg is told by shape and place:
+-- taller than it is wide, its top at or below the underside of the body, off the middle line.
+function Logic.legOf(at: Vector3, size: Vector3, bodySize: Vector3): string?
+	if size.Y < 1.2 * math.min(size.X, size.Z) then
+		return nil
+	end
+	if at.Y + size.Y / 2 > 0.1 - bodySize.Y / 2 or math.abs(at.X) < 0.05 then
+		return nil
+	end
+	local front = at.Z < 0
+	if at.X > 0 then
+		return if front then "pawFR" else "pawBR"
+	end
+	return if front then "pawFL" else "pawBL"
 end
 
 -- How far into a run a cat moving at `speed` studs a second is: 0 at a walk or standing, 1 at a full gallop.

@@ -812,13 +812,14 @@ local function buildSafeZoneMarks(parent: Instance)
 	safeWords(Vector3.new(0, streetTop, W.ParkGateZ + 4), Vector3.new(0, 0, 1), 12, marks)
 end
 
--- The Alleyway has no tier gate, so at night (v0.9, F66) a plain fence closes it along the same lines as the
--- safe zone stripes: both back alleys' inner edges and the street's mouth into the Square, with a "Closed until
+-- The Alleyway has no tier gate, so at night (v0.9, F66) a fence closes it along the same lines as the safe zone
+-- stripes. This plain one stands in while the night fence art is missing (buildNightFences): both back alleys' inner edges and the street's mouth into the Square, with a "Closed until
 -- sunrise" sign on the street side. `AlleyNightFence` under World.Gates, `Area` alley and `RequiresTier` 1, but no
 -- AreaGate tag (no gate sign or unlock effect): the client treats its Bars like a gate's and closes them while the
 -- Clock's AreasOpen is false. CanCollide stays off here, so the server's rays and the strays never meet it.
 local NIGHT_FENCE_WOOD = Color3.fromRGB(92, 64, 51)
 local NIGHT_FENCE_HEIGHT = 8 -- over a default jump
+local NIGHT_FENCE_SEGMENT = 8 -- studs along the line per CatCafe_Alley_NightFenceSegment (8.1 wide, posts overlap)
 
 local function nightFenceBars(from: Vector3, to: Vector3, parent: Instance): Part
 	local length = (to - from).Magnitude
@@ -882,6 +883,103 @@ local function buildAlleyNightFence(parent: Instance): Model
 	end
 	fence.Parent = parent
 	return fence
+end
+
+-- The night fence art (F66, Model-Agent #318): models tagged NightFence that show only while the areas are closed.
+-- Each is built hidden and walk-through here, with every part's own look and collision kept in attributes
+-- (NightTransparency, NightCollide; NightEnabled on lights, GUIs and emitters), and the client shows it while the
+-- Clock's AreasOpen is false (WorldController). The server never makes them solid, so strays and the server's rays
+-- never meet them, as with the gates' Bars.
+local function hideForDay(model: Model)
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local piece = descendant :: BasePart
+			piece:SetAttribute("NightTransparency", piece.Transparency)
+			piece:SetAttribute("NightCollide", piece.CanCollide)
+			piece.Transparency = 1
+			piece.CanCollide = false
+			piece.CanQuery = false
+			piece.CanTouch = false
+		elseif descendant:IsA("Decal") then
+			local decal = descendant :: Decal
+			decal:SetAttribute("NightTransparency", decal.Transparency)
+			decal.Transparency = 1
+		elseif descendant:IsA("Light") then
+			local light = descendant :: Light
+			light:SetAttribute("NightEnabled", light.Enabled)
+			light.Enabled = false
+		elseif descendant:IsA("LayerCollector") then
+			local gui = descendant :: LayerCollector
+			gui:SetAttribute("NightEnabled", gui.Enabled)
+			gui.Enabled = false
+		elseif descendant:IsA("ParticleEmitter") then
+			local emitter = descendant :: ParticleEmitter
+			emitter:SetAttribute("NightEnabled", emitter.Enabled)
+			emitter.Enabled = false
+		end
+	end
+end
+
+local function placeNightFence(asset: string, cframe: CFrame, parent: Instance): Model
+	local model = place(asset, cframe, parent)
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent -- never streams back in with its night look
+	CollectionService:AddTag(model, "NightFence")
+	hideForDay(model)
+	return model
+end
+
+-- Every night fence: one behind each area gate's Bars, the Alleyway's across the street mouth at the street arch and
+-- segments tiled along both back alleys' inner edges (front toward the cafes), and a closed back door in each plot
+-- (the client shows that one only on an owned cafe, whose back door is open by day). False when the Alleyway's art
+-- is missing, so the code-built AlleyNightFence closes it instead.
+local function buildNightFences(
+	gates: { [string]: Model },
+	plots: { Plot },
+	parent: Instance
+): boolean
+	for areaId, gate in gates do
+		local asset = "CatCafe_" .. areaId:sub(1, 1):upper() .. areaId:sub(2) .. "_NightFence"
+		if AssetRegistry.has(asset) then
+			placeNightFence(asset, gate:GetPivot(), parent).Name = asset
+		end
+	end
+	if AssetRegistry.has("CatCafe_Plot_BackDoorClosed") then
+		for _, plot in plots do
+			placeNightFence("CatCafe_Plot_BackDoorClosed", plot.cframe, plot.model).Name =
+				"BackDoorClosed"
+		end
+	end
+	if
+		not AssetRegistry.has("CatCafe_Alley_NightFence")
+		or not AssetRegistry.has("CatCafe_Alley_NightFenceSegment")
+	then
+		return false
+	end
+	local arches: { Layout.Arch } = Layout.alley.arches or {}
+	for _, arch in arches do
+		if arch.asset == Layout.streetArchAsset then
+			placeNightFence("CatCafe_Alley_NightFence", CFrame.new(arch.x, 0.1, arch.z), parent).Name =
+				"CatCafe_Alley_NightFence" -- buildArch's pivot
+		end
+	end
+	local floor = Layout.alley.floorY
+	local from, to = W.AlleySouthZ, W.SquareSouthZ - 1
+	local count = math.ceil((to - from) / NIGHT_FENCE_SEGMENT)
+	local step = (to - from) / count
+	for _, side in { -1, 1 } do
+		local x = side * (W.AlleyInnerX + 0.3)
+		local turn = math.rad(90 * side) -- the front (-Z) toward the cafes, which lie toward x = 0
+		for n = 1, count do
+			local z = from + (n - 0.5) * step
+			placeNightFence(
+				"CatCafe_Alley_NightFenceSegment",
+				CFrame.new(x, floor, z) * CFrame.Angles(0, turn, 0),
+				parent
+			).Name =
+				"CatCafe_Alley_NightFenceSegment"
+		end
+	end
+	return true
 end
 
 local function buildArea(
@@ -1341,7 +1439,9 @@ function WorldBuilder.build(): World
 	end
 	local manhole = buildManhole(gatesFolder)
 	buildIndexBoards(gates, folder("IndexBoards", root))
-	buildAlleyNightFence(gatesFolder)
+	if not buildNightFences(gates, plots, folder("NightFences", root)) then
+		buildAlleyNightFence(gatesFolder)
+	end
 	buildSafeZoneMarks(root)
 	buildSpinWheel(root)
 	buildFishMarket(root)

@@ -4,8 +4,8 @@
 -- or dozing on its feet when it stands upright in its outfit, F25), stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
 -- pant after a sprint and the hiss hop on a missed catch. Only the nearest few within range move
--- (budget.animatedCats within budget.animRadius); the rest stand as the server placed them. Shiny cats in range
--- sparkle, a shiny coat seen for the first time bursts with frost sparkles, and napping cats show floating z's.
+-- (budget.animatedCats within budget.animRadius); the rest stand as the server placed them. Gold cats in range
+-- sparkle, a gold coat seen for the first time bursts with gold sparkles, and napping cats show floating z's.
 --
 -- Cats come from replicated world state only: the Stray and StuckCat tags, models inside a Plot with a CatId,
 -- Napping or Pose attribute (working cats under Plot/Cats, napping cats; data-model section 13), and the HeldCat
@@ -75,8 +75,14 @@ local function onPartAdded(model: Model, descendant: Instance)
 	end
 end
 
--- A shiny coat seen for the first time: a burst of frost sparkles and a pale blue ring (F42). A stuck cat is never
--- marked shiny before its rescue (N30), so this is also the rescued shiny's reveal.
+-- A gold cat (F42; the variant was called shiny until 2026-10-27). The server's rename moves the attribute from
+-- `Shiny` to `Gold`; both are read until every server sets `Gold`.
+local function isGold(model: Instance): boolean
+	return model:GetAttribute("Gold") == true or model:GetAttribute("Shiny") == true
+end
+
+-- A gold coat seen for the first time: a burst of gold sparkles and a golden ring (F42). A stuck cat is never
+-- marked gold before its rescue (N30), so this is also the rescued gold cat's reveal.
 local function reveal(model: Model)
 	local frame, size = model:GetBoundingBox()
 	local at = frame.Position + Vector3.new(0, size.Y / 2, 0)
@@ -84,7 +90,7 @@ local function reveal(model: Model)
 		return
 	end
 	Particles.burst("shiny", at, Presets.reveal.sparkles)
-	Particles.ring(frame.Position - Vector3.new(0, size.Y / 2 - 0.1, 0), Presets.palette.eyeBlue)
+	Particles.ring(frame.Position - Vector3.new(0, size.Y / 2 - 0.1, 0), Presets.palette.golden)
 end
 
 local function consider(instance: Instance)
@@ -98,11 +104,17 @@ local function consider(instance: Instance)
 		model.DescendantAdded:Connect(function(descendant: Instance)
 			onPartAdded(model, descendant)
 		end)
-		model:GetAttributeChangedSignal("Shiny"):Connect(function()
-			if model:GetAttribute("Shiny") == true then
+		-- Only the edge into gold reveals: a server writing both names, or clearing the old one, plays it once.
+		local wasGold = isGold(model)
+		local function goldChanged()
+			local gold = isGold(model)
+			if gold and not wasGold then
 				reveal(model)
 			end
-		end)
+			wasGold = gold
+		end
+		model:GetAttributeChangedSignal("Gold"):Connect(goldChanged)
+		model:GetAttributeChangedSignal("Shiny"):Connect(goldChanged)
 		-- Stood up or put back on all fours (F25): the joints and axes change, so it binds again at the next pick.
 		model:GetAttributeChangedSignal("Pose"):Connect(function()
 			local entry: Entry? = active[model]
@@ -113,13 +125,13 @@ local function consider(instance: Instance)
 	end
 end
 
--- The cat a player carries is welded to them, so it never poses, but a shiny one sparkles and a rescued or
--- caught shiny bursts as it is picked up.
+-- The cat a player carries is welded to them, so it never poses, but a gold one sparkles and a rescued or
+-- caught gold cat bursts as it is picked up.
 local function watchCharacter(character: Model)
 	local function onChild(child: Instance, picked: boolean)
 		if child.Name == "HeldCat" and child:IsA("Model") then
 			held[child :: Model] = true
-			if picked and child:GetAttribute("Shiny") == true then
+			if picked and isGold(child) then
 				reveal(child :: Model)
 			end
 		end
@@ -367,19 +379,19 @@ function drop(model: Model, entry: Entry)
 	active[model] = nil
 end
 
--- Shiny cats sparkle (data-model section 2); the server never marks a stuck cat shiny before its rescue (N30).
-local function lightShinies(shiny: { Logic.Candidate<Model> })
+-- Gold cats sparkle (data-model section 2); the server never marks a stuck cat gold before its rescue (N30).
+local function lightGold(gold: { Logic.Candidate<Model> })
 	local budget = Context.budget
 	local lit: { [Model]: boolean } = {}
-	for _, model in Logic.nearest(shiny, budget.ambientRadius, budget.shinyEmitters) do
+	for _, model in Logic.nearest(gold, budget.ambientRadius, budget.goldEmitters) do
 		lit[model] = true
 		local emitter: ParticleEmitter? = sparkles[model]
 		if emitter == nil or not emitter:IsDescendantOf(model) then -- none yet, or its body streamed out
 			local body = model.PrimaryPart or partNamed(model, "Body")
 			local made = if body ~= nil then Particles.attach("shiny", body) else nil
 			if made ~= nil then
-				if Presets.textures.shinySparkle ~= "" then
-					made.Texture = Presets.textures.shinySparkle
+				if Presets.textures.goldSparkle ~= "" then
+					made.Texture = Presets.textures.goldSparkle
 				end
 				sparkles[model] = made
 			end
@@ -402,13 +414,13 @@ local function pick()
 	local budget = Context.budget
 	local now = os.clock()
 	local moving: { Logic.Candidate<Model> } = {}
-	local shiny: { Logic.Candidate<Model> } = {}
+	local gold: { Logic.Candidate<Model> } = {}
 	for model in held do
 		if model.Parent == nil then
 			held[model] = nil
-		elseif model:GetAttribute("Shiny") == true then
+		elseif isGold(model) then
 			table.insert(
-				shiny,
+				gold,
 				{ key = model, distance = (model:GetPivot().Position - focus).Magnitude }
 			)
 		end
@@ -423,8 +435,8 @@ local function pick()
 		if retry == nil or retry <= now then
 			table.insert(moving, { key = model, distance = distance })
 		end
-		if model:GetAttribute("Shiny") == true then
-			table.insert(shiny, { key = model, distance = distance })
+		if isGold(model) then
+			table.insert(gold, { key = model, distance = distance })
 		end
 	end
 	local keep: { [Model]: boolean } = {}
@@ -448,7 +460,7 @@ local function pick()
 			end
 		end
 	end
-	lightShinies(shiny)
+	lightGold(gold)
 end
 
 local elapsed = 0

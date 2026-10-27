@@ -236,7 +236,6 @@ export type PlayerProfile = {
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
-	equippedLure: string?, -- the v0.2 lure spots; goes when the bait bowl replaces them
 	bait: BaitState?,
 	dealer: DealerState,
 	cats: { [string]: CatInstance },
@@ -262,7 +261,6 @@ export type PlayerState = {
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
-	equippedLure: string?,
 	bait: BaitView?, -- nil when the bowl is empty
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },

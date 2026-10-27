@@ -7,6 +7,7 @@
 --   Areas         over the area's gate (tag AreaGate with `Area`), else the middle of its biggest World.Zones box; a
 --                 locked area shows a lock and its tier; the area the player stands in (UI.setZone) hides its own
 --   Night dealer  over the cart (tag DealerCart) while it is open
+--   Plaza         over the Spin Wheel station (tag SpinWheel, F49), with a red dot while a free spin waits
 -- Points come from model pivots and the persistent Zones boxes, so markers show before the parts stream in.
 --
 -- Roblox terms: a BillboardGui draws 2D UI at a 3D point, facing the camera; AlwaysOnTop shows it through walls.
@@ -30,6 +31,7 @@ export type LocationMarkers = {
 	setZone: (self: LocationMarkers, zone: string?) -> (),
 	setVisible: (self: LocationMarkers, visible: boolean) -> (),
 	setEnabled: (self: LocationMarkers, enabled: boolean) -> (),
+	setPlazaDot: (self: LocationMarkers, on: boolean) -> (),
 	destroy: (self: LocationMarkers) -> (),
 }
 
@@ -42,6 +44,8 @@ local STUDS_PER_METRE = 3.57 -- as the carry marker (Components/WorldMarker)
 local HOME_LIFT = 18
 local GATE_LIFT = 16
 local CART_LIFT = 10
+local PLAZA_LIFT = 16 -- the wheel is about 12 studs tall
+local DOT = 18
 local ZONE_LIFT = 12
 
 type Marker = {
@@ -55,6 +59,8 @@ type Marker = {
 	nameStroke: UIStroke,
 	sub: TextLabel,
 	subStroke: UIStroke,
+	dot: Frame?, -- the Plaza's red dot
+	dotStroke: UIStroke?,
 	color: Color3,
 	point: Vector3?,
 	locked: boolean,
@@ -147,6 +153,8 @@ local function newMarker(
 		nameStroke = nameStroke,
 		sub = sub,
 		subStroke = subStroke,
+		dot = nil,
+		dotStroke = nil,
 		color = color,
 		point = nil,
 		locked = false,
@@ -170,6 +178,11 @@ local function applyAlpha(marker: Marker, alpha: number)
 	marker.nameStroke.Transparency = fade
 	marker.sub.TextTransparency = fade
 	marker.subStroke.Transparency = fade
+	local dot, dotStroke = marker.dot, marker.dotStroke
+	if dot and dotStroke then
+		dot.BackgroundTransparency = fade
+		dotStroke.Transparency = fade
+	end
 end
 
 function LocationMarkers.new(parent: Instance): LocationMarkers
@@ -186,6 +199,21 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 	self._markers.home = self._home
 	self._dealer = newMarker(parent, "dealer", "🛒", "Night dealer", Theme.colors.berry)
 	self._markers.dealer = self._dealer
+	self._plaza = newMarker(parent, "plaza", Theme.icons.spin, "Plaza", Theme.colors.warn)
+	self._markers.plaza = self._plaza
+	local dot: Frame = Create("Frame", {
+		Name = "Dot",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(DOT, DOT),
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		Visible = false,
+		ZIndex = 2,
+		Parent = self._plaza.disc,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._plaza.dot = dot
+	self._plaza.dotStroke = Outline.border(dot, 2, Theme.colors.white)
 
 	local fadeClock, pointClock = 0, POINT_STEP
 	self._loop = RunService.Heartbeat:Connect(function(dt: number)
@@ -261,6 +289,14 @@ function LocationMarkers.setEnabled(self: any, enabled: boolean)
 	self:_fade()
 end
 
+-- A free spin is waiting (F49): the Plaza marker shows a red dot.
+function LocationMarkers.setPlazaDot(self: any, on: boolean)
+	local dot: Frame? = self._plaza.dot
+	if dot then
+		dot.Visible = on
+	end
+end
+
 -- The World.Zones name the player stands in; the area there hides its own marker.
 function LocationMarkers.setZone(self: any, zone: string?)
 	self._zoneArea = Wayfinding.areaOf(zone)
@@ -326,6 +362,11 @@ function LocationMarkers._findPoints(self: any)
 			and cart:IsA("Model")
 			and cart:GetAttribute("Open") ~= false
 		then cart:GetPivot().Position + Vector3.new(0, CART_LIFT, 0)
+		else nil
+
+	local wheel: Instance? = CollectionService:GetTagged("SpinWheel")[1]
+	self._plaza.point = if wheel and (wheel:IsA("Model") or wheel:IsA("BasePart"))
+		then (wheel :: PVInstance):GetPivot().Position + Vector3.new(0, PLAZA_LIFT, 0)
 		else nil
 
 	for _, marker in self._markers do

@@ -229,7 +229,7 @@ function BookStrip._showPrize(self: any, card: any, prize: Types.BookPrize, gold
 	local decorId: string? = prize.decorId
 	local decor: Types.DecorDef? = if decorId then self._decorById[decorId] else nil
 	if decorId then
-		table.insert(parts, if decor then decor.name else "Book decor")
+		table.insert(parts, if decor then decor.name else "Index decor")
 	end
 	card.prize.Text = table.concat(parts, " + ")
 	if decorId then

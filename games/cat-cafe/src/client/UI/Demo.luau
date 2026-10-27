@@ -37,7 +37,7 @@ local DEMO_TIP_JAR: { Types.TipJarRow } = {
 }
 
 -- data-model section 11b's Book milestones and prizes, until the engineer's Catalog.bookMilestones and
--- Catalog.bookRewards land
+-- Catalog.bookPrizes land
 local DEMO_BOOK_MILESTONES: { Types.BookMilestone } = {
 	{ id = "cats3", need = 3 },
 	{ id = "cats6", need = 6 },
@@ -57,7 +57,7 @@ local function bookPrizes(
 		gold10 = { decorId = "book_" .. areaId .. "_gold" },
 	}
 end
-local DEMO_BOOK_REWARDS: { [string]: { [string]: Types.BookPrize } } = {
+local DEMO_BOOK_PRIZES: { [string]: { [string]: Types.BookPrize } } = {
 	alley = bookPrizes(300, "tuna", { salmon = 1 }, "alley"),
 	park = bookPrizes(1000, "salmon", { caviar = 1 }, "park"),
 	neighbourhood = bookPrizes(3000, "caviar", { moon_milk = 1 }, "neighbourhood"),
@@ -76,7 +76,7 @@ local CATALOG: Types.Catalog = {
 	areas = Catalog.areas,
 	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
 	bookMilestones = (Catalog :: any).bookMilestones or DEMO_BOOK_MILESTONES,
-	bookRewards = (Catalog :: any).bookRewards or DEMO_BOOK_REWARDS,
+	bookPrizes = (Catalog :: any).bookPrizes or DEMO_BOOK_PRIZES,
 	rarities = Catalog.rarities,
 }
 
@@ -227,7 +227,7 @@ function Demo.run(UI: any): () -> ()
 	-- ClaimBookReward as the server checks it: a known prize, the count met, not claimed yet (data-model 11b)
 	connections[#connections + 1] = UI.events.claimBookReward:Connect(
 		function(areaId: string, milestoneId: string)
-			local rewards: { [string]: { [string]: Types.BookPrize } } = CATALOG.bookRewards or {}
+			local rewards: { [string]: { [string]: Types.BookPrize } } = CATALOG.bookPrizes or {}
 			local prize = rewards[areaId] and rewards[areaId][milestoneId]
 			local claimed = profile.bookRewards[areaId] or {}
 			if prize == nil or claimed[milestoneId] then
@@ -264,7 +264,7 @@ function Demo.run(UI: any): () -> ()
 			end
 			claimed[milestoneId] = true
 			profile.bookRewards[areaId] = claimed
-			UI.toast("Book reward claimed!", "good")
+			UI.toast("Index reward claimed!", "good")
 			task.delay(0.3, push)
 		end
 	)

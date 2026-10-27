@@ -37,7 +37,7 @@ export type Catalog = {
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
 	tipJar: { TipJarRow }?, -- F47: the twelve playtime gifts (data-model section 11b)
 	bookMilestones: { BookMilestone }?, -- F48: the Book's milestones, the same on every area page
-	bookRewards: { [string]: { [string]: BookPrize } }?, -- F48: area id -> milestone id -> prize
+	bookPrizes: { [string]: { [string]: BookPrize } }?, -- F48: area id -> milestone id -> prize (S61: not bookRewards)
 	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
 }
 

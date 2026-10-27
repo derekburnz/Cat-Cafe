@@ -4,7 +4,7 @@
 -- already has, so this works out which milestones are claimed, ready or still to go, for the reward strip, the
 -- red badges on the area tabs and the Book. Pure: no Theme, so the cloud spec runner can load it.
 --
--- Catalog.bookMilestones lists the milestones (the same on every page) and Catalog.bookRewards[areaId][id] the
+-- Catalog.bookMilestones lists the milestones (the same on every page) and Catalog.bookPrizes[areaId][id] the
 -- prize; an area or milestone without a prize has no card. state.bookRewards[areaId][id] is true once claimed.
 
 local CatVariant = require(script.Parent.CatVariant)
@@ -65,7 +65,7 @@ end
 function BookRewards.views(catalog: Catalog, state: State, areaId: string): { View }
 	local views: { View } = {}
 	local milestones: { Milestone } = catalog.bookMilestones or {}
-	local prizes = catalog.bookRewards and catalog.bookRewards[areaId]
+	local prizes = catalog.bookPrizes and catalog.bookPrizes[areaId]
 	if prizes == nil then
 		return views
 	end
@@ -95,7 +95,7 @@ end
 function BookRewards.claimable(catalog: Catalog, state: State): ({ [string]: number }, number)
 	local perArea: { [string]: number } = {}
 	local total = 0
-	local rewards: { [string]: { [string]: Prize } } = catalog.bookRewards or {}
+	local rewards: { [string]: { [string]: Prize } } = catalog.bookPrizes or {}
 	for areaId in rewards do
 		local ready = 0
 		for _, view in BookRewards.views(catalog, state, areaId) do
@@ -128,9 +128,23 @@ function BookRewards.isBookDecor(def: Types.DecorDef): boolean
 	return (def :: any).source == "book"
 end
 
+-- A gold Book piece names the normal piece it stands in for (`replaces`, N114). While the gold piece is owned and
+-- placed the server takes the normal one off the plot and out of the bonus, so its card says so (N117).
+-- Returns normal piece id -> gold piece id. `replaces` is read loosely until SharedTypes.DecorDef has it.
+function BookRewards.replacedBy(catalog: Catalog, state: State): { [string]: string }
+	local replaced: { [string]: string } = {}
+	for _, def in catalog.decor do
+		local normalId: string? = (def :: any).replaces
+		if normalId and state.decorOwned[def.id] == true and state.decorPlaced[def.id] == true then
+			replaced[normalId] = def.id
+		end
+	end
+	return replaced
+end
+
 -- The area and milestone whose prize is this Book decor, or nil when no prize names it.
 function BookRewards.decorSource(catalog: Catalog, decorId: string): (string?, Milestone?)
-	local rewards: { [string]: { [string]: Prize } } = catalog.bookRewards or {}
+	local rewards: { [string]: { [string]: Prize } } = catalog.bookPrizes or {}
 	local milestones: { Milestone } = catalog.bookMilestones or {}
 	for areaId, prizes in rewards do
 		for _, milestone in milestones do

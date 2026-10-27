@@ -50,7 +50,7 @@ UI.init({
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
         tipJar = Catalog.tipJar,      -- {TipJarRow}, F47: the Tip Jar's twelve playtime gifts
         bookMilestones = Catalog.bookMilestones,  -- {BookMilestone}, F48: the Book's milestones
-        bookRewards = Catalog.bookRewards,        -- F48: area id -> milestone id -> BookPrize
+        bookPrizes = Catalog.bookPrizes,          -- F48: area id -> milestone id -> BookPrize
         rarities = Catalog.rarities,  -- {[Rarity]: RarityDef}: the cat room's sell prices (sellValue)
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
@@ -177,7 +177,7 @@ Each menu pill gets a red "!" dot when its screen has something new (`Notices.lu
 
 ### Collection book index (built, F39 P1)
 
-Copied from the Pet Simulator index. The Book tab opens on a row of area tabs in tier order, each in its area colour when open, reading "3 / 10", "Complete!" or "Tier 4" for an area the player has not reached and found nothing in. Under it the open area's name, a progress bar in the area colour (gold when complete) and "3 / 10 · 30%". The grid shows that area's cats, rarest last, as still 3D models from `ReplicatedStorage.Assets` on a disc in the rarity colour; a cat not found yet is a dark silhouette with "???" and its rarity. A Gold pill marks cats in `state.goldCollection`; the book shows the base coat, while the cat room cards, the catch reveal and the bait card show a gold cat in its own coat (`Catalog.goldModelName`, F42, falling back to the base model). The panel title reads "12 / 50 found · 24%". Tapping a cell fills the detail strip with the same model (or silhouette). A cell's model is cloned the first time its area opens, so the book never holds more than the areas the player has looked at. No new fields: it reads `catalog.areas`, `cat.area`, `state.collection`, `state.catsOwned` and `state.goldCollection`.
+Copied from the Pet Simulator index. The Index tab (tab id `"Book"`, labelled Index since 2026-10-27) opens on a row of area tabs in tier order, each in its area colour when open, reading "3 / 10", "Complete!" or "Tier 4" for an area the player has not reached and found nothing in. Under it the open area's name, a progress bar in the area colour (gold when complete) and "3 / 10 · 30%". The grid shows that area's cats, rarest last, as still 3D models from `ReplicatedStorage.Assets` on a disc in the rarity colour; a cat not found yet is a dark silhouette with "???" and its rarity. A Gold pill marks cats in `state.goldCollection`; the book shows the base coat, while the cat room cards, the catch reveal and the bait card show a gold cat in its own coat (`Catalog.goldModelName`, F42, falling back to the base model). The panel title reads "12 / 50 found · 24%". Tapping a cell fills the detail strip with the same model (or silhouette). A cell's model is cloned the first time its area opens, so the book never holds more than the areas the player has looked at. No new fields: it reads `catalog.areas`, `cat.area`, `state.collection`, `state.catsOwned` and `state.goldCollection`.
 
 ### Area title card and shout-outs (built, F39 P1)
 
@@ -209,20 +209,22 @@ The twelve free playtime gifts of the session, like the Free Gifts grid in Pet S
 
 Coin cards show `max(minCoins, floor(dayRate * seconds))` with the day rate worked back from `incomePerSecond` at night (`NightIncomeMultiplier`); the server's figure at claim time is final.
 
-### Book rewards (built, F48, data-model section 11b)
+### Index rewards (built, F48, data-model section 11b)
 
-Each area page of the Book pays out as you find its cats, like the index rewards in Pet Simulator 99 (`Screens/BookStrip.luau`, sums in `Components/BookRewards.luau` with a spec). Above the open area's cats, a strip of four cards scrolls with the grid: "3 cats", "6 cats", "All 10" and "All 10 gold", each with the prize's picture (the Book decor's model, else the food's, else 💰) and text ("$300", "2 Tuna", "Salmon + Alley Mural Print"), then a bar with "2 / 3", a green Claim button once reached, or "✓ Claimed". The gold card has a gold border and bar. A pressed Claim shows "..." for 3 s or until ProfileSync marks it. A red count badge sits on each area tab with a reward waiting and on the Book tab (all areas), and the HUD's Book pill keeps its red dot lit while any reward waits, even after the Book is opened. Progress is counted on the client from `state.collection` and `state.goldCollection` (cats without an `area` count as Alleyway, as in the Book), the same counts the server checks. Without milestones or prizes for an area the strip hides.
+Players see the Book as the **Index** (Derek 2026-10-27): the HUD pill, the Collection tab, the Decor shop text and toasts say Index. Code, events and remotes keep the Book names (`BookRewards`, `claimBookReward`, `ClaimBookReward`, the `"Book"` tab id of `UI.openCollection`).
 
-In the Decor shop, Book decor (`source = "book"`, cost 0) never shows a Buy button: the card reads "📖 Book reward" and a dark ribbon over its picture names the milestone, "🔒 All 10 Alleyway cats" or "🔒 All 10 Alleyway cats as gold", until it is owned; then it offers Place or Remove like any decor. It never lights the Decor shop's red dot.
+Each area page of the Index pays out as you find its cats, like the index rewards in Pet Simulator 99 (`Screens/BookStrip.luau`, sums in `Components/BookRewards.luau` with a spec). Above the open area's cats, a strip of four cards scrolls with the grid: "3 cats", "6 cats", "All 10" and "All 10 gold", each with the prize's picture (the Book decor's model, else the food's, else 💰) and text ("$300", "2 Tuna", "Salmon + Alley Mural Print"), then a bar with "2 / 3", a green Claim button once reached, or "✓ Claimed". The gold card has a gold border and bar. A pressed Claim shows "..." for 3 s or until ProfileSync marks it. A red count badge sits on each area tab with a reward waiting and on the Index tab (all areas), and the HUD's Index pill keeps its red dot lit while any reward waits, even after the Index is opened. Progress is counted on the client from `state.collection` and `state.goldCollection` (cats without an `area` count as Alleyway, as in the Book), the same counts the server checks. Without milestones or prizes for an area the strip hides.
+
+In the Decor shop, Book decor (`source = "book"`, cost 0) never shows a Buy button: the card reads "📖 Index reward" and a dark ribbon over its picture names the milestone, "🔒 All 10 Alleyway cats" or "🔒 All 10 Alleyway cats as gold", until it is owned; then it offers Place or Remove like any decor. It never lights the Decor shop's red dot. A gold piece names the normal piece it stands in for (`replaces`, N114); while the gold piece is owned and placed, the normal piece's card shows "✨ Replaced by its gold piece" on its ribbon, since the server takes it off the plot and out of the bonus (N117, `BookRewards.replacedBy`).
 
 | API | Purpose |
 |---|---|
 | `catalog.bookMilestones` | `Catalog.bookMilestones`: `{ { id, need, gold? } }` in card order, the same on every page (`cats3` 3, `cats6` 6, `cats10` 10, `gold10` 10 gold). |
-| `catalog.bookRewards` | `Catalog.bookRewards`: `{ [areaId] = { [milestoneId] = { coins?, lures = { [lureId] = count }?, decorId? } } }`. An area or milestone without a prize has no card. |
+| `catalog.bookPrizes` | `Catalog.bookPrizes` (not `bookRewards`, which is the claimed map, S61): `{ [areaId] = { [milestoneId] = { coins?, lures = { [lureId] = count }?, decorId? } } }`. An area or milestone without a prize has no card. |
 | `state.bookRewards` | From ProfileSync: `{ [areaId] = { [milestoneId] = true } }` once claimed. Pass it in `UI.update`. |
 | `events.claimBookReward(areaId, milestoneId)` | Forward as `ClaimBookReward(areaId, milestoneId)`; the server pays, places the decor, marks the milestone and sends ProfileSync. |
 
-**Engineer:** add `source: "shop" | "book"` (optional, `"shop"` when missing) to `SharedTypes.DecorDef`; the UI reads it with a cast until then (`BookRewards.isBookDecor`).
+**Engineer:** add `source: "shop" | "book"` (optional, `"shop"` when missing) and `replaces: string?` to `SharedTypes.DecorDef`; the UI reads both with a cast until then (`BookRewards.isBookDecor`, `BookRewards.replacedBy`).
 
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 

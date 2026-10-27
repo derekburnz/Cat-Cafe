@@ -20,7 +20,7 @@ return function()
 			{ id = "all4", need = 4 },
 			{ id = "gold4", need = 4, gold = true },
 		},
-		bookRewards = {
+		bookPrizes = {
 			alley = {
 				cats3 = { coins = 300 },
 				all4 = { lures = { salmon = 1 }, decorId = "book_alley" },
@@ -110,6 +110,23 @@ return function()
 			)
 			expect(BookRewards.isBookDecor({ id = "book_alley", source = "book" })).to.equal(true)
 			expect(BookRewards.isBookDecor({ id = "plants" })).to.equal(false)
+		end)
+
+		it("finds normal pieces whose gold piece is owned and placed", function()
+			local catalog = {
+				cats = {},
+				decor = {
+					{ id = "book_alley" },
+					{ id = "book_alley_gold", replaces = "book_alley" },
+					{ id = "book_park_gold", replaces = "book_park" },
+				},
+			}
+			local replaced = BookRewards.replacedBy(catalog, {
+				decorOwned = { book_alley = true, book_alley_gold = true, book_park_gold = true },
+				decorPlaced = { book_alley = true, book_alley_gold = true, book_park_gold = false },
+			})
+			expect(replaced.book_alley).to.equal("book_alley_gold")
+			expect(replaced.book_park).to.equal(nil)
 		end)
 
 		it("lists a prize's foods in id order", function()

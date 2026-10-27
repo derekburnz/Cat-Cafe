@@ -322,6 +322,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		("%d placed  ·  %s"):format(placedCount, Format.money(state.money))
 	)
 
+	local replaced = if self._catalog then BookRewards.replacedBy(self._catalog, state) else {}
 	for decorId, card in self._cards do
 		local def: Types.DecorDef = card.def
 		local isOwned = state.decorOwned[decorId] == true
@@ -330,18 +331,22 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		card.owned.Visible = isOwned
 		local unlock: TextLabel? = card.unlock
 		if unlock then
-			unlock.Visible = not isOwned
+			-- a placed gold piece takes over from its normal piece (N117)
+			local isReplaced = isOwned and isPlaced and replaced[decorId] ~= nil
+			unlock.Visible = not isOwned or isReplaced
 			local catalog: Types.Catalog? = self._catalog
 			local areaId, milestone = nil, nil
 			if catalog then
 				areaId, milestone = BookRewards.decorSource(catalog, decorId)
 			end
-			local label = "From the Book"
+			local label = "From the Index"
 			if catalog and areaId and milestone then
 				local total = BookRewards.counts(catalog, state, areaId).total
 				label = BookRewards.unlockLabel(milestone, Format.areaName(areaId), total)
 			end
-			unlock.Text = Theme.icons.lock .. " " .. label
+			unlock.Text = if isReplaced
+				then "✨ Replaced by its gold piece"
+				else Theme.icons.lock .. " " .. label
 		end
 		if isOwned and isPlaced then
 			card.mode = "remove"
@@ -356,7 +361,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		elseif BookRewards.isBookDecor(def) then
 			-- F48: won from the Book, never bought (BuyDecor refuses it)
 			card.mode = "book"
-			card.action:setText(Theme.icons.collection .. " Book reward")
+			card.action:setText(Theme.icons.collection .. " Index reward")
 			card.action:setStyle("ghost")
 			card.action:setEnabled(false)
 		elseif locked then

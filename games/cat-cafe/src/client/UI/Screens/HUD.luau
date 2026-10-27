@@ -514,7 +514,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		},
 		{
-			name = "Book",
+			name = "Index",
 			icon = Theme.icons.collection,
 			style = "primary",
 			dot = "Collection",
@@ -601,7 +601,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			})
 			self._dots[screen] = dot
 		end
-		if item.name == "Book" then
+		if item.name == "Index" then
 			-- cats found out of all cats, where the old top right cats pill had it
 			self._bookCount = label({
 				Name = "Count",

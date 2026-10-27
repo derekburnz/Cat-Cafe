@@ -197,7 +197,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	})
 	self._bookTab = Button.new({
 		name = "BookTab",
-		text = "Book",
+		text = "Index",
 		style = "gold",
 		size = UDim2.fromOffset(120, TAB_HEIGHT),
 		textSize = Theme.sizes.textBody,

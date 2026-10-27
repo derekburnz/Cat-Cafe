@@ -34,6 +34,12 @@ function Effects.tier(): string
 	return Context.tier
 end
 
+-- Whether a resting cafe cat is sat up in a loaf right now (a Napping cat with no station, by day, now and then).
+-- Every client agrees without a remote, so Audio can purr from loafing cats.
+function Effects.isLoafing(model: Model): boolean
+	return Cats.isLoafing(model)
+end
+
 -- Follows the player's Settings switches (ProfileSync `settings`): `screenShake = false` turns off every camera
 -- shake and bump, `lowPerformance = true` runs every effect on the Low performance budget on any device (fewer
 -- moving cats, particles and butterflies) and makes tier() say "low". A missing key keeps its default, shake on

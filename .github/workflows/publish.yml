@@ -68,10 +68,9 @@ jobs:
         id: saved
         run: bash tools/opencloud/publish.sh Saved CatCafe.rbxl
 
-      # Loads every server and shared module and builds the world in a real Roblox server. Report only until it
-      # has passed once on Roblox; then drop continue-on-error so a failing smoke test stops the publish.
+      # Loads every server and shared module and builds the world in a real Roblox server; a failure stops the
+      # publish. First green run 2026-10-27 on Saved version 7: 46 modules, 8 plots, 33 placeholder models.
       - name: Engine smoke test (Open Cloud Luau Execution)
-        continue-on-error: true
         run: bash tools/opencloud/run-luau.sh tools/opencloud/Smoke.luau "${{ steps.saved.outputs.version }}"
 
       - name: Publish (goes live)

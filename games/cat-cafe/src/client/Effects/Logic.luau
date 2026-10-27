@@ -9,6 +9,7 @@ local Logic = {}
 
 export type Style =
 	"nap"
+	| "loaf"
 	| "doze"
 	| "stuck"
 	| "stray"
@@ -211,6 +212,22 @@ function Logic.idle(style: Style, t: number): Offsets
 		o.pawFR = math.rad(90)
 		o.pawBL = math.rad(90)
 		o.pawBR = math.rad(90)
+	elseif style == "loaf" then
+		-- Tucked in and awake (Derek 2026-10-27, from draft E): down on its belly with every leg folded under and the
+		-- front paws peeking out, head up and level, the tail laid along the right side. Very still: a slow breath,
+		-- a slow look to one side and back every so often, and a quick flick of the head like an ear.
+		local l = m.loaf
+		o.sink = 1
+		o.bodyY = (wave(t, l.seconds) * 0.5 + 0.5) * l.breathe
+		local side = if math.floor(t / l.lookEvery) % 2 == 0 then 1 else -1
+		o.headYaw = math.rad(l.look) * side * Logic.pulse(t, l.lookEvery, l.lookSeconds)
+		o.headPitch = -math.rad(l.headDroop)
+		o.headRoll = math.rad(l.flick) * Logic.pulse(t + 2, l.flickEvery, 0.2)
+		o.tailYaw = math.rad(l.tailWrap) + o.tailYaw * 0.1
+		o.pawFL = math.rad(90)
+		o.pawFR = math.rad(90)
+		o.pawBL = math.rad(90)
+		o.pawBR = math.rad(90)
 	elseif style == "doze" then
 		-- Asleep on its feet: an upright cat at its station at night (F25, F44). The head droops and nods with
 		-- each slow breath, the body sways a little and the tail hangs; no sink and no folded legs.
@@ -249,6 +266,25 @@ function Logic.idle(style: Style, t: number): Offsets
 		o.headYaw = math.rad(m.headLook.degrees * 0.6) * wave(t, m.headLook.seconds)
 	end
 	return o
+end
+
+-- A steady number from 0 to 1 for a text key (a cat's Uid), so every player sees the same cat do the same thing
+-- at the same moment without the server saying so.
+function Logic.phaseOf(key: string): number
+	local h = 0
+	for i = 1, #key do
+		h = (h * 31 + string.byte(key, i)) % 16777216
+	end
+	-- times the golden ratio, so keys a letter apart ("cat_1", "cat_2") still land far apart
+	local spread = h * 0.6180339887498949
+	return spread - math.floor(spread)
+end
+
+-- Whether a resting cafe cat is up in a loaf at server time `t`: for `hold` seconds out of every `every`, starting
+-- at its own `phase` (0 to 1), so the cats in a cafe take turns rather than all sitting up at once.
+function Logic.loafing(t: number, phase: number): boolean
+	local l = Presets.motion.loaf
+	return (t + phase * l.every) % l.every < l.hold
 end
 
 -- The leg a part of the body is ("pawFL", "pawFR", "pawBL" or "pawBR"), or nil. `at` is the part's centre in

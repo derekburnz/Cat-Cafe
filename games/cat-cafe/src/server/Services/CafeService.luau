@@ -440,15 +440,15 @@ end
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 -- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
 -- prompt); otherwise it is rolled here.
--- `rescued` marks a cat freed from a rescue spot (method "rescue"); `variant` is passed only for a tamed bait cat
--- (method "bait"), which keeps the shiny roll made when the food went in; every other cat here came by net.
+-- `method` is how the cat was found, "net" when nil; "rescue" also sets the rescued flag. `variant` keeps a shiny
+-- roll made before the cat was owned (a bait cat when the food went in, a stuck cat at night start).
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
 	notify: boolean,
 	knownProfile: Profile?,
 	charm: number?,
-	rescued: boolean?,
+	method: Types.CatchMethod?,
 	variant: string?
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
@@ -464,17 +464,15 @@ function CafeService.addCaughtCat(
 		then charm
 		else CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
 	local instance = CatStats.newInstance(newUid(), def.id, now, rolled)
-	if rescued == true then
+	instance.method = method or "net"
+	if method == "rescue" then
 		instance.rescued = true
-		instance.method = "rescue"
-	elseif variant ~= nil then
+	end
+	if variant ~= nil then
 		instance.variant = variant
-		instance.method = "bait"
 		if variant == "shiny" and profile.shinyCollection[def.id] == nil then
 			profile.shinyCollection[def.id] = now
 		end
-	else
-		instance.method = "net"
 	end
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1

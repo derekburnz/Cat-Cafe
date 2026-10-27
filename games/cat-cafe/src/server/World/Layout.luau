@@ -11,8 +11,9 @@ local Config = require(ReplicatedStorage.Shared.Config)
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- An axis-aligned rectangle on the ground, world or plot space depending on where it is used.
 export type Rect = { x1: number, z1: number, x2: number, z2: number }
--- A rescue spot: the prop stands at (x, floor, z) turned by rotY; the stuck cat sits at Layout.stuckPoses[prop].
-export type RescuePoint = { prop: string, x: number, z: number, rotY: number? }
+-- A rescue trap: the prop stands at (x, floor, z) turned by rotY; the stuck cat sits at Layout.stuckPoses[prop].
+-- `trap` is the TrapType (data-model section 9): a "tree" is shaken then caught, every other trap is the bar.
+export type RescuePoint = { prop: string, trap: string, x: number, z: number, rotY: number? }
 -- y is the height above the area floor (0 when omitted); wall props set it.
 export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
 -- A shared area in world space. A box area (no rects) is one floor with walls on three sides and a street-wide
@@ -44,6 +45,15 @@ local Layout = {}
 -- from assets/cat-cafe/exports/manifest.json, 12 numbers for CFrame.new(table.unpack(pose)). Plain numbers keep
 -- this module free of Roblox types. Placeholders share the real props' pivots, so one set fits both.
 Layout.stuckPoses = {
+	-- The traps (F27). Head first into the bin, back legs and tail out of the top.
+	CatCafe_Alley_TrashBin = { 0, 2.05, -0.8, 1, 0, 0, 0, 0, -1, 0, 1, 0 },
+	-- Wedged between the bags, front half showing.
+	CatCafe_Alley_GarbageBags = { -0.45, 0, 0.4, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+	-- Along the shakeable branch, head toward the trunk.
+	CatCafe_Park_RescueTree = { -1.7, 4, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 },
+	-- Head first into the can under the lid.
+	CatCafe_Park_TrashCan = { 0, 1.75, -0.8, 1, 0, 0, 0, 0, -1, 0, 1, 0 },
+	-- Stand-ins for the provisional traps of the grayboxes.
 	-- Clings to the low branch, rolled 20 degrees toward the trunk.
 	CatCafe_Alley_StuckTree = { -1.4, 4.4, 0, 0.9397, -0.342, 0, 0.342, 0.9397, 0, 0, 0, 1 },
 	-- Head inside the box, tail end out of the opening (turned 180 degrees).
@@ -325,11 +335,12 @@ Layout.alley = {
 		{ x = 30, y = 0.1, z = SQ1 + 14 },
 	} :: { Point },
 	rescueSpots = {
-		-- One in each back alley against the outer wall, opening toward the lane, and one in the Square on the
-		-- north wall's inner face. F27 swaps these props for the trash bins and the garbage bags.
-		{ prop = "CatCafe_Alley_StuckBox", x = -AO + 4.5, z = -30, rotY = -90 },
-		{ prop = "CatCafe_Alley_StuckBox", x = AO - 4.5, z = 30, rotY = 90 },
-		{ prop = "CatCafe_Alley_Drainpipe", x = -49, z = SQ2 - 0.5 }, -- between the mural and the Neighbourhood
+		-- A trash bin in each back alley against the outer wall, lid toward the lane, and the garbage bags in the
+		-- Square against the north wall (data-model section 9).
+		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = -AO + 4.5, z = -30, rotY = -90 },
+		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = AO - 4.5, z = 30, rotY = 90 },
+		-- between the mural and the Neighbourhood
+		{ prop = "CatCafe_Alley_GarbageBags", trap = "garbage_bag", x = -49, z = SQ2 - 1.6 },
 	} :: { RescuePoint },
 	-- The building backs, crate stacks, lights and laundry from alleyDressing, then the loose props in front of
 	-- them: clear of the backs' depth (2.7 windows, 3.4 door canopy, 5 fire escape) and of the lane spawn points.
@@ -397,9 +408,21 @@ Layout.park = {
 	} :: { Point },
 	rescueSpots = {
 		-- Branches reach toward the middle of the park (a tree's branch points along its -X).
-		{ prop = "CatCafe_Alley_StuckTree", x = 36, z = W.ParkCenterZ + 26 },
-		{ prop = "CatCafe_Alley_StuckTree", x = -36, z = W.ParkCenterZ - 25, rotY = 180 },
-		{ prop = "CatCafe_Alley_StuckBox", x = 24, z = W.ParkCenterZ - 25, rotY = 90 },
+		{ prop = "CatCafe_Park_RescueTree", trap = "tree", x = 36, z = W.ParkCenterZ + 26 },
+		{
+			prop = "CatCafe_Park_RescueTree",
+			trap = "tree",
+			x = -36,
+			z = W.ParkCenterZ - 25,
+			rotY = 180,
+		},
+		{
+			prop = "CatCafe_Park_TrashCan",
+			trap = "trashcan",
+			x = 24,
+			z = W.ParkCenterZ - 25,
+			rotY = 90,
+		},
 	} :: { RescuePoint },
 	props = {
 		{ asset = "CatCafe_Park_Fountain", x = 0, z = W.ParkCenterZ },
@@ -454,8 +477,8 @@ Layout.neighbourhood = {
 	lureSpots = {},
 	rescueSpots = {
 		-- Stand-ins: the box for the shed, the drainpipe for the gutter.
-		{ prop = "CatCafe_Alley_StuckBox", x = NX - 41, z = NZ + 8, rotY = -90 },
-		{ prop = "CatCafe_Alley_Drainpipe", x = NX + 12, z = NZ + NHD - 0.5 },
+		{ prop = "CatCafe_Alley_StuckBox", trap = "shed", x = NX - 41, z = NZ + 8, rotY = -90 },
+		{ prop = "CatCafe_Alley_Drainpipe", trap = "gutter", x = NX + 12, z = NZ + NHD - 0.5 },
 	},
 	props = {
 		{ asset = "CatCafe_Alley_StreetLamp", x = NX - 16, z = NZ - NHD + 3 },
@@ -498,8 +521,14 @@ Layout.woods = {
 	lureSpots = {},
 	rescueSpots = {
 		-- Stand-ins for the hollow log and the bramble bush; branches reach toward the middle.
-		{ prop = "CatCafe_Alley_StuckTree", x = WX + WHW - 4, z = WZ - 26 },
-		{ prop = "CatCafe_Alley_StuckTree", x = WX - WHW + 4, z = WZ + 18, rotY = 180 },
+		{ prop = "CatCafe_Alley_StuckTree", trap = "hollow_log", x = WX + WHW - 4, z = WZ - 26 },
+		{
+			prop = "CatCafe_Alley_StuckTree",
+			trap = "bramble_bush",
+			x = WX - WHW + 4,
+			z = WZ + 18,
+			rotY = 180,
+		},
 	},
 	props = {
 		{ asset = "CatCafe_Park_Tree", x = WX + 27, z = WZ + 14 },
@@ -541,8 +570,20 @@ Layout.sewer = {
 	lureSpots = {},
 	rescueSpots = {
 		-- Stand-ins for the drain pipe and the grate, both on the far wall, outlets toward the opening.
-		{ prop = "CatCafe_Alley_Drainpipe", x = SX - 12, z = SZ - SHD + 0.5, rotY = 180 },
-		{ prop = "CatCafe_Alley_Drainpipe", x = SX + 14, z = SZ - SHD + 0.5, rotY = 180 },
+		{
+			prop = "CatCafe_Alley_Drainpipe",
+			trap = "drain_pipe",
+			x = SX - 12,
+			z = SZ - SHD + 0.5,
+			rotY = 180,
+		},
+		{
+			prop = "CatCafe_Alley_Drainpipe",
+			trap = "grate",
+			x = SX + 14,
+			z = SZ - SHD + 0.5,
+			rotY = 180,
+		},
 	},
 	props = {
 		{ asset = "CatCafe_Alley_StreetLamp", x = SX - 16, z = SZ + SHD - 3 },

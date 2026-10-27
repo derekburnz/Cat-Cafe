@@ -141,6 +141,21 @@ local function refreshTutorial(s: Types.PlayerState)
 		end
 	elseif s.tutorialStep == 3 then
 		UI.tutorial.show("Buy your first table in Upgrades (U): more tips from every cat")
+	elseif s.tutorialStep == 4 then
+		-- gdd "The first ten minutes" beat 4: the bowl, then food in it (BaitService finishes the tutorial)
+		-- (the HUD strip shows about 50 characters on one line, reviewer N94)
+		if (s.upgradeLevels.lure_bowl or 0) < 1 then
+			UI.tutorial.show("Buy the Bait bowl in Upgrades (U)")
+		elseif s.bait ~= nil then
+			-- baited before the first table on an older save: the server moved new ones to 5 (S48)
+			UI.tutorial.show("A cat is on its way to your bowl", UIController.ownBaitBowl(), "Bowl")
+		else
+			UI.tutorial.show(
+				"Put Kibble in your bowl on the back step (F)",
+				UIController.ownBaitBowl(),
+				"Bowl"
+			)
+		end
 	else
 		UI.tutorial.hide()
 	end
@@ -371,6 +386,14 @@ local function wireIntents()
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)
+	-- Rename in the cat room (F33): the server validates, filters and answers with a toast and a sync. The UI adds
+	-- events.renameCat with its Rename dialog (ui-contract "Planned"); until then there is nothing to forward.
+	local renameCat = (UI.events :: any).renameCat
+	if renameCat ~= nil then
+		renameCat:Connect(function(uid: string, name: string)
+			Net.fire("RenameCat", uid, name)
+		end)
+	end
 	-- Collect on the rich tip marker (F31). A claim clears the plot's RichTipAmount, which the UI toasts.
 	UI.events.claimRichTip:Connect(function()
 		Net.fire("ClaimRichTip")

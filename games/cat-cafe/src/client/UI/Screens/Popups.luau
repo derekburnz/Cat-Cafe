@@ -461,7 +461,7 @@ function Popups.showCatFound(
 		end
 
 		-- the cat pops in from nothing with a little overshoot
-		self._portrait:set(def)
+		self._portrait:set(def, shiny)
 		self._portraitScale.Scale = 0
 		Tween.to(self._portraitScale, CAT_POP, { Scale = 1 })
 

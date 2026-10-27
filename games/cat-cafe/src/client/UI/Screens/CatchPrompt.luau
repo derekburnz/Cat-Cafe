@@ -3,7 +3,8 @@
 --   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars and rarity. v0.5: tries
 --                       are unlimited; while the cat sprints off after a miss (info.fleeingUntil) it reads "It's
 --                       running!", then "Catch your breath..." for the player who missed until info.retryAt, and
---                       turns back to Catch when it can be tried.
+--                       turns back to Catch when it can be tried. A cat knocked loose by a shove reads "Owner's
+--                       turn" for everyone else until info.ownerTurnUntil (reviewer N90).
 --   waiting()           one press went to the server: "Get ready..." until the circles (CatchCircles) or the
 --                       rescue bar (RescueBar) come.
 --   fail(reason)        red flash ("It got away"), then hide; with retry the card stays.
@@ -22,6 +23,8 @@ local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+
+local OWNER_TURN = "Owner's turn" -- a knocked-loose cat inside its old carrier's DropOwnerPrioritySeconds
 
 export type CatchPrompt = {
 	screenGui: ScreenGui,
@@ -48,6 +51,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	self._kind = "swing" :: Types.PromptKind
 	self._fleeingUntil = nil :: number?
 	self._retryAt = nil :: number?
+	self._ownerTurnUntil = nil :: number?
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeCatch",
@@ -221,6 +225,10 @@ function CatchPrompt.blockedText(self: any): string?
 	if fleeingUntil ~= nil and now < fleeingUntil then
 		return "It's running!"
 	end
+	local ownerTurnUntil: number? = self._ownerTurnUntil
+	if ownerTurnUntil ~= nil and now < ownerTurnUntil then
+		return OWNER_TURN
+	end
 	local retryAt: number? = self._retryAt
 	if retryAt ~= nil and now < retryAt then
 		return "Catch your breath..."
@@ -253,6 +261,7 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._kind = kind
 	self._fleeingUntil = if rescue then nil else info.fleeingUntil
 	self._retryAt = if rescue then nil else info.retryAt
+	self._ownerTurnUntil = if rescue then nil else info.ownerTurnUntil
 	self:_paintIdle(info.actionText)
 	self._grab.Text = if rescue then "RESCUE" else "CATCH"
 	local nameText = info.catName or ""
@@ -267,6 +276,7 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	local blocked = self:blockedText()
 	self._hint.Text = if rescue
 		then "Stop the marker in the zone. The cat never leaves if you miss."
+		elseif blocked == OWNER_TURN then "Its owner gets the first try"
 		elseif blocked then "Wait till it stops, then try again"
 		else "Hit each ring. Miss and it runs off!"
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
@@ -280,7 +290,8 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	if blocked then
 		-- turn back to Catch the moment it may be tried, unless anything else changed the card first
 		local token = self._failToken
-		local ready = math.max(self._fleeingUntil or 0, self._retryAt or 0)
+		local ready =
+			math.max(self._fleeingUntil or 0, self._retryAt or 0, self._ownerTurnUntil or 0)
 		task.delay(ready - Workspace:GetServerTimeNow() + 0.05, function()
 			if self._failToken == token and self.screenGui.Enabled then
 				self:show(info)

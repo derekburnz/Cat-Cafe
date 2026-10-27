@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 20:46 UTC",
+  "generated": "2026-10-27 21:23 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -65926,6 +65926,249 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_CodesCat.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Street_CodesCat.png"
+    },
+    {
+      "name": "CatCafe_Prop_FishCoin",
+      "category": "Prop",
+      "module": "coins",
+      "objects": [
+        "CatCafe_Prop_FishCoin"
+      ],
+      "triangles": 920,
+      "budget": 1200,
+      "size_studs": {
+        "x": 2.0,
+        "y": 0.49,
+        "z": 2.16
+      },
+      "size_roblox": [
+        2.0,
+        2.16,
+        0.49
+      ],
+      "bounds_min": [
+        -1.0,
+        -0.24,
+        0.0
+      ],
+      "bounds_max": [
+        1.0,
+        0.25,
+        2.16
+      ],
+      "pivot": "base centre: the coin stands on its rim, the cat face toward -Z; spin it about Y",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F52: the golden fish coin, a world pickup or prize; gold parts are Metal. Its HUD picture is exports/icons/CatCafe_Icon_GoldenFish.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_FishCoin.model.json",
+      "rbx_parts": 102,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_FishCoin.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_FishCoin.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "920/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "418 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_FishCoin.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_FishCoin.png"
+    },
+    {
+      "name": "CatCafe_Street_FishMarket",
+      "category": "Street",
+      "module": "market",
+      "objects": [
+        "CatCafe_Street_FishMarket",
+        "CatCafe_Street_FishMarket_Bulb",
+        "CatCafe_Street_FishMarket_Coin",
+        "CatCafe_Street_FishMarket_Cat_Body",
+        "CatCafe_Street_FishMarket_Cat_Head",
+        "CatCafe_Street_FishMarket_Cat_Eye1",
+        "CatCafe_Street_FishMarket_Cat_Eye2",
+        "CatCafe_Street_FishMarket_Cat_EarL",
+        "CatCafe_Street_FishMarket_Cat_EarR",
+        "CatCafe_Street_FishMarket_Cat_Tail",
+        "CatCafe_Street_FishMarket_Cat_LegF1",
+        "CatCafe_Street_FishMarket_Cat_LegF2",
+        "CatCafe_Street_FishMarket_Cat_Prop"
+      ],
+      "triangles": 5738,
+      "budget": 6000,
+      "size_studs": {
+        "x": 10.94,
+        "y": 4.25,
+        "z": 9.5
+      },
+      "size_roblox": [
+        10.94,
+        9.5,
+        4.25
+      ],
+      "bounds_min": [
+        -5.42,
+        -2.03,
+        0.0
+      ],
+      "bounds_max": [
+        5.52,
+        2.21,
+        9.5
+      ],
+      "pivot": "base centre; the counter front (-Z) faces the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_FishMarket_Coin": [
+          0.0,
+          -1.36,
+          0.55
+        ],
+        "CatCafe_Street_FishMarket_Cat_Body": [
+          0.0,
+          0.95,
+          2.21
+        ],
+        "CatCafe_Street_FishMarket_Cat_Head": [
+          0.0,
+          0.81,
+          3.66
+        ],
+        "CatCafe_Street_FishMarket_Cat_Eye1": [
+          0.31,
+          0.07,
+          4.01
+        ],
+        "CatCafe_Street_FishMarket_Cat_Eye2": [
+          -0.31,
+          0.07,
+          4.01
+        ],
+        "CatCafe_Street_FishMarket_Cat_EarL": [
+          0.4,
+          0.69,
+          4.56
+        ],
+        "CatCafe_Street_FishMarket_Cat_EarR": [
+          -0.4,
+          0.69,
+          4.56
+        ],
+        "CatCafe_Street_FishMarket_Cat_Tail": [
+          0.28,
+          1.72,
+          2.37
+        ],
+        "CatCafe_Street_FishMarket_Cat_LegF1": [
+          0.24,
+          0.52,
+          3.09
+        ],
+        "CatCafe_Street_FishMarket_Cat_LegF2": [
+          -0.24,
+          0.52,
+          3.09
+        ],
+        "CatCafe_Street_FishMarket_Cat_Prop": [
+          0.0,
+          0.81,
+          3.66
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_FishMarket_Coin": [
+          0.0,
+          0.55,
+          -1.36
+        ],
+        "CatCafe_Street_FishMarket_Cat_Body": [
+          0.0,
+          2.21,
+          0.95
+        ],
+        "CatCafe_Street_FishMarket_Cat_Head": [
+          0.0,
+          3.66,
+          0.81
+        ],
+        "CatCafe_Street_FishMarket_Cat_Eye1": [
+          -0.31,
+          4.01,
+          0.07
+        ],
+        "CatCafe_Street_FishMarket_Cat_Eye2": [
+          0.31,
+          4.01,
+          0.07
+        ],
+        "CatCafe_Street_FishMarket_Cat_EarL": [
+          -0.4,
+          4.56,
+          0.69
+        ],
+        "CatCafe_Street_FishMarket_Cat_EarR": [
+          0.4,
+          4.56,
+          0.69
+        ],
+        "CatCafe_Street_FishMarket_Cat_Tail": [
+          -0.28,
+          2.37,
+          1.72
+        ],
+        "CatCafe_Street_FishMarket_Cat_LegF1": [
+          -0.24,
+          3.09,
+          0.52
+        ],
+        "CatCafe_Street_FishMarket_Cat_LegF2": [
+          0.24,
+          3.09,
+          0.52
+        ],
+        "CatCafe_Street_FishMarket_Cat_Prop": [
+          0.0,
+          3.66,
+          0.81
+        ]
+      },
+      "prompt_anchor_roblox": [
+        0.0,
+        3.0,
+        -1.7000000000000002
+      ],
+      "studio": "F53: the Golden Fish Market in the street plaza (x -8.5, z 64, rotY -90); WorldBuilder tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is lit at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_FishMarket.model.json",
+      "rbx_parts": 506,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_FishMarket.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_FishMarket.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "5738/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3037 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.05 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_FishMarket.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Street_FishMarket.png"
     }
   ]
 }

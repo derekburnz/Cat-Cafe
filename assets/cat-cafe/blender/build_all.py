@@ -34,6 +34,7 @@ import alleyway  # noqa: E402
 import areas  # noqa: E402
 import boards  # noqa: E402
 import cats  # noqa: E402
+import coins  # noqa: E402
 import common  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
@@ -41,6 +42,7 @@ import gold  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
 import night  # noqa: E402
+import market  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
@@ -54,7 +56,7 @@ import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
-           night, stations]
+           night, stations, coins, market]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -92,6 +94,8 @@ PIVOT_NOTES = {
     "CatCafe_Alley_NightFenceSegment": "base centre of the 8 stud piece; -Z faces the cafe side",
     "CatCafe_Plot_BackDoorClosed": "Plot.cframe: floor top centre of the cafe",
     "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
+    "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
+    "CatCafe_Prop_FishCoin": "base centre: the coin stands on its rim, the cat face toward -Z; spin it about Y",
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
@@ -175,6 +179,12 @@ STUDIO_NOTES = {
     **{f"CatCafe_Cat_{n}_Gold{sfx}": f"F42: clone this instead of CatCafe_Cat_{n}{sfx} when the cat is gold. Same "
                                       "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
        for n in cats.ROSTER for sfx in cats.SUFFIX.values()},
+    "CatCafe_Street_FishMarket": "F53: the Golden Fish Market in the street plaza (x -8.5, z 64, rotY -90); WorldBuilder "
+                                 "tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter "
+                                 "front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is "
+                                 "lit at night.",
+    "CatCafe_Prop_FishCoin": "F52: the golden fish coin, a world pickup or prize; gold parts are Metal. Its HUD picture "
+                             "is exports/icons/CatCafe_Icon_GoldenFish.png (icons.py).",
 }
 
 
@@ -279,6 +289,8 @@ def main():
             extra = {"attributes": {"Area": boards.AREA_OF[name]}}
         if name == "CatCafe_Street_CodesCat":     # the prompt's spot, and the cap rides the cat's Head
             extra = {"attachments": [stations.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
+            extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
@@ -328,6 +340,8 @@ def main():
                 entry["slot"] = dict(_slot_entry(*accessories.SIT_SLOTS[n]), body="sit")
             elif n in accessories.slots(cats.ROSTER["Tabby"], "walk"):
                 entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "walk")[n]), body="walk")
+        if name == "CatCafe_Street_FishMarket":
+            entry["prompt_anchor_roblox"] = list(market.PROMPT_ROBLOX)
         if name == "CatCafe_Street_DealerCart":
             entry["display_slots"] = [list(p) for p in street.DISPLAY_SLOTS]
             entry["display_slots_roblox"] = [common.to_roblox(p) for p in street.DISPLAY_SLOTS]

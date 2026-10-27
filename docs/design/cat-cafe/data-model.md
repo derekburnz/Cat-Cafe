@@ -82,7 +82,7 @@ A cat the player owns is an instance: `{ uid, catId, variant, caughtAt, spotId, 
 
 - `uid`: unique string from the server.
 - `variant`: `base` or `gold` (`shiny` in version 3 saves). v0.3 change: Golden and Galaxy are dropped; there is no merging. A gold cat earns GoldMultiplier 1.5 and shows a sparkle on its model, its card and its book entry. v0.5 (Gavin, round 2 Q5: "A shiny also has a different color variation"): every cat also gets its own gold coat, an alternate set of palette swatches on the same mesh, made by the asset thread. Derek picked gold for all of them on 2026-10-27 (round 3 Q4, option B: "change shiny to gold and make it gold modeled"), so each gold cat is the same cat modelled in gold. Gold chance by how the cat was found: net stray GoldChanceNet 0.05 (v0.5, was 0.02; rolled at spawn and visible as the gold coat and sparkle on the stray), bait GoldChanceBait 0.05 (v0.5, was 0.02; rolled when the food goes in, revealed when the cat arrives), rescue GoldChanceRescue 0.10 (rolled at night start, revealed when the cat comes out). A knocked-loose cat keeps its variant and charm.
-- Name (Derek, 2026-10-27 13:18: "change “shiny” to be called gold also"): players only ever see the word Gold, never Shiny: "Gold Tabby" on cards, the Gold badge and filter chip, "Gold 5%" on food cards, the book's Gold page, "Sam caught a gold Rare Tabby!" in announcements. The engineer renamed the code to match (save version 4): variant `"gold"`, `goldCollection`, the `Gold` attribute, the `Gold*` Config constants and the `gold_found` event; loading a version 3 save reads its `"shiny"` variant and `goldCollection` as gold, so no saved cat loses its coat. The sparkle sprite keeps its file name `CatCafe_VFX_ShinySparkle`. Gold the colour (buttons, Perfect grades, coin piles) stays as it is.
+- Name (Derek, 2026-10-27 13:18: "change “shiny” to be called gold also"): players only ever see the word Gold, never Shiny: "Gold Tabby" on cards, the Gold badge and filter chip, "Gold 5%" on food cards, the book's Gold page, "Sam caught a gold Rare Tabby!" in announcements. The engineer renamed the code to match (save version 4): variant `"gold"`, `goldCollection`, the `Gold` attribute, the `Gold*` Config constants and the `gold_found` event; loading a version 3 save reads its `"shiny"` variant and `shinyCollection` as gold, so no saved cat loses its coat. The sparkle sprite keeps its file name `CatCafe_VFX_ShinySparkle`. Gold the colour (buttons, Perfect grades, coin piles) stays as it is.
 - `spotId`: the role slot the cat works, or nil in the cat room (section 5).
 - `level`, `xp`, `charm`: the per-cat stats in section 4b, unchanged.
 - `rescued`: true for a rescued cat. v0.3 change: it no longer pays more (RescuedTipsMultiplier is 1.0); the rescue reward is the gold chance. The flag stays for the book and analytics.
@@ -162,7 +162,7 @@ UI `DecorDef` fields; `requiresCafeLevel` becomes `requiresTier`. Bonuses apply 
 | book_sewer | Pipe Fountain | Book | Furniture | +5% tips | | +0.05 |
 | book_alley_gold, book_park_gold, ... | the same five in gold | Book | as above | +10% tips | | +0.10 |
 
-Book decor (F48, section 11b) is never sold: `cost` 0 with `source = "book"`, BuyDecor refuses it, and only ClaimBookReward grants it. The Alleyway and Park pieces are needed for the slice; the asset thread can make the print from the existing Alley mural and the gold pieces with the metal gold swatches.
+Book decor (F48, section 11b) is never sold: `cost` 0 with `source = "book"`, BuyDecor refuses it, and only ClaimBookReward grants it. The Decor screen shows it as "Book reward" with no Buy button and the milestone that unlocks it ("All 10 Alleyway cats"), locked until claimed, then Place or Remove like any owned decor (reviewer N113). An area's normal and gold pieces do not stack (N114): each gold row carries `replaces = "book_<area>"`, and while both are placed only the gold +0.10 counts, so the five areas top out at +25% tips, or +50% with every gold set. The Alleyway and Park pieces are needed for the slice; the asset thread can make the print from the existing Alley mural and the gold pieces with the metal gold swatches.
 
 ## 8. Bait (lure catalog and the bowl)
 
@@ -308,7 +308,7 @@ v0.5 change (Gavin, round 2 Q3: "Instead of Bump, make it a shove mechanic. Play
 
 Derek asked on 2026-10-27 for the reward screens from his reference games (playtime gifts, index rewards, a daily calendar). The Tip Jar and Book rewards are in the slice; the daily calendar (Daily Treat, common-features 11) and the spin wheel come later. Every prize is free and paid by the server, and nothing can be bought with Robux to skip a timer or a milestone (monetization-policy). Claiming is always a button press, so a milestone reached mid-chase never interrupts anything. Gavin can still change the prizes (round 3 Q16 and Q18).
 
-**Tip Jar (playtime gifts, F47).** A jar on the HUD fills as you play. Twelve steps unlock at set minutes of the current session, and each has its own Claim button. Session time is server time since the profile loaded: `sessionStartedAt = workspace:GetServerTimeNow()` when the profile loads. The claimed steps live in server memory only, so leaving the game resets the jar. Rejoining to farm the early steps does not pay, because the 2 minute gift is about 30 seconds of tips, less than a rejoin takes; Roblox's 20 minute idle kick limits idle play.
+**Tip Jar (playtime gifts, F47).** A jar on the HUD fills as you play. Twelve steps unlock at set minutes of the current session, and each has its own Claim button. Session time is server time since the profile loaded: `sessionStartedAt = workspace:GetServerTimeNow()` when the profile loads. The claimed steps live in server memory only, so leaving the game resets the jar. Rejoining every 10 minutes to farm the first three steps about breaks even on coins (reviewer N112: roughly 990 s of day rate and 22 Kibble over two hours, against 780 s for staying) and misses the Tuna, Salmon, Moonlit Sardines and Caviar, so staying pays more; Roblox's 20 minute idle kick limits idle play.
 
 `Catalog.tipJar`, one row per step in order:
 
@@ -343,7 +343,7 @@ Row shape: `{ step, minutes, kind = "coins" | "lure", seconds?, minCoins?, lureI
 | `gold10` | all 10 as gold cats | the area's Book decor in gold | same | same | same | same |
 
 - `ClaimBookReward(areaId, milestoneId)`: profile loaded, `areaId` a string in `Catalog.areas`, `milestoneId` one of `cats3`, `cats6`, `cats10`, `gold10`, the count met, not already in `bookRewards[areaId]`; 1 per second. Pays coins and foods, adds the decor to `decorOwned` and places it (like BuyDecor), marks the milestone and sends ProfileSync with `bookRewards`.
-- `bookRewards` is saved in the profile (section 14). Saves made before F48 start with it empty and can claim every milestone they already passed.
+- `bookRewards` is saved in the profile (section 14) and F48 raises the save version to 5 (reviewer S60): an older server rebuilds a profile from the fields it knows and would drop `bookRewards`, letting a player who hops servers during a rollout claim every milestone again, while the newer-save guard (S31) stops a version 5 save from loading on an old server at all. Saves made before F48 migrate with it empty and can claim every milestone they already passed.
 - The Book tab and the HUD Book button show a red badge while any milestone is claimable (UI).
 - Analytics: custom event `book_reward` (area, milestone) and economy source `book_reward`.
 - Later (Alpha, common-features 4): rarity sets across all areas (all Commons, all Rares and so on) and the all-50 reward.
@@ -373,11 +373,11 @@ Plot model (tag `Plot`): `OwnerUserId`, `PlotIndex`, `Tier`, `RichTipAmount`, `R
 
 Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `DisplayName` (the filtered name or the catalog name), `Gold`, `Napping` (bool, naps any cat), and the CollectionService tag `WorkingCat` while it works a station. v0.5 night nap (F44): each client naps every `WorkingCat` while the Clock `Phase` is night, so the server writes nothing at dusk and dawn; income stays the server's 60%.
 
-## 14. Player profile (save data, version 4)
+## 14. Player profile (save data, version 5 from F48)
 
 | field | type | default | notes |
 |---|---|---|---|
-| version | integer | 4 | 3 (2026-10-26, design v0.3); 4 (2026-10-27, the engineer's gold rename: `shiny` becomes `gold`, `shinyCollection` becomes `goldCollection`) |
+| version | integer | 5 | 3 (2026-10-26, design v0.3); 4 (2026-10-27, the engineer's gold rename: `shiny` becomes `gold`, `shinyCollection` becomes `goldCollection`); 5 (F48: adds `bookRewards` and `stats.tipJarClaims`; migration 4 to 5 sets `bookRewards = {}` and the counter to 0) |
 | coins | integer | 50 | |
 | lifetimeCoins | integer | 0 | |
 | lastTick, lastSeen | integer | join time | |

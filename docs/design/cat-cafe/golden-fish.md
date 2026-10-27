@@ -1,6 +1,6 @@
-# Golden Fish, Cafe Crates and Index Rewards (design v0.7 proposal)
+# Golden Fish, Cafe Crates and Index Rewards (design v0.7)
 
-Proposed 2026-10-27. Owner: game-designer thread. Readers: Derek, engineer, ui-designer, asset thread, growth. The numbers wait on Derek's reaction before the build starts. The contract fields at the end are the ones the engineer and the UI build to.
+Proposed 2026-10-27; Derek okayed the numbers the same day at 19:27 ("looks good"), and the build is F52 to F54. Owner: game-designer thread. Readers: Derek, engineer, ui-designer, asset thread, growth. The all-areas Index track is called All Cats everywhere, because the Cat Collector is now a visitor (data-model section 12b). The contract fields at the end are the ones the engineer and the UI build to.
 
 Derek, 2026-10-27:
 - 18:26: "all these type of games have at least a main currency to buy things like upgrades etc and a rarer currency to buy either big buffs or permanent things or hard to find things like possibly cosmetic crates that drop cosmetics for your cafe that give boosts to everything in it can be really strong ... we could use money as our normal currency and rare golden fish coins as the rare one displayed how much you have on the side changing to K/M/B/T or whatever currency so it doesn't flow off screen can add hard ways to get them and add in things like spin the wheel or later in time progression rewards etc"
@@ -129,7 +129,7 @@ Each area is worth +7% tips forever on its normal track and +15% on its gold tra
 - A permanent bonus counts from the moment the milestone is claimed, adds to `cafeMultiplier` and shows as a gold "+2% tips forever" chip next to the prize pictures.
 - Players who already claimed a milestone under F48 keep what they got, and its old prizes are not paid again. A permanent bonus is part of the milestone, so an F48 claim of `cats6`, `cats10` or `gold10` gets its bonus on the next load. `gold1` to `gold8` are new for everyone.
 
-### 5b. Cat Collector milestones (all areas together)
+### 5b. All Cats milestones (all areas together)
 
 Derek, 18:36: "on top of just overall amount of different cat's captured". A sixth page in the Index, "All Cats", counts different cats across every area (gold cats not counted twice) and has ten milestones. Each one adds to the permanent bonus and pays fish, spins or a crate. The crate is the one from the player's highest unlocked area.
 
@@ -173,7 +173,7 @@ Research on 2026-10-27, from the sources listed at the end. We borrow mechanics 
 
 Suggestions for Cat Cafe, best first:
 1. **Golden Fish Market, cosmetic crates and the Decor Index** (this doc). This is the Ticket Tent idea plus Grow a Garden's cosmetic crates, made fair.
-2. **Index rewards that hand out crates, spins and small permanent bonuses**, with a separate gold track and an all-areas Cat Collector track (section 5). It's PS99's rank-goal gift bags, built on our Index.
+2. **Index rewards that hand out crates, spins and small permanent bonuses**, with a separate gold track and an all-areas All Cats track (section 5). It's PS99's rank-goal gift bags, built on our Index.
 3. **Fish Pond.** A small koi pond in the plaza. Walk up every 30 minutes to scoop 3 golden fish. This is PS99's free diamond spot, and it gives a reason to come back to the plaza.
 4. **Big Cat Visit.** About every 30 minutes, a huge, sleepy Chonk-style cat shows up in one unlocked area. Everyone in the area plays a shared catch circle together, and everyone who helps gets golden fish and a chance at a Golden Crate. This is Blox Fruits' raids and bosses, made cozy and cooperative, with no fighting.
 5. **Badges that pay fish.** Roblox badges for goals like 100 catches, 10 rescues and every tier, at 5 fish each, as Bee Swarm does with tickets. It's cheap to build, and the badges also show on profiles.
@@ -191,7 +191,7 @@ Suggestions for Cat Cafe, best first:
 
 Order: F52, then F53, then F54. F54 can ship its coins, food, spins, permanent bonuses and the new milestones before F53, but a crate prize needs F53 to open.
 
-Contract (data-model sections 11b, 11c, 14, 15 and 17 take these when Derek okays the proposal):
+Contract (data-model sections 11b, 11c, 14, 15 and 17 point here since v0.7; this list is the source):
 - **Profile, save version 7:** `goldenFish` and `lifetimeGoldenFish` (integers), `crates` (map crateId to count, unopened), `crateLuck` (map crate pool, the zone or `classic`, to opens since the last Epic or better), `fishPerks` (map perkId to level), `stats.cratesOpened` and `stats.fishEarned`. Migration 6 to 7 sets them to 0 or empty. The S60 reasoning applies: an older server would drop them. Sanitise on load: counts must be integers of 0 or more, `crateLuck` 0 to 19 and perk levels 0 to max.
 - **`Catalog.crates[crateId]`:** `{ id, name, area, glyph, price?, odds = { Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 }, pieces = { decorId, ... } }`. The crate ids are `alley_crate` up to `sewer_crate` plus `classic_crate` (`area = "classic"`, open from Tier 1), which have `price = 60`, and `alley_golden_crate` up to `sewer_golden_crate` plus `classic_golden_crate`, which have no price and the odds `{ Epic = 80, Legendary = 17.5, Mythical = 2.5 }`. Each piece's chance is its rarity's odds split equally among that rarity's pieces. A piece is a `DecorDef` with `source = "crate"`, `crate` (its pool), `rarity`, `bonus` from the section 4 table and `kind` = `wallpaper`, `floor`, `paint`, `furniture` or `decoration`.
 - **`Catalog.indexPrizes[area][milestone]`**, the shape the UI thread asked for: `{ coins?, coinSeconds?, lures? = { [lureId] = n }, fish?, spins?, crates? = { [crateId] = n }, bonus?, tag? }`. `coins` is the minimum, and `coinSeconds` (when set) pays `max(coins, floor(dayRate x coinSeconds))`. `bonus?` is the permanent tip bonus as a fraction (0.02). `decorId` goes away. `Catalog.indexMilestones` becomes two tracks per area, `normal` (`cats3`, `cats6`, `cats10`) and `gold` (`gold1`, `gold2`, `gold4`, `gold6`, `gold8`, `gold10`), each row `{ id, track, needs }`. The Cat Collector track uses the area id `all` with `total5` to `total50`, counted from `collection`. `ClaimIndexReward(areaId, milestoneId)` accepts `all`, and `indexRewards.all` saves those claims. The Decor Index uses the area ids `decor_alley` up to `decor_sewer` and `decor_classic` with the milestones `decor5` and `decor10`, counted from the owned pieces of that crate.

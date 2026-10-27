@@ -171,10 +171,10 @@ return function()
 				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 			) :: any
 			local text = FoodOdds.extras()
-			local shiny = text:match("^Shiny ([%d%.]+)%% · Charm ")
+			local shiny = text:match("^Gold ([%d%.]+)%% · Charm ")
 			expect(shiny).to.be.ok()
-			-- data-model section 8: ShinyChanceBait 0.02, so the card says 2%
-			expect(tonumber(shiny or "") :: number).to.be.near((Config.ShinyChanceBait or 0.02) * 100, 1e-9)
+			-- data-model section 8: GoldChanceBait (was ShinyChanceBait), so the card says its percent
+			expect(tonumber(shiny or "") :: number).to.be.near(Config.GoldChanceBait * 100, 1e-9)
 			local shares: { number } = {}
 			local sum = 0
 			for count, share in text:gmatch("(%d)★ ([%d%.]+)%%") do

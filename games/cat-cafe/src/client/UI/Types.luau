@@ -75,7 +75,8 @@ export type PlayerState = {
 	-- optional extras the engineer's ProfileSync also sends
 	cats: { [string]: CatInstance }?, -- uid -> instance; enables the cat room tab
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
-	shinyCollection: { [string]: number }?, -- catId -> first shiny caught at
+	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
+	shinyCollection: { [string]: number }?, -- the old name, read until the controller sends goldCollection
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
 }
@@ -97,6 +98,7 @@ export type PartialState = {
 	lures: { [string]: number }?,
 	cats: { [string]: CatInstance }?,
 	collection: { [string]: number }?,
+	goldCollection: { [string]: number }?,
 	shinyCollection: { [string]: number }?,
 	carrying: string?,
 	tutorialStep: number?,
@@ -190,9 +192,6 @@ export type InitConfig = {
 	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
 	-- uiHint and uiRankReady; nil keeps the UI silent.
 	playSound: ((cueId: string) -> ...any)?,
-	-- Ignored: the bait bowl (F28) is always on now that the v0.2 lure spots are gone. Kept so a controller that
-	-- still passes `baitBowl = true` type checks.
-	baitBowl: boolean?,
 }
 
 -- What is in the bait bowl (data-model section 8), as UI.bait.set takes it. readyAt is server os.time(); the

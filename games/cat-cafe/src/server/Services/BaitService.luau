@@ -2,7 +2,7 @@
 -- The bait bowl (F28, data-model section 8): one bowl on the cafe's back step (v0.5 F44), bought as the lure_bowl
 -- upgrade.
 -- UseLure(lureId) puts one food in and rolls the cat in the same step (rarity from the food's odds, the cat among
--- that rarity's cats in every area the tier opens, charm and shiny), so a rejoin cannot reroll it. The cat arrives
+-- that rarity's cats in every area the tier opens, charm and gold), so a rejoin cannot reroll it. The cat arrives
 -- LureWaitSeconds later, online or not, and sits eating at the bowl. ResolveBait("tame") adds it to the cat room,
 -- "letgo" sends it off; the food is used either way. CafeService draws the bowl and sends it in ProfileSync, which
 -- names the cat only once it has arrived (reviewer N30).
@@ -90,7 +90,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		lureId = lureId,
 		placedAt = os.time(),
 		catId = def.id,
-		variant = if rng:NextNumber() < Config.ShinyChanceBait then "shiny" else "base",
+		variant = if rng:NextNumber() < Config.GoldChanceBait then "gold" else "base",
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 	}
 	profile.bait = bait

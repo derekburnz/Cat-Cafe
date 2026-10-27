@@ -646,8 +646,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		})
 	)
-	type TravelItem =
-		{ key: string, name: string, label: string, icon: string, style: Button.Style }
+	type TravelItem = { key: string, name: string, label: string, icon: string, style: Button.Style }
 	local travelItems: { TravelItem } = {
 		{ key = "home", name = "Cafe", label = HOME_TEXT, icon = Theme.icons.home, style = "gold" },
 		{

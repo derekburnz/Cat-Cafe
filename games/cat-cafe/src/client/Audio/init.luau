@@ -598,19 +598,19 @@ local LOAF_NEAR = 14
 local loafing: Instance? = nil
 
 local function followLoaf(root: BasePart?)
-	-- added by the vfx-animator's PR #222; nothing purrs before it
-	local isLoafing = (Effects :: any).isLoafing :: ((Instance) -> boolean)?
 	local best: Instance? = nil
 	local bestDistance = LOAF_NEAR
-	if root ~= nil and isLoafing ~= nil then
+	if root ~= nil then
 		for _, plot in CollectionService:GetTagged("Plot") do
 			local cats = plot:FindFirstChild("Cats")
 			for _, cat in if cats ~= nil then cats:GetChildren() else {} do
-				local part = if cat:GetAttribute("Napping") == true then partOf(cat) else nil
+				local part = if cat:IsA("Model") and cat:GetAttribute("Napping") == true
+					then partOf(cat)
+					else nil
 				local distance = if part ~= nil
 					then (part.Position - root.Position).Magnitude
 					else math.huge
-				if distance <= bestDistance and isLoafing(cat) == true then
+				if distance <= bestDistance and Effects.isLoafing(cat :: Model) then
 					best, bestDistance = cat, distance
 				end
 			end

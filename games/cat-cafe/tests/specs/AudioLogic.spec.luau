@@ -457,4 +457,34 @@ return function()
 			end
 		end)
 	end)
+
+	describe("Audio.Logic tackle sounds (QA)", function()
+		-- v0.11 F74: TackleAt and TackleMissAt sound only while under 0.6 s old (init.luau TACKLE_FRESH), so a join
+		-- or a respawn replays nothing; with no window a carry start keeps its 2 s.
+		it("a tackle's attribute sounds for 0.6 s and never later, whatever the default window", function()
+			local now = 1000
+			expect(Logic.freshStart(now, now, 0.6)).to.equal(true)
+			expect(Logic.freshStart(now - 0.59, now, 0.6)).to.equal(true)
+			expect(Logic.freshStart(now - 0.61, now, 0.6)).to.equal(false)
+			expect(Logic.freshStart(now - 1.5, now, 0.6)).to.equal(false)
+			expect(Logic.freshStart(now - 1.5, now)).to.equal(true)
+			expect(Logic.freshStart(now - 1.5, now, nil)).to.equal(true)
+			expect(Logic.freshStart(now - 2.01, now)).to.equal(false)
+		end)
+
+		it("a clock up to 1 s ahead counts as fresh at any window, and nothing past it", function()
+			local now = 1000
+			for _, window in { 0, 0.6, 2, 30 } do
+				expect(Logic.freshStart(now + 0.99, now, window)).to.equal(true)
+				expect(Logic.freshStart(now + 1.01, now, window)).to.equal(false)
+			end
+			expect(Logic.freshStart(now - 0.01, now, 0)).to.equal(false)
+		end)
+
+		it("anything but a number never sounds, with the short window too", function()
+			for _, odd in { nil, "1000", true, {}, 0 / 0, math.huge, -math.huge } :: { any } do
+				expect(Logic.freshStart(odd, 1000, 0.6)).to.equal(false)
+			end
+		end)
+	end)
 end

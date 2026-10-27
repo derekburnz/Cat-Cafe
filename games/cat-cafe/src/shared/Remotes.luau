@@ -41,8 +41,10 @@ Remotes.ServerToClient = {
 	"Announce", -- (text: string)  fired to everyone
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a strayId or a rescueSpotId;
 	-- retry keeps the prompt open. For a stray it only refuses GrabBegin; the catch outcome is CatchResult.
-	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
-	"CatchResult", -- (strayId: string, scores: { number }, chance: number, success: boolean, stayed: boolean)
+	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows, pawsLeft: number?)
+	-- pawsLeft is nil when this player cannot run out of paws on the stray (data-model section 10 step 5)
+	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, pawsLeft: number?,
+	-- charmGain: number)  grades up to and including the first Miss; the stray stays after a miss (v0.4)
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 }

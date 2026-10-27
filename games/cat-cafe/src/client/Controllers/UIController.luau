@@ -230,20 +230,41 @@ local function wireServerEvents()
 	end)
 	Net.on(
 		"CatchSchedule",
-		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+		function(
+			strayId: string,
+			circles: { Types.CatchCircle },
+			windows: Types.CatchWindows,
+			_pawsLeft: number?
+		)
 			UI.catch.showCircles(strayId, circles, windows)
 		end
 	)
+	-- v0.4 (data-model section 10 step 5) sends grades, not scores, and no chance. Until the UI takes grades, the
+	-- grades are turned back into the v0.3 scores and a 0 or 100% chance; the stray stays unless this player is
+	-- out of paws.
 	Net.on(
 		"CatchResult",
 		function(
 			strayId: string,
-			scores: { number },
-			chance: number,
+			grades: { Types.CircleGrade },
 			success: boolean,
-			stayed: boolean?
+			pawsLeft: number?,
+			_charmGain: number
 		)
-			UI.catch.showResult(strayId, scores, chance, success, stayed)
+			local scores: { number } = {}
+			for _, grade in grades do
+				table.insert(
+					scores,
+					if grade == "perfect" then 1 elseif grade == "good" then 0.5 else 0
+				)
+			end
+			UI.catch.showResult(
+				strayId,
+				scores,
+				if success then 1 else 0,
+				success,
+				not success and pawsLeft ~= 0
+			)
 		end
 	)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)

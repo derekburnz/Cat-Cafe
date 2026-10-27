@@ -87,7 +87,10 @@ local PIECES: { [string]: Group } = {
 	EarR = "earR",
 }
 local EAR_OUT = 0.6 -- an ear flicks out sideways this much for each bit it flicks back
-local SWELL_STEP = 0.002 -- the swell is drawn in steps this big, so a body at rest between breaths writes nothing
+-- The swell is drawn in steps of this share of the body's height (under 0.01 studs on any cat), so sizes change a
+-- dozen times a second while breathing in or out and not at all at rest between breaths (review S70).
+local SWELL_STEP = 0.01
+local SWELL_SIZED = 0.25 -- a block of the body at least this share of its height grows with the breath
 local SWELL_RIDERS: { Group } = { "head", "tail", "pawFL", "pawFR", "pawBL", "pawBR" } -- eyes and ears ride the head
 local IDENTITY: CFrame = CFrame.identity -- a local, as selene's Roblox library has no methods on CFrame.identity
 
@@ -325,9 +328,13 @@ local function halfHeight(inBody: CFrame, size: Vector3): number
 end
 
 -- Sets up the breath's swell (Rig.canSwell): the bottom and height of the body from its own blocks (the parts
--- named Body), the parts that ride the body, and how high up the body each piece's joint is.
+-- named Body), the parts that ride the body, and how high up the body each piece's joint is. Only the big blocks
+-- grow (at least SWELL_SIZED of the body's height); stripes, patches and other small markings just ride the swell,
+-- so a breathing cat sets a few sizes rather than every part's (review S70).
 local function bindBelly(rig: Rig, bodyBase: CFrame)
 	local low, high = math.huge, -math.huge
+	local blocks: { number } = {}
+	local heights: { number } = {}
 	for i, part in rig.parts do
 		if rig.groups[i] == "body" then
 			table.insert(rig.bellyParts, i)
@@ -337,12 +344,8 @@ local function bindBelly(rig: Rig, bodyBase: CFrame)
 				low = math.min(low, inBody.Y - half)
 				high = math.max(high, inBody.Y + half)
 				if squashable(part) then
-					local up = axisAlong(rig.base[i], bodyBase.UpVector)
-					local side = axisAlong(rig.base[i], bodyBase.RightVector)
-					table.insert(rig.bellySized, i)
-					table.insert(rig.bellySizes, part.Size)
-					table.insert(rig.bellyUp, up)
-					table.insert(rig.bellySide, if side == up then 0 else side)
+					table.insert(blocks, i)
+					table.insert(heights, 2 * half)
 				end
 			end
 		end
@@ -353,6 +356,16 @@ local function bindBelly(rig: Rig, bodyBase: CFrame)
 	rig.canSwell = true
 	rig.bellyFrame = CFrame.new(0, low, 0)
 	rig.bellyHeight = high - low
+	for k, i in blocks do
+		if heights[k] >= SWELL_SIZED * rig.bellyHeight then
+			local up = axisAlong(rig.base[i], bodyBase.UpVector)
+			local side = axisAlong(rig.base[i], bodyBase.RightVector)
+			table.insert(rig.bellySized, i)
+			table.insert(rig.bellySizes, rig.parts[i].Size)
+			table.insert(rig.bellyUp, up)
+			table.insert(rig.bellySide, if side == up then 0 else side)
+		end
+	end
 	for _, group in SWELL_RIDERS do
 		local joint: CFrame? = rig.joints[group]
 		if joint ~= nil then

@@ -23,6 +23,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Shove = require(ReplicatedStorage.Shared.Shove)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -49,16 +50,30 @@ type Stray = {
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
 	variant: string, -- "shiny" (ShinyChanceNet, rolled at spawn and shown as a sparkle) or "base"
+	method: Types.CatchMethod, -- "net", or what a knocked-loose cat was before it fell (its rescued flag, 10c)
+	drop: Shove.Drop?, -- set on a cat a shove knocked out of someone's arms (section 10c, S25)
 	alive: boolean,
 }
 
 -- variant is "shiny" for a shiny cat (a rescue rolls it at night start, data-model section 4); nil is the base.
+-- startedAt, immune and immuneUntil are the shove protections (section 10c); the character mirrors them.
 type Carry = {
 	def: Types.CatDef,
 	model: Model?,
 	method: Types.CatchMethod,
 	charm: number?,
 	variant: string?,
+	startedAt: number, -- server time
+	immune: boolean, -- for the whole carry: whoever re-catches a knocked-loose cat
+	immuneUntil: number, -- server time; after "It held on tight!"
+}
+
+-- What a knocked-loose cat keeps from the arms it fell out of (section 10c): charm, shiny and rescued flag.
+type Kept = {
+	charm: number?,
+	variant: string?,
+	method: Types.CatchMethod,
+	drop: Shove.Drop,
 }
 
 local world: WorldBuilder.World
@@ -141,6 +156,7 @@ local function clearPath(from: Vector3, to: Vector3): Vector3
 	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.RespectCanCollide = true -- decoration a player walks through never cuts a run short (reviewer N87)
 	local ignore: { Instance } = { straysFolder }
 	for _, player in Players:GetPlayers() do
 		if player.Character ~= nil then
@@ -197,6 +213,7 @@ local function wander(stray: Stray)
 			not stray.alive
 			or stray.lockedBy ~= 0
 			or stray.jumping
+			or not Shove.sprintsAfterMiss(stray.drop, serverNow()) -- a knocked-loose cat waits for its owner
 			or not anyoneNear(stray.home)
 		then
 			continue
@@ -219,10 +236,12 @@ local function spawnStray(
 	position: Vector3,
 	pointIndex: number?,
 	lifetime: number?, -- nil: stays until the next night start clears it
-	forceShiny: boolean? -- Studio's debug hook
+	forceShiny: boolean?, -- Studio's debug hook
+	kept: Kept? -- a cat knocked out of someone's arms keeps its charm, shiny and rescued flag
 ): Stray
-	local variant = if forceShiny == true or rng:NextNumber() < Config.ShinyChanceNet
-		then "shiny"
+	local variant = if kept ~= nil
+		then kept.variant or "base"
+		elseif forceShiny == true or rng:NextNumber() < Config.ShinyChanceNet then "shiny"
 		else "base"
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)
@@ -239,6 +258,12 @@ local function spawnStray(
 	model:SetAttribute("FleeingUntil", 0) -- v0.5: server time a missed stray stops running (display only)
 	-- A net stray's shiny is no secret (data-model section 4): the sparkle and the catch header show it.
 	model:SetAttribute("Shiny", variant == "shiny")
+	-- Display only (section 13); the drop record itself stays in the server's table below (S25, N29).
+	model:SetAttribute("Dropped", kept ~= nil)
+	if kept ~= nil then
+		model:SetAttribute("DropOwner", kept.drop.owner)
+		model:SetAttribute("DropOwnerUntil", kept.drop.ownerUntil)
+	end
 	CollectionService:AddTag(model, "Stray")
 
 	local prompt = Instance.new("ProximityPrompt")
@@ -277,8 +302,12 @@ local function spawnStray(
 		fleeingUntil = 0,
 		selfRetryAt = {},
 		jumping = false,
-		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
+		charm = if kept ~= nil and kept.charm ~= nil
+			then kept.charm
+			else CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 		variant = variant,
+		method = if kept ~= nil then kept.method else "net",
+		drop = if kept ~= nil then kept.drop else nil,
 		alive = true,
 	}
 	strays[id] = stray
@@ -381,8 +410,10 @@ end
 -- someone is mid-swing on leaves once that swing is over.
 local function startWave(areaDef: Types.AreaDef)
 	local leaving: { Stray } = {}
+	local now = serverNow()
 	for _, stray in strays do
-		if stray.area == areaDef.id then
+		-- a cat knocked loose just before nightfall stays for its owner (S32)
+		if stray.area == areaDef.id and Shove.leavesWithWave(stray.drop, now) then
 			table.insert(leaving, stray)
 		end
 	end
@@ -428,6 +459,21 @@ end
 -- The carried pose from the asset manifest (poses.carried.body_cframe_roblox): cradled across the chest, facing
 -- the character's left so the camera behind the player sees the cat side on. Relative to the HumanoidRootPart.
 local CARRIED_POSE = CFrame.new(0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0)
+
+-- The carrier's character attributes (section 13): CarryingCatId, CarryStartedAt (server time) and BumpImmune.
+-- Display only; the shove checks read the carry record. nil clears them.
+local function showCarry(player: Player, carry: Carry?)
+	local character = player.Character
+	if character == nil then
+		return
+	end
+	character:SetAttribute("CarryingCatId", if carry ~= nil then carry.def.id else nil)
+	character:SetAttribute("CarryStartedAt", if carry ~= nil then carry.startedAt else nil)
+	character:SetAttribute(
+		"BumpImmune",
+		if carry ~= nil then carry.immune or serverNow() < carry.immuneUntil else nil
+	)
+end
 
 local function attachHeldCat(player: Player, carry: Carry)
 	local character = player.Character
@@ -478,6 +524,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if humanoid ~= nil then
 		humanoid.WalkSpeed = Config.CarryWalkSpeed
 	end
+	showCarry(player, carry)
 end
 
 -- "an Epic Maine Coon", "a Tabby": the article for the word that follows it.
@@ -486,13 +533,15 @@ local function withArticle(phrase: string): string
 end
 
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it. `method` is
--- "net" or "rescue"; `variant` "shiny" shows on the held cat and in the toast.
+-- "net" or "rescue"; `variant` "shiny" shows on the held cat and in the toast. `immune` is true for whoever
+-- re-catches a knocked-loose cat: nobody can knock it loose again on that trip (section 10c).
 local function startCarry(
 	player: Player,
 	def: Types.CatDef,
 	method: Types.CatchMethod,
 	charm: number?,
-	variant: string?
+	variant: string?,
+	immune: boolean?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -504,12 +553,20 @@ local function startCarry(
 		)
 		return false
 	end
-	local carry: Carry =
-		{ def = def, model = nil, method = method, charm = charm, variant = variant }
+	local carry: Carry = {
+		def = def,
+		model = nil,
+		method = method,
+		charm = charm,
+		variant = variant,
+		startedAt = serverNow(),
+		immune = immune == true,
+		immuneUntil = 0,
+	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
 	CafeService.setCarrying(player, def.id)
-	local verb = if method == "rescue" then "rescued" else "caught"
+	local verb = if method == "rescue" and immune ~= true then "rescued" else "caught"
 	local name = if variant == "shiny" then "shiny " .. def.name else def.name
 	Net.toast(
 		player,
@@ -528,6 +585,7 @@ local function endCarry(player: Player): Carry?
 	-- the cafe's copy feeds ProfileSync.carrying; while it is set the client keeps the walk-home banner and door
 	-- marker up and holds back tutorial hints
 	CafeService.setCarrying(player, nil)
+	showCarry(player, nil)
 	if carry.model ~= nil then
 		carry.model:Destroy()
 	end
@@ -651,22 +709,78 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	setLock(stray, 0)
 
 	if forfeit == nil and Circles.succeeded(attempt) then
-		local gain = if profile.flags.autoPress then 0 else Circles.charmGain(attempt)
+		-- no Perfect bonus for a scripted-looking profile, nor on a knocked-loose cat, which already has its charm
+		-- (reviewer S36: two friends could shove and re-catch it up to 100)
+		local gain = if profile.flags.autoPress or stray.drop ~= nil
+			then 0
+			else Circles.charmGain(attempt)
 		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain)
 		profile.stats.grabsSucceeded += 1
-		local def, variant = stray.def, stray.variant
+		local method: Types.CatchMethod = stray.method
+		local def, variant, dropped = stray.def, stray.variant, stray.drop ~= nil
 		local charm = math.min(100, stray.charm + gain)
 		despawn(stray)
-		startCarry(player, def, "net", charm, variant)
+		startCarry(player, def, method, charm, variant, dropped)
 		return
 	end
 
+	-- The stray moves first, so its FleeingUntil reaches the client ahead of the result (QA on #130).
+	local now = serverNow()
+	if Shove.sprintsAfterMiss(stray.drop, now) then
+		flee(stray, player)
+	else
+		-- N86: during its owner window a knocked-loose cat stays put; its owner tries again a moment later
+		stray.selfRetryAt[player.UserId] = now + Config.StraySelfRetrySeconds
+	end
 	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, 0)
 	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
 	if forfeit ~= nil then
 		Net.toast(player, forfeit, "warn")
 	end
-	flee(stray, player)
+end
+
+-- Shove (section 10c) --------------------------------------------------------------------------------------
+
+-- The carried cat drops at the target's feet as a knocked-loose stray that keeps its charm, shiny and rescued flag,
+-- and scurries ScurryMin to Max studs along `away` (from the shover), inside the area. Only its old carrier can
+-- catch it for DropOwnerPrioritySeconds; `shoverUserId` never can (0: nobody, Studio's hook). Nil when the target
+-- has no character to drop it from, in which case the carry stays.
+local function knockLoose(
+	target: Player,
+	shoverUserId: number,
+	areaId: string,
+	away: Vector3
+): Stray?
+	local root = rootPosition(target)
+	local area = world.areas[areaId]
+	if root == nil or area == nil or carrying[target] == nil then
+		return nil
+	end
+	local carry = endCarry(target) :: Carry
+	local feet = WorldBuilder.clampToArea(area, root, 2, root)
+	local now = serverNow()
+	local stray = spawnStray(carry.def, areaId, feet, nil, nil, nil, {
+		charm = carry.charm,
+		variant = carry.variant,
+		method = carry.method,
+		drop = Shove.newDrop(target.UserId, shoverUserId, now),
+	})
+	local landing = clearPath(
+		feet,
+		WorldBuilder.clampToArea(area, feet + away * Shove.scurryStuds(rng:NextNumber()), 2, feet)
+	)
+	local run = Vector3.new(landing.X - feet.X, 0, landing.Z - feet.Z).Magnitude
+	stray.fleeingUntil = now + run / Config.StrayFleeSpeed
+	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
+	stray.jumping = true
+	stray.home = landing
+	task.spawn(function()
+		Mover.walkTo(stray.model, landing, Config.StrayFleeSpeed, function()
+			return stray.alive and stray.lockedBy == 0
+		end)
+		stray.jumping = false
+	end)
+	return stray
 end
 
 -- Remote handlers -----------------------------------------------------------------------------------------
@@ -713,6 +827,11 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	local selfRetryAt = stray.selfRetryAt[player.UserId]
 	if selfRetryAt ~= nil and now < selfRetryAt then
 		Net.fire(player, "GrabResult", strayId, false, "Catch your breath, then try again", true)
+		return
+	end
+	local dropRefusal, retry = Shove.grabRefusal(stray.drop, player.UserId, now)
+	if dropRefusal ~= nil then
+		Net.fire(player, "GrabResult", strayId, false, dropRefusal, retry)
 		return
 	end
 	local last = lastCatchStart[player]
@@ -917,8 +1036,57 @@ function CatService.inCatch(player: Player): boolean
 	return false
 end
 
+-- True while the player holds a catch or rescue lock: they can neither shove nor be shoved (section 10c, N85).
+function CatService.inMinigame(player: Player): boolean
+	return CatService.inCatch(player) or inRescue(player)
+end
+
+-- A landed shove on `target` (ShoveService). When the carry can be knocked loose (carrying, not immune, past
+-- BumpGraceSeconds) it rolls BumpChance: "loose" drops the cat as a stray in `areaId` (knockLoose), "held" makes
+-- the carrier immune for Shove.HELD_IMMUNE_SECONDS. Nil when there was nothing to roll. `forced` is Studio's hook.
+function CatService.tryKnockLoose(
+	target: Player,
+	shoverUserId: number,
+	areaId: string,
+	away: Vector3,
+	forced: Shove.KnockResult?
+): Shove.KnockResult?
+	local carry = carrying[target]
+	local now = serverNow()
+	if carry == nil or not Shove.canKnockLoose(carry, now) then
+		return nil
+	end
+	local loose = if forced ~= nil then forced == "loose" else Shove.landsLoose(rng:NextNumber())
+	if loose and knockLoose(target, shoverUserId, areaId, away) ~= nil then
+		return "loose"
+	end
+	carry.immuneUntil = now + Shove.HELD_IMMUNE_SECONDS
+	showCarry(target, carry)
+	task.delay(Shove.HELD_IMMUNE_SECONDS + 0.05, function()
+		if carrying[target] == carry then
+			showCarry(target, carry)
+		end
+	end)
+	return "held"
+end
+
 function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
+end
+
+-- Studio-only test hook: knocks the player's carried cat loose where they stand, as a shove from nobody would,
+-- whatever the grace or immunity. Errors outside a catching area. Returns the new StrayId.
+function CatService.debugKnockLoose(player: Player): string
+	assert(RunService:IsStudio(), "debugKnockLoose is Studio only")
+	assert(carrying[player] ~= nil, "not carrying a cat")
+	local root = rootPosition(player)
+	local areaId = if root ~= nil then WorldBuilder.areaAt(world, root) else nil
+	assert(areaId ~= nil, "stand in a catching area first")
+	local character = player.Character :: Model
+	local look = character:GetPivot().LookVector
+	local stray = knockLoose(player, 0, areaId :: string, Vector3.new(look.X, 0, look.Z).Unit)
+	assert(stray ~= nil, "no character to drop it from")
+	return (stray :: Stray).id
 end
 
 -- Puts a freed cat in the player's arms (RescueService). False when they already carry one.

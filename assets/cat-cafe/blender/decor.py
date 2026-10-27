@@ -3,7 +3,9 @@ Multi-object assets split out parts that need a Studio material (Neon, glass).""
 
 import math
 
-from common import Builder
+from alleyway import FACE, MURAL_CATS
+from common import RB, Builder
+from plot import rot_z
 
 
 def build_window_plants(mat):
@@ -182,6 +184,110 @@ def build_string_lights(mat):
     return [wire.finalize("CatCafe_Decor_StringLights_Wire", mat), bulbs.finalize("CatCafe_Decor_StringLights_Bulbs", mat)]
 
 
+# Book decor (data-model section 7, F48): a reward piece per area, never sold, plus a gold version.
+def _rects(grid):
+    """Pixel grid (rows of chars, top first, '.' empty) as rectangles (r0, r1, c0, c1, ch): runs of a char in a
+    row, merged down while the next row has the same run."""
+    out, open_ = [], {}
+    for r, row in enumerate(list(grid) + [""]):
+        runs, c = set(), 0
+        while c < len(row):
+            if row[c] == ".":
+                c += 1
+                continue
+            e = c
+            while e < len(row) and row[e] == row[c]:
+                e += 1
+            runs.add((c, e, row[c]))
+            c = e
+        for key in list(open_):
+            if key not in runs:
+                out.append((open_.pop(key), r) + key)
+        for key in runs:
+            open_.setdefault(key, r)
+    return out
+
+
+def _mural_face(b, rows, colours, x0, y_top, px, z):
+    """One mural cat face on a print, reading toward -X from x0, in three layers out from depth z: the head
+    and ears, then the markings, eyes (pupils filled), nose and muzzle, then the pupils."""
+    base = [row if r < 2 else "".join("F" if ch != "." else "." for ch in row) for r, row in enumerate(rows)]
+    marks = ["." * len(row) if r < 2 else "".join("E" if ch == "P" else ch if colours.get(ch) != colours["F"] else "."
+                                                    for ch in row) for r, row in enumerate(rows)]
+    pupils = ["".join(ch if ch == "P" else "." for ch in row) for row in rows]
+    for k, grid in enumerate((base, marks, pupils)):
+        for r0, r1, c0, c1, ch in _rects(grid):
+            b.span((x0 - c1 * px, y_top - r1 * px, z - 0.02 * (k + 1)), (x0 - c0 * px, y_top - r0 * px, z - 0.02 * k),
+                   colours[ch])
+
+
+def build_mural_print(mat, name="CatCafe_Decor_MuralPrint", frame="caramel_wood", lip="dark_wood", plaque=None):
+    """Book decor for the Alleyway: the Alley mural (alleyway.build_mural) as a small framed print, at 0.11 scale
+    with its colour bands, sun and five cat faces. Wall piece, hung like the neon sign: pivot back-bottom centre,
+    the back on the wall, the front facing -Z (Roblox), 3.6 x 1.8 x 0.2 studs (the engineer's spot is 3.6 wide)."""
+    b = RB()
+    fr, mat_w = 0.2, 0.12                               # frame width, mat border at the sides
+    ow, oh = 1.8, 1.8                                   # outer half width, outer height
+    s = (2 * ow - 2 * (mat_w + fr)) / 27                # mural studs -> print studs
+    w, h = 27 * s, 11 * s                               # canvas
+    mat_h = (oh - h) / 2 - fr                           # mat border above and below
+    iw = ow - fr
+    zm = -0.06                                          # the mat's face; the picture builds out from it
+    b.span((-ow, 0, -0.18), (ow, fr, 0), frame)                                           # frame
+    b.span((-ow, oh - fr, -0.18), (ow, oh, 0), frame)
+    for sx in (-1, 1):
+        b.span((sx * iw, fr, -0.18), (sx * ow, oh - fr, 0), frame)
+        b.span((sx * (iw - 0.05), fr, -0.19), (sx * iw, oh - fr, zm), lip)                # inner lip, sides
+    b.span((-iw + 0.05, fr, -0.19), (iw - 0.05, fr + 0.05, zm), lip)
+    b.span((-iw + 0.05, oh - fr - 0.05, -0.19), (iw - 0.05, oh - fr, zm), lip)
+    b.span((-iw + 0.05, fr + 0.05, zm), (iw - 0.05, oh - fr - 0.05, 0), "offwhite")      # mat and backing
+
+    y0 = fr + mat_h
+
+    def y(my):                                          # mural height -> print height
+        return y0 + (my - 1.5) * s
+
+    for (ya, yb, sw) in ((1.5, 3.0, "leaf_green"), (3.0, 6.0, "lamp_warm"), (6.0, 9.0, "blush"), (9.0, 12.5, "pastel_lilac")):
+        b.span((-w / 2, y(ya), zm - 0.02), (w / 2, y(yb), zm), sw)
+    b.cyl((10.4 * s, y(10.4), zm - 0.03), 1.5 * s, 0.02, "sparkle", axis="Z", segments=12)
+    for k in range(8):                                                                    # sun rays
+        a = math.radians(22.5 + 45 * k)
+        b.box((10.4 * s + 2.0 * s * math.cos(a), y(10.4) + 2.0 * s * math.sin(a), zm - 0.03), (0.7 * s, 0.2 * s, 0.02),
+              "sparkle", rot=rot_z(math.degrees(a)))
+    px = 0.55 * s
+    for k, (_, colours, override) in enumerate(MURAL_CATS):
+        rows = [override.get(r, row) for r, row in enumerate(FACE)]
+        cx = (-10.8 + 5.4 * (4 - k)) * s                # the first cat reads leftmost, as on the mural
+        _mural_face(b, rows, colours, cx + 4 * px, y(3.5 + 8 * 0.55), px, zm - 0.02)
+    if plaque:                                                                            # name plate on the frame
+        b.span((-0.45, 0.04, -0.2), (0.45, 0.16, -0.18), plaque)
+    return [b.finalize(name, mat)]
+
+
+def build_book_bench(mat, name="CatCafe_Decor_ParkBench", slat="caramel_wood", iron="concrete_dark", cap="concrete_dark"):
+    """Book decor for the Park: a little indoor copy of the Park bench (3 x 1.3 x 2.4, seat at 1.1) with curled
+    armrests and a mint cushion with a paw print. Pivot base centre, front -Y."""
+    b = Builder()
+    for sx in (-1, 1):
+        x = sx * 1.4
+        b.box_base((x, -0.45, 0), (0.16, 0.16, 0.89), iron)                               # front leg
+        b.box_base((x, 0.5, 0), (0.16, 0.16, 2.2), iron)                                  # back post
+        b.box_base((x, -0.065, 0.89), (0.16, 0.97, 0.12), iron)                           # seat rail, leg to post
+        b.box_base((x, -0.45, 1.11), (0.16, 0.16, 0.39), iron)                            # arm post
+        b.box_base((x, -0.09, 1.5), (0.16, 1.02, 0.12), iron)                             # armrest
+        b.cyl((x, -0.6, 1.56), 0.1, 0.16, iron, segments=8, rot=(math.radians(90), "Y"))  # scroll at its front
+        b.sphere((x, 0.5, 2.28), 0.1, cap, segments=8, rings=5)                           # post finial
+    for yc in (-0.45, -0.2, 0.05, 0.3):                                                    # seat slats
+        b.box_base((0, yc, 1.01), (3.0, 0.19, 0.1), slat)
+    for z in (1.25, 1.62, 1.96):                                                           # back slats
+        b.box_base((0, 0.37, z), (3.0, 0.1, 0.18), slat)
+    b.box_base((0.62, -0.1, 1.11), (0.9, 0.66, 0.14), "mint")                              # cushion
+    b.box_base((0.62, -0.13, 1.25), (0.24, 0.18, 0.02), "offwhite", bevel=False)           # paw print
+    for dx, dy in ((-0.15, 0.06), (0, 0.13), (0.15, 0.06)):
+        b.box_base((0.62 + dx, -0.13 + dy + 0.1, 1.25), (0.08, 0.08, 0.02), "offwhite", bevel=False)
+    return [b.finalize(name, mat)]
+
+
 ASSETS = {
     "CatCafe_Decor_DoorSign": (build_door_sign, 1500),   # two boards, one visible at a time
     "CatCafe_Decor_StringLights": (build_string_lights, 800),
@@ -193,4 +299,10 @@ ASSETS = {
     "CatCafe_Decor_PlantPot": (build_plant_pot, 500),
     "CatCafe_Decor_MenuBoard": (build_menu_board, 500),
     "CatCafe_Decor_Cup": (build_cup, 300),
+    "CatCafe_Decor_MuralPrint": (build_mural_print, 1500),
+    "CatCafe_Decor_MuralPrint_Gold": (lambda mat: build_mural_print(
+        mat, "CatCafe_Decor_MuralPrint_Gold", frame="gold_mid", lip="gold_light", plaque="gold_light"), 1500),
+    "CatCafe_Decor_ParkBench": (build_book_bench, 1200),
+    "CatCafe_Decor_ParkBench_Gold": (lambda mat: build_book_bench(
+        mat, "CatCafe_Decor_ParkBench_Gold", slat="gold_light", iron="gold_dark", cap="gold_mid"), 1200),
 }

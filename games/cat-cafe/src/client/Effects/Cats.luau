@@ -208,6 +208,19 @@ local function isWorking(model: Model): boolean
 	return CollectionService:HasTag(model, "WorkingCat") or model:GetAttribute("SpotId") ~= nil
 end
 
+-- Whether a resting cafe cat (Napping, no station) is sat up in a loaf right now: by day, for a while now and then
+-- (Derek 2026-10-27). Every client works it out the same from the server clock and the cat's Uid.
+function Cats.isLoafing(model: Model): boolean
+	local uid = model:GetAttribute("Uid")
+	return model:GetAttribute("Napping") == true
+		and not isWorking(model)
+		and not Context.isNight()
+		and Logic.loafing(
+			Workspace:GetServerTimeNow(),
+			Logic.phaseOf(if type(uid) == "string" then uid else model.Name)
+		)
+end
+
 local function styleOf(model: Model): Logic.Style
 	local pose = model:GetAttribute("Pose")
 	if
@@ -216,7 +229,10 @@ local function styleOf(model: Model): Logic.Style
 		or (Context.isNight() and isWorking(model)) -- the cafe is closed at night (F44)
 	then
 		-- A cat stood upright at its station (F25) dozes on its feet; one on all fours curls up.
-		return if pose == "upright" then "doze" else "nap"
+		if pose == "upright" then
+			return "doze"
+		end
+		return if Cats.isLoafing(model) then "loaf" else "nap"
 	elseif CollectionService:HasTag(model, "StuckCat") then
 		return "stuck"
 	elseif CollectionService:HasTag(model, "Stray") then

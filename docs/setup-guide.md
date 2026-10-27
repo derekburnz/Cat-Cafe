@@ -6,7 +6,7 @@ Roblox terms you will meet: a **place** is one world file; an **experience** is 
 
 ## 1. Accounts
 - Roblox account (yours). Later: a Roblox Group to own the game once friends and revenue split are agreed (docs/plan.md section 12).
-- GitHub account `derekburnz`. Create a **private** repository named `purr-pot` (or `roblox-studio` if you want one repo for every game). Do not add a README or .gitignore; the scaffold has them.
+- GitHub account `derekburnz`. Create a **private** repository named `Cat-Cafe` (it was `purr-pot` until 2026-10-27; GitHub redirects the old URL). Do not add a README or .gitignore; the scaffold has them.
 
 ## 2. Git and the repo
 ```powershell
@@ -15,11 +15,11 @@ winget install --id GitHub.cli -e        # optional, gives you `gh`
 git config --global user.name "Derek"
 git config --global user.email "<your github email>"
 cd ~\Documents
-git clone https://github.com/derekburnz/purr-pot.git
+git clone https://github.com/derekburnz/Cat-Cafe.git
 ```
 The repo already holds the scaffold and the first rough draft (pushed from the lead thread on 2026-10-26), so there is nothing to copy. Check it landed:
 ```powershell
-cd ~\Documents\purr-pot
+cd ~\Documents\Cat-Cafe
 git log --oneline          # three commits: scaffold + code + docs, asset exports, concept previews
 ```
 From here on the GitHub repo is the source of truth. Role threads that run in claude.ai open pull requests against it; the project folder `cat-cafe/` is only a mirror for threads that cannot reach GitHub. After each day of work push, and pull before letting agents loose.
@@ -119,3 +119,15 @@ Commit (`git commit -am "chore: phase 0 smoke test"`), delete PH_SmokeTest, and 
 - **DataStore errors in playtest:** step 5.3 (API access) and make sure the dev place uses the `CatCafeProfiles` store name from `Config.luau` (Studio adds `_dev`).
 - **Blender MCP hangs:** only one Connect to Claude session; close extra Blender windows; `uvx blender-mcp` needs internet the first time to fetch the package.
 - **Usage running low:** check Settings > Usage; move chores to Sonnet or Haiku with `/model`.
+
+## 15. Publish from GitHub instead of Studio (once, about 3 minutes)
+After this, a thread or the Actions tab publishes the game (`.github/workflows/publish.yml`), so nobody clicks Publish in Studio again. Phone browser works for every step.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > **Create API Key**. Name: `Cat Cafe GitHub`. Make a new key rather than widening the audio upload key: this one has to accept any IP.
+2. **Access Permissions**: add **universe-places**, select the **Cat Cafe** experience, operation **Write** (publishing). Add the **Luau Execution** API (the name contains `luau-execution`), the same experience, operation **Write** (the engine smoke test).
+3. **Security > Accepted IP Addresses**: `0.0.0.0/0`, because GitHub's runners get a new IP every run. Expiration is optional.
+4. **Save & Generate Key**, then copy it. Roblox shows it once.
+5. [github.com/derekburnz/Cat-Cafe/settings/secrets/actions/new](https://github.com/derekburnz/Cat-Cafe/settings/secrets/actions/new): Name `ROBLOX_PUBLISH_KEY`, Secret: the key, **Add secret**. Never paste the key into chat or a file.
+6. Optional: on the **Variables** tab of the same page, add `AUTO_PUBLISH` with value `true`. Every main commit whose check passed then goes live by itself. Without it, publish runs only when started.
+7. Try it: **Actions > publish > Run workflow**, pick `Saved`. The run summary shows the new version number, and the live game is untouched. `Published` makes it live.
+
+The experience and place ids (10773193456 and 119569792798199) are in the workflow; they are not secret. A Rojo-built place replaces everything in the published place, so anything placed by hand in Studio and not in the repo disappears on the next publish. Today the server builds the whole world from code, so nothing is lost.

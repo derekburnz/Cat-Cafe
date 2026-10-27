@@ -139,12 +139,12 @@ local function spawnStuck(
 	model:SetAttribute("LockedBy", 0)
 	CollectionService:AddTag(model, "StuckCat")
 
-	-- One press starts the minigame (HoldDuration 0); the UI's card reads "Rescue".
+	-- Holding E starts the minigame, as on a stray (Config.CatchHoldSeconds); the UI's card reads "Rescue".
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "RescuePrompt"
 	prompt.ActionText = "Rescue"
 	prompt.ObjectText = def.name
-	prompt.HoldDuration = 0
+	prompt.HoldDuration = Config.CatchHoldSeconds
 	prompt.MaxActivationDistance = Config.GrabRangeStuds
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom

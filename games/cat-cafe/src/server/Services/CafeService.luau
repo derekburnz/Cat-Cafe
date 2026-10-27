@@ -114,53 +114,17 @@ end
 
 -- World refresh -------------------------------------------------------------------------------------------
 
--- "Barista", "Waiter": the role a slot holds, for labels and toasts.
+-- "Barista", "Waiter": the role a slot holds, for toasts.
 local function roleName(spot: Types.SpotDef): string
 	return spot.spotType:sub(1, 1):upper() .. spot.spotType:sub(2)
-end
-
--- A label over a role slot this tier has not opened yet.
-local function ensureLockLabel(slot: BasePart, spot: Types.SpotDef): BillboardGui
-	local existing = slot:FindFirstChild("LockLabel")
-	if existing ~= nil and existing:IsA("BillboardGui") then
-		return existing :: BillboardGui
-	end
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "LockLabel"
-	billboard.Size = UDim2.fromOffset(200, 24) -- wide enough for one line
-	billboard.StudsOffset = Vector3.new(0, 2.5, 0)
-	billboard.MaxDistance = 20 -- only near the slot, so labels from the plots next door do not stack up
-	local text = Instance.new("TextLabel")
-	text.Size = UDim2.fromScale(1, 1)
-	text.BackgroundTransparency = 1
-	text.TextScaled = true
-	text.Font = Enum.Font.Gotham
-	text.TextColor3 = Color3.fromRGB(240, 240, 240)
-	text.TextStrokeTransparency = 0.3
-	text.Text = string.format("%s: opens at Tier %d", roleName(spot), spot.tier)
-	text.Parent = billboard
-	billboard.Parent = slot
-	return billboard
 end
 
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	plot.model:SetAttribute("Tier", tier)
 	WorldBuilder.setDressing(plot, tier)
-	-- one label per role, on the next slot of that role to open: four at Tier 1 instead of every locked slot
-	local nextLocked: { [string]: Types.SpotDef } = {}
-	for _, spot in Catalog.spots do
-		local current = nextLocked[spot.spotType]
-		if tier < spot.tier and (current == nil or spot.tier < current.tier) then
-			nextLocked[spot.spotType] = spot
-		end
-	end
-	for _, spot in Catalog.spots do
-		local slot: BasePart? = plot.spots[spot.id]
-		if slot ~= nil then
-			ensureLockLabel(slot, spot).Enabled = nextLocked[spot.spotType] == spot
-		end
-	end
+	-- No floating "opens at Tier N" text over locked slots (Derek 2026-10-27: placeholder text is ugly); the
+	-- Upgrades screen's Roles section lists which slots each tier opens.
 end
 
 -- Working cats stand at their slots; up to #plot.napSpots cats without a job nap in the cafe, highest rating first,
@@ -461,7 +425,7 @@ end
 -- Mutations used by other services -----------------------------------------------------------------------
 
 local function newUid(): string
-	return HttpService:GenerateGUID(false):sub(1, 12):lower()
+	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
 end
 
 function CafeService.advanceTutorial(profile: Profile, step: number)
@@ -691,6 +655,32 @@ local function onEquipBest(player: Player)
 			rateText(currentRate(profile))
 		),
 		"good"
+	)
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
+-- Unequip all (UI thread, the cat inventory's Unequip All button): every working cat rests in the cat room. Like
+-- equip best, nothing is bought or sold, so the only check is that the profile is loaded.
+local function onUnequipAll(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local rested = EquipBest.restAll(profile)
+	if rested == 0 then
+		Net.toast(player, "No cats are working right now.", "info")
+		CafeService.sync(player)
+		return
+	end
+	Net.toast(
+		player,
+		string.format(
+			"%d %s resting in the cat room.",
+			rested,
+			if rested == 1 then "cat is" else "cats are"
+		),
+		"info"
 	)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
@@ -951,6 +941,7 @@ function CafeService.start()
 	Net.on("PlaceCat", onPlaceCat)
 	Net.on("UnplaceCat", onUnplaceCat)
 	Net.on("EquipBest", onEquipBest)
+	Net.on("UnequipAll", onUnequipAll)
 	Net.on("SellCat", onSellCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)

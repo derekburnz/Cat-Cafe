@@ -82,6 +82,8 @@ UI.events = {
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	shove = Signal.new(), -- (targetUserId)   the Shove button or Q on the nearest player within 6 studs: forward as Bump (F41)
+	-- 2026-10-27 HUD v3
+	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 }
 
 local state: Types.PlayerState = {
@@ -117,7 +119,7 @@ local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local shoveButton: ShoveButton.ShoveButton? = nil -- v0.5 Shove inside catching areas (UI.shove)
-local slotLabels: SlotLabels.SlotLabels? = nil -- free and locked role slots in your own cafe
+local slotLabels: SlotLabels.SlotLabels? = nil -- hides the server's LockLabel text (role slots: Upgrades > Staff)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -188,9 +190,6 @@ local function render()
 	if dealerScreen then
 		dealerScreen:render(state)
 	end
-	if slotLabels then
-		slotLabels:render(state)
-	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -219,9 +218,6 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if dealerScreen then
 		dealerScreen:setCatalog(newCatalog)
-	end
-	if slotLabels then
-		slotLabels:setCatalog(newCatalog)
 	end
 end
 
@@ -284,15 +280,48 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
+		-- Cats and Book are two tabs of one screen: a pill switches tabs, or closes the screen on its own tab
+		openCollection = function(tab: "Book" | "Room")
+			local screen = collection
+			if
+				screen
+				and modalInstance:current() == "Collection"
+				and screen:currentTab() == tab
+			then
+				modalInstance:close()
+				return
+			end
+			if screen then
+				screen:showTab(tab)
+			end
+			modalInstance:open("Collection")
+		end,
+		equipBest = function()
+			UI.events.equipBest:Fire()
+		end,
+		dropCat = function()
+			UI.events.dropCat:Fire()
+		end,
 	})
 	local hudInstance = hud :: HUD.HUD
 
 	local function closeModal()
 		modalInstance:close()
 	end
-	upgrades = UpgradeShop.new(function(upgradeId: string)
-		UI.events.buyUpgrade:Fire(upgradeId)
-	end, closeModal)
+	upgrades = UpgradeShop.new(
+		function(upgradeId: string)
+			UI.events.buyUpgrade:Fire(upgradeId)
+		end,
+		closeModal,
+		{
+			openCatRoom = function()
+				UI.openCatRoom()
+			end,
+			openRankUp = function()
+				modalInstance:open("RankUp")
+			end,
+		}
+	)
 	decor = DecorShop.new({
 		buyDecor = function(decorId: string)
 			UI.events.buyDecor:Fire(decorId)
@@ -481,12 +510,8 @@ function UI.init(config: Types.InitConfig)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	worldTags = WorldTags.new()
-	-- "+ Barista" over a free role slot (opens the cat room) and the next locked slot per role, own cafe only
-	slotLabels = SlotLabels.new(parent, {
-		openCatRoom = function()
-			UI.openCatRoom()
-		end,
-	})
+	-- the role slots live in Upgrades > Staff; this only hides the server's LockLabel text until it is removed
+	slotLabels = SlotLabels.new()
 
 	setCatalog(config.catalog)
 
@@ -506,6 +531,10 @@ function UI.init(config: Types.InitConfig)
 					modalInstance:toggle("Collection")
 				elseif key == Enum.KeyCode.F then
 					openBait()
+				elseif key == Enum.KeyCode.H then
+					hudInstance:pressTravel("home")
+				elseif key == Enum.KeyCode.G and hudInstance:isCarrying() then
+					UI.events.dropCat:Fire()
 				elseif key == Enum.KeyCode.ButtonB then
 					modalInstance:close()
 				end
@@ -1452,7 +1481,8 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 end
 
 -- Drives the prompt UI from every ProximityPrompt with Style = Custom and a CatId attribute
--- (on the prompt, its model, or its parent). Every cat prompt has HoldDuration 0: one press fires
+-- (on the prompt, its model, or its parent). Cat prompts are held for HoldDuration (0.5 s since 2026-10-27; the
+-- card and the CATCH button fill over the hold), and the trigger fires
 -- events.grabBegan (a stray) or events.rescueBegan (a stuck cat, Rescue = true) and the server answers with
 -- catch.showCircles, UI.rescue.show or catch.fail. A press while the circles or the rescue bar are up is theirs,
 -- so it never asks again.
@@ -1531,6 +1561,8 @@ function UI.catch.bindProximityPrompts()
 		ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt: ProximityPrompt)
 			if actionPills and actionPills:isShown(prompt) then
 				actionPills:holdBegan(prompt)
+			elseif prompt == activePrompt then
+				catchScreen:holdStart()
 			end
 		end)
 	)
@@ -1539,6 +1571,8 @@ function UI.catch.bindProximityPrompts()
 		ProximityPromptService.PromptButtonHoldEnded:Connect(function(prompt: ProximityPrompt)
 			if actionPills and actionPills:isShown(prompt) then
 				actionPills:holdEnded(prompt)
+			elseif prompt == activePrompt then
+				catchScreen:holdStop()
 			end
 		end)
 	)

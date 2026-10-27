@@ -16,9 +16,11 @@ Remotes.ClientToServer = {
 	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
+	"DropCat", -- ()  carrying: lets the cat go, at the feet in a catching area, else back to its own area
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
+	"UnequipAll", -- ()  rests every working cat in the cat room (shared/EquipBest.restAll)
 	"SellCat", -- (uid: string)
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)

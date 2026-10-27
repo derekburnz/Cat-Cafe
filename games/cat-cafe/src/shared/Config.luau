@@ -32,6 +32,9 @@ local Config = {
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
 	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
 	GrabRangeStuds = 10,
+	-- Derek 2026-10-27: hold E this long on a stray or a stuck cat to start the minigame, so walking past one with a
+	-- tap of E never starts a catch by accident
+	CatchHoldSeconds = 0.5,
 	GrabRetrySeconds = 2, -- after a miss nobody can start a catch on that stray for at least this long
 	-- v0.5 (F40): a miss makes the stray hiss and sprint its rarity's fleeStuds away at this speed (studs per second,
 	-- faster than NormalWalkSpeed), then catch its breath this long; tries are unlimited

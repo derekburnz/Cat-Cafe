@@ -1,17 +1,27 @@
 # Cat Cafe CI: the same done gate agents run locally (rule 6 in CLAUDE.md), plus the Studio-free unit tests.
+# The last job merges PRs labeled `automerge` (.github/scripts/automerge.sh); workflow_dispatch is how that script
+# starts a run on a branch it just brought up to date with main.
 name: check
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+# A new push to a PR cancels that PR's older run, so only the latest head is checked (and nobody gets mail about
+# a run nobody needs). Runs on main and dispatched runs each get their own group and are never cancelled.
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   gate:
     name: Rojo sourcemap, luau-lsp, Selene, StyLua
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Rokit
         run: |
@@ -28,13 +38,14 @@ jobs:
   cloudcheck:
     name: Luau unit tests and strict type check (WebAssembly Luau)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: games/cat-cafe/tools/cloudcheck
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
@@ -43,3 +54,28 @@ jobs:
       - run: npm ci
 
       - run: npm run check
+
+  automerge:
+    # Same name as the job in automerge.yml, so the script can leave both out when it reads the head's checks.
+    name: Merge if labeled automerge
+    needs: [gate, cloudcheck]
+    # PR runs only when the label was on at push time (a label added later is automerge.yml's), and runs that
+    # the script dispatched on a PR branch. Never on main.
+    if: >-
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')) ||
+      (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+      checks: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: .github/scripts
+      - run: bash .github/scripts/automerge.sh "${{ github.event.pull_request.number }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTO_PUBLISH: ${{ vars.AUTO_PUBLISH }}

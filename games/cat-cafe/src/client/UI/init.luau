@@ -38,6 +38,7 @@ local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
 local Signal = require(script.Components.Signal)
+local SlotLabels = require(script.Screens.SlotLabels)
 local Sound = require(script.Components.Sound)
 local Theme = require(script.Theme)
 local Toasts = require(script.Screens.Toasts)
@@ -111,6 +112,7 @@ local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
+local slotLabels: SlotLabels.SlotLabels? = nil -- free and locked role slots in your own cafe
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -181,6 +183,9 @@ local function render()
 	if dealerScreen then
 		dealerScreen:render(state)
 	end
+	if slotLabels then
+		slotLabels:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -209,6 +214,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if dealerScreen then
 		dealerScreen:setCatalog(newCatalog)
+	end
+	if slotLabels then
+		slotLabels:setCatalog(newCatalog)
 	end
 end
 
@@ -464,6 +472,12 @@ function UI.init(config: Types.InitConfig)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	worldTags = WorldTags.new()
+	-- "+ Barista" over a free role slot (opens the cat room) and the next locked slot per role, own cafe only
+	slotLabels = SlotLabels.new(parent, {
+		openCatRoom = function()
+			UI.openCatRoom()
+		end,
+	})
 
 	setCatalog(config.catalog)
 
@@ -588,6 +602,9 @@ function UI.destroy()
 	if richTipScreen then
 		richTipScreen:destroy()
 	end
+	if slotLabels then
+		slotLabels:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -607,7 +624,7 @@ function UI.destroy()
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
+	cafeSigns, worldTags, actionPills, richTipScreen, slotLabels = nil, nil, nil, nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false

@@ -51,6 +51,8 @@ local DETAIL_HEIGHT = 92
 local AREA_TAB_HEIGHT = 46
 local PROGRESS_HEIGHT = 28
 local FALLBACK_AREA = "alley"
+local ALL_AREA = IndexRewards.ALL_AREA
+local PORTRAITS_PER_FRAME = 10 -- the All Cats page clones its 50 models over a few frames
 
 local CatCollection = {}
 CatCollection.__index = CatCollection
@@ -165,6 +167,8 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._cells = {} :: { [string]: any }
 	self._areaChips = {} :: { any }
 	self._area = nil :: string? -- the Index's open area tab
+	self._areaRank = {} :: { [string]: number } -- each area's place in the tab row, for the All Cats page's order
+	self._loadToken = 0 -- the latest portrait queue's, so an older one stops
 	self._detailId = nil :: string? -- the cat in the detail strip's portrait
 	self._tab = "Index"
 	self._selected = nil :: string?
@@ -483,6 +487,7 @@ local function indexAreas(catalog: Types.Catalog): { IndexArea }
 end
 
 function CatCollection._buildIndex(self: any)
+	self._loadToken += 1 -- the queued portraits are about to go
 	for _, cell in self._cells do
 		cell.connection:Disconnect()
 		cell.portrait:destroy()
@@ -503,8 +508,12 @@ function CatCollection._buildIndex(self: any)
 	assert(catalog, "catalog not set; call UI.init first")
 
 	local areas = indexAreas(catalog)
+	-- the All Cats page last (F54, golden-fish.md 5b): every area's cats together, never locked
+	table.insert(areas, { id = ALL_AREA, name = Format.areaName(ALL_AREA), tier = 0 })
+	table.clear(self._areaRank)
 	local gap = Theme.sizes.gap
 	for order, area in areas do
+		self._areaRank[area.id] = order
 		local color = Theme.areaColors[area.id] or Theme.colors.caramel
 		local chip: TextButton = Create("TextButton", {
 			Name = area.id,
@@ -640,6 +649,7 @@ function CatCollection._buildIndex(self: any)
 			sub = sub,
 			shiny = shiny,
 			def = def,
+			order = rarityIndex(rarity) * 1000 + index,
 			connection = connection,
 		}
 	end
@@ -654,7 +664,8 @@ function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 end
 
 -- The open area's page: chips with each area's count, the progress strip, and that area's cells. Each cell's
--- model is cloned the first time its area opens, and again on later renders until Assets has it.
+-- model is cloned the first time its page opens (a few per frame, _loadPortraits), and again on later renders
+-- until Assets has it. The All Cats page shows every cat, grouped by area in tab order and rarest last in each.
 function CatCollection._renderIndex(
 	self: any,
 	state: Types.PlayerState,
@@ -666,15 +677,21 @@ function CatCollection._renderIndex(
 	for catId, cell in self._cells do
 		local areaId: string = cell.def.area or FALLBACK_AREA
 		totals[areaId] = (totals[areaId] or 0) + 1
+		totals[ALL_AREA] = (totals[ALL_AREA] or 0) + 1
 		if found[catId] then
 			foundIn[areaId] = (foundIn[areaId] or 0) + 1
+			foundIn[ALL_AREA] = (foundIn[ALL_AREA] or 0) + 1
 		end
 	end
 
 	-- first open: the first area the player can reach that still has cats to find
 	if self._area == nil then
 		for _, chip in self._areaChips do
-			if state.tier >= chip.tier and (foundIn[chip.id] or 0) < (totals[chip.id] or 0) then
+			if
+				chip.id ~= ALL_AREA
+				and state.tier >= chip.tier
+				and (foundIn[chip.id] or 0) < (totals[chip.id] or 0)
+			then
 				self._area = chip.id
 				break
 			end
@@ -725,16 +742,21 @@ function CatCollection._renderIndex(
 	end
 
 	local shinies: { [string]: number } = CatVariant.collection(state)
+	local all = open == ALL_AREA
+	local toLoad = {}
 	for catId, cell in self._cells do
 		local def: Types.CatDef = cell.def
-		local inArea = (def.area or FALLBACK_AREA) == open
-		cell.frame.Visible = inArea
-		if not inArea then
+		local areaId: string = def.area or FALLBACK_AREA
+		local onPage = all or areaId == open
+		cell.frame.Visible = onPage
+		if not onPage then
 			continue
 		end
+		cell.frame.LayoutOrder = if all
+			then (self._areaRank[areaId] or 0) * 100000 + cell.order
+			else cell.order
 		if not cell.loaded then
-			cell.portrait:set(def)
-			cell.loaded = cell.portrait:hasModel()
+			table.insert(toLoad, cell)
 		end
 		local isFound = found[catId] == true
 		local owned = state.catsOwned[catId]
@@ -757,6 +779,39 @@ function CatCollection._renderIndex(
 		end
 		cell.shiny.Visible = shinies[catId] ~= nil
 	end
+	self:_loadPortraits(toLoad)
+end
+
+-- Clones the page's missing cat models in grid order, PORTRAITS_PER_FRAME now and as many each frame after, so
+-- the All Cats page does not clone 50 models in one frame. A newer render or page takes over the queue.
+function CatCollection._loadPortraits(self: any, cells: { any })
+	table.sort(cells, function(a: any, b: any): boolean
+		return a.frame.LayoutOrder < b.frame.LayoutOrder
+	end)
+	self._loadToken += 1
+	local token = self._loadToken
+	local function load(first: number)
+		for index = first, math.min(first + PORTRAITS_PER_FRAME - 1, #cells) do
+			local cell = cells[index]
+			if not cell.loaded and cell.frame.Visible then
+				cell.portrait:set(cell.def)
+				cell.loaded = cell.portrait:hasModel()
+			end
+		end
+	end
+	load(1)
+	if #cells <= PORTRAITS_PER_FRAME then
+		return
+	end
+	task.spawn(function()
+		for first = PORTRAITS_PER_FRAME + 1, #cells, PORTRAITS_PER_FRAME do
+			task.wait()
+			if self._loadToken ~= token then
+				return
+			end
+			load(first)
+		end
+	end)
 end
 
 function CatCollection.render(self: any, state: Types.PlayerState)
@@ -823,6 +878,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 end
 
 function CatCollection.destroy(self: any)
+	self._loadToken += 1
 	for _, cell in self._cells do
 		cell.connection:Disconnect()
 		cell.portrait:destroy()

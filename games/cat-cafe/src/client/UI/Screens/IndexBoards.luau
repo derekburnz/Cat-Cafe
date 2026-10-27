@@ -556,6 +556,7 @@ function IndexBoards._renderBoard(self: any, board: Board)
 		gold = IndexRewards.isGold(nextView.milestone),
 		dayRate = TipJarLogic.dayRate(state.incomePerSecond, self._night, NIGHT_SHARE),
 		spinsBanked = if state.spin then state.spin.banked else nil,
+		tier = state.tier,
 	})
 end
 

@@ -3,7 +3,8 @@
 -- next free one comes and where the wheel stops. Pure: no Theme, so the cloud spec runner can load it.
 --
 -- Catalog.spinWheel holds six rows in order round the wheel, clockwise from the top: { slice, kind = "coins" |
--- "lure", seconds?, minCoins?, lureId?, count?, weight }. The weights add up to 100. state.spin is
+-- "lure" | "fish" | "crate", seconds?, minCoins?, lureId?, count?, crate?, weight } (F54 made slice 5 four golden
+-- fish and slice 6 a crate, crate = "highest"). The weights add up to 100. state.spin is
 -- { lastFreeDay, banked }: one free spin is due when the UTC day (floor(serverTime / 86400)) is past lastFreeDay,
 -- missed days do not stack, and banked spins come from the Tip Jar. The server's check at spin time is final.
 

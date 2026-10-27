@@ -148,6 +148,7 @@ Theme.areaColors = {
 	neighbourhood = Color3.fromHex("5FA8FF"),
 	woods = Color3.fromHex("2B7F4C"),
 	sewer = Color3.fromHex("6E7F86"),
+	all = Color3.fromHex("F2679E"), -- the Index's All Cats page (F54), in berry
 } :: { [string]: Color3 }
 
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).

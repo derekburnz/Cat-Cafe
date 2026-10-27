@@ -293,6 +293,7 @@ function IndexStrip._refresh(self: any)
 	local look: PrizeChips.Look = {
 		dayRate = TipJarLogic.dayRate(state.incomePerSecond, self._night, NIGHT_SHARE),
 		spinsBanked = if state.spin then state.spin.banked else nil,
+		tier = state.tier,
 	}
 	self.frame.Visible = #views > 0
 	for _, card in self._cards do
@@ -306,7 +307,12 @@ function IndexStrip._refresh(self: any)
 		card.frame.Visible = true
 		card.chips:set(
 			view.prize,
-			{ gold = card.gold, dayRate = look.dayRate, spinsBanked = look.spinsBanked }
+			{
+				gold = card.gold,
+				dayRate = look.dayRate,
+				spinsBanked = look.spinsBanked,
+				tier = look.tier,
+			}
 		)
 		local need = IndexRewards.need(view.milestone)
 		local isNext = view == nextNormal or view == nextGold

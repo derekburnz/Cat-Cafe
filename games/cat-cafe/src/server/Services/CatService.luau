@@ -185,7 +185,8 @@ local function despawn(stray: Stray, catcher: Player?)
 	end
 	stray.alive = false
 	local drop = stray.drop
-	if drop ~= nil then
+	-- shover 0 is a voluntary Drop (or Studio's hook), not a shove: kept out of the shove outcomes (reviewer N100)
+	if drop ~= nil and drop.shover ~= 0 then
 		local by = if catcher == nil
 			then "nobody"
 			elseif catcher.UserId == drop.owner then "carrier"
@@ -1045,10 +1046,10 @@ local function onDropCat(player: Player)
 	end
 	local homeId = carry.def.area
 	local area = world.areas[homeId]
-	endCarry(player)
 	if area == nil or #area.spawnPoints == 0 then
-		return
+		return -- nowhere to send it, so the player keeps it (reviewer N99)
 	end
+	endCarry(player)
 	local pointIndex = freeSpawnPoint(homeId, nil)
 	local point = area.spawnPoints[pointIndex or rng:NextInteger(1, #area.spawnPoints)]
 	spawnStray(

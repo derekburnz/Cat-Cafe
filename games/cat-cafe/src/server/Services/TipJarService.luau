@@ -3,8 +3,9 @@
 -- session starts when the profile loads, at Workspace:GetServerTimeNow() (the clock the client counts down against),
 -- and lives only in this service's memory, so leaving resets the jar. A rejoin to farm the early steps pays less
 -- than the rejoin costs in tips, which is why nothing is saved.
--- ClaimTipJar(step) pays a step once the session has run its minutes and it is unclaimed; a coins step is worked
--- out from the day rate at claim time, so the client's figure is only an estimate. Every claim and every refused
+-- ClaimTipJar(step) pays a step once the session has run its minutes and it is unclaimed; coins are worked out from
+-- the day rate at claim time, so the client's figure is only an estimate. Since F68 each step's prize is in the Index
+-- prize shape and Payout pays it (step 9 at an hour and step 12 at two hours pay several things). Every claim and every refused
 -- claim answers with TipJarState, so a client that drifted gets the server's view back.
 
 local Players = game:GetService("Players")
@@ -15,11 +16,9 @@ local Workspace = game:GetService("Workspace")
 local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local DataService = require(script.Parent.DataService)
-local Economy = require(ReplicatedStorage.Shared.Economy)
-local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
-local Spin = require(ReplicatedStorage.Shared.Spin)
+local Payout = require(script.Parent.Payout)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJar = require(ReplicatedStorage.Shared.TipJar)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -41,38 +40,12 @@ local function send(player: Player, session: Session)
 	Net.fire(player, "TipJarState", state)
 end
 
+-- Pays a step's prize (F68: the Index prize shape) through Payout, with one toast naming all of it, "Tip Jar: +$1200,
+-- +10 golden fish, 1 spin". Spins past SpinBankCap are dropped and the toast says so; the rest still pays.
 local function pay(player: Player, profile: Types.PlayerProfile, def: Types.TipJarStep)
-	-- Steps 11 and 12 also bank a spin for the Spin Wheel (F49); past SpinBankCap the spin is dropped and the
-	-- step's other prize still pays.
-	if def.spins ~= nil then
-		local banked = Spin.bank(profile.spin, def.spins)
-		if banked > 0 then
-			Net.toast(player, string.format("Tip Jar: +%d spin", banked), "good")
-		else
-			Net.toast(player, "Spins full: use a spin at the wheel to bank more", "info")
-		end
-	end
-	-- Step 12 also gives golden fish (F52)
-	if def.fish ~= nil then
-		GoldenFish.credit(profile, def.fish)
-		Telemetry.fishSource(player, profile, def.fish, "TimedReward", "tip_jar")
-		Net.toast(player, string.format("Tip Jar: +%d golden fish", def.fish), "good")
-	end
-	if def.kind == "coins" then
-		local amount = TipJar.coins(def, Economy.incomePerSecond(profile))
-		Economy.credit(profile, amount)
-		Telemetry.source(player, profile, amount, "TimedReward", "tip_jar")
-		Net.toast(player, string.format("Tip Jar: +$%d", amount), "good")
-	else
-		local lureId = def.lureId :: string
-		local count = def.count or 1
-		profile.lures[lureId] = (profile.lures[lureId] or 0) + count
-		local lure = Catalog.getLure(lureId)
-		Net.toast(
-			player,
-			string.format("Tip Jar: %d %s", count, if lure ~= nil then lure.name else lureId),
-			"good"
-		)
+	local paid = Payout.pay(player, profile, def.prize, "tip_jar", "TimedReward")
+	if #paid > 0 then
+		Net.toast(player, "Tip Jar: " .. table.concat(paid, ", "), "good")
 	end
 end
 
@@ -94,7 +67,7 @@ local function onClaimTipJar(player: Player, rawStep: unknown)
 	session.claimed[step] = true
 	pay(player, profile, def)
 	profile.stats.tipJarClaims += 1
-	Telemetry.custom(player, "tip_jar", step, { def.kind :: string })
+	Telemetry.custom(player, "tip_jar", step, { TipJar.kind(def) })
 	send(player, session)
 	CafeService.sync(player)
 end

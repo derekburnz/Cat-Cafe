@@ -970,25 +970,23 @@ Catalog.lures = {
 -- Coins scale with the day rate at claim time (shared/TipJar.coins); the dealer foods are fine here since they are
 -- free. Nothing about the jar can be bought.
 Catalog.tipJar = {
-	{ step = 1, minutes = 2, kind = "coins", seconds = 30, minCoins = 50 },
-	{ step = 2, minutes = 5, kind = "lure", lureId = "kibble", count = 2 },
-	{ step = 3, minutes = 10, kind = "coins", seconds = 60, minCoins = 100 },
-	{ step = 4, minutes = 15, kind = "lure", lureId = "tuna", count = 1 },
-	{ step = 5, minutes = 20, kind = "coins", seconds = 90, minCoins = 150 },
-	{ step = 6, minutes = 30, kind = "lure", lureId = "tuna", count = 2 },
-	{ step = 7, minutes = 40, kind = "coins", seconds = 120, minCoins = 250 },
-	{ step = 8, minutes = 50, kind = "lure", lureId = "salmon", count = 1 },
-	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
-	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
-	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600, spins = 1 },
+	{ step = 1, minutes = 2, prize = { coins = 50, coinSeconds = 30 } },
+	{ step = 2, minutes = 5, prize = { lures = { kibble = 2 } } },
+	{ step = 3, minutes = 10, prize = { coins = 100, coinSeconds = 60 } },
+	{ step = 4, minutes = 15, prize = { lures = { tuna = 1 } } },
+	{ step = 5, minutes = 20, prize = { coins = 150, coinSeconds = 90 } },
+	{ step = 6, minutes = 30, prize = { lures = { tuna = 2 } } },
+	{ step = 7, minutes = 40, prize = { coins = 250, coinSeconds = 120 } },
+	{ step = 8, minutes = 50, prize = { lures = { salmon = 1 } } },
+	-- v0.10 (F68, round 4 Q10): a pretty good gift at one hour
+	{ step = 9, minutes = 60, prize = { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 } },
+	{ step = 10, minutes = 75, prize = { lures = { sardines = 1 } } },
+	{ step = 11, minutes = 90, prize = { coins = 600, coinSeconds = 300, spins = 1 } },
+	-- and a really good one at two hours; its Tip Potion comes with F64
 	{
 		step = 12,
 		minutes = 120,
-		kind = "lure",
-		lureId = "caviar",
-		count = 1,
-		spins = 1,
-		fish = Config.TipJarStep12Fish, -- F52
+		prize = { lures = { caviar = 1 }, crates = { classic_crate = 1 }, fish = 25, spins = 2 },
 	},
 } :: { Types.TipJarStep }
 

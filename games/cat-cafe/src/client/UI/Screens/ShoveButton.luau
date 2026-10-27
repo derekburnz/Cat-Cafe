@@ -33,9 +33,9 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 -- data-model section 10c and the v0.5 constants table; the remote keeps its Bump names
-local RANGE: number = (Config :: any).BumpRangeStuds or 6
-local COOLDOWN: number = (Config :: any).BumpCooldownSeconds or 8
-local SAME_TARGET: number = (Config :: any).BumpSameTargetSeconds or 20
+local RANGE: number = Config.BumpRangeStuds
+local COOLDOWN: number = Config.BumpCooldownSeconds
+local SAME_TARGET: number = Config.BumpSameTargetSeconds
 local PASS_OVER = 3 -- seconds a refused target is passed over, so the next nearest player gets the hand
 local LOCK_TAGS = { "Stray", "RescueSpot" } -- their LockedBy is the player in the catch circles or the rescue bar
 local KEYS = { Enum.KeyCode.Q, Enum.KeyCode.ButtonY }

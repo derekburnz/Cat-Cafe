@@ -3106,6 +3106,29 @@ local function spinPaid(spun: Spun, before: Wallet, lures: { [string]: number })
 		string.format("slice %d %d %s, food up by %d", spun.slice, spun.amount, lureId, gained)
 end
 
+-- Stands the character `studs` from the station's pivot along the ground, trying the front, back and both sides in
+-- turn in case one is a wall, and waits for the move to reach the server before anything fires (laptop run
+-- 2026-10-27: a spin right after the teleport was measured from the spawn, 12.4 studs out, and paid). Returns how far
+-- the character settled, on the ground plane.
+local function standFromStation(station: Model, studs: number): number
+	local pivot = station:GetPivot()
+	local look = Vector3.new(pivot.LookVector.X, 0, pivot.LookVector.Z)
+	look = if look.Magnitude > 0.1 then look.Unit else Vector3.xAxis
+	local right = Vector3.new(-look.Z, 0, look.X)
+	local settled = 0
+	local directions: { Vector3 } = { look, -look, right, -right }
+	for _, direction in directions do
+		teleportTo(pivot.Position + direction * studs)
+		task.wait(0.5)
+		local root = rootPart()
+		settled = if root ~= nil then horizontal(root.Position, pivot.Position) else 0
+		if math.abs(settled - studs) <= 2 then
+			break
+		end
+	end
+	return settled
+end
+
 case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left", function()
 	if state == nil then
 		return "SKIP", "no ProfileSync yet"
@@ -3119,7 +3142,6 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 	end
 	local root = rootPart()
 	local home = if root ~= nil then root.Position else nil
-	local pivot = station:GetPivot()
 	local function done(verdict: Verdict, detail: string): (Verdict, string)
 		if home ~= nil then
 			teleportTo(home)
@@ -3128,7 +3150,16 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 	end
 
 	-- 20 studs out (SpinStationRange is 14): refused with SpinResult(0, 0), nothing paid, no spin used.
-	teleportTo(pivot.Position + pivot.LookVector * 20)
+	local far = standFromStation(station, 20)
+	if far < Config.SpinStationRange + 4 then
+		return done(
+			"CHECK",
+			string.format(
+				"could not stand 20 studs from the wheel on any side (settled %.1f studs out); stand there and run again",
+				far
+			)
+		)
+	end
 	local w = freshWallet()
 	local f, left = foods(), spinsLeft()
 	local farAt = os.clock()
@@ -3142,15 +3173,25 @@ case("spinWheel", Enum.KeyCode.L, "Spin Wheel: far, double, cooldown, none left"
 		or foods() ~= f
 		or spinsLeft() ~= left
 	then
-		return done("FAIL", "a SpinWheel from 20 studs paid or used a spin")
+		return done("FAIL", string.format("a SpinWheel from %.1f studs paid or used a spin", far))
 	end
 	local verdict: Verdict = if farAnswer ~= nil then "PASS" else "CHECK"
 	local notes = if farAnswer ~= nil
-		then "20 studs refused"
-		else "20 studs paid nothing but got no SpinResult(0, 0)"
+		then string.format("%.1f studs refused", far)
+		else string.format("%.1f studs paid nothing but got no SpinResult(0, 0)", far)
 
 	-- Beside the wheel: two spins in one frame. One paid answer, one refusal, one spin used.
-	teleportTo(pivot.Position + pivot.LookVector * 6)
+	local near = standFromStation(station, 6)
+	if near > Config.SpinStationRange - 4 then
+		return done(
+			"CHECK",
+			string.format(
+				"%s; could not stand by the wheel (settled %.1f studs out); stand there and run again",
+				notes,
+				near
+			)
+		)
+	end
 	if spinsLeft() < 1 then
 		return done(
 			"CHECK",

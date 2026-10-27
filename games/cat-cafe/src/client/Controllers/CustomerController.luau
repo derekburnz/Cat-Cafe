@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Effects = require(script.Parent.Parent.Effects)
+local Moments = require(script.Parent.Parent.Moments)
 local Mover = require(Shared:WaitForChild("Mover"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
@@ -190,7 +191,9 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?)
 						rate * Config.CustomerCoinPopSeconds / math.max(1, activeByPlot[plot] or 1)
 					)
 				)
-				UI.floatText(model:GetPivot().Position + Vector3.new(0, 5.5, 0), "+$" .. tip)
+				local above = model:GetPivot().Position + Vector3.new(0, 5.5, 0)
+				UI.floatText(above, "+$" .. tip)
+				Moments.CoinPop:Fire(above)
 			end
 		end
 		if isAlive() then

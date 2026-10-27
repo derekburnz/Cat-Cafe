@@ -104,6 +104,8 @@ def build(path, name):
         bm.free()
         transparency = props.get("Transparency", 0)
         neon = props.get("Material") == "Neon"
+        if props.get("Material") == "ForceField":            # a see-through shimmer in Roblox
+            transparency, neon = max(transparency, 0.6), True
         me.materials.append(_material(props["Color"], 1 - transparency, neon))
         ob = bpy.data.objects.new(f"{name}_{i}", me)
         bpy.context.scene.collection.objects.link(ob)

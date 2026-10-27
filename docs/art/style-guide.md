@@ -166,8 +166,9 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400 |
 | Decor | 500 | |
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
-| Park props | 800 | Fountain and Gate 1,200; rescue traps (RescueTree, TrashCan) 900 |
-| Area gates | 1,200 to 1,300 | Neighbourhood, Woods, Sewer |
+| Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
+| Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
+| Alleyway set pieces | 5,000 to 6,000 | arches and building backs; crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
 | Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier | built from blocks for the Part export (section 14); the FBX is the reference |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
@@ -181,7 +182,7 @@ Examples: `CatCafe_Cat_Tabby`, `CatCafe_Cat_Tabby_Head`, `CatCafe_Furniture_Coun
 
 The full list with sizes, triangle counts and Studio notes is generated into `assets/cat-cafe/exports/manifest.json`. The roster of cats and the asset order come from `docs/design/cat-cafe/data-model.md` section 3 and `features.md` section 5; this guide does not duplicate them.
 
-Parts that need a Studio material or a script are separate objects inside one asset, suffixed by job: `_Tube`, `_Bulb`, `_Bulbs` and `_Pane` (Neon at night, section 9), `_Glass` and `_Water` (Transparency), `_LeafL` and `_LeafR` (gate leaves that swing), `_Open` and `_Closed` (door sign faces, one visible at a time), `_Handle` and `_Bag` (the net Tool's grip and net), `_Lid` and `_Branch` (rescue trap parts that move: the TrashBin and TrashCan lids, the RescueTree branch, with `_Bin`, `_Can` and `_Trunk` as the fixed rest), and the cat's `_Body`, `_Head`, `_Tail`. Other suffixes in a multi-object asset (`_Board`, `_Frame`, `_Post`, `_Wire` and the like) are plain SmoothPlastic parts. Everything else is one object, one MeshPart.
+Parts that need a Studio material or a script are separate objects inside one asset, suffixed by job: `_Tube`, `_Bulb`, `_Bulbs` and `_Pane` (Neon at night, section 9), `_Glass` and `_Water` (Transparency), `_Open` and `_Closed` (door sign faces, one visible at a time), `_Handle` and `_Bag` (the net Tool's grip and net), `_Lid` and `_Branch` (rescue trap parts that move: the TrashBin and TrashCan lids, the RescueTree branch, with `_Bin`, `_Can` and `_Trunk` as the fixed rest), and the cat's `_Body`, `_Head`, `_Tail`. Other suffixes in a multi-object asset (`_Board`, `_Frame`, `_Post`, `_Wire` and the like) are plain SmoothPlastic parts. Everything else is one object, one MeshPart.
 
 A cat exports as one FBX containing three objects: `<Name>_Body` (legs included), `<Name>_Head` and `<Name>_Tail`. Studio imports that as a Model with three MeshParts, so the engineer can tween the head (bob, look at customer) and tail (wag) with CFrames without a skeleton. Rigged, animated cats are a later phase.
 
@@ -190,7 +191,7 @@ A cat exports as one FBX containing three objects: `<Name>_Body` (legs included)
 - Pivot (object origin) at the base center: the point that touches the floor, centered on the footprint. In Studio the Model's PrimaryPart or the MeshPart pivot sits on the floor, so `CFrame = floor + Vector3.new(0, 0, 0)` places it.
 - Wall-mounted assets (shelf, menu board, window box) pivot at the back center where they touch the wall. Ceiling-mounted (hanging lamp) pivot at the hook.
 - Cat Head pivots at the neck joint, Tail at the tail root, so rotating them in Studio looks right.
-- Moving parts of a prop (gate leaves, trap lids, the rescue tree branch) pivot at their hinge or root. `manifest.json` gives that point per part as `part_pivots_roblox`, relative to the asset pivot. If the Studio import puts a MeshPart's pivot at its bounding box centre, set its `PivotOffset` so the pivot lands on that point, then rotate with `PivotTo`.
+- Moving parts of a prop (trap lids, the rescue tree branch) pivot at their hinge or root. `manifest.json` gives that point per part as `part_pivots_roblox`, relative to the asset pivot. If the Studio import puts a MeshPart's pivot at its bounding box centre, set its `PivotOffset` so the pivot lands on that point, then rotate with `PivotTo`.
 - Held tools (the net) pivot at the grip end with the pole running forward (-Z in Roblox), so the Tool's Handle needs no Grip offset beyond rotation.
 - Accessories pivot at their attachment point. `manifest.json` lists, per cat, where each attachment sits on the Head or Body: Glasses and Hat ride the Head, BowTie and Apron ride the Body, so they survive a pose change (upright, carried, stuck) and any future upright variant without new art.
 - Front faces -Y in Blender. The FBX export uses Roblox's documented axes (Forward Z, Up Y), which turn Blender (x, y, z) into Roblox (-x, z, y), so the front lands on -Z, the LookVector, and `CFrame.lookAt` works without a correction. Every position and angle in `manifest.json` has a `_roblox` twin already converted; use those in code. Angles named `*_angles_roblox_deg` are for `CFrame.Angles(math.rad(x), math.rad(y), math.rad(z))`.
@@ -250,6 +251,18 @@ sleeping Tabby) and running cafes add the tier sets `CatCafe_Plot_Tier1` to `Tie
 flower boxes and a bistro set; neon OPEN, string lights and a second bistro set; a fish tank in the window and the
 back patio pergola; gold trim, the cup-with-ears rooftop sign and a red carpet. Previews:
 `previews/CatCafe_Plot_*.png`, the Part versions in `rbx/`.
+
+The Alleyway behind the cafes is a city back street at cosy scale: building backs 30 wide and 16 to 24 tall in
+brick with concrete quoins, cornices and window frames, a few lit windows with curtains (`_Pane`), shutters and
+flower boxes in the street's pastels, AC units, drainpipes and pipes. Variants: `CatCafe_Alley_WallWindows`,
+`WallDoor` (green staff door, teal canopy, lamp), `FireEscape` (two walkable landings, a ladder and stairs) and
+`Mural` (sunset bands, PURR POT and pixel faces of Tabby, Tuxedo, Siamese, Void and Calico). Arches over the mouths
+of the Alley Square (`CatCafe_Alley_ArchStreet`, `CatCafe_Alley_Arch`) are brick posts with lanterns, a teal name
+board and an iron arc of bulbs with a gold cat medallion. Props: a crate stack in climbable steps, a laundry line,
+long string lights and the Sewer manhole with barricades. Area gates are arches over the full opening with a
+ForceField barrier and a hanging sign board, themed: the Park in brick with ivy, planters and a green iron frame;
+the Woods in logs with moss, mushrooms and small spruces; the Sewer in concrete with hazard stripes, a big pipe
+and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
 
 ## 14. Part-built models in Roblox
 

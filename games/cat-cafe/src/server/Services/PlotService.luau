@@ -87,6 +87,7 @@ function PlotService.release(player: Player)
 		WorldBuilder.setExpansionOpen(expansion, false)
 	end
 	WorldBuilder.setBackDoorOpen(plot, false)
+	WorldBuilder.setDressing(plot, 0)
 end
 
 -- What the street sees of an owned cafe (F36 name sign, F37 rate tags): the plot's TierName and Rate (tips per

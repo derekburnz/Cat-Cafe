@@ -12,8 +12,16 @@ return function()
 	local Logic = require(Effects:WaitForChild("Logic")) :: any
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
 
-	-- The four potions of data-model 12b.
-	local KINDS = { "tip_potion", "lucky_potion", "swift_potion", "steady_potion" }
+	-- The four potions of data-model 12b and the three quest potions of quests.md section 4.
+	local KINDS = {
+		"tip_potion",
+		"lucky_potion",
+		"swift_potion",
+		"steady_potion",
+		"big_tip_potion",
+		"gold_rush_potion",
+		"quick_bait_potion",
+	}
 	local PLACES = { Body = true, Feet = true, Hands = true }
 
 	describe("Effects potion glows and the Mystery Visitor", function()

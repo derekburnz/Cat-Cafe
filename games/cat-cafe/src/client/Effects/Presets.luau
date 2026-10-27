@@ -492,6 +492,47 @@ Presets.emitters = {
 		lightEmission = 0.6,
 		rotSpeed = { -60, 60 },
 	},
+	-- The quest potions (F73, quests.md section 4). Big Tip: a brighter, busier stream of gold glints than the Tip
+	-- Potion's; Gold Rush: gold glints twinkling all round; Quick Bait: food crumbs falling from the paws.
+	potionBigTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.55, 0.4 },
+		transparency = { 0, 1 },
+		lifetime = { 1.3, 1.9 },
+		speed = { 1, 1.6 },
+		spread = 20,
+		rate = 3.5,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.7,
+		rotSpeed = { -180, 180 },
+	},
+	potionGoldRush = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden, Presets.palette.offwhite },
+		size = { 0.45, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.1, 0.4 },
+		spread = 180,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	potionQuickBait = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.blush, Presets.palette.cream },
+		size = { 0.18, 0.12 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.2, 0.5 },
+		spread = 60,
+		rate = 2,
+		acceleration = Vector3.new(0, -4, 0),
+		drag = 0.5,
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -1133,7 +1174,7 @@ Presets.decorFx = {
 	petalPad = 0.8, -- share of the tree's width the petals fall from
 }
 
--- Potions (F64, data-model 12b): each kind's glow while it runs, shown on the newest id in the drinker's
+-- Potions (F64, data-model 12b, and the quest potions of F73): each kind's glow while it runs, shown on the newest id in the drinker's
 -- `ActivePotions` (data-model 13). `on` is where its emitter sits: "Body" the root part, "Feet" an attachment under it,
 -- "Hands" the two hands (the rate split between them). The drink pop, on your own `buffs` growing in ProfileSync, is
 -- `sparkles` catch sparkles in the potion's colour at the chest and a `ring` stud ring at the feet.
@@ -1143,6 +1184,10 @@ Presets.potions = {
 	lucky_potion = { emitter = "potionLucky", on = "Body", colour = palette.leaf },
 	swift_potion = { emitter = "potionSwift", on = "Feet", colour = palette.fishBlue },
 	steady_potion = { emitter = "potionSteady", on = "Hands", colour = palette.mint },
+	-- the quest potions (F73, quests.md section 4)
+	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
+	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
+	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }

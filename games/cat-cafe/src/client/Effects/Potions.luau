@@ -2,7 +2,8 @@
 -- Potions while they run (F64, data-model 12b): drinking one bursts sparkles in its colour round you with a small
 -- ring at your feet, and while it runs a glow of its own kind stays on the drinker so everyone nearby can see it.
 -- Tip: gold glints drifting up off the body; Lucky: green and mint glints all round; Swift: light blue wisps left
--- behind at the feet; Steady Paw: soft mint sparkles on the paws (Presets.potions).
+-- behind at the feet; Steady Paw: soft mint sparkles on the paws; and the quest potions (F73): Big Tip a brighter
+-- stream of gold, Gold Rush gold glints all round, Quick Bait food crumbs falling from the paws (Presets.potions).
 --
 -- Sources: each character's `ActivePotions` (data-model 13: the running ids, oldest drink first; the newest shows)
 -- and this player's own ProfileSync `buffs` for the drink pop. The nearest budget.potionGlows drinkers within
@@ -19,7 +20,8 @@ local Presets = require(script.Parent.Presets)
 
 local Potions = {}
 
-type Glow = { kind: string, emitters: { ParticleEmitter }, made: { Instance } }
+-- `stopgap`: the hands had not streamed in, so it sits on the root part until they do.
+type Glow = { kind: string, emitters: { ParticleEmitter }, made: { Instance }, stopgap: boolean }
 
 local glows: { [Model]: Glow } = {}
 local lastBuffs: unknown = nil -- `buffs` at the last ProfileSync that had them
@@ -92,6 +94,7 @@ local function build(character: Model, kind: string): Glow?
 			table.insert(parents, hand)
 		end
 	end
+	local stopgap = #parents == 0 and spec.on == "Hands"
 	if #parents == 0 then
 		table.insert(parents, root)
 	end
@@ -103,11 +106,15 @@ local function build(character: Model, kind: string): Glow?
 		table.insert(emitters, emitter)
 		table.insert(made, emitter)
 	end
-	return { kind = kind, emitters = emitters, made = made }
+	return { kind = kind, emitters = emitters, made = made, stopgap = stopgap }
 end
 
--- Whether every emitter is still on the character (a part that streams out takes its emitter with it).
+-- Whether every emitter is still on the character (a part that streams out takes its emitter with it) and on the
+-- place it belongs (hands that have streamed in since).
 local function intact(glow: Glow, character: Model): boolean
+	if glow.stopgap and #handsOf(character) > 0 then
+		return false
+	end
 	for _, emitter in glow.emitters do
 		if not emitter:IsDescendantOf(character) then
 			return false

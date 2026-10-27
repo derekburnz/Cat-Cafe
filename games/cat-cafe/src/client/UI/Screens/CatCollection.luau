@@ -1135,7 +1135,7 @@ function CatCollection._loadPortraits(self: any)
 		end
 		local y = row.frame.AbsolutePosition.Y
 		if y + row.frame.AbsoluteSize.Y >= top and y <= bottom then
-			row.portrait:set(row.def)
+			row.portrait:set(row.def, row.instance.variant == "shiny") -- a shiny cat in its own coat (F42)
 			row.loaded = row.portrait:hasModel()
 		end
 	end

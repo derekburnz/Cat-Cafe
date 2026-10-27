@@ -18,7 +18,7 @@ local FoodOdds = {}
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
--- data-model section 8: ShinyChanceBait 0.02, and the charm star odds from the two-roll charm
+-- data-model section 8: ShinyChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
 local SHINY_CHANCE: number = Config.ShinyChanceBait
 local STAR_ODDS: { number } = Config.CharmStarOdds
 
@@ -106,7 +106,7 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 	return table.concat(lines, "\n")
 end
 
--- "Shiny 2% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"
+-- "Shiny 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"
 function FoodOdds.extras(): string
 	local stars: { string } = {}
 	for count, share in STAR_ODDS do

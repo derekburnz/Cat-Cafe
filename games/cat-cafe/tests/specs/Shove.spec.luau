@@ -1,7 +1,7 @@
 --!strict
 -- shared/Shove.luau against data-model section 10c (F29's carry bumps as v0.5 F41 and v0.5.1): every protection on
 -- a shove, the knock-loose roll on a carrier, and the rules of a knocked-loose cat (owner window, shover barred,
--- still during the window per N86, kept through an early night wave per S32).
+-- still during the window per N86, kept through an early night wave per S32). The "edges (QA)" block is QA's.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Config = require(Shared.Config)
@@ -90,11 +90,14 @@ return function()
 			expect(Shove.refusal(with({ sinceShoveTarget = wait }))).never.to.be.ok()
 		end)
 
-		it("nobody shoves a player for ShoveTargetImmuneSeconds after any shove lands on them (S45)", function()
-			local immune = Config.ShoveTargetImmuneSeconds
-			expect(Shove.refusal(with({ sinceTargetShoved = immune - 0.01 }))).to.be.ok()
-			expect(Shove.refusal(with({ sinceTargetShoved = immune }))).never.to.be.ok()
-		end)
+		it(
+			"nobody shoves a player for ShoveTargetImmuneSeconds after any shove lands on them (S45)",
+			function()
+				local immune = Config.ShoveTargetImmuneSeconds
+				expect(Shove.refusal(with({ sinceTargetShoved = immune - 0.01 }))).to.be.ok()
+				expect(Shove.refusal(with({ sinceTargetShoved = immune }))).never.to.be.ok()
+			end
+		)
 
 		it("every reason is words for the shover", function()
 			local cases: { { [string]: any } } = {
@@ -119,7 +122,11 @@ return function()
 	end)
 
 	describe("knocking a carried cat loose", function()
-		local function carry(startedAt: number, immune: boolean?, immuneUntil: number?): Shove.CarryState
+		local function carry(
+			startedAt: number,
+			immune: boolean?,
+			immuneUntil: number?
+		): Shove.CarryState
 			return { startedAt = startedAt, immune = immune == true, immuneUntil = immuneUntil or 0 }
 		end
 
@@ -158,14 +165,16 @@ return function()
 		end)
 
 		it("the push points from the shover to the target, flat", function()
-			local d = Shove.direction(Vector3.new(0, 5, 0), Vector3.new(3, 0, 4), Vector3.new(1, 0, 0))
+			local d =
+				Shove.direction(Vector3.new(0, 5, 0), Vector3.new(3, 0, 4), Vector3.new(1, 0, 0))
 			expect(d.X).to.be.near(0.6, 1e-6)
 			expect(d.Y).to.equal(0)
 			expect(d.Z).to.be.near(0.8, 1e-6)
 		end)
 
 		it("on top of each other, the push takes the fallback", function()
-			local d = Shove.direction(Vector3.new(1, 0, 1), Vector3.new(1, 3, 1), Vector3.new(0, 0, -1))
+			local d =
+				Shove.direction(Vector3.new(1, 0, 1), Vector3.new(1, 3, 1), Vector3.new(0, 0, -1))
 			expect(d.Z).to.equal(-1)
 		end)
 	end)
@@ -210,27 +219,102 @@ return function()
 			expect((Shove.grabRefusal(nil, 33, 0))).never.to.be.ok()
 		end)
 
-		it("stays put after a miss while the owner window runs, then sprints like any stray (N86)", function()
-			expect(Shove.sprintsAfterMiss(drop, 107.9)).to.equal(false)
-			expect(Shove.sprintsAfterMiss(drop, 108)).to.equal(true)
-			expect(Shove.sprintsAfterMiss(nil, 0)).to.equal(true)
-		end)
+		it(
+			"stays put after a miss while the owner window runs, then sprints like any stray (N86)",
+			function()
+				expect(Shove.sprintsAfterMiss(drop, 107.9)).to.equal(false)
+				expect(Shove.sprintsAfterMiss(drop, 108)).to.equal(true)
+				expect(Shove.sprintsAfterMiss(nil, 0)).to.equal(true)
+			end
+		)
 
-		it("survives a night wave that starts within DroppedMinStaySeconds of the drop (S32)", function()
-			local stay = Config.DroppedMinStaySeconds
-			expect(Shove.leavesWithWave(drop, 100 + stay - 0.01)).to.equal(false)
-			expect(Shove.leavesWithWave(drop, 100 + stay)).to.equal(true)
-			expect(Shove.leavesWithWave(nil, 0)).to.equal(true)
-		end)
+		it(
+			"survives a night wave that starts within DroppedMinStaySeconds of the drop (S32)",
+			function()
+				local stay = Config.DroppedMinStaySeconds
+				expect(Shove.leavesWithWave(drop, 100 + stay - 0.01)).to.equal(false)
+				expect(Shove.leavesWithWave(drop, 100 + stay)).to.equal(true)
+				expect(Shove.leavesWithWave(nil, 0)).to.equal(true)
+			end
+		)
 	end)
 
 	describe("section 10c numbers", function()
-		it("the owner window is shorter than the minimum stay, so a wave never eats the window", function()
-			expect(Config.DropOwnerPrioritySeconds < Config.DroppedMinStaySeconds).to.equal(true)
-		end)
+		it(
+			"the owner window is shorter than the minimum stay, so a wave never eats the window",
+			function()
+				expect(Config.DropOwnerPrioritySeconds < Config.DroppedMinStaySeconds).to.equal(
+					true
+				)
+			end
+		)
 
 		it("the same-target wait is longer than the shover's cooldown", function()
 			expect(Config.BumpSameTargetSeconds > Config.BumpCooldownSeconds).to.equal(true)
+		end)
+	end)
+
+	describe("edges (QA)", function()
+		-- Each rule broken on its own, in the order section 10c lists them.
+		local broken: { { [string]: any } } = {
+			{ self = true },
+			{ shoverCarrying = true },
+			{ shoverBusy = true },
+			{ targetArea = "park" },
+			{ areaUnlocked = false },
+			{ distance = 50 },
+			{ targetBusy = true },
+			{ targetSafe = true },
+			{ sinceShove = 0 },
+			{ sinceShoveTarget = 0 },
+			{ sinceTargetShoved = 0 },
+		}
+
+		it("every rule has its own words, so the shover can tell them apart", function()
+			local seen: { [string]: boolean } = {}
+			for _, changes in broken do
+				local reason = Shove.refusal(with(changes)) :: string
+				expect(seen[reason]).never.to.be.ok()
+				seen[reason] = true
+			end
+		end)
+
+		it("with two rules broken, the earlier one in section 10c names the refusal", function()
+			for first = 1, #broken do
+				for second = first + 1, #broken do
+					local both: { [string]: any } = {}
+					for key, value in broken[second] do
+						both[key] = value
+					end
+					for key, value in broken[first] do
+						both[key] = value
+					end
+					expect(Shove.refusal(with(both))).to.equal(Shove.refusal(with(broken[first])))
+				end
+			end
+		end)
+
+		it("the scurry clamps a roll above 1", function()
+			expect(Shove.scurryStuds(2)).to.equal(Shove.SCURRY_MAX)
+		end)
+
+		it("the owner window ends at ownerUntil for everyone but the shover", function()
+			local drop = Shove.newDrop(11, 22, 100)
+			local reason, retry = Shove.grabRefusal(drop, 33, drop.ownerUntil - 0.01)
+			expect(reason).to.be.ok()
+			expect(retry).to.equal(true)
+			expect((Shove.grabRefusal(drop, 33, drop.ownerUntil))).never.to.be.ok()
+			expect((Shove.grabRefusal(drop, 22, drop.ownerUntil))).to.be.ok()
+		end)
+
+		it("the push is flat and one stud long whatever the heights", function()
+			local d = Shove.direction(
+				Vector3.new(0, -40, 0),
+				Vector3.new(10, 90, 0),
+				Vector3.new(0, 0, 1)
+			)
+			expect(d.Y).to.equal(0)
+			expect(d.Magnitude).to.be.near(1, 1e-9)
 		end)
 	end)
 end

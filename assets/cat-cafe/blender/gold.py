@@ -1,5 +1,6 @@
 """Gold cats (features.md F42, data-model.md section 4; called "shiny" until Derek renamed them on 2026-10-27):
-every cat has a gold version on the same shapes, `CatCafe_Cat_<Name>_Gold`, gold-modeled as Derek asked. Eyes,
+every cat has a gold version on the same shapes, `CatCafe_Cat_<Name>_Gold` (walking, body A) and
+`CatCafe_Cat_<Name>_Gold_Sit` (sitting, body B), gold-modeled as Derek asked. Eyes,
 nose, inner ears and star specks keep their colours, so the cat still reads as itself.
 
 The coat roles of a cat (fur, second, third, ruff; not `sparkle` specks) are ranked lightest first by CIE L*: the
@@ -20,11 +21,7 @@ TONES = ("gold_light", "gold_mid", "gold_dark")
 DEEP_LSTAR = 35.0              # coat colours darker than this take the deep gold
 
 
-def lstar(swatch):
-    """CIE L* (0 black to 100 white) of a palette swatch."""
-    r, g, b = (palette.srgb_to_linear(c) for c in palette.hex_to_rgb(palette.SWATCHES[palette.idx(swatch)][1]))
-    y = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    return 116 * y ** (1 / 3) - 16 if y > 0.008856 else 903.3 * y
+lstar = palette.lstar
 
 
 def coat_map(spec):
@@ -51,8 +48,9 @@ def gold_spec(name):
     return spec
 
 
-def build_gold(name, mat):
-    return cats.build_cat(name, mat, spec=gold_spec(name), base=f"CatCafe_Cat_{name}_Gold")
+def build_gold(name, mat, body="walk"):
+    return cats.build_cat(name, mat, spec=gold_spec(name), base=f"CatCafe_Cat_{name}_Gold{cats.SUFFIX[body]}", body=body)
 
 
-ASSETS = {f"CatCafe_Cat_{n}_Gold": (lambda mat, n=n: build_gold(n, mat), 1500) for n in cats.ROSTER}
+ASSETS = {f"CatCafe_Cat_{n}_Gold{cats.SUFFIX[bd]}": (lambda mat, n=n, bd=bd: build_gold(n, mat, bd), 1500)
+          for n in cats.ROSTER for bd in cats.BODIES}

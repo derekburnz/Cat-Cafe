@@ -20,6 +20,7 @@ Model layout (pivots match the FBX exports and manifest.json, so placement code 
     <object name> parts      the main object: the object named like the asset, else the first one
     <object name>            a Model per other object (Head, Tail, Lid, Branch, LeafL, Bulb...), pivot at that
                              object's origin, which is its hinge or joint (manifest part_pivots_roblox)
+      <object name>          a Model nested in another (NEST): a cat's Eye1, Eye2, EarL and EarR ride its Head
 Every part keeps its object's name, so name checks such as the night suffixes keep working. An asset can add
 Attachments to the biggest part of one object (a cat's Outfit_<Piece> slots) and attributes on the root Model.
 
@@ -61,6 +62,9 @@ PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars"}
 # where the sound comes from. CafeDoor and WorkingCat are tagged by WorldBuilder at placement.
 TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["FishTank"],
         "CatCafe_Park_Fountain": ["Fountain"]}
+# Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
+# object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.
+NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head"}
 
 
 def _r(v):
@@ -296,6 +300,7 @@ def model_json(objs, asset, attachments=(), attributes=None):
         return [(n, M4) for suffix, n, M4 in attachments if o.name.endswith(suffix)]
 
     _add_attachments(root, main_parts, wanted(groups[0][0]))
+    subs, nested = {}, []
     for k, (o, parts) in enumerate(groups[1:], start=1):
         part_name = next((n for suffix, n in PART_NAMES.items() if o.name.endswith(suffix)), None)
         if part_name == "Bars" and len(parts) == 1:
@@ -306,7 +311,11 @@ def model_json(objs, asset, attachments=(), attributes=None):
         R, _ = _split(o.matrix_world.to_3x3())
         sub = _group(asset, o.name, parts, C @ o.matrix_world.translation, C @ R @ CT, f"{asset}/{k}", part_name)
         _add_attachments(sub, parts, wanted(o))
-        root["children"].append(sub)
+        subs[o.name] = sub
+        host = next((o.name[:-len(sfx)] + to for sfx, to in NEST.items() if o.name.endswith(sfx)), None)
+        nested.append((sub, host))
+    for sub, host in nested:
+        (subs[host]["children"] if host in subs else root["children"]).append(sub)
     return root
 
 

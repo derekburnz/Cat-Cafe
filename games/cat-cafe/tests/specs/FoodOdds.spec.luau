@@ -171,7 +171,7 @@ return function()
 				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 			) :: any
 			local text = FoodOdds.extras()
-			local shiny = text:match("^Shiny ([%d%.]+)%% · Charm ")
+			local shiny = text:match("^Gold ([%d%.]+)%% · Charm ")
 			expect(shiny).to.be.ok()
 			-- data-model section 8: ShinyChanceBait 0.02, so the card says 2%
 			expect(tonumber(shiny or "") :: number).to.be.near((Config.ShinyChanceBait or 0.02) * 100, 1e-9)

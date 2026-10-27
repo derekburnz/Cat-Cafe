@@ -23,6 +23,7 @@ local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local CafeSigns = require(script.Screens.CafeSigns)
 local CatCollection = require(script.Screens.CatCollection)
+local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local Create = require(script.Components.Create)
@@ -32,6 +33,7 @@ local Format = require(script.Components.Format)
 local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
+local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
@@ -48,6 +50,7 @@ local Types = require(script.Types)
 local UpgradeShop = require(script.Screens.UpgradeShop)
 local WorldMarker = require(script.Components.WorldMarker)
 local WorldTags = require(script.Screens.WorldTags)
+local ZoneChip = require(script.Screens.ZoneChip)
 
 local UI = {}
 
@@ -115,6 +118,9 @@ local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
 local gateSigns: GateSigns.GateSigns? = nil
 local areaTitle: AreaTitle.AreaTitle? = nil
+local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
+local zoneChip: ZoneChip.ZoneChip? = nil -- "Safe zone" or "Catching area" under the tier pill (UI.setZone)
+local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so an area's open edge cannot spam it
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
@@ -185,6 +191,9 @@ local function render()
 	if gateSigns then
 		gateSigns:render(state)
 	end
+	if locationMarkers and hud then
+		locationMarkers:render(state, hud:isCarrying())
+	end
 	if baitScreen then
 		baitScreen:render(state)
 	end
@@ -213,6 +222,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if gateSigns then
 		gateSigns:setCatalog(newCatalog)
+	end
+	if locationMarkers then
+		locationMarkers:setCatalog(newCatalog)
 	end
 	if baitScreen then
 		baitScreen:setCatalog(newCatalog)
@@ -510,6 +522,9 @@ function UI.init(config: Types.InitConfig)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
+	-- icons over My Cafe, every area and the dealer's cart, fading out up close; the Safe zone chip under the tier
+	locationMarkers = LocationMarkers.new(parent)
+	zoneChip = ZoneChip.new(parent)
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
@@ -630,6 +645,12 @@ function UI.destroy()
 	if areaTitle then
 		areaTitle:destroy()
 	end
+	if locationMarkers then
+		locationMarkers:destroy()
+	end
+	if zoneChip then
+		zoneChip:destroy()
+	end
 	if cafeSigns then
 		cafeSigns:destroy()
 	end
@@ -666,6 +687,7 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
+	locationMarkers, zoneChip = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen, slotLabels = nil, nil, nil, nil, nil
 	shoveButton = nil
@@ -712,6 +734,12 @@ function UI.setVisible(isVisible: boolean)
 	end
 	if toasts then
 		toasts.screenGui.Enabled = isVisible
+	end
+	if zoneChip then
+		zoneChip:setVisible(isVisible)
+	end
+	if locationMarkers then
+		locationMarkers:setVisible(isVisible)
 	end
 	if not isVisible then
 		UI.close()
@@ -768,7 +796,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		if newest then
 			info.stars = info.stars or newest.stars
 			if info.shiny == nil then
-				info.shiny = newest.variant == "shiny"
+				info.shiny = CatVariant.isGold(newest.variant)
 			end
 		end
 		popups:showCatFound(def, isNew, info)
@@ -1072,6 +1100,22 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	end
 	if ok then
 		UI.showAreaTitle(destination)
+	end
+end
+
+-- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
+-- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). The chip under the tier pill says
+-- "Safe zone" or "Catching area"; walking back to safety pops the chip every time and toasts at most once in
+-- SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times); the area's own marker hides.
+local SAFE_TOAST_SECONDS = 20
+function UI.setZone(zone: string?)
+	if locationMarkers then
+		locationMarkers:setZone(zone)
+	end
+	local chip = zoneChip
+	if chip and chip:set(zone) and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
+		safeToastAt = os.clock()
+		UI.toast("Safe zone: no shoving here", "good")
 	end
 end
 
@@ -1451,6 +1495,8 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local charm = promptAttribute(prompt, "Charm")
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
+	-- Gold since 2026-10-27; the old Shiny attribute still counts until the server rename lands
+	local gold = promptAttribute(prompt, "Gold")
 	local shiny = promptAttribute(prompt, "Shiny")
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
@@ -1466,7 +1512,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 			then dropOwnerUntil
 			else nil,
 		press = prompt.HoldDuration <= 0,
-		shiny = shiny == true,
+		shiny = CatVariant.goldFlag(gold, shiny),
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
 		rescueSpotId = if type(rescueSpotId) == "string"
 			then rescueSpotId

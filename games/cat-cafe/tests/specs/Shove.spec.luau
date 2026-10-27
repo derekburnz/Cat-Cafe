@@ -307,6 +307,22 @@ return function()
 			expect((Shove.grabRefusal(drop, 22, drop.ownerUntil))).to.be.ok()
 		end)
 
+		it("a Drop (shover 0, PR #162): the dropper's first try, then anyone's", function()
+			local drop = Shove.newDrop(11, 0, 100)
+			expect(drop.ownerUntil).to.equal(100 + Config.DropOwnerPrioritySeconds)
+			local early = drop.ownerUntil - 0.01
+			expect((Shove.grabRefusal(drop, 11, early))).never.to.be.ok()
+			local reason, retry = Shove.grabRefusal(drop, 33, early)
+			expect(reason).to.equal("Its owner gets the first try")
+			expect(retry).to.equal(true)
+			for _, userId in { 11, 33, -1 } do
+				expect((Shove.grabRefusal(drop, userId, drop.ownerUntil))).never.to.be.ok()
+			end
+			-- a miss inside the window leaves it sitting for the dropper, as after a shove (N86)
+			expect(Shove.sprintsAfterMiss(drop, early)).to.equal(false)
+			expect(Shove.sprintsAfterMiss(drop, drop.ownerUntil)).to.equal(true)
+		end)
+
 		it("the push is flat and one stud long whatever the heights", function()
 			local d = Shove.direction(
 				Vector3.new(0, -40, 0),

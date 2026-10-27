@@ -1,6 +1,6 @@
 # Intro cutscene and Tutorial button (F72)
 
-Approved by Derek on 2026-10-27 at 20:45 ("1 yes, 2 yes, 3 keep them but keep it brief"), from his ask at 20:11: a quick camera fly-through of the map before a new player can play, the most important information first because players skip at once, quick scene changes, a small Skip button bottom right after a couple of seconds, and a button at the top that replays it and can be dismissed. Storyboard with a pacing preview: https://claude.ai/artifact/JNrpEjoGnt7MUquHNZJdUF. Design: Tutorial-Agent thread. Build: Gameplay-Engineer (camera, server flag, landing spot) and UI-Engineer (captions, Skip, Tutorial tile, Settings rows).
+Approved by Derek on 2026-10-27 at 20:45 ("1 yes, 2 yes, 3 keep them but keep it brief"), from his ask at 20:11: a quick camera fly-through of the map before a new player can play, the most important information first because players skip at once, quick scene changes, a small Skip button bottom right after a couple of seconds, and a button at the top that replays it and can be dismissed. Storyboard with a pacing preview: `intro-cutscene-storyboard.html` in the project library folder Tutorial-Agent/ (open it in a browser). Design: Tutorial-Agent thread. Build: Gameplay-Engineer (camera, server flag, landing spot) and UI-Engineer (captions, Skip, Tutorial tile, Settings rows).
 
 ## 1. Rules
 

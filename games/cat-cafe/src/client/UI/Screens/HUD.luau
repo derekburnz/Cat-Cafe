@@ -1,12 +1,13 @@
 --!strict
 -- Always-on overlay in the simulator layout (docs/design/cat-cafe/ui-contract.md, HUD v3):
---   top left      money and income, the golden fish under them (F52); a tap on either shows the exact amount
+--   top left      a compact money pill with the rate beside the amount, the golden fish pill under it (F52); a tap
+--                 on either shows the exact amount
 --   top centre    cafe tier pill
 --   top right     small icon buttons (Tutorial, Gifts, Settings, Invite) and the day and night clock chip, the next
 --                 goal card under them
 --   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots, and an arrow
 --                 tab under them that folds them off the edge
---   bottom centre Equip Best, the big gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away);
+--   bottom centre Equip Best, the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away);
 --                 above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
 --   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
@@ -14,6 +15,7 @@
 --
 -- Roblox terms: SocialService:PromptGameInvite opens Roblox's own invite-friends window; the game only asks.
 
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -76,10 +78,12 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
-local MONEY_W = 276
-local MONEY_H = 80
-local FISH_W = 196
-local FISH_H = 48
+-- the money and golden fish pills, one tidy column of the same size (Derek 2026-10-27: the money one was too big)
+local MONEY_W = 232
+local MONEY_H = 48
+local FISH_W = MONEY_W
+local FISH_H = MONEY_H
+local PILL_COIN = 32
 local FISH_TOP = MARGIN + MONEY_H + 8
 local EXACT_SECONDS = 2.5 -- how long a tapped counter's exact amount stays up
 -- F66: in the last DUSK_SECONDS of a day the clock chip turns orange and counts to night; CLOSED_TEXT is the Alley
@@ -90,12 +94,10 @@ local PILL_W = 192
 local PILL_H = 54
 local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
 local TRAVEL_ICON = 28
-local HOME_ICON = 40
 local CAFE_HEIGHT = 56
 local TRAVEL_W = 136
-local TRAVEL_H = 50
-local HOME_W = 176
-local HOME_H = 62 -- My Cafe stands taller than the rest of the bottom row
+local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
+local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
 local ICON = 58 -- top right icon buttons
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
@@ -106,7 +108,7 @@ local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
-local MENU_FOLDED_X = -(PILL_W + 40) -- past the left edge, ears and dots too
+local MENU_FOLDED_X = -(PILL_W + 40) -- past the left edge, dots too
 local HOME_TEXT = "My Cafe"
 local HOME_CARRYING_TEXT = "Walk it home" -- the server refuses trips while carrying, so the button says why
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
@@ -115,6 +117,12 @@ local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
 local CLOCK_TOP = MARGIN + ICON + Theme.sizes.gap
 local GOAL_TOP = CLOCK_TOP + 40 + Theme.sizes.gap
 local NIGHT_CHIP = 24 + 4
+-- The top right column (icon row, clock, tips chip, goal card) is this wide at most. The HUD keeps clear of
+-- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
+-- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
+-- screen's right edge that stretch may stop and still count.
+local RIGHT_COLUMN_W = 300
+local TOPBAR_SLACK = 48
 -- data-model NightIncomeMultiplier (0.6): tips pay this share at night (F31)
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
@@ -224,42 +232,62 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromOffset(MONEY_W, MONEY_H),
 		Parent = root,
 	})
-	-- big gold coin with a dark outline and a shaded face, the simulator currency badge
+	-- the gold coin badge, then the amount with the rate beside it on one line ("$610  +$1.7/s")
 	local coin: Frame = Create("Frame", {
 		Name = "Coin",
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(12, 12),
-		Size = UDim2.fromOffset(48, 48),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 10, 0.5, 0),
+		Size = UDim2.fromOffset(PILL_COIN, PILL_COIN),
 		Parent = money,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		label({
 			Size = UDim2.fromScale(1, 1),
-			TextSize = 28,
+			TextSize = 20,
 			TextColor3 = Theme.colors.white,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = Theme.currencySymbol,
 		}),
 	})
-	Outline.border(coin, Theme.sizes.outline)
+	Outline.border(coin, 2)
 	Outline.shade(coin, 0.2)
+	local line: Frame = Create("Frame", {
+		Name = "Line",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(PILL_COIN + 20, 0),
+		Size = UDim2.new(1, -(PILL_COIN + 30), 1, 0),
+		ClipsDescendants = true,
+		Parent = money,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
 	self._moneyText = label({
 		Name = "Amount",
-		Position = UDim2.fromOffset(72, 8),
-		Size = UDim2.new(1, -84, 0, 38),
-		TextSize = 32,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 32),
+		TextSize = 26,
+		TextTruncate = Enum.TextTruncate.None,
 		Text = Format.money(0),
-		Parent = money,
+		LayoutOrder = 1,
+		Parent = line,
 	})
 	self._incomeText = label({
 		Name = "Income",
-		Position = UDim2.fromOffset(72, 46),
-		Size = UDim2.new(1, -84, 0, 22),
-		TextSize = Theme.sizes.textBody,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 22),
+		TextSize = Theme.sizes.textSmall + 1,
 		TextColor3 = Theme.hud.income,
+		TextTruncate = Enum.TextTruncate.None,
 		Text = "",
-		Parent = money,
+		LayoutOrder = 2,
+		Parent = line,
 	})
 
 	-- Golden fish (F52): the rare currency's counter under the money, with the cat-face coin. Hidden until
@@ -273,14 +301,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._fishPanel = fish
 	FishCoin.new({
 		parent = fish,
-		size = 32,
-		position = UDim2.new(0, 12, 0.5, 2),
+		size = PILL_COIN,
+		position = UDim2.new(0, 10, 0.5, 0),
 		anchorPoint = Vector2.new(0, 0.5),
 	})
 	self._fishText = label({
 		Name = "Amount",
-		Position = UDim2.fromOffset(54, 0),
-		Size = UDim2.new(1, -64, 1, 0),
+		Position = UDim2.fromOffset(PILL_COIN + 20, 0),
+		Size = UDim2.new(1, -(PILL_COIN + 30), 1, 0),
 		TextSize = 26,
 		TextColor3 = Theme.fish.text,
 		Text = "0",
@@ -437,6 +465,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._icons = icons
+	self._lift = 0 -- design px the top right column sits higher, up in the top bar's free stretch
 	-- Tutorial (F72): gold with a "?", a small red × in its corner hides it (Settings brings it back). Hidden until
 	-- the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off; greyed while
 	-- carrying or during a catch or rescue.
@@ -657,6 +687,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
 		callbacks.openScreen("RankUp")
 	end)
+	-- the column follows the top bar as Roblox's menu opens and closes and as the window resizes
+	table.insert(
+		self._connections,
+		GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(function()
+			self:_liftRight()
+		end)
+	)
+	self._scaleConnection = Scale.changed:Connect(function()
+		self:_liftRight()
+	end)
+	self:_liftRight()
 
 	-- Menu (left, vertically centred): big pill buttons with an icon, the "Shop / Index" column of popular
 	-- simulators. A key cap shows the keyboard shortcut and a red "!" dot says the screen has something new.
@@ -735,7 +776,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			layoutOrder = index,
 			parent = menu,
 			sound = false, -- the modal swish is the sound
-			ears = true,
 			onClick = item.open,
 		})
 		local key = item.key
@@ -871,7 +911,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 
-	-- Bottom row (bottom centre): Equip Best, the big gold My Cafe teleport, Alley and Areas, where Grow a Garden
+	-- Bottom row (bottom centre): Equip Best, the gold My Cafe teleport, Alley and Areas, where Grow a Garden
 	-- puts its teleport buttons (features.md F19). The three travel buttons grey out while carrying a cat, since
 	-- walking it home is the loop and the server refuses those trips, and for the trip cooldown.
 	local travelRow: Frame = Create("Frame", {
@@ -879,7 +919,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -MARGIN),
-		Size = UDim2.fromOffset(HOME_W + 3 * TRAVEL_W + 3 * Theme.sizes.gap, HOME_H),
+		Size = UDim2.fromOffset(TRAVEL_ROW_W, TRAVEL_H),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -938,15 +978,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			name = item.name,
 			text = item.label,
 			icon = item.icon,
-			iconSize = if home then HOME_ICON else TRAVEL_ICON,
+			iconSize = TRAVEL_ICON,
 			style = item.style,
-			size = if home
-				then UDim2.fromOffset(HOME_W, HOME_H)
-				else UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
-			textSize = if home then Theme.sizes.textLarge else Theme.sizes.textBody + 1,
+			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
+			textSize = Theme.sizes.textBody + 1,
 			layoutOrder = index + 1,
 			parent = travelRow,
-			ears = home,
 			-- Areas only opens the panel, which swishes; Cafe and Alley click
 			sound = if item.key == "areas" then false else nil,
 			onClick = function()
@@ -971,12 +1008,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		style = "ghost",
 		size = UDim2.fromOffset(FOLD_W, FOLD_H),
 		anchorPoint = Vector2.new(0, 1),
-		position = UDim2.new(
-			0.5,
-			(HOME_W + 3 * TRAVEL_W + 3 * Theme.sizes.gap) / 2 + Theme.sizes.gap,
-			1,
-			-MARGIN
-		),
+		position = UDim2.new(0.5, TRAVEL_ROW_W / 2 + Theme.sizes.gap, 1, -MARGIN),
 		textSize = Theme.sizes.textBody,
 		parent = root,
 		onClick = function()
@@ -989,7 +1021,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Carry banner (bottom centre, above the bottom row): the cat you carry and a red Drop button (G)
 	local carry = hudPanel("Carry", {
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -(MARGIN + HOME_H + Theme.sizes.gap)),
+		Position = UDim2.new(0.5, 0, 1, -(MARGIN + TRAVEL_H + Theme.sizes.gap)),
 		Size = UDim2.fromOffset(CARRY_W, CARRY_H),
 		Visible = false,
 		Parent = root,
@@ -1226,7 +1258,7 @@ function HUD.setTravelFolded(self: any, folded: boolean)
 	self._travelFolded = folded
 	self._travelFold:setText(if folded then "▲" else "▼")
 	Tween.to(self._travelRow, Tween.POP, {
-		Position = UDim2.new(0.5, 0, 1, if folded then HOME_H + 24 else -MARGIN),
+		Position = UDim2.new(0.5, 0, 1, if folded then TRAVEL_H + 24 else -MARGIN),
 	})
 	self:_layoutBottom()
 end
@@ -1341,20 +1373,9 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._carryState = state.carrying ~= nil
 	self:_renderTravel()
 
-	-- income comes only from cats in a role slot, so with instances the count skips resting cats
-	local catCount = 0
 	local distinct = 0
-	for _, owned in state.catsOwned do
-		catCount += owned.count
+	for _ in state.catsOwned do
 		distinct += 1
-	end
-	if state.cats then
-		catCount = 0
-		for _, instance in state.cats :: { [string]: Types.CatInstance } do
-			if instance.spotId then
-				catCount += 1
-			end
-		end
 	end
 	if state.collection then
 		distinct = 0
@@ -1362,11 +1383,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 			distinct += 1
 		end
 	end
-	self._incomeText.Text = ("%s from %d cat%s"):format(
-		Format.rate(state.incomePerSecond),
-		catCount,
-		if catCount == 1 then "" else "s"
-	)
+	self._incomeText.Text = Format.rate(state.incomePerSecond)
 
 	local tierProgress: RankUp.Progress? = nil
 	if catalog and catalog.tiers and state.tier then
@@ -1500,7 +1517,7 @@ end
 function HUD._layoutBottom(self: any)
 	local y = -MARGIN
 	if self._travelRow.Visible and not self._travelFolded then
-		y -= HOME_H + Theme.sizes.gap
+		y -= TRAVEL_H + Theme.sizes.gap
 	end
 	if self._carry.Visible then
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
@@ -1557,13 +1574,42 @@ function HUD.setAreasOpen(self: any, open: boolean)
 	self:_renderTravel()
 end
 
--- The goal card sits under the clock, and under the night tips chip when it shows.
+-- How far the top right column can move up into Roblox's top bar: its height in design px when the bar's free
+-- stretch covers the column, else 0 (the bar holds Roblox buttons there, or the device has no top bar).
+local function topbarLift(): number
+	local inset = GuiService.TopbarInset
+	local camera = Workspace.CurrentCamera
+	local scale = Scale.get()
+	if camera == nil or scale <= 0 or inset.Height <= 0 then
+		return 0
+	end
+	local width = camera.ViewportSize.X
+	local columnLeft = width - (MARGIN + RIGHT_COLUMN_W) * scale
+	if inset.Max.X < width - TOPBAR_SLACK or inset.Min.X > columnLeft then
+		return 0
+	end
+	return inset.Max.Y / scale
+end
+
+-- The top right column, top down: the icon row, the clock, the night tips chip when it shows, the goal card.
 function HUD._layoutRight(self: any)
+	local lift = self._lift
+	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN - lift)
+	self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
+	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + 40 + 4 - lift)
 	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
 	if self._nightTips.Visible then
 		top += NIGHT_CHIP
 	end
-	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top)
+	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
+end
+
+function HUD._liftRight(self: any)
+	local lift = topbarLift()
+	if lift ~= self._lift then
+		self._lift = lift
+		self:_layoutRight()
+	end
 end
 
 -- Red dots: a screen's dot shows while it has a key the player has not seen on that screen. Keys seen while
@@ -1697,6 +1743,7 @@ function HUD.destroy(self: any)
 		button:destroy()
 	end
 	self._goal:destroy()
+	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

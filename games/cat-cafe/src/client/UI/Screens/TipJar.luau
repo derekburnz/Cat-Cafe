@@ -44,7 +44,11 @@ local ICON = 52
 local BIG_ICON = 46 -- the pictures on a big gift's card
 local BIG_FILL = Theme.colors.gold:Lerp(Theme.colors.paper, 0.72)
 local STRIP_HEIGHT = 52
-local PENDING_SECONDS = 3 -- a pressed Claim waits this long for TipJarState before it can be pressed again
+-- A pressed Claim reads "Claiming" until TipJarState answers, or this long, then it can be pressed again. The
+-- server takes one ClaimTipJar a second and drops the rest unanswered, so after any claim every Claim waits
+-- CLAIM_GAP before it lights again (Derek 2026-10-27: a quick second claim sat on "..." until the old 3 s ran out).
+local PENDING_SECONDS = 1.5
+local CLAIM_GAP = 1.1
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
 
@@ -78,6 +82,7 @@ function TipJar.new(callbacks: Callbacks): TipJar
 	self._spin = nil :: Types.SpinState?
 	self._cards = {} :: { [number]: any }
 	self._pending = {} :: { [number]: number } -- step -> os.clock() of the press
+	self._lastClaim = -math.huge -- os.clock() of the latest press on any Claim
 
 	local panel = Panel.new({
 		name = "TipJar",
@@ -312,9 +317,20 @@ function TipJar._build(self: any)
 			textSize = Theme.sizes.textBody + 1,
 			parent = frame,
 			onClick = function()
-				self._pending[step] = os.clock()
+				local now = os.clock()
+				if now - self._lastClaim < CLAIM_GAP then
+					return
+				end
+				self._lastClaim = now
+				self._pending[step] = now
 				self._callbacks.claim(step)
 				self:_refresh()
+				-- the buttons come back as soon as the waits are over, not on the next once-a-second tick
+				task.delay(math.max(PENDING_SECONDS, CLAIM_GAP), function()
+					if self._cards[step] then
+						self:_refresh()
+					end
+				end)
 			end,
 		})
 		self._cards[step] = {
@@ -356,11 +372,12 @@ function TipJar._refresh(self: any)
 		card.chips:set(card.shown, look) -- coins follow the day rate; a full spin bank reads "Full"
 		local pressedAt: number? = self._pending[row.step]
 		local pending = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
+		local resting = os.clock() - self._lastClaim < CLAIM_GAP
 		local claimed = view.state == "claimed"
 		local ready = view.state == "ready"
 		card.claim.instance.Visible = ready
-		card.claim:setEnabled(not pending)
-		card.claim:setText(if pending then "..." else "Claim")
+		card.claim:setEnabled(not pending and not resting)
+		card.claim:setText(if pending then "Claiming" else "Claim")
 		card.waiting.Visible = not ready
 		card.waiting.Text = if claimed then "✓ Claimed" else TipJarLogic.clock(view.remaining)
 		card.waiting.TextColor3 = if claimed then Theme.colors.goodDark else Theme.modal.subtext

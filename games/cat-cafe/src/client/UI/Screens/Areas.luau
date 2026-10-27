@@ -1,7 +1,8 @@
 --!strict
 -- Areas screen (F19 fast travel): one card per area with its icon, the share of Epic or better strays, and a
--- Go button. Locked areas are greyed with the tier they open at, and every Go greys out while the player is
--- carrying a cat, because walking it home is the loop. Opened from the Areas button in the HUD travel row.
+-- Go button. Only the areas the player's tier has opened show (Derek 2026-10-27: no buttons for places you cannot
+-- go yet), so the grid grows as they rank up, and every Go greys out while the player is carrying a cat, because
+-- walking it home is the loop. Opened from the Areas button in the HUD travel row.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -226,16 +227,14 @@ end
 function Areas.render(self: any, state: Types.PlayerState, carrying: boolean)
 	local tier = state.tier or 1
 	local closed = self._areasOpen == false
-	self._panel:setTitle(
-		"Areas",
-		if carrying
-			then "Walk your cat home first"
-			elseif closed then "The areas are closed at night. They open at sunrise."
-			else "Pick an area to travel to"
-	)
+	local hidden = 0
 	for _, card in self._cards do
 		local def: Types.AreaDef = card.def
 		local unlocked = def.tier <= tier
+		card.frame.Visible = unlocked
+		if not unlocked then
+			hidden += 1
+		end
 		card.lock.Visible = not unlocked
 		card.icon.TextTransparency = if unlocked then 0 else 0.55
 		card.art.BackgroundTransparency = if unlocked then 0 else 0.45
@@ -248,6 +247,14 @@ function Areas.render(self: any, state: Types.PlayerState, carrying: boolean)
 			card.go:setEnabled(false)
 		end
 	end
+	self._panel:setTitle(
+		"Areas",
+		if carrying
+			then "Walk your cat home first"
+			elseif closed then "The areas are closed at night. They open at sunrise."
+			elseif hidden > 0 then "Pick an area to travel to. More open as you rank up."
+			else "Pick an area to travel to"
+	)
 end
 
 function Areas.destroy(self: any)

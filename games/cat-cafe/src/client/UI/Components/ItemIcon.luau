@@ -173,6 +173,8 @@ function ItemIcon.set(self: any, asset: string?, glyph: string, rarity: string?)
 	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)
 	self._glyph.Text = glyph
 	if asset == self._asset and (self._model ~= nil or asset == nil) then
+		-- the same picture as before; a tile that never had a model shows its glyph (the coin tiles were blank)
+		self._glyph.Visible = self._model == nil
 		return
 	end
 	local old: Model? = self._model

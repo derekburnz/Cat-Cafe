@@ -118,8 +118,8 @@ def _billboard(name, center, size, mat, facing):
     return ob
 
 
-def render_sparkle_preview(built, png, path, samples=32, cat="CatCafe_Cat_Tabby", azimuth=25, elevation=12):
-    """A shiny stray at night: the cat with a few sparkles at the suggested sizes around its body."""
+def render_sparkle_preview(built, png, path, samples=32, cat="CatCafe_Cat_Tabby_Gold", azimuth=25, elevation=12):
+    """A gold stray at night: the gold cat with a few sparkles at the suggested sizes around its body."""
     cat_objs = built.get(cat)
     if not cat_objs:
         return None

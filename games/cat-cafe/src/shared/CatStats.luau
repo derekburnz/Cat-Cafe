@@ -81,9 +81,9 @@ function CatStats.rescuedMultiplier(rescued: boolean?): number
 	return if rescued == true then Config.RescuedTipsMultiplier else 1
 end
 
--- A shiny earns ShinyMultiplier (data-model section 4). "base" and anything unknown is 1x.
+-- A gold cat earns GoldMultiplier (data-model section 4). "base" and anything unknown is 1x.
 function CatStats.variantMultiplier(variant: string?): number
-	return if variant == "shiny" then Config.ShinyMultiplier else 1
+	return if variant == "gold" then Config.GoldMultiplier else 1
 end
 
 -- Stars 1 to 5 for the UI: charm 0-19 one star, 20-39 two, 40-59 three, 60-79 four, 80-100 five.
@@ -166,7 +166,7 @@ function CatStats.rating(instance: Types.CatInstance): number
 end
 
 -- The best rating a cat of this id can reach at max level with 100 charm, base variant (the book's "potential";
--- the shiny figure is this times ShinyMultiplier).
+-- the gold figure is this times GoldMultiplier).
 function CatStats.maxRating(catId: string): number
 	local def = Catalog.getCat(catId)
 	if def == nil then

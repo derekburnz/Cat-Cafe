@@ -223,7 +223,7 @@ function Demo.run(UI: any): () -> ()
 		bait = view
 		baitCat = {
 			catId = picked.id,
-			variant = if math.random() < 0.2 then "shiny" else "base",
+			variant = if math.random() < 0.2 then "gold" else "base",
 			charm = charm,
 			stars = math.clamp(math.ceil(charm / 20), 1, 5),
 		}
@@ -254,7 +254,7 @@ function Demo.run(UI: any): () -> ()
 			}
 			local isNew = profile.collection[cat.catId] == nil
 			profile.collection[cat.catId] = now()
-			UI.showCatFound(cat.catId, isNew, { stars = cat.stars, shiny = cat.variant == "shiny" })
+			UI.showCatFound(cat.catId, isNew, { stars = cat.stars, shiny = cat.variant == "gold" })
 			push()
 		else
 			UI.toast("It wandered off. Maybe next time!", "info")
@@ -484,7 +484,7 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 		local charm = if success then perfects * 4 * (if perfects == #schedule then 2 else 1) else 0
-		UI.catch.showGrades(strayId, grades, success, nil, charm)
+		UI.catch.showGrades(strayId, grades, success, charm)
 		task.wait(1.8)
 		UI.catch.hide()
 		if success then
@@ -622,12 +622,12 @@ function Demo.run(UI: any): () -> ()
 				local pool = CATALOG.cats
 				local def = pool[math.random(1, #pool)]
 				local newUid = uid()
-				-- one in five is shiny here (5% in the game) so the cat room's gold cards show up
+				-- one in five is gold here (5% in the game) so the cat room's gold cards show up
 				local shiny = math.random() < 0.2
 				profile.cats[newUid] = {
 					uid = newUid,
 					catId = def.id,
-					variant = if shiny then "shiny" else "base",
+					variant = if shiny then "gold" else "base",
 					caughtAt = now(),
 					spotId = nil,
 				}

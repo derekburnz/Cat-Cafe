@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 11:44 UTC",
+  "generated": "2026-10-27 13:36 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -409,6 +409,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_orange",
+          "hex": "#E9A24B"
+        },
+        "second": {
+          "swatch": "fur_orange_dark",
+          "hex": "#B8732B"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -693,6 +720,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "fur_black",
+          "hex": "#2B2B35"
+        },
+        "second": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -977,6 +1031,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "muzzle": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -1236,7 +1317,7 @@
         "CatCafe_Cat_Smoke_Head",
         "CatCafe_Cat_Smoke_Tail"
       ],
-      "triangles": 516,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
         "x": 0.9,
@@ -1261,6 +1342,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_charcoal",
+          "hex": "#4A4F58"
+        },
+        "second": {
+          "swatch": "fur_charcoal",
+          "hex": "#4A4F58"
+        },
+        "muzzle": {
+          "swatch": "fur_smoke_light",
+          "hex": "#8A8F99"
+        },
+        "eyes": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -1487,7 +1595,7 @@
         }
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke.model.json",
-      "rbx_parts": 24,
+      "rbx_parts": 25,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Smoke.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Smoke.glb"
@@ -1499,10 +1607,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "516/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "298 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
@@ -1545,6 +1653,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "second": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -1829,6 +1960,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "second": {
+          "swatch": "fur_orange",
+          "hex": "#E9A24B"
+        },
+        "third": {
+          "swatch": "fur_black",
+          "hex": "#2B2B35"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -2113,6 +2271,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "points",
+      "coat": {
+        "fur": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "second": {
+          "swatch": "fur_seal",
+          "hex": "#3E2A22"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -2397,6 +2578,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "fur_black",
+          "hex": "#2B2B35"
+        },
+        "second": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "third": {
+          "swatch": "fur_apricot",
+          "hex": "#F2B88A"
+        },
+        "eyes": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -2681,6 +2889,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "spots",
+      "coat": {
+        "fur": {
+          "swatch": "fur_sand",
+          "hex": "#DDB46A"
+        },
+        "second": {
+          "swatch": "fur_seal",
+          "hex": "#3E2A22"
+        },
+        "muzzle": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -2965,6 +3200,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_peach",
+          "hex": "#EDBBA1"
+        },
+        "second": {
+          "swatch": "fur_peach",
+          "hex": "#EDBBA1"
+        },
+        "eyes": {
+          "swatch": "eye_violet",
+          "hex": "#9C7CF2"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_violet",
+          "hex": "#9C7CF2"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -3249,6 +3507,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "points",
+      "coat": {
+        "fur": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "second": {
+          "swatch": "fur_blue",
+          "hex": "#9AA9C2"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        }
+      },
       "scale": 1.2,
       "joints": {
         "Head": [
@@ -3533,6 +3818,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Legendary",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_black",
+          "hex": "#2B2B35"
+        },
+        "second": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -3818,6 +4126,37 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_silver",
+          "hex": "#CDD2DA"
+        },
+        "second": {
+          "swatch": "fur_black",
+          "hex": "#2B2B35"
+        },
+        "ruff": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "muzzle": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.2,
       "joints": {
         "Head": [
@@ -4102,6 +4441,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Mythical",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "night_sky",
+          "hex": "#1F2A44"
+        },
+        "second": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        },
+        "eyes": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -4386,6 +4748,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_latte",
+          "hex": "#C79F7A"
+        },
+        "second": {
+          "swatch": "fur_latte",
+          "hex": "#C79F7A"
+        },
+        "muzzle": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -4670,6 +5059,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_brown",
+          "hex": "#7A4F2E"
+        },
+        "second": {
+          "swatch": "choco",
+          "hex": "#4A2E1F"
+        },
+        "muzzle": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -4954,6 +5370,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_blue",
+          "hex": "#9AA9C2"
+        },
+        "second": {
+          "swatch": "fur_blue",
+          "hex": "#9AA9C2"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -5238,6 +5677,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "fur_lavender",
+          "hex": "#B9A3DE"
+        },
+        "second": {
+          "swatch": "pastel_lilac",
+          "hex": "#C9B8E8"
+        },
+        "eyes": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -5522,6 +5984,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Legendary",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "fur_rose",
+          "hex": "#F2BFCB"
+        },
+        "second": {
+          "swatch": "fur_white",
+          "hex": "#F7F1E6"
+        },
+        "third": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -5806,6 +6295,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Mythical",
+      "pattern": "gradient",
+      "coat": {
+        "fur": {
+          "swatch": "galaxy_blue",
+          "hex": "#3B4C8C"
+        },
+        "second": {
+          "swatch": "aurora_violet",
+          "hex": "#8E7CF0"
+        },
+        "third": {
+          "swatch": "mint",
+          "hex": "#8FD3C1"
+        },
+        "eyes": {
+          "swatch": "mint",
+          "hex": "#8FD3C1"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "mint",
+          "hex": "#8FD3C1"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -6057,13 +6573,13 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Aurora.png"
     },
     {
-      "name": "CatCafe_Cat_Tabby_Shiny",
+      "name": "CatCafe_Cat_Tabby_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Tabby_Shiny_Body",
-        "CatCafe_Cat_Tabby_Shiny_Head",
-        "CatCafe_Cat_Tabby_Shiny_Tail"
+        "CatCafe_Cat_Tabby_Gold_Body",
+        "CatCafe_Cat_Tabby_Gold_Head",
+        "CatCafe_Cat_Tabby_Gold_Tail"
       ],
       "triangles": 600,
       "budget": 1500,
@@ -6090,6 +6606,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -6315,8 +6858,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Tabby when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Tabby when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Gold.model.json",
       "rbx_parts": 31,
       "gates": {
         "pass": true,
@@ -6334,17 +6877,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tabby_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tabby_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Tuxedo_Shiny",
+      "name": "CatCafe_Cat_Tuxedo_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Tuxedo_Shiny_Body",
-        "CatCafe_Cat_Tuxedo_Shiny_Head",
-        "CatCafe_Cat_Tuxedo_Shiny_Tail"
+        "CatCafe_Cat_Tuxedo_Gold_Body",
+        "CatCafe_Cat_Tuxedo_Gold_Head",
+        "CatCafe_Cat_Tuxedo_Gold_Tail"
       ],
       "triangles": 656,
       "budget": 1500,
@@ -6371,6 +6914,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -6596,8 +7166,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Gold.model.json",
       "rbx_parts": 29,
       "gates": {
         "pass": true,
@@ -6615,17 +7185,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tuxedo_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tuxedo_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Ginger_Shiny",
+      "name": "CatCafe_Cat_Ginger_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Ginger_Shiny_Body",
-        "CatCafe_Cat_Ginger_Shiny_Head",
-        "CatCafe_Cat_Ginger_Shiny_Tail"
+        "CatCafe_Cat_Ginger_Gold_Body",
+        "CatCafe_Cat_Ginger_Gold_Head",
+        "CatCafe_Cat_Ginger_Gold_Tail"
       ],
       "triangles": 528,
       "budget": 1500,
@@ -6652,6 +7222,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -6877,8 +7474,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ginger when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Ginger when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Gold.model.json",
       "rbx_parts": 25,
       "gates": {
         "pass": true,
@@ -6896,19 +7493,19 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ginger_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ginger_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Smoke_Shiny",
+      "name": "CatCafe_Cat_Smoke_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Smoke_Shiny_Body",
-        "CatCafe_Cat_Smoke_Shiny_Head",
-        "CatCafe_Cat_Smoke_Shiny_Tail"
+        "CatCafe_Cat_Smoke_Gold_Body",
+        "CatCafe_Cat_Smoke_Gold_Head",
+        "CatCafe_Cat_Smoke_Gold_Tail"
       ],
-      "triangles": 516,
+      "triangles": 528,
       "budget": 1500,
       "size_studs": {
         "x": 0.9,
@@ -6933,6 +7530,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "second": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -7158,9 +7782,9 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Smoke when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke_Shiny.model.json",
-      "rbx_parts": 24,
+      "studio": "F42: clone this instead of CatCafe_Cat_Smoke when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke_Gold.model.json",
+      "rbx_parts": 25,
       "gates": {
         "pass": true,
         "failed": [],
@@ -7168,26 +7792,26 @@
           "centered"
         ],
         "checks": {
-          "budget": "516/1500 tris",
+          "budget": "528/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "298 faces on swatch centers",
+          "uv": "304 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Smoke_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Smoke_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Smoke_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Snow_Shiny",
+      "name": "CatCafe_Cat_Snow_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Snow_Shiny_Body",
-        "CatCafe_Cat_Snow_Shiny_Head",
-        "CatCafe_Cat_Snow_Shiny_Tail"
+        "CatCafe_Cat_Snow_Gold_Body",
+        "CatCafe_Cat_Snow_Gold_Head",
+        "CatCafe_Cat_Snow_Gold_Tail"
       ],
       "triangles": 516,
       "budget": 1500,
@@ -7214,6 +7838,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -7439,8 +8086,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Snow when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Snow when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Gold.model.json",
       "rbx_parts": 24,
       "gates": {
         "pass": true,
@@ -7458,17 +8105,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Snow_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Snow_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Snow_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Calico_Shiny",
+      "name": "CatCafe_Cat_Calico_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Calico_Shiny_Body",
-        "CatCafe_Cat_Calico_Shiny_Head",
-        "CatCafe_Cat_Calico_Shiny_Tail"
+        "CatCafe_Cat_Calico_Gold_Body",
+        "CatCafe_Cat_Calico_Gold_Head",
+        "CatCafe_Cat_Calico_Gold_Tail"
       ],
       "triangles": 588,
       "budget": 1500,
@@ -7495,6 +8142,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "third": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -7720,8 +8394,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Calico when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Calico_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Calico when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Calico_Gold.model.json",
       "rbx_parts": 30,
       "gates": {
         "pass": true,
@@ -7739,17 +8413,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Calico_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Calico_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Calico_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Siamese_Shiny",
+      "name": "CatCafe_Cat_Siamese_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Siamese_Shiny_Body",
-        "CatCafe_Cat_Siamese_Shiny_Head",
-        "CatCafe_Cat_Siamese_Shiny_Tail"
+        "CatCafe_Cat_Siamese_Gold_Body",
+        "CatCafe_Cat_Siamese_Gold_Head",
+        "CatCafe_Cat_Siamese_Gold_Tail"
       ],
       "triangles": 528,
       "budget": 1500,
@@ -7776,6 +8450,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "points",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -8001,8 +8698,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Siamese when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Siamese_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Siamese when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Siamese_Gold.model.json",
       "rbx_parts": 25,
       "gates": {
         "pass": true,
@@ -8020,17 +8717,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Siamese_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Siamese_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Siamese_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Tortie_Shiny",
+      "name": "CatCafe_Cat_Tortie_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Tortie_Shiny_Body",
-        "CatCafe_Cat_Tortie_Shiny_Head",
-        "CatCafe_Cat_Tortie_Shiny_Tail"
+        "CatCafe_Cat_Tortie_Gold_Body",
+        "CatCafe_Cat_Tortie_Gold_Head",
+        "CatCafe_Cat_Tortie_Gold_Tail"
       ],
       "triangles": 588,
       "budget": 1500,
@@ -8057,6 +8754,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "second": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "third": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -8282,8 +9006,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Tortie when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tortie_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Tortie when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tortie_Gold.model.json",
       "rbx_parts": 30,
       "gates": {
         "pass": true,
@@ -8301,17 +9025,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tortie_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tortie_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Tortie_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Bengal_Shiny",
+      "name": "CatCafe_Cat_Bengal_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Bengal_Shiny_Body",
-        "CatCafe_Cat_Bengal_Shiny_Head",
-        "CatCafe_Cat_Bengal_Shiny_Tail"
+        "CatCafe_Cat_Bengal_Gold_Body",
+        "CatCafe_Cat_Bengal_Gold_Head",
+        "CatCafe_Cat_Bengal_Gold_Tail"
       ],
       "triangles": 612,
       "budget": 1500,
@@ -8338,6 +9062,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Rare",
+      "pattern": "spots",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -8563,8 +9314,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Bengal when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Bengal when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Gold.model.json",
       "rbx_parts": 32,
       "gates": {
         "pass": true,
@@ -8582,17 +9333,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Bengal_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Bengal_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Sphynx_Shiny",
+      "name": "CatCafe_Cat_Sphynx_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Sphynx_Shiny_Body",
-        "CatCafe_Cat_Sphynx_Shiny_Head",
-        "CatCafe_Cat_Sphynx_Shiny_Tail"
+        "CatCafe_Cat_Sphynx_Gold_Body",
+        "CatCafe_Cat_Sphynx_Gold_Head",
+        "CatCafe_Cat_Sphynx_Gold_Tail"
       ],
       "triangles": 488,
       "budget": 1500,
@@ -8619,6 +9370,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_violet",
+          "hex": "#9C7CF2"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_violet",
+          "hex": "#9C7CF2"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -8844,8 +9618,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Sphynx when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Sphynx_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Sphynx when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Sphynx_Gold.model.json",
       "rbx_parts": 24,
       "gates": {
         "pass": true,
@@ -8863,17 +9637,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Sphynx_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Sphynx_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Sphynx_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Ragdoll_Shiny",
+      "name": "CatCafe_Cat_Ragdoll_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Ragdoll_Shiny_Body",
-        "CatCafe_Cat_Ragdoll_Shiny_Head",
-        "CatCafe_Cat_Ragdoll_Shiny_Tail"
+        "CatCafe_Cat_Ragdoll_Gold_Body",
+        "CatCafe_Cat_Ragdoll_Gold_Head",
+        "CatCafe_Cat_Ragdoll_Gold_Tail"
       ],
       "triangles": 540,
       "budget": 1500,
@@ -8900,6 +9674,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "points",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        }
+      },
       "scale": 1.2,
       "joints": {
         "Head": [
@@ -9125,8 +9926,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Gold.model.json",
       "rbx_parts": 26,
       "gates": {
         "pass": true,
@@ -9144,17 +9945,17 @@
           "centered": "footprint center x=0.00 y=0.11"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ragdoll_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Ragdoll_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Void_Shiny",
+      "name": "CatCafe_Cat_Void_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Void_Shiny_Body",
-        "CatCafe_Cat_Void_Shiny_Head",
-        "CatCafe_Cat_Void_Shiny_Tail"
+        "CatCafe_Cat_Void_Gold_Body",
+        "CatCafe_Cat_Void_Gold_Head",
+        "CatCafe_Cat_Void_Gold_Tail"
       ],
       "triangles": 552,
       "budget": 1500,
@@ -9181,6 +9982,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Legendary",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "second": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -9406,8 +10230,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Void when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Void when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Gold.model.json",
       "rbx_parts": 27,
       "gates": {
         "pass": true,
@@ -9425,17 +10249,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Void_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Void_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_MaineCoon_Shiny",
+      "name": "CatCafe_Cat_MaineCoon_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_MaineCoon_Shiny_Body",
-        "CatCafe_Cat_MaineCoon_Shiny_Head",
-        "CatCafe_Cat_MaineCoon_Shiny_Tail"
+        "CatCafe_Cat_MaineCoon_Gold_Body",
+        "CatCafe_Cat_MaineCoon_Gold_Head",
+        "CatCafe_Cat_MaineCoon_Gold_Tail"
       ],
       "triangles": 656,
       "budget": 1500,
@@ -9462,6 +10286,37 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "second": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "ruff": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.2,
       "joints": {
         "Head": [
@@ -9687,8 +10542,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Gold.model.json",
       "rbx_parts": 38,
       "gates": {
         "pass": true,
@@ -9706,17 +10561,17 @@
           "centered": "footprint center x=0.00 y=0.14"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_MaineCoon_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_MaineCoon_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Midnight_Shiny",
+      "name": "CatCafe_Cat_Midnight_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Midnight_Shiny_Body",
-        "CatCafe_Cat_Midnight_Shiny_Head",
-        "CatCafe_Cat_Midnight_Shiny_Tail"
+        "CatCafe_Cat_Midnight_Gold_Body",
+        "CatCafe_Cat_Midnight_Gold_Head",
+        "CatCafe_Cat_Midnight_Gold_Tail"
       ],
       "triangles": 648,
       "budget": 1500,
@@ -9743,6 +10598,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Mythical",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "second": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        },
+        "eyes": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "sparkle",
+          "hex": "#FFF4B0"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -9968,8 +10846,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Midnight when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Midnight when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Midnight_Gold.model.json",
       "rbx_parts": 35,
       "gates": {
         "pass": true,
@@ -9987,17 +10865,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Midnight_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Midnight_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Midnight_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Midnight_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Cream_Shiny",
+      "name": "CatCafe_Cat_Cream_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Cream_Shiny_Body",
-        "CatCafe_Cat_Cream_Shiny_Head",
-        "CatCafe_Cat_Cream_Shiny_Tail"
+        "CatCafe_Cat_Cream_Gold_Body",
+        "CatCafe_Cat_Cream_Gold_Head",
+        "CatCafe_Cat_Cream_Gold_Tail"
       ],
       "triangles": 528,
       "budget": 1500,
@@ -10024,6 +10902,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_chartreuse",
+          "hex": "#B9D84A"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -10249,8 +11154,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Cream when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Cream when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream_Gold.model.json",
       "rbx_parts": 25,
       "gates": {
         "pass": true,
@@ -10268,17 +11173,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Cream_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Cream_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Cream_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Cream_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Brownie_Shiny",
+      "name": "CatCafe_Cat_Brownie_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Brownie_Shiny_Body",
-        "CatCafe_Cat_Brownie_Shiny_Head",
-        "CatCafe_Cat_Brownie_Shiny_Tail"
+        "CatCafe_Cat_Brownie_Gold_Body",
+        "CatCafe_Cat_Brownie_Gold_Head",
+        "CatCafe_Cat_Brownie_Gold_Tail"
       ],
       "triangles": 600,
       "budget": 1500,
@@ -10305,6 +11210,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "muzzle": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_brick",
+          "hex": "#C4675B"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -10530,8 +11462,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Brownie when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Brownie when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Gold.model.json",
       "rbx_parts": 31,
       "gates": {
         "pass": true,
@@ -10549,17 +11481,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Brownie_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Brownie_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Blue_Shiny",
+      "name": "CatCafe_Cat_Blue_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Blue_Shiny_Body",
-        "CatCafe_Cat_Blue_Shiny_Head",
-        "CatCafe_Cat_Blue_Shiny_Tail"
+        "CatCafe_Cat_Blue_Gold_Body",
+        "CatCafe_Cat_Blue_Gold_Head",
+        "CatCafe_Cat_Blue_Gold_Tail"
       ],
       "triangles": 516,
       "budget": 1500,
@@ -10586,6 +11518,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Common",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        },
+        "nose": {
+          "swatch": "nose_dark",
+          "hex": "#4A4450"
+        },
+        "eyes2": {
+          "swatch": "eye_green",
+          "hex": "#6FCF97"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -10811,8 +11766,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Blue when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Blue when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Gold.model.json",
       "rbx_parts": 24,
       "gates": {
         "pass": true,
@@ -10830,17 +11785,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blue_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blue_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Persian_Shiny",
+      "name": "CatCafe_Cat_Persian_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Persian_Shiny_Body",
-        "CatCafe_Cat_Persian_Shiny_Head",
-        "CatCafe_Cat_Persian_Shiny_Tail"
+        "CatCafe_Cat_Persian_Gold_Body",
+        "CatCafe_Cat_Persian_Gold_Head",
+        "CatCafe_Cat_Persian_Gold_Tail"
       ],
       "triangles": 704,
       "budget": 1500,
@@ -10867,6 +11822,29 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Epic",
+      "pattern": "solid",
+      "coat": {
+        "fur": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_copper",
+          "hex": "#E0782F"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -11092,8 +12070,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Persian when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Persian_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Persian when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Persian_Gold.model.json",
       "rbx_parts": 29,
       "gates": {
         "pass": true,
@@ -11111,17 +12089,17 @@
           "centered": "footprint center x=0.00 y=0.18"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Persian_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Persian_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Persian_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Persian_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Blossom_Shiny",
+      "name": "CatCafe_Cat_Blossom_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Blossom_Shiny_Body",
-        "CatCafe_Cat_Blossom_Shiny_Head",
-        "CatCafe_Cat_Blossom_Shiny_Tail"
+        "CatCafe_Cat_Blossom_Gold_Body",
+        "CatCafe_Cat_Blossom_Gold_Head",
+        "CatCafe_Cat_Blossom_Gold_Tail"
       ],
       "triangles": 696,
       "budget": 1500,
@@ -11148,6 +12126,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Legendary",
+      "pattern": "patches",
+      "coat": {
+        "fur": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "second": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "third": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "eyes": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "eye_blue",
+          "hex": "#5FA8FF"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -11373,8 +12378,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Blossom when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Blossom when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blossom_Gold.model.json",
       "rbx_parts": 39,
       "gates": {
         "pass": true,
@@ -11392,17 +12397,17 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blossom_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blossom_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blossom_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Blossom_Gold.png"
     },
     {
-      "name": "CatCafe_Cat_Aurora_Shiny",
+      "name": "CatCafe_Cat_Aurora_Gold",
       "category": "Cat",
-      "module": "shiny",
+      "module": "gold",
       "objects": [
-        "CatCafe_Cat_Aurora_Shiny_Body",
-        "CatCafe_Cat_Aurora_Shiny_Head",
-        "CatCafe_Cat_Aurora_Shiny_Tail"
+        "CatCafe_Cat_Aurora_Gold_Body",
+        "CatCafe_Cat_Aurora_Gold_Head",
+        "CatCafe_Cat_Aurora_Gold_Tail"
       ],
       "triangles": 648,
       "budget": 1500,
@@ -11429,6 +12434,33 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rarity": "Mythical",
+      "pattern": "gradient",
+      "coat": {
+        "fur": {
+          "swatch": "gold_dark",
+          "hex": "#C98F2A"
+        },
+        "second": {
+          "swatch": "gold_mid",
+          "hex": "#F2C14E"
+        },
+        "third": {
+          "swatch": "gold_light",
+          "hex": "#FBE49A"
+        },
+        "eyes": {
+          "swatch": "mint",
+          "hex": "#8FD3C1"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "eyes2": {
+          "swatch": "mint",
+          "hex": "#8FD3C1"
+        }
+      },
       "scale": 1.0,
       "joints": {
         "Head": [
@@ -11654,8 +12686,8 @@
           ]
         }
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Aurora when the cat's variant is shiny. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Aurora_Shiny.model.json",
+      "studio": "F42: clone this instead of CatCafe_Cat_Aurora when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Aurora_Gold.model.json",
       "rbx_parts": 35,
       "gates": {
         "pass": true,
@@ -11673,8 +12705,8 @@
           "centered": "footprint center x=0.00 y=0.09"
         }
       },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Aurora_Shiny.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Aurora_Shiny.png"
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Aurora_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_Aurora_Gold.png"
     },
     {
       "name": "CatCafe_NPC_Customer_A",
@@ -17459,7 +18491,7 @@
         "CatCafe_Alley_Mural",
         "CatCafe_Alley_Mural_Sun"
       ],
-      "triangles": 3126,
+      "triangles": 3032,
       "budget": 6000,
       "size_studs": {
         "x": 30.6,
@@ -17485,7 +18517,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Mural.model.json",
-      "rbx_parts": 270,
+      "rbx_parts": 261,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Mural.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Mural.glb"
@@ -17495,10 +18527,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "3126/6000 tris",
+          "budget": "3032/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1515 faces on swatch centers",
+          "uv": "1468 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-1.54"

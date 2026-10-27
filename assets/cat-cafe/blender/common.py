@@ -63,21 +63,35 @@ def reset_scene():
 
 
 def palette_material(png_path):
-    """The one material every mesh uses: palette PNG into Base Color."""
+    """The one material every mesh uses: palette PNG into Base Color, and a metal mask (<palette>_Metal.png, white on
+    palette.METAL_SWATCHES) into Metallic, with those swatches smoother, so gold cats render as metal."""
     mat = bpy.data.materials.get(palette.TEXTURE_NAME)
     if mat:
         return mat
     img = bpy.data.images.get(palette.TEXTURE_NAME) or palette.write_palette_png(png_path)
+    metal_name = palette.TEXTURE_NAME + "_Metal"
+    metal = bpy.data.images.get(metal_name) or palette.write_metal_png(os.path.splitext(png_path)[0] + "_Metal.png")
     mat = bpy.data.materials.new(palette.TEXTURE_NAME)
     mat.use_nodes = True
     nodes, links = mat.node_tree.nodes, mat.node_tree.links
     bsdf = nodes.get("Principled BSDF")
-    bsdf.inputs["Roughness"].default_value = 0.65
     tex = nodes.new("ShaderNodeTexImage")
     tex.image = img
     tex.interpolation = "Closest"
     tex.location = (-400, 300)
     links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    mask = nodes.new("ShaderNodeTexImage")
+    mask.image = metal
+    mask.interpolation = "Closest"
+    mask.location = (-400, 0)
+    links.new(mask.outputs["Color"], bsdf.inputs["Metallic"])
+    rough = nodes.new("ShaderNodeMath")             # 0.65 matte, 0.3 on metal
+    rough.operation = "MULTIPLY_ADD"
+    rough.inputs[1].default_value = -0.35
+    rough.inputs[2].default_value = 0.65
+    rough.location = (-150, 0)
+    links.new(mask.outputs["Color"], rough.inputs[0])
+    links.new(rough.outputs["Value"], bsdf.inputs["Roughness"])
     return mat
 
 

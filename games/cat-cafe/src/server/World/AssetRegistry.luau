@@ -79,12 +79,12 @@ function AssetRegistry.clone(name: string): Model
 	return clone :: Model
 end
 
--- A cat's model: its shiny coat (v0.5 F42) when `variant` is "shiny" and the asset is there, else the base cat.
+-- A cat's model: its gold coat (v0.5 F42) when `variant` is "gold" and the asset is there, else the base cat.
 function AssetRegistry.cloneCat(catId: string, variant: string?): Model
-	if variant == "shiny" then
-		local shiny = Catalog.shinyModelName(catId)
-		if AssetRegistry.has(shiny) then
-			return AssetRegistry.clone(shiny)
+	if variant == "gold" then
+		local gold = Catalog.goldModelName(catId)
+		if AssetRegistry.has(gold) then
+			return AssetRegistry.clone(gold)
 		end
 	end
 	return AssetRegistry.clone(Catalog.catModelName(catId))

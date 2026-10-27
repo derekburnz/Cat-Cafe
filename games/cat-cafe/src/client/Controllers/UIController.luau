@@ -322,7 +322,7 @@ local function applyState(s: Types.PlayerState)
 		lures = s.lures,
 		cats = s.cats :: any, -- the UI's CatInstance has optional fields; table props are invariant in Luau
 		collection = s.collection,
-		shinyCollection = s.shinyCollection,
+		goldCollection = s.goldCollection,
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
 	})
@@ -605,7 +605,7 @@ local function wireServerEvents()
 			for _, grade in grades do
 				allPerfect = allPerfect and grade == "perfect"
 			end
-			UI.catch.showGrades(strayId, grades, success, nil, charmGain)
+			UI.catch.showGrades(strayId, grades, success, charmGain)
 			if success then
 				local model = strayModel(strayId)
 				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil

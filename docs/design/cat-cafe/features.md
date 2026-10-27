@@ -97,7 +97,7 @@ Gavin's answers are in [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.
 
 - Cats: `CatCafe_Cat_<Name>` with `Body`, `Head`, `Tail`, PrimaryPart `Body`, facing -Z. Working cats use the upright pose the asset thread already delivered (PR #24) plus a colored Part for the uniform (apron, bow tie, sash, hat) until uniforms exist.
-- Gold: a `ParticleEmitter` named `ShinySparkle` on `Body` with palette sparkle.
+- Gold: a sparkle on `Body` while the cat's `Gold` attribute is true (the vfx-animator's Effects/Cats; sprite `CatCafe_VFX_ShinySparkle`).
 - Traps: colored Parts named `CatCafe_Alley_TrashBin`, `CatCafe_Alley_GarbageBags`, `CatCafe_Park_RescueTree`, `CatCafe_Park_TrashCan` with a `CatAnchor` attachment.
 - Areas 3 to 5: flat ground in a distinct palette color, walls, a gate Part named `CatCafe_<Area>_Gate`, spawn points and trap anchors.
 - Dealer: an R15 rig with a dark hooded shirt and a Part cart named `CatCafe_Street_DealerCart`.

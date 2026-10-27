@@ -230,6 +230,33 @@ function Logic.prizeTier(weights: { [number]: number }, slice: number?): PrizeTi
 	return "small"
 end
 
+-- The colours of a signature cat's effect (Presets.signature): its gold ones on a gold cat (round 4 Q8), else its
+-- own. A cat with no signature has none.
+function Logic.signatureColors(catId: unknown, gold: boolean): { Color3 }?
+	local spec = if type(catId) == "string" then Presets.signature[catId] else nil
+	if spec == nil then
+		return nil
+	end
+	return if gold then spec.gold else spec.colors
+end
+
+-- Whether you stand in a walk-in circle (the Codes Cat's, F65) at `distance` flat studs from its centre: in at
+-- `radius` or less, out only past `radius + leaveAfter`, and between the two as you were, so the edge never
+-- flickers.
+function Logic.insideCircle(
+	wasInside: boolean,
+	distance: number,
+	radius: number,
+	leaveAfter: number
+): boolean
+	if distance <= radius then
+		return true
+	elseif distance > radius + leaveAfter then
+		return false
+	end
+	return wasInside
+end
+
 local function wave(t: number, seconds: number): number
 	return math.sin(t * 2 * math.pi / seconds)
 end

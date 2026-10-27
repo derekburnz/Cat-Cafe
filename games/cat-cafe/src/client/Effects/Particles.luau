@@ -62,6 +62,13 @@ function Particles.make(preset: Presets.EmitterPreset, tint: Color3?): ParticleE
 	return emitter
 end
 
+-- Recolours an emitter: its particles run through `list` over their life (a signature cat turning gold).
+function Particles.paint(emitter: ParticleEmitter, list: { Color3 })
+	if #list > 0 then
+		emitter.Color = colours(list)
+	end
+end
+
 -- An Attachment at a world position, for a steady emitter that is not on a part.
 function Particles.anchor(name: string, position: Vector3): Attachment
 	local attachment = Instance.new("Attachment")

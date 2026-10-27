@@ -24,6 +24,14 @@ Presets.palette = {
 	neonPink = Color3.fromRGB(255, 107, 129), -- 53 neon_pink
 	sparkle = Color3.fromRGB(255, 244, 176), -- 54 sparkle
 	aurora = Color3.fromRGB(142, 124, 240), -- 58 aurora_violet
+	shirtBlue = Color3.fromRGB(60, 125, 217), -- 35 shirt_blue
+	shirtRed = Color3.fromRGB(217, 72, 59), -- 36 shirt_red
+	signTeal = Color3.fromRGB(31, 165, 143), -- 51 sign_teal
+	galaxyBlue = Color3.fromRGB(59, 76, 140), -- 55 galaxy_blue
+	goldLight = Color3.fromRGB(251, 228, 154), -- 61 gold_light
+	goldDark = Color3.fromRGB(201, 143, 42), -- 63 gold_dark (62 gold_mid is fur_golden, `golden`)
+	furRose = Color3.fromRGB(242, 191, 203), -- 69 fur_rose
+	pastelSky = Color3.fromRGB(168, 216, 240), -- 94 pastel_sky
 }
 
 -- Rarity swatches 20 to 23 and 56, the same hex values as Catalog.rarities.
@@ -58,6 +66,7 @@ export type Budget = {
 	confetti: number, -- pieces in one confetti burst
 	napLabels: number, -- napping cats that show floating z's
 	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
+	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -79,6 +88,7 @@ Presets.budget = {
 		confetti = 14,
 		napLabels = 4,
 		rushLines = 2,
+		signatureCats = 3,
 	},
 	high = {
 		animatedCats = 16,
@@ -95,6 +105,7 @@ Presets.budget = {
 		confetti = 28,
 		napLabels = 10,
 		rushLines = 3,
+		signatureCats = 6,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -111,6 +122,7 @@ Presets.budget = {
 		confetti = 8,
 		napLabels = 2,
 		rushLines = 1,
+		signatureCats = 1,
 	},
 } :: { [string]: Budget }
 
@@ -293,6 +305,85 @@ Presets.emitters = {
 		rate = 0,
 		acceleration = Vector3.new(0, 0.6, 0),
 		drag = 1.5,
+	},
+	-- Signature effects (Presets.signature): one steady emitter on a Legendary or Mythical themed cat, at Rate 2 or
+	-- less, coloured per cat when it is made. Glints twinkle on the fur or a prop, `sigRise` drifts up (stars,
+	-- sprinkles, sparks), `sigFall` flutters down (petals, leaves), `sigHalo` is a soft glow round the cat and
+	-- `sigWhoosh` puffs behind a cat on the move. The sparkle sprite stands in for petals and leaves until our own
+	-- sprites are uploaded.
+	sigGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.25, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 1.5,
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigRise = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.24, 0.06 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1.4, 2.2 },
+		speed = { 0.4, 0.9 },
+		spread = 30,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.5, 0),
+		drag = 0.4,
+		lightEmission = 0.7,
+		rotSpeed = { -45, 45 },
+	},
+	sigFall = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.furRose },
+		size = { 0.32, 0.22 },
+		transparency = { 0, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 0.2, 0.6 },
+		spread = 90,
+		rate = 1,
+		acceleration = Vector3.new(0.3, -0.35, 0), -- a slow drift down that fades before it reaches the floor
+		drag = 0.8,
+		rotSpeed = { -120, 120 },
+	},
+	sigHalo = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.galaxyBlue },
+		size = { 1.2, 1.8 },
+		transparency = { 0.75, 1 },
+		lifetime = { 1.6, 2.4 },
+		speed = { 0, 0.2 },
+		spread = 180,
+		rate = 1.5,
+		drag = 1,
+		lightEmission = 1,
+	},
+	sigWhoosh = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.5, 1.2 },
+		transparency = { 0.6, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0, 0.2 },
+		spread = 20,
+		rate = 2,
+		drag = 2,
+	},
+	-- Motes rising off the Codes Cat's walk-in circle (F65), from the whole circle.
+	codesMotes = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.mint, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 0.6, 1.2 },
+		spread = 8,
+		rate = 2,
+		lightEmission = 0.8,
 	},
 } :: { [string]: EmitterPreset }
 
@@ -684,6 +775,124 @@ Presets.wheel = {
 	showerEvery = 0.3,
 	jackpotFlashes = 6,
 	jackpotFlashSeconds = 1.2,
+}
+
+-- Signature effects (effects list section 1; round 4 Q8, 2026-10-27: "Yes thats a great idea make them special
+-- because of rarity"): each Legendary and Mythical themed cat, keyed by CatId, shows one emitter (`emitter`, a
+-- Presets.emitters key) on its Body or Head (`on`) in `colors`, and a gold one shows the same effect in `gold`.
+-- `eyes`: the cat was modelled with glowing eyes (cats.py glow_eyes), so the iris of each eye turns Neon;
+-- `goldEyes` is the eye colour of a gold one where the eyes are the effect (Ninja Cat). `moving`: only while the
+-- cat moves. Only the nearest budget.signatureCats within `radius` studs show their emitter; eyes glow on all.
+export type Signature = {
+	emitter: string,
+	on: string, -- "Body" or "Head"
+	colors: { Color3 },
+	gold: { Color3 },
+	eyes: boolean?,
+	goldEyes: Color3?,
+	moving: boolean?,
+}
+
+local palette = Presets.palette
+Presets.signature = {
+	void = { -- Ninja Cat: glowing eyes and a twinkle on the black coat
+		emitter = "sigGlint",
+		on = "Body",
+		colors = { palette.sparkle, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+		eyes = true,
+		goldEyes = palette.goldLight,
+	},
+	midnight = { -- Wizard Cat: little stars drifting up off the night sky coat
+		emitter = "sigRise",
+		on = "Body",
+		colors = { palette.sparkle, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+		eyes = true,
+	},
+	blossom = { -- Fairy Cat: a petal now and then
+		emitter = "sigFall",
+		on = "Body",
+		colors = { palette.furRose, palette.nosePink, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+	},
+	aurora = { -- Astro Cat: a glow shifting from galaxy blue through violet to mint
+		emitter = "sigHalo",
+		on = "Body",
+		colors = { palette.galaxyBlue, palette.aurora, palette.mint },
+		gold = { palette.goldDark, palette.golden, palette.goldLight },
+		eyes = true,
+	},
+	marshmallow = { -- Super Cat: a whoosh behind the cape as it runs
+		emitter = "sigWhoosh",
+		on = "Body",
+		colors = { palette.offwhite, palette.shirtRed },
+		gold = { palette.goldLight, palette.golden },
+		moving = true,
+	},
+	comet = { -- Ice Cream Cat: floating sprinkles off the cone hat
+		emitter = "sigRise",
+		on = "Head",
+		colors = {
+			palette.neonPink,
+			palette.signTeal,
+			Presets.rarity.Legendary,
+			palette.shirtBlue,
+			palette.mint,
+		},
+		gold = { palette.goldLight, palette.golden, palette.goldDark, palette.sparkle },
+		eyes = true,
+	},
+	old_oak = { -- Antler Cat: a leaf drifting down off the antlers
+		emitter = "sigFall",
+		on = "Head",
+		colors = { palette.leaf, palette.mint },
+		gold = { palette.golden, palette.goldDark },
+	},
+	wisp = { -- Unicorn Cat: a sparkle trail off the glowing horn
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.pastelSky, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.sparkle },
+		eyes = true,
+	},
+	bottlecap = { -- King Cat: glints off the bottle cap crown
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.offwhite, palette.sparkle },
+		gold = { palette.golden, palette.goldLight },
+	},
+	eclipse = { -- Dragon Cat: tiny harmless sparks that fade to smoke
+		emitter = "sigRise",
+		on = "Head",
+		colors = { palette.sparkle, palette.lampWarm, palette.furGrey },
+		gold = { palette.sparkle, palette.golden, palette.goldDark },
+		eyes = true,
+	},
+} :: { [string]: Signature }
+Presets.signatureFx = {
+	radius = 40, -- studs from the player
+	movedStuds = 0.5, -- a `moving` effect runs while the cat moved this far since the last choice
+}
+
+-- The Codes Cat's walk-in circle (F65; Derek 2026-10-27 20:10: "a clear area circle to walk into to open code
+-- entering menu"): a soft mint glow over the circle that breathes between `glow` transparencies every `seconds`
+-- (steady with Reduce Motion), brighter (`inside`) while you stand in it, motes rising off it within the budget's
+-- ambientRadius (not in Low performance) and a ring with a few sparkles as you step in. In and out use the code
+-- box's own edges, CodesCircleRadius (`radius` until Config has it) and `leaveAfter` studs past it, so the glow
+-- and the box agree.
+Presets.codes = {
+	radius = 4,
+	leaveAfter = 1,
+	glow = { 0.9, 0.78 },
+	inside = 0.65,
+	seconds = 1.2, -- one way; a breath is twice this
+	lift = 0.06, -- studs above the circle's top
+	ringPad = 1,
+	ringSeconds = 0.45,
+	sparkles = 10,
+	padShare = 1.4, -- the motes' square pad is this many radii wide, so its corners stay inside the circle
+	checkEvery = 0.1,
 }
 
 return Presets

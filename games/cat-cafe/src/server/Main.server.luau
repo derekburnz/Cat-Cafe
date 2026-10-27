@@ -11,6 +11,7 @@ local ClockService = require(script.Parent.Services.ClockService)
 local DataService = require(script.Parent.Services.DataService)
 local Net = require(script.Parent.Services.Net)
 local PlotService = require(script.Parent.Services.PlotService)
+local TravelService = require(script.Parent.Services.TravelService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
 
 local started = os.clock()
@@ -22,6 +23,7 @@ ClockService.start()
 PlotService.start(world)
 CafeService.start()
 CatService.start(world)
+TravelService.start(world)
 DataService.start()
 
 -- Studio only: the command bar and Studio MCP's execute_luau get a fresh copy of any module they require, with

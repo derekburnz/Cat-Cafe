@@ -206,7 +206,8 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		local instance = placement.instance
 		local def = Catalog.getCat(instance.catId)
 		local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
-		local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, spot ~= nil)
+		-- every cafe cat sits on the seated body (B), at work or resting (Derek 2026-10-27: A walks, B sits)
+		local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, true)
 		model.Name = uid
 		model:SetAttribute("Uid", uid)
 		model:SetAttribute("CatId", instance.catId)
@@ -220,13 +221,13 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("OwnerUserId", player.UserId)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 		model:PivotTo(placement.anchor.CFrame)
+		if seated then
+			model:SetAttribute("Pose", "sit") -- the client's Effects keep a seated cat seated
+		end
 		if spot ~= nil then
-			-- F25: a working cat sits at its station on the seated body (B) in its role's outfit
+			-- F25: a working cat sits at its station in its role's outfit
 			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
 			model:SetAttribute("Role", spot.spotType)
-			if seated then
-				model:SetAttribute("Pose", "sit") -- the client's Effects keep a seated cat seated
-			end
 			CatPose.dress(model, spot.spotType)
 		end
 		model.Parent = plot.cats

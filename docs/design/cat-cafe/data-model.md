@@ -1,6 +1,6 @@
 # Cat Cafe Data Model and Balance Tables
 
-Draft v0.5.2, 2026-10-27 (v0.5.2 names the gold cats and makes every Rare and up a themed cat with a prop, section 3 and 4, from Derek's 13:18 and 13:22 asks; v0.5.1 adds the reviewer's S44, S45 and N84 to N86 from docs/reviews/2026-10-27-design-v0.5.md: the self-retry wait after a miss, target-side shove immunity, reachable sprint end points, no shoving from a minigame and a still dropped stray during its owner window; v0.5 folds in Gavin's round 2 answers, [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md): a missed cat sprints away with unlimited tries, Shove replaces Bump, the bowl moves outside, shinies get their own colour at 5%, one shared dealer stock, the cafe closes at night; v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md; v0.4 makes a missed circle end the catch, adds patience paws and the Perfect charm bonus, the back alley layout and walk speeds from Derek's playtest, and syncs the engineer's F22 choices; reasoning in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
+Draft v0.5.4, 2026-10-27 (v0.5.4 renames the Book to the Index, section 11b, and matches the Tip Jar's claimed list to the engineer's build; v0.5.3 adds the Tip Jar and Index rewards, section 11b, and follows the engineer's gold identifiers; v0.5.2 names the gold cats and makes every Rare and up a themed cat with a prop, section 3 and 4, from Derek's 13:18 and 13:22 asks; v0.5.1 adds the reviewer's S44, S45 and N84 to N86 from docs/reviews/2026-10-27-design-v0.5.md: the self-retry wait after a miss, target-side shove immunity, reachable sprint end points, no shoving from a minigame and a still dropped stray during its owner window; v0.5 folds in Gavin's round 2 answers, [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md): a missed cat sprints away with unlimited tries, Shove replaces Bump, the bowl moves outside, shinies get their own colour at 5%, one shared dealer stock, the cafe closes at night; v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md; v0.4 makes a missed circle end the catch, adds patience paws and the Perfect charm bonus, the back alley layout and walk speeds from Derek's playtest, and syncs the engineer's F22 choices; reasoning in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
 
 ## 1. Conventions
 
@@ -30,9 +30,9 @@ Each area has four Common, two Rare, two Epic, one Legendary and one Mythical, a
 
 v0.3 change: `area` is a single area id (no more `both`), `favoriteSpot` becomes `favoriteRole`, eight new cats fill out the Alleyway and the Park, and three areas get provisional rosters.
 
-Themed cats (Derek, 2026-10-27 13:22: "make the cats more unique like a little hat or glasses and call it nerd cat etc"; themes and props from the asset thread, borrowing the one-hook-per-type idea from Bee Swarm and the costume pets from Pet Simulator, all our own art): Commons stay plain breeds and coats, so a prop means a rarer cat. Every Rare, Epic, Legendary and Mythical is a character named "<Theme> Cat" with one signature prop, a role that fits the theme and a one-line description. Ids do not change (`siamese` is Nerd Cat), so saves, the book and the `CatCafe_Cat_<Id>` models keep working; only `name`, `favoriteRole` and `description` move. Gavin may still rename them (round 3).
+Themed cats (Derek, 2026-10-27 13:22: "make the cats more unique like a little hat or glasses and call it nerd cat etc"; themes and props from the asset thread, borrowing the one-hook-per-type idea from Bee Swarm and the costume pets from Pet Simulator, all our own art): Commons stay plain breeds and coats, so a prop means a rarer cat. Every Rare, Epic, Legendary and Mythical is a character named "<Theme> Cat" with one signature prop, a role that fits the theme and a one-line description. Ids do not change (`siamese` is Nerd Cat), so saves, the Index and the `CatCafe_Cat_<Id>` models keep working; only `name`, `favoriteRole` and `description` move. Gavin may still rename them (round 3).
 
-Props: each is its own `CatCafe_Accessory_<Prop>`, attached to the cat model at an Attachment, and the model carries a `PropSlot` attribute: `Head`, `Face` or `Back`. The prop is always worn: on strays, carried, at work, napping, in the book and on gold cats (a gold cat keeps its prop as modelled; only the coat turns gold). A working cat leaves off the piece of its role outfit that sits in the prop's slot: a Head prop drops the role hat (BaristaCap, Boater, PartyHat), a Back prop drops the Entertainer Cape, and a Face prop clashes with nothing, so the other outfit piece still marks the cat as staff. No neck props: scarves, bandanas and bells read as collars, which Derek ruled out. Neighbourhood, Woods and Sewer get themed Rares and up when their cats are modelled.
+Props: each is its own `CatCafe_Accessory_<Prop>`, attached to the cat model at an Attachment, and the model carries a `PropSlot` attribute: `Head`, `Face` or `Back`. The prop is always worn: on strays, carried, at work, napping, in the Index and on gold cats (a gold cat keeps its prop as modelled; only the coat turns gold). A working cat leaves off the piece of its role outfit that sits in the prop's slot: a Head prop drops the role hat (BaristaCap, Boater, PartyHat), a Back prop drops the Entertainer Cape, and a Face prop clashes with nothing, so the other outfit piece still marks the cat as staff. No neck props: scarves, bandanas and bells read as collars, which Derek ruled out. Neighbourhood, Woods and Sewer get themed Rares and up when their cats are modelled.
 
 ### 3a. Alleyway (`alley`), in the slice
 
@@ -81,13 +81,13 @@ Which cat within a rarity: a uniform pick among that area's cats of that rarity 
 A cat the player owns is an instance: `{ uid, catId, variant, caughtAt, spotId, level, xp, charm, rescued, name, method }`.
 
 - `uid`: unique string from the server.
-- `variant`: `base` or `shiny`. v0.3 change: Golden and Galaxy are dropped; there is no merging. A gold cat earns ShinyMultiplier 1.5 and shows a sparkle on its model, its card and its book entry. v0.5 (Gavin, round 2 Q5: "A shiny also has a different color variation"): every cat also gets its own gold coat, an alternate set of palette swatches on the same mesh, made by the asset thread. Derek picked gold for all of them on 2026-10-27 (round 3 Q4, option B: "change shiny to gold and make it gold modeled"), so each gold cat is the same cat modelled in gold. Gold chance by how the cat was found: net stray ShinyChanceNet 0.05 (v0.5, was 0.02; rolled at spawn and visible as the gold coat and sparkle on the stray), bait ShinyChanceBait 0.05 (v0.5, was 0.02; rolled when the food goes in, revealed when the cat arrives), rescue ShinyChanceRescue 0.10 (rolled at night start, revealed when the cat comes out). A knocked-loose cat keeps its variant and charm.
-- Name (Derek, 2026-10-27 13:18: "change “shiny” to be called gold also"): players only ever see the word Gold, never Shiny: "Gold Tabby" on cards, the Gold badge and filter chip, "Gold 5%" on food cards, the book's Gold page, "Sam caught a gold Rare Tabby!" in announcements. Code names (the `"shiny"` variant value, `shinyCollection`, the `Shiny` attribute, `ShinySparkle`, the `Shiny*` Config constants, `shiny_found`) are the engineer's to keep or rename, and this doc keeps today's names until a rename lands. If a saved name changes, loading must still read an old `"shiny"` variant and `shinyCollection` as gold, so no saved cat loses its coat. Gold the colour (buttons, Perfect grades, coin piles) stays as it is.
+- `variant`: `base` or `gold` (`shiny` in version 3 saves). v0.3 change: Golden and Galaxy are dropped; there is no merging. A gold cat earns GoldMultiplier 1.5 and shows a sparkle on its model, its card and its Index entry. v0.5 (Gavin, round 2 Q5: "A shiny also has a different color variation"): every cat also gets its own gold coat, an alternate set of palette swatches on the same mesh, made by the asset thread. Derek picked gold for all of them on 2026-10-27 (round 3 Q4, option B: "change shiny to gold and make it gold modeled"), so each gold cat is the same cat modelled in gold. Gold chance by how the cat was found: net stray GoldChanceNet 0.05 (v0.5, was 0.02; rolled at spawn and visible as the gold coat and sparkle on the stray), bait GoldChanceBait 0.05 (v0.5, was 0.02; rolled when the food goes in, revealed when the cat arrives), rescue GoldChanceRescue 0.10 (rolled at night start, revealed when the cat comes out). A knocked-loose cat keeps its variant and charm.
+- Name (Derek, 2026-10-27 13:18: "change “shiny” to be called gold also"): players only ever see the word Gold, never Shiny: "Gold Tabby" on cards, the Gold badge and filter chip, "Gold 5%" on food cards, the Index's Gold page, "Sam caught a gold Rare Tabby!" in announcements. The engineer renamed the code to match (save version 4): variant `"gold"`, `goldCollection`, the `Gold` attribute, the `Gold*` Config constants and the `gold_found` event; loading a version 3 save reads its `"shiny"` variant and `shinyCollection` as gold, so no saved cat loses its coat. The sparkle sprite keeps its file name `CatCafe_VFX_ShinySparkle`. Gold the colour (buttons, Perfect grades, coin piles) stays as it is.
 - `spotId`: the role slot the cat works, or nil in the cat room (section 5).
 - `level`, `xp`, `charm`: the per-cat stats in section 4b, unchanged.
-- `rescued`: true for a rescued cat. v0.3 change: it no longer pays more (RescuedTipsMultiplier is 1.0); the rescue reward is the gold chance. The flag stays for the book and analytics.
+- `rescued`: true for a rescued cat. v0.3 change: it no longer pays more (RescuedTipsMultiplier is 1.0); the rescue reward is the gold chance. The flag stays for the Index and analytics.
 - `name`: the player's name for this cat, or nil to show the catalog name. Validation (S30): trim, then 1 to CatNameMaxLength (20) characters counted with `utf8.len` (not `#`); reject invalid UTF-8, control characters, newlines, `<` and `>`. RenameCat filters it once with `TextService:FilterStringAsync` and refuses with a toast if filtering errors or the filtered text is all hashes, so the old name stays. The save keeps the raw name; whenever the name is shown (the cat starts working, or the profile loads with the cat working; at most 10 cats) the server filters it again for broadcast (`GetNonChatStringForBroadcastAsync`) and sets `DisplayName`, because the filter changes over time. If that display filter fails, `DisplayName` falls back to the catalog name.
-- `method`: `net`, `rescue`, `bait` or `starter`, for the book and analytics. A v2 cat saved as rescued migrates with method `rescue` (engineer's F22, PR #38).
+- `method`: `net`, `rescue`, `bait` or `starter`, for the Index and analytics. A v2 cat saved as rescued migrates with method `rescue` (engineer's F22, PR #38).
 
 ## 4b. Cat stats: charm, level, XP and rating (`src/shared/CatStats.luau`)
 
@@ -98,8 +98,8 @@ Built 2026-10-26 by the cat stats thread and unchanged in v0.3 except the multip
 - `charmMultiplier = 1 + (charm - 50) / 50 x CharmSpread` (0.20): 0.8x to 1.2x. The starter Tabby has charm 50.
 - `level` 1 to CatMaxLevel (10), `levelMultiplier = 1 + CatLevelBonus x (level - 1)` (0.05), so level 10 is 1.45x.
 - `xp` counts seconds working a role slot; XP from level n to n + 1 is `CatXpBase x n` (60 x n). Only online time counts.
-- `rating = rarity rate x charmMultiplier x levelMultiplier x variantMultiplier`. `variantMultiplier` is ShinyMultiplier for a gold cat, else 1. A perfect max-level gold Wizard Cat rates 75 x 1.2 x 1.45 x 1.5 = 195.75.
-- `maxRating(catId)` is the rating at charm 100 and max level, base variant, for the book's potential line; the book also shows the gold figure.
+- `rating = rarity rate x charmMultiplier x levelMultiplier x variantMultiplier`. `variantMultiplier` is GoldMultiplier for a gold cat, else 1. A perfect max-level gold Wizard Cat rates 75 x 1.2 x 1.45 x 1.5 = 195.75.
+- `maxRating(catId)` is the rating at charm 100 and max level, base variant, for the Index's potential line; the Index also shows the gold figure.
 - Sort order (`CatStats.isBetter`): rating, then rarity, then catId, then uid.
 - Equip Best (`src/shared/EquipBest.luau`, remote `EquipBest`): unchanged algorithm, now over at most 10 role slots with `favoriteRole` in place of `favoriteSpot`.
 
@@ -155,6 +155,14 @@ UI `DecorDef` fields; `requiresCafeLevel` becomes `requiresTier`. Bonuses apply 
 | rug | Cozy rug | 400 | Floor | +5% tips | 2 | +0.05 |
 | neon_sign | Neon cat sign | 1,500 | Wall | +10% tips | 3 | +0.10 |
 | fish_tank | Fish tank | 5,000 | Furniture | +10% tips, cats stare at it | 4 | +0.10 |
+| index_alley | Alley Mural Print | Index | Wall | +5% tips | | +0.05 |
+| index_park | Park Bench | Index | Furniture | +5% tips | | +0.05 |
+| index_neighbourhood | Mailbox Planter | Index | Plants | +5% tips | | +0.05 |
+| index_woods | Mushroom Lamp | Index | Furniture | +5% tips | | +0.05 |
+| index_sewer | Pipe Fountain | Index | Furniture | +5% tips | | +0.05 |
+| index_alley_gold, index_park_gold, ... | the same five in gold | Index | as above | +10% tips | | +0.10 |
+
+Index decor (F48, section 11b) is never sold: `cost` 0 with `source = "index"`, BuyDecor refuses it, and only ClaimIndexReward grants it. The Decor screen shows it as "Index reward" with no Buy button and the milestone that unlocks it ("All 10 Alleyway cats"), locked until claimed, then Place or Remove like any owned decor (reviewer N113). An area's normal and gold pieces do not stack (N114): each gold row carries `replaces = "book_<area>"`, and while both are placed only the gold +0.10 counts, so the five areas top out at +25% tips, or +50% with every gold set. The Alleyway and Park pieces are needed for the slice; the asset thread can make the print from the existing Alley mural and the gold pieces with the metal gold swatches.
 
 ## 8. Bait (lure catalog and the bowl)
 
@@ -163,7 +171,7 @@ v0.3 change (Gavin, Q7): bait moves from shared lure spots in the areas to one b
 Rules:
 
 - The bowl is the `lure_bowl` upgrade, one per player. v0.5 (Gavin, round 2 Q4: "The bowl sits out side of your cafe"): the plot's `BaitBowl` anchor moves outside, to the back step facing the Alleyway, where the strays would come from. Other players can see the bait cat eating, but only the owner can Tame or Let go.
-- `UseLure(lureId)` near the bowl (12 studs) with the bowl empty and food in stock consumes one food at once. The server rolls everything then and saves it in `profile.bait`: rarity from the food's odds, the cat uniformly among that rarity's cats in every area the player has unlocked, charm, and gold (ShinyChanceBait). Rolling at placement means rejoining cannot reroll.
+- `UseLure(lureId)` near the bowl (12 studs) with the bowl empty and food in stock consumes one food at once. The server rolls everything then and saves it in `profile.bait`: rarity from the food's odds, the cat uniformly among that rarity's cats in every area the player has unlocked, charm, and gold (GoldChanceBait). Rolling at placement means rejoining cannot reroll.
 - The cat is ready at `placedAt + LureWaitSeconds` (600, server `os.time()`), and the timer runs while the player is offline. The HUD shows the countdown. Until ready, ProfileSync sends only `lureId` and `readyAt`, never the rolled `catId`, `variant` or `charm`, so the reveal is not spoiled (N30).
 - When ready and the owner is in the server, the cat model sits eating at the bowl and the bait card shows its name, rarity, stars and sparkle with two buttons: Tame and Let go. `ResolveBait("tame")` adds the instance (method `bait`) straight to the cat room, fires `CatCaught` and empties the bowl; no net and no carry. `ResolveBait("letgo")` empties the bowl. The food is used either way.
 - Odds are on every food card before purchase, with the per-cat line ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"). A tier up that opens a new area changes the per-cat split, and the card says so. Every food card (shop and dealer) also shows the gold chance (5% from v0.5) and the charm star odds, because both change income: 1 star 7.8%, 2 stars 23.5%, 3 stars 35.7%, 4 stars 24.3%, 5 stars 8.7% (growth thread; required if coins are ever sold, shown from day one).
@@ -254,7 +262,7 @@ Exploit note (reviewer signed off 2026-10-26): the server owns the schedule and 
 
 v0.3 change (Gavin, Q8): the 4 s hold becomes a short minigame on an area-specific trap. A failed attempt never loses the cat.
 
-- At night start each rescue trap holds a stuck cat with RescueSpawnChance 0.6, and every area gets at least RescueMinStuck (1): if no trap rolled a cat, one random trap is filled anyway, so a new player always meets a rescue on the first night (QA, 0.4 cubed is one server in 16 otherwise). Rescue odds are the area odds with every non-Common weight doubled and renormalised (Alleyway 56.3 / 34.4 / 7.8 / 1.4 / 0.16, Park 42.9 / 40.0 / 12.9 / 3.6 / 0.7). Charm and gold (ShinyChanceRescue 0.10) are rolled then and kept server-side until the rescue succeeds: not on the stuck cat's model, prompt or attributes (N30). Stuck until rescued or the next night.
+- At night start each rescue trap holds a stuck cat with RescueSpawnChance 0.6, and every area gets at least RescueMinStuck (1): if no trap rolled a cat, one random trap is filled anyway, so a new player always meets a rescue on the first night (QA, 0.4 cubed is one server in 16 otherwise). Rescue odds are the area odds with every non-Common weight doubled and renormalised (Alleyway 56.3 / 34.4 / 7.8 / 1.4 / 0.16, Park 42.9 / 40.0 / 12.9 / 3.6 / 0.7). Charm and gold (GoldChanceRescue 0.10) are rolled then and kept server-side until the rescue succeeds: not on the stuck cat's model, prompt or attributes (N30). Stuck until rescued or the next night.
 - The stuck cat's Rescue prompt is held for CatchHoldSeconds (0.5), like a stray's (Derek 2026-10-27).
 - `RescueBegin(rescueSpotId)` checks as before (occupied, unlocked area, lock free or own, 10 studs, not carrying), locks the trap to the player for the attempt and fires `RescueChallenge(rescueSpotId, challenge)`.
 - Kind `bar` (trash_bin, garbage_bag, trashcan and the provisional traps): a marker slides back and forth along a bar at RescueBarSpeed[rarity] bar lengths per second, starting at a server-set time and phase, with a target zone RescueZoneWidth[rarity] wide at a server-set position. `RescuePress(rescueSpotId)` is stamped and latency-corrected like a circle press; the server computes where the marker was and allows RescueTolerance 0.03 of the bar. A hit moves the zone to the next server-set position; `rescueHits[rarity]` hits frees the cat. Each miss costs one of RescuePatience (3) paws; out of paws ends the attempt.
@@ -296,6 +304,52 @@ v0.5 change (Gavin, round 2 Q3: "Instead of Bump, make it a shove mechanic. Play
 - Accounting unchanged: `coins` and `lastTick`, settle on every read or spend, the client predicts between syncs.
 - Offline unchanged: `offlineGain = dayRateAtLogout x OfflineRate (0.25) x min(now - lastSeen, OfflineCapSeconds 3600)`. `rateAtLogout` stores the day rate.
 
+## 11b. Rewards: the Tip Jar and Index rewards (F47, F48)
+
+Derek asked on 2026-10-27 for the reward screens from his reference games (playtime gifts, index rewards, a daily calendar). The Tip Jar and Index rewards are in the slice; the daily calendar (Daily Treat, common-features 11) and the spin wheel come later. Every prize is free and paid by the server, and nothing can be bought with Robux to skip a timer or a milestone (monetization-policy). Claiming is always a button press, so a milestone reached mid-chase never interrupts anything. Gavin can still change the prizes (round 3 Q16 and Q18).
+
+Name (Derek, 2026-10-27 14:34: "switch book to index"): the collection screen is the Index, as in the simulator games in Derek's references, and players never see the word Book. The F48 names follow before save version 5 ships: `indexRewards`, `ClaimIndexReward`, `Catalog.indexMilestones` and `Catalog.indexPrizes` (the prize table never shares a name with the claimed map, reviewer S61), decor `source = "index"` and ids `index_<area>`, analytics `index_reward`. Milestone ids are unchanged.
+
+**Tip Jar (playtime gifts, F47).** A jar on the HUD fills as you play. Twelve steps unlock at set minutes of the current session, and each has its own Claim button. Session time is server time since the profile loaded: `sessionStartedAt = workspace:GetServerTimeNow()` when the profile loads. The claimed steps live in server memory only, so leaving the game resets the jar. Rejoining every 10 minutes to farm the first three steps about breaks even on coins (reviewer N112: roughly 990 s of day rate and 22 Kibble over two hours, against 780 s for staying) and misses the Tuna, Salmon, Moonlit Sardines and Caviar, so staying pays more; Roblox's 20 minute idle kick limits idle play.
+
+`Catalog.tipJar`, one row per step in order:
+
+| step | minutes | prize |
+|---|---|---|
+| 1 | 2 | coins: 30 s of day rate, at least 50 |
+| 2 | 5 | 2 Kibble |
+| 3 | 10 | coins: 60 s of day rate, at least 100 |
+| 4 | 15 | 1 Tuna |
+| 5 | 20 | coins: 90 s of day rate, at least 150 |
+| 6 | 30 | 2 Tuna |
+| 7 | 40 | coins: 120 s of day rate, at least 250 |
+| 8 | 50 | 1 Salmon |
+| 9 | 60 | coins: 180 s of day rate, at least 400 |
+| 10 | 75 | 1 Moonlit Sardines |
+| 11 | 90 | coins: 300 s of day rate, at least 600 |
+| 12 | 120 | 1 Caviar |
+
+Row shape: `{ step, minutes, kind = "coins" | "lure", seconds?, minCoins?, lureId?, count? }`. A coins row pays `max(minCoins, floor(dayRate x seconds))`, where `dayRate` is the player's day income per second at claim time (the rich tip uses the same shape), so a bigger cafe gets bigger gifts. Foods go into `lures` like a shop food; the dealer's Moonlit Sardines and Caviar are fine here because they are free. When the spin wheel exists, steps 11 and 12 also give a free spin.
+
+- `ClaimTipJar(step)`: profile loaded, `step` an integer from 1 to 12, not claimed this session, `GetServerTimeNow() - sessionStartedAt >= minutes x 60`; 1 per second. Pays, marks the step claimed, fires `TipJarState` and ProfileSync. Coins count toward `lifetimeCoins`.
+- `TipJarState` (server to client): `{ sessionStartedAt, claimed }`, where `claimed` is a list of 12 booleans in step order (a dense array, because a sparse table loses entries over a remote; engineer #206, UI N116), sent when the profile loads and after every claim. The UI works out each countdown from `sessionStartedAt`, `Catalog.tipJar` and `GetServerTimeNow()`, and estimates a coin prize from the synced day rate; the server's figure at claim time is final.
+- `stats.tipJarClaims` counts claims. Analytics: custom event `tip_jar` (step) and economy source `tip_jar`.
+
+**Index rewards (F48).** Each area page in the Index has a reward bar with four milestones. Progress is counted from `collection` (distinct catIds whose `area` is that area) and, for the gold milestone, `goldCollection`. The client already has both, so it computes progress itself.
+
+| milestone id | needs | Alleyway | Park | Neighbourhood | Woods | Sewer |
+|---|---|---|---|---|---|---|
+| `cats3` | 3 of the area's 10 cats | 300 coins | 1,000 coins | 3,000 coins | 10,000 coins | 30,000 coins |
+| `cats6` | 6 of 10 | 2 Tuna | 2 Salmon | 2 Caviar | 2 Moon Milk | 2 Star Treat |
+| `cats10` | all 10 | Salmon and the area's Index decor | Caviar and decor | Moon Milk and decor | Star Treat and decor | 2 Star Treat and decor |
+| `gold10` | all 10 as gold cats | the area's Index decor in gold | same | same | same | same |
+
+- `ClaimIndexReward(areaId, milestoneId)`: profile loaded, `areaId` a string in `Catalog.areas`, `milestoneId` one of `cats3`, `cats6`, `cats10`, `gold10`, the count met, not already in `indexRewards[areaId]`; 1 per second. Pays coins and foods, adds the decor to `decorOwned` and places it (like BuyDecor), marks the milestone and sends ProfileSync with `indexRewards`.
+- `indexRewards` is saved in the profile (section 14) and F48 raises the save version to 5 (reviewer S60): an older server rebuilds a profile from the fields it knows and would drop `indexRewards`, letting a player who hops servers during a rollout claim every milestone again, while the newer-save guard (S31) stops a version 5 save from loading on an old server at all. Saves made before F48 migrate with it empty and can claim every milestone they already passed.
+- The Index tab and the HUD Index button show a red badge while any milestone is claimable (UI).
+- Analytics: custom event `index_reward` (area, milestone) and economy source `index_reward`.
+- Later (Alpha, common-features 4): rarity sets across all areas (all Commons, all Rares and so on) and the all-50 reward.
+
 ## 12. Customers and rich customers
 
 - Customers are client-simulated as before. By day: a customer every CustomerSpawnSeconds (6) while a seat is free. v0.5 (Gavin, round 2 Q8: "Cats earn 60% at night because they aren't working and 100% when Cafe is running"): the cafe closes at night. No customers come and the door sign flips to Closed with a moon; working cats curl up and nap at their stations while the 60% keeps coming in. The v0.3 night owls and CustomerSpawnSecondsNight are gone.
@@ -303,9 +357,9 @@ v0.5 change (Gavin, round 2 Q3: "Instead of Bump, make it a shove mechanic. Play
 
 ## 13. Instance attributes (world data, no remote needed)
 
-Stray cat model (tag `Stray`): `StrayId`, `CatId`, `CatName`, `Rarity`, `Area`, `LockedBy` (UserId or 0), `SpawnedAt`, `Charm`, `Stars`, `Shiny` (bool, never set on a stuck cat before its rescue), `Dropped` (bool), `DropOwner` (the old carrier's UserId), `DropOwnerUntil` (display of the old carrier's priority window), `FleeingUntil` (v0.5, server time the sprint and rest end), `HissAt` (server time of the latest Miss, for the hiss everyone nearby sees). All display only; the drop records live in the server's table (S25). v0.3 change: `ReservedFor` is gone (no lured strays in areas).
+Stray cat model (tag `Stray`): `StrayId`, `CatId`, `CatName`, `Rarity`, `Area`, `LockedBy` (UserId or 0), `SpawnedAt`, `Charm`, `Stars`, `Gold` (bool, never set on a stuck cat before its rescue), `Dropped` (bool), `DropOwner` (the old carrier's UserId), `DropOwnerUntil` (display of the old carrier's priority window), `FleeingUntil` (v0.5, server time the sprint and rest end), `HissAt` (server time of the latest Miss, for the hiss everyone nearby sees). All display only; the drop records live in the server's table (S25). v0.3 change: `ReservedFor` is gone (no lured strays in areas).
 
-Rescue trap (tag `RescueSpot`): `RescueSpotId`, `Area`, `TrapType` (`trash_bin`, `garbage_bag`, `tree`, `trashcan`, ...), `Occupied`, `LockedBy`, `RetryAt`. The stuck cat model shows `CatId`, `CatName`, `Rarity` (shown before the attempt so players can choose) but not `Shiny`.
+Rescue trap (tag `RescueSpot`): `RescueSpotId`, `Area`, `TrapType` (`trash_bin`, `garbage_bag`, `tree`, `trashcan`, ...), `Occupied`, `LockedBy`, `RetryAt`. The stuck cat model shows `CatId`, `CatName`, `Rarity` (shown before the attempt so players can choose) but not `Gold`.
 
 Carrier character: `CarryingCatId`, `CarryStartedAt`, `BumpImmune`. Display only; the carry grace and immunity checks read the server's carry table.
 
@@ -319,13 +373,13 @@ Dealer cart (tag `DealerCart`): `Open` (bool).
 
 Plot model (tag `Plot`): `OwnerUserId`, `PlotIndex`, `Tier`, `RichTipAmount`, `RichTipExpiresAt`, `BaitReadyAt` (0 when empty). Children: `Spots/<slotId>` station parts with attribute `SpotType` (the role), `DecorAnchors/<decorId>`, `BaitBowl`, `RichTipAnchor`, `Door`, `CustomerWaypoints`, `Expansions/<n>`.
 
-Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `DisplayName` (the filtered name or the catalog name), `Shiny`, `Napping` (bool, naps any cat), and the CollectionService tag `WorkingCat` while it works a station. v0.5 night nap (F44): each client naps every `WorkingCat` while the Clock `Phase` is night, so the server writes nothing at dusk and dawn; income stays the server's 60%.
+Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `DisplayName` (the filtered name or the catalog name), `Gold`, `Napping` (bool, naps any cat), and the CollectionService tag `WorkingCat` while it works a station. v0.5 night nap (F44): each client naps every `WorkingCat` while the Clock `Phase` is night, so the server writes nothing at dusk and dawn; income stays the server's 60%.
 
-## 14. Player profile (save data, version 3)
+## 14. Player profile (save data, version 5 from F48)
 
 | field | type | default | notes |
 |---|---|---|---|
-| version | integer | 3 | 3 (2026-10-26, design v0.3) |
+| version | integer | 5 | 3 (2026-10-26, design v0.3); 4 (2026-10-27, the engineer's gold rename: `shiny` becomes `gold`, `shinyCollection` becomes `goldCollection`); 5 (F48: adds `indexRewards` and `stats.tipJarClaims`; migration 4 to 5 sets `indexRewards = {}` and the counter to 0) |
 | coins | integer | 50 | |
 | lifetimeCoins | integer | 0 | |
 | lastTick, lastSeen | integer | join time | |
@@ -336,10 +390,11 @@ Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `D
 | lures | map id to count | empty | shop and dealer foods |
 | bait | `{ lureId, placedAt, catId, variant, charm }` or nil | nil | new, section 8 |
 | dealer | `{ window, bought = { [slot] = true } }` | `{ window = 0, bought = {} }` | new, section 8b; `window` is the global dealer window |
-| cats | map uid to cat instance | one `tabby` on `barista_1`, charm 50, level 1, method `starter` | section 4 adds `name`, `method`; `variant` can be `shiny` |
-| collection | map catId to firstCaughtAt | tabby | drives the book and "different cats" |
-| shinyCollection | map catId to firstCaughtAt | empty | new, the gold page |
-| stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions | 0 | new counters added |
+| cats | map uid to cat instance | one `tabby` on `barista_1`, charm 50, level 1, method `starter` | section 4 adds `name`, `method`; `variant` can be `gold` |
+| collection | map catId to firstCaughtAt | tabby | drives the Index and "different cats" |
+| goldCollection | map catId to firstCaughtAt | empty | new, the gold page |
+| indexRewards | map area id to `{ [milestoneId] = true }` | empty | F48, section 11b; a missing field loads as empty |
+| stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions, tipJarClaims (F47) | 0 | new counters added |
 | tutorialStep | 0 to 5 | 0 | 0 new, 1 saw the alley, 2 caught, 3 assigned a role, 4 bought a table, 5 set bait (done) |
 | settings | music, sfx | true, true | |
 | telemetry | `{ onboardingStep, achieved = { [step] = true } }` | `{ onboardingStep = 0, achieved = {} }` | new; the funnel logs each onboarding step once and only in order, because Roblox marks every earlier step complete when a later one is logged, so a rank up before bait would otherwise fake the bait steps (growth, analytics-plan) |
@@ -381,15 +436,19 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | ClaimRichTip | event | none | own plot has an unexpired tip, 12 studs of RichTipAnchor | adds the tip, clears it |
 | TelemetryReport | event | name, value | allowlist, 10 per minute | analytics only |
 | ClaimOffline | event | none | pending above 0 | adds coins |
+| ClaimTipJar | event | step | F47 (section 11b): integer 1 to 12, unclaimed this session, session minutes reached; 1 per second | pays the step, fires TipJarState and ProfileSync |
+| ClaimIndexReward | event | areaId, milestoneId | F48 (section 11b): known area and milestone, count met from `collection` or `goldCollection`, not claimed; 1 per second | pays, marks `indexRewards`, ProfileSync |
 | TutorialAdvance | event | step | step is tutorialStep + 1 | saves step |
+| SetSetting | event | key, value | engineer #202: `key` is `music` or `sfx`, `value` a boolean; 4 per second | saves to `profile.settings`, answered by ProfileSync |
 | CatchSchedule | server to client | strayId, circles, windows | | UI draws the circles |
 | CatchResult | server to client | strayId, grades, success, charmGain | | UI grades, charm line and toast (v0.5) |
 | RescueChallenge | server to client | rescueSpotId, challenge | | UI draws the bar or the shake |
 | RescueResult | server to client | rescueSpotId, hits, pawsLeft, done, success | | UI |
 | DealerStock | server to client | slots = { { lureId, cost, bought } }, restocksAt | | sent at night start, at each window change during night, when the screen opens and after every BuyDealerFood, bought or refused |
 | BaitReady | server to client | catView | | UI bait card |
-| ProfileSync | server to client | partial `PlayerState` | | adds `tier`, `bait`, `shinyCollection`, `rankUp` progress |
-| CatCaught | server to client | catId, isNew, shiny, isNewShiny | | cat found popup |
+| TipJarState | server to client | `{ sessionStartedAt, claimed }` | | on profile load and after each ClaimTipJar (F47) |
+| ProfileSync | server to client | partial `PlayerState` | | adds `tier`, `bait`, `goldCollection`, `rankUp` progress; F48 adds `indexRewards` |
+| CatCaught | server to client | catId, isNew, gold, isNewGold | | cat found popup |
 | OfflineEarnings, Toast | server to client | as before | | |
 | Announce | server to all | text | | Epic and up, every gold cat, every rank up to Tier 3 and up |
 
@@ -399,7 +458,7 @@ v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `hom
 
 ## 16. Analytics events (AnalyticsService)
 
-The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `shiny_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`. The growth thread also added `bump`, `drop_outcome` and `left_after_bump` to judge griefing in the alpha (analytics-plan.md, PR #33). v0.4 asks for `catch_circles` to add `missed`, `purrfect` and `charmGain` (v0.5 drops `pawsLeft` and adds `tryNumber`, the player's tries on that stray), `shove` (knocked loose or not, area) in place of `bump`, a custom event `autopress_flag` (set or cleared), and `travel` (destination) to see whether players still walk.
+The plan is the growth thread's [analytics-plan.md](../../growth/analytics-plan.md). v0.3 asks it to add: onboarding steps `first_role`, `first_bait`, `first_bait_resolved`, `tier_2`; custom events `catch_circles` (rarity, net level, perfect count; per-circle error goes to the exploit check), `rescue_attempt` (trap type, rarity, success), `bait_resolved` (food, rarity, tame or letgo), `bump` (success, rarity, area), `rank_up` (tier, minutes played), `dealer_buy` (food, tier), `rich_tip` (claimed or auto), `cat_renamed`, `gold_found` (method, rarity); progression `tier` 1 to 5 in place of `cafe_level`. Sinks add `rank_up` and `dealer`. The growth thread also added `bump`, `drop_outcome` and `left_after_bump` to judge griefing in the alpha (analytics-plan.md, PR #33). v0.4 asks for `catch_circles` to add `missed`, `purrfect` and `charmGain` (v0.5 drops `pawsLeft` and adds `tryNumber`, the player's tries on that stray), `shove` (knocked loose or not, area) in place of `bump`, a custom event `autopress_flag` (set or cleared), and `travel` (destination) to see whether players still walk.
 
 ## 17. Tuning constants (`src/shared/Config.luau`)
 
@@ -411,8 +470,8 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | NightLengthSeconds | 300 | 120 | ClockService |
 | WaveSize | 10 | 6 | CatService |
 | NightIncomeMultiplier | 0.6 | new | Economy |
-| ShinyMultiplier | 1.5 | new | CatStats |
-| ShinyChanceNet, ShinyChanceBait, ShinyChanceRescue | 0.02, 0.02, 0.10 | new | CatService |
+| GoldMultiplier | 1.5 | new | CatStats |
+| GoldChanceNet, GoldChanceBait, GoldChanceRescue | 0.02, 0.02, 0.10 | new | CatService |
 | CircleLeadInSeconds | 0.6 | new | CatService |
 | CircleGapMin, CircleGapMax | 0.40, 0.75 | new | CatService; spec: CircleGapMin > max(good) + CatchLatencyCapSeconds |
 | CircleScorePerfect, CircleScoreGood | 1.0, 0.5 | new | CatService |
@@ -474,7 +533,7 @@ Changed or new in v0.5 (Gavin's round 2):
 | StrayRestSeconds | 1.5 | new | CatService |
 | CatchHoldSeconds | 0.5 | new (Derek 2026-10-27, was a single press) | CatService and RescueService prompts |
 | StraySelfRetrySeconds | 1 | new (v0.5.1, S44) | CatService |
-| ShinyChanceNet, ShinyChanceBait | 0.05, 0.05 | 0.02, 0.02 | CatService, food cards |
+| GoldChanceNet, GoldChanceBait | 0.05, 0.05 | 0.02, 0.02 | CatService, food cards |
 | ShoveKnockbackStuds | 10 | new | CatService, target client |
 | BumpCooldownSeconds | 8 | 12 | CatService (Shove) |
 | BumpSameTargetSeconds | 20 | 60 | CatService (Shove) |

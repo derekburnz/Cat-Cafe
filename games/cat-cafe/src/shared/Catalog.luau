@@ -91,7 +91,9 @@ local function cat(
 end
 
 -- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical). Each lives in
--- exactly one area. Colors are the placeholder body's {r, g, b}.
+-- exactly one area. Colors are the placeholder body's {r, g, b}. Rares and up in the Alleyway and the Park are
+-- themed cats with a signature prop (v0.5.2, Derek 2026-10-27); their ids keep the old breed names so saves and
+-- models still match.
 Catalog.cats = {
 	-- 3a. Alleyway, in the slice
 	cat(
@@ -136,63 +138,63 @@ Catalog.cats = {
 	),
 	cat(
 		"calico",
-		"Calico",
+		"Pirate Cat",
 		"Rare",
 		"alley",
-		"greeter",
+		"waiter",
 		"patches",
 		{ 240, 190, 120 },
-		"Three colors, three opinions."
+		"Carries every tray like buried treasure."
 	),
 	cat(
 		"tortie",
-		"Tortie",
+		"Rocker Cat",
 		"Rare",
 		"alley",
-		"barista",
+		"entertainer",
 		"patches",
 		{ 110, 70, 45 },
-		"Brindled and bossy."
+		"Knows one chord and plays it very loudly."
 	),
 	cat(
 		"sphynx",
-		"Sphynx",
+		"DJ Cat",
 		"Epic",
-		"alley",
-		"entertainer",
-		"solid",
-		{ 230, 180, 170 },
-		"No fur, all attitude."
-	),
-	cat(
-		"maine_coon",
-		"Maine Coon",
-		"Epic",
-		"alley",
-		"waiter",
-		"stripes",
-		{ 125, 90, 60 },
-		"Big as a backpack, gentle as a pillow."
-	),
-	cat(
-		"void",
-		"Void",
-		"Legendary",
-		"alley",
-		"barista",
-		"solid",
-		{ 12, 12, 16 },
-		"Pure black with glowing eyes. Makes the darkest espresso."
-	),
-	cat(
-		"midnight",
-		"Midnight",
-		"Mythical",
 		"alley",
 		"greeter",
 		"solid",
+		{ 230, 180, 170 },
+		"Drops a beat every time the door opens."
+	),
+	cat(
+		"maine_coon",
+		"Bandit Cat",
+		"Epic",
+		"alley",
+		"barista",
+		"stripes",
+		{ 125, 90, 60 },
+		"Sneaks extra foam onto every latte."
+	),
+	cat(
+		"void",
+		"Ninja Cat",
+		"Legendary",
+		"alley",
+		"waiter",
+		"solid",
+		{ 12, 12, 16 },
+		"Silent, fast and never spills a drop."
+	),
+	cat(
+		"midnight",
+		"Wizard Cat",
+		"Mythical",
+		"alley",
+		"barista",
+		"solid",
 		{ 30, 30, 70 },
-		"Fur like the night sky, freckled with stars."
+		"Stirs a little starlight into every cup."
 	),
 	-- 3b. Park, in the slice
 	cat(
@@ -237,63 +239,63 @@ Catalog.cats = {
 	),
 	cat(
 		"siamese",
-		"Siamese",
+		"Nerd Cat",
 		"Rare",
 		"park",
 		"barista",
 		"points",
 		{ 225, 205, 175 },
-		"Loud. Supervises the espresso machine."
+		"Measures every latte to the last drop."
 	),
 	cat(
 		"bengal",
-		"Bengal",
+		"Explorer Cat",
 		"Rare",
 		"park",
 		"entertainer",
 		"spots",
 		{ 200, 150, 80 },
-		"Spotted and fast. Climbs everything."
+		"Tells tall tales about the wild side of the Park."
 	),
 	cat(
 		"ragdoll",
-		"Ragdoll",
+		"Sleepy Cat",
 		"Epic",
 		"park",
 		"greeter",
 		"points",
 		{ 240, 235, 230 },
-		"Huge, fluffy, goes limp when carried."
+		"Says hello with an enormous yawn."
 	),
 	cat(
 		"persian",
-		"Persian",
+		"Fancy Cat",
 		"Epic",
 		"park",
 		"waiter",
 		"solid",
 		{ 245, 230, 200 },
-		"A cloud with a squashed face and opinions about cushions."
+		"Serves every cup on a silver tray."
 	),
 	cat(
 		"blossom",
-		"Blossom",
+		"Fairy Cat",
 		"Legendary",
 		"park",
-		"greeter",
+		"barista",
 		"patches",
 		{ 245, 190, 200 },
-		"Pink-cream fur, and petals follow her everywhere."
+		"Leaves a petal on every saucer."
 	),
 	cat(
 		"aurora",
-		"Aurora",
+		"Astro Cat",
 		"Mythical",
 		"park",
 		"entertainer",
 		"gradient",
 		{ 110, 200, 190 },
-		"Fur that shifts color like the northern lights."
+		"Moonwalks between the tables."
 	),
 	-- 3c. Neighbourhood, Woods and Sewer: provisional names and roles that reserve the ids (after the slice)
 	cat(
@@ -622,6 +624,16 @@ Catalog.roleOutfits = {
 	entertainer = { "PartyHat", "Cape" },
 } :: { [string]: { string } } -- keyed by Types.Role
 
+-- Where each outfit piece sits, for the pieces that share a slot with a themed cat's prop (data-model section 3).
+-- A cat model's PropSlot attribute names its prop's slot, and the role piece in that slot stays off. Face props
+-- clash with nothing.
+Catalog.outfitPieceSlots = {
+	BaristaCap = "Head",
+	Boater = "Head",
+	PartyHat = "Head",
+	Cape = "Back",
+} :: { [string]: string }
+
 function Catalog.accessoryModelName(piece: string): string
 	return "CatCafe_Accessory_" .. piece
 end
@@ -892,7 +904,7 @@ Catalog.lures = {
 		cost = 500,
 		attracts = "Epic",
 		source = "shop",
-		description = "Nobody can resist it, not even the Void.",
+		description = "Nobody can resist it, not even the Ninja Cat.",
 		odds = { Common = 15, Rare = 45, Epic = 30, Legendary = 8.5, Mythical = 1.5 },
 		asset = "CatCafe_Item_Salmon",
 	},

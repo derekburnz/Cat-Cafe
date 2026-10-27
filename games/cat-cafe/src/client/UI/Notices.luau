@@ -4,6 +4,7 @@
 -- buy right now, a cat (or shiny) in the collection. The HUD remembers which keys were on screen when the player
 -- last opened that screen and shows a dot while any key is new. Pure: no services, so it can be unit tested.
 
+local CatVariant = require(script.Parent.Components.CatVariant)
 local Types = require(script.Parent.Types)
 
 export type Candidates = {
@@ -60,7 +61,7 @@ local function collectionKeys(state: Types.PlayerState): { string }
 	for catId in collection do
 		table.insert(keys, catId)
 	end
-	local shiny: { [string]: number } = state.shinyCollection or {}
+	local shiny: { [string]: number } = CatVariant.collection(state)
 	for catId in shiny do
 		table.insert(keys, "shiny:" .. catId)
 	end

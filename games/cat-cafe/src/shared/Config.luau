@@ -62,8 +62,14 @@ local Config = {
 		[2] = { perfect = 0.065, good = 0.155, jitter = 0.10 },
 		[3] = { perfect = 0.08, good = 0.18, jitter = 0 },
 	} :: { [number]: { perfect: number, good: number, jitter: number } },
-	LureWaitSeconds = 45,
-	LureDespawnSeconds = 90,
+	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.
+	LureWaitSeconds = 600,
+	BaitBowlRangeStuds = 12, -- UseLure from this close to your own bowl
+	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
+	ShinyChanceBait = 0.02, -- rolled when the food goes in, revealed when the cat arrives
+	-- The chance of 1 to 5 charm stars from CatStats.rollCharm and CatStats.stars, in percent, shown on every food
+	-- card: 2s^2 and 1 - 2(1 - s)^2 at the band edges 20, 40, 60 and 80 out of 101 (reviewer N70).
+	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
 	CheckInRangeStuds = 8,

@@ -20,6 +20,22 @@ local function now(): number
 	return os.time()
 end
 
+-- data-model section 11b's Tip Jar rows, until the engineer's Catalog.tipJar lands
+local DEMO_TIP_JAR: { Types.TipJarRow } = {
+	{ step = 1, minutes = 2, kind = "coins", seconds = 30, minCoins = 50 },
+	{ step = 2, minutes = 5, kind = "lure", lureId = "kibble", count = 2 },
+	{ step = 3, minutes = 10, kind = "coins", seconds = 60, minCoins = 100 },
+	{ step = 4, minutes = 15, kind = "lure", lureId = "tuna", count = 1 },
+	{ step = 5, minutes = 20, kind = "coins", seconds = 90, minCoins = 150 },
+	{ step = 6, minutes = 30, kind = "lure", lureId = "tuna", count = 2 },
+	{ step = 7, minutes = 40, kind = "coins", seconds = 120, minCoins = 250 },
+	{ step = 8, minutes = 50, kind = "lure", lureId = "salmon", count = 1 },
+	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
+	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
+	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600 },
+	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 },
+}
+
 -- The real catalog (src/shared/Catalog.luau), so the demo shows the slice's actual cats and prices.
 local CATALOG: Types.Catalog = {
 	cats = Catalog.cats,
@@ -29,6 +45,7 @@ local CATALOG: Types.Catalog = {
 	spots = Catalog.spots,
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
+	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
 }
 
 -- data-model section 10: circles and shrink time per rarity, Basic Net windows
@@ -140,7 +157,36 @@ function Demo.run(UI: any): () -> ()
 
 	UI.init({ catalog = CATALOG })
 
+	-- the Tip Jar as if this session started six minutes ago, so two gifts are ready and a third is close
+	local jar: Types.TipJarState =
+		{ sessionStartedAt = Workspace:GetServerTimeNow() - 6 * 60 + 20, claimed = {} }
+	UI.tipJar.set(jar)
+
 	local connections: { any } = {}
+	connections[#connections + 1] = UI.events.claimTipJar:Connect(function(step: number)
+		local rows: { Types.TipJarRow } = CATALOG.tipJar or {}
+		for _, row in rows do
+			local claimed: { [any]: boolean } = jar.claimed or {}
+			local due = Workspace:GetServerTimeNow() - jar.sessionStartedAt >= row.minutes * 60
+			if row.step ~= step or claimed[step] or not due then
+				continue
+			end
+			if row.kind == "coins" then
+				local coins = math.max(row.minCoins or 0, math.floor(rate() * (row.seconds or 0)))
+				profile.money += coins
+				UI.toast(("Tip Jar: +%s"):format(Format.money(coins)), "good")
+			elseif row.lureId then
+				profile.lures[row.lureId] = (profile.lures[row.lureId] or 0) + (row.count or 1)
+				UI.toast("Tip Jar: a food for your bait bowl", "good")
+			end
+			claimed[step] = true
+			jar = { sessionStartedAt = jar.sessionStartedAt, claimed = claimed }
+			task.delay(0.3, function()
+				UI.tipJar.set(jar)
+				push()
+			end)
+		end
+	end)
 	connections[#connections + 1] = UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		for _, def in CATALOG.upgrades do
 			if def.id == upgradeId then

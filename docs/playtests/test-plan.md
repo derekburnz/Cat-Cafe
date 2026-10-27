@@ -25,8 +25,8 @@ in progress: F40 a missed cat sprints `fleeStuds` (12 for a Common up to 32 for 
 again with no limit, replacing F34's paws; F41 Shove inside catching areas replaces F29's Bump prompt; F42 shiny
 coats and a 5% shiny chance; F43 one dealer stock for every player and server in a window; F44 the cafe closes at
 night and the bait bowl moves to the back step. Rows that change say "(v0.5, F4x)" and keep what `main` does now
-in a "before F4x" clause. F40 is on `main` since engineer PR #130, so the catch rows state the chase as built and the
-v0.4 paws and wary wait are retired.
+in a "before F4x" clause. F40 (engineer PR #130), F41 (PR #139), F42 (PR #138) and F43 (PR #141) are on `main`, so their rows state the
+build; the v0.4 paws, the F29 bump numbers and the per-player dealer stock are retired. F44 is next (PR #144).
 
 ## 1. What runs where
 
@@ -79,12 +79,13 @@ Results of every run go to `docs/playtests/YYYY-MM-DD.md` in the `playtest-repor
      or "night")`, `clock()`, `spawnStuckCat(catId, rescueSpotId?, shiny?)` (`rescue_alley_1` by default, the Park
      trees are `rescue_park_1` and `rescue_park_2`), `richTip(player?, staySeconds?)` (a rich tip now, returns the
      amount, PR #123), `counts(areaId?)`, `dataSaves()`,
-     `baitReady(player?)` (brings the bowl's cat now and returns its catId, PR #108) and `teleport(player?, areaId)`
-     (onto an area's first spawn point, past its gate). In Studio the server prints a `[Catch]` line per graded
+     `baitReady(player?)` (brings the bowl's cat now and returns its catId, PR #108), `teleport(player?, areaId)`
+     (onto an area's first spawn point, past its gate), `shove(shover?, target, "loose" or "held" or nil)` (a real
+     shove through every check, the roll forced when named) and `knockLoose(player?)` (drops the carried cat with
+     nobody barred; both PR #139). In Studio the server prints a `[Catch]` line per graded
      circle and a `[Rescue]` line per judged rescue press.
-   - Still asked for (section 8): shiny on `giveCat`, `setDealerStock` or a dealer window offset and a forced bump
-     (v0.5 shove) roll. Steps marked (hook) use these; without the hook the step
-     is skipped, not failed.
+   - Still asked for (section 8): shiny on `giveCat` and a dealer window offset. Steps marked (hook) use these;
+     without the hook the step is skipped, not failed.
 
 ## 3. Unit tests
 
@@ -128,15 +129,15 @@ v0.3 specs QA writes as each feature lands (the engineer is asked to keep these 
 | F19 | a travel check if pure | `home` or an area id; a locked area, carrying, holding a catch or rescue lock (N47) or inside TravelCooldownSeconds 3 is refused |
 | F27 | `Rescue.spec`, `RescueMarker.spec` (on main) | Bar marker position at any server time (speed, bounce, start phase), zone hit with tolerance 0.03, hits per rarity, three paws, `shake_catch` ends in one circle with Pro Net windows |
 | F28 | `Catching.spec`, `FoodOdds.spec`, `Config.spec` (on main) | Bait roll: rarity from the food's odds (`pickRarity`), the cat uniform over that rarity in every unlocked area (`pickBaitCat`: 240 even rolls land on each cat of the pool equally at every tier, the roll edges stay in the pool, never nil); the card's per-cat split names exactly the cats the roll can pick; `LureWaitSeconds` 600, `BaitBowlRangeStuds` 12, `BaitResolveRangeStuds` 20, `ShinyChanceBait` 0.02 |
-| F29 | new `Bump.spec` (if the checks are a pure predicate) | Each protection on its own: range 6, grace 3 s, safe radius 15, cooldown 12 s, same target 60 s, immunity, carrying bumper, self as target, `BumpEnabled` false; drop claims: only the old carrier for 8 s, never the bumper, a dropped stray never flees (v0.5: F41 Shove, see its row) |
+| F29 | `Shove.spec` (on main) | F41 Shove (PR #139) absorbed the carry bumps, see its row |
 | F30 | `CatStats.spec` | Shiny 1.5x in the rating; shiny chances 0.02, 0.02, 0.10 (v0.5, F42: 0.05, 0.05, 0.10) |
 | F31 | `Economy.spec` | Settle across a phase boundary integrates 1.0 by day and 0.6 by night; offline pays the day rate; rich tip `max(50, floor(dayRate x 45))` |
-| F32 | new `Dealer.spec`; `DealerRows.spec` (UI, on main) | Same stock for the same UserId, `floor(os.time() / 600)` window and tier, a new stock in the next window, bought marks cleared only by a window change; tier weights over 20,000 seeds (Star Treat 0% at Tier 1, about 10% per slot at Tier 5); the buy check refuses a slot whose recomputed food is not the `lureId` the client named (reviewer S42); (v0.5) F43 replaces the per-player, per-tier stock, see its row |
+| F32 | `Dealer.spec`; `DealerRows.spec` (UI, on main) | Windows of DealerWindowSeconds 600 with a new stock at the next one; bought marks cleared only by a window change (N32); the buy check refuses a slot whose recomputed food is not the `lureId` the client named (reviewer S42). The stock itself is F43's, see its row |
 | F33 | `Economy.spec` or a `Names` module | Trim, 1 to 20 characters by `utf8.len` (a 20 emoji name passes, 21 fails), invalid UTF-8, control characters, newlines, `<` and `>` refused, whitespace-only refused |
 | F40 (v0.5) | `Catalog.spec`, `Catching.spec`, `Config.spec` (on main, engineer PR #130) | `fleeStuds` 12, 16, 20, 26, 32 by rarity in place of `patience`, never shorter for a rarer cat; `Catching.fleeUntil(missedAt, sprint)` is `missedAt + max(GrabRetrySeconds 2, sprint / StrayFleeSpeed + StrayRestSeconds)`, so a run cut short by a wall still waits 2 s; StrayFleeSpeed 26, above NormalWalkSpeed 20; StrayRestSeconds 1.5; StraySelfRetrySeconds 1 (S44); `patience`, StrayWarySeconds and StrayJumpBackMin and Max gone. Studio only (CatService, the abuse client): `CatchSchedule` and `CatchResult` carry no `pawsLeft`; the sprint ends inside the area, 1.5 studs short of the first prop or wall on the way (N84). With F41: a Dropped stray inside its owner window does not sprint (N86) |
-| F41 (v0.5) | new `Shove.spec` (if the checks are a pure predicate) | Each check on its own: both players inside one catching area the shover has unlocked (never on the street, in a cafe or a yard), range 6, the target holds no catch or rescue lock, back door safe radius 15, cooldown 8 s, the same target 20 s, nobody shoves the same target again within ShoveTargetImmuneSeconds 4 (S45), the shover holds no catch or rescue lock (N85), ShoveKnockbackStuds 10; on a carrier the 50% knock-loose with every F29 protection |
-| F42 (v0.5) | `Config.spec`, `FoodOdds.spec` | ShinyChanceNet and ShinyChanceBait 0.05, ShinyChanceRescue still 0.10; every food card's extras line reads "Shiny 5%" |
-| F43 (v0.5) | `Dealer.spec` | The same three foods for any two UserIds in one window, whatever their tier; one DealerSlotWeights row 50 / 33 / 14 / 3 over 20,000 windows; bought marks still per player |
+| F41 (v0.5) | `Shove.spec` (on main, engineer PR #139; QA edges) | `Shove.refusal` in section 10c order, each rule on its own and, with two broken, the earlier one naming the refusal, every reason in its own words: self, the shover carrying, the shover holding a catch or rescue lock (N85), both inside one catching area, the area unlocked for the shover, range BumpRangeStuds 6 plus 2 of slack, the target holding a lock, the target's safe zone (its plot and 15 studs round both doors), cooldown 8 s, the same target 20 s, ShoveTargetImmuneSeconds 4 (S45); knock-loose only on a carrier past the 3 s grace, never on a re-catch or inside the 3 s held immunity, BumpChance 0.5; the scurry 6 to 10 studs, clamped; the push flat and one stud long, with a fallback; a drop's 8 s owner window, the shover barred for good with the prompt closed, a Studio drop barring nobody; still after a miss inside the window (N86); a night wave inside DroppedMinStaySeconds 120 keeps it (S32). Studio only: the 10 stud push on the target's client, `BumpEnabled` false |
+| F42 (v0.5) | `Config.spec`, `Catalog.spec`, `FoodOdds.spec` (on main, PR #138) | ShinyChanceNet and ShinyChanceBait 0.05, ShinyChanceRescue still 0.10; `Catalog.shinyModelName` gives `CatCafe_Cat_<Name>_Shiny`; every food card's extras line reads "Shiny 5%" (the FoodOdds QA edge reads Config.ShinyChanceBait) |
+| F43 (v0.5) | `Dealer.spec`, `Catalog.spec` (on main, PR #141) | `Dealer.stock(window)` takes only the window, so every UserId and tier sees the same three foods; a new stock in the next window; one DealerSlotWeights row 50 / 33 / 14 / 3, followed over 4,000 windows; bought marks still per player (N32) |
 | F44 (v0.5) | `Config.spec`, `Layout.spec` | CustomerSpawnSecondsNight gone, NightIncomeMultiplier still 0.6; the plot's `BaitBowl` anchor on the back step behind the cafe, facing the Alleyway, clear of the back door and the yard gate |
 
 Not covered by unit tests, by design: anything that needs DataStores, Players, RemoteEvents, TextService,
@@ -186,9 +187,9 @@ it is scripted; keep the manual tool sequence below as the reference.
 | S10 Night | Wait for the first night (120 s after a fresh server start, or `Debug.setPhase("night")`) | `Phase` flips to `night`. Each unlocked area holds exactly 10 strays (`Debug.counts("alley")`), the alley's three traps (two trash bins, one bag of garbage) each hold a stuck cat with chance 0.6 and at least one is always filled. Stuck cats show `CatId`, `CatName` and `Rarity` but no `Shiny` or charm on the model, prompt or attributes. (v0.4, F35) Right after the wave every Epic, Legendary and Mythical stray in the Alleyway stands in the Square (`Position.Z` between SquareSouthZ 88 and SquareNorthZ 152), never in a back alley; `Debug.spawnStray` falls back to point 1 when nothing is free, so judge this on the wave's own strays. Rate drops to 60% within one sync (hook: `snapshot.incomePerSecond`), recovers at dawn. Before F44 customers keep coming as night owls, one every 12 s (F31). (v0.5, F44) The cafe closes instead: customers leave, the sign shows Closed with a moon, working cats nap at their stations and no customer comes until dawn, while the rate stays at 60%. The dealer cart appears on the street | F23, F31, F32, F44 |
 | S11 Rescue, bar | At a trash bin with a stuck Common (`Debug.spawnStuckCat("ginger", <spot>)`), start the rescue. Press when the marker is inside the zone, twice | The bar's marker moves at 0.8 bar lengths per second, the zone is 0.30 wide. Two hits free the cat; it is revealed (sparkle if shiny) and the player enters carry with `rescued = true`. Three misses end the attempt, the cat stays stuck; other players can retry after 3 s, the player who failed after 6 s. An attempt also ends as a fail at 15 s, when the player walks more than 14 studs away, dies or leaves. Rarer cats get a faster marker and a narrower zone (`RescueBarSpeed` Rare 1.0 up to Mythical 1.6, `RescueZoneWidth` 0.24 down to 0.12) and need `rescueHits`. Studio prints one `[Rescue]` line per press. `RescueBegin` is refused with its reason while carrying ("Check in the cat you are carrying first"), while someone else is rescuing ("Someone else is rescuing it"), mid-catch ("Finish this catch first") and from more than 12 studs ("Too far away"); `GrabBegin` is refused mid-rescue ("Finish this rescue first"); Give up ends the attempt as a fail | F27 |
 | S12 Rescue, tree | Tier 2 test profile (hook: `Debug.setTier(player, 2)`), Park tree with a stuck Common (`Debug.spawnStuckCat("ginger", "rescue_park_1")`) | `rescueHits - 1` bar hits shake the branch, then one catch circle (Common shrink time, Pro Net windows 0.065 and 0.155) must score Good or Perfect; a miss means the cat climbs back and the attempt ends | F27 |
-| S13 Dealer | At night within 12 studs of the cart, open the dealer screen. Buy one slot (hook: `Debug.setCoins`). Then keep the screen open across a 600 s window change (hook: a dealer window offset) and press Buy on a row as the countdown reaches 0:00 | Three slots with food, cost and odds before buying, and "Fresh stock in m:ss" counting to the next 600 s window. A food rolled into two slots shows once as "x2 Stock"; Buy sends `BuyDealerFood(slot, lureId)` for its first open slot and the row drops to "x1 Stock", then "Sold out". A `DealerStock` comes back after every Buy, bought or refused, so the button never hangs. A bought slot cannot be bought again until the window changes; at the change mid-night the stock refreshes. The Buy at 0:00 either lands in the old window and buys, or lands after the change naming the old food and is refused with coins kept; it never buys a food the screen did not show (reviewer S42). The screen then shows the new stock. Dealer food lands in `lures` and works in the bowl. (v0.5, F43) Every player on every server sees the same three foods in a window whatever their tier (check with a second client, then a second server); each still buys each slot once. Before F43 the stock is per player and tier | F32 |
+| S13 Dealer | At night within 12 studs of the cart, open the dealer screen. Buy one slot (hook: `Debug.setCoins`). Then keep the screen open across a 600 s window change (hook: a dealer window offset) and press Buy on a row as the countdown reaches 0:00 | Three slots with food, cost and odds before buying, and "Fresh stock in m:ss" counting to the next 600 s window. A food rolled into two slots shows once as "x2 Stock"; Buy sends `BuyDealerFood(slot, lureId)` for its first open slot and the row drops to "x1 Stock", then "Sold out". A `DealerStock` comes back after every Buy, bought or refused, so the button never hangs. A bought slot cannot be bought again until the window changes; at the change mid-night the stock refreshes. The Buy at 0:00 either lands in the old window and buys, or lands after the change naming the old food and is refused with coins kept; it never buys a food the screen did not show (reviewer S42). The screen then shows the new stock. Dealer food lands in `lures` and works in the bowl. Every player on every server sees the same three foods in a window whatever their tier (F43, PR #141: check with a second client, then a second server, and a Tier 1 player can see Star Treat); a bought slot shows bought for the buyer only and each player still buys each slot once | F32, F43 |
 | S14 Rank up | Hook: `Debug.setCoins(player, 1500)` and give 5 distinct cats, open the rank up card, rank up | Card ticks cost and 5 different cats; Tier 2: coins drop by 1,500, `Tier` 2, income x1.25 over Tier 1 exactly, the Park gate opens, `waiter_2` and `greeter_1` open. With 4 cats the button is refused and the card says what is missing | F24 |
-| S15 Shiny | Hook: `Debug.spawnStray("tabby", "alley", true)`, catch it and check it in | The stray sparkles before the catch (`Shiny` true on the model, F30 net shinies, PR #119); caught, it rates x1.5 over the same cat's base variant, sparkles on the model and card, the shiny page lists it and every player gets the Announce. (v0.5, F42) It also wears its own shiny coat on the same mesh (frost for now) | F30, F42, F14 |
+| S15 Shiny | Hook: `Debug.spawnStray("tabby", "alley", true)`, catch it and check it in | The stray sparkles before the catch (`Shiny` true on the model, F30 net shinies, PR #119); caught, it rates x1.5 over the same cat's base variant, sparkles on the model and card, the shiny page lists it and every player gets the Announce. It wears its frost shiny coat (`CatCafe_Cat_<Name>_Shiny`, F42, PR #138) in the alley, in the arms and at work. A shiny stuck cat (`Debug.spawnStuckCat("calico", nil, true)`) shows the plain coat until the rescue succeeds, then comes out in the frost coat (N30). A cat with no shiny model falls back to its base coat with no error | F30, F42, F14 |
 | S16 Rich tip | By day with income above 0 and at least one table (N81), hook `Debug.richTip()`, then `Debug.richTip(nil, 20)` for the expiry steps | A rich customer in a top hat at a table; plot attributes `RichTipAmount = max(50, floor(dayRate x 45))` and `RichTipExpiresAt = now + 90` (now + 20 with the short stay). Claiming within 12 studs adds the amount once (farther: "Walk closer to collect the tip"); leaving it unclaimed adds it at expiry; never both. Leaving before expiry still pays it (save-on-leave), and the next player on that plot sees no tip | F31 |
 | S17 Rename | Rename a working cat to `Biscuit` | The name shows over the cat (`DisplayName`) for every player and in the cat room. Empty, whitespace-only, 21 character, newline, `<b>` and control character names are refused with a toast; a 20 emoji name is allowed. A second rename within 5 s is dropped | F33 |
 | S18 Persist (API access on) | `start_stop_play` stop, start again | Coins within rate x gap of the last value, cats, roles, tier, tables, bait (same cat, same ready time) and dealer bought slots back | F10, F28, F32 |
@@ -235,22 +236,32 @@ balance note with the numbers, owner designer.
    refused "It's running!"; then B can try at once and A after 1 s (S44), and A can miss and retry five times in
    a row. In a deliberate-miss loop by A, B gets the next try within 1 s of every stop. Each run ends on open
    floor a player can reach, never inside a wall strip or a prop (N84).
-2. Bump, 20 tries (F29; v0.5, F41: the same test with the Shove button or key, the cooldowns 8 s and 20 s, and A pushed about 10 studs on every shove). A carries a cat in the Alleyway at least 3 s into the carry and outside A's safe zone; B
-   stands within 6 studs and bumps. Use two test profiles and the hooks to reset carries (or a forced roll for the
-   protection rows). Expected: about half knock the cat loose (6 to 14 of 20 is inside the 95% range of a fair
-   50% roll); on success the cat drops as a stray with `Dropped` true, keeps its catId, variant, charm and rescued
-   flag, and scurries 6 to 10 studs; for 8 s only A can start a catch on it, then anyone except B, who can never
-   catch a stray B knocked loose; A can miss it five times in a row and still try again after
-   each sprint (with F41 it stays put while the 8 s window runs, N86; world-and-feel 8.3); an all-Perfect re-catch adds no charm (`charmGain` 0, reviewer S36); it stays until
-   caught or the next night wave; whoever catches it is `BumpImmune` for that carry; B never receives the cat. On a fail both see "It held on tight!" and A is immune
-   for 3 s. Each protection on its own refuses the bump: under 3 s into the carry, within 15 studs of A's door or
-   inside A's plot, B more than 6 studs away, B carrying, B bumped anyone in the last 12 s, B bumped A in the last
-   60 s (v0.5: 8 s and 20 s), A immune, `BumpEnabled` false (the prompt also hides), B naming itself or a UserId not in the server.
-3. Locked area bump: a Tier 1 B inside the Park (walked past the gate in Studio) cannot bump a Tier 2 A there.
-   (v0.5, F41; world-and-feel 8.3) Shove: A and B can shove each other anywhere in the Alleyway, carrying or not;
-   nobody can shove on the street, in a cafe or a yard; a player in the middle of a catch or rescue can neither be
-   shoved nor shove (N85); with three players shoving one target, at most one shove lands every 4 s
-   (ShoveTargetImmuneSeconds, S45). A shoved carrier drops the cat about half the time.
+2. Shove, 20 tries (F41, PR #139; world-and-feel 8.3). A carries a cat in the Alleyway at least 3 s into the carry
+   and outside A's safe zone; B stands within 6 studs and presses Shove (Q, gamepad Y). B's 8 s cooldown and the
+   20 s same-target wait make 20 tries take about 7 minutes; `Debug.shove(B, A)` runs the same checks with the roll
+   left to chance, and `Debug.shove(B, A, "loose" or "held")` or `Debug.knockLoose(A)` set up the later rows.
+   Expected: every landed shove pushes A about 10 studs and A sees "You got shoved!"; about half knock the cat loose
+   (6 to 14 of 20 is inside the 95% range of a fair 50% roll). On loose the cat drops as a stray with `Dropped` true,
+   keeps its catId, variant, charm and rescued flag, and scurries 6 to 10 studs; A sees "You got shoved! Net it back,
+   only you can for 8 seconds" and B "You knocked it loose!"; for 8 s only A can start a catch on it (others: "Its
+   owner gets the first try"), then anyone except B, whose prompt closes ("You knocked this one loose, so it won't
+   come to you"); A can miss it five times in a row and still try again: inside the 8 s it stays put (N86), after
+   that it sprints like any stray; an all-Perfect re-catch adds no charm (`charmGain` 0, reviewer S36); it stays
+   until caught or a night wave that starts more than 120 s after the drop (S32); whoever re-catches it is
+   `BumpImmune` for that carry; B never receives the cat. On held both see "It held on tight!" and A cannot be
+   knocked loose for 3 s. `Debug.snapshot`: B's `bumpsGiven` counts every landed shove and `bumpsLanded` the loose
+   ones, A's `bumpsTaken` the loose ones. Each protection on its own refuses with its toast and nobody moves: within
+   15 studs of A's door or inside A's plot ("They're safe by their own cafe"), B more than 8 studs away ("Too far
+   away"), B carrying ("Check in the cat you are carrying first"), B shoved anyone in the last 8 s ("Catch your
+   breath before the next shove"), B shoved A in the last 20 s ("Give them a break"), anyone shoved A in the last
+   4 s ("They were just shoved", S45), `BumpEnabled` false (the button hides too). Under 3 s into the carry the
+   shove still pushes A but never rolls.
+3. Where a shove works (F41; world-and-feel 8.3): a Tier 1 B inside the Park (`Debug.teleport(B, "park")`) cannot
+   shove a Tier 2 A there ("This area opens at a higher tier"). A and B can shove each other anywhere in the
+   Alleyway; nobody can shove on the street, in a cafe or a yard, or across two areas ("You can only shove inside a
+   catching area"); a player in the middle of a catch or rescue can neither be shoved ("They're busy catching a
+   cat") nor shove ("Finish what you are doing first", N85); with three players shoving one target, at most one
+   shove lands every 4 s (S45).
 4. Rescue lock: A starts a rescue at a trap; B's `RescueBegin` there is refused until A's attempt ends, then
    allowed after 3 s, while A waits 6 s. A walking 15 studs away ends A's attempt as a fail.
 5. Announce: A catches an Epic (`Debug.spawnStray("sphynx", "alley")`), finds any shiny and ranks up to Tier 3.
@@ -297,7 +308,7 @@ Catching and rescue (F26, F27, F23)
 | Far grab (key 2) | Teleport 200 studs away, `GrabBegin(id)` | Refused with `Too far away`, no schedule |
 | Far press (key 8) | `GrabBegin` in range, teleport 200 studs away, press every circle on target | Not caught although every press is on target. Walking out of range is a Miss with the toast `Too far away`: the cat sprints off with `FleeingUntil` set, as after any Miss |
 | Locked area | Tier 1, teleport past the Park gate, `GrabBegin(park stray)`, `RescueBegin(park trap)` | Refused, nothing locked, no schedule or challenge |
-| Drop claims (Clients and Servers, 3 players) | After B bumps A loose: C `GrabBegin` within 8 s; B `GrabBegin` at any time; A fails a catch on a dropped Rare | Refused within 8 s for anyone but A; refused for B always; the Rare stays and A can retry however often A misses: it sprints after each miss until F41, then stays put while its 8 s owner window runs (N86); after the window anyone but B can retry |
+| Drop claims (Clients and Servers, 3 players) | After B shoves A loose: C `GrabBegin` within 8 s; B `GrabBegin` at any time; A fails a catch on a dropped Rare | Refused within 8 s for anyone but A ("Its owner gets the first try"); refused for B always, with the prompt closed; the Rare stays and A can retry however often A misses: it stays put after each miss while its 8 s owner window runs (N86), then sprints like any stray; after the window anyone but B can retry |
 | Press without begin (key 3; client B part manual) | `CatchPress(id, 1)`, `CatchPress(id, 2)` on a stray nobody locked, and on one client B locked | Ignored |
 | Press early (key 4) | `CatchPress(id, 1)` right after `GrabBegin`, before circle 1 starts | Ignored, not counted as the first press; the on-target press still grades |
 | Press out of order (key 4) | `CatchPress(id, 2)` before circle 1 is judged | Ignored |
@@ -317,8 +328,8 @@ Catching and rescue (F26, F27, F23)
 | Rescue while carrying (manual) | `RescueBegin(spot)` while carrying | Refused with the carrying toast |
 | Rescue refusals (manual) | `RescueBegin(park trap)` at Tier 1, `RescueBegin` at a trap client B is rescuing, 2 s into a catch, from 20 studs, a second `RescueBegin` mid-attempt, and `GrabBegin(stray)` during a rescue | Each refused with its reason in a `GrabResult` (`This area opens at a higher tier. Rank up to rescue cats here`, `Someone else is rescuing it`, `Finish this catch first`, `Too far away`, `Keep going, the bar is up`, `Finish this rescue first`); no new challenge, nothing locked |
 | Removed remotes | Look for `GrabEnd`, `RescueEnd`, `EquipLure` under `ReplicatedStorage.Remotes` | Not there: all three are gone on `main` |
-| Bump target (manual) | `Bump(own UserId)`, `Bump("123")`, `Bump(1.5)`, `Bump(nil)`, `Bump(99999999)` (nobody in the server) | Dropped or refused, no error (F29 not built yet; v0.5 F41 may keep the `Bump` name for Shove) |
-| Shove (v0.5, F41, manual, two clients) | `Bump(B)` on the street, in a cafe, inside B's safe radius, while B is mid-catch and mid-rescue, while the shover is mid-catch (N85), from 7 studs, twice within 8 s, at the same B again within 20 s, and from a third client C within 4 s of A's shove on B (S45) | Refused every time and nobody moves; inside the Alleyway with every check passed B is pushed about 10 studs, and a carrying B rolls the 50% knock-loose |
+| Shove targets (key `/`) | `Bump(nil)`, `Bump("1")`, `Bump(1.5)`, `Bump(NaN)`, `Bump(math.huge)`, `Bump({})` and `Bump(987654321)` (nobody in the server), two a second; then `Bump(own UserId)`; then 10 `Bump(own UserId)` in one frame | The bad and unknown targets get no `ShoveResult` and no toast, and the server output has no `[Net] Bump handler failed`; the self shove is refused "You can't shove yourself" with a `ShoveResult` "refused" to this client only, no position, and no `ShovedAt` on the character; the flood gets at most 2 answers (Bump takes 2 a second) |
+| Shove (F41, manual, three clients) | `Bump(B)` on the street, in a cafe, inside B's safe radius, while B is mid-catch and mid-rescue, while the shover is mid-catch (N85), from 7 studs, twice within 8 s, at the same B again within 20 s, and from a third client C within 4 s of A's shove on B (S45) | Refused every time with its toast and nobody moves; inside the Alleyway with every check passed B is pushed about 10 studs, `ShovedAt` and `ShovedBy` land on B's character, every client gets `ShoveResult`, and a carrying B past the 3 s grace rolls the 50% knock-loose |
 
 Economy, tiers and roles (F24, F25, F08)
 
@@ -403,7 +414,7 @@ only: client parts go in `workspace.ClientEffects` and burst emitters on `Burst_
 | E9 Smooth sprint (v0.5, F40) | `Debug.spawnStray("midnight")` (a Mythical) and miss it; watch from 20 studs on PC, then on the phone emulator; also watch strays wander for a minute | The 32 stud gallop at 26 studs a second moves smoothly, legs cycling with the ground covered: no stepping, no sliding feet, no jump at the end. Wandering strays and customers trot, never gallop (`EffectsMotion.spec` ties this to StrayWanderSpeed and CustomerWalkSpeed) |
 | E10 Night nap (v0.5, F44) | With working cats in view, `Debug.setPhase("night")`, wait 10 s, then `Debug.setPhase("day")` | Every working cat eases into a curl at its station over about 0.8 s, never a snap: body down, legs tucked, head turned toward the tail and the tail wrapped round to meet it, slow breathing and a z, z, Z. Strays and carried cats stay awake. At dawn each stands up again the same way. The Closed sign and the 60% income are the cafe rows' (F44), not this one |
 | E11 Shiny (v0.5, F42) | `Debug.spawnStray("ginger", "alley", true)`, catch it and carry it home with a second client watching; then `Debug.spawnStuckCat("ginger", nil, true)` and rescue it | The stray's steady sparkle is frost coloured (milk, pale blue, ice blue). The catch plays a one-off burst and ring once, and the sparkle keeps going on the carried cat for both clients until check-in. The rescued shiny gets the same burst when it is picked up. Phone bursts stay small (12 or fewer). The default particle in frost colours passes until Derek uploads the ShinySparkle sprite |
-| E12 Shove (v0.5, F41) | Skip as not built until the engineer's shove sets `ShovedAt` and `ShovedBy` on the shoved character. A shoves B in the Alleyway with a third client watching; then B turns on Reduce Motion and A shoves again after the cooldowns | A puff between A and B, a skid of dust at B's feet and three dizzy stars circling B's head for 1.2 s; only B's camera bumps (about 0.3 s, bigger than E1's shake), A's and the watcher's do not. With Reduce Motion on, B's stars hold still and there is no bump |
+| E12 Shove (v0.5, F41) | (`ShovedAt` and `ShovedBy` on the shoved character since PR #139) A shoves B in the Alleyway with a third client watching; then B turns on Reduce Motion and A shoves again after the cooldowns | A puff between A and B, a skid of dust at B's feet and three dizzy stars circling B's head for 1.2 s; only B's camera bumps (about 0.3 s, bigger than E1's shake), A's and the watcher's do not. With Reduce Motion on, B's stars hold still and there is no bump |
 | E8 Console | The whole section | No new error or warning naming `Effects` on the client, none on the server |
 
 ### 4.7 Sound (v0.4, sound list v0.3, `src/client/Audio`)
@@ -441,10 +452,10 @@ Core loop (features.md section 2 done-when lines)
 - [ ] F36 to F38 (v0.4) From the street you see cats at work; signs show name, tier and rate; empty plots are For Rent shops, never grey boxes; cafes look like the concept sketch (pastel shells, awnings, the roof lifts when you walk in), and a busy cafe looks busy
 - [ ] F27 Rescue: two hits free a Common from a bin; three misses end the attempt and the cat is still there; a tree rescue ends with one catch circle
 - [ ] F28 Bait: Kibble in, 10:00 countdown, log off 10 minutes, rejoin and the same cat is waiting; Tame adds it, Let go clears it, the food is gone either way; odds and the per-cat split are on the food card before buying (v0.5, F44: the bowl sits on the back step)
-- [ ] F29 Bump: half the time the cat drops and anyone can net it; no bump near the carrier's door or in the first 3 s; the re-catcher cannot be bumped; the bumper never gets the cat (v0.5, F41 Shove: anyone can shove anyone in the Alleyway and areas, never on the street, in a cafe or mid-catch)
-- [ ] F30 A shiny earns 1.5x, sparkles, shows on the shiny page and is announced (v0.5, F42: in its own shiny coat; food cards read 5%)
+- [ ] F41 Shove (F29's bumps): anyone can shove anyone inside a catching area their tier opens, never on the street, in a cafe or mid-catch; half the time a carried cat drops and only its carrier can net it for 8 s; no shove near the carrier's door; the re-catcher cannot be knocked loose; the shover never gets the cat
+- [ ] F30 and F42: a shiny earns 1.5x, wears its frost coat, sparkles, shows on the shiny page and is announced; food cards read Shiny 5%
 - [ ] F31 Rate drops to 60% at nightfall and recovers at dawn (v0.5, F44: the cafe closes for the night, customers leave and the cats nap); a rich tip pays 45 s of the day rate whether claimed or not
-- [ ] F32 Dealer at night only; same stock after a rejoin in the same night (v0.5, F43: the same stock for everyone on every server in a 10 minute window); a bought slot cannot be bought again; odds shown before buying
+- [ ] F32 and F43: the dealer is there at night only; the same three foods for everyone on every server in a 10 minute window and after a rejoin; a bought slot cannot be bought again; odds shown before buying
 - [ ] F33 A name shows over the cat for other players; a filter failure keeps the old name with a toast
 - [ ] F07 Carry: slower walk, carry indicator, check in at the door; leaving mid-carry still saves the cat (API access on)
 - [ ] F10 Rejoin keeps coins, cats, roles, tier, upgrades, decor, foods, bait and dealer purchases (API access on)
@@ -493,7 +504,7 @@ data-model v0.3 and become spec checks as each feature lands.
    Hub): onboarding steps `joined`, `saw_alley`, `first_catch`, `first_checkin`, `first_role`, `first_table`,
    `first_bait`, `first_bait_resolved` fired once each, in order; `tier_2` when reached.
 
-Extra checks for v0.3 to v0.5 (features.md section 8): the bump test over 20 tries (section 4.3 item 2; v0.5 the shove test); any mix
+Extra checks for v0.3 to v0.5 (features.md section 8): the shove test over 20 tries (section 4.3 item 2); any mix
 of Good and Perfect always catches and a Miss always ends the attempt (C7 and S4; before F34, all-Perfect and
 all-Good give 100% and 50%); a missed cat sprints and can be retried without limit (section 4.3 item 1b); travel greyed while carrying (S20); For Rent
 plots on a near-empty server (S21); the dealer stock is identical after a
@@ -509,19 +520,18 @@ shaped findings go to luau-reviewer as blockers. QA never writes the fix.
 
 ## 8. Open requests to other threads
 
-1. Engineer, Debug hooks (Studio-only like the rest, reached through `PurrPotDebug`): a shiny option on `giveCat`;
-   `Debug.setNightIndex(n)` or `Debug.setDealerStock(player?, { lureIds })` (a dealer window offset is enough once
-   F43 shares the stock); and a way to force the next bump or shove roll (`Debug.forceBump(true or false)`). Done:
-   `baitReady` (PR #108), shiny on `spawnStray` (PR #119) and `spawnStuckCat` (PR #115), `richTip` (PR #123),
+1. Engineer, Debug hooks (Studio-only like the rest, reached through `PurrPotDebug`): a shiny option on `giveCat`, and
+   a dealer window offset for S13's window change now that F43 shares the stock. Done: `shove` with a forced roll
+   and `knockLoose` (PR #139), `baitReady` (PR #108), shiny on `spawnStray` (PR #119) and `spawnStuckCat` (PR #115), `richTip` (PR #123),
    `setTier`, `giveLure`, `setLastSeen`, `setSaveVersion`, the `[Catch]` line per graded circle (F26, PR #40), the
    `[Rescue]` line per press (PR #115) and the bridge (PR #50).
    v0.4 (F34): `Debug.setAutoPress(player?, true or false)` to set or clear the flag without 50 scripted circles and the
    `[Catch]` line to print the attempt's end reason (miss, out of range, done) and `charmGain`.
 2. Engineer, pure functions for unit tests (section 3.1): the circle schedule builder and judge, the rescue bar
-   position and hit test, the bump (v0.5 shove) checks as a predicate over positions and times, the rank up
+   position and hit test, the rank up
    requirement check, the bait roll, the dealer stock roll, `Economy.settle` across phase boundaries, and name
    trimming, each in `src/shared` with the random source passed in. Done: the rescue bar (`Rescue`,
-   `RescueMarker`), the bait roll (`Catching.pickBaitCat`) and the dealer stock (`Dealer`).
+   `RescueMarker`), the bait roll (`Catching.pickBaitCat`), the dealer stock (`Dealer`) and the shove checks (`Shove`).
 3. Designer, answered in design v0.3.1: the dealer stock and bought marks key on a global 600 s window, so a
    server hop shows the same stock (section 4.4, Dealer server hop and Dealer window).
 4. Designer, answered in design v0.3.1: every area gets at least one stuck cat each night (RescueMinStuck 1).

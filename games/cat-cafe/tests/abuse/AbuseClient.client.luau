@@ -11,7 +11,7 @@
 	  1 fake stray      2 far grab          3 press without begin  4 bad presses   5 press with a time
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
-	  = double spend    , travel            Backspace flood        ] run everything
+	  = double spend    , travel            / shove targets        Backspace flood        ] run everything
 	Or from a client-context command bar: _G.PurrPotAbuse.run("fakeStray"), _G.PurrPotAbuse.runAll().
 
 	Every line starts with [Abuse]. RESULT lines say PASS, FAIL, SKIP or CHECK. After a run, read the SERVER
@@ -55,6 +55,14 @@ type Outcome = {
 	grades: { Types.CircleGrade },
 	success: boolean,
 	charmGain: number,
+}
+-- What ShoveResult carries (F41): "refused" goes to the shover alone, with no position or direction.
+type Shoved = {
+	outcome: string,
+	shover: number,
+	target: number,
+	position: Vector3?,
+	direction: Vector3?,
 }
 
 local events: { Event } = {}
@@ -1826,6 +1834,83 @@ case(
 	end
 )
 
+-- Shove (v0.5 F41, data-model section 10c; the remote keeps the Bump name) ---------------------------------------
+
+case(
+	"shove",
+	Enum.KeyCode.Slash,
+	"Shove: malformed and unknown targets, then myself, then 10 self shoves in one frame",
+	function()
+		-- Bump takes 2 calls a second, so the bad values go in pairs with the bucket refilled in between; a value the
+		-- limiter drops would never reach Guard.int. Malformed or nobody on this server: no ShoveResult, no toast.
+		local quietAt = os.clock()
+		local bad: { any } = { "nil", "1", 1.5, 0 / 0, math.huge, {}, 987654321 }
+		for index, value in bad do
+			fire("Bump", if value == "nil" then nil else value)
+			if index % 2 == 0 then
+				task.wait(1.05)
+			end
+		end
+		task.wait(1.2)
+		local quiet = {}
+		for _, event in since(quietAt) do
+			if event.name == "ShoveResult" or event.name == "Toast" then
+				table.insert(quiet, event.text)
+			end
+		end
+		-- Myself: refused in words, to me alone, and nothing lands on my character.
+		local character = player.Character
+		local shovedBefore = if character ~= nil then character:GetAttribute("ShovedAt") else nil
+		local selfAt = os.clock()
+		fire("Bump", player.UserId)
+		local refused = waitFor(selfAt, "ShoveResult", 2)
+		task.wait(0.3)
+		local selfToast = toasted(selfAt, "You can't shove yourself")
+		local shovedAfter = if character ~= nil then character:GetAttribute("ShovedAt") else nil
+		-- Flood: 10 in one frame from a full bucket; the limiter lets 2 through.
+		task.wait(1.2)
+		local floodAt = os.clock()
+		for _ = 1, 10 do
+			Remotes.event("Bump"):FireServer(player.UserId)
+		end
+		log(string.format("    -> Bump(%d) x10", player.UserId))
+		task.wait(1.5)
+		local answers = #since(floodAt, "ShoveResult")
+
+		if #quiet > 0 then
+			return "FAIL",
+				"a malformed or unknown target got an answer: " .. table.concat(quiet, " | ")
+		end
+		if refused == nil then
+			return "FAIL", "no ShoveResult for a shove at myself"
+		end
+		local result = refused.data :: Shoved
+		if
+			result.outcome ~= "refused"
+			or result.shover ~= player.UserId
+			or result.target ~= player.UserId
+			or result.position ~= nil
+		then
+			return "FAIL", "a shove at myself answered " .. refused.text
+		end
+		if shovedAfter ~= shovedBefore then
+			return "FAIL", "ShovedAt changed on my character after a refused shove"
+		end
+		if answers > 2 then
+			return "FAIL",
+				string.format("%d ShoveResult back from 10 Bump calls in one frame", answers)
+		end
+		if not selfToast then
+			return "CHECK", 'refused, but no "You can\'t shove yourself" toast'
+		end
+		return "PASS",
+			string.format(
+				"bad and unknown targets: silent; myself: refused with its toast; flood: %d of 10 answered. A real shove needs two players (section 4.3 item 2)",
+				answers
+			)
+	end
+)
+
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
 	for _ = 1, 30 do
@@ -1983,6 +2068,29 @@ Remotes.event("CatchResult").OnClientEvent:Connect(
 			),
 			strayId,
 			outcome
+		)
+	end
+)
+Remotes.event("ShoveResult").OnClientEvent:Connect(
+	function(
+		outcome: string,
+		shover: number,
+		target: number,
+		position: Vector3?,
+		direction: Vector3?
+	)
+		local shoved: Shoved = {
+			outcome = outcome,
+			shover = shover,
+			target = target,
+			position = position,
+			direction = direction,
+		}
+		record(
+			"ShoveResult",
+			string.format("%s by %d on %d at %s", outcome, shover, target, tostring(position)),
+			nil,
+			shoved
 		)
 	end
 )

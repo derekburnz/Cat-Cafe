@@ -26,6 +26,7 @@ local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
+local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
@@ -52,6 +53,7 @@ export type HUD = {
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
+	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
@@ -75,6 +77,10 @@ local FISH_W = 196
 local FISH_H = 48
 local FISH_TOP = MARGIN + MONEY_H + 8
 local EXACT_SECONDS = 2.5 -- how long a tapped counter's exact amount stays up
+-- F66: in the last DUSK_SECONDS of a day the clock chip turns orange and counts to night; CLOSED_TEXT is the Alley
+-- button while the areas are shut for the night
+local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
+local CLOSED_TEXT = Theme.icons.moon .. " Closed"
 local PILL_W = 192
 local PILL_H = 54
 local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
@@ -175,6 +181,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._lastMoney = nil :: number?
 	self._lastFish = nil :: number?
 	self._exactToken = 0 -- the latest tap's, so an older timer leaves a newer amount up
+	self._areasOpen = true -- F66: false from dusk to sunrise (the Clock folder's AreasOpen)
+	self._alleyClosed = false -- what the Alley button shows now
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
 	self._seen =
@@ -1080,6 +1088,10 @@ function HUD.pressTravel(self: any, destination: string): boolean
 	if self:isCarrying() or os.clock() < self._travelUntil then
 		return false
 	end
+	if destination ~= "home" and not self._areasOpen then
+		self:travelResult(destination, false) -- shut for the night (F66): wobble, as the server would refuse it
+		return false
+	end
 	self._callbacks.travel(destination)
 	self._travelUntil = os.clock() + TRAVEL_COOLDOWN
 	self:_renderTravel()
@@ -1167,11 +1179,18 @@ function HUD._renderTravel(self: any)
 	local cooling = os.clock() < self._travelUntil
 	for key, button in self._travelButtons do
 		-- render runs on every state push, so only touch buttons whose state changed (keeps hover colour)
-		local enabled = not carrying and (key == "areas" or not cooling)
+		local enabled = not carrying
+			and (key == "areas" or not cooling)
+			and (key ~= "alley" or self._areasOpen)
 		if self._travelEnabled[key] ~= enabled then
 			self._travelEnabled[key] = enabled
 			button:setEnabled(enabled)
 		end
+	end
+	local closed = not self._areasOpen
+	if self._alleyClosed ~= closed then
+		self._alleyClosed = closed
+		self._travelButtons.alley:setText(if closed then CLOSED_TEXT else "Alley")
 	end
 	if self._homeCarrying ~= carrying then
 		self._homeCarrying = carrying
@@ -1377,18 +1396,10 @@ function HUD._layoutBottom(self: any)
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 end
 
-local function clockText(phase: Types.ClockPhase, remaining: number): string
-	local seconds = math.max(0, math.floor(remaining + 0.5))
-	return ("%s  %d:%02d"):format(
-		if phase == "night" then "Night" else "Day",
-		seconds // 60,
-		seconds % 60
-	)
-end
-
 -- Day and night chip. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's
 -- synchronised epoch clock, so it compares with the server's os.time() in PhaseEndsAt and never trusts
--- the device clock (data-model section 1, reviewer S16).
+-- the device clock (data-model section 1, reviewer S16). In the last DUSK_SECONDS of a day it reads "Night in 0:12"
+-- in orange (F66).
 function HUD.setClock(self: any, clock: Types.ClockState?)
 	self:_stopClock()
 	if not clock then
@@ -1401,13 +1412,16 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	local isNight = current.phase == "night"
 	self._sun.Visible = not isNight
 	self._moon.Visible = isNight
-	self._clockText.TextColor3 = if isNight then Theme.colors.sky else Theme.hud.text
 	self._clock.Visible = true
 	self._nightTips.Visible = isNight
 	self:_layoutRight()
 	local function tick()
-		self._clockText.Text =
-			clockText(current.phase, current.phaseEndsAt - Workspace:GetServerTimeNow())
+		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
+		self._clockText.Text = NightClock.chipText(current.phase, remaining, DUSK_SECONDS)
+		self._clockText.TextColor3 = if isNight
+			then Theme.colors.sky
+			elseif NightClock.isDusk(current.phase, remaining, DUSK_SECONDS) then Theme.colors.warn
+			else Theme.hud.text
 	end
 	tick()
 	local accumulated = 0
@@ -1418,6 +1432,16 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 			tick()
 		end
 	end)
+end
+
+-- F66: the catching areas close from dusk to sunrise. The Alley button greys and reads "🌙 Closed", and a key bind
+-- or Go to an area wobbles instead of asking the server.
+function HUD.setAreasOpen(self: any, open: boolean)
+	if self._areasOpen == open then
+		return
+	end
+	self._areasOpen = open
+	self:_renderTravel()
 end
 
 -- The goal card sits under the clock, and under the night tips chip when it shows.

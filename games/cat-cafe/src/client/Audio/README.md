@@ -18,12 +18,12 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every synthesi
    Audio.start()
    ```
    `start()` makes the SoundGroups `Music`, `Ambience`, `Sfx` and `Ui` in SoundService, preloads the short P0 cues and starts reading the `Phase` and `PhaseEndsAt` attributes on `ReplicatedStorage.Clock` (read only, the same way WorldController does).
-2. **Settings and carrying** on every `ProfileSync` (UIController already handles it), and settings again on each toggle:
+2. **Settings and carrying** (UIController already handles both): settings with the first `ProfileSync` and again whenever they change (the settings switches), carrying on every `ProfileSync`. A settings call with nothing changed changes nothing, so calling it more often is harmless:
    ```luau
-   Audio.applySettings(state.settings) -- { music: boolean, sfx: boolean }
+   Audio.applySettings(state.settings) -- { music: boolean, sfx: boolean, musicVolume: number?, sfxVolume: number? }
    Audio.setCarrying(state.carrying ~= nil)
    ```
-   Music off mutes `Music`; sound off mutes the other three, and a muted channel loads nothing (no downloads on mobile data). Music and ambience start on the first call, so a player who turned music off never hears a note. The carry purr follows `carrying`, so a missed moment can never leave it purring.
+   Music off mutes `Music`; sound off mutes the other three, and a muted channel loads nothing (no downloads on mobile data). The sliders `musicVolume` and `sfxVolume` (0 to 1, missing means full) scale the same channels by the slider squared; a switch that is off wins and a slider at 0 counts as off. Music and ambience start on the first call, so a player who turned music off never hears a note. The carry purr follows `carrying`, so a missed moment can never leave it purring.
 3. **Moments**: once `src/client/Moments.luau` exists (one Signal per moment, names and arguments in the sound list section 6):
    ```luau
    Audio.bindMoments(Moments)
@@ -50,7 +50,7 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every synthesi
 | Call | Does |
 |---|---|
 | `Audio.start()` | Builds the channels, preloads, follows the clock. |
-| `Audio.applySettings(settings)` | Mutes channels by the player's settings; the first call starts music and ambience. |
+| `Audio.applySettings(settings)` | Mutes and scales channels by the player's settings (switches and volume sliders); the first call starts music and ambience. |
 | `Audio.setCarrying(isCarrying)` | Starts or stops the carry purr. |
 | `Audio.play(cueId, at?, step?)` | Plays a cue once. `at` is a BasePart, an Attachment or a Vector3 for 3D; nil plays it flat. `step` raises it one note of the pentatonic scale per step (circles 1 to 5, rescue hits). Returns the Sound or nil. |
 | `Audio.loop(cueId, at?)` | Starts a looped cue and returns a function that fades it out. |

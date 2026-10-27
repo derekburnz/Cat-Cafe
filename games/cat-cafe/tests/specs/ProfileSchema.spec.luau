@@ -101,7 +101,16 @@ return function()
 			expect(profile.upgradeLevels :: any).to.deepEqual({ tables = 0, espresso = 1, net = 0, lure_bowl = 0 })
 			expect(count(profile.decorOwned) + count(profile.decorPlaced) + count(profile.lures)).to.equal(0)
 			expect(profile.tutorialStep).to.equal(0)
-			expect(profile.settings :: any).to.deepEqual({ music = true, sfx = true })
+			expect(profile.settings :: any).to.deepEqual({
+				music = true,
+				sfx = true,
+				musicVolume = 1,
+				sfxVolume = 1,
+				screenShake = true,
+				lowPerformance = false,
+				showOtherCats = true,
+				markers = true,
+			})
 		end)
 
 		it("starts with one neutral Tabby working as the Barista, found as the starter", function()
@@ -351,7 +360,16 @@ return function()
 			expect(profile.lastSeen).to.equal(900)
 			expect(profile.rateAtLogout).to.be.near(3.3, 1e-9)
 			expect(profile.tutorialStep).to.equal(5)
-			expect(profile.settings :: any).to.deepEqual({ music = false, sfx = true })
+			expect(profile.settings :: any).to.deepEqual({
+				music = false,
+				sfx = true,
+				musicVolume = 1,
+				sfxVolume = 1,
+				screenShake = true,
+				lowPerformance = false,
+				showOtherCats = true,
+				markers = true,
+			})
 			-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 			expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
 			expect(profile.decorPlaced :: any).to.deepEqual({ plants = true })
@@ -390,9 +408,10 @@ return function()
 			local profile = ProfileSchema.migrate(v2WithCats(), 1000)
 			local placed = working(profile)
 			expect(count(placed)).to.equal(2)
-			-- Void loves barista (37.5 there); Calico as Waiter (3) beats every Common in either slot.
-			expect(placed.c4).to.equal("barista_1")
-			expect(placed.c3).to.equal("waiter_1")
+			-- The Ninja Cat (void) loves waiter (37.5 there); the Pirate Cat (calico) as Barista (3) beats every
+			-- Common in either slot.
+			expect(placed.c4).to.equal("waiter_1")
+			expect(placed.c3).to.equal("barista_1")
 			local plan = EquipBest.plan(profile)
 			expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
 		end)

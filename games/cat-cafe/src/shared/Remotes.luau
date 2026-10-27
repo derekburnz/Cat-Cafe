@@ -39,7 +39,9 @@ Remotes.ClientToServer = {
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
-	"SetSetting", -- (key: string, value: boolean)  "music" or "sfx"; saved in profile.settings, answered by ProfileSync
+	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
+	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
+	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
 }
 
 -- Server -> client.
@@ -60,6 +62,7 @@ Remotes.ServerToClient = {
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 	"DealerStock", -- (stock: Types.DealerStock?)  this player's three slots at night, nil by day; after every buy
+	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"ShoveResult", -- (outcome: "shove" | "loose" | "held" | "refused", shoverUserId: number, targetUserId: number,
 	-- position: Vector3?, direction: Vector3?)  a landed shove goes to everyone; the target's client pushes its own
 	-- character ShoveKnockbackStuds along direction. "refused" goes to the shover alone, with no position

@@ -23,9 +23,10 @@ local Logic = require(script.Logic)
 local Audio = {}
 
 export type Target = BasePart | Attachment | Vector3
-export type Settings = { music: boolean, sfx: boolean }
+-- musicVolume and sfxVolume are the settings sliders, 0 to 1 (missing means full volume).
+export type Settings = { music: boolean, sfx: boolean, musicVolume: number?, sfxVolume: number? }
 
--- Channel start volumes and the setting that mutes each (sound list section 2).
+-- Channel start volumes and the setting that mutes each; its slider is musicVolume or sfxVolume (sound list section 2).
 local GROUPS: { [string]: { volume: number, mutedBy: "music" | "sfx" } } = {
 	Music = { volume = 0.5, mutedBy = "music" },
 	Ambience = { volume = 0.6, mutedBy = "sfx" },
@@ -908,14 +909,19 @@ function Audio.start()
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,
--- Sfx and Ui. A muted channel loads nothing. Call it on every ProfileSync and on each toggle; it is cheap.
+-- Sfx and Ui. The music slider scales Music and the sound slider the other three; a switch that is off wins, and a
+-- slider at 0 counts as off. A muted channel loads nothing. Call it with the first settings and again whenever they change (the
+-- settings switches); a call with unchanged settings changes nothing, so calling it more often is harmless.
 function Audio.applySettings(settings: Settings)
 	build()
 	local musicWas, ambienceWas, sfxWas = enabled.Music, enabled.Ambience, enabled.Sfx
 	for name, def in GROUPS do
-		local on = if def.mutedBy == "music" then settings.music ~= false else settings.sfx ~= false
+		local isMusic = def.mutedBy == "music"
+		local switch = if isMusic then settings.music else settings.sfx
+		local gain = Logic.sliderGain(if isMusic then settings.musicVolume else settings.sfxVolume)
+		local on = switch ~= false and gain > 0
 		enabled[name] = on
-		groups[name].Volume = Logic.groupVolume(def.volume, on)
+		groups[name].Volume = Logic.groupVolume(def.volume, on, gain)
 	end
 	if enabled.Sfx ~= sfxWas then
 		refreshCarry()

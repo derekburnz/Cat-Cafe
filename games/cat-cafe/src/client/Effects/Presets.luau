@@ -48,6 +48,7 @@ export type Budget = {
 	animRadius: number, -- studs from the player within which a cat can move
 	animHz: number, -- pose updates per second
 	steadyEmitters: number, -- steam, chimney smoke and fireflies on at once
+	rateScale: number, -- multiplies every steady emitter's rate
 	goldEmitters: number, -- gold cats sparkling at once
 	butterflies: number,
 	ambientRadius: number, -- studs; steam, butterflies and fireflies beyond it are off
@@ -59,13 +60,15 @@ export type Budget = {
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
--- (skill section 7). "high" is a PC or console.
+-- (skill section 7). "high" is a PC or console. "lowPerformance" is the Low performance setting on any device:
+-- under the phone budget everywhere, with half the steady particles.
 Presets.budget = {
 	low = {
 		animatedCats = 8,
 		animRadius = 60,
 		animHz = 30,
 		steadyEmitters = 4,
+		rateScale = 1,
 		goldEmitters = 3,
 		butterflies = 6,
 		ambientRadius = 80,
@@ -80,6 +83,7 @@ Presets.budget = {
 		animRadius = 80,
 		animHz = 60,
 		steadyEmitters = 10,
+		rateScale = 1,
 		goldEmitters = 8,
 		butterflies = 14,
 		ambientRadius = 110,
@@ -88,6 +92,21 @@ Presets.budget = {
 		maxBurst = 30,
 		confetti = 28,
 		napLabels = 10,
+	},
+	lowPerformance = {
+		animatedCats = 4,
+		animRadius = 45,
+		animHz = 20,
+		steadyEmitters = 2,
+		rateScale = 0.5,
+		goldEmitters = 1,
+		butterflies = 2,
+		ambientRadius = 60,
+		chimneyRadius = 100,
+		burstScale = 0.35,
+		maxBurst = 8,
+		confetti = 8,
+		napLabels = 2,
 	},
 } :: { [string]: Budget }
 
@@ -316,6 +335,22 @@ Presets.motion = {
 	-- A cat stood upright at its station (F25) dozes on its feet at night instead: chin down on its chest with a
 	-- slow nod, a little sway, the tail hanging still. Nothing sinks, so it never dips into the counter.
 	doze = { headDroop = 26, nod = 5, sway = 2, tail = 0.15, breathe = 0.04, seconds = 3.6 },
+	-- A loaf (Derek 2026-10-27, from draft E): a resting cafe cat sits up from its nap now and then, tucked in and
+	-- still. On its belly with every leg folded under and the front paws peeking out, head up and level, the tail laid along its right side, a slow
+	-- breath, a slow look aside once in a while and a quick ear flick. `hold` seconds of every `every`, by day.
+	loaf = {
+		headDroop = 4,
+		look = 16,
+		lookEvery = 11,
+		lookSeconds = 3.5,
+		flick = 4,
+		flickEvery = 6.5,
+		tailWrap = 60,
+		breathe = 0.03,
+		seconds = 4.2,
+		every = 75,
+		hold = 24,
+	},
 	settle = 0.8, -- seconds a cat takes to move from one style to the next (lying down at nightfall)
 	-- Legs swing with the distance the server moves the cat, so the feet keep pace with the ground: a trot at
 	-- walking speed, a gallop once it runs (F40's sprint is 26 studs a second). Speeds in studs a second.

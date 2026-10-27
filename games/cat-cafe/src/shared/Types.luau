@@ -113,6 +113,26 @@ export type LureDef = {
 	asset: string, -- food model shown in the bowl while the lure is active
 }
 
+-- Data-model section 11b (F47): one Tip Jar gift, unlocked `minutes` into a session. A "coins" step pays
+-- max(minCoins, floor(day rate x seconds)) at claim time; a "lure" step adds `count` of the food `lureId`.
+export type TipJarStep = {
+	step: number,
+	minutes: number,
+	kind: "coins" | "lure",
+	seconds: number?,
+	minCoins: number?,
+	lureId: string?,
+	count: number?,
+}
+
+-- TipJarState (server to client): when this session's jar started (workspace:GetServerTimeNow(), the clock the
+-- client counts down against) and one claimed flag per step in order. A dense array, because a sparse table of
+-- step numbers would lose entries past its first gap on the way through a remote.
+export type TipJarState = {
+	sessionStartedAt: number,
+	claimed: { boolean },
+}
+
 export type AreaDef = {
 	id: string,
 	name: string,
@@ -193,6 +213,7 @@ export type Stats = {
 	luresUsed: number,
 	playtimeSeconds: number,
 	sessions: number,
+	tipJarClaims: number, -- F47
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).
@@ -231,6 +252,18 @@ export type DealerSlot = { lureId: string, cost: number, bought: boolean }
 export type DealerStock = { slots: { DealerSlot }, restocksAt: number }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
+-- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
+export type Settings = {
+	music: boolean,
+	sfx: boolean,
+	musicVolume: number,
+	sfxVolume: number,
+	screenShake: boolean,
+	lowPerformance: boolean,
+	showOtherCats: boolean,
+	markers: boolean, -- the location markers (Place icons)
+}
+
 export type PlayerProfile = {
 	version: number,
 	coins: number,
@@ -250,7 +283,7 @@ export type PlayerProfile = {
 	goldCollection: { [string]: number }, -- catId -> first gold caught at
 	stats: Stats,
 	tutorialStep: number,
-	settings: { music: boolean, sfx: boolean },
+	settings: Settings,
 	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
 	telemetry: TelemetryState,
 }
@@ -278,7 +311,7 @@ export type PlayerState = {
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,
 	tutorialStep: number,
-	settings: { music: boolean, sfx: boolean }, -- the client's Audio mutes its channels by these
+	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	serverTime: number,
 }
 

@@ -101,6 +101,8 @@ function Dealer.new(callbacks: Callbacks): Dealer
 
 	local panel = Panel.new({
 		name = "Dealer",
+		color = Theme.colors.berry,
+		icon = Theme.icons.moon,
 		title = "Night dealer",
 		subtitle = "Rare foods for your bait bowl, sold only at night",
 		size = UDim2.fromScale(1, 1),

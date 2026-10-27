@@ -136,6 +136,8 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 
 	local panel = Panel.new({
 		name = "Collection",
+		color = Theme.colors.sky,
+		icon = Theme.icons.cats,
 		title = "Cat collection",
 		subtitle = "0 / 0 found",
 		size = UDim2.fromScale(1, 1),

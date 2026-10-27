@@ -29,6 +29,7 @@ local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
+local Codes = require(script.Screens.Codes)
 local Create = require(script.Components.Create)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
@@ -110,6 +111,7 @@ UI.events = {
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
+	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
 }
 
 local state: Types.PlayerState = {
@@ -169,6 +171,7 @@ local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened fro
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
+local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
@@ -243,6 +246,9 @@ local function render()
 	if marketScreen then
 		marketScreen:render(state)
 	end
+	if codesScreen then
+		codesScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -286,6 +292,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if marketScreen then
 		marketScreen:setCatalog(newCatalog)
+	end
+	if codesScreen then
+		codesScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -624,6 +633,23 @@ function UI.init(config: Types.InitConfig)
 			marketView:render(state)
 		end,
 	})
+	codesScreen = Codes.new({
+		redeem = function(code: string)
+			UI.events.redeemCode:Fire(code)
+		end,
+		close = closeModal,
+	})
+	local codesView = codesScreen :: Codes.Codes
+	modalInstance:register("Codes", {
+		frame = codesView.frame,
+		onOpen = function()
+			codesView:render(state)
+			codesView:onOpen()
+		end,
+		onClose = function()
+			codesView:onClose()
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -799,6 +825,10 @@ function UI.destroy()
 		marketScreen:destroy()
 	end
 	marketScreen = nil
+	if codesScreen then
+		codesScreen:destroy()
+	end
+	codesScreen = nil
 	if bugReportScreen then
 		bugReportScreen:destroy()
 	end
@@ -1269,6 +1299,39 @@ end
 function UI.market.result(crateId: string, decorId: string, duplicate: boolean, refund: number)
 	if marketScreen then
 		marketScreen:result(crateId, decorId, duplicate, refund)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Codes and the Codes Cat (F65, data-model section 11d)
+----------------------------------------------------------------------------------------------------
+
+UI.codes = {}
+
+-- Opens the code box: call it when this character walks into the Codes Cat's circle (within CodesCircleRadius,
+-- flat). No key press and no prompt.
+function UI.codes.open()
+	if modal then
+		modal:open("Codes")
+	end
+end
+
+-- Closes the code box and clears its field: call it once the character is past CodesCircleRadius + 1. A window the
+-- player opened meanwhile stays open.
+function UI.codes.close()
+	if modal and modal:current() == "Codes" then
+		modal:close()
+	end
+end
+
+-- From CodeResult(ok, message, prize): the answer line ("Code redeemed!" or the refusal) and, when ok, the prize as
+-- little pictures. When the box was closed first (the player walked off) the answer is a toast instead.
+function UI.codes.result(ok: boolean, message: string, prize: Types.IndexPrize?)
+	if codesScreen then
+		codesScreen:result(ok, message, prize)
+	end
+	if toasts and not (modal and modal:current() == "Codes") then
+		toasts:show(message, if ok then "good" else "warn")
 	end
 end
 
@@ -2137,6 +2200,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	end
 	if indexBoards then
 		indexBoards:setNight(phase == "night")
+	end
+	if codesScreen then
+		codesScreen:setNight(phase == "night")
 	end
 end
 

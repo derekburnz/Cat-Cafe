@@ -87,7 +87,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
-| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"Market"`, `"BugReport"`. One open at a time. |
+| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"Market"`, `"BugReport"`, `"Codes"`. One open at a time. |
 | `UI.setZone(zone?)` | The `World.Zones` name the player stands in, from the controller's zone check: nil or `"Cafe"` is the safe street and cafes, else the area (`"Alley"`). Drives the Safe zone chip and its toast on coming back, and hides that area's location marker. |
 | `UI.openCatRoom()` | Opens Collection on the Cat room tab (tutorial step 3). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
@@ -274,6 +274,21 @@ On a phone, while the keyboard is up the window moves to the top of the screen a
 | `UI.bugReport.open()` | Opens the window (the Settings row already does). |
 | `UI.bugReport.result(ok)` | Only if the answer ever comes some other way than a toast: true clears and closes, false keeps the words. |
 
+### Code box (built, F65, data-model section 11d)
+
+Walking into the glowing circle in front of the Codes Cat opens the **code box** (`Screens/Codes.luau`, text rules in `Components/CodeEntry.luau` with a spec), and walking out closes it and clears it (Derek 2026-10-27 19:33 and 20:10). A small berry window with a 🎟️ badge, "Codes" and "From the Codes Cat", near the top of the screen so a phone's keyboard never covers it and the cat stays in view below: the line "Got a code? Type it here. Big or small letters both work.", one box ("Type a code") with a green Redeem beside it, and an answer line. The box keeps letters and digits only, up to `Config.CodeMaxLength` (20), as the server reads a code, and Redeem lights once one is in; Enter redeems too. It does not take the keyboard when it opens, because the player is walking into the circle; W, A, S and D keep moving the character until the box is clicked.
+
+Redeem fires `events.redeemCode(code)` and reads "..." until `UI.codes.result`, or for 5 s ("No answer yet. Try Redeem again."). `result(true, message, prize)` plays `uiCodeRedeem`, clears the box and shows the message in green with the prize as little pictures under it (`Components/PrizeChips`, coins at the day rate, a "highest" crate as the player's); `result(false, message)` plays `uiError` and shows the server's message in red ("That code doesn't exist", "You already used that code", "That code has expired", "Join the Cat Cafe group to use this code", "Too many tries, wait a minute", "Walk up to the Codes Cat") and keeps the text to fix; typing again clears it. When the answer lands after the player walked off, it is a toast instead.
+
+| API | Purpose |
+|---|---|
+| `UI.codes.open()` | Call when this character's flat distance to the `CodesCircle` centre is within `CodesCircleRadius` (4). No key press and no prompt. |
+| `UI.codes.close()` | Call once it is past `CodesCircleRadius + 1`; closes the box if it is the open window and clears the field and answer. |
+| `UI.codes.result(ok, message, prize?)` | From `CodeResult(ok, message, prize)`; the prize in the Index prize shape. |
+| `events.redeemCode(code)` | Forward as `RedeemCode(code)`. The code is letters and digits, 1 to 20; the server trims, lowercases and checks everything again. |
+
+The demo opens the box with K; `playtest` pays once, `launch` has expired and anything else does not exist.
+
 ### Index rewards (built, F48, data-model section 11b)
 
 The Book is called the **Index** since 2026-10-27 (Derek), in player text and in code alike, before save version 5 ships: `Catalog.indexMilestones`, `Catalog.indexPrizes` (the prize table; not `indexRewards`, which is the claimed map, S61), `state.indexRewards`, `events.claimIndexReward` / `ClaimIndexReward`, decor `source = "index"` and decor ids `index_<area>` and `index_<area>_gold`. Milestone ids stay `cats3`, `cats6`, `cats10`, `gold10`.
@@ -457,6 +472,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `spinWheel` | none | Spin on the Spin Wheel window. Forward as `SpinWheel()` (F49); the server checks the range, spins and cooldown, pays and answers `SpinResult`. |
 | `openCrate` | `crateId` | Open on a Golden Fish Market crate card. Forward as `OpenCrate(crateId)` (F53); the server checks the range, area, crate or fish and cooldown, rolls and answers `CrateResult`. |
 | `buyFishItem` | `itemId` | Buy on a Market treat or perk row. Forward as `BuyFishItem(itemId)` (F53). |
+| `redeemCode` | `code` | Redeem (or Enter) in the code box: letters and digits, 1 to `CodeMaxLength`. Forward as `RedeemCode(code)` (F65); the server answers `CodeResult`, passed to `UI.codes.result` (see Code box). |
 | `reportBug` | `text, kind, clientErrors` | Send on the Report a bug window: the trimmed text (3 to 500 bytes), `"bug"`, `"stuck"` or `"idea"`, and up to 3 client error lines of up to 200 bytes. Forward all three as `ReportBug`; the server answers with a toast (see Report a bug). |
 | `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |

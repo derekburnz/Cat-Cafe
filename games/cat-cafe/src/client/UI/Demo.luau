@@ -53,6 +53,20 @@ local DEMO_TIP_JAR: { Types.TipJarRow } = {
 	},
 }
 
+-- data-model section 11d's playtest code (F65), until the engineer's Catalog.codes lands
+local DEMO_CODES: { [string]: { prize: Types.IndexPrize, active: boolean? } } = {
+	playtest = {
+		prize = {
+			coins = 5000,
+			fish = 300,
+			spins = 10,
+			crates = { classic_crate = 3, alley_crate = 1, classic_golden_crate = 1 },
+			lures = { tuna = 3, salmon = 2, caviar = 1 },
+		},
+	},
+	launch = { prize = { coins = 1000, coinSeconds = 600, fish = 25, spins = 2 }, active = false },
+}
+
 -- The engineer's Tip Jar once its rows carry F68's prizes, else the demo's.
 local function tipJarRows(): { Types.TipJarRow }
 	local rows: { Types.TipJarRow }? = (Catalog :: any).tipJar
@@ -849,9 +863,43 @@ function Demo.run(UI: any): () -> ()
 				UI.spin.open()
 			elseif not processed and input.KeyCode == Enum.KeyCode.M then
 				UI.market.open()
+			elseif not processed and input.KeyCode == Enum.KeyCode.K then
+				UI.codes.open() -- the Codes Cat's circle, without walking to it
 			end
 		end
 	)
+	-- RedeemCode as the server answers it (data-model 11d): any case, once per code, an inactive code has expired
+	local redeemed: { [string]: boolean } = {}
+	connections[#connections + 1] = UI.events.redeemCode:Connect(function(text: string)
+		local id = text:lower()
+		local codes: { [string]: any } = (Catalog :: any).codes or DEMO_CODES
+		local def = codes[id]
+		task.delay(0.4, function()
+			if def == nil then
+				UI.codes.result(false, "That code doesn't exist", nil)
+			elseif redeemed[id] then
+				UI.codes.result(false, "You already used that code", nil)
+			elseif def.active == false then
+				UI.codes.result(false, "That code has expired", nil)
+			else
+				redeemed[id] = true
+				local prize: Types.IndexPrize = def.prize
+				profile.money += IndexRewards.coins(prize, rate())
+				profile.goldenFish += prize.fish or 0
+				profile.spin.banked = math.min(20, profile.spin.banked + (prize.spins or 0))
+				local crates: { [string]: number } = prize.crates or {}
+				for crateId, count in crates do
+					profile.crates[crateId] = (profile.crates[crateId] or 0) + count
+				end
+				local lures: { [string]: number } = prize.lures or {}
+				for lureId, count in lures do
+					profile.lures[lureId] = (profile.lures[lureId] or 0) + count
+				end
+				UI.codes.result(true, "Code redeemed!", prize)
+				push()
+			end
+		end)
+	end)
 	connections[#connections + 1] = UI.events.placeCat:Connect(
 		function(catUid: string, spotId: string)
 			local instance = profile.cats[catUid]

@@ -680,7 +680,10 @@ local function wireServerEvents()
 				table.insert(
 					circleTimers,
 					task.delay(wait, function()
-						Moments.CircleAppear:Fire(index, shrink)
+						-- a stray that despawned mid-catch sends no CatchResult (review N133)
+						if strayModel(strayId) ~= nil then
+							Moments.CircleAppear:Fire(index, shrink)
+						end
 					end)
 				)
 			end

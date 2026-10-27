@@ -383,6 +383,14 @@ local function wireIntents()
 			Net.fire("EquipBest")
 		end)
 	end
+	-- Drop cat: the carry banner's Drop button and the G key (UI thread, reviewer S53). Looked up loosely the same
+	-- way, so this lands before or after the UI build that adds the signal.
+	local dropCat = (UI.events :: any).dropCat
+	if dropCat ~= nil then
+		dropCat:Connect(function()
+			Net.fire("DropCat")
+		end)
+	end
 	UI.events.rankUp:Connect(function()
 		Net.fire("RankUp")
 	end)

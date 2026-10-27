@@ -17,6 +17,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local SettingsList = require(script.Parent.Parent.Components.SettingsList)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -253,6 +254,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			position = UDim2.new(1, -(12 + STEP_BUTTON.X + 8), 0.5, -2),
 			textSize = Theme.sizes.textLarge,
 			parent = card,
+			sound = false, -- the slider's tick is the sound
 			onClick = function()
 				nudge(-NUDGE)
 			end,
@@ -266,6 +268,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			position = UDim2.new(1, -12, 0.5, -2),
 			textSize = Theme.sizes.textLarge,
 			parent = card,
+			sound = false, -- the slider's tick is the sound
 			onClick = function()
 				nudge(NUDGE)
 			end,
@@ -305,6 +308,7 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 			position = UDim2.new(1, -12, 0.5, -2),
 			textSize = Theme.sizes.textLarge,
 			parent = card,
+			sound = "uiToggle",
 			onClick = function()
 				self:_tap(key)
 			end,
@@ -372,13 +376,21 @@ function Settings._dragTo(self: any, key: string, x: number)
 	if width <= 0 then
 		return
 	end
-	self._drag[key] = SettingsList.step((x - track.AbsolutePosition.X) / width)
+	self:_setDrag(key, SettingsList.step((x - track.AbsolutePosition.X) / width))
+end
+
+-- A dragged or nudged volume: shown at once, with a tick on every 5% step (uiSlider plays on the sound
+-- channel, so it previews the new volume).
+function Settings._setDrag(self: any, key: string, volume: number)
+	if volume ~= self:volume(key) then
+		Sound.play("uiSlider")
+	end
+	self._drag[key] = volume
 	self:_refresh()
 end
 
 function Settings._nudge(self: any, key: string, delta: number)
-	self._drag[key] = SettingsList.step(self:volume(key) + delta)
-	self:_refresh()
+	self:_setDrag(key, SettingsList.step(self:volume(key) + delta))
 	local token = (self._nudges[key] or 0) + 1
 	self._nudges[key] = token
 	task.delay(NUDGE_PAUSE, function()

@@ -303,12 +303,13 @@ function WorldController.start()
 				continue
 			end
 
-			if state.carrying ~= nil then
-				local door = UIController.ownDoor()
+			if state.carrying ~= nil and os.clock() - lastCheckIn > 2 then
+				-- Either door checks the cat in (layout v2).
+				local front, back = UIController.ownDoor(), UIController.ownBackDoor()
+				local reach = Config.CheckInRangeStuds - 1
 				if
-					door ~= nil
-					and (door.Position - position).Magnitude <= Config.CheckInRangeStuds - 1
-					and os.clock() - lastCheckIn > 2
+					(front ~= nil and (front.Position - position).Magnitude <= reach)
+					or (back ~= nil and (back.Position - position).Magnitude <= reach)
 				then
 					lastCheckIn = os.clock()
 					Net.fire("CheckIn")

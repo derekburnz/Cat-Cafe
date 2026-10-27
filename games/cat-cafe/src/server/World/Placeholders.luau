@@ -221,12 +221,12 @@ local function simple(name: string, parts: { PartSpec }): Model
 	return finish(model, primary :: BasePart)
 end
 
--- An area gate across a street-wide opening: see-through Bars (the part that blocks) under an Arch.
-local function gate(name: string, color: Color3): Model
+-- An area gate across an opening `width` studs wide: see-through Bars (the part that blocks) under an Arch.
+local function gate(name: string, color: Color3, width: number): Model
 	return simple(name, {
 		{
 			name = "Bars",
-			size = Vector3.new(24, 5, 0.5),
+			size = Vector3.new(width, 5, 0.5),
 			offset = Vector3.new(0, 2.5, 0),
 			color = color,
 			material = Enum.Material.Metal,
@@ -235,7 +235,7 @@ local function gate(name: string, color: Color3): Model
 		},
 		{
 			name = "Arch",
-			size = Vector3.new(26, 0.8, 1),
+			size = Vector3.new(width + 2, 0.8, 1),
 			offset = Vector3.new(0, 5.4, 0),
 			color = color,
 			material = Enum.Material.Metal,
@@ -779,16 +779,16 @@ local builders: { [string]: () -> Model } = {
 		})
 	end,
 	CatCafe_Park_Gate = function()
-		return gate("CatCafe_Park_Gate", DARK)
+		return gate("CatCafe_Park_Gate", DARK, 24)
 	end,
 	CatCafe_Neighbourhood_Gate = function()
-		return gate("CatCafe_Neighbourhood_Gate", Color3.fromRGB(150, 110, 80))
+		return gate("CatCafe_Neighbourhood_Gate", Color3.fromRGB(150, 110, 80), 24)
 	end,
 	CatCafe_Woods_Gate = function()
-		return gate("CatCafe_Woods_Gate", Color3.fromRGB(70, 55, 40))
+		return gate("CatCafe_Woods_Gate", Color3.fromRGB(70, 55, 40), 30)
 	end,
 	CatCafe_Sewer_Gate = function()
-		return gate("CatCafe_Sewer_Gate", Color3.fromRGB(60, 75, 70))
+		return gate("CatCafe_Sewer_Gate", Color3.fromRGB(60, 75, 70), 30)
 	end,
 	CatCafe_Item_FoodBowl = function()
 		return simple("CatCafe_Item_FoodBowl", {

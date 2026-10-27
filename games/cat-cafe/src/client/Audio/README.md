@@ -8,7 +8,7 @@ Owner: sound-designer (Luau reviewed by luau-reviewer). Rules: `.claude/skills/a
 | `Cues.luau` | Every cue id with its channel, volume, pitch range, spam gap, voices, 3D range and asset ids. The only place asset ids live. Pure. |
 | `Logic.luau` | The rules with no Roblox services in them (voice pooling, the pentatonic step, which music bed or ambience plays, ducking, rarity jingles, grade, food and trap cues), so they can be unit tested. |
 
-Nothing here runs until the engineer wires it in. Until a cue has an uploaded id in `Cues.luau`, playing it does nothing, so the hooks below are safe to add before any file is uploaded.
+Hooks 1, 2 and 4 are wired (PR #66); moments come with catching v0.4. Every synthesized cue has an uploaded id since 2026-10-26; a cue with no id yet (music, later sounds) plays nothing, so a hook is safe to add before its file exists.
 
 ## Hooks for the luau-engineer
 
@@ -28,16 +28,22 @@ Nothing here runs until the engineer wires it in. Until a cue has an uploaded id
    ```luau
    Audio.bindMoments(Moments)
    ```
-   Moments that do not exist yet are skipped, so the table can grow one feature at a time. Arguments are checked, so a missing one only loses a sound. Grades work as `"perfect"` or `"Perfect"`.
+   Moments that do not exist yet are skipped, so the table can grow one feature at a time. Arguments are checked, so a missing one only loses a sound. Grades work as `"perfect"` or `"Perfect"`. Design v0.4 adds `PawLost`, `Purrfect`, `PlotOpened(position)` (a For Rent plot opens: shutters and sign, for everyone nearby), a `position` on `AreaUnlock(areaId, position)` so the gate sound comes from the gate, and an optional `rarity` on `Announce(text, rarity)` so the shout-out chime rises with rarity.
 4. **Zone** for ambience, from whatever already knows where the player is (WorldController's alley check, a zone part):
    ```luau
    Audio.setZone("Alley") -- "Cafe", "Alley", "Park"; later "Neighbourhood", "Woods", "Sewer"; nil for none
    ```
 5. **UI sounds**: the ui-designer's `Theme.sounds` ids become one injected function, `playSound = Audio.play`, called with cue ids: `uiClick` (click), `purchase` (buy), `uiError` (error), `jingleCatFound` (catFound), plus `uiOpen`, `uiClose`, `uiToast`, `uiTab` and the rest of sound list 5.8.
-6. **World loops** on props, from the code that builds or streams them in:
-   ```luau
-   local stop = Audio.loop("loopFountain", fountainPart) -- call stop() to fade it out; the part's removal also ends it
-   ```
+6. **World loops** need only a CollectionService tag on the part or model (a model plays from its PrimaryPart). Audio follows the tags itself, streaming in and out with the parts:
+
+   | Tag | On | Plays |
+   |---|---|---|
+   | `CafeDoor` | each cafe's front door | `loopCafeDoor`, chatter and cups spilling out, 30 studs |
+   | `Fountain` | the park fountain | `loopFountain` |
+   | `FishTank` | the fish tank decor | `loopFishTank` |
+   | `WorkingCat` | a cat at its station | `purr`, only on the 3 nearest within 14 studs |
+
+   Anything else that loops while something is out (like the dealer cart) uses `Audio.loop(cueId, part)`, which returns a function that fades it out.
 
 ## API
 
@@ -57,4 +63,6 @@ Nothing here runs until the engineer wires it in. Until a cue has an uploaded id
 - Stingers, the rank up jingle, the shiny reveal and the Legendary and Mythical jingles duck the music to 40 % while they play. A catch or rescue ducks the music to 60 % and the ambience to 50 % until its result arrives (30 s at most).
 - Each cue has a pool of Sounds (`voices`); when all are busy the oldest restarts, so a coin shower never makes a hundred Sounds. `minGap` drops repeats that come too fast.
 - A loop on a part ends when the part is destroyed. A one-shot on something the server may remove in the same frame (a fleeing stray, the leaving dealer cart, a rescue trap) plays at its position instead, so the removal cannot cut it off. A pooled Sound whose part streamed out is simply reparented on its next play.
+- Tagged world loops wait for the first `applySettings` like music, restart when the sound setting changes, and end when the tagged instance leaves the tag or streams out. Twice a second Audio also starts loops on tagged models whose parts streamed in late, restarts one whose part streamed out under it, and rechecks the `WorkingCat` purrs against the player's position, so a full server never runs dozens at once.
+- The cat's hiss on a Miss follows the `HissAt` attribute the server sets on the `Stray` model, so every player nearby hears it, at most once per cat per second. `CatchFail` only plays the catcher's own miss sound.
 - The server never plays sounds, and this module never fires remotes or changes game state.

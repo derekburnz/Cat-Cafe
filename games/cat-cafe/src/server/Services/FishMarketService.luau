@@ -73,6 +73,11 @@ local function open(
 	profile: Types.PlayerProfile,
 	crate: Types.CrateDef
 ): (Types.DecorDef, boolean, number, boolean)
+	-- roll first (pure), then pay, so an error in the roll never takes the crate or the fish (review N168)
+	local luck = profile.crateLuck[crate.area] or 0
+	local decorId, lucky = Crates.roll(crate, luck, random:NextNumber(), random:NextNumber())
+	local def = Catalog.getDecor(decorId) :: Types.DecorDef
+	local rarity: Types.Rarity = def.rarity or "Common"
 	local banked = profile.crates[crate.id] or 0
 	if banked > 0 then
 		setCount(profile.crates, crate.id, banked - 1)
@@ -81,10 +86,6 @@ local function open(
 		GoldenFish.trySpend(profile, price)
 		Telemetry.fishSink(player, profile, price, "Shop", "crate")
 	end
-	local luck = profile.crateLuck[crate.area] or 0
-	local decorId, lucky = Crates.roll(crate, luck, random:NextNumber(), random:NextNumber())
-	local def = Catalog.getDecor(decorId) :: Types.DecorDef
-	local rarity: Types.Rarity = def.rarity or "Common"
 	setCount(profile.crateLuck, crate.area, Crates.luckAfter(luck, rarity))
 	profile.stats.cratesOpened += 1
 
@@ -108,11 +109,14 @@ local function open(
 			placed = true
 		end
 	end
+	-- Analytics keeps three custom fields (review N169): the crate, "<rarity> <kind>" and the outcome, so the odds
+	-- can be checked against results.
+	local outcome = (if duplicate then "duplicate" else "new") .. (if lucky then " lucky" else "")
 	Telemetry.custom(
 		player,
 		"crate_opened",
 		1,
-		{ crate.id, rarity, def.kind or "unknown", tostring(duplicate), tostring(lucky) }
+		{ crate.id, rarity .. " " .. (def.kind or "unknown"), outcome }
 	)
 	return def, duplicate, refund, placed
 end

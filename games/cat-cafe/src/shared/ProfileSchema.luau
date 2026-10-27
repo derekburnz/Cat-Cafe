@@ -59,6 +59,7 @@ local function newStats(): Types.Stats
 		luresUsed = 0,
 		playtimeSeconds = 0,
 		sessions = 0,
+		tipJarClaims = 0,
 	}
 end
 

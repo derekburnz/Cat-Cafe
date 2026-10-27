@@ -783,11 +783,64 @@ local builders: { [string]: () -> Model } = {
 			},
 		})
 	end,
+	-- The Town Square's fountain (F76): a low rim players can sit on, radius 6, and a cat statue on a plinth.
+	CatCafe_Square_Fountain = function()
+		local stone = Color3.fromRGB(214, 206, 196)
+		return simple("CatCafe_Square_Fountain", {
+			{
+				name = "Rim",
+				size = Vector3.new(1.5, 12, 12),
+				offset = Vector3.new(0, 0.75, 0),
+				color = stone,
+				material = Enum.Material.Concrete,
+				shape = Enum.PartType.Cylinder,
+				rotation = Vector3.new(0, 0, 90),
+				collide = true,
+			},
+			{
+				name = "Water",
+				size = Vector3.new(0.2, 10.8, 10.8),
+				offset = Vector3.new(0, 1.35, 0),
+				color = Color3.fromRGB(100, 170, 230),
+				material = Enum.Material.Glass,
+				shape = Enum.PartType.Cylinder,
+				rotation = Vector3.new(0, 0, 90),
+				transparency = 0.3,
+			},
+			{
+				name = "Plinth",
+				size = Vector3.new(2.4, 3, 2.4),
+				offset = Vector3.new(0, 1.5, 0),
+				color = stone,
+				material = Enum.Material.Concrete,
+				collide = true,
+			},
+			{
+				name = "StatueBody",
+				size = Vector3.new(1.6, 1.8, 2.2),
+				offset = Vector3.new(0, 3.9, 0),
+				color = stone,
+				material = Enum.Material.Marble,
+			},
+			{
+				name = "StatueHead",
+				size = Vector3.new(1.4, 1.4, 1.4),
+				offset = Vector3.new(0, 5.3, -0.6),
+				color = stone,
+				material = Enum.Material.Marble,
+				shape = Enum.PartType.Ball,
+			},
+		})
+	end,
 	CatCafe_Park_Gate = function()
-		return gate("CatCafe_Park_Gate", DARK, 24)
+		return gate("CatCafe_Park_Gate", DARK, Config.World.StreetHalfWidth * 2)
 	end,
 	CatCafe_Neighbourhood_Gate = function()
-		return gate("CatCafe_Neighbourhood_Gate", Color3.fromRGB(150, 110, 80), 24)
+		return gate(
+			"CatCafe_Neighbourhood_Gate",
+			Color3.fromRGB(150, 110, 80),
+			Config.World.StreetHalfWidth * 2
+		)
 	end,
 	CatCafe_Woods_Gate = function()
 		return gate("CatCafe_Woods_Gate", Color3.fromRGB(70, 55, 40), 30)

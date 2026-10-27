@@ -1,8 +1,9 @@
 --!strict
 -- The intro cutscene's shots (F72, docs/design/cat-cafe/intro-cutscene.md section 2): when each starts, its caption,
 -- and where the camera flies, worked out from the player's own plot. Studs, y up. Shots 1 to 3 follow the plot
--- (`x`, `z` and `side`, -1 for the west row and +1 for the east row, the street toward -side); the rest are fixed
--- points on the map. The positions are starting points to tune in Studio. Pure apart from Vector3.
+-- (`x`, `z` and `side`, -1 for the west row and +1 for the east row, the street toward -side); the rest follow the
+-- Config.World points they look at (town layout v3, F76: intro-cutscene.md section 2b), so a layout change moves
+-- them too. The positions are starting points to tune in Studio. Pure apart from Vector3.
 
 local Config = require(script.Parent.Config)
 
@@ -28,7 +29,7 @@ Intro.STRAYS_OUT_TO = 0.85
 Intro.SUNRISE_STRAYS_AT = 2.1 -- fresh local strays pop in from here
 Intro.SUNRISE_STRAYS = 10
 Intro.SUNRISE_STRAY_GAP = 0.04 -- seconds between pops
-Intro.SQUARE_RADIUS = 70 -- strays within this flat distance of shot 8's look point count as the Square's
+Intro.SQUARE_RADIUS = 85 -- strays within this flat distance of shot 8's look point count as the Square's
 
 -- Shot 9 lands this far behind and above the character, looking at its head.
 Intro.FOLLOW_BACK = 12
@@ -85,23 +86,38 @@ function Intro.plot(index: number): Plot
 	local W = Config.World
 	local i = index - 1
 	local side = if i % 2 == 0 then -1 else 1
-	local rows = math.ceil(W.PlotCount / 2)
-	local z = (math.floor(i / 2) - (rows - 1) / 2) * (W.PlotWidth + W.PlotRowGap)
+	local pair = math.floor(i / 2)
+	local north = if pair % 2 == 0 then -1 else 1
+	local ring = math.floor(pair / 2)
+	local z = north
+		* (
+			W.TownSquareHalfDepth
+			+ W.PlotRowGap
+			+ W.PlotWidth / 2
+			+ ring * (W.PlotWidth + W.PlotRowGap)
+		)
 	local x = side * (W.StreetHalfWidth + 2 + W.FrontGardenDepth + 1 + W.PlotDepth / 2)
 	return { x = x, z = z, side = side }
 end
 
 -- The tutorial stray point behind a plot, on the alley floor: the lane spawn point 2p - 1 (Layout's alley points).
 function Intro.strayPoint(plot: Plot): Vector3
-	return v(66 * plot.side, 0.1, plot.z - 7)
+	return v((Config.World.AlleyInnerX + 7) * plot.side, 0.1, plot.z - 7)
 end
 
 -- The nine shots for this plot. `codesCat` is false until a Codes Cat station stands in the Workspace (F65).
 function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
+	local W = Config.World
 	local px, pz, s = plot.x, plot.z, plot.side
-	local stray = v(66 * s, 1, pz - 7)
-	local board = v(-9, 4, 95.5)
-	local square = v(0, 0, 125)
+	local lane = W.AlleyInnerX -- the back alley's inner edge
+	local stray = v((lane + 7) * s, 1, pz - 7)
+	local SQ1 = W.SquareSouthZ
+	local board = v(-9, 4, SQ1 + 7.5) -- the Alleyway's Index Board, 8 inside the street arch
+	local square = v(0, 0, (SQ1 + W.SquareNorthZ) / 2 + 5) -- the middle of the Alley Square
+	local parkGate = W.ParkGateZ
+	-- the Town Square sits at the origin: the fountain, and the west quarters' Spin Wheel and Codes Cat
+	local fountain = v(0, 2, 0)
+	local stations = v(-28, 4, 0)
 	local shots: { Shot } = {
 		{
 			index = 1,
@@ -115,7 +131,7 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 					-- one crane from the street over the roof into the alley
 					from = key(v(px - 30 * s, 9, pz - 6), v(px - 14.3 * s, 7, pz)),
 					via = key(v(px, 38, pz - 10), v(px + 20 * s, 0, pz - 7)),
-					to = key(v(60 * s, 7, pz - 17), stray),
+					to = key(v((lane + 1) * s, 7, pz - 17), stray),
 					seconds = 3.5,
 				},
 			},
@@ -129,8 +145,8 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			demo = true,
 			cuts = {
 				{
-					from = key(v(61 * s, 4.5, pz - 15), stray),
-					to = key(v(63 * s, 3.2, pz - 12), stray),
+					from = key(v((lane + 2) * s, 4.5, pz - 15), stray),
+					to = key(v((lane + 4) * s, 3.2, pz - 12), stray),
 					seconds = 2.5,
 				},
 			},
@@ -158,8 +174,8 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			ease = "InOut",
 			cuts = {
 				{
-					from = key(v(0, 45, 10), v(0, 0, -40)),
-					to = key(v(0, 12, -82), v(0, 4, -102)),
+					from = key(v(0, 45, parkGate + 111), v(0, 0, parkGate + 61)),
+					to = key(v(0, 12, parkGate + 19), v(0, 4, parkGate - 1)),
 					seconds = 2.7,
 				},
 			},
@@ -171,10 +187,25 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			caption = "Every area has its own cats",
 			ease = "Linear",
 			cuts = {
-				push(v(0, 40, -95), v(0, 0, -132), "THE PARK", "park"),
-				push(v(0, 60, 160), v(0, 0, 228), "THE NEIGHBOURHOOD", "neighbourhood"),
-				push(v(-74, 40, -96), v(-74, 0, -136), "THE WOODS", "woods"),
-				push(v(74, 40, -96), v(74, 0, -136), "THE SEWER", "sewer"),
+				push(v(0, 40, parkGate + 6), v(0, 0, W.ParkCenterZ - 2), "THE PARK", "park"),
+				push(
+					v(W.NeighbourhoodCenterX, 60, W.NeighbourhoodGateZ + 8.5),
+					v(W.NeighbourhoodCenterX, 0, W.NeighbourhoodCenterZ + 5.5),
+					"THE NEIGHBOURHOOD",
+					"neighbourhood"
+				),
+				push(
+					v(W.WoodsCenterX, 40, W.WoodsGateZ + 5),
+					v(W.WoodsCenterX, 0, W.WoodsCenterZ - 2),
+					"THE WOODS",
+					"woods"
+				),
+				push(
+					v(W.SewerCenterX, 40, W.SewerGateZ + 5),
+					v(W.SewerCenterX, 0, W.SewerCenterZ - 2),
+					"THE SEWER",
+					"sewer"
+				),
 			},
 		},
 		{
@@ -185,8 +216,8 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			ease = "Out",
 			cuts = {
 				{
-					from = key(v(-4, 5, 84), board),
-					to = key(v(-6.5, 4.5, 89), board),
+					from = key(v(-4, 5, SQ1 - 4), board),
+					to = key(v(-6.5, 4.5, SQ1 + 1), board),
 					seconds = 2.5,
 				},
 			},
@@ -200,8 +231,10 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			spinWheel = true,
 			cuts = {
 				{
-					from = key(v(-2, 13, 92), v(-4, 2, 76)),
-					to = key(v(2, 9, 60), v(-7.5, 5, 79)),
+					-- a hard cut, then down into the Town Square from its south side until the Spin Wheel and the
+					-- Codes Cat are both in frame
+					from = key(v(0, 24, -(W.TownSquareHalfDepth + 4)), fountain),
+					to = key(v(-8, 10, 0), stations),
 					seconds = 2.7,
 				},
 			},
@@ -214,7 +247,11 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			ease = "Linear",
 			night = true,
 			cuts = {
-				{ from = key(v(0, 70, 60), square), to = key(v(0, 66, 64), square), seconds = 3 },
+				{
+					from = key(v(0, 70, SQ1 - 28), square),
+					to = key(v(0, 66, SQ1 - 24), square),
+					seconds = 3,
+				},
 			},
 		},
 		{
@@ -225,7 +262,11 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			ease = "InOut",
 			follow = true,
 			cuts = {
-				{ from = key(v(0, 66, 64), square), to = key(v(0, 66, 64), square), seconds = 2 },
+				{
+					from = key(v(0, 66, SQ1 - 24), square),
+					to = key(v(0, 66, SQ1 - 24), square),
+					seconds = 2,
+				},
 			},
 		},
 	}

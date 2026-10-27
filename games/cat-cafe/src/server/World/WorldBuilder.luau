@@ -1,6 +1,7 @@
 --!strict
--- Builds the whole graybox world from code at server start: ground, street, 8 plots with front gardens and patio
--- yards, the Alleyway behind them, four more areas and their gates (layout v2, data-model section 9).
+-- Builds the whole graybox world from code at server start: ground, street, the Town Square in its middle, 8 plots
+-- with front gardens and patio yards, the Alleyway behind them, four more areas and their gates (layout v3, F76,
+-- data-model section 9).
 -- Everything with a name in features.md is a named Part or a clone from AssetRegistry so art swaps in by name.
 
 local CollectionService = game:GetService("CollectionService")
@@ -665,9 +666,10 @@ local function buildPlot(index: number, parent: Instance): Plot
 	return plot
 end
 
--- An archway over an entrance (the street and both back alleys into the Alley Square). The alley kit's arch when
--- its art is there (pivot at the base centre of the opening, -Z toward the street or the back alley, its own name
--- boards); otherwise two brick posts, a beam and a name board facing both ways.
+-- An archway over an entrance (the street and both back alleys into the Alley Square, the Town Square's side arches
+-- into the back alleys). The art's arch when it is there (pivot at the base centre of the opening, -Z toward the
+-- street or the back alley, its own name boards), turned `rotY` degrees; otherwise two brick posts, a beam and a
+-- name board facing both ways.
 local function buildArch(
 	x: number,
 	z: number,
@@ -675,10 +677,12 @@ local function buildArch(
 	label: string,
 	asset: string?,
 	color: Color3,
-	parent: Instance
+	parent: Instance,
+	rotY: number?
 )
+	local base = CFrame.new(x, 0, z) * CFrame.Angles(0, math.rad(rotY or 0), 0)
 	if asset ~= nil and AssetRegistry.has(asset) then
-		place(asset, CFrame.new(x, 0.1, z), parent).Name = "Arch"
+		place(asset, base + Vector3.new(0, 0.1, 0), parent).Name = "Arch"
 		return
 	end
 	local arch = Instance.new("Model")
@@ -688,7 +692,7 @@ local function buildArch(
 		part(
 			"Post",
 			Vector3.new(2, height, 2),
-			CFrame.new(x + side * (span / 2 + 1), height / 2, z),
+			base * CFrame.new(side * (span / 2 + 1), height / 2, 0),
 			color,
 			Enum.Material.Brick,
 			arch
@@ -697,7 +701,7 @@ local function buildArch(
 	part(
 		"Beam",
 		Vector3.new(span + 4, 1.5, 2),
-		CFrame.new(x, height + 0.75, z),
+		base * CFrame.new(0, height + 0.75, 0),
 		color,
 		Enum.Material.Brick,
 		arch
@@ -705,7 +709,7 @@ local function buildArch(
 	local board = part(
 		"NameBoard",
 		Vector3.new(math.min(span, 18), 2.4, 0.4),
-		CFrame.new(x, height - 1.6, z),
+		base * CFrame.new(0, height - 1.6, 0),
 		Color3.fromRGB(60, 50, 45),
 		Enum.Material.Wood,
 		arch
@@ -781,8 +785,9 @@ local function safeWords(at: Vector3, walking: Vector3, width: number, parent: I
 	gui.Parent = plate
 end
 
--- Every way from the cafe district into a catching area: the back alleys' inner edges (yard gates and the side
--- passages between cafes), the street's arch into the Alley Square, and the Park gate at the street's south end.
+-- Every way from the cafe district into a catching area: the back alleys' inner edges (yard gates, the side
+-- passages between cafes and the Town Square's side arches), the street's arch into the Alley Square, and the Park
+-- gate at the street's south end.
 local function buildSafeZoneMarks(parent: Instance)
 	local marks = folder("SafeZone", parent)
 	local alleyTop = Layout.alley.floorY + 0.03
@@ -795,10 +800,8 @@ local function buildSafeZoneMarks(parent: Instance)
 			Vector3.new(x, alleyTop, W.SquareSouthZ - 1),
 			marks
 		)
-		-- the side passages between neighbouring cafes, at their alley end
-		local rows = math.ceil(W.PlotCount / 2)
-		for row = 1, rows - 1 do
-			local z = (row - rows / 2) * (W.PlotWidth + W.PlotRowGap)
+		-- the side passages between neighbouring cafes (and beside the Town Square's gardens), at their alley end
+		for _, z in Layout.sidePassages() do
 			safeWords(
 				Vector3.new(side * (W.AlleyInnerX - 2.5), groundTop, z),
 				Vector3.new(-side, 0, 0),
@@ -806,6 +809,13 @@ local function buildSafeZoneMarks(parent: Instance)
 				marks
 			)
 		end
+		-- the Town Square's side arch, on the garden side
+		safeWords(
+			Vector3.new(side * (W.AlleyInnerX - 3.5), groundTop, 0),
+			Vector3.new(-side, 0, 0),
+			W.TownSquareArchWidth - 3,
+			marks
+		)
 	end
 	local street = W.StreetHalfWidth + 2
 	safeStripe(
@@ -815,7 +825,7 @@ local function buildSafeZoneMarks(parent: Instance)
 	)
 	safeWords(Vector3.new(0, streetTop, W.SquareSouthZ - 4), Vector3.new(0, 0, -1), 12, marks)
 	-- On the Park floor just inside its near wall (1 stud thick, centred on the area's edge), so the stripe is on
-	-- the area side like the others (reviewer S54); the gate is as wide as the street it closes (24 studs).
+	-- the area side like the others (reviewer S54); the gate is as wide as the street it closes (32 studs).
 	local parkHalf = W.StreetHalfWidth
 	local parkEdge = W.ParkCenterZ + W.ParkDepth / 2 - 0.8
 	local parkTop = Layout.park.floorY + 0.03
@@ -1291,9 +1301,9 @@ local function buildManhole(parent: Instance): Model?
 	return model
 end
 
--- The Spin Wheel station (F49) in the street plaza (Layout.spinWheel), tagged SpinWheel: SpinService measures its
+-- The Spin Wheel station (F49) in the Town Square (Layout.spinWheel), tagged SpinWheel: SpinService measures its
 -- range from the pivot and sets LastSpinAt, which turns the Wheel on every client. Its hold-E "Spin" prompt (Custom:
--- the UI's action pill) sits at the model's PromptAnchor and opens the Spin window. Persistent, so the plaza's
+-- the UI's action pill) sits at the model's PromptAnchor and opens the Spin window. Persistent, so the square's
 -- place marker and the prompt find it from anywhere on the street.
 local function buildSpinWheel(parent: Instance): Model
 	local spec = Layout.spinWheel
@@ -1401,6 +1411,68 @@ local function buildCodesCat(parent: Instance): Model
 	return model
 end
 
+-- The Town Square (F76, Layout.townSquare): its paving and the lighter open cross, the gardens' wall along each
+-- back alley with an arch in the middle into it, and the dressing Layout lists (art the AssetRegistry has, or its
+-- placeholder). The stations stand in its quarters (buildSpinWheel and the rest); the square is street, so it is
+-- safe (no catching area covers it).
+local function buildTownSquare(parent: Instance)
+	local square = folder("TownSquare", parent)
+	local spec = Layout.townSquare
+	local floor = spec.floor
+	part(
+		"Paving",
+		Vector3.new(floor.x2 - floor.x1, 0.2, floor.z2 - floor.z1),
+		CFrame.new((floor.x1 + floor.x2) / 2, 0, (floor.z1 + floor.z2) / 2),
+		PATH,
+		Enum.Material.Pavement,
+		square
+	)
+	for n, lane in spec.lanes do
+		local mark = part(
+			"Lane" .. n,
+			Vector3.new(lane.x2 - lane.x1, 0.02, lane.z2 - lane.z1),
+			CFrame.new((lane.x1 + lane.x2) / 2, 0.11, (lane.z1 + lane.z2) / 2),
+			CREAM,
+			Enum.Material.Pavement,
+			square
+		)
+		mark.CanCollide = false
+		mark.CanQuery = false
+		mark.CanTouch = false
+	end
+	local wallHeight = 5
+	for _, arch in spec.arches do
+		local side = if arch.x < 0 then -1 else 1
+		local x = arch.x
+		-- the garden wall either side of the arch's opening, along the gardens' alley edge
+		for _, half in { -1, 1 } do
+			local near = arch.z + half * arch.span / 2
+			local far = half * floor.z2
+			part(
+				"GardenWall",
+				Vector3.new(1, wallHeight, math.abs(far - near)),
+				CFrame.new(x, wallHeight / 2, (near + far) / 2),
+				BRICK,
+				Enum.Material.Brick,
+				square
+			)
+		end
+		-- -Z toward the square: turned a quarter so it faces +X on the west side and -X on the east
+		buildArch(x, arch.z, arch.span, arch.label, arch.asset, BRICK, square, side * 90)
+	end
+	for _, prop in spec.props do
+		if AssetRegistry.known(prop.asset) then
+			place(
+				prop.asset,
+				CFrame.new(prop.x, prop.y or 0.1, prop.z)
+					* CFrame.Angles(0, math.rad(prop.rotY or 0), 0),
+				square
+			).Name =
+				prop.asset
+		end
+	end
+end
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -1417,27 +1489,33 @@ function WorldBuilder.build(): World
 		root
 	)
 	ground.Name = "Ground"
-	-- The street ends where it runs into the Alley Square at its north end.
-	local streetLength = W.StreetNorthZ - W.StreetSouthZ
-	local streetMidZ = (W.StreetNorthZ + W.StreetSouthZ) / 2
-	part(
-		"Street",
-		Vector3.new(W.StreetHalfWidth * 2, 0.2, streetLength),
-		CFrame.new(0, 0, streetMidZ),
-		ASPHALT,
-		Enum.Material.Asphalt,
-		root
-	)
-	for _, x in { -W.StreetHalfWidth - 1, W.StreetHalfWidth + 1 } do
+	-- The street runs from the Park gate to the Alley Square at its north end, in two halves either side of the
+	-- Town Square, which paves the middle.
+	for _, half in { -1, 1 } do
+		local from = half * W.TownSquareHalfDepth
+		local to = if half < 0 then W.StreetSouthZ else W.StreetNorthZ
+		local length = math.abs(to - from)
+		local midZ = (from + to) / 2
 		part(
-			"Sidewalk",
-			Vector3.new(2, 0.3, streetLength),
-			CFrame.new(x, 0.05, streetMidZ),
-			Color3.fromRGB(200, 200, 195),
-			Enum.Material.Concrete,
+			"Street",
+			Vector3.new(W.StreetHalfWidth * 2, 0.2, length),
+			CFrame.new(0, 0, midZ),
+			ASPHALT,
+			Enum.Material.Asphalt,
 			root
 		)
+		for _, x in { -W.StreetHalfWidth - 1, W.StreetHalfWidth + 1 } do
+			part(
+				"Sidewalk",
+				Vector3.new(2, 0.3, length),
+				CFrame.new(x, 0.05, midZ),
+				Color3.fromRGB(200, 200, 195),
+				Enum.Material.Concrete,
+				root
+			)
+		end
 	end
+	buildTownSquare(root)
 
 	-- A Model set to Persistent so streaming never drops a far zone the client checks against.
 	local zones = Instance.new("Model")
@@ -1504,6 +1582,7 @@ function WorldBuilder.build(): World
 	spawn.Name = "PlayerSpawn"
 	spawn.Size = Vector3.new(8, 1, 8)
 	spawn.CFrame = CFrame.new(Layout.playerSpawn.x, Layout.playerSpawn.y, Layout.playerSpawn.z)
+		* CFrame.Angles(0, math.rad(Layout.playerSpawn.rotY or 0), 0)
 	spawn.Anchored = true
 	spawn.Color = MINT
 	spawn.Material = Enum.Material.SmoothPlastic

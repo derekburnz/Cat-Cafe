@@ -87,7 +87,7 @@ PIVOT_NOTES = {
     "CatCafe_Plot_ClosedSign": "Plot.cframe: floor top centre of the cafe",
     **{n: "wall: back plane at the bottom centre; -Z faces into the alley" for n in
        ("CatCafe_Alley_WallWindows", "CatCafe_Alley_WallDoor", "CatCafe_Alley_FireEscape", "CatCafe_Alley_Mural")},
-    "CatCafe_Alley_ArchStreet": "base centre of the 28 stud opening; -Z faces the street",
+    "CatCafe_Alley_ArchStreet": "base centre of the 36 stud opening; -Z faces the street",
     "CatCafe_Alley_Arch": "base centre of the 26 stud opening; -Z faces the back alley",
     **{f"CatCafe_{a}_Gate": "base centre of the opening; -Z faces the side players come from" for a in
        ("Park", "Neighbourhood", "Woods", "Sewer")},
@@ -109,9 +109,9 @@ STUDIO_NOTES = {
                             "Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). "
                             "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley."
        for a in ("Park", "Neighbourhood", "Woods", "Sewer")},
-    "CatCafe_Alley_ArchStreet": "Over the street's north end at (0, 87.5). Posts collide; ALLEY SQUARE reads from the "
+    "CatCafe_Alley_ArchStreet": "Over the street's north end at (0, 123.5). Posts collide; ALLEY SQUARE reads from the "
                                 "street, CAFE STREET from the square.",
-    "CatCafe_Alley_Arch": "Over each back alley's north end at (+-74, 87.5). Posts collide; ALLEY SQUARE reads from the "
+    "CatCafe_Alley_Arch": "Over each back alley's north end at (+-78, 123.5). Posts collide; ALLEY SQUARE reads from the "
                           "back alley, BACK ALLEY from the square.",
     **{n: "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow "
           "at night." for n in ("CatCafe_Alley_WallWindows", "CatCafe_Alley_WallDoor", "CatCafe_Alley_Mural")},

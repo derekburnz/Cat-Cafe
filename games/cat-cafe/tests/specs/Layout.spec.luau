@@ -456,19 +456,27 @@ return function()
 			end
 		end)
 
-		it("carrying a cat from any Square spawn to any cafe's back door takes under 25 seconds", function()
-			-- The check names the farthest cafe's nearer door; the back door is never farther than that, so this bounds
-			-- it from above. Travel is greyed while carrying, so this is the one walk that cannot be skipped.
+		it("carrying a cat from any Square spawn to any cafe's nearer door takes under 25 seconds", function()
+			-- The check names the farthest cafe's nearer door: the back door through the Alleyway, or the front door
+			-- out of the street arch and down the street (layout v3's longer town makes the street the nearer way to
+			-- the outer south cafes). The street leg is the walk along x and z, an upper bound. Travel is greyed while
+			-- carrying, so this is the one walk that cannot be skipped.
+			local SQ1 = W.SquareSouthZ
+			local arch = walkFrom(0, SQ1 + 2) -- just inside the street arch
 			local worst, worstPlot, worstPoint = 0, 0, 0
 			for index = 1, W.PlotCount do
 				local yard, outX, outZ = yardWalk(index)
 				local dist = walkFrom(outX, outZ)
+				local doorX, doorZ = plotToWorld(index, Layout.plot.door.x, Layout.plot.door.z)
+				local street = math.abs(doorX) + math.abs(SQ1 - doorZ)
 				for n, point in squarePoints do
 					local walked = studsTo(dist, point.x, point.z)
-					if walked == nil then
+					local toArch = studsTo(arch, point.x, point.z)
+					if walked == nil or toArch == nil then
 						fail("plot %d cannot reach Square point %d", index, n)
 					end
-					local seconds = (yard + (walked :: number)) / Config.CarryWalkSpeed
+					local nearer = math.min(yard + (walked :: number), (toArch :: number) + 2 + street)
+					local seconds = nearer / Config.CarryWalkSpeed
 					if seconds > worst then
 						worst, worstPlot, worstPoint = seconds, index, n
 					end
@@ -478,7 +486,8 @@ return function()
 			if worst >= 25 then
 				fail("plot %d to Square point %d is %.1f s at carry speed", worstPlot, worstPoint, worst)
 			end
-			-- Layout v2 measures about 21 s here (designer, docs PR #83); a much shorter walk means the grid broke.
+			-- Layout v2 measured about 21 s here (designer, docs PR #83) and v3 about 23 s (plot 5 from the Square's
+			-- east side, down the street); a much shorter walk means the grid broke.
 			expect(worst > 10).to.equal(true)
 		end)
 	end)
@@ -536,10 +545,9 @@ return function()
 		end)
 
 		it("every SAFE ZONE sits in no area, in a side passage or on the street", function()
-			local rows = math.ceil(W.PlotCount / 2)
 			for _, side in { -1, 1 } do
-				for row = 1, rows - 1 do
-					local z = (row - rows / 2) * (W.PlotWidth + W.PlotRowGap)
+				expectArea(side * (W.AlleyInnerX - 3.5), 0, nil, "Town Square side arch SAFE ZONE")
+				for _, z in Layout.sidePassages() do
 					expectArea(side * (W.AlleyInnerX - 2.5), z, nil, "side passage SAFE ZONE")
 					-- in the gap between two neighbouring yards, not on one
 					for index = 1, W.PlotCount do
@@ -567,6 +575,138 @@ return function()
 			expect(street >= gap).to.equal(true)
 			local parkOpening = Layout.park.openingHalfWidth or W.StreetHalfWidth
 			expect(W.StreetHalfWidth >= parkOpening).to.equal(true)
+		end)
+	end)
+
+	-- Town layout v3 (F76, town-layout-v3.md sections 2, 3 and 6).
+	describe("the Town Square (layout v3, F76)", function()
+		local square = Layout.townSquare
+		local lanes = square.lanes :: { Rect }
+
+		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
+			local want = { { -38, -58 }, { 38, -58 }, { -38, 58 }, { 38, 58 } }
+			for n = 1, 4 do
+				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -44 else 44) }
+			end
+			for index, xz in want do
+				local placement = Layout.plotPlacement(index)
+				expect(placement.x).to.equal(xz[1])
+				expect(placement.z).to.equal(xz[2])
+				expect(placement.side).to.equal(if xz[1] < 0 then -1 else 1)
+			end
+		end)
+
+		it("keeps every plot, yard included, off the square and inside the street's length", function()
+			for index = 1, W.PlotCount do
+				local z = Layout.plotPlacement(index).z
+				expect(math.abs(z) - W.PlotWidth / 2 >= W.TownSquareHalfDepth + W.PlotRowGap).to.equal(true)
+				expect(math.abs(z) + W.PlotWidth / 2 <= W.StreetNorthZ).to.equal(true)
+			end
+		end)
+
+		it("finds a side passage between every pair of neighbouring cafes and beside the gardens", function()
+			local passages = Layout.sidePassages()
+			expect(#passages).to.equal(4)
+			for _, z in passages do
+				for index = 1, W.PlotCount do
+					local placement = Layout.plotPlacement(index)
+					expect(math.abs(placement.z - z) >= W.PlotWidth / 2 + W.PlotRowGap / 2).to.equal(true)
+				end
+				expect(math.abs(z) > W.TownSquareHalfDepth).to.equal(true)
+			end
+		end)
+
+		local stations: { [string]: Point } = {
+			spinWheel = Layout.spinWheel,
+			fishMarket = Layout.fishMarket,
+			codesCat = Layout.codesCat,
+			dealerCart = Layout.dealerCart,
+		}
+
+		it("stands each station in its own quarter, off the open cross, facing the fountain", function()
+			local quarters: { [string]: string } = {}
+			for name, point in stations do
+				expect(inside(point.x, point.z, square.floor, 4)).to.equal(true)
+				for _, lane in lanes do
+					if inside(point.x, point.z, lane, -5) then
+						fail("%s at (%g, %g) stands within 5 studs of the open cross", name, point.x, point.z)
+					end
+				end
+				local quarter = (if point.x < 0 then "w" else "e") .. (if point.z < 0 then "s" else "n")
+				expect(quarters[quarter]).to.equal(nil)
+				quarters[quarter] = name
+				-- WorldBuilder turns a point by CFrame.Angles(0, rad(rotY), 0), whose LookVector is (-sin, 0, -cos).
+				local yaw = math.rad(point.rotY or 0)
+				local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
+				local length = math.sqrt(point.x * point.x + point.z * point.z)
+				local dot = (lookX * -point.x + lookZ * -point.z) / length
+				expect(dot > 0.999).to.equal(true)
+			end
+		end)
+
+		it("keeps the Codes circle clear of the cross and of the Spin Wheel's prompt (QA check 2)", function()
+			local codes = Layout.codesCat
+			local yaw = math.rad(codes.rotY or 0)
+			local cx, cz = codes.x - 6 * math.sin(yaw), codes.z - 6 * math.cos(yaw)
+			for _, lane in lanes do
+				expect(inside(cx, cz, lane, -Config.CodesCircleRadius)).to.equal(false)
+			end
+			local wheel = Layout.spinWheel
+			local gap = math.sqrt((cx - wheel.x) ^ 2 + (cz - wheel.z) ^ 2)
+			expect(gap > Config.SpinStationRange + Config.CodesCircleRadius).to.equal(true)
+		end)
+
+		it("spawns players on the street's line in the square, looking north at the fountain", function()
+			local spawn = Layout.playerSpawn
+			expect(math.abs(spawn.x) <= W.TownSquareLaneHalfWidth).to.equal(true)
+			expect(inside(spawn.x, spawn.z, square.floor, 0)).to.equal(true)
+			expect(spawn.z < -Layout.townSquare.fountainRadius).to.equal(true)
+			expect(math.abs(math.sin(math.rad(spawn.rotY or 0)))).to.be.near(0, 1e-9)
+			expect(-math.cos(math.rad(spawn.rotY or 0))).to.equal(1)
+		end)
+
+		it("opens a side arch from each garden into its back alley, on the alley's inner edge", function()
+			expect(#square.arches).to.equal(2)
+			for _, arch in square.arches do
+				expect(math.abs(math.abs(arch.x) - W.AlleyInnerX) <= 1).to.equal(true)
+				expect(arch.z).to.equal(0)
+				expect(arch.span).to.equal(W.TownSquareArchWidth)
+				-- the lane through the square lines up with the arch
+				expect(W.TownSquareCrossHalfWidth * 2 >= arch.span).to.equal(true)
+			end
+		end)
+
+		it("keeps each back alley's trash bin 9 studs from every lane spawn point (reviewer N77)", function()
+			for _, spot in alley.rescueSpots do
+				if spot.trap ~= "trash_bin" then
+					continue
+				end
+				for _, point in alley.spawnPoints do
+					local gap = math.sqrt((spot.x - point.x) ^ 2 + (spot.z - point.z) ^ 2)
+					if gap < 9 then
+						fail("bin at (%g, %g) is %.1f from the spawn point at (%g, %g)", spot.x, spot.z, gap, point.x, point.z)
+					end
+				end
+			end
+		end)
+
+		it("keeps the back alleys' loose props 6 studs from every lane spawn point", function()
+			for _, prop in alley.props :: { Layout.Prop } do
+				local name = prop.asset
+				local loose = name:find("Dumpster", 1, true) ~= nil
+					or name:find("GarbageBags", 1, true) ~= nil
+					or name:find("TrashCan", 1, true) ~= nil
+					or name:find("_Crate", 1, true) ~= nil and name:find("CrateStack", 1, true) == nil
+				if not loose then
+					continue
+				end
+				for _, point in alley.spawnPoints do
+					local gap = math.sqrt((prop.x - point.x) ^ 2 + (prop.z - point.z) ^ 2)
+					if gap < 6 then
+						fail("%s at (%g, %g) is %.1f from the spawn point at (%g, %g)", name, prop.x, prop.z, gap, point.x, point.z)
+					end
+				end
+			end
 		end)
 	end)
 end

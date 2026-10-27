@@ -85,21 +85,27 @@ Layout.plot = {
 	entry = { x = 0, y = 0, z = -halfD - 1 - W.FrontGardenDepth - 1 } :: Point, -- customer start, on the sidewalk
 	sign = { x = 0, y = 7.5, z = -halfD - 0.3 } :: Point,
 	counter = { x = 0, y = 0, z = halfD - 3 } :: Point,
-	espresso = { x = 2.6, y = 3.1, z = halfD - 3 } :: Point,
+	-- On the counter's espresso plate (its top is 3 up); the level 3 machine fills it to the till.
+	espresso = { x = 3, y = 3, z = halfD - 3 } :: Point,
 
-	-- Where a working cat stands, per role slot: baristas on the counter, waiters between the tables, greeters
-	-- inside the door, entertainers on the cat trees. The role stations and upright poses come with the roles.
+	-- Where a working cat stands, per role slot: baristas at the counter, waiters between the tables, greeters
+	-- inside the door, entertainers on the cat trees. An upright cat (CatPose) stands on the point and fills about
+	-- 1 stud across and from 0.72 in front of it to 0.43 behind. The counter's top (3 up) holds the pastry case
+	-- (x -3.75 to -1.05), a saucer and a tip jar at the front, the till (0.7 to 1.7) and the espresso machine, so the
+	-- first barista stands on the gap behind the saucer and the tip jar, and the later two on the floor at either
+	-- end of the counter (Derek 2026-10-27: models sinking into each other).
 	spots = {
-		barista_1 = { x = -2, y = 3.1, z = halfD - 3 },
-		barista_2 = { x = -3.4, y = 3.1, z = halfD - 3 },
-		barista_3 = { x = 0.4, y = 3.1, z = halfD - 3 },
+		barista_1 = { x = -0.2, y = 3, z = halfD - 2.55 },
+		barista_2 = { x = -5.2, y = 0, z = halfD - 3 },
+		barista_3 = { x = 5.2, y = 0, z = halfD - 3 },
 		waiter_1 = { x = -4.5, y = 0, z = -2.5 },
 		waiter_2 = { x = 4.5, y = 0, z = -2.5 },
 		waiter_3 = { x = 0, y = 0, z = 4.5 },
 		greeter_1 = { x = -4, y = 0, z = -halfD + 2.5 },
 		greeter_2 = { x = 4, y = 0, z = -halfD + 2.5 },
-		entertainer_1 = { x = -14, y = 4.65, z = 8 },
-		entertainer_2 = { x = 14, y = 4.65, z = 8 },
+		-- the cat tree's top cushion, at its sit point (-0.5, 4.47, -0.4 from the tree's pivot)
+		entertainer_1 = { x = -14.5, y = 4.47, z = 7.6 },
+		entertainer_2 = { x = 13.5, y = 4.47, z = 7.6 },
 	} :: { [string]: Point },
 
 	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)
@@ -109,7 +115,7 @@ Layout.plot = {
 	} :: { [string]: Point },
 
 	decorAnchors = {
-		plants = { x = 13, y = 1.2, z = -halfD + 0.7 },
+		plants = { x = 11, y = 1, z = -halfD + 0.7 }, -- on the right window's sill, clear of its curtain
 		rug = { x = 0, y = 0, z = -2 },
 		neon_sign = { x = 0, y = 5.5, z = halfD - 0.7 },
 		fish_tank = { x = -halfW + 2, y = 0, z = 0, rotY = 90 },

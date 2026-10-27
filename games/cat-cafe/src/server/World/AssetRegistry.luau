@@ -80,15 +80,11 @@ function AssetRegistry.clone(name: string): Model
 end
 
 -- A cat's model: its gold coat (v0.5 F42) when `variant` is "gold" and the asset is there, else the base cat.
--- Until the asset thread's rename lands the coats are still named _Shiny, so that name is tried second (reviewer
--- S58); drop it once no _Shiny model is left.
 function AssetRegistry.cloneCat(catId: string, variant: string?): Model
 	if variant == "gold" then
-		local base = Catalog.catModelName(catId)
-		for _, name in { Catalog.goldModelName(catId), base .. "_Shiny" } do
-			if AssetRegistry.has(name) then
-				return AssetRegistry.clone(name)
-			end
+		local gold = Catalog.goldModelName(catId)
+		if AssetRegistry.has(gold) then
+			return AssetRegistry.clone(gold)
 		end
 	end
 	return AssetRegistry.clone(Catalog.catModelName(catId))

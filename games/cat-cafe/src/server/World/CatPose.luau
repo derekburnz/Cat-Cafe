@@ -1,7 +1,7 @@
 --!strict
 -- A working cat sits at its station in its role's outfit (features.md F25, data-model section 5; Derek 2026-10-27:
 -- outfits by role, A walks and B sits). CafeService clones the seated body (AssetRegistry.cloneCat with sitting) with
--- its pivot on the station point; cats resting at the nap spots sit on it too, with nothing on.
+-- its pivot on the station point; resting cats at the odd nap spots sit on it too, with nothing on.
 --
 -- Outfit pieces go on the seated cat's Outfit_<Piece> Attachments (manifest sit_slots), which ride the Body or the
 -- Head, so the asset thread can move a slot without a code change. Each piece's parts get Follows = "Body" or

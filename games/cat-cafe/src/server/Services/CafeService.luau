@@ -206,8 +206,12 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		local instance = placement.instance
 		local def = Catalog.getCat(instance.catId)
 		local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
-		-- every cafe cat sits on the seated body (B), at work or resting (Derek 2026-10-27: A walks, B sits)
-		local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, true)
+		-- A working cat sits on the seated body (B). Resting cats mix their idles (Derek 2026-10-27: "use a mix of
+		-- idle animations"): the odd nap spots sit on B and wash a paw, the even ones lie on the walking body (A),
+		-- where they sleep and sit up into a loaf with its purr.
+		local napIndex = tonumber(placement.slot:match("^nap_(%d+)$"))
+		local sitting = spot ~= nil or (napIndex ~= nil and napIndex % 2 == 1)
+		local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, sitting)
 		model.Name = uid
 		model:SetAttribute("Uid", uid)
 		model:SetAttribute("CatId", instance.catId)

@@ -26,7 +26,7 @@ Readability, copied from rhythm games and Fisch: each circle pops PERFECT (gold)
 The engineer moved the Alleyway behind the cafes (2026-10-26), matching the concept sketch's back door to the alley. The design follows it:
 
 - Every cafe has a back door that opens from Tier 1 onto a back alley running behind its row. The two back alleys meet in a big Alley Square at the north end. Check-in works at either door.
-- Distance targets for the engineer to tune against: under 2 seconds from a back door to the nearest stray spawn, under 8 seconds from any cafe to the far side of the Alley Square, under 10 seconds from any cafe to any unlocked area gate. Anything farther gets a travel button.
+- Distance targets for the engineer to tune against (revised 2026-10-27 after QA measured layout v2): on foot, under 2 seconds from a back door to the nearest stray spawn. The travel buttons count for everything farther: the Alley button lands in the Square, and the Areas buttons land at each area's entry, so the Square and every unlocked gate are one tap away from anywhere. The walk that cannot be skipped is the carry home, since travel is greyed while carrying: under 25 seconds at CarryWalkSpeed 16 from any Square spawn point to the carrier's nearer door, back door included. The Square sits at one end of the street on purpose, so the far cafes walk a little longer with a rare cat; that walk is where bumps happen, and 25 seconds keeps it a short chase rather than a trek.
 - Size target: at least 8 times the old 60 x 44 stud box, so 10 strays, 3 traps and 8 players never crowd. The back alleys are the narrow, cosy part; the Square is the open hub.
 - Spawn points: 24 in the Alleyway, two behind every cafe (16) and 8 in the Square. Commons and Rares can spawn anywhere; Epic, Legendary and Mythical spawn only in the Square, so the exciting cats are a short run from everyone and nobody's cafe is the lucky one.
 - Traps: one trash bin in each back alley and the garbage bags in the Square.
@@ -105,7 +105,7 @@ Style rules, from the sketch: one chunky rounded font (FredokaOne) with a dark U
 1. A Miss on circle 1 of a Rare ends the catch at once with no roll; the cat jumps back and the paw row shows 1 left. A second Miss and the prompt is gone for you but still there for a second player.
 2. Any mix of Good and Perfect catches every time over 20 tries. An all-Perfect Common arrives with 8 more charm than the stray showed.
 3. A bumped carrier can miss their own dropped cat five times and still try again.
-4. From the farthest cafe's back door, a stray spawn is under 2 seconds away; the far side of the Square is under 8 seconds at walk speed 20.
+4. From every cafe's back door a stray spawn is under 2 seconds away on foot at walk speed 20. The Alley travel button lands in the Square and the Areas buttons at every unlocked gate. Carrying a cat from the farthest Square spawn point to the farthest cafe's nearer door takes under 25 seconds at carry speed 16.
 5. With one player on the server, the other seven plots show For Rent shops with no grey boxes; joining a second player rolls their shutters up.
 6. From the street, you can see cats working inside a running cafe, and its sign shows the owner's name, tier and rate.
 7. Travel buttons are greyed while carrying and work from anywhere otherwise.

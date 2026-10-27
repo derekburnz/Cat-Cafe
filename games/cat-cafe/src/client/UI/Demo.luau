@@ -29,6 +29,7 @@ local CATALOG: Types.Catalog = {
 	spots = Catalog.spots,
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
+	rarities = Catalog.rarities,
 }
 
 -- data-model section 10: circles and shrink time per rarity, Basic Net windows

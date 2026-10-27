@@ -22,6 +22,7 @@ export type UpgradeDef = SharedTypes.UpgradeDef
 export type DecorDef = SharedTypes.DecorDef
 export type LureOdds = SharedTypes.LureOdds -- percentages that sum to 100, shown before purchase
 export type LureDef = SharedTypes.LureDef
+export type RarityDef = SharedTypes.RarityDef
 export type SpotDef = SharedTypes.SpotDef
 export type TierDef = SharedTypes.TierDef -- data-model section 5b
 export type AreaDef = SharedTypes.AreaDef
@@ -34,6 +35,7 @@ export type Catalog = {
 	spots: { SpotDef }?, -- role slots; needed for the cat room's crew strip and Upgrades > Staff
 	tiers: { TierDef }?, -- v0.3: tier names, gates and the rank up card
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
+	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
 }
 
 export type OwnedCat = {

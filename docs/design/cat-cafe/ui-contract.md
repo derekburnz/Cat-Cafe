@@ -156,6 +156,10 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 
 `purchase` and `jingleCatFound` are not played by the UI: Audio plays them from the `Purchase` and `CatFound` moments, so each plays once and only after the server agrees.
 
+### Gate signs (built, F39)
+
+`UI.init` puts a sign over every gate tagged `AreaGate` (WorldBuilder sets `Area` and `RequiresTier`), including gates that stream in later. Nothing to call: the signs follow `UI.update` and the catalog. Locked: a lock, the area name, "Needs Cozy Cafe (Tier 2)" and, for the next tier only, one bar per rank up requirement from the same progress the rank up card uses ("3 / 5", "$900 / $1.5K", gold with a tick when met; "Ready to rank up!" when all are met). A gate two or more tiers away says "Rank up to <next tier> first". Open: a green name plate with the area icon. The signs are local BillboardGuis sized in studs, shown within 50 studs, and the server's placeholder text label on each gate is removed on this client. Engineer: the label in `WorldBuilder.buildGate` and the BillboardGui toggle in `WorldController.setGateOpen` can go whenever convenient.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |

@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Net = require(script.Parent.Parent.Net)
 local Types = require(Shared:WaitForChild("Types"))
@@ -117,6 +118,9 @@ local function applyState(s: Types.PlayerState)
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
 	})
+	-- Music and sound toggles arrive only in ProfileSync; the purr follows the server's carry state.
+	Audio.applySettings(s.settings)
+	Audio.setCarrying(s.carrying ~= nil)
 	if s.carrying ~= lastCarrying then
 		lastCarrying = s.carrying
 		if s.carrying ~= nil then

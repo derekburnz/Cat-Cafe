@@ -240,6 +240,7 @@ export type PlayerState = {
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,
 	tutorialStep: number,
+	settings: { music: boolean, sfx: boolean }, -- the client's Audio mutes its channels by these
 	serverTime: number,
 }
 

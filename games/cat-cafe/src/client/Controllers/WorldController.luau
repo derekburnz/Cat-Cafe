@@ -1,8 +1,9 @@
 --!strict
 -- Client-side world touches: each area gate opens once the cafe reaches that area's tier, check-in fires itself at the
 -- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray this
--- player is out of paws on hides its prompt for them, and the sky and the parts that glow at night follow the
--- server's day and night clock (features F20). All cosmetic, all local.
+-- player is out of paws on hides its prompt for them, the ambience follows the zone the player stands in, and the
+-- sky and the parts that glow at night follow the server's day and night clock (features F20). All cosmetic, all
+-- local.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -12,6 +13,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
 local Net = require(script.Parent.Parent.Net)
 local UIController = require(script.Parent.UIController)
@@ -38,6 +40,29 @@ local function watchStray(model: Instance)
 	end
 	refresh()
 	model:GetAttributeChangedSignal(attribute):Connect(refresh)
+end
+
+-- The World.Zones box the player stands in ("Cafe", "Alley", "Park" and so on), or nil (WorldBuilder).
+local function zoneAt(position: Vector3): string?
+	local world = Workspace:FindFirstChild("World")
+	local zones = if world ~= nil then world:FindFirstChild("Zones") else nil
+	if zones == nil then
+		return nil
+	end
+	for _, box in zones:GetChildren() do
+		if box:IsA("BasePart") then
+			local offset = box.CFrame:PointToObjectSpace(position)
+			local half = box.Size / 2
+			if
+				math.abs(offset.X) <= half.X
+				and math.abs(offset.Y) <= half.Y
+				and math.abs(offset.Z) <= half.Z
+			then
+				return box.Name
+			end
+		end
+	end
+	return nil
 end
 
 local function setGateOpen(gate: Instance, open: boolean)
@@ -250,6 +275,7 @@ function WorldController.start()
 	local gateOpen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local lastCheckIn = 0
 	local sawAlley = false
+	local lastZone: string? = nil
 
 	task.spawn(function()
 		while true do
@@ -289,11 +315,13 @@ function WorldController.start()
 				end
 			end
 
-			if
-				not sawAlley
-				and state.tutorialStep == 0
-				and position.Z > Config.World.AlleyCenterZ - Config.World.AlleyDepth / 2
-			then
+			local zone = zoneAt(position)
+			if zone ~= lastZone then
+				lastZone = zone
+				Audio.setZone(zone)
+			end
+
+			if not sawAlley and state.tutorialStep == 0 and zone == "Alley" then
 				sawAlley = true
 				Net.fire("TutorialAdvance", 1)
 			end

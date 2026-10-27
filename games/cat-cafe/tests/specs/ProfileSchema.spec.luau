@@ -88,10 +88,11 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 10 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 11 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(10)
-			expect(profile.version).to.equal(10)
+			expect(ProfileSchema.VERSION).to.equal(11)
+			expect(profile.version).to.equal(11)
+			expect(profile.stats.pickups).to.equal(0)
 			expect(profile.introSeen).to.equal(false)
 			expect(next(profile.codesRedeemed)).never.to.be.ok()
 			expect(profile.goldenFish).to.equal(0)
@@ -219,8 +220,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 11 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 12 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 11 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 10 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 9 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 8 })).to.equal(false)
@@ -1090,6 +1092,24 @@ return function()
 			expect(ProfileSchema.migrate(raw, 1000).settings.tutorialButton).to.equal(true)
 			raw.settings.tutorialButton = false
 			expect(ProfileSchema.migrate(raw, 1000).settings.tutorialButton).to.equal(false)
+		end)
+	end)
+
+	describe("migrate to version 11: the pick up counter (v0.8 F56)", function()
+		it("starts every older save at 0 pick ups and keeps a saved count", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 10
+			raw.stats.pickups = nil
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
+			expect(profile.stats.pickups).to.equal(0)
+			raw.version = 11
+			raw.stats.pickups = 7
+			expect(ProfileSchema.migrate(raw, 1000).stats.pickups).to.equal(7)
+			for _, bad in { "7", -1, 0 / 0, math.huge } do
+				raw.stats.pickups = bad
+				expect(ProfileSchema.migrate(raw, 1000).stats.pickups).to.equal(0)
+			end
 		end)
 	end)
 end

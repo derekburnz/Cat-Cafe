@@ -318,6 +318,7 @@ export type Stats = {
 	spins: number, -- F49
 	cratesOpened: number, -- F53
 	fishEarned: number, -- F52: golden fish earned, every source
+	pickups: number, -- v0.8 F56: Dropped cats picked up with PickUpCat
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).

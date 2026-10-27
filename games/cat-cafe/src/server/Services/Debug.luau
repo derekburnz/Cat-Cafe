@@ -309,16 +309,16 @@ function Debug.spawnStray(catId: string, areaId: string?, gold: boolean?): strin
 	return CatService.debugSpawnStray(catId, areaId or "alley", gold)
 end
 
--- Drops the player's carried cat where they stand as a shove would, whatever the grace or immunity, with nobody
--- barred as the shover: only they can catch it for DropOwnerPrioritySeconds. Stand in a catching area. Returns
--- the new StrayId.
+-- Drops the player's carried cat where they stand as a shove would, whatever the grace or immunity: a Dropped stray
+-- anyone picks up with the hold (v0.8 F56). Stand in a catching area. Returns the new StrayId.
 function Debug.knockLoose(player: (Player | number | string)?): string
 	guard()
 	return CatService.debugKnockLoose(resolve(player))
 end
 
 -- `shover` shoves `target` through every section 10c check (the two must stand together in an area: teleport
--- both). `outcome` "loose" or "held" forces the roll on a carrier that can be knocked loose; nil rolls BumpChance.
+-- both). `outcome` "loose" or "held" forces the roll on a carrier that can be knocked loose; nil rolls BumpChance
+-- (1.0 since v0.8 F56, so always loose).
 function Debug.shove(
 	shover: (Player | number | string)?,
 	target: Player | number | string,

@@ -1,8 +1,9 @@
 --!strict
 -- shared/Shove.luau against data-model section 10c (F29's carry bumps as v0.5 F41 and v0.5.1): every protection on
--- a shove, the knock-loose roll on a carrier, and the rules of a knocked-loose cat (owner window, shover barred,
--- still during the window per N86; v0.9 F66 checks a dropped cat in for its carrier at dusk, which replaces S32's
--- minimum stay). The "edges (QA)" block is QA's.
+-- a shove, the knock-loose roll on a carrier, and the pick up of a Dropped cat (v0.8 F56: a shove always drops it,
+-- anyone picks it up with no owner window; v0.9 F66 checks a dropped cat in for its carrier at dusk, which replaces
+-- S32's minimum stay). The "edges (QA)" block is QA's; F56 replaced its owner window and scurry cases with the pick
+-- up's.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Clock = require(Shared.Clock)
@@ -129,12 +130,8 @@ return function()
 	end)
 
 	describe("knocking a carried cat loose", function()
-		local function carry(
-			startedAt: number,
-			immune: boolean?,
-			immuneUntil: number?
-		): Shove.CarryState
-			return { startedAt = startedAt, immune = immune == true, immuneUntil = immuneUntil or 0 }
+		local function carry(startedAt: number, immuneUntil: number?): Shove.CarryState
+			return { startedAt = startedAt, immuneUntil = immuneUntil or 0 }
 		end
 
 		it("rolls only on a carrier", function()
@@ -147,28 +144,29 @@ return function()
 			expect(Shove.canKnockLoose(carry(100), 100 + grace)).to.equal(true)
 		end)
 
-		it("never on whoever re-caught a knocked-loose cat, for the whole carry", function()
-			expect(Shove.canKnockLoose(carry(0, true), 1000)).to.equal(false)
+		it("a picked-up cat's carry is like any other: no BumpImmune once the grace passes (v0.8 F56)", function()
+			local grace = Config.BumpGraceSeconds
+			expect(Shove.canKnockLoose(carry(1000), 1000 + grace - 0.01)).to.equal(false)
+			expect(Shove.canKnockLoose(carry(1000), 1000 + grace)).to.equal(true)
 		end)
 
-		it("never while the held immunity lasts", function()
-			expect(Shove.canKnockLoose(carry(0, false, 100), 99.9)).to.equal(false)
-			expect(Shove.canKnockLoose(carry(0, false, 100), 100)).to.equal(true)
+		it("never while the held immunity lasts (BumpChance below 1 only)", function()
+			expect(Shove.canKnockLoose(carry(0, 100), 99.9)).to.equal(false)
+			expect(Shove.canKnockLoose(carry(0, 100), 100)).to.equal(true)
 			expect(Shove.HELD_IMMUNE_SECONDS).to.equal(3)
 		end)
 
-		it("knocks it loose BumpChance of the time", function()
-			expect(Shove.landsLoose(0)).to.equal(true)
-			expect(Shove.landsLoose(Config.BumpChance - 0.001)).to.equal(true)
-			expect(Shove.landsLoose(Config.BumpChance)).to.equal(false)
-			expect(Shove.landsLoose(0.999)).to.equal(false)
+		it("always knocks it loose: BumpChance is 1.0 (v0.8 F56)", function()
+			expect(Config.BumpChance).to.equal(1)
+			for _, roll in { 0, 0.5, 0.999999 } do
+				expect(Shove.landsLoose(roll)).to.equal(true)
+			end
 		end)
 
-		it("the cat scurries 6 to 10 studs", function()
-			expect(Shove.scurryStuds(0)).to.equal(6)
-			expect(Shove.scurryStuds(1)).to.equal(10)
-			expect(Shove.scurryStuds(0.5)).to.equal(8)
-			expect(Shove.scurryStuds(-1)).to.equal(6)
+		it("the cat no longer scurries: it lands where the carrier stood (v0.8 F56)", function()
+			expect((Shove :: any).scurryStuds).never.to.be.ok()
+			expect((Shove :: any).SCURRY_MIN).never.to.be.ok()
+			expect((Shove :: any).SCURRY_MAX).never.to.be.ok()
 		end)
 
 		it("the push points from the shover to the target, flat", function()
@@ -186,60 +184,106 @@ return function()
 		end)
 	end)
 
-	describe("a knocked-loose cat", function()
-		local drop = Shove.newDrop(11, 22, 100)
+	-- A pick up that starts the carry: a Dropped stray next to an idle player in an open, unlocked area.
+	local function pickUp(): Shove.PickUpCheck
+		return {
+			dropped = true,
+			carrying = false,
+			busy = false,
+			areaUnlocked = true,
+			areasClosed = false,
+			distance = 4,
+			sinceGrab = nil,
+		}
+	end
 
-		it("records its old carrier, the shover and the owner window (S25)", function()
+	local function pickUpWith(changes: { [string]: any }): Shove.PickUpCheck
+		local check = pickUp() :: any
+		for key, value in changes do
+			check[key] = if value == NONE then nil else value
+		end
+		return check :: Shove.PickUpCheck
+	end
+
+	describe("a Dropped cat (v0.8 F56)", function()
+		it("records its last carrier and the shover, with no owner window (S25)", function()
+			local drop = Shove.newDrop(11, 22, 100) :: any
 			expect(drop.owner).to.equal(11)
 			expect(drop.shover).to.equal(22)
 			expect(drop.droppedAt).to.equal(100)
-			expect(drop.ownerUntil).to.be.near(100 + Config.DropOwnerPrioritySeconds, 1e-9)
-		end)
-
-		it("only its old carrier may try during the window", function()
-			local reason, retry = Shove.grabRefusal(drop, 33, 104)
-			expect(reason).to.be.ok()
-			expect(retry).to.equal(true)
-			expect((Shove.grabRefusal(drop, 11, 104))).never.to.be.ok()
-		end)
-
-		it("anyone but the shover may try after the window", function()
-			expect((Shove.grabRefusal(drop, 33, 108))).never.to.be.ok()
-			expect((Shove.grabRefusal(drop, 11, 108))).never.to.be.ok()
-		end)
-
-		it("the shover never may, and their prompt closes", function()
-			for _, now in { 100, 104, 108, 10000 } do
-				local reason, retry = Shove.grabRefusal(drop, 22, now)
-				expect(reason).to.be.ok()
-				expect(retry).to.equal(false)
-			end
-		end)
-
-		it("a drop by nobody (Studio's hook) bars nobody", function()
-			local free = Shove.newDrop(11, 0, 100)
-			expect((Shove.grabRefusal(free, 0, 200))).never.to.be.ok()
-			expect((Shove.grabRefusal(free, 33, 200))).never.to.be.ok()
-		end)
-
-		it("an ordinary stray refuses nobody", function()
-			expect((Shove.grabRefusal(nil, 33, 0))).never.to.be.ok()
+			expect(drop.ownerUntil).never.to.be.ok()
 		end)
 
 		it(
-			"stays put after a miss while the owner window runs, then sprints like any stray (N86)",
+			"anyone picks it up: the shover, the last carrier and everyone else are the same check",
 			function()
-				expect(Shove.sprintsAfterMiss(drop, 107.9)).to.equal(false)
-				expect(Shove.sprintsAfterMiss(drop, 108)).to.equal(true)
-				expect(Shove.sprintsAfterMiss(nil, 0)).to.equal(true)
+				expect(Shove.pickUpRefusal(pickUp())).never.to.be.ok()
 			end
 		)
+
+		it("only a Dropped stray: any other needs the circles", function()
+			expect(Shove.pickUpRefusal(pickUpWith({ dropped = false }))).to.be.ok()
+		end)
+
+		it("not while carrying a cat", function()
+			expect(Shove.pickUpRefusal(pickUpWith({ carrying = true }))).to.be.ok()
+		end)
+
+		it("not while holding a catch or rescue lock", function()
+			expect(Shove.pickUpRefusal(pickUpWith({ busy = true }))).to.be.ok()
+		end)
+
+		it("only in an area the caller's tier opens", function()
+			expect(Shove.pickUpRefusal(pickUpWith({ areaUnlocked = false }))).to.be.ok()
+		end)
+
+		it("never at night, when the areas are closed (v0.9, F66)", function()
+			expect(Shove.pickUpRefusal(pickUpWith({ areasClosed = true }))).to.equal(
+				Clock.CLOSED_TEXT
+			)
+		end)
+
+		it("range is GrabRangeStuds plus the usual 2 studs of slack", function()
+			local edge = Config.GrabRangeStuds + Shove.RANGE_SLACK
+			expect(Shove.pickUpRefusal(pickUpWith({ distance = edge }))).never.to.be.ok()
+			expect(Shove.pickUpRefusal(pickUpWith({ distance = edge + 0.01 }))).to.be.ok()
+			expect(Shove.pickUpRefusal(pickUpWith({ distance = NONE }))).to.be.ok()
+		end)
+
+		it("GrabCooldownSeconds after the caller's last catch or pick up", function()
+			local cooldown = Config.GrabCooldownSeconds
+			expect(Shove.pickUpRefusal(pickUpWith({ sinceGrab = cooldown - 0.01 }))).to.be.ok()
+			expect(Shove.pickUpRefusal(pickUpWith({ sinceGrab = cooldown }))).never.to.be.ok()
+		end)
 	end)
 
 	describe("section 10c numbers", function()
 		it("DroppedMinStaySeconds is gone: dusk checks a dropped cat in for its carrier (v0.9, F66)", function()
 			expect((Config :: any).DroppedMinStaySeconds).never.to.be.ok()
 			expect((Shove :: any).leavesWithWave).never.to.be.ok()
+		end)
+
+		it("the owner window and the shover bar are gone (v0.8 F56)", function()
+			expect((Config :: any).DropOwnerPrioritySeconds).never.to.be.ok()
+			expect((Shove :: any).grabRefusal).never.to.be.ok()
+			expect((Shove :: any).sprintsAfterMiss).never.to.be.ok()
+		end)
+
+		it("the F56 acceptance tug of war ends on the same-target wait", function()
+			-- t = 0: A shoves carrier B and the cat drops; A picks it up at 0.6.
+			local pickedUp = 0.6
+			-- B shoves A once A's carry is BumpGraceSeconds (3) old: B never shoved before, nobody shoved A.
+			local backAt = pickedUp + Config.BumpGraceSeconds
+			local carryA: Shove.CarryState = { startedAt = pickedUp, immuneUntil = 0 }
+			expect(Shove.refusal(ok())).never.to.be.ok()
+			expect(Shove.canKnockLoose(carryA, backAt - 0.01)).to.equal(false)
+			expect(Shove.canKnockLoose(carryA, backAt)).to.equal(true)
+			-- B picks it back up. A is off BumpCooldownSeconds (8) at 12 s but shoved B at 0, so waits 20 s.
+			local again = with({ sinceShove = 12, sinceShoveTarget = 12, sinceTargetShoved = 12 })
+			expect(Shove.refusal(again)).to.equal("Give them a break")
+			local wait = Config.BumpSameTargetSeconds
+			local later = with({ sinceShove = wait, sinceShoveTarget = wait, sinceTargetShoved = wait })
+			expect(Shove.refusal(later)).never.to.be.ok()
 		end)
 
 		it("the same-target wait is longer than the shover's cooldown", function()
@@ -287,33 +331,43 @@ return function()
 			end
 		end)
 
-		it("the scurry clamps a roll above 1", function()
-			expect(Shove.scurryStuds(2)).to.equal(Shove.SCURRY_MAX)
-		end)
+		-- Each pick up rule broken on its own, in Shove.pickUpRefusal's order (v0.8 F56).
+		local pickUpBroken: { { [string]: any } } = {
+			{ dropped = false },
+			{ carrying = true },
+			{ busy = true },
+			{ areaUnlocked = false },
+			{ areasClosed = true },
+			{ distance = 50 },
+			{ sinceGrab = 0 },
+		}
 
-		it("the owner window ends at ownerUntil for everyone but the shover", function()
-			local drop = Shove.newDrop(11, 22, 100)
-			local reason, retry = Shove.grabRefusal(drop, 33, drop.ownerUntil - 0.01)
-			expect(reason).to.be.ok()
-			expect(retry).to.equal(true)
-			expect((Shove.grabRefusal(drop, 33, drop.ownerUntil))).never.to.be.ok()
-			expect((Shove.grabRefusal(drop, 22, drop.ownerUntil))).to.be.ok()
-		end)
-
-		it("a Drop (shover 0, PR #162): the dropper's first try, then anyone's", function()
-			local drop = Shove.newDrop(11, 0, 100)
-			expect(drop.ownerUntil).to.equal(100 + Config.DropOwnerPrioritySeconds)
-			local early = drop.ownerUntil - 0.01
-			expect((Shove.grabRefusal(drop, 11, early))).never.to.be.ok()
-			local reason, retry = Shove.grabRefusal(drop, 33, early)
-			expect(reason).to.equal("Its owner gets the first try")
-			expect(retry).to.equal(true)
-			for _, userId in { 11, 33, -1 } do
-				expect((Shove.grabRefusal(drop, userId, drop.ownerUntil))).never.to.be.ok()
+		it("every pick up rule has its own words", function()
+			local seen: { [string]: boolean } = {}
+			for _, changes in pickUpBroken do
+				local reason = Shove.pickUpRefusal(pickUpWith(changes)) :: string
+				expect(type(reason)).to.equal("string")
+				expect(#reason > 0).to.equal(true)
+				expect(seen[reason]).never.to.be.ok()
+				seen[reason] = true
 			end
-			-- a miss inside the window leaves it sitting for the dropper, as after a shove (N86)
-			expect(Shove.sprintsAfterMiss(drop, early)).to.equal(false)
-			expect(Shove.sprintsAfterMiss(drop, drop.ownerUntil)).to.equal(true)
+		end)
+
+		it("with two pick up rules broken, the earlier one names the refusal", function()
+			for first = 1, #pickUpBroken do
+				for second = first + 1, #pickUpBroken do
+					local both: { [string]: any } = {}
+					for key, value in pickUpBroken[second] do
+						both[key] = value
+					end
+					for key, value in pickUpBroken[first] do
+						both[key] = value
+					end
+					expect(Shove.pickUpRefusal(pickUpWith(both))).to.equal(
+						Shove.pickUpRefusal(pickUpWith(pickUpBroken[first]))
+					)
+				end
+			end
 		end)
 
 		it("the push is flat and one stud long whatever the heights", function()

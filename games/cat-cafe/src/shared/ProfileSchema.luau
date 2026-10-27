@@ -24,7 +24,8 @@ local ProfileSchema = {}
 -- drop those claims, so a player hopping servers during a rollout could claim them twice.
 -- Version 9 (F65) adds codesRedeemed: an older server would drop it, letting a code pay twice.
 -- Version 10 (F72) adds introSeen: an older server would drop it, playing the intro cutscene again.
-ProfileSchema.VERSION = 10
+-- Version 11 (v0.8 F56) adds stats.pickups, the counter of Dropped cats picked up: an older server would drop it.
+ProfileSchema.VERSION = 11
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -74,6 +75,7 @@ local function newStats(): Types.Stats
 		spins = 0,
 		cratesOpened = 0,
 		fishEarned = 0,
+		pickups = 0,
 	}
 end
 

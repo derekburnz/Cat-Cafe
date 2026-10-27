@@ -3,7 +3,8 @@
 -- checks are Shove.refusal over facts gathered here, the cooldowns and the target immunity (S45) live in this
 -- service's own tables, and the carried cat is CatService's (tryKnockLoose). A landed shove goes to every client as
 -- ShoveResult; the target's client pushes its own character ShoveKnockbackStuds along the direction, since
--- characters are client-owned, and every client fires Moments.Shove, then BumpLoose or BumpHeld.
+-- characters are client-owned, and every client fires Moments.Shove, then BumpLoose or BumpHeld. Since v0.8 F56 a
+-- shove on a carrier past BumpGraceSeconds always drops the cat (BumpChance 1.0) and anyone picks it up.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -126,7 +127,7 @@ local function shove(player: Player, target: Player, forced: Shove.KnockResult?)
 	local carriedId = CafeService.carrying(target)
 	local carried = if carriedId ~= nil then Catalog.getCat(carriedId) else nil
 	local rarity: string = if carried ~= nil then carried.rarity else "none"
-	local knock = CatService.tryKnockLoose(target, player.UserId, areaId, direction, forced)
+	local knock = CatService.tryKnockLoose(target, player.UserId, areaId, forced)
 	profile.stats.bumpsGiven += 1
 	Telemetry.custom(player, "shove", 1, { knock or "shove", rarity, areaId })
 	if knock == "loose" then
@@ -138,15 +139,9 @@ local function shove(player: Player, target: Player, forced: Shove.KnockResult?)
 		if targetProfile ~= nil then
 			targetProfile.stats.bumpsTaken += 1
 		end
-		Net.toast(player, "You knocked it loose!", "good")
-		Net.toast(
-			target,
-			string.format(
-				"You got shoved! Net it back, only you can for %d seconds",
-				Config.DropOwnerPrioritySeconds
-			),
-			"warn"
-		)
+		-- v0.8 F56: anyone picks the cat up, and the old carrier can shove back once that carry is 3 s old
+		Net.toast(player, "It dropped! Pick it up quick!", "good")
+		Net.toast(target, "You got shoved and dropped your cat! Grab it back!", "warn")
 	elseif knock == "held" then
 		Net.toast(player, "It held on tight!", "info")
 		Net.toast(target, "It held on tight!", "good")

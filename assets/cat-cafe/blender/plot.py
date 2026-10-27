@@ -509,9 +509,6 @@ def build_interior(mat):
 
 
 # ------------------------------------------------------------------------------------------ for rent --
-SLEEP = dict(pivot=(0, 0, 0), rot=(0, 0, 0), offset=(0, 0, -0.42), head=(-28, 0, 22), tail=(0, 0, 75))
-
-
 def _roller(b, shutter, x0, x1, top, bottom, z):
     """Housing on b; the curtain goes on `shutter` (_Shutter, which the effects code rolls up on a claim)."""
     b.span((x0 - 0.2, top, z - 0.45), (x1 + 0.2, top + 0.55, z), "concrete_dark")
@@ -524,10 +521,10 @@ def _roller(b, shutter, x0, x1, top, bottom, z):
 
 
 def _sleeping_cat(asset, mat, at, turn):
-    built = cats.build_cat("Tabby", mat, spec=dict(cats.ROSTER["Tabby"], tucked=True))   # no legs under the floor
+    built = cats.build_cat("Tabby", mat)
     world = Matrix.Translation(RB.p(*at)) @ Matrix.Rotation(math.radians(turn), 4, "Z")
     bpy.context.view_layer.update()
-    out = poses.posed_copies(built, SLEEP, world=world, prefix="")
+    out = poses.cat_pose_copies(built, poses.CAT_POSES["sleep"], cats.ROSTER["Tabby"], "walk", world=world, prefix="")
     bpy.context.view_layer.update()
     for c, ob in zip(out, built):
         c.name = asset + "_Cat" + ob.name.split(".")[0][len("CatCafe_Cat_Tabby"):]

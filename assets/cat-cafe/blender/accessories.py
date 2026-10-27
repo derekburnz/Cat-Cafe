@@ -1,61 +1,97 @@
-"""Cat accessories: small meshes that weld to a cat part at a named attachment point.
+"""Cat accessories: small meshes that sit on a cat part at a named slot.
 
-Each accessory's pivot is its attachment point, so in Studio: Motor6D or WeldConstraint
-to the part named in ATTACH, with the accessory's pivot at that part-local offset.
-The same offsets hold for an upright variant because they live on the Head and Body.
+Each accessory's pivot is its slot, so in Studio: pivot the accessory to the cat's Outfit_<Piece> Attachment (or to
+the part in its slot at that part-local offset, times the cat's Scale) and weld or anchor it there.
+
+Role outfits (data-model section 5): working cats sit at their stations on body B (CatCafe_Cat_<Name>_Sit; the
+engineer, 2026-10-27) in their role's two pieces, so the pieces are built to fit B's chest and head, which are the
+same on every cat (cats.B_CHEST_*, cats.HEADS["sit"]), each around its slot in SIT_SLOTS. The sitting models carry
+one Outfit_<Piece> Attachment per piece at those slots. Cats wear no collar (Derek, 2026-10-27), so the outfit is
+what marks a cat as staff. Glasses and Hat are the first generic accessories, on the walking head (slots()).
 """
 
 import math
 
-from common import Builder
+import cats
+from common import Builder, scale_mesh
 
-# attachment name -> (cat part, offset local to that part's pivot, in studs, Blender axes)
-# Quadruped (default) slots. Glasses and Hat ride the Head, so they are the same in every pose.
-ATTACH = {
-    "Glasses": ("Head", (0.0, -0.57, 0.2)),   # just in front of the face, eye height
-    "Hat":     ("Head", (0.0, -0.18, 0.5)),   # head top center
-    "BowTie":  ("Body", (0.0, -0.72, 0.95)),  # under the chin
-    "Apron":   ("Body", (0.0, -0.70, 1.0)),   # chest, hangs down the front
+K = cats.SIT_SCALE
+# B's chest, unscaled: half width, front and back, the bottom of the outfit and the line under the chin
+X1 = cats.B_CHEST_S[0] / 2
+Y0, Y1 = cats.B_CHEST_C[1] - cats.B_CHEST_S[1] / 2, cats.B_CHEST_C[1] + cats.B_CHEST_S[1] / 2
+Z0 = cats.B_CHEST_C[2] - cats.B_CHEST_S[2] / 2 + 0.02
+NECK_Z = cats.B_NECK[2] + cats.HEADS["sit"]["c"][2] - cats.HEADS["sit"]["s"][2] / 2
+MID = (Z0 + NECK_Z) / 2
+HAT_AT, HAT_K = (0.0, -0.2, 0.65), 1.25      # on top of B's head, relative to the neck; hats a quarter bigger
+
+# piece -> (cat part, slot offset from that part's pivot, unscaled)
+_SLOTS = {
+    "Apron":      ("Body", (0.0, Y0, MID)),                 # middle of the chest front
+    "BowTie":     ("Body", (0.0, Y0 - 0.035, NECK_Z - 0.18)),   # under the chin
+    "Vest":       ("Body", (0.0, (Y0 + Y1) / 2, MID)),      # middle of the chest
+    "Sash":       ("Body", (0.0, (Y0 + Y1) / 2, MID)),
+    "Cape":       ("Body", (0.0, Y1, NECK_Z)),              # back of the shoulders
+    "BaristaCap": ("Head", HAT_AT),
+    "Boater":     ("Head", HAT_AT),
+    "PartyHat":   ("Head", HAT_AT),
 }
+# The same in the sitting model's space before the cat's Scale: (part, offset, rotation_xyz_deg)
+SIT_SLOTS = {n: (part, tuple(round(v * K, 4) for v in at), (0, 0, 0)) for n, (part, at) in _SLOTS.items()}
 
-
-# Upright slots: when a cat stands (poses.POSES["upright"]) its belly faces forward, so the
-# Body accessories move to the belly and turn +90 degrees about X (part-local) to stay upright.
-# (part, offset, rotation_xyz_deg). Head slots are unchanged.
-ATTACH_UPRIGHT = {
-    "BowTie":     ("Body", (0.0, -0.72, 0.22), (90, 0, 0)),   # at the throat, above the raised paws
-    "Apron":      ("Body", (0.0, -0.45, 0.38), (90, 0, 0)),
-    "Sash":       ("Body", (0.0, -0.32, 0.40), (90, 0, 0)),   # shoulder to hip across the chest
-    "Vest":       ("Body", (0.0, -0.40, 0.40), (90, 0, 0)),   # chest and flanks; the paws come out through it
-    "Cape":       ("Body", (0.0, -0.40, 0.40), (90, 0, 0)),   # hangs down the back from the shoulders
-    "PartyHat":   ("Head", (0.0, -0.12, 0.5), (0, 0, 0)),     # between the ears, same in every pose
-    "BaristaCap": ("Head", (0.0, -0.16, 0.48), (0, 0, 0)),    # head top, brim to the front
-    "Boater":     ("Head", (0.0, -0.16, 0.48), (0, 0, 0)),
-}
-
-# Roles (data-model section 5): each working cat stands upright in its role's outfit, two pieces welded at the
-# slots above. Cats wear no collar (Derek, 2026-10-27), so the outfit is what marks a cat as staff.
 ROLE_OUTFITS = {"barista": ("Apron", "BaristaCap"), "waiter": ("BowTie", "Vest"), "greeter": ("Sash", "Boater"),
                 "entertainer": ("PartyHat", "Cape")}
 
 
-def face_shift(spec):
-    """Per-cat nudge for slots that sit on the face, so one accessory set fits every cat."""
-    return 0.12 if spec.get("persian") else 0.0     # the Persian's flat face sits 0.12 further back
+def slots(spec, body="sit"):
+    """(part, offset, rotation) per accessory on one cat's model before its Scale: the role pieces on the sitting
+    body, Glasses and Hat on the walking one (just in front of the face at eye height, and the head top)."""
+    if body == "sit":
+        return dict(SIT_SLOTS)
+    h = cats.dims(spec, "walk")["head"]
+    return {"Glasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)),
+            "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0))}
 
 
-def attach_for(spec, upright=False):
-    """(part, offset, rotation) per accessory for one cat, before the cat's scale."""
-    out = {}
-    for n, (part, off) in ATTACH.items():
-        out[n] = (part, off, (0, 0, 0))
-    if upright:
-        out.update(ATTACH_UPRIGHT)
-    dy = face_shift(spec)
-    if dy and "Glasses" in out:
-        part, off, rot = out["Glasses"]
-        out["Glasses"] = (part, (off[0], off[1] + dy, off[2]), rot)
-    return out
+def _x(deg):
+    return (math.radians(deg), "X")
+
+
+def _y(deg):
+    return (math.radians(deg), "Y")
+
+
+class _Fit:
+    """A Builder in B's unscaled space, around one piece's slot: draw at chest coordinates, get a mesh pivoted at
+    the slot and scaled to the sitting model."""
+
+    def __init__(self, piece):
+        self.b = Builder()
+        self.at = _SLOTS[piece][1]
+
+    def _p(self, p):
+        return tuple(p[i] - self.at[i] for i in range(3))
+
+    def box(self, c, size, swatch, **kw):
+        self.b.box(self._p(c), size, swatch, **kw)
+
+    def cyl(self, c, r, h, swatch, **kw):
+        self.b.cyl(self._p(c), r, h, swatch, **kw)
+
+    def band(self, za, zb, swatch, pad=0.03):
+        """A strap all round the chest between heights za and zb."""
+        self.box((0, (Y0 + Y1) / 2, (za + zb) / 2), (2 * X1 + 2 * pad, Y1 - Y0 + 2 * pad, zb - za + 2 * pad), swatch,
+                 bevel=False)
+
+    def finalize(self, name, mat):
+        ob = self.b.finalize(name, mat)
+        scale_mesh(ob, K)
+        return [ob]
+
+
+def _scaled(objs, k):
+    for ob in objs:
+        scale_mesh(ob, k)
+    return objs
 
 
 def build_glasses(mat):
@@ -69,33 +105,39 @@ def build_glasses(mat):
     return [b.finalize("CatCafe_Accessory_Glasses", mat)]
 
 
-def build_bow_tie(mat):
+def _bow_tie(name, mat):
     b = Builder()
     b.box((0, 0, 0), (0.14, 0.12, 0.14), "blush")                                  # knot
     b.box((-0.2, 0.02, 0), (0.3, 0.1, 0.26), "blush", rot=(math.radians(10), "Y"))
     b.box((0.2, 0.02, 0), (0.3, 0.1, 0.26), "blush", rot=(math.radians(-10), "Y"))
-    return [b.finalize("CatCafe_Accessory_BowTie", mat)]
+    return [b.finalize(name, mat)]
+
+
+def build_bow_tie(mat):
+    """Waiter's bow tie, under the chin of the sitting cat, in front of the waistcoat."""
+    return _scaled(_bow_tie("CatCafe_Accessory_BowTie", mat), 0.9 * K)
 
 
 def build_apron(mat):
-    b = Builder()
-    b.box((0, 0, -0.32), (0.6, 0.06, 0.6), "mint")                                 # bib down the chest
-    b.box((0, 0.0, 0.0), (0.7, 0.05, 0.08), "dark_wood", bevel=False)              # neck strap front
-    b.box((0, -0.02, -0.45), (0.3, 0.03, 0.2), "cream", bevel=False)               # pocket
-    return [b.finalize("CatCafe_Accessory_Apron", mat)]
+    """Barista's apron: a mint bib down the chest with a cream pocket, tied round the waist with a bow at the back."""
+    f = _Fit("Apron")
+    fy, w = Y0 - 0.015, 2 * X1
+    f.box((0, fy, MID), (w * 0.62, 0.04, NECK_Z - Z0 - 0.04), "mint")                          # bib
+    f.box((0, fy - 0.02, Z0 + 0.16), (w * 0.34, 0.03, 0.16), "cream", bevel=False)              # pocket
+    f.band(Z0 + 0.3, Z0 + 0.34, "mint")                                                          # tie
+    f.box((0, Y1 + 0.04, Z0 + 0.32), (0.22, 0.04, 0.1), "mint", bevel=False)                    # bow at the back
+    return f.finalize("CatCafe_Accessory_Apron", mat)
 
 
 def build_sash(mat):
-    """Greeter sash, built standing (Z up, front -Y): shoulder to hip with a gold rosette."""
-    b = Builder()
-    a = math.radians(-38)
-    tilt = (a, "Y")
-    b.box((0, 0, 0), (0.24, 0.05, 1.25), "shirt_red", bevel=False, rot=tilt)                  # band
-    for dx in (-0.13, 0.13):                                                                  # gold edges
-        b.box((dx * math.cos(a), -0.005, -dx * math.sin(a)), (0.03, 0.05, 1.2), "rarity_legend", bevel=False, rot=tilt)
-    b.cyl((0.18, -0.05, 0.24), 0.14, 0.05, "rarity_legend", segments=10, rot=(math.radians(90), "X"))   # rosette
-    b.cyl((0.18, -0.08, 0.24), 0.07, 0.04, "shirt_red", segments=8, rot=(math.radians(90), "X"))
-    return [b.finalize("CatCafe_Accessory_Sash", mat)]
+    """Greeter's sash: red, from the shoulder across the chest and back, with a gold rosette."""
+    f = _Fit("Sash")
+    fy, w, length = Y0 - 0.015, 2 * X1, (NECK_Z - Z0) * 1.25
+    f.box((0, fy - 0.01, MID), (0.17, 0.04, length), "shirt_red", bevel=False, rot=_y(-36))
+    f.box((0, Y1 + 0.025, MID), (0.17, 0.04, length), "shirt_red", bevel=False, rot=_y(36))
+    f.cyl((w * 0.26, fy - 0.05, NECK_Z - 0.12), 0.12, 0.05, "rarity_legend", segments=10, rot=_x(90))   # rosette
+    f.cyl((w * 0.26, fy - 0.08, NECK_Z - 0.12), 0.06, 0.04, "shirt_red", segments=8, rot=_x(90))
+    return f.finalize("CatCafe_Accessory_Sash", mat)
 
 
 def build_party_hat(mat):
@@ -106,7 +148,7 @@ def build_party_hat(mat):
     for z, r1, r2, sw in rings:
         b.cyl_base((0, 0, z), r1, 0.15, sw, segments=10, radius2=r2, bevel=False)
     b.ico((0, 0, 0.64), 0.08, "sparkle", subdivisions=1)                                      # pom-pom
-    return [b.finalize("CatCafe_Accessory_PartyHat", mat)]
+    return _scaled([b.finalize("CatCafe_Accessory_PartyHat", mat)], HAT_K * K)
 
 
 def build_barista_cap(mat):
@@ -117,40 +159,37 @@ def build_barista_cap(mat):
     b.box((0, -0.3, 0.015), (0.4, 0.2, 0.03), "mint", bevel=False, rot=(math.radians(12), "X"))   # brim, tipped down
     b.box((0, -0.235, 0.105), (0.08, 0.03, 0.1), "dark_wood", bevel=False)                       # bean badge
     b.box((0, -0.252, 0.105), (0.015, 0.01, 0.08), "cream", bevel=False)                         # the bean's crease
-    return [b.finalize("CatCafe_Accessory_BaristaCap", mat)]
+    return _scaled([b.finalize("CatCafe_Accessory_BaristaCap", mat)], HAT_K * K)
 
 
 def build_vest(mat):
-    """Waiter's waistcoat, built standing (Z up, front -Y) like the sash: dark front panels with a stepped V of
-    white shirt between them, gold buttons, sides and a back. Roomy, so one size fits the big cats."""
-    b = Builder()
-    w, top, mid, bot = 0.52, 0.2, -0.14, -0.6          # half width; top of the V, where it closes, the hem (z)
-    b.box((0, 0, (mid + bot) / 2), (2 * w, 0.05, mid - bot), "dark_wood")                     # lower front
-    for sx in (-1, 1):
-        b.box((sx * (w + 0.09) / 2, 0, (mid + 0.04) / 2), (w - 0.09, 0.05, 0.04 - mid), "dark_wood")   # V, lower step
-        b.box((sx * (w + 0.2) / 2, 0, (0.04 + top) / 2), (w - 0.2, 0.05, top - 0.04), "dark_wood")     # V, upper step
-        b.box((sx * (w - 0.025), 0.4, (top + bot) / 2 - 0.03), (0.05, 0.8, top - bot - 0.06), "dark_wood")  # side
-    b.box((0, 0.8, (top + bot) / 2 - 0.03), (2 * w, 0.05, top - bot - 0.06), "dark_wood")               # back
-    b.box((0, 0.005, (mid + top) / 2 + 0.02), (0.4, 0.03, top - mid + 0.04), "offwhite", bevel=False)  # shirt
-    for z in (-0.22, -0.36, -0.5):
-        b.box((0, -0.035, z), (0.06, 0.03, 0.06), "rarity_legend", bevel=False)                   # buttons
-    return [b.finalize("CatCafe_Accessory_Vest", mat)]
+    """Waiter's waistcoat: dark all round the chest, a white shirt V at the neck and three gold buttons. It stands a
+    little off the chest so the chest patch and the tuxedo bib stay under it."""
+    f = _Fit("Vest")
+    pad = 0.045
+    front = Y0 - pad
+    f.band(Z0 + 0.04, NECK_Z, "dark_wood", pad=pad)
+    f.box((0, front - 0.005, NECK_Z - 0.13), (2 * X1 * 0.3, 0.03, 0.26), "offwhite", bevel=False)     # shirt V
+    for i in range(3):
+        f.box((0, front - 0.012, NECK_Z - 0.32 - 0.12 * i), (0.06, 0.03, 0.06), "rarity_legend", bevel=False)
+    return f.finalize("CatCafe_Accessory_Vest", mat)
 
 
 def build_cape(mat):
-    """Entertainer's stage cape, built standing (Z up, front -Y): teal outside, pink lining and gold stars, hung
-    behind the back of the roomiest cat from two straps over the shoulders, flaring out at the hem."""
-    b = Builder()
-    y0, flare = 0.92, (math.radians(8), "X")
-    b.box((0, y0, -0.3), (0.96, 0.05, 1.0), "sign_teal", rot=flare)                             # cape
-    b.box((0, y0 - 0.03, -0.3), (0.9, 0.02, 0.94), "neon_pink", bevel=False, rot=flare)         # lining
-    for (x, z) in ((-0.25, -0.05), (0.2, -0.3), (-0.1, -0.6), (0.3, -0.65)):                      # stars, outside
-        b.box((x, y0 + 0.03 - z * math.sin(flare[0]), z - 0.0), (0.09, 0.03, 0.09), "rarity_legend", bevel=False,
-              rot=(math.radians(45), "Y"))
+    """Entertainer's stage cape: teal outside, pink lining and gold stars, hung from a pink collar at the back of the
+    shoulders, with straps along the sides to two gold clasps at the front."""
+    f = _Fit("Cape")
+    w, fy = 2 * X1, Y0 - 0.015
+    cw, tall = w + 0.36, NECK_Z - Z0 + 0.3
+    f.box((0, Y1 + 0.06, MID - 0.08), (cw, 0.05, tall), "sign_teal", rot=_x(-8))
+    f.box((0, Y1 + 0.03, MID - 0.08), (cw - 0.06, 0.02, tall - 0.06), "neon_pink", bevel=False, rot=_x(-8))
+    f.box((0, Y1 + 0.02, NECK_Z + 0.04), (cw, 0.16, 0.12), "neon_pink", bevel=False)              # collar
     for sx in (-1, 1):
-        b.box((sx * 0.33, y0 / 2, 0.22), (0.1, y0, 0.05), "sign_teal", bevel=False)              # shoulder straps
-        b.box((sx * 0.33, -0.03, 0.22), (0.12, 0.04, 0.12), "rarity_legend", bevel=False)        # gold clasps
-    return [b.finalize("CatCafe_Accessory_Cape", mat)]
+        f.box((sx * (X1 + 0.015), (fy + Y1) / 2, NECK_Z - 0.04), (0.03, Y1 - fy, 0.08), "sign_teal", bevel=False)
+        f.box((sx * w * 0.36, fy - 0.01, NECK_Z - 0.04), (0.12, 0.04, 0.12), "rarity_legend", bevel=False)  # clasps
+    for (x, z) in ((-0.2, 0.15), (0.18, -0.05), (0.0, -0.3)):
+        f.box((x, Y1 + 0.095, MID + z), (0.09, 0.03, 0.09), "rarity_legend", bevel=False, rot=_y(45))
+    return f.finalize("CatCafe_Accessory_Cape", mat)
 
 
 def build_boater(mat):
@@ -160,7 +199,7 @@ def build_boater(mat):
     b.cyl_base((0, 0, 0.04), 0.25, 0.05, "shirt_red", segments=12, bevel=False)                 # band
     b.cyl_base((0, 0, 0.09), 0.25, 0.09, "treat_tan", segments=12)                              # crown
     b.box((0.2, -0.13, 0.065), (0.08, 0.03, 0.08), "offwhite", bevel=False, rot=(math.radians(-30), "Z"))  # bow
-    return [b.finalize("CatCafe_Accessory_Boater", mat)]
+    return _scaled([b.finalize("CatCafe_Accessory_Boater", mat)], HAT_K * K)
 
 
 def build_hat(mat):

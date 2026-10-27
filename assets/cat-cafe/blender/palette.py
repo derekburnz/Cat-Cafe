@@ -83,6 +83,13 @@ def rgb_linear(name):
     return tuple(srgb_to_linear(c) for c in hex_to_rgb(SWATCHES[idx(name)][1]))
 
 
+def lstar(name):
+    """CIE L* (0 black to 100 white) of a swatch: how light it reads, for picking gold tones and line colours."""
+    r, g, b = (srgb_to_linear(c) for c in hex_to_rgb(SWATCHES[idx(name)][1]))
+    y = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return 116 * y ** (1 / 3) - 16 if y > 0.008856 else 903.3 * y
+
+
 def uv_center(i):
     """UV of the center of swatch i. Row 0 is the TOP of the image."""
     col, row = i % GRID, i // GRID

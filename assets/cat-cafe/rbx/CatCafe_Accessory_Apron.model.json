@@ -13,8 +13,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.32,
-       0.0
+       0.057,
+       0.2612
       ],
       "orientation": [
        [
@@ -36,9 +36,9 @@
      }
     },
     "Size": [
-     0.6,
-     0.6,
-     0.06
+     0.722,
+     0.095,
+     0.5795
     ],
     "Color": [
      0.5608,
@@ -56,8 +56,8 @@
      "CFrame": {
       "position": [
        0.0,
-       0.32,
-       0.0
+       -0.057,
+       -0.2612
       ],
       "orientation": [
        [
@@ -92,7 +92,7 @@
       "position": [
        0.0,
        0.0,
-       0.0
+       -0.0142
       ],
       "orientation": [
        [
@@ -114,14 +114,14 @@
      }
     },
     "Size": [
-     0.7,
-     0.08,
-     0.05
+     0.4123,
+     0.456,
+     0.038
     ],
     "Color": [
-     0.3686,
-     0.2745,
-     0.2039
+     0.5608,
+     0.8275,
+     0.7569
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -140,8 +140,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.45,
-       -0.02
+       -0.095,
+       -0.0333
       ],
       "orientation": [
        [
@@ -163,14 +163,63 @@
      }
     },
     "Size": [
-     0.3,
-     0.2,
-     0.03
+     0.2261,
+     0.152,
+     0.0285
     ],
     "Color": [
      0.9647,
      0.9216,
      0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_Apron",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.057,
+       0.5605
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.209,
+     0.095,
+     0.038
+    ],
+    "Color": [
+     0.5608,
+     0.8275,
+     0.7569
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,

@@ -7498,9 +7498,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.8789,
-         0.38,
-         -16.2547
+         1.8493,
+         0.33,
+         -16.1912
         ],
         "orientation": [
          [
@@ -7522,9 +7522,9 @@
        }
       },
       "Size": [
-       0.9,
-       0.7,
-       1.4
+       0.78,
+       0.58,
+       0.95
       ],
       "Color": [
        0.9137,
@@ -7542,8 +7542,8 @@
        "CFrame": {
         "position": [
          5.1667,
-         -0.38,
-         15.5258
+         -0.33,
+         15.4558
         ],
         "orientation": [
          [
@@ -7576,9 +7576,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.0268,
-         0.38,
-         -16.5719
+         1.9617,
+         0.37,
+         -16.4323
         ],
         "orientation": [
          [
@@ -7600,9 +7600,9 @@
        }
       },
       "Size": [
-       0.94,
-       0.74,
-       0.16
+       0.82,
+       0.56,
+       0.13
       ],
       "Color": [
        0.7216,
@@ -7625,9 +7625,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.8789,
-         0.38,
-         -16.2547
+         1.8292,
+         0.37,
+         -16.1482
         ],
         "orientation": [
          [
@@ -7649,9 +7649,9 @@
        }
       },
       "Size": [
-       0.94,
-       0.74,
-       0.16
+       0.82,
+       0.56,
+       0.13
       ],
       "Color": [
        0.7216,
@@ -7674,9 +7674,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.731,
-         0.38,
-         -15.9375
+         1.7048,
+         0.37,
+         -15.8813
         ],
         "orientation": [
          [
@@ -7698,14 +7698,63 @@
        }
       },
       "Size": [
-       0.94,
-       0.74,
-       0.16
+       0.82,
+       0.56,
+       0.13
       ],
       "Color": [
        0.7216,
        0.451,
        0.1686
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Body",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0543,
+         0.29,
+         -16.6308
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.0,
+          -0.4226
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.4226,
+          0.0,
+          0.9063
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.36,
+       0.348,
+       0.06
+      ],
+      "Color": [
+       0.9686,
+       0.9451,
+       0.902
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -7760,33 +7809,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.1575,
-         0.8434,
-         -16.9181
+         2.0095,
+         0.7629,
+         -16.9026
         ],
         "orientation": [
          [
           0.9986,
-          -0.0246,
-          -0.0462
+          -0.0213,
+          0.0478
          ],
          [
           0.0,
-          0.8829,
-          -0.4695
+          0.9135,
+          0.4067
          ],
          [
-          0.0523,
-          0.4688,
-          0.8817
+          -0.0523,
+          -0.4062,
+          0.9123
          ]
         ]
        }
       },
       "Size": [
-       0.8,
-       0.64,
-       0.7
+       1.0,
+       0.84,
+       0.8
       ],
       "Color": [
        0.9137,
@@ -7803,25 +7852,25 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -1.2691,
-         7.24,
-         15.413
+         -2.8913,
+         -7.5196,
+         15.0138
         ],
         "orientation": [
          [
           0.9986,
           0.0,
-          0.0523
+          -0.0523
          ],
          [
-          -0.0246,
-          0.8829,
-          0.4688
+          -0.0213,
+          0.9135,
+          -0.4062
          ],
          [
-          -0.0462,
-          -0.4695,
-          0.8817
+          0.0478,
+          0.4067,
+          0.9123
          ]
         ]
        }
@@ -7838,425 +7887,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.3962,
-         1.129,
-         -16.6968
+         2.2198,
+         1.176,
+         -17.043
         ],
         "orientation": [
          [
           0.9986,
-          -0.0246,
-          -0.0462
+          -0.0213,
+          0.0478
          ],
          [
           0.0,
-          0.8829,
-          -0.4695
+          0.9135,
+          0.4067
          ],
          [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2333,
-       0.1,
-       0.2333
-      ],
-      "Color": [
-       0.9137,
-       0.6353,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.3938,
-         1.2173,
-         -16.65
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.14,
-       0.1,
-       0.14
-      ],
-      "Color": [
-       0.9137,
-       0.6353,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.3913,
-         1.3056,
-         -16.6031
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0467,
-       0.1,
-       0.0467
-      ],
-      "Color": [
-       0.9137,
-       0.6353,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.4019,
-         1.2552,
-         -16.8063
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.098,
-       0.105,
-       0.03
-      ],
-      "Color": [
-       0.8784,
-       0.4784,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.8969,
-         1.129,
-         -16.723
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2333,
-       0.1,
-       0.2333
-      ],
-      "Color": [
-       0.9137,
-       0.6353,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.8944,
-         1.2173,
-         -16.6761
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.14,
-       0.1,
-       0.14
-      ],
-      "Color": [
-       0.9137,
-       0.6353,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.892,
-         1.3056,
-         -16.6292
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.0467,
-       0.1,
-       0.0467
-      ],
-      "Color": [
-       0.9137,
-       0.6353,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.9026,
-         1.2552,
-         -16.8324
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.098,
-       0.105,
-       0.03
-      ],
-      "Color": [
-       0.8784,
-       0.4784,
-       0.549
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.3667,
-         1.1113,
-         -16.7078
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
+          -0.0523,
+          -0.4062,
+          0.9123
          ]
         ]
        }
       },
       "Size": [
        0.08,
-       0.04,
-       0.5
+       0.06,
+       0.544
       ],
       "Color": [
        0.7216,
@@ -8279,33 +7936,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.147,
-         1.1113,
-         -16.7193
+         2.0027,
+         1.176,
+         -17.0316
         ],
         "orientation": [
          [
           0.9986,
-          -0.0246,
-          -0.0462
+          -0.0213,
+          0.0478
          ],
          [
           0.0,
-          0.8829,
-          -0.4695
+          0.9135,
+          0.4067
          ],
          [
-          0.0523,
-          0.4688,
-          0.8817
+          -0.0523,
+          -0.4062,
+          0.9123
          ]
         ]
        }
       },
       "Size": [
        0.08,
-       0.04,
-       0.5
+       0.06,
+       0.544
       ],
       "Color": [
        0.7216,
@@ -8328,33 +7985,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.9273,
-         1.1113,
-         -16.7308
+         1.7856,
+         1.176,
+         -17.0202
         ],
         "orientation": [
          [
           0.9986,
-          -0.0246,
-          -0.0462
+          -0.0213,
+          0.0478
          ],
          [
           0.0,
-          0.8829,
-          -0.4695
+          0.9135,
+          0.4067
          ],
          [
-          0.0523,
-          0.4688,
-          0.8817
+          -0.0523,
+          -0.4062,
+          0.9123
          ]
         ]
        }
       },
       "Size": [
        0.08,
-       0.04,
-       0.5
+       0.06,
+       0.544
       ],
       "Color": [
        0.7216,
@@ -8377,32 +8034,32 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.179,
-         0.8582,
-         -17.3287
+         1.9958,
+         0.3918,
+         -17.1639
         ],
         "orientation": [
          [
           0.9986,
-          -0.0246,
-          -0.0462
+          -0.0213,
+          0.0478
          ],
          [
           0.0,
-          0.8829,
-          -0.4695
+          0.9135,
+          0.4067
          ],
          [
-          0.0523,
-          0.4688,
-          0.8817
+          -0.0523,
+          -0.4062,
+          0.9123
          ]
         ]
        }
       },
       "Size": [
-       0.38,
-       0.22,
+       0.414,
+       0.23,
        0.08
       ],
       "Color": [
@@ -8426,326 +8083,32 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.3747,
-         1.0442,
-         -17.2421
+         1.9931,
+         0.4196,
+         -17.2145
         ],
         "orientation": [
          [
           0.9986,
-          -0.0246,
-          -0.0462
+          -0.0213,
+          0.0478
          ],
          [
           0.0,
-          0.8829,
-          -0.4695
+          0.9135,
+          0.4067
          ],
          [
-          0.0523,
-          0.4688,
-          0.8817
+          -0.0523,
+          -0.4062,
+          0.9123
          ]
         ]
        }
       },
       "Size": [
-       0.24,
-       0.26,
-       0.06
-      ],
-      "Color": [
-       0.949,
-       0.6941,
-       0.2039
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.3761,
-         1.0359,
-         -17.2692
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.18,
-       0.04
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.4255,
-         1.0983,
-         -17.256
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.05,
-       0.06,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       1.0,
-       1.0
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.9753,
-         1.0442,
-         -17.2631
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.24,
-       0.26,
-       0.06
-      ],
-      "Color": [
-       0.949,
-       0.6941,
-       0.2039
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         1.9767,
-         1.0359,
-         -17.2901
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.12,
-       0.18,
-       0.04
-      ],
-      "Color": [
-       0.1686,
-       0.1686,
-       0.2078
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.0261,
-         1.0983,
-         -17.277
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.05,
-       0.06,
-       0.03
-      ],
-      "Color": [
-       1.0,
-       1.0,
-       1.0
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Head",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.1799,
-         0.89,
-         -17.3458
-        ],
-        "orientation": [
-         [
-          0.9986,
-          -0.0246,
-          -0.0462
-         ],
-         [
-          0.0,
-          0.8829,
-          -0.4695
-         ],
-         [
-          0.0523,
-          0.4688,
-          0.8817
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.14,
-       0.1,
+       0.115,
+       0.0805,
        0.06
       ],
       "Color": [
@@ -8761,6 +8124,1299 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.9941,
+         0.3518,
+         -17.1953
+        ],
+        "orientation": [
+         [
+          0.9986,
+          -0.0213,
+          0.0478
+         ],
+         [
+          0.0,
+          0.9135,
+          0.4067
+         ],
+         [
+          -0.0523,
+          -0.4062,
+          0.9123
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.028,
+       0.079,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0238,
+         0.304,
+         -17.1789
+        ],
+        "orientation": [
+         [
+          0.8755,
+          0.4809,
+          0.0478
+         ],
+         [
+          -0.4568,
+          0.7912,
+          0.4067
+         ],
+         [
+          0.1578,
+          -0.3779,
+          0.9123
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0928,
+         0.3052,
+         -17.1797
+        ],
+        "orientation": [
+         [
+          0.8542,
+          -0.5177,
+          0.0478
+         ],
+         [
+          0.4568,
+          0.7912,
+          0.4067
+         ],
+         [
+          -0.2484,
+          -0.3256,
+          0.9123
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.9663,
+         0.304,
+         -17.1759
+        ],
+        "orientation": [
+         [
+          0.8542,
+          -0.5177,
+          0.0478
+         ],
+         [
+          0.4568,
+          0.7912,
+          0.4067
+         ],
+         [
+          -0.2484,
+          -0.3256,
+          0.9123
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.8976,
+         0.3052,
+         -17.1695
+        ],
+        "orientation": [
+         [
+          0.8755,
+          0.4809,
+          0.0478
+         ],
+         [
+          -0.4568,
+          0.7912,
+          0.4067
+         ],
+         [
+          0.1578,
+          -0.3779,
+          0.9123
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0575,
+       0.028,
+       0.03
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.42,
+         0.3983,
+         -17.2
+        ],
+        "orientation": [
+         [
+          0.9986,
+          -0.0213,
+          0.0478
+         ],
+         [
+          0.0,
+          0.9135,
+          0.4067
+         ],
+         [
+          -0.0523,
+          -0.4062,
+          0.9123
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.138,
+       0.0575,
+       0.05
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.5701,
+         0.3983,
+         -17.1555
+        ],
+        "orientation": [
+         [
+          0.9986,
+          -0.0213,
+          0.0478
+         ],
+         [
+          0.0,
+          0.9135,
+          0.4067
+         ],
+         [
+          -0.0523,
+          -0.4062,
+          0.9123
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.138,
+       0.0575,
+       0.05
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.7385,
+           0.5413,
+           -17.239
+          ],
+          "orientation": [
+           [
+            0.9986,
+            -0.0213,
+            0.0478
+           ],
+           [
+            0.0,
+            0.9135,
+            0.4067
+           ],
+           [
+            -0.0523,
+            -0.4062,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.23,
+         0.299,
+         0.07
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -2.6383,
+           -7.4596,
+           15.4238
+          ],
+          "orientation": [
+           [
+            0.9986,
+            0.0,
+            -0.0523
+           ],
+           [
+            -0.0213,
+            0.9135,
+            -0.4062
+           ],
+           [
+            0.0478,
+            0.4067,
+            0.9123
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Plot_ForRent/5"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.7278,
+           0.5101,
+           -17.2519
+          ],
+          "orientation": [
+           [
+            0.9986,
+            -0.0213,
+            0.0478
+           ],
+           [
+            0.0,
+            0.9135,
+            0.4067
+           ],
+           [
+            -0.0523,
+            -0.4062,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.138,
+         0.2153,
+         0.04
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.7862,
+           0.5995,
+           -17.3168
+          ],
+          "orientation": [
+           [
+            0.9986,
+            -0.0213,
+            0.0478
+           ],
+           [
+            0.0,
+            0.9135,
+            0.4067
+           ],
+           [
+            -0.0523,
+            -0.4062,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.069,
+         0.0805,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Plot_ForRent_Cat_Eye1"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/6"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.2438,
+           0.5413,
+           -17.2655
+          ],
+          "orientation": [
+           [
+            0.9986,
+            -0.0213,
+            0.0478
+           ],
+           [
+            0.0,
+            0.9135,
+            0.4067
+           ],
+           [
+            -0.0523,
+            -0.4062,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.23,
+         0.299,
+         0.07
+        ],
+        "Color": [
+         0.949,
+         0.6941,
+         0.2039
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -3.1443,
+           -7.4596,
+           15.4238
+          ],
+          "orientation": [
+           [
+            0.9986,
+            0.0,
+            -0.0523
+           ],
+           [
+            -0.0213,
+            0.9135,
+            -0.4062
+           ],
+           [
+            0.0478,
+            0.4067,
+            0.9123
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Plot_ForRent/6"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.2531,
+           0.5101,
+           -17.2795
+          ],
+          "orientation": [
+           [
+            0.9986,
+            -0.0213,
+            0.0478
+           ],
+           [
+            0.0,
+            0.9135,
+            0.4067
+           ],
+           [
+            -0.0523,
+            -0.4062,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.138,
+         0.2153,
+         0.04
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.2915,
+           0.5995,
+           -17.3433
+          ],
+          "orientation": [
+           [
+            0.9986,
+            -0.0213,
+            0.0478
+           ],
+           [
+            0.0,
+            0.9135,
+            0.4067
+           ],
+           [
+            -0.0523,
+            -0.4062,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.069,
+         0.0805,
+         0.03
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Plot_ForRent_Cat_Eye2"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/7"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.7241,
+           1.1912,
+           -17.0128
+          ],
+          "orientation": [
+           [
+            0.9724,
+            -0.2284,
+            0.0478
+           ],
+           [
+            0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            -0.1356,
+            -0.3864,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2667,
+         0.1,
+         0.2667
+        ],
+        "Color": [
+         0.9137,
+         0.6353,
+         0.2941
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -4.2104,
+           -7.2447,
+           14.9538
+          ],
+          "orientation": [
+           [
+            0.9724,
+            0.1899,
+            -0.1356
+           ],
+           [
+            -0.2284,
+            0.8936,
+            -0.3864
+           ],
+           [
+            0.0478,
+            0.4067,
+            0.9123
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Plot_ForRent/7"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.7012,
+           1.2806,
+           -17.0515
+          ],
+          "orientation": [
+           [
+            0.9724,
+            -0.2284,
+            0.0478
+           ],
+           [
+            0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            -0.1356,
+            -0.3864,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.16,
+         0.1,
+         0.16
+        ],
+        "Color": [
+         0.9137,
+         0.6353,
+         0.2941
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.6784,
+           1.3699,
+           -17.0901
+          ],
+          "orientation": [
+           [
+            0.9724,
+            -0.2284,
+            0.0478
+           ],
+           [
+            0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            -0.1356,
+            -0.3864,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0533,
+         0.1,
+         0.0533
+        ],
+        "Color": [
+         0.9137,
+         0.6353,
+         0.2941
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           1.6783,
+           1.1789,
+           -17.1312
+          ],
+          "orientation": [
+           [
+            0.9724,
+            -0.2284,
+            0.0478
+           ],
+           [
+            0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            -0.1356,
+            -0.3864,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1152,
+         0.114,
+         0.03
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Plot_ForRent_Cat_EarL"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/8"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.2817,
+           1.1912,
+           -17.0421
+          ],
+          "orientation": [
+           [
+            0.9812,
+            0.1868,
+            0.0478
+           ],
+           [
+            -0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            0.0333,
+            -0.4082,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2667,
+         0.1,
+         0.2667
+        ],
+        "Color": [
+         0.9137,
+         0.6353,
+         0.2941
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -1.4459,
+           -8.447,
+           14.9538
+          ],
+          "orientation": [
+           [
+            0.9812,
+            -0.1899,
+            0.0333
+           ],
+           [
+            0.1868,
+            0.8936,
+            -0.4082
+           ],
+           [
+            0.0478,
+            0.4067,
+            0.9123
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Plot_ForRent/8"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.3004,
+           1.2806,
+           -17.0829
+          ],
+          "orientation": [
+           [
+            0.9812,
+            0.1868,
+            0.0478
+           ],
+           [
+            -0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            0.0333,
+            -0.4082,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.16,
+         0.1,
+         0.16
+        ],
+        "Color": [
+         0.9137,
+         0.6353,
+         0.2941
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.3191,
+           1.3699,
+           -17.1237
+          ],
+          "orientation": [
+           [
+            0.9812,
+            0.1868,
+            0.0478
+           ],
+           [
+            -0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            0.0333,
+            -0.4082,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0533,
+         0.1,
+         0.0533
+        ],
+        "Color": [
+         0.9137,
+         0.6353,
+         0.2941
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Plot_ForRent_Cat_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           2.3149,
+           1.1789,
+           -17.1646
+          ],
+          "orientation": [
+           [
+            0.9812,
+            0.1868,
+            0.0478
+           ],
+           [
+            -0.1899,
+            0.8936,
+            0.4067
+           ],
+           [
+            0.0333,
+            -0.4082,
+            0.9123
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1152,
+         0.114,
+         0.03
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Plot_ForRent_Cat_EarR"
     }
    ],
    "properties": {
@@ -8796,7 +9452,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/5"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/9"
    },
    "children": [
     {
@@ -8806,33 +9462,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.7236,
-         0.5992,
-         -15.5023
+         1.7696,
+         0.5021,
+         -15.6781
         ],
         "orientation": [
          [
           0.6428,
-          -0.1983,
-          0.7399
+          0.0401,
+          0.765
          ],
          [
           0.0,
-          0.9659,
-          0.2588
+          0.9986,
+          -0.0523
          ],
          [
           -0.766,
-          -0.1664,
-          0.6209
+          0.0336,
+          0.6419
          ]
         ]
        }
       },
       "Size": [
-       0.2,
-       0.2,
-       0.44
+       0.24,
+       0.24,
+       0.36
       ],
       "Color": [
        0.9137,
@@ -8849,9 +9505,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -12.9834,
-         -2.8161,
-         8.1947
+         -13.1476,
+         -0.045,
+         8.7364
         ],
         "orientation": [
          [
@@ -8860,21 +9516,21 @@
           -0.766
          ],
          [
-          -0.1983,
-          0.9659,
-          -0.1664
+          0.0401,
+          0.9986,
+          0.0336
          ],
          [
-          0.7399,
-          0.2588,
-          0.6209
+          0.765,
+          -0.0523,
+          0.6419
          ]
         ]
        }
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_ForRent/5"
+      "Rojo_Id": "CatCafe_Plot_ForRent/9"
      }
     },
     {
@@ -8884,82 +9540,33 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.9477,
-         0.804,
-         -15.3143
+         1.9698,
+         0.5947,
+         -15.5101
         ],
         "orientation": [
          [
           0.6428,
-          -0.6275,
-          0.4394
+          -0.5126,
+          0.5693
          ],
          [
           0.0,
-          0.5736,
-          0.8192
+          0.7431,
+          0.6691
          ],
          [
           -0.766,
-          -0.5265,
-          0.3687
+          -0.4301,
+          0.4777
          ]
         ]
        }
       },
       "Size": [
-       0.18,
-       0.18,
-       0.44
-      ],
-      "Color": [
-       0.9137,
-       0.6353,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Plot_ForRent_Cat_Tail",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.0185,
-         1.1489,
-         -15.2549
-        ],
-        "orientation": [
-         [
-          0.6428,
-          -0.7631,
-          -0.0668
-         ],
-         [
-          0.0,
-          -0.0872,
-          0.9962
-         ],
-         [
-          -0.766,
-          -0.6403,
-          -0.056
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       0.16,
-       0.44
+       0.22,
+       0.22,
+       0.36
       ],
       "Color": [
        0.7216,
@@ -9009,7 +9616,663 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/6"
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/10"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.707,
+         0.13,
+         -16.4066
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.4226,
+          -0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         5.3867,
+         -15.5908,
+         -0.13
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.0,
+          0.4226
+         ],
+         [
+          0.4226,
+          0.0,
+          -0.9063
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Plot_ForRent/10"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.6309,
+         0.12,
+         -16.2434
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.4226,
+          -0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.27
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Plot_ForRent_Cat_LegF1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/11"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.1057,
+         0.13,
+         -16.2206
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.4226,
+          -0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         4.9467,
+         -15.5908,
+         -0.13
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.0,
+          0.4226
+         ],
+         [
+          0.4226,
+          0.0,
+          -0.9063
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Plot_ForRent/11"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0297,
+         0.12,
+         -16.0575
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.4226,
+          -0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.27
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Plot_ForRent_Cat_LegF2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/12"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.6013,
+         0.13,
+         -16.18
+        ],
+        "orientation": [
+         [
+          0.9063,
+          -0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.4226,
+          0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         5.3867,
+         15.3408,
+         0.13
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.0,
+          0.4226
+         ],
+         [
+          -0.4226,
+          0.0,
+          0.9063
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Plot_ForRent/12"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.6774,
+         0.14,
+         -16.3431
+        ],
+        "orientation": [
+         [
+          0.9063,
+          -0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.4226,
+          0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.27
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Plot_ForRent_Cat_LegB1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/13"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0001,
+         0.13,
+         -15.994
+        ],
+        "orientation": [
+         [
+          0.9063,
+          -0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.4226,
+          0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.24,
+       0.37,
+       0.24
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         4.9467,
+         15.3408,
+         0.13
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.0,
+          0.4226
+         ],
+         [
+          -0.4226,
+          0.0,
+          0.9063
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Plot_ForRent/13"
+     }
+    },
+    {
+     "name": "CatCafe_Plot_ForRent_Cat_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0761,
+         0.14,
+         -16.1572
+        ],
+        "orientation": [
+         [
+          0.9063,
+          -0.4226,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.4226,
+          0.9063,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.27,
+       0.11,
+       0.27
+      ],
+      "Color": [
+       0.9137,
+       0.6353,
+       0.2941
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Plot_ForRent_Cat_LegB2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Plot_ForRent/14"
    },
    "children": [
     {
@@ -9087,7 +10350,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Plot_ForRent/6"
+      "Rojo_Id": "CatCafe_Plot_ForRent/14"
      }
     },
     {

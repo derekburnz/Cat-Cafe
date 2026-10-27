@@ -1,9 +1,14 @@
-"""Cat poses expressed as transforms of the three cat parts, so any cat can take them.
+"""Cat poses expressed as transforms of the cat's hinged pieces, so any cat can take them.
 
-A pose moves the whole cat (Body, Head, Tail together) by `rot` degrees (Blender XYZ
-Euler) about the cat-local point `pivot`, then by `offset`, and adds a local rotation
-to the Head and the Tail about their own joints. An optional `head_offset` (cat-local)
-moves the Head joint, for poses where the neck sits somewhere else on the body.
+POSES (carried, the rescue traps) move the whole walking cat (every piece together) by `rot` degrees (Blender XYZ
+Euler) about the cat-local point `pivot`, then by `offset`, and add a local rotation to the Head (with its eyes and
+ears) and the Tail about their own joints. An optional `head_offset` (cat-local) moves the Head joint, for poses
+where the neck sits somewhere else on the body. Working cats no longer stand up: they sit on body B
+(CatCafe_Cat_<Name>_Sit), so `upright` is only the base of the bin traps.
+CAT_POSES turn single pieces about their joints (cats.joints: Head, Tail, the legs) on body A or B, after an
+optional `lift` of the whole cat: lick (B), loaf, sleep and eat (A). In Roblox each piece is a Model pivoted at its
+joint: piece:PivotTo(piece:GetPivot() * CFrame.Angles(...)) with the manifest's angles_roblox_deg, Head first (its
+eyes and ears are Models inside it and ride along), then model:PivotTo(model:GetPivot() + lift_roblox * Scale).
 Positions are in studs, Blender axes (Z up, -Y forward); the manifest also gives every
 value in Roblox axes.
 Roblox: position (x, y, z) -> (-x, z, y), so the front is -Z (LookVector). *_angles_roblox_deg
@@ -23,10 +28,9 @@ import common
 # name -> pose. Rescue poses are relative to the prop's pivot.
 POSES = {
     "upright": dict(pivot=(0, 0.5, 0), rot=(-90, 0, 0), offset=(0, -1.22, 0.3), head=(90, 0, 0), tail=(80, 0, 0),
-                    head_offset=(0, -0.32, 0),  # standing, -Y is up: seats the head on the collar, clear of the paws
-                    # offset y -1.22 centres the standing body over the cat's pivot, so a station's sit_point is
-                    # where the cat stands
-                    note="Stands on the hind legs. Same parts; Head pitched back to face forward. Accessories keep their offsets."),
+                    head_offset=(0, -0.32, 0),  # standing, -Y is up: seats the head on the chest, clear of the paws
+                    note="Stands on the hind legs, the base of the bin traps. Working cats sit on body B instead "
+                         "(CatCafe_Cat_<Name>_Sit)."),
     "carried": dict(pivot=(0, 0, 0), rot=(0, 0, 90), offset=(0, -1.05, -0.4), head=(-10, 0, 0), tail=(-40, 0, 0),
                     note="Cradled across the chest, facing the character's left, so the camera behind the player "
                          "sees the cat side on. Relative to the HumanoidRootPart centre (R15: 3 studs above the floor)."),
@@ -55,6 +59,67 @@ STUCK_POSES = {
 }
 
 
+# Piece poses (cats.py joints). Angles are Blender XYZ degrees about each piece's joint; lift is unscaled studs.
+# lick: the left front paw (LegF1) swings forward and up to the mouth and the head tips down and toward it.
+CAT_POSES = {
+    "lick": dict(body="sit", parts={"LegF1": (-128, -14, 0), "Head": (16, 0, 14)},
+                 note="Sitting, washing a paw: the left front paw up at the mouth, head tipped down to it "
+                      "(Derek 2026-10-27: the paw-up sit is licking a paw)."),
+    "loaf": dict(body="walk", lift=(0, 0, -0.31),
+                 parts={"LegF1": (90, 0, 0), "LegF2": (90, 0, 0), "LegB1": (-90, 0, 0), "LegB2": (-90, 0, 0),
+                        "Tail": (-38, 0, 30)},
+                 note="Lying down, belly on the floor, paws folded under."),
+    "sleep": dict(body="walk", lift=(0, 0, -0.31),
+                  parts={"LegF1": (90, 0, 0), "LegF2": (90, 0, 0), "LegB1": (-90, 0, 0), "LegB2": (-90, 0, 0),
+                         "Head": (24, 0, 28), "Tail": (-38, 0, 75)},
+                  note="The loaf with the head down and turned, tail curled round the side."),
+    "eat": dict(body="walk", parts={"Head": (42, 0, 0), "Tail": (-10, 0, 0)},
+                note="Standing, head down to a bowl in front of the front paws."),
+}
+
+
+def _about(point, angles):
+    """Turn by `angles` (Blender XYZ degrees) about `point`."""
+    p = Vector(point)
+    return Matrix.Translation(p) @ _local(angles) @ Matrix.Translation(-p)
+
+
+def _piece(ob):
+    return ob.name.split(".")[0].rsplit("_", 1)[-1]
+
+
+def cat_pose_matrices(cat_objs, pose, spec, body):
+    """Object -> the matrix that puts it in a CAT_POSES pose (applied on the left of its rest matrix_world)."""
+    import cats
+    bpy.context.view_layer.update()                     # fresh models: matrix_world catches up with location
+    joints = cats.joints(spec, body)
+    k = cats.scale_of(spec, body)
+    lift = Matrix.Translation(Vector(pose.get("lift", (0, 0, 0))) * k)
+    turn = {p: _about(joints[p], a) for p, a in pose["parts"].items()}
+    out = {}
+    for ob in cat_objs:
+        piece = _piece(ob)
+        M = lift
+        if piece in cats.HEAD_PIECES:
+            M = M @ turn.get("Head", Matrix.Identity(4))
+        out[ob] = M @ turn.get(piece, Matrix.Identity(4))
+    return out
+
+
+def cat_pose_copies(cat_objs, pose, spec, body, world=Matrix.Identity(4), prefix="_v_"):
+    """Copies of a cat's pieces in a CAT_POSES pose, under an optional world transform."""
+    mats = cat_pose_matrices(cat_objs, pose, spec, body)
+    out = []
+    for ob in cat_objs:
+        c = ob.copy()
+        c.name = prefix + ob.name
+        c.matrix_world = world @ mats[ob] @ ob.matrix_world
+        c.hide_render = False
+        bpy.context.scene.collection.objects.link(c)
+        out.append(c)
+    return out
+
+
 def pose_matrix(pose):
     p = Vector(pose["pivot"])
     R = Euler([math.radians(a) for a in pose["rot"]], "XYZ").to_matrix().to_4x4()
@@ -70,53 +135,51 @@ def _head_shift(pose):
 
 
 def posed_copies(cat_objs, pose, world=Matrix.Identity(4), prefix="_v_"):
-    """Copy a cat's parts and put them in `pose`, under an optional world transform."""
+    """Copy a walking cat's pieces and put them in a POSES pose, under an optional world transform."""
+    import cats
+    bpy.context.view_layer.update()
     M = world @ pose_matrix(pose)
+    head = next((ob for ob in cat_objs if _piece(ob) == "Head"), None)
+    turn_head = (_head_shift(pose) @ head.matrix_world @ _local(pose["head"]) @ head.matrix_world.inverted()
+                 if head else Matrix.Identity(4))
     out = []
     for ob in cat_objs:
         c = ob.copy()
         c.name = prefix + ob.name
-        extra = shift = Matrix.Identity(4)
-        if ob.name.endswith("_Head"):
-            extra = _local(pose["head"])
-            shift = _head_shift(pose)
-        elif ob.name.endswith("_Tail"):
-            extra = _local(pose["tail"])
-        c.matrix_world = M @ shift @ ob.matrix_world @ extra
+        piece = _piece(ob)
+        extra = Matrix.Identity(4)
+        if piece in cats.HEAD_PIECES or piece == "Head":
+            extra = turn_head
+        elif piece == "Tail":
+            extra = ob.matrix_world @ _local(pose["tail"]) @ ob.matrix_world.inverted()
+        c.matrix_world = M @ extra @ ob.matrix_world
         c.hide_render = False
         bpy.context.scene.collection.objects.link(c)
         out.append(c)
     return out
 
 
-def accessory_copies(built, cat_objs, world=Matrix.Identity(4), pose=None, names=("Glasses", "BowTie", "Apron", "Hat"),
-                     spec=None):
-    """Copies of accessories attached to a cat (optionally posed) for previews."""
+def accessory_copies(built, cat_objs, spec, body, names, world=Matrix.Identity(4), pose=None):
+    """Copies of accessories in their slots (accessories.slots) on a cat, optionally in a CAT_POSES pose."""
     import accessories
+    bpy.context.view_layer.update()
+    slots = accessories.slots(spec, body)
+    s = spec.get("scale", 1.0)
+    parts = {_piece(ob): ob for ob in cat_objs}
+    mats = cat_pose_matrices(cat_objs, pose, spec, body) if pose else {}
     out = []
-    slots = accessories.attach_for(spec or {}, upright=pose is POSES["upright"])
-    parts = {ob.name.split("_")[-1]: ob for ob in cat_objs}
-    M = world @ (pose_matrix(pose) if pose else Matrix.Identity(4))
     for n in names:
         src = built.get(f"CatCafe_Accessory_{n}")
-        if not src:
-            continue
-        if n not in slots:
+        if not src or n not in slots:
             continue
         part, off, r = slots[n]
-        acc_rot = _local(r)
-        extra = Matrix.Identity(4)
-        shift = Matrix.Identity(4)
-        if pose and part == "Head":
-            extra = _local(pose["head"])
-            shift = _head_shift(pose)
-        elif pose and part == "Tail":
-            extra = _local(pose["tail"])
-        base = shift @ parts[part].matrix_world @ extra @ Matrix.Translation(Vector(off)) @ acc_rot
+        host = parts[part]
+        base = (world @ mats.get(host, Matrix.Identity(4)) @ host.matrix_world @ Matrix.Translation(Vector(off) * s)
+                @ _local(r) @ Matrix.Scale(s, 4))
         for ob in src:
             c = ob.copy()
             c.name = "_v_" + ob.name
-            c.matrix_world = M @ base
+            c.matrix_world = base @ ob.matrix_world
             c.hide_render = False
             bpy.context.scene.collection.objects.link(c)
             out.append(c)
@@ -149,23 +212,25 @@ def manifest_pose(pose):
     }
 
 
-# R15-sized stand-in, floor at z 0, HumanoidRootPart centre at z 3 (HipHeight 2 + half the 2-stud HRP)
+def manifest_cat_pose(pose):
+    """A CAT_POSES pose as the engineer reads it: which body, the lift and each piece's turn about its joint."""
+    lift = pose.get("lift", (0, 0, 0))
+    return {
+        "body": pose["body"],
+        "lift_blender": list(lift), "lift_roblox": common.to_roblox(lift),
+        "parts": {p: {"xyz_deg_blender": list(a), "angles_roblox_deg": common.euler_to_roblox(a)}
+                  for p, a in pose["parts"].items()},
+        "note": pose.get("note", ""),
+    }
+
+
+# A default R15 character's HumanoidRootPart centre is 3 studs above the floor (HipHeight 2 + half the 2-stud HRP)
 HRP_HEIGHT = 3.0
 
 
-def r15_proxy(mat):
-    b = common.Builder()
-    for x in (-0.5, 0.5):
-        b.box((x, 0, 1.0), (0.9, 1.0, 2.0), "concrete_dark", bevel=False)       # legs
-    b.box((0, 0, 3.1), (2.0, 1.0, 2.2), "concrete_dark", bevel=False)          # torso
-    b.box((0, 0, 4.85), (1.2, 1.2, 1.2), "concrete_dark", bevel=False)         # head
-    for x in (-1.5, 1.5):
-        b.box((x, 0, 3.2), (1.0, 1.0, 2.0), "concrete_dark", bevel=False)       # arms
-    return b.finalize("_Proxy_R15", mat)
-
-
 def render_pose_previews(built, mat, docs, samples=32, cat="CatCafe_Cat_Tabby"):
-    """Rescue props with the stuck cat, the accessory set, the upright and carried poses."""
+    """Rescue props with the stuck cat, the accessory set, the role outfits on sitting cats, every piece pose and
+    the carried pose."""
     cat_objs = built.get(cat)
     if not cat_objs:
         return {}
@@ -181,45 +246,52 @@ def render_pose_previews(built, mat, docs, samples=32, cat="CatCafe_Cat_Tabby"):
         common.render_preview(objs + copies, path, samples=samples, warm=False, floor=True, azimuth=25, elevation=18)
         cleanup(copies)
         made[prop] = path
-    # accessory set on a standing cat
+    import accessories
+    import cats
+    spec = cats.ROSTER[cats.parse(cat)[0]]
+    # accessory set on a walking cat (Glasses, Hat)
     copies = posed_copies(cat_objs, dict(pivot=(0, 0, 0), rot=(0, 0, 0), offset=(0, 0, 0), head=(0, 0, 0), tail=(0, 0, 0)))
-    acc = accessory_copies(built, cat_objs)
+    acc = accessory_copies(built, cat_objs, spec, "walk", ("Glasses", "Hat"))
     path = os.path.join(docs, "previews", "CatCafe_Accessory_Set.png")
     common.hide_all_meshes()
     common.show(copies + acc)
     common.render_preview(copies + acc, path, samples=samples, warm=True, azimuth=25, elevation=12)
     cleanup(copies + acc)
     made["CatCafe_Accessory_Set"] = path
-    # upright test with apron, bow tie and glasses
-    pose = POSES["upright"]
-    copies = posed_copies(cat_objs, pose)
-    acc = accessory_copies(built, cat_objs, pose=pose, names=("Glasses", "BowTie", "Apron"))
-    path = os.path.join(docs, "previews", "Pose_Upright.png")
-    common.hide_all_meshes()
-    common.show(copies + acc)
-    common.render_preview(copies + acc, path, samples=samples, warm=True, azimuth=25, elevation=10)
-    cleanup(copies + acc)
-    made["Pose_Upright"] = path
-    # the four role outfits on upright cats, in role order (barista, waiter, greeter, entertainer)
-    import accessories
-    objs = []
-    for i, role in enumerate(("barista", "waiter", "greeter", "entertainer")):
-        world = Matrix.Translation(((i - 1.5) * 1.5, 0, 0))
-        objs += posed_copies(cat_objs, pose, world=world)
-        objs += accessory_copies(built, cat_objs, world=world, pose=pose, names=accessories.ROLE_OUTFITS[role])
-    path = os.path.join(docs, "previews", "Pose_Uniforms.png")
-    common.hide_all_meshes()
-    common.show(objs)
-    common.render_preview(objs, path, samples=samples, warm=True, azimuth=20, elevation=10)
-    cleanup(objs)
-    made["Pose_Uniforms"] = path
-    # carried, against an R15-sized stand-in
-    proxy = r15_proxy(mat)
+    sit_objs = built.get(cat + "_Sit")
+    if sit_objs:
+        # the four role outfits on sitting cats, in role order (barista, waiter, greeter, entertainer)
+        objs = []
+        still = dict(body="sit", parts={})
+        for i, role in enumerate(("barista", "waiter", "greeter", "entertainer")):
+            world = Matrix.Translation(((i - 1.5) * 1.5, 0, 0))
+            objs += cat_pose_copies(sit_objs, still, spec, "sit", world=world)
+            objs += accessory_copies(built, sit_objs, spec, "sit", accessories.ROLE_OUTFITS[role], world=world)
+        path = os.path.join(docs, "previews", "Pose_Uniforms.png")
+        common.hide_all_meshes()
+        common.show(objs)
+        common.render_preview(objs, path, samples=samples, warm=True, azimuth=20, elevation=10, margin=0.8)
+        cleanup(objs)
+        made["Pose_Uniforms"] = path
+        # every piece pose next to the two bodies at rest: walk, sit, then CAT_POSES in order
+        objs = []
+        row = [("walk", dict(body="walk", parts={})), ("sit", still)] + [(k, v) for k, v in CAT_POSES.items()]
+        for i, (_k, pose) in enumerate(row):
+            world = Matrix.Translation(((i - (len(row) - 1) / 2) * 1.6, 0, 0))
+            src = cat_objs if pose["body"] == "walk" else sit_objs
+            objs += cat_pose_copies(src, pose, spec, pose["body"], world=world)
+        path = os.path.join(docs, "previews", "Pose_Cats.png")
+        common.hide_all_meshes()
+        common.show(objs)
+        common.render_preview(objs, path, samples=samples, warm=True, azimuth=28, elevation=14, margin=0.7)   # a long row
+        cleanup(objs)
+        made["Pose_Cats"] = path
+    # carried, at its height in a character's arms (no stand-in figure in renders: Derek, 2026-10-27)
     copies = posed_copies(cat_objs, POSES["carried"], world=Matrix.Translation((0, 0, HRP_HEIGHT)))
     path = os.path.join(docs, "previews", "Pose_Carried.png")
     common.hide_all_meshes()
-    common.show([proxy] + copies)
-    common.render_preview([proxy] + copies, path, samples=samples, warm=True, azimuth=25, elevation=8)
-    cleanup(copies + [proxy])
+    common.show(copies)
+    common.render_preview(copies, path, samples=samples, warm=True, azimuth=25, elevation=8, floor=False)
+    cleanup(copies)
     made["Pose_Carried"] = path
     return made

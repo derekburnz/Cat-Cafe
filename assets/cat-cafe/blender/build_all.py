@@ -110,7 +110,6 @@ STUDIO_NOTES = {
     "CatCafe_Alley_StringLightsLong": "Poles 28 apart, so it spans a 30 stud back alley; _Bulbs glow at night.",
     "CatCafe_Sewer_Manhole": "Slide or hide the child Model _Cover to open it; the requirement SurfaceGui goes on the "
                              "-Z face of the part named SignBoard on the post.",
-    "CatCafe_Cat_Void": "Head eyes are amber in the texture; add a Neon eye Part or Highlight for the glow.",
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
     "CatCafe_Furniture_CatTree": "CollisionFidelity Hull.",
     "CatCafe_Alley_Dumpster": "CollisionFidelity Hull.",
@@ -140,26 +139,47 @@ STUDIO_NOTES = {
     **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier." for n in range(1, 6)},
     "CatCafe_Plot_ClosedSign": "F44: owned cafes at night only (Clock.Phase), at the Plot pivot. Hangs in the front door "
                                "above head height; nothing collides. The child Model _Moon_Bulb glows at night.",
-    **{f"CatCafe_Cat_{n}_Gold": f"F42: clone this instead of CatCafe_Cat_{n} when the cat is gold. Same "
-                                 "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
+    **{f"CatCafe_Cat_{n}_Sit": f"Body B, sitting up: clone this instead of CatCafe_Cat_{n} for a cat resting in the "
+                                "cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> "
+                                "Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, "
+                                "LegF2) are Models pivoted at the joint, for poses (manifest cat_poses)."
        for n in cats.ROSTER},
+    **{f"CatCafe_Cat_{n}_Gold{sfx}": f"F42: clone this instead of CatCafe_Cat_{n}{sfx} when the cat is gold. Same "
+                                      "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
+       for n in cats.ROSTER for sfx in cats.SUFFIX.values()},
 }
 
 
-def cat_rbx_extras(name):
-    """A cat's Part model carries its Scale and one Attachment per role outfit piece (Outfit_<Piece>) at that piece's
-    upright slot, times the scale, in the Body or Head part, so the game needs no manifest at runtime."""
-    spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Gold")]
-    s = spec.get("scale", 1.0)
-    origin = {"Body": Vector((0, 0, 0)), "Head": Vector(cats.NECK) * s}
-    pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
-    slots = accessories.attach_for(spec, upright=True)
-    def frame(part, off, r):
-        turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
-        return Matrix.Translation(origin[part] + Vector(off) * s) @ turn
+for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): Neon eye parts in Studio
+    if _spec.get("glow_eyes"):
+        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
+            STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + " Glowing eyes: set the parts of the Eye1 and Eye2 Models "
+                                "to Neon.").strip()
 
-    attachments = [("_" + part, "Outfit_" + n, frame(part, off, r)) for n, (part, off, r) in slots.items() if n in pieces]
+
+def cat_rbx_extras(name):
+    """A cat's Part model carries its Scale and, on a sitting model (where working cats wear their outfits), one
+    Attachment per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part,
+    so the game needs no manifest at runtime."""
+    cat, _gold, body = cats.parse(name)
+    spec = cats.ROSTER[cat]
+    s = spec.get("scale", 1.0)
+    attachments = []
+    if body == "sit":
+        joints = cats.joints(spec, body)
+        pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
+        for n, (part, off, r) in accessories.slots(spec, body).items():
+            if n in pieces:
+                turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
+                attachments.append(("_" + part, "Outfit_" + n,
+                                    Matrix.Translation(Vector(joints[part]) + Vector(off) * s) @ turn))
     return {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
+
+
+def _slot_entry(part, off, r, s=1.0):
+    off = [v * s for v in off]
+    return {"part": part, "offset": [round(v, 3) for v in off], "offset_roblox": common.to_roblox(off),
+            "angles_roblox_deg": common.euler_to_roblox(r)}
 
 
 def parse_args():
@@ -233,34 +253,27 @@ def main():
             entry["sit_point"] = list(furniture.SIT_POINTS[name])
             entry["sit_point_roblox"] = common.to_roblox(furniture.SIT_POINTS[name])
         if name.startswith("CatCafe_Cat_"):
-            spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Gold")]
+            cat, is_gold, body = cats.parse(name)
+            spec = cats.ROSTER[cat]
             entry["rarity"] = spec["rarity"]
-            look = gold.gold_spec(name[len("CatCafe_Cat_"):-len("_Gold")]) if name.endswith("_Gold") else spec
+            entry["body"] = body                        # walk (A, on all fours) or sit (B, sitting up)
+            entry["gold"] = is_gold
+            look = gold.gold_spec(cat) if is_gold else spec
             entry["pattern"] = look["pattern"]          # colors by field, as swatch and hex, for any future cat model
             entry["coat"] = {k: {"swatch": sw, "hex": palette.SWATCHES[palette.idx(sw)][1]}
                              for k, sw in cats.coat(look).items()}
             s_ = spec.get("scale", 1.0)
             entry["scale"] = s_                     # scale accessories by this too
-            joints = {"Head": [v * s_ for v in cats.NECK], "Tail": [v * s_ for v in cats.TAIL_ROOT]}
-            entry["joints"] = {k: [round(v, 2) for v in j] for k, j in joints.items()}
-            entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items()}
-            entry["attachments"] = {k: {"part": p, "offset": [round(v * s_, 2) for v in o],
-                                        "offset_roblox": common.to_roblox([v * s_ for v in o])}
-                                    for k, (p, o, r) in accessories.attach_for(spec).items()}
-            entry["uniform_attachments"] = {k: {"part": p, "offset": [round(v * s_, 2) for v in o],
-                                                "offset_roblox": common.to_roblox([v * s_ for v in o]),
-                                                "angles_roblox_deg": common.euler_to_roblox(r)}
-                                            for k, (p, o, r) in accessories.attach_for(spec, upright=True).items()
-                                            if any(k in pieces for pieces in accessories.ROLE_OUTFITS.values())}
+            joints = cats.joints(spec, body)        # every hinged piece's pivot (Head, Tail, legs, eyes, ears)
+            entry["joints"] = {k: [round(v, 3) for v in j] for k, j in joints.items() if k != "Body"}
+            entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items() if k != "Body"}
+            entry["attachments"] = {k: _slot_entry(p, o, r, s_) for k, (p, o, r) in accessories.slots(spec, body).items()}
         if name.startswith("CatCafe_Accessory_"):
             n = name.split("_")[-1]
-            if n in accessories.ATTACH:
-                part, off = accessories.ATTACH[n]
-                entry["attach"] = {"part": part, "offset": list(off), "offset_roblox": common.to_roblox(off)}
-            if n in accessories.ATTACH_UPRIGHT:
-                part, off, r = accessories.ATTACH_UPRIGHT[n]
-                entry["attach_upright"] = {"part": part, "offset": list(off), "offset_roblox": common.to_roblox(off),
-                                           "angles_roblox_deg": common.euler_to_roblox(r)}
+            if n in accessories.SIT_SLOTS:
+                entry["slot"] = dict(_slot_entry(*accessories.SIT_SLOTS[n]), body="sit")
+            elif n in accessories.slots(cats.ROSTER["Tabby"], "walk"):
+                entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "walk")[n]), body="walk")
         if name == "CatCafe_Street_DealerCart":
             entry["display_slots"] = [list(p) for p in street.DISPLAY_SLOTS]
             entry["display_slots_roblox"] = [common.to_roblox(p) for p in street.DISPLAY_SLOTS]
@@ -280,7 +293,7 @@ def main():
         if rbx_path:
             entry["rbx_model"] = os.path.relpath(rbx_path, ROOT)
             entry["rbx_parts"] = rbx_parts
-        if not args.no_export and not name.endswith("_Gold"):            # gold cats are Part models only
+        if not args.no_export and not name.endswith(("_Gold", "_Gold_Sit")):    # gold cats are Part models only
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:
@@ -325,11 +338,9 @@ def main():
                    "palette": os.path.relpath(png, ROOT),
                    "pose_convention": poses.__doc__.strip().splitlines()[-5:],
                    "poses": {k: poses.manifest_pose(v) for k, v in poses.POSES.items()},
+                   "cat_poses": {k: poses.manifest_cat_pose(v) for k, v in poses.CAT_POSES.items()},
                    "role_outfits": accessories.ROLE_OUTFITS,
-                   "upright_attachments": {k: {"part": p, "offset": list(o), "rotation_xyz_deg": list(r),
-                                               "offset_roblox": common.to_roblox(o),
-                                               "angles_roblox_deg": common.euler_to_roblox(r)}
-                                           for k, (p, o, r) in accessories.ATTACH_UPRIGHT.items()},
+                   "sit_slots": {k: _slot_entry(*v) for k, v in accessories.SIT_SLOTS.items()},
                    "textures": {vfx.SPARKLE: vfx.manifest_entry(sparkle_png, ROOT)},
                    "assets": manifest}, f, indent=2)
     gates.write_report(os.path.join(args.out, "gates.md"), manifest, ROOT)

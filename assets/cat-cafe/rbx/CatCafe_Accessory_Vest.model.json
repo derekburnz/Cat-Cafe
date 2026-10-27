@@ -13,8 +13,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.23,
-       0.8
+       0.019,
+       0.0
       ],
       "orientation": [
        [
@@ -36,9 +36,9 @@
      }
     },
     "Size": [
-     1.04,
-     0.74,
-     0.05
+     0.7505,
+     0.5415,
+     0.608
     ],
     "Color": [
      0.3686,
@@ -56,8 +56,8 @@
      "CFrame": {
       "position": [
        0.0,
-       0.23,
-       -0.8
+       -0.019,
+       0.0
       ],
       "orientation": [
        [
@@ -91,8 +91,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.37,
-       0.0
+       0.1235,
+       -0.3087
       ],
       "orientation": [
        [
@@ -114,352 +114,9 @@
      }
     },
     "Size": [
-     1.04,
-     0.46,
-     0.05
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_Vest",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.305,
-       -0.05,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.43,
-     0.18,
-     0.05
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_Vest",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.36,
-       0.12,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_Vest",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.495,
-       -0.23,
-       0.4
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.74,
-     0.8
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_Vest",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.305,
-       -0.05,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.43,
-     0.18,
-     0.05
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_Vest",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.36,
-       0.12,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.32,
-     0.16,
-     0.05
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_Vest",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.495,
-       -0.23,
-       0.4
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.74,
-     0.8
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Accessory_Vest",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       0.05,
-       0.005
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.38,
-     0.03
+     0.1995,
+     0.247,
+     0.0285
     ],
     "Color": [
      1.0,
@@ -483,8 +140,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.22,
-       -0.035
+       -0.057,
+       -0.3154
       ],
       "orientation": [
        [
@@ -506,9 +163,9 @@
      }
     },
     "Size": [
-     0.06,
-     0.06,
-     0.03
+     0.057,
+     0.057,
+     0.0285
     ],
     "Color": [
      1.0,
@@ -532,8 +189,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.36,
-       -0.035
+       -0.171,
+       -0.3154
       ],
       "orientation": [
        [
@@ -555,9 +212,9 @@
      }
     },
     "Size": [
-     0.06,
-     0.06,
-     0.03
+     0.057,
+     0.057,
+     0.0285
     ],
     "Color": [
      1.0,
@@ -581,8 +238,8 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.5,
-       -0.035
+       -0.285,
+       -0.3154
       ],
       "orientation": [
        [
@@ -604,9 +261,9 @@
      }
     },
     "Size": [
-     0.06,
-     0.06,
-     0.03
+     0.057,
+     0.057,
+     0.0285
     ],
     "Color": [
      1.0,

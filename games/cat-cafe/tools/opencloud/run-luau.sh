@@ -32,12 +32,13 @@ call() { # method url [json body] -> sets $status and $body
 }
 
 request=$(jq -n --rawfile script "$SCRIPT" '{script: $script, timeout: "180s"}')
-# Roblox answers 5xx now and then (a 502 here stopped a publish on 2026-10-27), so those and 429 get three more
-# tries. A task started by a 5xx that went through anyway just runs on its own; this script follows the last one.
-for wait in 5 10 20 0; do
+# Roblox answers 5xx or a busy 409 now and then (a 502 here stopped a publish on 2026-10-27), so those and 429 get
+# three more tries over about two and a half minutes. A task started by one that went through anyway just runs on
+# its own; this script follows the last one.
+for wait in 20 40 80 0; do
 	call POST "$API/universes/$UNIVERSE_ID/places/$PLACE_ID/versions/$VERSION/luau-execution-session-tasks" "$request"
 	case "$status" in
-	5?? | 429) ;;
+	5?? | 429 | 409) ;;
 	*) break ;;
 	esac
 	[ "$wait" = 0 ] && break

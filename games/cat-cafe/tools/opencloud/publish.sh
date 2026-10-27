@@ -31,9 +31,10 @@ if [ ! -f "$PLACE_FILE" ]; then
 	rojo build default.project.json -o "$PLACE_FILE"
 fi
 
-# Roblox answers 5xx now and then (a 502 stopped a publish on 2026-10-27), so those and 429 get three more tries.
-# A retry after a 5xx that went through anyway only adds a version with the same file.
-for wait in 5 10 20 0; do
+# Roblox answers 5xx, or 409 "Server is busy ... try again in a couple minutes", now and then (both stopped a
+# publish on 2026-10-27), so those and 429 get three more tries over about two and a half minutes. A retry after
+# one that went through anyway only adds a version with the same file.
+for wait in 20 40 80 0; do
 	response=$(curl -sS -w '\n%{http_code}' -X POST \
 		"https://apis.roblox.com/universes/v1/$UNIVERSE_ID/places/$PLACE_ID/versions?versionType=$VERSION_TYPE" \
 		-H "x-api-key: $ROBLOX_PUBLISH_KEY" \
@@ -42,7 +43,7 @@ for wait in 5 10 20 0; do
 	status=${response##*$'\n'}
 	body=${response%$'\n'*}
 	case "$status" in
-	5?? | 429) ;;
+	5?? | 429 | 409) ;;
 	*) break ;;
 	esac
 	[ "$wait" = 0 ] && break

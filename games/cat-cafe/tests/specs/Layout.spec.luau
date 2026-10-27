@@ -222,49 +222,74 @@ return function()
 		return j * GRID_NX + i
 	end
 
-	local walkable: { boolean } = {}
-	for j = 0, GRID_NZ - 1 do
-		for i = 0, GRID_NX - 1 do
-			local x, z = GRID_X0 + i + 0.5, GRID_Z0 + j + 0.5
-			local clear = onFloor(x - 1, z - 1, alleyRects, 0)
-				and onFloor(x + 1, z - 1, alleyRects, 0)
-				and onFloor(x - 1, z + 1, alleyRects, 0)
-				and onFloor(x + 1, z + 1, alleyRects, 0)
-			walkable[j * GRID_NX + i + 1] = clear and not inWall(x, z, alleyWalls, 1)
+	-- Built on first use inside a test, not while the specs are collected.
+	local grid: { boolean }? = nil
+	local function walkable(): { boolean }
+		local built = grid
+		if built ~= nil then
+			return built
 		end
+		local cells: { boolean } = {}
+		for j = 0, GRID_NZ - 1 do
+			for i = 0, GRID_NX - 1 do
+				local x, z = GRID_X0 + i + 0.5, GRID_Z0 + j + 0.5
+				local clear = onFloor(x - 1, z - 1, alleyRects, 0)
+					and onFloor(x + 1, z - 1, alleyRects, 0)
+					and onFloor(x - 1, z + 1, alleyRects, 0)
+					and onFloor(x + 1, z + 1, alleyRects, 0)
+				cells[j * GRID_NX + i + 1] = clear and not inWall(x, z, alleyWalls, 1)
+			end
+		end
+		grid = cells
+		return cells
 	end
 
-	-- Studs from the cell at (x, z) to every reachable cell, by cell index + 1; nil where it cannot be reached.
+	-- Studs from the cell at (x, z) to every cell, by cell index + 1, or -1 where it cannot be reached. Flat
+	-- preallocated arrays keep the eight walks light on memory.
+	local STEPS = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }
 	local walks: { [number]: { number } } = {}
 	local function walkFrom(x: number, z: number): { number }
-		local key = (cellOf(x, z) or -1) + 1
-		local cached = walks[key]
+		local open = walkable()
+		local start = cellOf(x, z)
+		assert(start ~= nil and open[start + 1], "the walk starts off the Alleyway floor")
+		local cached = walks[start]
 		if cached ~= nil then
 			return cached
 		end
-		local start = cellOf(x, z)
-		assert(start ~= nil and walkable[start + 1], "the walk starts off the Alleyway floor")
-		local dist: { number } = { [start + 1] = 0 }
-		local queue = { start }
-		local head = 1
-		while head <= #queue do
+		local count = GRID_NX * GRID_NZ
+		local dist = table.create(count, -1)
+		local queue = table.create(count, 0)
+		dist[start + 1] = 0
+		queue[1] = start
+		local head, tail = 1, 1
+		while head <= tail do
 			local cell = queue[head]
 			head += 1
 			local i, j = cell % GRID_NX, cell // GRID_NX
 			local here = dist[cell + 1]
-			for _, step in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
+			for _, step in STEPS do
 				local ni, nj = i + step[1], j + step[2]
 				if ni >= 0 and ni < GRID_NX and nj >= 0 and nj < GRID_NZ then
 					local next = nj * GRID_NX + ni
-					if walkable[next + 1] and dist[next + 1] == nil then
+					if open[next + 1] and dist[next + 1] < 0 then
 						dist[next + 1] = here + 1
-						table.insert(queue, next)
+						tail += 1
+						queue[tail] = next
 					end
 				end
 			end
 		end
-		walks[key] = dist
+		walks[start] = dist
 		return dist
+	end
+
+	-- The walk's studs to (x, z), or nil when that point is off the grid or cut off.
+	local function studsTo(dist: { number }, x: number, z: number): number?
+		local cell = cellOf(x, z)
+		if cell == nil or dist[cell + 1] < 0 then
+			return nil
+		end
+		return dist[cell + 1]
 	end
 
 	-- A cafe's back door to its yard gate (the yard is open inside its fence), and the gate's alley-side point.
@@ -307,8 +332,7 @@ return function()
 				local _, outX, outZ = yardWalk(index)
 				local dist = walkFrom(outX, outZ)
 				for n, point in alley.spawnPoints do
-					local cell = cellOf(point.x, point.z)
-					if cell == nil or dist[cell + 1] == nil then
+					if studsTo(dist, point.x, point.z) == nil then
 						fail("plot %d: spawn point %d at (%g, %g) cannot be reached", index, n, point.x, point.z)
 					end
 				end
@@ -323,11 +347,11 @@ return function()
 				local yard, outX, outZ = yardWalk(index)
 				local dist = walkFrom(outX, outZ)
 				for n, point in squarePoints do
-					local walked = dist[(cellOf(point.x, point.z) or -1) + 1]
+					local walked = studsTo(dist, point.x, point.z)
 					if walked == nil then
 						fail("plot %d cannot reach Square point %d", index, n)
 					end
-					local seconds = (yard + walked) / Config.CarryWalkSpeed
+					local seconds = (yard + (walked :: number)) / Config.CarryWalkSpeed
 					if seconds > worst then
 						worst, worstPlot, worstPoint = seconds, index, n
 					end

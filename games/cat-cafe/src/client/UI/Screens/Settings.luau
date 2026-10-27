@@ -88,6 +88,7 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._shown = {} :: { [string]: boolean | number }
 	self._drag = {} :: { [string]: number } -- a volume being dragged or nudged, before it is sent
 	self._dragging = nil :: string? -- the slider under the finger
+	self._dragInput = nil :: InputObject? -- the press that started it; another finger cannot move it (N138)
 	self._nudges = {} :: { [string]: number } -- a token per volume, so only the last nudge sends
 	self._settings = nil :: { [string]: unknown }?
 	self._switches = {} :: { [string]: Button.Button }
@@ -153,18 +154,20 @@ function Settings.new(callbacks: Callbacks): Settings
 		end
 	end
 
-	-- a drag keeps following the finger off the track, and ends wherever it lets go
+	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
+	-- its own finger (the same InputObject); a mouse drag follows the mouse and ends on its button.
 	table.insert(
 		self._connections,
 		UserInputService.InputChanged:Connect(function(input: InputObject)
 			local key: string? = self._dragging
-			if
-				key
-				and (
-					input.UserInputType == Enum.UserInputType.MouseMovement
-					or input.UserInputType == Enum.UserInputType.Touch
-				)
-			then
+			local started: InputObject? = self._dragInput
+			if not key or not started then
+				return
+			end
+			local follows = if started.UserInputType == Enum.UserInputType.Touch
+				then input == started
+				else input.UserInputType == Enum.UserInputType.MouseMovement
+			if follows then
 				self:_dragTo(key, input.Position.X)
 			end
 		end)
@@ -173,8 +176,16 @@ function Settings.new(callbacks: Callbacks): Settings
 		self._connections,
 		UserInputService.InputEnded:Connect(function(input: InputObject)
 			local key: string? = self._dragging
-			if key and isPress(input) then
+			local started: InputObject? = self._dragInput
+			if not key or not started then
+				return
+			end
+			local ends = if started.UserInputType == Enum.UserInputType.Touch
+				then input == started
+				else input.UserInputType == started.UserInputType
+			if ends then
 				self._dragging = nil
+				self._dragInput = nil
 				list.ScrollingEnabled = true
 				self:_send(key)
 			end
@@ -360,8 +371,9 @@ function Settings._buildSlider(
 	table.insert(
 		self._connections,
 		track.InputBegan:Connect(function(input: InputObject)
-			if isPress(input) then
+			if isPress(input) and self._dragging == nil then
 				self._dragging = key
+				self._dragInput = input
 				self._list.ScrollingEnabled = false -- a sideways drag must not scroll the list
 				self:_dragTo(key, input.Position.X)
 			end

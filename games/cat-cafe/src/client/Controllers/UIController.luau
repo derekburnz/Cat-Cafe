@@ -17,6 +17,7 @@ local Catalog = require(Shared:WaitForChild("Catalog"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local Settings = require(Shared:WaitForChild("Settings"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UITypes = require(script.Parent.Parent.UI.Types)
@@ -299,8 +300,8 @@ local function refreshRichTip()
 	end)
 end
 
--- The Settings switches the server saves (data-model section 14); Place icons ("markers") stays on the client.
-local SAVED_SETTINGS = { music = true, sfx = true }
+-- The settings Audio follows; every key of shared/Settings is saved by the server.
+local AUDIO_SETTINGS = { music = true, sfx = true }
 local audioStarted = false -- Audio waits for the first ProfileSync, so a muted player never hears music start
 
 -- Mutes or restores the Audio channels from the switches as shown: a tap at once, then the server's saved value,
@@ -362,13 +363,13 @@ local function applyState(s: Types.PlayerState)
 end
 
 local function wireIntents()
-	UI.events.setSetting:Connect(function(key: string, value: boolean)
-		if SAVED_SETTINGS[key] then
+	UI.events.setSetting:Connect(function(key: string, value: any)
+		if Settings.clean(key, value) ~= nil then
 			Net.fire("SetSetting", key, value)
 		end
 	end)
 	UI.settings.changed:Connect(function(key: string)
-		if audioStarted and SAVED_SETTINGS[key] then
+		if audioStarted and AUDIO_SETTINGS[key] then
 			applySettings()
 		end
 	end)

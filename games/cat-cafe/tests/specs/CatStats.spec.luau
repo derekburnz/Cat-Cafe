@@ -54,6 +54,23 @@ return function()
 			expect(fiveStar / samples).to.be.near(0.08, 0.015)
 			expect(oneStar / samples).to.be.near(0.08, 0.015)
 		end)
+
+		-- reviewer N70: the star odds on every food card are Config.CharmStarOdds, so they must match the roll.
+		-- A 400 x 400 grid of roll midpoints puts each share within about 0.2 points of the exact value.
+		it("Config.CharmStarOdds matches rollCharm and stars (F28 food cards)", function()
+			local steps = 400
+			local counts = { 0, 0, 0, 0, 0 }
+			for i = 0, steps - 1 do
+				for j = 0, steps - 1 do
+					local charm = CatStats.rollCharm((i + 0.5) / steps, (j + 0.5) / steps)
+					local stars = CatStats.stars(charm)
+					counts[stars] += 1
+				end
+			end
+			for stars, share in Config.CharmStarOdds do
+				expect(counts[stars] / (steps * steps) * 100).to.be.near(share, 0.3)
+			end
+		end)
 	end)
 
 	describe("multipliers", function()

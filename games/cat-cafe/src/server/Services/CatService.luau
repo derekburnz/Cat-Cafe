@@ -1,6 +1,6 @@
 --!strict
 -- Strays: night waves per area, the net (lock, closing circles, patience paws), rescue spots, carrying a caught cat
--- home, check-in, and bait (lures in code). Server authoritative: the client only says which circle it pressed
+-- home and check-in. The bait bowl is BaitService. Server authoritative: the client only says which circle it pressed
 -- for; distance, locks, the schedule, the press times, paws and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
@@ -36,8 +36,7 @@ type Stray = {
 	body: BasePart,
 	prompt: ProximityPrompt,
 	spawnedAt: number,
-	pointIndex: number?, -- spawn point it occupies, nil for lured strays
-	lureSpotId: string?,
+	pointIndex: number?, -- spawn point it occupies
 	home: Vector3,
 	lockedBy: number,
 	lockUntil: number, -- server time the lock lapses on its own; 0 when unlocked
@@ -49,8 +48,6 @@ type Stray = {
 	landsAt: number, -- server time a jump back ends; nobody starts a catch before it (GrabRetrySeconds)
 	jumping: boolean,
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
-	reservedFor: number,
-	calm: boolean,
 	alive: boolean,
 }
 
@@ -71,22 +68,12 @@ type Stuck = {
 }
 
 type Carry = { def: Types.CatDef, model: Model?, rescued: boolean, charm: number? }
-type ActiveLure = {
-	spotId: string,
-	area: string,
-	player: Player,
-	lure: Types.LureDef,
-	bowl: Model?,
-	strayId: string?,
-}
 
 local world: WorldBuilder.World
 local straysFolder: Folder
 local strays: { [string]: Stray } = {}
 local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point index -> stray id
 local carrying: { [Player]: Carry } = {}
-local activeLures: { [string]: ActiveLure } = {} -- lureSpotId -> lure
-local lureByPlayer: { [Player]: string } = {} -- player -> lureSpotId
 local stuckCats: { [string]: Stuck } = {} -- rescueSpotId -> stuck cat
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local lastCatchStart: { [Player]: number } = {} -- server time of the player's last GrabBegin that started circles
@@ -184,13 +171,6 @@ local function despawn(stray: Stray)
 			points[stray.pointIndex :: number] = nil
 		end
 	end
-	if stray.lureSpotId ~= nil then
-		local active = activeLures[stray.lureSpotId :: string]
-		if active ~= nil and active.strayId == stray.id then
-			activeLures[stray.lureSpotId :: string] = nil
-			lureByPlayer[active.player] = nil
-		end
-	end
 	stray.model:Destroy()
 end
 
@@ -239,9 +219,6 @@ local function spawnStray(
 	areaId: string,
 	position: Vector3,
 	pointIndex: number?,
-	lureSpotId: string?,
-	calm: boolean,
-	reservedFor: number,
 	lifetime: number? -- nil: stays until the next night start clears it
 ): Stray
 	nextStrayNumber += 1
@@ -255,9 +232,7 @@ local function spawnStray(
 	model:SetAttribute("Rarity", def.rarity)
 	model:SetAttribute("Area", areaId)
 	model:SetAttribute("LockedBy", 0)
-	model:SetAttribute("ReservedFor", reservedFor)
 	model:SetAttribute("SpawnedAt", os.time())
-	model:SetAttribute("Calm", calm)
 	-- Paws each player starts with; a player's own count is Paws_<UserId> once they have missed (v0.4).
 	model:SetAttribute("Patience", Catching.patience(def.rarity))
 	CollectionService:AddTag(model, "Stray")
@@ -290,7 +265,6 @@ local function spawnStray(
 		prompt = prompt,
 		spawnedAt = os.clock(),
 		pointIndex = pointIndex,
-		lureSpotId = lureSpotId,
 		home = position,
 		lockedBy = 0,
 		lockUntil = 0,
@@ -300,8 +274,6 @@ local function spawnStray(
 		landsAt = 0,
 		jumping = false,
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
-		reservedFor = reservedFor,
-		calm = calm,
 		alive = true,
 	}
 	strays[id] = stray
@@ -320,25 +292,6 @@ local function spawnStray(
 			task.wait(0.5)
 		end
 		if stray.alive then
-			if lureSpotId ~= nil then
-				local active = activeLures[lureSpotId]
-				if active ~= nil and active.strayId == id and active.player.Parent == Players then
-					local profile = DataService.get(active.player)
-					if profile ~= nil then
-						profile.lures[active.lure.id] = (profile.lures[active.lure.id] or 0) + 1
-						Net.toast(
-							active.player,
-							string.format(
-								"The %s wandered off. %s refunded.",
-								def.name,
-								active.lure.name
-							),
-							"info"
-						)
-						CafeService.sync(active.player)
-					end
-				end
-			end
 			despawn(stray)
 		end
 	end)
@@ -383,9 +336,6 @@ local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)
 		areaId,
 		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
 		pointIndex,
-		nil,
-		false,
-		0,
 		nil
 	)
 end
@@ -422,12 +372,12 @@ local function tutorialTick()
 	end
 end
 
--- Night start (data-model section 9): last night's leftovers leave, then a full wave arrives at once. Bait
--- strays ignore the clock. A stray someone is mid-swing on leaves once that swing is over.
+-- Night start (data-model section 9): last night's leftovers leave, then a full wave arrives at once. A stray
+-- someone is mid-swing on leaves once that swing is over.
 local function startWave(areaDef: Types.AreaDef)
 	local leaving: { Stray } = {}
 	for _, stray in strays do
-		if stray.area == areaDef.id and stray.lureSpotId == nil then
+		if stray.area == areaDef.id then
 			table.insert(leaving, stray)
 		end
 	end
@@ -728,21 +678,16 @@ local function recordCircles(player: Player, profile: Types.PlayerProfile, attem
 end
 
 -- Players who can never run out of paws on this stray (data-model section 10 step 5): a beginner on a Common,
--- so the first catch cannot be lost, and the player who baited it (a lure is bought; bait becomes F28's bowl).
--- A miss still makes the stray jump back and starts their wary wait.
-local function pawsExempt(stray: Stray, player: Player, profile: Types.PlayerProfile): boolean
-	if
-		profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+-- so the first catch cannot be lost. A miss still makes the stray jump back and starts their wary wait. Bait
+-- cats never reach the net: they come to the bowl and are tamed there (section 8).
+local function pawsExempt(stray: Stray, profile: Types.PlayerProfile): boolean
+	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
 		and stray.def.rarity == "Common"
-	then
-		return true
-	end
-	return stray.calm and stray.reservedFor == player.UserId
 end
 
 -- This player's paws on the stray, or nil when they cannot run out.
 local function pawsLeft(stray: Stray, player: Player, profile: Types.PlayerProfile): number?
-	if pawsExempt(stray, player, profile) then
+	if pawsExempt(stray, profile) then
 		return nil
 	end
 	return stray.paws[player.UserId] or Catching.patience(stray.def.rarity)
@@ -856,10 +801,6 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	end
 	if not areaUnlocked(profile, stray.area) then
 		Net.toast(player, "This area opens at a higher tier. Rank up to catch cats here.", "warn")
-		return
-	end
-	if stray.reservedFor ~= 0 and stray.reservedFor ~= player.UserId then
-		Net.toast(player, "Someone else baited this cat.", "warn")
 		return
 	end
 	if stray.lockedBy ~= 0 and not lockExpired(stray) then
@@ -1138,103 +1079,6 @@ local function onRescueEnd(player: Player, rawSpotId: unknown)
 	startCarry(player, def, true)
 end
 
-local function findLureSpot(spotId: string): (BasePart?, string?)
-	for id, area in world.areas do
-		local candidate: BasePart? = area.lureSpots[spotId]
-		if candidate ~= nil then
-			return candidate, id
-		end
-	end
-	return nil, nil
-end
-
-local function onUseLure(player: Player, rawSpotId: unknown)
-	local spotId = Guard.id(rawSpotId)
-	local profile = DataService.get(player)
-	if spotId == nil or profile == nil then
-		return
-	end
-	local foundSpot, foundArea = findLureSpot(spotId)
-	if foundSpot == nil or foundArea == nil then
-		return
-	end
-	local spotPart: BasePart = foundSpot
-	local areaId: string = foundArea
-	if not areaUnlocked(profile, areaId) then
-		Net.toast(player, "This area opens at a higher tier. Rank up to set bait here.", "warn")
-		return
-	end
-	if lureByPlayer[player] ~= nil then
-		Net.toast(player, "You already have bait out.", "warn")
-		return
-	end
-	if activeLures[spotId] ~= nil then
-		Net.toast(player, "That bowl is in use.", "warn")
-		return
-	end
-	if not withinRange(player, spotPart.Position, Config.GrabRangeStuds + 2) then
-		return
-	end
-	local lure, reason = CafeService.consumeEquippedLure(player)
-	if lure == nil then
-		Net.toast(player, reason or "Cannot set bait", "warn")
-		return
-	end
-
-	local bowlAsset = if lure.id == "salmon"
-		then "CatCafe_Item_FoodBowl_Premium"
-		else "CatCafe_Item_FoodBowl"
-	local bowl = AssetRegistry.clone(bowlAsset)
-	bowl:PivotTo(CFrame.new(spotPart.Position))
-	bowl.Parent = straysFolder
-	local food = AssetRegistry.clone(lure.asset)
-	food.Name = "Food"
-	food:PivotTo(CFrame.new(spotPart.Position))
-	food.Parent = bowl
-	local active: ActiveLure =
-		{ spotId = spotId, area = areaId, player = player, lure = lure, bowl = bowl, strayId = nil }
-	activeLures[spotId] = active
-	lureByPlayer[player] = spotId
-	Net.toast(
-		player,
-		string.format(
-			"%s is out. A cat will come in %d seconds.",
-			lure.name,
-			Config.LureWaitSeconds
-		),
-		"info"
-	)
-
-	task.delay(Config.LureWaitSeconds, function()
-		if activeLures[spotId] ~= active then
-			return
-		end
-		local placedBowl = active.bowl
-		if placedBowl ~= nil then
-			placedBowl:Destroy()
-			active.bowl = nil
-		end
-		local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
-		local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
-		local area = world.areas[areaId]
-		local position = Vector3.new(spotPart.Position.X, area.floorY, spotPart.Position.Z)
-		local stray = spawnStray(
-			def,
-			areaId,
-			position,
-			nil,
-			spotId,
-			true,
-			player.UserId,
-			Config.LureDespawnSeconds
-		)
-		active.strayId = stray.id
-		if player.Parent == Players then
-			Net.toast(player, string.format("A %s came for the %s!", def.name, lure.name), "good")
-		end
-	end)
-end
-
 -- Lifecycle -----------------------------------------------------------------------------------------------
 
 function CatService.start(builtWorld: WorldBuilder.World)
@@ -1249,7 +1093,6 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	Net.on("RescueBegin", onRescueBegin)
 	Net.on("RescueEnd", onRescueEnd)
 	Net.on("CheckIn", onCheckIn)
-	Net.on("UseLure", onUseLure)
 
 	-- A player who leaves mid-carry keeps the cat. The finalizer runs before the session closes and is handed
 	-- the profile, so it never depends on a lookup that is about to go nil.
@@ -1278,17 +1121,6 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		-- already gone, so the handler order between services does not matter.
 		if carrying[player] ~= nil and DataService.get(player) == nil then
 			carrying[player] = nil
-		end
-		local spotId = lureByPlayer[player]
-		if spotId ~= nil then
-			lureByPlayer[player] = nil
-			local active = activeLures[spotId]
-			if active ~= nil and active.strayId == nil then
-				if active.bowl ~= nil then
-					active.bowl:Destroy()
-				end
-				activeLures[spotId] = nil
-			end
 		end
 		circleHistory[player] = nil
 		lastCatchStart[player] = nil
@@ -1363,9 +1195,6 @@ function CatService.debugSpawnStray(catId: string, areaId: string): string
 		areaId,
 		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
 		pointIndex,
-		nil,
-		false,
-		0,
 		Config.StrayDespawnSeconds
 	)
 	return stray.id

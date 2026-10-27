@@ -48,6 +48,11 @@ function AssetRegistry.has(name: string): boolean
 	return AssetRegistry.folder():FindFirstChild(name) ~= nil
 end
 
+-- True when the named model is in the folder or can be built as a placeholder, so `clone` will not error.
+function AssetRegistry.known(name: string): boolean
+	return AssetRegistry.has(name) or table.find(Placeholders.names(), name) ~= nil
+end
+
 -- Clones the named model. Builds a placeholder on the spot if the name is unknown to the folder but known to us.
 function AssetRegistry.clone(name: string): Model
 	local assets = AssetRegistry.folder()

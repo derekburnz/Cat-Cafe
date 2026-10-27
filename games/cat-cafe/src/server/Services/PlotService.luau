@@ -1,6 +1,6 @@
 --!strict
--- Hands each loaded player a plot on the street and frees it when they leave. The sign above an owned cafe
--- follows the clock: open by day, Closed at night (features F20).
+-- Hands each loaded player a plot on the street and frees it when they leave. The sign above an owned cafe shows
+-- its tier and tips, behind a moon at night: cafes keep earning after dark (common-features note 1, reviewer S41).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,15 +15,16 @@ local PlotService = {}
 local world: WorldBuilder.World? = nil
 local owners: { [number]: Player } = {} -- plot index -> player
 local plotOf: { [Player]: WorldBuilder.Plot } = {}
-local infoLine: { [Player]: string } = {} -- the sign's second line by day: tier name and tips per second
+local infoLine: { [Player]: string } = {} -- the sign's second line: tier name and tips per second
+local MOON = "🌙" -- the same night mark as the UI's CafeSigns
 
 local function signText(player: Player, phase: Types.ClockPhase): string
 	local name = player.DisplayName .. "'s Cafe"
-	if phase == "night" then
-		return name .. "\nClosed"
-	end
 	local line = infoLine[player]
-	return if line ~= nil then name .. "\n" .. line else name
+	if line == nil then
+		return name
+	end
+	return name .. "\n" .. (if phase == "night" then MOON .. " " .. line else line)
 end
 
 function PlotService.start(builtWorld: WorldBuilder.World)
@@ -79,6 +80,8 @@ function PlotService.release(player: Player)
 	plot.cats:ClearAllChildren()
 	plot.decor:ClearAllChildren()
 	plot.tables:ClearAllChildren()
+	plot.bait:ClearAllChildren()
+	plot.model:SetAttribute("BaitReadyAt", 0)
 	local espresso = plot.model:FindFirstChild("Espresso")
 	if espresso ~= nil then
 		espresso:Destroy()
@@ -91,7 +94,7 @@ function PlotService.release(player: Player)
 end
 
 -- What the street sees of an owned cafe (F36 name sign, F37 rate tags): the plot's TierName and Rate (tips per
--- second) attributes and the sign's second line by day. CafeService calls it on every sync.
+-- second) attributes and the sign's second line. CafeService calls it on every sync.
 function PlotService.setShowcase(player: Player, tierName: string, rate: number, line: string)
 	local plot = plotOf[player]
 	if plot == nil then

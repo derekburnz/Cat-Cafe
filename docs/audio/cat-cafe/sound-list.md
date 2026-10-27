@@ -84,7 +84,7 @@ Source plan: Roblox's licensed music in the Creator Store first, free in experie
 | `circleMiss` | CircleGrade Miss (a bad press, or a circle that closed unpressed) | 2D | 0.2 s | muted "thup", never harsh | P0 |
 | `catchSparkle` | CatchSuccess | 2D | 0.6 s | net "fwump" plus a sparkle; the rarity jingle layers on top (section 3) | P0 |
 | `catchMiss` | CatchFail (v0.4: the first Miss ends the catch) | 2D | 0.4 s | gentle "whiff" and a soft down-boop | P0 |
-| `catHiss` | CatchFail, with the jump back | 3D on the stray | 0.6 s | a short, soft cartoon hiss, more "pfft" than angry | P0 |
+| `catHiss` | the stray's `HissAt` attribute changes (set by the server on a Miss, so everyone nearby hears it; once per cat per second) | 3D at the stray | 0.6 s | a short, soft cartoon hiss, more "pfft" than angry | P0 |
 | `pawLost` | PawLost (a paw pops off the row) | 2D | 0.3 s | small pop and a falling two-note boop | P0 |
 | `purrfectChime` | Purrfect (every circle Perfect) | 2D | 1 s | gold sparkle run into a bright bell, under the Purrfect burst | P0 |
 | `strayFlee` | a stray that runs off (v0.4 has no flee roll; kept for a later moment) | 3D on the stray | 0.5 s | startled "mrrp!" and quick paw patter | P2 |
@@ -187,7 +187,7 @@ The engineer adds `src/client/Moments.luau`, one signal per moment fired from th
 | CircleAppear | index, shrinkSeconds | a circle starts closing | client timer from `circles[i].startsAt` |
 | NetSwing | index | the player presses | UIController, as `CatchPress` is sent |
 | CircleGrade | index, grade (Perfect, Good, Miss) | the press is judged by the client's estimate, or a circle closes unpressed | client, same rule the UI draws |
-| CatchSuccess, CatchFail | strayId, rarity | every circle Good or better; the first Miss (the hiss plays on the stray named by strayId) | `CatchResult` v0.4 |
+| CatchSuccess, CatchFail | strayId, rarity | every circle Good or better; the first Miss (the hiss follows `HissAt` on the stray instead) | `CatchResult` v0.4 |
 | PawLost | pawsLeft | a failed catch costs a paw | `CatchResult` `pawsLeft` |
 | Purrfect | charmGain | every circle Perfect | `CatchResult` `charmGain` with all grades Perfect |
 | RescueStart | rescueSpotId, kind, trapType | the challenge arrives | `RescueChallenge`; `TrapType` attribute |

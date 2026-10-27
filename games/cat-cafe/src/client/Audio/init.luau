@@ -492,6 +492,12 @@ local function taggedPart(tag: string, attribute: string?, value: any): BasePart
 	return nil
 end
 
+-- A one-shot on something the server may remove in the same frame (a fleeing stray, the leaving cart) plays at
+-- its position, so the removal cannot cut it off.
+local function spot(part: BasePart?): Vector3?
+	return if part ~= nil then part.Position else nil
+end
+
 local carryStop: (() -> ())? = nil
 local carrying = false
 local dealerStop: (() -> ())? = nil
@@ -508,23 +514,24 @@ local TAGGED_LOOPS: { [string]: { cue: string, near: number? } } = {
 	WorkingCat = { cue = "purr", near = 14 },
 }
 local MAX_NEAR_LOOPS = 3
-local NEAR_CHECK_SECONDS = 0.5
-local worldLoops: { [Instance]: () -> () } = {}
+local LOOP_CHECK_SECONDS = 0.5
+type WorldLoop = { stop: () -> (), part: BasePart }
+local worldLoops: { [Instance]: WorldLoop } = {}
 
 -- Waits for the first applySettings like music and ambience, so a player who turned sound off never hears one.
 local function startWorldLoop(instance: Instance, cueId: string)
-	local running: (() -> ())? = worldLoops[instance]
+	local running: WorldLoop? = worldLoops[instance]
 	local part = partOf(instance)
 	if ready and running == nil and part ~= nil then
-		worldLoops[instance] = Audio.loop(cueId, part)
+		worldLoops[instance] = { stop = Audio.loop(cueId, part), part = part }
 	end
 end
 
 local function stopWorldLoop(instance: Instance)
-	local running: (() -> ())? = worldLoops[instance]
+	local running: WorldLoop? = worldLoops[instance]
 	if running ~= nil then
 		worldLoops[instance] = nil
-		running()
+		running.stop()
 	end
 end
 
@@ -543,14 +550,24 @@ local function refreshWorldLoops()
 	end
 end
 
--- Keeps the `near` loops on the closest tagged things to the player.
-local function followNearLoops()
+-- Twice a second: restarts a loop whose part streamed out from under its model, starts loops on tagged models
+-- whose parts streamed in after the tag (reviewer N55), and keeps the `near` loops on the closest tagged things.
+local function followWorldLoops()
 	while true do
-		task.wait(NEAR_CHECK_SECONDS)
+		task.wait(LOOP_CHECK_SECONDS)
+		for instance, running in worldLoops do
+			if running.part.Parent == nil then
+				stopWorldLoop(instance)
+			end
+		end
 		local root = you()
 		for tag, def in TAGGED_LOOPS do
 			local radius = def.near
-			if radius ~= nil then
+			if radius == nil then
+				for _, instance in CollectionService:GetTagged(tag) do
+					startWorldLoop(instance, def.cue)
+				end
+			else
 				local instances: { Instance } = {}
 				local distances: { number } = {}
 				for _, instance in CollectionService:GetTagged(tag) do
@@ -587,7 +604,46 @@ local function followTags()
 			end
 		end
 	end
-	task.spawn(followNearLoops)
+	task.spawn(followWorldLoops)
+end
+
+-- The hiss follows the stray's HissAt attribute, which the server sets on a Miss, so every player nearby hears it
+-- (reviewer N56). At most once per cat per second, like the Effects hiss.
+local HISS_GAP = 1
+local hissWatches: { [Instance]: RBXScriptConnection } = {}
+local lastHiss: { [Instance]: number } = {}
+
+local function watchStray(instance: Instance)
+	local existing: RBXScriptConnection? = hissWatches[instance]
+	if existing then
+		return
+	end
+	hissWatches[instance] = instance:GetAttributeChangedSignal("HissAt"):Connect(function()
+		local now = os.clock()
+		local last: number? = lastHiss[instance]
+		local part = partOf(instance) -- nil while the cat streams in: no hiss rather than a flat one everywhere
+		if part ~= nil and (last == nil or now - last >= HISS_GAP) then
+			lastHiss[instance] = now
+			Audio.play("catHiss", part.Position)
+		end
+	end)
+end
+
+local function unwatchStray(instance: Instance)
+	local watch: RBXScriptConnection? = hissWatches[instance]
+	if watch then
+		watch:Disconnect()
+	end
+	hissWatches[instance] = nil
+	lastHiss[instance] = nil
+end
+
+local function followStrays()
+	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
+	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(unwatchStray)
+	for _, instance in CollectionService:GetTagged("Stray") do
+		watchStray(instance)
+	end
 end
 
 local function stopCarry()
@@ -603,12 +659,6 @@ local function refreshCarry()
 	if carrying then
 		carryStop = Audio.loop("carryPurr")
 	end
-end
-
--- A one-shot on something the server may remove in the same frame (a fleeing stray, the leaving cart) plays at
--- its position, so the removal cannot cut it off.
-local function spot(part: BasePart?): Vector3?
-	return if part ~= nil then part.Position else nil
 end
 
 local function rarityJingle(rarity: any)
@@ -645,10 +695,9 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		Audio.play("catchSparkle")
 		rarityJingle(rarity)
 	end,
-	CatchFail = function(strayId: any)
+	CatchFail = function()
 		duckForCatch(false)
-		Audio.play("catchMiss")
-		Audio.play("catHiss", spot(taggedPart("Stray", "StrayId", strayId))) -- v0.4: the cat hisses and jumps back
+		Audio.play("catchMiss") -- the cat's hiss follows its HissAt attribute, for everyone nearby
 	end,
 	PawLost = function()
 		Audio.play("pawLost")
@@ -803,6 +852,7 @@ function Audio.start()
 	task.spawn(preload)
 	task.spawn(followClock)
 	followTags()
+	followStrays()
 end
 
 -- Applies the player's settings (ProfileSync `settings`): music off silences Music; sound off silences Ambience,

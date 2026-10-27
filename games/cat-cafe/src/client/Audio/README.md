@@ -28,7 +28,7 @@ Hooks 1, 2 and 4 are wired (PR #66); moments come with catching v0.4. Every synt
    ```luau
    Audio.bindMoments(Moments)
    ```
-   Moments that do not exist yet are skipped, so the table can grow one feature at a time. Arguments are checked, so a missing one only loses a sound. Grades work as `"perfect"` or `"Perfect"`. Design v0.4 adds `PawLost`, `Purrfect`, `PlotOpened(position)` (a For Rent plot opens: shutters and sign, for everyone nearby), a `position` on `AreaUnlock(areaId, position)` so the gate sound comes from the gate, a `strayId` on `CatchFail` so the hiss comes from the cat, and an optional `rarity` on `Announce(text, rarity)` so the shout-out chime rises with rarity.
+   Moments that do not exist yet are skipped, so the table can grow one feature at a time. Arguments are checked, so a missing one only loses a sound. Grades work as `"perfect"` or `"Perfect"`. Design v0.4 adds `PawLost`, `Purrfect`, `PlotOpened(position)` (a For Rent plot opens: shutters and sign, for everyone nearby), a `position` on `AreaUnlock(areaId, position)` so the gate sound comes from the gate, and an optional `rarity` on `Announce(text, rarity)` so the shout-out chime rises with rarity.
 4. **Zone** for ambience, from whatever already knows where the player is (WorldController's alley check, a zone part):
    ```luau
    Audio.setZone("Alley") -- "Cafe", "Alley", "Park"; later "Neighbourhood", "Woods", "Sewer"; nil for none
@@ -63,5 +63,6 @@ Hooks 1, 2 and 4 are wired (PR #66); moments come with catching v0.4. Every synt
 - Stingers, the rank up jingle, the shiny reveal and the Legendary and Mythical jingles duck the music to 40 % while they play. A catch or rescue ducks the music to 60 % and the ambience to 50 % until its result arrives (30 s at most).
 - Each cue has a pool of Sounds (`voices`); when all are busy the oldest restarts, so a coin shower never makes a hundred Sounds. `minGap` drops repeats that come too fast.
 - A loop on a part ends when the part is destroyed. A one-shot on something the server may remove in the same frame (a fleeing stray, the leaving dealer cart, a rescue trap) plays at its position instead, so the removal cannot cut it off. A pooled Sound whose part streamed out is simply reparented on its next play.
-- Tagged world loops wait for the first `applySettings` like music, restart when the sound setting changes, and end when the tagged instance leaves the tag or streams out. `WorkingCat` purrs are rechecked twice a second against the player's position, so a full server never runs dozens at once.
+- Tagged world loops wait for the first `applySettings` like music, restart when the sound setting changes, and end when the tagged instance leaves the tag or streams out. Twice a second Audio also starts loops on tagged models whose parts streamed in late, restarts one whose part streamed out under it, and rechecks the `WorkingCat` purrs against the player's position, so a full server never runs dozens at once.
+- The cat's hiss on a Miss follows the `HissAt` attribute the server sets on the `Stray` model, so every player nearby hears it, at most once per cat per second. `CatchFail` only plays the catcher's own miss sound.
 - The server never plays sounds, and this module never fires remotes or changes game state.

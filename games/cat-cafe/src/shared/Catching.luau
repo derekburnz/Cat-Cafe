@@ -127,7 +127,7 @@ function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 end
 
 -- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Epic) and up, and
--- every shiny (data-model section 15). "Sam caught a shiny Rare Tabby!", "Sam rescued an Epic Maine Coon!";
+-- every gold (data-model section 15). "Sam caught a gold Rare Tabby!", "Sam rescued an Epic Maine Coon!";
 -- `where` adds a place before the "!" (" at their bait bowl").
 function Catching.shoutOut(
 	playerName: string,
@@ -136,11 +136,11 @@ function Catching.shoutOut(
 	variant: string?,
 	where: string?
 ): string?
-	local shiny = variant == "shiny"
-	if not shiny and not Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
+	local gold = variant == "gold"
+	if not gold and not Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
 		return nil
 	end
-	local phrase = (if shiny then "shiny " else "") .. def.rarity .. " " .. def.name
+	local phrase = (if gold then "gold " else "") .. def.rarity .. " " .. def.name
 	local article = if phrase:match("^[AEIOUaeiou]") then "an " else "a "
 	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
 end

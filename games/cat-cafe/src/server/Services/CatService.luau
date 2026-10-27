@@ -50,14 +50,14 @@ type Stray = {
 	selfRetryAt: { [number]: number },
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
-	variant: string, -- "shiny" (ShinyChanceNet, rolled at spawn and shown as a sparkle) or "base"
+	variant: string, -- "gold" (GoldChanceNet, rolled at spawn and shown as a sparkle) or "base"
 	method: Types.CatchMethod, -- "net", or what a knocked-loose cat was before it fell (its rescued flag, 10c)
 	drop: Shove.Drop?, -- set on a cat a shove knocked out of someone's arms (section 10c, S25)
 	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
 	alive: boolean,
 }
 
--- variant is "shiny" for a shiny cat (a rescue rolls it at night start, data-model section 4); nil is the base.
+-- variant is "gold" for a gold cat (a rescue rolls it at night start, data-model section 4); nil is the base.
 -- startedAt, immune and immuneUntil are the shove protections (section 10c); the character mirrors them.
 type Carry = {
 	def: Types.CatDef,
@@ -71,7 +71,7 @@ type Carry = {
 	funnel: Telemetry.CatchFunnel?, -- the catch_attempt funnel this cat came from (F16)
 }
 
--- What a knocked-loose cat keeps from the arms it fell out of (section 10c): charm, shiny and rescued flag.
+-- What a knocked-loose cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
 type Kept = {
 	charm: number?,
 	variant: string?,
@@ -254,12 +254,12 @@ local function spawnStray(
 	position: Vector3,
 	pointIndex: number?,
 	lifetime: number?, -- nil: stays until the next night start clears it
-	forceShiny: boolean?, -- Studio's debug hook
-	kept: Kept? -- a cat knocked out of someone's arms keeps its charm, shiny and rescued flag
+	forceGold: boolean?, -- Studio's debug hook
+	kept: Kept? -- a cat knocked out of someone's arms keeps its charm, gold and rescued flag
 ): Stray
 	local variant = if kept ~= nil
 		then kept.variant or "base"
-		elseif forceShiny == true or rng:NextNumber() < Config.ShinyChanceNet then "shiny"
+		elseif forceGold == true or rng:NextNumber() < Config.GoldChanceNet then "gold"
 		else "base"
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)
@@ -274,8 +274,8 @@ local function spawnStray(
 	model:SetAttribute("LockedBy", 0)
 	model:SetAttribute("SpawnedAt", os.time())
 	model:SetAttribute("FleeingUntil", 0) -- v0.5: server time a missed stray stops running (display only)
-	-- A net stray's shiny is no secret (data-model section 4): the sparkle and the catch header show it.
-	model:SetAttribute("Shiny", variant == "shiny")
+	-- A net stray's gold is no secret (data-model section 4): the sparkle and the catch header show it.
+	model:SetAttribute("Gold", variant == "gold")
 	-- Display only (section 13); the drop record itself stays in the server's table below (S25, N29).
 	model:SetAttribute("Dropped", kept ~= nil)
 	if kept ~= nil then
@@ -297,7 +297,7 @@ local function spawnStray(
 	prompt:SetAttribute("CatName", def.name)
 	prompt:SetAttribute("Rarity", def.rarity)
 	prompt:SetAttribute("StrayId", id)
-	prompt:SetAttribute("Shiny", variant == "shiny")
+	prompt:SetAttribute("Gold", variant == "gold")
 	prompt.Parent = body
 
 	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
@@ -510,7 +510,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	local model = AssetRegistry.cloneCat(carry.def.id, carry.variant)
 	model.Name = "HeldCat"
 	model:SetAttribute("CatId", carry.def.id)
-	model:SetAttribute("Shiny", carry.variant == "shiny") -- a rescued shiny shows its sparkle from here
+	model:SetAttribute("Gold", carry.variant == "gold") -- a rescued gold shows its sparkle from here
 	local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart") :: BasePart
 	local nameTag = body:FindFirstChild("NameTag")
 	if nameTag ~= nil then
@@ -551,7 +551,7 @@ local function withArticle(phrase: string): string
 end
 
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it. `method` is
--- "net" or "rescue"; `variant` "shiny" shows on the held cat and in the toast. `immune` is true for whoever
+-- "net" or "rescue"; `variant` "gold" shows on the held cat and in the toast. `immune` is true for whoever
 -- re-catches a knocked-loose cat: nobody can knock it loose again on that trip (section 10c).
 local function startCarry(
 	player: Player,
@@ -596,7 +596,7 @@ local function startCarry(
 		Telemetry.catchCaught(player, funnel)
 	end
 	local verb = if method == "rescue" and immune ~= true then "rescued" else "caught"
-	local name = if variant == "shiny" then "shiny " .. def.name else def.name
+	local name = if variant == "gold" then "gold " .. def.name else def.name
 	Net.toast(
 		player,
 		string.format("You %s %s! Walk it home to check in.", verb, withArticle(name)),
@@ -787,7 +787,7 @@ end
 
 -- Shove (section 10c) --------------------------------------------------------------------------------------
 
--- The carried cat drops at the target's feet as a knocked-loose stray that keeps its charm, shiny and rescued flag,
+-- The carried cat drops at the target's feet as a knocked-loose stray that keeps its charm, gold and rescued flag,
 -- and scurries ScurryMin to Max studs along `away` (from the shover), inside the area. Only its old carrier can
 -- catch it for DropOwnerPrioritySeconds; `shoverUserId` never can (0: nobody, Studio's hook). Nil when the target
 -- has no character to drop it from, in which case the carry stays.
@@ -1247,8 +1247,8 @@ function CatService.strayCount(areaId: string): number
 end
 
 -- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken),
--- shiny when `shiny` is true and rolled as usual otherwise.
-function CatService.debugSpawnStray(catId: string, areaId: string, shiny: boolean?): string
+-- gold when `gold` is true and rolled as usual otherwise.
+function CatService.debugSpawnStray(catId: string, areaId: string, gold: boolean?): string
 	assert(RunService:IsStudio(), "debugSpawnStray is Studio only")
 	local def = Catalog.getCat(catId)
 	local areaDef = Catalog.getArea(areaId)
@@ -1262,7 +1262,7 @@ function CatService.debugSpawnStray(catId: string, areaId: string, shiny: boolea
 		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
 		pointIndex,
 		Config.StrayDespawnSeconds,
-		shiny
+		gold
 	)
 	return stray.id
 end

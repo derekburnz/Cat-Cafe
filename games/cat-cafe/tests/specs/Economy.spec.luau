@@ -36,7 +36,7 @@ return function()
 				},
 			},
 			collection = { tabby = t },
-			shinyCollection = {},
+			goldCollection = {},
 			stats = {},
 			tutorialStep = 0,
 			settings = { music = true, sfx = true },
@@ -175,11 +175,11 @@ return function()
 			expect(Economy.catRate(cat("a", "golden", "barista_1"))).to.equal(0)
 		end)
 
-		it("a shiny earns 1.5x: a shiny Tabby as Barista earns 2.25 (F30 done-when)", function()
+		it("a gold cat earns 1.5x: a gold Tabby as Barista earns 2.25 (F30 done-when)", function()
 			expect(Economy.variantMultiplier("base")).to.equal(1)
-			expect(Economy.variantMultiplier("shiny")).to.equal(1.5)
+			expect(Economy.variantMultiplier("gold")).to.equal(1.5)
 			expect(Economy.variantMultiplier("galaxy")).to.equal(1)
-			expect(Economy.catRate(cat("a", "tabby", "barista_1", "shiny"))).to.be.near(2.25)
+			expect(Economy.catRate(cat("a", "tabby", "barista_1", "gold"))).to.be.near(2.25)
 			expect(Economy.catRate(cat("a", "tabby", "barista_1", "galaxy"))).to.be.near(1.5)
 		end)
 
@@ -576,9 +576,9 @@ return function()
 			p.collection.ginger = 1000
 			p.collection.tuxedo = 1000
 			expect(Economy.distinctCats(p)).to.equal(3)
-			-- A shiny of a cat already in the collection is not a second entry.
-			p.shinyCollection.tabby = 1000
-			p.cats.shiny = cat("shiny", "tabby", nil, "shiny")
+			-- A gold copy of a cat already in the collection is not a second entry.
+			p.goldCollection.tabby = 1000
+			p.cats.gold = cat("gold", "tabby", nil, "gold")
 			expect(Economy.distinctCats(p)).to.equal(3)
 			-- Selling every cat keeps the collection.
 			p.cats = {}
@@ -620,11 +620,11 @@ return function()
 			expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 2))).never.to.be.ok()
 		end)
 
-		it("a shiny of the one Legendary does not count as a second Legendary", function()
+		it("a gold copy of the one Legendary does not count as a second Legendary", function()
 			local p = profileWith(4, 30, "Legendary", 1)
 			local legendary = idsOf("Legendary")[1]
-			p.shinyCollection[legendary] = 1000
-			p.cats.shinyLegend = cat("shinyLegend", legendary, nil, "shiny")
+			p.goldCollection[legendary] = 1000
+			p.cats.goldLegend = cat("goldLegend", legendary, nil, "gold")
 			expect(Economy.rankUpBlocker(p)).to.equal("Needs 2 different cats, Legendary or better")
 		end)
 

@@ -82,8 +82,13 @@ export type UpgradeDef = {
 	requiresTierAtLevel: { [number]: number }?, -- e.g. espresso level 3 needs Tier 2 (the tier caps, section 5b)
 }
 
--- "shop" decor is bought with BuyDecor; "index" decor (F48) is never sold and only ClaimIndexReward grants it.
-export type DecorSource = "shop" | "index"
+-- "shop" decor is bought with BuyDecor; "index" decor (F48) is never sold and only ClaimIndexReward grants it;
+-- "crate" decor (F53) only comes out of a Cafe Crate.
+export type DecorSource = "shop" | "index" | "crate"
+
+-- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
+-- at a time; furniture and decorations stand on decor spots.
+export type DecorKind = "wallpaper" | "floor" | "paint" | "furniture" | "decoration"
 
 export type DecorDef = {
 	id: string,
@@ -97,6 +102,13 @@ export type DecorDef = {
 	asset: string, -- model name in ReplicatedStorage.Assets
 	source: DecorSource?, -- missing means "shop"
 	replaces: string?, -- a gold Index piece: the normal piece it stands in for while both are placed (N114)
+	-- a crate piece (F53): its pool (a zone id or "classic"), rarity and kind; a wallpaper, floor or paint also has
+	-- its colour and material, which the client puts on the cafe's tagged shell parts
+	crate: string?,
+	rarity: Rarity?,
+	kind: DecorKind?,
+	color: Color3?,
+	material: Enum.Material?,
 }
 
 -- Data-model section 11b (F48): a reward bar milestone on every area page of the Index. `need` cats of the area

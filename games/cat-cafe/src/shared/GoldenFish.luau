@@ -37,10 +37,11 @@ function GoldenFish.forRankUp(tier: number): number
 	return Config.FishRankUp[tier - 1] or 0
 end
 
--- Adds earned fish: the wallet, the lifetime count and stats.fishEarned. Whole fish only; nothing for 0 or less.
+-- Adds earned fish: the wallet, the lifetime count and stats.fishEarned. Whole fish only; nothing for 0 or less,
+-- NaN or infinity (QA: every amount is a Catalog or Config number today; this keeps a bad one out of the save).
 function GoldenFish.credit(profile: Types.PlayerProfile, amount: number)
 	local n = math.floor(amount)
-	if n <= 0 then
+	if n ~= n or n <= 0 or n == math.huge then
 		return
 	end
 	profile.goldenFish += n
@@ -50,7 +51,7 @@ end
 
 -- Spends `cost` fish when the wallet holds that many. False (and nothing spent) otherwise.
 function GoldenFish.trySpend(profile: Types.PlayerProfile, cost: number): boolean
-	if cost < 0 or profile.goldenFish < cost then
+	if cost ~= cost or cost < 0 or cost == math.huge or profile.goldenFish < cost then
 		return false
 	end
 	profile.goldenFish -= cost

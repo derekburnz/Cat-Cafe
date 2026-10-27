@@ -6,6 +6,7 @@ local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local Crates = require(script.Parent.Crates)
 local Types = require(script.Parent.Types)
 
 local Economy = {}
@@ -46,7 +47,8 @@ function Economy.replacedDecor(profile: Types.PlayerProfile): { [string]: boolea
 	return replaced
 end
 
--- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses
+-- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses, plus (F53) DecorIndexBonus for
+-- each full Decor Index page and GoldenEspressoBonus per Golden Espresso level
 function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	local multiplier = 1 + Config.TableBonus * Economy.level(profile, "tables")
 	multiplier += Config.EspressoBonus * math.max(0, Economy.level(profile, "espresso") - 1)
@@ -57,7 +59,16 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 			multiplier += def.bonus
 		end
 	end
+	multiplier += Config.DecorIndexBonus * Crates.fullPages(profile)
+	multiplier += Config.GoldenEspressoBonus * (profile.fishPerks.golden_espresso or 0)
 	return multiplier
+end
+
+-- How long the bait bowl's cat takes to come (data-model section 8): shorter with the Big Bowl perk (F53).
+function Economy.lureWaitSeconds(profile: Types.PlayerProfile): number
+	return if (profile.fishPerks.big_bowl or 0) >= 1
+		then Config.BigBowlLureWaitSeconds
+		else Config.LureWaitSeconds
 end
 
 -- Rate of one working cat before the cafe multiplier: its rating (rarity x charm x level x variant, see CatStats)
@@ -212,6 +223,9 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	end
 	if def.source == "index" then
 		return "An Index reward, not for sale"
+	end
+	if def.source == "crate" then
+		return "Found in Cafe Crates, not for sale"
 	end
 	if profile.decorOwned[decorId] then
 		return "Already owned"

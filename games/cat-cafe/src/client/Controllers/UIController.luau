@@ -178,16 +178,26 @@ local function refreshBait(s: Types.PlayerState)
 	local owned = (s.upgradeLevels.lure_bowl or 0) >= 1
 	local prompt = bowlPrompt
 	if owned and bowl ~= nil then
-		if prompt == nil or prompt.Parent ~= bowl then
+		local float = if prompt ~= nil then prompt.Parent else nil
+		if prompt == nil or float == nil or float.Parent ~= bowl then
 			if prompt ~= nil then
 				prompt:Destroy()
 			end
+			if float ~= nil and float:IsA("Attachment") then
+				float:Destroy()
+			end
+			-- Custom: the UI's action pill, floating a little above the bowl.
+			local point = Instance.new("Attachment")
+			point.Name = "PromptPoint"
+			point.Position = Vector3.new(0, 2.5, 0)
+			point.Parent = bowl
 			local made = Instance.new("ProximityPrompt")
 			made.Name = "BaitPrompt"
 			made.ObjectText = "Bait bowl"
 			made.HoldDuration = 0
 			made.MaxActivationDistance = 8
 			made.RequiresLineOfSight = false
+			made.Style = Enum.ProximityPromptStyle.Custom
 			made.Triggered:Connect(function()
 				local waiting = if state ~= nil then baitCat(state) else nil
 				if waiting ~= nil then
@@ -196,7 +206,7 @@ local function refreshBait(s: Types.PlayerState)
 					UI.bait.openPicker()
 				end
 			end)
-			made.Parent = bowl
+			made.Parent = point
 			bowlPrompt = made
 			prompt = made
 		end
@@ -206,7 +216,11 @@ local function refreshBait(s: Types.PlayerState)
 			elseif bait ~= nil then "Check"
 			else "Add food"
 	elseif prompt ~= nil then
+		local float = prompt.Parent
 		prompt:Destroy()
+		if float ~= nil and float:IsA("Attachment") then
+			float:Destroy()
+		end
 		bowlPrompt = nil
 	end
 

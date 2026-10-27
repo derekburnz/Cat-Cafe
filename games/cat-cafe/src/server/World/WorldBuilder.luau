@@ -851,6 +851,7 @@ local function buildManhole(parent: Instance): Model?
 	model:SetAttribute("Area", def.id)
 	model:SetAttribute("RequiresTier", def.tier)
 	CollectionService:AddTag(model, "AreaGate")
+	-- Custom: the UI's action pill, floating a little above the cover.
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "ManholePrompt"
 	prompt.ActionText = "Climb down"
@@ -858,7 +859,15 @@ local function buildManhole(parent: Instance): Model?
 	prompt.HoldDuration = 0.3
 	prompt.MaxActivationDistance = 8
 	prompt.RequiresLineOfSight = false
-	prompt.Parent = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if found ~= nil then
+		local float = Instance.new("Attachment")
+		float.Name = "PromptPoint"
+		float.Parent = found
+		float.WorldPosition = Vector3.new(spec.x, spec.y + 2.5, spec.z)
+		prompt.Parent = float
+	end
 	return model
 end
 

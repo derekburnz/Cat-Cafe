@@ -182,6 +182,18 @@ local function firePlacements(old: Types.PlayerState, new: Types.PlayerState)
 	end
 end
 
+-- Index rewards claimed since the last sync (F48), one IndexReward each.
+local function fireIndexRewards(old: Types.PlayerState, new: Types.PlayerState)
+	for areaId, claims in new.indexRewards do
+		local before = old.indexRewards[areaId]
+		for milestoneId in claims do
+			if before == nil or not before[milestoneId] then
+				Moments.IndexReward:Fire(areaId, milestoneId)
+			end
+		end
+	end
+end
+
 -- Something bought since the last sync: an upgrade level, a decor item or a lure count went up.
 local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): boolean
 	for id, level in new.upgradeLevels do
@@ -361,6 +373,7 @@ local function applyState(s: Types.PlayerState)
 	end
 	if previous ~= nil then
 		firePlacements(previous, s)
+		fireIndexRewards(previous, s)
 	end
 	state = s
 	UIController.state = s
@@ -384,6 +397,7 @@ local function applyState(s: Types.PlayerState)
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
 		settings = s.settings :: any, -- the UI reads it as a map of switches
+		indexRewards = s.indexRewards, -- F48: which Index rewards are claimed, so a claimed one shows as done
 	})
 	-- After the first sync, music and sound follow the Settings switches rather than each sync; the purr follows the
 	-- server's carry state.
@@ -421,6 +435,10 @@ local function wireIntents()
 		if audioStarted and SCREEN_SWITCHES[key] then
 			applySettings()
 		end
+	end)
+	-- An Index reward's Claim (F48); the server answers with a toast and a ProfileSync.
+	UI.events.claimIndexReward:Connect(function(areaId: string, milestoneId: string)
+		Net.fire("ClaimIndexReward", areaId, milestoneId)
 	end)
 	UI.events.claimTipJar:Connect(function(step: number)
 		Net.fire("ClaimTipJar", step)

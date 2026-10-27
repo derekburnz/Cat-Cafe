@@ -48,6 +48,7 @@ UI.init({
         spots = Catalog.spots,        -- {SpotDef} role slots, for the cat room's crew strip and Upgrades > Staff
         tiers = Catalog.tiers,        -- {TierDef}, v0.3: tier names, gates and the rank up card
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
+        tipJar = Catalog.tipJar,      -- {TipJarRow}, F47: the Tip Jar's twelve playtime gifts
         rarities = Catalog.rarities,  -- {[Rarity]: RarityDef}: the cat room's sell prices (sellValue)
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
@@ -193,6 +194,19 @@ A gear in the HUD's top-right icon row (left of Invite) opens Settings (`Screens
 
 **Engineer:** pass `settings = s.settings` in `UI.update` (cast `:: any` if the sealed table type complains). Forward `events.setSetting(key, value)` as `SetSetting(key, value)`: the server accepts only `"music"`, `"sfx"` (and `"markers"` once the data model has it) with a boolean, rate-limits it, saves it to `profile.settings` and sends it back in ProfileSync. On the client, apply music and sfx to Audio from `UI.settings.changed(key, on)` instead of from `s.settings` (read `UI.settings.value("music")` and `"sfx"` once after `UI.init` for the start): it fires on the tap (so the music stops at once), on the server's answer and when a tap the server dropped falls back, so a sync sent before the server saw the tap cannot flip the music back during the hold (review N111).
 
+### Tip Jar (built, F47, data-model section 11b)
+
+The twelve free playtime gifts of the session, like the Free Gifts grid in Pet Simulator 99 (`Screens/TipJar.luau`, sums in `Components/TipJarLogic.luau` with a spec). A pink **Gifts** tile joins the HUD's top-right icon row (left of the gear) with the first `TipJarState`: it counts down to the next gift ("4:05"), reads "Claim!" with a red count while gifts are ready, and "Done" once all twelve are claimed. It opens the **Tip Jar** window (orange, 🎁): a strip with "Played 12:34 · next gift in 2:26" over a bar filling toward the next gift, then a card per gift with its minute, the prize (a 💰 coin estimate from the day rate, or the food's picture and "2 Kibble") and a timer pill, a green Claim button once ready, or "✓ Claimed". The subtitle says the jar resets when you leave. A pressed Claim shows "..." for 3 s or until the next `TipJarState`.
+
+| API | Purpose |
+|---|---|
+| `catalog.tipJar` | `Catalog.tipJar`, the rows `{ step, minutes, kind = "coins" \| "lure", seconds?, minCoins?, lureId?, count? }`. No rows, no tile. |
+| `UI.tipJar.set(jar?)` | From `TipJarState`: `{ sessionStartedAt, claimed }`, `sessionStartedAt` in `Workspace:GetServerTimeNow()` time and `claimed` a dense array of 12 booleans (`claimed[step]`, as the server sends it); a sparse `{ [step] = true }` with string keys also reads fine. Send it when the profile loads and after every claim. nil hides the tile. |
+| `UI.tipJar.open()` | Opens the window. |
+| `events.claimTipJar(step)` | Forward as `ClaimTipJar(step)`. |
+
+Coin cards show `max(minCoins, floor(dayRate * seconds))` with the day rate worked back from `incomePerSecond` at night (`NightIncomeMultiplier`); the server's figure at claim time is final.
+
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 
 Nothing to call: `UI.init` starts all three and they read attributes the server and `CustomerController` already set, plus the player state.
@@ -293,6 +307,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `unequipAll` | none | "Unequip All" pressed in the cat room toolbar: every working cat rests (forward as `UnequipAll`, engineer #175) |
 | `dropCat` | none | Drop pressed on the carry banner, or G while carrying (HUD v3). Forward as `DropCat`: the server sets the cat down at the player's feet with their first try |
 | `claimOffline` | none | Claim pressed on the offline popup |
+| `claimTipJar` | `step` | Claim on a ready Tip Jar gift. Forward as `ClaimTipJar(step)` (F47). |
 | `setSetting` | `key, value` | A switch on the Settings screen: `"music"`, `"sfx"` or `"markers"`, and the new boolean. Forward as `SetSetting`; Audio follows `UI.settings.changed` (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |

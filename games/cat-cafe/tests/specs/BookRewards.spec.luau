@@ -29,7 +29,7 @@ return function()
 			}
 			for _, areaId in ipairs(AREAS) do
 				local row = expected[areaId]
-				local prizes = Catalog.bookRewards[areaId]
+				local prizes = Catalog.bookPrizes[areaId]
 				expect(prizes).to.be.ok()
 				expect(prizes.cats3 :: any).to.deepEqual({ coins = row[1] })
 				expect(prizes.cats6 :: any).to.deepEqual({ lures = { [row[2]] = row[3] } })
@@ -40,13 +40,23 @@ return function()
 				expect(prizes.gold10 :: any).to.deepEqual({ decorId = "book_" .. areaId .. "_gold" })
 				expect(Catalog.getArea(areaId)).to.be.ok()
 			end
-			for areaId in pairs(Catalog.bookRewards) do
+			for areaId in pairs(Catalog.bookPrizes) do
 				expect(table.find(AREAS, areaId) ~= nil).to.equal(true)
 			end
 		end)
 
+		it("the prize table is frozen, so no write can change a prize (S61)", function()
+			expect(table.isfrozen(Catalog.bookPrizes)).to.equal(true)
+			expect(table.isfrozen(Catalog.bookPrizes.alley)).to.equal(true)
+			expect(table.isfrozen(Catalog.bookPrizes.alley.cats3)).to.equal(true)
+			expect(table.isfrozen(Catalog.bookPrizes.alley.cats6.lures :: any)).to.equal(true)
+			expect(pcall(function()
+				(Catalog.bookPrizes.alley :: any).cats3 = true
+			end)).to.equal(false)
+		end)
+
 		it("every prize names real foods and Book decor", function()
-			for _, prizes in pairs(Catalog.bookRewards) do
+			for _, prizes in pairs(Catalog.bookPrizes) do
 				for _, prize in pairs(prizes) do
 					for lureId, count in pairs(prize.lures or {}) do
 						expect(Catalog.getLure(lureId)).to.be.ok()
@@ -150,7 +160,7 @@ return function()
 			expect(BookRewards.blocker(profile, "moon", "cats3")).to.equal("Unknown reward")
 			expect(BookRewards.blocker(profile, "alley", "cats99")).to.equal("Unknown reward")
 			expect(BookRewards.milestone("cats6")).to.equal(Catalog.bookMilestones[2])
-			expect(BookRewards.prize("alley", "cats3")).to.equal(Catalog.bookRewards.alley.cats3)
+			expect(BookRewards.prize("alley", "cats3")).to.equal(Catalog.bookPrizes.alley.cats3)
 			expect(BookRewards.prize("alley", "nope")).never.to.be.ok()
 		end)
 	end)

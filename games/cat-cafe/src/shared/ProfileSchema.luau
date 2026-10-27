@@ -433,7 +433,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- Book reward claims (F48); saves before version 5 have none and can claim every milestone they passed.
 	if type(raw.bookRewards) == "table" then
 		for areaId, claims in raw.bookRewards do
-			local prizes = if type(areaId) == "string" then Catalog.bookRewards[areaId] else nil
+			local prizes = if type(areaId) == "string" then Catalog.bookPrizes[areaId] else nil
 			if prizes ~= nil and type(claims) == "table" then
 				local kept: { [string]: boolean } = {}
 				for milestoneId, claimed in claims do

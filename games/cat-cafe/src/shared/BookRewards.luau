@@ -18,7 +18,7 @@ function BookRewards.milestone(id: string): Types.BookMilestone?
 end
 
 function BookRewards.prize(areaId: string, milestoneId: string): Types.BookPrize?
-	local area = Catalog.bookRewards[areaId]
+	local area = Catalog.bookPrizes[areaId]
 	return if area ~= nil then area[milestoneId] else nil
 end
 

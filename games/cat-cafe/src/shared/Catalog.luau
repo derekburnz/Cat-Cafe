@@ -1132,8 +1132,10 @@ Catalog.bookMilestones = {
 	{ id = "gold10", need = 10, gold = true },
 } :: { Types.BookMilestone }
 
--- What each milestone pays per area (section 11b). Everything is free and only the server pays it.
-Catalog.bookRewards = {
+-- What each milestone pays per area (section 11b). Everything is free and only the server pays it. Named apart
+-- from profile.bookRewards (the claims) and frozen, so a write meant for a profile errors instead of changing the
+-- prize for everyone on the server (reviewer S61).
+Catalog.bookPrizes = {
 	alley = {
 		cats3 = { coins = 300 },
 		cats6 = { lures = { tuna = 2 } },
@@ -1165,6 +1167,16 @@ Catalog.bookRewards = {
 		gold10 = { decorId = "book_sewer_gold" },
 	},
 } :: { [string]: { [string]: Types.BookPrize } }
+for _, prizes in Catalog.bookPrizes do
+	for _, prize in prizes do
+		if prize.lures ~= nil then
+			table.freeze(prize.lures)
+		end
+		table.freeze(prize)
+	end
+	table.freeze(prizes)
+end
+table.freeze(Catalog.bookPrizes)
 
 function Catalog.getArea(id: string): Types.AreaDef?
 	return Catalog.areasById[id]

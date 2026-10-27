@@ -388,8 +388,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.55,
-       2.2,
+       -1.62,
+       2.1,
        0.65
       ],
       "orientation": [
@@ -412,9 +412,9 @@
      }
     },
     "Size": [
-     2.0,
-     0.62,
-     0.62
+     1.8,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -438,8 +438,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.55,
-       3.2,
+       -1.62,
+       3.0,
        0.65
       ],
       "orientation": [
@@ -462,9 +462,9 @@
      }
     },
     "Size": [
-     0.62,
-     0.62,
-     0.62
+     0.6,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -488,7 +488,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.55,
+       -1.62,
        2.0,
        0.345
       ],
@@ -538,58 +538,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.55,
-       2.8,
-       0.345
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.1,
-     0.1
-    ],
-    "Color": [
-     0.5569,
-     0.2902,
-     0.1725
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_Decor_VelvetBooth",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.93,
-       2.488,
+       -1.08,
+       2.3222,
        0.65
       ],
       "orientation": [
@@ -612,9 +562,9 @@
      }
     },
     "Size": [
-     2.576,
-     0.62,
-     0.62
+     2.2444,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -638,8 +588,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.93,
-       3.776,
+       -1.08,
+       3.4444,
        0.65
       ],
       "orientation": [
@@ -662,9 +612,9 @@
      }
     },
     "Size": [
-     0.62,
-     0.62,
-     0.62
+     0.6,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -688,7 +638,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.93,
+       -1.08,
        2.0,
        0.345
       ],
@@ -738,7 +688,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.93,
+       -1.08,
        2.8,
        0.345
       ],
@@ -788,8 +738,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.31,
-       2.632,
+       -0.54,
+       2.4556,
        0.65
       ],
       "orientation": [
@@ -812,9 +762,9 @@
      }
     },
     "Size": [
-     2.864,
-     0.62,
-     0.62
+     2.5111,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -838,8 +788,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.31,
-       4.064,
+       -0.54,
+       3.7111,
        0.65
       ],
       "orientation": [
@@ -862,9 +812,9 @@
      }
     },
     "Size": [
-     0.62,
-     0.62,
-     0.62
+     0.6,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -888,7 +838,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.31,
+       -0.54,
        2.0,
        0.345
       ],
@@ -938,7 +888,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.31,
+       -0.54,
        2.8,
        0.345
       ],
@@ -988,8 +938,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.31,
-       2.632,
+       0.0,
+       2.5,
        0.65
       ],
       "orientation": [
@@ -1012,9 +962,9 @@
      }
     },
     "Size": [
-     2.864,
-     0.62,
-     0.62
+     2.6,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -1038,8 +988,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.31,
-       4.064,
+       0.0,
+       3.8,
        0.65
       ],
       "orientation": [
@@ -1062,9 +1012,9 @@
      }
     },
     "Size": [
-     0.62,
-     0.62,
-     0.62
+     0.6,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -1088,7 +1038,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.31,
+       0.0,
        2.0,
        0.345
       ],
@@ -1138,7 +1088,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.31,
+       0.0,
        2.8,
        0.345
       ],
@@ -1188,8 +1138,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.93,
-       2.488,
+       0.54,
+       2.4556,
        0.65
       ],
       "orientation": [
@@ -1212,9 +1162,9 @@
      }
     },
     "Size": [
-     2.576,
-     0.62,
-     0.62
+     2.5111,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -1238,8 +1188,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.93,
-       3.776,
+       0.54,
+       3.7111,
        0.65
       ],
       "orientation": [
@@ -1262,9 +1212,9 @@
      }
     },
     "Size": [
-     0.62,
-     0.62,
-     0.62
+     0.6,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -1288,7 +1238,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.93,
+       0.54,
        2.0,
        0.345
       ],
@@ -1338,7 +1288,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.93,
+       0.54,
        2.8,
        0.345
       ],
@@ -1388,8 +1338,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.55,
-       2.2,
+       1.08,
+       2.3222,
        0.65
       ],
       "orientation": [
@@ -1412,9 +1362,9 @@
      }
     },
     "Size": [
-     2.0,
-     0.62,
-     0.62
+     2.2444,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -1438,8 +1388,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.55,
-       3.2,
+       1.08,
+       3.4444,
        0.65
       ],
       "orientation": [
@@ -1462,9 +1412,9 @@
      }
     },
     "Size": [
-     0.62,
-     0.62,
-     0.62
+     0.6,
+     0.6,
+     0.6
     ],
     "Color": [
      0.851,
@@ -1488,7 +1438,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.55,
+       1.08,
        2.0,
        0.345
       ],
@@ -1538,8 +1488,158 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.55,
+       1.08,
        2.8,
+       0.345
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.1,
+     0.1
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_VelvetBooth",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.62,
+       2.1,
+       0.65
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.8,
+     0.6,
+     0.6
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_VelvetBooth",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.62,
+       3.0,
+       0.65
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.6,
+     0.6
+    ],
+    "Color": [
+     0.851,
+     0.2824,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_VelvetBooth",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.62,
+       2.0,
        0.345
       ],
       "orientation": [

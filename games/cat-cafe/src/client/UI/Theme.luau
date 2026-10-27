@@ -42,6 +42,8 @@ Theme.colors = {
 	outline = Color3.fromHex("2A1C15"),
 	red = Color3.fromHex("F0524F"),
 	redDark = Color3.fromHex("BE3330"),
+	berry = Color3.fromHex("F2679E"),
+	berryDark = Color3.fromHex("C2477A"),
 }
 
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
@@ -144,6 +146,9 @@ Theme.icons = {
 	lock = "🔒",
 	food = "🐟",
 	moon = "🌙",
+	invite = "👥",
+	equipBest = "✨",
+	drop = "⬇️",
 }
 
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets

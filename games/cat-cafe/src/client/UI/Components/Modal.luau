@@ -129,7 +129,8 @@ function Modal.open(self: any, name: string)
 		{ BackgroundTransparency = Theme.modal.backdropTransparency }
 	)
 	screen.frame.Visible = true
-	Sound.play("uiOpen")
+	-- the night dealer's stall has its own bell (sound list 5.8)
+	Sound.play(if name == "Dealer" then "uiDealerOpen" else "uiOpen")
 	Tween.popIn(screen.frame)
 	if screen.onOpen then
 		screen.onOpen()

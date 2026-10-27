@@ -1922,11 +1922,15 @@ case(
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
 		end
-		-- A working cat if there is one, so its DisplayName over the model can be checked by eye too.
+		-- A caught cat first: its uid is generated, unlike starter_tabby, and generated uids were once dropped by
+		-- Guard.id (laptop run 2026-10-27). Working if possible, so its DisplayName over the model can be checked too.
 		local uid: string? = nil
+		local best = -1
 		for candidate, view in state.cats do
-			if uid == nil or (view.spotId ~= nil and state.cats[uid :: string].spotId == nil) then
-				uid = candidate
+			local caught = if candidate ~= "starter_tabby" then 2 else 0
+			local score = caught + (if view.spotId ~= nil then 1 else 0)
+			if score > best then
+				uid, best = candidate, score
 			end
 		end
 		if uid == nil then

@@ -1,7 +1,7 @@
 --!strict
 -- The net's closing circles (F26, data-model section 10). The server sends the schedule: each circle
 -- appears at startsAt and closes onto its ring at startsAt + shrinkSeconds, in server time, at a screen
--- position. The player presses (tap anywhere, E, Space, click or the gamepad's A) as each circle meets
+-- position. The player presses (tap anywhere, Space, click or the gamepad's A) as each circle meets
 -- its ring. The UI only says which circle a press was for; the server stamps the time on arrival and
 -- judges it. Grades drawn before showResult are hints from this device; showResult replaces them with
 -- the server's grades.
@@ -91,8 +91,8 @@ local RESULT_SECONDS = 1.6
 local MISS_SECONDS = 1 -- a miss closes faster so the player can chase the cat
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"
-local PRESS_KEYS =
-	{ Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
+-- E is not here: it is the hold-to-start key on the catch prompt, and letting go of it would land as a press
+local PRESS_KEYS = { Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 
 local GRADE_TEXT: { [string]: string } = { perfect = "PERFECT!", good = "GOOD", miss = "MISS" }
 local GRADE_COLOR: { [string]: Color3 } = {
@@ -449,7 +449,7 @@ function CatchCircles.show(
 		or (
 			if Scale.isTouch()
 				then "Tap anywhere as each circle meets its ring"
-				else "Press E or click as each circle meets its ring"
+				else "Press Space or click as each circle meets its ring"
 		)
 	self._header.UIStroke.Color = if info.shiny then Theme.colors.gold else Theme.hud.stroke
 	self._banner.Visible = false

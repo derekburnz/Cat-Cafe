@@ -1,6 +1,6 @@
 --!strict
 -- The rescue minigame's bar (F27, data-model section 10b), in the style of the timing bars in Fisch and other
--- fishing games: a marker slides back and forth along a bar and the player presses (tap anywhere, E, Space,
+-- fishing games: a marker slides back and forth along a bar and the player presses (tap anywhere, Space,
 -- click or the gamepad's A) while it is inside the green zone. Each hit fills a pip and the zone jumps to its
 -- next spot; each miss costs a paw. Enough hits free the cat; running out of paws or time ends the attempt and
 -- the cat stays stuck. On a tree (kind "shake_catch") each hit shakes the branch, and the server follows the
@@ -74,8 +74,8 @@ local FAIL_SECONDS = 1.2
 local GIVE_UP_SECONDS = 0.5
 local NO_RESULT_TIMEOUT = 3 -- hide if the server has not ended the attempt this long after its deadline
 local ACTION_NAME = "CatCafeRescuePress"
-local PRESS_KEYS =
-	{ Enum.KeyCode.E, Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
+-- E starts a rescue (hold on the prompt), so presses on the bar are Space, a click or tap, or the gamepad's A
+local PRESS_KEYS = { Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 local WOBBLE = { 10, -9, 7, -5, 0 }
 local WOBBLE_STEP = TweenInfo.new(0.045, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
 local ZONE_MOVE = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -456,7 +456,7 @@ function RescueBar.show(
 	self._hint.Text = if shake
 		then "Hit the green to shake the branch!"
 		elseif Scale.isTouch() then "Tap when the bar is in the green!"
-		else "Press E or click when the bar is in the green!"
+		else "Press Space or click when the bar is in the green!"
 	self._pawRow:set(challenge.paws, challenge.paws)
 	self._hint.Size = UDim2.new(1, if challenge.paws ~= nil then -110 else -28, 0, 22)
 	-- a tree's last hit drops the cat into a catch circle instead, so its pips stop one short

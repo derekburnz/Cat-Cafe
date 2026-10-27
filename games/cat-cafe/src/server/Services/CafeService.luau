@@ -461,7 +461,7 @@ end
 -- Mutations used by other services -----------------------------------------------------------------------
 
 local function newUid(): string
-	return HttpService:GenerateGUID(false):sub(1, 12):lower()
+	return CatStats.uidFromGuid(HttpService:GenerateGUID(false))
 end
 
 function CafeService.advanceTutorial(profile: Profile, step: number)

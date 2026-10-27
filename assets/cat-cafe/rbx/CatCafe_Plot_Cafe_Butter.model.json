@@ -17219,6 +17219,55 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       0.0,
+       0.05,
+       -16.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.4,
+     0.06,
+     2.0
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Plot_Cafe_Butter",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        -11.4,
        0.05,
        -19.675
@@ -25900,124 +25949,6 @@
     }
    },
    "name": "CatCafe_Plot_Cafe_Butter_Fireflies"
-  },
-  {
-   "className": "Model",
-   "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Plot_Cafe_Butter/10"
-   },
-   "children": [
-    {
-     "name": "CatCafe_Plot_Cafe_Butter_FrontDoor",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0,
-         0.05,
-         -16.3
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       4.4,
-       0.06,
-       2.0
-      ],
-      "Color": [
-       0.9098,
-       0.6275,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "PivotOffset": {
-       "CFrame": {
-        "position": [
-         0.0,
-         -0.05,
-         16.3
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     },
-     "attributes": {
-      "Rojo_Id": "CatCafe_Plot_Cafe_Butter/10"
-     }
-    }
-   ],
-   "properties": {
-    "WorldPivotData": {
-     "OptionalCFrame": {
-      "position": [
-       0.0,
-       0.0,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Tags": [
-     "CafeDoor"
-    ]
-   },
-   "name": "CatCafe_Plot_Cafe_Butter_FrontDoor"
   }
  ],
  "properties": {

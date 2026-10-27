@@ -56,9 +56,9 @@ RENAME_BIGGEST = {"CatCafe_Park_Gate": "Bars", "CatCafe_Furniture_TableRound": "
 PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars"}
 # CollectionService tags the audio code plays world loops from (assets/cat-cafe/audio, PR #69), keyed by object
 # name, or by name suffix when the key starts with "_". The tag goes on the object's Model, whose PrimaryPart is
-# where the sound comes from.
+# where the sound comes from. CafeDoor and WorkingCat are tagged by WorldBuilder at placement.
 TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["FishTank"],
-        "CatCafe_Park_Fountain": ["Fountain"], "_FrontDoor": ["CafeDoor"]}
+        "CatCafe_Park_Fountain": ["Fountain"]}
 
 
 def _r(v):

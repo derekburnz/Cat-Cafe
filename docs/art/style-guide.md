@@ -266,8 +266,8 @@ Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),
 `_Steam` (espresso cups), `_Chimney` (chimney opening), `_Flowers` (beds and flower boxes, butterflies),
 `_Fireflies` (invisible volume over the beds), `_Shutter` and `_Sign` inside ForRent (rolled up and flipped on a
-claim), `_Zzz` (sleeping cat). Tags for the audio loops: `FishTank`, `Fountain` and `CafeDoor` (the shell's
-`_FrontDoor` mat).
+claim), `_Zzz` (sleeping cat). Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+`Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).
 

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 02:44 UTC",
+  "generated": "2026-10-27 02:46 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -8925,8 +8925,7 @@
         "CatCafe_Plot_Cafe_Mint_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Mint_Chimney",
         "CatCafe_Plot_Cafe_Mint_Flowers",
-        "CatCafe_Plot_Cafe_Mint_Fireflies",
-        "CatCafe_Plot_Cafe_Mint_FrontDoor"
+        "CatCafe_Plot_Cafe_Mint_Fireflies"
       ],
       "triangles": 5474,
       "budget": 12000,
@@ -9011,8 +9010,7 @@
         "CatCafe_Plot_Cafe_Blush_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Blush_Chimney",
         "CatCafe_Plot_Cafe_Blush_Flowers",
-        "CatCafe_Plot_Cafe_Blush_Fireflies",
-        "CatCafe_Plot_Cafe_Blush_FrontDoor"
+        "CatCafe_Plot_Cafe_Blush_Fireflies"
       ],
       "triangles": 5474,
       "budget": 12000,
@@ -9097,8 +9095,7 @@
         "CatCafe_Plot_Cafe_Butter_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Butter_Chimney",
         "CatCafe_Plot_Cafe_Butter_Flowers",
-        "CatCafe_Plot_Cafe_Butter_Fireflies",
-        "CatCafe_Plot_Cafe_Butter_FrontDoor"
+        "CatCafe_Plot_Cafe_Butter_Fireflies"
       ],
       "triangles": 5474,
       "budget": 12000,
@@ -9183,8 +9180,7 @@
         "CatCafe_Plot_Cafe_Lilac_BackLamp_Bulb",
         "CatCafe_Plot_Cafe_Lilac_Chimney",
         "CatCafe_Plot_Cafe_Lilac_Flowers",
-        "CatCafe_Plot_Cafe_Lilac_Fireflies",
-        "CatCafe_Plot_Cafe_Lilac_FrontDoor"
+        "CatCafe_Plot_Cafe_Lilac_Fireflies"
       ],
       "triangles": 5474,
       "budget": 12000,

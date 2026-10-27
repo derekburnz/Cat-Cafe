@@ -285,12 +285,12 @@ def _roof(r, chimney):
     chimney.span((10.5, 25.0, 8.5), (11.7, 25.1, 9.7), "fur_black")                             # smoke starts here
 
 
-def _garden(b, bulbs, flowers, fireflies, door):
+def _garden(b, bulbs, flowers, fireflies):
     gz0, gz1 = -20.0, FRONT
     b.span((DOOR[0], -0.2, gz0), (DOOR[1], 0.02, gz1), "floor_tile")                         # path
     for z in (-19.0, -17.6, -16.2):
         b.span((DOOR[0] + 0.2, 0.02, z - 0.06), (DOOR[1] - 0.2, 0.05, z + 0.06), "concrete")
-    door.span((-2.2, 0.02, -17.3), (2.2, 0.08, -15.3), "blush")                             # door mat (_FrontDoor)
+    b.span((-2.2, 0.02, -17.3), (2.2, 0.08, -15.3), "blush")                                # door mat
     for x0, x1 in ((-HW + 0.2, DOOR[0] - 0.5), (DOOR[1] + 0.5, HW - 0.2)):                  # beds
         flowers.span((x0, -0.2, -19.6), (x1, 0.15, gz1 - 0.2), "leaf_green")
         fireflies.span((x0, 0.6, -19.6), (x1, 4.0, gz1 - 0.4), "leaf_green")                 # air they drift in
@@ -337,7 +337,7 @@ def build_cafe(colour, mat):
     facade, accent = COLOURS[colour]
     name = f"CatCafe_Plot_Cafe_{colour}"
     b, glass, roof, sign, bulbs_post, bulbs_sign, bulbs_back = RB(), RB(), RB(), RB(), RB(), RB(), RB()
-    chimney, flowers, fireflies, door = RB(), RB(), RB(), RB()
+    chimney, flowers, fireflies = RB(), RB(), RB()
     _front_wall(b, glass, facade, accent)
     _side_walls(b, glass, facade, accent)
     _back_wall(b, glass, facade, accent)
@@ -346,7 +346,7 @@ def build_cafe(colour, mat):
     _awning(b, accent, -16.0, -5.0)
     _awning(b, accent, 5.0, 16.0)
     _sign(b, sign, bulbs_sign, accent)
-    _garden(b, bulbs_post, flowers, fireflies, door)
+    _garden(b, bulbs_post, flowers, fireflies)
     x = BACK_DOOR[1] + 1.4                                                                   # back door lamp
     b.span((x - 0.1, 6.6, BACK), (x + 0.1, 6.8, BACK + 0.6), "fur_black")
     bulbs_back.span((x - 0.25, 6.0, BACK + 0.4), (x + 0.25, 6.6, BACK + 0.9), "lamp_warm")
@@ -355,7 +355,7 @@ def build_cafe(colour, mat):
             sign.finalize(name + "_SignBoard", mat), bulbs_post.finalize(name + "_LampPost_Bulb", mat),
             bulbs_sign.finalize(name + "_SignLamp_Bulb", mat), bulbs_back.finalize(name + "_BackLamp_Bulb", mat),
             chimney.finalize(name + "_Chimney", mat), flowers.finalize(name + "_Flowers", mat),
-            fireflies.finalize(name + "_Fireflies", mat), door.finalize(name + "_FrontDoor", mat)]
+            fireflies.finalize(name + "_Fireflies", mat)]
 
 
 # ------------------------------------------------------------------------------------------ interior --

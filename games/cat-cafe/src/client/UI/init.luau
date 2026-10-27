@@ -15,6 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
+local CafeSigns = require(script.Screens.CafeSigns)
 local CatCollection = require(script.Screens.CatCollection)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
@@ -34,6 +35,7 @@ local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
 local UpgradeShop = require(script.Screens.UpgradeShop)
 local WorldMarker = require(script.Components.WorldMarker)
+local WorldTags = require(script.Screens.WorldTags)
 
 local UI = {}
 
@@ -90,6 +92,8 @@ local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
 local gateSigns: GateSigns.GateSigns? = nil
 local areaTitle: AreaTitle.AreaTitle? = nil
+local cafeSigns: CafeSigns.CafeSigns? = nil
+local worldTags: WorldTags.WorldTags? = nil
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -308,6 +312,9 @@ function UI.init(config: Types.InitConfig)
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
 	areaTitle = AreaTitle.new(parent)
+	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
+	cafeSigns = CafeSigns.new(parent)
+	worldTags = WorldTags.new()
 
 	setCatalog(config.catalog)
 
@@ -405,6 +412,12 @@ function UI.destroy()
 	if areaTitle then
 		areaTitle:destroy()
 	end
+	if cafeSigns then
+		cafeSigns:destroy()
+	end
+	if worldTags then
+		worldTags:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -421,6 +434,7 @@ function UI.destroy()
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
+	cafeSigns, worldTags = nil, nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false

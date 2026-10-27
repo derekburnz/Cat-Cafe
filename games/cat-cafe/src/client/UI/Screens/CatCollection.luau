@@ -37,7 +37,6 @@ export type CatCollection = {
 	showTab: (self: CatCollection, tab: Tab) -> (),
 	showArea: (self: CatCollection, areaId: string) -> (),
 	setNight: (self: CatCollection, night: boolean) -> (),
-	currentTab: (self: CatCollection) -> Tab,
 	destroy: (self: CatCollection) -> (),
 }
 
@@ -447,10 +446,6 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	self._decorIndex = DecorIndex.new(self._decor, { claim = callbacks.claimIndexReward })
 
 	return self :: CatCollection
-end
-
-function CatCollection.currentTab(self: any): Tab
-	return self._tab
 end
 
 function CatCollection.showTab(self: any, tab: Tab)

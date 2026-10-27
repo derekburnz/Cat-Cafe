@@ -34,8 +34,6 @@ MyCats.__index = MyCats
 
 function MyCats.new(callbacks: Callbacks): MyCats
 	local self = setmetatable({}, MyCats) :: any
-	self._lastState = nil :: Types.PlayerState?
-
 	local panel = Panel.new({
 		name = "Cats",
 		color = Theme.colors.sky,
@@ -72,7 +70,6 @@ function MyCats.reset(self: any)
 end
 
 function MyCats.render(self: any, state: Types.PlayerState)
-	self._lastState = state
 	if not self.frame.Visible then
 		return
 	end

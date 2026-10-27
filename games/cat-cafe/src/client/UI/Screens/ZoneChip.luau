@@ -1,8 +1,8 @@
 --!strict
 -- Safe zone chip (UI plan 2026-10-27; Derek: "if you get back to the area with the cafes that can be considered
 -- safe"): a small pill under the cafe tier pill at the top centre. On the street and in the cafes it reads
--- "🛡️ Safe zone" in green; in a catching area "🐾 Catching area · shoves on" in orange. Walking back from an area
--- pops it, and init toasts "Safe zone: no shoving here". Hidden until the controller first calls UI.setZone.
+-- "🛡️ Safe zone" in green; in a catching area "🐾 Catching area · tackles on" in orange. Walking back from an area
+-- pops it, and init toasts "Safe zone: no tackling here". Hidden until the controller first calls UI.setZone.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -21,7 +21,7 @@ export type ZoneChip = {
 local TOP = 16 + 56 + 8 -- under the HUD's tier pill (HUD MARGIN + CAFE_HEIGHT + gap)
 local HEIGHT = 30
 local SAFE_TEXT = "🛡️ Safe zone"
-local AREA_TEXT = "🐾 Catching area · shoves on"
+local AREA_TEXT = "🐾 Catching area · tackles on"
 
 local ZoneChip = {}
 ZoneChip.__index = ZoneChip

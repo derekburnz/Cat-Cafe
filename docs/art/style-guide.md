@@ -339,19 +339,25 @@ A cat is two models (Derek, 2026-10-27: "A for walking around B while they are s
 
 ## 9. Lighting (Studio)
 
-Lighting.Technology Future, Bloom low, ColorCorrection Saturation +0.05, Contrast +0.05. The server clock (3 minutes day, 2 minutes night, `Clock.Phase`) drives two presets; tween between them over 4 seconds.
+Lighting.Technology Future, Bloom low, ColorCorrection Saturation +0.05, Contrast +0.05. The light follows the server clock through the whole day and night, not just a flip at dusk (Derek, 2026-10-27 22:37: "the brightness should reflect time not just when its night everything is too bright"). `shared/DayLight.luau` holds the looks below (PR #376); each phase runs through its keyframes and ends on the look the next one starts with, and WorldController applies them to Lighting and its Atmosphere. Day keyframes at 0, 0.12, 0.45, 0.75, 0.93 and 1 of the day: sunrise, morning, midday, golden, dusk, sunset. The night falls to the night look in its first fifth, holds it, and warms back to sunrise from 85%.
 
-| setting | day | night |
-|---|---|---|
-| ClockTime | 14.5 | 0.5 |
-| Brightness | 2 | 0.6 |
-| OutdoorAmbient | 170,160,150 | 45,55,85 |
-| Ambient | 120,115,110 | 30,35,55 |
-| ExposureCompensation | 0 | 0 (0.25 washed the lit cafe out to white; changed in PR #239) |
-| ColorShift_Top | 255,245,230 | 150,170,220 |
-| Atmosphere Density | 0.3 | 0.4, Color 110,120,160 |
+| setting | sunrise | morning | midday | golden | dusk | sunset | night |
+|---|---|---|---|---|---|---|---|
+| ClockTime | 6.4 | 8.6 | 12.5 | 16.2 | 17.7 | 18.3 | 0.5 |
+| Brightness | 0.9 | 1.3 | 1.5 | 1.35 | 0.95 | 0.75 | 0.6 |
+| OutdoorAmbient | 150,125,120 | 142,134,128 | 138,132,126 | 148,132,116 | 125,105,115 | 90,85,110 | 45,55,85 |
+| Ambient | 95,85,85 | 98,94,90 | 100,96,92 | 100,96,92 | 85,78,85 | 60,58,78 | 30,35,55 |
+| ExposureCompensation | -0.1 | -0.2 | -0.2 | -0.2 | -0.1 | 0 | 0 |
+| ColorShift_Top | 255,190,150 | 255,225,195 | 255,245,232 | 255,210,160 | 255,170,140 | 200,165,190 | 150,170,220 |
+| Atmosphere Density | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | 0.3 | 0.4 |
+| Atmosphere Color | 255,195,160 | 235,218,205 | 210,224,238 | 255,212,160 | 245,160,135 | 190,140,150 | 110,120,160 |
+| Atmosphere Haze, Glare | 2.6, 0.6 | 2.2, 0.3 | 2, 0 | 2.3, 0.5 | 2.5, 0.4 | 2, 0.2 | 0, 0 |
+
+The brightest the day gets is midday at Brightness 1.5 and exposure -0.2; the old day look (Brightness 2, OutdoorAmbient 170,160,150, exposure 0) was too bright. Exposure +0.25 at night washed the lit cafe out to white (PR #239), so the night stays at 0. Change the numbers in `DayLight.luau` and here together.
 
 Parts that switch at night (all exported as their own object, suffix `_Bulb`, `_Bulbs`, `_Pane` or `_Tube`): StreetLamp Bulb, ShopWindow Pane, StringLights Bulbs, HangingLamp Bulb, NeonSign Tube. Day: SmoothPlastic in their palette color (the window pane is Glass, Transparency 0.5). Night: Material Neon, Color lamp_warm (neon_pink for the sign); bulbs and tubes are solid, window panes keep Transparency 0.3 so you can see into the cafe. The child light is enabled: street lamp SpotLight 255,200,150 Brightness 3 Range 30 Angle 100; window, string light and sign tube PointLight 255,214,170 Brightness 0.8 Range 10; hanging lamp PointLight Brightness 1.2 Range 14 (on by day too, indoors). Stronger window and string lights (the old 1.5 and 16) wash the cafe interior out to white, so keep new lights at or under these values (PR #239, playtest #184). The cafe door sign shows `DoorSign_Open` by day and `DoorSign_Closed` at night. From v0.5 (F44) cafes close at night and customers leave: owned cafes hang `CatCafe_Plot_ClosedSign` in the front door, a night_sky board with CLOSED on both faces, two stars and a crescent moon (`_Moon_Bulb`, so it glows lamp_warm). The `vignette_alley_night.png` concept image is the target look.
+
+Sky: `CatCafe_Sky`, a Sky instance in Assets (built by `blender/sky.py`) that the client clones into Lighting in place of the Roblox default (Derek, 2026-10-27). Pale blue overhead (#88BDE6), light blue at 32 degrees up (#AACFEA), a warm cream horizon (#EFDDC1) and a sandy haze below it. It stays off pure white so the sky never out-glows the lit cafes. No clouds, sun or moon are painted in: Roblox draws the sun, moon and stars over it, and the lighting presets above set the time of day. Every face comes from one gradient by height in the sky, so the faces meet with no seams and the four sides share one image. To change it, edit `STOPS` in `sky.py`, run it, upload each changed image once with the upload-image workflow and put the new ids in `IDS`; the model is only written when every id matches its image. Preview: `previews/CatCafe_Sky.png`.
 
 ## 10. Export and import checklist
 
@@ -406,8 +412,14 @@ of the Alley Square (`CatCafe_Alley_ArchStreet`, `CatCafe_Alley_Arch`) are brick
 board and an iron arc of bulbs with a gold cat medallion. Props: a crate stack in climbable steps, a laundry line,
 long string lights and the Sewer manhole with barricades. Area gates are arches over the full opening with a
 ForceField barrier and a hanging sign board, themed: the Park in brick with ivy, planters and a green iron frame;
-the Woods in logs with moss, mushrooms and small spruces; the Sewer in concrete with hazard stripes, a big pipe
-and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+the Woods in timber posts and a log beam with moss, mushrooms and small spruces; the Sewer in concrete with hazard
+stripes, a big pipe and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+
+Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
+are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never
+flush with its face, or the two faces flicker. Posts reach 0.12 into the opening and past the wall's back face, and
+nothing beside a post sits on the wall's line. Check a placed piece in its scene, not alone: the toolkit only sees
+one model, so a gate that passes on its own can still cut through the walls around it.
 
 ## 14. Part-built models in Roblox
 

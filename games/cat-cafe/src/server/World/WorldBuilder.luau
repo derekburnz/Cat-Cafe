@@ -179,9 +179,20 @@ function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
 	plot.backDoor.Transparency = if open then 1 else 0
 end
 
+-- Derek 22:43: an empty cafe has no cats. The For Rent art still has a sleeping doorstep cat and its Zzz baked in
+-- (plot.py _sleeping_cat), so they come out here; harmless once the art drops them.
+local function removeDoorstepCat(set: Instance)
+	for _, descendant in set:GetDescendants() do
+		local name = descendant.Name
+		if name:find("_Cat_", 1, true) ~= nil or name:sub(-4) == "_Zzz" then
+			descendant:Destroy()
+		end
+	end
+end
+
 -- What a cafe shows from the street (F36, F38): tier 0 is an empty plot, dressed For Rent (shutters half down, the
--- sign, dust sheets and a sleeping doorstep cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its
--- tier. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
+-- sign and dust sheets, and no cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its tier. Pieces
+-- whose art is not in ReplicatedStorage.Assets are skipped.
 function WorldBuilder.setDressing(plot: Plot, tier: number)
 	local function show(name: string, asset: string, wanted: boolean)
 		local existing = plot.dressing:FindFirstChild(name)
@@ -192,6 +203,10 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 		end
 	end
 	show("ForRent", "CatCafe_Plot_ForRent", tier == 0)
+	local forRent = plot.dressing:FindFirstChild("ForRent")
+	if forRent ~= nil then
+		removeDoorstepCat(forRent)
+	end
 	for n = 1, Catalog.maxTier do
 		show("Tier" .. n, "CatCafe_Plot_Tier" .. n, tier >= n)
 	end
@@ -967,7 +982,8 @@ local function buildNightFences(
 		end
 	end
 	local floor = Layout.alley.floorY
-	local from, to = W.AlleySouthZ, W.SquareSouthZ - 1
+	-- the end posts clear the Woods and Sewer gate pillars and the Alleyway arch plinths (Model-Agent, after #375)
+	local from, to = W.AlleySouthZ + 2.1, W.SquareSouthZ - 1.9
 	local count = math.ceil((to - from) / NIGHT_FENCE_SEGMENT)
 	local step = (to - from) / count
 	for _, side in { -1, 1 } do

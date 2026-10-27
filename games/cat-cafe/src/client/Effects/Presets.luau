@@ -835,6 +835,106 @@ Presets.tackle = {
 	skidDust = 8, -- dust particles where they stop
 }
 
+-- The Tackle (design v0.11, F74), drawn on R15 characters by Tackle.luau with Avatar.luau's poses. Seconds as the
+-- engineer's timers (Config Tackle* once it has them: the lunge, the hit window's grace, the stand-up after a hit
+-- and after a miss, the target's push and how long it stays down), so a pose ends when the player can move again.
+-- Each key pose is degrees about the R15 joints (Avatar.Pose; `sh`, `sp`, `el`, `hip` and `kn` set both sides,
+-- `shL`... one side) and `air`, studs from the floor to the lowest part (0: resting on the floor). A pose eases in
+-- over `blendIn` from whatever the character was playing and back out over `blendOut`. A character that moves
+-- faster than `cutSpeed` studs a second after the moving part of its tackle is up again, so its pose eases out.
+Presets.tacklePose = {
+	lunge = 0.35, -- TackleLungeSeconds
+	grace = 0.25, -- TackleHitGraceSeconds: the window runs this much past the lunge before a miss is known
+	hitRecover = 0.4, -- TackleHitRecoverSeconds
+	missRecover = 1.2, -- TackleMissRecoverSeconds
+	push = 0.25, -- the target's knockback: ShoveController's PUSH_SECONDS, keep the two together
+	down = 0.8, -- TackledDownSeconds, after the push
+	land = 0.15, -- after the lunge the diver comes down on its belly over this long
+	lost = 0.5, -- after the window, no hit and no TackleMissAt for this long: it gets up anyway
+	blendIn = 0.06,
+	blendOut = 0.12,
+	cutSpeed = 8,
+	cutAfter = 0.15, -- seconds after the moving part before speed counts: the push or lunge dies away
+	cutSeconds = 0.15, -- how fast the pose lets go once the player moves
+	sideRoll = 20, -- most a tackled player tips towards a push from the side
+	slide = { neck = 6, kick = 25, roll = 3, hz = 6 }, -- the belly slide's wobble, fading as it stops
+	poses = {
+		coil = { lean = 20, waist = 15, neck = 20, sh = -50, sp = 15, el = 25, hip = 70, kn = 85 },
+		launch = { lean = 55, neck = 40, sh = 120, sp = 15, el = 20, hip = 5, kn = 25, air = 0.5 },
+		fly = {
+			lean = 82,
+			waist = -5,
+			neck = 55,
+			sh = 165,
+			sp = 22,
+			el = 10,
+			hip = -8,
+			kn = 35,
+			air = 0.5,
+		},
+		belly = {
+			lean = 90,
+			waist = -6,
+			neck = 50,
+			sh = 168,
+			sp = 28,
+			el = 15,
+			hip = -4,
+			kn = 40,
+			air = 0.04,
+		},
+		allFours = { lean = 60, neck = 40, sh = 60, sp = 5, el = 5, hip = 62, kn = 92 },
+		stumble = {
+			lean = 28,
+			waist = 10,
+			neck = 25,
+			shL = 85,
+			shR = 55,
+			sp = 35,
+			el = 30,
+			hipL = 55,
+			knL = 35,
+			hipR = -22,
+			knR = 30,
+		},
+		recoil = {
+			lean = -22,
+			waist = -10,
+			neck = -20,
+			sh = 70,
+			sp = 40,
+			el = 30,
+			hip = 25,
+			kn = 25,
+			air = 0.3,
+		},
+		recoilForward = {
+			lean = 28,
+			waist = 10,
+			neck = 30,
+			sh = 100,
+			sp = 30,
+			el = 20,
+			hip = -20,
+			kn = 35,
+			air = 0.3,
+		},
+		back = {
+			lean = -90,
+			waist = 5,
+			neck = -15,
+			sh = 35,
+			sp = 70,
+			el = 20,
+			hip = 40,
+			kn = 50,
+			air = 0.04,
+		},
+		sit = { lean = -10, waist = 12, neck = 5, sh = 25, sp = 30, el = 35, hip = 88, kn = 20 },
+		crouch = { lean = 30, waist = 15, neck = 20, sh = 30, sp = 20, el = 30, hip = 95, kn = 115 },
+	} :: { [string]: { [string]: number } },
+}
+
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
 -- pushes every other player within CatchBurstRadiusStuds (10) of the catcher away, so a ring as wide as that
 -- spreads from the catcher's feet, and while their `RushUntil` runs (CatchRushSeconds, 5) speed lines stream off
@@ -1115,6 +1215,15 @@ Presets.fishPickup = {
 		{ from = 10, sparkles = 14, ring = 4.5 },
 		{ from = 40, sparkles = 22, ring = 6 },
 	},
+}
+
+-- A cat levelling up (F75, data-model 4b v0.12): a small mint sparkle over one of your own cafe cats, `above` studs
+-- over its head, and a few glints floating up. Small, since cats level often early on.
+Presets.levelUp = {
+	sparkles = 6, -- catchSparkle particles
+	glints = 3, -- fishRise particles, tinted
+	above = 0.4,
+	colour = Presets.palette.mint,
 }
 
 -- Mythical cafe styles and decor (F53, golden-fish.md section 4: each "gets one steady emitter or a texture scroll.

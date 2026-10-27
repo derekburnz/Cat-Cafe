@@ -63,6 +63,7 @@ export type HUD = {
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
+	bottomTop: (self: HUD) -> number,
 	setCatching: (self: HUD, active: boolean) -> (),
 	setMenuFolded: (self: HUD, folded: boolean) -> (),
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
@@ -1524,6 +1525,22 @@ function HUD._layoutBottom(self: any)
 		y -= CARRY_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
+end
+
+-- Just above whatever the bottom centre stacks (the bottom row, the carry banner, the tutorial strip), in design
+-- pixels from the screen's bottom edge, for the Tackle bar (Screens/TackleBar) to sit on.
+function HUD.bottomTop(self: any): number
+	local y = -MARGIN
+	if self._travelRow.Visible and not self._travelFolded then
+		y -= TRAVEL_H + Theme.sizes.gap
+	end
+	if self._carry.Visible then
+		y -= CARRY_H + Theme.sizes.gap
+	end
+	if self._tutorial.Visible then
+		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap
+	end
+	return y
 end
 
 -- Day and night chip. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's

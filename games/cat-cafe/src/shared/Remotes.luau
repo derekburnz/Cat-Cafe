@@ -36,8 +36,8 @@ Remotes.ClientToServer = {
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
 	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
 	"BuyDealerFood", -- (slot: number, lureId: string)  night, near the cart, the slot still holds lureId (S42)
-	"Bump", -- (targetUserId: number)  Shove: both in one unlocked catching area, range, locks, safe zone, cooldowns
-	-- and target immunity (data-model section 10c, shared/Shove)
+	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
+	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
@@ -84,9 +84,11 @@ Remotes.ServerToClient = {
 	-- gave (its rarity and kind are on its DecorDef) and the golden fish a duplicate paid back; decorId "" when refused
 	"CodeResult", -- (ok: boolean, message: string, prize: Types.IndexPrize?)  the answer to RedeemCode: the code box's
 	-- answer line and, when ok, the prize pictures (F65)
-	"ShoveResult", -- (outcome: "shove" | "loose" | "held" | "refused", shoverUserId: number, targetUserId: number,
-	-- position: Vector3?, direction: Vector3?)  a landed shove goes to everyone; the target's client pushes its own
-	-- character ShoveKnockbackStuds along direction. "refused" goes to the shover alone, with no position
+	"ShoveResult", -- (outcome: "shove" | "loose" | "held" | "miss" | "refused", shoverUserId: number,
+	-- targetUserId: number, position: Vector3?, direction: Vector3?)  a tackle that hits goes to everyone; the target's
+	-- client pushes its own character ShoveKnockbackStuds along direction. "miss" (v0.11 F74: the window ended with no
+	-- hit, targetUserId 0, position the tackler's, direction the lunge's) and "refused" (no position) go to the
+	-- tackler alone
 }
 
 function Remotes.folder(): Folder

@@ -287,6 +287,12 @@ function Logic.fishPickup(gain: number): (number, number)
 	return sparkles, ring
 end
 
+-- Whether a cat's `Level` going from `previous` to `current` is a level up: both whole numbers and the new one
+-- higher. The first value a client sees (nil before it) is not one.
+function Logic.levelledUp(previous: unknown, current: unknown): boolean
+	return type(previous) == "number" and type(current) == "number" and current > previous
+end
+
 -- The potion whose glow a drinker shows: the newest (last) id in their `ActivePotions` ("tip_potion,swift_potion",
 -- oldest drink first), or nil for none or an unknown kind.
 function Logic.newestPotion(value: unknown): string?

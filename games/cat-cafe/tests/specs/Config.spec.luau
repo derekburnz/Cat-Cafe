@@ -125,6 +125,16 @@ return function()
 		BumpSameTargetSeconds = 20,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 4,
+		-- the Tackle (v0.11 F74, section 10c)
+		TackleLungeStuds = 12,
+		TackleLungeSeconds = 0.35,
+		TackleHitGraceSeconds = 0.25,
+		TackleHitRadiusStuds = 3,
+		TackleHitSlackStuds = 1.5,
+		TackleCooldownSeconds = 8,
+		TackleHitRecoverSeconds = 0.4,
+		TackleMissRecoverSeconds = 1.2,
+		TackledDownSeconds = 0.8,
 		-- naming cats (F33, section 4)
 		CatNameMaxLength = 20,
 		RenameCooldownSeconds = 5,
@@ -178,6 +188,7 @@ return function()
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
+				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

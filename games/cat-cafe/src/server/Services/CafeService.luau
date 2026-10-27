@@ -275,13 +275,6 @@ local function showDecor(plot: WorldBuilder.Plot, def: Types.DecorDef, at: BaseP
 	model.Parent = plot.decor
 end
 
--- The plot model attribute that names each style kind's piece in use.
-local STYLE_SLOTS: { { kind: Types.DecorKind, attribute: string } } = {
-	{ kind = "wallpaper", attribute = "Wallpaper" },
-	{ kind = "floor", attribute = "Floor" },
-	{ kind = "paint", attribute = "Paint" },
-}
-
 local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 	local replaced = Economy.replacedDecor(profile) -- a placed gold Index piece takes its normal piece's spot
 	local function inUse(def: Types.DecorDef): boolean
@@ -308,7 +301,7 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 		showDecor(plot, def, spot)
 	end
 	-- The wallpaper, floor and paint in use, by decor id, for the client to colour the cafe's tagged shell parts.
-	for _, slot in STYLE_SLOTS do
+	for _, slot in Crates.STYLE_SLOTS do
 		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))
 	end
 end

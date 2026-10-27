@@ -226,6 +226,27 @@ return function()
 		end)
 	end)
 
+	describe("style looks (the client's StyleController)", function()
+		it("maps each style slot to its plot attribute and tag", function()
+			local byKind: { [string]: string } = {}
+			for _, slot in Crates.STYLE_SLOTS do
+				byKind[slot.kind] = slot.attribute
+			end
+			expect(byKind :: any).to.deepEqual({ wallpaper = "Wallpaper", floor = "Floor", paint = "Paint" })
+		end)
+
+		it("gives a style piece's colour and material only for its own kind", function()
+			local paint = pieceOf("neighbourhood", "Common", "paint")
+			local color, material = Crates.styleLook(paint.id, "paint")
+			expect(color).to.equal(paint.color)
+			expect(material).to.equal(paint.material)
+			expect((Crates.styleLook(paint.id, "wallpaper"))).never.to.be.ok()
+			expect((Crates.styleLook(nil, "paint"))).never.to.be.ok()
+			expect((Crates.styleLook("nope", "paint"))).never.to.be.ok()
+			expect((Crates.styleLook(pieceOf("alley", "Common", "furniture").id, "floor"))).never.to.be.ok()
+		end)
+	end)
+
 	describe("Decor Index pages", function()
 		it("counts a pool's pieces owned and the pages with all ten", function()
 			local profile = fresh()

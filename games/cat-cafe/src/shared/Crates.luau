@@ -28,6 +28,24 @@ function Crates.isStyle(kind: Types.DecorKind?): boolean
 	return kind == "wallpaper" or kind == "floor" or kind == "paint"
 end
 
+-- The plot model attribute that names each style kind's piece in use, and the CollectionService tag on the cafe
+-- parts that piece colours: the inside walls, the floor and the outside facade.
+Crates.STYLE_SLOTS = {
+	{ kind = "wallpaper" :: Types.DecorKind, attribute = "Wallpaper" },
+	{ kind = "floor" :: Types.DecorKind, attribute = "Floor" },
+	{ kind = "paint" :: Types.DecorKind, attribute = "Paint" },
+}
+
+-- The colour and material a style slot shows for `decorId`, or nil when the id is not a style piece of `kind`
+-- (nothing in use, or a stale or wrong id: the part keeps its own look).
+function Crates.styleLook(decorId: string?, kind: Types.DecorKind): (Color3?, Enum.Material?)
+	local def = if decorId ~= nil then Catalog.getDecor(decorId) else nil
+	if def == nil or def.kind ~= kind or def.color == nil then
+		return nil, nil
+	end
+	return def.color, def.material
+end
+
 -- Furniture and decorations: each in use takes a decor spot.
 function Crates.takesSpot(def: Types.DecorDef): boolean
 	return def.kind == "furniture" or def.kind == "decoration"

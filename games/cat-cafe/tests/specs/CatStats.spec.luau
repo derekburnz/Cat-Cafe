@@ -172,7 +172,7 @@ return function()
 			end
 		end)
 
-		it("a perfect max level Tabby rates 1.74, a Void 43.5", function()
+		it("a perfect max level Tabby rates 1.74, a Ninja Cat 43.5", function()
 			expect(CatStats.rating(cat("tabby", 100, Config.CatMaxLevel))).to.be.near(1.2 * 1.45)
 			expect(CatStats.maxRating("tabby")).to.be.near(1.2 * 1.45)
 			expect(CatStats.maxRating("void")).to.be.near(25 * 1.2 * 1.45)

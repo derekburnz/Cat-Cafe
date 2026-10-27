@@ -919,7 +919,8 @@ local function buildArea(
 			)
 		end
 		-- Roads and paths sit 0.05 above the floor, so their tops never fight with it.
-		for n, rect in spec.paths or {} do
+		local paths: { Layout.Rect } = spec.paths or {}
+		for n, rect in paths do
 			part(
 				"Path" .. n,
 				Vector3.new(rect.x2 - rect.x1, 0.2, rect.z2 - rect.z1),

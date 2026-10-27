@@ -5,6 +5,7 @@ local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local EquipBest = require(script.Parent.EquipBest)
+local Onboarding = require(script.Parent.Onboarding)
 local Types = require(script.Parent.Types)
 
 local ProfileSchema = {}
@@ -93,6 +94,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		tutorialStep = 0,
 		settings = { music = true, sfx = true },
 		flags = { autoPress = false },
+		telemetry = { onboardingStep = 0, achieved = {} },
 	}
 end
 
@@ -303,6 +305,23 @@ local function sanitizeBait(value: any): Types.BaitState?
 	}
 end
 
+local function sanitizeTelemetry(value: any): Types.TelemetryState
+	local telemetry: Types.TelemetryState = { onboardingStep = 0, achieved = {} }
+	if type(value) ~= "table" then
+		return telemetry
+	end
+	telemetry.onboardingStep = math.clamp(asInt(value.onboardingStep, 0), 0, Onboarding.COUNT)
+	if type(value.achieved) == "table" then
+		for step = telemetry.onboardingStep + 1, Onboarding.COUNT do
+			local key = tostring(step)
+			if value.achieved[key] == true then
+				telemetry.achieved[key] = true
+			end
+		end
+	end
+	return telemetry
+end
+
 local function sanitizeDealer(value: any): Types.DealerState
 	local dealer: Types.DealerState = { window = 0, bought = {} }
 	if type(value) ~= "table" then
@@ -413,6 +432,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	if fromVersion >= 3 and type(raw.flags) == "table" then
 		profile.flags.autoPress = raw.flags.autoPress == true
 	end
+	profile.telemetry = sanitizeTelemetry(raw.telemetry)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

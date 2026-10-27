@@ -10,6 +10,7 @@
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe that pays itself in 20 s
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
 --   D:Invoke("shove", "Player1", "Player2", "loose")  -- a real shove with every check, the roll forced
+--   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
 
 local Players = game:GetService("Players")
@@ -32,6 +33,7 @@ local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -304,6 +306,45 @@ end
 function Debug.dataSaves(): boolean
 	guard()
 	return DataService.saves()
+end
+
+-- The last `count` analytics events this server logged (all of them, 200 at most, when nil), oldest first, one line
+-- each: "onboarding first_catch 3", "sink tables 100 [1, day, 1]". Studio sends nothing to Roblox, so this is the
+-- place to check the funnel order (F16).
+function Debug.telemetry(count: number?): { string }
+	guard()
+	local lines: { string } = {}
+	for _, entry in Telemetry.recent(count) do
+		local fields = if #entry.fields > 0
+			then " [" .. table.concat(entry.fields, ", ") .. "]"
+			else ""
+		table.insert(
+			lines,
+			string.format(
+				"%d %s %s %s%s",
+				entry.userId,
+				entry.kind,
+				entry.name,
+				tostring(entry.value),
+				fields
+			)
+		)
+	end
+	return lines
+end
+
+-- The player's onboarding funnel state: the last step logged and the steps held back until it catches up.
+function Debug.onboarding(player: (Player | number | string)?): { step: number, held: { string } }
+	guard()
+	local profile = profileOf(resolve(player))
+	local held: { string } = {}
+	for key in profile.telemetry.achieved do
+		table.insert(held, key)
+	end
+	table.sort(held, function(a, b)
+		return (tonumber(a) or 0) < (tonumber(b) or 0)
+	end)
+	return { step = profile.telemetry.onboardingStep, held = held }
 end
 
 return Debug

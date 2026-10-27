@@ -219,6 +219,13 @@ export type DealerState = {
 	bought: { [string]: boolean },
 }
 
+-- The onboarding funnel's place (data-model section 14, growth analytics-plan 3.2): the last step logged, and later
+-- steps already done but held back until every step before them is logged. Keys are "1" to "12" (JSON-shaped).
+export type TelemetryState = {
+	onboardingStep: number,
+	achieved: { [string]: boolean },
+}
+
 -- One player's dealer stock as DealerStock sends it: the slot number is the index, restocksAt is os.time().
 export type DealerSlot = { lureId: string, cost: number, bought: boolean }
 export type DealerStock = { slots: { DealerSlot }, restocksAt: number }
@@ -245,6 +252,7 @@ export type PlayerProfile = {
 	tutorialStep: number,
 	settings: { music: boolean, sfx: boolean },
 	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
+	telemetry: TelemetryState,
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

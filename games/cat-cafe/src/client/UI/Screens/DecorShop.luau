@@ -2,6 +2,7 @@
 -- Decor screen: category chips across the top, a grid of cards below.
 -- A card shows cost, Place or Remove depending on what the player owns.
 
+local BookRewards = require(script.Parent.Parent.Components.BookRewards)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -201,6 +202,35 @@ function DecorShop._build(self: any)
 			Text = decor.name:sub(1, 1),
 			Parent = art,
 		})
+		-- Book decor (F48): a dark ribbon over the art says which Book milestone wins it, until it is claimed
+		local unlock: TextLabel? = nil
+		if BookRewards.isBookDecor(decor) then
+			unlock = text({
+				Name = "Unlock",
+				BackgroundColor3 = Theme.colors.outline,
+				BackgroundTransparency = 0.25,
+				AnchorPoint = Vector2.new(0, 1),
+				Position = UDim2.fromScale(0, 1),
+				Size = UDim2.new(1, 0, 0, 32),
+				FontFace = Theme.fonts.bodyBold,
+				TextSize = Theme.sizes.textTiny,
+				TextColor3 = Theme.colors.white,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				TextWrapped = true,
+				TextTruncate = Enum.TextTruncate.None,
+				ZIndex = 2,
+				Parent = art,
+			})
+			Create(
+				"UICorner",
+				{ CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = unlock }
+			)
+			Create("UIPadding", {
+				PaddingLeft = UDim.new(0, 4),
+				PaddingRight = UDim.new(0, 4),
+				Parent = unlock,
+			})
+		end
 		local owned = text({
 			Name = "Owned",
 			BackgroundColor3 = Theme.colors.good,
@@ -257,8 +287,14 @@ function DecorShop._build(self: any)
 			end,
 		})
 
-		self._cards[decor.id] =
-			{ frame = card, owned = owned, action = action, def = decor, mode = "buy" }
+		self._cards[decor.id] = {
+			frame = card,
+			owned = owned,
+			action = action,
+			unlock = unlock,
+			def = decor,
+			mode = "buy",
+		}
 	end
 	self:_setFilter("All")
 end
@@ -292,6 +328,21 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		local isPlaced = state.decorPlaced[decorId] == true
 		local locked = def.requiresTier ~= nil and state.tier < (def.requiresTier :: number)
 		card.owned.Visible = isOwned
+		local unlock: TextLabel? = card.unlock
+		if unlock then
+			unlock.Visible = not isOwned
+			local catalog: Types.Catalog? = self._catalog
+			local areaId, milestone = nil, nil
+			if catalog then
+				areaId, milestone = BookRewards.decorSource(catalog, decorId)
+			end
+			local label = "From the Book"
+			if catalog and areaId and milestone then
+				local total = BookRewards.counts(catalog, state, areaId).total
+				label = BookRewards.unlockLabel(milestone, Format.areaName(areaId), total)
+			end
+			unlock.Text = Theme.icons.lock .. " " .. label
+		end
 		if isOwned and isPlaced then
 			card.mode = "remove"
 			card.action:setText("Remove")
@@ -302,6 +353,12 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.action:setText("Place")
 			card.action:setStyle("secondary")
 			card.action:setEnabled(true)
+		elseif BookRewards.isBookDecor(def) then
+			-- F48: won from the Book, never bought (BuyDecor refuses it)
+			card.mode = "book"
+			card.action:setText(Theme.icons.collection .. " Book reward")
+			card.action:setStyle("ghost")
+			card.action:setEnabled(false)
 		elseif locked then
 			card.mode = "locked"
 			card.action:setText(Format.tier(def.requiresTier :: number))

@@ -1,10 +1,14 @@
 --!strict
 -- Collection screen with two tabs.
 --   Book: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
---         (dark silhouettes until found), rarest last; tap one for details.
+--         (dark silhouettes until found), rarest last; tap one for details. Above the cats, the area's reward
+--         strip (Screens/BookStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Book
+--         tab and on each area tab says a reward is waiting.
 --   Cat room: the cats the player owns as an inventory grid under a crew strip of role slots (Screens/CatRoom).
 -- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
+local BookRewards = require(script.Parent.Parent.Components.BookRewards)
+local BookStrip = require(script.Parent.BookStrip)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoom = require(script.Parent.CatRoom)
@@ -15,6 +19,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {
@@ -24,6 +29,7 @@ export type Callbacks = {
 	renameCat: (uid: string, name: string) -> (),
 	equipBest: () -> (),
 	unequipAll: () -> (),
+	claimBookReward: (areaId: string, milestoneId: string) -> (),
 	close: () -> (),
 }
 
@@ -92,6 +98,34 @@ local function pill(
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
 	})
+end
+
+-- A red count badge on a tab's top right corner, hidden until something is waiting (F48).
+local function badge(parent: Instance, size: number): (Frame, TextLabel)
+	local dot: Frame = Create("Frame", {
+		Name = "Badge",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(size, size),
+		Visible = false,
+		ZIndex = 6,
+		Parent = parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(dot, 2)
+	local mark = text({
+		Name = "Count",
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		ZIndex = 7,
+		Parent = dot,
+	})
+	return dot, mark
 end
 
 local function scroller(
@@ -174,6 +208,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			self:showTab("Book")
 		end,
 	})
+	self._bookBadge, self._bookBadgeCount = badge(self._bookTab.instance, 24)
 	self._roomTab = Button.new({
 		name = "RoomTab",
 		text = "Cat room",
@@ -316,11 +351,14 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	local gridTop = progressTop + PROGRESS_HEIGHT + gap
 	self._grid =
 		scroller("Grid", self._book, UDim2.fromOffset(0, gridTop), UDim2.new(1, 0, 1, -gridTop))
+	-- the area's reward strip scrolls with the cats, so the grid keeps its height
+	self._strip = BookStrip.new(self._grid, { claim = callbacks.claimBookReward })
 	self._cellsFrame = Create("Frame", {
 		Name = "Cells",
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = 1,
 		Parent = self._grid,
 	}, {
 		Create("UIGridLayout", {
@@ -465,6 +503,7 @@ function CatCollection._buildBook(self: any)
 			Parent = self._areaBar,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 		local border = Outline.border(chip, Theme.sizes.outline)
+		local dot, dotCount = badge(chip, 20)
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(6, 3),
@@ -493,6 +532,8 @@ function CatCollection._buildBook(self: any)
 			border = border,
 			label = name,
 			count = count,
+			dot = dot,
+			dotCount = dotCount,
 			connection = nil :: RBXScriptConnection?,
 		}
 		entry.connection = chip.Activated:Connect(function()
@@ -594,6 +635,7 @@ function CatCollection.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_buildBook()
 	self._catRoom:setCatalog(catalog)
+	self._strip:setCatalog(catalog)
 	self._dirty = true
 end
 
@@ -602,7 +644,8 @@ end
 function CatCollection._renderBook(
 	self: any,
 	state: Types.PlayerState,
-	found: { [string]: boolean }
+	found: { [string]: boolean },
+	ready: { [string]: number }
 )
 	local totals: { [string]: number } = {}
 	local foundIn: { [string]: number } = {}
@@ -644,6 +687,9 @@ function CatCollection._renderBook(
 			then Theme.colors.cream
 			elseif have >= all and all > 0 then Theme.colors.goodDark
 			else Theme.modal.subtext
+		local waiting = ready[chip.id] or 0
+		chip.dot.Visible = waiting > 0
+		chip.dotCount.Text = tostring(waiting)
 		if selected then
 			local fraction = if all > 0 then have / all else 0
 			self._progressName.Text = chip.name
@@ -658,6 +704,10 @@ function CatCollection._renderBook(
 				Format.percent(fraction)
 			)
 		end
+	end
+
+	if open then
+		self._strip:render(state, open)
 	end
 
 	local shinies: { [string]: number } = CatVariant.collection(state)
@@ -728,6 +778,18 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		)
 	)
 
+	-- the Book tab's badge counts rewards waiting on every page, whichever tab is open
+	local ready: { [string]: number } = {}
+	local waiting = 0
+	if catalog then
+		ready, waiting = BookRewards.claimable(catalog, state)
+	end
+	if waiting > 0 and not self._bookBadge.Visible then
+		Tween.popIn(self._bookBadge, 0.5)
+	end
+	self._bookBadge.Visible = waiting > 0
+	self._bookBadgeCount.Text = tostring(waiting)
+
 	-- room tab only when the engineer sends cat instances
 	local hasRoom = state.cats ~= nil
 	self._roomTab.instance.Visible = hasRoom
@@ -737,7 +799,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 
 	if self._tab == "Book" then
-		self:_renderBook(state, found)
+		self:_renderBook(state, found, ready)
 		if self._selected then
 			self:_select(self._selected)
 		end
@@ -756,6 +818,7 @@ function CatCollection.destroy(self: any)
 	end
 	self._detailArt:destroy()
 	self._catRoom:destroy()
+	self._strip:destroy()
 	self._bookTab:destroy()
 	self._roomTab:destroy()
 	self._panel:destroy()

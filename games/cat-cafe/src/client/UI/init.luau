@@ -91,6 +91,7 @@ UI.events = {
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 	-- 2026-10-27 wave 2
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
+	claimBookReward = Signal.new(), -- (areaId, milestoneId)   Claim on a Book reward card: forward as ClaimBookReward (F48)
 	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting; apply music and sfx to Audio at once
 }
 
@@ -376,6 +377,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		unequipAll = function()
 			UI.events.unequipAll:Fire()
+		end,
+		claimBookReward = function(areaId: string, milestoneId: string)
+			UI.events.claimBookReward:Fire(areaId, milestoneId)
 		end,
 		close = closeModal,
 	})

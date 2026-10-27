@@ -36,6 +36,35 @@ local DEMO_TIP_JAR: { Types.TipJarRow } = {
 	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 },
 }
 
+-- data-model section 11b's Book milestones and prizes, until the engineer's Catalog.bookMilestones and
+-- Catalog.bookRewards land
+local DEMO_BOOK_MILESTONES: { Types.BookMilestone } = {
+	{ id = "cats3", need = 3 },
+	{ id = "cats6", need = 6 },
+	{ id = "cats10", need = 10 },
+	{ id = "gold10", need = 10, gold = true },
+}
+local function bookPrizes(
+	coins: number,
+	six: string,
+	ten: { [string]: number },
+	areaId: string
+): { [string]: Types.BookPrize }
+	return {
+		cats3 = { coins = coins },
+		cats6 = { lures = { [six] = 2 } },
+		cats10 = { lures = ten, decorId = "book_" .. areaId },
+		gold10 = { decorId = "book_" .. areaId .. "_gold" },
+	}
+end
+local DEMO_BOOK_REWARDS: { [string]: { [string]: Types.BookPrize } } = {
+	alley = bookPrizes(300, "tuna", { salmon = 1 }, "alley"),
+	park = bookPrizes(1000, "salmon", { caviar = 1 }, "park"),
+	neighbourhood = bookPrizes(3000, "caviar", { moon_milk = 1 }, "neighbourhood"),
+	woods = bookPrizes(10000, "moon_milk", { star_treat = 1 }, "woods"),
+	sewer = bookPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
+}
+
 -- The real catalog (src/shared/Catalog.luau), so the demo shows the slice's actual cats and prices.
 local CATALOG: Types.Catalog = {
 	cats = Catalog.cats,
@@ -46,6 +75,8 @@ local CATALOG: Types.Catalog = {
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
 	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
+	bookMilestones = (Catalog :: any).bookMilestones or DEMO_BOOK_MILESTONES,
+	bookRewards = (Catalog :: any).bookRewards or DEMO_BOOK_REWARDS,
 }
 
 -- data-model section 10: circles and shrink time per rarity, Basic Net windows
@@ -88,7 +119,10 @@ function Demo.run(UI: any): () -> ()
 		decorPlaced = {} :: { [string]: boolean },
 		lures = {} :: { [string]: number },
 		cats = {} :: { [string]: Types.CatInstance },
-		collection = { tabby = now() } :: { [string]: number },
+		-- three Alleyway cats already found, so the Book's first reward is ready to claim
+		collection = { tabby = now(), tuxedo = now(), ginger = now() } :: { [string]: number },
+		goldCollection = {} :: { [string]: number },
+		bookRewards = {} :: { [string]: { [string]: boolean } },
 		tier = 1,
 		settings = { music = true, sfx = true } :: { [string]: boolean },
 	}
@@ -140,6 +174,8 @@ function Demo.run(UI: any): () -> ()
 			lures = profile.lures,
 			cats = profile.cats,
 			collection = profile.collection,
+			goldCollection = profile.goldCollection,
+			bookRewards = profile.bookRewards,
 			customers = 2 * (profile.upgradeLevels.tables or 0),
 			tier = profile.tier,
 			settings = profile.settings,
@@ -187,6 +223,50 @@ function Demo.run(UI: any): () -> ()
 			end)
 		end
 	end)
+	-- ClaimBookReward as the server checks it: a known prize, the count met, not claimed yet (data-model 11b)
+	connections[#connections + 1] = UI.events.claimBookReward:Connect(
+		function(areaId: string, milestoneId: string)
+			local rewards: { [string]: { [string]: Types.BookPrize } } = CATALOG.bookRewards or {}
+			local prize = rewards[areaId] and rewards[areaId][milestoneId]
+			local claimed = profile.bookRewards[areaId] or {}
+			if prize == nil or claimed[milestoneId] then
+				return
+			end
+			local milestones: { Types.BookMilestone } = CATALOG.bookMilestones or {}
+			local need, gold = math.huge, false
+			for _, milestone in milestones do
+				if milestone.id == milestoneId then
+					need, gold = milestone.need, milestone.gold == true
+				end
+			end
+			local have = 0
+			for _, def in CATALOG.cats do
+				local found = if gold
+					then profile.goldCollection[def.id]
+					else profile.collection[def.id]
+				if (def.area or "alley") == areaId and found then
+					have += 1
+				end
+			end
+			if have < need then
+				UI.toast("Find more cats first", "warn")
+				return
+			end
+			profile.money += prize.coins or 0
+			local lures: { [string]: number } = prize.lures or {}
+			for lureId, count in lures do
+				profile.lures[lureId] = (profile.lures[lureId] or 0) + count
+			end
+			if prize.decorId then
+				profile.decorOwned[prize.decorId] = true
+				profile.decorPlaced[prize.decorId] = true
+			end
+			claimed[milestoneId] = true
+			profile.bookRewards[areaId] = claimed
+			UI.toast("Book reward claimed!", "good")
+			task.delay(0.3, push)
+		end
+	)
 	connections[#connections + 1] = UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		for _, def in CATALOG.upgrades do
 			if def.id == upgradeId then

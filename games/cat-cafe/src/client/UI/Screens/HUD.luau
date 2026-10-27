@@ -18,6 +18,7 @@ local SocialService = game:GetService("SocialService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local BookRewards = require(script.Parent.Parent.Components.BookRewards)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -159,6 +160,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._seen =
 		{ Upgrades = {}, Decor = {}, Collection = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
+	self._bookReady = 0 -- Book rewards waiting to be claimed (F48)
 	self._collectionPrimed = false
 	self._openScreen = nil :: string?
 
@@ -1242,9 +1244,13 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 	if open and (candidates :: any)[open] then
 		Notices.markSeen((candidates :: any)[open], self._seen[open])
 	end
+	-- the Book's dot also stays lit while a Book reward waits to be claimed (F48), even after the Book is opened
+	local _, bookReady = BookRewards.claimable(catalog, state)
+	self._bookReady = bookReady
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
 		local show = Notices.hasNew(keys, self._seen[screen])
+			or (screen == "Collection" and bookReady > 0)
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 		end
@@ -1285,7 +1291,7 @@ function HUD.screenOpened(self: any, name: string?)
 		Notices.markSeen((candidates :: any)[name], self._seen[name])
 		local dot: Frame? = self._dots[name]
 		if dot then
-			dot.Visible = false
+			dot.Visible = name == "Collection" and (self._bookReady or 0) > 0
 		end
 	end
 end

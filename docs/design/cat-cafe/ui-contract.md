@@ -49,6 +49,8 @@ UI.init({
         tiers = Catalog.tiers,        -- {TierDef}, v0.3: tier names, gates and the rank up card
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
         tipJar = Catalog.tipJar,      -- {TipJarRow}, F47: the Tip Jar's twelve playtime gifts
+        bookMilestones = Catalog.bookMilestones,  -- {BookMilestone}, F48: the Book's milestones
+        bookRewards = Catalog.bookRewards,        -- F48: area id -> milestone id -> BookPrize
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F bait bowl, gamepad B closes (default true)
     playSound = Audio.play,  -- optional; the UI plays its own cues through it and stays silent without it
@@ -206,6 +208,21 @@ The twelve free playtime gifts of the session, like the Free Gifts grid in Pet S
 
 Coin cards show `max(minCoins, floor(dayRate * seconds))` with the day rate worked back from `incomePerSecond` at night (`NightIncomeMultiplier`); the server's figure at claim time is final.
 
+### Book rewards (built, F48, data-model section 11b)
+
+Each area page of the Book pays out as you find its cats, like the index rewards in Pet Simulator 99 (`Screens/BookStrip.luau`, sums in `Components/BookRewards.luau` with a spec). Above the open area's cats, a strip of four cards scrolls with the grid: "3 cats", "6 cats", "All 10" and "All 10 gold", each with the prize's picture (the Book decor's model, else the food's, else 💰) and text ("$300", "2 Tuna", "Salmon + Alley Mural Print"), then a bar with "2 / 3", a green Claim button once reached, or "✓ Claimed". The gold card has a gold border and bar. A pressed Claim shows "..." for 3 s or until ProfileSync marks it. A red count badge sits on each area tab with a reward waiting and on the Book tab (all areas), and the HUD's Book pill keeps its red dot lit while any reward waits, even after the Book is opened. Progress is counted on the client from `state.collection` and `state.goldCollection` (cats without an `area` count as Alleyway, as in the Book), the same counts the server checks. Without milestones or prizes for an area the strip hides.
+
+In the Decor shop, Book decor (`source = "book"`, cost 0) never shows a Buy button: the card reads "📖 Book reward" and a dark ribbon over its picture names the milestone, "🔒 All 10 Alleyway cats" or "🔒 All 10 Alleyway cats as gold", until it is owned; then it offers Place or Remove like any decor. It never lights the Decor shop's red dot.
+
+| API | Purpose |
+|---|---|
+| `catalog.bookMilestones` | `Catalog.bookMilestones`: `{ { id, need, gold? } }` in card order, the same on every page (`cats3` 3, `cats6` 6, `cats10` 10, `gold10` 10 gold). |
+| `catalog.bookRewards` | `Catalog.bookRewards`: `{ [areaId] = { [milestoneId] = { coins?, lures = { [lureId] = count }?, decorId? } } }`. An area or milestone without a prize has no card. |
+| `state.bookRewards` | From ProfileSync: `{ [areaId] = { [milestoneId] = true } }` once claimed. Pass it in `UI.update`. |
+| `events.claimBookReward(areaId, milestoneId)` | Forward as `ClaimBookReward(areaId, milestoneId)`; the server pays, places the decor, marks the milestone and sends ProfileSync. |
+
+**Engineer:** add `source: "shop" | "book"` (optional, `"shop"` when missing) to `SharedTypes.DecorDef`; the UI reads it with a cast until then (`BookRewards.isBookDecor`).
+
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 
 Nothing to call: `UI.init` starts all three and they read attributes the server and `CustomerController` already set, plus the player state.
@@ -307,6 +324,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `dropCat` | none | Drop pressed on the carry banner, or G while carrying (HUD v3). Forward as `DropCat`: the server sets the cat down at the player's feet with their first try |
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `claimTipJar` | `step` | Claim on a ready Tip Jar gift. Forward as `ClaimTipJar(step)` (F47). |
+| `claimBookReward` | `areaId, milestoneId` | Claim on a reached Book reward card. Forward as `ClaimBookReward(areaId, milestoneId)` (F48). |
 | `setSetting` | `key, value` | A switch on the Settings screen: `"music"`, `"sfx"` or `"markers"`, and the new boolean. Forward as `SetSetting`; also apply music and sfx to Audio at once (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |
@@ -338,6 +356,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     goldCollection: { [catId]: firstGoldAt }?,                     -- the book's Gold pill (was shinyCollection before 2026-10-27)
     carrying: string?, tutorialStep: number?,
     settings: { music: boolean, sfx: boolean, markers: boolean? }?, -- profile.settings; a missing key reads as on
+    bookRewards: { [areaId]: { [milestoneId]: true } }?,           -- F48: claimed Book rewards; missing reads as none
 }
 ```
 

@@ -35,6 +35,8 @@ export type Catalog = {
 	tiers: { TierDef }?, -- v0.3: tier names, gates and the rank up card
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
 	tipJar: { TipJarRow }?, -- F47: the twelve playtime gifts (data-model section 11b)
+	bookMilestones: { BookMilestone }?, -- F48: the Book's milestones, the same on every area page
+	bookRewards: { [string]: { [string]: BookPrize } }?, -- F48: area id -> milestone id -> prize
 }
 
 -- One Tip Jar gift (F47): unlocks `minutes` into the session; coins pay max(minCoins, dayRate * seconds).
@@ -46,6 +48,20 @@ export type TipJarRow = {
 	minCoins: number?,
 	lureId: string?,
 	count: number?,
+}
+
+-- A Book milestone (F48, data-model section 11b): `need` of the area's cats found, or as gold cats.
+export type BookMilestone = {
+	id: string, -- cats3, cats6, cats10, gold10
+	need: number,
+	gold: boolean?,
+}
+
+-- What a Book milestone pays: coins, foods (lure id -> count) and a Book decor piece, any of them.
+export type BookPrize = {
+	coins: number?,
+	lures: { [string]: number }?,
+	decorId: string?,
 }
 
 -- TipJarState from the server (F47): sessionStartedAt in Workspace:GetServerTimeNow() time, claimed steps.
@@ -97,6 +113,7 @@ export type PlayerState = {
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
 	settings: { [string]: boolean }?, -- profile.settings: music, sfx, later markers; a missing key reads as on
+	bookRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -120,6 +137,7 @@ export type PartialState = {
 	carrying: string?,
 	tutorialStep: number?,
 	settings: { [string]: boolean }?,
+	bookRewards: { [string]: { [string]: boolean } }?,
 }
 
 export type ScreenName =

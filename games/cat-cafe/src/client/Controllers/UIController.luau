@@ -605,7 +605,7 @@ local function wireServerEvents()
 			for _, grade in grades do
 				allPerfect = allPerfect and grade == "perfect"
 			end
-			UI.catch.showGrades(strayId, grades, success, nil, charmGain)
+			UI.catch.showGrades(strayId, grades, success, charmGain)
 			if success then
 				local model = strayModel(strayId)
 				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil

@@ -302,6 +302,8 @@ Rescue trap (tag `RescueSpot`): `RescueSpotId`, `Area`, `TrapType` (`trash_bin`,
 
 Carrier character: `CarryingCatId`, `CarryStartedAt`, `BumpImmune`.
 
+Shoved character (v0.5, asked by the vfx-animator for the shove puff and dizzy stars): `ShovedAt` (server time of the latest shove that landed on this player) and `ShovedBy` (the shover's UserId). Display only; the cooldowns and ShoveTargetImmuneSeconds read the server's shove table.
+
 Clock folder in ReplicatedStorage: `Phase`, `PhaseEndsAt`.
 
 Attributes are for display. Server decisions (locks, deadlines, bump grace and claims, rich tips, the bait roll, hidden shiny) read the server's own tables.

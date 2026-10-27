@@ -288,11 +288,16 @@ local function build(
 	return pill
 end
 
-local function drop(pill: Pill)
+-- Lets go of a hold the pill itself began, so walking out of range mid-hold never leaves it held (N76)
+local function drop(pill: Pill, prompt: ProximityPrompt)
 	for _, connection in pill.connections do
 		connection:Disconnect()
 	end
 	table.clear(pill.connections)
+	if pill.pressed then
+		pill.pressed = false
+		prompt:InputHoldEnd()
+	end
 end
 
 function ActionPill.show(
@@ -303,7 +308,7 @@ function ActionPill.show(
 	-- shown again for a new input type (a gamepad plugged in): rebuild with the right key
 	local old: Pill? = self._pills[prompt]
 	if old then
-		drop(old)
+		drop(old, prompt)
 		old.billboard:Destroy()
 		self._pills[prompt] = nil
 	end
@@ -321,7 +326,7 @@ function ActionPill.hide(self: any, prompt: ProximityPrompt)
 		return
 	end
 	self._pills[prompt] = nil
-	drop(pill)
+	drop(pill, prompt)
 	local billboard = pill.billboard
 	Tween.popOut(pill.body, function()
 		billboard:Destroy()
@@ -372,8 +377,8 @@ function ActionPill.isShown(self: any, prompt: ProximityPrompt): boolean
 end
 
 function ActionPill.destroy(self: any)
-	for _, pill: Pill in self._pills do
-		drop(pill)
+	for prompt: ProximityPrompt, pill: Pill in self._pills do
+		drop(pill, prompt)
 		pill.billboard:Destroy()
 	end
 	table.clear(self._pills)

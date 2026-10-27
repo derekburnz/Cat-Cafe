@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 19:29 UTC",
+  "generated": "2026-10-27 19:38 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -203,48 +203,48 @@
           "xyz_deg_blender": [
             90,
             0,
-            0
+            -30
           ],
           "angles_roblox_deg": [
             -90.0,
             0.0,
-            0.0
+            -30.0
           ]
         },
         "LegF2": {
           "xyz_deg_blender": [
             90,
             0,
-            0
+            30
           ],
           "angles_roblox_deg": [
             -90.0,
             0.0,
-            0.0
+            30.0
           ]
         },
         "LegB1": {
           "xyz_deg_blender": [
             -90,
             0,
-            0
+            26
           ],
           "angles_roblox_deg": [
             90.0,
             0.0,
-            0.0
+            -26.0
           ]
         },
         "LegB2": {
           "xyz_deg_blender": [
             -90,
             0,
-            0
+            -26
           ],
           "angles_roblox_deg": [
             90.0,
             0.0,
-            0.0
+            26.0
           ]
         },
         "Tail": {
@@ -260,7 +260,7 @@
           ]
         }
       },
-      "note": "Lying down, belly on the floor, paws folded under."
+      "note": "Lying down, belly on the floor, paws folded under and turned out so they show at the sides."
     },
     "sleep": {
       "body": "walk",
@@ -279,48 +279,48 @@
           "xyz_deg_blender": [
             90,
             0,
-            0
+            -30
           ],
           "angles_roblox_deg": [
             -90.0,
             0.0,
-            0.0
+            -30.0
           ]
         },
         "LegF2": {
           "xyz_deg_blender": [
             90,
             0,
-            0
+            30
           ],
           "angles_roblox_deg": [
             -90.0,
             0.0,
-            0.0
+            30.0
           ]
         },
         "LegB1": {
           "xyz_deg_blender": [
             -90,
             0,
-            0
+            26
           ],
           "angles_roblox_deg": [
             90.0,
             0.0,
-            0.0
+            -26.0
           ]
         },
         "LegB2": {
           "xyz_deg_blender": [
             -90,
             0,
-            0
+            -26
           ],
           "angles_roblox_deg": [
             90.0,
             0.0,
-            0.0
+            26.0
           ]
         },
         "Head": {
@@ -794,6 +794,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby.model.json",
       "rbx_parts": 42,
@@ -23044,6 +23056,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tabby when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Gold.model.json",

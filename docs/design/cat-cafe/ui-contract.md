@@ -234,12 +234,12 @@ Events: `rescuePressed(rescueSpotId)` on every press, bar or circle (forward as 
 
 ### Shove (built, F41, data-model section 10c)
 
-A round orange button with a hand at the bottom right, left of the touch CATCH button, and the Q key (gamepad Y), like the push tools in Roblox brawl games. It aims at the nearest other living player within `BumpRangeStuds` (6): a small orange hand floats over their head and a tag above the button reads "Shove Alex", or "No one near" with the button greyed. A press fires `events.shove(targetUserId)` and starts a `BumpCooldownSeconds` (8) cooldown: a dark layer drains down the button over the seconds left. Both numbers are read from Config when present. The button hides while the player carries a cat or plays the catch circles or the rescue bar (reviewer N85), so Q never meets the keys those use (E, Space, gamepad A and R2). The server's toasts ("You knocked it loose!", "It held on tight!", "You got shoved!") need no UI call.
+A round orange button with a hand at the bottom right, left of the touch CATCH button, and the Q key (gamepad Y), like the push tools in Roblox brawl games. It aims at the nearest other living player within `BumpRangeStuds` (6): a small orange hand floats over their head and a tag above the button reads "Shove Alex", or "No one near" with the button greyed. It passes over players the server would refuse (reviewer S46, `Components/ShoveTarget.luau`): anyone whose UserId is the `LockedBy` of a `Stray` or `RescueSpot` (in the catch circles or the rescue bar), anyone this client shoved in the last `BumpSameTargetSeconds` (20) and, for 3 s after `UI.shove.result(false)`, the player just refused, so the hand moves to the next nearest player. The server stays the judge. A press fires `events.shove(targetUserId)` and starts a `BumpCooldownSeconds` (8) cooldown: a dark layer drains down the button over the seconds left. The three numbers are read from Config when present. The button hides while the player carries a cat or plays the catch circles or the rescue bar (reviewer N85), so Q never meets the keys those use (E, Space, gamepad A and R2). The server's toasts ("You knocked it loose!", "It held on tight!", "You got shoved!") need no UI call.
 
 | API | Purpose |
 |---|---|
 | `UI.shove.setEnabled(on)` | The controller's zone check: true while the player stands inside a catching area they have unlocked and `BumpEnabled` is on; false on the street, in the cafes and yards. Off by default. |
-| `UI.shove.result(ok)` | Optional. `false` after a refusal lifts the cooldown at once; `true` does nothing. |
+| `UI.shove.result(ok)` | Optional. `false` after a refusal lifts the cooldown at once and passes over that target for 3 s; `true` does nothing. |
 
 ### Planned in the next UI pull requests
 

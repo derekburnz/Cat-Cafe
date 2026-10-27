@@ -2,7 +2,10 @@
 -- Shove (F41, data-model section 10c): a round orange button with a hand at the bottom right, left of the CATCH
 -- button, and the Q key (gamepad Y), shown only while the controller says you stand in a catching area you have
 -- unlocked (setEnabled). It aims at the nearest other player within BumpRangeStuds (6): a small orange hand floats
--- over their head and the tag over the button names them, like the slap and push tools in Roblox brawl games.
+-- over their head and the tag over the button names them, like the slap and push tools in Roblox brawl games. It
+-- passes over players the server would refuse (reviewer S46, Components/ShoveTarget): one in the catch circles or the
+-- rescue bar (the LockedBy of a stray or rescue spot), one this client shoved in the last BumpSameTargetSeconds (20)
+-- and, for a few seconds, one the server just refused.
 -- A press fires shove(targetUserId) and starts the BumpCooldownSeconds (8) cooldown: a dark wipe drains down the
 -- button with the seconds left. The server validates everything and toasts the outcome; result(false) lifts the
 -- cooldown after a refusal. Hidden while you carry a cat or play the catch circles or the rescue bar (reviewer N85),
@@ -14,6 +17,7 @@
 -- Roblox terms: HumanoidRootPart is the invisible box that carries a character's position; a BillboardGui over a
 -- part always faces the camera.
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -22,6 +26,7 @@ local UserInputService = game:GetService("UserInputService")
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
+local ShoveTarget = require(script.Parent.Parent.Components.ShoveTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
@@ -30,6 +35,9 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 -- data-model section 10c and the v0.5 constants table; the remote keeps its Bump names
 local RANGE: number = (Config :: any).BumpRangeStuds or 6
 local COOLDOWN: number = (Config :: any).BumpCooldownSeconds or 8
+local SAME_TARGET: number = (Config :: any).BumpSameTargetSeconds or 20
+local PASS_OVER = 3 -- seconds a refused target is passed over, so the next nearest player gets the hand
+local LOCK_TAGS = { "Stray", "RescueSpot" } -- their LockedBy is the player in the catch circles or the rescue bar
 local KEYS = { Enum.KeyCode.Q, Enum.KeyCode.ButtonY }
 local TICK = 0.15 -- seconds between target checks
 local SIZE = 92
@@ -61,26 +69,46 @@ local function rootOf(player: Player): BasePart?
 	return nil
 end
 
--- The nearest other living player within RANGE studs, and their root part.
-local function nearestTarget(): (Player?, BasePart?)
+-- UserIds holding a catch or rescue lock: the server never lets them be shoved.
+local function lockHolders(): { [number]: boolean }
+	local locked: { [number]: boolean } = {}
+	for _, tag in LOCK_TAGS do
+		for _, instance in CollectionService:GetTagged(tag) do
+			local holder = instance:GetAttribute("LockedBy")
+			if type(holder) == "number" and holder ~= 0 then
+				locked[holder] = true
+			end
+		end
+	end
+	return locked
+end
+
+-- The nearest other living player within RANGE studs that the server could take, and their root part.
+local function nearestTarget(skipUntil: { [number]: number }): (Player?, BasePart?)
 	local me = Players.LocalPlayer
 	local mine = if me then rootOf(me) else nil
 	if not mine then
 		return nil, nil
 	end
-	local best: Player?, bestRoot: BasePart?, bestDistance = nil, nil, RANGE
+	local players: { Player } = {}
+	local roots: { BasePart } = {}
+	local candidates: { ShoveTarget.Candidate } = {}
 	for _, player in Players:GetPlayers() do
-		if player ~= me then
-			local root = rootOf(player)
-			if root then
-				local distance = (root.Position - (mine :: BasePart).Position).Magnitude
-				if distance <= bestDistance then
-					best, bestRoot, bestDistance = player, root, distance
-				end
-			end
+		local root = if player ~= me then rootOf(player) else nil
+		if root then
+			table.insert(players, player)
+			table.insert(roots, root)
+			table.insert(candidates, {
+				userId = player.UserId,
+				distance = (root.Position - (mine :: BasePart).Position).Magnitude,
+			})
 		end
 	end
-	return best, bestRoot
+	local index = ShoveTarget.pick(candidates, RANGE, lockHolders(), skipUntil, os.clock())
+	if index == nil then
+		return nil, nil
+	end
+	return players[index], roots[index]
 end
 
 function ShoveButton.new(parent: Instance, callbacks: Callbacks): ShoveButton
@@ -89,6 +117,8 @@ function ShoveButton.new(parent: Instance, callbacks: Callbacks): ShoveButton
 	self._enabled = false
 	self._target = nil :: Player?
 	self._coolUntil = 0
+	self._skipUntil = {} :: { [number]: number } -- userId -> os.clock() until the hand passes them over
+	self._lastTarget = nil :: number?
 	self._loop = nil :: RBXScriptConnection?
 	self._connections = {} :: { RBXScriptConnection }
 
@@ -293,8 +323,19 @@ function ShoveButton._press(self: any)
 	if target == nil or os.clock() < self._coolUntil or not self.screenGui.Enabled then
 		return
 	end
-	self._coolUntil = os.clock() + COOLDOWN
-	self._callbacks.shove((target :: Player).UserId)
+	local now = os.clock()
+	local skipUntil: { [number]: number } = self._skipUntil
+	for userId, skipEnd in skipUntil do
+		if skipEnd <= now then
+			skipUntil[userId] = nil
+		end
+	end
+	local userId = (target :: Player).UserId
+	self._coolUntil = now + COOLDOWN
+	-- the server refuses the same target for BumpSameTargetSeconds, so the hand moves on to someone else
+	skipUntil[userId] = now + SAME_TARGET
+	self._lastTarget = userId
+	self._callbacks.shove(userId)
 	self:_tick()
 end
 
@@ -307,7 +348,7 @@ function ShoveButton._tick(self: any)
 		self._marker.Enabled = false
 		return
 	end
-	local target, targetRoot = nearestTarget()
+	local target, targetRoot = nearestTarget(self._skipUntil)
 	self._target = target
 	local left = self._coolUntil - os.clock()
 	local cooling = left > 0
@@ -366,6 +407,12 @@ end
 function ShoveButton.result(self: any, ok: boolean)
 	if not ok then
 		self._coolUntil = 0
+		-- a refused shove does not count for the same-target wait; pass over that player briefly so a press goes
+		-- to the next nearest one (they may be inside ShoveTargetImmuneSeconds after someone else's shove)
+		local last: number? = self._lastTarget
+		if last ~= nil then
+			self._skipUntil[last] = os.clock() + PASS_OVER
+		end
 		self:_tick()
 	end
 end

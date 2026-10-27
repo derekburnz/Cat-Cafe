@@ -207,7 +207,7 @@ Removed from v0.1: grab_failed (the catch_attempt funnel and catch_circles cover
 | progressionPathName | level | levelName | Start fires when | Complete fires when |
 |---|---|---|---|---|
 | tier | 1 to 5 | corner, cozy, busy, famous, grand | Player reaches tier N | Player reaches tier N+1 |
-| area_book | 1 to 5 | alley, park, neighbourhood, woods, sewer | Area unlocked | All 10 of the area's cats in the collection |
+| area_index | 1 to 5 | alley, park, neighbourhood, woods, sewer | Area unlocked | All 10 of the area's cats in the collection |
 
 LogProgressionStartEvent and LogProgressionCompleteEvent only; nothing in Cat Cafe fails. Custom field: `cats_distinct` bucket (1 to 4, 5 to 11, 12 to 19, 20 to 29, 30+), matching the tier thresholds.
 

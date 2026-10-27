@@ -91,4 +91,61 @@ return function()
 			expect(copy).never.to.equal(settings)
 		end)
 	end)
+
+	describe("Settings edges (QA)", function()
+		-- Every new profile takes Settings.defaults() (ProfileSchema.template). A shared table would let one
+		-- player's SetSetting change the settings of every player who joins that server after them.
+		it("gives every caller a fresh defaults table", function()
+			local first = Settings.defaults() :: any
+			first.music = false
+			first.musicVolume = 0
+			expect(Settings.defaults() :: any).never.to.equal(first)
+			expect(Settings.defaults().music).to.equal(true)
+			expect(Settings.defaults().musicVolume).to.equal(1)
+			local loaded = Settings.sanitize(nil) :: any
+			loaded.sfx = false
+			expect(Settings.defaults().sfx).to.equal(true)
+		end)
+
+		it("has a default for every kind, each one a value clean keeps", function()
+			local defaults = Settings.defaults() :: any
+			for key in Settings.kinds do
+				expect(key .. " = " .. tostring(defaults[key])).never.to.equal(key .. " = nil")
+				expect(Settings.clean(key, defaults[key])).to.equal(defaults[key])
+			end
+		end)
+
+		it("saves a volume as clean's own answer: 0 to 1, two decimals, never down", function()
+			local last = -1
+			for step = -500, 1500 do
+				local value = Settings.clean("sfxVolume", step / 1000) :: number
+				expect(value >= 0 and value <= 1).to.equal(true)
+				expect(value >= last).to.equal(true)
+				expect(Settings.clean("sfxVolume", value)).to.equal(value)
+				expect(math.abs(value * 100 - math.round(value * 100)) < 1e-9).to.equal(true)
+				last = value
+			end
+		end)
+
+		it("cleans a cleaned save to itself and leaves the loaded table alone", function()
+			local raw = {
+				music = 0,
+				sfx = false,
+				musicVolume = 0.456,
+				sfxVolume = 2,
+				lowPerformance = "yes",
+				markers = false,
+			}
+			local once = Settings.sanitize(raw) :: any
+			expect(once).never.to.equal(raw)
+			expect(Settings.sanitize(once) :: any).to.deepEqual(once)
+			expect(once.music).to.equal(true)
+			expect(once.musicVolume).to.equal(0.46)
+			expect(once.sfxVolume).to.equal(1)
+			expect(once.markers).to.equal(false)
+			expect(raw.music).to.equal(0)
+			expect(raw.sfxVolume).to.equal(2)
+			expect(raw.lowPerformance).to.equal("yes")
+		end)
+	end)
 end

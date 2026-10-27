@@ -21,11 +21,13 @@ local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
+local BugReport = require(script.Screens.BugReport)
 local CafeSigns = require(script.Screens.CafeSigns)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
+local ClientErrors = require(script.Components.ClientErrors)
 local Create = require(script.Components.Create)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
@@ -97,6 +99,7 @@ UI.events = {
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
+	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 }
 
 local state: Types.PlayerState = {
@@ -152,10 +155,12 @@ local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), 
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
+local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
 local BOWL_RANGE: number = Config.BaitBowlRangeStuds
+local REPORT_SENT = "report was sent" -- in the server's "Thanks! Your report was sent." toast
 local RESOLVE_RANGE: number = Config.BaitResolveRangeStuds
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
 local CART_RANGE: number = Config.DealerRangeStuds
@@ -295,6 +300,7 @@ function UI.init(config: Types.InitConfig)
 	initialized = true
 	Scale.start()
 	Sound.set(config.playSound)
+	ClientErrors.start() -- the newest client errors ride along with a bug report
 
 	local player = Players.LocalPlayer
 	local parent: Instance = config.parent or player:WaitForChild("PlayerGui")
@@ -500,6 +506,9 @@ function UI.init(config: Types.InitConfig)
 			UI.settings.changed:Fire(key, value)
 		end,
 		close = closeModal,
+		reportBug = function()
+			modalInstance:open("BugReport")
+		end,
 	})
 	local settingsView = settingsScreen :: Settings.Settings
 	Motion.screenShake = settingsView:value("screenShake")
@@ -507,6 +516,25 @@ function UI.init(config: Types.InitConfig)
 		frame = settingsView.frame,
 		onOpen = function()
 			settingsView:render(state)
+		end,
+	})
+	bugReportScreen = BugReport.new({
+		send = function(text: string, kind: string)
+			UI.events.reportBug:Fire(text, kind, ClientErrors.recent())
+		end,
+		back = function()
+			modalInstance:open("Settings")
+		end,
+		close = closeModal,
+	})
+	local bugReportView = bugReportScreen :: BugReport.BugReport
+	modalInstance:register("BugReport", {
+		frame = bugReportView.frame,
+		onOpen = function()
+			bugReportView:onOpen()
+		end,
+		onClose = function()
+			bugReportView:onClose()
 		end,
 	})
 	tipJarScreen = TipJar.new({
@@ -713,6 +741,11 @@ function UI.destroy()
 		spinScreen:destroy()
 	end
 	spinScreen = nil
+	if bugReportScreen then
+		bugReportScreen:destroy()
+	end
+	bugReportScreen = nil
+	ClientErrors.stop()
 	if upgrades then
 		upgrades:destroy()
 	end
@@ -856,6 +889,14 @@ end
 ----------------------------------------------------------------------------------------------------
 
 function UI.toast(text: string, kind: Types.ToastKind?)
+	-- a bug report waiting on the server: its "Thanks!" toast closes the window, a warn toast keeps the words
+	if bugReportScreen and bugReportScreen:pending() then
+		if kind == "good" and string.find(text, REPORT_SENT, 1, true) then
+			bugReportScreen:result(true)
+		elseif kind == "warn" then
+			bugReportScreen:result(false)
+		end
+	end
 	if toasts then
 		toasts:show(text, kind)
 	end
@@ -1134,6 +1175,27 @@ end
 function UI.spin.result(slice: number, amount: number)
 	if spinScreen then
 		spinScreen:result(slice, amount)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Report a bug (docs/playtests/bug-reports.md section 1)
+----------------------------------------------------------------------------------------------------
+
+UI.bugReport = {}
+
+-- Opens the Report a bug window (players reach it from Settings > Help > Report).
+function UI.bugReport.open()
+	if modal then
+		modal:open("BugReport")
+	end
+end
+
+-- The server's answer to ReportBug, when it comes some other way than a toast: true closes the window and clears
+-- the box, false keeps the words and lights Send again. The server's toasts already do this through UI.toast.
+function UI.bugReport.result(ok: boolean)
+	if bugReportScreen then
+		bugReportScreen:result(ok)
 	end
 end
 

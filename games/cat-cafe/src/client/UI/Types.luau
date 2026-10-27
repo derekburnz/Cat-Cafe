@@ -174,6 +174,7 @@ export type ScreenName =
 	| "Settings"
 	| "TipJar"
 	| "Spin"
+	| "BugReport"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

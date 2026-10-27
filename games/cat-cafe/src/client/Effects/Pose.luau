@@ -74,6 +74,7 @@ local PIECES: { [string]: Group } = {
 	EarR = "earR",
 }
 local EAR_OUT = 0.6 -- an ear flicks out sideways this much for each bit it flicks back
+local IDENTITY: CFrame = CFrame.identity -- a local, as selene's Roblox library has no methods on CFrame.identity
 
 local function isNamed(instance: Instance, name: string): boolean
 	local text = instance.Name
@@ -256,8 +257,6 @@ local function newRig(model: Model, body: BasePart): Rig
 	}
 end
 
--- Reads a cat model once. Nil when it has no body yet (its parts are still streaming in), or when its body is
--- welded to something that is not ours to move (the held cat rides its holder's arms); Cats tries again later.
 -- Which body a cat has: "walk" with hinged back legs (body A), "sit" with hinged front legs only (body B), or
 -- "parts" with no hinged pieces (the placeholder and older Part cats). The pieces are the model's own children.
 function Pose.kindOf(model: Model): Logic.Body
@@ -293,6 +292,8 @@ local function axisAlong(frame: CFrame, up: Vector3): number
 	return if x >= z then 1 else 3
 end
 
+-- Reads a cat model once. Nil when it has no body yet (its parts are still streaming in), or when its body is
+-- welded to something that is not ours to move (the held cat rides its holder's arms); Cats tries again later.
 function Pose.bind(model: Model): Rig?
 	local body = model.PrimaryPart or findPart(model, "Body")
 	if body == nil then
@@ -496,7 +497,7 @@ local function posed(rig: Rig, o: Logic.Offsets, group: Group, rotation: CFrame)
 		local weight = weightOf(o, name)
 		local turn: CFrame? = turns[group]
 		if weight > 0 and turn ~= nil then
-			out *= if weight >= 1 then turn else CFrame.identity:Lerp(turn, weight)
+			out *= if weight >= 1 then turn else IDENTITY:Lerp(turn, weight)
 		end
 	end
 	return out

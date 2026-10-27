@@ -138,7 +138,7 @@ Threads open, push and merge PRs from Derek's GitHub account, so GitHub mails th
 2. Same page, **Subscriptions** > **Participating, @mentions and custom**: untick **Email**. That ends the merge, push and comment mails on PRs the threads open.
 
 ## 17. Let threads upload images and read bug reports (once, about 2 minutes)
-After this, threads upload UI and art images (`.github/workflows/upload-image.yml`) and read the friends' in-game bug reports (`.github/workflows/bug-reports.yml`) themselves, with the publish key from step 15. Nothing waits on Studio's Asset Manager or a Studio session any more. Phone browser works.
+After this, threads upload UI and art images (`.github/workflows/upload-image.yml`) and sounds (`.github/workflows/upload-audio.yml`, so the SecretStore key on the laptop is no longer needed for uploads) and read the friends' in-game bug reports (`.github/workflows/bug-reports.yml`) themselves, with the publish key from step 15. Nothing waits on Studio's Asset Manager or a Studio session any more. Phone browser works.
 1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key (the one saved as `ROBLOX_PUBLISH_KEY`) > **Edit**.
 2. **Access Permissions** > **Add API System**: **assets**, operations **Read** and **Write** (uploading images, which belong to your account like the sounds).
 3. **Add API System** again: **universe-datastores**, select the **Cat Cafe** experience, operations `universe-datastores.objects:list` and `universe-datastores.objects:read` only (listing and reading the bug reports; nothing that writes or deletes).

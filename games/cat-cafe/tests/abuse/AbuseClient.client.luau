@@ -13,7 +13,7 @@
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
-	  Backspace flood
+	  J tip jar         Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -70,6 +70,7 @@ type Shoved = {
 
 local events: { Event } = {}
 local state: Types.PlayerState? = nil
+local tipJar: Types.TipJarState? = nil -- the newest TipJarState (F47)
 local running: string? = nil
 local lastSyncAt = 0 -- os.clock() of the newest ProfileSync
 local lastGrabAt = -math.huge -- os.clock() of the newest GrabBegin this script fired
@@ -2598,6 +2599,176 @@ case(
 	end
 )
 
+-- Tip Jar (F47, engineer PR #206, data-model 11b) ----------------------------------------------------------------
+
+-- The first step of this session's jar that has (`ready` true) or has not yet run its minutes and is unclaimed.
+local function tipStep(ready: boolean): number?
+	local jar = tipJar
+	if jar == nil then
+		return nil
+	end
+	local played = serverNow() - jar.sessionStartedAt
+	for index, def in Catalog.tipJar do
+		if not jar.claimed[index] and (played >= def.minutes * 60) == ready then
+			return index
+		end
+	end
+	return nil
+end
+
+-- "Tip Jar: ..." toasts since `startedAt`, the server's word that a step paid.
+local function tipToasts(startedAt: number): { Event }
+	local found = {}
+	for _, event in since(startedAt, "Toast") do
+		if string.find(event.text, "Tip Jar:", 1, true) ~= nil then
+			table.insert(found, event)
+		end
+	end
+	return found
+end
+
+local function foods(): number
+	local total = 0
+	if state ~= nil then
+		for _, count in state.lures do
+			total += count
+		end
+	end
+	return total
+end
+
+case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double claim", function()
+	if tipJar == nil then
+		return "SKIP", "no TipJarState yet (needs engineer PR #206)"
+	end
+	-- Bad steps, 1.1 s apart for the 1 a second limit: nothing pays.
+	local before = freshWallet()
+	local foodsBefore = foods()
+	local badAt = os.clock()
+	for _, step in { 0, -1, 13, 1.5, "1", 0 / 0, {} } :: { any } do
+		fire("ClaimTipJar", step)
+		task.wait(1.1)
+	end
+	fire("ClaimTipJar")
+	task.wait(1.1)
+	local badPaid = #tipToasts(badAt) > 0
+		or money() - before.money > incomeSince(before)
+		or foods() ~= foodsBefore
+	local badStates = #since(badAt, "TipJarState")
+
+	-- A step whose minutes have not run: answered with TipJarState, still unclaimed, nothing paid.
+	local locked = tipStep(false)
+	local lockedPaid = false
+	local lockedAnswered = true
+	if locked ~= nil then
+		local lockedAt = os.clock()
+		local w = freshWallet()
+		local f = foods()
+		fire("ClaimTipJar", locked)
+		lockedAnswered = waitFor(lockedAt, "TipJarState", 2) ~= nil
+		task.wait(1.1)
+		local jar = tipJar :: Types.TipJarState
+		lockedPaid = #tipToasts(lockedAt) > 0
+			or jar.claimed[locked] == true
+			or money() - w.money > incomeSince(w)
+			or foods() ~= f
+	end
+
+	if badPaid then
+		return "FAIL", "a bad step paid (a Tip Jar toast, coins or food)"
+	end
+	if lockedPaid then
+		return "FAIL", string.format("step %d paid before its minutes had run", locked :: number)
+	end
+	if not lockedAnswered then
+		return "FAIL", string.format("no TipJarState back for locked step %d", locked :: number)
+	end
+
+	-- A ready step: twice in one frame, then again after a second. Exactly one payout.
+	local ready = tipStep(true)
+	if ready == nil then
+		return "CHECK",
+			string.format(
+				'bad and locked steps paid nothing; no ready gift for the double claim, so on the server run %s("tipJar", nil, 130) and run again',
+				DEBUG
+			)
+	end
+	local def = Catalog.tipJar[ready]
+	local w = freshWallet()
+	local lureBefore = if state ~= nil and def.lureId ~= nil
+		then state.lures[def.lureId] or 0
+		else 0
+	local claimAt = os.clock()
+	fire("ClaimTipJar", ready)
+	Remotes.event("ClaimTipJar"):FireServer(ready)
+	log(string.format("    -> ClaimTipJar(%d) again in the same frame", ready))
+	waitFor(claimAt, "ProfileSync", 2)
+	task.wait(1.1)
+	local againAt = os.clock()
+	fire("ClaimTipJar", ready)
+	local answered = waitFor(againAt, "TipJarState", 2) ~= nil
+	task.wait(0.5)
+	local toasts = tipToasts(claimAt)
+	local jar = tipJar :: Types.TipJarState
+	if #toasts ~= 1 then
+		return "FAIL",
+			string.format("%d Tip Jar toasts for one ready step claimed three times", #toasts)
+	end
+	if not jar.claimed[ready] then
+		return "FAIL", string.format("step %d paid but TipJarState does not show it claimed", ready)
+	end
+	if not answered then
+		return "FAIL", string.format("no TipJarState back for the claimed step %d", ready)
+	end
+	local prize: string
+	if def.kind == "coins" then
+		local paid = tonumber(string.match(toasts[1].text, "%+%$(%d+)")) or 0
+		local gained = money() - w.money
+		if paid < (def.minCoins or 0) then
+			return "FAIL",
+				string.format(
+					"step %d paid $%d, under its floor of $%d",
+					ready,
+					paid,
+					def.minCoins or 0
+				)
+		end
+		if gained < paid or gained > paid + incomeSince(w) then
+			return "FAIL",
+				string.format(
+					"step %d toasted $%d but coins moved by %d",
+					ready,
+					paid,
+					math.floor(gained)
+				)
+		end
+		prize = string.format("$%d", paid)
+	else
+		local lureAfter = if state ~= nil then state.lures[def.lureId :: string] or 0 else 0
+		if lureAfter - lureBefore ~= (def.count or 1) then
+			return "FAIL",
+				string.format(
+					"step %d should give %d %s and gave %d",
+					ready,
+					def.count or 1,
+					def.lureId :: string,
+					lureAfter - lureBefore
+				)
+		end
+		prize = string.format("%d %s", def.count or 1, def.lureId :: string)
+	end
+	return "PASS",
+		string.format(
+			"8 bad steps paid nothing (%d TipJarState back)%s; step %d paid %s once for three claims",
+			badStates,
+			if locked ~= nil
+				then string.format(", locked step %d refused", locked)
+				else ", no locked step left",
+			ready,
+			prize
+		)
+end)
+
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
 	for _ = 1, 30 do
@@ -2726,6 +2897,16 @@ Remotes.event("ProfileSync").OnClientEvent:Connect(function(s: Types.PlayerState
 end)
 Remotes.event("Toast").OnClientEvent:Connect(function(text: string, kind: string?)
 	record("Toast", string.format("[%s] %s", tostring(kind), text))
+end)
+Remotes.event("TipJarState").OnClientEvent:Connect(function(jar: Types.TipJarState)
+	tipJar = jar
+	local claimed = 0
+	for _, flag in jar.claimed do
+		if flag then
+			claimed += 1
+		end
+	end
+	record("TipJarState", string.format("%d of %d claimed", claimed, #jar.claimed))
 end)
 Remotes.event("GrabResult").OnClientEvent
 	:Connect(function(id: string, ok: boolean, reason: string, retry: boolean)

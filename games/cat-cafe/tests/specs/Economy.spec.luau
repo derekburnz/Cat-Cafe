@@ -155,10 +155,49 @@ return function()
 				p.upgradeLevels.tables = 6
 				p.upgradeLevels.espresso = 5
 				for _, def in ipairs(Catalog.decor) do
-					p.decorOwned[def.id] = true
-					p.decorPlaced[def.id] = true
+					if def.source ~= "index" then
+						p.decorOwned[def.id] = true
+						p.decorPlaced[def.id] = true
+					end
 				end
 				expect(Economy.cafeMultiplier(p)).to.be.near(2.5)
+			end)
+
+			it(
+				"Index decor adds +5% a piece, and a placed gold piece stands in for its normal one (F48, N114)",
+				function()
+					local p = freshProfile()
+					local function give(id: string)
+						p.decorOwned[id] = true
+						p.decorPlaced[id] = true
+					end
+					give("index_alley")
+					expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
+					give("index_alley_gold")
+					expect(Economy.cafeMultiplier(p)).to.be.near(1.10)
+					expect(Economy.replacedDecor(p) :: any).to.deepEqual({ index_alley = true })
+					p.decorPlaced.index_alley_gold = nil
+					expect(Economy.cafeMultiplier(p)).to.be.near(1.05)
+					expect(next(Economy.replacedDecor(p))).never.to.be.ok()
+					-- every area with both pieces placed tops out at +50%
+					for _, def in ipairs(Catalog.decor) do
+						if def.source == "index" then
+							give(def.id)
+						end
+					end
+					expect(Economy.cafeMultiplier(p)).to.be.near(1.5)
+				end
+			)
+
+			it("Index decor is never for sale", function()
+				local p = freshProfile()
+				p.coins = 1e9
+				p.tier = 5
+				expect(Economy.decorBlocker(p, "index_park")).to.equal("An Index reward, not for sale")
+				expect(Economy.decorBlocker(p, "index_park_gold")).to.equal(
+					"An Index reward, not for sale"
+				)
+				expect(Economy.decorBlocker(p, "rug")).never.to.be.ok()
 			end)
 		end
 	)

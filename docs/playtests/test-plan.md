@@ -90,6 +90,7 @@ Results of every run go to `docs/playtests/YYYY-MM-DD.md` in the `playtest-repor
 | `Clock.spec` | Phase at any time, countdown without jumps, start of each phase | data-model 9 |
 | `Config.spec` | Every constant in data-model section 17 by name and value, no undocumented constant, internal ordering | data-model 17 |
 | `Signal.spec` | Connect, disconnect, once, disconnect all, one erroring handler does not stop the rest | |
+| `AudioLogic.spec` | Sound rules (sound-designer, PR #64 and #69; QA edges): voice limits and the minimum gap, pitch ranges, music and ambience by phase and zone, moment lookups, the shout-out step per rarity in `Catalog.rarityOrder`, the nearest world loops within a radius (the edge counts, a max of 0 keeps none), every cue on a known channel with asset ids only, every P0 cue present | sound list 2 to 6 |
 | `EffectsLogic.spec` | Effects v1 pure logic (vfx-animator, PR #77; QA edges): touch-only devices get the low budget; Purrfect only when every grade is Perfect, a CatchResult with no success flag is a failure; nearest picks within the radius (the edge counts), nearest first, at most the limit; a plot claim, release, owner swap and rank up told apart, a tier rise inside the 2 s claim grace or from tier 0 is not a rank up; every gate a skipped tier crosses opens, none already open; pulse, hiss, landing, confetti and butterfly curves stay bounded; phone bursts 12 or fewer, 4 steady emitters | effects list, Effects v1 |
 
 v0.3 specs QA writes as each feature lands (the engineer is asked to keep these as pure functions in
@@ -364,6 +365,23 @@ only: client parts go in `workspace.ClientEffects` and burst emitters on `Burst_
 | E6 Day ambient | By day, `screen_capture` at a running cafe front | A thin steam wisp over the espresso machine and two pastel butterflies looping over the flowers (or the pavement in front of each door until `_Flowers` exists). Chimney smoke only once the cafe roofs have `_Chimney` parts |
 | E7 Night ambient | `Debug.setPhase("night")`, capture the street and the Square | Warm fireflies drifting near the street lamps (or `_Fireflies` boxes); no butterflies at night; they return at dawn |
 | E8 Console | The whole section | No new error or warning naming `Effects` on the client, none on the server |
+
+### 4.7 Sound (v0.4, sound list v0.3, `src/client/Audio`)
+
+Run with the sound setting on, PC first, in the same session as 4.6 so each effect and its sound are judged
+together. Every Sound the client plays is named after its cue (`catHiss`, `purr`, `shuttersUp`...), so client
+`execute_luau` can list the playing ones: descendants of `workspace` and `SoundService` with `IsA("Sound")` and
+`IsPlaying`. Cues still waiting for an upload play nothing; record them as skipped, not failed.
+
+| Row | Do | Expected |
+|---|---|---|
+| A1 Miss | E1's miss, with the second client 20 studs away | `circleMiss`, then the `catchMiss` whiff (2D, catcher only) and a `pawLost` pop when a paw goes; the hiss (`catHiss`) plays 3D from the stray for both clients, from `HissAt` |
+| A2 Catch and Purrfect | E2's catches | `catchSparkle` and the rarity jingle on every catch; `purrfectChime` only on the all-Perfect one |
+| A3 Claim and gate | E3 and E5 | `shuttersUp` and `signFlip` 3D at the claimed plot for everyone near it; `gateOpen` 3D at the gate, heard within about 60 studs |
+| A4 Lively street | Walk the street past running cafes, then stand inside a cafe with five working cats | Each cafe door plays its chatter and cups loop 3D, loudest at the nearest door; at most 3 `purr` Sounds play at once, only for cats within 14 studs |
+| A5 Carry and settings | Catch a cat and carry it; turn Sound off, then on, then check in; turn Music off | A quiet purr while carrying. Sound off silences ambience, effects and UI at once and the purr comes back when it is on again; it stops at check in. Music has its own toggle and only silences music |
+| A6 Shout-outs | `Debug.giveCat` a Common, then an Epic and a Mythical shout-out (S15 or catches) | The shout-out chime climbs one step per rarity (Common lowest, Mythical highest, the `rarityStep` table in `AudioLogic.spec`) |
+| A7 Console | The whole section | No new error naming `Audio`; a missing asset id warns at most once per cue |
 
 ## 5. Manual checklist (Derek first, then friends)
 

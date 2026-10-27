@@ -171,14 +171,14 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 	end
 end
 
--- A saved name, cut to MAX_NAME_LENGTH bytes on a character boundary; nil when empty or not valid UTF-8
--- (reviewer N36). RenameCat enforces the real rules on the way in.
 -- A saved cat or bait variant: "gold", or "shiny" from a version 3 save (Derek 2026-10-27 renamed shiny to gold);
 -- anything else is the base coat.
 local function variantOf(value: any): string
 	return if value == "gold" or value == "shiny" then "gold" else "base"
 end
 
+-- A saved name, cut to MAX_NAME_LENGTH bytes on a character boundary; nil when empty or not valid UTF-8
+-- (reviewer N36). RenameCat enforces the real rules on the way in.
 local function sanitizeName(value: any): string?
 	if type(value) ~= "string" then
 		return nil

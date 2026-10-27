@@ -82,6 +82,7 @@ function Demo.run(UI: any): () -> ()
 		uid = starter,
 		catId = "tabby",
 		variant = "base",
+		name = "Mochi", -- a player's name for the cat, as the server sends it after RenameCat
 		caughtAt = now(),
 		spotId = "barista_1",
 		level = 2,
@@ -571,10 +572,12 @@ function Demo.run(UI: any): () -> ()
 				local pool = CATALOG.cats
 				local def = pool[math.random(1, #pool)]
 				local newUid = uid()
+				-- one in five is shiny here (2% in the game) so the cat room's gold cards show up
+				local shiny = math.random() < 0.2
 				profile.cats[newUid] = {
 					uid = newUid,
 					catId = def.id,
-					variant = "base",
+					variant = if shiny then "shiny" else "base",
 					caughtAt = now(),
 					spotId = nil,
 				}
@@ -582,6 +585,7 @@ function Demo.run(UI: any): () -> ()
 				profile.collection[def.id] = now()
 				-- the demo rolls stars and a Purrfect bonus so the reveal shows every part
 				UI.showCatFound(def.id, isNew, {
+					shiny = shiny,
 					stars = math.random(1, 5),
 					charmGain = if math.random() < 0.3 then math.random(2, 6) else nil,
 				})

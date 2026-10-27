@@ -788,10 +788,14 @@ local function buildSafeZoneMarks(parent: Instance)
 		marks
 	)
 	safeWords(Vector3.new(0, streetTop, W.SquareSouthZ - 4), Vector3.new(0, 0, -1), 12, marks)
-	local parkHalf = W.StreetHalfWidth -- the Park gate is as wide as the street it closes (24 studs)
+	-- On the Park floor just inside its near wall (1 stud thick, centred on the area's edge), so the stripe is on
+	-- the area side like the others (reviewer S54); the gate is as wide as the street it closes (24 studs).
+	local parkHalf = W.StreetHalfWidth
+	local parkEdge = W.ParkCenterZ + W.ParkDepth / 2 - 0.8
+	local parkTop = Layout.park.floorY + 0.03
 	safeStripe(
-		Vector3.new(-parkHalf, streetTop, W.ParkGateZ + 0.6),
-		Vector3.new(parkHalf, streetTop, W.ParkGateZ + 0.6),
+		Vector3.new(-parkHalf, parkTop, parkEdge),
+		Vector3.new(parkHalf, parkTop, parkEdge),
 		marks
 	)
 	safeWords(Vector3.new(0, streetTop, W.ParkGateZ + 4), Vector3.new(0, 0, 1), 12, marks)

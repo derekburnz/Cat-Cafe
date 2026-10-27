@@ -67,6 +67,7 @@ export type Budget = {
 	napLabels: number, -- napping cats that show floating z's
 	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
 	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
+	decorEffects: number, -- Mythical cafe styles and decor moving at once; each takes one of steadyEmitters
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -89,6 +90,7 @@ Presets.budget = {
 		napLabels = 4,
 		rushLines = 2,
 		signatureCats = 3,
+		decorEffects = 2,
 	},
 	high = {
 		animatedCats = 16,
@@ -106,6 +108,7 @@ Presets.budget = {
 		napLabels = 10,
 		rushLines = 3,
 		signatureCats = 6,
+		decorEffects = 4,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -123,6 +126,7 @@ Presets.budget = {
 		napLabels = 2,
 		rushLines = 1,
 		signatureCats = 1,
+		decorEffects = 0,
 	},
 } :: { [string]: Budget }
 
@@ -384,6 +388,48 @@ Presets.emitters = {
 		spread = 8,
 		rate = 2,
 		lightEmission = 0.8,
+	},
+	-- Mythical decor (F53): a glint now and then over Glimmer Canal's floor or a Gold Leaf front, tinted by the piece.
+	decorGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.4, 0.8 },
+		speed = { 0, 0.2 },
+		spread = 180,
+		rate = 2,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	-- Gold glints floating up off you as golden fish land in your wallet (Fish.luau).
+	fishRise = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.3 },
+		speed = { 2, 4 },
+		spread = 30,
+		rate = 0,
+		acceleration = Vector3.new(0, 3, 0),
+		drag = 1,
+		lightEmission = 0.5,
+		rotSpeed = { -120, 120 },
+	},
+	-- The Blossom Tree's petals fluttering down from its canopy, with a little sideways drift.
+	decorPetals = {
+		texture = Presets.textures.sparkle, -- a petal sprite once one is uploaded
+		colors = { Presets.palette.furRose, Presets.palette.blush, Presets.palette.offwhite },
+		size = { 0.35, 0.28 },
+		transparency = { 0, 0.5 },
+		lifetime = { 3, 4.5 },
+		speed = { 0.2, 0.6 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0.2, -0.6, 0),
+		drag = 0.8,
+		rotSpeed = { -90, 90 },
 	},
 } :: { [string]: EmitterPreset }
 
@@ -893,6 +939,124 @@ Presets.codes = {
 	sparkles = 10,
 	padShare = 1.4, -- the motes' square pad is this many radii wide, so its corners stay inside the circle
 	checkEvery = 0.1,
+}
+
+-- Opening a Cafe Crate at the Golden Fish Market (F53): a puff of ice off the stall's counter and the won piece's
+-- rarity popping `above` studs over it, as a catch of that rarity does (catchPop). On the modelled stall (market.py)
+-- the pop comes from `counterY` up and `counterZ` toward the front from its pivot, over the ice.
+Presets.market = {
+	within = 30, -- studs from the player to the stall (FishMarketRange is 14)
+	above = 0.6,
+	puff = 6, -- dust particles, tinted like ice
+	counterY = 3.1,
+	counterZ = -0.65,
+}
+
+-- Golden fish landing in your wallet (golden-fish.md section 4: "the catch sparkle in gold"): catch sparkles in gold
+-- `chest` studs above the root part, `rise` of as many gold glints floating up (fishRise) and a gold ring at your
+-- feet, both by the biggest step the gain reaches.
+Presets.fishPickup = {
+	chest = 0.5,
+	rise = 0.5,
+	ringSeconds = 0.45,
+	steps = {
+		{ from = 1, sparkles = 8, ring = 3 },
+		{ from = 10, sparkles = 14, ring = 4.5 },
+		{ from = 40, sparkles = 22, ring = 6 },
+	},
+}
+
+-- Mythical cafe styles and decor (F53, golden-fish.md section 4: each "gets one steady emitter or a texture scroll.
+-- It runs only near the player, counts against the steady-emitter budget and shows a still look in Low performance
+-- mode"), by decor id. `on` is a plot style attribute (the style shows on the plot's parts with that tag) or
+-- "model", a placed piece carrying DecorId. `emitter` and `colors` are its glints or petals.
+export type DecorSpec = { look: string, on: string, emitter: string?, colors: { Color3 }? }
+Presets.decor = {
+	alley_midnight_sky = { look = "stars", on = "Wallpaper" },
+	park_blossom_tree = { look = "petals", on = "model", emitter = "decorPetals" },
+	neighbourhood_rainbow_shimmer = { look = "rainbow", on = "Paint" },
+	woods_aurora_sky = { look = "aurora", on = "Wallpaper" },
+	sewer_glimmer_canal = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { palette.milk, palette.pastelSky },
+	},
+	classic_gold_leaf = {
+		look = "goldLeaf",
+		on = "Paint",
+		emitter = "decorGlint",
+		colors = { palette.offwhite, palette.goldLight },
+	},
+} :: { [string]: DecorSpec }
+
+-- How the Mythical styles look. Walls: Midnight Sky's stars and moon and Aurora Sky's lights are pictures on a
+-- see-through sheet laid `lift` studs inside the back and side walls (the wallpaper layer is `layer` thick, from
+-- plot.py), from `wallFrom` above the floor to `wallTo` under the eave, at `pixels` per stud. The floor and the
+-- front take `floorPixels`. Times are seconds; positions and sizes in UI scale unless they say pixels.
+Presets.decorFx = {
+	checkEvery = 1,
+	retry = { first = 2, most = 30 }, -- a piece whose walls, floor or front are missing waits, doubling, between tries
+	layer = 0.2,
+	lift = 0.03,
+	wallFrom = 1,
+	wallTo = 0.4,
+	pixels = 12,
+	floorPixels = 6,
+	-- Midnight Sky: stars on the back and side walls (`size` pixels, `shown` transparency), `twinkleShare` of them
+	-- fading to `faded` and back every `twinkle` seconds, diamonds from `diamondFrom` pixels.
+	stars = {
+		back = 16,
+		side = 10,
+		size = { 3, 7 },
+		shown = { 0.05, 0.35 },
+		twinkleShare = 0.5,
+		twinkle = { 1.2, 2.6 },
+		faded = 0.85,
+		diamondFrom = 6,
+	},
+	-- A full moon `size` pixels wide, `height` down the back wall, drifting from `from` to `to` and back. Its soft
+	-- glow is rings of warm light, each { times as wide, transparency }, fainter as they widen.
+	moon = {
+		size = 52,
+		glow = { { 1.5, 0.84 }, { 2.1, 0.9 }, { 2.8, 0.95 } },
+		crater = 0.75,
+		height = 0.3,
+		from = 0.2,
+		to = 0.8,
+		seconds = 45,
+	},
+	-- Aurora Sky: soft curtains of light `height` tall, violet at the top to teal at the foot, swaying `sway`
+	-- degrees and drifting `drift` across over their `seconds`, with `stars` still stars a wall behind them.
+	aurora = {
+		bands = 3,
+		height = 0.42,
+		shown = 0.45,
+		sway = 5,
+		drift = 0.05,
+		shimmer = 0.12,
+		seconds = { 7, 9, 11 },
+		stars = 6,
+	},
+	-- Glimmer Canal: light bands `width` wide sliding across the floor under the glass, each crossing in `seconds`.
+	canal = { bands = 4, width = 0.16, shown = 0.78, tilt = 30, seconds = { 9, 15 } },
+	-- Rainbow Shimmer: a rainbow tint over the cafe front that scrolls once across in `seconds`, lit like paint.
+	rainbow = {
+		shown = 0.78,
+		seconds = 18,
+		light = 0.6,
+		colors = {
+			palette.shirtRed,
+			palette.golden,
+			palette.leaf,
+			palette.fishBlue,
+			palette.aurora,
+			palette.nosePink,
+		},
+	},
+	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`.
+	sheen = { width = 0.08, shown = 0.45, tilt = 20, seconds = 7 },
+	petalPad = 0.8, -- share of the tree's width the petals fall from
 }
 
 return Presets

@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Context = require(script.Parent.Context)
+local Decor = require(script.Parent.Decor)
 local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
@@ -335,7 +336,9 @@ local function tick()
 		end
 	end
 	local on: { [Source]: boolean } = {}
-	for _, source in Logic.nearest(steady, math.huge, budget.steadyEmitters) do
+	-- Mythical cafe styles moving near the player take their share of the steady emitters first (F53).
+	local share = math.max(0, budget.steadyEmitters - Decor.inUse())
+	for _, source in Logic.nearest(steady, math.huge, share) do
 		on[source] = true
 		enable(source, source.position :: Vector3)
 	end

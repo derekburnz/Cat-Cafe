@@ -138,6 +138,12 @@ local function caught(at: Vector3, ground: Vector3, rarity: string)
 	beam(ground, rarity, colour)
 end
 
+-- A catch's pop for `rarity` anywhere else something of that rarity is won (a crate piece at the Market): sparkles
+-- at `at`, the ring, beam and showers from `ground`.
+function Catch.pop(at: Vector3, ground: Vector3, rarity: string)
+	caught(at, ground, rarity)
+end
+
 local function watchStray(instance: Instance)
 	if not instance:IsA("Model") then
 		return

@@ -347,6 +347,17 @@ function Demo.run(UI: any): () -> ()
 			push()
 		end
 	end)
+	-- the server filters the name before anyone else sees it; the demo keeps it as typed
+	connections[#connections + 1] = UI.events.renameCat:Connect(
+		function(catUid: string, name: string)
+			local instance = profile.cats[catUid]
+			if instance then
+				instance.name = name
+				UI.toast(("Renamed to %s"):format(name), "good")
+				push()
+			end
+		end
+	)
 	connections[#connections + 1] = UI.events.equipBest:Connect(function()
 		UI.toast("Equip best: the server would place your top cats", "info")
 	end)

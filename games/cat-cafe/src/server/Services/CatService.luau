@@ -1208,7 +1208,11 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	Net.on("DropCat", onDropCat)
 	task.spawn(function()
 		while true do
-			refreshLuckBoards()
+			-- one bad board or profile must not end the loop for the server's life (review N185)
+			local ok, err = pcall(refreshLuckBoards)
+			if not ok then
+				warn("[CatService] luck boards: " .. tostring(err))
+			end
 			task.wait(LUCK_BOARD_SECONDS)
 		end
 	end)

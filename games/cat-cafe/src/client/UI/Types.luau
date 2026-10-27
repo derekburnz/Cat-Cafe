@@ -135,7 +135,7 @@ export type CatchWindows = SharedTypes.CatchWindows
 export type CircleGrade = SharedTypes.CircleGrade
 
 -- Rescue minigame (F27, data-model section 10b), as RescueChallenge sends it. Times are server time
--- (Workspace:GetServerTimeNow()). "bar": the marker slides along a bar (Components/RescueMarker) and each press
+-- (Workspace:GetServerTimeNow()). "bar": the marker slides along a bar (shared/RescueMarker) and each press
 -- in the zone is a hit; zones holds the zone centre (0 to 1) for each hit in order. "shake_catch": the same bar,
 -- where each hit shakes the branch; the server then sends a second challenge of kind "circle", one catch
 -- circle with its windows.

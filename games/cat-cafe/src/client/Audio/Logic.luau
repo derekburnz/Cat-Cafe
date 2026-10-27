@@ -240,6 +240,15 @@ function Logic.zoneCue(previous: string?, current: string?): string?
 	return if now then "zoneSafe" else "zoneArea"
 end
 
+-- Whether a resting cafe cat purrs (reviewer N131, N150): on the sitting body (Pose "sit", PR #266) all day, on the
+-- lying body only while Effects shows it loafing; never at night, when resting cats doze.
+function Logic.restingPurrs(pose: any, night: boolean, loafing: boolean): boolean
+	if night then
+		return false
+	end
+	return pose == "sit" or loafing
+end
+
 -- Whether a stray twinkles for nearby players (shimmerRare): a gold cat, or Epic and up.
 function Logic.shimmers(gold: any, rarity: any): boolean
 	if gold == true then

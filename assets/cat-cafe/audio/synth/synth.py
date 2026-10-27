@@ -918,6 +918,50 @@ def potion_drink() -> np.ndarray:
                   -5)
 
 
+# --- design v0.11 and v0.12: the tackle and cat levels (sound list 5.3 and 5.5) ---------------------
+
+
+def tackle_lunge() -> np.ndarray:
+    """A tackle (F74) is a cartoon dive, never a hit: a rush of air that swells while the body flies and drops as
+    it comes down, a cloth flutter on top and a soft rising "fwip" under it. The hit keeps the Shove sound."""
+    d = 0.5
+    fly = 0.42
+    t = seconds(fly)
+    rise = np.clip(t / 0.18, 0, 1)
+    centre = 400 * (1500 / 400) ** rise * (700 / 1500) ** np.clip((t - 0.18) / 0.24, 0, 1)
+    air = bandpass(bandpass(noise(fly, 400), centre, 1.4), centre, 1.4)
+    air *= (0.3 + 0.7 * np.sin(np.pi * np.clip(t / 0.15, 0, 1) / 2)) * np.clip((fly - t) / 0.2, 0, 1)  # heard from the press
+    flutter = bandpass(noise(fly, 401), 1500, 2.0) * (0.5 + 0.5 * np.sin(2 * np.pi * 38 * t)) * air
+    fwip = glide(0.24, 230, 560, 0.16) * envelope(0.24, 0.015, 0.07)
+    return finish(mix(d, (air / np.max(np.abs(air)), 0.0), (flutter / np.max(np.abs(flutter)) * 0.25, 0.0),
+                      (fwip * 0.22, 0.02)), -5)
+
+
+def tackle_miss() -> np.ndarray:
+    """A tackle that hits nobody (F74): a soft belly flop, a skid along the floor that slows to a stop, and a
+    little wooden "bonk bonk" going down, so a miss sounds silly rather than painful."""
+    d = 1.0
+    flop = (glide(0.25, 170, 85, 0.08) * envelope(0.25, 0.002, 0.06)
+            + bandpass(noise(0.25, 410), 320, 1.0) * envelope(0.25, 0.001, 0.02) * 0.8)
+    slide = 0.62
+    t = seconds(slide)
+    slow = t / slide
+    grip = 0.55 + 0.45 * np.sin(2 * np.pi * np.cumsum(46 - 30 * slow) / SR)  # stick and slip, slower as it stops
+    skid = bandpass(bandpass(noise(slide, 411), 1300 - 750 * slow, 1.6), 1300 - 750 * slow, 1.6) * grip
+    skid *= np.clip(t / 0.03, 0, 1) * (1 - slow) ** 1.4
+    bonk = [(bell(0.3, note(n), MARIMBA) * 0.3, at) for n, at in (("G4", 0.66), ("D4", 0.78))]
+    return finish(fade_tail(mix(d, (flop, 0.0), (skid / np.max(np.abs(skid)) * 0.7, 0.04), *bonk), 0.1), -5)
+
+
+def cat_level_up() -> np.ndarray:
+    """One of your cats reaches a new level (F75): three quick celesta notes up and a small twinkle, short and
+    soft, since a cafe full of cats levels up often."""
+    d = 0.9
+    run = [(bell(d - at, note(n), CELESTA) * 0.6, at) for n, at in (("D6", 0.0), ("F#6", 0.07), ("A6", 0.14))]
+    twinkle = [(bell(0.3, f, ((1.0, 1.0, 0.05),)) * 0.18, 0.26 + 0.05 * i) for i, f in enumerate((3520.0, 4698.6))]
+    return finish(fade_tail(mix(d, *run, *twinkle), 0.35), -7)
+
+
 def purr_loop(seed: int, rate: float, out_s: float, in_s: float) -> np.ndarray:
     """A cat's purr over exactly one breath out and one breath in, so it loops. A purr is a fast train of tiny
     clicks (the voice box opening and closing about 25 times a second) heard through the mouth and nose, louder
@@ -1035,6 +1079,9 @@ SOUNDS = {
     "VisitorMystery": ("sfx", "Sfx", visitor_mystery),
     "GiftOpen": ("sfx", "Sfx", gift_open),
     "PotionDrink": ("sfx", "Sfx", potion_drink),
+    "TackleLunge": ("sfx", "Sfx", tackle_lunge),
+    "TackleMiss": ("sfx", "Sfx", tackle_miss),
+    "CatLevelUp": ("sfx", "Sfx", cat_level_up),
 }
 
 

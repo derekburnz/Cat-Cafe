@@ -31,9 +31,24 @@ export type Cue = {
 
 local Cues: { [string]: Cue } = {
 	-- Music (sound list section 3) -------------------------------------------------------------------------
-	musicDayA = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Open for Business"
-	musicDayB = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Second Cup"
-	musicNightA = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "After Hours"
+	musicDayA = {
+		ids = { "rbxassetid://92150429408895" },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+	}, -- "Open for Business"
+	musicDayB = {
+		ids = { "rbxassetid://73896733157878" },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+	}, -- "Second Cup"
+	musicNightA = {
+		ids = { "rbxassetid://131746689332910" },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+	}, -- "After Hours"
 	musicNightB = { ids = {}, group = "Music", volume = 0.3, looped = true }, -- "Night Owls"
 	stingDusk = {
 		ids = { "rbxassetid://72211264391144" },
@@ -216,7 +231,7 @@ local Cues: { [string]: Cue } = {
 
 	-- Carry, shoves and check-in (5.3; v0.5 Shove keeps the Bump names in code) ------------------------------
 	carryPurr = {
-		ids = { "rbxassetid://73628889177188" },
+		ids = { "rbxassetid://104398552389386" },
 		group = "Sfx",
 		volume = 0.25,
 		looped = true,
@@ -237,6 +252,19 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	},
 	bumpHeld = { ids = { "rbxassetid://83302918660784" }, group = "Sfx", volume = 0.7, range = 40 },
+	tackleLunge = {
+		ids = { "rbxassetid://119010397581874" },
+		group = "Sfx",
+		volume = 0.6,
+		pitch = { 0.95, 1.05 },
+		range = 40,
+	}, -- F74: the dive's whoosh on the press; a hit adds the shove sound, a miss tackleMiss
+	tackleMiss = {
+		ids = { "rbxassetid://85126153307905" },
+		group = "Sfx",
+		volume = 0.7,
+		range = 40,
+	}, -- F74: belly flop, skid, "bonk bonk"
 	checkInBell = {
 		ids = { "rbxassetid://75991488445164" },
 		group = "Sfx",
@@ -300,7 +328,7 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	},
 	purr = {
-		ids = { "rbxassetid://134709393284855" },
+		ids = { "rbxassetid://110254245469370" },
 		group = "Sfx",
 		volume = 0.2,
 		looped = true,
@@ -422,6 +450,12 @@ local Cues: { [string]: Cue } = {
 		volume = 0.7,
 		minGap = 0.3,
 	}, -- F64: the UI plays it on UsePotion
+	catLevelUp = {
+		ids = { "rbxassetid://122201546356974" },
+		group = "Sfx",
+		volume = 0.4,
+		minGap = 1.5,
+	}, -- F75: one of your cats levels up
 
 	-- UI (5.8) ----------------------------------------------------------------------------------------------
 	uiClick = {

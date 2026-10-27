@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-72 files: 72 PASS, 0 WARN, 0 FAIL.
+75 files: 75 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -19,6 +19,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_CarryPurr.ogg` | sfx | 2.64 | 1 | 48000 | 37 | -29.7 | -5.9 | 3 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatDrop.ogg` | sfx | 0.60 | 1 | 48000 | 9 | -23.6 | -5.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatHiss.ogg` | sfx | 0.50 | 1 | 48000 | 10 | -19.0 | -3.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CatLevelUp.ogg` | sfx | 0.90 | 1 | 48000 | 10 | -17.2 | -6.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatPickUp.ogg` | sfx | 0.42 | 1 | 48000 | 6 | -18.7 | -4.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatPlaced.ogg` | sfx | 0.60 | 1 | 48000 | 8 | -17.6 | -5.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatRest.ogg` | sfx | 0.65 | 1 | 48000 | 8 | -17.8 | -5.9 | 1 | - | PASS |  |
@@ -53,6 +54,8 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_SignFlip.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -6.0 | 1 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StrayFlee.ogg` | sfx | 0.55 | 1 | 48000 | 9 | -20.1 | -3.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StraySprint.ogg` | sfx | 1.00 | 1 | 48000 | 16 | -23.2 | -4.0 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_TackleLunge.ogg` | sfx | 0.50 | 1 | 48000 | 8 | -19.1 | -5.2 | 4 | - | PASS |  |
+| `sfx/CatCafe_Sfx_TackleMiss.ogg` | sfx | 1.00 | 1 | 48000 | 13 | -24.3 | -4.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_TipPile.ogg` | sfx | 0.50 | 1 | 48000 | 8 | -18.0 | -5.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_TravelPoof.ogg` | sfx | 0.95 | 1 | 48000 | 12 | -19.5 | -3.7 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_VisitorCollector.ogg` | sfx | 1.50 | 1 | 48000 | 17 | -14.3 | -6.8 | 0 | - | PASS |  |

@@ -40,6 +40,12 @@ on how much code is loaded, not a bug in the game. Real Roblox does not run this
 the single state to reproduce it. If a spec fails here but passes with `--filter` and in Studio, suspect this
 first and say so in the PR.
 
+A second fault, also in the VM build, has its own fix: once the tree held 34 spec files the VM's garbage collector
+could panic in the middle of a spec ("panicked at crates/luau-vm/src/gc/mark.rs:167:26: unsupported collectable type
+5", then "Test run crashed: unreachable"), in two full runs out of three and in every run with a JavaScript GC
+forced between specs (UI thread, 2026-10-27). `createState()` now calls `lua.gcStop()`, so no state ever collects.
+A state lives for one spec file, and the whole suite peaks at about 190 MB (about 175 MB with the collector on).
+
 ## Differences from luau-lsp you may notice
 - `Enum.X` for enums not in `enum-keep.txt` type checks as `any`.
 - `script.Parent.Foo` outside of `require()` is typed as `Instance` (luau-lsp knows the tree), so those lines

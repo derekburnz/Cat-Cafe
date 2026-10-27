@@ -10,7 +10,7 @@
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe that pays itself in 20 s
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
---   D:Invoke("shove", "Player1", "Player2", "loose")  -- a real shove with every check, the roll forced
+--   D:Invoke("tackle", "Player1", "loose")  -- a real Tackle press with every check, the roll forced (F74)
 --   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
@@ -316,14 +316,11 @@ function Debug.knockLoose(player: (Player | number | string)?): string
 	return CatService.debugKnockLoose(resolve(player))
 end
 
--- `shover` shoves `target` through every section 10c check (the two must stand together in an area: teleport
--- both). `outcome` "loose" or "held" forces the roll on a carrier that can be knocked loose; nil rolls BumpChance
--- (1.0 since v0.8 F56, so always loose).
-function Debug.shove(
-	shover: (Player | number | string)?,
-	target: Player | number | string,
-	outcome: string?
-)
+-- `player` presses Tackle with every section 10c check (v0.11 F74): face someone within the 12 stud lunge first, in a
+-- catching area. `outcome` "loose" or "held" forces the roll on a carrier that can be knocked loose; nil rolls
+-- BumpChance (1.0 since v0.8 F56, so always loose). The server cannot move a client-owned character, so the lunge
+-- itself only plays from the real button.
+function Debug.tackle(player: (Player | number | string)?, outcome: string?)
 	guard()
 	assert(
 		outcome == nil or outcome == "loose" or outcome == "held",
@@ -333,7 +330,7 @@ function Debug.shove(
 		then "loose"
 		elseif outcome == "held" then "held"
 		else nil
-	ShoveService.debugShove(resolve(shover), resolve(target), forced)
+	ShoveService.debugTackle(resolve(player), forced)
 end
 
 -- RenameCat as if the player sent it, with every check and the real filter (F33). `uid` defaults to a working cat,

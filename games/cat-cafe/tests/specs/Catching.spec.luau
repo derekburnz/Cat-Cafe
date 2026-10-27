@@ -478,4 +478,65 @@ return function()
 			end
 		end)
 	end)
+
+	describe("spreadPick edges (QA)", function()
+		local function v(x: number, z: number): Vector3
+			return Vector3.new(x, 0, z)
+		end
+		local function gapOf(point: Vector3, taken: { Vector3 }): number
+			local gap = math.huge
+			for _, other in taken do
+				gap = math.min(gap, Vector3.new(point.X - other.X, 0, point.Z - other.Z).Magnitude)
+			end
+			return gap
+		end
+
+		it("500 seeded areas: a far enough point whenever one is free, else the farthest", function()
+			local rng = Random.new(368)
+			local spacing = Config.StraySpawnSpacingStuds
+			for _ = 1, 500 do
+				local points: { Vector3 } = {}
+				for _ = 1, rng:NextInteger(1, 12) do
+					table.insert(points, Vector3.new(rng:NextNumber(-40, 40), rng:NextNumber(0, 8), rng:NextNumber(-40, 40)))
+				end
+				local taken: { Vector3 } = {}
+				for _ = 1, rng:NextInteger(0, 8) do
+					table.insert(taken, Vector3.new(rng:NextNumber(-40, 40), rng:NextNumber(0, 8), rng:NextNumber(-40, 40)))
+				end
+				local best, anyFar = -1, false
+				for _, point in points do
+					local gap = gapOf(point, taken)
+					best = math.max(best, gap)
+					anyFar = anyFar or gap >= spacing
+				end
+				for _, roll in { 0, rng:NextNumber(), 0.999999, 1 } do
+					local index = Catching.spreadPick(points, taken, roll)
+					expect(index ~= nil and points[index :: number] ~= nil).to.equal(true)
+					local gap = gapOf(points[index :: number], taken)
+					if anyFar then
+						expect(gap >= spacing).to.equal(true)
+					else
+						expect(gap).to.equal(best)
+					end
+				end
+			end
+		end)
+
+		it("a sweep of 12,000 rolls lands on each point in proportion to its gap, capped at 60 studs", function()
+			-- gaps 12 (exactly the spacing counts), 11.99 (too near), 30, 60 and 90 (capped to 60)
+			local points = { v(12, 0), v(-11.99, 0), v(0, 30), v(0, -60), v(90, 90) }
+			local taken = { v(0, 0) }
+			local weights = { 12, 0, 30, 60, 60 }
+			local total = 162
+			local counts = { 0, 0, 0, 0, 0 }
+			local sweeps = 12000
+			for i = 0, sweeps - 1 do
+				local index = Catching.spreadPick(points, taken, (i + 0.5) / sweeps) :: number
+				counts[index] += 1
+			end
+			for index, weight in weights do
+				expect(math.abs(counts[index] - sweeps * weight / total) <= 2).to.equal(true)
+			end
+		end)
+	end)
 end

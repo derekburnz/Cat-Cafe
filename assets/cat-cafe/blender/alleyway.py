@@ -3,8 +3,8 @@ of the Alley Square, building backs that line the back alleys and the square, a 
 escape, a laundry line, long string lights and the Sewer manhole. Laid out in Roblox axes through common.RB,
 front -Z, sizes in studs.
 
-  CatCafe_Alley_ArchStreet   28 stud opening between 2 stud posts, over the street's north end at (0, 87.5)
-  CatCafe_Alley_Arch         26 stud opening between 2 stud posts (30 overall), over each back alley at (+-74, 87.5)
+  CatCafe_Alley_ArchStreet   36 stud opening between 2 stud posts, over the street's north end at (0, 123.5)
+  CatCafe_Alley_Arch         26 stud opening between 2 stud posts (30 overall), over each back alley at (+-78, 123.5)
                              Both: pivot at the base centre of the opening, -Z face toward the street or back alley
                              (reads ALLEY SQUARE), +Z face toward the square (reads CAFE STREET or BACK ALLEY).
   CatCafe_Alley_WallWindows  Building backs, 30 wide, 1 thick plus whatever sticks out. Pivot on the back plane
@@ -94,7 +94,7 @@ def _arch(name, mat, inner, front, back):
     px = 0.42
     label(b, front, 0, 10.85, -0.25, px, 0.07, "offwhite", -1)
     label(b, back, 0, 10.85, 0.25, px, 0.07, "offwhite", 1)
-    n, rise, y0 = 12, 2.0, 13.3
+    n, rise, y0 = 12, max(2.0, inner / 14), 13.3                                        # wider arches curve more
     pts = [(-half + inner * k / n, y0 + rise * (1 - (2 * k / n - 1) ** 2)) for k in range(n + 1)]
     for p0, p1 in zip(pts, pts[1:]):
         bar(b, p0, p1, 0.3, -0.15, 0.15, "fur_black")
@@ -117,7 +117,7 @@ def _arch(name, mat, inner, front, back):
 
 
 def build_arch_street(mat):
-    return _arch("CatCafe_Alley_ArchStreet", mat, 28.0, "ALLEY SQUARE", "CAFE STREET")
+    return _arch("CatCafe_Alley_ArchStreet", mat, 36.0, "ALLEY SQUARE", "CAFE STREET")
 
 
 def build_arch(mat):

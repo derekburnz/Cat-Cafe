@@ -1,10 +1,12 @@
 """Area gates (data-model section 9, world-and-feel.md section 2): an arch over each area's opening with a
 see-through barrier and a sign board, the way simulator zone gates work, themed per area with our own art.
 
-  CatCafe_Park_Gate            24 wide opening, street's south end (0, -101)
-  CatCafe_Neighbourhood_Gate   24 wide, gap in the Alley Square's north wall (0, 151.5)
-  CatCafe_Woods_Gate           30 wide, west back alley's south end (-74, -101)
-  CatCafe_Sewer_Gate           30 wide, east back alley's south end (74, -101)
+  CatCafe_Park_Gate            32 wide opening, street's south end (0, -125)
+  CatCafe_Neighbourhood_Gate   32 wide, gap in the Alley Square's north wall (0, 187.5)
+  CatCafe_Woods_Gate           30 wide, west back alley's south end (-78, -125)
+  CatCafe_Sewer_Gate           30 wide, east back alley's south end (78, -125)
+
+The Park and Neighbourhood openings follow the street (town-layout-v3.md: StreetHalfWidth 16).
 
 Pivot at the base centre of the opening. The front (-Z) faces the side players come from, so the Park, Woods and
 Sewer gates are placed turned 180 degrees. WorldBuilder's walls (1 thick, at local z 0.5 to 1.5, ending at the edge
@@ -113,7 +115,7 @@ def _park(b, lamps, flowers, half):
 
 
 def build_park_gate(mat):
-    return _gate("CatCafe_Park_Gate", mat, 24.0, "mint", "dumpster_green", _park)
+    return _gate("CatCafe_Park_Gate", mat, 32.0, "mint", "dumpster_green", _park)
 
 
 # -------------------------------------------------------------------------------------------- woods --
@@ -262,7 +264,7 @@ def _neighbourhood(b, lamps, flowers, half):
 
 
 def build_neighbourhood_gate(mat):
-    return _gate("CatCafe_Neighbourhood_Gate", mat, 24.0, "rarity_rare", "sign_teal", _neighbourhood)
+    return _gate("CatCafe_Neighbourhood_Gate", mat, 32.0, "rarity_rare", "sign_teal", _neighbourhood)
 
 
 ASSETS = {

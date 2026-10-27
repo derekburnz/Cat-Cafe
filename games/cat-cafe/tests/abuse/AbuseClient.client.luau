@@ -12,7 +12,7 @@
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
-	  Backspace flood   ] run everything
+	  Home drop         End unequip all     Backspace flood        ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
 	Every line starts with [Abuse]. RESULT lines say PASS, FAIL, SKIP or CHECK. After a run, read the SERVER
@@ -396,20 +396,29 @@ local function answerTo(startedAt: number, id: string, timeout: number): Event?
 	return nil
 end
 
--- GrabBegin next to the stray. Returns the schedule the server sent (or nil and why not) and when it fired.
+-- GrabBegin next to the stray. Returns the schedule the server sent (or nil and why not) and when it fired. A stray
+-- that wandered on while the teleport replicated gets one more try from beside it (laptop run 2026-10-27).
 local function beginCatch(stray: StrayInfo): (Schedule?, string, number)
-	grabReady()
-	standNextTo(stray)
-	local startedAt = os.clock()
-	fire("GrabBegin", stray.id)
-	local answer = answerTo(startedAt, stray.id, 2)
-	if answer == nil then
-		return nil, "no CatchSchedule or GrabResult within 2 s of GrabBegin", startedAt
+	local why, startedAt = "", os.clock()
+	for _ = 1, 2 do
+		grabReady()
+		standNextTo(stray)
+		startedAt = os.clock()
+		fire("GrabBegin", stray.id)
+		local answer = answerTo(startedAt, stray.id, 2)
+		if answer == nil then
+			return nil, "no CatchSchedule or GrabResult within 2 s of GrabBegin", startedAt
+		end
+		if answer.name ~= "GrabResult" then
+			return answer.data :: Schedule, answer.text, startedAt
+		end
+		why = "GrabBegin refused: " .. answer.text
+		if answer.text ~= "Too far away" then
+			break
+		end
+		log("    the stray moved off; standing next to it again")
 	end
-	if answer.name == "GrabResult" then
-		return nil, "GrabBegin refused: " .. answer.text, startedAt
-	end
-	return answer.data :: Schedule, answer.text, startedAt
+	return nil, why, startedAt
 end
 
 -- The CatchResult of the catch that started at `startedAt`, waiting until a little past the schedule's end.
@@ -2110,6 +2119,232 @@ case(
 	end
 )
 
+-- Drop and Unequip All (Derek 2026-10-27; engineer PRs #162 and #175) -----------------------------------------
+
+-- Catches the nearest free stray with every circle on target. Returns why not, or "" once the carry has synced.
+local function catchOne(): string
+	local stray = nearestStray()
+	if stray == nil then
+		return NO_STRAY
+	end
+	local schedule, why, startedAt = beginCatch(stray)
+	if schedule == nil then
+		return why
+	end
+	pressAllOnTarget(stray.id, schedule)
+	local outcome = outcomeOf(startedAt, stray.id, schedule)
+	if outcome == nil or not outcome.success then
+		return "the catch did not land"
+	end
+	local synced = waitFor(startedAt, "ProfileSync", 3, function()
+		return state ~= nil and state.carrying ~= nil
+	end)
+	return if synced ~= nil then "" else "caught, but no ProfileSync shows the carry"
+end
+
+-- The Drop's two toasts: "You let <Cat> go." in a catching area, "<Cat> ran back to the <Area>." anywhere else.
+local function dropToasts(startedAt: number): number
+	local count = 0
+	for _, event in since(startedAt, "Toast") do
+		local text = event.text
+		if string.find(text, " go.", 1, true) or string.find(text, "ran back to the", 1, true) then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- The dropped stray I own the first try on, within `radius` studs of me.
+local function myDrop(radius: number): Model?
+	local root = rootPart()
+	if root == nil then
+		return nil
+	end
+	for _, instance in Workspace:GetDescendants() do
+		if
+			instance:IsA("Model")
+			and instance:GetAttribute("Dropped") == true
+			and instance:GetAttribute("DropOwner") == player.UserId
+			and horizontal(instance:GetPivot().Position, root.Position) <= radius
+		then
+			return instance :: Model
+		end
+	end
+	return nil
+end
+
+case(
+	"drop",
+	Enum.KeyCode.Home,
+	"Drop: not carrying, junk arguments, CheckIn and 10 DropCat in one frame at my door, then a drop in the alley",
+	function()
+		if not checkInIfCarrying() then
+			return "SKIP", "carrying a cat that could not be checked in"
+		end
+		local verdict: Verdict = "PASS"
+		local notes = {}
+		-- 1. Not carrying: DropCat reads no arguments and does nothing at all. 1 call a second, so spaced.
+		local quietAt = os.clock()
+		fire("DropCat")
+		task.wait(1.05)
+		fire("DropCat", "x", 5, {})
+		task.wait(1.2)
+		local quiet = #since(quietAt, "Toast")
+		if quiet > 0 then
+			verdict = "FAIL"
+			table.insert(notes, string.format("DropCat while not carrying got %d toast(s)", quiet))
+		end
+		-- 2. At my door: CheckIn, then 10 DropCat in the same frame. Exactly one may happen: the cat checks in, or
+		-- it runs back to its area. Both would be a duplicate cat, neither a lost one.
+		local why = catchOne()
+		if why ~= "" then
+			return "SKIP", "could not catch a cat to drop: " .. why
+		end
+		local door = ownDoor()
+		if door == nil then
+			return "SKIP", "no own door found"
+		end
+		teleportTo(door.Position + Vector3.new(0, 0, 3))
+		task.wait(1.05)
+		local cats = catCount()
+		local raceAt = os.clock()
+		Remotes.event("CheckIn"):FireServer()
+		for _ = 1, 10 do
+			Remotes.event("DropCat"):FireServer()
+		end
+		log("    -> CheckIn(), DropCat() x10")
+		waitFor(raceAt, "ProfileSync", 3, function()
+			return state ~= nil and state.carrying == nil
+		end)
+		task.wait(1)
+		local checkedIn, drops = catCount() - cats, dropToasts(raceAt)
+		if state ~= nil and state.carrying ~= nil then
+			verdict = "FAIL"
+			table.insert(notes, "still carrying after CheckIn and 10 DropCat")
+		elseif checkedIn + drops ~= 1 then
+			verdict = "FAIL"
+			table.insert(
+				notes,
+				string.format(
+					"door race: %d cat(s) checked in and %d drop toast(s)",
+					checkedIn,
+					drops
+				)
+			)
+		else
+			table.insert(
+				notes,
+				if drops == 1 then "door race: dropped once" else "door race: checked in once"
+			)
+		end
+		-- 3. In the alley: the cat hops down at my feet as a dropped stray whose first try is mine.
+		why = catchOne()
+		if why ~= "" then
+			table.insert(notes, "alley drop skipped: " .. why)
+			return verdict, table.concat(notes, "; ")
+		end
+		task.wait(1.05)
+		local alleyAt = os.clock()
+		fire("DropCat")
+		waitFor(alleyAt, "ProfileSync", 3, function()
+			return state ~= nil and state.carrying == nil
+		end)
+		task.wait(0.5)
+		local dropped = myDrop(30)
+		local until_ = if dropped ~= nil then dropped:GetAttribute("DropOwnerUntil") else nil
+		if not toasted(alleyAt, " go.") then
+			verdict = "FAIL"
+			table.insert(notes, 'alley drop: no "You let <Cat> go." toast')
+		elseif dropped == nil then
+			verdict = "FAIL"
+			table.insert(
+				notes,
+				"alley drop: no stray with Dropped and my DropOwner within 30 studs"
+			)
+		elseif type(until_) ~= "number" or until_ <= serverNow() then
+			verdict = "FAIL"
+			table.insert(notes, "alley drop: DropOwnerUntil is not in the future")
+		else
+			table.insert(
+				notes,
+				string.format("alley drop: mine to catch for %.1f s more", until_ - serverNow())
+			)
+		end
+		return verdict, table.concat(notes, "; ")
+	end
+)
+
+case(
+	"unequip",
+	Enum.KeyCode.End,
+	"Unequip All: junk arguments and 10 calls in one frame, then Equip Best puts the cats back",
+	function()
+		local function working(): number
+			local count = 0
+			if state ~= nil then
+				for _, view in state.cats do
+					if view.spotId ~= nil then
+						count += 1
+					end
+				end
+			end
+			return count
+		end
+		if working() == 0 then
+			fire("EquipBest")
+			task.wait(2.2)
+		end
+		local before = working()
+		if before == 0 then
+			return "SKIP", "no cat can work: catch one first"
+		end
+		local floodAt = os.clock()
+		Remotes.event("UnequipAll"):FireServer("x", 5, {})
+		for _ = 1, 9 do
+			Remotes.event("UnequipAll"):FireServer()
+		end
+		log('    -> UnequipAll("x", 5, {}), UnequipAll() x9')
+		task.wait(1.5)
+		local toasts = {}
+		for _, event in since(floodAt, "Toast") do
+			table.insert(toasts, event.text)
+		end
+		local after = working()
+		local rate = if state ~= nil then state.incomePerSecond else -1
+		task.wait(1.2) -- EquipBest takes 1 call per 2 s
+		local restoreAt = os.clock()
+		fire("EquipBest")
+		waitFor(restoreAt, "ProfileSync", 3)
+		task.wait(0.3)
+		local restored = working()
+		if after ~= 0 or rate ~= 0 then
+			return "FAIL",
+				string.format(
+					"after Unequip All %d cat(s) still work and the rate is %s",
+					after,
+					tostring(rate)
+				)
+		end
+		if #toasts ~= 1 then
+			return "FAIL",
+				string.format(
+					"%d toasts for 10 calls in one frame: %s",
+					#toasts,
+					table.concat(toasts, " | ")
+				)
+		end
+		if restored < before then
+			return "CHECK", string.format("Equip Best put back %d of %d cats", restored, before)
+		end
+		return "PASS",
+			string.format(
+				"%d cat(s) rested with one toast (%s), rate 0, then Equip Best put them back",
+				before,
+				toasts[1]
+			)
+	end
+)
+
 case("flood", Enum.KeyCode.Backspace, "Flood: 30 RequestSync in one frame", function()
 	local startedAt = os.clock()
 	for _ = 1, 30 do
@@ -2147,6 +2382,18 @@ local function run(name: string): (Verdict, string)
 	end
 	running = chosen.name
 	log(string.format("CASE %s: %s", chosen.name, chosen.title))
+	-- A case can end with a cat in the arms, and the server answers a carrying player's GrabBegin with a toast only,
+	-- so every later catch case saw no answer (laptop run 2026-10-27). Check it in, then come back.
+	if state ~= nil and state.carrying ~= nil then
+		local root = rootPart()
+		local back = if root ~= nil then root.Position else nil
+		if not checkInIfCarrying() then
+			log("    still carrying after a check-in try; this case may see no GrabResult")
+		end
+		if back ~= nil then
+			teleportTo(back)
+		end
+	end
 	local ok, verdict, detail = pcall(chosen.run)
 	running = nil
 	if not ok then

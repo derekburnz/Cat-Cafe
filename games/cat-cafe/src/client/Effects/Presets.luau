@@ -266,6 +266,21 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -120, 120 },
 	},
+	-- A slow fall of sparkles from the top of a Mythical's beam or a jackpot wheel.
+	shower = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite }, -- tinted when the burst is made
+		size = { 0.5, 0 },
+		transparency = { 0, 0.6 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 1, 3 },
+		spread = 180,
+		rate = 0,
+		acceleration = Vector3.new(0, -2.5, 0),
+		drag = 1,
+		lightEmission = 0.6,
+		rotSpeed = { -90, 90 },
+	},
 	-- A soft violet haze rolling over an area gate as it closes for the night (F66).
 	duskHaze = {
 		texture = Presets.textures.smoke,
@@ -289,6 +304,7 @@ Presets.bursts = {
 	gateSparkle = 24,
 	purrfect = 28,
 	duskHaze = 4, -- at dusk, at each of the areas.points places along an area gate
+	shower = 8, -- each of a Mythical catch's or a jackpot spin's showers
 }
 
 -- A gold coat seen for the first time (a gold cat caught or rescued, F42): this many sparkles from the gold
@@ -328,6 +344,43 @@ Presets.confetti = {
 Presets.ring = {
 	diameter = 9, -- studs at the end of the Purrfect and gate ring
 	seconds = 0.5,
+}
+
+-- A beam of light that shoots up from a spot and fades: a Legendary or Mythical catch, your own rank up. One
+-- flash; skipped with Reduce Motion like the ring.
+Presets.beam = { grow = 0.25, holdShare = 0.4 } -- of its seconds: rising, then held before it fades
+
+-- Everyday moments (Derek 2026-10-27 20:13: effects "for basic stuff in game like catching or clicking upgrade or
+-- unlocking new tiers or landing on a good item on the spin the wheel"). A catch pops in the rarity's colour: a
+-- ring under the cat as wide as `ring`, confetti from Epic up (`confetti`, a share of the budget's confetti), a beam
+-- from Legendary up and for a Mythical a second, wider ring and three slow sparkle showers from the top of the beam.
+Presets.catchPop = {
+	ring = { Common = 4, Rare = 5, Epic = 7, Legendary = 9, Mythical = 11 } :: { [string]: number },
+	ringSeconds = 0.5,
+	confetti = { Epic = 0.4, Legendary = 0.6, Mythical = 0.9 } :: { [string]: number },
+	beams = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	beam = { width = 1.4, height = 16, seconds = 1.3 },
+	echo = { after = 0.16, scale = 1.4, seconds = 0.7 }, -- the Mythical's second ring
+	shower = { bursts = 3, after = 0.3, every = 0.25, height = 9 },
+}
+
+-- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
+-- above it, a mint ring at its foot as wide as it plus `ringPad` (at most `ringMost`), a puff of dust and a few
+-- confetti. A purchase with nothing new to show (the net, a food) gives a sparkle swirl at your feet instead. A
+-- piece counts when it appeared up to `before` seconds before the purchase showed or up to `after` seconds after.
+Presets.purchase = {
+	before = 1.5,
+	after = 1,
+	within = 120, -- studs from the player
+	sparkle = 14, -- gateSparkle particles above the piece
+	dust = 6,
+	ringPad = 3,
+	ringMost = 10,
+	ringSeconds = 0.55,
+	confetti = 0.3, -- of the budget's confetti
+	swirlRing = 5,
+	swirl = { 12, 8 }, -- gateSparkle particles at the feet, `swirlGap` seconds apart
+	swirlGap = 0.3,
 }
 
 -- Cat motion. Angles in degrees, distances in studs, times in seconds.
@@ -585,7 +638,21 @@ Presets.gate = { seconds = 1.4, playWithin = 70 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
-Presets.rankUp = { within = 120, claimGrace = 2 }
+-- A rank up: confetti and a smoke puff at any cafe's door in range. Your own cafe also gets a gold beam from roof
+-- height, a gold ring across the street, confetti from both sides of the door (`sideStuds` either side, each a share
+-- of the budget's confetti) and `fountains` sparkle fountains `fountainEvery` seconds apart.
+Presets.rankUp = {
+	within = 120,
+	claimGrace = 2,
+	beam = { width = 2.6, height = 22, seconds = 1.8 },
+	ring = 18,
+	ringSeconds = 0.8,
+	sideStuds = 4,
+	sideConfetti = 0.75,
+	fountains = 3,
+	fountainEvery = 0.3,
+	fountain = 12, -- gateSparkle particles in each
+}
 
 -- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
 -- won slice (LastSlice). It stops inside the server's 4 s SpinCooldownSeconds, so a player's next spin starts from
@@ -603,6 +670,20 @@ Presets.wheel = {
 	flashSeconds = 0.6,
 	sparkles = 10, -- at the pointer when it stops
 	within = 120, -- studs; a spin farther away just moves the wheel to where it stopped
+	-- How a prize is celebrated, by its chance in Catalog.spinWheel, only once the wheel has stopped on it: a
+	-- "good" one (chance at most `good`) adds a mint ring and confetti from the top of the wheel, a "jackpot" (at
+	-- most `jackpot`) gold confetti, a gold ring, `showers` sparkle showers and longer blinking.
+	good = 0.16,
+	jackpot = 0.06,
+	goodRing = 8,
+	jackpotRing = 12,
+	ringSeconds = 0.6,
+	goodConfetti = 0.5, -- of the budget's confetti
+	jackpotConfetti = 1,
+	showers = 3,
+	showerEvery = 0.3,
+	jackpotFlashes = 6,
+	jackpotFlashSeconds = 1.2,
 }
 
 return Presets

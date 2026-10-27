@@ -1,7 +1,8 @@
 --!strict
--- The world side of a catch (design v0.4 section 1): a Miss makes the cat hiss and hop back, a catch sparkles in
--- the cat's rarity colour, and a Purrfect (every circle Perfect) bursts gold with a ring and confetti. The screen
--- side (PERFECT, GOOD and MISS pops, the paw row) is the UI's.
+-- The world side of a catch (design v0.4 section 1): a Miss makes the cat hiss and hop back, a catch pops in the
+-- cat's rarity colour (sparkles and a ring under it, confetti from Epic up, a beam of light from Legendary up, a
+-- second ring and falling sparkles for a Mythical), and a Purrfect (every circle Perfect) bursts gold with a ring
+-- and confetti instead, keeping the beam. The screen side (PERFECT, GOOD and MISS pops, the paw row) is the UI's.
 --
 -- Sources: this player's own CatchSchedule and CatchResult events, plus the stray's HissAt attribute so every
 -- player nearby sees a hiss, not only the catcher. Listening only: nothing here fires a remote.
@@ -18,9 +19,10 @@ local Presets = require(script.Parent.Presets)
 
 local Catch = {}
 
-type Scheduled = { model: Model, position: Vector3, rarity: string }
+type Scheduled = { model: Model, position: Vector3, ground: Vector3, rarity: string }
 
 local scheduled: { [string]: Scheduled } = {}
+local rng = Random.new()
 local lastHiss: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local started = false
 
@@ -37,6 +39,12 @@ end
 local function topOf(model: Model): Vector3
 	local frame, size = model:GetBoundingBox()
 	return frame.Position + Vector3.new(0, size.Y / 2 + 0.3, 0)
+end
+
+-- The floor under the cat, where its ring spreads and its beam starts.
+local function bottomOf(model: Model): Vector3
+	local frame, size = model:GetBoundingBox()
+	return frame.Position - Vector3.new(0, size.Y / 2 - 0.1, 0)
 end
 
 local function headOf(model: Model): BasePart?
@@ -75,15 +83,59 @@ local function hiss(model: Model, lag: number?)
 	end
 end
 
-local function purrfect(at: Vector3)
+-- The beam from Legendary up, and a Mythical's second ring and slow showers of sparkles from the top of the beam.
+local function beam(ground: Vector3, rarity: string, colour: Color3)
+	local c = Presets.catchPop
+	local _, _, beams = Logic.catchPop(rarity)
+	if not beams then
+		return
+	end
+	Particles.beam(ground, colour, c.beam.width, c.beam.height, c.beam.seconds)
+	if rarity ~= "Mythical" then
+		return
+	end
+	task.delay(c.echo.after, function()
+		Particles.ring(
+			ground,
+			Presets.palette.sparkle,
+			c.ring.Mythical * c.echo.scale,
+			c.echo.seconds
+		)
+	end)
+	for i = 1, c.shower.bursts do
+		task.delay(c.shower.after + (i - 1) * c.shower.every, function()
+			local at = ground
+				+ Vector3.new(rng:NextNumber(-1.5, 1.5), c.shower.height, rng:NextNumber(-1.5, 1.5))
+			Particles.burst(
+				"shower",
+				at,
+				Presets.bursts.shower,
+				if i % 2 == 0 then Presets.palette.sparkle else colour
+			)
+		end)
+	end
+end
+
+local function purrfect(at: Vector3, ground: Vector3, rarity: string)
 	Particles.burst("catchSparkle", at, Presets.bursts.purrfect, Presets.palette.golden)
 	Particles.ring(at - Vector3.new(0, 1, 0), Presets.palette.golden)
 	Particles.confetti(at, math.ceil(Context.budget.confetti * 0.6), Presets.purrfectColors)
+	beam(ground, rarity, Presets.rarity[rarity] or Presets.rarity.Common)
 end
 
-local function caught(at: Vector3, rarity: string)
+local function caught(at: Vector3, ground: Vector3, rarity: string)
 	local colour = Presets.rarity[rarity] or Presets.rarity.Common
+	local ring, confetti = Logic.catchPop(rarity)
 	Particles.burst("catchSparkle", at, Presets.catchSparkle[rarity] or 8, colour)
+	Particles.ring(ground, colour, ring, Presets.catchPop.ringSeconds)
+	if confetti > 0 then
+		Particles.confetti(
+			at,
+			math.ceil(Context.budget.confetti * confetti),
+			{ colour, Presets.palette.sparkle, Presets.palette.offwhite }
+		)
+	end
+	beam(ground, rarity, colour)
 end
 
 local function watchStray(instance: Instance)
@@ -124,6 +176,7 @@ function Catch.start()
 			scheduled[strayId] = {
 				model = model,
 				position = topOf(model),
+				ground = bottomOf(model),
 				rarity = if type(rarity) == "string" then rarity else "Common",
 			}
 		end
@@ -139,17 +192,24 @@ function Catch.start()
 				return
 			end
 			if Logic.catchSucceeded(third, fourth) then
-				local at = if entry ~= nil
-					then entry.position
-					elseif model ~= nil then topOf(model)
-					else nil
-				if at == nil then
+				-- A catch whose schedule this client missed plays where the cat stands now.
+				local spot: Scheduled? = entry
+				if spot == nil and model ~= nil then
+					local named = model:GetAttribute("Rarity")
+					spot = {
+						model = model,
+						position = topOf(model),
+						ground = bottomOf(model),
+						rarity = if type(named) == "string" then named else "Common",
+					}
+				end
+				if spot == nil then
 					return
 				end
 				if Logic.isPurrfect(grades) then
-					purrfect(at)
+					purrfect(spot.position, spot.ground, spot.rarity)
 				else
-					caught(at, if entry ~= nil then entry.rarity else "Common")
+					caught(spot.position, spot.ground, spot.rarity)
 				end
 			elseif model ~= nil then
 				-- v0.4: a catch only fails on a Miss (a late or wild press, or walking out of range).

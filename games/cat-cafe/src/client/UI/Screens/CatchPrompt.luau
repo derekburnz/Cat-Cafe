@@ -2,7 +2,7 @@
 -- Catch prompt card for strays and stuck cats.
 --   show(info)          "[E] Catch" card at the bottom centre with the cat's name, stars, rarity and (v0.4) the
 --                       paws this player has left on it. v0.5: while the cat sprints off after a miss
---                       (info.fleeingUntil) it reads "It's running!", then "Get ready..." for the player who
+--                       (info.fleeingUntil) it reads "It's running!", then "Catch your breath..." for the player who
 --                       missed until info.retryAt, and turns back to Catch when it can be tried.
 --   waiting()           one press went to the server: "Get ready..." until the circles (CatchCircles) or the
 --                       rescue bar (RescueBar) come.
@@ -220,7 +220,8 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 end
 
 -- v0.5: why the cat cannot be grabbed yet, or nil when it can. "It's running!" while it sprints off after a miss
--- (FleeingUntil still ahead); "Get ready..." for the player who missed, who waits StraySelfRetrySeconds more.
+-- (FleeingUntil still ahead); "Catch your breath..." for the player who missed, who waits StraySelfRetrySeconds
+-- more (the server's own refusal for that wait is "Catch your breath, then try again").
 function CatchPrompt.blockedText(self: any): string?
 	local now = Workspace:GetServerTimeNow()
 	local fleeingUntil: number? = self._fleeingUntil
@@ -229,7 +230,7 @@ function CatchPrompt.blockedText(self: any): string?
 	end
 	local retryAt: number? = self._retryAt
 	if retryAt ~= nil and now < retryAt then
-		return "Get ready..."
+		return "Catch your breath..."
 	end
 	return nil
 end

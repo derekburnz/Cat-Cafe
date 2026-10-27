@@ -128,7 +128,7 @@ export type CatchInfo = {
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
 	-- v0.5.1: server time this player may try again after their own miss (StraySelfRetrySeconds after the cat
-	-- stops); init.luau fills it from this player's CatchResult, the card reads "Get ready..." until then.
+	-- stops); init.luau fills it from this player's CatchResult, the card reads "Catch your breath..." until then.
 	retryAt: number?,
 }
 

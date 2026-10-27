@@ -216,6 +216,8 @@ Theme.icons = {
 	crate = "📦",
 	tag = "🏷️",
 	potion = "🧪", -- v0.10 potions in prizes until the asset thread draws the bottles
+	tutorial = "?", -- F72: the Tutorial tile's big question mark, drawn in the display font
+	replay = "🎬", -- F72: Settings' Replay tutorial row
 }
 
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons

@@ -12,6 +12,9 @@
 --
 -- Under them a Help section (docs/playtests/bug-reports.md, 2026-10-27) holds one button row, Report a bug, which
 -- calls callbacks.reportBug to open the Report a bug window. It is not a setting, so it is not in SettingsList.
+--
+-- F72 (intro-cutscene.md section 4): the Screen section ends with the Tutorial button switch and a Replay tutorial
+-- button row (callbacks.replayTutorial). Both stay hidden until showTutorial(true), once the intro is live.
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -29,6 +32,7 @@ export type Callbacks = {
 	changed: (key: string, value: boolean | number) -> (), -- the shown value moved (a tap, a drag or the server)
 	close: () -> (),
 	reportBug: (() -> ())?, -- the Help section's Report a bug row; no Help section without it
+	replayTutorial: (() -> ())?, -- the Screen section's Replay tutorial row (F72); no row without it
 }
 
 export type Settings = {
@@ -36,6 +40,8 @@ export type Settings = {
 	render: (self: Settings, state: Types.PlayerState) -> (),
 	value: (self: Settings, key: string) -> boolean,
 	volume: (self: Settings, key: string) -> number,
+	set: (self: Settings, key: string, value: boolean | number) -> (),
+	showTutorial: (self: Settings, shown: boolean) -> (),
 	destroy: (self: Settings) -> (),
 }
 
@@ -59,18 +65,31 @@ local TILE_COLORS: { [string]: Color3 } = {
 	lowPerformance = Theme.colors.mintDark,
 	showOtherCats = Theme.colors.caramel,
 	markers = Theme.colors.good,
+	tutorialButton = Theme.colors.gold,
+	replayTutorial = Theme.colors.gold,
 	reportBug = Theme.colors.sky,
 }
 -- a volume row's switch: the slider greys while that switch is off
 local VOLUME_SWITCH: { [string]: string } = { musicVolume = "music", sfxVolume = "sfx" }
--- the Help section's one row: a button where a switch row has its switch
-local HELP_ROW = {
+-- button rows: a button where a switch row has its switch. The Help section's one row, and the Screen section's
+-- last (F72).
+type ButtonRow = { key: string, icon: string, name: string, detail: string, button: string }
+local HELP_ROW: ButtonRow = {
 	key = "reportBug",
 	icon = "🐞",
 	name = "Report a bug",
 	detail = "Tell us what broke, got stuck or could be better",
 	button = "Report",
 }
+local REPLAY_ROW: ButtonRow = {
+	key = "replayTutorial",
+	icon = Theme.icons.replay,
+	name = "Replay tutorial",
+	detail = "The quick tour of the town again",
+	button = "Play",
+}
+-- the rows hidden until the intro is live (F72)
+local TUTORIAL_ROWS = { SettingsList.TUTORIAL_KEY, REPLAY_ROW.key }
 
 local Settings = {}
 Settings.__index = Settings
@@ -109,6 +128,7 @@ function Settings.new(callbacks: Callbacks): Settings
 	self._switches = {} :: { [string]: Button.Button }
 	self._sliders = {} :: { [string]: any }
 	self._buttons = {} :: { Button.Button }
+	self._cards = {} :: { [string]: Frame }
 	self._connections = {} :: { RBXScriptConnection }
 	self._alive = true
 
@@ -167,7 +187,13 @@ function Settings.new(callbacks: Callbacks): Settings
 			order += 1
 			self:_buildRow(row, order)
 		end
+		local replayTutorial = callbacks.replayTutorial
+		if section.title == "Screen" and replayTutorial then
+			order += 1
+			self:_buildButtonRow(REPLAY_ROW, order, replayTutorial)
+		end
 	end
+	self:showTutorial(false)
 	local reportBug = callbacks.reportBug
 	if reportBug then
 		order += 1
@@ -182,7 +208,7 @@ function Settings.new(callbacks: Callbacks): Settings
 			Parent = list,
 		})
 		order += 1
-		self:_buildHelpRow(order, reportBug)
+		self:_buildButtonRow(HELP_ROW, order, reportBug)
 	end
 
 	-- a drag keeps following the finger off the track, and ends wherever it lets go. A touch drag follows only
@@ -240,6 +266,7 @@ function Settings._buildCard(self: any, key: string, icon: string, order: number
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		Create("UIStroke", { Color = Theme.modal.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
+	self._cards[key] = card
 	local tile: Frame = Create("Frame", {
 		Name = "Icon",
 		BackgroundColor3 = TILE_COLORS[key] or Theme.colors.caramel,
@@ -370,22 +397,23 @@ function Settings._buildRow(self: any, row: SettingsList.Row, order: number)
 	self._shown[key] = SettingsList.default(key)
 end
 
--- The Report a bug row: a row card like a switch row's, with a button that opens the window.
-function Settings._buildHelpRow(self: any, order: number, onClick: () -> ())
-	local card = self:_buildCard(HELP_ROW.key, HELP_ROW.icon, order)
-	nameAndDetail(card, HELP_ROW.name, HELP_ROW.detail)
+-- A button row (Report a bug, Replay tutorial): a row card like a switch row's, with a button where the switch
+-- would be.
+function Settings._buildButtonRow(self: any, row: ButtonRow, order: number, onClick: () -> ())
+	local card = self:_buildCard(row.key, row.icon, order)
+	nameAndDetail(card, row.name, row.detail)
 	table.insert(
 		self._buttons,
 		Button.new({
 			name = "Open",
-			text = HELP_ROW.button,
+			text = row.button,
 			style = "secondary",
 			size = UDim2.fromOffset(SWITCH.X, SWITCH.Y),
 			anchorPoint = Vector2.new(1, 0.5),
 			position = UDim2.new(1, -12, 0.5, -2),
 			textSize = Theme.sizes.textLarge,
 			parent = card,
-			sound = false, -- the window's open swish is the sound
+			sound = false, -- the window's open swish, or the intro, is the sound
 			onClick = onClick,
 		})
 	)
@@ -487,11 +515,25 @@ function Settings._send(self: any, key: string)
 end
 
 function Settings._tap(self: any, key: string)
-	local value = not self:value(key)
+	self:set(key, not self:value(key))
+end
+
+-- A choice made outside the screen (the Tutorial tile's ×): shown and sent as a tap would be.
+function Settings.set(self: any, key: string, value: boolean | number)
 	self._taps[key] = { value = value, at = os.clock() }
 	self._callbacks.setSetting(key, value)
 	self:_refresh()
 	self:_refreshLater()
+end
+
+-- The Tutorial button and Replay tutorial rows, hidden until the intro is live (F72).
+function Settings.showTutorial(self: any, shown: boolean)
+	for _, key in TUTORIAL_ROWS do
+		local card: Frame? = self._cards[key]
+		if card then
+			card.Visible = shown
+		end
+	end
 end
 
 -- after the hold, fall back to the saved value if the server never answered

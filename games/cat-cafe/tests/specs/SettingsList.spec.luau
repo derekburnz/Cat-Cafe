@@ -85,6 +85,28 @@ return function()
 		end)
 	end)
 
+	describe("SettingsList Tutorial button (F72)", function()
+		-- The row joins the Screen section once shared/Settings saves its key, so the UI and the engineer's PR can
+		-- land in either order and the edge test below holds on both sides.
+		it("has the Tutorial button switch exactly when the server saves its key", function()
+			local saves = Settings.kinds[SettingsList.TUTORIAL_KEY] ~= nil
+			expect(SettingsList.isKey(SettingsList.TUTORIAL_KEY)).to.equal(saves)
+			if saves then
+				expect(SettingsList.kind(SettingsList.TUTORIAL_KEY)).to.equal("switch")
+				local screen = SettingsList.SECTIONS[2]
+				expect(screen.title).to.equal("Screen")
+				expect(screen.rows[#screen.rows].key).to.equal(SettingsList.TUTORIAL_KEY)
+			end
+		end)
+
+		it("starts on, and keeps the × all session while the server does not send it", function()
+			local key = SettingsList.TUTORIAL_KEY
+			expect(SettingsList.shown(nil, {}, key, 0)).to.equal(true)
+			local taps = { [key] = { value = false, at = 0 } }
+			expect(SettingsList.shown({ music = true }, taps, key, 1000)).to.equal(false)
+		end)
+	end)
+
 	describe("SettingsList edges (QA)", function()
 		-- The server saves what the profile template holds (SetSetting takes the same keys, shared/Settings since
 		-- engineer PR #215, which also saves Place icons). Every saved key has a row that starts at its default.

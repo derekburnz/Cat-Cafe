@@ -16,14 +16,14 @@ A quiet afternoon cafe, then a small friendly adventure after dark. By day: soft
 
 ## 2. The mix
 
-Four channels (Roblox calls them SoundGroups): every sound belongs to one, and the two settings toggles the profile already has (`settings.music`, `settings.sfx`) mute whole channels.
+Four channels (Roblox calls them SoundGroups): every sound belongs to one, and the two settings toggles the profile already has (`settings.music`, `settings.sfx`) mute whole channels. Two volume sliders (`settings.musicVolume`, `settings.sfxVolume`, 0 to 1, Derek 2026-10-27) scale them: the channel volume is its start volume times the slider squared, so half way sounds about half as loud. A toggle that is off wins, and a slider at 0 counts as off, so nothing loads.
 
-| Channel | Holds | Start volume | Muted by |
-|---|---|---|---|
-| Music | day and night beds, stingers, jingles | 0.5 | music toggle |
-| Ambience | room tone and outdoor beds, world loops (fountain, lamp hum, dealer cart) | 0.6 | sfx toggle |
-| Sfx | gameplay sounds, cats, coins | 0.8 | sfx toggle |
-| Ui | buttons, panels, toasts | 0.7 | sfx toggle |
+| Channel | Holds | Start volume | Muted by | Scaled by |
+|---|---|---|---|---|
+| Music | day and night beds, stingers, jingles | 0.5 | music toggle | music slider |
+| Ambience | room tone and outdoor beds, world loops (fountain, lamp hum, dealer cart) | 0.6 | sfx toggle | sound slider |
+| Sfx | gameplay sounds, cats, coins | 0.8 | sfx toggle | sound slider |
+| Ui | buttons, panels, toasts | 0.7 | sfx toggle | sound slider |
 
 Stingers, the rank up jingle, the shiny reveal and the Legendary and Mythical fanfares duck the music to 40 % while they play. During a catch the music ducks to 60 % and the ambience to 50 % so the circles are easy to hear. When it gets busy, the order of importance is: circle grades and the catch result, UI feedback, coins, cat voices, ambience, music.
 

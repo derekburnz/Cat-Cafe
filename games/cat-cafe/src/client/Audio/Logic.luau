@@ -111,9 +111,21 @@ function Logic.duckLevel(ducks: { [any]: number }): number
 	return level
 end
 
--- A channel's volume: its start volume, or 0 when the player's setting turns it off.
-function Logic.groupVolume(base: number, enabled: boolean): number
-	return if enabled then base else 0
+-- A channel's volume: its start volume times the player's slider gain (1 when there is none), or 0 when the
+-- player's switch turns it off.
+function Logic.groupVolume(base: number, enabled: boolean, gain: number?): number
+	return if enabled then base * (gain or 1) else 0
+end
+
+-- A settings volume slider (0 to 1) as a channel gain. Squared, because loudness follows decibels rather than
+-- amplitude: half way is about -12 dB, which sounds roughly half as loud, where a straight line would barely change
+-- until the bottom. Missing or not a number (an old save) is full volume; out of range is clamped.
+function Logic.sliderGain(value: any): number
+	if type(value) ~= "number" or value ~= value then
+		return 1
+	end
+	local clamped = math.clamp(value, 0, 1)
+	return clamped * clamped
 end
 
 -- The catch jingle for a rarity (sound list section 3); Common has none. Secret is the v0.2 name for Mythical.

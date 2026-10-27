@@ -390,9 +390,10 @@ return function()
 			local profile = ProfileSchema.migrate(v2WithCats(), 1000)
 			local placed = working(profile)
 			expect(count(placed)).to.equal(2)
-			-- Void loves barista (37.5 there); Calico as Waiter (3) beats every Common in either slot.
-			expect(placed.c4).to.equal("barista_1")
-			expect(placed.c3).to.equal("waiter_1")
+			-- The Ninja Cat (void) loves waiter (37.5 there); the Pirate Cat (calico) as Barista (3) beats every
+			-- Common in either slot.
+			expect(placed.c4).to.equal("waiter_1")
+			expect(placed.c3).to.equal("barista_1")
 			local plan = EquipBest.plan(profile)
 			expect(EquipBest.isOptimal(profile, plan)).to.equal(true)
 		end)

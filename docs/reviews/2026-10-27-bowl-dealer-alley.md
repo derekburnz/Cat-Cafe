@@ -12,10 +12,10 @@ Reviewer: luau-reviewer thread, 2026-10-27 about 03:45 to 04:30 UTC. Read only; 
 | #102 alley kit in the world, turned gates, Sewer manhole | engineer | 7b6bcfc | Sound. Closes N68 |
 | #103 cafe sign keeps tier and tips at night | engineer | 486b1d4 | Sound. Closes the server half of S41 |
 | #108 bait bowl server and client wiring (F28) | engineer | 8bfe9fd | Sound. Closes N30 and the engineer half of N70. Nits N72, N73 |
-| #110 night dealer server (F32) | engineer | 6bc171e | Sound. Closes S27 and the server half of S42. Half of N32 still open |
+| #110 night dealer server (F32) | engineer | 6bc171e | Sound. Closes S27 and the server half of S42. N32 closed before the merge (f566d31) |
 | #109 rescue minigame bar (F27 UI) | ui-designer | 1a6c813 | Sound. Nits N74, N75 |
 
-#103 later took in main (17049d6) with no change to its own file, so the verdict stands.
+#103 later took in main (17049d6) with no change to its own file, so the verdict stands. Before #110 merged (dc042a9), the engineer added f566d31: `Dealer.behind` and its spec close the rest of N32, and a client that starts with the cart already out no longer plays `DealerArrive`. I read it, and both notes on #110 are settled.
 
 ## What was checked
 
@@ -62,11 +62,11 @@ Drop them the next time Layout changes.
 - two "tame" presses in one frame, which must give one cat;
 - a flood of each remote.
 
-**N32 (nit, engineer; #110; half open) The backwards window step.**
-- **Done:** `Dealer.refresh` clears the bought marks only on a forward step.
-- **Still open:** on a server whose clock is behind at the boundary, `stockFor` shows window W's foods under the marks for W + 1. A slot bought in W but not yet in W + 1 then shows as buyable again.
+**N32 (nit, engineer; #110; closed by f566d31) The backwards window step.**
+- `Dealer.refresh` clears the bought marks only on a forward step.
+- On a server whose clock is behind at the boundary, `stockFor` showed window W's foods under the marks for W + 1, so a slot bought in W but not yet in W + 1 showed as buyable again.
 
-A server hop takes longer than normal clock skew, so this is hard to hit. The guard is one line in `stockFor` and in the buy check: when `window < profile.dealer.window`, treat every slot as bought. Add a spec case.
+f566d31 adds `Dealer.behind`. In `stockFor` and in the buy check, every slot counts as bought until the window catches up, and a spec covers it.
 
 **N74 (nit, engineer with ui-designer; #109) One home for the rescue marker maths.** `Components/RescueMarker` is under `StarterPlayerScripts`, where a server Script cannot require it. When the F27 server is built, put it in `src/shared` and have the UI and its spec require it from there. The server then judges presses with the same formula the bar draws.
 
@@ -85,15 +85,14 @@ The open nits from the #101 review still apply where they are not closed above. 
 
 - #102: every part of `CatCafe_Sewer_Manhole` is `CanCollide = false`, including the lamp. Walk through it and see whether that looks broken. If it does, the asset-artist makes the lamp post collide.
 - #108: the bowl at twice its size reaches plot z -19.96, where the garden's front edging (plot z -19.8 to -19.6, about 0.5 high) can cut its front rim by up to 0.36 studs. If that shows, move `Layout.plot.baitBowl` to z -18.6.
-- #110: join at night and decide whether the `DealerArrive` cue should play on join.
 - #106: the cat room with a large collection on a phone emulator. The lazy build (N71) should keep it flat.
 
 ## Build checklist status
 
-**Closed in this batch:** S27, S41, S42, N30, N64 (52dcb26), N65 (e2e42b4), N68, N69, N71, and the engineer half of N70.
+**Closed in this batch:** S27, S41, S42, N30, N32, N64 (52dcb26), N65 (e2e42b4), N68, N69, N71, and the engineer half of N70.
 
 **Open:**
-- New in this batch: N32 (backwards half), N72 to N75, and N70 (UI half).
+- New in this batch: N72 to N75, and N70 (UI half).
 - From the last batch: N62, N63, N66, N67.
 - Older: N51, N53, N55, N56, N13 (designer) and S11 (Derek).
 

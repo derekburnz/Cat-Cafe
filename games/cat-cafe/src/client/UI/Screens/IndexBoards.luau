@@ -17,6 +17,7 @@
 -- (reviewer N129). A ProximityPrompt made on the client only exists, and only fires, for this player.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -45,6 +46,7 @@ export type IndexBoards = {
 local TAG = "IndexBoard"
 local PIXELS_PER_STUD = 64 -- an 8 x 5 stud Screen is 512 x 320
 local MAX_DISTANCE = 90 -- studs; past this the page is not drawn
+local NEAR_CHECK_SECONDS = 1 -- how often a board not yet seen checks whether the player has come near
 local PROMPT_DISTANCE = 10
 local HOLD_SECONDS = 0.5
 local COLUMNS = 5
@@ -73,6 +75,7 @@ type Board = {
 	prompt: ProximityPrompt?,
 	ownPrompt: boolean, -- made here, so destroyed here
 	hung: boolean, -- the page is on a Screen part
+	near: boolean, -- the player has come within MAX_DISTANCE once, so its cats are cloned (review N157)
 	connections: { RBXScriptConnection },
 }
 
@@ -163,6 +166,7 @@ function IndexBoards.new(parent: Instance, callbacks: Callbacks): IndexBoards
 	self._boards = {} :: { [Instance]: Board }
 	self._prompts = {} :: { [Instance]: string } -- each board's prompt -> its area
 	self._connections = {} :: { RBXScriptConnection }
+	self._nearLoop = nil :: thread?
 
 	for _, model in CollectionService:GetTagged(TAG) do
 		self:_attach(model)
@@ -188,6 +192,14 @@ function IndexBoards.new(parent: Instance, callbacks: Callbacks): IndexBoards
 			end
 		end)
 	)
+	-- Each cat on a board is a ViewportFrame with a whole cat model in it, so a board clones its cats only once
+	-- the player first comes near enough to see it (review N157).
+	self._nearLoop = task.spawn(function()
+		while true do
+			task.wait(NEAR_CHECK_SECONDS)
+			self:_checkNear()
+		end
+	end)
 	return self :: IndexBoards
 end
 
@@ -353,6 +365,7 @@ function IndexBoards._attach(self: any, model: Instance)
 		prompt = nil,
 		ownPrompt = false,
 		hung = false,
+		near = false,
 		connections = {},
 	}
 	self._boards[model] = board
@@ -377,7 +390,38 @@ function IndexBoards._attach(self: any, model: Instance)
 end
 
 -- Puts the page on the Screen part and wires the prompt: the model's own, else one made here.
+-- Marks boards the player has come near and draws their cats.
+function IndexBoards._checkNear(self: any)
+	local character = Players.LocalPlayer.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return
+	end
+	local position = (root :: BasePart).Position
+	for _, board in self._boards do
+		if board.near then
+			continue
+		end
+		local screen = screenOf(board.model)
+		if screen and (screen.Position - position).Magnitude <= MAX_DISTANCE then
+			board.near = true
+			self:_renderBoard(board)
+		end
+	end
+end
+
 function IndexBoards._hang(self: any, board: Board)
+	-- a prompt that went away with the model's parts (streamed out with Screen) is forgotten, so a new one is
+	-- found or made when they stream back in (review S72)
+	local old: ProximityPrompt? = board.prompt
+	if old and not old:IsDescendantOf(board.model) then
+		self._prompts[old] = nil
+		if board.ownPrompt then
+			old:Destroy()
+		end
+		board.prompt = nil
+		board.ownPrompt = false
+	end
 	local screen = screenOf(board.model)
 	board.gui.Adornee = screen :: any
 	board.hung = screen ~= nil
@@ -477,7 +521,7 @@ function IndexBoards._renderBoard(self: any, board: Board)
 	board.gold.Text = "★ " .. tostring(counts.gold)
 	local collection: { [string]: number } = state.collection or {}
 	for _, cell in board.cells do
-		if not cell.loaded then
+		if board.near and not cell.loaded then
 			cell.portrait:set(cell.def)
 			cell.loaded = cell.portrait:hasModel()
 		end
@@ -562,6 +606,10 @@ function IndexBoards.setNight(self: any, night: boolean)
 end
 
 function IndexBoards.destroy(self: any)
+	if self._nearLoop then
+		task.cancel(self._nearLoop)
+		self._nearLoop = nil
+	end
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

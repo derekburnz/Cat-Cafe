@@ -1,7 +1,8 @@
 --!strict
 -- Area title card (F39 P1, copied from Pet Simulator 99 and Fisch zone names): the area's name in big outlined
 -- letters across the upper screen for two seconds when the player walks or travels into it, with a small line
--- under it. Sits above the HUD and under the modals; never takes input.
+-- under it. Sits above the HUD and under the modals; never takes input. `banner` shows a line as written (no
+-- capitals forced) for the short night's dusk and sunrise (F66).
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -11,6 +12,8 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type AreaTitle = {
 	show: (self: AreaTitle, key: string, title: string, subtitle: string?, color: Color3?) -> (),
+	-- key, title, subtitle, colour, seconds held
+	banner: (self: AreaTitle, string, string, string?, Color3?, number?) -> (),
 	destroy: (self: AreaTitle) -> (),
 }
 
@@ -91,6 +94,29 @@ end
 
 -- `key` identifies the area for the repeat check; `color` tints the subtitle (the area's own colour).
 function AreaTitle.show(self: any, key: string, title: string, subtitle: string?, color: Color3?)
+	self:_show(key, title:upper(), subtitle, color, HOLD)
+end
+
+-- A line as written, held `hold` seconds (HOLD when nil): "Night falls in 15 s!", "Sunrise!".
+function AreaTitle.banner(
+	self: any,
+	key: string,
+	title: string,
+	subtitle: string?,
+	color: Color3?,
+	hold: number?
+)
+	self:_show(key, title, subtitle, color, hold or HOLD)
+end
+
+function AreaTitle._show(
+	self: any,
+	key: string,
+	title: string,
+	subtitle: string?,
+	color: Color3?,
+	hold: number
+)
 	local now = os.clock()
 	if self._lastKey == key and now - self._lastAt < REPEAT_GAP then
 		return
@@ -100,7 +126,7 @@ function AreaTitle.show(self: any, key: string, title: string, subtitle: string?
 	self._token += 1
 	local token = self._token
 
-	self._title.Text = title:upper()
+	self._title.Text = title
 	self._subtitle.Text = subtitle or ""
 	self._subtitle.TextColor3 = color or Theme.colors.gold
 	self._holder.Visible = true
@@ -108,7 +134,7 @@ function AreaTitle.show(self: any, key: string, title: string, subtitle: string?
 	Tween.to(self._holder, IN, { Position = UDim2.fromScale(0.5, 0.3) })
 	fade(self, true, IN)
 
-	task.delay(HOLD, function()
+	task.delay(hold, function()
 		if self._token ~= token then
 			return
 		end

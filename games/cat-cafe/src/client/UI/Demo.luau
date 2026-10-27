@@ -825,22 +825,20 @@ function Demo.run(UI: any): () -> ()
 		demoRescue = nil
 	end)
 
-	-- clock: a short day and night so the chip can be seen flipping (real lengths are 180 s and 120 s)
+	-- clock: a short day and night so the chip can be seen flipping (the real ones are 300 s and 90 s since F66).
+	-- The areas close at night, so the Alley button and the Areas panel's Go buttons grey with a moon; the dusk
+	-- banner needs a catching area from UI.setZone, so the demo shows the orange countdown and the sunrise banner.
 	task.spawn(function()
 		local phase: Types.ClockPhase = "day"
 		while running do
-			local length = if phase == "day" then 45 else 30
+			local length = if phase == "day" then 45 else 20
 			UI.clock.set(phase, now() + length)
+			UI.clock.setAreasOpen(phase == "day")
 			task.wait(length)
 			phase = if phase == "day" then "night" else "day"
 			if running then
-				UI.toast(
-					if phase == "night"
-						then "Night falls. Strays are out!"
-						else "Morning. The cafe opens.",
-					"info"
-				)
 				if phase == "night" then
+					UI.toast("Night fell. The areas are closed until sunrise.", "info")
 					rollDealer()
 					if not dealerGift then
 						-- pretend coins so the demo can buy from him

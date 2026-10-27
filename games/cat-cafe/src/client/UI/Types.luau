@@ -211,6 +211,7 @@ export type ScreenName =
 	| "Spin"
 	| "Market"
 	| "BugReport"
+	| "Codes"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

@@ -1484,9 +1484,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local charm = promptAttribute(prompt, "Charm")
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
-	-- Gold since 2026-10-27; the old Shiny attribute still counts until the server rename lands
-	local gold = promptAttribute(prompt, "Gold")
-	local shiny = promptAttribute(prompt, "Shiny")
+	local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
 	local dropOwner = promptAttribute(prompt, "DropOwner")
@@ -1501,7 +1499,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 			then dropOwnerUntil
 			else nil,
 		press = prompt.HoldDuration <= 0,
-		shiny = CatVariant.goldFlag(gold, shiny),
+		shiny = gold == true,
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
 		rescueSpotId = if type(rescueSpotId) == "string"
 			then rescueSpotId

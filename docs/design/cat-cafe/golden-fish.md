@@ -85,6 +85,7 @@ There are six crates: one per zone (Alley, Park, Neighbourhood, Woods and Sewer 
 - **Mythical effects:** each Mythical cosmetic gets one steady emitter or a texture scroll. It runs only near the player, counts against the steady-emitter budget and shows a still look in Low performance mode. Every placed cosmetic carries a `DecorId` attribute, so the effect and the client know which piece it is. The golden fish pickup sparkle is the catch sparkle in gold.
 - The zone crates open with their zone (Tier 1 Alley, Tier 2 Park and so on). The Classic Crate is open from Tier 1.
 - The Index decor shipped in F48 (Alley Mural Print, Park Bench, Mailbox Planter, Mushroom Lamp, Pipe Fountain) becomes the Epic of its zone's crate. Anyone who already owns one keeps it. The gold Index decor is retired before anyone could earn it.
+- Those five keep their own anchors in the cafe, but while placed they count against the decor spot cap like any furniture or decoration piece, because they give the Epic tip bonus. At Tier 1 a placed Alley Mural Print leaves one spot for crate furniture, and toggling it off frees the spot. Coin-shop decor (plants, rug, neon sign, fish tank) gives no crate bonus and never counts (review N170, built that way in #316 and #317).
 
 Draft pieces, for the asset thread (names can change). C, R, E, L and M are the rarities.
 

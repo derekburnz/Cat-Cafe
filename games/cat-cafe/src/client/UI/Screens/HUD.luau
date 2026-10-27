@@ -59,9 +59,8 @@ local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
 local CLOCK_TOP = MARGIN + 52 + Theme.sizes.gap
 local GOAL_TOP = CLOCK_TOP + 40 + Theme.sizes.gap
 local NIGHT_CHIP = 24 + 4
--- data-model NightIncomeMultiplier (0.6): tips pay this share at night. The server only applies it once it
--- is in Config (F31), so the chip stays hidden until then instead of promising a cut that is not paid.
-local NIGHT_TIPS: number? = (Config :: any).NightIncomeMultiplier
+-- data-model NightIncomeMultiplier (0.6): tips pay this share at night (F31)
+local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
 local HUD = {}
 HUD.__index = HUD
@@ -443,7 +442,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.sky,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = if NIGHT_TIPS then "Tips " .. Format.percent(NIGHT_TIPS) else "",
+		Text = "Tips " .. Format.percent(NIGHT_TIPS),
 		Parent = self._nightTips,
 	})
 
@@ -994,7 +993,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._moon.Visible = isNight
 	self._clockText.TextColor3 = if isNight then Theme.colors.sky else Theme.hud.text
 	self._clock.Visible = true
-	self._nightTips.Visible = isNight and NIGHT_TIPS ~= nil
+	self._nightTips.Visible = isNight
 	self:_layoutRight()
 	local function tick()
 		self._clockText.Text =

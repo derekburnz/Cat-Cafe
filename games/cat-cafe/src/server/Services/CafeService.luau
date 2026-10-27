@@ -499,18 +499,30 @@ function CafeService.addCaughtCat(
 		then charm
 		else CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
 	local instance = CatStats.newInstance(newUid(), def.id, now, rolled)
-	instance.method = method or "net"
+	local how: Types.CatchMethod = method or "net"
+	instance.method = how
+	local howText: string = how -- analytics fields are plain strings
 	if method == "rescue" then
 		instance.rescued = true
 	end
 	if variant ~= nil then
 		instance.variant = variant
-		if variant == "shiny" and profile.shinyCollection[def.id] == nil then
-			profile.shinyCollection[def.id] = now
+		if variant == "shiny" then
+			local firstShiny = profile.shinyCollection[def.id] == nil
+			if firstShiny then
+				profile.shinyCollection[def.id] = now
+			end
+			Telemetry.custom(
+				player,
+				"shiny_found",
+				1,
+				{ howText, def.rarity, if firstShiny then "yes" else "no" }
+			)
 		end
 	end
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
+	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
 	if isNew then
 		profile.collection[def.id] = now
 		local reward = Catalog.rarities[def.rarity].firstCatchReward
@@ -524,6 +536,7 @@ function CafeService.addCaughtCat(
 			if first then "Onboarding" else "Gameplay",
 			if first then "first_catch_reward" else "collection_reward"
 		)
+		Telemetry.collected(player, profile, def)
 	end
 	CafeService.advanceTutorial(profile, 2)
 
@@ -534,6 +547,9 @@ function CafeService.addCaughtCat(
 			Telemetry.onboarding(player, profile, "first_role")
 			break
 		end
+	end
+	if instance.spotId == nil then
+		Telemetry.custom(player, "slots_full", 1, { tostring(Economy.tier(profile)) })
 	end
 
 	CafeService.refreshPlot(player)
@@ -615,6 +631,13 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 	instance.spotId = spotId
 	CafeService.advanceTutorial(profile, 3)
 	Telemetry.onboarding(player, profile, "first_role")
+	Telemetry.catWorking(player, uid)
+	local catDef = Catalog.getCat(instance.catId)
+	Telemetry.custom(player, "role_favorite", 1, {
+		instance.catId,
+		spot.spotType,
+		if catDef ~= nil and catDef.favoriteRole == spot.spotType then "yes" else "no",
+	})
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -649,6 +672,11 @@ local function onEquipBest(player: Player)
 		return
 	end
 	local changed = EquipBest.apply(profile, plan)
+	for uid, instance in profile.cats do
+		if instance.spotId ~= nil then
+			Telemetry.catWorking(player, uid)
+		end
+	end
 	if plan.catsPlaced > 0 then
 		CafeService.advanceTutorial(profile, 3)
 		Telemetry.onboarding(player, profile, "first_role")
@@ -875,6 +903,7 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 		if step == 1 then
 			Telemetry.onboarding(player, profile, "saw_alley")
 		end
+		Telemetry.custom(player, "tutorial_step", 1, { tostring(step) })
 		CafeService.sync(player)
 	end
 end

@@ -15,6 +15,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Telemetry = require(script.Parent.Telemetry)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local TravelService = {}
@@ -83,6 +84,7 @@ local function onTravel(player: Player, rawDestination: unknown)
 	character:PivotTo(landing :: CFrame)
 	lastTravel[player] = os.clock()
 	Net.fire(player, "TravelResult", destination, true, nil)
+	Telemetry.custom(player, "travel", 1, { destination }) -- "home" or an area id: landingFor allowed it
 end
 
 function TravelService.start(builtWorld: WorldBuilder.World)

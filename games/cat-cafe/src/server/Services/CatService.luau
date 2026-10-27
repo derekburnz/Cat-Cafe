@@ -53,6 +53,7 @@ type Stray = {
 	variant: string, -- "shiny" (ShinyChanceNet, rolled at spawn and shown as a sparkle) or "base"
 	method: Types.CatchMethod, -- "net", or what a knocked-loose cat was before it fell (its rescued flag, 10c)
 	drop: Shove.Drop?, -- set on a cat a shove knocked out of someone's arms (section 10c, S25)
+	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
 	alive: boolean,
 }
 
@@ -67,6 +68,7 @@ type Carry = {
 	startedAt: number, -- server time
 	immune: boolean, -- for the whole carry: whoever re-catches a knocked-loose cat
 	immuneUntil: number, -- server time; after "It held on tight!"
+	funnel: Telemetry.CatchFunnel?, -- the catch_attempt funnel this cat came from (F16)
 }
 
 -- What a knocked-loose cat keeps from the arms it fell out of (section 10c): charm, shiny and rescued flag.
@@ -175,11 +177,25 @@ end
 
 -- Spawning ------------------------------------------------------------------------------------------------
 
-local function despawn(stray: Stray)
+-- `catcher` is the player who just caught it, nil when it leaves. A knocked-loose cat logs who ended up with it
+-- (drop_outcome, F16): against the catcher, or its old carrier when nobody caught it.
+local function despawn(stray: Stray, catcher: Player?)
 	if not stray.alive then
 		return
 	end
 	stray.alive = false
+	local drop = stray.drop
+	if drop ~= nil then
+		local by = if catcher == nil
+			then "nobody"
+			elseif catcher.UserId == drop.owner then "carrier"
+			elseif catcher.UserId == drop.shover then "shover"
+			else "other"
+		local subject = catcher or Players:GetPlayerByUserId(drop.owner)
+		if subject ~= nil then
+			Telemetry.custom(subject, "drop_outcome", 1, { by, stray.def.rarity, stray.area })
+		end
+	end
 	strays[stray.id] = nil
 	if stray.pointIndex ~= nil then
 		local points = occupiedPoints[stray.area]
@@ -542,7 +558,8 @@ local function startCarry(
 	method: Types.CatchMethod,
 	charm: number?,
 	variant: string?,
-	immune: boolean?
+	immune: boolean?,
+	funnel: Telemetry.CatchFunnel?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -563,6 +580,7 @@ local function startCarry(
 		startedAt = serverNow(),
 		immune = immune == true,
 		immuneUntil = 0,
+		funnel = funnel,
 	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
@@ -572,6 +590,9 @@ local function startCarry(
 		-- a catch is out in an area, so it stands in for the alley step when TutorialAdvance 1 never came
 		Telemetry.onboarding(player, profile, "saw_alley")
 		Telemetry.onboarding(player, profile, "first_catch")
+	end
+	if funnel ~= nil then
+		Telemetry.catchCaught(player, funnel)
 	end
 	local verb = if method == "rescue" and immune ~= true then "rescued" else "caught"
 	local name = if variant == "shiny" then "shiny " .. def.name else def.name
@@ -716,8 +737,23 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		forfeit = "Too far away"
 	end
 	setLock(stray, 0)
+	local funnel = stray.funnel
+	stray.funnel = nil
+	local succeeded = forfeit == nil and Circles.succeeded(attempt)
+	local perfect = Circles.perfectCount(attempt)
+	local rarity: string = stray.def.rarity
+	local result: string = if not succeeded
+		then (if forfeit ~= nil then "forfeit" else "missed")
+		elseif perfect == #attempt.circles then "purrfect"
+		else "caught"
+	Telemetry.custom(
+		player,
+		"catch_circles",
+		perfect,
+		{ rarity, tostring(Economy.level(profile, "net")), result }
+	)
 
-	if forfeit == nil and Circles.succeeded(attempt) then
+	if succeeded then
 		-- no Perfect bonus for a scripted-looking profile, nor on a knocked-loose cat, which already has its charm
 		-- (reviewer S36: two friends could shove and re-catch it up to 100)
 		local gain = if profile.flags.autoPress or stray.drop ~= nil
@@ -728,8 +764,8 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local method: Types.CatchMethod = stray.method
 		local def, variant, dropped = stray.def, stray.variant, stray.drop ~= nil
 		local charm = math.min(100, stray.charm + gain)
-		despawn(stray)
-		startCarry(player, def, method, charm, variant, dropped)
+		despawn(stray, player)
+		startCarry(player, def, method, charm, variant, dropped, funnel)
 		return
 	end
 
@@ -871,6 +907,12 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	stray.attempt = attempt
 	profile.stats.grabsAttempted += 1
 	Net.fire(player, "CatchSchedule", strayId, circles, Circles.publicWindows(windows))
+	stray.funnel = Telemetry.catchEngaged(
+		player,
+		stray.def.rarity,
+		if stray.drop ~= nil then "net_dropped" else "net",
+		stray.area
+	)
 
 	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
 	task.spawn(function()
@@ -937,7 +979,7 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 		return
 	end
 	local def = carry.def
-	local _, isNew = CafeService.addCaughtCat(
+	local instance, isNew = CafeService.addCaughtCat(
 		player,
 		def,
 		notify,
@@ -950,6 +992,9 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 		local current = DataService.get(player)
 		if current ~= nil then
 			Telemetry.onboarding(player, current, "first_checkin")
+		end
+		if carry.funnel ~= nil then
+			Telemetry.catchCheckedIn(player, carry.funnel, instance.uid, instance.spotId ~= nil)
 		end
 		Net.fire(player, "CatCaught", def.id, isNew)
 		local verb = if carry.method == "rescue" then "rescued" else "caught"
@@ -1108,9 +1153,10 @@ function CatService.startCarry(
 	def: Types.CatDef,
 	method: Types.CatchMethod,
 	charm: number?,
-	variant: string?
+	variant: string?,
+	funnel: Telemetry.CatchFunnel?
 ): boolean
-	return startCarry(player, def, method, charm, variant)
+	return startCarry(player, def, method, charm, variant, nil, funnel)
 end
 
 -- RescueService registers how to tell whether a player's rescue attempt is running.

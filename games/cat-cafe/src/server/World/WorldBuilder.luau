@@ -597,8 +597,9 @@ local function buildArea(
 			model
 		)
 		local wallH = 6
-		-- Three closed sides; the side facing the street's end has an opening as wide as the street.
-		local openingHalf = W.StreetHalfWidth
+		-- Three closed sides; the side facing the street's end has an opening as wide as the street, or as the back
+		-- alley for the Woods and the Sewer.
+		local openingHalf = spec.openingHalfWidth or W.StreetHalfWidth
 		local streetSide = if cz > 0 then -1 else 1 -- which Z edge faces the street
 		local farZ = cz - streetSide * hd
 		local nearZ = cz + streetSide * hd

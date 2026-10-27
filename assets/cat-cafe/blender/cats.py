@@ -83,12 +83,12 @@ def _body(b, spec):
     b.box(center, size, fur)
     leg_col = second if pattern == "points" else fur
     leg_w = 0.24 if spec.get("sphynx") else 0.28
-    for x, y in LEG_XY:
+    for x, y in ([] if spec.get("tucked") else LEG_XY):         # tucked: lying down, legs under the body
         b.box_base((x * bs[0], y, 0), (leg_w, leg_w, 0.5), leg_col)
     if spec.get("tuxedo"):
         b.box((0, center[1] - hy - 0.01, center[2]), (0.5, 0.08, size[2] * 0.7), second)        # bib
         b.box((0, center[1], 0.42), (0.6, 1.0, 0.06), second, bevel=False)                      # belly
-        for x, y in LEG_XY[:2]:
+        for x, y in ([] if spec.get("tucked") else LEG_XY[:2]):
             b.box_base((x, y, 0), (0.32, 0.32, 0.18), second)                                   # socks
     elif pattern == "stripes":
         for y in (-0.35, 0.0, 0.35):

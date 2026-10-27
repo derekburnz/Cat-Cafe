@@ -905,6 +905,24 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 	end
 end
 
+-- The Settings screen's switches (data-model section 14 `settings`). Only the keys the profile saves are taken;
+-- the screen keeps its others for the session.
+local SETTING_KEYS = { "music", "sfx" }
+
+local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
+	local key, value = Guard.oneOf(rawKey, SETTING_KEYS), Guard.bool(rawValue)
+	local profile = profileFor(player)
+	if profile == nil or key == nil or value == nil then
+		return
+	end
+	if key == "music" then
+		profile.settings.music = value
+	else
+		profile.settings.sfx = value
+	end
+	CafeService.sync(player)
+end
+
 local function onLoaded(player: Player, profile: Profile)
 	local plot = PlotService.assign(player)
 	if plot == nil then
@@ -957,6 +975,7 @@ function CafeService.start()
 	Net.on("BuyLure", onBuyLure)
 	Net.on("ClaimOffline", onClaimOffline)
 	Net.on("TutorialAdvance", onTutorialAdvance)
+	Net.on("SetSetting", onSetSetting)
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)
 		local offline, seconds = DataService.peekPendingOffline(player)

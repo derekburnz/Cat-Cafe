@@ -1,12 +1,14 @@
 --!strict
--- Cat Cafe client effects (vfx-animator): cat motion, catch reactions, cafe and gate moments, ambient life,
--- shoves and the spin wheel, all on this client only. Effects read replicated world state (tags and attributes)
--- and this player's own catch events; they never fire a remote, never change game state and never move a part the
--- server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md. Wiring and file map: README.md next to this file.
+-- Cat Cafe client effects (vfx-animator): cat motion, catch reactions, the getaway and the startled stars, cafe and
+-- gate moments, dusk and sunrise, ambient life, shoves and the spin wheel, all on this client only. Effects read
+-- replicated world state (tags and attributes) and this player's own catch events; they never fire a remote, never
+-- change game state and never move a part the server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
+-- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
 local Catch = require(script.Catch)
 local Cats = require(script.Cats)
+local Chase = require(script.Chase)
 local Context = require(script.Context)
 local Plots = require(script.Plots)
 local Shove = require(script.Shove)
@@ -25,6 +27,7 @@ function Effects.start()
 	Context.init()
 	Cats.start()
 	Catch.start()
+	Chase.start()
 	Plots.start()
 	Ambient.start()
 	Shove.start()

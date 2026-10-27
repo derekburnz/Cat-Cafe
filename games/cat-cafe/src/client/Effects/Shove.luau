@@ -1,13 +1,13 @@
 --!strict
 -- A shove (design v0.5, F41): a puff where it lands, a skid of dust at the shoved player's feet and dizzy stars
 -- circling their head, and for the shoved player a camera bump bigger than a missed catch. The knockback itself is
--- the engineer's, applied on the shoved player's own client; this only draws it.
+-- the engineer's, applied on the shoved player's own client; this only draws it. The stars also circle a player
+-- startled by a miss (F57, Chase.luau).
 --
 -- Source: the shoved player's character carries `ShovedAt` (server time of the shove) and, when the server sets
 -- it, `ShovedBy` (the shover's UserId), so every player nearby sees it. Listening only: nothing here fires a
 -- remote.
 
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -18,7 +18,7 @@ local Presets = require(script.Parent.Presets)
 
 local Shove = {}
 
-type Stars = { labels: { TextLabel }, began: number }
+type Stars = { head: BasePart, gui: BillboardGui, labels: { TextLabel }, began: number, ends: number }
 
 local LATE_SECONDS = 0.6 -- a shove that replicates later than this is over; nothing plays
 local DARK_WOOD = Color3.fromRGB(94, 70, 52)
@@ -40,11 +40,12 @@ local function spin()
 	while i <= #spinning do
 		local stars = spinning[i]
 		local age = now - stars.began
-		if age >= s.starSeconds then
+		if now >= stars.ends or stars.head.Parent == nil then
+			stars.gui:Destroy()
 			spinning[i] = spinning[#spinning]
 			spinning[#spinning] = nil
 		else
-			local fade = math.clamp((age - (s.starSeconds - 0.3)) / 0.3, 0, 1)
+			local fade = math.clamp((now - (stars.ends - 0.3)) / 0.3, 0, 1)
 			for n, label in stars.labels do
 				local angle = (n - 1) / #stars.labels * 2 * math.pi
 					+ (if still then 0 else age * s.starHz * 2 * math.pi)
@@ -63,9 +64,17 @@ local function spin()
 	end
 end
 
--- Dizzy stars over a head, gone after shove.starSeconds.
-local function stars(head: BasePart)
+-- Dizzy stars circling a head for `seconds`. Stars already over that head keep going until the later end, so a
+-- shove and a startle together show one ring of stars.
+function Shove.stars(head: BasePart, seconds: number)
 	local s = Presets.shove
+	local now = os.clock()
+	for _, existing in spinning do
+		if existing.head == head then
+			existing.ends = math.max(existing.ends, now + seconds)
+			return
+		end
+	end
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "EffectsDizzy"
 	gui.Adornee = head
@@ -89,8 +98,10 @@ local function stars(head: BasePart)
 		table.insert(labels, label)
 	end
 	gui.Parent = Context.folder()
-	Debris:AddItem(gui, s.starSeconds + 0.1)
-	table.insert(spinning, { labels = labels, began = os.clock() })
+	table.insert(
+		spinning,
+		{ head = head, gui = gui, labels = labels, began = now, ends = now + seconds }
+	)
 	if spinLoop == nil then
 		spinLoop = RunService.PreRender:Connect(spin)
 	end
@@ -129,7 +140,7 @@ local function play(character: Model)
 	)
 	local head = partOf(character, "Head")
 	if head ~= nil then
-		stars(head)
+		Shove.stars(head, Presets.shove.starSeconds)
 	end
 	if mine then
 		Context.shake(Presets.shove.shake, Presets.shove.shakeStuds)

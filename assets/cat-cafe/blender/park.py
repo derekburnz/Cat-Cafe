@@ -80,37 +80,10 @@ def build_fountain(mat):
     return [basin.finalize("CatCafe_Park_Fountain_Basin", mat), water.finalize("CatCafe_Park_Fountain_Water", mat)]
 
 
-def build_gate(mat):
-    """Two pillars and a double gate, 4 wide inside, 7 tall. Pillars + GateL + GateR objects
-    so the engineer can swing the leaves open. Leaves pivot at their hinge pillar."""
-    pillars = Builder()
-    for x in (-2.4, 2.4):
-        pillars.box_base((x, 0, 0), (0.8, 0.8, 7.5), "brick")
-        pillars.box_base((x, 0, 7.5), (1.0, 1.0, 0.3), "concrete")
-        pillars.sphere((x, 0, 8.1), 0.35, "concrete", segments=10, rings=6)
-    pillars.box((0, 0.1, 7.3), (5.6, 0.2, 0.4), "fur_black")                     # top sign bar
-    pillars.box((0, 0.1, 7.3), (0.8, 0.3, 0.3), "rarity_legend")                 # paw badge spot
-
-    def leaf(name, hinge_x, sgn):
-        g = Builder()
-        for i in range(5):
-            x = sgn * (0.2 + i * 0.4)
-            h = 6.2 + (0.5 if i == 4 else 0.2 * i)
-            g.cyl_base((x, 0, 0.3), 0.06, h, "fur_black", segments=6, bevel=False)
-            g.sphere((x, 0, 0.3 + h + 0.08), 0.1, "fur_black", segments=6, rings=4)
-        for z in (1.0, 5.5):
-            g.box((sgn * 1.0, 0, z), (2.0, 0.12, 0.15), "fur_black", bevel=False)
-        return g.finalize(name, mat, location=(hinge_x, 0, 0))
-
-    return [pillars.finalize("CatCafe_Park_Gate_Pillars", mat),
-            leaf("CatCafe_Park_Gate_LeafL", -2.0, 1), leaf("CatCafe_Park_Gate_LeafR", 2.0, -1)]
-
-
 ASSETS = {
     "CatCafe_Park_Bench": (build_park_bench, 800),
     "CatCafe_Park_Tree": (build_tree, 800),
     "CatCafe_Park_Fountain": (build_fountain, 1200),
-    "CatCafe_Park_Gate": (build_gate, 1200),
     "CatCafe_Park_RescueTree": (build_rescue_tree, 900),
     "CatCafe_Park_TrashCan": (build_trash_can, 900),
 }

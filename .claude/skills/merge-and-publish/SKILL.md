@@ -36,11 +36,12 @@ A PR that changes `.github/workflows/` takes auto-merge like any other. The labe
 
 The same scripts run from Git Bash on a PC with the key in the environment: `cd games/cat-cafe && tools/opencloud/publish.sh Published`.
 
-## 3. Upload an image, read the bug reports
+## 3. Upload an image or sounds, read the bug reports
 
-Two more workflows use the same key (`ROBLOX_PUBLISH_KEY`, with the permissions from docs/setup-guide.md step 17). A 401 or 403 means Derek has not added them yet; tell him step 17 instead of retrying.
+Three more workflows use the same key (`ROBLOX_PUBLISH_KEY`, with the permissions from docs/setup-guide.md step 17). A 401 or 403 means Derek has not added them yet; tell him step 17 instead of retrying.
 
 - **Upload an image** (UI textures, icons, decals): `actions_run_trigger` with `method: "run_workflow"`, `workflow_id: "upload-image.yml"`, `ref: "main"`, `inputs: {"path": "assets/cat-cafe/ui/textures/UI_ButtonTiles.png", "branch": "ui/game-buttons"}` (`branch` only when the file is not on main yet; optional `name`, and `type` `Image` or `Decal`). Read the job log with `get_job_logs`: the line `Uploaded <path> as Image <id>: rbxassetid://<id>` has the id, and the run summary repeats it. `Image` ids go straight into `ImageLabel.Image`, `ImageButton.Image` and textures; `Decal` is only for putting the picture on a part from the Toolbox. Each run makes a new asset on Derek's account, so upload a file once and commit its id next to the code that uses it. Roblox moderates every image; until it is approved it draws blank. Only upload our own art (studio rule 8).
+- **Upload sounds** (sound-designer): `workflow_id: "upload-audio.yml"`, `ref: "main"`, `inputs: {"branch": "<your branch>"}` (optional `only`: file names without `.ogg`, comma separated; `"dry_run": true` lists and uploads nothing). It runs main's `assets/cat-cafe/audio/upload.py` on that branch's sounds: every `.ogg` not in `uploaded.json` goes up as Audio on Derek's account. Nothing is pushed; the log has a line `uploaded <path> rbxassetid://<id> (<moderation>)` per file and then the diff to `uploaded.json`, `Cues.luau` and the sources log to commit on the branch (run stylua on `Cues.luau`). Audio counts against Derek's monthly allowance of 100, so dry-run first when unsure, and never run two at once (the workflow queues them).
 - **Read the bug reports**: `workflow_id: "bug-reports.yml"`, `ref: "main"`, `inputs: {"day": "20261027", "count": "50"}` (`day` empty means today, UTC; `"studio": true` reads the Studio playtests' reports). The log prints one line per report, as `Debug.bugReports` does in Studio, then every record as JSON. Read only. The reports hold the friends' own words and user names: quote what a ticket needs and keep the rest out of chat.
 
-Both scripts (`games/cat-cafe/tools/opencloud/upload-image.sh`, `bug-reports.sh`) also run from Git Bash with the key in the environment.
+The image and report scripts (`games/cat-cafe/tools/opencloud/upload-image.sh`, `bug-reports.sh`) also run from Git Bash with the key in the environment; `upload.py` runs anywhere with Python 3.

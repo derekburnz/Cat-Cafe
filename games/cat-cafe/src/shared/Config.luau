@@ -22,7 +22,7 @@ local Config = {
 	CatXpBase = 60, -- XP (seconds placed) from level n to n + 1 is CatXpBase x n; level 10 after 45 min placed
 	CatXpPerSecondPlaced = 1, -- XP a placed cat earns per second (Economy.settle grants it)
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
-	ShinyMultiplier = 1.5, -- a shiny cat's rating (data-model section 4)
+	GoldMultiplier = 1.5, -- a gold cat's rating (data-model section 4)
 
 	-- The clock (data-model section 9): a server-wide loop of day then night
 	DayLengthSeconds = 300,
@@ -71,8 +71,8 @@ local Config = {
 	LureWaitSeconds = 600,
 	BaitBowlRangeStuds = 12, -- UseLure from this close to your own bowl
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
-	ShinyChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
-	ShinyChanceNet = 0.05, -- v0.5 F42 (was 0.02): rolled when a stray spawns, shown as its shiny coat and sparkle
+	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
+	GoldChanceNet = 0.05, -- v0.5 F42 (was 0.02): rolled when a stray spawns, shown as its gold coat and sparkle
 	-- The chance of 1 to 5 charm stars from CatStats.rollCharm and CatStats.stars, in percent, shown on every food
 	-- card: 2s^2 and 1 - 2(1 - s)^2 at the band edges 20, 40, 60 and 80 out of 101 (reviewer N70).
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
@@ -109,8 +109,8 @@ local Config = {
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
 	RescueAttemptMaxSeconds = 15,
-	ShinyChanceRescue = 0.10, -- rolled at night start, hidden until the rescue succeeds
-	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher shiny chance
+	GoldChanceRescue = 0.10, -- rolled at night start, hidden until the rescue succeeds
+	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher gold chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
 

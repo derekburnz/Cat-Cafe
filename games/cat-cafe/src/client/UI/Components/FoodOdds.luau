@@ -4,7 +4,7 @@
 --   line   "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical"
 --   split  the same chance for every cat of a rarity across the areas you have unlocked, cat by cat, and which
 --          area the next rank up adds to the pool
---   extras the shiny chance and the charm star odds, because both change what the cat earns
+--   extras the gold chance and the charm star odds, because both change what the cat earns
 -- Shared by the HUD's lure picker and the bait bowl screen.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,8 +18,8 @@ local FoodOdds = {}
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
--- data-model section 8: ShinyChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
-local SHINY_CHANCE: number = Config.ShinyChanceBait
+-- data-model section 8: GoldChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
+local GOLD_CHANCE: number = Config.GoldChanceBait
 local STAR_ODDS: { number } = Config.CharmStarOdds
 
 -- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two
@@ -106,13 +106,13 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 	return table.concat(lines, "\n")
 end
 
--- "Shiny 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"
+-- "Gold 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"
 function FoodOdds.extras(): string
 	local stars: { string } = {}
 	for count, share in STAR_ODDS do
 		table.insert(stars, ("%d★ %s"):format(count, percent(share)))
 	end
-	return ("Shiny %s · Charm %s"):format(percent(SHINY_CHANCE * 100), table.concat(stars, ", "))
+	return ("Gold %s · Charm %s"):format(percent(GOLD_CHANCE * 100), table.concat(stars, ", "))
 end
 
 return FoodOdds

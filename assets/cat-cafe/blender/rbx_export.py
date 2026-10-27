@@ -10,7 +10,8 @@ code change. Every Builder primitive becomes one or a few Parts:
   ring -> blocks around the circle, flat star or badge outline -> two WedgeParts per triangle.
 
 Bevels are dropped, which suits the blocky style. Colours are the palette swatches. Glass and water are Glass at
-0.45 and 0.3 transparency, a gate barrier (_Bars) is ForceField. Hanging lamp bulbs (lit all day) are Neon; other
+0.45 and 0.3 transparency, a gate barrier (_Bars) is ForceField, the gold coat tones (palette.METAL_SWATCHES) are
+Metal. Hanging lamp bulbs (lit all day) are Neon; other
 _Bulb, _Bulbs, _Pane and _Tube parts keep their day look and WorldController lights them at night.
 
 Model layout (pivots match the FBX exports and manifest.json, so placement code works with either):
@@ -183,6 +184,8 @@ def _material(obname, swatch):
         return "SmoothPlastic", 1.0
     if any(k in obname for k in ALWAYS_LIT) and obname.endswith("_Bulb"):
         return "Neon", 0.0
+    if swatch in palette.METAL_SWATCHES:          # gold cats
+        return "Metal", 0.0
     return "SmoothPlastic", 0.0
 
 

@@ -1,12 +1,13 @@
 --!strict
 -- The cat that came to your bait bowl (F28, data-model section 8): its own 3D model on a rarity disc, its name,
--- rarity, charm stars and a shiny sticker, with Tame and Let go. Tame adds it straight to your cat room; Let go
+-- rarity, charm stars and a GOLD sticker, with Tame and Let go. Tame adds it straight to your cat room; Let go
 -- sends it on its way. The food is used either way, so Let go asks for a second tap. The server takes the choice
 -- only from someone at the bowl (20 studs), so away from it the buttons grey out and the card says where to go.
 -- The X hides the card; the bowl chip brings it back while the cat waits.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
+local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -165,7 +166,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		TextColor3 = Theme.colors.goldText,
-		Text = "✨ SHINY",
+		Text = "✨ GOLD",
 		Visible = false,
 		ZIndex = 4,
 		Parent = card,
@@ -261,8 +262,8 @@ function BaitCard.show(self: any, def: Types.CatDef, cat: Types.BaitCat, foodNam
 	self._banner.BackgroundColor3 = color
 	self._disc.BackgroundColor3 = color
 	self._border.Color = color
-	self._portrait:set(def, cat.variant == "shiny")
-	self._shiny.Visible = cat.variant == "shiny"
+	self._portrait:set(def, CatVariant.isGold(cat.variant))
+	self._shiny.Visible = CatVariant.isGold(cat.variant)
 	self._name.Text = cat.name or def.name
 	self._name.TextColor3 = if rarity == "Common" then Theme.colors.white else color
 	self._stars.Text = Format.stars(cat.stars or 1)

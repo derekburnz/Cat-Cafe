@@ -12,6 +12,7 @@
 --   D:Invoke("shove", "Player1", "Player2", "loose")  -- a real shove with every check, the roll forced
 --   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
+--   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -34,6 +35,7 @@ local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
 local Telemetry = require(script.Parent.Telemetry)
+local TipJarService = require(script.Parent.TipJarService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -130,6 +132,11 @@ function Debug.giveLure(player: (Player | number | string)?, lureId: string, cou
 	CafeService.sync(p)
 end
 
+-- Ages this session's Tip Jar by `minutes` so its steps unlock now (F47). Returns the session minutes played.
+function Debug.tipJar(player: (Player | number | string)?, minutes: number): number
+	return TipJarService.debugAge(resolve(player), minutes)
+end
+
 -- Brings the cat at the bait bowl now instead of after LureWaitSeconds (F28). Errors when the bowl is empty.
 -- Returns the rolled cat id, so a test can check what the card shows.
 function Debug.baitReady(player: (Player | number | string)?): string
@@ -204,11 +211,11 @@ function Debug.setUpgrade(player: (Player | number | string)?, upgradeId: string
 	CafeService.sync(p)
 end
 
--- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default), shiny when `shiny` is
+-- Spawns a stray of the given cat in an area (any Catalog.areas id, "alley" by default), gold when `gold` is
 -- true. Returns its StrayId.
-function Debug.spawnStray(catId: string, areaId: string?, shiny: boolean?): string
+function Debug.spawnStray(catId: string, areaId: string?, gold: boolean?): string
 	guard()
-	return CatService.debugSpawnStray(catId, areaId or "alley", shiny)
+	return CatService.debugSpawnStray(catId, areaId or "alley", gold)
 end
 
 -- Drops the player's carried cat where they stand as a shove would, whatever the grace or immunity, with nobody
@@ -291,10 +298,10 @@ function Debug.clock(): { phase: Types.ClockPhase, endsAt: number, secondsLeft: 
 end
 
 -- Puts a stuck cat at a rescue trap ("rescue_alley_1" when none is given; the park's trees are rescue_park_1 and
--- rescue_park_2). `shiny` true forces the hidden shiny roll. Returns the rescueSpotId.
-function Debug.spawnStuckCat(catId: string, rescueSpotId: string?, shiny: boolean?): string
+-- rescue_park_2). `gold` true forces the hidden gold roll. Returns the rescueSpotId.
+function Debug.spawnStuckCat(catId: string, rescueSpotId: string?, gold: boolean?): string
 	guard()
-	return RescueService.debugSpawnStuck(catId, rescueSpotId, shiny)
+	return RescueService.debugSpawnStuck(catId, rescueSpotId, gold)
 end
 
 -- Number of strays in an area and of stuck cats across all rescue traps.

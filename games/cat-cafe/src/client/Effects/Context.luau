@@ -1,6 +1,7 @@
 --!strict
--- What every effect asks about this client: its budget (phone or PC), where the player is, day or night, Reduce
--- Motion, the folder that holds parts made on this client (the server never sees it) and the camera shake.
+-- What every effect asks about this client: its budget (phone or PC, or the Low performance setting), where the
+-- player is, day or night, Reduce Motion and the Screen shake setting, the folder that holds parts made on this
+-- client (the server never sees it) and the camera shake.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -14,17 +15,38 @@ local Presets = require(script.Parent.Presets)
 
 local Context = {}
 
-Context.tier = "high" :: string -- Presets.Tier
+Context.device = "high" :: string -- Presets.Tier of this device (Logic.tier)
+Context.tier = "high" :: string -- Presets.Tier effects run at: the device's, or "low" in Low performance mode
 Context.budget = Presets.budget.high
+Context.screenShake = true -- the Screen shake setting
+Context.lowPerformance = false -- the Low performance setting
 
 local SHAKE_STEP = "CatCafeEffectsShake"
 
 local folder: Folder? = nil
 local rng = Random.new()
 
+local function rebudget()
+	local tier, budget = Logic.budgetFor(Context.device :: Presets.Tier, Context.lowPerformance)
+	Context.tier = tier
+	Context.budget = budget
+end
+
 function Context.init()
-	Context.tier = Logic.tier(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled)
-	Context.budget = Presets.budget[Context.tier]
+	Context.device = Logic.tier(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled)
+	rebudget()
+end
+
+-- Follows the player's Settings switches (Effects.applySettings). Turning Screen shake off also stops a shake that
+-- is running; a new budget reaches each effect at its next once a second choice.
+function Context.applySettings(settings: { [string]: unknown }?)
+	local shake, lowPerformance = Logic.readSettings(settings)
+	Context.screenShake = shake
+	Context.lowPerformance = lowPerformance
+	rebudget()
+	if not shake then
+		RunService:UnbindFromRenderStep(SHAKE_STEP)
+	end
 end
 
 -- The player's position, or the camera's focus while the character is loading.
@@ -56,9 +78,9 @@ end
 
 -- A short camera shake for this player (a missed catch, being shoved), fading out over `seconds`. Runs after the
 -- camera scripts each frame, so the offset never piles up; a new shake replaces one still running; off with Reduce
--- Motion.
+-- Motion or the Screen shake setting off.
 function Context.shake(seconds: number, studs: number)
-	if Context.reducedMotion() then
+	if Context.reducedMotion() or not Context.screenShake then
 		return
 	end
 	local camera = Workspace.CurrentCamera

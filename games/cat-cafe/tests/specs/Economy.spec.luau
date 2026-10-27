@@ -36,7 +36,7 @@ return function()
 				},
 			},
 			collection = { tabby = t },
-			shinyCollection = {},
+			goldCollection = {},
 			stats = {},
 			tutorialStep = 0,
 			settings = { music = true, sfx = true },
@@ -77,7 +77,15 @@ return function()
 		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 5", function()
 			local p = freshProfile()
 			expect(Economy.tier(p)).to.equal(1)
-			for _, case in ipairs({ { nil, 1 }, { 0 / 0, 1 }, { 0, 1 }, { -3, 1 }, { 2.7, 2 }, { 5, 5 }, { 9, 5 } }) do
+			for _, case in ipairs({
+				{ nil, 1 },
+				{ 0 / 0, 1 },
+				{ 0, 1 },
+				{ -3, 1 },
+				{ 2.7, 2 },
+				{ 5, 5 },
+				{ 9, 5 },
+			}) do
 				p.tier = case[1]
 				expect(Economy.tier(p)).to.equal(case[2])
 			end
@@ -162,10 +170,10 @@ return function()
 			expect(Economy.catRate(cat("a", "tabby", "waiter_1"))).to.be.near(1.0)
 		end)
 
-		it("a Void as Barista earns 37.5, a Midnight as Greeter 112.5", function()
-			expect(Economy.catRate(cat("a", "void", "barista_1"))).to.be.near(37.5)
+		it("a Ninja Cat as Waiter earns 37.5, a Wizard Cat as Barista 112.5", function()
+			expect(Economy.catRate(cat("a", "void", "waiter_1"))).to.be.near(37.5)
 			expect(Economy.catRate(cat("a", "void", "entertainer_1"))).to.be.near(25)
-			expect(Economy.catRate(cat("a", "midnight", "greeter_1"))).to.be.near(112.5)
+			expect(Economy.catRate(cat("a", "midnight", "barista_1"))).to.be.near(112.5)
 		end)
 
 		it("resting cats, v0.2 spot ids, unknown spots and unknown cats earn nothing", function()
@@ -175,11 +183,11 @@ return function()
 			expect(Economy.catRate(cat("a", "golden", "barista_1"))).to.equal(0)
 		end)
 
-		it("a shiny earns 1.5x: a shiny Tabby as Barista earns 2.25 (F30 done-when)", function()
+		it("a gold cat earns 1.5x: a gold Tabby as Barista earns 2.25 (F30 done-when)", function()
 			expect(Economy.variantMultiplier("base")).to.equal(1)
-			expect(Economy.variantMultiplier("shiny")).to.equal(1.5)
+			expect(Economy.variantMultiplier("gold")).to.equal(1.5)
 			expect(Economy.variantMultiplier("galaxy")).to.equal(1)
-			expect(Economy.catRate(cat("a", "tabby", "barista_1", "shiny"))).to.be.near(2.25)
+			expect(Economy.catRate(cat("a", "tabby", "barista_1", "gold"))).to.be.near(2.25)
 			expect(Economy.catRate(cat("a", "tabby", "barista_1", "galaxy"))).to.be.near(1.5)
 		end)
 
@@ -236,7 +244,9 @@ return function()
 			local dawn = dusk + Config.NightLengthSeconds
 			p.lastTick = dawn - 10
 			local rate = Economy.incomePerSecond(p)
-			expect(Economy.settle(p, dawn, epoch)).to.be.near(rate * 10 * Config.NightIncomeMultiplier)
+			expect(Economy.settle(p, dawn, epoch)).to.be.near(
+				rate * 10 * Config.NightIncomeMultiplier
+			)
 			rate = Economy.incomePerSecond(p)
 			expect(Economy.settle(p, dawn + 10, epoch)).to.be.near(rate * 10)
 			-- without the clock the whole window pays the day rate
@@ -342,44 +352,51 @@ return function()
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Already maxed")
 		end)
 
-		it("every capped level asks for its tier, and the tier check comes before the coin check", function()
-			-- upgrade -> { level, tier needed for the next level }
-			local cases: { { any } } = {
-				{ "tables", 0, nil },
-				{ "tables", 1, nil },
-				{ "tables", 2, 2 },
-				{ "tables", 3, 2 },
-				{ "tables", 4, 3 },
-				{ "tables", 5, 3 },
-				{ "espresso", 1, nil },
-				{ "espresso", 2, 2 },
-				{ "espresso", 3, 3 },
-				{ "espresso", 4, 4 },
-				{ "net", 0, nil },
-				{ "net", 1, 2 },
-				{ "net", 2, 3 },
-			}
-			for _, case in ipairs(cases) do
-				local id, level, needs = case[1], case[2], case[3]
-				local p = freshProfile()
-				p.upgradeLevels[id] = level
-				p.coins = 0
-				if needs == nil then
-					expect(Economy.upgradeBlocker(p, id)).to.equal("Not enough coins")
-				else
-					expect(Economy.upgradeBlocker(p, id)).to.equal(string.format("Needs Tier %d", needs))
-					p.tier = needs - 1
-					if needs - 1 >= 1 then
-						expect(Economy.upgradeBlocker(p, id)).to.equal(string.format("Needs Tier %d", needs))
+		it(
+			"every capped level asks for its tier, and the tier check comes before the coin check",
+			function()
+				-- upgrade -> { level, tier needed for the next level }
+				local cases: { { any } } = {
+					{ "tables", 0, nil },
+					{ "tables", 1, nil },
+					{ "tables", 2, 2 },
+					{ "tables", 3, 2 },
+					{ "tables", 4, 3 },
+					{ "tables", 5, 3 },
+					{ "espresso", 1, nil },
+					{ "espresso", 2, 2 },
+					{ "espresso", 3, 3 },
+					{ "espresso", 4, 4 },
+					{ "net", 0, nil },
+					{ "net", 1, 2 },
+					{ "net", 2, 3 },
+				}
+				for _, case in ipairs(cases) do
+					local id, level, needs = case[1], case[2], case[3]
+					local p = freshProfile()
+					p.upgradeLevels[id] = level
+					p.coins = 0
+					if needs == nil then
+						expect(Economy.upgradeBlocker(p, id)).to.equal("Not enough coins")
+					else
+						expect(Economy.upgradeBlocker(p, id)).to.equal(
+							string.format("Needs Tier %d", needs)
+						)
+						p.tier = needs - 1
+						if needs - 1 >= 1 then
+							expect(Economy.upgradeBlocker(p, id)).to.equal(
+								string.format("Needs Tier %d", needs)
+							)
+						end
+						p.tier = needs
+						expect(Economy.upgradeBlocker(p, id)).to.equal("Not enough coins")
 					end
-					p.tier = needs
-					expect(Economy.upgradeBlocker(p, id)).to.equal("Not enough coins")
+					p.coins = 1000000
+					p.tier = needs or 1
+					expect(Economy.upgradeBlocker(p, id)).never.to.be.ok()
 				end
-				p.coins = 1000000
-				p.tier = needs or 1
-				expect(Economy.upgradeBlocker(p, id)).never.to.be.ok()
 			end
-		end)
+		)
 
 		it("at Tier 5 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
@@ -396,7 +413,9 @@ return function()
 		it("removed and unknown upgrades are refused", function()
 			expect(Economy.upgradeBlocker(freshProfile(), "jetpack")).to.equal("Unknown upgrade")
 			expect(Economy.upgradeBlocker(freshProfile(), "cafe_level")).to.equal("Unknown upgrade")
-			expect(Economy.upgradeBlocker(freshProfile(), "park_access")).to.equal("Unknown upgrade")
+			expect(Economy.upgradeBlocker(freshProfile(), "park_access")).to.equal(
+				"Unknown upgrade"
+			)
 		end)
 	end)
 
@@ -479,15 +498,18 @@ return function()
 			expect(Economy.incomePerSecond(p)).to.be.near(1.5)
 		end)
 
-		it("step 4: a caught Common as Waiter raises the rate to 2.5, or 3.0 if it loves waiting", function()
-			local p = freshProfile()
-			local before = Economy.incomePerSecond(p)
-			p.cats.new = cat("new", "ginger", "waiter_1")
-			expect(Economy.incomePerSecond(p) > before).to.equal(true)
-			expect(Economy.incomePerSecond(p)).to.be.near(2.5)
-			p.cats.new = cat("new", "tuxedo", "waiter_1")
-			expect(Economy.incomePerSecond(p)).to.be.near(3.0)
-		end)
+		it(
+			"step 4: a caught Common as Waiter raises the rate to 2.5, or 3.0 if it loves waiting",
+			function()
+				local p = freshProfile()
+				local before = Economy.incomePerSecond(p)
+				p.cats.new = cat("new", "ginger", "waiter_1")
+				expect(Economy.incomePerSecond(p) > before).to.equal(true)
+				expect(Economy.incomePerSecond(p)).to.be.near(2.5)
+				p.cats.new = cat("new", "tuxedo", "waiter_1")
+				expect(Economy.incomePerSecond(p)).to.be.near(3.0)
+			end
+		)
 
 		it("step 5: Table 1 costs $100 and raises the rate by exactly 10%", function()
 			local p = freshProfile()
@@ -501,30 +523,39 @@ return function()
 			expect(Economy.incomePerSecond(p)).to.be.near(before * 1.1)
 		end)
 
-		it("reaching $100 for Table 1 from the start takes about 34 s at the starter rate", function()
-			-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow.
-			local p = freshProfile(0)
-			local seconds = (100 - p.coins) / Economy.incomePerSecond(p)
-			expect(seconds <= 120).to.equal(true)
-		end)
-
-		it("step 7: two tables, the bait bowl and Kibble are affordable inside 10 minutes", function()
-			local p = freshProfile(0)
-			p.cats.new = cat("new", "ginger", "waiter_1")
-			p.upgradeLevels.tables = 1
-			p.coins = 0
-			Economy.settle(p, 600 - 90) -- rough: 90 s spent walking and catching
-			expect(p.coins >= 100 + 250 + 400 + 25).to.equal(true)
-		end)
-
-		it("Tier 2's 1,500 after the loop's purchases comes 10 to 20 minutes in (features section 8)", function()
-			-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second.
-			local spend = 100 + 250 + 400 + 25 + 1500 - Config.StartCoins
-			for _, rate in ipairs({ 2.5 * 1.2, 3.0 * 1.2 }) do
-				local minutes = spend / rate / 60
-				expect(minutes >= 10 and minutes <= 20).to.equal(true)
+		it(
+			"reaching $100 for Table 1 from the start takes about 34 s at the starter rate",
+			function()
+				-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow.
+				local p = freshProfile(0)
+				local seconds = (100 - p.coins) / Economy.incomePerSecond(p)
+				expect(seconds <= 120).to.equal(true)
 			end
-		end)
+		)
+
+		it(
+			"step 7: two tables, the bait bowl and Kibble are affordable inside 10 minutes",
+			function()
+				local p = freshProfile(0)
+				p.cats.new = cat("new", "ginger", "waiter_1")
+				p.upgradeLevels.tables = 1
+				p.coins = 0
+				Economy.settle(p, 600 - 90) -- rough: 90 s spent walking and catching
+				expect(p.coins >= 100 + 250 + 400 + 25).to.equal(true)
+			end
+		)
+
+		it(
+			"Tier 2's 1,500 after the loop's purchases comes 10 to 20 minutes in (features section 8)",
+			function()
+				-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second.
+				local spend = 100 + 250 + 400 + 25 + 1500 - Config.StartCoins
+				for _, rate in ipairs({ 2.5 * 1.2, 3.0 * 1.2 }) do
+					local minutes = spend / rate / 60
+					expect(minutes >= 10 and minutes <= 20).to.equal(true)
+				end
+			end
+		)
 	end)
 	describe("rank up (F24, section 5b)", function()
 		-- Cat ids of one rarity, in catalog order.
@@ -540,7 +571,13 @@ return function()
 
 		-- A profile at `tier` whose collection holds `count` different cats: `needed` of `rarity` first (if any),
 		-- then Commons, Rares and Epics that are not `rarity`, so the rarity count stays exact.
-		local function profileWith(tier: number, count: number, rarity: string?, needed: number?, coins: number?): any
+		local function profileWith(
+			tier: number,
+			count: number,
+			rarity: string?,
+			needed: number?,
+			coins: number?
+		): any
 			local p = freshProfile()
 			p.tier = tier
 			p.coins = coins or 1e9
@@ -570,20 +607,23 @@ return function()
 			return p
 		end
 
-		it("distinctCats counts collection entries: owned cats, sold cats and shinies change nothing", function()
-			local p = freshProfile()
-			expect(Economy.distinctCats(p)).to.equal(1) -- the starter Tabby
-			p.collection.ginger = 1000
-			p.collection.tuxedo = 1000
-			expect(Economy.distinctCats(p)).to.equal(3)
-			-- A shiny of a cat already in the collection is not a second entry.
-			p.shinyCollection.tabby = 1000
-			p.cats.shiny = cat("shiny", "tabby", nil, "shiny")
-			expect(Economy.distinctCats(p)).to.equal(3)
-			-- Selling every cat keeps the collection.
-			p.cats = {}
-			expect(Economy.distinctCats(p)).to.equal(3)
-		end)
+		it(
+			"distinctCats counts collection entries: owned cats, sold cats and shinies change nothing",
+			function()
+				local p = freshProfile()
+				expect(Economy.distinctCats(p)).to.equal(1) -- the starter Tabby
+				p.collection.ginger = 1000
+				p.collection.tuxedo = 1000
+				expect(Economy.distinctCats(p)).to.equal(3)
+				-- A gold copy of a cat already in the collection is not a second entry.
+				p.goldCollection.tabby = 1000
+				p.cats.gold = cat("gold", "tabby", nil, "gold")
+				expect(Economy.distinctCats(p)).to.equal(3)
+				-- Selling every cat keeps the collection.
+				p.cats = {}
+				expect(Economy.distinctCats(p)).to.equal(3)
+			end
+		)
 
 		it("distinctCatsAtLeast counts that rarity or rarer and skips unknown ids", function()
 			local p = profileWith(3, 12, "Epic", 1)
@@ -609,60 +649,88 @@ return function()
 			expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 		end)
 
-		it("Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary or better; 4 to 5 two of them", function()
-			expect(Economy.rankUpBlocker(profileWith(2, 12))).to.equal("Needs one cat, Epic or better")
-			expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1))).never.to.be.ok()
-			expect(Economy.rankUpBlocker(profileWith(3, 20, "Epic", 3))).to.equal("Needs one cat, Legendary or better")
-			expect(Economy.rankUpBlocker(profileWith(3, 20, "Legendary", 1))).never.to.be.ok()
-			expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 1))).to.equal(
-				"Needs 2 different cats, Legendary or better"
-			)
-			expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 2))).never.to.be.ok()
-		end)
+		it(
+			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary or better; 4 to 5 two of them",
+			function()
+				expect(Economy.rankUpBlocker(profileWith(2, 12))).to.equal(
+					"Needs one cat, Epic or better"
+				)
+				expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(3, 20, "Epic", 3))).to.equal(
+					"Needs one cat, Legendary or better"
+				)
+				expect(Economy.rankUpBlocker(profileWith(3, 20, "Legendary", 1))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 1))).to.equal(
+					"Needs 2 different cats, Legendary or better"
+				)
+				expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 2))).never.to.be.ok()
+			end
+		)
 
-		it("a shiny of the one Legendary does not count as a second Legendary", function()
+		it("a gold copy of the one Legendary does not count as a second Legendary", function()
 			local p = profileWith(4, 30, "Legendary", 1)
 			local legendary = idsOf("Legendary")[1]
-			p.shinyCollection[legendary] = 1000
-			p.cats.shinyLegend = cat("shinyLegend", legendary, nil, "shiny")
+			p.goldCollection[legendary] = 1000
+			p.cats.goldLegend = cat("goldLegend", legendary, nil, "gold")
 			expect(Economy.rankUpBlocker(p)).to.equal("Needs 2 different cats, Legendary or better")
 		end)
 
-		it("a rarer cat counts for the rarity asked (section 5b: or better, reviewer N44)", function()
-			expect(Economy.rankUpBlocker(profileWith(2, 12, "Mythical", 1))).never.to.be.ok()
-			expect(Economy.rankUpBlocker(profileWith(3, 20, "Mythical", 1))).never.to.be.ok()
-			-- Tier 5: a Legendary plus a Mythical are two different cats, Legendary or better.
-			local p = profileWith(4, 30, "Legendary", 1)
-			p.collection[idsOf("Mythical")[1]] = 1000
-			expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-		end)
+		it(
+			"a rarer cat counts for the rarity asked (section 5b: or better, reviewer N44)",
+			function()
+				expect(Economy.rankUpBlocker(profileWith(2, 12, "Mythical", 1))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(3, 20, "Mythical", 1))).never.to.be.ok()
+				-- Tier 5: a Legendary plus a Mythical are two different cats, Legendary or better.
+				local p = profileWith(4, 30, "Legendary", 1)
+				p.collection[idsOf("Mythical")[1]] = 1000
+				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
+			end
+		)
 
-		it("reasons come in the order a player works through them: cats, then the rarity, then coins", function()
-			expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
-				"Needs 12 different cats (you have 11)"
-			)
-			expect(Economy.rankUpBlocker(profileWith(2, 12, nil, nil, 0))).to.equal("Needs one cat, Epic or better")
-			expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1, 0))).to.equal("Not enough coins")
-		end)
-
-		it("every tier step passes at exactly its minimum and fails one cat or one coin short", function()
-			for from = 1, Catalog.maxTier - 1 do
-				local nextTier = Catalog.getTier(from + 1)
-				assert(nextTier)
-				local rarity = nextTier.needsRarity
-				local needed = if rarity ~= nil then nextTier.needsRarityCount or 1 else nil
-				local count = math.max(nextTier.distinctCats, needed or 0)
-				expect(Economy.rankUpBlocker(profileWith(from, count, rarity, needed, nextTier.cost))).never.to.be.ok()
-				expect(Economy.rankUpBlocker(profileWith(from, count, rarity, needed, nextTier.cost - 1))).to.equal(
+		it(
+			"reasons come in the order a player works through them: cats, then the rarity, then coins",
+			function()
+				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
+					"Needs 12 different cats (you have 11)"
+				)
+				expect(Economy.rankUpBlocker(profileWith(2, 12, nil, nil, 0))).to.equal(
+					"Needs one cat, Epic or better"
+				)
+				expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1, 0))).to.equal(
 					"Not enough coins"
 				)
-				if count > 0 then
-					local short = Economy.rankUpBlocker(profileWith(from, count - 1, rarity, needed, nextTier.cost))
-					expect(short).to.be.ok()
-					expect(short).never.to.equal("Not enough coins")
+			end
+		)
+
+		it(
+			"every tier step passes at exactly its minimum and fails one cat or one coin short",
+			function()
+				for from = 1, Catalog.maxTier - 1 do
+					local nextTier = Catalog.getTier(from + 1)
+					assert(nextTier)
+					local rarity = nextTier.needsRarity
+					local needed = if rarity ~= nil then nextTier.needsRarityCount or 1 else nil
+					local count = math.max(nextTier.distinctCats, needed or 0)
+					expect(
+						Economy.rankUpBlocker(
+							profileWith(from, count, rarity, needed, nextTier.cost)
+						)
+					).never.to.be.ok()
+					expect(
+						Economy.rankUpBlocker(
+							profileWith(from, count, rarity, needed, nextTier.cost - 1)
+						)
+					).to.equal("Not enough coins")
+					if count > 0 then
+						local short = Economy.rankUpBlocker(
+							profileWith(from, count - 1, rarity, needed, nextTier.cost)
+						)
+						expect(short).to.be.ok()
+						expect(short).never.to.equal("Not enough coins")
+					end
 				end
 			end
-		end)
+		)
 
 		it("at Tier 5 there is nothing left, whatever the coins", function()
 			local p = profileWith(5, 40, "Legendary", 5)

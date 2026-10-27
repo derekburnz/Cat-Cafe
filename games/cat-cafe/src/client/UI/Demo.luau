@@ -20,6 +20,51 @@ local function now(): number
 	return os.time()
 end
 
+-- data-model section 11b's Tip Jar rows, until the engineer's Catalog.tipJar lands
+local DEMO_TIP_JAR: { Types.TipJarRow } = {
+	{ step = 1, minutes = 2, kind = "coins", seconds = 30, minCoins = 50 },
+	{ step = 2, minutes = 5, kind = "lure", lureId = "kibble", count = 2 },
+	{ step = 3, minutes = 10, kind = "coins", seconds = 60, minCoins = 100 },
+	{ step = 4, minutes = 15, kind = "lure", lureId = "tuna", count = 1 },
+	{ step = 5, minutes = 20, kind = "coins", seconds = 90, minCoins = 150 },
+	{ step = 6, minutes = 30, kind = "lure", lureId = "tuna", count = 2 },
+	{ step = 7, minutes = 40, kind = "coins", seconds = 120, minCoins = 250 },
+	{ step = 8, minutes = 50, kind = "lure", lureId = "salmon", count = 1 },
+	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
+	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
+	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600 },
+	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 },
+}
+
+-- data-model section 11b's Index milestones and prizes, until the engineer's Catalog.indexMilestones and
+-- Catalog.indexPrizes land
+local DEMO_INDEX_MILESTONES: { Types.IndexMilestone } = {
+	{ id = "cats3", need = 3 },
+	{ id = "cats6", need = 6 },
+	{ id = "cats10", need = 10 },
+	{ id = "gold10", need = 10, gold = true },
+}
+local function indexPrizes(
+	coins: number,
+	six: string,
+	ten: { [string]: number },
+	areaId: string
+): { [string]: Types.IndexPrize }
+	return {
+		cats3 = { coins = coins },
+		cats6 = { lures = { [six] = 2 } },
+		cats10 = { lures = ten, decorId = "index_" .. areaId },
+		gold10 = { decorId = "index_" .. areaId .. "_gold" },
+	}
+end
+local DEMO_INDEX_PRIZES: { [string]: { [string]: Types.IndexPrize } } = {
+	alley = indexPrizes(300, "tuna", { salmon = 1 }, "alley"),
+	park = indexPrizes(1000, "salmon", { caviar = 1 }, "park"),
+	neighbourhood = indexPrizes(3000, "caviar", { moon_milk = 1 }, "neighbourhood"),
+	woods = indexPrizes(10000, "moon_milk", { star_treat = 1 }, "woods"),
+	sewer = indexPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
+}
+
 -- The real catalog (src/shared/Catalog.luau), so the demo shows the slice's actual cats and prices.
 local CATALOG: Types.Catalog = {
 	cats = Catalog.cats,
@@ -29,6 +74,10 @@ local CATALOG: Types.Catalog = {
 	spots = Catalog.spots,
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
+	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
+	indexMilestones = (Catalog :: any).indexMilestones or DEMO_INDEX_MILESTONES,
+	indexPrizes = (Catalog :: any).indexPrizes or DEMO_INDEX_PRIZES,
+	rarities = Catalog.rarities,
 }
 
 -- data-model section 10: circles and shrink time per rarity, Basic Net windows
@@ -71,8 +120,12 @@ function Demo.run(UI: any): () -> ()
 		decorPlaced = {} :: { [string]: boolean },
 		lures = {} :: { [string]: number },
 		cats = {} :: { [string]: Types.CatInstance },
-		collection = { tabby = now() } :: { [string]: number },
+		-- three Alleyway cats already found, so the Index's first reward is ready to claim
+		collection = { tabby = now(), tuxedo = now(), ginger = now() } :: { [string]: number },
+		goldCollection = {} :: { [string]: number },
+		indexRewards = {} :: { [string]: { [string]: boolean } },
 		tier = 1,
+		settings = { music = true, sfx = true } :: { [string]: boolean },
 	}
 	local starter = uid()
 	profile.cats[starter] = {
@@ -122,8 +175,11 @@ function Demo.run(UI: any): () -> ()
 			lures = profile.lures,
 			cats = profile.cats,
 			collection = profile.collection,
+			goldCollection = profile.goldCollection,
+			indexRewards = profile.indexRewards,
 			customers = 2 * (profile.upgradeLevels.tables or 0),
 			tier = profile.tier,
+			settings = profile.settings,
 		})
 	end
 
@@ -138,7 +194,80 @@ function Demo.run(UI: any): () -> ()
 
 	UI.init({ catalog = CATALOG })
 
+	-- the Tip Jar as if this session started six minutes ago, so two gifts are ready and a third is close
+	local jar: Types.TipJarState =
+		{ sessionStartedAt = Workspace:GetServerTimeNow() - 6 * 60 + 20, claimed = {} }
+	UI.tipJar.set(jar)
+
 	local connections: { any } = {}
+	connections[#connections + 1] = UI.events.claimTipJar:Connect(function(step: number)
+		local rows: { Types.TipJarRow } = CATALOG.tipJar or {}
+		for _, row in rows do
+			local claimed: { [any]: boolean } = jar.claimed or {}
+			local due = Workspace:GetServerTimeNow() - jar.sessionStartedAt >= row.minutes * 60
+			if row.step ~= step or claimed[step] or not due then
+				continue
+			end
+			if row.kind == "coins" then
+				local coins = math.max(row.minCoins or 0, math.floor(rate() * (row.seconds or 0)))
+				profile.money += coins
+				UI.toast(("Tip Jar: +%s"):format(Format.money(coins)), "good")
+			elseif row.lureId then
+				profile.lures[row.lureId] = (profile.lures[row.lureId] or 0) + (row.count or 1)
+				UI.toast("Tip Jar: a food for your bait bowl", "good")
+			end
+			claimed[step] = true
+			jar = { sessionStartedAt = jar.sessionStartedAt, claimed = claimed }
+			task.delay(0.3, function()
+				UI.tipJar.set(jar)
+				push()
+			end)
+		end
+	end)
+	-- ClaimIndexReward as the server checks it: a known prize, the count met, not claimed yet (data-model 11b)
+	connections[#connections + 1] = UI.events.claimIndexReward:Connect(
+		function(areaId: string, milestoneId: string)
+			local rewards: { [string]: { [string]: Types.IndexPrize } } = CATALOG.indexPrizes or {}
+			local prize = rewards[areaId] and rewards[areaId][milestoneId]
+			local claimed = profile.indexRewards[areaId] or {}
+			if prize == nil or claimed[milestoneId] then
+				return
+			end
+			local milestones: { Types.IndexMilestone } = CATALOG.indexMilestones or {}
+			local need, gold = math.huge, false
+			for _, milestone in milestones do
+				if milestone.id == milestoneId then
+					need, gold = milestone.need, milestone.gold == true
+				end
+			end
+			local have = 0
+			for _, def in CATALOG.cats do
+				local found = if gold
+					then profile.goldCollection[def.id]
+					else profile.collection[def.id]
+				if (def.area or "alley") == areaId and found then
+					have += 1
+				end
+			end
+			if have < need then
+				UI.toast("Find more cats first", "warn")
+				return
+			end
+			profile.money += prize.coins or 0
+			local lures: { [string]: number } = prize.lures or {}
+			for lureId, count in lures do
+				profile.lures[lureId] = (profile.lures[lureId] or 0) + count
+			end
+			if prize.decorId then
+				profile.decorOwned[prize.decorId] = true
+				profile.decorPlaced[prize.decorId] = true
+			end
+			claimed[milestoneId] = true
+			profile.indexRewards[areaId] = claimed
+			UI.toast("Index reward claimed!", "good")
+			task.delay(0.3, push)
+		end
+	)
 	connections[#connections + 1] = UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		for _, def in CATALOG.upgrades do
 			if def.id == upgradeId then
@@ -221,7 +350,7 @@ function Demo.run(UI: any): () -> ()
 		bait = view
 		baitCat = {
 			catId = picked.id,
-			variant = if math.random() < 0.2 then "shiny" else "base",
+			variant = if math.random() < 0.2 then "gold" else "base",
 			charm = charm,
 			stars = math.clamp(math.ceil(charm / 20), 1, 5),
 		}
@@ -252,7 +381,7 @@ function Demo.run(UI: any): () -> ()
 			}
 			local isNew = profile.collection[cat.catId] == nil
 			profile.collection[cat.catId] = now()
-			UI.showCatFound(cat.catId, isNew, { stars = cat.stars, shiny = cat.variant == "shiny" })
+			UI.showCatFound(cat.catId, isNew, { stars = cat.stars, shiny = cat.variant == "gold" })
 			push()
 		else
 			UI.toast("It wandered off. Maybe next time!", "info")
@@ -361,6 +490,17 @@ function Demo.run(UI: any): () -> ()
 	connections[#connections + 1] = UI.events.equipBest:Connect(function()
 		UI.toast("Equip best: the server would place your top cats", "info")
 	end)
+	-- like the server: music and sfx are saved, markers is not yet, so that switch stays a session choice
+	connections[#connections + 1] = UI.events.setSetting:Connect(
+		function(key: string, value: boolean)
+			if key == "music" or key == "sfx" then
+				task.delay(0.3, function()
+					profile.settings[key] = value
+					push()
+				end)
+			end
+		end
+	)
 	connections[#connections + 1] = UI.events.unequipAll:Connect(function()
 		local rested = 0
 		for _, instance in profile.cats do
@@ -471,7 +611,7 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 		local charm = if success then perfects * 4 * (if perfects == #schedule then 2 else 1) else 0
-		UI.catch.showGrades(strayId, grades, success, nil, charm)
+		UI.catch.showGrades(strayId, grades, success, charm)
 		task.wait(1.8)
 		UI.catch.hide()
 		if success then
@@ -609,12 +749,12 @@ function Demo.run(UI: any): () -> ()
 				local pool = CATALOG.cats
 				local def = pool[math.random(1, #pool)]
 				local newUid = uid()
-				-- one in five is shiny here (5% in the game) so the cat room's gold cards show up
+				-- one in five is gold here (5% in the game) so the cat room's gold cards show up
 				local shiny = math.random() < 0.2
 				profile.cats[newUid] = {
 					uid = newUid,
 					catId = def.id,
-					variant = if shiny then "shiny" else "base",
+					variant = if shiny then "gold" else "base",
 					caughtAt = now(),
 					spotId = nil,
 				}

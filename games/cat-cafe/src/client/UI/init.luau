@@ -23,6 +23,7 @@ local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local CafeSigns = require(script.Screens.CafeSigns)
 local CatCollection = require(script.Screens.CatCollection)
+local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local Create = require(script.Components.Create)
@@ -32,22 +33,25 @@ local Format = require(script.Components.Format)
 local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
+local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
+local Settings = require(script.Screens.Settings)
 local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
-local SlotLabels = require(script.Screens.SlotLabels)
 local Sound = require(script.Components.Sound)
 local Theme = require(script.Theme)
+local TipJar = require(script.Screens.TipJar)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
 local UpgradeShop = require(script.Screens.UpgradeShop)
 local WorldMarker = require(script.Components.WorldMarker)
 local WorldTags = require(script.Screens.WorldTags)
+local ZoneChip = require(script.Screens.ZoneChip)
 
 local UI = {}
 
@@ -85,6 +89,10 @@ UI.events = {
 	shove = Signal.new(), -- (targetUserId)   the Shove button or Q on the nearest player within 6 studs: forward as Bump (F41)
 	-- 2026-10-27 HUD v3
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
+	-- 2026-10-27 wave 2
+	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
+	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
+	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting (Audio follows UI.settings.changed)
 }
 
 local state: Types.PlayerState = {
@@ -115,12 +123,14 @@ local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
 local gateSigns: GateSigns.GateSigns? = nil
 local areaTitle: AreaTitle.AreaTitle? = nil
+local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
+local zoneChip: ZoneChip.ZoneChip? = nil -- "Safe zone" or "Catching area" under the tier pill (UI.setZone)
+local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so an area's open edge cannot spam it
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local shoveButton: ShoveButton.ShoveButton? = nil -- v0.5 Shove inside catching areas (UI.shove)
-local slotLabels: SlotLabels.SlotLabels? = nil -- hides the server's LockLabel text (role slots: Upgrades > Staff)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -135,6 +145,8 @@ local baitCat: Types.BaitCat? = nil -- the cat at the bowl (UI.bait.showReady), 
 local bowlPart: BasePart? = nil -- the player's own BaitBowl part (UI.bait.setBowl), for the range hints
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
+local settingsScreen: Settings.Settings? = nil -- music, sound and place icons switches (gear in the HUD)
+local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
@@ -185,11 +197,20 @@ local function render()
 	if gateSigns then
 		gateSigns:render(state)
 	end
+	if locationMarkers and hud then
+		locationMarkers:render(state, hud:isCarrying())
+	end
 	if baitScreen then
 		baitScreen:render(state)
 	end
 	if dealerScreen then
 		dealerScreen:render(state)
+	end
+	if settingsScreen then
+		settingsScreen:render(state)
+	end
+	if tipJarScreen then
+		tipJarScreen:render(state)
 	end
 end
 
@@ -214,11 +235,17 @@ local function setCatalog(newCatalog: Types.Catalog)
 	if gateSigns then
 		gateSigns:setCatalog(newCatalog)
 	end
+	if locationMarkers then
+		locationMarkers:setCatalog(newCatalog)
+	end
 	if baitScreen then
 		baitScreen:setCatalog(newCatalog)
 	end
 	if dealerScreen then
 		dealerScreen:setCatalog(newCatalog)
+	end
+	if tipJarScreen then
+		tipJarScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -281,8 +308,8 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
-		-- Cats and Book are two tabs of one screen: a pill switches tabs, or closes the screen on its own tab
-		openCollection = function(tab: "Book" | "Room")
+		-- Cats and Index are two tabs of one screen: a pill switches tabs, or closes the screen on its own tab
+		openCollection = function(tab: "Index" | "Room")
 			local screen = collection
 			if
 				screen
@@ -350,6 +377,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		unequipAll = function()
 			UI.events.unequipAll:Fire()
+		end,
+		claimIndexReward = function(areaId: string, milestoneId: string)
+			UI.events.claimIndexReward:Fire(areaId, milestoneId)
 		end,
 		close = closeModal,
 	})
@@ -446,6 +476,41 @@ function UI.init(config: Types.InitConfig)
 			dealerView:render(state)
 		end,
 	})
+	settingsScreen = Settings.new({
+		setSetting = function(key: string, value: boolean)
+			UI.events.setSetting:Fire(key, value)
+		end,
+		changed = function(key: string, value: boolean)
+			if key == "markers" and locationMarkers then
+				locationMarkers:setEnabled(value)
+			end
+			UI.settings.changed:Fire(key, value)
+		end,
+		close = closeModal,
+	})
+	local settingsView = settingsScreen :: Settings.Settings
+	modalInstance:register("Settings", {
+		frame = settingsView.frame,
+		onOpen = function()
+			settingsView:render(state)
+		end,
+	})
+	tipJarScreen = TipJar.new({
+		claim = function(step: number)
+			UI.events.claimTipJar:Fire(step)
+		end,
+		status = function(summary)
+			hudInstance:setTipJar(summary)
+		end,
+		close = closeModal,
+	})
+	local tipJarView = tipJarScreen :: TipJar.TipJar
+	modalInstance:register("TipJar", {
+		frame = tipJarView.frame,
+		onOpen = function()
+			tipJarView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -510,12 +575,15 @@ function UI.init(config: Types.InitConfig)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
+	-- icons over My Cafe, every area and the dealer's cart, fading out up close; the Safe zone chip under the tier
+	local markers = LocationMarkers.new(parent)
+	markers:setEnabled(settingsView:value("markers")) -- the Place icons switch
+	locationMarkers = markers
+	zoneChip = ZoneChip.new(parent)
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	worldTags = WorldTags.new()
-	-- the role slots live in Upgrades > Staff; this only hides the server's LockLabel text until it is removed
-	slotLabels = SlotLabels.new()
 
 	setCatalog(config.catalog)
 
@@ -596,6 +664,14 @@ function UI.destroy()
 		dealerScreen:destroy()
 	end
 	dealerScreen, cartPart = nil, nil
+	if settingsScreen then
+		settingsScreen:destroy()
+	end
+	settingsScreen = nil
+	if tipJarScreen then
+		tipJarScreen:destroy()
+	end
+	tipJarScreen = nil
 	if upgrades then
 		upgrades:destroy()
 	end
@@ -630,6 +706,12 @@ function UI.destroy()
 	if areaTitle then
 		areaTitle:destroy()
 	end
+	if locationMarkers then
+		locationMarkers:destroy()
+	end
+	if zoneChip then
+		zoneChip:destroy()
+	end
 	if cafeSigns then
 		cafeSigns:destroy()
 	end
@@ -641,9 +723,6 @@ function UI.destroy()
 	end
 	if richTipScreen then
 		richTipScreen:destroy()
-	end
-	if slotLabels then
-		slotLabels:destroy()
 	end
 	if shoveButton then
 		shoveButton:destroy()
@@ -666,8 +745,9 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
+	locationMarkers, zoneChip = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags, actionPills, richTipScreen, slotLabels = nil, nil, nil, nil, nil
+	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
 	shoveButton = nil
 	Scale.stop()
 	Sound.set(nil)
@@ -697,7 +777,7 @@ function UI.isOpen(): string?
 	return nil
 end
 
--- "Book" or "Room" tab of the Collection screen, then open it.
+-- "Index" or "Room" tab of the Collection screen, then open it.
 function UI.openCatRoom()
 	if collection then
 		collection:showTab("Room")
@@ -712,6 +792,12 @@ function UI.setVisible(isVisible: boolean)
 	end
 	if toasts then
 		toasts.screenGui.Enabled = isVisible
+	end
+	if zoneChip then
+		zoneChip:setVisible(isVisible)
+	end
+	if locationMarkers then
+		locationMarkers:setVisible(isVisible)
 	end
 	if not isVisible then
 		UI.close()
@@ -768,7 +854,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		if newest then
 			info.stars = info.stars or newest.stars
 			if info.shiny == nil then
-				info.shiny = newest.variant == "shiny"
+				info.shiny = CatVariant.isGold(newest.variant)
 			end
 		end
 		popups:showCatFound(def, isNew, info)
@@ -828,6 +914,19 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Bait bowl (F28, data-model section 8)
 ----------------------------------------------------------------------------------------------------
+
+-- Settings as the switches show them: a tap at once, then the server's saved value, and back to it if the server
+-- drops the tap. Apply music and sfx to Audio from `changed` rather than from state.settings, so a sync sent
+-- before the server saw the tap cannot flip the music back during the hold (review N111).
+UI.settings = {}
+UI.settings.changed = Signal.new() -- (key, on)   whenever a key's shown value moves; read value(key) once after UI.init
+
+function UI.settings.value(key: string): boolean
+	if settingsScreen then
+		return settingsScreen:value(key)
+	end
+	return true
+end
 
 -- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and
 -- the bait card offers Tame or Let go (events.resolveBait). The HUD's bowl chip shows once the Bait bowl upgrade
@@ -939,6 +1038,28 @@ end
 function UI.dealer.open()
 	if modal then
 		modal:open("Dealer")
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Tip Jar (F47, data-model section 11b)
+----------------------------------------------------------------------------------------------------
+
+UI.tipJar = {}
+
+-- From TipJarState: { sessionStartedAt (Workspace:GetServerTimeNow() time), claimed = { [step] = true } }, sent
+-- when the profile loads and after every ClaimTipJar. The HUD's Gifts tile appears with the first one and counts
+-- down to the next gift; the screen shows every gift. nil hides the tile.
+function UI.tipJar.set(jar: Types.TipJarState?)
+	if tipJarScreen then
+		tipJarScreen:setJar(jar)
+	end
+end
+
+-- Opens the Tip Jar screen.
+function UI.tipJar.open()
+	if modal then
+		modal:open("TipJar")
 	end
 end
 
@@ -1075,6 +1196,22 @@ function UI.travel.result(destination: string, ok: boolean, _reason: string?)
 	end
 end
 
+-- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
+-- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). The chip under the tier pill says
+-- "Safe zone" or "Catching area"; walking back to safety pops the chip every time and toasts at most once in
+-- SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times); the area's own marker hides.
+local SAFE_TOAST_SECONDS = 20
+function UI.setZone(zone: string?)
+	if locationMarkers then
+		locationMarkers:setZone(zone)
+	end
+	local chip = zoneChip
+	if chip and chip:set(zone) and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
+		safeToastAt = os.clock()
+		UI.toast("Safe zone: no shoving here", "good")
+	end
+end
+
 -- Area title card (F39 P1): the area's name in big letters for two seconds. Call it when the player walks into
 -- an area (the same zone check that picks the ambience); a successful trip shows it already, and the same area
 -- twice within 4 s shows once. `areaId` is an AreaId or "home" (the player's own cafe, named by its tier).
@@ -1183,12 +1320,10 @@ end
 -- shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It got
 -- away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the player
 -- is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
--- The v0.4 paws argument is ignored; it stays so the controller's call (which passes nil) type checks.
 function UI.catch.showCircles(
 	strayId: string,
 	circleList: { Types.CatchCircle },
-	windows: Types.CatchWindows,
-	_retiredPaws: number?
+	windows: Types.CatchWindows
 )
 	local screen = circles
 	if not screen then
@@ -1255,13 +1390,11 @@ local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
 	end)
 end
 
--- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. The v0.4 paws argument
--- is ignored (see showCircles).
+-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss.
 function UI.catch.showGrades(
 	strayId: string,
 	grades: { Types.CircleGrade },
 	success: boolean,
-	_retiredPaws: number?,
 	charmGain: number?
 )
 	finishCatch(strayId, {
@@ -1451,7 +1584,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local charm = promptAttribute(prompt, "Charm")
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
-	local shiny = promptAttribute(prompt, "Shiny")
+	local gold = promptAttribute(prompt, "Gold") -- a gold cat (was Shiny before 2026-10-27)
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
 	local dropOwner = promptAttribute(prompt, "DropOwner")
@@ -1466,7 +1599,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 			then dropOwnerUntil
 			else nil,
 		press = prompt.HoldDuration <= 0,
-		shiny = shiny == true,
+		shiny = gold == true,
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
 		rescueSpotId = if type(rescueSpotId) == "string"
 			then rescueSpotId
@@ -1668,6 +1801,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	end
 	if dealerScreen then
 		dealerScreen:setNight(phase == "night")
+	end
+	if tipJarScreen then
+		tipJarScreen:setNight(phase == "night")
 	end
 end
 

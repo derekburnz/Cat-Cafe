@@ -22,6 +22,7 @@ export type UpgradeDef = SharedTypes.UpgradeDef
 export type DecorDef = SharedTypes.DecorDef
 export type LureOdds = SharedTypes.LureOdds -- percentages that sum to 100, shown before purchase
 export type LureDef = SharedTypes.LureDef
+export type RarityDef = SharedTypes.RarityDef
 export type SpotDef = SharedTypes.SpotDef
 export type TierDef = SharedTypes.TierDef -- data-model section 5b
 export type AreaDef = SharedTypes.AreaDef
@@ -34,6 +35,41 @@ export type Catalog = {
 	spots: { SpotDef }?, -- role slots; needed for the cat room's crew strip and Upgrades > Staff
 	tiers: { TierDef }?, -- v0.3: tier names, gates and the rank up card
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
+	tipJar: { TipJarRow }?, -- F47: the twelve playtime gifts (data-model section 11b)
+	indexMilestones: { IndexMilestone }?, -- F48: the Index's milestones, the same on every area page
+	indexPrizes: { [string]: { [string]: IndexPrize } }?, -- F48: area id -> milestone id -> prize (S61: not indexRewards)
+	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
+}
+
+-- One Tip Jar gift (F47): unlocks `minutes` into the session; coins pay max(minCoins, dayRate * seconds).
+export type TipJarRow = {
+	step: number,
+	minutes: number,
+	kind: string, -- "coins" or "lure"
+	seconds: number?,
+	minCoins: number?,
+	lureId: string?,
+	count: number?,
+}
+
+-- An Index milestone (F48, data-model section 11b): `need` of the area's cats found, or as gold cats.
+export type IndexMilestone = {
+	id: string, -- cats3, cats6, cats10, gold10
+	need: number,
+	gold: boolean?,
+}
+
+-- What an Index milestone pays: coins, foods (lure id -> count) and an Index decor piece, any of them.
+export type IndexPrize = {
+	coins: number?,
+	lures: { [string]: number }?,
+	decorId: string?,
+}
+
+-- TipJarState from the server (F47): sessionStartedAt in Workspace:GetServerTimeNow() time, claimed steps.
+export type TipJarState = {
+	sessionStartedAt: number,
+	claimed: { [any]: boolean }?,
 }
 
 export type OwnedCat = {
@@ -75,9 +111,11 @@ export type PlayerState = {
 	-- optional extras the engineer's ProfileSync also sends
 	cats: { [string]: CatInstance }?, -- uid -> instance; enables the cat room tab
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
-	shinyCollection: { [string]: number }?, -- catId -> first shiny caught at
+	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
+	settings: { [string]: boolean }?, -- profile.settings: music, sfx, later markers; a missing key reads as on
+	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -97,12 +135,23 @@ export type PartialState = {
 	lures: { [string]: number }?,
 	cats: { [string]: CatInstance }?,
 	collection: { [string]: number }?,
-	shinyCollection: { [string]: number }?,
+	goldCollection: { [string]: number }?,
 	carrying: string?,
 	tutorialStep: number?,
+	settings: { [string]: boolean }?,
+	indexRewards: { [string]: { [string]: boolean } }?,
 }
 
-export type ScreenName = "Upgrades" | "Decor" | "Collection" | "RankUp" | "Areas" | "Bait" | "Dealer"
+export type ScreenName =
+	"Upgrades"
+	| "Decor"
+	| "Collection"
+	| "RankUp"
+	| "Areas"
+	| "Bait"
+	| "Dealer"
+	| "Settings"
+	| "TipJar"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -119,7 +168,7 @@ export type CatchInfo = {
 	kind: PromptKind?, -- default "swing" (the net); "rescue" is a stuck cat (F21)
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
-	shiny: boolean?, -- v0.3: the stray's Shiny attribute (rescued cats hide it until freed)
+	shiny: boolean?, -- v0.3: the stray's Gold attribute (rescued cats hide it until freed)
 	-- v0.5: the stray's FleeingUntil (server time). Until then it is sprinting off after a miss and nobody can
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
@@ -190,9 +239,6 @@ export type InitConfig = {
 	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
 	-- uiHint and uiRankReady; nil keeps the UI silent.
 	playSound: ((cueId: string) -> ...any)?,
-	-- Ignored: the bait bowl (F28) is always on now that the v0.2 lure spots are gone. Kept so a controller that
-	-- still passes `baitBowl = true` type checks.
-	baitBowl: boolean?,
 }
 
 -- What is in the bait bowl (data-model section 8), as UI.bait.set takes it. readyAt is server os.time(); the
@@ -205,7 +251,7 @@ export type BaitView = {
 -- The cat that came to the bowl, from BaitReady (a CatView or anything with these fields).
 export type BaitCat = {
 	catId: string,
-	variant: string?, -- "shiny" shows the sparkle
+	variant: string?, -- "gold" shows the sparkle
 	charm: number?,
 	stars: number?, -- 1 to 5
 	name: string?, -- a custom name, else the catalog name

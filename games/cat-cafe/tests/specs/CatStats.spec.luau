@@ -1,5 +1,5 @@
 --!strict
--- CatStats.luau against data-model v0.3.1 sections 4 and 4b: charm, level and XP, shiny, rating, and how Economy
+-- CatStats.luau against data-model v0.3.1 sections 4 and 4b: charm, level and XP, gold, rating, and how Economy
 -- uses them. The v2 to v3 save migration has its own spec (ProfileSchema.spec).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -93,15 +93,18 @@ return function()
 			expect(CatStats.levelMultiplier(0)).to.equal(1)
 		end)
 
-		it("variants: base 1x, shiny ShinyMultiplier (1.5x); Golden and Galaxy are gone (v0.3)", function()
-			expect(Config.ShinyMultiplier).to.equal(1.5)
-			expect(CatStats.variantMultiplier("base")).to.equal(1)
-			expect(CatStats.variantMultiplier("shiny")).to.equal(Config.ShinyMultiplier)
-			expect(CatStats.variantMultiplier("golden")).to.equal(1)
-			expect(CatStats.variantMultiplier("galaxy")).to.equal(1)
-			expect(CatStats.variantMultiplier(nil)).to.equal(1)
-			expect(Economy.variantMultiplier("shiny")).to.equal(Config.ShinyMultiplier)
-		end)
+		it(
+			"variants: base 1x, gold GoldMultiplier (1.5x); Golden and Galaxy are gone (v0.3)",
+			function()
+				expect(Config.GoldMultiplier).to.equal(1.5)
+				expect(CatStats.variantMultiplier("base")).to.equal(1)
+				expect(CatStats.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
+				expect(CatStats.variantMultiplier("golden")).to.equal(1)
+				expect(CatStats.variantMultiplier("galaxy")).to.equal(1)
+				expect(CatStats.variantMultiplier(nil)).to.equal(1)
+				expect(Economy.variantMultiplier("gold")).to.equal(Config.GoldMultiplier)
+			end
+		)
 
 		it("stars: five equal bands of 20 charm", function()
 			expect(CatStats.stars(0)).to.equal(1)
@@ -169,7 +172,7 @@ return function()
 			end
 		end)
 
-		it("a perfect max level Tabby rates 1.74, a Void 43.5", function()
+		it("a perfect max level Tabby rates 1.74, a Ninja Cat 43.5", function()
 			expect(CatStats.rating(cat("tabby", 100, Config.CatMaxLevel))).to.be.near(1.2 * 1.45)
 			expect(CatStats.maxRating("tabby")).to.be.near(1.2 * 1.45)
 			expect(CatStats.maxRating("void")).to.be.near(25 * 1.2 * 1.45)
@@ -185,25 +188,31 @@ return function()
 			end
 		)
 
-		it("a shiny multiplies the rating and unknown cats rate 0", function()
-			local shiny = cat("tabby")
-			shiny.variant = "shiny"
-			expect(CatStats.rating(shiny)).to.be.near(1.5, 1e-9)
-			expect(CatStats.isBetter(shiny, cat("tabby"))).to.equal(true)
+		it("a gold cat multiplies the rating and unknown cats rate 0", function()
+			local gold = cat("tabby")
+			gold.variant = "gold"
+			expect(CatStats.rating(gold)).to.be.near(1.5, 1e-9)
+			expect(CatStats.isBetter(gold, cat("tabby"))).to.equal(true)
 			expect(CatStats.rating(cat("dragon"))).to.equal(0)
 		end)
 
-		it("the section 4b example: a perfect max level shiny Midnight rates 195.75", function()
+		it("the section 4b example: a perfect max level gold Wizard Cat rates 195.75", function()
 			local best = cat("midnight", 100, Config.CatMaxLevel)
-			best.variant = "shiny"
+			best.variant = "gold"
 			expect(CatStats.rating(best)).to.be.near(75 * 1.2 * 1.45 * 1.5, 1e-9)
 			expect(CatStats.rating(best)).to.be.near(195.75, 1e-9)
 		end)
 
-		it("maxRating is the base variant figure; the book's shiny line is that times 1.5", function()
-			expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.45, 1e-9)
-			expect(CatStats.maxRating("midnight") * Config.ShinyMultiplier).to.be.near(195.75, 1e-9)
-		end)
+		it(
+			"maxRating is the base variant figure; the book's gold line is that times 1.5",
+			function()
+				expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.45, 1e-9)
+				expect(CatStats.maxRating("midnight") * Config.GoldMultiplier).to.be.near(
+					195.75,
+					1e-9
+				)
+			end
+		)
 
 		it("isBetter orders by rating, then rarity, then id, then uid", function()
 			local a = cat("tabby", 100)
@@ -257,7 +266,7 @@ return function()
 	describe("Economy integration", function()
 		it("a fresh profile still earns 1.5 per second (starter Tabby is neutral)", function()
 			local profile = ProfileSchema.template(1000)
-			expect(profile.version).to.equal(3)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.tier).to.equal(1)
 			expect((profile :: any).renovations).never.to.be.ok()
 			expect(profile.cats.starter_tabby.charm).to.equal(CatStats.DEFAULT_CHARM)
@@ -265,10 +274,13 @@ return function()
 			expect(Economy.incomePerSecond(profile)).to.be.near(1.5)
 		end)
 
-		it("catRate uses the rating: a perfect Tabby as Barista earns 1.8, as Waiter 1.2", function()
-			expect(Economy.catRate(cat("tabby", 100, 1, "barista_1"))).to.be.near(1.8)
-			expect(Economy.catRate(cat("tabby", 100, 1, "waiter_1"))).to.be.near(1.2)
-		end)
+		it(
+			"catRate uses the rating: a perfect Tabby as Barista earns 1.8, as Waiter 1.2",
+			function()
+				expect(Economy.catRate(cat("tabby", 100, 1, "barista_1"))).to.be.near(1.8)
+				expect(Economy.catRate(cat("tabby", 100, 1, "waiter_1"))).to.be.near(1.2)
+			end
+		)
 
 		it("settle grants one XP per second to placed cats only", function()
 			local profile = ProfileSchema.template(1000)
@@ -327,7 +339,7 @@ return function()
 				},
 			}
 			local profile = ProfileSchema.migrate(raw, 100)
-			expect(profile.version).to.equal(3)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect((profile :: any).renovations).never.to.be.ok()
 			expect(profile.cats.old.level).to.equal(1)
 			expect(profile.cats.old.xp).to.equal(0)

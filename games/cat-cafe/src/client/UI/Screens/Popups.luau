@@ -437,14 +437,14 @@ function Popups.showCatFound(
 		local info: Types.CatFoundExtra = extra or {}
 		local shiny = info.shiny == true
 		local rarityColor = Theme.rarityColor(rarity)
-		local label = (if shiny then "SHINY " else "") .. rarity:upper()
+		local label = (if shiny then "GOLD " else "") .. rarity:upper()
 		self._catBanner.Text = if isNew
 			then ("NEW %s CAT!"):format(label)
 			else ("%s CAT CAUGHT"):format(label)
 		self._catBanner.BackgroundColor3 = rarityColor
 		self._catCard.UIStroke.Color = if shiny then Theme.colors.gold else rarityColor
 		self._catName.TextColor3 = rarityColor
-		-- rays in the rarity colour, pure gold for a shiny
+		-- rays in the rarity colour, pure gold for a gold cat
 		for _, ray in self._rays:GetChildren() do
 			if ray:IsA("Frame") then
 				ray.BackgroundColor3 = if shiny

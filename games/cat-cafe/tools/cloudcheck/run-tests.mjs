@@ -34,6 +34,9 @@ const studioOnly = []; // modules that hit a shim limit
 // A fresh Luau state with the shim loaded and its own module cache.
 async function createState() {
   const lua = await Lua.create({ sandbox: false, libraries: 'all' });
+  // The VM's collector can panic mid-spec ("unsupported collectable type 5" in gc/mark.rs) once the tree holds 34
+  // spec files (UI thread, 2026-10-27). A state lives for one spec file, so it runs with the collector off.
+  lua.gcStop();
   lua.globals.set('print', lua.createFunction((...parts) => console.log(parts.map(String).join(' '))));
 
   const moduleCache = new Map(); // node id -> returned value

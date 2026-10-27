@@ -31,8 +31,8 @@ return function()
 		RescueRetrySeconds = 3,
 		RescueSelfRetrySeconds = 6,
 		RescueAttemptMaxSeconds = 15,
-		ShinyChanceRescue = 0.10,
-		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
+		GoldChanceRescue = 0.10,
+		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the gold chance
 		GrabRangeStuds = 10,
 		CatchHoldSeconds = 0.5, -- Derek 2026-10-27: hold E to start a catch or a rescue
 		GrabRetrySeconds = 2,
@@ -55,8 +55,8 @@ return function()
 		LureWaitSeconds = 600,
 		BaitBowlRangeStuds = 12,
 		BaitResolveRangeStuds = 20,
-		ShinyChanceBait = 0.05, -- v0.5 F42 (was 0.02)
-		ShinyChanceNet = 0.05, -- F30, v0.5 F42 (was 0.02)
+		GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02)
+		GoldChanceNet = 0.05, -- F30, v0.5 F42 (was 0.02)
 		CarryWalkSpeed = 16, -- v0.4
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,
@@ -81,7 +81,7 @@ return function()
 		CatXpBase = 60,
 		CatXpPerSecondPlaced = 1,
 		CharmSpread = 0.20,
-		ShinyMultiplier = 1.5, -- v0.3 (F22)
+		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
 		DealerWindowSeconds = 600,
@@ -326,7 +326,7 @@ return function()
 				expect(Config.RescueSpawnChance > 0 and Config.RescueSpawnChance <= 1).to.equal(
 					true
 				)
-				expect(Config.ShinyChanceRescue > 0 and Config.ShinyChanceRescue < 1).to.equal(true)
+				expect(Config.GoldChanceRescue > 0 and Config.GoldChanceRescue < 1).to.equal(true)
 				expect(Config.RescuedTipsMultiplier).to.equal(1)
 			end
 		)
@@ -352,9 +352,9 @@ return function()
 			end
 		end)
 
-		it("bait bowl: the card reaches further than Use, and shiny is a probability", function()
+		it("bait bowl: the card reaches further than Use, and gold is a probability", function()
 			expect(Config.BaitResolveRangeStuds >= Config.BaitBowlRangeStuds).to.equal(true)
-			expect(Config.ShinyChanceBait > 0 and Config.ShinyChanceBait < 1).to.equal(true)
+			expect(Config.GoldChanceBait > 0 and Config.GoldChanceBait < 1).to.equal(true)
 		end)
 
 		it(

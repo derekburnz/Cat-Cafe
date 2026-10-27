@@ -2,7 +2,7 @@
 -- Bait bowl screen (F28, data-model section 8): what is in your bowl and every food you can put in it. A food
 -- goes in with Use while you stand at the bowl by your door; the cat it brings is rolled then and arrives after
 -- the wait, even while you are offline, and you choose Tame or Let go when it comes. Every food card shows its
--- five-rarity odds, the shiny chance and the charm star odds before Buy or Use, with the per-cat split under
+-- five-rarity odds, the gold chance and the charm star odds before Buy or Use, with the per-cat split under
 -- Details (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
 -- one, so the screen never nudges toward spending.
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
@@ -42,7 +42,7 @@ export type BaitBowl = {
 }
 
 local STATUS_HEIGHT = 92
-local ROW_HEIGHT = 132 -- room for the odds, shiny and star lines to wrap on a narrow screen
+local ROW_HEIGHT = 132 -- room for the odds, gold and star lines to wrap on a narrow screen
 local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
 local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Garden seed shop
 local TEXT_LEFT = ICON + 28
@@ -102,6 +102,8 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 
 	local panel = Panel.new({
 		name = "Bait",
+		color = Theme.colors.mintDark,
+		icon = Theme.upgradeIcons.lure_bowl,
 		title = "Bait bowl",
 		subtitle = "Put food in and a cat comes to your door",
 		size = UDim2.fromScale(1, 1),

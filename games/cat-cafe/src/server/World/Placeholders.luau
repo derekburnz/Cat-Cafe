@@ -61,9 +61,13 @@ local function newModel(name: string): Model
 	return model
 end
 
+-- Every part was placed around the model origin, which is the base centre. A Model with a PrimaryPart takes its
+-- pivot from that part and ignores WorldPivot, so the origin goes on the part's PivotOffset; without it the pivot sat
+-- at the part's middle and every placeholder (strays, rescue stand-ins) stood that far into the floor (laptop
+-- Studio run 2026-10-27: placeholder strays 0.85 deep, the drainpipe 4.15).
 local function finish(model: Model, primary: BasePart): Model
 	model.PrimaryPart = primary
-	model.WorldPivot = CFrame.new(0, 0, 0)
+	primary.PivotOffset = primary.CFrame:Inverse()
 	return model
 end
 

@@ -6,7 +6,7 @@
 --               cat's square to pick that cat; tap a "+" to put the picked cat to work there.
 --   Toolbar     search (name, breed or rarity), All / Working / Resting with counts, Unequip All and Equip Best.
 --   Grid        a card per cat in Components/CatRoomList order: model, name, level and rate, the role icon while it
---               works, a sparkle when shiny. Models load as cards scroll near view (reviewer N71).
+--               works, a sparkle when gold. Models load as cards scroll near view (reviewer N71).
 --   Detail      the picked cat: name with the rename pencil, rarity, level and stars, rate and where it works, its
 --               favourite role, then Assign (Move while working), Rest and Sell (Rare and up ask first, with the
 --               price). Assign rings every free "+" in gold and marks the cat's favourite role "★ 1.5x".
@@ -15,6 +15,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
+local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -58,10 +59,9 @@ local RENAME_W = 34
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
 
--- Sell asks for confirmation from this rarity up (data-model: Rare and above), showing the price.
+-- Sell asks for confirmation from this rarity up (data-model: Rare and above), showing the price from
+-- catalog.rarities (Catalog.rarities[rarity].sellValue, the number the server pays).
 local CONFIRM_SELL_FROM = 2
-local RARITY_SELL_VALUE: { [string]: number } =
-	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
 
 local FILTERS: { CatRoomList.Filter } = { "All", "Working", "Resting" }
 
@@ -635,7 +635,7 @@ end
 function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local rarity = if def then def.rarity else "Common"
-	local shiny = instance.variant == "shiny"
+	local shiny = CatVariant.isGold(instance.variant)
 	local button: TextButton = Create("TextButton", {
 		Name = instance.uid,
 		Text = "",
@@ -654,7 +654,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 			),
 		}),
 	})
-	-- a shiny cat's card has a thicker gold edge; the picked card a thick sky edge (set in render)
+	-- a gold cat's card has a thicker gold edge; the picked card a thick sky edge (set in render)
 	local stroke: UIStroke = Create("UIStroke", {
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = if shiny then Theme.colors.gold else Theme.rarityColor(rarity),
@@ -1004,7 +1004,7 @@ function CatRoom._renderCrew(
 				glyph = ""
 				if square.shownUid ~= instance.uid then
 					square.shownUid = instance.uid
-					square.portrait:set(def, instance.variant == "shiny")
+					square.portrait:set(def, CatVariant.isGold(instance.variant))
 				end
 			elseif slot.kind == "open" then
 				color = Theme.colors.good
@@ -1051,7 +1051,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local breed = if def then def.name else instance.catId
 	local rarity = if def then def.rarity else "Common"
-	local shiny = instance.variant == "shiny"
+	local shiny = CatVariant.isGold(instance.variant)
 
 	if self._detailArtFor ~= instance.uid then
 		self._detailArtFor = instance.uid
@@ -1062,7 +1062,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 
 	local custom = instance.name
 	self._detailName.Text = if custom and custom ~= "" then custom else breed
-	self._detailBreed.Text = ("%s%s %s"):format(if shiny then "Shiny " else "", rarity, breed)
+	self._detailBreed.Text = ("%s%s %s"):format(if shiny then "Gold " else "", rarity, breed)
 	self._detailBreed.TextColor3 = Theme.rarityColor(rarity):Lerp(Theme.colors.ink, 0.25)
 	local statBits = {}
 	if instance.level then
@@ -1105,7 +1105,11 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 
 	-- actions: Assign (Move), Rest, Sell; a sell to confirm becomes Cancel and a wide "Sell $150"
 	if self._confirmSell then
-		local value = RARITY_SELL_VALUE[rarity] or 0
+		local rarities: { [string]: Types.RarityDef } = if self._catalog
+			then self._catalog.rarities or {}
+			else {}
+		local rarityDef = rarities[rarity]
+		local value = if rarityDef then rarityDef.sellValue else 0
 		self._assign.instance.Visible = false
 		self._rest:setText("Cancel")
 		self._rest:setEnabled(true)
@@ -1142,7 +1146,7 @@ function CatRoom._loadPortraits(self: any)
 		end
 		local y = entry.button.AbsolutePosition.Y
 		if y + entry.button.AbsoluteSize.Y >= top and y <= bottom then
-			entry.portrait:set(entry.def, entry.shiny) -- a shiny cat in its own coat (F42)
+			entry.portrait:set(entry.def, entry.shiny) -- a gold cat in its own coat (F42)
 			entry.loaded = entry.portrait:hasModel()
 		end
 	end

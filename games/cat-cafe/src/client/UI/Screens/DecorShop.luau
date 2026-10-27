@@ -5,6 +5,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -64,6 +65,8 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 
 	local panel = Panel.new({
 		name = "Decor",
+		color = Theme.colors.goldDark,
+		icon = Theme.icons.decor,
 		title = "Decor",
 		subtitle = "Make the cafe yours",
 		size = UDim2.fromScale(1, 1),
@@ -199,6 +202,35 @@ function DecorShop._build(self: any)
 			Text = decor.name:sub(1, 1),
 			Parent = art,
 		})
+		-- Index decor (F48): a dark ribbon over the art says which Index milestone wins it, until it is claimed
+		local unlock: TextLabel? = nil
+		if IndexRewards.isIndexDecor(decor) then
+			unlock = text({
+				Name = "Unlock",
+				BackgroundColor3 = Theme.colors.outline,
+				BackgroundTransparency = 0.25,
+				AnchorPoint = Vector2.new(0, 1),
+				Position = UDim2.fromScale(0, 1),
+				Size = UDim2.new(1, 0, 0, 32),
+				FontFace = Theme.fonts.bodyBold,
+				TextSize = Theme.sizes.textTiny,
+				TextColor3 = Theme.colors.white,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				TextWrapped = true,
+				TextTruncate = Enum.TextTruncate.None,
+				ZIndex = 2,
+				Parent = art,
+			})
+			Create(
+				"UICorner",
+				{ CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = unlock }
+			)
+			Create("UIPadding", {
+				PaddingLeft = UDim.new(0, 4),
+				PaddingRight = UDim.new(0, 4),
+				Parent = unlock,
+			})
+		end
 		local owned = text({
 			Name = "Owned",
 			BackgroundColor3 = Theme.colors.good,
@@ -255,8 +287,14 @@ function DecorShop._build(self: any)
 			end,
 		})
 
-		self._cards[decor.id] =
-			{ frame = card, owned = owned, action = action, def = decor, mode = "buy" }
+		self._cards[decor.id] = {
+			frame = card,
+			owned = owned,
+			action = action,
+			unlock = unlock,
+			def = decor,
+			mode = "buy",
+		}
 	end
 	self:_setFilter("All")
 end
@@ -284,12 +322,32 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 		("%d placed  ·  %s"):format(placedCount, Format.money(state.money))
 	)
 
+	local replaced = if self._catalog then IndexRewards.replacedBy(self._catalog, state) else {}
 	for decorId, card in self._cards do
 		local def: Types.DecorDef = card.def
 		local isOwned = state.decorOwned[decorId] == true
 		local isPlaced = state.decorPlaced[decorId] == true
 		local locked = def.requiresTier ~= nil and state.tier < (def.requiresTier :: number)
 		card.owned.Visible = isOwned
+		local unlock: TextLabel? = card.unlock
+		if unlock then
+			-- a placed gold piece takes over from its normal piece (N117)
+			local isReplaced = isOwned and isPlaced and replaced[decorId] ~= nil
+			unlock.Visible = not isOwned or isReplaced
+			local catalog: Types.Catalog? = self._catalog
+			local areaId, milestone = nil, nil
+			if catalog then
+				areaId, milestone = IndexRewards.decorSource(catalog, decorId)
+			end
+			local label = "From the Index"
+			if catalog and areaId and milestone then
+				local total = IndexRewards.counts(catalog, state, areaId).total
+				label = IndexRewards.unlockLabel(milestone, Format.areaName(areaId), total)
+			end
+			unlock.Text = if isReplaced
+				then "✨ Replaced by its gold piece"
+				else Theme.icons.lock .. " " .. label
+		end
 		if isOwned and isPlaced then
 			card.mode = "remove"
 			card.action:setText("Remove")
@@ -300,6 +358,12 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.action:setText("Place")
 			card.action:setStyle("secondary")
 			card.action:setEnabled(true)
+		elseif IndexRewards.isIndexDecor(def) then
+			-- F48: won from the Index, never bought (BuyDecor refuses it)
+			card.mode = "index"
+			card.action:setText(Theme.icons.collection .. " Index reward")
+			card.action:setStyle("ghost")
+			card.action:setEnabled(false)
 		elseif locked then
 			card.mode = "locked"
 			card.action:setText(Format.tier(def.requiresTier :: number))

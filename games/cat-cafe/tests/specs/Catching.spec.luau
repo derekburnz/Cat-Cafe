@@ -390,9 +390,9 @@ return function()
 			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), nil)).to.equal(nil)
 		end)
 
-		it("always announces a shiny, whatever its rarity", function()
-			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "shiny")).to.equal(
-				"Dee caught a shiny Common Tabby!"
+		it("always announces a gold cat, whatever its rarity", function()
+			expect(Catching.shoutOut("Dee", "caught", cat("Common", "Tabby"), "gold")).to.equal(
+				"Dee caught a gold Common Tabby!"
 			)
 		end)
 

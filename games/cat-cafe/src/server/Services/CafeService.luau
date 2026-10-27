@@ -23,6 +23,7 @@ local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local Settings = require(ReplicatedStorage.Shared.Settings)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -103,12 +104,12 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		bait = baitView(profile, now),
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
-		shinyCollection = profile.shinyCollection,
+		goldCollection = profile.goldCollection,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
-		settings = { music = profile.settings.music, sfx = profile.settings.sfx },
+		settings = Settings.copy(profile.settings),
 		serverTime = now,
 	}
 end
@@ -130,7 +131,7 @@ end
 
 -- Working cats stand at their slots; up to #plot.napSpots cats without a job nap in the cafe, highest rating first,
 -- so the collection is on show from the street (world-and-feel.md section 4, F37). Each model carries what the
--- world labels and effects read: Slot, Napping, Rarity, Shiny, Rate (its coins per second after the cafe and
+-- world labels and effects read: Slot, Napping, Rarity, Gold, Rate (its coins per second after the cafe and
 -- tier multipliers, 0 while napping) and DisplayName (its filtered name, else the catalog name; F33); working cats
 -- are tagged WorkingCat.
 type CatPlacement = { instance: Types.CatInstance, slot: string, anchor: BasePart }
@@ -210,7 +211,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("SpotId", instance.spotId)
 		model:SetAttribute("Napping", instance.spotId == nil)
 		model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
-		model:SetAttribute("Shiny", instance.variant == "shiny")
+		model:SetAttribute("Gold", instance.variant == "gold")
 		model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
 		model:SetAttribute("DisplayName", shownName(player, instance))
 		model:SetAttribute("OwnerUserId", player.UserId)
@@ -362,7 +363,7 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("BaitKey", key)
 		model:SetAttribute("CatId", bait.catId)
 		model:SetAttribute("Rarity", def.rarity)
-		model:SetAttribute("Shiny", bait.variant == "shiny")
+		model:SetAttribute("Gold", bait.variant == "gold")
 		model:SetAttribute("OwnerUserId", player.UserId)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 		model:PivotTo(plot.baitCat.CFrame)
@@ -446,7 +447,7 @@ end
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 -- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
 -- prompt); otherwise it is rolled here.
--- `method` is how the cat was found, "net" when nil; "rescue" also sets the rescued flag. `variant` keeps a shiny
+-- `method` is how the cat was found, "net" when nil; "rescue" also sets the rescued flag. `variant` keeps a gold
 -- roll made before the cat was owned (a bait cat when the food went in, a stuck cat at night start).
 function CafeService.addCaughtCat(
 	player: Player,
@@ -478,16 +479,16 @@ function CafeService.addCaughtCat(
 	end
 	if variant ~= nil then
 		instance.variant = variant
-		if variant == "shiny" then
-			local firstShiny = profile.shinyCollection[def.id] == nil
-			if firstShiny then
-				profile.shinyCollection[def.id] = now
+		if variant == "gold" then
+			local firstGold = profile.goldCollection[def.id] == nil
+			if firstGold then
+				profile.goldCollection[def.id] = now
 			end
 			Telemetry.custom(
 				player,
-				"shiny_found",
+				"gold_found",
 				1,
-				{ howText, def.rarity, if firstShiny then "yes" else "no" }
+				{ howText, def.rarity, if firstGold then "yes" else "no" }
 			)
 		end
 	end
@@ -905,6 +906,22 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 	end
 end
 
+-- The Settings screen (data-model section 14 `settings`): a switch takes a boolean, a volume a number it clamps
+-- to 0 to 1 (shared/Settings). Unknown keys and values that do not fit are dropped.
+local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
+	local value = Settings.clean(rawKey, rawValue)
+	local profile = profileFor(player)
+	if profile == nil or value == nil then
+		return
+	end
+	local settings = profile.settings :: any
+	if settings[rawKey :: string] == value then
+		return -- nothing changed; no sync
+	end
+	settings[rawKey :: string] = value
+	CafeService.sync(player)
+end
+
 local function onLoaded(player: Player, profile: Profile)
 	local plot = PlotService.assign(player)
 	if plot == nil then
@@ -957,6 +974,7 @@ function CafeService.start()
 	Net.on("BuyLure", onBuyLure)
 	Net.on("ClaimOffline", onClaimOffline)
 	Net.on("TutorialAdvance", onTutorialAdvance)
+	Net.on("SetSetting", onSetSetting)
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)
 		local offline, seconds = DataService.peekPendingOffline(player)

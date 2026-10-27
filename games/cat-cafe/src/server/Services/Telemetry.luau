@@ -48,7 +48,7 @@ export type CustomEvent =
 	| "rescue_attempt"
 	| "bait_rolled"
 	| "bait_resolved"
-	| "shiny_found"
+	| "gold_found"
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"
@@ -57,6 +57,7 @@ export type CustomEvent =
 	| "travel"
 	| "tutorial_step"
 	| "ui_opened"
+	| "tip_jar"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

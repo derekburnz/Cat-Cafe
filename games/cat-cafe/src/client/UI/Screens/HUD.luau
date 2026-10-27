@@ -3,7 +3,7 @@
 --   top left      money and income
 --   top centre    cafe tier pill
 --   top right     small icon buttons (Invite) and the day and night clock chip, the next goal card under them
---   left          big pill buttons: Cats, Book, Upgrades, Decor, with key caps and red "!" dots
+--   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots
 --   bottom centre Equip Best, the big gold My Cafe teleport, Alley and Areas; above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
 --   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
@@ -22,12 +22,14 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -35,7 +37,7 @@ export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
 	openBait: () -> (), -- the bowl chip opens the bait bowl screen, or the cat waiting at the bowl
-	openCollection: (tab: "Book" | "Room") -> (), -- the Collection screen on that tab
+	openCollection: (tab: "Index" | "Room") -> (), -- the Collection screen on that tab
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
 }
@@ -53,6 +55,7 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	setCatching: (self: HUD, active: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
+	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
 }
@@ -157,6 +160,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._seen =
 		{ Upgrades = {}, Decor = {}, Collection = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
+	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
 	self._collectionPrimed = false
 	self._openScreen = nil :: string?
 
@@ -314,7 +318,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tiersOn = false
 
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
-	-- Invite opens Roblox's own invite window; Daily, Mail and Settings join it as their screens arrive.
+	-- Gifts opens the Tip Jar (F47) and counts down to the next playtime gift, the gear opens Settings, Invite
+	-- opens Roblox's own invite window; Daily and Mail join them as they arrive.
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
@@ -330,6 +335,64 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	local gifts = Button.new({
+		name = "Gifts",
+		text = "Gifts",
+		icon = Theme.icons.gifts,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "berry",
+		size = UDim2.fromOffset(ICON, ICON),
+		layoutOrder = 2,
+		parent = icons,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openScreen("TipJar")
+		end,
+	})
+	gifts.instance.Visible = false -- until the first TipJarState
+	table.insert(self._buttons, gifts)
+	self._gifts = gifts
+	-- red count of gifts ready to claim, on the tile's top right corner
+	local giftDot: Frame = Create("Frame", {
+		Name = "Dot",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = 6,
+		Parent = gifts.instance,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(giftDot, 2)
+	self._giftDot = giftDot
+	self._giftCount = label({
+		Name = "Count",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "",
+		ZIndex = 7,
+		Parent = giftDot,
+	})
+	table.insert(
+		self._buttons,
+		Button.new({
+			name = "Settings",
+			text = "Settings",
+			icon = Theme.icons.settings,
+			layout = "tile",
+			textSize = Theme.sizes.textTiny,
+			style = "ghost",
+			size = UDim2.fromOffset(ICON, ICON),
+			layoutOrder = 3,
+			parent = icons,
+			onClick = function()
+				callbacks.openScreen("Settings")
+			end,
+		})
+	)
 	table.insert(
 		self._buttons,
 		Button.new({
@@ -451,12 +514,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		},
 		{
-			name = "Book",
+			name = "Index",
 			icon = Theme.icons.collection,
 			style = "primary",
 			dot = "Collection",
 			open = function()
-				callbacks.openCollection("Book")
+				callbacks.openCollection("Index")
 			end,
 		},
 		{
@@ -505,6 +568,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			layoutOrder = index,
 			parent = menu,
 			sound = false, -- the modal swish is the sound
+			ears = true,
 			onClick = item.open,
 		})
 		local key = item.key
@@ -537,9 +601,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			})
 			self._dots[screen] = dot
 		end
-		if item.name == "Book" then
+		if item.name == "Index" then
 			-- cats found out of all cats, where the old top right cats pill had it
-			self._bookCount = label({
+			self._indexCount = label({
 				Name = "Count",
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, -10, 0.5, 0),
@@ -677,6 +741,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = if home then Theme.sizes.textLarge else Theme.sizes.textBody + 1,
 			layoutOrder = index + 1,
 			parent = travelRow,
+			ears = home,
 			-- Areas only opens the panel, which swishes; Cafe and Alley click
 			sound = if item.key == "areas" then false else nil,
 			onClick = function()
@@ -989,7 +1054,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self:_renderTier(tierProgress)
 		self:_renderBowlSlot(state)
 		local total = if catalog then #catalog.cats else 0
-		self._bookCount.Text = ("%d/%d"):format(distinct, total)
+		self._indexCount.Text = ("%d/%d"):format(distinct, total)
 		return
 	end
 	self._rankBadge.Visible = false
@@ -1021,7 +1086,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 
 	local total = if catalog then #catalog.cats else 0
-	self._bookCount.Text = ("%d/%d"):format(distinct, total)
+	self._indexCount.Text = ("%d/%d"):format(distinct, total)
 	self:_renderBowlSlot(state)
 end
 
@@ -1181,14 +1246,43 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 	if open and (candidates :: any)[open] then
 		Notices.markSeen((candidates :: any)[open], self._seen[open])
 	end
+	-- the Index's dot also stays lit while an Index reward waits to be claimed (F48), even after the Index is opened
+	local _, indexReady = IndexRewards.claimable(catalog, state)
+	self._indexReady = indexReady
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
 		local show = Notices.hasNew(keys, self._seen[screen])
+			or (screen == "Collection" and indexReady > 0)
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 		end
 		dot.Visible = show
 	end
+end
+
+-- The Gifts tile (F47): "Claim!" with a red count while gifts are ready, else the time to the next one, "Done"
+-- once all twelve are claimed. nil hides the tile.
+function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, left: number }?)
+	local gifts: Button.Button = self._gifts
+	gifts.instance.Visible = summary ~= nil
+	if summary == nil then
+		return
+	end
+	local nextIn: number? = summary.nextIn
+	local text = if summary.ready > 0
+		then "Claim!"
+		elseif nextIn ~= nil then TipJarLogic.clock(nextIn)
+		else "Done"
+	if text ~= self._giftText then
+		self._giftText = text
+		gifts:setText(text)
+	end
+	local ready = summary.ready > 0
+	if ready and not self._giftDot.Visible then
+		Tween.popIn(self._giftDot, 0.5)
+	end
+	self._giftDot.Visible = ready
+	self._giftCount.Text = tostring(summary.ready)
 end
 
 -- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot.
@@ -1199,7 +1293,7 @@ function HUD.screenOpened(self: any, name: string?)
 		Notices.markSeen((candidates :: any)[name], self._seen[name])
 		local dot: Frame? = self._dots[name]
 		if dot then
-			dot.Visible = false
+			dot.Visible = name == "Collection" and (self._indexReady or 0) > 0
 		end
 	end
 end

@@ -236,6 +236,8 @@ function RankUp.new(callbacks: Callbacks): RankUp
 
 	local panel = Panel.new({
 		name = "RankUp",
+		color = Theme.colors.goldDark,
+		icon = "🏆",
 		title = "Rank up",
 		subtitle = "Tier 1",
 		size = UDim2.fromOffset(560, 470),

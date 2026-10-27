@@ -159,7 +159,7 @@ function Button.new(props: Props): Button
 
 	local isTile = layout == "tile"
 	local iconSize: number? = if not isTile and props.icon then props.iconSize else nil
-	local iconLeft = if iconSize then 8 + iconSize + 4 else 8 -- where a row's text starts
+	local iconLeft = if iconSize then 6 + iconSize + 4 else 8 -- where a row's text starts
 	-- the icon sits in the text unless it is drawn on its own (tiles, and rows with iconSize)
 	local inlineIcon = props.icon ~= nil and not isTile and iconSize == nil
 	local textSize = props.textSize or Theme.sizes.textBody
@@ -169,7 +169,7 @@ function Button.new(props: Props): Button
 		AnchorPoint = if isTile then Vector2.new(0, 1) else Vector2.new(),
 		Size = if isTile
 			then UDim2.new(1, -8, 0, textSize + 6)
-			else UDim2.new(1, -(iconLeft + 8), 1, 0),
+			else UDim2.new(1, -(iconLeft + (if iconSize then 6 else 8)), 1, 0),
 		Position = if isTile then UDim2.new(0, 4, 1, -4) else UDim2.fromOffset(iconLeft, 0),
 		FontFace = props.font or Theme.fonts.display,
 		TextSize = textSize,
@@ -178,10 +178,15 @@ function Button.new(props: Props): Button
 			then (props.icon :: string) .. " " .. (props.text or "")
 			else props.text or "",
 		TextTruncate = Enum.TextTruncate.AtEnd,
-		TextXAlignment = Enum.TextXAlignment.Center,
+		-- next to a big icon the text reads from the icon and shrinks or wraps rather than cut off ("Walk it home")
+		TextXAlignment = if iconSize then Enum.TextXAlignment.Left else Enum.TextXAlignment.Center,
+		TextScaled = iconSize ~= nil,
 		ZIndex = (props.zIndex or 1) + 2,
 		Parent = face,
 	})
+	if iconSize then
+		Create("UITextSizeConstraint", { MaxTextSize = textSize, MinTextSize = 10, Parent = label })
+	end
 	local textOutline = Outline.text(label)
 
 	-- Tiles carry a big icon above the label; rows with iconSize a big icon left of it.
@@ -191,7 +196,7 @@ function Button.new(props: Props): Button
 			Name = "Icon",
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 8, 0.5, 0),
+			Position = UDim2.new(0, 6, 0.5, 0),
 			Size = UDim2.fromOffset(iconSize, iconSize),
 			FontFace = Theme.fonts.display,
 			TextScaled = true,

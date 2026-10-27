@@ -43,8 +43,12 @@ function CatPose.scaleOf(model: Model): number
 	return if type(scale) == "number" and scale > 0 then scale else 1
 end
 
--- Stands the cat up with its pivot on `station`. A cat with no Head or Tail object is only placed.
+-- Stands the cat up with its pivot on `station`. A cat with no Head or Tail object (a placeholder) gets the body
+-- turn and nothing more. Posing is done once, on a fresh clone; a cat already upright is left alone (reviewer N98).
 function CatPose.upright(model: Model, station: CFrame)
+	if model:GetAttribute("Pose") == "upright" then
+		return
+	end
 	local scale = CatPose.scaleOf(model)
 	local rest = model:GetPivot()
 	local head = objectModel(model, "Head")

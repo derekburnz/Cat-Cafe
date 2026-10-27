@@ -54,8 +54,10 @@ ones. Needs API access on in Studio.
 
 ## 3. Reading the reports (QA)
 
-- In Studio with API access on: `game.ServerStorage.CatCafeDebug:Invoke("bugReports", 50)` for the testers'
-  reports, `("bugReports", 50, nil, true)` for Studio's.
+- In Studio with API access on, in a place published inside the experience:
+  `game.ServerStorage.CatCafeDebug:Invoke("bugReports", 50)` for the testers' reports, `("bugReports", 50, nil,
+  true)` for Studio's. A dev copy opened from a file has no DataStores ("You must publish this place to the web to
+  access DataStore"), so there a report only prints its `[BugReport]` line and answers "Couldn't send that".
 - From the threads: Open Cloud "List data store entries" and "Get entry" on universe 10773193456, data store
   `BugReports_v1`, prefix `r_<day>`. That needs an Open Cloud key with the `universe-datastores.objects:list`
   and `universe-datastores.objects:read` scopes on this experience, kept as a secret (never in the repo or

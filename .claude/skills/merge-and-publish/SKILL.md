@@ -1,11 +1,11 @@
 ---
 name: merge-and-publish
-description: How a Cat Cafe thread hands a finished PR to the automerge label instead of waiting on CI, and how to publish the game to Roblox from GitHub Actions without Studio. Use when a PR is reviewed and ready, when Derek asks to "send it to Roblox", publish or playtest the live game, or when an automerge comment or publish run fails.
+description: How a Cat Cafe thread hands a finished PR to the automerge label instead of waiting on CI, and how to publish the game to Roblox from GitHub Actions without Studio. Use when a PR is reviewed and ready, when Derek asks to "send it to Roblox", publish or playtest the live game, when a thread needs an image uploaded to Roblox or wants to read the in-game bug reports, or when an automerge comment or publish run fails.
 ---
 
 # Merge and publish
 
-Two GitHub Actions pieces take the waiting out of the pipeline. Both live in the repo, so they work the same from a cloud thread, the laptop or Derek's phone.
+GitHub Actions takes the waiting out of the pipeline. The workflows live in the repo, so they work the same from a cloud thread, the laptop or Derek's phone.
 
 ## 1. Queue a merge with the `automerge` label
 
@@ -36,3 +36,12 @@ Merge by hand instead (MCP `merge_pull_request`) when the PR changes `.github/wo
 - Open Cloud cannot update unions, SurfaceAppearance, EditableMesh, EditableImage or layered clothing; the place has none today (Parts, WedgeParts, SpecialMeshes). If assets start using them, publish those changes from Studio.
 
 The same scripts run from Git Bash on a PC with the key in the environment: `cd games/cat-cafe && tools/opencloud/publish.sh Published`.
+
+## 3. Upload an image, read the bug reports
+
+Two more workflows use the same key (`ROBLOX_PUBLISH_KEY`, with the permissions from docs/setup-guide.md step 17). A 401 or 403 means Derek has not added them yet; tell him step 17 instead of retrying.
+
+- **Upload an image** (UI textures, icons, decals): `actions_run_trigger` with `method: "run_workflow"`, `workflow_id: "upload-image.yml"`, `ref: "main"`, `inputs: {"path": "assets/cat-cafe/ui/textures/UI_ButtonTiles.png", "branch": "ui/game-buttons"}` (`branch` only when the file is not on main yet; optional `name`, and `type` `Image` or `Decal`). Read the job log with `get_job_logs`: the line `Uploaded <path> as Image <id>: rbxassetid://<id>` has the id, and the run summary repeats it. `Image` ids go straight into `ImageLabel.Image`, `ImageButton.Image` and textures; `Decal` is only for putting the picture on a part from the Toolbox. Each run makes a new asset on Derek's account, so upload a file once and commit its id next to the code that uses it. Roblox moderates every image; until it is approved it draws blank. Only upload our own art (studio rule 8).
+- **Read the bug reports**: `workflow_id: "bug-reports.yml"`, `ref: "main"`, `inputs: {"day": "20261027", "count": "50"}` (`day` empty means today, UTC; `"studio": true` reads the Studio playtests' reports). The log prints one line per report, as `Debug.bugReports` does in Studio, then every record as JSON. Read only. The reports hold the friends' own words and user names: quote what a ticket needs and keep the rest out of chat.
+
+Both scripts (`games/cat-cafe/tools/opencloud/upload-image.sh`, `bug-reports.sh`) also run from Git Bash with the key in the environment.

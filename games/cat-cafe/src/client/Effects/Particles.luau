@@ -216,13 +216,14 @@ end
 
 -- Flash ring and marks ---------------------------------------------------------------------------------------
 
--- A flat disc that grows and fades under a big moment (Purrfect, a gate opening). One flash; skipped with
--- Reduce Motion.
-function Particles.ring(at: Vector3, colour: Color3)
+-- A flat disc that grows and fades under a big moment (Purrfect, a gate opening, a getaway), to `diameter` studs
+-- over `seconds` (Presets.ring by default). One flash; skipped with Reduce Motion.
+function Particles.ring(at: Vector3, colour: Color3, diameter: number?, seconds: number?)
 	if Context.reducedMotion() then
 		return
 	end
-	local r = Presets.ring
+	local r =
+		{ diameter = diameter or Presets.ring.diameter, seconds = seconds or Presets.ring.seconds }
 	local ring = Context.effectPart("Ring", Vector3.new(0.12, 1, 1), colour)
 	ring.Shape = Enum.PartType.Cylinder
 	ring.Material = Enum.Material.Neon

@@ -1,6 +1,6 @@
 # Cat Cafe sound list
 
-Draft v0.5, 2026-10-27 (v0.1 and v0.2 on 2026-10-26, v0.3 for design v0.4, v0.4 for design v0.5, v0.5 for the features built on 2026-10-27). Owner: sound-designer. Built from gdd.md v0.5, data-model.md v0.5 (sections 2, 8 to 13, 15 and 17), features.md v0.5 (sections 2b and 2c), world-and-feel.md and style guide section 1. Status: 60 files synthesized and gated. The first 44: 37 effects and jingles (every UI sound in 5.8, the whole net catch with the hiss, the v0.5 sprint away and the Purrfect chime, the shove and its held-tight squeeze, coins, purchase, the door bell, the stray flee, both purrs, the gate, the shutters and sign, the shout-out chime, the cat found and rank up jingles; `assets/cat-cafe/audio/synth/synth.py`), 6 ambience beds (cafe, Alleyway and Park, day and night; the night cafe rebuilt as the closed cafe for v0.5) and the cafe door loop (`synth/ambience.py`). The code that plays them is in `games/cat-cafe/src/client/Audio/`; the engineer wired start, settings, carrying and zones (PR #66) and the moments (`src/client/Moments.luau`, PR #91). Those 44 are on Roblox, uploaded by Derek with `assets/cat-cafe/audio/upload.py` (31 on 2026-10-26, 13 more on 2026-10-27); the ids are in `Cues.luau` and the sources log. The 16 for the 2026-10-27 features (below) wait for his next upload run and stay silent until then. Waiting for Derek's ear; music is still a plan. Every row is a cue: one named sound the game plays, with the moment that fires it. How to source, prepare, upload and wire them is in `.claude/skills/audio-pipeline/SKILL.md`.
+Draft v0.6, 2026-10-27 (v0.1 and v0.2 on 2026-10-26, v0.3 for design v0.4, v0.4 for design v0.5, v0.5 for the features built on 2026-10-27, v0.6 for design v0.8 and v0.9, features.md 2f). Owner: sound-designer. Built from gdd.md v0.5, data-model.md v0.5 (sections 2, 8 to 13, 15 and 17), features.md v0.5 (sections 2b and 2c), world-and-feel.md and style guide section 1. Status: 76 files synthesized and gated. The first 44: 37 effects and jingles (every UI sound in 5.8, the whole net catch with the hiss, the v0.5 sprint away and the Purrfect chime, the shove and its held-tight squeeze, coins, purchase, the door bell, the stray flee, both purrs, the gate, the shutters and sign, the shout-out chime, the cat found and rank up jingles; `assets/cat-cafe/audio/synth/synth.py`), 6 ambience beds (cafe, Alleyway and Park, day and night; the night cafe rebuilt as the closed cafe for v0.5) and the cafe door loop (`synth/ambience.py`). The code that plays them is in `games/cat-cafe/src/client/Audio/`; the engineer wired start, settings, carrying and zones (PR #66) and the moments (`src/client/Moments.luau`, PR #91). Those 44 are on Roblox, uploaded by Derek with `assets/cat-cafe/audio/upload.py` (31 on 2026-10-26, 13 more on 2026-10-27); the ids are in `Cues.luau` and the sources log. The 17 for the 2026-10-27 features and the 15 for design v0.8 and v0.9 (below) wait for his next upload run and stay silent until then. Waiting for Derek's ear; music is still a plan. Every row is a cue: one named sound the game plays, with the moment that fires it. How to source, prepare, upload and wire them is in `.claude/skills/audio-pipeline/SKILL.md`.
 
 Priorities follow the slice: **P0** is needed for the Phase 2 exit test to feel like a game (20 cues), **P1** before the friends alpha, **P2** polish.
 
@@ -11,6 +11,8 @@ What v0.4 changed here (world-and-feel.md): the first Miss ends a catch, so a Mi
 What v0.5 changed here (Gavin's round 2, features.md 2c): a Miss still hisses, then the cat sprints 12 to 32 studs away and anyone can chase it and try again, so the paw pop is retired and a paw patter runs off with the cat. Bump becomes Shove: any player can shove another inside a catching area, so every shove gets a playful whoosh and boop, and a shoved carrier still drops the cat (or holds on) with its own sound. The cafe closes at night: the night bed inside is cats asleep, not customers, and the door chatter stops at nightfall and on For Rent shops.
 
 What the 2026-10-27 features changed here (features.md F42 and F45 to F48, Derek's UI round): holding E to catch fills with a rising whirr that pops on the trigger, and each circle pips as it appears; Drop sets the cat down with a mrrp and soft paws; walking between the safe street and a catching area plays a calm or a playful chime with the Safe zone chip; fast travel and My Cafe poof; a cat starting or leaving a role (Staff tab, Unequip All) hops in or sighs off; Tip Jar gifts and Index rewards get a ready chime, a claim and a red dot blip; the volume sliders tick; gold replaces shiny (a gold reveal and a twinkle on gold strays); a resting cafe cat purrs (sitting, or lying in a loaf); and the Spin Wheel window (F49) winds up, ticks past each slice and lands on a fanfare.
+
+What design v0.8 and v0.9 changed here (features.md 2f, F55 to F66): the short night gets a town bell 15 s before dusk, a dusk stinger whose vibraphone run ends on the area gates latching shut, and a sunrise stinger as the areas open with fresh cats (the two stingers were silent until now, and they play on the phase change, so they need no new moment); a Mythical shout-out gets its own sting over a wordless choir; a carry starting pops with a pleased mrrp (the dropped cat being picked up); a catch's getaway puffs outward and patters off; collecting tip piles clinks; rich visitors finally get their ding-dong and coin cascade; the Codes Cat has a redeem jingle (a wrong code is the usual gentle bonk); the Cat Collector arrives with a curious clarinet motif and a trade jingle; the Mystery Visitor's gift appears with a cloak swish and a dreamy celesta run, opens with paper and sparkles, and a potion pops, glugs and shimmers. Audio drives all but the UI's four from attributes the design already defines (`Clock`, the plot, the characters).
 
 ## 1. How Cat Cafe should sound
 
@@ -39,8 +41,8 @@ The clock is 5 minutes of day and 5 of night (data-model section 9). Music follo
 | `musicDayB` "Second Cup" | after `musicDayA` | 150 s loop | lazy afternoon, bossa feel | nylon guitar lead, clarinet or flute, soft shaker | about 84 BPM, major | P1 |
 | `musicNightA` "After Hours" | NightStart, first half | 150 s loop | curious, sneaky-cute, never scary | pizzicato strings, muted vibraphone or celesta, walking bass, finger snaps, clarinet | about 96 BPM, minor or dorian but bright | P0 |
 | `musicNightB` "Night Owls" | after `musicNightA` | 150 s loop | late and cozy, a little dreamy | soft Rhodes, brushed kit, muted trumpet or alto flute, music box sparkles | about 80 BPM, major seventh chords | P1 |
-| `stingDusk` "Night Shift" | NightStart | 3 s | the lamps come on, the sign turns to the moon | descending vibraphone run, a soft lamp click | | P1 |
-| `stingDawn` "Fresh Pot" | DayStart | 3 s | morning, the sun sign | rising glockenspiel, one shop bell | | P1 |
+| `stingDusk` "Night Shift" | NightStart (F66: the areas close) | 3.2 s | the lamps come on, the sign turns to the moon, the gates latch for the night | descending vibraphone run into a cosy chord, a soft lamp click, a wooden latch (synthesized, until a composed one) | | P1 |
+| `stingDawn` "Fresh Pot" | DayStart (F66: the sunrise wave, the areas open) | 3.2 s | morning, the sun sign, fresh cats | rising glockenspiel, one shop bell, a warm swell (synthesized, until a composed one) | | P1 |
 | `jingleCatFound` | CatFound | 2 s | "new friend!" | rising four-note glockenspiel, harp sweep | | P0 |
 | `jingleRare` / `jingleEpic` / `jingleLegendary` / `jingleMythical` | CatchSuccess, RescueDone or BaitTame by rarity | 1 / 1.5 / 3 / 4 s | rising excitement; Legendary is a small warm fanfare, Mythical adds a choir-like pad (no words) | chimes, then harp, then soft horns, then the pad | | P1 |
 | `jingleRankUp` | RankUp | 3 s | proud, the cafe grows; tier 5 gets a longer ending | piano and glockenspiel flourish, soft horns | | P0 |
@@ -121,6 +123,8 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 | `bumpHeld` | BumpHeld ("It held on tight!") | 3D at the carrier | 0.6 s | a rubbery double squeeze and a light mint shimmer, with the effects' squeeze wobble and ring | P1 |
 | `checkInBell` | CheckIn | 3D on your door | 1 s | shop-door bell | P0 |
 | `catDrop` | CatDrop (F45: the Drop button or G while carrying) | 3D at your feet | 0.6 s | a small "mrrp", two soft paws landing and a little shake | P1 |
+| `catPickUp` | a character's `CarryStartedAt` is set (F56: a dropped cat picked up; any carry starting, but your own stays quiet for 2 s after your catch or rescue) | 3D on the carrier | 0.4 s | a soft pop as the cat hops into your arms and a pleased little "mrrp" | P1 |
+| `getaway` | a character's `RushUntil` moves ahead (F55: a catch pushes everyone within 10 studs back and the catcher rushes) | 3D on the catcher | 0.85 s | a puff of air bursting outward, then quick light paws rushing off | P1 |
 | `catPlaced` | CatPlaced (a cat starts a role: Staff tab, Equip Best) | 2D, one per sync | 0.6 s | soft hop thump, a happy "mrrp" and three sparkles | P1 |
 | `catRest` | UnplaceCat (a cat leaves its role; Unequip All plays it once) | 2D | 0.65 s | a sleepy sigh, a small falling "mew" and a soft flop | P1 |
 | `catSold` | CatSold | 2D | 0.6 s | coin clink and a small goodbye meow | P2 |
@@ -154,11 +158,13 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 | `placeFurniture` | Purchase of a table or decor | 3D on the new piece | 0.5 s | wooden thunk and a sparkle | P2 |
 | `gateOpen` | AreaUnlock (the next area's gate after a rank up) | 3D on the gate | 1.5 s | v0.4: the see-through barrier dissolves, a soft shimmer and a rising sparkle | P1 |
 | `shuttersUp` | PlotOpened (a For Rent plot becomes a player's cafe) | 3D on the shop front | 1.5 s | shutters rattling up, with `signFlip` as the sign turns to OPEN | P1 |
-| `richArrive` | RichArrive (a rich customer at your cafe) | 3D on your tip pile, plus a 2D chime | 1 s | posh little two-note "ding-ding" and a coin pile settling | P1 |
-| `richTip` | RichTipClaim (claimed or auto-collected) | 2D | 1.2 s | big coin cascade | P1 |
+| `richArrive` | RichArrive (a rich customer at your cafe; F61 makes them richer and more common) | 2D | 1.1 s | posh little two-note "ding-dong" and a coin pile settling | P1 |
+| `richTip` | RichTipClaim (claimed or auto-collected) | 2D | 1.3 s | big coin cascade and a bright chime | P1 |
+| `tipPile` | your plot's `TipPiles` goes down (F61: `CollectTips`, walking near a pile or Collect on the till) | 2D | 0.5 s | a short clink of coins scooped off the tables, once per collect however many piles | P1 |
 | `dealerArrive` | DealerArrive | 3D on the cart | 1.5 s | cart wheels rolling in and a lantern bell | P1 |
 | `dealerLeave` | DealerLeave | 3D on the cart | 1.5 s | wheels rolling away | P2 |
 | `announce` | Announce, the server shout-out (Epic and up, every gold cat, rank ups to Tier 3 and up) | 2D | 1 s | two-note chime under the banner, one note higher per rarity step | P1 |
+| `announceMythical` | Announce with rarity Mythical (F58: a Mythical in the sunrise wave, or a Mythical catch); the two-note chime until the file is uploaded | 2D | 2.4 s | the shout-out's two notes grow into a shimmering gold chord over a wordless choir; ducks the music | P1 |
 
 ### 5.7 Clock
 
@@ -166,13 +172,14 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 |---|---|---|---|---|---|
 | `signFlip` | NightStart, DayStart, PlotOpened | 3D on your door sign | 0.4 s | wooden sign turning between sun and moon, or to OPEN | P1 |
 | `lampOn` | NightStart | 3D on each street lamp | 0.5 s | click and hum start | P2 |
+| `duskBell` | `Clock` `PhaseEndsAt` minus DuskWarningSeconds (15) by day, with the F66 warning banner; Audio schedules it itself | 2D | 3.4 s | the town clock's bell tolling twice, warm and unhurried | P1 |
 
 ### 5.8 UI
 
 | Cue | When | Length | What it sounds like | P |
 |---|---|---|---|---|
 | `uiClick` | any button press (the UI's `click` hook) | 0.05 s | soft pop | P0 |
-| `uiError` | Toast of kind warn, can't afford, not allowed, "You got shoved!" (the UI's `error` hook) | 0.2 s | gentle low "bonk", never a buzzer | P0 |
+| `uiError` | Toast of kind warn, can't afford, not allowed, "You got shoved!", a wrong or used code (F65) (the UI's `error` hook) | 0.2 s | gentle low "bonk", never a buzzer | P0 |
 | `uiOpen` / `uiClose` | panel or modal opens or closes | 0.15 s | soft paper swish up and down | P1 |
 | `uiDealerOpen` | the dealer screen opens | 0.4 s | music-box run, a little mysterious | P2 |
 | `uiRankReady` | the rank up card shows every requirement met | 0.5 s | bright rising chime, once per tier | P1 |
@@ -184,6 +191,8 @@ Traps: Alleyway trash bin and garbage bag, Park tree and trashcan. The bar kind 
 | `uiGiftReady` | a Tip Jar gift becomes ready (the ready count goes up, never on the first state) | 0.6 s | glass jar ting and a small two-note chime | P1 |
 | `uiBadge` | a red dot turns on (not the ones the first state lights) | 0.1 s | tiny bubble blip | P2 |
 | `uiRename` | a cat's new name is saved | 0.3 s | pencil scribble and a ding | P2 |
+| `uiCodeRedeem` | `CodeResult` ok (F65, the Codes Cat's box; the UI plays it) | 1.25 s | a key turns in a little lock, a bright run and a sprinkle of coins | P1 |
+| `uiTrade` | the Cat Collector trade goes through (F63, `AnswerCollector(true)` accepted; the UI plays it) | 1.2 s | two little runs pass each other, then a bright "deal!" chord and a coin | P2 |
 
 The UI's `catFound` hook plays `jingleCatFound`.
 
@@ -208,6 +217,15 @@ Zone chimes play one per 4 s, so walking along an area's open edge plays one, an
 | `uiSpinWin` | the wheel lands on a prize (the UI) | 2D | 1.4 s | a quick run up into a bright chord with coins on top; ducks the music | P1 |
 
 The spinner hears the window's own cues; Audio binds no wheel moment, so nothing doubles. Other players near the world wheel (VFX PR #226, which turns on `LastSpinAt`) hear nothing yet; a bystander tick could follow that attribute later.
+
+### 5.11 Visitors and potions (v0.8, section 12b)
+
+| Cue | Moment | 2D/3D | Length | What it sounds like | P |
+|---|---|---|---|---|---|
+| `visitorCollector` | your plot's `CollectorUntil` goes from 0 to a time (F63: the Cat Collector comes by) | 2D | 1.5 s | a polite, curious clarinet motif and the glint of a magnifying glass | P2 |
+| `visitorMystery` | your plot's `MysteryGiftAt` goes from 0 to a time (F64: the Mystery Visitor left a gift) | 2D | 1.7 s | the swish of a cloak and a dreamy whole-tone celesta run, curious, never spooky | P2 |
+| `giftOpen` | `MysteryGiftResult` (F64: you opened the gift; the UI plays it with the result card, not on `MysteryGiftAt` clearing, which also happens at the keep timeout) | 2D | 1.2 s | the ribbon slips, the paper tears, a pop and a sparkle | P2 |
+| `potionDrink` | `UsePotion` accepted (F64; the UI plays it when the bag's count drops) | 2D | 1.25 s | a cork pops, three bubbly gulps and a shimmer rising as it starts working | P2 |
 
 P0 set (20): `musicDayA`, `musicNightA`, `jingleCatFound`, `jingleRankUp`, `ambAlleyNight`, `netSwing`, `circlePerfect`, `circleGood`, `circleMiss`, `catchSparkle`, `catchMiss`, `catHiss`, `straySprint`, `purrfectChime`, `checkInBell`, `coinPop`, `purchase`, `uiClick` and `uiError`. The three circle grades come first: the net is the riskiest feel (features.md build order), and sound is half of a timing game's feel. The upload order in `upload.py` follows this list, so a small monthly allowance covers the whole catch first.
 
@@ -254,6 +272,8 @@ The engineer adds `src/client/Moments.luau`, one signal per moment fired from th
 | Announce | text, rarity (optional) | a server shout-out arrives | `Announce` remote; rarity as a second argument lets the chime rise |
 
 World loops need no moment: the world builder tags the part or model and Audio plays its loop while it exists: `CafeDoor` (each cafe's front door, only while its plot has an owner and it is day), `Fountain`, `FishTank`, `WorkingCat` (a cat at its station, awake or napping; only the 3 nearest within 14 studs purr) and `Stray` (a gold or Epic and up stray twinkles; the 3 nearest within 40 studs). By day the nearest resting cafe cat within 14 studs purrs too (the Napping children of each Plot's `Cats`: a sitting one all day, a lying one while `Effects.isLoafing`). Strays need no moment either: the hiss and the sprint follow their `HissAt` and `FleeingUntil` attributes.
+
+Design v0.8 and v0.9 need no new moment either. Audio follows the attributes data-model section 13 already defines: the `Clock` for the dusk bell (and the two stingers it always played), every character's `RushUntil` (getaway) and `CarryStartedAt` (pick up), and your own plot's `TipPiles`, `CollectorUntil` and `MysteryGiftAt` (tip piles, the two visitors), so they work for players nearby too and on a rejoin. The UI plays `uiCodeRedeem` and `uiError` from `CodeResult`, `giftOpen` from `MysteryGiftResult` (an unopened gift also clears at MysteryGiftKeepSeconds, so the attribute going to 0 is not an opening), `uiTrade` when a trade goes through and `potionDrink` when a potion is drunk.
 
 For the UI: today `Theme.sounds` holds four optional asset ids. Proposal to the ui-designer: replace the ids with one injected `playSound(cueId)` function, so asset ids live only in `src/client/Audio/Cues.luau` and the UI keeps no ids of its own.
 

@@ -912,6 +912,7 @@ function UIController.start()
 		indexMilestones = Catalog.indexMilestones,
 		indexPrizes = Catalog.indexPrizes,
 		spinWheel = Catalog.spinWheel,
+		crates = Catalog.crates, -- F53: names and models for the crate prizes (review S77)
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-61 files: 61 PASS, 0 WARN, 0 FAIL.
+76 files: 76 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -15,11 +15,15 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `ambience/CatCafe_Amb_ParkNight.ogg` | ambience | 48.00 | 2 | 48000 | 677 | -26.2 | -12.0 | - | ok | PASS |  |
 | `music/CatCafe_Music_JingleCatFound.ogg` | stinger | 2.20 | 2 | 48000 | 28 | -15.1 | -5.8 | 0 | - | PASS |  |
 | `music/CatCafe_Music_JingleRankUp.ogg` | stinger | 3.20 | 2 | 48000 | 43 | -18.4 | -6.0 | 0 | - | PASS |  |
+| `music/CatCafe_Music_StingDawn.ogg` | stinger | 3.20 | 2 | 48000 | 42 | -17.9 | -5.8 | 0 | - | PASS |  |
+| `music/CatCafe_Music_StingDusk.ogg` | stinger | 3.20 | 2 | 48000 | 38 | -16.6 | -6.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Announce.ogg` | sfx | 0.90 | 1 | 48000 | 9 | -16.8 | -3.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_AnnounceMythical.ogg` | sfx | 2.40 | 1 | 48000 | 26 | -17.9 | -2.7 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_BumpHeld.ogg` | sfx | 0.60 | 1 | 48000 | 7 | -13.9 | -4.8 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CarryPurr.ogg` | sfx | 3.00 | 1 | 48000 | 42 | -26.1 | -5.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatDrop.ogg` | sfx | 0.60 | 1 | 48000 | 9 | -23.6 | -5.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatHiss.ogg` | sfx | 0.50 | 1 | 48000 | 10 | -19.0 | -3.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CatPickUp.ogg` | sfx | 0.42 | 1 | 48000 | 6 | -18.7 | -4.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatPlaced.ogg` | sfx | 0.60 | 1 | 48000 | 8 | -17.6 | -5.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatRest.ogg` | sfx | 0.65 | 1 | 48000 | 8 | -17.8 | -5.9 | 1 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatchMiss.ogg` | sfx | 0.45 | 1 | 48000 | 7 | -18.8 | -6.0 | 0 | - | PASS |  |
@@ -31,28 +35,38 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_CircleMiss.ogg` | sfx | 0.18 | 1 | 48000 | 5 | - | -8.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CirclePerfect.ogg` | sfx | 0.60 | 1 | 48000 | 6 | -14.6 | -2.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CoinPop.ogg` | sfx | 0.16 | 1 | 48000 | 5 | - | -8.0 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_DuskBell.ogg` | sfx | 3.40 | 1 | 48000 | 19 | -17.8 | -4.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_GateOpen.ogg` | sfx | 1.60 | 1 | 48000 | 23 | -15.3 | -3.8 | 15 | - | PASS |  |
+| `sfx/CatCafe_Sfx_Getaway.ogg` | sfx | 0.85 | 1 | 48000 | 11 | -24.4 | -4.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_GiftClaim.ogg` | sfx | 1.05 | 1 | 48000 | 12 | -16.1 | -3.9 | 1 | - | PASS |  |
+| `sfx/CatCafe_Sfx_GiftOpen.ogg` | sfx | 1.20 | 1 | 48000 | 15 | -18.5 | -4.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_GoldReveal.ogg` | sfx | 1.80 | 1 | 48000 | 19 | -17.1 | -3.1 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_HoldFill.ogg` | sfx | 0.62 | 1 | 48000 | 9 | -20.9 | -6.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_IndexReward.ogg` | sfx | 1.50 | 1 | 48000 | 16 | -15.8 | -3.1 | 2 | - | PASS |  |
 | `sfx/CatCafe_Sfx_NetSwing.ogg` | sfx | 0.28 | 1 | 48000 | 7 | - | -3.5 | 5 | - | PASS |  |
 | `sfx/CatCafe_Sfx_PawLost.ogg` | sfx | 0.16 | 1 | 48000 | 5 | - | -5.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_PotionDrink.ogg` | sfx | 1.25 | 1 | 48000 | 16 | -25.1 | -5.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Purchase.ogg` | sfx | 0.65 | 1 | 48000 | 7 | -16.6 | -3.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Purr.ogg` | sfx | 3.00 | 1 | 48000 | 42 | -26.9 | -5.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_PurrfectChime.ogg` | sfx | 1.60 | 1 | 48000 | 16 | -15.4 | -2.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_RichArrive.ogg` | sfx | 1.10 | 1 | 48000 | 12 | -17.6 | -5.6 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_RichTip.ogg` | sfx | 1.30 | 1 | 48000 | 15 | -14.8 | -3.8 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ShimmerRare.ogg` | sfx | 2.00 | 1 | 48000 | 22 | -21.0 | -9.8 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Shove.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -4.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ShuttersUp.ogg` | sfx | 1.40 | 1 | 48000 | 17 | -21.8 | -3.6 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_SignFlip.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -6.0 | 1 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StrayFlee.ogg` | sfx | 0.55 | 1 | 48000 | 9 | -20.1 | -3.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StraySprint.ogg` | sfx | 1.00 | 1 | 48000 | 16 | -23.2 | -4.0 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_TipPile.ogg` | sfx | 0.50 | 1 | 48000 | 8 | -18.0 | -5.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_TravelPoof.ogg` | sfx | 0.95 | 1 | 48000 | 12 | -19.5 | -3.7 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_VisitorCollector.ogg` | sfx | 1.50 | 1 | 48000 | 17 | -14.3 | -6.8 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_VisitorMystery.ogg` | sfx | 1.70 | 1 | 48000 | 17 | -17.3 | -6.1 | 2 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneArea.ogg` | sfx | 0.50 | 1 | 48000 | 7 | -22.9 | -9.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneSafe.ogg` | sfx | 0.75 | 1 | 48000 | 9 | -20.6 | -9.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Badge.ogg` | ui | 0.11 | 1 | 48000 | 4 | - | -11.0 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Click.ogg` | ui | 0.07 | 1 | 48000 | 4 | - | -5.7 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Close.ogg` | ui | 0.16 | 1 | 48000 | 5 | - | -8.8 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_CodeRedeem.ogg` | ui | 1.25 | 1 | 48000 | 14 | -16.2 | -4.7 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_DealerOpen.ogg` | ui | 0.75 | 1 | 48000 | 10 | -17.1 | -5.8 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Error.ogg` | ui | 0.26 | 1 | 48000 | 5 | - | -6.0 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_GiftReady.ogg` | ui | 0.60 | 1 | 48000 | 8 | -17.4 | -7.8 | 0 | - | PASS |  |
@@ -67,3 +81,4 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `ui/CatCafe_Ui_Tab.ogg` | ui | 0.04 | 1 | 48000 | 4 | - | -9.1 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Toast.ogg` | ui | 0.30 | 1 | 48000 | 5 | - | -6.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Toggle.ogg` | ui | 0.09 | 1 | 48000 | 5 | - | -8.0 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Trade.ogg` | ui | 1.20 | 1 | 48000 | 14 | -19.5 | -5.9 | 0 | - | PASS |  |

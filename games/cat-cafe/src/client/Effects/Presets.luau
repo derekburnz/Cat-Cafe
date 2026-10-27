@@ -57,6 +57,7 @@ export type Budget = {
 	maxBurst: number, -- no single burst is bigger than this
 	confetti: number, -- pieces in one confetti burst
 	napLabels: number, -- napping cats that show floating z's
+	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -77,6 +78,7 @@ Presets.budget = {
 		maxBurst = 12,
 		confetti = 14,
 		napLabels = 4,
+		rushLines = 2,
 	},
 	high = {
 		animatedCats = 16,
@@ -92,6 +94,7 @@ Presets.budget = {
 		maxBurst = 30,
 		confetti = 28,
 		napLabels = 10,
+		rushLines = 3,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -107,6 +110,7 @@ Presets.budget = {
 		maxBurst = 8,
 		confetti = 8,
 		napLabels = 2,
+		rushLines = 1,
 	},
 } :: { [string]: Budget }
 
@@ -262,6 +266,19 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -120, 120 },
 	},
+	-- A soft violet haze rolling over an area gate as it closes for the night (F66).
+	duskHaze = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.aurora, Presets.palette.furGrey },
+		size = { 1.4, 3.6 },
+		transparency = { 0.55, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 1, 2.5 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, 0.6, 0),
+		drag = 1.5,
+	},
 } :: { [string]: EmitterPreset }
 
 -- Burst sizes before burstScale. A catch sparkle grows with rarity and stays under 30 (skill section 6).
@@ -271,6 +288,7 @@ Presets.bursts = {
 	dust = 6,
 	gateSparkle = 24,
 	purrfect = 28,
+	duskHaze = 4, -- at dusk, at each of the areas.points places along an area gate
 }
 
 -- A gold coat seen for the first time (a gold cat caught or rescued, F42): this many sparkles from the gold
@@ -490,6 +508,38 @@ Presets.shove = {
 	starHz = 1.4,
 	shake = 0.3,
 	shakeStuds = 0.4,
+}
+
+-- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
+-- pushes every other player within CatchBurstRadiusStuds (10) of the catcher away, so a ring as wide as that
+-- spreads from the catcher's feet, and while their `RushUntil` runs (CatchRushSeconds, 5) speed lines stream off
+-- them. Startled (F57): the player who missed walks slowly while their `StartledUntil` runs (StartledSeconds, 2), with
+-- the dizzy stars of a shove for that long and, for them, a camera bump between a miss's and a shove's.
+Presets.chase = {
+	ringDiameter = 20, -- studs: twice CatchBurstRadiusStuds, so the ring ends where the push does
+	ringSeconds = 0.6,
+	dust = 8, -- dust particles at the catcher's feet as the rush starts
+	pushedDust = 6, -- kick particles at a pushed player's feet (`PushedAt`, when the engineer sets it)
+	lineSeconds = 0.25, -- how long a speed line trails behind
+	lineWidth = 0.12, -- studs
+	-- Where each line leaves the body, in the HumanoidRootPart's axes (x right, y up, z back), in the order the
+	-- budget's rushLines takes them.
+	lines = {
+		Vector3.new(-1.15, 0.9, 0.4),
+		Vector3.new(1.15, 0.2, 0.4),
+		Vector3.new(-0.95, -1.2, 0.4),
+	},
+	longest = 30, -- seconds; a RushUntil or StartledUntil further ahead than this is cut to it
+	startledShake = 0.24,
+	startledStuds = 0.3,
+}
+
+-- The areas closing at dusk and opening at sunrise (F66, data-model section 9): at every area gate this player
+-- can use and is near, a violet haze as it closes and a sunrise sparkle and a warm ring as it opens.
+Presets.areas = {
+	points = 3, -- places along each gate's width the haze and sparkle come from
+	sparkle = 6, -- gateSparkle particles at each of those places at sunrise
+	ringDiameter = 12,
 }
 
 Presets.butterfly = {

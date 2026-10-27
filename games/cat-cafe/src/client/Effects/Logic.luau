@@ -55,6 +55,7 @@ export type Offsets = {
 export type Candidate<K> = { key: K, distance: number }
 
 export type PlotChange = "claim" | "release" | "rankUp"
+export type AreasTurn = "dusk" | "sunrise"
 
 -- A phone or tablet (touch with no keyboard) gets the low budget.
 function Logic.tier(touch: boolean, keyboard: boolean): Presets.Tier
@@ -165,6 +166,35 @@ function Logic.newlyOpen<K>(requires: { [K]: number }, prevTier: number, tier: n
 		end
 	end
 	return opened
+end
+
+-- A timed state on a character, such as F55's `RushUntil` or F57's `StartledUntil` (the server time it ends), read
+-- at server time `now` just after it changed from `previous`: the seconds it has left, never more than `longest`,
+-- and whether it is a new one, so its start (the getaway ring, the startled bump) plays once. A change that only
+-- moves the end of one still running is not new; anything but a number ahead of `now` has nothing left.
+function Logic.timedState(
+	ends: unknown,
+	previous: unknown,
+	now: number,
+	longest: number
+): (number, boolean)
+	if type(ends) ~= "number" or ends <= now then
+		return 0, false
+	end
+	local running = type(previous) == "number" and previous > now
+	return math.min(ends - now, longest), not running
+end
+
+-- What a change of the Clock's `AreasOpen` (F66) means: "dusk" when the areas close, "sunrise" when they open,
+-- nil when it is the first value this client sees or not a real true or false.
+function Logic.areasTurn(previous: unknown, open: unknown): AreasTurn?
+	if type(previous) ~= "boolean" or type(open) ~= "boolean" or previous == open then
+		return nil
+	end
+	if open then
+		return "sunrise"
+	end
+	return "dusk"
 end
 
 local function wave(t: number, seconds: number): number

@@ -268,6 +268,34 @@ return function()
 		end)
 	end)
 
+	describe("the bait bowl on the back step (v0.5 F44, data-model section 8)", function()
+		local plot = Layout.plot
+		local halfD = W.PlotDepth / 2
+
+		it("the bowl and its cat sit in the yard just outside the back wall, facing the Alleyway", function()
+			for _, point in { plot.baitBowl, plot.baitCat } do
+				expect(inside(point.x, point.z, plot.yard, 0.5)).to.equal(true)
+				expect(point.z - (halfD + 1) <= 3).to.equal(true) -- on the step, not out in the yard
+				expect(point.y).to.equal(0)
+			end
+		end)
+
+		it("clear of the back door and the straight path from it to the yard gate", function()
+			local door = plot.backDoor
+			local pathX1 = math.min(door.x - door.width / 2, plot.yardGate.x1)
+			local pathX2 = math.max(door.x + door.width / 2, plot.yardGate.x2)
+			for _, point in { plot.baitBowl, plot.baitCat } do
+				expect(point.x > pathX2 + 1 or point.x < pathX1 - 1).to.equal(true)
+			end
+		end)
+
+		it("the cat stands beside the bowl with its head over it", function()
+			local dx = plot.baitCat.x - plot.baitBowl.x
+			local dz = plot.baitCat.z - plot.baitBowl.z
+			expect(math.sqrt(dx * dx + dz * dz)).to.be.near(1.6, 0.01)
+		end)
+	end)
+
 	-- Shortest walks over the Alleyway floor on a 1 stud grid, moving along x or z only, so every distance is at least
 	-- the real walk. A cell is walkable when the floor reaches 1 stud past its centre every way (across the seams
 	-- where one floor meets the next) and it is 1 stud clear of every wall.

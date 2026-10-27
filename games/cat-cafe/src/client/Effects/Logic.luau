@@ -49,6 +49,28 @@ function Logic.tier(touch: boolean, keyboard: boolean): Presets.Tier
 	return "high"
 end
 
+-- The player's Settings switches that effects follow, from ProfileSync `settings`: screen shake is on and Low
+-- performance off until the player flips them, so a missing key or no settings at all keeps those.
+function Logic.readSettings(settings: { [string]: unknown }?): (boolean, boolean)
+	if settings == nil then
+		return true, false
+	end
+	return settings.screenShake ~= false, settings.lowPerformance == true
+end
+
+-- The tier and budget effects run at: the device's own, or the Low performance budget on any device while that
+-- setting is on. The tier reads "low" then, so what else scales by Effects.tier() (the street's customers)
+-- comes down too.
+function Logic.budgetFor(
+	device: Presets.Tier,
+	lowPerformance: boolean
+): (Presets.Tier, Presets.Budget)
+	if lowPerformance then
+		return "low", Presets.budget.lowPerformance
+	end
+	return device, Presets.budget[device]
+end
+
 -- One circle from CatchResult: "perfect", "good" or "miss" (catching v0.4), or the v0.3 score 1, 0.5 or 0.
 export type Grade = string | number
 

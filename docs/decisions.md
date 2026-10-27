@@ -207,3 +207,12 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Derek, designed by the game-designer thread (2026-10-27, the Tackle)
 - 2026-10-27 22:31: Shove becomes a Tackle (F74, data-model 10c v0.11). Derek: "shove should be changed into like a tackle so you can just spam it and chase people it needs to be like skill and then go on cooldown so if you miss they are pretty much out". The lock-on to the nearest player within 6 studs goes. A press lunges 12 studs straight ahead, and the server hits the first player in reach who could be shoved. A miss leaves the tackler down for 1.2 seconds. The 8 second cooldown starts at the press, hit or miss, and is never refunded. What a landed tackle does is unchanged from a landed shove, and so are the safe zones, grace and immunity rules. Reason: a chaser walks at 20 against a carrier's 16, so a lock-on shove with a refunded cooldown always landed; a lunge that can miss makes it a skill and gives a carrier a real chance to get away.
+
+### Decided by Derek, designed by the game-designer thread (2026-10-27, cat levels)
+- 2026-10-27 22:40: Cats level up over time with a hover card (F75, data-model 4b v0.12). Derek: "cats should level up overtime making slight increases and when you hover over your cat in cafe it should display what they are and their lvl / xp bar". Cat levels change as follows:
+  - The top level goes from 10 to 50 and each level adds 2% in place of 5%, so level 50 is 1.98x.
+  - XP to the next level is 120 x the current level, about 41 hours of work to reach 50.
+  - Every owned cat earns XP while the owner is in the game: a working cat at full rate (1.5x in its favorite role) and a resting cat at a quarter. No cat earns XP offline, the same rule as the potion timers.
+  - Old levels move to the new scale without lowering any cat's rating (level 10 becomes 24), which needs the next save version.
+
+  Hovering or tapping a cat in your own cafe shows its name, what it is, its rarity, its role and its level with an XP bar. The quests gain a Level up a cat daily, and the achievements gain Top Cat (level 25) and Master Cat (level 50), so there are 44. Reason: levels as built stopped at 45 minutes, so they gave nothing to grow into, and nothing showed them in the world.

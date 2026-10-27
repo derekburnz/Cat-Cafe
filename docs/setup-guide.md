@@ -131,3 +131,8 @@ After this, a thread or the Actions tab publishes the game (`.github/workflows/p
 7. Try it: **Actions > publish > Run workflow**, pick `Saved`. The run summary shows the new version number, and the live game is untouched. `Published` makes it live.
 
 The experience and place ids (10773193456 and 119569792798199) are in the workflow; they are not secret. A Rojo-built place replaces everything in the published place, so anything placed by hand in Studio and not in the repo disappears on the next publish. Today the server builds the whole world from code, so nothing is lost.
+
+## 16. Quiet GitHub email (once, about 1 minute)
+Threads open, push and merge PRs from Derek's GitHub account, so GitHub mails that account about all of it. Since PR #248 automerge no longer pushes into PR branches; these two settings stop the rest. Everything stays visible on GitHub, and threads report in the project anyway.
+1. [github.com/settings/notifications](https://github.com/settings/notifications) > **System** > **Actions**: open the dropdown and untick **Email**. That ends the "Run failed" mails from threads' unfinished pushes.
+2. Same page, **Subscriptions** > **Participating, @mentions and custom**: untick **Email**. That ends the merge, push and comment mails on PRs the threads open.

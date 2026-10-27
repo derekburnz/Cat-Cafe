@@ -49,10 +49,6 @@ local function waitText(seconds: number): string
 	return string.format("%d seconds", seconds)
 end
 
-local function withArticle(phrase: string): string
-	return (if phrase:match("^[AEIOUaeiou]") then "an " else "a ") .. phrase
-end
-
 local function onUseLure(player: Player, rawLureId: unknown)
 	local lureId = Guard.id(rawLureId)
 	local profile = DataService.get(player)
@@ -138,16 +134,10 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 		local _, isNew =
 			CafeService.addCaughtCat(player, def, true, nil, bait.charm, "bait", bait.variant)
 		Net.fire(player, "CatCaught", def.id, isNew)
-		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
-			Net.fireAll(
-				"Announce",
-				string.format(
-					"%s tamed %s at their bait bowl!",
-					player.DisplayName,
-					withArticle(def.rarity .. " " .. def.name)
-				),
-				def.rarity
-			)
+		local text =
+			Catching.shoutOut(player.DisplayName, "tamed", def, bait.variant, " at their bait bowl")
+		if text ~= nil then
+			Net.fireAll("Announce", text, def.rarity)
 		end
 		return
 	end

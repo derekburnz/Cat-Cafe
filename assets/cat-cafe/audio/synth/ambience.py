@@ -1,5 +1,8 @@
 """Synthesize Cat Cafe's ambience beds: the cafes, the Alleyway and the Park, by day and night.
 
+Retired 2026-10-27: Derek asked for quiet music instead of ambience (synth/music.py), so these files were
+removed from the repo and the game. Kept to rebuild a bed if one comes back.
+
 Run from the repo root:  python assets/cat-cafe/audio/synth/ambience.py [--only CafeDay,AlleyNight]
                                                                        [--preview DIR]
 
@@ -12,8 +15,8 @@ into the start with no seam. Outputs (overwritten):
   loop CatCafe_Amb_LoopCafeDoor is mono)
   with --preview: DIR/cat-cafe-ambience-preview.mp3, 20 s of each bed with crossfades.
 
-The cafe chatter is a crowd of made-up talkers: pulse-train voices shaped by vowel formants into
-syllables, at a distance, so no word is ever heard. Needs numpy and ffmpeg. Check the files with
+The cafe has no voices: a synthesized murmuring crowd sounded eerie in game (Derek, 2026-10-27), so
+customers are heard by their cups, spoons and the espresso machine instead. Needs numpy and ffmpeg. Check the files with
 .claude/skills/audio-pipeline/scripts/audio_gate.py. Cue rows: docs/audio/cat-cafe/sound-list.md 4.
 """
 
@@ -29,7 +32,7 @@ from pathlib import Path
 
 import numpy as np
 
-from synth import SR, bell, envelope, glide  # same folder
+from synth import SR, bandpass, bell, envelope, glide  # same folder
 
 ROOT = Path(__file__).resolve().parents[1]  # assets/cat-cafe/audio
 LOOP = 48.0  # seconds; whole seconds so the wall clock ticks and the hums fit the loop exactly
@@ -130,76 +133,6 @@ def burst(seed: int, duration: float, lo: float, hi: float, tau: float, attack: 
     return unit(shape(x, band(lo, hi))) * envelope(duration, attack, tau)
 
 
-# --- voices: a murmuring crowd, never words ----------------------------------------------------
-
-# Vowel formants (F1, F2, F3) for a, e, i, o, u and two in-betweens.
-VOWELS = ((730, 1090, 2440), (530, 1840, 2480), (300, 2200, 2950), (570, 840, 2410),
-          (330, 900, 2300), (660, 1700, 2400), (500, 1350, 1700))
-
-
-def formants(vowel, f0: float):
-    scale = 1.18 if f0 > 170 else 1.0  # higher voices have higher formants
-
-    def gain(f: np.ndarray) -> np.ndarray:
-        out = np.full_like(f, 0.02)
-        for k, (centre, amp) in enumerate(zip(vowel, (1.0, 0.6, 0.3))):
-            width = 70 + 40 * k
-            out += amp / (1 + ((f - centre * scale) / width) ** 2)
-        return out * band(hi=3200)(f)
-
-    return gain
-
-
-def talker(seed: int, f0: float, chatty: float = 1.0, laughs: int = 0) -> np.ndarray:
-    """One person talking on and off for the whole loop, as mono syllables."""
-    r = rng(seed)
-    contour = f0 * 2 ** (lfo(seed + 1, cycles=(4, 9, 13, 21)) * 2.5 / 12)  # intonation, in semitones
-    cycles = np.sum(contour) / SR
-    contour *= round(cycles) / cycles  # a whole number of glottal cycles per loop: no seam
-    phase = np.cumsum(contour) / SR
-    source = shape(2 * (phase % 1.0) - 1, band(60, 4000))  # a buzzy voice source
-
-    track = np.zeros(N)
-    start = r.uniform(0, LOOP)
-    at = start
-    while at < start + LOOP - 1.0:
-        phrase_end = min(at + r.uniform(1.0, 3.5) * chatty, start + LOOP - 0.6)
-        while at < phrase_end:
-            length = r.uniform(0.11, 0.26)
-            syllable(track, source, at, length, VOWELS[r.integers(len(VOWELS))], f0, r.uniform(0.5, 1.0))
-            at += length + r.uniform(0.01, 0.07)
-        at += r.uniform(0.7, 3.2) / chatty
-    for _ in range(laughs):  # a short "ha-ha-ha", a little higher and falling
-        at = r.uniform(0, LOOP)
-        for k in range(r.integers(4, 7)):
-            syllable(track, source * 1.0, at + k * 0.13, 0.09, VOWELS[0], f0 * 1.3, 0.9 - 0.1 * k, bend=0.97**k)
-    return track
-
-
-def syllable(track, source, at, length, vowel, f0, amp, bend: float = 1.0) -> None:
-    n = int((length + 0.08) * SR)
-    index = (np.arange(n) + int(at * SR)) % N
-    x = source[index]
-    if bend != 1.0:  # laugh syllables step down in pitch
-        x = np.interp(np.arange(n) * bend, np.arange(n), x)
-    k = np.arange(n) / SR
-    env = np.where(k < length, np.sin(np.pi * np.clip(k / length, 0, 1)) ** 0.7, 0.0)
-    padded = np.zeros(n + int(0.05 * SR))
-    padded[:n] = x * env * amp
-    track[(np.arange(len(padded)) + int(at * SR)) % N] += shape(padded, formants(vowel, f0))
-
-
-def crowd(seed: int, people: int, chatty: float, laughs: int) -> np.ndarray:
-    r = rng(seed)
-    mix = stereo()
-    for i in range(people):
-        f0 = r.choice((r.uniform(100, 140), r.uniform(185, 235)))
-        voice = unit(talker(seed + 10 * i, f0, chatty, laughs if i % 3 == 0 else 0))
-        mix += pan(voice * r.uniform(0.5, 1.0), r.uniform(-0.8, 0.8))
-    mix = room(mix, 0.9, seed + 99, wet=0.75, hi=3500)
-    return shape_stereo(mix, band(120, 2600))
-
-
 def shape_stereo(x: np.ndarray, gain) -> np.ndarray:
     return np.stack([shape(x[:, 0], gain), shape(x[:, 1], gain)], axis=1)
 
@@ -251,28 +184,40 @@ def scrape(seed: int) -> np.ndarray:
     return grain * np.sin(np.pi * t / d) ** 2 * (1 + 0.6 * np.sin(2 * np.pi * 31 * t)) * 0.3
 
 
-def cafe(seed: int, people: int, chatty: float, laughs: int, clinks: float, busy: bool) -> np.ndarray:
-    mix = crowd(seed, people, chatty, laughs) * 0.9
-    mix += pan(pink(seed + 1, 30, 250), 0) * 0.05  # room tone
+def pour(seed: int, duration: float = 1.6) -> np.ndarray:
+    """Coffee poured into a cup: a soft trickle whose ring rises as the cup fills."""
+    t = np.arange(int(duration * SR)) / SR
+    trickle = rng(seed).standard_normal(len(t)) * (0.7 + 0.3 * np.sin(2 * np.pi * 9 * t))
+    ring = bandpass(trickle, 650 * 2 ** (1.1 * t / duration), 6.0)
+    env = np.clip(t / 0.08, 0, 1) * np.clip((duration - t) / 0.25, 0, 1)
+    return unit(shape(ring, band(300, 3000))) * env * 0.4
+
+
+def cafe(seed: int, clinks: float, tone: float) -> np.ndarray:
+    """A busy cafe heard only by what its customers do: cups, saucers, spoons, a chair, the espresso machine."""
+    mix = pan(pink(seed + 1, 60, 700), 0) * tone  # warm room presence
     things = stereo()
     for at, r in events(seed + 2, clinks):
         roll = r.uniform()
         sound = spoon(r.integers(1 << 30)) if roll < 0.15 else clink(r.integers(1 << 30))
-        put(things, pan(sound * r.uniform(0.35, 0.8), r.uniform(-0.9, 0.9)), at)
+        put(things, pan(sound * r.uniform(0.15, 0.35), r.uniform(-0.9, 0.9)), at)
         if 0.15 <= roll < 0.4:  # the cup goes back on its saucer
-            put(things, pan(clink(r.integers(1 << 30)) * 0.4, r.uniform(-0.9, 0.9)), at + r.uniform(0.06, 0.14))
+            put(things, pan(clink(r.integers(1 << 30)) * 0.15, r.uniform(-0.9, 0.9)), at + r.uniform(0.06, 0.14))
     r = rng(seed + 3)
-    if busy:
-        put(things, pan(steam(seed + 4), -0.5) * 0.12, r.uniform(0, LOOP))
-        put(things, pan(grinder(seed + 5), 0.6) * 0.15, r.uniform(0, LOOP))
-    for _ in range(2 if busy else 1):
-        put(things, pan(scrape(r.integers(1 << 30)), r.uniform(-0.8, 0.8)), r.uniform(0, LOOP))
+    put(things, pan(steam(seed + 4), -0.5) * 0.12, r.uniform(0, LOOP))
+    put(things, pan(grinder(seed + 5), 0.6) * 0.15, r.uniform(0, LOOP))
+    for k in range(2):
+        put(things, pan(pour(seed + 7 + k), -0.4 + 0.5 * k) * 0.25, r.uniform(0, LOOP))
+    put(things, pan(scrape(r.integers(1 << 30)), r.uniform(-0.8, 0.8)) * 0.15, r.uniform(0, LOOP))
     mix += room(things, 0.7, seed + 6, wet=0.35, hi=7000)
     return mix
 
 
 def cafe_day() -> np.ndarray:
-    return cafe(100, people=9, chatty=1.0, laughs=2, clinks=1.6, busy=True)
+    """Inside by day: the busy cafe and a few birds outside the windows, dulled by the glass."""
+    mix = cafe(100, clinks=1.8, tone=0.03)
+    mix += shape_stereo(room(scatter(110, 8.0, bird, 0.1), 0.5, 111, wet=0.3), band(hi=4500))
+    return mix
 
 
 def wall_clock(seed: int) -> np.ndarray:
@@ -283,10 +228,29 @@ def wall_clock(seed: int) -> np.ndarray:
     return track
 
 
+# A small brass wind chime: (ratio, amplitude, decay seconds); rods tuned to C major pentatonic so it stays sunny.
+CHIME = ((1.0, 1.0, 1.1), (2.76, 0.3, 0.45), (5.4, 0.12, 0.2))
+PENTATONIC = (1046.5, 1174.7, 1318.5, 1568.0, 1760.0)  # C6 D6 E6 G6 A6
+
+
+def chimes(seed: int) -> np.ndarray:
+    """The door's wind chime stirred by a breeze: two to four rods touching, softly."""
+    r = rng(seed)
+    out = np.zeros(int(4.0 * SR))
+    at = 0.0
+    for _ in range(r.integers(2, 5)):
+        put(out, bell(2.0, PENTATONIC[r.integers(len(PENTATONIC))], CHIME, attack=0.003) * r.uniform(0.4, 1.0), at)
+        at += r.uniform(0.15, 0.4)
+    return out
+
+
 def cafe_door() -> np.ndarray:
-    """Heard outside a running cafe's door (a 3D loop, so mono): chatter and cups through the doorway."""
-    x = cafe(150, people=6, chatty=1.0, laughs=1, clinks=2.0, busy=True)
-    mono = shape(x.mean(axis=1), band(150, 3000))
+    """Outside a running cafe's door by day (a 3D loop, so mono): its cups and espresso machine through the
+    doorway, sparrows on the awning and the door's wind chime now and then."""
+    mix = shape_stereo(cafe(150, clinks=2.4, tone=0.0), band(hi=2800)) * 0.7  # muffled by the doorway
+    mix += room(scatter(160, 6.0, bird, 0.2), 0.4, 161, wet=0.2)
+    mix += room(scatter(170, 11.0, chimes, 0.15), 0.8, 171, wet=0.25, hi=8000)
+    mono = mix.mean(axis=1)
     return np.stack([mono, mono], axis=1)
 
 

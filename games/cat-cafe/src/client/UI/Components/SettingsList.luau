@@ -99,6 +99,20 @@ SettingsList.SECTIONS = {
 	},
 } :: { Section }
 
+-- F72: the Tutorial tile's switch, in the Screen section once shared/Settings saves its key (the engineer's ninth
+-- SetSetting key, default on). Settings hides it until the intro is live.
+SettingsList.TUTORIAL_KEY = "tutorialButton"
+if Settings.kinds[SettingsList.TUTORIAL_KEY] then
+	local row: Row = {
+		key = SettingsList.TUTORIAL_KEY,
+		kind = "switch",
+		icon = "❓",
+		name = "Tutorial button",
+		detail = "The ? tile at the top that replays the intro",
+	}
+	table.insert(SettingsList.SECTIONS[2].rows, row)
+end
+
 -- Every row in screen order.
 SettingsList.ROWS = {} :: { Row }
 for _, section in SettingsList.SECTIONS do

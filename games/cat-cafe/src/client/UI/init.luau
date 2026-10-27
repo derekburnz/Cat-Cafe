@@ -39,6 +39,8 @@ local GateSigns = require(script.Screens.GateSigns)
 local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
 local IndexBoards = require(script.Screens.IndexBoards)
+local Intro = require(script.Screens.Intro)
+local IntroLogic = require(script.Components.IntroLogic)
 local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
 local Motion = require(script.Components.Motion)
@@ -112,6 +114,11 @@ UI.events = {
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
+	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to 9); end the intro, call
+	-- UI.intro.finish and fire IntroDone(shot, replay)
+	introSkip = Signal.new(),
+	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
+	introReplay = Signal.new(),
 }
 
 local state: Types.PlayerState = {
@@ -172,6 +179,12 @@ local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), ope
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
+local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
+local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
+local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
+local tutorialButtonOn = true -- the Tutorial button setting as shown (F72)
+local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.show's, put back after an intro
+local tutorialLabel: string? = nil
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
@@ -197,9 +210,54 @@ local function lookupCat(catId: string?): Types.CatDef?
 	return catById[catId]
 end
 
+-- F72: the Tutorial tile shows once the intro is live and while its setting is on; the Settings rows once live.
+local function renderTutorialButton()
+	if hud then
+		hud:setTutorialButton(introLive and tutorialButtonOn)
+	end
+	if settingsScreen then
+		settingsScreen:showTutorial(introLive)
+	end
+end
+
+-- The intro's end (F72): the HUD, toasts, place icons and popups come back, the tutorial marker and trail return to
+-- their target, and after a first play the Tutorial tile glows twice once the bars are out.
+local function introEnded(replay: boolean)
+	UI.setVisible(true)
+	if popups then
+		popups.screenGui.Enabled = true
+	end
+	local target = tutorialTarget
+	if target ~= nil then
+		if tutorialMarker then
+			tutorialMarker:show(target :: any, tutorialLabel or "Go here", Theme.colors.gold)
+		end
+		if tutorialTrail then
+			tutorialTrail:show(target :: any)
+		end
+	end
+	if not replay and not introGlowed then
+		introGlowed = true
+		task.delay(IntroLogic.OUT_SECONDS, function()
+			if hud then
+				hud:glowTutorial()
+			end
+		end)
+	end
+end
+
+-- Replaying the intro waits while carrying or during a catch or rescue (the HUD tile greys then too).
+local function introBlocked(): boolean
+	return (hud ~= nil and hud:isCarrying()) or UI.catch.circlesActive() or UI.rescue.isActive()
+end
+
 local function render()
 	if not initialized then
 		return
+	end
+	if not introLive and state.introSeen ~= nil then
+		introLive = true
+		renderTutorialButton()
 	end
 	if hud then
 		hud:render(state)
@@ -380,6 +438,17 @@ function UI.init(config: Types.InitConfig)
 		dropCat = function()
 			UI.events.dropCat:Fire()
 		end,
+		replayIntro = function()
+			UI.events.introReplay:Fire()
+		end,
+		hideTutorialButton = function()
+			tutorialButtonOn = false
+			renderTutorialButton()
+			if settingsScreen then
+				settingsScreen:set(SettingsList.TUTORIAL_KEY, false)
+			end
+			UI.toast("Tutorial hidden. Replay it from Settings.", "info")
+		end,
 	})
 	local hudInstance = hud :: HUD.HUD
 
@@ -535,6 +604,9 @@ function UI.init(config: Types.InitConfig)
 				locationMarkers:setEnabled(value == true)
 			elseif key == "screenShake" then
 				Motion.screenShake = value == true
+			elseif key == SettingsList.TUTORIAL_KEY then
+				tutorialButtonOn = value == true
+				renderTutorialButton()
 			end
 			UI.settings.changed:Fire(key, value)
 		end,
@@ -542,9 +614,20 @@ function UI.init(config: Types.InitConfig)
 		reportBug = function()
 			modalInstance:open("BugReport")
 		end,
+		replayTutorial = function()
+			if introBlocked() then
+				Sound.play("uiError")
+				UI.toast("Finish carrying or catching first.", "warn")
+				return
+			end
+			modalInstance:close()
+			UI.events.introReplay:Fire()
+		end,
 	})
 	local settingsView = settingsScreen :: Settings.Settings
 	Motion.screenShake = settingsView:value("screenShake")
+	tutorialButtonOn = settingsView:value(SettingsList.TUTORIAL_KEY)
+	renderTutorialButton()
 	modalInstance:register("Settings", {
 		frame = settingsView.frame,
 		onOpen = function()
@@ -709,6 +792,12 @@ function UI.init(config: Types.InitConfig)
 	})
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
+	introScreen = Intro.new(parent, {
+		skip = function(shot: number)
+			UI.events.introSkip:Fire(shot)
+		end,
+		ended = introEnded,
+	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
@@ -829,6 +918,11 @@ function UI.destroy()
 		codesScreen:destroy()
 	end
 	codesScreen = nil
+	if introScreen then
+		introScreen:destroy()
+	end
+	introScreen, introLive, introGlowed, tutorialButtonOn = nil, false, false, true
+	tutorialTarget, tutorialLabel = nil, nil
 	if bugReportScreen then
 		bugReportScreen:destroy()
 	end
@@ -1309,9 +1403,10 @@ end
 UI.codes = {}
 
 -- Opens the code box: call it when this character walks into the Codes Cat's circle (within CodesCircleRadius,
--- flat). No key press and no prompt.
+-- flat). No key press and no prompt. A window the player has open (the Market stall is near) stays open instead
+-- (review N182).
 function UI.codes.open()
-	if modal then
+	if modal and modal:current() == nil then
 		modal:open("Codes")
 	end
 end
@@ -1440,8 +1535,12 @@ function UI.tutorial.show(
 	target: (BasePart | Attachment | Vector3)?,
 	markerLabel: string?
 )
+	tutorialTarget, tutorialLabel = target, markerLabel
 	if hud then
 		hud:setTutorial(text)
+	end
+	if UI.intro.playing() then
+		return -- the marker and trail come back when the intro ends
 	end
 	if tutorialMarker then
 		if target ~= nil then
@@ -1460,6 +1559,7 @@ function UI.tutorial.show(
 end
 
 function UI.tutorial.hide()
+	tutorialTarget, tutorialLabel = nil, nil
 	if hud then
 		hud:setTutorial(nil)
 	end
@@ -1469,6 +1569,66 @@ function UI.tutorial.hide()
 	if tutorialTrail then
 		tutorialTrail:hide()
 	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Intro cutscene (F72, docs/design/cat-cafe/intro-cutscene.md)
+----------------------------------------------------------------------------------------------------
+
+-- The controller's IntroController moves the camera; the UI draws the letterbox bars, captions, shot dots, title
+-- cards, the demo catch ring and Skip (Screens/Intro).
+UI.intro = {}
+
+-- Bars in, and the HUD, toasts, place icons, the tutorial marker and trail and any popup hidden until finish.
+-- options.skipAfter: seconds until Skip shows (default 2.0, or at once with options.replay). Calling it marks the
+-- intro live, so the Tutorial tile and Settings rows show afterwards.
+function UI.intro.start(options: Types.IntroOptions?)
+	local screen = introScreen
+	if screen == nil then
+		return
+	end
+	if not introLive then
+		introLive = true
+		renderTutorialButton()
+	end
+	UI.setVisible(false)
+	if popups then
+		popups.screenGui.Enabled = false
+	end
+	if tutorialMarker then
+		tutorialMarker:hide()
+	end
+	if tutorialTrail then
+		tutorialTrail:hide()
+	end
+	screen:start(options)
+end
+
+-- A shot begins: index 1 to 9 lights its dot, the caption pops. In shot 5 call again for each cut with the next
+-- title card ("THE PARK", "THE NEIGHBOURHOOD", ...); the caption stays.
+function UI.intro.setShot(index: number, caption: string, titleCard: string?)
+	if introScreen then
+		introScreen:setShot(index, caption, titleCard)
+	end
+end
+
+-- Shot 2's demo catch at the stray: the ring closes over 1.3 s, PERFECT and a sparkle, gone at 2.0 s.
+function UI.intro.demoCatch(worldPosition: Vector3)
+	if introScreen then
+		introScreen:demoCatch(worldPosition)
+	end
+end
+
+-- The end, after shot 9 or on Skip: the bars slide out over 0.45 s and everything hidden comes back.
+function UI.intro.finish()
+	if introScreen then
+		introScreen:finish()
+	end
+end
+
+function UI.intro.playing(): boolean
+	local screen = introScreen
+	return screen ~= nil and screen:playing()
 end
 
 ----------------------------------------------------------------------------------------------------

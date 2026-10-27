@@ -201,7 +201,7 @@ Each menu pill gets a red "!" dot when its screen has something new (`Notices.lu
 
 ### Bigger pictures and fold tabs (built, Derek 2026-10-27)
 
-The HUD's pills and bottom row draw their emoji as a picture bigger than the text, at the left of the button (`Button` prop `iconSize`: 36 px on the menu pills, 28 on Equip Best, Alley and Areas, 40 on My Cafe, 26 on Drop); the pills are 192 wide and the bottom row buttons 136 to fit it, and text next to a big picture reads from it, shrinking or wrapping rather than cut off. The top right tiles (Gifts, Settings, Invite) are 58 square with a bigger icon. Two ghost arrow tabs cut clutter, like the collapse arrows in other simulators: "◀" under the menu pills slides them off the left edge ("▶" brings them back), and "▼" right of the bottom row slides it below the screen ("▲"). Key binds keep working while folded, and the menu tab shows a red dot while a folded pill has one. Folding is per session and needs nothing from the engineer (`hud:setMenuFolded`, `hud:setTravelFolded`).
+The HUD's pills and bottom row draw their emoji as a picture bigger than the text, at the left of the button (`Button` prop `iconSize`: 36 px on the menu pills, 28 on Equip Best, Alley and Areas, 40 on My Cafe, 26 on Drop); the pills are 192 wide and the bottom row buttons 136 to fit it, and text next to a big picture reads from it, shrinking or wrapping rather than cut off. The top right tiles (Tutorial, Gifts, Settings, Invite) are 58 square with a bigger icon. Two ghost arrow tabs cut clutter, like the collapse arrows in other simulators: "◀" under the menu pills slides them off the left edge ("▶" brings them back), and "▼" right of the bottom row slides it below the screen ("▲"). Key binds keep working while folded, and the menu tab shows a red dot while a folded pill has one. Folding is per session and needs nothing from the engineer (`hud:setMenuFolded`, `hud:setTravelFolded`).
 
 ### Collection Index (built, F39 P1)
 
@@ -278,16 +278,36 @@ On a phone, while the keyboard is up the window moves to the top of the screen a
 
 Walking into the glowing circle in front of the Codes Cat opens the **code box** (`Screens/Codes.luau`, text rules in `Components/CodeEntry.luau` with a spec), and walking out closes it and clears it (Derek 2026-10-27 19:33 and 20:10). A small berry window with a 🎟️ badge, "Codes" and "From the Codes Cat", near the top of the screen so a phone's keyboard never covers it and the cat stays in view below: the line "Got a code? Type it here. Big or small letters both work.", one box ("Type a code") with a green Redeem beside it, and an answer line. The box keeps letters and digits only, up to `Config.CodeMaxLength` (20), as the server reads a code, and Redeem lights once one is in; Enter redeems too. It does not take the keyboard when it opens, because the player is walking into the circle; W, A, S and D keep moving the character until the box is clicked.
 
-Redeem fires `events.redeemCode(code)` and reads "..." until `UI.codes.result`, or for 5 s ("No answer yet. Try Redeem again."). `result(true, message, prize)` plays `uiCodeRedeem`, clears the box and shows the message in green with the prize as little pictures under it (`Components/PrizeChips`, coins at the day rate, a "highest" crate as the player's); `result(false, message)` plays `uiError` and shows the server's message in red ("That code doesn't exist", "You already used that code", "That code has expired", "Join the Cat Cafe group to use this code", "Too many tries, wait a minute", "Walk up to the Codes Cat") and keeps the text to fix; typing again clears it. When the answer lands after the player walked off, it is a toast instead.
+Redeem fires `events.redeemCode(code)` and reads "..." until `UI.codes.result`, or for 5 s ("No answer yet. Try Redeem again."), and stays grey until 2 s after the send, since the server takes one `RedeemCode` per 2 s and drops the rest without an answer (N183). `result(true, message, prize)` plays `uiCodeRedeem`, clears the box and shows the message in green with the prize as little pictures under it (`Components/PrizeChips`, coins at the day rate, a "highest" crate as the player's); `result(false, message)` plays `uiError` and shows the server's message in red ("That code doesn't exist", "You already used that code", "That code has expired", "Join the Cat Cafe group to use this code", "Too many tries, wait a minute", "Walk up to the Codes Cat") and keeps the text to fix; typing again clears it. When the answer lands after the player walked off, it is a toast instead.
 
 | API | Purpose |
 |---|---|
-| `UI.codes.open()` | Call when this character's flat distance to the `CodesCircle` centre is within `CodesCircleRadius` (4). No key press and no prompt. |
+| `UI.codes.open()` | Call when this character's flat distance to the `CodesCircle` centre is within `CodesCircleRadius` (4). No key press and no prompt. Another window the player has open stays open, and the box does not open over it (N182). |
 | `UI.codes.close()` | Call once it is past `CodesCircleRadius + 1`; closes the box if it is the open window and clears the field and answer. |
 | `UI.codes.result(ok, message, prize?)` | From `CodeResult(ok, message, prize)`; the prize in the Index prize shape. |
 | `events.redeemCode(code)` | Forward as `RedeemCode(code)`. The code is letters and digits, 1 to 20; the server trims, lowercases and checks everything again. |
 
 The demo opens the box with K; `playtest` pays once, `launch` has expired and anything else does not exist.
+
+### Intro cutscene and Tutorial button (built, F72, intro-cutscene.md section 4)
+
+Derek's fly-through before a new player plays (approved 2026-10-27 20:45). The engineer's `IntroController` runs the camera, controls, prompts and world staging; the UI draws over it (`Screens/Intro.luau`, numbers in `Components/IntroLogic.luau` with a spec). **Letterbox bars**, 9% of the screen height each, near black (92%), slide in over 0.3 s. **One caption line** just above the lower bar in Fredoka One with the dark outline pops from 0.9 to full size in 0.2 s on each shot; it is 30 px and shrinks to stay on one line (captions should stay under about 45 characters). **Nine shot dots** sit on the top bar, the current one gold and bigger, the coming ones dim. **Title cards** (shot 5) slam in from 1.25 to full size in the middle of the screen, one per cut. **The demo ring** (shot 2) is the catch circle's look over the stray: good and perfect bands round the ring, the circle closing onto it at a steady speed over 1.3 s, then "PERFECT!" pops in gold with the `circlePerfect` cue, the ring flashes gold and eight gold sparks fly out; it fades from 1.8 s and is gone at 2.0 s. It follows the stray's screen position while the camera pushes in and hides while the point is behind the camera. **Skip** is a dark pill with a light outline, "Skip »", on the lower bar at the right: 40 px tall, at least 44 real pixels on touch (it then pokes above a short phone bar but never sits nearer than 4 px to the edge), fading in after `skipAfter`; gamepad B skips too. A press fires `events.introSkip(shot)` once and greys the pill. **The end:** the caption, dots and Skip go at once and the bars slide out over 0.45 s while the HUD comes back under them (Roblox has no fade for a whole ScreenGui short of a CanvasGroup, so it is a wipe rather than a fade). If `finish` has not come 1.5 s after a Skip (a script error mid-intro), the screen ends itself so the HUD returns; the controller's restore stays the real end.
+
+While it plays the UI hides the HUD, toasts, the zone chip, place icons, the tutorial marker and trail and any popup (popups wait and show after), and closes any open window. `UI.tutorial.show` during the intro updates the hint and keeps its target, and the marker and trail come back on it at the end. World signs, rate tags and boards stay, since the shots show them.
+
+**Tutorial tile:** in the HUD's top right row, left of Gifts, a 58 px gold tile with a big outlined "?" and "Tutorial", and a small red × in its top right corner (taps count 30 px round it). A tap fires `events.introReplay()`. The × hides the tile, sends `events.setSetting("tutorialButton", false)` and toasts "Tutorial hidden. Replay it from Settings." The tile greys while carrying or during a catch or rescue (a press plays `uiError`), and the first time it shows after a first play it pulses gold twice with `uiHint`. **Settings, Screen section:** ❓ Tutorial button (a switch bound to `tutorialButton`; the row exists once `shared/Settings` saves the key, so either PR can land first) and 🎬 Replay tutorial with a Play button, which closes Settings and fires `events.introReplay()` (or toasts "Finish carrying or catching first." while blocked). The tile and both rows stay hidden until the intro is live on the server: `state.introSeen` arrives with any value, or `UI.intro.start` runs.
+
+| API | Purpose |
+|---|---|
+| `UI.intro.start({ skipAfter?, replay? })` | Bars in, everything above hidden. Skip shows after `skipAfter` seconds (default 2.0; 0 with `replay = true`). Calling it again restarts the screen. |
+| `UI.intro.setShot(index, caption, titleCard?)` | A shot starts: `index` 1 to 9 lights its dot and the caption pops. In shot 5 call again at each cut with `"THE PARK"`, `"THE NEIGHBOURHOOD"`, `"THE WOODS"`, `"THE SEWER"`; the caption stays and only the card slams in. No `titleCard` hides the card. |
+| `UI.intro.demoCatch(worldPosition)` | At the start of shot 2, with the stray point (`Vector3`). The ring and PERFECT are the UI's; the demo cat and its fade are the controller's. |
+| `UI.intro.finish()` | After shot 9 or on Skip: the end above. Safe to call twice. |
+| `UI.intro.playing()` | True from `start` until `finish`. |
+| `events.introSkip(shot)` | Skip or gamepad B, once per play; `shot` is the one showing (1 to 9). End the intro, call `UI.intro.finish()` and fire `IntroDone(shot, replay)`. |
+| `events.introReplay()` | The Tutorial tile or Settings' Replay tutorial: play it with `UI.intro.start({ replay = true })`. |
+
+**Engineer (F72):** pass `introSeen = s.introSeen` and `settings` (with `tutorialButton`) in UIController's `UI.update`. The demo plays the intro over whatever is on screen with T (no camera moves); its Skip and end set `introSeen` as the server would.
 
 ### Index rewards (built, F48, data-model section 11b)
 
@@ -474,7 +494,9 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `buyFishItem` | `itemId` | Buy on a Market treat or perk row. Forward as `BuyFishItem(itemId)` (F53). |
 | `redeemCode` | `code` | Redeem (or Enter) in the code box: letters and digits, 1 to `CodeMaxLength`. Forward as `RedeemCode(code)` (F65); the server answers `CodeResult`, passed to `UI.codes.result` (see Code box). |
 | `reportBug` | `text, kind, clientErrors` | Send on the Report a bug window: the trimmed text (3 to 500 bytes), `"bug"`, `"stuck"` or `"idea"`, and up to 3 client error lines of up to 200 bytes. Forward all three as `ReportBug`; the server answers with a toast (see Report a bug). |
-| `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). |
+| `setSetting` | `key, value` | A Settings switch (`music`, `sfx`, `screenShake`, `lowPerformance`, `showOtherCats`, `markers`, `tutorialButton`) and its boolean, or a volume (`musicVolume`, `sfxVolume`) and 0 to 1 on release. Forward as `SetSetting`; the client follows `UI.settings.changed` (see Settings). The Tutorial tile's × sends `("tutorialButton", false)` (F72). |
+| `introSkip` | `shot` | Skip or gamepad B during the intro, once per play, with the shot showing (1 to 9). End it, call `UI.intro.finish()` and fire `IntroDone(shot, replay)` (F72). |
+| `introReplay` | none | The HUD's Tutorial tile or Settings' Replay tutorial. Play the intro with `UI.intro.start({ replay = true })` (F72). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |
 | `pickUpBegan` | `strayId, catId` | The hold on a dropped cat's prompt whose model has `PickUp = true` (v0.8 F56, v0.10 F67). Forward as `PickUpCat(strayId)`; a refusal comes back as `catch.fail(reason, true)`. |
@@ -513,6 +535,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     crateLuck: { [pool]: number }?,                                -- F53: opens since the last Epic or better, per zone or "classic"
     fishPerks: { [perkId]: number }?,                              -- F53: Golden Fish Market perk levels
     goldLuck: number?, baitSpeed: number?,                         -- F54: the Index's capped forever bonuses; nil adds them up from the claims
+    introSeen: boolean?,                                           -- F72: any value shows the Tutorial tile and Settings rows
 }
 ```
 

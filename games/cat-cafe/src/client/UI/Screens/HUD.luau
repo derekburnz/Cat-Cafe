@@ -2,7 +2,8 @@
 -- Always-on overlay in the simulator layout (docs/design/cat-cafe/ui-contract.md, HUD v3):
 --   top left      money and income, the golden fish under them (F52); a tap on either shows the exact amount
 --   top centre    cafe tier pill
---   top right     small icon buttons (Invite) and the day and night clock chip, the next goal card under them
+--   top right     small icon buttons (Tutorial, Gifts, Settings, Invite) and the day and night clock chip, the next
+--                 goal card under them
 --   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots, and an arrow
 --                 tab under them that folds them off the edge
 --   bottom centre Equip Best, the big gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away);
@@ -44,6 +45,8 @@ export type Callbacks = {
 	openCollection: (tab: "Index" | "Room") -> (), -- the Collection screen on that tab
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
+	replayIntro: () -> (), -- the Tutorial tile (F72)
+	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 }
 
 export type HUD = {
@@ -63,6 +66,8 @@ export type HUD = {
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
+	setTutorialButton: (self: HUD, shown: boolean) -> (),
+	glowTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
 }
@@ -92,6 +97,9 @@ local TRAVEL_H = 50
 local HOME_W = 176
 local HOME_H = 62 -- My Cafe stands taller than the rest of the bottom row
 local ICON = 58 -- top right icon buttons
+local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
+-- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
+local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
 local CARRY_W = 420
 local CARRY_H = 56
 local DROP_W = 104
@@ -412,8 +420,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tiersOn = false
 
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
-	-- Gifts opens the Tip Jar (F47) and counts down to the next playtime gift, the gear opens Settings, Invite
-	-- opens Roblox's own invite window; Daily and Mail join them as they arrive.
+	-- Tutorial replays the intro (F72), Gifts opens the Tip Jar (F47) and counts down to the next playtime gift,
+	-- the gear opens Settings, Invite opens Roblox's own invite window; Daily and Mail join them as they arrive.
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
@@ -429,6 +437,70 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	-- Tutorial (F72): gold with a "?", a small red × in its corner hides it (Settings brings it back). Hidden until
+	-- the intro is live (UI.intro, state.introSeen) and while the Tutorial button setting is off; greyed while
+	-- carrying or during a catch or rescue.
+	local tutorial = Button.new({
+		name = "Tutorial",
+		text = "Tutorial",
+		icon = Theme.icons.tutorial,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "gold",
+		size = UDim2.fromOffset(ICON, ICON),
+		layoutOrder = 1,
+		parent = icons,
+		onClick = function()
+			callbacks.replayIntro()
+		end,
+	})
+	tutorial.instance.Visible = false
+	if tutorial.icon then
+		Outline.text(tutorial.icon, 3) -- a white "?" needs the dark outline on gold
+	end
+	table.insert(self._buttons, tutorial)
+	self._tutorialTile = tutorial
+	self._tutorialEnabled = true
+	self._catching = false
+	local hide: TextButton = Create("TextButton", {
+		Name = "Hide",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -6, 0, 6),
+		Size = UDim2.fromOffset(HIDE_HIT, HIDE_HIT),
+		ZIndex = 8,
+		Parent = tutorial.instance,
+	})
+	local hideDot: Frame = Create("Frame", {
+		Name = "Dot",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(20, 20),
+		ZIndex = 8,
+		Parent = hide,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(hideDot, 2)
+	label({
+		Name = "Cross",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "×",
+		ZIndex = 9,
+		Parent = hideDot,
+	})
+	table.insert(
+		self._connections,
+		hide.Activated:Connect(function()
+			Sound.play("uiClose")
+			callbacks.hideTutorialButton()
+		end)
+	)
+
 	local gifts = Button.new({
 		name = "Gifts",
 		text = "Gifts",
@@ -1133,9 +1205,11 @@ end
 -- The server refuses a trip mid catch (N47) and the circles need the screen, so the bottom row steps aside
 -- until the catch ends.
 function HUD.setCatching(self: any, active: boolean)
+	self._catching = active
 	self._travelRow.Visible = not active
 	self._travelFold.instance.Visible = not active
 	self:_layoutBottom()
+	self:_renderTutorialTile()
 end
 
 -- The arrow tabs (Derek 2026-10-27): fold the left pills off the edge, or the bottom row below it, and back.
@@ -1196,6 +1270,45 @@ function HUD._renderTravel(self: any)
 		self._homeCarrying = carrying
 		self._travelButtons.home:setText(if carrying then HOME_CARRYING_TEXT else HOME_TEXT)
 	end
+	self:_renderTutorialTile()
+end
+
+-- The Tutorial tile greys while carrying or during a catch or rescue; a press then plays uiError.
+function HUD._renderTutorialTile(self: any)
+	local enabled = not self:isCarrying() and not self._catching
+	if self._tutorialEnabled ~= enabled then
+		self._tutorialEnabled = enabled
+		self._tutorialTile:setEnabled(enabled)
+	end
+end
+
+-- Shows or hides the Tutorial tile (F72): shown once the intro is live and while the setting is on.
+function HUD.setTutorialButton(self: any, shown: boolean)
+	self._tutorialTile.instance.Visible = shown
+end
+
+-- Two gold pulses round the Tutorial tile, so a new player sees where the intro replays.
+function HUD.glowTutorial(self: any)
+	local tile: Frame = self._tutorialTile.instance
+	if not tile.Visible then
+		return
+	end
+	local glow: Frame = Create("Frame", {
+		Name = "Glow",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 10,
+		Parent = tile,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }) })
+	local stroke: UIStroke =
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 5, Parent = glow })
+	Tween.to(glow, GLOW, { Size = UDim2.new(1, 26, 1, 26) })
+	Tween.to(stroke, GLOW, { Transparency = 1 }).Completed:Once(function()
+		glow:Destroy()
+	end)
+	Sound.play("uiHint")
 end
 
 function HUD.setCatalog(self: any, catalog: Types.Catalog)

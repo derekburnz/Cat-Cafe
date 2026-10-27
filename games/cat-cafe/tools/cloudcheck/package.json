@@ -8,7 +8,8 @@
     "test": "node run-tests.mjs",
     "test:verbose": "node run-tests.mjs --verbose",
     "analyze": "node analyze.mjs",
-    "check": "node analyze.mjs && node run-tests.mjs"
+    "analyze:tests": "node analyze.mjs --tests",
+    "check": "node analyze.mjs --tests && node run-tests.mjs"
   },
   "engines": { "node": ">=20" },
   "dependencies": {

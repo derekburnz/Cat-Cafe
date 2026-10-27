@@ -2,7 +2,10 @@
  "className": "Model",
  "attributes": {
   "Rojo_Target_PrimaryPart": "CatCafe_Cat_MaineCoon_Shiny/0",
-  "PartBuilt": true
+  "PartBuilt": true,
+  "Scale": {
+   "Float64": 1.2
+  }
  },
  "children": [
   {
@@ -81,7 +84,169 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Cat_MaineCoon_Shiny/0"
-   }
+   },
+   "children": [
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.693,
+         -0.924
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.501,
+         -0.6
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.477,
+         -0.444
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.477,
+         -0.54
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.477,
+         -0.54
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
   },
   {
    "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
@@ -476,643 +641,6 @@
    }
   },
   {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.51,
-       1.2767,
-       -0.882
-      ],
-      "orientation": [
-       [
-        0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        -0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3734,
-       1.5134,
-       -0.882
-      ],
-      "orientation": [
-       [
-        0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        -0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1367,
-       1.65,
-       -0.882
-      ],
-      "orientation": [
-       [
-        0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        -0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1367,
-       1.65,
-       -0.882
-      ],
-      "orientation": [
-       [
-        -0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        -0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3734,
-       1.5134,
-       -0.882
-      ],
-      "orientation": [
-       [
-        -0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        -0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.51,
-       1.2767,
-       -0.882
-      ],
-      "orientation": [
-       [
-        -0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        -0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.51,
-       1.0033,
-       -0.882
-      ],
-      "orientation": [
-       [
-        -0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3734,
-       0.7666,
-       -0.882
-      ],
-      "orientation": [
-       [
-        -0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1367,
-       0.63,
-       -0.882
-      ],
-      "orientation": [
-       [
-        -0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1367,
-       0.63,
-       -0.882
-      ],
-      "orientation": [
-       [
-        0.2588,
-        0.0,
-        -0.9659
-       ],
-       [
-        0.9659,
-        0.0,
-        0.2588
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3734,
-       0.7666,
-       -0.882
-      ],
-      "orientation": [
-       [
-        0.7071,
-        0.0,
-        -0.7071
-       ],
-       [
-        0.7071,
-        0.0,
-        0.7071
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.51,
-       1.0033,
-       -0.882
-      ],
-      "orientation": [
-       [
-        0.9659,
-        0.0,
-        -0.2588
-       ],
-       [
-        0.2588,
-        0.0,
-        0.9659
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.144,
-     0.192,
-     0.3354
-    ],
-    "Color": [
-     0.7529,
-     0.4863,
-     1.0
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Cat_MaineCoon_Shiny_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       0.468,
-       -0.882
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.192,
-     0.192,
-     0.144
-    ],
-    "Color": [
-     0.6627,
-     0.6863,
-     0.7216
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
    "className": "Model",
    "attributes": {
     "Rojo_Target_PrimaryPart": "CatCafe_Cat_MaineCoon_Shiny/1"
@@ -1194,7 +722,105 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_MaineCoon_Shiny/1"
-     }
+     },
+     "children": [
+      {
+       "name": "Outfit_PartyHat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.384,
+           0.072
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_BaristaCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.36,
+           0.024
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Boater",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.36,
+           0.024
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Cat_MaineCoon_Shiny_Head",

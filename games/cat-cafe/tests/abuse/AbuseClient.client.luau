@@ -11,7 +11,7 @@
 	  1 fake stray      2 far grab          3 press without begin  4 bad presses   5 press with a time
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
-	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
+	  = double spend    , travel            / tackle               \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
 	  P fish market     T codes             Backspace flood
@@ -66,7 +66,8 @@ type Outcome = {
 	success: boolean,
 	charmGain: number,
 }
--- What ShoveResult carries (F41): "refused" goes to the shover alone, with no position or direction.
+-- What ShoveResult carries (F41, v0.11 F74): "refused" and "miss" go to the tackler alone with target 0, a refusal
+-- with no position or direction.
 type Shoved = {
 	outcome: string,
 	shover: number,
@@ -1856,83 +1857,6 @@ case(
 	end
 )
 
--- Shove (v0.5 F41, data-model section 10c; the remote keeps the Bump name) ---------------------------------------
-
-case(
-	"shove",
-	Enum.KeyCode.Slash,
-	"Shove: malformed and unknown targets, then myself, then 10 self shoves in one frame",
-	function()
-		-- Bump takes 2 calls a second, so the bad values go in pairs with the bucket refilled in between; a value the
-		-- limiter drops would never reach Guard.int. Malformed or nobody on this server: no ShoveResult, no toast.
-		local quietAt = os.clock()
-		local bad: { any } = { "nil", "1", 1.5, 0 / 0, math.huge, {}, 987654321 }
-		for index, value in bad do
-			fire("Bump", if value == "nil" then nil else value)
-			if index % 2 == 0 then
-				task.wait(1.05)
-			end
-		end
-		task.wait(1.2)
-		local quiet = {}
-		for _, event in since(quietAt) do
-			if event.name == "ShoveResult" or event.name == "Toast" then
-				table.insert(quiet, event.text)
-			end
-		end
-		-- Myself: refused in words, to me alone, and nothing lands on my character.
-		local character = player.Character
-		local shovedBefore = if character ~= nil then character:GetAttribute("ShovedAt") else nil
-		local selfAt = os.clock()
-		fire("Bump", player.UserId)
-		local refused = waitFor(selfAt, "ShoveResult", 2)
-		task.wait(0.3)
-		local selfToast = toasted(selfAt, "You can't shove yourself")
-		local shovedAfter = if character ~= nil then character:GetAttribute("ShovedAt") else nil
-		-- Flood: 10 in one frame from a full bucket; the limiter lets 2 through.
-		task.wait(1.2)
-		local floodAt = os.clock()
-		for _ = 1, 10 do
-			Remotes.event("Bump"):FireServer(player.UserId)
-		end
-		log(string.format("    -> Bump(%d) x10", player.UserId))
-		task.wait(1.5)
-		local answers = #since(floodAt, "ShoveResult")
-
-		if #quiet > 0 then
-			return "FAIL",
-				"a malformed or unknown target got an answer: " .. table.concat(quiet, " | ")
-		end
-		if refused == nil then
-			return "FAIL", "no ShoveResult for a shove at myself"
-		end
-		local result = refused.data :: Shoved
-		if
-			result.outcome ~= "refused"
-			or result.shover ~= player.UserId
-			or result.target ~= player.UserId
-			or result.position ~= nil
-		then
-			return "FAIL", "a shove at myself answered " .. refused.text
-		end
-		if shovedAfter ~= shovedBefore then
-			return "FAIL", "ShovedAt changed on my character after a refused shove"
-		end
-		if answers > 2 then
-			return "FAIL",
-				string.format("%d ShoveResult back from 10 Bump calls in one frame", answers)
-		end
-		if not selfToast then
-			return "CHECK", 'refused, but no "You can\'t shove yourself" toast'
-		end
-		return "PASS",
-			string.format(
-				"bad and unknown targets: silent; myself: refused with its toast; flood: %d of 10 answered. A real shove needs two players (section 4.3 item 2)",
-				answers
-			)
-	end
-)
-
 -- Rename (F33, data-model section 4, reviewer S30 and S47) ------------------------------------------------------
 
 case(
@@ -2511,6 +2435,275 @@ case(
 				before,
 				toasts[1]
 			)
+	end
+)
+
+-- Tackle (v0.11 F74, data-model section 10c; the code keeps the Shove names) ---------------------------------------
+
+-- My presses' ShoveResult answers since `startedAt`, counted by outcome: "refused", "miss", "shove", "loose", "held".
+local function tackleAnswers(startedAt: number): { [string]: number }
+	local counts: { [string]: number } = {}
+	for _, event in since(startedAt, "ShoveResult") do
+		local shoved = event.data :: Shoved
+		if shoved.shover == player.UserId then
+			counts[shoved.outcome] = (counts[shoved.outcome] or 0) + 1
+		end
+	end
+	return counts
+end
+
+-- Presses that lunged: every answer but a refusal.
+local function lunges(counts: { [string]: number }): number
+	local total = 0
+	for outcome, count in counts do
+		if outcome ~= "refused" then
+			total += count
+		end
+	end
+	return total
+end
+
+local function answersText(counts: { [string]: number }): string
+	local parts: { string } = {}
+	for outcome, count in counts do
+		table.insert(parts, string.format("%d %s", count, outcome))
+	end
+	table.sort(parts)
+	return if #parts > 0 then table.concat(parts, ", ") else "no answer"
+end
+
+-- The server time of my last press that was not refused (display only, for the lunge pose), or nil.
+local function tackleAt(): any
+	local character = player.Character
+	return if character ~= nil then character:GetAttribute("TackleAt") else nil
+end
+
+-- The server time my last lunge ended with no hit (display only, for the belly slide), or nil.
+local function tackleMissAt(): any
+	local character = player.Character
+	return if character ~= nil then character:GetAttribute("TackleMissAt") else nil
+end
+
+case(
+	"tackle",
+	Enum.KeyCode.Slash,
+	"Tackle: on the street, alone in the Alleyway, 10 in one frame, the 8 s cooldown, while carrying",
+	function()
+		if not checkInIfCarrying() then
+			return "SKIP", "carrying a cat that could not be checked in"
+		end
+		local floor = areaFloor("alley")
+		if floor == nil then
+			return "SKIP", "no Alleyway floor found"
+		end
+		local root = rootPart()
+		local home = if root ~= nil then root.Position else nil
+		local function done(verdict: Verdict, detail: string): (Verdict, string)
+			if home ~= nil then
+				teleportTo(home)
+			end
+			return verdict, detail
+		end
+		local verdict: Verdict = "PASS"
+		local notes: { string } = {}
+
+		-- 1. On the street by my door: refused with a toast and ShoveResult "refused", nothing lunges, and the
+		-- refusal spends no cooldown (step 2 lunges at once).
+		local door = ownDoor()
+		if door == nil then
+			table.insert(notes, "no own door, so the street press was not tried")
+		else
+			teleportTo(door.Position + Vector3.new(0, 0, 3))
+			task.wait(0.6)
+			local streetAt = os.clock()
+			local before = tackleAt()
+			fire("Tackle")
+			task.wait(1.2)
+			local street = tackleAnswers(streetAt)
+			if lunges(street) > 0 or tackleAt() ~= before then
+				return done("FAIL", "a Tackle on the street lunged: " .. answersText(street))
+			end
+			if
+				(street.refused or 0) ~= 1
+				or not toasted(streetAt, "You can only tackle inside a catching area")
+			then
+				verdict = downgrade(verdict, "CHECK")
+				table.insert(
+					notes,
+					string.format(
+						'street press answered %s, not one refused with "You can only tackle inside a catching area"',
+						answersText(street)
+					)
+				)
+			else
+				table.insert(notes, "street press refused")
+			end
+		end
+
+		-- 2. Alone in the Alleyway, with junk arguments (Tackle reads none): a real press that misses, answered to me
+		-- alone with target 0 once the lunge and its grace (0.6 s) are over.
+		teleportTo(floor.Position)
+		task.wait(1.05)
+		local pressAt = os.clock()
+		local pressedBefore, missedBefore = tackleAt(), tackleMissAt()
+		fire("Tackle", "x", 5, {})
+		waitFor(pressAt, "ShoveResult", 2.5, function(event: Event): boolean
+			return (event.data :: Shoved).outcome ~= "refused"
+		end)
+		task.wait(0.3)
+		local pressed = tackleAnswers(pressAt)
+		if (pressed.refused or 0) > 0 then
+			if toasted(pressAt, "Catch your breath") then
+				return done(
+					"FAIL",
+					table.concat(notes, "; ")
+						.. "; the first press in the Alleyway met a cooldown the street refusal should not have spent"
+				)
+			end
+			return done(
+				"CHECK",
+				table.concat(notes, "; ")
+					.. "; a press in the Alleyway was refused (night, or a tier that has not opened it?); run by day"
+			)
+		end
+		if (pressed.miss or 0) ~= 1 or lunges(pressed) ~= 1 then
+			return done(
+				"CHECK",
+				table.concat(notes, "; ")
+					.. string.format(
+						"; a press alone in the Alleyway answered %s, not one miss (run with nobody else near)",
+						answersText(pressed)
+					)
+			)
+		end
+		if tackleAt() == pressedBefore or tackleMissAt() == missedBefore then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				"a press alone missed, but TackleAt or TackleMissAt did not change on my character"
+			)
+		else
+			table.insert(notes, "a press alone missed")
+		end
+
+		-- 3. Ten presses in one frame inside the cooldown: the limiter lets 2 through and both are refused with
+		-- "Catch your breath before the next tackle"; nothing lunges.
+		task.wait(1.05)
+		local floodAt = os.clock()
+		local lungedAt = tackleAt()
+		for _ = 1, 10 do
+			Remotes.event("Tackle"):FireServer()
+		end
+		log("    -> Tackle() x10")
+		task.wait(1.5)
+		local flood = tackleAnswers(floodAt)
+		if lunges(flood) > 0 or tackleAt() ~= lungedAt then
+			return done(
+				"FAIL",
+				table.concat(notes, "; ")
+					.. "; a press inside the cooldown lunged: "
+					.. answersText(flood)
+			)
+		end
+		if (flood.refused or 0) > 2 then
+			verdict = "FAIL"
+			table.insert(
+				notes,
+				string.format(
+					"%d refusals from 10 presses in one frame (the limiter allows 2)",
+					flood.refused
+				)
+			)
+		elseif not toasted(floodAt, "Catch your breath before the next tackle") then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				'presses inside the cooldown refused without "Catch your breath before the next tackle"'
+			)
+		else
+			table.insert(
+				notes,
+				string.format(
+					"10 presses in one frame: %d refused, none lunged",
+					flood.refused or 0
+				)
+			)
+		end
+
+		-- 4. The cooldown runs TackleCooldownSeconds from the press, hit or miss: just inside it a press is refused,
+		-- just past it one lunges again.
+		task.wait(math.max(0, pressAt + Config.TackleCooldownSeconds - 0.6 - os.clock()))
+		local insideAt = os.clock()
+		fire("Tackle")
+		task.wait(0.4)
+		local inside = tackleAnswers(insideAt)
+		if lunges(inside) > 0 then
+			return done(
+				"FAIL",
+				table.concat(notes, "; ")
+					.. string.format("; a press %.1f s after the last lunged", insideAt - pressAt)
+			)
+		end
+		task.wait(math.max(0, pressAt + Config.TackleCooldownSeconds + 0.4 - os.clock()))
+		local pastAt = os.clock()
+		fire("Tackle")
+		waitFor(pastAt, "ShoveResult", 2.5, function(event: Event): boolean
+			return (event.data :: Shoved).outcome ~= "refused"
+		end)
+		local past = tackleAnswers(pastAt)
+		if lunges(past) ~= 1 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format(
+					"a press %.1f s after the last answered %s, not a lunge",
+					pastAt - pressAt,
+					answersText(past)
+				)
+			)
+		else
+			table.insert(
+				notes,
+				string.format(
+					"refused at %.1f s and lunged at %.1f s after the press",
+					insideAt - pressAt,
+					pastAt - pressAt
+				)
+			)
+		end
+
+		-- 5. Carrying a cat: refused with "Check in the cat you are carrying first", which comes before the cooldown
+		-- that step 4 just started, and nothing lunges.
+		local why = catchOne()
+		if why ~= "" then
+			table.insert(notes, "carrying press skipped: " .. why)
+			return done(verdict, table.concat(notes, "; "))
+		end
+		task.wait(0.6)
+		local carryAt = os.clock()
+		local carryBefore = tackleAt()
+		fire("Tackle")
+		task.wait(1)
+		local carried = tackleAnswers(carryAt)
+		if lunges(carried) > 0 or tackleAt() ~= carryBefore then
+			verdict = "FAIL"
+			table.insert(notes, "a press while carrying lunged: " .. answersText(carried))
+		elseif not toasted(carryAt, "Check in the cat you are carrying first") then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				'a press while carrying refused without "Check in the cat you are carrying first"'
+			)
+		else
+			table.insert(notes, "a press while carrying refused")
+		end
+		if state == nil or state.carrying == nil then
+			verdict = "FAIL"
+			table.insert(notes, "the refused press while carrying lost the cat")
+		end
+		checkInIfCarrying()
+		table.insert(notes, "a hit needs two players (section 4.3 item 2)")
+		return done(verdict, table.concat(notes, "; "))
 	end
 )
 

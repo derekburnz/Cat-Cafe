@@ -424,5 +424,33 @@ return function()
 			expect(d.Y).to.equal(0)
 			expect(d.Magnitude).to.be.near(1, 1e-9)
 		end)
+
+		-- 2,000 seeded lunges in every direction and at any height against the reach rule said another way (v0.11
+		-- F74): never a player behind the start, never one past the lunge plus the hit radius and both slacks, and
+		-- a tackler the server sees past the lunge plus the slack reaches nobody.
+		it("a lunge never reaches behind its start or past 18 studs from it, whatever the facing", function()
+			local rng = Random.new(74)
+			local slack = Config.TackleHitSlackStuds
+			local radius = Config.TackleHitRadiusStuds + slack
+			local cap = Config.TackleLungeStuds + slack
+			local hits = 0
+			for _ = 1, 2000 do
+				local start = Vector3.new(rng:NextNumber(-500, 500), rng:NextNumber(0, 40), rng:NextNumber(-500, 500))
+				local angle = rng:NextNumber(0, 2 * math.pi)
+				local facing = Vector3.new(math.sin(angle), 0, math.cos(angle))
+				local at = start + Vector3.new(rng:NextNumber(-16, 16), rng:NextNumber(-3, 3), rng:NextNumber(-16, 16))
+				local victim = at + Vector3.new(rng:NextNumber(-6, 6), rng:NextNumber(-3, 3), rng:NextNumber(-6, 6))
+				local ahead = Vector3.new(victim.X - start.X, 0, victim.Z - start.Z):Dot(facing)
+				local want = (at - start).Magnitude <= cap and (victim - at).Magnitude <= radius and ahead >= 0
+				local hit = Shove.inReach(start, facing, at, victim)
+				expect(hit).to.equal(want)
+				if hit then
+					hits += 1
+					expect((victim - start).Magnitude <= cap + radius).to.equal(true)
+				end
+			end
+			expect(cap + radius).to.equal(18)
+			expect(hits > 100 and hits < 1900).to.equal(true)
+		end)
 	end)
 end

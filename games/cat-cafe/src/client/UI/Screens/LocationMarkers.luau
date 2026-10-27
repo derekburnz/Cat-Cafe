@@ -7,7 +7,8 @@
 --   Areas         over the area's gate (tag AreaGate with `Area`), else the middle of its biggest World.Zones box; a
 --                 locked area shows a lock and its tier; the area the player stands in (UI.setZone) hides its own
 --   Night dealer  over the cart (tag DealerCart) while it is open
---   Plaza         over the Spin Wheel station (tag SpinWheel, F49), with a red dot while a free spin waits
+--   Town Square   over the Spin Wheel station (tag SpinWheel, F49; the plaza became the Town Square in F76), with a
+--                 red dot while a free spin waits
 -- Points come from model pivots and the persistent Zones boxes, so markers show before the parts stream in.
 --
 -- Roblox terms: a BillboardGui draws 2D UI at a 3D point, facing the camera; AlwaysOnTop shows it through walls.
@@ -20,6 +21,7 @@ local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -118,6 +120,7 @@ local function newMarker(
 		Text = icon,
 		Parent = disc,
 	})
+	IconArt.set(glyph, icon, 0.84) -- My Cafe and the Spin Wheel get the drawn icon
 	local name: TextLabel = Create("TextLabel", {
 		Name = "Name",
 		BackgroundTransparency = 1,
@@ -173,7 +176,7 @@ local function applyAlpha(marker: Marker, alpha: number)
 	local fade = 1 - alpha
 	marker.disc.BackgroundTransparency = fade
 	marker.discStroke.Transparency = fade
-	marker.glyph.TextTransparency = fade
+	IconArt.setTransparency(marker.glyph, fade)
 	marker.name.TextTransparency = fade
 	marker.nameStroke.Transparency = fade
 	marker.sub.TextTransparency = fade
@@ -199,7 +202,7 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 	self._markers.home = self._home
 	self._dealer = newMarker(parent, "dealer", "🛒", "Night dealer", Theme.colors.berry)
 	self._markers.dealer = self._dealer
-	self._plaza = newMarker(parent, "plaza", Theme.icons.spin, "Plaza", Theme.colors.warn)
+	self._plaza = newMarker(parent, "plaza", Theme.icons.spin, "Town Square", Theme.colors.warn)
 	self._markers.plaza = self._plaza
 	local dot: Frame = Create("Frame", {
 		Name = "Dot",

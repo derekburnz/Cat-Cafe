@@ -32,13 +32,13 @@ INK = "offwhite"                 # sign letters
 
 # area id -> (asset, gate or arch it closes, opening width, half width the fence spans, depth offset)
 GATES = {
-    "park": ("CatCafe_Park_NightFence", "CatCafe_Park_Gate", 24.0, 0.0),
-    "neighbourhood": ("CatCafe_Neighbourhood_NightFence", "CatCafe_Neighbourhood_Gate", 24.0, 0.0),
+    "park": ("CatCafe_Park_NightFence", "CatCafe_Park_Gate", 32.0, 0.0),
+    "neighbourhood": ("CatCafe_Neighbourhood_NightFence", "CatCafe_Neighbourhood_Gate", 32.0, 0.0),
     "woods": ("CatCafe_Woods_NightFence", "CatCafe_Woods_Gate", 30.0, 0.0),
     "sewer": ("CatCafe_Sewer_NightFence", "CatCafe_Sewer_Gate", 30.0, 0.0),
     # the arch has no Bars and hangs flower baskets in its opening, so its fence stands behind the posts and their
-    # plinths (z 1.3), as wide as the arch: 28 inner plus two 2 stud posts
-    "alley": ("CatCafe_Alley_NightFence", "CatCafe_Alley_ArchStreet", 32.0, 1.05),
+    # plinths (z 1.3), as wide as the arch: 36 inner plus two 2 stud posts
+    "alley": ("CatCafe_Alley_NightFence", "CatCafe_Alley_ArchStreet", 40.0, 1.05),
 }
 
 

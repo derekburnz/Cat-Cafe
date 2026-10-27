@@ -405,6 +405,50 @@ def ui_rename() -> np.ndarray:
     return finish(mix(d, (pencil * 0.6, 0.0), (bell(0.3, note("D6"), GLOCK), 0.19)), -7)
 
 
+# --- design v0.5: the chase after a miss and the shove (sound list 5.1 and 5.3) ----------------------
+
+
+def stray_sprint() -> np.ndarray:
+    """A missed cat bolts (F40): a scrabble of claws, then soft paws galloping off, each stride a little fainter."""
+    d = 1.0
+    scrabble = bandpass(bandpass(noise(0.09, 90), 2600, 1.5), 2600, 1.5) * envelope(0.09, 0.002, 0.03) * 0.3
+    parts = [(scrabble, 0.0)]
+    for stride in range(5):
+        for k, offset in enumerate((0.0, 0.03, 0.085, 0.115)):  # a running cat's four feet, two by two
+            centre = 1100 + 250 * (k % 2)
+            pad = bandpass(bandpass(noise(0.04, 100 + 4 * stride + k), centre, 1.5), centre, 1.5)  # twice: soft pads
+            pad *= envelope(0.04, 0.001, 0.01)
+            thump = glide(0.04, 260, 180, 0.02) * envelope(0.04, 0.001, 0.012) * 0.5
+            level = 0.9 * 0.82**stride * (1.0 if k % 2 == 0 else 0.75)
+            parts.append(((pad + thump) * level, 0.05 + 0.19 * stride + offset))
+    return finish(mix(d, *parts), -4)
+
+
+def shove() -> np.ndarray:
+    """A shove (F41) is a playful push, never a hit: a quick whoosh into a soft, bouncy "boop"."""
+    d = 0.4
+    whoosh = swish(0.14, 600, 2200, 80)
+    boop = glide(0.25, 560, 330, 0.06) * envelope(0.25, 0.003, 0.05) * 0.6
+    cushion = glide(0.25, 210, 120, 0.08) * envelope(0.25, 0.01, 0.06)
+    cloth = bandpass(bandpass(noise(0.12, 81), 900, 1.0), 900, 1.0) * envelope(0.12, 0.004, 0.03) * 0.5
+    return finish(mix(d, (whoosh, 0.0), (boop, 0.1), (cushion, 0.1), (cloth, 0.1)), -4)
+
+
+def bump_held() -> np.ndarray:
+    """A shoved carrier holds on ("It held on tight!"): a rubbery double squeeze, then a light mint shimmer."""
+    d = 0.6
+    parts = []
+    for i, (f0, f1) in enumerate(((700.0, 1050.0), (800.0, 1200.0))):
+        length = 0.11
+        t = seconds(length)
+        pitch = sweep(length, f0, f1) * (1 + 0.04 * np.sin(2 * np.pi * 30 * t))
+        phase = 2 * np.pi * np.cumsum(pitch) / SR
+        squeak = (np.sin(phase) + 0.3 * np.sin(2 * phase)) * np.sin(np.pi * t / length) ** 0.7
+        parts.append((squeak * 0.7, 0.13 * i))
+    shimmer = [(bell(0.3, f, ((1.0, 1.0, 0.08),)) * 0.25, 0.28 + 0.05 * i) for i, f in enumerate((2637.0, 3136.0, 3951.1))]
+    return finish(mix(d, *parts, *shimmer), -5)
+
+
 def purr_loop(length: float, seed: int, rate: float) -> np.ndarray:
     """A cat's purr over exactly `length` seconds so it loops: rumbling pulses on every breath in and out."""
     n = int(length * SR)
@@ -465,6 +509,9 @@ SOUNDS = {
     "RankReady": ("ui", "Ui", ui_rank_ready),
     "DealerOpen": ("ui", "Ui", ui_dealer_open),
     "Rename": ("ui", "Ui", ui_rename),
+    "StraySprint": ("sfx", "Sfx", stray_sprint),
+    "Shove": ("sfx", "Sfx", shove),
+    "BumpHeld": ("sfx", "Sfx", bump_held),
 }
 
 

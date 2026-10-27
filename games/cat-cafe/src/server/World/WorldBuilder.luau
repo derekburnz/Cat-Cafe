@@ -31,6 +31,7 @@ export type Plot = {
 	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
 	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
+	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first
 }
 
 export type AreaInfo = {
@@ -218,6 +219,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 	model.Name = "Plot_" .. index
 	model:SetAttribute("PlotIndex", index)
 	model:SetAttribute("OwnerUserId", 0)
+	model.WorldPivot = cframe -- GetPivot is the plot's own frame: -Z faces the street
 	CollectionService:AddTag(model, "Plot")
 
 	local halfW = W.PlotWidth / 2
@@ -379,6 +381,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local door = anchor("Door", localCFrame(cframe, Layout.plot.door), model)
 	door.Size = Vector3.new(W.DoorWidth, 6, 2)
 	door.CFrame = cframe * CFrame.new(0, 3, -halfD)
+	CollectionService:AddTag(door, "CafeDoor") -- the client's Audio rings the door bell here
 
 	-- Sign above the door
 	local signPart = part(
@@ -467,6 +470,13 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local waypoints = folder("CustomerWaypoints", model)
 	local entry = anchor("Entry", localCFrame(cframe, Layout.plot.entry), waypoints)
 	anchor("Door", localCFrame(cframe, Layout.plot.door), waypoints)
+	anchor("Order", localCFrame(cframe, Layout.plot.orderPoint), waypoints)
+
+	local napFolder = folder("NapSpots", model)
+	local napSpots: { BasePart } = {}
+	for n, point in Layout.plot.napSpots do
+		table.insert(napSpots, anchor(tostring(n), localCFrame(cframe, point), napFolder))
+	end
 
 	local plot: Plot = {
 		index = index,
@@ -486,6 +496,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		backDoor = backDoor,
 		backDoorZone = backDoorZone,
 		expansions = expansions,
+		napSpots = napSpots,
 	}
 	model.Parent = parent
 	return plot

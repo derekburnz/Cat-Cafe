@@ -9,20 +9,28 @@ local CatName = {}
 
 CatName.MAX_BYTES = 200 -- a longer string is refused before any other work (20 characters are 80 bytes at most)
 
--- Code points a name may not hold beyond the C0 and C1 controls: zero-width marks, bidi overrides and isolates, and
--- the byte order mark, which can hide or reorder text.
-local FORMAT_RANGES = {
-	{ 0x200B, 0x200F },
-	{ 0x202A, 0x202E },
-	{ 0x2060, 0x2069 },
-	{ 0xFEFF, 0xFEFF },
+-- The code points a name may use (reviewer S47): an allow list, because a deny list misses characters that draw
+-- nothing, break a line or stack (soft hyphens, fillers, tags, combining marks) and could hide a word from the filter
+-- or put a blank or towering name over a cat the whole street sees. ASCII letters, digits, space and ' - . ! ?;
+-- Latin letters with accents; Hiragana and Katakana without the combining sound marks; CJK ideographs; Hangul
+-- syllables; and single emoji (a joined emoji sequence needs U+200D, which is not allowed).
+local ALLOWED_ASCII = "[%w '%-%.!%?]"
+local ALLOWED_RANGES = {
+	{ 0x00C0, 0x00D6 }, -- Latin-1 letters, without the multiplication sign U+00D7
+	{ 0x00D8, 0x00F6 }, -- without the division sign U+00F7
+	{ 0x00F8, 0x024F }, -- and Latin Extended-A and B
+	{ 0x3041, 0x3096 }, -- Hiragana
+	{ 0x309B, 0x30FF }, -- the spacing sound marks, Katakana
+	{ 0x4E00, 0x9FFF }, -- CJK ideographs
+	{ 0xAC00, 0xD7A3 }, -- Hangul syllables
+	{ 0x1F300, 0x1FAFF }, -- emoji
 }
 
-local function forbidden(code: number): boolean
-	if code < 0x20 or (code >= 0x7F and code <= 0x9F) or code == 0x3C or code == 0x3E then
-		return true -- controls, newlines, < and >
+local function allowed(code: number): boolean
+	if code < 0x80 then
+		return string.char(code):match(ALLOWED_ASCII) ~= nil
 	end
-	for _, range in FORMAT_RANGES do
+	for _, range in ALLOWED_RANGES do
 		if code >= range[1] and code <= range[2] then
 			return true
 		end
@@ -48,7 +56,7 @@ function CatName.validate(raw: unknown): (string?, string?)
 		return nil, string.format("Names can be up to %d characters", Config.CatNameMaxLength)
 	end
 	for _, code in utf8.codes(name) do
-		if forbidden(code) then
+		if not allowed(code) then
 			return nil, "That name has characters we can't use"
 		end
 	end

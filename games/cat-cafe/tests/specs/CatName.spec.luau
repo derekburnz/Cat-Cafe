@@ -47,9 +47,44 @@ return function()
 			end
 		end)
 
-		it("keeps letters from any script and emoji", function()
-			expect((CatName.validate("Ńeko 猫"))).to.equal("Ńeko 猫")
-			expect((CatName.validate("Tiny 🐾"))).to.equal("Tiny 🐾")
+		it("allows only listed characters, so blanks, line breaks, tags and stacked marks fail (S47)", function()
+			local cases = {
+				"Mo\u{AD}chi", -- soft hyphen
+				"Mo\u{34F}chi", -- combining grapheme joiner
+				"Mo\u{61C}chi", -- Arabic letter mark
+				"Mo\u{2028}chi", -- line separator
+				"Mo\u{2029}chi", -- paragraph separator
+				"\u{3164}", -- Hangul filler
+				"Mo\u{2800}chi", -- braille blank
+				"Mochi\u{E0041}", -- tag letter A
+				"Moche\u{301}", -- combining acute
+				"Mo\u{FE0F}chi", -- variation selector
+				"Mo\u{FFF9}chi", -- annotation anchor
+				"Mo\u{3099}chi", -- combining kana sound mark
+				"Mo\u{A0}chi", -- no-break space (QA): only the ASCII space is a space
+				"Mo\u{2003}chi", -- em space
+				"\u{3000}", -- ideographic space
+				"Mo\u{17B4}chi", -- Khmer inherent vowel, draws nothing
+				"a" .. string.rep("\u{336}", 19), -- stacked combining strokes (QA's tower)
+				"Mo@chi",
+				"Mo#chi",
+				"1 × 2",
+			}
+			for _, raw in cases do
+				expect((CatName.validate(raw))).never.to.be.ok()
+			end
+		end)
+
+		it("keeps ASCII letters, digits, spaces and ' - . ! ?", function()
+			for _, raw in { "Mr. Whiskers!", "O'Malley", "Mochi-chan?", "Cat 9" } do
+				expect((CatName.validate(raw))).to.equal(raw)
+			end
+		end)
+
+		it("keeps accented Latin letters, kana, CJK, Hangul syllables and single emoji", function()
+			for _, raw in { "Ńeko 猫", "Tiny 🐾", "Zoë", "ねこ", "ネコ", "고양이" } do
+				expect((CatName.validate(raw))).to.equal(raw)
+			end
 		end)
 	end)
 

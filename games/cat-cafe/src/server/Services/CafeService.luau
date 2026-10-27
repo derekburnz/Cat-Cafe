@@ -168,7 +168,9 @@ end
 -- are tagged WorkingCat.
 type CatPlacement = { instance: Types.CatInstance, slot: string, anchor: BasePart }
 
+-- The name over a cat model; a named cat not filtered yet asks NameService, which refreshes once it has the text.
 local function shownName(player: Player, instance: Types.CatInstance): string
+	NameService.request(player, instance)
 	local def = Catalog.getCat(instance.catId)
 	return NameService.displayName(player, instance)
 		or (if def ~= nil then def.name else instance.catId)

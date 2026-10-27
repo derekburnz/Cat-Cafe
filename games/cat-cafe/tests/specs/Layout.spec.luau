@@ -82,7 +82,7 @@ return function()
 			end
 		end)
 
-		it("the box areas keep every spawn, lure and rescue spot on their floor", function()
+		it("the box areas keep every spawn point and rescue spot on their floor", function()
 			for id, spec in Layout.areas do
 				if spec.rects ~= nil then
 					continue
@@ -96,11 +96,6 @@ return function()
 				for i, point in spec.spawnPoints do
 					if not inside(point.x, point.z, floor, 2) then
 						fail("%s spawn point %d is not 2 studs inside the floor", id, i)
-					end
-				end
-				for i, point in spec.lureSpots do
-					if not inside(point.x, point.z, floor, 2) then
-						fail("%s lure spot %d is not 2 studs inside the floor", id, i)
 					end
 				end
 				for i, spot in spec.rescueSpots do
@@ -153,13 +148,54 @@ return function()
 			end
 		end)
 
-		it("every spawn and lure spot is 2 studs inside a floor and clear of every wall", function()
-			for _, list in { alley.spawnPoints, alley.lureSpots } do
-				for i, point in list :: { Point } do
-					local off = not onFloor(point.x, point.z, alleyRects, 2)
-					if off or inWall(point.x, point.z, alleyWalls, 1) then
-						fail("alley point %d at (%g, %g) is off the floor or in a wall", i, point.x, point.z)
+		it("every spawn point is 2 studs inside a floor and clear of every wall", function()
+			for i, point in alley.spawnPoints do
+				local off = not onFloor(point.x, point.z, alleyRects, 2)
+				if off or inWall(point.x, point.z, alleyWalls, 1) then
+					fail("alley point %d at (%g, %g) is off the floor or in a wall", i, point.x, point.z)
+				end
+			end
+		end)
+
+		-- Engineer PR #102: strays keep to alley.roam, off the dressed strip along the outer walls (building backs,
+		-- fire escapes, crates up to 5 studs deep) and the Square's north wall. WorldBuilder.clampToArea keeps
+		-- every wander and jump-back 2 studs inside a roam rect.
+		it("the roam rects lie on the floor, clear of every wall (QA)", function()
+			local roam = alley.roam :: { Rect }
+			expect(roam).to.be.ok()
+			-- How far two rects overlap along one axis; 0 or less when they only touch or miss.
+			local function overlap(a1: number, a2: number, b1: number, b2: number): number
+				return math.min(math.max(a1, a2), math.max(b1, b2)) - math.max(math.min(a1, a2), math.min(b1, b2))
+			end
+			for r, rect in roam do
+				for _, corner in { { rect.x1, rect.z1 }, { rect.x1, rect.z2 }, { rect.x2, rect.z1 }, { rect.x2, rect.z2 } } do
+					if not onFloor(corner[1], corner[2], alleyRects, 0) then
+						fail("roam rect %d corner (%g, %g) is off the floor", r, corner[1], corner[2])
 					end
+				end
+				for w, wall in alleyWalls do
+					if overlap(rect.x1, rect.x2, wall.x1, wall.x2) > 0 and overlap(rect.z1, rect.z2, wall.z1, wall.z2) > 0 then
+						fail("roam rect %d overlaps wall %d", r, w)
+					end
+				end
+			end
+		end)
+
+		it("every spawn point is 2 studs inside a roam rect, so no stray starts in the dressing (QA)", function()
+			local roam = alley.roam :: { Rect }
+			for i, point in alley.spawnPoints do
+				if not onFloor(point.x, point.z, roam, 2) then
+					fail("alley point %d at (%g, %g) is not 2 studs inside a roam rect", i, point.x, point.z)
+				end
+			end
+		end)
+
+		it("keeps the strays 5 studs off both outer walls and off the Square's north wall (QA)", function()
+			for r, rect in alley.roam :: { Rect } do
+				local x1, x2 = math.min(rect.x1, rect.x2), math.max(rect.x1, rect.x2)
+				local z2 = math.max(rect.z1, rect.z2)
+				if x1 < -W.AlleyOuterX + 5 or x2 > W.AlleyOuterX - 5 or z2 > W.SquareNorthZ - 3 then
+					fail("roam rect %d (%g to %g, up to z %g) reaches into the dressing", r, x1, x2, z2)
 				end
 			end
 		end)
@@ -179,6 +215,33 @@ return function()
 			expect(west).to.equal(1)
 			expect(east).to.equal(1)
 			expect(square).to.equal(1)
+		end)
+
+		it("the Square's manhole sits on its floor, clear of the walls, the arrival and the rescue spots (QA, #102)", function()
+			local manhole = Layout.manhole
+			expect(manhole).to.be.ok()
+			-- world-and-feel.md section 2: the Sewer down a manhole in the middle of the Square
+			local sewer = nil
+			for _, area in Catalog.areas do
+				if area.id == manhole.area then
+					sewer = area
+				end
+			end
+			expect(sewer).to.be.ok()
+			expect(manhole.z > W.SquareSouthZ and manhole.z < W.SquareNorthZ).to.equal(true)
+			expect(onFloor(manhole.x, manhole.z, alley.roam :: { Rect }, 2)).to.equal(true)
+			expect(inWall(manhole.x, manhole.z, alleyWalls, 1)).to.equal(false)
+			-- Its prompt reaches 8 studs (WorldBuilder): keep it off the arrival point and out of every rescue's
+			-- range (12 studs in F27), so one press never offers both.
+			local rescueRange = (Config :: any).RescueRangeStuds or 12
+			local arrival = alley.arrival :: Point
+			expect(math.sqrt((manhole.x - arrival.x) ^ 2 + (manhole.z - arrival.z) ^ 2) > 8).to.equal(true)
+			for i, spot in alley.rescueSpots do
+				local apart = math.sqrt((manhole.x - spot.x) ^ 2 + (manhole.z - spot.z) ^ 2)
+				if apart <= 8 + rescueRange then
+					fail("rescue spot %d is %.1f studs from the manhole", i, apart)
+				end
+			end
 		end)
 
 		it("the Alley travel button lands inside the Square, clear of its walls (check 4)", function()

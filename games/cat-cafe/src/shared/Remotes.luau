@@ -42,6 +42,7 @@ Remotes.ClientToServer = {
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
+	"ClaimIndexReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
 }
 
 -- Server -> client.

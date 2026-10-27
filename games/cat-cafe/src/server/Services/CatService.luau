@@ -245,7 +245,7 @@ local function spawnStray(
 		else "base"
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)
-	local model = AssetRegistry.clone(Catalog.catModelName(def.id))
+	local model = AssetRegistry.cloneCat(def.id, variant)
 	model.Name = id
 	local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart") :: BasePart
 	model:SetAttribute("StrayId", id)
@@ -489,7 +489,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if carry.model ~= nil then
 		carry.model:Destroy()
 	end
-	local model = AssetRegistry.clone(Catalog.catModelName(carry.def.id))
+	local model = AssetRegistry.cloneCat(carry.def.id, carry.variant)
 	model.Name = "HeldCat"
 	model:SetAttribute("CatId", carry.def.id)
 	model:SetAttribute("Shiny", carry.variant == "shiny") -- a rescued shiny shows its sparkle from here

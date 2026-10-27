@@ -607,6 +607,11 @@ function Catalog.catModelName(catId: string): string
 	return "CatCafe_Cat_" .. table.concat(words)
 end
 
+-- v0.5 F42: every cat's shiny coat is its own model on the same rig, "tabby" -> "CatCafe_Cat_Tabby_Shiny".
+function Catalog.shinyModelName(catId: string): string
+	return Catalog.catModelName(catId) .. "_Shiny"
+end
+
 Catalog.catsById = {} :: { [string]: Types.CatDef }
 Catalog.catsByModelName = {} :: { [string]: Types.CatDef }
 for _, def in Catalog.cats do

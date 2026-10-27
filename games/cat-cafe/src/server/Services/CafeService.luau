@@ -221,7 +221,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 	for uid, placement in wanted do
 		local instance = placement.instance
 		local def = Catalog.getCat(instance.catId)
-		local model = AssetRegistry.clone(Catalog.catModelName(instance.catId))
+		local model = AssetRegistry.cloneCat(instance.catId, instance.variant)
 		model.Name = uid
 		model:SetAttribute("Uid", uid)
 		model:SetAttribute("CatId", instance.catId)
@@ -369,7 +369,7 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 	end
 	local def = if key ~= nil and bait ~= nil then Catalog.getCat(bait.catId) else nil
 	if cat == nil and key ~= nil and bait ~= nil and def ~= nil then
-		local model = AssetRegistry.clone(Catalog.catModelName(bait.catId))
+		local model = AssetRegistry.cloneCat(bait.catId, bait.variant)
 		model.Name = "Cat"
 		model:SetAttribute("BaitKey", key)
 		model:SetAttribute("CatId", bait.catId)

@@ -14,13 +14,13 @@ Project rule (Derek, 2026-10-26): a thread merges its own PR once CI is green on
 1. Only label a PR you would merge by hand right now apart from CI: the luau-reviewer's findings are addressed (or the PR is docs or assets only), its test plan is written, it targets `main`, it is not a draft.
 2. Add the label with the GitHub MCP tool: `issue_write` with `method: "update"`, the PR number and `labels: ["automerge"]` (this sets the full label list, so include any labels already on the PR).
 3. End your turn. `.github/scripts/automerge.sh` then:
-   - runs CI on the head and merges with a merge commit when it passes and the head contains the latest main;
-   - when main moved, merges main into the branch and runs CI again, then merges on green;
+   - runs CI on the PR merged with the latest main and, when it passes, merges with a merge commit, so main gets exactly the code that passed;
+   - when main moved during the run, runs CI again with the new main merged in, then merges on green. Nothing is pushed to the branch, so there is no update commit to pull before your next push;
    - after a merge, starts the check run on main and, when Derek set `AUTO_PUBLISH`, a publish.
 4. A failed check leaves the label on: push the fix and the next green run merges. A conflict with main, or a merge GitHub refuses, takes the label off with a PR comment, which wakes your PR subscription. Fix it by hand, then add the label again.
-5. Labeled, green and still open after a few minutes? Open the newest "Merge if labeled automerge" job log on the PR's checks: its last lines say what it did (started CI, brought the branch up to date, saw a newer head, merged). Taking the label off and putting it back starts it again.
+5. Labeled, green and still open after a few minutes? Open the newest "Merge if labeled automerge" job log on the PR's checks: its last lines say what it did (started CI, saw main move and started CI again, saw a newer head, merged). Taking the label off and putting it back starts it again.
 
-Ignore the `check` runs started by github-actions[bot] that sit at "action required" (then "failure" once the PR merges) with no jobs: GitHub creates one for each update-branch push and never runs it. The dispatched `check` run on the same commit carries the real checks.
+Every check run tests the PR merged with main (`.github/scripts/merge-main.sh`; the "Merge main in (not pushed)" step names the main commit). Until 2026-10-27 the script pushed main into the branch instead; each of those pushes emailed Derek and left a jobless `check` run by github-actions[bot] at "action required" (then "failure"). A branch made before that change still updates the old way until main is merged into it.
 
 Merge by hand instead (MCP `merge_pull_request`) when the PR changes `.github/workflows/`: the workflow token may not merge those. Report the merge to Derek in one line either way.
 

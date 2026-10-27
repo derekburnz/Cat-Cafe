@@ -17,7 +17,7 @@ local Context = {}
 Context.tier = "high" :: string -- Presets.Tier
 Context.budget = Presets.budget.high
 
-local SHAKE_STEP = "PurrPotEffectsShake"
+local SHAKE_STEP = "CatCafeEffectsShake"
 
 local folder: Folder? = nil
 local rng = Random.new()

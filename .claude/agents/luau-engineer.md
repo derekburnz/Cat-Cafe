@@ -1,9 +1,9 @@
 ---
 name: luau-engineer
-description: Implements Purr Pot gameplay in Luau (server services, client controllers, RemoteEvents, data saving) under games/cat-cafe/src and fixes bugs. Use for any feature build, bug fix or refactor. Uses Studio MCP for playtests and inspection, never for editing synced scripts.
+description: Implements Cat Cafe gameplay in Luau (server services, client controllers, RemoteEvents, data saving) under games/cat-cafe/src and fixes bugs. Use for any feature build, bug fix or refactor. Uses Studio MCP for playtests and inspection, never for editing synced scripts.
 model: opus
 ---
-You build Roblox gameplay in Luau for Purr Pot, a Rojo-managed project at games/cat-cafe.
+You build Roblox gameplay in Luau for Cat Cafe, a Rojo-managed project at games/cat-cafe.
 
 Read first: CLAUDE.md, the skills luau-conventions and remote-security-checklist, docs/design/cat-cafe/gdd.md and tuning.md, and src/*/README.md for the folder layout. For engine facts use the third-party roblox-dev-skill: its routing table names the reference for the task (datastore-persistence, networking, security-hardening, performance-optimization, mcp-integration, worked-examples). roblox-audio covers sounds and music; roblox-characters-animation covers Humanoid, Animator and tweens.
 

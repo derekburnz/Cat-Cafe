@@ -1,4 +1,4 @@
-"""Upload Purr Pot's audio files to Roblox and write their ids into the game.
+"""Upload Cat Cafe's audio files to Roblox and write their ids into the game.
 
 Run from the repo root on your own PC (never in a shared or cloud machine with your key):
 
@@ -90,7 +90,7 @@ def upload(path: Path, key: str, creator: dict) -> tuple[str, str]:
     meta = {
         "assetType": "Audio",
         "displayName": path.stem[:50],
-        "description": "Purr Pot sound effect or ambience, original (made for the game).",
+        "description": "Cat Cafe sound effect or ambience, original (made for the game).",
         "creationContext": {"creator": creator},
     }
     boundary = uuid.uuid4().hex
@@ -165,8 +165,11 @@ def main() -> int:
 
     key = os.environ.get("ROBLOX_API_KEY")
     user, group = os.environ.get("ROBLOX_CREATOR_USER_ID"), os.environ.get("ROBLOX_CREATOR_GROUP_ID")
-    if not key or not (user or group):
-        print("upload: set ROBLOX_API_KEY and ROBLOX_CREATOR_USER_ID (or ROBLOX_CREATOR_GROUP_ID) first", file=sys.stderr)
+    needed = (("ROBLOX_API_KEY", key), ("ROBLOX_CREATOR_USER_ID", user or group))
+    missing = [name for name, value in needed if not value]
+    if missing:
+        print(f"upload: {' and '.join(missing)} not set in this terminal window (a variable lasts only for the "
+              "window it was set in); a group key uses ROBLOX_CREATOR_GROUP_ID instead of the user id", file=sys.stderr)
         return 2
     creator = {"groupId": group} if group else {"userId": user}
 

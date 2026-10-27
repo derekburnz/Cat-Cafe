@@ -1,9 +1,9 @@
 ---
 name: concept-visuals
-description: The rough-visual process for Purr Pot: style options in words, a Studio graybox of the cafe and alley, one Blender hero asset, an HTML or SVG HUD mockup, saved to docs/concepts/cat-cafe/ with captions. Use for mood, graybox, hero asset and mockup tasks, and when assembling a comparison page for Derek and friends to vote on.
+description: The rough-visual process for Cat Cafe: style options in words, a Studio graybox of the cafe and alley, one Blender hero asset, an HTML or SVG HUD mockup, saved to docs/concepts/cat-cafe/ with captions. Use for mood, graybox, hero asset and mockup tasks, and when assembling a comparison page for Derek and friends to vote on.
 ---
 
-# Concept visuals (Purr Pot)
+# Concept visuals (Cat Cafe)
 
 Claude does not paint. Rough visuals come from the real tools: Roblox Studio generation tools for grayboxes, Blender for one hero asset, HTML or SVG for UI mockups. This doubles as a test of the pipeline.
 

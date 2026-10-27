@@ -33,6 +33,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
 	Bump = RateLimiter.new(2, 1), -- a flood guard; ShoveService answers BumpCooldownSeconds with a reason
 	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
+	TelemetryReport = RateLimiter.new(10, 60), -- data-model section 15: 10 a minute
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

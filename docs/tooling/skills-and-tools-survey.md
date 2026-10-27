@@ -1,4 +1,4 @@
-# Skills, MCP servers and tools for Purr Pot: survey and ranking
+# Skills, MCP servers and tools for Cat Cafe: survey and ranking
 
 Date: 2026-10-26. Owner: lead (research thread "Find Roblox dev skills and tools"). Trigger: Derek found [EL4CTEO/blender-skills](https://github.com/EL4CTEO/blender-skills) and asked for similar tools for Blender modelling, then for every part of Roblox development. Nothing here is installed. Star counts and version numbers are what the GitHub pages showed on 2026-10-26.
 

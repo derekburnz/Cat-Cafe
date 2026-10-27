@@ -4,14 +4,17 @@
 -- carry marker and tutorial hints.
 
 local CollectionService = game:GetService("CollectionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Types = require(Shared:WaitForChild("Types"))
@@ -406,6 +409,15 @@ local function wireIntents()
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)
 	end)
+	-- Analytics only (F16): which screens players find at all, once per screen a session so toggling a panel never
+	-- reaches the remote's rate limit (reviewer N97). The server allowlists the names.
+	local screensReported: { [string]: boolean } = {}
+	UI.events.screenOpened:Connect(function(name: string?)
+		if name ~= nil and not screensReported[name] then
+			screensReported[name] = true
+			Net.fire("TelemetryReport", "ui_opened", name)
+		end
+	end)
 	-- The net (data-model section 10): one press on the prompt asks for the circles. The server answers with
 	-- CatchSchedule (or a GrabResult refusal); each press on a circle sends only its index, since the server
 	-- stamps the time itself.
@@ -500,9 +512,31 @@ local function bindDealerCart()
 	end
 end
 
+-- Analytics only (F16): the device kind goes on the onboarding funnel's joined step and on session_end. Sent on the
+-- first ProfileSync, when the server's telemetry session is sure to exist (reviewer S49).
+local deviceReported = false
+local function reportDevice()
+	if deviceReported then
+		return
+	end
+	deviceReported = true
+	local camera = Workspace.CurrentCamera
+	Net.fire(
+		"TelemetryReport",
+		"device",
+		DeviceKind.classify({
+			touch = UserInputService.TouchEnabled,
+			keyboard = UserInputService.KeyboardEnabled,
+			tenFoot = GuiService:IsTenFootInterface(),
+			viewport = if camera ~= nil then camera.ViewportSize else Vector2.new(1920, 1080),
+		})
+	)
+end
+
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
+		reportDevice()
 	end)
 	Net.on("Toast", function(text: string, kind: Types.ToastKind?)
 		UI.toast(text, kind)
@@ -694,7 +728,7 @@ function UIController.start()
 	bindDealerCart()
 	startPrediction()
 	Net.fire("RequestSync")
-	print(string.format("[PurrPot] client ready for %s", player.Name))
+	print(string.format("[CatCafe] client ready for %s", player.Name))
 end
 
 return UIController

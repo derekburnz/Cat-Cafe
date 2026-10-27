@@ -1,4 +1,4 @@
-# Purr Pot animation and VFX list
+# Cat Cafe animation and VFX list
 
 Draft v0.4, 2026-10-27: adds the design v0.5 build below (Effects v1.1). v0.3, 2026-10-26, added the design v0.4 build (Effects v1); v0.2 earlier the same day was rewritten for design v0.3; v0.1 was written for design v0.2. Owner: vfx-animator. Readers: luau-engineer (hooks and the cat rig), ui-designer (screen versus world), sound-designer (same moment names), asset-artist (parts and swatches), game-designer, luau-reviewer, qa-playtester. How each tool works, the style rules and the phone budgets are in `.claude/skills/animation-vfx/SKILL.md`; this file is the what and the when. The mechanics come from `docs/design/cat-cafe/features.md` v0.3 and `data-model.md` sections 4, 5, 5b, 8, 8b, 10, 10b, 10c, 12 and 13.
 

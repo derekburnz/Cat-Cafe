@@ -1,6 +1,6 @@
 ---
 name: luau-reviewer
-description: Read-only reviewer that checks Purr Pot Luau changes for exploits, data loss, performance problems and style after luau-engineer or ui-designer finishes. Use proactively after any code change and before any merge. Does not edit files.
+description: Read-only reviewer that checks Cat Cafe Luau changes for exploits, data loss, performance problems and style after luau-engineer or ui-designer finishes. Use proactively after any code change and before any merge. Does not edit files.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---

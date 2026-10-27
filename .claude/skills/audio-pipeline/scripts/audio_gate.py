@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Purr Pot audio gate: measures every audio file and writes a PASS/WARN/FAIL table.
+"""Cat Cafe audio gate: measures every audio file and writes a PASS/WARN/FAIL table.
 
 The sound-designer cannot listen, so this reports what can be measured: format, size,
 duration, sample rate, channels, integrated loudness, true peak, leading silence and

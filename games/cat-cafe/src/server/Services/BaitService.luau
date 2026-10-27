@@ -86,15 +86,18 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	end
 	local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
 	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
-	profile.bait = {
+	local bait: Types.BaitState = {
 		lureId = lureId,
 		placedAt = os.time(),
 		catId = def.id,
 		variant = if rng:NextNumber() < Config.ShinyChanceBait then "shiny" else "base",
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 	}
+	profile.bait = bait
 	profile.stats.luresUsed += 1
 	Telemetry.onboarding(player, profile, "first_bait")
+	Telemetry.custom(player, "bait_rolled", 1, { lureId, rarity, "none" }) -- "none": no catnip buff yet
+	Telemetry.baitStep(player, bait, 1)
 	if profile.tutorialStep == 4 then
 		CafeService.advanceTutorial(profile, 5) -- the last step: set bait
 	end
@@ -133,6 +136,15 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 	shownArrival[player] = nil
 	Telemetry.onboarding(player, profile, "first_bait_resolved")
 	local def = Catalog.getCat(bait.catId)
+	Telemetry.custom(
+		player,
+		"bait_resolved",
+		1,
+		{ bait.lureId, if def ~= nil then def.rarity :: string else "unknown", choice }
+	)
+	if choice == "tame" then
+		Telemetry.baitStep(player, bait, 3)
+	end
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
 		local _, isNew =
@@ -170,6 +182,7 @@ local function checkArrivals()
 			shownArrival[player] = bait.placedAt
 			CafeService.refreshPlot(player)
 			CafeService.sync(player)
+			Telemetry.baitStep(player, bait, 2)
 		end
 	end
 end

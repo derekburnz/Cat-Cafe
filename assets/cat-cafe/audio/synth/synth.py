@@ -1,4 +1,4 @@
-"""Synthesize Purr Pot's own sound effects: UI, net circles, catch results, coins, the door bell, jingles.
+"""Synthesize Cat Cafe's own sound effects: UI, net circles, catch results, coins, the door bell, jingles.
 
 Run from the repo root:  python assets/cat-cafe/audio/synth/synth.py [--only CirclePerfect,CoinPop]
                                                                   [--preview DIR]
@@ -7,7 +7,7 @@ Every sound is made from sine partials and filtered noise with fixed seeds, so t
 original (no samples) and the same on every run. Outputs (overwritten):
   assets/cat-cafe/audio/ui/CatCafe_Ui_<Name>.ogg and sfx/CatCafe_Sfx_<Name>.ogg (mono, 48 kHz),
   music/CatCafe_Music_Jingle<Name>.ogg (the same sound on both channels; the music channel is stereo)
-  with --preview: DIR/purr-pot-sfx-preview.mp3, every sound in turn, then a five-circle Perfect
+  with --preview: DIR/cat-cafe-sfx-preview.mp3, every sound in turn, then a five-circle Perfect
   run and a whole catch, for listening without Studio.
 
 Needs numpy and ffmpeg (with libvorbis and libmp3lame). After a run, check the files with
@@ -558,7 +558,7 @@ def preview(rendered: dict[str, np.ndarray], folder: Path, tmp: Path) -> Path:
     track = np.concatenate(parts)
     wav = tmp / "preview.wav"
     write_wav(wav, track / max(1.0, np.max(np.abs(track))))
-    out = folder / "purr-pot-sfx-preview.mp3"
+    out = folder / "cat-cafe-sfx-preview.mp3"
     encode(wav, out, ["-c:a", "libmp3lame", "-q:a", "2"])
     return out
 

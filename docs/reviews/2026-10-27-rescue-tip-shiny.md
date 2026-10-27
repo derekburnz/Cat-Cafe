@@ -107,7 +107,7 @@ Reviewer: luau-reviewer thread, 2026-10-27 about 04:30 to 08:00 UTC. Read only; 
 - #116:
   - Check that the dealer's pill, 4 studs up, clears the NPC's head.
   - On a phone emulator, tap the bowl, cart and manhole pills once each.
-- #119: run `PurrPotDebug:Invoke("spawnStray", "tabby", "alley", true)` and catch the cat. Check that the sparkle shows while it roams, the shiny catch header appears, the carried cat sparkles and the toast names it. On check-in, one shout-out should go to the server and the book's Shiny count should rise.
+- #119: run `CatCafeDebug:Invoke("spawnStray", "tabby", "alley", true)` and catch the cat. Check that the sparkle shows while it roams, the shiny catch header appears, the carried cat sparkles and the toast names it. On check-in, one shout-out should go to the server and the book's Shiny count should rise.
 - #117 waits on the F31 server. Once it lands, check the marker on a phone at the cafe and from the alley.
 
 ## Build checklist status

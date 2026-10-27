@@ -1,5 +1,5 @@
 --!strict
--- Purr Pot client bootstrap: sound channels first, then the UI (it needs the catalog), world touches, cosmetic
+-- Cat Cafe client bootstrap: sound channels first, then the UI (it needs the catalog), world touches, cosmetic
 -- customers and the effects that read them.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

@@ -24,6 +24,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -45,6 +46,7 @@ type Stuck = {
 	attempt: Rescue.Attempt?,
 	retryAt: number, -- server time anyone may start after a failed attempt (RescueRetrySeconds)
 	selfRetryAt: { [number]: number }, -- per player who failed: RescueSelfRetrySeconds
+	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
 	alive: boolean,
 }
 
@@ -252,8 +254,14 @@ end
 
 -- Ends the player's attempt on this trap. A success frees the cat into their arms; anything else unlocks the trap
 -- with the retry waits and leaves the cat where it is. `reason` is a toast for an end the bar does not show
--- (walking away, a carry that started some other way).
-local function finish(player: Player, entry: Stuck, attempt: Rescue.Attempt, reason: string?)
+-- (walking away, a carry that started some other way). `cancelled` is true for Give up (RescueCancel).
+local function finish(
+	player: Player,
+	entry: Stuck,
+	attempt: Rescue.Attempt,
+	reason: string?,
+	cancelled: boolean?
+)
 	if entry.attempt ~= attempt then
 		return -- already finished
 	end
@@ -268,13 +276,26 @@ local function finish(player: Player, entry: Stuck, attempt: Rescue.Attempt, rea
 	if present then
 		sendResult(player, entry, attempt)
 	end
+	local funnel = entry.funnel
+	entry.funnel = nil
+	Telemetry.custom(player, "rescue_attempt", 1, {
+		entry.trap,
+		entry.def.rarity,
+		if success
+			then "freed"
+			elseif cancelled then "cancelled"
+			elseif reason ~= nil then "walked_away"
+			elseif attempt.paws <= 0 then "out_of_paws"
+			elseif attempt.circle ~= nil then "missed_catch"
+			else "too_slow",
+	})
 	if success then
 		local def, charm, variant = entry.def, entry.charm, entry.variant
 		clearStuck(entry)
 		if profile ~= nil then
 			profile.stats.rescues += 1
 		end
-		CatService.startCarry(player, def, "rescue", charm, variant)
+		CatService.startCarry(player, def, "rescue", charm, variant, funnel)
 		return
 	end
 	local now = serverNow()
@@ -377,6 +398,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	setLock(entry, player.UserId)
 	profile.stats.rescueAttempts += 1
 	Net.fire(player, "RescueChallenge", spotId, challenge)
+	entry.funnel = Telemetry.catchEngaged(player, entry.def.rarity, "rescue", entry.area)
 	watch(player, entry, attempt)
 end
 
@@ -464,7 +486,7 @@ local function onRescueCancel(player: Player, rawSpotId: unknown)
 	end
 	local attempt = entry.attempt
 	if attempt ~= nil then
-		finish(player, entry, attempt, nil)
+		finish(player, entry, attempt, nil, true)
 	end
 end
 

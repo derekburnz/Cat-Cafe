@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CafeService = require(script.Parent.CafeService)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -19,6 +20,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -119,8 +121,15 @@ local function shove(player: Player, target: Player, forced: Shove.KnockResult?)
 		character:SetAttribute("ShovedBy", player.UserId)
 	end
 
+	local carriedId = CafeService.carrying(target)
+	local carried = if carriedId ~= nil then Catalog.getCat(carriedId) else nil
+	local rarity: string = if carried ~= nil then carried.rarity else "none"
 	local knock = CatService.tryKnockLoose(target, player.UserId, areaId, direction, forced)
 	profile.stats.bumpsGiven += 1
+	Telemetry.custom(player, "shove", 1, { knock or "shove", rarity, areaId })
+	if knock == "loose" then
+		Telemetry.knockedLoose(target, rarity)
+	end
 	if knock == "loose" then
 		profile.stats.bumpsLanded += 1
 		local targetProfile = DataService.get(target)

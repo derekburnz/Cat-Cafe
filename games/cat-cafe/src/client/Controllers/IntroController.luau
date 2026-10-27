@@ -61,12 +61,6 @@ type Run = {
 local run: Run? = nil
 local firstStarted = false -- the first play of this session has begun
 
--- The UI's intro screen comes with the UI's F72 build. Until that is on main the UI module may not have it, so it is
--- reached loosely and skipped when missing.
-local function introUI(): any
-	return (UI :: any).intro
-end
-
 -- The PlayerModule's controls, or nil when the default player scripts are not there.
 local function controls(): any?
 	local scripts = player:FindFirstChildOfClass("PlayerScripts")
@@ -295,12 +289,9 @@ local function enterShot(r: Run, index: number)
 		WorldController.endPreview(shot.seconds) -- the real sky comes back during the swoop
 	end
 
-	local box = introUI()
-	if box ~= nil then
-		box.setShot(index, shot.caption, r.cuts[1].title)
-		if shot.demo and index == 2 then
-			box.demoCatch(Intro.strayPoint(r.plot) + Vector3.new(0, 1, 0))
-		end
+	UI.intro.setShot(index, shot.caption, r.cuts[1].title)
+	if shot.demo and index == 2 then
+		UI.intro.demoCatch(Intro.strayPoint(r.plot) + Vector3.new(0, 1, 0))
 	end
 	Moments.IntroShot:Fire(index)
 end
@@ -376,10 +367,7 @@ local function step()
 	end
 	if cut ~= r.cut then
 		r.cut = cut
-		local box = introUI()
-		if box ~= nil then
-			box.setShot(index, shot.caption, r.cuts[cut].title)
-		end
+		UI.intro.setShot(index, shot.caption, r.cuts[cut].title)
 	end
 	local c = r.cuts[cut]
 	setCamera(Intro.at(c, shot.ease, (t - cutStart) / c.seconds))
@@ -431,10 +419,7 @@ finish = function(finished: boolean)
 	end
 	ProximityPromptService.Enabled = r.promptsWere
 
-	local box = introUI()
-	if box ~= nil then
-		box.finish()
-	end
+	UI.intro.finish()
 	Net.fire("IntroDone", if finished then 0 else math.max(r.shot, 1), r.replay)
 	run = nil
 	Moments.IntroEnd:Fire()
@@ -494,10 +479,7 @@ function IntroController.play(replay: boolean)
 		streamAround(cut.to.look)
 	end
 
-	local box = introUI()
-	if box ~= nil then
-		box.start({ skipAfter = if replay then 0 else Intro.SKIP_AFTER, replay = replay })
-	end
+	UI.intro.start({ skipAfter = if replay then 0 else Intro.SKIP_AFTER, replay = replay })
 	Moments.IntroStart:Fire(replay)
 	RunService:BindToRenderStep(RENDER_STEP, Enum.RenderPriority.Camera.Value + 1, step)
 end
@@ -514,20 +496,15 @@ function IntroController.start()
 			task.defer(IntroController.play, false)
 		end
 	end)
-	local uiEvents: any = UI.events
-	if uiEvents.introSkip ~= nil then
-		uiEvents.introSkip:Connect(function()
-			finish(false)
-		end)
-	end
-	if uiEvents.introReplay ~= nil then
-		uiEvents.introReplay:Connect(function()
-			local state = UIController.state
-			if state ~= nil and state.carrying == nil then
-				IntroController.play(true)
-			end
-		end)
-	end
+	UI.events.introSkip:Connect(function()
+		finish(false) -- the UI sends the shot; this side knows it already
+	end)
+	UI.events.introReplay:Connect(function()
+		local state = UIController.state
+		if state ~= nil and state.carrying == nil then
+			IntroController.play(true)
+		end
+	end)
 	player.CharacterAdded:Connect(function(character)
 		local r = run
 		if r == nil then

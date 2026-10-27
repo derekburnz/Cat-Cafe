@@ -1,9 +1,11 @@
 --!strict
 -- shared/Shove.luau against data-model section 10c (F29's carry bumps as v0.5 F41 and v0.5.1): every protection on
 -- a shove, the knock-loose roll on a carrier, and the rules of a knocked-loose cat (owner window, shover barred,
--- still during the window per N86, kept through an early night wave per S32). The "edges (QA)" block is QA's.
+-- still during the window per N86; v0.9 F66 checks a dropped cat in for its carrier at dusk, which replaces S32's
+-- minimum stay). The "edges (QA)" block is QA's.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local Clock = require(Shared.Clock)
 	local Config = require(Shared.Config)
 	local Shove = require(Shared.Shove)
 
@@ -16,6 +18,7 @@ return function()
 			shoverArea = "alley",
 			targetArea = "alley",
 			areaUnlocked = true,
+			areasClosed = false,
 			distance = 3,
 			targetBusy = false,
 			targetSafe = false,
@@ -61,6 +64,10 @@ return function()
 
 		it("only in an area the shover's tier opens", function()
 			expect(Shove.refusal(with({ areaUnlocked = false }))).to.be.ok()
+		end)
+
+		it("never at night, when the areas are closed (v0.9, F66)", function()
+			expect(Shove.refusal(with({ areasClosed = true }))).to.equal(Clock.CLOSED_TEXT)
 		end)
 
 		it("range is BumpRangeStuds plus the usual 2 studs of slack", function()
@@ -227,27 +234,13 @@ return function()
 				expect(Shove.sprintsAfterMiss(nil, 0)).to.equal(true)
 			end
 		)
-
-		it(
-			"survives a night wave that starts within DroppedMinStaySeconds of the drop (S32)",
-			function()
-				local stay = Config.DroppedMinStaySeconds
-				expect(Shove.leavesWithWave(drop, 100 + stay - 0.01)).to.equal(false)
-				expect(Shove.leavesWithWave(drop, 100 + stay)).to.equal(true)
-				expect(Shove.leavesWithWave(nil, 0)).to.equal(true)
-			end
-		)
 	end)
 
 	describe("section 10c numbers", function()
-		it(
-			"the owner window is shorter than the minimum stay, so a wave never eats the window",
-			function()
-				expect(Config.DropOwnerPrioritySeconds < Config.DroppedMinStaySeconds).to.equal(
-					true
-				)
-			end
-		)
+		it("DroppedMinStaySeconds is gone: dusk checks a dropped cat in for its carrier (v0.9, F66)", function()
+			expect((Config :: any).DroppedMinStaySeconds).never.to.be.ok()
+			expect((Shove :: any).leavesWithWave).never.to.be.ok()
+		end)
 
 		it("the same-target wait is longer than the shover's cooldown", function()
 			expect(Config.BumpSameTargetSeconds > Config.BumpCooldownSeconds).to.equal(true)

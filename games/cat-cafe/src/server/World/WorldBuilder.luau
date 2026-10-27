@@ -807,6 +807,77 @@ local function buildSafeZoneMarks(parent: Instance)
 	safeWords(Vector3.new(0, streetTop, W.ParkGateZ + 4), Vector3.new(0, 0, 1), 12, marks)
 end
 
+-- The Alleyway has no tier gate, so at night (v0.9, F66) a plain fence closes it along the same lines as the
+-- safe zone stripes: both back alleys' inner edges and the street's mouth into the Square, with a "Closed until
+-- sunrise" sign on the street side. `AlleyNightFence` under World.Gates, `Area` alley and `RequiresTier` 1, but no
+-- AreaGate tag (no gate sign or unlock effect): the client treats its Bars like a gate's and closes them while the
+-- Clock's AreasOpen is false. CanCollide stays off here, so the server's rays and the strays never meet it.
+local NIGHT_FENCE_WOOD = Color3.fromRGB(92, 64, 51)
+local NIGHT_FENCE_HEIGHT = 8 -- over a default jump
+
+local function nightFenceBars(from: Vector3, to: Vector3, parent: Instance): Part
+	local length = (to - from).Magnitude
+	local mid = (from + to) / 2 + Vector3.new(0, NIGHT_FENCE_HEIGHT / 2, 0)
+	local bars = part(
+		"Bars",
+		Vector3.new(0.4, NIGHT_FENCE_HEIGHT, length),
+		CFrame.lookAt(mid, Vector3.new(to.X, mid.Y, to.Z)),
+		NIGHT_FENCE_WOOD,
+		Enum.Material.WoodPlanks,
+		parent
+	)
+	bars.CanCollide = false
+	bars.CanQuery = false
+	bars.CanTouch = false
+	return bars
+end
+
+local function buildAlleyNightFence(parent: Instance): Model
+	local fence = Instance.new("Model")
+	fence.Name = "AlleyNightFence"
+	fence:SetAttribute("Area", "alley")
+	fence:SetAttribute("RequiresTier", 1)
+	local floor = Layout.alley.floorY
+	for _, side in { -1, 1 } do
+		local x = side * (W.AlleyInnerX + 0.3)
+		nightFenceBars(
+			Vector3.new(x, floor, W.AlleySouthZ),
+			Vector3.new(x, floor, W.SquareSouthZ - 1),
+			fence
+		)
+	end
+	local street = W.StreetHalfWidth + 2
+	local mouth = nightFenceBars(
+		Vector3.new(-street, floor, W.SquareSouthZ + 0.3),
+		Vector3.new(street, floor, W.SquareSouthZ + 0.3),
+		fence
+	)
+	-- the sign reads from the street (-Z of the mouth); the bars' own faces are Left and Right as built
+	for _, face in { Enum.NormalId.Left, Enum.NormalId.Right } do
+		local gui = Instance.new("SurfaceGui")
+		gui.Name = "ClosedSign"
+		gui.Face = face
+		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		gui.PixelsPerStud = 20
+		gui.LightInfluence = 0
+		local text = Instance.new("TextLabel")
+		text.AnchorPoint = Vector2.new(0.5, 0.5)
+		text.Position = UDim2.fromScale(0.5, 0.5)
+		text.Size = UDim2.fromScale(0.6, 0.35)
+		text.BackgroundTransparency = 1
+		text.Font = Enum.Font.FredokaOne
+		text.TextScaled = true
+		text.TextColor3 = SAFE_WORDS
+		text.TextStrokeColor3 = NIGHT_FENCE_WOOD
+		text.TextStrokeTransparency = 0
+		text.Text = "Closed until sunrise"
+		text.Parent = gui
+		gui.Parent = mouth
+	end
+	fence.Parent = parent
+	return fence
+end
+
 local function buildArea(
 	id: string,
 	spec: Layout.AreaSpec,
@@ -1195,6 +1266,7 @@ function WorldBuilder.build(): World
 		end
 	end
 	local manhole = buildManhole(gatesFolder)
+	buildAlleyNightFence(gatesFolder)
 	buildSafeZoneMarks(root)
 	buildSpinWheel(root)
 

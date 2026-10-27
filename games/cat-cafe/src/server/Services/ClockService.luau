@@ -3,20 +3,25 @@
 -- the time since this server started: day with ServerStartDaySeconds left, then night and day forever. It is
 -- published as attributes on ReplicatedStorage.Clock (Phase, PhaseEndsAt) so clients read it without a remote.
 -- PhaseEndsAt is on the Workspace:GetServerTimeNow() clock, which every client shares, so a countdown never trusts
--- the device clock.
+-- the device clock. v0.9 (F66): AreasOpen is false from night start to sunrise, when the catching areas are closed
+-- (the client's fences, the travel buttons); NightService does the closing and opening on `changed`.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Clock = require(ReplicatedStorage.Shared.Clock)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local ClockService = {}
 
--- Fires (phase, phaseEndsAt) after the attributes change. Night start is when waves and rescue spots roll.
+-- Fires (phase, phaseEndsAt) after the attributes change. NightService closes the areas at night start and spawns
+-- the sunrise wave at day start.
 ClockService.changed = Signal.new() :: Signal.Signal<Types.ClockPhase, number>
+-- Fires (secondsLeft) DuskWarningSeconds before night, for the "Night falls" banner (F66).
+ClockService.dusk = Signal.new() :: Signal.Signal<number>
 
 local clockFolder: Folder? = nil
 local startedAt = 0 -- os.clock() when the server started; debugSetPhase shifts it
@@ -33,6 +38,7 @@ local function publish(phase: Types.ClockPhase, secondsLeft: number)
 	if folder ~= nil then
 		folder:SetAttribute("Phase", phase)
 		folder:SetAttribute("PhaseEndsAt", currentEndsAt)
+		folder:SetAttribute("AreasOpen", phase == "day")
 	end
 	ClockService.changed:Fire(phase, currentEndsAt)
 end
@@ -44,6 +50,13 @@ local function tick()
 	local phase: Types.ClockPhase, secondsLeft: number = Clock.phaseAt(os.clock() - startedAt)
 	if not published or phase ~= currentPhase then
 		publish(phase, secondsLeft)
+	end
+	if phase == "day" and secondsLeft > Config.DuskWarningSeconds then
+		task.delay(secondsLeft - Config.DuskWarningSeconds, function()
+			if generation == myGeneration then
+				ClockService.dusk:Fire(Config.DuskWarningSeconds)
+			end
+		end)
 	end
 	task.delay(secondsLeft, function()
 		if generation == myGeneration then
@@ -74,6 +87,11 @@ function ClockService.isNight(): boolean
 	return currentPhase == "night"
 end
 
+-- False from night start to sunrise (F66): no catching, rescuing, shoving or travelling into the areas.
+function ClockService.areasOpen(): boolean
+	return currentPhase == "day"
+end
+
 -- Server time (Workspace:GetServerTimeNow()) when the current phase ends.
 function ClockService.phaseEndsAt(): number
 	return currentEndsAt
@@ -85,7 +103,8 @@ function ClockService.epoch(): number
 	return os.time() - (os.clock() - startedAt)
 end
 
--- Studio-only test hook: jump to the start of a phase at its full length. Jumping to night rolls a wave at once.
+-- Studio-only test hook: jump to the start of a phase at its full length. Jumping to night closes the areas at
+-- once; jumping to day spawns the sunrise wave.
 function ClockService.debugSetPhase(phase: Types.ClockPhase)
 	assert(RunService:IsStudio(), "debugSetPhase is Studio only")
 	startedAt = os.clock() - Clock.startOf(phase)

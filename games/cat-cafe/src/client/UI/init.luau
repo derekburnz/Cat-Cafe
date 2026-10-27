@@ -66,6 +66,7 @@ UI.events = {
 	sellCat = Signal.new(), -- (uid)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
+	unequipAll = Signal.new(), -- ()   Unequip All in the cat room: every working cat rests; forward as UnequipAll
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   a press on a stuck cat's prompt: forward as RescueBegin
@@ -346,6 +347,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		equipBest = function()
 			UI.events.equipBest:Fire()
+		end,
+		unequipAll = function()
+			UI.events.unequipAll:Fire()
 		end,
 		close = closeModal,
 	})

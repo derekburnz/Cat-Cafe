@@ -313,6 +313,9 @@ Presets.motion = {
 	-- A nap curls the cat up: it lies on its belly with its legs folded (front paws out in front), tucks its head
 	-- round towards its tail and wraps the tail along its side. sink 1 is right down on its belly.
 	nap = { headDroop = 18, headTuck = 35, tailWrap = 70, sink = 1, breathe = 0.05, seconds = 3.2 },
+	-- A cat stood upright at its station (F25) dozes on its feet at night instead: chin down on its chest with a
+	-- slow nod, a little sway, the tail hanging still. Nothing sinks, so it never dips into the counter.
+	doze = { headDroop = 26, nod = 5, sway = 2, tail = 0.15, breathe = 0.04, seconds = 3.6 },
 	settle = 0.8, -- seconds a cat takes to move from one style to the next (lying down at nightfall)
 	-- Legs swing with the distance the server moves the cat, so the feet keep pace with the ground: a trot at
 	-- walking speed, a gallop once it runs (F40's sprint is 26 studs a second). Speeds in studs a second.

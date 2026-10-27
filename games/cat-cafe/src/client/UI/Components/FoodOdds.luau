@@ -4,8 +4,11 @@
 --   line   "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical"
 --   split  the same chance for every cat of a rarity across the areas you have unlocked, cat by cat, and which
 --          area the next rank up adds to the pool
---   extras the gold chance and the charm star odds, because both change what the cat earns
--- Shared by the HUD's lure picker and the bait bowl screen.
+--   extras the gold chance (with the Index's gold luck in it, v0.10) and the charm star odds, because both change
+--          what the cat earns
+--   waitSeconds how long the bowl's cat takes: LureWaitSeconds, or the Big Bowl perk's wait, less the Index's
+--          faster bait (F54), whole seconds as the server's Economy.baitWaitSeconds
+-- Shared by the bait bowl screen and the night dealer.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -21,6 +24,10 @@ local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical"
 -- data-model section 8: GoldChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
 local GOLD_CHANCE: number = Config.GoldChanceBait
 local STAR_ODDS: { number } = Config.CharmStarOdds
+local GOLD_LUCK_MAX: number = (Config :: any).GoldLuckMax or 1.5
+local BAIT_SPEED_MAX: number = (Config :: any).BaitSpeedMax or 0.5
+local WAIT_SECONDS: number = Config.LureWaitSeconds
+local BIG_BOWL_SECONDS: number = (Config :: any).BigBowlLureWaitSeconds or WAIT_SECONDS
 
 -- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two
 -- decimals, so a food's per-cat split adds back up to its rarity's share (reviewer N69).
@@ -106,13 +113,25 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 	return table.concat(lines, "\n")
 end
 
--- "Gold 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"
-function FoodOdds.extras(): string
+-- "Gold 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"; with gold luck the chance has it in
+-- (chance x (1 + luck), golden-fish.md section 5): "Gold 7% (+40% luck) · Charm ...".
+function FoodOdds.extras(goldLuck: number?): string
 	local stars: { string } = {}
 	for count, share in STAR_ODDS do
 		table.insert(stars, ("%d★ %s"):format(count, percent(share)))
 	end
-	return ("Gold %s · Charm %s"):format(percent(GOLD_CHANCE * 100), table.concat(stars, ", "))
+	local luck = math.clamp(goldLuck or 0, 0, GOLD_LUCK_MAX)
+	local gold = percent(GOLD_CHANCE * (1 + luck) * 100)
+	if luck > 0 then
+		gold ..= (" (+%s luck)"):format(percent(luck * 100))
+	end
+	return ("Gold %s · Charm %s"):format(gold, table.concat(stars, ", "))
+end
+
+-- The bait wait for food going in now: the Big Bowl perk's wait or LureWaitSeconds, less the faster bait.
+function FoodOdds.waitSeconds(bigBowl: boolean, baitSpeed: number?): number
+	local base = if bigBowl then BIG_BOWL_SECONDS else WAIT_SECONDS
+	return math.floor(base * (1 - math.clamp(baitSpeed or 0, 0, BAIT_SPEED_MAX)))
 end
 
 return FoodOdds

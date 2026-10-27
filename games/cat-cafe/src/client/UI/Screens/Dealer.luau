@@ -17,6 +17,7 @@ local DealerRows = require(script.Parent.Parent.Components.DealerRows)
 local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -102,6 +103,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._near = nil :: boolean?
 	self._pending = {} :: { [string]: number } -- lureId -> os.clock() when the wait for DealerStock ends
 	self._tier = 0
+	self._goldLuck = -1 -- the luck the odds lines were written with
 	self._accumulator = 0
 
 	local panel = Panel.new({
@@ -313,7 +315,7 @@ function Dealer._buildRows(self: any)
 			LayoutOrder = 2,
 			Parent = stockLine,
 		})
-		text({
+		local odds = text({
 			Name = "Odds",
 			Position = UDim2.fromOffset(TEXT_LEFT, 60),
 			Size = UDim2.new(1, -(TEXT_LEFT + TEXT_RIGHT), 0, ROW_HEIGHT - 66),
@@ -378,10 +380,12 @@ function Dealer._buildRows(self: any)
 			buy = buy,
 			details = details,
 			detail = detail,
+			odds = odds,
 			group = group,
 		})
 	end
 	self._tier = -1 -- rebuild the split text on the next render
+	self._goldLuck = -1
 end
 
 function Dealer._toggleDetail(self: any, lureId: string)
@@ -487,6 +491,15 @@ function Dealer._renderAll(self: any)
 		for _, row in self._rows do
 			local def: Types.LureDef = row.group.def
 			row.detail.Text = def.description .. "\n" .. FoodOdds.split(catalog, def, state.tier)
+		end
+	end
+	-- the gold chance with the Index's gold luck in it (F54)
+	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
+	if luck ~= self._goldLuck then
+		self._goldLuck = luck
+		for _, row in self._rows do
+			local def: Types.LureDef = row.group.def
+			row.odds.Text = FoodOdds.line(def.odds) .. "\n" .. FoodOdds.extras(luck)
 		end
 	end
 	for _, row in self._rows do

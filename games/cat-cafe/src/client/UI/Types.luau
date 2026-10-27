@@ -105,6 +105,8 @@ export type IndexPrize = {
 	spins: number?, -- banked Spin Wheel spins, up to SpinBankCap
 	crates: { [string]: number }?, -- crate id -> count
 	bonus: number?, -- tips forever, as a fraction (0.02)
+	goldLuck: number?, -- v0.10 gold track: gold luck forever, as a fraction
+	baitSpeed: number?, -- v0.10 All Cats track: faster bait forever, as a fraction
 	tag: string?, -- a name tag ("Cat Master")
 	decorId: string?,
 	potions: { [string]: number }?, -- v0.10: potion id -> count (Tip Jar step 12, codes, the Daily Treat)
@@ -165,6 +167,8 @@ export type PlayerState = {
 	crates: { [string]: number }?, -- F53: crate id -> unopened count
 	crateLuck: { [string]: number }?, -- F53: crate pool -> opens since its last Epic or better (0 to 19)
 	fishPerks: { [string]: number }?, -- F53: Golden Fish Market perk id -> level
+	goldLuck: number?, -- F54: the Index's gold luck, capped (GoldLuckMax); nil adds it up from the claims
+	baitSpeed: number?, -- F54: the Index's faster bait, capped (BaitSpeedMax); nil adds it up from the claims
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -194,6 +198,8 @@ export type PartialState = {
 	crates: { [string]: number }?,
 	crateLuck: { [string]: number }?,
 	fishPerks: { [string]: number }?,
+	goldLuck: number?,
+	baitSpeed: number?,
 }
 
 export type ScreenName =

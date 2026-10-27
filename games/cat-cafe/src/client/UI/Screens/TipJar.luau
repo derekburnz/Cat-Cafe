@@ -3,7 +3,9 @@
 -- Gifts grid in Pet Simulator 99. A strip on top says how long you have played and when the next gift opens;
 -- each card shows when it opens, the prize (coins from your day rate, or a food) and a green Claim button once
 -- it is ready. Opened from the Gifts tile in the HUD's top-right icon row. The sums live in
--- Components/TipJarLogic; the jar resets when the player leaves, which the subtitle says.
+-- Components/TipJarLogic; the jar resets when the player leaves, which the subtitle says. A gift that also banks
+-- a Spin Wheel spin (F49, steps 11 and 12) wears a "+1 spin" badge, or "Spins full" while the bank is at
+-- SpinBankCap, since the server then drops the spin and pays the rest.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -19,7 +21,7 @@ local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Types = require(script.Parent.Parent.Types)
 
-local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Callbacks = {
 	claim: (step: number) -> (),
@@ -42,6 +44,7 @@ local STRIP_HEIGHT = 52
 local PENDING_SECONDS = 3 -- a pressed Claim waits this long for TipJarState before it can be pressed again
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local COIN_GLYPH = "💰"
+local SPIN_BANK_CAP: number = Config.SpinBankCap or 20
 
 local TipJar = {}
 TipJar.__index = TipJar
@@ -70,6 +73,7 @@ function TipJar.new(callbacks: Callbacks): TipJar
 	self._jar = nil :: TipJarLogic.Jar?
 	self._income = 0
 	self._night = false
+	self._spin = nil :: Types.SpinState?
 	self._cards = {} :: { [number]: any }
 	self._pending = {} :: { [number]: number } -- step -> os.clock() of the press
 
@@ -185,6 +189,7 @@ end
 
 function TipJar.render(self: any, state: Types.PlayerState)
 	self._income = state.incomePerSecond
+	self._spin = state.spin
 	self:_refresh()
 end
 
@@ -218,6 +223,10 @@ function TipJar._build(self: any)
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = Theme.modal.subtext,
 			Text = ("%d min"):format(row.minutes),
+			-- a spin badge takes the right of the top line, so the minutes move left
+			TextXAlignment = if (row.spins or 0) > 0
+				then Enum.TextXAlignment.Left
+				else Enum.TextXAlignment.Center,
 			Parent = frame,
 		})
 		local lure: Types.LureDef? = if row.lureId then self._lureById[row.lureId] else nil
@@ -254,6 +263,24 @@ function TipJar._build(self: any)
 			Parent = frame,
 		})
 		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = waiting })
+		local spinBadge: TextLabel? = nil
+		if (row.spins or 0) > 0 then
+			local badge = text({
+				Name = "Spin",
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -4, 0, 4),
+				Size = UDim2.fromOffset(70, 18),
+				BackgroundTransparency = 0,
+				BackgroundColor3 = Theme.colors.berry,
+				FontFace = Theme.fonts.display,
+				TextSize = Theme.sizes.textTiny,
+				TextColor3 = Theme.colors.white,
+				ZIndex = 2,
+				Parent = frame,
+			})
+			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = badge })
+			spinBadge = badge
+		end
 		local step = row.step
 		local claim = Button.new({
 			name = "Claim",
@@ -279,6 +306,7 @@ function TipJar._build(self: any)
 			prize = prize,
 			waiting = waiting,
 			claim = claim,
+			spinBadge = spinBadge,
 		}
 	end
 	self:_refresh()
@@ -322,6 +350,20 @@ function TipJar._refresh(self: any)
 		card.stroke.Color = if ready then Theme.colors.good else Theme.modal.cardStroke
 		card.stroke.Thickness = Theme.sizes.stroke + (if ready then 1 else 0)
 		card.frame.BackgroundTransparency = if claimed then 0.35 else 0
+		local badge: TextLabel? = card.spinBadge
+		if badge then
+			local spin: Types.SpinState? = self._spin
+			local full = spin ~= nil and spin.banked >= SPIN_BANK_CAP
+			badge.Visible = not claimed
+			badge.Text = if full
+				then "Spins full"
+				else ("%s +%d spin%s"):format(
+					Theme.icons.spin,
+					row.spins or 1,
+					if (row.spins or 1) == 1 then "" else "s"
+				)
+			badge.BackgroundColor3 = if full then Theme.colors.disabledDark else Theme.colors.berry
+		end
 	end
 
 	-- the strip: minutes played and the next gift

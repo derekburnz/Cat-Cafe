@@ -44,6 +44,7 @@ local Settings = require(script.Screens.Settings)
 local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
+local SpinWheel = require(script.Screens.SpinWheel)
 local Theme = require(script.Theme)
 local TipJar = require(script.Screens.TipJar)
 local Toasts = require(script.Screens.Toasts)
@@ -92,6 +93,7 @@ UI.events = {
 	-- 2026-10-27 wave 2
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
+	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting (Audio follows UI.settings.changed)
 }
 
@@ -147,6 +149,7 @@ local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 local settingsScreen: Settings.Settings? = nil -- music, sound and place icons switches (gear in the HUD)
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
+local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
@@ -212,6 +215,9 @@ local function render()
 	if tipJarScreen then
 		tipJarScreen:render(state)
 	end
+	if spinScreen then
+		spinScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -246,6 +252,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if tipJarScreen then
 		tipJarScreen:setCatalog(newCatalog)
+	end
+	if spinScreen then
+		spinScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -511,6 +520,29 @@ function UI.init(config: Types.InitConfig)
 			tipJarView:render(state)
 		end,
 	})
+	spinScreen = SpinWheel.new({
+		spin = function()
+			UI.events.spinWheel:Fire()
+		end,
+		status = function(freeDue: boolean)
+			if locationMarkers then
+				locationMarkers:setPlazaDot(freeDue)
+			end
+		end,
+		toast = function(text: string)
+			if toasts then
+				toasts:show(text, "good")
+			end
+		end,
+		close = closeModal,
+	})
+	local spinView = spinScreen :: SpinWheel.SpinWheel
+	modalInstance:register("Spin", {
+		frame = spinView.frame,
+		onOpen = function()
+			spinView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -672,6 +704,10 @@ function UI.destroy()
 		tipJarScreen:destroy()
 	end
 	tipJarScreen = nil
+	if spinScreen then
+		spinScreen:destroy()
+	end
+	spinScreen = nil
 	if upgrades then
 		upgrades:destroy()
 	end
@@ -1060,6 +1096,28 @@ end
 function UI.tipJar.open()
 	if modal then
 		modal:open("TipJar")
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Spin Wheel (F49, data-model section 11c)
+----------------------------------------------------------------------------------------------------
+
+UI.spin = {}
+
+-- Opens the Spin window: call it from the station's "Spin" prompt (SpinPrompt, Triggered). It reads state.spin
+-- from ProfileSync and Catalog.spinWheel; walking out of range closes it again.
+function UI.spin.open()
+	if modal then
+		modal:open("Spin")
+	end
+end
+
+-- From SpinResult(slice, amount): the wheel turns to `slice` and shows `amount` (coins paid, or the number of
+-- foods). Slice 0 means refused, and the window says why. A result that lands while the window is closed is a toast.
+function UI.spin.result(slice: number, amount: number)
+	if spinScreen then
+		spinScreen:result(slice, amount)
 	end
 end
 
@@ -1804,6 +1862,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	end
 	if tipJarScreen then
 		tipJarScreen:setNight(phase == "night")
+	end
+	if spinScreen then
+		spinScreen:setNight(phase == "night")
 	end
 end
 

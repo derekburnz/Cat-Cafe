@@ -345,7 +345,6 @@ local function followClock()
 	end)
 end
 
--- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
 -- Low performance (Derek's settings menu): the night parts still turn Neon but their Light objects stay off, and
 -- the place's global shadows and its Bloom, SunRays and DepthOfField go off. Turning it back restores what the
 -- place had. Effects follows the same setting for particles (Effects.applySettings).
@@ -435,9 +434,26 @@ local function setCatHidden(model: Model, hidden: boolean)
 	end
 end
 
+-- A cat that arrives while Show other cats is off is hidden whole; a part or billboard that arrives later under a
+-- hidden cat (an outfit piece, a name tag) is hidden with it (review N137).
 local function considerCat(instance: Instance)
 	if not showOtherCats and isOtherCat(instance) then
 		setCatHidden(instance :: Model, true)
+		return
+	end
+	local hiddenModel = instance:FindFirstAncestorWhichIsA("Model")
+	while hiddenModel ~= nil and hiddenCats[hiddenModel] == nil do
+		hiddenModel = hiddenModel:FindFirstAncestorWhichIsA("Model")
+	end
+	if hiddenModel == nil then
+		return
+	end
+	if instance:IsA("BasePart") then
+		(instance :: BasePart).LocalTransparencyModifier = 1
+	elseif instance:IsA("BillboardGui") then
+		local gui = instance :: BillboardGui
+		hiddenCats[hiddenModel][gui] = gui.Enabled
+		gui.Enabled = false
 	end
 end
 
@@ -481,7 +497,7 @@ end
 -- carried cat is a HeldCat model under its carrier's character.
 local function watchOtherCats()
 	local function watchCharacter(character: Model)
-		character.ChildAdded:Connect(considerCat)
+		character.DescendantAdded:Connect(considerCat)
 	end
 	local function watchPlayer(other: Player)
 		if other == player then
@@ -510,6 +526,7 @@ local function applySettings(settings: { [string]: unknown })
 	setShowOtherCats(settings.showOtherCats ~= false)
 end
 
+-- The zone box name at `position` (ShoveController turns the Shove button on in a catching area).
 function WorldController.zoneAt(position: Vector3): string?
 	return zoneAt(position)
 end

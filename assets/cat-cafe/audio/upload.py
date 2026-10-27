@@ -52,7 +52,7 @@ PRIORITY = (
     "ambCafeDay", "ambAlleyNight", "loopCafeDoor", "jingleRankUp", "shuttersUp", "gateOpen", "announce",
     "catchStart", "circleAppear", "ambAlleyDay", "ambCafeNight", "carryPurr", "purr", "signFlip", "strayFlee",
     "shove", "bumpHeld", "holdFill", "zoneArea", "zoneSafe", "travelPoof", "catDrop", "goldReveal", "shimmerRare",
-    "giftClaim", "indexReward", "catPlaced", "catRest", "uiSlider", "uiGiftReady", "uiBadge", "wheelTick", "wheelWin",
+    "giftClaim", "indexReward", "catPlaced", "catRest", "uiSlider", "uiGiftReady", "uiBadge", "uiSpinStart", "uiSpinTick", "uiSpinWin",
 )
 
 

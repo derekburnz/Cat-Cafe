@@ -134,6 +134,43 @@ return function()
 			expect(Logic.trapCue("tree")).to.equal("rescueHitTree")
 			expect(Logic.trapCue("dumpster")).to.equal(nil)
 		end)
+
+		it("steps a shout-out up the scale by rarity", function()
+			expect(Logic.rarityStep("Common")).to.equal(1)
+			expect(Logic.rarityStep("legendary")).to.equal(4)
+			expect(Logic.rarityStep("Secret")).to.equal(5)
+			expect(Logic.rarityStep("Shiny")).to.equal(nil)
+			expect(Logic.rarityStep(nil)).to.equal(nil)
+		end)
+
+		it("climbs one step per rarity in the catalog's order (QA)", function()
+			local Catalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
+			for index, rarity in Catalog.rarityOrder do
+				expect(Logic.rarityStep(rarity)).to.equal(index)
+			end
+		end)
+	end)
+
+	describe("Audio.Logic world loops", function()
+		it("keeps the nearest loops inside the radius, nearest first", function()
+			local picked = Logic.nearest({ 20, 3, 9, 14, 1 }, 14, 3)
+			expect(#picked).to.equal(3)
+			expect(picked[1]).to.equal(5)
+			expect(picked[2]).to.equal(2)
+			expect(picked[3]).to.equal(3)
+		end)
+
+		it("keeps fewer when fewer are close, none when all are far", function()
+			local picked = Logic.nearest({ 20, 14, 30 }, 14, 3)
+			expect(#picked).to.equal(1)
+			expect(picked[1]).to.equal(2)
+			expect(#Logic.nearest({ 20, 30 }, 14, 3)).to.equal(0)
+			expect(#Logic.nearest({}, 14, 3)).to.equal(0)
+		end)
+
+		it("keeps none with a max of 0 (QA)", function()
+			expect(#Logic.nearest({ 1, 2 }, 14, 0)).to.equal(0)
+		end)
 	end)
 
 	describe("Audio.Cues", function()
@@ -166,6 +203,9 @@ return function()
 					"circleMiss",
 					"catchSparkle",
 					"catchMiss",
+					"catHiss",
+					"pawLost",
+					"purrfectChime",
 					"strayFlee",
 					"checkInBell",
 					"coinPop",

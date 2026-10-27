@@ -1,9 +1,9 @@
 --!strict
 -- Client-side world touches: each area gate opens once the cafe reaches that area's tier, check-in fires itself at the
 -- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray this
--- player is out of paws on hides its prompt for them, the ambience follows the zone the player stands in, and the
--- sky and the parts that glow at night follow the server's day and night clock (features F20). All cosmetic, all
--- local.
+-- player is out of paws on hides its prompt for them, the ambience follows the zone the player stands in, the roof of
+-- the cafe the player is inside fades out, and the sky and the parts that glow at night follow the server's day and
+-- night clock (features F20). All cosmetic, all local.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -15,7 +15,9 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Config = require(Shared:WaitForChild("Config"))
+local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
 local WorldController = {}
@@ -26,6 +28,53 @@ local function rootPosition(): Vector3?
 	local character = player.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	return if root ~= nil and root:IsA("BasePart") then root.Position else nil
+end
+
+-- The cafe whose floor the player stands on, if any (plot space: X along the street, Z away from it).
+local function plotAt(position: Vector3): Model?
+	local world = Workspace:FindFirstChild("World")
+	local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
+	if plots == nil then
+		return nil
+	end
+	for _, plot in plots:GetChildren() do
+		if plot:IsA("Model") then
+			local offset = (plot :: Model):GetPivot():PointToObjectSpace(position)
+			if
+				math.abs(offset.X) <= Config.World.PlotWidth / 2 + 0.5
+				and math.abs(offset.Z) <= Config.World.PlotDepth / 2 + 0.5
+				and offset.Y < 12
+			then
+				return plot :: Model
+			end
+		end
+	end
+	return nil
+end
+
+-- The cafe shell's roof (its child Model <name>_Roof: roof, ridge and chimney) fades out on this screen while the
+-- player is inside, the sketch's cutaway view (world-and-feel.md section 3). LocalTransparencyModifier is local
+-- only, and at 1 the camera stops treating the roof as something to zoom in front of.
+local ROOF_FADE = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+local function setRoofHidden(plot: Model, hidden: boolean)
+	local shell = plot:FindFirstChild("Shell")
+	if shell == nil then
+		return
+	end
+	for _, child in shell:GetChildren() do
+		if child:IsA("Model") and child.Name:sub(-5) == "_Roof" then
+			for _, descendant in child:GetDescendants() do
+				if descendant:IsA("BasePart") then
+					TweenService:Create(
+						descendant,
+						ROOF_FADE,
+						{ LocalTransparencyModifier = if hidden then 1 else 0 }
+					):Play()
+				end
+			end
+		end
+	end
 end
 
 -- v0.4 (data-model section 10 step 5): once this player has no paws left on a stray (its Paws_<UserId> attribute
@@ -65,14 +114,19 @@ local function zoneAt(position: Vector3): string?
 	return nil
 end
 
+-- Only the gate's barrier (the ForceField part named Bars across the whole opening) changes; the arch stays solid.
+-- The barrier keeps its own look while closed and vanishes once open (Effects draws the dissolve the first time).
+local closedTransparency: { [BasePart]: number } = setmetatable({}, { __mode = "k" }) :: any
+
 local function setGateOpen(gate: Instance, open: boolean)
 	for _, descendant in gate:GetDescendants() do
-		if descendant:IsA("BasePart") then
+		if descendant:IsA("BasePart") and descendant.Name == "Bars" then
 			local part = descendant :: BasePart
+			if closedTransparency[part] == nil then
+				closedTransparency[part] = part.Transparency
+			end
 			part.CanCollide = not open
-			part.Transparency = if open then 0.85 else (if part.Name == "Bars" then 0.35 else 0)
-		elseif descendant:IsA("BillboardGui") then
-			(descendant :: BillboardGui).Enabled = not open
+			part.Transparency = if open then 1 else closedTransparency[part]
 		end
 	end
 end
@@ -270,12 +324,13 @@ function WorldController.start()
 	end
 	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 
-	-- Gates under World.Gates (WorldBuilder): solid below the gate's RequiresTier, see-through and passable at
-	-- or above it. Only this player's copy changes; the server checks the tier on every catch and rescue.
+	-- Gates under World.Gates (WorldBuilder): the barrier is solid below the gate's RequiresTier and gone at or
+	-- above it. Only this player's copy changes; the server checks the tier on every catch and rescue.
 	local gateOpen: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local lastCheckIn = 0
 	local sawAlley = false
 	local lastZone: string? = nil
+	local insidePlot: Model? = nil
 
 	task.spawn(function()
 		while true do
@@ -291,9 +346,20 @@ function WorldController.start()
 				for _, gate in gates:GetChildren() do
 					local requires = gate:GetAttribute("RequiresTier")
 					local open = type(requires) == "number" and state.tier >= requires
-					if gateOpen[gate] ~= open then
+					local was = gateOpen[gate]
+					if was ~= open then
 						gateOpen[gate] = open
 						setGateOpen(gate, open)
+						-- a gate opening while you play (not one already open when you joined)
+						local area = gate:GetAttribute("Area")
+						if
+							was == false
+							and open
+							and type(area) == "string"
+							and gate:IsA("Model")
+						then
+							Moments.AreaUnlock:Fire(area, (gate :: Model):GetPivot().Position)
+						end
 					end
 				end
 			end
@@ -316,10 +382,26 @@ function WorldController.start()
 				end
 			end
 
+			local inside = plotAt(position)
+			local wasInside = insidePlot
+			if inside ~= wasInside then
+				if wasInside ~= nil then
+					setRoofHidden(wasInside, false)
+				end
+				if inside ~= nil then
+					setRoofHidden(inside, true)
+				end
+				insidePlot = inside
+			end
+
 			local zone = zoneAt(position)
 			if zone ~= lastZone then
 				lastZone = zone
 				Audio.setZone(zone)
+				-- walking into an area shows its title card (F39); the card skips a repeat within 4 s
+				if zone ~= nil and zone ~= "Cafe" then
+					UI.showAreaTitle(zone:lower())
+				end
 			end
 
 			if not sawAlley and state.tutorialStep == 0 and zone == "Alley" then

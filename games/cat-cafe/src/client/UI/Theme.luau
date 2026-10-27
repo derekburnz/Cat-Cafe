@@ -71,9 +71,9 @@ Theme.button = {
 		depth = Color3.fromHex("B8336F"),
 	},
 	ghost = {
-		top = Color3.fromHex("FFFFFF"),
-		bottom = Color3.fromHex("F3E6D4"),
-		depth = Color3.fromHex("D9C3A5"),
+		top = Color3.fromHex("FFF8EE"),
+		bottom = Color3.fromHex("EFE0CB"),
+		depth = Color3.fromHex("D2B895"),
 	},
 	danger = {
 		top = Color3.fromHex("FFAD55"),
@@ -121,16 +121,19 @@ Theme.hud = {
 }
 
 -- Modal windows sit on a dim backdrop and use the light cafe palette.
+-- Derek 2026-10-27: "the menu's should be less bright and easier to read through". The window body is a toasted
+-- latte instead of bright cream, cards sit a step lighter so rows stand apart, and small grey text is dark enough
+-- to read on both (6A5B4F is 4.7:1 on the body and 5.9:1 on a card; the old 8A7B6E was 3.5:1 on cream).
 Theme.modal = {
 	backdrop = Theme.colors.ink,
 	backdropTransparency = 0.45,
-	panel = Theme.colors.cream,
+	panel = Color3.fromHex("E9DAC6"),
 	header = Theme.colors.caramel,
 	headerText = Theme.colors.paper,
-	card = Theme.colors.paper,
-	cardStroke = Color3.fromHex("CDB08E"), -- warm caramel edge so cards read as chunky tiles
+	card = Color3.fromHex("FAF3E8"),
+	cardStroke = Color3.fromHex("C4A57F"), -- warm caramel edge so cards read as chunky tiles
 	text = Theme.colors.ink,
-	subtext = Theme.colors.muted,
+	subtext = Color3.fromHex("6A5B4F"),
 }
 
 Theme.rarity = {

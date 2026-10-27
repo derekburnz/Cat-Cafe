@@ -44,6 +44,7 @@ local IntroLogic = require(script.Components.IntroLogic)
 local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
 local Motion = require(script.Components.Motion)
+local MyCats = require(script.Screens.MyCats)
 local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
@@ -142,7 +143,8 @@ local hud: HUD.HUD? = nil
 local modal: Modal.Modal? = nil
 local upgrades: UpgradeShop.UpgradeShop? = nil
 local decor: DecorShop.DecorShop? = nil
-local collection: CatCollection.CatCollection? = nil
+local collection: CatCollection.CatCollection? = nil -- the Index and the Decor Index
+local myCats: MyCats.MyCats? = nil -- the Cats screen, its own window since 2026-10-27
 local catch: CatchPrompt.CatchPrompt? = nil
 local circles: CatchCircles.CatchCircles? = nil
 local rescueBar: RescueBar.RescueBar? = nil
@@ -272,6 +274,9 @@ local function render()
 	if collection then
 		collection:render(state)
 	end
+	if myCats then
+		myCats:render(state)
+	end
 	if rankUpScreen then
 		rankUpScreen:render(state)
 	end
@@ -321,6 +326,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 		upgrades:setCatalog(newCatalog)
 		decor:setCatalog(newCatalog)
 		collection:setCatalog(newCatalog)
+	end
+	if myCats then
+		myCats:setCatalog(newCatalog)
 	end
 	if rankUpScreen then
 		rankUpScreen:setCatalog(newCatalog)
@@ -417,19 +425,14 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
-		-- Cats and Index are two tabs of one screen: a pill switches tabs, or closes the screen on its own tab
-		openCollection = function(tab: "Index" | "Room")
-			local screen = collection
-			if
-				screen
-				and modalInstance:current() == "Collection"
-				and screen:currentTab() == tab
-			then
+		-- the Index pill opens the Index on its cat pages (not the Decor tab), or closes it
+		openIndex = function()
+			if modalInstance:current() == "Collection" then
 				modalInstance:close()
 				return
 			end
-			if screen then
-				screen:showTab(tab)
+			if collection then
+				collection:showTab("Index")
 			end
 			modalInstance:open("Collection")
 		end,
@@ -480,6 +483,12 @@ function UI.init(config: Types.InitConfig)
 		close = closeModal,
 	})
 	collection = CatCollection.new({
+		claimIndexReward = function(areaId: string, milestoneId: string)
+			UI.events.claimIndexReward:Fire(areaId, milestoneId)
+		end,
+		close = closeModal,
+	})
+	myCats = MyCats.new({
 		placeCat = function(uid: string, spotId: string)
 			UI.events.placeCat:Fire(uid, spotId)
 		end,
@@ -500,9 +509,6 @@ function UI.init(config: Types.InitConfig)
 		end,
 		unequipAll = function()
 			UI.events.unequipAll:Fire()
-		end,
-		claimIndexReward = function(areaId: string, milestoneId: string)
-			UI.events.claimIndexReward:Fire(areaId, milestoneId)
 		end,
 		close = closeModal,
 	})
@@ -525,6 +531,7 @@ function UI.init(config: Types.InitConfig)
 	local upgradesScreen = upgrades :: UpgradeShop.UpgradeShop
 	local decorScreen = decor :: DecorShop.DecorShop
 	local collectionScreen = collection :: CatCollection.CatCollection
+	local catsScreen = myCats :: MyCats.MyCats
 	modalInstance:register("Upgrades", {
 		frame = upgradesScreen.frame,
 		onOpen = function()
@@ -541,6 +548,13 @@ function UI.init(config: Types.InitConfig)
 		frame = collectionScreen.frame,
 		onOpen = function()
 			collectionScreen:render(state)
+		end,
+	})
+	modalInstance:register("Cats", {
+		frame = catsScreen.frame,
+		onOpen = function()
+			catsScreen:reset()
+			catsScreen:render(state)
 		end,
 	})
 	local rankUpView = rankUpScreen :: RankUp.RankUp
@@ -838,7 +852,7 @@ function UI.init(config: Types.InitConfig)
 				elseif key == Enum.KeyCode.B then
 					modalInstance:toggle("Decor")
 				elseif key == Enum.KeyCode.C then
-					modalInstance:toggle("Collection")
+					modalInstance:toggle("Cats")
 				elseif key == Enum.KeyCode.F then
 					openBait()
 				elseif key == Enum.KeyCode.H then
@@ -941,6 +955,10 @@ function UI.destroy()
 	if collection then
 		collection:destroy()
 	end
+	if myCats then
+		myCats:destroy()
+	end
+	myCats = nil
 	if modal then
 		modal:destroy()
 	end
@@ -1049,12 +1067,9 @@ function UI.openIndex(areaId: string)
 	UI.open("Collection")
 end
 
--- "Index" or "Room" tab of the Collection screen, then open it.
+-- The Cats screen (a free crew slot's "+" in Upgrades, tutorial step 3).
 function UI.openCatRoom()
-	if collection then
-		collection:showTab("Room")
-	end
-	UI.open("Collection")
+	UI.open("Cats")
 end
 
 function UI.setVisible(isVisible: boolean)

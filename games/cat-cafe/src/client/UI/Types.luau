@@ -158,7 +158,7 @@ export type PlayerState = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	-- optional extras the engineer's ProfileSync also sends
-	cats: { [string]: CatInstance }?, -- uid -> instance; enables the cat room tab
+	cats: { [string]: CatInstance }?, -- uid -> instance; fills the Cats screen
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
 	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
@@ -211,6 +211,7 @@ export type ScreenName =
 	"Upgrades"
 	| "Decor"
 	| "Collection"
+	| "Cats"
 	| "RankUp"
 	| "Areas"
 	| "Bait"
@@ -312,7 +313,7 @@ export type CatFoundExtra = {
 
 export type InitConfig = {
 	catalog: Catalog,
-	keybinds: boolean?, -- default true: U upgrades, B decor, C collection, F bait bowl
+	keybinds: boolean?, -- default true: U upgrades, B decor, C cats, F bait bowl
 	parent: Instance?, -- default LocalPlayer.PlayerGui
 	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
 	-- uiHint and uiRankReady; nil keeps the UI silent.

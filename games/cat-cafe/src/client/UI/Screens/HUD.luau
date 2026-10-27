@@ -44,7 +44,7 @@ export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
 	openBait: () -> (), -- the bowl chip opens the bait bowl screen, or the cat waiting at the bowl
-	openCollection: (tab: "Index" | "Room") -> (), -- the Collection screen on that tab
+	openIndex: () -> (), -- the Index on its cat pages, or closes it
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
 	replayIntro: () -> (), -- the Tutorial tile (F72)
@@ -717,7 +717,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			key = "C",
 			style = "secondary",
 			open = function()
-				callbacks.openCollection("Room")
+				callbacks.openScreen("Cats")
 			end,
 		},
 		{
@@ -726,7 +726,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			style = "primary",
 			dot = "Collection",
 			open = function()
-				callbacks.openCollection("Index")
+				callbacks.openIndex()
 			end,
 		},
 		{

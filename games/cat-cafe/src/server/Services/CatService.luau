@@ -227,7 +227,8 @@ local function wander(stray: Stray)
 			area,
 			stray.home
 				+ Vector3.new(rng:NextNumber(-radius, radius), 0, rng:NextNumber(-radius, radius)),
-			2
+			2,
+			stray.model:GetPivot().Position
 		)
 		Mover.walkTo(stray.model, target, Config.StrayWanderSpeed, alive)
 	end
@@ -745,11 +746,11 @@ local function jumpBack(stray: Stray, player: Player)
 		away = Vector3.new(math.cos(angle), 0, math.sin(angle))
 	end
 	local area = world.areas[stray.area]
-	local target = at + away.Unit * rng:NextNumber(Config.StrayJumpBackMin, Config.StrayJumpBackMax)
-	target = Vector3.new(
-		math.clamp(target.X, area.bounds.minX, area.bounds.maxX),
-		area.floorY,
-		math.clamp(target.Z, area.bounds.minZ, area.bounds.maxZ)
+	local target = WorldBuilder.clampToArea(
+		area,
+		at + away.Unit * rng:NextNumber(Config.StrayJumpBackMin, Config.StrayJumpBackMax),
+		2,
+		at
 	)
 	stray.model:SetAttribute("HissAt", serverNow())
 	stray.jumping = true

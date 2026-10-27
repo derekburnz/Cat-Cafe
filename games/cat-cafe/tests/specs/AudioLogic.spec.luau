@@ -284,6 +284,32 @@ return function()
 		end)
 	end)
 
+	-- QA for Sound-Agent's PR #268 (reviewer N131, N150): which resting cafe cat purrs. The server marks a cat on the
+	-- seated body with Pose "sit" (CafeService, PR #266); a lying cat purrs only while Effects shows it loafing.
+	describe("Audio.Logic resting purrs (QA)", function()
+		it("purrs on the sitting body all day, on the lying body only in a loaf, never at night", function()
+			expect(Logic.restingPurrs("sit", false, false)).to.equal(true)
+			expect(Logic.restingPurrs("sit", true, false)).to.equal(false)
+			expect(Logic.restingPurrs("sit", true, true)).to.equal(false)
+			expect(Logic.restingPurrs(nil, false, true)).to.equal(true)
+			expect(Logic.restingPurrs(nil, false, false)).to.equal(false)
+			expect(Logic.restingPurrs(nil, true, true)).to.equal(false)
+		end)
+
+		it("treats any pose but the exact \"sit\" like no pose, for every night and loaf", function()
+			local poses: { any } = { "nap", "upright", "Sit", "sit ", "", 5, true, {} }
+			for _, pose in poses do
+				for _, night in { false, true } do
+					for _, loafing in { false, true } do
+						local want = not night and loafing
+						expect(Logic.restingPurrs(pose, night, loafing)).to.equal(want)
+						expect(Logic.restingPurrs(nil, night, loafing)).to.equal(want)
+					end
+				end
+			end
+		end)
+	end)
+
 	describe("Audio.Cues", function()
 		it("gives every cue a known channel, a sane volume and only asset ids", function()
 			local channels = { Music = true, Ambience = true, Sfx = true, Ui = true }

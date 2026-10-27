@@ -1,6 +1,7 @@
 --!strict
 -- Which cats move on this client and how (design v0.4 sections 1 and 4, v0.5 F40 and F44): role idles at the
--- cafe stations, naps (and every working cat curled up at its station at night, when the cafe is closed), stuck
+-- cafe stations, naps (and every working cat asleep at its station at night, when the cafe is closed: curled up,
+-- or dozing on its feet when it stands upright in its outfit, F25), stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
 -- pant after a sprint and the hiss hop on a missed catch. Only the nearest few within range move
 -- (budget.animatedCats within budget.animRadius); the rest stand as the server placed them. Shiny cats in range
@@ -102,6 +103,13 @@ local function consider(instance: Instance)
 				reveal(model)
 			end
 		end)
+		-- Stood up or put back on all fours (F25): the joints and axes change, so it binds again at the next pick.
+		model:GetAttributeChangedSignal("Pose"):Connect(function()
+			local entry: Entry? = active[model]
+			if entry ~= nil then
+				drop(model, entry)
+			end
+		end)
 	end
 end
 
@@ -189,12 +197,14 @@ local function isWorking(model: Model): boolean
 end
 
 local function styleOf(model: Model): Logic.Style
+	local pose = model:GetAttribute("Pose")
 	if
 		model:GetAttribute("Napping") == true
-		or model:GetAttribute("Pose") == "nap"
+		or pose == "nap"
 		or (Context.isNight() and isWorking(model)) -- the cafe is closed at night (F44)
 	then
-		return "nap"
+		-- A cat stood upright at its station (F25) dozes on its feet; one on all fours curls up.
+		return if pose == "upright" then "doze" else "nap"
 	elseif CollectionService:HasTag(model, "StuckCat") then
 		return "stuck"
 	elseif CollectionService:HasTag(model, "Stray") then
@@ -316,7 +326,7 @@ local function dress(entry: Entry)
 	else
 		removeYarn(entry)
 	end
-	if entry.style == "nap" then
+	if entry.style == "nap" or entry.style == "doze" then
 		addNaps(entry)
 	else
 		removeNaps(entry)

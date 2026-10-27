@@ -79,13 +79,13 @@ Players already know these from the top Roblox games, so they need no teaching. 
 | Money and rate | Steal a Brainrot, most tycoons | Coins top left with "+$42/s" under them, as in the sketch | P0 |
 | Next goal tracker | Pet Simulator 99 quests | One card on the right: "Next: Cozy Cafe" with a bar per requirement; tap opens the rank up card | P1 |
 | New cat reveal | Pet Simulator egg hatch | Rays in the rarity color, the cat pops in, rarity banner, NEW sticker, stars filling one by one, Purrfect charm bonus | P1 |
-| Side menu | Pet Simulator 99, Grow a Garden | A vertical stack of big icon buttons on the left with short labels and red dots when something is new (Cats, Shop, Book, Bait) | P1 |
+| Side menu | Pet Simulator 99, Grow a Garden | A vertical stack of big icon buttons on the left with short labels and red dots when something is new (Cats, Shop, Index, Bait) | P1 |
 | Rate tags | Steal a Brainrot | "+$3/s" over each working cat and the cafe total on the name sign | P1 |
 | Area title card | Pet Simulator 99, Fisch | Big area name for two seconds on entry | P1 |
 | Dealer restock list | Grow a Garden seed shop | A list of the three foods with stock left and "Restock in 4:12" at the top | P1 |
 | Server shout-outs | Pet Simulator 99 | "Derek caught a Mythical Wizard Cat!" in the rarity color, with a small sound | P1 |
 | Tutorial path | Pet Simulator 99, many simulators | A glowing trail on the ground from you to the next goal | P1 |
-| Collection book | Pet Simulator index | Grid per area with silhouettes for cats not found yet and a completion percent | P1 |
+| Collection Index | Pet Simulator index | Grid per area with silhouettes for cats not found yet and a completion percent | P1 |
 
 Style rules, from the sketch: one chunky rounded font (FredokaOne) with a dark UIStroke outline, rounded panels, rarity colors on borders, green 3D buttons with a darker bottom edge, big tap targets for phones. Fewer floating labels: world labels only within 30 studs, and never more than one per cat.
 

@@ -73,6 +73,14 @@ return function()
 			end
 			expect(count).to.equal(#Catalog.cats)
 		end)
+
+		it("a shiny coat is its own model, the base name plus _Shiny (v0.5 F42)", function()
+			expect(Catalog.shinyModelName("tabby")).to.equal("CatCafe_Cat_Tabby_Shiny")
+			expect(Catalog.shinyModelName("maine_coon")).to.equal("CatCafe_Cat_MaineCoon_Shiny")
+			for _, def in Catalog.cats do
+				expect(Catalog.catsByModelName[Catalog.shinyModelName(def.id)]).never.to.be.ok()
+			end
+		end)
 	end)
 
 	describe("rarities (section 2)", function()

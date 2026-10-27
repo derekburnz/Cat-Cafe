@@ -4,6 +4,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Placeholders = require(script.Parent.Placeholders)
 
 local AssetRegistry = {}
@@ -76,6 +77,17 @@ function AssetRegistry.clone(name: string): Model
 		return wrapper
 	end
 	return clone :: Model
+end
+
+-- A cat's model: its shiny coat (v0.5 F42) when `variant` is "shiny" and the asset is there, else the base cat.
+function AssetRegistry.cloneCat(catId: string, variant: string?): Model
+	if variant == "shiny" then
+		local shiny = Catalog.shinyModelName(catId)
+		if AssetRegistry.has(shiny) then
+			return AssetRegistry.clone(shiny)
+		end
+	end
+	return AssetRegistry.clone(Catalog.catModelName(catId))
 end
 
 return AssetRegistry

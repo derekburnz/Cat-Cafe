@@ -83,7 +83,7 @@ Players already know these from the top Roblox games, so they need no teaching. 
 | Rate tags | Steal a Brainrot | "+$3/s" over each working cat and the cafe total on the name sign | P1 |
 | Area title card | Pet Simulator 99, Fisch | Big area name for two seconds on entry | P1 |
 | Dealer restock list | Grow a Garden seed shop | A list of the three foods with stock left and "Restock in 4:12" at the top | P1 |
-| Server shout-outs | Pet Simulator 99 | "Derek caught a Mythical Midnight!" in the rarity color, with a small sound | P1 |
+| Server shout-outs | Pet Simulator 99 | "Derek caught a Mythical Wizard Cat!" in the rarity color, with a small sound | P1 |
 | Tutorial path | Pet Simulator 99, many simulators | A glowing trail on the ground from you to the next goal | P1 |
 | Collection book | Pet Simulator index | Grid per area with silhouettes for cats not found yet and a completion percent | P1 |
 

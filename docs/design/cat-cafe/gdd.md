@@ -160,6 +160,6 @@ Out: trading, the 30 cats of the last three areas (provisional names only), role
 
 ## Open questions
 
-Round 2 is answered (feedback/gavin-2026-10-27.md). Round 3 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): shoving mid-catch, whether a shove knocks a cat loose, and whether the shared dealer stock runs out.
+Round 2 is answered (feedback/gavin-2026-10-27.md). Round 3 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): shoving mid-catch, whether a shove knocks a cat loose, the chase distance, whether the shared dealer stock runs out and the closed cafe at night (Q4, the gold colour, Derek answered). Q7 to Q21 were added the same afternoon for Derek's changes: the hold and how many circles a catch needs, the Drop button, where the safe zone starts, themed cats, role outfits, gold cat effects and the reward screens (daily, playtime, spin wheel, Book rewards, codes and mail, passes, decor skins).
 
 Settled 2026-10-25: Cozy Cream art style (Derek: cozy game vibes). No trading. Settled 2026-10-26 by Gavin's answers and Derek's go-ahead: everything in v0.3 above, including carry bumps in place of the no-stealing rule. Settled 2026-10-27 by Gavin's round 2: unlimited tries with a chase after a miss, Shove in place of Bump, the bowl outside, a special coat for every cat at 5% (now gold cats), spending coins to rank up, the cafe closed at night at 60%, one shared dealer stock, area-unique cats, "Cat Cafe" as the placeholder name.

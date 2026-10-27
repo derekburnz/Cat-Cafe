@@ -1,6 +1,6 @@
 # Cat Cafe Data Model and Balance Tables
 
-Draft v0.5.1, 2026-10-27 (v0.5.1 adds the reviewer's S44, S45 and N84 to N86 from docs/reviews/2026-10-27-design-v0.5.md: the self-retry wait after a miss, target-side shove immunity, reachable sprint end points, no shoving from a minigame and a still dropped stray during its owner window; v0.5 folds in Gavin's round 2 answers, [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md): a missed cat sprints away with unlimited tries, Shove replaces Bump, the bowl moves outside, shinies get their own colour at 5%, one shared dealer stock, the cafe closes at night; v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md; v0.4 makes a missed circle end the catch, adds patience paws and the Perfect charm bonus, the back alley layout and walk speeds from Derek's playtest, and syncs the engineer's F22 choices; reasoning in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
+Draft v0.5.2, 2026-10-27 (v0.5.2 names the gold cats and makes every Rare and up a themed cat with a prop, section 3 and 4, from Derek's 13:18 and 13:22 asks; v0.5.1 adds the reviewer's S44, S45 and N84 to N86 from docs/reviews/2026-10-27-design-v0.5.md: the self-retry wait after a miss, target-side shove immunity, reachable sprint end points, no shoving from a minigame and a still dropped stray during its owner window; v0.5 folds in Gavin's round 2 answers, [feedback/gavin-2026-10-27.md](feedback/gavin-2026-10-27.md): a missed cat sprints away with unlimited tries, Shove replaces Bump, the bowl moves outside, shinies get their own colour at 5%, one shared dealer stock, the cafe closes at night; v0.2 earlier the same day; v0.3.1 adds the reviewer's findings S23 to S31 from docs/reviews/2026-10-26-design-v0.3.md; v0.4 makes a missed circle end the catch, adds patience paws and the Perfect charm bonus, the back alley layout and walk speeds from Derek's playtest, and syncs the engineer's F22 choices; reasoning in [world-and-feel.md](world-and-feel.md)). Owner: game-designer thread. v0.3 folds in Gavin's answers ([feedback/gavin-2026-10-26.md](feedback/gavin-2026-10-26.md)); the "v0.3 change" notes say what moved so the engineer can diff against what is built. Every number is a first guess. Catalog tables go in `src/shared/Catalog.luau`, tuning numbers in `src/shared/Config.luau`, so QA can tune without touching logic. Field names match [ui-contract.md](ui-contract.md) where they exist; new fields are listed for the UI thread in [features.md](features.md) section 6. Context and reasoning are in [gdd.md](gdd.md).
 
 ## 1. Conventions
 
@@ -30,6 +30,10 @@ Each area has four Common, two Rare, two Epic, one Legendary and one Mythical, a
 
 v0.3 change: `area` is a single area id (no more `both`), `favoriteSpot` becomes `favoriteRole`, eight new cats fill out the Alleyway and the Park, and three areas get provisional rosters.
 
+Themed cats (Derek, 2026-10-27 13:22: "make the cats more unique like a little hat or glasses and call it nerd cat etc"; themes and props from the asset thread, borrowing the one-hook-per-type idea from Bee Swarm and the costume pets from Pet Simulator, all our own art): Commons stay plain breeds and coats, so a prop means a rarer cat. Every Rare, Epic, Legendary and Mythical is a character named "<Theme> Cat" with one signature prop, a role that fits the theme and a one-line description. Ids do not change (`siamese` is Nerd Cat), so saves, the book and the `CatCafe_Cat_<Id>` models keep working; only `name`, `favoriteRole` and `description` move. Gavin may still rename them (round 3).
+
+Props: each is its own `CatCafe_Accessory_<Prop>`, attached to the cat model at an Attachment, and the model carries a `PropSlot` attribute: `Head`, `Face` or `Back`. The prop is always worn: on strays, carried, at work, napping, in the book and on gold cats (a gold cat keeps its prop as modelled; only the coat turns gold). A working cat leaves off the piece of its role outfit that sits in the prop's slot: a Head prop drops the role hat (BaristaCap, Boater, PartyHat), a Back prop drops the Entertainer Cape, and a Face prop clashes with nothing, so the other outfit piece still marks the cat as staff. No neck props: scarves, bandanas and bells read as collars, which Derek ruled out. Neighbourhood, Woods and Sewer get themed Rares and up when their cats are modelled.
+
 ### 3a. Alleyway (`alley`), in the slice
 
 | id | name | rarity | favoriteRole | description | art notes |
@@ -38,12 +42,12 @@ v0.3 change: `area` is a single area id (no more `both`), `favoriteSpot` becomes
 | tuxedo | Tuxedo | Common | waiter | Dressed for dinner, waiting for it. | patches; fur_black, fur_white chest, eye_green |
 | ginger | Ginger | Common | greeter | Warm, round, always in the sun. | solid; fur_orange, eye_green |
 | smoke | Smoke | Common | entertainer | Grey as a rainy morning. | solid; fur_grey, eye_green |
-| calico | Calico | Rare | greeter | Three colors, three opinions. | patches; fur_white, fur_orange, fur_black |
-| tortie | Tortie | Rare | barista | Brindled and bossy. | patches; fur_brown, fur_orange, eye_amber |
-| sphynx | Sphynx | Epic | entertainer | No fur, all attitude. | solid; blush, eye_blue; the one shape exception |
-| maine_coon | Maine Coon | Epic | waiter | Big as a backpack, gentle as a pillow. | stripes; fur_brown, fur_cream ruff; scale 1.2 (new) |
-| void | Void | Legendary | barista | Pure black with glowing eyes. Makes the darkest espresso. | solid; fur_black, eye_amber glow, sparkle |
-| midnight | Midnight | Mythical | greeter | Fur like the night sky, freckled with stars. | solid; night_sky, star speckles, glow (new) |
+| calico | Pirate Cat | Rare | waiter | Carries every tray like buried treasure. | Calico coat (patches; fur_white, fur_orange, fur_black); prop eye patch (Face) |
+| tortie | Rocker Cat | Rare | entertainer | Knows one chord and plays it very loudly. | Tortie coat (black with ginger); prop mini guitar (Back) |
+| sphynx | DJ Cat | Epic | greeter | Drops a beat every time the door opens. | Sphynx (peach skin, violet eyes; the one shape exception); prop headphones (Head) |
+| maine_coon | Bandit Cat | Epic | barista | Sneaks extra foam onto every latte. | Maine Coon (silver tabby, white ruff; scale 1.2); prop black eye mask (Face) |
+| void | Ninja Cat | Legendary | waiter | Silent, fast and never spills a drop. | Void coat (pure black, glowing eyes, sparkle); prop headband with trailing tails (Head) |
+| midnight | Wizard Cat | Mythical | barista | Stirs a little starlight into every cup. | Midnight coat (night sky, star speckles, glow); prop starry wizard hat (Head) |
 
 ### 3b. Park (`park`), in the slice
 
@@ -53,16 +57,16 @@ v0.3 change: `area` is a single area id (no more `both`), `favoriteSpot` becomes
 | cream | Cream | Common | barista | The color of a latte, and smells faintly of one. | solid; fur_cream, eye_amber (new) |
 | brownie | Brownie | Common | entertainer | Chocolate stripes, chases every leaf. | stripes; fur_brown, fur_brown_dark (new) |
 | blue | Blue | Common | greeter | Silver-blue and very polite. | solid; fur_grey blue tint, eye_green (new) |
-| siamese | Siamese | Rare | barista | Loud. Supervises the espresso machine. | points; fur_cream, fur_brown points, eye_blue |
-| bengal | Bengal | Rare | entertainer | Spotted and fast. Climbs everything. | spots; fur_orange, fur_brown spots, eye_green |
-| ragdoll | Ragdoll | Epic | greeter | Huge, fluffy, goes limp when carried. | points; fur_white, fur_grey points; scale 1.2 |
-| persian | Persian | Epic | waiter | A cloud with a squashed face and opinions about cushions. | solid; fur_cream long coat (new) |
-| blossom | Blossom | Legendary | greeter | Pink-cream fur, and petals follow her everywhere. | patches; blush, fur_cream, petal particles (new) |
-| aurora | Aurora | Mythical | entertainer | Fur that shifts color like the northern lights. | gradient; galaxy_blue, mint, glow (new) |
+| siamese | Nerd Cat | Rare | barista | Measures every latte to the last drop. | Siamese (cream, seal points, eye_blue); prop big round glasses (Face) |
+| bengal | Explorer Cat | Rare | entertainer | Tells tall tales about the wild side of the Park. | Bengal (sand with dark spots); prop safari hat (Head) |
+| ragdoll | Sleepy Cat | Epic | greeter | Says hello with an enormous yawn. | Ragdoll (white, blue points; scale 1.2); prop nightcap with a pom (Head) |
+| persian | Fancy Cat | Epic | waiter | Serves every cup on a silver tray. | Persian (lavender long coat); prop top hat and monocle (Head) |
+| blossom | Fairy Cat | Legendary | barista | Leaves a petal on every saucer. | Blossom (rose and white, petal particles); prop fairy wings (Back) |
+| aurora | Astro Cat | Mythical | entertainer | Moonwalks between the tables. | Aurora (galaxy gradient, glow); prop glass bubble helmet (Head) |
 
 ### 3c. Neighbourhood, Woods and Sewer (provisional, after the slice)
 
-Names and favorite roles are placeholders so ids can be reserved; the asset thread does not model these yet.
+Names and favorite roles are placeholders so ids can be reserved; the asset thread does not model these yet. Their Rares and up become themed cats like 3a and 3b when they are built.
 
 | area | Common | Rare | Epic | Legendary | Mythical |
 |---|---|---|---|---|---|
@@ -94,7 +98,7 @@ Built 2026-10-26 by the cat stats thread and unchanged in v0.3 except the multip
 - `charmMultiplier = 1 + (charm - 50) / 50 x CharmSpread` (0.20): 0.8x to 1.2x. The starter Tabby has charm 50.
 - `level` 1 to CatMaxLevel (10), `levelMultiplier = 1 + CatLevelBonus x (level - 1)` (0.05), so level 10 is 1.45x.
 - `xp` counts seconds working a role slot; XP from level n to n + 1 is `CatXpBase x n` (60 x n). Only online time counts.
-- `rating = rarity rate x charmMultiplier x levelMultiplier x variantMultiplier`. `variantMultiplier` is ShinyMultiplier for a gold cat, else 1. A perfect max-level gold Midnight rates 75 x 1.2 x 1.45 x 1.5 = 195.75.
+- `rating = rarity rate x charmMultiplier x levelMultiplier x variantMultiplier`. `variantMultiplier` is ShinyMultiplier for a gold cat, else 1. A perfect max-level gold Wizard Cat rates 75 x 1.2 x 1.45 x 1.5 = 195.75.
 - `maxRating(catId)` is the rating at charm 100 and max level, base variant, for the book's potential line; the book also shows the gold figure.
 - Sort order (`CatStats.isBetter`): rating, then rarity, then catId, then uid.
 - Equip Best (`src/shared/EquipBest.luau`, remote `EquipBest`): unchanged algorithm, now over at most 10 role slots with `favoriteRole` in place of `favoriteSpot`.
@@ -171,7 +175,7 @@ Shop foods (`LureDef`, `source = "shop"`):
 |---|---|---|---|---|---|
 | kibble | Kibble | 25 | Common | 70 / 25 / 4 / 0.9 / 0.1 | Cheap and crunchy. Brings the regulars. |
 | tuna | Tuna | 100 | Rare | 40 / 45 / 12 / 2.6 / 0.4 | The good stuff. Rare cats come running. |
-| salmon | Salmon | 500 | Epic | 15 / 45 / 30 / 8.5 / 1.5 | Nobody can resist it, not even the Void. |
+| salmon | Salmon | 500 | Epic | 15 / 45 / 30 / 8.5 / 1.5 | Nobody can resist it, not even the Ninja Cat. |
 
 ## 8b. The night food dealer
 

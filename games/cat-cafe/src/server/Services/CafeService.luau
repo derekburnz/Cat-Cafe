@@ -17,6 +17,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
+local Leaderstats = require(script.Parent.Leaderstats)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -423,6 +424,12 @@ local function refreshShowcase(player: Player, profile: Profile)
 		tierName,
 		rate,
 		tierName .. "  " .. rateText(currentRate(profile))
+	)
+	Leaderstats.update(
+		player,
+		currentRate(profile),
+		ProfileSchema.collectionCount(profile),
+		tierName
 	)
 end
 

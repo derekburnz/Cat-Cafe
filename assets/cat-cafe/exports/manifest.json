@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 02:46 UTC",
+  "generated": "2026-10-27 03:18 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -7015,87 +7015,6 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Fountain.png"
     },
     {
-      "name": "CatCafe_Park_Gate",
-      "category": "Park",
-      "module": "park",
-      "objects": [
-        "CatCafe_Park_Gate_Pillars",
-        "CatCafe_Park_Gate_LeafL",
-        "CatCafe_Park_Gate_LeafR"
-      ],
-      "triangles": 1072,
-      "budget": 1200,
-      "size_studs": {
-        "x": 5.8,
-        "y": 1.0,
-        "z": 8.45
-      },
-      "size_roblox": [
-        5.8,
-        8.45,
-        1.0
-      ],
-      "bounds_min": [
-        -2.9,
-        -0.5,
-        0.0
-      ],
-      "bounds_max": [
-        2.9,
-        0.5,
-        8.45
-      ],
-      "pivot": "base center (floor contact)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "part_pivots": {
-        "CatCafe_Park_Gate_LeafL": [
-          -2.0,
-          0.0,
-          0.0
-        ],
-        "CatCafe_Park_Gate_LeafR": [
-          2.0,
-          0.0,
-          0.0
-        ]
-      },
-      "part_pivots_roblox": {
-        "CatCafe_Park_Gate_LeafL": [
-          2.0,
-          0.0,
-          0.0
-        ],
-        "CatCafe_Park_Gate_LeafR": [
-          -2.0,
-          0.0,
-          0.0
-        ]
-      },
-      "studio": "LeafL and LeafR pivot at their hinge pillars; rotate about Y to open.",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_Gate.model.json",
-      "rbx_parts": 32,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
-        "assets/cat-cafe/exports/CatCafe_Park_Gate.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "1072/1200 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "620 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
-        }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Gate.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Gate.png"
-    },
-    {
       "name": "CatCafe_Park_RescueTree",
       "category": "Park",
       "module": "park",
@@ -8666,64 +8585,128 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Street_DealerCart.png"
     },
     {
+      "name": "CatCafe_Park_Gate",
+      "category": "Park",
+      "module": "areas",
+      "objects": [
+        "CatCafe_Park_Gate",
+        "CatCafe_Park_Gate_Bars",
+        "CatCafe_Park_Gate_SignBoard",
+        "CatCafe_Park_Gate_Lamp_Bulb",
+        "CatCafe_Park_Gate_Flowers"
+      ],
+      "triangles": 2776,
+      "budget": 6000,
+      "size_studs": {
+        "x": 34.15,
+        "y": 5.6,
+        "z": 17.1
+      },
+      "size_roblox": [
+        34.15,
+        17.1,
+        5.6
+      ],
+      "bounds_min": [
+        -17.07,
+        -2.8,
+        0.0
+      ],
+      "bounds_max": [
+        17.07,
+        2.8,
+        17.1
+      ],
+      "pivot": "base centre of the opening; -Z faces the side players come from",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
+        ],
+        "centre": [
+          0.0,
+          9.65,
+          -0.85
+        ]
+      },
+      "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_Gate.model.json",
+      "rbx_parts": 205,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Park_Gate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Park_Gate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2776/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1442 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Park_Gate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Park_Gate.png"
+    },
+    {
       "name": "CatCafe_Neighbourhood_Gate",
       "category": "Neighbourhood",
       "module": "areas",
       "objects": [
-        "CatCafe_Neighbourhood_Gate_Pillars",
-        "CatCafe_Neighbourhood_Gate_LeafL",
-        "CatCafe_Neighbourhood_Gate_LeafR"
+        "CatCafe_Neighbourhood_Gate",
+        "CatCafe_Neighbourhood_Gate_Bars",
+        "CatCafe_Neighbourhood_Gate_SignBoard",
+        "CatCafe_Neighbourhood_Gate_Lamp_Bulb",
+        "CatCafe_Neighbourhood_Gate_Flowers"
       ],
-      "triangles": 1044,
-      "budget": 1200,
+      "triangles": 3660,
+      "budget": 6000,
       "size_studs": {
-        "x": 8.15,
-        "y": 1.3,
-        "z": 7.7
+        "x": 36.62,
+        "y": 4.1,
+        "z": 15.9
       },
       "size_roblox": [
-        8.15,
-        7.7,
-        1.3
+        36.62,
+        15.9,
+        4.1
       ],
       "bounds_min": [
-        -4.45,
-        -0.65,
+        -18.82,
+        -2.4,
         0.0
       ],
       "bounds_max": [
-        3.71,
-        0.65,
-        7.7
+        17.8,
+        1.7,
+        15.9
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "base centre of the opening; -Z faces the side players come from",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "part_pivots": {
-        "CatCafe_Neighbourhood_Gate_LeafL": [
-          -2.0,
-          0.0,
-          0.0
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
         ],
-        "CatCafe_Neighbourhood_Gate_LeafR": [
-          2.0,
+        "centre": [
           0.0,
-          0.0
+          9.65,
+          -0.85
         ]
       },
-      "part_pivots_roblox": {
-        "CatCafe_Neighbourhood_Gate_LeafL": [
-          2.0,
-          0.0,
-          0.0
-        ],
-        "CatCafe_Neighbourhood_Gate_LeafR": [
-          -2.0,
-          0.0,
-          0.0
-        ]
-      },
+      "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_Gate.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 317,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Gate.glb"
@@ -8735,13 +8718,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1044/1200 tris",
+          "budget": "3660/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "604 faces on swatch centers",
+          "uv": "1898 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.37 y=0.00"
+          "centered": "footprint center x=-0.51 y=-0.35"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Neighbourhood_Gate.png",
@@ -8752,60 +8735,52 @@
       "category": "Woods",
       "module": "areas",
       "objects": [
-        "CatCafe_Woods_Gate_Pillars",
-        "CatCafe_Woods_Gate_LeafL",
-        "CatCafe_Woods_Gate_LeafR"
+        "CatCafe_Woods_Gate",
+        "CatCafe_Woods_Gate_Bars",
+        "CatCafe_Woods_Gate_SignBoard",
+        "CatCafe_Woods_Gate_Lamp_Bulb",
+        "CatCafe_Woods_Gate_Flowers"
       ],
-      "triangles": 936,
-      "budget": 1200,
+      "triangles": 3364,
+      "budget": 6000,
       "size_studs": {
-        "x": 7.1,
-        "y": 1.65,
-        "z": 7.9
+        "x": 43.23,
+        "y": 5.99,
+        "z": 16.9
       },
       "size_roblox": [
-        7.1,
-        7.9,
-        1.65
+        43.23,
+        16.9,
+        5.99
       ],
       "bounds_min": [
-        -3.62,
-        -1.12,
+        -21.62,
+        -3.59,
         0.0
       ],
       "bounds_max": [
-        3.48,
-        0.53,
-        7.9
+        21.62,
+        2.4,
+        16.9
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "base centre of the opening; -Z faces the side players come from",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "part_pivots": {
-        "CatCafe_Woods_Gate_LeafL": [
-          -2.0,
-          0.0,
-          0.0
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
         ],
-        "CatCafe_Woods_Gate_LeafR": [
-          2.0,
+        "centre": [
           0.0,
-          0.0
+          9.65,
+          -0.85
         ]
       },
-      "part_pivots_roblox": {
-        "CatCafe_Woods_Gate_LeafL": [
-          2.0,
-          0.0,
-          0.0
-        ],
-        "CatCafe_Woods_Gate_LeafR": [
-          -2.0,
-          0.0,
-          0.0
-        ]
-      },
+      "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Gate.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 247,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Gate.glb"
@@ -8817,13 +8792,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "936/1200 tris",
+          "budget": "3364/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "482 faces on swatch centers",
+          "uv": "1500 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.07 y=-0.30"
+          "centered": "footprint center x=0.00 y=-0.60"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_Gate.png",
@@ -8834,60 +8809,51 @@
       "category": "Sewer",
       "module": "areas",
       "objects": [
-        "CatCafe_Sewer_Gate_Pillars",
-        "CatCafe_Sewer_Gate_LeafL",
-        "CatCafe_Sewer_Gate_LeafR"
+        "CatCafe_Sewer_Gate",
+        "CatCafe_Sewer_Gate_Bars",
+        "CatCafe_Sewer_Gate_SignBoard",
+        "CatCafe_Sewer_Gate_Lamp_Bulb"
       ],
-      "triangles": 1216,
-      "budget": 1300,
+      "triangles": 2714,
+      "budget": 6000,
       "size_studs": {
-        "x": 7.05,
-        "y": 2.4,
-        "z": 7.45
+        "x": 37.1,
+        "y": 5.15,
+        "z": 17.3
       },
       "size_roblox": [
-        7.05,
-        7.45,
-        2.4
+        37.1,
+        17.3,
+        5.15
       ],
       "bounds_min": [
-        -3.08,
-        -1.5,
+        -18.55,
+        -3.65,
         0.0
       ],
       "bounds_max": [
-        3.97,
-        0.9,
-        7.45
+        18.55,
+        1.5,
+        17.3
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "base centre of the opening; -Z faces the side players come from",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "part_pivots": {
-        "CatCafe_Sewer_Gate_LeafL": [
-          -2.0,
-          0.0,
-          0.0
+      "sign_board_roblox": {
+        "part": "SignBoard",
+        "face": "Front (-Z)",
+        "size": [
+          10.0,
+          2.5
         ],
-        "CatCafe_Sewer_Gate_LeafR": [
-          2.0,
+        "centre": [
           0.0,
-          0.0
+          9.65,
+          -0.85
         ]
       },
-      "part_pivots_roblox": {
-        "CatCafe_Sewer_Gate_LeafL": [
-          2.0,
-          0.0,
-          0.0
-        ],
-        "CatCafe_Sewer_Gate_LeafR": [
-          -2.0,
-          0.0,
-          0.0
-        ]
-      },
+      "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Gate.model.json",
-      "rbx_parts": 81,
+      "rbx_parts": 187,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.glb"
@@ -8899,13 +8865,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1216/1300 tris",
+          "budget": "2714/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "676 faces on swatch centers",
+          "uv": "1213 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.45 y=-0.30"
+          "centered": "footprint center x=0.00 y=-1.08"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_Gate.png",
@@ -9665,6 +9631,592 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier5.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_Tier5.png"
+    },
+    {
+      "name": "CatCafe_Alley_ArchStreet",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_ArchStreet",
+        "CatCafe_Alley_ArchStreet_Flowers",
+        "CatCafe_Alley_ArchStreet_Lamp_Bulb",
+        "CatCafe_Alley_ArchStreet_Bulbs"
+      ],
+      "triangles": 2666,
+      "budget": 5000,
+      "size_studs": {
+        "x": 32.6,
+        "y": 2.6,
+        "z": 17.17
+      },
+      "size_roblox": [
+        32.6,
+        17.17,
+        2.6
+      ],
+      "bounds_min": [
+        -16.3,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        16.3,
+        1.3,
+        17.17
+      ],
+      "pivot": "base centre of the 28 stud opening; -Z faces the street",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Over the street's north end at (0, 87.5). Posts collide; ALLEY SQUARE reads from the street, CAFE STREET from the square.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_ArchStreet.model.json",
+      "rbx_parts": 224,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_ArchStreet.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_ArchStreet.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2666/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1303 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_ArchStreet.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_ArchStreet.png"
+    },
+    {
+      "name": "CatCafe_Alley_Arch",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_Arch",
+        "CatCafe_Alley_Arch_Flowers",
+        "CatCafe_Alley_Arch_Lamp_Bulb",
+        "CatCafe_Alley_Arch_Bulbs"
+      ],
+      "triangles": 2672,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 2.6,
+        "z": 17.17
+      },
+      "size_roblox": [
+        30.6,
+        17.17,
+        2.6
+      ],
+      "bounds_min": [
+        -15.3,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        1.3,
+        17.17
+      ],
+      "pivot": "base centre of the 26 stud opening; -Z faces the back alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Over each back alley's north end at (+-74, 87.5). Posts collide; ALLEY SQUARE reads from the back alley, BACK ALLEY from the square.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Arch.model.json",
+      "rbx_parts": 225,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Arch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Arch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2672/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1306 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Arch.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Arch.png"
+    },
+    {
+      "name": "CatCafe_Alley_WallWindows",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_WallWindows",
+        "CatCafe_Alley_WallWindows_Pane",
+        "CatCafe_Alley_WallWindows_Flowers"
+      ],
+      "triangles": 1988,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 2.74,
+        "z": 19.85
+      },
+      "size_roblox": [
+        30.6,
+        19.85,
+        2.74
+      ],
+      "bounds_min": [
+        -15.3,
+        -2.74,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        19.85
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_WallWindows.model.json",
+      "rbx_parts": 161,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_WallWindows.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_WallWindows.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1988/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "980 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.37"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_WallWindows.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_WallWindows.png"
+    },
+    {
+      "name": "CatCafe_Alley_WallDoor",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_WallDoor",
+        "CatCafe_Alley_WallDoor_Pane",
+        "CatCafe_Alley_WallDoor_Lamp_Bulb"
+      ],
+      "triangles": 2040,
+      "budget": 5000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 3.4,
+        "z": 17.85
+      },
+      "size_roblox": [
+        30.6,
+        17.85,
+        3.4
+      ],
+      "bounds_min": [
+        -15.3,
+        -3.4,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        17.85
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_WallDoor.model.json",
+      "rbx_parts": 163,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_WallDoor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_WallDoor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2040/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "990 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.70"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_WallDoor.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_WallDoor.png"
+    },
+    {
+      "name": "CatCafe_Alley_FireEscape",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_FireEscape",
+        "CatCafe_Alley_FireEscape_Pane",
+        "CatCafe_Alley_FireEscape_Flowers"
+      ],
+      "triangles": 3032,
+      "budget": 6000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 5.05,
+        "z": 25.85
+      },
+      "size_roblox": [
+        30.6,
+        25.85,
+        5.05
+      ],
+      "bounds_min": [
+        -15.3,
+        -5.05,
+        0.0
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        25.85
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "ledges_roblox": {
+        "landing_1": [
+          0.0,
+          9.35,
+          -2.8
+        ],
+        "landing_2": [
+          -5.5,
+          17.35,
+          -2.8
+        ]
+      },
+      "studio": "As the other wall pieces. Landings and the ladder rungs collide: landing_1 (top 9.35) is reachable from CatCafe_Alley_CrateStack (top 7.7) placed just past its open left end (local x -8) with the tall column toward it, or up the ladder at x 5.5; stairs lead to landing_2 (17.35). See ledges_roblox.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_FireEscape.model.json",
+      "rbx_parts": 245,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_FireEscape.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_FireEscape.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3032/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1500 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-2.53"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_FireEscape.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_FireEscape.png"
+    },
+    {
+      "name": "CatCafe_Alley_Mural",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_Mural",
+        "CatCafe_Alley_Mural_Sun"
+      ],
+      "triangles": 3126,
+      "budget": 6000,
+      "size_studs": {
+        "x": 30.6,
+        "y": 3.08,
+        "z": 15.87
+      },
+      "size_roblox": [
+        30.6,
+        15.87,
+        3.08
+      ],
+      "bounds_min": [
+        -15.3,
+        -3.08,
+        -0.02
+      ],
+      "bounds_max": [
+        15.3,
+        0.0,
+        15.85
+      ],
+      "pivot": "wall: back plane at the bottom centre; -Z faces into the alley",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Against the inner face of an alley wall, -Z into the alley; 30 wide, taller than the wall. _Pane parts glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Mural.model.json",
+      "rbx_parts": 270,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_Mural.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_Mural.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3126/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1515 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-1.54"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Mural.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Mural.png"
+    },
+    {
+      "name": "CatCafe_Alley_CrateStack",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_CrateStack"
+      ],
+      "triangles": 1624,
+      "budget": 3000,
+      "size_studs": {
+        "x": 10.3,
+        "y": 2.9,
+        "z": 7.73
+      },
+      "size_roblox": [
+        10.3,
+        7.73,
+        2.9
+      ],
+      "bounds_min": [
+        -3.9,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        6.4,
+        1.6,
+        7.73
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Solid crates in steps of 2.6 (tops 0.5, 2.5, 5.1, 7.7 from -X to +X).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_CrateStack.model.json",
+      "rbx_parts": 139,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_CrateStack.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_CrateStack.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1624/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "812 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=1.25 y=0.15"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_CrateStack.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_CrateStack.png"
+    },
+    {
+      "name": "CatCafe_Alley_LaundryLine",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_LaundryLine",
+        "CatCafe_Alley_LaundryLine_Decor"
+      ],
+      "triangles": 872,
+      "budget": 2500,
+      "size_studs": {
+        "x": 25.2,
+        "y": 1.8,
+        "z": 11.0
+      },
+      "size_roblox": [
+        25.2,
+        11.0,
+        1.8
+      ],
+      "bounds_min": [
+        -12.6,
+        -0.9,
+        0.0
+      ],
+      "bounds_max": [
+        12.6,
+        0.9,
+        11.0
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Poles collide, the line and clothes (_Decor) do not. Lines at 9.5 to 10.5 studs.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_LaundryLine.model.json",
+      "rbx_parts": 70,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_LaundryLine.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_LaundryLine.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "872/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "428 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_LaundryLine.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_LaundryLine.png"
+    },
+    {
+      "name": "CatCafe_Alley_StringLightsLong",
+      "category": "Alley",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Alley_StringLightsLong",
+        "CatCafe_Alley_StringLightsLong_Decor",
+        "CatCafe_Alley_StringLightsLong_Bulbs"
+      ],
+      "triangles": 476,
+      "budget": 1500,
+      "size_studs": {
+        "x": 29.0,
+        "y": 1.0,
+        "z": 12.1
+      },
+      "size_roblox": [
+        29.0,
+        12.1,
+        1.0
+      ],
+      "bounds_min": [
+        -14.5,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        14.5,
+        0.5,
+        12.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Poles 28 apart, so it spans a 30 stud back alley; _Bulbs glow at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_StringLightsLong.model.json",
+      "rbx_parts": 37,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Alley_StringLightsLong.fbx",
+        "assets/cat-cafe/exports/CatCafe_Alley_StringLightsLong.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "476/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "230 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_StringLightsLong.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_StringLightsLong.png"
+    },
+    {
+      "name": "CatCafe_Sewer_Manhole",
+      "category": "Sewer",
+      "module": "alleyway",
+      "objects": [
+        "CatCafe_Sewer_Manhole",
+        "CatCafe_Sewer_Manhole_Cover",
+        "CatCafe_Sewer_Manhole_SignBoard",
+        "CatCafe_Sewer_Manhole_Lamp_Bulb"
+      ],
+      "triangles": 1164,
+      "budget": 2500,
+      "size_studs": {
+        "x": 8.31,
+        "y": 9.68,
+        "z": 4.65
+      },
+      "size_roblox": [
+        8.31,
+        4.65,
+        9.68
+      ],
+      "bounds_min": [
+        -4.15,
+        -5.53,
+        -0.05
+      ],
+      "bounds_max": [
+        4.15,
+        4.15,
+        4.6
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Slide or hide the child Model _Cover to open it; the requirement SurfaceGui goes on the -Z face of the part named SignBoard on the post.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Manhole.model.json",
+      "rbx_parts": 90,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sewer_Manhole.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sewer_Manhole.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1164/2500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "550 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.69"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sewer_Manhole.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sewer_Manhole.png"
     }
   ]
 }

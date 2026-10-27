@@ -1,7 +1,8 @@
 --!strict
 -- A live 3D cat for reveal cards and the book: the cat's own model, cloned from ReplicatedStorage.Assets (the
 -- asset thread's mesh, or the server's placeholder until it lands), in a ViewportFrame that sways it slowly.
--- When the model is not there yet it falls back to the cat's initial on its body colour.
+-- When the model is not there yet it falls back to the cat's initial on its body colour. A silhouette (the
+-- book's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
 --
 -- Roblox terms: a ViewportFrame draws 3D parts inside 2D UI through its own Camera. Nothing in it is simulated,
 -- so the clone needs no anchoring, but scripts inside a model would still run under PlayerGui, so they are
@@ -23,11 +24,14 @@ export type Props = {
 	position: UDim2?,
 	anchorPoint: Vector2?,
 	zIndex: number?,
+	still: boolean?, -- no sway: a book cell holds the three-quarter pose, so a page of cells costs no frames
 }
 
 export type CatPortrait = {
 	frame: Frame,
 	set: (self: CatPortrait, def: Types.CatDef?) -> (),
+	setSilhouette: (self: CatPortrait, on: boolean) -> (),
+	hasModel: (self: CatPortrait) -> boolean,
 	destroy: (self: CatPortrait) -> (),
 }
 
@@ -35,6 +39,7 @@ local FOV = 30
 local THREE_QUARTER = 35 -- degrees turned from face-on, so the body shows behind the head
 local SWAY_DEGREES = 20 -- each side of the three-quarter view
 local SWAY_SECONDS = 4
+local SILHOUETTE = Color3.fromRGB(38, 30, 26) -- multiplies the render: every part goes this dark brown
 
 local CatPortrait = {}
 CatPortrait.__index = CatPortrait
@@ -118,6 +123,9 @@ function CatPortrait.new(props: Props): CatPortrait
 	})
 	Outline.text(glyph, Theme.sizes.textOutline + 1)
 	self._glyph = glyph
+	self._still = props.still == true
+	self._silhouette = false
+	self._def = nil :: Types.CatDef?
 	self._model = nil :: Model?
 	self._sway = nil :: RBXScriptConnection?
 	return self :: CatPortrait
@@ -136,8 +144,21 @@ function CatPortrait._clear(self: any)
 	end
 end
 
+function CatPortrait._paintGlyph(self: any)
+	local def: Types.CatDef? = self._def
+	if not def then
+		return
+	end
+	assert(def, "cat def")
+	self._glyph.Text = if self._silhouette then "?" else def.name:sub(1, 1)
+	self._glyph.TextColor3 = if self._silhouette
+		then Theme.colors.muted
+		else bodyColor(def):Lerp(Theme.colors.white, 0.35)
+end
+
 function CatPortrait.set(self: any, def: Types.CatDef?)
 	self:_clear()
+	self._def = def
 	if not def then
 		self._glyph.Visible = false
 		return
@@ -145,8 +166,7 @@ function CatPortrait.set(self: any, def: Types.CatDef?)
 	assert(def, "cat def")
 	local model = cloneModel(def.id)
 	if not model then
-		self._glyph.Text = def.name:sub(1, 1)
-		self._glyph.TextColor3 = bodyColor(def):Lerp(Theme.colors.white, 0.35)
+		self:_paintGlyph()
 		self._glyph.Visible = true
 		return
 	end
@@ -168,6 +188,9 @@ function CatPortrait.set(self: any, def: Types.CatDef?)
 		* CFrame.Angles(0, math.rad(THREE_QUARTER), 0)
 		* CFrame.new(-centre)
 	model:PivotTo(base)
+	if self._still then
+		return
+	end
 	local started = os.clock()
 	self._sway = RunService.Heartbeat:Connect(function()
 		if not self.frame.Visible or not self.frame:IsDescendantOf(game) then
@@ -178,6 +201,17 @@ function CatPortrait.set(self: any, def: Types.CatDef?)
 			CFrame.new(centre) * CFrame.Angles(0, math.rad(angle), 0) * CFrame.new(-centre) * base
 		)
 	end)
+end
+
+function CatPortrait.setSilhouette(self: any, on: boolean)
+	self._silhouette = on
+	self._viewport.ImageColor3 = if on then SILHOUETTE else Theme.colors.white
+	self:_paintGlyph()
+end
+
+-- False while Assets had no model for the cat (the initial shows); the book retries on its next render.
+function CatPortrait.hasModel(self: any): boolean
+	return self._model ~= nil
 end
 
 function CatPortrait.destroy(self: any)

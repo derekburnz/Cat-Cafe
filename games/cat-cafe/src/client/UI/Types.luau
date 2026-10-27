@@ -145,6 +145,14 @@ export type CarryInfo = {
 	door: BasePart?, -- own cafe door; shows a world marker with distance
 }
 
+-- Optional extras for UI.showCatFound, all from the catch: the cat's charm stars (CatView.stars), whether it is
+-- shiny, and the charm the Purrfect bonus added (CatchResult charmGain, v0.4).
+export type CatFoundExtra = {
+	stars: number?,
+	shiny: boolean?,
+	charmGain: number?,
+}
+
 export type InitConfig = {
 	catalog: Catalog,
 	keybinds: boolean?, -- default true: U upgrades, B decor, C collection, F lure

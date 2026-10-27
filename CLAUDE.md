@@ -2,7 +2,7 @@
 
 Working title: **Cat Cafe** (placeholder until a real name is picked). Game slug used in paths: `cat-cafe`. One game for now; the repo layout leaves room for a second.
 Phase as of 2026-10-25: Phase 0 (setup on Derek's PC) running in parallel with an early Phase 2 rough draft.
-Repo: https://github.com/derekburnz/purr-pot (private, source of truth). Work on a branch, open a pull request, let CI run the check gate.
+Repo: https://github.com/derekburnz/Cat-Cafe (private, source of truth; named purr-pot until 2026-10-27). Work on a branch, open a pull request, let CI run the check gate. A reviewed PR gets the `automerge` label and merges itself when green; publishing to Roblox runs from GitHub Actions (skill `merge-and-publish`).
 
 ## Read first, in this order
 1. `docs/plan.md` (the master plan: who, goals, rules, phases).
@@ -16,6 +16,7 @@ Repo: https://github.com/derekburnz/purr-pot (private, source of truth). Work on
 |---|---|---|
 | Luau code (Rojo synced) | `games/cat-cafe/src/{server,client,shared}` | luau-engineer; `src/client/UI/` is the ui-designer's |
 | Rojo project, tool configs, check gate | `games/cat-cafe/` | lead |
+| CI, automerge, Open Cloud publish | `.github/`, `games/cat-cafe/tools/opencloud/` | lead |
 | Tool versions | `rokit.toml` (repo root) | lead |
 | Design docs | `docs/design/cat-cafe/` | game-designer |
 | Style guide | `docs/art/style-guide.md` | asset-artist |

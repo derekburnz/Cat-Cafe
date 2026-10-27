@@ -135,12 +135,19 @@ end
 -- After a join settles: the named cats nobody sees in the plot, for the owner's cat room, one at a time.
 local function filterTheRest(player: Player, profile: Types.PlayerProfile)
 	task.wait(BACKGROUND_DELAY)
-	local done = 0
+	-- a snapshot: cats are caught and sold during the waits, and a table must not change under its traversal (N95)
+	local named: { Types.CatInstance } = {}
 	for _, instance in profile.cats do
+		if instance.name ~= nil then
+			table.insert(named, instance)
+		end
+	end
+	local done = 0
+	for _, instance in named do
 		if done >= BACKGROUND_LIMIT or DataService.get(player) ~= profile then
 			return
 		end
-		if instance.name ~= nil and not filtered(player, instance) then
+		if profile.cats[instance.uid] == instance and not filtered(player, instance) then
 			done += 1
 			if filterOne(player, instance) and DataService.get(player) == profile then
 				NameService.changed:Fire(player)

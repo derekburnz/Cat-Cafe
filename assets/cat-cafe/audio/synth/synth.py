@@ -681,6 +681,243 @@ def ui_badge() -> np.ndarray:
     return finish(blip, -11)
 
 
+# --- the short night and the v0.8 features (features.md 2f, F55 to F66) ---------------------------
+
+# A small town bell: hum an octave down, prime, minor third, fifth, nominal and two quick high partials
+TOWN_BELL = ((0.5, 0.5, 1.4), (1.0, 1.0, 1.1), (1.19, 0.4, 0.7), (1.5, 0.3, 0.55), (2.0, 0.3, 0.45),
+             (2.5, 0.1, 0.25), (3.0, 0.06, 0.18))
+VIBES = ((1.0, 1.0, 0.9), (4.0, 0.18, 0.22), (10.0, 0.04, 0.05))
+CELESTA = ((1.0, 1.0, 0.5), (2.0, 0.2, 0.2), (4.0, 0.12, 0.08))
+
+
+def fade_tail(x: np.ndarray, length: float) -> np.ndarray:
+    """Fade the last `length` seconds to silence, so a long ring ends softly instead of being cut."""
+    n = min(len(x), int(length * SR))
+    x = x.copy()
+    x[-n:] *= np.linspace(1, 0, n) ** 1.5
+    return x
+
+
+def vibe(d: float, f: float, offset: float = 0.0) -> np.ndarray:
+    """One vibraphone note with its slow motor tremolo."""
+    t = seconds(d)
+    return bell(d, f, VIBES, attack=0.002) * (1 - 0.22 * (0.5 + 0.5 * np.sin(2 * np.pi * 5.5 * t + offset)))
+
+
+def reed(d: float, f: float) -> np.ndarray:
+    """A soft clarinet-like note: odd harmonics, a breathy start and a little vibrato."""
+    t = seconds(d)
+    vib = 1 + 0.004 * np.sin(2 * np.pi * 5.0 * t) * np.clip((t - 0.08) / 0.1, 0, 1)
+    phase = np.cumsum(f * vib) / SR
+    tone = sum(np.sin(2 * np.pi * k * phase) / k ** 1.3 for k in (1, 3, 5, 7))
+    breath = bandpass(noise(d, int(f)), f * 3, 2.0) * 0.04
+    shape = np.clip(t / 0.025, 0, 1) * np.clip((d - t) / 0.06, 0, 1)
+    return (tone + breath) * shape
+
+
+def choir(d: float, freqs, seed: int) -> np.ndarray:
+    """A wordless "ah" pad: slightly detuned buzzes through vowel formants, swelling in and out."""
+    t = seconds(d)
+    rng = np.random.default_rng(seed)
+    buzz = np.zeros_like(t)
+    for f in freqs:
+        for detune in (-0.004, 0.0, 0.004):
+            phase = (f * (1 + detune) * t + rng.random()) % 1.0
+            buzz += 2 * phase - 1
+    spectrum = np.fft.rfft(buzz, 2 * len(buzz))
+    hz = np.fft.rfftfreq(2 * len(buzz), 1 / SR)
+    vowel = sum(a / (1 + ((hz - c) / w) ** 2) for c, a, w in ((750, 1.0, 110), (1150, 0.6, 130), (2700, 0.2, 200)))
+    out = np.fft.irfft(spectrum * vowel, 2 * len(buzz))[: len(buzz)]
+    return out / np.max(np.abs(out)) * np.sin(np.pi * np.clip(t / d, 0, 1)) ** 0.8
+
+
+def dusk_bell() -> np.ndarray:
+    """Night in 15 s (F66): the town clock's bell tolls twice, warm and unhurried, so everyone knows dusk is near."""
+    d = 3.4
+    tolls = [(bell(d - at, note("A4"), TOWN_BELL, attack=0.002) * amp, at) for at, amp in ((0.0, 1.0), (1.15, 0.8))]
+    clapper = [(bandpass(noise(0.02, 300 + i), 2800, 2) * envelope(0.02, 0.0005, 0.004) * 0.25, at)
+               for i, at in enumerate((0.0, 1.15))]
+    return finish(fade_tail(mix(d, *tolls, *clapper), 0.9), -5)
+
+
+def sting_dusk() -> np.ndarray:
+    """Night falls (F66): a descending vibraphone run, a lamp clicking on and the area gates latching shut till sunrise."""
+    d = 3.2
+    run = [(vibe(d - at, note(n), at) * 0.7, at) for n, at in (("E6", 0.0), ("C6", 0.14), ("A5", 0.28), ("E5", 0.42))]
+    chord = [(vibe(d - 0.62, note(n), i) * 0.4, 0.62) for i, n in enumerate(("A4", "C5", "E5", "G5"))]
+    click = bandpass(noise(0.03, 310), 2600, 2.5) * envelope(0.03, 0.0005, 0.005) * 0.35
+    latch = mix(0.25, (bell(0.25, 520.0, MARIMBA, attack=0.0008) * 0.5, 0.0),
+                (bandpass(noise(0.08, 311), 900, 1.2) * envelope(0.08, 0.0008, 0.012) * 0.45, 0.0))
+    return finish(fade_tail(mix(d, *run, *chord, (click, 0.58), (latch, 1.35), (latch * 0.45, 1.42)), 1.0), -4)
+
+
+def sting_dawn() -> np.ndarray:
+    """Sunrise (F66): a rising glockenspiel run into one shop bell and a warm swell as the areas open with fresh cats."""
+    d = 3.2
+    run = [(bell(d - at, note(n), GLOCK) * 0.7, at) for n, at in
+           (("C6", 0.0), ("D6", 0.09), ("E6", 0.18), ("G6", 0.27), ("C7", 0.4))]
+    shop = bell(d - 0.4, 1760.0, SHOP_BELL) * 0.55
+    t = seconds(d)
+    swell = np.clip(t / 0.6, 0, 1) * np.clip((d - t) / 1.6, 0, 1)
+    pad = sum(np.sin(2 * np.pi * note(n) * k * t) / k ** 1.5 for n in ("C4", "G4", "E5") for k in (1, 2)) * swell * 0.07
+    return finish(fade_tail(mix(d, *run, (shop, 0.4)) + pad, 0.8), -3)
+
+
+def ui_code_redeem() -> np.ndarray:
+    """A code works at the Codes Cat (F65): a key turns in a little lock, then a bright run and a sprinkle of coins."""
+    d = 1.25
+    key = [(bandpass(noise(0.025, 320 + i), 3200, 3) * envelope(0.025, 0.0003, 0.004) * 0.5, at)
+           for i, at in enumerate((0.0, 0.07))]
+    turn = bell(0.1, 1400.0, MARIMBA, attack=0.0005) * 0.4
+    run = [(bell(d - at, note(n), GLOCK) * amp, at) for n, at, amp in
+           (("C6", 0.16, 0.6), ("E6", 0.24, 0.6), ("G6", 0.32, 0.65), ("C7", 0.42, 0.85))]
+    coins = [(bell(0.18, 2400.0 * (1 + 0.05 * (i % 3)), COIN, attack=0.0005) * 0.3, 0.5 + 0.06 * i) for i in range(4)]
+    return finish(fade_tail(mix(d, *key, (turn, 0.07), *run, *coins), 0.3), -5)
+
+
+def announce_mythical() -> np.ndarray:
+    """A Mythical cat in the sunrise wave (F58): the shout-out's two notes grow into a shimmering gold chord over a
+    wordless choir. Ducks the music."""
+    d = 2.4
+    two = [(bell(d, note("G5"), GLOCK) * 0.6, 0.0), (bell(d, note("D6"), GLOCK) * 0.7, 0.12)]
+    rise = 0.45
+    tr = seconds(rise)
+    shimmer = bandpass(bandpass(noise(rise, 390), sweep(rise, 2000, 7000), 4.0), sweep(rise, 2000, 7000), 4.0)
+    shimmer *= (tr / rise) ** 2
+    chord = [(bell(d - 0.3 - rise, note(n), GOLD, attack=0.002) * amp, 0.3 + rise)
+             for n, amp in (("G5", 0.7), ("B5", 0.5), ("D6", 0.55), ("G6", 0.45))]
+    voices = choir(d - 0.4, (note("G3"), note("D4"), note("B4")), 391) * 0.3
+    sparkle = [(bell(0.3, f, ((1.0, 1.0, 0.07),)) * 0.18, 0.9 + 0.08 * i)
+               for i, f in enumerate((3136.0, 3951.1, 4698.6, 5274.0))]
+    return finish(fade_tail(mix(d, *two, (shimmer / np.max(np.abs(shimmer)) * 0.35, 0.3), *chord, (voices, 0.4),
+                                *sparkle), 0.7), -3)
+
+
+def cat_pick_up() -> np.ndarray:
+    """A dropped cat is picked up (F56): a soft pop as it hops into your arms and a pleased little "mrrp"."""
+    d = 0.42
+    pop = glide(0.08, 400, 950, 0.03) * envelope(0.08, 0.001, 0.025)
+    rustle = bandpass(noise(0.1, 330), 2500, 1.2) * envelope(0.1, 0.002, 0.03)
+    mrrp = cat_voice(0.15, 600, 820, 760, 0.8, 331) * 0.6
+    return finish(mix(d, (pop * 0.8, 0.0), (rustle / np.max(np.abs(rustle)) * 0.15, 0.0), (mrrp, 0.09)), -5)
+
+
+def getaway() -> np.ndarray:
+    """A catch pushes the crowd back (F55): a puff of air bursting outward, then quick light paws rushing off."""
+    d = 0.85
+    burst_len = 0.35
+    burst = bandpass(bandpass(noise(burst_len, 340), sweep(burst_len, 2600, 500), 1.4), sweep(burst_len, 2600, 500), 1.4)
+    burst *= envelope(burst_len, 0.006, 0.09)
+    thump = glide(0.15, 170, 95, 0.05) * envelope(0.15, 0.002, 0.04) * 0.6
+    rush_len = 0.3
+    rush = bandpass(bandpass(noise(rush_len, 341), sweep(rush_len, 700, 3200), 1.6), sweep(rush_len, 700, 3200), 1.6)
+    rush *= np.sin(np.pi * seconds(rush_len) / rush_len) ** 1.2
+    paws = [(pad_step(342 + i, 1600) * (0.35 - 0.04 * i), 0.3 + 0.065 * i) for i in range(5)]
+    return finish(mix(d, (burst / np.max(np.abs(burst)), 0.0), (thump, 0.0), (rush / np.max(np.abs(rush)) * 0.4, 0.3),
+                      *paws), -4)
+
+
+def tip_pile() -> np.ndarray:
+    """Tip piles collected (F61): a short clink of coins scooped off the tables into your pocket."""
+    d = 0.5
+    scoop = bandpass(noise(0.1, 350), 4000, 1.5) * envelope(0.1, 0.002, 0.03)
+    coins = [(bell(0.2, 2400.0 * (1 + 0.05 * ((i * 3) % 5 - 2)), COIN, attack=0.0005) * (0.7 - 0.08 * i),
+              0.045 * i + 0.006 * ((i * 7) % 3)) for i in range(5)]
+    return finish(mix(d, (scoop / np.max(np.abs(scoop)) * 0.2, 0.0), *coins), -6)
+
+
+def rich_arrive() -> np.ndarray:
+    """A rich customer at your cafe (F31, F61): a posh little "ding-dong" and a coin pile settling on the table."""
+    d = 1.1
+    dings = [(bell(d - at, note(n), SHOP_BELL) * 0.7, at) for n, at in (("E6", 0.0), ("C6", 0.17))]
+    coins = [(bell(0.15, 1900.0 * (1 + 0.05 * ((i * 5) % 7 - 3)), COIN, attack=0.0005) * (0.45 - 0.05 * i),
+              0.42 + 0.05 * i + 0.01 * i * i) for i in range(6)]
+    return finish(fade_tail(mix(d, *dings, *coins), 0.25), -5)
+
+
+def rich_tip() -> np.ndarray:
+    """A rich tip goes into your till (F31, F61): a big cascade of coins and a bright chime as it lands."""
+    d = 1.3
+    rng = np.random.default_rng(360)
+    coins = []
+    at = 0.0
+    for i in range(16):
+        f = 2200.0 + 600.0 * rng.random()
+        coins.append((bell(0.18, f, COIN, attack=0.0005) * (0.35 + 0.25 * np.sin(np.pi * i / 15)), at))
+        at += 0.03 + 0.03 * (i / 15) ** 2 + 0.01 * rng.random()
+    chime = [(bell(d - 0.55, note(n), GLOCK) * 0.6, 0.55 + 0.08 * j) for j, n in enumerate(("G6", "C7"))]
+    return finish(fade_tail(mix(d, *coins, *chime), 0.3), -4)
+
+
+def visitor_collector() -> np.ndarray:
+    """The Cat Collector comes by (F63): a polite, curious little clarinet motif and the glint of a magnifying glass."""
+    d = 1.5
+    motif = [(reed(0.2, note(n)) * 0.55, at) for n, at in (("D5", 0.0), ("F#5", 0.17), ("A5", 0.34))]
+    question = reed(0.5, note("G5")) * 0.55
+    glint = bell(0.45, 4200.0, ((1.0, 1.0, 0.09), (2.76, 0.3, 0.04)), attack=0.001) * 0.3
+    return finish(fade_tail(mix(d, *motif, (question, 0.52), (glint, 0.95)), 0.3), -7)
+
+
+def ui_trade() -> np.ndarray:
+    """A trade with the Cat Collector (F63): two little runs pass each other, then a bright "deal!" chord and a coin."""
+    d = 1.2
+    up = [(bell(d - at, note(n), MARIMBA) * 0.6, at) for n, at in (("C5", 0.0), ("E5", 0.07), ("G5", 0.14))]
+    down = [(bell(d - at, note(n), MARIMBA) * 0.5, at) for n, at in (("G6", 0.02), ("E6", 0.09), ("C6", 0.16))]
+    chord = [(bell(d - 0.3, note(n), GLOCK) * 0.5, 0.3) for n in ("C6", "E6", "G6")]
+    coin = bell(0.2, 2600.0, COIN, attack=0.0005) * 0.35
+    return finish(fade_tail(mix(d, *up, *down, *chord, (coin, 0.38)), 0.3), -6)
+
+
+def visitor_mystery() -> np.ndarray:
+    """The Mystery Visitor came by (F64): the swish of a cloak and a dreamy whole-tone celesta run, curious, never
+    spooky."""
+    d = 1.7
+    cloak_len = 0.4
+    cloak = bandpass(bandpass(noise(cloak_len, 370), sweep(cloak_len, 500, 1500), 1.2), sweep(cloak_len, 500, 1500), 1.2)
+    cloak *= np.sin(np.pi * seconds(cloak_len) / cloak_len) ** 0.8
+    run = [(bell(d - at, note(n), CELESTA) * 0.45, at) for n, at in
+           (("C6", 0.1), ("D6", 0.18), ("E6", 0.26), ("F#6", 0.34), ("G#6", 0.42), ("A#6", 0.5))]
+    land = bell(d - 0.68, note("C7"), CELESTA) * 0.55
+    return finish(fade_tail(mix(d, (cloak / np.max(np.abs(cloak)) * 0.4, 0.0), *run, (land, 0.68)), 0.5), -6)
+
+
+def gift_open() -> np.ndarray:
+    """A Mystery gift is opened (F64): the ribbon slips, the paper tears, a pop, and a sparkle shows what was inside."""
+    d = 1.2
+    slip_len = 0.13
+    slip = bandpass(bandpass(noise(slip_len, 380), sweep(slip_len, 1800, 3500), 1.5), sweep(slip_len, 1800, 3500), 1.5)
+    slip *= np.sin(np.pi * seconds(slip_len) / slip_len)
+    tear = []
+    for i in range(8):
+        crackle = bandpass(bandpass(noise(0.02, 381 + i), 2300 + 120 * (i % 4), 1.5), 2300 + 120 * (i % 4), 1.5)
+        crackle *= envelope(0.02, 0.0015, 0.005)
+        tear.append((crackle / np.max(np.abs(crackle)) * (0.22 + 0.02 * i), 0.15 + 0.03 * i))
+    pop = glide(0.08, 380, 900, 0.03) * envelope(0.08, 0.001, 0.025)
+    sparkle = [(bell(0.35, f, ((1.0, 1.0, 0.07), (2.76, 0.2, 0.03))) * 0.3, 0.5 + 0.06 * i)
+               for i, f in enumerate((2637.0, 3136.0, 3520.0, 4186.0, 5274.0))]
+    return finish(fade_tail(mix(d, (slip / np.max(np.abs(slip)) * 0.4, 0.0), *tear, (pop * 0.8, 0.42), *sparkle), 0.3),
+                  -5)
+
+
+def potion_drink() -> np.ndarray:
+    """A potion is drunk (F64): a cork pops, three bubbly gulps, and a shimmer rises as it starts working."""
+    d = 1.25
+    cork = mix(0.06, (glide(0.06, 500, 1500, 0.02) * envelope(0.06, 0.0005, 0.012), 0.0),
+               (bandpass(noise(0.03, 390), 2000, 2) * envelope(0.03, 0.0005, 0.005) * 0.5, 0.0))
+    gulps = []
+    for i in range(3):
+        gulp = glide(0.11, 180, 320, 0.08) * envelope(0.11, 0.005, 0.04)
+        bubble = bandpass(noise(0.11, 391 + i), 700, 4) * envelope(0.11, 0.004, 0.03)
+        gulps.append(((gulp * 0.7 + bubble / np.max(np.abs(bubble)) * 0.25) * (1 - 0.1 * i), 0.14 + 0.15 * i))
+    rise = 0.5
+    tr = seconds(rise)
+    shimmer = bandpass(bandpass(noise(rise, 395), sweep(rise, 1500, 6000), 4.0), sweep(rise, 1500, 6000), 4.0)
+    shimmer *= (tr / rise) ** 1.5 * np.clip((rise - tr) / 0.05, 0, 1)
+    sparkle = [(bell(0.3, f, ((1.0, 1.0, 0.06),)) * 0.25, 1.0 + 0.05 * i) for i, f in enumerate((3520.0, 4434.9, 5274.0))]
+    return finish(fade_tail(mix(d, (cork, 0.0), *gulps, (shimmer / np.max(np.abs(shimmer)) * 0.35, 0.55), *sparkle), 0.15),
+                  -5)
+
+
 def purr_loop(length: float, seed: int, rate: float) -> np.ndarray:
     """A cat's purr over exactly `length` seconds so it loops: rumbling pulses on every breath in and out."""
     n = int(length * SR)
@@ -761,6 +998,21 @@ SOUNDS = {
     "Slider": ("ui", "Ui", ui_slider),
     "GiftReady": ("ui", "Ui", ui_gift_ready),
     "Badge": ("ui", "Ui", ui_badge),
+    "DuskBell": ("sfx", "Sfx", dusk_bell),
+    "StingDusk": ("music", "Music", sting_dusk),
+    "StingDawn": ("music", "Music", sting_dawn),
+    "CodeRedeem": ("ui", "Ui", ui_code_redeem),
+    "AnnounceMythical": ("sfx", "Sfx", announce_mythical),
+    "CatPickUp": ("sfx", "Sfx", cat_pick_up),
+    "Getaway": ("sfx", "Sfx", getaway),
+    "TipPile": ("sfx", "Sfx", tip_pile),
+    "RichArrive": ("sfx", "Sfx", rich_arrive),
+    "RichTip": ("sfx", "Sfx", rich_tip),
+    "VisitorCollector": ("sfx", "Sfx", visitor_collector),
+    "Trade": ("ui", "Ui", ui_trade),
+    "VisitorMystery": ("sfx", "Sfx", visitor_mystery),
+    "GiftOpen": ("sfx", "Sfx", gift_open),
+    "PotionDrink": ("sfx", "Sfx", potion_drink),
 }
 
 

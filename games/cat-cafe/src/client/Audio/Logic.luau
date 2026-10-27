@@ -249,6 +249,48 @@ function Logic.restingPurrs(pose: any, night: boolean, loafing: boolean): boolea
 	return pose == "sit" or loafing
 end
 
+-- Seconds until the dusk bell (F66): `warning` seconds before a day ends. nil at night, with no end time, or once
+-- that moment passed more than a second ago, so joining late rings nothing.
+function Logic.duskBellIn(phase: string?, endsAt: number?, now: number, warning: number): number?
+	if phase ~= "day" or endsAt == nil then
+		return nil
+	end
+	local inSeconds = endsAt - warning - now
+	if inSeconds < -1 then
+		return nil
+	end
+	return math.max(inSeconds, 0)
+end
+
+-- The shout-out cue for a rarity (F58): a Mythical gets its own sting, everything else the two-note chime.
+function Logic.announceCue(rarity: string?): string
+	local step = Logic.rarityStep(rarity)
+	return if step ~= nil and step >= 5 then "announceMythical" else "announce"
+end
+
+-- Whether a server time attribute (a carry's CarryStartedAt) is fresh: set within the last 2 seconds, not a stale
+-- value seen on join. Anything but a number is not.
+function Logic.freshStart(startedAt: any, now: number): boolean
+	return type(startedAt) == "number" and startedAt <= now + 1 and now - startedAt <= 2
+end
+
+-- The cue for a change to one of your plot's display attributes (data-model section 13): the tip piles being
+-- collected (F61), the Cat Collector arriving (F63), the Mystery Visitor's gift appearing (F64). The gift clearing
+-- stays quiet, since the server also clears it at MysteryGiftKeepSeconds or a plot release; the UI plays giftOpen
+-- with the MysteryGiftResult card. A missing or odd value counts as 0; nil for anything else.
+function Logic.plotCue(attribute: string, before: any, after: any): string?
+	local was = if type(before) == "number" then before else 0
+	local is = if type(after) == "number" then after else 0
+	if attribute == "TipPiles" then
+		return if is < was then "tipPile" else nil
+	elseif attribute == "CollectorUntil" then
+		return if was <= 0 and is > 0 then "visitorCollector" else nil
+	elseif attribute == "MysteryGiftAt" then
+		return if was <= 0 and is > 0 then "visitorMystery" else nil
+	end
+	return nil
+end
+
 -- Whether a stray twinkles for nearby players (shimmerRare): a gold cat, or Epic and up.
 function Logic.shimmers(gold: any, rarity: any): boolean
 	if gold == true then

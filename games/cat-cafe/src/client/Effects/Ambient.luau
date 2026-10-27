@@ -1,6 +1,6 @@
 --!strict
--- Ambient life (design v0.4 section 4): espresso steam, chimney smoke, butterflies over the flower boxes by day
--- and fireflies at night. Sources are found by name, the asset thread's `_Steam`, `_Chimney`, `_Flowers` and
+-- Ambient life (design v0.4 section 4): espresso steam, chimney smoke, butterflies over the flower beds by day
+-- (each wandering the whole bed, coming and going) and fireflies at night. Sources are found by name, the asset thread's `_Steam`, `_Chimney`, `_Flowers` and
 -- `_Fireflies` objects (a part, or an object Model whose parts share its name), with fallbacks for the graybox: the top of each plot's Espresso model, a spot in front of
 -- each cafe door and the street lamps. Only the nearest sources within range run, inside the device budget, and
 -- the choice is made once a second, not every frame.
@@ -19,20 +19,34 @@ local Ambient = {}
 
 type Kind = "steam" | "chimney" | "fireflies" | "flowers"
 
+-- A flower bed's ground: `frame` at the flowers' top in the bed's own axes, `half` its half size across (X and Z).
+type Area = { frame: CFrame, half: Vector3 }
+
 type Source = {
 	kind: Kind,
 	instance: Instance,
 	fallback: boolean,
 	position: Vector3?,
+	area: Area?,
 	holder: Instance?,
 	emitter: ParticleEmitter?,
 }
 
+-- `from` and `to` are spots in its bed's own axes; the current flight left `from` at `legAt` and lands in
+-- `legSeconds`. It is away until `outAt`, then out for `outSeconds`; `placed` is the `outAt` it was last put down for.
 type Butterfly = {
 	left: BasePart,
 	right: BasePart,
 	phase: number,
 	source: Source?,
+	from: Vector3,
+	to: Vector3,
+	legAt: number,
+	legSeconds: number,
+	outAt: number,
+	outSeconds: number,
+	placed: number,
+	shown: number,
 }
 
 local TICK_SECONDS = 1
@@ -154,6 +168,30 @@ local function placeOf(source: Source): Vector3?
 	return top
 end
 
+-- The ground a flower source's butterflies wander: the bed's footprint plus `pad`, at least `least` each way.
+local function areaOf(source: Source, top: Vector3): Area
+	local b = Presets.butterfly
+	local instance = source.instance
+	local turn, size = CFrame.identity, Vector3.zero
+	if source.fallback and instance:IsA("BasePart") then
+		turn = (instance :: BasePart).CFrame.Rotation -- the graybox door zone: no bed, the least
+	elseif instance:IsA("BasePart") then
+		turn, size = (instance :: BasePart).CFrame.Rotation, (instance :: BasePart).Size
+	elseif instance:IsA("Model") then
+		local frame
+		frame, size = (instance :: Model):GetBoundingBox()
+		turn = frame.Rotation
+	end
+	return {
+		frame = CFrame.new(top) * turn,
+		half = Vector3.new(
+			math.max(size.X / 2 + b.pad, b.least.X),
+			0,
+			math.max(size.Z / 2 + b.pad, b.least.Z)
+		),
+	}
+end
+
 -- Fallback sources for the graybox, used only while no named source of that kind exists.
 local function refreshFallbacks()
 	for _, plot in CollectionService:GetTagged("Plot") do
@@ -227,7 +265,52 @@ local function newButterfly(index: number): Butterfly
 		right = Context.effectPart("ButterflyWing", b.wing, colour),
 		phase = rng:NextNumber(0, 2 * math.pi),
 		source = nil,
+		from = Vector3.zero,
+		to = Vector3.zero,
+		legAt = 0,
+		legSeconds = 0,
+		outAt = 0,
+		outSeconds = 0,
+		placed = -1,
+		shown = 0,
 	}
+end
+
+local function between(range: { number }): number
+	return rng:NextNumber(range[1], range[2])
+end
+
+-- A random spot over the bed, in its own axes.
+local function spotIn(area: Area): Vector3
+	return Vector3.new(
+		rng:NextNumber(-area.half.X, area.half.X),
+		0,
+		rng:NextNumber(-area.half.Z, area.half.Z)
+	)
+end
+
+-- The next spell out: after a wait away (a shorter one the first time, so a bed's butterflies arrive one by one).
+local function nextSpell(fly: Butterfly, now: number, first: boolean)
+	local b = Presets.butterfly
+	fly.outAt = now + between(if first then b.firstAway else b.away)
+	fly.outSeconds = between(b.out)
+end
+
+-- The next flight from where it landed: now and then a hover over that spot first (never two in a row), else off
+-- to another spot.
+local function nextLeg(fly: Butterfly, area: Area, now: number)
+	local b = Presets.butterfly
+	local hovered = fly.legSeconds > 0 and fly.from == fly.to
+	local from = fly.to
+	fly.from = from
+	if hovered or fly.legSeconds == 0 or rng:NextNumber() >= b.hover.chance then
+		fly.to = spotIn(area)
+		fly.legSeconds =
+			math.clamp((fly.to - from).Magnitude / b.speed, b.legShortest, b.legLongest)
+	else
+		fly.legSeconds = between({ b.hover.shortest, b.hover.longest })
+	end
+	fly.legAt = now
 end
 
 local function assignButterflies(chosen: { Source })
@@ -259,13 +342,22 @@ local function assignButterflies(chosen: { Source })
 				table.insert(butterflies, fly)
 			end
 			fly.source = source
+			nextSpell(fly, os.clock(), true)
 			wanted[source] -= 1
 		end
 	end
-	for _, fly in butterflies do
-		local parent = if fly.source ~= nil then Context.folder() else nil
+end
+
+local function showFly(fly: Butterfly, shown: number)
+	local parent = if shown > 0 then Context.folder() else nil
+	if fly.left.Parent ~= parent then
 		fly.left.Parent = parent
 		fly.right.Parent = parent
+	end
+	if math.abs(shown - fly.shown) > 0.02 or (shown == 1) ~= (fly.shown == 1) then
+		fly.left.Transparency = 1 - shown
+		fly.right.Transparency = 1 - shown
+		fly.shown = shown
 	end
 end
 
@@ -278,27 +370,52 @@ local function flutter(dt: number)
 	end
 	elapsed = 0
 	local now = os.clock()
-	local wing = Presets.butterfly.wing
+	local b = Presets.butterfly
+	local wing = b.wing
 	local parts = flyParts
 	local frames = flyFrames
 	table.clear(parts)
 	table.clear(frames)
 	for _, fly in butterflies do
 		local source = fly.source
-		local centre = if source ~= nil then source.position else nil
-		if centre ~= nil then
-			local offset, flap = Logic.butterfly(now, fly.phase)
-			local ahead = Logic.butterfly(now + 0.1, fly.phase)
-			local position = centre + offset
-			local heading = Vector3.new(ahead.X - offset.X, 0, ahead.Z - offset.Z)
-			local body = if heading.Magnitude > 1e-3
-				then CFrame.lookAt(position, position + heading)
-				else CFrame.new(position)
-			table.insert(parts, fly.left)
-			table.insert(frames, body * CFrame.Angles(0, 0, flap) * CFrame.new(-wing.X / 2, 0, 0))
-			table.insert(parts, fly.right)
-			table.insert(frames, body * CFrame.Angles(0, 0, -flap) * CFrame.new(wing.X / 2, 0, 0))
+		local area = if source ~= nil then source.area else nil
+		local shown = 0
+		if area ~= nil then
+			if now - fly.outAt >= fly.outSeconds then
+				nextSpell(fly, now, false) -- that spell is over: away for a while
+			end
+			shown = Logic.spell(now - fly.outAt, fly.outSeconds, b.fade)
 		end
+		showFly(fly, shown)
+		if area == nil or shown <= 0 then
+			continue
+		end
+		if fly.placed ~= fly.outAt then
+			-- A new spell: it comes down over a random spot of its bed.
+			fly.placed = fly.outAt
+			fly.to = spotIn(area)
+			fly.legSeconds = 0
+			nextLeg(fly, area, now)
+		elseif now - fly.legAt >= fly.legSeconds then
+			nextLeg(fly, area, now)
+		end
+		local lift = Vector3.new(0, b.rise * (1 - shown), 0)
+		local k = (now - fly.legAt) / fly.legSeconds
+		local offset, flap = Logic.butterfly(now, fly.phase)
+		local here = Logic.butterflyLeg(fly.from, fly.to, k) + offset + lift
+		local ahead = Logic.butterflyLeg(fly.from, fly.to, k + 0.1 / fly.legSeconds)
+			+ Logic.butterfly(now + 0.1, fly.phase)
+			+ lift
+		local position = area.frame:PointToWorldSpace(here)
+		local next = area.frame:PointToWorldSpace(ahead)
+		local heading = Vector3.new(next.X - position.X, 0, next.Z - position.Z)
+		local body = if heading.Magnitude > 1e-3
+			then CFrame.lookAt(position, position + heading)
+			else CFrame.new(position)
+		table.insert(parts, fly.left)
+		table.insert(frames, body * CFrame.Angles(0, 0, flap) * CFrame.new(-wing.X / 2, 0, 0))
+		table.insert(parts, fly.right)
+		table.insert(frames, body * CFrame.Angles(0, 0, -flap) * CFrame.new(wing.X / 2, 0, 0))
 	end
 	if #parts > 0 then
 		Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
@@ -322,6 +439,9 @@ local function tick()
 		source.position = position
 		if position == nil then
 			continue
+		end
+		if source.kind == "flowers" then
+			source.area = areaOf(source, position)
 		end
 		local distance = Context.distance(position)
 		local kind = source.kind

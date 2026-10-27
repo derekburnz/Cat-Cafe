@@ -83,6 +83,9 @@ local Config = {
 	NormalWalkSpeed = 20,
 	CheckInRangeStuds = 8,
 	StrayWanderRadius = 5,
+	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
+	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
+	StraySpawnSpacingStuds = 12,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
 	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window.
@@ -172,16 +175,28 @@ local Config = {
 	GroupId = 0, -- the community group a requiresGroup code needs; 0 while the game is on Derek's own account
 	GroupCheckSeconds = 60, -- how long a player's group membership answer is kept
 
-	-- Shove (F29 bump rules, v0.5 F41, data-model section 10c); the code keeps the Bump names. Pure rules in Shove.
-	BumpEnabled = true, -- false turns the Bump remote off and hides the Shove button
+	-- Shove, a Tackle since v0.11 (F29 bump rules, v0.5 F41, v0.11 F74, data-model section 10c); the code keeps the
+	-- Bump and Shove names. Pure rules in Shove.
+	BumpEnabled = true, -- false turns the Tackle remote off and hides the button
+	-- v0.11 removes these two with the lock-on; the UI's old ShoveButton reads them until its Tackle button lands
 	BumpRangeStuds = 6,
+	BumpCooldownSeconds = 8,
 	BumpChance = 1.0, -- a shove on a carrier knocks the cat loose this often (v0.8 F56: always; kept to tune)
 	BumpGraceSeconds = 3, -- a fresh carry cannot be knocked loose for this long
 	BumpSafeRadiusStuds = 15, -- round both doors of the target's own cafe, as well as its plot
-	BumpCooldownSeconds = 8, -- per shover
-	BumpSameTargetSeconds = 20, -- per shover and target
+	BumpSameTargetSeconds = 20, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
-	ShoveTargetImmuneSeconds = 4, -- after a shove lands, nobody can shove that player again for this long (S45)
+	ShoveTargetImmuneSeconds = 4, -- after a hit lands, nobody can hit that player again for this long (S45)
+	-- The Tackle (v0.11 F74, Derek 22:31): a lunge straight ahead that can miss.
+	TackleLungeStuds = 12, -- the tackler's client lunges this far; the server's reach cap
+	TackleLungeSeconds = 0.35,
+	TackleHitGraceSeconds = 0.25, -- the server keeps checking for a hit this long after the lunge, for lag
+	TackleHitRadiusStuds = 3, -- root to root
+	TackleHitSlackStuds = 1.5, -- on top of the radius and the reach, for client-owned positions
+	TackleCooldownSeconds = 8, -- from the press, hit or miss, never refunded; a refused press spends nothing
+	TackleHitRecoverSeconds = 0.4, -- the tackler's client holds still after a hit
+	TackleMissRecoverSeconds = 1.2, -- the tackler's client is down after a miss: no moving or jumping
+	TackledDownSeconds = 0.8, -- the target's client is down after the knockback
 
 	-- Naming cats (F33, data-model section 4): pure checks in CatName, the filter in NameService.
 	CatNameMaxLength = 20, -- characters (utf8.len) after trimming

@@ -31,12 +31,13 @@ DARK_WOOD = (94 / 255, 70 / 255, 52 / 255)  # the z's outline
 # Where the camera sits for each view, as a direction from the cat in Roblox axes (the cat faces -Z, +X is its right).
 # "three" is Model-Agent's pose sheet camera (azimuth 35, elevation 22: front left, the face towards the camera) and
 # "side" sees the left side, a little from the front, so the cat faces left on screen as in the sheets. "high" looks
-# down on a cat lying down.
+# down on a cat lying down. "profile" is straight from the left.
 VIEWS = {
     "side": Vector((-1.0, 0.3, -0.45)),
     "front": Vector((0.0, 0.3, -1.0)),
     "three": Vector((-0.53, 0.37, -0.76)),
     "high": Vector((-0.6, 1.0, -0.7)),
+    "profile": Vector((-1.0, 0.22, 0.0)),  # straight from the left, for a run along -Z
 }
 
 
@@ -196,7 +197,7 @@ def main():
     sc.view_settings.view_transform = "Standard"
     common._ensure_floor()
     common._ensure_lights(True)
-    if frames[0]["pivot"] != frames[-1]["pivot"]:
+    if frames[0]["pivot"] != frames[-1]["pivot"] or data.get("checker"):
         checker_floor()  # so a walking cat is seen to move while the camera follows it
 
     objs = []
@@ -206,7 +207,8 @@ def main():
         sc.collection.objects.link(ob)
         objs.append(ob)
 
-    # Frame the cat as it lies in its first frame, from the scenario's view; a walking cat is followed.
+    # Frame the cat as it lies in its first frame, from the scenario's view; a walking cat is followed. A `box`
+    # (two Roblox corners) frames that instead, for a run the camera watches from one place.
     first = frames[0]
     lo = Vector((1e9, 1e9, 1e9))
     hi = Vector((-1e9, -1e9, -1e9))
@@ -215,6 +217,8 @@ def main():
         r = Vector(part["size"]) / 2
         lo = Vector(map(min, lo, c - r))
         hi = Vector(map(max, hi, c + r))
+    if data.get("box"):
+        lo, hi = Vector(data["box"][0]), Vector(data["box"][1])
     has_z = any(fr.get("zs") for fr in frames)
     if has_z:
         hi.y += 1.6  # room for the z's above the head

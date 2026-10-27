@@ -69,8 +69,8 @@ def _arch(name, mat, inner, front, back):
     b, flowers, lamps, bulbs = RB(), RB(), RB(), RB()
     half, post, top = inner / 2, 2.0, 13.0
     for s in (-1, 1):
-        x0, x1 = sorted((s * half, s * (half + post)))
-        b.span((x0 - 0.3, 0, -1.3), (x1 + 0.3, 1.2, 1.3), "concrete")                     # plinth
+        x0, x1 = sorted((s * (half - 0.12), s * (half + post)))  # 0.12 into the opening: a wall ending at its edge
+        b.span((x0 - 0.3, 0, -1.3), (x1 + 0.3, 1.2, 1.3), "concrete")                     # ends inside the post
         b.span((x0, 1.2, -1.0), (x1, top, 1.0), "brick")
         for y in (4.6, 9.2):                                                               # stone bands
             b.span((x0 - 0.12, y, -1.12), (x1 + 0.12, y + 0.4, 1.12), "concrete")

@@ -401,4 +401,142 @@ return function()
 			expect(text).to.equal("Dee tamed an Epic Moonpaw at their bait bowl!")
 		end)
 	end)
+	describe("spreadPick: a wave is scattered, not clumped (Derek 2026-10-27 22:38)", function()
+		local function v(x: number, z: number): Vector3
+			return Vector3.new(x, 0.1, z)
+		end
+		local spacing = Config.StraySpawnSpacingStuds
+
+		it("spawns at least StraySpawnSpacingStuds (12) from every stray in the area when it can", function()
+			expect(spacing).to.equal(12)
+			local points = { v(0, 0), v(5, 0), v(30, 0) }
+			local taken = { v(2, 0) }
+			for roll = 0, 0.99, 0.05 do
+				expect(Catching.spreadPick(points, taken, roll)).to.equal(3)
+			end
+		end)
+
+		it("prefers far points: weight grows with the gap to the nearest stray", function()
+			local points = { v(12, 0), v(48, 0) }
+			local taken = { v(0, 0) }
+			-- weights 12 and 48: the near point takes the first fifth of the rolls
+			expect(Catching.spreadPick(points, taken, 0)).to.equal(1)
+			expect(Catching.spreadPick(points, taken, 0.19)).to.equal(1)
+			expect(Catching.spreadPick(points, taken, 0.21)).to.equal(2)
+			expect(Catching.spreadPick(points, taken, 0.999)).to.equal(2)
+		end)
+
+		it("picks evenly in an empty area", function()
+			local points = { v(0, 0), v(1, 0), v(2, 0), v(3, 0) }
+			expect(Catching.spreadPick(points, {}, 0)).to.equal(1)
+			expect(Catching.spreadPick(points, {}, 0.3)).to.equal(2)
+			expect(Catching.spreadPick(points, {}, 0.6)).to.equal(3)
+			expect(Catching.spreadPick(points, {}, 0.9)).to.equal(4)
+			expect(Catching.spreadPick(points, {}, 1)).to.equal(4)
+		end)
+
+		it("when every free point is closer than the spacing, takes the one farthest from all strays", function()
+			local points = { v(3, 0), v(8, 0), v(5, 0) }
+			local taken = { v(0, 0), v(16, 0) }
+			expect(Catching.spreadPick(points, taken, 0.5)).to.equal(2)
+		end)
+
+		it("measures flat distance, so a stray on a step still counts", function()
+			local points = { Vector3.new(0, 20, 0), v(40, 0) }
+			expect(Catching.spreadPick(points, { v(0, 0) }, 0)).to.equal(2)
+		end)
+
+		it("has nothing to pick with no free points", function()
+			expect(Catching.spreadPick({}, { v(0, 0) }, 0.5)).never.to.be.ok()
+		end)
+
+		it("a ten-cat wave over the Park's points never puts two cats under 12 studs while a far point is free", function()
+			local Layout = require(game:GetService("ServerScriptService").Server.World.Layout)
+			local free: { Vector3 } = {}
+			for _, point in Layout.park.spawnPoints do
+				table.insert(free, v(point.x, point.z))
+			end
+			local rng = Random.new(7)
+			local taken: { Vector3 } = {}
+			for _ = 1, 10 do
+				local index = Catching.spreadPick(free, taken, rng:NextNumber()) :: number
+				local at = table.remove(free, index) :: Vector3
+				local nearest = math.huge
+				for _, other in taken do
+					nearest = math.min(nearest, (at - other).Magnitude)
+				end
+				local couldSpread = false
+				for _, point in free do
+					local gap = math.huge
+					for _, other in taken do
+						gap = math.min(gap, (point - other).Magnitude)
+					end
+					couldSpread = couldSpread or gap >= spacing
+				end
+				expect(nearest >= spacing or not couldSpread).to.equal(true)
+				table.insert(taken, at)
+			end
+		end)
+	end)
+
+	describe("spreadPick edges (QA)", function()
+		local function v(x: number, z: number): Vector3
+			return Vector3.new(x, 0, z)
+		end
+		local function gapOf(point: Vector3, taken: { Vector3 }): number
+			local gap = math.huge
+			for _, other in taken do
+				gap = math.min(gap, Vector3.new(point.X - other.X, 0, point.Z - other.Z).Magnitude)
+			end
+			return gap
+		end
+
+		it("500 seeded areas: a far enough point whenever one is free, else the farthest", function()
+			local rng = Random.new(368)
+			local spacing = Config.StraySpawnSpacingStuds
+			for _ = 1, 500 do
+				local points: { Vector3 } = {}
+				for _ = 1, rng:NextInteger(1, 12) do
+					table.insert(points, Vector3.new(rng:NextNumber(-40, 40), rng:NextNumber(0, 8), rng:NextNumber(-40, 40)))
+				end
+				local taken: { Vector3 } = {}
+				for _ = 1, rng:NextInteger(0, 8) do
+					table.insert(taken, Vector3.new(rng:NextNumber(-40, 40), rng:NextNumber(0, 8), rng:NextNumber(-40, 40)))
+				end
+				local best, anyFar = -1, false
+				for _, point in points do
+					local gap = gapOf(point, taken)
+					best = math.max(best, gap)
+					anyFar = anyFar or gap >= spacing
+				end
+				for _, roll in { 0, rng:NextNumber(), 0.999999, 1 } do
+					local index = Catching.spreadPick(points, taken, roll)
+					expect(index ~= nil and points[index :: number] ~= nil).to.equal(true)
+					local gap = gapOf(points[index :: number], taken)
+					if anyFar then
+						expect(gap >= spacing).to.equal(true)
+					else
+						expect(gap).to.equal(best)
+					end
+				end
+			end
+		end)
+
+		it("a sweep of 12,000 rolls lands on each point in proportion to its gap, capped at 60 studs", function()
+			-- gaps 12 (exactly the spacing counts), 11.99 (too near), 30, 60 and 90 (capped to 60)
+			local points = { v(12, 0), v(-11.99, 0), v(0, 30), v(0, -60), v(90, 90) }
+			local taken = { v(0, 0) }
+			local weights = { 12, 0, 30, 60, 60 }
+			local total = 162
+			local counts = { 0, 0, 0, 0, 0 }
+			local sweeps = 12000
+			for i = 0, sweeps - 1 do
+				local index = Catching.spreadPick(points, taken, (i + 0.5) / sweeps) :: number
+				counts[index] += 1
+			end
+			for index, weight in weights do
+				expect(math.abs(counts[index] - sweeps * weight / total) <= 2).to.equal(true)
+			end
+		end)
+	end)
 end

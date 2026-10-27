@@ -149,4 +149,48 @@ function Catching.percentText(chance: number): string
 	return string.format("%d%%", math.floor(chance * 100 + 0.5))
 end
 
+local SPREAD_WEIGHT_CAP = 60 -- studs: past this every gap weighs the same, so an empty area picks evenly
+
+-- Which of the free spawn `points` a new stray takes, as an index, given where the area's strays already stand
+-- (`taken`): a point at least StraySpawnSpacingStuds from all of them, picked with weight growing with its flat gap
+-- to the nearest (capped), or, when none is that far, the point with the biggest gap. Nil with no points. roll is in
+-- [0, 1).
+function Catching.spreadPick(points: { Vector3 }, taken: { Vector3 }, roll: number): number?
+	if #points == 0 then
+		return nil
+	end
+	local spacing = Config.StraySpawnSpacingStuds
+	local gaps: { number } = {}
+	local farthest, farthestGap = 1, -1
+	local total = 0
+	for i, point in points do
+		local gap = math.huge
+		for _, other in taken do
+			gap = math.min(gap, Vector3.new(point.X - other.X, 0, point.Z - other.Z).Magnitude)
+		end
+		gaps[i] = gap
+		if gap > farthestGap then
+			farthest, farthestGap = i, gap
+		end
+		if gap >= spacing then
+			total += math.min(gap, SPREAD_WEIGHT_CAP)
+		end
+	end
+	if total <= 0 then
+		return farthest
+	end
+	local left = math.clamp(roll, 0, 1) * total
+	local last = farthest
+	for i, gap in gaps do
+		if gap >= spacing then
+			last = i
+			left -= math.min(gap, SPREAD_WEIGHT_CAP)
+			if left < 0 then
+				return i
+			end
+		end
+	end
+	return last -- roll 1: the last far-enough point
+end
+
 return Catching

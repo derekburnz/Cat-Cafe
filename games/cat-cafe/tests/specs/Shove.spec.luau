@@ -10,122 +10,141 @@ return function()
 	local Config = require(Shared.Config)
 	local Shove = require(Shared.Shove)
 
-	-- A shove that lands: both in the Alleyway, close, nobody busy, nothing shoved before.
-	local function ok(): Shove.Check
-		return {
-			self = false,
-			shoverCarrying = false,
-			shoverBusy = false,
-			shoverArea = "alley",
-			targetArea = "alley",
-			areaUnlocked = true,
-			areasClosed = false,
-			distance = 3,
-			targetBusy = false,
-			targetSafe = false,
-			sinceShove = nil,
-			sinceShoveTarget = nil,
-			sinceTargetShoved = nil,
-		}
-	end
-
 	-- A table literal drops nil fields, so NONE stands for "set this field to nil".
 	local NONE = table.freeze({})
-	local function with(changes: { [string]: any }): Shove.Check
-		local check = ok() :: any
+	local function changed<T>(base: T, changes: { [string]: any }): T
+		local check = table.clone(base :: any)
 		for key, value in changes do
 			check[key] = if value == NONE then nil else value
 		end
-		return check :: Shove.Check
+		return check :: T
 	end
 
-	describe("refusal (section 10c)", function()
-		it("a shove between two players in one unlocked area, in range, lands", function()
-			expect(Shove.refusal(ok())).never.to.be.ok()
+	-- A press that lunges: in the Alleyway, unlocked, open, free hands, never tackled before.
+	local PRESS: Shove.TackleCheck = {
+		carrying = false,
+		busy = false,
+		area = "alley",
+		areaUnlocked = true,
+		areasClosed = false,
+		sinceTackle = nil,
+	}
+	local function press(changes: { [string]: any }?): Shove.TackleCheck
+		return changed(PRESS, changes or {})
+	end
+
+	-- A player in reach the lunge hits: someone else in the same area, free, away from their cafe, never hit.
+	local TARGET: Shove.TargetCheck = {
+		self = false,
+		sameArea = true,
+		targetBusy = false,
+		targetSafe = false,
+		sinceShoveTarget = nil,
+		sinceTargetShoved = nil,
+	}
+	local function target(changes: { [string]: any }?): Shove.TargetCheck
+		return changed(TARGET, changes or {})
+	end
+
+	describe("a Tackle press (v0.11 F74, section 10c)", function()
+		it("lunges in an unlocked, open area with free hands and no cooldown", function()
+			expect(Shove.tackleRefusal(press())).never.to.be.ok()
 		end)
 
-		it("nobody shoves themselves", function()
-			expect(Shove.refusal(with({ self = true }))).to.be.ok()
+		it("a carrier cannot tackle", function()
+			expect(Shove.tackleRefusal(press({ carrying = true }))).to.be.ok()
 		end)
 
-		it("a carrier cannot shove", function()
-			expect(Shove.refusal(with({ shoverCarrying = true }))).to.be.ok()
+		it("nobody tackles from a catch or rescue (N85)", function()
+			expect(Shove.tackleRefusal(press({ busy = true }))).to.be.ok()
 		end)
 
-		it("nobody shoves from a catch or rescue (N85)", function()
-			expect(Shove.refusal(with({ shoverBusy = true }))).to.be.ok()
+		it("only inside a catching area", function()
+			expect(Shove.tackleRefusal(press({ area = NONE }))).to.be.ok()
 		end)
 
-		it("only inside one catching area: not on the street, not across two areas", function()
-			expect(Shove.refusal(with({ shoverArea = NONE, targetArea = NONE }))).to.be.ok()
-			expect(Shove.refusal(with({ targetArea = NONE }))).to.be.ok()
-			expect(Shove.refusal(with({ shoverArea = NONE }))).to.be.ok()
-			expect(Shove.refusal(with({ targetArea = "park" }))).to.be.ok()
-		end)
-
-		it("only in an area the shover's tier opens", function()
-			expect(Shove.refusal(with({ areaUnlocked = false }))).to.be.ok()
+		it("only in an area the tackler's tier opens", function()
+			expect(Shove.tackleRefusal(press({ areaUnlocked = false }))).to.be.ok()
 		end)
 
 		it("never at night, when the areas are closed (v0.9, F66)", function()
-			expect(Shove.refusal(with({ areasClosed = true }))).to.equal(Clock.CLOSED_TEXT)
+			expect(Shove.tackleRefusal(press({ areasClosed = true }))).to.equal(Clock.CLOSED_TEXT)
 		end)
 
-		it("range is BumpRangeStuds plus the usual 2 studs of slack", function()
-			local edge = Config.BumpRangeStuds + Shove.RANGE_SLACK
-			expect(Shove.refusal(with({ distance = edge }))).never.to.be.ok()
-			expect(Shove.refusal(with({ distance = edge + 0.01 }))).to.be.ok()
-			expect(Shove.refusal(with({ distance = NONE }))).to.be.ok()
+		it("TackleCooldownSeconds between presses, from the press, hit or miss", function()
+			local cooldown = Config.TackleCooldownSeconds
+			expect(cooldown).to.equal(8)
+			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown - 0.01 }))).to.be.ok()
+			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown }))).never.to.be.ok()
 		end)
 
-		it("never on a player inside a catch or rescue minigame", function()
-			expect(Shove.refusal(with({ targetBusy = true }))).to.be.ok()
+		it("the hit window is the lunge plus the grace for lag", function()
+			expect(Shove.window()).to.be.near(0.6, 1e-9)
+		end)
+	end)
+
+	describe("who the lunge hits (section 10c rules on the target)", function()
+		it("another player in the same area, free and away from their cafe", function()
+			expect(Shove.targetRefusal(target())).never.to.be.ok()
 		end)
 
-		it("never near the target's own cafe", function()
-			expect(Shove.refusal(with({ targetSafe = true }))).to.be.ok()
+		it("never the tackler", function()
+			expect(Shove.targetRefusal(target({ self = true }))).to.be.ok()
 		end)
 
-		it("the shover waits BumpCooldownSeconds between shoves", function()
-			local cooldown = Config.BumpCooldownSeconds
-			expect(Shove.refusal(with({ sinceShove = cooldown - 0.01 }))).to.be.ok()
-			expect(Shove.refusal(with({ sinceShove = cooldown }))).never.to.be.ok()
+		it("only someone in the tackler's area: the street and the next area are safe", function()
+			expect(Shove.targetRefusal(target({ sameArea = false }))).to.be.ok()
 		end)
 
-		it("and BumpSameTargetSeconds before shoving the same player again", function()
+		it("passes through a player inside a catch or rescue minigame", function()
+			expect(Shove.targetRefusal(target({ targetBusy = true }))).to.be.ok()
+		end)
+
+		it("passes through a player near their own cafe", function()
+			expect(Shove.targetRefusal(target({ targetSafe = true }))).to.be.ok()
+		end)
+
+		it("BumpSameTargetSeconds before this tackler hits the same player again", function()
 			local wait = Config.BumpSameTargetSeconds
-			expect(Shove.refusal(with({ sinceShoveTarget = wait - 0.01 }))).to.be.ok()
-			expect(Shove.refusal(with({ sinceShoveTarget = wait }))).never.to.be.ok()
+			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait - 0.01 }))).to.be.ok()
+			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait }))).never.to.be.ok()
 		end)
 
-		it(
-			"nobody shoves a player for ShoveTargetImmuneSeconds after any shove lands on them (S45)",
-			function()
-				local immune = Config.ShoveTargetImmuneSeconds
-				expect(Shove.refusal(with({ sinceTargetShoved = immune - 0.01 }))).to.be.ok()
-				expect(Shove.refusal(with({ sinceTargetShoved = immune }))).never.to.be.ok()
-			end
-		)
+		it("nobody hits a player for ShoveTargetImmuneSeconds after any hit lands on them (S45)", function()
+			local immune = Config.ShoveTargetImmuneSeconds
+			expect(Shove.targetRefusal(target({ sinceTargetShoved = immune - 0.01 }))).to.be.ok()
+			expect(Shove.targetRefusal(target({ sinceTargetShoved = immune }))).never.to.be.ok()
+		end)
+	end)
 
-		it("every reason is words for the shover", function()
-			local cases: { { [string]: any } } = {
-				{ self = true },
-				{ shoverCarrying = true },
-				{ shoverBusy = true },
-				{ targetArea = "park" },
-				{ areaUnlocked = false },
-				{ distance = 50 },
-				{ targetBusy = true },
-				{ targetSafe = true },
-				{ sinceShove = 0 },
-				{ sinceShoveTarget = 0 },
-				{ sinceTargetShoved = 0 },
-			}
-			for _, changes in cases do
-				local reason = Shove.refusal(with(changes))
-				expect(type(reason)).to.equal("string")
-				expect(#(reason :: string) > 0).to.equal(true)
-			end
+	describe("the lunge's reach (inReach)", function()
+		local START = Vector3.new(0, 3, 0)
+		local AHEAD = Vector3.new(0, 0, -1)
+		local reach = Config.TackleHitRadiusStuds + Config.TackleHitSlackStuds
+
+		it("hits a player within the radius plus the slack of the tackler, wherever it is on the lunge", function()
+			local at = START + AHEAD * 8
+			expect(Shove.inReach(START, AHEAD, at, at + AHEAD * reach)).to.equal(true)
+			expect(Shove.inReach(START, AHEAD, at, at + AHEAD * (reach + 0.01))).to.equal(false)
+			expect(Shove.inReach(START, AHEAD, at, at + Vector3.new(reach, 0, 0))).to.equal(true)
+		end)
+
+		it("never someone behind where the lunge started", function()
+			expect(Shove.inReach(START, AHEAD, START, START - AHEAD * 1)).to.equal(false)
+			expect(Shove.inReach(START, AHEAD, START, START + Vector3.new(2, 0, 0))).to.equal(true)
+		end)
+
+		it("a tackler seen farther than the lunge plus the slack from the start reaches nobody (teleports)", function()
+			local edge = Config.TackleLungeStuds + Config.TackleHitSlackStuds
+			local far = START + AHEAD * edge
+			expect(Shove.inReach(START, AHEAD, far, far)).to.equal(true)
+			local beyond = START + AHEAD * (edge + 0.01)
+			expect(Shove.inReach(START, AHEAD, beyond, beyond)).to.equal(false)
+		end)
+
+		it("a lunge of 12 studs in 0.35 s, never on E or Space (the button's key is Q)", function()
+			expect(Config.TackleLungeStuds).to.equal(12)
+			expect(Config.TackleLungeSeconds).to.equal(0.35)
 		end)
 	end)
 
@@ -275,58 +294,84 @@ return function()
 			-- B shoves A once A's carry is BumpGraceSeconds (3) old: B never shoved before, nobody shoved A.
 			local backAt = pickedUp + Config.BumpGraceSeconds
 			local carryA: Shove.CarryState = { startedAt = pickedUp, immuneUntil = 0 }
-			expect(Shove.refusal(ok())).never.to.be.ok()
+			expect(Shove.tackleRefusal(press())).never.to.be.ok()
+			expect(Shove.targetRefusal(target())).never.to.be.ok()
 			expect(Shove.canKnockLoose(carryA, backAt - 0.01)).to.equal(false)
 			expect(Shove.canKnockLoose(carryA, backAt)).to.equal(true)
-			-- B picks it back up. A is off BumpCooldownSeconds (8) at 12 s but shoved B at 0, so waits 20 s.
-			local again = with({ sinceShove = 12, sinceShoveTarget = 12, sinceTargetShoved = 12 })
-			expect(Shove.refusal(again)).to.equal("Give them a break")
+			-- B picks it back up. At 12 s A is off TackleCooldownSeconds (8) but hit B at 0, so the lunge passes
+			-- through B until 20 s.
+			expect(Shove.tackleRefusal(press({ sinceTackle = 12 }))).never.to.be.ok()
+			local again = target({ sinceShoveTarget = 12, sinceTargetShoved = 12 })
+			expect(Shove.targetRefusal(again)).to.equal("Give them a break")
 			local wait = Config.BumpSameTargetSeconds
-			local later = with({ sinceShove = wait, sinceShoveTarget = wait, sinceTargetShoved = wait })
-			expect(Shove.refusal(later)).never.to.be.ok()
+			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait, sinceTargetShoved = wait }))).never.to.be.ok()
 		end)
 
-		it("the same-target wait is longer than the shover's cooldown", function()
-			expect(Config.BumpSameTargetSeconds > Config.BumpCooldownSeconds).to.equal(true)
+		it("the same-target wait is longer than the tackler's cooldown", function()
+			expect(Config.BumpSameTargetSeconds > Config.TackleCooldownSeconds).to.equal(true)
 		end)
 	end)
 
 	describe("edges (QA)", function()
-		-- Each rule broken on its own, in the order section 10c lists them.
-		local broken: { { [string]: any } } = {
-			{ self = true },
-			{ shoverCarrying = true },
-			{ shoverBusy = true },
-			{ targetArea = "park" },
+		-- Each rule broken on its own, in the order Shove checks them (v0.11 F74 split the shove's list into the press
+		-- and the target).
+		local pressBroken: { { [string]: any } } = {
+			{ carrying = true },
+			{ busy = true },
+			{ area = NONE },
 			{ areaUnlocked = false },
-			{ distance = 50 },
+			{ areasClosed = true },
+			{ sinceTackle = 0 },
+		}
+		local targetBroken: { { [string]: any } } = {
+			{ self = true },
+			{ sameArea = false },
 			{ targetBusy = true },
 			{ targetSafe = true },
-			{ sinceShove = 0 },
 			{ sinceShoveTarget = 0 },
 			{ sinceTargetShoved = 0 },
 		}
 
-		it("every rule has its own words, so the shover can tell them apart", function()
+		local function merged(first: { [string]: any }, second: { [string]: any }): { [string]: any }
+			local both: { [string]: any } = {}
+			for key, value in second do
+				both[key] = value
+			end
+			for key, value in first do
+				both[key] = value
+			end
+			return both
+		end
+
+		it("every rule has its own words, so the tackler can tell them apart", function()
 			local seen: { [string]: boolean } = {}
-			for _, changes in broken do
-				local reason = Shove.refusal(with(changes)) :: string
+			for _, changes in pressBroken do
+				local reason = Shove.tackleRefusal(press(changes)) :: string
+				expect(type(reason)).to.equal("string")
+				expect(seen[reason]).never.to.be.ok()
+				seen[reason] = true
+			end
+			for _, changes in targetBroken do
+				local reason = Shove.targetRefusal(target(changes)) :: string
+				expect(type(reason)).to.equal("string")
 				expect(seen[reason]).never.to.be.ok()
 				seen[reason] = true
 			end
 		end)
 
-		it("with two rules broken, the earlier one in section 10c names the refusal", function()
-			for first = 1, #broken do
-				for second = first + 1, #broken do
-					local both: { [string]: any } = {}
-					for key, value in broken[second] do
-						both[key] = value
-					end
-					for key, value in broken[first] do
-						both[key] = value
-					end
-					expect(Shove.refusal(with(both))).to.equal(Shove.refusal(with(broken[first])))
+		it("with two rules broken, the earlier one names the refusal", function()
+			for first = 1, #pressBroken do
+				for second = first + 1, #pressBroken do
+					local both = merged(pressBroken[first], pressBroken[second])
+					expect(Shove.tackleRefusal(press(both))).to.equal(Shove.tackleRefusal(press(pressBroken[first])))
+				end
+			end
+			for first = 1, #targetBroken do
+				for second = first + 1, #targetBroken do
+					local both = merged(targetBroken[first], targetBroken[second])
+					expect(Shove.targetRefusal(target(both))).to.equal(
+						Shove.targetRefusal(target(targetBroken[first]))
+					)
 				end
 			end
 		end)

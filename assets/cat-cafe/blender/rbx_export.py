@@ -12,7 +12,8 @@ code change. Every Builder primitive becomes one or a few Parts:
 Bevels are dropped, which suits the blocky style. Colours are the palette swatches. Glass and water are Glass at
 0.45 and 0.3 transparency, a gate barrier (_Bars) is ForceField, the gold coat tones (palette.METAL_SWATCHES) are
 Metal. Hanging lamp bulbs (lit all day) are Neon; other
-_Bulb, _Bulbs, _Pane and _Tube parts keep their day look and WorldController lights them at night.
+_Bulb, _Bulbs, _Pane and _Tube parts keep their day look and WorldController lights them at night. _Glow parts are
+Neon day and night (WorldController leaves them alone), and a walk-in circle (_CodesCircle) is Neon at 0.6.
 
 Model layout (pivots match the FBX exports and manifest.json, so placement code works with either):
   <Name>                     Model, pivot at the asset origin (base centre, front -Z), PrimaryPart = biggest
@@ -45,7 +46,7 @@ RZ90 = Matrix(((0, -1, 0), (1, 0, 0), (0, 0, 1)))   # Roblox local X (cylinder a
 # Asset families whose big parts block players. Everything else (cats, people, items, wall decor) is walk-through.
 COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Plot_", "CatCafe_Street_",
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_")
-NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies")
+NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle")
 INVISIBLE_OBJECTS = ("_Fireflies",)   # volumes the effects code reads (where fireflies drift), never drawn
 MIN_COLLIDE = 0.35                # thinner parts (trim, handles, bulbs) never collide
 ALWAYS_LIT = ("HangingLamp",)     # matches WorldController: indoor lamps glow all day
@@ -57,12 +58,16 @@ ROUND = 4
 # with a recursive FindFirstChild); a one-part object ending in _Bars goes straight into the root as a ForceField
 # part named Bars, because the gate code looks for a direct child.
 RENAME_BIGGEST = {"CatCafe_Furniture_TableRound": "Top"}
-PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen"}
+PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen", "_CodesCircle": "CodesCircle"}
 # CollectionService tags, keyed by object name, or by name suffix when the key starts with "_": the audio code plays
 # world loops from FishTank and Fountain (assets/cat-cafe/audio, PR #69), from the Model's PrimaryPart, and the UI
-# hangs each player's Index page on an IndexBoard. CafeDoor and WorkingCat are tagged by WorldBuilder at placement.
+# hangs each player's Index page on an IndexBoard. The Codes Cat's prompt finds its kiosk by CodesCat, and the night
+# code shows and hides every NightFence piece (gate fences, alley pieces, shut back doors). CafeDoor and WorkingCat
+# are tagged by WorldBuilder at placement.
 TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["FishTank"],
-        "CatCafe_Park_Fountain": ["Fountain"], "_IndexBoard": ["IndexBoard"]}
+        "CatCafe_Park_Fountain": ["Fountain"], "_IndexBoard": ["IndexBoard"],
+        "CatCafe_Street_CodesCat": ["CodesCat"], "_NightFence": ["NightFence"],
+        "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"]}
 # Root Model properties by asset name suffix: an Index Board streams in whole, so its Screen is there whenever the
 # board is (reviewer S37, as for the cats).
 MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"}}
@@ -192,6 +197,10 @@ def _material(obname, swatch):
         return "SmoothPlastic", 1.0
     if any(k in obname for k in ALWAYS_LIT) and obname.endswith("_Bulb"):
         return "Neon", 0.0
+    if obname.endswith("_Glow"):
+        return "Neon", 0.0
+    if obname.endswith("_CodesCircle"):           # a see-through glowing pad you walk into
+        return "Neon", 0.6
     if swatch in palette.METAL_SWATCHES:          # gold cats
         return "Metal", 0.0
     return "SmoothPlastic", 0.0

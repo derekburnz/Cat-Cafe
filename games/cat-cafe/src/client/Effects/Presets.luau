@@ -68,6 +68,7 @@ export type Budget = {
 	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
 	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
 	decorEffects: number, -- Mythical cafe styles and decor moving at once; each takes one of steadyEmitters
+	potionGlows: number, -- players showing a running potion's glow at once (F64), your own first
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -91,6 +92,7 @@ Presets.budget = {
 		rushLines = 2,
 		signatureCats = 3,
 		decorEffects = 2,
+		potionGlows = 3,
 	},
 	high = {
 		animatedCats = 16,
@@ -109,6 +111,7 @@ Presets.budget = {
 		rushLines = 3,
 		signatureCats = 6,
 		decorEffects = 4,
+		potionGlows = 6,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -127,6 +130,7 @@ Presets.budget = {
 		rushLines = 1,
 		signatureCats = 1,
 		decorEffects = 0,
+		potionGlows = 0,
 	},
 } :: { [string]: Budget }
 
@@ -429,6 +433,117 @@ Presets.emitters = {
 		rate = 2,
 		acceleration = Vector3.new(0.2, -0.6, 0),
 		drag = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	-- Potion glows (F64), one per kind, on a drinker while the potion runs (Potions.luau). Tip: gold glints drifting
+	-- up off the body (a coin sprite once one is uploaded); Lucky: green and mint glints all round; Swift: blue wisps
+	-- left behind at the feet; Steady Paw: soft mint sparkles on the paws, split between the two hands.
+	potionTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight },
+		size = { 0.45, 0.35 },
+		transparency = { 0, 1 },
+		lifetime = { 1.3, 1.9 },
+		speed = { 0.8, 1.3 },
+		spread = 15,
+		rate = 2.5,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.5,
+		rotSpeed = { -180, 180 },
+	},
+	potionLucky = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.leaf, Presets.palette.mint, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.1, 0.4 },
+		spread = 180,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.7,
+		rotSpeed = { -90, 90 },
+	},
+	potionSwift = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.fishBlue, Presets.palette.pastelSky },
+		size = { 0.5, 1.1 },
+		transparency = { 0.45, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0.3, 0.6 },
+		spread = 40,
+		rate = 4,
+		acceleration = Vector3.new(0, 0.5, 0),
+		drag = 1,
+		lightEmission = 0.4,
+	},
+	potionSteady = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.mint, Presets.palette.offwhite },
+		size = { 0.32, 0.1 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.9, 1.4 },
+		speed = { 0.1, 0.3 },
+		spread = 180,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.3, 0),
+		drag = 1,
+		lightEmission = 0.6,
+		rotSpeed = { -60, 60 },
+	},
+	-- The quest potions (F73, quests.md section 4). Big Tip: a brighter, busier stream of gold glints than the Tip
+	-- Potion's; Gold Rush: gold glints twinkling all round; Quick Bait: food crumbs falling from the paws.
+	potionBigTip = {
+		texture = Presets.textures.sparkle, -- a coin sprite once one is uploaded
+		colors = { Presets.palette.golden, Presets.palette.goldLight, Presets.palette.sparkle },
+		size = { 0.55, 0.4 },
+		transparency = { 0, 1 },
+		lifetime = { 1.3, 1.9 },
+		speed = { 1, 1.6 },
+		spread = 20,
+		rate = 3.5,
+		acceleration = Vector3.new(0, 0.2, 0),
+		drag = 0.6,
+		lightEmission = 0.7,
+		rotSpeed = { -180, 180 },
+	},
+	potionGoldRush = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden, Presets.palette.offwhite },
+		size = { 0.45, 0 },
+		transparency = { 0, 0.4 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.1, 0.4 },
+		spread = 180,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.8,
+		rotSpeed = { -90, 90 },
+	},
+	potionQuickBait = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.blush, Presets.palette.cream },
+		size = { 0.18, 0.12 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.8, 1.2 },
+		speed = { 0.2, 0.5 },
+		spread = 60,
+		rate = 2,
+		acceleration = Vector3.new(0, -4, 0),
+		drag = 0.5,
+	},
+	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
+	giftTwinkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle, Presets.palette.offwhite },
+		size = { 0.3, 0 },
+		transparency = { 0.1, 0.6 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 1.5,
+		lightEmission = 0.8,
 		rotSpeed = { -90, 90 },
 	},
 } :: { [string]: EmitterPreset }
@@ -1057,6 +1172,47 @@ Presets.decorFx = {
 	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`.
 	sheen = { width = 0.08, shown = 0.45, tilt = 20, seconds = 7 },
 	petalPad = 0.8, -- share of the tree's width the petals fall from
+}
+
+-- Potions (F64, data-model 12b, and the quest potions of F73): each kind's glow while it runs, shown on the newest id in the drinker's
+-- `ActivePotions` (data-model 13). `on` is where its emitter sits: "Body" the root part, "Feet" an attachment under it,
+-- "Hands" the two hands (the rate split between them). The drink pop, on your own `buffs` growing in ProfileSync, is
+-- `sparkles` catch sparkles in the potion's colour at the chest and a `ring` stud ring at the feet.
+export type PotionSpec = { emitter: string, on: string, colour: Color3 }
+Presets.potions = {
+	tip_potion = { emitter = "potionTip", on = "Body", colour = palette.golden },
+	lucky_potion = { emitter = "potionLucky", on = "Body", colour = palette.leaf },
+	swift_potion = { emitter = "potionSwift", on = "Feet", colour = palette.fishBlue },
+	steady_potion = { emitter = "potionSteady", on = "Hands", colour = palette.mint },
+	-- the quest potions (F73, quests.md section 4)
+	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
+	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
+	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+} :: { [string]: PotionSpec }
+Presets.potionFx =
+	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
+
+-- The Mystery Visitor (F64): a purple puff of `puff` smoke where the visitor arrives and leaves, `sparkle` sparkles
+-- where the gift appears and, when the owner opens it (MysteryGiftResult), confetti (`confetti` of the budget's) in
+-- the ribbon colours with `pop` sparkles and a `ring` in the colour of what was inside, from the gift's top.
+Presets.mystery = {
+	puff = 6,
+	puffColour = palette.aurora,
+	sparkle = 6,
+	pop = 8,
+	ring = 3,
+	ringSeconds = 0.45,
+	confetti = 0.4,
+	ribbon = { palette.neonPink, palette.aurora, palette.sparkle, palette.offwhite },
+	-- what was inside: a potion in its own colour, the rest by kind
+	kinds = {
+		lure = palette.blush,
+		fish = palette.golden,
+		spin = palette.lampWarm,
+		potion = palette.mint,
+	} :: {
+		[string]: Color3,
+	},
 }
 
 return Presets

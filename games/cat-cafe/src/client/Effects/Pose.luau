@@ -1,8 +1,9 @@
 --!strict
 -- Moves a cat's body, head, tail and front paws on this client only. Parts are found by name (Body, Head, Tail,
--- or names ending _Body, _Head, _Tail, plus the placeholder's ears, eyes and legs), so one set of idles fits every
--- breed. A working cat stood upright at its station (Pose "upright", F25) turns in the floor's axes instead of
--- its turned model's, and outfit parts ride what their Follows attribute names. Two ways in, picked per model:
+-- or names ending _Body, _Head, _Tail, plus ears, eyes and legs named EarL, Eye1, LegF1 and so on, or ending so),
+-- so one set of idles fits every breed. A working cat stood upright at its station (Pose "upright", F25) turns in
+-- the floor's axes instead of its turned model's, and outfit parts ride what their Follows attribute names. Two
+-- ways in, picked per model:
 -- - Anchored parts (the placeholder cats and today's Part cats): each part is drawn at its server CFrame times a
 --   small turn around its joint. The server's CFrame is read again whenever it changes, so a walking stray keeps
 --   walking and only the turn is ours. A client's write to a server part stays on that client.
@@ -56,6 +57,26 @@ local function isNamed(instance: Instance, name: string): boolean
 	return text == name or (#text > #name + 1 and text:sub(-(#name + 1)) == "_" .. name)
 end
 
+-- Pieces named for what they are, as the placeholder names them (LegF1, EarL) or as the exporter does, after
+-- the object they sit in (<Cat>_LegF1, <Cat>_EarL).
+local function namedLeg(part: BasePart): Group?
+	for name, group in LEGS do
+		if isNamed(part, name) then
+			return group
+		end
+	end
+	return nil
+end
+
+local function isHeadPiece(part: BasePart): boolean
+	for name in HEAD_PIECES do
+		if isNamed(part, name) then
+			return true
+		end
+	end
+	return false
+end
+
 local function findPart(model: Model, name: string): BasePart?
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and isNamed(descendant, name) then
@@ -79,10 +100,10 @@ local function groupOf(part: BasePart, body: BasePart, head: BasePart?): Group
 	if isNamed(part, "Tail") then
 		return "tail"
 	end
-	if isNamed(part, "Head") or HEAD_PIECES[part.Name] == true then
+	if isNamed(part, "Head") or isHeadPiece(part) then
 		return "head"
 	end
-	local leg: Group? = LEGS[part.Name]
+	local leg: Group? = namedLeg(part)
 	if leg ~= nil then
 		return leg
 	end

@@ -406,8 +406,14 @@ of the Alley Square (`CatCafe_Alley_ArchStreet`, `CatCafe_Alley_Arch`) are brick
 board and an iron arc of bulbs with a gold cat medallion. Props: a crate stack in climbable steps, a laundry line,
 long string lights and the Sewer manhole with barricades. Area gates are arches over the full opening with a
 ForceField barrier and a hanging sign board, themed: the Park in brick with ivy, planters and a green iron frame;
-the Woods in logs with moss, mushrooms and small spruces; the Sewer in concrete with hazard stripes, a big pipe
-and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+the Woods in timber posts and a log beam with moss, mushrooms and small spruces; the Sewer in concrete with hazard
+stripes, a big pipe and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+
+Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
+are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never
+flush with its face, or the two faces flicker. Posts reach 0.12 into the opening and past the wall's back face, and
+nothing beside a post sits on the wall's line. Check a placed piece in its scene, not alone: the toolkit only sees
+one model, so a gate that passes on its own can still cut through the walls around it.
 
 ## 14. Part-built models in Roblox
 

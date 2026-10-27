@@ -7,7 +7,11 @@ see-through barrier and a sign board, the way simulator zone gates work, themed 
   CatCafe_Sewer_Gate           30 wide, east back alley's south end (74, -101)
 
 Pivot at the base centre of the opening. The front (-Z) faces the side players come from, so the Park, Woods and
-Sewer gates are placed turned 180 degrees. The pillars stand outside the opening, so the walls end where they start.
+Sewer gates are placed turned 180 degrees. WorldBuilder's walls (1 thick, at local z 0.5 to 1.5, ending at the edge
+of the opening) and the back alleys' outer walls (running off toward -Z at |x| 15 to 16 on the Woods and Sewer gates)
+meet each gate, so the pillars reach INSET into the opening and BACK behind the gate line, which buries every
+wall end inside a pillar, and nothing beside a pillar sits on the wall line (local z -0.5 to 1.6, toward +Z) or in front
+of the Woods and Sewer pillars where an alley wall runs.
 Objects per gate:
   <asset>              pillars, lintel with the area name on both faces, decoration (collides)
   <asset>_Bars         one box filling the opening up to 12 studs: exported as a ForceField part named Bars directly
@@ -25,6 +29,9 @@ from plot import TRIM
 
 BARS_TOP = 12.0
 PILLAR = 2.6
+INSET = 0.12                                       # the pillars start this far inside the opening, past the wall ends
+FRONT, BACK = 1.3, 1.75                            # pillar depth either side of the gate line: the walls behind it
+                                                   # (z 0.5 to 1.5) end inside, the alley's building backs stay clear
 SIGN = (-5.0, 5.0, 8.4, 10.9)                      # x0, x1, y0, y1 of the hanging sign board, at z -0.85..-0.65
 SIGN_INFO = {"part": "SignBoard", "face": "Front (-Z)", "size": [10.0, 2.5], "centre": [0.0, 9.65, -0.85]}
 
@@ -57,30 +64,36 @@ def _gate(name, mat, width, barrier, frame, build):
     return out
 
 
+def _pillar_x(s, half):
+    """The pillar on side s: its x range and centre."""
+    x0, x1 = sorted((s * (half - INSET), s * (half + PILLAR)))
+    return x0, x1, (x0 + x1) / 2
+
+
 def _brick_pillars(b, half, cap="concrete", h=13.5):
     for s in (-1, 1):
-        x0, x1 = sorted((s * half, s * (half + PILLAR)))
-        b.span((x0 - 0.2, 0, -1.5), (x1 + 0.2, 0.8, 1.5), "concrete")
-        b.span((x0, 0.8, -1.3), (x1, h, 1.3), "brick")
+        x0, x1, _ = _pillar_x(s, half)
+        b.span((x0 - 0.2, 0, -FRONT - 0.2), (x1 + 0.2, 0.8, BACK + 0.2), "concrete")
+        b.span((x0, 0.8, -FRONT), (x1, h, BACK), "brick")
         for y in (4.5, 9.0):
-            b.span((x0 - 0.12, y, -1.42), (x1 + 0.12, y + 0.4, 1.42), "concrete")
-        b.span((x0 - 0.2, h, -1.5), (x1 + 0.2, h + 0.6, 1.5), cap)
+            b.span((x0 - 0.12, y, -FRONT - 0.12), (x1 + 0.12, y + 0.4, BACK + 0.12), "concrete")
+        b.span((x0 - 0.2, h, -FRONT - 0.2), (x1 + 0.2, h + 0.6, BACK + 0.2), cap)
 
 
 # --------------------------------------------------------------------------------------------- park --
 def _park(b, lamps, flowers, half):
     _brick_pillars(b, half)
     for s in (-1, 1):
-        cx = s * (half + PILLAR / 2)
+        cx = _pillar_x(s, half)[2]
         lantern(b, lamps, cx, 14.1, 0, 1.1)
-        for (y, dz) in ((2.0, 1.0), (5.6, -0.6), (8.3, 0.9), (11.2, -0.3)):                 # ivy on the outer face
-            b.ball((s * (half + PILLAR + 0.2), y, dz), 0.7, "leaf_dark", scale=(0.6, 1.0, 1.0))
-        for z in (-2.3, 2.3):                                                              # planters
+        for (y, dz) in ((2.0, -1.0), (5.6, -0.5), (8.3, -1.1), (11.2, -0.4)):              # ivy on the outer face,
+            b.ball((s * (half + PILLAR + 0.2), y, dz), 0.7, "leaf_dark", scale=(0.6, 1.0, 1.0))   # off the wall line
+        for z in (-2.6, 2.6):                                                              # planters
             b.span((cx - 1.2, 0, z - 0.5), (cx + 1.2, 1.0, z + 0.5), "terracotta")
             flowers.span((cx - 1.1, 1.0, z - 0.4), (cx + 1.1, 1.15, z + 0.4), "leaf_green")
             for k in range(3):
                 flower_clump(flowers, cx - 0.7 + 0.7 * k, 1.15, z, n=3, spread=0.3)
-        b.ball((s * (half + PILLAR + 1.4), 1.1, 0), 1.2, "leaf_green", scale=(1.0, 0.85, 1.2))
+        b.ball((s * (half + PILLAR + 0.8), 1.05, -2.3), 1.2, "leaf_green", scale=(1.0, 0.85, 0.9))  # bush by the planter
     # green iron frame and the name board
     for y0, y1 in ((12.2, 12.6), (15.0, 15.4)):
         b.span((-half, y0, -0.3), (half, y1, 0.3), "dumpster_green")
@@ -112,22 +125,27 @@ def _spruce(b, x, z, s=1.0):
 
 
 def _woods(b, lamps, flowers, half):
-    for s in (-1, 1):
-        cx = s * (half + PILLAR / 2)
-        b.cyl((cx, 7.0, 0), 1.4, 14.0, "fur_brown", segments=12)
-        for y in (3.0, 7.0, 11.0):
-            b.cyl((cx, y, 0), 1.48, 0.25, "dark_wood", segments=12)
-        b.ball((cx, 14.0, 0), 1.6, "leaf_green", scale=(1.0, 0.5, 1.0))
-        for (dx, dz, h, r) in ((0.9, -1.9, 0.7, 0.45), (-0.6, -2.2, 0.45, 0.3), (0.2, 2.0, 0.6, 0.4)):  # mushrooms
-            mx = cx + s * dx
+    for s in (-1, 1):                                  # square timber posts on stone footings, so the walls end inside
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.25, 0, -FRONT - 0.25), (x1 + 0.25, 0.9, BACK + 0.25), "fur_smoke_light")
+        b.span((x0, 0.9, -FRONT), (x1, 14.0, BACK), "fur_brown")
+        for xa in (x0, x1):                                                                # corner battens
+            for za in (-FRONT, BACK):
+                b.span((xa - 0.17, 0.9, za - 0.17), (xa + 0.17, 13.9, za + 0.17), "dark_wood")
+        for y in (3.0, 7.0, 11.0):                                                         # bands
+            b.span((x0 - 0.22, y, -FRONT - 0.22), (x1 + 0.22, y + 0.25, BACK + 0.22), "dark_wood")
+        b.ball((cx, 14.0, (BACK - FRONT) / 2), 1.7, "leaf_green", scale=(1.0, 0.5, 1.3))
+        for (dx, dz, h, r) in ((0.9, -2.3, 0.7, 0.45), (1.6, -2.15, 0.45, 0.3), (0.2, 2.35, 0.6, 0.4)):  # mushrooms,
+            mx = cx + s * dx                                                                 # clear of the alley wall
             b.cyl((mx, h / 2, dz), 0.1, h, "offwhite", segments=6)
             b.cyl((mx, h + r * 0.3, dz), r, r * 0.6, "bowl_red", r2=0.05, segments=10)
             b.span((mx + r * 0.3 - 0.06, h + r * 0.45, dz - r * 0.5 - 0.02), (mx + r * 0.3 + 0.06, h + r * 0.57, dz - r * 0.5 + 0.1),
                    "offwhite")
-        _spruce(b, s * (half + PILLAR + 2.4), 0.6)
-        _spruce(b, s * (half + PILLAR + 1.6), -2.4, 0.7)
-        flowers.span((cx - 1.0, 0, -3.4), (cx + 1.0, 0.15, -2.6), "leaf_green")
-        flower_clump(flowers, cx, 0.15, -3.0, colours=("sparkle", "offwhite", "pastel_lilac"), n=4, spread=0.5)
+        _spruce(b, s * (half + PILLAR + 1.9), 3.4)                                         # inside the area
+        _spruce(b, s * (half + PILLAR + 0.6), 6.8, 0.7)
+        fx = cx + s * 0.8
+        flowers.span((fx - 0.7, 0, -3.6), (fx + 0.7, 0.15, -2.8), "leaf_green")
+        flower_clump(flowers, fx, 0.15, -3.2, colours=("sparkle", "offwhite", "pastel_lilac"), n=4, spread=0.4)
     length = 2 * (half + PILLAR + 0.6)
     b.cyl((0, 13.3, 0), 1.1, length, "fur_brown", axis="X", segments=12)                  # beam log
     for s in (-1, 1):
@@ -154,23 +172,23 @@ def build_woods_gate(mat):
 # -------------------------------------------------------------------------------------------- sewer --
 def _sewer(b, lamps, flowers, half):
     for s in (-1, 1):
-        x0, x1 = sorted((s * half, s * (half + PILLAR)))
-        cx = (x0 + x1) / 2
-        b.span((x0 - 0.2, 0, -1.5), (x1 + 0.2, 0.8, 1.5), "concrete")
-        b.span((x0, 0.8, -1.3), (x1, 13.6, 1.3), "concrete_dark")
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.2, 0, -FRONT - 0.2), (x1 + 0.2, 0.8, BACK + 0.2), "concrete")
+        b.span((x0, 0.8, -FRONT), (x1, 13.6, BACK), "concrete_dark")
         for k in range(4):                                                                 # hazard collar
             y = 0.9 + k * 0.4
-            b.span((x0 - 0.06, y, -1.36), (x1 + 0.06, y + 0.4, 1.36), "rarity_legend" if k % 2 == 0 else "fur_black")
-        b.span((x0 - 0.2, 13.6, -1.5), (x1 + 0.2, 14.0, 1.5), "concrete")
+            b.span((x0 - 0.06, y, -FRONT - 0.06), (x1 + 0.06, y + 0.4, BACK + 0.06),
+                   "rarity_legend" if k % 2 == 0 else "fur_black")
+        b.span((x0 - 0.2, 13.6, -FRONT - 0.2), (x1 + 0.2, 14.0, BACK + 0.2), "concrete")
         b.span((cx - 0.5, 14.0, -0.5), (cx + 0.5, 14.3, 0.5), "fur_black")               # warning lamp
         lamps.span((cx - 0.35, 14.3, -0.35), (cx + 0.35, 15.0, 0.35), "bowl_red")
         b.span((cx - 0.45, 15.0, -0.45), (cx + 0.45, 15.15, 0.45), "fur_black")
-        px_ = s * (half + PILLAR + 0.4)                                                    # side pipe with a valve
-        b.cyl((px_, 6.0, 0.6), 0.35, 12.0, "rust", segments=10)
-        b.cyl((px_ + s * 0.45, 4.2, 0.6), 0.6, 0.12, "bowl_red", axis="X", segments=12)
-        b.cyl((px_ + s * 0.45, 4.2, 0.6), 0.25, 0.2, "metal", axis="X", segments=8)
+        px_, pz = s * (half + PILLAR + 0.4), -1.0                                          # side pipe with a valve,
+        b.cyl((px_, 6.0, pz), 0.35, 12.0, "rust", segments=10)                             # in front of the wall line
+        b.cyl((px_ + s * 0.45, 4.2, pz), 0.6, 0.12, "bowl_red", axis="X", segments=12)
+        b.cyl((px_ + s * 0.45, 4.2, pz), 0.25, 0.2, "metal", axis="X", segments=8)
         for y in (2.0, 10.0):
-            b.cyl((px_, y, 0.6), 0.45, 0.3, "metal", segments=10)
+            b.cyl((px_, y, pz), 0.45, 0.3, "metal", segments=10)
     length = 2 * (half + PILLAR + 0.4)
     b.cyl((0, 13.4, 0), 1.25, length, "metal", axis="X", segments=14)                     # big pipe
     for x in (-half - PILLAR / 2, -half / 2, 0.0, half / 2, half + PILLAR / 2):
@@ -201,25 +219,25 @@ def build_sewer_gate(mat):
 def _neighbourhood(b, lamps, flowers, half):
     _brick_pillars(b, half, cap="offwhite", h=12.0)
     for s in (-1, 1):
-        cx = s * (half + PILLAR / 2)
-        for z, sg in ((-1.32, -1), (1.32, 1)):                                             # plaque with a paw
+        cx = _pillar_x(s, half)[2]
+        for z, sg in ((-FRONT - 0.02, -1), (BACK + 0.02, 1)):                             # plaque with a paw
             b.span((cx - 0.6, 6.4, min(z, z + sg * 0.06)), (cx + 0.6, 7.6, max(z, z + sg * 0.06)), "offwhite")
             zz = z + sg * 0.06
             for (dx, dy, r) in ((0, -0.15, 0.22), (-0.28, 0.2, 0.09), (0, 0.3, 0.09), (0.28, 0.2, 0.09)):
                 b.span((cx + dx - r, 7.0 + dy - r, min(zz, zz + sg * 0.03)), (cx + dx + r, 7.0 + dy + r, max(zz, zz + sg * 0.03)),
                        "blush")
-        hx = s * (half + PILLAR + 1.7)                                                     # hedge and flowers
-        b.span((hx - 1.5, 0, -1.2), (hx + 1.5, 2.4, 1.2), "leaf_dark")
-        b.ball((hx, 2.4, 0), 1.3, "leaf_dark", scale=(1.1, 0.4, 0.9))
-        flowers.span((hx - 1.5, 0, -2.4), (hx + 1.5, 0.2, -1.3), "leaf_green")
+        hx = s * (half + PILLAR + 1.7)                                                     # hedge and flowers, in
+        b.span((hx - 1.5, 0, -2.9), (hx + 1.5, 2.4, -0.6), "leaf_dark")                    # front of the wall line
+        b.ball((hx, 2.4, -1.75), 1.3, "leaf_dark", scale=(1.1, 0.4, 0.85))
+        flowers.span((hx - 1.5, 0, -4.0), (hx + 1.5, 0.2, -2.9), "leaf_green")
         for k in range(4):
-            flower_clump(flowers, hx - 1.1 + 0.75 * k, 0.2, -1.85, n=2, spread=0.25)
-    # mailbox by the right pillar
-    mx = half + PILLAR + 3.8
-    b.span((mx - 0.08, 0, -0.08), (mx + 0.08, 3.0, 0.08), "dark_wood")
-    b.span((mx - 0.35, 3.0, -0.6), (mx + 0.35, 3.6, 0.6), "shirt_blue")
-    b.cyl((mx, 3.6, 0), 0.35, 1.2, "shirt_blue", axis="Z", segments=10)
-    b.span((mx + 0.35, 3.3, 0.1), (mx + 0.42, 4.1, 0.25), "bowl_red")
+            flower_clump(flowers, hx - 1.1 + 0.75 * k, 0.2, -3.45, n=2, spread=0.25)
+    # mailbox by the right pillar, in front of the hedge
+    mx, mz = half + PILLAR + 3.8, -4.6
+    b.span((mx - 0.08, 0, mz - 0.08), (mx + 0.08, 3.0, mz + 0.08), "dark_wood")
+    b.span((mx - 0.35, 3.0, mz - 0.6), (mx + 0.35, 3.6, mz + 0.6), "shirt_blue")
+    b.cyl((mx, 3.6, mz), 0.35, 1.2, "shirt_blue", axis="Z", segments=10)
+    b.span((mx + 0.35, 3.3, mz + 0.1), (mx + 0.42, 4.1, mz + 0.25), "bowl_red")
     # white pergola: beams front and back, rafters across, a street sign on top
     reach = half + PILLAR + 0.9
     for z0, z1 in ((-1.2, -0.75), (0.75, 1.2)):
@@ -239,7 +257,7 @@ def _neighbourhood(b, lamps, flowers, half):
         b.span((-bw / 2 - 0.05, ya, -0.2), (bw / 2 + 0.05, yb, 0.2), TRIM)
     _title(b, "NEIGHBOURHOOD", 13.75, px, -0.15, 0.15, "offwhite")
     for s in (-1, 1):
-        lantern(b, lamps, s * (half + PILLAR / 2), 13.15, 0, 0.8)
+        lantern(b, lamps, _pillar_x(s, half)[2], 13.15, 0, 0.8)
     return 12.0
 
 

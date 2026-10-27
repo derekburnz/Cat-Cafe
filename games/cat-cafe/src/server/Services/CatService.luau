@@ -278,6 +278,7 @@ local function spawnStray(
 	prompt.Parent = body
 
 	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 	model.Parent = straysFolder
 
 	local stray: Stray = {
@@ -504,6 +505,7 @@ local function spawnStuck(spotId: string, areaId: string, spot: BasePart, def: T
 	prompt.Parent = body
 
 	model:PivotTo(spot.CFrame)
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 	model.Parent = straysFolder
 	spot:SetAttribute("Occupied", true)
 	spot:SetAttribute("LockedBy", 0)

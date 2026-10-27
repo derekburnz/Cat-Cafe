@@ -4,7 +4,7 @@
 --   line   "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical"
 --   split  the same chance for every cat of a rarity across the areas you have unlocked, cat by cat, and which
 --          area the next rank up adds to the pool
---   extras the shiny chance and the charm star odds, because both change what the cat earns
+--   extras the gold chance and the charm star odds, because both change what the cat earns
 -- Shared by the HUD's lure picker and the bait bowl screen.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,7 +19,7 @@ local FoodOdds = {}
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 -- data-model section 8: GoldChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
-local SHINY_CHANCE: number = Config.GoldChanceBait
+local GOLD_CHANCE: number = Config.GoldChanceBait
 local STAR_ODDS: { number } = Config.CharmStarOdds
 
 -- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two
@@ -112,7 +112,7 @@ function FoodOdds.extras(): string
 	for count, share in STAR_ODDS do
 		table.insert(stars, ("%d★ %s"):format(count, percent(share)))
 	end
-	return ("Gold %s · Charm %s"):format(percent(SHINY_CHANCE * 100), table.concat(stars, ", "))
+	return ("Gold %s · Charm %s"):format(percent(GOLD_CHANCE * 100), table.concat(stars, ", "))
 end
 
 return FoodOdds

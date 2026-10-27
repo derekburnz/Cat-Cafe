@@ -144,6 +144,18 @@ Layout.plot = {
 		{ x = -2.4, y = 0, z = 0, rotY = -90 },
 		{ x = 2.4, y = 0, z = 0, rotY = 90 },
 	} :: { Point },
+
+	-- Where customers stand to order, in front of the counter (world-and-feel.md section 4).
+	orderPoint = { x = 0, y = 0, z = halfD - 6 } :: Point,
+
+	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37): the two
+	-- front window corners, beside the right cat tree and at the counter's right end. Highest rating first.
+	napSpots = {
+		{ x = -15.5, y = 0, z = -10, rotY = 45 },
+		{ x = 15.5, y = 0, z = -10, rotY = -45 },
+		{ x = 15.5, y = 0, z = 3.5, rotY = -90 },
+		{ x = 11, y = 0, z = 11, rotY = 180 },
+	} :: { Point },
 }
 
 -- Shared areas, in world space. y is the floor top.

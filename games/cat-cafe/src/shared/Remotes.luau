@@ -44,6 +44,7 @@ Remotes.ServerToClient = {
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 	"CatchResult", -- (strayId: string, scores: { number }, chance: number, success: boolean, stayed: boolean)
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
+	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 }
 
 function Remotes.folder(): Folder

@@ -133,6 +133,11 @@ local Config = {
 		NeighbourhoodWidth = 90,
 		NeighbourhoodDepth = 56,
 		NeighbourhoodGateZ = 151.5,
+		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
+		-- this range of its camera, up to CustomersMax at once across the street.
+		CafeLifeRangeStuds = 80,
+		CustomersMax = 24,
+		CustomerOrderSeconds = 2, -- standing at the counter before taking a seat
 	},
 }
 

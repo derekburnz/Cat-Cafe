@@ -104,10 +104,14 @@ local function consider(instance: Instance)
 		model.DescendantAdded:Connect(function(descendant: Instance)
 			onPartAdded(model, descendant)
 		end)
+		-- Only the edge into gold reveals: a server writing both names, or clearing the old one, plays it once.
+		local wasGold = isGold(model)
 		local function goldChanged()
-			if isGold(model) then
+			local gold = isGold(model)
+			if gold and not wasGold then
 				reveal(model)
 			end
+			wasGold = gold
 		end
 		model:GetAttributeChangedSignal("Gold"):Connect(goldChanged)
 		model:GetAttributeChangedSignal("Shiny"):Connect(goldChanged)

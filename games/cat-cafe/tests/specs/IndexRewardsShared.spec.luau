@@ -346,6 +346,9 @@ return function()
 			totals = IndexRewards.totals(profile)
 			expect(totals.goldLuck).to.be.near(Config.GoldLuckMax, 1e-9)
 			expect(totals.baitSpeed).to.be.near(0.38, 1e-9)
+			-- rounded to six decimals, so the UI's plain floor of 600 x (1 - baitSpeed) is 372 too (review N184)
+			expect(totals.baitSpeed).to.equal(0.38)
+			expect(math.floor(600 * (1 - totals.baitSpeed))).to.equal(372)
 		end)
 
 		it("lifts a gold chance by gold luck, at most to 2.5 times", function()
@@ -371,6 +374,26 @@ return function()
 			expect(IndexRewards.bestGoldLuck({ low, locked }, 2, tierOf)).to.be.near(0.02, 1e-9)
 			expect(IndexRewards.bestGoldLuck({ low, high, locked }, 4, tierOf)).to.equal(0)
 			expect(IndexRewards.bestGoldLuck({}, 1, tierOf)).to.equal(0)
+		end)
+
+		it("names the first player with that luck for the Index Board, none at 0", function()
+			local low, high, twin = fresh(), fresh(), fresh()
+			low.indexRewards.alley = { gold1 = true }
+			high.indexRewards.alley = { gold1 = true, gold2 = true }
+			twin.indexRewards.alley = { gold1 = true, gold2 = true }
+			low.tier, high.tier, twin.tier = 3, 1, 3
+			local function tierOf(profile: any): number
+				return profile.tier
+			end
+			local luck, from = IndexRewards.luckiest({ low, high, twin }, 1, tierOf)
+			expect(luck).to.be.near(0.05, 1e-9)
+			expect(from).to.equal(2)
+			luck, from = IndexRewards.luckiest({ low, high, twin }, 2, tierOf)
+			expect(luck).to.be.near(0.05, 1e-9)
+			expect(from).to.equal(3)
+			luck, from = IndexRewards.luckiest({ fresh() }, 1, tierOf)
+			expect(luck).to.equal(0)
+			expect(from).never.to.be.ok()
 		end)
 	end)
 

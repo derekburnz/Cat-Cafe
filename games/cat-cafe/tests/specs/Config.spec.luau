@@ -86,7 +86,6 @@ return function()
 		DealerWindowSeconds = 600,
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 0.6,
-		CustomerSpawnSecondsNight = 12,
 		RichCheckSeconds = 60,
 		RichChance = 0.15,
 		RichTipSeconds = 45,
@@ -227,6 +226,11 @@ return function()
 			expect(config.StrayWarySeconds).never.to.be.ok()
 			expect(config.StrayJumpBackMin).never.to.be.ok()
 			expect(config.StrayJumpBackMax).never.to.be.ok()
+		end)
+
+		it("v0.5 night: the cafe closes, so the night owls' spawn time is gone (F44)", function()
+			expect((Config :: any).CustomerSpawnSecondsNight).never.to.be.ok()
+			expect(Config.NightIncomeMultiplier).to.equal(0.6)
 		end)
 
 		it("v0.4 stakes: the scripted-press flag clears well below where it sets", function()

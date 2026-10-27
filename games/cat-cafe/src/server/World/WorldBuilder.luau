@@ -195,6 +195,26 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 	end
 end
 
+-- The Closed sign with its moon (v0.5 F44) hangs in an owned cafe's front door at night: Dressing/ClosedSign at
+-- the plot pivot like the tier sets, nothing on it collides, and its _Moon_Bulb glows with the street's night parts.
+-- Skipped while its art is not in ReplicatedStorage.Assets.
+function WorldBuilder.setClosedSign(plot: Plot, shown: boolean)
+	local existing = plot.dressing:FindFirstChild("ClosedSign")
+	if shown and existing == nil and AssetRegistry.has("CatCafe_Plot_ClosedSign") then
+		local sign = place("CatCafe_Plot_ClosedSign", plot.cframe, plot.dressing)
+		sign.Name = "ClosedSign"
+		for _, descendant in sign:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				local signPart = descendant :: BasePart
+				signPart.CanCollide = false
+				signPart.CanTouch = false
+			end
+		end
+	elseif not shown and existing ~= nil then
+		existing:Destroy()
+	end
+end
+
 -- The nearest point to `position` on the area's floor, at least `margin` studs inside one of its rects, so a stray
 -- that wanders or jumps back never leaves the area (or lands in a cafe yard beside the back alley). With `from`,
 -- the point stays in the rect `from` stands in: a rect is convex, so the straight walk there never crosses a wall

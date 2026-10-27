@@ -206,7 +206,7 @@ local function refreshBait(s: Types.PlayerState)
 			made.ObjectText = "Bait bowl"
 			made.HoldDuration = 0
 			made.MaxActivationDistance = 8
-			made.RequiresLineOfSight = false
+			made.RequiresLineOfSight = true -- on the back step: no pill through the back wall from inside (N91)
 			made.Style = Enum.ProximityPromptStyle.Custom
 			made.Triggered:Connect(function()
 				local waiting = if state ~= nil then baitCat(state) else nil

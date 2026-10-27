@@ -527,15 +527,21 @@ function CatCollection._buildIndex(self: any)
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 		local border = Outline.border(chip, Theme.sizes.outline)
 		local dot, dotCount = badge(chip, 20)
+		-- six tabs share the row, so a long name ("Neighbourhood") shrinks to fit a phone (N162)
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(6, 3),
-			Size = UDim2.new(1, -12, 0, 22),
+			Position = UDim2.fromOffset(4, 3),
+			Size = UDim2.new(1, -8, 0, 22),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall + 1,
+			TextScaled = true,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = area.name,
 			Parent = chip,
+		})
+		Create("UITextSizeConstraint", {
+			MaxTextSize = Theme.sizes.textSmall + 1,
+			MinTextSize = 9,
+			Parent = name,
 		})
 		local count = text({
 			Name = "Count",

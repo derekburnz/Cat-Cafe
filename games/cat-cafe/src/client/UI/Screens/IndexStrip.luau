@@ -305,15 +305,12 @@ function IndexStrip._refresh(self: any)
 			continue
 		end
 		card.frame.Visible = true
-		card.chips:set(
-			view.prize,
-			{
-				gold = card.gold,
-				dayRate = look.dayRate,
-				spinsBanked = look.spinsBanked,
-				tier = look.tier,
-			}
-		)
+		card.chips:set(view.prize, {
+			gold = card.gold,
+			dayRate = look.dayRate,
+			spinsBanked = look.spinsBanked,
+			tier = look.tier,
+		})
 		local need = IndexRewards.need(view.milestone)
 		local isNext = view == nextNormal or view == nextGold
 		local toGo = IndexRewards.toGo(view)

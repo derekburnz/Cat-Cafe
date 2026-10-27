@@ -796,7 +796,8 @@ local builders: { [string]: () -> Model } = {
 	end,
 	-- The Spin Wheel station (F49, areas-and-stations B3) until the art is synced: a striped booth, a six-slice
 	-- wheel facing -Z on two posts, a paw pointer on top and rim lights. Wheel is a Model pivoted at the hub that
-	-- turns about its own Z axis, with its Face inside; PromptAnchor sits at the front, 3 studs up.
+	-- turns about its own Z axis, with its Face inside; PromptAnchor sits at the front, 3 studs up. At rest slice 1 is
+	-- under the pointer and the rest follow clockwise seen from the front (toward -X), in Catalog.spinWheel order.
 	CatCafe_Street_SpinWheel = function()
 		local model = newModel("CatCafe_Street_SpinWheel")
 		local booth = addPart(model, {

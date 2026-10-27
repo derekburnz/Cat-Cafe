@@ -1063,6 +1063,7 @@ local function buildSpinWheel(parent: Instance): Model
 	model.Name = "SpinWheel"
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	model:SetAttribute("LastSpinAt", 0)
+	model:SetAttribute("LastSlice", 1)
 	CollectionService:AddTag(model, "SpinWheel")
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "SpinPrompt"

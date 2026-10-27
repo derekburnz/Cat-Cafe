@@ -3,8 +3,8 @@
 -- SpinStationRange of a station tagged SpinWheel, with a free spin due or one banked, SpinCooldownSeconds after
 -- their last spin. The server picks the slice with its own Random and pays at once, so leaving mid-animation keeps
 -- the prize; then SpinResult(slice, amount) tells the window where to land, ProfileSync carries `spin`, and the
--- station's LastSpinAt turns the world wheel on every client (show only). A refused spin answers SpinResult(0, 0).
--- Spins are free only: nothing sells them (monetization-policy).
+-- station's LastSlice and LastSpinAt turn the world wheel on every client onto the same slice (show only). A
+-- refused spin answers SpinResult(0, 0). Spins are free only: nothing sells them (monetization-policy).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -81,6 +81,8 @@ local function onSpinWheel(player: Player)
 	Telemetry.custom(player, "spin", row.slice, { kind :: string })
 	Net.fire(player, "SpinResult", row.slice, amount)
 	CafeService.sync(player)
+	-- the slice first, so every client's world wheel rests on the real one when LastSpinAt turns it (review S64)
+	station:SetAttribute("LastSlice", row.slice)
 	station:SetAttribute("LastSpinAt", Workspace:GetServerTimeNow())
 end
 

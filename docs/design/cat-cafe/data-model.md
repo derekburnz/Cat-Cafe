@@ -296,6 +296,8 @@ Locked areas: a gate model at the entrance is solid on the client for players be
 
 Area cats (Gavin confirmed, round 2 Q10): a cat spawns only in its own area and never in another; several copies of the same cat can be in its area at once. Bait is not an area spawn, so a bait cat can be any cat from the player's unlocked areas.
 
+Spacing (v0.12.1, Derek 22:38, PR #368): a new stray keeps StraySpawnSpacingStuds (12) from every live stray in its area when it can, so strays spread out over the area instead of bunching (section 17). The zone rule above still decides which points it may take.
+
 Tutorial rule: a player with `tutorialStep` below 2 always finds a Common stray waiting, v0.4 at the `lane` spawn point behind their own cafe so it is right outside the back door. Strays are workspace models with attributes (section 13).
 
 ## 10. Net: closing circles
@@ -896,6 +898,12 @@ Changed or new in v0.12 (cat levels, Derek 22:40):
 | CatXpFavoriteMultiplier | 1.5 | new | Economy, a working cat in its favorite role |
 | CatXpPerSecondResting | 0.25 | new | Economy, every owned cat not in a role slot |
 | CatXpSettleSeconds | 10 | new | CafeService, the longest gap between settles while in game |
+
+Changed or new in v0.12.1 (stray spacing, Derek 22:38: "cats spawn way too close together"; built by the engineer in PR #368):
+
+| constant | value | was | used by |
+|---|---|---|---|
+| StraySpawnSpacingStuds | 12 | new | Catching.spreadPick: a new stray takes a free spawn point at least this far (flat distance) from every live stray in its area, weighted toward the farthest (weight = the gap, capped at 60); when no free point is that far, it takes the farthest one |
 
 CircleScorePerfect and CircleScoreGood no longer decide anything in v0.4; keep them only if a test or analytics wants a number.
 

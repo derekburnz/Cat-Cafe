@@ -15,6 +15,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
+local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -635,7 +636,7 @@ end
 function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local rarity = if def then def.rarity else "Common"
-	local shiny = instance.variant == "shiny"
+	local shiny = CatVariant.isGold(instance.variant)
 	local button: TextButton = Create("TextButton", {
 		Name = instance.uid,
 		Text = "",
@@ -1004,7 +1005,7 @@ function CatRoom._renderCrew(
 				glyph = ""
 				if square.shownUid ~= instance.uid then
 					square.shownUid = instance.uid
-					square.portrait:set(def, instance.variant == "shiny")
+					square.portrait:set(def, CatVariant.isGold(instance.variant))
 				end
 			elseif slot.kind == "open" then
 				color = Theme.colors.good
@@ -1051,7 +1052,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local breed = if def then def.name else instance.catId
 	local rarity = if def then def.rarity else "Common"
-	local shiny = instance.variant == "shiny"
+	local shiny = CatVariant.isGold(instance.variant)
 
 	if self._detailArtFor ~= instance.uid then
 		self._detailArtFor = instance.uid
@@ -1062,7 +1063,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 
 	local custom = instance.name
 	self._detailName.Text = if custom and custom ~= "" then custom else breed
-	self._detailBreed.Text = ("%s%s %s"):format(if shiny then "Shiny " else "", rarity, breed)
+	self._detailBreed.Text = ("%s%s %s"):format(if shiny then "Gold " else "", rarity, breed)
 	self._detailBreed.TextColor3 = Theme.rarityColor(rarity):Lerp(Theme.colors.ink, 0.25)
 	local statBits = {}
 	if instance.level then

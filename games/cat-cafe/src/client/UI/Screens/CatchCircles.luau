@@ -442,7 +442,7 @@ function CatchCircles.show(
 		name ..= "  " .. Format.stars(info.stars :: number)
 	end
 	self._name.Text = name
-	self._rarity.Text = if info.shiny then rarity .. "  ·  Shiny" else rarity
+	self._rarity.Text = if info.shiny then rarity .. "  ·  Gold" else rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
 	self._hint.Text = info.title

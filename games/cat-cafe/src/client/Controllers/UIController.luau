@@ -126,7 +126,31 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 end
 
+-- Something bought since the last sync: an upgrade level, a decor item or a lure count went up.
+local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): boolean
+	for id, level in new.upgradeLevels do
+		if level > (old.upgradeLevels[id] or 0) then
+			return true
+		end
+	end
+	for id, owned in new.decorOwned do
+		if owned and not old.decorOwned[id] then
+			return true
+		end
+	end
+	for id, count in new.lures do
+		if count > (old.lures[id] or 0) then
+			return true
+		end
+	end
+	return false
+end
+
 local function applyState(s: Types.PlayerState)
+	local previous = state
+	if previous ~= nil and boughtSomething(previous, s) then
+		Moments.Purchase:Fire()
+	end
 	state = s
 	UIController.state = s
 	predictedMoney = s.money
@@ -222,9 +246,17 @@ local function wireIntents()
 			Net.fire("GrabBegin", strayId)
 		end
 	end)
-	UI.events.catchPressed:Connect(function(strayId: string, index: number)
-		Net.fire("CatchPress", strayId, index)
-	end)
+	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
+	-- The server's own grades come back in CatchResult.
+	UI.events.catchPressed:Connect(
+		function(strayId: string, index: number, grade: Types.CircleGrade?)
+			Net.fire("CatchPress", strayId, index)
+			Moments.NetSwing:Fire(index)
+			if grade ~= nil then
+				Moments.CircleGrade:Fire(index, grade)
+			end
+		end
+	)
 	-- Rescue (data-model section 10): RescueBegin when the 4 s hold starts, RescueEnd only when it ran its full
 	-- length. An early release sends nothing; the server's lock lapses after RescueLockSeconds. The server
 	-- answers both with GrabResult, keyed by the rescue spot id.
@@ -261,6 +293,9 @@ local function wireServerEvents()
 		UI.showCatFound(catId, isNew, extra)
 		Moments.CatFound:Fire(catId, isNew)
 	end)
+	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
+		Moments.PlotOpened:Fire(position, plotIndex)
+	end)
 	Net.on("TravelResult", function(destination: string, ok: boolean, reason: string?)
 		UI.travel.result(destination, ok, reason)
 	end)
@@ -292,8 +327,7 @@ local function wireServerEvents()
 			charmGain: number
 		)
 			local allPerfect = #grades > 0
-			for index, grade in grades do
-				Moments.CircleGrade:Fire(index, grade)
+			for _, grade in grades do
 				allPerfect = allPerfect and grade == "perfect"
 			end
 			UI.catch.showGrades(strayId, grades, success, pawsLeft, charmGain)

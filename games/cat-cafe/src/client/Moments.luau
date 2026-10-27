@@ -9,7 +9,9 @@ local Signal = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Si
 
 local Moments = {
 	CatchStart = Signal.new() :: Signal.Signal<string>, -- (strayId) the circles arrived
-	CircleGrade = Signal.new() :: Signal.Signal<number, string>, -- (index, "perfect" | "good" | "miss")
+	NetSwing = Signal.new() :: Signal.Signal<number>, -- (index) a press on a circle, the instant it lands
+	CircleGrade = Signal.new() :: Signal.Signal<number, string>, -- (index, "perfect" | "good" | "miss") this
+	-- device's estimate at press time; the server's grades come with CatchSuccess or CatchFail
 	CatchSuccess = Signal.new() :: Signal.Signal<string, string?>, -- (strayId, rarity)
 	CatchFail = Signal.new() :: Signal.Signal<string>, -- (strayId) a Miss ended the catch
 	PawLost = Signal.new() :: Signal.Signal<number>, -- (pawsLeft) after a Miss, when this player can run out
@@ -19,6 +21,9 @@ local Moments = {
 	RankUp = Signal.new() :: Signal.Signal<number>, -- (tier) this player's cafe ranked up
 	AreaUnlock = Signal.new() :: Signal.Signal<string, Vector3>, -- (areaId, gate position) a gate opened for you
 	Announce = Signal.new() :: Signal.Signal<string, string?>, -- (text, rarity) a server shout-out
+	PlotOpened = Signal.new() :: Signal.Signal<Vector3, number>, -- (door position, plotIndex) a For Rent plot opened
+	CoinPop = Signal.new() :: Signal.Signal<Vector3>, -- (position) a customer's tip floated up over your cafe
+	Purchase = Signal.new() :: Signal.Signal<()>, -- a sync shows an upgrade, decor or lure you bought
 }
 
 return Moments

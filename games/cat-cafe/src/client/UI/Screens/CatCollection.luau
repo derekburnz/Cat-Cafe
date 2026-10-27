@@ -2,7 +2,8 @@
 -- Collection screen with two tabs.
 --   Book: the Pet Simulator index. A tab per area with its completion, then that area's cats as live 3D models
 --         (dark silhouettes until found), rarest last; tap one for details.
---   Cat room: the cats the player owns (instances with a uid), Place / Move, Remove and Sell.
+--   Cat room: the cats the player owns (instances with a uid), Place / Move, Remove and Sell, and a pencil that
+--         opens the Rename box (F33, Screens/RenameDialog).
 -- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -11,6 +12,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local RenameDialog = require(script.Parent.RenameDialog)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -19,6 +21,7 @@ export type Callbacks = {
 	placeCat: (uid: string, spotId: string) -> (),
 	unplaceCat: (uid: string) -> (),
 	sellCat: (uid: string) -> (),
+	renameCat: (uid: string, name: string) -> (),
 	equipBest: () -> (),
 	close: () -> (),
 }
@@ -44,6 +47,7 @@ local ROOM_TEXT = ROOM_ART + 22
 -- cards this far above or below the visible part of the list already get their cat model (reviewer N71)
 local PORTRAIT_MARGIN = 240
 local SPOT_ROW = 48
+local RENAME_BUTTON = 34
 
 -- Sell asks for confirmation from this rarity up (data-model: Rare and above).
 local CONFIRM_SELL_FROM = 2
@@ -422,6 +426,10 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		scroller("Spots", self._spotPicker, UDim2.fromOffset(8, 44), UDim2.new(1, -16, 1, -52))
 	self._spotList.ZIndex = 6
 
+	self._rename = RenameDialog.new(self._room, function(uid: string, name: string)
+		self._callbacks.renameCat(uid, name)
+	end)
+
 	return self :: CatCollection
 end
 
@@ -434,6 +442,7 @@ function CatCollection.showTab(self: any, tab: "Book" | "Room")
 	self._placing = nil
 	self._confirmSell = nil
 	self._spotPicker.Visible = false
+	self._rename:close()
 	if self._lastState then
 		self._dirty = true
 		self:render(self._lastState)
@@ -897,7 +906,11 @@ function CatCollection._syncRoomRows(self: any, state: Types.PlayerState)
 			row.place:destroy()
 			row.remove:destroy()
 			row.sell:destroy()
+			row.rename:destroy()
 			row.portrait:destroy()
+			if self._rename:editing() == uid then
+				self._rename:close() -- the cat was sold
+			end
 			row.frame:Destroy()
 			self._roomRows[uid] = nil
 		end
@@ -956,7 +969,7 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 	local name = text({
 		Name = "Name",
 		Position = UDim2.fromOffset(ROOM_TEXT, 10),
-		Size = UDim2.new(1, -(ROOM_TEXT + 288), 0, 24),
+		Size = UDim2.new(1, -(ROOM_TEXT + 288 + RENAME_BUTTON + 4), 0, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
 		Text = if def then def.name else instance.catId,
@@ -991,6 +1004,25 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 		"UIPadding",
 		{ PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6), Parent = favorite }
 	)
+	-- the pencil after the name opens the Rename box, as on Pet Simulator's pet cards
+	local rename = Button.new({
+		name = "Rename",
+		text = "✏️",
+		style = "ghost",
+		size = UDim2.fromOffset(RENAME_BUTTON, 28),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -290, 0, 8),
+		textSize = Theme.sizes.textSmall,
+		parent = frame,
+		onClick = function()
+			self._confirmSell = nil
+			self._placing = nil
+			self._spotPicker.Visible = false
+			local row = self._roomRows[instance.uid]
+			local latest: Types.CatInstance = if row then row.instance else instance
+			self._rename:open(instance.uid, latest.name, if def then def.name else instance.catId)
+		end,
+	})
 	local place = Button.new({
 		name = "Place",
 		text = "Assign",
@@ -1061,6 +1093,7 @@ function CatCollection._makeRoomRow(self: any, instance: Types.CatInstance)
 		place = place,
 		remove = remove,
 		sell = sell,
+		rename = rename,
 		instance = instance,
 		def = def,
 	}
@@ -1308,8 +1341,10 @@ function CatCollection.destroy(self: any)
 		row.place:destroy()
 		row.remove:destroy()
 		row.sell:destroy()
+		row.rename:destroy()
 		row.portrait:destroy()
 	end
+	self._rename:destroy()
 	for _, row in self._spotRows do
 		row.button:destroy()
 	end

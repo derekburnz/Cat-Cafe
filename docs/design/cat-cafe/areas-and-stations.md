@@ -10,6 +10,9 @@ Part A gives each locked area a theme, a layout, its landmarks, where strays hid
 
 ### A1. Rules for all three
 
+v0.10 (round 4 Q6: "good ideas and looks good one or two props is fine do some research for possible ideas for those areas"; Q16: "These are good for now"): the 18 themed cats below stand, a themed cat may wear one or two props and the research with second prop ideas, swap ideas and one thing to do per area is in [area-ideas.md](area-ideas.md), waiting for picks in Set 4.
+
+
 - No new mechanics. Each area reuses the Alleyway's systems: 10 strays per night wave, the catch circles, two rescue traps that use the existing kinds (`bar` or `shake_catch`), carry and shove, a gate, a title card. What makes an area different is its look, its sounds, where cats hide and its cats.
 - Size: the floor you can walk on is at least as big as the Park and at least 100 x 90 studs, so 10 strays, 2 traps and 8 players never crowd. Today's grayboxes are smaller (about 66 x 64 for the Woods and Sewer, 90 x 56 for the Neighbourhood), so the engineer grows them when the sets arrive.
 - One hub per area. As in the Alley Square, Epic, Legendary and Mythical strays spawn only in the area's open hub, so the exciting cats are easy to find. Commons and Rares can spawn anywhere.
@@ -133,7 +136,7 @@ Derek's rule: things you visit now and then become places you walk to, and the H
 | Daily Treat calendar (later, common-features 11) | A treat stand next to the wheel | Once a day, like the wheel |
 | Night food dealer | Already a world cart; it parks in the same plaza at night | Every reward and shop stop is in one spot |
 | Mail (later) | A mailbox on each cafe's front path; the flag goes up when mail waits | Your mail comes to your cafe |
-| Codes (F65) | The Codes Cat station in the street plaza (Derek, 2026-10-27 19:33: "go up to the codes cat in the cafe area and it will pop up a box to enter codes"); the prize pays at once | Derek's ask; was Settings and the mailbox |
+| Codes (F65) | The Codes Cat station in the street plaza (Derek, 2026-10-27 19:33: "go up to the codes cat in the cafe area and it will pop up a box to enter codes"); the prize pays at once. v0.10 (Derek 20:10: "make code cat have a stand and a clear area circle to walk into to open code entering menu"): the cat sits up on a little booth stand with the Codes sign, and a clearly marked glowing circle (4 studs radius) lies on the ground in front; walking into it opens the code box and walking out closes it | Derek's ask; was Settings and the mailbox |
 | Golden Fish Market (F53) | A fishmonger stall in the plaza beside the wheel ([golden-fish.md](golden-fish.md) section 3) | Crates and fish items are a shop worth walking to |
 | Index | Stays a HUD button, because players check it everywhere, even mid-chase. Each area also gets an Index Board at its entry (F50) | |
 | Tip Jar | Stays on the HUD, because the countdown is the point | |

@@ -275,8 +275,9 @@ function Logic.freshStart(startedAt: any, now: number): boolean
 end
 
 -- The cue for a change to one of your plot's display attributes (data-model section 13): the tip piles being
--- collected (F61), the Cat Collector arriving (F63), the Mystery Visitor's gift appearing and being opened (F64).
--- A missing or odd value counts as 0; nil for anything else.
+-- collected (F61), the Cat Collector arriving (F63), the Mystery Visitor's gift appearing (F64). The gift clearing
+-- stays quiet, since the server also clears it at MysteryGiftKeepSeconds or a plot release; the UI plays giftOpen
+-- with the MysteryGiftResult card. A missing or odd value counts as 0; nil for anything else.
 function Logic.plotCue(attribute: string, before: any, after: any): string?
 	local was = if type(before) == "number" then before else 0
 	local is = if type(after) == "number" then after else 0
@@ -285,11 +286,7 @@ function Logic.plotCue(attribute: string, before: any, after: any): string?
 	elseif attribute == "CollectorUntil" then
 		return if was <= 0 and is > 0 then "visitorCollector" else nil
 	elseif attribute == "MysteryGiftAt" then
-		if was <= 0 and is > 0 then
-			return "visitorMystery"
-		elseif was > 0 and is <= 0 then
-			return "giftOpen"
-		end
+		return if was <= 0 and is > 0 then "visitorMystery" else nil
 	end
 	return nil
 end

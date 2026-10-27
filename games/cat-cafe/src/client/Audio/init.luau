@@ -968,8 +968,7 @@ local function followCharacters()
 end
 
 -- F61, F63 and F64 on your own plot, from its display attributes (Logic.plotCue): the tip piles being collected, the
--- Cat Collector arriving, the Mystery Visitor's gift appearing and being opened. A plot that streams out and back in
--- is watched once.
+-- Cat Collector arriving, the Mystery Visitor's gift appearing. A plot that streams out and back in is watched once.
 local PLOT_ATTRIBUTES = { "TipPiles", "CollectorUntil", "MysteryGiftAt" }
 local plotWatches: { [Instance]: { RBXScriptConnection } } = {}
 

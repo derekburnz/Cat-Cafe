@@ -272,6 +272,18 @@ export type DealerSlot = { lureId: string, cost: number, bought: boolean }
 export type DealerStock = { slots: { DealerSlot }, restocksAt: number }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
+-- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
+export type Settings = {
+	music: boolean,
+	sfx: boolean,
+	musicVolume: number,
+	sfxVolume: number,
+	screenShake: boolean,
+	lowPerformance: boolean,
+	showOtherCats: boolean,
+	markers: boolean, -- the location markers (Place icons)
+}
+
 export type PlayerProfile = {
 	version: number,
 	coins: number,
@@ -292,7 +304,7 @@ export type PlayerProfile = {
 	indexRewards: { [string]: { [string]: boolean } }, -- areaId -> milestoneId -> claimed (F48)
 	stats: Stats,
 	tutorialStep: number,
-	settings: { music: boolean, sfx: boolean },
+	settings: Settings,
 	flags: { autoPress: boolean }, -- for review only: set when the last 50 circles look scripted (section 10)
 	telemetry: TelemetryState,
 }
@@ -321,7 +333,7 @@ export type PlayerState = {
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,
 	tutorialStep: number,
-	settings: { music: boolean, sfx: boolean }, -- the client's Audio mutes its channels by these
+	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	serverTime: number,
 }
 

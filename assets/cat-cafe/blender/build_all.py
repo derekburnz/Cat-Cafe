@@ -56,6 +56,8 @@ PIVOT_NOTES = {
     "CatCafe_Decor_WindowPlants": "wall: back-bottom center",
     "CatCafe_Decor_NeonSign": "wall: back-bottom center",
     "CatCafe_Decor_MenuBoard": "wall: back-bottom center",
+    "CatCafe_Decor_MuralPrint": "wall: back-bottom center",
+    "CatCafe_Decor_MuralPrint_Gold": "wall: back-bottom center",
     "CatCafe_Decor_HangingLamp": "ceiling hook (geometry hangs below the pivot)",
     "CatCafe_Decor_DoorSign": "hook (geometry hangs below the pivot)",
     "CatCafe_Decor_StringLights": "left end of the strand seen from the front; it runs to the right (Roblox -X) and sags below the pivot",

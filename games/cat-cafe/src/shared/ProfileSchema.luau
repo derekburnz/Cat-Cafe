@@ -6,6 +6,7 @@ local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local EquipBest = require(script.Parent.EquipBest)
 local Onboarding = require(script.Parent.Onboarding)
+local Settings = require(script.Parent.Settings)
 local Types = require(script.Parent.Types)
 
 local ProfileSchema = {}
@@ -96,7 +97,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		indexRewards = {},
 		stats = newStats(),
 		tutorialStep = 0,
-		settings = { music = true, sfx = true },
+		settings = Settings.defaults(),
 		flags = { autoPress = false },
 		telemetry = { onboardingStep = 0, achieved = {} },
 	}
@@ -459,10 +460,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 			stats[key] = asInt(raw.stats[key], 0)
 		end
 	end
-	if type(raw.settings) == "table" then
-		profile.settings.music = raw.settings.music ~= false
-		profile.settings.sfx = raw.settings.sfx ~= false
-	end
+	profile.settings = Settings.sanitize(raw.settings)
 
 	if fromVersion >= 3 and type(raw.flags) == "table" then
 		profile.flags.autoPress = raw.flags.autoPress == true

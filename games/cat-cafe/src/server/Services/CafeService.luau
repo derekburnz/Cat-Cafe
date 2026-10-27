@@ -23,6 +23,7 @@ local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local Settings = require(ReplicatedStorage.Shared.Settings)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -109,7 +110,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
-		settings = { music = profile.settings.music, sfx = profile.settings.sfx },
+		settings = Settings.copy(profile.settings),
 		serverTime = now,
 	}
 end
@@ -908,21 +909,19 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 	end
 end
 
--- The Settings screen's switches (data-model section 14 `settings`). Only the keys the profile saves are taken;
--- the screen keeps its others for the session.
-local SETTING_KEYS = { "music", "sfx" }
-
+-- The Settings screen (data-model section 14 `settings`): a switch takes a boolean, a volume a number it clamps
+-- to 0 to 1 (shared/Settings). Unknown keys and values that do not fit are dropped.
 local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
-	local key, value = Guard.oneOf(rawKey, SETTING_KEYS), Guard.bool(rawValue)
+	local value = Settings.clean(rawKey, rawValue)
 	local profile = profileFor(player)
-	if profile == nil or key == nil or value == nil then
+	if profile == nil or value == nil then
 		return
 	end
-	if key == "music" then
-		profile.settings.music = value
-	else
-		profile.settings.sfx = value
+	local settings = profile.settings :: any
+	if settings[rawKey :: string] == value then
+		return -- nothing changed; no sync
 	end
+	settings[rawKey :: string] = value
 	CafeService.sync(player)
 end
 

@@ -3,7 +3,7 @@
 --   top left      money and income
 --   top centre    cafe tier pill
 --   top right     small icon buttons (Invite) and the day and night clock chip, the next goal card under them
---   left          big pill buttons: Cats, Book, Upgrades, Decor, with key caps and red "!" dots
+--   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots
 --   bottom centre Equip Best, the big gold My Cafe teleport, Alley and Areas; above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
 --   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
@@ -22,6 +22,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
@@ -36,7 +37,7 @@ export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
 	openBait: () -> (), -- the bowl chip opens the bait bowl screen, or the cat waiting at the bowl
-	openCollection: (tab: "Book" | "Room") -> (), -- the Collection screen on that tab
+	openCollection: (tab: "Index" | "Room") -> (), -- the Collection screen on that tab
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
 }
@@ -159,6 +160,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._seen =
 		{ Upgrades = {}, Decor = {}, Collection = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
+	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
 	self._collectionPrimed = false
 	self._openScreen = nil :: string?
 
@@ -512,12 +514,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		},
 		{
-			name = "Book",
+			name = "Index",
 			icon = Theme.icons.collection,
 			style = "primary",
 			dot = "Collection",
 			open = function()
-				callbacks.openCollection("Book")
+				callbacks.openCollection("Index")
 			end,
 		},
 		{
@@ -599,9 +601,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			})
 			self._dots[screen] = dot
 		end
-		if item.name == "Book" then
+		if item.name == "Index" then
 			-- cats found out of all cats, where the old top right cats pill had it
-			self._bookCount = label({
+			self._indexCount = label({
 				Name = "Count",
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, -10, 0.5, 0),
@@ -1052,7 +1054,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self:_renderTier(tierProgress)
 		self:_renderBowlSlot(state)
 		local total = if catalog then #catalog.cats else 0
-		self._bookCount.Text = ("%d/%d"):format(distinct, total)
+		self._indexCount.Text = ("%d/%d"):format(distinct, total)
 		return
 	end
 	self._rankBadge.Visible = false
@@ -1084,7 +1086,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 
 	local total = if catalog then #catalog.cats else 0
-	self._bookCount.Text = ("%d/%d"):format(distinct, total)
+	self._indexCount.Text = ("%d/%d"):format(distinct, total)
 	self:_renderBowlSlot(state)
 end
 
@@ -1244,9 +1246,13 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 	if open and (candidates :: any)[open] then
 		Notices.markSeen((candidates :: any)[open], self._seen[open])
 	end
+	-- the Index's dot also stays lit while an Index reward waits to be claimed (F48), even after the Index is opened
+	local _, indexReady = IndexRewards.claimable(catalog, state)
+	self._indexReady = indexReady
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
 		local show = Notices.hasNew(keys, self._seen[screen])
+			or (screen == "Collection" and indexReady > 0)
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
 		end
@@ -1287,7 +1293,7 @@ function HUD.screenOpened(self: any, name: string?)
 		Notices.markSeen((candidates :: any)[name], self._seen[name])
 		local dot: Frame? = self._dots[name]
 		if dot then
-			dot.Visible = false
+			dot.Visible = name == "Collection" and (self._indexReady or 0) > 0
 		end
 	end
 end

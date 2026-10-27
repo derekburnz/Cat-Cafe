@@ -1,6 +1,6 @@
 --!strict
 -- Action pills: our look for every custom-style ProximityPrompt that is not a cat (the bait bowl, the night
--- dealer's cart, a rich customer's tip, Bump). A dark rounded pill over the thing with a key cap and the
+-- dealer's cart, the Sewer manhole, Bump). A dark rounded pill over the thing with a key cap and the
 -- prompt's ActionText, its ObjectText small above, like the custom prompts in Pet Simulator 99 and Adopt Me.
 --   show(prompt, inputType)  pops a pill in over the prompt's part (PromptShown)
 --   hide(prompt)             shrinks it away (PromptHidden)

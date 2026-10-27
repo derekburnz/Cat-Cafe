@@ -938,6 +938,24 @@ Catalog.lures = {
 	},
 } :: { Types.LureDef }
 
+-- Section 11b (F47): the Tip Jar's twelve playtime gifts in step order, unlocked by minutes of the current session.
+-- Coins scale with the day rate at claim time (shared/TipJar.coins); the dealer foods are fine here since they are
+-- free. Nothing about the jar can be bought.
+Catalog.tipJar = {
+	{ step = 1, minutes = 2, kind = "coins", seconds = 30, minCoins = 50 },
+	{ step = 2, minutes = 5, kind = "lure", lureId = "kibble", count = 2 },
+	{ step = 3, minutes = 10, kind = "coins", seconds = 60, minCoins = 100 },
+	{ step = 4, minutes = 15, kind = "lure", lureId = "tuna", count = 1 },
+	{ step = 5, minutes = 20, kind = "coins", seconds = 90, minCoins = 150 },
+	{ step = 6, minutes = 30, kind = "lure", lureId = "tuna", count = 2 },
+	{ step = 7, minutes = 40, kind = "coins", seconds = 120, minCoins = 250 },
+	{ step = 8, minutes = 50, kind = "lure", lureId = "salmon", count = 1 },
+	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
+	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
+	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600 },
+	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 },
+} :: { Types.TipJarStep }
+
 Catalog.luresById = {} :: { [string]: Types.LureDef }
 for _, def in Catalog.lures do
 	Catalog.luresById[def.id] = def

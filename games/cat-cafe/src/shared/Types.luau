@@ -139,6 +139,7 @@ export type LureDef = {
 	name: string,
 	cost: number,
 	attracts: Rarity, -- the rarity it is known for (the dealer foods: their likeliest rarity)
+	rarity: Rarity, -- v0.10 (F69): how good the food is, shown as a badge and border in the cat rarity colours
 	source: LureSource, -- "shop" foods are bought with BuyLure, "dealer" foods only from the night dealer
 	description: string,
 	odds: LureOdds, -- percentages summing to 100, shown before purchase

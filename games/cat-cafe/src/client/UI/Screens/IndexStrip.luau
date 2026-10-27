@@ -314,9 +314,10 @@ function IndexStrip._refresh(self: any)
 		local need = IndexRewards.need(view.milestone)
 		local isNext = view == nextNormal or view == nextGold
 		local toGo = IndexRewards.toGo(view)
+		local label = IndexRewards.needLabel(view.milestone, total, area)
 		card.need.Text = if isNext and view.state == "locked"
-			then ("%s · %d to go"):format(IndexRewards.needLabel(view.milestone, total), toGo)
-			else IndexRewards.needLabel(view.milestone, total)
+			then ("%s · %d to go"):format(label, toGo)
+			else label
 		card.sticker.Visible = isNext
 		card.count.Text = ("%d / %d"):format(view.have, need)
 		local bonus = view.prize.bonus

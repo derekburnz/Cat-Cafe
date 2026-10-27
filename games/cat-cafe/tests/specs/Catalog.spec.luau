@@ -857,6 +857,21 @@ return function()
 			end
 		end)
 
+		it("each food has its v0.10 grade (F69, data-model section 8)", function()
+			local grades: { [string]: string } = {
+				kibble = "Common",
+				tuna = "Rare",
+				sardines = "Rare",
+				salmon = "Epic",
+				caviar = "Epic",
+				moon_milk = "Legendary",
+				star_treat = "Mythical",
+			}
+			for _, def in ipairs(Catalog.lures) do
+				expect(def.rarity).to.equal(grades[def.id])
+			end
+		end)
+
 		it("odds cover all five rarities and sum to 100 (paid random items rule)", function()
 			for _, def in ipairs(Catalog.lures) do
 				assertFiveRarityOdds(def.odds)

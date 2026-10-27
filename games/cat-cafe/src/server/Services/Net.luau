@@ -22,6 +22,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	RescueBegin = RateLimiter.new(1, 1),
 	RescueCancel = RateLimiter.new(1, 1),
 	DropCat = RateLimiter.new(1, 1),
+	PickUpCat = RateLimiter.new(2, 1), -- v0.8 F56: a hold refused as too far can be tried again at once
 	RequestSync = RateLimiter.new(1, 2),
 	ClaimOffline = RateLimiter.new(1, 2),
 	EquipBest = RateLimiter.new(1, 2), -- sorts, solves, rebuilds the plot and sends a full sync

@@ -565,6 +565,13 @@ local function wireIntents()
 			Net.fire("GrabBegin", strayId)
 		end
 	end)
+	-- v0.8 F56: a Dropped stray has no circles. The hold picks it up; the carry starting (or a GrabResult refusal)
+	-- is the answer.
+	UI.events.pickUpBegan:Connect(function(strayId: string?)
+		if strayId ~= nil then
+			Net.fire("PickUpCat", strayId)
+		end
+	end)
 	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
 	-- The server's own grades come back in CatchResult.
 	UI.events.catchPressed:Connect(

@@ -17,6 +17,8 @@ Remotes.ClientToServer = {
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
 	"DropCat", -- ()  carrying: lets the cat go, at the feet in a catching area, else back to its own area
+	"PickUpCat", -- (strayId: string)  v0.8 F56: a Dropped stray, area unlocked, 10 studs, not carrying, no lock held,
+	-- GrabCooldownSeconds; the first valid call wins and starts the carry (data-model section 10c)
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)

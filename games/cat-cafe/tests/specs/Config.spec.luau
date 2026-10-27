@@ -115,17 +115,16 @@ return function()
 		CodeWrongLimit = 5,
 		CodeLockSeconds = 60,
 		GroupId = 0,
-		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45)
+		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpRangeStuds = 6,
-		BumpChance = 0.5,
+		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
 		BumpGraceSeconds = 3,
 		BumpSafeRadiusStuds = 15,
 		BumpCooldownSeconds = 8,
 		BumpSameTargetSeconds = 20,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 4,
-		DropOwnerPrioritySeconds = 8,
 		-- naming cats (F33, section 4)
 		CatNameMaxLength = 20,
 		RenameCooldownSeconds = 5,

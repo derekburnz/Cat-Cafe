@@ -8,9 +8,9 @@
 -- neither holding a catch or rescue lock (N85). The shover waits BumpCooldownSeconds between shoves and
 -- BumpSameTargetSeconds before shoving the same player again; nobody may shove a player for
 -- ShoveTargetImmuneSeconds after a shove lands on them (S45). A landed shove pushes the target ShoveKnockbackStuds.
--- If the target carries a cat, is not immune and is BumpGraceSeconds into the carry, BumpChance knocks it loose:
--- the cat drops as a stray only its old carrier can catch for DropOwnerPrioritySeconds, the shover never can, and
--- at dusk it is checked in for that carrier (v0.9, F66).
+-- If the target carries a cat and is BumpGraceSeconds into the carry, BumpChance (1.0 since v0.8 F56) knocks it
+-- loose: the cat lands where they stood as a Dropped stray with no circles that anyone picks up with PickUpCat,
+-- the shover and the old carrier included, and at dusk it is checked in for that carrier (v0.9, F66).
 
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
@@ -18,9 +18,7 @@ local Config = require(script.Parent.Config)
 local Shove = {}
 
 Shove.RANGE_SLACK = 2 -- studs on top of BumpRangeStuds, as for every range check on client-owned positions
-Shove.HELD_IMMUNE_SECONDS = 3 -- after "It held on tight!" the carrier cannot be knocked loose (section 10c)
-Shove.SCURRY_MIN = 6 -- a knocked-loose cat scurries this far, rolled, from where it dropped
-Shove.SCURRY_MAX = 10
+Shove.HELD_IMMUNE_SECONDS = 3 -- after "It held on tight!" (only when BumpChance is tuned below 1) no knock loose
 
 -- What the server knows when a Bump arrives. Times since are nil when it never happened.
 export type Check = {
@@ -39,22 +37,32 @@ export type Check = {
 	sinceTargetShoved: number?, -- since anyone last shoved this target (S45)
 }
 
--- A shove on a carrier who can be knocked loose: the cat drops, or "It held on tight!".
+-- A shove on a carrier who can be knocked loose: the cat drops, or "It held on tight!" (BumpChance below 1 only).
 export type KnockResult = "loose" | "held"
 
--- The carry a knock-loose roll looks at.
+-- The carry a knock-loose roll looks at. A picked-up cat's carry is like any other (v0.8 F56: no BumpImmune).
 export type CarryState = {
 	startedAt: number, -- server time the carry began
-	immune: boolean, -- the whole carry: a re-catch of a knocked-loose cat
 	immuneUntil: number, -- after a held roll
 }
 
--- The server's record of a knocked-loose cat (S25). `shover` is 0 when nobody did it (Studio's hook).
+-- The server's record of a Dropped stray (S25): its last carrier, who gets it at dusk, and the shover, for the
+-- drop_outcome analytics only. `shover` is 0 for a Drop (or Studio's hook).
 export type Drop = {
 	owner: number,
 	shover: number,
 	droppedAt: number,
-	ownerUntil: number,
+}
+
+-- What the server knows when a PickUpCat arrives (v0.8 F56, section 10c).
+export type PickUpCheck = {
+	dropped: boolean, -- the stray is Dropped
+	carrying: boolean, -- the caller carries a cat
+	busy: boolean, -- the caller holds a catch or rescue lock
+	areaUnlocked: boolean, -- the caller's tier opens the stray's area
+	areasClosed: boolean, -- night (v0.9, F66)
+	distance: number?, -- from the caller to the cat; nil without a character
+	sinceGrab: number?, -- since the caller last started a catch or a pick up
 }
 
 -- Why this shove is refused, in words for the shover, or nil when it lands. Checked in the order of section 10c.
@@ -101,23 +109,17 @@ function Shove.refusal(check: Check): string?
 	return nil
 end
 
--- True when a shove on this carrier rolls BumpChance: carrying, not immune, past the grace.
+-- True when a shove on this carrier rolls BumpChance: carrying, past the grace and any held immunity.
 function Shove.canKnockLoose(carry: CarryState?, now: number): boolean
 	if carry == nil then
 		return false
 	end
-	return not carry.immune
-		and now >= carry.immuneUntil
-		and now - carry.startedAt >= Config.BumpGraceSeconds
+	return now >= carry.immuneUntil and now - carry.startedAt >= Config.BumpGraceSeconds
 end
 
 -- roll is in [0, 1).
 function Shove.landsLoose(roll: number): boolean
 	return roll < Config.BumpChance
-end
-
-function Shove.scurryStuds(roll: number): number
-	return Shove.SCURRY_MIN + math.clamp(roll, 0, 1) * (Shove.SCURRY_MAX - Shove.SCURRY_MIN)
 end
 
 -- The flat unit direction from the shover to the target, or `fallback` when they stand on top of each other.
@@ -134,27 +136,34 @@ function Shove.newDrop(owner: number, shover: number, now: number): Drop
 		owner = owner,
 		shover = shover,
 		droppedAt = now,
-		ownerUntil = now + Config.DropOwnerPrioritySeconds,
 	}
 end
 
--- Why `userId` may not start a catch on a knocked-loose cat, and whether its prompt should stay (retry), or nil.
-function Shove.grabRefusal(drop: Drop?, userId: number, now: number): (string?, boolean)
-	if drop == nil then
-		return nil, true
+-- Why this PickUpCat is refused, in words for the caller, or nil when it starts the carry. Anyone may pick up a
+-- Dropped stray, the shover and the old carrier included, with no owner window (v0.8 F56, section 10c).
+function Shove.pickUpRefusal(check: PickUpCheck): string?
+	if not check.dropped then
+		return "Catch this one with the circles"
 	end
-	if drop.shover ~= 0 and userId == drop.shover then
-		return "You knocked this one loose, so it won't come to you", false
+	if check.carrying then
+		return "Check in the cat you are carrying first"
 	end
-	if userId ~= drop.owner and now < drop.ownerUntil then
-		return "Its owner gets the first try", true
+	if check.busy then
+		return "Finish what you are doing first"
 	end
-	return nil, true
-end
-
--- A missed knocked-loose cat sits still while its owner window runs (N86); after that it sprints like any stray.
-function Shove.sprintsAfterMiss(drop: Drop?, now: number): boolean
-	return drop == nil or now >= drop.ownerUntil
+	if not check.areaUnlocked then
+		return "This area opens at a higher tier"
+	end
+	if check.areasClosed then
+		return Clock.CLOSED_TEXT
+	end
+	if check.distance == nil or check.distance > Config.GrabRangeStuds + Shove.RANGE_SLACK then
+		return "Too far away"
+	end
+	if check.sinceGrab ~= nil and check.sinceGrab < Config.GrabCooldownSeconds then
+		return "Give it a moment"
+	end
+	return nil
 end
 
 return Shove

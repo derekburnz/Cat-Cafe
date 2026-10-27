@@ -43,7 +43,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Role idle | `Role`, else `SpotId` to `Plot/Spots/<id>` `SpotType` |
 | Nap | `Napping = true` (or `Pose = "nap"`); a `WorkingCat` (or one with a `SpotId`) while `Phase` is `"night"` |
 | Loaf | `Napping = true` on a cat with no station, by day: 24 s of every 75, each cat at its own offset from its `Uid` and the server clock, so every player sees the same cat loaf at the same time |
-| Sleep and loaf poses | the nap and the loaf on the walking body (pieces `LegB1` and `LegB2`): manifest `sleep` and `loaf`, lowered by `lift` times the model's `Scale`; the older Part cats fold their own legs |
+| Sleep and loaf poses | the nap and the loaf on the walking body (pieces `LegB1` and `LegB2`): manifest `sleep` and `loaf`, lowered by `lift` times the model's `Scale` but never past 0.02 studs (at its scale) above the floor, so the short-legged Munchkin lies on the floor rather than in it; the older Part cats fold their own legs |
 | Paw lick | `Napping = true` on the sitting body (front legs only) by day: 9 s of every 60, each cat at its own offset like the loaf; manifest `lick` with the head bobbing and the paw rubbing in bursts |
 | Sleeping breath | nap, doze and loaf: the belly fills and lets out (`Logic.breath`), the top of the back rising `motion.nap.breathe` (doze, loaf: their own `breathe`) studs |
 | Z's | nap and doze: three labels taking turns, one each breath out, rising and growing over `nap.life` breaths and starting again (`Logic.napZ`) |

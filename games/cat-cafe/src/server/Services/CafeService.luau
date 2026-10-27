@@ -69,6 +69,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
+		settings = { music = profile.settings.music, sfx = profile.settings.sfx },
 		serverTime = os.time(),
 	}
 end

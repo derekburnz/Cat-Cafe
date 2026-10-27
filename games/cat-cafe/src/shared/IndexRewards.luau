@@ -98,8 +98,14 @@ function IndexRewards.blocker(
 	)
 end
 
--- The permanent bonuses of every claimed milestone: tips, and gold luck and bait speed up to their caps. A claim
--- from before F54 counts too, since the bonus belongs to the milestone.
+-- Six decimals, so sums like 0.02 + 0.06 + 0.1 + 0.2 are 0.38 and not 0.38000000000000006 (review N184).
+local function round6(x: number): number
+	return math.floor(x * 1e6 + 0.5) / 1e6
+end
+
+-- The permanent bonuses of every claimed milestone: tips, and gold luck and bait speed up to their caps, rounded
+-- to six decimals so the server and the UI floor the same bait wait. A claim from before F54 counts too, since
+-- the bonus belongs to the milestone.
 function IndexRewards.totals(profile: Types.PlayerProfile): Totals
 	local totals: Totals = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
 	for areaId, claims in profile.indexRewards do
@@ -112,8 +118,9 @@ function IndexRewards.totals(profile: Types.PlayerProfile): Totals
 			end
 		end
 	end
-	totals.goldLuck = math.min(totals.goldLuck, Config.GoldLuckMax)
-	totals.baitSpeed = math.min(totals.baitSpeed, Config.BaitSpeedMax)
+	totals.bonus = round6(totals.bonus)
+	totals.goldLuck = math.min(round6(totals.goldLuck), Config.GoldLuckMax)
+	totals.baitSpeed = math.min(round6(totals.baitSpeed), Config.BaitSpeedMax)
 	return totals
 end
 
@@ -123,19 +130,31 @@ function IndexRewards.goldChance(chance: number, goldLuck: number): number
 end
 
 -- The gold luck a shared roll in an area uses (a net stray or a rescue trap): the highest among the players whose
--- tier has the area open, 0 when nobody has (golden-fish.md section 5).
+-- tier has the area open, 0 when nobody has (golden-fish.md section 5), and the index in `profiles` of the first
+-- player with it (nil at 0), for the Index Board's "Gold luck +40% from Sam".
+function IndexRewards.luckiest(
+	profiles: { Types.PlayerProfile },
+	areaTier: number,
+	tierOf: (Types.PlayerProfile) -> number
+): (number, number?)
+	local best, from = 0, nil
+	for index, profile in profiles do
+		if tierOf(profile) >= areaTier then
+			local luck = IndexRewards.totals(profile).goldLuck
+			if luck > best then
+				best, from = luck, index
+			end
+		end
+	end
+	return best, from
+end
+
 function IndexRewards.bestGoldLuck(
 	profiles: { Types.PlayerProfile },
 	areaTier: number,
 	tierOf: (Types.PlayerProfile) -> number
 ): number
-	local best = 0
-	for _, profile in profiles do
-		if tierOf(profile) >= areaTier then
-			best = math.max(best, IndexRewards.totals(profile).goldLuck)
-		end
-	end
-	return best
+	return (IndexRewards.luckiest(profiles, areaTier, tierOf))
 end
 
 return IndexRewards

@@ -9,6 +9,7 @@
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -53,12 +54,7 @@ local function flatOf(instance: Instance): (Vector3?, number)
 	else
 		return nil, 0
 	end
-	local r, u, l = frame.RightVector, frame.UpVector, frame.LookVector
-	local half = Vector3.new(
-		math.abs(r.X) * size.X + math.abs(u.X) * size.Y + math.abs(l.X) * size.Z,
-		math.abs(r.Y) * size.X + math.abs(u.Y) * size.Y + math.abs(l.Y) * size.Z,
-		math.abs(r.Z) * size.X + math.abs(u.Z) * size.Y + math.abs(l.Z) * size.Z
-	) / 2
+	local half = Logic.halfExtents(frame, size)
 	return frame.Position + Vector3.new(0, half.Y, 0), math.max(half.X, half.Z)
 end
 
@@ -98,8 +94,8 @@ local function remove(station: Instance)
 end
 
 local function add(station: Instance)
-	if circles[station] ~= nil then
-		return
+	if circles[station] ~= nil or not station:IsDescendantOf(Workspace) then
+		return -- the stand's template in ReplicatedStorage.Assets carries the tag too
 	end
 	local found = station:FindFirstChild("CodesCircle", true)
 	if found == nil then

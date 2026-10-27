@@ -257,6 +257,36 @@ function Logic.insideCircle(
 	return wasInside
 end
 
+-- Half a box's size along the axes `frame` is measured in (the world's, or a plot's), however the box is turned.
+function Logic.halfExtents(frame: CFrame, size: Vector3): Vector3
+	local r, u, l = frame.RightVector, frame.UpVector, frame.LookVector
+	return Vector3.new(
+		math.abs(r.X) * size.X + math.abs(u.X) * size.Y + math.abs(l.X) * size.Z,
+		math.abs(r.Y) * size.X + math.abs(u.Y) * size.Y + math.abs(l.Y) * size.Z,
+		math.abs(r.Z) * size.X + math.abs(u.Z) * size.Y + math.abs(l.Z) * size.Z
+	) / 2
+end
+
+-- The golden fish a ProfileSync added since the last count: none for the first count, a missing one or spending.
+function Logic.fishGain(previous: unknown, current: unknown): number
+	if type(previous) ~= "number" or type(current) ~= "number" then
+		return 0
+	end
+	return math.max(0, current - previous)
+end
+
+-- The gold sparkles and ring diameter for a golden fish gain: the biggest Presets.fishPickup step it reaches, or
+-- 0 and 0 for no gain.
+function Logic.fishPickup(gain: number): (number, number)
+	local sparkles, ring = 0, 0
+	for _, step in Presets.fishPickup.steps do
+		if gain >= step.from then
+			sparkles, ring = step.sparkles, step.ring
+		end
+	end
+	return sparkles, ring
+end
+
 local function wave(t: number, seconds: number): number
 	return math.sin(t * 2 * math.pi / seconds)
 end

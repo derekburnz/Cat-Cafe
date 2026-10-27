@@ -122,7 +122,7 @@ def _back(b, bulb):
         x = -w / 2 + sw_w * (i + 0.5)
         sw = ("shirt_blue", "offwhite")[i % 2]
         b.box((x, (AWN_Y + WALL_TOP) / 2 + 0.07, (zc + WALL_Z + 0.3) / 2), (sw_w, 0.12, math.hypot(depth, rise)),
-              sw, rot=rot_x(math.degrees(tilt)))
+              sw, rot=rot_x(-math.degrees(tilt)))                          # a negative turn lifts the back
         b.span((x - sw_w / 2, AWN_Y - VAL_H, vz - 0.05), (x + sw_w / 2, AWN_Y + 0.06, vz + 0.05), sw)
         arc = [(x + sw_w / 2 * math.cos(math.radians(a)), cy + sw_w / 2 * math.sin(math.radians(a)))
                for a in (180, 240, 300, 360)]

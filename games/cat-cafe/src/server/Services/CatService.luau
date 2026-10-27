@@ -129,18 +129,45 @@ end
 -- the players in the server whose tier has the area open, 0 when nobody has. The coat shows from the spawn, the
 -- same for everyone.
 function CatService.goldLuckFor(areaId: string): number
+	return (CatService.goldLuckSource(areaId))
+end
+
+-- The same gold luck and the player it comes from (nil when it is 0), for the area's Index Board.
+function CatService.goldLuckSource(areaId: string): (number, Player?)
 	local area = Catalog.getArea(areaId)
 	if area == nil then
-		return 0
+		return 0, nil
 	end
+	local players: { Player } = {}
 	local profiles: { Types.PlayerProfile } = {}
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
 		if profile ~= nil then
+			table.insert(players, player)
 			table.insert(profiles, profile)
 		end
 	end
-	return IndexRewards.bestGoldLuck(profiles, area.tier, Economy.tier)
+	local luck, from = IndexRewards.luckiest(profiles, area.tier, Economy.tier)
+	return luck, if from ~= nil then players[from] else nil
+end
+
+-- Each area's Index Board shows whose gold luck its strays and traps roll with ("Gold luck +40% from Sam", F54):
+-- GoldLuck (the fraction) and GoldLuckFrom (that player's DisplayName), both cleared when nobody's luck applies.
+-- Checked every LUCK_BOARD_SECONDS, which covers joins, leaves, claims and rank ups.
+local LUCK_BOARD_SECONDS = 3
+
+local function refreshLuckBoards()
+	for _, board in CollectionService:GetTagged("IndexBoard") do
+		local areaId = board:GetAttribute("Area")
+		if board:IsDescendantOf(Workspace) and type(areaId) == "string" then
+			local luck, from = CatService.goldLuckSource(areaId)
+			board:SetAttribute("GoldLuck", if luck > 0 then luck else nil)
+			board:SetAttribute(
+				"GoldLuckFrom",
+				if luck > 0 and from ~= nil then from.DisplayName else nil
+			)
+		end
+	end
 end
 
 local function countStrays(areaId: string): number
@@ -1179,6 +1206,15 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	Net.on("CatchPress", onCatchPress)
 	Net.on("CheckIn", onCheckIn)
 	Net.on("DropCat", onDropCat)
+	task.spawn(function()
+		while true do
+			-- one bad board or profile must not end the loop for the server's life (review N185)
+			xpcall(refreshLuckBoards, function(err: unknown)
+				warn("[CatService] luck boards: " .. tostring(err))
+			end)
+			task.wait(LUCK_BOARD_SECONDS)
+		end
+	end)
 
 	-- A player who leaves mid-carry keeps the cat. The finalizer runs before the session closes and is handed
 	-- the profile, so it never depends on a lookup that is about to go nil.

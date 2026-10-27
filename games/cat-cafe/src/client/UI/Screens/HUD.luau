@@ -1,11 +1,20 @@
 --!strict
--- Always-on overlay: money and income (top left), cafe tier pill and the Cafe, Alley and Areas travel row
--- (top centre), cat count and the day and night clock chip (top right), menu tiles (left), the bait bowl chip
--- (bottom right, once the Bait bowl upgrade is owned), carry banner and tutorial strip (bottom centre). Laid out
--- in design pixels under one UIScale from Scale.bind.
+-- Always-on overlay in the simulator layout (docs/design/cat-cafe/ui-contract.md, HUD v3):
+--   top left      money and income
+--   top centre    cafe tier pill
+--   top right     small icon buttons (Invite) and the day and night clock chip, the next goal card under them
+--   left          big pill buttons: Cats, Book, Upgrades, Decor, with key caps and red "!" dots
+--   bottom centre Equip Best, the big gold My Cafe teleport, Alley and Areas; above them the carry banner with
+--                 its red Drop button, and the tutorial strip above that
+--   bottom right  the bait bowl chip, once the Bait bowl upgrade is owned
+-- Laid out in design pixels under one UIScale from Scale.bind.
+--
+-- Roblox terms: SocialService:PromptGameInvite opens Roblox's own invite-friends window; the game only asks.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local SocialService = game:GetService("SocialService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -26,6 +35,9 @@ export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
 	openBait: () -> (), -- the bowl chip opens the bait bowl screen, or the cat waiting at the bowl
+	openCollection: (tab: "Book" | "Room") -> (), -- the Collection screen on that tab
+	equipBest: () -> (),
+	dropCat: () -> (), -- the carry banner's Drop button
 }
 
 export type HUD = {
@@ -49,14 +61,23 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
-local MENU_TILE = 84
+local PILL_W = 176
+local PILL_H = 54
 local CAFE_HEIGHT = 56
-local TRAVEL_W = 120
-local TRAVEL_H = 46
+local TRAVEL_W = 128
+local TRAVEL_H = 50
+local HOME_W = 176
+local HOME_H = 62 -- My Cafe stands taller than the rest of the bottom row
+local ICON = 52 -- top right icon buttons
+local CARRY_W = 420
+local CARRY_H = 56
+local DROP_W = 104
+local HOME_TEXT = "My Cafe"
+local HOME_CARRYING_TEXT = "Walk it home" -- the server refuses trips while carrying, so the button says why
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
 local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
--- right column: cats pill (52), clock chip (40), then the next goal card; the night tips chip pushes it down
-local CLOCK_TOP = MARGIN + 52 + Theme.sizes.gap
+-- right column: icon row (52), clock chip (40), then the next goal card; the night tips chip pushes it down
+local CLOCK_TOP = MARGIN + ICON + Theme.sizes.gap
 local GOAL_TOP = CLOCK_TOP + 40 + Theme.sizes.gap
 local NIGHT_CHIP = 24 + 4
 -- data-model NightIncomeMultiplier (0.6): tips pay this share at night (F31)
@@ -292,95 +313,52 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	Outline.text(self._rankBadge)
 	self._tiersOn = false
 
-	-- Travel row (top centre, under the tier pill): Cafe and Alley jump straight there, Areas opens the five
-	-- area cards. Grow a Garden puts its teleport buttons in the same place (features.md F19). All three
-	-- grey out while carrying a cat, since walking it home is the loop, and for the trip cooldown.
-	local travelRow: Frame = Create("Frame", {
-		Name = "Travel",
+	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
+	-- Invite opens Roblox's own invite window; Daily, Mail and Settings join it as their screens arrive.
+	local icons: Frame = Create("Frame", {
+		Name = "Icons",
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, MARGIN + CAFE_HEIGHT + 10),
-		Size = UDim2.fromOffset(3 * TRAVEL_W + 2 * Theme.sizes.gap, TRAVEL_H),
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, MARGIN),
+		Size = UDim2.fromOffset(4 * ICON + 3 * Theme.sizes.gap, ICON),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	self._travelRow = travelRow
-	self._travelButtons = {} :: { [string]: Button.Button }
-	self._travelEnabled = {} :: { [string]: boolean }
-	self._travelUntil = 0
-	self._carryBanner = false
-	self._carryState = false
-	type TravelItem = { key: string, label: string, icon: string, style: Button.Style }
-	local travelItems: { TravelItem } = {
-		{ key = "home", label = "Cafe", icon = Theme.icons.home, style = "gold" },
-		{ key = "alley", label = "Alley", icon = Theme.icons.alley, style = "secondary" },
-		{ key = "areas", label = "Areas", icon = Theme.icons.travel, style = "primary" },
-	}
-	for index, item in travelItems do
-		local button = Button.new({
-			name = item.label,
-			text = item.label,
-			icon = item.icon,
-			style = item.style,
-			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
-			textSize = Theme.sizes.textBody + 1,
-			layoutOrder = index,
-			parent = travelRow,
-			-- Areas only opens the panel, which swishes; Cafe and Alley click
-			sound = if item.key == "areas" then false else nil,
-			onClick = function()
-				if item.key == "areas" then
-					callbacks.openScreen("Areas")
-				else
-					self:pressTravel(item.key)
-				end
-			end,
-		})
-		self._travelButtons[item.key] = button
-		table.insert(self._buttons, button)
-	end
-
-	-- Cats pill (top right)
-	local cats = hudPanel("Cats", {
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -MARGIN, 0, MARGIN),
-		Size = UDim2.fromOffset(272, 52),
-		Parent = root,
-	})
-	self._catsText = label({
-		Name = "Count",
-		Position = UDim2.fromOffset(14, 0),
-		Size = UDim2.new(1, -150, 1, 0),
-		TextSize = 20,
-		Text = "Cats 0 / 0",
-		Parent = cats,
-	})
 	table.insert(
 		self._buttons,
 		Button.new({
-			name = "Collection",
-			text = "Collection",
-			icon = Theme.icons.collection,
+			name = "Invite",
+			text = "Invite",
+			icon = Theme.icons.invite,
+			layout = "tile",
+			textSize = Theme.sizes.textTiny,
 			style = "secondary",
-			size = UDim2.fromOffset(122, 38),
-			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -8, 0.5, 0),
-			textSize = Theme.sizes.textSmall,
-			parent = cats,
-			sound = false, -- the modal swish is the sound
+			size = UDim2.fromOffset(ICON, ICON),
+			layoutOrder = 4,
+			parent = icons,
 			onClick = function()
-				callbacks.openScreen("Collection")
+				task.spawn(function()
+					local player = Players.LocalPlayer
+					local ok, canInvite = pcall(function()
+						return SocialService:CanSendGameInviteAsync(player)
+					end)
+					if ok and canInvite then
+						pcall(function()
+							SocialService:PromptGameInvite(player)
+						end)
+					end
+				end)
 			end,
 		})
 	)
 
-	-- Clock chip (top right, under the cats pill): sun or moon and the time to the next phase (F20)
+	-- Clock chip (top right, under the icon row): sun or moon and the time to the next phase (F20)
 	local clock = hudPanel("Clock", {
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP),
@@ -451,13 +429,63 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		callbacks.openScreen("RankUp")
 	end)
 
-	-- Menu stack (left, vertically centred)
+	-- Menu (left, vertically centred): big pill buttons with an icon, the "Shop / Index" column of popular
+	-- simulators. A key cap shows the keyboard shortcut and a red "!" dot says the screen has something new.
+	local showKeys = UserInputService.KeyboardEnabled
+	type MenuItem = {
+		name: string,
+		icon: string,
+		key: string?,
+		style: Button.Style,
+		dot: Types.ScreenName?, -- the Notices screen whose news lights this pill's dot
+		open: () -> (),
+	}
+	local menuItems: { MenuItem } = {
+		{
+			name = "Cats",
+			icon = Theme.icons.cats,
+			key = "C",
+			style = "secondary",
+			open = function()
+				callbacks.openCollection("Room")
+			end,
+		},
+		{
+			name = "Book",
+			icon = Theme.icons.collection,
+			style = "primary",
+			dot = "Collection",
+			open = function()
+				callbacks.openCollection("Book")
+			end,
+		},
+		{
+			name = "Upgrades",
+			icon = Theme.icons.upgrades,
+			key = "U",
+			style = "danger",
+			dot = "Upgrades",
+			open = function()
+				callbacks.openScreen("Upgrades")
+			end,
+		},
+		{
+			name = "Decor",
+			icon = Theme.icons.decor,
+			key = "B",
+			style = "gold",
+			dot = "Decor",
+			open = function()
+				callbacks.openScreen("Decor")
+			end,
+		},
+	}
 	local menu: Frame = Create("Frame", {
 		Name = "Menu",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, MARGIN, 0.5, 0),
-		Size = UDim2.fromOffset(MENU_TILE, 3 * MENU_TILE + 2 * Theme.sizes.gap),
+		Size = UDim2.fromOffset(PILL_W, #menuItems * PILL_H + (#menuItems - 1) * Theme.sizes.gap),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -466,74 +494,63 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	local showKeys = UserInputService.KeyboardEnabled
-	type MenuItem = {
-		label: string,
-		icon: string,
-		screen: Types.ScreenName,
-		key: string,
-		style: Button.Style,
-	}
-	-- square icon tiles down the left edge, the simulator convention for shop and inventory buttons
-	local menuItems: { MenuItem } = {
-		{
-			label = "Upgrades",
-			icon = Theme.icons.upgrades,
-			screen = "Upgrades",
-			key = "U",
-			style = "primary",
-		},
-		{ label = "Decor", icon = Theme.icons.decor, screen = "Decor", key = "B", style = "gold" },
-		{
-			label = "Cats",
-			icon = Theme.icons.cats,
-			screen = "Collection",
-			key = "C",
-			style = "secondary",
-		},
-	}
 	for index, item in menuItems do
 		local button = Button.new({
-			name = item.label,
-			text = item.label,
+			name = item.name,
+			text = item.name,
 			icon = item.icon,
-			layout = "tile",
 			style = item.style,
-			size = UDim2.fromOffset(MENU_TILE, MENU_TILE),
-			textSize = Theme.sizes.textBody,
+			size = UDim2.fromOffset(PILL_W, PILL_H),
+			textSize = Theme.sizes.textLarge,
 			layoutOrder = index,
 			parent = menu,
 			sound = false, -- the modal swish is the sound
-			onClick = function()
-				callbacks.openScreen(item.screen)
-			end,
+			onClick = item.open,
 		})
-		if showKeys then
-			keycap(button.face, item.key, UDim2.new(1, -4, 0, 4), Vector2.new(1, 0))
+		local key = item.key
+		if showKeys and key then
+			keycap(button.face, key, UDim2.new(1, -8, 0.5, 0), Vector2.new(1, 0.5))
 		end
-		-- red "!" dot on the tile's top left corner when the screen has something new
-		local dot: Frame = Create("Frame", {
-			Name = "Dot",
-			BackgroundColor3 = Theme.colors.red,
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromOffset(4, 4),
-			Size = UDim2.fromOffset(24, 24),
-			Visible = false,
-			ZIndex = 6,
-			Parent = button.instance,
-		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-		Outline.border(dot, 2)
-		label({
-			Name = "Mark",
-			Size = UDim2.fromScale(1, 1),
-			TextSize = Theme.sizes.textBody,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			Text = "!",
-			ZIndex = 7,
-			Parent = dot,
-		})
-		self._dots[item.screen] = dot
+		local screen = item.dot
+		if screen then
+			-- red "!" dot on the pill's top left corner when the screen has something new
+			local dot: Frame = Create("Frame", {
+				Name = "Dot",
+				BackgroundColor3 = Theme.colors.red,
+				BorderSizePixel = 0,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromOffset(4, 4),
+				Size = UDim2.fromOffset(24, 24),
+				Visible = false,
+				ZIndex = 6,
+				Parent = button.instance,
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+			Outline.border(dot, 2)
+			label({
+				Name = "Mark",
+				Size = UDim2.fromScale(1, 1),
+				TextSize = Theme.sizes.textBody,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = "!",
+				ZIndex = 7,
+				Parent = dot,
+			})
+			self._dots[screen] = dot
+		end
+		if item.name == "Book" then
+			-- cats found out of all cats, where the old top right cats pill had it
+			self._bookCount = label({
+				Name = "Count",
+				AnchorPoint = Vector2.new(1, 0.5),
+				Position = UDim2.new(1, -10, 0.5, 0),
+				Size = UDim2.fromOffset(52, 20),
+				TextSize = Theme.sizes.textSmall,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				Text = "",
+				ZIndex = 5,
+				Parent = button.face,
+			})
+		end
 		table.insert(self._buttons, button)
 	end
 
@@ -587,11 +604,101 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 
-	-- Carry banner (bottom centre)
-	local carry = hudPanel("Carry", {
+	-- Bottom row (bottom centre): Equip Best, the big gold My Cafe teleport, Alley and Areas, where Grow a Garden
+	-- puts its teleport buttons (features.md F19). The three travel buttons grey out while carrying a cat, since
+	-- walking it home is the loop and the server refuses those trips, and for the trip cooldown.
+	local travelRow: Frame = Create("Frame", {
+		Name = "Travel",
+		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -MARGIN),
-		Size = UDim2.fromOffset(380, 56),
+		Size = UDim2.fromOffset(HOME_W + 3 * TRAVEL_W + 3 * Theme.sizes.gap, HOME_H),
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Bottom,
+			Padding = UDim.new(0, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._travelRow = travelRow
+	self._travelButtons = {} :: { [string]: Button.Button }
+	self._travelEnabled = {} :: { [string]: boolean }
+	self._travelUntil = 0
+	self._carryBanner = false
+	self._carryState = false
+	self._homeCarrying = false
+	table.insert(
+		self._buttons,
+		Button.new({
+			name = "EquipBest",
+			text = "Equip Best",
+			icon = Theme.icons.equipBest,
+			style = "berry",
+			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = 1,
+			parent = travelRow,
+			onClick = function()
+				callbacks.equipBest()
+			end,
+		})
+	)
+	type TravelItem = { key: string, name: string, label: string, icon: string, style: Button.Style }
+	local travelItems: { TravelItem } = {
+		{ key = "home", name = "Cafe", label = HOME_TEXT, icon = Theme.icons.home, style = "gold" },
+		{
+			key = "alley",
+			name = "Alley",
+			label = "Alley",
+			icon = Theme.icons.alley,
+			style = "secondary",
+		},
+		{
+			key = "areas",
+			name = "Areas",
+			label = "Areas",
+			icon = Theme.icons.travel,
+			style = "primary",
+		},
+	}
+	for index, item in travelItems do
+		local home = item.key == "home"
+		local button = Button.new({
+			name = item.name,
+			text = item.label,
+			icon = item.icon,
+			style = item.style,
+			size = if home
+				then UDim2.fromOffset(HOME_W, HOME_H)
+				else UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
+			textSize = if home then Theme.sizes.textLarge else Theme.sizes.textBody + 1,
+			layoutOrder = index + 1,
+			parent = travelRow,
+			-- Areas only opens the panel, which swishes; Cafe and Alley click
+			sound = if item.key == "areas" then false else nil,
+			onClick = function()
+				if item.key == "areas" then
+					callbacks.openScreen("Areas")
+				else
+					self:pressTravel(item.key)
+				end
+			end,
+		})
+		if showKeys and home then
+			keycap(button.face, "H", UDim2.new(1, -6, 0, 6), Vector2.new(1, 0))
+		end
+		self._travelButtons[item.key] = button
+		table.insert(self._buttons, button)
+	end
+
+	-- Carry banner (bottom centre, above the bottom row): the cat you carry and a red Drop button (G)
+	local carry = hudPanel("Carry", {
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -(MARGIN + HOME_H + Theme.sizes.gap)),
+		Size = UDim2.fromOffset(CARRY_W, CARRY_H),
 		Visible = false,
 		Parent = root,
 	})
@@ -607,7 +714,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._carryTitle = label({
 		Name = "Title",
 		Position = UDim2.fromOffset(56, 8),
-		Size = UDim2.new(1, -68, 0, 22),
+		Size = UDim2.new(1, -(68 + DROP_W), 0, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 1,
 		Text = "Carrying a cat",
@@ -616,12 +723,30 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._carrySub = label({
 		Name = "Sub",
 		Position = UDim2.fromOffset(56, 30),
-		Size = UDim2.new(1, -68, 0, 18),
+		Size = UDim2.new(1, -(68 + DROP_W), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.hud.subtext,
 		Text = "Walk home and check in at your door",
 		Parent = carry,
 	})
+	local drop = Button.new({
+		name = "Drop",
+		text = "Drop",
+		icon = Theme.icons.drop,
+		style = "close",
+		size = UDim2.fromOffset(DROP_W, 40),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -8, 0.5, 0),
+		textSize = Theme.sizes.textBody,
+		parent = carry,
+		onClick = function()
+			callbacks.dropCat()
+		end,
+	})
+	if showKeys then
+		keycap(drop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0))
+	end
+	table.insert(self._buttons, drop)
 
 	-- Tutorial strip (bottom centre, above the carry banner when both show). It grows to 520 px wide, then wraps
 	-- onto a second line (reviewer N94: the step hints run to about 100 characters), growing upwards from the
@@ -659,6 +784,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		"UISizeConstraint",
 		{ MinSize = Vector2.new(0, 40), MaxSize = Vector2.new(520, 64), Parent = self._tutorial }
 	)
+
+	self:_layoutBottom()
 
 	if parent then
 		screenGui.Parent = parent
@@ -778,10 +905,11 @@ function HUD.isCarrying(self: any): boolean
 	return self._carryBanner or self._carryState
 end
 
--- The catch circles' header takes the top centre during a catch, and the server refuses a trip mid catch
--- anyway (N47), so the travel row steps aside until the catch ends.
+-- The server refuses a trip mid catch (N47) and the circles need the screen, so the bottom row steps aside
+-- until the catch ends.
 function HUD.setCatching(self: any, active: boolean)
 	self._travelRow.Visible = not active
+	self:_layoutBottom()
 end
 
 function HUD._renderTravel(self: any)
@@ -794,6 +922,10 @@ function HUD._renderTravel(self: any)
 			self._travelEnabled[key] = enabled
 			button:setEnabled(enabled)
 		end
+	end
+	if self._homeCarrying ~= carrying then
+		self._homeCarrying = carrying
+		self._travelButtons.home:setText(if carrying then HOME_CARRYING_TEXT else HOME_TEXT)
 	end
 end
 
@@ -857,7 +989,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self:_renderTier(tierProgress)
 		self:_renderBowlSlot(state)
 		local total = if catalog then #catalog.cats else 0
-		self._catsText.Text = ("Cats %d / %d"):format(distinct, total)
+		self._bookCount.Text = ("%d/%d"):format(distinct, total)
 		return
 	end
 	self._rankBadge.Visible = false
@@ -889,7 +1021,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 
 	local total = if catalog then #catalog.cats else 0
-	self._catsText.Text = ("Cats %d / %d"):format(distinct, total)
+	self._bookCount.Text = ("%d/%d"):format(distinct, total)
 	self:_renderBowlSlot(state)
 end
 
@@ -969,12 +1101,15 @@ function HUD.setTutorial(self: any, text: string?)
 	self:_layoutBottom()
 end
 
--- Carry banner sits at the bottom; the tutorial strip stacks above it when both are visible.
+-- Bottom up: the bottom row, the carry banner, then the tutorial strip, each above the ones showing below it.
 function HUD._layoutBottom(self: any)
 	local y = -MARGIN
+	if self._travelRow.Visible then
+		y -= HOME_H + Theme.sizes.gap
+	end
 	if self._carry.Visible then
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
-		y -= 56 + Theme.sizes.gap
+		y -= CARRY_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 end

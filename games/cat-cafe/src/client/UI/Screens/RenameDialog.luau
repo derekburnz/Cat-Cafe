@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
@@ -157,6 +158,7 @@ function RenameDialog.new(
 		parent = card,
 		zIndex = 10,
 		enabled = false,
+		sound = false, -- _submit plays uiRename, for Enter too
 		onClick = function()
 			self:_submit()
 		end,
@@ -217,6 +219,7 @@ function RenameDialog._submit(self: any)
 	if uid == nil or name == nil then
 		return
 	end
+	Sound.play("uiRename")
 	self._onSave(uid, name)
 	self:close()
 end

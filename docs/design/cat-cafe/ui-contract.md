@@ -77,6 +77,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
 | `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`. One open at a time. |
+| `UI.setZone(zone?)` | The `World.Zones` name the player stands in, from the controller's zone check: nil or `"Cafe"` is the safe street and cafes, else the area (`"Alley"`). Drives the Safe zone chip and its toast on coming back, and hides that area's location marker. |
 | `UI.openCatRoom()` | Opens Collection on the Cat room tab (tutorial step 3). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
 | `UI.announce(text, rarity?)` | Server-wide catch shout-out, on the rarity's colour for 4 s. Pass the rarity from `Announce` once it carries one; without it the last rarity named as a whole word in the text decides, so a DisplayName like "EpicGamer" does not colour it. Silent, since Audio plays the shout-out sting from the remote. |
@@ -176,6 +177,13 @@ Copied from the Pet Simulator index. The Book tab opens on a row of area tabs in
 ### Area title card and shout-outs (built, F39 P1)
 
 `UI.showAreaTitle(areaId)` shows the area's name in big outlined letters for two seconds with its "Epic or better N%" line in the area's colour (Pet Simulator 99 and Fisch zone names). `"home"` shows the cafe's tier name over "Your cafe". `UI.travel.result(destination, true)` already calls it; the controller also calls it when the player walks into an area (the zone check that picks the ambience). The same area twice within 4 s shows once. `UI.announce(text, rarity?)` shout-outs take the rarity's colour (or the last rarity named in the text) and stay 4 s.
+
+### Location markers and the Safe zone chip (built, UI plan 2026-10-27)
+
+Derek: "symbols to locations also that disappear when close enough so its not clutter", and the cafe street counts as safe.
+
+- **Location markers** (`Screens/LocationMarkers.luau`, nothing to call): a round icon with the name and distance ("120 m") over My Cafe (gold 🏠, over the own `Plot`'s pivot), every area (its icon and colour, over the `AreaGate` model's pivot, else the middle of its biggest `World.Zones` box) and the night dealer's cart (🛒, tag `DealerCart` while `Open`). Seen through walls from anywhere; each fades out between 60 and 30 studs (`Components/Wayfinding.luau`, with a spec), so the place in front of the player is never covered. A locked area's icon is grey and reads "🔒 Tier 3 · 120 m". My Cafe hides while carrying (the carry marker leads to the door) and the area the player stands in hides its own. Points come from model pivots and the persistent Zones boxes, so they show before the parts stream in.
+- **Safe zone chip** (`Screens/ZoneChip.luau`): a pill under the tier pill, "🛡️ Safe zone" in green on the street and in the cafes, "🐾 Catching area · shoves on" in orange in an area. Walking from an area back to the street pops it and toasts "Safe zone: no shoving here" once. **Engineer:** call `UI.setZone(zone)` with the `World.Zones` name each time the controller's zone check changes (next to `Audio.setZone`); the chip stays hidden until the first call.
 
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 

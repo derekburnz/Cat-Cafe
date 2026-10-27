@@ -175,6 +175,7 @@ local function setNightShown(model: Instance, shown: boolean)
 			local look = piece:GetAttribute("NightTransparency")
 			piece.Transparency = if shown and type(look) == "number" then look else 1
 			piece.CanCollide = shown and piece:GetAttribute("NightCollide") == true
+			piece.CanQuery = piece.CanCollide -- the camera's occlusion rays stop at a closed fence (review N180)
 		elseif descendant:IsA("Decal") then
 			local decal = descendant :: Decal
 			local look = decal:GetAttribute("NightTransparency")
@@ -183,6 +184,8 @@ local function setNightShown(model: Instance, shown: boolean)
 			descendant:IsA("Light")
 			or descendant:IsA("LayerCollector")
 			or descendant:IsA("ParticleEmitter")
+			or descendant:IsA("Beam")
+			or descendant:IsA("Trail")
 		then
 			(descendant :: any).Enabled = shown and descendant:GetAttribute("NightEnabled") == true
 		end

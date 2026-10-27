@@ -887,9 +887,9 @@ end
 
 -- The night fence art (F66, Model-Agent #318): models tagged NightFence that show only while the areas are closed.
 -- Each is built hidden and walk-through here, with every part's own look and collision kept in attributes
--- (NightTransparency, NightCollide; NightEnabled on lights, GUIs and emitters), and the client shows it while the
--- Clock's AreasOpen is false (WorldController). The server never makes them solid, so strays and the server's rays
--- never meet them, as with the gates' Bars.
+-- (NightTransparency, NightCollide; NightEnabled on lights, GUIs, emitters, beams and trails), and the client shows
+-- it while the Clock's AreasOpen is false (WorldController). The server never makes them solid, so strays and the
+-- server's rays never meet them, as with the gates' Bars.
 local function hideForDay(model: Model)
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
@@ -912,10 +912,14 @@ local function hideForDay(model: Model)
 			local gui = descendant :: LayerCollector
 			gui:SetAttribute("NightEnabled", gui.Enabled)
 			gui.Enabled = false
-		elseif descendant:IsA("ParticleEmitter") then
-			local emitter = descendant :: ParticleEmitter
-			emitter:SetAttribute("NightEnabled", emitter.Enabled)
-			emitter.Enabled = false
+		elseif
+			descendant:IsA("ParticleEmitter")
+			or descendant:IsA("Beam")
+			or descendant:IsA("Trail")
+		then
+			local effect = descendant :: any
+			effect:SetAttribute("NightEnabled", effect.Enabled)
+			effect.Enabled = false
 		end
 	end
 end

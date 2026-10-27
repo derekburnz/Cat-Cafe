@@ -899,4 +899,134 @@ return function()
 			expect(count(loaded.crates) + count(loaded.crateLuck) + count(loaded.fishPerks)).to.equal(0)
 		end)
 	end)
+
+	-- QA edges (qa-playtester): seeded damaged saves for the version 7 fields, checked against the rules written
+	-- out here, and a second load of each result that must change nothing.
+	describe("save version 7 fuzz (QA)", function()
+		local seed = 1793059200
+		local function roll(n: number): number
+			seed = (seed * 1103515245 + 12345) % 2147483648
+			return seed % n + 1
+		end
+		local values: { any } = { "nil", 0, 1, 7, 12.9, 19, 20, 55, -5, 0 / 0, math.huge, 2 ^ 40, "3", true, {} }
+		local function pick(): any
+			local v = values[roll(#values)]
+			return if v == "nil" then nil else v
+		end
+		local function good(v: any): number?
+			if type(v) == "number" and v == v and v >= 0 and v < math.huge then
+				return math.floor(v)
+			end
+			return nil
+		end
+		local function copy(t: any): any
+			if type(t) ~= "table" then
+				return t
+			end
+			local out = {}
+			for k, v in t do
+				out[k] = copy(v)
+			end
+			return out
+		end
+		-- deepEqual with NaN equal to itself, for the raw saves that hold one
+		local function same(a: any, b: any): boolean
+			if a ~= a and b ~= b then
+				return true
+			end
+			if type(a) ~= "table" or type(b) ~= "table" then
+				return a == b
+			end
+			for k, v in a do
+				if not same(v, b[k]) then
+					return false
+				end
+			end
+			for k in b do
+				if a[k] == nil then
+					return false
+				end
+			end
+			return true
+		end
+		local crateIds: { any } = { "mystery_crate", "", 1 }
+		for _, def in Catalog.crates do
+			table.insert(crateIds, def.id)
+		end
+		local pools: { any } = { "mars", "alley_crate", 2 }
+		for pool in Catalog.cratePools do
+			table.insert(pools, pool)
+		end
+		local perkIds: { any } = { "star_treat", "alley_crate", "fly", 3 }
+		for _, row in Catalog.fishShop do
+			if row.kind == "perk" then
+				table.insert(perkIds, row.id)
+			end
+		end
+		local function someOf(keys: { any }): any
+			if roll(6) == 1 then
+				return pick()
+			end
+			local out = {}
+			for _ = 1, roll(5) - 1 do
+				out[keys[roll(#keys)]] = pick()
+			end
+			return out
+		end
+
+		it("cleans 500 damaged fish, crate, luck and perk saves by the rules, and a second load changes nothing", function()
+			for _ = 1, 500 do
+				local raw: any = ProfileSchema.template(500)
+				raw.goldenFish = pick()
+				raw.lifetimeGoldenFish = pick()
+				raw.crates = someOf(crateIds)
+				raw.crateLuck = someOf(pools)
+				raw.fishPerks = someOf(perkIds)
+				raw.stats.fishEarned = pick()
+				raw.stats.cratesOpened = pick()
+				local before = copy(raw)
+				local profile = ProfileSchema.migrate(raw, 600)
+				expect(same(raw, before)).to.equal(true) -- the load never writes into the raw save
+
+				local wallet = good(before.goldenFish) or 0
+				expect(profile.goldenFish).to.equal(wallet)
+				expect(profile.lifetimeGoldenFish).to.equal(math.max(good(before.lifetimeGoldenFish) or 0, wallet))
+				expect(profile.stats.fishEarned).to.equal(good(before.stats.fishEarned) or 0)
+				expect(profile.stats.cratesOpened).to.equal(good(before.stats.cratesOpened) or 0)
+
+				local wantCrates, wantLuck, wantPerks = {}, {}, {}
+				if type(before.crates) == "table" then
+					for id, n in before.crates do
+						local whole = good(n)
+						if type(id) == "string" and Catalog.getCrate(id) and whole and whole > 0 then
+							wantCrates[id] = whole
+						end
+					end
+				end
+				if type(before.crateLuck) == "table" then
+					for pool, n in before.crateLuck do
+						local whole = good(n)
+						if type(pool) == "string" and Catalog.cratePools[pool] and whole and whole > 0 then
+							wantLuck[pool] = math.min(whole, Config.CrateLuckyEvery - 1)
+						end
+					end
+				end
+				if type(before.fishPerks) == "table" then
+					for id, n in before.fishPerks do
+						local row = if type(id) == "string" then Catalog.getFishShopRow(id) else nil
+						local whole = good(n)
+						if row and row.kind == "perk" and whole and whole > 0 then
+							wantPerks[id] = math.min(whole, row.maxLevel or 0)
+						end
+					end
+				end
+				expect(profile.crates :: any).to.deepEqual(wantCrates)
+				expect(profile.crateLuck :: any).to.deepEqual(wantLuck)
+				expect(profile.fishPerks :: any).to.deepEqual(wantPerks)
+
+				local again = ProfileSchema.migrate(copy(profile), 600)
+				expect(again :: any).to.deepEqual(profile)
+			end
+		end)
+	end)
 end

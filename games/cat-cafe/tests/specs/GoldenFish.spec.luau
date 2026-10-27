@@ -165,4 +165,225 @@ return function()
 			end
 		)
 	end)
+
+	-- QA edges (qa-playtester): the numbers come from golden-fish.md, not from Config, so a Config change that
+	-- drifts from the design fails here and the designer decides which one is right.
+	describe("GoldenFish edges (QA)", function()
+		local FIRST: { [string]: number } =
+			{ Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 }
+		local REPEAT: { [string]: number } = { Epic = 1, Legendary = 3, Mythical = 8 }
+		local seed = 20261027
+		local function roll(n: number): number
+			seed = (seed * 1103515245 + 12345) % 2147483648
+			return seed % n + 1
+		end
+
+		it("has a first-catch row for every rarity the catalog can roll", function()
+			for _, rarity in Catalog.rarityOrder do
+				expect(FIRST[rarity] ~= nil).to.equal(true)
+				expect(Config.FishFirstCatch[rarity]).to.equal(FIRST[rarity])
+				expect(Config.FishRepeatCatch[rarity]).to.equal(REPEAT[rarity])
+			end
+		end)
+
+		it(
+			"pays every rarity, Index state and way of finding a cat as section 2's table says",
+			function()
+				local rarities: { string } = {}
+				for _, rarity in Catalog.rarityOrder do
+					table.insert(rarities, rarity)
+				end
+				for _, odd in { "Secret", "", "common", "Gold" } do
+					table.insert(rarities, odd)
+				end
+				local methods: { any } =
+					{ "net", "rescue", "bait", "starter", "NET", "spin", "", 7 }
+				for _, rarity in rarities do
+					local first = FIRST[rarity] or 0
+					for _, isNew in { true, false } do
+						for _, firstGold in { true, false } do
+							for _, method in methods do
+								local want = (if isNew then first else 0)
+									+ (if firstGold then 2 * first else 0)
+								if want == 0 and (method == "net" or method == "rescue") then
+									want = REPEAT[rarity] or 0
+								end
+								local got = GoldenFish.forCatch(rarity, isNew, firstGold, method)
+								if got ~= want then
+									error(
+										string.format(
+											"forCatch(%q, %s, %s, %s) gave %s, want %d",
+											rarity,
+											tostring(isNew),
+											tostring(firstGold),
+											tostring(method),
+											tostring(got),
+											want
+										)
+									)
+								end
+							end
+						end
+					end
+				end
+			end
+		)
+
+		it(
+			"pays one cat by bait at most its first catch plus its first gold, however often it comes",
+			function()
+				for _, rarity in Catalog.rarityOrder do
+					for _ = 1, 40 do
+						local seen, goldSeen, total, sawGold = false, false, 0, false
+						for _ = 1, 30 do
+							local gold = roll(4) == 1
+							sawGold = sawGold or gold
+							total += GoldenFish.forCatch(
+								rarity,
+								not seen,
+								gold and not goldSeen,
+								"bait"
+							)
+							seen = true
+							goldSeen = goldSeen or gold
+						end
+						expect(total).to.equal(
+							FIRST[rarity] + (if sawGold then 2 * FIRST[rarity] else 0)
+						)
+					end
+				end
+			end
+		)
+
+		it("pays rank ups only on whole Tiers 2 to 5, 185 fish in all", function()
+			local total = 0
+			for tier = 2, 5 do
+				total += GoldenFish.forRankUp(tier)
+			end
+			expect(total).to.equal(185)
+			expect(GoldenFish.forRankUp(2.0)).to.equal(10)
+			for _, odd in { 0, -1, 1.5, 2.5, 5.0001, 0 / 0, math.huge, -math.huge, 1e9 } do
+				expect(GoldenFish.forRankUp(odd)).to.equal(0)
+			end
+		end)
+
+		it(
+			"keeps the wallet at earned minus spent over 3,000 seeded credits and Market buys",
+			function()
+				local costs: { number } = { 0 }
+				for _, row in Catalog.fishShop do
+					if row.cost then
+						table.insert(costs, row.cost)
+					end
+					for _, cost in row.costs or {} do
+						table.insert(costs, cost)
+					end
+				end
+				local earnings: { number } = { 0, -3, 0.999, 1, 2.9, 5, 8, 40, 100, 250 }
+				local profile = ProfileSchema.template(100)
+				local earned, spent = 0, 0
+				for _ = 1, 3000 do
+					if roll(2) == 1 then
+						local amount = earnings[roll(#earnings)]
+						GoldenFish.credit(profile, amount)
+						earned += math.max(0, math.floor(amount))
+					else
+						local cost = costs[roll(#costs)]
+						local had = profile.goldenFish
+						local ok = GoldenFish.trySpend(profile, cost)
+						expect(ok).to.equal(had >= cost)
+						if ok then
+							spent += cost
+						end
+					end
+					expect(profile.lifetimeGoldenFish).to.equal(earned)
+					expect(profile.stats.fishEarned).to.equal(earned)
+					expect(profile.goldenFish).to.equal(earned - spent)
+					expect(profile.goldenFish >= 0 and profile.goldenFish % 1 == 0).to.equal(true)
+				end
+			end
+		)
+
+		it("spends an exact balance to 0 and refuses one fish short", function()
+			local profile = ProfileSchema.template(100)
+			GoldenFish.credit(profile, 59)
+			expect(GoldenFish.trySpend(profile, 60)).to.equal(false)
+			expect(profile.goldenFish).to.equal(59)
+			GoldenFish.credit(profile, 1)
+			expect(GoldenFish.trySpend(profile, 60)).to.equal(true)
+			expect(profile.goldenFish).to.equal(0)
+			expect(GoldenFish.trySpend(profile, 0)).to.equal(true)
+			expect(profile.goldenFish).to.equal(0)
+		end)
+
+		it("prices the Market as section 3 lists, each perk level dearer than the last", function()
+			local want: { [string]: { number } } = {
+				star_treat = { 80 },
+				golden_espresso = { 40, 80, 150, 250, 400 },
+				big_bowl = { 150 },
+				extra_decor_spot = { 100, 250 },
+			}
+			for _, def in Catalog.crates do
+				if not def.golden then
+					want[def.id] = { 60 }
+				end
+			end
+			local kinds = { crate = true, lure = true, perk = true }
+			for _, row in Catalog.fishShop do
+				expect(kinds[row.kind]).to.equal(true)
+				local prices: { number } = if row.costs then row.costs else { row.cost :: number }
+				expect(prices :: any).to.deepEqual(want[row.id])
+				for level = 2, #prices do
+					expect(prices[level] > prices[level - 1]).to.equal(true)
+				end
+			end
+			for id in want do
+				expect(Catalog.getFishShopRow(id)).to.be.ok()
+			end
+		end)
+
+		it("gives every crate section 4's rarity odds, plain and golden", function()
+			local plain = { Common = 60, Rare = 27, Epic = 10, Legendary = 2.5, Mythical = 0.5 }
+			local golden = { Common = 0, Rare = 0, Epic = 80, Legendary = 17.5, Mythical = 2.5 }
+			for _, def in Catalog.crates do
+				local want: { [string]: number } = if def.golden then golden else plain
+				for _, rarity in Catalog.rarityOrder do
+					expect(def.odds[rarity] or 0).to.equal(want[rarity])
+				end
+			end
+		end)
+
+		it(
+			"keeps section 4's promise: about 40 crates to a Legendary and 190 to a Mythical with the lucky twentieth",
+			function()
+				-- Opens since the last Epic or better: 0 to CrateLuckyEvery - 1, and the last one opens on golden odds.
+				-- E[k] = 1 + P(Common or Rare) E[k + 1] + P(other Epic or better) E[0], solved as E[k] = a + b E[0].
+				local plain = assert(Catalog.getCrate("alley_crate")).odds
+				local golden = assert(Catalog.getCrate("alley_golden_crate")).odds
+				local last = Config.CrateLuckyEvery - 1
+				local function opensTo(target: string): number
+					local a, b = 0, 0
+					for k = last, 0, -1 do
+						local odds = if k == last then golden else plain
+						local low = ((odds.Common or 0) + (odds.Rare or 0)) / 100
+						local reset = 0
+						for _, rarity in { "Epic", "Legendary", "Mythical" } do
+							if rarity ~= target then
+								reset += (odds[rarity] or 0) / 100
+							end
+						end
+						if k == last then
+							a, b = 1, reset -- golden odds hold no Common or Rare
+						else
+							a, b = 1 + low * a, low * b + reset
+						end
+					end
+					return a / (1 - b)
+				end
+				local legendary, mythical = opensTo("Legendary"), opensTo("Mythical")
+				expect(legendary >= 35 and legendary <= 42).to.equal(true)
+				expect(mythical >= 180 and mythical <= 200).to.equal(true)
+			end
+		)
+	end)
 end

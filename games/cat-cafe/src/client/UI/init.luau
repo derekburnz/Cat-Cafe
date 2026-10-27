@@ -119,6 +119,7 @@ local gateSigns: GateSigns.GateSigns? = nil
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
 local zoneChip: ZoneChip.ZoneChip? = nil -- "Safe zone" or "Catching area" under the tier pill (UI.setZone)
+local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so an area's open edge cannot spam it
 local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
@@ -1103,13 +1104,16 @@ end
 
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
 -- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). The chip under the tier pill says
--- "Safe zone" or "Catching area"; walking back to safety toasts it once; the area's own marker hides.
+-- "Safe zone" or "Catching area"; walking back to safety pops the chip every time and toasts at most once in
+-- SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times); the area's own marker hides.
+local SAFE_TOAST_SECONDS = 20
 function UI.setZone(zone: string?)
 	if locationMarkers then
 		locationMarkers:setZone(zone)
 	end
 	local chip = zoneChip
-	if chip and chip:set(zone) then
+	if chip and chip:set(zone) and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
+		safeToastAt = os.clock()
 		UI.toast("Safe zone: no shoving here", "good")
 	end
 end

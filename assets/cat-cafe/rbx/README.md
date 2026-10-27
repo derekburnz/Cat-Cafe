@@ -7,3 +7,6 @@ same name, so a file here swaps the art in with no code change.
 
 For a higher-detail MeshPart version, import the FBX from `../exports/` in Studio (3D Importer, Scale Unit Studs),
 check it against style guide section 10, save it here as `<Name>.rbxm` and delete `<Name>.model.json`.
+
+`CatCafe_Sky.model.json` is the one exception: a Sky (no parts) written by `assets/cat-cafe/blender/sky.py` from
+images already uploaded to Roblox; WorldController puts it in Lighting.

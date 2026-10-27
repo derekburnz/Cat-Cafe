@@ -33,6 +33,7 @@ local HUD = require(script.Screens.HUD)
 local Modal = require(script.Components.Modal)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
+local RescueBar = require(script.Screens.RescueBar)
 local Scale = require(script.Scale)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
@@ -64,6 +65,8 @@ UI.events = {
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   hold began on a prompt with Rescue = true
 	rescueEnded = Signal.new(), -- (rescueSpotId, catId, completed)  completed after the full hold: send RescueEnd
+	rescuePressed = Signal.new(), -- (rescueSpotId)   a press on the rescue bar or its catch circle: forward as RescuePress (F27)
+	rescueCancelled = Signal.new(), -- (rescueSpotId)   Give up on the rescue bar: forward as RescueCancel (F27)
 	screenOpened = Signal.new(), -- (name or nil)
 	-- design v0.3
 	catchPressed = Signal.new(), -- (strayId, index, grade)   a press on circle `index` with this device's grade: forward strayId and index as CatchPress
@@ -97,6 +100,7 @@ local decor: DecorShop.DecorShop? = nil
 local collection: CatCollection.CatCollection? = nil
 local catch: CatchPrompt.CatchPrompt? = nil
 local circles: CatchCircles.CatchCircles? = nil
+local rescueBar: RescueBar.RescueBar? = nil
 local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
 local gateSigns: GateSigns.GateSigns? = nil
@@ -427,6 +431,7 @@ function UI.init(config: Types.InitConfig)
 
 	catch = CatchPrompt.new(parent)
 	circles = CatchCircles.new(parent)
+	rescueBar = RescueBar.new(parent)
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
@@ -534,6 +539,10 @@ function UI.destroy()
 	if circles then
 		circles:destroy()
 	end
+	if rescueBar then
+		rescueBar:destroy()
+	end
+	rescueBar = nil
 	if rankUpScreen then
 		rankUpScreen:destroy()
 	end
@@ -1194,6 +1203,137 @@ end
 
 function UI.catch.circlesActive(): boolean
 	return circles ~= nil and (circles :: CatchCircles.CatchCircles):isActive()
+end
+
+----------------------------------------------------------------------------------------------------
+-- Rescue minigames (F27, data-model section 10b)
+----------------------------------------------------------------------------------------------------
+
+UI.rescue = {}
+
+local rescueTarget: string? = nil -- the trap of the attempt on screen
+local rescueOnCircle = false -- a tree's falling cat is on the catch circles, not the bar
+
+-- After the attempt: the travel row comes back, and on a fail the prompt card returns while the player is still
+-- at the trap (the server makes them wait RescueSelfRetrySeconds before the next try).
+local function endRescue(success: boolean)
+	rescueTarget = nil
+	rescueOnCircle = false
+	if hud then
+		hud:setCatching(false)
+	end
+	local info = activeInfo
+	local card = catch
+	if not success and activePrompt ~= nil and info ~= nil and card ~= nil then
+		card:show(info)
+	end
+end
+
+-- From RescueChallenge(rescueSpotId, challenge). "bar" and "shake_catch" draw the bar; "circle" (the tree's
+-- falling cat, after the shakes) draws one catch circle whose press also goes to RescuePress.
+function UI.rescue.show(rescueSpotId: string, challenge: Types.RescueChallenge)
+	local bar = rescueBar
+	local circleScreen = circles
+	if not bar or not circleScreen then
+		return
+	end
+	local info = activeInfo
+	local own = info ~= nil and info.rescueSpotId == rescueSpotId
+	local catName: string? = if own and info then info.catName else nil
+	local rarity: string? = if own and info then info.rarity else nil
+	rescueTarget = rescueSpotId
+	holdOpen = false
+	if catch then
+		catch:hide() -- activePrompt and activeInfo stay so the card can come back
+	end
+	if hud then
+		hud:setCatching(true)
+	end
+	if challenge.kind == "circle" then
+		local circle: Types.CatchCircle? = challenge.circle
+		if circle == nil then
+			return
+		end
+		bar:hide()
+		rescueOnCircle = true
+		local header: CatchCircles.Header = {
+			catName = catName,
+			rarity = rarity,
+			title = "Catch it as it falls!",
+		}
+		circleScreen:show(
+			{ circle :: Types.CatchCircle },
+			challenge.windows or { perfect = 0.045, good = 0.11 },
+			header,
+			function()
+				UI.events.rescuePressed:Fire(rescueSpotId)
+			end
+		)
+		return
+	end
+	rescueOnCircle = false
+	bar:show(challenge, { catName = catName, rarity = rarity }, {
+		press = function()
+			UI.events.rescuePressed:Fire(rescueSpotId)
+		end,
+		cancel = function()
+			UI.events.rescueCancelled:Fire(rescueSpotId)
+		end,
+		ended = function(success: boolean)
+			if rescueTarget == rescueSpotId then
+				endRescue(success)
+			end
+		end,
+	})
+end
+
+-- From RescueResult(rescueSpotId, hits, pawsLeft, done, success): the server's hit count, the paws left, and
+-- whether the attempt is over. A success then moves the player to carry, as after a catch.
+function UI.rescue.update(
+	rescueSpotId: string,
+	hits: number,
+	pawsLeft: number?,
+	done: boolean,
+	success: boolean
+)
+	if rescueSpotId ~= rescueTarget then
+		return
+	end
+	if rescueOnCircle then
+		local screen = circles
+		if not done or not screen then
+			return
+		end
+		local guess = screen:gradeLocal(1)
+		local grade: Types.CircleGrade = if not success
+			then "miss"
+			elseif guess == "perfect" then "perfect"
+			else "good"
+		screen:showResult({ grades = { grade }, success = success }, function()
+			endRescue(success)
+		end)
+		return
+	end
+	if rescueBar then
+		rescueBar:update(hits, pawsLeft, done, success)
+	end
+end
+
+-- Closes the bar or the circle without a result (the controller saw the attempt end some other way).
+function UI.rescue.hide()
+	if rescueOnCircle and circles then
+		circles:hide()
+	end
+	if rescueBar then
+		rescueBar:hide()
+	end
+	if rescueTarget ~= nil then
+		endRescue(false)
+	end
+end
+
+function UI.rescue.isActive(): boolean
+	return rescueTarget ~= nil
 end
 
 local function promptAttribute(prompt: ProximityPrompt, name: string): any

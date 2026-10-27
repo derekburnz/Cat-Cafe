@@ -11,6 +11,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Format = require(script.Parent.Components.Format)
 local RankUp = require(script.Parent.Screens.RankUp)
+local RescueMarker = require(script.Parent.Components.RescueMarker)
 local Types = require(script.Parent.Types)
 
 local Demo = {}
@@ -491,6 +492,50 @@ function Demo.run(UI: any): () -> ()
 	push()
 	UI.toast("Demo mode: pretend server, pretend money", "info")
 
+	-- Rescue minigame (F27): the pretend server judges each press with the same marker maths as the real one
+	local demoRescue: Types.RescueChallenge? = nil
+	local rescueHits, rescuePaws = 0, 0
+	local function startDemoRescue()
+		local challenge: Types.RescueChallenge = {
+			kind = "bar",
+			startsAt = Workspace:GetServerTimeNow() + 0.6,
+			phase = 0,
+			speed = 1.0,
+			zoneWidth = 0.24,
+			zones = { 0.72, 0.3, 0.55 },
+			hitsNeeded = 3,
+			paws = 3,
+		}
+		demoRescue = challenge
+		rescueHits, rescuePaws = 0, 3
+		UI.rescue.show("demo_rescue_1", challenge)
+	end
+	connections[#connections + 1] = UI.events.rescuePressed:Connect(function(spotId: string)
+		local challenge = demoRescue
+		if not challenge then
+			return
+		end
+		local t = Workspace:GetServerTimeNow()
+		local position =
+			RescueMarker.position(challenge.startsAt, challenge.phase or 0, challenge.speed or 1, t)
+		local zones: { number } = challenge.zones or {}
+		local centre = zones[rescueHits + 1] or 0.5
+		if RescueMarker.inZone(position, centre, challenge.zoneWidth or 0.3, 0.03) then
+			rescueHits += 1
+		else
+			rescuePaws -= 1
+		end
+		local success = rescueHits >= (challenge.hitsNeeded or #zones)
+		local done = success or rescuePaws <= 0
+		if done then
+			demoRescue = nil
+		end
+		UI.rescue.update(spotId, rescueHits, rescuePaws, done, success)
+	end)
+	connections[#connections + 1] = UI.events.rescueCancelled:Connect(function()
+		demoRescue = nil
+	end)
+
 	-- clock: a short day and night so the chip can be seen flipping (real lengths are 180 s and 120 s)
 	task.spawn(function()
 		local phase: Types.ClockPhase = "day"
@@ -549,15 +594,16 @@ function Demo.run(UI: any): () -> ()
 			UI.tutorial.show("Place your new cat: open Cats, then the Cat room tab")
 			task.wait(6)
 			UI.tutorial.hide()
-			-- rescue prompt: the 4 s bar, no ring
+			-- rescue minigame (F27): a Rare in a bin, three hits with Rare speed and zone width
 			task.wait(3)
-			UI.catch.show({ kind = "rescue", catId = "calico", rescueSpotId = "demo_rescue_1" })
-			task.wait(0.8)
-			UI.catch.startRescue(4)
-			task.wait(4.2)
-			UI.catch.stopRescue(true)
-			task.wait(1.2)
-			UI.catch.hide()
+			UI.catch.show({
+				kind = "rescue",
+				catId = "calico",
+				rescueSpotId = "demo_rescue_1",
+				press = true,
+			})
+			task.wait(1)
+			startDemoRescue()
 		end
 	end)
 	task.spawn(function()

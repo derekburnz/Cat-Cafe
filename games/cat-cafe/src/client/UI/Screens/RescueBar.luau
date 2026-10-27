@@ -158,7 +158,9 @@ function RescueBar.new(parent: Instance): RescueBar
 			input.UserInputType == Enum.UserInputType.Touch
 			or input.UserInputType == Enum.UserInputType.MouseButton1
 		then
-			self:_press()
+			if not self:_onGiveUp(input.Position) then
+				self:_press()
+			end
 		end
 	end)
 
@@ -576,6 +578,21 @@ function RescueBar._press(self: any)
 	if callbacks then
 		callbacks.press()
 	end
+end
+
+-- True when a tap lands on Give up, so reaching for it does not also press the bar and spend a paw.
+function RescueBar._onGiveUp(self: any, position: Vector3): boolean
+	local playerGui = self.screenGui.Parent
+	if playerGui == nil or not playerGui:IsA("BasePlayerGui") then
+		return false
+	end
+	local button: Instance = self._cancel.instance
+	for _, gui in (playerGui :: BasePlayerGui):GetGuiObjectsAtPosition(position.X, position.Y) do
+		if (gui :: Instance) == button or gui:IsDescendantOf(button) then
+			return true
+		end
+	end
+	return false
 end
 
 function RescueBar._giveUp(self: any)

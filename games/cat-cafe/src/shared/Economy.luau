@@ -74,10 +74,11 @@ function Economy.lureWaitSeconds(profile: Types.PlayerProfile): number
 end
 
 -- The wait for food going in now: lureWaitSeconds less the Index's bait speed (F54, golden-fish.md section 5),
--- whole seconds. UseLure fixes it in the bowl's readyAt.
+-- whole seconds. UseLure fixes it in the bowl's readyAt. The summed percents carry float error (the full All Cats
+-- track is 0.38000000000000012), so a hair is added before flooring: 372 s, not 371 (QA, 2026-10-27).
 function Economy.baitWaitSeconds(profile: Types.PlayerProfile): number
 	return math.floor(
-		Economy.lureWaitSeconds(profile) * (1 - IndexRewards.totals(profile).baitSpeed)
+		Economy.lureWaitSeconds(profile) * (1 - IndexRewards.totals(profile).baitSpeed) + 1e-6
 	)
 end
 

@@ -182,6 +182,19 @@ return function()
 				expect(Economy.cafeMultiplier(p)).to.be.near(1.07)
 			end)
 
+			it("bait speed shortens the next bowl in whole seconds, 372 s on the full All Cats track (F54)", function()
+				local p = freshProfile()
+				expect(Economy.baitWaitSeconds(p)).to.equal(600)
+				p.indexRewards.all = { total5 = true }
+				expect(Economy.baitWaitSeconds(p)).to.equal(588)
+				local all: { [string]: boolean } = {}
+				for id in Catalog.indexPrizes.all do
+					all[id] = true
+				end
+				p.indexRewards.all = all
+				expect(Economy.baitWaitSeconds(p)).to.equal(372)
+			end)
+
 			it("crate and Index pieces are never for sale", function()
 				local p = freshProfile()
 				p.coins = 1e9

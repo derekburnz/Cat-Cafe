@@ -336,6 +336,7 @@ export type BaitState = {
 -- so the roll is not spoiled before then (reviewer N30).
 export type BaitView = {
 	lureId: string,
+	placedAt: number, -- server os.time(); with readyAt, the fill bar's length (F54: the wait is fixed at placement)
 	readyAt: number, -- server os.time()
 	cat: { catId: string, variant: string, charm: number, stars: number }?,
 }

@@ -2,7 +2,7 @@
 
 Working title: **Cat Cafe** (placeholder until a real name is picked). Game slug used in paths: `cat-cafe`. One game for now; the repo layout leaves room for a second.
 Phase as of 2026-10-25: Phase 0 (setup on Derek's PC) running in parallel with an early Phase 2 rough draft.
-Repo: https://github.com/derekburnz/Cat-Cafe (private, source of truth; named purr-pot until 2026-10-27). Work on a branch, open a pull request, let CI run the check gate. A reviewed PR gets the `automerge` label and merges itself when green; publishing to Roblox runs from GitHub Actions (skill `merge-and-publish`).
+Repo: https://github.com/derekburnz/Cat-Cafe (public since 2026-10-27, source of truth; named purr-pot until 2026-10-27). Work on a branch, open a pull request, let CI run the check gate. Once a PR is reviewed, turn on GitHub auto-merge for it (merge commit) and it merges itself when the required checks pass; the `automerge` label is the fallback when GitHub refuses. Publishing to Roblox runs from GitHub Actions (skill `merge-and-publish`).
 
 ## Read first, in this order
 1. `docs/plan.md` (the master plan: who, goals, rules, phases).

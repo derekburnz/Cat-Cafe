@@ -77,7 +77,8 @@ local function baitView(profile: Profile, now: number): Types.BaitView?
 		return nil
 	end
 	local readyAt = CafeService.baitReadyAt(profile, bait)
-	local view: Types.BaitView = { lureId = bait.lureId, readyAt = readyAt }
+	local view: Types.BaitView =
+		{ lureId = bait.lureId, placedAt = bait.placedAt, readyAt = readyAt }
 	if now >= readyAt then
 		view.cat = {
 			catId = bait.catId,

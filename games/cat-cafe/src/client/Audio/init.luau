@@ -527,6 +527,11 @@ local function cafeOpen(door: Instance): boolean
 	return phase ~= "night" and type(owner) == "number" and owner ~= 0
 end
 
+-- A cat this player chose to hide (Show other cats off: `HiddenLocal`, set on this client only) makes no sound.
+local function shown(cat: Instance): boolean
+	return cat:GetAttribute("HiddenLocal") ~= true
+end
+
 -- A stray twinkles for everyone nearby while it is gold or Epic and up (F42), so it can be found in the dark.
 local function shimmers(stray: Instance): boolean
 	return Logic.shimmers(stray:GetAttribute("Gold"), stray:GetAttribute("Rarity"))
@@ -541,7 +546,7 @@ local TAGGED_LOOPS: { [string]: LoopDef } = {
 	CafeDoor = { cue = "loopCafeDoor", when = cafeOpen },
 	Fountain = { cue = "loopFountain" },
 	FishTank = { cue = "loopFishTank" },
-	WorkingCat = { cue = "purr", near = 14 },
+	WorkingCat = { cue = "purr", near = 14, when = shown },
 	Stray = { cue = "shimmerRare", near = 40, when = shimmers },
 }
 local MAX_NEAR_LOOPS = 3
@@ -604,7 +609,9 @@ local function followLoaf(root: BasePart?)
 		for _, plot in CollectionService:GetTagged("Plot") do
 			local cats = plot:FindFirstChild("Cats")
 			for _, cat in if cats ~= nil then cats:GetChildren() else {} do
-				local part = if cat:IsA("Model") and cat:GetAttribute("Napping") == true
+				local part = if cat:IsA("Model")
+						and cat:GetAttribute("Napping") == true
+						and shown(cat)
 					then partOf(cat)
 					else nil
 				local distance = if part ~= nil
@@ -1039,13 +1046,6 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	IndexReward = function() -- F48
 		Audio.play("indexReward")
-	end,
-	-- The spin wheel (coming): a tick per slice passing the pointer, at the wheel when its position comes along.
-	WheelTick = function(_index: any, position: any)
-		Audio.play("wheelTick", vec(position))
-	end,
-	WheelWin = function()
-		Audio.play("wheelWin")
 	end,
 	Announce = function(_text: any, rarity: any)
 		Audio.play("announce", nil, Logic.rarityStep(str(rarity)))

@@ -142,14 +142,14 @@ Derek's rule: things you visit now and then become places you walk to, and the H
 Model `CatCafe_Street_SpinWheel`, about 12 studs tall: an upright wheel with six slices in the Cozy Cream pastels, a cat-ear frame, a paw-shaped pointer at the top and blinking rim lights, standing on a small striped booth. Parts the code uses:
 - `Wheel`: the turning part or model, pivot at the hub, turning about its own front axis.
 - `Face`: on the wheel, with a SurfaceGui per slice so prizes and chances come from data.
-- `Pointer`: the paw at the top.
+- `Pointer`: the paw at the top. At rest slice 1 sits under it, and slices 2 to 6 follow clockwise in `Catalog.spinWheel` order, so the art matches the code (reviewer S64).
 - `PromptAnchor`: an Attachment at the front, 3 studs up, for the prompt.
 - `RimLight` parts: for the blink.
 - The station root is tagged `SpinWheel`.
 
 How it plays:
 1. Walk up and hold E on the "Spin" prompt (0.5 s, like a catch). The Spin window opens (UI). It shows the six slices, each with its prize and its chance, your spins ("Spins: 2"), the time to the next free spin and a big Spin button.
-2. Press Spin. The server picks the slice and pays straight away, so leaving mid-spin never loses a prize. Your window spins for about 4 seconds and lands in the middle of the prize's slice with a burst. It never creeps past a bigger prize or stops on a slice edge to look like a near miss (reviewer N127). The world wheel turns for everyone at the same time (show only), so the plaza looks busy.
+2. Press Spin. The server picks the slice and pays straight away, so leaving mid-spin never loses a prize. Your window spins for about 4 seconds and lands in the middle of the prize's slice with a burst. It never creeps past a bigger prize or stops on a slice edge to look like a near miss (reviewer N127). The world wheel turns for everyone at the same time and stops on the slice you won (`LastSlice`), so the plaza looks busy and never shows a different prize.
 3. Spins come free: one free spin every day (it resets at 00:00 UTC, and missed days do not stack), plus one banked spin from each of Tip Jar steps 11 and 12. The Daily Treat's day 7 adds one later. You can bank up to 20.
 4. Spins are never sold for Robux, no pass gives spins, no Robux item adds a spin or speeds up a spin source and no Robux button appears in the window (monetization-policy, reviewer N126). A spin never gives a cat: cats only come from catching, rescuing and bait (round 3 Q17).
 

@@ -88,6 +88,15 @@ end
 function TravelService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	Net.on("Travel", onTravel)
+	-- The Square's manhole is a fast travel button in the world: the same checks, cooldown and answer.
+	local manhole = builtWorld.manhole
+	local prompt = if manhole ~= nil then manhole:FindFirstChild("ManholePrompt", true) else nil
+	if manhole ~= nil and prompt ~= nil and prompt:IsA("ProximityPrompt") then
+		local area = manhole:GetAttribute("Area")
+		prompt.Triggered:Connect(function(player: Player)
+			onTravel(player, area)
+		end)
+	end
 	Players.PlayerRemoving:Connect(function(player)
 		lastTravel[player] = nil
 	end)

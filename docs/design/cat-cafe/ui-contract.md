@@ -48,6 +48,7 @@ UI.init({
         areas = Catalog.areas,        -- {AreaDef}, v0.3: the bait odds split pools the areas the tier has opened
     },
     keybinds = true,  -- U upgrades, B decor, C collection, F lure picker, gamepad B closes (default true)
+    playSound = Audio.play,  -- optional; the UI plays its own cues through it and stays silent without it
 })
 
 -- push state whenever ProfileSync arrives (partial tables are fine, they merge at the top level)
@@ -78,7 +79,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.openCatRoom()` | Opens Collection on the Cat room tab (tutorial step 3). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
 | `UI.announce(text)` | Server-wide catch announcement (gold toast). |
-| `UI.showCatFound(catId, isNew?)` | Celebration popup with rarity banner, sparkles, name, rate. Auto-closes in 5 s. |
+| `UI.showCatFound(catId, isNew?, extra?)` | The hatch style reveal (F39 P1): rays in the rarity colour, the cat's own model from `ReplicatedStorage.Assets` popping in and swaying (its initial when the model is missing), a NEW sticker when `isNew`, charm stars filling one by one and "Purrfect catch! Charm +N". `extra = { stars?, shiny?, charmGain? }`; stars and shiny fall back to the newest copy of the cat in `state.cats` from the last 30 s, and the stars row hides without them. Pass `charmGain` from the v0.4 `CatchResult`. Auto-closes in 5 s. |
 | `UI.showOfflineEarnings(amount, seconds)` | "While you were away" popup with Claim, fires `events.claimOffline`. |
 | `UI.floatText(worldPosition, text, color?)` | Rising "+$8" at a world point (customers' coin pops). |
 | `UI.setCarrying(info?)` | `info = { catId, catName?, rarity?, door: BasePart? }`. Bottom-centre banner "Carrying Void" plus a world marker with distance over the door. `nil` clears. |
@@ -117,13 +118,16 @@ Cat room (F25): Assign opens a role picker, one row per role, never a slot numbe
 
 A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card reads "Catch" or "Rescue" (the prompt's `ActionText` wins when set), the touch button reads CATCH or RESCUE, and one press fires `events.grabBegan(strayId, catId)` or `events.rescueBegan(rescueSpotId, catId)`. The card then shows "Get ready..." until the server answers with `catch.showCircles`, the rescue minigame or `catch.fail(reason, retry)` for a refusal. A rescue prompt with a hold duration keeps the v0.2 rescue bar until the minigames. The `Shiny` attribute on a stray shows on the circles header.
 
+v0.4 paws: when the stray carries a `Patience` attribute the card shows a paw row (pink paws left, grey paws spent) read from `Paws_<UserId>` on the stray (no attribute means full) and the hint "Hit each ring. A miss costs a paw!". Without `Patience` the v0.3 hint stays. At 0 paws the controller hides the prompt, so the card never shows; the hiss icon over the stray is the vfx-animator's.
+
 ### Closing circles (`UI.catch`, built, F26)
 
 | Function | Purpose |
 |---|---|
-| `showCircles(strayId, circles, windows)` | From `CatchSchedule`. `circles = { { startsAt, shrinkSeconds, x, y } }`, `windows = { perfect, good }` (half-widths in seconds). The prompt card makes way for a full-screen overlay: a header with the cat, rarity and stars, then each circle at its position. Its ring fades in 0.35 s before `startsAt`, the closer shrinks from three times the ring's size and meets the ring at `startsAt + shrinkSeconds`. The Good band (green) and Perfect band (gold) are drawn from `windows` at the closer's speed, so they show the real timing. `x` and `y` (0 to 1) map into the middle 64% by 50% of the screen. |
+| `showCircles(strayId, circles, windows, pawsLeft?)` | From `CatchSchedule`. `pawsLeft` (v0.4) fills the paw row in the header; nil hides it (the player cannot run out on this stray). `circles = { { startsAt, shrinkSeconds, x, y } }`, `windows = { perfect, good }` (half-widths in seconds). The prompt card makes way for a full-screen overlay: a header with the cat, rarity and stars, then each circle at its position. Its ring fades in 0.35 s before `startsAt`, the closer shrinks from three times the ring's size and meets the ring at `startsAt + shrinkSeconds`. The Good band (green) and Perfect band (gold) are drawn from `windows` at the closer's speed, so they show the real timing. `x` and `y` (0 to 1) map into the middle 64% by 50% of the screen. |
 | (input) | A tap anywhere, a click, E, Space, or the gamepad's A or R2 is a press. The press goes to the lowest circle still open: a press before that circle's `startsAt` is ignored, and a circle whose window has closed (target + good + `CatchLatencyCapSeconds`, 0.15) counts as a miss so the next press goes to the next circle, the order the server judges in. Each press fires `events.catchPressed(strayId, index)`. The client sends no time. Grades drawn now are hints from the device clock. |
-| `showResult(strayId, scores, chance, success, stayed?)` | From `CatchResult`. `stayed` (reviewer N39) says whether a failed catch left the stray in place; without it only a Common stays. Each circle shows the server's grade (1 Perfect, 0.5 Good, 0 Miss), the banner shows "Catch chance 75%" and "Caught!", "Missed, try again" (the stray stayed) or "It got away". The overlay closes after 1.6 s; a stray that stays gets its prompt card back while the player is in range. Call nothing else for a CatchResult. |
+| `showGrades(strayId, grades, success, pawsLeft?, charmGain?)` | From the v0.4 `CatchResult`. `grades` run up to and including the first Miss. Each circle pops PERFECT (gold), GOOD (green) or MISS (red) at its ring. A catch shows the banner "Caught!", or "PURRFECT!" in gold when every circle was Perfect, over "Charm +N" (or "1/3 Perfect" when no charm) for 1.6 s. A miss wobbles the MISS word (not with reduced motion), shrinks away the circles left over, takes a paw off the header with a pop, closes after 1 s and toasts "It slipped away! 2 paws left", "It slipped away! 1 paw left", "It won't trust you tonight" at 0, or "It slipped away! Try again" when `pawsLeft` is nil. The toast is silent; the hiss is the sound-designer's and the camera shake the vfx-animator's. While paws are left the prompt card comes back with the new count. Call nothing else for a CatchResult. |
+| `showResult(strayId, scores, chance, success, stayed?)` | The v0.3 `CatchResult`, kept until the controller calls `showGrades`: scores of 1, 0.5 and 0 become Perfect, Good and Miss and it runs the same end with no paw row and no toast, since the server still toasts the miss until the switch (reviewer S39). When the controller moves to `showGrades`, the server drops its three slipped away toasts and keeps only forfeit reasons such as "Too far away". |
 | `hideCircles()` / `circlesActive()` | Utilities. The overlay also closes itself 4 s after the last target if no result came. |
 
 ### Tiers and rank up (built, F24)
@@ -131,13 +135,43 @@ A stray or stuck-cat prompt with `HoldDuration = 0` is a press prompt. The card 
 | API | Purpose |
 |---|---|
 | `catalog.tiers` | `{ TierDef }`, data-model 5b: `{ tier, name, cost, distinctCats, needsRarity?, needsRarityCount?, slots, multiplier, area, caps = { tables, espresso, net } }`. |
-| `state.tier` | 1 to 5. With `catalog.tiers` the top pill shows "Tier 2 · Cozy Cafe", what the next tier still needs and a progress bar, and a gold "Rank up ready!" tag when every requirement is met. Tapping it opens the `RankUp` screen. |
+| `state.tier` | 1 to 5. With `catalog.tiers` the top pill shows "Tier 2 · Cozy Cafe", what the next tier still needs and a progress bar, and, when every requirement is met, a tilted red "Rank up!" sticker on its corner with "Rank up ready! Tap to see" as the sub line. Tapping it opens the `RankUp` screen. |
 | `UI.open("RankUp")` | The card: next tier's name, each requirement ticked or not (coins, different cats from `collection`, the rarity from Tier 3, where a rarer cat also counts: "One cat, Epic or better"), what it opens (area, role slots, tips multiplier, raised upgrade caps, decor with `requiresTier`), and a gold "Rank up · $1,500" button that only lights up when everything is met. A `rankUp` field in ProfileSync is not needed; the card computes progress from the catalog and the state. |
 | `events.rankUp()` | Rank up pressed. Forward as `RankUp`; the server checks everything again. |
 
 ### Clock chip (built, F31)
 
 At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeMultiplier`. The chip stays hidden until that constant exists (F31), because the server pays full tips at night before then. The income line under the money counts only cats in a role slot when `state.cats` is sent, since resting cats earn nothing.
+
+### Sounds (built)
+
+`UI.init` takes `playSound`, a function called with a cue id from the sound list (docs/audio/cat-cafe/sound-list.md section 5.8). Pass `Audio.play`; the UI keeps no asset ids and never requires Audio. A failing call warns once and never breaks a button.
+
+| Cue | When the UI plays it |
+|---|---|
+| `uiClick` | Any button press, the lure slot, Cafe and Alley travel. Buttons that only open or close a screen (menu tiles, Collection, Areas, the red X) stay silent and let the swish play. |
+| `uiError` | A press on a greyed button (can't afford, carrying, locked area) and every `warn` toast. |
+| `uiOpen` / `uiClose` | A modal screen opens or closes. |
+| `uiTab` | The Book and Cat room tabs, the decor category chips and a cat cell in the book. |
+| `uiToast` | Every `info`, `good` and `announce` toast. |
+| `uiHint` | A new tutorial line. |
+| `uiRankReady` | The first time each tier's requirements are all met (the red "Rank up!" sticker appears). |
+
+`purchase` and `jingleCatFound` are not played by the UI: Audio plays them from the `Purchase` and `CatFound` moments, so each plays once and only after the server agrees.
+
+### Gate signs (built, F39)
+
+`UI.init` puts a sign over every gate tagged `AreaGate` (WorldBuilder sets `Area` and `RequiresTier`), including gates that stream in later. Nothing to call: the signs follow `UI.update` and the catalog. Locked: a lock, the area name, "Needs Cozy Cafe (Tier 2)" and, for the next tier only, one bar per rank up requirement from the same progress the rank up card uses ("3 / 5", "$900 / $1.5K", gold with a tick when met; "Ready to rank up!" when all are met). A gate two or more tiers away says "Rank up to <next tier> first". Open: a green name plate with the area icon. The signs are local BillboardGuis sized in studs, shown within 50 studs, and the server's placeholder text label on each gate is removed on this client. Engineer: the label in `WorldBuilder.buildGate` and the BillboardGui toggle in `WorldController.setGateOpen` can go whenever convenient.
+
+### Next goal card and menu dots (built, F39 P1)
+
+The HUD's right column has a next goal card under the clock (Pet Simulator 99 quest style): "NEXT GOAL", the next tier's name and one bar per rank up requirement from `RankUp.progress`, gold when met. All met reads "READY! TAP TO RANK UP" with a gold edge. A tap opens the rank up card; the card hides at the top tier. The tier pill now only says "Next: <tier name>" under the title.
+
+Each menu tile gets a red "!" dot when its screen has something new (`Notices.luau`): an upgrade level or decor item the player can now afford and is allowed to buy, or a cat or shiny added to the collection since the book was last open (cats caught before the session are not news). Opening the screen clears its dot, and anything that appears while it is open counts as seen. No new fields: it reads the state the UI already gets.
+
+### Area title card and shout-outs (built, F39 P1)
+
+`UI.showAreaTitle(areaId)` shows the area's name in big outlined letters for two seconds with its "Epic or better N%" line in the area's colour (Pet Simulator 99 and Fisch zone names). `"home"` shows the cafe's tier name over "Your cafe". `UI.travel.result(destination, true)` already calls it; the controller also calls it when the player walks into an area (the zone check that picks the ambience). The same area twice within 4 s shows once. `UI.announce(text)` shout-outs now take the colour of the first rarity named in the text and stay 4 s.
 
 ### Planned in the next UI pull requests
 
@@ -154,7 +188,7 @@ At night a small "Tips 60%" chip sits under the clock, from `Config.NightIncomeM
 | `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
 | Shiny | A sparkle badge on cards, the carry banner and the book; the book gets a Shiny page with its own count from `state.shinyCollection`. `CatInstance.variant = "shiny"`. |
 | Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`; the shown name is `CatInstance.name` or the catalog name. |
-| Fast travel | Five area buttons; locked ones grey with "Tier 3". Fires `events.travel(areaId)`. |
+| Fast travel (built, v0.4 F19) | Top centre under the tier pill: Cafe, Alley and Areas buttons (Grow a Garden style). Cafe and Alley fire `events.travel("home")` and `events.travel("alley")`; Areas opens `UI.open("Areas")`, five area cards with "Epic or better N%" and Go, locked ones greyed with "Opens at Tier n". The row hides while the catch circles show (their header takes the top centre). Every button and Go greys while carrying (`state.carrying` or `UI.setCarrying`) and Cafe and Alley grey for `Config.TravelCooldownSeconds` (3 until it exists) after a trip. Forward `events.travel(destination)` as `Travel(destination)`; pass `TravelResult(destination, ok, reason?)` to `UI.travel.result`, which lifts the cooldown and wobbles the button on a refusal (the server toast gives the reason). |
 
 Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Retired once the rescue minigames and the bait bowl land: `rescueEnded`, `startRescue`, `stopRescue` and `equipLure`; they stay until the controller drops them so main keeps compiling.
 
@@ -243,7 +277,7 @@ Odds visible before any purchase and the detail control is labelled "Details", n
 
 ## Not in scope for the UI thread, and space left for later
 
-Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, sounds (`Theme.sounds.*` hooks are nil), localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: fast travel buttons (F19, HUD left stack under the menu, greyed while carrying), leaderboards and settings (P2, modal screens), event banner (HUD top centre under the cafe pill, post-slice), a "Closed" state on the HUD rate if tips pause at night (questions-for-gavin.md question 10).
+Remotes, validation, rate limits, data saving, cat AI, decor placement in the world, localization (strings sit in the screens, ready to pull out). Planned screens with room reserved: leaderboards and settings (P2, modal screens), event banner (HUD top centre under the travel row, post-slice), a "Closed" state on the HUD rate if tips pause at night (questions-for-gavin.md question 10).
 
 ## Check gate status
 

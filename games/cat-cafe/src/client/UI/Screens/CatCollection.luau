@@ -8,6 +8,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -173,6 +174,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		textSize = Theme.sizes.textBody,
 		layoutOrder = 1,
 		parent = tabs,
+		sound = "uiTab",
 		onClick = function()
 			self:showTab("Book")
 		end,
@@ -185,6 +187,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		textSize = Theme.sizes.textBody,
 		layoutOrder = 2,
 		parent = tabs,
+		sound = "uiTab",
 		onClick = function()
 			self:showTab("Room")
 		end,
@@ -507,6 +510,7 @@ function CatCollection._buildBook(self: any)
 				Parent = cell,
 			})
 			local connection = cell.Activated:Connect(function()
+				Sound.play("uiTab")
 				self:_select(def.id)
 			end)
 			self._cells[def.id] = {

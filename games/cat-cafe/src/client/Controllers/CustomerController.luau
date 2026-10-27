@@ -12,6 +12,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local Effects = require(script.Parent.Parent.Effects)
 local Mover = require(Shared:WaitForChild("Mover"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
@@ -219,9 +220,13 @@ function CustomerController.start()
 			if not isDay() then
 				continue
 			end
-			-- one new customer per running cafe per tick, while seats and the street-wide cap allow
+			-- one new customer per running cafe per tick, while seats and the street-wide cap allow (reviewer N59:
+			-- fewer on a phone)
+			local cap = if Effects.tier() == "low"
+				then Config.World.CustomersMaxLow
+				else Config.World.CustomersMax
 			for _, plot in runningPlots() do
-				if activeCustomers >= Config.World.CustomersMax then
+				if activeCustomers >= cap then
 					break
 				end
 				local seat, tableTop = freeSeat(plot)

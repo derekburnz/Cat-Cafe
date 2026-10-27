@@ -23,6 +23,7 @@ local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local CafeSigns = require(script.Screens.CafeSigns)
 local CatCollection = require(script.Screens.CatCollection)
+local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local Create = require(script.Components.Create)
@@ -795,7 +796,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		if newest then
 			info.stars = info.stars or newest.stars
 			if info.shiny == nil then
-				info.shiny = newest.variant == "shiny"
+				info.shiny = CatVariant.isGold(newest.variant)
 			end
 		end
 		popups:showCatFound(def, isNew, info)
@@ -1494,6 +1495,8 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local charm = promptAttribute(prompt, "Charm")
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
+	-- Gold since 2026-10-27; the old Shiny attribute still counts until the server rename lands
+	local gold = promptAttribute(prompt, "Gold")
 	local shiny = promptAttribute(prompt, "Shiny")
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
@@ -1509,7 +1512,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 			then dropOwnerUntil
 			else nil,
 		press = prompt.HoldDuration <= 0,
-		shiny = shiny == true,
+		shiny = CatVariant.goldFlag(gold, shiny),
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
 		rescueSpotId = if type(rescueSpotId) == "string"
 			then rescueSpotId

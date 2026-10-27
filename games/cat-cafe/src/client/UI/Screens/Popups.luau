@@ -437,7 +437,7 @@ function Popups.showCatFound(
 		local info: Types.CatFoundExtra = extra or {}
 		local shiny = info.shiny == true
 		local rarityColor = Theme.rarityColor(rarity)
-		local label = (if shiny then "SHINY " else "") .. rarity:upper()
+		local label = (if shiny then "GOLD " else "") .. rarity:upper()
 		self._catBanner.Text = if isNew
 			then ("NEW %s CAT!"):format(label)
 			else ("%s CAT CAUGHT"):format(label)

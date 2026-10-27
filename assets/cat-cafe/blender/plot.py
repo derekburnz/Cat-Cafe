@@ -647,16 +647,16 @@ def build_tier(n, mat):
         extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat)]
     elif n == 4:                                                              # fish tank in the window, back patio
         glass, water = RB(), RB()
-        cx = WINDOWS[1]
-        b.span((cx - 2.6, 0, -13.85), (cx + 2.6, 1.0, -12.2), "dark_wood")
-        glass.span((cx - 2.5, 1.0, -13.75), (cx + 2.5, 3.4, -12.3), "glass")
-        water.span((cx - 2.4, 1.1, -13.65), (cx + 2.4, 3.0, -12.4), "fish_blue")
-        b.span((cx - 2.6, 3.4, -13.85), (cx + 2.6, 3.55, -12.2), "fur_black")
+        cx, dz = WINDOWS[1], 1.6                       # 1.6 back from the window, clear of the Window plants decor
+        b.span((cx - 2.6, 0, -13.85 + dz), (cx + 2.6, 1.0, -12.2 + dz), "dark_wood")
+        glass.span((cx - 2.5, 1.0, -13.75 + dz), (cx + 2.5, 3.4, -12.3 + dz), "glass")
+        water.span((cx - 2.4, 1.1, -13.65 + dz), (cx + 2.4, 3.0, -12.4 + dz), "fish_blue")
+        b.span((cx - 2.6, 3.4, -13.85 + dz), (cx + 2.6, 3.55, -12.2 + dz), "fur_black")
         for (fx, fy, sw) in ((cx - 1.0, 2.2, "fur_orange"), (cx + 0.8, 1.7, "sparkle"), (cx + 1.6, 2.5, "fur_orange")):
-            b.span((fx - 0.25, fy - 0.12, -13.1), (fx + 0.25, fy + 0.12, -12.9), sw)
-            b.span((fx + 0.25, fy - 0.15, -13.08), (fx + 0.4, fy + 0.15, -12.92), sw)
+            b.span((fx - 0.25, fy - 0.12, -13.1 + dz), (fx + 0.25, fy + 0.12, -12.9 + dz), sw)
+            b.span((fx + 0.25, fy - 0.15, -13.08 + dz), (fx + 0.4, fy + 0.15, -12.92 + dz), sw)
         for px in (cx - 1.8, cx + 0.2, cx + 1.9):
-            b.span((px - 0.1, 1.1, -13.2), (px + 0.1, 2.3, -13.0), "leaf_green")
+            b.span((px - 0.1, 1.1, -13.2 + dz), (px + 0.1, 2.3, -13.0 + dz), "leaf_green")
         # back patio: deck path to the yard gate, pergola over the back door, planters, lights
         bd0, bd1 = BACK_DOOR[0], BACK_DOOR[1]
         b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, 24.8), "caramel_wood")

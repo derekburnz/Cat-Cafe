@@ -9,11 +9,14 @@ All images here are rendered from the generated Blender assets in `assets/cat-ca
 | `vignette_alley_night.png` | The same alley at night: street lamp, glowing shop window, string lights and the Closed sign switched to Neon, the two Alleyway rescue traps (wheelie bin and garbage bags) each with a stuck Ginger. Target look for the night lighting preset in the style guide. |
 | `sheet_poses.png` | Tabby wearing the accessory set (glasses, hat, bow tie, apron), the upright pose test with the same parts, the four role uniforms on upright cats (apron, bow tie, sash, party hat), the carried pose against an R15-sized stand-in, the four v0.3 rescue traps with their stuck cat (Alleyway trash bin and garbage bags, Park rescue tree and trash can), and a shiny Tabby with the ShinySparkle sprite at the suggested sizes. |
 | `sheet_cats.png` | The 20 slice cats from one rig. Alleyway: Tabby, Tuxedo, Ginger, Smoke, Calico, Tortie, Sphynx, Maine Coon, Void, Midnight. Park: Snow, Cream, Brownie, Blue, Siamese, Bengal, Ragdoll, Persian, Blossom, Aurora. Collar color is rarity; Midnight and Aurora are the Mythical heroes. |
-| `sheet_cafe.png` | Customers, counter, espresso machine levels 1 to 3, the five cat spots, table and chair, decor. |
-| `sheet_outdoors.png` | Alley and park sets, including the rescue traps and the shop window. |
-| `sheet_items.png` | Food bowls, kibble, tuna, salmon, the net at levels 1 to 3, and the accessories. |
+| `sheet_cafe.png` | Customers (with the rich customer and the night dealer), counter, espresso machine levels 1 to 3, the cat spots and role stations (greeter podium, stage cat tree), table and chair, decor. |
+| `sheet_outdoors.png` | Alley and park sets, including the rescue traps and the shop window, the dealer cart and the small area gates for the Neighbourhood, Woods and Sewer. |
+| `sheet_items.png` | Food bowls, kibble, tuna, salmon, the dealer foods (sardines, caviar, moon milk, star treat), the net at levels 1 to 3, the tip pile and the accessories. |
+| `sheet_plot.png` | Cafe plot pieces (world-and-feel.md sections 3 to 5): the shell in Mint, Blush, Butter and Lilac, the interior dressing, the For Rent dressing for empty plots and the tier sets 1 to 5 seen from the street. |
 | `previews/<Name>.png` | One three-quarter view per asset, same name as the FBX in `assets/cat-cafe/exports/`. |
 | `views/<Name>.png` | Five-view inspection sheet per asset (front, left, back, top, three-quarter), no floor; Workbench shading on a PC, Cycles CPU in a cloud container (see `assets/cat-cafe/blender/README.md`). Written by `build_all.py --render`; pairs with `assets/cat-cafe/exports/gates.md`. |
+| `rbx/<Name>.png` | The Part-built model from `assets/cat-cafe/rbx/` drawn with Roblox's own shapes by `rbx_preview.py`, which is what Studio shows without any mesh upload. |
+| `rbx/street_row.png` | Three plots side by side as Parts, left to right: a Butter cafe at tier 5, a Blush plot For Rent and a Mint cafe at tier 3. |
 | `CatCafe_Palette.png` | The 64-swatch texture every mesh uses (style guide section 2). |
 
 Glass and water parts render opaque or are hidden in these previews; in Studio they get Transparency per `manifest.json`. Neon tubes and bulbs are flat color here and get the Neon material plus a light in Studio.

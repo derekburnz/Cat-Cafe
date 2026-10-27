@@ -71,7 +71,7 @@ UI.events = {
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
 	useLure = Signal.new(), -- (lureId)   Use on a food in the Bait bowl screen: forward as UseLure (F28)
 	resolveBait = Signal.new(), -- (choice)   "tame" or "letgo" from the bait card: forward as ResolveBait
-	buyDealerFood = Signal.new(), -- (slot)   Buy on the night dealer screen, slot 1 to 3: forward as BuyDealerFood (F32)
+	buyDealerFood = Signal.new(), -- (slot, lureId)   Buy on the night dealer screen: forward both as BuyDealerFood (F32)
 }
 
 local state: Types.PlayerState = {
@@ -385,8 +385,8 @@ function UI.init(config: Types.InitConfig)
 		hudInstance:setBowlMode(true)
 	end
 	dealerScreen = Dealer.new({
-		buy = function(slot: number)
-			UI.events.buyDealerFood:Fire(slot)
+		buy = function(slot: number, lureId: string)
+			UI.events.buyDealerFood:Fire(slot, lureId)
 		end,
 		close = closeModal,
 	})

@@ -296,23 +296,23 @@ function Demo.run(UI: any): () -> ()
 		dealerStock = stock
 		UI.dealer.setStock(stock)
 	end
-	connections[#connections + 1] = UI.events.buyDealerFood:Connect(function(slot: number)
+	-- the server refuses a slot whose food changed with a restock (S42)
+	local function buyDealer(slot: number, lureId: string)
 		local stock = dealerStock
 		if not stock then
 			return
 		end
 		local entry = stock.slots[slot]
-		if entry and not entry.bought and spend(entry.cost) then
+		if entry and entry.lureId == lureId and not entry.bought and spend(entry.cost) then
 			entry.bought = true
 			profile.lures[entry.lureId] = (profile.lures[entry.lureId] or 0) + 1
-			UI.toast(
-				"Bought " .. Catalog.luresById[entry.lureId].name .. ". Use it in your bait bowl!",
-				"good"
-			)
+			local name = Catalog.luresById[entry.lureId].name
+			UI.toast("Bought " .. name .. ". Use it in your bait bowl!", "good")
 			push()
 		end
 		UI.dealer.setStock(stock)
-	end)
+	end
+	connections[#connections + 1] = UI.events.buyDealerFood:Connect(buyDealer)
 	connections[#connections + 1] = UserInputService.InputBegan:Connect(
 		function(input: InputObject, processed: boolean)
 			if not processed and input.KeyCode == Enum.KeyCode.N then

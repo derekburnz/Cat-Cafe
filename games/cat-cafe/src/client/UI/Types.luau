@@ -103,14 +103,7 @@ export type PartialState = {
 	tutorialStep: number?,
 }
 
-export type ScreenName =
-	"Upgrades"
-	| "Decor"
-	| "Collection"
-	| "RankUp"
-	| "Areas"
-	| "Bait"
-	| "Dealer"
+export type ScreenName = "Upgrades" | "Decor" | "Collection" | "RankUp" | "Areas" | "Bait" | "Dealer"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

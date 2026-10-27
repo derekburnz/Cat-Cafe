@@ -22,7 +22,7 @@ local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {
-	buy: (slot: number) -> (),
+	buy: (slot: number, lureId: string) -> (), -- the food too, so a Buy that lands after a restock is refused (S42)
 	close: () -> (),
 }
 
@@ -392,7 +392,7 @@ function Dealer._buy(self: any, lureId: string)
 		local group: DealerRows.Row = row.group
 		if group.lureId == lureId and #group.open > 0 and self:_canBuy(group) then
 			self._pending[lureId] = os.clock() + PENDING_SECONDS
-			self._callbacks.buy(group.open[1])
+			self._callbacks.buy(group.open[1], lureId)
 			self:_renderAll()
 			return
 		end

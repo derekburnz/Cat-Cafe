@@ -243,7 +243,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `equipLure` | `lureId` | Equip pressed (v0.2 lure spots; unused in bowl mode) |
 | `useLure` | `lureId` | Use pressed on a food in the Bait bowl screen. Forward as `UseLure(lureId)` |
 | `resolveBait` | `"tame"` or `"letgo"` | A choice on the bait card. Forward as `ResolveBait(choice)` |
-| `buyDealerFood` | `slot` (1 to 3) | Buy pressed on the night dealer screen. Forward as `BuyDealerFood(slot)`, then send `DealerStock` back |
+| `buyDealerFood` | `slot` (1 to 3), `lureId` | Buy pressed on the night dealer screen. Forward as `BuyDealerFood(slot, lureId)`; the server refuses it when that slot holds another food after a restock (reviewer S42). Then send `DealerStock` back |
 | `placeCat` | `uid, spotId` | Assign pressed on a role in the Cat room; `spotId` is the first free open slot of that role |
 | `unplaceCat` | `uid` | Rest pressed on a placed cat |
 | `sellCat` | `uid` | Sell confirmed. Rare and above ask twice: Sell turns into "Sell $150", Rest turns into an equal-sized Cancel. |

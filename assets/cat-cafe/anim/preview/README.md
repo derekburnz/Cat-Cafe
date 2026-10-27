@@ -22,3 +22,12 @@ lune run dump.luau /tmp/catclips/cats.rbxm sleepSide /tmp/catclips/before.json /
 ```
 
 Scenarios (which cat, which styles for how long, how fast it walks, which view, and for a seated cat the role whose outfit it wears) are in `scenarios.luau`. Show Derek the cats he knows: they use the Tabby, the orange cat of Model-Agent's pose sheets, and the default view is the sheets' camera (front left, the face towards the camera); a working cat wears its outfit the way the server's `CatPose.dress` puts it on. Clips are scratch output: keep them out of Git and post them in the thread instead.
+
+## Player poses (the Tackle)
+
+`avatar.luau` does the same for the Tackle's character poses (`Avatar.luau` and `Presets.tacklePose`, unchanged) on a stand-in blocky R15 in the palette's shirt and skin swatches, built from plain tables with the members `Avatar.bind` reads. The engineer's lunge and knockback are copied as straight moves at the design's speeds. Scenarios: `miss`, `hit` (into a player facing the tackler) and `behind` (into one facing away). The JSON carries a fixed `box` and the checker floor, so the camera watches the whole run from one place.
+
+```sh
+lune run avatar.luau hit /tmp/catclips/hit.json
+python render.py /tmp/catclips/hit.json /tmp/catclips --samples 10
+```

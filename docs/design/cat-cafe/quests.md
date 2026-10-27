@@ -4,7 +4,7 @@ Derek, 2026-10-27 21:59: "Add some gameplay for daily quests, weeklys quests, an
 
 Derek, 22:10, on the first draft: "lets do 5 a day. Give potions that can be used not straight boosts immediately. Same thing for weekly. No tips boost for achievements grant money based on money per min calculation for  rewards or spins or crates or potions. Achievements not needed in order and add more should be at least 30". This version follows it: five dailies, potions for the full sets, and 42 achievements that stand on their own and pay coins scaled to income, spins, crates and potions.
 
-Status: proposal. The numbers go to the engineer and UI threads once Derek okays them. Feature F73. Every number is a first guess for QA to tune. Owner: game-designer thread. This replaces the Customer Requests plan (common-features item 15).
+Status: approved by Derek on 2026-10-27 at 22:14 ("looks good"), and handed to the engineer and UI threads. Feature F73. Every number is a first guess for QA to tune. Owner: game-designer thread. This replaces the Customer Requests plan (common-features item 15).
 
 ## 1. What a player sees
 
@@ -84,7 +84,7 @@ With the dailies, a player who finishes everything gets about 240 golden fish a 
 
 ## 4. Quest potions
 
-Three new potions join F64's four in the potion bag, so they reuse `potions`, `UsePotion`, `buffs`, PotionMaxMinutes (60) and the `ActivePotions` glow. They sit in the bag until the player drinks one, and then the timer runs in real time like any potion's. Drinking another of the same kind adds its time up to 60 minutes, and the rest stay in the bag for later.
+Three new potions join F64's four in the potion bag, so they reuse `potions`, `UsePotion`, `buffs`, PotionMaxMinutes (60) and the `ActivePotions` glow. They sit in the bag until the player drinks one. Like every potion, its timer then counts down only while the player is in the game and pauses while they are away (Derek, 22:14: "Also make potion time left pause on exit", data-model 12b). Drinking another of the same kind adds its time up to 60 minutes, and the rest stay in the bag for later.
 
 | id | name | lasts | effect |
 |---|---|---|---|

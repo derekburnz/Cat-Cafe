@@ -44,7 +44,9 @@ Fallbacks: if no `CodesCat` station is in the Workspace yet (F65), shot 7's capt
 | 8 | (0, 70, 96), (0, 0, 161) | (0, 66, 100), (0, 0, 161) |
 | 9 | (0, 66, 100), (0, 0, 161) | 12 studs behind and 6 above the character, looking at its head |
 
-Shot 7 is now a sweep down into the Town Square from its south side that ends with the Spin Wheel and the Codes Cat both in frame; the world wheel still turns two spins on this client. Better still, the engineer can compute shots 4 to 8 from the Layout and Config points they look at, so a later layout change moves them too.
+Shot 7 is now a hard cut, then Quad InOut: a sweep down into the Town Square from its south side that ends with the Spin Wheel and the Codes Cat both in frame. In v3 it cannot tween on from shot 6, which ends at the north arch about 125 studs from the square, so the Move column's "continuous sweep out through the street arch" no longer applies. The world wheel still turns two spins on this client.
+
+Shot 9's swoop is longer in v3, about 210 studs in 2.0 s down to a plot 5 or 6 cafe (v2's longest was about 150). If it looks like a whip in Studio, route it through a via point over the square such as (0, 45, 0), the way shot 1 uses one. That is tuning only; the start, end and timing stay. Better still, the engineer can compute shots 4 to 8 from the Layout and Config points they look at, so a later layout change moves them too.
 
 ## 3. Gameplay-Engineer
 

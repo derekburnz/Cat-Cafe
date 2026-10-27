@@ -87,5 +87,14 @@ return function()
 			expect(state.window).to.equal(11)
 			expect(state.bought["1"]).never.to.be.ok()
 		end)
+
+		it("counts every slot as bought while the window is behind the saved one (N32)", function()
+			local state = { window = 10, bought = {} }
+			Dealer.refresh(state, 9)
+			expect(Dealer.behind(state, 9)).to.equal(true)
+			expect(Dealer.behind(state, 10)).to.equal(false)
+			Dealer.refresh(state, 11)
+			expect(Dealer.behind(state, 11)).to.equal(false)
+		end)
 	end)
 end

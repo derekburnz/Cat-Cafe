@@ -73,6 +73,13 @@ function Dealer.stock(userId: number, window: number, tier: number): { string }
 	return foods
 end
 
+-- True while this server's window is behind the one the saved marks belong to (a hop to a server whose clock
+-- is a second behind at a window edge). Every slot then counts as bought until the window catches up, so a
+-- food bought in the newer window cannot be bought again from the older one (reviewer N32).
+function Dealer.behind(state: Types.DealerState, window: number): boolean
+	return window < state.window
+end
+
 -- Clears the bought marks once the window has moved on. Never on a step back, because two servers' clocks can
 -- differ by a second at a window edge (reviewer N32).
 function Dealer.refresh(state: Types.DealerState, window: number)

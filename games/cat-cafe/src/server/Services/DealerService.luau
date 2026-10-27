@@ -97,13 +97,14 @@ end
 local function stockFor(player: Player, profile: Types.PlayerProfile): Types.DealerStock
 	local window = Dealer.window(os.time())
 	Dealer.refresh(profile.dealer, window)
+	local behind = Dealer.behind(profile.dealer, window)
 	local slots: { Types.DealerSlot } = {}
 	for slot, lureId in Dealer.stock(player.UserId, window, Economy.tier(profile)) do
 		local def = Catalog.getLure(lureId)
 		table.insert(slots, {
 			lureId = lureId,
 			cost = if def ~= nil then def.cost else 0,
-			bought = profile.dealer.bought[tostring(slot)] == true,
+			bought = behind or profile.dealer.bought[tostring(slot)] == true,
 		})
 	end
 	return { slots = slots, restocksAt = Dealer.restocksAt(window) }
@@ -176,6 +177,10 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 	local foods = Dealer.stock(player.UserId, window, Economy.tier(profile))
 	if foods[slot] ~= lureId then
 		refuse("Fresh stock just arrived. Take another look.")
+		return
+	end
+	if Dealer.behind(profile.dealer, window) then
+		refuse("Fresh stock is on its way. Try again in a moment.")
 		return
 	end
 	local key = tostring(slot)

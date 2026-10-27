@@ -279,7 +279,9 @@ end
 -- The night dealer's cart (F32): the UI's range hint follows it and its prompt opens the dealer screen. The cart
 -- is the server's, tagged DealerCart, there from night start to day start.
 local function bindDealerCart()
-	local function arrived(instance: Instance)
+	-- `cue` is false for a cart already out when this client starts, so a player who joins at night does not
+	-- hear it arrive (reviewer note on #110).
+	local function arrived(instance: Instance, cue: boolean)
 		if not instance:IsA("Model") then
 			return
 		end
@@ -292,15 +294,19 @@ local function bindDealerCart()
 				UI.dealer.open()
 			end)
 		end
-		Moments.DealerArrive:Fire()
+		if cue then
+			Moments.DealerArrive:Fire()
+		end
 	end
-	CollectionService:GetInstanceAddedSignal("DealerCart"):Connect(arrived)
+	CollectionService:GetInstanceAddedSignal("DealerCart"):Connect(function(instance)
+		arrived(instance, true)
+	end)
 	CollectionService:GetInstanceRemovedSignal("DealerCart"):Connect(function()
 		UI.dealer.setCart(nil)
 		Moments.DealerLeave:Fire()
 	end)
 	for _, instance in CollectionService:GetTagged("DealerCart") do
-		arrived(instance)
+		arrived(instance, false)
 	end
 end
 

@@ -10,6 +10,7 @@
 -- GuiObject turns with its parent's Rotation, so each ear is one square turned 45 degrees with its pink inside.
 
 local Button = require(script.Parent.Button)
+local CatEars = require(script.Parent.CatEars)
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
@@ -53,34 +54,6 @@ local PAWS: { { number } } = {
 local Panel = {}
 Panel.__index = Panel
 
--- A cat ear behind the header: a square in the header colour turned 45 degrees, its top corner the tip, with a
--- smaller pink square toward that tip for the inside.
-local function ear(parent: Instance, x: number, color: Color3)
-	local outer: Frame = Create("Frame", {
-		Name = "Ear",
-		BackgroundColor3 = color,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(x, 0, 0, 6),
-		Size = UDim2.fromOffset(EAR_SIZE, EAR_SIZE),
-		Rotation = 45,
-		Parent = parent,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, 8) }),
-		Create("Frame", {
-			Name = "Inside",
-			BackgroundColor3 = Theme.colors.pink,
-			BorderSizePixel = 0,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(0.38, 0.38),
-			Size = UDim2.fromScale(0.5, 0.5),
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, 5) }),
-		}),
-	})
-	Outline.border(outer, Theme.sizes.outline + 1)
-end
-
 function Panel.new(props: Props): Panel
 	local color = props.color or Theme.modal.header
 	local frame: Frame = Create("Frame", {
@@ -93,8 +66,12 @@ function Panel.new(props: Props): Panel
 	})
 
 	-- behind the body, so only the top half of each ear shows
-	ear(frame, EAR_X, color)
-	ear(frame, 1 - EAR_X, color)
+	CatEars.add(frame, color, {
+		size = EAR_SIZE,
+		inset = EAR_X,
+		y = 6,
+		outline = Theme.sizes.outline + 1,
+	})
 
 	local body: Frame = Create("Frame", {
 		Name = "Body",

@@ -46,6 +46,7 @@ local CATALOG: Types.Catalog = {
 	tiers = Catalog.tiers,
 	areas = Catalog.areas,
 	tipJar = (Catalog :: any).tipJar or DEMO_TIP_JAR,
+	rarities = Catalog.rarities,
 }
 
 -- data-model section 10: circles and shrink time per rarity, Basic Net windows

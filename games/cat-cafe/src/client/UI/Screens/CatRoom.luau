@@ -59,10 +59,9 @@ local RENAME_W = 34
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
 
--- Sell asks for confirmation from this rarity up (data-model: Rare and above), showing the price.
+-- Sell asks for confirmation from this rarity up (data-model: Rare and above), showing the price from
+-- catalog.rarities (Catalog.rarities[rarity].sellValue, the number the server pays).
 local CONFIRM_SELL_FROM = 2
-local RARITY_SELL_VALUE: { [string]: number } =
-	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
 
 local FILTERS: { CatRoomList.Filter } = { "All", "Working", "Resting" }
 
@@ -1106,7 +1105,11 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 
 	-- actions: Assign (Move), Rest, Sell; a sell to confirm becomes Cancel and a wide "Sell $150"
 	if self._confirmSell then
-		local value = RARITY_SELL_VALUE[rarity] or 0
+		local rarities: { [string]: Types.RarityDef } = if self._catalog
+			then self._catalog.rarities or {}
+			else {}
+		local rarityDef = rarities[rarity]
+		local value = if rarityDef then rarityDef.sellValue else 0
 		self._assign.instance.Visible = false
 		self._rest:setText("Cancel")
 		self._rest:setEnabled(true)

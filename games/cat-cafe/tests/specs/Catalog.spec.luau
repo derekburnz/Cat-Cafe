@@ -77,12 +77,12 @@ return function()
 
 	describe("rarities (section 2)", function()
 		local expected = {
-			-- v0.4: the fourth column is patience (paws per player per stray), replacing fleesOnFail
-			Common = { 1, 1, 1.40, 3, 2, 25, 50, "#8E97B2" },
-			Rare = { 3, 2, 1.15, 2, 3, 150, 300, "#5FA8FF" },
-			Epic = { 8, 3, 0.95, 2, 4, 600, 1500, "#C07CFF" },
-			Legendary = { 25, 4, 0.80, 1, 5, 3000, 8000, "#FFC94D" },
-			Mythical = { 75, 5, 0.65, 1, 6, 12000, 30000, "#FF5E7E" },
+			-- v0.5: the fourth column is fleeStuds (the sprint after a miss), replacing the v0.4 patience
+			Common = { 1, 1, 1.40, 12, 2, 25, 50, "#8E97B2" },
+			Rare = { 3, 2, 1.15, 16, 3, 150, 300, "#5FA8FF" },
+			Epic = { 8, 3, 0.95, 20, 4, 600, 1500, "#C07CFF" },
+			Legendary = { 25, 4, 0.80, 26, 5, 3000, 8000, "#FFC94D" },
+			Mythical = { 75, 5, 0.65, 32, 6, 12000, 30000, "#FF5E7E" },
 		}
 		for _, rarity in ipairs(RARITIES) do
 			it(rarity .. " matches the table", function()
@@ -93,7 +93,8 @@ return function()
 				expect(def.incomePerSecond).to.equal(row[1])
 				expect(def.circles).to.equal(row[2])
 				expect(def.shrinkSeconds).to.be.near(row[3] :: number, 1e-9)
-				expect(def.patience).to.equal(row[4])
+				expect(def.fleeStuds).to.equal(row[4])
+				expect((def :: any).patience).never.to.be.ok()
 				expect(def.rescueHits).to.equal(row[5])
 				expect(def.sellValue).to.equal(row[6])
 				expect(def.firstCatchReward).to.equal(row[7])

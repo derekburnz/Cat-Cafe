@@ -1081,9 +1081,24 @@ Catalog.tipJar = {
 	{ step = 8, minutes = 50, kind = "lure", lureId = "salmon", count = 1 },
 	{ step = 9, minutes = 60, kind = "coins", seconds = 180, minCoins = 400 },
 	{ step = 10, minutes = 75, kind = "lure", lureId = "sardines", count = 1 },
-	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600 },
-	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1 },
+	{ step = 11, minutes = 90, kind = "coins", seconds = 300, minCoins = 600, spins = 1 },
+	{ step = 12, minutes = 120, kind = "lure", lureId = "caviar", count = 1, spins = 1 },
 } :: { Types.TipJarStep }
+
+-- Section 11c (F49): the Spin Wheel's six slices in order around the wheel. Free spins only: no Robux button, pass
+-- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes.
+Catalog.spinWheel = {
+	{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 30 },
+	{ slice = 2, kind = "lure", lureId = "tuna", count = 3, weight = 22 },
+	{ slice = 3, kind = "coins", seconds = 600, minCoins = 1000, weight = 18 },
+	{ slice = 4, kind = "lure", lureId = "salmon", count = 2, weight = 15 },
+	{ slice = 5, kind = "lure", lureId = "sardines", count = 2, weight = 10 },
+	{ slice = 6, kind = "lure", lureId = "caviar", count = 1, weight = 5 },
+} :: { Types.SpinSlice }
+for _, row in Catalog.spinWheel do
+	table.freeze(row)
+end
+table.freeze(Catalog.spinWheel)
 
 Catalog.luresById = {} :: { [string]: Types.LureDef }
 for _, def in Catalog.lures do

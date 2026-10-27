@@ -136,7 +136,7 @@ Each area is worth +7% tips forever on its normal track (+35% for all five) and,
 - Spins go into `spin.banked` (cap 20). If a claim would go over the cap, the rest of the prize still pays, the extra spins are dropped and the prize row says "Spins full".
 - Crates go into `crates` and open at the Golden Fish Market.
 - A permanent bonus counts from the moment the milestone is claimed, adds to `cafeMultiplier` and shows as a gold "+2% tips forever" chip next to the prize pictures.
-- Players who already claimed a milestone under F48 keep what they got, and its old prizes are not paid again. A permanent bonus is part of the milestone, so an F48 claim of `cats6`, `cats10` or `gold10` gets its bonus on the next load (for `gold10` that is the gold luck since v0.10). `gold1` to `gold8` are new for everyone.
+- Players who already claimed a milestone under F48 keep what they got, and its old prizes are not paid again. A permanent bonus is part of the milestone, so an F48 claim of `cats6`, `cats10` or `gold10` gets its bonus on the next load (for `gold10` that is the gold luck since v0.10). The new one-shot prizes of a milestone claimed under F48 (food, crates, fish and spins) are not paid either, because the milestone is already marked claimed; only its permanent bonus applies (review N173, as built in #325). `gold1` to `gold8` are new for everyone.
 
 ### 5b. All Cats milestones (all areas together)
 

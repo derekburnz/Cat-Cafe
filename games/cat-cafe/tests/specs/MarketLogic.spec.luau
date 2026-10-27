@@ -131,4 +131,86 @@ return function()
 			expect(MarketLogic.cost(treat, nil)).to.equal(80)
 		end)
 	end)
+
+	-- QA cross-check (qa-playtester): the window's sums against shared/Crates, the rules OpenCrate and BuyFishItem
+	-- use, on the real catalog, so the card never shows odds, a countdown, a lock or a price the server does not.
+	describe("MarketLogic against the server's Crates rules (QA)", function()
+		local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+		local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+		local Config = require(Shared:WaitForChild("Config")) :: any
+		local Crates = require(Shared:WaitForChild("Crates")) :: any
+		local ProfileSchema = require(Shared:WaitForChild("ProfileSchema")) :: any
+		local every = Config.CrateLuckyEvery
+		local golden = assert(Catalog.getCrate("alley_golden_crate")).odds
+		local function rarityOf(id: string): string?
+			local def = Catalog.getDecor(id)
+			return if def then def.rarity else nil
+		end
+
+		it(
+			"shows the odds, countdown and piece chances the server rolls, at every count",
+			function()
+				for _, crate in Catalog.crates do
+					for luck = 0, every - 1 do
+						local odds = MarketLogic.nextOdds(crate, luck, every, golden)
+						expect(odds).to.deepEqual(Crates.oddsFor(crate, luck))
+						if not crate.golden then
+							expect(MarketLogic.luckLeft(luck, every) <= 1).to.equal(
+								Crates.isLucky(crate, luck)
+							)
+						end
+						local server = Crates.pieceChances(crate, odds)
+						local total = 0
+						local shown = 0
+						for _, piece in MarketLogic.pieceChances(crate.pieces, rarityOf, odds) do
+							expect(piece.percent).to.be.near(server[piece.id], 1e-9)
+							local text = MarketLogic.percent(piece.percent)
+							local value = tonumber((text:gsub("%%$", ""))) :: number
+							expect(math.abs(value - piece.percent) <= 0.005 + 1e-9).to.equal(true)
+							total += piece.percent
+							shown += 1
+						end
+						local rolled = 0
+						for _, chance in server do
+							if chance > 0 then
+								rolled += 1
+							end
+						end
+						expect(shown).to.equal(rolled)
+						expect(total).to.be.near(100, 1e-9)
+					end
+				end
+			end
+		)
+
+		it("locks the crates the server refuses as locked, at every tier", function()
+			for _, crate in Catalog.crates do
+				for tier = 1, 6 do
+					local profile = ProfileSchema.template(1000)
+					profile.crates[crate.id] = 1
+					local locked = Crates.openBlocker(profile, tier, crate.id)
+						== "Unlock this zone first"
+					expect(MarketLogic.isOpen(crate, tier, Catalog.areas)).to.equal(not locked)
+				end
+			end
+		end)
+
+		it("prices every treat and perk level as BuyFishItem charges it", function()
+			for _, row in Catalog.fishShop do
+				if row.kind ~= "crate" then
+					for level = 0, (row.maxLevel or 0) + 1 do
+						local profile = ProfileSchema.template(1000)
+						profile.goldenFish = 100000
+						if row.kind == "perk" and level > 0 then
+							profile.fishPerks[row.id] = level
+						end
+						local server = Crates.buyCost(profile, row)
+						local shown =
+							MarketLogic.cost(row, if row.kind == "perk" then level else nil)
+						expect(shown).to.equal(server)
+					end
+				end
+			end
+		end)
+	end)
 end

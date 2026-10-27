@@ -4,7 +4,9 @@
 --                       are unlimited; while the cat sprints off after a miss (info.fleeingUntil) it reads "It's
 --                       running!", then "Catch your breath..." for the player who missed until info.retryAt, and
 --                       turns back to Catch when it can be tried. A cat knocked loose by a shove reads "Owner's
---                       turn" for everyone else until info.ownerTurnUntil (reviewer N90).
+--                       turn" for everyone else until info.ownerTurnUntil (reviewer N90). A dropped cat anyone can
+--                       pick up (kind "pickup", v0.8 F56) reads "Pick up" with no circles, and "It's walking home"
+--                       while it heads back to where it was caught (info.returning, v0.10 F67).
 --   waiting()           one press went to the server: "Get ready..." until the circles (CatchCircles) or the
 --                       rescue bar (RescueBar) come.
 --   fail(reason)        red flash ("It got away"), then hide; with retry the card stays.
@@ -297,6 +299,8 @@ end
 function CatchPrompt._actionText(self: any): string
 	if self._kind == "rescue" then
 		return "Rescue"
+	elseif self._kind == "pickup" then
+		return self:blockedText() or "Pick up"
 	end
 	return self:blockedText() or "Catch"
 end
@@ -316,12 +320,13 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._failToken += 1
 	local kind: Types.PromptKind = info.kind or "swing"
 	local rescue = kind == "rescue" -- a plain boolean: chained singleton tests confuse the type checker
+	local pickUp = kind == "pickup"
 	self._kind = kind
 	self._fleeingUntil = if rescue then nil else info.fleeingUntil
 	self._retryAt = if rescue then nil else info.retryAt
 	self._ownerTurnUntil = if rescue then nil else info.ownerTurnUntil
 	self:_paintIdle(info.actionText)
-	self._grabLabel.Text = if rescue then "RESCUE" else "CATCH"
+	self._grabLabel.Text = if rescue then "RESCUE" elseif pickUp then "PICK UP" else "CATCH"
 	self._holdDuration = info.holdDuration or 0
 	local nameText = info.catName or ""
 	if info.stars then
@@ -335,6 +340,8 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	local blocked = self:blockedText()
 	self._hint.Text = if rescue
 		then "Stop the marker in the zone. The cat never leaves if you miss."
+		elseif pickUp and info.returning then "It's walking home. Grab it before it gets there!"
+		elseif pickUp then "No circles. Hold to pick it up!"
 		elseif blocked == OWNER_TURN then "Its owner gets the first try"
 		elseif blocked then "Wait till it stops, then try again"
 		else "Hit each ring. Miss and it runs off!"
@@ -404,7 +411,7 @@ end
 function CatchPrompt.waiting(self: any)
 	self:holdStop()
 	self._failToken += 1
-	self._action.Text = "Get ready..."
+	self._action.Text = if self._kind == "pickup" then "Picking up..." else "Get ready..."
 	self._action.TextColor3 = Theme.hud.subtext
 end
 

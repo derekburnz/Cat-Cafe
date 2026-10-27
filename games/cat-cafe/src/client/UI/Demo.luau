@@ -953,9 +953,22 @@ function Demo.run(UI: any): () -> ()
 		)
 		UI.travel.result(destination, true)
 	end)
+	-- v0.10 F67: a dropped cat walks home, and anyone can pick it up on the way with the hold, no circles
 	connections[#connections + 1] = UI.events.dropCat:Connect(function()
 		UI.setCarrying(nil)
-		UI.toast("Dropped: the server would set the cat down with you on the first try", "info")
+		UI.toast("Dropped: it walks back home, and anyone can pick it up on the way", "info")
+		UI.catch.show({
+			kind = "pickup",
+			returning = true,
+			catId = "tabby",
+			strayId = "demo_dropped",
+			holdDuration = 0.5,
+		})
+		task.delay(5, UI.catch.hide)
+	end)
+	connections[#connections + 1] = UI.events.pickUpBegan:Connect(function()
+		UI.catch.hide()
+		UI.toast("Picked up: the server would start your carry", "good")
 	end)
 	connections[#connections + 1] = UI.events.claimOffline:Connect(function()
 		profile.money += 312

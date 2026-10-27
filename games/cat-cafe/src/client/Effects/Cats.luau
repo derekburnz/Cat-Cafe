@@ -83,7 +83,33 @@ end
 
 -- A gold coat seen for the first time: a burst of gold sparkles and a golden ring (F42). A stuck cat is never
 -- marked gold before its rescue (N30), so this is also the rescued gold cat's reveal.
+-- A cat this player has hidden with the Show other cats switch off: the engineer marks it HiddenLocal on this
+-- client only and hides its parts, so it gets no motion, sparkle, burst or hiss until the mark clears.
+local function hidden(model: Model): boolean
+	return model:GetAttribute("HiddenLocal") == true
+end
+
+-- Hidden: let go of it at once rather than at the next pick, so no z's, yarn or sparkle linger for a moment.
+local function watchHidden(model: Model)
+	model:GetAttributeChangedSignal("HiddenLocal"):Connect(function()
+		if not hidden(model) then
+			return -- picked again at the next pick
+		end
+		local entry: Entry? = active[model]
+		if entry ~= nil then
+			drop(model, entry)
+		end
+		local emitter: ParticleEmitter? = sparkles[model]
+		if emitter ~= nil then
+			emitter.Enabled = false
+		end
+	end)
+end
+
 local function reveal(model: Model)
+	if hidden(model) then
+		return
+	end
 	local frame, size = model:GetBoundingBox()
 	local at = frame.Position + Vector3.new(0, size.Y / 2, 0)
 	if Context.distance(at) > Context.budget.ambientRadius then
@@ -115,6 +141,7 @@ local function consider(instance: Instance)
 		end
 		model:GetAttributeChangedSignal("Gold"):Connect(goldChanged)
 		model:GetAttributeChangedSignal("Shiny"):Connect(goldChanged)
+		watchHidden(model)
 		-- Stood up or put back on all fours (F25): the joints and axes change, so it binds again at the next pick.
 		model:GetAttributeChangedSignal("Pose"):Connect(function()
 			local entry: Entry? = active[model]
@@ -130,6 +157,9 @@ end
 local function watchCharacter(character: Model)
 	local function onChild(child: Instance, picked: boolean)
 		if child.Name == "HeldCat" and child:IsA("Model") then
+			if not held[child :: Model] then
+				watchHidden(child :: Model)
+			end
 			held[child :: Model] = true
 			if picked and isGold(child) then
 				reveal(child :: Model)
@@ -213,6 +243,7 @@ end
 function Cats.isLoafing(model: Model): boolean
 	local uid = model:GetAttribute("Uid")
 	return model:GetAttribute("Napping") == true
+		and not hidden(model)
 		and not isWorking(model)
 		and not Context.isNight()
 		and Logic.loafing(
@@ -434,7 +465,7 @@ local function pick()
 	for model in held do
 		if model.Parent == nil then
 			held[model] = nil
-		elseif isGold(model) then
+		elseif isGold(model) and not hidden(model) then
 			table.insert(
 				gold,
 				{ key = model, distance = (model:GetPivot().Position - focus).Magnitude }
@@ -445,6 +476,8 @@ local function pick()
 		if model.Parent == nil then
 			known[model] = nil
 			continue
+		elseif hidden(model) then
+			continue -- dropped below; picked again at the first pick after the mark clears
 		end
 		local distance = (model:GetPivot().Position - focus).Magnitude
 		local retry: number? = retryAt[model]
@@ -464,7 +497,7 @@ local function pick()
 		end
 	end
 	for model, entry in active do
-		if model.Parent == nil or (not keep[model] and entry.hissAt == nil) then
+		if model.Parent == nil or hidden(model) or (not keep[model] and entry.hissAt == nil) then
 			drop(model, entry)
 		else
 			local style: Logic.Style = styleOf(model)
@@ -559,6 +592,9 @@ end
 -- for a moment, so the hiss is never lost. `lag` is how many seconds ago the miss happened on the server, so the
 -- hop lines up with the server's walk back.
 function Cats.hiss(model: Model, lag: number?)
+	if hidden(model) then
+		return
+	end
 	local entry: Entry? = active[model]
 	if entry == nil and model.Parent ~= nil then
 		entry = bind(model)

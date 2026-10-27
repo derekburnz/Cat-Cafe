@@ -122,6 +122,11 @@ local Config = {
 	RichTipStaySeconds = 90, -- unclaimed, it pays itself into the till after this
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
 
+	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
+	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
+	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
+	SpinBankCap = 20, -- banked spins (Tip Jar steps 11 and 12) stop here
+
 	-- Shove (F29 bump rules, v0.5 F41, data-model section 10c); the code keeps the Bump names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Bump remote off and hides the Shove button
 	BumpRangeStuds = 6,

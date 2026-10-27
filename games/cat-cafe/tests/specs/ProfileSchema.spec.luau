@@ -88,10 +88,12 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 5 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 6 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(5)
-			expect(profile.version).to.equal(5)
+			expect(ProfileSchema.VERSION).to.equal(6)
+			expect(profile.version).to.equal(6)
+			expect(profile.spin :: any).to.deepEqual({ lastFreeDay = 0, banked = 0 })
+			expect(profile.stats.spins).to.equal(0)
 			expect(profile.tier).to.equal(1)
 			expect(profile.coins).to.equal(Config.StartCoins)
 			expect(profile.lifetimeCoins).to.equal(0)
@@ -200,8 +202,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 6 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 7 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 6 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 5 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 4 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 3 })).to.equal(false)
@@ -606,7 +609,7 @@ return function()
 			raw.goldCollection = { bengal = 95, calico = 96 }
 			raw.shinyCollection = { snow = 1 }
 			local profile = ProfileSchema.migrate(raw, 900)
-			expect(profile.version).to.equal(5)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.cats.c1.variant).to.equal("gold")
 			expect((profile.bait :: any).variant).to.equal("gold")
 			expect(profile.goldCollection :: any).to.deepEqual({ bengal = 95, calico = 96 })
@@ -727,7 +730,7 @@ return function()
 			raw.indexRewards = nil
 			raw.stats.tipJarClaims = nil
 			local profile = ProfileSchema.migrate(raw, 900)
-			expect(profile.version).to.equal(5)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.indexRewards :: any).to.deepEqual({})
 			expect(profile.stats.tipJarClaims).to.equal(0)
 		end)
@@ -752,6 +755,54 @@ return function()
 			expect(profile.indexRewards :: any).to.deepEqual({
 				alley = { cats3 = true, cats6 = true },
 				park = { cats10 = true },
+			})
+		end)
+	end)
+
+	describe("migrate to version 6: the Spin Wheel (F49)", function()
+		local DAY = 86400
+
+		it("a version 5 save has no spins banked and today's free spin due", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 5
+			raw.spin = nil
+			raw.stats.spins = nil
+			local profile = ProfileSchema.migrate(raw, 30 * DAY + 5)
+			expect(profile.version).to.equal(6)
+			expect(profile.spin :: any).to.deepEqual({ lastFreeDay = 0, banked = 0 })
+			expect(profile.stats.spins).to.equal(0)
+		end)
+
+		it("keeps a valid spin table and the spin count", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.spin = { lastFreeDay = 29, banked = 3 }
+			raw.stats.spins = 12
+			local profile = ProfileSchema.migrate(raw, 30 * DAY + 5)
+			expect(profile.spin :: any).to.deepEqual({ lastFreeDay = 29, banked = 3 })
+			expect(profile.stats.spins).to.equal(12)
+		end)
+
+		it("clamps a damaged spin table: no future day, banked 0 to SpinBankCap, whole numbers", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.spin = { lastFreeDay = 99999, banked = 500 }
+			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+				lastFreeDay = 30,
+				banked = Config.SpinBankCap,
+			})
+			raw.spin = { lastFreeDay = -4, banked = 2.7 }
+			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+				lastFreeDay = 0,
+				banked = 2,
+			})
+			raw.spin = { lastFreeDay = 0 / 0, banked = "lots" }
+			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+				lastFreeDay = 0,
+				banked = 0,
+			})
+			raw.spin = "spins"
+			expect(ProfileSchema.migrate(raw, 30 * DAY + 5).spin :: any).to.deepEqual({
+				lastFreeDay = 0,
+				banked = 0,
 			})
 		end)
 	end)

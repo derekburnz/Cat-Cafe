@@ -105,6 +105,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
 		indexRewards = profile.indexRewards,
+		spin = table.clone(profile.spin),
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),

@@ -6,6 +6,7 @@ local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local EquipBest = require(script.Parent.EquipBest)
 local Onboarding = require(script.Parent.Onboarding)
+local Spin = require(script.Parent.Spin)
 local Types = require(script.Parent.Types)
 
 local ProfileSchema = {}
@@ -14,7 +15,9 @@ local ProfileSchema = {}
 -- role slots, bait, the dealer, shinies, cat names and how each cat was found; cafe_level and park_access go.
 -- Version 4 (2026-10-27) renames shiny to gold. Version 5 (F48) adds indexRewards and stats.tipJarClaims: an older
 -- server would drop them, and a player hopping servers could claim every Index reward again (reviewer S60).
-ProfileSchema.VERSION = 5
+-- Version 6 (F49) adds spin and stats.spins, for the same reason: an older server would drop spin during a
+-- rollout, giving a second free spin and losing banked ones.
+ProfileSchema.VERSION = 6
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -61,6 +64,7 @@ local function newStats(): Types.Stats
 		playtimeSeconds = 0,
 		sessions = 0,
 		tipJarClaims = 0,
+		spins = 0,
 	}
 end
 
@@ -94,6 +98,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		collection = { tabby = now },
 		goldCollection = {},
 		indexRewards = {},
+		spin = { lastFreeDay = 0, banked = 0 },
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = { music = true, sfx = true },
@@ -452,6 +457,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 			end
 		end
 	end
+
+	-- The Spin Wheel (F49); saves before version 6 have no spins banked and today's free spin due.
+	profile.spin = Spin.sanitize(raw.spin, now)
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

@@ -42,6 +42,7 @@ Remotes.ClientToServer = {
 	"SetSetting", -- (key: string, value: boolean)  "music" or "sfx"; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
 	"ClaimIndexReward", -- (areaId: string, milestoneId: string)  known prize, unclaimed, the area's count met (F48)
+	"SpinWheel", -- ()  within SpinStationRange of a SpinWheel station, a free or banked spin, SpinCooldownSeconds (F49)
 }
 
 -- Server -> client.
@@ -63,6 +64,8 @@ Remotes.ServerToClient = {
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 	"DealerStock", -- (stock: Types.DealerStock?)  this player's three slots at night, nil by day; after every buy
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
+	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
+	-- when refused (F49)
 	"ShoveResult", -- (outcome: "shove" | "loose" | "held" | "refused", shoverUserId: number, targetUserId: number,
 	-- position: Vector3?, direction: Vector3?)  a landed shove goes to everyone; the target's client pushes its own
 	-- character ShoveKnockbackStuds along direction. "refused" goes to the shover alone, with no position

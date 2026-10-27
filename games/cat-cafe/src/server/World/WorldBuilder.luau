@@ -1049,6 +1049,46 @@ local function buildManhole(parent: Instance): Model?
 	return model
 end
 
+-- The Spin Wheel station (F49) in the street plaza (Layout.spinWheel), tagged SpinWheel: SpinService measures its
+-- range from the pivot and sets LastSpinAt, which turns the Wheel on every client. Its hold-E "Spin" prompt (Custom:
+-- the UI's action pill) sits at the model's PromptAnchor and opens the Spin window. Persistent, so the plaza's
+-- place marker and the prompt find it from anywhere on the street.
+local function buildSpinWheel(parent: Instance): Model
+	local spec = Layout.spinWheel
+	local model = place(
+		"CatCafe_Street_SpinWheel",
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "SpinWheel"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	model:SetAttribute("LastSpinAt", 0)
+	CollectionService:AddTag(model, "SpinWheel")
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "SpinPrompt"
+	prompt.ActionText = "Spin"
+	prompt.ObjectText = "Spin Wheel"
+	prompt.HoldDuration = 0.5
+	-- measured from the anchor, a few studs in front of the pivot that SpinStationRange is measured from
+	prompt.MaxActivationDistance = Config.SpinStationRange - 4
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		prompt.Parent = anchor
+	else
+		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if found ~= nil then
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = found
+			float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, -2.5)).Position
+			prompt.Parent = float
+		end
+	end
+	return model
+end
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -1140,6 +1180,7 @@ function WorldBuilder.build(): World
 	end
 	local manhole = buildManhole(gatesFolder)
 	buildSafeZoneMarks(root)
+	buildSpinWheel(root)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

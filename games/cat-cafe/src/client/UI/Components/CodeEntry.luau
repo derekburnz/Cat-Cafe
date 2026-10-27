@@ -12,6 +12,9 @@ local CodeEntry = {}
 
 CodeEntry.MAX_LENGTH = (Config.CodeMaxLength or 20) :: number
 CodeEntry.ANSWER_SECONDS = 5 -- Redeem lights again when no CodeResult has come back in this long
+-- the server takes one RedeemCode per 2 s and drops the rest without an answer (Net.luau), so Redeem stays grey
+-- this long after each send (review N183)
+CodeEntry.RESEND_SECONDS = 2
 
 -- The text with everything but letters and digits taken out, cut to MAX_LENGTH.
 function CodeEntry.clean(text: string): string

@@ -1,7 +1,7 @@
 --!strict
--- Pays a prize in the Index prize shape (F54, F65; data-model sections 11b and 11d) for Index rewards and codes:
--- coins (a minimum or seconds of the day rate), foods, golden fish, banked spins (up to SpinBankCap; the rest are
--- dropped) and crates (banked for the Golden Fish Market, "highest" resolved now). The permanent bonuses are not
+-- Pays a prize in the Index prize shape (F54, F65, F68; data-model sections 11b and 11d) for Index rewards, codes
+-- and the Tip Jar: coins (a minimum or seconds of the day rate), foods, golden fish, banked spins (up to SpinBankCap;
+-- the rest are dropped) and crates (banked for the Golden Fish Market, "highest" resolved now). The permanent bonuses are not
 -- paid here: IndexRewards.totals reads them from the claims, so they are only named for the toast. The caller has
 -- already checked and marked the prize as paid.
 
@@ -18,18 +18,21 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local Payout = {}
 
 -- Pays the prize and returns what it paid, for the toast ("+$300", "2 Tuna", "+25 golden fish", "2 spins",
--- "1 Alley Crate", "+2% tips forever"), and the coins. `sku` names the source in analytics ("index_reward", "code").
+-- "1 Alley Crate", "+2% tips forever"), and the coins. `sku` names the source in analytics ("index_reward", "code",
+-- "tip_jar") and `transaction` its kind, "Gameplay" unless given (the Tip Jar's is "TimedReward").
 function Payout.pay(
 	player: Player,
 	profile: Types.PlayerProfile,
 	prize: Types.IndexPrize,
-	sku: string
+	sku: string,
+	transaction: Telemetry.TransactionType?
 ): ({ string }, number)
+	local kind: Telemetry.TransactionType = transaction or "Gameplay"
 	local paid: { string } = {}
 	local coins = Prizes.coins(prize.coins, prize.coinSeconds, Economy.incomePerSecond(profile))
 	if coins > 0 then
 		Economy.credit(profile, coins)
-		Telemetry.source(player, profile, coins, "Gameplay", sku)
+		Telemetry.source(player, profile, coins, kind, sku)
 		table.insert(paid, string.format("+$%d", coins))
 	end
 	if prize.lures ~= nil then
@@ -45,7 +48,7 @@ function Payout.pay(
 	local fish = prize.fish
 	if fish ~= nil and fish > 0 then
 		GoldenFish.credit(profile, fish)
-		Telemetry.fishSource(player, profile, fish, "Gameplay", sku)
+		Telemetry.fishSource(player, profile, fish, kind, sku)
 		table.insert(paid, string.format("+%d golden fish", fish))
 	end
 	local spins = prize.spins

@@ -98,7 +98,6 @@ return function()
 		SpinCooldownSeconds = 4,
 		SpinBankCap = 20,
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
-		TipJarStep12Fish = 5,
 		CrateLuckyEvery = 20,
 		CratePrice = 60,
 		FishMarketRange = 14,

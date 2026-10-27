@@ -197,13 +197,7 @@ export type FishShopRow = {
 export type TipJarStep = {
 	step: number,
 	minutes: number,
-	kind: "coins" | "lure",
-	seconds: number?,
-	minCoins: number?,
-	lureId: string?,
-	count: number?,
-	spins: number?, -- F49: banked spins this step also gives, up to SpinBankCap
-	fish: number?, -- F52: golden fish this step also gives (step 12)
+	prize: IndexPrize, -- F68 (data-model 11b v0.10): the Index prize shape, so one step can pay several things
 }
 
 -- One slice of the Spin Wheel (F49, data-model section 11c): the Tip Jar's prize shape plus its weight. The weights

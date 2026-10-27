@@ -89,17 +89,14 @@ return function()
 		)
 	end)
 
-	describe("Tip Jar step 12", function()
-		it(
-			"gives TipJarStep12Fish golden fish with its Caviar and spin; no other step gives fish",
-			function()
-				for _, def in Catalog.tipJar do
-					expect(def.fish).to.equal(
-						if def.step == 12 then Config.TipJarStep12Fish else nil
-					)
-				end
+	describe("Tip Jar golden fish (v0.10 F68)", function()
+		it("gives 10 golden fish at step 9 and 25 at step 12; no other step gives fish", function()
+			local fish = { [9] = 10, [12] = 25 }
+			for _, def in Catalog.tipJar do
+				expect(def.prize.fish).to.equal(fish[def.step])
 			end
-		)
+			expect((Config :: any).TipJarStep12Fish).never.to.be.ok() -- the rows carry their own fish
+		end)
 	end)
 
 	describe("Catalog crates and the Golden Fish Market (F53 rows in save version 7)", function()

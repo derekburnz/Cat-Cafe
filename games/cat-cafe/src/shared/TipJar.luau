@@ -3,6 +3,7 @@
 -- what the server pays. No Roblox services.
 
 local Catalog = require(script.Parent.Catalog)
+local Prizes = require(script.Parent.Prizes)
 local Types = require(script.Parent.Types)
 
 local TipJar = {}
@@ -21,12 +22,28 @@ function TipJar.isReady(def: Types.TipJarStep, sessionStartedAt: number, now: nu
 	return now - sessionStartedAt >= TipJar.unlocksAfter(def)
 end
 
--- Coins a coins step pays at `dayRate` (the day income per second at claim time); 0 for a food step.
+-- Coins a step pays at `dayRate` (the day income per second at claim time): its coinSeconds of day rate, never
+-- under its coins; 0 for a step without coins.
 function TipJar.coins(def: Types.TipJarStep, dayRate: number): number
-	if def.kind ~= "coins" then
+	local prize = def.prize
+	if prize.coins == nil and prize.coinSeconds == nil then
 		return 0
 	end
-	return math.max(def.minCoins or 0, math.floor(math.max(dayRate, 0) * (def.seconds or 0)))
+	return Prizes.coins(prize.coins, prize.coinSeconds, dayRate)
+end
+
+-- What a step pays, for analytics: "coins" or "lure" for a step of only that, "mixed" for one that pays several
+-- kinds of thing (v0.10 steps 9 and 12).
+function TipJar.kind(def: Types.TipJarStep): string
+	local prize = def.prize
+	local coins = prize.coins ~= nil or prize.coinSeconds ~= nil
+	local others = prize.fish ~= nil or prize.spins ~= nil or prize.crates ~= nil
+	if coins and prize.lures == nil and not others then
+		return "coins"
+	elseif prize.lures ~= nil and not coins and not others then
+		return "lure"
+	end
+	return "mixed"
 end
 
 -- A fresh session's claimed flags, one per step.

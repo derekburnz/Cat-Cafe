@@ -138,3 +138,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Derek (2026-10-27, shiny colour)
 - 2026-10-27: Shiny cats are gold, modelled in gold, for every cat (round 3 Q4, option B). Derek: "change shiny to gold and make it gold modeled". This replaces the frost placeholder; the asset thread rebuilds the shiny models. Why: Derek answered the question himself, so Gavin's Q4 is closed.
+
+### Decided by Derek (2026-10-27, gold cats)
+- 2026-10-27: Shiny cats are now called gold cats. Derek: "change “shiny” to be called gold also". Players see Gold wherever they saw Shiny (cards, badges, the book page, food card odds, announcements). The design docs say gold; data-model section 4 lists the code names (`"shiny"` variant, `shinyCollection`, the `Shiny` attribute, `Shiny*` constants) as the engineer's to keep or rename, with old saves still loading as gold if a saved name changes. Why: the gold model (round 3 Q4) made "shiny" a second name for the same thing.

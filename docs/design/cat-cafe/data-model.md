@@ -72,15 +72,16 @@ Names and favorite roles are placeholders so ids can be reserved; the asset thre
 
 Which cat within a rarity: a uniform pick among that area's cats of that rarity (four Commons, two Rares, two Epics, one each above). Bait picks across all unlocked areas (section 8).
 
-## 4. Cat instances, shiny and names
+## 4. Cat instances, gold cats and names
 
 A cat the player owns is an instance: `{ uid, catId, variant, caughtAt, spotId, level, xp, charm, rescued, name, method }`.
 
 - `uid`: unique string from the server.
-- `variant`: `base` or `shiny`. v0.3 change: Golden and Galaxy are dropped; there is no merging. A shiny earns ShinyMultiplier 1.5 and shows a sparkle on its model, its card and its book entry. v0.5 (Gavin, round 2 Q5: "A shiny also has a different color variation"): every cat also gets its own shiny coat, an alternate set of palette swatches on the same mesh, made by the asset thread. Derek picked gold for every shiny on 2026-10-27 (round 3 Q4, option B: "change shiny to gold and make it gold modeled"), so each shiny is the same cat modelled in gold. Shiny chance by how the cat was found: net stray ShinyChanceNet 0.05 (v0.5, was 0.02; rolled at spawn and visible as the shiny coat and sparkle on the stray), bait ShinyChanceBait 0.05 (v0.5, was 0.02; rolled when the food goes in, revealed when the cat arrives), rescue ShinyChanceRescue 0.10 (rolled at night start, revealed when the cat comes out). A knocked-loose cat keeps its variant and charm.
+- `variant`: `base` or `shiny`. v0.3 change: Golden and Galaxy are dropped; there is no merging. A gold cat earns ShinyMultiplier 1.5 and shows a sparkle on its model, its card and its book entry. v0.5 (Gavin, round 2 Q5: "A shiny also has a different color variation"): every cat also gets its own gold coat, an alternate set of palette swatches on the same mesh, made by the asset thread. Derek picked gold for all of them on 2026-10-27 (round 3 Q4, option B: "change shiny to gold and make it gold modeled"), so each gold cat is the same cat modelled in gold. Gold chance by how the cat was found: net stray ShinyChanceNet 0.05 (v0.5, was 0.02; rolled at spawn and visible as the gold coat and sparkle on the stray), bait ShinyChanceBait 0.05 (v0.5, was 0.02; rolled when the food goes in, revealed when the cat arrives), rescue ShinyChanceRescue 0.10 (rolled at night start, revealed when the cat comes out). A knocked-loose cat keeps its variant and charm.
+- Name (Derek, 2026-10-27 13:18: "change “shiny” to be called gold also"): players only ever see the word Gold, never Shiny: "Gold Tabby" on cards, the Gold badge and filter chip, "Gold 5%" on food cards, the book's Gold page, "Sam caught a gold Rare Tabby!" in announcements. Code names (the `"shiny"` variant value, `shinyCollection`, the `Shiny` attribute, `ShinySparkle`, the `Shiny*` Config constants, `shiny_found`) are the engineer's to keep or rename, and this doc keeps today's names until a rename lands. If a saved name changes, loading must still read an old `"shiny"` variant and `shinyCollection` as gold, so no saved cat loses its coat. Gold the colour (buttons, Perfect grades, coin piles) stays as it is.
 - `spotId`: the role slot the cat works, or nil in the cat room (section 5).
 - `level`, `xp`, `charm`: the per-cat stats in section 4b, unchanged.
-- `rescued`: true for a rescued cat. v0.3 change: it no longer pays more (RescuedTipsMultiplier is 1.0); the rescue reward is the shiny chance. The flag stays for the book and analytics.
+- `rescued`: true for a rescued cat. v0.3 change: it no longer pays more (RescuedTipsMultiplier is 1.0); the rescue reward is the gold chance. The flag stays for the book and analytics.
 - `name`: the player's name for this cat, or nil to show the catalog name. Validation (S30): trim, then 1 to CatNameMaxLength (20) characters counted with `utf8.len` (not `#`); reject invalid UTF-8, control characters, newlines, `<` and `>`. RenameCat filters it once with `TextService:FilterStringAsync` and refuses with a toast if filtering errors or the filtered text is all hashes, so the old name stays. The save keeps the raw name; whenever the name is shown (the cat starts working, or the profile loads with the cat working; at most 10 cats) the server filters it again for broadcast (`GetNonChatStringForBroadcastAsync`) and sets `DisplayName`, because the filter changes over time. If that display filter fails, `DisplayName` falls back to the catalog name.
 - `method`: `net`, `rescue`, `bait` or `starter`, for the book and analytics. A v2 cat saved as rescued migrates with method `rescue` (engineer's F22, PR #38).
 
@@ -93,8 +94,8 @@ Built 2026-10-26 by the cat stats thread and unchanged in v0.3 except the multip
 - `charmMultiplier = 1 + (charm - 50) / 50 x CharmSpread` (0.20): 0.8x to 1.2x. The starter Tabby has charm 50.
 - `level` 1 to CatMaxLevel (10), `levelMultiplier = 1 + CatLevelBonus x (level - 1)` (0.05), so level 10 is 1.45x.
 - `xp` counts seconds working a role slot; XP from level n to n + 1 is `CatXpBase x n` (60 x n). Only online time counts.
-- `rating = rarity rate x charmMultiplier x levelMultiplier x variantMultiplier`. `variantMultiplier` is ShinyMultiplier for a shiny, else 1. A perfect max-level shiny Midnight rates 75 x 1.2 x 1.45 x 1.5 = 195.75.
-- `maxRating(catId)` is the rating at charm 100 and max level, base variant, for the book's potential line; the book also shows the shiny figure.
+- `rating = rarity rate x charmMultiplier x levelMultiplier x variantMultiplier`. `variantMultiplier` is ShinyMultiplier for a gold cat, else 1. A perfect max-level gold Midnight rates 75 x 1.2 x 1.45 x 1.5 = 195.75.
+- `maxRating(catId)` is the rating at charm 100 and max level, base variant, for the book's potential line; the book also shows the gold figure.
 - Sort order (`CatStats.isBetter`): rating, then rarity, then catId, then uid.
 - Equip Best (`src/shared/EquipBest.luau`, remote `EquipBest`): unchanged algorithm, now over at most 10 role slots with `favoriteRole` in place of `favoriteSpot`.
 
@@ -113,7 +114,7 @@ v0.3 change (Gavin, Q12): the six spot types become four roles. Each role slot i
 
 ## 5b. Tiers (replaces cafe level and Renovate)
 
-v0.3 change (Gavin, Q18): no rebirth and nothing resets. `tier` is a profile field from 1 to 5, raised only by the `RankUp` remote when every requirement is met. Coins are spent on rank up (Gavin confirmed, round 2 Q6). "Different cats" counts entries in `collection` (distinct catIds, shinies not counted twice).
+v0.3 change (Gavin, Q18): no rebirth and nothing resets. `tier` is a profile field from 1 to 5, raised only by the `RankUp` remote when every requirement is met. Coins are spent on rank up (Gavin confirmed, round 2 Q6). "Different cats" counts entries in `collection` (distinct catIds, gold cats not counted twice).
 
 | tier | name | cost | different cats | also needs | role slots | tierMultiplier | opens area | shop caps (tables, espresso, net) | decor and other unlocks |
 |---|---|---|---|---|---|---|---|---|---|
@@ -158,10 +159,10 @@ v0.3 change (Gavin, Q7): bait moves from shared lure spots in the areas to one b
 Rules:
 
 - The bowl is the `lure_bowl` upgrade, one per player. v0.5 (Gavin, round 2 Q4: "The bowl sits out side of your cafe"): the plot's `BaitBowl` anchor moves outside, to the back step facing the Alleyway, where the strays would come from. Other players can see the bait cat eating, but only the owner can Tame or Let go.
-- `UseLure(lureId)` near the bowl (12 studs) with the bowl empty and food in stock consumes one food at once. The server rolls everything then and saves it in `profile.bait`: rarity from the food's odds, the cat uniformly among that rarity's cats in every area the player has unlocked, charm, and shiny (ShinyChanceBait). Rolling at placement means rejoining cannot reroll.
+- `UseLure(lureId)` near the bowl (12 studs) with the bowl empty and food in stock consumes one food at once. The server rolls everything then and saves it in `profile.bait`: rarity from the food's odds, the cat uniformly among that rarity's cats in every area the player has unlocked, charm, and gold (ShinyChanceBait). Rolling at placement means rejoining cannot reroll.
 - The cat is ready at `placedAt + LureWaitSeconds` (600, server `os.time()`), and the timer runs while the player is offline. The HUD shows the countdown. Until ready, ProfileSync sends only `lureId` and `readyAt`, never the rolled `catId`, `variant` or `charm`, so the reveal is not spoiled (N30).
 - When ready and the owner is in the server, the cat model sits eating at the bowl and the bait card shows its name, rarity, stars and sparkle with two buttons: Tame and Let go. `ResolveBait("tame")` adds the instance (method `bait`) straight to the cat room, fires `CatCaught` and empties the bowl; no net and no carry. `ResolveBait("letgo")` empties the bowl. The food is used either way.
-- Odds are on every food card before purchase, with the per-cat line ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"). A tier up that opens a new area changes the per-cat split, and the card says so. Every food card (shop and dealer) also shows the shiny chance (5% from v0.5) and the charm star odds, because both change income: 1 star 7.8%, 2 stars 23.5%, 3 stars 35.7%, 4 stars 24.3%, 5 stars 8.7% (growth thread; required if coins are ever sold, shown from day one).
+- Odds are on every food card before purchase, with the per-cat line ("Legendary 2.6%, split equally across the 2 Legendary cats in your areas, 1.3% each"). A tier up that opens a new area changes the per-cat split, and the card says so. Every food card (shop and dealer) also shows the gold chance (5% from v0.5) and the charm star odds, because both change income: 1 star 7.8%, 2 stars 23.5%, 3 stars 35.7%, 4 stars 24.3%, 5 stars 8.7% (growth thread; required if coins are ever sold, shown from day one).
 - Catnip (common-features item 14, launch) shifts only the wave spawn rolls in the areas. It never changes bait or dealer rolls, so food card odds stay fixed.
 
 Shop foods (`LureDef`, `source = "shop"`):
@@ -249,14 +250,14 @@ Exploit note (reviewer signed off 2026-10-26): the server owns the schedule and 
 
 v0.3 change (Gavin, Q8): the 4 s hold becomes a short minigame on an area-specific trap. A failed attempt never loses the cat.
 
-- At night start each rescue trap holds a stuck cat with RescueSpawnChance 0.6, and every area gets at least RescueMinStuck (1): if no trap rolled a cat, one random trap is filled anyway, so a new player always meets a rescue on the first night (QA, 0.4 cubed is one server in 16 otherwise). Rescue odds are the area odds with every non-Common weight doubled and renormalised (Alleyway 56.3 / 34.4 / 7.8 / 1.4 / 0.16, Park 42.9 / 40.0 / 12.9 / 3.6 / 0.7). Charm and shiny (ShinyChanceRescue 0.10) are rolled then and kept server-side until the rescue succeeds: not on the stuck cat's model, prompt or attributes (N30). Stuck until rescued or the next night.
+- At night start each rescue trap holds a stuck cat with RescueSpawnChance 0.6, and every area gets at least RescueMinStuck (1): if no trap rolled a cat, one random trap is filled anyway, so a new player always meets a rescue on the first night (QA, 0.4 cubed is one server in 16 otherwise). Rescue odds are the area odds with every non-Common weight doubled and renormalised (Alleyway 56.3 / 34.4 / 7.8 / 1.4 / 0.16, Park 42.9 / 40.0 / 12.9 / 3.6 / 0.7). Charm and gold (ShinyChanceRescue 0.10) are rolled then and kept server-side until the rescue succeeds: not on the stuck cat's model, prompt or attributes (N30). Stuck until rescued or the next night.
 - The stuck cat's Rescue prompt is held for CatchHoldSeconds (0.5), like a stray's (Derek 2026-10-27).
 - `RescueBegin(rescueSpotId)` checks as before (occupied, unlocked area, lock free or own, 10 studs, not carrying), locks the trap to the player for the attempt and fires `RescueChallenge(rescueSpotId, challenge)`.
 - Kind `bar` (trash_bin, garbage_bag, trashcan and the provisional traps): a marker slides back and forth along a bar at RescueBarSpeed[rarity] bar lengths per second, starting at a server-set time and phase, with a target zone RescueZoneWidth[rarity] wide at a server-set position. `RescuePress(rescueSpotId)` is stamped and latency-corrected like a circle press; the server computes where the marker was and allows RescueTolerance 0.03 of the bar. A hit moves the zone to the next server-set position; `rescueHits[rarity]` hits frees the cat. Each miss costs one of RescuePatience (3) paws; out of paws ends the attempt.
 - Kind `shake_catch` (tree): `rescueHits[rarity] - 1` bar hits shake the branch, then the cat drops and one catch circle (Common shrink time, the Pro Net windows whatever net you own) must score Good or Perfect to catch it. A miss means the cat lands, climbs back up and the attempt ends.
 - Every attempt has a deadline (S28): it ends as a fail at RescueAttemptMaxSeconds (15) after RescueBegin, when the player moves more than 14 studs from the trap, dies or leaves, or on RescueCancel. The server keeps the lock and the deadline in its own table.
 - Ending without success: the trap unlocks and the cat stays stuck. Other players can try after RescueRetrySeconds (3); the same player waits RescueSelfRetrySeconds (6), so one player or script cannot re-lock the trap at the instant it opens and hold it all night.
-- Success: the cat is revealed (sparkle if shiny), the player enters carry with `rescued = true`.
+- Success: the cat is revealed (sparkle if gold), the player enters carry with `rescued = true`.
 
 | rarity | RescueBarSpeed | RescueZoneWidth |
 |---|---|---|
@@ -308,7 +309,7 @@ Shoved character (v0.5, asked by the vfx-animator for the shove puff and dizzy s
 
 Clock folder in ReplicatedStorage: `Phase`, `PhaseEndsAt`.
 
-Attributes are for display. Server decisions (locks, deadlines, bump grace and claims, rich tips, the bait roll, hidden shiny) read the server's own tables.
+Attributes are for display. Server decisions (locks, deadlines, bump grace and claims, rich tips, the bait roll, the hidden gold roll) read the server's own tables.
 
 Dealer cart (tag `DealerCart`): `Open` (bool).
 
@@ -333,7 +334,7 @@ Working cat model (under `Plot/Cats`): `Uid`, `CatId`, `OwnerUserId`, `Role`, `D
 | dealer | `{ window, bought = { [slot] = true } }` | `{ window = 0, bought = {} }` | new, section 8b; `window` is the global dealer window |
 | cats | map uid to cat instance | one `tabby` on `barista_1`, charm 50, level 1, method `starter` | section 4 adds `name`, `method`; `variant` can be `shiny` |
 | collection | map catId to firstCaughtAt | tabby | drives the book and "different cats" |
-| shinyCollection | map catId to firstCaughtAt | empty | new, the shiny page |
+| shinyCollection | map catId to firstCaughtAt | empty | new, the gold page |
 | stats | catsCaught, catsSold, grabsAttempted, grabsSucceeded, perfectCircles, circlesTotal, rescues, rescueAttempts, baitsTamed, baitsLetGo, bumpsGiven, bumpsLanded, bumpsTaken, luresUsed, playtimeSeconds, sessions | 0 | new counters added |
 | tutorialStep | 0 to 5 | 0 | 0 new, 1 saw the alley, 2 caught, 3 assigned a role, 4 bought a table, 5 set bait (done) |
 | settings | music, sfx | true, true | |
@@ -386,7 +387,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | ProfileSync | server to client | partial `PlayerState` | | adds `tier`, `bait`, `shinyCollection`, `rankUp` progress |
 | CatCaught | server to client | catId, isNew, shiny, isNewShiny | | cat found popup |
 | OfflineEarnings, Toast | server to client | as before | | |
-| Announce | server to all | text | | Epic and up, every shiny, every rank up to Tier 3 and up |
+| Announce | server to all | text | | Epic and up, every gold cat, every rank up to Tier 3 and up |
 
 Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), EquipLure.
 
@@ -442,7 +443,7 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | DealerWindowSeconds | 600 | new | DealerService, global stock window |
 | CatNameMaxLength | 20 | new | CafeService |
 | RenameCooldownSeconds | 5 | new | CafeService |
-| AnnounceMinRarity | Epic (plus every shiny) | Epic | CatService |
+| AnnounceMinRarity | Epic (plus every gold cat) | Epic | CatService |
 
 Changed or new in v0.4:
 

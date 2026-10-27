@@ -14,13 +14,13 @@ Checked 2026-10-25 against guides, not by playing. Steal an Egg: eggs spawn on a
 |---|---|---|---|---|---|
 | 1 | Night cycle with a growth bonus | In the slice as the clock: 5 minute day, 5 minute night, waves of ten strays, night income at 60% and the night food dealer (v0.3) | Slice (F20, F23, F31, F32) | S | none |
 | 2 | Admin events, weather | Cat Parade: server event every 20 to 30 minutes, rare odds tripled for 2 minutes; Rain later | Alpha | S | none |
-| 3 | Mutations with multipliers | Shiny version of every cat, 1.5x and a sparkle; 2% from net and bait, 10% from rescue. Replaces Silver, Golden and Galaxy (Gavin, Q16) | Slice (F30) | S | none |
-| 4 | Pet Index completion rewards | Collection set rewards per area and per rarity, the all-50 reward and a shiny page; distinct cats also gate tiers | Alpha | S | none |
+| 3 | Mutations with multipliers | Gold version of every cat, 1.5x and a sparkle; 5% from net and bait, 10% from rescue. Replaces Silver, Golden and Galaxy (Gavin, Q16) | Slice (F30) | S | none |
+| 4 | Pet Index completion rewards | Collection set rewards per area and per rarity, the all-50 reward and a gold page; distinct cats also gate tiers | Alpha | S | none |
 | 5 | Speed stat to reach eggs first | Sneakers upgrade: +2 walk speed per level, 3 levels; matters more now that waves are a race | Alpha | S | none |
 | 6 | Playtime chests | Tip Jar: a reward at 5, 10, 15, 20 and 30 minutes of a session | Alpha | S | none |
 | 7 | Friend bonus | +10% tips while a friend is on the server | Alpha | S | none |
 | 8 | Equipped pet that follows you | Shoulder Cat: one owned cat follows you and widens your net's Good window a little | Alpha | M | none |
-| 9 | Fuse Machine | Dropped: Gavin wants no merging of duplicates (Q16); shinies replace it | | | |
+| 9 | Fuse Machine | Dropped: Gavin wants no merging of duplicates (Q16); gold cats replace it | | | |
 | 10 | Rebirth | Tiers 1 to 5 with prerequisites (coins, different cats, a rarity), no reset: slots, areas, income multiplier, decor. Replaces Renovate (Gavin, Q18) | Slice (F24) | M | none |
 | 11 | Daily login streak | Daily Treat: a seven-stamp card of coins, food and Catnip, one stamp per day, no reset on a missed day | Launch | S | no pressure: nothing is lost by skipping a day |
 | 12 | Codes | Chalkboard: redeem codes for coins and food | Launch | S | none |
@@ -48,8 +48,8 @@ v0.3 pulls items 1, 3, 10, 16 (the dealer) and 28 into the slice and drops item 
 
 1. Closing Time moved into the slice on 2026-10-26: the clock, lighting and night waves are F20 and F23, night income and the dealer are F31 and F32. Mythical cats (Midnight in the Alleyway) are in the normal odds from the slice on, so nothing night-only is left for the alpha. Nothing is taken away at night and players are never teleported.
 2. Cat Parade. Every 20 to 30 minutes the server announces a parade: for 2 minutes Rare, Epic and Legendary odds are tripled and the spawn cap rises to 10. A banner shows the countdown. This is the Admin Abuse style spike without an admin.
-3. Shiny (moved into the slice in v0.3 as F30, replacing Silver, Golden and Galaxy). Every cat has a shiny version at 1.5x with a sparkle; numbers in data-model section 4. The book shows shinies on their own page, so the 50 count stays honest.
-4. Collection set rewards. Complete an area's ten: a decor piece themed on that area. All Commons: +5% tips permanent and a collar accessory. All Rares: a bow accessory and 2,000 coins. All Epics: +10% tips. All Legendaries: a golden tip jar on the counter. All 50: a shiny Void. Shown in the book with progress bars.
+3. Gold (moved into the slice in v0.3 as F30, replacing Silver, Golden and Galaxy). Every cat has a gold version at 1.5x with a sparkle; numbers in data-model section 4. The book shows gold cats on their own page, so the 50 count stays honest.
+4. Collection set rewards. Complete an area's ten: a decor piece themed on that area. All Commons: +5% tips permanent and a collar accessory. All Rares: a bow accessory and 2,000 coins. All Epics: +10% tips. All Legendaries: a golden tip jar on the counter. All 50: a gold Void. Shown in the book with progress bars.
 5. Sneakers. Upgrade with three levels at 300, 1,500 and 6,000 coins, +2 walk speed each. Carry speed stays 80% of the new value. This is the Speed stat without gating areas behind it.
 6. Tip Jar. A jar on the HUD fills over the session; tap it at 5, 10, 15, 20 and 30 minutes for 100, 250, 500, 1,000 and 2,500 coins plus one food at 15 and 30. Resets each session. Standard playtime reward.
 7. Friend bonus. +10% tips while at least one Roblox friend is on the server, shown as a HUD chip. Cheap and it pushes the group to play together.

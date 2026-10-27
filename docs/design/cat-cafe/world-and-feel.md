@@ -53,7 +53,7 @@ The target is the Three Game Sketches cafe (Cozy Cream): warm, cluttered, readab
 - Customers walk in from the street, queue at the counter, sit and get served. A small order bubble (coffee, cake, milk) pops over each one and turns into a heart when the waiter brings it. A coin pops "+$12" over the table for the owner; other players see a small sparkle. At night a few night owls in pyjamas and with lanterns.
 - Working cats animate at their stations: the barista taps the espresso machine, the waiter carries a tray between tables, the greeter waves at the door, the entertainer bats a yarn ball on the cat tree. Over each one a small tag in its rarity color shows its rate ("+$3/s"), visible within 40 studs (Steal a Brainrot).
 - Cats without a job do not vanish into a menu. Up to four of them wander the cafe and nap on cushions, the window sill and the cat tree, so your collection is on show. Highest rating first; the rest stay in the cat room.
-- Ambient life: espresso steam, chimney smoke, swinging string lights, butterflies by the flower boxes by day, fireflies and glowing windows at night, a sparkle on every shiny. Sound: soft chatter and cup clinks near the door, a purr when you walk past a working cat.
+- Ambient life: espresso steam, chimney smoke, swinging string lights, butterflies by the flower boxes by day, fireflies and glowing windows at night, a sparkle on every gold cat. Sound: soft chatter and cup clinks near the door, a purr when you walk past a working cat.
 - Budget: each cafe's extra life is culled beyond 80 studs and roaming cats pause when no player is within 60 studs, so eight busy cafes still run on a phone. The vfx-animator measures it in docs/vfx/cat-cafe/.
 
 ## 5. Empty plots: closed for rent, never grey boxes

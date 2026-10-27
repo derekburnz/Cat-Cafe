@@ -1054,9 +1054,9 @@
        0.06
       ],
       "Color": [
-       0.3725,
-       0.6588,
-       1.0
+       0.949,
+       0.6941,
+       0.2039
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,

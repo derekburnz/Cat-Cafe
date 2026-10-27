@@ -23,7 +23,7 @@ FAIL_CHECKS = ("budget", "transforms", "material", "uv", "naming")
 WARN_CHECKS = ("pivot", "centered")
 EPS = 0.02           # studs, pivot and centering tolerance
 UV_EPS = 1e-3        # distance from a swatch center in UV space
-_SWATCH_CENTERS = [palette.uv_center(i) for i in range(palette.GRID * palette.GRID)]
+_SWATCH_CENTERS = [palette.uv_center(i) for i in range(palette.GRID * palette.ROWS)]
 
 
 def _near_swatch(u, v):

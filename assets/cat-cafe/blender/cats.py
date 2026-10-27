@@ -11,36 +11,57 @@ import math
 
 from common import Builder, scale_mesh
 
+# Each cat's colors are data, so they survive a model swap (Derek, 2026-10-27: "unique / different color schemes";
+# the manifest repeats them as hex under `coat`). Keys: fur (main coat), second and third (markings), eyes (and eyes2
+# for an odd-eyed cat, right eye), muzzle, nose, ruff. No two cats share a main coat color.
 # pattern: solid | stripes | patches | points | spots | gradient; extra flags: sparkle (star specks),
 # petals, flower, ruff, ear_tufts, persian (long coat, flat face), tail_thick
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
-    "Ginger":  dict(rarity="Common", fur="fur_orange", second="fur_orange", eyes="eye_green", pattern="solid", muzzle="fur_cream", body_scale=(1.1, 1.05, 1.05)),
-    "Smoke":   dict(rarity="Common", fur="fur_grey", second="fur_white", eyes="eye_green", pattern="solid", muzzle=None),
-    "Snow":    dict(rarity="Common", fur="fur_white", second="fur_white", eyes="eye_blue", pattern="solid", muzzle=None),
+    "Ginger":  dict(rarity="Common", fur="fur_ginger", second="fur_ginger", eyes="eye_green", pattern="solid", muzzle="fur_cream",
+                    nose="nose_brick", body_scale=(1.1, 1.05, 1.05)),
+    "Smoke":   dict(rarity="Common", fur="fur_charcoal", second="fur_charcoal", eyes="eye_chartreuse", pattern="solid",
+                    muzzle="fur_smoke_light", nose="nose_dark"),
+    "Snow":    dict(rarity="Common", fur="fur_white", second="fur_white", eyes="eye_blue", eyes2="eye_amber", pattern="solid", muzzle=None),
     "Calico":  dict(rarity="Rare", fur="fur_white", second="fur_orange", third="fur_black", eyes="eye_green", pattern="patches", muzzle=None),
-    "Siamese": dict(rarity="Rare", fur="fur_cream", second="fur_brown", eyes="eye_blue", pattern="points", muzzle=None),
-    "Tortie":  dict(rarity="Rare", fur="fur_brown", second="fur_orange", third="fur_black", eyes="eye_amber", pattern="patches", muzzle=None),
-    "Bengal":  dict(rarity="Rare", fur="fur_orange", second="fur_brown", eyes="eye_green", pattern="spots", muzzle="fur_cream", body_scale=(0.95, 1.05, 0.95)),
-    "Sphynx":  dict(rarity="Epic", fur="blush", second="blush", eyes="eye_blue", pattern="solid", muzzle=None, sphynx=True),
-    "Ragdoll": dict(rarity="Epic", fur="fur_white", second="fur_grey", eyes="eye_blue", pattern="points", muzzle="fur_white", scale=1.2, body_scale=(1.1, 1.0, 1.05)),
-    "Void":    dict(rarity="Legendary", fur="fur_black", second="sparkle", eyes="eye_amber", pattern="solid", muzzle=None, glow_eyes=True, sparkle=True),
+    "Siamese": dict(rarity="Rare", fur="fur_cream", second="fur_seal", eyes="eye_blue", pattern="points", muzzle=None, nose="nose_dark"),
+    "Tortie":  dict(rarity="Rare", fur="fur_black", second="fur_ginger", third="fur_apricot", eyes="eye_copper", pattern="patches",
+                    muzzle=None, nose="nose_brick"),
+    "Bengal":  dict(rarity="Rare", fur="fur_sand", second="fur_seal", eyes="eye_green", pattern="spots", muzzle="fur_cream",
+                    nose="nose_brick", body_scale=(0.95, 1.05, 0.95)),
+    "Sphynx":  dict(rarity="Epic", fur="fur_peach", second="fur_peach", eyes="eye_violet", pattern="solid", muzzle=None, sphynx=True),
+    "Ragdoll": dict(rarity="Epic", fur="fur_white", second="fur_blue", eyes="eye_blue", pattern="points", muzzle="fur_white", scale=1.2,
+                    body_scale=(1.1, 1.0, 1.05)),
+    "Void":    dict(rarity="Legendary", fur="fur_black", second="sparkle", eyes="eye_amber", pattern="solid", muzzle=None, glow_eyes=True,
+                    sparkle=True, nose="nose_dark"),
     # v0.3 additions (data-model 3a and 3b)
-    "MaineCoon": dict(rarity="Epic", fur="fur_brown", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_cream",
-                      scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_cream", ear_tufts=True, tail_thick=0.28),
+    "MaineCoon": dict(rarity="Epic", fur="fur_silver", second="fur_black", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
+                      nose="nose_brick", scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_white", ear_tufts=True, tail_thick=0.28),
     "Midnight":  dict(rarity="Mythical", fur="night_sky", second="sparkle", eyes="sparkle", pattern="solid", muzzle=None,
-                      glow_eyes=True, sparkle=True, moon=True),
-    "Cream":     dict(rarity="Common", fur="fur_cream", second="fur_cream", eyes="eye_amber", pattern="solid", muzzle="fur_white"),
-    "Brownie":   dict(rarity="Common", fur="fur_brown", second="choco", eyes="eye_amber", pattern="stripes", muzzle="fur_cream"),
-    "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None),
-    "Persian":   dict(rarity="Epic", fur="fur_cream", second="fur_white", eyes="eye_amber", pattern="solid", muzzle=None,
+                      glow_eyes=True, sparkle=True, moon=True, nose="nose_dark"),
+    "Cream":     dict(rarity="Common", fur="fur_latte", second="fur_latte", eyes="eye_chartreuse", pattern="solid", muzzle="fur_cream"),
+    "Brownie":   dict(rarity="Common", fur="fur_brown", second="choco", eyes="eye_amber", pattern="stripes", muzzle="fur_cream",
+                      nose="nose_brick"),
+    "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None, nose="nose_dark"),
+    "Persian":   dict(rarity="Epic", fur="fur_lavender", second="pastel_lilac", eyes="eye_copper", pattern="solid", muzzle=None,
                       body_scale=(1.15, 1.0, 1.1), persian=True, tail_thick=0.3),
-    "Blossom":   dict(rarity="Legendary", fur="fur_cream", second="blush", third="nose_pink", eyes="eye_blue", pattern="patches",
+    "Blossom":   dict(rarity="Legendary", fur="fur_rose", second="fur_white", third="nose_pink", eyes="eye_blue", pattern="patches",
                       muzzle=None, petals=True, flower=True),
     "Aurora":    dict(rarity="Mythical", fur="galaxy_blue", second="aurora_violet", third="mint", eyes="mint", pattern="gradient",
                       muzzle=None, glow_eyes=True, sparkle=True),
 }
+
+COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose")
+
+
+def coat(spec):
+    """A cat's colors by field, defaults filled in (nose pink, both eyes alike): the model-independent part."""
+    out = {k: spec[k] for k in COAT_FIELDS if spec.get(k)}
+    out.setdefault("nose", "nose_pink")
+    out.setdefault("eyes2", out["eyes"])
+    return out
+
 
 # Skeleton in studs. Head and Tail objects hang off these joints.
 BODY_C = (0.0, 0.05, 0.78)
@@ -151,11 +172,12 @@ def _head(b, spec):
         for dx, dz in ((0.09, 0), (-0.09, 0), (0, 0.09), (0, -0.07)):
             b.box((fx + dx, hc[1] - 0.1, fz + 0.03 + dz), (0.1, 0.06, 0.1), spec.get("second", "blush"), bevel=False)
     for x in (-0.2, 0.2):
-        b.box((x, front_y - 0.04, 0.2), (0.24, 0.06, 0.26), spec["eyes"], bevel=False)
+        eye = spec.get("eyes2", spec["eyes"]) if x < 0 else spec["eyes"]   # an odd-eyed cat's right eye (screen left)
+        b.box((x, front_y - 0.04, 0.2), (0.24, 0.06, 0.26), eye, bevel=False)
         if not spec.get("glow_eyes"):
             b.box((x, front_y - 0.06, 0.18), (0.12, 0.04, 0.18), "fur_black", bevel=False)
         b.box((x - 0.05, front_y - 0.08, 0.24), (0.05, 0.03, 0.06), "milk", bevel=False)   # glossy highlight
-    b.box((0, front_y - 0.05, 0.02), (0.14, 0.06, 0.1), "nose_pink", bevel=False)
+    b.box((0, front_y - 0.05, 0.02), (0.14, 0.06, 0.1), spec.get("nose", "nose_pink"), bevel=False)
 
 
 def _tail(b, spec):
@@ -176,7 +198,7 @@ def _tail(b, spec):
 
 
 def build_cat(name, mat, spec=None, base=None):
-    """`spec` and `base` override the roster entry and the asset name (shiny.py builds the shiny coats here)."""
+    """`spec` and `base` override the roster entry and the asset name (gold.py builds the gold cats here)."""
     spec = spec or ROSTER[name]
     base = base or f"CatCafe_Cat_{name}"
     s = spec.get("scale", 1.0)

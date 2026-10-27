@@ -12,7 +12,7 @@ local ProfileSchema = {}
 
 -- Version 2 (2026-10-26) added level, xp and charm per cat. Version 3 (2026-10-26, design v0.3) adds the tier,
 -- role slots, bait, the dealer, shinies, cat names and how each cat was found; cafe_level and park_access go.
-ProfileSchema.VERSION = 3
+ProfileSchema.VERSION = 4
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -89,7 +89,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			[STARTER_UID] = starter,
 		},
 		collection = { tabby = now },
-		shinyCollection = {},
+		goldCollection = {},
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = { music = true, sfx = true },
@@ -171,6 +171,12 @@ local function migrateV3Upgrades(rawLevels: any, profile: Types.PlayerProfile)
 	end
 end
 
+-- A saved cat or bait variant: "gold", or "shiny" from a version 3 save (Derek 2026-10-27 renamed shiny to gold);
+-- anything else is the base coat.
+local function variantOf(value: any): string
+	return if value == "gold" or value == "shiny" then "gold" else "base"
+end
+
 -- A saved name, cut to MAX_NAME_LENGTH bytes on a character boundary; nil when empty or not valid UTF-8
 -- (reviewer N36). RenameCat enforces the real rules on the way in.
 local function sanitizeName(value: any): string?
@@ -241,8 +247,8 @@ local function sanitizeCats(
 		local instance: Types.CatInstance = {
 			uid = uid,
 			catId = entry.catId,
-			-- Golden and Galaxy were never handed out; only "shiny" survives.
-			variant = if entry.variant == "shiny" then "shiny" else "base",
+			-- Golden and Galaxy were never handed out; only "shiny" survives, and it is "gold" now.
+			variant = variantOf(entry.variant),
 			caughtAt = asInt(entry.caughtAt, now),
 			spotId = spotId,
 			-- Version 1 cats had no stats: they become level 1 with neutral charm (a 1.0x rate).
@@ -296,7 +302,7 @@ local function sanitizeBait(value: any): Types.BaitState?
 		lureId = value.lureId,
 		placedAt = math.floor(value.placedAt),
 		catId = value.catId,
-		variant = if value.variant == "shiny" then "shiny" else "base",
+		variant = variantOf(value.variant),
 		charm = math.clamp(
 			asInt(value.charm, CatStats.DEFAULT_CHARM),
 			CatStats.MIN_CHARM,
@@ -409,12 +415,15 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 			profile.collection[instance.catId] = instance.caughtAt
 		end
 	end
-	if fromVersion >= 3 then
-		profile.shinyCollection = sanitizeCollection(raw.shinyCollection, now)
+	-- Version 3 called it shinyCollection (Derek 2026-10-27: shiny is gold now); a later save only has goldCollection.
+	if fromVersion >= 4 then
+		profile.goldCollection = sanitizeCollection(raw.goldCollection, now)
+	elseif fromVersion == 3 then
+		profile.goldCollection = sanitizeCollection(raw.shinyCollection, now)
 	end
 	for _, instance in profile.cats do
-		if instance.variant == "shiny" and profile.shinyCollection[instance.catId] == nil then
-			profile.shinyCollection[instance.catId] = instance.caughtAt
+		if instance.variant == "gold" and profile.goldCollection[instance.catId] == nil then
+			profile.goldCollection[instance.catId] = instance.caughtAt
 		end
 	end
 

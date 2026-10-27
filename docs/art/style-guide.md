@@ -8,7 +8,7 @@ A quiet afternoon in a small cafe. Cream walls, caramel wood, mint accents and w
 
 ## 2. Palette
 
-All colors live in one shared texture, `CatCafe_Palette.png` (256 x 256, an 8 x 8 grid of 32 px swatches). Every mesh in the game UV-maps each face to the center of one swatch, so one material and one texture cover every prop and every cat. Variants (a Tabby versus a Grey cat) are the same mesh with different swatch indices, not different textures.
+All colors live in one shared texture, `CatCafe_Palette.png` (256 x 512, 8 swatches across and 16 rows of 32 px swatches; rows 10 to 15 are empty for now). Every mesh in the game UV-maps each face to the center of one swatch, so one material and one texture cover every prop and every cat. Variants (a Tabby versus a Grey cat) are the same mesh with different swatch indices, not different textures.
 
 Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex values are the source of truth; the texture is generated from them by `assets/cat-cafe/blender/palette.py`.
 
@@ -31,11 +31,11 @@ Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex val
 |---|---|---|---|
 | 8 | fur_orange | #E9A24B | Tabby base |
 | 9 | fur_orange_dark | #B8732B | Tabby stripes |
-| 10 | fur_black | #2B2B35 | Tuxedo, Void |
-| 11 | fur_white | #F7F1E6 | Tuxedo chest, Snow, Calico base, Siamese body |
-| 12 | fur_grey | #8E96A3 | Grey, Smoke base |
-| 13 | fur_cream | #EFD9B4 | Cream cat, Siamese body |
-| 14 | fur_brown | #7A4F2E | Tortie patches, Siamese points, Calico patches |
+| 10 | fur_black | #2B2B35 | Tuxedo, Void, Tortie base, Calico patches, Maine Coon stripes |
+| 11 | fur_white | #F7F1E6 | Tuxedo chest, Snow, Calico and Ragdoll base, muzzles |
+| 12 | fur_grey | #8E96A3 | spare grey (no cat uses it since 2026-10-27) |
+| 13 | fur_cream | #EFD9B4 | Siamese body, cream muzzles |
+| 14 | fur_brown | #7A4F2E | Brownie's coat |
 | 15 | fur_golden | #F2C14E | Golden (Legendary) |
 
 ### Row 2: cat details and rarity
@@ -103,7 +103,7 @@ Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex val
 | 54 | sparkle | #FFF4B0 | Legendary sparkles, star specks |
 | 55 | galaxy_blue | #3B4C8C | Galaxy cat base |
 
-Row 7, v0.3 to v0.5 additions. The row is full: a new color now means growing the texture, which moves every UV, so reuse a swatch where you can.
+Row 7, v0.3 to v0.5 additions. The texture grew from 8 to 16 rows on 2026-10-27 for per-cat coats (rows 8 and 9 below). New swatches only go at the end, so every index keeps its place; growing the texture again moves every UV and means re-exporting every asset.
 
 | idx | name | hex | use |
 |---|---|---|---|
@@ -112,11 +112,62 @@ Row 7, v0.3 to v0.5 additions. The row is full: a new color now means growing th
 | 58 | aurora_violet | #8E7CF0 | Aurora's middle band between galaxy_blue and mint |
 | 59 | pastel_butter | #F6DFA0 | Butter cafe facade (plot shells come in mint, blush, pastel_butter, pastel_lilac) |
 | 60 | pastel_lilac | #C9B8E8 | Lilac cafe facade |
-| 61 | shiny_light | #C3E0F7 | Shiny coat, lightest coat color of a cat (frost style) |
-| 62 | shiny_mid | #94BCE4 | Shiny coat, second coat color (frost) |
-| 63 | shiny_dark | #6B8FC6 | Shiny coat, third coat color (frost) |
+| 61 | gold_light | #FBE49A | Gold cat, lightest coat color of a cat (metal) |
+| 62 | gold_mid | #F2C14E | Gold cat, second coat color (metal) |
+| 63 | gold_dark | #C98F2A | Gold cat, third coat color and any near-black coat (metal) |
 
-**Shiny coats (v0.5, features.md F42).** Every cat has `CatCafe_Cat_<Name>_Shiny`: the same shapes with the coat recolored, eyes, nose, inner ears, muzzle and star specks unchanged (a cream muzzle turns white). The cat's coat colors (fur, second, third) are ranked lightest first by CIE L*: the lightest takes shiny_light, the next shiny_mid, the next shiny_dark, and any coat darker than L* 35 (black, chocolate) takes the style's deep swatch, galaxy_blue for frost, so stripes, points and patches still show; a dark coat already in the deep swatch's color family (Midnight's night_sky, Aurora's galaxy_blue under frost) takes shiny_dark instead so it still changes. `palette.SHINY_STYLE` picks the style: frost (silver blue, the default until Gavin's round 3 answer), gold (#FBE49A, #F2C14E, #C98F2A, deep rust) or lavender (#E6D2FA, #C7A3EE, #9A74D6, deep galaxy_blue). Changing that line and rebuilding `--only _Shiny` restyles every shiny cat. Shiny cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_shiny.png`.
+Row 8, coats (2026-10-27), so that no two cats share a main coat color.
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 64 | fur_ginger | #D9662E | Ginger's red-ginger coat, Tortie's patches |
+| 65 | fur_charcoal | #4A4F58 | Smoke's coat |
+| 66 | fur_silver | #CDD2DA | Maine Coon's silver tabby base |
+| 67 | fur_latte | #C79F7A | Cream's latte coat |
+| 68 | fur_sand | #DDB46A | Bengal's sand base |
+| 69 | fur_rose | #F2BFCB | Blossom's rose coat |
+| 70 | fur_peach | #EDBBA1 | Sphynx's skin |
+| 71 | fur_lavender | #B9A3DE | Persian's lavender long coat |
+
+Row 9, eyes, noses and markings for the coats.
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 72 | eye_copper | #E0782F | Tortie and Persian eyes |
+| 73 | eye_chartreuse | #B9D84A | Smoke and Cream eyes |
+| 74 | eye_violet | #9C7CF2 | Sphynx eyes |
+| 75 | nose_dark | #4A4450 | noses of the dark, grey and pointed cats |
+| 76 | nose_brick | #C4675B | noses of the ginger, brown and tabby-patterned cats |
+| 77 | fur_seal | #3E2A22 | Siamese points, Bengal spots |
+| 78 | fur_apricot | #F2B88A | Tortie's second patch color |
+| 79 | fur_smoke_light | #8A8F99 | Smoke's muzzle |
+
+**Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
+
+| cat | coat | markings | eyes | nose |
+|---|---|---|---|---|
+| Tabby | fur_orange | fur_orange_dark stripes, white muzzle | amber | pink |
+| Tuxedo | fur_black | fur_white bib, belly and socks | green | pink |
+| Ginger | fur_ginger | cream muzzle | green | brick |
+| Smoke | fur_charcoal | fur_smoke_light muzzle | chartreuse | dark |
+| Snow | fur_white | none | odd: blue and amber | pink |
+| Cream | fur_latte | cream muzzle | chartreuse | pink |
+| Brownie | fur_brown | choco stripes, cream muzzle | amber | brick |
+| Blue | fur_blue | none | green | dark |
+| Calico | fur_white | fur_orange and fur_black patches | green | pink |
+| Siamese | fur_cream | fur_seal points | blue | dark |
+| Tortie | fur_black | fur_ginger and fur_apricot patches | copper | brick |
+| Bengal | fur_sand | fur_seal spots, cream muzzle | green | brick |
+| Sphynx | fur_peach | none | violet | pink |
+| Ragdoll | fur_white | fur_blue points | blue | pink |
+| Maine Coon | fur_silver | fur_black stripes, white ruff | amber | brick |
+| Persian | fur_lavender | pastel_lilac fringe | copper | pink |
+| Void | fur_black | sparkle specks | amber, glowing | dark |
+| Blossom | fur_rose | fur_white and nose_pink patches, petals | blue | pink |
+| Midnight | night_sky | sparkle stars and moon | sparkle, glowing | dark |
+| Aurora | galaxy_blue | aurora_violet and mint gradient | mint, glowing | pink |
+
+**Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
 
 ## 3. Shape language
 
@@ -204,12 +255,12 @@ A cat exports as one FBX containing three objects: `<Name>_Body` (legs included)
 
 ## 8. Materials and textures
 
-- One material, `CatCafe_Palette`, Base Color from `CatCafe_Palette.png`, Roughness 0.65, no metallic, no normal map. Every mesh uses it.
+- One material, `CatCafe_Palette`, Base Color from `CatCafe_Palette.png`, Roughness 0.65, no normal map. Metallic comes from the mask `CatCafe_Palette_Metal.png`, white only on the gold swatches (gold cats), where Roughness drops to 0.3. Every mesh uses it.
 - UVs: every face mapped to the center of its swatch (all loops of the face share the UV). No unwrapping needed and no seams.
 - In Studio, set the texture on the MeshPart (`TextureID`) or use a SurfaceAppearance with ColorMap. Material `SmoothPlastic`, or `Plastic` for a touch of grain. Emissive bits (lamp bulbs, Void eyes) are separate Neon Parts or a small PointLight added in Studio, not part of the mesh.
 - Studio placeholders: Parts in the same sizes using Color3 from the palette and SmoothPlastic, named identically, so swapping a Part for a MeshPart is a one-line change.
 - Rarity glow: Studio-side Highlight or ParticleEmitter in the rarity color. Legendary cats also get a few `sparkle` swatch studs in the mesh.
-- Particle sprites are the one exception to "one palette texture": `CatCafe_VFX_ShinySparkle.png` (128 px, white on transparent, built by `vfx.py`) is a ParticleEmitter Texture that the emitter's `Color` tints, `sparkle` for shiny cats. Its shape is a fat four-point star with small diagonal glints and a soft halo, drawn thick so it still reads at Size 0.4 to 0.6 on a phone at 30 studs. The manifest's `textures` section has the file and suggested emitter values; the vfx-animator's `ShinySparkle` preset owns the emitter. Upload the PNG in Studio and use its id; until then `rbxasset://textures/particles/sparkles_main.dds` stands in. Preview: `previews/CatCafe_VFX_ShinySparkle.png`.
+- Particle sprites are the one exception to "one palette texture": `CatCafe_VFX_ShinySparkle.png` (128 px, white on transparent, built by `vfx.py`) is a ParticleEmitter Texture that the emitter's `Color` tints, `sparkle` for gold cats. Its shape is a fat four-point star with small diagonal glints and a soft halo, drawn thick so it still reads at Size 0.4 to 0.6 on a phone at 30 studs. The manifest's `textures` section has the file and suggested emitter values; the vfx-animator's `ShinySparkle` preset owns the emitter. Upload the PNG in Studio and use its id; until then `rbxasset://textures/particles/sparkles_main.dds` stands in. Preview: `previews/CatCafe_VFX_ShinySparkle.png`.
 
 ## 9. Lighting (Studio)
 

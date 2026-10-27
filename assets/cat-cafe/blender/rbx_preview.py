@@ -27,8 +27,8 @@ CT = common.TO_ROBLOX.transposed()     # Roblox -> Blender
 _mats = {}
 
 
-def _material(rgb, alpha, neon):
-    key = (tuple(round(c, 3) for c in rgb), alpha, neon)
+def _material(rgb, alpha, neon, metal=False):
+    key = (tuple(round(c, 3) for c in rgb), alpha, neon, metal)
     if key in _mats:
         return _mats[key]
     m = bpy.data.materials.new("rbx_%d" % len(_mats))
@@ -36,7 +36,9 @@ def _material(rgb, alpha, neon):
     bsdf = m.node_tree.nodes["Principled BSDF"]
     lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb]
     bsdf.inputs["Base Color"].default_value = (*lin, 1)
-    bsdf.inputs["Roughness"].default_value = 0.6
+    bsdf.inputs["Roughness"].default_value = 0.3 if metal else 0.6
+    if metal:
+        bsdf.inputs["Metallic"].default_value = 1.0
     if alpha < 1:
         bsdf.inputs["Alpha"].default_value = alpha
     if neon:
@@ -106,7 +108,7 @@ def build(path, name):
         neon = props.get("Material") == "Neon"
         if props.get("Material") == "ForceField":            # a see-through shimmer in Roblox
             transparency, neon = max(transparency, 0.6), True
-        me.materials.append(_material(props["Color"], 1 - transparency, neon))
+        me.materials.append(_material(props["Color"], 1 - transparency, neon, props.get("Material") == "Metal"))
         ob = bpy.data.objects.new(f"{name}_{i}", me)
         bpy.context.scene.collection.objects.link(ob)
         objs.append(ob)

@@ -76,7 +76,6 @@ export type PlayerState = {
 	cats: { [string]: CatInstance }?, -- uid -> instance; enables the cat room tab
 	collection: { [string]: number }?, -- catId -> firstCaughtAt; drives silhouettes
 	goldCollection: { [string]: number }?, -- catId -> first gold cat caught at (was shinyCollection)
-	shinyCollection: { [string]: number }?, -- the old name, read until the controller sends goldCollection
 	carrying: string?, -- catId while carrying a stray home (HUD banner)
 	tutorialStep: number?,
 	settings: { [string]: boolean }?, -- profile.settings: music, sfx, later markers; a missing key reads as on
@@ -100,7 +99,6 @@ export type PartialState = {
 	cats: { [string]: CatInstance }?,
 	collection: { [string]: number }?,
 	goldCollection: { [string]: number }?,
-	shinyCollection: { [string]: number }?,
 	carrying: string?,
 	tutorialStep: number?,
 	settings: { [string]: boolean }?,
@@ -131,7 +129,7 @@ export type CatchInfo = {
 	kind: PromptKind?, -- default "swing" (the net); "rescue" is a stuck cat (F21)
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
-	shiny: boolean?, -- v0.3: the stray's Shiny attribute (rescued cats hide it until freed)
+	shiny: boolean?, -- v0.3: the stray's Gold attribute (rescued cats hide it until freed)
 	-- v0.5: the stray's FleeingUntil (server time). Until then it is sprinting off after a miss and nobody can
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
@@ -202,9 +200,6 @@ export type InitConfig = {
 	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
 	-- uiHint and uiRankReady; nil keeps the UI silent.
 	playSound: ((cueId: string) -> ...any)?,
-	-- Ignored: the bait bowl (F28) is always on now that the v0.2 lure spots are gone. Kept so a controller that
-	-- still passes `baitBowl = true` type checks.
-	baitBowl: boolean?,
 }
 
 -- What is in the bait bowl (data-model section 8), as UI.bait.set takes it. readyAt is server os.time(); the
@@ -217,7 +212,7 @@ export type BaitView = {
 -- The cat that came to the bowl, from BaitReady (a CatView or anything with these fields).
 export type BaitCat = {
 	catId: string,
-	variant: string?, -- "shiny" shows the sparkle
+	variant: string?, -- "gold" shows the sparkle
 	charm: number?,
 	stars: number?, -- 1 to 5
 	name: string?, -- a custom name, else the catalog name

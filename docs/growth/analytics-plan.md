@@ -149,12 +149,12 @@ Values are counts unless noted. Never log a cat's player-given name, a username 
 
 | eventName | value | customFields (max 3) | Fired when | Why |
 |---|---|---|---|---|
-| cat_caught | 1 | cat_id, method (net, rescue, bait, net_dropped), variant (base, shiny) | A cat joins the player: CheckIn, or ResolveBait tame | Which cats players get and how. Area and rarity come from cat_id in the catalog. |
+| cat_caught | 1 | cat_id, method (net, rescue, bait, net_dropped), variant (base, gold; "shiny" before 2026-10-27) | A cat joins the player: CheckIn, or ResolveBait tame | Which cats players get and how. Area and rarity come from cat_id in the catalog. |
 | catch_circles | catch chance as a whole percent | rarity, net_level (0 to 3), perfect_count (0 to 5) | After the last circle of every net attempt, success or fail | Net fairness: average chance by rarity and net level. Feel target: Common on a Basic Net mostly caught. |
 | rescue_attempt | 1 | trap (trash_bin, garbage_bag, tree, trashcan, ...), rarity, result (freed, out_of_paws, cancelled, missed_catch) | RescueResult with done true, or RescueCancel | Which traps are too hard on touch |
 | bait_rolled | 1 | lure_id, rarity, buff (none, catnip) | UseLure rolls the cat | Odds audit: results against the food card, base and boosted separately (monetization.md section 7) |
 | bait_resolved | 1 | lure_id, rarity, choice (tame, letgo) | ResolveBait | Let-go rate by food and rarity |
-| shiny_found | 1 | method (net, rescue, bait), rarity, first_of_cat (yes, no) | A shiny joins the player | Shiny rate against 2%, 2%, 10% |
+| gold_found | 1 | method (net, rescue, bait), rarity, first_of_cat (yes, no) | A gold cat joins the player | Gold rate against 5% net, 5% bait, 10% rescue (Config GoldChance*). Named shiny_found until 2026-10-27, when Derek renamed shiny to gold: add the two together across the split. |
 
 ### 6.2 Bumps
 
@@ -184,9 +184,9 @@ Bumps are the first player-versus-player contact in the game, and the GDD names 
 | eventName | value | customFields (max 3) | Fired when | Why |
 |---|---|---|---|---|
 | session_end | seconds played | cats_caught bucket (0, 1 to 2, 3 to 5, 6+), tier, device | PlayerRemoving | Session length by progress and device |
-| ui_opened | 1 | screen (shop, collection, shiny_book, dealer, rank_up, settings) | Client report, allowlisted | Which screens are found at all |
+| ui_opened | 1 | screen (shop, collection, gold_book, dealer, rank_up, settings) | Client report, allowlisted | Which screens are found at all |
 | tutorial_step | 1 | step | TutorialAdvance | Which beats land |
-| announce_sent | 1 | rarity, shiny (yes, no) | Server fires an Announce | Social moment volume |
+| announce_sent | 1 | rarity, gold (yes, no) | Server fires an Announce | Social moment volume |
 | error_recovered | 1 | system (datastore, catalog, remote, policy, filter) | Server recovers from a known failure | Health without reading logs |
 | catch_flagged | 1 | reason (perfect_rate, low_spread), net_level | Section 8 check trips, at most once per player per session | Volume of suspected auto-pressers |
 

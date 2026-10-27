@@ -28,6 +28,7 @@ local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -53,6 +54,7 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	setCatching: (self: HUD, active: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
+	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
 }
@@ -314,7 +316,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tiersOn = false
 
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
-	-- Invite opens Roblox's own invite window, the gear opens Settings; Daily and Mail join them as they arrive.
+	-- Gifts opens the Tip Jar (F47) and counts down to the next playtime gift, the gear opens Settings, Invite
+	-- opens Roblox's own invite window; Daily and Mail join them as they arrive.
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
@@ -329,6 +332,47 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
+	})
+	local gifts = Button.new({
+		name = "Gifts",
+		text = "Gifts",
+		icon = Theme.icons.gifts,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "berry",
+		size = UDim2.fromOffset(ICON, ICON),
+		layoutOrder = 2,
+		parent = icons,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openScreen("TipJar")
+		end,
+	})
+	gifts.instance.Visible = false -- until the first TipJarState
+	table.insert(self._buttons, gifts)
+	self._gifts = gifts
+	-- red count of gifts ready to claim, on the tile's top right corner
+	local giftDot: Frame = Create("Frame", {
+		Name = "Dot",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = 6,
+		Parent = gifts.instance,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(giftDot, 2)
+	self._giftDot = giftDot
+	self._giftCount = label({
+		Name = "Count",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "",
+		ZIndex = 7,
+		Parent = giftDot,
 	})
 	table.insert(
 		self._buttons,
@@ -522,6 +566,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			layoutOrder = index,
 			parent = menu,
 			sound = false, -- the modal swish is the sound
+			ears = true,
 			onClick = item.open,
 		})
 		local key = item.key
@@ -694,6 +739,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = if home then Theme.sizes.textLarge else Theme.sizes.textBody + 1,
 			layoutOrder = index + 1,
 			parent = travelRow,
+			ears = home,
 			-- Areas only opens the panel, which swishes; Cafe and Alley click
 			sound = if item.key == "areas" then false else nil,
 			onClick = function()
@@ -1206,6 +1252,31 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 		end
 		dot.Visible = show
 	end
+end
+
+-- The Gifts tile (F47): "Claim!" with a red count while gifts are ready, else the time to the next one, "Done"
+-- once all twelve are claimed. nil hides the tile.
+function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, left: number }?)
+	local gifts: Button.Button = self._gifts
+	gifts.instance.Visible = summary ~= nil
+	if summary == nil then
+		return
+	end
+	local nextIn: number? = summary.nextIn
+	local text = if summary.ready > 0
+		then "Claim!"
+		elseif nextIn ~= nil then TipJarLogic.clock(nextIn)
+		else "Done"
+	if text ~= self._giftText then
+		self._giftText = text
+		gifts:setText(text)
+	end
+	local ready = summary.ready > 0
+	if ready and not self._giftDot.Visible then
+		Tween.popIn(self._giftDot, 0.5)
+	end
+	self._giftDot.Visible = ready
+	self._giftCount.Text = tostring(summary.ready)
 end
 
 -- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot.

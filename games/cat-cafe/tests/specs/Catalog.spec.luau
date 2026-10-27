@@ -150,29 +150,47 @@ return function()
 			},
 			ginger = { "Ginger", "Common", "alley", "greeter", "Warm, round, always in the sun." },
 			smoke = { "Smoke", "Common", "alley", "entertainer", "Grey as a rainy morning." },
-			calico = { "Calico", "Rare", "alley", "greeter", "Three colors, three opinions." },
-			tortie = { "Tortie", "Rare", "alley", "barista", "Brindled and bossy." },
-			sphynx = { "Sphynx", "Epic", "alley", "entertainer", "No fur, all attitude." },
-			maine_coon = {
-				"Maine Coon",
-				"Epic",
+			calico = {
+				"Pirate Cat",
+				"Rare",
 				"alley",
 				"waiter",
-				"Big as a backpack, gentle as a pillow.",
+				"Carries every tray like buried treasure.",
 			},
-			void = {
-				"Void",
-				"Legendary",
+			tortie = {
+				"Rocker Cat",
+				"Rare",
 				"alley",
-				"barista",
-				"Pure black with glowing eyes. Makes the darkest espresso.",
+				"entertainer",
+				"Knows one chord and plays it very loudly.",
 			},
-			midnight = {
-				"Midnight",
-				"Mythical",
+			sphynx = {
+				"DJ Cat",
+				"Epic",
 				"alley",
 				"greeter",
-				"Fur like the night sky, freckled with stars.",
+				"Drops a beat every time the door opens.",
+			},
+			maine_coon = {
+				"Bandit Cat",
+				"Epic",
+				"alley",
+				"barista",
+				"Sneaks extra foam onto every latte.",
+			},
+			void = {
+				"Ninja Cat",
+				"Legendary",
+				"alley",
+				"waiter",
+				"Silent, fast and never spills a drop.",
+			},
+			midnight = {
+				"Wizard Cat",
+				"Mythical",
+				"alley",
+				"barista",
+				"Stirs a little starlight into every cup.",
 			},
 			snow = { "Snow", "Common", "park", "waiter", "All white, hates the muddy paths." },
 			cream = {
@@ -191,46 +209,46 @@ return function()
 			},
 			blue = { "Blue", "Common", "park", "greeter", "Silver-blue and very polite." },
 			siamese = {
-				"Siamese",
+				"Nerd Cat",
 				"Rare",
 				"park",
 				"barista",
-				"Loud. Supervises the espresso machine.",
+				"Measures every latte to the last drop.",
 			},
 			bengal = {
-				"Bengal",
+				"Explorer Cat",
 				"Rare",
 				"park",
 				"entertainer",
-				"Spotted and fast. Climbs everything.",
+				"Tells tall tales about the wild side of the Park.",
 			},
 			ragdoll = {
-				"Ragdoll",
+				"Sleepy Cat",
 				"Epic",
 				"park",
 				"greeter",
-				"Huge, fluffy, goes limp when carried.",
+				"Says hello with an enormous yawn.",
 			},
 			persian = {
-				"Persian",
+				"Fancy Cat",
 				"Epic",
 				"park",
 				"waiter",
-				"A cloud with a squashed face and opinions about cushions.",
+				"Serves every cup on a silver tray.",
 			},
 			blossom = {
-				"Blossom",
+				"Fairy Cat",
 				"Legendary",
 				"park",
-				"greeter",
-				"Pink-cream fur, and petals follow her everywhere.",
+				"barista",
+				"Leaves a petal on every saucer.",
 			},
 			aurora = {
-				"Aurora",
+				"Astro Cat",
 				"Mythical",
 				"park",
 				"entertainer",
-				"Fur that shifts color like the northern lights.",
+				"Moonwalks between the tables.",
 			},
 		}
 		-- Section 3c, provisional: id -> { name, rarity, area, favoriteRole }. Descriptions are placeholders.
@@ -448,6 +466,38 @@ return function()
 				"CatCafe_Accessory_BaristaCap"
 			)
 		end)
+
+		it(
+			"a themed cat's prop slot drops at most one piece of any outfit (v0.5.2 section 3)",
+			function()
+				local pieceSet: { [string]: boolean } = {}
+				for _, pieces in pairs(Catalog.roleOutfits) do
+					for _, piece in pieces do
+						pieceSet[piece] = true
+					end
+				end
+				for piece, slot in pairs(Catalog.outfitPieceSlots) do
+					expect(pieceSet[piece]).to.equal(true)
+					expect(slot == "Head" or slot == "Back").to.equal(true)
+				end
+				expect(Catalog.outfitPieceSlots.BaristaCap).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.Boater).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.PartyHat).to.equal("Head")
+				expect(Catalog.outfitPieceSlots.Cape).to.equal("Back")
+				-- Whatever the prop's slot, every role keeps at least one piece, so a working cat still reads as staff.
+				for _, propSlot in ipairs({ "Head", "Face", "Back" }) do
+					for _, role in ipairs(ROLES) do
+						local kept = 0
+						for _, piece in Catalog.roleOutfits[role] do
+							if Catalog.outfitPieceSlots[piece] ~= propSlot then
+								kept += 1
+							end
+						end
+						expect(kept >= 1).to.equal(true)
+					end
+				end
+			end
+		)
 	end)
 
 	describe("tiers (section 5b)", function()

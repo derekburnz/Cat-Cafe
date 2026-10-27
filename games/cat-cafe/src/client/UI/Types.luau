@@ -22,6 +22,7 @@ export type UpgradeDef = SharedTypes.UpgradeDef
 export type DecorDef = SharedTypes.DecorDef
 export type LureOdds = SharedTypes.LureOdds -- percentages that sum to 100, shown before purchase
 export type LureDef = SharedTypes.LureDef
+export type RarityDef = SharedTypes.RarityDef
 export type SpotDef = SharedTypes.SpotDef
 export type TierDef = SharedTypes.TierDef -- data-model section 5b
 export type AreaDef = SharedTypes.AreaDef
@@ -34,6 +35,25 @@ export type Catalog = {
 	spots: { SpotDef }?, -- role slots; needed for the cat room's crew strip and Upgrades > Staff
 	tiers: { TierDef }?, -- v0.3: tier names, gates and the rank up card
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
+	tipJar: { TipJarRow }?, -- F47: the twelve playtime gifts (data-model section 11b)
+	rarities: { [string]: RarityDef }?, -- the cat room's sell prices (reviewer N103)
+}
+
+-- One Tip Jar gift (F47): unlocks `minutes` into the session; coins pay max(minCoins, dayRate * seconds).
+export type TipJarRow = {
+	step: number,
+	minutes: number,
+	kind: string, -- "coins" or "lure"
+	seconds: number?,
+	minCoins: number?,
+	lureId: string?,
+	count: number?,
+}
+
+-- TipJarState from the server (F47): sessionStartedAt in Workspace:GetServerTimeNow() time, claimed steps.
+export type TipJarState = {
+	sessionStartedAt: number,
+	claimed: { [any]: boolean }?,
 }
 
 export type OwnedCat = {
@@ -113,6 +133,7 @@ export type ScreenName =
 	| "Bait"
 	| "Dealer"
 	| "Settings"
+	| "TipJar"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

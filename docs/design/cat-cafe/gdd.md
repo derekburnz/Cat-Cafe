@@ -13,7 +13,7 @@ A cozy cat cafe tycoon where the cats do the work and you do the collecting. Str
 - By day (5 minutes): cats serve and tips flow at the full rate, rich customers drop big tips, you assign cats to roles, buy upgrades, set bait and hunt any stray left over from last night.
 - By night (5 minutes): a fresh wave of ten strays appears in every area you have unlocked, cats stuck in traps wait to be rescued, the mysterious food dealer opens his cart and the cafe closes but keeps earning at 60% while the cats nap. Net or rescue a cat, carry it home without getting shoved, check it in.
 - Every session (10 to 15 minutes): one or two nights, two to four cats, a role filled, an upgrade or two, a bait cat waiting when you come back.
-- Over weeks: rank up from Tier 1 to Tier 5, open all five areas, fill the book of 50 and the gold book.
+- Over weeks: rank up from Tier 1 to Tier 5, open all five areas, fill the Index of 50 and the gold Index.
 
 The player is the manager. There is no manager avatar or NPC in the cafe (Gavin, Q11): the hands-on jobs are catching, rescuing, assigning, upgrading and ranking up, and the cats do the rest.
 
@@ -57,7 +57,7 @@ Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one
 
 Per-cat stats stay as built: charm (rolled at catch, 0.8x to 1.2x), level from time spent working (up to 1.45x) and the star rating.
 
-Gold cats (Gavin, Q16 and round 2; called shiny until Derek renamed them on 2026-10-27): every cat has a gold version that earns 1.5 times as much and sparkles (Derek picked gold on 2026-10-27). A gold cat turns up 5% of the time from the net and bait and 10% from a rescue. Gold strays sparkle on sight, so the race for them is visible; whether a rescued cat is gold is a surprise when it comes out. The book has a gold page. There is no merging of duplicates, and Golden and Galaxy variants are dropped. Duplicates still sell for coins.
+Gold cats (Gavin, Q16 and round 2; called shiny until Derek renamed them on 2026-10-27): every cat has a gold version that earns 1.5 times as much and sparkles (Derek picked gold on 2026-10-27). A gold cat turns up 5% of the time from the net and bait and 10% from a rescue. Gold strays sparkle on sight, so the race for them is visible; whether a rescued cat is gold is a surprise when it comes out. The Index has a gold page. There is no merging of duplicates, and Golden and Galaxy variants are dropped. Duplicates still sell for coins.
 
 Names (Q16): players can name their cats. Names go through Roblox's text filter before anyone else can see them.
 
@@ -128,7 +128,7 @@ The features players expect from Steal an Egg and Roll a Fisherman style games a
 
 ## Vertical slice scope
 
-In: one street with 8 plots, the Alleyway and the Park with their 20 cats, Neighbourhood, Woods and Sewer as gated grayboxes, the 5 and 5 minute clock with waves of ten, tiers 1 to 5, four roles with favorite-role pay and upright uniforms, Equip Best, the closing-circle net with three upgrades, rescue minigames with Alleyway and Park traps, the bait bowl at your cafe with Tame or Let go, carry with shoves, gold cats, naming cats, night income at 60%, rich customers, the night food dealer, the collection and gold books, selling duplicates, offline earnings, data saving, tutorial beats, analytics events.
+In: one street with 8 plots, the Alleyway and the Park with their 20 cats, Neighbourhood, Woods and Sewer as gated grayboxes, the 5 and 5 minute clock with waves of ten, tiers 1 to 5, four roles with favorite-role pay and upright uniforms, Equip Best, the closing-circle net with three upgrades, rescue minigames with Alleyway and Park traps, the bait bowl at your cafe with Tame or Let go, carry with shoves, gold cats, naming cats, night income at 60%, rich customers, the night food dealer, the collection and gold Index pages, selling duplicates, offline earnings, data saving, tutorial beats, analytics events.
 
 Out: trading, the 30 cats of the last three areas (provisional names only), role boosts for specific cats, free decor placement, patio and second floor content, game passes, a coins product, friends list features.
 
@@ -160,6 +160,6 @@ Out: trading, the 30 cats of the last three areas (provisional names only), role
 
 ## Open questions
 
-Round 2 is answered (feedback/gavin-2026-10-27.md). Round 3 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): shoving mid-catch, whether a shove knocks a cat loose, the chase distance, whether the shared dealer stock runs out and the closed cafe at night (Q4, the gold colour, Derek answered). Q7 to Q21 were added the same afternoon for Derek's changes: the hold and how many circles a catch needs, the Drop button, where the safe zone starts, themed cats, role outfits, gold cat effects and the reward screens (daily, playtime, spin wheel, Book rewards, codes and mail, passes, decor skins).
+Round 2 is answered (feedback/gavin-2026-10-27.md). Round 3 for Gavin is in [questions-for-gavin.md](questions-for-gavin.md): shoving mid-catch, whether a shove knocks a cat loose, the chase distance, whether the shared dealer stock runs out and the closed cafe at night (Q4, the gold colour, Derek answered). Q7 to Q21 were added the same afternoon for Derek's changes: the hold and how many circles a catch needs, the Drop button, where the safe zone starts, themed cats, role outfits, gold cat effects and the reward screens (daily, playtime, spin wheel, Index rewards, codes and mail, passes, decor skins).
 
 Settled 2026-10-25: Cozy Cream art style (Derek: cozy game vibes). No trading. Settled 2026-10-26 by Gavin's answers and Derek's go-ahead: everything in v0.3 above, including carry bumps in place of the no-stealing rule. Settled 2026-10-27 by Gavin's round 2: unlimited tries with a chase after a miss, Shove in place of Bump, the bowl outside, a special coat for every cat at 5% (now gold cats), spending coins to rank up, the cafe closed at night at 60%, one shared dealer stock, area-unique cats, "Cat Cafe" as the placeholder name.

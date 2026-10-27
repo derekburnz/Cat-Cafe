@@ -45,6 +45,7 @@ local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
 local Theme = require(script.Theme)
+local TipJar = require(script.Screens.TipJar)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
 local UpgradeShop = require(script.Screens.UpgradeShop)
@@ -89,6 +90,7 @@ UI.events = {
 	-- 2026-10-27 HUD v3
 	dropCat = Signal.new(), -- ()   Drop on the carry banner or G while carrying: forward as DropCat
 	-- 2026-10-27 wave 2
+	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting (Audio follows UI.settings.changed)
 }
 
@@ -143,6 +145,7 @@ local bowlPart: BasePart? = nil -- the player's own BaitBowl part (UI.bait.setBo
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 local settingsScreen: Settings.Settings? = nil -- music, sound and place icons switches (gear in the HUD)
+local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
@@ -205,6 +208,9 @@ local function render()
 	if settingsScreen then
 		settingsScreen:render(state)
 	end
+	if tipJarScreen then
+		tipJarScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -236,6 +242,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if dealerScreen then
 		dealerScreen:setCatalog(newCatalog)
+	end
+	if tipJarScreen then
+		tipJarScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -482,6 +491,22 @@ function UI.init(config: Types.InitConfig)
 			settingsView:render(state)
 		end,
 	})
+	tipJarScreen = TipJar.new({
+		claim = function(step: number)
+			UI.events.claimTipJar:Fire(step)
+		end,
+		status = function(summary)
+			hudInstance:setTipJar(summary)
+		end,
+		close = closeModal,
+	})
+	local tipJarView = tipJarScreen :: TipJar.TipJar
+	modalInstance:register("TipJar", {
+		frame = tipJarView.frame,
+		onOpen = function()
+			tipJarView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -639,6 +664,10 @@ function UI.destroy()
 		settingsScreen:destroy()
 	end
 	settingsScreen = nil
+	if tipJarScreen then
+		tipJarScreen:destroy()
+	end
+	tipJarScreen = nil
 	if upgrades then
 		upgrades:destroy()
 	end
@@ -882,7 +911,6 @@ end
 -- Bait bowl (F28, data-model section 8)
 ----------------------------------------------------------------------------------------------------
 
--- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and
 -- Settings as the switches show them: a tap at once, then the server's saved value, and back to it if the server
 -- drops the tap. Apply music and sfx to Audio from `changed` rather than from state.settings, so a sync sent
 -- before the server saw the tap cannot flip the music back during the hold (review N111).
@@ -896,6 +924,7 @@ function UI.settings.value(key: string): boolean
 	return true
 end
 
+-- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and
 -- the bait card offers Tame or Let go (events.resolveBait). The HUD's bowl chip shows once the Bait bowl upgrade
 -- is owned.
 UI.bait = {}
@@ -1005,6 +1034,28 @@ end
 function UI.dealer.open()
 	if modal then
 		modal:open("Dealer")
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Tip Jar (F47, data-model section 11b)
+----------------------------------------------------------------------------------------------------
+
+UI.tipJar = {}
+
+-- From TipJarState: { sessionStartedAt (Workspace:GetServerTimeNow() time), claimed = { [step] = true } }, sent
+-- when the profile loads and after every ClaimTipJar. The HUD's Gifts tile appears with the first one and counts
+-- down to the next gift; the screen shows every gift. nil hides the tile.
+function UI.tipJar.set(jar: Types.TipJarState?)
+	if tipJarScreen then
+		tipJarScreen:setJar(jar)
+	end
+end
+
+-- Opens the Tip Jar screen.
+function UI.tipJar.open()
+	if modal then
+		modal:open("TipJar")
 	end
 end
 
@@ -1746,6 +1797,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	end
 	if dealerScreen then
 		dealerScreen:setNight(phase == "night")
+	end
+	if tipJarScreen then
+		tipJarScreen:setNight(phase == "night")
 	end
 end
 

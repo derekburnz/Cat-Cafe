@@ -83,7 +83,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.showOfflineEarnings(amount, seconds)` | "While you were away" popup with Claim, fires `events.claimOffline`. |
 | `UI.floatText(worldPosition, text, color?)` | Rising "+$8" at a world point (customers' coin pops). |
 | `UI.setCarrying(info?)` | `info = { catId, catName?, rarity?, door: BasePart? }`. Bottom-centre banner "Carrying Void" plus a world marker with distance over the door. `nil` clears. |
-| `UI.tutorial.show(text, target?, markerLabel?)` / `UI.tutorial.hide()` | One-line gold strip at the bottom and, with a target (BasePart, Attachment or Vector3), a marker in the world. |
+| `UI.tutorial.show(text, target?, markerLabel?)` / `UI.tutorial.hide()` | One-line gold strip at the bottom and, with a target (BasePart, Attachment or Vector3), a marker in the world plus a glowing dotted trail on the ground from the player to it (Pet Simulator 99, F39 P1). The trail follows a PathfindingService route (no dots while none is found, retried every 2 s, so it never cuts through a wall), re-routes after the player moves 5 studs, shows up to about 170 studs ahead and hides within 10 studs of the target. Calling `show` again with the same target keeps the route, so `refreshTutorial` on every state update is fine. The dots are client-only, non-colliding parts in `Workspace.CatCafeTutorialTrail`. |
 | `UI.clock.set(phase, phaseEndsAt)` | Day and night chip under the cats pill: sun or moon and "Day 2:31" counting down. `phase` is `"day"` or `"night"`, `phaseEndsAt` server `os.time()` seconds. The countdown runs on `Workspace:GetServerTimeNow()`, never the device clock. |
 | `UI.clock.bind(ReplicatedStorage.Clock)` / `UI.clock.unbind()` | Easiest: reads the folder's `Phase` and `PhaseEndsAt` attributes and follows changes. `UI.clock.clear()` hides the chip. |
 | `UI.setVisible(bool)` | Hide the whole UI for cutscenes or screenshots. |
@@ -176,6 +176,16 @@ Copied from the Pet Simulator index. The Book tab opens on a row of area tabs in
 ### Area title card and shout-outs (built, F39 P1)
 
 `UI.showAreaTitle(areaId)` shows the area's name in big outlined letters for two seconds with its "Epic or better N%" line in the area's colour (Pet Simulator 99 and Fisch zone names). `"home"` shows the cafe's tier name over "Your cafe". `UI.travel.result(destination, true)` already calls it; the controller also calls it when the player walks into an area (the zone check that picks the ambience). The same area twice within 4 s shows once. `UI.announce(text, rarity?)` shout-outs take the rarity's colour (or the last rarity named in the text) and stay 4 s.
+
+### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
+
+Nothing to call: `UI.init` starts all three and they read attributes the server and `CustomerController` already set.
+
+- **Name sign** (Steal a Brainrot base signs, `Screens/CafeSigns.luau`): on every model tagged `Plot`, a local SurfaceGui on the street face of the shell's `SignBoard` part, else the code-built `Sign` part. Owned: the owner's round avatar headshot (`rbxthumb://type=AvatarHeadShot`), "<OwnerName>'s Cafe" and "<TierName>  ·  +$X/s" from the plot's `Rate`; at night (`ReplicatedStorage.Clock` `Phase == "night"`) the rate stays behind a moon ("Cozy Cafe  ·  🌙 +$25/s"), times `NightIncomeMultiplier` once F31 puts it in Config, because cafes keep earning at night (reviewer S41). Empty plots read "FOR RENT" over "A cosy spot for a new cafe". Your own cafe has a gold edge. The server's `SignGui` in the plot is disabled on this client only, so it stays as the fallback if the UI fails to load.
+- **Rate tags** (Steal a Brainrot, `Screens/WorldTags.luau`): over every model tagged `WorkingCat`, "+$X/s" from its `Rate` in its `Rarity` colour, shown within 40 studs. Hidden while `Napping` is true or `Rate` is 0.
+- **Order bubbles** (`Screens/WorldTags.luau`): over each customer in `Workspace.LocalCustomers` once `Order` is set ("coffee", "cake" or "milk", drawn as emoji). When `Served` turns true it pops into a pink bubble with a red heart for 1.6 s, then pops out. Customers are client-side models, so this costs no network traffic.
+
+All three are BillboardGuis or SurfaceGuis parented under the models, so they leave with the plot, cat or customer.
 
 ### Planned in the next UI pull requests
 

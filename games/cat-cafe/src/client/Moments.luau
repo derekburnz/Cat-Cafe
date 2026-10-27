@@ -28,6 +28,8 @@ local Moments = {
 	UnplaceCat = Signal.new() :: Signal.Signal<string>, -- (uid) a sync shows a cat off its role; Unequip all fires
 	-- one per cat in the same frame
 	TipJarClaim = Signal.new() :: Signal.Signal<number>, -- (step) a TipJarState shows this step newly claimed (F47)
+	IndexReward = Signal.new() :: Signal.Signal<string, string>, -- (areaId, milestoneId) a sync shows this Index
+	-- reward newly claimed (F48)
 	RankUp = Signal.new() :: Signal.Signal<number>, -- (tier) this player's cafe ranked up
 	AreaUnlock = Signal.new() :: Signal.Signal<string, Vector3>, -- (areaId, gate position) a gate opened for you
 	Announce = Signal.new() :: Signal.Signal<string, string?>, -- (text, rarity) a server shout-out

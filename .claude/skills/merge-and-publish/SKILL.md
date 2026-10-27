@@ -18,6 +18,9 @@ Project rule (Derek, 2026-10-26): a thread merges its own PR once CI is green on
    - when main moved, merges main into the branch and runs CI again, then merges on green;
    - after a merge, starts the check run on main and, when Derek set `AUTO_PUBLISH`, a publish.
 4. A failed check leaves the label on: push the fix and the next green run merges. A conflict with main, or a merge GitHub refuses, takes the label off with a PR comment, which wakes your PR subscription. Fix it by hand, then add the label again.
+5. Labeled, green and still open after a few minutes? Open the newest "Merge if labeled automerge" job log on the PR's checks: its last line names the checks it saw as running or failed. Taking the label off and putting it back runs it again.
+
+Ignore the `check` runs started by github-actions[bot] that sit at "action required" (then "failure" once the PR merges) with no jobs: GitHub creates one for each update-branch push and never runs it. The dispatched `check` run on the same commit carries the real checks.
 
 Merge by hand instead (MCP `merge_pull_request`) when the PR changes `.github/workflows/`: the workflow token may not merge those. Report the merge to Derek in one line either way.
 

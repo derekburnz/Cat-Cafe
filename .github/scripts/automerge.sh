@@ -60,31 +60,41 @@ fi
 head=$(jq -r .headRefOid <<<"$pr")
 branch=$(jq -r .headRefName <<<"$pr")
 
-# The latest run of every check on the head, leaving out this job itself.
+# The newest run of every check on the head, one per name (a cancelled run and its rerun share a name), leaving
+# out this job itself.
 read_checks() {
-	gh api "repos/$REPO/commits/$head/check-runs?per_page=100" \
-		--jq "[.check_runs[] | select(.name != \"$SELF\") | {status, conclusion}]"
+	gh api "repos/$REPO/commits/$head/check-runs?per_page=100" --jq "[.check_runs[] | select(.name != \"$SELF\")]
+		| group_by(.name) | map(max_by(.started_at // \"\") | {name, status, conclusion})"
 }
+running() { jq -r '[.[] | select(.status != "completed") | .name] | join(", ")' <<<"$checks"; }
+# check.yml's last job starts only after its other jobs finished, but the checks API can still report them as
+# running for a few seconds (PR #190 stopped here on 2026-10-27), so it polls for a minute too. automerge.yml
+# polls longer: the label often goes on while the push's CI is still running.
+polls=6
+[ "$WAIT" = --wait ] && polls=28 # under the job's 6 minute timeout
 checks=$(read_checks)
-if [ "$WAIT" = --wait ]; then
-	for _ in $(seq 1 28); do # under the job's 6 minute timeout
-		if [ "$(jq 'length' <<<"$checks")" -gt 0 ] &&
-			[ "$(jq '[.[] | select(.status != "completed")] | length' <<<"$checks")" -eq 0 ]; then
-			break
-		fi
-		sleep 10
-		checks=$(read_checks)
-	done
-fi
-if [ "$(jq 'length' <<<"$checks")" -eq 0 ] ||
-	[ "$(jq '[.[] | select(.status != "completed")] | length' <<<"$checks")" -gt 0 ]; then
-	echo "Checks are still running on $head; check.yml's last job will come back here."
+for _ in $(seq 1 "$polls"); do
+	if [ "$(jq 'length' <<<"$checks")" -gt 0 ] && [ -z "$(running)" ]; then
+		break
+	fi
+	sleep 10
+	checks=$(read_checks)
+done
+if [ "$(jq 'length' <<<"$checks")" -eq 0 ]; then
+	echo "No checks on $head yet; check.yml's last job will come back here."
 	exit 0
 fi
-if [ "$(jq '[.[] | select((.conclusion // "") as $c | ["success", "skipped", "neutral"] | index($c) | not)] | length' <<<"$checks")" -gt 0 ]; then
-	echo "A check failed on $head; waiting for the next push."
+if [ -n "$(running)" ]; then
+	echo "Still running on $head: $(running). check.yml's last job will come back here."
 	exit 0
 fi
+failed=$(jq -r '[.[] | select((.conclusion // "") as $c | ["success", "skipped", "neutral"] | index($c) | not)
+	| "\(.name) (\(.conclusion))"] | join(", ")' <<<"$checks")
+if [ -n "$failed" ]; then
+	echo "Failed on $head: $failed. Waiting for the next push."
+	exit 0
+fi
+echo "Every check passed on $head: $(jq -r 'map(.name) | join(", ")' <<<"$checks")."
 
 behind=$(gh api "repos/$REPO/compare/main...$head" --jq .behind_by)
 if [ "$behind" -gt 0 ]; then

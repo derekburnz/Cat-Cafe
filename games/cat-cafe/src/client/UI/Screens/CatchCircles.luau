@@ -57,7 +57,7 @@ export type CatchCircles = {
 		circles: { Types.CatchCircle },
 		windows: Types.CatchWindows,
 		header: Header?,
-		onPress: (index: number) -> ()
+		onPress: (index: number, grade: Types.CircleGrade) -> ()
 	) -> (),
 	showResult: (self: CatchCircles, outcome: Outcome, onDone: (() -> ())?) -> (),
 	gradeLocal: (self: CatchCircles, index: number) -> Types.CircleGrade?,
@@ -182,7 +182,7 @@ function CatchCircles.new(parent: Instance): CatchCircles
 	self._next = 1
 	self._active = false
 	self._token = 0
-	self._onPress = nil :: ((index: number) -> ())?
+	self._onPress = nil :: ((index: number, grade: Types.CircleGrade) -> ())?
 	self._loop = nil :: RBXScriptConnection?
 	self._lastTarget = 0
 	self._awaitingResult = false
@@ -434,7 +434,7 @@ function CatchCircles.show(
 	circles: { Types.CatchCircle },
 	windows: Types.CatchWindows,
 	header: Header?,
-	onPress: (index: number) -> ()
+	onPress: (index: number, grade: Types.CircleGrade) -> ()
 )
 	self:hide()
 	self._token += 1
@@ -570,7 +570,7 @@ function CatchCircles._press(self: any)
 	self._next = index + 1
 	local onPress = self._onPress
 	if onPress then
-		onPress(index)
+		onPress(index, grade)
 	end
 end
 

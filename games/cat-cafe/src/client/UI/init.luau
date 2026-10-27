@@ -61,7 +61,7 @@ UI.events = {
 	rescueEnded = Signal.new(), -- (rescueSpotId, catId, completed)  completed after the full hold: send RescueEnd
 	screenOpened = Signal.new(), -- (name or nil)
 	-- design v0.3
-	catchPressed = Signal.new(), -- (strayId, index)   a press on circle `index`: forward as CatchPress
+	catchPressed = Signal.new(), -- (strayId, index, grade)   a press on circle `index` with this device's grade: forward strayId and index as CatchPress
 	rankUp = Signal.new(), -- ()   Rank up pressed on the card with every requirement met: forward as RankUp
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
 }
@@ -796,7 +796,7 @@ function UI.catch.getActivePrompt(): ProximityPrompt?
 end
 
 -- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows, pawsLeft) -> showCircles:
--- the prompt card makes way for the circles and every press fires events.catchPressed(strayId, index).
+-- the prompt card makes way for the circles and every press fires events.catchPressed(strayId, index, grade).
 -- CatchResult(strayId, grades, success, pawsLeft, charmGain) -> showGrades (v0.4): each circle shows the
 -- server's grade. A catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss takes a paw, closes the
 -- overlay after 1 s and toasts the paws left. The card comes back while the player still has paws and is in
@@ -836,8 +836,8 @@ function UI.catch.showCircles(
 	if hud then
 		hud:setCatching(true)
 	end
-	screen:show(circleList, windows, header, function(index: number)
-		UI.events.catchPressed:Fire(strayId, index)
+	screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade)
+		UI.events.catchPressed:Fire(strayId, index, grade)
 	end)
 end
 

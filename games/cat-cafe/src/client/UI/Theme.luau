@@ -136,14 +136,6 @@ Theme.icons = {
 	food = "🐟",
 }
 
--- Optional sound ids ("rbxassetid://..."). nil = silent. The engineer or asset thread fills these in.
-Theme.sounds = {
-	click = nil :: string?,
-	buy = nil :: string?,
-	error = nil :: string?,
-	catFound = nil :: string?,
-}
-
 function Theme.rarityColor(rarity: string?): Color3
 	local entry = (Theme.rarity :: any)[rarity or "Common"]
 	if entry then

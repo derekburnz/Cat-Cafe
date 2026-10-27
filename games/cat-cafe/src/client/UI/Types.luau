@@ -149,6 +149,9 @@ export type InitConfig = {
 	catalog: Catalog,
 	keybinds: boolean?, -- default true: U upgrades, B decor, C collection, F lure
 	parent: Instance?, -- default LocalPlayer.PlayerGui
+	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
+	-- uiHint and uiRankReady; nil keeps the UI silent.
+	playSound: ((cueId: string) -> ...any)?,
 }
 
 -- ModuleScripts must return a non-nil value.

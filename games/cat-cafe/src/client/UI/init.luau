@@ -26,6 +26,7 @@ local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
 local Scale = require(script.Scale)
 local Signal = require(script.Components.Signal)
+local Sound = require(script.Components.Sound)
 local Theme = require(script.Theme)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
@@ -175,6 +176,7 @@ function UI.init(config: Types.InitConfig)
 	end
 	initialized = true
 	Scale.start()
+	Sound.set(config.playSound)
 
 	local player = Players.LocalPlayer
 	local parent: Instance = config.parent or player:WaitForChild("PlayerGui")
@@ -398,6 +400,7 @@ function UI.destroy()
 	carryMarker, tutorialMarker = nil, nil
 	circles, rankUpScreen, areasScreen = nil, nil, nil
 	Scale.stop()
+	Sound.set(nil)
 	initialized = false
 end
 

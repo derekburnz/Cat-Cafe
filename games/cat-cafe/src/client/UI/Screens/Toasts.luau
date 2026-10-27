@@ -4,6 +4,7 @@
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -70,6 +71,8 @@ end
 
 function Toasts.show(self: any, text: string, kind: Types.ToastKind?)
 	local fill = KIND_COLORS[kind or "info"] or KIND_COLORS.info
+	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
+	Sound.play(if kind == "warn" then "uiError" else "uiToast")
 	self._order += 1
 	local toast: Frame = Create("Frame", {
 		Name = "Toast",

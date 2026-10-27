@@ -15,6 +15,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -418,6 +419,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textBody + 1,
 			layoutOrder = index,
 			parent = travelRow,
+			-- Areas only opens the panel, which swishes; Cafe and Alley click
+			sound = if item.key == "areas" then false else nil,
 			onClick = function()
 				if item.key == "areas" then
 					callbacks.openScreen("Areas")
@@ -457,6 +460,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			position = UDim2.new(1, -8, 0.5, 0),
 			textSize = Theme.sizes.textSmall,
 			parent = cats,
+			sound = false, -- the modal swish is the sound
 			onClick = function()
 				callbacks.openScreen("Collection")
 			end,
@@ -581,6 +585,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textBody,
 			layoutOrder = index,
 			parent = menu,
+			sound = false, -- the modal swish is the sound
 			onClick = function()
 				callbacks.openScreen(item.screen)
 			end,
@@ -632,6 +637,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(
 		self._connections,
 		lureSlot.Activated:Connect(function()
+			Sound.play("uiClick")
 			self:togglePicker()
 		end)
 	)
@@ -1085,6 +1091,11 @@ function HUD._renderTier(self: any, progress: RankUp.Progress)
 	if progress.ready and not wasVisible then
 		Tween.popIn(self._rankBadge, 0.7)
 	end
+	-- uiRankReady chimes once per tier, the first time that tier's requirements are all met
+	if progress.ready and self._chimedTier ~= progress.tier then
+		self._chimedTier = progress.tier
+		Sound.play("uiRankReady")
+	end
 end
 
 function HUD._renderLures(self: any, state: Types.PlayerState)
@@ -1140,6 +1151,9 @@ end
 
 function HUD.setTutorial(self: any, text: string?)
 	if text and text ~= "" then
+		if not self._tutorial.Visible or self._tutorial.Text ~= text then
+			Sound.play("uiHint")
+		end
 		self._tutorial.Text = text
 		self._tutorial.Visible = true
 		Tween.popIn(self._tutorial, 0.92)

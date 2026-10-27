@@ -13,7 +13,7 @@
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
-	  J tip jar         Backspace flood
+	  J tip jar         K index rewards     Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -2766,6 +2766,248 @@ case("tipJar", Enum.KeyCode.J, "Tip Jar: bad steps, a locked step, a double clai
 				else ", no locked step left",
 			ready,
 			prize
+		)
+end)
+
+-- Index rewards (F48, engineer PR #211, data-model 11b) ----------------------------------------------------------
+
+-- Cats of `areaId` in the collection, or the gold collection, counted the way the Index counts them.
+local function pageCount(areaId: string, gold: boolean): number
+	local s = state
+	if s == nil then
+		return 0
+	end
+	local collection = if gold then s.goldCollection else s.collection
+	local count = 0
+	for _, def in Catalog.cats do
+		if def.area == areaId and collection[def.id] ~= nil then
+			count += 1
+		end
+	end
+	return count
+end
+
+local function rewardClaimed(areaId: string, milestoneId: string): boolean
+	local claims = if state ~= nil then state.indexRewards[areaId] else nil
+	return claims ~= nil and claims[milestoneId] == true
+end
+
+-- Claims, decor owned and foods held, so a case can tell that a refused call marked or paid nothing.
+local function indexHoldings(): string
+	local claims, decor = 0, 0
+	if state ~= nil then
+		for _, area in state.indexRewards do
+			for _, claimed in area do
+				claims += if claimed then 1 else 0
+			end
+		end
+		for _, owned in state.decorOwned do
+			decor += if owned then 1 else 0
+		end
+	end
+	return string.format("%d claims, %d decor, %d foods", claims, decor, foods())
+end
+
+type IndexMilestone = { areaId: string, id: string, left: number, gold: boolean }
+
+-- The first unclaimed milestone, in area order, that has its cats (`ready` true) or is still short of them.
+local function indexMilestone(ready: boolean): IndexMilestone?
+	for _, area in Catalog.areas do
+		local prizes = Catalog.indexPrizes[area.id]
+		if prizes == nil then
+			continue
+		end
+		for _, milestone in Catalog.indexMilestones do
+			if prizes[milestone.id] == nil or rewardClaimed(area.id, milestone.id) then
+				continue
+			end
+			local gold = milestone.gold == true
+			local left = milestone.need - pageCount(area.id, gold)
+			if (left <= 0) == ready then
+				return { areaId = area.id, id = milestone.id, left = left, gold = gold }
+			end
+		end
+	end
+	return nil
+end
+
+local function rewardToasts(startedAt: number): number
+	local count = 0
+	for _, event in since(startedAt, "Toast") do
+		if string.find(event.text, "Index reward:", 1, true) ~= nil then
+			count += 1
+		end
+	end
+	return count
+end
+
+case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claims", function()
+	if state == nil then
+		return "SKIP", "no ProfileSync yet"
+	end
+	if (state :: any).indexRewards == nil then
+		return "SKIP", "the ProfileSync carries no indexRewards (needs engineer PR #211)"
+	end
+	-- Bad arguments, 1.1 s apart for the 1 a second limit: nothing pays and nothing is marked claimed.
+	local bad: { { any } } = {
+		{},
+		{ "alley" },
+		{ "alley", "cats99" },
+		{ "moon", "cats3" },
+		{ "ALLEY", "cats3" },
+		{ "alley", "Cats3" },
+		{ 3, "cats3" },
+		{ "alley", {} },
+		{ "alley", 0 / 0 },
+		{ string.rep("a", 300), "cats3" },
+	}
+	local before = freshWallet()
+	local held = indexHoldings()
+	local badAt = os.clock()
+	for _, args in bad do
+		fire("ClaimIndexReward", table.unpack(args))
+		task.wait(1.1)
+	end
+	if
+		rewardToasts(badAt) > 0
+		or money() - before.money > incomeSince(before)
+		or indexHoldings() ~= held
+	then
+		return "FAIL",
+			string.format(
+				"a bad call paid or claimed something: %s before, %s after",
+				held,
+				indexHoldings()
+			)
+	end
+
+	-- A milestone still short of its cats: refused with a toast that says how many to go, nothing paid.
+	local verdict: Verdict = "PASS"
+	local lockedNote = ", no milestone short of its cats"
+	local locked = indexMilestone(false)
+	if locked ~= nil then
+		local w = freshWallet()
+		local h = indexHoldings()
+		local expected = string.format(
+			"Find %d more%s cat%s first",
+			locked.left,
+			if locked.gold then " gold" else "",
+			if locked.left == 1 then "" else "s"
+		)
+		local lockedAt = os.clock()
+		fire("ClaimIndexReward", locked.areaId, locked.id)
+		local answer = waitFor(lockedAt, "Toast", 2)
+		task.wait(1.1)
+		if
+			rewardToasts(lockedAt) > 0
+			or money() - w.money > incomeSince(w)
+			or indexHoldings() ~= h
+		then
+			return "FAIL",
+				string.format(
+					"%s %s paid with %d cat(s) still to find",
+					locked.areaId,
+					locked.id,
+					locked.left
+				)
+		end
+		if answer == nil then
+			verdict = downgrade(verdict, "CHECK")
+			lockedNote =
+				string.format(", %s %s refused but no toast said why", locked.areaId, locked.id)
+		elseif not toasted(lockedAt, expected) then
+			verdict = downgrade(verdict, "CHECK")
+			lockedNote = string.format(
+				', %s %s refused with "%s", expected "%s"',
+				locked.areaId,
+				locked.id,
+				answer.text,
+				expected
+			)
+		else
+			lockedNote =
+				string.format(', %s %s refused with "%s"', locked.areaId, locked.id, expected)
+		end
+	end
+
+	-- A milestone with its cats: twice in one frame, then again a second later. Exactly one payout.
+	local ready = indexMilestone(true)
+	if ready == nil then
+		return "CHECK",
+			string.format(
+				'%d bad calls paid nothing%s; no milestone ready for the double claim, so on the server run %s("fillIndex", nil, "alley", 3) (after %s("resetProfile") if the Alleyway is all claimed) and run again',
+				#bad,
+				lockedNote,
+				DEBUG,
+				DEBUG
+			)
+	end
+	local areaId, milestoneId = ready.areaId, ready.id
+	local name = areaId .. " " .. milestoneId
+	local prize = Catalog.indexPrizes[areaId][milestoneId]
+	local w = freshWallet()
+	local lures: { [string]: number } = prize.lures or {}
+	local luresBefore: { [string]: number } = {}
+	for lureId in lures do
+		luresBefore[lureId] = if state ~= nil then state.lures[lureId] or 0 else 0
+	end
+	local claimAt = os.clock()
+	fire("ClaimIndexReward", areaId, milestoneId)
+	Remotes.event("ClaimIndexReward"):FireServer(areaId, milestoneId)
+	log(
+		string.format(
+			'    -> ClaimIndexReward("%s", "%s") again in the same frame',
+			areaId,
+			milestoneId
+		)
+	)
+	waitFor(claimAt, "ProfileSync", 2, function()
+		return rewardClaimed(areaId, milestoneId)
+	end)
+	task.wait(1.1)
+	local againAt = os.clock()
+	fire("ClaimIndexReward", areaId, milestoneId)
+	waitFor(againAt, "Toast", 2)
+	task.wait(0.5)
+	local paid = rewardToasts(claimAt)
+	if paid ~= 1 then
+		return "FAIL",
+			string.format("%d Index reward toasts for %s claimed three times", paid, name)
+	end
+	if not rewardClaimed(areaId, milestoneId) then
+		return "FAIL", string.format("%s paid but the ProfileSync does not show it claimed", name)
+	end
+	local coinsOk, coinsText = coinsMovedBy(w, prize.coins or 0)
+	if not coinsOk then
+		return "FAIL", string.format("%s should pay $%d: %s", name, prize.coins or 0, coinsText)
+	end
+	for lureId, count in lures do
+		local gained = (if state ~= nil then state.lures[lureId] or 0 else 0) - luresBefore[lureId]
+		if gained ~= count then
+			return "FAIL",
+				string.format("%s should give %d %s and gave %d", name, count, lureId, gained)
+		end
+	end
+	local decorId = prize.decorId
+	if
+		decorId ~= nil
+		and (state == nil or not state.decorOwned[decorId] or not state.decorPlaced[decorId])
+	then
+		return "FAIL", string.format("%s should give %s owned and placed", name, decorId)
+	end
+	local againNote = ""
+	if not toasted(againAt, "Already claimed") then
+		verdict = downgrade(verdict, "CHECK")
+		againNote = ', but the third claim got no "Already claimed" toast'
+	end
+	return verdict,
+		string.format(
+			"%d bad calls paid nothing%s; %s paid once for three claims (%s)%s",
+			#bad,
+			lockedNote,
+			name,
+			coinsText,
+			againNote
 		)
 end)
 

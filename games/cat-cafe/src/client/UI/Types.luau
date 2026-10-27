@@ -147,6 +147,9 @@ export type PlayerState = {
 	indexRewards: { [string]: { [string]: boolean } }?, -- F48: area id -> milestone id -> true once claimed
 	spin: SpinState?, -- F49: the free spin and the banked ones
 	goldenFish: number?, -- F52: the rare currency; nil hides its HUD counter
+	crates: { [string]: number }?, -- F53: crate id -> unopened count
+	crateLuck: { [string]: number }?, -- F53: crate pool -> opens since its last Epic or better (0 to 19)
+	fishPerks: { [string]: number }?, -- F53: Golden Fish Market perk id -> level
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -172,6 +175,10 @@ export type PartialState = {
 	settings: { [string]: boolean | number }?,
 	indexRewards: { [string]: { [string]: boolean } }?,
 	spin: SpinState?,
+	goldenFish: number?,
+	crates: { [string]: number }?,
+	crateLuck: { [string]: number }?,
+	fishPerks: { [string]: number }?,
 }
 
 export type ScreenName =

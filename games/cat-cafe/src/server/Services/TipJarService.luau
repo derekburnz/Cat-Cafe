@@ -16,6 +16,7 @@ local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local Spin = require(ReplicatedStorage.Shared.Spin)
@@ -50,6 +51,12 @@ local function pay(player: Player, profile: Types.PlayerProfile, def: Types.TipJ
 		else
 			Net.toast(player, "Spins full: use a spin at the wheel to bank more", "info")
 		end
+	end
+	-- Step 12 also gives golden fish (F52)
+	if def.fish ~= nil then
+		GoldenFish.credit(profile, def.fish)
+		Telemetry.fishSource(player, profile, def.fish, "TimedReward", "tip_jar")
+		Net.toast(player, string.format("Tip Jar: +%d golden fish", def.fish), "good")
 	end
 	if def.kind == "coins" then
 		local amount = TipJar.coins(def, Economy.incomePerSecond(profile))

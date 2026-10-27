@@ -121,5 +121,5 @@ def build_sewer_gate(mat):
 ASSETS = {
     "CatCafe_Neighbourhood_Gate": (build_neighbourhood_gate, 1200),
     "CatCafe_Woods_Gate": (build_woods_gate, 1200),
-    "CatCafe_Sewer_Gate": (build_sewer_gate, 1200),
+    "CatCafe_Sewer_Gate": (build_sewer_gate, 1300),
 }

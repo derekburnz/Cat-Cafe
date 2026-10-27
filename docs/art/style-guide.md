@@ -103,13 +103,15 @@ Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex val
 | 54 | sparkle | #FFF4B0 | Legendary sparkles, star specks |
 | 55 | galaxy_blue | #3B4C8C | Galaxy cat base |
 
-Row 7, v0.3 additions (2026-10-26). 59 to 63 are still spare; add new colors there and record them here before using them.
+Row 7, v0.3 additions (2026-10-26). 61 to 63 are still spare; add new colors there and record them here before using them.
 
 | idx | name | hex | use |
 |---|---|---|---|
 | 56 | rarity_mythic | #FF5E7E | Mythical collars (data-model section 2 color) |
 | 57 | fur_blue | #9AA9C2 | Blue's silver-blue coat |
 | 58 | aurora_violet | #8E7CF0 | Aurora's middle band between galaxy_blue and mint |
+| 59 | pastel_butter | #F6DFA0 | Butter cafe facade (plot shells come in mint, blush, pastel_butter, pastel_lilac) |
+| 60 | pastel_lilac | #C9B8E8 | Lilac cafe facade |
 
 ## 3. Shape language
 
@@ -160,12 +162,14 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Accessory | 200 to 300 | glasses, hat, and the role uniforms: apron, bow tie, sash, party hat |
 | Held tool (net) | 500 to 650 | per level |
 | Customer NPC | 1,000 | |
-| Hero furniture (Counter) | 3,000 | |
-| Furniture | 800 | |
+| Hero furniture (Counter) | 3,000 | the night dealer's cart 3,500 |
+| Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400 |
 | Decor | 500 | |
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain and Gate 1,200; rescue traps (RescueTree, TrashCan) 900 |
-| Items | 300 | |
+| Area gates | 1,200 to 1,300 | Neighbourhood, Woods, Sewer |
+| Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier | built from blocks for the Part export (section 14); the FBX is the reference |
+| Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.
 
@@ -231,7 +235,43 @@ After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one
 
 The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each v0.3 rescue trap (Alleyway `TrashBin` and `GarbageBags`, Park `RescueTree` and `TrashCan`), with every value in both Blender and Roblox axes. In the bin and the can the cat stands upright inside with its head and front paws over the rim; in the bags it is buried with its head and front paws out the front; on the tree it lies out on the branch facing the tip with its head turned to the camera, and its Body is welded to the `_Branch` so it rides the shake. Previews: `previews/CatCafe_Alley_TrashBin.png` and the other three, collected in `sheet_poses.png`. The v0.2 StuckTree, StuckBox and Drainpipe props are retired. Carried is relative to the HumanoidRootPart centre, which sits 3 studs above the floor on a default R15 character (`previews/Pose_Carried.png`). `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`. Working cats (v0.3 roles, data-model section 5) stand upright in their role's uniform: Apron for the barista, BowTie for the waiter, Sash for the greeter and PartyHat for the entertainer (`role_uniforms` in the manifest, `previews/Pose_Uniforms.png`). Each cat entry carries `uniform_attachments` (the upright slots, already scaled for that cat) and `scale`; scale the accessory itself by the cat's `scale` too, and multiply every pose position by it. A pose can also move the Head joint by `head_offset_roblox`, given in the Body's own frame: upright moves it 0.32 studs, which seats the head on the collar so the raised front paws and the bow tie stay below the face. The upright pose also centres the standing body over the cat's pivot (the Body moves 1.22 studs forward compared with the first version), so a station's `sit_point` is where the working cat stands. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
 
-## 13. Rules
+## 13. Cafe plots and the street
+
+The street is a row of cottage shopfronts, never grey boxes (world-and-feel.md sections 3 and 5). Each plot's
+shell (`CatCafe_Plot_Cafe_<Colour>`) is a pastel cottage: mint, blush, pastel_butter or pastel_lilac walls by plot
+number, offwhite trim and corner pilasters, a terracotta plinth and gable roof with brick tile lines and a chimney,
+two arched windows with striped awnings in the accent colour (blush, mint, sign_teal, pastel_butter), an arched
+door with a sunburst fanlight, a sign board with cat ears on the front gable, and a front garden with a path,
+flower beds, a picket fence, a bench and a lamp post. Inside (`CatCafe_Plot_Interior`) follows the concept sketch:
+caramel plank wainscot with a dark chair rail, cream walls, mint curtains, tie beams with mint pendant lamps over
+the tables, a chalk menu board, plant and mug shelves, framed pixel portraits of our cats and coloured string
+lights. Empty plots add `CatCafe_Plot_ForRent` (half-down shutters, a FOR RENT blade sign, dust sheets, boxes, a
+sleeping Tabby) and running cafes add the tier sets `CatCafe_Plot_Tier1` to `Tier5` cumulatively: chalkboard;
+flower boxes and a bistro set; neon OPEN, string lights and a second bistro set; a fish tank in the window and the
+back patio pergola; gold trim, the cup-with-ears rooftop sign and a red carpet. Previews:
+`previews/CatCafe_Plot_*.png`, the Part versions in `rbx/`.
+
+## 14. Part-built models in Roblox
+
+`build_all.py` also writes `assets/cat-cafe/rbx/<Name>.model.json` for every asset. Rojo syncs that folder into
+`ReplicatedStorage.Assets`, so the game uses these instead of the code placeholders with no Studio import. Each
+Builder block becomes a Part (cylinders, wedges, balls; cones as stacked bands; flat stars and arches as wedge
+pairs), coloured from the palette, SmoothPlastic, no bevels. Glass is Glass at 0.45 transparency, water at 0.3.
+Hanging lamp bulbs are Neon; other `_Bulb`, `_Bulbs`, `_Pane` and `_Tube` parts keep their day look until
+WorldController lights them at night. Every extra object (Head, Tail, Lid, Branch, Roof, SignBoard, bulbs) is a
+child Model whose pivot is that object's origin, so hinges and joints match `part_pivots_roblox`. Big parts of
+furniture, alley, park, plot and street assets collide; cats, people, items and decor do not.
+
+Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded for the owner), a part named
+`SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),
+`_Steam` (espresso cups), `_Chimney` (chimney opening), `_Flowers` (beds and flower boxes, butterflies),
+`_Fireflies` (invisible volume over the beds), `_Shutter` and `_Sign` inside ForRent (rolled up and flipped on a
+claim), `_Zzz` (sleeping cat). Tags for the audio loops: `FishTank`, `Fountain` and `CafeDoor` (the shell's
+`_FrontDoor` mat).
+`rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
+saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).
+
+## 15. Rules
 
 - Original work only. No characters, logos or art from reference games (Steal an Egg, Spin for a Fisherman, Cookie Run, AFK Arena).
 - Young audience. No blood, weapons or scary cats. Even the Void cat is cute.

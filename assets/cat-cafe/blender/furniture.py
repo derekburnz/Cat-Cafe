@@ -72,10 +72,11 @@ def build_espresso(level, mat):
         b.box((0, -0.46, 0.2 + h / 2), (w - 0.1, 0.04, 0.2), "metal", bevel=False)  # chrome band
         b.cyl_base((0, 0, 0.4 + h), 0.25, 0.1, "metal", segments=12)              # gauge
     heads = [0.0] if level < 3 else [-0.5, 0.5]
+    cups = Builder()                                   # _Steam: the effects code puffs steam from these
     for x in heads:
         b.box((x, -0.55, 0.55), (0.5, 0.3, 0.3), "metal")                        # group head
         b.cyl((x, -0.9, 0.5), 0.06, 0.5, "dark_wood", segments=8, rot=(math.radians(90), "X"))  # portafilter handle
-        b.cyl_base((x, -0.7, 0.2), 0.16, 0.25, "offwhite", segments=10, bevel=False)           # cup
+        cups.cyl_base((x, -0.7, 0.2), 0.16, 0.25, "offwhite", segments=10, bevel=False)        # cup
     b.box((0, -0.35, 0.2), (w - 0.4, 0.4, 0.06), "concrete_dark", bevel=False)  # drip tray
     wands = [w / 2 + 0.05] if level < 3 else [w / 2 + 0.05, -w / 2 - 0.05]
     for x in wands:
@@ -83,7 +84,8 @@ def build_espresso(level, mat):
     for x in (-0.3, 0.3):
         b.cyl((x * (w / 1.4), -0.47, 0.35 + h / 2 + 0.2), 0.1, 0.1, "dark_wood" if level < 3 else "rarity_legend",
               segments=10, rot=(math.radians(90), "X"))                          # knobs
-    return [b.finalize(f"CatCafe_Furniture_EspressoMachine_L{level}", mat)]
+    name = f"CatCafe_Furniture_EspressoMachine_L{level}"
+    return [b.finalize(name, mat), cups.finalize(name + "_Steam", mat)]
 
 
 def build_cushion(mat):
@@ -249,5 +251,5 @@ ASSETS = {
     "CatCafe_Furniture_TableRound": (build_table_round, 800),
     "CatCafe_Furniture_Chair": (build_chair, 800),
     "CatCafe_Furniture_GreeterPodium": (build_greeter_podium, 800),
-    "CatCafe_Furniture_StageCatTree": (build_stage_cat_tree, 1200),
+    "CatCafe_Furniture_StageCatTree": (build_stage_cat_tree, 1400),
 }

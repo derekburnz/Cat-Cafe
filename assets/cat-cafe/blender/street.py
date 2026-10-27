@@ -65,5 +65,5 @@ def build_dealer_cart(mat):
 
 
 ASSETS = {
-    "CatCafe_Street_DealerCart": (build_dealer_cart, 2000),
+    "CatCafe_Street_DealerCart": (build_dealer_cart, 3500),
 }

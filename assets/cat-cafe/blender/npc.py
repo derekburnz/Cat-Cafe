@@ -5,9 +5,7 @@ cloak with a lantern (Body + Bulb objects; the Bulb goes Neon at night)."""
 
 import math
 
-from mathutils import Matrix
-
-from common import Builder
+from common import Builder, scale_mesh
 
 VARIANTS = {
     "A": dict(skin="skin_light", shirt="shirt_blue", pants="pants_navy", hair="hair_brown", scale=1.0),
@@ -57,7 +55,7 @@ def build_customer(variant, mat):
                rot=(math.radians(90), "X"))                                               # monocle
     ob = b.finalize(f"CatCafe_NPC_Customer_{variant}", mat)
     if v["scale"] != 1.0:
-        ob.data.transform(Matrix.Scale(v["scale"], 4))
+        scale_mesh(ob, v["scale"])
     return [ob]
 
 

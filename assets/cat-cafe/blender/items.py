@@ -9,6 +9,7 @@ from mathutils import Matrix
 from common import Builder
 
 FOOD_IN_BOWL = 0.18      # kibble top in CatCafe_Item_FoodBowl, studs above its pivot
+FOODS = ("Sardines", "Caviar", "MoonMilk", "StarTreat")     # the dealer foods that sit in a bowl
 
 
 def _bowl(b, outer, rim, food, premium=False):
@@ -175,8 +176,8 @@ ASSETS = {
     "CatCafe_Item_Net_L1": (lambda m: build_net(1, m), 500),
     "CatCafe_Item_Net_L2": (lambda m: build_net(2, m), 600),
     "CatCafe_Item_Net_L3": (lambda m: build_net(3, m), 650),
-    "CatCafe_Item_Sardines": (build_sardines, 300),
-    "CatCafe_Item_Caviar": (build_caviar, 400),
+    "CatCafe_Item_Sardines": (build_sardines, 400),
+    "CatCafe_Item_Caviar": (build_caviar, 600),
     "CatCafe_Item_MoonMilk": (build_moon_milk, 300),
     "CatCafe_Item_StarTreat": (build_star_treat, 300),
     "CatCafe_Prop_TipPile": (build_tip_pile, 600),

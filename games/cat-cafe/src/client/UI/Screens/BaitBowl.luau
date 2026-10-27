@@ -15,6 +15,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
+local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
@@ -43,6 +44,9 @@ export type BaitBowl = {
 local STATUS_HEIGHT = 92
 local ROW_HEIGHT = 132 -- room for the odds, shiny and star lines to wrap on a narrow screen
 local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
+local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Garden seed shop
+local TEXT_LEFT = ICON + 28
+local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X * 2 + 32)
 -- data-model LureWaitSeconds: 600 in the design, shorter in the dev Config
 local WAIT_SECONDS: number = (Config :: any).LureWaitSeconds or 600
 
@@ -223,6 +227,7 @@ function BaitBowl._buildRows(self: any)
 		row.use:destroy()
 		row.buy:destroy()
 		row.details:destroy()
+		row.icon:destroy()
 		row.frame:Destroy()
 	end
 	table.clear(self._rows)
@@ -263,11 +268,17 @@ function BaitBowl._buildRows(self: any)
 			LayoutOrder = 1,
 			Parent = row,
 		})
+		local icon = ItemIcon.new({
+			parent = top,
+			size = UDim2.fromOffset(ICON, ICON),
+			position = UDim2.fromOffset(12, 12),
+		})
+		icon:set(lure.asset, Theme.foodIcons[lure.id] or Theme.icons.food, lure.attracts)
 		local heading: Frame = Create("Frame", {
 			Name = "Heading",
 			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(16, 10),
-			Size = UDim2.new(1, -(BUTTON.X * 2 + 48), 0, 26),
+			Position = UDim2.fromOffset(TEXT_LEFT, 10),
+			Size = UDim2.new(1, TEXT_WIDTH, 0, 26),
 			Parent = top,
 		}, {
 			Create("UIListLayout", {
@@ -290,16 +301,16 @@ function BaitBowl._buildRows(self: any)
 		pill(heading, lure.attracts, 2)
 		local count = text({
 			Name = "Count",
-			Position = UDim2.fromOffset(16, 38),
-			Size = UDim2.new(1, -(BUTTON.X * 2 + 48), 0, 18),
+			Position = UDim2.fromOffset(TEXT_LEFT, 38),
+			Size = UDim2.new(1, TEXT_WIDTH, 0, 18),
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = Theme.modal.subtext,
 			Parent = top,
 		})
 		text({
 			Name = "Odds",
-			Position = UDim2.fromOffset(16, 58),
-			Size = UDim2.new(1, -(BUTTON.X * 2 + 48), 0, ROW_HEIGHT - 64),
+			Position = UDim2.fromOffset(TEXT_LEFT, 58),
+			Size = UDim2.new(1, TEXT_WIDTH, 0, ROW_HEIGHT - 64),
 			TextSize = Theme.sizes.textTiny,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
@@ -372,6 +383,7 @@ function BaitBowl._buildRows(self: any)
 		})
 		self._rows[lure.id] = {
 			frame = row,
+			icon = icon,
 			count = count,
 			use = use,
 			buy = buy,
@@ -532,6 +544,7 @@ function BaitBowl.destroy(self: any)
 		row.use:destroy()
 		row.buy:destroy()
 		row.details:destroy()
+		row.icon:destroy()
 	end
 	self._action:destroy()
 	self._panel:destroy()

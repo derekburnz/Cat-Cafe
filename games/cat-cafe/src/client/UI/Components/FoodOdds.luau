@@ -9,21 +9,24 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 local FoodOdds = {}
 
+-- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
+local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+
 -- data-model section 8: ShinyChanceBait 0.02, and the charm star odds from the two-roll charm
 local SHINY_CHANCE: number = (Config :: any).ShinyChanceBait or 0.02
 local STAR_ODDS: { number } = (Config :: any).CharmStarOdds or { 7.8, 23.5, 35.7, 24.3, 8.7 }
 
--- 70 -> "70%", 3.5 -> "3.5%" (catalog odds are percentages)
+-- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two
+-- decimals, so a food's per-cat split adds back up to its rarity's share (reviewer N69).
 local function percent(value: number): string
-	local text = string.format(if value >= 10 then "%.0f" else "%.1f", value)
-	text = text:gsub("%.0$", "")
+	local text = string.format("%.2f", value)
+	text = text:gsub("0+$", ""):gsub("%.$", "")
 	return text .. "%"
 end
 
@@ -35,7 +38,7 @@ function FoodOdds.line(odds: Types.LureOdds?): string
 	end
 	assert(odds, "odds not set")
 	local parts: { string } = {}
-	for _, rarity in Theme.rarityOrder do
+	for _, rarity in RARITIES do
 		local share = (odds :: any)[rarity]
 		if type(share) == "number" then
 			table.insert(parts, ("%s %s"):format(percent(share), rarity))
@@ -69,7 +72,7 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 			then "Same chance for every cat of a rarity in " .. table.concat(areaNames, ", ") .. ":"
 			else "Same chance for every cat of a rarity:",
 	}
-	for _, rarity in Theme.rarityOrder do
+	for _, rarity in RARITIES do
 		local share = (odds :: any)[rarity]
 		if type(share) ~= "number" or share <= 0 then
 			continue

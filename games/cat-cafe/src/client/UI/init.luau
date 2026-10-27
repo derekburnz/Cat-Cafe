@@ -24,6 +24,7 @@ local CatCollection = require(script.Screens.CatCollection)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local Create = require(script.Components.Create)
+local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
 local Format = require(script.Components.Format)
 local GateSigns = require(script.Screens.GateSigns)
@@ -70,6 +71,7 @@ UI.events = {
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
 	useLure = Signal.new(), -- (lureId)   Use on a food in the Bait bowl screen: forward as UseLure (F28)
 	resolveBait = Signal.new(), -- (choice)   "tame" or "letgo" from the bait card: forward as ResolveBait
+	buyDealerFood = Signal.new(), -- (slot)   Buy on the night dealer screen, slot 1 to 3: forward as BuyDealerFood (F32)
 }
 
 local state: Types.PlayerState = {
@@ -113,15 +115,18 @@ local baitCard: BaitCard.BaitCard? = nil
 local baitView: Types.BaitView? = nil -- what is in the bowl (UI.bait.set)
 local baitCat: Types.BaitCat? = nil -- the cat at the bowl (UI.bait.showReady), until it is resolved
 local bowlPart: BasePart? = nil -- the player's own BaitBowl part (UI.bait.setBowl), for the range hints
+local dealerScreen: Dealer.Dealer? = nil
+local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
 local BOWL_RANGE: number = (Config :: any).BaitBowlRangeStuds or 12
 local RESOLVE_RANGE: number = (Config :: any).BaitResolveRangeStuds or 20
+-- data-model section 8b: BuyDealerFood within 12 studs of the cart
+local CART_RANGE: number = (Config :: any).DealerRangeStuds or 12
 
--- Studs from the player's character to their own bait bowl, or nil when either is unknown.
-local function bowlDistance(): number?
-	local part = bowlPart
+-- Studs from the player's character to a part (their bait bowl, the dealer's cart), or nil when either is unknown.
+local function distanceTo(part: BasePart?): number?
 	local character = Players.LocalPlayer and Players.LocalPlayer.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	if part == nil or part.Parent == nil or root == nil or not root:IsA("BasePart") then
@@ -165,6 +170,9 @@ local function render()
 	if baitScreen then
 		baitScreen:render(state)
 	end
+	if dealerScreen then
+		dealerScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -190,6 +198,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if baitScreen then
 		baitScreen:setCatalog(newCatalog)
+	end
+	if dealerScreen then
+		dealerScreen:setCatalog(newCatalog)
 	end
 end
 
@@ -373,6 +384,19 @@ function UI.init(config: Types.InitConfig)
 	if config.baitBowl then
 		hudInstance:setBowlMode(true)
 	end
+	dealerScreen = Dealer.new({
+		buy = function(slot: number)
+			UI.events.buyDealerFood:Fire(slot)
+		end,
+		close = closeModal,
+	})
+	local dealerView = dealerScreen :: Dealer.Dealer
+	modalInstance:register("Dealer", {
+		frame = dealerView.frame,
+		onOpen = function()
+			dealerView:render(state)
+		end,
+	})
 	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
 	local nearClock = 0
 	table.insert(
@@ -383,12 +407,16 @@ function UI.init(config: Types.InitConfig)
 				return
 			end
 			nearClock = 0
-			local distance = bowlDistance()
+			local distance = distanceTo(bowlPart)
 			if baitScreen then
 				baitScreen:setNear(if distance then distance <= BOWL_RANGE else nil)
 			end
 			if baitCard then
 				baitCard:setNear(if distance then distance <= RESOLVE_RANGE else nil)
+			end
+			if dealerScreen then
+				local cart = distanceTo(cartPart)
+				dealerScreen:setNear(if cart then cart <= CART_RANGE else nil)
 			end
 		end)
 	)
@@ -484,6 +512,10 @@ function UI.destroy()
 		baitCard:destroy()
 	end
 	baitScreen, baitCard, baitView, baitCat, bowlPart = nil, nil, nil, nil, nil
+	if dealerScreen then
+		dealerScreen:destroy()
+	end
+	dealerScreen, cartPart = nil, nil
 	if upgrades then
 		upgrades:destroy()
 	end
@@ -779,6 +811,38 @@ function UI.bait.hideReady()
 		baitCard:hide()
 	end
 	renderBait()
+end
+
+----------------------------------------------------------------------------------------------------
+-- Night dealer (F32, data-model section 8b)
+----------------------------------------------------------------------------------------------------
+
+UI.dealer = {}
+
+-- The dealer's cart part. With it, Buy greys out away from the cart and the strip says to walk back; without
+-- it the buttons stay on and the server decides.
+function UI.dealer.setCart(part: BasePart?)
+	cartPart = part
+end
+
+-- From DealerStock: { slots = { { lureId, cost, bought } }, restocksAt }. Send it at night start, at each window
+-- change and after every BuyDealerFood, bought or not, so the rows and the countdown stay true. nil when the cart
+-- leaves at dawn: the screen closes if it is open.
+function UI.dealer.setStock(stock: Types.DealerStock?)
+	if dealerScreen then
+		dealerScreen:setStock(stock)
+	end
+	if stock == nil and modal and modal:current() == "Dealer" then
+		modal:close()
+	end
+end
+
+-- Opens the dealer screen (the cart's prompt). It shows the last stock from setStock and "Opening the cart..."
+-- until one arrives.
+function UI.dealer.open()
+	if modal then
+		modal:open("Dealer")
+	end
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -1360,11 +1424,17 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if hud then
 		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })
 	end
+	if dealerScreen then
+		dealerScreen:setNight(phase == "night")
+	end
 end
 
 function UI.clock.clear()
 	if hud then
 		hud:setClock(nil)
+	end
+	if dealerScreen then
+		dealerScreen:setNight(nil)
 	end
 end
 

@@ -193,7 +193,7 @@ Derek: "symbols to locations also that disappear when close enough so its not cl
 
 A gear in the HUD's top-right icon row (left of Invite) opens Settings (`Screens/Settings.luau`, rows and logic in `Components/SettingsList.luau` with a spec): a cocoa window with one row per setting, its icon, name, a line on what it does and a chunky green ON or red OFF switch, like the settings lists of Pet Simulator 99 and Grow a Garden. The rows: 🎵 Music, 🔊 Sound effects and 📍 Place icons (the location markers). Every setting is on until the player turns it off. A tap flips the switch at once and fires `events.setSetting(key, value)`; the switch then follows `state.settings` from ProfileSync, keeping the tap for 5 s while the server catches up. A key the server does not save yet keeps the tap for the session, so Place icons works before `markers` is in the profile. Place icons hides every location marker while off.
 
-**Engineer:** pass `settings = s.settings` in `UI.update` (cast `:: any` if the sealed table type complains). Forward `events.setSetting(key, value)` as `SetSetting(key, value)`: the server accepts only `"music"`, `"sfx"` (and `"markers"` once the data model has it) with a boolean, rate-limits it, saves it to `profile.settings` and sends it back in ProfileSync. On the client, apply music and sfx to `Audio.applySettings` on the event as well, so the music stops on the tap rather than a round trip later.
+**Engineer:** pass `settings = s.settings` in `UI.update` (cast `:: any` if the sealed table type complains). Forward `events.setSetting(key, value)` as `SetSetting(key, value)`: the server accepts only `"music"`, `"sfx"` (and `"markers"` once the data model has it) with a boolean, rate-limits it, saves it to `profile.settings` and sends it back in ProfileSync. On the client, apply music and sfx to Audio from `UI.settings.changed(key, on)` instead of from `s.settings` (read `UI.settings.value("music")` and `"sfx"` once after `UI.init` for the start): it fires on the tap (so the music stops at once), on the server's answer and when a tap the server dropped falls back, so a sync sent before the server saw the tap cannot flip the music back during the hold (review N111).
 
 ### Tip Jar (built, F47, data-model section 11b)
 
@@ -325,7 +325,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `claimOffline` | none | Claim pressed on the offline popup |
 | `claimTipJar` | `step` | Claim on a ready Tip Jar gift. Forward as `ClaimTipJar(step)` (F47). |
 | `claimBookReward` | `areaId, milestoneId` | Claim on a reached Book reward card. Forward as `ClaimBookReward(areaId, milestoneId)` (F48). |
-| `setSetting` | `key, value` | A switch on the Settings screen: `"music"`, `"sfx"` or `"markers"`, and the new boolean. Forward as `SetSetting`; also apply music and sfx to Audio at once (see Settings). |
+| `setSetting` | `key, value` | A switch on the Settings screen: `"music"`, `"sfx"` or `"markers"`, and the new boolean. Forward as `SetSetting`; Audio follows `UI.settings.changed` (see Settings). |
 | `grabBegan` | `strayId, catId` | A press on a bound stray prompt. Forward as GrabBegin. |
 | `rescueBegan` | `rescueSpotId, catId` | A press on a prompt whose model has `Rescue = true`. Forward as RescueBegin; the server answers with RescueChallenge. |
 | `rescuePressed` | `rescueSpotId` | A press on the rescue bar or the tree's catch circle. Forward as `RescuePress(rescueSpotId)` (F27) |

@@ -11,9 +11,11 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(script.Parent.Parent.Audio)
 local Catalog = require(Shared:WaitForChild("Catalog"))
+local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
+local UITypes = require(script.Parent.Parent.UI.Types)
 
 local UIController = {}
 
@@ -22,6 +24,8 @@ local state: Types.PlayerState? = nil
 local predictedMoney = 0
 local lastCarrying: string? = nil
 local lastPushedMoney = -1
+local lastTier: number? = nil
+local pendingCharmGain = 0 -- the last catch's Purrfect bonus, shown on the cat reveal at check-in
 
 UIController.state = nil :: Types.PlayerState?
 
@@ -46,6 +50,21 @@ function UIController.ownBackDoor(): BasePart?
 	local plot = ownPlot()
 	local door = if plot ~= nil then plot:FindFirstChild("BackDoorZone") else nil
 	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
+end
+
+-- The stray model with this id, for its rarity, or nil once it has gone.
+local function strayModel(strayId: string): Instance?
+	local world = Workspace:FindFirstChild("World")
+	local strays = if world ~= nil then world:FindFirstChild("Strays") else nil
+	if strays == nil then
+		return nil
+	end
+	for _, model in strays:GetChildren() do
+		if model:GetAttribute("StrayId") == strayId then
+			return model
+		end
+	end
+	return nil
 end
 
 -- The lane spawn point right behind the own cafe, where the tutorial stray waits (alley point 2p - 1 for plot p).
@@ -107,7 +126,31 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 end
 
+-- Something bought since the last sync: an upgrade level, a decor item or a lure count went up.
+local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): boolean
+	for id, level in new.upgradeLevels do
+		if level > (old.upgradeLevels[id] or 0) then
+			return true
+		end
+	end
+	for id, owned in new.decorOwned do
+		if owned and not old.decorOwned[id] then
+			return true
+		end
+	end
+	for id, count in new.lures do
+		if count > (old.lures[id] or 0) then
+			return true
+		end
+	end
+	return false
+end
+
 local function applyState(s: Types.PlayerState)
+	local previous = state
+	if previous ~= nil and boughtSomething(previous, s) then
+		Moments.Purchase:Fire()
+	end
 	state = s
 	UIController.state = s
 	predictedMoney = s.money
@@ -134,6 +177,10 @@ local function applyState(s: Types.PlayerState)
 	-- Music and sound toggles arrive only in ProfileSync; the purr follows the server's carry state.
 	Audio.applySettings(s.settings)
 	Audio.setCarrying(s.carrying ~= nil)
+	if lastTier ~= nil and s.tier > (lastTier :: number) then
+		Moments.RankUp:Fire(s.tier)
+	end
+	lastTier = s.tier
 	if s.carrying ~= lastCarrying then
 		lastCarrying = s.carrying
 		if s.carrying ~= nil then
@@ -184,6 +231,10 @@ local function wireIntents()
 	UI.events.claimOffline:Connect(function()
 		Net.fire("ClaimOffline")
 	end)
+	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
+	UI.events.travel:Connect(function(destination: string)
+		Net.fire("Travel", destination)
+	end)
 	-- The net (data-model section 10): one press on the prompt asks for the circles. The server answers with
 	-- CatchSchedule (or a GrabResult refusal); each press on a circle sends only its index, since the server
 	-- stamps the time itself.
@@ -192,9 +243,17 @@ local function wireIntents()
 			Net.fire("GrabBegin", strayId)
 		end
 	end)
-	UI.events.catchPressed:Connect(function(strayId: string, index: number)
-		Net.fire("CatchPress", strayId, index)
-	end)
+	-- Each press is heard the instant it lands (sound list 5.1): the swing, then this device's grade estimate.
+	-- The server's own grades come back in CatchResult.
+	UI.events.catchPressed:Connect(
+		function(strayId: string, index: number, grade: Types.CircleGrade?)
+			Net.fire("CatchPress", strayId, index)
+			Moments.NetSwing:Fire(index)
+			if grade ~= nil then
+				Moments.CircleGrade:Fire(index, grade)
+			end
+		end
+	)
 	-- Rescue (data-model section 10): RescueBegin when the 4 s hold starts, RescueEnd only when it ran its full
 	-- length. An early release sends nothing; the server's lock lapses after RescueLockSeconds. The server
 	-- answers both with GrabResult, keyed by the rescue spot id.
@@ -219,11 +278,25 @@ local function wireServerEvents()
 	Net.on("Toast", function(text: string, kind: Types.ToastKind?)
 		UI.toast(text, kind)
 	end)
-	Net.on("Announce", function(text: string)
-		UI.announce(text)
+	Net.on("Announce", function(text: string, rarity: string?)
+		UI.announce(text, rarity)
+		Moments.Announce:Fire(text, rarity)
 	end)
 	Net.on("CatCaught", function(catId: string, isNew: boolean)
-		UI.showCatFound(catId, isNew)
+		local extra: UITypes.CatFoundExtra? = if pendingCharmGain > 0
+			then { charmGain = pendingCharmGain }
+			else nil
+		pendingCharmGain = 0
+		UI.showCatFound(catId, isNew, extra)
+		-- CatCaught comes only from a check-in, so a bump that drops the carried cat plays no check-in sound.
+		Moments.CheckIn:Fire()
+		Moments.CatFound:Fire(catId, isNew)
+	end)
+	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
+		Moments.PlotOpened:Fire(position, plotIndex)
+	end)
+	Net.on("TravelResult", function(destination: string, ok: boolean, reason: string?)
+		UI.travel.result(destination, ok, reason)
 	end)
 	Net.on("OfflineEarnings", function(amount: number, seconds: number)
 		UI.showOfflineEarnings(amount, seconds)
@@ -234,14 +307,15 @@ local function wireServerEvents()
 			strayId: string,
 			circles: { Types.CatchCircle },
 			windows: Types.CatchWindows,
-			_pawsLeft: number?
+			pawsLeft: number?
 		)
-			UI.catch.showCircles(strayId, circles, windows)
+			UI.catch.showCircles(strayId, circles, windows, pawsLeft)
+			Moments.CatchStart:Fire(strayId)
 		end
 	)
-	-- v0.4 (data-model section 10 step 5) sends grades, not scores, and no chance. Until the UI takes grades, the
-	-- grades are turned back into the v0.3 scores and a 0 or 100% chance; the stray stays unless this player is
-	-- out of paws.
+	-- v0.4 (data-model section 10 step 5): grades up to and including the first Miss, the paws left (nil when this
+	-- player cannot run out) and the Purrfect charm bonus. The HUD shows the grades, the paw row and the
+	-- "slipped away" line.
 	Net.on(
 		"CatchResult",
 		function(
@@ -249,22 +323,27 @@ local function wireServerEvents()
 			grades: { Types.CircleGrade },
 			success: boolean,
 			pawsLeft: number?,
-			_charmGain: number
+			charmGain: number
 		)
-			local scores: { number } = {}
+			local allPerfect = #grades > 0
 			for _, grade in grades do
-				table.insert(
-					scores,
-					if grade == "perfect" then 1 elseif grade == "good" then 0.5 else 0
-				)
+				allPerfect = allPerfect and grade == "perfect"
 			end
-			UI.catch.showResult(
-				strayId,
-				scores,
-				if success then 1 else 0,
-				success,
-				not success and pawsLeft ~= 0
-			)
+			UI.catch.showGrades(strayId, grades, success, pawsLeft, charmGain)
+			if success then
+				local model = strayModel(strayId)
+				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil
+				Moments.CatchSuccess:Fire(strayId, if type(rarity) == "string" then rarity else nil)
+				pendingCharmGain = charmGain
+				if allPerfect and charmGain > 0 then
+					Moments.Purrfect:Fire(charmGain)
+				end
+			else
+				Moments.CatchFail:Fire(strayId)
+				if pawsLeft ~= nil then
+					Moments.PawLost:Fire(pawsLeft)
+				end
+			end
 		end
 	)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)
@@ -322,7 +401,14 @@ function UIController.start()
 		tiers = Catalog.tiers,
 		areas = Catalog.areas,
 	}
-	UI.init({ catalog = catalog, keybinds = true })
+	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
+	UI.init({
+		catalog = catalog,
+		keybinds = true,
+		playSound = function(cueId: string)
+			return Audio.play(cueId)
+		end,
+	})
 	UI.catch.bindProximityPrompts()
 	-- The HUD clock chip reads Phase and PhaseEndsAt off the server's Clock folder and follows its changes.
 	task.spawn(function()

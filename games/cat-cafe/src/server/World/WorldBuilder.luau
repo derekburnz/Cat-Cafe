@@ -806,33 +806,15 @@ local function buildArea(
 end
 
 -- A tier gate across an area's opening (data-model section 9): `CatCafe_<Area>_Gate`, named `<Area>Gate` under
--- World.Gates with `Area` and `RequiresTier`. The client makes it solid for players below the tier; the server
--- checks the tier on every catch and rescue anyway, so walking around it gains nothing.
+-- World.Gates with `Area` and `RequiresTier`. The client makes its Bars solid for players below the tier; the
+-- server checks the tier on every catch and rescue anyway, so walking around it gains nothing.
 local function buildGate(def: Types.AreaDef, x: number, z: number, parent: Instance): Model
 	local pascal = def.id:sub(1, 1):upper() .. def.id:sub(2)
 	local gate = place("CatCafe_" .. pascal .. "_Gate", CFrame.new(x, 0.1, z), parent)
 	gate.Name = pascal .. "Gate"
 	gate:SetAttribute("Area", def.id)
 	gate:SetAttribute("RequiresTier", def.tier)
-	CollectionService:AddTag(gate, "AreaGate")
-	local bars = gate:FindFirstChild("Bars")
-	if bars ~= nil and bars:IsA("BasePart") then
-		local billboard = Instance.new("BillboardGui")
-		billboard.Size = UDim2.fromOffset(240, 40)
-		billboard.StudsOffset = Vector3.new(0, 4, 0)
-		billboard.MaxDistance = 80
-		local text = Instance.new("TextLabel")
-		text.Name = "Label"
-		text.Size = UDim2.fromScale(1, 1)
-		text.BackgroundTransparency = 1
-		text.TextScaled = true
-		text.Font = Enum.Font.GothamBold
-		text.TextColor3 = Color3.new(1, 1, 1)
-		text.TextStrokeTransparency = 0.3
-		text.Text = string.format("%s: opens at Tier %d", def.name, def.tier)
-		text.Parent = billboard
-		billboard.Parent = bars
-	end
+	CollectionService:AddTag(gate, "AreaGate") -- the UI hangs its gate sign (lock, tier, progress) on this tag
 	return gate
 end
 

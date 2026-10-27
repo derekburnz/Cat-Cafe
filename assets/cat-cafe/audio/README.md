@@ -100,3 +100,6 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `visitorMystery` | `sfx/CatCafe_Sfx_VisitorMystery.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 76865491597271 | 2026-10-27 |
 | `giftOpen` | `sfx/CatCafe_Sfx_GiftOpen.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 116810371894969 | 2026-10-27 |
 | `potionDrink` | `sfx/CatCafe_Sfx_PotionDrink.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 135212660589235 | 2026-10-27 |
+| `tackleLunge` | `sfx/CatCafe_Sfx_TackleLunge.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `tackleMiss` | `sfx/CatCafe_Sfx_TackleMiss.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `catLevelUp` | `sfx/CatCafe_Sfx_CatLevelUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |

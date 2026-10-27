@@ -237,6 +237,14 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	},
 	bumpHeld = { ids = { "rbxassetid://83302918660784" }, group = "Sfx", volume = 0.7, range = 40 },
+	tackleLunge = { -- F74: the dive's whoosh on the press; a hit adds the shove sound, a miss tackleMiss
+		ids = {},
+		group = "Sfx",
+		volume = 0.6,
+		pitch = { 0.95, 1.05 },
+		range = 40,
+	},
+	tackleMiss = { ids = {}, group = "Sfx", volume = 0.7, range = 40 }, -- F74: belly flop, skid, "bonk bonk"
 	checkInBell = {
 		ids = { "rbxassetid://75991488445164" },
 		group = "Sfx",
@@ -422,6 +430,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.7,
 		minGap = 0.3,
 	}, -- F64: the UI plays it on UsePotion
+	catLevelUp = { ids = {}, group = "Sfx", volume = 0.4, minGap = 1.5 }, -- F75: one of your cats levels up
 
 	-- UI (5.8) ----------------------------------------------------------------------------------------------
 	uiClick = {

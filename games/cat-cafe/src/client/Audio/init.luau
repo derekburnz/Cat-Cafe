@@ -899,8 +899,11 @@ end
 -- server time the Catch Rush ends) and a carry starting follows CarryStartedAt, which is how a dropped cat being
 -- picked up sounds. Your own catch already rings with CatchSuccess or RescueDone, so your carry start stays quiet for
 -- CATCH_QUIET after one; the check waits a moment in case the attribute lands before the moment.
+-- F74 the same way: TackleAt (the press) whooshes and TackleMissAt (a lunge that hit nobody) skids, each only while
+-- under TACKLE_FRESH old, as the effects do; a hit plays the shove sound from ShoveResult.
 local CHARACTER_GAP = 1
 local CATCH_QUIET = 2
+local TACKLE_FRESH = 0.6
 local lastCatchAt: number? = nil
 
 local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptConnection }
@@ -938,7 +941,25 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 			end
 		end)
 	end)
-	return { rush, carry }
+	local function onTackle(attribute: string, cueId: string): RBXScriptConnection
+		return character:GetAttributeChangedSignal(attribute):Connect(function()
+			if
+				Logic.freshStart(
+					character:GetAttribute(attribute),
+					Workspace:GetServerTimeNow(),
+					TACKLE_FRESH
+				)
+			then
+				once(cueId)
+			end
+		end)
+	end
+	return {
+		rush,
+		carry,
+		onTackle("TackleAt", "tackleLunge"),
+		onTackle("TackleMissAt", "tackleMiss"),
+	}
 end
 
 -- One character's watches per player, dropped when it is removed, so respawns do not pile up connections (N163).
@@ -1151,6 +1172,9 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 	CatSold = function()
 		Audio.play("catSold")
+	end,
+	CatLevelUp = function() -- F75, for the owner only, beside the toast and the sparkle
+		Audio.play("catLevelUp")
 	end,
 
 	CoinPop = function(position: any)

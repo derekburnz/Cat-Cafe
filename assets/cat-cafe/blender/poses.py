@@ -61,17 +61,18 @@ STUCK_POSES = {
 
 # Piece poses (cats.py joints). Angles are Blender XYZ degrees about each piece's joint; lift is unscaled studs.
 # lick: the left front paw (LegF1) swings forward and up to the mouth and the head tips down and toward it.
+# Lying down, the folded legs turn out a little so the paws show at the sides (Derek 2026-10-27; the game's
+# Presets.catPoses, Animation-Engineer #291: Roblox LegF1 -90, 0, -30, LegF2 -90, 0, 30, LegB1 90, 0, -26, LegB2 90, 0, 26).
+LYING_LEGS = {"LegF1": (90, 0, -30), "LegF2": (90, 0, 30), "LegB1": (-90, 0, 26), "LegB2": (-90, 0, -26)}
 CAT_POSES = {
     "lick": dict(body="sit", parts={"LegF1": (-128, -14, 0), "Head": (16, 0, 14)},
                  note="Sitting, washing a paw: the left front paw up at the mouth, head tipped down to it "
                       "(Derek 2026-10-27: the paw-up sit is licking a paw)."),
     "loaf": dict(body="walk", lift=(0, 0, -0.31),
-                 parts={"LegF1": (90, 0, 0), "LegF2": (90, 0, 0), "LegB1": (-90, 0, 0), "LegB2": (-90, 0, 0),
-                        "Tail": (-38, 0, 30)},
-                 note="Lying down, belly on the floor, paws folded under."),
+                 parts=dict(LYING_LEGS, Tail=(-38, 0, 30)),
+                 note="Lying down, belly on the floor, paws folded under and turned out so they show at the sides."),
     "sleep": dict(body="walk", lift=(0, 0, -0.31),
-                  parts={"LegF1": (90, 0, 0), "LegF2": (90, 0, 0), "LegB1": (-90, 0, 0), "LegB2": (-90, 0, 0),
-                         "Head": (24, 0, 28), "Tail": (-38, 0, 75)},
+                  parts=dict(LYING_LEGS, Head=(24, 0, 28), Tail=(-38, 0, 75)),
                   note="The loaf with the head down and turned, tail curled round the side."),
     "eat": dict(body="walk", parts={"Head": (42, 0, 0), "Tail": (-10, 0, 0)},
                 note="Standing, head down to a bowl in front of the front paws."),

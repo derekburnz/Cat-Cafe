@@ -143,6 +143,26 @@ export type TipJarStep = {
 	minCoins: number?,
 	lureId: string?,
 	count: number?,
+	spins: number?, -- F49: banked spins this step also gives, up to SpinBankCap
+}
+
+-- One slice of the Spin Wheel (F49, data-model section 11c): the Tip Jar's prize shape plus its weight. The weights
+-- add up to 100, so each is the slice's chance in percent.
+export type SpinSlice = {
+	slice: number,
+	kind: "coins" | "lure",
+	seconds: number?,
+	minCoins: number?,
+	lureId: string?,
+	count: number?,
+	weight: number,
+}
+
+-- The player's spins (F49): `lastFreeDay` is the UTC day number (os.time() // 86400) of the last free spin, so the
+-- free one is due on any later day; `banked` is 0 to SpinBankCap.
+export type SpinState = {
+	lastFreeDay: number,
+	banked: number,
 }
 
 -- TipJarState (server to client): when this session's jar started (workspace:GetServerTimeNow(), the clock the
@@ -234,6 +254,7 @@ export type Stats = {
 	playtimeSeconds: number,
 	sessions: number,
 	tipJarClaims: number, -- F47
+	spins: number, -- F49
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).
@@ -302,6 +323,7 @@ export type PlayerProfile = {
 	collection: { [string]: number },
 	goldCollection: { [string]: number }, -- catId -> first gold caught at
 	indexRewards: { [string]: { [string]: boolean } }, -- areaId -> milestoneId -> claimed (F48)
+	spin: SpinState, -- F49
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -329,6 +351,7 @@ export type PlayerState = {
 	collection: { [string]: number },
 	goldCollection: { [string]: number },
 	indexRewards: { [string]: { [string]: boolean } }, -- F48
+	spin: SpinState, -- F49
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,

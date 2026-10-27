@@ -39,6 +39,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

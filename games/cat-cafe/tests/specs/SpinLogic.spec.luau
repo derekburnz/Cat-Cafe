@@ -74,6 +74,25 @@ return function()
 			expect(SpinLogic.chance({}, ROWS[1])).to.equal("0%")
 		end)
 
+		it("lists the slices likeliest first for the Odds list, adding up to 100% (F69)", function()
+			local shuffled = { ROWS[4], ROWS[6], ROWS[1], ROWS[3], ROWS[5], ROWS[2] }
+			local list = SpinLogic.byChance(shuffled)
+			expect(#list).to.equal(6)
+			local total = 0
+			for index, row in list do
+				expect(row).to.equal(ROWS[index]) -- the catalog's weights already fall slice by slice
+				total += SpinLogic.share(list, row)
+			end
+			expect(math.abs(total - 100) < 1e-9).to.equal(true)
+			expect(shuffled[1]).to.equal(ROWS[4]) -- the input is left as it was
+			local tied = {
+				{ slice = 2, kind = "coins", weight = 50 },
+				{ slice = 1, kind = "coins", weight = 50 },
+			}
+			expect(SpinLogic.byChance(tied)[1].slice).to.equal(1)
+			expect(SpinLogic.share({}, ROWS[1])).to.equal(0)
+		end)
+
 		it("estimates coins as the server pays them, never under minCoins", function()
 			expect(SpinLogic.coins(ROWS[1], 10)).to.equal(1200)
 			expect(SpinLogic.coins(ROWS[1], 1)).to.equal(200)

@@ -3,8 +3,9 @@
 -- 4:12" across the top, then each food the dealer has for you this window with its stock, its odds and one
 -- green price button. A food in two slots shows once as "x2 Stock" (Components/DealerRows). Odds, the gold
 -- chance and the charm star odds sit on every row before Buy (the growth thread's rules for random items), with
--- the per-cat split under Details. What is for sale comes only from UI.dealer.setStock (the DealerStock remote);
--- the screen never guesses stock, and the server recomputes it on every BuyDealerFood.
+-- the per-cat split under Details, and each food wears its grade badge and border (F69). What is for sale comes
+-- only from UI.dealer.setStock (the DealerStock remote); the screen never guesses stock, and the server recomputes
+-- it on every BuyDealerFood.
 -- Opened by the cart's prompt (UI.dealer.open).
 
 local RunService = game:GetService("RunService")
@@ -13,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DealerRows = require(script.Parent.Parent.Components.DealerRows)
+local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
@@ -66,22 +68,25 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
-local function pill(parent: Instance, rarity: string, order: number): TextLabel
+-- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
+-- badge on the picture stays the food's own grade (F69)
+local function attractsChip(parent: Instance, lure: Types.LureDef, order: number): TextLabel
 	return Create("TextLabel", {
-		Name = "Rarity",
-		BackgroundColor3 = Theme.rarityColor(rarity),
+		Name = "Attracts",
+		BackgroundColor3 = Theme.colors.paper,
 		BorderSizePixel = 0,
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.rarityTextColor(rarity),
-		Text = rarity .. " food",
+		TextColor3 = Theme.modal.text,
+		Text = FoodGrade.attracts(lure),
 		LayoutOrder = order,
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+		Create("UIStroke", { Color = Theme.rarityColor(lure.attracts), Thickness = 2 }),
 	})
 end
 
@@ -231,10 +236,10 @@ function Dealer._buildRows(self: any)
 			Parent = self._list,
 		}, {
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			-- rarity colours on borders (world-and-feel section 6 style rules)
+			-- rarity colours on borders (world-and-feel section 6 style rules): the food's grade (F69)
 			Create(
 				"UIStroke",
-				{ Color = Theme.rarityColor(def.attracts), Thickness = Theme.sizes.stroke + 1 }
+				{ Color = Theme.rarityColor(FoodGrade.of(def)), Thickness = Theme.sizes.stroke + 1 }
 			),
 			Create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder }),
 		})
@@ -250,7 +255,7 @@ function Dealer._buildRows(self: any)
 			size = UDim2.fromOffset(ICON, ICON),
 			position = UDim2.fromOffset(12, 12),
 		})
-		icon:set(def.asset, Theme.foodIcons[def.id] or Theme.icons.food, def.attracts)
+		icon:setFood(def)
 		local heading: Frame = Create("Frame", {
 			Name = "Heading",
 			BackgroundTransparency = 1,
@@ -275,7 +280,7 @@ function Dealer._buildRows(self: any)
 			LayoutOrder = 1,
 			Parent = heading,
 		})
-		pill(heading, def.attracts, 2)
+		attractsChip(heading, def, 2)
 		local stockLine: Frame = Create("Frame", {
 			Name = "StockLine",
 			BackgroundTransparency = 1,

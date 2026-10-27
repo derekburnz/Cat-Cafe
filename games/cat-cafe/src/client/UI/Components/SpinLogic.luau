@@ -57,21 +57,38 @@ function SpinLogic.wait(seconds: number): string
 	return ("%ds"):format(total)
 end
 
--- The row's chance in percent, from its weight over all the weights: "30%", "2.5%".
-function SpinLogic.chance(rows: { Row }, row: Row): string
+-- The row's share of all the weights, in percent (0 to 100).
+function SpinLogic.share(rows: { Row }, row: Row): number
 	local total = 0
 	for _, each in rows do
 		total += math.max(0, each.weight)
 	end
 	if total <= 0 then
-		return "0%"
+		return 0
 	end
-	local percent = math.max(0, row.weight) / total * 100
+	return math.max(0, row.weight) / total * 100
+end
+
+-- The row's chance in percent, from its weight over all the weights: "30%", "2.5%".
+function SpinLogic.chance(rows: { Row }, row: Row): string
+	local percent = SpinLogic.share(rows, row)
 	local rounded = math.floor(percent * 10 + 0.5) / 10
 	if rounded == math.floor(rounded) then
 		return ("%d%%"):format(rounded)
 	end
 	return ("%.1f%%"):format(rounded)
+end
+
+-- The rows likeliest first, for the Odds list (F69); equal chances keep their order round the wheel.
+function SpinLogic.byChance(rows: { Row }): { Row }
+	local list = table.clone(rows)
+	table.sort(list, function(a: Row, b: Row): boolean
+		if a.weight ~= b.weight then
+			return a.weight > b.weight
+		end
+		return a.slice < b.slice
+	end)
+	return list
 end
 
 -- A coins row's estimate for this player: max(minCoins, floor(dayRate * seconds)), as the server pays it.

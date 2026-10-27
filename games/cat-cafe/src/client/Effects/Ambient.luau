@@ -1,7 +1,7 @@
 --!strict
 -- Ambient life (design v0.4 section 4): espresso steam, chimney smoke, butterflies over the flower boxes by day
 -- and fireflies at night. Sources are found by name, the asset thread's `_Steam`, `_Chimney`, `_Flowers` and
--- `_Fireflies` parts, with fallbacks for the graybox: the top of each plot's Espresso model, a spot in front of
+-- `_Fireflies` objects (a part, or an object Model whose parts share its name), with fallbacks for the graybox: the top of each plot's Espresso model, a spot in front of
 -- each cafe door and the street lamps. Only the nearest sources within range run, inside the device budget, and
 -- the choice is made once a second, not every frame.
 
@@ -40,6 +40,8 @@ local LAMP_BOX = Vector3.new(16, 10, 16) -- studs of air fireflies drift in arou
 local sources: { [Instance]: Source } = {}
 local named: { [string]: number } = { steam = 0, chimney = 0, fireflies = 0, flowers = 0 }
 local butterflies: { Butterfly } = {}
+local flyParts: { BasePart } = {} -- reused every frame
+local flyFrames: { CFrame } = {}
 local rng = Random.new()
 local started = false
 
@@ -47,9 +49,24 @@ local function endsWith(text: string, suffix: string): boolean
 	return #text >= #suffix and text:sub(-#suffix) == suffix
 end
 
+-- True when an ancestor is already a source of this kind: the exporter names an object's parts like its Model,
+-- so one cup of steam stays one source.
+local function insideSource(instance: Instance, kind: Kind): boolean
+	local stop: Instance = Workspace
+	local ancestor = instance.Parent
+	while ancestor ~= nil and ancestor ~= stop do
+		local source: Source? = sources[ancestor]
+		if source ~= nil and source.kind == kind then
+			return true
+		end
+		ancestor = ancestor.Parent
+	end
+	return false
+end
+
 local function add(kind: Kind, instance: Instance, fallback: boolean)
 	local existing: Source? = sources[instance]
-	if existing ~= nil then
+	if existing ~= nil or (not fallback and insideSource(instance, kind)) then
 		return
 	end
 	sources[instance] = { kind = kind, instance = instance, fallback = fallback }
@@ -76,22 +93,23 @@ end
 
 local function classify(instance: Instance)
 	local name = instance.Name
-	if instance:IsA("BasePart") or instance:IsA("Attachment") then
-		if endsWith(name, "_Steam") then
-			add("steam", instance, false)
-			return
-		end
+	local part = instance:IsA("BasePart")
+	if
+		(part or instance:IsA("Model") or instance:IsA("Attachment")) and endsWith(name, "_Steam")
+	then
+		add("steam", instance, false)
+		return
 	end
-	if not instance:IsA("BasePart") then
+	if not part and not instance:IsA("Model") then
 		return
 	end
 	if endsWith(name, "_Chimney") then
 		add("chimney", instance, false)
 	elseif endsWith(name, "_Flowers") then
 		add("flowers", instance, false)
-	elseif endsWith(name, "_Fireflies") then
+	elseif part and endsWith(name, "_Fireflies") then
 		add("fireflies", instance, false)
-	elseif name:find("StreetLamp", 1, true) ~= nil and endsWith(name, "_Bulb") then
+	elseif part and name:find("StreetLamp", 1, true) ~= nil and endsWith(name, "_Bulb") then
 		add("fireflies", instance, true)
 	end
 end
@@ -106,13 +124,16 @@ local function topOf(instance: Instance): Vector3?
 		local part = instance :: BasePart
 		return part.Position + part.CFrame.UpVector * (part.Size.Y / 2)
 	elseif instance:IsA("Model") then
+		if instance:FindFirstChildWhichIsA("BasePart", true) == nil then
+			return nil -- its parts have not streamed in yet
+		end
 		local frame, size = (instance :: Model):GetBoundingBox()
 		return frame.Position + Vector3.new(0, size.Y / 2, 0)
 	end
 	return nil
 end
 
--- Where a source's effect plays this second, or nil once its instance is gone.
+-- Where a source's effect plays this second, or nil while it has nowhere to play (gone, or not streamed in).
 local function placeOf(source: Source): Vector3?
 	local instance = source.instance
 	if instance.Parent == nil then
@@ -257,8 +278,10 @@ local function flutter(dt: number)
 	elapsed = 0
 	local now = os.clock()
 	local wing = Presets.butterfly.wing
-	local parts: { BasePart } = {}
-	local frames: { CFrame } = {}
+	local parts = flyParts
+	local frames = flyFrames
+	table.clear(parts)
+	table.clear(frames)
 	for _, fly in butterflies do
 		local source = fly.source
 		local centre = if source ~= nil then source.position else nil
@@ -290,10 +313,13 @@ local function tick()
 	local steady: { Logic.Candidate<Source> } = {}
 	local flowers: { Logic.Candidate<Source> } = {}
 	for _, source in sources do
+		if source.instance.Parent == nil then
+			remove(source)
+			continue
+		end
 		local position = placeOf(source)
 		source.position = position
 		if position == nil then
-			remove(source)
 			continue
 		end
 		local distance = Context.distance(position)

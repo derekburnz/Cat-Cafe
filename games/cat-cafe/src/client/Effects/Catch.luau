@@ -80,8 +80,8 @@ local function shake()
 end
 
 -- The hiss: a puff, a "!" over the head and the hop. Once per cat per second, so the catcher's CatchResult and
--- the HissAt attribute never play it twice.
-local function hiss(model: Model)
+-- the HissAt attribute never play it twice. `lag` is how long ago the server marked the miss.
+local function hiss(model: Model, lag: number?)
 	if model.Parent == nil then
 		return
 	end
@@ -95,7 +95,7 @@ local function hiss(model: Model)
 		return
 	end
 	lastHiss[model] = now
-	Cats.hiss(model)
+	Cats.hiss(model, lag)
 	Particles.burst("hissPuff", at, Presets.bursts.hissPuff)
 	local head = headOf(model)
 	if head ~= nil then
@@ -120,7 +120,16 @@ local function watchStray(instance: Instance)
 	end
 	local model = instance :: Model
 	model:GetAttributeChangedSignal("HissAt"):Connect(function()
-		hiss(model)
+		-- HissAt is the server time of the miss; the server walks the cat back from then, so the hop starts that
+		-- far in, and a miss that is already over by the time it replicates plays nothing.
+		local at = model:GetAttribute("HissAt")
+		if type(at) ~= "number" then
+			return
+		end
+		local lag = math.max(0, Workspace:GetServerTimeNow() - at)
+		if lag < Presets.motion.hiss.seconds then
+			hiss(model, lag)
+		end
 	end)
 end
 
@@ -150,14 +159,14 @@ function Catch.start()
 
 	Net.on(
 		"CatchResult",
-		function(strayId: string, scores: { number }, _chance: number, success: boolean)
+		function(strayId: string, grades: { Logic.Grade }, third: any, fourth: any)
 			local entry: Scheduled? = scheduled[strayId]
 			scheduled[strayId] = nil
 			local model = if entry ~= nil then entry.model else strayById(strayId)
-			if type(scores) ~= "table" then
+			if type(grades) ~= "table" then
 				return
 			end
-			if success then
+			if Logic.catchSucceeded(third, fourth) then
 				local at = if entry ~= nil
 					then entry.position
 					elseif model ~= nil then topOf(model)
@@ -165,12 +174,13 @@ function Catch.start()
 				if at == nil then
 					return
 				end
-				if Logic.isPurrfect(scores) then
+				if Logic.isPurrfect(grades) then
 					purrfect(at)
 				else
 					caught(at, if entry ~= nil then entry.rarity else "Common")
 				end
-			elseif Logic.hasMiss(scores) and model ~= nil then
+			elseif model ~= nil then
+				-- v0.4: a catch only fails on a Miss (a late or wild press, or walking out of range).
 				shake()
 				hiss(model)
 			end

@@ -45,22 +45,25 @@ function Logic.tier(touch: boolean, keyboard: boolean): Presets.Tier
 	return "high"
 end
 
--- Circle scores from CatchResult are 1 (Perfect), 0.5 (Good) or 0 (Miss).
-function Logic.hasMiss(scores: { number }): boolean
-	for _, score in scores do
-		if score <= 0 then
-			return true
-		end
+-- One circle from CatchResult: "perfect", "good" or "miss" (catching v0.4), or the v0.3 score 1, 0.5 or 0.
+export type Grade = string | number
+
+-- CatchResult's success flag. v0.4 sends (strayId, grades, success, pawsLeft, charmGain); v0.3 sent (strayId,
+-- scores, chance, success, stayed). Both are read until catching v0.4 (engineer PR #71) is on main.
+function Logic.catchSucceeded(third: any, fourth: any): boolean
+	if type(third) == "boolean" then
+		return third
 	end
-	return false
+	return fourth == true
 end
 
-function Logic.isPurrfect(scores: { number }): boolean
-	if #scores == 0 then
+-- A Purrfect: every circle Perfect.
+function Logic.isPurrfect(grades: { Grade }): boolean
+	if #grades == 0 then
 		return false
 	end
-	for _, score in scores do
-		if score < 1 then
+	for _, grade in grades do
+		if grade ~= "perfect" and grade ~= 1 then
 			return false
 		end
 	end

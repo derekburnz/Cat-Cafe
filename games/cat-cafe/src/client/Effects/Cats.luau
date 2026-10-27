@@ -5,7 +5,7 @@
 -- placed them. Shiny cats in range sparkle, and napping cats show floating z's.
 --
 -- Cats come from replicated world state only: the Stray and StuckCat tags, and models inside a Plot with a
--- CatId or Pose attribute (working cats under Plot/Cats, napping cats; data-model section 13).
+-- CatId, Napping or Pose attribute (working cats under Plot/Cats, napping cats; data-model section 13).
 
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
@@ -37,23 +37,53 @@ local ROLES: { [string]: Logic.Style } = {
 }
 local DARK_WOOD = Color3.fromRGB(94, 70, 52)
 local PICK_SECONDS = 0.5
+local RETRY_SECONDS = 2 -- a cat with no body yet, or a held one, is tried again after this
 
 local known: { [Model]: boolean } = {}
-local skip: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local watched: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local retryAt: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local active: { [Model]: Entry } = {}
 local sparkles: { [Model]: ParticleEmitter } = setmetatable({}, { __mode = "k" }) :: any
 local rng = Random.new()
 local started = false
 
+local drop: (model: Model, entry: Entry) -> ()
+
+-- With streaming a cat's model arrives before its parts and parts come and go. A part arriving lets a cat that
+-- could not be bound try again at once, and makes a moving cat bind again whole at the next pick, so a Head or
+-- Tail that came late moves too.
+local function onPartAdded(model: Model, descendant: Instance)
+	if not descendant:IsA("BasePart") then
+		return
+	end
+	retryAt[model] = nil
+	local entry: Entry? = active[model]
+	if entry ~= nil then
+		drop(model, entry)
+	end
+end
+
 local function consider(instance: Instance)
-	if instance:IsA("Model") then
-		known[instance :: Model] = true
+	if not instance:IsA("Model") then
+		return
+	end
+	local model = instance :: Model
+	known[model] = true
+	if not watched[model] then
+		watched[model] = true
+		model.DescendantAdded:Connect(function(descendant: Instance)
+			onPartAdded(model, descendant)
+		end)
 	end
 end
 
 local function isPlotCat(instance: Instance): boolean
 	return instance:IsA("Model")
-		and (instance:GetAttribute("CatId") ~= nil or instance:GetAttribute("Pose") ~= nil)
+		and (
+			instance:GetAttribute("CatId") ~= nil
+			or instance:GetAttribute("Napping") ~= nil
+			or instance:GetAttribute("Pose") ~= nil
+		)
 end
 
 local function watchPlot(plot: Instance)
@@ -100,7 +130,7 @@ local function roleOf(model: Model): string?
 end
 
 local function styleOf(model: Model): Logic.Style
-	if model:GetAttribute("Pose") == "nap" then
+	if model:GetAttribute("Napping") == true or model:GetAttribute("Pose") == "nap" then
 		return "nap"
 	elseif CollectionService:HasTag(model, "StuckCat") then
 		return "stuck"
@@ -122,9 +152,23 @@ local function napCount(): number
 	return count
 end
 
+-- The For Rent doorstep cat comes with its own floating Zzz prop (a sibling ending _Zzz), so it gets no labels.
+local function hasOwnZzz(model: Model): boolean
+	local holder = model.Parent
+	if holder == nil then
+		return false
+	end
+	for _, sibling in holder:GetChildren() do
+		if sibling.Name:sub(-4) == "_Zzz" then
+			return true
+		end
+	end
+	return false
+end
+
 -- Floating z's over a napping cat, drawn by the pose loop (three labels, one rising after another).
 local function addNaps(entry: Entry)
-	if entry.naps ~= nil or napCount() >= Context.budget.napLabels then
+	if entry.naps ~= nil or napCount() >= Context.budget.napLabels or hasOwnZzz(entry.model) then
 		return
 	end
 	local gui = Instance.new("BillboardGui")
@@ -217,14 +261,12 @@ local function dress(entry: Entry)
 end
 
 local function bind(model: Model): Entry?
-	if skip[model] then
-		return nil
-	end
 	local rig = Pose.bind(model)
 	if rig == nil then
-		skip[model] = true
+		retryAt[model] = os.clock() + RETRY_SECONDS
 		return nil
 	end
+	retryAt[model] = nil
 	local entry: Entry = {
 		model = model,
 		rig = rig,
@@ -240,7 +282,7 @@ local function bind(model: Model): Entry?
 	return entry
 end
 
-local function drop(model: Model, entry: Entry)
+function drop(model: Model, entry: Entry)
 	Pose.release(entry.rig)
 	removeYarn(entry)
 	removeNaps(entry)
@@ -254,7 +296,7 @@ local function lightShinies(shiny: { Logic.Candidate<Model> })
 	for _, model in Logic.nearest(shiny, budget.ambientRadius, budget.shinyEmitters) do
 		lit[model] = true
 		local emitter: ParticleEmitter? = sparkles[model]
-		if emitter == nil or emitter.Parent == nil then
+		if emitter == nil or not emitter:IsDescendantOf(model) then -- none yet, or its body streamed out
 			local body = model.PrimaryPart or partNamed(model, "Body")
 			local made = if body ~= nil then Particles.attach("shiny", body) else nil
 			if made ~= nil then
@@ -280,6 +322,7 @@ local function pick()
 		return
 	end
 	local budget = Context.budget
+	local now = os.clock()
 	local moving: { Logic.Candidate<Model> } = {}
 	local shiny: { Logic.Candidate<Model> } = {}
 	for model in known do
@@ -288,7 +331,8 @@ local function pick()
 			continue
 		end
 		local distance = (model:GetPivot().Position - focus).Magnitude
-		if not skip[model] then
+		local retry: number? = retryAt[model]
+		if retry == nil or retry <= now then
 			table.insert(moving, { key = model, distance = distance })
 		end
 		if model:GetAttribute("Shiny") == true then
@@ -358,14 +402,15 @@ local function step(dt: number)
 end
 
 -- Makes a cat hiss and hop (a missed catch). A cat that is not moving yet is picked up at once, over budget
--- for a moment, so the hiss is never lost.
-function Cats.hiss(model: Model)
+-- for a moment, so the hiss is never lost. `lag` is how many seconds ago the miss happened on the server, so the
+-- hop lines up with the server's walk back.
+function Cats.hiss(model: Model, lag: number?)
 	local entry: Entry? = active[model]
 	if entry == nil and model.Parent ~= nil then
 		entry = bind(model)
 	end
 	if entry ~= nil then
-		entry.hissAt = os.clock()
+		entry.hissAt = os.clock() - (lag or 0)
 		Pose.startHop(entry.rig)
 	end
 end

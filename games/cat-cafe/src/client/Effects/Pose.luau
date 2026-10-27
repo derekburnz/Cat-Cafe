@@ -37,6 +37,8 @@ export type Rig = {
 	jumpAt: number,
 	shift: Vector3, -- a server jump still being drawn as travel during a hiss hop
 	shiftFrom: number,
+	moves: { [Group]: CFrame }, -- reused every frame, so a phone's garbage collector has less to do
+	frames: { CFrame },
 }
 
 local LEGS: { [string]: Group } =
@@ -87,17 +89,23 @@ local function groupOf(part: BasePart, body: BasePart, head: BasePart?): Group
 	return "body"
 end
 
--- A part's own pivot when its model sets one (the asset thread's hinge points), else nil.
-local function hingeOf(part: BasePart): Vector3?
+-- A part's hinge when the asset sets one, else nil: the part's own pivot, or the pivot of the object Model it
+-- sits in (the asset exporter gives each object, such as Head or Tail, a Model pivoted at its joint).
+local function hingeOf(part: BasePart, model: Model): Vector3?
 	if part.PivotOffset ~= CFrame.identity then
 		return part:GetPivot().Position
+	end
+	local own: Instance = model
+	local holder = part.Parent
+	if holder ~= nil and holder ~= own and holder:IsA("Model") then
+		return (holder :: Model):GetPivot().Position
 	end
 	return nil
 end
 
 -- The neck: the back of the head, low down, unless the head carries its own hinge.
-local function neckOf(head: BasePart, axes: CFrame): Vector3
-	local hinge = hingeOf(head)
+local function neckOf(head: BasePart, axes: CFrame, model: Model): Vector3
+	local hinge = hingeOf(head, model)
 	if hinge ~= nil then
 		return hinge
 	end
@@ -106,8 +114,8 @@ local function neckOf(head: BasePart, axes: CFrame): Vector3
 end
 
 -- The tail root: the end of the tail's long axis nearest the body.
-local function tailRootOf(tail: BasePart, body: BasePart): Vector3
-	local hinge = hingeOf(tail)
+local function tailRootOf(tail: BasePart, body: BasePart, model: Model): Vector3
+	local hinge = hingeOf(tail, model)
 	if hinge ~= nil then
 		return hinge
 	end
@@ -165,11 +173,13 @@ local function newRig(model: Model, body: BasePart): Rig
 		jumpAt = -math.huge,
 		shift = Vector3.zero,
 		shiftFrom = 0,
+		moves = {},
+		frames = {},
 	}
 end
 
--- Reads a cat model once. Nil when it has no body, or when its body is welded to something that is not ours
--- to move (the held cat rides its holder's arms).
+-- Reads a cat model once. Nil when it has no body yet (its parts are still streaming in), or when its body is
+-- welded to something that is not ours to move (the held cat rides its holder's arms); Cats tries again later.
 function Pose.bind(model: Model): Rig?
 	local body = model.PrimaryPart or findPart(model, "Body")
 	if body == nil then
@@ -220,15 +230,30 @@ function Pose.bind(model: Model): Rig?
 	end
 	rig.joints.body = joint(pivot.Position)
 	if head ~= nil then
-		rig.joints.head = joint(neckOf(head, axes))
+		rig.joints.head = joint(neckOf(head, axes, model))
 	end
 	if tail ~= nil then
-		rig.joints.tail = joint(tailRootOf(tail, body))
+		rig.joints.tail = joint(tailRootOf(tail, body, model))
 	end
 	for group, leg in legs do
 		rig.joints[group] = joint(hipOf(leg))
 	end
 	return rig
+end
+
+-- A turn by `rotation` around one of the rig's joints, in world space; none when the cat has no such joint.
+local function around(
+	joints: { [Group]: CFrame },
+	bodyBase: CFrame,
+	group: Group,
+	rotation: CFrame
+): CFrame
+	local joint: CFrame? = joints[group]
+	if joint == nil then
+		return CFrame.identity
+	end
+	local world = bodyBase * joint
+	return world * rotation * world:Inverse()
 end
 
 local function applyMotors(rig: Rig, o: Logic.Offsets)
@@ -293,27 +318,25 @@ function Pose.apply(rig: Rig, o: Logic.Offsets, hopAlpha: number): boolean
 	end
 
 	local joints = rig.joints
-	local function around(group: Group, rotation: CFrame): CFrame
-		local joint: CFrame? = joints[group]
-		if joint == nil then
-			return CFrame.identity
-		end
-		local world = bodyBase * joint
-		return world * rotation * world:Inverse()
-	end
 	local bodyMove = CFrame.new(shift)
-		* around("body", CFrame.new(0, o.bodyY, 0) * CFrame.Angles(o.bodyPitch, 0, o.bodyRoll))
-	local moves: { [Group]: CFrame } = {
-		body = bodyMove,
-		head = bodyMove * around("head", CFrame.Angles(o.headPitch, o.headYaw, o.headRoll)),
-		tail = bodyMove * around("tail", CFrame.Angles(-o.tailPitch, o.tailYaw, 0)),
-		pawFL = bodyMove * around("pawFL", CFrame.Angles(o.pawFL, 0, 0)),
-		pawFR = bodyMove * around("pawFR", CFrame.Angles(o.pawFR, 0, 0)),
-		pawBL = bodyMove,
-		pawBR = bodyMove,
-	}
+		* around(
+			joints,
+			bodyBase,
+			"body",
+			CFrame.new(0, o.bodyY, 0) * CFrame.Angles(o.bodyPitch, 0, o.bodyRoll)
+		)
+	local moves = rig.moves
+	moves.body = bodyMove
+	moves.head = bodyMove
+		* around(joints, bodyBase, "head", CFrame.Angles(o.headPitch, o.headYaw, o.headRoll))
+	moves.tail = bodyMove
+		* around(joints, bodyBase, "tail", CFrame.Angles(-o.tailPitch, o.tailYaw, 0))
+	moves.pawFL = bodyMove * around(joints, bodyBase, "pawFL", CFrame.Angles(o.pawFL, 0, 0))
+	moves.pawFR = bodyMove * around(joints, bodyBase, "pawFR", CFrame.Angles(o.pawFR, 0, 0))
+	moves.pawBL = bodyMove
+	moves.pawBR = bodyMove
 
-	local frames: { CFrame } = {}
+	local frames = rig.frames
 	for i, group in rig.groups do
 		frames[i] = moves[group] * base[i]
 	end

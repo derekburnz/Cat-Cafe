@@ -23,21 +23,23 @@ Everything here runs on this client only. Effects read replicated world state (t
    ```luau
    require(script.Parent.Effects).start()
    ```
-2. **Miss (F34)**: when a Miss ends a catch, set `HissAt = Workspace:GetServerTimeNow()` on the stray model before the jump-back, so every nearby player sees the hiss. The catcher's own CatchResult already plays it. Do the jump-back as one `PivotTo` or a fast walk; the client draws the hop either way.
-3. **Naps (F37)**: set `Pose = "nap"` on a cat model while it naps (roaming cats, the For Rent doorstep cat). Any other value, or none, means awake.
+2. **Miss (F34)**: when a Miss ends a catch, set `HissAt = Workspace:GetServerTimeNow()` on the stray model before the jump-back, so every nearby player sees the hiss (PR #71 does this, then walks the stray 6 to 10 studs away at 24 studs/s). The hop starts as far in as the attribute is late, so it lines up with the walk, and a miss that is already over when it replicates plays nothing. The catcher's own CatchResult already plays it. A one `PivotTo` jump-back works too; the client draws the hop either way.
+3. **Naps (F37)**: set `Napping = true` on a cat model while it naps (cats at `NapSpots`, the For Rent doorstep cat); `Pose = "nap"` also works. Anything else, or none, means awake.
 4. **Role**: working cats read `Role` (data-model section 13) and fall back to their station's `SpotType` through `SpotId`, which works today.
 5. **Rig**: if you weld a cat to its Body to cut replication (reviewer S35 option 2), use Motor6Ds named after their Part1 (`Body`, `Head`, `Tail`, with an anchored `Root`), not WeldConstraints. With WeldConstraints a local turn drags the whole cat.
+6. **Streaming (reviewer S37)**: set `ModelStreamingMode = Atomic` on stray and plot cat models so a cat streams in and out whole. Effects copes without it (a cat with no Body yet is tried again every 2 s, and any part arriving makes it bind again whole), but a half-streamed cat cannot move.
+7. **For Rent (reviewer N50)**: at a claim the server removes or hides the For Rent dressing for everyone. Effects only draws a copy of the shutters and sign rolling up and fading, and only within 120 studs, so a far player relies on the server's change.
 
 ## What it reads
 
 | Effect | Source |
 |---|---|
-| Cats that move | tags `Stray` and `StuckCat`; models inside a `Plot` with `CatId` or `Pose` |
+| Cats that move | tags `Stray` and `StuckCat`; models inside a `Plot` with `CatId`, `Napping` or `Pose` |
 | Role idle | `Role`, else `SpotId` to `Plot/Spots/<id>` `SpotType` |
-| Nap | `Pose = "nap"` |
+| Nap | `Napping = true` (or `Pose = "nap"`) |
 | Shiny sparkle | `Shiny = true` on a stray or working cat |
-| Hiss | CatchResult with a 0 score (the catcher), `HissAt` changing (everyone) |
-| Catch sparkle, Purrfect | CatchResult success; all scores 1 is a Purrfect |
+| Hiss | CatchResult not a success (the catcher), `HissAt` changing to a server time under 0.6 s old (everyone) |
+| Catch sparkle, Purrfect | CatchResult success; every grade `"perfect"` is a Purrfect (the v0.3 scores, all 1, still work) |
 | Rank up | a `Plot`'s `Tier` rising with the same `OwnerUserId`, 2 s or more after the owner changed |
 | Shutters | a `Plot`'s `OwnerUserId` going from 0 to a player; parts ending `_Shutter` and `_Sign` inside a model named `...ForRent...` |
 | Gate dissolve | tag `AreaGate` with `RequiresTier`; this player's own plot `Tier` crossing it |

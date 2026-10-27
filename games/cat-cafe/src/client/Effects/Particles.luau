@@ -132,12 +132,14 @@ type Piece = {
 local pieces: { Piece } = {}
 local spare: { BasePart } = {}
 local confettiLoop: RBXScriptConnection? = nil
+local moving: { BasePart } = {} -- reused every frame
+local frames: { CFrame } = {}
 
 local function stepConfetti()
 	local now = os.clock()
 	local c = Presets.confetti
-	local moving: { BasePart } = {}
-	local frames: { CFrame } = {}
+	table.clear(moving)
+	table.clear(frames)
 	local i = 1
 	while i <= #pieces do
 		local piece = pieces[i]

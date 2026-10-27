@@ -6,7 +6,8 @@
 --   session, played when the player is close enough to see it.
 -- Driven by the replicated Plot attributes OwnerUserId and Tier (data-model section 13) and each gate's
 -- RequiresTier (tag AreaGate), so nothing here needs a remote. WorldController still opens the gate itself; the
--- dissolve is a copy of the closed barrier fading out over it.
+-- dissolve is a copy of the closed barrier fading out over it. Likewise the server removes the For Rent dressing
+-- at a claim for everyone, and the roll-up is a copy drawn only near this player.
 
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
@@ -20,7 +21,7 @@ local Presets = require(script.Parent.Presets)
 
 local Plots = {}
 
-type Cached = { source: BasePart, copy: BasePart }
+type Cached = { source: BasePart, copy: BasePart, hinge: CFrame }
 
 type PlotState = {
 	owner: number,
@@ -77,7 +78,8 @@ local function inForRent(part: Instance, plot: Model): boolean
 	return false
 end
 
--- A copy made now, while the dressing is there: at a claim the server may remove it in the same moment.
+-- A copy made now, while the dressing is there: at a claim the server may remove it in the same moment. Only
+-- what it looks like comes along (meshes, decals, surface text), never a prompt, sound, light or script.
 local function copyOf(part: BasePart): BasePart
 	local copy = part:Clone() :: BasePart
 	copy.Anchored = true
@@ -86,7 +88,42 @@ local function copyOf(part: BasePart): BasePart
 	copy.CanTouch = false
 	copy.CastShadow = false
 	copy.LocalTransparencyModifier = 0
+	for _, child in copy:GetChildren() do
+		if
+			not child:IsA("DataModelMesh")
+			and not child:IsA("Decal")
+			and not child:IsA("SurfaceGui")
+			and not child:IsA("SurfaceAppearance")
+		then
+			child:Destroy()
+		end
+	end
 	return copy
+end
+
+-- Decals fade with the part (Transparency alone leaves them opaque), and surface text goes when the part is half
+-- gone, since a SurfaceGui has no transparency of its own.
+local function fadeLooks(copy: BasePart, info: TweenInfo)
+	for _, child in copy:GetChildren() do
+		if child:IsA("Decal") then
+			TweenService:Create(child, info, { Transparency = 1 }):Play()
+		elseif child:IsA("SurfaceGui") then
+			local gui = child :: SurfaceGui
+			task.delay(info.DelayTime + info.Time / 2, function()
+				gui.Enabled = false
+			end)
+		end
+	end
+end
+
+-- The point a piece of dressing turns or rolls about: its object Model's pivot (the exporter puts one at each
+-- object's hinge, such as where the blade sign hangs), else the part's own centre.
+local function hingeOf(part: BasePart, suffix: string): CFrame
+	local holder = part.Parent
+	if holder ~= nil and holder:IsA("Model") and endsWith(holder.Name, suffix) then
+		return (holder :: Model):GetPivot()
+	end
+	return part.CFrame
 end
 
 local function cache(state: PlotState, plot: Model, instance: Instance)
@@ -96,9 +133,12 @@ local function cache(state: PlotState, plot: Model, instance: Instance)
 	local part = instance :: BasePart
 	part.LocalTransparencyModifier = 0
 	if endsWith(part.Name, "_Shutter") then
-		table.insert(state.shutters, { source = part, copy = copyOf(part) })
+		table.insert(state.shutters, { source = part, copy = copyOf(part), hinge = part.CFrame })
 	elseif endsWith(part.Name, "_Sign") then
-		table.insert(state.signs, { source = part, copy = copyOf(part) })
+		table.insert(
+			state.signs,
+			{ source = part, copy = copyOf(part), hinge = hingeOf(part, "_Sign") }
+		)
 	end
 end
 
@@ -152,6 +192,7 @@ local function rollUp(plot: Model, state: PlotState)
 			{ Size = Vector3.new(size.X, 0.2, size.Z), CFrame = top * CFrame.new(0, -0.1, 0) }
 		):Play()
 		TweenService:Create(copy, fade, { Transparency = 1 }):Play()
+		fadeLooks(copy, fade)
 		Debris:AddItem(copy, s.seconds + 0.4)
 		Particles.burst(
 			"dust",
@@ -159,12 +200,15 @@ local function rollUp(plot: Model, state: PlotState)
 			Presets.bursts.dust
 		)
 	end
+	-- The sign swings a quarter turn about where it hangs, edge on, as it fades: every piece turns about the same
+	-- hinge, so a sign built of several parts stays in one piece.
 	local flip = TweenInfo.new(s.signSeconds, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 	for _, cached in signs do
 		local copy, frame = stage(state, cached)
-		TweenService
-			:Create(copy, flip, { CFrame = frame * CFrame.Angles(0, math.pi, 0), Transparency = 1 })
-			:Play()
+		local hinge = cached.hinge
+		local turned = hinge * CFrame.Angles(0, math.pi / 2, 0) * hinge:ToObjectSpace(frame)
+		TweenService:Create(copy, flip, { CFrame = turned, Transparency = 1 }):Play()
+		fadeLooks(copy, flip)
 		Debris:AddItem(copy, s.signSeconds + 0.2)
 	end
 	Particles.confetti(front, math.ceil(Context.budget.confetti * 0.5))

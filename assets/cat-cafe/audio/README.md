@@ -76,8 +76,9 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `indexReward` | `sfx/CatCafe_Sfx_IndexReward.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `goldReveal` | `sfx/CatCafe_Sfx_GoldReveal.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `shimmerRare` | `sfx/CatCafe_Sfx_ShimmerRare.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
-| `wheelTick` | `sfx/CatCafe_Sfx_WheelTick.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
-| `wheelWin` | `sfx/CatCafe_Sfx_WheelWin.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `uiSpinTick` | `ui/CatCafe_Ui_SpinTick.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `uiSpinWin` | `ui/CatCafe_Ui_SpinWin.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `uiSlider` | `ui/CatCafe_Ui_Slider.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `uiGiftReady` | `ui/CatCafe_Ui_GiftReady.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `uiBadge` | `ui/CatCafe_Ui_Badge.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
+| `uiSpinStart` | `ui/CatCafe_Ui_SpinStart.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |

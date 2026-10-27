@@ -35,12 +35,14 @@ local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
 local LocationMarkers = require(script.Screens.LocationMarkers)
 local Modal = require(script.Components.Modal)
+local Motion = require(script.Components.Motion)
 local Popups = require(script.Screens.Popups)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
 local Settings = require(script.Screens.Settings)
+local SettingsList = require(script.Components.SettingsList)
 local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
 local Sound = require(script.Components.Sound)
@@ -94,7 +96,7 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
-	setSetting = Signal.new(), -- (key, value)   a switch on the Settings screen: forward as SetSetting (Audio follows UI.settings.changed)
+	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 }
 
 local state: Types.PlayerState = {
@@ -147,7 +149,7 @@ local baitCat: Types.BaitCat? = nil -- the cat at the bowl (UI.bait.showReady), 
 local bowlPart: BasePart? = nil -- the player's own BaitBowl part (UI.bait.setBowl), for the range hints
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
-local settingsScreen: Settings.Settings? = nil -- music, sound and place icons switches (gear in the HUD)
+local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
 local tipJarScreen: TipJar.TipJar? = nil -- the playtime gifts (F47), opened from the HUD's Gifts tile
 local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), opened from the plaza station's prompt
 
@@ -486,18 +488,21 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	settingsScreen = Settings.new({
-		setSetting = function(key: string, value: boolean)
+		setSetting = function(key: string, value: boolean | number)
 			UI.events.setSetting:Fire(key, value)
 		end,
-		changed = function(key: string, value: boolean)
+		changed = function(key: string, value: boolean | number)
 			if key == "markers" and locationMarkers then
-				locationMarkers:setEnabled(value)
+				locationMarkers:setEnabled(value == true)
+			elseif key == "screenShake" then
+				Motion.screenShake = value == true
 			end
 			UI.settings.changed:Fire(key, value)
 		end,
 		close = closeModal,
 	})
 	local settingsView = settingsScreen :: Settings.Settings
+	Motion.screenShake = settingsView:value("screenShake")
 	modalInstance:register("Settings", {
 		frame = settingsView.frame,
 		onOpen = function()
@@ -955,13 +960,24 @@ end
 -- drops the tap. Apply music and sfx to Audio from `changed` rather than from state.settings, so a sync sent
 -- before the server saw the tap cannot flip the music back during the hold (review N111).
 UI.settings = {}
-UI.settings.changed = Signal.new() -- (key, on)   whenever a key's shown value moves; read value(key) once after UI.init
+UI.settings.changed = Signal.new() -- (key, value)   whenever a key's shown value moves, live while a volume drags;
+-- read value(key) and volume(key) once after UI.init
 
+-- A switch as shown (music, sfx, screenShake, lowPerformance, showOtherCats, markers).
 function UI.settings.value(key: string): boolean
 	if settingsScreen then
 		return settingsScreen:value(key)
 	end
-	return true
+	return SettingsList.default(key) == true
+end
+
+-- A volume as shown, 0 to 1 (musicVolume, sfxVolume).
+function UI.settings.volume(key: string): number
+	if settingsScreen then
+		return settingsScreen:volume(key)
+	end
+	local default = SettingsList.default(key)
+	return if type(default) == "number" then default else 1
 end
 
 -- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and

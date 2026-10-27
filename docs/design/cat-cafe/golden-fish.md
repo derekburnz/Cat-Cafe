@@ -36,7 +36,7 @@ Rules:
 | Tip Jar step 9 (60 minutes) | 10, with coins and a spin (v0.10) | slice |
 | Tip Jar step 12 (120 minutes) | 25, with a Caviar, a Classic Crate, 2 spins and a Tip Potion (v0.10, was 5) | slice |
 | Daily Treat days 2 and 7 | 15 and 50 (v0.10, data-model 11e; was 10 on day 7) | launch |
-| Customer Requests | 2 per finished request | launch |
+| Quests (F73, [quests.md](quests.md), replaces Customer Requests) | 2 per daily (4 for the Big Request), 10 for the daily set, 15 per weekly, 40 for the weekly set, 5 to 100 per achievement step | launch |
 | Chalkboard codes | as growth sets them | launch |
 | Fish Pond (suggestion 3 in section 7) | 3 every 30 minutes, walk up and collect | later |
 | Cafe Loyalty track (Derek's "time progression rewards", suggestion 6) | 10 per stamp | later |

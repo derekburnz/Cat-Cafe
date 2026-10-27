@@ -155,6 +155,14 @@ Designed by the Tutorial-Agent thread from Derek's 20:11 ask and approved by him
 |---|---|---|---|---|---|---|
 | F72 | Intro cutscene and Tutorial button ([intro-cutscene.md](intro-cutscene.md), Derek 2026-10-27 20:11, approved 20:45): a 23.7 s client camera fly-through of nine shots with one caption each, shown once to every player whose `introSeen` is false (existing saves too); HUD, prompts and controls off while it runs; Skip bottom right after 2.0 s, at once on a replay; a player who has not seen it spawns just inside their own back door; `IntroDone(shot, replay)` saves `introSeen` and logs `intro_cutscene`; a Tutorial tile in the HUD's top right row replays it and its × hides it (`settings.tutorialButton`), with a switch and a Replay tutorial row in Settings; demo cats, the wheel spin and the night lighting are client-only | P1 | M | engineer, ui | F66 (night shot), F65 (Codes Cat; fallback caption without it) | A fresh account sees the intro once, Skip appears at 2 s and ends it at once, and the character stands inside its back door with the first hint showing; a rejoin does not replay it; the Tutorial tile replays it with Skip at once, × hides it across a rejoin and Settings brings it back; nothing staged is left after it ends |
 
+## 2i. Quests and achievements (Derek, 2026-10-27 evening, proposal)
+
+From Derek's 21:59 ask; the spec is [quests.md](quests.md). It waits for Derek's okay before the build.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F73 | Daily quests, weekly quests and achievements ([quests.md](quests.md)): four dailies a day from four slot pools (one a Big Request) and three weeklies a week, reset at 00:00 UTC and Monday 00:00 UTC, progress counted from stat counters saved when each quest is picked, one free reroll a day and a week, finished quests paid at reset if unclaimed; the full daily set pays a Daily Boost (+50% tips, +25% gold luck, 30 min) and the full weekly set a Weekly Boost (+50% tips, +50% gold luck, 25% faster bait, 2 h) plus a Golden Classic Crate, both drunk from the potion bag; 13 lifetime achievements with five steps each, the last paying +2% tips forever and a name tag; `quests`, `achievements` and seven new stats; Quests window with three tabs and a HUD tracker | P1 | L | engineer, ui | F52, F53, F64 (F61 for the tip pile rows) | A new player sees four dailies and three weeklies they can do; finishing all four dailies pays the set and banks a Daily Boost that raises the HUD rate by 50% while it runs; at 00:00 UTC unclaimed finished quests are paid and new ones appear; an old save can claim the achievement steps its stats already meet |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

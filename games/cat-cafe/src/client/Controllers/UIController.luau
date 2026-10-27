@@ -392,6 +392,8 @@ local function applyState(s: Types.PlayerState)
 		crates = s.crates, -- F53: unopened crates, crate luck and Market perks
 		crateLuck = s.crateLuck,
 		fishPerks = s.fishPerks,
+		goldLuck = s.goldLuck, -- F54: the Index's gold luck and faster bait, capped
+		baitSpeed = s.baitSpeed,
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.

@@ -123,19 +123,31 @@ function IndexRewards.goldChance(chance: number, goldLuck: number): number
 end
 
 -- The gold luck a shared roll in an area uses (a net stray or a rescue trap): the highest among the players whose
--- tier has the area open, 0 when nobody has (golden-fish.md section 5).
+-- tier has the area open, 0 when nobody has (golden-fish.md section 5), and the index in `profiles` of the first
+-- player with it (nil at 0), for the Index Board's "Gold luck +40% from Sam".
+function IndexRewards.luckiest(
+	profiles: { Types.PlayerProfile },
+	areaTier: number,
+	tierOf: (Types.PlayerProfile) -> number
+): (number, number?)
+	local best, from = 0, nil
+	for index, profile in profiles do
+		if tierOf(profile) >= areaTier then
+			local luck = IndexRewards.totals(profile).goldLuck
+			if luck > best then
+				best, from = luck, index
+			end
+		end
+	end
+	return best, from
+end
+
 function IndexRewards.bestGoldLuck(
 	profiles: { Types.PlayerProfile },
 	areaTier: number,
 	tierOf: (Types.PlayerProfile) -> number
 ): number
-	local best = 0
-	for _, profile in profiles do
-		if tierOf(profile) >= areaTier then
-			best = math.max(best, IndexRewards.totals(profile).goldLuck)
-		end
-	end
-	return best
+	return (IndexRewards.luckiest(profiles, areaTier, tierOf))
 end
 
 return IndexRewards

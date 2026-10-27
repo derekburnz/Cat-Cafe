@@ -250,4 +250,10 @@ function CatStats.shortText(instance: Types.CatInstance): string
 	)
 end
 
+-- A new cat's uid from HttpService:GenerateGUID(false): its first 12 characters, lowercased ("fa3848f6-e97"). Saves
+-- already hold uids of this shape, so Guard.id passes the hyphen rather than the shape changing.
+function CatStats.uidFromGuid(guid: string): string
+	return guid:sub(1, 12):lower()
+end
+
 return CatStats

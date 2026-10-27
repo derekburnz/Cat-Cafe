@@ -2,8 +2,11 @@
 -- Cosmetic customers (features.md F15, F37). Runs entirely on this client: customers walk into every running cafe
 -- within Config.World.CafeLifeRangeStuds of the camera, not just this player's own, so the street looks busy
 -- (world-and-feel.md section 4). Each one walks in from the street, orders at the counter, takes a free chair,
--- sits a while and walks out. Coin text pops only over this player's own cafe. Customers come by day only (F20):
--- at night none arrive and the seated ones finish up and leave.
+-- sits a while and walks out. Coin text pops only over this player's own cafe. Cafes stay open at night (F31): night
+-- owls come every CustomerSpawnSecondsNight instead of CustomerSpawnSeconds.
+-- A rich customer (F31, data-model section 12) comes to any nearby cafe whose plot shows a rich tip
+-- (RichTipAmount), sits at table 1 beside the gold coin pile on its RichTipAnchor and stays until the tip is paid.
+-- The server decides the tip; this is only what the street sees.
 -- A customer model carries Order ("coffee", "cake" or "milk") from the counter on and Served once it sits, for the
 -- order bubble and the heart.
 
@@ -28,6 +31,14 @@ local activeCustomers = 0
 local variants = { "A", "B", "C" }
 local orders = { "coffee", "cake", "milk" }
 local clock: Instance? = nil -- ReplicatedStorage.Clock once it has replicated
+local richVisits: { [Model]: boolean } = {} -- plots with a rich customer on the way or seated
+local coinPiles: { [Model]: Model } = {} -- plot -> the coin pile on its RichTipAnchor while a tip shows
+
+-- How a customer visits: which model, and for a rich customer how long it stays (while its tip shows).
+type Visit = {
+	asset: string,
+	staysWhile: (() -> boolean)?,
+}
 
 local function isDay(): boolean
 	return clock == nil or clock:GetAttribute("Phase") ~= "night"
@@ -122,13 +133,12 @@ local function freeSeat(plot: Model): (BasePart?, BasePart?)
 	return pick.seat, pick.tableTop
 end
 
-local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?)
+local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, visit: Visit?)
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	local source = if assets ~= nil
-		then assets:FindFirstChild(
-			"CatCafe_NPC_Customer_" .. variants[rng:NextInteger(1, #variants)]
-		)
-		else nil
+	local assetName = if visit ~= nil
+		then visit.asset
+		else "CatCafe_NPC_Customer_" .. variants[rng:NextInteger(1, #variants)]
+	local source = if assets ~= nil then assets:FindFirstChild(assetName) else nil
 	local entry = waypoint(plot, "Entry")
 	local door = waypoint(plot, "Door")
 	local order = waypoint(plot, "Order")
@@ -179,7 +189,14 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?)
 		local own = isOwnPlot(plot)
 		local stay = rng:NextNumber(Config.CustomerStayMin, Config.CustomerStayMax)
 		local elapsed = 0
-		while isAlive() and isDay() and elapsed < stay do
+		local staysWhile = if visit ~= nil then visit.staysWhile else nil
+		local function staying(): boolean
+			if staysWhile ~= nil then
+				return staysWhile()
+			end
+			return elapsed < stay
+		end
+		while isAlive() and staying() do
 			task.wait(Config.CustomerCoinPopSeconds)
 			elapsed += Config.CustomerCoinPopSeconds
 			if own then
@@ -213,16 +230,122 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?)
 	end
 end
 
+-- A rich tip shows on the plot (the server mirrors its amount and expiry for display).
+local function tipShows(plot: Model): boolean
+	local amount = plot:GetAttribute("RichTipAmount")
+	local expiresAt = plot:GetAttribute("RichTipExpiresAt")
+	return type(amount) == "number"
+		and amount > 0
+		and type(expiresAt) == "number"
+		and expiresAt > Workspace:GetServerTimeNow()
+end
+
+local function tipAnchor(plot: Model): BasePart?
+	local anchor = plot:FindFirstChild("RichTipAnchor")
+	return if anchor ~= nil and anchor:IsA("BasePart") then anchor :: BasePart else nil
+end
+
+-- A free chair at table 1, the table under the coin pile.
+local function richSeat(plot: Model): (BasePart?, BasePart?)
+	local tables = plot:FindFirstChild("Tables")
+	local group = if tables ~= nil then tables:FindFirstChild("table_1") else nil
+	if group == nil then
+		return nil, nil
+	end
+	local tableTop = group:FindFirstChild("Top", true)
+	for _, child in group:GetChildren() do
+		if child.Name:match("^Chair_") and child:IsA("Model") then
+			local seat = child.PrimaryPart or child:FindFirstChildWhichIsA("BasePart")
+			if seat ~= nil and not busySeats[seat] then
+				return seat,
+					if tableTop ~= nil and tableTop:IsA("BasePart")
+						then tableTop :: BasePart
+						else nil
+			end
+		end
+	end
+	return nil, nil
+end
+
+-- A few gold coins stacked on the anchor (its centre sits just over the table top), local to this client.
+local function buildCoinPile(anchor: BasePart): Model
+	local pile = Instance.new("Model")
+	pile.Name = "RichTipCoins"
+	local top = anchor.Position.Y - anchor.Size.Y / 2 + 0.4 -- the table top under the anchor
+	local stacks = { { x = -0.35, z = 0.1, coins = 4 }, { x = 0.4, z = -0.15, coins = 2 } }
+	for _, stack in stacks do
+		for n = 1, stack.coins do
+			local coin = Instance.new("Part")
+			coin.Name = "Coin"
+			coin.Shape = Enum.PartType.Cylinder
+			coin.Size = Vector3.new(0.14, 0.7, 0.7)
+			coin.Color = Color3.fromRGB(255, 196, 56)
+			coin.Material = Enum.Material.Metal
+			coin.Anchored = true
+			coin.CanCollide = false
+			coin.CanQuery = false
+			coin.CanTouch = false
+			coin.CastShadow = false
+			local position = Vector3.new(
+				anchor.Position.X + stack.x + rng:NextNumber(-0.04, 0.04),
+				top + 0.07 + (n - 1) * 0.14,
+				anchor.Position.Z + stack.z + rng:NextNumber(-0.04, 0.04)
+			)
+			coin.CFrame = CFrame.new(position) * CFrame.Angles(0, 0, math.rad(90)) -- the round face up
+			coin.Parent = pile
+		end
+	end
+	pile.Parent = container()
+	return pile
+end
+
+-- Once a second: a coin pile on every nearby cafe with a rich tip showing and a rich customer on the way to it;
+-- piles go when the tip is paid or the cafe is out of range.
+local function updateRich()
+	local nearby: { [Model]: boolean } = {}
+	for _, plot in runningPlots() do
+		if not tipShows(plot) then
+			continue
+		end
+		nearby[plot] = true
+		local anchor = tipAnchor(plot)
+		if anchor ~= nil and not coinPiles[plot] then
+			coinPiles[plot] = buildCoinPile(anchor)
+		end
+		if not richVisits[plot] then
+			local seat, tableTop = richSeat(plot)
+			if seat ~= nil then
+				richVisits[plot] = true
+				task.spawn(function()
+					runCustomer(plot, seat, tableTop, {
+						asset = "CatCafe_NPC_Customer_Rich",
+						staysWhile = function()
+							local amount = plot:GetAttribute("RichTipAmount")
+							return type(amount) == "number" and amount > 0
+						end,
+					})
+					richVisits[plot] = nil
+				end)
+			end
+		end
+	end
+	for plot, pile in coinPiles do
+		if not nearby[plot] then
+			pile:Destroy()
+			coinPiles[plot] = nil
+		end
+	end
+end
+
 function CustomerController.start()
 	task.spawn(function()
 		clock = ReplicatedStorage:WaitForChild("Clock")
 	end)
 	task.spawn(function()
 		while true do
-			task.wait(Config.CustomerSpawnSeconds)
-			if not isDay() then
-				continue
-			end
+			task.wait(
+				if isDay() then Config.CustomerSpawnSeconds else Config.CustomerSpawnSecondsNight
+			)
 			-- one new customer per running cafe per tick, while seats and the street-wide cap allow (reviewer N59:
 			-- fewer on a phone)
 			local cap = if Effects.tier() == "low"
@@ -234,9 +357,15 @@ function CustomerController.start()
 				end
 				local seat, tableTop = freeSeat(plot)
 				if seat ~= nil then
-					task.spawn(runCustomer, plot, seat, tableTop)
+					task.spawn(runCustomer, plot, seat, tableTop, nil)
 				end
 			end
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			updateRich()
 		end
 	end)
 end

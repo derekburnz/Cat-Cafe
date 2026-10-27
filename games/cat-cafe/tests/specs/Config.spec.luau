@@ -84,6 +84,13 @@ return function()
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
 		DealerWindowSeconds = 600,
+		-- night income and rich customers (F31, sections 11 and 12)
+		NightIncomeMultiplier = 0.6,
+		CustomerSpawnSecondsNight = 12,
+		RichCheckSeconds = 60,
+		RichChance = 0.15,
+		RichTipSeconds = 45,
+		RichTipStaySeconds = 90,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -97,12 +104,6 @@ return function()
 		BumpSameTargetSeconds = { 60, "F29" },
 		DropOwnerPrioritySeconds = { 8, "F29" },
 		DroppedMinStaySeconds = { 120, "F29" },
-		NightIncomeMultiplier = { 0.6, "F31" },
-		CustomerSpawnSecondsNight = { 12, "F31" },
-		RichCheckSeconds = { 60, "F31" },
-		RichChance = { 0.15, "F31" },
-		RichTipSeconds = { 45, "F31" },
-		RichTipStaySeconds = { 90, "F31" },
 		CatNameMaxLength = { 20, "F33" },
 		RenameCooldownSeconds = { 5, "F33" },
 	}
@@ -143,6 +144,7 @@ return function()
 				ProfileKeyPrefix = true,
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
+				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

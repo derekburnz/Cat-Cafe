@@ -191,11 +191,33 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 end
 
 -- The nearest point to `position` on the area's floor, at least `margin` studs inside one of its rects, so a stray
--- that wanders or jumps back never leaves the area (or lands in a cafe yard beside the back alley).
-function WorldBuilder.clampToArea(info: AreaInfo, position: Vector3, margin: number): Vector3
+-- that wanders or jumps back never leaves the area (or lands in a cafe yard beside the back alley). With `from`,
+-- the point stays in the rect `from` stands in: a rect is convex, so the straight walk there never crosses a wall
+-- (reviewer N54: near the back alley and Square junction the nearest rect can lie across the Square's south wall).
+function WorldBuilder.clampToArea(
+	info: AreaInfo,
+	position: Vector3,
+	margin: number,
+	from: Vector3?
+): Vector3
+	local rects = info.rects
+	if from ~= nil then
+		local start = from :: Vector3
+		for _, rect in info.rects do
+			if
+				start.X >= rect.x1
+				and start.X <= rect.x2
+				and start.Z >= rect.z1
+				and start.Z <= rect.z2
+			then
+				rects = { rect }
+				break
+			end
+		end
+	end
 	local best = Vector3.new(position.X, info.floorY, position.Z)
 	local bestDistance = math.huge
-	for _, rect in info.rects do
+	for _, rect in rects do
 		local x =
 			math.clamp(position.X, rect.x1 + margin, math.max(rect.x1 + margin, rect.x2 - margin))
 		local z =

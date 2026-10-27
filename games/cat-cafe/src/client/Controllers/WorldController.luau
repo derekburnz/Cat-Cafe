@@ -1,9 +1,11 @@
 --!strict
 -- Client-side world touches: each area gate opens once the cafe reaches that area's tier, check-in fires itself at the
--- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, the ambience
--- follows the zone the player stands in, the roof of the cafe the player is inside fades out, and the sky and the
--- parts that glow at night follow the server's day and night clock (features F20). All cosmetic, all local.
+-- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray this
+-- player is out of paws on hides its prompt for them, the ambience follows the zone the player stands in, the roof of
+-- the cafe the player is inside fades out, and the sky and the parts that glow at night follow the server's day and
+-- night clock (features F20). All cosmetic, all local.
 
+local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -71,6 +73,20 @@ local function setRoofHidden(plot: Model, hidden: boolean)
 			end
 		end
 	end
+end
+
+-- v0.4 (data-model section 10 step 5): once this player has no paws left on a stray (its Paws_<UserId> attribute
+-- reaches 0) its prompt goes away for them only; everyone else still sees it.
+local function watchStray(model: Instance)
+	local attribute = "Paws_" .. player.UserId
+	local function refresh()
+		local prompt = model:FindFirstChild("GrabPrompt", true)
+		if prompt ~= nil and prompt:IsA("ProximityPrompt") then
+			(prompt :: ProximityPrompt).Enabled = model:GetAttribute(attribute) ~= 0
+		end
+	end
+	refresh()
+	model:GetAttributeChangedSignal(attribute):Connect(refresh)
 end
 
 -- The World.Zones box the player stands in ("Cafe", "Alley", "Park" and so on), or nil (WorldBuilder).
@@ -295,6 +311,11 @@ end
 
 function WorldController.start()
 	task.spawn(followClock)
+
+	for _, model in CollectionService:GetTagged("Stray") do
+		watchStray(model)
+	end
+	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 
 	-- Gates under World.Gates (WorldBuilder): solid below the gate's RequiresTier, see-through and passable at
 	-- or above it. Only this player's copy changes; the server checks the tier on every catch and rescue.

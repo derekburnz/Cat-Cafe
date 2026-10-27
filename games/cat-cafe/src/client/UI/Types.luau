@@ -16,7 +16,9 @@ export type SpotType = SharedTypes.SpotType -- v0.3: the same as Role; a role sl
 export type Role = SharedTypes.Role
 export type CatchMethod = SharedTypes.CatchMethod
 export type ClockPhase = "day" | "night" -- Clock folder attribute Phase (data-model section 9)
-export type PromptKind = "swing" | "rescue" -- the net (closing circles), or a stuck cat (the rescue hold)
+-- the net (closing circles), a stuck cat (the rescue hold), or a dropped cat anyone can pick up with the hold and no
+-- circles (v0.8 F56, v0.10 F67: its model or prompt has PickUp = true)
+export type PromptKind = "swing" | "rescue" | "pickup"
 export type CatDef = SharedTypes.CatDef
 export type UpgradeDef = SharedTypes.UpgradeDef
 export type DecorDef = SharedTypes.DecorDef
@@ -232,6 +234,9 @@ export type CatchInfo = {
 	-- stray's DropOwnerUntil while its DropOwner is someone else); nil when that is you or the cat was not dropped.
 	-- The card reads "Owner's turn" until then (reviewer N90).
 	ownerTurnUntil: number?,
+	-- v0.10 F67: the stray's Returning attribute, a dropped cat walking back to where it was caught; the card says
+	-- so, since at home it needs the circles again
+	returning: boolean?,
 }
 
 -- Net circles (F26, data-model section 10), from shared Types. Times are server time

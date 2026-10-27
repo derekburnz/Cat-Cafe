@@ -334,6 +334,77 @@ def announce() -> np.ndarray:
     return finish(mix(d, (bell(d, note("G5"), GLOCK) * 0.8, 0.0), (bell(d, note("D6"), GLOCK), 0.12)), -4)
 
 
+# --- the rest of the UI (sound list 5.8): soft, short and never louder than a click ----------------
+
+
+def swish(d: float, f0: float, f1: float, seed: int) -> np.ndarray:
+    """A soft paper swish whose brightness moves from f0 to f1, for panels opening and closing."""
+    centre = sweep(d, f0, f1)
+    air = bandpass(bandpass(noise(d, seed), centre, 1.2), centre, 1.2) * envelope(d, 0.004, d / 3)  # twice: soft, not hissy
+    tone = glide(d, f0 / 4, f1 / 4, d) * envelope(d, 0.002, d / 4) * 0.25
+    return air + tone
+
+
+def ui_open() -> np.ndarray:
+    return finish(swish(0.16, 900, 3200, 80), -8)
+
+
+def ui_close() -> np.ndarray:
+    return finish(swish(0.16, 3200, 900, 81), -8)
+
+
+def ui_toast() -> np.ndarray:
+    """A toast slides in: a small bubble pop with a light chime behind it."""
+    d = 0.3
+    pop = glide(d, 450, 950, 0.03) * envelope(d, 0.001, 0.02)
+    return finish(mix(d, (pop, 0.0), (bell(d, note("E6"), GLOCK) * 0.35, 0.03)), -7)
+
+
+def ui_tab() -> np.ndarray:
+    """A tab or filter chip: one dry tick."""
+    d = 0.045
+    tick = bandpass(bandpass(noise(d, 82), 3800, 3), 3800, 3) * envelope(d, 0.0003, 0.004)
+    return finish(tick + glide(d, 1900, 1700, d) * envelope(d, 0.0005, 0.006) * 0.4, -9)
+
+
+def ui_toggle() -> np.ndarray:
+    """A settings toggle: a little switch, press and release."""
+    d = 0.09
+
+    def tick(f: float) -> np.ndarray:
+        return bell(0.05, f, MARIMBA) + bandpass(noise(0.05, 83), 3500, 3) * envelope(0.05, 0.0003, 0.003) * 0.5
+
+    return finish(mix(d, (tick(1300), 0.0), (tick(1650) * 0.7, 0.035)), -8)
+
+
+def ui_hint() -> np.ndarray:
+    """A new tutorial prompt: one soft ding."""
+    return finish(bell(0.45, note("A5"), GLOCK), -8)
+
+
+def ui_rank_ready() -> np.ndarray:
+    """Every rank up requirement met: a bright chime rising up the scale."""
+    d = 0.75
+    notes = [(note(n), 0.07 * i) for i, n in enumerate(("C6", "E6", "G6", "C7"))]
+    return finish(mix(d, *[(bell(d - at, f, GLOCK), at) for f, at in notes]), -5)
+
+
+def ui_dealer_open() -> np.ndarray:
+    """The dealer's screen: a little music-box run, a bit mysterious (minor, rising then turning back)."""
+    d = 0.75
+    box = ((1.0, 1.0, 0.3), (3.0, 0.2, 0.08), (5.95, 0.08, 0.04))
+    run = ("A5", "C6", "E6", "G6", "E6")
+    return finish(mix(d, *[(bell(0.4, note(n), box) * (0.8 if i < 4 else 0.6), 0.065 * i) for i, n in enumerate(run)]), -6)
+
+
+def ui_rename() -> np.ndarray:
+    """A cat's new name is saved: a quick pencil scribble and a ding."""
+    d = 0.5
+    strokes = 0.5 + 0.5 * np.sin(2 * np.pi * 22 * seconds(0.2)) ** 2
+    pencil = bandpass(bandpass(noise(0.2, 84), 2600, 2), 2600, 2) * strokes * envelope(0.2, 0.004, 0.08)
+    return finish(mix(d, (pencil * 0.6, 0.0), (bell(0.3, note("D6"), GLOCK), 0.19)), -7)
+
+
 def purr_loop(length: float, seed: int, rate: float) -> np.ndarray:
     """A cat's purr over exactly `length` seconds so it loops: rumbling pulses on every breath in and out."""
     n = int(length * SR)
@@ -385,6 +456,15 @@ SOUNDS = {
     "Announce": ("sfx", "Sfx", announce),
     "Purr": ("sfx", "Sfx", purr),
     "CarryPurr": ("sfx", "Sfx", carry_purr),
+    "Open": ("ui", "Ui", ui_open),
+    "Close": ("ui", "Ui", ui_close),
+    "Toast": ("ui", "Ui", ui_toast),
+    "Tab": ("ui", "Ui", ui_tab),
+    "Toggle": ("ui", "Ui", ui_toggle),
+    "Hint": ("ui", "Ui", ui_hint),
+    "RankReady": ("ui", "Ui", ui_rank_ready),
+    "DealerOpen": ("ui", "Ui", ui_dealer_open),
+    "Rename": ("ui", "Ui", ui_rename),
 }
 
 

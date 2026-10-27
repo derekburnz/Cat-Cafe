@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-32 files: 32 PASS, 0 WARN, 0 FAIL.
+41 files: 41 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -37,4 +37,13 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_SignFlip.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -6.0 | 1 | - | PASS |  |
 | `sfx/CatCafe_Sfx_StrayFlee.ogg` | sfx | 0.55 | 1 | 48000 | 9 | -20.1 | -3.2 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Click.ogg` | ui | 0.07 | 1 | 48000 | 4 | - | -5.7 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Close.ogg` | ui | 0.16 | 1 | 48000 | 5 | - | -8.8 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_DealerOpen.ogg` | ui | 0.75 | 1 | 48000 | 10 | -17.1 | -5.8 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Error.ogg` | ui | 0.26 | 1 | 48000 | 5 | - | -6.0 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Hint.ogg` | ui | 0.45 | 1 | 48000 | 6 | -18.5 | -7.8 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Open.ogg` | ui | 0.16 | 1 | 48000 | 6 | - | -7.8 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_RankReady.ogg` | ui | 0.75 | 1 | 48000 | 9 | -15.7 | -4.7 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Rename.ogg` | ui | 0.50 | 1 | 48000 | 8 | -17.6 | -7.3 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Tab.ogg` | ui | 0.04 | 1 | 48000 | 4 | - | -9.1 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Toast.ogg` | ui | 0.30 | 1 | 48000 | 5 | - | -6.9 | 0 | - | PASS |  |
+| `ui/CatCafe_Ui_Toggle.ogg` | ui | 0.09 | 1 | 48000 | 5 | - | -8.0 | 0 | - | PASS |  |

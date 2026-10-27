@@ -53,3 +53,12 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `announce` | `sfx/CatCafe_Sfx_Announce.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 140320161816899 | 2026-10-26 |
 | `purr` | `sfx/CatCafe_Sfx_Purr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 134709393284855 | 2026-10-26 |
 | `carryPurr` | `sfx/CatCafe_Sfx_CarryPurr.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | 73628889177188 | 2026-10-26 |
+| `uiOpen` | `ui/CatCafe_Ui_Open.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiClose` | `ui/CatCafe_Ui_Close.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiToast` | `ui/CatCafe_Ui_Toast.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiTab` | `ui/CatCafe_Ui_Tab.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiToggle` | `ui/CatCafe_Ui_Toggle.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiHint` | `ui/CatCafe_Ui_Hint.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiRankReady` | `ui/CatCafe_Ui_RankReady.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiDealerOpen` | `ui/CatCafe_Ui_DealerOpen.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |
+| `uiRename` | `ui/CatCafe_Ui_Rename.ogg` | synthesized by `synth/synth.py` | original (Purr Pot) | sound-designer | this repo | not yet | 2026-10-27 |

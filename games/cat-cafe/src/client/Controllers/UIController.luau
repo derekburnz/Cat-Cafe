@@ -299,6 +299,16 @@ local function refreshRichTip()
 	end)
 end
 
+-- The Settings switches the server saves (data-model section 14); Place icons ("markers") stays on the client.
+local SAVED_SETTINGS = { music = true, sfx = true }
+local audioStarted = false -- Audio waits for the first ProfileSync, so a muted player never hears music start
+
+-- Mutes or restores the Audio channels from the switches as shown: a tap at once, then the server's saved value,
+-- and back to it if the server dropped the tap (ui-contract Settings, review N111).
+local function applySettings()
+	Audio.applySettings({ music = UI.settings.value("music"), sfx = UI.settings.value("sfx") })
+end
+
 local function applyState(s: Types.PlayerState)
 	local previous = state
 	if previous ~= nil and boughtSomething(previous, s) then
@@ -325,9 +335,14 @@ local function applyState(s: Types.PlayerState)
 		goldCollection = s.goldCollection,
 		carrying = s.carrying,
 		tutorialStep = s.tutorialStep,
+		settings = s.settings :: any, -- the UI reads it as a map of switches
 	})
-	-- Music and sound toggles arrive only in ProfileSync; the purr follows the server's carry state.
-	Audio.applySettings(s.settings)
+	-- After the first sync, music and sound follow the Settings switches rather than each sync; the purr follows the
+	-- server's carry state.
+	if not audioStarted then
+		audioStarted = true
+		applySettings()
+	end
 	Audio.setCarrying(s.carrying ~= nil)
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
@@ -347,6 +362,16 @@ local function applyState(s: Types.PlayerState)
 end
 
 local function wireIntents()
+	UI.events.setSetting:Connect(function(key: string, value: boolean)
+		if SAVED_SETTINGS[key] then
+			Net.fire("SetSetting", key, value)
+		end
+	end)
+	UI.settings.changed:Connect(function(key: string)
+		if audioStarted and SAVED_SETTINGS[key] then
+			applySettings()
+		end
+	end)
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
 	end)

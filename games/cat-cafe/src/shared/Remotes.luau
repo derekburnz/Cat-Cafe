@@ -36,6 +36,7 @@ Remotes.ClientToServer = {
 	-- and target immunity (data-model section 10c, shared/Shove)
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
+	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 }
 
 -- Server -> client.

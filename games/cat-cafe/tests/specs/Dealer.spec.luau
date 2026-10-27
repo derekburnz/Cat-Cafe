@@ -1,6 +1,6 @@
 --!strict
--- Dealer.luau against data-model section 8b: the night dealer's per-player stock, the same on every server for the
--- same UserId, window and tier, drawn from the tier's DealerSlotWeights, with bought marks cleared only when the
+-- Dealer.luau against data-model section 8b: the night dealer's stock, shared by every player on every server in
+-- the same window since v0.5 F43, drawn from the one DealerSlotWeights row, with bought marks cleared only when the
 -- window moves forward (reviewer N32).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -19,9 +19,9 @@ return function()
 	end)
 
 	describe("stock", function()
-		it("is the same for the same player, window and tier, with three dealer foods", function()
-			local first = Dealer.stock(123456, 2900000, 3)
-			local again = Dealer.stock(123456, 2900000, 3)
+		it("is the same three dealer foods for everyone in a window (F43)", function()
+			local first = Dealer.stock(2900000)
+			local again = Dealer.stock(2900000)
 			expect(#first).to.equal(Dealer.SLOTS)
 			for slot = 1, Dealer.SLOTS do
 				expect(first[slot]).to.equal(again[slot])
@@ -31,37 +31,35 @@ return function()
 			end
 		end)
 
-		it("works for Studio's negative test UserIds", function()
-			expect(#Dealer.stock(-1, 2900000, 1)).to.equal(Dealer.SLOTS)
-		end)
-
-		it("never offers a food the tier gives no weight (Star Treat at Tier 1)", function()
-			for userId = 1, 300 do
-				for _, lureId in Dealer.stock(userId, 2900000, 1) do
-					expect(lureId ~= "star_treat").to.equal(true)
-				end
-			end
-		end)
-
-		it("follows the tier's weights over many players and windows", function()
-			for tier, weights in Catalog.dealerSlotWeights do
-				local counts: { [string]: number } = {}
-				local total = 0
-				for userId = 1, 400 do
-					for window = 1, 5 do
-						for _, lureId in Dealer.stock(userId * 7919, 2900000 + window, tier) do
-							counts[lureId] = (counts[lureId] or 0) + 1
-							total += 1
-						end
+		it("changes from window to window", function()
+			local differs = 0
+			for window = 2900000, 2900019 do
+				local a, b = Dealer.stock(window), Dealer.stock(window + 1)
+				for slot = 1, Dealer.SLOTS do
+					if a[slot] ~= b[slot] then
+						differs += 1
 					end
 				end
-				local weightTotal = 0
-				for _, weight in weights do
-					weightTotal += weight
+			end
+			expect(differs > 20).to.equal(true)
+		end)
+
+		it("follows DealerSlotWeights over many windows", function()
+			local weights = Catalog.dealerSlotWeights
+			local counts: { [string]: number } = {}
+			local total = 0
+			for window = 1, 4000 do
+				for _, lureId in Dealer.stock(2900000 + window * 7) do
+					counts[lureId] = (counts[lureId] or 0) + 1
+					total += 1
 				end
-				for lureId, weight in weights do
-					expect((counts[lureId] or 0) / total).to.be.near(weight / weightTotal, 0.03)
-				end
+			end
+			local weightTotal = 0
+			for _, weight in weights do
+				weightTotal += weight
+			end
+			for lureId, weight in weights do
+				expect((counts[lureId] or 0) / total).to.be.near(weight / weightTotal, 0.03)
 			end
 		end)
 

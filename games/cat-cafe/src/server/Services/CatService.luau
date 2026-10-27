@@ -48,6 +48,7 @@ type Stray = {
 	landsAt: number, -- server time a jump back ends; nobody starts a catch before it (GrabRetrySeconds)
 	jumping: boolean,
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
+	variant: string, -- "shiny" (ShinyChanceNet, rolled at spawn and shown as a sparkle) or "base"
 	alive: boolean,
 }
 
@@ -195,8 +196,12 @@ local function spawnStray(
 	areaId: string,
 	position: Vector3,
 	pointIndex: number?,
-	lifetime: number? -- nil: stays until the next night start clears it
+	lifetime: number?, -- nil: stays until the next night start clears it
+	forceShiny: boolean? -- Studio's debug hook
 ): Stray
+	local variant = if forceShiny == true or rng:NextNumber() < Config.ShinyChanceNet
+		then "shiny"
+		else "base"
 	nextStrayNumber += 1
 	local id = string.format("stray_%d_%d", os.time() % 100000, nextStrayNumber)
 	local model = AssetRegistry.clone(Catalog.catModelName(def.id))
@@ -211,6 +216,8 @@ local function spawnStray(
 	model:SetAttribute("SpawnedAt", os.time())
 	-- Paws each player starts with; a player's own count is Paws_<UserId> once they have missed (v0.4).
 	model:SetAttribute("Patience", Catching.patience(def.rarity))
+	-- A net stray's shiny is no secret (data-model section 4): the sparkle and the catch header show it.
+	model:SetAttribute("Shiny", variant == "shiny")
 	CollectionService:AddTag(model, "Stray")
 
 	local prompt = Instance.new("ProximityPrompt")
@@ -226,6 +233,7 @@ local function spawnStray(
 	prompt:SetAttribute("CatName", def.name)
 	prompt:SetAttribute("Rarity", def.rarity)
 	prompt:SetAttribute("StrayId", id)
+	prompt:SetAttribute("Shiny", variant == "shiny")
 	prompt.Parent = body
 
 	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
@@ -250,6 +258,7 @@ local function spawnStray(
 		landsAt = 0,
 		jumping = false,
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
+		variant = variant,
 		alive = true,
 	}
 	strays[id] = stray
@@ -644,10 +653,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			gain
 		)
 		profile.stats.grabsSucceeded += 1
-		local def = stray.def
+		local def, variant = stray.def, stray.variant
 		local charm = math.min(100, stray.charm + gain)
 		despawn(stray)
-		startCarry(player, def, "net", charm)
+		startCarry(player, def, "net", charm, variant)
 		return
 	end
 
@@ -828,16 +837,10 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 	)
 	if notify then
 		Net.fire(player, "CatCaught", def.id, isNew)
-		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
-			Net.fireAll(
-				"Announce",
-				string.format(
-					"%s caught %s!",
-					player.DisplayName,
-					withArticle(def.rarity .. " " .. def.name)
-				),
-				def.rarity -- the shout-out chime rises with rarity
-			)
+		local verb = if carry.method == "rescue" then "rescued" else "caught"
+		local text = Catching.shoutOut(player.DisplayName, verb, def, carry.variant)
+		if text ~= nil then
+			Net.fireAll("Announce", text, def.rarity) -- the shout-out chime rises with rarity
 		end
 	end
 end
@@ -975,8 +978,9 @@ function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
 end
 
--- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken).
-function CatService.debugSpawnStray(catId: string, areaId: string): string
+-- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken),
+-- shiny when `shiny` is true and rolled as usual otherwise.
+function CatService.debugSpawnStray(catId: string, areaId: string, shiny: boolean?): string
 	assert(RunService:IsStudio(), "debugSpawnStray is Studio only")
 	local def = Catalog.getCat(catId)
 	local areaDef = Catalog.getArea(areaId)
@@ -989,7 +993,8 @@ function CatService.debugSpawnStray(catId: string, areaId: string): string
 		areaId,
 		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
 		pointIndex,
-		Config.StrayDespawnSeconds
+		Config.StrayDespawnSeconds,
+		shiny
 	)
 	return stray.id
 end

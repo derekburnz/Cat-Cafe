@@ -67,6 +67,7 @@ local Config = {
 	BaitBowlRangeStuds = 12, -- UseLure from this close to your own bowl
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	ShinyChanceBait = 0.02, -- rolled when the food goes in, revealed when the cat arrives
+	ShinyChanceNet = 0.02, -- rolled when a stray spawns and shown as its sparkle
 	-- The chance of 1 to 5 charm stars from CatStats.rollCharm and CatStats.stars, in percent, shown on every food
 	-- card: 2s^2 and 1 - 2(1 - s)^2 at the band edges 20, 40, 60 and 80 out of 101 (reviewer N70).
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },

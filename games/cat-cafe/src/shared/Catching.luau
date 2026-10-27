@@ -3,6 +3,7 @@
 -- Circles. Callers pass random rolls in so tests are deterministic.
 
 local Catalog = require(script.Parent.Catalog)
+local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
 local Catching = {}
@@ -116,6 +117,25 @@ end
 
 function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 	return (Catalog.rarityRank[rarity] or 0) >= (Catalog.rarityRank[minimum] or 99)
+end
+
+-- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Epic) and up, and
+-- every shiny (data-model section 15). "Sam caught a shiny Rare Tabby!", "Sam rescued an Epic Maine Coon!";
+-- `where` adds a place before the "!" (" at their bait bowl").
+function Catching.shoutOut(
+	playerName: string,
+	verb: string,
+	def: Types.CatDef,
+	variant: string?,
+	where: string?
+): string?
+	local shiny = variant == "shiny"
+	if not shiny and not Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
+		return nil
+	end
+	local phrase = (if shiny then "shiny " else "") .. def.rarity .. " " .. def.name
+	local article = if phrase:match("^[AEIOUaeiou]") then "an " else "a "
+	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
 end
 
 function Catching.percentText(chance: number): string

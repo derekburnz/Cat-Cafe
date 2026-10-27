@@ -16,7 +16,8 @@ SIT_POINTS = {
     "CatCafe_Furniture_CatTree": (0.5, -0.4, 4.45),
     "CatCafe_Furniture_WindowSeat": (0, -0.1, 1.6),
     "CatCafe_Furniture_PatioBench": (0, -0.1, 1.37),
-    "CatCafe_Furniture_Counter": (2.0, 0.0, 3.0),
+    "CatCafe_Furniture_Counter": (0.2, 0.45, 3.0),          # behind the tip jar and napkins; the left end is the
+                                                            # espresso machine's, the right end the pastry case's
     "CatCafe_Furniture_GreeterPodium": (1.6, 0.0, 0.24),     # role stations: the cat stands upright here
     "CatCafe_Furniture_StageCatTree": (0.0, -0.3, 0.44),
 }
@@ -55,8 +56,8 @@ def build_counter(mat):
     b.cyl_base((-0.2, -0.6, 3.0), 0.2, 0.5, "glass", segments=10)
     b.cyl_base((-0.2, -0.6, 3.0), 0.18, 0.15, "rarity_legend", segments=10, bevel=False)
     b.box_base((0.6, -0.6, 3.0), (0.4, 0.4, 0.15), "offwhite")
-    # cat sit pad on the free left end of the counter top
-    _sit_pad(b, (-3.0, 0.0, 3.0), "blush", 0.6)
+    # the barista cat's pad, between the till and the pastry case
+    _sit_pad(b, SIT_POINTS["CatCafe_Furniture_Counter"], "blush", 0.55)
     return [b.finalize("CatCafe_Furniture_Counter", mat)]
 
 

@@ -12,8 +12,7 @@
 #   - CI failed: check.yml's last job never starts, so the label stays on until a push goes green.
 # After a merge it starts check.yml on main (the merge push started none) and, with AUTO_PUBLISH=true, publish.yml.
 #
-# Usage: automerge.sh [pr-number]   (no number: the open PR whose branch is GITHUB_REF_NAME; automerge.yml still
-# passes a --wait that is ignored now)
+# Usage: automerge.sh [pr-number]   (no number: the open PR whose branch is GITHUB_REF_NAME)
 # Needs GH_TOKEN and GITHUB_REPOSITORY, and in check.yml GITHUB_WORKFLOW, GITHUB_EVENT_NAME, GITHUB_EVENT_PATH and
 # GITHUB_SHA (all set in Actions).
 set -euo pipefail

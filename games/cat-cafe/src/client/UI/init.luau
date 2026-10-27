@@ -40,7 +40,6 @@ local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
 local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
-local SlotLabels = require(script.Screens.SlotLabels)
 local Sound = require(script.Components.Sound)
 local Theme = require(script.Theme)
 local Toasts = require(script.Screens.Toasts)
@@ -119,7 +118,6 @@ local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
 local shoveButton: ShoveButton.ShoveButton? = nil -- v0.5 Shove inside catching areas (UI.shove)
-local slotLabels: SlotLabels.SlotLabels? = nil -- hides the server's LockLabel text (role slots: Upgrades > Staff)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
@@ -510,8 +508,6 @@ function UI.init(config: Types.InitConfig)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
 	worldTags = WorldTags.new()
-	-- the role slots live in Upgrades > Staff; this only hides the server's LockLabel text until it is removed
-	slotLabels = SlotLabels.new()
 
 	setCatalog(config.catalog)
 
@@ -638,9 +634,6 @@ function UI.destroy()
 	if richTipScreen then
 		richTipScreen:destroy()
 	end
-	if slotLabels then
-		slotLabels:destroy()
-	end
 	if shoveButton then
 		shoveButton:destroy()
 	end
@@ -663,7 +656,7 @@ function UI.destroy()
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags, actionPills, richTipScreen, slotLabels = nil, nil, nil, nil, nil
+	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
 	shoveButton = nil
 	Scale.stop()
 	Sound.set(nil)
@@ -1176,12 +1169,10 @@ end
 -- shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It got
 -- away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the player
 -- is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
--- The v0.4 paws argument is ignored; it stays so the controller's call (which passes nil) type checks.
 function UI.catch.showCircles(
 	strayId: string,
 	circleList: { Types.CatchCircle },
-	windows: Types.CatchWindows,
-	_retiredPaws: number?
+	windows: Types.CatchWindows
 )
 	local screen = circles
 	if not screen then
@@ -1248,13 +1239,11 @@ local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
 	end)
 end
 
--- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. The v0.4 paws argument
--- is ignored (see showCircles).
+-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss.
 function UI.catch.showGrades(
 	strayId: string,
 	grades: { Types.CircleGrade },
 	success: boolean,
-	_retiredPaws: number?,
 	charmGain: number?
 )
 	finishCatch(strayId, {

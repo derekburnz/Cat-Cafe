@@ -460,7 +460,7 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 		local charm = if success then perfects * 4 * (if perfects == #schedule then 2 else 1) else 0
-		UI.catch.showGrades(strayId, grades, success, nil, charm)
+		UI.catch.showGrades(strayId, grades, success, charm)
 		task.wait(1.8)
 		UI.catch.hide()
 		if success then

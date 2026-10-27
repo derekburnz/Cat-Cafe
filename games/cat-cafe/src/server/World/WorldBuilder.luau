@@ -702,6 +702,101 @@ local function buildArch(
 	arch.Parent = parent
 end
 
+-- Safe zone markings (Derek 2026-10-27: the catching alleys are sectioned off from the cafes, and the cafe side is
+-- safe). A shove only lands inside a catching area (Shove.refusal), so the line is the edge of an area's floor
+-- where the cafe district meets it: a red stripe on the area side, and SAFE ZONE painted on the cafe side.
+local SAFE_RED = Color3.fromRGB(226, 72, 72)
+local SAFE_WORDS = Color3.fromRGB(255, 255, 255)
+local SAFE_OUTLINE = Color3.fromRGB(120, 40, 40)
+
+local function flatMark(name: string, size: Vector3, cframe: CFrame, parent: Instance): Part
+	local mark = part(name, size, cframe, SAFE_RED, Enum.Material.SmoothPlastic, parent)
+	mark.CanCollide = false
+	mark.CanQuery = false
+	mark.CanTouch = false
+	mark.CastShadow = false
+	return mark
+end
+
+local function safeStripe(from: Vector3, to: Vector3, parent: Instance)
+	local length = (to - from).Magnitude
+	local mid = (from + to) / 2
+	flatMark("SafeLine", Vector3.new(0.5, 0.05, length), CFrame.lookAt(mid, to), parent)
+end
+
+-- SAFE ZONE in paint, `width` studs wide, at `at` (its top surface) and reading the right way up for a player
+-- walking along `walking` into the safe zone. A SurfaceGui on a part's Top face reads up toward the part's +Z, so
+-- the plate's +Z points along `walking`.
+local function safeWords(at: Vector3, walking: Vector3, width: number, parent: Instance)
+	local flat = Vector3.new(walking.X, 0, walking.Z).Unit
+	local centre = at - Vector3.new(0, 0.025, 0)
+	local plate = flatMark(
+		"SafeZoneWords",
+		Vector3.new(width, 0.05, width * 0.2),
+		CFrame.lookAt(centre, centre - flat),
+		parent
+	)
+	plate.Transparency = 1
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Top
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 40
+	gui.LightInfluence = 0
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.fromScale(1, 1)
+	text.BackgroundTransparency = 1
+	text.Font = Enum.Font.FredokaOne
+	text.TextScaled = true
+	text.TextColor3 = SAFE_WORDS
+	text.TextStrokeColor3 = SAFE_OUTLINE
+	text.TextStrokeTransparency = 0
+	text.Text = "SAFE ZONE"
+	text.Parent = gui
+	gui.Parent = plate
+end
+
+-- Every way from the cafe district into a catching area: the back alleys' inner edges (yard gates and the side
+-- passages between cafes), the street's arch into the Alley Square, and the Park gate at the street's south end.
+local function buildSafeZoneMarks(parent: Instance)
+	local marks = folder("SafeZone", parent)
+	local alleyTop = Layout.alley.floorY + 0.03
+	local streetTop = 0.13 -- the street's surface is at 0.1
+	local groundTop = 0.03 -- grass in the side passages
+	for _, side in { -1, 1 } do
+		local x = side * (W.AlleyInnerX + 0.3)
+		safeStripe(
+			Vector3.new(x, alleyTop, W.AlleySouthZ),
+			Vector3.new(x, alleyTop, W.SquareSouthZ - 1),
+			marks
+		)
+		-- the side passages between neighbouring cafes, at their alley end
+		local rows = math.ceil(W.PlotCount / 2)
+		for row = 1, rows - 1 do
+			local z = (row - rows / 2) * (W.PlotWidth + W.PlotRowGap)
+			safeWords(
+				Vector3.new(side * (W.AlleyInnerX - 2.5), groundTop, z),
+				Vector3.new(-side, 0, 0),
+				W.PlotRowGap - 3, -- inside the gap between two yard fences
+				marks
+			)
+		end
+	end
+	local street = W.StreetHalfWidth + 2
+	safeStripe(
+		Vector3.new(-street, alleyTop, W.SquareSouthZ + 0.3),
+		Vector3.new(street, alleyTop, W.SquareSouthZ + 0.3),
+		marks
+	)
+	safeWords(Vector3.new(0, streetTop, W.SquareSouthZ - 4), Vector3.new(0, 0, -1), 12, marks)
+	local parkHalf = W.StreetHalfWidth -- the Park gate is as wide as the street it closes (24 studs)
+	safeStripe(
+		Vector3.new(-parkHalf, streetTop, W.ParkGateZ + 0.6),
+		Vector3.new(parkHalf, streetTop, W.ParkGateZ + 0.6),
+		marks
+	)
+	safeWords(Vector3.new(0, streetTop, W.ParkGateZ + 4), Vector3.new(0, 0, 1), 12, marks)
+end
+
 local function buildArea(
 	id: string,
 	spec: Layout.AreaSpec,
@@ -1034,6 +1129,7 @@ function WorldBuilder.build(): World
 		end
 	end
 	local manhole = buildManhole(gatesFolder)
+	buildSafeZoneMarks(root)
 
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "PlayerSpawn"

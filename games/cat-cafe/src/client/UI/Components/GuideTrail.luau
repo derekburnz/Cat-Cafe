@@ -1,8 +1,9 @@
 --!strict
 -- A glowing dotted path on the ground from the player to a target (Pet Simulator 99's tutorial path, world-and-feel
 -- section 6 P1). The dots follow a walkable route, so the trail bends out through the back door instead of cutting
--- through walls, and a comet of light runs along them toward the target. The trail hides near the target and while
--- there is no character. With reduced motion the dots stay lit without the comet.
+-- through walls, and a comet of light runs along them toward the target. The trail hides near the target, while
+-- there is no character and while no walkable route is found. With reduced motion the dots stay lit without the
+-- comet.
 --
 -- Roblox terms: PathfindingService works out a walkable route around walls as a list of waypoints on the floor.
 -- The dots are parts made by this client only, so other players never see your trail and the server never hears
@@ -30,6 +31,7 @@ local START_GAP = 3 -- the first dot sits this far ahead of the player
 local ARRIVED = 10 -- studs from the target where the trail hides
 local REPATH_MOVE = 5 -- studs the player moves before the route is worked out again
 local REPATH_SECONDS = 0.75 -- and no more often than this
+local RETRY_SECONDS = 2 -- after a failed route, standing still or not
 local FRAME = 1 / 30 -- the comet moves at 30 Hz
 local WAVE_DOTS = 7 -- one comet every this many dots
 local WAVE_SPEED = 12 -- dots per second
@@ -153,7 +155,7 @@ function GuideTrail._repath(self: any, start: Vector3, finish: Vector3)
 	self._lastPathAt = os.clock()
 	local generation = self._generation
 	task.spawn(function()
-		local route: { Vector3 } = { start, finish }
+		local route: { Vector3 }? = nil
 		local path = PathfindingService:CreatePath({
 			AgentRadius = 1.5,
 			AgentHeight = 5,
@@ -165,16 +167,26 @@ function GuideTrail._repath(self: any, start: Vector3, finish: Vector3)
 		if ok and path.Status == Enum.PathStatus.Success then
 			local waypoints = path:GetWaypoints()
 			if #waypoints >= 2 then
-				route = {}
+				local points: { Vector3 } = {}
 				for _, waypoint in waypoints do
-					table.insert(route, waypoint.Position)
+					table.insert(points, waypoint.Position)
 				end
+				route = points
 			end
 		end
 		self._computing = false
 		-- a hide or a new target while the route was worked out wins
-		if generation == self._generation then
+		if generation ~= self._generation then
+			return
+		end
+		if route then
 			self:_lay(route)
+		else
+			-- no route yet (the far end may not have streamed in): a straight line would cut through the cafe's
+			-- walls, so lay nothing, let the marker point the way and try again shortly (reviewer N67)
+			self:_lay({})
+			self._lastStart = nil
+			self._lastPathAt = os.clock() + RETRY_SECONDS - REPATH_SECONDS
 		end
 	end)
 end

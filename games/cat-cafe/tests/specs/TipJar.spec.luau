@@ -88,4 +88,25 @@ return function()
 			expect(TipJar.step(13)).never.to.be.ok()
 		end)
 	end)
+
+	describe("TipJar edges (QA)", function()
+		-- TipJarService credits TipJar.coins straight into the save, so a NaN or a fraction here would stay in the
+		-- player's coins for good.
+		it("pays whole coins at or over the floor at any day rate, rising with the rate", function()
+			for _, def in Catalog.tipJar do
+				if def.kind == "coins" then
+					local floor = def.minCoins :: number
+					for _, rate in { 0 / 0, -math.huge, -1, 0 } do
+						expect(TipJar.coins(def, rate)).to.equal(floor)
+					end
+					local last = floor
+					for step = 0, 400 do
+						local paid = TipJar.coins(def, step * 0.37)
+						expect(paid == math.floor(paid) and paid >= last).to.equal(true)
+						last = paid
+					end
+				end
+			end
+		end)
+	end)
 end

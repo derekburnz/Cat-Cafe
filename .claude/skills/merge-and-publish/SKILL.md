@@ -31,7 +31,7 @@ Merge by hand instead (MCP `merge_pull_request`) when the PR changes `.github/wo
 - Start it: GitHub MCP `actions_run_trigger` with `method: "run_workflow"`, `workflow_id: "publish.yml"`, `ref: "main"`, `inputs: {"version_type": "Published"}` (or `"Saved"` to add a version without going live). Derek can press Run workflow on the Actions tab.
 - Publishing makes a new version live for players, so start it only when Derek asked for a publish (or he turned on `AUTO_PUBLISH`). Tell him the version number from the run summary.
 - It needs the repo secret `ROBLOX_PUBLISH_KEY` (docs/setup-guide.md step 15). A missing secret fails the first step with that message; a 401 or 403 means the key lacks a permission or its IP list blocks GitHub.
-- The smoke test is report only (`continue-on-error`) until it has passed once on Roblox. After that first green run, remove `continue-on-error` from the step so a broken build never goes live.
+- A failing smoke test stops the run before the live publish (the Saved version it tested stays in the place history and never goes live). It first passed on Roblox on 2026-10-27; its log line reads `[CatCafe] engine smoke ok ...` with module, plot and placeholder counts.
 - Running servers keep their old version; new servers start on the new one. Roll back from Creator Dashboard > the place > Version History.
 - Open Cloud cannot update unions, SurfaceAppearance, EditableMesh, EditableImage or layered clothing; the place has none today (Parts, WedgeParts, SpecialMeshes). If assets start using them, publish those changes from Studio.
 

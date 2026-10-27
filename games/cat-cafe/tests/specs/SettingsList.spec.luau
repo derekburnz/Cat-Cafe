@@ -5,6 +5,9 @@ return function()
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Components = Client:WaitForChild("UI"):WaitForChild("Components")
 	local SettingsList = require(Components:WaitForChild("SettingsList")) :: any
+	local ProfileSchema = require(
+		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("ProfileSchema")
+	)
 
 	describe("SettingsList", function()
 		it("lists music, sound and place icons with unique keys", function()
@@ -50,6 +53,27 @@ return function()
 
 		it("follows the saved value with no tap", function()
 			expect(SettingsList.shown({ sfx = false }, {}, "sfx", 0)).to.equal(false)
+		end)
+	end)
+
+	describe("SettingsList edges (QA)", function()
+		-- The server saves what the profile template holds (SetSetting takes the same keys, engineer PR #202).
+		-- Place icons is session-only (PR #207, test plan S33); when the server starts saving it, update S33 and
+		-- this list together.
+		it("has an ON switch per saved setting; only Place icons is session-only", function()
+			local saved = ProfileSchema.template(0).settings :: any
+			for key, value in saved do
+				expect(SettingsList.isKey(key)).to.equal(true)
+				expect(value).to.equal(true)
+				expect(SettingsList.shown(nil, {}, key, 0)).to.equal(value)
+			end
+			local unsaved: { string } = {}
+			for _, row in SettingsList.ROWS do
+				if saved[row.key] == nil then
+					table.insert(unsaved, row.key)
+				end
+			end
+			expect(unsaved).to.deepEqual({ "markers" })
 		end)
 	end)
 end

@@ -36,6 +36,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	Bump = RateLimiter.new(2, 1), -- a flood guard; ShoveService answers BumpCooldownSeconds with a reason
 	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
 	TelemetryReport = RateLimiter.new(10, 60), -- data-model section 15: 10 a minute
+	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

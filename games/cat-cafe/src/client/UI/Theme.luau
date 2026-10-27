@@ -92,6 +92,13 @@ Theme.button = {
 	},
 } :: { [string]: { top: Color3, bottom: Color3, depth: Color3 } }
 
+-- Golden fish (F52, golden-fish.md section 1): the rare currency's coin (Components/FishCoin) and its counter text.
+Theme.fish = {
+	coin = Color3.fromHex("FFB627"),
+	rim = Color3.fromHex("FFE08A"),
+	text = Color3.fromHex("FFD966"),
+}
+
 -- Uploaded images. Empty until the image is on Roblox; whatever uses one draws without it until then.
 Theme.textures = {
 	-- the faint L-shaped tile mark repeated over button faces (assets/cat-cafe/ui/textures/UI_ButtonTiles.png)
@@ -204,7 +211,7 @@ Theme.icons = {
 	settings = "⚙️",
 	gifts = "🎁",
 	spin = "🎡",
-	goldenFish = "🐟", -- on a gold tile until the cat-face coin (F52) is in Assets
+	goldenFish = "🐟", -- in text only; tiles and the HUD draw the cat-face coin (Components/FishCoin)
 	crate = "📦",
 	tag = "🏷️",
 }

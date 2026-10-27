@@ -133,7 +133,8 @@ Derek's rule: things you visit now and then become places you walk to, and the H
 | Daily Treat calendar (later, common-features 11) | A treat stand next to the wheel | Once a day, like the wheel |
 | Night food dealer | Already a world cart; it parks in the same plaza at night | Every reward and shop stop is in one spot |
 | Mail (later) | A mailbox on each cafe's front path; the flag goes up when mail waits | Your mail comes to your cafe |
-| Codes | Stay in Settings, where players look for them; the prize goes to the mailbox | |
+| Codes (F65) | The Codes Cat station in the street plaza (Derek, 2026-10-27 19:33: "go up to the codes cat in the cafe area and it will pop up a box to enter codes"); the prize pays at once | Derek's ask; was Settings and the mailbox |
+| Golden Fish Market (F53) | A fishmonger stall in the plaza beside the wheel ([golden-fish.md](golden-fish.md) section 3) | Crates and fish items are a shop worth walking to |
 | Index | Stays a HUD button, because players check it everywhere, even mid-chase. Each area also gets an Index Board at its entry (F50) | |
 | Tip Jar | Stays on the HUD, because the countdown is the point | |
 | Bait bowl | Already in the world on the back step | |

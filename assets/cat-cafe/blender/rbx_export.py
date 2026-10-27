@@ -53,16 +53,19 @@ ROUND = 4
 
 # Names the game looks up. The round table's biggest part is its Top (CustomerController turns a seated customer
 # toward it).
-# An object ending in _SignBoard keeps its child Model but its part is named SignBoard (found with a recursive
-# FindFirstChild); a one-part object ending in _Bars goes straight into the root as a ForceField part named Bars,
-# because the gate code looks for a direct child.
+# An object ending in _SignBoard or _Screen keeps its child Model but its part is named SignBoard or Screen (found
+# with a recursive FindFirstChild); a one-part object ending in _Bars goes straight into the root as a ForceField
+# part named Bars, because the gate code looks for a direct child.
 RENAME_BIGGEST = {"CatCafe_Furniture_TableRound": "Top"}
-PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars"}
-# CollectionService tags the audio code plays world loops from (assets/cat-cafe/audio, PR #69), keyed by object
-# name, or by name suffix when the key starts with "_". The tag goes on the object's Model, whose PrimaryPart is
-# where the sound comes from. CafeDoor and WorkingCat are tagged by WorldBuilder at placement.
+PART_NAMES = {"_SignBoard": "SignBoard", "_Bars": "Bars", "_Screen": "Screen"}
+# CollectionService tags, keyed by object name, or by name suffix when the key starts with "_": the audio code plays
+# world loops from FishTank and Fountain (assets/cat-cafe/audio, PR #69), from the Model's PrimaryPart, and the UI
+# hangs each player's Index page on an IndexBoard. CafeDoor and WorkingCat are tagged by WorldBuilder at placement.
 TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["FishTank"],
-        "CatCafe_Park_Fountain": ["Fountain"]}
+        "CatCafe_Park_Fountain": ["Fountain"], "_IndexBoard": ["IndexBoard"]}
+# Root Model properties by asset name suffix: an Index Board streams in whole, so its Screen is there whenever the
+# board is (reviewer S37, as for the cats).
+MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"}}
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.
 NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head"}
@@ -299,6 +302,9 @@ def model_json(objs, asset, attachments=(), attributes=None, nest=None, part_att
     root = _group(asset, None, main_parts, Vector((0, 0, 0)), Matrix.Identity(3), f"{asset}/0")
     root["attributes"]["PartBuilt"] = True
     root["attributes"].update(attributes or {})
+    for suffix, props_ in MODEL_PROPS.items():
+        if asset.endswith(suffix):
+            root["properties"].update(props_)
 
     def wanted(o):
         return [(n, M4) for suffix, n, M4 in attachments if o.name.endswith(suffix)]

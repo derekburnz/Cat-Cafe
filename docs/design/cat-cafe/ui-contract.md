@@ -255,7 +255,7 @@ The Book is called the **Index** since 2026-10-27 (Derek), in player text and in
 
 Each area page of the Index pays out as you find its cats, like the index rewards in Pet Simulator 99 (`Screens/IndexStrip.luau`, sums in `Components/IndexRewards.luau` with a spec). Above the open area's cats, one row of milestone cards (200 x 144) scrolls sideways and scrolls with the grid. Each card shows what it needs ("3 cats", "4 gold", "All 10"), "2 / 3" at the top right, the prize as little pictures with amounts, a gold "★ +2% tips forever" band when the milestone adds a permanent bonus, and then a bar, a green Claim button once reached, or "✓ Claimed". Gold-track cards have a gold border and bar. The next card to work toward on each track wears a NEXT sticker (green on the normal track, gold on the gold track), a thicker border and "3 cats · 2 to go" (Derek 2026-10-27: "showing little symbols of whatever they are going to get as next reward and how much"); the row opens on the first NEXT card once per area and per new NEXT, keeping one earlier card in view. A pressed Claim shows "..." for 3 s or until ProfileSync marks it. A red count badge sits on each area tab with a reward waiting and on the Index tab (all areas), and the HUD's Index pill keeps its red dot lit while any reward waits, even after the Index is opened. Progress is counted on the client from `state.collection` and `state.goldCollection` (cats without an `area` count as Alleyway, as in the Index; the `all` page counts every area), the same counts the server checks. Without milestones or prizes for an area the strip hides.
 
-The prize pictures are `Components/PrizeChips.luau`, one chip per part from `IndexRewards.prizeParts(prize, dayRate)`, in this order: coins on a gold tile ("$1,200"; with `coinSeconds` the estimate `max(coins, floor(dayRate x coinSeconds))` at the current day rate, the Tip Jar's rule and its night correction), golden fish "x10" on a gold tile (🐟 until the F52 cat-face coin is in Assets), each food's own model "x2", the wheel "x1" for spins ("Full" when the bank would pass `SpinBankCap`), each crate "x1" (the crate's `asset` or `glyph`; golden crates on a gold tile, others on a Rare tile), the name tag with its name, an F48 decor piece, the "+2% tips forever" pill, then a 🎁 for any number field the UI does not know yet. Whatever the designer puts in `Catalog.indexPrizes` shows without a UI change. Lines wrap inside a card; on a board a big prize shrinks to fit.
+The prize pictures are `Components/PrizeChips.luau`, one chip per part from `IndexRewards.prizeParts(prize, dayRate)`, in this order: coins on a gold tile ("$1,200"; with `coinSeconds` the estimate `max(coins, floor(dayRate x coinSeconds))` at the current day rate, the Tip Jar's rule and its night correction), golden fish "x10" on a gold tile with the cat-face coin (`Components/FishCoin.luau`), each food's own model "x2", the wheel "x1" for spins ("Full" when the bank would pass `SpinBankCap`), each crate "x1" (the crate's `asset` or `glyph`; golden crates on a gold tile, others on a Rare tile), the name tag with its name, an F48 decor piece, the "+2% tips forever" pill, then a 🎁 for any number field the UI does not know yet. Whatever the designer puts in `Catalog.indexPrizes` shows without a UI change. Lines wrap inside a card; on a board a big prize shrinks to fit.
 
 Index Boards (F50, areas-and-stations B4, `Screens/IndexBoards.luau`): a noticeboard inside each area's gate with this player's own page of the Index on a SurfaceGui: the area's name and icon on a header in the area colour, "6 / 10", "★ 2" gold, a red dot while a reward waits, the area's ten cats as still portraits (silhouettes until found, rarest last; cloned the first time the player comes within 90 studs), "🔒 Opens at Tier 3" over the cats of a locked area, and a footer with the next reward ("Next reward · 6 cats · 2 to go", "Reward ready! Open the Index · 6 cats" or "Every reward claimed!") above its prize pictures. Holding E on the board's "Index" prompt (0.5 s, 10 studs) calls `UI.openIndex(areaId)`, which opens the Index on that area's page where the Claim buttons are, so the board needs no remote. **Asset thread:** each board is a model `CatCafe_<Area>_IndexBoard` tagged `IndexBoard` with an `Area` attribute (the area id) and an 8 x 5 stud part named `Screen` whose Front face looks out (or a `Face` attribute on Screen, such as `"Back"`). A ProximityPrompt in the model is used if there is one; otherwise this client makes a local one on Screen.
 
@@ -271,6 +271,20 @@ In the Decor shop, Index decor (`source = "index"`, cost 0) never shows a Buy bu
 | `UI.openIndex(areaId)` | Opens the Index on that area's page (an Index Board's prompt calls it). |
 
 **Engineer:** add `source: "shop" | "index"` (optional, `"shop"` when missing) and `replaces: string?` to `SharedTypes.DecorDef`; the UI reads both with a cast until then (`IndexRewards.isIndexDecor`, `IndexRewards.replacedBy`).
+
+### Golden fish counter and short numbers (built, F52, golden-fish.md section 1)
+
+The rare currency gets its own counter under the money panel, top left (`Screens/HUD.luau`): a smaller panel (196 x 48) with the cat-face coin and the amount in light gold ("37", "1,240", "2.5M"), flashing white when it goes up. The coin is `Components/FishCoin.luau`, drawn from frames so it needs no uploaded image: a gold coin with a lighter rim, two cat ears behind it, two eyes and an "ω" mouth. The same coin sits on every golden fish prize tile in the Index and on the boards; when the asset thread's coin picture lands, FishCoin is the one place to swap it. The counter stays hidden until `state.goldenFish` arrives, so nothing shows before the server has the field.
+
+Tapping either counter shows the exact amount beside it for 2.5 s: "$1,999,999" or "1,240 golden fish".
+
+Every short number in the UI (both counters, prices, prize amounts) comes from `Format.short`, now `Components/ShortNumber.luau` (pure, with a spec): exact with commas below 100,000, then K, M, B, T, Qa and Qi with at most three digits ("1.24M", "12.3M", "123M"), trailing zeros dropped ("1M", "2.5B"). The number is cut down, never rounded up: 1,999,999 shows "1.99M", so a counter never shows more than the player has. Past 999Qi the digits keep their commas ("5,000Qi"). `Format.money` is the same with "$" in front.
+
+| API | Purpose |
+|---|---|
+| `state.goldenFish` | F52, profile v7: the player's golden fish. Pass it in `UI.update`; nil hides the counter. |
+
+**Engineer:** add `goldenFish = s.goldenFish` to the `UI.update` call in UIController once ProfileSync sends it.
 
 ### Cafe name signs, rate tags and order bubbles (built, world-and-feel sections 3 and 4)
 
@@ -409,6 +423,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     settings: { [key]: boolean | number }?,                        -- profile.settings (shared/Settings); a missing key reads as its default
     indexRewards: { [areaId]: { [milestoneId]: true } }?,           -- F48: claimed Index rewards; missing reads as none
     spin: { lastFreeDay: number, banked: number }?,                 -- F49: the free spin's UTC day and banked spins
+    goldenFish: number?,                                           -- F52: the rare currency; nil hides its HUD counter
 }
 ```
 
@@ -437,7 +452,7 @@ AreaDef    : id, name, tier, ...   (the UI reads id, name and tier)
 - Touch targets at least 44x44 design px. Hover effects only with a mouse. Keyboard hints hidden on touch.
 - `ScreenInsets = CoreUISafeInsets`: the HUD keeps clear of the Roblox top bar.
 - Modals are 92% x 86% of the viewport with a UISizeConstraint cap; lists scroll with `AutomaticCanvasSize`.
-- Money uses `Format.money` ("$8,420", "$1.2M") so it never overflows.
+- Money uses `Format.money` ("$8,420", "$1.24M", cut down, never rounded up) so it never overflows; tap the counter for the exact amount.
 - DisplayOrder: HUD 10, catch prompt 15, modals 20, catch circles 25, toasts 30, popups 40.
 
 ## Shop rules followed (growth thread, docs/growth/monetization.md section 6)

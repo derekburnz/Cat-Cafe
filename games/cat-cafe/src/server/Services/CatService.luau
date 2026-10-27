@@ -144,6 +144,9 @@ local function setLock(stray: Stray, userId: number, untilTime: number?)
 		stray.attempt = nil
 	end
 	stray.model:SetAttribute("LockedBy", userId)
+	if userId ~= 0 and stray.model:GetAttribute("Napping") == true then
+		stray.model:SetAttribute("Napping", false) -- a catch wakes a napping stray at once
+	end
 end
 
 local function lockExpired(stray: Stray): boolean
@@ -220,6 +223,44 @@ local function anyoneNear(position: Vector3): boolean
 	return false
 end
 
+-- Whether a stray may walk somewhere now: alive, not caught or being caught, not running from a miss, not waiting
+-- for the owner it was knocked away from, and in sight of a player.
+local function canWander(stray: Stray): boolean
+	return stray.alive
+		and stray.lockedBy == 0
+		and not stray.jumping
+		and Shove.sprintsAfterMiss(stray.drop, serverNow())
+		and anyoneNear(stray.home)
+end
+
+-- Strays nap by day too, not only at night (Derek 2026-10-27: "sleeping doesnt just have to be night it can be idle
+-- also"): a wander pause turns into a nap at NAP_CHANCE, for NAP_MIN to NAP_MAX seconds. Waking, the cat gets up on
+-- all fours and stretches (the client's get-up and stretch, StretchAt) for STRETCH_SECONDS before it walks off.
+local NAP_CHANCE = 1 / 3
+local NAP_MIN, NAP_MAX = 20, 45
+local STRETCH_SECONDS = 3.6
+
+-- A nap on a wander pause (Napping = true, which the client plays as sleeping and loafing on all fours). It lasts
+-- its time and then until the cat may walk again, so it only gets up to go somewhere (Derek 2026-10-27: "no need to
+-- wake up if not moving around"). Then Napping goes false and StretchAt (server time) tells the client to play the
+-- get-up and stretch, which STRETCH_SECONDS waits out. A catch wakes it with Napping alone (setLock), so no stretch
+-- plays then. True when it may walk off; false when a catch woke it or it is gone.
+local function nap(stray: Stray): boolean
+	local model = stray.model
+	model:SetAttribute("Napping", true)
+	local wakeAt = os.clock() + rng:NextNumber(NAP_MIN, NAP_MAX)
+	repeat
+		task.wait(1)
+		if not stray.alive or model:GetAttribute("Napping") ~= true then
+			return false
+		end
+	until os.clock() >= wakeAt and canWander(stray)
+	model:SetAttribute("StretchAt", serverNow())
+	model:SetAttribute("Napping", false)
+	task.wait(STRETCH_SECONDS)
+	return canWander(stray)
+end
+
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
 	local alive = function()
@@ -227,13 +268,10 @@ local function wander(stray: Stray)
 	end
 	while stray.alive do
 		task.wait(rng:NextNumber(3, 7))
-		if
-			not stray.alive
-			or stray.lockedBy ~= 0
-			or stray.jumping
-			or not Shove.sprintsAfterMiss(stray.drop, serverNow()) -- a knocked-loose cat waits for its owner
-			or not anyoneNear(stray.home)
-		then
+		if not canWander(stray) then
+			continue
+		end
+		if rng:NextNumber() < NAP_CHANCE and not nap(stray) then
 			continue
 		end
 		local radius = Config.StrayWanderRadius

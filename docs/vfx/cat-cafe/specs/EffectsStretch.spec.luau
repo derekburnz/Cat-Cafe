@@ -1,6 +1,7 @@
 --!strict
 -- Stretching, getting up and lying down, and the slow walk (Derek 2026-10-27: "also walking animations and changing
--- between positions and stretching"). Written by the Animation-Engineer for QA to move into tests/specs.
+-- between positions and stretching"; later the same day: no stretch for a cat that is not going anywhere, and paws
+-- peeking out at the sides when it lies down). Written by the Animation-Engineer for QA to move into tests/specs.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -39,12 +40,14 @@ return function()
 			expect(math.abs(right.pawBL) < math.abs(right.pawBR)).to.equal(true)
 		end)
 
-		it("reaches up with both front paws and yawns, sat up", function()
-			local o = Logic.blank()
-			Logic.stretch(o, 0.5, "sit")
-			expect(o.pawFL > 0 and o.pawFR > 0).to.equal(true)
-			expect(o.bodyPitch > 0 and o.headPitch > 0).to.equal(true)
-			expect(o.blink).to.equal(1)
+		it("leaves a seated cat alone: it is not going anywhere", function()
+			for _, alpha in { 0.2, 0.5, 0.8 } do
+				local o = Logic.blank()
+				Logic.stretch(o, alpha, "sit")
+				for _, value in o do
+					expect(value).to.equal(0)
+				end
+			end
 		end)
 
 		it("gets up out of a nap for the stretch and lies back down after", function()
@@ -88,19 +91,15 @@ return function()
 			expect(Logic.settleSeconds("nap", "loaf")).to.equal(m.settle)
 			expect(Logic.settleSeconds("sit", "doze")).to.equal(m.settle)
 			expect(Logic.settleSeconds(nil, "nap")).to.equal(m.settleDown)
-			expect(Logic.asleep("nap") and Logic.asleep("doze")).to.equal(true)
-			expect(Logic.asleep("loaf") or Logic.asleep("sit") or Logic.asleep(nil)).to.equal(false)
 		end)
 
-		it("stretches on waking, not between a nap and a loaf", function()
-			expect(Logic.wakes("nap", "stray")).to.equal(true)
-			expect(Logic.wakes("doze", "waiter")).to.equal(true)
-			expect(Logic.wakes("doze", "sit")).to.equal(true)
-			expect(Logic.wakes("nap", "loaf")).to.equal(false) -- review S71
-			expect(Logic.wakes("loaf", "nap")).to.equal(false)
-			expect(Logic.wakes("loaf", "stray")).to.equal(false) -- a loafing cat is already awake
-			expect(Logic.wakes("doze", "nap")).to.equal(false)
-			expect(Logic.wakes(nil, "sit")).to.equal(false)
+		it("lies with its paws peeking out at the sides", function()
+			for _, name in { "sleep", "loaf" } do
+				local turns = Presets.catPoses[name].turns
+				-- the last angle turns each folded leg out: the left legs (1) one way, the right legs (2) the other
+				expect(turns.LegF1[3] < 0 and turns.LegB1[3] < 0).to.equal(true)
+				expect(turns.LegF2[3] > 0 and turns.LegB2[3] > 0).to.equal(true)
+			end
 		end)
 	end)
 

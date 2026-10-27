@@ -148,6 +148,8 @@ After this, threads upload UI and art images (`.github/workflows/upload-image.ym
 The key still accepts any IP (GitHub's runners need that), so whoever holds it could also upload images as you and read the reports. It lives only in the GitHub secret.
 
 ## 18. Required checks for auto-merge (once, about 2 minutes)
+Done 2026-10-27 22:14: ruleset `main` (id 25996536) is active with both checks. The steps stay here in case it ever needs making again.
+
 GitHub's auto-merge (Settings > General > Allow auto-merge, on since 2026-10-27) waits only for checks that main requires. Without this step there is nothing to wait for, so GitHub refuses to turn auto-merge on and threads fall back to the `automerge` label. Phone browser works.
 1. [github.com/derekburnz/Cat-Cafe/settings/rules](https://github.com/derekburnz/Cat-Cafe/settings/rules) > **New ruleset** > **New branch ruleset**.
 2. **Ruleset name**: `main`. **Enforcement status**: **Active**. Leave the bypass list empty.

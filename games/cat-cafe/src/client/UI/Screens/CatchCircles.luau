@@ -668,7 +668,11 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 		if left ~= nil then
 			self._paws:lose(left)
 		end
-		self._hint.Text = if left == 0 then "It won't trust you tonight" else "It slipped away!"
+		-- v0.5 sends no paws: a miss sends the cat sprinting off and tries never run out
+		self._hint.Text = if left == nil
+			then "It got away! Chase it!"
+			elseif left == 0 then "It won't trust you tonight"
+			else "It slipped away!"
 	end
 	task.delay(if success then RESULT_SECONDS else MISS_SECONDS, function()
 		if self._token ~= token then

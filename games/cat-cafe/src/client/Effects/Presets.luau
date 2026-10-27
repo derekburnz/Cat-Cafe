@@ -315,6 +315,12 @@ Presets.ring = {
 -- Cat motion. Angles in degrees, distances in studs, times in seconds.
 Presets.motion = {
 	breathe = { studs = 0.03, seconds = 2.6 },
+	-- The shape of one breath while asleep or resting (Logic.breath): the belly fills over `inhale` of the cycle,
+	-- lets out over `exhale`, and rests for the rest. The nap, loaf and doze give the length and the rise.
+	breath = { inhale = 0.38, exhale = 0.47 },
+	-- How the body swells as it breathes in (Pose): sideways by `side` of the rise, so the belly fills out rather
+	-- than the back just getting taller. Pieces ride the swell by how high their joint sits on the body.
+	belly = { side = 0.5 },
 	tailSwish = { degrees = 18, seconds = 2.2 },
 	headLook = { degrees = 14, seconds = 5.5 },
 	hiss = {
@@ -330,11 +336,13 @@ Presets.motion = {
 	entertainer = { swatEvery = 1.4, swat = 55, yarnStuds = 1.2 },
 	stuck = { every = 2.6, shake = 9, seconds = 0.5 },
 	-- A nap curls the cat up: it lies on its belly with its legs folded (front paws out in front), tucks its head
-	-- round towards its tail and wraps the tail along its side. sink 1 is right down on its belly.
-	nap = { headDroop = 18, headTuck = 35, tailWrap = 70, sink = 1, breathe = 0.05, seconds = 3.2 },
+	-- round towards its tail and wraps the tail along its side. sink 1 is right down on its belly. `breathe` is how
+	-- far the top of its back rises with each breath (Derek 2026-10-27: the belly lifting and lowering while it
+	-- sleeps), one breath every `seconds`.
+	nap = { headDroop = 18, headTuck = 35, tailWrap = 70, sink = 1, breathe = 0.09, seconds = 3.2 },
 	-- A cat stood upright at its station (F25) dozes on its feet at night instead: chin down on its chest with a
 	-- slow nod, a little sway, the tail hanging still. Nothing sinks, so it never dips into the counter.
-	doze = { headDroop = 26, nod = 5, sway = 2, tail = 0.15, breathe = 0.04, seconds = 3.6 },
+	doze = { headDroop = 26, nod = 5, sway = 2, tail = 0.15, breathe = 0.06, seconds = 3.6 },
 	-- A loaf (Derek 2026-10-27, from draft E): a resting cafe cat sits up from its nap now and then, tucked in and
 	-- still. On its belly with every leg folded under and the front paws peeking out, head up and level, the tail laid along its right side, a slow
 	-- breath, a slow look aside once in a while and a quick ear flick. `hold` seconds of every `every`, by day.
@@ -346,7 +354,7 @@ Presets.motion = {
 		flick = 4,
 		flickEvery = 6.5,
 		tailWrap = 60,
-		breathe = 0.03,
+		breathe = 0.05,
 		seconds = 4.2,
 		every = 75,
 		hold = 24,
@@ -469,7 +477,29 @@ Presets.butterfly = {
 	perSource = 2,
 }
 
-Presets.nap = { maxDistance = 45, riseSeconds = 2.4 }
+-- The z's over a sleeping cat (Logic.napZ): `labels` z's take turns, one each time the cat breathes out, each
+-- rising for `life` breaths before it fades and starts again at the bottom. Places are in the z's box, which sits
+-- `offset` studs up and to the right of the head on screen and is `box` studs: x 0 to 1 from the left, y 0 to 1
+-- from the top. A z starts at (x, y) at `size` of a full z, rises by `rise` and drifts right by `drift` with a
+-- `sway` to and fro, fades in over the first `fadeIn` of its life and out over the last `fadeOut`, tilting by
+-- up to `tilt` degrees.
+Presets.nap = {
+	maxDistance = 45,
+	labels = 3,
+	life = 2.5,
+	box = Vector2.new(1.8, 2.4),
+	offset = Vector3.new(0.55, 1.35, 0),
+	zSize = Vector2.new(0.42, 0.3), -- of the box, for a full z
+	x = 0.22,
+	y = 0.86,
+	size = 0.45,
+	rise = 0.76,
+	drift = 0.5,
+	sway = 0.07,
+	fadeIn = 0.15,
+	fadeOut = 0.35,
+	tilt = 12,
+}
 
 Presets.gate = { seconds = 1.4, playWithin = 70 }
 

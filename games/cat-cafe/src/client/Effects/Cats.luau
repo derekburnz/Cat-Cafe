@@ -315,31 +315,35 @@ local function hasOwnZzz(model: Model): boolean
 	return false
 end
 
--- Floating z's over a napping cat, drawn by the pose loop (three labels, one rising after another).
+-- Floating z's over a napping cat, drawn by the pose loop: nap.labels z's taking turns, one each time it breathes
+-- out (Logic.napZ). The box hangs up and to the right of the head on screen (StudsOffset is in the camera's axes),
+-- so the z's always rise up and away from the cat whichever way it is seen from.
 local function addNaps(entry: Entry)
 	if entry.naps ~= nil or napCount() >= Context.budget.napLabels or hasOwnZzz(entry.model) then
 		return
 	end
+	local z = Presets.nap
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "EffectsNap"
 	gui.Adornee = partNamed(entry.model, "Head") or entry.rig.body
-	gui.Size = UDim2.fromScale(1.6, 2) -- studs
-	gui.StudsOffsetWorldSpace = Vector3.new(0.5, 1.6, 0)
+	gui.Size = UDim2.fromScale(z.box.X, z.box.Y) -- studs
+	gui.StudsOffset = z.offset
 	gui.LightInfluence = 0
-	gui.MaxDistance = Presets.nap.maxDistance
+	gui.MaxDistance = z.maxDistance
 	local labels: { TextLabel } = {}
-	for _, text in { "z", "z", "Z" } do
+	for i = 1, z.labels do
 		local label = Instance.new("TextLabel")
 		label.BackgroundTransparency = 1
 		label.AnchorPoint = Vector2.new(0.5, 0.5)
-		label.Size = UDim2.fromScale(0.4, 0.28)
-		label.Position = UDim2.fromScale(0.3, 0.8)
+		label.Size = UDim2.fromScale(z.zSize.X, z.zSize.Y)
+		label.Position = UDim2.fromScale(z.x, z.y)
 		label.Font = Enum.Font.FredokaOne
-		label.Text = text
+		label.Text = if i == z.labels then "Z" else "z"
 		label.TextScaled = true
 		label.TextColor3 = Presets.palette.offwhite
 		label.TextStrokeColor3 = DARK_WOOD
 		label.TextStrokeTransparency = 0.3
+		label.TextTransparency = 1
 		label.Parent = gui
 		table.insert(labels, label)
 	end
@@ -348,19 +352,27 @@ local function addNaps(entry: Entry)
 	entry.napGui = gui
 end
 
-local function animateNaps(labels: { TextLabel }, t: number)
+-- `seconds` is the length of the cat's breath for its style, so the z's keep time with it.
+local function animateNaps(labels: { TextLabel }, t: number, seconds: number)
+	local z = Presets.nap
+	local count = #labels
 	if Context.reducedMotion() then
 		for i, label in labels do
-			label.Position = UDim2.fromScale(0.3 + 0.2 * i, 0.85 - 0.25 * i)
+			local k = (i - 0.5) / count
+			local size = z.size + (1 - z.size) * k
+			label.Position = UDim2.fromScale(z.x + z.drift * k, z.y - z.rise * k)
+			label.Size = UDim2.fromScale(z.zSize.X * size, z.zSize.Y * size)
+			label.Rotation = 0
 			label.TextTransparency = 0
+			label.TextStrokeTransparency = 0.3
 		end
 		return
 	end
-	local rise = Presets.nap.riseSeconds
 	for i, label in labels do
-		local along = (t / rise + (i - 1) / #labels) % 1
-		label.Position = UDim2.fromScale(0.3 + 0.45 * along, 0.85 - 0.75 * along)
-		local fade = if along < 0.15 then 1 - along / 0.15 else (along - 0.15) / 0.85
+		local x, y, size, fade, tilt = Logic.napZ(i, count, t, seconds)
+		label.Position = UDim2.fromScale(x, y)
+		label.Size = UDim2.fromScale(z.zSize.X * size, z.zSize.Y * size)
+		label.Rotation = tilt
 		label.TextTransparency = fade
 		label.TextStrokeTransparency = 0.3 + 0.7 * fade
 	end
@@ -600,7 +612,7 @@ local function step(dt: number)
 		end
 		local naps = entry.naps
 		if naps ~= nil then
-			animateNaps(naps, now + entry.phase)
+			animateNaps(naps, t, Logic.breathSeconds(entry.style))
 		end
 	end
 end

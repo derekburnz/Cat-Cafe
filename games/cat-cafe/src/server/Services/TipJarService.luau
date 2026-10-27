@@ -18,6 +18,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
+local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJar = require(ReplicatedStorage.Shared.TipJar)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -40,6 +41,16 @@ local function send(player: Player, session: Session)
 end
 
 local function pay(player: Player, profile: Types.PlayerProfile, def: Types.TipJarStep)
+	-- Steps 11 and 12 also bank a spin for the Spin Wheel (F49); past SpinBankCap the spin is dropped and the
+	-- step's other prize still pays.
+	if def.spins ~= nil then
+		local banked = Spin.bank(profile.spin, def.spins)
+		if banked > 0 then
+			Net.toast(player, string.format("Tip Jar: +%d spin", banked), "good")
+		else
+			Net.toast(player, "Spins full: use a spin at the wheel to bank more", "info")
+		end
+	end
 	if def.kind == "coins" then
 		local amount = TipJar.coins(def, Economy.incomePerSecond(profile))
 		Economy.credit(profile, amount)

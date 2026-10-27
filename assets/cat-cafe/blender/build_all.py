@@ -292,9 +292,10 @@ def main():
             for o in shifted:
                 o.location.x -= 3.2
             entry["preview"] = os.path.relpath(path, ROOT)
+            vpath = os.path.join(args.docs, "views", name + ".png")
             if not args.no_views:
-                vpath = os.path.join(args.docs, "views", name + ".png")
                 common.render_views(visible, vpath, engine=args.views_engine)
+            if os.path.exists(vpath):                 # --no-views keeps pointing at the earlier views
                 entry["views"] = os.path.relpath(vpath, ROOT)
         else:                                     # keep pointing at earlier renders
             for key, sub_dir in (("preview", "previews"), ("views", "views")):

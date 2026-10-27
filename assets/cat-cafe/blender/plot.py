@@ -523,7 +523,7 @@ def _roller(b, shutter, x0, x1, top, bottom, z):
 
 
 def _sleeping_cat(asset, mat, at, turn):
-    built = cats.build_cat("Tabby", mat)
+    built = cats.build_cat("Tabby", mat, spec=dict(cats.ROSTER["Tabby"], tucked=True))   # no legs under the floor
     world = Matrix.Translation(RB.p(*at)) @ Matrix.Rotation(math.radians(turn), 4, "Z")
     bpy.context.view_layer.update()
     out = poses.posed_copies(built, SLEEP, world=world, prefix="")
@@ -577,7 +577,7 @@ def build_for_rent(mat):
         b.span((x - w / 2, y, z - w / 2), (x + w / 2, y + h, z + w / 2), "cardboard")
         b.span((x - w / 2 - 0.01, y + h - 0.12, z - 0.12), (x + w / 2 + 0.01, y + h + 0.01, z + 0.12), "kibble")
     b.box((-4.55, 2.0, -15.35), (0.12, 3.8, 0.12), "caramel_wood", rot=rot_z(-12))
-    b.box((-4.15, 0.35, -15.35), (0.7, 0.7, 0.3), "treat_tan", rot=rot_z(-12))
+    b.box((-4.15, 0.42, -15.35), (0.7, 0.7, 0.3), "treat_tan", rot=rot_z(-12))       # tilted, its low corner at the floor
     out = [b.finalize(name, mat), sign.finalize(name + "_Sign", mat), shutter.finalize(name + "_Shutter", mat)]
     out += _sleeping_cat(name, mat, (1.9, 0.02, -16.3), -25)
     zz = RB()

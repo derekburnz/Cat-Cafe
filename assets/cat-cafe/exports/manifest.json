@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 14:00 UTC",
+  "generated": "2026-10-27 14:12 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -15258,53 +15258,53 @@
       },
       "stuck_pose": {
         "body_position_blender": [
-          1.7,
+          2.35,
           0.0,
-          4.0
+          3.96
         ],
         "body_rotation_xyz_deg_blender": [
           0.0,
           -0.0,
-          90.0
+          0.0
         ],
         "head_local_xyz_deg_blender": [
-          25,
+          20,
           0,
-          -55
+          0
         ],
         "tail_local_xyz_deg_blender": [
-          -20,
+          -30,
           0,
           0
         ],
         "body_position_roblox": [
-          -1.7,
-          4.0,
+          -2.35,
+          3.96,
           0.0
         ],
         "body_angles_roblox_deg": [
           0.0,
-          90.0,
+          0.0,
           0.0
         ],
         "body_cframe_roblox": [
-          -1.7,
-          4.0,
+          -2.35,
+          3.96,
+          0.0,
+          1.0,
           0.0,
           0.0,
           0.0,
           1.0,
           0.0,
-          1.0,
           0.0,
-          -1.0,
           0.0,
-          0.0
+          1.0
         ],
         "head_angles_roblox_deg": [
-          -39.1,
-          -47.9,
-          -31.1
+          -20.0,
+          0.0,
+          0.0
         ],
         "head_offset_blender": [
           0,
@@ -15317,11 +15317,11 @@
           0.0
         ],
         "tail_angles_roblox_deg": [
-          20.0,
+          30.0,
           0.0,
           0.0
         ],
-        "note": "Out on the Branch facing the tip, head turned to the camera, looking down. Place it, then WeldConstraint the cat Body to the Branch so it wobbles with it."
+        "note": "Draped across the Branch between the trunk and the leaf tuft, facing the tree's front, looking down at the player (the engineer's #200; along the branch put the longer cats' heads and tails in the trunk and the leaves). Place it, then WeldConstraint the cat Body to the Branch so it wobbles with it."
       },
       "studio": "Rescue trap tree (shake_catch). To wobble, rotate the Branch about its part_pivots_roblox point (set Branch.PivotOffset there if the import centres it). Put the cat at stuck_pose, then weld its Body to the Branch so it moves with it. CollisionFidelity Hull on the Trunk.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_RescueTree.model.json",
@@ -17780,22 +17780,22 @@
         "CatCafe_Plot_ForRent_Cat_Tail",
         "CatCafe_Plot_ForRent_Zzz"
       ],
-      "triangles": 2512,
+      "triangles": 2336,
       "budget": 4000,
       "size_studs": {
         "x": 31.7,
         "y": 30.83,
-        "z": 8.85
+        "z": 8.45
       },
       "size_roblox": [
         31.7,
-        8.85,
+        8.45,
         30.83
       ],
       "bounds_min": [
         -15.85,
         -17.9,
-        -0.4
+        0.0
       ],
       "bounds_max": [
         15.85,
@@ -17806,7 +17806,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent.model.json",
-      "rbx_parts": 195,
+      "rbx_parts": 191,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.glb"
@@ -17815,16 +17815,15 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "2512/4000 tris",
+          "budget": "2336/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1318 faces on swatch centers",
+          "uv": "1214 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.40 (want 0)",
+          "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-2.49"
         }
       },

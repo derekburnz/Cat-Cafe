@@ -4,7 +4,10 @@
 -- rarest last, like the Index), a red dot while a reward waits, and along the bottom the next reward with its
 -- prize as little pictures with amounts under it ("Next reward · 6 cats · 2 to go", then the food "x3", a crate
 -- "x1" and "+2% tips forever"; Derek 2026-10-27). A big prize shrinks to fit the board. A locked area's board
--- still shows from outside the gate with "Opens at Tier 3" over the cats, as a teaser.
+-- still shows from outside the gate with "Opens at Tier 3" over the cats, as a teaser. While someone in the server
+-- lends the area's strays their gold luck, a gold ribbon under the header says so ("Gold luck +40% from Sam",
+-- golden-fish.md section 5): the server sets `GoldLuck` (a fraction) and `GoldLuckFrom` (a display name) on the
+-- board model.
 --
 -- Boards are models tagged "IndexBoard" with an `Area` attribute and a `Screen` part, 8 x 5 studs, whose Front face
 -- shows the page (a `Face` attribute on Screen, such as "Back", turns it). Holding E on the board's "Index" prompt
@@ -72,6 +75,7 @@ type Board = {
 	grid: Frame,
 	lock: TextLabel,
 	nextLabel: TextLabel,
+	luck: TextLabel,
 	chips: PrizeChips.PrizeChips,
 	prompt: ProximityPrompt?,
 	ownPrompt: boolean, -- made here, so destroyed here
@@ -286,6 +290,27 @@ function IndexBoards._attach(self: any, model: Instance)
 		Parent = card,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(dot, 3)
+	-- whose gold luck the area's strays roll with, straddling the header's bottom edge
+	local luck = text({
+		Name = "GoldLuck",
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.goldDark,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0, HEADER),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 30),
+		TextSize = 20,
+		TextColor3 = Theme.colors.white,
+		TextTruncate = Enum.TextTruncate.None,
+		Visible = false,
+		ZIndex = 3,
+		Parent = card,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = luck })
+	local pad = UDim.new(0, 14)
+	Create("UIPadding", { PaddingLeft = pad, PaddingRight = pad, Parent = luck })
+	Outline.border(luck, 3)
+	Outline.text(luck, 2)
 
 	local grid: Frame = Create("Frame", {
 		Name = "Cats",
@@ -363,6 +388,7 @@ function IndexBoards._attach(self: any, model: Instance)
 		grid = grid,
 		lock = lock,
 		nextLabel = nextLabel,
+		luck = luck,
 		chips = chips,
 		prompt = nil,
 		ownPrompt = false,
@@ -372,6 +398,14 @@ function IndexBoards._attach(self: any, model: Instance)
 	}
 	self._boards[model] = board
 	self:_buildCells(board)
+	table.insert(
+		board.connections,
+		model.AttributeChanged:Connect(function(attribute: string)
+			if attribute == "GoldLuck" or attribute == "GoldLuckFrom" then
+				self:_renderBoard(board)
+			end
+		end)
+	)
 	-- a Screen or prompt that streams in after the model
 	table.insert(
 		board.connections,
@@ -532,6 +566,11 @@ function IndexBoards._renderBoard(self: any, board: Board)
 
 	local locked = area ~= nil and (state.tier or 1) < area.tier
 	board.lock.Visible = locked
+	local luck, from =
+		board.model:GetAttribute("GoldLuck"), board.model:GetAttribute("GoldLuckFrom")
+	local luckLine = IndexRewards.boardLuck(luck, from)
+	board.luck.Visible = luckLine ~= nil
+	board.luck.Text = "✦ " .. (luckLine or "")
 	if area and locked then
 		board.lock.Text = ("%s Opens at Tier %d"):format(Theme.icons.lock, area.tier)
 	end

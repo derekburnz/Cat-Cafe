@@ -14,10 +14,18 @@
 --
 -- F53 (golden-fish.md section 4) adds the Decor Index: area ids "decor_alley" to "decor_classic" with decor5 and
 -- decor10, counted from the owned pieces of that crate (Components/DecorPieces).
+--
+-- v0.10 (golden-fish.md section 5) gives each track its own forever bonus: tips (`bonus`) on the normal tracks and
+-- the Decor Index, gold luck (`goldLuck`) on the gold tracks and faster bait (`baitSpeed`) on All Cats. `totals`
+-- adds up what the claims give, as the server's IndexRewards.totals does.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CatVariant = require(script.Parent.CatVariant)
 local DecorPieces = require(script.Parent.DecorPieces)
 local Types = require(script.Parent.Parent.Types)
+
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 export type Milestone = Types.IndexMilestone
 export type Prize = Types.IndexPrize
@@ -38,7 +46,8 @@ export type LureEntry = { id: string, count: number }
 -- One thing a prize pays, for the little pictures with amounts (Derek 2026-10-27: "showing little symbols of
 -- whatever they are going to get as next reward and how much"). `id` is the lure, crate or decor id, or the prize
 -- field's name for a kind the UI does not know yet.
--- `bonus` is a fraction (0.02 for "+2% tips forever") and `tag` carries the tag's name in `id`.
+-- `bonus`, `goldLuck` and `baitSpeed` are fractions (0.02 for "+2% tips forever") and `tag` carries the tag's name
+-- in `id`.
 export type PartKind =
 	"coins"
 	| "fish"
@@ -48,10 +57,16 @@ export type PartKind =
 	| "tag"
 	| "decor"
 	| "bonus"
+	| "goldLuck"
+	| "baitSpeed"
 	| "potion"
 	| "other"
 export type PrizePart = { kind: PartKind, id: string?, amount: number }
 export type Track = "normal" | "gold"
+
+-- A forever bonus, named as the prize field (v0.10): tips, gold luck or faster bait.
+export type Perk = "bonus" | "goldLuck" | "baitSpeed"
+export type Totals = { bonus: number, goldLuck: number, baitSpeed: number }
 
 export type Counts = {
 	total: number, -- the area's cats in the catalog
@@ -69,6 +84,8 @@ local KNOWN_FIELDS = {
 	spins = true,
 	crates = true,
 	bonus = true,
+	goldLuck = true,
+	baitSpeed = true,
 	tag = true,
 	decorId = true,
 	potions = true,
@@ -77,6 +94,12 @@ local KNOWN_FIELDS = {
 local IndexRewards = {}
 
 IndexRewards.ALL_AREA = "all" -- the All Cats page: every area's cats together (F54)
+local PERKS: { Perk } = { "bonus", "goldLuck", "baitSpeed" } -- the order they show in
+IndexRewards.PERKS = PERKS
+IndexRewards.GOLD_LUCK_MAX = (Config.GoldLuckMax or 1.5) :: number
+IndexRewards.BAIT_SPEED_MAX = (Config.BaitSpeedMax or 0.5) :: number
+-- a net stray's or a bait cat's gold roll before luck
+IndexRewards.GOLD_CHANCE = (Config.GoldChanceNet or 0.05) :: number
 
 -- How many cats a milestone needs: `needs` (F54) or `need` (F48).
 function IndexRewards.need(milestone: Milestone): number
@@ -232,8 +255,9 @@ end
 
 -- What a prize pays, one part per thing, in a steady order: coins (at `dayRate` when the prize grows with the
 -- cafe), golden fish, foods (by id), spins, crates (by id), potions (by id), the name tag, the decor piece, the
--- tips-forever bonus, then any number field the UI does not know yet (Derek 2026-10-27: Index rewards give crates
--- and wheel spins rather than decor outright; golden-fish.md section 5 adds fish, bonuses and a tag).
+-- forever bonuses (tips, gold luck, faster bait), then any number field the UI does not know yet (Derek
+-- 2026-10-27: Index rewards give crates and wheel spins rather than decor outright; golden-fish.md section 5 adds
+-- fish, bonuses and a tag).
 function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 	local parts: { PrizePart } = {}
 	local coins = IndexRewards.coins(prize, dayRate)
@@ -288,9 +312,11 @@ function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 	if decorId then
 		table.insert(parts, { kind = "decor" :: PartKind, id = decorId, amount = 1 })
 	end
-	local bonus = prize.bonus
-	if bonus and bonus > 0 then
-		table.insert(parts, { kind = "bonus" :: PartKind, amount = bonus })
+	for _, perk in PERKS do
+		local amount = (prize :: any)[perk]
+		if type(amount) == "number" and amount > 0 then
+			table.insert(parts, { kind = perk :: PartKind, amount = amount })
+		end
 	end
 	local loose = prize :: any
 	local others: { PrizePart } = {}
@@ -311,6 +337,95 @@ function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 		table.insert(parts, part)
 	end
 	return parts
+end
+
+-- Whether a prize part is a forever bonus, shown as a pill rather than a picture.
+function IndexRewards.isPerk(kind: string): boolean
+	return kind == "bonus" or kind == "goldLuck" or kind == "baitSpeed"
+end
+
+-- The milestone's forever bonus and how much, or nil (a milestone has one kind; the first is taken if not).
+function IndexRewards.perk(prize: Prize?): (Perk?, number)
+	if prize == nil then
+		return nil, 0
+	end
+	for _, perk in PERKS do
+		local amount = (prize :: any)[perk]
+		if type(amount) == "number" and amount > 0 then
+			return perk :: Perk, amount -- the loop widens it to string
+		end
+	end
+	return nil, 0
+end
+
+-- Every claimed milestone's forever bonus added up: tips, and gold luck and faster bait up to their caps
+-- (GoldLuckMax, BaitSpeedMax). The server sends goldLuck and baitSpeed in ProfileSync; when the state has them
+-- they win, so the screens show what the server rolls with.
+function IndexRewards.totals(catalog: Catalog, state: State): Totals
+	local totals: Totals = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
+	local rewards: { [string]: { [string]: Prize } } = catalog.indexPrizes or {}
+	local claims: { [string]: { [string]: boolean } } = state.indexRewards or {}
+	for areaId, claimed in claims do
+		local prizes = rewards[areaId]
+		if prizes == nil then
+			continue
+		end
+		for milestoneId, done in claimed do
+			local prize = if done == true then prizes[milestoneId] else nil
+			if prize then
+				totals.bonus += prize.bonus or 0
+				totals.goldLuck += prize.goldLuck or 0
+				totals.baitSpeed += prize.baitSpeed or 0
+			end
+		end
+	end
+	totals.goldLuck = math.min(totals.goldLuck, IndexRewards.GOLD_LUCK_MAX)
+	totals.baitSpeed = math.min(totals.baitSpeed, IndexRewards.BAIT_SPEED_MAX)
+	local sentLuck = state.goldLuck
+	if type(sentLuck) == "number" then
+		totals.goldLuck = sentLuck
+	end
+	local sentSpeed = state.baitSpeed
+	if type(sentSpeed) == "number" then
+		totals.baitSpeed = sentSpeed
+	end
+	return totals
+end
+
+-- A gold roll's chance with gold luck: chance x (1 + goldLuck), as the server rolls it.
+function IndexRewards.goldChance(chance: number, goldLuck: number): number
+	return chance * (1 + math.clamp(goldLuck, 0, IndexRewards.GOLD_LUCK_MAX))
+end
+
+-- The Index header's forever bonus pills: "+12% tips", "+40% gold luck (gold 7%)", "+20% faster bait"; nil for
+-- a bonus the player has none of yet.
+function IndexRewards.perkLabel(perk: string, amount: number): string?
+	if amount <= 0 then
+		return nil
+	end
+	local function percent(fraction: number): string
+		local value = math.floor(fraction * 1000 + 0.5) / 10 -- one decimal at most
+		local pattern = if value == math.floor(value) then "%d%%" else "%.1f%%"
+		return pattern:format(value)
+	end
+	if perk == "goldLuck" then
+		local chance = IndexRewards.goldChance(IndexRewards.GOLD_CHANCE, amount)
+		return ("+%s gold luck (gold %s)"):format(percent(amount), percent(chance))
+	elseif perk == "baitSpeed" then
+		return ("+%s faster bait"):format(percent(amount))
+	end
+	return ("+%s tips"):format(percent(amount))
+end
+
+-- The line an Index Board shows while someone's gold luck helps the area's strays (golden-fish.md section 5):
+-- "Gold luck +40% from Sam", from the board's GoldLuck and GoldLuckFrom attributes; nil without luck.
+function IndexRewards.boardLuck(luck: any, from: any): string?
+	if type(luck) ~= "number" or luck <= 0 then
+		return nil
+	end
+	local percent = math.floor(math.min(luck, IndexRewards.GOLD_LUCK_MAX) * 100 + 0.5)
+	local text = ("Gold luck +%d%%"):format(percent)
+	return if type(from) == "string" and from ~= "" then text .. " from " .. from else text
 end
 
 -- Index decor (data-model section 7) is never sold: only ClaimIndexReward grants it, so the Decor shop shows it as

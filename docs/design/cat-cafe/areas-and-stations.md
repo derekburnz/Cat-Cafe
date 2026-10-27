@@ -84,15 +84,24 @@ Borrowed from: DOORS (the flooded Sewage Cells with a waterfall and ladders, mad
 
 Layout: you drop through the manhole under the daylight beam and climb down a ladder to a landing. A catwalk runs along the main canal to the hub, a round pool under the big pipe waterfall. Side tunnels hold the junk town.
 
+Filling the floor (Derek, 2026-10-27 15:47, on the first Sewer sheet: "looks good need something in sewer to fill space other then glowing mushrooms"): the open floor becomes the junk town's square, so no stretch of plain floor is wider than about 20 studs.
+- Around the pool: a market row of crate stalls under umbrella awnings on one side, and little cat houses built from tin cans, boxes and a teapot on the other. Bottle cap bunting is strung between the pipes overhead.
+- A corner lounge: an old sofa, an armchair, a rug and a floor lamp, where lost cats nap.
+- Two raised crate decks with ramps break up the floor. Players can walk up them, and strays can sit on them.
+- A second, narrow canal branch with a bathtub boat and a flotilla of rubber ducks bobbing along, plus floating crate rafts.
+- Wall pieces so the bricks are never bare: a pipe organ (pipes of different heights), a big slow wall fan, steam vents that puff, and a sock line of tiny lost socks.
+- Loose clutter between them: barrels, tyre stacks, traffic cones, suitcase stacks and a shopping trolley full of yarn balls.
+- One side tunnel holds the market, and the other holds hammocks slung between the pipes.
+
 Landmarks: the daylight shaft, the big pipe waterfall pool, the Bottlecap Throne (a junk-built throne on a crate platform), a wall of valve wheels, an old maintenance cart on rails, a heap of lost toys, our own paw-print graffiti.
 
-Strays hide: in big pipe ends, on ledges and catwalks, behind valve wheels, in the lost toy heap, on floating crates, under the throne, in the maintenance cart.
+Strays hide: in big pipe ends, on ledges and catwalks, behind valve wheels, in the lost toy heap, on floating crates, under the throne, in the maintenance cart, in the can houses, under the market stalls, on the sofa, in the yarn trolley, in the bathtub boat and in the hammocks.
 
 Rescue traps:
 - `drain_pipe`, kind `bar`: a cat is stuck in a narrow side pipe.
 - `grate`, kind `bar`: a cat is under a floor grate, and the bar lifts it.
 
-Kit (`CatCafe_Sewer_<Object>`): TunnelStraight; TunnelCorner; TunnelArch; CanalWater (glowing); Catwalk; Ladder; PipeLarge; PipeElbow; PipeOutlet (waterfall); ValveWheel; Grate (trap); DrainPipe (trap); MaintenanceCart; Rails; CrateStack (reuse the Alley crates); LostToyPile; BottlecapThrone; GlowMushrooms; WallLantern; PawGraffiti; DripPuddle; DaylightShaft; IndexBoard (tin sheet).
+Kit (`CatCafe_Sewer_<Object>`): TunnelStraight; TunnelCorner; TunnelArch; CanalWater (glowing); Catwalk; Ladder; PipeLarge; PipeElbow; PipeOutlet (waterfall); ValveWheel; Grate (trap); DrainPipe (trap); MaintenanceCart; Rails; CrateStack (reuse the Alley crates); LostToyPile; BottlecapThrone; GlowMushrooms; WallLantern; PawGraffiti; DripPuddle; DaylightShaft; IndexBoard (tin sheet). Fill pieces: JunkStall (crate stall with an umbrella awning); CanHouse; BoxHouse; TeapotHouse; CapBunting; LostLounge (sofa, armchair, rug and floor lamp); CrateDeck (raised, with a ramp); BathtubBoat; RubberDucks; CrateRaft; PipeOrgan; WallFan; SteamVent; SockLine; Barrel; TyreStack; TrafficCone; SuitcaseStack; YarnTrolley; PipeHammock.
 
 Themed cats:
 

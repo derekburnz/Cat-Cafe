@@ -71,6 +71,16 @@ function Particles.anchor(name: string, position: Vector3): Attachment
 	return attachment
 end
 
+-- Switches a steady emitter on at its preset's rate times the budget's rateScale. Effects call it each time they
+-- choose an emitter, so a new budget (the Low performance setting) reaches emitters made before it.
+function Particles.switchOn(emitter: ParticleEmitter, presetName: string)
+	local preset: Presets.EmitterPreset? = Presets.emitters[presetName]
+	if preset ~= nil then
+		emitter.Rate = preset.rate * Context.budget.rateScale
+	end
+	emitter.Enabled = true
+end
+
 -- A steady emitter on `parent`, switched on.
 function Particles.attach(presetName: string, parent: Instance): ParticleEmitter?
 	local preset: Presets.EmitterPreset? = Presets.emitters[presetName]
@@ -80,7 +90,7 @@ function Particles.attach(presetName: string, parent: Instance): ParticleEmitter
 	local emitter = Particles.make(preset)
 	emitter.Name = presetName
 	emitter.Parent = parent
-	emitter.Enabled = true
+	Particles.switchOn(emitter, presetName)
 	return emitter
 end
 

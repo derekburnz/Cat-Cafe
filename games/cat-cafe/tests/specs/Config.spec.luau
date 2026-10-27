@@ -106,6 +106,9 @@ return function()
 		DecorIndexBonus = 0.05,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
 		BigBowlLureWaitSeconds = 480, -- section 3: the Big Bowl takes the bait wait from 10 to 8 minutes
+		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
+		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
+		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 cooldowns 8 and 20, v0.5.1 target immunity S45)
 		BumpEnabled = true,
 		BumpRangeStuds = 6,

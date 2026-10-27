@@ -18,6 +18,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Telemetry = require(script.Parent.Telemetry)
@@ -86,11 +87,19 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	end
 	local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
 	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
+	-- the player's own gold luck and bait speed, fixed now (F54): a later claim never moves a filling bowl
+	local totals = IndexRewards.totals(profile)
+	local now = os.time()
+	local wait = Economy.baitWaitSeconds(profile)
 	local bait: Types.BaitState = {
 		lureId = lureId,
-		placedAt = os.time(),
+		placedAt = now,
+		readyAt = now + wait,
 		catId = def.id,
-		variant = if rng:NextNumber() < Config.GoldChanceBait then "gold" else "base",
+		variant = if rng:NextNumber()
+				< IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck)
+			then "gold"
+			else "base",
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 	}
 	profile.bait = bait
@@ -103,11 +112,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	end
 	Net.toast(
 		player,
-		string.format(
-			"%s is in the bowl. A cat will come by in %s.",
-			lure.name,
-			waitText(Config.LureWaitSeconds)
-		),
+		string.format("%s is in the bowl. A cat will come by in %s.", lure.name, waitText(wait)),
 		"good"
 	)
 	CafeService.refreshPlot(player)

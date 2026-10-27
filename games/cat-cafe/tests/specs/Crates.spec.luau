@@ -75,13 +75,12 @@ return function()
 			end
 		end)
 
-		it("keeps the F48 Index pieces as their zone's Epic, the rest sourced from crates only", function()
+		it("keeps the F48 Index pieces as their zone's Epic, every piece sourced from crates only", function()
 			for _, def in Catalog.crateDecor do
-				if def.source == "index" then
+				expect(def.source).to.equal("crate")
+				if string.sub(def.id, 1, 6) == "index_" then
 					expect(def.id).to.equal("index_" .. (def.crate :: string))
 					expect(def.rarity).to.equal("Epic")
-				else
-					expect(def.source).to.equal("crate")
 				end
 			end
 			for _, pool in { "alley", "park", "neighbourhood", "woods", "sewer" } do
@@ -89,9 +88,10 @@ return function()
 			end
 		end)
 
-		it("leaves crate-only pieces out of the Decor shop list", function()
+		it("leaves every crate piece out of the coin Decor shop list", function()
 			for _, def in Catalog.decor do
-				expect(def.source ~= "crate").to.equal(true)
+				expect(def.source).never.to.be.ok()
+				expect(def.cost > 0).to.equal(true)
 			end
 		end)
 
@@ -344,7 +344,7 @@ return function()
 			expect(Economy.cafeMultiplier(profile)).to.be.near(base + 0.15, 1e-9)
 		end)
 
-		it("adds 5% per full Decor Index page and per Golden Espresso level", function()
+		it("adds 5% per Golden Espresso level, and per full Decor Index page once decor10 is claimed", function()
 			local profile = fresh()
 			local base = Economy.cafeMultiplier(profile)
 			profile.fishPerks.golden_espresso = 3
@@ -354,6 +354,9 @@ return function()
 					own(profile, def, false)
 				end
 			end
+			expect(Crates.fullPages(profile)).to.equal(1)
+			expect(Economy.cafeMultiplier(profile)).to.be.near(base + 0.15, 1e-9) -- F54: the claim pays it
+			profile.indexRewards.decor_classic = { decor10 = true }
 			expect(Economy.cafeMultiplier(profile)).to.be.near(base + 0.15 + 0.05, 1e-9)
 		end)
 

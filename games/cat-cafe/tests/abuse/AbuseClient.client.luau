@@ -2842,8 +2842,8 @@ local function indexMilestone(ready: boolean): IndexMilestone?
 			if prizes[milestone.id] == nil or rewardClaimed(area.id, milestone.id) then
 				continue
 			end
-			local gold = milestone.gold == true
-			local left = milestone.need - pageCount(area.id, gold)
+			local gold = milestone.track == "gold" -- F54 rows: { id, track, needs }
+			local left = milestone.needs - pageCount(area.id, gold)
 			if (left <= 0) == ready then
 				return { areaId = area.id, id = milestone.id, left = left, gold = gold }
 			end
@@ -3009,13 +3009,7 @@ case("indexReward", Enum.KeyCode.K, "Index rewards: bad, locked and double claim
 				string.format("%s should give %d %s and gave %d", name, count, lureId, gained)
 		end
 	end
-	local decorId = prize.decorId
-	if
-		decorId ~= nil
-		and (state == nil or not state.decorOwned[decorId] or not state.decorPlaced[decorId])
-	then
-		return "FAIL", string.format("%s should give %s owned and placed", name, decorId)
-	end
+	-- F54: no Index prize gives decor any more (crates, fish and spins instead)
 	local againNote = ""
 	if not toasted(againAt, "Already claimed") then
 		verdict = downgrade(verdict, "CHECK")

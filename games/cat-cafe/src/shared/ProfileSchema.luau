@@ -20,7 +20,9 @@ local ProfileSchema = {}
 -- rollout, giving a second free spin and losing banked ones.
 -- Version 7 (F52 and F53, golden-fish.md) adds goldenFish, lifetimeGoldenFish, crates, crateLuck, fishPerks,
 -- stats.cratesOpened and stats.fishEarned: an older server would drop them, losing fish, crates and perks.
-ProfileSchema.VERSION = 7
+-- Version 8 (F54) adds the All Cats and Decor Index pages to indexRewards and bait.readyAt: an older server would
+-- drop those claims, so a player hopping servers during a rollout could claim them twice.
+ProfileSchema.VERSION = 8
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -317,9 +319,16 @@ local function sanitizeBait(value: any): Types.BaitState?
 	if type(value.placedAt) ~= "number" or value.placedAt ~= value.placedAt then
 		return nil
 	end
+	local placedAt = math.floor(value.placedAt)
+	-- F54: the arrival UseLure fixed, inside the longest wait (an old save has none and waits LureWaitSeconds)
+	local readyAt: number? = nil
+	if type(value.readyAt) == "number" and value.readyAt == value.readyAt then
+		readyAt = math.clamp(math.floor(value.readyAt), placedAt, placedAt + Config.LureWaitSeconds)
+	end
 	return {
 		lureId = value.lureId,
-		placedAt = math.floor(value.placedAt),
+		placedAt = placedAt,
+		readyAt = readyAt,
 		catId = value.catId,
 		variant = variantOf(value.variant),
 		charm = math.clamp(

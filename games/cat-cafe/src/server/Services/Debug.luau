@@ -189,6 +189,7 @@ function Debug.baitReady(player: (Player | number | string)?): string
 	local bait = profile.bait
 	assert(bait ~= nil, "the bait bowl is empty")
 	bait.placedAt = os.time() - Config.LureWaitSeconds
+	bait.readyAt = os.time()
 	CafeService.refreshPlot(p)
 	CafeService.sync(p)
 	return bait.catId

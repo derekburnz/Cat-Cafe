@@ -566,11 +566,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 
 	local decorFolder = folder("DecorAnchors", model)
 	local decorAnchors: { [string]: BasePart } = {}
-	for _, def in Catalog.decor do
-		local point = Layout.plot.decorAnchors[def.id]
-		if point ~= nil then
-			decorAnchors[def.id] = anchor(def.id, localCFrame(cframe, point), decorFolder)
-		end
+	for decorId, point in Layout.plot.decorAnchors do
+		decorAnchors[decorId] = anchor(decorId, localCFrame(cframe, point), decorFolder)
 	end
 
 	local tableFolder = folder("TableAnchors", model)

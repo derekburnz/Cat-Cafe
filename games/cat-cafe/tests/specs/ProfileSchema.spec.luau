@@ -88,10 +88,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 7 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 8 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(7)
-			expect(profile.version).to.equal(7)
+			expect(ProfileSchema.VERSION).to.equal(8)
+			expect(profile.version).to.equal(8)
 			expect(profile.goldenFish).to.equal(0)
 			expect(profile.lifetimeGoldenFish).to.equal(0)
 			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(0)
@@ -216,8 +216,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 8 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 9 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 8 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 7 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 6 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 5 })).to.equal(false)
@@ -663,6 +664,35 @@ return function()
 			})
 		end)
 
+		it("keeps a bait's readyAt (F54) inside its placement and the longest wait", function()
+			local raw = v3Save()
+			local cases: { { readyAt: any, want: number? } } = {
+				{ readyAt = 400.6, want = 400 },
+				{ readyAt = 50, want = 90 },
+				{ readyAt = 90 + Config.LureWaitSeconds + 500, want = 90 + Config.LureWaitSeconds },
+				{ readyAt = 0 / 0, want = nil },
+				{ readyAt = "soon", want = nil },
+			}
+			for _, case in cases do
+				raw.bait = { lureId = "tuna", placedAt = 90, readyAt = case.readyAt, catId = "siamese", charm = 50 }
+				local bait = ProfileSchema.migrate(raw, 500).bait
+				assert(bait)
+				expect(bait.readyAt).to.equal(case.want)
+			end
+		end)
+
+		it("keeps All Cats and Decor Index claims (F54) and drops unknown pages and milestones", function()
+			local raw = v3Save()
+			raw.version = 7
+			raw.indexRewards = {
+				all = { total5 = true, cats3 = true },
+				decor_classic = { decor5 = true },
+				decor_moon = { decor5 = true },
+			}
+			local claims = ProfileSchema.migrate(raw, 500).indexRewards
+			expect(claims :: any).to.deepEqual({ all = { total5 = true }, decor_classic = { decor5 = true } })
+		end)
+
 		it("keeps the autoPress flag only when a v3 save holds it as true", function()
 			local raw = v3Save()
 			raw.flags = { autoPress = true }
@@ -843,7 +873,7 @@ return function()
 			raw.stats.cratesOpened = nil
 			raw.stats.fishEarned = nil
 			local profile = ProfileSchema.migrate(raw, 600)
-			expect(profile.version).to.equal(7)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.goldenFish).to.equal(0)
 			expect(profile.lifetimeGoldenFish).to.equal(0)
 			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(0)

@@ -23,6 +23,7 @@ local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local CafeSigns = require(script.Screens.CafeSigns)
 local CatCollection = require(script.Screens.CatCollection)
+local CatVariant = require(script.Components.CatVariant)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local Create = require(script.Components.Create)
@@ -66,6 +67,7 @@ UI.events = {
 	sellCat = Signal.new(), -- (uid)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
+	unequipAll = Signal.new(), -- ()   Unequip All in the cat room: every working cat rests; forward as UnequipAll
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   a press on a stuck cat's prompt: forward as RescueBegin
@@ -346,6 +348,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		equipBest = function()
 			UI.events.equipBest:Fire()
+		end,
+		unequipAll = function()
+			UI.events.unequipAll:Fire()
 		end,
 		close = closeModal,
 	})
@@ -764,7 +769,7 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 		if newest then
 			info.stars = info.stars or newest.stars
 			if info.shiny == nil then
-				info.shiny = newest.variant == "shiny"
+				info.shiny = CatVariant.isGold(newest.variant)
 			end
 		end
 		popups:showCatFound(def, isNew, info)
@@ -983,6 +988,9 @@ end
 
 -- info.door is the player's own cafe Door part; a marker with distance appears over it.
 function UI.setCarrying(info: Types.CarryInfo?)
+	-- a partial ProfileSync cannot carry a nil, so UI.update never clears state.carrying; this call does, or the
+	-- HUD would keep reading "Walk it home" after a drop or a check in (engineer, 2026-10-27)
+	(state :: any).carrying = if info then info.catId else nil
 	local hudScreen = hud
 	local marker = carryMarker
 	if not hudScreen or not marker then
@@ -1444,6 +1452,8 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local charm = promptAttribute(prompt, "Charm")
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
+	-- Gold since 2026-10-27; the old Shiny attribute still counts until the server rename lands
+	local gold = promptAttribute(prompt, "Gold")
 	local shiny = promptAttribute(prompt, "Shiny")
 	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	-- v0.5 F41: a cat knocked loose by a shove waits for its old carrier first (reviewer N90)
@@ -1459,7 +1469,7 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 			then dropOwnerUntil
 			else nil,
 		press = prompt.HoldDuration <= 0,
-		shiny = shiny == true,
+		shiny = CatVariant.goldFlag(gold, shiny),
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
 		rescueSpotId = if type(rescueSpotId) == "string"
 			then rescueSpotId

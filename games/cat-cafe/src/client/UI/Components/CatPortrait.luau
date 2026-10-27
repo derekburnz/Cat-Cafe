@@ -1,7 +1,8 @@
 --!strict
 -- A live 3D cat for reveal cards and the book: the cat's own model, cloned from ReplicatedStorage.Assets (the
 -- asset thread's mesh, or the server's placeholder until it lands), in a ViewportFrame that sways it slowly.
--- set(def, true) shows a shiny cat's own coat (v0.5 F42, Catalog.shinyModelName), else its base coat.
+-- set(def, true) shows a gold cat's own coat (v0.5 F42: "<cat model>_Gold", or the older "_Shiny" until every
+-- asset is renamed), else its base coat.
 -- When the model is not there yet it falls back to the cat's initial on its body colour. A silhouette (the
 -- book's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
 --
@@ -53,16 +54,26 @@ local function bodyColor(def: Types.CatDef): Color3
 	return Theme.rarityColor(def.rarity)
 end
 
--- A copy of the cat's model (the shiny coat when asked and there, else the base coat) with every script removed,
+-- The gold coat's model name endings, newest first: the asset thread's files move from _Shiny to _Gold.
+local GOLD_SUFFIXES: { string } = { "_Gold", "_Shiny" }
+
+-- A copy of the cat's model (the gold coat when asked and there, else the base coat) with every script removed,
 -- or nil when Assets has no model for it yet.
-local function cloneModel(catId: string, shiny: boolean): Model?
+local function cloneModel(catId: string, gold: boolean): Model?
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	if not assets then
 		return nil
 	end
-	local source: Instance? = if shiny
-		then assets:FindFirstChild(Catalog.shinyModelName(catId))
-		else nil
+	local source: Instance? = nil
+	if gold then
+		local base = Catalog.catModelName(catId)
+		for _, suffix in GOLD_SUFFIXES do
+			source = assets:FindFirstChild(base .. suffix)
+			if source then
+				break
+			end
+		end
+	end
 	if not source then
 		source = assets:FindFirstChild(Catalog.catModelName(catId))
 	end

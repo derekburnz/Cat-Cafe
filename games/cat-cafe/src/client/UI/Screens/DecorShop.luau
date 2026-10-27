@@ -64,6 +64,8 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 
 	local panel = Panel.new({
 		name = "Decor",
+		color = Theme.colors.goldDark,
+		icon = Theme.icons.decor,
 		title = "Decor",
 		subtitle = "Make the cafe yours",
 		size = UDim2.fromScale(1, 1),

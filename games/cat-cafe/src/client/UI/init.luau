@@ -22,6 +22,7 @@ local Create = require(script.Components.Create)
 local DecorShop = require(script.Screens.DecorShop)
 local Format = require(script.Components.Format)
 local GateSigns = require(script.Screens.GateSigns)
+local GuideTrail = require(script.Components.GuideTrail)
 local HUD = require(script.Screens.HUD)
 local Modal = require(script.Components.Modal)
 local Popups = require(script.Screens.Popups)
@@ -95,6 +96,7 @@ local toasts: Toasts.Toasts? = nil
 local popups: Popups.Popups? = nil
 local carryMarker: WorldMarker.WorldMarker? = nil
 local tutorialMarker: WorldMarker.WorldMarker? = nil
+local tutorialTrail: GuideTrail.GuideTrail? = nil
 local parentGui: Instance? = nil
 
 local function lookupCat(catId: string?): Types.CatDef?
@@ -305,6 +307,7 @@ function UI.init(config: Types.InitConfig)
 	popups = Popups.new(parent)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
 	areaTitle = AreaTitle.new(parent)
@@ -417,9 +420,12 @@ function UI.destroy()
 	if tutorialMarker then
 		tutorialMarker:destroy()
 	end
+	if tutorialTrail then
+		tutorialTrail:destroy()
+	end
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
-	carryMarker, tutorialMarker = nil, nil
+	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	Scale.stop()
 	Sound.set(nil)
@@ -609,7 +615,8 @@ end
 
 UI.tutorial = {}
 
--- One line at the bottom of the screen and, if a target is given, a marker in the world.
+-- One line at the bottom of the screen and, if a target is given, a marker in the world and a glowing trail on the
+-- ground leading to it (Pet Simulator 99). Calling it again with the same target keeps the trail's route.
 function UI.tutorial.show(
 	text: string,
 	target: (BasePart | Attachment | Vector3)?,
@@ -625,6 +632,13 @@ function UI.tutorial.show(
 			tutorialMarker:hide()
 		end
 	end
+	if tutorialTrail then
+		if target ~= nil then
+			tutorialTrail:show(target :: any)
+		else
+			tutorialTrail:hide()
+		end
+	end
 end
 
 function UI.tutorial.hide()
@@ -633,6 +647,9 @@ function UI.tutorial.hide()
 	end
 	if tutorialMarker then
 		tutorialMarker:hide()
+	end
+	if tutorialTrail then
+		tutorialTrail:hide()
 	end
 end
 

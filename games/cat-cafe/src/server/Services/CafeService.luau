@@ -2,6 +2,7 @@
 -- The cafe itself: income accounting, placement, shop purchases, decor, tables, offline earnings and ProfileSync.
 -- Every handler validates its arguments, settles income first, mutates the profile, refreshes the world, then syncs.
 
+local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -74,14 +75,6 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 	}
 end
 
-function CafeService.sync(player: Player)
-	local profile = profileFor(player)
-	if profile == nil then
-		return
-	end
-	Net.fire(player, "ProfileSync", CafeService.buildState(player, profile))
-end
-
 -- World refresh -------------------------------------------------------------------------------------------
 
 -- "Barista", "Waiter": the role a slot holds, for labels and toasts.
@@ -132,34 +125,87 @@ local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	end
 end
 
+-- Working cats stand at their slots; up to #plot.napSpots cats without a job nap in the cafe, highest rating first,
+-- so the collection is on show from the street (world-and-feel.md section 4, F37). Each model carries what the
+-- world labels and effects read: Slot, Napping, Rarity, Shiny and Rate (its coins per second after the cafe and
+-- tier multipliers, 0 while napping); working cats are tagged WorkingCat.
+type CatPlacement = { instance: Types.CatInstance, slot: string, anchor: BasePart }
+
 local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Profile)
-	local wanted: { [string]: Types.CatInstance } = {}
+	local multiplier = Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
+	local wanted: { [string]: CatPlacement } = {}
+	local resting: { Types.CatInstance } = {}
 	for uid, instance in profile.cats do
 		if instance.spotId ~= nil then
-			wanted[uid] = instance
+			local spot: BasePart? = plot.spots[instance.spotId :: string]
+			if spot ~= nil then
+				wanted[uid] =
+					{ instance = instance, slot = instance.spotId :: string, anchor = spot }
+			end
+		else
+			table.insert(resting, instance)
+		end
+	end
+	table.sort(resting, CatStats.isBetter)
+	local nappers: { [string]: Types.CatInstance } = {} -- the best few resting cats, by uid
+	for n = 1, math.min(#resting, #plot.napSpots) do
+		nappers[resting[n].uid] = resting[n]
+	end
+	-- A napper still among the best keeps its spot, so a change in the order does not shuffle every cat
+	-- (reviewer N60); the others take the free spots in order.
+	local takenSpots: { [number]: boolean } = {}
+	for _, child in plot.cats:GetChildren() do
+		local uid, slot = child:GetAttribute("Uid"), child:GetAttribute("Slot")
+		local instance = if type(uid) == "string" then nappers[uid] else nil
+		local n = if type(slot) == "string" then tonumber(slot:match("^nap_(%d+)$")) else nil
+		if instance ~= nil and n ~= nil and n <= #plot.napSpots and not takenSpots[n] then
+			takenSpots[n] = true
+			wanted[instance.uid] =
+				{ instance = instance, slot = slot :: string, anchor = plot.napSpots[n] }
+		end
+	end
+	local nextSpot = 1
+	for n = 1, math.min(#resting, #plot.napSpots) do
+		local instance = resting[n]
+		if wanted[instance.uid] == nil then
+			while takenSpots[nextSpot] do
+				nextSpot += 1
+			end
+			takenSpots[nextSpot] = true
+			wanted[instance.uid] =
+				{ instance = instance, slot = "nap_" .. nextSpot, anchor = plot.napSpots[nextSpot] }
 		end
 	end
 	for _, child in plot.cats:GetChildren() do
 		local uid = child:GetAttribute("Uid")
-		local instance = if type(uid) == "string" then wanted[uid] else nil
-		if instance == nil or child:GetAttribute("SpotId") ~= instance.spotId then
+		local placement: CatPlacement? = if type(uid) == "string" then wanted[uid] else nil
+		if placement == nil or child:GetAttribute("Slot") ~= placement.slot then
 			child:Destroy()
 		else
 			wanted[uid :: string] = nil
+			child:SetAttribute("Rate", Economy.catRate(placement.instance) * multiplier)
 		end
 	end
-	for uid, instance in wanted do
-		local spot: BasePart? = plot.spots[instance.spotId :: string]
-		if spot ~= nil then
-			local model = AssetRegistry.clone(Catalog.catModelName(instance.catId))
-			model.Name = uid
-			model:SetAttribute("Uid", uid)
-			model:SetAttribute("CatId", instance.catId)
-			model:SetAttribute("SpotId", instance.spotId)
-			model:SetAttribute("OwnerUserId", player.UserId)
-			model:PivotTo(spot.CFrame)
-			model.Parent = plot.cats
+	for uid, placement in wanted do
+		local instance = placement.instance
+		local def = Catalog.getCat(instance.catId)
+		local model = AssetRegistry.clone(Catalog.catModelName(instance.catId))
+		model.Name = uid
+		model:SetAttribute("Uid", uid)
+		model:SetAttribute("CatId", instance.catId)
+		model:SetAttribute("Slot", placement.slot)
+		model:SetAttribute("SpotId", instance.spotId)
+		model:SetAttribute("Napping", instance.spotId == nil)
+		model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
+		model:SetAttribute("Shiny", instance.variant == "shiny")
+		model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
+		model:SetAttribute("OwnerUserId", player.UserId)
+		if instance.spotId ~= nil then
+			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
 		end
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
+		model:PivotTo(placement.anchor.CFrame)
+		model.Parent = plot.cats
 	end
 end
 
@@ -212,14 +258,14 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	end
 end
 
--- Cafe expansions (data-model section 5b): expansion n opens at Tier n + 1. In the graybox each is floor behind
--- the back wall, reached through the back door that opens with the first one.
+-- Cafe expansions (data-model section 5b): expansion n opens at Tier n + 1 as a patio section in the yard. The
+-- back door is open whenever the plot has an owner (layout v2).
 local function refreshExpansions(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	for n, expansion in plot.expansions do
 		WorldBuilder.setExpansionOpen(expansion, tier >= n + 1)
 	end
-	WorldBuilder.setBackDoorOpen(plot, tier >= 2)
+	WorldBuilder.setBackDoorOpen(plot, tier >= 1) -- layout v2: every owned cafe's back door opens onto the alley
 end
 
 local function refreshEspresso(plot: WorldBuilder.Plot, profile: Profile)
@@ -251,6 +297,37 @@ function CafeService.refreshPlot(player: Player)
 	refreshCats(player, plot, profile)
 	refreshDecor(plot, profile)
 	refreshTables(plot, profile)
+end
+
+-- "$2.6/s", "$12/s": the HUD's rounding (one decimal under 10), so the toast and the income pill agree.
+local function rateText(perSecond: number): string
+	local value = if perSecond >= 10
+		then string.format("%.0f", perSecond)
+		else string.format("%.1f", perSecond)
+	return "$" .. (value:gsub("%.0$", "")) .. "/s"
+end
+
+-- What the street sees of this cafe, kept current on every sync because level ups change rates between refreshes:
+-- the cats in it and their Rate tags, and the plot's tier name, rate and sign.
+local function refreshShowcase(player: Player, profile: Profile)
+	local plot = PlotService.get(player)
+	if plot == nil then
+		return
+	end
+	refreshCats(player, plot, profile)
+	local tierDef = Catalog.getTier(Economy.tier(profile))
+	local tierName = if tierDef ~= nil then tierDef.name else ""
+	local rate = Economy.incomePerSecond(profile)
+	PlotService.setShowcase(player, tierName, rate, tierName .. "  " .. rateText(rate))
+end
+
+function CafeService.sync(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	Net.fire(player, "ProfileSync", CafeService.buildState(player, profile))
+	refreshShowcase(player, profile)
 end
 
 -- Mutations used by other services -----------------------------------------------------------------------
@@ -436,14 +513,6 @@ local function onUnplaceCat(player: Player, rawUid: unknown)
 	instance.spotId = nil
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
-end
-
--- "$2.6/s", "$12/s": the HUD's rounding (one decimal under 10), so the toast and the income pill agree.
-local function rateText(perSecond: number): string
-	local value = if perSecond >= 10
-		then string.format("%.0f", perSecond)
-		else string.format("%.1f", perSecond)
-	return "$" .. (value:gsub("%.0$", "")) .. "/s"
 end
 
 -- Equip best: one tap gives the owned cats the open role slots for the highest rate (shared/EquipBest).

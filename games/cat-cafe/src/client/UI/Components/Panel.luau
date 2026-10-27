@@ -133,6 +133,7 @@ function Panel.new(props: Props): Panel
 			anchorPoint = Vector2.new(1, 0.5),
 			position = UDim2.new(1, -8, 0.5, -2),
 			textSize = Theme.sizes.textLarge + 2,
+			sound = false, -- the modal's close swish is the sound
 			onClick = props.onClose,
 			parent = header,
 		})

@@ -1,7 +1,8 @@
 --!strict
--- Always-on overlay: money and income (top left), cafe level pill (top centre), cat count and the day
--- and night clock chip (top right), menu buttons (left), equipped lure slot with an odds picker (bottom right), carry banner and
--- tutorial strip (bottom centre). Laid out in design pixels under one UIScale from Scale.bind.
+-- Always-on overlay: money and income (top left), cafe tier pill and the Cafe, Alley and Areas travel row
+-- (top centre), cat count and the day and night clock chip (top right), menu tiles (left), equipped lure slot
+-- with an odds picker (bottom right), carry banner and tutorial strip (bottom centre). Laid out in design
+-- pixels under one UIScale from Scale.bind.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -11,15 +12,19 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local GoalCard = require(script.Parent.GoalCard)
+local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
 export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
+	travel: (destination: string) -> (), -- "home" or an AreaId
 	buyLure: (lureId: string) -> (),
 	equipLure: (lureId: string) -> (),
 }
@@ -32,6 +37,11 @@ export type HUD = {
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	togglePicker: (self: HUD) -> (),
+	pressTravel: (self: HUD, destination: string) -> boolean,
+	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
+	isCarrying: (self: HUD) -> boolean,
+	setCatching: (self: HUD, active: boolean) -> (),
+	screenOpened: (self: HUD, name: string?) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
 	destroy: (self: HUD) -> (),
 }
@@ -41,7 +51,16 @@ local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
 local MENU_TILE = 84
+local CAFE_HEIGHT = 56
+local TRAVEL_W = 120
+local TRAVEL_H = 46
+-- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
+local TRAVEL_COOLDOWN: number = (Config :: any).TravelCooldownSeconds or 3
 local LURE_ROW = 70
+-- right column: cats pill (52), clock chip (40), then the next goal card; the night tips chip pushes it down
+local CLOCK_TOP = MARGIN + 52 + Theme.sizes.gap
+local GOAL_TOP = CLOCK_TOP + 40 + Theme.sizes.gap
+local NIGHT_CHIP = 24 + 4
 -- data-model NightIncomeMultiplier (0.6): tips pay this share at night. The server only applies it once it
 -- is in Config (F31), so the chip stays hidden until then instead of promising a cut that is not paid.
 local NIGHT_TIPS: number? = (Config :: any).NightIncomeMultiplier
@@ -213,6 +232,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._pickerOpen = false
 	self._lastMoney = nil :: number?
 	self._oddsTier = 1
+	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
+	self._dots = {} :: { [string]: Frame }
+	self._seen =
+		{ Upgrades = {}, Decor = {}, Collection = {} } :: { [string]: { [string]: boolean } }
+	self._candidates = nil :: Notices.Candidates?
+	self._collectionPrimed = false
+	self._openScreen = nil :: string?
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeHUD",
@@ -280,7 +306,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local cafe = hudPanel("Cafe", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, MARGIN),
-		Size = UDim2.fromOffset(340, 56),
+		Size = UDim2.fromOffset(340, CAFE_HEIGHT),
 		Parent = root,
 	})
 	self._cafeTitle = label({
@@ -342,19 +368,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end
 		end)
 	)
+	-- a tilted red sticker on the pill's corner, the simulator "something to claim" badge; the travel row
+	-- sits right under the pill, so nothing hangs below it
 	self._rankBadge = Create("TextLabel", {
 		Name = "RankReady",
-		BackgroundColor3 = Theme.colors.gold,
+		BackgroundColor3 = Theme.colors.red,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 1, 6),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -10, 0, 2),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 24),
+		Rotation = 8,
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.colors.white,
-		Text = "Rank up ready!",
+		Text = "Rank up!",
 		Visible = false,
+		ZIndex = 4,
 		Parent = cafe,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
@@ -362,6 +392,60 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	Outline.text(self._rankBadge)
 	self._tiersOn = false
+
+	-- Travel row (top centre, under the tier pill): Cafe and Alley jump straight there, Areas opens the five
+	-- area cards. Grow a Garden puts its teleport buttons in the same place (features.md F19). All three
+	-- grey out while carrying a cat, since walking it home is the loop, and for the trip cooldown.
+	local travelRow: Frame = Create("Frame", {
+		Name = "Travel",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, MARGIN + CAFE_HEIGHT + 10),
+		Size = UDim2.fromOffset(3 * TRAVEL_W + 2 * Theme.sizes.gap, TRAVEL_H),
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			Padding = UDim.new(0, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._travelRow = travelRow
+	self._travelButtons = {} :: { [string]: Button.Button }
+	self._travelEnabled = {} :: { [string]: boolean }
+	self._travelUntil = 0
+	self._carryBanner = false
+	self._carryState = false
+	type TravelItem = { key: string, label: string, icon: string, style: Button.Style }
+	local travelItems: { TravelItem } = {
+		{ key = "home", label = "Cafe", icon = Theme.icons.home, style = "gold" },
+		{ key = "alley", label = "Alley", icon = Theme.icons.alley, style = "secondary" },
+		{ key = "areas", label = "Areas", icon = Theme.icons.travel, style = "primary" },
+	}
+	for index, item in travelItems do
+		local button = Button.new({
+			name = item.label,
+			text = item.label,
+			icon = item.icon,
+			style = item.style,
+			size = UDim2.fromOffset(TRAVEL_W, TRAVEL_H),
+			textSize = Theme.sizes.textBody + 1,
+			layoutOrder = index,
+			parent = travelRow,
+			-- Areas only opens the panel, which swishes; Cafe and Alley click
+			sound = if item.key == "areas" then false else nil,
+			onClick = function()
+				if item.key == "areas" then
+					callbacks.openScreen("Areas")
+				else
+					self:pressTravel(item.key)
+				end
+			end,
+		})
+		self._travelButtons[item.key] = button
+		table.insert(self._buttons, button)
+	end
 
 	-- Cats pill (top right)
 	local cats = hudPanel("Cats", {
@@ -390,6 +474,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			position = UDim2.new(1, -8, 0.5, 0),
 			textSize = Theme.sizes.textSmall,
 			parent = cats,
+			sound = false, -- the modal swish is the sound
 			onClick = function()
 				callbacks.openScreen("Collection")
 			end,
@@ -399,7 +484,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Clock chip (top right, under the cats pill): sun or moon and the time to the next phase (F20)
 	local clock = hudPanel("Clock", {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -MARGIN, 0, MARGIN + 52 + Theme.sizes.gap),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP),
 		Size = UDim2.fromOffset(150, 40),
 		Visible = false,
 		Parent = root,
@@ -447,7 +532,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- v0.3 (F31): tips pay less at night, so the chip says by how much
 	self._nightTips = hudPanel("NightTips", {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -MARGIN, 0, MARGIN + 52 + Theme.sizes.gap + 40 + 4),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + 40 + 4),
 		Size = UDim2.fromOffset(150, 24),
 		Visible = false,
 		Parent = root,
@@ -461,6 +546,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = if NIGHT_TIPS then "Tips " .. Format.percent(NIGHT_TIPS) else "",
 		Parent = self._nightTips,
 	})
+
+	-- Next goal card (right, under the clock): the next tier's requirements as bars; a tap opens rank up
+	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
+		callbacks.openScreen("RankUp")
+	end)
 
 	-- Menu stack (left, vertically centred)
 	local menu: Frame = Create("Frame", {
@@ -514,6 +604,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textBody,
 			layoutOrder = index,
 			parent = menu,
+			sound = false, -- the modal swish is the sound
 			onClick = function()
 				callbacks.openScreen(item.screen)
 			end,
@@ -521,6 +612,29 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		if showKeys then
 			keycap(button.face, item.key, UDim2.new(1, -4, 0, 4), Vector2.new(1, 0))
 		end
+		-- red "!" dot on the tile's top left corner when the screen has something new
+		local dot: Frame = Create("Frame", {
+			Name = "Dot",
+			BackgroundColor3 = Theme.colors.red,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromOffset(4, 4),
+			Size = UDim2.fromOffset(24, 24),
+			Visible = false,
+			ZIndex = 6,
+			Parent = button.instance,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		Outline.border(dot, 2)
+		label({
+			Name = "Mark",
+			Size = UDim2.fromScale(1, 1),
+			TextSize = Theme.sizes.textBody,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Text = "!",
+			ZIndex = 7,
+			Parent = dot,
+		})
+		self._dots[item.screen] = dot
 		table.insert(self._buttons, button)
 	end
 
@@ -565,6 +679,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(
 		self._connections,
 		lureSlot.Activated:Connect(function()
+			Sound.play("uiClick")
 			self:togglePicker()
 		end)
 	)
@@ -673,6 +788,68 @@ function HUD.togglePicker(self: any)
 	self._picker.Visible = self._pickerOpen
 	if self._pickerOpen then
 		Tween.popIn(self._picker, 0.94)
+	end
+end
+
+-- Fires the travel callback unless the row is greyed (carrying, or inside the trip cooldown). True when it fired.
+function HUD.pressTravel(self: any, destination: string): boolean
+	if self:isCarrying() or os.clock() < self._travelUntil then
+		return false
+	end
+	self._callbacks.travel(destination)
+	self._travelUntil = os.clock() + TRAVEL_COOLDOWN
+	self:_renderTravel()
+	task.delay(TRAVEL_COOLDOWN, function()
+		if os.clock() >= self._travelUntil then
+			self:_renderTravel()
+		end
+	end)
+	return true
+end
+
+-- The server's answer (TravelResult). A refusal lifts the cooldown at once and wobbles the button that
+-- asked; area trips from the Areas panel wobble the Areas button. The server's toast says why.
+function HUD.travelResult(self: any, destination: string, ok: boolean)
+	local button: Button.Button? = self._travelButtons[destination] or self._travelButtons.areas
+	if not button then
+		return
+	end
+	assert(button, "travel button missing")
+	if ok then
+		Tween.popIn(button.instance, 0.85)
+		return
+	end
+	self._travelUntil = 0
+	self:_renderTravel()
+	button.instance.Rotation = -8
+	Tween.to(
+		button.instance,
+		TweenInfo.new(0.45, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
+		{ Rotation = 0 }
+	)
+end
+
+-- Carrying comes from two places: the carry banner (UI.setCarrying) and state.carrying.
+function HUD.isCarrying(self: any): boolean
+	return self._carryBanner or self._carryState
+end
+
+-- The catch circles' header takes the top centre during a catch, and the server refuses a trip mid catch
+-- anyway (N47), so the travel row steps aside until the catch ends.
+function HUD.setCatching(self: any, active: boolean)
+	self._travelRow.Visible = not active
+end
+
+function HUD._renderTravel(self: any)
+	local carrying = self:isCarrying()
+	local cooling = os.clock() < self._travelUntil
+	for key, button in self._travelButtons do
+		-- render runs on every state push, so only touch buttons whose state changed (keeps hover colour)
+		local enabled = not carrying and (key == "areas" or not cooling)
+		if self._travelEnabled[key] ~= enabled then
+			self._travelEnabled[key] = enabled
+			button:setEnabled(enabled)
+		end
 	end
 end
 
@@ -839,6 +1016,8 @@ function HUD.render(self: any, state: Types.PlayerState)
 		Tween.to(self._moneyText, Tween.RISE, { TextColor3 = Theme.hud.text })
 	end
 	self._lastMoney = state.money
+	self._carryState = state.carrying ~= nil
+	self:_renderTravel()
 
 	-- income comes only from cats in a role slot, so with instances the count skips resting cats
 	local catCount = 0
@@ -880,6 +1059,11 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	self._tiersOn = tierProgress ~= nil
 	self._cafeButton.Active = tierProgress ~= nil
+	self._goal:render(tierProgress)
+	self:_layoutRight()
+	if catalog then
+		self:_renderDots(catalog, state)
+	end
 	if tierProgress then
 		self:_renderTier(tierProgress)
 		self:_renderLures(state)
@@ -928,15 +1112,10 @@ function HUD._renderTier(self: any, progress: RankUp.Progress)
 		if current then "  ·  " .. current.name else ""
 	)
 	local nextTier = progress.nextTier
+	-- the next goal card lists the requirements, so the pill only names the next tier
 	local sub = "Top tier"
 	if nextTier then
 		sub = "Next: " .. nextTier.name
-		for _, item in progress.requirements do
-			if not item.met then
-				sub ..= "  ·  " .. item.label:lower() .. " " .. item.status
-				break
-			end
-		end
 	end
 	self._cafeSub.Text = sub
 	self._cafeSub.Visible = true
@@ -945,10 +1124,19 @@ function HUD._renderTier(self: any, progress: RankUp.Progress)
 	self._cafeFill.BackgroundColor3 = if progress.ready
 		then Theme.colors.gold
 		else Theme.colors.mint
+	if progress.ready then
+		self._cafeSub.Text = "Rank up ready! Tap to see "
+			.. (if nextTier then nextTier.name else "")
+	end
 	local wasVisible = self._rankBadge.Visible
 	self._rankBadge.Visible = progress.ready
 	if progress.ready and not wasVisible then
 		Tween.popIn(self._rankBadge, 0.7)
+	end
+	-- uiRankReady chimes once per tier, the first time that tier's requirements are all met
+	if progress.ready and self._chimedTier ~= progress.tier then
+		self._chimedTier = progress.tier
+		Sound.play("uiRankReady")
 	end
 end
 
@@ -984,6 +1172,8 @@ function HUD._renderLures(self: any, state: Types.PlayerState)
 end
 
 function HUD.setCarrying(self: any, info: Types.CarryInfo?)
+	self._carryBanner = info ~= nil
+	self:_renderTravel()
 	if info then
 		assert(info, "carry info missing")
 		local rarity: string = info.rarity or "Common"
@@ -1003,6 +1193,9 @@ end
 
 function HUD.setTutorial(self: any, text: string?)
 	if text and text ~= "" then
+		if not self._tutorial.Visible or self._tutorial.Text ~= text then
+			Sound.play("uiHint")
+		end
 		self._tutorial.Text = text
 		self._tutorial.Visible = true
 		Tween.popIn(self._tutorial, 0.92)
@@ -1039,6 +1232,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	if not clock then
 		self._clock.Visible = false
 		self._nightTips.Visible = false
+		self:_layoutRight()
 		return
 	end
 	local current: Types.ClockState = clock
@@ -1048,6 +1242,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._clockText.TextColor3 = if isNight then Theme.colors.sky else Theme.hud.text
 	self._clock.Visible = true
 	self._nightTips.Visible = isNight and NIGHT_TIPS ~= nil
+	self:_layoutRight()
 	local function tick()
 		self._clockText.Text =
 			clockText(current.phase, current.phaseEndsAt - Workspace:GetServerTimeNow())
@@ -1061,6 +1256,52 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 			tick()
 		end
 	end)
+end
+
+-- The goal card sits under the clock, and under the night tips chip when it shows.
+function HUD._layoutRight(self: any)
+	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
+	if self._nightTips.Visible then
+		top += NIGHT_CHIP
+	end
+	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top)
+end
+
+-- Red dots: a screen's dot shows while it has a key the player has not seen on that screen. Keys seen while
+-- the screen is open count as seen, so buying the next level in the shop does not light the dot again.
+function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerState)
+	local candidates = Notices.candidates(catalog, state)
+	self._candidates = candidates
+	-- cats caught before this session are not news: the first collection we see is all seen
+	if state.collection and not self._collectionPrimed then
+		self._collectionPrimed = true
+		Notices.markSeen(candidates.Collection, self._seen.Collection)
+	end
+	local open: string? = self._openScreen
+	if open and (candidates :: any)[open] then
+		Notices.markSeen((candidates :: any)[open], self._seen[open])
+	end
+	for screen, dot in self._dots do
+		local keys: { string } = (candidates :: any)[screen] or {}
+		local show = Notices.hasNew(keys, self._seen[screen])
+		if show and not dot.Visible then
+			Tween.popIn(dot, 0.5)
+		end
+		dot.Visible = show
+	end
+end
+
+-- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot.
+function HUD.screenOpened(self: any, name: string?)
+	self._openScreen = name
+	local candidates: Notices.Candidates? = self._candidates
+	if name and candidates and (candidates :: any)[name] then
+		Notices.markSeen((candidates :: any)[name], self._seen[name])
+		local dot: Frame? = self._dots[name]
+		if dot then
+			dot.Visible = false
+		end
+	end
 end
 
 function HUD._stopClock(self: any)
@@ -1088,6 +1329,7 @@ function HUD.destroy(self: any)
 		row.buy:destroy()
 		row.details:destroy()
 	end
+	self._goal:destroy()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

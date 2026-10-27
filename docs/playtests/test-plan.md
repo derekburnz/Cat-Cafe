@@ -29,7 +29,7 @@ QA branches from `main`, keeps to `games/cat-cafe/tests/`, `games/cat-cafe/tools
 
 | Layer | Where | When | How |
 |---|---|---|---|
-| Unit tests of pure shared modules (`tests/specs/*.spec.luau`) | Cloud threads, or any PC with Node 20 | Every change under `src/shared`, before every review | `cd games/cat-cafe/tools/cloudcheck && npm test` |
+| Unit tests of pure modules (`tests/specs/*.spec.luau`) | Cloud threads, or any PC with Node 20 | Every change under `src/shared`, `src/server/World/Layout.luau` or the pure client `Audio` and `Effects` logic, before every review | `cd games/cat-cafe/tools/cloudcheck && npm test` |
 | Strict type check and lint, cloud stand-in | Same | Same | `npm run analyze` (game), `npm run analyze -- --tests` (specs too) |
 | The real done gate | Derek's PC, Rokit toolchain, and CI | Before any task is called done | `cd games/cat-cafe && ./check.ps1` (Windows) or `./check.sh` |
 | Unit tests inside Studio (real Roblox globals) | Derek's PC | Before every playtest build | Section 3.2 |
@@ -90,6 +90,7 @@ Results of every run go to `docs/playtests/YYYY-MM-DD.md` in the `playtest-repor
 | `Clock.spec` | Phase at any time, countdown without jumps, start of each phase | data-model 9 |
 | `Config.spec` | Every constant in data-model section 17 by name and value, no undocumented constant, internal ordering | data-model 17 |
 | `Signal.spec` | Connect, disconnect, once, disconnect all, one erroring handler does not stop the rest | |
+| `EffectsLogic.spec` | Effects v1 pure logic (vfx-animator, PR #77; QA edges): touch-only devices get the low budget; Purrfect only when every grade is Perfect, a CatchResult with no success flag is a failure; nearest picks within the radius (the edge counts), nearest first, at most the limit; a plot claim, release, owner swap and rank up told apart, a tier rise inside the 2 s claim grace or from tier 0 is not a rank up; every gate a skipped tier crosses opens, none already open; pulse, hiss, landing, confetti and butterfly curves stay bounded; phone bursts 12 or fewer, 4 steady emitters | effects list, Effects v1 |
 
 v0.3 specs QA writes as each feature lands (the engineer is asked to keep these as pure functions in
 `src/shared`, section 8):
@@ -114,7 +115,8 @@ v0.3 specs QA writes as each feature lands (the engineer is asked to keep these 
 
 Not covered by unit tests, by design: anything that needs DataStores, Players, RemoteEvents, TextService,
 physics or the world. `DataService`, `CatService`, `CafeService`, `Net`, `WorldBuilder` and all of `src/client`
-are Studio-only and covered by sections 4 to 6.
+except the pure `Audio/Logic`, `Audio/Cues`, `Effects/Logic` and `Effects/Presets` are Studio-only and covered by
+sections 4 to 6.
 
 ### 3.2 Running them
 
@@ -255,8 +257,8 @@ Catching and rescue (F26, F27, F23)
 | Grab limit (key `[`) | `GrabBegin` on a second stray within 1 s of the first | Dropped by the 1 per 2 s limit: no answer, no schedule |
 | Same stray again (key `[`) | `GrabBegin(id)` 2 s into its own catch | `GrabResult` `Keep going, the circles are coming`, no second schedule, one `CatchResult` |
 | One catch at a time (key `[`) | 2 s into a catch, stand by another stray and `GrabBegin` it | `Finish this catch first`, no schedule |
-| Retry wait (key `;`) | Fail a Common on purpose, `GrabBegin(id)` 2 s after the first `GrabBegin` (inside the wait from the fail), then once the wait is over | (v0.4) `CatchResult` success false, `pawsLeft` 2; refused inside StrayWarySeconds 5 from the fail; a new schedule after it. Before F34: stayed true, `Give it a moment` inside 2 s. The abuse client's wait is 2 s and is updated when F34 lands |
-| Out of paws (v0.4, manual until the client update) | Miss a Legendary once (`Debug.spawnStray("void")`, 1 paw), then `GrabBegin(id)` after 5 s | Refused `It won't trust you again tonight`, no schedule, until the stray despawns; a second client still gets a schedule |
+| Retry wait (key `;`) | Miss a Common on purpose, `GrabBegin(id)` 2 s after the first `GrabBegin` (inside the wary wait), then once the wait is over, pressing on target | (v0.4) `CatchResult` success false, `pawsLeft` one fewer (2 on a fresh Common); refused `It's wary of you, give it a moment` inside StrayWarySeconds 5 from the miss; after it a new schedule carrying the paws the miss left, and the on-target presses catch it. Before F34: stayed true, `Give it a moment` inside 2 s |
+| Out of paws (v0.4, key `.`; second client manual) | Miss the nearest stray until `pawsLeft` is 0 (one miss for a Legendary or Mythical: `Debug.spawnStray("void")`), then `GrabBegin(id)` once the wary wait is over | Toast `It won't trust you tonight`; refused `It won't trust you again tonight` with retry false, no schedule, until the stray despawns; the stray stays with `Paws_<UserId>` 0 on its model; a second client still gets a schedule |
 | Far grab (key 2) | Teleport 200 studs away, `GrabBegin(id)` | Refused with `Too far away`, no schedule |
 | Far press (key 8) | `GrabBegin` in range, teleport 200 studs away, press every circle on target | Not caught although every press is on target. (v0.4) Walking out of range is a Miss: a paw is lost, the cat jumps back. Before F34: a failed catch with no roll, toast `Too far away`; a Common stays, a Rare flees |
 | Locked area | Tier 1, teleport past the Park gate, `GrabBegin(park stray)`, `RescueBegin(park trap)` | Refused, nothing locked, no schedule or challenge |
@@ -268,8 +270,8 @@ Catching and rescue (F26, F27, F23)
 | Press twice (manual) | `CatchPress(id, 1)` twice, the first early but after circle 1 starts, the second on target | Only the first press counts: circle 1 is a Miss (v0.4: and the attempt ends there) |
 | Press with a time (key 5) | `CatchPress(id, 1, target, "perfect", 1)` 0.15 s after circle 1 starts | Extra arguments ignored, the server stamps the arrival time: circle 1 is a Miss (v0.4: the attempt ends, a paw is lost) |
 | Press spam (key `'`) | `CatchPress(id, i)` every 0.1 s from `GrabBegin` on, moving to the next index once a circle has started | The first press after circle 1 starts is early, so circle 1 is a Miss; (v0.4) the attempt ends there and `grades` has one entry. Before F34 every circle scores 0. At most 10 presses per second reach the handler |
-| No press (key 6) | `GrabBegin(id)` and never press | (v0.4) Circle 1 is a Miss at its target + good + 0.15 s and the attempt ends there, later circles never judged; success false, a paw lost; the lock clears. Before F34: every circle scores 0, the roll fails, `stayed` is true for a Common and false for a Rare that flees |
-| Scripted perfect (key 7, five runs) | 10 catches pressing each circle on its target, repeated until 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the server's exploit check flags it from its own stamped errors (Perfect rate above 95% over the last 50 circles; no `TelemetryReport` involved), the warn `[CatService] <userId> flagged autoPress`. (v0.4) While flagged, `charmGain` is 0; then press 8 of 10 circles late (Good) for 50 circles and the flag clears at 85% or below; an `autopress_flag` analytics event on set and on clear. Flag it, rejoin (API access on) and play 10 Good circles: still flagged, since a buffer under 50 never clears a saved flag (N46). Log, do not ticket, unless the flag never fires or never clears |
+| No press (key 6) | `GrabBegin(id)` and never press | (v0.4) Circle 1 is a Miss at its target + good + 0.15 s and the attempt ends there, later circles never judged; success false, a paw lost (`Paws_<UserId>` on the model matches), `charmGain` 0; the cat jumps back 6 to 10 studs and stays; the lock clears. Before F34: every circle scores 0, the roll fails, `stayed` is true for a Common and false for a Rare that flees |
+| Scripted perfect (key 7, five runs) | 10 catches pressing each circle on its target, repeated until 50 circles | Accepted as Perfect by design (data-model 10 exploit note). Expected: the server's exploit check flags it from its own stamped errors (Perfect rate above 95% over the last 50 circles; no `TelemetryReport` involved), the warn `[CatService] autopress_flag set for <userId>`. (v0.4) While flagged, `charmGain` is 0: key 7 fails a Purrfect catch that earns charm after 50 Perfect circles in a row. Then press 8 of 10 circles late (Good) for 50 circles and the flag clears at 85% or below (warn `autopress_flag cleared for <userId>`, an analytics event once analytics exists). Flag it, rejoin (API access on) and play 10 Good circles: still flagged, since a buffer under 50 never clears a saved flag (N46). Log, do not ticket, unless the flag never fires or never clears |
 | Travel (v0.4, key `,`; rescue by hand) | `Travel` with `""`, `"HOME"`, `"../x"`, 123, `{}`, true, nil and a 41-character id, spaced past the 1 per s limit; `Travel("moon")` ten times in one frame; the next locked area at this tier; `Travel("home")` while carrying and during a catch; `Travel("home")`, then `Travel("alley")` 1 s later and again once 3 s are up. By hand: `Travel("home")` during a rescue hold | Malformed ids get no `TravelResult`, no toast and no move; the flood gets one answer; refused while carrying, during a catch or rescue (N47), into a locked area (`opens at Tier`) and inside 3 s (`Catch your breath first`); home lands within 12 studs of the own door and the alley inside its floor; nobody moves on a refusal and no `[Net] Travel handler failed` line |
 | Paws on rejoin (v0.4, manual, API access on not needed) | Miss a Legendary (1 paw), leave and rejoin the same server, `GrabBegin(id)` | Still refused `It won't trust you again tonight` (N45) |
 | Bad index (key 4) | `CatchPress(id, 0)`, `(id, 99)`, `(id, -1)`, `(id, 1.5)`, `(id, 0/0)`, `(id, "1")`, `(id, {})`, `(id, nil)` | Dropped silently by `Guard.int`, no error |
@@ -337,6 +339,31 @@ the whole scene under 16.7 ms on the emulator's default quality. Record `Stats:G
 after 10 minutes, and the count of `ShinySparkle` emitters. (v0.4, F37, world-and-feel 8.8) Standing in the street
 with eight running cafes on a phone-sized viewport: 30 or more frames per second; cafes beyond 80 studs culled and
 roaming paused with nobody within 60 studs.
+(Effects v1, reviewer S35 and the 2026-10-27 build review) At night on the phone emulator with all five areas
+spawned (50 strays; hook `Debug.setPhase("night")` at Tier 5 so every gate is open), stand where the most strays
+are in view and open the MicroProfiler (Ctrl+F6, or Settings, MicroProfiler): record the client frame time over
+10 s and the share under the Effects labels. Target: the frame stays under 33 ms (30 frames per second) and no more
+than 8 cats move on the client at once (the low budget). Record, do not ticket, unless the frame rate drops below
+30.
+
+### 4.6 Effects (v0.4, effects list "Effects v1", world-and-feel 7)
+
+Precondition: `Main.client.luau` calls `Effects.start()` (on main since engineer PR #85). On an older build mark
+every row skipped with that reason. Run on PC, then repeat E1, E2 and E6 on the phone emulator. Watch
+the client output for anything from `Effects` through the whole section (E8). Every effect lives on this client
+only: client parts go in `workspace.ClientEffects` and burst emitters on `Burst_*` attachments under
+`workspace.Terrain`; neither exists on the server (server `execute_luau`: both absent).
+
+| Row | Do | Expected |
+|---|---|---|
+| E1 Miss | Miss circle 1 of a Common on purpose (S4's late press). A second client watches from 20 studs. Then turn on Reduce Motion (Roblox settings) and miss again | A grey puff, a pink "!" over the head, the cat rears and hops back with its tail up; the server's 6 to 10 stud jump-back is drawn as travel during the hop, never a snap. The player who missed gets one small camera shake (about 0.18 s); the watcher sees the puff, "!" and hop (from `HissAt`) but no shake. The hiss sound plays with the puff (audio PR #69). With Reduce Motion on: no shake and no flash |
+| E2 Catch and Purrfect | Catch a Common with one Good circle, then an all-Perfect catch (`Debug.spawnStray` and the abuse client's on-target presses, or by hand), then a Mythical all-Perfect | The Good catch bursts sparkles in the rarity colour, no gold. The all-Perfect catch adds a gold burst, a gold ring on the ground and gold confetti. On the phone emulator each burst is visibly smaller than on PC (12 particles at most) |
+| E3 Claim | Clients and Servers: a second player joins and claims a For Rent plot while the first player watches from the street | The shutters roll up into their top edge with a dust puff, the For Rent sign flips and fades, a little confetti at the door. Before the asset thread's `CatCafe_Plot_ForRent` with `_Shutter` and `_Sign` parts: only the dust puff and confetti |
+| E4 Rank up | Rank up to Tier 2 (S14) with the second player within 120 studs, then again with them 150 studs away. Then rejoin a profile saved at Tier 3 | Confetti and a smoke puff at the cafe door for every player within 120 studs, more confetti for the owner; nothing for the player 150 studs away. A rejoin at a saved tier plays the claim effect only, never rank up confetti (claim grace 2 s) |
+| E5 Gate | After E4, walk to the Park gate, then away past 70 studs and back | Within 70 studs the barrier copy fades and swells with rising sparkles, confetti and a mint ring, once; walking away and back does not replay it in this session. A gate that opened while the player was far away dissolves when they first walk up |
+| E6 Day ambient | By day, `screen_capture` at a running cafe front | A thin steam wisp over the espresso machine and two pastel butterflies looping over the flowers (or the pavement in front of each door until `_Flowers` exists). Chimney smoke only once the cafe roofs have `_Chimney` parts |
+| E7 Night ambient | `Debug.setPhase("night")`, capture the street and the Square | Warm fireflies drifting near the street lamps (or `_Fireflies` boxes); no butterflies at night; they return at dawn |
+| E8 Console | The whole section | No new error or warning naming `Effects` on the client, none on the server |
 
 ## 5. Manual checklist (Derek first, then friends)
 

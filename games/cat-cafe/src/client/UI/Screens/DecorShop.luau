@@ -159,6 +159,7 @@ function DecorShop._build(self: any)
 			textSize = Theme.sizes.textSmall,
 			layoutOrder = index,
 			parent = self._chipRow,
+			sound = "uiTab",
 			onClick = function()
 				self:_setFilter(category)
 			end,

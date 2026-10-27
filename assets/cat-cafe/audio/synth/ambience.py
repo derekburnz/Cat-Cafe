@@ -8,7 +8,8 @@ are original and the same on every run. Everything is made over exactly one loop
 the frequency domain over the whole loop, every event (a cup clink, a drip, a chirp, a voice)
 wraps around the loop end, and every steady tone fits a whole number of cycles. So the end flows
 into the start with no seam. Outputs (overwritten):
-  assets/cat-cafe/audio/ambience/CatCafe_Amb_<Name>.ogg  (stereo, 48 kHz, about -26 LUFS)
+  assets/cat-cafe/audio/ambience/CatCafe_Amb_<Name>.ogg  (stereo, 48 kHz, about -26 LUFS; the 3D
+  loop CatCafe_Amb_LoopCafeDoor is mono)
   with --preview: DIR/purr-pot-ambience-preview.mp3, 20 s of each bed with crossfades.
 
 The cafe chatter is a crowd of made-up talkers: pulse-train voices shaped by vowel formants into
@@ -282,6 +283,13 @@ def wall_clock(seed: int) -> np.ndarray:
     return track
 
 
+def cafe_door() -> np.ndarray:
+    """Heard outside a running cafe's door (a 3D loop, so mono): chatter and cups through the doorway."""
+    x = cafe(150, people=6, chatty=1.0, laughs=1, clinks=2.0, busy=True)
+    mono = shape(x.mean(axis=1), band(150, 3000))
+    return np.stack([mono, mono], axis=1)
+
+
 def cafe_night() -> np.ndarray:
     mix = cafe(200, people=3, chatty=0.6, laughs=1, clinks=5.0, busy=False) * 0.8
     mix += pan(wall_clock(210), 0.4) * 0.05
@@ -464,8 +472,11 @@ def park_night() -> np.ndarray:
     return mix
 
 
+MONO = {"LoopCafeDoor"}  # 3D loops on a part must be mono to be placed in the world
+
 BEDS = {
     "CafeDay": cafe_day,
+    "LoopCafeDoor": cafe_door,
     "CafeNight": cafe_night,
     "AlleyDay": alley_day,
     "AlleyNight": alley_night,
@@ -549,7 +560,7 @@ def main() -> int:
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
             out = ROOT / "ambience" / f"CatCafe_Amb_{name}.ogg"
-            encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
+            encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5", "-ac", "1" if name in MONO else "2"])
             print(f"ambience: {out.relative_to(ROOT.parents[2]).as_posix()}  {LOOP:.0f} s")
         if args.preview:
             folder = Path(args.preview)

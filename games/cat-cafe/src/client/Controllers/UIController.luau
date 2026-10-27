@@ -41,12 +41,25 @@ function UIController.ownDoor(): BasePart?
 	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
 end
 
-local function alleyEntrance(): BasePart?
+-- The own cafe's back door: check-in works there too (layout v2).
+function UIController.ownBackDoor(): BasePart?
+	local plot = ownPlot()
+	local door = if plot ~= nil then plot:FindFirstChild("BackDoorZone") else nil
+	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
+end
+
+-- The lane spawn point right behind the own cafe, where the tutorial stray waits (alley point 2p - 1 for plot p).
+local function tutorialStrayPoint(): BasePart?
+	if state == nil or state.plotIndex == 0 then
+		return nil
+	end
 	local world = Workspace:FindFirstChild("World")
 	local alley = if world ~= nil then world:FindFirstChild("Alley") else nil
 	local points = if alley ~= nil then alley:FindFirstChild("SpawnPoints") else nil
-	local first = if points ~= nil then points:FindFirstChild("alley_1") else nil
-	return if first ~= nil and first:IsA("BasePart") then first :: BasePart else nil
+	local point = if points ~= nil
+		then points:FindFirstChild("alley_" .. (2 * state.plotIndex - 1))
+		else nil
+	return if point ~= nil and point:IsA("BasePart") then point :: BasePart else nil
 end
 
 local function hasRestingCatAndFreeSpot(s: Types.PlayerState): boolean
@@ -77,8 +90,8 @@ local function refreshTutorial(s: Types.PlayerState)
 	end
 	if s.tutorialStep < 2 then
 		UI.tutorial.show(
-			"Walk to the alley at the end of the street and press E on a cat, then tap as each circle closes",
-			alleyEntrance(),
+			"Go out your back door to the alley and press E on a cat, then tap as each circle closes",
+			tutorialStrayPoint(),
 			"Alley"
 		)
 	elseif s.tutorialStep == 2 then
@@ -217,20 +230,41 @@ local function wireServerEvents()
 	end)
 	Net.on(
 		"CatchSchedule",
-		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+		function(
+			strayId: string,
+			circles: { Types.CatchCircle },
+			windows: Types.CatchWindows,
+			_pawsLeft: number?
+		)
 			UI.catch.showCircles(strayId, circles, windows)
 		end
 	)
+	-- v0.4 (data-model section 10 step 5) sends grades, not scores, and no chance. Until the UI takes grades, the
+	-- grades are turned back into the v0.3 scores and a 0 or 100% chance; the stray stays unless this player is
+	-- out of paws.
 	Net.on(
 		"CatchResult",
 		function(
 			strayId: string,
-			scores: { number },
-			chance: number,
+			grades: { Types.CircleGrade },
 			success: boolean,
-			stayed: boolean?
+			pawsLeft: number?,
+			_charmGain: number
 		)
-			UI.catch.showResult(strayId, scores, chance, success, stayed)
+			local scores: { number } = {}
+			for _, grade in grades do
+				table.insert(
+					scores,
+					if grade == "perfect" then 1 elseif grade == "good" then 0.5 else 0
+				)
+			end
+			UI.catch.showResult(
+				strayId,
+				scores,
+				if success then 1 else 0,
+				success,
+				not success and pawsLeft ~= 0
+			)
 		end
 	)
 	Net.on("GrabResult", function(id: string, ok: boolean, reason: string, retry: boolean)

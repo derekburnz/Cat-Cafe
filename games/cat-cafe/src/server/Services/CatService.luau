@@ -1,7 +1,7 @@
 --!strict
--- Strays: night waves per area, the net (lock, closing circles, roll), rescue spots, carrying a caught cat home,
--- check-in, and bait (lures in code). Server authoritative: the client only says which circle it pressed for;
--- distance, locks, the schedule, the press times and odds live here.
+-- Strays: night waves per area, the net (lock, closing circles, patience paws), rescue spots, carrying a caught cat
+-- home, check-in, and bait (lures in code). Server authoritative: the client only says which circle it pressed
+-- for; distance, locks, the schedule, the press times, paws and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
 local CafeService = require(script.Parent.CafeService)
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
 local Circles = require(ReplicatedStorage.Shared.Circles)
@@ -41,8 +42,13 @@ type Stray = {
 	lockedBy: number,
 	lockUntil: number, -- server time the lock lapses on its own; 0 when unlocked
 	attempt: Circles.Attempt?, -- the circles of the lock holder's catch in progress
-	retryUserId: number, -- the player whose catch just failed waits until retryUntil (server time) on this stray
-	retryUntil: number,
+	-- v0.4 (data-model section 10 step 5): paws left per player, set to the rarity's patience at their first catch
+	-- and kept when they leave, so a rejoin does not refill them (reviewer N45). Gone when the stray despawns.
+	paws: { [number]: number },
+	waryUntil: { [number]: number }, -- server time each player who missed may try again (StrayWarySeconds)
+	landsAt: number, -- server time a jump back ends; nobody starts a catch before it (GrabRetrySeconds)
+	jumping: boolean,
+	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
 	reservedFor: number,
 	calm: boolean,
 	alive: boolean,
@@ -64,7 +70,7 @@ type Stuck = {
 	alive: boolean,
 }
 
-type Carry = { def: Types.CatDef, model: Model?, rescued: boolean }
+type Carry = { def: Types.CatDef, model: Model?, rescued: boolean, charm: number? }
 type ActiveLure = {
 	spotId: string,
 	area: string,
@@ -86,6 +92,8 @@ local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per p
 local lastCatchStart: { [Player]: number } = {} -- server time of the player's last GrabBegin that started circles
 local rng = Random.new()
 local nextStrayNumber = 0
+
+local JUMP_SPEED = 24 -- studs per second of a stray's jump back after a miss; the client draws the hop
 
 local MAX_CIRCLES = 1 -- the most circles any rarity has; bounds the CatchPress index
 for _, rarity in Catalog.rarities do
@@ -206,17 +214,21 @@ local function wander(stray: Stray)
 	end
 	while stray.alive do
 		task.wait(rng:NextNumber(3, 7))
-		if not stray.alive or stray.lockedBy ~= 0 or not anyoneNear(stray.home) then
+		if
+			not stray.alive
+			or stray.lockedBy ~= 0
+			or stray.jumping
+			or not anyoneNear(stray.home)
+		then
 			continue
 		end
 		local radius = Config.StrayWanderRadius
-		local target = stray.home
-			+ Vector3.new(rng:NextNumber(-radius, radius), 0, rng:NextNumber(-radius, radius))
-		local bounds = area.bounds
-		target = Vector3.new(
-			math.clamp(target.X, bounds.minX, bounds.maxX),
-			area.floorY,
-			math.clamp(target.Z, bounds.minZ, bounds.maxZ)
+		local target = WorldBuilder.clampToArea(
+			area,
+			stray.home
+				+ Vector3.new(rng:NextNumber(-radius, radius), 0, rng:NextNumber(-radius, radius)),
+			2,
+			stray.model:GetPivot().Position
 		)
 		Mover.walkTo(stray.model, target, Config.StrayWanderSpeed, alive)
 	end
@@ -246,6 +258,8 @@ local function spawnStray(
 	model:SetAttribute("ReservedFor", reservedFor)
 	model:SetAttribute("SpawnedAt", os.time())
 	model:SetAttribute("Calm", calm)
+	-- Paws each player starts with; a player's own count is Paws_<UserId> once they have missed (v0.4).
+	model:SetAttribute("Patience", Catching.patience(def.rarity))
 	CollectionService:AddTag(model, "Stray")
 
 	local prompt = Instance.new("ProximityPrompt")
@@ -264,6 +278,7 @@ local function spawnStray(
 	prompt.Parent = body
 
 	model:PivotTo(CFrame.new(position) * CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0))
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 	model.Parent = straysFolder
 
 	local stray: Stray = {
@@ -280,8 +295,11 @@ local function spawnStray(
 		lockedBy = 0,
 		lockUntil = 0,
 		attempt = nil,
-		retryUserId = 0,
-		retryUntil = 0,
+		paws = {},
+		waryUntil = {},
+		landsAt = 0,
+		jumping = false,
+		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 		reservedFor = reservedFor,
 		calm = calm,
 		alive = true,
@@ -327,14 +345,28 @@ local function spawnStray(
 	return stray
 end
 
-local function freeSpawnPoint(areaId: string): number?
+-- A free spawn point in the area, or nil. Epic and rarer strays take only points tagged "square" when one is
+-- free (data-model section 9: the exciting cats are a short run from everyone, no cafe's lane is the lucky one).
+local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
 	local free: { number } = {}
-	for i = 1, #area.spawnPoints do
+	local square: { number } = {}
+	local hasSquare = false
+	for i, point in area.spawnPoints do
+		local inSquare = point:GetAttribute("Zone") == "square"
+		hasSquare = hasSquare or inSquare
 		if occupied[i] == nil then
 			table.insert(free, i)
+			if inSquare then
+				table.insert(square, i)
+			end
 		end
+	end
+	-- Epic and rarer spawn only in the Alley Square, never in a back alley lane (F35); with the Square full that
+	-- stray waits for the next wave. startWave places the rarer strays first, so this is rare.
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasSquare then
+		return if #square > 0 then square[rng:NextInteger(1, #square)] else nil
 	end
 	if #free == 0 then
 		return nil
@@ -342,11 +374,9 @@ local function freeSpawnPoint(areaId: string): number?
 	return free[rng:NextInteger(1, #free)]
 end
 
-local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity?)
-	local areaDef = Catalog.getArea(areaId) :: Types.AreaDef
+local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)
 	local area = world.areas[areaId]
-	local picked: Types.Rarity = rarity or Catching.pickRarity(areaDef.odds, rng:NextNumber())
-	local def = Catching.pickCat(picked, areaId, rng:NextNumber())
+	local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
 	spawnStray(
 		def,
@@ -360,31 +390,36 @@ local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity?
 	)
 end
 
-local function anyPlayerInTutorial(): boolean
+-- A beginner always finds a Common stray waiting in the back alley right outside their own yard gate: plot p's
+-- lane points are alley points 2p - 1 and 2p (Layout.alley).
+local function tutorialTick()
+	local occupied = occupiedPoints.alley or {}
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
-		if profile ~= nil and profile.tutorialStep < Config.TutorialGuaranteedStrayStep then
-			return true
+		local plot = PlotService.get(player)
+		if
+			profile == nil
+			or plot == nil
+			or profile.tutorialStep >= Config.TutorialGuaranteedStrayStep
+		then
+			continue
+		end
+		local lane = { 2 * plot.index - 1, 2 * plot.index }
+		local waiting = false
+		local freePoint: number? = nil
+		for _, pointIndex in lane do
+			local strayId = occupied[pointIndex]
+			local stray = if strayId ~= nil then strays[strayId] else nil
+			if stray ~= nil and stray.alive and stray.def.rarity == "Common" then
+				waiting = true
+			elseif strayId == nil and freePoint == nil then
+				freePoint = pointIndex
+			end
+		end
+		if not waiting and freePoint ~= nil then
+			spawnAt("alley", freePoint :: number, "Common")
 		end
 	end
-	return false
-end
-
-local function tutorialTick()
-	-- A beginner always finds a Common stray at alley point 1.
-	if not anyPlayerInTutorial() then
-		return
-	end
-	local occupied = occupiedPoints.alley or {}
-	if occupied[1] ~= nil then
-		return
-	end
-	for _, stray in strays do
-		if stray.area == "alley" and stray.def.rarity == "Common" and stray.alive then
-			return
-		end
-	end
-	spawnAt("alley", 1, "Common")
 end
 
 -- Night start (data-model section 9): last night's leftovers leave, then a full wave arrives at once. Bait
@@ -408,12 +443,19 @@ local function startWave(areaDef: Types.AreaDef)
 			despawn(stray)
 		end
 	end
+	-- Roll the whole wave, then place the rarest first so Epic and rarer always find a Square point.
+	local rarities: { Types.Rarity } = {}
 	for _ = 1, areaDef.waveSize do
-		local point = freeSpawnPoint(areaDef.id)
-		if point == nil then
-			break
+		table.insert(rarities, Catching.pickRarity(areaDef.odds, rng:NextNumber()))
+	end
+	table.sort(rarities, function(a, b)
+		return Catalog.rarityRank[a] > Catalog.rarityRank[b]
+	end)
+	for _, rarity: Types.Rarity in rarities do
+		local point = freeSpawnPoint(areaDef.id, rarity)
+		if point ~= nil then
+			spawnAt(areaDef.id, point, rarity)
 		end
-		spawnAt(areaDef.id, point)
 	end
 end
 
@@ -463,6 +505,7 @@ local function spawnStuck(spotId: string, areaId: string, spot: BasePart, def: T
 	prompt.Parent = body
 
 	model:PivotTo(spot.CFrame)
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 	model.Parent = straysFolder
 	spot:SetAttribute("Occupied", true)
 	spot:SetAttribute("LockedBy", 0)
@@ -582,7 +625,12 @@ local function withArticle(phrase: string): string
 end
 
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it.
-local function startCarry(player: Player, def: Types.CatDef, rescued: boolean): boolean
+local function startCarry(
+	player: Player,
+	def: Types.CatDef,
+	rescued: boolean,
+	charm: number?
+): boolean
 	if carrying[player] ~= nil then
 		warn(
 			string.format(
@@ -593,7 +641,7 @@ local function startCarry(player: Player, def: Types.CatDef, rescued: boolean): 
 		)
 		return false
 	end
-	local carry: Carry = { def = def, model = nil, rescued = rescued }
+	local carry: Carry = { def = def, model = nil, rescued = rescued, charm = charm }
 	carrying[player] = carry
 	attachHeldCat(player, carry)
 	CafeService.setCarrying(player, def.id)
@@ -649,8 +697,9 @@ local function logCircle(player: Player, strayId: string, attempt: Circles.Attem
 	)
 end
 
--- Records judged circles in the player's history and flags the profile when the last 50 look scripted (S23).
--- The flag is for review only; nothing is taken away.
+-- Records judged circles in the player's history and flags the profile when the last 50 look scripted (S23), or
+-- clears the flag when a full 50 look honest again (v0.4, reviewer N46). While flagged the player gets no Perfect
+-- charm bonus; nothing else is taken away, and Derek reviews flagged accounts.
 local function recordCircles(player: Player, profile: Types.PlayerProfile, attempt: Circles.Attempt)
 	local history = circleHistory[player]
 	if history == nil then
@@ -666,15 +715,70 @@ local function recordCircles(player: Player, profile: Types.PlayerProfile, attem
 		profile.flags.autoPress = true
 		warn(
 			string.format(
-				"[CatService] %d flagged autoPress: over 95%% Perfect in the last 50 circles",
-				player.UserId
+				"[CatService] autopress_flag set for %d: over %d%% Perfect in the last %d circles",
+				player.UserId,
+				math.floor(Circles.AUTO_PRESS_RATE * 100 + 0.5),
+				Circles.AUTO_PRESS_WINDOW
 			)
 		)
+	elseif profile.flags.autoPress and Circles.looksHonest(history) then
+		profile.flags.autoPress = false
+		warn(string.format("[CatService] autopress_flag cleared for %d", player.UserId))
 	end
 end
 
--- Ends a catch once every circle is judged: chance is the mean score, one roll decides it (data-model section 10).
--- The schedule and the press times are the server's own, so a scripted client can only press on time.
+-- Players who can never run out of paws on this stray (data-model section 10 step 5): a beginner on a Common,
+-- so the first catch cannot be lost, and the player who baited it (a lure is bought; bait becomes F28's bowl).
+-- A miss still makes the stray jump back and starts their wary wait.
+local function pawsExempt(stray: Stray, player: Player, profile: Types.PlayerProfile): boolean
+	if
+		profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+		and stray.def.rarity == "Common"
+	then
+		return true
+	end
+	return stray.calm and stray.reservedFor == player.UserId
+end
+
+-- This player's paws on the stray, or nil when they cannot run out.
+local function pawsLeft(stray: Stray, player: Player, profile: Types.PlayerProfile): number?
+	if pawsExempt(stray, player, profile) then
+		return nil
+	end
+	return stray.paws[player.UserId] or Catching.patience(stray.def.rarity)
+end
+
+-- After a miss the stray hisses (HissAt, so every nearby client plays it) and jumps StrayJumpBackMin to Max studs
+-- straight away from the player, kept inside its area. Nobody can start a catch on it until it lands.
+local function jumpBack(stray: Stray, player: Player)
+	local at = stray.model:GetPivot().Position
+	local from = rootPosition(player)
+	local away = if from ~= nil then Vector3.new(at.X - from.X, 0, at.Z - from.Z) else Vector3.zero
+	if away.Magnitude < 0.1 then
+		local angle = rng:NextNumber(0, math.pi * 2)
+		away = Vector3.new(math.cos(angle), 0, math.sin(angle))
+	end
+	local area = world.areas[stray.area]
+	local target = WorldBuilder.clampToArea(
+		area,
+		at + away.Unit * rng:NextNumber(Config.StrayJumpBackMin, Config.StrayJumpBackMax),
+		2,
+		at
+	)
+	stray.model:SetAttribute("HissAt", serverNow())
+	stray.jumping = true
+	stray.home = target -- it wanders from where it landed, not back toward whoever missed (reviewer N52)
+	task.spawn(function()
+		Mover.walkTo(stray.model, target, JUMP_SPEED, function()
+			return stray.alive and stray.lockedBy == 0
+		end)
+		stray.jumping = false
+	end)
+end
+
+-- Ends a catch at its first Miss or after its last circle (data-model section 10 step 5, v0.4): every circle Good
+-- or Perfect is a sure catch, anything else costs this player a paw. The schedule and the press times are the
+-- server's own, so a scripted client can only press on time.
 local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attempt)
 	if stray.attempt ~= attempt or not stray.alive then
 		return -- already finished, or the lock was dropped
@@ -687,49 +791,59 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	end
 	Circles.expire(attempt, serverNow())
 	recordCircles(player, profile, attempt)
-	-- Walking out of range, or finishing a rescue mid-catch (reviewer S21: the carried cat wins), is a failed
-	-- catch with no roll, never a retry: otherwise stepping away before the last circle dodges a rare cat's
-	-- flee (reviewer S33).
+	-- Walking out of range, or finishing a rescue mid-catch (reviewer S21: the carried cat wins), is a Miss, so
+	-- stepping away before a hard circle never dodges the cost (reviewer S33).
 	local forfeit: string? = nil
 	if carrying[player] ~= nil then
 		forfeit = "Check in the cat you are carrying first"
 	elseif not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		forfeit = "Too far away"
 	end
-	local chance = Circles.chance(attempt.scores)
-	local success = forfeit == nil and Catching.succeeds(chance, rng:NextNumber())
-	local lured = stray.calm and stray.reservedFor == player.UserId
-	local flees = not success and Catching.fleesOnFail(stray.def.rarity) and not lured
 	setLock(stray, 0)
-	-- `stayed` tells the UI whether to offer the prompt again; it cannot tell from the rarity (reviewer N39).
-	Net.fire(
-		player,
-		"CatchResult",
-		stray.id,
-		attempt.scores,
-		chance,
-		success,
-		not success and not flees
-	)
-	if forfeit ~= nil then
-		Net.toast(player, forfeit, "warn")
-	end
 
-	if success then
+	if forfeit == nil and Circles.succeeded(attempt) then
+		local gain = if profile.flags.autoPress then 0 else Circles.charmGain(attempt)
+		Net.fire(
+			player,
+			"CatchResult",
+			stray.id,
+			attempt.grades,
+			true,
+			pawsLeft(stray, player, profile),
+			gain
+		)
 		profile.stats.grabsSucceeded += 1
 		local def = stray.def
+		local charm = math.min(100, stray.charm + gain)
 		despawn(stray)
-		startCarry(player, def, false)
+		startCarry(player, def, false, charm)
 		return
 	end
-	if flees then
-		Net.toast(player, "It got away", "warn")
-		despawn(stray)
-		return
+
+	local paws = pawsLeft(stray, player, profile)
+	if paws ~= nil then
+		paws = math.max(0, paws - 1)
+		stray.paws[player.UserId] = paws
+		stray.model:SetAttribute("Paws_" .. player.UserId, paws)
 	end
-	-- The stray stays; the player who just failed waits GrabRetrySeconds before trying it again (reviewer N37).
-	stray.retryUserId = player.UserId
-	stray.retryUntil = serverNow() + Config.GrabRetrySeconds
+	local now = serverNow()
+	stray.waryUntil[player.UserId] = now + Config.StrayWarySeconds
+	stray.landsAt = now + Config.GrabRetrySeconds
+	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, paws, 0)
+	if forfeit ~= nil then
+		Net.toast(player, forfeit, "warn")
+	elseif paws == 0 then
+		Net.toast(player, "It won't trust you tonight", "warn")
+	elseif paws ~= nil then
+		Net.toast(
+			player,
+			string.format("It slipped away! %d %s left", paws, if paws == 1 then "paw" else "paws"),
+			"warn"
+		)
+	else
+		Net.toast(player, "It slipped away! Try again", "warn")
+	end
+	jumpBack(stray, player)
 end
 
 -- Remote handlers -----------------------------------------------------------------------------------------
@@ -768,8 +882,18 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
+	local paws = pawsLeft(stray, player, profile)
+	if paws == 0 then
+		Net.fire(player, "GrabResult", strayId, false, "It won't trust you again tonight", false)
+		return
+	end
 	local now = serverNow()
-	if stray.retryUserId == player.UserId and now < stray.retryUntil then
+	local wary = stray.waryUntil[player.UserId]
+	if wary ~= nil and now < wary then
+		Net.fire(player, "GrabResult", strayId, false, "It's wary of you, give it a moment", true)
+		return
+	end
+	if now < stray.landsAt then
 		Net.fire(player, "GrabResult", strayId, false, "Give it a moment", true)
 		return
 	end
@@ -799,13 +923,31 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	local attempt = Circles.newAttempt(circles, windows)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
+	if paws ~= nil then
+		stray.paws[player.UserId] = paws
+	end
 	profile.stats.grabsAttempted += 1
-	Net.fire(player, "CatchSchedule", strayId, circles, Circles.publicWindows(windows))
+	Net.fire(player, "CatchSchedule", strayId, circles, Circles.publicWindows(windows), paws)
 
-	-- Circles nobody presses for score 0 at their deadline; after the last one the catch resolves on its own.
-	task.delay(math.max(0, Circles.endsAt(circles, windows) - now) + 0.05, function()
-		if stray.attempt == attempt then
-			finishCatch(player, stray, attempt)
+	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
+	task.spawn(function()
+		while stray.attempt == attempt do
+			local deadline = Circles.nextDeadline(attempt)
+			if deadline == nil then
+				return
+			end
+			task.wait(math.max(0, deadline - serverNow()) + 0.05)
+			if stray.attempt ~= attempt then
+				return
+			end
+			Circles.expire(attempt, serverNow())
+			if
+				Circles.isDone(attempt)
+				or not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2)
+			then
+				finishCatch(player, stray, attempt)
+				return
+			end
 		end
 	end)
 	-- Whatever happens, the lock never outlives its schedule.
@@ -817,7 +959,8 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 end
 
 -- One press for circle `index`. The client sends no time: the press is stamped on arrival and half the player's
--- ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press).
+-- ping (capped) is taken off. Out-of-order, repeated and early presses are ignored (Circles.press). A Miss or the
+-- last circle ends the catch at once.
 local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unknown)
 	local strayId = Guard.id(rawStrayId)
 	local index = Guard.int(rawIndex, 1, MAX_CIRCLES)
@@ -835,11 +978,11 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 	local arrival = serverNow()
 	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
 	local before = attempt.nextIndex
-	local grade = Circles.press(attempt, index, pressTime, arrival)
+	Circles.press(attempt, index, pressTime, arrival)
 	for judged = before, attempt.nextIndex - 1 do
 		logCircle(player, strayId, attempt, judged)
 	end
-	if grade ~= nil and Circles.isDone(attempt) then
+	if Circles.isDone(attempt) then
 		finishCatch(player, stray, attempt)
 	end
 end
@@ -851,7 +994,8 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 		return
 	end
 	local def = carry.def
-	local _, isNew = CafeService.addCaughtCat(player, def, notify, profile, nil, carry.rescued)
+	local _, isNew =
+		CafeService.addCaughtCat(player, def, notify, profile, carry.charm, carry.rescued)
 	if notify then
 		Net.fire(player, "CatCaught", def.id, isNew)
 		if Catching.rarityAtLeast(def.rarity, Config.AnnounceMinRarity) then
@@ -873,7 +1017,11 @@ local function onCheckIn(player: Player)
 	if carry == nil or plot == nil then
 		return
 	end
-	if not withinRange(player, plot.door.Position, Config.CheckInRangeStuds) then
+	-- Either door works (layout v2): the back door is the short way in from the back alley.
+	if
+		not withinRange(player, plot.door.Position, Config.CheckInRangeStuds)
+		and not withinRange(player, plot.backDoorZone.Position, Config.CheckInRangeStuds)
+	then
 		return
 	end
 	finishCheckIn(player, true)
@@ -1119,11 +1267,16 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	end)
 
 	Players.PlayerAdded:Connect(function(player)
-		player.CharacterAdded:Connect(function()
+		player.CharacterAdded:Connect(function(character)
 			task.wait(0.2)
 			local carry = carrying[player]
 			if carry ~= nil then
 				attachHeldCat(player, carry)
+				return
+			end
+			local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+			if humanoid ~= nil then
+				humanoid.WalkSpeed = Config.NormalWalkSpeed
 			end
 		end)
 	end)
@@ -1210,7 +1363,7 @@ function CatService.debugSpawnStray(catId: string, areaId: string): string
 	local areaDef = Catalog.getArea(areaId)
 	assert(def ~= nil and areaDef ~= nil, "unknown cat or area")
 	local area = world.areas[areaId]
-	local pointIndex = freeSpawnPoint(areaId) or 1
+	local pointIndex = freeSpawnPoint(areaId, def.rarity) or 1
 	local point = area.spawnPoints[pointIndex]
 	local stray = spawnStray(
 		def :: Types.CatDef,

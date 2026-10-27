@@ -32,7 +32,10 @@ local Config = {
 	-- Strays and catching (data-model sections 9 and 10). Wave sizes live per area in Catalog.areas.
 	StrayDespawnSeconds = 120, -- lifetime of a Studio debug stray; wave strays stay until the next night
 	GrabRangeStuds = 10,
-	GrabRetrySeconds = 2, -- after a failed catch the stray stays (Common, lured), this player waits before trying it again
+	GrabRetrySeconds = 2, -- after a miss the stray jumps back; everyone but the player who missed waits this long
+	StrayWarySeconds = 5, -- the player who just missed waits this long before trying the same stray again
+	StrayJumpBackMin = 6, -- a miss makes the stray hiss and jump this far (studs, rolled) away from the player
+	StrayJumpBackMax = 10,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
 	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
 
@@ -42,8 +45,14 @@ local Config = {
 	-- CatchLatencyCapSeconds, so a late press for one circle can never land on the next (reviewer S24).
 	CircleGapMin = 0.40,
 	CircleGapMax = 0.75,
-	CircleScorePerfect = 1.0,
+	CircleScorePerfect = 1.0, -- v0.4: grades decide the catch; the scores stay for tests and analytics only
 	CircleScoreGood = 0.5,
+	PerfectCharmBonus = 4, -- charm added to a caught cat per Perfect circle, capped at 100 (section 10 step 5)
+	PurrfectCharmMultiplier = 2, -- the bonus is doubled when every circle is Perfect
+	-- The scripted-press flag (reviewer S23): set above this Perfect rate over the last 50 circles, cleared at or
+	-- below AutoPressClearRate. While set the profile gets no Perfect charm bonus (v0.4).
+	AutoPressFlagRate = 0.95,
+	AutoPressClearRate = 0.85,
 	CatchLatencyCapSeconds = 0.15, -- most of a player's ping taken off a press (half the round trip, capped)
 	-- Per net level (0 Basic, 1 Sturdy, 2 Pro, 3 Master): perfect and good are half-widths in seconds either side of
 	-- the target; jitter spreads each circle's shrink time by up to that fraction either way.
@@ -55,8 +64,8 @@ local Config = {
 	} :: { [number]: { perfect: number, good: number, jitter: number } },
 	LureWaitSeconds = 45,
 	LureDespawnSeconds = 90,
-	CarryWalkSpeed = 13,
-	NormalWalkSpeed = 16,
+	CarryWalkSpeed = 16,
+	NormalWalkSpeed = 20,
 	CheckInRangeStuds = 8,
 	StrayWanderRadius = 5,
 	StrayWanderSpeed = 3,
@@ -88,41 +97,57 @@ local Config = {
 	ProfileStoreName = "PurrPotProfiles",
 	ProfileKeyPrefix = "p_",
 
-	-- World layout. The street runs along Z at X = 0. Plots line both sides, the alley is at +Z, the park at -Z.
+	-- World layout v2 (engineer, 2026-10-26; data-model section 9, world-and-feel.md section 2). The street runs
+	-- along Z at X = 0. Cafes line both sides, each with a front garden on the street and a patio yard out back;
+	-- the Alleyway is a back alley behind each row that meets the other in the Alley Square at the street's north
+	-- end. The Park, Woods and Sewer gates are at the south end, the Neighbourhood's through the Square's north wall.
 	World = {
 		PlotCount = 8,
 		PlotWidth = 36, -- along the street (Z)
 		PlotDepth = 28, -- away from the street (X)
-		PlotRowGap = 8,
+		PlotRowGap = 8, -- a side passage from the street to the back alley between neighbouring cafes
+		FrontGardenDepth = 5, -- path, bench and chalkboard between the sidewalk and the front wall
+		YardDepth = 10, -- the patio yard between the back wall and the back alley
 		StreetHalfWidth = 12,
-		StreetLength = 200,
-		GroundSize = 400,
+		StreetSouthZ = -100,
+		StreetNorthZ = 88, -- the street runs into the Alley Square here
+		GroundSize = 560,
 		WallHeight = 9,
 		DoorWidth = 7,
-		AlleyCenterZ = 125, -- alley area center (north end of the street)
-		AlleyWidth = 60, -- along X
-		AlleyDepth = 44, -- along Z
+		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to SquareSouthZ, and the
+		-- Square across the whole width from SquareSouthZ to SquareNorthZ.
+		AlleyInnerX = 59,
+		AlleyOuterX = 89,
+		AlleySouthZ = -101.5,
+		SquareSouthZ = 88,
+		SquareNorthZ = 152,
 		ParkCenterZ = -130,
 		ParkWidth = 80,
 		ParkDepth = 56,
 		ParkGateZ = -101,
-		-- Areas 3 to 5 (grayboxes) sit beside the alley and the park. Each opening faces the street's end, and a
-		-- path runs between the last cafes and the alley and park walls.
-		NeighbourhoodCenterX = -80, -- west of the alley
-		NeighbourhoodCenterZ = 125,
-		NeighbourhoodWidth = 60,
-		NeighbourhoodDepth = 44,
-		NeighbourhoodGateZ = 102,
-		WoodsCenterX = -95, -- west of the park
-		WoodsCenterZ = -130,
-		WoodsWidth = 80,
-		WoodsDepth = 56,
+		-- The Woods and the Sewer sit either side of the Park, their openings at the south end of the west and east
+		-- back alleys; the Neighbourhood sits north of the Square.
+		WoodsCenterX = -74,
+		WoodsCenterZ = -134,
+		WoodsWidth = 66,
+		WoodsDepth = 64,
 		WoodsGateZ = -101,
-		SewerCenterX = 80, -- east of the alley
-		SewerCenterZ = 125,
-		SewerWidth = 60,
-		SewerDepth = 44,
-		SewerGateZ = 102,
+		SewerCenterX = 74,
+		SewerCenterZ = -134,
+		SewerWidth = 66,
+		SewerDepth = 64,
+		SewerGateZ = -101,
+		NeighbourhoodCenterX = 0,
+		NeighbourhoodCenterZ = 180.5,
+		NeighbourhoodWidth = 90,
+		NeighbourhoodDepth = 56,
+		NeighbourhoodGateZ = 151.5,
+		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
+		-- this range of its camera, up to CustomersMax at once across the street.
+		CafeLifeRangeStuds = 80,
+		CustomersMax = 24,
+		CustomersMaxLow = 12, -- on a phone or tablet (Effects.tier() "low"): each walker moves every frame
+		CustomerOrderSeconds = 2, -- standing at the counter before taking a seat
 	},
 }
 

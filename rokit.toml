@@ -1,11 +1,13 @@
 # Rokit pins the toolchain so everyone runs identical versions.
 # Install Rokit once (docs/setup-guide.md step 4), then run `rokit install` in this folder.
 # Bump a tool with `rokit add <owner>/<repo>@<version>` or check for updates with `rokit update`.
-# luau-lsp 1.70.0 was the newest tag on 2026-10-26; the other pins are older. Run `rokit update` on first setup and commit the result.
+# Rojo 7.7.1, luau-lsp 1.70.1, Selene 0.32.0 and Wally 0.3.2 were the newest stable tags on 2026-10-27. StyLua is held at
+# 2.1.0 because 2.6.0 reformats existing code (docs/tooling/skills-and-tools-survey.md section 11). After a bump: `rokit install`,
+# and `rojo plugin install` when Rojo moved.
 
 [tools]
-rojo = "rojo-rbx/rojo@7.5.1"
+rojo = "rojo-rbx/rojo@7.7.1"
 wally = "UpliftGames/wally@0.3.2"
-selene = "Kampfkarren/selene@0.28.0"
+selene = "Kampfkarren/selene@0.32.0"
 stylua = "JohnnyMorganz/StyLua@2.1.0"
-luau-lsp = "JohnnyMorganz/luau-lsp@1.70.0"
+luau-lsp = "JohnnyMorganz/luau-lsp@1.70.1"

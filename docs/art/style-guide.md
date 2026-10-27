@@ -46,10 +46,10 @@ Swatch index is `row * 8 + col`, rows counted from the top of the image. Hex val
 | 17 | eye_amber | #F2B134 | Tabby, Tortie eyes; Void glow eyes |
 | 18 | eye_blue | #5FA8FF | Siamese, Snow eyes |
 | 19 | nose_pink | #E07A8C | noses, inner ears, paw pads |
-| 20 | rarity_common | #8E97B2 | Common collars |
-| 21 | rarity_rare | #5FA8FF | Rare collars |
-| 22 | rarity_epic | #C07CFF | Epic collars |
-| 23 | rarity_legend | #FFC94D | Legendary collars, gold trim |
+| 20 | rarity_common | #8E97B2 | Common rarity color (UI frames and badges) |
+| 21 | rarity_rare | #5FA8FF | Rare rarity color |
+| 22 | rarity_epic | #C07CFF | Epic rarity color |
+| 23 | rarity_legend | #FFC94D | Legendary rarity color; gold trim (sash edges, vest buttons, cape stars and clasps) |
 
 ### Row 3: alley
 
@@ -107,7 +107,7 @@ Row 7, v0.3 to v0.5 additions. The row is full: a new color now means growing th
 
 | idx | name | hex | use |
 |---|---|---|---|
-| 56 | rarity_mythic | #FF5E7E | Mythical collars (data-model section 2 color) |
+| 56 | rarity_mythic | #FF5E7E | Mythical rarity color (data-model section 2 color) |
 | 57 | fur_blue | #9AA9C2 | Blue's silver-blue coat |
 | 58 | aurora_violet | #8E7CF0 | Aurora's middle band between galaxy_blue and mint |
 | 59 | pastel_butter | #F6DFA0 | Butter cafe facade (plot shells come in mint, blush, pastel_butter, pastel_lilac) |
@@ -116,7 +116,7 @@ Row 7, v0.3 to v0.5 additions. The row is full: a new color now means growing th
 | 62 | shiny_mid | #94BCE4 | Shiny coat, second coat color (frost) |
 | 63 | shiny_dark | #6B8FC6 | Shiny coat, third coat color (frost) |
 
-**Shiny coats (v0.5, features.md F42).** Every cat has `CatCafe_Cat_<Name>_Shiny`: the same shapes with the coat recolored, eyes, nose, inner ears, muzzle, collar and star specks unchanged (a cream muzzle turns white). The cat's coat colors (fur, second, third) are ranked lightest first by CIE L*: the lightest takes shiny_light, the next shiny_mid, the next shiny_dark, and any coat darker than L* 35 (black, chocolate) takes the style's deep swatch, galaxy_blue for frost, so stripes, points and patches still show; a dark coat already in the deep swatch's color family (Midnight's night_sky, Aurora's galaxy_blue under frost) takes shiny_dark instead so it still changes. `palette.SHINY_STYLE` picks the style: frost (silver blue, the default until Gavin's round 3 answer), gold (#FBE49A, #F2C14E, #C98F2A, deep rust) or lavender (#E6D2FA, #C7A3EE, #9A74D6, deep galaxy_blue). Changing that line and rebuilding `--only _Shiny` restyles every shiny cat. Shiny cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_shiny.png`.
+**Shiny coats (v0.5, features.md F42).** Every cat has `CatCafe_Cat_<Name>_Shiny`: the same shapes with the coat recolored, eyes, nose, inner ears, muzzle and star specks unchanged (a cream muzzle turns white). The cat's coat colors (fur, second, third) are ranked lightest first by CIE L*: the lightest takes shiny_light, the next shiny_mid, the next shiny_dark, and any coat darker than L* 35 (black, chocolate) takes the style's deep swatch, galaxy_blue for frost, so stripes, points and patches still show; a dark coat already in the deep swatch's color family (Midnight's night_sky, Aurora's galaxy_blue under frost) takes shiny_dark instead so it still changes. `palette.SHINY_STYLE` picks the style: frost (silver blue, the default until Gavin's round 3 answer), gold (#FBE49A, #F2C14E, #C98F2A, deep rust) or lavender (#E6D2FA, #C7A3EE, #9A74D6, deep galaxy_blue). Changing that line and rebuilding `--only _Shiny` restyles every shiny cat. Shiny cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_shiny.png`.
 
 ## 3. Shape language
 
@@ -164,7 +164,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | category | budget per asset | notes |
 |---|---|---|
 | Cat (Body + Head + Tail) | 1,500 total | Body 900, Head 450, Tail 150 |
-| Accessory | 200 to 300 | glasses, hat, and the role uniforms: apron, bow tie, sash, party hat |
+| Accessory | 200 to 300 | glasses, hat, and the role outfit pieces: apron, barista cap, bow tie, vest, sash, boater, party hat, cape |
 | Held tool (net) | 500 to 650 | per level |
 | Customer NPC | 1,000 | |
 | Hero furniture (Counter) | 3,000 | the night dealer's cart 3,500 |
@@ -198,7 +198,7 @@ A cat exports as one FBX containing three objects: `<Name>_Body` (legs included)
 - Cat Head pivots at the neck joint, Tail at the tail root, so rotating them in Studio looks right.
 - Moving parts of a prop (trap lids, the rescue tree branch) pivot at their hinge or root. `manifest.json` gives that point per part as `part_pivots_roblox`, relative to the asset pivot. If the Studio import puts a MeshPart's pivot at its bounding box centre, set its `PivotOffset` so the pivot lands on that point, then rotate with `PivotTo`.
 - Held tools (the net) pivot at the grip end with the pole running forward (-Z in Roblox), so the Tool's Handle needs no Grip offset beyond rotation.
-- Accessories pivot at their attachment point. `manifest.json` lists, per cat, where each attachment sits on the Head or Body: Glasses and Hat ride the Head, BowTie and Apron ride the Body, so they survive a pose change (upright, carried, stuck) and any future upright variant without new art.
+- Accessories pivot at their attachment point. `manifest.json` lists, per cat, where each attachment sits on the Head or Body: Glasses, Hat and the outfit hats ride the Head, BowTie, Apron, Vest, Sash and Cape ride the Body, so they survive a pose change (upright, carried, stuck) and any future upright variant without new art.
 - Front faces -Y in Blender. The FBX export uses Roblox's documented axes (Forward Z, Up Y), which turn Blender (x, y, z) into Roblox (-x, z, y), so the front lands on -Z, the LookVector, and `CFrame.lookAt` works without a correction. Every position and angle in `manifest.json` has a `_roblox` twin already converted; use those in code. Angles named `*_angles_roblox_deg` are for `CFrame.Angles(math.rad(x), math.rad(y), math.rad(z))`.
 - Apply all transforms before export: location 0, rotation 0, scale 1 on every object except the deliberate offsets of Head and Tail.
 
@@ -239,7 +239,7 @@ After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one
 
 ## 12. Poses
 
-The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each v0.3 rescue trap (Alleyway `TrashBin` and `GarbageBags`, Park `RescueTree` and `TrashCan`), with every value in both Blender and Roblox axes. In the bin and the can the cat stands upright inside with its head and front paws over the rim; in the bags it is buried with its head and front paws out the front; on the tree it lies out on the branch facing the tip with its head turned to the camera, and its Body is welded to the `_Branch` so it rides the shake. Previews: `previews/CatCafe_Alley_TrashBin.png` and the other three, collected in `sheet_poses.png`. The v0.2 StuckTree, StuckBox and Drainpipe props are retired. Carried is relative to the HumanoidRootPart centre, which sits 3 studs above the floor on a default R15 character (`previews/Pose_Carried.png`). `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`. Working cats (v0.3 roles, data-model section 5) stand upright in their role's uniform: Apron for the barista, BowTie for the waiter, Sash for the greeter and PartyHat for the entertainer (`role_uniforms` in the manifest, `previews/Pose_Uniforms.png`). Each cat entry carries `uniform_attachments` (the upright slots, already scaled for that cat) and `scale`; scale the accessory itself by the cat's `scale` too, and multiply every pose position by it. A pose can also move the Head joint by `head_offset_roblox`, given in the Body's own frame: upright moves it 0.32 studs, which seats the head on the collar so the raised front paws and the bow tie stay below the face. The upright pose also centres the standing body over the cat's pivot (the Body moves 1.22 studs forward compared with the first version), so a station's `sit_point` is where the working cat stands. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
+The slice has no skeleton. A pose is a CFrame for the Body plus a local rotation for the Head and the Tail, so it works for every cat. `manifest.json` carries `poses` (upright, carried) and a `stuck_pose` on each v0.3 rescue trap (Alleyway `TrashBin` and `GarbageBags`, Park `RescueTree` and `TrashCan`), with every value in both Blender and Roblox axes. In the bin and the can the cat stands upright inside with its head and front paws over the rim; in the bags it is buried with its head and front paws out the front; on the tree it lies out on the branch facing the tip with its head turned to the camera, and its Body is welded to the `_Branch` so it rides the shake. Previews: `previews/CatCafe_Alley_TrashBin.png` and the other three, collected in `sheet_poses.png`. The v0.2 StuckTree, StuckBox and Drainpipe props are retired. Carried is relative to the HumanoidRootPart centre, which sits 3 studs above the floor on a default R15 character (`previews/Pose_Carried.png`). `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`. Cats wear no collar, strays and cafe cats alike (Derek, 2026-10-27). Working cats (v0.3 roles, data-model section 5) stand upright in their role's two-piece outfit instead, which is what marks a cat as staff: Apron and BaristaCap for the barista, BowTie and Vest for the waiter, Sash and Boater for the greeter, PartyHat and Cape for the entertainer (`role_outfits` in the manifest, `previews/Pose_Uniforms.png`). The pieces share the cafe palette: mint and cream for the barista, dark_wood with a white shirt and gold buttons for the waiter, shirt_red and straw (treat_tan) for the greeter, sign_teal and neon_pink with gold stars for the entertainer. Each cat entry carries `uniform_attachments` (the upright slots, already scaled for that cat) and `scale`, and each cat's Part model carries the same slots as Attachments named `Outfit_<Piece>` (in the Body part, or the Head part for the hats) plus a `Scale` attribute, so the game can dress a cat without reading the manifest; scale the accessory itself by the cat's `scale` too, and multiply every pose position by it. A pose can also move the Head joint by `head_offset_roblox`, given in the Body's own frame: upright moves it 0.32 studs, which seats the head on the chest so the raised front paws and the bow tie stay below the face. The upright pose also centres the standing body over the cat's pivot (the Body moves 1.22 studs forward compared with the first version), so a station's `sit_point` is where the working cat stands. Idle bob and tail wag are tweens the engineer writes (features.md priority 11). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes and an upright cat in a suit; we keep one quadruped rig, gave the eyes a larger glossy highlight, and proved the upright pose with the same parts (`previews/Pose_Upright.png`) so question 15 can go either way without a restart.
 
 ## 13. Cafe plots and the street
 

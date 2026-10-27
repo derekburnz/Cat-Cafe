@@ -87,9 +87,11 @@ def build_net(level, mat):
         for a in (0, 90, 180, 270):
             r = math.radians(a)
             h.box((math.cos(r) * hoop_r, hy + math.sin(r) * hoop_r, 0.1), (0.1, 0.1, 0.1), "sparkle", bevel=False)
+    # the bag hangs from the hoop: a short mouth band tucked inside the hoop, then netting narrowing downward
+    bag_col = "offwhite" if level < 3 else "fish_belly"
     bag = Builder()
-    bag.cyl((0, hy, -0.55), hoop_r - 0.05, 1.0, "offwhite" if level < 3 else "fish_belly", segments=14, radius2=0.25,
-            bevel=False)
+    bag.cyl((0, hy, -0.05), hoop_r - 0.02, 0.14, bag_col, segments=14, bevel=False)                      # mouth
+    bag.cyl((0, hy, -0.6), 0.22, 1.0, bag_col, segments=14, radius2=hoop_r - 0.06, bevel=False)          # netting
     name = f"CatCafe_Item_Net_L{level}"
     return [h.finalize(name + "_Handle", mat), bag.finalize(name + "_Bag", mat)]
 

@@ -983,7 +983,7 @@
        "CFrame": {
         "position": [
          0.0,
-         -0.8833,
+         -0.2667,
          -4.35
         ],
         "orientation": [
@@ -1007,8 +1007,8 @@
       },
       "Size": [
        0.3333,
-       1.75,
-       1.75
+       1.7233,
+       1.7233
       ],
       "Color": [
        1.0,
@@ -1026,7 +1026,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         0.8833,
+         0.2667,
          0.0,
          4.35
         ],
@@ -1062,7 +1062,7 @@
        "CFrame": {
         "position": [
          0.0,
-         -0.55,
+         -0.05,
          -4.35
         ],
         "orientation": [
@@ -1085,9 +1085,9 @@
        }
       },
       "Size": [
-       0.3333,
-       1.25,
-       1.25
+       0.14,
+       2.06,
+       2.06
       ],
       "Color": [
        1.0,
@@ -1112,7 +1112,7 @@
        "CFrame": {
         "position": [
          0.0,
-         -0.2167,
+         -0.9333,
          -4.35
         ],
         "orientation": [
@@ -1136,8 +1136,58 @@
       },
       "Size": [
        0.3333,
-       0.75,
-       0.75
+       0.6967,
+       0.6967
+      ],
+      "Color": [
+       1.0,
+       0.9765,
+       0.949
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Item_Net_L2_Bag",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.6,
+         -4.35
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3333,
+       1.21,
+       1.21
       ],
       "Color": [
        1.0,

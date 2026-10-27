@@ -14,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
 local ActionPill = require(script.Screens.ActionPill)
 local AreaTitle = require(script.Screens.AreaTitle)
@@ -37,6 +38,7 @@ local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
 local Scale = require(script.Scale)
+local ShoveButton = require(script.Screens.ShoveButton)
 local Signal = require(script.Components.Signal)
 local SlotLabels = require(script.Screens.SlotLabels)
 local Sound = require(script.Components.Sound)
@@ -77,6 +79,8 @@ UI.events = {
 	resolveBait = Signal.new(), -- (choice)   "tame" or "letgo" from the bait card: forward as ResolveBait
 	buyDealerFood = Signal.new(), -- (slot, lureId)   Buy on the night dealer screen: forward both as BuyDealerFood (F32)
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
+	-- design v0.5
+	shove = Signal.new(), -- (targetUserId)   the Shove button or Q on the nearest player within 6 studs: forward as Bump (F41)
 }
 
 local state: Types.PlayerState = {
@@ -111,6 +115,7 @@ local cafeSigns: CafeSigns.CafeSigns? = nil
 local worldTags: WorldTags.WorldTags? = nil
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
+local shoveButton: ShoveButton.ShoveButton? = nil -- v0.5 Shove inside catching areas (UI.shove)
 local slotLabels: SlotLabels.SlotLabels? = nil -- free and locked role slots in your own cafe
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
@@ -452,6 +457,15 @@ function UI.init(config: Types.InitConfig)
 			UI.toast("Rich tip! +" .. Format.money(amount), "good")
 		end,
 	})
+	shoveButton = ShoveButton.new(parent, {
+		shove = function(targetUserId: number)
+			UI.events.shove:Fire(targetUserId)
+		end,
+		-- hidden while carrying or during the circles or the rescue bar (reviewer N85)
+		blocked = function()
+			return hudInstance:isCarrying() or UI.catch.circlesActive() or UI.rescue.isActive()
+		end,
+	})
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
@@ -594,6 +608,9 @@ function UI.destroy()
 	if slotLabels then
 		slotLabels:destroy()
 	end
+	if shoveButton then
+		shoveButton:destroy()
+	end
 	if toasts then
 		toasts:destroy()
 	end
@@ -614,6 +631,7 @@ function UI.destroy()
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen, slotLabels = nil, nil, nil, nil, nil
+	shoveButton = nil
 	Scale.stop()
 	Sound.set(nil)
 	initialized = false
@@ -904,6 +922,29 @@ function UI.richTip.bind(plot: Instance?)
 end
 
 ----------------------------------------------------------------------------------------------------
+-- Shove (F41, data-model section 10c)
+----------------------------------------------------------------------------------------------------
+
+UI.shove = {}
+
+-- True while the player stands inside a catching area they have unlocked and shoves are on (Config.BumpEnabled);
+-- the street, the cafes and the yards are false. The button then aims at the nearest other player within
+-- BumpRangeStuds and fires events.shove(targetUserId); it hides itself while carrying, during the catch circles
+-- and during the rescue bar.
+function UI.shove.setEnabled(on: boolean)
+	if shoveButton then
+		shoveButton:setEnabled(on)
+	end
+end
+
+-- Optional: false when the server refused the shove, which lifts the button's cooldown at once.
+function UI.shove.result(ok: boolean)
+	if shoveButton then
+		shoveButton:result(ok)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Carry indicator and tutorial hooks
 ----------------------------------------------------------------------------------------------------
 
@@ -1038,6 +1079,19 @@ UI.catch = {}
 local activePrompt: ProximityPrompt? = nil
 local activeInfo: Types.CatchInfo? = nil
 local promptConnections: { RBXScriptConnection } = {}
+local fleeWatch: RBXScriptConnection? = nil -- v0.5: the active stray's FleeingUntil
+-- v0.5.1 (reviewer S44): the player who missed a stray tries again StraySelfRetrySeconds after it stops
+local SELF_RETRY: number = Config.StraySelfRetrySeconds
+local missedAt: { [string]: number } = {} -- strayId -> server time of this player's last miss on it
+
+-- When this player may try the stray again, or nil when they never missed it.
+local function retryAtFor(strayId: string?, fleeingUntil: number?): number?
+	local missed = if strayId then missedAt[strayId] else nil
+	if missed == nil then
+		return nil
+	end
+	return math.max(fleeingUntil or 0, missed) + SELF_RETRY
+end
 
 function UI.catch.show(info: Types.CatchInfo)
 	local def = lookupCat(info.catId)
@@ -1055,8 +1109,8 @@ function UI.catch.show(info: Types.CatchInfo)
 		rescueSpotId = info.rescueSpotId,
 		press = info.press,
 		shiny = info.shiny,
-		patience = info.patience,
-		paws = info.paws,
+		fleeingUntil = info.fleeingUntil,
+		retryAt = info.retryAt or retryAtFor(info.strayId, info.fleeingUntil),
 	}
 	if catch then
 		catch:show(activeInfo :: Types.CatchInfo)
@@ -1082,17 +1136,18 @@ function UI.catch.getActivePrompt(): ProximityPrompt?
 	return activePrompt
 end
 
--- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows, pawsLeft) -> showCircles:
--- the prompt card makes way for the circles and every press fires events.catchPressed(strayId, index, grade).
--- CatchResult(strayId, grades, success, pawsLeft, charmGain) -> showGrades (v0.4): each circle shows the
--- server's grade. A catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss takes a paw, closes the
--- overlay after 1 s and toasts the paws left. The card comes back while the player still has paws and is in
--- range. Call nothing else for a CatchResult; catch.fail stays for refusals.
+-- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows) -> showCircles: the prompt
+-- card makes way for the circles and every press fires events.catchPressed(strayId, index, grade).
+-- CatchResult(strayId, grades, success, charmGain) -> showGrades: each circle shows the server's grade. A catch
+-- shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It got
+-- away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the player
+-- is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
+-- The v0.4 paws argument is ignored; it stays so the controller's call (which passes nil) type checks.
 function UI.catch.showCircles(
 	strayId: string,
 	circleList: { Types.CatchCircle },
 	windows: Types.CatchWindows,
-	pawsLeft: number?
+	_retiredPaws: number?
 )
 	local screen = circles
 	if not screen then
@@ -1108,12 +1163,7 @@ function UI.catch.showCircles(
 			stars = info.stars,
 			shiny = info.shiny,
 			title = nil,
-			paws = pawsLeft,
-			patience = info.patience,
 		}
-		header = built
-	elseif pawsLeft ~= nil then
-		local built: CatchCircles.Header = { paws = pawsLeft }
 		header = built
 	end
 	if catch then
@@ -1127,35 +1177,30 @@ function UI.catch.showCircles(
 	end)
 end
 
--- "It slipped away! 2 paws left", "It won't trust you tonight" (data-model section 10 step 5, world-and-feel 1)
-local function slippedText(pawsLeft: number?): string
-	if pawsLeft == nil then
-		return "It slipped away! Try again"
-	elseif pawsLeft <= 0 then
-		return "It won't trust you tonight"
-	elseif pawsLeft == 1 then
-		return "It slipped away! 1 paw left"
-	end
-	return ("It slipped away! %d paws left"):format(pawsLeft)
-end
+-- The toast after a miss (data-model section 10 step 5, v0.5): the cat sprints off and can be tried again
+local SLIPPED_TEXT = "It got away! Chase it!"
 
--- Shared end of a catch. failToast is the toast after a miss (nil for none); stays brings the card back.
-local function finishCatch(
-	strayId: string,
-	outcome: CatchCircles.Outcome,
-	failToast: string?,
-	stays: boolean
-)
+-- The end of a catch: on a miss the toast, then the card comes back while the prompt is still up.
+local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
 	local screen = circles
 	if not screen then
 		return
 	end
 	local current = activeInfo
-	if current and current.strayId == strayId and outcome.pawsLeft ~= nil then
-		current.paws = outcome.pawsLeft
+	if not outcome.success then
+		local now = Workspace:GetServerTimeNow()
+		for id, at in missedAt do
+			if now - at > 120 then
+				missedAt[id] = nil
+			end
+		end
+		missedAt[strayId] = now
+		if current and current.strayId == strayId then
+			current.retryAt = retryAtFor(strayId, current.fleeingUntil)
+		end
 	end
-	if not outcome.success and failToast and toasts then
-		toasts:show(failToast, "warn", true) -- quiet: the hiss is the miss sound
+	if not outcome.success and toasts then
+		toasts:show(SLIPPED_TEXT, "warn", true) -- quiet: the hiss is the miss sound
 	end
 	screen:showResult(outcome, function()
 		if hud then
@@ -1163,62 +1208,26 @@ local function finishCatch(
 		end
 		local info = activeInfo
 		local card = catch
-		if
-			not outcome.success
-			and stays
-			and activePrompt ~= nil
-			and info ~= nil
-			and card ~= nil
-		then
+		if not outcome.success and activePrompt ~= nil and info ~= nil and card ~= nil then
 			card:show(info)
 		end
 	end)
 end
 
--- v0.4 CatchResult. grades run up to and including the first Miss; pawsLeft is nil when this player cannot
--- run out on the stray; charmGain is 0 on a miss.
+-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. The v0.4 paws argument
+-- is ignored (see showCircles).
 function UI.catch.showGrades(
 	strayId: string,
 	grades: { Types.CircleGrade },
 	success: boolean,
-	pawsLeft: number?,
+	_retiredPaws: number?,
 	charmGain: number?
 )
 	finishCatch(strayId, {
 		grades = grades,
 		success = success,
-		pawsLeft = pawsLeft,
 		charmGain = charmGain,
-	}, slippedText(pawsLeft), pawsLeft ~= 0)
-end
-
--- v0.3 CatchResult(strayId, scores, chance, success, stayed), kept until the controller calls showGrades.
--- Scores of 1, 0.5 and 0 are Perfect, Good and Miss. No toast here: until the switch the server sends the
--- slipped away toast itself (reviewer S39), and showGrades takes it over.
-function UI.catch.showResult(
-	strayId: string,
-	scores: { number },
-	_chance: number,
-	success: boolean,
-	stayed: boolean?
-)
-	local info = activeInfo
-	local rarity: string? = if info and info.strayId == strayId then info.rarity else nil
-	local stays = if stayed ~= nil then stayed else rarity == "Common"
-	local grades: { Types.CircleGrade } = {}
-	for _, score in scores do
-		local grade: Types.CircleGrade = if score >= 1
-			then "perfect"
-			elseif score >= 0.5 then "good"
-			else "miss"
-		table.insert(grades, grade)
-	end
-	finishCatch(strayId, {
-		grades = grades,
-		success = success,
-		pawsLeft = nil,
-		charmGain = nil,
-	}, nil, stays)
+	})
 end
 
 function UI.catch.hideCircles()
@@ -1402,16 +1411,9 @@ local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local rescue = promptAttribute(prompt, "Rescue")
 	local rescueSpotId = promptAttribute(prompt, "RescueSpotId")
 	local shiny = promptAttribute(prompt, "Shiny")
-	-- v0.4: Patience is the stray's full paw count; Paws_<UserId> appears once this player has missed (nil = full)
-	local patience = promptAttribute(prompt, "Patience")
-	local player = Players.LocalPlayer
-	local paws = if player then promptAttribute(prompt, "Paws_" .. tostring(player.UserId)) else nil
+	local fleeingUntil = promptAttribute(prompt, "FleeingUntil")
 	return {
-		patience = if type(patience) == "number" then patience else nil,
-		paws = if type(paws) == "number"
-			then paws
-			elseif type(patience) == "number" then patience
-			else nil,
+		fleeingUntil = if type(fleeingUntil) == "number" then fleeingUntil else nil,
 		press = prompt.HoldDuration <= 0,
 		shiny = shiny == true,
 		kind = (if rescue == true then "rescue" else "swing") :: Types.PromptKind,
@@ -1441,6 +1443,39 @@ end
 -- so it never asks again.
 -- Any other Style = Custom prompt (no CatId) gets an action pill (Screens/ActionPill) and raises no event: the
 -- game handles its Triggered as it would a default prompt's.
+-- v0.5: someone's miss sends the active stray running (its model's FleeingUntil changes). The card shows
+-- "It's running!" at once; during the circles or the rescue bar only the stored info changes, so the card is right
+-- when it comes back.
+local function watchFleeing(prompt: ProximityPrompt?)
+	local old = fleeWatch
+	if old then
+		old:Disconnect()
+		fleeWatch = nil
+	end
+	if prompt == nil then
+		return
+	end
+	local holder: Instance? = prompt:FindFirstAncestorOfClass("Model") or prompt.Parent
+	if holder == nil then
+		return
+	end
+	local model = holder :: Instance
+	fleeWatch = model:GetAttributeChangedSignal("FleeingUntil"):Connect(function()
+		if prompt ~= activePrompt then
+			return
+		end
+		local value = model:GetAttribute("FleeingUntil")
+		local info = activeInfo
+		if info then
+			info.fleeingUntil = if type(value) == "number" then value else nil
+			info.retryAt = retryAtFor(info.strayId, info.fleeingUntil)
+		end
+		if not UI.rescue.isActive() and not UI.catch.circlesActive() then
+			UI.catch.show(infoFromPrompt(prompt))
+		end
+	end)
+end
+
 function UI.catch.bindProximityPrompts()
 	if #promptConnections > 0 or not catch then
 		return
@@ -1458,6 +1493,7 @@ function UI.catch.bindProximityPrompts()
 			return
 		end
 		activePrompt = prompt
+		watchFleeing(prompt)
 		UI.catch.show(infoFromPrompt(prompt))
 	end
 	table.insert(promptConnections, ProximityPromptService.PromptShown:Connect(onShown))
@@ -1471,6 +1507,7 @@ function UI.catch.bindProximityPrompts()
 				return
 			end
 			activePrompt = nil
+			watchFleeing(nil)
 			UI.catch.hide()
 		end)
 	)
@@ -1509,6 +1546,15 @@ function UI.catch.bindProximityPrompts()
 			-- one press asks the server to start: GrabBegin answers with the circles (catch.showCircles),
 			-- RescueBegin with the minigame (UI.rescue.show), a refusal with catch.fail
 			local info = activeInfo
+			-- v0.5: the server would only refuse ("It's running!", or the missing player's short wait), so say it
+			-- here and ask nothing
+			local blocked = if info and info.kind ~= "rescue"
+				then catchScreen:blockedText()
+				else nil
+			if blocked then
+				catchScreen:fail(blocked, true)
+				return
+			end
 			catchScreen:waiting()
 			if info and info.kind == "rescue" then
 				UI.events.rescueBegan:Fire(info.rescueSpotId, info.catId)
@@ -1546,6 +1592,7 @@ function UI.catch.unbindProximityPrompts()
 		(connection :: any):Disconnect()
 	end
 	table.clear(promptConnections)
+	watchFleeing(nil)
 	activePrompt = nil
 end
 

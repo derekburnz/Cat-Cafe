@@ -933,14 +933,10 @@ function Catalog.getLure(id: string): Types.LureDef?
 	return Catalog.luresById[id]
 end
 
--- Section 8b: chance per dealer slot of each dealer food, by the player's tier.
-Catalog.dealerSlotWeights = {
-	{ sardines = 70, caviar = 25, moon_milk = 5, star_treat = 0 },
-	{ sardines = 60, caviar = 30, moon_milk = 9, star_treat = 1 },
-	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 },
-	{ sardines = 40, caviar = 35, moon_milk = 19, star_treat = 6 },
-	{ sardines = 30, caviar = 36, moon_milk = 24, star_treat = 10 },
-} :: { { [string]: number } }
+-- Section 8b: chance per dealer slot of each dealer food. v0.5 F43: one row for everyone (the old Tier 3 row);
+-- tiers no longer change the stock, so every player on every server sees the same three foods.
+Catalog.dealerSlotWeights =
+	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
 -- Section 9. A full wave of waveSize strays spawns in every area at each night start, whether or not anyone has
 -- it open. Neighbourhood, Woods and Sewer are grayboxes; their rescue spots are stand-ins until the traps (F27).

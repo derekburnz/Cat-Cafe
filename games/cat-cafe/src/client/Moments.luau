@@ -35,6 +35,12 @@ local Moments = {
 	RescueDone = Signal.new() :: Signal.Signal<string, string?>, -- (rescueSpotId, rarity) the cat is free
 	RescueFail = Signal.new() :: Signal.Signal<string>, -- (rescueSpotId) out of paws or time, or walked away
 	RescueCancel = Signal.new() :: Signal.Signal<string>, -- (rescueSpotId) Give up
+	-- Shove (F41, section 10c), from ShoveResult on every client. role is "shover", "target" or "bystander";
+	-- position is the target's. Shove fires for every landed shove, then BumpLoose or BumpHeld when the target
+	-- carried a cat that could be knocked loose.
+	Shove = Signal.new() :: Signal.Signal<string, Vector3>,
+	BumpLoose = Signal.new() :: Signal.Signal<string, Vector3>, -- the cat fell out of the target's arms
+	BumpHeld = Signal.new() :: Signal.Signal<string, Vector3>, -- "It held on tight!"
 }
 
 return Moments

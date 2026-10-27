@@ -120,8 +120,12 @@ export type CatchInfo = {
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
 	shiny: boolean?, -- v0.3: the stray's Shiny attribute (rescued cats hide it until freed)
-	patience: number?, -- v0.4: the stray's Patience attribute, its full paw count; nil on a v0.3 server
-	paws: number?, -- v0.4: paws this player has left on it (Paws_<UserId>, else Patience)
+	-- v0.5: the stray's FleeingUntil (server time). Until then it is sprinting off after a miss and nobody can
+	-- grab it; the card reads "It's running!".
+	fleeingUntil: number?,
+	-- v0.5.1: server time this player may try again after their own miss (StraySelfRetrySeconds after the cat
+	-- stops); init.luau fills it from this player's CatchResult, the card reads "Catch your breath..." until then.
+	retryAt: number?,
 }
 
 -- Net circles (F26, data-model section 10), from shared Types. Times are server time

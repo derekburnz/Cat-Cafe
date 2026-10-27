@@ -806,35 +806,21 @@ return function()
 			end
 		end)
 
-		it("dealer slot weights match section 8b and name only dealer foods", function()
-			local expectedWeights = {
-				{ sardines = 70, caviar = 25, moon_milk = 5, star_treat = 0 },
-				{ sardines = 60, caviar = 30, moon_milk = 9, star_treat = 1 },
-				{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 },
-				{ sardines = 40, caviar = 35, moon_milk = 19, star_treat = 6 },
-				{ sardines = 30, caviar = 36, moon_milk = 24, star_treat = 10 },
-			}
-			expect(#Catalog.dealerSlotWeights).to.equal(Catalog.maxTier)
-			for tier, row in ipairs(expectedWeights) do
-				local weights = Catalog.dealerSlotWeights[tier]
-				expect(weights :: any).to.deepEqual(row)
-				local total = 0
-				for id, weight in pairs(weights) do
-					local def = Catalog.getLure(id)
-					assert(def, id)
-					expect(def.source).to.equal("dealer")
-					total += weight
-				end
-				expect(total).to.be.near(100, 1e-9)
+		it("dealer slot weights are the one v0.5 row of section 8b and name only dealer foods (F43)", function()
+			expect(Catalog.dealerSlotWeights :: any).to.deepEqual({
+				sardines = 50,
+				caviar = 33,
+				moon_milk = 14,
+				star_treat = 3,
+			})
+			local total = 0
+			for id, weight in pairs(Catalog.dealerSlotWeights) do
+				local def = Catalog.getLure(id)
+				assert(def, id)
+				expect(def.source).to.equal("dealer")
+				total += weight
 			end
-		end)
-
-		it("Star Treat only gets likelier with tier", function()
-			for tier = 2, #Catalog.dealerSlotWeights do
-				local lower = Catalog.dealerSlotWeights[tier - 1].star_treat
-				local higher = Catalog.dealerSlotWeights[tier].star_treat
-				expect(higher > lower).to.equal(true)
-			end
+			expect(total).to.be.near(100, 1e-9)
 		end)
 	end)
 

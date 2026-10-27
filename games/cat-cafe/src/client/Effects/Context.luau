@@ -1,10 +1,11 @@
 --!strict
 -- What every effect asks about this client: its budget (phone or PC), where the player is, day or night, Reduce
--- Motion, and the folder that holds parts made on this client. The server never sees that folder.
+-- Motion, the folder that holds parts made on this client (the server never sees it) and the camera shake.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -16,7 +17,10 @@ local Context = {}
 Context.tier = "high" :: string -- Presets.Tier
 Context.budget = Presets.budget.high
 
+local SHAKE_STEP = "PurrPotEffectsShake"
+
 local folder: Folder? = nil
+local rng = Random.new()
 
 function Context.init()
 	Context.tier = Logic.tier(UserInputService.TouchEnabled, UserInputService.KeyboardEnabled)
@@ -48,6 +52,30 @@ end
 -- The player's Reduce Motion setting: no camera shake or flashes, fewer confetti pieces.
 function Context.reducedMotion(): boolean
 	return GuiService.ReducedMotionEnabled
+end
+
+-- A short camera shake for this player (a missed catch, being shoved), fading out over `seconds`. Runs after the
+-- camera scripts each frame, so the offset never piles up; a new shake replaces one still running; off with Reduce
+-- Motion.
+function Context.shake(seconds: number, studs: number)
+	if Context.reducedMotion() then
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	if camera == nil then
+		return
+	end
+	local began = os.clock()
+	RunService:UnbindFromRenderStep(SHAKE_STEP)
+	RunService:BindToRenderStep(SHAKE_STEP, Enum.RenderPriority.Camera.Value + 1, function()
+		local t = os.clock() - began
+		if t >= seconds then
+			RunService:UnbindFromRenderStep(SHAKE_STEP)
+			return
+		end
+		local k = (1 - t / seconds) * studs
+		camera.CFrame = camera.CFrame * CFrame.new(rng:NextNumber(-k, k), rng:NextNumber(-k, k), 0)
+	end)
 end
 
 function Context.folder(): Folder

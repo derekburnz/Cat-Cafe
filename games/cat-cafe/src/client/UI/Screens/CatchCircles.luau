@@ -6,9 +6,10 @@
 -- judges it. Grades drawn before showResult are hints from this device; showResult replaces them with
 -- the server's grades.
 --
--- v0.4 (data-model section 10 step 5): the first Miss ends the catch and no Miss means caught. Each circle pops
--- PERFECT, GOOD or MISS at its ring; on a Miss the word wobbles, the circles left over vanish and the header's
--- paw row loses a paw. The camera shake and the hiss are the vfx-animator's and the sound-designer's.
+-- Data-model section 10 step 5: the first Miss ends the catch and no Miss means caught. Each circle pops
+-- PERFECT, GOOD or MISS at its ring; on a Miss the word wobbles, the circles left over vanish and the hint says
+-- the cat got away (v0.5: it sprints off and tries are unlimited). The camera shake and the hiss are the
+-- vfx-animator's and the sound-designer's.
 --
 -- Bands: the closing circle moves at a constant speed, so a timing window of w seconds is a band of
 -- w x speed pixels either side of the ring. Good is the wide green band, Perfect the thin gold one.
@@ -22,7 +23,6 @@ local Workspace = game:GetService("Workspace")
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
-local PawRow = require(script.Parent.Parent.Components.PawRow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -37,16 +37,13 @@ export type Header = {
 	stars: number?,
 	shiny: boolean?,
 	title: string?, -- replaces the hint line, e.g. "Catch it as it falls!" on a tree rescue
-	paws: number?, -- v0.4 paws this player has left on the stray; nil hides the paw row (cannot run out)
-	patience: number?, -- the stray's full paw count, for the spent paws
 }
 
--- The server's verdict (CatchResult, v0.4): grades up to and including the first Miss, and the paws left after
--- it (nil when the player cannot run out). charmGain is what the Perfects added; 0 or nil on a fail.
+-- The server's verdict (CatchResult): grades up to and including the first Miss. charmGain is what the Perfects
+-- added; 0 or nil on a fail.
 export type Outcome = {
 	grades: { Types.CircleGrade },
 	success: boolean,
-	pawsLeft: number?,
 	charmGain: number?,
 }
 
@@ -91,7 +88,7 @@ local RING_THICKNESS = 4
 -- after the good window closes. Read from Config once the engineer adds it.
 local LATENCY_CAP: number = Config.CatchLatencyCapSeconds
 local RESULT_SECONDS = 1.6
-local MISS_SECONDS = 1 -- a miss closes faster: the toast carries the paws left
+local MISS_SECONDS = 1 -- a miss closes faster so the player can chase the cat
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"
 local PRESS_KEYS =
@@ -285,13 +282,6 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		Text = "",
 		Parent = header,
 	})
-	-- v0.4 paw row, bottom right of the header (rhythm game lives, Fisch's line strength)
-	self._paws = PawRow.new({
-		parent = header,
-		paw = 20,
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -12, 0, 38),
-	})
 
 	-- Result banner on a catch: per-circle grades sit on the circles, the outcome and the charm sit here
 	local banner: Frame = Create("Frame", {
@@ -462,8 +452,6 @@ function CatchCircles.show(
 				else "Press E or click as each circle meets its ring"
 		)
 	self._header.UIStroke.Color = if info.shiny then Theme.colors.gold else Theme.hud.stroke
-	self._paws:set(info.paws, info.patience)
-	self._hint.Size = UDim2.new(1, if info.paws ~= nil then -110 else -28, 0, 22)
 	self._banner.Visible = false
 
 	for index, circle in circles do
@@ -610,7 +598,7 @@ end
 
 -- The server's verdict. Each graded circle shows the server's word; circles after a Miss vanish. A catch shows
 -- the banner ("Caught!", or "PURRFECT!" when every circle was Perfect, with the charm it added) for 1.6 s; a
--- miss wobbles the MISS word, takes a paw off the header and closes after 1 s. onDone runs when the overlay
+-- miss wobbles the MISS word, says the cat got away and closes after 1 s. onDone runs when the overlay
 -- hides.
 function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())?)
 	if not self._active then
@@ -664,11 +652,7 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 		if view then
 			wobble(view.grade)
 		end
-		local left = outcome.pawsLeft
-		if left ~= nil then
-			self._paws:lose(left)
-		end
-		self._hint.Text = if left == 0 then "It won't trust you tonight" else "It slipped away!"
+		self._hint.Text = "It got away! Chase it!"
 	end
 	task.delay(if success then RESULT_SECONDS else MISS_SECONDS, function()
 		if self._token ~= token then

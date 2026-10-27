@@ -81,8 +81,6 @@ local function isGold(model: Instance): boolean
 	return model:GetAttribute("Gold") == true or model:GetAttribute("Shiny") == true
 end
 
--- A gold coat seen for the first time: a burst of gold sparkles and a golden ring (F42). A stuck cat is never
--- marked gold before its rescue (N30), so this is also the rescued gold cat's reveal.
 -- A cat this player has hidden with the Show other cats switch off: the engineer marks it HiddenLocal on this
 -- client only and hides its parts, so it gets no motion, sparkle, burst or hiss until the mark clears.
 local function hidden(model: Model): boolean
@@ -106,6 +104,8 @@ local function watchHidden(model: Model)
 	end)
 end
 
+-- A gold coat seen for the first time: a burst of gold sparkles and a golden ring (F42). A stuck cat is never
+-- marked gold before its rescue (N30), so this is also the rescued gold cat's reveal.
 local function reveal(model: Model)
 	if hidden(model) then
 		return

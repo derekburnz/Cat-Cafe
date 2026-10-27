@@ -12,7 +12,8 @@
 	  6 no press        7 scripted perfect  8 far press            [ second grab   ; retry after a miss
 	  ' press spam      . unlimited tries   9 bad ids              0 shop gates    - ownership
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
-	  Home drop         End unequip all     Backspace flood        ] run everything
+	  Home drop         End unequip all     PageUp settings        Backspace flood
+	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
 	Every line starts with [Abuse]. RESULT lines say PASS, FAIL, SKIP or CHECK. After a run, read the SERVER
@@ -2341,6 +2342,114 @@ case(
 				"%d cat(s) rested with one toast (%s), rate 0, then Equip Best put them back",
 				before,
 				toasts[1]
+			)
+	end
+)
+
+-- Settings (engineer PR #202, reviewer N110) ---------------------------------------------------------------------
+
+case(
+	"settings",
+	Enum.KeyCode.PageUp,
+	"Settings: SetSetting with bad keys and values, then a flip, then 10 in one frame",
+	function()
+		local function settings(): { music: boolean, sfx: boolean }?
+			local current = if state ~= nil then (state :: any).settings else nil
+			return if type(current) == "table" then current else nil
+		end
+		local function same(
+			a: { music: boolean, sfx: boolean },
+			b: { music: boolean, sfx: boolean }
+		): boolean
+			return a.music == b.music and a.sfx == b.sfx
+		end
+		freshWallet()
+		local start = settings()
+		if start == nil then
+			return "SKIP", "the ProfileSync carries no settings (needs engineer PR #202)"
+		end
+		local before = { music = start.music, sfx = start.sfx }
+
+		-- Bad keys and values, 0.3 s apart so the 4 a second limit drops none: no change, no toast.
+		local bad: { { key: any, value: any } } = {
+			{ key = "volume", value = true },
+			{ key = nil, value = true },
+			{ key = {}, value = false },
+			{ key = "MUSIC", value = not before.music },
+			{ key = 5, value = true },
+			{ key = "music", value = "false" },
+			{ key = "music", value = 0 },
+			{ key = "sfx", value = nil },
+			{ key = "sfx", value = {} },
+		}
+		local badAt = os.clock()
+		for _, call in bad do
+			fire("SetSetting", call.key, call.value)
+			task.wait(0.3)
+		end
+		task.wait(0.5)
+		local badToasts = #since(badAt, "Toast")
+		local badSyncs = #since(badAt, "ProfileSync")
+		local afterBad = settings()
+
+		-- One real flip, then put it back.
+		task.wait(1.1)
+		local flipAt = os.clock()
+		fire("SetSetting", "music", not before.music)
+		local flipped = waitFor(flipAt, "ProfileSync", 2, function()
+			local now = settings()
+			return now ~= nil and now.music == not before.music
+		end)
+		task.wait(1.1)
+		local backAt = os.clock()
+		fire("SetSetting", "music", before.music)
+		waitFor(backAt, "ProfileSync", 2)
+
+		-- 10 in one frame: at most 4 get through (plus a periodic sync), and the last one through decides sfx.
+		task.wait(1.1)
+		local floodAt = os.clock()
+		for i = 1, 10 do
+			Remotes.event("SetSetting"):FireServer("sfx", i % 2 == 0)
+		end
+		log('    -> SetSetting("sfx", false or true) x10 in one frame')
+		task.wait(1.5)
+		local floodSyncs = #since(floodAt, "ProfileSync")
+		task.wait(1.1)
+		local restoreAt = os.clock()
+		fire("SetSetting", "sfx", before.sfx)
+		waitFor(restoreAt, "ProfileSync", 2)
+		local final = settings()
+
+		if afterBad == nil or not same(afterBad, before) then
+			return "FAIL", "a bad key or value changed the settings"
+		end
+		if badToasts > 0 then
+			return "FAIL", string.format("%d toast(s) for bad SetSetting calls", badToasts)
+		end
+		if flipped == nil then
+			return "FAIL", 'SetSetting("music", flip) sent no ProfileSync with music changed'
+		end
+		if floodSyncs > 5 then
+			return "FAIL",
+				string.format(
+					"%d ProfileSync back from 10 SetSetting calls in one frame",
+					floodSyncs
+				)
+		end
+		if final == nil or not same(final, before) then
+			return "CHECK", "the settings did not come back to where they started; set them by hand"
+		end
+		local note = if badSyncs > 1
+			then string.format(
+				"; %d ProfileSync during the bad calls (one may be the periodic sync)",
+				badSyncs
+			)
+			else ""
+		return "PASS",
+			string.format(
+				"9 bad calls changed nothing and toasted nothing, the flip synced, the flood got %d sync(s)%s; read the server output for no [Net] SetSetting handler failed line",
+				floodSyncs,
+				note
 			)
 	end
 )

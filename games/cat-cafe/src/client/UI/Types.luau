@@ -103,7 +103,7 @@ export type PartialState = {
 	tutorialStep: number?,
 }
 
-export type ScreenName = "Upgrades" | "Decor" | "Collection" | "RankUp" | "Areas"
+export type ScreenName = "Upgrades" | "Decor" | "Collection" | "RankUp" | "Areas" | "Bait"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -162,7 +162,28 @@ export type InitConfig = {
 	-- Plays a cue by id (pass Audio.play). The UI calls uiClick, uiError, uiOpen, uiClose, uiToast, uiTab,
 	-- uiHint and uiRankReady; nil keeps the UI silent.
 	playSound: ((cueId: string) -> ...any)?,
+	-- v0.3 bait bowl (F28): the HUD lure slot becomes the bowl chip and F opens the Bait bowl screen. Leave it
+	-- off while the server still runs the v0.2 lure spots (equipLure).
+	baitBowl: boolean?,
 }
+
+-- What is in the bait bowl (data-model section 8), as UI.bait.set takes it. readyAt is server os.time(); the
+-- rolled cat is never sent before it arrives (N30), so the countdown cannot spoil it.
+export type BaitView = {
+	lureId: string,
+	readyAt: number,
+}
+
+-- The cat that came to the bowl, from BaitReady (a CatView or anything with these fields).
+export type BaitCat = {
+	catId: string,
+	variant: string?, -- "shiny" shows the sparkle
+	charm: number?,
+	stars: number?, -- 1 to 5
+	name: string?, -- a custom name, else the catalog name
+}
+
+export type BaitChoice = "tame" | "letgo"
 
 -- ModuleScripts must return a non-nil value.
 return {}

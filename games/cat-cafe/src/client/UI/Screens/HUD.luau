@@ -1,8 +1,8 @@
 --!strict
 -- Always-on overlay: money and income (top left), cafe tier pill and the Cafe, Alley and Areas travel row
 -- (top centre), cat count and the day and night clock chip (top right), menu tiles (left), equipped lure slot
--- with an odds picker (bottom right), carry banner and tutorial strip (bottom centre). Laid out in design
--- pixels under one UIScale from Scale.bind.
+-- with an odds picker, or the bait bowl chip in bowl mode (bottom right), carry banner and tutorial strip
+-- (bottom centre). Laid out in design pixels under one UIScale from Scale.bind.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
 local Notices = require(script.Parent.Parent.Notices)
@@ -27,6 +28,7 @@ export type Callbacks = {
 	travel: (destination: string) -> (), -- "home" or an AreaId
 	buyLure: (lureId: string) -> (),
 	equipLure: (lureId: string) -> (),
+	openBait: (() -> ())?, -- bowl mode: the slot and F open the bait bowl screen
 }
 
 export type HUD = {
@@ -37,6 +39,8 @@ export type HUD = {
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	togglePicker: (self: HUD) -> (),
+	setBowlMode: (self: HUD, on: boolean) -> (),
+	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
@@ -151,74 +155,9 @@ local function rarityPill(
 	})
 end
 
-local function percent(value: number): string
-	local text = string.format(if value >= 10 then "%.0f" else "%.1f", value)
-	text = text:gsub("%.0$", "")
-	return text .. "%"
-end
-
--- "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical" (the growth thread's rule:
--- labelled, never an icon)
-local function oddsText(odds: Types.LureOdds?): string
-	if not odds then
-		return "Odds: not set"
-	end
-	assert(odds, "odds not set")
-	local parts = {}
-	for _, rarity in Theme.rarityOrder do
-		local share = (odds :: any)[rarity]
-		if type(share) == "number" then
-			table.insert(parts, ("%s %s"):format(percent(share), rarity))
-		end
-	end
-	return "Odds: " .. table.concat(parts, " · ")
-end
-
--- Per-cat split, derived from the catalog. Bait picks the cat uniformly among that rarity's cats in every
--- area the player has unlocked (data-model section 8), so the pool grows with the tier.
--- "Rare 22%: Calico 11%, Siamese 11%"
-local function oddsDetail(catalog: Types.Catalog, lure: Types.LureDef, tier: number): string
-	local odds = lure.odds
-	if not odds then
-		return "Odds not set for this food yet."
-	end
-	assert(odds, "odds not set")
-	local unlocked: { [string]: boolean } = {}
-	local areaNames = {}
-	local areaList: { Types.AreaDef } = catalog.areas or {}
-	for _, area in areaList do
-		if area.tier <= tier then
-			unlocked[area.id] = true
-			table.insert(areaNames, area.name)
-		end
-	end
-	local lines = {
-		if #areaNames > 0
-			then "Same chance for every cat of a rarity in " .. table.concat(areaNames, ", ") .. ":"
-			else "Same chance for every cat of a rarity:",
-	}
-	for _, rarity in Theme.rarityOrder do
-		local share = (odds :: any)[rarity]
-		if type(share) ~= "number" or share <= 0 then
-			continue
-		end
-		local names = {}
-		for _, def in catalog.cats do
-			if def.rarity == rarity and (#areaNames == 0 or unlocked[def.area]) then
-				table.insert(names, def.name)
-			end
-		end
-		if #names == 0 then
-			continue
-		end
-		local each = share / #names
-		local parts = {}
-		for _, name in names do
-			table.insert(parts, ("%s %s"):format(name, percent(each)))
-		end
-		table.insert(lines, ("%s %s: %s"):format(rarity, percent(share), table.concat(parts, ", ")))
-	end
-	return table.concat(lines, "\n")
+-- Details under a food: the per-cat split, then the shiny chance and charm star odds.
+local function foodDetail(catalog: Types.Catalog, lure: Types.LureDef, tier: number): string
+	return FoodOdds.split(catalog, lure, tier) .. "\n" .. FoodOdds.extras()
 end
 
 function HUD.new(parent: Instance, callbacks: Callbacks): HUD
@@ -653,8 +592,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 	})
-	Outline.border(lureSlot, Theme.sizes.outline, Theme.hud.stroke)
+	self._lureBorder = Outline.border(lureSlot, Theme.sizes.outline, Theme.hud.stroke)
 	self._lureSlot = lureSlot
+	-- bowl mode (F28): the slot becomes the bait bowl chip
+	self._bowlMode = false
+	self._bait = nil :: Types.BaitView?
+	self._catWaiting = false
+	self._baitLoop = nil :: RBXScriptConnection?
+	self._baitReady = false
 	self._lureName = label({
 		Name = "Name",
 		Position = UDim2.fromOffset(12, 8),
@@ -679,7 +624,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	table.insert(
 		self._connections,
 		lureSlot.Activated:Connect(function()
-			Sound.play("uiClick")
+			if not self._bowlMode then
+				Sound.play("uiClick") -- the bait screen plays uiOpen itself
+			end
 			self:togglePicker()
 		end)
 	)
@@ -784,10 +731,103 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 end
 
 function HUD.togglePicker(self: any)
+	if self._bowlMode then
+		local openBait = self._callbacks.openBait
+		if openBait then
+			openBait()
+		end
+		return
+	end
 	self._pickerOpen = not self._pickerOpen
 	self._picker.Visible = self._pickerOpen
 	if self._pickerOpen then
 		Tween.popIn(self._picker, 0.94)
+	end
+end
+
+-- Bowl mode (F28): the lure slot becomes the bait bowl chip and the v0.2 picker never opens.
+function HUD.setBowlMode(self: any, on: boolean)
+	self._bowlMode = on
+	if on and self._pickerOpen then
+		self._pickerOpen = false
+		self._picker.Visible = false
+	end
+	if not on then
+		self._lureBorder.Color = Theme.hud.stroke
+		self._lureName.TextColor3 = Theme.hud.text
+	end
+	self:_renderBowl()
+end
+
+-- What is in the bowl: nil when empty. catWaiting is true while the Tame or Let go card has a cat to show.
+function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
+	self._bait = bait
+	self._catWaiting = catWaiting
+	self:_renderBowl()
+	local loop: RBXScriptConnection? = self._baitLoop
+	if bait == nil or self._baitReady or not self._bowlMode then
+		if loop then
+			loop:Disconnect()
+			self._baitLoop = nil
+		end
+		return
+	end
+	if loop then
+		return
+	end
+	local accumulator = 0
+	self._baitLoop = RunService.Heartbeat:Connect(function(dt: number)
+		accumulator += dt
+		if accumulator < 1 then
+			return
+		end
+		accumulator = 0
+		self:_renderBowl()
+		if self._baitReady or self._bait == nil then
+			local running: RBXScriptConnection? = self._baitLoop
+			if running then
+				running:Disconnect()
+			end
+			self._baitLoop = nil
+		end
+	end)
+end
+
+-- "Bait bowl / Empty · add food", "Tuna / Cat in 7m 42s", then "Cat waiting! / Tap to see it" on gold.
+function HUD._renderBowl(self: any)
+	if not self._bowlMode then
+		return
+	end
+	local bait: Types.BaitView? = self._bait
+	local wasReady = self._baitReady
+	local ready = false
+	local name = "Bait bowl"
+	local sub = "Empty · add food"
+	if bait then
+		local left = bait.readyAt - Workspace:GetServerTimeNow()
+		ready = left <= 0
+		local catalog: Types.Catalog? = self._catalog
+		if catalog then
+			for _, lure in catalog.lures do
+				if lure.id == bait.lureId then
+					name = lure.name
+				end
+			end
+		end
+		if ready then
+			name = "Cat waiting!"
+			sub = if self._catWaiting then "Tap to see it" else "At your bowl"
+		else
+			sub = "Cat in " .. Format.duration(math.ceil(left))
+		end
+	end
+	self._baitReady = ready
+	self._lureName.Text = name
+	self._lureName.TextColor3 = if ready then Theme.colors.gold else Theme.hud.text
+	self._lureCount.Text = sub
+	self._lureBorder.Color = if ready then Theme.colors.gold else Theme.hud.stroke
+	if ready and not wasReady and self._lureSlot.Visible then
+		Tween.popIn(self._lureSlot, 0.9)
 	end
 end
 
@@ -900,7 +940,7 @@ function HUD._buildLureRows(self: any)
 			Size = UDim2.new(1, -100, 0, 18),
 			TextSize = Theme.sizes.textTiny,
 			TextColor3 = Theme.hud.text,
-			Text = oddsText(lure.odds),
+			Text = FoodOdds.line(lure.odds),
 			Parent = row,
 		})
 		rarityPill(row, lure.attracts, UDim2.new(1, -176, 0, 7), Vector2.new(1, 0))
@@ -914,7 +954,7 @@ function HUD._buildLureRows(self: any)
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
-			Text = oddsDetail(catalog, lure, self._oddsTier),
+			Text = foodDetail(catalog, lure, self._oddsTier),
 			Visible = false,
 			Parent = row,
 		})
@@ -1050,7 +1090,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if catalog and state.tier ~= self._oddsTier then
 		self._oddsTier = state.tier
 		for _, lureRow in self._lureRows do
-			lureRow.detail.Text = oddsDetail(catalog, lureRow.def, state.tier)
+			lureRow.detail.Text = foodDetail(catalog, lureRow.def, state.tier)
 		end
 	end
 	local tierProgress: RankUp.Progress? = nil
@@ -1142,6 +1182,13 @@ end
 
 function HUD._renderLures(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	if self._bowlMode then
+		-- the chip shows once the Bait bowl upgrade is owned
+		self._lureSlot.Visible = (state.upgradeLevels.lure_bowl or 0) >= 1
+		self:_renderBowl()
+		return
+	end
+	self._lureSlot.Visible = true
 	-- lure slot and picker
 	local equippedDef: Types.LureDef? = nil
 	if catalog and state.equippedLure then
@@ -1318,6 +1365,10 @@ end
 
 function HUD.destroy(self: any)
 	self:_stopClock()
+	local baitLoop: RBXScriptConnection? = self._baitLoop
+	if baitLoop then
+		baitLoop:Disconnect()
+	end
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

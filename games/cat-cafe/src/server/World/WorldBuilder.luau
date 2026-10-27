@@ -1,5 +1,6 @@
 --!strict
--- Builds the whole graybox world from code at server start: ground, street, 8 plots, five areas and their gates.
+-- Builds the whole graybox world from code at server start: ground, street, 8 plots with front gardens and patio
+-- yards, the Alleyway behind them, four more areas and their gates (layout v2, data-model section 9).
 -- Everything with a name in features.md is a named Part or a clone from AssetRegistry so art swaps in by name.
 
 local CollectionService = game:GetService("CollectionService")
@@ -27,8 +28,9 @@ export type Plot = {
 	tables: Folder,
 	customerEntry: BasePart,
 	espresso: BasePart,
-	backDoor: BasePart, -- a wall panel until expansion 1 opens
-	expansions: { Model }, -- Expansions/<n>, hidden until the owner's tier opens them
+	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1
+	backDoorZone: BasePart, -- check-in works here as well as at the front door
+	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
 }
 
 export type AreaInfo = {
@@ -38,8 +40,9 @@ export type AreaInfo = {
 	spawnPoints: { BasePart },
 	lureSpots: { [string]: BasePart },
 	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits
-	bounds: { minX: number, maxX: number, minZ: number, maxZ: number },
-	arrival: CFrame, -- where fast travel puts a player: just inside the opening, facing in
+	bounds: { minX: number, maxX: number, minZ: number, maxZ: number }, -- the bounding box, 2 studs in
+	rects: { Layout.Rect }, -- the floor pieces; strays stay on these (WorldBuilder.clampToArea)
+	arrival: CFrame, -- where fast travel puts a player: just inside the entrance, facing in
 }
 
 export type World = {
@@ -58,6 +61,9 @@ local MINT = Color3.fromRGB(165, 214, 190)
 local ASPHALT = Color3.fromRGB(70, 70, 75)
 local BRICK = Color3.fromRGB(150, 85, 70)
 local GRASS = Color3.fromRGB(110, 170, 90)
+local PICKET = Color3.fromRGB(250, 246, 236)
+local PATH = Color3.fromRGB(214, 200, 176)
+local DECK = Color3.fromRGB(205, 160, 110)
 
 -- Floor and wall look per area. Areas 3 to 5 get a distinct flat palette color until their sets exist.
 type AreaLook = { floor: Color3, floorMaterial: Enum.Material, wall: Color3 }
@@ -162,6 +168,47 @@ function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
 	plot.backDoor.Transparency = if open then 1 else 0
 end
 
+-- The nearest point to `position` on the area's floor, at least `margin` studs inside one of its rects, so a stray
+-- that wanders or jumps back never leaves the area (or lands in a cafe yard beside the back alley). With `from`,
+-- the point stays in the rect `from` stands in: a rect is convex, so the straight walk there never crosses a wall
+-- (reviewer N54: near the back alley and Square junction the nearest rect can lie across the Square's south wall).
+function WorldBuilder.clampToArea(
+	info: AreaInfo,
+	position: Vector3,
+	margin: number,
+	from: Vector3?
+): Vector3
+	local rects = info.rects
+	if from ~= nil then
+		local start = from :: Vector3
+		for _, rect in info.rects do
+			if
+				start.X >= rect.x1
+				and start.X <= rect.x2
+				and start.Z >= rect.z1
+				and start.Z <= rect.z2
+			then
+				rects = { rect }
+				break
+			end
+		end
+	end
+	local best = Vector3.new(position.X, info.floorY, position.Z)
+	local bestDistance = math.huge
+	for _, rect in rects do
+		local x =
+			math.clamp(position.X, rect.x1 + margin, math.max(rect.x1 + margin, rect.x2 - margin))
+		local z =
+			math.clamp(position.Z, rect.z1 + margin, math.max(rect.z1 + margin, rect.z2 - margin))
+		local distance = (x - position.X) ^ 2 + (z - position.Z) ^ 2
+		if distance < bestDistance then
+			bestDistance = distance
+			best = Vector3.new(x, info.floorY, z)
+		end
+	end
+	return best
+end
+
 local function buildPlot(index: number, parent: Instance): Plot
 	local placement = Layout.plotPlacement(index)
 	local origin = Vector3.new(placement.x, 0.2, placement.z)
@@ -185,8 +232,32 @@ local function buildPlot(index: number, parent: Instance): Plot
 		Enum.Material.WoodPlanks,
 		model
 	)
+	-- The front garden strip and its path to the door, a little below the cafe floor.
+	local gardenRect, pathRect = Layout.plot.frontGarden, Layout.plot.frontPath
+	part(
+		"FrontGarden",
+		Vector3.new(gardenRect.x2 - gardenRect.x1, 0.4, gardenRect.z2 - gardenRect.z1),
+		cframe
+			* CFrame.new(
+				(gardenRect.x1 + gardenRect.x2) / 2,
+				-0.25,
+				(gardenRect.z1 + gardenRect.z2) / 2
+			),
+		GRASS,
+		Enum.Material.Grass,
+		model
+	)
+	part(
+		"FrontPath",
+		Vector3.new(pathRect.x2 - pathRect.x1, 0.4, pathRect.z2 - pathRect.z1),
+		cframe * CFrame.new((pathRect.x1 + pathRect.x2) / 2, -0.23, (pathRect.z1 + pathRect.z2) / 2),
+		PATH,
+		Enum.Material.Cobblestone,
+		model
+	)
+
 	local walls = folder("Walls", model)
-	-- The back wall has a door-sized panel that opens with the first expansion.
+	-- The back wall has a door panel that is open from Tier 1, under a header.
 	local door0 = Layout.plot.backDoor
 	local backLeft = door0.x - door0.width / 2 + halfW + 0.5 -- from the left corner to the door
 	local backRight = halfW + 0.5 - (door0.x + door0.width / 2) -- from the door to the right corner
@@ -206,14 +277,49 @@ local function buildPlot(index: number, parent: Instance): Plot
 		Enum.Material.SmoothPlastic,
 		walls
 	)
-	local backDoor = part(
-		"BackDoor",
-		Vector3.new(door0.width, wallH, 1),
-		cframe * CFrame.new(door0.x, wallH / 2, halfD + 0.5),
+	part(
+		"BackDoorHeader",
+		Vector3.new(door0.width, wallH - door0.height, 1),
+		cframe * CFrame.new(door0.x, (wallH + door0.height) / 2, halfD + 0.5),
 		CREAM,
 		Enum.Material.SmoothPlastic,
 		walls
 	)
+	local backDoor = part(
+		"BackDoor",
+		Vector3.new(door0.width, door0.height, 0.6),
+		cframe * CFrame.new(door0.x, door0.height / 2, halfD + 0.5),
+		MINT,
+		Enum.Material.WoodPlanks,
+		walls
+	)
+	local backDoorZone = anchor("BackDoorZone", cframe * CFrame.new(door0.x, 3, halfD + 0.5), model)
+	backDoorZone.Size = Vector3.new(door0.width, 6, 2)
+
+	-- The patio yard's low fence: both sides and the back, with a gate gap in line with the back door.
+	local yard, gate = Layout.plot.yard, Layout.plot.yardGate
+	local fenceH = Layout.plot.fenceHeight
+	local fence = folder("YardFence", model)
+	for _, x in { yard.x1 + 0.5, yard.x2 - 0.5 } do
+		part(
+			"FenceSide",
+			Vector3.new(0.4, fenceH, yard.z2 - yard.z1),
+			cframe * CFrame.new(x, fenceH / 2, (yard.z1 + yard.z2) / 2),
+			PICKET,
+			Enum.Material.WoodPlanks,
+			fence
+		)
+	end
+	for _, span in { { yard.x1, gate.x1 }, { gate.x2, yard.x2 } } do
+		part(
+			"FenceBack",
+			Vector3.new(span[2] - span[1], fenceH, 0.4),
+			cframe * CFrame.new((span[1] + span[2]) / 2, fenceH / 2, yard.z2 - 0.2),
+			PICKET,
+			Enum.Material.WoodPlanks,
+			fence
+		)
+	end
 	part(
 		"WallLeft",
 		Vector3.new(1, wallH, W.PlotDepth),
@@ -348,8 +454,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 			"Floor",
 			Vector3.new(rect.x2 - rect.x1, 0.4, rect.z2 - rect.z1),
 			cframe * CFrame.new((rect.x1 + rect.x2) / 2, -0.2, (rect.z1 + rect.z2) / 2),
-			if n == 3 then Color3.fromRGB(205, 200, 190) else CARAMEL,
-			if n == 3 then Enum.Material.Slate else Enum.Material.WoodPlanks,
+			DECK,
+			Enum.Material.WoodPlanks,
 			expansion
 		)
 		expansion.PrimaryPart = floor
@@ -378,10 +484,68 @@ local function buildPlot(index: number, parent: Instance): Plot
 		customerEntry = entry,
 		espresso = espresso,
 		backDoor = backDoor,
+		backDoorZone = backDoorZone,
 		expansions = expansions,
 	}
 	model.Parent = parent
 	return plot
+end
+
+-- An archway over an entrance (the street and both back alleys into the Alley Square): two brick posts, a beam
+-- and a name board facing both ways. A placeholder until the alley kit's arch arrives.
+local function buildArch(
+	x: number,
+	z: number,
+	span: number,
+	label: string,
+	color: Color3,
+	parent: Instance
+)
+	local arch = Instance.new("Model")
+	arch.Name = "Arch"
+	local height = 12
+	for _, side in { -1, 1 } do
+		part(
+			"Post",
+			Vector3.new(2, height, 2),
+			CFrame.new(x + side * (span / 2 + 1), height / 2, z),
+			color,
+			Enum.Material.Brick,
+			arch
+		)
+	end
+	part(
+		"Beam",
+		Vector3.new(span + 4, 1.5, 2),
+		CFrame.new(x, height + 0.75, z),
+		color,
+		Enum.Material.Brick,
+		arch
+	)
+	local board = part(
+		"NameBoard",
+		Vector3.new(math.min(span, 18), 2.4, 0.4),
+		CFrame.new(x, height - 1.6, z),
+		Color3.fromRGB(60, 50, 45),
+		Enum.Material.Wood,
+		arch
+	)
+	for _, face in { Enum.NormalId.Front, Enum.NormalId.Back } do
+		local gui = Instance.new("SurfaceGui")
+		gui.Face = face
+		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		gui.PixelsPerStud = 40
+		local text = Instance.new("TextLabel")
+		text.Size = UDim2.fromScale(1, 1)
+		text.BackgroundTransparency = 1
+		text.Font = Enum.Font.FredokaOne
+		text.TextScaled = true
+		text.TextColor3 = Color3.fromRGB(255, 214, 120)
+		text.Text = label
+		text.Parent = gui
+		gui.Parent = board
+	end
+	arch.Parent = parent
 end
 
 local function buildArea(
@@ -397,63 +561,105 @@ local function buildArea(
 
 	local cx, cz = spec.center.x, spec.center.z
 	local hw, hd = spec.halfWidth, spec.halfDepth
-	part(
-		"Floor",
-		Vector3.new(hw * 2, 0.2, hd * 2),
-		CFrame.new(cx, 0, cz),
-		floorColor,
-		floorMaterial,
-		model
-	)
-
 	local walls = folder("Walls", model)
-	local wallH = 6
-	-- Three closed sides; the side facing the street has an opening as wide as the street.
-	local openingHalf = W.StreetHalfWidth
-	local streetSide = if cz > 0 then -1 else 1 -- which Z edge faces the street
-	local farZ = cz - streetSide * hd
-	local nearZ = cz + streetSide * hd
-	part(
-		"WallFar",
-		Vector3.new(hw * 2 + 1, wallH, 1),
-		CFrame.new(cx, wallH / 2, farZ),
-		wallColor,
-		Enum.Material.Brick,
-		walls
-	)
-	part(
-		"WallLeft",
-		Vector3.new(1, wallH, hd * 2),
-		CFrame.new(cx - hw, wallH / 2, cz),
-		wallColor,
-		Enum.Material.Brick,
-		walls
-	)
-	part(
-		"WallRight",
-		Vector3.new(1, wallH, hd * 2),
-		CFrame.new(cx + hw, wallH / 2, cz),
-		wallColor,
-		Enum.Material.Brick,
-		walls
-	)
-	local seg = hw - openingHalf
-	part(
-		"WallNearL",
-		Vector3.new(seg, wallH, 1),
-		CFrame.new(cx - openingHalf - seg / 2, wallH / 2, nearZ),
-		wallColor,
-		Enum.Material.Brick,
-		walls
-	)
-	part(
-		"WallNearR",
-		Vector3.new(seg, wallH, 1),
-		CFrame.new(cx + openingHalf + seg / 2, wallH / 2, nearZ),
-		wallColor,
-		Enum.Material.Brick,
-		walls
-	)
+	local rects: { Layout.Rect }
+	local arrival: CFrame
+	local specRects = spec.rects
+	if specRects ~= nil then
+		-- The Alleyway: its floor pieces, wall footprints and archways as listed.
+		rects = specRects
+		for n, rect in specRects do
+			part(
+				"Floor" .. n,
+				Vector3.new(rect.x2 - rect.x1, 0.2, rect.z2 - rect.z1),
+				CFrame.new((rect.x1 + rect.x2) / 2, 0, (rect.z1 + rect.z2) / 2),
+				floorColor,
+				floorMaterial,
+				model
+			)
+		end
+		local wallH = spec.wallHeight or 6
+		local wallRects: { Layout.Rect } = spec.walls or {}
+		for _, rect in wallRects do
+			part(
+				"Wall",
+				Vector3.new(rect.x2 - rect.x1, wallH, rect.z2 - rect.z1),
+				CFrame.new((rect.x1 + rect.x2) / 2, wallH / 2, (rect.z1 + rect.z2) / 2),
+				wallColor,
+				Enum.Material.Brick,
+				walls
+			)
+		end
+		local arches: { { x: number, z: number, span: number, label: string } } = spec.arches or {}
+		for _, arch in arches do
+			buildArch(arch.x, arch.z, arch.span, arch.label, wallColor, model)
+		end
+		local at = spec.arrival or spec.center
+		arrival = CFrame.new(at.x, spec.floorY + 3, at.z)
+			* CFrame.Angles(0, math.rad(at.rotY or 0), 0)
+	else
+		rects = { { x1 = cx - hw, z1 = cz - hd, x2 = cx + hw, z2 = cz + hd } }
+		part(
+			"Floor",
+			Vector3.new(hw * 2, 0.2, hd * 2),
+			CFrame.new(cx, 0, cz),
+			floorColor,
+			floorMaterial,
+			model
+		)
+		local wallH = 6
+		-- Three closed sides; the side facing the street's end has an opening as wide as the street, or as the back
+		-- alley for the Woods and the Sewer.
+		local openingHalf = spec.openingHalfWidth or W.StreetHalfWidth
+		local streetSide = if cz > 0 then -1 else 1 -- which Z edge faces the street
+		local farZ = cz - streetSide * hd
+		local nearZ = cz + streetSide * hd
+		part(
+			"WallFar",
+			Vector3.new(hw * 2 + 1, wallH, 1),
+			CFrame.new(cx, wallH / 2, farZ),
+			wallColor,
+			Enum.Material.Brick,
+			walls
+		)
+		part(
+			"WallLeft",
+			Vector3.new(1, wallH, hd * 2),
+			CFrame.new(cx - hw, wallH / 2, cz),
+			wallColor,
+			Enum.Material.Brick,
+			walls
+		)
+		part(
+			"WallRight",
+			Vector3.new(1, wallH, hd * 2),
+			CFrame.new(cx + hw, wallH / 2, cz),
+			wallColor,
+			Enum.Material.Brick,
+			walls
+		)
+		local seg = hw - openingHalf
+		part(
+			"WallNearL",
+			Vector3.new(seg, wallH, 1),
+			CFrame.new(cx - openingHalf - seg / 2, wallH / 2, nearZ),
+			wallColor,
+			Enum.Material.Brick,
+			walls
+		)
+		part(
+			"WallNearR",
+			Vector3.new(seg, wallH, 1),
+			CFrame.new(cx + openingHalf + seg / 2, wallH / 2, nearZ),
+			wallColor,
+			Enum.Material.Brick,
+			walls
+		)
+		arrival = CFrame.lookAt(
+			Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
+			Vector3.new(cx, spec.floorY + 3, cz)
+		)
+	end
 
 	local props = folder("Props", model)
 	for _, prop in spec.props do
@@ -471,6 +677,9 @@ local function buildArea(
 		local sp = anchor(id .. "_" .. i, CFrame.new(point.x, point.y, point.z), spawnFolder)
 		sp:SetAttribute("Area", id)
 		sp:SetAttribute("Index", i)
+		if point.zone ~= nil then
+			sp:SetAttribute("Zone", point.zone)
+		end
 		CollectionService:AddTag(sp, "SpawnPoint")
 		table.insert(spawnPoints, sp)
 	end
@@ -524,10 +733,8 @@ local function buildArea(
 		lureSpots = lureSpots,
 		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
-		arrival = CFrame.lookAt(
-			Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
-			Vector3.new(cx, spec.floorY + 3, cz)
-		),
+		rects = rects,
+		arrival = arrival,
 	}
 end
 
@@ -578,10 +785,13 @@ function WorldBuilder.build(): World
 		root
 	)
 	ground.Name = "Ground"
+	-- The street ends where it runs into the Alley Square at its north end.
+	local streetLength = W.StreetNorthZ - W.StreetSouthZ
+	local streetMidZ = (W.StreetNorthZ + W.StreetSouthZ) / 2
 	part(
 		"Street",
-		Vector3.new(W.StreetHalfWidth * 2, 0.2, W.StreetLength + 10),
-		CFrame.new(0, 0, 0),
+		Vector3.new(W.StreetHalfWidth * 2, 0.2, streetLength),
+		CFrame.new(0, 0, streetMidZ),
 		ASPHALT,
 		Enum.Material.Asphalt,
 		root
@@ -589,8 +799,8 @@ function WorldBuilder.build(): World
 	for _, x in { -W.StreetHalfWidth - 1, W.StreetHalfWidth + 1 } do
 		part(
 			"Sidewalk",
-			Vector3.new(2, 0.3, W.StreetLength + 10),
-			CFrame.new(x, 0.05, 0),
+			Vector3.new(2, 0.3, streetLength),
+			CFrame.new(x, 0.05, streetMidZ),
 			Color3.fromRGB(200, 200, 195),
 			Enum.Material.Concrete,
 			root
@@ -632,12 +842,15 @@ function WorldBuilder.build(): World
 			)
 		)
 		areas[def.id] = buildArea(def.id, spec, AREA_LOOKS[def.id], root)
-		zone(
-			def.id:sub(1, 1):upper() .. def.id:sub(2),
-			Vector3.new(spec.halfWidth * 2, 30, spec.halfDepth * 2),
-			CFrame.new(spec.center.x, spec.floorY + 15, spec.center.z),
-			zones
-		)
+		-- One zone box per floor piece, so the Alleyway's zone follows its back alleys and the Square.
+		for _, rect in areas[def.id].rects do
+			zone(
+				def.id:sub(1, 1):upper() .. def.id:sub(2),
+				Vector3.new(rect.x2 - rect.x1, 30, rect.z2 - rect.z1),
+				CFrame.new((rect.x1 + rect.x2) / 2, spec.floorY + 15, (rect.z1 + rect.z2) / 2),
+				zones
+			)
+		end
 		if spec.gateZ ~= nil then
 			gates[def.id] = buildGate(def, spec.center.x, spec.gateZ, gatesFolder)
 		end

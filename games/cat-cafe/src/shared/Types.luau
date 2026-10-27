@@ -82,6 +82,9 @@ export type UpgradeDef = {
 	requiresTierAtLevel: { [number]: number }?, -- e.g. espresso level 3 needs Tier 2 (the tier caps, section 5b)
 }
 
+-- "shop" decor is bought with BuyDecor; "index" decor (F48) is never sold and only ClaimIndexReward grants it.
+export type DecorSource = "shop" | "index"
+
 export type DecorDef = {
 	id: string,
 	name: string,
@@ -92,6 +95,23 @@ export type DecorDef = {
 	requiresTier: number?,
 	bonus: number, -- added to the cafe multiplier while placed
 	asset: string, -- model name in ReplicatedStorage.Assets
+	source: DecorSource?, -- missing means "shop"
+	replaces: string?, -- a gold Index piece: the normal piece it stands in for while both are placed (N114)
+}
+
+-- Data-model section 11b (F48): a reward bar milestone on every area page of the Index. `need` cats of the area
+-- in the collection, or in the gold collection when `gold` is set.
+export type IndexMilestone = {
+	id: string,
+	need: number,
+	gold: boolean?,
+}
+
+-- What one Index milestone pays: coins, foods by lure id and an Index decor piece, any of them.
+export type IndexPrize = {
+	coins: number?,
+	lures: { [string]: number }?,
+	decorId: string?,
 }
 
 export type LureOdds = {
@@ -281,6 +301,7 @@ export type PlayerProfile = {
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
 	goldCollection: { [string]: number }, -- catId -> first gold caught at
+	indexRewards: { [string]: { [string]: boolean } }, -- areaId -> milestoneId -> claimed (F48)
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -307,6 +328,7 @@ export type PlayerState = {
 	cats: { [string]: CatView },
 	collection: { [string]: number },
 	goldCollection: { [string]: number },
+	indexRewards: { [string]: { [string]: boolean } }, -- F48
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,

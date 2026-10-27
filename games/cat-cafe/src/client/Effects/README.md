@@ -17,6 +17,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | `Plots.luau` | Rank up confetti and a smoke puff at the cafe front, the For Rent shutters rolling up when a plot is claimed, an area gate's barrier dissolving the first time it opens for this player. |
 | `Ambient.luau` | Espresso steam, chimney smoke, butterflies by day and fireflies at night, the nearest sources only. |
 | `Shove.luau` | A shove (F41): a puff where it lands, dust at the shoved player's feet, dizzy stars round their head, and a camera bump for them. |
+| `Wheel.luau` | The Spin Wheel station (F49): whenever anyone spins, the world wheel turns for everyone within 120 studs, easing to a stop over 3.4 s with the rim lights chasing round and the pointer knocked by each slice edge, then a sparkle at the pointer and the lights blink. It stops inside the won slice (`LastSlice`), never by an edge, at an angle every client works out the same. |
 
 ## Hooks for the luau-engineer
 
@@ -57,6 +58,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Chimney smoke | parts or object Models ending `_Chimney` |
 | Butterflies (day) | parts or object Models ending `_Flowers`, else the pavement in front of each plot's `Door` |
 | Fireflies (night) | parts ending `_Fireflies`, else the street lamps' `_Bulb` parts |
+| Spin wheel turning | tag `SpinWheel` with `LastSpinAt` (server time) changing and `LastSlice` (1 to 6, set just before it); its `Wheel` Model (pivoted at the hub, turns about its own Z axis), `Pointer` and `RimLight` parts |
 | Day or night | `ReplicatedStorage.Clock` attribute `Phase` |
 
 ## Budgets

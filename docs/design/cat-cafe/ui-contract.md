@@ -76,7 +76,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
-| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`. One open at a time. |
+| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`. One open at a time. |
 | `UI.openCatRoom()` | Opens Collection on the Cat room tab (tutorial step 3). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
 | `UI.announce(text, rarity?)` | Server-wide catch shout-out, on the rarity's colour for 4 s. Pass the rarity from `Announce` once it carries one; without it the last rarity named as a whole word in the text decides, so a DisplayName like "EpicGamer" does not colour it. Silent, since Audio plays the shout-out sting from the remote. |
@@ -113,7 +113,7 @@ The UI stays a view: it never fires remotes. Built rows are in the UI now; plann
 
 `state.tier` (1 to 5) replaces `cafeLevel`. Upgrades and Decor gate on `requiresTier` and `requiresTierAtLevel` and say "Tier 3" on a locked button; the Upgrades subtitle and the top pill say "Tier 2 · Cozy Cafe". Mythical (#FF5E7E) replaces Secret. Lure odds list all five rarities, and Details splits each rarity equally across that rarity's cats in every area the player's tier has opened (bait rule, data-model section 8), rebuilt on a tier change.
 
-Cat room (F25): Assign opens a role picker, one row per role, never a slot number. A row says "2 of 3 free", "All 2 taken, more at Tier 3", "Full" or "Opens at Tier 3"; the cat's favorite role shows a star, "1.5x" and a gold button. Assign fires `placeCat(uid, spotId)` with the first free open slot of that role. Each cat row has a "Loves Barista" tag that turns gold while the cat works that role, and its status names the slot ("Barista 2"). Role display names are the role ids capitalised.
+Cat room (F25): Assign opens a role picker, one row per role, never a slot number. A row says "2 of 3 free", "All 2 taken, more at Tier 3", "Full" or "Opens at Tier 3"; the cat's favorite role shows a star, "1.5x" and a gold button. Assign fires `placeCat(uid, spotId)` with the first free open slot of that role. Each cat row has a "Loves Barista" tag that turns gold while the cat works that role, and its status names the slot ("Barista 2"). Role display names are the role ids capitalised. Each card shows the cat's own model, still, on a disc in its rarity colour (the Pet Simulator inventory look); a shiny cat (`variant = "shiny"`) gets a gold ✨ badge and a thicker gold edge, and a cat with a `name` reads "Mochi  (Tabby)".
 
 ### Press prompts (built)
 
@@ -204,17 +204,30 @@ The Bait bowl screen has a status card (no bowl yet with an Upgrades button, emp
 
 In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLevels.lure_bowl >= 1`: "Bait bowl / Empty · add food", "<Food> / Cat in 7m 42s", then "Cat waiting!" in gold.
 
+Each food card has the food's picture on the left (`Components/ItemIcon.luau`): the LureDef's `asset` model from `ReplicatedStorage.Assets`, still, on a tile in its rarity colour, with a glyph from `Theme.foodIcons` until the model exists. Per-cat shares keep up to two decimals so they add back up to the rarity's share (reviewer N69).
+
+### Night dealer (built, F32, data-model section 8b)
+
+The Grow a Garden seed shop, for the dealer's cart: "Fresh stock in 4:12" across the top, then one card per food with its picture, name, rarity, "x2 Stock" in green or "Sold out" in red, "You have N", the odds line, the shiny chance and the charm star odds, and one green price button. A food that fills two slots shows once, and Buy sends its first slot not bought yet. Details adds the food's description and the per-cat split. Cards have rarity-coloured borders.
+
+| API | Purpose |
+|---|---|
+| `UI.dealer.setStock(stock?)` | From `DealerStock`: `stock = { slots = { { lureId, cost, bought } }, restocksAt }`, slots in the server's order (the slot number is the index), `restocksAt` in server `os.time()`. Send it at night start, at each window change and after every `BuyDealerFood`, bought or not: a pressed Buy shows "Buying..." until the next stock or 5 s. nil when the cart leaves at dawn, which also closes the screen. |
+| `UI.dealer.open()` | Opens the dealer screen (also `UI.open("Dealer")`). Call it from the cart's ProximityPrompt. It shows "Opening the cart..." until a stock arrives. |
+| `UI.dealer.setCart(part?)` | The cart part. With it, Buy greys out beyond `DealerRangeStuds` (12 until it is in Config) with "Walk back to the cart to buy". Without it the buttons stay on and the server decides. |
+
+Buy also greys out by day (from `UI.clock`, "Closed until nightfall"), once `restocksAt` has passed until the next stock arrives ("Fresh stock coming..."), and when the player cannot afford it. The odds come from the catalog; the price on the button is the slot's `cost` from the server.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
 |---|---|
 | `UI.rescue.show(rescueSpotId, challenge)` | From `RescueChallenge`. `challenge = { kind = "bar" or "shake_catch", startsAt, phase, speed, zoneWidth, zones = { centre per hit }, hitsNeeded, paws }`. The marker's position at time t is the triangle wave of `phase + speed * (t - startsAt)` with period 2 (0 to 1 and back), the shared `markerAt` helper. Paw lives, a hit count and Cancel. A tree (`shake_catch`) shakes the branch on each hit; the server then sends a second challenge `{ kind = "circle", circle = { startsAt, shrinkSeconds, x, y }, windows }` drawn as one catch circle. Presses fire `events.rescuePressed(rescueSpotId)`, Cancel fires `events.rescueCancelled(rescueSpotId)`. |
 | `UI.rescue.update(hits, pawsLeft, done, success)` | From `RescueResult`. A hit moves the zone to `zones[hits + 1]`, a miss greys a paw. |
-| `UI.dealer.open(slots)` / `UI.dealer.update(slots)` | From `DealerStock`: `slots = { { lureId, cost, bought } }`, three cards with odds, price and a moon timer to dawn. Fires `events.buyDealerFood(slot)`. |
 | Action pill | Custom-style prompts without a `CatId` (bait bowl, dealer cart, rich tip, Bump) get a small pill with the key and `ActionText`; on touch the pill is the button. The controller handles `PromptTriggered` as today. |
 | `UI.richTip.bind(plot)` | Reads `RichTipAmount`, `RichTipExpiresAt` (server `os.time()`) and the `RichTipAnchor` part: a gold marker with the amount and its time left, and Collect fires `events.claimRichTip()`. |
-| Shiny | A sparkle badge on cards, the carry banner and the book; the book gets a Shiny page with its own count from `state.shinyCollection`. `CatInstance.variant = "shiny"`. |
-| Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`; the shown name is `CatInstance.name` or the catalog name. |
+| Shiny | Built: the book's Shiny pill (from `state.shinyCollection`), the catch header and the reveal's sticker, and the cat room's gold cards. Still planned: the carry banner, and a Shiny page in the book with its own count. |
+| Rename | A Rename button on each cat in the cat room opens a dialog (20 characters). Fires `events.renameCat(uid, name)`. The cat room already shows `CatInstance.name` when the server sends it (filtered), else the catalog name. |
 | Fast travel (built, v0.4 F19) | Top centre under the tier pill: Cafe, Alley and Areas buttons (Grow a Garden style). Cafe and Alley fire `events.travel("home")` and `events.travel("alley")`; Areas opens `UI.open("Areas")`, five area cards with "Epic or better N%" and Go, locked ones greyed with "Opens at Tier n". The row hides while the catch circles show (their header takes the top centre). Every button and Go greys while carrying (`state.carrying` or `UI.setCarrying`) and Cafe and Alley grey for `Config.TravelCooldownSeconds` (3 until it exists) after a trip. Forward `events.travel(destination)` as `Travel(destination)`; pass `TravelResult(destination, ok, reason?)` to `UI.travel.result`, which lifts the cooldown and wobbles the button on a refusal (the server toast gives the reason). |
 
 Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`, `RingConfig` and the `RingResult` re-export. Retired once the rescue minigames and the bait bowl land: `rescueEnded`, `startRescue`, `stopRescue` and `equipLure`; they stay until the controller drops them so main keeps compiling.
@@ -230,6 +243,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `equipLure` | `lureId` | Equip pressed (v0.2 lure spots; unused in bowl mode) |
 | `useLure` | `lureId` | Use pressed on a food in the Bait bowl screen. Forward as `UseLure(lureId)` |
 | `resolveBait` | `"tame"` or `"letgo"` | A choice on the bait card. Forward as `ResolveBait(choice)` |
+| `buyDealerFood` | `slot` (1 to 3), `lureId` | Buy pressed on the night dealer screen. Forward as `BuyDealerFood(slot, lureId)`; the server refuses it when that slot holds another food after a restock (reviewer S42). Then send `DealerStock` back |
 | `placeCat` | `uid, spotId` | Assign pressed on a role in the Cat room; `spotId` is the first free open slot of that role |
 | `unplaceCat` | `uid` | Rest pressed on a placed cat |
 | `sellCat` | `uid` | Sell confirmed. Rare and above ask twice: Sell turns into "Sell $150", Rest turns into an equal-sized Cancel. |
@@ -256,7 +270,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     decorOwned: { [decorId]: boolean }, decorPlaced: { [decorId]: boolean },
     lures: { [lureId]: number }, equippedLure: string?,
     -- engineer extras the UI uses when present
-    cats: { [uid]: { uid, catId, variant?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
+    cats: { [uid]: { uid, catId, variant?, name?, caughtAt?, spotId?, rescued?, method?,  -- enables the Cat room tab
                      level?, xp?, xpToNext?, charm?, stars?, rating? } }, -- cat stats thread; shown when present
     collection: { [catId]: firstCaughtAt },                        -- drives "?" silhouettes and the 7 / 50 count
     shinyCollection: { [catId]: firstShinyAt }?,                   -- v0.3: the book's Shiny page (planned)

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 03:18 UTC",
+  "generated": "2026-10-27 03:48 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -9250,7 +9250,7 @@
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Every plot. No collision. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
+      "studio": "Every plot. Big parts collide. HangingLamp bulbs are Neon all day; StringLights Bulbs glow at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Interior.model.json",
       "rbx_parts": 267,
       "files": [
@@ -9311,7 +9311,7 @@
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable). No collision.",
+      "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent.model.json",
       "rbx_parts": 208,
       "files": [
@@ -9369,7 +9369,7 @@
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Cumulative: place every tier up to the cafe's tier. No collision.",
+      "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier1.model.json",
       "rbx_parts": 31,
       "files": [
@@ -9428,7 +9428,7 @@
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Cumulative: place every tier up to the cafe's tier. No collision.",
+      "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier2.model.json",
       "rbx_parts": 42,
       "files": [
@@ -9488,7 +9488,7 @@
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Cumulative: place every tier up to the cafe's tier. No collision.",
+      "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3.model.json",
       "rbx_parts": 88,
       "files": [
@@ -9529,17 +9529,17 @@
       "budget": 3000,
       "size_studs": {
         "x": 27.52,
-        "y": 38.65,
+        "y": 37.05,
         "z": 8.85
       },
       "size_roblox": [
         27.52,
         8.85,
-        38.65
+        37.05
       ],
       "bounds_min": [
         -13.6,
-        -13.85,
+        -12.25,
         0.0
       ],
       "bounds_max": [
@@ -9549,7 +9549,7 @@
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Cumulative: place every tier up to the cafe's tier. No collision.",
+      "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier4.model.json",
       "rbx_parts": 60,
       "files": [
@@ -9569,7 +9569,7 @@
           "uv": "500 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.16 y=5.47"
+          "centered": "footprint center x=0.16 y=6.27"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier4.png",
@@ -9606,7 +9606,7 @@
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Cumulative: place every tier up to the cafe's tier. No collision.",
+      "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5.model.json",
       "rbx_parts": 51,
       "files": [

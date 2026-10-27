@@ -178,7 +178,7 @@ v0.3 addition (Gavin, Q10). A cart with the dealer NPC parks on the street at ni
 
 - Per-player stock: three slots, each one food from the dealer table, rolled from `DealerSlotWeights[tier]`. The roll is seeded from the player's UserId and a global time window, `dealerWindow = floor(os.time() / DealerWindowSeconds)` (600), as `Random.new(hash(userId, dealerWindow, tier))`, so rejoining or changing servers shows the same stock (S27; a per-server night number would reroll on every server hop). Each slot can be bought once per window; bought slots are saved in `profile.dealer = { window, bought }` (`bought` keyed by the strings "1" to "3" so the save stays JSON-shaped, engineer's F22), cleared only when the current window is greater than the saved one (N32: server clocks differ by a second or two, so a hop at a boundary can go from W + 1 back to W), so a rejoin or a server hop cannot buy twice. Server nights are not aligned with windows, so a window can roll over mid-night: the stock refreshes then and the dealer screen shows "Fresh stock in m:ss".
 - Stock and prices are shown before buying. Bought dealer food goes into `lures` and is used in the bowl like shop food, with its odds on its card.
-- `BuyDealerFood(slot)`: night, cart within 12 studs, slot 1 to 3, not bought this window, affordable. The server recomputes the stock from the seed at purchase time rather than trusting a cached or client value.
+- `BuyDealerFood(slot, lureId)`: night, cart within 12 studs, slot 1 to 3, not bought this window, affordable. The server recomputes the stock from the seed at purchase time rather than trusting a cached or client value, and refuses the buy when the recomputed slot holds a different food than `lureId` (reviewer S42: a Buy that lands just after a window roll must not buy the new item the player never saw). After every BuyDealerFood, bought or refused, the server sends `DealerStock` so the Buy button gets a definite answer.
 - Later: an upgrade that improves the dealer's weights (Gavin's "upgrade or someway"), not in v0.3; tiers already do it.
 
 Dealer foods (`LureDef`, `source = "dealer"`):
@@ -372,7 +372,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | BuyLure | event | lureId | shop food (source shop), affordable | count + 1. No PolicyService gate (section 8 and the monetization notes) |
 | UseLure | event | lureId | lure_bowl owned, bowl empty, count above 0, 12 studs of own BaitBowl | consumes, rolls and saves `bait`, sets BaitReadyAt |
 | ResolveBait | event | choice (`tame` or `letgo`) | bait exists, ready, owner within 20 studs of own BaitBowl | tame adds the cat; both empty the bowl |
-| BuyDealerFood | event | slot | night, 12 studs of the cart, slot 1 to 3, not bought this window, affordable; stock recomputed from the seed | count + 1, marks bought |
+| BuyDealerFood | event | slot, lureId | night, 12 studs of the cart, slot 1 to 3, not bought this window, affordable; stock recomputed from the seed and the slot must still hold `lureId` (S42) | count + 1, marks bought; sends DealerStock either way |
 | ClaimRichTip | event | none | own plot has an unexpired tip, 12 studs of RichTipAnchor | adds the tip, clears it |
 | TelemetryReport | event | name, value | allowlist, 10 per minute | analytics only |
 | ClaimOffline | event | none | pending above 0 | adds coins |
@@ -381,7 +381,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | CatchResult | server to client | strayId, grades, success, pawsLeft, charmGain | | UI grades, paw row, charm line and toast (v0.4) |
 | RescueChallenge | server to client | rescueSpotId, challenge | | UI draws the bar or the shake |
 | RescueResult | server to client | rescueSpotId, hits, pawsLeft, done, success | | UI |
-| DealerStock | server to client | slots = { { lureId, cost, bought } }, restocksAt | | sent at night start, at each window change during night and when the screen opens |
+| DealerStock | server to client | slots = { { lureId, cost, bought } }, restocksAt | | sent at night start, at each window change during night, when the screen opens and after every BuyDealerFood, bought or refused |
 | BaitReady | server to client | catView | | UI bait card |
 | ProfileSync | server to client | partial `PlayerState` | | adds `tier`, `bait`, `shinyCollection`, `rankUp` progress |
 | CatCaught | server to client | catId, isNew, shiny, isNewShiny | | cat found popup |

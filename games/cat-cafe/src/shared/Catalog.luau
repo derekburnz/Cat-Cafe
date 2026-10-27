@@ -7,13 +7,14 @@ local Types = require(script.Parent.Types)
 
 local Catalog = {}
 
--- Section 2. circles and shrinkSeconds drive the net (section 10), rescueHits the rescue bar (section 10b).
+-- Section 2. circles and shrinkSeconds drive the net (section 10), patience is each player's failed catches on one
+-- stray before it stops trusting them (v0.4), rescueHits the rescue bar (section 10b).
 Catalog.rarities = {
 	Common = {
 		incomePerSecond = 1,
 		circles = 1,
 		shrinkSeconds = 1.40,
-		fleesOnFail = false,
+		patience = 3,
 		rescueHits = 2,
 		sellValue = 25,
 		firstCatchReward = 50,
@@ -23,7 +24,7 @@ Catalog.rarities = {
 		incomePerSecond = 3,
 		circles = 2,
 		shrinkSeconds = 1.15,
-		fleesOnFail = true,
+		patience = 2,
 		rescueHits = 3,
 		sellValue = 150,
 		firstCatchReward = 300,
@@ -33,7 +34,7 @@ Catalog.rarities = {
 		incomePerSecond = 8,
 		circles = 3,
 		shrinkSeconds = 0.95,
-		fleesOnFail = true,
+		patience = 2,
 		rescueHits = 4,
 		sellValue = 600,
 		firstCatchReward = 1500,
@@ -43,7 +44,7 @@ Catalog.rarities = {
 		incomePerSecond = 25,
 		circles = 4,
 		shrinkSeconds = 0.80,
-		fleesOnFail = true,
+		patience = 1,
 		rescueHits = 5,
 		sellValue = 3000,
 		firstCatchReward = 8000,
@@ -53,7 +54,7 @@ Catalog.rarities = {
 		incomePerSecond = 75,
 		circles = 5,
 		shrinkSeconds = 0.65,
-		fleesOnFail = true,
+		patience = 1,
 		rescueHits = 6,
 		sellValue = 12000,
 		firstCatchReward = 30000,

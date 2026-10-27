@@ -31,6 +31,14 @@ return function()
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the shiny chance
 		GrabRangeStuds = 10,
 		GrabRetrySeconds = 2,
+		-- v0.4 catching stakes (F34, section 10 step 5)
+		StrayWarySeconds = 5,
+		StrayJumpBackMin = 6,
+		StrayJumpBackMax = 10,
+		PerfectCharmBonus = 4,
+		PurrfectCharmMultiplier = 2,
+		AutoPressFlagRate = 0.95,
+		AutoPressClearRate = 0.85,
 		-- v0.3 net circles (F26, section 10)
 		CircleLeadInSeconds = 0.6,
 		CircleGapMin = 0.40,
@@ -40,7 +48,7 @@ return function()
 		CatchLatencyCapSeconds = 0.15,
 		LureWaitSeconds = 45,
 		LureDespawnSeconds = 90,
-		CarryWalkSpeed = 13,
+		CarryWalkSpeed = 16, -- v0.4
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,
 		CustomerStayMin = 20,
@@ -50,7 +58,7 @@ return function()
 		GrabCooldownSeconds = 2,
 		TravelCooldownSeconds = 3, -- v0.4 (F19)
 		SyncIntervalSeconds = 10,
-		NormalWalkSpeed = 16,
+		NormalWalkSpeed = 20, -- v0.4
 		StrayWanderRadius = 5,
 		StrayWanderSpeed = 3,
 		CustomerCoinPopSeconds = 3,
@@ -198,6 +206,29 @@ return function()
 		it("circle scores: Perfect beats Good beats a miss, and Perfect is a sure catch", function()
 			expect(Config.CircleScorePerfect).to.equal(1)
 			expect(Config.CircleScoreGood > 0 and Config.CircleScoreGood < 1).to.equal(true)
+		end)
+
+		it("v0.4 stakes: the player who missed waits longer than everyone else", function()
+			expect(Config.StrayWarySeconds > Config.GrabRetrySeconds).to.equal(true)
+		end)
+
+		it("v0.4 stakes: the jump back is a range of 6 to 10 studs", function()
+			expect(Config.StrayJumpBackMin > 0).to.equal(true)
+			expect(Config.StrayJumpBackMin <= Config.StrayJumpBackMax).to.equal(true)
+		end)
+
+		it("v0.4 stakes: the scripted-press flag clears well below where it sets", function()
+			expect(Config.AutoPressClearRate > 0).to.equal(true)
+			expect(Config.AutoPressClearRate < Config.AutoPressFlagRate).to.equal(true)
+			expect(Config.AutoPressFlagRate < 1).to.equal(true)
+		end)
+
+		it("v0.4 stakes: a Purrfect Mythical catch adds charm well inside the 100 cap", function()
+			local most = Config.PerfectCharmBonus
+				* Catalog.rarities.Mythical.circles
+				* Config.PurrfectCharmMultiplier
+			expect(most).to.equal(40)
+			expect(most < 100).to.equal(true)
 		end)
 
 		it("carry speed is about 80% of normal walk speed (features F07)", function()

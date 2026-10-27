@@ -746,10 +746,22 @@ end
 
 Layout.townSquare = {
 	floor = { x1 = -TSW, z1 = -TSD, x2 = TSW, z2 = TSD } :: Rect,
-	-- the open cross: the street's line and the lane to the side arches
+	-- the open cross: the street's line and the lane to the side arches, the lane in two halves either side of the
+	-- street's line so no two marks overlap (overlapping flat parts z-fight)
 	lanes = {
 		{ x1 = -W.TownSquareLaneHalfWidth, z1 = -TSD, x2 = W.TownSquareLaneHalfWidth, z2 = TSD },
-		{ x1 = -TSW, z1 = -W.TownSquareCrossHalfWidth, x2 = TSW, z2 = W.TownSquareCrossHalfWidth },
+		{
+			x1 = -TSW,
+			z1 = -W.TownSquareCrossHalfWidth,
+			x2 = -W.TownSquareLaneHalfWidth,
+			z2 = W.TownSquareCrossHalfWidth,
+		},
+		{
+			x1 = W.TownSquareLaneHalfWidth,
+			z1 = -W.TownSquareCrossHalfWidth,
+			x2 = TSW,
+			z2 = W.TownSquareCrossHalfWidth,
+		},
 	} :: { Rect },
 	-- trees and flower beds from the square out to the back alleys, a garden wall along the alley with an arch in
 	-- the middle of each side

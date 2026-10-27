@@ -47,8 +47,33 @@ function CafeService.catViews(profile: Profile): { [string]: Types.CatView }
 	return views
 end
 
+-- When the bowl's cat arrives (data-model section 8): LureWaitSeconds after the food went in, online or not.
+function CafeService.baitReadyAt(bait: Types.BaitState): number
+	return bait.placedAt + Config.LureWaitSeconds
+end
+
+-- The bowl as ProfileSync sends it: the rolled cat only once it has arrived, so the reveal is not spoiled (N30).
+local function baitView(profile: Profile, now: number): Types.BaitView?
+	local bait = profile.bait
+	if bait == nil then
+		return nil
+	end
+	local readyAt = CafeService.baitReadyAt(bait)
+	local view: Types.BaitView = { lureId = bait.lureId, readyAt = readyAt }
+	if now >= readyAt then
+		view.cat = {
+			catId = bait.catId,
+			variant = bait.variant,
+			charm = bait.charm,
+			stars = CatStats.stars(bait.charm),
+		}
+	end
+	return view
+end
+
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
 	local plot = PlotService.get(player)
+	local now = os.time()
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = Economy.incomePerSecond(profile),
@@ -63,6 +88,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
 		equippedLure = profile.equippedLure,
+		bait = baitView(profile, now),
 		cats = CafeService.catViews(profile),
 		collection = profile.collection,
 		shinyCollection = profile.shinyCollection,
@@ -71,7 +97,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
 		settings = { music = profile.settings.music, sfx = profile.settings.sfx },
-		serverTime = os.time(),
+		serverTime = now,
 	}
 end
 
@@ -286,6 +312,71 @@ local function refreshEspresso(plot: WorldBuilder.Plot, profile: Profile)
 	model.Parent = plot.model
 end
 
+-- The bait bowl in the front garden (data-model section 8): the bowl once the upgrade is bought, the food in it
+-- while a cat is on its way and the cat itself, eating, once it has arrived, so the street sees it. The item
+-- models are tiny, so they are scaled up to read from the path. BaitReadyAt is for display only.
+local BOWL_SCALE = 2
+local FOOD_SCALE = 1.2 -- the food item sits in the bowl
+
+local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Profile)
+	local owned = Economy.level(profile, "lure_bowl") >= 1
+	local bait = if owned then profile.bait else nil
+	local readyAt = if bait ~= nil then CafeService.baitReadyAt(bait) else 0
+	local ready = bait ~= nil and os.time() >= readyAt
+	plot.model:SetAttribute("BaitReadyAt", readyAt)
+	if not owned then
+		plot.bait:ClearAllChildren()
+		return
+	end
+
+	if plot.bait:FindFirstChild("Bowl") == nil then
+		local bowl = AssetRegistry.clone("CatCafe_Item_FoodBowl")
+		bowl.Name = "Bowl"
+		bowl:ScaleTo(BOWL_SCALE)
+		bowl:PivotTo(plot.baitBowl.CFrame)
+		bowl.Parent = plot.bait
+	end
+
+	local lureId = if bait ~= nil then bait.lureId else nil
+	local food = plot.bait:FindFirstChild("Food")
+	if food ~= nil and food:GetAttribute("LureId") ~= lureId then
+		food:Destroy()
+		food = nil
+	end
+	local lure = if lureId ~= nil then Catalog.getLure(lureId) else nil
+	if food == nil and lure ~= nil then
+		local model = AssetRegistry.clone(lure.asset)
+		model.Name = "Food"
+		model:SetAttribute("LureId", lure.id)
+		model:ScaleTo(FOOD_SCALE)
+		model:PivotTo(plot.baitBowl.CFrame * CFrame.new(0, 0.1, 0))
+		model.Parent = plot.bait
+	end
+
+	-- one cat per food: the key changes with each new food, so a stale cat never stays
+	local key = if ready and bait ~= nil
+		then string.format("%s@%d", bait.catId, bait.placedAt)
+		else nil
+	local cat = plot.bait:FindFirstChild("Cat")
+	if cat ~= nil and cat:GetAttribute("BaitKey") ~= key then
+		cat:Destroy()
+		cat = nil
+	end
+	local def = if key ~= nil and bait ~= nil then Catalog.getCat(bait.catId) else nil
+	if cat == nil and key ~= nil and bait ~= nil and def ~= nil then
+		local model = AssetRegistry.clone(Catalog.catModelName(bait.catId))
+		model.Name = "Cat"
+		model:SetAttribute("BaitKey", key)
+		model:SetAttribute("CatId", bait.catId)
+		model:SetAttribute("Rarity", def.rarity)
+		model:SetAttribute("Shiny", bait.variant == "shiny")
+		model:SetAttribute("OwnerUserId", player.UserId)
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+		model:PivotTo(plot.baitCat.CFrame)
+		model.Parent = plot.bait
+	end
+end
+
 function CafeService.refreshPlot(player: Player)
 	local profile = DataService.get(player)
 	local plot = PlotService.get(player)
@@ -298,6 +389,7 @@ function CafeService.refreshPlot(player: Player)
 	refreshCats(player, plot, profile)
 	refreshDecor(plot, profile)
 	refreshTables(plot, profile)
+	refreshBait(player, plot, profile)
 end
 
 -- "$2.6/s", "$12/s": the HUD's rounding (one decimal under 10), so the toast and the income pill agree.
@@ -337,7 +429,7 @@ local function newUid(): string
 	return HttpService:GenerateGUID(false):sub(1, 12):lower()
 end
 
-local function advanceTutorial(profile: Profile, step: number)
+function CafeService.advanceTutorial(profile: Profile, step: number)
 	if profile.tutorialStep < step then
 		profile.tutorialStep = step
 	end
@@ -348,14 +440,16 @@ end
 -- `knownProfile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 -- `charm` is the stray's roll when the caller has one (CatService can roll it at spawn and show stars on the
 -- prompt); otherwise it is rolled here.
--- `rescued` marks a cat freed from a rescue spot (method "rescue"); every other cat here came by net.
+-- `rescued` marks a cat freed from a rescue spot (method "rescue"); `variant` is passed only for a tamed bait cat
+-- (method "bait"), which keeps the shiny roll made when the food went in; every other cat here came by net.
 function CafeService.addCaughtCat(
 	player: Player,
 	def: Types.CatDef,
 	notify: boolean,
 	knownProfile: Profile?,
 	charm: number?,
-	rescued: boolean?
+	rescued: boolean?,
+	variant: string?
 ): (Types.CatInstance, boolean)
 	local profile = knownProfile
 	if profile ~= nil then
@@ -373,6 +467,12 @@ function CafeService.addCaughtCat(
 	if rescued == true then
 		instance.rescued = true
 		instance.method = "rescue"
+	elseif variant ~= nil then
+		instance.variant = variant
+		instance.method = "bait"
+		if variant == "shiny" and profile.shinyCollection[def.id] == nil then
+			profile.shinyCollection[def.id] = now
+		end
 	else
 		instance.method = "net"
 	end
@@ -382,12 +482,12 @@ function CafeService.addCaughtCat(
 		profile.collection[def.id] = now
 		Economy.credit(profile, Catalog.rarities[def.rarity].firstCatchReward)
 	end
-	advanceTutorial(profile, 2)
+	CafeService.advanceTutorial(profile, 2)
 
 	for _, spot in Catalog.spots do
 		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
 			instance.spotId = spot.id
-			advanceTutorial(profile, 3)
+			CafeService.advanceTutorial(profile, 3)
 			break
 		end
 	end
@@ -440,33 +540,6 @@ function CafeService.carrying(player: Player): string?
 	return carrying[player]
 end
 
--- Consumes one of the equipped lure. Returns the lure def used, or nil with a reason.
-function CafeService.consumeEquippedLure(player: Player): (Types.LureDef?, string?)
-	local profile = profileFor(player)
-	if profile == nil then
-		return nil, "Not loaded"
-	end
-	if Economy.level(profile, "lure_bowl") < 1 then
-		return nil, "Buy the Bait bowl upgrade first"
-	end
-	local lureId = profile.equippedLure
-	if lureId == nil or (profile.lures[lureId] or 0) < 1 then
-		return nil, "Pick a food to use as bait first"
-	end
-	local def = Catalog.getLure(lureId)
-	if def == nil then
-		return nil, "Unknown lure"
-	end
-	profile.lures[lureId] = (profile.lures[lureId] or 1) - 1
-	if profile.lures[lureId] <= 0 then
-		profile.lures[lureId] = nil
-		profile.equippedLure = nil
-	end
-	profile.stats.luresUsed += 1
-	CafeService.sync(player)
-	return def, nil
-end
-
 -- Remote handlers -----------------------------------------------------------------------------------------
 
 local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
@@ -496,7 +569,7 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 		return
 	end
 	instance.spotId = spotId
-	advanceTutorial(profile, 3)
+	CafeService.advanceTutorial(profile, 3)
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -532,7 +605,7 @@ local function onEquipBest(player: Player)
 	end
 	local changed = EquipBest.apply(profile, plan)
 	if plan.catsPlaced > 0 then
-		advanceTutorial(profile, 3)
+		CafeService.advanceTutorial(profile, 3)
 	end
 	Net.toast(
 		player,
@@ -595,7 +668,7 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 	end
 	profile.upgradeLevels[upgradeId] = Economy.level(profile, upgradeId) + 1
 	if upgradeId == "tables" then
-		advanceTutorial(profile, 4)
+		CafeService.advanceTutorial(profile, 4)
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef
 	Net.toast(

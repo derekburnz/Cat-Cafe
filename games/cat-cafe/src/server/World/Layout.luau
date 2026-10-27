@@ -27,8 +27,10 @@ export type AreaSpec = {
 	openingHalfWidth: number?, -- half the opening of a box area; the street's half width when omitted
 	rects: { Rect }?,
 	walls: { Rect }?, -- wall footprints for a rects area
+	roam: { Rect }?, -- where strays may walk when props line the walls; the floor pieces when nil
 	wallHeight: number?,
-	arches: { { x: number, z: number, span: number, label: string } }?, -- archways a rects area is entered by
+	-- archways a rects area is entered by: the alley kit's asset when it is there, else posts, beam and label
+	arches: { { x: number, z: number, span: number, label: string, asset: string? } }?,
 	arrival: Point?, -- where fast travel lands; a box area lands just inside its opening
 	spawnPoints: { Point },
 	lureSpots: { Point },
@@ -126,6 +128,12 @@ Layout.plot = {
 	} :: Rect,
 	frontPath = { x1 = -2.5, z1 = -halfD - 1 - W.FrontGardenDepth, x2 = 2.5, z2 = -halfD - 1 } :: Rect,
 
+	-- The bait bowl (data-model section 8) just inside the garden fence, right of the path, so the street sees
+	-- the cat that comes to eat. Clear of the shells' pots, flowers and fence posts and of the Tier 2 bench; the
+	-- cat stands beside it with its head over the bowl.
+	baitBowl = { x = 9, y = 0, z = -halfD - W.FrontGardenDepth } :: Point,
+	baitCat = { x = 10.6, y = 0, z = -halfD - W.FrontGardenDepth, rotY = 90 } :: Point,
+
 	-- The patio yard behind the back wall, fenced, with a gate in its back fence onto the back alley.
 	yard = { x1 = -halfW - 1, z1 = yardZ1, x2 = halfW + 1, z2 = yardZ2 } :: Rect,
 	yardGate = { x1 = -11, x2 = -5 },
@@ -196,6 +204,71 @@ local function alleySpawnPoints(): { Point }
 	return points
 end
 
+-- A piece against an outer wall of the Alleyway (side -1 west, 1 east), front (-Z) turned into the lane. The
+-- alley kit's building backs pivot on their back plane, so they stand right on the wall's inner face. `along` and
+-- `out` move a companion prop in the piece's own space: +along is its +X, negative `out` comes off the wall.
+local function onOuterWall(
+	asset: string,
+	side: number,
+	z: number,
+	along: number?,
+	out: number?
+): Prop
+	return {
+		asset = asset,
+		x = side * (AO + (out or 0)),
+		z = z - side * (along or 0),
+		rotY = side * 90,
+	}
+end
+
+-- Six building backs (30.6 wide) along each back alley's outer wall, from the Woods and Sewer gates north to the
+-- Square, so the lane reads as the backs of buildings rather than a bare wall (world-and-feel.md section 2).
+local BACK_SLOTS = { -84.7, -53.7, -22.7, 8.3, 39.3, 70.3 }
+-- The fire escape's first landing (top 9.35) is reached from the crate stack's tall column (top 7.7), which
+-- stands just past the landing's open end at local x -8 (asset manifest, ledges_roblox).
+local CRATES_ALONG, CRATES_OUT = -12, -2.8
+
+local function alleyDressing(): { Prop }
+	local props: { Prop } = {}
+	local function add(prop: Prop)
+		table.insert(props, prop)
+	end
+	local rows = {
+		[-1] = { "WallWindows", "WallDoor", "WallWindows", "FireEscape", "WallWindows", "WallDoor" },
+		[1] = { "WallDoor", "WallWindows", "FireEscape", "WallWindows", "WallDoor", "WallWindows" },
+	}
+	for _, side in { -1, 1 } do
+		for slot, piece in rows[side] do
+			local z = BACK_SLOTS[slot]
+			add(onOuterWall("CatCafe_Alley_" .. piece, side, z))
+			if piece == "FireEscape" then
+				add(onOuterWall("CatCafe_Alley_CrateStack", side, z, CRATES_ALONG, CRATES_OUT))
+			end
+		end
+		-- String lights across the lane in the gaps between buildings, a laundry line in front of a windowed back.
+		for _, z in { -69.2, -38.2, 23.8, 54.8 } do
+			add({ asset = "CatCafe_Alley_StringLightsLong", x = side * (AI + AO) / 2, z = z })
+		end
+		add({
+			asset = "CatCafe_Alley_LaundryLine",
+			x = side * ((AI + AO) / 2 - 0.4),
+			z = if side < 0 then BACK_SLOTS[5] else BACK_SLOTS[2],
+		})
+	end
+	-- The Square: the mural faces the street arch, a staff door beside it, a fire escape with its crates on the
+	-- west wall and windows on the east.
+	add({ asset = "CatCafe_Alley_Mural", x = -67, z = SQ2 })
+	add({ asset = "CatCafe_Alley_WallDoor", x = 67, z = SQ2 })
+	local squareMid = (SQ1 + SQ2) / 2
+	add(onOuterWall("CatCafe_Alley_FireEscape", -1, squareMid))
+	add(onOuterWall("CatCafe_Alley_CrateStack", -1, squareMid, CRATES_ALONG, CRATES_OUT))
+	add(onOuterWall("CatCafe_Alley_WallWindows", 1, squareMid))
+	add({ asset = "CatCafe_Alley_StringLightsLong", x = -40, z = SQ1 + 30, rotY = 90 })
+	add({ asset = "CatCafe_Alley_StringLightsLong", x = 40, z = SQ1 + 30, rotY = 90 })
+	return props
+end
+
 Layout.alley = {
 	floorY = 0.1,
 	center = { x = 0, y = 0, z = (W.AlleySouthZ + SQ2) / 2 },
@@ -214,11 +287,36 @@ Layout.alley = {
 		{ x1 = -AI, z1 = SQ1 - 1, x2 = -SH, z2 = SQ1 }, -- south wall between the west alley and the street
 		{ x1 = SH, z1 = SQ1 - 1, x2 = AI, z2 = SQ1 }, -- south wall between the street and the east alley
 	},
+	-- Strays keep off the strip along the outer walls where the building backs, fire escapes and crate stacks
+	-- stand (up to 5 studs deep), and off the Square's north wall with its mural and staff door.
+	roam = {
+		{ x1 = -AO + 5, z1 = W.AlleySouthZ, x2 = -AI, z2 = SQ1 },
+		{ x1 = AI, z1 = W.AlleySouthZ, x2 = AO - 5, z2 = SQ1 },
+		{ x1 = -AO + 5, z1 = SQ1, x2 = AO - 5, z2 = SQ2 - 3.5 },
+	},
 	wallHeight = 10,
 	arches = {
-		{ x = 0, z = SQ1 - 0.5, span = SH * 2, label = "THE ALLEYWAY" },
-		{ x = -(AI + AO) / 2, z = SQ1 - 0.5, span = AO - AI, label = "ALLEY SQUARE" },
-		{ x = (AI + AO) / 2, z = SQ1 - 0.5, span = AO - AI, label = "ALLEY SQUARE" },
+		{
+			x = 0,
+			z = SQ1 - 0.5,
+			span = SH * 2,
+			label = "THE ALLEYWAY",
+			asset = "CatCafe_Alley_ArchStreet",
+		},
+		{
+			x = -(AI + AO) / 2,
+			z = SQ1 - 0.5,
+			span = AO - AI,
+			label = "ALLEY SQUARE",
+			asset = "CatCafe_Alley_Arch",
+		},
+		{
+			x = (AI + AO) / 2,
+			z = SQ1 - 0.5,
+			span = AO - AI,
+			label = "ALLEY SQUARE",
+			asset = "CatCafe_Alley_Arch",
+		},
 	},
 	arrival = { x = 0, y = 0.1, z = SQ1 + 6, rotY = 180 }, -- just inside the street arch, facing into the Square
 	spawnPoints = alleySpawnPoints(),
@@ -229,40 +327,45 @@ Layout.alley = {
 	rescueSpots = {
 		-- One in each back alley against the outer wall, opening toward the lane, and one in the Square on the
 		-- north wall's inner face. F27 swaps these props for the trash bins and the garbage bags.
-		{ prop = "CatCafe_Alley_StuckBox", x = -AO + 3, z = -30, rotY = -90 },
-		{ prop = "CatCafe_Alley_StuckBox", x = AO - 3, z = 30, rotY = 90 },
-		{ prop = "CatCafe_Alley_Drainpipe", x = -60, z = SQ2 - 0.5 },
+		{ prop = "CatCafe_Alley_StuckBox", x = -AO + 4.5, z = -30, rotY = -90 },
+		{ prop = "CatCafe_Alley_StuckBox", x = AO - 4.5, z = 30, rotY = 90 },
+		{ prop = "CatCafe_Alley_Drainpipe", x = -49, z = SQ2 - 0.5 }, -- between the mural and the Neighbourhood
 	} :: { RescuePoint },
-	props = {
-		-- West back alley
-		{ asset = "CatCafe_Alley_Dumpster", x = -AO + 3, z = -52, rotY = 90 },
-		{ asset = "CatCafe_Alley_TrashCan", x = -AO + 2, z = 8 },
-		{ asset = "CatCafe_Alley_Crate", x = -AO + 3, z = 62 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = -AO + 2, z = -76 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = -AO + 2, z = 44 },
-		-- East back alley
-		{ asset = "CatCafe_Alley_Dumpster", x = AO - 3, z = 52, rotY = -90 },
-		{ asset = "CatCafe_Alley_TrashCan", x = AO - 2, z = -8 },
-		{ asset = "CatCafe_Alley_Crate", x = AO - 3, z = -62 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = AO - 2, z = 76 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = AO - 2, z = -44 },
-		-- The Square: a dumpster corner, stacked crates, lamps either side of the street arch
-		{ asset = "CatCafe_Alley_Dumpster", x = -AO + 3, z = SQ2 - 8, rotY = 90 },
-		{ asset = "CatCafe_Alley_Crate", x = AO - 4, z = SQ2 - 4 },
-		{ asset = "CatCafe_Alley_Crate", x = AO - 8, z = SQ2 - 4 },
-		{ asset = "CatCafe_Alley_TrashCan", x = 40, z = SQ2 - 2 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = -SH - 4, z = SQ1 + 4 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = SH + 4, z = SQ1 + 4 },
-		-- Night glow (style guide section 9): lit shop windows and string lights on the Square's north wall, front
-		-- (-Z) turned into the Square.
-		{ asset = "CatCafe_Alley_ShopWindow", x = -70, y = 1.5, z = SQ2 - 0.5 },
-		{ asset = "CatCafe_Alley_ShopWindow", x = 66, y = 1.5, z = SQ2 - 0.5 },
-		{ asset = "CatCafe_Decor_StringLights", x = -78, y = 5.6, z = SQ2 - 0.7 },
-		{ asset = "CatCafe_Decor_StringLights", x = 54, y = 5.6, z = SQ2 - 0.7 },
-		-- Shop windows along the back alleys' outer walls, front turned into the lane
-		{ asset = "CatCafe_Alley_ShopWindow", x = -AO + 0.5, y = 1.5, z = -20, rotY = -90 },
-		{ asset = "CatCafe_Alley_ShopWindow", x = AO - 0.5, y = 1.5, z = 20, rotY = 90 },
-	} :: { Prop },
+	-- The building backs, crate stacks, lights and laundry from alleyDressing, then the loose props in front of
+	-- them: clear of the backs' depth (2.7 windows, 3.4 door canopy, 5 fire escape) and of the lane spawn points.
+	props = (function(): { Prop }
+		local props = alleyDressing()
+		for _, prop in
+			{
+				-- West back alley: a dumpster corner with bags, a bin by the windows, a crate by the staff door
+				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 4.8, z = -80, rotY = 90 },
+				{ asset = "CatCafe_Alley_GarbageBags", x = -AO + 4.6, z = -73, rotY = 90 },
+				{ asset = "CatCafe_Alley_TrashCan", x = -AO + 3.8, z = 30 },
+				{ asset = "CatCafe_Alley_Crate", x = -AO + 4.5, z = 60 },
+				{ asset = "CatCafe_Alley_Puddle", x = -72, z = -40 },
+				{ asset = "CatCafe_Alley_Puddle", x = -70, z = 46 },
+				-- East back alley
+				{ asset = "CatCafe_Alley_Dumpster", x = AO - 4.8, z = 64, rotY = -90 },
+				{ asset = "CatCafe_Alley_GarbageBags", x = AO - 4.6, z = 57, rotY = -90 },
+				{ asset = "CatCafe_Alley_TrashCan", x = AO - 3.8, z = -45 },
+				{ asset = "CatCafe_Alley_Crate", x = AO - 3.8, z = -62 },
+				{ asset = "CatCafe_Alley_Puddle", x = 76, z = -12 },
+				{ asset = "CatCafe_Alley_Puddle", x = 71, z = 26 },
+				-- The Square: a dumpster corner, crates, lamps either side of the street arch, puddles that shine
+				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 3, z = SQ2 - 8, rotY = 90 },
+				{ asset = "CatCafe_Alley_Crate", x = AO - 4, z = SQ2 - 4 },
+				{ asset = "CatCafe_Alley_Crate", x = AO - 2.5, z = SQ2 - 6.5 },
+				{ asset = "CatCafe_Alley_TrashCan", x = 40, z = SQ2 - 2 },
+				{ asset = "CatCafe_Alley_StreetLamp", x = -SH - 4, z = SQ1 + 4 },
+				{ asset = "CatCafe_Alley_StreetLamp", x = SH + 4, z = SQ1 + 4 },
+				{ asset = "CatCafe_Alley_Puddle", x = -26, z = SQ1 + 22 },
+				{ asset = "CatCafe_Alley_Puddle", x = 20, z = SQ1 + 40 },
+			} :: { Prop }
+		do
+			table.insert(props, prop)
+		end
+		return props
+	end)(),
 } :: AreaSpec
 
 Layout.park = {
@@ -454,6 +557,11 @@ Layout.sewer = {
 -- street with its display side (-Z of the model) toward the west row. The dealer stands at the cart's +X end.
 Layout.dealerCart = { x = 0, y = 0.1, z = 0, rotY = 90 } :: Point
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
+
+-- The manhole in the middle of the Alley Square (world-and-feel.md section 2: "the Sewer down a manhole in the
+-- middle of the Square"): a shortcut into the Sewer once it opens, alongside its gate at the east back alley's
+-- south end. Its sign (-Z) faces the street arch.
+Layout.manhole = { area = "sewer", x = 0, y = 0.1, z = (SQ1 + SQ2) / 2 + 4 }
 
 -- Every area by id, in the order Catalog.areas lists them.
 Layout.areas = {

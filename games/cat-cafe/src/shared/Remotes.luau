@@ -24,8 +24,9 @@ Remotes.ClientToServer = {
 	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier
 	"ToggleDecor", -- (decorId: string, placed: boolean)
 	"BuyLure", -- (lureId: string)
-	"EquipLure", -- (lureId: string?)
-	"UseLure", -- (lureSpotId: string)
+	"EquipLure", -- (lureId: string?)  v0.2, retired with the lure spots; kept until the abuse client drops it
+	"UseLure", -- (lureId: string)  bowl bought and empty, food in stock, within BaitBowlRangeStuds of own BaitBowl
+	"ResolveBait", -- (choice: "tame" | "letgo")  the bowl's cat has arrived, within 20 studs of own BaitBowl
 	"ClaimOffline", -- ()
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)

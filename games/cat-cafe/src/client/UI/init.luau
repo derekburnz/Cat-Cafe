@@ -873,7 +873,8 @@ function UI.catch.showGrades(
 end
 
 -- v0.3 CatchResult(strayId, scores, chance, success, stayed), kept until the controller calls showGrades.
--- Scores of 1, 0.5 and 0 are Perfect, Good and Miss; a stray that did not stay has fled.
+-- Scores of 1, 0.5 and 0 are Perfect, Good and Miss. No toast here: until the switch the server sends the
+-- slipped away toast itself (reviewer S39), and showGrades takes it over.
 function UI.catch.showResult(
 	strayId: string,
 	scores: { number },
@@ -897,7 +898,7 @@ function UI.catch.showResult(
 		success = success,
 		pawsLeft = nil,
 		charmGain = nil,
-	}, if stays then slippedText(nil) else "It got away", stays)
+	}, nil, stays)
 end
 
 function UI.catch.hideCircles()

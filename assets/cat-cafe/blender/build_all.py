@@ -36,6 +36,7 @@ import boards  # noqa: E402
 import cats  # noqa: E402
 import coins  # noqa: E402
 import common  # noqa: E402
+import crate_decor  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -56,7 +57,7 @@ import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
-           night, stations, coins, market]
+           night, stations, coins, market, crate_decor]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -189,6 +190,13 @@ STUDIO_NOTES = {
                              "is exports/icons/CatCafe_Icon_GoldenFish.png (icons.py).",
 }
 
+
+for _n in crate_decor.ASSETS:                   # F53 crate pieces: the server clones them onto decor spots
+    _index = _n.endswith(("MailboxPlanter", "MushroomLamp", "PipeFountain"))
+    STUDIO_NOTES[_n] = ("F53 crate piece: " + ("its zone's Epic, on the Index anchor or a decor spot" if _index
+                        else "on a decor spot, 1.4 studs off the wall") + "; pivot base centre, front -Z, no "
+                        "collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass "
+                        "Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.")
 
 for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): Neon eye parts in Studio
     if _spec.get("glow_eyes"):

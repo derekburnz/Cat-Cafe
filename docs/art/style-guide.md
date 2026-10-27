@@ -291,6 +291,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Hero furniture (Counter) | 3,000 | the night dealer's cart 3,500 |
 | Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400 |
 | Decor | 500 | |
+| Crate decor | 1,500 to 2,400 | the F53 crate furniture and decorations (`crate_decor.py`): 1,500 for the Commons, 1,800 Rare and Epic, 2,400 Legendary and Mythical; they land at 324 to 1,640 (section 14) |
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
@@ -435,7 +436,11 @@ Attachment named `PromptAnchor` on the counter front, 3 studs up (WorldBuilder h
 `FishMarket` tag), the coin on the counter front as `_Coin`, the sign lamp as `_Bulb`, the sou'wester nested under
 `_Head`. The golden fish coin (`CatCafe_Prop_FishCoin`, `coins.py`) is gold swatches, so Metal; its HUD picture is
 `exports/icons/CatCafe_Icon_GoldenFish.png` from `icons.py` (front view, transparent, a 10 px dark gold outline at 512,
-readable down to 24 px). `_Glow` parts are Neon day and night, and WorldController leaves them alone. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+readable down to 24 px). The crate furniture and decorations (`CatCafe_Decor_<Piece>`, `crate_decor.py`) stand on a
+decor spot 1.4 studs off a wall, so each keeps to about 4 wide and 2.5 deep around a base-centre pivot, front -Z,
+and never collides; tall pieces are fine (the Cat Tree Tower is 10.6). Lamps and neon are `_Glow`, fountain water
+`_Water`, a window to look through `_Glass`, and the Blossom Tree's flowers are the child Model `_Canopy` that the
+petal effect falls from. `_Glow` parts are Neon day and night, and WorldController leaves them alone. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
 `Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).

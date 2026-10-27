@@ -903,7 +903,7 @@ local CHARACTER_GAP = 1
 local CATCH_QUIET = 2
 local lastCatchAt: number? = nil
 
-local function watchCharacter(character: Model, isLocal: boolean)
+local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptConnection }
 	local last: { [string]: number } = {}
 	local function once(cueId: string)
 		local now = os.clock()
@@ -917,13 +917,13 @@ local function watchCharacter(character: Model, isLocal: boolean)
 			Audio.play(cueId, root :: BasePart)
 		end
 	end
-	character:GetAttributeChangedSignal("RushUntil"):Connect(function()
+	local rush = character:GetAttributeChangedSignal("RushUntil"):Connect(function()
 		local untilTime = character:GetAttribute("RushUntil")
 		if type(untilTime) == "number" and untilTime > Workspace:GetServerTimeNow() then
 			once("getaway")
 		end
 	end)
-	character:GetAttributeChangedSignal("CarryStartedAt"):Connect(function()
+	local carry = character:GetAttributeChangedSignal("CarryStartedAt"):Connect(function()
 		if
 			not Logic.freshStart(
 				character:GetAttribute("CarryStartedAt"),
@@ -938,16 +938,27 @@ local function watchCharacter(character: Model, isLocal: boolean)
 			end
 		end)
 	end)
+	return { rush, carry }
 end
 
+-- One character's watches per player, dropped when it is removed, so respawns do not pile up connections (N163).
 local function followCharacters()
 	local function watchPlayer(player: Player)
 		local isLocal = player == Players.LocalPlayer
+		local connections: { RBXScriptConnection } = {}
+		local function drop()
+			for _, connection in connections do
+				connection:Disconnect()
+			end
+			connections = {}
+		end
 		player.CharacterAdded:Connect(function(character: Model)
-			watchCharacter(character, isLocal)
+			drop()
+			connections = watchCharacter(character, isLocal)
 		end)
+		player.CharacterRemoving:Connect(drop)
 		if player.Character ~= nil then
-			watchCharacter(player.Character, isLocal)
+			connections = watchCharacter(player.Character, isLocal)
 		end
 	end
 	Players.PlayerAdded:Connect(watchPlayer)

@@ -19,8 +19,8 @@ local FoodOdds = {}
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
 -- data-model section 8: ShinyChanceBait 0.02, and the charm star odds from the two-roll charm
-local SHINY_CHANCE: number = (Config :: any).ShinyChanceBait or 0.02
-local STAR_ODDS: { number } = (Config :: any).CharmStarOdds or { 7.8, 23.5, 35.7, 24.3, 8.7 }
+local SHINY_CHANCE: number = Config.ShinyChanceBait
+local STAR_ODDS: { number } = Config.CharmStarOdds
 
 -- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two
 -- decimals, so a food's per-cat split adds back up to its rarity's share (reviewer N69).

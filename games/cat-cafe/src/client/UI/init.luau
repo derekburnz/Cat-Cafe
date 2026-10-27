@@ -120,10 +120,10 @@ local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), 
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
-local BOWL_RANGE: number = (Config :: any).BaitBowlRangeStuds or 12
-local RESOLVE_RANGE: number = (Config :: any).BaitResolveRangeStuds or 20
+local BOWL_RANGE: number = Config.BaitBowlRangeStuds
+local RESOLVE_RANGE: number = Config.BaitResolveRangeStuds
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
-local CART_RANGE: number = (Config :: any).DealerRangeStuds or 12
+local CART_RANGE: number = Config.DealerRangeStuds
 
 -- Studs from the player's character to a part (their bait bowl, the dealer's cart), or nil when either is unknown.
 local function distanceTo(part: BasePart?): number?

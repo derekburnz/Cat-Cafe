@@ -5,10 +5,10 @@
 -- five-rarity odds, the gold chance and the charm star odds before Buy or Use, with the per-cat split under
 -- Details (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
 -- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
--- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it.
+-- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold
+-- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait.
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -17,13 +17,12 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
+local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
-
-local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 export type Callbacks = {
 	useLure: (lureId: string) -> (),
@@ -49,8 +48,6 @@ local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
 local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Garden seed shop
 local TEXT_LEFT = ICON + 28
 local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X * 2 + 32)
--- data-model LureWaitSeconds: 600 in the design, shorter in the dev Config
-local WAIT_SECONDS: number = Config.LureWaitSeconds
 
 local BaitBowl = {}
 BaitBowl.__index = BaitBowl
@@ -103,6 +100,8 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._catWaiting = false
 	self._near = nil :: boolean?
 	self._tier = 0
+	self._goldLuck = -1 -- the luck the odds lines were written with
+	self._waitSeconds = FoodOdds.waitSeconds(false, 0)
 	self._accumulator = 0
 
 	local panel = Panel.new({
@@ -330,7 +329,7 @@ function BaitBowl._buildRows(self: any)
 			TextColor3 = Theme.modal.subtext,
 			Parent = top,
 		})
-		text({
+		local odds = text({
 			Name = "Odds",
 			Position = UDim2.fromOffset(TEXT_LEFT, 58),
 			Size = UDim2.new(1, TEXT_WIDTH, 0, ROW_HEIGHT - 64),
@@ -412,11 +411,13 @@ function BaitBowl._buildRows(self: any)
 			buy = buy,
 			details = details,
 			detail = detail,
+			odds = odds,
 			def = lure,
 			dealer = dealer,
 		}
 	end
 	self._tier = -1 -- rebuild the split text on the next render
+	self._goldLuck = -1
 end
 
 function BaitBowl._toggleDetail(self: any, lureId: string)
@@ -473,6 +474,17 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 			row.detail.Text = FoodOdds.split(catalog, row.def, state.tier)
 		end
 	end
+	local totals = if catalog then IndexRewards.totals(catalog, state) else nil
+	local fishPerks: { [string]: number } = state.fishPerks or {}
+	local speed = if totals then totals.baitSpeed else 0
+	self._waitSeconds = FoodOdds.waitSeconds((fishPerks.big_bowl or 0) >= 1, speed)
+	local luck = if totals then totals.goldLuck else 0
+	if luck ~= self._goldLuck then
+		self._goldLuck = luck
+		for _, row in self._rows do
+			row.odds.Text = FoodOdds.line(row.def.odds) .. "\n" .. FoodOdds.extras(luck)
+		end
+	end
 	local owned = ownsBowl(state)
 	local empty = self._bait == nil
 	local away = self._near == false
@@ -509,7 +521,7 @@ function BaitBowl._renderStatus(self: any)
 		action = "upgrades"
 	elseif bait == nil then
 		title = "Your bowl is empty"
-		local wait = Format.duration(WAIT_SECONDS)
+		local wait = Format.duration(self._waitSeconds)
 		sub = if self._near == false
 			then "Walk to the bowl by your door to put food in. A cat comes " .. wait .. " later."
 			else "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
@@ -532,7 +544,7 @@ function BaitBowl._renderStatus(self: any)
 			sub = ("A cat comes by in %s. You can leave; it waits for you."):format(
 				Format.duration(math.ceil(left))
 			)
-			local total = WAIT_SECONDS
+			local total = self._waitSeconds -- today's wait (an older bowl keeps its own)
 			self._track.Visible = true
 			self._fill.Size = UDim2.fromScale(math.clamp(1 - left / math.max(total, 1), 0, 1), 1)
 		else

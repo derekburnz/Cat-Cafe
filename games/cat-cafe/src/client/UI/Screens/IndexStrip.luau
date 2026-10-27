@@ -2,7 +2,8 @@
 -- The Index's reward strip (F48, data-model section 11b; F54, golden-fish.md section 5): a row of milestone cards
 -- above the open area's cats, like the index rewards in Pet Simulator 99. Each card shows what it needs ("3 cats",
 -- "4 gold"), the prize as little pictures with amounts (Components/PrizeChips: "$300", golden fish "x10", the food
--- "x2", a crate, spins), a gold "+2% tips forever" band when the milestone adds a permanent bonus, and either a bar
+-- "x2", a crate, spins), a band when the milestone adds a forever bonus ("+2% tips forever", "+3% gold luck
+-- forever" or "+2% faster bait forever", v0.10), and either a bar
 -- toward it, a green Claim button or "✓ Claimed". The next card to work toward on each track (normal and gold)
 -- wears a NEXT sticker and says how many cats are left (Derek 2026-10-27: show what the next reward is and how
 -- much). With F54's nine milestones an area the row scrolls sideways and opens on the first NEXT card. The sums
@@ -39,7 +40,7 @@ local EDGE = 4 -- room round the cards for their outline inside the scrolling ro
 local SCROLLBAR = 6
 local TILE = 26 -- a prize picture
 local PAD = 10
-local BAND = 18 -- the tips-forever band
+local BAND = 18 -- the forever bonus band
 local PENDING_SECONDS = 3 -- a pressed Claim waits this long for ProfileSync before it can be pressed again
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 
@@ -169,7 +170,7 @@ function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Parent = frame,
 	})
-	-- a permanent tip bonus gets a band of its own, so it never wraps under the pictures
+	-- a forever bonus gets a band of its own, so it never wraps under the pictures
 	local band = text({
 		Name = "Bonus",
 		BackgroundTransparency = 0,
@@ -180,10 +181,14 @@ function IndexStrip._buildCard(self: any, milestone: Types.IndexMilestone, order
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
+		TextScaled = true, -- "+2% faster bait forever" shrinks a little rather than cut off
 		Visible = false,
 		Parent = frame,
 	})
 	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = band })
+	Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textTiny, Parent = band })
+	local pad = UDim.new(0, 6)
+	Create("UIPadding", { PaddingLeft = pad, PaddingRight = pad, Parent = band })
 	Outline.text(band, 1.5)
 	local track: Frame = Create("Frame", {
 		Name = "Track",
@@ -320,9 +325,10 @@ function IndexStrip._refresh(self: any)
 			else label
 		card.sticker.Visible = isNext
 		card.count.Text = ("%d / %d"):format(view.have, need)
-		local bonus = view.prize.bonus
-		card.band.Visible = bonus ~= nil and bonus > 0
-		card.band.Text = if bonus then "★ " .. PrizeChips.bonusText(bonus) else ""
+		local perk, amount = IndexRewards.perk(view.prize)
+		card.band.Visible = perk ~= nil
+		card.band.Text = if perk then "★ " .. PrizeChips.bonusText(amount, perk) else ""
+		card.band.BackgroundColor3 = PrizeChips.perkColor(perk)
 		local pressedAt: number? = self._pending[area .. ":" .. view.milestone.id]
 		local pending = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 		local ready = view.state == "ready"

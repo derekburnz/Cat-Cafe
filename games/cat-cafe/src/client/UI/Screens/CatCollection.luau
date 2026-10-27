@@ -5,6 +5,8 @@
 --         strip (Screens/IndexStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Index
 --         tab and on each area tab says a reward is waiting.
 --   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its ten pieces and two rewards.
+--   Beside the tabs, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
+--   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals).
 --   Cat room: the cats the player owns as an inventory grid under a crew strip of role slots (Screens/CatRoom).
 -- Needs state.cats and catalog.spots for the cat room; without them the tab is hidden.
 
@@ -20,6 +22,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -55,6 +58,7 @@ local TAB_HEIGHT = 40
 local DETAIL_HEIGHT = 92
 local AREA_TAB_HEIGHT = 46
 local PROGRESS_HEIGHT = 28
+local PERK_HEIGHT = 26 -- a forever bonus pill beside the tabs
 local FALLBACK_AREA = "alley"
 local ALL_AREA = IndexRewards.ALL_AREA
 local PORTRAITS_PER_FRAME = 10 -- the All Cats page clones its 50 models over a few frames
@@ -248,6 +252,65 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			self:showTab("Room")
 		end,
 	})
+
+	-- the forever bonuses, right of the tabs; shrinks to fit the room the tabs leave on a narrow screen
+	local perks: Frame = Create("Frame", {
+		Name = "Forever",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, TAB_HEIGHT),
+		Visible = false,
+		Parent = panel.content,
+	})
+	local perksLayout: UIListLayout = Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Right,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = perks,
+	})
+	local perksScale: UIScale = Create("UIScale", { Parent = perks })
+	text({
+		Name = "Caption",
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, PERK_HEIGHT),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.modal.subtext,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "Forever",
+		Parent = perks,
+	})
+	self._perks = perks
+	self._perkPills = {} :: { [string]: TextLabel }
+	for order, perk in IndexRewards.PERKS do
+		local label: TextLabel =
+			pill(perks, "", PrizeChips.perkColor(perk), Theme.colors.white, UDim2.new())
+		label.Name = perk
+		label.LayoutOrder = order
+		label.Size = UDim2.fromOffset(0, PERK_HEIGHT)
+		label.TextSize = Theme.sizes.textSmall
+		label.Visible = false
+		Outline.border(label, 2)
+		Outline.text(label, 1.5)
+		self._perkPills[perk] = label
+	end
+	local tabsLayout = tabs:FindFirstChildOfClass("UIListLayout")
+	local function fitPerks()
+		-- AbsoluteContentSize already includes the UIScale, so divide it back out for the row's own width
+		local natural = perksLayout.AbsoluteContentSize.X / math.max(perksScale.Scale, 0.01)
+		local used = if tabsLayout then tabsLayout.AbsoluteContentSize.X else 0
+		local room = panel.content.AbsoluteSize.X - used - Theme.sizes.gap
+		perksScale.Scale = if room > 0 and natural > room then room / natural else 1
+	end
+	perksLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
+	panel.content:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitPerks)
+	if tabsLayout then
+		tabsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
+	end
 
 	-- Index: detail strip + grid of sections
 	local indexTop = TAB_HEIGHT + Theme.sizes.gap
@@ -912,6 +975,7 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 	self._decorBadge.Visible = decorWaiting > 0
 	self._decorBadgeCount.Text = tostring(decorWaiting)
+	self:_renderPerks(state)
 
 	-- room tab only when the engineer sends cat instances
 	local hasRoom = state.cats ~= nil
@@ -931,6 +995,23 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	else
 		self._catRoom:render(state)
 	end
+end
+
+-- The forever bonuses beside the tabs, on the Index and Decor tabs, once the player has any.
+function CatCollection._renderPerks(self: any, state: Types.PlayerState)
+	local catalog: Types.Catalog? = self._catalog
+	local any = false
+	if catalog then
+		local totals = IndexRewards.totals(catalog, state)
+		for _, perk in IndexRewards.PERKS do
+			local label = IndexRewards.perkLabel(perk, (totals :: any)[perk] or 0)
+			local pillLabel: TextLabel = self._perkPills[perk]
+			pillLabel.Visible = label ~= nil
+			pillLabel.Text = label or ""
+			any = any or label ~= nil
+		end
+	end
+	self._perks.Visible = any and self._tab ~= "Room"
 end
 
 function CatCollection.destroy(self: any)

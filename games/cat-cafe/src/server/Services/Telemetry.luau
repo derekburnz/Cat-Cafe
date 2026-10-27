@@ -61,6 +61,7 @@ export type CustomEvent =
 	| "index_reward"
 	| "spin"
 	| "crate_opened"
+	| "code_redeemed"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -301,7 +302,7 @@ function Telemetry.sink(
 end
 
 -- Golden fish (F52): their own currency, golden_fish, never mixed into the coin flush. Call right after
--- GoldenFish.credit. Sources: first_catch, repeat_catch, rank_up, index_reward, spin_wheel, tip_jar.
+-- GoldenFish.credit. Sources: first_catch, repeat_catch, rank_up, index_reward, spin_wheel, tip_jar, code.
 function Telemetry.fishSource(
 	player: Player,
 	profile: Profile,

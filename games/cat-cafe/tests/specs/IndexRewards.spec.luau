@@ -465,4 +465,98 @@ return function()
 			end
 		end)
 	end)
+
+	describe("IndexRewards forever bonuses (v0.10)", function()
+		local function kinds(parts: { any }): string
+			local out: { string } = {}
+			for _, part in parts do
+				table.insert(out, part.kind .. "=" .. part.amount)
+			end
+			return table.concat(out, ",")
+		end
+
+		local PERKED = {
+			cats = CATALOG.cats,
+			indexMilestones = {
+				{ id = "cats6", track = "normal", needs = 6 },
+				{ id = "gold1", track = "gold", needs = 1 },
+				{ id = "gold10", track = "gold", needs = 10 },
+				{ id = "total5", track = "normal", needs = 5 },
+			},
+			indexPrizes = {
+				alley = {
+					cats6 = { lures = { tuna = 3 }, bonus = 0.02 },
+					gold1 = { fish = 10, goldLuck = 0.3 },
+					gold10 = { fish = 100, goldLuck = 1.4 },
+				},
+				all = { total5 = { fish = 10, baitSpeed = 0.6 } },
+			},
+		}
+
+		it("shows gold luck and faster bait after the tips, as pills", function()
+			local both = IndexRewards.prizeParts({ fish = 10, goldLuck = 0.03, bonus = 0.02 })
+			expect(kinds(both)).to.equal("fish=10,bonus=0.02,goldLuck=0.03")
+			local speed = IndexRewards.prizeParts({ spins = 1, baitSpeed = 0.02 })
+			expect(kinds(speed)).to.equal("spins=1,baitSpeed=0.02")
+			expect(IndexRewards.isPerk("goldLuck")).to.equal(true)
+			expect(IndexRewards.isPerk("bonus")).to.equal(true)
+			expect(IndexRewards.isPerk("fish")).to.equal(false)
+		end)
+
+		it("names a milestone's one forever bonus for its band", function()
+			local perk, amount = IndexRewards.perk({ fish = 10, goldLuck = 0.03 })
+			expect(perk).to.equal("goldLuck")
+			expect(amount).to.equal(0.03)
+			expect((IndexRewards.perk({ baitSpeed = 0.02 }))).to.equal("baitSpeed")
+			expect((IndexRewards.perk({ fish = 25, bonus = 0 }))).to.equal(nil)
+			expect((IndexRewards.perk(nil))).to.equal(nil)
+		end)
+
+		it("adds up the claims and caps gold luck and faster bait as the server does", function()
+			local state = {
+				indexRewards = {
+					alley = { cats6 = true, gold1 = true, gold10 = true },
+					all = { total5 = true },
+					park = { cats3 = true }, -- a page with no prizes here counts nothing
+				},
+			}
+			local totals = IndexRewards.totals(PERKED, state)
+			expect(totals.bonus).to.be.near(0.02, 1e-9)
+			expect(totals.goldLuck).to.equal(IndexRewards.GOLD_LUCK_MAX) -- 1.7 capped at 1.5
+			expect(totals.baitSpeed).to.equal(IndexRewards.BAIT_SPEED_MAX) -- 0.6 capped at 0.5
+			local none = IndexRewards.totals(PERKED, {})
+			expect(none.bonus + none.goldLuck + none.baitSpeed).to.equal(0)
+		end)
+
+		it("takes the server's gold luck and faster bait when ProfileSync sends them", function()
+			local state =
+				{ indexRewards = { alley = { gold1 = true } }, goldLuck = 0.4, baitSpeed = 0.1 }
+			local totals = IndexRewards.totals(PERKED, state)
+			expect(totals.goldLuck).to.equal(0.4)
+			expect(totals.baitSpeed).to.equal(0.1)
+		end)
+
+		it("rolls gold at chance x (1 + luck), never past the cap", function()
+			expect(IndexRewards.goldChance(0.05, 0.4)).to.be.near(0.07, 1e-9)
+			expect(IndexRewards.goldChance(0.05, 0)).to.be.near(0.05, 1e-9)
+			expect(IndexRewards.goldChance(0.1, 9)).to.be.near(0.25, 1e-9)
+		end)
+
+		it("writes the Index header pills", function()
+			expect(IndexRewards.perkLabel("bonus", 0.12)).to.equal("+12% tips")
+			local luck = IndexRewards.perkLabel("goldLuck", 0.4)
+			expect(luck).to.equal("+40% gold luck (gold 7%)")
+			expect(IndexRewards.perkLabel("goldLuck", 1.5)).to.equal("+150% gold luck (gold 12.5%)")
+			expect(IndexRewards.perkLabel("baitSpeed", 0.38)).to.equal("+38% faster bait")
+			expect(IndexRewards.perkLabel("bonus", 0)).to.equal(nil)
+		end)
+
+		it("writes an Index Board's gold luck line from its attributes", function()
+			expect(IndexRewards.boardLuck(0.4, "Sam")).to.equal("Gold luck +40% from Sam")
+			expect(IndexRewards.boardLuck(0.4, "")).to.equal("Gold luck +40%")
+			expect(IndexRewards.boardLuck(0, "Sam")).to.equal(nil)
+			expect(IndexRewards.boardLuck(nil, nil)).to.equal(nil)
+			expect(IndexRewards.boardLuck("0.4", "Sam")).to.equal(nil)
+		end)
+	end)
 end

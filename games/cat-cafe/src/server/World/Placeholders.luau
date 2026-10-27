@@ -6,6 +6,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Placeholders = {}
@@ -1309,6 +1310,60 @@ builders.CatCafe_Street_FishMarket = function()
 end
 
 -- Every asset name the game can ask for.
+-- The Codes Cat (F65, data-model section 11d) until the art is synced: a booth with a "Codes" sign and the cat on
+-- top, and the CodesCircle (a flat Neon disc, radius CodesCircleRadius) 6 studs in front, as in the asset.
+builders.CatCafe_Street_CodesCat = function()
+	local model = newModel("CatCafe_Street_CodesCat")
+	local booth = addPart(model, {
+		name = "Booth",
+		size = Vector3.new(6, 3.5, 3),
+		offset = Vector3.new(0, 1.75, 0.6),
+		color = WOOD,
+		material = Enum.Material.WoodPlanks,
+		collide = true,
+	})
+	local anchor = Instance.new("Attachment")
+	anchor.Name = "PromptAnchor"
+	anchor.Position = Vector3.new(0, 1.25, -2) -- relative to the booth's centre: (0, 3, -1.4) from the pivot
+	anchor.Parent = booth
+	addPart(model, {
+		name = "Cat",
+		size = Vector3.new(1.4, 1.8, 1.8),
+		offset = Vector3.new(0, 4.4, 0.6),
+		color = Color3.fromRGB(235, 160, 90),
+	})
+	local sign = addPart(model, {
+		name = "Sign",
+		size = Vector3.new(5, 1.2, 0.2),
+		offset = Vector3.new(0, 6.4, 1.8),
+		color = CREAM,
+	})
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Front
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 40
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.Font = Enum.Font.FredokaOne
+	label.TextColor3 = DARK
+	label.Text = "Codes"
+	label.Parent = gui
+	gui.Parent = sign
+	addPart(model, {
+		name = "CodesCircle",
+		size = Vector3.new(0.1, Config.CodesCircleRadius * 2, Config.CodesCircleRadius * 2),
+		offset = Vector3.new(0, 0.05, -6),
+		rotation = Vector3.new(0, 0, 90),
+		color = Color3.fromRGB(255, 214, 120),
+		material = Enum.Material.Neon,
+		shape = Enum.PartType.Cylinder,
+		transparency = 0.4,
+	})
+	return finish(model, booth)
+end
+
 function Placeholders.names(): { string }
 	local names: { string } = {}
 	for _, def in Catalog.cats do

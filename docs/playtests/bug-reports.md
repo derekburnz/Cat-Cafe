@@ -7,17 +7,20 @@ and nothing a tester types is ever shown to another player.
 Until this ships, testers send reports to Derek directly with the template in
 [friends-alpha-tester-note.md](friends-alpha-tester-note.md).
 
-## 1. What the player sees (UI-Engineer, UI PR #267; engineer PR #269 forwards Send to the remote)
+## 1. What the player sees (UI-Engineer, UI PRs #267 and #270; engineer PR #269 forwards Send to the remote)
 
 - Settings gets a third section, **Help**, with one button row: **Report a bug**.
 - It opens a small window: title "Report a bug", the line "What happened, and what were you doing right
   before?", three chips **Bug** (default), **Stuck** and **Idea**, a multi-line text box (500 characters, a
   "123 / 500" counter), the small line "Please don't type passwords or personal info", and **Send** and
   **Cancel**. The box and counter count bytes like the server, so an emoji counts 4 and the box stops at 500.
-  Send stays off under 3 bytes once trimmed.
+  Every rule comes from `shared/BugReport` (UI PR #270): Send lights only for a text the server keeps
+  (`BugReport.text`), sends that cleaned text, and the chips are `BugReport.Kinds`.
 - Send fires `ReportBug(text, kind, clientErrors)`, where `clientErrors` is the last 3 client error lines from
-  `LogService` since join, each cut to 200 bytes. The window closes on the "Thanks" toast and keeps the
-  text on a warn toast, so nothing typed is lost. With no answer in 10 s it lights Send again with a note.
+  `LogService` since join, each kept as the server would keep it (`BugReport.errorLine`). The window closes on
+  exactly the server's "Thanks" toast and keeps the text on exactly one of its three refusals, so nothing typed is
+  lost and a toast from anything else in that second is ignored. With no answer in 10 s it lights Send again
+  with a note.
 - Works on the phone: the box sits above the on-screen keyboard, and the chips and buttons stay tappable.
 
 ## 2. The remote (Gameplay-Engineer, engineer PR #265; the rules and limits live in `shared/BugReport`)
@@ -69,5 +72,5 @@ ones. Needs API access on in Studio.
   Nothing errors on the server, at most one record per 20 s, the 10,000-byte text stored as its first 500 bytes,
   every stored field within its limits.
 - Unit edges: `BugReport.spec` checks the server's rules against a code point reference over seeded random
-  reports, and `BugReportLogic.spec` will check the window lights Send exactly when the server keeps the text (after UI
-  PR #270).
+  reports. `BugReportLogic.spec` (UI) checks the window takes every rule from `shared/BugReport`, so a separate
+  QA cross-check would only repeat it.

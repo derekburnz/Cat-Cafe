@@ -314,7 +314,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._tiersOn = false
 
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
-	-- Invite opens Roblox's own invite window; Daily, Mail and Settings join it as their screens arrive.
+	-- Invite opens Roblox's own invite window, the gear opens Settings; Daily and Mail join them as they arrive.
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
@@ -330,6 +330,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	table.insert(
+		self._buttons,
+		Button.new({
+			name = "Settings",
+			text = "Settings",
+			icon = Theme.icons.settings,
+			layout = "tile",
+			textSize = Theme.sizes.textTiny,
+			style = "ghost",
+			size = UDim2.fromOffset(ICON, ICON),
+			layoutOrder = 3,
+			parent = icons,
+			onClick = function()
+				callbacks.openScreen("Settings")
+			end,
+		})
+	)
 	table.insert(
 		self._buttons,
 		Button.new({

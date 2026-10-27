@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 13:36 UTC",
+  "generated": "2026-10-27 14:12 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -13017,14 +13017,14 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "sit_point": [
-        2.0,
-        0.0,
+        0.2,
+        0.45,
         3.0
       ],
       "sit_point_roblox": [
-        -2.0,
+        -0.2,
         3.0,
-        0.0
+        0.45
       ],
       "studio": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_Counter.model.json",
@@ -15258,53 +15258,53 @@
       },
       "stuck_pose": {
         "body_position_blender": [
-          1.7,
+          2.35,
           0.0,
-          4.0
+          3.96
         ],
         "body_rotation_xyz_deg_blender": [
           0.0,
           -0.0,
-          90.0
+          0.0
         ],
         "head_local_xyz_deg_blender": [
-          25,
+          20,
           0,
-          -55
+          0
         ],
         "tail_local_xyz_deg_blender": [
-          -20,
+          -30,
           0,
           0
         ],
         "body_position_roblox": [
-          -1.7,
-          4.0,
+          -2.35,
+          3.96,
           0.0
         ],
         "body_angles_roblox_deg": [
           0.0,
-          90.0,
+          0.0,
           0.0
         ],
         "body_cframe_roblox": [
-          -1.7,
-          4.0,
+          -2.35,
+          3.96,
+          0.0,
+          1.0,
           0.0,
           0.0,
           0.0,
           1.0,
           0.0,
-          1.0,
           0.0,
-          -1.0,
           0.0,
-          0.0
+          1.0
         ],
         "head_angles_roblox_deg": [
-          -39.1,
-          -47.9,
-          -31.1
+          -20.0,
+          0.0,
+          0.0
         ],
         "head_offset_blender": [
           0,
@@ -15317,11 +15317,11 @@
           0.0
         ],
         "tail_angles_roblox_deg": [
-          20.0,
+          30.0,
           0.0,
           0.0
         ],
-        "note": "Out on the Branch facing the tip, head turned to the camera, looking down. Place it, then WeldConstraint the cat Body to the Branch so it wobbles with it."
+        "note": "Draped across the Branch between the trunk and the leaf tuft, facing the tree's front, looking down at the player (the engineer's #200; along the branch put the longer cats' heads and tails in the trunk and the leaves). Place it, then WeldConstraint the cat Body to the Branch so it wobbles with it."
       },
       "studio": "Rescue trap tree (shake_catch). To wobble, rotate the Branch about its part_pivots_roblox point (set Branch.PivotOffset there if the import centres it). Put the cat at stuck_pose, then weld its Body to the Branch so it moves with it. CollisionFidelity Hull on the Trunk.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_RescueTree.model.json",
@@ -17780,22 +17780,22 @@
         "CatCafe_Plot_ForRent_Cat_Tail",
         "CatCafe_Plot_ForRent_Zzz"
       ],
-      "triangles": 2512,
+      "triangles": 2336,
       "budget": 4000,
       "size_studs": {
         "x": 31.7,
         "y": 30.83,
-        "z": 8.85
+        "z": 8.45
       },
       "size_roblox": [
         31.7,
-        8.85,
+        8.45,
         30.83
       ],
       "bounds_min": [
         -15.85,
         -17.9,
-        -0.4
+        0.0
       ],
       "bounds_max": [
         15.85,
@@ -17806,7 +17806,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Only while OwnerUserId is 0: half-down shutters, FOR RENT sign, dust sheets over the counter, boxes and a broom, a sleeping Tabby on the door mat (decor, not catchable).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ForRent.model.json",
-      "rbx_parts": 195,
+      "rbx_parts": 191,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_ForRent.glb"
@@ -17815,16 +17815,15 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "2512/4000 tris",
+          "budget": "2336/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1318 faces on swatch centers",
+          "uv": "1214 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.40 (want 0)",
+          "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-2.49"
         }
       },
@@ -17841,22 +17840,22 @@
       "triangles": 386,
       "budget": 3000,
       "size_studs": {
-        "x": 1.6,
-        "y": 1.26,
+        "x": 1.0,
+        "y": 1.24,
         "z": 2.15
       },
       "size_roblox": [
-        1.6,
+        1.0,
         2.15,
-        1.26
+        1.24
       ],
       "bounds_min": [
-        1.6,
-        -19.22,
+        2.45,
+        -19.2,
         0.15
       ],
       "bounds_max": [
-        3.2,
+        3.45,
         -17.96,
         2.3
       ],
@@ -17883,7 +17882,7 @@
           "uv": "187 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.15 (want 0)",
-          "centered": "footprint center x=2.40 y=-18.59"
+          "centered": "footprint center x=2.95 y=-18.58"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier1.png",
@@ -17901,13 +17900,13 @@
       "budget": 3000,
       "size_studs": {
         "x": 30.8,
-        "y": 4.0,
+        "y": 3.8,
         "z": 5.15
       },
       "size_roblox": [
         30.8,
         5.15,
-        4.0
+        3.8
       ],
       "bounds_min": [
         -15.4,
@@ -17916,7 +17915,7 @@
       ],
       "bounds_max": [
         15.4,
-        -15.2,
+        -15.4,
         5.3
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
@@ -17942,7 +17941,7 @@
           "uv": "276 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.15 (want 0)",
-          "centered": "footprint center x=0.00 y=-17.20"
+          "centered": "footprint center x=0.00 y=-17.30"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier2.png",
@@ -17957,33 +17956,33 @@
         "CatCafe_Plot_Tier3_Sign_Tube",
         "CatCafe_Plot_Tier3_StringLights_Bulbs"
       ],
-      "triangles": 1286,
+      "triangles": 1246,
       "budget": 3000,
       "size_studs": {
-        "x": 37.06,
+        "x": 31.66,
         "y": 5.2,
-        "z": 11.88
+        "z": 9.13
       },
       "size_roblox": [
-        37.06,
-        11.88,
+        31.66,
+        9.13,
         5.2
       ],
       "bounds_min": [
-        -18.53,
+        -15.83,
         -19.3,
         0.15
       ],
       "bounds_max": [
-        18.53,
+        15.83,
         -14.1,
-        12.03
+        9.28
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3.model.json",
-      "rbx_parts": 88,
+      "rbx_parts": 86,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Tier3.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Tier3.glb"
@@ -17996,10 +17995,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1286/3000 tris",
+          "budget": "1246/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "767 faces on swatch centers",
+          "uv": "727 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.15 (want 0)",
           "centered": "footprint center x=0.00 y=-16.70"
@@ -18075,33 +18074,33 @@
       "objects": [
         "CatCafe_Plot_Tier5"
       ],
-      "triangles": 680,
+      "triangles": 704,
       "budget": 3000,
       "size_studs": {
-        "x": 38.8,
+        "x": 36.4,
         "y": 6.55,
-        "z": 27.76
+        "z": 28.19
       },
       "size_roblox": [
-        38.8,
-        27.76,
+        36.4,
+        28.19,
         6.55
       ],
       "bounds_min": [
-        -19.4,
+        -18.2,
         -20.0,
-        0.0
+        0.08
       ],
       "bounds_max": [
-        19.4,
+        18.2,
         -13.45,
-        27.76
+        28.27
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier5.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 53,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Tier5.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Tier5.glb"
@@ -18110,15 +18109,16 @@
         "pass": true,
         "failed": [],
         "warnings": [
+          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "680/3000 tris",
+          "budget": "704/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "328 faces on swatch centers",
+          "uv": "340 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
+          "pivot": "floor at z=0.08 (want 0)",
           "centered": "footprint center x=0.00 y=-16.72"
         }
       },

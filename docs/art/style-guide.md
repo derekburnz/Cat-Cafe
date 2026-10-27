@@ -288,6 +288,8 @@ Blender export (the build script does this): FBX, Selected Objects, Object Types
 
 Studio import (3D Importer): Scale Unit Studs, Rig Type none, Insert using Scene Position off, Anchored on. After import check: 1) it stands on the floor with the pivot at the base, 2) the front faces the camera when you use View Selected from the front, 3) scale next to a 5-stud R15 dummy matches the table above, 4) texture shows the right colors (if the whole mesh is grey, set TextureID to the uploaded palette), 5) CollisionFidelity Box for simple props, Hull for the counter, cat tree and dumpster, 6) RenderFidelity Automatic, DoubleSided off.
 
+Toolkit QA (since 2026-10-27): run `assets/cat-cafe/blender/toolkit_qa.py` after a build. It uses the EL4CTEO blender-skills (`blender-asset-qa` with the `roblox` profile, `blender-game-optimization` with the `roblox` budget) and lists visible overlaps and floating parts with the code line to change. Rules it enforces: two faces of different colours never share a plane (move one 0.01 studs: proud, recessed or past the other's edge), and no part hangs more than 0.05 studs off the piece it belongs to unless it is meant to (sparkles, litter on the ground, add-ons that touch the cafe shell).
+
 ## 11. Previews and reviews
 
 After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one-line caption in `docs/concepts/cat-cafe/README.md`. The build script renders a three-quarter view of every asset and a contact sheet for the whole set.

@@ -125,10 +125,10 @@ def _front_wall(b, glass, facade, accent):
         b.span((cx - 0.1, SILL, -14.7), (cx + 0.1, SPRING + WIN_R, -14.6), TRIM)
         b.span((cx - WIN_R, SPRING - 0.1, -14.7), (cx + WIN_R, SPRING + 0.1, -14.6), TRIM)
         # frame: jambs, arch ring, sill and keystone
-        for x0, x1 in ((cx - WIN_R - 0.4, cx - WIN_R), (cx + WIN_R, cx + WIN_R + 0.4)):
+        for x0, x1 in ((cx - WIN_R - 0.4, cx - WIN_R + 0.01), (cx + WIN_R - 0.01, cx + WIN_R + 0.4)):   # 0.01 into the opening
             b.span((x0, SILL, zo - 0.25), (x1, SPRING, zo + 0.05), TRIM)
         arch_ring(b, cx, SPRING, WIN_R, 0.4, zo - 0.25, zo + 0.05, TRIM)
-        b.span((cx - WIN_R - 0.6, SILL - 0.35, zo - 0.45), (cx + WIN_R + 0.6, SILL, zi), TRIM)
+        b.span((cx - WIN_R - 0.6, SILL - 0.35, zo - 0.45), (cx + WIN_R + 0.6, SILL + 0.01, zi - 0.01), TRIM)   # off both wall faces
         b.span((cx - 0.4, SPRING + WIN_R - 0.1, zo - 0.35), (cx + 0.4, SPRING + WIN_R + 0.7, zo + 0.05), accent)
     # door: open arch with a sunburst fanlight
     layered(b, d0, d1, dh + (d1 - d0) / 2, H, zo, zi, facade)
@@ -139,7 +139,7 @@ def _front_wall(b, glass, facade, accent):
         b.box((0.5 * r * math.cos(math.radians(a)), dh + 0.5 * r * math.sin(math.radians(a)), -14.65),
               (r, 0.14, 0.12), TRIM, rot=rot_z(a))
     b.span((d0, dh - 0.15, -14.75), (d1, dh + 0.15, -14.25), TRIM)
-    for x0, x1 in ((d0 - 0.55, d0), (d1, d1 + 0.55)):
+    for x0, x1 in ((d0 - 0.55, d0 + 0.01), (d1 - 0.01, d1 + 0.55)):                       # 0.01 into the opening
         b.span((x0, 0, zo - 0.35), (x1, dh, zo + 0.05), accent)
     arch_ring(b, 0, dh, r, 0.55, zo - 0.35, zo + 0.05, accent, n=8)
     b.span((-0.35, dh + r - 0.1, zo - 0.45), (0.35, dh + r + 0.75, zo + 0.05), TRIM)
@@ -183,15 +183,15 @@ def _back_wall(b, glass, facade, accent):
     layered(b, w0, w1, wy1, H, zo, zi, facade)
     glass.span((w0, wy0, 14.42), (w1, wy1, 14.58), "glass")
     b.span((w0, (wy0 + wy1) / 2 - 0.08, 14.62), (w1, (wy0 + wy1) / 2 + 0.08, 14.72), TRIM)
-    b.span((w0 - 0.3, wy1, zo - 0.05), (w1 + 0.3, wy1 + 0.35, zo + 0.25), TRIM)
+    b.span((w0 - 0.3, wy1 - 0.01, zo - 0.05), (w1 + 0.3, wy1 + 0.35, zo + 0.25), TRIM)
     b.span((w0 - 0.4, wy0 - 0.3, zo - 0.05), (w1 + 0.4, wy0, zo + 0.45), TRIM)
     # back door frame, canopy and mat
-    for x0, x1 in ((bd0 - 0.5, bd0), (bd1, bd1 + 0.5)):
+    for x0, x1 in ((bd0 - 0.5, bd0 + 0.01), (bd1 - 0.01, bd1 + 0.5)):                     # 0.01 into the opening
         b.span((x0, 0, zo - 0.05), (x1, bdh, zo + 0.3), accent)
-    b.span((bd0 - 0.5, bdh, zo - 0.05), (bd1 + 0.5, bdh + 0.6, zo + 0.3), accent)
+    b.span((bd0 - 0.5, bdh - 0.01, zo - 0.05), (bd1 + 0.5, bdh + 0.6, zo + 0.3), accent)
     b.span((bd0 - 1.0, 9.0, zo), (bd1 + 1.0, 9.25, zo + 1.8), TRIM)
     for x in (bd0 - 0.7, bd1 + 0.7):
-        b.box((x, 8.5, zo + 0.55), (0.2, 1.3, 0.2), "dark_wood", rot=rot_x(-45))
+        b.box((x, 8.55, zo + 0.5), (0.2, 1.45, 0.2), "dark_wood", rot=rot_x(45))      # from the wall up into the canopy
     b.span((bd0 + 1.0, 0, zo + 0.2), (bd1 - 1.0, 0.06, zo + 1.8), "blush")
 
 
@@ -204,7 +204,7 @@ def _base_and_trim(b):
         b.span((min(s * HW, s * (HW + 0.2)), 0, FRONT), (max(s * HW, s * (HW + 0.2)), 0.9, BACK), "terracotta")
     for s in (-1, 1):                                                                    # corner pilasters
         for z in (FRONT, BACK):
-            b.span((min(s * 18.2, s * 19.4), 0, z - 0.4), (max(s * 18.2, s * 19.4), H, z + 0.4), TRIM)
+            b.span((min(s * 18.2, s * 19.4), 0, z - 0.4), (max(s * 18.2, s * 19.4), H + 0.02, z + 0.4), TRIM)
     b.span((-HW - 0.35, H - 0.6, FRONT - 0.35), (HW + 0.35, H, FRONT), TRIM)            # eave cornice
     b.span((-HW - 0.35, H - 0.6, BACK), (HW + 0.35, H, BACK + 0.35), TRIM)
     for s in (-1, 1):
@@ -324,7 +324,7 @@ def _garden(b, bulbs, flowers, fireflies):
     for dx in (-0.4, 0.4):
         for dz in (-0.4, 0.4):
             b.span((lx + dx - 0.05, 6.5, lz + dz - 0.05), (lx + dx + 0.05, 7.3, lz + dz + 0.05), "fur_black")
-    bulbs.span((lx - 0.3, 6.55, lz - 0.3), (lx + 0.3, 7.25, lz + 0.3), "lamp_warm")
+    bulbs.span((lx - 0.3, 6.5, lz - 0.3), (lx + 0.3, 7.25, lz + 0.3), "lamp_warm")          # stands on the plate
     b.b.pyramid(RB.p(lx, 7.3, lz), 1.1, 0.6, "fur_black")
     # potted shrubs by the door and a round bush
     for x in (DOOR[0] - 1.6, DOOR[1] + 1.6):
@@ -376,16 +376,17 @@ def _wainscot(b):
     for s_ in (-1, 1):
         runs.append(("x", s_ * 18.0, -14, 14, top, -s_))
     for axis, f, a0, a1, h, inward in runs:
-        def slab(t0, t1, y0, y1, sw, a0=a0, a1=a1, f=f, inward=inward, axis=axis):
+        def slab(t0, t1, y0, y1, sw, a0=a0, a1=a1, f=f, inward=inward, axis=axis, ext=0.0):
+            a0, a1 = a0 - ext, a1 + ext                         # rails run 0.01 past the planks
             lo, hi = sorted((f + inward * t0, f + inward * t1))
             if axis == "z":
                 b.span((a0, y0, lo), (a1, y1, hi), sw)
             else:
                 b.span((lo, y0, a0), (hi, y1, a1), sw)
         slab(0, 0.15, 0, h, "caramel_wood")
-        slab(0, 0.23, 0, 0.35, "dark_wood")
+        slab(0, 0.23, 0, 0.35, "dark_wood", ext=0.01)
         if h >= top:
-            slab(0, 0.27, top - 0.05, top + 0.2, "dark_wood")
+            slab(0, 0.27, top - 0.05, top + 0.2, "dark_wood", ext=0.01)
             n = int((a1 - a0) / 2.0)
             for k in range(1, n):
                 t = a0 + (a1 - a0) * k / n
@@ -395,7 +396,7 @@ def _wainscot(b):
                 else:
                     b.span((lo, 0.35, t - 0.06), (hi, top - 0.05, t + 0.06), "kibble")
         else:
-            slab(0, 0.45, h - 0.12, h, "offwhite")                                          # inner window sill
+            slab(0, 0.45, h - 0.12, h + 0.01, "offwhite", ext=0.01)                         # inner window sill
     # crown moulding
     b.span((-18, H - 0.6, -14), (18, H, -13.75), TRIM)
     b.span((-18, H - 0.6, 13.75), (18, H, 14), TRIM)
@@ -519,7 +520,7 @@ def _roller(b, shutter, x0, x1, top, bottom, z):
     while y > bottom + 0.1:
         shutter.span((x0, y - 0.04, z - 0.34), (x1, y + 0.04, z - 0.3), "concrete")
         y -= 0.4
-    shutter.span((x0, bottom, z - 0.38), (x1, bottom + 0.15, z - 0.18), "concrete_dark")
+    shutter.span((x0 - 0.01, bottom - 0.01, z - 0.38), (x1 + 0.01, bottom + 0.15, z - 0.17), "concrete_dark")   # wraps the curtain foot
 
 
 def _sleeping_cat(asset, mat, at, turn):
@@ -576,8 +577,8 @@ def build_for_rent(mat):
     for (x, y, z, w, h) in ((-6.3, 0.15, -16.4, 1.4, 1.1), (-7.7, 0.15, -16.2, 1.2, 0.9), (-6.6, 1.25, -16.3, 1.0, 0.8)):
         b.span((x - w / 2, y, z - w / 2), (x + w / 2, y + h, z + w / 2), "cardboard")
         b.span((x - w / 2 - 0.01, y + h - 0.12, z - 0.12), (x + w / 2 + 0.01, y + h + 0.01, z + 0.12), "kibble")
-    b.box((-4.55, 2.0, -15.35), (0.12, 3.8, 0.12), "caramel_wood", rot=rot_z(-12))
-    b.box((-4.15, 0.42, -15.35), (0.7, 0.7, 0.3), "treat_tan", rot=rot_z(-12))       # tilted, its low corner at the floor
+    b.box((-4.55, 2.0, -15.12), (0.12, 3.8, 0.12), "caramel_wood", rot=rot_z(-12))       # broom leans on the wall
+    b.box((-4.15, 0.42, -15.12), (0.7, 0.7, 0.3), "treat_tan", rot=rot_z(-12))       # tilted, its low corner at the floor
     out = [b.finalize(name, mat), sign.finalize(name + "_Sign", mat), shutter.finalize(name + "_Shutter", mat)]
     out += _sleeping_cat(name, mat, (1.9, 0.02, -16.3), -25)
     zz = RB()
@@ -703,7 +704,7 @@ def build_tier(n, mat):
         b.span((2.2, cy + 0.6, FRONT - 0.35), (2.4, cy + 2.0, FRONT - 0.05), "offwhite")
         b.span((1.6, cy + 1.8, FRONT - 0.35), (2.4, cy + 2.0, FRONT - 0.05), "offwhite")
         b.b.star(RB.p(0, cy + 4.6, FRONT - 0.2), 0.9, 0.4, 0.25, gold, rot=(math.radians(90), "X"))
-        b.span((-0.08, cy, FRONT - 0.25), (0.08, cy + 0.1, FRONT - 0.15), gold)
+        b.span((-0.08, cy - 0.01, FRONT - 0.25), (0.08, cy + 0.1, FRONT - 0.15), gold)
         # red carpet with gold posts and ropes
         b.span((-1.6, 0.08, -20.0), (1.6, 0.15, FRONT - 0.2), "shirt_red")              # over the stones and mat
         for x in (-2.3, 2.3):

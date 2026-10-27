@@ -50,7 +50,7 @@ def build_counter(mat):
         b.sphere((x, -0.6 + (i % 2) * 0.5, 3.3), 0.16, "blush" if i != 1 else "mint", segments=8, rings=5)
     # register, left of center
     b.box_base((-1.2, 0.3, 3.0), (1.0, 0.8, 0.45), "mint")
-    b.box((-1.2, 0.55, 3.75), (0.8, 0.1, 0.5), "dark_wood", rot=(math.radians(-15), "X"))
+    b.box((-1.2, 0.55, 3.7), (0.8, 0.1, 0.5), "dark_wood", rot=(math.radians(-15), "X"))   # screen sits on the till
     b.box((-1.2, 0.0, 3.47), (0.6, 0.3, 0.05), "offwhite", bevel=False)      # keypad
     # tip jar and napkins
     b.cyl_base((-0.2, -0.6, 3.0), 0.2, 0.5, "glass", segments=10)
@@ -123,7 +123,8 @@ def build_cat_tree(mat):
     for z in (1.7, 2.6, 3.5):
         b.ring((0.5, -0.4, z), 0.24, 0.06, 0.3, "cardboard", segments=10, bevel=False)
     b.box_base((0.5, -0.4, 4.3), (1.3, 1.3, 0.15), "blush")
-    b.sphere((-0.5, 0.3, 2.55), 0.15, "rarity_legend", segments=8, rings=5)   # dangling toy ball
+    b.cyl_base((-0.05, 0.9, 1.88), 0.02, 0.33, "offwhite", segments=4, bevel=False)          # string
+    b.sphere((-0.05, 0.9, 1.75), 0.15, "rarity_legend", segments=8, rings=5)  # toy ball dangling under the shelf
     _sit_pad(b, SIT_POINTS["CatCafe_Furniture_CatTree"], "mint", 0.5)
     return [b.finalize("CatCafe_Furniture_CatTree", mat)]
 
@@ -217,7 +218,7 @@ def build_stage_cat_tree(mat):
     objects: the footlight Bulbs go Neon at night. Pivot base center of the stage."""
     b = Builder()
     b.cyl_base((0, 0, 0), 1.8, 0.4, "caramel_wood", segments=16)
-    b.ring((0, 0, 0.36), 1.82, 0.1, 0.08, "neon_pink", segments=16, bevel=False)              # trim
+    b.ring((0, 0, 0.37), 1.82, 0.1, 0.08, "neon_pink", segments=16, bevel=False)              # trim, 0.01 proud
     b.cyl_base((0, 0, 0.4), 1.6, 0.04, "blush", segments=16, bevel=False)                     # felt top
     b.cyl_base((0, 1.25, 0.44), 0.2, 3.5, "treat_tan", segments=8)                            # sisal post
     for z in (1.1, 2.1, 3.1):
@@ -226,7 +227,7 @@ def build_stage_cat_tree(mat):
     b.cyl_base((0, 1.25, 2.46), 0.55, 0.12, "mint", segments=10, bevel=False)
     b.cyl_base((0, 1.25, 3.94), 0.55, 0.16, "caramel_wood", segments=10)                      # top platform
     b.star((0, 1.25, 4.75), 0.55, 0.24, 0.16, "rarity_legend", rot=(math.radians(90), "X"))   # star topper
-    b.cyl_base((0, 1.25, 4.1), 0.05, 0.25, "dark_wood", segments=6, bevel=False)
+    b.cyl_base((0, 1.25, 4.1), 0.05, 0.45, "dark_wood", segments=6, bevel=False)            # reaches into the star
     for (x, z, r) in ((-0.9, 3.3, 0.18), (0.95, 2.9, 0.14)):                                  # hanging stars
         b.cyl((x, 1.25, z + 0.5), 0.015, 0.8, "fur_black", segments=4, bevel=False)
         b.star((x, 1.25, z), r, r * 0.45, 0.06, "sparkle", rot=(math.radians(90), "X"))

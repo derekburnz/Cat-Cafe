@@ -73,6 +73,7 @@ def build_fountain(mat):
     basin.cyl_base((0, 0, 0.2), 0.35, 2.2, "concrete", segments=10)
     basin.cyl_base((0, 0, 2.4), 1.0, 0.2, "concrete", segments=12, radius2=1.1)
     basin.ring((0, 0, 2.75), 1.15, 0.15, 0.35, "concrete", segments=12, bevel=False)
+    basin.cyl_base((0, 0, 2.6), 0.12, 0.6, "concrete", segments=8, bevel=False)          # spout stem
     basin.sphere((0, 0, 3.4), 0.3, "sign_teal", segments=10, rings=6)
     water = Builder()
     water.cyl_base((0, 0, 0.2), 2.15, 0.6, "puddle", segments=16, bevel=False)

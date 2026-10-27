@@ -131,7 +131,7 @@ def build_vest(mat):
         b.box((sx * (w + 0.2) / 2, 0, (0.04 + top) / 2), (w - 0.2, 0.05, top - 0.04), "dark_wood")     # V, upper step
         b.box((sx * (w - 0.025), 0.4, (top + bot) / 2 - 0.03), (0.05, 0.8, top - bot - 0.06), "dark_wood")  # side
     b.box((0, 0.8, (top + bot) / 2 - 0.03), (2 * w, 0.05, top - bot - 0.06), "dark_wood")               # back
-    b.box((0, 0.01, (mid + top) / 2 + 0.02), (0.4, 0.03, top - mid + 0.04), "offwhite", bevel=False)  # shirt
+    b.box((0, 0.005, (mid + top) / 2 + 0.02), (0.4, 0.03, top - mid + 0.04), "offwhite", bevel=False)  # shirt
     for z in (-0.22, -0.36, -0.5):
         b.box((0, -0.035, z), (0.06, 0.03, 0.06), "rarity_legend", bevel=False)                   # buttons
     return [b.finalize("CatCafe_Accessory_Vest", mat)]

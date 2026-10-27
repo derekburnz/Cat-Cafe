@@ -1,10 +1,11 @@
 --!strict
 -- The cat hover card (F75, data-model section 4b v0.12; Derek 2026-10-27: "when you hover over your cat in cafe it
 -- should display what they are and their lvl / xp bar"). A small card over one cat in any cafe:
---   your own cat     its name (with the catalog name under it when named), the rarity badge, a Gold tag, the charm
---                    stars, the role with its icon and a heart in its favourite role (or Resting), "Level 12" and the
---                    XP bar with "340 / 1,440 XP", "MAX" at the top level
---   another's cat    a smaller card from the model's attributes: name, rarity, Gold, role and level, no stars or bar
+--   your own cat     a picture of its head beside its name (with the catalog name under it when named), the rarity
+--                    badge and a Gold tag, the role with its icon and a heart in its favourite role (or Resting),
+--                    "Level 12" and the XP bar with "340 / 1,440 XP", "MAX" at the top level
+--   another's cat    a smaller card from the model's attributes: head, name, rarity, Gold, role and level, no bar
+-- No charm stars (Derek 2026-10-27: "do a pic of the cats head instead and no stars needed").
 -- Mouse: the card shows over the cat under the pointer. Touch: a tap opens it, a second tap on the same cat or a tap
 -- elsewhere closes it, and it closes by itself after 4 s. Gamepad: the nearest own cat within 8 studs.
 -- Hidden while a window is open or the UI is hidden (the intro). Own cats read ProfileSync's `cats`, so the card
@@ -20,6 +21,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local CatCardLogic = require(script.Parent.Parent.Components.CatCardLogic)
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -41,9 +43,11 @@ export type CatCard = {
 
 type Mode = "mouse" | "touch" | "gamepad"
 
-local WIDTH = 236 -- design pixels; Scale maps them to the device
+local WIDTH = 252 -- design pixels; Scale maps them to the device
 local PAD = 10
 local GAP = 4
+local HEAD = 60 -- the head picture's disc, left of the name
+local TEXT_X = PAD + HEAD + 8
 local NAME_H = 24
 local SUB_H = 16
 local TAGS_H = 22
@@ -178,16 +182,28 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 	Outline.border(card, Theme.sizes.outline)
 	self._card = card
 
+	local disc: Frame = Create("Frame", {
+		Name = "Head",
+		BackgroundColor3 = Theme.colors.paper,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(HEAD, HEAD),
+		Parent = card,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(disc, 1.5, Theme.modal.cardStroke)
+	self._headDisc = disc
+	self._portrait = CatPortrait.new({ parent = disc, size = UDim2.fromScale(1, 1), head = true })
+	self._headKey = nil :: string? -- the cat and coat the picture shows, so a refresh does not rebuild it
+
 	self._name = label({
 		Name = "CatName",
-		Size = UDim2.new(1, -2 * PAD, 0, NAME_H),
+		Size = UDim2.new(1, -TEXT_X - PAD, 0, NAME_H),
 		FontFace = Theme.fonts.display,
 		TextSize = 20,
 		Parent = card,
 	})
 	self._sub = label({
 		Name = "CatalogName",
-		Size = UDim2.new(1, -2 * PAD, 0, SUB_H),
+		Size = UDim2.new(1, -TEXT_X - PAD, 0, SUB_H),
 		TextSize = Theme.sizes.textTiny + 1,
 		TextColor3 = Theme.modal.subtext,
 		Parent = card,
@@ -195,7 +211,7 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 	local tags: Frame = Create("Frame", {
 		Name = "Tags",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, -2 * PAD, 0, TAGS_H),
+		Size = UDim2.new(1, -TEXT_X - PAD, 0, TAGS_H),
 		Parent = card,
 	}, {
 		Create("UIListLayout", {
@@ -211,16 +227,6 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 	self._gold.BackgroundColor3 = Theme.colors.gold
 	self._gold.TextColor3 = Theme.colors.goldText
 	self._gold.Text = "Gold"
-	self._stars = label({
-		Name = "Stars",
-		Size = UDim2.new(1, -2 * PAD, 0, TAGS_H),
-		FontFace = Theme.fonts.display,
-		TextSize = 16,
-		TextColor3 = Theme.colors.goldDark,
-		TextXAlignment = Enum.TextXAlignment.Right,
-		TextTruncate = Enum.TextTruncate.None,
-		Parent = card,
-	})
 
 	local roleIcon: Frame = Create("Frame", {
 		Name = "RoleIcon",
@@ -466,6 +472,8 @@ function CatCard._hide(self: any)
 	self._shownUid = nil
 	self.billboard.Enabled = false
 	self.billboard.Adornee = nil
+	self._portrait:set(nil) -- drops the clone and stops its sway while nothing shows
+	self._headKey = nil
 end
 
 function CatCard._unwatch(self: any)
@@ -475,20 +483,23 @@ function CatCard._unwatch(self: any)
 	table.clear(self._watch)
 end
 
--- Rows from the top; returns the card's height. Rows that do not show take no room.
+-- Rows from the top; returns the card's height. Rows that do not show take no room. The head and the name block sit
+-- side by side, each centred on the taller of the two.
 function CatCard._layout(self: any, sub: boolean, own: boolean, level: boolean): number
-	local y = PAD - 2
-	self._name.Position = UDim2.fromOffset(PAD, y)
+	local textHeight = NAME_H + (if sub then SUB_H else 0) + GAP + TAGS_H
+	local block = math.max(HEAD, textHeight)
+	self._headDisc.Position = UDim2.fromOffset(PAD, PAD + math.floor((block - HEAD) / 2))
+	local y = PAD - 2 + math.floor((block - textHeight) / 2)
+	self._name.Position = UDim2.fromOffset(TEXT_X, y)
 	y += NAME_H
 	self._sub.Visible = sub
 	if sub then
-		self._sub.Position = UDim2.fromOffset(PAD, y - 2)
+		self._sub.Position = UDim2.fromOffset(TEXT_X, y - 2)
 		y += SUB_H
 	end
 	y += GAP
-	self._tags.Position = UDim2.fromOffset(PAD, y)
-	self._stars.Position = UDim2.fromOffset(PAD, y)
-	y += TAGS_H + GAP
+	self._tags.Position = UDim2.fromOffset(TEXT_X, y)
+	y = PAD + block + GAP + 2
 	self._roleIcon.Position = UDim2.fromOffset(PAD, y)
 	self._role.Position = UDim2.fromOffset(PAD + ROLE_H + 6, y)
 	y += ROLE_H
@@ -551,16 +562,18 @@ function CatCard._fill(self: any)
 	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
-	self._gold.Visible = if instance
+	local gold = if instance
 		then CatVariant.isGold(instance.variant)
 		else model:GetAttribute("Gold") == true
-	local stars = if instance and type(instance.stars) == "number"
-		then math.clamp(math.floor(instance.stars), 0, 5)
-		else nil
-	self._stars.Visible = stars ~= nil
-	self._stars.Text = if stars
-		then string.rep("★", stars) .. string.rep("☆", 5 - stars)
-		else ""
+	self._gold.Visible = gold
+
+	-- the head: the gold coat's own model for a gold cat, rebuilt only when the cat or its coat changes
+	self._headDisc.BackgroundColor3 = Theme.rarityColor(rarity):Lerp(Theme.colors.paper, 0.7)
+	local headKey = ("%s/%s"):format(if def then def.id else "", if gold then "gold" else "base")
+	if headKey ~= self._headKey then
+		self._headKey = headKey
+		self._portrait:set(def, gold)
+	end
 
 	-- the role: an own cat's slot from ProfileSync, else the model's Role (working cats only)
 	local role: string? = nil
@@ -624,6 +637,7 @@ end
 
 function CatCard.destroy(self: any)
 	self:_unwatch()
+	self._portrait:destroy()
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

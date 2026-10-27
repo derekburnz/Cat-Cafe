@@ -72,7 +72,7 @@ SettingsList.SECTIONS = {
 				kind = "switch",
 				icon = "📳",
 				name = "Screen shake",
-				detail = "The camera bump on shoves and catches",
+				detail = "The camera bump on tackles and catches",
 			},
 			{
 				key = "lowPerformance",

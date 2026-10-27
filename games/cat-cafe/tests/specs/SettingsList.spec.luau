@@ -55,7 +55,9 @@ return function()
 			local taps = { musicVolume = { value = 0.35, at = 100 } }
 			expect(SettingsList.shown({ musicVolume = 1 }, taps, "musicVolume", 101)).to.equal(0.35)
 			local saved = Settings.clean("musicVolume", 0.35)
-			expect(SettingsList.shown({ musicVolume = saved }, taps, "musicVolume", 101)).to.equal(saved)
+			expect(SettingsList.shown({ musicVolume = saved }, taps, "musicVolume", 101)).to.equal(
+				saved
+			)
 			local late = 100 + SettingsList.HOLD_SECONDS
 			expect(SettingsList.shown({ musicVolume = 1 }, taps, "musicVolume", late)).to.equal(1)
 		end)
@@ -94,6 +96,21 @@ return function()
 			end
 			for _, row in SettingsList.ROWS do
 				expect(saved[row.key] ~= nil).to.equal(true)
+			end
+		end)
+
+		-- Before the first ProfileSync a switch shows ON (SettingsList.shown); the profile template is what a new
+		-- player saves, so the two must agree. Place icons may be session-only (PR #207) until the server saves it
+		-- (engineer PR #215); no other switch may be.
+		it("shows each switch's saved default before the first sync", function()
+			local saved = ProfileSchema.template(0).settings :: any
+			for _, row in SettingsList.ROWS do
+				local default = saved[row.key]
+				if default == nil then
+					expect(row.key).to.equal("markers")
+				elseif type(default) == "boolean" then
+					expect(SettingsList.shown(nil, {}, row.key, 0)).to.equal(default)
+				end
 			end
 		end)
 	end)

@@ -48,7 +48,7 @@ export type CustomEvent =
 	| "rescue_attempt"
 	| "bait_rolled"
 	| "bait_resolved"
-	| "shiny_found"
+	| "gold_found"
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"

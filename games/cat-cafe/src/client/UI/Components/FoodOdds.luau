@@ -18,8 +18,8 @@ local FoodOdds = {}
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
--- data-model section 8: ShinyChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
-local SHINY_CHANCE: number = Config.ShinyChanceBait
+-- data-model section 8: GoldChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
+local SHINY_CHANCE: number = Config.GoldChanceBait
 local STAR_ODDS: { number } = Config.CharmStarOdds
 
 -- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two

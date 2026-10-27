@@ -441,8 +441,8 @@ Presets.motion = {
 -- manifest does not ship with the game: for each hinged piece, the turn about its own joint as
 -- piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees (`angles_roblox_deg`), and how far the whole
 -- cat drops (`lift_roblox` Y, studs at Scale 1). `body` is the body each is for, "walk" (A) or "sit" (B). Copy new
--- numbers here when the manifest changes. One change of ours: in the sleep and the loaf the folded legs also turn
--- out to the sides (the last angle, front 30 degrees, back 26), so the paws peek out a little (Derek 2026-10-27).
+-- numbers here when the manifest changes. In the sleep and the loaf the folded legs also turn out to the sides (the
+-- last angle, front 30 degrees, back 26), so the paws peek out a little (Derek 2026-10-27; in the manifest since #296).
 export type CatPose = { body: string, lift: number, turns: { [string]: { number } } }
 Presets.catPoses = {
 	sleep = {

@@ -181,6 +181,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		if instance.spotId ~= nil then
 			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
 		end
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 		model:PivotTo(placement.anchor.CFrame)
 		model.Parent = plot.cats
 	end

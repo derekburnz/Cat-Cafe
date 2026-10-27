@@ -5,7 +5,8 @@
   "PartBuilt": true,
   "Scale": {
    "Float64": 1.0
-  }
+  },
+  "PropSlot": "Back"
  },
  "children": [
   {
@@ -3176,6 +3177,366 @@
     }
    },
    "name": "CatCafe_Cat_Blossom_Sit_LegF2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Blossom_Sit/9"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Blossom_Sit_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4446,
+         1.2729,
+         0.3598
+        ],
+        "orientation": [
+         [
+          0.8192,
+          -0.5736,
+          0.0
+         ],
+         [
+          0.554,
+          0.7912,
+          -0.2588
+         ],
+         [
+          0.1485,
+          0.212,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.741,
+       0.4594,
+       0.0667
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -1.1228,
+         -0.8284,
+         -0.0181
+        ],
+        "orientation": [
+         [
+          0.8192,
+          0.554,
+          0.1485
+         ],
+         [
+          -0.5736,
+          0.7912,
+          0.212
+         ],
+         [
+          0.0,
+          -0.2588,
+          0.9659
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Blossom_Sit/9",
+      "Follows": "Body"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Blossom_Sit_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3705,
+         0.9086,
+         0.2878
+        ],
+        "orientation": [
+         [
+          0.9063,
+          0.4226,
+          0.0
+         ],
+         [
+          -0.4082,
+          0.8754,
+          -0.2588
+         ],
+         [
+          -0.1094,
+          0.2346,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.494,
+       0.3063,
+       0.0445
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ],
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Blossom_Sit_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4446,
+         1.2729,
+         0.3598
+        ],
+        "orientation": [
+         [
+          0.8192,
+          0.5736,
+          0.0
+         ],
+         [
+          -0.554,
+          0.7912,
+          -0.2588
+         ],
+         [
+          -0.1485,
+          0.212,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.741,
+       0.4594,
+       0.0667
+      ],
+      "Color": [
+       0.7882,
+       0.7216,
+       0.9098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ],
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Blossom_Sit_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3705,
+         0.9086,
+         0.2878
+        ],
+        "orientation": [
+         [
+          0.9063,
+          -0.4226,
+          0.0
+         ],
+         [
+          0.4082,
+          0.8754,
+          -0.2588
+         ],
+         [
+          0.1094,
+          0.2346,
+          0.9659
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.494,
+       0.3063,
+       0.0445
+      ],
+      "Color": [
+       0.6588,
+       0.8471,
+       0.9412
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ],
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Blossom_Sit_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.007,
+         0.2612
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.133,
+       0.133,
+       0.095
+      ],
+      "Color": [
+       0.949,
+       0.749,
+       0.7961
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Blossom_Sit_Prop"
   }
  ],
  "properties": {

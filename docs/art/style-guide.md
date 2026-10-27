@@ -142,6 +142,27 @@ Row 9, eyes, noses and markings for the coats.
 | 78 | fur_apricot | #F2B88A | Tortie's second patch color |
 | 79 | fur_smoke_light | #8A8F99 | Smoke's muzzle |
 
+Rows 10 and 11, the Neighbourhood, Woods and Sewer themed cats (data-model 3c) and their props (2026-10-27).
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 80 | fur_slate | #6E7E98 | Postie (Mail Cat) |
+| 81 | fur_oat | #E6CFA8 | Fold (Painter Cat); Bottlecap's muzzle |
+| 82 | fur_vanilla | #FBF0D2 | Comet (Ice Cream Cat); Fold's muzzle |
+| 83 | fur_strawberry | #F28FAA | Comet's stripes and the scoop on its hat |
+| 84 | fur_hazel | #A27A55 | Pinecone (Scout Cat); Old Oak's muzzle |
+| 85 | fur_russet | #8E4A2C | Forest Cat (Lumberjack Cat) |
+| 86 | fur_rust_red | #C4512F | Toadstool's patches |
+| 87 | fur_soot | #625D59 | Lantern (Miner Cat) |
+| 88 | fur_mist | #C3D0DE | Bubbles (Bubble Cat) |
+| 89 | fur_copper | #B5602F | Gears (Steampunk Cat) |
+| 90 | fur_teal_grey | #7A9C9E | Glimmer (Diver Cat) |
+| 91 | fur_caramel | #CF8F52 | Bottlecap (King Cat); not a gold tone, so it never reads as a gold cat |
+| 92 | bronze | #80562E | Bottlecap's patches and crown band, the steampunk goggles' rims |
+| 93 | fur_emerald | #2E9E6B | Eclipse (Dragon Cat), front of its emerald to teal gradient |
+| 94 | pastel_sky | #A8D8F0 | Comet's and Wisp's glowing eyes, Wisp's mane, fairy wings |
+| 95 | brass | #B8913A | steampunk goggles (plain colour, not metal, unlike the gold swatches) |
+
 **Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
 
 | cat | coat | markings | eyes | nose |
@@ -166,6 +187,24 @@ Row 9, eyes, noses and markings for the coats.
 | Blossom | fur_rose | fur_white and nose_pink patches, petals | blue | pink |
 | Midnight | night_sky | sparkle stars and moon | sparkle, glowing | dark |
 | Aurora | galaxy_blue | aurora_violet and mint gradient | mint, glowing | pink |
+| Munchkin | fur_grey | fur_white patches and muzzle, short legs | copper | dark |
+| Fold | fur_oat | fur_vanilla muzzle, folded ears, paint-dipped toes (pink, teal, yellow, blue) | green | pink |
+| Chonk | fur_apricot | fur_white bib, belly and socks; scale 1.25 | green | pink |
+| Postie | fur_slate | fur_blue muzzle | copper | dark |
+| Marshmallow | milk | fur_white fringe, ruff and cheek fluff (long coat) | blue | pink |
+| Comet | fur_vanilla | fur_strawberry stripes, sprinkles | pastel_sky, glowing | pink |
+| Pinecone | fur_hazel | fur_brown stripes, cream muzzle | green | brick |
+| Forest Cat | fur_russet | fur_seal stripes, cream ruff, ear tufts; scale 1.2 | amber | brick |
+| Toadstool | cream | fur_rust_red patches | amber | pink |
+| Firefly | choco | fur_brown muzzle, sparkle tail tip | amber | brick |
+| Old Oak | dark_wood | leaf_green leaves, fur_hazel muzzle | amber | brick |
+| Wisp | fur_white | pastel rainbow mane, sparkle specks | pastel_sky, glowing | pink |
+| Lantern | fur_soot | fur_grey muzzle | amber | dark |
+| Bubbles | fur_mist | white muzzle | blue | pink |
+| Gears | fur_copper | rust stripes, cream muzzle | green | brick |
+| Glimmer | fur_teal_grey | white muzzle and chest | copper | pink |
+| Bottlecap | fur_caramel | bronze patches, fur_oat muzzle | green | brick |
+| Eclipse | fur_emerald | sign_teal and dumpster_green gradient | amber, glowing | dark |
 
 **Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
 
@@ -220,7 +259,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 
 | category | budget per asset | notes |
 |---|---|---|
-| Cat (every piece, either body) | 1,500 total | every coat lands at 650 to 950 on A and B |
+| Cat (every piece, either body) | 1,500 total | plain coats land at 650 to 950 on A and B; themed cats with their prop at 800 to 1,380 |
 | Accessory | 200 to 300 | glasses, hat, and the role outfit pieces: apron, barista cap, bow tie, vest, sash, boater, party hat, cape |
 | Held tool (net) | 500 to 650 | per level |
 | Customer NPC | 1,000 | |
@@ -246,7 +285,7 @@ The full list with sizes, triangle counts and Studio notes is generated into `as
 
 Parts that need a Studio material or a script are separate objects inside one asset, suffixed by job: `_Tube`, `_Bulb`, `_Bulbs` and `_Pane` (Neon at night, section 9), `_Glass` and `_Water` (Transparency), `_Open` and `_Closed` (door sign faces, one visible at a time), `_Handle` and `_Bag` (the net Tool's grip and net), `_Lid` and `_Branch` (rescue trap parts that move: the TrashBin and TrashCan lids, the RescueTree branch, with `_Bin`, `_Can` and `_Trunk` as the fixed rest), and the cat's hinged pieces (below). Other suffixes in a multi-object asset (`_Board`, `_Frame`, `_Post`, `_Wire` and the like) are plain SmoothPlastic parts. Everything else is one object, one MeshPart.
 
-A cat is two models (Derek, 2026-10-27: "A for walking around B while they are sitting"): `CatCafe_Cat_<Name>` is body A on all fours (strays, carried and stuck cats, cats walking about) and `CatCafe_Cat_<Name>_Sit` is body B sitting up (cats resting in the cafe, working cats at their stations). Their gold twins are `_Gold` and `_Gold_Sit` (Part models only). Each is a set of hinged pieces, each its own object pivoted at its joint: `_Body` (the PrimaryPart; B's back paws included), `_Head` (neck), `_Eye1` and `_Eye2` (eye centre, for blinks), `_EarL` and `_EarR` (ear base, for twitches), `_Tail` (root) and the legs `_LegF1` and `_LegF2`, plus `_LegB1` and `_LegB2` on A (shoulder or hip; F front, B back, 1 the cat's left). The Part models nest the eyes and ears inside the Head Model, so turning the Head carries them. Code poses a cat by turning those Models with CFrames, no skeleton (section 12). Rigged, animated cats are a later phase.
+A cat is two models (Derek, 2026-10-27: "A for walking around B while they are sitting"): `CatCafe_Cat_<Name>` is body A on all fours (strays, carried and stuck cats, cats walking about) and `CatCafe_Cat_<Name>_Sit` is body B sitting up (cats resting in the cafe, working cats at their stations). Their gold twins are `_Gold` and `_Gold_Sit` (Part models only). Each is a set of hinged pieces, each its own object pivoted at its joint: `_Body` (the PrimaryPart; B's back paws included), `_Head` (neck), `_Eye1` and `_Eye2` (eye centre, for blinks), `_EarL` and `_EarR` (ear base, for twitches), `_Tail` (root) and the legs `_LegF1` and `_LegF2`, plus `_LegB1` and `_LegB2` on A (shoulder or hip; F front, B back, 1 the cat's left). A themed cat adds `_Prop` (its signature prop) and, when the prop has clear parts, `_Prop_Glass` (section 12). The Part models nest the eyes and ears inside the Head Model, so turning the Head carries them. Code poses a cat by turning those Models with CFrames, no skeleton (section 12). Rigged, animated cats are a later phase.
 
 ## 7. Pivots and orientation
 
@@ -304,6 +343,8 @@ The slice has no skeleton. Every pose turns the cat's hinged pieces (section 6) 
 - `poses` move the whole walking cat as a Body CFrame plus a turn of the Head and the Tail: `carried` (relative to the HumanoidRootPart centre, 3 studs above the floor on a default R15 character; `previews/Pose_Carried.png`) and `upright`, which is now only the base of the bin traps. Each v0.3 rescue trap has a `stuck_pose` (Alleyway `TrashBin` and `GarbageBags`, Park `RescueTree` and `TrashCan`): in the bin and the can the cat stands inside with its head and front paws over the rim; in the bags it is buried with its head and front paws out the front; on the tree it lies draped across the branch between the trunk and the leaf tuft, facing the tree's front and looking down at the player (the engineer's #200 pose), its Body welded to the `_Branch` so it rides the shake. `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`; `head_offset_roblox` moves the Head joint in the Body's own frame. Previews: `previews/CatCafe_Alley_TrashBin.png` and the other three, collected in `sheet_poses.png`.
 
 Cats wear no collar, strays and cafe cats alike (Derek, 2026-10-27). Working cats (v0.3 roles, data-model section 5) sit at their stations on body B in their role's two-piece outfit, which is what marks a cat as staff: Apron and BaristaCap for the barista, BowTie and Vest for the waiter, Sash and Boater for the greeter, PartyHat and Cape for the entertainer (`role_outfits` in the manifest, `previews/Pose_Uniforms.png`). The pieces share the cafe palette: mint and cream for the barista, dark_wood with a white shirt and gold buttons for the waiter, shirt_red and straw (treat_tan) for the greeter, sign_teal and neon_pink with gold stars for the entertainer. Put each piece on the sitting model's `Outfit_<Piece>` Attachment and scale it by the model's `Scale` attribute; multiply every pose position by it too. Idle bob, blinks, ear twitches and tail wag are tweens on the piece Models (the vfx-animator's Effects code). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes.
+
+Themed cats (data-model section 3c) each wear one signature prop, built in `props.py` and named `CatCafe_Cat_<Name>[_Gold][_Sit]_Prop`, on both bodies and the gold twins. The prop has a slot: `Head` (hats, horns, antlers, headphones), `Face` (glasses, masks, the eye patch, the bubble pipe) or `Back` (cape, wings, guitar, skateboard, backpack, the firefly jar). Head and Face props pivot at the neck and the Part model nests them in the Head Model, so a head turn carries them; Back props sit in the root Model and ride the Body. Every prop Part carries a `Follows` attribute (`Head` or `Body`) and the cat's root Model a `PropSlot` attribute. When a themed cat works, `CatPose.dress` leaves off the role piece in the prop's slot (a Head prop replaces the BaristaCap, Boater or PartyHat, a Back prop the Entertainer's Cape) and keeps the other piece; Face props keep the whole outfit. Clear parts (lenses, the helmet, bubbles, the jar) are `_Prop_Glass`, Glass at 0.45. Props follow the toolkit rule for details: sunk 0.005 to 0.01 into the surface they sit on and at least 0.01 proud of it, never coplanar with a face of another swatch. Review sheets: `docs/concepts/cat-cafe/themed_cats_<area>.png`.
 
 ## 13. Cafe plots and the street
 

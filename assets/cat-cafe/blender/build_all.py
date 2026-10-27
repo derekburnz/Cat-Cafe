@@ -44,6 +44,7 @@ import palette  # noqa: E402
 import park  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
+import props  # noqa: E402
 import rbx_export  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
@@ -155,12 +156,19 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
         for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + " Glowing eyes: set the parts of the Eye1 and Eye2 Models "
                                 "to Neon.").strip()
+    if props.slot(_n):                          # themed cats (data-model 3): the prop is part of the model
+        _rides = "the Body" if props.slot(_n) == "Back" else "the Head (its Model is inside the Head Model)"
+        for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
+            STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + f" Prop: the {props.slot(_n)} prop is the child Model "
+                                f"<name>_Prop (and <name>_Prop_Glass, Glass) and rides {_rides}; PropSlot = "
+                                f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off.").strip()
 
 
 def cat_rbx_extras(name):
     """A cat's Part model carries its Scale and, on a sitting model (where working cats wear their outfits), one
     Attachment per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part,
-    so the game needs no manifest at runtime."""
+    so the game needs no manifest at runtime. A themed cat also carries PropSlot (Head, Face or Back) and its prop's
+    parts carry Follows (Head or Body); a Head or Face prop's Model rides inside the Head Model."""
     cat, _gold, body = cats.parse(name)
     spec = cats.ROSTER[cat]
     s = spec.get("scale", 1.0)
@@ -173,7 +181,15 @@ def cat_rbx_extras(name):
                 turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
                 attachments.append(("_" + part, "Outfit_" + n,
                                     Matrix.Translation(Vector(joints[part]) + Vector(off) * s) @ turn))
-    return {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
+    extras = {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
+    slot = props.slot(cat)
+    if slot:                                # a themed cat's prop: its slot, and which piece its parts follow
+        rides = "Body" if slot == "Back" else "Head"
+        extras["attributes"]["PropSlot"] = slot
+        extras["part_attributes"] = {"_Prop": {"Follows": rides}, "_Prop_Glass": {"Follows": rides}}
+        if rides == "Head":
+            extras["nest"] = {"_Prop": "_Head", "_Prop_Glass": "_Head"}
+    return extras
 
 
 def _slot_entry(part, off, r, s=1.0):
@@ -268,6 +284,13 @@ def main():
             entry["joints"] = {k: [round(v, 3) for v in j] for k, j in joints.items() if k != "Body"}
             entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items() if k != "Body"}
             entry["attachments"] = {k: _slot_entry(p, o, r, s_) for k, (p, o, r) in accessories.slots(spec, body).items()}
+            if props.slot(cat):
+                entry["prop"] = {"slot": props.slot(cat), "objects": [o.name for o in objs if "_Prop" in o.name],
+                                 "follows": "Body" if props.slot(cat) == "Back" else "Head"}
+            lifts = {k: cats.pose_lift(spec, v) for k, v in poses.CAT_POSES.items() if v["body"] == body and "lift" in v}
+            if lifts:                               # already times the cat's scale
+                entry["pose_lifts_roblox"] = {k: common.to_roblox([c * cats.scale_of(spec, body) for c in v])
+                                              for k, v in lifts.items()}
         if name.startswith("CatCafe_Accessory_"):
             n = name.split("_")[-1]
             if n in accessories.SIT_SLOTS:

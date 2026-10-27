@@ -55,6 +55,11 @@ SWATCHES = [
     # row 9: eyes and noses for the coats
     ("eye_copper", "#E0782F"), ("eye_chartreuse", "#B9D84A"), ("eye_violet", "#9C7CF2"), ("nose_dark", "#4A4450"),
     ("nose_brick", "#C4675B"), ("fur_seal", "#3E2A22"), ("fur_apricot", "#F2B88A"), ("fur_smoke_light", "#8A8F99"),
+    # rows 10 and 11: the Neighbourhood, Woods and Sewer cats (data-model 3c) and their props
+    ("fur_slate", "#6E7E98"), ("fur_oat", "#E6CFA8"), ("fur_vanilla", "#FBF0D2"), ("fur_strawberry", "#F28FAA"),
+    ("fur_hazel", "#A27A55"), ("fur_russet", "#8E4A2C"), ("fur_rust_red", "#C4512F"), ("fur_soot", "#625D59"),
+    ("fur_mist", "#C3D0DE"), ("fur_copper", "#B5602F"), ("fur_teal_grey", "#7A9C9E"), ("fur_caramel", "#CF8F52"),
+    ("bronze", "#80562E"), ("fur_emerald", "#2E9E6B"), ("pastel_sky", "#A8D8F0"), ("brass", "#B8913A"),
 ]
 assert len(SWATCHES) % GRID == 0 and len(SWATCHES) <= GRID * ROWS
 

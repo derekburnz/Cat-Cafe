@@ -88,19 +88,25 @@ def _piece(ob):
     return ob.name.split(".")[0].rsplit("_", 1)[-1]
 
 
+def _on_head(ob):
+    """The Head's own riders: eyes, ears and a Head or Face prop (props.py marks a prop with what it rides)."""
+    import cats
+    return _piece(ob) in cats.HEAD_PIECES or ob.get("rides") == "Head"
+
+
 def cat_pose_matrices(cat_objs, pose, spec, body):
     """Object -> the matrix that puts it in a CAT_POSES pose (applied on the left of its rest matrix_world)."""
     import cats
     bpy.context.view_layer.update()                     # fresh models: matrix_world catches up with location
     joints = cats.joints(spec, body)
     k = cats.scale_of(spec, body)
-    lift = Matrix.Translation(Vector(pose.get("lift", (0, 0, 0))) * k)
+    lift = Matrix.Translation(Vector(cats.pose_lift(spec, pose)) * k)
     turn = {p: _about(joints[p], a) for p, a in pose["parts"].items()}
     out = {}
     for ob in cat_objs:
         piece = _piece(ob)
         M = lift
-        if piece in cats.HEAD_PIECES:
+        if _on_head(ob):
             M = M @ turn.get("Head", Matrix.Identity(4))
         out[ob] = M @ turn.get(piece, Matrix.Identity(4))
     return out
@@ -148,7 +154,7 @@ def posed_copies(cat_objs, pose, world=Matrix.Identity(4), prefix="_v_"):
         c.name = prefix + ob.name
         piece = _piece(ob)
         extra = Matrix.Identity(4)
-        if piece in cats.HEAD_PIECES or piece == "Head":
+        if _on_head(ob) or piece == "Head":
             extra = turn_head
         elif piece == "Tail":
             extra = ob.matrix_world @ _local(pose["tail"]) @ ob.matrix_world.inverted()

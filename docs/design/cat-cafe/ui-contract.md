@@ -166,6 +166,10 @@ The HUD's right column has a next goal card under the clock (Pet Simulator 99 qu
 
 Each menu tile gets a red "!" dot when its screen has something new (`Notices.luau`): an upgrade level or decor item the player can now afford and is allowed to buy, or a cat or shiny added to the collection since the book was last open (cats caught before the session are not news). Opening the screen clears its dot, and anything that appears while it is open counts as seen. No new fields: it reads the state the UI already gets.
 
+### Collection book index (built, F39 P1)
+
+Copied from the Pet Simulator index. The Book tab opens on a row of area tabs in tier order, each in its area colour when open, reading "3 / 10", "Complete!" or "Tier 4" for an area the player has not reached and found nothing in. Under it the open area's name, a progress bar in the area colour (gold when complete) and "3 / 10 · 30%". The grid shows that area's cats, rarest last, as still 3D models from `ReplicatedStorage.Assets` on a disc in the rarity colour; a cat not found yet is a dark silhouette with "???" and its rarity. A Shiny pill marks cats in `state.shinyCollection`. The panel title reads "12 / 50 found · 24%". Tapping a cell fills the detail strip with the same model (or silhouette). A cell's model is cloned the first time its area opens, so the book never holds more than the areas the player has looked at. No new fields: it reads `catalog.areas`, `cat.area`, `state.collection`, `state.catsOwned` and `state.shinyCollection`.
+
 ### Area title card and shout-outs (built, F39 P1)
 
 `UI.showAreaTitle(areaId)` shows the area's name in big outlined letters for two seconds with its "Epic or better N%" line in the area's colour (Pet Simulator 99 and Fisch zone names). `"home"` shows the cafe's tier name over "Your cafe". `UI.travel.result(destination, true)` already calls it; the controller also calls it when the player walks into an area (the zone check that picks the ambience). The same area twice within 4 s shows once. `UI.announce(text)` shout-outs now take the colour of the first rarity named in the text and stay 4 s.

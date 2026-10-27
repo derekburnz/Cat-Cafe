@@ -191,4 +191,30 @@ return function()
 			end
 		end)
 	end)
+
+	describe("FoodOdds with the Index's forever bonuses (F54)", function()
+		local Config = require(
+			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+		) :: any
+
+		it("puts gold luck in the gold chance and says so", function()
+			local base = Config.GoldChanceBait * 100
+			local lucky = FoodOdds.extras(0.4)
+			local gold, luck = lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%) · Charm ")
+			expect(tonumber(gold or "") :: number).to.be.near(base * 1.4, 0.005)
+			expect(luck).to.equal("40")
+			expect(FoodOdds.extras(0)).to.equal(FoodOdds.extras())
+			local capped = FoodOdds.extras(9):match("^Gold ([%d%.]+)%%")
+			expect(tonumber(capped or "") :: number).to.be.near(base * 2.5, 0.005)
+		end)
+
+		it("shortens the bait wait by the faster bait, after the Big Bowl", function()
+			local wait = Config.LureWaitSeconds
+			local big = Config.BigBowlLureWaitSeconds or wait
+			expect(FoodOdds.waitSeconds(false, 0)).to.equal(wait)
+			expect(FoodOdds.waitSeconds(true, nil)).to.equal(big)
+			expect(FoodOdds.waitSeconds(false, 0.38)).to.equal(math.floor(wait * 0.62))
+			expect(FoodOdds.waitSeconds(true, 0.9)).to.equal(math.floor(big * 0.5))
+		end)
+	end)
 end

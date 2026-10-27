@@ -1,15 +1,17 @@
 --!strict
 -- What an Index reward pays, as little pictures with amounts (Derek 2026-10-27: "showing little symbols of whatever
 -- they are going to get as next reward and how much"): a coin tile "$300", golden fish "x10", the food's own model
--- with its grade gem (F69) "x2", a crate "x1", the wheel "x1" for spins, a name tag, and a gold "+2% tips forever"
--- pill (golden-fish.md section 5). One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
+-- with its grade gem (F69) "x2", a crate "x1", the wheel "x1" for spins, a name tag, and a pill for a forever bonus
+-- (golden-fish.md section 5, v0.10): gold "+2% tips forever", deep gold "+3% gold luck forever" and blue "+2% faster
+-- bait forever". One chip per part from IndexRewards.prizeParts, so whatever the designer puts in Catalog.indexPrizes
 -- shows without a UI change; a kind the UI does not know yet shows a gift.
 --   PrizeChips.new(props)   a row that sizes itself to its chips, or wraps them inside its width (props.wrap)
 --   chips:setCatalog(catalog)   foods, decor and crates by id, for their names and models
 --   chips:set(prize, look?)   look.dayRate prices coins that grow with the cafe, look.spinsBanked marks spins that
 --                             would not fit the Spin Wheel bank, look.gold tints a decor tile gold, look.tier names
 --                             the "highest" crate (CrateLogic.resolve)
---   PrizeChips.bonusText(0.02)   "+2% tips forever"
+--   PrizeChips.bonusText(0.02)   "+2% tips forever"; bonusText(0.03, "goldLuck") "+3% gold luck forever"
+--   PrizeChips.perkColor(perk)   the pill's colour
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -34,7 +36,7 @@ export type Props = {
 	outlined: boolean?, -- white text with a dark outline, for dark boards
 	wrap: boolean?, -- wrap onto more lines inside `size` (its height grows) instead of growing sideways
 	size: UDim2?, -- with wrap; the width the chips wrap in
-	showBonus: boolean?, -- false leaves the tips-forever pill out, for a card that shows it on a band of its own
+	showBonus: boolean?, -- false leaves the forever pills out, for a card that shows them on a band of its own
 	fitTo: GuiObject?, -- without wrap: shrink the whole row to fit inside this frame's width (a big prize on a board)
 	fitPad: number?, -- px of fitTo's width kept clear
 	name: string?,
@@ -178,10 +180,27 @@ function PrizeChips._partLook(
 	return nil, OTHER_GLYPH, nil, amount
 end
 
-function PrizeChips.bonusText(fraction: number): string
-	return "+" .. Format.percent(fraction) .. " tips forever"
+local PERK_WORDS: { [string]: string } = {
+	bonus = "tips forever",
+	goldLuck = "gold luck forever",
+	baitSpeed = "faster bait forever",
+}
+
+function PrizeChips.bonusText(fraction: number, perk: string?): string
+	local words = PERK_WORDS[perk or "bonus"] or PERK_WORDS.bonus
+	return "+" .. Format.percent(fraction) .. " " .. words
 end
 local bonusText = PrizeChips.bonusText
+
+-- Tips gold, gold luck a deeper gold, faster bait sky blue, so the three tracks' bonuses read apart.
+function PrizeChips.perkColor(perk: string?): Color3
+	if perk == "goldLuck" then
+		return Theme.colors.goldDark
+	elseif perk == "baitSpeed" then
+		return Theme.colors.sky
+	end
+	return Theme.colors.gold
+end
 
 function PrizeChips._clear(self: any)
 	for _, icon in self._icons do
@@ -215,12 +234,12 @@ function PrizeChips._amountLabel(self: any, chip: Frame, text: string, height: n
 	return label
 end
 
--- The gold pill for a tips-forever bonus, a little shorter than a picture.
-function PrizeChips._bonusPill(self: any, chip: Frame, text: string): TextLabel
+-- The pill for a forever bonus, a little shorter than a picture.
+function PrizeChips._bonusPill(self: any, chip: Frame, text: string, perk: string): TextLabel
 	local props: Props = self._props
 	local pill: TextLabel = Create("TextLabel", {
 		Name = "Bonus",
-		BackgroundColor3 = Theme.colors.gold,
+		BackgroundColor3 = PrizeChips.perkColor(perk),
 		BorderSizePixel = 0,
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, math.floor(props.tile * 0.7)),
@@ -258,7 +277,7 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 				{ kind = "crate", id = id, amount = raw.amount }
 			part = resolved
 		end
-		if part.kind ~= "bonus" or props.showBonus ~= false then
+		if not IndexRewards.isPerk(part.kind) or props.showBonus ~= false then
 			table.insert(parts, part)
 		end
 	end
@@ -273,7 +292,9 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 			local label: TextLabel? = self._chips[index].label
 			if label then
 				local _, _, _, amount = self:_partLook(part, shown)
-				label.Text = if part.kind == "bonus" then bonusText(part.amount) else amount
+				label.Text = if IndexRewards.isPerk(part.kind)
+					then bonusText(part.amount, part.kind)
+					else amount
 			end
 		end
 		return
@@ -299,8 +320,8 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 			}),
 		})
 		local entry: Chip = { frame = chip, label = nil }
-		if part.kind == "bonus" then
-			entry.label = self:_bonusPill(chip, bonusText(part.amount))
+		if IndexRewards.isPerk(part.kind) then
+			entry.label = self:_bonusPill(chip, bonusText(part.amount, part.kind), part.kind)
 		else
 			local asset, glyph, rarity, amount = self:_partLook(part, shown)
 			local icon = ItemIcon.new({

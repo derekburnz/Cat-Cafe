@@ -239,22 +239,24 @@ end
 local DEMO_REFUND: { [string]: number } =
 	{ Common = 10, Rare = 20, Epic = 40, Legendary = 80, Mythical = 150 }
 
--- golden-fish.md section 5b's All Cats page, until the engineer's F54 milestones and prizes land
+-- golden-fish.md section 5b's All Cats page (v0.10: faster bait forever), until the engineer's F54 milestones and
+-- prizes land
 local DEMO_ALL_PRIZES: { [string]: Types.IndexPrize } = {
-	total5 = { fish = 10, spins = 1, bonus = 0.02 },
-	total10 = { fish = 15, crates = { classic_crate = 1 }, bonus = 0.02 },
-	total15 = { fish = 20, spins = 2, bonus = 0.02 },
-	total20 = { fish = 25, crates = { classic_crate = 1 }, bonus = 0.03 },
-	total25 = { fish = 30, spins = 2, bonus = 0.03 },
-	total30 = { fish = 40, crates = { highest = 1 }, bonus = 0.03 },
-	total35 = { fish = 50, spins = 3, bonus = 0.04 },
-	total40 = { fish = 60, crates = { classic_golden_crate = 1 }, bonus = 0.04 },
-	total45 = { fish = 75, spins = 3, bonus = 0.05 },
+	total5 = { fish = 10, spins = 1, baitSpeed = 0.02 },
+	total10 = { fish = 15, crates = { classic_crate = 1 }, baitSpeed = 0.02 },
+	total15 = { fish = 20, spins = 2, baitSpeed = 0.02 },
+	total20 = { fish = 25, crates = { classic_crate = 1 }, baitSpeed = 0.03 },
+	total25 = { fish = 30, spins = 2, crates = { classic_golden_crate = 1 }, baitSpeed = 0.03 },
+	total30 = { fish = 40, crates = { highest = 1 }, baitSpeed = 0.03 },
+	total35 = { fish = 50, spins = 3, baitSpeed = 0.04 },
+	total40 = { fish = 60, crates = { classic_golden_crate = 1 }, baitSpeed = 0.04 },
+	total45 = { fish = 75, spins = 3, baitSpeed = 0.05 },
 	total50 = {
 		fish = 150,
-		crates = { classic_golden_crate = 1 },
+		spins = 10,
+		crates = { classic_golden_crate = 2 },
 		tag = "Cat Master",
-		bonus = 0.10,
+		baitSpeed = 0.10,
 	},
 }
 

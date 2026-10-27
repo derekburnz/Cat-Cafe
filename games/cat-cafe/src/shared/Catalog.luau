@@ -1326,6 +1326,54 @@ for _, prizes in Catalog.indexPrizes do
 end
 table.freeze(Catalog.indexPrizes)
 
+-- Codes (F65, data-model section 11d), keyed by the lowercased code a player types at the Codes Cat. The prize uses
+-- the Index prize shape and pays once per player. `playtest` is for the friends alpha and gets an endsAt or goes
+-- inactive before the experience is public; `launch` switches on that day; `group` waits for the community group
+-- (requiresGroup, Config.GroupId). Potions join playtest and group with F64. Rows can be added without new code.
+Catalog.codes = {
+	playtest = {
+		id = "playtest",
+		active = true,
+		prize = {
+			coins = 5000,
+			fish = 300,
+			spins = 10,
+			crates = { classic_crate = 3, alley_crate = 1, classic_golden_crate = 1 },
+			lures = { tuna = 3, salmon = 2, caviar = 1 },
+		},
+	},
+	launch = {
+		id = "launch",
+		active = false,
+		prize = { coins = 1000, coinSeconds = 600, fish = 25, spins = 2, lures = { tuna = 3 } },
+	},
+	group = {
+		id = "group",
+		active = false,
+		requiresGroup = true,
+		prize = {
+			coins = 2500,
+			coinSeconds = 1800,
+			fish = 100,
+			spins = 5,
+			crates = { classic_crate = 1 },
+			lures = { caviar = 2 },
+		},
+	},
+} :: { [string]: Types.CodeDef }
+for _, code in Catalog.codes do
+	local prize = code.prize
+	if prize.lures ~= nil then
+		table.freeze(prize.lures)
+	end
+	if prize.crates ~= nil then
+		table.freeze(prize.crates)
+	end
+	table.freeze(prize)
+	table.freeze(code)
+end
+table.freeze(Catalog.codes)
+
 function Catalog.getArea(id: string): Types.AreaDef?
 	return Catalog.areasById[id]
 end

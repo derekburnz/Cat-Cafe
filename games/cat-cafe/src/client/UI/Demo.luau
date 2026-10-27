@@ -9,6 +9,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BugReport = require(Shared:WaitForChild("BugReport"))
+local CatLock = require(script.Parent.Components.CatLock)
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
 local DecorPieces = require(script.Parent.Components.DecorPieces)
@@ -403,6 +404,7 @@ function Demo.run(UI: any): () -> ()
 		name = "Mochi", -- a player's name for the cat, as the server sends it after RenameCat
 		caughtAt = now(),
 		spotId = "barista_1",
+		locked = false, -- F62: the server sends the lock as a boolean on every cat
 		level = 2,
 		stars = 3,
 		rating = 1.2,
@@ -684,12 +686,15 @@ function Demo.run(UI: any): () -> ()
 		UI.bait.set(nil)
 		if choice == "tame" then
 			local newUid = uid()
+			local tamed = catById[cat.catId]
+			local rarity = if tamed then tamed.rarity else nil
 			profile.cats[newUid] = {
 				uid = newUid,
 				catId = cat.catId,
 				variant = cat.variant or "base",
 				caughtAt = now(),
 				spotId = nil,
+				locked = CatLock.arrivesLocked(rarity, cat.variant == "gold"),
 			}
 			local isNew = profile.collection[cat.catId] == nil
 			profile.collection[cat.catId] = now()
@@ -996,11 +1001,20 @@ function Demo.run(UI: any): () -> ()
 	end)
 	connections[#connections + 1] = UI.events.sellCat:Connect(function(catUid: string)
 		local instance = profile.cats[catUid]
-		if instance then
+		if instance and instance.locked then
+			UI.toast("That cat is locked. Unlock it to sell it.", "warn") -- the server refuses it too (F62)
+		elseif instance then
 			local def = catById[instance.catId]
 			profile.cats[catUid] = nil
 			profile.money += SELL_VALUE[def.rarity] or 0
 			UI.toast(("Sold %s for $%d"):format(def.name, SELL_VALUE[def.rarity] or 0), "good")
+			push()
+		end
+	end)
+	connections[#connections + 1] = UI.events.lockCat:Connect(function(catUid: string, locked: any)
+		local instance = profile.cats[catUid]
+		if instance then
+			instance.locked = locked == true
 			push()
 		end
 	end)
@@ -1319,6 +1333,7 @@ function Demo.run(UI: any): () -> ()
 					variant = if shiny then "gold" else "base",
 					caughtAt = now(),
 					spotId = nil,
+					locked = CatLock.arrivesLocked(def.rarity, shiny),
 				}
 				local isNew = profile.collection[def.id] == nil
 				profile.collection[def.id] = now()

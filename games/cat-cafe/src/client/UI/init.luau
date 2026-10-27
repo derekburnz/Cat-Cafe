@@ -81,6 +81,7 @@ UI.events = {
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
 	sellCat = Signal.new(), -- (uid)
+	lockCat = Signal.new(), -- (uid, locked)   the Lock row in the cat room: forward as LockCat (F62)
 	renameCat = Signal.new(), -- (uid, name)   Rename in the cat room, trimmed and checked with Shared.CatName: forward as RenameCat (F33)
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	unequipAll = Signal.new(), -- ()   Unequip All in the cat room: every working cat rests; forward as UnequipAll
@@ -487,6 +488,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		sellCat = function(uid: string)
 			UI.events.sellCat:Fire(uid)
+		end,
+		lockCat = function(uid: string, locked: boolean)
+			UI.events.lockCat:Fire(uid, locked)
 		end,
 		renameCat = function(uid: string, name: string)
 			UI.events.renameCat:Fire(uid, name)

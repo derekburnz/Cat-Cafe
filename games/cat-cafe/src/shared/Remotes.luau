@@ -46,6 +46,7 @@ Remotes.ServerToClient = {
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, pawsLeft: number?,
 	-- charmGain: number)  grades up to and including the first Miss; the stray stays after a miss (v0.4)
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
+	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
 }
 
 function Remotes.folder(): Folder

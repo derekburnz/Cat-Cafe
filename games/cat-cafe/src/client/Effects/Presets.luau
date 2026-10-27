@@ -418,4 +418,22 @@ Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
 Presets.rankUp = { within = 120, claimGrace = 2 }
 
+-- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
+-- won slice (LastSlice). It stops inside the server's 4 s SpinCooldownSeconds, so a player's next spin starts from
+-- rest.
+Presets.wheel = {
+	seconds = 3.4, -- turning, easing to a stop
+	turns = 3, -- whole turns before it settles
+	stillTurns = 1, -- with Reduce Motion
+	slices = 6, -- Catalog.spinWheel's six slices
+	landWithin = 0.6, -- of a slice's width around its centre the wheel stops in, so never by an edge
+	tick = 14, -- degrees the pointer is knocked aside as a slice edge passes it
+	tickShare = 0.18, -- of a slice it takes to spring back
+	chaseStep = 0.09, -- seconds between steps of the rim lights chasing round
+	flashes = 3, -- the rim lights blink together when it stops
+	flashSeconds = 0.6,
+	sparkles = 10, -- at the pointer when it stops
+	within = 120, -- studs; a spin farther away just moves the wheel to where it stopped
+}
+
 return Presets

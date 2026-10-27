@@ -5,6 +5,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CafeName = require(ReplicatedStorage.Shared.CafeName)
 local ClockService = require(script.Parent.ClockService)
 local Net = require(script.Parent.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -19,7 +20,7 @@ local infoLine: { [Player]: string } = {} -- the sign's second line: tier name a
 local MOON = "🌙" -- the same night mark as the UI's CafeSigns
 
 local function signText(player: Player, phase: Types.ClockPhase): string
-	local name = player.DisplayName .. "'s Cafe"
+	local name = CafeName.title(player.DisplayName)
 	local line = infoLine[player]
 	if line == nil then
 		return name
@@ -53,7 +54,8 @@ function PlotService.assign(player: Player): WorldBuilder.Plot?
 			owners[plot.index] = player
 			plotOf[player] = plot
 			plot.model:SetAttribute("OwnerUserId", player.UserId)
-			plot.model:SetAttribute("OwnerName", player.DisplayName)
+			-- capped, so the UI's sign (CafeSigns: headshot and "<OwnerName>'s Cafe") fits a long name too
+			plot.model:SetAttribute("OwnerName", CafeName.shown(player.DisplayName))
 			plot.sign.Text = signText(player, ClockService.phase())
 			WorldBuilder.setClosedSign(plot, ClockService.phase() == "night")
 			-- every client hears the shutters roll up and sees the shop open, at the shop front (F38)

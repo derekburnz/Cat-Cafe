@@ -34,13 +34,26 @@ function Economy.tierMultiplier(profile: Types.PlayerProfile): number
 	return if def ~= nil then def.multiplier else 1
 end
 
+-- Placed decor that a placed gold Book piece stands in for (N114): it stays out of the bonus and off the plot.
+function Economy.replacedDecor(profile: Types.PlayerProfile): { [string]: boolean }
+	local replaced: { [string]: boolean } = {}
+	for decorId, placed in profile.decorPlaced do
+		local def = Catalog.getDecor(decorId)
+		if placed and def ~= nil and def.replaces ~= nil and profile.decorOwned[decorId] then
+			replaced[def.replaces] = true
+		end
+	end
+	return replaced
+end
+
 -- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses
 function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	local multiplier = 1 + Config.TableBonus * Economy.level(profile, "tables")
 	multiplier += Config.EspressoBonus * math.max(0, Economy.level(profile, "espresso") - 1)
+	local replaced = Economy.replacedDecor(profile)
 	for decorId, placed in profile.decorPlaced do
 		local def = Catalog.getDecor(decorId)
-		if placed and def ~= nil and profile.decorOwned[decorId] then
+		if placed and def ~= nil and profile.decorOwned[decorId] and not replaced[decorId] then
 			multiplier += def.bonus
 		end
 	end
@@ -196,6 +209,9 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	local def = Catalog.getDecor(decorId)
 	if def == nil then
 		return "Unknown decor"
+	end
+	if def.source == "book" then
+		return "A Book reward, not for sale"
 	end
 	if profile.decorOwned[decorId] then
 		return "Already owned"

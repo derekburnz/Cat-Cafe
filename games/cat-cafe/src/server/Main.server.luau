@@ -6,6 +6,7 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
 local BaitService = require(script.Parent.Services.BaitService)
+local BookRewardService = require(script.Parent.Services.BookRewardService)
 local CafeService = require(script.Parent.Services.CafeService)
 local CatService = require(script.Parent.Services.CatService)
 local ClockService = require(script.Parent.Services.ClockService)
@@ -37,6 +38,7 @@ DealerService.start()
 RichTipService.start()
 ShoveService.start()
 NameService.start()
+BookRewardService.start()
 Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 

@@ -12,6 +12,7 @@
 --   D:Invoke("shove", "Player1", "Player2", "loose")  -- a real shove with every check, the roll forced
 --   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first
 --   D:Invoke("renameCat", nil, "Mochi")              -- RenameCat on your first working cat (or a uid as 4th arg)
+--   D:Invoke("fillBook", nil, "alley", nil, true)     -- every Alleyway cat in your Book, gold too (F48)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -191,6 +192,31 @@ function Debug.giveCat(
 		if rescued then "rescue" else nil
 	)
 	return instance
+end
+
+-- Fills the Book page of `areaId` (F48): the first `count` of its cats (all of them when nil) go into the
+-- collection, and into the gold collection too when `gold` is set, without giving any cats. Returns the page's count.
+function Debug.fillBook(
+	player: (Player | number | string)?,
+	areaId: string,
+	count: number?,
+	gold: boolean?
+): number
+	local p = resolve(player)
+	local profile = profileOf(p)
+	assert(Catalog.getArea(areaId) ~= nil, "unknown area " .. areaId)
+	local added = 0
+	for _, def in Catalog.cats do
+		if def.area == areaId and (count == nil or added < count) then
+			added += 1
+			profile.collection[def.id] = profile.collection[def.id] or os.time()
+			if gold then
+				profile.goldCollection[def.id] = profile.goldCollection[def.id] or os.time()
+			end
+		end
+	end
+	CafeService.sync(p)
+	return added
 end
 
 function Debug.setUpgrade(player: (Player | number | string)?, upgradeId: string, level: number)

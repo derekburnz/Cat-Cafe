@@ -12,7 +12,9 @@ local ProfileSchema = {}
 
 -- Version 2 (2026-10-26) added level, xp and charm per cat. Version 3 (2026-10-26, design v0.3) adds the tier,
 -- role slots, bait, the dealer, shinies, cat names and how each cat was found; cafe_level and park_access go.
-ProfileSchema.VERSION = 4
+-- Version 4 (2026-10-27) renames shiny to gold. Version 5 (F48) adds bookRewards and stats.tipJarClaims: an older
+-- server would drop them, and a player hopping servers could claim every Book reward again (reviewer S60).
+ProfileSchema.VERSION = 5
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -90,6 +92,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		},
 		collection = { tabby = now },
 		goldCollection = {},
+		bookRewards = {},
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = { music = true, sfx = true },
@@ -424,6 +427,28 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	for _, instance in profile.cats do
 		if instance.variant == "gold" and profile.goldCollection[instance.catId] == nil then
 			profile.goldCollection[instance.catId] = instance.caughtAt
+		end
+	end
+
+	-- Book reward claims (F48); saves before version 5 have none and can claim every milestone they passed.
+	if type(raw.bookRewards) == "table" then
+		for areaId, claims in raw.bookRewards do
+			local prizes = if type(areaId) == "string" then Catalog.bookRewards[areaId] else nil
+			if prizes ~= nil and type(claims) == "table" then
+				local kept: { [string]: boolean } = {}
+				for milestoneId, claimed in claims do
+					if
+						type(milestoneId) == "string"
+						and claimed == true
+						and prizes[milestoneId] ~= nil
+					then
+						kept[milestoneId] = true
+					end
+				end
+				if next(kept) ~= nil then
+					profile.bookRewards[areaId] = kept
+				end
+			end
 		end
 	end
 

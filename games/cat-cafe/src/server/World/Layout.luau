@@ -82,6 +82,15 @@ local halfD = W.PlotDepth / 2 -- 14
 local yardZ1, yardZ2 = halfD + 1, halfD + 1 + W.YardDepth -- 15, 25
 local yardMid = (yardZ1 + yardZ2) / 2
 
+-- Book decor spots (F48): each area's piece and its gold piece share one, since the gold one stands in for it.
+local BOOK_SPOTS: { [string]: Point } = {
+	alley = { x = 13, y = 3.8, z = halfD - 0.2 }, -- the print, on the back wall right of the counter, above the wall rail
+	park = { x = halfW - 1.2, y = 0, z = -2, rotY = 90 }, -- the bench, against the right wall facing the tables
+	neighbourhood = { x = -halfW + 1.2, y = 0, z = -3.5 }, -- the planter, left wall between the window and the tank
+	woods = { x = -halfW + 1.2, y = 0, z = halfD - 1.2 }, -- the lamp, in the back left corner
+	sewer = { x = halfW - 1.4, y = 0, z = halfD - 1.4 }, -- the fountain, in the back right corner
+}
+
 Layout.plot = {
 	door = { x = 0, y = 0, z = -halfD } :: Point,
 	entry = { x = 0, y = 0, z = -halfD - 1 - W.FrontGardenDepth - 1 } :: Point, -- customer start, on the sidewalk
@@ -121,6 +130,16 @@ Layout.plot = {
 		rug = { x = 0, y = 0, z = -2 },
 		neon_sign = { x = 0, y = 5.5, z = halfD - 0.7 },
 		fish_tank = { x = -halfW + 2, y = 0, z = 0, rotY = 90 },
+		book_alley = BOOK_SPOTS.alley,
+		book_alley_gold = BOOK_SPOTS.alley,
+		book_park = BOOK_SPOTS.park,
+		book_park_gold = BOOK_SPOTS.park,
+		book_neighbourhood = BOOK_SPOTS.neighbourhood,
+		book_neighbourhood_gold = BOOK_SPOTS.neighbourhood,
+		book_woods = BOOK_SPOTS.woods,
+		book_woods_gold = BOOK_SPOTS.woods,
+		book_sewer = BOOK_SPOTS.sewer,
+		book_sewer_gold = BOOK_SPOTS.sewer,
 	} :: { [string]: Point },
 
 	tables = {

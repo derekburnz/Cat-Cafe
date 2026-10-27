@@ -723,6 +723,8 @@ function UIController.start()
 		spots = Catalog.spots,
 		tiers = Catalog.tiers,
 		areas = Catalog.areas,
+		bookMilestones = Catalog.bookMilestones,
+		bookRewards = Catalog.bookRewards,
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

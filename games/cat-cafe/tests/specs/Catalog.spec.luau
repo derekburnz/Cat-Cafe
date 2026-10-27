@@ -74,13 +74,16 @@ return function()
 			expect(count).to.equal(#Catalog.cats)
 		end)
 
-		it("a gold coat is its own model, the base name plus _Gold (v0.5 F42, renamed from shiny 2026-10-27)", function()
-			expect(Catalog.goldModelName("tabby")).to.equal("CatCafe_Cat_Tabby_Gold")
-			expect(Catalog.goldModelName("maine_coon")).to.equal("CatCafe_Cat_MaineCoon_Gold")
-			for _, def in Catalog.cats do
-				expect(Catalog.catsByModelName[Catalog.goldModelName(def.id)]).never.to.be.ok()
+		it(
+			"a gold coat is its own model, the base name plus _Gold (v0.5 F42, renamed from shiny 2026-10-27)",
+			function()
+				expect(Catalog.goldModelName("tabby")).to.equal("CatCafe_Cat_Tabby_Gold")
+				expect(Catalog.goldModelName("maine_coon")).to.equal("CatCafe_Cat_MaineCoon_Gold")
+				for _, def in Catalog.cats do
+					expect(Catalog.catsByModelName[Catalog.goldModelName(def.id)]).never.to.be.ok()
+				end
 			end
-		end)
+		)
 	end)
 
 	describe("rarities (section 2)", function()
@@ -441,7 +444,9 @@ return function()
 			for role in pairs(Catalog.roleOutfits) do
 				expect(ROLE_SET[role]).to.equal(true)
 			end
-			expect(Catalog.accessoryModelName("BaristaCap")).to.equal("CatCafe_Accessory_BaristaCap")
+			expect(Catalog.accessoryModelName("BaristaCap")).to.equal(
+				"CatCafe_Accessory_BaristaCap"
+			)
 		end)
 	end)
 
@@ -678,8 +683,14 @@ return function()
 				},
 			}
 
-		it("has exactly the four decor items with their tiers", function()
-			expect(#Catalog.decor).to.equal(4)
+		it("has exactly the four shop decor items with their tiers", function()
+			local shop = 0
+			for _, def in ipairs(Catalog.decor) do
+				if def.source == nil or def.source == "shop" then
+					shop += 1
+				end
+			end
+			expect(shop).to.equal(4)
 			for id, row in pairs(expected) do
 				local def = Catalog.getDecor(id)
 				expect(def).to.be.ok()
@@ -825,22 +836,25 @@ return function()
 			end
 		end)
 
-		it("dealer slot weights are the one v0.5 row of section 8b and name only dealer foods (F43)", function()
-			expect(Catalog.dealerSlotWeights :: any).to.deepEqual({
-				sardines = 50,
-				caviar = 33,
-				moon_milk = 14,
-				star_treat = 3,
-			})
-			local total = 0
-			for id, weight in pairs(Catalog.dealerSlotWeights) do
-				local def = Catalog.getLure(id)
-				assert(def, id)
-				expect(def.source).to.equal("dealer")
-				total += weight
+		it(
+			"dealer slot weights are the one v0.5 row of section 8b and name only dealer foods (F43)",
+			function()
+				expect(Catalog.dealerSlotWeights :: any).to.deepEqual({
+					sardines = 50,
+					caviar = 33,
+					moon_milk = 14,
+					star_treat = 3,
+				})
+				local total = 0
+				for id, weight in pairs(Catalog.dealerSlotWeights) do
+					local def = Catalog.getLure(id)
+					assert(def, id)
+					expect(def.source).to.equal("dealer")
+					total += weight
+				end
+				expect(total).to.be.near(100, 1e-9)
 			end
-			expect(total).to.be.near(100, 1e-9)
-		end)
+		)
 	end)
 
 	describe("areas (section 9)", function()

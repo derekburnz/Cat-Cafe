@@ -104,6 +104,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
+		bookRewards = profile.bookRewards,
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
@@ -230,9 +231,11 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 end
 
 local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
+	local replaced = Economy.replacedDecor(profile) -- a placed gold Book piece takes its normal piece's spot
 	for _, def in Catalog.decor do
 		local shouldShow = profile.decorOwned[def.id] == true
 			and profile.decorPlaced[def.id] == true
+			and not replaced[def.id]
 		local existing = plot.decor:FindFirstChild(def.id)
 		if shouldShow then
 			local anchor: BasePart? = plot.decorAnchors[def.id]

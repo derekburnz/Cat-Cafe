@@ -1006,6 +1006,118 @@ local builders: { [string]: () -> Model } = {
 	end,
 }
 
+-- Book decor (F48) until the asset thread models it: each piece is a rough stand-in at its final footprint, and
+-- the gold piece is the same shape in gold. The print hangs from its base like the neon sign, face toward -Z.
+local BOOK_GOLD = Color3.fromRGB(232, 184, 64)
+local BOOK_DECOR: { [string]: { PartSpec } } = {
+	MuralPrint = {
+		{
+			name = "Frame",
+			size = Vector3.new(3.6, 2.6, 0.2),
+			offset = Vector3.new(0, 1.3, 0),
+			color = WOOD,
+		},
+		{
+			name = "Print",
+			size = Vector3.new(3.2, 2.2, 0.05),
+			offset = Vector3.new(0, 1.3, -0.12),
+			color = Color3.fromRGB(120, 90, 160),
+		},
+	},
+	ParkBench = {
+		{
+			name = "Seat",
+			size = Vector3.new(4, 0.3, 1.2),
+			offset = Vector3.new(0, 1.1, -0.1),
+			color = WOOD,
+		},
+		{
+			name = "Back",
+			size = Vector3.new(4, 1, 0.2),
+			offset = Vector3.new(0, 1.9, 0.6),
+			color = WOOD,
+		},
+		{
+			name = "Legs",
+			size = Vector3.new(3.6, 0.95, 1),
+			offset = Vector3.new(0, 0.475, 0),
+			color = DARK,
+		},
+	},
+	MailboxPlanter = {
+		{
+			name = "Post",
+			size = Vector3.new(0.3, 1.6, 0.3),
+			offset = Vector3.new(0, 0.8, 0),
+			color = WOOD,
+		},
+		{
+			name = "Box",
+			size = Vector3.new(1.2, 0.9, 1.4),
+			offset = Vector3.new(0, 2.05, 0),
+			color = MINT,
+		},
+		{
+			name = "Flowers",
+			size = Vector3.new(1, 0.5, 1.2),
+			offset = Vector3.new(0, 2.75, 0),
+			color = NEON_PINK,
+			material = Enum.Material.Grass,
+		},
+	},
+	MushroomLamp = {
+		{
+			name = "Stem",
+			size = Vector3.new(0.6, 2.2, 0.6),
+			offset = Vector3.new(0, 1.1, 0),
+			color = CREAM,
+		},
+		{
+			name = "Cap",
+			size = Vector3.new(1.6, 1, 1.6),
+			offset = Vector3.new(0, 2.7, 0),
+			color = Color3.fromRGB(214, 80, 70),
+			material = Enum.Material.Neon,
+		},
+	},
+	PipeFountain = {
+		{
+			name = "Basin",
+			size = Vector3.new(2.2, 0.8, 2.2),
+			offset = Vector3.new(0, 0.4, 0),
+			color = METAL,
+		},
+		{
+			name = "Water",
+			size = Vector3.new(1.9, 0.1, 1.9),
+			offset = Vector3.new(0, 0.75, 0),
+			color = GLASS,
+			transparency = 0.3,
+		},
+		{
+			name = "Pipe",
+			size = Vector3.new(0.4, 1.6, 0.4),
+			offset = Vector3.new(0, 1.6, 0),
+			color = METAL,
+		},
+	},
+}
+for piece, parts in BOOK_DECOR do
+	local name = "CatCafe_Decor_" .. piece
+	builders[name] = function()
+		return simple(name, parts)
+	end
+	builders[name .. "_Gold"] = function()
+		local gold = table.clone(parts)
+		for i, spec in gold do
+			gold[i] = table.clone(spec)
+			gold[i].color = BOOK_GOLD
+			gold[i].material = Enum.Material.Metal
+		end
+		return simple(name .. "_Gold", gold)
+	end
+end
+
 -- Every asset name the game can ask for.
 function Placeholders.names(): { string }
 	local names: { string } = {}

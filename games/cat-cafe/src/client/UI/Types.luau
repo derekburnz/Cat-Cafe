@@ -120,8 +120,6 @@ export type CatchInfo = {
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
 	shiny: boolean?, -- v0.3: the stray's Shiny attribute (rescued cats hide it until freed)
-	patience: number?, -- v0.4: the stray's Patience attribute, its full paw count; nil on a v0.3 server
-	paws: number?, -- v0.4: paws this player has left on it (Paws_<UserId>, else Patience)
 	-- v0.5: the stray's FleeingUntil (server time). Until then it is sprinting off after a miss and nobody can
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,

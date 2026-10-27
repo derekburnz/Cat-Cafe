@@ -209,7 +209,7 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	return nil
 end
 
--- Different cats ever caught: entries in the collection (a shiny is not a second entry).
+-- Different cats ever caught: entries in the collection (a gold cat is not a second entry).
 function Economy.distinctCats(profile: Types.PlayerProfile): number
 	local n = 0
 	for _ in profile.collection do

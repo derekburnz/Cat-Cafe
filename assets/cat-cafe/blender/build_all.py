@@ -36,6 +36,7 @@ import cats  # noqa: E402
 import common  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
+import gold  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
 import npc  # noqa: E402
@@ -44,12 +45,11 @@ import park  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
 import rbx_export  # noqa: E402
-import shiny  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-MODULES = [cats, shiny, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway]
+MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -138,7 +138,7 @@ STUDIO_NOTES = {
     **{f"CatCafe_Plot_Tier{n}": "Cumulative: place every tier up to the cafe's tier." for n in range(1, 6)},
     "CatCafe_Plot_ClosedSign": "F44: owned cafes at night only (Clock.Phase), at the Plot pivot. Hangs in the front door "
                                "above head height; nothing collides. The child Model _Moon_Bulb glows at night.",
-    **{f"CatCafe_Cat_{n}_Shiny": f"F42: clone this instead of CatCafe_Cat_{n} when the cat's variant is shiny. Same "
+    **{f"CatCafe_Cat_{n}_Gold": f"F42: clone this instead of CatCafe_Cat_{n} when the cat is gold. Same "
                                  "parts, joints, attachments and poses; only the coat colours differ (style guide 2)."
        for n in cats.ROSTER},
 }
@@ -147,7 +147,7 @@ STUDIO_NOTES = {
 def cat_rbx_extras(name):
     """A cat's Part model carries its Scale and one Attachment per role outfit piece (Outfit_<Piece>) at that piece's
     upright slot, times the scale, in the Body or Head part, so the game needs no manifest at runtime."""
-    spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Shiny")]
+    spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Gold")]
     s = spec.get("scale", 1.0)
     origin = {"Body": Vector((0, 0, 0)), "Head": Vector(cats.NECK) * s}
     pieces = {p for outfit in accessories.ROLE_OUTFITS.values() for p in outfit}
@@ -231,8 +231,12 @@ def main():
             entry["sit_point"] = list(furniture.SIT_POINTS[name])
             entry["sit_point_roblox"] = common.to_roblox(furniture.SIT_POINTS[name])
         if name.startswith("CatCafe_Cat_"):
-            spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Shiny")]
+            spec = cats.ROSTER[name[len("CatCafe_Cat_"):].removesuffix("_Gold")]
             entry["rarity"] = spec["rarity"]
+            look = gold.gold_spec(name[len("CatCafe_Cat_"):-len("_Gold")]) if name.endswith("_Gold") else spec
+            entry["pattern"] = look["pattern"]          # colors by field, as swatch and hex, for any future cat model
+            entry["coat"] = {k: {"swatch": sw, "hex": palette.SWATCHES[palette.idx(sw)][1]}
+                             for k, sw in cats.coat(look).items()}
             s_ = spec.get("scale", 1.0)
             entry["scale"] = s_                     # scale accessories by this too
             joints = {"Head": [v * s_ for v in cats.NECK], "Tail": [v * s_ for v in cats.TAIL_ROOT]}
@@ -274,7 +278,7 @@ def main():
         if rbx_path:
             entry["rbx_model"] = os.path.relpath(rbx_path, ROOT)
             entry["rbx_parts"] = rbx_parts
-        if not args.no_export and not name.endswith("_Shiny"):           # shiny coats are Part models only
+        if not args.no_export and not name.endswith("_Gold"):            # gold cats are Part models only
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:

@@ -77,7 +77,7 @@ def sheet(paths, out_path, cols=4, factor=2, bg=(0.96, 0.92, 0.87, 1.0)):
 def build_sheets(docs_dir, manifest):
     root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
     groups = {
-        "sheet_cats": [e for e in manifest if e["category"] == "Cat" and not e["name"].endswith("_Shiny")],
+        "sheet_cats": [e for e in manifest if e["category"] == "Cat" and not e["name"].endswith("_Gold")],
         "sheet_cafe": [e for e in manifest if e["category"] in ("Furniture", "Decor", "NPC")],
         "sheet_outdoors": [e for e in manifest if e["category"] in ("Alley", "Park", "Street", "Neighbourhood", "Woods",
                                                                    "Sewer")],
@@ -92,13 +92,13 @@ def build_sheets(docs_dir, manifest):
     if extras:
         sheet(extras, os.path.join(docs_dir, "sheet_poses.png"), cols=3)
     made = []
-    shiny = {e["name"]: e for e in manifest if e["name"].endswith("_Shiny") and "preview" in e}
-    pairs = []                                            # each cat beside its shiny coat
+    gold = {e["name"]: e for e in manifest if e["name"].endswith("_Gold") and "preview" in e}
+    pairs = []                                            # each cat beside its gold version
     for e in groups["sheet_cats"]:
-        if e["name"] + "_Shiny" in shiny and "preview" in e:
-            pairs += [os.path.join(root, e["preview"]), os.path.join(root, shiny[e["name"] + "_Shiny"]["preview"])]
+        if e["name"] + "_Gold" in gold and "preview" in e:
+            pairs += [os.path.join(root, e["preview"]), os.path.join(root, gold[e["name"] + "_Gold"]["preview"])]
     if pairs:
-        made.append(sheet(pairs, os.path.join(docs_dir, "sheet_shiny.png"), cols=8))
+        made.append(sheet(pairs, os.path.join(docs_dir, "sheet_gold.png"), cols=8))
     for name, entries in groups.items():
         paths = [os.path.join(root, e["preview"]) for e in entries if "preview" in e]
         if paths:

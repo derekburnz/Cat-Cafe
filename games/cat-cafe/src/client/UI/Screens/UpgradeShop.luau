@@ -142,6 +142,8 @@ function UpgradeShop.new(
 
 	local panel = Panel.new({
 		name = "Upgrades",
+		color = Theme.colors.red,
+		icon = Theme.icons.upgrades,
 		title = "Upgrades",
 		subtitle = "Cafe Lv 1",
 		size = UDim2.fromScale(1, 1),

@@ -8,6 +8,7 @@
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoom = require(script.Parent.CatRoom)
+local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -136,6 +137,8 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 
 	local panel = Panel.new({
 		name = "Collection",
+		color = Theme.colors.sky,
+		icon = Theme.icons.cats,
 		title = "Cat collection",
 		subtitle = "0 / 0 found",
 		size = UDim2.fromScale(1, 1),
@@ -561,7 +564,7 @@ function CatCollection._buildBook(self: any)
 		})
 		local shiny = pill(
 			cell,
-			"Shiny",
+			"Gold",
 			Theme.colors.gold,
 			Theme.colors.goldText,
 			UDim2.new(1, -4, 0, 4),
@@ -657,7 +660,7 @@ function CatCollection._renderBook(
 		end
 	end
 
-	local shinies: { [string]: number } = state.shinyCollection or {}
+	local shinies: { [string]: number } = CatVariant.collection(state)
 	for catId, cell in self._cells do
 		local def: Types.CatDef = cell.def
 		local inArea = (def.area or FALLBACK_AREA) == open

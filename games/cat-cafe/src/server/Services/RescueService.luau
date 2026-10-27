@@ -3,7 +3,7 @@
 -- RescueBegin locks the trap to one player and sends the challenge; RescuePress presses carry no time, the server
 -- stamps them on arrival and takes off half the player's ping; enough hits free the cat into the player's arms, out
 -- of paws, out of time, walking away, Give up, dying or leaving ends the attempt and the cat stays stuck. A failed
--- attempt never loses the cat. The cat's charm and shiny roll stay here until it is free (reviewer N30).
+-- attempt never loses the cat. The cat's charm and gold roll stay here until it is free (reviewer N30).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -39,7 +39,7 @@ type Stuck = {
 	trap: string, -- TrapType: "trash_bin", "garbage_bag", "tree", "trashcan" or a provisional trap
 	def: Types.CatDef,
 	charm: number, -- rolled at night start, kept here until the rescue succeeds (N30)
-	variant: string, -- "base" or "shiny", likewise hidden until then
+	variant: string, -- "base" or "gold", likewise hidden until then
 	model: Model,
 	spot: BasePart,
 	lockedBy: number, -- the player whose attempt is running, else 0
@@ -127,7 +127,7 @@ local function spawnStuck(
 	local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart") :: BasePart
 	local trap = spot:GetAttribute("TrapType")
 	local trapType = if type(trap) == "string" then trap else "trash_bin"
-	-- The stray attributes (section 13) minus StrayId, Charm, Stars and Shiny, plus Rescue, RescueSpotId and
+	-- The stray attributes (section 13) minus StrayId, Charm, Stars and Gold, plus Rescue, RescueSpotId and
 	-- TrapType for the UI and the sounds.
 	model:SetAttribute("Rescue", true)
 	model:SetAttribute("RescueSpotId", spotId)
@@ -182,13 +182,13 @@ local function spawnStuck(
 	return entry
 end
 
--- Rolls the cat, its charm and its shiny chance now, at night start, from the area's rescue odds.
+-- Rolls the cat, its charm and its gold chance now, at night start, from the area's rescue odds.
 local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePart): Stuck
 	local rarity: Types.Rarity =
 		Catching.pickRarity(Catching.rescueOdds(areaDef.odds), rng:NextNumber())
 	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
 	local charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
-	local variant = if rng:NextNumber() < Config.ShinyChanceRescue then "shiny" else "base"
+	local variant = if rng:NextNumber() < Config.GoldChanceRescue then "gold" else "base"
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end
 
@@ -528,8 +528,8 @@ function RescueService.stuckCount(): number
 end
 
 -- Studio-only test hook: puts a stuck cat at a trap (the first trap of the alley when none is given), replacing
--- any cat already there. `shiny` forces the hidden roll. Returns the rescueSpotId.
-function RescueService.debugSpawnStuck(catId: string, spotId: string?, shiny: boolean?): string
+-- any cat already there. `gold` forces the hidden roll. Returns the rescueSpotId.
+function RescueService.debugSpawnStuck(catId: string, spotId: string?, gold: boolean?): string
 	assert(RunService:IsStudio(), "debugSpawnStuck is Studio only")
 	local def = Catalog.getCat(catId)
 	assert(def ~= nil, "unknown cat")
@@ -548,7 +548,7 @@ function RescueService.debugSpawnStuck(catId: string, spotId: string?, shiny: bo
 				spot,
 				def :: Types.CatDef,
 				charm,
-				if shiny then "shiny" else "base"
+				if gold then "gold" else "base"
 			)
 			return wanted
 		end

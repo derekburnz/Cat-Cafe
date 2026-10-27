@@ -80,4 +80,63 @@ return function()
 			expect(roles.waiter.working).to.equal(0)
 		end)
 	end)
+
+	-- QA (UI PR #173): the rows against Catalog.spots at every tier, empty and full.
+	describe("QA edges", function()
+		-- One row at `tier` with no cats: slots in tier order, locked above the tier, counts and summary agree.
+		local function checkRow(row: any, tier: number, seen: { [string]: boolean })
+			local soonest: number? = nil
+			for index, slot in row.slots do
+				expect(seen[slot.spotId]).never.to.be.ok()
+				seen[slot.spotId] = true
+				if index > 1 then
+					expect(slot.tier >= row.slots[index - 1].tier).to.equal(true)
+				end
+				local locked = slot.tier > tier
+				expect(slot.kind).to.equal(if locked then "locked" else "open")
+				if locked and (soonest == nil or slot.tier < soonest) then
+					soonest = slot.tier
+				end
+			end
+			expect(row.working + row.open + row.locked).to.equal(#row.slots)
+			expect(row.nextTier).to.equal(soonest)
+			expect(row.summary ~= "").to.equal(true)
+			if row.open == 0 and soonest ~= nil then
+				expect(row.summary).to.equal(("Opens at Tier %d"):format(soonest))
+			end
+		end
+
+		it("every tier: each spot once, in tier order, counts and summaries agree", function()
+			for tier = 1, Catalog.maxTier do
+				local seen: { [string]: boolean } = {}
+				for _, row in StaffSlots.rows(Catalog.spots, tier, {}) do
+					checkRow(row, tier, seen)
+				end
+				for _, spot in Catalog.spots do
+					expect(seen[spot.id]).to.equal(true)
+				end
+			end
+		end)
+
+		it("a cat on every spot at the top tier: All N working, nothing next", function()
+			local cats = {}
+			for _, spot in Catalog.spots do
+				cats["cat_" .. spot.id] = { catId = "tabby", spotId = spot.id }
+			end
+			for _, row in StaffSlots.rows(Catalog.spots, Catalog.maxTier, cats) do
+				expect(row.summary).to.equal(("All %d working"):format(#row.slots))
+				for _, slot in row.slots do
+					expect(slot.catUid).to.equal("cat_" .. slot.spotId)
+				end
+			end
+		end)
+
+		it("initial keeps a whole emoji or digit and upper-cases ASCII only", function()
+			expect(StaffSlots.initial("\u{1F431}Mochi")).to.equal("\u{1F431}")
+			expect(StaffSlots.initial("\u{1F44D}\u{1F3FD}")).to.equal("\u{1F44D}")
+			expect(StaffSlots.initial("7up")).to.equal("7")
+			expect(StaffSlots.initial("\u{E9}lan")).to.equal("\u{E9}")
+			expect(StaffSlots.initial("z")).to.equal("Z")
+		end)
+	end)
 end

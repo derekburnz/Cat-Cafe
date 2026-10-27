@@ -24,6 +24,14 @@ Presets.palette = {
 	neonPink = Color3.fromRGB(255, 107, 129), -- 53 neon_pink
 	sparkle = Color3.fromRGB(255, 244, 176), -- 54 sparkle
 	aurora = Color3.fromRGB(142, 124, 240), -- 58 aurora_violet
+	shirtBlue = Color3.fromRGB(60, 125, 217), -- 35 shirt_blue
+	shirtRed = Color3.fromRGB(217, 72, 59), -- 36 shirt_red
+	signTeal = Color3.fromRGB(31, 165, 143), -- 51 sign_teal
+	galaxyBlue = Color3.fromRGB(59, 76, 140), -- 55 galaxy_blue
+	goldLight = Color3.fromRGB(251, 228, 154), -- 61 gold_light
+	goldDark = Color3.fromRGB(201, 143, 42), -- 63 gold_dark (62 gold_mid is fur_golden, `golden`)
+	furRose = Color3.fromRGB(242, 191, 203), -- 69 fur_rose
+	pastelSky = Color3.fromRGB(168, 216, 240), -- 94 pastel_sky
 }
 
 -- Rarity swatches 20 to 23 and 56, the same hex values as Catalog.rarities.
@@ -58,6 +66,7 @@ export type Budget = {
 	confetti: number, -- pieces in one confetti burst
 	napLabels: number, -- napping cats that show floating z's
 	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
+	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -79,6 +88,7 @@ Presets.budget = {
 		confetti = 14,
 		napLabels = 4,
 		rushLines = 2,
+		signatureCats = 3,
 	},
 	high = {
 		animatedCats = 16,
@@ -95,6 +105,7 @@ Presets.budget = {
 		confetti = 28,
 		napLabels = 10,
 		rushLines = 3,
+		signatureCats = 6,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -111,6 +122,7 @@ Presets.budget = {
 		confetti = 8,
 		napLabels = 2,
 		rushLines = 1,
+		signatureCats = 1,
 	},
 } :: { [string]: Budget }
 
@@ -266,6 +278,21 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -120, 120 },
 	},
+	-- A slow fall of sparkles from the top of a Mythical's beam or a jackpot wheel.
+	shower = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite }, -- tinted when the burst is made
+		size = { 0.5, 0 },
+		transparency = { 0, 0.6 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 1, 3 },
+		spread = 180,
+		rate = 0,
+		acceleration = Vector3.new(0, -2.5, 0),
+		drag = 1,
+		lightEmission = 0.6,
+		rotSpeed = { -90, 90 },
+	},
 	-- A soft violet haze rolling over an area gate as it closes for the night (F66).
 	duskHaze = {
 		texture = Presets.textures.smoke,
@@ -279,6 +306,85 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, 0.6, 0),
 		drag = 1.5,
 	},
+	-- Signature effects (Presets.signature): one steady emitter on a Legendary or Mythical themed cat, at Rate 2 or
+	-- less, coloured per cat when it is made. Glints twinkle on the fur or a prop, `sigRise` drifts up (stars,
+	-- sprinkles, sparks), `sigFall` flutters down (petals, leaves), `sigHalo` is a soft glow round the cat and
+	-- `sigWhoosh` puffs behind a cat on the move. The sparkle sprite stands in for petals and leaves until our own
+	-- sprites are uploaded.
+	sigGlint = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.25, 0 },
+		transparency = { 0, 1 },
+		lifetime = { 0.5, 0.9 },
+		speed = { 0, 0.3 },
+		spread = 180,
+		rate = 1.5,
+		lightEmission = 0.8,
+		rotSpeed = { -60, 60 },
+	},
+	sigRise = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle },
+		size = { 0.24, 0.06 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1.4, 2.2 },
+		speed = { 0.4, 0.9 },
+		spread = 30,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.5, 0),
+		drag = 0.4,
+		lightEmission = 0.7,
+		rotSpeed = { -45, 45 },
+	},
+	sigFall = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.furRose },
+		size = { 0.32, 0.22 },
+		transparency = { 0, 1 },
+		lifetime = { 1.4, 2 },
+		speed = { 0.2, 0.6 },
+		spread = 90,
+		rate = 1,
+		acceleration = Vector3.new(0.3, -0.35, 0), -- a slow drift down that fades before it reaches the floor
+		drag = 0.8,
+		rotSpeed = { -120, 120 },
+	},
+	sigHalo = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.galaxyBlue },
+		size = { 1.2, 1.8 },
+		transparency = { 0.75, 1 },
+		lifetime = { 1.6, 2.4 },
+		speed = { 0, 0.2 },
+		spread = 180,
+		rate = 1.5,
+		drag = 1,
+		lightEmission = 1,
+	},
+	sigWhoosh = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.offwhite },
+		size = { 0.5, 1.2 },
+		transparency = { 0.6, 1 },
+		lifetime = { 0.4, 0.6 },
+		speed = { 0, 0.2 },
+		spread = 20,
+		rate = 2,
+		drag = 2,
+	},
+	-- Motes rising off the Codes Cat's walk-in circle (F65), from the whole circle.
+	codesMotes = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.mint, Presets.palette.sparkle },
+		size = { 0.4, 0 },
+		transparency = { 0.1, 1 },
+		lifetime = { 1.2, 1.8 },
+		speed = { 0.6, 1.2 },
+		spread = 8,
+		rate = 2,
+		lightEmission = 0.8,
+	},
 } :: { [string]: EmitterPreset }
 
 -- Burst sizes before burstScale. A catch sparkle grows with rarity and stays under 30 (skill section 6).
@@ -289,6 +395,7 @@ Presets.bursts = {
 	gateSparkle = 24,
 	purrfect = 28,
 	duskHaze = 4, -- at dusk, at each of the areas.points places along an area gate
+	shower = 8, -- each of a Mythical catch's or a jackpot spin's showers
 }
 
 -- A gold coat seen for the first time (a gold cat caught or rescued, F42): this many sparkles from the gold
@@ -328,6 +435,43 @@ Presets.confetti = {
 Presets.ring = {
 	diameter = 9, -- studs at the end of the Purrfect and gate ring
 	seconds = 0.5,
+}
+
+-- A beam of light that shoots up from a spot and fades: a Legendary or Mythical catch, your own rank up. One
+-- flash; skipped with Reduce Motion like the ring.
+Presets.beam = { grow = 0.25, holdShare = 0.4 } -- of its seconds: rising, then held before it fades
+
+-- Everyday moments (Derek 2026-10-27 20:13: effects "for basic stuff in game like catching or clicking upgrade or
+-- unlocking new tiers or landing on a good item on the spin the wheel"). A catch pops in the rarity's colour: a
+-- ring under the cat as wide as `ring`, confetti from Epic up (`confetti`, a share of the budget's confetti), a beam
+-- from Legendary up and for a Mythical a second, wider ring and three slow sparkle showers from the top of the beam.
+Presets.catchPop = {
+	ring = { Common = 4, Rare = 5, Epic = 7, Legendary = 9, Mythical = 11 } :: { [string]: number },
+	ringSeconds = 0.5,
+	confetti = { Epic = 0.4, Legendary = 0.6, Mythical = 0.9 } :: { [string]: number },
+	beams = { Legendary = true, Mythical = true } :: { [string]: boolean },
+	beam = { width = 1.4, height = 16, seconds = 1.3 },
+	echo = { after = 0.16, scale = 1.4, seconds = 0.7 }, -- the Mythical's second ring
+	shower = { bursts = 3, after = 0.3, every = 0.25, height = 9 },
+}
+
+-- Something you bought appears at your cafe (a table set, the espresso machine, the bait bowl, decor): a sparkle
+-- above it, a mint ring at its foot as wide as it plus `ringPad` (at most `ringMost`), a puff of dust and a few
+-- confetti. A purchase with nothing new to show (the net, a food) gives a sparkle swirl at your feet instead. A
+-- piece counts when it appeared up to `before` seconds before the purchase showed or up to `after` seconds after.
+Presets.purchase = {
+	before = 1.5,
+	after = 1,
+	within = 120, -- studs from the player
+	sparkle = 14, -- gateSparkle particles above the piece
+	dust = 6,
+	ringPad = 3,
+	ringMost = 10,
+	ringSeconds = 0.55,
+	confetti = 0.3, -- of the budget's confetti
+	swirlRing = 5,
+	swirl = { 12, 8 }, -- gateSparkle particles at the feet, `swirlGap` seconds apart
+	swirlGap = 0.3,
 }
 
 -- Cat motion. Angles in degrees, distances in studs, times in seconds.
@@ -585,7 +729,21 @@ Presets.gate = { seconds = 1.4, playWithin = 70 }
 
 Presets.shutter = { seconds = 0.9, signSeconds = 0.6 }
 
-Presets.rankUp = { within = 120, claimGrace = 2 }
+-- A rank up: confetti and a smoke puff at any cafe's door in range. Your own cafe also gets a gold beam from roof
+-- height, a gold ring across the street, confetti from both sides of the door (`sideStuds` either side, each a share
+-- of the budget's confetti) and `fountains` sparkle fountains `fountainEvery` seconds apart.
+Presets.rankUp = {
+	within = 120,
+	claimGrace = 2,
+	beam = { width = 2.6, height = 22, seconds = 1.8 },
+	ring = 18,
+	ringSeconds = 0.8,
+	sideStuds = 4,
+	sideConfetti = 0.75,
+	fountains = 3,
+	fountainEvery = 0.3,
+	fountain = 12, -- gateSparkle particles in each
+}
 
 -- The Spin Wheel station (F49): the world wheel turns for everyone nearby whenever anyone spins and stops on the
 -- won slice (LastSlice). It stops inside the server's 4 s SpinCooldownSeconds, so a player's next spin starts from
@@ -603,6 +761,138 @@ Presets.wheel = {
 	flashSeconds = 0.6,
 	sparkles = 10, -- at the pointer when it stops
 	within = 120, -- studs; a spin farther away just moves the wheel to where it stopped
+	-- How a prize is celebrated, by its chance in Catalog.spinWheel, only once the wheel has stopped on it: a
+	-- "good" one (chance at most `good`) adds a mint ring and confetti from the top of the wheel, a "jackpot" (at
+	-- most `jackpot`) gold confetti, a gold ring, `showers` sparkle showers and longer blinking.
+	good = 0.16,
+	jackpot = 0.06,
+	goodRing = 8,
+	jackpotRing = 12,
+	ringSeconds = 0.6,
+	goodConfetti = 0.5, -- of the budget's confetti
+	jackpotConfetti = 1,
+	showers = 3,
+	showerEvery = 0.3,
+	jackpotFlashes = 6,
+	jackpotFlashSeconds = 1.2,
+}
+
+-- Signature effects (effects list section 1; round 4 Q8, 2026-10-27: "Yes thats a great idea make them special
+-- because of rarity"): each Legendary and Mythical themed cat, keyed by CatId, shows one emitter (`emitter`, a
+-- Presets.emitters key) on its Body or Head (`on`) in `colors`, and a gold one shows the same effect in `gold`.
+-- `eyes`: the cat was modelled with glowing eyes (cats.py glow_eyes), so the iris of each eye turns Neon;
+-- `goldEyes` is the eye colour of a gold one where the eyes are the effect (Ninja Cat). `moving`: only while the
+-- cat moves. Only the nearest budget.signatureCats within `radius` studs show their emitter; eyes glow on all.
+export type Signature = {
+	emitter: string,
+	on: string, -- "Body" or "Head"
+	colors: { Color3 },
+	gold: { Color3 },
+	eyes: boolean?,
+	goldEyes: Color3?,
+	moving: boolean?,
+}
+
+local palette = Presets.palette
+Presets.signature = {
+	void = { -- Ninja Cat: glowing eyes and a twinkle on the black coat
+		emitter = "sigGlint",
+		on = "Body",
+		colors = { palette.sparkle, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+		eyes = true,
+		goldEyes = palette.goldLight,
+	},
+	midnight = { -- Wizard Cat: little stars drifting up off the night sky coat
+		emitter = "sigRise",
+		on = "Body",
+		colors = { palette.sparkle, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+		eyes = true,
+	},
+	blossom = { -- Fairy Cat: a petal now and then
+		emitter = "sigFall",
+		on = "Body",
+		colors = { palette.furRose, palette.nosePink, palette.offwhite },
+		gold = { palette.goldLight, palette.golden },
+	},
+	aurora = { -- Astro Cat: a glow shifting from galaxy blue through violet to mint
+		emitter = "sigHalo",
+		on = "Body",
+		colors = { palette.galaxyBlue, palette.aurora, palette.mint },
+		gold = { palette.goldDark, palette.golden, palette.goldLight },
+		eyes = true,
+	},
+	marshmallow = { -- Super Cat: a whoosh behind the cape as it runs
+		emitter = "sigWhoosh",
+		on = "Body",
+		colors = { palette.offwhite, palette.shirtRed },
+		gold = { palette.goldLight, palette.golden },
+		moving = true,
+	},
+	comet = { -- Ice Cream Cat: floating sprinkles off the cone hat
+		emitter = "sigRise",
+		on = "Head",
+		colors = {
+			palette.neonPink,
+			palette.signTeal,
+			Presets.rarity.Legendary,
+			palette.shirtBlue,
+			palette.mint,
+		},
+		gold = { palette.goldLight, palette.golden, palette.goldDark, palette.sparkle },
+		eyes = true,
+	},
+	old_oak = { -- Antler Cat: a leaf drifting down off the antlers
+		emitter = "sigFall",
+		on = "Head",
+		colors = { palette.leaf, palette.mint },
+		gold = { palette.golden, palette.goldDark },
+	},
+	wisp = { -- Unicorn Cat: a sparkle trail off the glowing horn
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.pastelSky, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.sparkle },
+		eyes = true,
+	},
+	bottlecap = { -- King Cat: glints off the bottle cap crown
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.offwhite, palette.sparkle },
+		gold = { palette.golden, palette.goldLight },
+	},
+	eclipse = { -- Dragon Cat: tiny harmless sparks that fade to smoke
+		emitter = "sigRise",
+		on = "Head",
+		colors = { palette.sparkle, palette.lampWarm, palette.furGrey },
+		gold = { palette.sparkle, palette.golden, palette.goldDark },
+		eyes = true,
+	},
+} :: { [string]: Signature }
+Presets.signatureFx = {
+	radius = 40, -- studs from the player
+	movedStuds = 0.5, -- a `moving` effect runs while the cat moved this far since the last choice
+}
+
+-- The Codes Cat's walk-in circle (F65; Derek 2026-10-27 20:10: "a clear area circle to walk into to open code
+-- entering menu"): a soft mint glow over the circle that breathes between `glow` transparencies every `seconds`
+-- (steady with Reduce Motion), brighter (`inside`) while you stand in it, motes rising off it within the budget's
+-- ambientRadius (not in Low performance) and a ring with a few sparkles as you step in. In and out use the code
+-- box's own edges, CodesCircleRadius (`radius` until Config has it) and `leaveAfter` studs past it, so the glow
+-- and the box agree.
+Presets.codes = {
+	radius = 4,
+	leaveAfter = 1,
+	glow = { 0.9, 0.78 },
+	inside = 0.65,
+	seconds = 1.2, -- one way; a breath is twice this
+	lift = 0.06, -- studs above the circle's top
+	ringPad = 1,
+	ringSeconds = 0.45,
+	sparkles = 10,
+	padShare = 1.4, -- the motes' square pad is this many radii wide, so its corners stay inside the circle
+	checkEvery = 0.1,
 }
 
 return Presets

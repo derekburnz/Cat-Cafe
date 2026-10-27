@@ -34,6 +34,10 @@ type Entry = {
 	cutAt: number,
 }
 
+-- How close a joint's Transform must be to what this wrote to count as untouched by the Animator (a value read back
+-- from the property need not match bit for bit).
+local SAME = 1e-5
+
 local entries: { [Model]: Entry } = {}
 local localPress: number? = nil -- server time of this player's own press
 local timing: Avatar.Timing? = nil
@@ -81,7 +85,7 @@ end
 -- Gives the joints back to the Animator: a joint no track drives would otherwise keep the last pose.
 local function release(entry: Entry)
 	for motor, frame in entry.written do
-		if motor.Transform == frame then
+		if motor.Transform:FuzzyEq(frame, SAME) then
 			motor.Transform = CFrame.identity
 		end
 	end
@@ -192,7 +196,8 @@ local function step()
 		end
 		for motor, frame in Avatar.solve(entry.rig, pose) do
 			local base = motor.Transform
-			if entry.written[motor] == base then
+			local last: CFrame? = entry.written[motor]
+			if last ~= nil and last:FuzzyEq(base, SAME) then
 				base = CFrame.identity -- the Animator left this joint alone, so last frame's pose is still on it
 			end
 			local out = base:Lerp(frame, weight)

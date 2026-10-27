@@ -88,10 +88,15 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 6 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 7 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(6)
-			expect(profile.version).to.equal(6)
+			expect(ProfileSchema.VERSION).to.equal(7)
+			expect(profile.version).to.equal(7)
+			expect(profile.goldenFish).to.equal(0)
+			expect(profile.lifetimeGoldenFish).to.equal(0)
+			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(0)
+			expect(profile.stats.cratesOpened).to.equal(0)
+			expect(profile.stats.fishEarned).to.equal(0)
 			expect(profile.spin :: any).to.deepEqual({ lastFreeDay = 0, banked = 0 })
 			expect(profile.stats.spins).to.equal(0)
 			expect(profile.tier).to.equal(1)
@@ -211,8 +216,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 7 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 8 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 7 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 6 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 5 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 4 })).to.equal(false)
@@ -786,7 +792,7 @@ return function()
 			raw.spin = nil
 			raw.stats.spins = nil
 			local profile = ProfileSchema.migrate(raw, 30 * DAY + 5)
-			expect(profile.version).to.equal(6)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.spin :: any).to.deepEqual({ lastFreeDay = 0, banked = 0 })
 			expect(profile.stats.spins).to.equal(0)
 		end)
@@ -822,6 +828,75 @@ return function()
 				lastFreeDay = 0,
 				banked = 0,
 			})
+		end)
+	end)
+
+	describe("migrate to version 7: golden fish, crates and Market perks (F52, F53)", function()
+		it("a version 6 save starts with no fish, crates, crate luck or perks", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 6
+			raw.goldenFish = nil
+			raw.lifetimeGoldenFish = nil
+			raw.crates = nil
+			raw.crateLuck = nil
+			raw.fishPerks = nil
+			raw.stats.cratesOpened = nil
+			raw.stats.fishEarned = nil
+			local profile = ProfileSchema.migrate(raw, 600)
+			expect(profile.version).to.equal(7)
+			expect(profile.goldenFish).to.equal(0)
+			expect(profile.lifetimeGoldenFish).to.equal(0)
+			expect(count(profile.crates) + count(profile.crateLuck) + count(profile.fishPerks)).to.equal(0)
+			expect(profile.stats.cratesOpened).to.equal(0)
+			expect(profile.stats.fishEarned).to.equal(0)
+		end)
+
+		it("keeps valid fish, crates, luck, perks and their stats", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.goldenFish = 140
+			raw.lifetimeGoldenFish = 300
+			raw.crates = { alley_crate = 2, classic_golden_crate = 1 }
+			raw.crateLuck = { alley = 7, classic = 19 }
+			raw.fishPerks = { golden_espresso = 3, big_bowl = 1 }
+			raw.stats.cratesOpened = 9
+			raw.stats.fishEarned = 300
+			local profile = ProfileSchema.migrate(raw, 600)
+			expect(profile.goldenFish).to.equal(140)
+			expect(profile.lifetimeGoldenFish).to.equal(300)
+			expect(profile.crates :: any).to.deepEqual({ alley_crate = 2, classic_golden_crate = 1 })
+			expect(profile.crateLuck :: any).to.deepEqual({ alley = 7, classic = 19 })
+			expect(profile.fishPerks :: any).to.deepEqual({ golden_espresso = 3, big_bowl = 1 })
+			expect(profile.stats.cratesOpened).to.equal(9)
+			expect(profile.stats.fishEarned).to.equal(300)
+		end)
+
+		it("cleans damaged values: whole fish of 0 or more, known crates and pools, luck 0 to 19, perks to their max", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.goldenFish = 12.9
+			raw.lifetimeGoldenFish = 3 -- below the wallet: raised to it
+			raw.crates = { alley_crate = 1.5, mystery_crate = 4, park_crate = -2, sewer_crate = "lots", [1] = 3 }
+			raw.crateLuck = { park = 55, mars = 3, woods = -1, alley_crate = 2 }
+			raw.fishPerks = { golden_espresso = 9, extra_decor_spot = 2.5, big_bowl = 0, star_treat = 1, fly = 1 }
+			local profile = ProfileSchema.migrate(raw, 600)
+			expect(profile.goldenFish).to.equal(12)
+			expect(profile.lifetimeGoldenFish).to.equal(12)
+			expect(profile.crates :: any).to.deepEqual({ alley_crate = 1 })
+			expect(profile.crateLuck :: any).to.deepEqual({ park = Config.CrateLuckyEvery - 1 })
+			expect(profile.fishPerks :: any).to.deepEqual({ golden_espresso = 5, extra_decor_spot = 2 })
+
+			local cases: { any } = { -5, 0 / 0, math.huge, "100", {} }
+			for _, bad in cases do
+				raw.goldenFish = bad
+				raw.lifetimeGoldenFish = bad
+				local loaded = ProfileSchema.migrate(raw, 600)
+				expect(loaded.goldenFish).to.equal(0)
+				expect(loaded.lifetimeGoldenFish).to.equal(0)
+			end
+			raw.crates = "crates"
+			raw.crateLuck = 5
+			raw.fishPerks = true
+			local loaded = ProfileSchema.migrate(raw, 600)
+			expect(count(loaded.crates) + count(loaded.crateLuck) + count(loaded.fishPerks)).to.equal(0)
 		end)
 	end)
 end

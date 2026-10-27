@@ -5,6 +5,7 @@
 -- services never started ("profile not loaded", a clock nobody runs).
 --   local D = game.ServerStorage.CatCafeDebug
 --   D:Invoke("setCoins", nil, 5000)   -- nil means the first player in the server
+--   D:Invoke("setFish", nil, 300)      -- 300 golden fish in the wallet (F52)
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe that pays itself in 20 s
@@ -92,6 +93,16 @@ function Debug.setCoins(player: (Player | number | string)?, coins: number)
 	Economy.settle(profile, os.time(), ClockService.epoch())
 	profile.coins = coins
 	CafeService.sync(p)
+end
+
+-- Sets the golden fish in the wallet (F52); lifetimeGoldenFish never drops below it. Returns the new count.
+function Debug.setFish(player: (Player | number | string)?, fish: number): number
+	local p = resolve(player)
+	local profile = profileOf(p)
+	profile.goldenFish = math.max(0, math.floor(fish))
+	profile.lifetimeGoldenFish = math.max(profile.lifetimeGoldenFish, profile.goldenFish)
+	CafeService.sync(p)
+	return profile.goldenFish
 end
 
 -- Pretend the player has been away: rewinds lastTick so the next settle credits `seconds` of income.

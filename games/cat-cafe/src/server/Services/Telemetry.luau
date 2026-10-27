@@ -77,6 +77,7 @@ export type LogEntry = {
 local Telemetry = {}
 
 local CURRENCY = "coins"
+local FISH_CURRENCY = "golden_fish" -- F52
 local FLUSH_SECONDS = 60
 local LOG_SIZE = 200
 local DAY_SECONDS = 86400
@@ -207,7 +208,8 @@ local function logEconomy(
 	amount: number,
 	balance: number,
 	transactionType: TransactionType,
-	sku: string
+	sku: string,
+	currency: string?
 )
 	if amount <= 0 then
 		return
@@ -217,12 +219,13 @@ local function logEconomy(
 		else Enum.AnalyticsEconomyFlowType.Sink
 	local values = { tierText(profile), ClockService.phase(), catsWorking(profile) }
 	local ending = math.max(0, math.floor(balance))
-	remember(player, if isSource then "source" else "sink", sku, amount, values)
+	local kind = if isSource then "source" else "sink"
+	remember(player, if currency ~= nil then kind .. " " .. currency else kind, sku, amount, values)
 	send("economy " .. sku, function()
 		AnalyticsService:LogEconomyEvent(
 			player,
 			flow,
-			CURRENCY,
+			currency or CURRENCY,
 			amount,
 			ending,
 			transactionType,
@@ -294,6 +297,47 @@ function Telemetry.sink(
 )
 	flushTips(player, profile, amount)
 	logEconomy(player, profile, false, amount, profile.coins, transactionType, sku)
+end
+
+-- Golden fish (F52): their own currency, golden_fish, never mixed into the coin flush. Call right after
+-- GoldenFish.credit. Sources: first_catch, repeat_catch, rank_up, index_reward, spin_wheel, tip_jar.
+function Telemetry.fishSource(
+	player: Player,
+	profile: Profile,
+	amount: number,
+	transactionType: TransactionType,
+	sku: string
+)
+	logEconomy(
+		player,
+		profile,
+		true,
+		amount,
+		profile.goldenFish,
+		transactionType,
+		sku,
+		FISH_CURRENCY
+	)
+end
+
+-- Call right after a successful GoldenFish.trySpend. Sinks: crate, lure, perk.
+function Telemetry.fishSink(
+	player: Player,
+	profile: Profile,
+	amount: number,
+	transactionType: TransactionType,
+	sku: string
+)
+	logEconomy(
+		player,
+		profile,
+		false,
+		amount,
+		profile.goldenFish,
+		transactionType,
+		sku,
+		FISH_CURRENCY
+	)
 end
 
 function Telemetry.custom(player: Player, name: CustomEvent, value: number, values: { string }?)

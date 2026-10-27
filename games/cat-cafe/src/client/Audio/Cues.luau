@@ -110,6 +110,7 @@ local Cues: { [string]: Cue } = {
 	loopEspresso = { ids = {}, group = "Ambience", volume = 0.4, range = 15 },
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------
+	holdFill = { ids = {}, group = "Sfx", volume = 0.5, minGap = 0.1 }, -- F45: hold E; stretched to the prompt's hold
 	catchStart = { ids = { "rbxassetid://92586398019542" }, group = "Sfx", volume = 0.6 },
 	circleAppear = {
 		ids = { "rbxassetid://135049952895026" },
@@ -262,7 +263,9 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 		preload = true,
 	},
-	catPlaced = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
+	catDrop = { ids = {}, group = "Sfx", volume = 0.6, minGap = 0.5, range = 40 }, -- F45: Drop or G
+	catPlaced = { ids = {}, group = "Sfx", volume = 0.6, minGap = 0.15 }, -- a cat starts a role (Staff tab)
+	catRest = { ids = {}, group = "Sfx", volume = 0.55, minGap = 0.3 }, -- a cat leaves its role; Unequip All plays one
 	catSold = { ids = {}, group = "Sfx", volume = 0.6 },
 
 	-- Bait bowl (5.4) ---------------------------------------------------------------------------------------
@@ -291,8 +294,26 @@ local Cues: { [string]: Cue } = {
 		looped = true,
 		range = 8,
 	},
-	shimmerRare = { ids = {}, group = "Sfx", volume = 0.4, looped = true, range = 40 },
-	shinyReveal = { ids = {}, group = "Sfx", volume = 0.8, duck = true },
+	shimmerRare = { ids = {}, group = "Sfx", volume = 0.4, looped = true, range = 40 }, -- gold or Epic and up strays
+	goldReveal = { ids = {}, group = "Sfx", volume = 0.8, minGap = 1, duck = true }, -- F42: was shinyReveal
+
+	-- Zones and travel (5.9) --------------------------------------------------------------------------------
+	zoneSafe = { ids = {}, group = "Sfx", volume = 0.45 }, -- back on the safe street
+	zoneArea = { ids = {}, group = "Sfx", volume = 0.45 }, -- into a catching area, shoves on
+	travelPoof = { ids = {}, group = "Sfx", volume = 0.6, minGap = 0.5 }, -- fast travel and My Cafe
+
+	-- Rewards (5.10) ----------------------------------------------------------------------------------------
+	giftClaim = { ids = {}, group = "Sfx", volume = 0.7, minGap = 0.2 }, -- F47 Tip Jar
+	indexReward = { ids = {}, group = "Sfx", volume = 0.75, minGap = 0.5, duck = true }, -- F48 Index rewards
+	wheelTick = {
+		ids = {},
+		group = "Sfx",
+		volume = 0.5,
+		pitch = { 0.97, 1.03 },
+		voices = 3,
+		range = 40,
+	}, -- the spin wheel (coming): once per slice passing the pointer
+	wheelWin = { ids = {}, group = "Sfx", volume = 0.75, minGap = 1, duck = true },
 
 	-- Coins, tiers and the night economy (5.6) --------------------------------------------------------------
 	coinPop = {
@@ -373,6 +394,9 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.05,
 	},
 	uiRename = { ids = { "rbxassetid://109980626119711" }, group = "Ui", volume = 0.5 },
+	uiSlider = { ids = {}, group = "Ui", volume = 0.5, minGap = 0.03 }, -- a volume slider's 5 % step
+	uiGiftReady = { ids = {}, group = "Ui", volume = 0.6, minGap = 1 }, -- a Tip Jar gift is ready
+	uiBadge = { ids = {}, group = "Ui", volume = 0.4, minGap = 0.5 }, -- a red dot turns on
 	announce = { ids = { "rbxassetid://140320161816899" }, group = "Ui", volume = 0.6, minGap = 1 },
 }
 

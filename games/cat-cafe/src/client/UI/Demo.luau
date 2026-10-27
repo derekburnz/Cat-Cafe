@@ -4,6 +4,7 @@
 -- Everything here is client-side pretend money. Delete or leave unused in production.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -46,6 +47,8 @@ local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
 -- the bait bowl's wait, short so the demo shows the cat arriving (the design's LureWaitSeconds is 600)
 local DEMO_BAIT_SECONDS = 20
+-- the night dealer's stock window, short so one restock shows each night (DealerWindowSeconds is 600)
+local DEMO_DEALER_WINDOW = 20
 
 local SELL_VALUE: { [string]: number } =
 	{ Common = 25, Rare = 150, Epic = 600, Legendary = 3000, Mythical = 12000 }
@@ -79,6 +82,7 @@ function Demo.run(UI: any): () -> ()
 		uid = starter,
 		catId = "tabby",
 		variant = "base",
+		name = "Mochi", -- a player's name for the cat, as the server sends it after RenameCat
 		caughtAt = now(),
 		spotId = "barista_1",
 		level = 2,
@@ -261,6 +265,62 @@ function Demo.run(UI: any): () -> ()
 			UI.toast("It wandered off. Maybe next time!", "info")
 		end
 	end)
+
+	-- Night dealer (F32): three slots rolled from the tier's weights at night start and at each window, gone by
+	-- day. Every Buy is answered with fresh stock, as the server does. N opens the cart (the prompt in the game).
+	local dealerStock: Types.DealerStock? = nil
+	local dealerGift = false
+	local function rollDealer()
+		local weights =
+			Catalog.dealerSlotWeights[math.clamp(profile.tier, 1, #Catalog.dealerSlotWeights)]
+		local total = 0
+		for _, weight in weights do
+			total += weight
+		end
+		local slots: { Types.DealerSlot } = {}
+		for _ = 1, 3 do
+			local roll = math.random() * total
+			local pick = "sardines"
+			for lureId, weight in weights do
+				roll -= weight
+				if weight > 0 and roll <= 0 then
+					pick = lureId
+					break
+				end
+			end
+			table.insert(
+				slots,
+				{ lureId = pick, cost = Catalog.luresById[pick].cost, bought = false }
+			)
+		end
+		local stock: Types.DealerStock = { slots = slots, restocksAt = now() + DEMO_DEALER_WINDOW }
+		dealerStock = stock
+		UI.dealer.setStock(stock)
+	end
+	-- the server refuses a slot whose food changed with a restock (S42)
+	local function buyDealer(slot: number, lureId: string)
+		local stock = dealerStock
+		if not stock then
+			return
+		end
+		local entry = stock.slots[slot]
+		if entry and entry.lureId == lureId and not entry.bought and spend(entry.cost) then
+			entry.bought = true
+			profile.lures[entry.lureId] = (profile.lures[entry.lureId] or 0) + 1
+			local name = Catalog.luresById[entry.lureId].name
+			UI.toast("Bought " .. name .. ". Use it in your bait bowl!", "good")
+			push()
+		end
+		UI.dealer.setStock(stock)
+	end
+	connections[#connections + 1] = UI.events.buyDealerFood:Connect(buyDealer)
+	connections[#connections + 1] = UserInputService.InputBegan:Connect(
+		function(input: InputObject, processed: boolean)
+			if not processed and input.KeyCode == Enum.KeyCode.N then
+				UI.dealer.open()
+			end
+		end
+	)
 	connections[#connections + 1] = UI.events.equipLure:Connect(function(lureId: string)
 		if (profile.lures[lureId] or 0) > 0 then
 			profile.equippedLure = lureId
@@ -447,6 +507,30 @@ function Demo.run(UI: any): () -> ()
 						else "Morning. The cafe opens.",
 					"info"
 				)
+				if phase == "night" then
+					rollDealer()
+					if not dealerGift then
+						-- pretend coins so the demo can buy from him
+						dealerGift = true
+						profile.money += 5000
+						push()
+					end
+					UI.toast("The night dealer is on the street. Press N to see his cart.", "info")
+				else
+					dealerStock = nil
+					UI.dealer.setStock(nil)
+				end
+			end
+		end
+	end)
+
+	-- the dealer restocks when his window ends, while it is still night
+	task.spawn(function()
+		while running do
+			task.wait(0.5)
+			local stock = dealerStock
+			if stock and now() >= stock.restocksAt + 1 then
+				rollDealer()
 			end
 		end
 	end)
@@ -488,10 +572,12 @@ function Demo.run(UI: any): () -> ()
 				local pool = CATALOG.cats
 				local def = pool[math.random(1, #pool)]
 				local newUid = uid()
+				-- one in five is shiny here (2% in the game) so the cat room's gold cards show up
+				local shiny = math.random() < 0.2
 				profile.cats[newUid] = {
 					uid = newUid,
 					catId = def.id,
-					variant = "base",
+					variant = if shiny then "shiny" else "base",
 					caughtAt = now(),
 					spotId = nil,
 				}
@@ -499,6 +585,7 @@ function Demo.run(UI: any): () -> ()
 				profile.collection[def.id] = now()
 				-- the demo rolls stars and a Purrfect bonus so the reveal shows every part
 				UI.showCatFound(def.id, isNew, {
+					shiny = shiny,
 					stars = math.random(1, 5),
 					charmGain = if math.random() < 0.3 then math.random(2, 6) else nil,
 				})

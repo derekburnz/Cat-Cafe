@@ -779,5 +779,44 @@ return function()
 				end
 			end
 		)
+
+		-- golden-fish.md section 5: "the full track takes the day wait from 10:00 to 6:12". Each All Cats
+		-- claim takes whole percents off; the wait loses exactly that, never a second more to a float sum.
+		it(
+			"takes exactly the claimed percent off the bait wait, with and without the Big Bowl",
+			function()
+				local order = milestonesOf("all")
+				table.sort(order, function(a: string, b: string): boolean
+					local ma = IndexRewards.milestone(a) :: Types.IndexMilestone
+					local mb = IndexRewards.milestone(b) :: Types.IndexMilestone
+					return ma.needs < mb.needs
+				end)
+				for _, bowl in { 0, 1 } do
+					local profile: any = ProfileSchema.template(1000)
+					if bowl == 1 then
+						profile.fishPerks.big_bowl = 1
+					end
+					local base = if bowl == 1
+						then Config.BigBowlLureWaitSeconds
+						else Config.LureWaitSeconds
+					expect(Economy.baitWaitSeconds(profile)).to.equal(base)
+					local off = 0
+					for _, milestoneId in order do
+						local speed = Catalog.indexPrizes.all[milestoneId].baitSpeed :: number
+						local percent = math.floor(speed * 100 + 0.5)
+						expect(math.abs(speed * 100 - percent) < 1e-9).to.equal(true)
+						off += percent
+						claim(profile, "all", milestoneId)
+						local at = string.format("%s, bowl %d: ", milestoneId, bowl)
+						local want = math.floor(base * (100 - off) / 100)
+						expect(at .. Economy.baitWaitSeconds(profile)).to.equal(at .. want)
+					end
+					expect(off).to.equal(38)
+					expect(Economy.baitWaitSeconds(profile)).to.equal(
+						if bowl == 1 then 297 else 372
+					)
+				end
+			end
+		)
 	end)
 end

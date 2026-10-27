@@ -14,7 +14,7 @@
 	  = double spend    , travel            / shove targets        \ rename         Insert telemetry
 	  Home drop         End unequip all     PageUp settings        PageDown saved settings
 	  J tip jar         K index rewards     L spin wheel           R bug report
-	  P fish market     Backspace flood
+	  P fish market     T codes             Backspace flood
 	  ] run everything
 	Or from a client-context command bar: _G.CatCafeAbuse.run("fakeStray"), _G.CatCafeAbuse.runAll().
 
@@ -41,6 +41,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BugReport = require(Shared:WaitForChild("BugReport"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Circles = require(Shared:WaitForChild("Circles"))
+local Codes = require(Shared:WaitForChild("Codes"))
 local Config = require(Shared:WaitForChild("Config"))
 local Crates = require(Shared:WaitForChild("Crates"))
 local Prizes = require(Shared:WaitForChild("Prizes"))
@@ -318,9 +319,10 @@ type Case = { name: string, key: Enum.KeyCode, title: string, run: () -> (Verdic
 -- The Debug hooks, from the command bar in Server view: never a require there, which gets unstarted copies (PR #50).
 local DEBUG = "game.ServerStorage.CatCafeDebug:Invoke"
 
--- From design v0.2 the alley is empty by day apart from the tutorial Common, so a run wants night first.
+-- Since F66 the strays come in one wave at sunrise and the areas close at night, where GrabBegin is refused, so a
+-- run wants a fresh day first.
 local NO_STRAY = string.format(
-	'no free stray nearby; on the server run %s("spawnStray", "tabby") or %s("setPhase", "night")',
+	'no free stray nearby; on the server run %s("spawnStray", "tabby") or %s("setPhase", "day") for a fresh wave',
 	DEBUG,
 	DEBUG
 )
@@ -4004,6 +4006,408 @@ case(
 	end
 )
 
+-- Codes Cat (F65, engineer PRs #318 and #319, data-model section 11d) ---------------------------------------------
+
+-- What CodeResult carries: whether it paid, the code box's message and the prize when it paid.
+type Answered = { ok: boolean, message: string, prize: Types.IndexPrize? }
+
+local function codeAnswers(startedAt: number): { Answered }
+	local answers: { Answered } = {}
+	for _, event in since(startedAt, "CodeResult") do
+		table.insert(answers, event.data :: Answered)
+	end
+	return answers
+end
+
+local function bankedSpins(): number
+	return if state ~= nil and state.spin ~= nil then state.spin.banked else 0
+end
+
+-- Foods, golden fish, crates and banked spins in one line, so a case can tell that a refused code paid none of them.
+-- Coins are checked apart with coinsMovedBy, since income moves them on its own.
+local function codeHoldings(): string
+	return string.format("%s, %d banked spins", holdingsText(holdings()), bankedSpins())
+end
+
+-- One RedeemCode and its answer's message ("no answer" when none came in 2 s), spaced so the next call clears
+-- the remote's limit of 1 per 2 s.
+local function redeem(text: any): string
+	local at = os.clock()
+	fire("RedeemCode", text)
+	local answer = waitFor(at, "CodeResult", 2)
+	task.wait(math.max(0, at + 2.1 - os.clock()))
+	return if answer ~= nil then (answer.data :: Answered).message else "no answer"
+end
+
+-- True when the prize moved coins, foods, golden fish, crates and banked spins by exactly what it pays (spins up to
+-- SpinBankCap, crates by Prizes.crateFor at the player's tier); the text goes on the RESULT line.
+local function codePaid(
+	prize: Types.IndexPrize,
+	before: Wallet,
+	held: Holdings,
+	banked: number
+): (boolean, string)
+	local dayRate = before.rate
+	local coinsOk, coinsText =
+		coinsMovedBy(before, Prizes.coins(prize.coins, prize.coinSeconds, dayRate))
+	local wrong: { string } = {}
+	local prizeLures: { [string]: number } = prize.lures or {}
+	local now = state
+	for lureId, count in prizeLures do
+		local gained = (if now ~= nil then now.lures[lureId] or 0 else 0)
+			- (held.lures[lureId] or 0)
+		if gained ~= count then
+			table.insert(wrong, string.format("%s up by %d of %d", lureId, gained, count))
+		end
+	end
+	local gainedFish = fish() - held.fish
+	if gainedFish ~= (prize.fish or 0) then
+		table.insert(
+			wrong,
+			string.format("golden fish up by %d of %d", gainedFish, prize.fish or 0)
+		)
+	end
+	local tier = if state ~= nil then state.tier else 1
+	local wantCrates: { [string]: number } = {}
+	local prizeCrates: { [string]: number } = prize.crates or {}
+	for crateId, count in prizeCrates do
+		local paidId = Prizes.crateFor(crateId, tier)
+		if paidId ~= nil then
+			wantCrates[paidId] = (wantCrates[paidId] or 0) + count
+		end
+	end
+	for crateId, count in wantCrates do
+		local gained = crateCount(crateId) - (held.crates[crateId] or 0)
+		if gained ~= count then
+			table.insert(wrong, string.format("%s up by %d of %d", crateId, gained, count))
+		end
+	end
+	local wantSpins = math.min(Config.SpinBankCap, banked + (prize.spins or 0)) - banked
+	if bankedSpins() - banked ~= wantSpins then
+		table.insert(
+			wrong,
+			string.format("banked spins up by %d of %d", bankedSpins() - banked, wantSpins)
+		)
+	end
+	if not coinsOk then
+		table.insert(wrong, coinsText)
+	end
+	if #wrong > 0 then
+		return false, table.concat(wrong, ", ")
+	end
+	return true,
+		string.format("%s, %s, %d banked spins", coinsText, holdingsText(holdings()), bankedSpins())
+end
+
+case(
+	"codes",
+	Enum.KeyCode.T,
+	"Codes Cat: far, bad texts, the wrong-code lock, a double redeem, used and expired codes",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local playtest = Catalog.codes.playtest
+		if playtest == nil then
+			return "SKIP", "Catalog.codes has no playtest code (needs engineer PR #318)"
+		end
+		local station = nearestTagged(Codes.TAG)
+		if station == nil then
+			return "SKIP", "no station tagged CodesCat in the world"
+		end
+		local root = rootPart()
+		local home = if root ~= nil then root.Position else nil
+		local function done(verdict: Verdict, detail: string): (Verdict, string)
+			if home ~= nil then
+				teleportTo(home)
+			end
+			return verdict, detail
+		end
+		local verdict: Verdict = "PASS"
+		local reset = string.format('%s("codes")', DEBUG)
+
+		-- 24 studs out (CodesCatRange is 12, flat): the real code is refused and pays nothing. The server measures
+		-- before it reads the text, so this try does not count towards the lock.
+		local far = standFromStation(station, 24)
+		if far < Config.CodesCatRange + 4 then
+			return done(
+				"CHECK",
+				string.format(
+					"could not stand 24 studs from the Codes Cat on any side (settled %.1f studs out); stand there and run again",
+					far
+				)
+			)
+		end
+		local before = freshWallet()
+		local held = codeHoldings()
+		local farAnswer = redeem("playtest")
+		local coinsStill, coinsText = coinsMovedBy(before, 0)
+		if codeHoldings() ~= held or not coinsStill then
+			return done(
+				"FAIL",
+				string.format(
+					'RedeemCode("playtest") from %.1f studs paid: %s before, %s after, %s',
+					far,
+					held,
+					codeHoldings(),
+					coinsText
+				)
+			)
+		end
+		if farAnswer == Codes.LOCKED then
+			return done(
+				"CHECK",
+				string.format(
+					"the box is locked from an earlier run; wait a minute or run %s on the server, then run again",
+					reset
+				)
+			)
+		end
+		local notes = string.format("%.1f studs refused", far)
+		if farAnswer ~= Codes.FAR then
+			verdict = downgrade(verdict, "CHECK")
+			notes ..= string.format(' with %q, not "%s"', farAnswer, Codes.FAR)
+		end
+
+		-- In the circle (6 studs in front of the station): CodeWrongLimit texts that are not codes, malformed ones
+		-- first, since they must count as wrong too or a guesser could send them for free. All but the last answer
+		-- "That code doesn't exist"; the last locks the box for CodeLockSeconds.
+		local near = standFromStation(station, 6)
+		if near > Config.CodesCatRange - 4 then
+			return done(
+				"CHECK",
+				string.format(
+					"%s; could not stand by the Codes Cat (settled %.1f studs out); stand there and run again",
+					notes,
+					near
+				)
+			)
+		end
+		local badTexts: { any } = {
+			5,
+			{},
+			string.rep("a", Codes.MAX_BYTES + 1),
+			"play test",
+			"nopenope",
+		}
+		while #badTexts < Config.CodeWrongLimit do
+			table.insert(badTexts, "nope" .. #badTexts)
+		end
+		before = freshWallet()
+		held = codeHoldings()
+		local wrongAt = os.clock()
+		local answers: { string } = {}
+		local lockedAt = 0
+		for index = 1, Config.CodeWrongLimit do
+			local answer = redeem(badTexts[index])
+			table.insert(answers, answer)
+			if answer == Codes.LOCKED then
+				lockedAt = os.clock()
+				break
+			end
+		end
+		for _, answered in codeAnswers(wrongAt) do
+			if answered.ok then
+				return done(
+					"FAIL",
+					string.format("%s; a text that is not a code paid: %q", notes, answered.message)
+				)
+			end
+		end
+		coinsStill, coinsText = coinsMovedBy(before, 0)
+		if codeHoldings() ~= held or not coinsStill then
+			return done(
+				"FAIL",
+				string.format(
+					"%s; wrong codes paid: %s before, %s after, %s",
+					notes,
+					held,
+					codeHoldings(),
+					coinsText
+				)
+			)
+		end
+		local said = table.concat(answers, " | ")
+		if lockedAt == 0 then
+			return done(
+				"FAIL",
+				string.format(
+					"%s; %d wrong codes in %.0f s never locked the box (%s), so codes can be guessed",
+					notes,
+					#answers,
+					os.clock() - wrongAt,
+					said
+				)
+			)
+		end
+		if #answers < Config.CodeWrongLimit then
+			verdict = downgrade(verdict, "CHECK")
+			notes ..= string.format(
+				"; locked after %d of %d wrong codes (%s): a wrong code from the last minute may have counted, wait a minute and run again",
+				#answers,
+				Config.CodeWrongLimit,
+				said
+			)
+		else
+			for index = 1, #answers - 1 do
+				if answers[index] ~= Codes.UNKNOWN then
+					verdict = downgrade(verdict, "CHECK")
+					notes ..= string.format(
+						'; wrong code %d said %q, not "%s"',
+						index,
+						answers[index],
+						Codes.UNKNOWN
+					)
+				end
+			end
+			notes ..= string.format(
+				"; %d wrong codes paid nothing and the last locked the box",
+				#answers
+			)
+		end
+
+		-- Locked: even the real code is refused and pays nothing.
+		before = freshWallet()
+		held = codeHoldings()
+		local lockedAnswer = redeem("playtest")
+		coinsStill, coinsText = coinsMovedBy(before, 0)
+		if codeHoldings() ~= held or not coinsStill then
+			return done(
+				"FAIL",
+				string.format(
+					"%s; the real code paid while the box was locked: %s before, %s after, %s",
+					notes,
+					held,
+					codeHoldings(),
+					coinsText
+				)
+			)
+		end
+		if lockedAnswer ~= Codes.LOCKED then
+			verdict = downgrade(verdict, "CHECK")
+			notes ..= string.format(
+				'; the real code while locked said %q, not "%s"',
+				lockedAnswer,
+				Codes.LOCKED
+			)
+		else
+			notes ..= ", the real code refused while locked"
+		end
+
+		log(string.format("    waiting out the %d s lock", Config.CodeLockSeconds))
+		task.wait(math.max(0, lockedAt + Config.CodeLockSeconds + 1 - os.clock()))
+
+		-- Two redeems of the real code in one frame, typed the way a player might: one "Code redeemed!" and the
+		-- prize paid once (RedeemCode allows 1 per 2 s, and CodeService saves the code before it pays).
+		before = freshWallet()
+		local heldNow = holdings()
+		local bankedNow = bankedSpins()
+		held = codeHoldings()
+		local redeemAt = os.clock()
+		fire("RedeemCode", "  PlayTest  ")
+		fire("RedeemCode", "  PlayTest  ")
+		waitFor(redeemAt, "CodeResult", 3)
+		waitFor(redeemAt, "ProfileSync", 3)
+		task.wait(2.1)
+		local redeemed = codeAnswers(redeemAt)
+		local paidCount = 0
+		for _, answered in redeemed do
+			if answered.ok then
+				paidCount += 1
+			end
+		end
+		local alreadyUsed = #redeemed > 0 and redeemed[1].message == Codes.USED
+		if paidCount > 1 then
+			return done(
+				"FAIL",
+				string.format("%s; two redeems in one frame paid %d times", notes, paidCount)
+			)
+		end
+		if alreadyUsed then
+			coinsStill, coinsText = coinsMovedBy(before, 0)
+			if codeHoldings() ~= held or not coinsStill then
+				return done(
+					"FAIL",
+					string.format(
+						"%s; a used code paid again: %s before, %s after, %s",
+						notes,
+						held,
+						codeHoldings(),
+						coinsText
+					)
+				)
+			end
+			verdict = downgrade(verdict, "CHECK")
+			notes ..= string.format(
+				"; playtest was already used in this Studio save and paid nothing again, so the payout was not checked (run %s on the server and run again)",
+				reset
+			)
+		elseif paidCount == 0 then
+			return done(
+				"CHECK",
+				string.format(
+					'%s; the real code after the lock answered %s, not "%s"',
+					notes,
+					if #redeemed > 0 then string.format("%q", redeemed[1].message) else "nothing",
+					Codes.REDEEMED
+				)
+			)
+		else
+			local ok, paidText = codePaid(playtest.prize, before, heldNow, bankedNow)
+			if not ok then
+				return done(
+					"FAIL",
+					string.format("%s; playtest paid the wrong amounts: %s", notes, paidText)
+				)
+			end
+			if redeemed[1].message ~= Codes.REDEEMED then
+				verdict = downgrade(verdict, "CHECK")
+				notes ..= string.format(' with %q, not "%s"', redeemed[1].message, Codes.REDEEMED)
+			end
+			notes ..= string.format(
+				'; "  PlayTest  " twice in one frame paid once (%s; yours in this Studio save until %s)',
+				paidText,
+				reset
+			)
+		end
+
+		-- Used and expired: the real code again in capitals, and every code that is not live, each refused with its
+		-- own reason and nothing paid.
+		local refusals: { { text: string, want: string } } = {
+			{ text = "PLAYTEST", want = Codes.USED },
+		}
+		for id, def in Catalog.codes do
+			if id ~= "playtest" and Codes.expired(def, os.time()) then
+				table.insert(refusals, { text = id, want = Codes.EXPIRED })
+			end
+		end
+		before = freshWallet()
+		held = codeHoldings()
+		for _, try in refusals do
+			local answer = redeem(try.text)
+			if answer ~= try.want then
+				verdict = downgrade(verdict, "CHECK")
+				notes ..= string.format('; %q said %q, not "%s"', try.text, answer, try.want)
+			end
+		end
+		coinsStill, coinsText = coinsMovedBy(before, 0)
+		if codeHoldings() ~= held or not coinsStill then
+			return done(
+				"FAIL",
+				string.format(
+					"%s; a used or expired code paid: %s before, %s after, %s",
+					notes,
+					held,
+					codeHoldings(),
+					coinsText
+				)
+			)
+		end
+		notes ..= string.format("; %d used or expired codes paid nothing", #refusals)
+		return done(verdict, notes)
+	end
+)
+
 -- Bug reports (engineer PR #265, docs/playtests/bug-reports.md) ------------------------------------------------
 
 -- ReportBug's toasts by their BugReport.Messages key.
@@ -4294,6 +4698,11 @@ Remotes.event("CrateResult").OnClientEvent
 			crateId,
 			opened
 		)
+	end)
+Remotes.event("CodeResult").OnClientEvent
+	:Connect(function(ok: boolean, message: string, prize: Types.IndexPrize?)
+		local answered: Answered = { ok = ok, message = message, prize = prize }
+		record("CodeResult", string.format("ok=%s %q", tostring(ok), message), nil, answered)
 	end)
 Remotes.event("TipJarState").OnClientEvent:Connect(function(jar: Types.TipJarState)
 	tipJar = jar

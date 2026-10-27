@@ -85,6 +85,9 @@ function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 end
 
 function IconArt.setTransparency(label: TextLabel, transparency: number)
+	if label:GetAttribute(BASE) == transparency then
+		return -- already shown; markers fade every frame, so skip the attribute write (reviewer N215)
+	end
 	label:SetAttribute(BASE, transparency)
 	apply(label)
 end

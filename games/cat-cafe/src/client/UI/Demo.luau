@@ -11,7 +11,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Format = require(script.Parent.Components.Format)
 local RankUp = require(script.Parent.Screens.RankUp)
-local RescueMarker = require(script.Parent.Components.RescueMarker)
+local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 local Types = require(script.Parent.Types)
 
 local Demo = {}
@@ -481,14 +481,6 @@ function Demo.run(UI: any): () -> ()
 			UI.setCarrying(nil)
 		end
 	end
-
-	connections[#connections + 1] = UI.events.rescueEnded:Connect(
-		function(_rescueSpotId: string?, _catId: string?, completed: boolean)
-			if completed then
-				UI.toast("Rescued! A real server would hand you the cat now", "good")
-			end
-		end
-	)
 
 	push()
 	UI.toast("Demo mode: pretend server, pretend money", "info")

@@ -56,6 +56,7 @@ return function()
 		BaitBowlRangeStuds = 12,
 		BaitResolveRangeStuds = 20,
 		ShinyChanceBait = 0.02,
+		ShinyChanceNet = 0.02, -- F30
 		CarryWalkSpeed = 16, -- v0.4
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,
@@ -104,7 +105,6 @@ return function()
 		BumpSameTargetSeconds = { 60, "F29" },
 		DropOwnerPrioritySeconds = { 8, "F29" },
 		DroppedMinStaySeconds = { 120, "F29" },
-		ShinyChanceNet = { 0.02, "F30" },
 		CatNameMaxLength = { 20, "F33" },
 		RenameCooldownSeconds = { 5, "F33" },
 	}

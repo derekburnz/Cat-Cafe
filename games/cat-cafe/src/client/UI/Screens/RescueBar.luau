@@ -20,13 +20,15 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PawRow = require(script.Parent.Parent.Components.PawRow)
-local RescueMarker = require(script.Parent.Parent.Components.RescueMarker)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
-local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Config = require(Shared:WaitForChild("Config"))
+-- one formula for the bar and the server's judge (reviewer N74)
+local RescueMarker = require(Shared:WaitForChild("RescueMarker"))
 
 export type Header = {
 	catName: string?,
@@ -63,9 +65,9 @@ export type RescueBar = {
 local BAR = Vector2.new(560, 44) -- design pixels at 1280 x 720
 local MARKER = Vector2.new(14, 64)
 local PIP = 22
--- data-model RescueTolerance (0.03 of the bar) and RescueAttemptMaxSeconds (15), read once the engineer adds them
-local TOLERANCE: number = (Config :: any).RescueTolerance or 0.03
-local MAX_SECONDS: number = (Config :: any).RescueAttemptMaxSeconds or 15
+-- data-model RescueTolerance (0.03 of the bar) and RescueAttemptMaxSeconds (15)
+local TOLERANCE: number = Config.RescueTolerance
+local MAX_SECONDS: number = Config.RescueAttemptMaxSeconds
 local PRESS_GAP = 0.12 -- a second press this soon is a bounce, not a try (the server allows 10 a second)
 local RESULT_SECONDS = 1.6
 local FAIL_SECONDS = 1.2

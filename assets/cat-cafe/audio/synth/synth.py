@@ -265,6 +265,170 @@ def stray_flee() -> np.ndarray:
     return finish(mix(d, (mrrp / np.max(np.abs(mrrp)), 0.0), *paws), -3)
 
 
+def cat_hiss() -> np.ndarray:
+    """A Miss ends the catch: a short, cross (never scary) hiss as the cat jumps back."""
+    d = 0.5
+    t = seconds(d)
+    shape = np.clip(t / 0.03, 0, 1) * np.exp(-np.clip(t - 0.12, 0, None) / 0.12)
+    breath = bandpass(noise(d, 30), sweep(d, 4200, 3000), 1.2)
+    spit = bandpass(noise(d, 31), 6500, 2.0) * (0.6 + 0.4 * np.sign(np.sin(2 * np.pi * 38 * t)))
+    return finish((breath + 0.35 * spit) * shape, -4)
+
+
+def paw_lost() -> np.ndarray:
+    """A paw of patience pops off the row: a soft bubble pop, pitched down."""
+    d = 0.16
+    pop = glide(d, 900, 380, 0.05) * envelope(d, 0.001, 0.03)
+    tick = bandpass(noise(0.01, 32), 3000, 2) * envelope(0.01, 0.0005, 0.002) * 0.3
+    return finish(mix(d, (pop, 0.0), (tick, 0.0)), -6)
+
+
+def purrfect_chime() -> np.ndarray:
+    """Every circle Perfect: a gold chord that rings out, with a sparkle on top."""
+    d = 1.6
+    chord = [(bell(d, note(n), GLOCK) * amp, at) for n, at, amp in
+             (("E6", 0.0, 0.8), ("G#6", 0.05, 0.75), ("B6", 0.1, 0.75), ("E7", 0.18, 1.0))]
+    shimmer = [(bell(0.4, f, ((1.0, 1.0, 0.07), (2.76, 0.2, 0.03))) * 0.35, 0.25 + 0.05 * i)
+               for i, f in enumerate((3951.1, 4434.9, 4978.0, 5274.0, 5919.9))]
+    return finish(mix(d, *chord, *shimmer), -3)
+
+
+def gate_dissolve() -> np.ndarray:
+    """A gate's barrier melts away the first time it opens: a rising shimmer and a soft whoosh."""
+    d = 1.6
+    t = seconds(d)
+    swell = np.sin(np.pi * np.clip(t / d, 0, 1)) ** 1.5
+    air = bandpass(noise(d, 33), sweep(d, 500, 5000), 3.0) * swell * 0.6
+    sparkle = [(bell(0.35, f, ((1.0, 1.0, 0.06),)) * (0.25 + 0.04 * i), 0.15 + 0.11 * i)
+               for i, f in enumerate((1760.0, 1975.5, 2217.5, 2637.0, 2960.0, 3520.0, 3951.1, 4434.9, 5274.0, 5919.9, 7040.0))]
+    return finish(mix(d, (air, 0.0), *sparkle), -3)
+
+
+def shutters_up() -> np.ndarray:
+    """A shop's shutters roll up: slats clattering faster, then a clunk at the top."""
+    d = 1.4
+    parts = []
+    at, gap = 0.0, 0.07
+    for i in range(16):
+        slat = bandpass(noise(0.03, 40 + i), 1800 + 40 * i, 3.0) * envelope(0.03, 0.0008, 0.008)
+        parts.append((slat * (0.5 + 0.02 * i), at))
+        at += gap
+        gap *= 0.93
+    clunk = (glide(0.2, 140, 90, 0.05) * envelope(0.2, 0.002, 0.05)
+             + bandpass(noise(0.2, 60), 600, 1.0) * envelope(0.2, 0.001, 0.02) * 0.5)
+    rumble = bandpass(noise(at, 61), 250, 0.8) * np.sin(np.pi * seconds(at) / at) * 0.3
+    return finish(mix(d, (rumble, 0.0), *parts, (clunk, at + 0.03)), -4)
+
+
+def sign_flip() -> np.ndarray:
+    """The door sign turns between sun and moon: a wooden knock and a little swish."""
+    d = 0.4
+    swish = bandpass(noise(0.18, 62), sweep(0.18, 800, 2400), 1.5) * np.sin(np.pi * seconds(0.18) / 0.18) * 0.4
+    knock = bell(0.15, 420.0, MARIMBA, attack=0.001)
+    return finish(mix(d, (swish, 0.0), (knock, 0.16), (knock * 0.5, 0.22)), -6)
+
+
+def announce() -> np.ndarray:
+    """A server shout-out: two bright notes under the banner (played a step higher per rarity)."""
+    d = 0.9
+    return finish(mix(d, (bell(d, note("G5"), GLOCK) * 0.8, 0.0), (bell(d, note("D6"), GLOCK), 0.12)), -4)
+
+
+# --- the rest of the UI (sound list 5.8): soft, short and never louder than a click ----------------
+
+
+def swish(d: float, f0: float, f1: float, seed: int) -> np.ndarray:
+    """A soft paper swish whose brightness moves from f0 to f1, for panels opening and closing."""
+    centre = sweep(d, f0, f1)
+    air = bandpass(bandpass(noise(d, seed), centre, 1.2), centre, 1.2) * envelope(d, 0.004, d / 3)  # twice: soft, not hissy
+    tone = glide(d, f0 / 4, f1 / 4, d) * envelope(d, 0.002, d / 4) * 0.25
+    return air + tone
+
+
+def ui_open() -> np.ndarray:
+    return finish(swish(0.16, 900, 3200, 80), -8)
+
+
+def ui_close() -> np.ndarray:
+    return finish(swish(0.16, 3200, 900, 81), -8)
+
+
+def ui_toast() -> np.ndarray:
+    """A toast slides in: a small bubble pop with a light chime behind it."""
+    d = 0.3
+    pop = glide(d, 450, 950, 0.03) * envelope(d, 0.001, 0.02)
+    return finish(mix(d, (pop, 0.0), (bell(d, note("E6"), GLOCK) * 0.35, 0.03)), -7)
+
+
+def ui_tab() -> np.ndarray:
+    """A tab or filter chip: one dry tick."""
+    d = 0.045
+    tick = bandpass(bandpass(noise(d, 82), 3800, 3), 3800, 3) * envelope(d, 0.0003, 0.004)
+    return finish(tick + glide(d, 1900, 1700, d) * envelope(d, 0.0005, 0.006) * 0.4, -9)
+
+
+def ui_toggle() -> np.ndarray:
+    """A settings toggle: a little switch, press and release."""
+    d = 0.09
+
+    def tick(f: float) -> np.ndarray:
+        return bell(0.05, f, MARIMBA) + bandpass(noise(0.05, 83), 3500, 3) * envelope(0.05, 0.0003, 0.003) * 0.5
+
+    return finish(mix(d, (tick(1300), 0.0), (tick(1650) * 0.7, 0.035)), -8)
+
+
+def ui_hint() -> np.ndarray:
+    """A new tutorial prompt: one soft ding."""
+    return finish(bell(0.45, note("A5"), GLOCK), -8)
+
+
+def ui_rank_ready() -> np.ndarray:
+    """Every rank up requirement met: a bright chime rising up the scale."""
+    d = 0.75
+    notes = [(note(n), 0.07 * i) for i, n in enumerate(("C6", "E6", "G6", "C7"))]
+    return finish(mix(d, *[(bell(d - at, f, GLOCK), at) for f, at in notes]), -5)
+
+
+def ui_dealer_open() -> np.ndarray:
+    """The dealer's screen: a little music-box run, a bit mysterious (minor, rising then turning back)."""
+    d = 0.75
+    box = ((1.0, 1.0, 0.3), (3.0, 0.2, 0.08), (5.95, 0.08, 0.04))
+    run = ("A5", "C6", "E6", "G6", "E6")
+    return finish(mix(d, *[(bell(0.4, note(n), box) * (0.8 if i < 4 else 0.6), 0.065 * i) for i, n in enumerate(run)]), -6)
+
+
+def ui_rename() -> np.ndarray:
+    """A cat's new name is saved: a quick pencil scribble and a ding."""
+    d = 0.5
+    strokes = 0.5 + 0.5 * np.sin(2 * np.pi * 22 * seconds(0.2)) ** 2
+    pencil = bandpass(bandpass(noise(0.2, 84), 2600, 2), 2600, 2) * strokes * envelope(0.2, 0.004, 0.08)
+    return finish(mix(d, (pencil * 0.6, 0.0), (bell(0.3, note("D6"), GLOCK), 0.19)), -7)
+
+
+def purr_loop(length: float, seed: int, rate: float) -> np.ndarray:
+    """A cat's purr over exactly `length` seconds so it loops: rumbling pulses on every breath in and out."""
+    n = int(length * SR)
+    t = np.arange(n) / SR
+    pulses = round(rate * length)
+    phase = (t * pulses / length) % 1.0  # a whole number of pulses per loop
+    pulse = np.exp(-phase / 0.18)
+    breaths = 2  # in and out, twice per loop
+    breath = 0.65 + 0.35 * np.sin(2 * np.pi * breaths * t / length) ** 2
+    hum = np.fft.rfft(np.random.default_rng(seed).standard_normal(n))
+    f = np.fft.rfftfreq(n, 1 / SR)
+    rumble = np.fft.irfft(hum * (1 / (1 + (f / 350) ** 4)) * (1 / (1 + (60 / np.maximum(f, 1)) ** 4)), n)
+    x = rumble / np.max(np.abs(rumble)) * pulse * breath
+    return x / np.max(np.abs(x)) * 10 ** (-6 / 20)  # no end fade: it is a loop
+
+
+def purr() -> np.ndarray:
+    return purr_loop(3.0, 70, 26.0)
+
+
+def carry_purr() -> np.ndarray:
+    return purr_loop(3.0, 71, 24.0)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -283,6 +447,24 @@ SOUNDS = {
     "StrayFlee": ("sfx", "Sfx", stray_flee),
     "JingleCatFound": ("music", "Music", jingle_cat_found),
     "JingleRankUp": ("music", "Music", jingle_rank_up),
+    "CatHiss": ("sfx", "Sfx", cat_hiss),
+    "PawLost": ("sfx", "Sfx", paw_lost),
+    "PurrfectChime": ("sfx", "Sfx", purrfect_chime),
+    "GateOpen": ("sfx", "Sfx", gate_dissolve),
+    "ShuttersUp": ("sfx", "Sfx", shutters_up),
+    "SignFlip": ("sfx", "Sfx", sign_flip),
+    "Announce": ("sfx", "Sfx", announce),
+    "Purr": ("sfx", "Sfx", purr),
+    "CarryPurr": ("sfx", "Sfx", carry_purr),
+    "Open": ("ui", "Ui", ui_open),
+    "Close": ("ui", "Ui", ui_close),
+    "Toast": ("ui", "Ui", ui_toast),
+    "Tab": ("ui", "Ui", ui_tab),
+    "Toggle": ("ui", "Ui", ui_toggle),
+    "Hint": ("ui", "Ui", ui_hint),
+    "RankReady": ("ui", "Ui", ui_rank_ready),
+    "DealerOpen": ("ui", "Ui", ui_dealer_open),
+    "Rename": ("ui", "Ui", ui_rename),
 }
 
 

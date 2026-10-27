@@ -444,7 +444,7 @@ function Popups.showCatFound(
 		self._catBanner.BackgroundColor3 = rarityColor
 		self._catCard.UIStroke.Color = if shiny then Theme.colors.gold else rarityColor
 		self._catName.TextColor3 = rarityColor
-		-- rays in the rarity colour, pure gold for a shiny
+		-- rays in the rarity colour, pure gold for a gold cat
 		for _, ray in self._rays:GetChildren() do
 			if ray:IsA("Frame") then
 				ray.BackgroundColor3 = if shiny

@@ -56,7 +56,8 @@ jobs:
       - run: npm run check
 
   automerge:
-    # Same name as the job in automerge.yml, so the script can leave both out when it reads the head's checks.
+    # Starts only when both jobs above passed in this run, which is what the script relies on: it merges on this
+    # run's result and never reads the checks API (that lagged finished jobs by minutes on 2026-10-27).
     name: Merge if labeled automerge
     needs: [gate, cloudcheck]
     # PR runs only when the label was on at push time (a label added later is automerge.yml's), and runs that
@@ -70,7 +71,6 @@ jobs:
       contents: write
       pull-requests: write
       actions: write
-      checks: read
     steps:
       - uses: actions/checkout@v5
         with:

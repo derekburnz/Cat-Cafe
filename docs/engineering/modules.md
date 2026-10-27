@@ -28,7 +28,7 @@ Requires use Roblox instance paths (`script.Parent.X`, `ReplicatedStorage.Shared
 | `World/Layout` | no (requires Config) | `plotPlacement(index) -> {x, z, side}`, `plot` (door, entry, sign, counter, espresso, spots, spotFurniture, decorAnchors, tables, seatOffsets), `alley` and `park` (spawnPoints, rescueSpots, props with an optional `y` for wall props), `stuckPoses` (prop name to the stuck cat's pose in prop space as the manifest's 12 CFrame numbers), `playerSpawn` |
 | `World/Placeholders` | yes | `names() -> {string}`, `build(name) -> Model?`, `cat(def)`, `customer(variant)` |
 | `World/AssetRegistry` | yes | `folder()`, `ensurePlaceholders() -> count`, `has(name)`, `clone(name) -> Model` |
-| `World/WorldBuilder` | yes | `build() -> World { folder, plots, areas, gate }`; each area has `spawnPoints` and `rescueSpots` (anchors tagged `RescueSpot` with `Area`, `RescueSpotId`, `Occupied`, `LockedBy`) |
+| `World/WorldBuilder` | yes | `build() -> World { folder, plots, areas, gate }`; each area has `spawnPoints` and `rescueSpots` (anchors tagged `RescueSpot` with `Area`, `RescueSpotId`, `Occupied`, `LockedBy`); `setDressing(plot, tier)`, `setClosedSign(plot, shown)` (v0.5 F44: PlotService hangs it on owned cafes at night) |
 | `Util/Guard` | no | `id(v) -> string?`, `bool(v)`, `int(v, min, max)`, `oneOf(v, list)` |
 | `Util/RateLimiter` | no | `new(maxCalls, windowSeconds, clock?) -> { allow(key), forget(key) }` |
 | `Services/Net` | yes | `start()`, `on(name, handler)`, `fire(player, name, ...)`, `fireAll(name, ...)`, `toast(player, text, kind?)` |
@@ -43,7 +43,7 @@ Requires use Roblox instance paths (`script.Parent.X`, `ReplicatedStorage.Shared
 
 ## Client (`src/client` -> `StarterPlayer.StarterPlayerScripts.Client`)
 
-`Net` (`fire`, `on`), `Controllers/UIController` (`start()`, `state`, `ownDoor()`), `Controllers/WorldController` (`start()`; hides a stray's GrabPrompt locally until its `FleeingUntil`), `Controllers/CustomerController` (`start()`). `UI/` belongs to the ui-designer.
+`Net` (`fire`, `on`), `Controllers/UIController` (`start()`, `state`, `ownDoor()`), `Controllers/WorldController` (`start()`; hides a stray's GrabPrompt locally until its `FleeingUntil`), `Controllers/CustomerController` (`start()`; customers by day only since v0.5 F44, and the ones inside walk out at nightfall). `UI/` belongs to the ui-designer.
 
 ## Remotes (server checks in `CafeService` and `CatService`)
 

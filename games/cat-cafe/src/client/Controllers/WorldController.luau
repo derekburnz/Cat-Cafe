@@ -1,9 +1,9 @@
 --!strict
 -- Client-side world touches: each area gate opens once the cafe reaches that area's tier, check-in fires itself at the
 -- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray this
--- player is out of paws on hides its prompt for them, the ambience follows the zone the player stands in, and the
--- sky and the parts that glow at night follow the server's day and night clock (features F20). All cosmetic, all
--- local.
+-- player is out of paws on hides its prompt for them, the ambience follows the zone the player stands in, the roof of
+-- the cafe the player is inside fades out, and the sky and the parts that glow at night follow the server's day and
+-- night clock (features F20). All cosmetic, all local.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -26,6 +26,53 @@ local function rootPosition(): Vector3?
 	local character = player.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	return if root ~= nil and root:IsA("BasePart") then root.Position else nil
+end
+
+-- The cafe whose floor the player stands on, if any (plot space: X along the street, Z away from it).
+local function plotAt(position: Vector3): Model?
+	local world = Workspace:FindFirstChild("World")
+	local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
+	if plots == nil then
+		return nil
+	end
+	for _, plot in plots:GetChildren() do
+		if plot:IsA("Model") then
+			local offset = (plot :: Model):GetPivot():PointToObjectSpace(position)
+			if
+				math.abs(offset.X) <= Config.World.PlotWidth / 2 + 0.5
+				and math.abs(offset.Z) <= Config.World.PlotDepth / 2 + 0.5
+				and offset.Y < 12
+			then
+				return plot :: Model
+			end
+		end
+	end
+	return nil
+end
+
+-- The cafe shell's roof (its child Model <name>_Roof: roof, ridge and chimney) fades out on this screen while the
+-- player is inside, the sketch's cutaway view (world-and-feel.md section 3). LocalTransparencyModifier is local
+-- only, and at 1 the camera stops treating the roof as something to zoom in front of.
+local ROOF_FADE = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+local function setRoofHidden(plot: Model, hidden: boolean)
+	local shell = plot:FindFirstChild("Shell")
+	if shell == nil then
+		return
+	end
+	for _, child in shell:GetChildren() do
+		if child:IsA("Model") and child.Name:sub(-5) == "_Roof" then
+			for _, descendant in child:GetDescendants() do
+				if descendant:IsA("BasePart") then
+					TweenService:Create(
+						descendant,
+						ROOF_FADE,
+						{ LocalTransparencyModifier = if hidden then 1 else 0 }
+					):Play()
+				end
+			end
+		end
+	end
 end
 
 -- v0.4 (data-model section 10 step 5): once this player has no paws left on a stray (its Paws_<UserId> attribute
@@ -276,6 +323,7 @@ function WorldController.start()
 	local lastCheckIn = 0
 	local sawAlley = false
 	local lastZone: string? = nil
+	local insidePlot: Model? = nil
 
 	task.spawn(function()
 		while true do
@@ -314,6 +362,18 @@ function WorldController.start()
 					lastCheckIn = os.clock()
 					Net.fire("CheckIn")
 				end
+			end
+
+			local inside = plotAt(position)
+			local wasInside = insidePlot
+			if inside ~= wasInside then
+				if wasInside ~= nil then
+					setRoofHidden(wasInside, false)
+				end
+				if inside ~= nil then
+					setRoofHidden(inside, true)
+				end
+				insidePlot = inside
 			end
 
 			local zone = zoneAt(position)

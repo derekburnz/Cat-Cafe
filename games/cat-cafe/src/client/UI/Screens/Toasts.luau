@@ -12,6 +12,7 @@ local Types = require(script.Parent.Parent.Types)
 export type Toasts = {
 	screenGui: ScreenGui,
 	show: (self: Toasts, text: string, kind: Types.ToastKind?, quiet: boolean?) -> (),
+	announce: (self: Toasts, text: string, rarity: string?) -> (),
 	destroy: (self: Toasts) -> (),
 }
 
@@ -70,16 +71,23 @@ function Toasts.new(parent: Instance): Toasts
 	return self :: Toasts
 end
 
--- Server shout-outs (Pet Simulator 99 style) take the colour of the first rarity they name, so "Derek caught a
--- Mythical Midnight!" shows on the Mythical colour.
+-- Without the server's rarity, a shout-out takes the colour of the last rarity it names as a whole word: the
+-- message starts with a DisplayName, so "EpicGamer caught a Common Tabby" is Common (reviewer N58).
 local function announceColor(text: string): Color3?
 	local best: Color3? = nil
-	local bestAt = math.huge
+	local bestAt = 0
 	for _, rarity in Theme.rarityOrder do
-		local at = text:find(rarity, 1, true)
-		if at and at < bestAt then
-			best = Theme.rarityColor(rarity)
-			bestAt = at
+		local from = 1
+		while true do
+			local at, finish = text:find("%f[%a]" .. rarity .. "%f[%A]", from)
+			if not at or not finish then
+				break
+			end
+			if at > bestAt then
+				best = Theme.rarityColor(rarity)
+				bestAt = at
+			end
+			from = finish + 1
 		end
 	end
 	return best
@@ -87,16 +95,27 @@ end
 
 -- quiet skips the toast's own sound when the moment already has one (a miss hisses).
 function Toasts.show(self: any, text: string, kind: Types.ToastKind?, quiet: boolean?)
-	local fill = KIND_COLORS[kind or "info"] or KIND_COLORS.info
-	local lifetime = LIFETIME
 	if kind == "announce" then
-		fill = announceColor(text) or fill
-		lifetime = ANNOUNCE_LIFETIME
+		self:announce(text)
+		return
 	end
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
 	if not quiet then
 		Sound.play(if kind == "warn" then "uiError" else "uiToast")
 	end
+	self:_push(text, KIND_COLORS[kind or "info"] or KIND_COLORS.info, LIFETIME)
+end
+
+-- Server shout-outs (Pet Simulator 99 style) on the colour of the cat's rarity, a little longer than a toast.
+-- Silent: Audio plays the shout-out sting from the Announce remote itself.
+function Toasts.announce(self: any, text: string, rarity: string?)
+	local fill = if rarity and (Theme.rarity :: any)[rarity]
+		then Theme.rarityColor(rarity)
+		else announceColor(text) or KIND_COLORS.announce
+	self:_push(text, fill, ANNOUNCE_LIFETIME)
+end
+
+function Toasts._push(self: any, text: string, fill: Color3, lifetime: number)
 	self._order += 1
 	local toast: Frame = Create("Frame", {
 		Name = "Toast",

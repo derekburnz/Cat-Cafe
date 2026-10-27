@@ -753,8 +753,10 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	CheckIn = function()
 		Audio.play("checkInBell", you())
 	end,
-	CatFound = function()
-		Audio.play("jingleCatFound")
+	CatFound = function(_catId: any, isNew: any)
+		if isNew ~= false then -- a cat you already have only rings the door bell (CheckIn)
+			Audio.play("jingleCatFound")
+		end
 	end,
 
 	BaitPlaced = function(lureId: any)

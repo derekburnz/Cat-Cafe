@@ -941,18 +941,15 @@ Presets.codes = {
 	checkEvery = 0.1,
 }
 
--- Opening a Cafe Crate at the Golden Fish Market (F53): the stall's crate lid hops off with a puff of dust and the
--- won piece's rarity pops out `above` studs over the crate, as a catch of that rarity does (catchPop). The lid
--- rises `lidRise` studs, tips `lidTilt` degrees and fades over `lidSeconds` (none with Reduce Motion).
+-- Opening a Cafe Crate at the Golden Fish Market (F53): a puff of ice off the stall's counter and the won piece's
+-- rarity popping `above` studs over it, as a catch of that rarity does (catchPop). On the modelled stall (market.py)
+-- the pop comes from `counterY` up and `counterZ` toward the front from its pivot, over the ice.
 Presets.market = {
 	within = 30, -- studs from the player to the stall (FishMarketRange is 14)
 	above = 0.6,
-	puff = 6, -- dust particles
-	lidThick = 0.2,
-	lidRise = 1.6,
-	lidTilt = 35,
-	lidSeconds = 0.55,
-	counter = 3.4, -- studs above a stall's pivot when it has no FishCrate part
+	puff = 6, -- dust particles, tinted like ice
+	counterY = 3.1,
+	counterZ = -0.65,
 }
 
 -- Golden fish landing in your wallet (golden-fish.md section 4: "the catch sparkle in gold"): catch sparkles in gold

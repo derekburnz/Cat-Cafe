@@ -114,18 +114,31 @@ local function zoneAt(position: Vector3): string?
 	return nil
 end
 
--- Only the gate's barrier (the ForceField part named Bars across the whole opening) changes; the arch stays solid.
--- The barrier keeps its own look while closed and vanishes once open (Effects draws the dissolve the first time).
+-- Only the gate's barrier changes: the ForceField part named Bars across the whole opening, or the lid of the
+-- Square's manhole (the parts of its child Model named <asset>_Cover). The arch stays solid. The barrier keeps
+-- its own look while closed and vanishes once open (Effects draws the dissolve the first time); a lid keeps its
+-- own collision.
 local closedTransparency: { [BasePart]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+local function isLid(part: BasePart): boolean
+	local parent = part.Parent
+	return parent ~= nil and parent:IsA("Model") and parent.Name:sub(-6) == "_Cover"
+end
 
 local function setGateOpen(gate: Instance, open: boolean)
 	for _, descendant in gate:GetDescendants() do
-		if descendant:IsA("BasePart") and descendant.Name == "Bars" then
-			local part = descendant :: BasePart
+		if not descendant:IsA("BasePart") then
+			continue
+		end
+		local part = descendant :: BasePart
+		local bars = part.Name == "Bars"
+		if bars or isLid(part) then
 			if closedTransparency[part] == nil then
 				closedTransparency[part] = part.Transparency
 			end
-			part.CanCollide = not open
+			if bars then
+				part.CanCollide = not open
+			end
 			part.Transparency = if open then 1 else closedTransparency[part]
 		end
 	end
@@ -343,6 +356,10 @@ function WorldController.start()
 			local world = Workspace:FindFirstChild("World")
 			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil
 			if gates ~= nil then
+				-- An area opening while you play (not one already open when you joined) is one moment, from the
+				-- nearest of its ways in: the Sewer has its gate and the Square's manhole.
+				local opened: { [string]: Vector3 } = {}
+				local here = rootPosition()
 				for _, gate in gates:GetChildren() do
 					local requires = gate:GetAttribute("RequiresTier")
 					local open = type(requires) == "number" and state.tier >= requires
@@ -350,7 +367,6 @@ function WorldController.start()
 					if was ~= open then
 						gateOpen[gate] = open
 						setGateOpen(gate, open)
-						-- a gate opening while you play (not one already open when you joined)
 						local area = gate:GetAttribute("Area")
 						if
 							was == false
@@ -358,9 +374,19 @@ function WorldController.start()
 							and type(area) == "string"
 							and gate:IsA("Model")
 						then
-							Moments.AreaUnlock:Fire(area, (gate :: Model):GetPivot().Position)
+							local at = (gate :: Model):GetPivot().Position
+							local best: Vector3? = opened[area]
+							if
+								best == nil
+								or (here ~= nil and (at - here).Magnitude < (best - here).Magnitude)
+							then
+								opened[area] = at
+							end
 						end
 					end
+				end
+				for area, at in opened do
+					Moments.AreaUnlock:Fire(area, at)
 				end
 			end
 

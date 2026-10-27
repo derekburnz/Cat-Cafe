@@ -285,9 +285,9 @@ local function spawnStray(
 
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "GrabPrompt"
-	prompt.ActionText = "Swing"
+	prompt.ActionText = "Catch"
 	prompt.ObjectText = def.name
-	prompt.HoldDuration = 0 -- one press starts the circles (data-model section 10)
+	prompt.HoldDuration = Config.CatchHoldSeconds -- holding E starts the circles (Derek 2026-10-27)
 	prompt.MaxActivationDistance = Config.GrabRangeStuds
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
@@ -1021,6 +1021,62 @@ local function onCheckIn(player: Player)
 	finishCheckIn(player, true)
 end
 
+-- The Drop button (Derek 2026-10-27): lets go of the carried cat. In a catching area it hops down in front of the
+-- player; anywhere else (the street, a cafe, a yard) it runs back to a free spot in its own area. Either way it is a
+-- dropped stray with the player as its owner, as after a shove from nobody: only they can catch it for
+-- DropOwnerPrioritySeconds, and a re-catch adds no charm, so drop and re-catch is no charm loop (as S36).
+local function onDropCat(player: Player)
+	local carry = carrying[player]
+	local character = player.Character
+	local root = rootPosition(player)
+	if carry == nil or character == nil or root == nil then
+		return
+	end
+	local name = carry.def.name
+	local here = WorldBuilder.areaAt(world, root)
+	if here ~= nil then
+		local look = character:GetPivot().LookVector
+		local flat = Vector3.new(look.X, 0, look.Z)
+		local away = if flat.Magnitude > 0.01 then flat.Unit else Vector3.new(0, 0, -1)
+		if knockLoose(player, 0, here, away) ~= nil then
+			Net.toast(player, string.format("You let %s go.", name), "info")
+		end
+		return
+	end
+	local homeId = carry.def.area
+	local area = world.areas[homeId]
+	endCarry(player)
+	if area == nil or #area.spawnPoints == 0 then
+		return
+	end
+	local pointIndex = freeSpawnPoint(homeId, nil)
+	local point = area.spawnPoints[pointIndex or rng:NextInteger(1, #area.spawnPoints)]
+	spawnStray(
+		carry.def,
+		homeId,
+		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
+		pointIndex,
+		nil,
+		nil,
+		{
+			charm = carry.charm,
+			variant = carry.variant,
+			method = carry.method,
+			drop = Shove.newDrop(player.UserId, 0, serverNow()),
+		}
+	)
+	local areaDef = Catalog.getArea(homeId)
+	Net.toast(
+		player,
+		string.format(
+			"%s ran back to the %s.",
+			name,
+			if areaDef ~= nil then areaDef.name else "alley"
+		),
+		"info"
+	)
+end
+
 -- Lifecycle -----------------------------------------------------------------------------------------------
 
 function CatService.start(builtWorld: WorldBuilder.World)
@@ -1033,6 +1089,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	Net.on("GrabBegin", onGrabBegin)
 	Net.on("CatchPress", onCatchPress)
 	Net.on("CheckIn", onCheckIn)
+	Net.on("DropCat", onDropCat)
 
 	-- A player who leaves mid-carry keeps the cat. The finalizer runs before the session closes and is handed
 	-- the profile, so it never depends on a lookup that is about to go nil.

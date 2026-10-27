@@ -571,8 +571,7 @@ local function wireServerEvents()
 	Net.on(
 		"CatchSchedule",
 		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
-			-- v0.5: tries are unlimited, so no paw row (nil)
-			UI.catch.showCircles(strayId, circles, windows, nil)
+			UI.catch.showCircles(strayId, circles, windows)
 			Moments.CatchStart:Fire(strayId)
 		end
 	)
@@ -713,7 +712,6 @@ function UIController.start()
 	UI.init({
 		catalog = catalog,
 		keybinds = true,
-		baitBowl = true, -- F28: the HUD's bowl chip and the Bait bowl screen replace the v0.2 lure slot
 		playSound = function(cueId: string)
 			return Audio.play(cueId)
 		end,

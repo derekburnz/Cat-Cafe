@@ -1,7 +1,7 @@
 --!strict
--- Strays: night waves per area, the net (lock, closing circles, patience paws), carrying a caught or rescued cat
--- home and check-in. The bait bowl is BaitService. Server authoritative: the client only says which circle it pressed
--- for; distance, locks, the schedule, the press times, paws and odds live here.
+-- Strays: night waves per area, the net (lock, closing circles, the chase after a miss), carrying a caught or rescued
+-- cat home and check-in. The bait bowl is BaitService. Server authoritative: the client only says which circle it
+-- pressed for; distance, locks, the schedule, the press times, the chase and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -41,12 +41,12 @@ type Stray = {
 	lockedBy: number,
 	lockUntil: number, -- server time the lock lapses on its own; 0 when unlocked
 	attempt: Circles.Attempt?, -- the circles of the lock holder's catch in progress
-	-- v0.4 (data-model section 10 step 5): paws left per player, set to the rarity's patience at their first catch
-	-- and kept when they leave, so a rejoin does not refill them (reviewer N45). Gone when the stray despawns.
-	paws: { [number]: number },
-	waryUntil: { [number]: number }, -- server time each player who missed may try again (StrayWarySeconds)
-	landsAt: number, -- server time a jump back ends; nobody starts a catch before it (GrabRetrySeconds)
-	jumping: boolean,
+	-- v0.5 (data-model section 10 step 5): server time the sprint after a miss and the breather end; nobody starts
+	-- a catch before it. Tries are unlimited, so there is no per-player table.
+	fleeingUntil: number,
+	-- server time each player who missed may try again: StraySelfRetrySeconds after it stops (reviewer S44)
+	selfRetryAt: { [number]: number },
+	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
 	variant: string, -- "shiny" (ShinyChanceNet, rolled at spawn and shown as a sparkle) or "base"
 	alive: boolean,
@@ -74,8 +74,6 @@ local nextStrayNumber = 0
 local inRescue: (Player) -> boolean = function(_player: Player): boolean
 	return false
 end
-
-local JUMP_SPEED = 24 -- studs per second of a stray's jump back after a miss; the client draws the hop
 
 local MAX_CIRCLES = 1 -- the most circles any rarity has; bounds the CatchPress index
 for _, rarity in Catalog.rarities do
@@ -132,6 +130,30 @@ end
 
 local function lockExpired(stray: Stray): boolean
 	return serverNow() > stray.lockUntil
+end
+
+-- `to`, or the point short of it where a prop or wall would block a cat running there from `from` (reviewer N84).
+-- The ray runs a stud above the floor and ignores characters and the cats themselves.
+local function clearPath(from: Vector3, to: Vector3): Vector3
+	local flat = Vector3.new(to.X - from.X, 0, to.Z - from.Z)
+	if flat.Magnitude < 0.1 then
+		return to
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local ignore: { Instance } = { straysFolder }
+	for _, player in Players:GetPlayers() do
+		if player.Character ~= nil then
+			table.insert(ignore, player.Character :: Model)
+		end
+	end
+	params.FilterDescendantsInstances = ignore
+	local hit = Workspace:Raycast(from + Vector3.new(0, 1, 0), flat, params)
+	if hit == nil then
+		return to
+	end
+	local reach = math.max(0, (hit.Position - (from + Vector3.new(0, 1, 0))).Magnitude - 1.5)
+	return Vector3.new(from.X, to.Y, from.Z) + flat.Unit * reach
 end
 
 -- Spawning ------------------------------------------------------------------------------------------------
@@ -214,8 +236,7 @@ local function spawnStray(
 	model:SetAttribute("Area", areaId)
 	model:SetAttribute("LockedBy", 0)
 	model:SetAttribute("SpawnedAt", os.time())
-	-- Paws each player starts with; a player's own count is Paws_<UserId> once they have missed (v0.4).
-	model:SetAttribute("Patience", Catching.patience(def.rarity))
+	model:SetAttribute("FleeingUntil", 0) -- v0.5: server time a missed stray stops running (display only)
 	-- A net stray's shiny is no secret (data-model section 4): the sparkle and the catch header show it.
 	model:SetAttribute("Shiny", variant == "shiny")
 	CollectionService:AddTag(model, "Stray")
@@ -253,9 +274,8 @@ local function spawnStray(
 		lockedBy = 0,
 		lockUntil = 0,
 		attempt = nil,
-		paws = {},
-		waryUntil = {},
-		landsAt = 0,
+		fleeingUntil = 0,
+		selfRetryAt = {},
 		jumping = false,
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 		variant = variant,
@@ -572,25 +592,10 @@ local function recordCircles(player: Player, profile: Types.PlayerProfile, attem
 	end
 end
 
--- Players who can never run out of paws on this stray (data-model section 10 step 5): a beginner on a Common,
--- so the first catch cannot be lost. A miss still makes the stray jump back and starts their wary wait. Bait
--- cats never reach the net: they come to the bowl and are tamed there (section 8).
-local function pawsExempt(stray: Stray, profile: Types.PlayerProfile): boolean
-	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
-		and stray.def.rarity == "Common"
-end
-
--- This player's paws on the stray, or nil when they cannot run out.
-local function pawsLeft(stray: Stray, player: Player, profile: Types.PlayerProfile): number?
-	if pawsExempt(stray, profile) then
-		return nil
-	end
-	return stray.paws[player.UserId] or Catching.patience(stray.def.rarity)
-end
-
--- After a miss the stray hisses (HissAt, so every nearby client plays it) and jumps StrayJumpBackMin to Max studs
--- straight away from the player, kept inside its area. Nobody can start a catch on it until it lands.
-local function jumpBack(stray: Stray, player: Player)
+-- After a miss the stray hisses (HissAt, so every nearby client plays it) and sprints its rarity's fleeStuds straight
+-- away from the player at StrayFleeSpeed, kept inside its area, then catches its breath for StrayRestSeconds
+-- (v0.5, data-model section 10 step 5). Nobody can start a catch on it until FleeingUntil.
+local function flee(stray: Stray, player: Player)
 	local at = stray.model:GetPivot().Position
 	local from = rootPosition(player)
 	local away = if from ~= nil then Vector3.new(at.X - from.X, 0, at.Z - from.Z) else Vector3.zero
@@ -599,25 +604,29 @@ local function jumpBack(stray: Stray, player: Player)
 		away = Vector3.new(math.cos(angle), 0, math.sin(angle))
 	end
 	local area = world.areas[stray.area]
-	local target = WorldBuilder.clampToArea(
-		area,
-		at + away.Unit * rng:NextNumber(Config.StrayJumpBackMin, Config.StrayJumpBackMax),
-		2,
-		at
+	local target = clearPath(
+		at,
+		WorldBuilder.clampToArea(area, at + away.Unit * Catching.fleeStuds(stray.def.rarity), 2, at)
 	)
-	stray.model:SetAttribute("HissAt", serverNow())
+	local now = serverNow()
+	local sprint = Vector3.new(target.X - at.X, 0, target.Z - at.Z).Magnitude
+	stray.fleeingUntil = Catching.fleeUntil(now, sprint)
+	stray.selfRetryAt[player.UserId] = stray.fleeingUntil + Config.StraySelfRetrySeconds
+	stray.model:SetAttribute("HissAt", now)
+	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
 	stray.jumping = true
-	stray.home = target -- it wanders from where it landed, not back toward whoever missed (reviewer N52)
+	stray.home = target -- it wanders from where it stopped, not back toward whoever missed (reviewer N52)
 	task.spawn(function()
-		Mover.walkTo(stray.model, target, JUMP_SPEED, function()
+		Mover.walkTo(stray.model, target, Config.StrayFleeSpeed, function()
 			return stray.alive and stray.lockedBy == 0
 		end)
+		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
 		stray.jumping = false
 	end)
 end
 
 -- Ends a catch at its first Miss or after its last circle (data-model section 10 step 5, v0.4): every circle Good
--- or Perfect is a sure catch, anything else costs this player a paw. The schedule and the press times are the
+-- or Perfect is a sure catch, anything else sends the stray running (v0.5). The schedule and the press times are the
 -- server's own, so a scripted client can only press on time.
 local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attempt)
 	if stray.attempt ~= attempt or not stray.alive then
@@ -643,15 +652,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 
 	if forfeit == nil and Circles.succeeded(attempt) then
 		local gain = if profile.flags.autoPress then 0 else Circles.charmGain(attempt)
-		Net.fire(
-			player,
-			"CatchResult",
-			stray.id,
-			attempt.grades,
-			true,
-			pawsLeft(stray, player, profile),
-			gain
-		)
+		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain)
 		profile.stats.grabsSucceeded += 1
 		local def, variant = stray.def, stray.variant
 		local charm = math.min(100, stray.charm + gain)
@@ -660,22 +661,12 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		return
 	end
 
-	local paws = pawsLeft(stray, player, profile)
-	if paws ~= nil then
-		paws = math.max(0, paws - 1)
-		stray.paws[player.UserId] = paws
-		stray.model:SetAttribute("Paws_" .. player.UserId, paws)
-	end
-	local now = serverNow()
-	stray.waryUntil[player.UserId] = now + Config.StrayWarySeconds
-	stray.landsAt = now + Config.GrabRetrySeconds
-	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, paws, 0)
-	-- The catch HUD shows "It slipped away!" with the paws left (UI.catch.showGrades); only a forfeit needs words
-	-- from here (reviewer S39).
+	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, 0)
+	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
 	if forfeit ~= nil then
 		Net.toast(player, forfeit, "warn")
 	end
-	jumpBack(stray, player)
+	flee(stray, player)
 end
 
 -- Remote handlers -----------------------------------------------------------------------------------------
@@ -714,19 +705,14 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 		Net.fire(player, "GrabResult", strayId, false, "Too far away", true)
 		return
 	end
-	local paws = pawsLeft(stray, player, profile)
-	if paws == 0 then
-		Net.fire(player, "GrabResult", strayId, false, "It won't trust you again tonight", false)
-		return
-	end
 	local now = serverNow()
-	local wary = stray.waryUntil[player.UserId]
-	if wary ~= nil and now < wary then
-		Net.fire(player, "GrabResult", strayId, false, "It's wary of you, give it a moment", true)
+	if now < stray.fleeingUntil then
+		Net.fire(player, "GrabResult", strayId, false, "It's running!", true)
 		return
 	end
-	if now < stray.landsAt then
-		Net.fire(player, "GrabResult", strayId, false, "Give it a moment", true)
+	local selfRetryAt = stray.selfRetryAt[player.UserId]
+	if selfRetryAt ~= nil and now < selfRetryAt then
+		Net.fire(player, "GrabResult", strayId, false, "Catch your breath, then try again", true)
 		return
 	end
 	local last = lastCatchStart[player]
@@ -755,11 +741,8 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	local attempt = Circles.newAttempt(circles, windows)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
-	if paws ~= nil then
-		stray.paws[player.UserId] = paws
-	end
 	profile.stats.grabsAttempted += 1
-	Net.fire(player, "CatchSchedule", strayId, circles, Circles.publicWindows(windows), paws)
+	Net.fire(player, "CatchSchedule", strayId, circles, Circles.publicWindows(windows))
 
 	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
 	task.spawn(function()

@@ -1,7 +1,7 @@
 --!strict
 -- Client-side world touches: each area gate opens once the cafe reaches that area's tier, check-in fires itself at the
--- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray this
--- player is out of paws on hides its prompt for them, the ambience follows the zone the player stands in, the roof of
+-- own cafe door while carrying, the first tutorial step advances when the player reaches the alley, a stray hides its
+-- prompt while it runs off after a miss, the ambience follows the zone the player stands in, the roof of
 -- the cafe the player is inside fades out, and the sky and the parts that glow at night follow the server's day and
 -- night clock (features F20). All cosmetic, all local.
 
@@ -77,18 +77,32 @@ local function setRoofHidden(plot: Model, hidden: boolean)
 	end
 end
 
--- v0.4 (data-model section 10 step 5): once this player has no paws left on a stray (its Paws_<UserId> attribute
--- reaches 0) its prompt goes away for them only; everyone else still sees it.
+-- v0.5 (data-model section 10 step 5): a missed stray sprints off and catches its breath until its FleeingUntil
+-- (server time). Its prompt hides on this client until then; the server refuses GrabBegin meanwhile anyway.
 local function watchStray(model: Instance)
-	local attribute = "Paws_" .. player.UserId
+	local serial = 0
 	local function refresh()
+		serial += 1
+		local mine = serial
 		local prompt = model:FindFirstChild("GrabPrompt", true)
-		if prompt ~= nil and prompt:IsA("ProximityPrompt") then
-			(prompt :: ProximityPrompt).Enabled = model:GetAttribute(attribute) ~= 0
+		if prompt == nil or not prompt:IsA("ProximityPrompt") then
+			return
+		end
+		local fleeingUntil = model:GetAttribute("FleeingUntil")
+		local left = if type(fleeingUntil) == "number"
+			then fleeingUntil - Workspace:GetServerTimeNow()
+			else 0
+		(prompt :: ProximityPrompt).Enabled = left <= 0
+		if left > 0 then
+			task.delay(left, function()
+				if serial == mine and model.Parent ~= nil then
+					refresh()
+				end
+			end)
 		end
 	end
 	refresh()
-	model:GetAttributeChangedSignal(attribute):Connect(refresh)
+	model:GetAttributeChangedSignal("FleeingUntil"):Connect(refresh)
 end
 
 -- The World.Zones box the player stands in ("Cafe", "Alley", "Park" and so on), or nil (WorldBuilder).

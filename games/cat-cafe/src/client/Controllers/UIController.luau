@@ -513,33 +513,27 @@ local function wireServerEvents()
 	end)
 	Net.on(
 		"CatchSchedule",
-		function(
-			strayId: string,
-			circles: { Types.CatchCircle },
-			windows: Types.CatchWindows,
-			pawsLeft: number?
-		)
-			UI.catch.showCircles(strayId, circles, windows, pawsLeft)
+		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+			-- v0.5: tries are unlimited, so no paw row (nil)
+			UI.catch.showCircles(strayId, circles, windows, nil)
 			Moments.CatchStart:Fire(strayId)
 		end
 	)
-	-- v0.4 (data-model section 10 step 5): grades up to and including the first Miss, the paws left (nil when this
-	-- player cannot run out) and the Purrfect charm bonus. The HUD shows the grades, the paw row and the
-	-- "slipped away" line.
+	-- Data-model section 10 step 5: grades up to and including the first Miss and the Purrfect charm bonus. The HUD
+	-- shows the grades and, on a miss, that the cat got away (v0.5: it sprints off and tries are unlimited).
 	Net.on(
 		"CatchResult",
 		function(
 			strayId: string,
 			grades: { Types.CircleGrade },
 			success: boolean,
-			pawsLeft: number?,
 			charmGain: number
 		)
 			local allPerfect = #grades > 0
 			for _, grade in grades do
 				allPerfect = allPerfect and grade == "perfect"
 			end
-			UI.catch.showGrades(strayId, grades, success, pawsLeft, charmGain)
+			UI.catch.showGrades(strayId, grades, success, nil, charmGain)
 			if success then
 				local model = strayModel(strayId)
 				local rarity = if model ~= nil then model:GetAttribute("Rarity") else nil
@@ -550,9 +544,6 @@ local function wireServerEvents()
 				end
 			else
 				Moments.CatchFail:Fire(strayId)
-				if pawsLeft ~= nil then
-					Moments.PawLost:Fire(pawsLeft)
-				end
 			end
 		end
 	)

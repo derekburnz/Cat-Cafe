@@ -99,19 +99,22 @@ return function()
 			end
 		end)
 
-		-- Before the first ProfileSync a switch shows ON (SettingsList.shown); the profile template is what a new
-		-- player saves, so the two must agree. Place icons may be session-only (PR #207) until the server saves it
-		-- (engineer PR #215); no other switch may be.
-		it("shows each switch's saved default before the first sync", function()
-			local saved = ProfileSchema.template(0).settings :: any
-			for _, row in SettingsList.ROWS do
-				local default = saved[row.key]
-				if default == nil then
-					expect(row.key).to.equal("markers")
-				elseif type(default) == "boolean" then
-					expect(SettingsList.shown(nil, {}, row.key, 0)).to.equal(default)
-				end
+		-- A slider stop is what the server saves (Settings.clean keeps two decimals), so a released slider never
+		-- jumps when the save comes back. Replaces QA's switch-only default check, which the test above covers.
+		it("stops any slider position on a 5% step the server saves as is", function()
+			local last = -1
+			for raw = -300, 1300 do
+				local volume = SettingsList.step(raw / 1000)
+				expect(volume >= last and volume >= 0 and volume <= 1).to.equal(true)
+				expect(SettingsList.step(volume)).to.equal(volume)
+				local saved = Settings.clean("musicVolume", volume)
+				expect(saved).to.equal(volume)
+				local percent = tonumber(string.match(SettingsList.percent(volume), "^(%d+)%%$"))
+				expect(percent ~= nil and percent % 5 == 0).to.equal(true)
+				last = volume
 			end
+			expect(SettingsList.step(math.huge)).to.equal(1)
+			expect(SettingsList.step(-math.huge)).to.equal(0)
 		end)
 	end)
 end

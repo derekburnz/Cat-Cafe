@@ -803,16 +803,36 @@ Presets.catPoses = {
 
 Presets.shake = { seconds = 0.18, studs = 0.22 }
 
--- A shove (F41): a puff where it lands, dizzy stars over the shoved player's head and, for them, a bigger
--- camera bump than a missed catch. The knockback itself is the engineer's, on the target's own client.
+-- A shove (F41), a landed tackle since F74: a puff where it lands, dizzy stars over the shoved player's head and,
+-- for them, a bigger camera bump than a missed catch. The knockback itself is the engineer's, on the target's own
+-- client.
 Presets.shove = {
 	puff = 10, -- hissPuff particles where it lands
-	starSeconds = 1.2,
 	stars = 3,
 	starRadius = 0.9,
 	starHz = 1.4,
 	shake = 0.3,
 	shakeStuds = 0.4,
+}
+
+-- A tackle (F74, data-model 10c v0.11): a streak of dust along the ground behind the tackler while they lunge, and
+-- after a miss a skid of dust kicked up as they slide on their belly with a puff where they stop. The seconds come
+-- from the shared Config once it has them (TackleLungeSeconds, TackleHitGraceSeconds, TackledDownSeconds); these
+-- until then.
+Presets.tackle = {
+	lungeSeconds = 0.35, -- TackleLungeSeconds
+	graceSeconds = 0.25, -- TackleHitGraceSeconds: the streak may run this much longer for lag
+	downSeconds = 0.8, -- TackledDownSeconds: a tackled player's stars circle this long
+	starsAfter = 0.4, -- and this much longer while they get up, fading out over the last 0.3 s
+	lungeSpeed = 28, -- studs a second: a lunge (12 in 0.35 s) beats this, a Catch Rush walk (24) does not
+	streakWidth = 1.4, -- studs: the flat ribbon of dust along the ground
+	streakSeconds = 0.45, -- how long the ribbon trails behind before it fades
+	every = 0.06, -- seconds between looks at how fast the tackler moves, and between kicks
+	kick = 2, -- kick particles at the feet each time while lunging fast
+	skidSeconds = 0.6, -- the longest a missed tackler's slide is followed
+	skidSpeed = 3, -- studs a second: slower than this they have stopped
+	skidKick = 3, -- kick particles each time while sliding
+	skidDust = 8, -- dust particles where they stop
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue

@@ -8,6 +8,7 @@ local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -56,7 +57,7 @@ local function finalize(player: Player, session: Session)
 			warn("[DataService] finalizer failed:", err)
 		end
 	end
-	Economy.settle(profile, now)
+	Economy.settle(profile, now, ClockService.epoch())
 	if session.pendingOffline > 0 then
 		-- Offline earnings the player never claimed (popup dismissed, left early) are credited, not lost.
 		Economy.credit(profile, session.pendingOffline)

@@ -30,6 +30,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	BuyDealerFood = RateLimiter.new(2, 1), -- recomputes the stock and answers with DealerStock every time
 	UseLure = RateLimiter.new(1, 1), -- rolls a cat and rebuilds the bowl
 	ResolveBait = RateLimiter.new(1, 1), -- the card retries after 6 s at most
+	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

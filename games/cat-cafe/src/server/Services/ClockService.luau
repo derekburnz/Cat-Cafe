@@ -79,6 +79,12 @@ function ClockService.phaseEndsAt(): number
 	return currentEndsAt
 end
 
+-- The os.time() at which this server's clock read 0, for Economy.settle to split a window at phase boundaries
+-- (data-model section 11). A debug jump moves it, so a window that spans the jump is settled as the new clock says.
+function ClockService.epoch(): number
+	return os.time() - (os.clock() - startedAt)
+end
+
 -- Studio-only test hook: jump to the start of a phase at its full length. Jumping to night rolls a wave at once.
 function ClockService.debugSetPhase(phase: Types.ClockPhase)
 	assert(RunService:IsStudio(), "debugSetPhase is Studio only")

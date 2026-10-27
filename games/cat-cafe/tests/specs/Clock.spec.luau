@@ -74,4 +74,34 @@ return function()
 			end
 		end)
 	end)
+
+	describe("nightSecondsBetween (F31, section 11)", function()
+		local start = firstDay
+
+		it("is 0 in the first day and for an empty or backwards window", function()
+			expect(Clock.nightSecondsBetween(0, start)).to.equal(0)
+			expect(Clock.nightSecondsBetween(start + 10, start + 10)).to.equal(0)
+			expect(Clock.nightSecondsBetween(start + 50, start + 10)).to.equal(0)
+		end)
+
+		it("counts only the night part of a window that crosses dusk or dawn", function()
+			expect(Clock.nightSecondsBetween(start - 30, start + 40)).to.equal(40)
+			expect(Clock.nightSecondsBetween(start + night - 25, start + night + 60)).to.equal(25)
+		end)
+
+		it("adds up whole cycles", function()
+			expect(Clock.nightSecondsBetween(0, start + 2 * (night + day))).to.equal(2 * night)
+			expect(Clock.nightSecondsBetween(start + night, start + night + day)).to.equal(0)
+		end)
+
+		it("agrees with phaseAt second by second", function()
+			local counted = 0
+			for t = 0, start + 2 * (night + day) do
+				if Clock.phaseAt(t + 0.5) == "night" then
+					counted += 1
+				end
+			end
+			expect(Clock.nightSecondsBetween(0, start + 2 * (night + day) + 1)).to.equal(counted)
+		end)
+	end)
 end

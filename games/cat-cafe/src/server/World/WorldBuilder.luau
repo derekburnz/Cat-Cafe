@@ -36,6 +36,7 @@ export type Plot = {
 	baitBowl: BasePart, -- BaitBowl, in the front garden: range checks, and the owner's client puts its prompt here
 	baitCat: BasePart, -- BaitCat, where the cat that came to the bowl sits
 	bait: Folder, -- Bait/, the bowl, its food and the cat while the owner has the Bait bowl upgrade
+	richTipAnchor: BasePart, -- RichTipAnchor on table 1: the rich tip's coin pile, marker and claim range
 }
 
 export type AreaInfo = {
@@ -244,6 +245,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 	model.Name = "Plot_" .. index
 	model:SetAttribute("PlotIndex", index)
 	model:SetAttribute("OwnerUserId", 0)
+	model:SetAttribute("RichTipAmount", 0) -- display only; RichTipService keeps the tip itself
+	model:SetAttribute("RichTipExpiresAt", 0)
 	model.WorldPivot = cframe -- GetPivot is the plot's own frame: -Z faces the street
 	CollectionService:AddTag(model, "Plot")
 
@@ -534,6 +537,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 	-- the owner's client makes the bowl's prompt itself, so nobody else sees one at this cafe.
 	local baitBowl = anchor("BaitBowl", localCFrame(cframe, Layout.plot.baitBowl), model)
 	local baitCat = anchor("BaitCat", localCFrame(cframe, Layout.plot.baitCat), model)
+	local richTipAnchor = anchor("RichTipAnchor", localCFrame(cframe, Layout.plot.richTip), model)
 
 	local napFolder = folder("NapSpots", model)
 	local napSpots: { BasePart } = {}
@@ -564,6 +568,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		baitBowl = baitBowl,
 		baitCat = baitCat,
 		bait = folder("Bait", model),
+		richTipAnchor = richTipAnchor,
 	}
 	WorldBuilder.setDressing(plot, 0)
 	model.Parent = parent

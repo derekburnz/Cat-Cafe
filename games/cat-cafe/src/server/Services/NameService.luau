@@ -14,11 +14,13 @@ local RunService = game:GetService("RunService")
 local TextService = game:GetService("TextService")
 
 local CatName = require(ReplicatedStorage.Shared.CatName)
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local Signal = require(ReplicatedStorage.Shared.Signal)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local NameService = {}
@@ -195,6 +197,9 @@ local function rename(player: Player, rawUid: unknown, rawName: unknown)
 	instance.name = name
 	shownFor(player)[uid] = { raw = name, text = text }
 	Net.toast(player, "Renamed to " .. text, "good")
+	local def = Catalog.getCat(instance.catId)
+	local rarity: string = if def ~= nil then def.rarity else "unknown"
+	Telemetry.custom(player, "cat_renamed", 1, { rarity }) -- never the name
 	NameService.changed:Fire(player)
 end
 

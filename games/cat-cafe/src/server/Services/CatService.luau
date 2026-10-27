@@ -24,6 +24,7 @@ local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -566,6 +567,12 @@ local function startCarry(
 	carrying[player] = carry
 	attachHeldCat(player, carry)
 	CafeService.setCarrying(player, def.id)
+	local profile = DataService.get(player)
+	if profile ~= nil then
+		-- a catch is out in an area, so it stands in for the alley step when TutorialAdvance 1 never came
+		Telemetry.onboarding(player, profile, "saw_alley")
+		Telemetry.onboarding(player, profile, "first_catch")
+	end
 	local verb = if method == "rescue" and immune ~= true then "rescued" else "caught"
 	local name = if variant == "shiny" then "shiny " .. def.name else def.name
 	Net.toast(
@@ -636,6 +643,7 @@ local function recordCircles(player: Player, profile: Types.PlayerProfile, attem
 	profile.stats.perfectCircles += Circles.perfectCount(attempt)
 	if not profile.flags.autoPress and Circles.looksScripted(history) then
 		profile.flags.autoPress = true
+		Telemetry.custom(player, "autopress_flag", 1, { "set" })
 		warn(
 			string.format(
 				"[CatService] autopress_flag set for %d: over %d%% Perfect in the last %d circles",
@@ -646,6 +654,7 @@ local function recordCircles(player: Player, profile: Types.PlayerProfile, attem
 		)
 	elseif profile.flags.autoPress and Circles.looksHonest(history) then
 		profile.flags.autoPress = false
+		Telemetry.custom(player, "autopress_flag", 1, { "cleared" })
 		warn(string.format("[CatService] autopress_flag cleared for %d", player.UserId))
 	end
 end
@@ -938,6 +947,10 @@ local function finishCheckIn(player: Player, notify: boolean, profile: Types.Pla
 		carry.variant
 	)
 	if notify then
+		local current = DataService.get(player)
+		if current ~= nil then
+			Telemetry.onboarding(player, current, "first_checkin")
+		end
 		Net.fire(player, "CatCaught", def.id, isNew)
 		local verb = if carry.method == "rescue" then "rescued" else "caught"
 		local text = Catching.shoutOut(player.DisplayName, verb, def, carry.variant)

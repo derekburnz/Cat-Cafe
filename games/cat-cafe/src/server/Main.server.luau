@@ -17,6 +17,7 @@ local PlotService = require(script.Parent.Services.PlotService)
 local RescueService = require(script.Parent.Services.RescueService)
 local RichTipService = require(script.Parent.Services.RichTipService)
 local ShoveService = require(script.Parent.Services.ShoveService)
+local Telemetry = require(script.Parent.Services.Telemetry)
 local TravelService = require(script.Parent.Services.TravelService)
 local WorldBuilder = require(script.Parent.World.WorldBuilder)
 
@@ -36,6 +37,7 @@ DealerService.start()
 RichTipService.start()
 ShoveService.start()
 NameService.start()
+Telemetry.start() -- after every service that registers leave work, so its own runs last
 DataService.start()
 
 -- Studio only: the command bar and Studio MCP's execute_luau get a fresh copy of any module they require, with

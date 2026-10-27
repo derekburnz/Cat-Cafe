@@ -21,6 +21,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local DealerService = {}
@@ -208,6 +209,13 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 		refuse("Not enough coins")
 		return
 	end
+	Telemetry.sink(player, profile, def.cost, "Shop", "dealer_" .. lureId)
+	Telemetry.custom(
+		player,
+		"dealer_buy",
+		def.cost,
+		{ lureId, tostring(Economy.tier(profile)), key }
+	)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
 	profile.dealer.bought[key] = true
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")

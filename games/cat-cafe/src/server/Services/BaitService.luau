@@ -20,6 +20,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local BaitService = {}
@@ -93,6 +94,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 	}
 	profile.stats.luresUsed += 1
+	Telemetry.onboarding(player, profile, "first_bait")
 	if profile.tutorialStep == 4 then
 		CafeService.advanceTutorial(profile, 5) -- the last step: set bait
 	end
@@ -129,6 +131,7 @@ local function onResolveBait(player: Player, rawChoice: unknown)
 	-- Empty the bowl before granting, so a second press cannot tame twice.
 	profile.bait = nil
 	shownArrival[player] = nil
+	Telemetry.onboarding(player, profile, "first_bait_resolved")
 	local def = Catalog.getCat(bait.catId)
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1

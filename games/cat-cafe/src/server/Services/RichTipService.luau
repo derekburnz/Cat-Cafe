@@ -20,6 +20,8 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Telemetry = require(script.Parent.Telemetry)
+local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local RichTipService = {}
@@ -61,12 +63,19 @@ local function take(index: number): Tip?
 	return tip
 end
 
-local function pay(player: Player, tip: Tip)
+local function logTip(player: Player, profile: Types.PlayerProfile, amount: number, outcome: string)
+	Telemetry.source(player, profile, amount, "Gameplay", "rich_tip")
+	Telemetry.custom(player, "rich_tip", amount, { outcome, tostring(Economy.tier(profile)) })
+end
+
+-- `outcome` is "claimed" or "auto" (analytics rich_tip)
+local function pay(player: Player, tip: Tip, outcome: string)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
 	end
 	Economy.credit(profile, tip.amount)
+	logTip(player, profile, tip.amount, outcome)
 	CafeService.sync(player)
 end
 
@@ -89,7 +98,7 @@ local function onClaimRichTip(player: Player)
 	end
 	local taken = take(plot.index)
 	if taken ~= nil then
-		pay(player, taken)
+		pay(player, taken, "claimed")
 	end
 end
 
@@ -104,7 +113,7 @@ local function checkExpiries()
 		local taken = take(index)
 		local owner = Players:GetPlayerByUserId(tip.ownerUserId)
 		if taken ~= nil and owner ~= nil and PlotService.get(owner) == taken.plot then
-			pay(owner, taken)
+			pay(owner, taken, "auto")
 		end
 	end
 end
@@ -155,6 +164,7 @@ function RichTipService.start()
 				local taken = take(index)
 				if taken ~= nil then
 					Economy.credit(profile, taken.amount)
+					logTip(player, profile, taken.amount, "auto")
 				end
 			end
 		end

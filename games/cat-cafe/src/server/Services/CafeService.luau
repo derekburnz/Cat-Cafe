@@ -22,6 +22,7 @@ local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
@@ -512,7 +513,17 @@ function CafeService.addCaughtCat(
 	profile.stats.catsCaught += 1
 	if isNew then
 		profile.collection[def.id] = now
-		Economy.credit(profile, Catalog.rarities[def.rarity].firstCatchReward)
+		local reward = Catalog.rarities[def.rarity].firstCatchReward
+		Economy.credit(profile, reward)
+		-- the starter cat is the first book entry, so two entries means this was the player's first new cat
+		local first = ProfileSchema.collectionCount(profile) <= 2
+		Telemetry.source(
+			player,
+			profile,
+			reward,
+			if first then "Onboarding" else "Gameplay",
+			if first then "first_catch_reward" else "collection_reward"
+		)
 	end
 	CafeService.advanceTutorial(profile, 2)
 
@@ -520,6 +531,7 @@ function CafeService.addCaughtCat(
 		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
 			instance.spotId = spot.id
 			CafeService.advanceTutorial(profile, 3)
+			Telemetry.onboarding(player, profile, "first_role")
 			break
 		end
 	end
@@ -602,6 +614,7 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 	end
 	instance.spotId = spotId
 	CafeService.advanceTutorial(profile, 3)
+	Telemetry.onboarding(player, profile, "first_role")
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -638,6 +651,7 @@ local function onEquipBest(player: Player)
 	local changed = EquipBest.apply(profile, plan)
 	if plan.catsPlaced > 0 then
 		CafeService.advanceTutorial(profile, 3)
+		Telemetry.onboarding(player, profile, "first_role")
 	end
 	Net.toast(
 		player,
@@ -676,6 +690,8 @@ local function onSellCat(player: Player, rawUid: unknown)
 	profile.stats.catsSold += 1
 	local value = Catalog.rarities[def.rarity].sellValue
 	Economy.credit(profile, value)
+	Telemetry.source(player, profile, value, "Gameplay", "sell_cat")
+	Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
 	Net.toast(player, string.format("Sold %s for $%d", def.name, value), "good")
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
@@ -698,10 +714,12 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		Net.toast(player, "Not enough coins", "warn")
 		return
 	end
+	Telemetry.sink(player, profile, cost, "Shop", upgradeId)
 	profile.upgradeLevels[upgradeId] = Economy.level(profile, upgradeId) + 1
 	if upgradeId == "tables" then
 		-- a player who already baited the bowl has done step 5's task too (reviewer S48)
 		CafeService.advanceTutorial(profile, if profile.stats.luresUsed > 0 then 5 else 4)
+		Telemetry.onboarding(player, profile, "first_table")
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef
 	Net.toast(
@@ -731,7 +749,9 @@ local function onRankUp(player: Player)
 		Net.toast(player, "Not enough coins", "warn")
 		return
 	end
+	Telemetry.sink(player, profile, def.cost, "Gameplay", "rank_up_" .. def.tier)
 	profile.tier = def.tier
+	Telemetry.rankedUp(player, profile)
 	local area = Catalog.getArea(def.area)
 	Net.toast(
 		player,
@@ -766,6 +786,7 @@ local function onBuyDecor(player: Player, rawId: unknown)
 		Net.toast(player, "Not enough coins", "warn")
 		return
 	end
+	Telemetry.sink(player, profile, def.cost, "Shop", decorId)
 	profile.decorOwned[decorId] = true
 	profile.decorPlaced[decorId] = true
 	Net.toast(player, string.format("%s placed (%s)", def.name, def.effect), "good")
@@ -816,6 +837,7 @@ local function onBuyLure(player: Player, rawId: unknown)
 		CafeService.sync(player)
 		return
 	end
+	Telemetry.sink(player, profile, def.cost, "Shop", lureId)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
 	CafeService.sync(player)
@@ -826,11 +848,18 @@ local function onClaimOffline(player: Player)
 	if profile == nil then
 		return
 	end
-	local amount = DataService.takePendingOffline(player)
+	local amount, seconds = DataService.takePendingOffline(player)
 	if amount <= 0 then
 		return
 	end
 	Economy.credit(profile, amount)
+	Telemetry.source(player, profile, amount, "TimedReward", "offline")
+	local away = if seconds >= Config.OfflineCapSeconds
+		then "capped"
+		elseif seconds < 15 * 60 then "0-14"
+		else "15-59"
+	Telemetry.custom(player, "offline_claim", amount, { away })
+	Telemetry.onboarding(player, profile, "first_offline_claim")
 	Net.toast(player, string.format("Welcome back! +$%d while you were away", amount), "good")
 	CafeService.sync(player)
 end
@@ -843,6 +872,9 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 	end
 	if step == profile.tutorialStep + 1 then
 		profile.tutorialStep = step
+		if step == 1 then
+			Telemetry.onboarding(player, profile, "saw_alley")
+		end
 		CafeService.sync(player)
 	end
 end

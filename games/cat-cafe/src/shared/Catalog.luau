@@ -1076,6 +1076,26 @@ for _, row in Catalog.mysteryGift do
 end
 table.freeze(Catalog.mysteryGift)
 
+-- Section 12b (F63): the Cat Collector's offers by the value he puts on the cat, lowest first. He offers the best row
+-- his value reaches, and the first below that, so a Common always gets 5 golden fish. The crate rows start at 6 and 11
+-- (Design #500), so every Epic gets a crate and its best rolls 20 fish with it. A zone crate is the crate of
+-- the cat's own area and a golden crate its golden version (golden-fish.md section 4).
+Catalog.collectorOffers = {
+	{ value = 1, fish = 5 },
+	{ value = 2, lures = { tuna = 3 }, spins = 1 },
+	{ value = 4, fish = 15 },
+	{ value = 6, crates = { zone = 1 } },
+	{ value = 11, crates = { zone = 1 }, fish = 20 },
+	{ value = 20, crates = { zone = 2 } },
+	{ value = 35, crates = { golden = 1 } },
+	{ value = 60, crates = { golden = 1 }, fish = 50 },
+	{ value = 120, crates = { golden = 2 }, fish = 100 },
+} :: { Types.CollectorOffer }
+for _, row in Catalog.collectorOffers do
+	table.freeze(row)
+end
+table.freeze(Catalog.collectorOffers)
+
 -- Section 8b: chance per dealer slot of each dealer food. v0.5 F43: one row for everyone (the old Tier 3 row).
 -- Retired by v0.8 F59 (the amounts below); only the UI's offline demo still reads it.
 Catalog.dealerSlotWeights =

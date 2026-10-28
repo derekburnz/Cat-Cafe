@@ -65,6 +65,7 @@ export type CustomEvent =
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "potion_used" -- F64: potion id, tier
 	| "mystery_gift" -- F64: "opened" or "missed", kind:id ("potion:tip_potion", "spin"), tier; the value is the count
+	| "collector_visit" -- F63: "arrived", "traded", "declined", "timeout" or "withdrawn", catId:variant, offer value
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

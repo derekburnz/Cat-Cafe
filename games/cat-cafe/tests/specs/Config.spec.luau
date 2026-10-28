@@ -112,6 +112,13 @@ return function()
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 600,
 		PotionMaxMinutes = 60,
+		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
+		CollectorCheckSeconds = 120,
+		CollectorChance = 0.12,
+		CollectorStaySeconds = 180,
+		CollectorGoldMultiplier = 3,
+		CollectorRollMin = 0.8,
+		CollectorRollMax = 1.5,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
@@ -208,6 +215,8 @@ return function()
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
+				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
+				CollectorRangeStuds = true, -- section 12b: his card opens "within 12 studs"
 				TipPotionBonus = true, -- section 12b's potion table: "+25% tips"
 				SwiftPotionSpeed = true, -- section 12b's potion table: "+4 walk and carry speed"
 				LuckyPotionGoldScale = true, -- section 12b's potion table: "double the chance"

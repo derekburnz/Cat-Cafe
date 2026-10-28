@@ -62,6 +62,9 @@ Remotes.ClientToServer = {
 	-- the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
+	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, within
+	-- CollectorRangeStuds of him; on accept the cat he asks for is still owned, resting, unlocked and not the
+	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 }
@@ -103,6 +106,9 @@ Remotes.ServerToClient = {
 	-- succeeded; their client pushes its own character CatchBurstStuds along direction (flat, unit). Not a shove
 	"MysteryGiftResult", -- (kind: "potion" | "lure" | "fish" | "spin", id: string?, count: number)  F64: what the
 	-- owner's opened Mystery gift held, for the gift card and the ribbon pop
+	"CollectorOffer", -- (catUid: string, offer: Types.CollectorOffer?, endsAt: number, traded: boolean?)  F63: the
+	-- owner's Cat Collector card: the cat he wants, his offer (a Catalog.collectorOffers row; the zone crate is the
+	-- cat's area's) and the server time he leaves. catUid "" ends the visit, `traded` true when it ended in a trade
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 }

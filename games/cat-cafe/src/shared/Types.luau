@@ -167,6 +167,16 @@ export type MysteryGiftRow = {
 	chance: number,
 }
 
+-- One row of Catalog.collectorOffers (F63, data-model section 12b): what the Cat Collector offers for a cat he values
+-- at `value` or more. `crates.zone` counts the crate of the cat's own area and `crates.golden` its golden one.
+export type CollectorOffer = {
+	value: number,
+	fish: number?,
+	lures: { [string]: number }?,
+	spins: number?,
+	crates: { zone: number?, golden: number? }?,
+}
+
 -- A code (F65, data-model section 11d), keyed in Catalog.codes by its lowercased text. Its prize uses the Index
 -- prize shape. An inactive or ended code has expired; a requiresGroup code needs membership of Config.GroupId.
 export type CodeDef = {
@@ -349,6 +359,7 @@ export type Stats = {
 	catLevelUps: number, -- v0.12 F75: every level any of the player's cats gained
 	potionsUsed: number, -- F64: potions drunk with UsePotion
 	mysteryGifts: number, -- F64: Mystery gifts opened
+	collectorTrades: number, -- F63: cats traded to the Cat Collector
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).

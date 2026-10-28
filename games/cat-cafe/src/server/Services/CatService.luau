@@ -1441,20 +1441,25 @@ local RETURN_AGENT = { AgentRadius = 1, AgentHeight = 2, AgentCanJump = true, Wa
 -- runs out short of home, and straight at home up to the first thing in the way when there is no path. It ends when
 -- someone picks the cat up or dusk takes it (either despawns it), within DropHomeRadiusStuds of home, or after
 -- DropReturnMaxSeconds, when the cat appears at home. It walks whether or not anyone is near (unlike wander, S35),
--- since a walk is short and someone may be chasing it.
+-- since a walk is short and someone may be chasing it. A home up on a perch (a porch, a rock, the Sewer's catwalk) is
+-- walked to on the floor under it, and arriveHome puts the cat up there (review S88).
 local function walkHome(stray: Stray, home: Vector3)
 	local deadline = os.clock() + Config.DropReturnMaxSeconds
 	local walking = function(): boolean
 		return stray.alive and stray.returning and os.clock() < deadline
 	end
+	local area = world.areas[stray.area]
+	local goal = if area ~= nil and home.Y > area.floorY + PERCH_ABOVE
+		then Vector3.new(home.X, area.floorY, home.Z)
+		else home
 	local path = PathfindingService:CreatePath(RETURN_AGENT)
 	while walking() do
 		local at = stray.model:GetPivot().Position
-		if (at - home).Magnitude <= Config.DropHomeRadiusStuds then
+		if (at - goal).Magnitude <= Config.DropHomeRadiusStuds then
 			break
 		end
 		local computed = pcall(function()
-			path:ComputeAsync(at, home)
+			path:ComputeAsync(at, goal)
 		end)
 		if not walking() then
 			break
@@ -1474,11 +1479,11 @@ local function walkHome(stray: Stray, home: Vector3)
 				end
 			end
 		else
-			Mover.walkTo(stray.model, clearPath(at, home), Config.DropReturnWalkSpeed, walking)
+			Mover.walkTo(stray.model, clearPath(at, goal), Config.DropReturnWalkSpeed, walking)
 		end
 		-- no closer (a path that ends short, or a wall in the way): try again in a moment
 		local now = stray.model:GetPivot().Position
-		if walking() and (now - home).Magnitude > (at - home).Magnitude - 1 then
+		if walking() and (now - goal).Magnitude > (at - goal).Magnitude - 1 then
 			task.wait(1)
 		end
 	end

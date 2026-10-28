@@ -82,6 +82,9 @@ local Config = {
 	} :: { [number]: { perfect: number, good: number, jitter: number } },
 	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.
 	LureWaitSeconds = 600,
+	-- F60 (round 3 Q6): food that goes in while the server is in night waits this instead, the Big Bowl's in the same
+	-- share (half: 240 s), fixed in bait.readyAt at placement
+	LureWaitSecondsNight = 300,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
@@ -139,7 +142,9 @@ local Config = {
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
 
 	-- Night income and rich customers (F31, data-model sections 11 and 12)
-	NightIncomeMultiplier = 0.6, -- tips pay this share of the day rate at night; offline pay keeps the day rate
+	-- tips pay this share of the day rate at night; offline pay keeps the day rate. F60 (round 3 Q6): full pay, the
+	-- cafe still closed with its cats asleep (v0.5 to v0.8 paid 0.6)
+	NightIncomeMultiplier = 1,
 	RichCheckSeconds = 60, -- by day, how often each earning cafe rolls for a rich customer
 	RichChance = 0.10, -- F61: was 0.15, now that a rich visitor pays far more
 	RichTipSeconds = 120, -- a rich tip is this many seconds of the day rate (at least $50; F61: was 45)

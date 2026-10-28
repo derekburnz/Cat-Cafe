@@ -354,6 +354,7 @@ export type BaitState = {
 	-- os.time() the cat comes, fixed when the food goes in (F54: the wait less the Index's bait speed), so a later
 	-- claim or perk never moves a filling bowl; nil on saves from before it, which wait LureWaitSeconds
 	readyAt: number?,
+	night: boolean?, -- F60: the food went in at night, so readyAt is the shorter night wait; nil by day
 	catId: string,
 	variant: string,
 	charm: number,
@@ -365,6 +366,7 @@ export type BaitView = {
 	lureId: string,
 	placedAt: number, -- server os.time(); with readyAt, the fill bar's length (F54: the wait is fixed at placement)
 	readyAt: number, -- server os.time()
+	night: boolean?, -- F60: night bait (half the wait); the bowl countdown shows a moon
 	cat: { catId: string, variant: string, charm: number, stars: number }?,
 }
 

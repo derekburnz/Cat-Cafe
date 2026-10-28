@@ -696,6 +696,24 @@ return function()
 			end
 		end)
 
+		it("keeps a night bait's flag (F60) only when it is true", function()
+			local raw = v3Save()
+			local cases: { { night: any, want: boolean? } } = {
+				{ night = true, want = true },
+				{ night = false, want = nil },
+				{ night = "yes", want = nil },
+				{ night = nil, want = nil },
+			}
+			for _, case in cases do
+				raw.bait =
+					{ lureId = "tuna", placedAt = 90, readyAt = 390, night = case.night, catId = "siamese", charm = 50 }
+				local bait = ProfileSchema.migrate(raw, 500).bait
+				assert(bait)
+				expect(bait.night).to.equal(case.want)
+				expect(bait.readyAt).to.equal(390)
+			end
+		end)
+
 		it("keeps All Cats and Decor Index claims (F54) and drops unknown pages and milestones", function()
 			local raw = v3Save()
 			raw.version = 7

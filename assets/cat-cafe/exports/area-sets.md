@@ -11,7 +11,7 @@ for v3.1 (section 7) until they are rebuilt.
 | `CatCafe_Woods_Set` | 119 x 119 | 20,126 | 880 | 120 x 120, centre (-155, 0), gate x -94 |
 | `CatCafe_Sewer_Set` | 93.2 x 93.3 | 36,400 | 1,249 | 90 x 90 walkable, centre (140, 0), gate x 94 |
 | `CatCafe_Park_Set` | 159.5 x 119.75 | 54,766 | 2,807 | v3.2: 160 x 120, centre (0, -186), gate z -125 |
-| `CatCafe_Woods_SetV32` | 240 x 240 | 106,248 | 4,582 | v3.2: 240 x 240, centre (-215, 0), gate x -94 |
+| `CatCafe_Woods_SetV32` | 240 x 240 | 105,040 | 4,510 | v3.2: 240 x 240, centre (-215, 0), gate x -94 |
 
 ## Placing a set
 
@@ -79,7 +79,7 @@ bank either side (16.4 across in all). `CatCafe_Woods_Stream_Barrier` stands on 
 bridge, and along the bridge's sides. The bridge's deck is 6 wide at 2.0, with a plank ramp at each end
 (22 degrees, 5 long) and log railings 3.4 high.
 
-Blockers: the tree line (thicket 9 to 9.3 high with pines in it) and the rock ridge (boulders 6 to 8 high) each carry a
+Blockers: the tree line (overlapping bush masses about 9.5 high round a solid core, with pines in it) and the rock ridge (boulders 6 to 8 high) each carry a
 30 high `_Barrier` on their footprint, and the outer wall band has one all round but the gate.
 
 ## Spots for cats

@@ -1,6 +1,7 @@
 --!strict
 -- The world layout (server World/Layout.luau, pure geometry) against design v0.4: world-and-feel.md section 2 (the
--- Alleyway out back) and its section 8 acceptance check 4 (F35, layout v2; check 4 as reworded in docs PR #83).
+-- Alleyway out back) and its section 8 acceptance check 4 (F35, layout v2; check 4 as reworded in docs PR #83), and
+-- town-layout-v3.md (F76) with section 7 (v3.1, F77: the Alley Square gone, the Woods and Sewer off the alleys).
 return function()
 	local ServerScriptService = game:GetService("ServerScriptService")
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -108,7 +109,7 @@ return function()
 	end)
 
 	describe("the Alleyway out back (world-and-feel section 2, F35)", function()
-		it("24 spawn points: two behind every cafe and eight in the Square", function()
+		it("24 spawn points: two behind every cafe and two at each end of the back alleys (v3.1)", function()
 			local zones: { [string]: number } = {}
 			for _, point in alley.spawnPoints do
 				expect(point.zone).to.be.ok()
@@ -117,20 +118,39 @@ return function()
 			end
 			expect(#alley.spawnPoints).to.equal(24)
 			expect(zones.lane).to.equal(2 * W.PlotCount)
-			expect(zones.square).to.equal(8)
+			expect(zones.nook).to.equal(8)
 		end)
 
-		it("lane points lie in a back alley, Square points in the Square", function()
+		it("every point lies in a back alley, and the nooks at its ends, 10 studs from every lane point", function()
+			local ends: { [string]: number } = {}
 			for i, point in alley.spawnPoints do
-				local inLane = math.abs(point.x) >= W.AlleyInnerX
+				local inAlley = math.abs(point.x) >= W.AlleyInnerX
 					and math.abs(point.x) <= W.AlleyOuterX
-					and point.z < W.SquareSouthZ
-				local inSquare = point.z > W.SquareSouthZ and point.z < W.SquareNorthZ
-				if point.zone == "lane" and not inLane then
-					fail("lane point %d at (%g, %g) is not in a back alley", i, point.x, point.z)
-				elseif point.zone == "square" and not inSquare then
-					fail("square point %d at (%g, %g) is not in the Square", i, point.x, point.z)
+					and point.z > W.AlleySouthZ
+					and point.z < W.AlleyNorthZ
+				if not inAlley then
+					fail("%s point %d at (%g, %g) is not in a back alley", tostring(point.zone), i, point.x, point.z)
 				end
+				if point.zone ~= "nook" then
+					continue
+				end
+				-- 6.5 from a south end wall and 8.5 from a north one (section 7e, reviewer S84), so 2 or more inside
+				-- the roam rects' 4 and 6 stud margins
+				local fromEnd = W.AlleyNorthZ - math.abs(point.z)
+				if fromEnd < 6 or fromEnd > 9 then
+					fail("nook point %d at (%g, %g) is %.1f from its end wall", i, point.x, point.z, fromEnd)
+				end
+				local key = (if point.x < 0 then "w" else "e") .. (if point.z < 0 then "s" else "n")
+				ends[key] = (ends[key] or 0) + 1
+				for j, lane in alley.spawnPoints do
+					local apart = math.sqrt((point.x - lane.x) ^ 2 + (point.z - lane.z) ^ 2)
+					if lane.zone == "lane" and apart < 10 then
+						fail("nook point %d is %.1f studs from lane point %d", i, apart, j)
+					end
+				end
+			end
+			for _, key in { "ws", "wn", "es", "en" } do
+				expect(ends[key]).to.equal(2)
 			end
 		end)
 
@@ -158,8 +178,8 @@ return function()
 		end)
 
 		-- Engineer PR #102: strays keep to alley.roam, off the dressed strip along the outer walls (building backs,
-		-- fire escapes, crates up to 5 studs deep) and the Square's north wall. WorldBuilder.clampToArea keeps
-		-- every wander and jump-back 2 studs inside a roam rect.
+		-- fire escapes, crates up to 5 studs deep) and the end walls. WorldBuilder.clampToArea keeps every wander
+		-- and jump-back 2 studs inside a roam rect.
 		it("the roam rects lie on the floor, clear of every wall (QA)", function()
 			local roam = alley.roam :: { Rect }
 			expect(roam).to.be.ok()
@@ -190,74 +210,83 @@ return function()
 			end
 		end)
 
-		it("keeps the strays 5 studs off both outer walls and off the Square's north wall (QA)", function()
+		it("keeps the strays 5 studs off both outer walls and 4 off the end walls (QA, v3.1)", function()
 			for r, rect in alley.roam :: { Rect } do
 				local x1, x2 = math.min(rect.x1, rect.x2), math.max(rect.x1, rect.x2)
-				local z2 = math.max(rect.z1, rect.z2)
-				if x1 < -W.AlleyOuterX + 5 or x2 > W.AlleyOuterX - 5 or z2 > W.SquareNorthZ - 3 then
-					fail("roam rect %d (%g to %g, up to z %g) reaches into the dressing", r, x1, x2, z2)
+				local z1, z2 = math.min(rect.z1, rect.z2), math.max(rect.z1, rect.z2)
+				local outer = x1 < -W.AlleyOuterX + 5 or x2 > W.AlleyOuterX - 5
+				if outer or z1 < W.AlleySouthZ + 4 or z2 > W.AlleyNorthZ - 4 then
+					fail("roam rect %d (%g to %g, z %g to %g) reaches into the dressing", r, x1, x2, z1, z2)
 				end
+				-- so no stray wanders out through the Woods or Sewer gate's opening either
+				expect(x1 > -W.AlleyOuterX and x2 < W.AlleyOuterX).to.equal(true)
 			end
 		end)
 
-		it("rescue spots stand on the Alleyway floor, one in each back alley and one in the Square", function()
-			local west, east, square = 0, 0, 0
+		it("rescue spots stand on the Alleyway floor, two in the west back alley and one in the east (v3.1)", function()
+			local west, east = 0, 0
 			for _, spot in alley.rescueSpots do
 				expect(onFloor(spot.x, spot.z, alleyRects, 0)).to.equal(true)
-				if spot.z >= W.SquareSouthZ then
-					square += 1
-				elseif spot.x < 0 then
+				if spot.x < 0 then
 					west += 1
 				else
 					east += 1
 				end
 			end
-			expect(west).to.equal(1)
+			expect(west).to.equal(2)
 			expect(east).to.equal(1)
-			expect(square).to.equal(1)
 		end)
 
-		it("the Square's manhole sits on its floor, clear of the walls, the arrival and the rescue spots (QA, #102)", function()
-			local manhole = Layout.manhole
-			expect(manhole).to.be.ok()
-			-- world-and-feel.md section 2: the Sewer down a manhole in the middle of the Square
-			local sewer = nil
-			for _, area in Catalog.areas do
-				if area.id == manhole.area then
-					sewer = area
+		it("closes both back alleys at their ends and opens each outer wall only for its area's gate (v3.1)", function()
+			for _, side in { -1, 1 } do
+				-- along the outer wall's line: wall everywhere but the 24 stud gate opening at z -12 to 12
+				local x = side * (W.AlleyOuterX + 0.5)
+				for z = W.AlleySouthZ + 1, W.AlleyNorthZ - 1, 1 do
+					local open = math.abs(z) < W.SideGateHalfWidth
+					if inWall(x, z, alleyWalls, 0) == open then
+						fail("outer wall at (%g, %g) is %s", x, z, if open then "closed" else "open")
+					end
+				end
+				-- the end walls across the whole width of each back alley, with the Park's and the Neighbourhood's near
+				-- walls (1 thick on their edges, opening as wide as the street) where those areas are wider
+				local ends: { Rect } = table.clone(alleyWalls)
+				for _, spec in { Layout.park, Layout.neighbourhood } do
+					local nearZ = spec.center.z + (if spec.center.z < 0 then 1 else -1) * spec.halfDepth
+					local opening = spec.openingHalfWidth or W.StreetHalfWidth
+					local x1, x2 = spec.center.x - spec.halfWidth, spec.center.x + spec.halfWidth
+					table.insert(ends, { x1 = x1, z1 = nearZ - 0.5, x2 = -opening, z2 = nearZ + 0.5 })
+					table.insert(ends, { x1 = opening, z1 = nearZ - 0.5, x2 = x2, z2 = nearZ + 0.5 })
+				end
+				for ax = W.AlleyInnerX, W.AlleyOuterX, 2 do
+					for _, z in { W.AlleySouthZ - 0.5, W.AlleyNorthZ + 0.5 } do
+						if not inWall(side * ax, z, ends, 0) then
+							fail("no end wall at (%g, %g)", side * ax, z)
+						end
+					end
 				end
 			end
-			expect(sewer).to.be.ok()
-			expect(manhole.z > W.SquareSouthZ and manhole.z < W.SquareNorthZ).to.equal(true)
-			expect(onFloor(manhole.x, manhole.z, alley.roam :: { Rect }, 2)).to.equal(true)
-			expect(inWall(manhole.x, manhole.z, alleyWalls, 1)).to.equal(false)
-			-- Its prompt reaches 8 studs (WorldBuilder): keep it off the arrival point and out of every rescue's
-			-- range (12 studs in F27), so one press never offers both.
-			local rescueRange = (Config :: any).RescueRangeStuds or 12
-			local arrival = alley.arrival :: Point
-			expect(math.sqrt((manhole.x - arrival.x) ^ 2 + (manhole.z - arrival.z) ^ 2) > 8).to.equal(true)
-			for i, spot in alley.rescueSpots do
-				local apart = math.sqrt((manhole.x - spot.x) ^ 2 + (manhole.z - spot.z) ^ 2)
-				if apart <= 8 + rescueRange then
-					fail("rescue spot %d is %.1f studs from the manhole", i, apart)
-				end
+		end)
+
+		it("the Alley travel button lands just inside the side arch on the player's side (v3.1, check 6)", function()
+			local west, east = alley.arrival :: Point, alley.arrivalEast :: Point
+			expect(west).to.be.ok()
+			expect(east).to.be.ok()
+			for _, arrival in { west, east } do
+				expect(onFloor(arrival.x, arrival.z, alleyRects, 2)).to.equal(true)
+				expect(inWall(arrival.x, arrival.z, alleyWalls, 1)).to.equal(false)
+				expect(math.abs(arrival.z) <= W.TownSquareArchWidth).to.equal(true)
 			end
+			expect(west.x < 0 and east.x > 0).to.equal(true)
 		end)
 
-		it("the Alley travel button lands inside the Square, clear of its walls (check 4)", function()
-			local arrival = alley.arrival :: Point
-			expect(arrival).to.be.ok()
-			expect(arrival.z > W.SquareSouthZ and arrival.z < W.SquareNorthZ).to.equal(true)
-			expect(onFloor(arrival.x, arrival.z, alleyRects, 2)).to.equal(true)
-			expect(inWall(arrival.x, arrival.z, alleyWalls, 1)).to.equal(false)
-		end)
-
-		it("is at least 8 times the old 60 x 44 stud box (size target)", function()
+		-- v3.1 gave up the Alley Square for the bigger Woods and Sewer next door (town-layout-v3.md section 7b), so
+		-- the two back alleys alone are the Alleyway now: 8 times before, about 5.7 times since.
+		it("is at least 5 times the old 60 x 44 stud box (size target)", function()
 			local total = 0
 			for _, rect in alleyRects do
 				total += math.abs(rect.x2 - rect.x1) * math.abs(rect.z2 - rect.z1)
 			end
-			expect(total >= 8 * 60 * 44).to.equal(true)
+			expect(total >= 5 * 60 * 44).to.equal(true)
 		end)
 
 		it("every yard gate opens onto its back alley", function()
@@ -328,7 +357,7 @@ return function()
 	local GRID_X0 = -W.AlleyOuterX
 	local GRID_Z0 = W.AlleySouthZ
 	local GRID_NX = math.ceil(2 * W.AlleyOuterX)
-	local GRID_NZ = math.ceil(W.SquareNorthZ - W.AlleySouthZ)
+	local GRID_NZ = math.ceil(W.AlleyNorthZ - W.AlleySouthZ)
 
 	local function cellOf(x: number, z: number): number?
 		local i = math.floor(x - GRID_X0)
@@ -419,10 +448,10 @@ return function()
 		return math.abs(gateX - doorX) + math.abs(gateZ - doorZ) + math.abs(outX - gateX), outX, gateZ
 	end
 
-	local squarePoints: { Point } = {}
+	local nookPoints: { Point } = {}
 	for _, point in alley.spawnPoints do
-		if point.zone == "square" then
-			table.insert(squarePoints, point)
+		if point.zone == "nook" then
+			table.insert(nookPoints, point)
 		end
 	end
 
@@ -444,11 +473,15 @@ return function()
 			end
 		end)
 
-		it("every spawn point can be walked to from every yard gate", function()
+		it("every spawn point in a back alley can be walked to from every yard gate onto it", function()
+			-- v3.1: the two back alleys meet only through the Town Square, which is not catching ground
 			for index = 1, W.PlotCount do
 				local _, outX, outZ = yardWalk(index)
 				local dist = walkFrom(outX, outZ)
 				for n, point in alley.spawnPoints do
+					if math.sign(point.x) ~= math.sign(outX) then
+						continue
+					end
 					if studsTo(dist, point.x, point.z) == nil then
 						fail("plot %d: spawn point %d at (%g, %g) cannot be reached", index, n, point.x, point.z)
 					end
@@ -456,38 +489,49 @@ return function()
 			end
 		end)
 
-		it("carrying a cat from any Square spawn to any cafe's nearer door takes under 25 seconds", function()
-			-- The check names the farthest cafe's nearer door: the back door through the Alleyway, or the front door
-			-- out of the street arch and down the street (layout v3's longer town makes the street the nearer way to
-			-- the outer south cafes). The street leg is the walk along x and z, an upper bound. Travel is greyed while
-			-- carrying, so this is the one walk that cannot be skipped.
-			local SQ1 = W.SquareSouthZ
-			local arch = walkFrom(0, SQ1 + 2) -- just inside the street arch
+		it("carrying a cat from any nook to any cafe's nearer door takes under 25 seconds (v3.1)", function()
+			-- The check names the farthest cafe's nearer door. From a nook in the cafe's own back alley that is the
+			-- back door, through the yard; from any nook it can be the front door, out of the back alley by the
+			-- side arch or a side passage and along the street. The legs off the Alleyway are the walk along x and
+			-- z, an upper bound. Travel is greyed while carrying, so this is the one walk that cannot be skipped.
+			local exits: { { x: number, z: number, dist: { number } } } = {}
+			for _, side in { -1, 1 } do
+				local x = side * (W.AlleyInnerX + 1.5)
+				for _, z in { 0, table.unpack(Layout.sidePassages()) } do
+					table.insert(exits, { x = x, z = z, dist = walkFrom(x, z) })
+				end
+			end
 			local worst, worstPlot, worstPoint = 0, 0, 0
 			for index = 1, W.PlotCount do
 				local yard, outX, outZ = yardWalk(index)
 				local dist = walkFrom(outX, outZ)
 				local doorX, doorZ = plotToWorld(index, Layout.plot.door.x, Layout.plot.door.z)
-				local street = math.abs(doorX) + math.abs(SQ1 - doorZ)
-				for n, point in squarePoints do
+				for n, point in nookPoints do
+					local nearer = math.huge
 					local walked = studsTo(dist, point.x, point.z)
-					local toArch = studsTo(arch, point.x, point.z)
-					if walked == nil or toArch == nil then
-						fail("plot %d cannot reach Square point %d", index, n)
+					if walked ~= nil then
+						nearer = yard + walked
 					end
-					local nearer = math.min(yard + (walked :: number), (toArch :: number) + 2 + street)
+					for _, exit in exits do
+						local out = studsTo(exit.dist, point.x, point.z)
+						if out ~= nil then
+							nearer = math.min(nearer, out + math.abs(doorX - exit.x) + math.abs(doorZ - exit.z))
+						end
+					end
+					if nearer == math.huge then
+						fail("plot %d cannot reach nook point %d", index, n)
+					end
 					local seconds = nearer / Config.CarryWalkSpeed
 					if seconds > worst then
 						worst, worstPlot, worstPoint = seconds, index, n
 					end
 				end
 			end
-			expect(#squarePoints).to.equal(8)
+			expect(#nookPoints).to.equal(8)
 			if worst >= 25 then
-				fail("plot %d to Square point %d is %.1f s at carry speed", worstPlot, worstPoint, worst)
+				fail("plot %d to nook point %d is %.1f s at carry speed", worstPlot, worstPoint, worst)
 			end
-			-- Layout v2 measured about 21 s here (designer, docs PR #83) and v3 about 23 s (plot 5 from the Square's
-			-- east side, down the street); a much shorter walk means the grid broke.
+			-- Layout v3 measured about 23 s from the Alley Square; a much shorter walk means the grid broke.
 			expect(worst > 10).to.equal(true)
 		end)
 	end)
@@ -496,9 +540,8 @@ return function()
 	-- when both players are in the same catching area (Shove.refusal over WorldBuilder.areaAt, which tests these
 	-- floor rects). The mark positions restate WorldBuilder.buildSafeZoneMarks.
 	describe("safe zone marks match the catching areas (QA)", function()
-		local SQ1 = W.SquareSouthZ
-		local street = W.StreetHalfWidth + 2 -- the Square stripe's half length
 		local parkEdge = W.ParkCenterZ + W.ParkDepth / 2 - 0.8 -- the Park stripe, on the Park floor
+		local neighbourhoodEdge = W.NeighbourhoodCenterZ - W.NeighbourhoodDepth / 2 + 0.8 -- and the Neighbourhood's
 
 		-- WorldBuilder.areaAt at floor height: the Alleyway's floor rects, one floor for a box area.
 		local function areaAt(x: number, z: number): string?
@@ -529,18 +572,16 @@ return function()
 		it("stripes lie in their area, and a stud toward the cafes is in none", function()
 			for _, side in { -1, 1 } do
 				local x = side * (W.AlleyInnerX + 0.3)
-				for z = W.AlleySouthZ, SQ1 - 1, 2 do
+				for z = W.AlleySouthZ, W.AlleyNorthZ, 2 do
 					expectArea(x, z, "alley", "back alley stripe")
 					expectArea(x - side, z, nil, "a stud off the back alley stripe")
 				end
 			end
-			for x = -street, street, 2 do
-				expectArea(x, SQ1 + 0.3, "alley", "Square stripe")
-				expectArea(x, SQ1 - 0.7, nil, "a stud off the Square stripe")
-				if math.abs(x) <= W.StreetHalfWidth then
-					expectArea(x, parkEdge, "park", "Park stripe")
-					expectArea(x, parkEdge + 1, nil, "a stud off the Park stripe")
-				end
+			for x = -W.StreetHalfWidth, W.StreetHalfWidth, 2 do
+				expectArea(x, parkEdge, "park", "Park stripe")
+				expectArea(x, parkEdge + 1, nil, "a stud off the Park stripe")
+				expectArea(x, neighbourhoodEdge, "neighbourhood", "Neighbourhood stripe")
+				expectArea(x, neighbourhoodEdge - 1, nil, "a stud off the Neighbourhood stripe")
 			end
 		end)
 
@@ -559,22 +600,15 @@ return function()
 					end
 				end
 			end
-			expectArea(0, SQ1 - 4, nil, "street SAFE ZONE before the arch")
 			expectArea(0, W.ParkGateZ + 4, nil, "street SAFE ZONE before the Park gate")
+			expectArea(0, W.NeighbourhoodGateZ - 4, nil, "street SAFE ZONE before the Neighbourhood gate")
 		end)
 
 		it("the street stripes span the whole way in", function()
-			-- The Square's way in is the gap between its two south wall pieces; the Park's is its opening.
-			local gap = math.huge
-			for _, wall in Layout.alley.walls :: { Rect } do
-				if wall.z2 == SQ1 and wall.x1 > 0 then
-					gap = math.min(gap, wall.x1)
-				end
+			for _, spec in { Layout.park, Layout.neighbourhood } do
+				local opening = spec.openingHalfWidth or W.StreetHalfWidth
+				expect(W.StreetHalfWidth >= opening).to.equal(true)
 			end
-			expect(gap < math.huge).to.equal(true)
-			expect(street >= gap).to.equal(true)
-			local parkOpening = Layout.park.openingHalfWidth or W.StreetHalfWidth
-			expect(W.StreetHalfWidth >= parkOpening).to.equal(true)
 		end)
 	end)
 
@@ -676,15 +710,20 @@ return function()
 			end
 		end)
 
-		it("keeps each back alley's trash bin 9 studs from every lane spawn point (reviewer N77)", function()
+		it("keeps every Alleyway rescue spot 9 studs from every spawn point (reviewer N77)", function()
 			for _, spot in alley.rescueSpots do
-				if spot.trap ~= "trash_bin" then
-					continue
-				end
 				for _, point in alley.spawnPoints do
 					local gap = math.sqrt((spot.x - point.x) ^ 2 + (spot.z - point.z) ^ 2)
 					if gap < 9 then
-						fail("bin at (%g, %g) is %.1f from the spawn point at (%g, %g)", spot.x, spot.z, gap, point.x, point.z)
+						fail(
+							"%s at (%g, %g) is %.1f from the spawn point at (%g, %g)",
+							spot.prop,
+							spot.x,
+							spot.z,
+							gap,
+							point.x,
+							point.z
+						)
 					end
 				end
 			end
@@ -705,6 +744,142 @@ return function()
 					if gap < 6 then
 						fail("%s at (%g, %g) is %.1f from the spawn point at (%g, %g)", name, prop.x, prop.z, gap, point.x, point.z)
 					end
+				end
+			end
+		end)
+	end)
+
+	-- Town layout v3.1 (F77, town-layout-v3.md section 7): every area one straight walk from the fountain.
+	describe("the compass (layout v3.1, F77)", function()
+		local square = Layout.townSquare
+		local lanes = square.lanes :: { Rect }
+
+		it("stands every gate in the middle of its opening, turned to face the town", function()
+			local want = {
+				park = { 0, W.ParkGateZ, 180 },
+				neighbourhood = { 0, W.NeighbourhoodGateZ, 0 },
+				woods = { W.WoodsGateX, 0, -90 },
+				sewer = { W.SewerGateX, 0, 90 },
+			} :: { [string]: { number } }
+			for id, spec in Layout.areas do
+				local x, z = Layout.gatePosition(spec)
+				local gate = want[id]
+				if gate == nil then
+					expect(x).to.equal(nil)
+					expect(Layout.gateTurn(spec)).to.equal(0)
+					continue
+				end
+				expect(x).to.equal(gate[1])
+				expect(z).to.equal(gate[2])
+				expect(Layout.gateTurn(spec)).to.equal(gate[3])
+				-- the gate's front, CFrame.Angles(0, rad(turn), 0)'s LookVector (-sin, 0, -cos), points at the fountain
+				local yaw = math.rad(gate[3])
+				local length = math.sqrt(gate[1] ^ 2 + gate[2] ^ 2)
+				local dot = (-math.sin(yaw) * -gate[1] - math.cos(yaw) * -gate[2]) / length
+				expect(dot).to.be.near(1, 1e-9)
+			end
+		end)
+
+		it("puts every gate under 6.5 s on foot from the fountain, straight down an arm of the cross (QA check 3)", function()
+			for id, spec in Layout.areas do
+				local x, z = Layout.gatePosition(spec)
+				if x == nil or z == nil then
+					continue
+				end
+				expect(x == 0 or z == 0).to.equal(true)
+				local seconds = (math.abs(x) + math.abs(z)) / Config.NormalWalkSpeed
+				if seconds >= 6.5 then
+					fail("the %s gate is %.1f s from the fountain", id, seconds)
+				end
+			end
+		end)
+
+		it("opens the Woods and the Sewer through the back alleys' outer walls, across from the side arches", function()
+			for _, spec in { Layout.woods, Layout.sewer } do
+				local gateX = spec.gateX :: number
+				local side = math.sign(gateX)
+				expect(spec.gateZ).to.equal(nil)
+				expect(spec.openingHalfWidth).to.equal(W.SideGateHalfWidth)
+				-- the gate stands in the alley's outer wall, and the area's near wall is right behind it
+				expect(math.abs(gateX) >= W.AlleyOuterX and math.abs(gateX) <= W.AlleyOuterX + 1).to.equal(true)
+				local nearEdge = math.abs(spec.center.x) - spec.halfWidth
+				expect(nearEdge > W.AlleyOuterX + 1 and nearEdge <= W.AlleyOuterX + 2.5).to.equal(true)
+				expect(side * spec.center.x > 0).to.equal(true)
+				local arch = nil
+				for _, a in square.arches do
+					if math.sign(a.x) == side then
+						arch = a
+					end
+				end
+				expect(arch).to.be.ok()
+				expect((arch :: Layout.Arch).z).to.equal(spec.center.z)
+			end
+		end)
+
+		it("stands the signpost by the fountain's ring, south-west and off the cross", function()
+			local post = square.signpost :: Point
+			expect(post.x < 0 and post.z < 0).to.equal(true)
+			local fromFountain = math.sqrt(post.x ^ 2 + post.z ^ 2)
+			expect(fromFountain > square.fountainRadius + 3 and fromFountain < 15).to.equal(true)
+			for _, lane in lanes do
+				expect(inside(post.x, post.z, lane, -0.5)).to.equal(false)
+			end
+		end)
+
+		it("lays a paw path from the fountain to every gate and on into its area", function()
+			local reach: { [string]: { number } } = {}
+			for _, paw in Layout.pawPrints() do
+				local along = math.max(math.abs(paw.x), math.abs(paw.z)) -- down the arm of the cross
+				local seen = reach[paw.area] or { math.huge, 0 }
+				reach[paw.area] = { math.min(seen[1], along), math.max(seen[2], along) }
+				-- its front (-Z) turned away from the fountain, toward the gate
+				local yaw = math.rad(paw.rotY)
+				local out = math.sqrt(paw.x ^ 2 + paw.z ^ 2)
+				expect((-math.sin(yaw) * paw.x - math.cos(yaw) * paw.z) / out > 0.99).to.equal(true)
+			end
+			for id, spec in Layout.areas do
+				local x, z = Layout.gatePosition(spec)
+				if x == nil or z == nil then
+					expect(reach[id]).to.equal(nil)
+					continue
+				end
+				local seen = reach[id]
+				expect(seen).to.be.ok()
+				expect(seen[1] <= square.fountainRadius + 3).to.equal(true)
+				expect(seen[2] >= math.abs(x) + math.abs(z) + 5).to.equal(true)
+			end
+		end)
+
+		it("keeps every paw print off the safe zone paint and out of the walls", function()
+			-- the marks a print would cover, as WorldBuilder.buildSafeZoneMarks lays them, and its 0.8 stud reach
+			local marks: { Rect } = {}
+			for _, side in { -1, 1 } do
+				local words = side * (W.AlleyInnerX - 3.5)
+				local stripe = side * (W.AlleyInnerX + 0.3)
+				table.insert(marks, { x1 = words - 0.9, z1 = -4.5, x2 = words + 0.9, z2 = 4.5 })
+				table.insert(marks, { x1 = stripe - 0.25, z1 = W.AlleySouthZ, x2 = stripe + 0.25, z2 = W.AlleyNorthZ })
+			end
+			for _, spec in { Layout.park, Layout.neighbourhood } do
+				local toward = if spec.center.z < 0 then 1 else -1
+				local words = (spec.gateZ :: number) + toward * 4
+				local edge = spec.center.z + toward * (spec.halfDepth - 0.8)
+				table.insert(marks, { x1 = -6, z1 = words - 1.2, x2 = 6, z2 = words + 1.2 })
+				local half = W.StreetHalfWidth
+				table.insert(marks, { x1 = -half, z1 = edge - 0.25, x2 = half, z2 = edge + 0.25 })
+			end
+			local areaWalls: { Rect } = {}
+			for _, spec in { Layout.woods, Layout.sewer } do
+				local near = spec.center.x - math.sign(spec.center.x) * spec.halfWidth
+				table.insert(areaWalls, { x1 = near - 0.5, z1 = -spec.halfDepth, x2 = near + 0.5, z2 = spec.halfDepth })
+			end
+			for n, paw in Layout.pawPrints() do
+				for _, mark in marks do
+					if inside(paw.x, paw.z, mark, -0.9) then
+						fail("%s paw print %d at (%g, %g) covers a safe zone mark", paw.area, n, paw.x, paw.z)
+					end
+				end
+				if inWall(paw.x, paw.z, alleyWalls, 0.9) or inWall(paw.x, paw.z, areaWalls, 0.9) then
+					fail("%s paw print %d at (%g, %g) is in a wall", paw.area, n, paw.x, paw.z)
 				end
 			end
 		end)

@@ -225,10 +225,11 @@ local Config = {
 	ProfileStoreName = "CatCafeProfiles",
 	ProfileKeyPrefix = "p_",
 
-	-- World layout v2 (engineer, 2026-10-26; data-model section 9, world-and-feel.md section 2). The street runs
-	-- along Z at X = 0. Cafes line both sides, each with a front garden on the street and a patio yard out back;
-	-- the Alleyway is a back alley behind each row that meets the other in the Alley Square at the street's north
-	-- end. The Park, Woods and Sewer gates are at the south end, the Neighbourhood's through the Square's north wall.
+	-- World layout (engineer; data-model section 9, town-layout-v3.md). The street runs along Z at X = 0. Cafes line
+	-- both sides, each with a front garden on the street and a patio yard out back; the Alleyway is a back alley
+	-- behind each row. v3.1 (F77, Derek 2026-10-27 23:56) is a compass round the Town Square: the Park gate at the
+	-- street's south end, the Neighbourhood's at its north end, the Woods and the Sewer through the back alleys'
+	-- outer walls straight across from the square's side arches.
 	World = {
 		PlotCount = 8,
 		PlotWidth = 36, -- along the street (Z)
@@ -240,8 +241,8 @@ local Config = {
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
 		StreetSouthZ = -124,
-		StreetNorthZ = 124, -- the street runs into the Alley Square here
-		GroundSize = 680, -- reaches past the Neighbourhood's far wall (z 328.5)
+		StreetNorthZ = 124, -- the street ends at the Neighbourhood gate
+		GroundSize = 600, -- reaches past the Neighbourhood's far wall (z 266) and the Woods' (x -215)
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round a fountain and a
@@ -251,36 +252,37 @@ local Config = {
 		TownSquareHalfDepth = 32,
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
-		TownSquareArchWidth = 10, -- each side arch from the gardens into a back alley
-		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to SquareSouthZ, and the
-		-- Square across the whole width from SquareSouthZ to SquareNorthZ.
+		TownSquareArchWidth = 12, -- each side arch from the gardens into a back alley, as wide as the east to west lane
+		-- The Alleyway: back alleys at |x| AlleyInnerX..AlleyOuterX from AlleySouthZ to AlleyNorthZ, closed at both
+		-- ends (v3.1: the Alley Square is gone).
 		AlleyInnerX = 63,
 		AlleyOuterX = 93,
 		AlleySouthZ = -125.5,
-		SquareSouthZ = 124,
-		SquareNorthZ = 188,
+		AlleyNorthZ = 125.5,
 		ParkCenterZ = -154,
 		ParkWidth = 80,
 		ParkDepth = 56,
 		ParkGateZ = -125,
-		-- The Woods and the Sewer sit either side of the Park, their openings at the south end of the west and east
-		-- back alleys; the Neighbourhood sits north of the Square.
-		WoodsCenterX = -78,
-		WoodsCenterZ = -158,
-		WoodsWidth = 66,
-		WoodsDepth = 64,
-		WoodsGateZ = -125,
-		SewerCenterX = 78,
-		SewerCenterZ = -158,
-		SewerWidth = 66,
-		SewerDepth = 64,
-		SewerGateZ = -125,
-		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger").
+		-- The Woods west and the Sewer east of the back alleys (v3.1), each with its gate on its town side, in the back
+		-- alley's outer wall straight across from the square's side arch: SideGateHalfWidth either side of z 0.
+		WoodsCenterX = -155,
+		WoodsCenterZ = 0,
+		WoodsWidth = 120,
+		WoodsDepth = 120,
+		WoodsGateX = -94,
+		SewerCenterX = 140,
+		SewerCenterZ = 0,
+		SewerWidth = 90,
+		SewerDepth = 90,
+		SewerGateX = 94,
+		SideGateHalfWidth = 12,
+		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger"), at the street's
+		-- north end since v3.1.
 		NeighbourhoodCenterX = 0,
-		NeighbourhoodCenterZ = 258.5,
+		NeighbourhoodCenterZ = 196,
 		NeighbourhoodWidth = 140,
 		NeighbourhoodDepth = 140,
-		NeighbourhoodGateZ = 187.5,
+		NeighbourhoodGateZ = 125,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
 		-- this range of its camera, up to CustomersMax at once across the street.
 		CafeLifeRangeStuds = 80,

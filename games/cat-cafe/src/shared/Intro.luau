@@ -24,12 +24,12 @@ Intro.NIGHT_FROM = 0.35
 Intro.NIGHT_TO = 0.95
 Intro.SUNRISE_FROM = 1.8
 Intro.SUNRISE_TO = 2.3
-Intro.STRAYS_OUT_FROM = 0.45 -- the Square's strays fade out
+Intro.STRAYS_OUT_FROM = 0.45 -- the back alleys' strays fade out
 Intro.STRAYS_OUT_TO = 0.85
 Intro.SUNRISE_STRAYS_AT = 2.1 -- fresh local strays pop in from here
 Intro.SUNRISE_STRAYS = 10
 Intro.SUNRISE_STRAY_GAP = 0.04 -- seconds between pops
-Intro.SQUARE_RADIUS = 85 -- strays within this flat distance of shot 8's look point count as the Square's
+Intro.STRAY_AREA = "alley" -- shot 8's strays that fade out and pop back in are this area's (v3.1: the back alleys)
 
 -- Shot 9 lands this far behind and above the character, looking at its head.
 Intro.FOLLOW_BACK = 12
@@ -111,9 +111,9 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 	local px, pz, s = plot.x, plot.z, plot.side
 	local lane = W.AlleyInnerX -- the back alley's inner edge
 	local stray = v((lane + 7) * s, 1, pz - 7)
-	local SQ1 = W.SquareSouthZ
-	local board = v(-9, 4, SQ1 + 7.5) -- the Alleyway's Index Board, 8 inside the street arch
-	local square = v(0, 0, (SQ1 + W.SquareNorthZ) / 2 + 5) -- the middle of the Alley Square
+	-- the west Alleyway Index Board, 8 inside the Town Square's west side arch (intro-cutscene.md 2c, v3.1)
+	local board = v(-(lane + 8), 4, -9)
+	local town = v(0, 0, -20) -- shot 8 looks up the whole town from the south, both back alleys in frame
 	local parkGate = W.ParkGateZ
 	-- the Town Square sits at the origin: the fountain, and the west quarters' Spin Wheel and Codes Cat
 	local fountain = v(0, 2, 0)
@@ -194,15 +194,16 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 					"THE NEIGHBOURHOOD",
 					"neighbourhood"
 				),
+				-- v3.1: the Woods and the Sewer lie west and east, seen from just outside their side gates
 				push(
-					v(W.WoodsCenterX, 40, W.WoodsGateZ + 5),
-					v(W.WoodsCenterX, 0, W.WoodsCenterZ - 2),
+					v(W.WoodsGateX + 5, 45, W.WoodsCenterZ),
+					v(W.WoodsCenterX + 5, 0, W.WoodsCenterZ),
 					"THE WOODS",
 					"woods"
 				),
 				push(
-					v(W.SewerCenterX, 40, W.SewerGateZ + 5),
-					v(W.SewerCenterX, 0, W.SewerCenterZ - 2),
+					v(W.SewerGateX - 5, 40, W.SewerCenterZ),
+					v(W.SewerCenterX - 4, 0, W.SewerCenterZ),
 					"THE SEWER",
 					"sewer"
 				),
@@ -216,8 +217,9 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			ease = "Out",
 			cuts = {
 				{
-					from = key(v(-4, 5, SQ1 - 4), board),
-					to = key(v(-6.5, 4.5, SQ1 + 1), board),
+					-- from the square's east to west lane, through the west side arch at the board, clear of its south pillar
+					from = key(v(-(lane - 3), 5, -1), board),
+					to = key(v(-(lane + 1.5), 4.5, -6.5), board),
 					seconds = 2.5,
 				},
 			},
@@ -248,8 +250,8 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			night = true,
 			cuts = {
 				{
-					from = key(v(0, 70, SQ1 - 28), square),
-					to = key(v(0, 66, SQ1 - 24), square),
+					from = key(v(0, 80, -150), town),
+					to = key(v(0, 76, -144), town),
 					seconds = 3,
 				},
 			},
@@ -263,8 +265,11 @@ function Intro.shots(plot: Plot, codesCat: boolean): { Shot }
 			follow = true,
 			cuts = {
 				{
-					from = key(v(0, 66, SQ1 - 24), square),
-					to = key(v(0, 66, SQ1 - 24), square),
+					-- `to` becomes the follow point at play time (Intro.follow); the swoop to a north row cafe, up to
+					-- about 250 studs, bends through a point over the square
+					from = key(v(0, 76, -144), town),
+					via = if pz > 0 then key(v(0, 45, 0), v(0, 2, 0)) else nil,
+					to = key(v(0, 76, -144), town),
 					seconds = 2,
 				},
 			},

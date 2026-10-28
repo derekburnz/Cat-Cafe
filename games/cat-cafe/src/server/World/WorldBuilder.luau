@@ -52,6 +52,7 @@ export type AreaInfo = {
 	rects: { Layout.Rect }, -- the floor pieces (one zone box each)
 	roam: { Layout.Rect }, -- where strays stay (WorldBuilder.clampToArea): the floors, less any dressed wall strip
 	arrival: CFrame, -- where fast travel puts a player: just inside the entrance, facing in
+	arrivalEast: CFrame?, -- the Alleyway's landing for a player whose cafe is on the east side (v3.1)
 }
 
 export type World = {
@@ -59,7 +60,6 @@ export type World = {
 	plots: { Plot },
 	areas: { [string]: AreaInfo },
 	gates: { [string]: Model }, -- area id -> its tier gate (every area but the Tier 1 alley)
-	manhole: Model?, -- the Square's way down into its area, when the art is there; its prompt is ManholePrompt
 }
 
 local WorldBuilder = {}
@@ -786,8 +786,8 @@ local function safeWords(at: Vector3, walking: Vector3, width: number, parent: I
 end
 
 -- Every way from the cafe district into a catching area: the back alleys' inner edges (yard gates, the side
--- passages between cafes and the Town Square's side arches), the street's arch into the Alley Square, and the Park
--- gate at the street's south end.
+-- passages between cafes and the Town Square's side arches), and the Park and Neighbourhood gates at the street's
+-- ends (v3.1). The Woods and Sewer gates are reached only through the back alleys, which are already outside.
 local function buildSafeZoneMarks(parent: Instance)
 	local marks = folder("SafeZone", parent)
 	local alleyTop = Layout.alley.floorY + 0.03
@@ -797,7 +797,7 @@ local function buildSafeZoneMarks(parent: Instance)
 		local x = side * (W.AlleyInnerX + 0.3)
 		safeStripe(
 			Vector3.new(x, alleyTop, W.AlleySouthZ),
-			Vector3.new(x, alleyTop, W.SquareSouthZ - 1),
+			Vector3.new(x, alleyTop, W.AlleyNorthZ),
 			marks
 		)
 		-- the side passages between neighbouring cafes (and beside the Town Square's gardens), at their alley end
@@ -817,31 +817,30 @@ local function buildSafeZoneMarks(parent: Instance)
 			marks
 		)
 	end
-	local street = W.StreetHalfWidth + 2
-	safeStripe(
-		Vector3.new(-street, alleyTop, W.SquareSouthZ + 0.3),
-		Vector3.new(street, alleyTop, W.SquareSouthZ + 0.3),
-		marks
-	)
-	safeWords(Vector3.new(0, streetTop, W.SquareSouthZ - 4), Vector3.new(0, 0, -1), 12, marks)
-	-- On the Park floor just inside its near wall (1 stud thick, centred on the area's edge), so the stripe is on
-	-- the area side like the others (reviewer S54); the gate is as wide as the street it closes (32 studs).
-	local parkHalf = W.StreetHalfWidth
-	local parkEdge = W.ParkCenterZ + W.ParkDepth / 2 - 0.8
-	local parkTop = Layout.park.floorY + 0.03
-	safeStripe(
-		Vector3.new(-parkHalf, parkTop, parkEdge),
-		Vector3.new(parkHalf, parkTop, parkEdge),
-		marks
-	)
-	safeWords(Vector3.new(0, streetTop, W.ParkGateZ + 4), Vector3.new(0, 0, 1), 12, marks)
+	-- On each end area's floor just inside its near wall (1 stud thick, centred on the area's edge), so the stripe
+	-- is on the area side like the others (reviewer S54); each gate is as wide as the street it closes (32 studs).
+	local half = W.StreetHalfWidth
+	for _, spec in { Layout.park, Layout.neighbourhood } do
+		local toward = if spec.center.z < 0 then 1 else -1 -- from the area toward the street
+		local edge = spec.center.z + toward * (spec.halfDepth - 0.8)
+		local top = spec.floorY + 0.03
+		safeStripe(Vector3.new(-half, top, edge), Vector3.new(half, top, edge), marks)
+		local gateZ = spec.gateZ :: number
+		safeWords(
+			Vector3.new(0, streetTop, gateZ + toward * 4),
+			Vector3.new(0, 0, toward),
+			12,
+			marks
+		)
+	end
 end
 
 -- The Alleyway has no tier gate, so at night (v0.9, F66) a fence closes it along the same lines as the safe zone
--- stripes. This plain one stands in while the night fence art is missing (buildNightFences): both back alleys' inner edges and the street's mouth into the Square, with a "Closed until
--- sunrise" sign on the street side. `AlleyNightFence` under World.Gates, `Area` alley and `RequiresTier` 1, but no
--- AreaGate tag (no gate sign or unlock effect): the client treats its Bars like a gate's and closes them while the
--- Clock's AreasOpen is false. CanCollide stays off here, so the server's rays and the strays never meet it.
+-- stripes. This plain one stands in while the night fence art is missing (buildNightFences): both back alleys'
+-- inner edges, the bars across each side arch carrying a "Closed until sunrise" sign toward the square (v3.1).
+-- `AlleyNightFence` under World.Gates, `Area` alley and `RequiresTier` 1, but no AreaGate tag (no gate sign or
+-- unlock effect): the client treats its Bars like a gate's and closes them while the Clock's AreasOpen is false.
+-- CanCollide stays off here, so the server's rays and the strays never meet it.
 local NIGHT_FENCE_WOOD = Color3.fromRGB(92, 64, 51)
 local NIGHT_FENCE_HEIGHT = 8 -- over a default jump
 local NIGHT_FENCE_SEGMENT = 8 -- studs along the line per CatCafe_Alley_NightFenceSegment (8.1 wide, posts overlap)
@@ -870,41 +869,35 @@ local function buildAlleyNightFence(parent: Instance): Model
 	fence:SetAttribute("Area", "alley")
 	fence:SetAttribute("RequiresTier", 1)
 	local floor = Layout.alley.floorY
+	local arch = W.TownSquareArchWidth / 2
 	for _, side in { -1, 1 } do
 		local x = side * (W.AlleyInnerX + 0.3)
-		nightFenceBars(
-			Vector3.new(x, floor, W.AlleySouthZ),
-			Vector3.new(x, floor, W.SquareSouthZ - 1),
-			fence
-		)
-	end
-	local street = W.StreetHalfWidth + 2
-	local mouth = nightFenceBars(
-		Vector3.new(-street, floor, W.SquareSouthZ + 0.3),
-		Vector3.new(street, floor, W.SquareSouthZ + 0.3),
-		fence
-	)
-	-- the sign reads from the street (-Z of the mouth); the bars' own faces are Left and Right as built
-	for _, face in { Enum.NormalId.Left, Enum.NormalId.Right } do
-		local gui = Instance.new("SurfaceGui")
-		gui.Name = "ClosedSign"
-		gui.Face = face
-		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		gui.PixelsPerStud = 20
-		gui.LightInfluence = 0
-		local text = Instance.new("TextLabel")
-		text.AnchorPoint = Vector2.new(0.5, 0.5)
-		text.Position = UDim2.fromScale(0.5, 0.5)
-		text.Size = UDim2.fromScale(0.6, 0.35)
-		text.BackgroundTransparency = 1
-		text.Font = Enum.Font.FredokaOne
-		text.TextScaled = true
-		text.TextColor3 = SAFE_WORDS
-		text.TextStrokeColor3 = NIGHT_FENCE_WOOD
-		text.TextStrokeTransparency = 0
-		text.Text = "Closed until sunrise"
-		text.Parent = gui
-		gui.Parent = mouth
+		nightFenceBars(Vector3.new(x, floor, W.AlleySouthZ), Vector3.new(x, floor, -arch), fence)
+		nightFenceBars(Vector3.new(x, floor, arch), Vector3.new(x, floor, W.AlleyNorthZ), fence)
+		local across =
+			nightFenceBars(Vector3.new(x, floor, -arch), Vector3.new(x, floor, arch), fence)
+		-- the bars' own faces are Left and Right as built; the sign reads from the square on either
+		for _, face in { Enum.NormalId.Left, Enum.NormalId.Right } do
+			local gui = Instance.new("SurfaceGui")
+			gui.Name = "ClosedSign"
+			gui.Face = face
+			gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			gui.PixelsPerStud = 20
+			gui.LightInfluence = 0
+			local text = Instance.new("TextLabel")
+			text.AnchorPoint = Vector2.new(0.5, 0.5)
+			text.Position = UDim2.fromScale(0.5, 0.5)
+			text.Size = UDim2.fromScale(0.9, 0.35)
+			text.BackgroundTransparency = 1
+			text.Font = Enum.Font.FredokaOne
+			text.TextScaled = true
+			text.TextColor3 = SAFE_WORDS
+			text.TextStrokeColor3 = NIGHT_FENCE_WOOD
+			text.TextStrokeTransparency = 0
+			text.Text = "Closed until sunrise"
+			text.Parent = gui
+			gui.Parent = across
+		end
 	end
 	fence.Parent = parent
 	return fence
@@ -957,10 +950,11 @@ local function placeNightFence(asset: string, cframe: CFrame, parent: Instance):
 	return model
 end
 
--- Every night fence: one behind each area gate's Bars, the Alleyway's across the street mouth at the street arch and
--- segments tiled along both back alleys' inner edges (front toward the cafes), and a closed back door in each plot
--- (the client shows that one only on an owned cafe, whose back door is open by day). False when the Alleyway's art
--- is missing, so the code-built AlleyNightFence closes it instead.
+-- Every night fence: one behind each area gate's Bars, segments tiled along both back alleys' inner edges (front
+-- toward the cafes, across the Town Square's side arches too), and a closed back door in each plot (the client shows
+-- that one only on an owned cafe, whose back door is open by day). False when the Alleyway's segment art is missing,
+-- so the code-built AlleyNightFence closes it instead. v3.1 took away the street arch the Alleyway's big night
+-- fence stood in, so CatCafe_Alley_NightFence is no longer placed.
 local function buildNightFences(
 	gates: { [string]: Model },
 	plots: { Plot },
@@ -978,22 +972,12 @@ local function buildNightFences(
 				"BackDoorClosed"
 		end
 	end
-	if
-		not AssetRegistry.has("CatCafe_Alley_NightFence")
-		or not AssetRegistry.has("CatCafe_Alley_NightFenceSegment")
-	then
+	if not AssetRegistry.has("CatCafe_Alley_NightFenceSegment") then
 		return false
 	end
-	local arches: { Layout.Arch } = Layout.alley.arches or {}
-	for _, arch in arches do
-		if arch.asset == Layout.streetArchAsset then
-			placeNightFence("CatCafe_Alley_NightFence", CFrame.new(arch.x, 0.1, arch.z), parent).Name =
-				"CatCafe_Alley_NightFence" -- buildArch's pivot
-		end
-	end
 	local floor = Layout.alley.floorY
-	-- the end posts clear the Woods and Sewer gate pillars and the Alleyway arch plinths (Model-Agent, after #375)
-	local from, to = W.AlleySouthZ + 2.1, W.SquareSouthZ - 1.9
+	-- the end posts clear the end walls' pieces (Model-Agent, after #375)
+	local from, to = W.AlleySouthZ + 2.1, W.AlleyNorthZ - 2.1
 	local count = math.ceil((to - from) / NIGHT_FENCE_SEGMENT)
 	local step = (to - from) / count
 	for _, side in { -1, 1 } do
@@ -1028,6 +1012,7 @@ local function buildArea(
 	local walls = folder("Walls", model)
 	local rects: { Layout.Rect }
 	local arrival: CFrame
+	local arrivalEast: CFrame? = nil
 	local specRects = spec.rects
 	if specRects ~= nil then
 		-- The Alleyway: its floor pieces, wall footprints and archways as listed.
@@ -1061,6 +1046,11 @@ local function buildArea(
 		local at = spec.arrival or spec.center
 		arrival = CFrame.new(at.x, spec.floorY + 3, at.z)
 			* CFrame.Angles(0, math.rad(at.rotY or 0), 0)
+		local east = spec.arrivalEast
+		if east ~= nil then
+			arrivalEast = CFrame.new(east.x, spec.floorY + 3, east.z)
+				* CFrame.Angles(0, math.rad(east.rotY or 0), 0)
+		end
 	else
 		rects = { { x1 = cx - hw, z1 = cz - hd, x2 = cx + hw, z2 = cz + hd } }
 		part(
@@ -1072,54 +1062,47 @@ local function buildArea(
 			model
 		)
 		local wallH = 6
-		-- Three closed sides; the side facing the street's end has an opening as wide as the street, or as the back
-		-- alley for the Woods and the Sewer.
-		local openingHalf = spec.openingHalfWidth or W.StreetHalfWidth
-		local streetSide = if cz > 0 then -1 else 1 -- which Z edge faces the street
-		local farZ = cz - streetSide * hd
-		local nearZ = cz + streetSide * hd
-		part(
-			"WallFar",
-			Vector3.new(hw * 2 + 1, wallH, 1),
-			CFrame.new(cx, wallH / 2, farZ),
-			wallColor,
-			Enum.Material.Brick,
-			walls
-		)
-		part(
-			"WallLeft",
-			Vector3.new(1, wallH, hd * 2),
-			CFrame.new(cx - hw, wallH / 2, cz),
-			wallColor,
-			Enum.Material.Brick,
-			walls
-		)
-		part(
-			"WallRight",
-			Vector3.new(1, wallH, hd * 2),
-			CFrame.new(cx + hw, wallH / 2, cz),
-			wallColor,
-			Enum.Material.Brick,
-			walls
-		)
-		-- The Neighbourhood's near side is the Square's north wall, built with the Alleyway.
-		if spec.nearWall ~= false then
-			local seg = hw - openingHalf
+		local function wall(name: string, x1: number, z1: number, x2: number, z2: number)
 			part(
-				"WallNearL",
-				Vector3.new(seg, wallH, 1),
-				CFrame.new(cx - openingHalf - seg / 2, wallH / 2, nearZ),
+				name,
+				Vector3.new(x2 - x1, wallH, z2 - z1),
+				CFrame.new((x1 + x2) / 2, wallH / 2, (z1 + z2) / 2),
 				wallColor,
 				Enum.Material.Brick,
 				walls
 			)
-			part(
-				"WallNearR",
-				Vector3.new(seg, wallH, 1),
-				CFrame.new(cx + openingHalf + seg / 2, wallH / 2, nearZ),
-				wallColor,
-				Enum.Material.Brick,
-				walls
+		end
+		-- Three closed sides; the side facing the town has an opening as wide as the street, or as the gate for the
+		-- Woods and the Sewer, whose town side is an X side since v3.1. Walls are 1 thick, centred on the edges.
+		local openingHalf = spec.openingHalfWidth or W.StreetHalfWidth
+		local gateX = spec.gateX
+		if gateX ~= nil then
+			local townSide = if gateX > cx then 1 else -1 -- which X edge faces the town
+			local farX, nearX = cx - townSide * hw, cx + townSide * hw
+			wall("WallFar", farX - 0.5, cz - hd - 0.5, farX + 0.5, cz + hd + 0.5)
+			wall("WallLeft", cx - hw, cz - hd - 0.5, cx + hw, cz - hd + 0.5)
+			wall("WallRight", cx - hw, cz + hd - 0.5, cx + hw, cz + hd + 0.5)
+			if spec.nearWall ~= false then
+				wall("WallNearL", nearX - 0.5, cz - hd, nearX + 0.5, cz - openingHalf)
+				wall("WallNearR", nearX - 0.5, cz + openingHalf, nearX + 0.5, cz + hd)
+			end
+			arrival = CFrame.lookAt(
+				Vector3.new(nearX - townSide * 6, spec.floorY + 3, cz),
+				Vector3.new(cx, spec.floorY + 3, cz)
+			)
+		else
+			local streetSide = if cz > 0 then -1 else 1 -- which Z edge faces the street
+			local farZ, nearZ = cz - streetSide * hd, cz + streetSide * hd
+			wall("WallFar", cx - hw - 0.5, farZ - 0.5, cx + hw + 0.5, farZ + 0.5)
+			wall("WallLeft", cx - hw - 0.5, cz - hd, cx - hw + 0.5, cz + hd)
+			wall("WallRight", cx + hw - 0.5, cz - hd, cx + hw + 0.5, cz + hd)
+			if spec.nearWall ~= false then
+				wall("WallNearL", cx - hw, nearZ - 0.5, cx - openingHalf, nearZ + 0.5)
+				wall("WallNearR", cx + openingHalf, nearZ - 0.5, cx + hw, nearZ + 0.5)
+			end
+			arrival = CFrame.lookAt(
+				Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
+				Vector3.new(cx, spec.floorY + 3, cz)
 			)
 		end
 		-- Roads and paths sit 0.05 above the floor, so their tops never fight with it.
@@ -1134,10 +1117,6 @@ local function buildArea(
 				model
 			)
 		end
-		arrival = CFrame.lookAt(
-			Vector3.new(cx, spec.floorY + 3, nearZ - streetSide * 6),
-			Vector3.new(cx, spec.floorY + 3, cz)
-		)
 	end
 
 	local props = folder("Props", model)
@@ -1208,6 +1187,7 @@ local function buildArea(
 		rects = rects,
 		roam = spec.roam or rects,
 		arrival = arrival,
+		arrivalEast = arrivalEast,
 	}
 end
 
@@ -1235,70 +1215,38 @@ local function buildGate(
 end
 
 -- The Index Boards (F50): CatCafe_<Area>_IndexBoard inside each area's entrance at Layout.indexBoards, in the
--- space of the area's gate or, for the Alleyway, of its street arch. The model comes tagged IndexBoard with Area;
--- the UI draws that area's Index on its Screen part and adds its own hold-E prompt. It streams whole (Atomic, as
--- cats do: reviewer S37), so the Screen never arrives without its board. Skipped while an asset is missing.
+-- space of the area's gate or, for the Alleyway, of each of the Town Square's side arches (v3.1), turned as
+-- buildTownSquare turns them. The model comes tagged IndexBoard with Area; the UI draws that area's Index on its
+-- Screen part and adds its own hold-E prompt. It streams whole (Atomic, as cats do: reviewer S37), so the Screen
+-- never arrives without its board. Skipped while an asset is missing.
 local function buildIndexBoards(gates: { [string]: Model }, parent: Instance)
 	for areaId, at in Layout.indexBoards do
 		local pascal = areaId:sub(1, 1):upper() .. areaId:sub(2)
 		local asset = "CatCafe_" .. pascal .. "_IndexBoard"
+		local hosts: { CFrame } = {}
 		local gate: Model? = gates[areaId]
-		local host: CFrame? = if gate ~= nil then gate:GetPivot() else nil
-		if host == nil then
-			local spec = Layout.areas[areaId]
-			local arches: { Layout.Arch } = {}
-			if spec ~= nil and spec.arches ~= nil then
-				arches = spec.arches
-			end
-			for _, arch in arches do
-				if arch.asset == Layout.streetArchAsset then
-					host = CFrame.new(arch.x, 0.1, arch.z) -- buildArch's pivot
-				end
+		if gate ~= nil then
+			table.insert(hosts, gate:GetPivot())
+		elseif areaId == "alley" then
+			for _, arch in Layout.townSquare.arches do
+				local side = if arch.x < 0 then -1 else 1
+				table.insert(
+					hosts,
+					CFrame.new(arch.x, 0.1, arch.z) * CFrame.Angles(0, math.rad(side * 90), 0)
+				)
 			end
 		end
-		if host == nil or not AssetRegistry.has(asset) then
+		if not AssetRegistry.has(asset) then
 			continue
 		end
-		local board = place(asset, localCFrame(host :: CFrame, at), parent)
-		board.Name = pascal .. "IndexBoard"
-		board.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
-		board:SetAttribute("Area", areaId)
-		CollectionService:AddTag(board, "IndexBoard")
+		for n, host in hosts do
+			local board = place(asset, localCFrame(host, at), parent)
+			board.Name = pascal .. "IndexBoard" .. (if #hosts > 1 then tostring(n) else "")
+			board.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+			board:SetAttribute("Area", areaId)
+			CollectionService:AddTag(board, "IndexBoard")
+		end
 	end
-end
-
--- The manhole in the Square (Layout.manhole): under World.Gates and tagged AreaGate like a gate, so the client
--- slides its _Cover off and the UI hangs the area's sign over it once the player's tier opens the area. Its prompt
--- is a fast travel button the server answers like Travel(area).
-local function buildManhole(parent: Instance): Model?
-	local spec = Layout.manhole
-	local def = Catalog.getArea(spec.area)
-	if def == nil or not AssetRegistry.has("CatCafe_Sewer_Manhole") then
-		return nil
-	end
-	local model = place("CatCafe_Sewer_Manhole", CFrame.new(spec.x, spec.y, spec.z), parent)
-	model.Name = "SewerManhole"
-	model:SetAttribute("Area", def.id)
-	model:SetAttribute("RequiresTier", def.tier)
-	CollectionService:AddTag(model, "AreaGate")
-	-- Custom: the UI's action pill, floating a little above the cover.
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "ManholePrompt"
-	prompt.ActionText = "Climb down"
-	prompt.ObjectText = def.name
-	prompt.HoldDuration = 0.3
-	prompt.MaxActivationDistance = 8
-	prompt.RequiresLineOfSight = false
-	prompt.Style = Enum.ProximityPromptStyle.Custom
-	local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
-	if found ~= nil then
-		local float = Instance.new("Attachment")
-		float.Name = "PromptPoint"
-		float.Parent = found
-		float.WorldPosition = Vector3.new(spec.x, spec.y + 2.5, spec.z)
-		prompt.Parent = float
-	end
-	return model
 end
 
 -- The Spin Wheel station (F49) in the Town Square (Layout.spinWheel), tagged SpinWheel: SpinService measures its
@@ -1473,6 +1421,94 @@ local function buildTownSquare(parent: Instance)
 	end
 end
 
+-- The finger signpost by the fountain (town-layout-v3.md section 7d, Layout.townSquare.signpost), tagged
+-- TownSignpost: each client draws its arms' names, icons and tier locks (ui-contract.md "Town signpost"). The art
+-- when the AssetRegistry has it, placed with no turn so the arms it aims are in world space; until then a post and
+-- an arm for each gated area, a board along its own X with the area's id in its Area attribute, aimed at the gate.
+local SIGNPOST_ASSET = "CatCafe_Square_Signpost"
+local SIGNPOST_WOOD = Color3.fromRGB(150, 105, 65)
+
+local function buildSignpost(parent: Instance)
+	local at = Layout.townSquare.signpost
+	local base = CFrame.new(at.x, at.y, at.z)
+	local model: Model
+	if AssetRegistry.known(SIGNPOST_ASSET) then
+		model = place(SIGNPOST_ASSET, base, parent)
+	else
+		model = Instance.new("Model")
+		model.PrimaryPart = part(
+			"Post",
+			Vector3.new(0.6, 7, 0.6),
+			base * CFrame.new(0, 3.5, 0),
+			SIGNPOST_WOOD,
+			Enum.Material.Wood,
+			model
+		)
+		local height = 6.3
+		for _, def in Catalog.areas do
+			local gx, gz = Layout.gatePosition(Layout.areas[def.id])
+			if gx == nil or gz == nil then
+				continue
+			end
+			local from = Vector3.new(at.x, at.y + height, at.z)
+			local toward = (Vector3.new(gx, from.Y, gz) - from).Unit
+			local middle = from + toward * 2.55
+			-- lookAt aims -Z at the gate; a quarter turn puts the board's X there instead
+			local arm = part(
+				"Arm_" .. def.name,
+				Vector3.new(4.5, 0.9, 0.2),
+				CFrame.lookAt(middle, middle + toward) * CFrame.Angles(0, math.rad(90), 0),
+				PICKET,
+				Enum.Material.Wood,
+				model
+			)
+			arm.CanCollide = false
+			arm:SetAttribute("Area", def.id)
+			height -= 0.75
+		end
+	end
+	model.Name = "Signpost"
+	CollectionService:AddTag(model, "TownSignpost")
+	model.Parent = parent
+end
+
+-- The paw paths (Layout.pawPrints): each print a pad and four toes, flat on what it lies on, in its area's colour.
+local PAW_COLORS = {
+	park = Color3.fromRGB(104, 196, 92), -- leaf green
+	neighbourhood = Color3.fromRGB(240, 150, 64), -- warm orange
+	woods = Color3.fromRGB(38, 112, 64), -- deep green
+	sewer = Color3.fromRGB(86, 110, 150), -- slate blue
+} :: { [string]: Color3 }
+local PAW_TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.5 } }
+
+local function buildPawPaths(parent: Instance)
+	local paths = folder("PawPaths", parent)
+	for _, paw in Layout.pawPrints() do
+		local color = PAW_COLORS[paw.area] or CREAM
+		local at = CFrame.new(paw.x, paw.y + 0.015, paw.z) * CFrame.Angles(0, math.rad(paw.rotY), 0)
+		local function pad(name: string, diameter: number, x: number, z: number)
+			-- a cylinder's axis is its X: a quarter turn about Z lays it flat
+			local p = part(
+				name,
+				Vector3.new(0.03, diameter, diameter),
+				at * CFrame.new(x, 0, z) * CFrame.Angles(0, 0, math.rad(90)),
+				color,
+				Enum.Material.SmoothPlastic,
+				paths
+			)
+			p.Shape = Enum.PartType.Cylinder
+			p.CanCollide = false
+			p.CanQuery = false
+			p.CanTouch = false
+			p.CastShadow = false
+		end
+		pad("PawPad", 0.95, 0, 0)
+		for _, toe in PAW_TOES do
+			pad("PawToe", 0.38, toe[1], toe[2])
+		end
+	end
+end
+
 function WorldBuilder.build(): World
 	local existing = Workspace:FindFirstChild("World")
 	if existing ~= nil then
@@ -1489,8 +1525,8 @@ function WorldBuilder.build(): World
 		root
 	)
 	ground.Name = "Ground"
-	-- The street runs from the Park gate to the Alley Square at its north end, in two halves either side of the
-	-- Town Square, which paves the middle.
+	-- The street runs from the Park gate to the Neighbourhood gate, in two halves either side of the Town Square,
+	-- which paves the middle.
 	for _, half in { -1, 1 } do
 		local from = half * W.TownSquareHalfDepth
 		local to = if half < 0 then W.StreetSouthZ else W.StreetNorthZ
@@ -1516,6 +1552,8 @@ function WorldBuilder.build(): World
 		end
 	end
 	buildTownSquare(root)
+	buildSignpost(root)
+	buildPawPaths(root)
 
 	-- A Model set to Persistent so streaming never drops a far zone the client checks against.
 	local zones = Instance.new("Model")
@@ -1561,14 +1599,13 @@ function WorldBuilder.build(): World
 				zones
 			)
 		end
-		if spec.gateZ ~= nil then
-			-- The gate's front (-Z, its sign) faces the way players come from, so it turns round when the area
-			-- lies toward -Z of it: the Park, the Woods and the Sewer (alley kit notes, reviewer N68).
-			local turn = if spec.center.z < spec.gateZ then math.pi else 0
-			gates[def.id] = buildGate(def, spec.center.x, spec.gateZ, turn, gatesFolder)
+		-- The gate's front (-Z, its sign) faces the way players come from (alley kit notes, reviewer N68).
+		local gateX, gateZ = Layout.gatePosition(spec)
+		if gateX ~= nil and gateZ ~= nil then
+			gates[def.id] =
+				buildGate(def, gateX, gateZ, math.rad(Layout.gateTurn(spec)), gatesFolder)
 		end
 	end
-	local manhole = buildManhole(gatesFolder)
 	buildIndexBoards(gates, folder("IndexBoards", root))
 	if not buildNightFences(gates, plots, folder("NightFences", root)) then
 		buildAlleyNightFence(gatesFolder)
@@ -1594,7 +1631,7 @@ function WorldBuilder.build(): World
 	spawn.Duration = 0
 	spawn.Parent = root
 
-	return { folder = root, plots = plots, areas = areas, gates = gates, manhole = manhole }
+	return { folder = root, plots = plots, areas = areas, gates = gates }
 end
 
 return WorldBuilder

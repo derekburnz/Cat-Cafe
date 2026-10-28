@@ -133,8 +133,8 @@ local function zoneAt(position: Vector3): string?
 	return nil
 end
 
--- Only the gate's barrier changes: the ForceField part named Bars across the whole opening, or the lid of the
--- Square's manhole (the parts of its child Model named <asset>_Cover). The arch stays solid. The barrier keeps
+-- Only the gate's barrier changes: the ForceField part named Bars across the whole opening, or a manhole's lid (the
+-- parts of its child Model named <asset>_Cover; v3.1 took the last manhole away). The arch stays solid. The barrier keeps
 -- its own look while closed and vanishes once open (Effects draws the dissolve the first time); a lid keeps its
 -- own collision. A sign on the bars (the Alleyway's night fence) shows only while they are closed.
 local closedTransparency: { [BasePart]: number } = setmetatable({}, { __mode = "k" }) :: any
@@ -704,8 +704,8 @@ function WorldController.start()
 			local gates = if world ~= nil then world:FindFirstChild("Gates") else nil
 			if gates ~= nil then
 				-- An area opening while you play (not one already open when you joined) is one moment, from the
-				-- nearest of its ways in: the Sewer has its gate and the Square's manhole. A rank up at night waits
-				-- for the sunrise to open the gate, so the moment does too.
+				-- nearest of its ways in (one gate each since v3.1 took the Square's manhole away). A rank up at
+				-- night waits for the sunrise to open the gate, so the moment does too.
 				local opened: { [string]: Vector3 } = {}
 				local here = rootPosition()
 				local areasOpen = clock:GetAttribute("AreasOpen") ~= false

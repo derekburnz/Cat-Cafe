@@ -44,10 +44,10 @@ Themed cats (ids and favorite roles unchanged; names, one-line descriptions and 
 | id | name | rarity | role | prop (slot) | coat idea |
 |---|---|---|---|---|---|
 | munchkin | Skater Cat | Rare | entertainer | skateboard strapped to its back (Back) | Munchkin, short legs, grey and white |
-| fold | Painter Cat | Rare | waiter | beret with a paint splat (Head) | Scottish Fold, folded ears, cream with paint-coloured toe tips |
-| chonk | Chef Cat | Epic | barista | tall chef hat (Head) | big orange and white, scale 1.25 |
+| builder | Construction Cat | Rare | waiter | orange hard hat with a pencil tucked in the band (Head) | brown tabby with white socks (v0.13, replaces Painter Cat, data-model 3d) |
+| gardener | Gardener Cat | Epic | barista | straw sun hat with a daisy (Head) and a little watering can on its back (Back) | cream and soft grey patches (v0.13, replaces Chef Cat) |
 | postie | Mail Cat | Epic | greeter | mail carrier's cap (Head; a satchel would clip the greeter sash) | blue-grey shorthair |
-| marshmallow | Super Cat | Legendary | waiter | red hero cape (Back); effect: the cape flutters and leaves a short whoosh trail | fluffy white long coat |
+| gnome | Gnome Cat | Legendary | waiter | tall pointy red gnome hat (Head) and a fluffy white beard (Face); effect: little lucky sparkles | grey and white longhair with a round face (v0.13, replaces Super Cat) |
 | comet | Ice Cream Cat | Mythical | entertainer | ice cream cone hat with a cherry (Head); effect: sprinkles float off it | strawberry and vanilla swirl with sprinkle specks, soft glow |
 
 ### A3. Woods (Tier 4): a storybook forest
@@ -110,7 +110,7 @@ Themed cats:
 
 | id | name | rarity | role | prop (slot) | coat idea |
 |---|---|---|---|---|---|
-| lantern | Miner Cat | Rare | waiter | hard hat with a lamp (Head) | soot grey |
+| plumber | Plumber Cat | Rare | waiter | blue work cap (Head) and a big wrench on its back (Back); no moustache and no red cap | slate grey with a white bib (v0.13, replaces Miner Cat) |
 | bubbles | Bubble Cat | Rare | entertainer | bubble pipe in its mouth (Face) | pale blue-grey |
 | gears | Steampunk Cat | Epic | barista | brass goggles (Face) | copper tabby |
 | glimmer | Diver Cat | Epic | greeter | snorkel and mask (Face) | teal-grey with a white belly |

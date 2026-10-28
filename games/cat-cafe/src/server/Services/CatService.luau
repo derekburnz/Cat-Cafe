@@ -481,37 +481,21 @@ local function spawnStray(
 	return stray
 end
 
--- The zones Epic and rarer strays keep to: the Alleyway's "nook" points (town-layout-v3.md 7e: the exciting cats
--- wait at the back alleys' ends, so no cafe's lane is the lucky one) and a v3.2 side area's "deep" ones (section 8d:
--- the rarer the cat, the longer the walk to it).
-local RARE_ZONES: { [string]: boolean } = { nook = true, deep = true }
-
--- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Epic and
--- rarer strays take only RARE_ZONES points in an area that has them.
+-- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Which points a
+-- stray of `rarity` may take is Catching.spawnPool's rule: the Woods' oak top for a Rare or better first, Epic and
+-- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81).
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
-	local free: { number } = {}
-	local nooks: { number } = {}
-	local hasNook = false
+	local slots: { Catching.SpawnSlot } = {}
 	for i, point in area.spawnPoints do
 		local zone = point:GetAttribute("Zone")
-		local inNook = type(zone) == "string" and RARE_ZONES[zone] == true
-		hasNook = hasNook or inNook
-		if occupied[i] == nil then
-			table.insert(free, i)
-			if inNook then
-				table.insert(nooks, i)
-			end
-		end
+		table.insert(
+			slots,
+			{ zone = if type(zone) == "string" then zone else nil, free = occupied[i] == nil }
+		)
 	end
-	-- Epic and rarer spawn only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81); with
-	-- every such point full that stray waits for the next wave. spawnWave places the rarer strays first, so this is
-	-- rare.
-	local pool: { number } = free
-	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasNook then
-		pool = nooks
-	end
+	local pool = Catching.spawnPool(slots, rarity)
 	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
 	local points: { Vector3 } = {}
 	for _, index in pool do

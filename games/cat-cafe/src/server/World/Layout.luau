@@ -757,8 +757,9 @@ end
 -- The Woods at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Woods_SetV32 (#470, area-sets.md
 -- "The Woods (v3.2)") fills the 240 x 240 floor, its trail winding through the one gap in the tree line, over the one
 -- log bridge and through the one gap in the rock ridge to the Great Oak. Its cat spots are `near` on the gate half and
--- `deep` on the far half; the Great Oak's top nook and the tree house branch trap are left out, as in v3.1. Its
--- hollow logs and bramble bushes are built into the set, each turned in it, two of the four deep.
+-- `deep` on the far half, and the Great Oak's top nook is `rare` (Catching.RARE_ZONE: only a Rare or better waits
+-- there, and one goes there first). Its hollow logs and bramble bushes are built into the set, each turned in it, two
+-- of the four deep, and a cat can get stuck up the tree house's branch.
 local WX, WZ = W.WoodsCenterX, W.WoodsCenterZ
 local WTURN = townTurn(WX, WZ, W.WoodsGateX, nil)
 Layout.woods = {
@@ -842,6 +843,8 @@ Layout.woods = {
 		do
 			table.insert(points, point)
 		end
+		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there)
+		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -36.31, 18.3, 87.37 } }, "rare")[1])
 		return points
 	end)(),
 	rescueSpots = {
@@ -850,6 +853,8 @@ Layout.woods = {
 		setTrap(WX, WZ, WTURN, "hollow_log", { 92, 0, 26 }, -20),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -84, 0, -50 }),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -86, 0, 30 }),
+		-- up the tree house's branch (Derek 01:34), reached from its deck: shaken down and caught like a Park tree
+		setTrap(WX, WZ, WTURN, "tree", { -88.85, 15.45, 68.06 }),
 	},
 	props = {},
 } :: AreaSpec

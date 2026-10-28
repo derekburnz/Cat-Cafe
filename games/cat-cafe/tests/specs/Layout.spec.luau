@@ -123,8 +123,8 @@ return function()
 				expect(spec.set).to.equal(name)
 				local turn = Layout.gateTurn(spec)
 				-- on the ground or a low perch (a porch, a rock, the catwalk), never a roof; the Woods' tree house
-				-- cushion, up its ladder, is the one high spot
-				local top = spec.floorY + (if id == "woods" then 10.5 else 4)
+				-- cushion and the Great Oak's top nook, up their ladders, are the high spots
+				local top = spec.floorY + (if id == "woods" then 18.5 else 4)
 				for i, point in spec.spawnPoints do
 					if point.y < spec.floorY or point.y > top then
 						fail("%s spawn point %d stands at y %g", id, i, point.y)
@@ -137,7 +137,7 @@ return function()
 						end
 					end
 				end
-				local pieceTurns: { number } = if id == "woods" then { 20, -20, 0, 0 } else {}
+				local pieceTurns: { number } = if id == "woods" then { 20, -20, 0, 0, 0 } else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
 					if spot.prop == nil then
@@ -146,7 +146,7 @@ return function()
 					end
 				end
 				expect(built).to.equal(
-					if id == "park" then 0 elseif id == "neighbourhood" then 1 elseif id == "woods" then 4 else 2
+					if id == "park" then 0 elseif id == "neighbourhood" then 1 elseif id == "woods" then 5 else 2
 				)
 			end
 		end)
@@ -170,11 +170,12 @@ return function()
 		end)
 
 		-- F81 (town-layout-v3.md section 8d): a v3.2 set tags each cat spot near (the gate half) or deep (the far
-		-- half, where Epic and rarer strays wait), and some of its traps are in the far half.
+		-- half, where Epic and rarer strays wait), and some of its traps are in the far half. The Woods' Great Oak
+		-- top is "rare" (Catching.RARE_ZONE), in the far half too.
 		it("the v3.2 sets' spots are near their gates or deep in their far halves, with traps deep", function()
 			local rows = {
-				{ id = "park", near = 16, deep = 24, deepTraps = 3 },
-				{ id = "woods", near = 26, deep = 38, deepTraps = 2 },
+				{ id = "park", near = 16, deep = 24, rare = 0, deepTraps = 3 },
+				{ id = "woods", near = 26, deep = 38, rare = 1, deepTraps = 3 },
 			}
 			for _, row in rows do
 				local spec = Layout.areas[row.id]
@@ -192,12 +193,13 @@ return function()
 					local zone = point.zone :: string
 					counts[zone] = (counts[zone] or 0) + 1
 					local inFrom = fromGate(point.x, point.z)
-					if (zone == "deep") ~= (inFrom > middle) then
+					if (zone ~= "near") ~= (inFrom > middle) then
 						fail("%s spawn point %d (%s) is %.1f studs in from the gate", row.id, i, zone, inFrom)
 					end
 				end
 				expect(counts.near).to.equal(row.near)
 				expect(counts.deep).to.equal(row.deep)
+				expect(counts.rare or 0).to.equal(row.rare)
 				local deep = 0
 				for _, spot in spec.rescueSpots do
 					if fromGate(spot.x, spot.z) > middle then
@@ -212,6 +214,24 @@ return function()
 				expect(spot.prop).to.be.ok()
 			end
 			expect(Layout.park.rescueSpots[1].rotY).to.equal(0)
+		end)
+
+		-- Derek 2026-10-28 01:34 and 01:35 (Model-Agent #452): a cat can get stuck up the tree house's branch, and the
+		-- Great Oak's top nook is where the rarer cats wait.
+		it("the Woods' tree house branch is a tree trap up off the deck, and the oak top a rare spot", function()
+			local woods = Layout.woods
+			local branch = woods.rescueSpots[5]
+			expect(branch.prop).to.equal(nil)
+			expect(branch.trap).to.equal("tree")
+			expect(branch.y).to.equal(15.45)
+			local rares = 0
+			for _, point in woods.spawnPoints do
+				if point.zone == "rare" then
+					rares += 1
+					expect(point.y).to.be.near(woods.floorY + 18.3, 1e-9)
+				end
+			end
+			expect(rares).to.equal(1)
 		end)
 	end)
 

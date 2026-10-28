@@ -267,6 +267,91 @@ function Logic.stuckMarkShows(lockedBy: unknown, distance: number, shown: boolea
 	return not locked and distance > near and distance <= m.maxDistance
 end
 
+export type CloudPlan = {
+	coverFrom: number,
+	coverTo: number,
+	partFrom: number,
+	partTo: number,
+	tintFrom: number,
+	tintTo: number,
+}
+
+local function smoothstep(x: number): number
+	local k = math.clamp(x, 0, 1)
+	return k * k * (3 - 2 * k)
+end
+
+-- How much of the screen the clouds of a cannon flight or a cloud hop cover `t` seconds into their plan
+-- (Presets.clouds): 0 clear, 1 fully covered, so the server's move is never seen.
+function Logic.cloudCover(t: number, plan: CloudPlan): number
+	if t < plan.coverFrom or t >= plan.partTo then
+		return 0
+	end
+	if t < plan.coverTo then
+		return smoothstep((t - plan.coverFrom) / (plan.coverTo - plan.coverFrom))
+	end
+	if t < plan.partFrom then
+		return 1
+	end
+	return 1 - smoothstep((t - plan.partFrom) / (plan.partTo - plan.partFrom))
+end
+
+-- How far the clouds have turned toward the destination's colour `t` seconds into their plan, 0 to 1.
+function Logic.cloudTint(t: number, plan: CloudPlan): number
+	if plan.tintTo <= plan.tintFrom then
+		return if t >= plan.tintTo then 1 else 0
+	end
+	return math.clamp((t - plan.tintFrom) / (plan.tintTo - plan.tintFrom), 0, 1)
+end
+
+-- Where the middle of the cloud tunnel has drifted `t` seconds in, as shares of the screen's shorter side: a slow,
+-- uneven loop, so the flight feels like it banks.
+function Logic.cloudBank(t: number, bank: { share: number, hz: number }): Vector2
+	local turn = 2 * math.pi * bank.hz * t
+	return Vector2.new(math.sin(turn) * bank.share, math.cos(turn * 0.7) * bank.share * 0.5)
+end
+
+-- The beats of a timeline (name to seconds) due by `t` and not yet in `fired`, earliest first; marks them fired, so
+-- a step that lands late still plays each one once and in order.
+function Logic.beatsDue(
+	t: number,
+	beats: { [string]: number },
+	fired: { [string]: boolean }
+): { string }
+	local due: { string } = {}
+	for name, at in beats do
+		if fired[name] ~= true and t >= at then
+			table.insert(due, name)
+		end
+	end
+	table.sort(due, function(a: string, b: string): boolean
+		if beats[a] ~= beats[b] then
+			return beats[a] < beats[b]
+		end
+		return a < b
+	end)
+	for _, name in due do
+		fired[name] = true
+	end
+	return due
+end
+
+-- Whether a flying player's sparkle trail is on `t` seconds into a cannon flight (Presets.cannon): out of the
+-- barrel until the cloud puff, and again on the drop to the landing pad.
+function Logic.cannonTrail(
+	t: number,
+	c: { boomAt: number, puffAt: number, dropAt: number, landAt: number }
+): boolean
+	return (t >= c.boomAt and t < c.puffAt) or (t >= c.dropAt and t < c.landAt)
+end
+
+-- A hop from `from` to `to`, `k` of the way (0 to 1), peaking `height` studs over the straight line at its middle:
+-- a checked-in cat jumping into the camp's carrier basket.
+function Logic.hopPoint(from: Vector3, to: Vector3, height: number, k: number): Vector3
+	local s = math.clamp(k, 0, 1)
+	return from:Lerp(to, s) + Vector3.new(0, 4 * height * s * (1 - s), 0)
+end
+
 -- Whether something last seen at `seenAt` (os.clock(), nil if never) still counts as in view at `now`: for `grace`
 -- seconds after it goes out of sight, so a post or a passing player does not make a mark pop again and again.
 function Logic.stillInView(seenAt: number?, now: number, grace: number): boolean

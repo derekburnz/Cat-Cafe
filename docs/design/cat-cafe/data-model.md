@@ -730,7 +730,7 @@ Every client to server call is validated on the server. Default rate limit 10 ca
 | TelemetryReport | event | name, value | allowlist, 10 per minute | analytics only |
 | ClaimOffline | event | none | pending above 0 | adds coins |
 | ClaimTipJar | event | step | F47 (section 11b): integer 1 to 12, unclaimed this session, session minutes reached; 1 per second | pays the step, fires TipJarState and ProfileSync |
-| IntroDone | event | shot, replay | F72: `shot` an integer 0 to 9 (0 = played to the end), `replay` a boolean; 1 per second | the first non-replay call sets `introSeen`; every call logs `intro_cutscene` (finished or skipped, shot, replay) |
+| IntroDone | event | shot, replay | F72: `shot` an integer 0 to 10 (0 = played to the end; ten shots since 2026-10-28), `replay` a boolean; 1 per second | the first non-replay call sets `introSeen`; every call logs `intro_cutscene` (finished or skipped, shot, replay, and the intro's version, 2 from the ten-shot cut) |
 | ClaimDailyTreat | event | none | v0.10, F70 (section 11e): a stamp due; 1 per second | pays the day, sets `dailyTreat`, ProfileSync |
 | ClaimIndexReward | event | areaId, milestoneId | F48 (section 11b): known area and milestone, count met from `collection` or `goldCollection`, not claimed; 1 per second | pays, marks `indexRewards`, ProfileSync |
 | SpinWheel | event | none | F49 (section 11c): within 14 studs of a `SpinWheel` station, a free or banked spin, SpinCooldownSeconds since the last spin; 1 per second | pays the slice, fires SpinResult and ProfileSync, sets `LastSlice` then `LastSpinAt` |

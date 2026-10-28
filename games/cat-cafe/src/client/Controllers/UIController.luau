@@ -677,40 +677,6 @@ local function rescueInfo(rescueSpotId: string): (string?, string?)
 	return trap, rarity
 end
 
--- The night dealer's cart (F32): the UI's range hint follows it and its prompt opens the dealer screen. The cart
--- is the server's, tagged DealerCart, there from night start to day start.
-local function bindDealerCart()
-	-- `cue` is false for a cart already out when this client starts, so a player who joins at night does not
-	-- hear it arrive (reviewer note on #110).
-	local function arrived(instance: Instance, cue: boolean)
-		if not instance:IsA("Model") then
-			return
-		end
-		local model = instance :: Model
-		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
-		UI.dealer.setCart(if found ~= nil and found:IsA("BasePart") then found :: BasePart else nil)
-		local prompt = model:FindFirstChild("DealerPrompt", true)
-		if prompt ~= nil and prompt:IsA("ProximityPrompt") then
-			(prompt :: ProximityPrompt).Triggered:Connect(function()
-				UI.dealer.open()
-			end)
-		end
-		if cue then
-			Moments.DealerArrive:Fire()
-		end
-	end
-	CollectionService:GetInstanceAddedSignal("DealerCart"):Connect(function(instance)
-		arrived(instance, true)
-	end)
-	CollectionService:GetInstanceRemovedSignal("DealerCart"):Connect(function()
-		UI.dealer.setCart(nil)
-		Moments.DealerLeave:Fire()
-	end)
-	for _, instance in CollectionService:GetTagged("DealerCart") do
-		arrived(instance, false)
-	end
-end
-
 -- The Golden Fish Market window (F53) and its two events come with UI #312. Until that is on main the UI module may
 -- not have them, so they are reached loosely and skipped when missing. Drop the casts once #312 merges.
 local function marketUI(): any
@@ -719,8 +685,13 @@ end
 
 -- A street station's prompt opens its window, which closes itself when the player walks out of range. The station is
 -- the server's, tagged and Persistent; a prompt that streams in after its model is bound too, and each prompt only
--- once.
-local function bindStationPrompts(tag: string, promptName: string, open: () -> ())
+-- once. `found`, when given, hears of each prompt as it is bound.
+local function bindStationPrompts(
+	tag: string,
+	promptName: string,
+	open: () -> (),
+	found: ((ProximityPrompt) -> ())?
+)
 	local bound: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local function bindPrompt(instance: Instance)
 		if
@@ -735,6 +706,9 @@ local function bindStationPrompts(tag: string, promptName: string, open: () -> (
 		prompt.Triggered:Connect(function()
 			open()
 		end)
+		if found ~= nil then
+			found(prompt)
+		end
 	end
 	local function station(instance: Instance)
 		for _, descendant in instance:GetDescendants() do
@@ -745,6 +719,48 @@ local function bindStationPrompts(tag: string, promptName: string, open: () -> (
 	CollectionService:GetInstanceAddedSignal(tag):Connect(station)
 	for _, instance in CollectionService:GetTagged(tag) do
 		station(instance)
+	end
+end
+
+-- The night dealer's cart (F32): the UI's range hint follows it and its prompt opens the dealer screen. The cart
+-- is the server's, tagged DealerCart, there from night start to day start. Its prompt is bound the way a station's
+-- is, since it can reach this client after the cart's tag does: looking for it once when the tag arrived left E at
+-- the cart doing nothing (Derek 2026-10-28). The range hint follows the part the prompt floats on, the part the
+-- server measures the range from.
+local function bindDealerCart()
+	bindStationPrompts("DealerCart", "DealerPrompt", function()
+		UI.dealer.open()
+	end, function(prompt: ProximityPrompt)
+		local holder = prompt.Parent
+		local part = if holder ~= nil and holder:IsA("Attachment") then holder.Parent else holder
+		if part ~= nil and part:IsA("BasePart") then
+			UI.dealer.setCart(part :: BasePart)
+		end
+	end)
+	-- `cue` is false for a cart already out when this client starts, so a player who joins at night does not
+	-- hear it arrive (reviewer note on #110).
+	local function arrived(instance: Instance, cue: boolean)
+		if not instance:IsA("Model") then
+			return
+		end
+		local model = instance :: Model
+		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if found ~= nil and found:IsA("BasePart") then
+			UI.dealer.setCart(found :: BasePart)
+		end
+		if cue then
+			Moments.DealerArrive:Fire()
+		end
+	end
+	CollectionService:GetInstanceAddedSignal("DealerCart"):Connect(function(instance)
+		arrived(instance, true)
+	end)
+	CollectionService:GetInstanceRemovedSignal("DealerCart"):Connect(function()
+		UI.dealer.setCart(nil)
+		Moments.DealerLeave:Fire()
+	end)
+	for _, instance in CollectionService:GetTagged("DealerCart") do
+		arrived(instance, false)
 	end
 end
 

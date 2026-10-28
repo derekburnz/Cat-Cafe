@@ -13,18 +13,18 @@
      "CFrame": {
       "position": [
        0.0,
-       0.975,
+       2.03,
        0.0
       ],
       "orientation": [
        [
+        1.0,
         0.0,
-        -1.0,
         0.0
        ],
        [
-        1.0,
         0.0,
+        1.0,
         0.0
        ],
        [
@@ -36,9 +36,9 @@
      }
     },
     "Size": [
-     1.95,
-     2.425,
-     2.425
+     2.0,
+     3.94,
+     1.2
     ],
     "Color": [
      0.2314,
@@ -52,23 +52,22 @@
     "CastShadow": true,
     "TopSurface": "Smooth",
     "BottomSurface": "Smooth",
-    "Shape": "Cylinder",
     "PivotOffset": {
      "CFrame": {
       "position": [
-       -0.975,
        0.0,
+       -2.03,
        0.0
       ],
       "orientation": [
        [
-        0.0,
         1.0,
+        0.0,
         0.0
        ],
        [
-        -1.0,
         0.0,
+        1.0,
         0.0
        ],
        [
@@ -86,38 +85,38 @@
   },
   {
    "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
+   "className": "WedgePart",
    "properties": {
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       2.925,
+       -1.075,
+       1.01,
        0.0
       ],
       "orientation": [
        [
         0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
         0.0,
         1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
        ]
       ]
      }
     },
     "Size": [
-     1.95,
-     2.075,
-     2.075
+     1.2,
+     1.9,
+     0.15
     ],
     "Color": [
      0.2314,
@@ -130,8 +129,7 @@
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
+    "BottomSurface": "Smooth"
    }
   },
   {
@@ -141,119 +139,69 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
-       0.125,
+       -0.45,
+       0.1,
+       -0.55
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.2,
+     0.5
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.075,
+       1.01,
        0.0
       ],
       "orientation": [
        [
         0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.25,
-     2.64,
-     2.64
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth",
-    "Shape": "Cylinder"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4712,
-       1.0091,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
         0.0,
         -1.0
        ],
        [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4712,
-       0.9291,
-       -1.1164
-      ],
-      "orientation": [
-       [
         0.0,
         1.0,
         0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
        ],
        [
         1.0,
@@ -264,14 +212,14 @@
      }
     },
     "Size": [
-     0.03,
-     0.0423,
-     0.0582
+     1.2,
+     1.9,
+     0.15
     ],
     "Color": [
-     1.0,
-     0.7882,
-     0.302
+     0.2314,
+     0.298,
+     0.549
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -284,947 +232,21 @@
   },
   {
    "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4712,
-       0.9291,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5472,
-       0.9538,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5603,
-       0.9136,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4842,
-       0.8889,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4842,
-       0.8889,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5313,
-       0.8242,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.497,
-       0.7993,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
+   "className": "Part",
    "properties": {
     "CFrame": {
      "CFrame": {
       "position": [
        0.45,
-       0.864,
-       -1.1164
+       0.1,
+       -0.55
       ],
       "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
        [
         1.0,
         0.0,
         0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.45,
-       0.864,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
        ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.403,
-       0.7993,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3687,
-       0.8242,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4158,
-       0.8889,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4158,
-       0.8889,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3397,
-       0.9136,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.3528,
-       0.9538,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4288,
-       0.9291,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4288,
-       0.9291,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.0582
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.4288,
-       1.0091,
-       -1.1164
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0423,
-     0.1018
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3341,
-       1.6818,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3341,
-       1.6218,
-       -1.0584
-      ],
-      "orientation": [
        [
         0.0,
         1.0,
@@ -1234,4581 +256,19 @@
         0.0,
         0.0,
         1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
        ]
       ]
      }
     },
     "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3341,
-       1.6218,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2771,
-       1.6404,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2673,
-       1.6102,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3243,
-       1.5917,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3243,
-       1.5917,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2891,
-       1.5431,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3147,
-       1.5245,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.35,
-       1.573,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.35,
-       1.573,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3853,
-       1.5245,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4109,
-       1.5431,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3757,
-       1.5917,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3757,
-       1.5917,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4327,
-       1.6102,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4229,
-       1.6404,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3659,
-       1.6218,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3659,
-       1.6218,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0437
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.3659,
-       1.6818,
-       -1.0584
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0317,
-     0.0763
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2132,
-       2.5682,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2132,
-       2.5182,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2132,
-       2.5182,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2608,
-       2.5337,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.269,
-       2.5085,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2214,
-       2.493,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2214,
-       2.493,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2508,
-       2.4526,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2294,
-       2.437,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2,
-       2.4775,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2,
-       2.4775,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1706,
-       2.437,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1492,
-       2.4526,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1786,
-       2.493,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1786,
-       2.493,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.131,
-       2.5085,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1392,
-       2.5337,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1868,
-       2.5182,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1868,
-       2.5182,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.1868,
-       2.5682,
-       -0.9838
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4868,
-       0.6182,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4868,
-       0.5682,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4868,
-       0.5682,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4392,
-       0.5837,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.431,
-       0.5585,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4786,
-       0.543,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4786,
-       0.543,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4492,
-       0.5026,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.4706,
-       0.487,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5,
-       0.5275,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5,
-       0.5275,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5294,
-       0.487,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5508,
-       0.5026,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5214,
-       0.543,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5214,
-       0.543,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.569,
-       0.5585,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5608,
-       0.5837,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5132,
-       0.5682,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5132,
-       0.5682,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0364
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5132,
-       0.6182,
-       -1.1454
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0265,
-     0.0636
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0881,
-       3.1614,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0881,
-       3.1164,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0881,
-       3.1164,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0453,
-       3.1303,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0379,
-       3.1076,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0807,
-       3.0937,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0807,
-       3.0937,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0543,
-       3.0573,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0735,
-       3.0433,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1,
-       3.0798,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1,
-       3.0798,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        -0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1265,
-       3.0433,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        -0.5878,
-        0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1457,
-       3.0573,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        0.809
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1193,
-       3.0937,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.809,
-        -0.5878
-       ],
-       [
-        0.0,
-        0.5878,
-        -0.809
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1193,
-       3.0937,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1621,
-       3.1076,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        -0.9511,
-        -0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1547,
-       3.1303,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        -0.309
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1119,
-       3.1164,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        0.309,
-        -0.9511
-       ],
-       [
-        0.0,
-        0.9511,
-        0.309
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1119,
-       3.1164,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0328
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "WedgePart",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.1119,
-       3.1614,
-       -0.934
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        -1.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.03,
-     0.0238,
-     0.0572
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5543,
-       3.85,
-       0.2296
-      ],
-      "orientation": [
-       [
-        0.9239,
-        0.0,
-        0.3827
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.3827,
-        0.0,
-        0.9239
-       ]
-      ]
-     }
-    },
-    "Size": [
+     0.6,
      0.2,
-     0.22,
-     0.5786
+     0.5
     ],
     "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2296,
-       3.85,
-       0.5543
-      ],
-      "orientation": [
-       [
-        0.3827,
-        0.0,
-        0.9239
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.9239,
-        0.0,
-        0.3827
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.22,
-     0.5786
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2296,
-       3.85,
-       0.5543
-      ],
-      "orientation": [
-       [
-        -0.3827,
-        0.0,
-        0.9239
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.9239,
-        0.0,
-        -0.3827
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.22,
-     0.5786
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5543,
-       3.85,
-       0.2296
-      ],
-      "orientation": [
-       [
-        -0.9239,
-        0.0,
-        0.3827
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -0.3827,
-        0.0,
-        -0.9239
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.22,
-     0.5786
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5543,
-       3.85,
-       -0.2296
-      ],
-      "orientation": [
-       [
-        -0.9239,
-        0.0,
-        -0.3827
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.3827,
-        0.0,
-        -0.9239
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.22,
-     0.5786
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.2296,
-       3.85,
-       -0.5543
-      ],
-      "orientation": [
-       [
-        -0.3827,
-        0.0,
-        -0.9239
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.9239,
-        0.0,
-        -0.3827
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.22,
-     0.5786
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.2296,
-       3.85,
-       -0.5543
-      ],
-      "orientation": [
-       [
-        0.3827,
-        0.0,
-        -0.9239
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.9239,
-        0.0,
-        0.3827
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.22,
-     0.5786
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5543,
-       3.85,
-       -0.2296
-      ],
-      "orientation": [
-       [
-        0.9239,
-        0.0,
-        -0.3827
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.3827,
-        0.0,
-        0.9239
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.2,
-     0.22,
-     0.5786
-    ],
-    "Color": [
-     0.5569,
-     0.4863,
-     0.9412
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0438,
-       3.7317,
-       -0.72
-      ],
-      "orientation": [
-       [
-        0.3653,
-        0.9309,
-        0.0
-       ],
-       [
-        -0.9309,
-        0.3653,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0365,
-     0.0934,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0325,
-       3.7355,
-       -0.72
-      ],
-      "orientation": [
-       [
-        -0.2708,
-        0.9626,
-        0.0
-       ],
-       [
-        -0.9626,
-        -0.2708,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0589,
-     0.0934,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0957,
-       3.6925,
-       -0.72
-      ],
-      "orientation": [
-       [
-        -0.7971,
-        0.6038,
-        0.0
-       ],
-       [
-        -0.6038,
-        -0.7971,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0745,
-     0.0934,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.12,
-       3.62,
-       -0.72
-      ],
-      "orientation": [
-       [
-        -1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.08,
-     0.0934,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0957,
-       3.5475,
-       -0.72
-      ],
-      "orientation": [
-       [
-        -0.7971,
-        -0.6038,
-        0.0
-       ],
-       [
-        0.6038,
-        -0.7971,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0745,
-     0.0934,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0325,
-       3.5045,
-       -0.72
-      ],
-      "orientation": [
-       [
-        -0.2708,
-        -0.9626,
-        0.0
-       ],
-       [
-        0.9626,
-        -0.2708,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0589,
-     0.0934,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.0438,
-       3.5083,
-       -0.72
-      ],
-      "orientation": [
-       [
-        0.3653,
-        -0.9309,
-        0.0
-       ],
-       [
-        0.9309,
-        0.3653,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.0365,
-     0.0934,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
+     0.1686,
+     0.1686,
+     0.2078
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -5827,7 +287,4760 @@
      "CFrame": {
       "position": [
        0.0,
-       4.4,
+       0.15,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.36,
+     0.26,
+     1.26
+    ],
+    "Color": [
+     0.5569,
+     0.4863,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.06,
+     0.2,
+     1.26
+    ],
+    "Color": [
+     0.5569,
+     0.4863,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.0,
+       -0.64
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3,
+     0.26,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5377,
+       3.4234,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.3653,
+        0.9309,
+        0.0
+       ],
+       [
+        -0.9309,
+        0.3653,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0684,
+     0.1867,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.385,
+       3.431,
+       -0.615
+      ],
+      "orientation": [
+       [
+        -0.2708,
+        0.9626,
+        0.0
+       ],
+       [
+        -0.9626,
+        -0.2708,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1105,
+     0.1867,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2587,
+       3.3449,
+       -0.615
+      ],
+      "orientation": [
+       [
+        -0.7971,
+        0.6038,
+        0.0
+       ],
+       [
+        -0.6038,
+        -0.7971,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1396,
+     0.1867,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.21,
+       3.2,
+       -0.615
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.15,
+     0.1867,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2587,
+       3.0551,
+       -0.615
+      ],
+      "orientation": [
+       [
+        -0.7971,
+        -0.6038,
+        0.0
+       ],
+       [
+        0.6038,
+        -0.7971,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1396,
+     0.1867,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.385,
+       2.969,
+       -0.615
+      ],
+      "orientation": [
+       [
+        -0.2708,
+        -0.9626,
+        0.0
+       ],
+       [
+        0.9626,
+        -0.2708,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1105,
+     0.1867,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5377,
+       2.9766,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.3653,
+        -0.9309,
+        0.0
+       ],
+       [
+        0.9309,
+        0.3653,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0684,
+     0.1867,
+     0.04
+    ],
+    "Color": [
+     1.0,
+     0.9569,
+     0.6902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5265,
+       1.2864,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5265,
+       1.1864,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5265,
+       1.1864,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6216,
+       1.2173,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6379,
+       1.167,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5428,
+       1.1361,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5428,
+       1.1361,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6016,
+       1.0552,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5588,
+       1.0241,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5,
+       1.105,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5,
+       1.105,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4412,
+       1.0241,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3984,
+       1.0552,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4572,
+       1.1361,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4572,
+       1.1361,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3621,
+       1.167,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3784,
+       1.2173,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4735,
+       1.1864,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4735,
+       1.1864,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.0728
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4735,
+       1.2864,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0529,
+     0.1272
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4302,
+       0.8023,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4302,
+       0.7273,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4302,
+       0.7273,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3588,
+       0.7505,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3466,
+       0.7127,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4179,
+       0.6896,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4179,
+       0.6896,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3738,
+       0.6289,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4059,
+       0.6056,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.45,
+       0.6662,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.45,
+       0.6662,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4941,
+       0.6056,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5262,
+       0.6289,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4821,
+       0.6896,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4821,
+       0.6896,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5534,
+       0.7127,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5412,
+       0.7505,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4698,
+       0.7273,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4698,
+       0.7273,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0546
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4698,
+       0.8023,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0397,
+     0.0954
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0159,
+       1.6318,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0159,
+       1.5718,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0159,
+       1.5718,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0729,
+       1.5904,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0827,
+       1.5602,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0257,
+       1.5417,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0257,
+       1.5417,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0609,
+       1.4931,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0353,
+       1.4745,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.523,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.523,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0353,
+       1.4745,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0609,
+       1.4931,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0257,
+       1.5417,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0257,
+       1.5417,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0827,
+       1.5602,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0729,
+       1.5904,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0159,
+       1.5718,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0159,
+       1.5718,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0437
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0159,
+       1.6318,
+       -0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0317,
+     0.0763
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0382,
+       3.1026,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0382,
+       2.9526,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0382,
+       2.9526,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1809,
+       2.9989,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2045,
+       2.9263,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0618,
+       2.8799,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0618,
+       2.8799,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.15,
+       2.7586,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0882,
+       2.7136,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.835,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.835,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        -0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0882,
+       2.7136,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        -0.5878,
+        0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.15,
+       2.7586,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        0.809
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0618,
+       2.8799,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.809,
+        -0.5878
+       ],
+       [
+        0.0,
+        0.5878,
+        -0.809
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0618,
+       2.8799,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2045,
+       2.9263,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        -0.9511,
+        -0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1809,
+       2.9989,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        -0.309
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0382,
+       2.9526,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.309,
+        -0.9511
+       ],
+       [
+        0.0,
+        0.9511,
+        0.309
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0382,
+       2.9526,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1052
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0382,
+       3.1026,
+       0.615
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.03,
+     0.0764,
+     0.1948
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.5,
+       3.25,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0,
+     1.5,
+     1.0
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.5,
+       2.63,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.06,
+     0.26,
+     1.06
+    ],
+    "Color": [
+     0.5569,
+     0.4863,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.5,
+       2.225,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.55,
+     0.6
+    ],
+    "Color": [
+     0.7882,
+     0.5569,
+     0.4157
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5,
+       3.5,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5,
+       2.5,
+       -0.3
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0,
+     1.0,
+     1.6
+    ],
+    "Color": [
+     0.2314,
+     0.298,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5,
+       2.5,
+       -1.07
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.06,
+     1.06,
+     0.2
+    ],
+    "Color": [
+     0.5569,
+     0.4863,
+     0.9412
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5,
+       2.5,
+       -1.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.6,
+     0.5
+    ],
+    "Color": [
+     0.7882,
+     0.5569,
+     0.4157
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       4.48,
        0.0
       ],
       "orientation": [
@@ -5924,8 +5137,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.375,
-       4.22,
+       0.3875,
+       4.27,
        -0.62
       ],
       "orientation": [
@@ -5956,6 +5169,55 @@
      0.9098,
      0.6275,
      0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.225,
+       4.24,
+       -0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     0.07,
+     0.06
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -6022,8 +5284,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.375,
-       4.22,
+       -0.3875,
+       4.27,
        -0.62
       ],
       "orientation": [
@@ -6054,6 +5316,55 @@
      0.9098,
      0.6275,
      0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.225,
+       4.24,
+       -0.625
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     0.07,
+     0.06
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -6120,204 +5431,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.23,
-       4.24,
-       -0.62
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.07,
-     0.06
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.23,
-       4.24,
-       -0.62
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.07,
-     0.07,
-     0.06
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
        0.0,
-       5.0,
-       0.05
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.55,
-     0.16,
-     1.45
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       4.4,
-       0.7
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.55,
-     1.4,
-     0.16
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.72,
-       4.35,
+       5.08,
        0.0
       ],
       "orientation": [
@@ -6340,504 +5455,14 @@
      }
     },
     "Size": [
-     0.14,
-     1.4,
-     1.45
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.72,
-       4.35,
-       -0.73
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.3,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.72,
-       4.35,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.14,
-     1.4,
-     1.45
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.72,
-       4.35,
-       -0.73
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.16,
-     1.3,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       5.0,
-       -0.73
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     1.55,
-     0.12,
-     0.04
-    ],
-    "Color": [
-     1.0,
-     0.9569,
-     0.6902
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       5.1862,
-       0.4353
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.8192,
-        -0.5736
-       ],
-       [
-        0.0,
-        0.5736,
-        0.8192
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.5833,
-     0.2,
-     0.5833
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       5.35,
-       0.55
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.8192,
-        -0.5736
-       ],
-       [
-        0.0,
-        0.5736,
-        0.8192
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.2,
-     0.35
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       5.5138,
-       0.6647
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.8192,
-        -0.5736
-       ],
-       [
-        0.0,
-        0.5736,
-        0.8192
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.1167,
-     0.2,
-     0.1167
-    ],
-    "Color": [
-     0.1216,
-     0.1647,
-     0.2667
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.15,
-       3.0,
-       -0.35
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.9397,
-        -0.342
-       ],
-       [
-        0.0,
-        0.342,
-        0.9397
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.6,
-     1.3
-    ],
-    "Color": [
-     0.2314,
-     0.298,
-     0.549
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.15,
-       2.775,
-       -1.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.45,
-     0.45,
-     0.45
-    ],
-    "Color": [
-     0.7882,
-     0.5569,
-     0.4157
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.1,
-       2.6,
-       0.0
-      ],
-      "orientation": [
-       [
-        0.9903,
-        0.1392,
-        0.0
-       ],
-       [
-        -0.1392,
-        0.9903,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
      1.5,
-     0.6
+     0.2,
+     1.5
     ],
     "Color": [
-     0.2314,
-     0.298,
-     0.549
+     0.1216,
+     0.1647,
+     0.2667
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -6855,9 +5480,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.18,
-       1.825,
-       0.0
+       0.0,
+       4.48,
+       0.675
       ],
       "orientation": [
        [
@@ -6879,14 +5504,14 @@
      }
     },
     "Size": [
-     0.45,
-     0.45,
-     0.45
+     1.5,
+     1.0,
+     0.15
     ],
     "Color": [
-     0.7882,
-     0.5569,
-     0.4157
+     0.1216,
+     0.1647,
+     0.2667
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -6904,9 +5529,303 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.15,
-       2.4,
-       -1.0
+       -0.675,
+       4.48,
+       -0.075
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.15,
+     1.0,
+     1.35
+    ],
+    "Color": [
+     0.1216,
+     0.1647,
+     0.2667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.675,
+       4.48,
+       -0.765
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
+     1.0,
+     0.03
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.675,
+       4.48,
+       -0.075
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.15,
+     1.0,
+     1.35
+    ],
+    "Color": [
+     0.1216,
+     0.1647,
+     0.2667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.675,
+       4.48,
+       -0.765
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.09,
+     1.0,
+     0.03
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       5.025,
+       -0.765
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.44,
+     0.09,
+     0.03
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       5.4,
+       0.43
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.8,
+     0.44,
+     0.8
+    ],
+    "Color": [
+     0.1216,
+     0.1647,
+     0.2667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5,
+       2.06,
+       -1.42
       ],
       "orientation": [
        [
@@ -6928,7 +5847,7 @@
      }
     },
     "Size": [
-     0.3,
+     0.28,
      0.06,
      0.06
     ],
@@ -6954,9 +5873,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.15,
-       2.11,
-       -1.0
+       1.5,
+       1.8533,
+       -1.42
       ],
       "orientation": [
        [
@@ -6978,9 +5897,9 @@
      }
     },
     "Size": [
-     0.4,
-     0.06,
-     0.4
+     0.4167,
+     0.0667,
+     0.4167
     ],
     "Color": [
      1.0,
@@ -7003,9 +5922,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.15,
-       2.17,
-       -1.0
+       1.5,
+       1.92,
+       -1.42
       ],
       "orientation": [
        [
@@ -7027,9 +5946,9 @@
      }
     },
     "Size": [
-     0.24,
-     0.06,
-     0.24
+     0.25,
+     0.0667,
+     0.25
     ],
     "Color": [
      1.0,
@@ -7052,9 +5971,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.15,
-       2.23,
-       -1.0
+       1.5,
+       1.9867,
+       -1.42
       ],
       "orientation": [
        [
@@ -7076,58 +5995,107 @@
      }
     },
     "Size": [
+     0.0833,
+     0.0667,
+     0.0833
+    ],
+    "Color": [
+     1.0,
+     0.7882,
+     0.302
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.5,
+       1.1,
+       -1.42
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
      0.08,
+     0.5
+    ],
+    "Color": [
+     0.1686,
+     0.1686,
+     0.2078
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Dealer_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.71,
+       1.46,
+       -1.63
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
      0.06,
-     0.08
-    ],
-    "Color": [
-     1.0,
-     0.7882,
-     0.302
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.15,
-       1.45,
-       -1.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.46,
-     0.08,
-     0.46
+     0.72,
+     0.06
     ],
     "Color": [
      0.1686,
@@ -7150,9 +6118,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.35,
-       1.77,
-       -1.2
+       1.71,
+       1.46,
+       -1.21
       ],
       "orientation": [
        [
@@ -7174,9 +6142,9 @@
      }
     },
     "Size": [
-     0.05,
-     0.6,
-     0.05
+     0.06,
+     0.72,
+     0.06
     ],
     "Color": [
      0.1686,
@@ -7199,9 +6167,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.35,
-       1.77,
-       -0.8
+       1.29,
+       1.46,
+       -1.63
       ],
       "orientation": [
        [
@@ -7223,9 +6191,9 @@
      }
     },
     "Size": [
-     0.05,
-     0.6,
-     0.05
+     0.06,
+     0.72,
+     0.06
     ],
     "Color": [
      0.1686,
@@ -7248,9 +6216,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.95,
-       1.77,
-       -1.2
+       1.29,
+       1.46,
+       -1.21
       ],
       "orientation": [
        [
@@ -7272,58 +6240,9 @@
      }
     },
     "Size": [
-     0.05,
-     0.6,
-     0.05
-    ],
-    "Color": [
-     0.1686,
-     0.1686,
-     0.2078
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_NPC_Dealer_Body",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.95,
-       1.77,
-       -0.8
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.6,
-     0.05
+     0.06,
+     0.72,
+     0.06
     ],
     "Color": [
      0.1686,
@@ -7352,9 +6271,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.15,
-         1.77,
-         -1.0
+         1.5,
+         1.46,
+         -1.42
         ],
         "orientation": [
          [
@@ -7376,9 +6295,9 @@
        }
       },
       "Size": [
-       0.32,
-       0.55,
-       0.32
+       0.36,
+       0.64,
+       0.36
       ],
       "Color": [
        1.0,
@@ -7395,9 +6314,9 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         -1.15,
-         -1.77,
-         1.0
+         -1.5,
+         -1.46,
+         1.42
         ],
         "orientation": [
          [

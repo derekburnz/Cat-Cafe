@@ -28,4 +28,19 @@ return function()
 			end
 		)
 	end)
+
+	describe("Effects bedtime edges (QA)", function()
+		it("lies a cat down only when Asleep is exactly true", function()
+			for _, asleep in { "yes", 1, 0, {}, "true" } :: { any } do
+				expect(Logic.bedtimeStyle(true, asleep)).to.equal("stray")
+			end
+		end)
+
+		it("never starts a trip from a truthy Bedtime that is not true", function()
+			for _, bedtime in { 1, "true", {} } :: { any } do
+				expect(Logic.bedtimeStyle(bedtime, true)).to.equal(nil)
+				expect(Logic.bedtimeStyle(bedtime, nil)).to.equal(nil)
+			end
+		end)
+	end)
 end

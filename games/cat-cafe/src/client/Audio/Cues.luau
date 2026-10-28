@@ -375,6 +375,43 @@ local Cues: { [string]: Cue } = {
 		voices = 3,
 	}, -- a player's step through water (Effects.Splash), quiet; cats' steps stay silent
 
+	-- The Cat Cannon (F84, hometown-cannon.md 3b; Derek's yes 2026-10-28): the 3 s flight in three parts, so each
+	-- plays where it happens: the launch at the barrel, the clouds for the one flying, the whistle and landing at the pad
+	cannonLaunch = {
+		ids = { "rbxassetid://102475819257335" },
+		group = "Sfx",
+		volume = 0.8,
+		minGap = 0.3,
+		range = 80,
+		voices = 2,
+	},
+	cannonClouds = {
+		ids = { "rbxassetid://111789214666060" },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+	},
+	cannonLand = {
+		ids = { "rbxassetid://110709007201936" },
+		group = "Sfx",
+		volume = 0.7,
+		minGap = 0.3,
+		range = 60,
+		voices = 2,
+	},
+	cloudHop = {
+		ids = { "rbxassetid://115354802839165" },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+	}, -- Home from a wild area, the night sweep
+	campCheckIn = {
+		ids = { "rbxassetid://123523380344527" },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+	}, -- a cat banked at a camp (CampCheckIn), not the door bell
+
 	-- Rewards (5.10) ----------------------------------------------------------------------------------------
 	-- Derek 2026-10-28: the dings on claiming were a little loud, so every claim sound (these two, offlineClaim,
 	-- richTip, uiCodeRedeem and uiDailyStamp) is about 4 dB down, still well above the music.

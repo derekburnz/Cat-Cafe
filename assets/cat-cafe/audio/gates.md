@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-78 files: 78 PASS, 0 WARN, 0 FAIL.
+83 files: 83 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -17,6 +17,10 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_Announce.ogg` | sfx | 0.90 | 1 | 48000 | 9 | -16.8 | -3.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_AnnounceMythical.ogg` | sfx | 2.40 | 1 | 48000 | 26 | -17.9 | -2.7 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_BumpHeld.ogg` | sfx | 0.60 | 1 | 48000 | 7 | -13.9 | -4.8 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CampCheckIn.ogg` | sfx | 1.40 | 1 | 48000 | 16 | -18.8 | -5.1 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CannonClouds.ogg` | sfx | 1.00 | 1 | 48000 | 16 | -22.4 | -9.4 | 1 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CannonLand.ogg` | sfx | 1.05 | 1 | 48000 | 14 | -20.2 | -2.9 | 1 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CannonLaunch.ogg` | sfx | 1.50 | 1 | 48000 | 27 | -18.1 | -1.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CarryPurr.ogg` | sfx | 2.64 | 1 | 48000 | 37 | -29.7 | -5.9 | 3 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatDrop.ogg` | sfx | 0.60 | 1 | 48000 | 9 | -23.6 | -5.2 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CatHiss.ogg` | sfx | 0.50 | 1 | 48000 | 10 | -19.0 | -3.9 | 0 | - | PASS |  |
@@ -32,6 +36,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_CircleGood.ogg` | sfx | 0.35 | 1 | 48000 | 5 | - | -6.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CircleMiss.ogg` | sfx | 0.18 | 1 | 48000 | 5 | - | -8.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CirclePerfect.ogg` | sfx | 0.60 | 1 | 48000 | 6 | -14.6 | -2.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_CloudHop.ogg` | sfx | 1.60 | 1 | 48000 | 23 | -18.2 | -4.5 | 11 | - | PASS |  |
 | `sfx/CatCafe_Sfx_CoinPop.ogg` | sfx | 0.16 | 1 | 48000 | 5 | - | -8.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_DuskBell.ogg` | sfx | 3.40 | 1 | 48000 | 19 | -17.8 | -4.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_GateOpen.ogg` | sfx | 1.60 | 1 | 48000 | 23 | -15.3 | -3.8 | 15 | - | PASS |  |

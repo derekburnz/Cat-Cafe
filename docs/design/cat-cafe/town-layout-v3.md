@@ -6,7 +6,7 @@ Derek, 2026-10-27 22:44: "the main town should be wider so that it can have a ce
 
 **v3.2 (section 8, Derek 2026-10-28 01:42): the four side areas are 4 times their v3.1 floor, each grows away from the town behind a gate that stays where it is, and the walk inside each area winds so it takes longer. Where section 8 differs from section 7, section 8 wins.**
 
-**v4 (proposed 2026-10-28, waiting on Derek's OK): [hometown-cannon.md](hometown-cannon.md). The town keeps its square, cafes and Alleyway, loses its four area gates, and the wild areas move far out, reached by the Cat Cannon. Once Derek says yes, it wins over sections 7 and 8 where they differ.**
+**v4 (decided 2026-10-28, Derek's yes at 14:05): [hometown-cannon.md](hometown-cannon.md). The town keeps its street, square and cafes and loses its four area gates and the back alleys; all five catching areas, the Alleyway included (Derek 14:09), move far out, reached by the Cat Cannon. It wins over sections 7 and 8 where they differ.**
 
 Feature F76. Owner: game-designer thread. Sketch: [town-layout-v3.svg](town-layout-v3.svg) (north is up). This replaces the street plaza in [areas-and-stations.md](areas-and-stations.md) B2, and it moves the areas around the town, so it goes in before the Neighbourhood kit placement. Studs, y 0 is the floor top, world X runs across the street (west is -X) and Z along it (south is -Z), as in layout v2.
 

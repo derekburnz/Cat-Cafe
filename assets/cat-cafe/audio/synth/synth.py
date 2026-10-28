@@ -1016,6 +1016,114 @@ def water_step() -> np.ndarray:
     return finish(fade_tail(mix(d, (slosh / np.max(np.abs(slosh)), 0.0), (body, 0.0), (drip, 0.07)), 0.08), -6)
 
 
+# --- F84 (draft, waits on Derek's yes): the Cat Cannon, the cloud hop and the camps (sound list 5.11) ------------
+
+
+def crackle(d: float, seed: int, rate: float, centre: float) -> np.ndarray:
+    """Sparse little clicks, `rate` a second, each a tiny band-passed tick around `centre` (a fuse, wicker, paper)."""
+    rng = np.random.default_rng(seed)
+    out = np.zeros(int(d * SR))
+    tick = bandpass(noise(0.012, seed + 1), centre, 3.0) * envelope(0.012, 0.0003, 0.002)
+    for at in np.sort(rng.random(int(d * rate)) * d):
+        i = int(at * SR)
+        n = min(len(tick), len(out) - i)
+        out[i : i + n] += tick[:n] * (0.4 + 0.6 * rng.random())
+    return out
+
+
+def cannon_launch() -> np.ndarray:
+    """The Cat Cannon fires (F84, flight 0 to 1.4 s): a hollow "dunk" as you drop into the barrel, a few ratchet clicks
+    as it turns, the fuse fizzing, then at 0.5 s a big friendly boom (a deep soft thump with a cork "pomf", never a
+    bang), paper confetti and a whoosh that rises and fades as you fly off. Heard by everyone at the cannon."""
+    d = 1.5
+    dunk = glide(0.22, 330, 190, 0.08) * envelope(0.22, 0.002, 0.05) + bandpass(noise(0.22, 440), 520, 3.0) * envelope(
+        0.22, 0.001, 0.03) * 0.5
+    ratchet = [(bandpass(noise(0.03, 441 + i), 2400, 3.0) * envelope(0.03, 0.0005, 0.006) * 0.3, 0.12 + 0.06 * i)
+               for i in range(4)]
+    fuse_len = 0.46
+    ft = seconds(fuse_len)
+    fizz = bandpass(noise(fuse_len, 442), 5200, 0.8) * (0.55 + 0.45 * np.sin(2 * np.pi * 23 * ft) ** 2)
+    fizz = (fizz / np.max(np.abs(fizz)) + crackle(fuse_len, 443, 70, 3800) * 1.6) * np.clip(ft / 0.06, 0, 1)
+    fizz *= np.clip((fuse_len - ft) / 0.02, 0, 1)
+    boom = np.tanh(2.4 * glide(0.7, 130, 45, 0.2)) * envelope(0.7, 0.003, 0.17)  # warm harmonics carry on phone speakers
+    rumble = bandpass(noise(0.6, 444), sweep(0.6, 900, 140), 0.7) * envelope(0.6, 0.002, 0.08)
+    pomf = glide(0.14, 720, 250, 0.05) * envelope(0.14, 0.001, 0.035)
+    confetti = crackle(0.55, 445, 40, 5200)
+    fly = 0.95
+    t = seconds(fly)
+    centre = 600 * (2800 / 600) ** np.clip(t / 0.6, 0, 1)
+    whoosh = bandpass(bandpass(noise(fly, 446), centre, 1.5), centre, 1.5)
+    whoosh *= np.clip(t / 0.08, 0, 1) * np.clip((fly - t) / 0.75, 0, 1) ** 1.6
+    return finish(mix(d, (dunk * 0.4, 0.0), *ratchet, (fizz * 0.32, 0.04), (boom, 0.5),
+                      (rumble / np.max(np.abs(rumble)) * 0.55, 0.5), (pomf * 0.45, 0.5),
+                      (confetti * 0.5, 0.58), (whoosh / np.max(np.abs(whoosh)) * 0.5, 0.55)), -2)
+
+
+def cannon_clouds() -> np.ndarray:
+    """In the clouds (F84, flight 1.4 to 2.4 s, only the one flying hears it): soft wind gusting past, and a quiet airy
+    chord that swells as the clouds light up in the area's colour."""
+    d = 1.0
+    t = seconds(d)
+    gust = 0.6 + 0.4 * np.sin(2 * np.pi * 1.6 * t + 0.6) ** 2
+    wind = bandpass(noise(d, 447), 520 + 260 * np.sin(2 * np.pi * 0.9 * t), 0.9) * gust
+    hiss = bandpass(noise(d, 448), 2600, 1.2) * gust * 0.25
+    chord = sum(np.sin(2 * np.pi * note(n) * t) for n in ("C6", "E6", "G6", "C7")) / 4
+    chord *= np.clip((t - 0.35) / 0.45, 0, 1) ** 1.5 * 0.12
+    shape = np.clip(t / 0.12, 0, 1) * np.clip((d - t) / 0.2, 0, 1)
+    return finish((wind / np.max(np.abs(wind)) + hiss / np.max(np.abs(hiss)) * 0.25 + chord) * shape, -9)
+
+
+def cannon_land() -> np.ndarray:
+    """Coming down at a camp (F84, flight 2.4 to 3.0 s): a cartoon slide whistle falling, then at 0.6 s a soft landing
+    thump with a dust puff and a little bounce. Heard by everyone at the landing pad."""
+    d = 1.05
+    fall = 0.58
+    t = seconds(fall)
+    pitch = 1700 * (520 / 1700) ** (t / fall) * (1 + 0.012 * np.sin(2 * np.pi * 6.5 * t))
+    whistle = np.sin(2 * np.pi * np.cumsum(pitch) / SR) + 0.15 * np.sin(4 * np.pi * np.cumsum(pitch) / SR)
+    whistle = whistle + bandpass(noise(fall, 449), pitch, 4.0) * 0.6
+    whistle *= np.clip(t / 0.05, 0, 1) * np.clip((fall - t) / 0.03, 0, 1)
+    thump = np.tanh(2.0 * glide(0.3, 170, 65, 0.08)) * envelope(0.3, 0.002, 0.07)
+    puff = bandpass(noise(0.26, 450), sweep(0.26, 1300, 380), 0.8) * envelope(0.26, 0.004, 0.06)
+    bounce = np.tanh(2.0 * glide(0.2, 150, 80, 0.05)) * envelope(0.2, 0.002, 0.04)
+    return finish(mix(d, (whistle / np.max(np.abs(whistle)) * 0.3, 0.0), (thump, 0.6),
+                      (puff / np.max(np.abs(puff)) * 0.35, 0.6), (bounce * 0.35, 0.8)), -3)
+
+
+def cloud_hop() -> np.ndarray:
+    """Home from a wild area, and the night sweep (F84, CloudHopSeconds 1.6): clouds whoosh in over the
+    screen, a muffled breath of wind while you move, then they part with a soft whoosh out and a sparkle."""
+    d = 1.6
+    tin = seconds(0.55)
+    centre_in = 500 * (2000 / 500) ** (tin / 0.55)
+    whoosh_in = bandpass(noise(0.55, 451), centre_in, 1.4) * (tin / 0.55) ** 1.4
+    mid = seconds(0.6)
+    wind = bandpass(noise(0.6, 452), 450, 0.9) * np.sin(np.pi * mid / 0.6)
+    tout = seconds(0.55)
+    centre_out = 2000 * (600 / 2000) ** (tout / 0.55)
+    whoosh_out = bandpass(noise(0.55, 453), centre_out, 1.4) * np.clip(tout / 0.05, 0, 1) * (1 - tout / 0.55) ** 1.4
+    poof = bandpass(noise(0.2, 454), sweep(0.2, 900, 300), 0.8) * envelope(0.2, 0.004, 0.05)
+    sparkle = [(bell(0.35, f, ((1.0, 1.0, 0.08), (2.76, 0.2, 0.03))) * 0.22, 1.15 + 0.06 * i)
+               for i, f in enumerate((3136.0, 3520.0, 4186.0))]
+    return finish(mix(d, (whoosh_in / np.max(np.abs(whoosh_in)) * 0.6, 0.0), (wind / np.max(np.abs(wind)) * 0.3, 0.5),
+                      (poof / np.max(np.abs(poof)) * 0.3, 0.6),
+                      (whoosh_out / np.max(np.abs(whoosh_out)) * 0.55, 1.0), *sparkle), -5)
+
+
+def camp_check_in() -> np.ndarray:
+    """A carried cat is banked at a camp (F84): it hops into a wicker carrier (a creak and a soft bump), the lid
+    latches, it puffs away to your cafe, and a warm three-note camp chime says it is safe. Not the cafe's door bell."""
+    d = 1.4
+    creak = bandpass(noise(0.16, 455), 1700, 2.0) * envelope(0.16, 0.01, 0.06) * 0.4 + crackle(0.16, 456, 120, 2600)
+    bump = glide(0.14, 210, 130, 0.05) * envelope(0.14, 0.002, 0.035)
+    latch = bandpass(noise(0.03, 457), 3400, 4.0) * envelope(0.03, 0.0005, 0.006)
+    puff = bandpass(noise(0.22, 458), sweep(0.22, 900, 320), 0.8) * envelope(0.22, 0.004, 0.05)
+    chime = [(vibe(d - at, note(n), i) * amp, at) for i, (n, at, amp) in
+             enumerate((("G5", 0.36, 0.5), ("C6", 0.48, 0.5), ("E6", 0.6, 0.6)))]
+    return finish(fade_tail(mix(d, (creak, 0.0), (bump * 0.5, 0.05), (latch * 0.35, 0.2),
+                                (puff / np.max(np.abs(puff)) * 0.35, 0.3), *chime), 0.5), -5)
+
+
 def purr_loop(seed: int, rate: float, out_s: float, in_s: float) -> np.ndarray:
     """A cat's purr over exactly one breath out and one breath in, so it loops. A purr is a fast train of tiny
     clicks (the voice box opening and closing about 25 times a second) heard through the mouth and nose, louder
@@ -1139,6 +1247,11 @@ SOUNDS = {
     "DailyStamp": ("ui", "Ui", ui_daily_stamp),
     "JingleDailyCard": ("music", "Music", jingle_daily_card),
     "WaterStep": ("sfx", "Sfx", water_step),
+    "CannonLaunch": ("sfx", "Sfx", cannon_launch),
+    "CannonClouds": ("sfx", "Sfx", cannon_clouds),
+    "CannonLand": ("sfx", "Sfx", cannon_land),
+    "CloudHop": ("sfx", "Sfx", cloud_hop),
+    "CampCheckIn": ("sfx", "Sfx", camp_check_in),
 }
 
 

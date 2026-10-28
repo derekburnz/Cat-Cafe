@@ -244,7 +244,6 @@ type View = {
 	last: CFrame,
 }
 local view: View? = nil
-local rng = Random.new()
 
 -- The camera for this player's own flight, after the game's camera has had its turn each frame.
 local function track()
@@ -301,14 +300,6 @@ local function track()
 		local heading = if moved.Magnitude > 1e-3 then moved.Unit else barrel
 		local chase = CFrame.lookAt(v.body, v.body + heading):PointToWorldSpace(k.chase)
 		target = launch:Lerp(CFrame.lookAt(chase, v.body), smooth((seconds - c.boom) / k.catch))
-		local shake = k.shake * (1 - math.clamp((seconds - c.boom) / k.shakeSeconds, 0, 1))
-		if shake > 0 then
-			target += Vector3.new(
-				rng:NextNumber(-1, 1),
-				rng:NextNumber(-1, 1),
-				rng:NextNumber(-1, 1)
-			) * shake
-		end
 	elseif seconds < c.drop - k.over then
 		target = v.last -- under the clouds
 	else
@@ -326,13 +317,15 @@ local function track()
 	camera.CFrame = target
 end
 
--- Starts the launching player's camera; Tackle.luau starts it with the rest.
+-- Starts the launching player's camera; Tackle.luau starts it with the rest. It runs at the game camera's own
+-- priority (which leaves a Scriptable camera alone), so Cannon.luau's boom shake (Context.shake, one step later, off
+-- with Screen shake or Reduced Motion) lands on top of it.
 function CannonGlide.start()
 	if started then
 		return
 	end
 	started = true
-	RunService:BindToRenderStep("CannonCamera", Enum.RenderPriority.Camera.Value + 1, track)
+	RunService:BindToRenderStep("CannonCamera", Enum.RenderPriority.Camera.Value, track)
 end
 
 return CannonGlide

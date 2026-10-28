@@ -291,6 +291,16 @@ function Logic.plotCue(attribute: string, before: any, after: any): string?
 	return nil
 end
 
+-- F84: whether a spot (world X and Z) is out in a wild area. The four wild areas sit wildDistance from the
+-- hometown's centre on the compass points and the hometown is well inside half that, so half is the line. False
+-- while Config.World has no WildAreaDistance, so the town sounds as before until the cannon lands.
+function Logic.inWild(x: number, z: number, wildDistance: any): boolean
+	if type(wildDistance) ~= "number" or wildDistance <= 0 then
+		return false
+	end
+	return math.sqrt(x * x + z * z) > wildDistance / 2
+end
+
 -- Whether a stray twinkles as a player comes near (rareNear): Mythical only. Derek 2026-10-28: the sound around
 -- rare cats was annoying, so Epic, Legendary and gold strays are quiet now.
 function Logic.shimmers(rarity: any): boolean

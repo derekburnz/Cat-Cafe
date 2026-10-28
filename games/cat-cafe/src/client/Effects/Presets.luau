@@ -69,6 +69,7 @@ export type Budget = {
 	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
 	decorEffects: number, -- Mythical cafe styles and decor moving at once; each takes one of steadyEmitters
 	potionGlows: number, -- players showing a running potion's glow at once (F64), your own first
+	cloudPuffs: number, -- puffs in the full-screen clouds of a cannon flight or a cloud hop (F84)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -93,6 +94,7 @@ Presets.budget = {
 		signatureCats = 3,
 		decorEffects = 2,
 		potionGlows = 3,
+		cloudPuffs = 10,
 	},
 	high = {
 		animatedCats = 16,
@@ -112,6 +114,7 @@ Presets.budget = {
 		signatureCats = 6,
 		decorEffects = 4,
 		potionGlows = 6,
+		cloudPuffs = 16,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -131,6 +134,7 @@ Presets.budget = {
 		signatureCats = 1,
 		decorEffects = 0,
 		potionGlows = 0,
+		cloudPuffs = 6,
 	},
 } :: { [string]: Budget }
 
@@ -559,6 +563,32 @@ Presets.emitters = {
 		lightEmission = 0.8,
 		rotSpeed = { -90, 90 },
 	},
+	-- The Cat Cannon (F84): sparks off the fuse as it fizzes, and the sparkle trail behind a flying player.
+	fuseSpark = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle, Presets.palette.lampWarm, Presets.palette.golden },
+		size = { 0.35, 0 },
+		transparency = { 0, 0.3 },
+		lifetime = { 0.15, 0.3 },
+		speed = { 6, 11 },
+		spread = 70,
+		rate = 0,
+		acceleration = Vector3.new(0, -20, 0),
+		lightEmission = 1,
+	},
+	cannonTrail = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.sparkle, Presets.palette.mint, Presets.palette.offwhite },
+		size = { 0.9, 0 },
+		transparency = { 0, 0.5 },
+		lifetime = { 0.4, 0.7 },
+		speed = { 0.5, 2 },
+		spread = 180,
+		rate = 40,
+		drag = 2,
+		lightEmission = 0.7,
+		rotSpeed = { -180, 180 },
+	},
 } :: { [string]: EmitterPreset }
 
 -- Burst sizes before burstScale. A catch sparkle grows with rarity and stays under 30 (skill section 6).
@@ -570,6 +600,7 @@ Presets.bursts = {
 	purrfect = 28,
 	duskHaze = 4, -- at dusk, at each of the areas.points places along an area gate
 	shower = 8, -- each of a Mythical catch's or a jackpot spin's showers
+	fuseSpark = 3, -- each fizz of a cannon's fuse
 }
 
 -- A gold coat seen for the first time (a gold cat caught or rescued, F42): this many sparkles from the gold
@@ -1178,8 +1209,8 @@ Presets.cannonGlide = {
 -- The launching player's camera through the flight (hometown-cannon.md section 7), moved by CannonGlide.luau; everyone
 -- else keeps their own. Over the hop and the fuse it eases from the player's own view to `launch` (studs right, up
 -- and back of the seat) looking `ahead` studs up the barrel. From the boom it chases the ball from `chase` (right, up
--- and back of its flight), easing there over `catch` seconds, with a shake of `shake` studs dying away over
--- `shakeSeconds`. Under the clouds it waits. From `over` seconds before the drop it hangs at `above` (right, up and
+-- and back of its flight), easing there over `catch` seconds (the boom's shake is Cannon.luau's, on top). Under the
+-- clouds it waits. From `over` seconds before the drop it hangs at `above` (right, up and
 -- back of the pad) watching the ball come down, and after the landing it settles behind the character at the
 -- player's own distance and pitch by cannonPose's `ends`, where the game's camera takes over again.
 Presets.cannonCamera = {
@@ -1187,8 +1218,6 @@ Presets.cannonCamera = {
 	ahead = 12,
 	chase = Vector3.new(2.5, 3, 13),
 	catch = 0.15,
-	shake = 0.5,
-	shakeSeconds = 0.35,
 	over = 0.1,
 	above = Vector3.new(4, 10, 18),
 }
@@ -1775,6 +1804,114 @@ Presets.mystery = {
 	} :: {
 		[string]: Color3,
 	},
+}
+
+-- The Cat Cannon flight (F84, hometown-cannon.md section 3b; CannonLaunchSeconds 3.0 is `endAt`). Seconds from the
+-- server's `CannonLaunchAt`: the fuse fizzes until `boomAt`, then a smoke ring, confetti and a shake at the muzzle
+-- and a sparkle trail on the flying body until `puffAt`, where a cloud puff swallows it in the sky. The trail comes
+-- back as it drops onto the landing pad from `dropAt`, and a dust poof goes off at `landAt`, when its feet touch
+-- down (Animation-Engineer's Presets.cannonPose). Onlookers within `within` studs see it; the launching player also
+-- gets the full-screen clouds (Presets.clouds.cannon) with their own character gliding through them. `tints` is
+-- each destination's colour in the clouds: the paw path colours of town-layout-v3, neon pink for the Alleyway and a
+-- warm cream for the Town Square and Home.
+Presets.cannon = {
+	boomAt = 0.5,
+	puffAt = 1.4,
+	dropAt = 2.4,
+	landAt = 2.62,
+	endAt = 3.0,
+	stale = 0.5, -- seconds past endAt a flight still plays (joined or streamed in late: none)
+	fuseEvery = 0.08, -- seconds between fizzes
+	ring = 8, -- smoke puffs round the muzzle
+	ringRadius = 1.4, -- studs
+	ringPuffs = 2, -- smokePuff particles at each of them
+	confetti = 0.6, -- of the budget's confetti
+	shake = 0.35, -- seconds
+	shakeStuds = 0.5, -- for the launching player
+	shakeNear = 0.2, -- for anyone within shakeWithin studs of the muzzle
+	shakeWithin = 24,
+	skyPuff = 14, -- smokePuff particles where the player vanishes
+	landRing = 6, -- dust bursts round the landing spot
+	landRadius = 1.6,
+	landDust = 4,
+	within = 150,
+	most = 4, -- flights showing their trail at once, your own first
+	findCannon = 20, -- studs round the player at launch to look for the cannon they sit in
+	tints = {
+		town = Presets.palette.lampWarm,
+		home = Presets.palette.lampWarm,
+		alley = Presets.palette.neonPink, -- a fifth cannon area since hometown-cannon.md PR 566: the jazz club signs
+		park = Presets.palette.leaf,
+		neighbourhood = Color3.fromRGB(240, 150, 70),
+		woods = Color3.fromRGB(46, 122, 74),
+		sewer = Color3.fromRGB(96, 116, 158),
+	} :: { [string]: Color3 },
+}
+
+-- The full-screen clouds of a cannon flight and of a cloud hop (Home and the night sweep from a wild area;
+-- CloudHopSeconds 1.6, the move at 0.6; Derek 13:56: "make the cloud cutscene a little better"). Each plan is
+-- seconds from its start: the clouds rush in over coverFrom..coverTo, cover the screen fully until partFrom (the
+-- server moves the player meanwhile), and draw aside like curtains by partTo. Over tintFrom..tintTo the
+-- destination's colour comes up from below as if the land shows through: `tint` says how far toward it the cloud
+-- tops, their undersides and the sky's top and bottom go. A cloud is `lobes` circles ({x, y, size} as shares of its
+-- box), white on top and shaded only in its lower part, and flies out from the middle in `rush` seconds, puffing up
+-- as the clouds rush in; the wind streaks take `windShare` of that. A sun glow of `glow` rings ({size of the
+-- screen's shorter side, most opacity}) shines ahead, and the tunnel banks by `bank`. With Reduce Motion it all
+-- holds still and fades instead. `displayOrder` sits over the popups (40) and under the intro (50);
+-- UI-Engineer's destination name card goes above it.
+Presets.clouds = {
+	displayOrder = 45,
+	riderZ = 7, -- Animation-Engineer's gliding character, between the clouds behind (4, 6) and in front (8, 10)
+	white = Presets.palette.offwhite,
+	shade = Color3.fromRGB(214, 226, 240), -- the underside of each cloud
+	sky = Presets.palette.pastelSky,
+	sun = Presets.palette.sparkle,
+	tint = { top = 0.1, under = 0.45, skyTop = 0.15, skyBottom = 0.55 },
+	shadeFrom = 0.55, -- of a lobe's height: white above, shading down to `shade` below
+	rush = 0.9,
+	cloudSize = { 0.45, 0.85 }, -- of the screen's shorter side, at the edge
+	lobes = {
+		{ 0, 0.05, 0.6 },
+		{ -0.28, 0.12, 0.44 },
+		{ 0.28, 0.14, 0.42 },
+		{ -0.1, -0.16, 0.42 },
+		{ 0.14, -0.1, 0.36 },
+	},
+	glow = { { 1.0, 0.12 }, { 0.8, 0.16 }, { 0.6, 0.22 }, { 0.42, 0.3 }, { 0.26, 0.4 } },
+	bank = { share = 0.04, hz = 0.35 }, -- the middle drifts this share of the shorter side round a slow loop
+	windShare = 0.45,
+	windLength = 0.22, -- of the shorter side, at the edge
+	windAlpha = 0.6,
+	cannon = {
+		coverFrom = 1.4,
+		coverTo = 1.6,
+		partFrom = 2.4,
+		partTo = 2.8,
+		tintFrom = 2.0,
+		tintTo = 2.4,
+	},
+	hop = {
+		coverFrom = 0,
+		coverTo = 0.5,
+		partFrom = 1.1,
+		partTo = 1.6,
+		tintFrom = 0.6,
+		tintTo = 1.0,
+	},
+	hopPuff = 12, -- smokePuff particles where onlookers see a player hop away and arrive
+	moved = 30, -- studs a root jumps in one step during a hop: it has arrived
+}
+
+-- A cat checked in at a camp (F84 section 4): it hops out of its carrier's arms in an arc `hopHeight` studs high
+-- into the carrier basket over `hopSeconds`, then puffs away with a few sparkles.
+Presets.campCheckIn = {
+	hopSeconds = 0.45,
+	hopHeight = 2.5,
+	shrink = 0.6, -- of its size by the end of the hop, as it goes into the basket
+	puff = 10,
+	sparkle = 8,
+	findBasket = 40, -- studs round the carrier
+	within = 120,
 }
 
 return Presets

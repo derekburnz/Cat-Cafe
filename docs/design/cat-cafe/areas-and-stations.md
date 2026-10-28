@@ -14,8 +14,8 @@ v0.10 (round 4 Q6: "good ideas and looks good one or two props is fine do some r
 
 
 - No new mechanics. Each area reuses the Alleyway's systems: 10 strays per night wave, the catch circles, two rescue traps that use the existing kinds (`bar` or `shake_catch`), carry and shove, a gate, a title card. What makes an area different is its look, its sounds, where cats hide and its cats.
-- Size: the floor you can walk on is at least as big as the Park and at least 100 x 90 studs, so 10 strays, 2 traps and 8 players never crowd. Today's grayboxes are smaller (about 66 x 64 for the Woods and Sewer, 90 x 56 for the Neighbourhood), so the engineer grows them when the sets arrive.
-- One hub per area. As in the Alley Square, Epic, Legendary and Mythical strays spawn only in the area's open hub, so the exciting cats are easy to find. Commons and Rares can spawn anywhere.
+- Size: the floor you can walk on is at least as big as the Park and at least 100 x 90 studs, so 10 strays, 2 traps and 8 players never crowd. Today's grayboxes are smaller (about 66 x 64 for the Woods and Sewer, 90 x 56 for the Neighbourhood), so the engineer grows them when the sets arrive. Town layout v3.1 sets them from the kits: Neighbourhood 140 x 140, Woods 120 x 120, Sewer 90 x 90, each turned so its gate faces the Town Square ([town-layout-v3.md](town-layout-v3.md) section 7).
+- One hub per area. As in the old Alley Square (since town layout v3.1 the Alleyway's rare points are its four alley ends), Epic, Legendary and Mythical strays spawn only in the area's open hub, so the exciting cats are easy to find. Commons and Rares can spawn anywhere.
 - Spawn points sit in the area's hiding spots (the "strays hide" lists below), always reachable on foot and never more than 6 studs up.
 - Every area has an Index Board at its entry (Part B), a SAFE ZONE stripe where it meets the street side and its own night lighting.
 - Nothing in an area hurts players, and nothing is gross or scary. The Sewer is a hidden canal town, not a dirty drain.
@@ -44,10 +44,10 @@ Themed cats (ids and favorite roles unchanged; names, one-line descriptions and 
 | id | name | rarity | role | prop (slot) | coat idea |
 |---|---|---|---|---|---|
 | munchkin | Skater Cat | Rare | entertainer | skateboard strapped to its back (Back) | Munchkin, short legs, grey and white |
-| fold | Painter Cat | Rare | waiter | beret with a paint splat (Head) | Scottish Fold, folded ears, cream with paint-coloured toe tips |
-| chonk | Chef Cat | Epic | barista | tall chef hat (Head) | big orange and white, scale 1.25 |
+| builder | Construction Cat | Rare | waiter | orange hard hat with a pencil tucked in the band (Head) | brown tabby with white socks (v0.13, replaces Painter Cat, data-model 3d) |
+| gardener | Gardener Cat | Epic | barista | straw sun hat with a daisy (Head) and a little watering can on its back (Back) | cream and soft grey patches (v0.13, replaces Chef Cat) |
 | postie | Mail Cat | Epic | greeter | mail carrier's cap (Head; a satchel would clip the greeter sash) | blue-grey shorthair |
-| marshmallow | Super Cat | Legendary | waiter | red hero cape (Back); effect: the cape flutters and leaves a short whoosh trail | fluffy white long coat |
+| gnome | Gnome Cat | Legendary | waiter | tall pointy red gnome hat (Head) and a fluffy white beard (Face); effect: little lucky sparkles | grey and white longhair with a round face (v0.13, replaces Super Cat) |
 | comet | Ice Cream Cat | Mythical | entertainer | ice cream cone hat with a cherry (Head); effect: sprinkles float off it | strawberry and vanilla swirl with sprinkle specks, soft glow |
 
 ### A3. Woods (Tier 4): a storybook forest
@@ -110,7 +110,7 @@ Themed cats:
 
 | id | name | rarity | role | prop (slot) | coat idea |
 |---|---|---|---|---|---|
-| lantern | Miner Cat | Rare | waiter | hard hat with a lamp (Head) | soot grey |
+| plumber | Plumber Cat | Rare | waiter | blue work cap (Head) and a big wrench on its back (Back); no moustache and no red cap | slate grey with a white bib (v0.13, replaces Miner Cat) |
 | bubbles | Bubble Cat | Rare | entertainer | bubble pipe in its mouth (Face) | pale blue-grey |
 | gears | Steampunk Cat | Epic | barista | brass goggles (Face) | copper tabby |
 | glimmer | Diver Cat | Epic | greeter | snorkel and mask (Face) | teal-grey with a white belly |

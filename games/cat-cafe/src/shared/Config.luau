@@ -16,11 +16,13 @@ local Config = {
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 
-	-- Cat stats (data-model section 4b)
-	CatMaxLevel = 10,
-	CatLevelBonus = 0.05, -- rate bonus per level above 1, so level 10 is 1.45x
-	CatXpBase = 60, -- XP (seconds placed) from level n to n + 1 is CatXpBase x n; level 10 after 45 min placed
-	CatXpPerSecondPlaced = 1, -- XP a placed cat earns per second (Economy.settle grants it)
+	-- Cat stats (data-model section 4b; v0.12 F75 makes levels a long, slow climb)
+	CatMaxLevel = 50,
+	CatLevelBonus = 0.02, -- rate bonus per level above 1, so level 50 is 1.98x
+	CatXpBase = 120, -- XP from level n to n + 1 is CatXpBase x n; level 10 after 90 min working, 50 after about 41 h
+	CatXpPerSecondPlaced = 1, -- XP a working cat earns per second while its owner is in the game (Economy.settle)
+	CatXpFavoriteMultiplier = 1.5, -- a working cat in its favorite role earns this many times as much XP
+	CatXpPerSecondResting = 0.25, -- XP a resting cat earns per second while its owner is in the game
 	CharmSpread = 0.20, -- charm 0 earns 1 - spread, charm 100 earns 1 + spread
 	GoldMultiplier = 1.5, -- a gold cat's rating (data-model section 4)
 

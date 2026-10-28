@@ -88,11 +88,12 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 11 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 12 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(11)
-			expect(profile.version).to.equal(11)
+			expect(ProfileSchema.VERSION).to.equal(12)
+			expect(profile.version).to.equal(12)
 			expect(profile.stats.pickups).to.equal(0)
+			expect(profile.stats.catLevelUps).to.equal(0)
 			expect(profile.introSeen).to.equal(false)
 			expect(next(profile.codesRedeemed)).never.to.be.ok()
 			expect(profile.goldenFish).to.equal(0)
@@ -220,8 +221,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 12 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 13 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 12 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 11 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 10 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 9 })).to.equal(false)
@@ -460,17 +462,17 @@ return function()
 			end
 		end)
 
-		it("keeps level, xp, charm and the rescued flag; Golden becomes base; no v2 cat has a name", function()
+		it("keeps charm and the rescued flag, remaps levels (v12); Golden becomes base; no v2 cat has a name", function()
 			local raw = v2WithCats()
 			raw.cats.c2.name = "Smuggled"
 			local profile = ProfileSchema.migrate(raw, 1000)
 			local tabby, void = profile.cats.starter_tabby, profile.cats.c4
-			expect(tabby.level).to.equal(4)
-			expect(tabby.xp).to.equal(10)
+			expect(tabby.level).to.equal(9) -- 1 + ceil(2.5 x 3)
+			expect(tabby.xp).to.equal(0)
 			expect(void.variant).to.equal("base")
 			expect(void.charm).to.equal(64)
-			expect(void.level).to.equal(3)
-			expect(void.xp).to.equal(25)
+			expect(void.level).to.equal(6) -- 1 + ceil(2.5 x 2)
+			expect(void.xp).to.equal(0)
 			expect(profile.cats.c1.charm).to.equal(70)
 			expect(profile.cats.c3.rescued).to.equal(true)
 			expect(profile.cats.c1.rescued).never.to.be.ok()
@@ -1110,6 +1112,60 @@ return function()
 				raw.stats.pickups = bad
 				expect(ProfileSchema.migrate(raw, 1000).stats.pickups).to.equal(0)
 			end
+		end)
+	end)
+
+	describe("migrate to version 12: cat levels over time (v0.12 F75)", function()
+		local function catAt(level: any, xp: any): any
+			return { uid = "c1", catId = "bengal", variant = "base", caughtAt = 95, level = level, xp = xp, charm = 61 }
+		end
+
+		it("moves an older save's levels onto the 50-level curve with xp 0, never lowering a rating", function()
+			for old = 1, 10 do
+				local raw: any = ProfileSchema.template(500)
+				raw.version = 11
+				raw.cats.c1 = catAt(old, 77)
+				local cat = ProfileSchema.migrate(raw, 1000).cats.c1
+				expect(cat.level).to.equal(1 + math.ceil(2.5 * (old - 1)))
+				expect(cat.xp).to.equal(0)
+				expect(CatStats.levelMultiplier(cat.level) >= 1 + 0.05 * (old - 1) - 1e-9).to.equal(true)
+			end
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 11
+			raw.cats.c1 = catAt(10, 0)
+			expect(ProfileSchema.migrate(raw, 1000).cats.c1.level).to.equal(24) -- the design's example
+			raw.cats.c1 = catAt(99, 5) -- past the old cap: clamped to 10 first
+			expect(ProfileSchema.migrate(raw, 1000).cats.c1.level).to.equal(24)
+			for _, bad in { "7", -1, 0 / 0, math.huge } do
+				raw.cats.c1 = catAt(bad, bad)
+				local cat = ProfileSchema.migrate(raw, 1000).cats.c1
+				expect(cat.level).to.equal(1)
+				expect(cat.xp).to.equal(0)
+			end
+		end)
+
+		it("a version 12 save keeps its level and fractional xp, and loading it again changes nothing", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 12
+			raw.cats.c1 = catAt(30, 12.25)
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.cats.c1.level).to.equal(30)
+			expect(profile.cats.c1.xp).to.equal(12.25)
+			expect(ProfileSchema.migrate(profile, 2000) :: any).to.deepEqual(profile)
+			raw.cats.c1 = catAt(Config.CatMaxLevel + 7, -3)
+			local clamped = ProfileSchema.migrate(raw, 1000).cats.c1
+			expect(clamped.level).to.equal(Config.CatMaxLevel)
+			expect(clamped.xp).to.equal(0)
+		end)
+
+		it("starts every older save at 0 level ups and keeps a saved count", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 11
+			raw.stats.catLevelUps = nil
+			expect(ProfileSchema.migrate(raw, 1000).stats.catLevelUps).to.equal(0)
+			raw.version = 12
+			raw.stats.catLevelUps = 41
+			expect(ProfileSchema.migrate(raw, 1000).stats.catLevelUps).to.equal(41)
 		end)
 	end)
 end

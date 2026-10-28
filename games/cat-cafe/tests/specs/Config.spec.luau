@@ -82,10 +82,12 @@ return function()
 		MaxIdLength = 40,
 		TutorialGuaranteedStrayStep = 2,
 		-- cat stats (data-model section 4b)
-		CatMaxLevel = 10,
-		CatLevelBonus = 0.05,
-		CatXpBase = 60,
+		CatMaxLevel = 50, -- v0.12 (F75)
+		CatLevelBonus = 0.02,
+		CatXpBase = 120,
 		CatXpPerSecondPlaced = 1,
+		CatXpFavoriteMultiplier = 1.5,
+		CatXpPerSecondResting = 0.25,
 		CharmSpread = 0.20,
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)

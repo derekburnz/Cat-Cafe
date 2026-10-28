@@ -2,6 +2,8 @@
 
 Derek, 2026-10-27 22:44: "the main town should be wider so that it can have a central middle area for like code cat and spin wheel and more cleaned up".
 
+**v3.1 (section 7, Derek 2026-10-27 23:56 and 23:57): the Alley Square is gone, the Neighbourhood takes its place at the street's north end, and the Woods and the Sewer move to the west and east so each area sits straight down one arm of the Town Square. Where section 7 differs from sections 1 to 6, section 7 wins.**
+
 Feature F76. Owner: game-designer thread. Sketch: [town-layout-v3.svg](town-layout-v3.svg) (north is up). This replaces the street plaza in [areas-and-stations.md](areas-and-stations.md) B2, and it moves the areas around the town, so it goes in before the Neighbourhood kit placement. Studs, y 0 is the floor top, world X runs across the street (west is -X) and Z along it (south is -Z), as in layout v2.
 
 ## 1. What changes and why
@@ -80,3 +82,77 @@ The Alleyway is still behind every cafe, so the longer street costs nothing for 
 3. The farthest cafe door to the fountain takes under 6 seconds on foot.
 4. Tackling is off everywhere in the square, and on in the back alley one step past a side arch.
 5. Strays never walk into the square (the side arches keep them in the Alleyway as the street arch does).
+
+## 7. v3.1: the compass (Derek, 2026-10-27 23:56 and 23:57)
+
+Derek, 23:56: "for the town layout the top part of alleyway doesn't need to be there its a little big just make that neighborhold". And 23:57: "figure out how to make the areas feel easier to access the one you want without the map feeling too segmented".
+
+Feature F77. Sketch: [town-layout-v3.svg](town-layout-v3.svg) now shows v3.1.
+
+### 7a. The idea
+
+The Town Square is the hub and the paved cross through it points at the four areas, one per direction, like a compass: the Neighbourhood north up the street, the Park south down the street, the Woods west and the Sewer east, each straight through a side arch and across a back alley. Standing at the fountain you can see every gate down its arm, a signpost names them, and a paw path in each area's colour runs from the fountain to its gate. Today three of the four gates sit together at the south end and the Alley Square sits between the town and the Neighbourhood, so the far areas feel like a maze of walls; v3.1 makes every area one straight walk from the middle.
+
+### 7b. What changes
+
+| piece | v3 | v3.1 |
+|---|---|---|
+| Alley Square | x -93 to 93, z 124 to 188 | removed |
+| Alleyway | two back alleys and the Alley Square | the two back alleys only, x 63 to 93 and -93 to -63, z -125.5 to 125.5, closed at both ends; they meet through the Town Square's side arches |
+| Neighbourhood | centre (0, 258.5), gate z 187.5 in the Alley Square's north wall | centre (0, 196), gate z 125 at the street's north end (the Park's mirror), its own near wall from x -70 to 70 at z 126 |
+| Park | centre (0, -154), gate z -125 | unchanged |
+| Woods | 66 x 64, centre (-78, -158), opening at the west back alley's south end | 120 x 120 (the kit's pine ring around the Great Oak clearing), centre (-155, 0), its gate at (-94, 0) in the west back alley's outer wall, straight across the alley from the west side arch |
+| Sewer | 66 x 64, centre (78, -158), opening at the east back alley's south end | 90 x 90 (the kit brings its own 16 high brick walls), centre (140, 0), its gate at (94, 0), across from the east side arch |
+| Woods and Sewer gates | 30 wide, the alley's whole width | 24 wide like the Park and Neighbourhood gates, z -12 to 12 |
+| Side arches | 10 wide | 12 wide, the same as the square's east to west lane |
+| Manhole into the Sewer | middle of the Alley Square | removed; the Sewer gate is 30 studs across the alley from the square |
+| Ground | 680 | 600 |
+
+The Woods and the Sewer grow to their kits' sizes, which also meets the 100 x 90 floor rule in [areas-and-stations.md](areas-and-stations.md) A1 (the Woods 120 x 120, the Sewer 90 x 90 of walkable floor inside its walls, so the Sewer's set is a little larger outside). Each area kit is one set model in its own space with its gate on the set's -Z side, and the world places it at the area's centre turned so -Z faces the Town Square: no turn for the Neighbourhood, a half turn for the Park, a quarter turn each way for the Woods and the Sewer. The Neighbourhood's plan is unchanged; it just starts 62.5 studs closer. No area has to stay small: the Park's 80 x 56 is the one left under the rule, and it can grow southward when its set arrives without moving anything else.
+
+### 7c. Walking from the fountain (NormalWalkSpeed 20)
+
+| to | v3 | v3.1 |
+|---|---|---|
+| Park gate | 125 studs, 6.3 s | 125, 6.3 s |
+| Neighbourhood gate | 188 through the Alley Square, 9.4 s | 125, 6.3 s |
+| Woods gate | 189 through a side arch and down the alley, 9.5 s | 94 in a straight line, 4.7 s |
+| Sewer gate | 189, 9.5 s | 94, 4.7 s |
+
+From a cafe, the nearest area is now at most about 5 seconds away: the outer rows sit by the Park and Neighbourhood gates, and every back door is on an alley whose middle opens onto the Woods or the Sewer.
+
+### 7d. Easy to find, not segmented
+
+- **The signpost.** A finger signpost (`CatCafe_Square_Signpost`) takes the place of the bench on the south-west of the fountain's ring, so it is the first thing a new player sees left of the fountain from the spawn. Four arms point at the four gates with each area's name and icon; an arm for an area the player's tier has not opened shows a lock and "Tier N". The arms are a SurfaceGui each client draws from its own tier.
+- **Paw paths.** The arms of the cross carry a line of paw prints in each area's colour from the fountain to its gate: leaf green to the Park, warm orange to the Neighbourhood, deep green to the Woods, slate blue to the Sewer. The prints continue a few studs past each gate into the area, and across the back alley on the east to west line.
+- **Looking in.** Each gate is a big themed arch seen straight down its arm. A locked gate keeps its see-through bars, so you always see what is behind it. Where an area's wall faces the town, it is see-through but not walk-through: railings, a hedge with gaps or a tree line in front of an invisible wall, not a blank brick wall. The area's look also spills out around its gate: hedges and flower beds at the street's south end for the Park, picket fences and a postbox at the north end for the Neighbourhood, trees leaning over the west alley wall for the Woods, pipes and a steam vent on the east alley wall for the Sewer.
+- **The Areas button stays.** Fast travel still lands just inside each gate, and the Areas panel lists only opened areas (as built in #358).
+
+### 7e. The Alleyway without its Square
+
+- **Spawn points.** Still 24: two `lane` points behind every cafe (16), and the 8 points that were in the Alley Square move to the four ends of the back alleys, two at each end, now zone `nook`. Epic, Legendary and Mythical strays take only free `nook` points, as they took `square` points. Suggested points, with s = -1 for the west alley and 1 for the east: (70s, 119), (84s, 121), (82s, -119), (68s, -121); each is at least 10 studs from every lane point.
+- **Rescue spots.** The trash bins stay. The garbage bags move from the Alley Square's north wall to the west back alley's outer wall at z 80, between the cafe rows, at least 9 studs from every spawn point (reviewer N77).
+- **Dressing.** The Square's mural, staff door, fire escape, dumpster corner and crates move to the two north dead ends (mural and staff door on the west end wall, fire escape and crates on the east). The south dead ends get a dumpster corner each. The outer walls' building backs skip the new gate openings.
+- **Arrival.** The Alley travel button lands just inside the side arch on the side of the player's own cafe (west with no cafe), at (72s, 0.1, -8) facing along the alley. If Travel only takes one arrival per area, use the west one.
+- **Index Board.** One just inside each side arch on the alley side, by the convention in `Layout.indexBoards`: 8 studs in and 9 to the right of the path for a player walking out of the square, turned 20 degrees toward it, so about (-71, 0, -9) west and (71, 0, 9) east.
+- **Arches.** The street arch and the two "ALLEY SQUARE" arches go. The side arches carry the "THE ALLEYWAY" label on their square side.
+
+### 7f. Contract for the engineer
+
+- **Config.World:** remove SquareSouthZ and SquareNorthZ; add AlleyNorthZ 125.5 (the alleys' north end walls, the mirror of AlleySouthZ). StreetNorthZ stays 124 (the street now ends at the Neighbourhood gate). NeighbourhoodCenterZ 196, NeighbourhoodGateZ 125. WoodsCenterX -155, WoodsCenterZ 0, WoodsWidth 120, WoodsDepth 120, SewerCenterX 140, SewerCenterZ 0, SewerWidth 90, SewerDepth 90, and in place of WoodsGateZ and SewerGateZ a gate on an X side: WoodsGateX -94, SewerGateX 94, both 24 wide. TownSquareArchWidth 12. GroundSize 600.
+- **Gates on an X side.** The area builder places gates on a Z side today (`gateZ`, the turn from the centre). The Woods and the Sewer need a gate on their +X (Woods) and -X (Sewer) side, with the wall, the Index Board, the travel arrival, the night closing and the gate billboard all following that side. The kits come as sets with the gate on their -Z side (Model-Agent), so the builder turns each set and its spawn points and props together by the area's turn; for the graybox until then, an offset (dx, dz) from the old plan becomes (dz, -dx) for the Woods and (-dz, dx) for the Sewer, so the side that faced the town still does.
+- **Layout.alley:** rects are the two back alleys only; walls add the north and south end walls and leave 24 stud openings at z -12 to 12 in the outer walls; roam keeps 5 off the outer and end walls; spawn points and zones, rescue spots, arrival and boards as in 7e. Remove `Layout.manhole`.
+- **Layout.neighbourhood:** `nearWall` back on, with its gate opening, since the Square's north wall is gone.
+- **The safe zone** is unchanged. The side arches stay the square's only edges onto the Alleyway; the Woods and Sewer gates are ordinary area gates.
+- **The F72 intro** has new numbers for shots 5, 6, 8 and 9 in [intro-cutscene.md](intro-cutscene.md) section 2c.
+- **Saves:** no change. A stray that was in the Alley Square at the update is simply gone after the restart.
+
+### 7g. QA checks
+
+1. From the fountain, all four gates can be seen down the arms of the cross, and the signpost's arms point at the right ones.
+2. A Tier 1 player sees "Tier 2", "Tier 3", "Tier 4" and "Tier 5" locks on the signpost and can see into every locked area through its gate.
+3. Each gate is under 6.5 seconds on foot from the fountain, and the Woods and Sewer gates are reached in a straight line through the side arches.
+4. Epic and rarer Alleyway strays appear only at the alley ends.
+5. Strays never cross between the back alleys and the Woods or Sewer, and never enter the Town Square.
+6. The Alley travel button lands in the back alley on the player's side.
+

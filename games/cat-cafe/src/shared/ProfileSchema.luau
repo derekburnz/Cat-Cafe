@@ -25,7 +25,9 @@ local ProfileSchema = {}
 -- Version 9 (F65) adds codesRedeemed: an older server would drop it, letting a code pay twice.
 -- Version 10 (F72) adds introSeen: an older server would drop it, playing the intro cutscene again.
 -- Version 11 (v0.8 F56) adds stats.pickups, the counter of Dropped cats picked up: an older server would drop it.
-ProfileSchema.VERSION = 11
+-- Version 12 (v0.12 F75) moves cats onto the 50-level curve (an old level L becomes 1 + ceil(2.5 x (L - 1)) with xp
+-- 0), lets xp hold fractions and adds stats.catLevelUps: an older server would clamp level 24 back to 10 and save it.
+ProfileSchema.VERSION = 12
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -76,6 +78,7 @@ local function newStats(): Types.Stats
 		cratesOpened = 0,
 		fishEarned = 0,
 		pickups = 0,
+		catLevelUps = 0,
 	}
 end
 
@@ -278,13 +281,16 @@ local function sanitizeCats(
 			variant = variantOf(entry.variant),
 			caughtAt = asInt(entry.caughtAt, now),
 			spotId = spotId,
-			-- Version 1 cats had no stats: they become level 1 with neutral charm (a 1.0x rate).
-			level = math.clamp(
-				asInt(entry.level, CatStats.MIN_LEVEL),
-				CatStats.MIN_LEVEL,
-				Config.CatMaxLevel
-			),
-			xp = asInt(entry.xp, 0),
+			-- Version 1 cats had no stats: they become level 1 with neutral charm (a 1.0x rate). Before version 12 the
+			-- cap was 10 at 5% a level: the level moves onto the 50-level curve and the xp toward it starts again.
+			level = if fromVersion >= 12
+				then math.clamp(
+					asInt(entry.level, CatStats.MIN_LEVEL),
+					CatStats.MIN_LEVEL,
+					Config.CatMaxLevel
+				)
+				else CatStats.remapLevel(asInt(entry.level, CatStats.MIN_LEVEL)),
+			xp = if fromVersion >= 12 then asNumber(entry.xp, 0) else 0,
 			charm = math.clamp(
 				asInt(entry.charm, CatStats.DEFAULT_CHARM),
 				CatStats.MIN_CHARM,

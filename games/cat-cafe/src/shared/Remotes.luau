@@ -91,6 +91,8 @@ Remotes.ServerToClient = {
 	-- tackler alone
 	"CatchBurst", -- (direction: Vector3)  the getaway (v0.8 F55): a player beside a catch or rescue that just
 	-- succeeded; their client pushes its own character CatchBurstStuds along direction (flat, unit). Not a shove
+	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
+	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 }
 
 function Remotes.folder(): Folder

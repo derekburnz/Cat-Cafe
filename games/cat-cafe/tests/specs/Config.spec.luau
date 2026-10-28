@@ -64,7 +64,7 @@ return function()
 		CatchBurstStuds = 8,
 		CatchRushWalkSpeed = 24,
 		CatchRushSeconds = 5,
-		CheckInRangeStuds = 8,
+		CheckInRangeStuds = 10,
 		CustomerSpawnSeconds = 6,
 		CustomerStayMin = 20,
 		CustomerStayMax = 40,

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 12:24 UTC",
+  "generated": "2026-10-28 12:42 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -58813,32 +58813,32 @@
         "CatCafe_NPC_Dealer_Body",
         "CatCafe_NPC_Dealer_Bulb"
       ],
-      "triangles": 886,
-      "budget": 1200,
+      "triangles": 1606,
+      "budget": 1800,
       "size_studs": {
-        "x": 4.06,
-        "y": 2.5,
+        "x": 4.08,
+        "y": 2.69,
         "z": 5.62
       },
       "size_roblox": [
-        4.06,
+        4.08,
         5.62,
-        2.5
+        2.69
       ],
       "bounds_min": [
-        -2.03,
+        -2.04,
         -1.67,
         0.0
       ],
       "bounds_max": [
-        2.03,
-        0.83,
+        2.04,
+        1.02,
         5.62
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Dealer.model.json",
-      "rbx_parts": 128,
+      "rbx_parts": 259,
       "files": [
         "assets/cat-cafe/exports/CatCafe_NPC_Dealer.fbx",
         "assets/cat-cafe/exports/CatCafe_NPC_Dealer.glb"
@@ -58850,13 +58850,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "886/1200 tris",
+          "budget": "1606/1800 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "512 faces on swatch centers",
+          "uv": "918 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.42"
+          "centered": "footprint center x=0.00 y=-0.32"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_NPC_Dealer.png",
@@ -63124,27 +63124,28 @@
       "module": "street",
       "objects": [
         "CatCafe_Street_DealerCart_Cart",
-        "CatCafe_Street_DealerCart_Bulb"
+        "CatCafe_Street_DealerCart_Bulb",
+        "CatCafe_Street_DealerCart_Bulbs"
       ],
-      "triangles": 3210,
-      "budget": 3500,
+      "triangles": 4182,
+      "budget": 4500,
       "size_studs": {
-        "x": 6.06,
+        "x": 6.62,
         "y": 3.57,
-        "z": 6.34
+        "z": 6.35
       },
       "size_roblox": [
-        6.06,
-        6.34,
+        6.62,
+        6.35,
         3.57
       ],
       "bounds_min": [
         -2.8,
         -2.01,
-        0.01
+        0.0
       ],
       "bounds_max": [
-        3.26,
+        3.83,
         1.57,
         6.35
       ],
@@ -63185,7 +63186,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_DealerCart.model.json",
-      "rbx_parts": 404,
+      "rbx_parts": 526,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Street_DealerCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Street_DealerCart.glb"
@@ -63197,13 +63198,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "3210/3500 tris",
+          "budget": "4182/4500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1783 faces on swatch centers",
+          "uv": "2268 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.01 (want 0)",
-          "centered": "footprint center x=0.23 y=-0.22"
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.51 y=-0.22"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Street_DealerCart.png",

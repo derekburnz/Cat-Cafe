@@ -309,6 +309,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
+| Area sets (v3.2) | 80,000 Park, 120,000 Woods | a whole area as one Model of Parts; the part count is the real cost (Park 2,807, Woods 4,510) |
 | Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14) |

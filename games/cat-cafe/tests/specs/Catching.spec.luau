@@ -673,6 +673,16 @@ return function()
 			expect(Config.StartledSeconds > 0).to.equal(true)
 		end)
 
+		it("a dropped cat walking home is slower than anyone on foot, so it can always be caught up with (F67)", function()
+			expect(Config.DropReturnWalkSpeed > 0).to.equal(true)
+			expect(Config.DropReturnWalkSpeed < Config.StartledWalkSpeed).to.equal(true)
+			-- home means within DropHomeRadiusStuds, well inside the reach of a grab
+			expect(Config.DropHomeRadiusStuds < Config.GrabRangeStuds).to.equal(true)
+			-- the fallback leaves time for a long walk: from the back alley's far end to the street at least
+			local alley = Config.World.AlleyNorthZ - Config.World.AlleySouthZ
+			expect(Config.DropReturnMaxSeconds > alley / Config.DropReturnWalkSpeed).to.equal(true)
+		end)
+
 		it("every area's Mythical line names the area and no cat", function()
 			for _, area in Catalog.areas do
 				for _, variant in { "base", "gold" } do

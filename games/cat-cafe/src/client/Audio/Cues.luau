@@ -366,7 +366,7 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.5,
 	}, -- fast travel and My Cafe
 	waterStep = {
-		ids = {},
+		ids = { "rbxassetid://74478489900689" },
 		group = "Sfx",
 		volume = 0.3,
 		pitch = { 0.9, 1.12 },

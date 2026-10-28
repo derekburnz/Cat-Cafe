@@ -13,7 +13,7 @@ Bevels are dropped, which suits the blocky style. Colours are the palette swatch
 0.45 and 0.3 transparency, a gate barrier (_Bars) is ForceField, the gold coat tones (palette.METAL_SWATCHES) are
 Metal. Hanging lamp bulbs (lit all day) are Neon; other
 _Bulb, _Bulbs, _Pane and _Tube parts keep their day look and WorldController lights them at night. _Glow parts are
-Neon day and night (WorldController leaves them alone), and a walk-in circle (_CodesCircle) is Neon at 0.6.
+Neon day and night (WorldController leaves them alone), and a walk-in circle (_CodesCircle) is Neon at 0.85.
 
 Model layout (pivots match the FBX exports and manifest.json, so placement code works with either):
   <Name>                     Model, pivot at the asset origin (base centre, front -Z), PrimaryPart = biggest
@@ -203,8 +203,8 @@ def _material(obname, swatch):
         return "Neon", 0.0
     if obname.endswith("_Glow"):
         return "Neon", 0.0
-    if obname.endswith("_CodesCircle"):           # a see-through glowing pad you walk into
-        return "Neon", 0.6
+    if obname.endswith("_CodesCircle"):           # a see-through glowing pad you walk into, calm enough that the
+        return "Neon", 0.85                       # ticket on it reads
     if swatch in palette.METAL_SWATCHES:          # gold cats
         return "Metal", 0.0
     return "SmoothPlastic", 0.0

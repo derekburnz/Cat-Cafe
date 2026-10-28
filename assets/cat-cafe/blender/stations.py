@@ -9,9 +9,11 @@ glowing circle lies on the street, and walking into it opens the code box (desig
                                      ears, Tail, LegF1, LegF2), so the effects code can blink it and flick its ears
   CatCafe_Street_CodesCat_Cat_Prop   the cap, inside the Head Model
   CatCafe_Street_CodesCat_Bulb       the lamp over the sign, lit at night
-  CatCafe_Street_CodesCat_CodesCircle  the walk-in circle: one flat Neon disc, 8 studs across and 0.6 see-through,
+  CatCafe_Street_CodesCat_CodesCircle  the walk-in circle: one flat Neon disc, 8 studs across and 0.85 see-through,
                                      exported as the part CodesCircle; CanCollide off
-  CatCafe_Street_CodesCat_Glow       the circle's rim and the ticket in its middle, Neon day and night
+  CatCafe_Street_CodesCat_Glow       the circle's rim, Neon day and night
+  CatCafe_Street_CodesCat_Ticket_Decor  the code ticket in the middle with a paw stamp, plain (not Neon) so the
+                                     glow does not wash it out
 
 Pivot at the base centre, the desk front (-Z) toward the players. Footprint about 6 x 3.5 studs for the kiosk, and
 the circle reaches 10 studs out in front of it.
@@ -141,31 +143,37 @@ def _back(b, bulb):
     bulb.ball((0, y1 + 0.2, zf - 0.6), 0.16, "lamp_warm")
 
 
-def _circle(pad, glow):
-    """The walk-in circle: a flat disc on the street (the part CodesCircle), a glowing rim and a glowing code ticket
-    in the middle, its stub torn off along a dashed line."""
+def _circle(pad, glow, ticket):
+    """The walk-in circle: a flat disc on the street (the part CodesCircle), a glowing rim and a code ticket in the
+    middle with a paw stamp, its stub torn off along a dashed line. The ticket is plain so it reads on the glow."""
     pad.cyl((0, 0.05, CIRCLE_Z), CIRCLE_R, 0.1, "pastel_butter", segments=24)
     glow.b.ring(RB.p(0, 0.07, CIRCLE_Z), CIRCLE_R + 0.05, 0.3, 0.14, "pastel_butter", segments=24, bevel=False)
-    y0, y1 = 0.09, 0.15
-    hw, hd, notch, end = 1.9, 1.1, 0.32, 0.45        # half width, half depth, the side notches, the end strips
-    glow.span((-hw + end, y0, CIRCLE_Z - hd), (hw - end, y1, CIRCLE_Z + hd), "shirt_red")
+    y0, y1 = 0.09, 0.17
+    hw, hd, notch, end = 2.7, 1.55, 0.45, 0.6        # half width, half depth, the side notches, the end strips
+    ticket.span((-hw + end, y0, CIRCLE_Z - hd), (hw - end, y1, CIRCLE_Z + hd), "shirt_red")
     for sx in (-1, 1):
         xa, xb = sorted((sx * (hw - end), sx * hw))
         for sz in (-1, 1):
             za, zb = sorted((CIRCLE_Z + sz * notch, CIRCLE_Z + sz * hd))
-            glow.span((xa, y0, za), (xb, y1, zb), "shirt_red")
-    for dz in (-0.72, -0.24, 0.24, 0.72):                                                    # the tear line
-        glow.span((0.74, y1 - 0.01, CIRCLE_Z + dz - 0.14), (0.88, y1 + 0.02, CIRCLE_Z + dz + 0.14), "offwhite")
+            ticket.span((xa, y0, za), (xb, y1, zb), "shirt_red")
+    tx = 1.25                                                                                # the tear line
+    for dz in (-1.1, -0.55, 0.0, 0.55, 1.1):
+        ticket.span((tx - 0.09, y1 - 0.01, CIRCLE_Z + dz - 0.17), (tx + 0.09, y1 + 0.02, CIRCLE_Z + dz + 0.17),
+                    "offwhite")
+    px, pz = -0.55, CIRCLE_Z - 0.15                                     # the paw stamp, toes toward the desk
+    ticket.cyl((px, y1 + 0.01, pz - 0.25), 0.55, 0.04, "offwhite", segments=14)
+    for (dx, dz) in ((-0.62, 0.38), (-0.22, 0.72), (0.22, 0.72), (0.62, 0.38)):
+        ticket.cyl((px + dx, y1 + 0.01, pz + dz), 0.22, 0.04, "offwhite", segments=10)
 
 
 def build_codes_cat(mat):
     name = "CatCafe_Street_CodesCat"
-    b, bulb, pad, glow = RB(), RB(), RB(), RB()
+    b, bulb, pad, glow, ticket = RB(), RB(), RB(), RB(), RB()
     _desk(b)
     _back(b, bulb)
-    _circle(pad, glow)
+    _circle(pad, glow, ticket)
     out = [b.finalize(name, mat), bulb.finalize(name + "_Bulb", mat), pad.finalize(name + "_CodesCircle", mat),
-           glow.finalize(name + "_Glow", mat)]
+           glow.finalize(name + "_Glow", mat), ticket.finalize(name + "_Ticket_Decor", mat)]
     # the cat on its stool: the sitting body, scaled, with the cap in the Head
     base = name + "_Cat"
     cat = cats.build_cat("CodesCat", mat, spec=CAT, base=base, body="sit")

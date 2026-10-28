@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 00:43 UTC",
+  "generated": "2026-10-28 00:52 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -65758,6 +65758,7 @@
         "CatCafe_Street_CodesCat_Bulb",
         "CatCafe_Street_CodesCat_CodesCircle",
         "CatCafe_Street_CodesCat_Glow",
+        "CatCafe_Street_CodesCat_Ticket_Decor",
         "CatCafe_Street_CodesCat_Cat_Body",
         "CatCafe_Street_CodesCat_Cat_Head",
         "CatCafe_Street_CodesCat_Cat_Eye1",
@@ -65769,7 +65770,7 @@
         "CatCafe_Street_CodesCat_Cat_LegF2",
         "CatCafe_Street_CodesCat_Cat_Prop"
       ],
-      "triangles": 3422,
+      "triangles": 3630,
       "budget": 6000,
       "size_studs": {
         "x": 8.1,
@@ -65913,7 +65914,7 @@
       },
       "studio": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; _Glow (its rim and ticket) is Neon all day. The Attachment PromptAnchor (desk front, 3 studs up) stays for a prompt if one is wanted. The kiosk collides; the cat is decor with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, _Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. _Bulb (the sign lamp) glows at night.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_CodesCat.model.json",
-      "rbx_parts": 235,
+      "rbx_parts": 241,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Street_CodesCat.fbx",
         "assets/cat-cafe/exports/CatCafe_Street_CodesCat.glb"
@@ -65925,10 +65926,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3422/6000 tris",
+          "budget": "3630/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1669 faces on swatch centers",
+          "uv": "1739 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-3.93"

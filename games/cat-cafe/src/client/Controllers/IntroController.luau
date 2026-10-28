@@ -194,7 +194,7 @@ local function hasCodesCat(): boolean
 	return false
 end
 
--- Shot 8's fresh strays: the Alleyway's Common cats, one per Square spawn point that has streamed in.
+-- Shot 8's fresh strays: the Alleyway's Common cats, one per back alley spawn point that has streamed in.
 local function sunriseCats(r: Run, elapsed: number)
 	local kinds: { string } = {}
 	for _, cat in Catalog.cats do
@@ -212,7 +212,7 @@ local function sunriseCats(r: Run, elapsed: number)
 		end
 		if
 			point:IsA("BasePart")
-			and point:GetAttribute("Zone") == "square"
+			and point:GetAttribute("Area") == Intro.STRAY_AREA
 			and point:IsDescendantOf(Workspace)
 		then
 			local at = (point :: BasePart).Position
@@ -312,9 +312,14 @@ local function beats(r: Run, t: number, elapsed: number)
 			WorldController.previewPhase("night", Intro.NIGHT_TO - Intro.NIGHT_FROM)
 		end
 		if once("straysOut", Intro.STRAYS_OUT_FROM) then
-			local look = r.cuts[1].to.look
-			for _, stray in straysNear(look, Intro.SQUARE_RADIUS) do
-				hide(r, stray, Intro.STRAYS_OUT_TO - Intro.STRAYS_OUT_FROM)
+			for _, stray in CollectionService:GetTagged("Stray") do
+				if
+					stray:IsA("Model")
+					and stray:IsDescendantOf(Workspace)
+					and stray:GetAttribute("Area") == Intro.STRAY_AREA
+				then
+					hide(r, stray :: Model, Intro.STRAYS_OUT_TO - Intro.STRAYS_OUT_FROM)
+				end
 			end
 		end
 		if once("sunrise", Intro.SUNRISE_FROM) then

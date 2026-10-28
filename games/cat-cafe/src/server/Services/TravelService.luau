@@ -64,6 +64,12 @@ local function landingFor(player: Player, destination: string): (CFrame?, string
 	if not ClockService.areasOpen() then
 		return nil, Clock.CLOSED_TEXT
 	end
+	-- The Alleyway lands inside the side arch on the side of the player's own cafe (v3.1), west without one.
+	local east = info.arrivalEast
+	local plot = PlotService.get(player)
+	if east ~= nil and plot ~= nil and plot.cframe.Position.X > 0 then
+		return east, nil
+	end
 	return info.arrival, nil
 end
 
@@ -103,15 +109,6 @@ end
 function TravelService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	Net.on("Travel", onTravel)
-	-- The Square's manhole is a fast travel button in the world: the same checks, cooldown and answer.
-	local manhole = builtWorld.manhole
-	local prompt = if manhole ~= nil then manhole:FindFirstChild("ManholePrompt", true) else nil
-	if manhole ~= nil and prompt ~= nil and prompt:IsA("ProximityPrompt") then
-		local area = manhole:GetAttribute("Area")
-		prompt.Triggered:Connect(function(player: Player)
-			onTravel(player, area)
-		end)
-	end
 	Players.PlayerRemoving:Connect(function(player)
 		lastTravel[player] = nil
 	end)

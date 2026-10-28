@@ -233,7 +233,7 @@ end
 local function introEnded(replay: boolean)
 	UI.setVisible(true)
 	if popups then
-		popups.screenGui.Enabled = true
+		popups:setHeld(false) -- on only if a card waits; never the bare dimmed backdrop
 	end
 	local target = tutorialTarget
 	if target ~= nil then
@@ -1692,7 +1692,7 @@ function UI.intro.start(options: Types.IntroOptions?)
 	end
 	UI.setVisible(false)
 	if popups then
-		popups.screenGui.Enabled = false
+		popups:setHeld(true)
 	end
 	if tutorialMarker then
 		tutorialMarker:hide()

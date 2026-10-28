@@ -3,6 +3,11 @@
 -- Only one popup shows at a time; others queue. The cat found card is the Pet Simulator egg hatch reveal
 -- (F39 P1): rays in the rarity colour, the cat's own 3D model popping in, a NEW sticker, its charm stars
 -- filling one by one and the Purrfect charm bonus.
+-- The intro holds popups (setHeld): a popup that comes during it waits and shows after. The dimmed backdrop's
+-- ScreenGui is on only while a card shows, so nothing dims the screen between popups (Derek 2026-10-28: a grey smog
+-- over the screen from the intro's end until the first cat found card had come and gone). There is one "While you
+-- were away" card at a time: the server sends the earnings when the profile loads and again on the client's first
+-- RequestSync, and a second card made Claim look like it needed two clicks (Derek 2026-10-28).
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
@@ -24,6 +29,7 @@ export type Popups = {
 	) -> (),
 	showOffline: (self: Popups, amount: number, seconds: number, onClaim: () -> ()) -> (),
 	dismiss: (self: Popups) -> (),
+	setHeld: (self: Popups, held: boolean) -> (),
 	destroy: (self: Popups) -> (),
 }
 
@@ -61,6 +67,9 @@ function Popups.new(parent: Instance): Popups
 	local self = setmetatable({}, Popups) :: any
 	self._queue = {} :: { () -> () }
 	self._busy = false
+	self._held = false -- the intro is playing: new popups queue, nothing shows
+	self._offline = nil :: { amount: number, seconds: number, onClaim: () -> () }? -- the latest earnings
+	self._offlineWaiting = false -- an offline card is showing or queued
 	self._token = 0
 	self._buttons = {} :: { any }
 
@@ -396,11 +405,38 @@ end
 
 function Popups._next(self: any)
 	self._busy = false
-	local job: (() -> ())? = table.remove(self._queue, 1)
+	-- while held the queue waits for setHeld(false)
+	local queue: { () -> () } = self._queue
+	local job: (() -> ())? = nil
+	if not self._held then
+		job = table.remove(queue, 1)
+	end
 	if job then
 		job()
 	else
 		self.screenGui.Enabled = false
+	end
+end
+
+-- Runs a popup now, or queues it behind the one showing or until the hold ends.
+function Popups._show(self: any, run: () -> ())
+	if self._busy or self._held then
+		table.insert(self._queue, run)
+	else
+		run()
+	end
+end
+
+-- Held while the intro plays: hidden, with new popups waiting. Let go, the card that was showing comes back, or the
+-- next waiting one opens, and with neither the ScreenGui and its backdrop stay off.
+function Popups.setHeld(self: any, held: boolean)
+	self._held = held
+	if held then
+		self.screenGui.Enabled = false
+	elseif self._busy then
+		self.screenGui.Enabled = true
+	else
+		self:_next()
 	end
 end
 
@@ -415,6 +451,9 @@ function Popups.dismiss(self: any)
 	if spin then
 		spin:Cancel()
 		self._raySpin = nil
+	end
+	if card == self._offlineCard then
+		self._offlineWaiting = false
 	end
 	Tween.popOut(card, function()
 		card.Visible = false
@@ -529,25 +568,31 @@ function Popups.showCatFound(
 			end
 		end)
 	end
-	if self._busy then
-		table.insert(self._queue, run)
-	else
-		run()
-	end
+	self:_show(run)
 end
 
 function Popups.showOffline(self: any, amount: number, seconds: number, onClaim: () -> ())
-	local function run()
+	self._offline = { amount = amount, seconds = seconds, onClaim = onClaim }
+	local function fill()
+		local latest = self._offline
+		if latest then
+			self._onClaim = latest.onClaim
+			self._offlineSub.Text = ("Gone for %s"):format(Format.duration(latest.seconds))
+			self._offlineAmount.Text = "+" .. Format.money(latest.amount)
+		end
+	end
+	if self._offlineWaiting then
+		-- the same earnings again: the card already showing or queued takes the latest numbers
+		if self._offlineCard.Visible then
+			fill()
+		end
+		return
+	end
+	self._offlineWaiting = true
+	self:_show(function()
 		self:_open(self._offlineCard)
-		self._onClaim = onClaim
-		self._offlineSub.Text = ("Gone for %s"):format(Format.duration(seconds))
-		self._offlineAmount.Text = "+" .. Format.money(amount)
-	end
-	if self._busy then
-		table.insert(self._queue, run)
-	else
-		run()
-	end
+		fill()
+	end)
 end
 
 function Popups.destroy(self: any)

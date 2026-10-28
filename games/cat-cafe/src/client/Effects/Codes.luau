@@ -1,10 +1,12 @@
 --!strict
 -- The Codes Cat's walk-in circle (F65, design v0.10; Derek 2026-10-27 20:10: "make code cat have a stand and a clear
 -- area circle to walk into to open code entering menu"). The circle itself is modelled (`CodesCircle` in the
--- `CodesCat` station) and the code box is the UI's; this adds a soft mint glow over the circle that breathes so it
--- reads as something to step into, brightens while you stand in it, sends a few motes up when you are near and
--- answers your step in with a ring and sparkles. In and out use the code box's own edges (Logic.insideCircle with
--- Config.CodesCircleRadius), so the glow and the box agree. Dormant until the engineer's station is in the world.
+-- `CodesCat` station) and the code box is the UI's; this adds a soft mint ring round the inside of its rim that
+-- breathes so it reads as something to step into, brightens while you stand in it, sends a few motes up when you are
+-- near and answers your step in with a ring and sparkles. In and out use the code box's own edges
+-- (Logic.insideCircle with Config.CodesCircleRadius), so the glow and the box agree. The ring is drawn flat on a
+-- SurfaceGui (no Neon bloom) and leaves the middle clear, so the ticket on the circle reads (Derek 2026-10-28 00:47:
+-- "too bright and can't see what symbol its showing"; it was a Neon disc over the whole circle).
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,8 +24,9 @@ type Circle = {
 	station: Instance,
 	centre: Vector3, -- on top of the circle
 	radius: number,
-	glow: Part,
-	breath: Tween?,
+	glow: Part, -- invisible; the ring's SurfaceGui and the motes' pad hang off it
+	strokes: { UIStroke }, -- the ring, then the fainter halo inside it
+	breath: { Tween },
 	motes: ParticleEmitter?,
 	inside: boolean,
 }
@@ -58,26 +61,81 @@ local function flatOf(instance: Instance): (Vector3?, number)
 	return frame.Position + Vector3.new(0, half.Y, 0), math.max(half.X, half.Z)
 end
 
-local function breathe(circle: Circle)
-	local running = circle.breath
-	if running ~= nil then
-		running:Cancel()
-		circle.breath = nil
+-- How see-through a stroke is at the ring's `transparency`: the ring itself, or the halo at haloShare of it.
+local function strokeTransparency(index: number, transparency: number): number
+	if index == 1 then
+		return transparency
 	end
+	return 1 - (1 - transparency) * Presets.codes.haloShare
+end
+
+local function setRing(circle: Circle, transparency: number)
+	for index, stroke in circle.strokes do
+		stroke.Transparency = strokeTransparency(index, transparency)
+	end
+end
+
+local function breathe(circle: Circle)
+	for _, running in circle.breath do
+		running:Cancel()
+	end
+	table.clear(circle.breath)
 	local c = Presets.codes
 	if circle.inside then
-		circle.glow.Transparency = c.inside
+		setRing(circle, c.inside)
 		return
 	end
-	circle.glow.Transparency = c.glow[1]
+	setRing(circle, c.glow[1])
 	if Context.reducedMotion() then
 		return -- a steady glow
 	end
 	local info =
 		TweenInfo.new(c.seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-	local tween = TweenService:Create(circle.glow, info, { Transparency = c.glow[2] })
-	tween:Play()
-	circle.breath = tween
+	for index, stroke in circle.strokes do
+		local tween = TweenService:Create(
+			stroke,
+			info,
+			{ Transparency = strokeTransparency(index, c.glow[2]) }
+		)
+		tween:Play()
+		table.insert(circle.breath, tween)
+	end
+end
+
+-- The ring: a flat SurfaceGui on the glow part's top, a circle `inset` in from the edge with a `ring` wide stroke
+-- just inside it and a `halo` wide one inside that.
+local function drawRing(glow: Part, radius: number): { UIStroke }
+	local c = Presets.codes
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "CodesRing"
+	gui.Face = Enum.NormalId.Top
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = c.pixelsPerStud
+	gui.LightInfluence = 0
+	gui.ResetOnSpawn = false
+	local strokes: { UIStroke } = {}
+	local across = radius - c.inset
+	for _, band in { { across, c.ring }, { across - c.ring, c.halo } } do
+		local edge, wide = band[1], band[2]
+		local frame = Instance.new("Frame")
+		frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		frame.Position = UDim2.fromScale(0.5, 0.5)
+		frame.Size = UDim2.fromScale(edge / radius, edge / radius)
+		frame.BackgroundTransparency = 1
+		frame.BorderSizePixel = 0
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0.5, 0)
+		corner.Parent = frame
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Presets.palette.mint
+		stroke.Thickness = wide * c.pixelsPerStud
+		stroke.BorderStrokePosition = Enum.BorderStrokePosition.Inner
+		stroke.Parent = frame
+		frame.Parent = gui
+		table.insert(strokes, stroke)
+	end
+	gui.Parent = glow
+	return strokes
 end
 
 local function remove(station: Instance)
@@ -86,11 +144,10 @@ local function remove(station: Instance)
 		return
 	end
 	circles[station] = nil
-	local running = circle.breath
-	if running ~= nil then
+	for _, running in circle.breath do
 		running:Cancel()
 	end
-	circle.glow:Destroy() -- the motes' pad too
+	circle.glow:Destroy() -- the ring and the motes' pad too
 end
 
 local function add(station: Instance)
@@ -108,22 +165,21 @@ local function add(station: Instance)
 	local c = Presets.codes
 	local radius = circleRadius() or (if modelled > 0.5 then modelled else c.radius)
 	local top = centre + Vector3.new(0, c.lift, 0)
-	-- A cylinder's length runs along its X axis, so it is turned to lie flat.
 	local glow = Context.effectPart(
 		"CodesGlow",
-		Vector3.new(0.05, radius * 2, radius * 2),
+		Vector3.new(radius * 2, 0.05, radius * 2),
 		Presets.palette.mint
 	)
-	glow.Shape = Enum.PartType.Cylinder
-	glow.Material = Enum.Material.Neon
-	glow.CFrame = CFrame.new(top) * CFrame.Angles(0, 0, math.pi / 2)
+	glow.Transparency = 1
+	glow.CFrame = CFrame.new(top)
 	glow.Parent = Context.folder()
 	local circle: Circle = {
 		station = station,
 		centre = top,
 		radius = radius,
 		glow = glow,
-		breath = nil,
+		strokes = drawRing(glow, radius),
+		breath = {},
 		motes = nil,
 		inside = false,
 	}
@@ -132,7 +188,8 @@ local function add(station: Instance)
 end
 
 -- Motes rise off a circle you are near, inside the steady budget's range; none in Low performance. They come off
--- an invisible square pad that fits inside the circle (the glow disc is turned on its side, so it cannot emit up).
+-- an invisible square pad that fits inside the circle (the glow part is the circle's whole square, so its corners
+-- stick out).
 local function mote(circle: Circle, near: boolean)
 	local on = near and not Context.lowPerformance
 	local motes = circle.motes

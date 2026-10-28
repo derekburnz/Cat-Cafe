@@ -21,8 +21,7 @@ local Moments = {
 	CheckIn = Signal.new() :: Signal.Signal<()>, -- the carried cat went into the cafe
 	CatDrop = Signal.new() :: Signal.Signal<Vector3>, -- (position) this player pressed Drop or G while carrying, at
 	-- the press (like NetSwing); position is the character's root
-	Travel = Signal.new() :: Signal.Signal<string>, -- (destination) the server allowed a Travel: "home", an area id
-	-- or the manhole's area
+	Travel = Signal.new() :: Signal.Signal<string>, -- (destination) the server allowed a Travel: "home" or an area id
 	CatPlaced = Signal.new() :: Signal.Signal<string, string>, -- (uid, role) a sync shows a cat newly in a role, or
 	-- moved to another one
 	UnplaceCat = Signal.new() :: Signal.Signal<string>, -- (uid) a sync shows a cat off its role; Unequip all fires

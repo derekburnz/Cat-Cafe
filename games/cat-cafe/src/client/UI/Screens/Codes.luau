@@ -8,13 +8,15 @@
 -- (Components/CodeEntry), and Enter redeems too. Redeem shows "..." until CodeResult answers, or for 5 s, and stays
 -- grey until 2 s after the last send, since the server drops a second try inside that (review N183).
 --
--- The window sits near the top of the screen, so a phone's keyboard never covers it and the Codes Cat stays in view
--- below. It does not take the keyboard when it opens: the player is walking into the circle, so W, A, S and D keep
--- moving the character until the box is clicked.
+-- The window sits in the middle of the screen (Derek 2026-10-28: "codes need to be more centred in middle of
+-- screen"); on a phone with no keyboard it stays near the top, so the on-screen keyboard never covers it. It does
+-- not take the keyboard when it opens: the player is walking into the circle, so W, A, S and D keep moving the
+-- character until the box is clicked.
 --
 -- Roblox terms: a TextBox is an editable text field; its FocusLost(enterPressed) fires when Enter is pressed in it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CodeEntry = require(script.Parent.Parent.Components.CodeEntry)
@@ -51,7 +53,7 @@ local PLACEHOLDER = "Type a code"
 local NO_ANSWER = "No answer yet. Try Redeem again."
 
 local MAX_SIZE = Vector2.new(460, 262)
-local TOP_EDGE = 30 -- room above the window for the panel's ears and badge
+local TOP_EDGE = 30 -- on a phone: room above the window for the panel's badge
 local HINT_HEIGHT = 20
 local ROW = 52 -- the box and Redeem
 local REDEEM_WIDTH = 132
@@ -102,9 +104,12 @@ function Codes.new(callbacks: Callbacks): Codes
 		onClose = callbacks.close,
 	})
 	Create("UISizeConstraint", { MaxSize = MAX_SIZE, Parent = panel.frame })
-	-- near the top, clear of a phone's keyboard and of the Codes Cat
-	panel.frame.AnchorPoint = Vector2.new(0.5, 0)
-	panel.frame.Position = UDim2.new(0.5, 0, 0, TOP_EDGE)
+	-- centred; on a touch-only phone near the top, clear of its on-screen keyboard
+	local phone = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	panel.frame.AnchorPoint = if phone then Vector2.new(0.5, 0) else Vector2.new(0.5, 0.5)
+	panel.frame.Position = if phone
+		then UDim2.new(0.5, 0, 0, TOP_EDGE)
+		else UDim2.fromScale(0.5, 0.5)
 	self._panel = panel
 	self.frame = panel.frame
 	local content = panel.content

@@ -1,9 +1,10 @@
 # Area sets: how the world places them
 
 Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer,parkset,woodsset,sewerset}.py` from the
-approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `CatCafe_Woods_SetV32` and
-`CatCafe_Sewer_SetV32` are sized for town layout v3.2 (town-layout-v3.md section 8, F81); the Neighbourhood and the
-v3.1 `CatCafe_Woods_Set` and `CatCafe_Sewer_Set` are still sized for v3.1 (section 7).
+approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `CatCafe_Woods_SetV32`,
+`CatCafe_Sewer_SetV32` and `CatCafe_Neighbourhood_SetV32` (neighbourhoodset.py) are sized for town layout v3.2
+(town-layout-v3.md section 8, F81); the v3.1 `CatCafe_Neighbourhood_Set`, `CatCafe_Woods_Set` and
+`CatCafe_Sewer_Set` are still sized for v3.1 (section 7).
 
 | Set | Footprint (studs) | Tris | Parts | Area in v3.1 |
 |---|---|---|---|---|
@@ -13,6 +14,7 @@ v3.1 `CatCafe_Woods_Set` and `CatCafe_Sewer_Set` are still sized for v3.1 (secti
 | `CatCafe_Park_Set` | 159.5 x 119.75 | 54,766 | 2,807 | v3.2: 160 x 120, centre (0, -186), gate z -125 |
 | `CatCafe_Woods_SetV32` | 240 x 240 | 105,040 | 4,510 | v3.2: 240 x 240, centre (-215, 0), gate x -94 |
 | `CatCafe_Sewer_SetV32` | 179.2 x 179.15 | 89,112 | 4,471 | v3.2: 180 x 180, centre (185, 0), gate x 94 |
+| `CatCafe_Neighbourhood_SetV32` | 279.5 x 279.8 | 115,000 | 5,478 | v3.2: 280 x 280, centre (0, 266), gate z 125 |
 
 ## Placing a set
 
@@ -118,13 +120,42 @@ pool to the culvert under its pipe so nobody walks round the pool's far side. Th
 Light: the halls are lit by the skylights and the world's Ambient by day, six cage lamps and the wall lanterns
 (`_Bulb`) at night. If the halls read too dark in game, PointLights on the cage lamps would fix it.
 
+## The Neighbourhood (v3.2)
+
+`CatCafe_Neighbourhood_SetV32` is a new model, so the live game keeps `CatCafe_Neighbourhood_Set` (v3.1) until
+Gameplay moves the Neighbourhood to its v3.2 Config (NeighbourhoodCenterZ 266, NeighbourhoodWidth 280,
+NeighbourhoodDepth 280, 8e) and switches the set name in the same change. Place it at (0, floorY, 266) with no turn;
+the gate is at set space z -140, where the set leaves x -23 to 23 open for the gate model. Drop the v3.1 spots, traps
+and graybox props with it.
+
+The way in winds (8b): Whisker Lane runs north from the gate to the first street (z -112), which runs east along the
+first block's front gardens to the block's only gap, a lane at x 41 to 51. North of it the second street (z -46)
+runs back west between the blocks to the second block's gap at x -51 to -41, and the road beyond passes the village
+green (oaks, picnic tables, benches, flower beds) to the playground hub at (-14, 70): tyre swing, a slide with a
+ladder up to a railed deck at 4, swings, sandpit, roundabout and seesaw. Paw Crescent loops round the hub, with two
+houses on its west leg, one on its east leg by a turning circle and five plots round its far side: two houses, the
+corner shop at the far end (z 117 to 129), a bungalow and a house. The back gardens (washing line, trampoline,
+paddling pool, playhouse, bird bath, gnomes, a greenhouse) lie behind the crescent's west side and the allotments
+(veg beds, greenhouse, potting shed, scarecrow, compost bins, water butt, sunflowers) behind its east side, each
+reached by a footpath between two crescent houses under a GARDENS or ALLOTMENTS fingerpost. Walked on a 0.5 stud grid
+with a player 2 wide: about 340 studs from the gate to the corner shop, 300 to 380 into the back gardens and 370 to
+470 through the allotments (505 to the farthest corner), against 280 straight. Every spot is reachable on foot.
+
+Blockers: both house blocks run wall to wall with one gap each, and a 30 high `_Barrier` stands on each block from the
+house fronts back, so the front gardens (porches, flower beds) stay open to cats and players. The crescent's outer
+houses and the fences between them carry a barrier line too, open only at the two footpaths. Front fences are white
+pickets with one picket missing, low brick walls or box hedges, each with a gate gap on the garden path. The outer
+walls are runs of clipped hedge, brick with ivy and a close-board fence with a rose trellis, 9 to 11 high between
+brick piers, with a 30 high `_Barrier` in their band all round but the gate; the town side is low hedge blocks on a
+planter kerb, see-through as 7d asks.
+
 ## Spots for cats
 
 `manifest.json` lists each set's spots under `points_roblox` as `{label: [[x, y, z], ...]}` relative to the pivot,
 in the set's own (unturned) space. Turn them with the set (the same CFrame as `PivotTo`). Each spot is a clear
 floor or seat for one cat: none is inside a colliding part.
 
-- Neighbourhood: porch 9, flowerbed 9, hub 3 (tyre, under the slide, sandpit), garden 2, shed 1, driveway 4,
+- Neighbourhood v3.1: porch 9, flowerbed 9, hub 3 (tyre, under the slide, sandpit), garden 2, shed 1, driveway 4,
   bins 1, van 1.
 - Woods v3.2 (`CatCafe_Woods_SetV32`, 64 spots, each `[x, y, z, zone]`): near 26 (bridge 1, waterfall 1, tent 2,
   log_bench 2 at y 2.06, camp 1, berry_bush 4, leaf_pile 2, stump 3 at y 1.66, rock 3 at y 2.0, fern 4, log 2,
@@ -149,6 +180,14 @@ floor or seat for one cat: none is inside a colliding part.
   kiosk 1, lawn 1), deep 24 (bank 1, oak 1, lawn 3, hedge 1, bandstand 3 at y 1.15, loop 2, slide 1, swings 1,
   sandbox 1 at y 0.55, seesaw 1, roundabout 1 at y 0.72, playground 1, fountain 1, roses 2, topiary 1, garden 1,
   far 2).
+- Neighbourhood v3.2 (`CatCafe_Neighbourhood_SetV32`, 72 spots, each `[x, y, z, zone]`, zone `near` for the gate half
+  (z < 0) or `deep`): near 28 (porch 12 at y 1.0, flowerbed 8 at y 0.7, garden 1, car 2 at y 0.29 and 0.34,
+  bus_stop 1 at y 1.65, post_box 1, verge_bench 2, bins 1), deep 44 (porch 6 at y 1.0, flowerbed 2 at y 0.62 and
+  0.7, garden 1, shop_bench 1 and fruit_stall 1 at y 0.3, shop_step 1 at y 0.4, tyre 1, slide 1 at y 4.0 on the deck,
+  swings 1, sandbox 1 at y 0.55, roundabout 1 at y 0.72, seesaw 1, oak 1, picnic 1, green_bench 1, van 1 at y 0.24,
+  trampoline 1 at y 1.73, washing 1, deckchair 1, gnomes 1, pool 1, playhouse 1, garden_bench 1, birdbath 1,
+  greenhouse 2 at y 0.52, veg_bed 4 at y 0.6, water_butt 1, scarecrow 1, compost 1, potting_bench 1, sunflowers 1,
+  allot_bench 1, allotments 2).
 
 Labels starting with `trap_` are rescue trap spots, where a stuck cat sits inside its prop. Woods v3.2 builds its
 traps into the set as v3.1 did, and each trap spot adds a fifth number, the piece's turn in set space (a hollow
@@ -161,6 +200,11 @@ piece's local -X, as the Park's rescue trees do). Sewer v3.2 builds its traps in
 Woods `trap_hollow_log` (-14, 0, 22), `trap_bramble_bush` (14, 0, 22) and `trap_treehouse_branch`
 (-36.44, 15.45, 17.36: up the tree house's trunk); Sewer `trap_grate` (-31, 0.4, 2) and
 `trap_drain_pipe` (-40, 0.4, -35). The Neighbourhood's shed (59.2, 0, 40) has a jammed door for the shed rescue.
+Neighbourhood v3.2 builds its traps in, each with the piece's turn: `trap_shed` (126.4, 0, -89.3, near, 0), in the
+corner garden at the first block's east end, and (85.3, 0, 83.4, deep, -90), in the allotments (a garden shed with a
+jammed door on the piece's -Z; the spot is just inside the door); `trap_gutter` (-53.4, 7.05, -60.5, near, 180), on
+the bungalow facing the second street, and (5.7, 7.05, 112.8, deep, 34), on the crescent's bungalow (the cat lies in
+the bungalow's front gutter, 7.05 up, by the downpipe at the house's corner).
 
 The Park's trap props are placed by the world, not built into the set: each trap spot is `[x, y, z, zone, turn]`
 and the prop stands there turned `turn` degrees (CFrame.Angles(0, math.rad(turn), 0) in set space; a rescue
@@ -170,7 +214,7 @@ Each has a 3.4 x 3.4 footprint clear of the set's solid parts.
 
 ## Checks
 
-All sets pass the build gate (budget 80,000, 120,000 for the v3.2 Woods and Sewer; transforms, one material, swatch
+All sets pass the build gate (budget 80,000, 120,000 for the v3.2 Woods, Sewer and Neighbourhood; transforms, one material, swatch
 UVs, naming), the toolkit QA with 0 visible overlaps (`toolkit_qa.md`; the floating parts listed there stand on the
 world floor or are meant, such as a falling drip), and a part-overlap check between pieces (0 pairs sinking more
 than 0.15 studs into each other) plus a spot check (no spot inside a colliding part except trap spots, where the

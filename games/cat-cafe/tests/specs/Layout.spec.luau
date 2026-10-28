@@ -933,4 +933,81 @@ return function()
 			end
 		end)
 	end)
+
+	describe("cafe tables off the door to counter walk (QA, engineer PR #433)", function()
+		-- Layout.plot.tables: a table and its two chairs reach REACH either side of its x and DEPTH in front and behind
+		-- (the Layout comment), so the aisle from the front door to the counter stays clear from -AISLE to AISLE.
+		local plot = Layout.plot
+		local halfD = W.PlotDepth / 2
+		local REACH, DEPTH, AISLE = 3.7, 2.1, 6.3
+
+		local function corners(spot: any): { { number } }
+			local x1, x2 = spot.x - REACH, spot.x + REACH
+			local z1, z2 = spot.z - DEPTH, spot.z + DEPTH
+			return { { x1, z1 }, { x1, z2 }, { x2, z1 }, { x2, z2 } }
+		end
+
+		it("keeps six tables, filled two a tier, a mirrored pair on each row", function()
+			expect(#plot.tables).to.equal(6)
+			for pair = 1, 3 do
+				local left, right = plot.tables[2 * pair - 1], plot.tables[2 * pair]
+				expect(left.x < 0 and right.x > 0).to.equal(true)
+				expect(left.z).to.equal(right.z)
+				expect(left.lane).to.equal(right.lane)
+			end
+			expect(plot.tables[1].z < plot.tables[3].z and plot.tables[3].z < plot.tables[5].z).to.equal(true)
+		end)
+
+		it("leaves the aisle clear: no table or chair reaches inside x -6.3 to 6.3", function()
+			expect(plot.seatOffsets[2].x + 1.3 <= REACH + 1e-9).to.equal(true)
+			for i, spot in plot.tables do
+				if math.abs(spot.x) - REACH < AISLE - 1e-9 then
+					fail("table %d at x %.2f reaches into the aisle", i, spot.x)
+				end
+			end
+			expect(math.abs(plot.door.x) < AISLE and math.abs(plot.counter.x) < AISLE).to.equal(true)
+			expect(math.abs(plot.orderPoint.x) < AISLE).to.equal(true)
+		end)
+
+		it("walks customers down the aisle clear of the waiters and along lanes clear of every table", function()
+			for _, role in { "waiter_1", "waiter_2", "waiter_3" } do
+				expect(math.abs(plot.spots[role].x) - plot.aisleX >= 2).to.equal(true)
+			end
+			expect(plot.aisleX > 0 and plot.aisleX + 1 <= AISLE).to.equal(true)
+			for i, spot in plot.tables do
+				expect(math.abs(spot.lane) < halfD - 1).to.equal(true)
+				for j, other in plot.tables do
+					if math.abs(spot.lane - other.z) < DEPTH + 0.5 then
+						fail("table %d's lane z %.2f runs through table %d at z %.2f", i, spot.lane, j, other.z)
+					end
+				end
+			end
+		end)
+
+		it("keeps the straight walk from the back door to the front door a stud clear of every table (N237)", function()
+			local ax, az = plot.backDoor.x, halfD
+			local dx, dz = plot.door.x - ax, plot.door.z - az
+			local length = math.sqrt(dx * dx + dz * dz)
+			for i, spot in plot.tables do
+				local nearest, side = math.huge, 0
+				for _, corner in corners(spot) do
+					local cross = ((corner[1] - ax) * dz - (corner[2] - az) * dx) / length
+					if side ~= 0 and (cross > 0) ~= (side > 0) then
+						fail("the walk crosses table %d", i)
+					end
+					side = cross
+					nearest = math.min(nearest, math.abs(cross))
+				end
+				if nearest < 1 then
+					fail("the walk passes table %d only %.2f studs clear", i, nearest)
+				end
+			end
+		end)
+
+		it("puts the rich tip's coin pile on table 1, where the rich customer sits", function()
+			expect(plot.richTip.x).to.equal(plot.tables[1].x)
+			expect(plot.richTip.z).to.equal(plot.tables[1].z)
+			expect(plot.richTip.y > 0).to.equal(true)
+		end)
+	end)
 end

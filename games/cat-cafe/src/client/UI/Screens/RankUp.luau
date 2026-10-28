@@ -335,7 +335,7 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 	text({
 		Name = "Label",
 		Position = UDim2.fromOffset(14, 0),
-		Size = UDim2.new(1, -150, 1, -6),
+		Size = UDim2.new(1, -190, 1, -6),
 		FontFace = Theme.fonts.bodyBold,
 		Text = item.label,
 		Parent = row,
@@ -344,7 +344,8 @@ function RankUp._row(self: any, index: number, item: Requirement): Frame
 		Name = "Status",
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -14, 0, 0),
-		Size = UDim2.new(0, 130, 1, -6),
+		-- room for "$45,000 / $80,000" at full size (the economy pass of 2026-10-28 put ranks at $8K to $5M)
+		Size = UDim2.new(0, 170, 1, -6),
 		FontFace = Theme.fonts.display,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextColor3 = if item.met then Theme.colors.good else Theme.colors.warn,

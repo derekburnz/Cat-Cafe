@@ -7,10 +7,10 @@ return function()
 	local IntroLogic = require(Components:WaitForChild("IntroLogic")) :: any
 
 	describe("IntroLogic.skipAfter", function()
-		it("shows Skip 2.0 s into a first play and at once on a replay", function()
-			expect(IntroLogic.skipAfter(nil)).to.equal(2.0)
-			expect(IntroLogic.skipAfter({})).to.equal(2.0)
-			expect(IntroLogic.skipAfter({ replay = false })).to.equal(2.0)
+		it("fills Skip's bar over 5.0 s on a first play and starts it full on a replay", function()
+			expect(IntroLogic.skipAfter(nil)).to.equal(5.0)
+			expect(IntroLogic.skipAfter({})).to.equal(5.0)
+			expect(IntroLogic.skipAfter({ replay = false })).to.equal(5.0)
 			expect(IntroLogic.skipAfter({ replay = true })).to.equal(0)
 		end)
 
@@ -21,7 +21,7 @@ return function()
 		end)
 
 		it("ignores a skipAfter that is not a real number", function()
-			expect(IntroLogic.skipAfter({ skipAfter = 0 / 0 })).to.equal(2.0)
+			expect(IntroLogic.skipAfter({ skipAfter = 0 / 0 })).to.equal(5.0)
 			expect(IntroLogic.skipAfter({ skipAfter = math.huge, replay = true })).to.equal(0)
 		end)
 	end)
@@ -79,10 +79,48 @@ return function()
 			expect(IntroLogic.dot(1, 0)).to.equal("next")
 		end)
 
-		it("reports the shot showing, 1 before the first shot and never past 9", function()
+		it("reports the shot showing, 1 before the first shot and never past the last", function()
 			expect(IntroLogic.skipShot(0)).to.equal(1)
 			expect(IntroLogic.skipShot(5)).to.equal(5)
-			expect(IntroLogic.skipShot(12)).to.equal(IntroLogic.SHOTS)
+			expect(IntroLogic.skipShot(IntroLogic.SHOTS + 3)).to.equal(IntroLogic.SHOTS)
+		end)
+
+		it("has one dot per shot of the controller's shared Intro", function()
+			local Intro = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Intro")
+			) :: any
+			expect(IntroLogic.SHOTS).to.equal(Intro.SHOTS)
+		end)
+	end)
+
+	describe("IntroLogic.skipFill", function()
+		it("fills steadily over the wait and stays full after it", function()
+			expect(IntroLogic.skipFill(0, 5)).to.equal(0)
+			expect(IntroLogic.skipFill(2.5, 5)).to.equal(0.5)
+			expect(IntroLogic.skipFill(5, 5)).to.equal(1)
+			expect(IntroLogic.skipFill(9, 5)).to.equal(1)
+			expect(IntroLogic.skipFill(-1, 5)).to.equal(0)
+		end)
+
+		it("is full at once with no wait and empty for a broken clock", function()
+			expect(IntroLogic.skipFill(0, 0)).to.equal(1)
+			expect(IntroLogic.skipFill(0, 0 / 0)).to.equal(1)
+			expect(IntroLogic.skipFill(0 / 0, 5)).to.equal(0)
+		end)
+	end)
+
+	describe("IntroLogic job card", function()
+		it("shows the four roles in the cat room's order", function()
+			expect(table.concat(IntroLogic.ROLES, ",")).to.equal(
+				"barista,waiter,greeter,entertainer"
+			)
+		end)
+
+		it("lights the role at 0.6 s and is gone by 0.9 s when shown 0.35 s into shot 4", function()
+			local shown = 0.35
+			expect(math.abs(shown + IntroLogic.JOB_TAP - 0.6) < 1e-9).to.equal(true)
+			expect(math.abs(shown + IntroLogic.JOB_GONE - 0.9) < 1e-9).to.equal(true)
+			expect(IntroLogic.JOB_TAP < IntroLogic.JOB_GONE).to.equal(true)
 		end)
 	end)
 end

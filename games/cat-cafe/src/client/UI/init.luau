@@ -2244,16 +2244,43 @@ local function plotOf(prompt: ProximityPrompt): Instance?
 	return nil
 end
 
+-- GiftPrompts this client switched off on someone else's plot, each with the watch on the plot's owner that switches
+-- it back on if the plot becomes this player's (a plot keeps its prompt across owners).
+local mutedGifts: { [ProximityPrompt]: RBXScriptConnection } = {}
+
+local function muteGift(prompt: ProximityPrompt, plot: Instance)
+	prompt.Enabled = false
+	if mutedGifts[prompt] then
+		return
+	end
+	local function release()
+		local watch = mutedGifts[prompt]
+		if watch then
+			watch:Disconnect()
+			mutedGifts[prompt] = nil
+		end
+	end
+	mutedGifts[prompt] = plot:GetAttributeChangedSignal("OwnerUserId"):Connect(function()
+		if plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId then
+			release()
+			if prompt.Parent then
+				prompt.Enabled = true
+			end
+		end
+	end)
+	prompt.Destroying:Once(release)
+end
+
 -- F64: a Mystery gift's GiftPrompt opens only for the plot's owner. On anyone else's plot this client switches the
--- prompt off, so no pill shows and E does nothing; the server checks the owner too. The owner's pill carries the
--- gift's chances under it, shown before opening.
+-- prompt off, so no pill shows and E does nothing, until the plot becomes this player's; the server checks the
+-- owner too. The owner's pill carries the gift's chances under it, shown before opening.
 local function giftNote(prompt: ProximityPrompt): (boolean, string?)
 	if prompt.Name ~= "GiftPrompt" then
 		return true, nil
 	end
 	local plot = plotOf(prompt)
 	if plot and plot:GetAttribute("OwnerUserId") ~= Players.LocalPlayer.UserId then
-		prompt.Enabled = false
+		muteGift(prompt, plot)
 		return false, nil
 	end
 	return true, PotionLogic.giftLine(PotionLogic.giftRows(currentCatalog), foodName)
@@ -2490,6 +2517,10 @@ function UI.catch.unbindProximityPrompts()
 		(connection :: any):Disconnect()
 	end
 	table.clear(promptConnections)
+	for _, watch in mutedGifts do
+		watch:Disconnect()
+	end
+	table.clear(mutedGifts)
 	watchStray(nil)
 	activePrompt = nil
 end

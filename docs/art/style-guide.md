@@ -190,6 +190,20 @@ paths' colours in WorldBuilder, so the compass points and the paws match.
 | 110 | paw_woods | #267040 | the Woods' compass point (west) |
 | 111 | paw_sewer | #566E96 | the Sewer's compass point (east) |
 
+Row 14, the coats of the ten area-themed cats of F78 (data-model 3, v0.13, 2026-10-28). Eight cells of row 14 and
+row 15 stay free.
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 112 | fur_dusty | #96918C | Binbag (Garbage Bag Cat) |
+| 113 | fur_marmalade | #E18C3C | Taxi (Taxi Cat) |
+| 114 | fur_indigo | #2D236E | Neon (Jazz Cat) |
+| 115 | fur_dune | #D7B987 | Birdwatch (Birdwatcher Cat) |
+| 116 | fur_bubblegum | #F7A8C8 | Balloon (Balloon Cat) |
+| 117 | fur_toffee | #8C5F3C | Builder (Construction Cat) |
+| 118 | fur_pewter | #A5A5AA | Gnome (Gnome Cat) |
+| 119 | fur_gunmetal | #69737D | Plumber (Plumber Cat) |
+
 **Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose, tail tip, socks (all four paws) and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
 
 | cat | coat | markings | eyes | nose |
@@ -244,6 +258,16 @@ paths' colours in WorldBuilder, so the compass points and the paws match.
 | Soot | fur_ash | fur_soot muzzle and tail tip | copper | dark |
 | Pipes | fur_smoke_light | fur_charcoal stripes, white muzzle | green | dark |
 | Puddle | fur_puddle | fur_mist muzzle and tail tip | amber | dark |
+| Binbag | fur_dusty | fur_soot stripes, white muzzle | green | dark |
+| Taxi | fur_marmalade | fur_orange_dark stripes, cream muzzle, a white and black checkered band on each flank | green | brick |
+| Neon | fur_indigo | neon_pink and sign_teal stripes, taking turns | sign_teal, glowing | pink |
+| Birdwatch | fur_dune | fur_hazel stripes, cream muzzle | copper | brick |
+| Duckling | fur_white | fur_silver and fur_mist patches | blue | pink |
+| Balloon | fur_bubblegum | mint and pastel_butter patches | pastel_sky, glowing | pink |
+| Builder | fur_toffee | fur_seal stripes, white muzzle and socks | amber | brick |
+| Gardener | fur_cream | fur_grey and fur_smoke_light patches, white muzzle | green | pink |
+| Gnome | fur_pewter | fur_white patches and muzzle, long coat, thick tail, a little rounder | green | pink |
+| Plumber | fur_gunmetal | fur_white bib, belly, socks and muzzle, fur_gunmetal tail tip | copper | dark |
 
 **Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff, and a tail tip or socks when the coat names them) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
 
@@ -400,7 +424,7 @@ The slice has no skeleton. Every pose turns the cat's hinged pieces (section 6) 
 
 Cats wear no collar, strays and cafe cats alike (Derek, 2026-10-27). Working cats (v0.3 roles, data-model section 5) sit at their stations on body B in their role's two-piece outfit, which is what marks a cat as staff: Apron and BaristaCap for the barista, BowTie and Vest for the waiter, Sash and Boater for the greeter, PartyHat and Cape for the entertainer (`role_outfits` in the manifest, `previews/Pose_Uniforms.png`). The pieces share the cafe palette: mint and cream for the barista, dark_wood with a white shirt and gold buttons for the waiter, shirt_red and straw (treat_tan) for the greeter, sign_teal and neon_pink with gold stars for the entertainer. Put each piece on the sitting model's `Outfit_<Piece>` Attachment and scale it by the model's `Scale` attribute; multiply every pose position by it too. Idle bob, blinks, ear twitches and tail wag are tweens on the piece Models (the vfx-animator's Effects code). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes.
 
-Themed cats (data-model section 3c) each wear one signature prop, built in `props.py` and named `CatCafe_Cat_<Name>[_Gold][_Sit]_Prop`, on both bodies and the gold twins. The prop has a slot: `Head` (hats, horns, antlers, headphones), `Face` (glasses, masks, the eye patch, the bubble pipe) or `Back` (cape, wings, guitar, skateboard, backpack, the firefly jar). Head and Face props pivot at the neck and the Part model nests them in the Head Model, so a head turn carries them; Back props sit in the root Model and ride the Body. Every prop Part carries a `Follows` attribute (`Head` or `Body`) and the cat's root Model a `PropSlot` attribute. When a themed cat works, `CatPose.dress` leaves off the role piece in the prop's slot (a Head prop replaces the BaristaCap, Boater or PartyHat, a Back prop the Entertainer's Cape) and keeps the other piece; Face props keep the whole outfit. Clear parts (lenses, the helmet, bubbles, the jar) are `_Prop_Glass`, Glass at 0.45. Props follow the toolkit rule for details: sunk 0.005 to 0.01 into the surface they sit on and at least 0.01 proud of it, never coplanar with a face of another swatch. Review sheets: `docs/concepts/cat-cafe/themed_cats_<area>.png`.
+Themed cats (data-model section 3c) each wear one signature prop, built in `props.py` and named `CatCafe_Cat_<Name>[_Gold][_Sit]_Prop`, on both bodies and the gold twins. The prop has a slot: `Head` (hats, horns, antlers, headphones), `Face` (glasses, masks, the eye patch, the bubble pipe) or `Back` (cape, wings, guitar, skateboard, backpack, the firefly jar). Head and Face props pivot at the neck and the Part model nests them in the Head Model, so a head turn carries them; Back props sit in the root Model and ride the Body. Every prop Part carries a `Follows` attribute (`Head` or `Body`) and the cat's root Model a `PropSlot` attribute. When a themed cat works, `CatPose.dress` leaves off the role piece in the prop's slot (a Head prop replaces the BaristaCap, Boater or PartyHat, a Back prop the Entertainer's Cape) and keeps the other piece; Face props keep the whole outfit. Clear parts (lenses, the helmet, bubbles, the jar) are `_Prop_Glass`, Glass at 0.45. Props follow the toolkit rule for details: sunk 0.005 to 0.01 into the surface they sit on and at least 0.01 proud of it, never coplanar with a face of another swatch. Review sheets: `docs/concepts/cat-cafe/themed_cats_<area>.png`. **Second props (F78, v0.13).** A themed cat can wear a second prop in another slot, the object `_Prop2` (`props.PROPS2`): the Jazz Cat's saxophone, the Gardener Cat's watering can and the Plumber Cat's wrench on the back, the Gnome Cat's beard on the face. The root Model's `PropSlot2` attribute names that slot and its parts carry `Follows` like the first prop's; a Face second prop nests in the Head Model. `CatPose.dress` (F71) leaves off the role pieces in both slots, and an Entertainer with a Head and a Back prop wears the PartyHat in place of its head prop and drops the Cape. On body B a back prop keeps its inner face 0.07 behind the chest's back (`props.B_CLEAR`), clear of the waiter's vest, the barista's apron bow and the greeter's sash; straps come over the top of the chest under the chin (`_sling`). The F78 cats: Binbag (a black bin bag over the back, Back), Taxi (a roof light, Head), Neon (fedora, Head; saxophone, Back), Birdwatch (prism binoculars, Face), Duckling (a duckling, Head), Balloon (three glowing balloons, the three biggest parts, Back), Builder (hard hat with a pencil, Head), Gardener (sun hat, Head; watering can, Back), Gnome (gnome hat, Head; beard, Face) and Plumber (work cap, Head; wrench, Back). Review sheets: the Model-Agent library's `f78-themed-cats-1.png` and `-2.png`.
 
 ## 13. Cafe plots and the street
 

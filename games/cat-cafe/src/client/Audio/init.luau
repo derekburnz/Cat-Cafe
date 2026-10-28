@@ -493,6 +493,16 @@ local function you(): BasePart?
 	return if root ~= nil and root:IsA("BasePart") then root :: BasePart else nil
 end
 
+-- F84 (draft): whether your character is out in a wild area (Logic.inWild), where a check-in is at a camp and a trip
+-- home is a cloud hop. False until Config.World has WildAreaDistance.
+local function youInWild(): boolean
+	local root = you()
+	local world = (Config :: any).World
+	return root ~= nil
+		and world ~= nil
+		and Logic.inWild(root.Position.X, root.Position.Z, world.WildAreaDistance)
+end
+
 -- The part that stands for a tagged part or model: the part itself, a model's PrimaryPart or its first part.
 local function partOf(instance: Instance): BasePart?
 	if instance:IsA("BasePart") then
@@ -943,10 +953,18 @@ end
 -- CATCH_QUIET after one; the check waits a moment in case the attribute lands before the moment.
 -- F74 the same way: TackleAt (the press) whooshes and TackleMissAt (a lunge that hit nobody) skids, each only while
 -- under TACKLE_FRESH old, as the effects do; a hit plays the shove sound from ShoveResult.
+-- F84 (draft) too: CannonLaunchAt plays the launch at once, the clouds for the one flying and the whistle and landing
+-- where the character is by then (the server has moved it onto the landing pad); your own flight plays flat, since
+-- your camera flies with you. CloudHopAt (asked of the engineer) plays your own cloud hop.
 local CHARACTER_GAP = 1
 local CATCH_QUIET = 2
 local TACKLE_FRESH = 0.6
 local lastCatchAt: number? = nil
+-- F84 (draft): the cannon flight's timing (hometown-cannon.md 3b) until Config has CannonLaunchSeconds. The clouds
+-- start at 1.4 s and cannonLand's whistle runs CANNON_LAND_LEAD before its thump, which lands as the flight ends.
+local CANNON_FLIGHT = 3
+local CANNON_CLOUDS_AT = 1.4
+local CANNON_LAND_LEAD = 0.6
 
 local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptConnection }
 	local last: { [string]: number } = {}
@@ -996,11 +1014,60 @@ local function watchCharacter(character: Model, isLocal: boolean): { RBXScriptCo
 			end
 		end)
 	end
+	local function flightCue(cueId: string)
+		if isLocal then
+			Audio.play(cueId)
+		else
+			once(cueId)
+		end
+	end
+	local cannon = character:GetAttributeChangedSignal("CannonLaunchAt"):Connect(function()
+		local launchAt = character:GetAttribute("CannonLaunchAt")
+		if
+			type(launchAt) ~= "number"
+			or not Logic.freshStart(launchAt, Workspace:GetServerTimeNow(), TACKLE_FRESH)
+		then
+			return
+		end
+		flightCue("cannonLaunch")
+		local function later(at: number, cueId: string)
+			task.delay(math.max(0, launchAt + at - Workspace:GetServerTimeNow()), function()
+				if
+					character.Parent ~= nil
+					and character:GetAttribute("CannonLaunchAt") == launchAt
+				then
+					flightCue(cueId)
+				end
+			end)
+		end
+		if isLocal then
+			later(CANNON_CLOUDS_AT, "cannonClouds")
+		end
+		local flight = (Config :: any).CannonLaunchSeconds
+		later(
+			(if type(flight) == "number" then flight else CANNON_FLIGHT) - CANNON_LAND_LEAD,
+			"cannonLand"
+		)
+	end)
+	local hop = character:GetAttributeChangedSignal("CloudHopAt"):Connect(function()
+		if
+			isLocal
+			and Logic.freshStart(
+				character:GetAttribute("CloudHopAt"),
+				Workspace:GetServerTimeNow(),
+				TACKLE_FRESH
+			)
+		then
+			Audio.play("cloudHop")
+		end
+	end)
 	return {
 		rush,
 		carry,
 		onTackle("TackleAt", "tackleLunge"),
 		onTackle("TackleMissAt", "tackleMiss"),
+		cannon,
+		hop,
 	}
 end
 
@@ -1169,7 +1236,11 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		Audio.play("bumpHeld", vec(position))
 	end,
 	CheckIn = function()
-		Audio.play("checkInBell", you())
+		if youInWild() then
+			Audio.play("campCheckIn") -- F84 (draft): a cat banked at a camp; the door bell stays the cafe's
+		else
+			Audio.play("checkInBell", you())
+		end
 	end,
 	CatFound = function(_catId: any, isNew: any)
 		if isNew ~= false then -- a cat you already have only rings the door bell (CheckIn)
@@ -1203,7 +1274,8 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	-- Fast travel, the My Cafe button and the manholes, once the server says the trip worked.
 	Travel = function()
 		lastTravelAt = os.clock()
-		Audio.play("travelPoof")
+		-- F84 (draft): leaving a wild area is a cloud hop (its gap keeps CloudHopAt from playing it twice)
+		Audio.play(if youInWild() then "cloudHop" else "travelPoof")
 	end,
 	-- Roles (Staff tab, Equip Best, Unequip All): one sound however many cats change in the same sync.
 	CatPlaced = function()

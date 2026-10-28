@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 13:59 UTC",
+  "generated": "2026-10-28 14:21 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -80105,7 +80105,7 @@
         "CatCafe_Sewer_Set_051_YarnTrolley_Decor",
         "CatCafe_Sewer_Set_052_PipeHammock"
       ],
-      "triangles": 36560,
+      "triangles": 36672,
       "budget": 80000,
       "size_studs": {
         "x": 93.2,
@@ -80286,10 +80286,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "36560/80000 tris",
+          "budget": "36672/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "19943 faces on swatch centers",
+          "uv": "19995 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.05"
@@ -82645,7 +82645,7 @@
         "CatCafe_Sewer_SetV32_113_Barrel",
         "CatCafe_Sewer_SetV32_114_Barrel"
       ],
-      "triangles": 89112,
+      "triangles": 89336,
       "budget": 120000,
       "size_studs": {
         "x": 179.2,
@@ -83088,10 +83088,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "89112/120000 tris",
+          "budget": "89336/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "46607 faces on swatch centers",
+          "uv": "46711 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.08"

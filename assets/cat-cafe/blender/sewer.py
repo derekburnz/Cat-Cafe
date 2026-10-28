@@ -160,12 +160,16 @@ def grate(mat):
 
 
 def drain_pipe(mat):
+    """The drain pipe trap (F27): a brick block with a big pipe out of it, its mouth wide enough for the stuck cat
+    (Derek 2026-10-28 14:17: "the sewer drain pipe should be bigger so that the cat model doesn't stick out the
+    sides"). The dark hole is 2.7 across with its floor 0.55 up, where Layout.setStuckPoses.drain_pipe stands the
+    cat."""
     b, glow = Builder(), Builder()
     b.box_base((0, 1.0, 0), (6.0, 2.0, 6.0), "brick")
-    b.cyl((1.0, -0.4, 1.2), 0.9, 2.8, "metal", segments=10, rot=rx(90))
-    b.cyl((1.0, -1.8, 1.2), 1.1, 0.3, "rust", segments=10, rot=rx(90))
-    b.cyl((1.0, -1.95, 1.2), 0.65, 0.1, "fur_black", segments=10, rot=rx(90), bevel=False)
-    b.box((1.0, -1.6, 0.05), (1.4, 1.2, 0.08), "puddle", bevel=False)
+    b.cyl((1.0, -0.4, 1.9), 1.6, 2.8, "metal", segments=14, rot=rx(90))
+    b.cyl((1.0, -1.8, 1.9), 1.85, 0.3, "rust", segments=14, rot=rx(90))
+    b.cyl((1.0, -1.95, 1.9), 1.35, 0.1, "fur_black", segments=14, rot=rx(90), bevel=False)
+    b.box((1.0, -1.6, 0.05), (2.4, 1.2, 0.08), "puddle", bevel=False)
     glow.ico((-1.6, -0.1, 4.5), 0.5, "mint", subdivisions=1, scale=(1, 0.5, 1))
     return [b.finalize(N + "DrainPipe", mat), glow.finalize(N + "DrainPipe_Glow", mat)]
 

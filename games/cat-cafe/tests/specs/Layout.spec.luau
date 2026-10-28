@@ -109,14 +109,14 @@ return function()
 
 		-- Model-Agent #401: the Neighbourhood, Woods and Sewer sets bring their cat spots and (but for the gutter)
 		-- their traps, turned with the set so its gate side faces the town; the Park's v3.2 set (#460) its cat spots,
-		-- its traps being the world's trees and bins; the Woods' v3.2 set (#470) its spots and traps, the hollow logs
-		-- turned in the set as well.
+		-- its traps being the world's trees and bins; the Woods' and the Sewer's v3.2 sets (#470, #491) their spots and
+		-- traps, the hollow logs and drain pipes turned in the set as well.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
 			local sets: { [string]: string } = {
 				park = "CatCafe_Park_Set",
 				neighbourhood = "CatCafe_Neighbourhood_Set",
 				woods = "CatCafe_Woods_SetV32",
-				sewer = "CatCafe_Sewer_Set",
+				sewer = "CatCafe_Sewer_SetV32",
 			}
 			for id, name in sets do
 				local spec = Layout.areas[id]
@@ -137,7 +137,10 @@ return function()
 						end
 					end
 				end
-				local pieceTurns: { number } = if id == "woods" then { 20, -20, 0, 0, -106.26 } else {}
+				local pieceTurns: { number } = if id == "woods"
+					then { 20, -20, 0, 0, -106.26 }
+					elseif id == "sewer" then { 0, 0, 90, -90 }
+					else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
 					if spot.prop == nil then
@@ -146,7 +149,7 @@ return function()
 					end
 				end
 				expect(built).to.equal(
-					if id == "park" then 0 elseif id == "neighbourhood" then 1 elseif id == "woods" then 5 else 2
+					if id == "park" then 0 elseif id == "neighbourhood" then 1 elseif id == "woods" then 5 else 4
 				)
 			end
 		end)
@@ -158,7 +161,7 @@ return function()
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
 				-- (19.6, -58.8) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
-				-- catwalk at local (3, -24) near its own
+				-- canal bridge at local (44, -61) near its own
 				local index = if id == "woods" then 8 else 1
 				local point = spec.spawnPoints[index]
 				local toGate = math.sqrt((point.x - (gx :: number)) ^ 2 + (point.z - (gz :: number)) ^ 2)
@@ -171,11 +174,14 @@ return function()
 
 		-- F81 (town-layout-v3.md section 8d): a v3.2 set tags each cat spot near (the gate half) or deep (the far
 		-- half, where Epic and rarer strays wait), and some of its traps are in the far half. The Woods' Great Oak
-		-- top is "rare" (Catching.RARE_ZONE), in the far half too.
+		-- top is "rare" (Catching.RARE_ZONE), in the far half too. The Sewer's zones go by region (#491): its near
+		-- spots are all in the gate half, but past the cross wall's arch is deep, the west hall's far chamber in the
+		-- gate half among it.
 		it("the v3.2 sets' spots are near their gates or deep in their far halves, with traps deep", function()
 			local rows = {
-				{ id = "park", near = 16, deep = 24, rare = 0, deepTraps = 3 },
-				{ id = "woods", near = 26, deep = 38, rare = 1, deepTraps = 3 },
+				{ id = "park", near = 16, deep = 24, rare = 0, deepTraps = 3, byRegion = false },
+				{ id = "woods", near = 26, deep = 38, rare = 1, deepTraps = 3, byRegion = false },
+				{ id = "sewer", near = 20, deep = 32, rare = 0, deepTraps = 2, byRegion = true },
 			}
 			for _, row in rows do
 				local spec = Layout.areas[row.id]
@@ -193,7 +199,10 @@ return function()
 					local zone = point.zone :: string
 					counts[zone] = (counts[zone] or 0) + 1
 					local inFrom = fromGate(point.x, point.z)
-					if (zone ~= "near") ~= (inFrom > middle) then
+					local wrong = if row.byRegion
+						then zone == "near" and inFrom > middle
+						else (zone ~= "near") ~= (inFrom > middle)
+					if wrong then
 						fail("%s spawn point %d (%s) is %.1f studs in from the gate", row.id, i, zone, inFrom)
 					end
 				end

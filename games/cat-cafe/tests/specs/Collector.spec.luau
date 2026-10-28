@@ -37,8 +37,8 @@ return function()
 				{ value = 1, fish = 5 },
 				{ value = 2, lures = { tuna = 3 }, spins = 1 },
 				{ value = 4, fish = 15 },
-				{ value = 7, crates = { zone = 1 } },
-				{ value = 12, crates = { zone = 1 }, fish = 20 },
+				{ value = 6, crates = { zone = 1 } },
+				{ value = 11, crates = { zone = 1 }, fish = 20 },
 				{ value = 20, crates = { zone = 2 } },
 				{ value = 35, crates = { golden = 1 } },
 				{ value = 60, crates = { golden = 1 }, fish = 50 },
@@ -76,9 +76,9 @@ return function()
 			expect(Collector.offerFor(1000).value).to.equal(120)
 		end)
 
-		-- the design's table of what each kind of cat gets; an Epic's lowest rolls (6.4 to 7) reach only the 15 fish
-		-- and its very best (12) a crate and 20 fish
-		it("gives a Common 5 fish, a Rare tuna and a spin or 15 fish, an Epic mostly a crate", function()
+		-- the design's table of what each kind of cat gets (Design #500: the crate rows at 6 and 11, so every Epic
+		-- gets a crate and its rolls from 11 to 12 20 fish with it)
+		it("gives a Common 5 fish, a Rare tuna and a spin or 15 fish, an Epic a crate or more", function()
 			local function offers(catId: string, variant: string): { [number]: boolean }
 				local seen: { [number]: boolean } = {}
 				for step = 0, 100 do
@@ -89,11 +89,12 @@ return function()
 			end
 			expect(offers(firstOf("Common"), "base") :: any).to.deepEqual({ [1] = true })
 			expect(offers(firstOf("Rare"), "base") :: any).to.deepEqual({ [2] = true, [4] = true })
-			expect(offers(firstOf("Epic"), "base") :: any).to.deepEqual({ [4] = true, [7] = true, [12] = true })
-			expect(offers(firstOf("Legendary"), "base") :: any).to.deepEqual({ [12] = true, [20] = true })
+			expect(offers(firstOf("Epic"), "base") :: any).to.deepEqual({ [6] = true, [11] = true })
+			expect(offers(firstOf("Legendary"), "base") :: any).to.deepEqual({ [11] = true, [20] = true })
 			expect(offers(firstOf("Mythical"), "base") :: any).to.deepEqual({ [35] = true, [60] = true })
 			-- features.md F63 done when: a gold Epic offers a crate and 20 fish, two crates or a golden crate
-			expect(offers(firstOf("Epic"), "gold") :: any).to.deepEqual({ [12] = true, [20] = true, [35] = true })
+			expect(offers(firstOf("Epic"), "gold") :: any).to.deepEqual({ [11] = true, [20] = true, [35] = true })
+			expect(offers(firstOf("Rare"), "gold") :: any).to.deepEqual({ [6] = true, [11] = true })
 			expect(offers(firstOf("Legendary"), "gold") :: any).to.deepEqual({ [35] = true, [60] = true })
 			expect(offers(firstOf("Mythical"), "gold") :: any).to.deepEqual({ [120] = true })
 		end)
@@ -142,7 +143,7 @@ return function()
 
 	describe("prize", function()
 		it("pays the cat's own area's crate and golden crate, fish, food and spins", function()
-			local zone = Collector.prize({ value = 12, crates = { zone = 1 }, fish = 20 }, "park")
+			local zone = Collector.prize({ value = 11, crates = { zone = 1 }, fish = 20 }, "park")
 			expect(zone :: any).to.deepEqual({ fish = 20, crates = { park_crate = 1 } })
 			expect(Catalog.getCrate("park_crate")).to.be.ok()
 			local golden = Collector.prize({ value = 120, crates = { golden = 2 }, fish = 100 }, "sewer")

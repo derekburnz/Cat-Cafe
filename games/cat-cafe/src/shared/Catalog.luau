@@ -1077,14 +1077,15 @@ end
 table.freeze(Catalog.mysteryGift)
 
 -- Section 12b (F63): the Cat Collector's offers by the value he puts on the cat, lowest first. He offers the best row
--- his value reaches, and the first below that, so a Common always gets 5 golden fish. A zone crate is the crate of
+-- his value reaches, and the first below that, so a Common always gets 5 golden fish. The crate rows start at 6 and 11
+-- (Design #500), so every Epic gets a crate and its best rolls 20 fish with it. A zone crate is the crate of
 -- the cat's own area and a golden crate its golden version (golden-fish.md section 4).
 Catalog.collectorOffers = {
 	{ value = 1, fish = 5 },
 	{ value = 2, lures = { tuna = 3 }, spins = 1 },
 	{ value = 4, fish = 15 },
-	{ value = 7, crates = { zone = 1 } },
-	{ value = 12, crates = { zone = 1 }, fish = 20 },
+	{ value = 6, crates = { zone = 1 } },
+	{ value = 11, crates = { zone = 1 }, fish = 20 },
 	{ value = 20, crates = { zone = 2 } },
 	{ value = 35, crates = { golden = 1 } },
 	{ value = 60, crates = { golden = 1 }, fish = 50 },
@@ -1113,7 +1114,7 @@ Catalog.dealerAmountWeights = {
 -- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
 -- open, with no top-ups during the day. Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
 -- and 4, 24 a day in all (was 10 each). Every side area's spawn points are its kit set's cat spots (Model-Agent
--- #401, the Park's and the Woods' v3.2 sets #460 and #470).
+-- #401, the Park's, the Woods' and the Sewer's v3.2 sets #460, #470 and #491).
 Catalog.areas = {
 	{
 		id = "alley",
@@ -1159,9 +1160,9 @@ Catalog.areas = {
 		id = "sewer",
 		name = "Sewer",
 		tier = 5,
-		spawnPoints = 20,
+		spawnPoints = 52, -- the v3.2 set's cat spots, 20 in the yard and the market and 32 deep (F81)
 		waveSize = 4,
-		rescueSpots = 2,
+		rescueSpots = 4, -- two grates and two drain pipes
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 		incomeMultiplier = AREA_INCOME.sewer,
 	},

@@ -624,4 +624,71 @@ return function()
 			end
 		end)
 	end)
+
+	describe("chase and announce edges (QA, F57 and F58)", function()
+		it("the UI's first wait is the first step, and every step is longer than the one before", function()
+			local steps = Config.StraySelfRetrySteps
+			expect(Config.StraySelfRetrySeconds).to.equal(steps[1])
+			expect(steps[1] > 0).to.equal(true)
+			for index = 2, #steps do
+				expect(steps[index] > steps[index - 1]).to.equal(true)
+			end
+		end)
+
+		it("a streak can build: the longest wait for any rarity is well under the 60 s reset", function()
+			-- a player who tries again the moment they may, and misses, must still be inside the streak window, or
+			-- the 6 and 10 s steps could never come up
+			local last = Config.StraySelfRetrySteps[#Config.StraySelfRetrySteps]
+			for _, rarity in Catalog.rarityOrder do
+				local wait = Catching.fleeUntil(0, Catching.fleeStuds(rarity)) + last
+				expect(wait < Config.StrayMissStreakResetSeconds).to.equal(true)
+				-- and each miss in a row keeps the streak going
+				local streak = Catching.nextMiss(nil, 0)
+				for misses = 2, 5 do
+					local at = Catching.fleeUntil(streak.at, Catching.fleeStuds(rarity))
+						+ Catching.selfRetrySeconds(streak.count)
+					streak = Catching.nextMiss(streak, at)
+					expect(streak.count).to.equal(misses)
+				end
+			end
+		end)
+
+		it("the one who missed always waits longer than everyone else, more with each miss in a row", function()
+			for _, rarity in Catalog.rarityOrder do
+				local everyone = Catching.fleeUntil(100, Catching.fleeStuds(rarity))
+				local before = everyone
+				for misses = 1, 5 do
+					local own = everyone + Catching.selfRetrySeconds(misses)
+					expect(own > everyone).to.equal(true)
+					expect(own >= before).to.equal(true)
+					before = own
+				end
+			end
+		end)
+
+		it("Startled is slower than carrying a cat, which is slower than walking", function()
+			expect(Config.StartledWalkSpeed > 0).to.equal(true)
+			expect(Config.StartledWalkSpeed < Config.CarryWalkSpeed).to.equal(true)
+			expect(Config.CarryWalkSpeed < Config.NormalWalkSpeed).to.equal(true)
+			expect(Config.StartledSeconds > 0).to.equal(true)
+		end)
+
+		it("every area's Mythical line names the area and no cat", function()
+			for _, area in Catalog.areas do
+				for _, variant in { "base", "gold" } do
+					local line = Catching.waveShoutOut("Mythical", variant, area.name) :: string
+					expect(line).to.be.ok()
+					expect(line:find(area.name, 1, true) ~= nil).to.equal(true)
+					expect(line:sub(1, 2)).to.equal("A ")
+					expect(line:sub(-1)).to.equal("!")
+					expect(line:find("gold ", 1, true) ~= nil).to.equal(variant == "gold")
+					for _, def in Catalog.cats do
+						if line:find(def.name, 1, true) ~= nil then
+							error(string.format("%q names the cat %s", line, def.name))
+						end
+					end
+				end
+			end
+		end)
+	end)
 end

@@ -75,11 +75,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		Net.toast(player, string.format("You have no %s left.", lure.name), "warn")
 		return
 	end
-	if not nearOwnBowl(player, Config.BaitBowlRangeStuds) then
-		Net.toast(player, "Walk to your bait bowl first.", "warn")
-		return
-	end
-
+	-- from anywhere (Derek 2026-10-28 01:28: food goes in from the F menu); it touches only the player's own bowl
 	if stock > 1 then
 		profile.lures[lureId] = stock - 1
 	else

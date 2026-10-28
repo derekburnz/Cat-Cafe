@@ -1,5 +1,5 @@
 --!strict
--- UI/Components/Wayfinding.luau: when location markers show, and which zones are safe.
+-- UI/Components/Wayfinding.luau: when the My Cafe marker shows, which zones are safe and the signpost arms.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -23,22 +23,6 @@ return function()
 
 		it("treats NaN as hidden", function()
 			expect(Wayfinding.alpha(0 / 0)).to.equal(0)
-		end)
-	end)
-
-	describe("Wayfinding.lockedAlpha (Derek 2026-10-28)", function()
-		it("shows a locked area's marker only right by its gate", function()
-			expect(Wayfinding.lockedAlpha(0)).to.equal(1)
-			expect(Wayfinding.lockedAlpha(Wayfinding.LOCKED_NEAR)).to.equal(1)
-			expect(Wayfinding.lockedAlpha(Wayfinding.LOCKED_FAR)).to.equal(0)
-			expect(Wayfinding.lockedAlpha(Wayfinding.FAR)).to.equal(0)
-			expect(Wayfinding.lockedAlpha(500)).to.equal(0)
-		end)
-
-		it("fades out between LOCKED_NEAR and LOCKED_FAR, NaN hidden", function()
-			local middle = (Wayfinding.LOCKED_NEAR + Wayfinding.LOCKED_FAR) / 2
-			expect(Wayfinding.lockedAlpha(middle)).to.be.near(0.5, 1e-9)
-			expect(Wayfinding.lockedAlpha(0 / 0)).to.equal(0)
 		end)
 	end)
 
@@ -67,29 +51,21 @@ return function()
 			expect(Wayfinding.isSafe("Cafe")).to.equal(true)
 			expect(Wayfinding.isSafe("Alley")).to.equal(false)
 		end)
-
-		it("names the area of a catching zone", function()
-			expect(Wayfinding.areaOf("Alley")).to.equal("alley")
-			expect(Wayfinding.areaOf("Neighbourhood")).to.equal("neighbourhood")
-			expect(Wayfinding.areaOf("Cafe")).never.to.be.ok()
-			expect(Wayfinding.areaOf(nil)).never.to.be.ok()
-		end)
 	end)
 
 	describe("Wayfinding edges (QA)", function()
 		-- WorldBuilder names each area's World.Zones boxes after its Catalog id with the first letter upper-cased
-		-- ("alley" -> "Alley"), and every plot's box "Cafe". The chip and the markers read those names back.
+		-- ("alley" -> "Alley"), and every plot's box "Cafe". The safe zone toast reads those names back.
 		local function zoneName(areaId: string): string
 			return areaId:sub(1, 1):upper() .. areaId:sub(2)
 		end
 
-		it("maps every Catalog area's zone box back to that area, never safe", function()
+		it("never counts a Catalog area's zone box as safe", function()
 			expect(#Catalog.areas >= 5).to.equal(true)
 			for _, area in Catalog.areas do
 				local zone = zoneName(area.id)
 				expect(zone).never.to.equal("Cafe")
 				expect(Wayfinding.isSafe(zone)).to.equal(false)
-				expect(Wayfinding.areaOf(zone)).to.equal(area.id)
 			end
 		end)
 
@@ -105,27 +81,17 @@ return function()
 			expect(Wayfinding.alpha(-math.huge)).to.equal(0)
 			expect(Wayfinding.alpha(math.huge)).to.equal(1)
 		end)
-	end)
 
-	describe("Wayfinding.pickBox", function()
-		it("takes the biggest box", function()
-			local boxes = { { area = 100, x = 5 }, { area = 400, x = -40 }, { area = 50, x = 90 } }
-			expect(Wayfinding.pickBox(boxes, 1)).to.equal(2)
-		end)
-
-		it("takes the one on the player's side when two are the same size", function()
-			local alleys = { { area = 7530, x = 78 }, { area = 7530, x = -78 } }
-			expect(Wayfinding.pickBox(alleys, 1)).to.equal(1)
-			expect(Wayfinding.pickBox(alleys, -1)).to.equal(2)
-		end)
-
-		it("takes the west one with no cafe", function()
-			local alleys = { { area = 7530, x = 78 }, { area = 7530, x = -78 } }
-			expect(Wayfinding.pickBox(alleys, nil)).to.equal(2)
-		end)
-
-		it("finds nothing in no boxes", function()
-			expect(Wayfinding.pickBox({}, 1)).never.to.be.ok()
+		it("keeps every marker between SCALE_MIN and full size and never grows it walking away (#408)", function()
+			local last = 1
+			for distance = -10, Wayfinding.SCALE_FAR + 60, 0.5 do
+				local scale = Wayfinding.scale(distance)
+				expect(scale >= Wayfinding.SCALE_MIN and scale <= 1).to.equal(true)
+				expect(scale <= last).to.equal(true)
+				last = scale
+			end
+			expect(Wayfinding.scale(math.huge)).to.equal(Wayfinding.SCALE_MIN)
+			expect(Wayfinding.scale(-math.huge)).to.equal(1)
 		end)
 	end)
 

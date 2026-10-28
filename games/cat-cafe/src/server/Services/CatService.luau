@@ -311,8 +311,9 @@ local function nap(stray: Stray): boolean
 	return canWander(stray)
 end
 
--- How far above its area's walking floor a stray's home is a perch it does not wander from.
-local PERCH_ABOVE = 0.6
+-- How far above its area's walking floor a stray's home is a perch it does not wander from: the Sewer trolley spot is
+-- 0.6 up, the Neighbourhood tyre, bins and van 0.24 to 0.32 (reviewer N224).
+local PERCH_ABOVE = 0.5
 
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
@@ -1220,6 +1221,10 @@ local function leaveAtDusk(stray: Stray)
 	Net.toast(owner, string.format("%s followed you home at dusk.", carry.def.name), "good")
 end
 
+-- The client asks as it comes within reach of a door; by the time the ask arrives a running player is a few studs
+-- on, so the server allows that much more.
+local CHECK_IN_LAG_STUDS = 4
+
 local function onCheckIn(player: Player)
 	local carry = carrying[player]
 	local plot = PlotService.get(player)
@@ -1227,13 +1232,53 @@ local function onCheckIn(player: Player)
 		return
 	end
 	-- Either door works (layout v2): the back door is the short way in from the back alley.
+	local range = Config.CheckInRangeStuds + CHECK_IN_LAG_STUDS
 	if
-		not withinRange(player, plot.door.Position, Config.CheckInRangeStuds)
-		and not withinRange(player, plot.backDoorZone.Position, Config.CheckInRangeStuds)
+		not withinRange(player, plot.door.Position, range)
+		and not withinRange(player, plot.backDoorZone.Position, range)
 	then
 		return
 	end
 	finishCheckIn(player, true)
+end
+
+-- How near the straight path from `from` to `to` passes `point`.
+local function pathDistance(from: Vector3, to: Vector3, point: Vector3): number
+	local step = to - from
+	local length = step:Dot(step)
+	local t = if length > 1e-6 then math.clamp((point - from):Dot(step) / length, 0, 1) else 0
+	return (from + step * t - point).Magnitude
+end
+
+-- The server's own check-in (Derek 2026-10-28 01:22: "make it friendlier so that you can't run past it"): ten times
+-- a second it checks every carrier's path since the last look, so one who runs straight past a door within
+-- CheckInRangeStuds is checked in even if the client's ask never came. A step longer than MAX_STEP_STUDS is a
+-- teleport or a respawn, not a walk, so only its end counts (review N225).
+local MAX_STEP_STUDS = 16
+local lastCarrierAt: { [Player]: Vector3 } = {}
+local function checkInPassing()
+	local seen: { [Player]: Vector3 } = {}
+	for player in carrying do
+		local position = rootPosition(player)
+		local plot = PlotService.get(player)
+		if position == nil or plot == nil then
+			continue
+		end
+		local from = lastCarrierAt[player] or position
+		if (position - from).Magnitude > MAX_STEP_STUDS then
+			from = position
+		end
+		seen[player] = position
+		local range = Config.CheckInRangeStuds
+		if
+			pathDistance(from, position, plot.door.Position) <= range
+			or pathDistance(from, position, plot.backDoorZone.Position) <= range
+		then
+			finishCheckIn(player, true)
+			seen[player] = nil
+		end
+	end
+	lastCarrierAt = seen
 end
 
 -- The Drop button (Derek 2026-10-27): lets go of the carried cat. In a catching area it lands DROP_AHEAD_STUDS in
@@ -1295,6 +1340,15 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	Net.on("GrabBegin", onGrabBegin)
 	Net.on("CatchPress", onCatchPress)
 	Net.on("CheckIn", onCheckIn)
+	task.spawn(function()
+		while true do
+			task.wait(0.1)
+			-- one bad carrier must not end the check-ins for the server's life (review N226, as N185)
+			xpcall(checkInPassing, function(err: unknown)
+				warn("[CatService] check-in: " .. tostring(err))
+			end)
+		end
+	end)
 	Net.on("DropCat", onDropCat)
 	Net.on("PickUpCat", onPickUpCat)
 	task.spawn(function()

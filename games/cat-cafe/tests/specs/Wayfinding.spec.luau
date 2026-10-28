@@ -105,6 +105,35 @@ return function()
 			expect(Wayfinding.alpha(-math.huge)).to.equal(0)
 			expect(Wayfinding.alpha(math.huge)).to.equal(1)
 		end)
+
+		it("never brightens a locked marker or grows any marker as the player walks away (#408)", function()
+			local lastLocked, lastScale = 1, 1
+			for distance = -10, Wayfinding.SCALE_FAR + 60, 0.5 do
+				local locked = Wayfinding.lockedAlpha(distance)
+				local scale = Wayfinding.scale(distance)
+				expect(locked >= 0 and locked <= 1).to.equal(true)
+				expect(locked <= lastLocked).to.equal(true)
+				expect(scale >= Wayfinding.SCALE_MIN and scale <= 1).to.equal(true)
+				expect(scale <= lastScale).to.equal(true)
+				lastLocked, lastScale = locked, scale
+			end
+			-- a locked marker is full right at its gate, where an open one has faded out
+			expect(Wayfinding.lockedAlpha(0)).to.equal(1)
+			expect(Wayfinding.lockedAlpha(-math.huge)).to.equal(1)
+			expect(Wayfinding.lockedAlpha(math.huge)).to.equal(0)
+			expect(Wayfinding.scale(math.huge)).to.equal(Wayfinding.SCALE_MIN)
+			expect(Wayfinding.scale(-math.huge)).to.equal(1)
+		end)
+
+		it("counts boxes within 1% of the biggest as the same size, and one 1.1% smaller as smaller", function()
+			-- the side the player is on decides only between boxes that are the same size
+			local close = { { area = 1000, x = -78 }, { area = 991, x = 78 } }
+			expect(Wayfinding.pickBox(close, 1)).to.equal(2)
+			expect(Wayfinding.pickBox(close, -1)).to.equal(1)
+			local smaller = { { area = 1000, x = -78 }, { area = 989, x = 78 } }
+			expect(Wayfinding.pickBox(smaller, 1)).to.equal(1)
+			expect(Wayfinding.pickBox(smaller, -1)).to.equal(1)
+		end)
 	end)
 
 	describe("Wayfinding.pickBox", function()

@@ -136,13 +136,34 @@ Theme.modal = {
 	subtext = Color3.fromHex("6A5B4F"),
 }
 
+-- `ink` is the rarity as text on a light card (odds rows, Derek 2026-10-28), dark enough to read at 14 px
 Theme.rarity = {
-	Common = { color = Color3.fromHex("8E97B2"), text = Color3.fromHex("FFFFFF") },
-	Rare = { color = Color3.fromHex("5FA8FF"), text = Color3.fromHex("FFFFFF") },
-	Epic = { color = Color3.fromHex("C07CFF"), text = Color3.fromHex("FFFFFF") },
-	Legendary = { color = Color3.fromHex("FFC94D"), text = Color3.fromHex("3A2A00") },
+	Common = {
+		color = Color3.fromHex("8E97B2"),
+		text = Color3.fromHex("FFFFFF"),
+		ink = Color3.fromHex("6E7691"),
+	},
+	Rare = {
+		color = Color3.fromHex("5FA8FF"),
+		text = Color3.fromHex("FFFFFF"),
+		ink = Color3.fromHex("2F80E0"),
+	},
+	Epic = {
+		color = Color3.fromHex("C07CFF"),
+		text = Color3.fromHex("FFFFFF"),
+		ink = Color3.fromHex("9A52E0"),
+	},
+	Legendary = {
+		color = Color3.fromHex("FFC94D"),
+		text = Color3.fromHex("3A2A00"),
+		ink = Color3.fromHex("9E7208"),
+	},
 	-- v0.3: Mythical replaces Secret (data-model section 2; the designer's proposed color)
-	Mythical = { color = Color3.fromHex("FF5E7E"), text = Color3.fromHex("FFFFFF") },
+	Mythical = {
+		color = Color3.fromHex("FF5E7E"),
+		text = Color3.fromHex("FFFFFF"),
+		ink = Color3.fromHex("E23D62"),
+	},
 }
 Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
@@ -294,6 +315,14 @@ function Theme.rarityTextColor(rarity: string?): Color3
 		return entry.text
 	end
 	return Theme.rarity.Common.text
+end
+
+function Theme.rarityInk(rarity: string?): Color3
+	local entry = (Theme.rarity :: any)[rarity or "Common"]
+	if entry then
+		return entry.ink
+	end
+	return Theme.rarity.Common.ink
 end
 
 return Theme

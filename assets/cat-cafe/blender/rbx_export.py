@@ -46,7 +46,8 @@ RZ90 = Matrix(((0, -1, 0), (1, 0, 0), (0, 0, 1)))   # Roblox local X (cylinder a
 # Asset families whose big parts block players. Everything else (cats, people, items, wall decor) is walk-through.
 COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Plot_", "CatCafe_Street_",
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_")
-NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle")
+NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
+                      "_Wheel", "_Pointer", "_RimLight")
 INVISIBLE_OBJECTS = ("_Fireflies",)   # volumes the effects code reads (where fireflies drift), never drawn
 TOUCH_OBJECTS = ("_CodesCircle",)    # parts the game code may watch with Touched; every other part has CanTouch off
 MIN_COLLIDE = 0.35                # thinner parts (trim, handles, bulbs) never collide
@@ -201,7 +202,7 @@ def _material(obname, swatch):
         return "SmoothPlastic", 1.0
     if any(k in obname for k in ALWAYS_LIT) and obname.endswith("_Bulb"):
         return "Neon", 0.0
-    if obname.endswith("_Glow"):
+    if obname.endswith(("_Glow", "_RimLight")):   # the Spin Wheel's rim lights: Neon, and SmoothPlastic when off
         return "Neon", 0.0
     if obname.endswith("_CodesCircle"):           # a see-through glowing pad you walk into, calm enough that the
         return "Neon", 0.85                       # ticket on it reads

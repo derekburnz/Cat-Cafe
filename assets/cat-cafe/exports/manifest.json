@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 01:41 UTC",
+  "generated": "2026-10-28 01:46 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -1370,6 +1370,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo.model.json",
       "rbx_parts": 37,
       "files": [
@@ -1933,6 +1945,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger.model.json",
       "rbx_parts": 36,
       "files": [
@@ -2494,6 +2518,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke.model.json",
       "rbx_parts": 36,
       "files": [
@@ -3052,6 +3088,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow.model.json",
       "rbx_parts": 34,
@@ -8916,6 +8964,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream.model.json",
       "rbx_parts": 36,
       "files": [
@@ -9479,6 +9539,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie.model.json",
       "rbx_parts": 42,
       "files": [
@@ -10037,6 +10109,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue.model.json",
       "rbx_parts": 34,
@@ -30581,6 +30665,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Gold.model.json",
       "rbx_parts": 37,
@@ -31137,6 +31233,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Ginger when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Gold.model.json",
       "rbx_parts": 34,
@@ -31691,6 +31799,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Smoke when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke_Gold.model.json",
       "rbx_parts": 36,
@@ -32242,6 +32362,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Snow when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Gold.model.json",
@@ -38027,6 +38159,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Cream when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream_Gold.model.json",
       "rbx_parts": 34,
@@ -38583,6 +38727,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Brownie when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Gold.model.json",
       "rbx_parts": 40,
@@ -39134,6 +39290,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blue when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Gold.model.json",
@@ -64425,7 +64593,7 @@
       ],
       "pivot": "base centre of the 26 stud opening; -Z faces the back alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Over each back alley's north end at (+-74, 87.5). Posts collide; ALLEY SQUARE reads from the back alley, BACK ALLEY from the square.",
+      "studio": "Over each back alley's north end at (+-78, 123.5). Posts collide; ALLEY SQUARE reads from the back alley, BACK ALLEY from the square.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Arch.model.json",
       "rbx_parts": 225,
       "files": [
@@ -68247,6 +68415,199 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Street_SpinWheel",
+      "category": "Street",
+      "module": "spinwheel",
+      "objects": [
+        "CatCafe_Street_SpinWheel",
+        "CatCafe_Street_SpinWheel_Wheel",
+        "CatCafe_Street_SpinWheel_Pointer",
+        "CatCafe_Street_SpinWheel_RimLight",
+        "CatCafe_Street_SpinWheel_Bulbs",
+        "CatCafe_Street_SpinWheel_Cat_Body",
+        "CatCafe_Street_SpinWheel_Cat_Head",
+        "CatCafe_Street_SpinWheel_Cat_Eye1",
+        "CatCafe_Street_SpinWheel_Cat_Eye2",
+        "CatCafe_Street_SpinWheel_Cat_EarL",
+        "CatCafe_Street_SpinWheel_Cat_EarR",
+        "CatCafe_Street_SpinWheel_Cat_Tail",
+        "CatCafe_Street_SpinWheel_Cat_LegF1",
+        "CatCafe_Street_SpinWheel_Cat_LegF2",
+        "CatCafe_Street_SpinWheel_Cat_Prop",
+        "CatCafe_Street_SpinWheel_Cat_Outfit"
+      ],
+      "triangles": 7572,
+      "budget": 9000,
+      "size_studs": {
+        "x": 13.56,
+        "y": 5.27,
+        "z": 13.82
+      },
+      "size_roblox": [
+        13.56,
+        13.82,
+        5.27
+      ],
+      "bounds_min": [
+        -6.78,
+        -2.99,
+        0.0
+      ],
+      "bounds_max": [
+        6.78,
+        2.28,
+        13.82
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_SpinWheel_Wheel": [
+          0.0,
+          0.0,
+          6.5
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Body": [
+          -5.35,
+          -0.75,
+          2.24
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Head": [
+          -5.35,
+          -0.89,
+          3.69
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Eye1": [
+          -5.04,
+          -1.63,
+          4.04
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Eye2": [
+          -5.66,
+          -1.63,
+          4.04
+        ],
+        "CatCafe_Street_SpinWheel_Cat_EarL": [
+          -4.95,
+          -1.01,
+          4.59
+        ],
+        "CatCafe_Street_SpinWheel_Cat_EarR": [
+          -5.75,
+          -1.01,
+          4.59
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Tail": [
+          -5.07,
+          0.02,
+          2.4
+        ],
+        "CatCafe_Street_SpinWheel_Cat_LegF1": [
+          -5.11,
+          -1.18,
+          3.12
+        ],
+        "CatCafe_Street_SpinWheel_Cat_LegF2": [
+          -5.59,
+          -1.18,
+          3.12
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Prop": [
+          -5.35,
+          -0.89,
+          3.69
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Outfit": [
+          -5.35,
+          -0.75,
+          2.24
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_SpinWheel_Wheel": [
+          0.0,
+          6.5,
+          0.0
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Body": [
+          5.35,
+          2.24,
+          -0.75
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Head": [
+          5.35,
+          3.69,
+          -0.89
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Eye1": [
+          5.04,
+          4.04,
+          -1.63
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Eye2": [
+          5.66,
+          4.04,
+          -1.63
+        ],
+        "CatCafe_Street_SpinWheel_Cat_EarL": [
+          4.95,
+          4.59,
+          -1.01
+        ],
+        "CatCafe_Street_SpinWheel_Cat_EarR": [
+          5.75,
+          4.59,
+          -1.01
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Tail": [
+          5.07,
+          2.4,
+          0.02
+        ],
+        "CatCafe_Street_SpinWheel_Cat_LegF1": [
+          5.11,
+          3.12,
+          -1.18
+        ],
+        "CatCafe_Street_SpinWheel_Cat_LegF2": [
+          5.59,
+          3.12,
+          -1.18
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Prop": [
+          5.35,
+          3.69,
+          -0.89
+        ],
+        "CatCafe_Street_SpinWheel_Cat_Outfit": [
+          5.35,
+          2.24,
+          -0.75
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_SpinWheel.model.json",
+      "rbx_parts": 539,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_SpinWheel.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_SpinWheel.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "7572/9000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4023 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.35"
         }
       }
     },

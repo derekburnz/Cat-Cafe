@@ -1,9 +1,10 @@
 --!strict
 -- Night dealer screen (F32, data-model section 8b), in the Grow a Garden seed shop style: "Fresh stock in
 -- 4:12" across the top, then each food the dealer has for you this window with its stock, its odds and one
--- green price button. A food in two slots shows once as "x2 Stock" (Components/DealerRows). Odds, the gold
--- chance and the charm star odds sit on every row before Buy (the growth thread's rules for random items), with
--- the per-cat split under Details, and each food wears its grade badge and border (F69). What is for sale comes
+-- green price button. A food in two slots shows once as "x2 Stock" (Components/DealerRows). The five-rarity odds
+-- sit on every row before Buy as one short row, each rarity in its colour (Derek 2026-10-28), and Details opens the
+-- food's line, the gold chance, the charm star odds and the per-cat split (the growth thread's rules for random
+-- items); each food wears its grade badge and border (F69). What is for sale comes
 -- only from UI.dealer.setStock (the DealerStock remote); the screen never guesses stock, and the server recomputes
 -- it on every BuyDealerFood.
 -- Opened by the cart's prompt (UI.dealer.open).
@@ -67,6 +68,11 @@ local function text(props: { [string]: any }): TextLabel
 		merged[key] = value
 	end
 	return Create("TextLabel", merged)
+end
+
+-- a rarity's odds colour as hex, for FoodOdds.rich
+local function rarityHex(rarity: string): string
+	return Theme.rarityInk(rarity):ToHex()
 end
 
 -- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
@@ -319,11 +325,13 @@ function Dealer._buildRows(self: any)
 			Name = "Odds",
 			Position = UDim2.fromOffset(TEXT_LEFT, 60),
 			Size = UDim2.new(1, -(TEXT_LEFT + TEXT_RIGHT), 0, ROW_HEIGHT - 66),
-			TextSize = Theme.sizes.textTiny,
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
-			Text = FoodOdds.line(def.odds) .. "\n" .. FoodOdds.extras(),
+			RichText = true,
+			Text = FoodOdds.rich(def.odds, rarityHex),
 			Parent = top,
 		})
 		local lureId = group.lureId
@@ -381,6 +389,7 @@ function Dealer._buildRows(self: any)
 			details = details,
 			detail = detail,
 			odds = odds,
+			split = nil :: string?, -- the per-cat split for the tier last drawn
 			group = group,
 		})
 	end
@@ -486,20 +495,21 @@ function Dealer._renderAll(self: any)
 	end
 	assert(state, "state")
 	local catalog: Types.Catalog? = self._catalog
-	if catalog and state.tier ~= self._tier then
+	local tierChanged = catalog ~= nil and state.tier ~= self._tier
+	if catalog and tierChanged then
 		self._tier = state.tier
 		for _, row in self._rows do
-			local def: Types.LureDef = row.group.def
-			row.detail.Text = def.description .. "\n" .. FoodOdds.split(catalog, def, state.tier)
+			row.split = FoodOdds.split(catalog, row.group.def, state.tier)
 		end
 	end
-	-- the gold chance with the Index's gold luck in it (F54)
+	-- Details: the food's line, the gold chance with the Index's gold luck in it (F54), the charm stars, the split
 	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
-	if luck ~= self._goldLuck then
+	if tierChanged or luck ~= self._goldLuck then
 		self._goldLuck = luck
 		for _, row in self._rows do
 			local def: Types.LureDef = row.group.def
-			row.odds.Text = FoodOdds.line(def.odds) .. "\n" .. FoodOdds.extras(luck)
+			local lines = { def.description, FoodOdds.extras(luck), row.split or "" }
+			row.detail.Text = table.concat(lines, "\n")
 		end
 	end
 	for _, row in self._rows do

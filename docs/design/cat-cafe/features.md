@@ -220,6 +220,15 @@ Derek: "expand all areas on the side to at least 4x the size it feels a little c
 |---|---|---|---|---|---|---|
 | F81 | Bigger side areas (town-layout-v3 section 8): each side area doubles its width and depth behind a gate that does not move. Park 160 x 120 at (0, -186), Neighbourhood 280 x 280 at (0, 266), Woods 240 x 240 at (-215, 0), Sewer 180 x 180 at (185, 0), GroundSize 880. Each area's main path winds about 1.6 times the straight distance, with blockers whose gaps alternate sides (Park about 10 s gate to far wall, Neighbourhood 23 s, Woods 19 s, Sewer 15 s on foot). Every raised walkway has steps (1 stud rises at most) or ramps (30 degrees at most) at both ends, bridges, decks and railings collide, and water is crossed only on bridges. Spawn points grow to 40, 72, 64 and 52, tagged `near` or `deep`; Epic and rarer strays take only `deep` points; traps double. Layout keeps each old set at its v3.1 place until its new set lands. No save change | P1 | L | asset, engineer | F77 as built | Each gate is still under 6.5 s from the fountain; no far wall can be reached in a straight line from its gate; every bridge and deck can be walked onto from both ends and not walked through; the Sewer channel is crossed only on its bridges; Epic and rarer side area strays appear only at `deep` points |
 
+## 2q. Bowl levels and harder minigames (Derek, 2026-10-28 12:14 and 12:15)
+
+Derek: "have the ability to get more food bowl upgrades and balance the rates around that" and "make the catching and rescue games harder". Spec in [data-model.md](data-model.md) sections 2, 6, 8, 10, 10b and 17 (v0.13.15). No save change: `upgradeLevels.lure_bowl` already holds a level.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F82 | Bowl levels: `lure_bowl` maxLevel 5 at 600 / 6,000 / 60,000 / 500,000 / 3,000,000, level n needs Tier n; names Bait, Comfy, Fancy, Deluxe and Royal Bowl; day wait BowlWaitSeconds 600 to 480 by level, the Big Bowl perk as BigBowlWaitMultiplier 0.8 on any level, night still half and `baitSpeed` after; BowlLuck 0 to 0.16 moves that share of each rarity's chance up one rarity through one shared `Bait.oddsFor`, used by the roll and every food card | P1 | M | engineer, ui, qa | F28, F53 | A Tier 3 player buys the Fancy Bowl for 60,000; Salmon then reads Legendary 10.22% on its card and the bowl rolls those odds; the wait reads 9:00 (7:12 with the Big Bowl, half at night); food already in the bowl keeps its roll and wait |
+| F83 | Harder catching and rescues: rarity `catchWindow` 0.9 / 0.8 / 0.7 / 0.6 / 0.5 times the net's windows, judged on the server and sent in CatchSchedule; the tree's falling-cat circle uses it too; RescueBarSpeed 1.0 to 1.8 and RescueZoneWidth 0.26 to 0.10 | P1 | S | engineer, qa | F26, F27 | A Basic Net Mythical shows bands half as wide as a Common's at the same net; a Legendary bar runs at 1.6 with a 0.12 zone; QA's Tier 2 re-time still lands inside 10 to 20 minutes |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

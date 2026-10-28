@@ -226,4 +226,104 @@ return function()
 			expect(Potions.giftPrize({ kind = "spin", count = 1 }) :: any).to.deepEqual({ spins = 1 })
 		end)
 	end)
+
+	describe("potion edges (QA)", function()
+		it("refuses a 10 minute potion at 55 minutes left and takes it at 50; a Swift fits at 55 exactly", function()
+			local p = fresh(1000)
+			p.potions.tip_potion = 1
+			p.potions.swift_potion = 1
+			p.buffs.tip_potion = 55 * 60
+			expect(Potions.useBlocker(p, "tip_potion", 1000)).to.equal("Full")
+			p.buffs.tip_potion = 50 * 60
+			expect(Potions.useBlocker(p, "tip_potion", 1000)).to.equal(nil)
+			p.buffs.swift_potion = 55 * 60
+			expect(Potions.useBlocker(p, "swift_potion", 1000)).to.equal(nil)
+			p.buffs.swift_potion = 55 * 60 + 1
+			expect(Potions.useBlocker(p, "swift_potion", 1000)).to.equal("Full")
+		end)
+
+		it("leaves the bag, the timer and potionsUsed alone on every refusal", function()
+			local p = fresh(1000)
+			p.buffs.lucky_potion = 120
+			expect(Potions.use(p, "lucky_potion", 1000)).to.equal(false) -- none in the bag
+			expect(Potions.use(p, "nope", 1000)).to.equal(false)
+			expect(p.buffs.lucky_potion).to.equal(120)
+			expect(p.potions.lucky_potion).to.equal(nil)
+			expect(p.stats.potionsUsed or 0).to.equal(0)
+		end)
+
+		it("never adds time when lastTick is ahead of now, and reads junk timers as not running", function()
+			local p = fresh(1000)
+			p.buffs.tip_potion = 100
+			expect(Potions.left(p, "tip_potion", 900)).to.equal(100)
+			p.buffs.tip_potion = 0 / 0
+			expect(Potions.running(p, "tip_potion", 1000)).to.equal(false)
+			p.buffs.tip_potion = "600"
+			expect(Potions.left(p, "tip_potion", 1000)).to.equal(0)
+			expect(Potions.tipMultiplier(p, 1000)).to.equal(1)
+			p.buffs.swift_potion = 1
+			expect(Potions.speedBonus(p, 1001)).to.equal(0) -- the second it ends, the speed goes
+		end)
+
+		it("ticks nothing for no time or negative time", function()
+			local p = fresh(1000)
+			p.buffs.tip_potion = 30
+			Potions.tick(p, 0)
+			Potions.tick(p, -50)
+			expect(p.buffs.tip_potion).to.equal(30)
+		end)
+
+		it("breaks a tie in time left by id, so a rejoin's order is fixed", function()
+			local p = fresh(1000)
+			p.buffs.tip_potion = 300
+			p.buffs.lucky_potion = 300
+			p.buffs.swift_potion = 300
+			expect(Potions.runningIds(p, 1000)).to.deepEqual({ "lucky_potion", "swift_potion", "tip_potion" })
+		end)
+
+		it("rolls only real gifts: a known potion, a known food, counts above 0, and the last row past 100", function()
+			local seen: { [string]: boolean } = {}
+			for i = 0, 99 do
+				for j = 0, 9 do
+					local values = { i / 100 + 0.004, j / 10 + 0.05 }
+					local n = 0
+					local gift = Potions.rollGift(function()
+						n += 1
+						return values[n] or 0
+					end)
+					expect(gift.count > 0).to.equal(true)
+					if gift.kind == "potion" then
+						expect(Catalog.getPotion(gift.id :: string) ~= nil).to.equal(true)
+					elseif gift.kind == "lure" then
+						expect(Catalog.getLure(gift.id :: string) ~= nil).to.equal(true)
+					end
+					seen[gift.kind .. ":" .. tostring(gift.id)] = true
+				end
+			end
+			for _, def in Catalog.potions do
+				expect(seen["potion:" .. def.id]).to.equal(true)
+			end
+			expect(seen["lure:salmon"] and seen["fish:nil"] and seen["spin:nil"]).to.equal(true)
+			local over = Potions.rollGift(function()
+				return 1
+			end)
+			expect(over.kind).to.equal("spin")
+		end)
+
+		it("pays nothing for a gift it cannot name", function()
+			expect(Potions.giftPrize({ kind = "potion", count = 1 } :: any) :: any).to.deepEqual({})
+			expect(Potions.giftPrize({ kind = "lure", count = 2 } :: any) :: any).to.deepEqual({})
+			expect(Potions.giftPrize({ kind = "hat", id = "x", count = 1 } :: any) :: any).to.deepEqual({})
+		end)
+
+		it("keeps the Config numbers the relay and data-model 12b give", function()
+			expect(Config.MysteryStaySeconds).to.equal(120)
+			expect(Config.MysteryGiftKeepSeconds).to.equal(600)
+			expect(Config.MysteryRangeStuds).to.equal(12)
+			expect(Config.PotionMaxMinutes).to.equal(60)
+			expect(Config.TipPotionBonus).to.equal(0.25)
+			expect(Config.SwiftPotionSpeed).to.equal(4)
+			expect(Config.LuckyPotionGoldScale).to.equal(2)
+		end)
+	end)
 end

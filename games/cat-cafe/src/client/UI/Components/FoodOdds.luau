@@ -9,16 +9,20 @@
 --   extras the gold chance (with the Index's gold luck in it, v0.10, and a running Gold Rush or Lucky Potion's,
 --          F73) and the charm star odds, because both change what the cat earns; under the card's Details since
 --          2026-10-28, with the split
---   waitSeconds how long the bowl's cat takes: LureWaitSeconds, or the Big Bowl perk's wait, half for food set at
---          night (F60), less the faster bait (the Index's, F54, plus a running Quick Bait Potion's, F73, the two
---          inside BaitSpeedMax), whole seconds as the server's Economy.baitWaitSeconds
--- Shared by the bait bowl screen and the night dealer.
+--   atBowl a food's odds in the player's bowl (F82): shared Bait.oddsFor at the lure_bowl level, as the server rolls
+--   waitSeconds how long the bowl's cat takes: the bowl level's wait (F82), a fifth off with the Big Bowl perk, half
+--          for food set at night (F60), less the faster bait (the Index's, F54, plus a running Quick Bait Potion's,
+--          F73, the two inside BaitSpeedMax), whole seconds as the server's Economy.baitWaitSeconds
+--   bowlStep the bait bowl's two shop lines: the next bowl and its wait, and one food's rarer cats (F82)
+-- Shared by the bait bowl screen, the night dealer and the upgrades shop.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Types = require(script.Parent.Parent.Types)
 
-local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Bait = require(Shared:WaitForChild("Bait"))
+local Config = require(Shared:WaitForChild("Config"))
 
 local FoodOdds = {}
 
@@ -31,9 +35,6 @@ local GOLD_CHANCE: number = Config.GoldChanceBait
 local STAR_ODDS: { number } = Config.CharmStarOdds
 local GOLD_LUCK_MAX: number = (Config :: any).GoldLuckMax or 1.5
 local BAIT_SPEED_MAX: number = (Config :: any).BaitSpeedMax or 0.5
-local WAIT_SECONDS: number = Config.LureWaitSeconds
-local BIG_BOWL_SECONDS: number = (Config :: any).BigBowlLureWaitSeconds or WAIT_SECONDS
-local NIGHT_SECONDS: number = Config.LureWaitSecondsNight -- F60: 300, so night food waits half
 
 -- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two
 -- decimals, so a food's per-cat split adds back up to its rarity's share (reviewer N69).
@@ -79,10 +80,26 @@ function FoodOdds.rich(odds: Types.LureOdds?, hexOf: (rarity: string) -> string)
 	return table.concat(parts, "   ")
 end
 
+-- A food's odds in a bowl of `bowlLevel` (F82): the server rolls shared Bait.oddsFor at the player's lure_bowl
+-- level, so every card shows the same. No bowl (0) or a level 1 bowl keeps the food's own odds.
+function FoodOdds.atBowl(odds: Types.LureOdds?, bowlLevel: number?): Types.LureOdds?
+	if not odds then
+		return nil
+	end
+	assert(odds, "odds not set")
+	return Bait.oddsFor(odds, bowlLevel or 0)
+end
+
 -- Bait picks the cat uniformly among that rarity's cats in every area the player has unlocked (data-model
--- section 8), so the pool grows with the tier. "Rare 22%: Calico 11%, Siamese 11%"
-function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: number): string
-	local odds = lure.odds
+-- section 8), so the pool grows with the tier. "Rare 22%: Calico 11%, Siamese 11%". The shares are the bowl's
+-- (F82), and a bowl with luck says so on the last line.
+function FoodOdds.split(
+	catalog: Types.Catalog,
+	lure: Types.LureDef,
+	tier: number,
+	bowlLevel: number?
+): string
+	local odds = FoodOdds.atBowl(lure.odds, bowlLevel)
 	if not odds then
 		return "Odds not set for this food yet."
 	end
@@ -138,6 +155,16 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 			)
 		)
 	end
+	local luck = Bait.luck(bowlLevel or 0)
+	if luck > 0 then
+		table.insert(
+			lines,
+			("Your %s moves %s of each rarity's chance up one rarity."):format(
+				Bait.bowlName(bowlLevel or 0),
+				percent(luck * 100)
+			)
+		)
+	end
 	return table.concat(lines, "\n")
 end
 
@@ -166,16 +193,77 @@ function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: numb
 	return ("Gold %s · Charm %s"):format(gold, table.concat(stars, ", "))
 end
 
--- The bait wait for food going in now, as the server's Economy.baitWaitSeconds: the Big Bowl perk's wait or
--- LureWaitSeconds, cut to LureWaitSecondsNight's share when it goes in at night (F60: 300 s, or 240 with the Big
--- Bowl), less the faster bait. The server adds a hair before flooring for the summed percents' float error, so this
--- does too (372 s, not 371).
-function FoodOdds.waitSeconds(bigBowl: boolean, baitSpeed: number?, night: boolean?): number
-	local base = if bigBowl then BIG_BOWL_SECONDS else WAIT_SECONDS
-	if night then
-		base = math.floor(base * NIGHT_SECONDS / WAIT_SECONDS)
-	end
+-- The bait wait for food going in now, as the server's Economy.baitWaitSeconds: shared Bait.waitSeconds for the
+-- bowl's level (F82: 600 s down to 480), a fifth off with the Big Bowl perk, LureWaitSecondsNight's share of it at
+-- night (F60: half), then less the faster bait. The server adds a hair before flooring for the summed percents' float
+-- error, so this does too (372 s, not 371).
+function FoodOdds.waitSeconds(
+	bowlLevel: number,
+	bigBowl: boolean,
+	baitSpeed: number?,
+	night: boolean?
+): number
+	local base = Bait.waitSeconds(bowlLevel, bigBowl, night)
 	return math.floor(base * (1 - math.clamp(baitSpeed or 0, 0, BAIT_SPEED_MAX)) + 1e-6)
+end
+
+-- 570 -> "9m 30s", 480 -> "8m" (Format.duration's style, which this module cannot load in the cloud test runner)
+local function minutes(seconds: number): string
+	local mins = seconds // 60
+	local secs = seconds % 60
+	if mins == 0 then
+		return ("%ds"):format(secs)
+	end
+	return if secs == 0 then ("%dm"):format(mins) else ("%dm %ds"):format(mins, secs)
+end
+
+-- The example food on the bowl's shop row: the Salmon, else the first shop food (design F82)
+local function exampleFood(catalog: Types.Catalog): Types.LureDef?
+	local first: Types.LureDef? = nil
+	local lures: { Types.LureDef } = catalog.lures or {}
+	for _, lure in lures do
+		if lure.id == "salmon" and lure.odds then
+			return lure
+		elseif first == nil and lure.odds and lure.source ~= "dealer" then
+			first = lure
+		end
+	end
+	return first
+end
+
+-- The bait bowl's row in the upgrades shop (F82), two short lines for a bowl at `level` (0 when not bought):
+--   "Next: Comfy Bowl · 9m 30s wait"
+--   "Rarer bait cats: Salmon Legendary 8.5% to 9.36%", the rarity one up from what the food attracts
+-- With no bowl the second line is nil, so the row keeps the catalog's description; at the top level the first line
+-- names the bowl you have. The wait is the day wait, with the Big Bowl perk's fifth off when owned.
+function FoodOdds.bowlStep(
+	catalog: Types.Catalog,
+	level: number,
+	bigBowl: boolean
+): (string, string?)
+	if level >= Bait.MAX_LEVEL then
+		return ("%s · %s wait"):format(
+			Bait.bowlName(level),
+			minutes(Bait.waitSeconds(level, bigBowl))
+		),
+			"Top bowl: bait cats at their rarest"
+	end
+	local nextLevel = level + 1
+	local first = ("Next: %s · %s wait"):format(
+		Bait.bowlName(nextLevel),
+		minutes(Bait.waitSeconds(nextLevel, bigBowl))
+	)
+	local food = exampleFood(catalog)
+	if level < 1 or not food then
+		return first, nil
+	end
+	local lure = food :: Types.LureDef
+	local index = table.find(RARITIES, lure.attracts) or 1
+	local rarity = RARITIES[math.min(index + 1, #RARITIES)]
+	local now = (FoodOdds.atBowl(lure.odds, level) :: any)[rarity] or 0
+	local after = (FoodOdds.atBowl(lure.odds, nextLevel) :: any)[rarity] or 0
+	return first,
+		("Rarer bait cats: %s %s %s to %s"):format(lure.name, rarity, percent(now), percent(after))
 end
 
 return FoodOdds

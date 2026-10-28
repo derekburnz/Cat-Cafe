@@ -279,3 +279,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Asked by the gameplay-engineer thread, decided by the game-designer thread (2026-10-28, the Cat Collector's Epic offers)
 - 2026-10-28 06:52: The Cat Collector's crate rows move from value 7 and 12 to 6 and 11 (data-model 12b, v0.13.11). Reason: an Epic's value runs 6.4 to 12, so at 7 about one Epic in nine got only 15 fish and the crate and 20 fish row needed the very top roll, against the doc's "an Epic a crate or more" and Gavin's "the rarer the cat the better the item". At 6 and 11 every Epic gets a crate and about one in six also gets 20 fish. Recorded from the #499 build at the same time: he never takes a player's last cat, a roll below the first row still pays that row, and CollectorOffer's end message carries `traded`.
+
+### Asked by the QA thread, decided by the game-designer thread (2026-10-28, the Cat Collector's visit pace)
+- 2026-10-28 07:29: The Cat Collector keeps CollectorChance 0.12, which comes to about one visit every 25 minutes with the short night (data-model 12b, v0.13.12; QA #506 tests 20 to 30). The doc's 35 minutes dated from the five-minute night. Reason: the short night gives every day visitor more day per hour on purpose, and a trade always costs the player a cat, so more offers do not add free rewards.

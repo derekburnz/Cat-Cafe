@@ -73,6 +73,7 @@ type Carry = {
 	startedAt: number, -- server time
 	immuneUntil: number, -- server time; after "It held on tight!" (BumpChance below 1 only)
 	funnel: Telemetry.CatchFunnel?, -- the catch_attempt funnel this cat came from (F16)
+	rushUntil: number?, -- server time the Catch Rush ends (F55); nil for a picked-up cat
 }
 
 -- What a Dropped cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
@@ -639,6 +640,51 @@ local function withArticle(phrase: string): string
 	return (if phrase:match("^[AEIOUaeiou]") then "an " else "a ") .. phrase
 end
 
+-- The getaway after a net catch or a rescue (v0.8 F55, data-model section 10c). Every other player within
+-- CatchBurstRadiusStuds is pushed CatchBurstStuds straight away from the catcher by their own client (CatchBurst, the
+-- shove's push without its hold), unless they are in a catch or rescue, so nobody is pushed into a miss. It is not a
+-- shove: nothing drops and no shove table or cooldown changes. The catcher walks at CatchRushWalkSpeed for
+-- CatchRushSeconds, then at carry speed if still carrying this cat. `RushUntil` on the catcher and `PushedAt` on each
+-- pushed player are for the ring, the speed lines, the skid and the getaway sound (data-model section 13).
+local function getaway(player: Player, carry: Carry)
+	local character = player.Character
+	local rootInstance = if character ~= nil
+		then character:FindFirstChild("HumanoidRootPart")
+		else nil
+	if character == nil or rootInstance == nil or not rootInstance:IsA("BasePart") then
+		return
+	end
+	local root = rootInstance :: BasePart
+	local now = serverNow()
+	carry.rushUntil = now + Config.CatchRushSeconds
+	character:SetAttribute("RushUntil", carry.rushUntil)
+	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+	if humanoid ~= nil then
+		humanoid.WalkSpeed = Config.CatchRushWalkSpeed
+	end
+	task.delay(Config.CatchRushSeconds, function()
+		local current = player.Character
+		local nowHumanoid = if current ~= nil
+			then current:FindFirstChildOfClass("Humanoid") :: Humanoid?
+			else nil
+		if carrying[player] == carry and nowHumanoid ~= nil then
+			nowHumanoid.WalkSpeed = Config.CarryWalkSpeed
+		end
+	end)
+	local facing = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+	local fallback = if facing.Magnitude > 0.05 then facing.Unit else Vector3.new(0, 0, -1)
+	for _, other in Players:GetPlayers() do
+		local at = if other ~= player then rootPosition(other) else nil
+		if at ~= nil and Shove.inBurst(root.Position, at) and not CatService.inMinigame(other) then
+			local otherCharacter = other.Character
+			if otherCharacter ~= nil then
+				otherCharacter:SetAttribute("PushedAt", now)
+			end
+			Net.fire(other, "CatchBurst", Shove.direction(root.Position, at, fallback))
+		end
+	end
+end
+
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it. `method` is
 -- "net" or "rescue"; `variant` "gold" shows on the held cat and in the toast. `pickedUp` is a Dropped cat taken
 -- with PickUpCat (v0.8 F56): only the toast says so, the carry is like any other.
@@ -673,6 +719,9 @@ local function startCarry(
 	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
+	if pickedUp ~= true then
+		getaway(player, carry) -- a net catch or a rescue; picking up a dropped cat gives neither (F55)
+	end
 	CafeService.setCarrying(player, def.id)
 	local profile = DataService.get(player)
 	if profile ~= nil then
@@ -715,6 +764,9 @@ local function endCarry(player: Player): Carry?
 		else nil
 	if humanoid ~= nil then
 		humanoid.WalkSpeed = Config.NormalWalkSpeed
+	end
+	if character ~= nil and carry.rushUntil ~= nil and carry.rushUntil > serverNow() then
+		character:SetAttribute("RushUntil", 0) -- checked in or knocked loose mid-rush: the speed lines stop (F55)
 	end
 	return carry
 end

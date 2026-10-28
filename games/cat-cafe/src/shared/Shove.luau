@@ -162,6 +162,13 @@ function Shove.direction(shover: Vector3, target: Vector3, fallback: Vector3): V
 	return flat.Unit
 end
 
+-- The getaway (v0.8 F55, section 10c): whether a player at `other` is pushed by a catch or rescue at `catcher`,
+-- within CatchBurstRadiusStuds root to root. The caller skips the catcher and anyone in a catch or rescue; the burst
+-- is not a shove, so none of the shove protections apply.
+function Shove.inBurst(catcher: Vector3, other: Vector3): boolean
+	return (other - catcher).Magnitude <= Config.CatchBurstRadiusStuds
+end
+
 function Shove.newDrop(owner: number, shover: number, now: number): Drop
 	return {
 		owner = owner,

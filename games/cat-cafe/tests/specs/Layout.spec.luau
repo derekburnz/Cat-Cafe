@@ -106,6 +106,55 @@ return function()
 				end
 			end
 		end)
+
+		-- Model-Agent #401: the Neighbourhood, Woods and Sewer sets bring their cat spots and (but for the gutter)
+		-- their traps, turned with the set so its gate side faces the town.
+		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
+			local sets: { [string]: string } = { neighbourhood = "Neighbourhood", woods = "Woods", sewer = "Sewer" }
+			for id, name in sets do
+				local spec = Layout.areas[id]
+				expect(spec.set).to.equal("CatCafe_" .. name .. "_Set")
+				local turn = Layout.gateTurn(spec)
+				for i, point in spec.spawnPoints do
+					-- on the ground or a low perch (a porch, a rock, the catwalk), never a roof
+					if point.y < spec.floorY or point.y > spec.floorY + 4 then
+						fail("%s spawn point %d stands at y %g", id, i, point.y)
+					end
+					expect(point.rotY).to.equal(turn)
+					for j, spot in spec.rescueSpots do
+						local apart = math.sqrt((point.x - spot.x) ^ 2 + (point.z - spot.z) ^ 2)
+						if apart < 4 then
+							fail("%s spawn point %d is %.1f studs from rescue spot %d", id, i, apart, j)
+						end
+					end
+				end
+				local built = 0
+				for _, spot in spec.rescueSpots do
+					if spot.prop == nil then
+						built += 1
+						expect(spot.rotY).to.equal(turn)
+					end
+				end
+				expect(built).to.equal(if id == "neighbourhood" then 1 else 2)
+			end
+		end)
+
+		it("a set spot turns with the set: its -Z side toward the gate", function()
+			for _, id in { "neighbourhood", "woods", "sewer" } do
+				local spec = Layout.areas[id]
+				local gx, gz = Layout.gatePosition(spec)
+				expect(gx).to.be.ok()
+				-- the Neighbourhood's porch at local (19.6, -58.8) is near its gate side, the Woods' bridge at local
+				-- (-8.4, -36.5) near its own, the Sewer's catwalk at local (3, -24) near its own
+				local index = if id == "neighbourhood" then 1 elseif id == "woods" then 4 else 1
+				local point = spec.spawnPoints[index]
+				local toGate = math.sqrt((point.x - (gx :: number)) ^ 2 + (point.z - (gz :: number)) ^ 2)
+				local toCenter = math.sqrt((point.x - spec.center.x) ^ 2 + (point.z - spec.center.z) ^ 2)
+				if toGate >= toCenter then
+					fail("%s spawn point %d is %.1f from the gate and %.1f from the centre", id, index, toGate, toCenter)
+				end
+			end
+		end)
 	end)
 
 	describe("the Alleyway out back (world-and-feel section 2, F35)", function()

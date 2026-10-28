@@ -80,6 +80,13 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 		duck = true,
 	},
+	jingleDailyCard = {
+		ids = { "rbxassetid://99160708780154" },
+		group = "Music",
+		volume = 0.7,
+		minGap = 1,
+		duck = true,
+	}, -- F70: day 7 fills the Daily Treat card; the UI plays it instead of uiDailyStamp, its own stamp included
 
 	-- Ambience beds by zone and phase, and 3D world loops (section 4) ---------------------------------------
 	-- Derek 2026-10-27: no ambience beds or cafe door loop, the quiet music plays instead; their files were
@@ -534,6 +541,12 @@ local Cues: { [string]: Cue } = {
 		volume = 0.7,
 		minGap = 1,
 	}, -- F65: a code worked (a wrong one is uiError)
+	uiDailyStamp = {
+		ids = { "rbxassetid://89023008668503" },
+		group = "Ui",
+		volume = 0.7,
+		minGap = 1,
+	}, -- F70: a Daily Treat stamp claimed, days 1 to 6 (the UI plays it)
 	uiTrade = { ids = { "rbxassetid://96571316013787" }, group = "Ui", volume = 0.7, minGap = 1 }, -- F63: a trade with the Cat Collector
 	announce = { ids = { "rbxassetid://140320161816899" }, group = "Ui", volume = 0.6, minGap = 1 },
 	announceMythical = {

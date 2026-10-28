@@ -333,6 +333,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Size = UDim2.new(1, -(DETAIL_HEIGHT + 20), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.subtext,
+		RichText = true, -- the favourite role in bold
 		Text = "Grey border Common, blue Rare, purple Epic, gold Legendary.",
 		Parent = detail,
 	})
@@ -500,7 +501,7 @@ function CatCollection._select(self: any, catId: string)
 	local meta = {}
 	table.insert(meta, Format.rate(def.incomePerSecond))
 	if def.favoriteRole then
-		table.insert(meta, "loves " .. Format.roleName(def.favoriteRole))
+		table.insert(meta, Format.lovesRole(def.favoriteRole, Theme.modal.text))
 	end
 	if def.area == SPARE_AREA then
 		table.insert(meta, "a spare cat, not in any area for now")

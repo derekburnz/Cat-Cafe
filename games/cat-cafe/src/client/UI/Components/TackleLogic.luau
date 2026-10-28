@@ -17,7 +17,7 @@ local function number(value: unknown, fallback: number): number
 	return if type(value) == "number" and value == value then value else fallback
 end
 
-TackleLogic.REACH = number(Config.TackleLungeStuds, 12) -- the ground arrow's length
+TackleLogic.REACH = number(Config.TackleLungeStuds, 12) -- how far the lunge goes
 TackleLogic.LUNGE = number(Config.TackleLungeSeconds, 0.35)
 TackleLogic.COOLDOWN = number(Config.TackleCooldownSeconds, 8)
 TackleLogic.HIT_RECOVER = number(Config.TackleHitRecoverSeconds, 0.4)

@@ -2,7 +2,7 @@
 -- Rank up card (F24, data-model section 5b): the current tier, the next tier's name, each requirement
 -- ticked or not (coins, different cats, a rarity from Tier 3) and what the next tier opens. The button
 -- only lights up when everything is met; the server checks it all again on RankUp.
--- RankUp.progress is shared with the HUD's tier pill so both always agree.
+-- RankUp.progress is shared with the HUD's tier and goal block so both always agree.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -13,6 +13,7 @@ local Types = require(script.Parent.Parent.Types)
 
 export type Requirement = {
 	label: string, -- "5 different cats"
+	short: string, -- "Different cats", the HUD goal block's caption over its bar, where the status says how many
 	status: string, -- "3 / 5" or "Done"
 	fraction: number, -- 0 to 1
 	met: boolean,
@@ -74,6 +75,7 @@ end
 
 local function requirement(
 	label: string,
+	short: string,
 	have: number,
 	need: number,
 	haveText: string?,
@@ -82,6 +84,7 @@ local function requirement(
 	local met = have >= need
 	return {
 		label = label,
+		short = short,
 		status = if met
 			then "Done"
 			else ("%s / %s"):format(
@@ -158,6 +161,7 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 			requirements,
 			requirement(
 				Format.money(nextTier.cost) .. " coins",
+				"Coins",
 				state.money,
 				nextTier.cost,
 				Format.money(state.money),
@@ -168,6 +172,7 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 			requirements,
 			requirement(
 				("%d different cats"):format(nextTier.distinctCats),
+				"Different cats",
 				#ids,
 				nextTier.distinctCats
 			)
@@ -192,7 +197,10 @@ function RankUp.progress(catalog: Types.Catalog, state: Types.PlayerState): Prog
 					RARITY_WORDS[count] or tostring(count),
 					needsRarity
 				)
-			table.insert(requirements, requirement(label, have, count))
+			table.insert(
+				requirements,
+				requirement(label, ("%s or better"):format(needsRarity), have, count)
+			)
 		end
 		opens = opensList(catalog, current, nextTier)
 	end

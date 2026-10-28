@@ -6,9 +6,9 @@ base pivot goes) is in SIT_POINTS and in exports/manifest.json.
 
 import math
 
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 
-from common import Builder
+from common import RB, Builder
 
 SIT_POINTS = {
     "CatCafe_Furniture_Cushion": (0, 0, 0.46),
@@ -21,6 +21,19 @@ SIT_POINTS = {
     "CatCafe_Furniture_GreeterPodium": (1.6, 0.0, 0.24),     # role stations: the cat stands upright here
     "CatCafe_Furniture_StageCatTree": (0.0, -0.3, 0.44),
 }
+
+
+# F79 bedtime (data-model 12c), in Roblox axes from each model's pivot: where a sleeping cat's pivot goes (Sleep_),
+# a perch it only hops through on the way up (Hop_) and the floor it sets off from (Foot); all face the room (-Z).
+# To reach a spot a cat hops through every Hop_ and Sleep_ lower than it, in height order; no hop rises over 2.6.
+TREE_SPOTS = {"Sleep_Top": (-0.5, 4.47, -0.4), "Sleep_Shelf": (0.5, 2.35, 0.3), "Foot": (0.5, 0.0, -1.5)}
+BED_R, BED_RIM, BED_H, BED_TOP = 1.45, 0.42, 0.62, 0.36     # outer radius, rim thickness and height, cushion top
+BED_SPOTS = {"Sleep": (0.0, BED_TOP, 0.05), "Foot": (0.0, 0.0, -1.5)}
+
+
+def spot_attachments(name, spots):
+    """(object suffix, Attachment name, Blender 4x4) for rbx_export, one per spot."""
+    return [(name, n, Matrix.Translation(Vector(RB.p(*p)))) for n, p in spots.items()]
 
 
 def _sit_pad(b, p, swatch="mint", r=0.55):
@@ -240,6 +253,26 @@ def build_stage_cat_tree(mat):
     return [b.finalize("CatCafe_Furniture_StageCatTree_Stage", mat), bulbs.finalize("CatCafe_Furniture_StageCatTree_Bulbs", mat)]
 
 
+def build_cat_bed(mat):
+    """F79: a round plush bed for a cat to sleep in at night (Tier 3 to 5 dressing). Pivot base centre, the rim dips
+    at the front (-Z) where the cat steps in."""
+    b = RB()
+    b.cyl((0, 0.05, 0), BED_R - 0.05, 0.1, "dark_wood", segments=16)                         # the bed's base
+    b.cyl((0, 0.23, 0.05), BED_R - BED_RIM + 0.02, 0.26, "offwhite", segments=16)          # cushion, top at BED_TOP
+    n = 16
+    for k in range(n):
+        a = 2 * math.pi * (k + 0.5) / n                                    # 0 at +X, the front (-Z) at 270 degrees
+        front = max(0.0, -math.sin(a))                                     # 1 at the front, 0 from the sides back
+        h = BED_H - 0.28 * front ** 2
+        rr = BED_R - BED_RIM / 2
+        x, z = rr * math.cos(a), rr * math.sin(a)
+        chord = 2 * BED_R * math.sin(math.pi / n) * 1.04
+        turn = Matrix.Rotation(-a, 3, "Y")                                 # its long side along the rim
+        b.box((x, 0.1 + h / 2, z), (BED_RIM, h, chord), "blush", rot=turn)
+        b.box((x, 0.1 + h + 0.03, z), (BED_RIM - 0.14, 0.06, chord - 0.02), "pastel_lilac", rot=turn)   # piping
+    return [b.finalize("CatCafe_Furniture_CatBed", mat)]
+
+
 ASSETS = {
     "CatCafe_Furniture_Counter": (build_counter, 3000),
     "CatCafe_Furniture_EspressoMachine_L1": (lambda m: build_espresso(1, m), 800),
@@ -254,4 +287,5 @@ ASSETS = {
     "CatCafe_Furniture_Chair": (build_chair, 800),
     "CatCafe_Furniture_GreeterPodium": (build_greeter_podium, 800),
     "CatCafe_Furniture_StageCatTree": (build_stage_cat_tree, 1400),
+    "CatCafe_Furniture_CatBed": (build_cat_bed, 800),
 }

@@ -334,6 +334,12 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)
+            extra = {"attachments": furniture.spot_attachments(name, furniture.TREE_SPOTS)}
+        if name == "CatCafe_Furniture_CatBed":
+            extra = {"attachments": furniture.spot_attachments(name, furniture.BED_SPOTS)}
+        if name == "CatCafe_Decor_CatTreeTower":
+            extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on

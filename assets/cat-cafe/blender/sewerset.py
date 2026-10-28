@@ -11,10 +11,11 @@ Behind the front the sewer is roofed (Derek 2026-10-28 01:39: "higher walls poss
 area"): two brick halls either side of a central channel, lit through grated skylights. The channel runs from a pool
 at the far wall, where the culvert pours in out of the wall itself (Derek 01:40: "needs to be attached to the wall"),
 to the yard's canal. The east hall's cross wall leaves one archway at its east end; the market is before it, the cat
-houses after it. The only way over the channel is a steel catwalk at the far end, into the west hall: the junk
-throne by the far wall, and the far chamber with the boat, the raft and the hammock. About 300 studs gate to throne
+houses after it. Two steel catwalks cross the channel (8b): one in the yard by the tunnel front, out to the west
+bank, and one at the far end, the only way into the west hall: the junk throne by the far wall, and the far
+chamber with the boat, the raft and the hammock. About 300 studs gate to throne
 against 180 straight. Every tunnel mouth in the walls is finished (Derek 01:41): a stone frame, an arch, depth, and
-iron bars, an iron door or a water grate. Water is only crossed on the two bridges (8c): `_Barrier` walls stand on
+iron bars, an iron door or a water grate. Water is only crossed on the three bridges (8c): `_Barrier` walls stand on
 every kerb and round the pool, open only at the bridges, and a 30 high `_Barrier` stands in the wall band all round
 but the gate.
 
@@ -52,7 +53,8 @@ CH_HW = 4.0                          # the central channel's water, x -4..4
 POOL, POOL_R = (0.0, 72.0), 11.0     # the pool under the culvert, against the far wall
 BRANCH_Z, BRANCH_HW, BRANCH_END = 12.0, 3.0, -50.0   # the west hall's side canal, from the channel to x -50
 B1X = 44.0                           # the yard bridge, and the walk-in arch behind it
-B2Z = 50.0                           # the catwalk over the channel
+B2Z = 50.0                           # the catwalk over the channel at the far end
+FB_Z = -47.4                         # the footbridge over the channel in the yard, in front of the tunnels
 E1_Z, E1_T, E1_GAP = 4.0, 3.0, 66.0  # the east hall's cross wall, z 4..7, open from x 66 to the east wall
 MOUTH_W = 12.0
 CULVERT_W = 17.0                     # the culvert's headwall, built into the far wall
@@ -120,8 +122,8 @@ def voussoirs(b, cx, spring, r, y0, y1, swatch="concrete", n=11, thick=1.2, key=
     for k in range(n):
         a = PI * (k + 0.5) / n
         is_key = k == n // 2
-        d0 = y0 - (key_out if is_key else 0)
-        b.box((cx + rm * math.cos(a), (d0 + y1) / 2, spring + rm * math.sin(a)), (L, y1 - d0, thick + 0.2 * is_key),
+        d0, d1 = y0 - (key_out if is_key else 0), y1 - 0.01 * is_key           # no shared back face with the key
+        b.box((cx + rm * math.cos(a), (d0 + d1) / 2, spring + rm * math.sin(a)), (L, d1 - d0, thick + 0.2 * is_key),
               key if is_key else swatch, bevel=False, rot=ry(90 - math.degrees(a)))
 
 
@@ -148,11 +150,11 @@ def tunnel_mouth(mat, kind, w=MOUTH_W, H=WALL_H, spring=8.0):
     r = w / 2
     for s in (-1, 1):                                                             # the jambs
         b.box_base((s * (r + 1.0), (WALL_D - 0.6) / 2, 0), (2.0, WALL_D + 0.6, H), "concrete", bevel=False)
-        b.box_base((s * (r + 1.0), -0.45, 0), (2.4, 0.3, 1.4), "concrete_dark", bevel=False)      # plinth
-        b.box((s * (r + 1.0), -0.42, spring), (2.4, 0.36, 0.5), "concrete_dark", bevel=False)     # impost
+        b.box_base((s * (r + 1.0), -0.5, 0), (2.4, 0.3, 1.4), "concrete_dark", bevel=False)       # plinth
+        b.box((s * (r + 1.0), -0.5, spring), (2.4, 0.4, 0.5), "concrete_dark", bevel=False)       # impost
     arch_fill(b, 0, w, spring, H, 0.0, WALL_D)
-    voussoirs(b, 0, spring, r, -0.4, WALL_D)
-    back.box_base((0, WALL_D - 0.15, 0), (w, 0.3, spring + r), "fur_ink", bevel=False)           # the dark beyond
+    voussoirs(b, 0, spring, r, -0.4, WALL_D - 0.02)
+    back.box_base((0, WALL_D - 0.19, 0), (w, 0.3, spring + r), "fur_ink", bevel=False)           # the dark beyond
     voussoirs(back, 0, spring - 0.6, r - 0.9, WALL_D - 0.9, WALL_D - 0.3, "fur_soot", n=9, thick=0.8,
               key="fur_soot", key_out=0)
     for s in (-1, 1):
@@ -182,7 +184,7 @@ def tunnel_mouth(mat, kind, w=MOUTH_W, H=WALL_H, spring=8.0):
             a = PI * (k + 1) / 6
             b.box((r / 2 * math.cos(a), 0.6, spring + r / 2 * math.sin(a)), (r - 0.6, 0.22, 0.22), IRON, bevel=False,
                   rot=ry(-math.degrees(a)))
-        b.box((0, 0.6, spring + 0.1), (w - 0.1, 0.3, 0.3), IRON, bevel=False)
+        b.box((0, 0.6, spring + 0.1), (w - 0.1, 0.28, 0.3), IRON, bevel=False)
     bar.box_base((0, 0.6, 0), (w, 0.6, spring + r), "offwhite", bevel=False)
     return [b.finalize(N + "TunnelMouth", mat), back.finalize(N + "TunnelMouth_Decor", mat),
             bar.finalize(N + "TunnelMouth_Barrier", mat)]
@@ -351,12 +353,25 @@ def corner_pier(mat, H):
     return [b.finalize(N + "CornerPier", mat)]
 
 
+def corner_column(mat, sx):
+    """A far corner of the tunnels (area space, sx 1 east, -1 west): a concrete column filling the corner of the wall
+    band and standing 1.5 into the room, so neither wall's pipes and courses run into the other's brick. Base course
+    and capital as the pillars have them."""
+    b = Builder()
+    for (d, h0, h1, sw_) in ((0.0, 0, WALL_H, "concrete"), (0.12, 0, 1.6, "concrete_dark"),
+                             (0.12, WALL_H - 2.0, WALL_H - 1.2, "concrete_dark")):
+        e = OUT - (0.02 if d else 0.0)                                            # trims stop short of the back
+        x0, x1 = sorted((sx * (IN - 1.5 - d), sx * e))
+        span(b, x0, x1, IN - 1.5 - d, e, h0, h1, sw_)
+    return [b.finalize(N + "CornerColumn", mat)]
+
+
 # ------------------------------------------------------------- water, pool ---
 def canals(mat):
     """The yard's canal across the whole width (out under the side walls' grates), the central channel from the
     canal to the pool, the west hall's branch and the pool itself, each with a dark bed, water (Derek: `_Water`) and
     kerbs 1.2 above the walkway with a yellow edge; `_Barrier` walls on every kerb and round the pool, open only at
-    the two bridges, and along the bridges' sides."""
+    the three bridges, and along the bridges' sides."""
     b, water, bar = Builder(), Builder(), Builder()
     cz0, cz1 = CANAL_Z - CANAL_HW, CANAL_Z + CANAL_HW
     ch0, ch1 = cz1, POOL[1] - POOL_R                              # the channel's water, canal to the weir
@@ -369,8 +384,8 @@ def canals(mat):
     span(water, -CH_HW + 0.2, CH_HW - 0.2, ch1 - 0.62, ch1 - 0.5, 0.3, 0.78, "fish_blue")    # spilling over it
     span(b, -CH_HW + 0.2, CH_HW - 0.2, ch1 - 1.4, ch1 - 0.62, 0.3, 0.36, "fish_belly")       # its foam
 
-    def kerb(x0, x1, z0, z1, gap=None):
-        """A kerb with its yellow edge; gap (a0, a1) along its length leaves the barrier open there."""
+    def kerb(x0, x1, z0, z1, gaps=()):
+        """A kerb with its yellow edge; each gap (a0, a1) along its length leaves the barrier open there."""
         span(b, x0, x1, z0, z1, 0, KERB_H, "concrete_dark")
         along_x = (x1 - x0) > (z1 - z0)
         if along_x:
@@ -380,9 +395,9 @@ def canals(mat):
             xm = (x0 + x1) / 2
             span(b, xm - 0.2, xm + 0.2, z0, z1, KERB_H, KERB_H + 0.05, "rarity_legend")
         pieces = [(x0, x1, z0, z1)]
-        if gap:
-            g = (gap[0], gap[1], -1e9, 1e9) if along_x else (-1e9, 1e9, gap[0], gap[1])
-            pieces = rects_minus(pieces, [g])
+        if gaps:
+            pieces = rects_minus(pieces, [(g[0], g[1], -1e9, 1e9) if along_x else (-1e9, 1e9, g[0], g[1])
+                                          for g in gaps])
         for (a0, a1, c0, c1) in pieces:
             L = (a1 - a0) if along_x else (c1 - c0)
             n = max(1, round(L / 24.0))
@@ -404,17 +419,18 @@ def canals(mat):
     span(bar, b1[0] - 0.7, b1[0] - 0.1, cz0, cz1, 0, BARRIER_H, "offwhite")   # along the bridge's sides
     span(bar, b1[1] + 0.1, b1[1] + 0.7, cz0, cz1, 0, BARRIER_H, "offwhite")
     kz = POOL[1] - math.sqrt((POOL_R + KERB_W) ** 2 - (CH_HW + KERB_W / 2) ** 2) + 0.3   # where the ring takes over
-    b2 = (B2Z - 2.5, B2Z + 2.5)
+    gaps = [(z - 2.5, z + 2.5) for z in (FB_Z, B2Z)]                            # the two catwalks
     for sx in (-1, 1):                                                          # the channel's kerbs
         x0, x1 = sorted((sx * CH_HW, sx * (CH_HW + KERB_W)))
         z0 = cz1 + KERB_W
         if sx < 0:                                                              # the branch opens off the west kerb
             for (a, c) in ((z0, BRANCH_Z - BRANCH_HW), (BRANCH_Z + BRANCH_HW, kz)):
-                kerb(x0, x1, a, c, gap=b2 if a < B2Z < c else None)
+                kerb(x0, x1, a, c, gaps=[g for g in gaps if a < g[0] < c])
         else:
-            kerb(x0, x1, z0, kz, gap=b2)
-    for sz in (-1, 1):
-        span(bar, -CH_HW, CH_HW, B2Z + sz * 2.9 - 0.3, B2Z + sz * 2.9 + 0.3, 0, BARRIER_H, "offwhite")
+            kerb(x0, x1, z0, kz, gaps=gaps)
+    for z in (FB_Z, B2Z):                                                       # along the catwalks' sides
+        for sz in (-1, 1):
+            span(bar, -CH_HW, CH_HW, z + sz * 2.9 - 0.3, z + sz * 2.9 + 0.3, 0, BARRIER_H, "offwhite")
     for sz in (-1, 1):                                                          # the branch's kerbs and its end
         z0, z1 = sorted((BRANCH_Z + sz * BRANCH_HW, BRANCH_Z + sz * (BRANCH_HW + KERB_W)))
         kerb(BRANCH_END - KERB_W, -CH_HW - KERB_W, z0, z1)
@@ -448,22 +464,25 @@ def culvert(mat):
     Front at y 0 (facing -Y), back at 1.5 against the wall's face; base on the slab."""
     b, water, glow, foam = Builder(), Builder(), Builder(), Builder()
     W, D, H = CULVERT_W, 1.5 + WALL_D, WALL_H - FLOOR                            # through the wall band too
-    b.box_base((0, D / 2, 0), (W, D, H), "brick", bevel=False)
+    b.box_base((0, D / 2, -FLOOR), (W - 0.04, D, H + FLOOR - 0.02), "brick", bevel=False)      # down past the slab
     for s in (-1, 1):                                                             # stone piers
-        b.box_base((s * (W / 2 - 0.9), D / 2 - 0.3, 0), (1.8, D + 0.6, H), "concrete", bevel=False)
-    b.box_base((0, D / 2 - 0.2, H - 1.2), (W - 3.6, D + 0.4, 1.2), "concrete", bevel=False)        # coping band
+        b.box_base((s * (W / 2 - 0.9), D / 2 - 0.31, 0.02 - FLOOR), (1.8, D + 0.58, H + FLOOR - 0.02), "concrete",
+                   bevel=False)
+    b.box_base((0, D / 2 - 0.21, H - 1.2), (W - 3.6, D + 0.38, 1.2), "concrete", bevel=False)        # coping band
     cz = 9.0
     b.ring((0, -0.1, cz), 4.6, 1.2, 0.5, "concrete", segments=20, rot=rx(90))                       # stone ring
     b.cyl((0, -1.1, cz), 3.4, 2.4, "concrete_dark", segments=20, rot=rx(90))                         # the pipe
     b.ring((0, -2.2, cz), 3.6, 0.5, 0.5, "metal", segments=20, rot=rx(90))                          # its rim
     b.cyl((0, -2.32, cz), 2.7, 0.04, "fur_ink", segments=20, rot=rx(90), bevel=False)               # dark inside
-    water.box((0, -2.0, cz - 2.55), (3.6, 0.6, 0.4), "fish_blue", bevel=False)                       # pouring over
+    water.box((0, -2.02, cz - 2.55), (3.6, 0.6, 0.4), "fish_blue", bevel=False)                       # pouring over
     water.box((0, -2.75, (cz - 2.55 + 0.35) / 2), (3.4, 0.5, cz - 2.55 - 0.35), "fish_blue", bevel=False)
     foam.ico((0, -3.4, 0.45), 2.2, "fish_belly", subdivisions=1, scale=(1.6, 1.0, 0.18))
     for (x, z) in ((-5.2, 15.5), (4.8, 3.2), (-4.0, 2.0)):
         glow.ico((x, -0.05, z), 0.6, "mint", subdivisions=1, scale=(1.2, 0.4, 0.8))
     for k in range(5):                                                            # iron rungs up the side
         b.box((W / 2 - 3.0, -0.25, 3.0 + k * 1.6), (1.2, 0.2, 0.2), IRON, bevel=False)
+        for dx in (-0.5, 0.5):                                                    # set into the wall
+            b.box((W / 2 - 3.0 + dx, -0.1, 3.0 + k * 1.6), (0.16, 0.3, 0.16), IRON, bevel=False)
     return [b.finalize(N + "Culvert", mat), water.finalize(N + "Culvert_Water", mat),
             glow.finalize(N + "Culvert_Glow", mat), foam.finalize(N + "Culvert_Decor", mat)]
 
@@ -584,11 +603,11 @@ def tunnel_front(mat):
         for k in range(n):
             t = PI * (k + 0.5) / n
             key = k == n // 2
-            bx, by, bz = bl(cx + rm * math.cos(t), (z0 + z1) / 2 - 0.2 * key, spring + rm * math.sin(t))
-            b.box((bx, by, bz), (L, z1 - z0 + 0.8 + 0.4 * key, 1.4 + 0.3 * key), "concrete_dark" if key else "concrete",
+            bx, by, bz = bl(cx + rm * math.cos(t), (z0 + z1) / 2 - 0.21 * key, spring + rm * math.sin(t))
+            b.box((bx, by, bz), (L, z1 - z0 + 0.8 + 0.38 * key, 1.4 + 0.3 * key), "concrete_dark" if key else "concrete",
                   bevel=False, rot=ry(-(90 - math.degrees(t))))
         for s in (-1, 1):                                                         # imposts
-            span(b, cx + s * (r + 0.1), cx + s * (r + 1.1), z0 - 0.4, z1 + 0.4, spring - 0.25, spring + 0.25,
+            span(b, cx + s * (r + 0.1), cx + s * (r + 1.1), z0 - 0.5, z1 + 0.5, spring - 0.25, spring + 0.25,
                  "concrete_dark")
         if kind == "walk":
             span(b, a, c, z0, z1, 0, FLOOR, "concrete_dark")                       # the threshold
@@ -610,13 +629,13 @@ def tunnel_front(mat):
     span(b, -IN, IN, z0 - 0.8, z0, WALL_H - 1.2, WALL_H, "concrete")             # cornice
     span(b, -IN, IN, z0 - 0.5, z0, WALL_H - 2.0, WALL_H - 1.2, "concrete_dark")
     courses(-IN + 1.5, IN - 1.5, z0 - 0.3, z0, 0, 1.2, "concrete_dark")          # base courses
-    courses(-IN, IN, z1, z1 + 0.25, 0, 1.2, "concrete_dark")
+    courses(-IN + 1.5, IN - 1.5, z1, z1 + 0.25, 0, 1.2, "concrete_dark")
     courses(-IN + 1.5, IN - 1.5, z0 - 0.3, z0, YARD_H, YARD_H + 0.4, "concrete")  # in line with the yard walls' tops
     # the sign over the channel arch
     span(b, -9.0, 9.0, z0 - 0.5, z0, 12.6, 16.6, "sign_teal")
     span(b, -9.4, 9.4, z0 - 0.45, z0 - 0.05, 12.2, 17.0, IRON)
     tw = text_width("THE SEWER", 0.5)
-    rb.text("THE SEWER", (tw / 2, 13.35, z0 - 0.55), 0.5, 0.1, "offwhite", right=(-1, 0, 0))
+    rb.text("THE SEWER", (tw / 2, 13.35, z0 - 0.54), 0.5, 0.1, "offwhite", right=(-1, 0, 0))
     for x in (B1X - 9.4, B1X + 9.4, -B1X - 9.4, -B1X + 9.4):                   # lanterns by the arches
         bx, by, _ = bl(x, z0)
         b.box_base((bx, by - 0.3, 7.0), (2.0, 0.6, 2.0), "brick", bevel=False)
@@ -637,7 +656,7 @@ def cross_wall(mat):
     x0 = CH_HW + KERB_W
     span(b, x0, E1_GAP, z0, z1, 0, WALL_H, "brick")
     for (za, zb) in ((z0 - 0.3, z0), (z1, z1 + 0.3)):
-        span(b, x0, E1_GAP, za, zb, 0, 1.2, "concrete_dark")
+        span(b, x0, E1_GAP - 0.6, za, zb, 0, 1.2, "concrete_dark")                 # into the arch's jamb
         span(b, x0, E1_GAP, za, zb, 14.0, 14.4, "concrete")
     xe = IN - 1.2                                                                 # the arch's east jamb
     w = xe - E1_GAP
@@ -656,19 +675,29 @@ def cross_wall(mat):
         t = PI * (k + 0.5) / n
         key = k == n // 2
         bx, by, bz = bl(cx + rm * math.cos(t), (z0 + z1) / 2, spring + rm * math.sin(t))
-        b.box((bx, by, bz), (L, z1 - z0 + 0.8, 1.2 + 0.3 * key), "concrete_dark" if key else "concrete", bevel=False,
-              rot=ry(-(90 - math.degrees(t))))
+        b.box((bx, by, bz), (L, z1 - z0 + 0.8 + 0.1 * key, 1.2 + 0.3 * key), "concrete_dark" if key else "concrete",
+              bevel=False, rot=ry(-(90 - math.degrees(t))))
     span(b, E1_GAP - 1.2, E1_GAP, z0 - 0.4, z1 + 0.4, 0, spring, "concrete")         # the arch's west jamb
     span(b, E1_GAP - 1.4, E1_GAP + 0.2, z0 - 0.5, z1 + 0.5, spring - 0.25, spring + 0.25, "concrete_dark")
     return [b.finalize(N + "CrossWall", mat)]
 
 
 # -------------------------------------------------------------- the roof ---
-def roof(mat):
+def roof(mat, piers=()):
     """The roof over the tunnels (area space), its underside at WALL_H: a slab with grated skylights over the channel,
     the pool and each hall (so daylight falls in), brick beams under it on brick pillars, cage lamps hanging from the
-    beams (_Bulb, lit at night), and on top the skylights' curbs and a few vent stacks."""
+    beams (_Bulb, lit at night), and on top the skylights' curbs and a few vent stacks. A beam that meets a wall
+    pier (piers: their area positions) stops at the face of the pier's cap."""
     b, lamp = Builder(), Builder()
+
+    def stop(along, at, end):
+        """Where a beam at `at` running to the wall at `end` (+-IN) along z (along "z") or x stops."""
+        for (px, pz) in piers:
+            a, w = (px, pz) if along == "z" else (pz, px)
+            if abs(a - at) < 2.4 and abs(w - end) < 1.0:
+                return end - math.copysign(0.75, end)
+        return end
+
     z_front = FACADE_Z
     rects = rects_minus([(-OUT, OUT, z_front, OUT)], [(a, c, d, e) for (a, c, d, e) in SKYLIGHTS])
     for i, (x0, x1, z0, z1) in enumerate(rects):
@@ -693,10 +722,11 @@ def roof(mat):
     zs = sorted({z for (_, z) in PILLARS})
     xs = sorted({x for (x, _) in PILLARS})
     for x in xs:                                                                  # beams along z on the pillars
-        for (za, zc) in (((FACADE_Z + FACADE_T, E1_Z), (E1_Z + E1_T, IN)) if x > 0 else ((FACADE_Z + FACADE_T, IN),)):
+        far = stop("z", x, IN)
+        for (za, zc) in (((FACADE_Z + FACADE_T, E1_Z), (E1_Z + E1_T, far)) if x > 0 else ((FACADE_Z + FACADE_T, far),)):
             span(b, x - 0.8, x + 0.8, za, zc, WALL_H - 1.4, WALL_H, "brick")
     for z in zs:                                                                  # and across, hall by hall
-        for (x0, x1) in ((-IN, -CH_HW - KERB_W - 1.0), (CH_HW + KERB_W + 1.0, IN)):
+        for (x0, x1) in ((stop("x", z, -IN), -CH_HW - KERB_W - 1.0), (CH_HW + KERB_W + 1.0, stop("x", z, IN))):
             span(b, x0, x1, z - 0.8, z + 0.8, WALL_H - 1.4 - 0.006, WALL_H - 0.006, "brick")
     for (x, z) in PILLARS:                                                        # the pillars
         span(b, x - 1.2, x + 1.2, z - 1.2, z + 1.2, FLOOR, WALL_H - 1.4, "brick")
@@ -705,7 +735,7 @@ def roof(mat):
     for (x, z) in [(sx * 45.0, z) for sx in (-1, 1) for z in (-30.0, 24.0, 62.0)]:  # cage lamps off the beams
         span(b, x - 0.08, x + 0.08, z - 0.08, z + 0.08, WALL_H - 5.0, WALL_H - 1.4, IRON)
         span(b, x - 0.7, x + 0.7, z - 0.7, z + 0.7, WALL_H - 5.2, WALL_H - 5.0, IRON)
-        lamp.box_base(bl(x, z, WALL_H - 6.6), (0.9, 0.9, 1.3), "lamp_warm", bevel=False)
+        lamp.box_base(bl(x, z, WALL_H - 6.8), (0.9, 0.9, 1.6), "lamp_warm", bevel=False)
         for dx in (-0.55, 0.55):
             for dz in (-0.55, 0.55):
                 span(b, x + dx - 0.06, x + dx + 0.06, z + dz - 0.06, z + dz + 0.06, WALL_H - 6.8, WALL_H - 5.2, IRON)
@@ -737,14 +767,15 @@ def _walls(s, mat):
         cuts = [(z - m, z + m) for (z, _) in mouths]
         if sx > 0:                                                                # the cross wall's end
             cuts.append((E1_Z - 0.4, E1_Z + E1_T + 0.4))
-        piers += _line(s, mat, FACADE_Z + FACADE_T, IN, cuts, WALL_H, hall,
+        piers += _line(s, mat, FACADE_Z + FACADE_T, IN - 1.5, cuts, WALL_H, hall,
                        lambda t, sx=sx, rot=rot: (sx * IN, t, rot), seed + 1)
         s.put(corner_pier(mat, YARD_H), sx * (IN + WALL_D / 2), -(IN + WALL_D / 2), 0)
-    # the far wall (z +IN, facing -Z), across the corners, round the mouths and the culvert's headwall
+        s.put(corner_column(mat, sx), 0, 0, 0)
+    # the far wall (z +IN, facing -Z), between the corner columns, round the mouths and the culvert's headwall
     far_mouths = [(-50.0, "bars"), (50.0, "door")]
     for (x, kind) in far_mouths:
         s.put(tunnel_mouth(mat, kind), x, IN, 0)
-    piers += _line(s, mat, -OUT, OUT, [(x - m, x + m) for (x, _) in far_mouths] + [(-CULVERT_W / 2, CULVERT_W / 2)],
+    piers += _line(s, mat, -(IN - 1.5), IN - 1.5, [(x - m, x + m) for (x, _) in far_mouths] + [(-CULVERT_W / 2, CULVERT_W / 2)],
                    WALL_H, hall, lambda t: (t, IN, 0), 4)
     # the town side: low wall and railing either side of the gate
     for sx in (-1, 1):
@@ -803,7 +834,7 @@ def walk_grid(step=1.0, margin=1.0):
     import heapq
     blocks = [(r[0] - margin, r[1] + margin, r[2] - margin, r[3] + margin) for r in
               rects_minus([CANAL_RECT], [(B1X - 3.4, B1X + 3.4, -1e9, 1e9)]) +
-              rects_minus([CHANNEL_RECT], [(-1e9, 1e9, B2Z - 2.2, B2Z + 2.2)]) +
+              rects_minus([CHANNEL_RECT], [(-1e9, 1e9, z - 2.2, z + 2.2) for z in (FB_Z, B2Z)]) +
               [BRANCH_RECT] + rects_minus([FACADE_RECT], [(B1X - ARCH_W / 2, B1X + ARCH_W / 2, -1e9, 1e9)]) + [E1_RECT] +
               [(x - 1.5, x + 1.5, z - 1.5, z + 1.5) for (x, z) in PILLARS]]
 
@@ -851,12 +882,13 @@ def build_set(mat):
     s.put(canals(mat), 0, 0, 0)
     s.put(tunnel_front(mat), 0, 0, 0)
     s.put(cross_wall(mat), 0, 0, 0)
-    s.put(roof(mat), 0, 0, 0)
+    s.put(roof(mat, [p for (p, _) in piers]), 0, 0, 0)
     put(culvert(mat), POOL[0], IN - 1.5, 0)
     put(brick_bridge(mat), B1X, CANAL_Z, 0)
     _spot(s, "bridge", B1X, CANAL_Z, h=2.4)
     put(catwalk_bridge(mat), 0, B2Z, 90)
     _spot(s, "bridge", 0, B2Z, h=3.2)
+    put(catwalk_bridge(mat), 0, FB_Z, 90)                                       # out to the yard's west bank
     # wall lanterns on every other pier, 7 up (_Bulb, lit at night)
     for i, ((x, z), rot) in enumerate(piers):
         if i % 2 == 0:
@@ -886,7 +918,7 @@ def build_set(mat):
     put(sw.steam_vent(mat), 26, -82, 0)
     put(sw.glow_mushrooms(mat), -56, -73, 0)
     _spot(s, "glow_mushrooms", -56, -76.5)
-    put(sw.steam_vent(mat), -8, -48, 0)
+    put(sw.steam_vent(mat), -16, -51, 0)
     for (x, z) in ((-30, -44), (-27.6, -45.5)):
         put(sw.barrel(mat), x, z, 0)
     for (x, z) in ((20, -46), (-20, -47), (-66, -47), (72, -46)):
@@ -896,8 +928,8 @@ def build_set(mat):
 
     # ---- the market (near): stalls along the cross wall, bunting over the hall
     for x in (20.0, 34.0, 48.0):                                                  # umbrellas clear of the wall
-        put(sw.junk_stall(mat), x, E1_Z - 4.6, 0)
-        _spot(s, "stall", x, E1_Z - 7.2)
+        put(sw.junk_stall(mat), x, E1_Z - 5.4, 0)
+        _spot(s, "stall", x, E1_Z - 8.0)
 
     def bunting(x0, z0, x1, z1, h=12.0, sag=2.2):
         """Cap bunting hooked between two pillars."""
@@ -921,15 +953,15 @@ def build_set(mat):
                        (56, 58, sw.can_house)):
         r = face(x, z, *sq)
         put(fn(mat), x, z, r)
-        _spot(s, "house", *turned(x, z, r, 0, -3.2))
+        _spot(s, "house", *turned(x, z, r, 0, -3.6))
     bunting(25, 24, 25, 62, h=11.0, sag=1.8)
     for (x, z) in ((42, 38), (36, 46)):
         _spot(s, "square", x, z)
     put(sw.rails(mat), 80, 60, 90)
     put(sw.cart(mat), 80, 64, 90, h=0.25)
     _spot(s, "cart", 80, 64, h=3.25)
-    put(sw.valve_wheel(mat), 28, IN - 1.4, 0)
-    _spot(s, "valve", 28, IN - 4.0)
+    put(sw.valve_wheel(mat), 34, IN - 1.4, 0)                                   # between the far wall's piers
+    _spot(s, "valve", 34, IN - 4.6)
     put(sw.pipe_large(mat), 66, 78, 0)
     _spot(s, "pipe_end", 73.6, 78)
     put(sw.pipe_elbow(mat), 18, 80, 0)
@@ -943,6 +975,7 @@ def build_set(mat):
     _spot(s, "trap_grate", 70, 40, turn=0)
     _spot(s, "catwalk_foot", 12, 46)
     put(sw.tyre_stack(mat), 82, 30, 0)
+    _spot(s, "pool", 14, 74)                                                    # by the pool, under its skylight
     put(sw.puddle(mat), 12, 30, 0)
 
     # ---- the throne room (deep): over the catwalk, the west hall's far end
@@ -952,8 +985,8 @@ def build_set(mat):
     _spot(s, "organ", -32, IN - 3.8)
     put(sw.toy_pile(mat), -62, 74, 0)
     _spot(s, "toy_pile", -62, 74)
-    put(sw.lost_lounge(mat), -66, 44, 35)
-    _spot(s, "sofa", *turned(-66, 44, 35, 0.6, 1.1), h=1.48)
+    put(sw.lost_lounge(mat), -66, 44, 0)
+    _spot(s, "sofa", *turned(-66, 44, 0, -1.2, 1.3), h=1.48)                     # on the right-hand cushion
     put(sw.yarn_trolley(mat), -30, 40, 30)
     _spot(s, "trolley", -30, 40, h=0.6)
     bunting(-25, 62, -65, 62)
@@ -961,8 +994,8 @@ def build_set(mat):
     _spot(s, "suitcases", -76, 79.5)
     put(sw.glow_mushrooms(mat), -12, 30, 0)
     _spot(s, "glow_mushrooms", -15.5, 30)
-    put(sw.drain_pipe(mat), -IN + 2.4, 32, -90)
-    _spot(s, "trap_drain_pipe", *turned(-IN + 2.4, 32, -90, -1.0, -2.4), turn=-90)
+    put(sw.drain_pipe(mat), -IN + 2.4, 23, -90)                                  # on a plain brick run
+    _spot(s, "trap_drain_pipe", *turned(-IN + 2.4, 23, -90, -1.0, -2.4), turn=-90)
     _spot(s, "catwalk_foot", -12, 54)
     for (x, z) in ((-46, 66), (-20, 70)):
         _spot(s, "throne_room", x, z)
@@ -971,12 +1004,12 @@ def build_set(mat):
 
     # ---- the far chamber (deep): the beached boat and raft by the branch, the hammock, a deck
     put(sw.bathtub_boat(mat), -28, 4.0, 90)
-    _spot(s, "boat", -28, 4.0, h=1.0)
+    _spot(s, "boat", -28, 4.0, h=1.42)                                          # in the tub
     put(sw.crate_raft(mat), -40, 3.5, 80)
-    _spot(s, "raft", *turned(-40, 3.5, 80, 0.6, 0.4), h=1.55)
+    _spot(s, "raft", *turned(-40, 3.5, 80, 0.6, 0.4), h=1.8)                    # on the big crate
     put(sw.rubber_ducks(mat), -20, BRANCH_Z, 90, h=-0.1)
     put(sw.pipe_hammock(mat), -82, -26, 90)
-    _spot(s, "hammock", -82, -26, h=2.0)
+    _spot(s, "hammock", *turned(-82, -26, 90, -0.3, 0), h=2.0)
     put(sw.crate_deck(mat), -38, -22, -20)
     _spot(s, "deck", *turned(-38, -22, -20, -0.3, 0.6), h=2.15)
     bunting(-25, -30, -65, -30)

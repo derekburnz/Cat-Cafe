@@ -846,7 +846,7 @@ return function()
 					local speed = UIRewards.totals(Catalog, { indexRewards = profile.indexRewards }).baitSpeed
 					for _, isNight in { false, true } do
 						local server = Economy.baitWaitSeconds(profile, isNight)
-						local shown = FoodOdds.waitSeconds(bowl == 1, speed, isNight)
+						local shown = FoodOdds.waitSeconds(profile.upgradeLevels.lure_bowl or 0, bowl == 1, speed, isNight)
 						local label = string.format("%s, bowl %d, night %s: ", at, bowl, tostring(isNight))
 						expect(label .. shown).to.equal(label .. server)
 					end

@@ -640,7 +640,10 @@ return function()
 				{ "net", 1, 1 },
 				{ "net", 2, 2 },
 				{ "net", 3, 3 },
-				{ "lure_bowl", 1, nil },
+				{ "lure_bowl", 1, 1 },
+				{ "lure_bowl", 2, 2 },
+				{ "lure_bowl", 5, 5 },
+				{ "lure_bowl", 6, nil },
 				{ "nope", 1, nil },
 			}
 			for _, case in ipairs(cases) do
@@ -683,10 +686,10 @@ return function()
 				},
 				lure_bowl = {
 					name = "Bait bowl",
-					maxLevel = 1,
-					costs = { 600 },
+					maxLevel = 5,
+					costs = { 600, 6000, 60000, 500000, 3000000 }, -- F82, v0.13.15
 					startLevel = 0,
-					atLevel = nil,
+					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
 				},
 			}
 

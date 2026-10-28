@@ -305,8 +305,8 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Cafe Crates (F53) | 1,500 | `crates.py`, body and `_Lid` together, golden twin the same: they land at 384 (Neighbourhood) to 1,146 (Park) |
 | Mystery Visitor and gift (F64) | visitor 2,600, gift 700 | `mystery.py`: the visitor (cat, hood and capelet) lands at 1,636, the gift at 362 |
 | Cat Collector (F63) | 2,600 | `collector.py`: cat, bowler, coat and magnifying glass land at 1,856 |
-| Customer NPC | 1,600 | each of the standing and seated twins |
-| Hero furniture (Counter) | 3,000 | the night dealer's cart 3,500 |
+| Customer NPC | 1,600 | each of the standing and seated twins; the night dealer 1,800 |
+| Hero furniture (Counter) | 3,000 | the night dealer's cart 4,500 (with its jars, fish, lights and sack) |
 | Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400; the F79 CatBed 800 |
 | Decor | 500 | |
 | Crate decor | 1,500 to 2,400 | the F53 crate furniture and decorations (`crate_decor.py`): 1,500 for the Commons, 1,800 Rare and Epic, 2,400 Legendary and Mythical; they land at 324 to 1,640 (section 14) |

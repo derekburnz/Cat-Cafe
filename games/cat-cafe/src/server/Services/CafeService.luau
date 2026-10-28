@@ -78,9 +78,10 @@ function CafeService.catViews(player: Player, profile: Profile): { [string]: Typ
 end
 
 -- When the bowl's cat arrives (data-model section 8), online or not: the readyAt UseLure fixed (the wait, Big Bowl
--- and the Index's bait speed in it, F54), or for a bowl filled before that, the wait after the food went in.
-function CafeService.baitReadyAt(profile: Types.PlayerProfile, bait: Types.BaitState): number
-	return bait.readyAt or bait.placedAt + Economy.lureWaitSeconds(profile)
+-- and the Index's bait speed in it, F54), or for a bowl filled before that, LureWaitSeconds after the food went in,
+-- never the wait of a bowl level bought since (F82).
+function CafeService.baitReadyAt(_profile: Types.PlayerProfile, bait: Types.BaitState): number
+	return bait.readyAt or bait.placedAt + Config.LureWaitSeconds
 end
 
 -- The bowl as ProfileSync sends it: the rolled cat only once it has arrived, so the reveal is not spoiled (N30).

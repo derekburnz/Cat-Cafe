@@ -713,7 +713,7 @@ Catalog.tiers = {
 		slots = 2,
 		multiplier = 1.00,
 		area = "alley",
-		caps = { tables = 2, espresso = 2, net = 1 },
+		caps = { tables = 2, espresso = 2, net = 1, lure_bowl = 1 },
 	},
 	{
 		tier = 2,
@@ -723,7 +723,7 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 4, espresso = 3, net = 2 },
+		caps = { tables = 4, espresso = 3, net = 2, lure_bowl = 2 },
 	},
 	{
 		tier = 3,
@@ -735,7 +735,7 @@ Catalog.tiers = {
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",
-		caps = { tables = 6, espresso = 4, net = 3 },
+		caps = { tables = 6, espresso = 4, net = 3, lure_bowl = 3 },
 	},
 	{
 		tier = 4,
@@ -747,7 +747,7 @@ Catalog.tiers = {
 		slots = 8,
 		multiplier = 1.75,
 		area = "woods",
-		caps = { tables = 6, espresso = 5, net = 3 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 4 },
 	},
 	{
 		tier = 5,
@@ -759,7 +759,7 @@ Catalog.tiers = {
 		slots = 10,
 		multiplier = 2.00,
 		area = "sewer",
-		caps = { tables = 6, espresso = 5, net = 3 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5 },
 	},
 } :: { Types.TierDef }
 
@@ -769,7 +769,8 @@ function Catalog.getTier(tier: number): Types.TierDef?
 	return Catalog.tiers[tier]
 end
 
--- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net); nil when no tier does.
+-- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net, lure_bowl); nil when no tier
+-- does.
 function Catalog.tierForLevel(upgradeId: string, level: number): number?
 	for _, def in Catalog.tiers do
 		local cap = (def.caps :: any)[upgradeId]
@@ -809,9 +810,10 @@ Catalog.upgrades = {
 	{
 		id = "lure_bowl", -- shown as Bait bowl; ids keep the lure_ prefix (data-model section 6)
 		name = "Bait bowl",
-		description = "A bowl on your back step. Food in, a cat in 10 min",
-		maxLevel = 1,
-		costs = { 600 },
+		-- F82 (v0.13.15): five levels, each tier opening one, the names in Bait.bowlName
+		description = "A bowl on your back step. Each level brings bait cats sooner and rarer",
+		maxLevel = 5,
+		costs = { 600, 6000, 60000, 500000, 3000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }

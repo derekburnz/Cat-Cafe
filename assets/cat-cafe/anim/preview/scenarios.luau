@@ -209,4 +209,26 @@ return {
 		box = { { -1.6, 0.4, -1.5 }, { 1.6, 2.8, 2 } },
 		segments = { { style = "stuckButt", seconds = 4.4 } },
 	},
+	-- The carry (Derek 2026-10-28): held on the stand-in player's folded arms, awake. Loafing across the arms on the
+	-- walking body (what the server's HeldCat is), standing a moment and then carried at CarryWalkSpeed (16).
+	carryLoaf = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		carrier = { shirt = "red" },
+		segments = {
+			{ style = "held", seconds = 3.4 },
+			{ style = "held", seconds = 2.6, speed = 16 },
+		},
+	},
+	-- Sitting up on the arms, facing out, on the sitting body.
+	carrySit = {
+		model = "CatCafe_Cat_Tabby_Sit",
+		camera = "three",
+		attributes = { Pose = "sit" },
+		carrier = { shirt = "blue", skin = "tan" },
+		segments = {
+			{ style = "held", seconds = 3.4 },
+			{ style = "held", seconds = 2.6, speed = 16 },
+		},
+	},
 }

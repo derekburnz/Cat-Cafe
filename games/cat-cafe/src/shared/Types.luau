@@ -325,7 +325,7 @@ export type TierDef = {
 	slots: number, -- role slots open at this tier
 	multiplier: number, -- tierMultiplier in the income formula
 	area: Area, -- the area this tier opens
-	caps: { tables: number, espresso: number, net: number }, -- highest shop level allowed at this tier
+	caps: { tables: number, espresso: number, net: number, lure_bowl: number }, -- highest shop level allowed at this tier
 }
 
 export type CatInstance = {

@@ -297,8 +297,8 @@ local function refreshBait(s: Types.PlayerState)
 end
 
 -- The rich tip (F31): the UI's gold marker watches the own plot, and the tip's arrival and payout are Moments for
--- the sounds. Its RichTipAmount clears both on a claim and when the tip pays itself at expiry; either way the
--- coins went into the till.
+-- the sounds. Its RichTipAmount clears on a claim and when the tip is missed (expiry, nightfall); the server sets
+-- RichTipOutcome just before, and only a claim plays the payout.
 local richTipPlot: Model? = nil
 local richTipConnection: RBXScriptConnection? = nil
 local richTipAmount = 0
@@ -327,7 +327,11 @@ local function refreshRichTip()
 		local amount = tipAmount(plot)
 		if amount > 0 and richTipAmount <= 0 then
 			Moments.RichArrive:Fire()
-		elseif amount <= 0 and richTipAmount > 0 then
+		elseif
+			amount <= 0
+			and richTipAmount > 0
+			and plot:GetAttribute("RichTipOutcome") == "claimed"
+		then
 			Moments.RichTipClaim:Fire()
 		end
 		richTipAmount = amount

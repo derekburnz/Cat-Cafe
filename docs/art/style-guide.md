@@ -176,6 +176,20 @@ Row 12, the twelve plain Commons of the Neighbourhood, Woods and Sewer (data-mod
 | 102 | fur_fern | #A4C08F | Fern |
 | 103 | fur_ash | #3A373C | Soot |
 
+Row 13, the Town Square's paving and the compass (town layout v3.1, 2026-10-28). The `paw_` swatches are the paw
+paths' colours in WorldBuilder, so the compass points and the paws match.
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 104 | paving_light | #F2E8D5 | the square's cross (the walk), the garden paths |
+| 105 | paving_sand | #E2CFAE | the quarters' tiles, light |
+| 106 | paving_tan | #D4BC96 | the quarters' tiles, dark |
+| 107 | paving_grout | #A7957C | joints, and the square's base slab |
+| 108 | paw_park | #68C45C | the Park's compass point (south) |
+| 109 | paw_neighbourhood | #F09640 | the Neighbourhood's compass point (north) |
+| 110 | paw_woods | #267040 | the Woods' compass point (west) |
+| 111 | paw_sewer | #566E96 | the Sewer's compass point (east) |
+
 **Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose, tail tip, socks (all four paws) and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
 
 | cat | coat | markings | eyes | nose |

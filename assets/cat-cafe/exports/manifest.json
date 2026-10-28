@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 01:24 UTC",
+  "generated": "2026-10-28 01:46 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -1370,6 +1370,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo.model.json",
       "rbx_parts": 37,
       "files": [
@@ -1933,6 +1945,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger.model.json",
       "rbx_parts": 36,
       "files": [
@@ -2494,6 +2518,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke.model.json",
       "rbx_parts": 36,
       "files": [
@@ -3052,6 +3088,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow.model.json",
       "rbx_parts": 34,
@@ -8916,6 +8964,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream.model.json",
       "rbx_parts": 36,
       "files": [
@@ -9479,6 +9539,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie.model.json",
       "rbx_parts": 42,
       "files": [
@@ -10037,6 +10109,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue.model.json",
       "rbx_parts": 34,
@@ -30581,6 +30665,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Gold.model.json",
       "rbx_parts": 37,
@@ -31137,6 +31233,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Ginger when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Gold.model.json",
       "rbx_parts": 34,
@@ -31691,6 +31799,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Smoke when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Smoke_Gold.model.json",
       "rbx_parts": 36,
@@ -32242,6 +32362,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Snow when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Gold.model.json",
@@ -38027,6 +38159,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Cream when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Cream_Gold.model.json",
       "rbx_parts": 34,
@@ -38583,6 +38727,18 @@
           ]
         }
       },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
       "studio": "F42: clone this instead of CatCafe_Cat_Brownie when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Gold.model.json",
       "rbx_parts": 40,
@@ -39134,6 +39290,18 @@
             0.0
           ]
         }
+      },
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blue when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Gold.model.json",
@@ -64425,7 +64593,7 @@
       ],
       "pivot": "base centre of the 26 stud opening; -Z faces the back alley",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Over each back alley's north end at (+-74, 87.5). Posts collide; ALLEY SQUARE reads from the back alley, BACK ALLEY from the square.",
+      "studio": "Over each back alley's north end at (+-78, 123.5). Posts collide; ALLEY SQUARE reads from the back alley, BACK ALLEY from the square.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Arch.model.json",
       "rbx_parts": 225,
       "files": [
@@ -68440,6 +68608,653 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.35"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_Paving",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_Paving",
+        "CatCafe_Square_Paving_Slab"
+      ],
+      "triangles": 9436,
+      "budget": 20000,
+      "size_studs": {
+        "x": 185.6,
+        "y": 64.0,
+        "z": 0.49
+      },
+      "size_roblox": [
+        185.6,
+        0.49,
+        64.0
+      ],
+      "bounds_min": [
+        -92.8,
+        -32.0,
+        -0.4
+      ],
+      "bounds_max": [
+        92.8,
+        32.0,
+        0.09
+      ],
+      "pivot": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the pivot, the stones 0.02 above it. Square space is world space; place with no turn.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          0,
+          0.1,
+          0,
+          0
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Paving.model.json",
+      "rbx_parts": 785,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Paving.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Paving.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "9436/20000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4662 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.40 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_Fountain",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_Fountain",
+        "CatCafe_Square_Fountain_Water",
+        "CatCafe_Square_Fountain_Decor"
+      ],
+      "triangles": 5296,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.05,
+        "y": 13.05,
+        "z": 7.98
+      },
+      "size_roblox": [
+        13.05,
+        7.98,
+        13.05
+      ],
+      "bounds_min": [
+        -6.53,
+        -6.53,
+        -0.01
+      ],
+      "bounds_max": [
+        6.53,
+        6.53,
+        7.97
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          0,
+          0.1,
+          0,
+          0
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Fountain.model.json",
+      "rbx_parts": 318,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Fountain.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Fountain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "5296/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "2572 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_Signpost",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_Signpost",
+        "CatCafe_Square_Signpost_Flowers",
+        "CatCafe_Square_Signpost_ArmCap",
+        "CatCafe_Square_Signpost_ArmNeighbourhood",
+        "CatCafe_Square_Signpost_ArmPark",
+        "CatCafe_Square_Signpost_ArmWoods",
+        "CatCafe_Square_Signpost_ArmSewer"
+      ],
+      "triangles": 784,
+      "budget": 2000,
+      "size_studs": {
+        "x": 11.25,
+        "y": 11.26,
+        "z": 9.5
+      },
+      "size_roblox": [
+        11.25,
+        9.5,
+        11.26
+      ],
+      "bounds_min": [
+        -5.63,
+        -5.63,
+        0.0
+      ],
+      "bounds_max": [
+        5.62,
+        5.63,
+        9.5
+      ],
+      "pivot": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world space at its gate, long along its own X, with an Area attribute.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Signpost.model.json",
+      "rbx_parts": 54,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Signpost.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Signpost.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "784/2000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "370 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_ArchAlley",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_ArchAlley",
+        "CatCafe_Square_ArchAlley_Flowers",
+        "CatCafe_Square_ArchAlley_Lamp_Bulb",
+        "CatCafe_Square_ArchAlley_Bulbs"
+      ],
+      "triangles": 2904,
+      "budget": 5000,
+      "size_studs": {
+        "x": 16.6,
+        "y": 2.6,
+        "z": 17.89
+      },
+      "size_roblox": [
+        16.6,
+        17.89,
+        2.6
+      ],
+      "bounds_min": [
+        -8.3,
+        -1.3,
+        0.0
+      ],
+      "bounds_max": [
+        8.3,
+        1.3,
+        17.89
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_ArchAlley.model.json",
+      "rbx_parts": 247,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_ArchAlley.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_ArchAlley.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "2904/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1422 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_SignArch",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_SignArch",
+        "CatCafe_Square_SignArch_Flowers",
+        "CatCafe_Square_SignArch_Lamp_Bulb",
+        "CatCafe_Square_SignArch_Bulbs"
+      ],
+      "triangles": 3012,
+      "budget": 6000,
+      "size_studs": {
+        "x": 41.6,
+        "y": 3.1,
+        "z": 20.87
+      },
+      "size_roblox": [
+        41.6,
+        20.87,
+        3.1
+      ],
+      "bounds_min": [
+        -20.8,
+        -1.55,
+        0.0
+      ],
+      "bounds_max": [
+        20.8,
+        1.55,
+        20.87
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          0,
+          0.1,
+          -32.0,
+          0
+        ],
+        [
+          0,
+          0.1,
+          32.0,
+          180
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_SignArch.model.json",
+      "rbx_parts": 258,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_SignArch.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_SignArch.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "3012/6000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1484 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_Bench",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_Bench"
+      ],
+      "triangles": 228,
+      "budget": 800,
+      "size_studs": {
+        "x": 4.0,
+        "y": 1.37,
+        "z": 2.83
+      },
+      "size_roblox": [
+        4.0,
+        2.83,
+        1.37
+      ],
+      "bounds_min": [
+        -2.0,
+        -0.6,
+        0.0
+      ],
+      "bounds_max": [
+        2.0,
+        0.77,
+        2.83
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          13.93,
+          0.1,
+          9.75,
+          55
+        ],
+        [
+          9.75,
+          0.1,
+          13.93,
+          35
+        ],
+        [
+          -9.75,
+          0.1,
+          13.93,
+          325
+        ],
+        [
+          -13.93,
+          0.1,
+          9.75,
+          305
+        ],
+        [
+          -9.75,
+          0.1,
+          -13.93,
+          215
+        ],
+        [
+          9.75,
+          0.1,
+          -13.93,
+          145
+        ],
+        [
+          13.93,
+          0.1,
+          -9.75,
+          125
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Bench.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Bench.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Bench.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "228/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "114 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.08"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_Lamp",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_Lamp",
+        "CatCafe_Square_Lamp_Bulb",
+        "CatCafe_Square_Lamp_Flowers"
+      ],
+      "triangles": 676,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.88,
+        "y": 1.9,
+        "z": 11.95
+      },
+      "size_roblox": [
+        3.88,
+        11.95,
+        1.9
+      ],
+      "bounds_min": [
+        -1.94,
+        -0.95,
+        0.0
+      ],
+      "bounds_max": [
+        1.94,
+        0.95,
+        11.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          -11.0,
+          0.1,
+          -11.0,
+          45
+        ],
+        [
+          -11.0,
+          0.1,
+          11.0,
+          45
+        ],
+        [
+          11.0,
+          0.1,
+          -11.0,
+          45
+        ],
+        [
+          11.0,
+          0.1,
+          11.0,
+          45
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Lamp.model.json",
+      "rbx_parts": 47,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Lamp.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Lamp.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "676/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "302 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_Bunting",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_Bunting",
+        "CatCafe_Square_Bunting_Decor"
+      ],
+      "triangles": 272,
+      "budget": 1500,
+      "size_studs": {
+        "x": 22.06,
+        "y": 0.07,
+        "z": 2.11
+      },
+      "size_roblox": [
+        22.06,
+        2.11,
+        0.07
+      ],
+      "bounds_min": [
+        -11.03,
+        -0.04,
+        7.52
+      ],
+      "bounds_max": [
+        11.03,
+        0.04,
+        9.64
+      ],
+      "pivot": "On the ground under the middle of the span; its ends sit inside two lamps 22 apart.",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          0,
+          0.1,
+          -11.0,
+          0
+        ],
+        [
+          0,
+          0.1,
+          11.0,
+          0
+        ],
+        [
+          -11.0,
+          0.1,
+          0,
+          90
+        ],
+        [
+          11.0,
+          0.1,
+          0,
+          90
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Bunting.model.json",
+      "rbx_parts": 44,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Bunting.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Bunting.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "272/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=7.52 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Square_Garden",
+      "category": "Square",
+      "module": "square",
+      "objects": [
+        "CatCafe_Square_Garden",
+        "CatCafe_Square_Garden_Flowers"
+      ],
+      "triangles": 912,
+      "budget": 4000,
+      "size_studs": {
+        "x": 22.0,
+        "y": 12.0,
+        "z": 9.1
+      },
+      "size_roblox": [
+        22.0,
+        9.1,
+        12.0
+      ],
+      "bounds_min": [
+        -11.0,
+        -6.0,
+        0.0
+      ],
+      "bounds_max": [
+        11.0,
+        6.0,
+        9.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [
+        [
+          -55.5,
+          0.1,
+          -19.5,
+          -90
+        ],
+        [
+          -55.5,
+          0.1,
+          19.5,
+          -90
+        ],
+        [
+          55.5,
+          0.1,
+          -19.5,
+          90
+        ],
+        [
+          55.5,
+          0.1,
+          19.5,
+          90
+        ]
+      ],
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Garden.model.json",
+      "rbx_parts": 62,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_Garden.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_Garden.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "912/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "624 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     }

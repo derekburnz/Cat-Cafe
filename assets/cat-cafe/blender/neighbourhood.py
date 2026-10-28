@@ -151,29 +151,36 @@ def trampoline(mat):
         a = 2 * PI * k / 6
         b.box_base((3.0 * math.cos(a), 3.0 * math.sin(a), 0), (0.25, 0.25, 1.6), "metal", bevel=False)
     b.ring((0, 0, 1.75), 3.4, 0.9, 0.3, "shirt_blue", segments=16)
-    b.cyl((0, 0, 1.68), 2.6, 0.1, "fur_black", segments=16, bevel=False)
+    b.cyl((0, 0, 1.68), 2.6, 0.15, "fur_black", segments=16, bevel=False)
     return [b.finalize(N + "Trampoline", mat)]
 
 
 def slide(mat):
-    b = Builder()
-    for x in (-1.2, 1.2):
-        for y in (0.8, 3.2):
-            b.box_base((x, y, 0), (0.35, 0.35, 5.6), "pastel_butter")
-    b.box_base((0, 2.0, 3.8), (2.8, 2.8, 0.35), "caramel_wood")
-    b.box((0, 2.0, 5.7), (3.2, 3.2, 0.3), "shirt_red")                                     # little roof
-    b.pyramid((0, 2.0, 5.85), 3.6, 1.4, "shirt_red")
+    """A playground slide sized for players (Derek 2026-10-28: climbable ladders): a ladder at the back (rungs 0.6
+    apart, an invisible truss behind them) up to a deck 4 studs up under a roof with head room, railed 3 high at the
+    sides, and a chute down the front."""
+    b, climb = Builder(), Builder()
+    top = 4.0
+    for x in (-1.6, 1.6):
+        for y in (0.6, 3.4):
+            b.box_base((x, y, 0), (0.35, 0.35, 10.2), "pastel_butter")
+    b.box_base((0, 2.0, top - 0.35), (3.6, 3.2, 0.35), "caramel_wood")
+    for x in (-1.6, 1.6):                                                                   # side rails, 3 high
+        b.box_base((x, 2.0, top), (0.2, 2.6, 3.0), "pastel_butter", bevel=False)
+    b.box((0, 2.0, 10.3), (4.0, 3.6, 0.3), "shirt_red")                                    # little roof
+    b.pyramid((0, 2.0, 10.45), 4.4, 1.6, "shirt_red")
     for i in range(6):                                                                      # ladder at the back
         b.box((0, 3.9, 0.6 + i * 0.6), (1.6, 0.25, 0.18), "caramel_wood", bevel=False)
     for x in (-0.9, 0.9):
-        b.box_base((x, 3.9, 0), (0.2, 0.2, 4.0), "caramel_wood", bevel=False)
-    a = math.atan2(3.9, 5.0)
-    L = math.hypot(5.0, 3.9)
-    b.box((0, 0.6 - 2.5, 3.9 / 2 + 0.1), (1.8, L, 0.25), "sign_teal", rot=rx(math.degrees(a)))
-    for x in (-0.95, 0.95):
-        b.box((x, 0.6 - 2.5, 3.9 / 2 + 0.35), (0.15, L, 0.5), "sign_teal", rot=rx(math.degrees(a)))
-    b.box_base((0, -4.9, 0), (1.8, 1.2, 0.25), "sign_teal")
-    return [b.finalize(N + "Slide", mat)]
+        b.box_base((x, 3.9, 0), (0.2, 0.2, top + 1.0), "caramel_wood", bevel=False)
+    climb.box_base((0, 2.95, 0), (2.0, 2.0, top), "caramel_wood", bevel=False)
+    a = math.atan2(top, 5.0)
+    L = math.hypot(5.0, top)
+    b.box((0, 0.4 - 2.5, top / 2 + 0.05), (2.4, L, 0.25), "sign_teal", rot=rx(math.degrees(a)))
+    for x in (-1.25, 1.25):
+        b.box((x, 0.4 - 2.5, top / 2 + 0.3), (0.15, L, 0.5), "sign_teal", rot=rx(math.degrees(a)))
+    b.box_base((0, -5.1, 0), (2.4, 1.2, 0.25), "sign_teal")
+    return [b.finalize(N + "Slide", mat), climb.finalize(N + "Slide_Climb", mat)]
 
 
 def swings(mat):

@@ -9,6 +9,7 @@
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Crates = require(script.Parent.Crates)
+local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
 
 local IndexRewards = {}
@@ -124,23 +125,33 @@ function IndexRewards.totals(profile: Types.PlayerProfile): Totals
 	return totals
 end
 
--- A gold roll's chance with gold luck: chance x (1 + goldLuck).
+-- A gold roll's chance with the Index's gold luck: chance x (1 + goldLuck), the luck at most GoldLuckMax. The Index
+-- shows this (the UI's copy matches it).
 function IndexRewards.goldChance(chance: number, goldLuck: number): number
 	return chance * (1 + math.clamp(goldLuck, 0, Config.GoldLuckMax))
 end
 
+-- The chance a gold roll uses now (F73): as goldChance, with `goldLuck` the Index's plus a running Gold Rush Potion's
+-- (luckiest with `now`, or Potions.goldLuck), which goes on top of GoldLuckMax.
+function IndexRewards.rollChance(chance: number, goldLuck: number): number
+	return chance * (1 + math.clamp(goldLuck, 0, Config.GoldLuckMax + Potions.MAX_GOLD_LUCK))
+end
+
 -- The gold luck a shared roll in an area uses (a net stray or a rescue trap): the highest among the players whose
 -- tier has the area open, 0 when nobody has (golden-fish.md section 5), and the index in `profiles` of the first
--- player with it (nil at 0), for the Index Board's "Gold luck +40% from Sam".
+-- player with it (nil at 0), for the Index Board's "Gold luck +40% from Sam". With `now`, a running Gold Rush
+-- Potion's luck counts too (F73: one player's potion lifts the shared rolls for everyone).
 function IndexRewards.luckiest(
 	profiles: { Types.PlayerProfile },
 	areaTier: number,
-	tierOf: (Types.PlayerProfile) -> number
+	tierOf: (Types.PlayerProfile) -> number,
+	now: number?
 ): (number, number?)
 	local best, from = 0, nil
 	for index, profile in profiles do
 		if tierOf(profile) >= areaTier then
 			local luck = IndexRewards.totals(profile).goldLuck
+				+ (if now ~= nil then Potions.goldLuck(profile, now) else 0)
 			if luck > best then
 				best, from = luck, index
 			end

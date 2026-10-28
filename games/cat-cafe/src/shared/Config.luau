@@ -182,6 +182,15 @@ local Config = {
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
 	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance
+	TimedTipsMax = 1.0, -- F73: every running tip potion together adds at most +100% (a Tip and a Big Tip: +75%)
+
+	-- Quests and achievements (F73, quests.md section 6). Pure rules in Quests. A day starts at 00:00 UTC; a week
+	-- at Monday 00:00 UTC, QuestWeekOffsetSeconds after the epoch's Thursday. Players in the game are checked for a
+	-- new day or week every QuestRollCheckSeconds.
+	QuestDailyCount = 5,
+	QuestWeeklyCount = 3,
+	QuestWeekOffsetSeconds = 345600,
+	QuestRollCheckSeconds = 60,
 
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
 	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel

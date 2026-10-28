@@ -1035,7 +1035,13 @@ end
 -- drinking another of a running kind adds its time, up to Config.PotionMaxMinutes. Earned only (Tip Jar, codes,
 -- Mystery gifts), never sold: one for Robux would change income or catch odds and needs the monetization review.
 Catalog.potions = {
-	{ id = "tip_potion", name = "Tip Potion", minutes = 10, effect = "+25% tips" },
+	{
+		id = "tip_potion",
+		name = "Tip Potion",
+		minutes = 10,
+		effect = "+25% tips",
+		tips = Config.TipPotionBonus,
+	},
 	{
 		id = "lucky_potion",
 		name = "Lucky Potion",
@@ -1049,6 +1055,31 @@ Catalog.potions = {
 		minutes = 10,
 		effect = "Easier catch circles",
 	},
+	-- F73 (quests.md section 4): the quest potions, paid only by full quest sets and achievements
+	{
+		id = "big_tip_potion",
+		name = "Big Tip Potion",
+		minutes = 30,
+		effect = "+50% tips",
+		tips = 0.5,
+		quest = true,
+	},
+	{
+		id = "gold_rush_potion",
+		name = "Gold Rush Potion",
+		minutes = 30,
+		effect = "+25% gold luck",
+		goldLuck = 0.25,
+		quest = true,
+	},
+	{
+		id = "quick_bait_potion",
+		name = "Quick Bait Potion",
+		minutes = 30,
+		effect = "Bait ready 25% sooner",
+		baitSpeed = 0.25,
+		quest = true,
+	},
 } :: { Types.PotionDef }
 Catalog.potionsById = {} :: { [string]: Types.PotionDef }
 for _, def in Catalog.potions do
@@ -1061,6 +1092,583 @@ table.freeze(Catalog.potions)
 
 function Catalog.getPotion(id: string): Types.PotionDef?
 	return Catalog.potionsById[id]
+end
+
+-- Quests and achievements (F73, quests.md sections 2, 3 and 5, approved by Derek 2026-10-27 22:14). Each day picks
+-- one quest per slot from its pool, in Quests.DAILY_POOLS order (two Streets, Cafe, Extra, the Big Request), each week
+-- one from each weekly pool. Coins quests fix their needs from the day rate when picked.
+Catalog.quests = {
+	daily = {
+		streets = {
+			{ id = "d_catch5", text = "Catch 5 cats", stat = "catsCaught", needs = 5 },
+			{
+				id = "d_perfect10",
+				text = "Land 10 perfect circles",
+				stat = "perfectCircles",
+				needs = 10,
+			},
+			{ id = "d_rescue2", text = "Rescue 2 stuck cats", stat = "rescues", needs = 2 },
+			{
+				id = "d_rare1",
+				text = "Catch a Rare or better cat",
+				stat = "rareCatches",
+				needs = 1,
+			},
+		},
+		cafe = {
+			{
+				id = "d_coins",
+				text = "Earn coins",
+				stat = "lifetimeCoins",
+				needsSeconds = 600,
+				needsMin = 500,
+			},
+			{ id = "d_tips6", text = "Collect 6 tip piles", stat = "tipPilesCollected", needs = 6 },
+			{
+				id = "d_bait1",
+				text = "Tame a cat at your bait bowl",
+				stat = "baitsTamed",
+				needs = 1,
+				requires = { upgrade = "lure_bowl" },
+			},
+			{
+				id = "d_food2",
+				text = "Put 2 foods in your bait bowl",
+				stat = "luresUsed",
+				needs = 2,
+				requires = { upgrade = "lure_bowl" },
+			},
+		},
+		extra = {
+			{ id = "d_spin1", text = "Spin the wheel", stat = "spins", needs = 1 },
+			{ id = "d_tipjar3", text = "Claim 3 Tip Jar gifts", stat = "tipJarClaims", needs = 3 },
+			{ id = "d_fish5", text = "Earn 5 golden fish", stat = "fishEarned", needs = 5 },
+			{
+				id = "d_crate1",
+				text = "Open a Cafe Crate",
+				stat = "cratesOpened",
+				needs = 1,
+				requires = { fishOrCrate = true },
+			},
+			{ id = "d_levelup1", text = "Level up a cat", stat = "catLevelUps", needs = 1 },
+		},
+		big = {
+			{
+				id = "d_rare3",
+				text = "Catch 3 Rare or better cats",
+				stat = "rareCatches",
+				needs = 3,
+			},
+			{ id = "d_catch12", text = "Catch 12 cats", stat = "catsCaught", needs = 12 },
+			{ id = "d_rescue5", text = "Rescue 5 stuck cats", stat = "rescues", needs = 5 },
+			{
+				id = "d_perfect30",
+				text = "Land 30 perfect circles",
+				stat = "perfectCircles",
+				needs = 30,
+			},
+			{
+				id = "d_coinsbig",
+				text = "Earn coins",
+				stat = "lifetimeCoins",
+				needsSeconds = 1500,
+				needsMin = 1500,
+			},
+		},
+	},
+	weekly = {
+		a = {
+			{ id = "w_catch60", text = "Catch 60 cats", stat = "catsCaught", needs = 60 },
+			{
+				id = "w_perfect150",
+				text = "Land 150 perfect circles",
+				stat = "perfectCircles",
+				needs = 150,
+			},
+			{ id = "w_rescue15", text = "Rescue 15 stuck cats", stat = "rescues", needs = 15 },
+		},
+		b = {
+			{
+				id = "w_coins",
+				text = "Earn coins",
+				stat = "lifetimeCoins",
+				needsSeconds = 10800,
+				needsMin = 10000,
+			},
+			{
+				id = "w_bait10",
+				text = "Tame 10 cats at your bait bowl",
+				stat = "baitsTamed",
+				needs = 10,
+				requires = { upgrade = "lure_bowl" },
+			},
+			{
+				id = "w_tips60",
+				text = "Collect 60 tip piles",
+				stat = "tipPilesCollected",
+				needs = 60,
+			},
+		},
+		c = {
+			{
+				id = "w_new2",
+				text = "Find 2 new cats",
+				stat = "distinctCats",
+				needs = 2,
+				requires = { uncaught = 2 },
+			},
+			{ id = "w_gold2", text = "Catch 2 gold cats", stat = "goldCatches", needs = 2 },
+			{
+				id = "w_daily15",
+				text = "Finish 15 daily quests",
+				stat = "dailyQuestsDone",
+				needs = 15,
+			},
+			{
+				id = "w_sets3",
+				text = "Finish all your dailies on 3 days",
+				stat = "dailySetsDone",
+				needs = 3,
+			},
+		},
+	},
+} :: {
+	daily: { [string]: { Types.QuestDef } },
+	weekly: { [string]: { Types.QuestDef } },
+}
+
+-- What finishing a quest pays, in the Index prize shape: coins are `coinSeconds` of the day rate when claimed, at
+-- least `coins`.
+Catalog.questPrizes = {
+	daily = { coins = 200, coinSeconds = 180, fish = 2 },
+	dailyBig = { coins = 400, coinSeconds = 300, fish = 4, lures = { tuna = 1 } },
+	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, spins = 1 },
+	weekly = { coins = 2000, coinSeconds = 1200, fish = 15, spins = 1, lures = { salmon = 1 } },
+	weeklySet = {
+		potions = { big_tip_potion = 3, gold_rush_potion = 3, quick_bait_potion = 2 },
+		crates = { classic_golden_crate = 1 },
+		fish = 40,
+		spins = 3,
+	},
+} :: { [string]: Types.IndexPrize }
+
+-- The 44 achievements, each on its own and paid once, in the design's table order.
+Catalog.achievements = {
+	{
+		id = "a_first_catch",
+		name = "First Catch",
+		text = "Catch your first cat",
+		measure = "catsCaught",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_catch100",
+		name = "Cat Catcher",
+		text = "Catch 100 cats",
+		measure = "catsCaught",
+		needs = 100,
+		size = "M",
+	},
+	{
+		id = "a_catch1k",
+		name = "Cat Wrangler",
+		text = "Catch 1,000 cats",
+		measure = "catsCaught",
+		needs = 1000,
+		size = "L",
+	},
+	{
+		id = "a_catch10k",
+		name = "Cat Legend",
+		text = "Catch 10,000 cats",
+		measure = "catsCaught",
+		needs = 10000,
+		size = "XL",
+	},
+	{
+		id = "a_rare1",
+		name = "Rare Find",
+		text = "Catch a Rare or better cat",
+		measure = "rareCatches",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_rare100",
+		name = "Rare Hunter",
+		text = "Catch 100 Rare or better cats",
+		measure = "rareCatches",
+		needs = 100,
+		size = "L",
+	},
+	{
+		id = "a_gold1",
+		name = "Golden Paws",
+		text = "Catch a gold cat",
+		measure = "goldCatches",
+		needs = 1,
+		size = "M",
+	},
+	{
+		id = "a_gold50",
+		name = "Gold Rush",
+		text = "Catch 50 gold cats",
+		measure = "goldCatches",
+		needs = 50,
+		size = "XL",
+	},
+	{
+		id = "a_perfect1",
+		name = "Perfect Circle",
+		text = "Land a perfect circle",
+		measure = "perfectCircles",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_perfect500",
+		name = "Perfect Paws",
+		text = "Land 500 perfect circles",
+		measure = "perfectCircles",
+		needs = 500,
+		size = "L",
+	},
+	{
+		id = "a_perfect5k",
+		name = "Steady Hands",
+		text = "Land 5,000 perfect circles",
+		measure = "perfectCircles",
+		needs = 5000,
+		size = "XL",
+	},
+	{
+		id = "a_rescue1",
+		name = "First Rescue",
+		text = "Rescue a stuck cat",
+		measure = "rescues",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_rescue250",
+		name = "Rescue Hero",
+		text = "Rescue 250 stuck cats",
+		measure = "rescues",
+		needs = 250,
+		size = "L",
+	},
+	{
+		id = "a_bait1",
+		name = "Bait Beginner",
+		text = "Tame a cat at your bait bowl",
+		measure = "baitsTamed",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_bait200",
+		name = "Bait Master",
+		text = "Tame 200 cats at your bait bowl",
+		measure = "baitsTamed",
+		needs = 200,
+		size = "L",
+	},
+	{
+		id = "a_cats10",
+		name = "Growing Family",
+		text = "Find 10 different cats",
+		measure = "distinctCats",
+		needs = 10,
+		size = "S",
+	},
+	{
+		id = "a_cats25",
+		name = "Big Family",
+		text = "Find 25 different cats",
+		measure = "distinctCats",
+		needs = 25,
+		size = "M",
+	},
+	{
+		id = "a_cats50",
+		name = "Every Cat",
+		text = "Find all 50 cats",
+		measure = "distinctCats",
+		needs = 50,
+		size = "XL",
+	},
+	{
+		id = "a_goldcats10",
+		name = "Gold Collector",
+		text = "Find 10 different gold cats",
+		measure = "goldCats",
+		needs = 10,
+		size = "L",
+	},
+	{
+		id = "a_mythical",
+		name = "Mythical Friend",
+		text = "Find a Mythical cat",
+		measure = "mythicalCats",
+		needs = 1,
+		size = "L",
+	},
+	{
+		id = "a_tier2",
+		name = "Open for Business",
+		text = "Reach Cozy Cafe (Tier 2)",
+		measure = "tier",
+		needs = 2,
+		size = "S",
+	},
+	{
+		id = "a_tier3",
+		name = "Busy Bee",
+		text = "Reach Busy Cafe (Tier 3)",
+		measure = "tier",
+		needs = 3,
+		size = "M",
+	},
+	{
+		id = "a_tier4",
+		name = "Famous",
+		text = "Reach Famous Cafe (Tier 4)",
+		measure = "tier",
+		needs = 4,
+		size = "L",
+	},
+	{
+		id = "a_tier5",
+		name = "Grand Opening",
+		text = "Reach Grand Cafe (Tier 5)",
+		measure = "tier",
+		needs = 5,
+		size = "XL",
+	},
+	{
+		id = "a_coins10k",
+		name = "Pocket Money",
+		text = "Earn 10,000 coins",
+		measure = "lifetimeCoins",
+		needs = 10000,
+		size = "S",
+	},
+	{
+		id = "a_coins1m",
+		name = "Big Earner",
+		text = "Earn 1,000,000 coins",
+		measure = "lifetimeCoins",
+		needs = 1000000,
+		size = "L",
+	},
+	{
+		id = "a_coins100m",
+		name = "Coin Mountain",
+		text = "Earn 100,000,000 coins",
+		measure = "lifetimeCoins",
+		needs = 100000000,
+		size = "XL",
+	},
+	{
+		id = "a_tips100",
+		name = "Tip Collector",
+		text = "Collect 100 tip piles",
+		measure = "tipPilesCollected",
+		needs = 100,
+		size = "M",
+	},
+	{
+		id = "a_tips2k",
+		name = "Head Waiter",
+		text = "Collect 2,000 tip piles",
+		measure = "tipPilesCollected",
+		needs = 2000,
+		size = "L",
+	},
+	{
+		id = "a_net",
+		name = "Master Net",
+		text = "Get the Master Net",
+		measure = "upgrade:net",
+		needs = 3,
+		size = "M",
+	},
+	{
+		id = "a_tables",
+		name = "Full House",
+		text = "Get every table",
+		measure = "upgrade:tables",
+		needs = 6,
+		size = "M",
+	},
+	{
+		id = "a_spins50",
+		name = "Lucky Spinner",
+		text = "Spin the wheel 50 times",
+		measure = "spins",
+		needs = 50,
+		size = "M",
+	},
+	{
+		id = "a_crates25",
+		name = "Crate Opener",
+		text = "Open 25 Cafe Crates",
+		measure = "cratesOpened",
+		needs = 25,
+		size = "M",
+	},
+	{
+		id = "a_decor30",
+		name = "Decorator",
+		text = "Own 30 decor pieces",
+		measure = "decorOwned",
+		needs = 30,
+		size = "L",
+	},
+	{
+		id = "a_potions25",
+		name = "Potion Brewer",
+		text = "Drink 25 potions",
+		measure = "potionsUsed",
+		needs = 25,
+		size = "M",
+	},
+	{
+		id = "a_trades5",
+		name = "Collector's Friend",
+		text = "Trade 5 cats with the Cat Collector",
+		measure = "collectorTrades",
+		needs = 5,
+		size = "M",
+	},
+	{
+		id = "a_gifts10",
+		name = "Mystery Fan",
+		text = "Open 10 Mystery Visitor gifts",
+		measure = "mysteryGifts",
+		needs = 10,
+		size = "M",
+	},
+	{
+		id = "a_hours10",
+		name = "Cafe Regular",
+		text = "Play for 10 hours",
+		measure = "playtimeSeconds",
+		needs = 36000,
+		size = "M",
+	},
+	{
+		id = "a_hours100",
+		name = "Devoted",
+		text = "Play for 100 hours",
+		measure = "playtimeSeconds",
+		needs = 360000,
+		size = "XL",
+	},
+	{
+		id = "a_quests100",
+		name = "Quest Keeper",
+		text = "Finish 100 daily quests",
+		measure = "dailyQuestsDone",
+		needs = 100,
+		size = "L",
+	},
+	{
+		id = "a_week1",
+		name = "Full Week",
+		text = "Finish every weekly quest in a week",
+		measure = "weeklySetsDone",
+		needs = 1,
+		size = "M",
+	},
+	{
+		id = "a_week10",
+		name = "Week Champion",
+		text = "Finish every weekly quest in 10 weeks",
+		measure = "weeklySetsDone",
+		needs = 10,
+		size = "XL",
+	},
+	{
+		id = "a_level25",
+		name = "Top Cat",
+		text = "Raise a cat to level 25",
+		measure = "topCatLevel",
+		needs = 25,
+		size = "L",
+	},
+	{
+		id = "a_level50",
+		name = "Master Cat",
+		text = "Raise a cat to level 50",
+		measure = "topCatLevel",
+		needs = 50,
+		size = "XL",
+	},
+} :: { Types.AchievementDef }
+
+-- An achievement's prize by its size; coins scale with the day rate when claimed.
+Catalog.achievementPrizes = {
+	S = { coins = 300, coinSeconds = 300, spins = 1 },
+	M = { coins = 1000, coinSeconds = 900, spins = 2, potions = { tip_potion = 1 } },
+	L = {
+		coins = 2500,
+		coinSeconds = 1800,
+		spins = 3,
+		crates = { classic_crate = 1 },
+		potions = { big_tip_potion = 1 },
+	},
+	XL = {
+		coins = 5000,
+		coinSeconds = 3600,
+		spins = 5,
+		crates = { classic_golden_crate = 1 },
+		potions = { big_tip_potion = 1, gold_rush_potion = 1 },
+	},
+} :: { [string]: Types.IndexPrize }
+
+Catalog.questsById = {} :: { [string]: Types.QuestDef }
+Catalog.questPools = {} :: { [string]: string } -- quest id -> its pool
+for _, pools in { Catalog.quests.daily, Catalog.quests.weekly } do
+	for pool, rows in pools do
+		for _, row in rows do
+			Catalog.questsById[row.id] = row
+			Catalog.questPools[row.id] = pool
+			if row.requires ~= nil then
+				table.freeze(row.requires)
+			end
+			table.freeze(row)
+		end
+		table.freeze(rows)
+	end
+	table.freeze(pools)
+end
+table.freeze(Catalog.quests)
+Catalog.achievementsById = {} :: { [string]: Types.AchievementDef }
+for _, def in Catalog.achievements do
+	Catalog.achievementsById[def.id] = def
+	table.freeze(def)
+end
+table.freeze(Catalog.achievements)
+for _, prizes in { Catalog.questPrizes, Catalog.achievementPrizes } do
+	for _, prize in prizes do
+		for _, part in prize :: { [string]: any } do
+			if type(part) == "table" then
+				table.freeze(part)
+			end
+		end
+		table.freeze(prize)
+	end
+	table.freeze(prizes)
+end
+
+function Catalog.getQuest(id: string): Types.QuestDef?
+	return Catalog.questsById[id]
+end
+
+function Catalog.getAchievement(id: string): Types.AchievementDef?
+	return Catalog.achievementsById[id]
 end
 
 -- Section 12b (F64): what a Mystery Visitor's gift holds, rolled when it appears and shown before it is opened.

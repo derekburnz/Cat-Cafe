@@ -12,8 +12,8 @@ return function()
 		it("keeps the ring at the edge and the middle clear", function()
 			local c = Presets.codes
 			local inner = c.radius - c.inset - c.ring - c.halo
-			-- the modelled ticket reaches about 2.2 studs from the centre of a 4 stud circle
-			expect(inner >= c.radius * 0.6).to.equal(true)
+			-- the modelled ticket's corners reach about 3.1 studs from the centre of a 4 stud circle (#406)
+			expect(inner >= c.radius * 0.78).to.equal(true)
 			expect(c.inset > 0 and c.ring > 0 and c.halo > 0).to.equal(true)
 			expect(c.pixelsPerStud * c.ring >= 2).to.equal(true) -- wide enough to draw
 		end)

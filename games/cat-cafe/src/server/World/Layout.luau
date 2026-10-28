@@ -318,8 +318,8 @@ local GH = W.SideGateHalfWidth -- the Woods and Sewer gate openings, z -GH to GH
 
 -- Two lane spawn points behind every cafe, in plot order: plot p owns alley points 2p - 1 and 2p, so the tutorial
 -- stray waits right outside a beginner's own yard gate. Then two nooks at each end of each back alley (s = -1 west,
--- 1 east), where Epic and rarer strays go: 6.5 studs off the south end walls and 8.5 off the north ones (the east
--- north end's fire escape is 5 deep), so at least 2 inside the roam rects, and at least 10 studs from every lane
+-- 1 east), where Epic and rarer strays go: 6.5 studs off the south end walls and 8.5 off the north ones (clear of
+-- the north ends' mural and building), so at least 2 inside the roam rects, and at least 10 studs from every lane
 -- point (town-layout-v3.md 7e's suggested points, moved out from the end walls).
 local NOOKS = { { 70, 117 }, { 76, 117 }, { 82, -119 }, { 68, -119 } }
 local function alleySpawnPoints(): { Point }
@@ -373,12 +373,13 @@ local function onEndWall(
 	}
 end
 
--- Building backs (30.6 wide) along each back alley's outer wall, so the lane reads as the backs of buildings rather
--- than a bare wall (world-and-feel.md section 2): three either side of the Woods or Sewer gate, from clear of the
--- end wall's piece to clear of the gate's model (42 studs wide with its pillars), evenly spaced.
+-- Buildings (30.6 wide) along each back alley's outer wall, so the lane reads as a street of different buildings
+-- rather than a bare wall (world-and-feel.md section 2; Model-Agent #535 made the repeated backs and the staff door
+-- into eight full buildings for Derek): three either side of the Woods or Sewer gate, from clear of the end wall's
+-- piece to clear of the gate's model (42 studs wide with its pillars), evenly spaced.
 local BACK_WIDTH = 30.6
 local GATE_CLEAR = 21.2
-local END_CLEAR = 5 -- the deepest end wall piece, the fire escape
+local END_CLEAR = 5 -- the end wall pieces' room (the fire escape that stood there was 5 deep); the slots stay put
 local BACK_SLOTS: { number } = (function(): { number }
 	local first, last = AS + END_CLEAR + BACK_WIDTH / 2, -GATE_CLEAR - BACK_WIDTH / 2
 	local count = math.floor((last - first) / BACK_WIDTH) + 1
@@ -392,33 +393,34 @@ local BACK_SLOTS: { number } = (function(): { number }
 	return slots
 end)()
 local GATE_SLOT = #BACK_SLOTS // 2 -- the last back south of the gate; the next one is the first north of it
--- The fire escape's first landing (top 9.35) is reached from the crate stack's tall column (top 7.7), which
--- stands just past the landing's open end at local x -8 (asset manifest, ledges_roblox).
+-- The Warehouse's fire escape's first landing (top 9.35) is reached from the crate stack's tall column (top 7.7),
+-- which stands just past the landing's open end at local x -8 (asset manifest, ledges_roblox).
 local CRATES_ALONG, CRATES_OUT = -12, -2.8
+-- A building pivots on its back plane with its body 3 deep, so it stands this far out over the outer wall (1 thick)
+-- and its facade lands where the old backs' faces were: the back plane stays inside the side area's wall. On the
+-- end walls it stands END_OUT out, its back flush with the outer face of the Park's or the Neighbourhood's wall.
+local BUILDING_OUT, END_OUT = 2.25, 1
+
+local function building(name: string): string
+	return "CatCafe_Alley_Building_" .. name
+end
 
 local function alleyDressing(): { Prop }
 	local props: { Prop } = {}
 	local function add(prop: Prop)
 		table.insert(props, prop)
 	end
-	-- south to north; the loose props and rescue spots below stand in front of windows and doors, never a fire
-	-- escape, and no fire escape's crates reach the gate
+	-- south to north (Model-Agent's rows); the loose props and rescue spots below stand in front of windows and
+	-- doors, never the Warehouse's fire escape, and no Warehouse's crates reach the gate
 	local rows = {
-		[-1] = { "WallWindows", "FireEscape", "WallWindows", "WallDoor", "WallWindows", "WallDoor" },
-		[1] = {
-			"WallWindows",
-			"FireEscape",
-			"WallWindows",
-			"WallDoor",
-			"FireEscape",
-			"WallWindows",
-		},
+		[-1] = { "Bakery", "Warehouse", "Townhouses", "MusicShop", "Apartments", "Grocer" },
+		[1] = { "Grocer", "Warehouse", "Apartments", "NarrowHouses", "Townhouses", "MusicShop" },
 	}
 	for _, side in { -1, 1 } do
 		for slot, z in BACK_SLOTS do
-			local piece = rows[side][slot] or "WallWindows"
-			add(onOuterWall("CatCafe_Alley_" .. piece, side, z))
-			if piece == "FireEscape" then
+			local piece = rows[side][slot] or "Townhouses"
+			add(onOuterWall(building(piece), side, z, 0, BUILDING_OUT))
+			if piece == "Warehouse" then
 				add(onOuterWall("CatCafe_Alley_CrateStack", side, z, CRATES_ALONG, CRATES_OUT))
 			end
 		end
@@ -437,14 +439,20 @@ local function alleyDressing(): { Prop }
 			x = side * (MID - 0.4),
 			z = if side < 0 then BACK_SLOTS[5] else BACK_SLOTS[3],
 		})
-		-- the south dead ends: a staff door
-		add(onEndWall("CatCafe_Alley_WallDoor", side, -1))
+		-- the south dead ends close on a building, where a staff door stood
+		add(
+			onEndWall(
+				building(if side < 0 then "NarrowHouses" else "ClockHouse"),
+				side,
+				-1,
+				0,
+				END_OUT
+			)
+		)
 	end
-	-- The north dead ends take what stood in the Alley Square: the mural on the west, the fire escape with its
-	-- crates on the east (its crates reach the east alley's inner edge, the landing's open end being on that side).
+	-- The north dead ends: the mural from the old Alley Square on the west, the Bakery on the east.
 	add(onEndWall("CatCafe_Alley_Mural", -1, 1))
-	add(onEndWall("CatCafe_Alley_FireEscape", 1, 1))
-	add(onEndWall("CatCafe_Alley_CrateStack", 1, 1, CRATES_ALONG, CRATES_OUT))
+	add(onEndWall(building("Bakery"), 1, 1, 0, END_OUT))
 	return props
 end
 
@@ -469,9 +477,9 @@ Layout.alley = {
 		{ x1 = -AO, z1 = AS - 1, x2 = -W.ParkWidth / 2 - 0.5, z2 = AS },
 		{ x1 = W.ParkWidth / 2 + 0.5, z1 = AS - 1, x2 = AO, z2 = AS },
 	},
-	-- Strays keep off the strip along the outer walls where the building backs, fire escapes and crate stacks stand
-	-- (up to 5 studs deep), 4 off the south end walls (a staff door) and 6 off the north ones, clear of the east
-	-- north end's fire escape and its crates (reviewer S84); the nooks stay 2 or more inside.
+	-- Strays keep off the strip along the outer walls where the buildings, the Warehouses' fire escapes and the crate
+	-- stacks stand (up to 5 studs deep), 4 off the south end walls and 6 off the north ones, clear of the end walls'
+	-- buildings and the mural (reviewer S84); the nooks stay 2 or more inside.
 	roam = {
 		{ x1 = -AO + 5, z1 = AS + 4, x2 = -AI, z2 = AN - 6 },
 		{ x1 = AI, z1 = AS + 4, x2 = AO - 5, z2 = AN - 6 },
@@ -497,13 +505,13 @@ Layout.alley = {
 			rotY = -90,
 		},
 	} :: { RescuePoint },
-	-- The building backs, crate stacks, lights and laundry from alleyDressing, then the loose props in front of
-	-- them: clear of the backs' depth (2.7 windows, 3.4 door canopy, 5 fire escape) and of the lane spawn points.
+	-- The buildings, crate stacks, lights and laundry from alleyDressing, then the loose props in front of them: clear
+	-- of the buildings' fronts and the Warehouses' fire escapes, and of the lane spawn points.
 	props = (function(): { Prop }
 		local props = alleyDressing()
 		for _, prop in
 			{
-				-- West back alley: a dumpster corner at each end, a bin by the staff door, a crate, puddles
+				-- West back alley: a dumpster corner at each end, a bin, a crate, puddles
 				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 4.8, z = -104, rotY = 90 },
 				{ asset = "CatCafe_Alley_GarbageBags", x = -AO + 4.6, z = -111, rotY = 90 },
 				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 3, z = AN - 7.5, rotY = 90 },
@@ -511,7 +519,7 @@ Layout.alley = {
 				{ asset = "CatCafe_Alley_Crate", x = -AO + 4.5, z = 55 },
 				{ asset = "CatCafe_Alley_Puddle", x = -AI - 13, z = -40 },
 				{ asset = "CatCafe_Alley_Puddle", x = -AI - 11, z = 40 },
-				-- East back alley: a dumpster corner at the south end, crates by the fire escape at the north end
+				-- East back alley: a dumpster corner at the south end, crates by the Bakery at the north end
 				{ asset = "CatCafe_Alley_Dumpster", x = AO - 4.8, z = -104, rotY = -90 },
 				{ asset = "CatCafe_Alley_GarbageBags", x = AO - 4.6, z = -111, rotY = -90 },
 				{ asset = "CatCafe_Alley_TrashCan", x = AO - 3.8, z = -28 },

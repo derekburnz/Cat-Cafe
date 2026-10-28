@@ -143,7 +143,6 @@ return function()
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
-		BigBowlLureWaitSeconds = 480, -- section 3: the Big Bowl's wait on a level 1 bowl, until the UI reads Bait (F82)
 		BigBowlWaitMultiplier = 0.8, -- section 17 (v0.13.15): the Big Bowl takes a fifth off any bowl level's wait
 		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
@@ -279,14 +278,14 @@ return function()
 				Mythical = 150,
 			})
 			expect(Config.DecorSpots :: any).to.deepEqual({ 2, 3, 4, 5, 6 })
-			expect(Config.BigBowlLureWaitSeconds < Config.LureWaitSeconds).to.equal(true)
 		end)
 
 		it("bowl levels (F82, section 8 v0.13.15): waits from 10:00 to 8:00 and luck from 0 to 16%", function()
 			expect(Config.BowlWaitSeconds :: any).to.deepEqual({ 600, 570, 540, 510, 480 })
 			expect(Config.BowlLuck :: any).to.deepEqual({ 0, 0.04, 0.08, 0.12, 0.16 })
 			expect(Config.BowlWaitSeconds[1]).to.equal(Config.LureWaitSeconds)
-			expect(Config.BowlWaitSeconds[1] * Config.BigBowlWaitMultiplier).to.equal(Config.BigBowlLureWaitSeconds)
+			-- section 3's Big Bowl wait of 8:00 on a level 1 bowl
+			expect(Config.BowlWaitSeconds[1] * Config.BigBowlWaitMultiplier).to.equal(480)
 			expect(#Config.BowlLuck).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
 			expect(#Config.BowlWaitSeconds).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
 		end)

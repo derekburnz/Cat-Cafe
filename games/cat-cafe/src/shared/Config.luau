@@ -236,8 +236,6 @@ local Config = {
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
-	-- the Big Bowl's wait on a level 1 bowl, kept only for the UI's food cards until they read Bait.waitSeconds (F82)
-	BigBowlLureWaitSeconds = 480,
 
 	-- Index rewards (F54, golden-fish.md sections 5 and 5b): the permanent bonuses the gold and All Cats tracks add
 	-- up to. Gold rolls use chance x (1 + goldLuck); a bait wait is the wait x (1 - baitSpeed).

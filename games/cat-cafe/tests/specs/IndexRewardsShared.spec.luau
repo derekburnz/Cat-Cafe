@@ -801,7 +801,7 @@ return function()
 						profile.fishPerks.big_bowl = 1
 					end
 					local base = if bowl == 1
-						then Config.BigBowlLureWaitSeconds
+						then Config.LureWaitSeconds * Config.BigBowlWaitMultiplier
 						else Config.LureWaitSeconds
 					expect(Economy.baitWaitSeconds(profile)).to.equal(base)
 					local off = 0

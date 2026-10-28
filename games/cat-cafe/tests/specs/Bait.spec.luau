@@ -126,7 +126,6 @@ return function()
 				expect(Bait.waitSeconds(level, true, true)).to.equal(big[level] // 2)
 			end
 			expect(Bait.waitSeconds(0, false)).to.equal(Config.LureWaitSeconds)
-			expect(Bait.waitSeconds(1, true)).to.equal(Config.BigBowlLureWaitSeconds)
 		end)
 
 		it("names the five bowls", function()

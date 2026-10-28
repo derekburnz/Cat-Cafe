@@ -315,8 +315,8 @@ function Logic.newlyPlaced(previous: unknown, current: unknown): { string }
 end
 
 -- What flashes when a decor piece of `kind` (Types.DecorKind, nil for a shop piece) goes into use: "piece" for its
--- placed model (shop pieces, crate furniture and decorations), "floor" for a floor style, nil for wallpaper and
--- paint, which already repaint whole walls.
+-- models (shop pieces, crate furniture and decorations, a door set's doors and a cat flap), "floor" for a floor
+-- style, nil for wallpaper and paint, which already repaint whole walls.
 function Logic.equipTarget(kind: string?): string?
 	if kind == "floor" then
 		return "floor"

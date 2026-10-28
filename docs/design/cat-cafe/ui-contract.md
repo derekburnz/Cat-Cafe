@@ -502,6 +502,21 @@ Derek 2026-10-28: "potion button still missing". Kept brief, as every window sin
 
 **Engineer (F64):** in UIController, add `potions = Catalog.potions, mysteryGift = Catalog.mysteryGift` to the catalog table passed to `UI.init` / `UI.setCatalog`; pass `potions = s.potions, buffs = s.buffs` (endsAt in server time) in `UI.update` whenever ProfileSync carries them; connect `UI.events.usePotion` to `Net.fire("UsePotion", potionId)`; and call `UI.potions.giftResult(kind, id, count)` from `MysteryGiftResult`. The gift prompt needs nothing more than the `GiftPrompt` name and Custom style.
 
+### Cat Collector card (built, F63, data-model section 12b)
+
+Kept brief, as Derek asked on 2026-10-28 at 01:09: one small tag over him and one short card, with nothing on the HUD (the server's toast says he came).
+
+- **Tag over him** (`Screens/Collector.luau`): while a visit is live and the plot's `CollectorSpot` has streamed in, outlined white text with no box floats over the spot, "🧐 Cat Collector" and the time he has left in gold ("2:41", from `endsAt`), seen from 120 studs, on the owner's screen only. A tap opens his card from wherever the tag shows.
+- **His card** (a window, like the code box): it opens when the owner walks within `CollectorRangeStuds` (12) of the spot, measured from the character's root as the server does, and closes a stud past it, unless another window is open. Header "Cat Collector", "Leaves in 2:41". Left, the cat he wants from `state.cats[catUid]`: its 3D picture on a disc edged in its rarity colour, its name (the player's name for it, else the breed) and "Gold Rare" in the rarity's ink. An arrow, then his offer as pictures with amounts (`Components/PrizeChips`): golden fish, foods, spins, and the zone crate as `<area>_crate` and the golden crate as `<area>_golden_crate` of the cat's own area (`Components/CollectorLogic.luau`, with a spec). Under them "Your Index keeps this cat", then **No thanks** and **Trade**.
+- Trade asks for a second tap from Rare up and for a gold cat (it turns gold and reads "Tap again to trade" for 3 s), as Sell does. A press fires `events.answerCollector(accept)` and greys both buttons ("...") until `CollectorOffer("")` ends the visit or 3 s pass, since a refused trade is the server's toast and he waits on. Out of range the buttons read "Walk closer". X closes the card until the owner walks away and back, or taps the tag.
+- `CollectorOffer("", nil, 0, traded)` closes the card and hides the tag; `traded` true plays `uiTrade`. The server's toast says what the trade paid.
+
+| API | Purpose |
+|---|---|
+| `UI.collector.offer(catUid, offer?, endsAt, traded?)` | From `CollectorOffer`, all four arguments as sent. `offer` is a `Catalog.collectorOffers` row (`Types.CollectorOffer`), `endsAt` server `os.time()`. `catUid` "" (or a nil offer) ends the visit. The spot comes from the plot passed to `UI.richTip.bind(plot)`. |
+
+**Engineer (F63):** in UIController, connect `CollectorOffer` to `UI.collector.offer(catUid, offer, endsAt, traded)` and `UI.events.answerCollector` to `Net.fire("AnswerCollector", accept)`. `UI.richTip.bind(plot)` with your own plot already feeds the spot, and the catalog's `crates` and `areas` (passed for the Market) name and draw the crates.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -553,6 +568,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `usePotion` | `potionId` | Use on a potion row in the Potions window (F64). Forward as `UsePotion(potionId)`; the server checks the count and the 60 minute cap, and a refusal is its toast. |
 | `claimRichTip` | none | Collect on the rich tip marker, within 12 studs of the anchor. Forward as `ClaimRichTip()` (F31); the server checks the owner, range and expiry |
 | `collectTips` | none | Collect on the till's tip button (F61), only shown on your own plot. Forward as `CollectTips()` |
+| `answerCollector` | `accept` | Trade (true) or No thanks (false) on the Cat Collector's card (F63), shown within 12 studs of him. Forward as `AnswerCollector(accept)`; a refusal is the server's toast, and the visit's end comes back as `CollectorOffer("")` |
 | `tackle` | none | The Tackle bar or Q (F74). Lunge and forward as `Tackle()`; the server decides hit or miss and checks the area, locks, cooldown and safe zones. |
 | `screenOpened` | `name or nil` | Modal opened or closed |
 | `catchPressed` | `strayId, index, grade` | A press on circle `index` (1-based) with the device's grade hint. Forward `strayId, index` as CatchPress; `grade` is for the instant NetSwing and CircleGrade sounds only. |

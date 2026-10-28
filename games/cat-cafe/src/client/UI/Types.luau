@@ -300,6 +300,7 @@ export type ScreenName =
 	| "Cats"
 	| "RankUp"
 	| "Areas"
+	| "Cannon" -- F84: the Cat Cannon picker; UI.cannon.open picks which cannon
 	| "Bait"
 	| "Dealer"
 	| "Settings"
@@ -391,6 +392,7 @@ export type CarryInfo = {
 	catName: string?,
 	rarity: Rarity?,
 	door: BasePart?, -- own cafe door; shows a world marker with distance
+	camp: BasePart?, -- F84: the wild area's camp (its landing pad); the marker reads "Bring it here" over it instead
 }
 
 -- Optional extras for UI.showCatFound, all from the catch: the cat's charm stars (CatView.stars), whether it is

@@ -91,7 +91,7 @@ The UI is a view. It renders what `UI.update` gives it and raises events for wha
 | `UI.update(partialState)` | Merge into current state and re-render. Derives `tables` from `upgradeLevels.tables` and `catsOwned` from `cats` when those are absent. |
 | `UI.getState()` | Shallow copy of the current UI state. |
 | `UI.setCatalog(catalog)` | Swap the catalog at runtime (hot reload, tests). |
-| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"` (the Index), `"Cats"`, `"RankUp"`, `"Areas"`, `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"Market"`, `"BugReport"`, `"Codes"`. One open at a time. |
+| `UI.open(name)` / `UI.close()` / `UI.isOpen()` | Modal screens: `"Upgrades"`, `"Decor"`, `"Collection"` (the Index), `"Cats"`, `"RankUp"`, `"Areas"`, `"Cannon"` (F84, opened with `UI.cannon.open`), `"Bait"`, `"Dealer"`, `"Settings"`, `"TipJar"`, `"Spin"`, `"Market"`, `"BugReport"`, `"Codes"`. One open at a time. |
 | `UI.setZone(zone?)` | The `World.Zones` name the player stands in, from the controller's zone check: nil or `"Cafe"` is the safe street and cafes, else the area (`"Alley"`). Drives the "Safe zone" toast on coming back (the Safe zone chip went on 2026-10-28). |
 | `UI.openCatRoom()` | Opens the Cats screen (tutorial step 3, a free crew slot's "+" in Upgrades). |
 | `UI.toast(text, kind?)` | Top-centre message. kind: `"info"` (default), `"good"`, `"warn"`, `"announce"` (gold). |
@@ -559,6 +559,18 @@ A seven-stamp card, one stamp per UTC day played, never reset: a missed day lose
 
 **Engineer (F70):** in UIController, keep `dailyTreat = Catalog.dailyTreat` in the catalog passed to `UI.init` / `UI.setCatalog` (#518 has it); pass `dailyTreat = s.dailyTreat` in `UI.update` whenever ProfileSync carries it; and connect `UI.events.claimDailyTreat` to `Net.fire("ClaimDailyTreat")`.
 
+### Cat Cannon (built, F84, hometown-cannon.md sections 3 and 5; mockup approved by Derek 2026-10-28 13:55 and 14:04)
+
+Every catching area, the Alleyway included, is reached by the Cat Cannon in the Town Square (Derek 14:09 and 14:10), and each area has a safe camp with a cannon back. All of it is off until `UI.cannon.setEnabled(true)`, so the Areas button and panel work as before on a server without F84.
+
+- **HUD:** with the cannon on, a Cannon button (💥, green) takes the Areas button's place and fires `events.travel("cannon")`; the server moves the player at once to the front of the nearest cannon, and no picker opens until they hop in. It works at night too and greys while carrying. The Alley button goes. The carry banner's line reads "Bring it to the camp!", My Cafe reads "Camp first" while carrying, and H while carrying toasts "Bring your cat to the camp first". `CarryInfo.camp` (the camp's landing pad) puts the carry marker "Bring it here" over the camp instead of "Check in here" over the door.
+- **Picker** (`Screens/Cannon.luau`, rules in `Components/CannonLogic.luau` with a spec): `UI.cannon.open("town")` or `UI.cannon.open(areaId)` for a camp's cannon. One card per place: the landmark picture (`Theme.areaPictures`, six uploads, the area colour and emoji until one loads), the name, "7/10 cats" from the Index (no coin line, Derek 13:55) and Launch. The Town Square cannon lists the opened areas in tier order, the Alleyway from Tier 1; a camp's cannon lists Town Square ("Cafes and markets") first, then the other opened areas, never its own. In the last DuskWarningSeconds the area cards read "Night soon" and the title line "Night is coming. Launch opens again at sunrise."; at night a moon covers them, they read "🌙 Sunrise" and the line counts down ("Closed until sunrise · 2m 40s", once a second while open). Town Square stays open. Every Launch greys while carrying ("Bring your cat to the camp first"). A press greys Launch for 1 s and fires `events.launchCannon(cannonId, destination)`; `UI.cannon.result(false, destination)` brings it back at once and wobbles it (the server's toast says why).
+- **Name card in the clouds** (`Screens/CannonCard.luau`, ScreenGui DisplayOrder 46, just over VFX's cloud tunnel at 45): `UI.cannon.flight(destination, launchAt)` from `CannonLaunch` closes the picker and shows a ticket with the place's picture, "To the Woods!" on a ribbon in its colour and "Landing at the Woods camp" ("To Town Square!", "Landing in Town Square"). It pops in with a white ring 1.6 s after `launchAt`, wobbles at 2.0, zips up and off at 2.4 and is gone by 2.6; with reduced motion it only shows from 1.6 to 2.4. No card for a cloud hop.
+- **Camp check-in:** `UI.cannon.checkedIn(catName)` on the player's own `CampCheckIn` toasts "🧺 Pirate Cat is on its way to your cafe!".
+- **Hints** on the tutorial strip with the gold marker and trail at `UI.cannon.setCannon(part)`: "Hop in the cannon to fly to the Alleyway!" for a Tier 1 player until their first flight this session, and "The Park is open! Hop in the cannon to fly there." after the rank up to Tier 2 until the next flight. Only in town (`UI.cannon.setWild(areaId)` while in a wild area, camp included, nil in town) and never in the intro. Before the first catch (tutorialStep 0 or 1) the hint takes the onboarding line's place, since the catch needs the flight; after that the onboarding line (`UI.tutorial.show`) comes first.
+
+**Engineer (F84):** in UIController, call `UI.cannon.setEnabled(true)` once the cannon is live; `UI.cannon.setCannon(townCannonPart)`; `UI.cannon.setWild(areaId or nil)` as the character enters and leaves a wild area (camp included); `UI.cannon.open(cannonId)` when the "Hop in" hold completes; `UI.cannon.flight(destination, launchAt)` on `CannonLaunch`; `UI.cannon.result(false, destination)` on a refused launch; `UI.cannon.checkedIn(catName)` on the player's own `CampCheckIn`; pass `camp = <camp landing pad>` in `UI.setCarrying` while carrying in a wild area; forward `UI.events.launchCannon(cannonId, destination)` as `LaunchCannon` and `events.travel("cannon")` as `Travel("cannon")`. The onboarding line for tutorialStep 0 and 1 should no longer say "Go out your back door to the alley"; the cannon hint covers the town, and in the Alleyway it can read "Press E on a cat, then tap as each circle closes".
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -619,6 +631,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `screenOpened` | `name or nil` | Modal opened or closed |
 | `catchPressed` | `strayId, index, grade` | A press on circle `index` (1-based) with the device's grade hint. Forward `strayId, index` as CatchPress; `grade` is for the instant NetSwing and CircleGrade sounds only. |
 | `rankUp` | none | v0.3: Rank up pressed with every requirement met. Forward as RankUp. |
+| `launchCannon` | `cannonId, destination` | Launch on a Cat Cannon card (F84): `cannonId` "town" or a camp's area id, `destination` "town" or an area id. Forward as `LaunchCannon(cannonId, destination)`; pass a refusal to `UI.cannon.result(false, destination)` |
 
 ## State shape (`Types.PlayerState`)
 
@@ -683,7 +696,7 @@ AreaDef    : id, name, tier, ...   (the UI reads id, name and tier)
 - `ScreenInsets = CoreUISafeInsets`: the HUD keeps clear of the Roblox top bar.
 - Modals are 92% x 86% of the viewport with a UISizeConstraint cap; lists scroll with `AutomaticCanvasSize`.
 - Money uses `Format.money` ("$8,420", "$1.24M", cut down, never rounded up) so it never overflows; tap the counter for the exact amount.
-- DisplayOrder: HUD 10, catch prompt 15, modals 20, catch circles 25, toasts 30, popups 40.
+- DisplayOrder: HUD 10, catch prompt 15, modals 20, catch circles 25, toasts 30, popups 40, VFX cloud tunnel 45, cannon name card 46, intro 50.
 
 ## Shop rules followed (growth thread, docs/growth/monetization.md section 6)
 

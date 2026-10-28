@@ -133,7 +133,7 @@ def stream(mat):
             b.box_base((*_at(c, a, d), 0), (L * 1.12, EDGE_W, EDGE_H + e), sw, bevel=False, rot=rot)
             d = s * (WATER_HW + EDGE_W + BANK_W / 2)
             turn = Matrix.Rotation(a, 3, "Z") @ (Matrix.Rotation(PI, 3, "Z") if s > 0 else Matrix.Identity(3))
-            b.wedge((*_at(c, a, d), EDGE_H / 2), (L * 1.12, BANK_W, EDGE_H - 0.01 * (i % 2)), "leaf_green", bevel=False,
+            b.wedge((*_at(c, a, d), EDGE_H / 2), (L * 1.12, BANK_W, EDGE_H - 0.01 * (i % 2)), "leaf_dark", bevel=False,
                     rot=turn)
     # the barriers: chunks about 12 long along each rock edge, none across the bridge
     gaps = (BRIDGE_X - 3.4, BRIDGE_X + 3.4)
@@ -196,20 +196,24 @@ def _pine_into(b, x, y, h, base=0.0):
 
 
 def _tree_line(s, mat, z, gap):
-    """Dense thicket 8.5 to 10 high across the area with pines standing in it, and one gap (x0, x1). A barrier 30
-    high on its footprint, so the gap is the only way through."""
+    """Dense thicket 9 to 9.3 high across the area with pines standing in it, bushes spilling out of both faces, and
+    one gap (x0, x1). A barrier 30 high on its footprint, so the gap is the only way through."""
     b, bar = Builder(), Builder()
     for (a0, a1) in ((-IN, gap[0]), (gap[1], IN)):
         n = max(1, round((a1 - a0) / 7.0))
         step = (a1 - a0) / n
         for i in range(n):
-            c, h = a0 + (i + 0.5) * step, 8.5 + 0.5 * ((i * 2) % 4)
-            dz = 0.6 * math.sin(i * 1.7)
-            sw = ("leaf_dark", "leaf_green", "leaf_dark", "shirt_green")[i % 4]
-            x, y, _ = bl(c, z + dz)
-            b.box_base((x, y, 0), (step + 0.04 * (i % 2), 4.0 + 0.04 * (i % 2), h), sw, bevel=False)
-            b.ico((x, y, h), 1.8, sw, subdivisions=1, scale=(step / 3.2, 1.2, 0.6))
-            b.ico((x + 0.3 * step * (-1) ** i, y - 2.0, 1.4), 1.4, "leaf_green", subdivisions=1, scale=(1.3, 0.6, 1.0))
+            c, h = a0 + (i + 0.5) * step, 9.0 + 0.3 * (i % 2)
+            x, y, _ = bl(c, z + 0.5 * math.sin(i * 1.7))
+            b.box_base((x, y, 0), (step + 0.04 * (i % 2), 4.0 + 0.04 * (i % 2), h), "leaf_dark", bevel=False)
+            b.ico((x, y, h), 1.9, ("leaf_dark", "leaf_green")[i % 2], subdivisions=1, scale=(step / 3.0, 1.2, 0.6))
+            for side in (-1, 1):                                                 # bushes on both faces
+                sw = ("leaf_green", "fur_moss", "leaf_green", "leaf_dark")[(i + (side > 0)) % 4]
+                b.ico((x + 0.25 * step * side * (-1) ** i, y + side * 1.9, 1.5), 1.6, sw, subdivisions=1,
+                      scale=(1.4, 0.65, 1.0))
+                if (i + (side > 0)) % 2 == 0:
+                    b.ico((x - 0.2 * step * side, y + side * 1.9, 5.2), 1.8, ("leaf_dark", "leaf_green")[i % 2],
+                          subdivisions=1, scale=(1.3, 0.55, 1.2))
             if i % 2 == 0 and (abs(c - gap[0]) > 6 and abs(c - gap[1]) > 6):
                 _pine_into(b, x, y + 0.5 * (-1) ** (i // 2), 18 + 3 * ((i // 2) % 3))
         x, y, _ = bl((a0 + a1) / 2, z)
@@ -218,24 +222,32 @@ def _tree_line(s, mat, z, gap):
 
 
 def _ridge(s, mat, z, gap):
-    """A mossy rock ridge 7 to 9 high across the area, one gap (x0, x1); a core under the boulders fills between
-    them, and a barrier 30 high stands on it."""
+    """A mossy rock ridge 6 to 8 high across the area, one gap (x0, x1): two staggered rows of boulders with
+    smaller ones on top, a low core between them, and a barrier 30 high on it."""
     b, bar = Builder(), Builder()
+    rocks = ("concrete", "fur_grey", "concrete", "fur_smoke_light", "concrete_dark")
     for (a0, a1) in ((-IN, gap[0]), (gap[1], IN)):
         n = max(1, round((a1 - a0) / 5.5))
         step = (a1 - a0) / n
         x, y, _ = bl((a0 + a1) / 2, z)
-        b.box_base((x, y, 0), (a1 - a0, 3.0, 6.0), "concrete_dark", bevel=False)
+        b.box_base((x, y, 0), (a1 - a0, 2.4, 3.5), "concrete_dark", bevel=False)
         for i in range(n):
+            for row in (-1, 1):
+                c = a0 + (i + 0.5 + 0.25 * row) * step
+                c = min(max(c, a0 + 1.5), a1 - 1.5)
+                x, y, _ = bl(c, z + row * 1.0 + 0.4 * math.sin(i * 2.3))
+                r = 3.8 + 0.4 * ((i * 3 + row) % 3)
+                b.ico((x, y, r * 0.6), r, rocks[(i * 2 + (row > 0)) % 5], subdivisions=1,
+                      scale=(step / (1.35 * r), 0.75, 1.0))
             c = a0 + (i + 0.5) * step
-            x, y, _ = bl(c, z + 0.8 * math.sin(i * 2.3))
-            r = 3.2 + 0.5 * ((i * 3) % 3)
-            sw = ("concrete", "fur_grey", "concrete", "fur_smoke_light")[i % 4]
-            b.ico((x, y, r * 0.75), r, sw, subdivisions=1, scale=(step / (1.6 * r), 0.85, 0.95))
-            if i % 2:
-                b.ico((x, y - 0.4, 2 * r * 0.75 - 0.3), r * 0.6, "fur_moss", subdivisions=1, scale=(1.2, 1.0, 0.45))
+            x, y, _ = bl(c, z)
+            if i % 2 == 0:
+                b.ico((x, y, 6.2), 2.4, rocks[(i + 1) % 5], subdivisions=1, scale=(1.2, 1.0, 0.8))
+                b.ico((x + 0.4, y - 0.3, 7.6), 1.5, "fur_moss", subdivisions=1, scale=(1.3, 1.1, 0.4))
+            else:
+                b.ico((x, y - 0.6, 6.0), 2.0, "fur_moss", subdivisions=1, scale=(1.5, 1.3, 0.45))
             if i % 3 == 1 and abs(c - gap[0]) > 8 and abs(c - gap[1]) > 8:
-                _pine_into(b, x, y + 3.5, 17 + 3 * (i % 2))
+                _pine_into(b, x, y + 4.0, 17 + 3 * (i % 2))
         x, y, _ = bl((a0 + a1) / 2, z)
         bar.box_base((x, y, 0), (a1 - a0, 5.6, BARRIER_H), "offwhite", bevel=False)
     s.put([b.finalize(N + "Ridge", mat), bar.finalize(N + "Ridge_Barrier", mat)], 0, 0, 0)
@@ -250,8 +262,9 @@ def _seg_cliff(b, L, k):
         x = -L / 2 + (i + 0.5) * L / n
         for j, (z, r) in enumerate(((2.4, 2.6), (6.4, 2.4), (H - 2.0, 2.2))):
             sw = ("concrete", "fur_grey", "concrete_dark", "fur_smoke_light")[(i + j + k) % 4]
-            b.ico((x + 0.5 * ((i + j) % 3 - 1), 1.7, z + 0.3 * ((i * j) % 2)), r, sw, subdivisions=1,
-                  scale=(L / n / (2 * r) * 1.3, 0.66, 0.9))
+            f = 0.8 + 0.35 * ((i * 7 + j * 3 + k) % 4) / 3                     # sizes vary, no egg crate
+            b.ico((x + 0.9 * ((i + 2 * j) % 3 - 1), 1.6 - 0.25 * ((i + j) % 2), z + 0.5 * ((i * j + k) % 3 - 1)),
+                  r * f, sw, subdivisions=1, scale=(L / n / (2 * r) * 1.35, 0.66, 0.9))
         b.ico((x, 1.6, H + 0.2), 2.0, ("leaf_green", "fur_moss")[(i + k) % 2], subdivisions=1,
               scale=(L / n / 4.0 * 1.2, 0.95, 0.4))
     b.ico((-L / 4, 0.3, 0.6), 1.2, "leaf_green", subdivisions=1, scale=(1.4, 0.7, 0.6))       # ferny bits at the foot
@@ -260,12 +273,14 @@ def _seg_cliff(b, L, k):
 
 def _seg_thicket(b, L, k):
     H = 10.4 + 0.8 * (k % 2)
-    sw = ("leaf_dark", "leaf_green")[k % 2]
-    b.box_base((0, WALL_D / 2, 0), (L, WALL_D, H), sw)
+    b.box_base((0, WALL_D / 2, 0), (L, WALL_D, H), "leaf_dark")
     n = max(2, round(L / 3.5))
     for i in range(n):
         x = -L / 2 + (i + 0.5) * L / n
-        b.ico((x, WALL_D / 2, H + 0.1 * (i % 2)), 1.9, sw, subdivisions=1, scale=(L / n / 3.2, 0.9, 0.6))
+        b.ico((x, WALL_D / 2, H + 0.1 * (i % 2)), 1.9, ("leaf_dark", "leaf_green")[(i + k) % 2], subdivisions=1,
+              scale=(L / n / 3.2, 0.9, 0.6))
+        if i % 3 == 1:
+            b.ico((x, 0.0, H * 0.55), 1.8, "leaf_green", subdivisions=1, scale=(1.3, 0.5, 1.3))
         if i % 2 == 0:
             b.ico((x, -0.2, 1.3), 1.5, ("leaf_green", "leaf_dark")[(k + 1) % 2], subdivisions=1, scale=(1.3, 0.55, 0.9))
 
@@ -444,7 +459,7 @@ def build_set(mat):
         _spot(s, "tent", *turned(x, z, r, 0, -4.8))
     put(wd.campfire(mat), cx, cz, 0, r=3)
     for (x, z) in ((cx - 6, cz + 5), (cx + 6, cz + 6)):
-        put(wd.log_bench(mat), x, z, face(x, z, cx, cz) + 90, r=3.5)
+        put(wd.log_bench(mat), x, z, face(x, z, cx, cz), r=3.5)
         _spot(s, "log_bench", x, z, y=2.06)
     put(log_pile(mat), cx + 3, cz - 11, 15, r=4)
     _spot(s, "camp", cx + 0.5, cz + 11.5)
@@ -461,7 +476,8 @@ def build_set(mat):
     _spot(s, "rock", -94, -82, y=2.0)
     for (x, z) in ((-72, -76), (-14, -104), (24, -108)):
         put(wd.fern(mat), x, z, 0, r=2)
-        _spot(s, "fern", x, z)
+        if x < -20:                                                  # no spots right by the gate
+            _spot(s, "fern", x, z)
     put(wd.fallen_log(mat), -92, -104, 25, r=5)
     _spot(s, "log", *turned(-92, -104, 25, 0, -2.6))
     put(wd.mushroom(mat), -56, -80, 0, r=2.5)
@@ -484,8 +500,6 @@ def build_set(mat):
     _spot(s, "berry_bush", 100, -79.8)
     put(wd.fallen_log(mat), 64, -56, 70, r=5)
     _spot(s, "log", *turned(64, -56, 70, 0, -2.6))
-    for (x, z) in ((-56, -14.5 - 8), (58, -30)):
-        _spot(s, "glade", x, z)
     for (x, z, rot) in ((-10, -25, 0), (-42, -34, 180)):
         put(wd.lantern(mat), x, z, rot, r=3)
     put(wd.hollow_log(mat), 78, -40, 20, r=5)
@@ -511,9 +525,9 @@ def build_set(mat):
     _spot(s, "stump", -104, 34, y=1.66)
     put(wd.leaves(mat), 34, 14, 0, r=3)
     _spot(s, "leaf_pile", 34, 14)
-    for (x, z) in ((-78, 6), (60, 6), (-6, 18)):
+    for (x, z) in ((-78, 6), (-6, 18)):
         _spot(s, "glade", x, z)
-    for (x, z, rot) in ((-30, 12, 90), (26, 44, 180)):
+    for (x, z, rot) in ((-30, 12, 90), (24, 38, 90)):
         put(wd.lantern(mat), x, z, rot, r=3)
     put(wd.hollow_log(mat), 92, 26, -20, r=5)
     _spot(s, "trap_hollow_log", 92, 26, turn=-20)
@@ -530,7 +544,7 @@ def build_set(mat):
     for (bx, by, up) in wd.NOOK_SPOTS:
         _spot(s, "nook_great_oak", *turned(ox, oz, rot, -bx, by), y=wd.NOOK_Z + up)
     for (x, z) in ((-20, 100), (-56, 100), (-24, 72)):
-        put(wd.log_bench(mat), x, z, face(x, z, ox, oz) + 90, r=3.5)
+        put(wd.log_bench(mat), x, z, face(x, z, ox, oz), r=3.5)
         _spot(s, "log_bench", x, z, y=2.06)
     put(wd.campfire(mat), -26, 92, 0, r=3)
     tx, tz = -86.0, 74.0
@@ -545,7 +559,7 @@ def build_set(mat):
     put(wd.signpost(mat), -12, 84, 60, r=3)
     for (x, z, rot) in ((-8, 66, 90), (-60, 76, -90)):
         put(wd.lantern(mat), x, z, rot, r=3)
-    for (x, z) in ((-58, 64), (-14, 108), (-78, 104)):
+    for (x, z) in ((-58, 64), (-78, 104)):
         _spot(s, "clearing", x, z)
     put(wd.mushroom(mat), -50, 70, 0, r=2.5)
     put(wd.mushroom_glow(mat), -98, 92, 0, r=3)
@@ -557,7 +571,8 @@ def build_set(mat):
         _spot(s, "rock", x, z, y=2.0)
     for (x, z) in ((80, 100), (52, 66), (100, 96)):
         put(wd.fern(mat), x, z, 10, r=2)
-        _spot(s, "fern", x, z)
+        if x < 100:
+            _spot(s, "fern", x, z)
     put(wd.fallen_log(mat), 82, 84, -35, r=5)
     _spot(s, "log", *turned(82, 84, -35, 0, -2.6))
     put(wd.stump(mat), 44, 100, 0, r=3)
@@ -568,8 +583,7 @@ def build_set(mat):
     _spot(s, "leaf_pile", 28, 84)
     put(wd.mushroom_glow(mat), 66, 104, 0, r=3)
     _spot(s, "glow_mushrooms", 66, 100.5)
-    for (x, z) in ((84, 54), (54, 108)):
-        _spot(s, "dell", x, z)
+    _spot(s, "dell", 84, 54)
 
     # filler: pines and a few round oaks, clear of the trail, the stream, the blockers, the pieces and the spots
     spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]

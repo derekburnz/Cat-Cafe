@@ -369,29 +369,29 @@ return function()
 	describe("upgrade costs and tier caps (sections 5b and 6)", function()
 		it("next cost is costs[level + 1], nil when maxed, removed or unknown", function()
 			local p = freshProfile()
-			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(100)
-			expect(Economy.nextUpgradeCost(p, "espresso")).to.equal(300)
-			expect(Economy.nextUpgradeCost(p, "net")).to.equal(500)
-			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(400)
+			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(150)
+			expect(Economy.nextUpgradeCost(p, "espresso")).to.equal(2000)
+			expect(Economy.nextUpgradeCost(p, "net")).to.equal(2500)
+			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(600)
 			p.upgradeLevels.net = 1
-			expect(Economy.nextUpgradeCost(p, "net")).to.equal(3000)
+			expect(Economy.nextUpgradeCost(p, "net")).to.equal(25000)
 			p.upgradeLevels.tables = 6
 			expect(Economy.nextUpgradeCost(p, "tables")).never.to.be.ok()
 			expect(Economy.nextUpgradeCost(p, "cafe_level")).never.to.be.ok()
 			expect(Economy.nextUpgradeCost(p, "jetpack")).never.to.be.ok()
 		end)
 
-		it("fresh profile: Tables is not affordable at 50 coins (100)", function()
+		it("fresh profile: Tables is not affordable at 50 coins (150, v0.13.6)", function()
 			local p = freshProfile()
 			expect(Economy.upgradeBlocker(p, "tables")).to.equal("Not enough coins")
-			p.coins = 100
+			p.coins = 150
 			expect(Economy.upgradeBlocker(p, "tables")).never.to.be.ok()
 		end)
 
-		it("the Bait bowl needs no tier: Tier 1 can buy it at 400 (loop step 5)", function()
+		it("the Bait bowl needs no tier: Tier 1 can buy it at 600 (loop step 5, v0.13.6)", function()
 			local p = freshProfile()
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Not enough coins")
-			p.coins = 400
+			p.coins = 600
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
 			p.upgradeLevels.lure_bowl = 1
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Already maxed")
@@ -471,7 +471,7 @@ return function()
 			expect(Economy.decorBlocker(p, "plants")).to.equal("Needs Tier 2")
 			p.tier = 2
 			expect(Economy.decorBlocker(p, "plants")).to.equal("Not enough coins")
-			p.coins = 150
+			p.coins = 4000
 			expect(Economy.decorBlocker(p, "plants")).never.to.be.ok()
 			p.decorOwned.plants = true
 			expect(Economy.decorBlocker(p, "plants")).to.equal("Already owned")
@@ -556,14 +556,14 @@ return function()
 			end
 		)
 
-		it("step 5: Table 1 costs $100 and raises the rate by exactly 10%", function()
+		it("step 5: Table 1 costs $150 (v0.13.6) and raises the rate by exactly 10%", function()
 			local p = freshProfile()
 			p.cats.new = cat("new", "ginger", "waiter_1")
 			local before = Economy.incomePerSecond(p)
-			p.coins = 100
-			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(100)
+			p.coins = 150
+			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(150)
 			expect(Economy.upgradeBlocker(p, "tables")).never.to.be.ok()
-			expect(Economy.trySpend(p, 100)).to.equal(true)
+			expect(Economy.trySpend(p, 150)).to.equal(true)
 			p.upgradeLevels.tables = 1
 			expect(Economy.incomePerSecond(p)).to.be.near(before * 1.1)
 		end)
@@ -681,16 +681,16 @@ return function()
 			expect(Economy.distinctCatsAtLeast(p, "Legendary")).to.equal(1)
 		end)
 
-		it("Tier 1 to 2: 5 different cats and 1,500 coins, the starter Tabby counts", function()
+		it("Tier 1 to 2: 5 different cats and 8,000 coins (v0.13.6), the starter Tabby counts", function()
 			local p = freshProfile()
-			p.coins = 1500
+			p.coins = 8000
 			for _, id in { "ginger", "tuxedo", "smoke" } do
 				p.collection[id] = 1000
 			end
 			expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
 			p.collection.calico = 1000
 			expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-			p.coins = 1499
+			p.coins = 7999
 			expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 		end)
 

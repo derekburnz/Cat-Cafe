@@ -204,6 +204,14 @@ Derek: "when the cats sleep at night have them sleep in the cat tree pedestals m
 |---|---|---|---|---|---|---|
 | F79 | Bedtime: `Layout.plot.sleepSpots` (the two cat trees' top perches and lower shelves, then decor cat tree pedestals, then beds); `CatCafe_Furniture_CatBed` in the tier dressing, 2 at Tier 3, 4 at Tier 4 and 6 at Tier 5; at night start the working cats, best rating first, get up on the walking body without outfits, walk at 6 round the tables, hop up and sleep (`Bedtime`, `SleepSpot`, `Asleep`, `StretchAt`); the reverse at sunrise; a 15 s timeout; no walking for changes made at night; income, XP and slots unchanged; the hover card says "Asleep" | P1 | M | engineer, asset (bed, tree attachments), animation (client walk and nap rule), ui (hover card) | F44, F66 | At nightfall in a Tier 5 cafe all ten working cats walk off, the best two sleep on the top perches and six in the beds, every visitor sees the same spots, and at sunrise each walks back to its station in its outfit; a cat placed at night appears asleep in a free spot |
 
+## 2o. Door and cat flap decor (Derek, 2026-10-28 01:28)
+
+Derek: "and add a back door with a cat door on it", then "can add decor for cat door / doors also". Spec in [golden-fish.md](golden-fish.md) section 4b. No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F80 | Doors and cat flaps: two new style kinds, `door` (front and back door together) and `catflap` (in the back door's `CatFlap` attachment), one Common and one Rare in each crate (12 pieces a crate, group odds unchanged), plot attributes `Door` and `CatFlap`, model swap instead of colour, Decor screen rows and Decor Index pages of 12 (`decor10` needs all 12) | P2 | M | asset (12 models and icons), engineer, ui | F53, the back door with its plain flap | An Alley Crate can roll the Fire Escape Door; using it swaps both doors and the street sees the front one; the Bell Flap goes into any door; the Alley page reads 1 / 12 |
+
 ## 2p. Bigger side areas with longer walks (Derek, 2026-10-28 01:42)
 
 Derek: "expand all areas on the side to at least 4x the size it feels a little cramped if a lot of players were here", "and the walking should feel longer", and the Sewer bridge "needs some way of getting up and also shouldn't be able to juts walk through it". Spec in [town-layout-v3.md](town-layout-v3.md) section 8.

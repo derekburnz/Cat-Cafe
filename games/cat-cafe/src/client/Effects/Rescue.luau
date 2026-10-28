@@ -40,7 +40,8 @@ local function markSize(k: number): UDim2
 	)
 end
 
--- The top of a stuck cat (its head pokes out of the trap), or nil while it has not streamed in.
+-- The top of a stuck cat (whatever pokes out of the trap, its back end or the whole cat upside down), or nil while
+-- it has not streamed in.
 local function topOf(model: Model): Vector3?
 	if model:FindFirstChildWhichIsA("BasePart", true) == nil then
 		return nil

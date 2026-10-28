@@ -45,6 +45,7 @@ import gates  # noqa: E402
 import items  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
+import doors  # noqa: E402
 import market  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
@@ -67,7 +68,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset]
+           woodsset, sewerset, doors]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -115,6 +116,7 @@ PIVOT_NOTES = {
     **{n: f"the pivot of {h}: place it there with no offset" for n, h in night.HOSTS.items()},
     "CatCafe_Alley_NightFenceSegment": "base centre of the 8 stud piece; -Z faces the cafe side",
     "CatCafe_Plot_BackDoorClosed": "Plot.cframe: floor top centre of the cafe",
+    "CatCafe_Plot_BackDoor": "Plot.cframe: floor top centre of the cafe; the _Leaf pivot is the hinge",
     "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
     "CatCafe_Prop_FishCoin": "base centre: the coin stands on its rim, the cat face toward -Z; spin it about Y",
@@ -185,6 +187,12 @@ STUDIO_NOTES = {
     "CatCafe_Plot_BackDoorClosed": "F66: owned cafes while the areas are closed, at the Plot pivot. A door shut in the "
                                    "6 x 7.5 back door (x -11..-5), so it collides; the CLOSED UNTIL SUNRISE sign faces "
                                    "the back alley (+Z) and its child Model _Sign_Bulb glows. Tag NightFence.",
+    "CatCafe_Plot_BackDoor": "Every cafe, at the Plot pivot: a wooden door hung in the back doorway with a cat flap. "
+                             "Turn the child Model _Leaf about its pivot's Y to swing it (-90 degrees is wide open, out "
+                             "into the yard); _Flap rides the leaf and turns about its own X as a cat goes through. "
+                             "_Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. The leaf's CatFlap "
+                             "Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code "
+                             "panel as the collider.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
                                "CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, "
                                "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
@@ -324,6 +332,8 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
+            extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
             extra = {"part_attributes": square.ARM_ATTRIBUTES}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)

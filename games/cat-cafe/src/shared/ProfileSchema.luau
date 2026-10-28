@@ -31,7 +31,8 @@ local ProfileSchema = {}
 -- older server would drop them, losing the bag and any running potion.
 -- Version 14 (F62) adds each cat's `locked` and locks every gold, Legendary and Mythical cat already owned, once: an
 -- older server would drop the flag, and a second run would lock again a cat its player unlocked.
-ProfileSchema.VERSION = 14
+-- Version 15 (F63) adds stats.collectorTrades, the cats traded to the Cat Collector: an older server would drop it.
+ProfileSchema.VERSION = 15
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -84,6 +85,7 @@ local function newStats(): Types.Stats
 		catLevelUps = 0,
 		potionsUsed = 0,
 		mysteryGifts = 0,
+		collectorTrades = 0,
 	}
 end
 

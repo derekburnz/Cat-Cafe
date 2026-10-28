@@ -50,6 +50,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
 	UsePotion = RateLimiter.new(2, 1), -- data-model section 15: 2 a second
 	OpenMysteryGift = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	AnswerCollector = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

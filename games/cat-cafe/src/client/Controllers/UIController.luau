@@ -439,24 +439,8 @@ local function applyState(s: Types.PlayerState)
 	refreshRichTip()
 end
 
--- The night dealer (F59): the window of the last DealerStock, which a buy sends back.
+-- The night dealer (F59): the window of the last DealerStock, which a buy sends back when the screen has none.
 local dealerWindow: number? = nil
-
--- The dealer screen still takes slots (one row per food it groups them into): each food's amount becomes that many
--- slots, the first `bought` of them bought. A food with none this time has no slot until the screen shows F59's
--- "None this time" from the amounts itself.
-local function dealerSlots(stock: Types.DealerStock): UITypes.DealerStock
-	local slots: { UITypes.DealerSlot } = {}
-	for _, food in stock.stock do
-		for n = 1, food.amount do
-			table.insert(
-				slots,
-				{ lureId = food.lureId, cost = food.cost, bought = n <= food.bought }
-			)
-		end
-	end
-	return { slots = slots, restocksAt = stock.restocksAt }
-end
 
 local function wireIntents()
 	UI.events.setSetting:Connect(function(key: string, value: any)
@@ -577,14 +561,18 @@ local function wireIntents()
 	UI.events.claimRichTip:Connect(function()
 		Net.fire("ClaimRichTip")
 	end)
+	-- The Lock row on a cat (F62): a locked cat cannot be sold or traded; the next ProfileSync shows the new lock.
+	UI.events.lockCat:Connect(function(uid: string, locked: boolean)
+		Net.fire("LockCat", uid, locked)
+	end)
 	-- Collect on the till (F61): every waiting tip pile. Walking near a pile sends the same (CustomerController).
 	UI.events.collectTips:Connect(function()
 		Net.fire("CollectTips")
 	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
-	-- the food and the window the screen showed, so a buy sent across a roll is refused (S42); the slot is unused.
-	UI.events.buyDealerFood:Connect(function(_slot: number, lureId: string)
-		Net.fire("BuyDealerFood", lureId, dealerWindow or -1)
+	-- the food and the window the screen showed (else the last one sent), so a buy sent across a roll is refused (S42).
+	UI.events.buyDealerFood:Connect(function(_index: number, lureId: string, window: number?)
+		Net.fire("BuyDealerFood", lureId, window or dealerWindow or -1)
 	end)
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
@@ -847,7 +835,12 @@ local function wireServerEvents()
 	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
 		dealerWindow = if stock ~= nil then stock.window else nil
-		UI.dealer.setStock(if stock ~= nil then dealerSlots(stock) else nil)
+		-- the screen takes F59's amounts as they come (#492)
+		UI.dealer.setStock(
+			if stock ~= nil
+				then { window = stock.window, restocksAt = stock.restocksAt, stock = stock.stock }
+				else nil
+		)
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
 		Moments.PlotOpened:Fire(position, plotIndex)
@@ -1033,6 +1026,7 @@ function UIController.start()
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 		potions = Catalog.potions, -- F64: the potion bag's rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
+		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

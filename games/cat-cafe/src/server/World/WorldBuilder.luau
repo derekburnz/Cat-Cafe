@@ -651,6 +651,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local baitBowl = anchor("BaitBowl", localCFrame(cframe, Layout.plot.baitBowl), model)
 	local baitCat = anchor("BaitCat", localCFrame(cframe, Layout.plot.baitCat), model)
 	local richTipAnchor = anchor("RichTipAnchor", localCFrame(cframe, Layout.plot.richTip), model)
+	-- the Cat Collector's spot (F63): CollectorService measures range from it and clients stand him on it
+	anchor("CollectorSpot", localCFrame(cframe, Layout.plot.collectorSpot), model)
 
 	local napFolder = folder("NapSpots", model)
 	local napSpots: { BasePart } = {}

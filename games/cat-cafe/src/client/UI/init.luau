@@ -33,6 +33,7 @@ local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
 local Codes = require(script.Screens.Codes)
+local Collector = require(script.Screens.Collector)
 local Create = require(script.Components.Create)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
@@ -134,6 +135,8 @@ UI.events = {
 	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
 	-- F61
 	collectTips = Signal.new(), -- ()   Collect on the till's tip button in your cafe: forward as CollectTips
+	-- F63
+	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 }
 
 local state: Types.PlayerState = {
@@ -199,6 +202,7 @@ local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53)
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
+local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
@@ -338,6 +342,9 @@ local function render()
 	if potionsScreen then
 		potionsScreen:render(state)
 	end
+	if collectorScreen then
+		collectorScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -390,6 +397,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if potionsScreen then
 		potionsScreen:setCatalog(newCatalog)
+	end
+	if collectorScreen then
+		collectorScreen:setCatalog(newCatalog)
 	end
 	if popups then
 		popups:setCatalog(newCatalog)
@@ -793,6 +803,33 @@ function UI.init(config: Types.InitConfig)
 			potionsView:render(state)
 		end,
 	})
+	collectorScreen = Collector.new(parent, {
+		answer = function(accept: boolean)
+			UI.events.answerCollector:Fire(accept)
+		end,
+		-- walking up to him opens it only when no other window is open; a tap on his tag opens it anyway
+		open = function(force: boolean)
+			if force or modalInstance:current() == nil then
+				modalInstance:open("Collector")
+			end
+		end,
+		close = function()
+			if modalInstance:current() == "Collector" then
+				modalInstance:close()
+			end
+		end,
+	})
+	local collectorView = collectorScreen :: Collector.Collector
+	modalInstance:register("Collector", {
+		frame = collectorView.frame,
+		onOpen = function()
+			collectorView:render(state)
+			collectorView:onOpen()
+		end,
+		onClose = function()
+			collectorView:onClose()
+		end,
+	})
 	-- range hints: Tame or Let go need the bowl within 20 studs, buying at the cart its range (data-model 8, 8b)
 	local nearClock = 0
 	table.insert(
@@ -999,6 +1036,10 @@ function UI.destroy()
 		potionsScreen:destroy()
 	end
 	potionsScreen = nil
+	if collectorScreen then
+		collectorScreen:destroy()
+	end
+	collectorScreen = nil
 	if introScreen then
 		introScreen:destroy()
 	end
@@ -1554,6 +1595,28 @@ function UI.potions.giftResult(kind: string, id: string?, count: number)
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The Cat Collector (F63, data-model section 12b)
+----------------------------------------------------------------------------------------------------
+
+UI.collector = {}
+
+-- From CollectorOffer(catUid, offer, endsAt, traded): his visit to your cafe. A tag over his CollectorSpot shows the
+-- time he has left (endsAt is server os.time()) and his card opens when you walk within 12 studs of him: the cat he
+-- wants (looked up in state.cats), his offer as pictures and Trade / No thanks, which fire events.answerCollector.
+-- catUid "" ends the visit and closes the card; `traded` true plays uiTrade. Needs UI.richTip.bind(plot) for the
+-- spot.
+function UI.collector.offer(
+	catUid: string,
+	offer: Types.CollectorOffer?,
+	endsAt: number,
+	traded: boolean?
+)
+	if collectorScreen then
+		collectorScreen:offer(catUid, offer, endsAt, traded)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Codes and the Codes Cat (F65, data-model section 11d)
 ----------------------------------------------------------------------------------------------------
 
@@ -1620,6 +1683,7 @@ UI.richTip = {}
 -- it; a missed one only toasts "Rich tip missed".
 -- F61: the same plot's tip piles too. While its TipPiles is above 0 and the player stands on the plot, a green
 -- "💰 Collect $120" pill floats over the till and fires events.collectTips.
+-- F63: the same plot's CollectorSpot, where the Cat Collector's tag and card follow UI.collector.offer.
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
@@ -1627,6 +1691,9 @@ function UI.richTip.bind(plot: Instance?)
 	end
 	if tillTips then
 		tillTips:bind(plot)
+	end
+	if collectorScreen then
+		collectorScreen:bind(plot)
 	end
 end
 

@@ -67,6 +67,47 @@ return function()
 			end
 		end)
 
+		it("rolls each window afresh: a food matches the window before about as often as chance (QA)", function()
+			-- with fresh rolls, the chance a food's amount equals the one `lag` windows before is the sum of the
+			-- squared weights (Moon Milk 0.6^2 + 0.35^2 + 0.05^2 = 0.485), at every lag
+			local count = 70 * 288 -- 70 days of windows from 2026-10-28 (window 5977152)
+			local amounts: { [string]: { number } } = {}
+			for window = 5977152, 5977152 + count - 1 do
+				for _, food in Dealer.stock(window) do
+					local list = amounts[food.lureId] or {}
+					table.insert(list, food.amount)
+					amounts[food.lureId] = list
+				end
+			end
+			for _, lureId in Dealer.FOODS do
+				local chance = 0
+				for _, weight in Catalog.dealerAmountWeights[lureId] do
+					chance += (weight / 100) ^ 2
+				end
+				local list = amounts[lureId]
+				for lag = 1, 12 do
+					local same = 0
+					for index = lag + 1, count do
+						if list[index] == list[index - lag] then
+							same += 1
+						end
+					end
+					local share = same / (count - lag)
+					if math.abs(share - chance) > 0.03 then
+						error(
+							string.format(
+								"%s matches the window %d before %.3f of the time, chance is %.3f",
+								lureId,
+								lag,
+								share,
+								chance
+							)
+						)
+					end
+				end
+			end
+		end)
+
 		it("pickAmount walks the weights from 0 and clamps the roll", function()
 			local weights = { 1, 1, 0, 2 }
 			expect(Dealer.pickAmount(weights, 0)).to.equal(0)
@@ -98,6 +139,41 @@ return function()
 			expect(Dealer.behind(state, 10)).to.equal(false)
 			Dealer.refresh(state, 11)
 			expect(Dealer.behind(state, 11)).to.equal(false)
+		end)
+	end)
+
+	describe("dealer amounts edges (QA, F59)", function()
+		-- the real windows from 2026-10-28 00:00 UTC for 70 days, 288 a day
+		local TODAY = Dealer.window(1793145600)
+		local DAYS = 70
+
+		it("the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least", function()
+			local means = { sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
+			for _, lureId in Dealer.FOODS do
+				local weights = Catalog.dealerAmountWeights[lureId]
+				assert(weights, lureId)
+				expect(#weights).to.equal(5)
+				local total, mean = 0, 0
+				for index, weight in weights do
+					expect(weight >= 0).to.equal(true)
+					total += weight
+					mean += (index - 1) * weight / 100
+				end
+				expect(total).to.equal(100)
+				expect(mean).to.be.near(means[lureId], 1e-9)
+				expect(weights[1] < 100).to.equal(true) -- every food can come up
+			end
+		end)
+
+		it("never rolls an amount with no weight over the next 70 days of windows", function()
+			for window = TODAY, TODAY + DAYS * 288 - 1 do
+				for _, food in Dealer.stock(window) do
+					local weights = Catalog.dealerAmountWeights[food.lureId]
+					if weights[food.amount + 1] == 0 then
+						error(string.format("window %d rolled %d %s, a zero weight", window, food.amount, food.lureId))
+					end
+				end
+			end
 		end)
 	end)
 end

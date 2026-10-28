@@ -88,10 +88,11 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 14 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 15 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(14)
-			expect(profile.version).to.equal(14)
+			expect(ProfileSchema.VERSION).to.equal(15)
+			expect(profile.version).to.equal(15)
+			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
 			expect(next(profile.buffs)).never.to.be.ok()
 			expect(profile.stats.potionsUsed).to.equal(0)
@@ -225,8 +226,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 15 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 16 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 15 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 14 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 13 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 12 })).to.equal(false)
@@ -1241,6 +1243,33 @@ return function()
 			expect(profile.cats.junk.locked).to.equal(nil)
 			-- and loading the result again changes nothing
 			expect(ProfileSchema.migrate(profile, 2000).cats :: any).to.deepEqual(profile.cats)
+		end)
+
+		it("locks the best cats of a save from any version from 3 to 13, and only once (QA)", function()
+			for version = 3, 13 do
+				local raw: any = ProfileSchema.template(500)
+				raw.version = version
+				raw.cats.gold = catOf("gold", firstOf("Rare"), "gold", nil)
+				raw.cats.legend = catOf("legend", firstOf("Legendary"), "base", nil)
+				raw.cats.rare = catOf("rare", firstOf("Rare"), "base", nil)
+				-- an older server never wrote the flag, so junk there means nothing
+				raw.cats.myth = catOf("myth", firstOf("Mythical"), "base", false)
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				local cats = profile.cats
+				if
+					cats.gold.locked ~= true
+					or cats.legend.locked ~= true
+					or cats.myth.locked ~= true
+					or cats.rare.locked ~= nil
+				then
+					error(string.format("a version %d save's locks came out wrong", version))
+				end
+				-- the player unlocks the Legendary; the next load keeps it unlocked
+				local legend: any = cats.legend
+				legend.locked = nil
+				expect(ProfileSchema.migrate(profile, 2000).cats.legend.locked).to.equal(nil)
+			end
 		end)
 	end)
 end

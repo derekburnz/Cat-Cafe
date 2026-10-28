@@ -165,6 +165,19 @@ local Config = {
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
+	-- The Cat Collector (F63, data-model section 12b, round 3 Q6): by day, every CollectorCheckSeconds each earning
+	-- cafe with a table and a resting, unlocked cat rolls CollectorChance; he waits at the counter for
+	-- CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
+	-- CollectorGoldMultiplier for a gold cat, times a roll from CollectorRollMin to CollectorRollMax, and offers the
+	-- best Catalog.collectorOffers row that value reaches.
+	CollectorCheckSeconds = 120,
+	CollectorChance = 0.12,
+	CollectorStaySeconds = 180,
+	CollectorValue = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 } :: { [string]: number },
+	CollectorGoldMultiplier = 3,
+	CollectorRollMin = 0.8,
+	CollectorRollMax = 1.5,
+	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
 	PotionMaxMinutes = 60, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
@@ -305,10 +318,10 @@ local Config = {
 		WoodsWidth = 240,
 		WoodsDepth = 240,
 		WoodsGateX = -94,
-		SewerCenterX = 140,
+		SewerCenterX = 185, -- v3.2 (F81, 8e): 180 x 180 behind the same gate
 		SewerCenterZ = 0,
-		SewerWidth = 90,
-		SewerDepth = 90,
+		SewerWidth = 180,
+		SewerDepth = 180,
 		SewerGateX = 94,
 		SideGateHalfWidth = 12,
 		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger"), at the street's

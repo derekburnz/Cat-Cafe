@@ -71,6 +71,8 @@ Remotes.ClientToServer = {
 	-- neither finished nor claimed; another eligible quest from the same pool, counting from now
 	"ClaimAchievement", -- (achievementId: string)  F73: a known achievement, met and unclaimed; answered with
 	-- QuestResult
+	"ClaimDailyTreat", -- ()  F70: a Daily Treat stamp due (a later UTC day than the last claim); pays the next day
+	-- of the card and answers with ProfileSync (`dailyTreat`)
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 }

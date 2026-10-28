@@ -1061,6 +1061,7 @@ function UIController.start()
 		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet
 		achievements = Catalog.achievements, -- F73: the 44 achievements in table order
 		achievementPrizes = Catalog.achievementPrizes, -- F73: prizes by size
+		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

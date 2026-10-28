@@ -229,7 +229,7 @@ Derek: "have the ability to get more food bowl upgrades and balance the rates ar
 | F82 | Bowl levels: `lure_bowl` maxLevel 5 at 600 / 6,000 / 60,000 / 500,000 / 3,000,000, level n needs Tier n; names Bait, Comfy, Fancy, Deluxe and Royal Bowl; day wait BowlWaitSeconds 600 to 480 by level, the Big Bowl perk as BigBowlWaitMultiplier 0.8 on any level, night still half and `baitSpeed` after; BowlLuck 0 to 0.16 moves that share of each rarity's chance up one rarity through one shared `Bait.oddsFor`, used by the roll and every food card | P1 | M | engineer, ui, qa | F28, F53 | A Tier 3 player buys the Fancy Bowl for 60,000; Salmon then reads Legendary 10.22% on its card and the bowl rolls those odds; the wait reads 9:00 (7:12 with the Big Bowl, half at night); food already in the bowl keeps its roll and wait |
 | F83 | Harder catching and rescues: rarity `catchWindow` 0.9 / 0.8 / 0.7 / 0.6 / 0.5 times the net's windows, judged on the server and sent in CatchSchedule; the tree's falling-cat circle uses it too; RescueBarSpeed 1.0 to 1.8 and RescueZoneWidth 0.26 to 0.10 | P1 | S | engineer, qa | F26, F27 | A Basic Net Mythical shows bands half as wide as a Common's at the same net; a Legendary bar runs at 1.6 with a 0.12 zone; QA's Tier 2 re-time still lands inside 10 to 20 minutes |
 
-## 2r. Hometown and the Cat Cannon (Derek, 2026-10-28 13:39 to 13:42; proposed, waiting on Derek's OK)
+## 2r. Hometown and the Cat Cannon (Derek, 2026-10-28 13:39 to 13:42; Derek's yes 14:05)
 
 Spec in [hometown-cannon.md](hometown-cannon.md). No save change.
 

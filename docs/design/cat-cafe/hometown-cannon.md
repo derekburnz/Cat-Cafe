@@ -1,6 +1,6 @@
 # Hometown and the Cat Cannon (town layout v4, 2026-10-28)
 
-Status: proposed by the game-designer thread at 13:55, waiting on Derek's OK. Revised at 14:00 from QA-Planner's, VFX-Agent's and UI-Engineer's notes: seventeen landing spots, the night sweep during a flight, the camp's edge, drops at its opening, the effect hooks and a picker that lists only open areas. Revised at 14:05 from Derek's notes on the picker mockup and the cloud cutscene and from Animation-Engineer's and Sound-Agent's notes: no coin line on the cards, the glide through the clouds, the camera's owner and the sound timing. Features F84 (hometown, cannons, camps) and F85 (longer rectangular areas).
+Status: decided. Derek said yes at 14:05 ("looks good finish up with current updates and push most recent version to roblox"), with the Alleyway staying behind the cafes. Proposed by the game-designer thread at 13:55. The rules are folded into data-model sections 9, 10c, 13, 15, 16 and 17 (v0.13.17). Revised at 14:00 from QA-Planner's, VFX-Agent's and UI-Engineer's notes: seventeen landing spots, the night sweep during a flight, the camp's edge, drops at its opening, the effect hooks and a picker that lists only open areas. Revised at 14:05 from Derek's notes on the picker mockup and the cloud cutscene and from Animation-Engineer's and Sound-Agent's notes: no coin line on the cards, the glide through the clouds, the camera's owner and the sound timing. Features F84 (hometown, cannons, camps) and F85 (longer rectangular areas).
 
 Derek, 2026-10-28, in four messages at 13:39 to 13:42:
 

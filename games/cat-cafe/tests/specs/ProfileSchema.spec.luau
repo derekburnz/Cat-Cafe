@@ -1242,5 +1242,31 @@ return function()
 			-- and loading the result again changes nothing
 			expect(ProfileSchema.migrate(profile, 2000).cats :: any).to.deepEqual(profile.cats)
 		end)
+
+		it("locks the best cats of a save from any version from 3 to 13, and only once (QA)", function()
+			for version = 3, 13 do
+				local raw: any = ProfileSchema.template(500)
+				raw.version = version
+				raw.cats.gold = catOf("gold", firstOf("Rare"), "gold", nil)
+				raw.cats.legend = catOf("legend", firstOf("Legendary"), "base", nil)
+				raw.cats.rare = catOf("rare", firstOf("Rare"), "base", nil)
+				-- an older server never wrote the flag, so junk there means nothing
+				raw.cats.myth = catOf("myth", firstOf("Mythical"), "base", false)
+				local profile = ProfileSchema.migrate(raw, 1000)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				local cats = profile.cats
+				if
+					cats.gold.locked ~= true
+					or cats.legend.locked ~= true
+					or cats.myth.locked ~= true
+					or cats.rare.locked ~= nil
+				then
+					error(string.format("a version %d save's locks came out wrong", version))
+				end
+				-- the player unlocks the Legendary; the next load keeps it unlocked
+				(cats.legend :: any).locked = nil
+				expect(ProfileSchema.migrate(profile, 2000).cats.legend.locked).to.equal(nil)
+			end
+		end)
 	end)
 end

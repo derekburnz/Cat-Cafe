@@ -1091,7 +1091,7 @@ def cannon_land() -> np.ndarray:
 
 
 def cloud_hop() -> np.ndarray:
-    """Home or Alley from a wild area, and the night sweep (F84, CloudHopSeconds 1.6): clouds whoosh in over the
+    """Home from a wild area, and the night sweep (F84, CloudHopSeconds 1.6): clouds whoosh in over the
     screen, a muffled breath of wind while you move, then they part with a soft whoosh out and a sparkle."""
     d = 1.6
     tin = seconds(0.55)

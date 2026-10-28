@@ -404,7 +404,7 @@ local Cues: { [string]: Cue } = {
 		group = "Sfx",
 		volume = 0.55,
 		minGap = 1,
-	}, -- Home or Alley from a wild area, the night sweep
+	}, -- Home from a wild area, the night sweep
 	campCheckIn = {
 		ids = { "rbxassetid://123523380344527" },
 		group = "Sfx",

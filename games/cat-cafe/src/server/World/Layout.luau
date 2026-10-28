@@ -13,6 +13,8 @@ export type Point = { x: number, y: number, z: number, rotY: number?, zone: stri
 -- A cafe table: its point, and `lane`, the plot-local z of the walkway beside its row that customers walk along to
 -- reach its chairs (Layout.plot.tables).
 export type TableSpot = { x: number, y: number, z: number, lane: number }
+-- A cat bed (F79): its id (the sleep spot's), point, turn about Y and the tier it comes with.
+export type BedSpot = { id: string, x: number, y: number, z: number, rotY: number, tier: number }
 -- An axis-aligned rectangle on the ground, world or plot space depending on where it is used.
 export type Rect = { x1: number, z1: number, x2: number, z2: number }
 -- An archway over an entrance (WorldBuilder.buildArch): the alley kit's `asset` when there is one.
@@ -289,6 +291,18 @@ Layout.plot = {
 		{ x = 15.5, y = 0, z = 3.5, rotY = -90 },
 		{ x = 11, y = 0, z = 11, rotY = 180 },
 	} :: { Point },
+
+	-- The cat beds (F79, data-model 12c v0.13.13, Model-Agent's fit in #511): a CatCafe_Furniture_CatBed at each from
+	-- its tier, out by day as furniture, turned rotY degrees so its front (-Z) faces into the room. Two at Tier 3,
+	-- four at Tier 4 and six at Tier 5, exactly where the working slots outrun the cat trees' four pedestals.
+	beds = {
+		{ id = "bed_1", x = -16.3, y = 0, z = -12.4, rotY = -135, tier = 3 },
+		{ id = "bed_2", x = 16.3, y = 0, z = -12.4, rotY = 135, tier = 3 },
+		{ id = "bed_3", x = -13.6, y = 0, z = -12.4, rotY = 180, tier = 4 },
+		{ id = "bed_4", x = 16.4, y = 0, z = -1.5, rotY = 90, tier = 4 },
+		{ id = "bed_5", x = -16.4, y = 0, z = 8.5, rotY = -90, tier = 5 },
+		{ id = "bed_6", x = 16.4, y = 0, z = 8.5, rotY = 90, tier = 5 },
+	} :: { BedSpot },
 }
 
 -- Shared areas, in world space. y is the floor top.

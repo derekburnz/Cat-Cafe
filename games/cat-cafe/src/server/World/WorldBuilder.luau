@@ -75,6 +75,7 @@ local GRASS = Color3.fromRGB(110, 170, 90)
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
+local CAT_BED = "CatCafe_Furniture_CatBed" -- F79, Model-Agent #511: a Sleep point for the cat and a Foot in front
 local DECK = Color3.fromRGB(205, 160, 110)
 -- The cafe shell's facade pastel, by plot number (world-and-feel.md section 3).
 local SHELL_COLORS = { "Mint", "Blush", "Butter", "Lilac" }
@@ -259,8 +260,9 @@ local function removeDoorstepCat(set: Instance)
 end
 
 -- What a cafe shows from the street (F36, F38): tier 0 is an empty plot, dressed For Rent (shutters half down, the
--- sign and dust sheets, and no cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its tier. Pieces
--- whose art is not in ReplicatedStorage.Assets are skipped.
+-- sign and dust sheets, and no cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its tier, and the
+-- cat beds of its tier (F79, Layout.plot.beds, named by bed id), where the working cats past the cat trees sleep at
+-- night. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
 function WorldBuilder.setDressing(plot: Plot, tier: number)
 	local function show(name: string, asset: string, wanted: boolean)
 		local existing = plot.dressing:FindFirstChild(name)
@@ -277,6 +279,15 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 	end
 	for n = 1, Catalog.maxTier do
 		show("Tier" .. n, "CatCafe_Plot_Tier" .. n, tier >= n)
+	end
+	for _, bed in Layout.plot.beds do
+		local existing = plot.dressing:FindFirstChild(bed.id)
+		if tier >= bed.tier and existing == nil and AssetRegistry.has(CAT_BED) then
+			local point: Layout.Point = { x = bed.x, y = bed.y, z = bed.z, rotY = bed.rotY }
+			place(CAT_BED, localCFrame(plot.cframe, point), plot.dressing).Name = bed.id
+		elseif tier < bed.tier and existing ~= nil then
+			existing:Destroy()
+		end
 	end
 	-- The For Rent set drapes its own dust sheet where the counter stands, so the real counter, whose pastry case
 	-- and till would poke through the sheet, waits out of the plot until the cafe opens.

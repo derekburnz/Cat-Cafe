@@ -32,31 +32,10 @@ local function rootPosition(): Vector3?
 	return if root ~= nil and root:IsA("BasePart") then root.Position else nil
 end
 
--- The cafe whose floor the player stands on, if any (plot space: X along the street, Z away from it).
-local function plotAt(position: Vector3): Model?
-	local world = Workspace:FindFirstChild("World")
-	local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
-	if plots == nil then
-		return nil
-	end
-	for _, plot in plots:GetChildren() do
-		if plot:IsA("Model") then
-			local offset = (plot :: Model):GetPivot():PointToObjectSpace(position)
-			if
-				math.abs(offset.X) <= Config.World.PlotWidth / 2 + 0.5
-				and math.abs(offset.Z) <= Config.World.PlotDepth / 2 + 0.5
-				and offset.Y < 12
-			then
-				return plot :: Model
-			end
-		end
-	end
-	return nil
-end
-
--- The cafe shell's roof (its child Model <name>_Roof: roof, ridge and chimney) fades out on this screen while the
--- player is inside, the sketch's cutaway view (world-and-feel.md section 3). LocalTransparencyModifier is local
--- only, and at 1 the camera stops treating the roof as something to zoom in front of.
+-- The cafe shell's roof (its child Model <name>_Roof: roof, ridge and chimney) fades out on this screen only for the
+-- intro's look inside (holdRoofOpen). Walking in no longer fades it (Derek 2026-10-28 01:22: "roof is see through
+-- while inside no need for it"). LocalTransparencyModifier is local only, and at 1 the camera stops treating the
+-- roof as something to zoom in front of.
 local ROOF_FADE = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 local function setRoofHidden(plot: Model, hidden: boolean)
@@ -79,7 +58,6 @@ local function setRoofHidden(plot: Model, hidden: boolean)
 	end
 end
 
-local insidePlot: Model? = nil -- the cafe whose floor the character stands on, its roof faded
 local heldRoof: Model? = nil -- a cafe whose roof the intro holds faded wherever the character is (F72)
 
 -- v0.5 (data-model section 10 step 5): a missed stray sprints off and catches its breath until its FleeingUntil
@@ -631,18 +609,17 @@ local function applySettings()
 	setShowOtherCats(UI.settings.value("showOtherCats"))
 end
 
--- The intro (F72, shot 3): `plot`'s roof fades as it does for an owner inside, wherever the character stands. Nil
--- lets the held roof go back to what the character's place says.
+-- The intro (F72, shot 3): `plot`'s roof fades so the camera sees inside. Nil puts the held roof back.
 function WorldController.holdRoofOpen(plot: Model?)
 	local was = heldRoof
 	if was == plot then
 		return
 	end
 	heldRoof = plot
-	if was ~= nil and was ~= insidePlot then
+	if was ~= nil then
 		setRoofHidden(was, false)
 	end
-	if plot ~= nil and plot ~= insidePlot then
+	if plot ~= nil then
 		setRoofHidden(plot, true)
 	end
 end
@@ -757,7 +734,7 @@ function WorldController.start()
 				continue
 			end
 
-			if state.carrying ~= nil and os.clock() - lastCheckIn > 2 then
+			if state.carrying ~= nil and os.clock() - lastCheckIn > 0.5 then
 				-- Either door checks the cat in (layout v2).
 				local front, back = UIController.ownDoor(), UIController.ownBackDoor()
 				local reach = Config.CheckInRangeStuds - 1
@@ -768,18 +745,6 @@ function WorldController.start()
 					lastCheckIn = os.clock()
 					Net.fire("CheckIn")
 				end
-			end
-
-			local inside = plotAt(position)
-			local wasInside = insidePlot
-			if inside ~= wasInside then
-				if wasInside ~= nil and wasInside ~= heldRoof then
-					setRoofHidden(wasInside, false)
-				end
-				if inside ~= nil then
-					setRoofHidden(inside, true)
-				end
-				insidePlot = inside
 			end
 
 			local zone = zoneAt(position)

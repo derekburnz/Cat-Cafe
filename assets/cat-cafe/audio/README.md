@@ -78,7 +78,7 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `giftClaim` | `sfx/CatCafe_Sfx_GiftClaim.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 80009297129343 | 2026-10-27 |
 | `indexReward` | `sfx/CatCafe_Sfx_IndexReward.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 103563370361429 | 2026-10-27 |
 | `goldReveal` | `sfx/CatCafe_Sfx_GoldReveal.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 124772067869145 | 2026-10-27 |
-| `shimmerRare` | `sfx/CatCafe_Sfx_ShimmerRare.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 124510027027761 | 2026-10-27 |
+| `shimmerRare` | `sfx/CatCafe_Sfx_ShimmerRare.ogg` (removed 2026-10-28) | synthesized by `synth/synth.py`; retired 2026-10-28, the constant loop around rare strays was annoying, replaced by `rareNear` (last upload 124510027027761) | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-27 |
 | `uiSpinTick` | `ui/CatCafe_Ui_SpinTick.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 109150468833128 | 2026-10-27 |
 | `uiSpinWin` | `ui/CatCafe_Ui_SpinWin.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 137789027351769 | 2026-10-27 |
 | `uiSlider` | `ui/CatCafe_Ui_Slider.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 110732370632116 | 2026-10-27 |
@@ -105,3 +105,4 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `catLevelUp` | `sfx/CatCafe_Sfx_CatLevelUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 122201546356974 | 2026-10-27 |
 | `uiDailyStamp` | `ui/CatCafe_Ui_DailyStamp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 89023008668503 | 2026-10-28 |
 | `jingleDailyCard` | `music/CatCafe_Music_JingleDailyCard.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 99160708780154 | 2026-10-28 |
+| `rareNear` | `sfx/CatCafe_Sfx_RareNear.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 110130897728206 | 2026-10-28 |

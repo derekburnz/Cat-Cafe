@@ -1265,6 +1265,31 @@ Presets.codes = {
 	checkEvery = 0.1,
 }
 
+-- A red "!" over each rescue trap that holds a stuck cat (Derek 2026-10-28 01:01: "rescue mini games like stuck in
+-- trash and others should have a red exclamation mark coming out"), so players spot a rescue from across the area.
+-- It pops up out of the trap over `popSeconds`, rising `rise` studs to sit `above` + `rise` studs over the cat, then
+-- bobs `bob` studs every `bobSeconds` (it just sits there with Reduce Motion). It is `size` studs tall plus `pixels`
+-- on screen, so it still reads from afar, in `colour` with an `outline` round it. The nearest `most` within
+-- `maxDistance` show, checked every `checkEvery` seconds; none while someone is rescuing that cat (LockedBy) or
+-- once you are within `hideWithin` studs, where its Rescue card takes over (GrabRangeStuds is 10).
+Presets.stuckMark = {
+	colour = Presets.palette.shirtRed,
+	outline = Presets.palette.offwhite,
+	outlinePixels = 3,
+	above = 0.3,
+	rise = 0.8,
+	popSeconds = 0.35,
+	bob = 0.3,
+	bobSeconds = 0.6, -- one way
+	size = 1.4,
+	pixels = 18,
+	maxDistance = 160,
+	hideWithin = 10,
+	showAfter = 1, -- a hidden mark comes back only this far past hideWithin
+	most = 6,
+	checkEvery = 0.25,
+}
+
 -- Opening a Cafe Crate at the Golden Fish Market (F53): a puff of ice off the stall's counter and the won piece's
 -- rarity popping `above` studs over it, as a catch of that rarity does (catchPop). On the modelled stall (market.py)
 -- the pop comes from `counterY` up and `counterZ` toward the front from its pivot, over the ice.

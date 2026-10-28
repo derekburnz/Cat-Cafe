@@ -910,8 +910,11 @@ local builders: { [string]: () -> Model } = {
 			})
 			slice.Parent = wheel
 		end
+		-- A Model with a PrimaryPart takes its pivot from that part, so the hub pivot goes on the Disc: axis-aligned
+		-- at the hub, its Z along the axle (VFX-Agent: WorldPivot left the pivot turned with the Disc, and the turn
+		-- about its Z flipped the wheel over in the intro).
 		wheel.PrimaryPart = disc
-		wheel.WorldPivot = CFrame.new(hub)
+		disc.PivotOffset = disc.CFrame:Inverse() * CFrame.new(hub)
 		wheel.Parent = model
 		addPart(model, {
 			name = "Pointer",

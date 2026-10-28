@@ -195,8 +195,7 @@ local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.sh
 local tutorialLabel: string? = nil
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
--- data-model section 8: UseLure within BaitBowlRangeStuds of the bowl, ResolveBait within 20 studs
-local BOWL_RANGE: number = Config.BaitBowlRangeStuds
+-- data-model section 8: ResolveBait within 20 studs of the bowl; UseLure works from anywhere (Derek 2026-10-28)
 local RESOLVE_RANGE: number = Config.BaitResolveRangeStuds
 -- data-model section 8b: BuyDealerFood within 12 studs of the cart
 local CART_RANGE: number = Config.DealerRangeStuds
@@ -768,7 +767,7 @@ function UI.init(config: Types.InitConfig)
 			codesView:onClose()
 		end,
 	})
-	-- range hints: Use needs the bowl within 12 studs, Tame or Let go within 20 (data-model section 8)
+	-- range hints: Tame or Let go need the bowl within 20 studs, buying at the cart its range (data-model 8, 8b)
 	local nearClock = 0
 	table.insert(
 		connections,
@@ -779,9 +778,6 @@ function UI.init(config: Types.InitConfig)
 			end
 			nearClock = 0
 			local distance = distanceTo(bowlPart)
-			if baitScreen then
-				baitScreen:setNear(if distance then distance <= BOWL_RANGE else nil)
-			end
 			if baitCard then
 				baitCard:setNear(if distance then distance <= RESOLVE_RANGE else nil)
 			end

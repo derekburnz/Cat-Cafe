@@ -108,7 +108,9 @@ UI.events = {
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
 	useLure = Signal.new(), -- (lureId)   Use on a food in the Bait bowl screen: forward as UseLure (F28)
 	resolveBait = Signal.new(), -- (choice)   "tame" or "letgo" from the bait card: forward as ResolveBait
-	buyDealerFood = Signal.new(), -- (slot, lureId)   Buy on the night dealer screen: forward both as BuyDealerFood (F32)
+	-- (index, lureId, window)   Buy on the night dealer screen (F32): forward lureId and window as BuyDealerFood (F59);
+	-- index is the food's row, unused since F59, and window the DealerStock's the screen showed (nil if none came)
+	buyDealerFood = Signal.new(),
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
@@ -633,8 +635,8 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	dealerScreen = Dealer.new({
-		buy = function(slot: number, lureId: string)
-			UI.events.buyDealerFood:Fire(slot, lureId)
+		buy = function(index: number, lureId: string, window: number?)
+			UI.events.buyDealerFood:Fire(index, lureId, window)
 		end,
 		close = closeModal,
 	})
@@ -1438,9 +1440,10 @@ function UI.dealer.setCart(part: BasePart?)
 	cartPart = part
 end
 
--- From DealerStock: { slots = { { lureId, cost, bought } }, restocksAt }. Send it at night start, at each window
--- change and after every BuyDealerFood, bought or not, so the rows and the countdown stay true. nil when the cart
--- leaves at dawn: the screen closes if it is open.
+-- From DealerStock (F59): { window, restocksAt, stock = { { lureId, cost, amount, bought } } }, every dealer food
+-- with this window's amount and this player's buys; the pre-F59 { slots = { { lureId, cost, bought } }, restocksAt }
+-- still works. Send it at night start, at each window change and after every BuyDealerFood, bought or not, so the
+-- rows and the countdown stay true. nil when the cart leaves at dawn: the screen closes if it is open.
 function UI.dealer.setStock(stock: Types.DealerStock?)
 	if dealerScreen then
 		dealerScreen:setStock(stock)

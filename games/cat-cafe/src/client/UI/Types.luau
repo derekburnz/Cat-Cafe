@@ -47,6 +47,8 @@ export type Catalog = {
 	crateDecor: { DecorDef }?, -- F53: Catalog.crateDecor, the crate pieces that are not in Catalog.decor
 	potions: { PotionDef }?, -- F64: Catalog.potions, the potion bag's order (data-model section 12b)
 	mysteryGift: { MysteryGiftRow }?, -- F64: Catalog.mysteryGift, what a Mystery Visitor's gift can hold
+	-- F59: Catalog.dealerAmountWeights, lureId -> percent chance of stocking 0, 1, 2, 3 or 4 (the dealer's Details)
+	dealerAmountWeights: { [string]: { number } }?,
 }
 
 -- A potion (F64, data-model section 12b; quest potions F73): the bag reads these loosely (Components/PotionLogic).
@@ -364,9 +366,18 @@ export type BaitCat = {
 
 export type BaitChoice = "tame" | "letgo"
 
--- The night dealer's stock for this player (data-model section 8b), as the DealerStock remote sends it: three
--- slots in the order the server rolled them (the slot number Buy sends is the index here), and restocksAt in
--- server os.time() when the next dealer window starts.
+-- The night dealer's stock for this player (data-model section 8b v0.8, F59), as the DealerStock remote sends it:
+-- every dealer food in the server's order with this window's amount (0 to 4; 0 shows "None this time") and how
+-- many of it this player bought, the window a buy sends back, and restocksAt in server os.time() when the next
+-- window starts. UI.dealer.setStock also takes the pre-F59 three slots ({ slots, restocksAt }, a food in n slots
+-- read as amount n), so either can arrive; Components/DealerRows.normalize turns both into `stock`.
+export type DealerFood = {
+	lureId: string,
+	cost: number,
+	amount: number,
+	bought: number,
+}
+
 export type DealerSlot = {
 	lureId: string,
 	cost: number,
@@ -374,8 +385,10 @@ export type DealerSlot = {
 }
 
 export type DealerStock = {
-	slots: { DealerSlot },
+	window: number?,
 	restocksAt: number,
+	stock: { DealerFood }?, -- F59
+	slots: { DealerSlot }?, -- before F59
 }
 
 -- ModuleScripts must return a non-nil value.

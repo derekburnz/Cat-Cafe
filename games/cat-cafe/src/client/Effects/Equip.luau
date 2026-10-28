@@ -7,8 +7,9 @@
 --
 -- Source: `decorPlaced` in this player's ProfileSync, compared with the last one (Logic.newlyPlaced); the first one
 -- seen only sets the baseline, so joining plays nothing. The piece is the model carrying that `DecorId` in the
--- `Decor` folder of the Plot whose `OwnerUserId` is this player, waited for a moment since it can arrive just after
--- the sync. Listening only.
+-- `Decor` folder of the Plot whose `OwnerUserId` is this player, or, for a door set or a cat flap swapped in elsewhere
+-- in that Plot (F80), every model there carrying it: both doors, or the flap. It is waited for a moment since it can
+-- arrive just after the sync. Listening only.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -42,7 +43,22 @@ local function ownPlot(): Model?
 	return nil
 end
 
--- What flashes for the piece: its placed model, or the floor parts for a floor; nil until it has streamed in.
+-- Every model among `instances` that carries `decorId` and has streamed in.
+local function carrying(decorId: string, instances: { Instance }): { Instance }
+	local found: { Instance } = {}
+	for _, instance in instances do
+		if
+			instance:IsA("Model")
+			and instance:GetAttribute("DecorId") == decorId
+			and instance:FindFirstChildWhichIsA("BasePart", true) ~= nil
+		then
+			table.insert(found, instance)
+		end
+	end
+	return found
+end
+
+-- What flashes for the piece: its placed models, or the floor parts for a floor; nil until it has streamed in.
 local function targetsOf(decorId: string, target: string): { Instance }?
 	local plot = ownPlot()
 	if plot == nil then
@@ -58,19 +74,11 @@ local function targetsOf(decorId: string, target: string): { Instance }?
 		return if #parts > 0 then parts else nil
 	end
 	local decor = plot:FindFirstChild("Decor")
-	if decor == nil then
-		return nil
+	local found = if decor ~= nil then carrying(decorId, decor:GetChildren()) else {}
+	if #found == 0 then
+		found = carrying(decorId, plot:GetDescendants()) -- a door set's two doors or a cat flap (F80)
 	end
-	for _, child in decor:GetChildren() do
-		if
-			child:IsA("Model")
-			and child:GetAttribute("DecorId") == decorId
-			and child:FindFirstChildWhichIsA("BasePart", true) ~= nil
-		then
-			return { child :: Instance }
-		end
-	end
-	return nil
+	return if #found > 0 then found else nil
 end
 
 -- A piece's outline draws over anything in front of it, so a rug under a table still shows; the floor's stays

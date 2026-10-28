@@ -192,6 +192,15 @@ local Config = {
 	QuestWeekOffsetSeconds = 345600,
 	QuestRollCheckSeconds = 60,
 
+	-- Bedtime (F79, data-model sections 12c and 17): at night the working cats walk from their stations to the cat
+	-- trees and beds and sleep, and walk back at sunrise. Pure rules in Bedtime, the walk in BedtimeService.
+	CafeCatWalkSpeed = 6, -- studs per second
+	BedtimeStaggerSeconds = 0.3, -- the wait per place in the sleep order, at the night start and at sunrise
+	BedtimeStretchSeconds = 1, -- from the get-up stretch (StretchAt) to the first step
+	HopSeconds = 0.45, -- one hop onto or off a pedestal, a bed or the counter
+	HopMaxRise = 2.6, -- the most a hop climbs, so the top perch takes two
+	BedtimeTimeoutSeconds = 15, -- a cat still on its way after this is placed on its spot or station
+
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
 	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long

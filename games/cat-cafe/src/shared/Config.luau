@@ -254,7 +254,7 @@ local Config = {
 		StreetHalfWidth = 16,
 		StreetSouthZ = -124,
 		StreetNorthZ = 124, -- the street ends at the Neighbourhood gate
-		GroundSize = 600, -- reaches past the Neighbourhood's far wall (z 266) and the Woods' (x -215)
+		GroundSize = 880, -- v3.2 (8e): reaches past the bigger areas' far walls (the Woods' at x -335)
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round a fountain and a
@@ -279,10 +279,10 @@ local Config = {
 		ParkGateZ = -125,
 		-- The Woods west and the Sewer east of the back alleys (v3.1), each with its gate on its town side, in the back
 		-- alley's outer wall straight across from the square's side arch: SideGateHalfWidth either side of z 0.
-		WoodsCenterX = -155,
+		WoodsCenterX = -215, -- v3.2 (F81, 8e): 240 x 240 behind the same gate
 		WoodsCenterZ = 0,
-		WoodsWidth = 120,
-		WoodsDepth = 120,
+		WoodsWidth = 240,
+		WoodsDepth = 240,
 		WoodsGateX = -94,
 		SewerCenterX = 140,
 		SewerCenterZ = 0,

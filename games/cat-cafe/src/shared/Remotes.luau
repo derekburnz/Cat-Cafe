@@ -35,7 +35,8 @@ Remotes.ClientToServer = {
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
 	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
-	"BuyDealerFood", -- (slot: number, lureId: string)  night, near the cart, the slot still holds lureId (S42)
+	"BuyDealerFood", -- (lureId: string, window: number)  F59: night, near the cart, a dealer food, `window` the
+	-- current one (a buy sent across a roll is refused, S42), fewer bought this window than its amount
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
@@ -83,7 +84,8 @@ Remotes.ServerToClient = {
 	-- after every judged press and when the attempt ends; refusals of RescueBegin come as GrabResult
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
-	"DealerStock", -- (stock: Types.DealerStock?)  this player's three slots at night, nil by day; after every buy
+	"DealerStock", -- (stock: Types.DealerStock?)  this player's amounts and buys of each food at night (F59), nil by
+	-- day; after every buy
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)

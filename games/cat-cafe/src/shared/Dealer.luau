@@ -1,8 +1,9 @@
 --!strict
--- The night dealer's stock (data-model section 8b, v0.5 F43): three slots, each a dealer food rolled from
--- DealerSlotWeights. The roll is seeded only from the global dealer window, so every player on every server sees
--- the same three foods and a rejoin or a server hop cannot reroll; it uses its own generator so every server and the
--- specs agree. Each player's bought marks stay their own.
+-- The night dealer's stock (data-model section 8b). v0.8 F59 (round 3 Q5): every window rolls an amount of 0 to 4
+-- of each dealer food from Catalog.dealerAmountWeights, in the order of Dealer.FOODS. The roll is seeded only from
+-- the global dealer window, so every player on every server sees the same amounts and a rejoin or a server hop
+-- cannot reroll; it uses its own generator so every server and the specs agree. The amount is per player: each
+-- player may buy up to it of each food in the window, and one player's buys never lower another's.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -12,7 +13,8 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local Dealer = {}
 
-Dealer.SLOTS = 3
+-- The dealer foods in the order they are rolled and shown (section 8b).
+Dealer.FOODS = { "sardines", "caviar", "moon_milk", "star_treat" }
 
 local MODULUS = 2147483647 -- 2^31 - 1, the Park-Miller generator
 local MULTIPLIER = 48271
@@ -37,44 +39,56 @@ function Dealer.seed(window: number): number
 	return if hash == 0 then 1 else hash
 end
 
--- The dealer food at `roll` (0 to 1) through `weights`, in catalog order. Zero weights never come up.
-function Dealer.pick(weights: { [string]: number }, roll: number): string
+-- The amount at `roll` (0 to 1) through `weights`, the chance of 0, 1, 2 and so on in order. Zero weights never
+-- come up.
+function Dealer.pickAmount(weights: { number }, roll: number): number
 	local total = 0
-	local last: string? = nil
-	for _, lure in Catalog.lures do
-		local weight = if lure.source == "dealer" then weights[lure.id] or 0 else 0
-		if weight > 0 then
-			total += weight
-			last = lure.id
-		end
+	for _, weight in weights do
+		total += weight
 	end
-	assert(last ~= nil, "no dealer food has a weight")
 	local target = math.clamp(roll, 0, 1) * total
-	for _, lure in Catalog.lures do
-		local weight = if lure.source == "dealer" then weights[lure.id] or 0 else 0
+	local last = 0
+	for index, weight in weights do
 		if weight > 0 then
+			last = index - 1
 			if target < weight then
-				return lure.id
+				return index - 1
 			end
 			target -= weight
 		end
 	end
-	return last :: string
+	return last
 end
 
--- The three foods everyone sees in `window`, by slot.
-function Dealer.stock(window: number): { string }
+export type FoodAmount = { lureId: string, amount: number }
+
+-- What everyone may buy of each dealer food in `window`, in Dealer.FOODS order.
+function Dealer.stock(window: number): { FoodAmount }
 	local state = Dealer.seed(window)
-	local foods: { string } = {}
-	for _ = 1, Dealer.SLOTS do
+	local foods: { FoodAmount } = {}
+	for _, lureId in Dealer.FOODS do
 		state = (state * MULTIPLIER) % MODULUS
-		table.insert(foods, Dealer.pick(Catalog.dealerSlotWeights, state / MODULUS))
+		local weights = Catalog.dealerAmountWeights[lureId]
+		table.insert(foods, {
+			lureId = lureId,
+			amount = if weights ~= nil then Dealer.pickAmount(weights, state / MODULUS) else 0,
+		})
 	end
 	return foods
 end
 
+-- The amount of `lureId` in `window`; 0 for a food the dealer does not sell.
+function Dealer.amountOf(window: number, lureId: string): number
+	for _, food in Dealer.stock(window) do
+		if food.lureId == lureId then
+			return food.amount
+		end
+	end
+	return 0
+end
+
 -- True while this server's window is behind the one the saved marks belong to (a hop to a server whose clock
--- is a second behind at a window edge). Every slot then counts as bought until the window catches up, so a
+-- is a second behind at a window edge). Every food then counts as bought out until the window catches up, so a
 -- food bought in the newer window cannot be bought again from the older one (reviewer N32).
 function Dealer.behind(state: Types.DealerState, window: number): boolean
 	return window < state.window

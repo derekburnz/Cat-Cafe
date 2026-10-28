@@ -439,6 +439,25 @@ local function applyState(s: Types.PlayerState)
 	refreshRichTip()
 end
 
+-- The night dealer (F59): the window of the last DealerStock, which a buy sends back.
+local dealerWindow: number? = nil
+
+-- The dealer screen still takes slots (one row per food it groups them into): each food's amount becomes that many
+-- slots, the first `bought` of them bought. A food with none this time has no slot until the screen shows F59's
+-- "None this time" from the amounts itself.
+local function dealerSlots(stock: Types.DealerStock): UITypes.DealerStock
+	local slots: { UITypes.DealerSlot } = {}
+	for _, food in stock.stock do
+		for n = 1, food.amount do
+			table.insert(
+				slots,
+				{ lureId = food.lureId, cost = food.cost, bought = n <= food.bought }
+			)
+		end
+	end
+	return { slots = slots, restocksAt = stock.restocksAt }
+end
+
 local function wireIntents()
 	UI.events.setSetting:Connect(function(key: string, value: any)
 		if Settings.clean(key, value) ~= nil then
@@ -562,9 +581,10 @@ local function wireIntents()
 	UI.events.collectTips:Connect(function()
 		Net.fire("CollectTips")
 	end)
-	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused.
-	UI.events.buyDealerFood:Connect(function(slot: number, lureId: string)
-		Net.fire("BuyDealerFood", slot, lureId)
+	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
+	-- the food and the window the screen showed, so a buy sent across a roll is refused (S42); the slot is unused.
+	UI.events.buyDealerFood:Connect(function(_slot: number, lureId: string)
+		Net.fire("BuyDealerFood", lureId, dealerWindow or -1)
 	end)
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
@@ -826,7 +846,8 @@ local function wireServerEvents()
 		Moments.CatLevelUp:Fire(uid, level)
 	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
-		UI.dealer.setStock(stock)
+		dealerWindow = if stock ~= nil then stock.window else nil
+		UI.dealer.setStock(if stock ~= nil then dealerSlots(stock) else nil)
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
 		Moments.PlotOpened:Fire(position, plotIndex)

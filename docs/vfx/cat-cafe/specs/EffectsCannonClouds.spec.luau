@@ -67,7 +67,7 @@ return function()
 		end)
 	end)
 
-	describe("Effects cannon flight", function()
+	describe("Effects cannon beats", function()
 		it("plays each beat once and in order, even from a late step", function()
 			local beats = { boom = 0.5, puff = 1.4, land = 3.0 }
 			local fired = {}
@@ -102,6 +102,26 @@ return function()
 			expect(c.endAt).to.equal(3.0) -- CannonLaunchSeconds
 			expect(Presets.clouds.cannon.coverFrom).to.equal(c.puffAt)
 			expect(Presets.clouds.cannon.partFrom).to.equal(c.dropAt)
+		end)
+
+		it("squeezes into the intro's cannon shot", function()
+			local s = Presets.cannon.introStage
+			local plan = s.clouds
+			expect(s.boomAt).to.equal(0) -- the shot's BOOM (intro-cutscene.md shot 2)
+			expect(s.puffAt).to.equal(0.55)
+			expect(s.landAt).to.equal(1.55)
+			expect(plan.coverFrom).to.equal(s.puffAt)
+			expect(plan.coverTo < 0.7).to.equal(true) -- covered before the cut to the camp
+			expect(Logic.cloudCover(0.7, plan)).to.equal(1)
+			expect(Logic.cloudCover(s.glideFrom, plan)).to.equal(1)
+			expect(Logic.cloudCover(s.glideTo, plan)).to.equal(1)
+			expect(plan.partTo <= s.landAt and s.landAt <= s.endAt).to.equal(true)
+			expect(plan.tintFrom >= 0.7).to.equal(true) -- after the cut
+			expect(Logic.cannonTrail(0.2, s)).to.equal(true)
+			expect(Logic.cannonTrail(1.0, s)).to.equal(false) -- in the clouds
+			expect(Logic.cannonTrail(s.dropAt + 0.05, s)).to.equal(true)
+			local fuse = Presets.cannon.fuseSeconds
+			expect(fuse > 0 and fuse <= Presets.cannon.boomAt).to.equal(true)
 		end)
 
 		it("has a colour for every destination", function()

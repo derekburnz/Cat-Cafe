@@ -31,6 +31,25 @@ function Catching.fleeUntil(missedAt: number, sprintStuds: number): number
 	return missedAt + math.max(Config.GrabRetrySeconds, sprint + Config.StrayRestSeconds)
 end
 
+-- F57 (data-model section 10 step 5, v0.8): a player's misses in a row on one stray, the last at server time `at`.
+export type MissStreak = { count: number, at: number }
+
+-- The streak after a miss at `now`: one more, or 1 again when StrayMissStreakResetSeconds have passed since the
+-- last. A catch or a despawn ends the stray and its streaks with it.
+function Catching.nextMiss(streak: MissStreak?, now: number): MissStreak
+	if streak == nil or now - streak.at >= Config.StrayMissStreakResetSeconds then
+		return { count = 1, at = now }
+	end
+	return { count = streak.count + 1, at = now }
+end
+
+-- How much longer than everyone else the player who missed waits once the stray stops: StraySelfRetrySteps by
+-- misses in a row (3, 6, then 10 s for every miss after).
+function Catching.selfRetrySeconds(misses: number): number
+	local steps = Config.StraySelfRetrySteps
+	return steps[math.clamp(misses, 1, #steps)]
+end
+
 local function oddsTotal(odds: Types.LureOdds): number
 	local total = 0
 	for _, rarity: Types.Rarity in Catalog.rarityOrder do

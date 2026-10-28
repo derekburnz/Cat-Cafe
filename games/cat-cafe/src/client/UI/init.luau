@@ -1924,17 +1924,20 @@ local promptConnections: { RBXScriptConnection } = {}
 -- the active stray's FleeingUntil (v0.5), and its PickUp, Returning and Dropped (F67: a walking cat that gets home
 -- turns back into one that needs the circles)
 local strayWatch: { RBXScriptConnection } = {}
--- v0.5.1 (reviewer S44): the player who missed a stray tries again StraySelfRetrySeconds after it stops
+-- v0.5.1 (reviewer S44), F57: when this player may try a stray again after their own miss. The server sends it with
+-- CatchResult (3, 6, then 10 s after the stray stops, by misses in a row; only the server knows the streak, S87).
+-- Without it (a server before F57) the wait is StraySelfRetrySeconds after the stop, from the miss time.
 local SELF_RETRY: number = Config.StraySelfRetrySeconds
-local missedAt: { [string]: number } = {} -- strayId -> server time of this player's last miss on it
+type Retry = { missedAt: number, retryAt: number? }
+local retries: { [string]: Retry } = {} -- strayId -> this player's last miss on it
 
 -- When this player may try the stray again, or nil when they never missed it.
 local function retryAtFor(strayId: string?, fleeingUntil: number?): number?
-	local missed = if strayId then missedAt[strayId] else nil
-	if missed == nil then
+	local retry = if strayId then retries[strayId] else nil
+	if retry == nil then
 		return nil
 	end
-	return math.max(fleeingUntil or 0, missed) + SELF_RETRY
+	return retry.retryAt or math.max(fleeingUntil or 0, retry.missedAt) + SELF_RETRY
 end
 
 function UI.catch.show(info: Types.CatchInfo)
@@ -1983,10 +1986,10 @@ end
 
 -- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows) -> showCircles: the prompt
 -- card makes way for the circles and every press fires events.catchPressed(strayId, index, grade).
--- CatchResult(strayId, grades, success, charmGain) -> showGrades: each circle shows the server's grade. A catch
--- shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It got
--- away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the player
--- is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
+-- CatchResult(strayId, grades, success, charmGain, retryAt) -> showGrades: each circle shows the server's grade. A
+-- catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It
+-- got away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the
+-- player is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
 function UI.catch.showCircles(
 	strayId: string,
 	circleList: { Types.CatchCircle },
@@ -2024,7 +2027,7 @@ end
 local SLIPPED_TEXT = "It got away! Chase it!"
 
 -- The end of a catch: on a miss the toast, then the card comes back while the prompt is still up.
-local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
+local function finishCatch(strayId: string, outcome: CatchCircles.Outcome, retryAt: number?)
 	local screen = circles
 	if not screen then
 		return
@@ -2032,12 +2035,13 @@ local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
 	local current = activeInfo
 	if not outcome.success then
 		local now = Workspace:GetServerTimeNow()
-		for id, at in missedAt do
-			if now - at > 120 then
-				missedAt[id] = nil
+		for id, retry in retries do
+			if now - retry.missedAt > 120 and (retry.retryAt or 0) < now then
+				retries[id] = nil
 			end
 		end
-		missedAt[strayId] = now
+		local given = if type(retryAt) == "number" and retryAt == retryAt then retryAt else nil
+		retries[strayId] = { missedAt = now, retryAt = given }
 		if current and current.strayId == strayId then
 			current.retryAt = retryAtFor(strayId, current.fleeingUntil)
 		end
@@ -2057,18 +2061,20 @@ local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
 	end)
 end
 
--- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss.
+-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. retryAt (F57, miss only) is
+-- the server time this player may try the stray again; the card reads "Catch your breath..." until then.
 function UI.catch.showGrades(
 	strayId: string,
 	grades: { Types.CircleGrade },
 	success: boolean,
-	charmGain: number?
+	charmGain: number?,
+	retryAt: number?
 )
 	finishCatch(strayId, {
 		grades = grades,
 		success = success,
 		charmGain = charmGain,
-	})
+	}, retryAt)
 end
 
 function UI.catch.hideCircles()

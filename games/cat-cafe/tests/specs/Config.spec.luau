@@ -41,7 +41,10 @@ return function()
 		-- v0.4 catching stakes (F34, section 10 step 5); v0.5 the chase after a miss (F40)
 		StrayFleeSpeed = 26,
 		StrayRestSeconds = 1.5,
-		StraySelfRetrySeconds = 1, -- v0.5.1 (S44)
+		StraySelfRetrySeconds = 3, -- v0.5.1 (S44); v0.8 F57: the first of the steps {3, 6, 10}
+		StrayMissStreakResetSeconds = 60, -- v0.8 F57
+		StartledWalkSpeed = 12, -- v0.8 F57
+		StartledSeconds = 2, -- v0.8 F57
 		PerfectCharmBonus = 4,
 		PurrfectCharmMultiplier = 2,
 		AutoPressFlagRate = 0.95,
@@ -204,6 +207,7 @@ return function()
 				TipPotionBonus = true, -- section 12b's potion table: "+25% tips"
 				SwiftPotionSpeed = true, -- section 12b's potion table: "+4 walk and carry speed"
 				LuckyPotionGoldScale = true, -- section 12b's potion table: "double the chance"
+				StraySelfRetrySteps = true, -- section 17's StraySelfRetrySeconds {3, 6, 10}, checked below
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -301,6 +305,12 @@ return function()
 			expect(Config.StrayFleeSpeed > Config.NormalWalkSpeed).to.equal(true)
 			expect(Config.StrayRestSeconds > 0).to.equal(true)
 			expect(Config.StraySelfRetrySeconds > 0).to.equal(true)
+		end)
+
+		it("v0.8 F57: the wait after a miss grows 3, 6, then 10 s, and a Startled player walks slower", function()
+			expect(Config.StraySelfRetrySteps :: any).to.deepEqual({ 3, 6, 10 })
+			expect(Config.StraySelfRetrySeconds).to.equal(Config.StraySelfRetrySteps[1])
+			expect(Config.StartledWalkSpeed < Config.NormalWalkSpeed).to.equal(true)
 		end)
 
 		it("v0.5 chase: the v0.4 wary wait and jump back are gone (F40)", function()

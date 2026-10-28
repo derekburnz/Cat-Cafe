@@ -105,12 +105,13 @@ return function()
 
 	describe("rarities (section 2)", function()
 		local expected = {
-			-- v0.5: the fourth column is fleeStuds (the sprint after a miss), replacing the v0.4 patience
-			Common = { 1, 1, 1.40, 12, 2, 25, 50, "#8E97B2" },
-			Rare = { 3, 2, 1.15, 16, 3, 150, 300, "#5FA8FF" },
-			Epic = { 8, 3, 0.95, 20, 4, 600, 1500, "#C07CFF" },
-			Legendary = { 25, 4, 0.80, 26, 5, 3000, 8000, "#FFC94D" },
-			Mythical = { 75, 5, 0.65, 32, 6, 12000, 30000, "#FF5E7E" },
+			-- v0.5: the fourth column is fleeStuds (the sprint after a miss), replacing the v0.4 patience; doubled in v0.8
+			-- (F57)
+			Common = { 1, 1, 1.40, 24, 2, 25, 50, "#8E97B2" },
+			Rare = { 3, 2, 1.15, 32, 3, 150, 300, "#5FA8FF" },
+			Epic = { 8, 3, 0.95, 40, 4, 600, 1500, "#C07CFF" },
+			Legendary = { 25, 4, 0.80, 52, 5, 3000, 8000, "#FFC94D" },
+			Mythical = { 75, 5, 0.65, 64, 6, 12000, 30000, "#FF5E7E" },
 		}
 		for _, rarity in ipairs(RARITIES) do
 			it(rarity .. " matches the table", function()

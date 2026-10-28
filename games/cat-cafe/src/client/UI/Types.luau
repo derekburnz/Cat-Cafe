@@ -265,8 +265,9 @@ export type CatchInfo = {
 	-- v0.5: the stray's FleeingUntil (server time). Until then it is sprinting off after a miss and nobody can
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
-	-- v0.5.1: server time this player may try again after their own miss (StraySelfRetrySeconds after the cat
-	-- stops); init.luau fills it from this player's CatchResult, the card reads "Catch your breath..." until then.
+	-- v0.5.1, F57: server time this player may try again after their own miss (CatchResult's retryAt: 3, 6, then
+	-- 10 s after the cat stops by misses in a row); init.luau fills it, the card reads "Catch your breath..." until
+	-- then.
 	retryAt: number?,
 	-- v0.5 F41: server time until which only the old carrier may catch a cat knocked loose by a shove (the
 	-- stray's DropOwnerUntil while its DropOwner is someone else); nil when that is you or the cat was not dropped.

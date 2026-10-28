@@ -1010,4 +1010,92 @@ return function()
 			expect(plot.richTip.y > 0).to.equal(true)
 		end)
 	end)
+
+	describe("the Town Square set (QA, engineer PR #444)", function()
+		local square = Layout.townSquare
+		local TSW, TSD = W.TownSquareHalfWidth, W.TownSquareHalfDepth
+
+		local function piecesOf(asset: string): { any }
+			local found = {}
+			for _, prop in square.props :: { any } do
+				if prop.asset == asset then
+					table.insert(found, prop)
+				end
+			end
+			return found
+		end
+
+		local function onCross(x: number, z: number, margin: number): boolean
+			return math.abs(x) < W.TownSquareLaneHalfWidth + margin
+				or (math.abs(z) < W.TownSquareCrossHalfWidth + margin and math.abs(x) <= TSW)
+		end
+
+		it("names every piece CatCafe_Square_ and keeps the paving and fountain at the origin", function()
+			for _, prop in square.props :: { any } do
+				expect(string.sub(prop.asset, 1, 15)).to.equal("CatCafe_Square_")
+			end
+			for _, asset in { "CatCafe_Square_Paving", "CatCafe_Square_Fountain" } do
+				local pieces = piecesOf(asset)
+				expect(#pieces).to.equal(1)
+				expect(pieces[1].x).to.equal(0)
+				expect(pieces[1].z).to.equal(0)
+			end
+		end)
+
+		it("rings the fountain with seven benches at one radius, each turned to face it", function()
+			local benches = piecesOf("CatCafe_Square_Bench")
+			expect(#benches).to.equal(7)
+			local radius = math.sqrt(benches[1].x ^ 2 + benches[1].z ^ 2)
+			expect(radius > square.fountainRadius + 8).to.equal(true)
+			for i, bench in benches do
+				expect(math.sqrt(bench.x ^ 2 + bench.z ^ 2)).to.be.near(radius, 0.05)
+				-- WorldBuilder turns a prop by CFrame.Angles(0, rad(rotY), 0); its front (-Z) then points at the fountain
+				local toward = math.deg(math.atan2(bench.x, bench.z))
+				local off = ((bench.rotY or 0) - toward) % 360
+				if math.min(off, 360 - off) > 0.5 then
+					error(string.format("bench %d at (%.2f, %.2f) is turned %.1f degrees off the fountain", i, bench.x, bench.z, off))
+				end
+				-- the signpost stands in the eighth bench's place, so no bench crowds it
+				local dx, dz = bench.x - square.signpost.x, bench.z - square.signpost.z
+				expect(math.sqrt(dx * dx + dz * dz) >= 4).to.equal(true)
+			end
+		end)
+
+		it("keeps benches, lamps and gardens off the open cross and the spawn", function()
+			local spawn = Layout.playerSpawn
+			for _, asset in { "CatCafe_Square_Bench", "CatCafe_Square_Lamp", "CatCafe_Square_Garden" } do
+				for i, piece in piecesOf(asset) do
+					if onCross(piece.x, piece.z, 1) then
+						error(string.format("%s %d at (%.2f, %.2f) stands on the open cross", asset, i, piece.x, piece.z))
+					end
+					local dx, dz = piece.x - spawn.x, piece.z - spawn.z
+					expect(math.sqrt(dx * dx + dz * dz) >= 6).to.equal(true)
+				end
+			end
+			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(4)
+		end)
+
+		it("puts the gardens in the garden strips, clear of the path to the side arches", function()
+			local gardens = piecesOf("CatCafe_Square_Garden")
+			expect(#gardens).to.equal(4)
+			for _, garden in gardens do
+				local strip = if garden.x < 0 then square.gardens[1] else square.gardens[2]
+				expect(inside(garden.x, garden.z, strip, 0)).to.equal(true)
+				expect(math.abs(garden.z) > W.TownSquareCrossHalfWidth + 6).to.equal(true)
+			end
+		end)
+
+		it("hangs a sign arch over the street at the square's north and south edges", function()
+			local arches = piecesOf("CatCafe_Square_SignArch")
+			expect(#arches).to.equal(2)
+			local north, south = false, false
+			for _, arch in arches do
+				expect(arch.x).to.equal(0)
+				expect(math.abs(arch.z)).to.equal(TSD)
+				north = north or arch.z > 0
+				south = south or arch.z < 0
+			end
+			expect(north and south).to.equal(true)
+		end)
+	end)
 end

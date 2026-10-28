@@ -48,6 +48,19 @@ Shot 7 is now a hard cut, then Quad InOut: a sweep down into the Town Square fro
 
 Shot 9's swoop is longer in v3, about 210 studs in 2.0 s down to a plot 5 or 6 cafe (v2's longest was about 150). If it looks like a whip in Studio, route it through a via point over the square such as (0, 45, 0), the way shot 1 uses one. That is tuning only; the start, end and timing stay. Better still, the engineer can compute shots 4 to 8 from the Layout and Config points they look at, so a later layout change moves them too.
 
+### 2c. Shot positions for town layout v3.1 (game-designer thread, 2026-10-28)
+
+[town-layout-v3.md](town-layout-v3.md) section 7 (F77) removes the Alley Square, brings the Neighbourhood to the street's north end and moves the Woods and the Sewer west and east of the back alleys. When F77 ships, these replace the 2b numbers for shots 5, 6, 8 and 9; shots 1 to 4 and 7 keep their 2b numbers, and the timings and captions stay.
+
+| # | Camera from (position, look) | Camera to (position, look) |
+|---|---|---|
+| 5 | Park (0, 40, -119), (0, 0, -156); Neighbourhood (0, 60, 133.5), (0, 0, 201.5); Woods (-89, 45, 0), (-150, 0, 0); Sewer (89, 40, 0), (136, 0, 0) | each pushes 6% toward its look point |
+| 6 | (-59.5, 5, -4), the west Alleyway Index Board (-71, 4, -9) | (-64.5, 4.5, -6.5), the board |
+| 8 | (0, 80, -150), (0, 0, -20) | (0, 76, -144), (0, 0, -20) |
+| 9 | (0, 76, -144), (0, 0, -20) | 12 studs behind and 6 above the character, looking at its head |
+
+Shot 6 starts in the square's east to west lane and looks through the west side arch at the board. Shot 8 is a high view up the whole town from the south, with both back alleys in frame; the strays that fade out and pop back in are the back alleys' (there is no Alley Square). Shot 9's swoop is up to about 250 studs to a north row cafe, so it goes through the via point (0, 45, 0) over the square.
+
 ## 3. Gameplay-Engineer
 
 - Profile `introSeen` (boolean, default false) in the next save version bump, sent in ProfileSync. Settings key `tutorialButton` (boolean, default true) as a ninth `SetSetting` key.

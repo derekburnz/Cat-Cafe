@@ -35,6 +35,8 @@ local ClientErrors = require(script.Components.ClientErrors)
 local Codes = require(script.Screens.Codes)
 local Collector = require(script.Screens.Collector)
 local Create = require(script.Components.Create)
+local DailyTreat = require(script.Screens.DailyTreat)
+local DailyTreatLogic = require(script.Components.DailyTreatLogic)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
 local FishMarket = require(script.Screens.FishMarket)
@@ -142,6 +144,8 @@ UI.events = {
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
+	-- F70
+	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 }
 
 local state: Types.PlayerState = {
@@ -209,6 +213,10 @@ local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking i
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
 local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
 local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
+local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F70), from the HUD's Daily tile
+-- F70: nil until the first Daily Treat card arrives, then whether the window still opens by itself this session (only a
+-- stamp due on joining opens it; one that comes due mid-session lights the Daily tile)
+local dailyAutoOpen: boolean? = nil
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
@@ -278,6 +286,34 @@ end
 -- Replaying the intro waits while carrying or during a catch or rescue (the HUD tile greys then too).
 local function introBlocked(): boolean
 	return (hud ~= nil and hud:isCarrying()) or UI.catch.circlesActive() or UI.rescue.isActive()
+end
+
+-- F70: the Daily Treat window opens by itself once when the player joins with a stamp due, after the tutorial and the
+-- intro, while no other window is open and nothing is being carried, caught or rescued.
+local function autoOpenDailyTreat()
+	if dailyAutoOpen == false or state.dailyTreat == nil then
+		return
+	end
+	local view = DailyTreatLogic.view(state.dailyTreat)
+	local now = Workspace:GetServerTimeNow()
+	if not DailyTreatLogic.due(view, now) then
+		dailyAutoOpen = false
+		return
+	end
+	dailyAutoOpen = true
+	local windows = modal
+	if
+		not DailyTreatLogic.autoOpen(view, now, state.tutorialStep)
+		or not visible
+		or windows == nil
+		or windows:current() ~= nil
+		or UI.intro.playing()
+		or introBlocked()
+	then
+		return
+	end
+	dailyAutoOpen = false
+	windows:open("DailyTreat")
 end
 
 local function render()
@@ -354,6 +390,10 @@ local function render()
 	if collectorScreen then
 		collectorScreen:render(state)
 	end
+	if dailyTreatScreen then
+		dailyTreatScreen:render(state)
+	end
+	autoOpenDailyTreat()
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -412,6 +452,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if collectorScreen then
 		collectorScreen:setCatalog(newCatalog)
+	end
+	if dailyTreatScreen then
+		dailyTreatScreen:setCatalog(newCatalog)
 	end
 	if popups then
 		popups:setCatalog(newCatalog)
@@ -838,6 +881,22 @@ function UI.init(config: Types.InitConfig)
 			questsView:onClose()
 		end,
 	})
+	dailyTreatScreen = DailyTreat.new({
+		claim = function()
+			UI.events.claimDailyTreat:Fire()
+		end,
+		status = function(shown: boolean, due: boolean)
+			hudInstance:setDailyTreat(shown, due)
+		end,
+		close = closeModal,
+	})
+	local dailyTreatView = dailyTreatScreen :: DailyTreat.DailyTreat
+	modalInstance:register("DailyTreat", {
+		frame = dailyTreatView.frame,
+		onOpen = function()
+			dailyTreatView:render(state)
+		end,
+	})
 	collectorScreen = Collector.new(parent, {
 		answer = function(accept: boolean)
 			UI.events.answerCollector:Fire(accept)
@@ -1081,6 +1140,11 @@ function UI.destroy()
 		collectorScreen:destroy()
 	end
 	collectorScreen = nil
+	if dailyTreatScreen then
+		dailyTreatScreen:destroy()
+	end
+	dailyTreatScreen = nil
+	dailyAutoOpen = nil
 	if introScreen then
 		introScreen:destroy()
 	end
@@ -2744,6 +2808,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	end
 	if questsScreen then
 		questsScreen:setNight(phase == "night")
+	end
+	if dailyTreatScreen then
+		dailyTreatScreen:setNight(phase == "night")
 	end
 end
 

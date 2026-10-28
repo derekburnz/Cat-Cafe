@@ -4,6 +4,7 @@
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local Onboarding = require(script.Parent.Onboarding)
 local Settings = require(script.Parent.Settings)
@@ -35,7 +36,9 @@ local ProfileSchema = {}
 -- Version 16 (F73) adds quests, achievements and seven stats (rareCatches, goldCatches, tipPilesCollected and the
 -- quest and set counts): an older server would drop the claims, so a player hopping servers during a rollout could
 -- claim a quest or an achievement twice.
-ProfileSchema.VERSION = 16
+-- Version 17 (F70) adds dailyTreat, the Daily Treat card: an older server would drop it, letting a stamp pay twice
+-- in a day and the card start again at day 1.
+ProfileSchema.VERSION = 17
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -155,6 +158,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		buffs = {},
 		quests = newQuests(),
 		achievements = {},
+		dailyTreat = { stamp = 0, lastDay = 0 },
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = Settings.defaults(),
@@ -699,6 +703,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.buffs = sanitizeBuffs(raw.buffs)
 	profile.quests = sanitizeQuests(raw.quests) -- F73; saves before version 16 have none and roll on load
 	profile.achievements = sanitizeAchievements(raw.achievements)
+	profile.dailyTreat = DailyTreat.sanitize(raw.dailyTreat, now) -- F70; saves before version 17 start a fresh card
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

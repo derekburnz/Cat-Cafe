@@ -416,6 +416,7 @@ local function applyState(s: Types.PlayerState)
 		buffs = s.buffs, -- F64: each running potion's endsAt in server time
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
+		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -586,6 +587,10 @@ local function wireIntents()
 	end)
 	UI.events.claimAchievement:Connect(function(achievementId: string)
 		Net.fire("ClaimAchievement", achievementId)
+	end)
+	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
+	UI.events.claimDailyTreat:Connect(function()
+		Net.fire("ClaimDailyTreat")
 	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
 	-- the food and the window the screen showed (else the last one sent), so a buy sent across a roll is refused (S42).
@@ -1061,6 +1066,7 @@ function UIController.start()
 		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet
 		achievements = Catalog.achievements, -- F73: the 44 achievements in table order
 		achievementPrizes = Catalog.achievementPrizes, -- F73: prizes by size
+		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

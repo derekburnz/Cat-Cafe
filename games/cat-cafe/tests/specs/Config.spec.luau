@@ -118,6 +118,13 @@ return function()
 		QuestWeeklyCount = 3,
 		QuestWeekOffsetSeconds = 345600,
 		QuestRollCheckSeconds = 60,
+		-- bedtime (F79, sections 12c and 17)
+		CafeCatWalkSpeed = 6,
+		BedtimeStaggerSeconds = 0.3,
+		BedtimeStretchSeconds = 1,
+		HopSeconds = 0.45,
+		HopMaxRise = 2.6,
+		BedtimeTimeoutSeconds = 15,
 		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
 		CollectorCheckSeconds = 120,
 		CollectorChance = 0.12,

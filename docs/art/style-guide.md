@@ -316,6 +316,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Currency props | 1,200 | the golden fish coin (`CatCafe_Prop_FishCoin`); its UI picture is rendered from it (section 14) |
 | Alleyway set pieces | 5,000 to 6,000 | arches and building backs; crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
 | Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier, 4,000 back door | built from blocks for the Part export (section 14); the FBX is the reference |
+| Door sets and cat flaps (F80) | 4,000 per door half, 1,600 per flap | `doorsets.py`: front double doors land at 1,196 to 3,292, back doors 2,254 to 3,278, flaps 256 to 1,336 |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.
@@ -476,7 +477,11 @@ readable down to 24 px), uploaded as `rbxassetid://77287948377172`. The crate fu
 wide and 2.5 deep around a base-centre pivot, front -Z, and never collides; tall pieces are fine (the Cat Tree Tower
 is 10.6). Lamps and neon are `_Glow`, fountain water `_Water`, a window to look through `_Glass`, and the Blossom
 Tree's flowers are the child Model `_Canopy` that the petal effect falls from. `_Glow` parts are Neon day and night,
-and WorldController leaves them alone. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+and WorldController leaves them alone. The F80 door sets (`CatCafe_Door_<Name>_Front` and `_Back`, `doorsets.py`) and
+cat flaps (`CatCafe_CatFlap_<Name>`) never collide; the code reads `_LeafL`, `_LeafR` and `_Leaf` (each pivoted on its
+hinge), the back leaf's `CatFlap` Attachment, `_Sign` and `_Sign_Bulb` (night), `_Flap` (pivoted on the flap's top
+hinge) and the Bell flap's `_Bell`. Back leaves keep the flap patch flat on both faces, so any flap fits any back door,
+the cafe's own included, and no flap reaches below the leaf's foot. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
 `Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).

@@ -13,11 +13,13 @@ Model layout (rbx_export):
                                              flat along the jamb. A `CatFlap` Attachment sits at the foot of its
                                              yard face in the middle (x -8), facing the yard, where an F80 flap goes
       CatCafe_Plot_BackDoor_Leaf_Glass       the four panes in its window
+      CatCafe_Plot_BackDoor_FlapFrame        the default flap's surround and hood (hide it with _Flap when an F80
+                                             flap, which brings its own frame, is in use)
       CatCafe_Plot_BackDoor_Flap             the default cat flap's swinging panel, pivot on its top hinge: turn it
                                              about its X (up to about 60 degrees either way) as a cat goes through
       CatCafe_Plot_BackDoor_Sign             "CLOSED / UNTIL SUNRISE" hung on the leaf's yard face, for the night
       CatCafe_Plot_BackDoor_Sign_Bulb        the sign's letters and moon (_Bulb: Neon at night)
-The flap's surround is part of the leaf. Nothing here needs to collide: the code-built back door panel stays the
+Nothing here needs to collide: the code-built back door panel stays the
 collider, made invisible.
 """
 
@@ -69,10 +71,6 @@ def _leaf(b, glass):
     # a raised moulding on both faces across the lock rail, short of the handle
     for (z0, z1) in ((0.0, 0.06), (-LT - 0.06, -LT)):
         _frame(b, 0.45, LW - 1.1, FY1 + 0.5, wy0 - 0.35, 0.14, z0, z1, MOULD)
-    # the flap's surround on both faces, a little hood over it on the yard side
-    for (z0, z1) in ((0.0, 0.08), (-LT - 0.08, -LT)):
-        _frame(b, fx0 - 0.18, fx1 + 0.18, FY0 - 0.15, FY1 + 0.18, 0.18, z0, z1, TRIM)
-    b.span((fx0 - 0.3, FY1 + 0.18, 0.0), (fx1 + 0.3, FY1 + 0.36, 0.24), TRIM)
     # iron strap hinges with their knuckles on the hinge edge, a brass lever handle each side, a keyhole
     for y in (0.95, LY1 - 0.47):
         b.span((0.02, y, 0.0), (1.55, y + 0.24, 0.04), IRON)
@@ -83,6 +81,15 @@ def _leaf(b, glass):
         b.span((hx - 0.08, 3.24, min(zf, zf + s * 0.17)), (hx + 0.08, 3.36, max(zf, zf + s * 0.17)), BRASS)
         b.span((hx - 0.62, 3.24, zf + s * 0.17 - 0.06), (hx + 0.02, 3.36, zf + s * 0.17 + 0.06), BRASS)
         b.span((hx - 0.05, 2.75, min(zf, zf + s * 0.03)), (hx + 0.05, 2.95, max(zf, zf + s * 0.03)), IRON)
+
+
+def _flap_frame(b):
+    """The flap's surround on both faces of the leaf and a little hood over it on the yard side, in the leaf's frame.
+    Its own object, so the game can hide it with the panel when an F80 flap (which brings its own frame) is in use."""
+    fx0, fx1 = FC - FW / 2, FC + FW / 2
+    for (z0, z1) in ((0.0, 0.08), (-LT - 0.08, -LT)):
+        _frame(b, fx0 - 0.18, fx1 + 0.18, FY0 - 0.15, FY1 + 0.18, 0.18, z0, z1, TRIM)
+    b.span((fx0 - 0.3, FY1 + 0.18, 0.0), (fx1 + 0.3, FY1 + 0.36, 0.24), TRIM)
 
 
 def _flap(b):
@@ -96,18 +103,18 @@ def _flap(b):
         b.span((x - 0.09, y - 0.09, 0.03), (x + 0.09, y + 0.09, 0.05), TRIM)                # toes
 
 
-def _sign(b, glow):
-    """The night sign on the leaf's yard face, hung from a nail in the top rail over the window."""
+def _sign(b, glow, z=0.1):
+    """The night sign on the leaf's yard face, hung from a nail in the top rail over the window; z is the board's
+    back, clear of whatever the leaf has under it (the cafe's own leaf: its window bead)."""
     big, small, px, spx, moon = "CLOSED", "UNTIL SUNRISE", 0.13, 0.07, 0.22
     cx = LW / 2
     tw = text_width(big, px)
     w = 0.3 + tw + 0.4 + 2 * moon + 0.3                         # CLOSED, then the moon facing it on the top line
     left = cx - w / 2
     y0, y1, nail = 4.55, 6.45, LY1 - 0.3
-    z = 0.1                                                     # the board's back, clear of the window bead
     b.span((left, y0, z), (left + w, y1, z + 0.12), SIGN_BOARD)
     _frame(b, left - 0.1, left + w + 0.1, y0 - 0.1, y1 + 0.1, 0.1, z, z + 0.14, SIGN_INK)
-    b.span((cx - 0.06, nail - 0.06, 0.0), (cx + 0.06, nail + 0.06, 0.26), "metal")
+    b.span((cx - 0.06, nail - 0.06, 0.0), (cx + 0.06, nail + 0.06, z + 0.16), "metal")
     for sx in (-1, 1):
         dx, dy = w / 4, nail - y1 - 0.1
         b.box((cx + sx * dx / 2, (y1 + 0.1 + nail) / 2, z + 0.07), (0.05, math.hypot(dx, dy) + 0.05, 0.05), "fur_black",
@@ -119,7 +126,7 @@ def _sign(b, glow):
 
 
 def build_back_door(mat):
-    b, leaf, glass, flap, sign, glow = RB(), RB(), RB(), RB(), RB(), RB()
+    b, leaf, glass, frame, flap, sign, glow = RB(), RB(), RB(), RB(), RB(), RB(), RB()
     # the threshold, and the inside architrave the shell's doorway lacks (its outside frame is the shell's)
     b.span((X0 + 0.01, 0.0, BACK - 1.0), (X1 - 0.01, 0.08, BACK - 0.02), "dark_wood")
     zi = BACK - 1.0                                             # the wall's inside face
@@ -128,12 +135,14 @@ def build_back_door(mat):
     b.span((X1 - 0.02, 0.0, zi - 0.32), (X1 + 0.45, DH + 0.45, zi), TRIM)
     b.span((X0 + 0.02, DH + 0.01, zi - 0.32), (X1 - 0.02, DH + 0.45, zi), TRIM)
     _leaf(leaf, glass)
+    _flap_frame(frame)
     _flap(flap)
     _sign(sign, glow)
     hinge = (HX, 0.0, HZ)
     flap_at = (HX + FC, FY1, HZ - LT / 2)
     return [b.finalize(NAME, mat), leaf.finalize(NAME + "_Leaf", mat, location=hinge),
             glass.finalize(NAME + "_Leaf_Glass", mat, location=hinge),
+            frame.finalize(NAME + "_FlapFrame", mat, location=hinge),
             flap.finalize(NAME + "_Flap", mat, location=flap_at),
             sign.finalize(NAME + "_Sign", mat, location=hinge), glow.finalize(NAME + "_Sign_Bulb", mat, location=hinge)]
 
@@ -145,7 +154,7 @@ def cat_flap_attachment():
     return ("_Leaf", "CatFlap", Matrix.Translation(at) @ Matrix.Rotation(math.pi, 4, "Z"))
 
 
-NEST = {"_Leaf_Glass": "_Leaf", "_Flap": "_Leaf", "_Sign": "_Leaf", "_Sign_Bulb": "_Leaf"}
+NEST = {"_Leaf_Glass": "_Leaf", "_FlapFrame": "_Leaf", "_Flap": "_Leaf", "_Sign": "_Leaf", "_Sign_Bulb": "_Leaf"}
 
 ASSETS = {
     NAME: (build_back_door, 4000),

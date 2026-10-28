@@ -1187,4 +1187,83 @@ return function()
 			expect(north and south).to.equal(true)
 		end)
 	end)
+
+	describe("the cat beds (F79, Model-Agent #511)", function()
+		local plot = Layout.plot
+		local halfW, halfD = W.PlotWidth / 2, W.PlotDepth / 2
+		local CLEAR = 2 -- studs from a bed's centre to anything else's
+
+		local function apart(bed: any, x: number, z: number): number
+			return math.sqrt((bed.x - x) ^ 2 + (bed.z - z) ^ 2)
+		end
+
+		it("adds two beds a tier from Tier 3, so the trees' four places and the beds sleep every working slot", function()
+			expect(#plot.beds).to.equal(6)
+			for n, bed in plot.beds do
+				expect(bed.id).to.equal("bed_" .. n)
+				expect(bed.tier).to.equal(2 + math.ceil(n / 2))
+			end
+			for _, tier in Catalog.tiers do
+				local places = 4
+				for _, bed in plot.beds do
+					if tier.tier >= bed.tier then
+						places += 1
+					end
+				end
+				if places < tier.slots then
+					fail(
+						"Tier %d has %d working slots and only %d sleep places",
+						tier.tier,
+						tier.slots,
+						places
+					)
+				end
+			end
+		end)
+
+		it("stands each bed on the floor inside the walls, facing into the room", function()
+			for _, bed in plot.beds do
+				expect(bed.y).to.equal(0)
+				expect(math.abs(bed.x) <= halfW - 1.5 and math.abs(bed.z) <= halfD - 1.5).to.equal(
+					true
+				)
+				-- the front (-Z turned rotY about Y) points away from the nearest walls, toward the middle
+				local angle = math.rad(bed.rotY)
+				local frontX, frontZ = -math.sin(angle), -math.cos(angle)
+				if frontX * -bed.x + frontZ * -bed.z <= 0 then
+					fail("%s faces the wall", bed.id)
+				end
+			end
+		end)
+
+		it("keeps every bed clear of the nap spots, decor spots, tables, stations, cat trees and the other beds", function()
+			for _, bed in plot.beds do
+				local function check(what: string, x: number, z: number)
+					if apart(bed, x, z) < CLEAR then
+						fail("%s is %.2f studs from %s", bed.id, apart(bed, x, z), what)
+					end
+				end
+				for n, spot in plot.napSpots do
+					check("nap spot " .. n, spot.x, spot.z)
+				end
+				for n, spot in plot.decorSpots do
+					check("decor spot " .. n, spot.x, spot.z)
+				end
+				for n, spot in plot.tables do
+					check("table " .. n, spot.x, spot.z)
+				end
+				for id, spot in plot.spots do
+					check(id, spot.x, spot.z)
+				end
+				for id, spot in plot.spotFurniture do
+					check(id .. "'s cat tree", spot.x, spot.z)
+				end
+				for _, other in plot.beds do
+					if other ~= bed then
+						check(other.id, other.x, other.z)
+					end
+				end
+			end
+		end)
+	end)
 end

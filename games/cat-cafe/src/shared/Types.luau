@@ -266,6 +266,28 @@ export type SpinState = {
 	banked: number,
 }
 
+-- The Daily Treat card (F70, data-model 11e): `stamp` is the last day paid on the card (0 on a fresh card, 7 on a
+-- full one) and `lastDay` the UTC day number (os.time() // 86400) of that claim, so a stamp is due on any later day.
+export type DailyTreatState = {
+	stamp: number,
+	lastDay: number,
+}
+
+-- What ProfileSync sends for the Daily Treat window and its HUD dot (F70): the card, whether a stamp is due now and
+-- the day it pays (1 after a full card).
+export type DailyTreatView = {
+	stamp: number,
+	lastDay: number,
+	due: boolean,
+	nextDay: number,
+}
+
+-- One day of the Daily Treat card (F70, data-model 11e), its prize in the Index prize shape.
+export type DailyTreatDay = {
+	day: number,
+	prize: IndexPrize,
+}
+
 -- TipJarState (server to client): when this session's jar started (workspace:GetServerTimeNow(), the clock the
 -- client counts down against) and one claimed flag per step in order. A dense array, because a sparse table of
 -- step numbers would lose entries past its first gap on the way through a remote.
@@ -532,6 +554,7 @@ export type PlayerProfile = {
 	buffs: { [string]: number },
 	quests: QuestState, -- F73
 	achievements: { [string]: boolean }, -- F73: achievementId -> claimed
+	dailyTreat: DailyTreatState, -- F70
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -576,6 +599,7 @@ export type PlayerState = {
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	quests: QuestsView, -- F73: the Quests window's Daily and Weekly tabs and the HUD tracker
 	achievements: { [string]: AchievementView }, -- F73: every Catalog.achievements id
+	dailyTreat: DailyTreatView, -- F70: the Daily Treat window's card and the HUD button's dot
 	stats: Stats, -- F73
 	serverTime: number,
 }

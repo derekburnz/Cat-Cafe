@@ -17,6 +17,7 @@
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
+--   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
@@ -40,6 +41,7 @@ local ClockService = require(script.Parent.ClockService)
 local CodeService = require(script.Parent.CodeService)
 local CollectorService = require(script.Parent.CollectorService)
 local Config = require(ReplicatedStorage.Shared.Config)
+local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FishMarketService = require(script.Parent.FishMarketService)
@@ -54,6 +56,7 @@ local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
+local Spin = require(ReplicatedStorage.Shared.Spin)
 local SpinService = require(script.Parent.SpinService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
@@ -173,6 +176,17 @@ end
 function Debug.spins(player: (Player | number | string)?, banked: number, freeDue: boolean?): number
 	local p = resolve(player)
 	return SpinService.debugSet(p, profileOf(p), banked, freeDue == true)
+end
+
+-- Sets the Daily Treat card to `stamp` stamps (0 to 7) with a stamp due now, as if the last claim was yesterday
+-- (F70). Returns the day the next Claim pays.
+function Debug.dailyTreat(player: (Player | number | string)?, stamp: number): number
+	local p = resolve(player)
+	local profile = profileOf(p)
+	profile.dailyTreat.stamp = math.clamp(math.floor(stamp), 0, DailyTreat.DAYS)
+	profile.dailyTreat.lastDay = math.max(Spin.day(os.time()) - 1, 0)
+	CafeService.sync(p)
+	return DailyTreat.nextDay(profile.dailyTreat)
 end
 
 -- Sets the player's banked crates of `crateId` to `count` (default 1) and clears the Market cooldown (F53). Walk

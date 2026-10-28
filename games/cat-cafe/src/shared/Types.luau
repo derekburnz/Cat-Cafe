@@ -87,8 +87,16 @@ export type UpgradeDef = {
 export type DecorSource = "shop" | "crate"
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
--- at a time; furniture and decorations stand on decor spots.
-export type DecorKind = "wallpaper" | "floor" | "paint" | "furniture" | "decoration"
+-- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
+-- decorations stand on decor spots.
+export type DecorKind =
+	"wallpaper"
+	| "floor"
+	| "paint"
+	| "door"
+	| "catflap"
+	| "furniture"
+	| "decoration"
 
 export type DecorDef = {
 	id: string,

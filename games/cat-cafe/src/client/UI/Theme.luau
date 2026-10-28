@@ -176,7 +176,20 @@ Theme.areaColors = {
 	sewer = Color3.fromHex("6E7F86"),
 	all = Color3.fromHex("F2679E"), -- the Index's All Cats page (F54), in berry
 	spare = Color3.fromHex("9C88C4"), -- the Index's Spare page (F78), in lavender
+	town = Color3.fromHex("E9C98F"), -- Town Square on the Cat Cannon's cards (F84), in warm cream
 } :: { [string]: Color3 }
+
+-- Each place's landmark for the Cat Cannon's cards and its name card in the clouds (F84), 512 x 256 cut from
+-- Model-Agent's renders (assets/cat-cafe/ui/area-pictures). The area's colour and emoji show until one loads; a
+-- place with no picture keeps them.
+Theme.areaPictures = {
+	town = "rbxassetid://140284083259569", -- Town Square from above
+	alley = "rbxassetid://113608977532602", -- the back alley lane at dusk, washed pink like its cloud tunnel
+	park = "rbxassetid://132809833693971", -- the bandstand
+	neighbourhood = "rbxassetid://78164844504840", -- the Corner Shop
+	woods = "rbxassetid://85739310653150", -- the Great Oak
+	sewer = "rbxassetid://114790084150559", -- the THE SEWER sign
+} :: { [string]: string }
 
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).
 Theme.fonts = {
@@ -234,6 +247,8 @@ Theme.icons = {
 	unlock = "🔓",
 	food = "🐟",
 	moon = "🌙",
+	cannon = "💥", -- F84: the Cat Cannon button and window badge
+	town = "🏡", -- F84: Town Square on a camp cannon's card
 	invite = "💌",
 	equipBest = "✨",
 	drop = "⬇️",

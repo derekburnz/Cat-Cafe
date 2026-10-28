@@ -6,10 +6,12 @@
 --   line   the same as plain text, "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical"
 --   split  the same chance for every cat of a rarity across the areas you have unlocked, cat by cat, and which
 --          area the next rank up adds to the pool
---   extras the gold chance (with the Index's gold luck in it, v0.10) and the charm star odds, because both change
---          what the cat earns; under the card's Details since 2026-10-28, with the split
+--   extras the gold chance (with the Index's gold luck in it, v0.10, and a running Gold Rush or Lucky Potion's,
+--          F73) and the charm star odds, because both change what the cat earns; under the card's Details since
+--          2026-10-28, with the split
 --   waitSeconds how long the bowl's cat takes: LureWaitSeconds, or the Big Bowl perk's wait, half for food set at
---          night (F60), less the Index's faster bait (F54), whole seconds as the server's Economy.baitWaitSeconds
+--          night (F60), less the faster bait (the Index's, F54, plus a running Quick Bait Potion's, F73, the two
+--          inside BaitSpeedMax), whole seconds as the server's Economy.baitWaitSeconds
 -- Shared by the bait bowl screen and the night dealer.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -140,16 +142,26 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 end
 
 -- "Gold 5% · Charm 1★ 7.8%, 2★ 23.5%, 3★ 35.7%, 4★ 24.3%, 5★ 8.7%"; with gold luck the chance has it in
--- (chance x (1 + luck), golden-fish.md section 5): "Gold 7% (+40% luck) · Charm ...".
-function FoodOdds.extras(goldLuck: number?): string
+-- (chance x (1 + luck), golden-fish.md section 5): "Gold 7% (+40% luck) · Charm ...". F73, as the server's
+-- BaitService: `potionLuck` (a running Gold Rush Potion's) goes on top of the Index's capped luck, and `goldScale`
+-- (a running Lucky Potion's 2) multiplies the lot: "Gold 16.5% (+65% luck, Lucky Potion x2) · Charm ...".
+function FoodOdds.extras(goldLuck: number?, potionLuck: number?, goldScale: number?): string
 	local stars: { string } = {}
 	for count, share in STAR_ODDS do
 		table.insert(stars, ("%d★ %s"):format(count, percent(share)))
 	end
-	local luck = math.clamp(goldLuck or 0, 0, GOLD_LUCK_MAX)
-	local gold = percent(GOLD_CHANCE * (1 + luck) * 100)
+	local luck = math.clamp(goldLuck or 0, 0, GOLD_LUCK_MAX) + math.max(0, potionLuck or 0)
+	local scale = math.max(1, goldScale or 1)
+	local gold = percent(GOLD_CHANCE * (1 + luck) * scale * 100)
+	local notes: { string } = {}
 	if luck > 0 then
-		gold ..= (" (+%s luck)"):format(percent(luck * 100))
+		table.insert(notes, ("+%s luck"):format(percent(luck * 100)))
+	end
+	if scale > 1 then
+		table.insert(notes, ("Lucky Potion x%g"):format(scale))
+	end
+	if #notes > 0 then
+		gold ..= " (" .. table.concat(notes, ", ") .. ")"
 	end
 	return ("Gold %s · Charm %s"):format(gold, table.concat(stars, ", "))
 end

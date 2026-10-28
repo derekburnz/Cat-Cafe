@@ -24,6 +24,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -115,7 +116,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._near = nil :: boolean?
 	self._pending = {} :: { [string]: number } -- lureId -> os.clock() when the wait for DealerStock ends
 	self._tier = 0
-	self._goldLuck = -1 -- the luck the odds lines were written with
+	self._extras = "" -- the gold and charm line the Details were written with
 	self._accumulator = 0
 
 	local panel = Panel.new({
@@ -400,7 +401,7 @@ function Dealer._buildRows(self: any)
 		})
 	end
 	self._tier = -1 -- rebuild the split text on the next render
-	self._goldLuck = -1
+	self._extras = ""
 end
 
 function Dealer._toggleDetail(self: any, lureId: string)
@@ -509,15 +510,17 @@ function Dealer._renderAll(self: any)
 			row.split = FoodOdds.split(catalog, row.group.def, state.tier)
 		end
 	end
-	-- Details: the food's line, the gold chance with the Index's gold luck in it (F54), the charm stars, the chance
-	-- of each stock amount (F59) and the split
+	-- Details: the food's line, the gold chance with the Index's gold luck (F54) and the running potions (F73) in
+	-- it, the charm stars, the chance of each stock amount (F59) and the split
 	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
-	if tierChanged or luck ~= self._goldLuck then
-		self._goldLuck = luck
+	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
+	local extras = FoodOdds.extras(luck, boosts.goldLuck, boosts.goldScale)
+	if tierChanged or extras ~= self._extras then
+		self._extras = extras
 		local amounts = if catalog then catalog.dealerAmountWeights else nil
 		for _, row in self._rows do
 			local def: Types.LureDef = row.group.def
-			local lines = { def.description, FoodOdds.extras(luck) }
+			local lines = { def.description, extras }
 			local stockOdds = DealerRows.amountOdds(if amounts then amounts[def.id] else nil)
 			if stockOdds then
 				table.insert(lines, stockOdds)

@@ -6,6 +6,9 @@
 --   rows(catalog, state, now)  one row per potion with its count, time left and whether Use can take it; ids the
 --                              player holds that the catalog does not name yet come last, named from the id
 --   running(catalog, state, now)  the potions with time left, in bag order, for the HUD chips
+--   boosts(catalog, state, now)   what the running potions add to food set in the bowl now, as the server's
+--                              Potions.goldLuck, Potions.baitSpeed and Potions.baitGoldChance (F73): gold luck, bait
+--                              speed and the Lucky Potion's gold scale
 --   clock(seconds)             "9:05", "60:00"; whole seconds, rounded up so a potion never reads 0:00 early
 --   giftRows(catalog)          what a Mystery gift can hold: Catalog.mysteryGift, else the data model's table
 --   giftLine(rows, foodName)   "Potion 60%  ·  2 Salmon 20%  ·  10 golden fish 10%  ·  1 spin 10%"
@@ -34,6 +37,12 @@ export type Row = {
 	count: number,
 	secondsLeft: number, -- 0 when it is not running
 	canUse: boolean, -- one in the bag and room under PotionMaxMinutes for its time
+}
+
+export type Boosts = {
+	goldLuck: number, -- added to the Index's (a Gold Rush Potion's 0.25)
+	baitSpeed: number, -- added to the Index's, the two inside BaitSpeedMax (a Quick Bait Potion's 0.25)
+	goldScale: number, -- the gold chance times this (2 while a Lucky Potion runs, else 1)
 }
 
 export type GiftRow = {
@@ -74,6 +83,16 @@ local KNOWN: { Potion } = {
 	},
 }
 local F64_COUNT = 4 -- the first four of KNOWN are F64's; the rest come with Catalog.potions (F73)
+
+-- quests.md section 4: the bait boosts by id, for a catalog row that does not carry them
+local BOOSTS: { [string]: { goldLuck: number?, baitSpeed: number? } } = {
+	gold_rush_potion = { goldLuck = 0.25 },
+	quick_bait_potion = { baitSpeed = 0.25 },
+}
+local LUCKY = "lucky_potion"
+local LUCKY_SCALE: number = if type(Config.LuckyPotionGoldScale) == "number"
+	then Config.LuckyPotionGoldScale
+	else 2
 
 local KNOWN_BY_ID: { [string]: Potion } = {}
 for _, potion in KNOWN do
@@ -204,6 +223,41 @@ function PotionLogic.running(
 		end
 	end
 	return running
+end
+
+function PotionLogic.boosts(catalog: Types.Catalog?, state: Types.PlayerState, now: number): Boosts
+	local defs: { [string]: Types.PotionDef } = {}
+	local list: { Types.PotionDef } = if catalog and type(catalog.potions) == "table"
+		then catalog.potions
+		else {}
+	for _, def in list do
+		if type(def) == "table" and type(def.id) == "string" then
+			defs[def.id] = def
+		end
+	end
+	local boosts: Boosts = { goldLuck = 0, baitSpeed = 0, goldScale = 1 }
+	local timers: { [string]: number } = state.buffs or {}
+	for id in timers do
+		if type(id) ~= "string" or secondsLeft(state.buffs, id, now) <= 0 then
+			continue
+		end
+		local def = defs[id]
+		local known = BOOSTS[id]
+		local luck = if def and type(def.goldLuck) == "number"
+			then def.goldLuck
+			elseif known then known.goldLuck
+			else nil
+		local speed = if def and type(def.baitSpeed) == "number"
+			then def.baitSpeed
+			elseif known then known.baitSpeed
+			else nil
+		boosts.goldLuck += math.max(0, luck or 0)
+		boosts.baitSpeed += math.max(0, speed or 0)
+		if id == LUCKY then
+			boosts.goldScale = LUCKY_SCALE
+		end
+	end
+	return boosts
 end
 
 function PotionLogic.clock(seconds: number): string

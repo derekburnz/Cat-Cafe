@@ -108,6 +108,46 @@ return function()
 		end)
 	end)
 
+	describe("PotionLogic.boosts", function()
+		it("sums what the running potions add to food set now, as the server's Potions", function()
+			local none = PotionLogic.boosts(nil, state({}, nil), NOW)
+			expect(none.goldLuck).to.equal(0)
+			expect(none.baitSpeed).to.equal(0)
+			expect(none.goldScale).to.equal(1)
+			-- before the catalog carries the numbers, the quest potions' own
+			local all = PotionLogic.boosts(
+				nil,
+				state({}, {
+					gold_rush_potion = NOW + 60,
+					quick_bait_potion = NOW + 60,
+					lucky_potion = NOW + 60,
+					tip_potion = NOW + 60,
+				}),
+				NOW
+			)
+			expect(all.goldLuck).to.be.near(0.25, 1e-9)
+			expect(all.baitSpeed).to.be.near(0.25, 1e-9)
+			expect(all.goldScale).to.equal(2)
+		end)
+
+		it("reads the catalog's numbers and skips finished timers", function()
+			local catalog: any = {
+				potions = {
+					{ id = "gold_rush_potion", goldLuck = 0.3 },
+					{ id = "quick_bait_potion", baitSpeed = 0.2 },
+				},
+			}
+			local boosts = PotionLogic.boosts(
+				catalog,
+				state({}, { gold_rush_potion = NOW + 1, quick_bait_potion = NOW - 1, lucky_potion = NOW }),
+				NOW
+			)
+			expect(boosts.goldLuck).to.be.near(0.3, 1e-9)
+			expect(boosts.baitSpeed).to.equal(0)
+			expect(boosts.goldScale).to.equal(1)
+		end)
+	end)
+
 	describe("PotionLogic.clock", function()
 		it("shows minutes and seconds, rounded up", function()
 			expect(PotionLogic.clock(545)).to.equal("9:05")

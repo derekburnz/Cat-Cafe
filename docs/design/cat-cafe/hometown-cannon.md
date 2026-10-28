@@ -1,6 +1,6 @@
 # Hometown and the Cat Cannon (town layout v4, 2026-10-28)
 
-Status: proposed by the game-designer thread at 13:55, waiting on Derek's OK. Features F84 (hometown, cannons, camps) and F85 (longer rectangular areas).
+Status: proposed by the game-designer thread at 13:55, waiting on Derek's OK. Revised at 14:00 from QA-Planner's, VFX-Agent's and UI-Engineer's notes: seventeen landing spots, the night sweep during a flight, the camp's edge, drops at its opening, the effect hooks and a picker that lists only open areas. Features F84 (hometown, cannons, camps) and F85 (longer rectangular areas).
 
 Derek, 2026-10-28, in four messages at 13:39 to 13:42:
 
@@ -43,9 +43,9 @@ Everything else stays as in town-layout-v3: the cafe rows, the stations in the s
 
 - **Model** (`CatCafe_Square_Cannon`): a big friendly cannon, cream and teal with gold bands and a paw on the barrel, on a turntable on the plinth. The barrel is about 10 studs long and rests tilted 50 degrees up. Two steps up the plinth on its south side, toward the spawn, lead to a small ladder at the barrel's back. The barrel turns to face the area it fires at: south for the Park, north for the Neighbourhood, west for the Woods and east for the Sewer, so the old compass still holds in the sky.
 - **Prompt:** "Hop in", hold E for CatchHoldSeconds (0.5) within CannonRangeStuds (10) of the cannon, shown to anyone not carrying and not in a minigame. It opens the picker.
-- **The picker** (UI, section 7) lists the four wild areas in tier order. Each card has a picture, the area's name, its income step ("Coins x1.5"), how many cats you have from it out of its ten, and Launch. A locked area shows its lock and "Tier N" with no Launch. At night every card shows a moon and "Closed until sunrise" with the sunrise countdown. In the last DuskWarningSeconds (15) of the day they show "Night is coming" and Launch is off, so nobody lands only to be sent home.
+- **The picker** (UI, section 7) lists the wild areas the player's tier has opened, in tier order, with "More open as you rank up." under them, the same as the Areas panel since #358 (Derek's live notes, 2026-10-27: no buttons for places you cannot go yet). Each card has a picture, the area's name, one short line with its income step and your cats from it ("Coins x1.5 · 7/10 cats") and Launch. At night every card shows a moon and "Closed until sunrise" with the sunrise countdown. In the last DuskWarningSeconds (15) of the day they show "Night is coming" and Launch is off, so nobody lands only to be sent home.
 - **Night.** At dusk a moon cover drops over the barrel's mouth, and it lifts at sunrise. The prompt still opens the picker, so players see the countdown.
-- **A Tier 1 player** can open the picker and see every area locked. The first time a player reaches Tier 2, a one-time hint says "The cannon is ready! Hop in to fly to the Park." and an arrow points at the cannon.
+- **A Tier 1 player** can open the picker; it has no cards and reads "Rank up to Tier 2 to fly." The first time a player reaches Tier 2, a one-time hint says "The cannon is ready! Hop in to fly to the Park." and an arrow points at the cannon.
 
 ### 3b. The flight (CannonLaunchSeconds 3.0)
 
@@ -56,7 +56,9 @@ Everything else stays as in town-layout-v3: the cafe rows, the stations in the s
 | 1.4 | 2.4 | the cloud cutscene: clouds rush past the camera with the destination's name and icon in the middle ("To the Woods!"), lit in the area's colour toward the end | | at CannonTeleportAtSeconds (1.9) moves the character (still anchored) onto a free spot on the destination's landing pad, and asks the client to stream around it |
 | 2.4 | 3.0 | the clouds part above the camp, the character drops onto the pad, lands in a crouch with a dust poof and a bounce, and the camera settles behind them | at the camp: a whistle and a ball dropping from the sky onto the pad | at 3.0 unanchors the character and clears the attributes; control returns |
 
-The flight is the same from every cannon, and it lands at the hometown cannon's foot when the destination is the town. It cannot be skipped; three seconds is short, and the clouds hide the move. A landing spot is the pad's centre or the first of eight points on a 4 stud ring with no character within 3 studs, so players never land inside each other.
+The flight is the same from every cannon, and it lands at the hometown cannon's foot when the destination is the town. It cannot be skipped; three seconds is short, and the clouds hide the move. The town's landing pad is the same paw print at the hometown cannon's foot, on its south side.
+
+Landing spots: each pad has seventeen, tried in order: its centre, eight points on a 4 stud ring, then eight on a 7 stud ring (inside LandingPadRadius 8). A spot is free when no character is within 3 studs of it. The server places one flight at a time, so two moves in the same frame never share a spot. If all seventeen are taken, the character lands on the nearest point of the camp (in town, of the square) off the pad with no character within 3 studs. Players never land inside each other.
 
 ### 3c. Camp cannons
 
@@ -68,6 +70,8 @@ Every wild area has a camp across its whole width at one short end, CampDepth (3
 
 - **Inside the camp:** the landing pad (radius LandingPadRadius 8, a big paw print) in the middle, the camp cannon at the back wall, the area's Index Board (moved from the old gate) beside the way out, the area's name on an arch over the way out, and a few props in the area's theme (a tent and lantern in the Woods, a bench and lamp in the Park, a manhole and pipe in the Sewer, a mailbox and picket fence in the Neighbourhood). A low fence with a CampOpeningWidth (24) opening divides the camp from the wild part. It has a red SAFE ZONE stripe on the camp side, like the town's edges.
 - **Safe:** no tackles inside the camp, and strays never walk into it (it is outside their roam rects). Nobody can catch, rescue, pick up or tackle in a camp.
+- **The edge** is the fence line. The safe zone is exactly the camp rect, which ends there, and the stripe is painted just inside it. One step past the fence a tackle lands again. The check-in uses the same rect, so a carrier is checked in the moment they cross the line and can never be tackled inside.
+- **Knocked loose at the opening:** a tackle only lands outside the camp, so the cat drops where the carrier stood, on the wild side, as now. In case lag puts that spot on or over the line, a drop point within 2 studs of the camp rect moves straight out to 3 studs past the fence. A Returning cat's path (F67) never enters a camp. A player standing in the camp steps out to pick it up.
 - **Check-in:** a carrier whose character enters the camp checks the cat in at once, the same as at their cafe door. The cat hops into a cat carrier basket by the pad and puffs away, the toast says "Pirate Cat is on its way to your cafe!", `CatCaught` fires and the cat is resting in the cat room. The server checks every carrier against the camp rect ten times a second, as it does for the door path (#415), so running through the opening fast cannot skip it.
 - **Respawn:** a character that dies in a wild area respawns on its camp's pad, not in town. A carrier's death drops the cat first, as now (v0.13.3), so a reset is never a free check-in.
 
@@ -79,6 +83,7 @@ Every wild area has a camp across its whole width at one short end, CampDepth (3
   - The **Areas button becomes Cannon.** In the hometown it moves you to the cannon's foot (an instant Travel, as today) and opens the picker. In a wild area it is hidden; walk to the camp.
   - `Travel(areaId)` goes. Area travel is by cannon only.
 - **Night:** the dusk warning stays. At night start the sweep moves every character in a wild area home by cloud hop, the same move as Home. A carried cat is checked in for them on arrival and a Dropped stray goes to its last carrier, exactly as F66 does now. Nothing spawns at night and the cannons are covered.
+  - **A flight or hop under way at night start** is left alone: the sweep skips a character with `Launching` or `CloudHopAt` set. Only flights to Town Square can be in the air then, because launches into areas stop 15 seconds before night and a flight takes 3, and those land in town anyway. If a flight into an area is somehow still under way, the sweep moves that character the moment it lands. Nobody is moved twice or left anchored.
 - **Joining** puts you at the hometown spawn as now (new players at their back door for the intro). Nothing in a save stores a position, so there is no save change.
 - **During a flight** the character is anchored and marked `Launching`. Tackles pass through them, Travel and every minigame are refused, and a second `LaunchCannon` is refused. Leaving mid-flight is simply leaving.
 
@@ -121,21 +126,23 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after
 **Gameplay-Engineer (cannon, flight, camps, rules):**
 - `Config.World`: remove ParkGateZ, NeighbourhoodGateZ, WoodsGateX, SewerGateX and the gate openings. Add WildAreaDistance 2000, CampDepth 30, CampOpeningWidth 24, LandingPadRadius 8, CannonRangeStuds 10, and the area centres from 6a (later 6b's sizes).
 - `Config`: CannonLaunchSeconds 3.0, CannonTeleportAtSeconds 1.9, CannonCooldownSeconds 3, CloudHopSeconds 1.6, CloudHopMoveAtSeconds 0.6.
-- `Layout`: `cannons` (`town` at the square's centre, one per area at its camp's back wall, each with its fire direction), `camps` (each area's camp rect, pad centre and opening) and `landingPads`. Index Boards move to the camps.
+- `Layout`: `cannons` (`town` at the square's centre, one per area at its camp's back wall, each with its fire direction), `camps` (each area's camp rect, pad centre and opening) and `landingPads` (`town` at the cannon's foot and one per camp, each with the seventeen spots in 3b). Index Boards move to the camps.
 - **Remote `LaunchCannon(cannonId, destination)`, rate-limited to 1 a second.**
   - `cannonId` is `town` or an area id (a camp cannon) and the caller is within CannonRangeStuds of it.
   - `destination` is `town` or an area id other than the cannon's own. For an area, the area is unlocked for the caller's tier, `AreasOpen` is true and it is not the dusk warning.
   - The caller is alive, not carrying, holds no catch or rescue lock, is not launching or tackled down, and is off CannonCooldownSeconds.
   - On accept, the server runs the flight in 3b and sends `CannonLaunch(destination, launchAt)` to the caller for the camera. Refusals answer with a toast reason.
-- **Character attributes:** `Launching` (bool), `CannonLaunchAt` (server time), `CannonFrom` and `CannonTo` (ids), so every client plays the flight. The move itself is a server `PivotTo` while anchored; with StreamingEnabled on, call `RequestStreamAroundAsync` on the landing spot as the clouds start.
+- **Character attributes:** `Launching` (bool), `CannonLaunchAt` (server time), `CannonFrom` and `CannonTo` (ids), so every client plays the flight. The move itself is a server `PivotTo` while anchored; with StreamingEnabled on, call `RequestStreamAroundAsync` on the landing spot as the clouds start. A cloud hop sets `CloudHopAt` (server time) and `CloudHopTo` (`home` or `alley`; the night sweep uses `home`) when it starts and clears them when it ends, so onlookers see a puff where the player leaves and where they land.
+- **Client event `CampCheckIn(userId, campId)`** to every client, fired in the check-in frame before the carried cat is removed. A client with that camp streamed in copies the cat as it is (outfit and gold kept) and hops the copy into the basket. The carrier's `Moments.CheckIn` still fires as now.
 - **Check-in at camps:** in the carry loop, a carrier inside their area's camp rect is checked in, as at the door. Analytics `camp_checkin` (area, rarity, seconds carried, times knocked loose).
 - **Travel:** `home` and `alley` keep working from anywhere when not carrying, with the cloud hop from a wild area. A new `cannon` destination, from the hometown only, lands at the cannon's foot. Area destinations go.
-- **Night sweep, respawn and tackles:** the sweep uses the cloud hop. Respawn in a wild area goes to its camp pad. Camps are safe zones in the tackle, catch, rescue and pick-up checks.
+- **Night sweep, respawn and tackles:** the sweep uses the cloud hop and skips characters mid flight or mid hop (section 5). Respawn in a wild area goes to its camp pad. Camps are safe zones in the tackle, catch, rescue and pick-up checks, with the fence line as the edge and drop points near it moved out (section 4).
 - Analytics `cannon_launch` (from, to).
 - **No save change.**
 
 **Model-Agent (sets and models):**
-- **The cannon:** `CatCafe_Square_Cannon` on the plinth with its steps, ladder, turntable and moon cover.
+- **The cannon:** `CatCafe_Square_Cannon` on the plinth with its steps, ladder, turntable and moon cover, and the town's landing pad paw print at its foot.
+- **Effect points:** both cannon models carry a `Muzzle` attachment at the barrel's mouth and a `Fuse` attachment at the fuse tip. Each camp's carrier basket is tagged `CampBasket` with a `Drop` attachment at its opening.
 - **Camps:** `CatCafe_Camp_Cannon` in each area's trim, and each camp's fence, opening, pad, carrier basket, name arch and theme props.
 - **The hometown's ends:** the two welcome arches and backdrops, and the closed alley walls where the Woods and Sewer gates were.
 - **Backdrop rings** for the four areas at their new places.
@@ -143,8 +150,9 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after
 
 **VFX-Agent and Animation-Engineer (flight):**
 - Animation: the hop into the barrel, the curled spinning ball pose, and the crouch landing with a bounce.
-- VFX: the fuse fizz, the muzzle smoke ring and confetti, the sparkle trail, the cloud puff in the sky, the full-screen cloud tunnel tinted by area, the clouds parting, the landing dust poof, and the cat's hop into the carrier basket and its puff at a camp check-in.
+- VFX: the fuse fizz, the muzzle smoke ring and confetti, the sparkle trail, the cloud puff in the sky, the full-screen cloud tunnel tinted by area (the paw path colours from town layout v3: leaf green Park, warm orange Neighbourhood, deep green Woods, slate blue Sewer; cream for Town Square and for Home and Alley hops), the clouds parting, the landing dust poof, and the cat's hop into the carrier basket and its puff at a camp check-in.
 - The cloud hop is the cloud tunnel without the cannon.
+- Effects play at the `Muzzle`, `Fuse` and `Drop` attachments, falling back to the cannon's pivot and its Layout fire direction. The cloud tunnel sits just under UI's destination name card; VFX and UI agree the DisplayOrder.
 - No placeholder Roblox characters in previews; show scale with cats and props.
 
 **UI-Engineer:**
@@ -164,14 +172,16 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after
 ## 8. QA checks
 
 1. From the hometown spawn the cannon is the first thing in view, and every station and both side arches are still clear to walk to.
-2. The flight takes 3 seconds from Launch to control and lands on the chosen area's pad, never inside another player. Ten players launching together all land apart.
-3. A Tier 2 player sees only the Park open in the picker, and a Tier 1 player sees every area locked.
+2. The flight takes 3 seconds from Launch to control and lands on the chosen area's pad, never inside another player. Twenty players launching to one camp together all land apart: seventeen on the pad and the rest beside it.
+3. A Tier 2 player sees only the Park card in the picker, and a Tier 1 player sees no cards and "Rank up to Tier 2 to fly."
 4. In the last 15 seconds of the day no launch into an area is accepted. At night the picker shows the sunrise countdown.
 5. Carrying a cat in a wild area, every Home, Alley and cannon attempt is refused. Walking into the camp checks the cat in, and the cat is in the cat room.
-6. Tackling is off everywhere in a camp and on one step past its stripe, and strays never enter a camp.
+6. Tackling is off everywhere in a camp up to the fence line and lands again one step past it, and strays never enter a camp.
 7. At night start, everyone in a wild area is clouded home, and carried cats are checked in.
 8. A character that dies in a wild area comes back on that area's pad, and a cat it carried is dropped where it died.
-9. F85: in each area the main path from the camp to the far end takes about the time in 6b, the far end cannot be reached in a straight line, and at least three quarters of the traps are in the far half.
+9. A player launched from a camp to Town Square 2 seconds before night lands in town once, unanchored, and the sweep does not move them again.
+10. A carrier tackled just outside a camp opening drops the cat on the wild side, and a player outside the camp can pick it up at once.
+11. F85: in each area the main path from the camp to the far end takes about the time in 6b, the far end cannot be reached in a straight line, and at least three quarters of the traps are in the far half.
 
 ## 9. Cannons or portals
 

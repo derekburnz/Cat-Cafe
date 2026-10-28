@@ -93,7 +93,7 @@ Every wild area has a camp across its whole width at one short end, CampDepth (3
 
 ### 6a. F84: the current sets, moved
 
-F84 does not wait for new sets. Each current v3.2 set moves as it is to its new place, turned so its gate side (the set's -Z side) faces the hometown. Its old gate becomes the camp's way out, and the camp is added in front of it, outside the set's old rect. Spawn points, zones and traps move with the set unchanged.
+F84 does not wait for new sets. Each current v3.2 set moves as it is to its new place, turned so its gate side (the set's -Z side) faces the hometown. Its old gate becomes the camp's way out, and the camp is added in front of it, outside the set's old rect. Spawn points, zones and traps move with the set unchanged. In F84 the old gate is the camp's way out and its arch is the name arch, so the opening keeps the gate's width (32 studs for the Park and the Neighbourhood) and the safe edge is the gate line, with the SAFE ZONE stripe on the camp side. Each F84 camp is its ground, low side and back walls, the pad, the camp cannon at the back wall, the carrier basket and the theme props. CampOpeningWidth (24) and the low fence come with the F85 sets.
 
 | area | tier | centre of its set | the camp, toward the town | turn |
 |---|---|---|---|---|
@@ -144,6 +144,7 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after
 
 **Model-Agent (sets and models):**
 - **The cannon:** `CatCafe_Square_Cannon` on the plinth with its steps, ladder, turntable and moon cover, and the town's landing pad paw print at its foot.
+- **Rig:** a `Seat` attachment in each barrel is where the server anchors the character. The hometown cannon's turret is a child model `_Turret`, pivot on the turntable's centre, barrel at rest pointing +Z (north), so code turns it about Y.
 - **Effect points:** both cannon models carry a `Muzzle` attachment at the barrel's mouth and a `Fuse` attachment at the fuse tip. Each camp's carrier basket is tagged `CampBasket` with a `Drop` attachment at its opening.
 - **Camps:** `CatCafe_Camp_Cannon` in each area's trim, and each camp's fence, opening, pad, carrier basket, name arch and theme props.
 - **The hometown's ends:** the two welcome arches and backdrops, and the closed alley walls where the Woods and Sewer gates were.

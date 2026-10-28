@@ -100,7 +100,8 @@ def _sign(b, glow):
     """The night sign on the leaf's yard face, hung from a nail in the top rail over the window."""
     big, small, px, spx, moon = "CLOSED", "UNTIL SUNRISE", 0.13, 0.07, 0.22
     cx = LW / 2
-    w = 0.3 + 2 * moon + 0.15 + text_width(big, px) + 0.3      # the moon, then CLOSED beside it on the top line
+    tw = text_width(big, px)
+    w = 0.3 + tw + 0.4 + 2 * moon + 0.3                         # CLOSED, then the moon facing it on the top line
     left = cx - w / 2
     y0, y1, nail = 4.55, 6.45, LY1 - 0.3
     z = 0.1                                                     # the board's back, clear of the window bead
@@ -112,9 +113,9 @@ def _sign(b, glow):
         b.box((cx + sx * dx / 2, (y1 + 0.1 + nail) / 2, z + 0.07), (0.05, math.hypot(dx, dy) + 0.05, 0.05), "fur_black",
               rot=Matrix.Rotation(sx * math.atan2(dx, dy), 3, "Z"))
     big_y = y0 + 0.85
-    label(glow, big, left + 0.3 + 2 * moon + 0.15 + text_width(big, px) / 2, big_y, z + 0.12, px, 0.04, SIGN_INK, 1)
+    label(glow, big, left + 0.3 + tw / 2, big_y, z + 0.12, px, 0.04, SIGN_INK, 1)
     label(glow, small, cx, y0 + 0.28, z + 0.12, spx, 0.04, SIGN_GLOW, 1)
-    glow.b.crescent(RB.p(left + 0.3 + moon, big_y + 2.5 * px, z + 0.14), moon, 0.14, 0.04, SIGN_GLOW)
+    glow.b.crescent(RB.p(left + 0.3 + tw + 0.4 + moon, big_y + 2.5 * px, z + 0.14), moon, 0.14, 0.04, SIGN_GLOW)
 
 
 def build_back_door(mat):

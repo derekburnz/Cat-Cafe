@@ -16,7 +16,7 @@ Remotes.ClientToServer = {
 	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
-	"DropCat", -- ()  carrying: lets the cat go, at the feet in a catching area, else back to its own area
+	"DropCat", -- ()  carrying, areas open: puts the cat down to walk back to where it was caught (F67)
 	"PickUpCat", -- (strayId: string)  v0.8 F56: a Dropped stray, area unlocked, 10 studs, not carrying, no lock held,
 	-- GrabCooldownSeconds; the first valid call wins and starts the carry (data-model section 10c)
 	"PlaceCat", -- (uid: string, spotId: string)

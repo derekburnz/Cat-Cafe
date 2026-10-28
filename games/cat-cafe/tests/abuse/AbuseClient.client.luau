@@ -1533,6 +1533,70 @@ case(
 	end
 )
 
+-- F62 (engineer PR #493): a locked cat cannot be sold; LockCat takes only the player's own uid and a boolean.
+case(
+	"catLock",
+	Enum.KeyCode.RightBracket,
+	"Cat lock: lock a resting cat, SellCat it, LockCat junk and another uid, then unlock (F62)",
+	function()
+		if state == nil then
+			return "SKIP", "no ProfileSync yet"
+		end
+		local uid: string? = nil
+		for candidate, instance in state.cats do
+			if instance.spotId == nil and instance.locked ~= true then
+				uid = candidate
+				break
+			end
+		end
+		if uid == nil or catCount() < 2 then
+			return "SKIP",
+				string.format('needs a resting, unlocked cat and one more; on the server run %s("giveCat", nil, "tabby")', DEBUG)
+		end
+		local id = uid :: string
+		local function locked(): boolean?
+			local instance = if state ~= nil then state.cats[id] else nil
+			return if instance ~= nil then instance.locked == true else nil
+		end
+		local startedAt = os.clock()
+		fire("LockCat", id, true)
+		task.wait(1.2)
+		if locked() ~= true then
+			return "FAIL", "LockCat(uid, true) did not lock my own resting cat"
+		end
+		local before, cats = freshWallet(), catCount()
+		local sellAt = os.clock()
+		fire("SellCat", id)
+		task.wait(1.5)
+		local coinsOk, coinsText = coinsMovedBy(before, 0)
+		if catCount() ~= cats or locked() == nil or not coinsOk then
+			return "FAIL", string.format("a locked cat was sold: %s, cats %d -> %d", coinsText, cats, catCount())
+		end
+		local notes = { "SellCat refused" .. (if toasted(sellAt, "locked") then " with the locked toast" else "") }
+		-- junk, 0.3 s apart so the 4 a second limit drops none: the cat stays locked and nobody answers
+		local junkAt = os.clock()
+		for _, args in { { id, "no" }, { id, 0 }, { id, nil }, { "not_my_cat", false }, { 5, false } } do
+			fire("LockCat", args[1], args[2])
+			task.wait(0.3)
+		end
+		task.wait(1)
+		if locked() ~= true then
+			return "FAIL", "a junk LockCat unlocked the cat"
+		end
+		if #since(junkAt, "Toast") > 0 then
+			table.insert(notes, "a junk LockCat got a toast (CHECK)")
+		end
+		fire("LockCat", id, false)
+		task.wait(1.2)
+		if locked() ~= false then
+			return "FAIL", "LockCat(uid, false) did not unlock it again"
+		end
+		table.insert(notes, "junk ignored, unlocked again")
+		local verdict: Verdict = if toasted(sellAt, "locked") then "PASS" else "CHECK"
+		return verdict, table.concat(notes, "; ") .. string.format(" (%s, run %.1f s)", coinsText, os.clock() - startedAt)
+	end
+)
+
 case(
 	"doubleSpend",
 	Enum.KeyCode.Equals,
@@ -1548,7 +1612,8 @@ case(
 			local value = 0
 			for candidate, instance in state.cats do
 				local def = Catalog.getCat(instance.catId)
-				if def ~= nil and (uid == nil or instance.spotId == nil) then
+				-- F62: a locked cat is never sold, so this case takes an unlocked one
+				if def ~= nil and instance.locked ~= true and (uid == nil or instance.spotId == nil) then
 					uid = candidate
 					value = Catalog.rarities[def.rarity].sellValue
 				end

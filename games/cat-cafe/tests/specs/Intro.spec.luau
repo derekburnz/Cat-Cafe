@@ -355,5 +355,27 @@ return function()
 		it("carries version 2 since the shots moved", function()
 			expect(Intro.VERSION).to.equal(2)
 		end)
+
+		it("every shot Skip can report passes the server's IntroDone guard, 0 to Intro.SHOTS (QA)", function()
+			-- IntroService takes Guard.int(shot, 0, Intro.SHOTS): a whole number, 0 for finished
+			for index = 1, Config.World.PlotCount do
+				for _, codesCat in { true, false } do
+					local shots = Intro.shots(Intro.plot(index), codesCat)
+					local length = Intro.length(shots)
+					local step = 0
+					while step <= 3000 do
+						local elapsed = step / 100
+						local shot = Intro.shotAt(shots, elapsed)
+						if shot ~= math.floor(shot) or shot < 0 or shot > Intro.SHOTS then
+							error(string.format("plot %d at %.2f s reports shot %s", index, elapsed, tostring(shot)))
+						end
+						expect(shot == 0).to.equal(elapsed >= length)
+						step += 1
+					end
+					-- the first play's Skip comes after SKIP_AFTER, in shot 2 or later, never in the catch's start
+					expect(Intro.shotAt(shots, Intro.SKIP_AFTER) >= 2).to.equal(true)
+				end
+			end
+		end)
 	end)
 end

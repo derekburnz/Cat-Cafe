@@ -21,12 +21,9 @@ Objects per shell (the exporter turns each extra object into a child Model):
 
 import math
 
-import bpy
 from mathutils import Matrix
 
-import cats
-import poses
-from common import RB, bake_transform, text_width
+from common import RB, text_width
 
 H = 12.8                 # wall height to the eave
 HW = 19.0                # outer half width (walls x 18..19)
@@ -527,17 +524,44 @@ def _roller(b, shutter, x0, x1, top, bottom, z):
     shutter.span((x0 - 0.01, bottom - 0.01, z - 0.38), (x1 + 0.01, bottom + 0.15, z - 0.17), "concrete_dark")   # wraps the curtain foot
 
 
-def _sleeping_cat(asset, mat, at, turn):
-    built = cats.build_cat("Tabby", mat)
-    world = Matrix.Translation(RB.p(*at)) @ Matrix.Rotation(math.radians(turn), 4, "Z")
-    bpy.context.view_layer.update()
-    out = poses.cat_pose_copies(built, poses.CAT_POSES["sleep"], cats.ROSTER["Tabby"], "walk", world=world, prefix="")
-    bpy.context.view_layer.update()
-    for c, ob in zip(out, built):
-        c.name = asset + "_Cat" + ob.name.split(".")[0][len("CatCafe_Cat_Tabby"):]
-        bpy.data.objects.remove(ob, do_unlink=True)
-        bake_transform(c)
-    return out
+# The cafe's round tables (furniture.build_table_round) at Layout.plot.tables, put away for the night: a For Rent
+# cafe keeps its tables with their two chairs turned up on top, and one under a dust sheet.
+TABLE_SPOTS = ((-10, -8.5), (10, -8.5), (-10, -2.25), (10, -2.25), (-10.5, 4), (10, 4))
+TABLE_TOP = 2.62
+SHEETED = (10, -2.25)
+
+
+def _table(b, x, z):
+    b.cyl((x, 0.06, z), 0.8, 0.12, "dark_wood", segments=12)
+    b.cyl((x, 1.27, z), 0.2, 2.3, "dark_wood", segments=8)
+    b.cyl((x, 2.5, z), 1.8, 0.2, "caramel_wood", segments=16)                  # the rim
+    b.cyl((x, 2.61, z), 1.72, 0.02, "cream", segments=16)                       # the top
+
+
+def _chair_up(b, x, z, s):
+    """A cafe chair (furniture.build_chair) upside down on the table top, its cushion down, legs up and its back
+    hanging over the edge on side `s` (+1 or -1 along X)."""
+    cx, top = x + s * 1.25, TABLE_TOP
+    b.span((cx - 0.65, top, z - 0.65), (cx + 0.65, top + 0.12, z + 0.65), "mint")                  # cushion
+    b.span((cx - 0.75, top + 0.12, z - 0.75), (cx + 0.75, top + 0.27, z + 0.75), "caramel_wood")   # seat
+    for lx in (-0.6, 0.6):
+        for lz in (-0.6, 0.6):
+            b.span((cx + lx - 0.08, top + 0.27, z + lz - 0.08), (cx + lx + 0.08, top + 1.57, z + lz + 0.08),
+                   "dark_wood")                                                                       # legs up
+    bx = cx + s * 0.66
+    for lz in (-0.6, 0.6):
+        b.span((bx - 0.08, top - 1.43, z + lz - 0.08), (bx + 0.08, top + 0.17, z + lz + 0.08), "dark_wood")
+    for y in (top + 1.57 - 2.15, top + 1.57 - 2.7):                                                    # slats
+        b.span((bx - 0.06, y - 0.15, z - 0.65), (bx + 0.06, y + 0.15, z + 0.65), "caramel_wood")
+
+
+def _sheeted_table(b, x, z):
+    """A table and its chairs under one dust sheet, gathered on the floor."""
+    b.cyl((x, 1.3, z), 2.5, 2.6, "offwhite", r2=2.05, segments=16)
+    b.ball((x, 2.6, z), 2.05, "offwhite", scale=(1, 0.3, 1))
+    for a in (0.4, 2.3, 4.4):                                                                          # folds
+        b.box((x + 2.33 * math.cos(a), 1.1, z + 2.33 * math.sin(a)), (0.3, 2.2, 0.3), "offwhite",
+              rot=rot_y(-math.degrees(a)))
 
 
 def build_for_rent(mat):
@@ -569,26 +593,25 @@ def build_for_rent(mat):
                                (0.57, 0.67, 6.0, 6.15), (-0.75, -0.5, 5.6, 6.0)):
             za, zb = sorted((cat_z + side * a, cat_z + side * c))
             b.span((lo, ya, za), (hi, yb, zb), "fur_black")
-    # dust sheets: over the counter and two pieces of stored furniture
+    # a dust sheet over the counter, and the tables put away for the night
     b.span((-4.5, 0, 9.4), (4.5, 3.0, 12.6), "offwhite")
     b.span((0.4, 3.0, 9.9), (4.2, 4.4, 12.1), "offwhite")
     for z, sgn in ((9.25, -1), (12.75, 1)):
         b.wedge((0, 0.6, z), (9.0, 1.2, 0.35), "offwhite", rot=rot_y(0 if sgn < 0 else 180))
-    for x, z in ((-9.0, -2.0), (8.0, 3.0)):
-        b.span((x - 1.2, 0, z - 1.2), (x + 1.2, 2.2, z + 1.2), "offwhite")
-        b.ball((x, 2.3, z), 1.2, "offwhite", scale=(1, 0.45, 1))
+    for x, z in TABLE_SPOTS:
+        if (x, z) == SHEETED:
+            _sheeted_table(b, x, z)
+            continue
+        _table(b, x, z)
+        for s in (-1, 1):
+            _chair_up(b, x, z, s)
     # boxes and a broom by the door
     for (x, y, z, w, h) in ((-6.3, 0.15, -16.4, 1.4, 1.1), (-7.7, 0.15, -16.2, 1.2, 0.9), (-6.6, 1.25, -16.3, 1.0, 0.8)):
         b.span((x - w / 2, y, z - w / 2), (x + w / 2, y + h, z + w / 2), "cardboard")
         b.span((x - w / 2 - 0.01, y + h - 0.12, z - 0.12), (x + w / 2 + 0.01, y + h + 0.01, z + 0.12), "kibble")
-    b.box((-4.55, 2.0, -15.12), (0.12, 3.8, 0.12), "caramel_wood", rot=rot_z(-12))       # broom leans on the wall
-    b.box((-4.15, 0.42, -15.12), (0.7, 0.7, 0.3), "treat_tan", rot=rot_z(-12))       # tilted, its low corner at the floor
+    b.box((-5.80, 2.48, -16.0), (0.12, 3.6, 0.12), "caramel_wood", rot=rot_z(12))      # broom leans on the boxes
+    b.box((-5.378, 0.475, -16.0), (0.3, 0.55, 0.6), "treat_tan", rot=rot_z(12))
     out = [b.finalize(name, mat), sign.finalize(name + "_Sign", mat), shutter.finalize(name + "_Shutter", mat)]
-    out += _sleeping_cat(name, mat, (1.9, 0.02, -16.3), -25)
-    zz = RB()
-    for k, (y, px) in enumerate(((1.6, 0.07), (2.1, 0.09), (2.75, 0.11))):
-        zz.text("Z", (1.6 - 0.3 * k, y, -16.6), px, 0.05, "offwhite", right=(-1, 0, 0))
-    out.append(zz.finalize(name + "_Zzz", mat))
     return out
 
 

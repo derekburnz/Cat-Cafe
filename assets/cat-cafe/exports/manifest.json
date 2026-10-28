@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 06:45 UTC",
+  "generated": "2026-10-28 07:01 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -71756,21 +71756,21 @@
         "CatCafe_Neighbourhood_SetV32_348_Trees",
         "CatCafe_Neighbourhood_SetV32_349_Blocks_Barrier"
       ],
-      "triangles": 112308,
+      "triangles": 112292,
       "budget": 120000,
       "size_studs": {
         "x": 279.5,
-        "y": 279.5,
+        "y": 279.8,
         "z": 30.05
       },
       "size_roblox": [
         279.5,
         30.05,
-        279.5
+        279.8
       ],
       "bounds_min": [
         -139.75,
-        -139.75,
+        -140.05,
         -0.05
       ],
       "bounds_max": [
@@ -72002,53 +72002,53 @@
         "car": [
           [
             -121.5,
-            0.0,
+            0.29,
             -35.0,
             "near"
           ],
           [
-            74.4,
-            0.0,
-            -117.6,
+            73.0,
+            0.34,
+            -119.2,
             "near"
           ]
         ],
         "shop_bench": [
           [
-            -29.5,
-            1.35,
-            113.0,
+            -27.5,
+            0.3,
+            110.8,
             "deep"
           ]
         ],
         "shop_step": [
           [
-            -11.4,
-            0.0,
-            116.5,
+            -14.0,
+            0.3,
+            116.1,
             "deep"
           ]
         ],
         "fruit_stall": [
           [
             -23.0,
-            0.0,
-            113.9,
+            0.3,
+            112.9,
             "deep"
           ]
         ],
         "tyre": [
           [
-            -16.65,
+            -16.89,
             0.0,
-            74.1,
+            73.44,
             "deep"
           ]
         ],
         "slide": [
           [
             -25.3,
-            0.0,
+            4.0,
             76.95,
             "deep"
           ]
@@ -72167,8 +72167,8 @@
         ],
         "garden_bench": [
           [
-            -79.9,
-            1.35,
+            -77.6,
+            0.0,
             70.0,
             "deep"
           ]
@@ -72189,7 +72189,7 @@
             "deep"
           ],
           [
-            102.5,
+            101.4,
             0.52,
             80.0,
             "deep"
@@ -72239,17 +72239,17 @@
         ],
         "compost": [
           [
-            44.0,
+            47.5,
             0.0,
-            66.0,
+            70.0,
             "deep"
           ]
         ],
         "potting_bench": [
           [
-            94.6,
+            93.6,
             0.0,
-            22.6,
+            25.4,
             "deep"
           ]
         ],
@@ -72264,8 +72264,8 @@
         "allot_bench": [
           [
             96.0,
-            1.35,
-            128.1,
+            0.0,
+            130.4,
             "deep"
           ]
         ],
@@ -72302,14 +72302,20 @@
         "verge_bench": [
           [
             62.0,
-            1.35,
-            -126.0,
+            0.0,
+            -123.6,
+            "near"
+          ],
+          [
+            -78.0,
+            0.0,
+            -123.6,
             "near"
           ]
         ],
         "bins": [
           [
-            -25.6,
+            -24.0,
             0.0,
             -100.8,
             "near"
@@ -72326,16 +72332,17 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot"
+          "pivot",
+          "centered"
         ],
         "checks": {
-          "budget": "112308/120000 tris",
+          "budget": "112292/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "68229 faces on swatch centers",
+          "uv": "68201 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=0.00 y=-0.15"
         }
       }
     }

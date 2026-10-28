@@ -11,8 +11,9 @@ blocks of houses cross the whole width, each with one gap, on alternating sides:
 block's front to its gap (x 41 to 51), north through it, west along the second street between the blocks to the
 second block's gap (x -51 to -41), and north through that past the village green to the playground hub. A crescent
 cul-de-sac loops round the hub, with the corner shop at its far end, the back gardens behind its west houses and the
-allotments behind its east houses, each reached by a footpath between two of its houses. About 400 studs gate to
-corner shop and 450 to 530 into the gardens and allotments, against 280 straight.
+allotments behind its east houses, each reached by a footpath between two of its houses. Walked on a 0.5 stud grid
+with a player 2 wide: about 340 studs gate to corner shop, 300 to 380 into the back gardens and 370 to 470 through the
+allotments, against 280 straight.
 
 The house blocks are the blockers: a 30 high `_Barrier` stands on each block from the house fronts back (the front
 gardens stay open) and along the crescent's outer houses, open only at the two footpaths. Fences have cat-sized gaps
@@ -198,7 +199,7 @@ def bungalow(mat, variant="D"):
     b.box((0.9, fy - 0.42, 3.4), (0.25, 0.2, 0.25), "brass", bevel=False)
     b.box((0, fy - 0.9, 6.55), (4.4, 1.8, 0.25), roof, rot=rx(8))                           # canopy
     for sx in (-1, 1):
-        b.box((sx * 1.9, fy - 0.45, 6.05), (0.2, 0.8, 0.6), trim, bevel=False)
+        b.box((sx * 1.9, fy - 0.4, 6.05), (0.2, 0.8, 0.6), trim, bevel=False)
     b.box_base((0, fy - 0.8, 0), (3.6, 1.2, 0.4), "concrete")                               # step
     lamp.box((-2.1, fy - 0.24, 5.6), (0.5, 0.5, 0.7), "lamp_warm", bevel=False)
     name = N + "Bungalow"
@@ -226,8 +227,8 @@ def front_fence(mat, kind, L, gap_bx, gap_w=3.8, cat_gap=True):
                     continue
                 x = a0 + 0.2 + i * (rl - 0.4) / (n - 1)
                 b.box_base((x, 0, 0), (0.36, 0.36, 2.6), "offwhite", bevel=False)
-            for z in (0.7, 1.9):
-                b.box((c, 0.24, z), (rl, 0.12, 0.25), "offwhite", bevel=False)
+            for z in (0.7, 1.9):                                       # rails, a hair into the pickets
+                b.box((c, 0.23, z), (rl, 0.12, 0.25), "offwhite", bevel=False)
         elif kind == "wall":
             b.box_base((c, 0, 0), (rl, 0.8, 1.6), "brick", bevel=False)
             b.box_base((c, 0, 1.6), (rl + 0.1, 1.0, 0.2), "concrete", bevel=False)
@@ -290,7 +291,7 @@ def _seg_hedge(b, L, k):
 def _seg_brick(b, L, k):
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 9.0), "brick", bevel=False)
     b.box_base((0, WALL_D / 2, 9.0), (L + 0.1, WALL_D + 0.3, 0.45), "concrete", bevel=False)     # coping
-    b.box_base((0, WALL_D / 2 - 0.15, 0), (L, WALL_D + 0.1, 1.0), "concrete_dark", bevel=False)  # plinth
+    b.box_base((0, WALL_D / 2 - 0.15, 0), (L + 0.02, WALL_D + 0.1, 1.0), "concrete_dark", bevel=False)  # plinth
     for x in (-L / 4, L / 4):                                                                    # piers
         b.box_base((x, -0.15, 1.0), (1.0, 0.3, 7.8), "brick", bevel=False)
     for i in range(2):                                                                            # ivy
@@ -310,7 +311,7 @@ def _seg_fence(b, L, k):
     sw = ("caramel_wood", "dark_wood")[k % 2]
     b.box_base((0, 0.55, 1.2), (L - 0.2, 0.3, 6.4), sw, bevel=False)
     b.box_base((0, 0.6, 7.6), (L - 0.2, 0.2, 1.4), "caramel_wood", bevel=False)                   # trellis band
-    b.box_base((0, 0.55, 9.0), (L + 0.1, 0.5, 0.2), "dark_wood", bevel=False)
+    b.box_base((0, 0.55, 9.0), (L + 0.1, 0.5, 0.22), "dark_wood", bevel=False)
     for i in range(max(1, round(L / 9.0))):                                                        # roses on it
         x = -L / 2 + (i + 0.5) * L / max(1, round(L / 9.0))
         b.ico((x, 0.35, 8.1), 1.1, "leaf_dark", subdivisions=1, scale=(1.4, 0.3, 0.7))
@@ -350,6 +351,7 @@ def town_hedge(mat, L):
     b = Builder()
     n = max(1, round(L / 8.0))
     step = L / n
+    b.box_base((0, WALL_D / 2, 0), (L, 2.0, 0.3), "brick", bevel=False)                     # the planter kerb
     for i in range(n):
         x = -L / 2 + (i + 0.5) * step
         b.box_base((x, WALL_D / 2, 0), (step - 1.6, 1.8, 3.0 + 0.3 * (i % 2)), ("leaf_green", "leaf_dark")[i % 2],
@@ -394,7 +396,7 @@ def bus_stop(mat):
     b.box_base((0, 0.6, 1.45), (W - 1.2, 0.9, 0.2), "caramel_wood", bevel=False)               # the bench
     for x in (-2.6, 2.6):
         b.box_base((x, 0.6, 0), (0.2, 0.6, 1.45), "metal", bevel=False)
-    b.box((2.4, D / 2 - 0.4, 3.6), (1.6, 0.06, 2.2), "offwhite", bevel=False)                  # timetable
+    b.box((2.4, D / 2 - 0.305, 3.6), (1.6, 0.06, 2.2), "offwhite", bevel=False)                # timetable
     b.box_base((W / 2 + 1.2, -D / 2, 0), (0.22, 0.22, 7.6), "metal", bevel=False)              # stop sign
     b.cyl((W / 2 + 1.2, -D / 2, 7.9), 0.75, 0.15, "shirt_red", segments=12, rot=rx(90))
     b.cyl((W / 2 + 1.2, -D / 2, 7.9), 0.5, 0.18, "offwhite", segments=12, rot=rx(90))
@@ -473,7 +475,7 @@ def corner_shop(mat):
     for i in range(n):
         x = -(W - 3.0) / 2 + (i + 0.5) * aw
         b.box((x, fy - 1.45, 6.45), (aw, 2.7, 0.1), ("bowl_red", "offwhite")[i % 2], bevel=False, rot=rx(22))
-    b.box((0, fy - 2.68, 5.75), (W - 3.0, 0.1, 0.45), "bowl_red", bevel=False)
+    b.box((0, fy - 2.68, 5.75), (W - 2.96, 0.1, 0.45), "bowl_red", bevel=False)
     for sx in (-1, 1):
         b.box((sx * (W - 3.0) / 2, fy - 1.4, 6.0), (0.1, 2.6, 0.1), "metal", bevel=False, rot=rx(22))  # arms
     # flats above: three sash windows and a chimney stack on the party wall
@@ -497,9 +499,10 @@ def corner_shop(mat):
             for q in range(3):
                 deco.ico((cx - 0.35 + 0.35 * q, fy - 2.0 + 0.3 * (q % 2 - 0.5), 2.85), 0.3, sw, subdivisions=1)
     for r in (-1, 1):
-        b.box((W / 2 - 4.0 + 0.6 * r, fy - 3.2, 1.34), (1.4, 0.12, 2.7), "offwhite", bevel=False, rot=rx(r * 14))
+        b.box((4.6, fy - 1.9 + 0.33 * r, 1.34), (1.4, 0.12, 2.7), "offwhite", bevel=False, rot=rx(r * 14))
     for z in (2.0, 1.5, 1.0):
-        b.box((W / 2 - 4.0, fy - 3.2 - 0.38, z), (1.0, 0.04, 0.12), "fur_black", bevel=False, rot=rx(-14))
+        b.box((4.6, fy - 1.9 - 0.33 - 0.08 + 0.249 * (z - 1.34), z), (1.0, 0.04, 0.12), "fur_black", bevel=False,
+              rot=rx(-14))
     for x in (-W / 2 + 0.5, W / 2 - 0.5):
         b.box((x, fy - 1.1, 8.3), (0.12, 1.2, 0.12), "fur_black", bevel=False)
         b.cyl((x, fy - 1.6, 7.6), 0.6, 0.5, "dark_wood", segments=10, radius2=0.4)
@@ -529,7 +532,7 @@ def flower_bed(mat, seed=0):
         fl.ico((x, 0.15 * (-1) ** i, 0.95), 0.6, "leaf_dark" if (i + seed) % 2 else "leaf_green", subdivisions=1,
                scale=(1.1, 0.9, 0.55))
         for j in (-1, 1):
-            fl.ico((x + 0.45 * j, -0.35 * j, 1.25), 0.24, cols[(2 * i + j + seed) % len(cols)], subdivisions=1)
+            fl.ico((x + 0.45 * j, -0.3 * j, 1.12), 0.24, cols[(2 * i + j + seed) % len(cols)], subdivisions=1)
     return [b.finalize(N + "FlowerBed", mat), fl.finalize(N + "FlowerBed_Flowers", mat)]
 
 
@@ -545,7 +548,7 @@ def washing_line(mat, L=9.0):
     for i, (sw, w, h) in enumerate((("shirt_blue", 1.6, 1.8), ("blush", 1.2, 1.4), ("offwhite", 1.8, 1.2),
                                      ("pastel_butter", 1.0, 1.6), ("shirt_red", 0.5, 0.9), ("mint", 1.4, 1.5))):
         x = -L / 2 + 1.0 + i * (L - 2.0) / 5
-        deco.box((x, 0, 5.6 - h / 2), (w, 0.08, h), sw, bevel=False)
+        deco.box((x, 0.01 * (i % 2) - 0.005, 5.6 - h / 2), (w, 0.08, h), sw, bevel=False)
     return [b.finalize(N + "WashingLine", mat), deco.finalize(N + "WashingLine_Decor", mat)]
 
 
@@ -702,8 +705,8 @@ def potting_shed(mat):
     b.fan((0, 0, h0), (D / 2, h1 - h0), [(-D / 2, 0), (D / 2, 0)], W, "sign_teal",
           rot=Matrix(((0, 0, 1), (1, 0, 0), (0, 1, 0))))
     a = math.atan2(h1 - h0, D)
-    b.box((0, 0, (h0 + h1) / 2 + 0.2), (W + 0.6, math.hypot(D, h1 - h0) + 0.6, 0.25), "dark_wood", bevel=False,
-          rot=rx(math.degrees(a)))
+    b.box((0, 0, (h0 + h1) / 2 + 0.12 / math.cos(a)), (W + 0.6, math.hypot(D, h1 - h0) + 0.6, 0.25), "dark_wood",
+          bevel=False, rot=rx(math.degrees(a)))
     b.box_base((-0.9, -D / 2 - 0.02, 0), (1.8, 0.06, 3.3), "fur_black", bevel=False)              # the doorway
     b.box_base((-2.0, -D / 2 - 0.5, 0), (0.12, 1.0, 3.3), "dark_wood", bevel=False)               # the door, open
     b.box((1.4, -D / 2 - 0.05, 2.4), (1.2, 0.1, 1.0), "glass", bevel=False)
@@ -814,7 +817,7 @@ def _walls(s, mat):
     _run(s, mat, west, 8, 2 * IN, lambda t: (-IN, IN - t, -90), 2)
     for sx in (-1, 1):
         s.put(pier(mat, h=11.2, w=2.4), sx * (IN + 1.2), IN, 0)                             # far corners
-        s.put(pier(mat, h=6.0, w=2.4), sx * (IN + 1.2), -IN, 180)                           # town corners
+        s.put(pier(mat, h=6.0, w=2.4), sx * (IN + 1.2), -IN - 0.3, 180)                     # town corners
         L = IN - GATE_HALF - 1.0
         s.put(town_hedge(mat, L), sx * (GATE_HALF + 1.0 + L / 2), -IN, 180)
         s.put(nb.lamp_post(mat), sx * (GATE_HALF + 2.5), -IN + 1.5, 0)                      # either side of the gate
@@ -873,24 +876,25 @@ def _row(s, g, mat, plots, zc, rot, x0, x1, seed=0):
     houses (and to the block's ends) just behind the front line, low hedges part the front gardens."""
     fs = -1 if rot == 0 else 1                       # the front's direction along z
     line = zc + fs * (HD / 2 - 0.35)                 # side fences: just behind the house fronts
-    mid = zc + fs * (HD / 2 + 0.2 + 3.5)             # the front gardens' middle, for the low hedges
+    mid = zc + fs * (HD / 2 + 0.2 + 3.15)            # the front gardens' middle, for the low hedges
     xs = sorted(p[0] for p in plots)
     for i, (x, variant, spot, extras) in enumerate(plots):
         _lot(s, g, mat, variant, x, zc, rot, i + seed, spot, extras)
-    edges = [x0] + [e for x in xs for e in (x - 10.0, x + 10.0)] + [x1]
+    edges = [x0] + [e for x in xs for e in (x - 10.5, x + 10.5)] + [x1]
     for a, b in zip(edges[0::2], edges[1::2]):
-        a2, b2 = a + (0.25 if a in (x0, x1) else 0.05), b - (0.25 if b in (x0, x1) else 0.05)
+        ends = (0.6 if abs(a) > IN - 0.1 else 0.25, 0.6 if abs(b) > IN - 0.1 else 0.25)
+        a2, b2 = a + (ends[0] if a in (x0, x1) else 0.0), b - (ends[1] if b in (x0, x1) else 0.0)
         if b2 - a2 > 0.8:
             s.put(side_fence(mat, b2 - a2), (a2 + b2) / 2, line, rot)
     for a, b in zip(xs, xs[1:]):
         if abs(b - a - PLOT) < 0.1:
-            s.put(low_hedge(mat, 7.0), (a + b) / 2, mid, 90)
+            s.put(low_hedge(mat, 6.3), (a + b) / 2, mid, 90)
     return xs
 
 
 def _block_end(s, mat, x, z0, z1, rot=90):
     """A close-board fence along a block's end, from one front line to the other (or to its back fence)."""
-    s.put(side_fence(mat, abs(z1 - z0) - 0.1, gate=False), x, (z0 + z1) / 2, rot)
+    s.put(side_fence(mat, abs(z1 - z0) - 1.0, gate=False), x, (z0 + z1) / 2, rot)       # posts clear of the rows'
 
 
 def _rows(s, g, mat):
@@ -921,15 +925,16 @@ def _rows(s, g, mat):
         _block_end(s, mat, x, ROW1[0] + 7.9, ROW1[1] - 7.9)
     for x in (R2W[1] + 0.2, R2E[0] + 0.2):
         _block_end(s, mat, x, ROW2[0] + 7.9, ROW2[1] - 0.2)
-    for (x0, x1, z, rot) in ((-IN, -126.0, ROW1[0], 0), (-IN, -126.0, ROW1[1], 180), (126.0, IN, ROW2[0], 0)):
+    for (x0, x1, z, rot) in ((-IN + 0.5, -126.0, ROW1[0], 0), (-IN + 0.5, -126.0, ROW1[1], 180),
+                             (126.0, IN - 0.5, ROW2[0], 0)):
         s.put(front_fence(mat, "hedge", x1 - x0, -(x1 - x0) / 2 - 3.0, gap_w=0.0), (x0 + x1) / 2, z, rot)
-    for (x, z0, z1) in ((R1W[1] - 0.7, ROW1[0], ROW1[0] + 7.4), (R1W[1] - 0.7, ROW1[1] - 7.4, ROW1[1]),
-                        (R1E[0] + 0.7, ROW1[0], ROW1[0] + 7.4), (R1E[0] + 0.7, ROW1[1] - 7.4, ROW1[1]),
-                        (R2W[1] + 0.7, ROW2[0], ROW2[0] + 7.4), (R2E[0] + 0.7, ROW2[0], ROW2[0] + 7.4),
-                        (114.0, ROW1[0] + 0.3, ROW1[0] + 7.4)):
-        s.put(low_hedge(mat, z1 - z0 - 0.3), x, (z0 + z1) / 2, 90)
+    for (x, z0, z1) in ((R1W[1] - 0.7, ROW1[0] + 0.8, ROW1[0] + 7.1), (R1W[1] - 0.7, ROW1[1] - 7.1, ROW1[1] - 0.8),
+                        (R1E[0] + 0.7, ROW1[0] + 0.8, ROW1[0] + 7.1), (R1E[0] + 0.7, ROW1[1] - 7.1, ROW1[1] - 0.8),
+                        (R2W[1] + 0.7, ROW2[0] + 0.8, ROW2[0] + 7.1), (R2E[0] + 0.7, ROW2[0] + 0.8, ROW2[0] + 7.1),
+                        (114.0, ROW1[0] + 0.8, ROW1[0] + 7.1)):
+        s.put(low_hedge(mat, z1 - z0), x, (z0 + z1) / 2, 90)
     # the near shed's corner garden (first block, east end, on S1), and the garages at the other corners
-    s.put(side_fence(mat, IN - 114.2, gate=False), (114.0 + IN) / 2, -80.15, 0)
+    s.put(side_fence(mat, IN - 114.9, gate=False), (114.3 + IN - 0.6) / 2, -80.15, 0)
     s.put(side_fence(mat, 16.0, gate=False), 114.15, ROW1[0] + 7.5 + 8.0, 90)
     s.put(front_fence(mat, "picket", IN - 114.0, -(125.5 - (114.0 + IN) / 2)), (114.0 + IN) / 2, ROW1[0], 0)
     s.put(nb.garden_shed(mat), 127.0, -86.0, 0)
@@ -945,13 +950,14 @@ def _rows(s, g, mat):
         s.put(front_fence(mat, "hedge", IN - 114.0 if x > 0 else IN - 114.0, (x - (114.0 + IN) / 2) if x > 0 else
                           -(x + (114.0 + IN) / 2), gap_w=10.4), (114.0 + IN) / 2 * (1 if x > 0 else -1), fz, rot)
         sx = 1 if x > 0 else -1
-        s.put(side_fence(mat, IN - 131.8, gate=False), sx * (131.6 + IN) / 2, zc + (5.65 if rot == 180 else -5.65), rot)
+        s.put(side_fence(mat, IN - 132.6, gate=False), sx * (132.0 + IN - 0.6) / 2, zc + (5.65 if rot == 180 else -5.65),
+              rot)
     s.put(car(mat, "fur_rose"), -125.5, ROW2[0] + 2.0, 0)
-    _spot(s, "car", -121.5, ROW2[0] + 3.0)
+    _spot(s, "car", -121.5, ROW2[0] + 3.0, y=DRIVE_Y)
     # back fences: the second block's, a hedge where the green looks at it
-    s.put(side_fence(mat, R2W[1] - R2W[0] - 0.4, gate=False), (R2W[0] + R2W[1]) / 2, ROW2[1] - 0.15, 180)
+    s.put(side_fence(mat, R2W[1] - R2W[0] - 0.8, gate=False), (R2W[0] + R2W[1]) / 2 + 0.2, ROW2[1] - 0.15, 180)
     s.put(low_hedge(mat, E_LINE - R2E[0] - 0.6, h=7.0, d=1.6), (R2E[0] + E_LINE) / 2, ROW2[1] - 0.95, 0)
-    s.put(side_fence(mat, R2E[1] - E_LINE - 0.4, gate=False), (E_LINE + R2E[1]) / 2 + 0.2, ROW2[1] - 0.15, 180)
+    s.put(side_fence(mat, R2E[1] - E_LINE - 1.0, gate=False), (E_LINE + R2E[1]) / 2 - 0.1, ROW2[1] - 0.15, 180)
     # trees in the back gardens, over the roofs
     tb = Builder()
     for (x, z, h, k) in ((-100, -79, 15, 0), (-48, -80, 16, 1), (4, -78, 14, 2), (86, -80, 15, 1), (-110, -10, 14, 0),
@@ -993,10 +999,10 @@ def _crescent(s, g, mat):
             g.box_base(bl(*fc), (W_SHOP_FORECOURT, 7.5, PATH_Y), "paving_light", bevel=False, rot=rz(rot))
             s.put(bench(mat), *turned(cx, cz, rot, -15.5, -depth / 2 - 4.5),
                   rot)
-            _spot(s, "shop_bench", *turned(cx, cz, rot, -15.5, -depth / 2 - 4.5), y=1.35)
-            _spot(s, "shop_step", *turned(cx, cz, rot, 2.6, -depth / 2 - 1.0))
-            _spot(s, "fruit_stall", *turned(cx, cz, rot, -9.0, -depth / 2 - 3.6))
-            s.put(nb.bicycle(mat), *turned(cx, cz, rot, 15.2, -depth / 2 - 1.2), rot + 90)
+            _spot(s, "shop_bench", *turned(cx, cz, rot, -13.5, -depth / 2 - 6.7), y=PATH_Y)
+            _spot(s, "shop_step", *turned(cx, cz, rot, 0.0, -depth / 2 - 1.4), y=0.3)
+            _spot(s, "fruit_stall", *turned(cx, cz, rot, -9.0, -depth / 2 - 4.6), y=PATH_Y)
+            s.put(nb.bicycle(mat), *turned(cx, cz, rot, 14.4, -depth / 2 - 1.0), rot + 90)
             s.put(post_box(mat), *turned(cx, cz, rot, 14.0, -depth / 2 - 6.5), rot)
         elif kind == "bungalow":
             _lot(s, g, mat, var, cx, cz, rot, i, "flowerbed", ("bed",), width=22.0)
@@ -1027,7 +1033,7 @@ def _far(s, g, mat):
     lines.append([c124[0], c124[1], cshop[0], cshop[1], c56[0], c56[1]])
     lines.append([c20[0], c20[1], (E_LINE, 66.0), (E_LINE, ROW2[1])])
     # what you see on those lines between the houses
-    _fence_between(s, mat, (W_LINE + 0.25, ROW2[1]), (W_LINE + 0.25, 0.0), trim=0.25)
+    _fence_between(s, mat, (W_LINE + 0.25, ROW2[1]), (W_LINE + 0.25, -0.6), trim=0.25)
     _fence_between(s, mat, (W_LINE + 0.25, 56.0), c160[0])
     for (p, q) in ((c124[1], cshop[0]), (cshop[1], c56[0]), (c20[1], (E_LINE - 0.25, 66.0))):
         _fence_between(s, mat, p, q)
@@ -1039,10 +1045,10 @@ def _far(s, g, mat):
     # ---- the hub: the playground in the crescent's round
     hx, hz = H
     s.put(nb.tyre_swing_oak(mat), hx + 2, hz + 4, 20)
-    _spot(s, "tyre", *turned(hx + 2, hz + 4, 20, -4.4, -1.5))
+    _spot(s, "tyre", *turned(hx + 2, hz + 4, 20, -4.4, -2.2))
     srot = face(hx - 13, hz + 8, hx, hz)
     s.put(nb.slide(mat), hx - 13, hz + 8, srot + 180)
-    _spot(s, "slide", *turned(hx - 13, hz + 8, srot + 180, 0, 2.0))
+    _spot(s, "slide", *turned(hx - 13, hz + 8, srot + 180, 0, 2.0), y=4.0)               # up on the deck
     s.put(nb.swings(mat), hx + 1, hz - 13, 0)
     _spot(s, "swings", hx - 2.0, hz - 16.5)
     s.put(nb.sandbox(mat), hx + 12, hz - 5, 10)
@@ -1062,7 +1068,7 @@ def _far(s, g, mat):
     for (x, z, r) in ((2, 22, 10), (-20, 12, -20)):
         s.put(pk.picnic_table(mat), x, z, r)
     _spot(s, "picnic", *turned(2, 22, 10, 0, -4.0))
-    for (x, z) in ((-33.0, 18.0), (10.0, 38.0)):
+    for (x, z) in ((-33.0, 18.0), (3.0, 42.0)):
         s.put(bench(mat), x, z, face(x, z, -4, 20))
     _spot(s, "green_bench", *turned(-33.0, 18.0, face(-33.0, 18.0, -4, 20), 0, -2.0))
     for i, (x, z) in enumerate(((-8.0, 34.0), (14.0, 28.0))):
@@ -1074,7 +1080,7 @@ def _far(s, g, mat):
 
     # ---- the back gardens, behind the west houses: three gardens on a footpath, low hedges between with gaps
     for (z, gap) in ((42.0, (-98.5, -91.5)), (96.0, (-98.5, -91.5))):
-        for (a0, a1) in ((-IN + 0.2, gap[0]), (gap[1], -72.5 if z < 60 else -65.5)):
+        for (a0, a1) in ((-IN + 0.6, gap[0]), (gap[1], -72.5 if z < 60 else -74.0)):
             s.put(low_hedge(mat, a1 - a0, h=3.0), (a0 + a1) / 2, z, 0)
     s.put(nb.trampoline(mat), -118, 14, 0)
     _spot(s, "trampoline", -118, 14, y=1.73)
@@ -1092,7 +1098,7 @@ def _far(s, g, mat):
     s.put(playhouse(mat), -110, 84, 170)
     _spot(s, "playhouse", *turned(-110, 84, 170, 0.8, -3.0))
     s.put(bench(mat), -80, 70, -90)
-    _spot(s, "garden_bench", *turned(-80, 70, -90, 0, -0.1), y=1.35)
+    _spot(s, "garden_bench", *turned(-80, 70, -90, 0, -2.4))
     s.put(bird_bath(mat), -104, 54, 0)
     _spot(s, "birdbath", -101.5, 54)
     for i, (x, z) in enumerate(((-130, 76), (-130, 88))):
@@ -1121,22 +1127,22 @@ def _far(s, g, mat):
     s.put(water_butt(mat), 79.0, 78.0, 0)
     _spot(s, "water_butt", 80.5, 74.5)
     s.put(greenhouse(mat), 102.0, 80.0, 90)
-    _spot(s, "greenhouse", 102.5, 80.0, y=GREENHOUSE_FLOOR)
+    _spot(s, "greenhouse", *turned(102.0, 80.0, 90, 0, -0.6), y=GREENHOUSE_FLOOR)
     s.put(scarecrow(mat), 56.0, 108.0 - 8.5, 10)
     s.put(scarecrow(mat), 90.0 + 30.0, 130.0, 200)
     _spot(s, "scarecrow", 57.5, 96.0)
     for (x, z, r) in ((44.0, 70.0, 0), (128.0, 46.0, 0)):
         s.put(compost_bin(mat), x, z, r)
-    _spot(s, "compost", 44.0, 66.0)
+    _spot(s, "compost", 47.5, 70.0)
     s.put(potting_shed(mat), 98.0, 24.0, 90)
-    _spot(s, "potting_bench", *turned(98.0, 24.0, 90, 1.4, -3.4))
+    _spot(s, "potting_bench", *turned(98.0, 24.0, 90, -1.4, -4.4))
     s.put(potting_shed(mat), 64.0, 130.0, 180)
     s.put(water_butt(mat), 69.0, 131.5, 0)
     s.put(sunflowers(mat, 5), 42.0, 28.0, 90)
     _spot(s, "sunflowers", 44.5, 24.0)
     s.put(sunflowers(mat, 4), 122.0, 134.0, 0)
     s.put(bench(mat), 96.0, 128.0, 180)
-    _spot(s, "allot_bench", *turned(96.0, 128.0, 180, 0, -0.1), y=1.35)
+    _spot(s, "allot_bench", *turned(96.0, 128.0, 180, 0, -2.4))
     _spot(s, "allotments", 122.0, 88.0)
     _spot(s, "allotments", 60.0, 4.0)
     return lines
@@ -1151,24 +1157,25 @@ def _near(s, g, mat):
     _spot(s, "post_box", 16.2, -128.0)
     for (x, r) in ((62.0, 180), (-78.0, 180)):
         s.put(bench(mat), x, -126.0, r)
-    _spot(s, "verge_bench", 62.0, -126.0, y=1.35)
+    for x in (62.0, -78.0):
+        _spot(s, "verge_bench", x, -123.6)
     s.put(nb.recycling_bins(mat), -28.0, -100.8, 0)
-    _spot(s, "bins", -25.6, -100.8)
+    _spot(s, "bins", -24.0, -100.8)
     for (x, z, r, sw) in ((80.0, S1_Z - 2.6, 90, "shirt_blue"), (-80.0, S3_Z - 2.6, -90, "pastel_butter"),
                           (72.0, S3_Z + 2.6, 90, "mint")):
         s.put(car(mat, sw), x, z, r, y=ROAD_Y)
-    _spot(s, "car", 80.0 - 5.6, S1_Z - 5.6)
+    _spot(s, "car", 73.0, S1_Z - 7.2, y=PAVE_Y)
     # lamp posts along the pavements
-    for (x, z) in ((-6.5, -128.0), (-80.0, -118.5), (-40.0, -105.5), (30.0, -118.5), (75.0, -105.5),
-                   (39.5, -90.0), (52.5, -68.0), (-80.0, -52.5), (-20.0, -39.5), (20.0, -52.5), (80.0, -39.5),
-                   (-52.5, -20.0), (-39.5, 10.0), (-52.5, 44.0), (24.5, 52.0)):
+    for (x, z) in ((-6.5, -128.0), (-80.0, -118.5), (-48.0, -105.5), (30.0, -118.5), (88.0, -105.5),  # on plot
+                   (39.5, -90.0), (52.5, -68.0), (-74.0, -52.5), (-30.0, -39.5), (4.0, -52.5), (74.0, -39.5),  # lines,
+                   (-52.5, -20.0), (-39.5, 10.0), (-52.5, 44.0), (24.5, 43.5)):                            # not gates
         s.put(nb.lamp_post(mat), x, z, 0, y=PAVE_Y)
     for th in (170.0, 112.0, 68.0, 10.0):
         s.put(nb.lamp_post(mat), *polar(CR + 6.5, th), 0, y=PAVE_Y + 0.003)
     # trees: the verge, the gaps' verges, the green, the gardens and allotments
     tb = Builder()
     for (x, z, h, k) in ((-110, -129, 10, 0), (-62, -130, 11, 1), (36, -130, 10, 2), (84, -129, 11, 0),
-                         (116, -130, 10, 1), (-130, -126, 11, 2), (34, -95, 9, 1), (34, -66, 10, 0), (58, -80, 9, 2),
+                         (116, -130, 10, 1), (-130, -126, 11, 2), (35, -95, 9, 1), (35, -66, 10, 0), (57, -80, 9, 2),
                          (-58, -26, 10, 0), (-34, -14, 9, 1), (-130, 0, 11, 1), (-128, 128, 12, 0), (-84, 104, 10, 2),
                          (130, 4, 10, 0), (124, 120, 11, 1), (44, 132, 10, 2), (128, 72, 10, 2), (-38, 40, 9, 0)):
         tree_round(tb, -x, z, 0, h=h, r=3.0 + 0.4 * k, leaf=("leaf_green", "leaf_dark", "mint")[k])

@@ -1432,6 +1432,36 @@ Presets.decorFx = {
 	petalPad = 0.8, -- share of the tree's width the petals fall from
 }
 
+-- A stray's rarity gem (Derek 2026-10-28 01:25: "have some sort indicator of what rarity the cat is before going
+-- up to it and looking at the name"): a small gem in the rarity colour (Presets.rarity) bobs `above` studs over each
+-- stray whose rarity `shows`, `size` studs tall plus `pixels` so a far one still reads. It is a square turned 45
+-- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
+-- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
+-- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
+Presets.rarityMark = {
+	shows = { Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
+	glints = { Mythical = true } :: { [string]: boolean },
+	above = 0.9,
+	size = 0.8,
+	pixels = 16,
+	gem = 0.62,
+	corner = 0.18,
+	light = 0.45,
+	dark = 0.2,
+	outline = Presets.palette.milk,
+	outlinePixels = 2,
+	bob = 0.15,
+	bobSeconds = 0.9, -- one way
+	glintSize = 0.34,
+	glintSeconds = 0.3, -- one way
+	glintEvery = 2.2,
+	hideWithin = 10,
+	showAfter = 1,
+	maxDistance = 80,
+	most = 12,
+	checkEvery = 0.25,
+}
+
 -- Potions (F64, data-model 12b, and the quest potions of F73): each kind's glow while it runs, shown on the newest id in the drinker's
 -- `ActivePotions` (data-model 13). `on` is where its emitter sits: "Body" the root part, "Feet" an attachment under it,
 -- "Hands" the two hands (the rate split between them). The drink pop, on your own `buffs` growing in ProfileSync, is

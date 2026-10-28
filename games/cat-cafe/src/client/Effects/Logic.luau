@@ -996,4 +996,22 @@ function Logic.note(age: number, phase: number): (Vector3, number)
 	return Vector3.new(sway, rise, 0), shown
 end
 
+-- Whether a stray's rarity gem (Presets.rarityMark) can show: its `Rarity` is one that shows, nobody is catching it
+-- (`LockedBy` is 0 or not set) and you are within maxDistance studs but not close: one `shown` hides at hideWithin or
+-- nearer, where the Catch card names the cat, and one hidden comes back only past hideWithin + showAfter.
+function Logic.rarityMarkShows(
+	rarity: unknown,
+	lockedBy: unknown,
+	distance: number,
+	shown: boolean
+): boolean
+	local r = Presets.rarityMark
+	if type(rarity) ~= "string" or r.shows[rarity] ~= true then
+		return false
+	end
+	local locked = type(lockedBy) == "number" and lockedBy ~= 0
+	local near = if shown then r.hideWithin else r.hideWithin + r.showAfter
+	return not locked and distance > near and distance <= r.maxDistance
+end
+
 return Logic

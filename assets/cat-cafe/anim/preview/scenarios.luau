@@ -71,4 +71,32 @@ return {
 			{ style = "stray", seconds = 3, speed = 3 },
 		},
 	},
+	-- Balloon Cat (F78) bobbing as if it might float off, on the Tabby until Model-Agent's Balloon Cat is built (the
+	-- motion only looks at CatId). A stray stands through four bobs, the fourth pulled higher, then wanders off.
+	balloonStray = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "side",
+		attributes = { CatId = "balloon" },
+		segments = {
+			{ style = "stray", seconds = 8.8 },
+			{ style = "stray", seconds = 2.6, speed = 3 },
+		},
+	},
+	-- Asleep it floats half as high; `phase` starts it two bobs in, so the higher one comes round sooner.
+	balloonNap = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "side",
+		phase = 4.4,
+		attributes = { CatId = "balloon" },
+		segments = { { style = "nap", seconds = 4.4 } },
+	},
+	-- At work on the sitting body (B) in the entertainer's outfit, its favourite role.
+	balloonWork = {
+		model = "CatCafe_Cat_Tabby_Sit",
+		role = "entertainer",
+		camera = "side",
+		phase = 4.4,
+		attributes = { Pose = "sit", CatId = "balloon" },
+		segments = { { style = "entertainer", seconds = 4.4 } },
+	},
 }

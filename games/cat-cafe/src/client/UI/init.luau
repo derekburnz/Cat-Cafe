@@ -122,7 +122,7 @@ UI.events = {
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
-	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to 9); end the intro, call
+	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to Intro.SHOTS, 10); end the intro, call
 	-- UI.intro.finish and fire IntroDone(shot, replay)
 	introSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
@@ -1725,12 +1725,13 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- The controller's IntroController moves the camera; the UI draws the letterbox bars, captions, shot dots, title
--- cards, the demo catch ring and Skip (Screens/Intro).
+-- cards, the demo catch ring, the job card and Skip (Screens/Intro).
 UI.intro = {}
 
 -- Bars in, and the HUD, toasts, place icons, the tutorial marker and trail and any popup hidden until finish.
--- options.skipAfter: seconds until Skip shows (default 2.0, or at once with options.replay). Calling it marks the
--- intro live, so the Tutorial tile and Settings rows show afterwards.
+-- Skip shows at once, dimmed, with a gold bar filling it over options.skipAfter seconds (default 5.0, or full at
+-- once with options.replay); only a full Skip skips. Calling it marks the intro live, so the Tutorial tile and
+-- Settings rows show afterwards.
 function UI.intro.start(options: Types.IntroOptions?)
 	local screen = introScreen
 	if screen == nil then
@@ -1753,8 +1754,8 @@ function UI.intro.start(options: Types.IntroOptions?)
 	screen:start(options)
 end
 
--- A shot begins: index 1 to 9 lights its dot, the caption pops. In shot 5 call again for each cut with the next
--- title card ("THE PARK", "THE NEIGHBOURHOOD", ...); the caption stays.
+-- A shot begins: index 1 to Intro.SHOTS (10) lights its dot, the caption pops. In the areas shot (6) call again for
+-- each cut with the next title card ("THE PARK", "THE NEIGHBOURHOOD", ...); the caption stays.
 function UI.intro.setShot(index: number, caption: string, titleCard: string?)
 	if introScreen then
 		introScreen:setShot(index, caption, titleCard)
@@ -1768,7 +1769,15 @@ function UI.intro.demoCatch(worldPosition: Vector3)
 	end
 end
 
--- The end, after shot 9 or on Skip: the bars slide out over 0.45 s and everything hidden comes back.
+-- Shot 4's job card, 0.35 s in, beside the cat taking its spot: the four role tiles in miniature, `role`'s
+-- ("waiter") lit with a tap 0.25 s later, gone by 0.55 s after it showed.
+function UI.intro.jobCard(worldPosition: Vector3, role: string)
+	if introScreen then
+		introScreen:jobCard(worldPosition, role)
+	end
+end
+
+-- The end, after the last shot or on Skip: the bars slide out over 0.45 s and everything hidden comes back.
 function UI.intro.finish()
 	if introScreen then
 		introScreen:finish()

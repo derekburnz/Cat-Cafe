@@ -27,6 +27,7 @@ local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local Quests = require(ReplicatedStorage.Shared.Quests)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -133,6 +134,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		potions = profile.potions, -- F64
 		buffs = Potions.endsAt(profile, now), -- F64: endsAt in server time; the save keeps seconds left
 		settings = Settings.copy(profile.settings),
+		quests = Quests.view(profile, now), -- F73
+		achievements = Quests.achievementsView(profile),
+		stats = table.clone(profile.stats),
 		serverTime = now,
 	}
 end
@@ -691,6 +695,13 @@ function CafeService.addCaughtCat(
 	end
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
+	-- F73: the quest and achievement counters that follow catsCaught (net, rescue and bait alike)
+	if (Catalog.rarityRank[def.rarity] or 0) >= Catalog.rarityRank.Rare then
+		profile.stats.rareCatches += 1
+	end
+	if instance.variant == "gold" then
+		profile.stats.goldCatches += 1
+	end
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
 	if isNew then
 		profile.collection[def.id] = now

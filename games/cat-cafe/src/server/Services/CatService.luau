@@ -142,7 +142,8 @@ local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boole
 end
 
 -- The gold luck a stray or a rescue trap in the area rolls with (F54, golden-fish.md section 5): the highest among
--- the players in the server whose tier has the area open, 0 when nobody has. The coat shows from the spawn, the
+-- the players in the server whose tier has the area open, a running Gold Rush Potion included (F73), 0 when nobody
+-- has. The coat shows from the spawn, the
 -- same for everyone.
 function CatService.goldLuckFor(areaId: string): number
 	return (CatService.goldLuckSource(areaId))
@@ -163,7 +164,7 @@ function CatService.goldLuckSource(areaId: string): (number, Player?)
 			table.insert(profiles, profile)
 		end
 	end
-	local luck, from = IndexRewards.luckiest(profiles, area.tier, Economy.tier)
+	local luck, from = IndexRewards.luckiest(profiles, area.tier, Economy.tier, os.time())
 	return luck, if from ~= nil then players[from] else nil
 end
 
@@ -408,7 +409,7 @@ local function spawnStray(
 ): Stray
 	local variant = if kept ~= nil
 		then kept.variant or "base"
-		elseif forceGold == true or rng:NextNumber() < IndexRewards.goldChance(
+		elseif forceGold == true or rng:NextNumber() < IndexRewards.rollChance(
 			Config.GoldChanceNet,
 			CatService.goldLuckFor(areaId)
 		) then "gold"

@@ -91,6 +91,7 @@ local function onCollectTips(player: Player)
 	end
 	local amount = total(taken)
 	Economy.credit(profile, amount)
+	profile.stats.tipPilesCollected += #taken.amounts -- F73: each pile counts
 	Telemetry.source(player, profile, amount, "Gameplay", "tip_pile")
 	CafeService.sync(player)
 end

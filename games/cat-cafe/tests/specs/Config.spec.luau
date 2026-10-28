@@ -112,6 +112,12 @@ return function()
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 600,
 		PotionMaxMinutes = 60,
+		-- quests and achievements and their potions (F73, quests.md section 6)
+		TimedTipsMax = 1.0,
+		QuestDailyCount = 5,
+		QuestWeeklyCount = 3,
+		QuestWeekOffsetSeconds = 345600,
+		QuestRollCheckSeconds = 60,
 		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
 		CollectorCheckSeconds = 120,
 		CollectorChance = 0.12,

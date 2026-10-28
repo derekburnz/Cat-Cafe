@@ -14,6 +14,10 @@ Potions.TIP = "tip_potion"
 Potions.LUCKY = "lucky_potion"
 Potions.SWIFT = "swift_potion"
 Potions.STEADY = "steady_potion"
+-- F73 (quests.md section 4): the quest potions
+Potions.BIG_TIP = "big_tip_potion"
+Potions.GOLD_RUSH = "gold_rush_potion"
+Potions.QUICK_BAIT = "quick_bait_potion"
 
 -- Seconds of play time left on a potion at `now`, 0 when it is not running. Nil-safe for fixtures without buffs.
 function Potions.left(profile: Types.PlayerProfile, potionId: string, now: number): number
@@ -29,10 +33,45 @@ function Potions.running(profile: Types.PlayerProfile, potionId: string, now: nu
 	return Potions.left(profile, potionId, now) > 0
 end
 
--- The Tip Potion's share on top of tips at `now` (income, the tip piles and rich visitors): 1 + TipPotionBonus
--- while it runs, else 1.
+-- The running potions' share on top of tips at `now` (income, the tip piles and rich visitors): 1 plus every running
+-- potion's `tips` (the Tip Potion's TipPotionBonus, F73's Big Tip Potion's 0.5), together at most TimedTipsMax.
 function Potions.tipMultiplier(profile: Types.PlayerProfile, now: number): number
-	return if Potions.running(profile, Potions.TIP, now) then 1 + Config.TipPotionBonus else 1
+	local bonus = 0
+	for _, def in Catalog.potions do
+		if def.tips ~= nil and Potions.running(profile, def.id, now) then
+			bonus += def.tips
+		end
+	end
+	return 1 + math.min(bonus, Config.TimedTipsMax)
+end
+
+-- F73: the gold luck the running potions add at `now` (a Gold Rush Potion's 0.25), on top of the Index's.
+function Potions.goldLuck(profile: Types.PlayerProfile, now: number): number
+	local luck = 0
+	for _, def in Catalog.potions do
+		if def.goldLuck ~= nil and Potions.running(profile, def.id, now) then
+			luck += def.goldLuck
+		end
+	end
+	return luck
+end
+
+-- F73: the bait speed the running potions add at `now` (a Quick Bait Potion's 0.25); Economy.baitWaitSeconds keeps
+-- the sum with the Index's inside BaitSpeedMax.
+function Potions.baitSpeed(profile: Types.PlayerProfile, now: number): number
+	local speed = 0
+	for _, def in Catalog.potions do
+		if def.baitSpeed ~= nil and Potions.running(profile, def.id, now) then
+			speed += def.baitSpeed
+		end
+	end
+	return speed
+end
+
+-- The most gold luck every potion together can add, for IndexRewards.rollChance's cap.
+Potions.MAX_GOLD_LUCK = 0
+for _, def in Catalog.potions do
+	Potions.MAX_GOLD_LUCK += def.goldLuck or 0
 end
 
 -- Added to walk and carry speed while a Swift Potion runs.
@@ -134,6 +173,15 @@ function Potions.endsAt(profile: Types.PlayerProfile, now: number): { [string]: 
 	return out
 end
 
+-- The potions a Mystery gift can hold, at even odds: every one but the quest potions (F73), which only quests and
+-- achievements pay.
+local GIFT_POTIONS: { string } = {}
+for _, def in Catalog.potions do
+	if def.quest ~= true then
+		table.insert(GIFT_POTIONS, def.id)
+	end
+end
+
 -- A Mystery gift's contents, rolled when it appears. `roll` returns a number in [0, 1) each call.
 export type Gift = { kind: Types.MysteryGiftKind, id: string?, count: number }
 
@@ -148,8 +196,8 @@ function Potions.rollGift(roll: () -> number): Gift
 		pick -= row.chance
 	end
 	if chosen.kind == "potion" then
-		local index = math.clamp(math.floor(roll() * #Catalog.potions) + 1, 1, #Catalog.potions)
-		return { kind = "potion", id = Catalog.potions[index].id, count = chosen.count }
+		local index = math.clamp(math.floor(roll() * #GIFT_POTIONS) + 1, 1, #GIFT_POTIONS)
+		return { kind = "potion", id = GIFT_POTIONS[index], count = chosen.count }
 	end
 	return { kind = chosen.kind, id = chosen.id, count = chosen.count }
 end

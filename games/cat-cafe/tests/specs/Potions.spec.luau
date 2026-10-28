@@ -17,7 +17,7 @@ return function()
 	end
 
 	describe("Catalog.potions and Catalog.mysteryGift (section 12b)", function()
-		it("has the four potions in bag order with the design's minutes", function()
+		it("has the seven potions in bag order with the design's minutes", function()
 			local minutes: { [string]: number } = {}
 			local order: { string } = {}
 			for _, def in Catalog.potions do
@@ -26,8 +26,24 @@ return function()
 				expect(Catalog.getPotion(def.id)).to.equal(def)
 				expect(#def.name > 0 and #def.effect > 0).to.equal(true)
 			end
-			expect(order).to.deepEqual({ "tip_potion", "lucky_potion", "swift_potion", "steady_potion" })
-			expect(minutes).to.deepEqual({ tip_potion = 10, lucky_potion = 10, swift_potion = 5, steady_potion = 10 })
+			expect(order).to.deepEqual({
+				"tip_potion",
+				"lucky_potion",
+				"swift_potion",
+				"steady_potion",
+				"big_tip_potion",
+				"gold_rush_potion",
+				"quick_bait_potion",
+			})
+			expect(minutes).to.deepEqual({
+				tip_potion = 10,
+				lucky_potion = 10,
+				swift_potion = 5,
+				steady_potion = 10,
+				big_tip_potion = 30,
+				gold_rush_potion = 30,
+				quick_bait_potion = 30,
+			})
 			expect(Catalog.getPotion("nope")).never.to.be.ok()
 		end)
 
@@ -137,6 +153,50 @@ return function()
 			-- Circles clamps the level, so a Master net stays Master
 			local Circles = require(Shared.Circles)
 			expect(Circles.windows(Potions.netLevel(p, 3, 1000))).to.equal(Circles.windows(3))
+		end)
+
+		-- F73 (quests.md section 4): the quest potions, earned only from quest sets and achievements
+		it("Big Tip +50% stacks with Tip, Gold Rush adds 0.25 gold luck, Quick Bait 0.25 bait speed", function()
+			local p = fresh(1000)
+			expect(Potions.goldLuck(p, 1000)).to.equal(0)
+			expect(Potions.baitSpeed(p, 1000)).to.equal(0)
+			p.buffs.big_tip_potion = 60
+			expect(Potions.tipMultiplier(p, 1000)).to.be.near(1.5)
+			p.buffs.tip_potion = 60
+			expect(Potions.tipMultiplier(p, 1000)).to.be.near(1.75)
+			expect(Config.TimedTipsMax).to.equal(1.0)
+			p.buffs.gold_rush_potion = 60
+			p.buffs.quick_bait_potion = 60
+			expect(Potions.goldLuck(p, 1000)).to.be.near(0.25)
+			expect(Potions.baitSpeed(p, 1000)).to.be.near(0.25)
+			expect(Potions.MAX_GOLD_LUCK).to.be.near(0.25)
+			-- they run out like the rest
+			expect(Potions.goldLuck(p, 1061)).to.equal(0)
+			expect(Potions.tipMultiplier(p, 1061)).to.equal(1)
+		end)
+
+		it("puts Gold Rush luck on top of the Index's cap, and Quick Bait inside BaitSpeedMax", function()
+			local IndexRewards = require(Shared.IndexRewards)
+			expect(IndexRewards.goldChance(0.1, 9)).to.be.near(0.1 * (1 + Config.GoldLuckMax))
+			expect(IndexRewards.rollChance(0.1, 9)).to.be.near(0.1 * (1 + Config.GoldLuckMax + 0.25))
+			expect(IndexRewards.rollChance(0.1, 0.5)).to.be.near(0.15)
+			expect(IndexRewards.rollChance(0.1, -1)).to.equal(0.1)
+			local p = fresh(1000)
+			local before = Economy.baitWaitSeconds(p, false, 1000)
+			p.buffs.quick_bait_potion = 60
+			expect(Economy.baitWaitSeconds(p, false, 1000)).to.be.near(before * 0.75, 1)
+			expect(Economy.baitWaitSeconds(p, false)).to.equal(before) -- without `now`, no potion
+		end)
+
+		it("settle pays a Tip and a Big Tip Potion each over the part of the window it covers", function()
+			local p = fresh(1000)
+			p.buffs.tip_potion = 4 -- 4 of the 10 s get +25%
+			p.buffs.big_tip_potion = 6 -- 6 of the 10 s get +50%
+			local rate = Economy.incomePerSecond(p)
+			local earned = Economy.settle(p, 1010)
+			expect(earned).to.be.near(rate * (10 + 4 * 0.25 + 6 * 0.5))
+			expect(p.buffs.tip_potion).to.equal(nil)
+			expect(p.buffs.big_tip_potion).to.equal(nil)
 		end)
 
 		it("settle pays the Tip Potion's share only over the part of the window it covers", function()
@@ -310,8 +370,9 @@ return function()
 					seen[gift.kind .. ":" .. tostring(gift.id)] = true
 				end
 			end
+			-- F73: the quest potions come only from quest sets and achievements, never from his gift
 			for _, def in Catalog.potions do
-				expect(seen["potion:" .. def.id]).to.equal(true)
+				expect(seen["potion:" .. def.id] == true).to.equal(def.quest ~= true)
 			end
 			expect(seen["lure:salmon"] and seen["fish:nil"] and seen["spin:nil"]).to.equal(true)
 			local over = Potions.rollGift(function()

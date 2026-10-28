@@ -155,6 +155,14 @@ export type PotionDef = {
 	name: string,
 	minutes: number,
 	effect: string,
+	-- F73 (quests.md section 4): what it adds while it runs. `tips` goes on every tip (all running tip potions
+	-- together at most TimedTipsMax), `goldLuck` on every gold roll on top of GoldLuckMax, `baitSpeed` on the bait
+	-- speed of food set while it runs, inside BaitSpeedMax. `quest` marks the three quest potions, which only quests
+	-- and achievements pay (never a Mystery gift).
+	tips: number?,
+	goldLuck: number?,
+	baitSpeed: number?,
+	quest: boolean?,
 }
 
 -- One thing a Mystery Visitor's gift can hold (F64): `chance` in percent, the rows summing to 100. A "potion" row
@@ -360,7 +368,78 @@ export type Stats = {
 	potionsUsed: number, -- F64: potions drunk with UsePotion
 	mysteryGifts: number, -- F64: Mystery gifts opened
 	collectorTrades: number, -- F63: cats traded to the Cat Collector
+	-- F73 (quests.md section 6): Rare or better and gold cats added by net, rescue or bait, tip piles collected, and
+	-- quests and full sets finished
+	rareCatches: number,
+	goldCatches: number,
+	tipPilesCollected: number,
+	dailyQuestsDone: number,
+	dailySetsDone: number,
+	weeklyQuestsDone: number,
+	weeklySetsDone: number,
 }
+
+-- Quests and achievements (F73, quests.md section 6). A quest row in Catalog.quests: `stat` is the counter it
+-- reads (a Stats key, "lifetimeCoins" or "distinctCats", the entries in collection), `needs` a fixed count or, for a
+-- coins quest, `needsSeconds` of the day rate when it is picked and at least `needsMin`. `requires` skips it when
+-- picking for a player who cannot do it yet: an upgrade's first level, a banked crate or a crate's golden fish
+-- (`fishOrCrate`), or that many cats not yet found in the areas their tier has open (`uncaught`).
+export type QuestKind = "daily" | "weekly"
+export type QuestRequires = { upgrade: string?, fishOrCrate: boolean?, uncaught: number? }
+export type QuestDef = {
+	id: string,
+	text: string,
+	stat: string,
+	needs: number?,
+	needsSeconds: number?,
+	needsMin: number?,
+	requires: QuestRequires?,
+}
+-- A picked quest: its counter's value when picked (`base`) and how far past that it goes (`needs`, at least 1).
+export type QuestEntry = { id: string, base: number, needs: number, claimed: boolean }
+-- The player's quests: the UTC day and the Monday-start week they were rolled for, the slots in pool order, whether
+-- the free reroll is spent and whether the full set's prize is paid.
+export type QuestState = {
+	day: number,
+	daily: { QuestEntry },
+	dailyReroll: boolean,
+	dailySet: boolean,
+	week: number,
+	weekly: { QuestEntry },
+	weeklyReroll: boolean,
+	weeklySet: boolean,
+}
+export type AchievementSize = "S" | "M" | "L" | "XL"
+-- `measure`: a Stats key, "lifetimeCoins", "tier", "distinctCats", "goldCats", "mythicalCats", "decorOwned",
+-- "topCatLevel" or "upgrade:<upgradeId>".
+export type AchievementDef = {
+	id: string,
+	name: string,
+	text: string,
+	measure: string,
+	needs: number,
+	size: AchievementSize,
+}
+-- ProfileSync's quests: each slot's text, progress and claim, the reset times (os.time()) and what is spent.
+export type QuestView = {
+	id: string,
+	text: string,
+	progress: number,
+	needs: number,
+	claimed: boolean,
+}
+export type QuestsView = {
+	daily: { QuestView },
+	weekly: { QuestView },
+	dailyResetsAt: number,
+	weeklyResetsAt: number,
+	dailyRerollUsed: boolean,
+	weeklyRerollUsed: boolean,
+	dailySetClaimed: boolean,
+	weeklySetClaimed: boolean,
+}
+-- ProfileSync's achievements: each one's progress (capped at its needs) and whether it is claimed.
+export type AchievementView = { progress: number, claimed: boolean }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).
 export type BaitState = {
@@ -451,6 +530,8 @@ export type PlayerProfile = {
 	-- F64: potionId -> seconds of play time left. The timers run only while the player is in the game, so settle
 	-- counts them down with the elapsed time it pays (Economy.settle) and nothing runs them down offline.
 	buffs: { [string]: number },
+	quests: QuestState, -- F73
+	achievements: { [string]: boolean }, -- F73: achievementId -> claimed
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -493,6 +574,9 @@ export type PlayerState = {
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	buffs: { [string]: number }, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
+	quests: QuestsView, -- F73: the Quests window's Daily and Weekly tabs and the HUD tracker
+	achievements: { [string]: AchievementView }, -- F73: every Catalog.achievements id
+	stats: Stats, -- F73
 	serverTime: number,
 }
 

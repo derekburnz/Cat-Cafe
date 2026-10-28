@@ -32,7 +32,10 @@ local ProfileSchema = {}
 -- Version 14 (F62) adds each cat's `locked` and locks every gold, Legendary and Mythical cat already owned, once: an
 -- older server would drop the flag, and a second run would lock again a cat its player unlocked.
 -- Version 15 (F63) adds stats.collectorTrades, the cats traded to the Cat Collector: an older server would drop it.
-ProfileSchema.VERSION = 15
+-- Version 16 (F73) adds quests, achievements and seven stats (rareCatches, goldCatches, tipPilesCollected and the
+-- quest and set counts): an older server would drop the claims, so a player hopping servers during a rollout could
+-- claim a quest or an achievement twice.
+ProfileSchema.VERSION = 16
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -86,6 +89,27 @@ local function newStats(): Types.Stats
 		potionsUsed = 0,
 		mysteryGifts = 0,
 		collectorTrades = 0,
+		rareCatches = 0,
+		goldCatches = 0,
+		tipPilesCollected = 0,
+		dailyQuestsDone = 0,
+		dailySetsDone = 0,
+		weeklyQuestsDone = 0,
+		weeklySetsDone = 0,
+	}
+end
+
+-- No quests yet (F73): day and week 0, so QuestService rolls both when the profile loads.
+local function newQuests(): Types.QuestState
+	return {
+		day = 0,
+		daily = {},
+		dailyReroll = false,
+		dailySet = false,
+		week = 0,
+		weekly = {},
+		weeklyReroll = false,
+		weeklySet = false,
 	}
 end
 
@@ -129,6 +153,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		introSeen = false,
 		potions = {},
 		buffs = {},
+		quests = newQuests(),
+		achievements = {},
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = Settings.defaults(),
@@ -447,6 +473,57 @@ local function sanitizeBuffs(value: any): { [string]: number }
 	return out
 end
 
+-- A save's quest slots (F73), in order up to `slots` and dense (the N116 lesson): a string id (QuestService gives an
+-- unknown or misplaced one a fresh pick), a whole base of 0 or more and needs of at least 1.
+local function sanitizeQuestList(value: any, slots: number): { Types.QuestEntry }
+	local out: { Types.QuestEntry } = {}
+	if type(value) ~= "table" then
+		return out
+	end
+	for slot = 1, slots do
+		local entry = value[slot]
+		if type(entry) ~= "table" then
+			break
+		end
+		table.insert(out, {
+			id = if type(entry.id) == "string" then string.sub(entry.id, 1, 40) else "",
+			base = math.max(0, asInt(entry.base, 0)),
+			needs = math.max(1, asInt(entry.needs, 1)),
+			claimed = entry.claimed == true,
+		})
+	end
+	return out
+end
+
+local function sanitizeQuests(value: any): Types.QuestState
+	local quests = newQuests()
+	if type(value) ~= "table" then
+		return quests
+	end
+	quests.day = asInt(value.day, 0)
+	quests.daily = sanitizeQuestList(value.daily, Config.QuestDailyCount)
+	quests.dailyReroll = value.dailyReroll == true
+	quests.dailySet = value.dailySet == true
+	quests.week = asInt(value.week, 0)
+	quests.weekly = sanitizeQuestList(value.weekly, Config.QuestWeeklyCount)
+	quests.weeklyReroll = value.weeklyReroll == true
+	quests.weeklySet = value.weeklySet == true
+	return quests
+end
+
+-- Claimed achievements (F73): known ids only.
+local function sanitizeAchievements(value: any): { [string]: boolean }
+	local out: { [string]: boolean } = {}
+	if type(value) == "table" then
+		for id, claimed in value do
+			if type(id) == "string" and claimed == true and Catalog.getAchievement(id) ~= nil then
+				out[id] = true
+			end
+		end
+	end
+	return out
+end
+
 -- Redeemed codes (F65): any code id a code could have had (letters and digits, up to CodeMaxLength) with a time, so
 -- a code row removed and later added back still counts as used.
 local function sanitizeCodes(value: any): { [string]: number }
@@ -620,6 +697,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.introSeen = raw.introSeen == true
 	profile.potions = sanitizePotions(raw.potions) -- F64; saves before version 13 hold none
 	profile.buffs = sanitizeBuffs(raw.buffs)
+	profile.quests = sanitizeQuests(raw.quests) -- F73; saves before version 16 have none and roll on load
+	profile.achievements = sanitizeAchievements(raw.achievements)
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

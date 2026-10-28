@@ -2197,7 +2197,7 @@ end
 case(
 	"drop",
 	Enum.KeyCode.Home,
-	"Drop: not carrying, junk arguments, CheckIn and 10 DropCat in one frame at my door, then a drop in the alley and its pick up",
+	"Drop: not carrying, junk arguments, CheckIn and 10 DropCat in one frame at my door, then a drop in the alley, its pick up and its walk home (F67)",
 	function()
 		if not checkInIfCarrying() then
 			return "SKIP", "carrying a cat that could not be checked in"
@@ -2258,16 +2258,36 @@ case(
 				if drops == 1 then "door race: dropped once" else "door race: checked in once"
 			)
 		end
-		-- 3. In the alley: the cat lands at my feet as a Dropped stray with no circles that anyone picks up with
-		-- PickUpCat (v0.8 F56). GrabBegin on it is refused, bad ids and a call from too far pick up nothing, and ten
-		-- PickUpCat in one frame start one carry of the same cat.
+		-- 3. In the alley, away from where it was caught: the cat lands at my feet as a Dropped stray with no circles
+		-- that anyone picks up with PickUpCat (v0.8 F56). Since F67 (engineer PR #502) it walks back to where it was
+		-- caught at DropReturnWalkSpeed, so the drop is made DROP_AWAY studs along the back alley from there and every
+		-- check below reads where the cat is now. GrabBegin on it is refused, bad ids and a call from too far pick up
+		-- nothing, and ten PickUpCat in one frame start one carry of the same cat.
 		why = catchOne()
 		if why ~= "" then
 			table.insert(notes, "alley drop skipped: " .. why)
 			return verdict, table.concat(notes, "; ")
 		end
 		local catId = if state ~= nil then state.carrying else nil
+		local caughtRoot = rootPart()
+		local caughtAt = if caughtRoot ~= nil then caughtRoot.Position else Vector3.zero
+		-- along the back alley (it runs north and south between AlleySouthZ and AlleyNorthZ), toward its middle
+		local DROP_AWAY = 80
+		local awayZ = if math.abs(caughtAt.Z) >= DROP_AWAY / 2
+			then caughtAt.Z - math.sign(caughtAt.Z) * DROP_AWAY
+			else caughtAt.Z + (if caughtAt.Z >= 0 then DROP_AWAY else -DROP_AWAY)
+		awayZ = math.clamp(awayZ, Config.World.AlleySouthZ + 8, Config.World.AlleyNorthZ - 8)
+		teleportTo(Vector3.new(caughtAt.X, caughtAt.Y, awayZ))
 		task.wait(1.05)
+		local awayRoot = rootPart()
+		local away = if awayRoot ~= nil then horizontal(awayRoot.Position, caughtAt) else 0
+		if away < DROP_AWAY / 2 then
+			verdict = downgrade(verdict, "CHECK")
+			table.insert(
+				notes,
+				string.format("dropped only %.0f studs from the catch, so a walking-home cat may beat the checks", away)
+			)
+		end
 		local alleyAt = os.clock()
 		fire("DropCat")
 		waitFor(alleyAt, "ProfileSync", 3, function()
@@ -2291,10 +2311,36 @@ case(
 		end
 		local droppedModel = dropped :: Model
 		local strayId = dropId :: string
-		local spot = droppedModel:GetPivot().Position
+		-- F67: Returning while it walks home; nil on a server from before F67, where it stays put
+		local walksHome = droppedModel:GetAttribute("Returning") == true
+		table.insert(
+			notes,
+			if walksHome
+				then "the dropped cat is walking home"
+				else "no Returning attribute (a server before F67), so the walk home is not checked"
+		)
+		local function here(): Vector3
+			return droppedModel:GetPivot().Position
+		end
+		-- still a Dropped stray anyone can pick up, so the pick up checks still mean something
+		local function stillDropped(): boolean
+			return droppedModel:IsDescendantOf(Workspace)
+				and droppedModel:GetAttribute("Dropped") == true
+				and droppedModel:GetAttribute("PickUp") == true
+		end
+		local function tooLate(step: string): (Verdict, string)
+			table.insert(
+				notes,
+				string.format("the cat was home before %s (drop it farther from the catch)", step)
+			)
+			return downgrade(verdict, "CHECK"), table.concat(notes, "; ")
+		end
 
 		-- GrabBegin on it: no circles, only "Hold to pick it up".
 		grabReady()
+		if not stillDropped() then
+			return tooLate("the GrabBegin check")
+		end
 		local grabAt = os.clock()
 		fire("GrabBegin", strayId)
 		local answer = answerTo(grabAt, strayId, 2)
@@ -2334,9 +2380,13 @@ case(
 		)
 
 		-- From too far (GrabRangeStuds plus 2 of slack): "Too far away", nothing taken.
+		if not stillDropped() then
+			return tooLate("the far pick up")
+		end
+		local spot = here()
 		teleportTo(spot + Vector3.new(Config.GrabRangeStuds + 8, 0, 0))
 		local root = rootPart()
-		local farOff = if root ~= nil then (root.Position - spot).Magnitude else 0
+		local farOff = if root ~= nil then horizontal(root.Position, here()) else 0
 		if farOff <= Config.GrabRangeStuds + 4 then
 			verdict = downgrade(verdict, "CHECK")
 			table.insert(
@@ -2374,8 +2424,11 @@ case(
 		end
 
 		-- Beside it: ten PickUpCat in one frame start one carry of the same cat, and the stray is gone.
-		teleportTo(spot + Vector3.new(3, 0, 0))
-		task.wait(0.6)
+		if not stillDropped() then
+			return tooLate("the pick up")
+		end
+		teleportTo(here() + Vector3.new(3, 0, 0))
+		task.wait(0.3)
 		local pickAt = os.clock()
 		for _ = 1, 10 do
 			Remotes.event("PickUpCat"):FireServer(strayId)
@@ -2421,6 +2474,74 @@ case(
 			table.insert(notes, "the Dropped stray is still in the world after the pick up")
 		end
 		table.insert(notes, string.format("ten PickUpCat in one frame carried %s once", carried))
+
+		-- 4. F67: let go again and it walks all the way home, to where it was first caught (a pick up keeps that),
+		-- and is a normal stray there: not Dropped, not Returning, no Pick up prompt.
+		if walksHome then
+			task.wait(1.05)
+			local againAt = os.clock()
+			fire("DropCat")
+			waitFor(againAt, "ProfileSync", 3, function()
+				return state ~= nil and state.carrying == nil
+			end)
+			task.wait(0.5)
+			local walker, walkerId = droppedStray(catId, 30)
+			if walker == nil or walkerId == nil then
+				verdict = "FAIL"
+				table.insert(notes, "the second drop left no Dropped cat at my feet")
+			else
+				local model = walker :: Model
+				local from = horizontal(model:GetPivot().Position, caughtAt)
+				-- the path can wind, so allow twice the straight walk plus a margin, never past the server's cap
+				-- (read loosely, so this client still checks against a build from before F67)
+				local loose: any = Config
+				local speed = loose.DropReturnWalkSpeed or 8
+				local cap = loose.DropReturnMaxSeconds or 60
+				local limit = math.min(2 * from / speed + 5, cap + 5)
+				local deadline = os.clock() + limit
+				while
+					model:IsDescendantOf(Workspace)
+					and model:GetAttribute("Returning") == true
+					and os.clock() < deadline
+				do
+					task.wait(0.25)
+				end
+				local left = horizontal(model:GetPivot().Position, caughtAt)
+				if not model:IsDescendantOf(Workspace) then
+					verdict = downgrade(verdict, "CHECK")
+					table.insert(notes, "the walking cat left the world before it got home (picked up, or dusk)")
+				elseif model:GetAttribute("Returning") == true then
+					verdict = "FAIL"
+					table.insert(notes, string.format("still walking home %.0f s after the drop, %.0f studs out", limit, left))
+				elseif
+					model:GetAttribute("Dropped") == true
+					or model:GetAttribute("PickUp") == true
+					or left > Config.GrabRangeStuds + 4
+				then
+					verdict = "FAIL"
+					table.insert(
+						notes,
+						string.format(
+							"home: Dropped %s, PickUp %s, %.1f studs from where it was caught",
+							tostring(model:GetAttribute("Dropped")),
+							tostring(model:GetAttribute("PickUp")),
+							left
+						)
+					)
+				else
+					table.insert(
+						notes,
+						string.format(
+							"walked %.0f studs home in %.1f s and is a normal stray %.1f studs from its catch",
+							from,
+							os.clock() - againAt,
+							left
+						)
+					)
+				end
+			end
+			return verdict, table.concat(notes, "; ")
+		end
 		local cats = catCount()
 		if checkInIfCarrying() then
 			waitFor(pickAt, "ProfileSync", 3, function()

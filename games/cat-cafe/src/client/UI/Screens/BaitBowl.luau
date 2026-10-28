@@ -1,6 +1,6 @@
 --!strict
 -- Bait bowl screen (F28, data-model section 8): what is in your bowl and every food you can put in it. A food
--- goes in with Use while you stand at the bowl by your door; the cat it brings is rolled then and arrives after
+-- goes in with Use from anywhere, F included (Derek 2026-10-28); the cat it brings is rolled then and arrives after
 -- the wait, even while you are offline, and you choose Tame or Let go when it comes. Every food card shows its
 -- five-rarity odds, the gold chance and the charm star odds before Buy or Use, with the per-cat split under
 -- Details (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
@@ -37,8 +37,6 @@ export type BaitBowl = {
 	setCatalog: (self: BaitBowl, catalog: Types.Catalog) -> (),
 	render: (self: BaitBowl, state: Types.PlayerState) -> (),
 	setBait: (self: BaitBowl, bait: Types.BaitView?, catWaiting: boolean) -> (),
-	-- true at the bowl, false away from it, nil when the bowl part is unknown (the server decides)
-	setNear: (self: BaitBowl, near: boolean?) -> (),
 	destroy: (self: BaitBowl) -> (),
 }
 
@@ -98,7 +96,6 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._state = nil :: Types.PlayerState?
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
-	self._near = nil :: boolean?
 	self._tier = 0
 	self._goldLuck = -1 -- the luck the odds lines were written with
 	self._waitSeconds = FoodOdds.waitSeconds(false, 0)
@@ -447,17 +444,6 @@ function BaitBowl.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end
 end
 
-function BaitBowl.setNear(self: any, near: boolean?)
-	if self._near == near then
-		return
-	end
-	self._near = near
-	local state: Types.PlayerState? = self._state
-	if state then
-		self:render(state)
-	end
-end
-
 local function ownsBowl(state: Types.PlayerState): boolean
 	return (state.upgradeLevels.lure_bowl or 0) >= 1
 end
@@ -487,7 +473,6 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	end
 	local owned = ownsBowl(state)
 	local empty = self._bait == nil
-	local away = self._near == false
 	for lureId, row in self._rows do
 		local have = state.lures[lureId] or 0
 		if row.dealer and have == 0 then
@@ -495,7 +480,7 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		else
 			row.count.Text = if have > 0 then ("You have %d"):format(have) else "None yet"
 		end
-		row.use:setEnabled(owned and empty and not away and have > 0)
+		row.use:setEnabled(owned and empty and have > 0)
 		if not row.dealer then
 			row.buy:setEnabled(state.money >= row.def.cost)
 		end
@@ -522,9 +507,7 @@ function BaitBowl._renderStatus(self: any)
 	elseif bait == nil then
 		title = "Your bowl is empty"
 		local wait = Format.duration(self._waitSeconds)
-		sub = if self._near == false
-			then "Walk to the bowl by your door to put food in. A cat comes " .. wait .. " later."
-			else "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
+		sub = "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
 	else
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		local foodName = bait.lureId

@@ -9,7 +9,7 @@ F81); the other three are still sized for v3.1 (section 7) until they are rebuil
 | `CatCafe_Neighbourhood_Set` | 139 x 139.5 | 43,892 | 2,182 | 140 x 140, centre (0, 196), gate z 125 |
 | `CatCafe_Woods_Set` | 119 x 119 | 20,126 | 880 | 120 x 120, centre (-155, 0), gate x -94 |
 | `CatCafe_Sewer_Set` | 93.2 x 93.3 | 36,400 | 1,249 | 90 x 90 walkable, centre (140, 0), gate x 94 |
-| `CatCafe_Park_Set` | 159.5 x 119.75 | 56,674 | 2,894 | v3.2: 160 x 120, centre (0, -186), gate z -125 |
+| `CatCafe_Park_Set` | 159.5 x 119.75 | 54,658 | 2,798 | v3.2: 160 x 120, centre (0, -186), gate z -125 |
 
 ## Placing a set
 

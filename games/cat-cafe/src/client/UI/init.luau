@@ -300,7 +300,7 @@ local function render()
 		indexBoards:render(state)
 	end
 	if locationMarkers and hud then
-		locationMarkers:render(state, hud:isCarrying())
+		locationMarkers:setCarrying(hud:isCarrying())
 	end
 	if baitScreen then
 		baitScreen:render(state)
@@ -354,9 +354,6 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if indexBoards then
 		indexBoards:setCatalog(newCatalog)
-	end
-	if locationMarkers then
-		locationMarkers:setCatalog(newCatalog)
 	end
 	if baitScreen then
 		baitScreen:setCatalog(newCatalog)
@@ -707,11 +704,6 @@ function UI.init(config: Types.InitConfig)
 		spin = function()
 			UI.events.spinWheel:Fire()
 		end,
-		status = function(freeDue: boolean)
-			if locationMarkers then
-				locationMarkers:setPlazaDot(freeDue)
-			end
-		end,
 		toast = function(text: string)
 			if toasts then
 				toasts:show(text, "good")
@@ -800,7 +792,7 @@ function UI.init(config: Types.InitConfig)
 		collect = function()
 			UI.events.claimRichTip:Fire()
 		end,
-		-- claimed or paid into the till at expiry: the server credits it either way
+		-- only a claimed tip pays (data-model 12 v0.13.4); a missed one leaves with nothing
 		collected = function(amount: number, position: Vector3?)
 			if position then
 				UI.floatText(
@@ -810,6 +802,9 @@ function UI.init(config: Types.InitConfig)
 				)
 			end
 			UI.toast("Rich tip! +" .. Format.money(amount), "good")
+		end,
+		missed = function()
+			UI.toast("Rich tip missed", "info")
 		end,
 	})
 	tackleBar = TackleBar.new(parent, {
@@ -845,9 +840,9 @@ function UI.init(config: Types.InitConfig)
 			UI.openIndex(areaId)
 		end,
 	})
-	-- icons over My Cafe, every open area and the dealer's cart, fading out up close and smaller far away
+	-- the icon over My Cafe, fading out up close and smaller far away (the other places' went 2026-10-28)
 	local markers = LocationMarkers.new(parent)
-	markers:setEnabled(settingsView:value("markers")) -- the Place icons switch
+	markers:setEnabled(settingsView:value("markers")) -- the My Cafe icon switch
 	locationMarkers = markers
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
@@ -1546,8 +1541,9 @@ end
 UI.richTip = {}
 
 -- Your own plot model: a gold marker over its RichTipAnchor whenever RichTipAmount and RichTipExpiresAt (server
--- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When the tip clears, claimed
--- or paid at expiry, "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for it.
+-- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
+-- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
+-- it; a missed one only toasts "Rich tip missed".
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
@@ -1798,16 +1794,12 @@ end
 
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
 -- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). Walking back to safety toasts at most
--- once in SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times); the area's own marker
--- hides. The "Safe zone" chip under the tier pill went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone
--- bubble its just clutter").
+-- once in SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times). The "Safe zone" chip
+-- under the tier pill went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter").
 local SAFE_TOAST_SECONDS = 20
 function UI.setZone(zone: string?)
 	currentZone = zone
 	showDusk() -- walking into an area during the dusk warning
-	if locationMarkers then
-		locationMarkers:setZone(zone)
-	end
 	local safe = Wayfinding.isSafe(zone)
 	local cameBack = zoneSafe == false and safe
 	zoneSafe = safe

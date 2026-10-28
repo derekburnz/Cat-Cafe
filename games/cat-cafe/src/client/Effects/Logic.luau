@@ -240,6 +240,16 @@ function Logic.signatureColors(catId: unknown, gold: boolean): { Color3 }?
 	return if gold then spec.gold else spec.colors
 end
 
+-- Whether a stuck cat's "!" can show (Presets.stuckMark): nobody is rescuing it (`LockedBy` is 0 or not set) and you
+-- are within maxDistance studs but not close: one `shown` hides at hideWithin or nearer, one hidden comes back only
+-- past hideWithin + showAfter, so standing at the edge never pops it in and out.
+function Logic.stuckMarkShows(lockedBy: unknown, distance: number, shown: boolean): boolean
+	local m = Presets.stuckMark
+	local locked = type(lockedBy) == "number" and lockedBy ~= 0
+	local near = if shown then m.hideWithin else m.hideWithin + m.showAfter
+	return not locked and distance > near and distance <= m.maxDistance
+end
+
 -- Whether you stand in a walk-in circle (the Codes Cat's, F65) at `distance` flat studs from its centre: in at
 -- `radius` or less, out only past `radius + leaveAfter`, and between the two as you were, so the edge never
 -- flickers.
@@ -559,6 +569,17 @@ end
 function Logic.licking(t: number, phase: number): boolean
 	local k = Presets.motion.lick
 	return (t + phase * k.every) % k.every < k.hold
+end
+
+-- Bedtime (F79, data-model 12c): the server walks a working cat to a sleep spot at night and back at sunrise,
+-- setting `Bedtime` for the whole trip and `Asleep` while it lies on the spot. On the way it moves like a stray (the
+-- gait at its real speed, the get-up stretch from StretchAt) and on the spot it naps like one. nil when the cat is
+-- not on a bedtime trip, so the station idles and the old station nap (a server that never sets Bedtime) still run.
+function Logic.bedtimeStyle(bedtime: unknown, asleep: unknown): Style?
+	if bedtime ~= true then
+		return nil
+	end
+	return if asleep == true then "nap" else "stray"
 end
 
 -- How long one breath takes in a style: slow asleep, a little slower again dozing or in a loaf.

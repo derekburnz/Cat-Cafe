@@ -5,9 +5,12 @@
 -- amount and expiry are mirrored to the plot attributes RichTipAmount and RichTipExpiresAt for display only (the
 -- UI's gold marker, the client's rich customer and coin pile); decisions read the table.
 -- ClaimRichTip() from the owner within RichTipRangeStuds of the plot's RichTipAnchor before expiry pays it now.
--- Unclaimed, it pays itself at expiry, checked every second, so the marker and the "+$X" toast close together.
+-- Only a claim pays (Derek 2026-10-28 01:32: "if you miss it you miss it"): at expiry, at nightfall or when the
+-- owner leaves the tip is gone unpaid. A rich customer comes only by day before the dusk warning (data-model 12
+-- v0.13.4), and the tip's expiry never runs past dusk, so no tip shows at night. The plot attribute RichTipOutcome
+-- ("claimed" or "missed") is set just before the amount clears, so the client knows which it was.
 -- Owner safety (S29): every path takes the record out of the table before it adds coins, so a tip pays exactly
--- once; the expiry pays only an owner who still holds the plot; leaving pays an open tip before the save.
+-- once.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -46,20 +49,21 @@ local function withinRange(player: Player, position: Vector3, range: number): bo
 		and ((root :: BasePart).Position - position).Magnitude <= range
 end
 
-local function show(plot: WorldBuilder.Plot, amount: number, expiresAt: number)
+local function show(plot: WorldBuilder.Plot, amount: number, expiresAt: number, outcome: string?)
+	plot.model:SetAttribute("RichTipOutcome", outcome)
 	plot.model:SetAttribute("RichTipAmount", amount)
 	plot.model:SetAttribute("RichTipExpiresAt", expiresAt)
 end
 
--- Takes the tip off the plot: out of the table and off the attributes. Only the caller that gets it back may pay
--- it, so no two paths can pay the same tip.
-local function take(index: number): Tip?
+-- Takes the tip off the plot: out of the table and off the attributes, with `outcome` ("claimed" or "missed") for
+-- the client. Only the caller that gets it back may pay it, so no two paths can pay the same tip.
+local function take(index: number, outcome: string): Tip?
 	local tip = tips[index]
 	if tip == nil then
 		return nil
 	end
 	tips[index] = nil
-	show(tip.plot, 0, 0)
+	show(tip.plot, 0, 0, outcome)
 	return tip
 end
 
@@ -68,15 +72,32 @@ local function logTip(player: Player, profile: Types.PlayerProfile, amount: numb
 	Telemetry.custom(player, "rich_tip", amount, { outcome, tostring(Economy.tier(profile)) })
 end
 
--- `outcome` is "claimed" or "auto" (analytics rich_tip)
-local function pay(player: Player, tip: Tip, outcome: string)
+local function pay(player: Player, tip: Tip)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
 	end
 	Economy.credit(profile, tip.amount)
-	logTip(player, profile, tip.amount, outcome)
+	logTip(player, profile, tip.amount, "claimed")
 	CafeService.sync(player)
+end
+
+-- A tip nobody claimed: gone, no coins (analytics rich_tip "missed"). `profile` when the caller has it already.
+local function miss(index: number, profile: Types.PlayerProfile?)
+	local tip = take(index, "missed")
+	if tip == nil then
+		return
+	end
+	local owner = Players:GetPlayerByUserId(tip.ownerUserId)
+	local ownerProfile = profile or (if owner ~= nil then DataService.get(owner) else nil)
+	if owner ~= nil and ownerProfile ~= nil then
+		Telemetry.custom(
+			owner,
+			"rich_tip",
+			tip.amount,
+			{ "missed", tostring(Economy.tier(ownerProfile)) }
+		)
+	end
 end
 
 local function onClaimRichTip(player: Player)
@@ -89,56 +110,57 @@ local function onClaimRichTip(player: Player)
 		return
 	end
 	if os.time() >= tip.expiresAt then
-		return -- the expiry check pays it within a second
+		return -- missed; the expiry check clears it within a second
 	end
 	-- the device checks RichTipRangeStuds from the HumanoidRootPart; 2 studs of slack for movement in flight
 	if not withinRange(player, plot.richTipAnchor.Position, Config.RichTipRangeStuds + 2) then
 		Net.toast(player, "Walk closer to collect the tip", "info")
 		return
 	end
-	local taken = take(plot.index)
+	local taken = take(plot.index, "claimed")
 	if taken ~= nil then
-		pay(player, taken, "claimed")
+		pay(player, taken)
 	end
 end
 
--- Pays every tip whose time is up to the owner who still holds its plot; a tip whose owner has gone is dropped
--- (the leave path paid it already).
+-- Clears every tip whose time is up, unpaid.
 local function checkExpiries()
 	local now = os.time()
 	for index, tip in tips do
-		if now < tip.expiresAt then
-			continue
-		end
-		local taken = take(index)
-		local owner = Players:GetPlayerByUserId(tip.ownerUserId)
-		if taken ~= nil and owner ~= nil and PlotService.get(owner) == taken.plot then
-			pay(owner, taken, "auto")
+		if now >= tip.expiresAt then
+			miss(index)
 		end
 	end
 end
 
-local function open(player: Player, plot: WorldBuilder.Plot, dayRate: number, now: number): Tip
+local function open(
+	player: Player,
+	plot: WorldBuilder.Plot,
+	dayRate: number,
+	now: number,
+	lastsUntil: number
+): Tip
 	serial += 1
 	local tip: Tip = {
 		ownerUserId = player.UserId,
 		serial = serial,
 		amount = Economy.richTipAmount(dayRate),
-		expiresAt = now + Config.RichTipStaySeconds,
+		expiresAt = math.min(now + Config.RichTipStaySeconds, lastsUntil),
 		plot = plot,
 	}
 	tips[plot.index] = tip
-	show(plot, tip.amount, tip.expiresAt)
+	show(plot, tip.amount, tip.expiresAt, "")
 	return tip
 end
 
--- By day only: each owned cafe that earns, has a table for the rich customer to sit at and has no tip open rolls
--- RichChance.
+-- By day only, before the last DuskWarningSeconds: each owned cafe that earns, has a table for the rich
+-- customer to sit at and has no tip open rolls RichChance. The tip ends at dusk at the latest.
 local function roll()
-	if ClockService.isNight() then
+	local now = os.time()
+	local dusk = math.floor(ClockService.phaseEndsAt())
+	if ClockService.isNight() or dusk - now <= Config.DuskWarningSeconds then
 		return
 	end
-	local now = os.time()
 	for _, player in DataService.loadedPlayers() do
 		local plot = PlotService.get(player)
 		local profile = DataService.get(player)
@@ -150,22 +172,26 @@ local function roll()
 			continue
 		end
 		if rng:NextNumber() < Config.RichChance then
-			open(player, plot, dayRate, now)
+			open(player, plot, dayRate, now, dusk)
 		end
 	end
 end
 
 function RichTipService.start()
 	Net.on("ClaimRichTip", onClaimRichTip)
-	-- leaving: an open tip goes into the save, never lost (S29); PlotService.release clears the attributes
+	-- leaving: an open tip is missed, like any other unclaimed one
 	DataService.beforeRelease(function(player, profile)
 		for index, tip in tips do
 			if tip.ownerUserId == player.UserId then
-				local taken = take(index)
-				if taken ~= nil then
-					Economy.credit(profile, taken.amount)
-					logTip(player, profile, taken.amount, "auto")
-				end
+				miss(index, profile)
+			end
+		end
+	end)
+	-- nightfall: the cafe closes and the rich customer leaves with the tip (a debug jump to night lands here too)
+	ClockService.changed:Connect(function(phase)
+		if phase == "night" then
+			for index in tips do
+				miss(index)
 			end
 		end
 	end)
@@ -191,11 +217,18 @@ function RichTipService.debugOpen(player: Player, staySeconds: number?): number
 	if plot == nil or profile == nil then
 		return 0
 	end
-	take(plot.index)
-	local tip = open(player, plot, Economy.incomePerSecond(profile), os.time())
+	take(plot.index, "missed")
+	local now = os.time()
+	local tip = open(
+		player,
+		plot,
+		Economy.incomePerSecond(profile),
+		now,
+		now + (staySeconds or Config.RichTipStaySeconds)
+	)
 	if staySeconds ~= nil then
-		tip.expiresAt = os.time() + staySeconds
-		show(plot, tip.amount, tip.expiresAt)
+		tip.expiresAt = now + staySeconds
+		show(plot, tip.amount, tip.expiresAt, "")
 	end
 	return tip.amount
 end

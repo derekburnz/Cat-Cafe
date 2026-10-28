@@ -398,8 +398,9 @@ local GATE_SLOT = #BACK_SLOTS // 2 -- the last back south of the gate; the next 
 local CRATES_ALONG, CRATES_OUT = -12, -2.8
 -- A building pivots on its back plane with its body 3 deep, so it stands this far out over the outer wall (1 thick)
 -- and its facade lands where the old backs' faces were: the back plane stays inside the side area's wall. On the
--- end walls it stands END_OUT out, its back flush with the outer face of the Park's or the Neighbourhood's wall.
-local BUILDING_OUT, END_OUT = 2.25, 1
+-- end walls it stands END_OUT out, its back plane 0.25 inside the Park's or the Neighbourhood's wall the same way,
+-- not on the wall's far face where the two would flicker (reviewer N255).
+local BUILDING_OUT, END_OUT = 2.25, 0.75
 
 local function building(name: string): string
 	return "CatCafe_Alley_Building_" .. name

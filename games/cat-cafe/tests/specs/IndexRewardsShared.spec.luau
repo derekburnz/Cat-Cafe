@@ -823,6 +823,53 @@ return function()
 			end
 		)
 
+		-- F60 (data-model v0.13.10): food set at night waits half the player's own day wait, Big Bowl and faster bait
+		-- included, and the bowl's screen promises the wait the server fixes
+		it("halves the night wait with every claim and the Big Bowl, and the bowl's screen agrees (F60)", function()
+			local FoodOdds = require(Components:WaitForChild("FoodOdds")) :: any
+			local order = milestonesOf("all")
+			table.sort(order, function(a: string, b: string): boolean
+				local ma = IndexRewards.milestone(a) :: Types.IndexMilestone
+				local mb = IndexRewards.milestone(b) :: Types.IndexMilestone
+				return ma.needs < mb.needs
+			end)
+			for _, bowl in { 0, 1 } do
+				local profile: any = ProfileSchema.template(1000)
+				if bowl == 1 then
+					profile.fishPerks.big_bowl = 1
+				end
+				local day = Economy.lureWaitSeconds(profile, false)
+				local night = Economy.lureWaitSeconds(profile, true)
+				expect(night).to.equal(if bowl == 1 then 240 else 300)
+				expect(night).to.equal(math.floor(day / 2))
+				local function same(at: string)
+					local speed = UIRewards.totals(Catalog, { indexRewards = profile.indexRewards }).baitSpeed
+					for _, isNight in { false, true } do
+						local server = Economy.baitWaitSeconds(profile, isNight)
+						local shown = FoodOdds.waitSeconds(bowl == 1, speed, isNight)
+						local label = string.format("%s, bowl %d, night %s: ", at, bowl, tostring(isNight))
+						expect(label .. shown).to.equal(label .. server)
+					end
+					expect(Economy.baitWaitSeconds(profile, true) <= Economy.baitWaitSeconds(profile, false)).to.equal(
+						true
+					)
+				end
+				same("no claims")
+				local off = 0
+				for _, milestoneId in order do
+					off += math.floor((Catalog.indexPrizes.all[milestoneId].baitSpeed :: number) * 100 + 0.5)
+					claim(profile, "all", milestoneId)
+					local want = math.floor(night * (100 - off) / 100)
+					expect(milestoneId .. " " .. Economy.baitWaitSeconds(profile, true)).to.equal(
+						milestoneId .. " " .. want
+					)
+					same(milestoneId)
+				end
+				-- the full All Cats track: 3:06 by night, 2:28 with the Big Bowl
+				expect(Economy.baitWaitSeconds(profile, true)).to.equal(if bowl == 1 then 148 else 186)
+			end
+		end)
+
 		it("keeps a Decor page's claims through F80: twelve pieces for decor10, an earlier claim kept", function()
 			local decor10 = assert(IndexRewards.milestone("decor10"))
 			local decor5 = assert(IndexRewards.milestone("decor5"))

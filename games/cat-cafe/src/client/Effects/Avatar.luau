@@ -7,6 +7,8 @@
 -- those parts of a pose are left out on it.
 -- The net hold (Derek 2026-10-28): the right arm holding the player's net upright and leaning ahead while it walks
 -- a catching area; `Avatar.holdNet` poses that arm only and `Avatar.netHand` says where in the hand the net goes.
+-- The carry (Derek 2026-10-28): arms crossed in front of the chest with the caught cat on them; `Avatar.carryArms`
+-- poses the upper body only, so the legs keep walking, and `Avatar.cradle` says where on the arms the cat rests.
 -- No services and nothing written: Tackle.luau applies the Transforms every frame, and the preview tool
 -- (assets/cat-cafe/anim/preview) runs these same functions outside Roblox.
 
@@ -25,6 +27,8 @@ export type Pose = {
 	shR: number,
 	spL: number, -- arm out to the side
 	spR: number,
+	twL: number, -- upper arm turned in about its own length, so a bent elbow brings the forearm across the body
+	twR: number,
 	elL: number, -- elbow bent
 	elR: number,
 	hipL: number, -- thigh forward (negative: back)
@@ -85,6 +89,8 @@ local FIELDS = {
 	"shR",
 	"spL",
 	"spR",
+	"twL",
+	"twR",
 	"elL",
 	"elR",
 	"hipL",
@@ -117,7 +123,8 @@ local R6: { [string]: { string } } = {
 	RightHip = { "Torso", "Right Leg" },
 }
 
--- A full pose from a Presets.tacklePose key: `sh`, `sp`, `el`, `hip` and `kn` set both sides, the L and R keys one.
+-- A full pose from a Presets.tacklePose key: `sh`, `sp`, `tw`, `el`, `hip` and `kn` set both sides, the L and R keys
+-- one.
 function Avatar.pose(spec: { [string]: number }): Pose
 	local function side(key: string, name: string): number
 		return spec[key] or spec[name] or 0
@@ -132,6 +139,8 @@ function Avatar.pose(spec: { [string]: number }): Pose
 		shR = side("shR", "sh"),
 		spL = side("spL", "sp"),
 		spR = side("spR", "sp"),
+		twL = side("twL", "tw"),
+		twR = side("twR", "tw"),
 		elL = side("elL", "el"),
 		elR = side("elR", "el"),
 		hipL = side("hipL", "hip"),
@@ -462,6 +471,17 @@ local function setter(rig: Rig, out: { [Joint]: CFrame }): (string, CFrame) -> (
 	end
 end
 
+-- The waist, neck, shoulder and elbow Transforms for a pose, through `set(jointName, transform)`.
+local function upper(set: (string, CFrame) -> (), pose: Pose)
+	local rad = math.rad
+	set("Waist", CFrame.Angles(rad(-pose.waist), 0, 0))
+	set("Neck", CFrame.Angles(rad(pose.neck), 0, 0))
+	set("LeftShoulder", CFrame.Angles(rad(pose.shL), rad(-pose.twL), rad(-pose.spL)))
+	set("RightShoulder", CFrame.Angles(rad(pose.shR), rad(pose.twR), rad(pose.spR)))
+	set("LeftElbow", CFrame.Angles(rad(pose.elL), 0, 0))
+	set("RightElbow", CFrame.Angles(rad(pose.elR), 0, 0))
+end
+
 -- The Transforms that put the rig in `pose`, its lowest part `pose.air` studs above where its feet rest standing.
 function Avatar.solve(rig: Rig, pose: Pose): { [Joint]: CFrame }
 	local out: { [Joint]: CFrame } = {}
@@ -469,12 +489,7 @@ function Avatar.solve(rig: Rig, pose: Pose): { [Joint]: CFrame }
 	local rad = math.rad
 	local turn = CFrame.Angles(rad(-pose.lean), 0, rad(-pose.roll))
 	set("Root", turn)
-	set("Waist", CFrame.Angles(rad(-pose.waist), 0, 0))
-	set("Neck", CFrame.Angles(rad(pose.neck), 0, 0))
-	set("LeftShoulder", CFrame.Angles(rad(pose.shL), 0, rad(-pose.spL)))
-	set("RightShoulder", CFrame.Angles(rad(pose.shR), 0, rad(pose.spR)))
-	set("LeftElbow", CFrame.Angles(rad(pose.elL), 0, 0))
-	set("RightElbow", CFrame.Angles(rad(pose.elR), 0, 0))
+	upper(set, pose)
 	set("LeftHip", CFrame.Angles(rad(pose.hipL), 0, 0))
 	set("RightHip", CFrame.Angles(rad(pose.hipR), 0, 0))
 	set("LeftKnee", CFrame.Angles(rad(-pose.knL), 0, 0))
@@ -517,9 +532,15 @@ function Avatar.netModel(level: unknown): number
 	return math.clamp(n, 1, 3)
 end
 
--- The hold's weight `dt` seconds on, easing towards 1 while it holds and 0 while it does not (Presets.netHold).
-function Avatar.holdWeight(weight: number, holding: boolean, dt: number): number
-	local h = Presets.netHold
+-- The hold's weight `dt` seconds on, easing towards 1 while it holds and 0 while it does not, over the blend times
+-- of `blend` (Presets.netHold when not given).
+function Avatar.holdWeight(
+	weight: number,
+	holding: boolean,
+	dt: number,
+	blend: { blendIn: number, blendOut: number }?
+): number
+	local h = blend or Presets.netHold
 	if holding then
 		return math.min(1, weight + dt / h.blendIn)
 	end
@@ -541,6 +562,56 @@ function Avatar.netHand(rig: Rig): (BasePart?, CFrame)
 		elseif r15 then h.grip
 		else h.grip6
 	return hand, CFrame.new(spot) * CFrame.Angles(math.rad(if r15 then h.tilt else h.tilt6), 0, 0)
+end
+
+-- Whether a character carries a cat in its arms: a `CarryingCatId` (CatService sets it while the HeldCat is on) and
+-- alive.
+function Avatar.carrying(carryingCatId: unknown, alive: boolean): boolean
+	return type(carryingCatId) == "string" and carryingCatId ~= "" and alive
+end
+
+-- The carry's upper body (Presets.carryPose): arms folded across the chest, the left forearm under the right, the
+-- head tipped down to the cat; on R6, with no elbows, both arms reach forward and in. The hips, legs and root stay
+-- the character's own, so it walks and stands as it would.
+function Avatar.carryArms(rig: Rig): { [Joint]: CFrame }
+	local c = Presets.carryPose
+	local out: { [Joint]: CFrame } = {}
+	upper(setter(rig, out), Avatar.pose(if rig.joints.LeftElbow ~= nil then c.arms else c.arms6))
+	return out
+end
+
+-- Where a carried cat's floor goes (Pose.hold), from where the arms are this frame: on top of the higher forearm
+-- (the whole arm on R6), halfway between the two, level with the chest's up, the cat's front towards the character's
+-- left for a loaf (lying across the arms) and ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
+-- (BasePart.CFrame in the game, the preview's own frames outside it). nil on a rig with no chest or arms.
+function Avatar.cradle(rig: Rig, held: string, frameOf: (BasePart) -> CFrame): CFrame?
+	local chest: BasePart? = rig.parts.Waist or rig.parts.Root -- the UpperTorso, or R6's Torso
+	local leftArm: BasePart? = rig.parts.LeftElbow or rig.parts.LeftShoulder
+	local rightArm: BasePart? = rig.parts.RightElbow or rig.parts.RightShoulder
+	if chest == nil or leftArm == nil or rightArm == nil then
+		return nil
+	end
+	local torso = frameOf(chest)
+	local function top(arm: BasePart): Vector3
+		local frame = torso:ToObjectSpace(frameOf(arm))
+		local _, _, _, _, _, _, r10, r11, r12 = frame:GetComponents()
+		local s = arm.Size
+		return frame.Position
+			+ Vector3.yAxis
+				* 0.5
+				* (math.abs(r10) * s.X + math.abs(r11) * s.Y + math.abs(r12) * s.Z)
+	end
+	local a, b = top(leftArm), top(rightArm)
+	local c = Presets.carryPose
+	local sit = held == "sit"
+	local spot = Vector3.new(
+		(a.X + b.X) / 2 + (if sit then c.sitSide else c.loafSide),
+		math.max(a.Y, b.Y) + c.gap,
+		(a.Z + b.Z) / 2 + c.forward
+	)
+	return torso
+		* CFrame.new(spot)
+		* CFrame.Angles(0, math.rad(if sit then c.sitTurn else c.loafTurn), 0)
 end
 
 return Avatar

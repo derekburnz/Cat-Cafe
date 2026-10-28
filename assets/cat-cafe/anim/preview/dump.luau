@@ -6,7 +6,9 @@
 --
 --   lune run dump.luau <cats.rbxm> <scenario name> <out.json> [<Effects folder>/]
 --
--- Scenarios live in scenarios.luau. Nothing here ships with the game.
+-- Scenarios live in scenarios.luau. A scenario with a `carrier` puts the cat in the arms of the stand-in player
+-- (standin.luau) in the carry pose (Effects/Avatar: Avatar.carryArms, Avatar.cradle) as Carry.luau does, with its
+-- legs swinging the way the character's own walk would while a segment moves. Nothing here ships with the game.
 
 local fs = require("@lune/fs")
 local luau = require("@lune/luau")
@@ -267,6 +269,25 @@ end
 local rig = Pose.bind(model)
 assert(rig, "Pose.bind found no body")
 
+-- The carrier: the stand-in player holding the cat on its folded arms, its parts after the cat's in the JSON.
+local carrier = nil
+if scenario.carrier then
+	local Avatar = load("Avatar")
+	local Standin =
+		luau.load(fs.readFile(HERE .. "standin.luau"), { debugName = "standin" })()(roblox, Avatar)
+	local spec = scenario.carrier
+	local c = Standin.character(
+		"Carrier",
+		Standin.SHIRT[spec.shirt or "red"],
+		Standin.SKIN[spec.skin or "light"]
+	)
+	local carrierInfo, carrierOrder = Standin.partInfo(c, "Carrier")
+	for _, entry in carrierInfo do
+		table.insert(info, entry)
+	end
+	carrier = { c = c, order = carrierOrder, Avatar = Avatar, Standin = Standin, stride = 0 }
+end
+
 -- The z's hang off the first part named like the head, as Cats.luau's partNamed finds it.
 local zOn = nil
 for i, part in parts do
@@ -283,7 +304,9 @@ local Z_STYLES = { nap = true, doze = true }
 -- just skip it.
 local Presets = modules.Presets
 local catId = model:GetAttribute("CatId")
-local floats = Logic.float ~= nil and type(catId) == "string" and Presets.motion.float.cats[catId] == true
+local floats = Logic.float ~= nil
+	and type(catId) == "string"
+	and Presets.motion.float.cats[catId] == true
 local fps = scenario.fps or 24
 local frames = {}
 local style, from, changedAt = nil, nil, 0
@@ -307,7 +330,9 @@ for _, segment in scenario.segments do
 			stretchAt = clock
 		end
 		local speed = segment.speed or 0
-		if speed > 0 then
+		if speed > 0 and carrier ~= nil then
+			travelled += Vector3.new(0, 0, -speed / fps) -- the carrier walks; the cat rides its arms
+		elseif speed > 0 then
 			local step = Vector3.new(0, 0, -speed / fps) -- the cat faces -Z
 			travelled += step
 			for i, part in parts do
@@ -343,6 +368,35 @@ for _, segment in scenario.segments do
 			elseif alpha >= 0 then
 				Logic.stretch(o, alpha, rig.kind)
 			end
+		end
+		local placedCarrier = nil
+		if carrier ~= nil then
+			-- the carry's arms over the character's own walk: legs swinging with the distance covered, as a walk
+			-- animation would (a stand-in for the Animator, which the preview has no copy of)
+			local Avatar = carrier.Avatar
+			local transforms = Avatar.carryArms(carrier.c.rig)
+			carrier.stride += speed / fps / 4.5
+			local swing = math.sin(carrier.stride * 2 * math.pi)
+				* math.rad(28)
+				* math.min(speed / 8, 1)
+			local joints = carrier.c.rig.joints
+			transforms[joints.LeftHip] = CFrame.Angles(swing, 0, 0)
+			transforms[joints.RightHip] = CFrame.Angles(-swing, 0, 0)
+			transforms[joints.LeftKnee] = CFrame.Angles(-math.max(0, -swing) * 1.2, 0, 0)
+			transforms[joints.RightKnee] = CFrame.Angles(-math.max(0, swing) * 1.2, 0, 0)
+			local placed = carrier.Standin.place(
+				carrier.c,
+				CFrame.new(travelled + Vector3.new(0, 3, 0)),
+				transforms
+			)
+			placedCarrier = placed
+			local hold = if rig.kind == "sit" then "sit" else "loaf"
+			Pose.hold(
+				rig,
+				Avatar.cradle(carrier.c.rig, hold, function(part)
+					return placed[part]
+				end)
+			)
 		end
 		Pose.draw(rig, o, -1)
 		local frame = {
@@ -387,6 +441,15 @@ for _, segment in scenario.segments do
 		end
 		for _, part in propParts do
 			table.insert(frame.parts, { cf = cframeList(part.CFrame), size = sizeOf(part) })
+		end
+		if carrier ~= nil then
+			for _, part in carrier.order do
+				local size = part.Size
+				table.insert(
+					frame.parts,
+					{ cf = cframeList(placedCarrier[part]), size = { size.X, size.Y, size.Z } }
+				)
+			end
 		end
 		table.insert(frames, frame)
 	end

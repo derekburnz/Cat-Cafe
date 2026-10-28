@@ -215,7 +215,7 @@ def main():
             continue
         for ob in list(bpy.data.objects):
             bpy.data.objects.remove(ob, do_unlink=True)
-        objs = [o for o in fn(mat) if o.type == "MESH" and not o.name.endswith(("_Climb", "_Fireflies"))]
+        objs = [o for o in fn(mat) if o.type == "MESH" and not o.name.endswith(("_Climb", "_Fireflies", "_Barrier"))]
         bpy.context.view_layer.update()
         names = [o.name for o in objs]
         q = qa_check.run(objects=names, profile="roblox")

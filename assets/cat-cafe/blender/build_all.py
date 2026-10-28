@@ -49,6 +49,7 @@ import market  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
+import parkset  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
@@ -63,7 +64,7 @@ import woods  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
-           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square]
+           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -411,7 +412,7 @@ def main():
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:
             path = os.path.join(args.docs, "previews", name + ".png")
-            visible = [o for o in objs if not o.name.endswith(("_Glass", "_Fireflies", "_Climb"))] or objs   # glass is opaque in Cycles here; firefly volumes are air
+            visible = [o for o in objs if not o.name.endswith(("_Glass", "_Fireflies", "_Climb", "_Barrier"))] or objs   # glass is opaque in Cycles here; firefly volumes are air
             shifted = [o for o in objs if o.name.endswith("_Closed")]            # show both sign faces side by side
             for o in shifted:
                 o.location.x += 3.2

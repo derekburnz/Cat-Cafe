@@ -783,6 +783,9 @@ function CafeService.sync(player: Player)
 		return
 	end
 	Net.fire(player, "ProfileSync", CafeService.buildState(player, profile))
+	-- the net upgrade bought, on the Player for the net in hand every client shows (Effects, #527); a set that
+	-- changes nothing does not replicate
+	player:SetAttribute("NetLevel", Economy.level(profile, "net"))
 	refreshShowcase(player, profile)
 	announceLevelUps(player, profile) -- after both, so the card and the model's Level are already the new level
 end

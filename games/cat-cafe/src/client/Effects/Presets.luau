@@ -1050,7 +1050,9 @@ Presets.netHold = {
 -- `forward` studs further out, clear of the chest. Lying across the arms it turns `loafTurn` degrees (its face at the
 -- character's left) and sitting up `sitTurn` (facing out); either way it moves `loafSide` or `sitSide` studs to the
 -- right (negative: left), so its head is beside the character's, not in front of the face, and the game's camera
--- behind the player sees it over the shoulder. The arms ease in over `blendIn` and out over `blendOut` seconds.
+-- behind the player sees it over the shoulder. The arms ease in over `blendIn` and out over `blendOut` seconds. A
+-- HeldCat Pose cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again
+-- after `retry` seconds.
 Presets.carryPose = {
 	arms = {
 		shL = 60,
@@ -1073,6 +1075,7 @@ Presets.carryPose = {
 	sitSide = -0.55,
 	blendIn = 0.2,
 	blendOut = 0.2,
+	retry = 1,
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue

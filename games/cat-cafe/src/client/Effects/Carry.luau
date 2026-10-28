@@ -29,6 +29,8 @@ type Held = {
 	parts: { BasePart }, -- its parts, anchored here while it is taken over
 	offsets: { CFrame }, -- each part where the server had it, from the carrier's root
 	phase: number, -- so two carried cats do not look about in step
+	refused: Model?, -- the last HeldCat Pose could not move, left on its weld until retryAt
+	retryAt: number,
 }
 
 local held: { [Model]: Held } = {}
@@ -76,7 +78,7 @@ end
 
 -- Takes the HeldCat off the server's weld on this client, so it can rest on the arms. The welds go first: anchoring
 -- a part still welded to the character would anchor the character with it.
-local function take(entry: Held, cat: Model)
+local function take(entry: Held, cat: Model, now: number)
 	local fromRoot = entry.rig.root.CFrame:Inverse()
 	for _, descendant in cat:GetDescendants() do
 		if descendant:IsA("WeldConstraint") and (descendant :: WeldConstraint).Enabled then
@@ -95,9 +97,10 @@ local function take(entry: Held, cat: Model)
 	end
 	entry.cat = cat
 	entry.phase = rng:NextNumber(0, 100)
-	local catRig = Pose.bind(cat)
+	local catRig = Pose.bind(cat) -- after the anchoring: Pose binds an unanchored body only to its Motor6Ds
 	if catRig == nil or catRig.usesMotors then
-		release(entry) -- a cat Pose cannot move part by part stays on the weld
+		release(entry) -- a cat Pose cannot move part by part stays on the weld, and is not taken every frame
+		entry.refused, entry.retryAt = cat, now + Presets.carryPose.retry
 		return
 	end
 	entry.catRig = catRig
@@ -118,6 +121,8 @@ function Carry.weight(character: Model, rig: Avatar.Rig, dt: number, near: boole
 			parts = {},
 			offsets = {},
 			phase = 0,
+			refused = nil,
+			retryAt = 0,
 		}
 	held[character] = entry
 	entry.rig = rig
@@ -151,11 +156,12 @@ local function place()
 			and entry.carrying
 			and entry.near
 			and cat:GetAttribute("HiddenLocal") ~= true
+			and (cat ~= entry.refused or now >= entry.retryAt)
 		if entry.cat ~= nil and (not wanted or entry.cat ~= cat) then
 			release(entry)
 		end
 		if wanted and entry.cat == nil and cat ~= nil then
-			take(entry, cat)
+			take(entry, cat, now)
 		end
 		local catRig = entry.catRig
 		if catRig == nil then

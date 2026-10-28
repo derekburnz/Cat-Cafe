@@ -151,7 +151,12 @@ STUDIO_NOTES = {
     "CatCafe_Sewer_Manhole": "Slide or hide the child Model _Cover to open it; the requirement SurfaceGui goes on the "
                              "-Z face of the part named SignBoard on the post.",
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
-    "CatCafe_Furniture_CatTree": "CollisionFidelity Hull.",
+    "CatCafe_Furniture_CatTree": "CollisionFidelity Hull. F79 bedtime: Attachments Sleep_Top (the top cushion, the "
+                                 "entertainer's sit point) and Sleep_Shelf (the lower shelf) take a sleeping cat's "
+                                 "pivot, facing their LookVector; Foot is the floor spot it hops up from.",
+    "CatCafe_Furniture_CatBed": "F79 bedtime: Tier 3 to 5 dressing, standing on the floor at the plot's bed spots. "
+                                "Attachment Sleep (the cushion) takes a sleeping cat's pivot, facing the bed's front "
+                                "dip (-Z); Foot is the floor 1.5 in front. 2.6 across.",
     "CatCafe_Alley_Dumpster": "CollisionFidelity Hull.",
     "CatCafe_Alley_TrashBin": "Rescue trap trash_bin. Put the stuck cat at stuck_pose. The Lid turns about its "
                               "part_pivots_roblox point (the hinge) to rattle on a hit. CollisionFidelity Box on the Bin.",
@@ -232,8 +237,8 @@ for _n in crate_decor.ASSETS:                   # F53 crate pieces: the server c
 
 for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
     _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
-    PIVOT_NOTES[_f] = "the foot of the front doorway on the wall's inside face, plot (0, 0, -14); the street is -Z"
-    PIVOT_NOTES[_b] = "the foot of the back doorway mid-wall, plot (-8, 0, 14.5) turned 180; the yard is -Z"
+    PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"
+    PIVOT_NOTES[_b] = "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z"
     STUDIO_NOTES[_f] = ("F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and "
                         "_LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. "
                         "_Glass parts are Glass 0.45. Nothing collides.")
@@ -356,6 +361,12 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)
+            extra = {"attachments": furniture.spot_attachments(name, furniture.TREE_SPOTS)}
+        if name == "CatCafe_Furniture_CatBed":
+            extra = {"attachments": furniture.spot_attachments(name, furniture.BED_SPOTS)}
+        if name == "CatCafe_Decor_CatTreeTower":
+            extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith(("CatCafe_Door_", "CatCafe_CatFlap_")):   # F80: glass, sign and panels ride their leaf

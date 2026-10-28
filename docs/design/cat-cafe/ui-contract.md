@@ -446,7 +446,7 @@ Always on. The HUD's bottom right chip shows what is in the bowl once the Bait b
 | `UI.bait.showReady(cat)` | From `BaitReady`. `cat = { catId, variant?, charm?, stars?, name? }` (a `CatView` fits). Shows the cat's 3D model (a gold cat in its own `CatCafe_Cat_<Name>_Gold` coat, F42), name, rarity, stars, charm and a GOLD sticker, with Tame and Let go (Let go asks for a second tap within 3 s, because the food is used either way). The X only hides the card; the chip and the screen's "See the cat" bring it back. After a choice the buttons wait up to 6 s for `UI.bait.set(nil)` or `hideReady`. |
 | `UI.bait.hideReady()` | The server resolved the cat: closes the card and forgets it. |
 
-The Bait bowl screen has a status card (no bowl yet with an Upgrades button, empty, "<Food> is in the bowl" with a countdown bar, "A cat is at your bowl!" with See the cat) over one card per food: shop foods by price, then dealer foods ("Sold by the night dealer's cart" until owned). Every card shows the five-rarity odds before Use or Buy as one short row, each rarity's name and share in its colour ("Common 40%   Rare 45%   Epic 12%   Legendary 2.6%   Mythical 0.4%", bold, `Theme.rarityInk`; Derek 2026-10-28: "show the rarities more clean with colored text of the rarity and % make it simple and easy can click info/details for more if needed"). Details opens the rest: the gold chance ("Gold 5%", `GoldChanceBait`, 5% since F42, with the Index's gold luck in it) and the charm star odds (`CharmStarOdds`), then the per-cat split for the player's unlocked areas and which area the next rank up adds. Use (green) and Buy are the same size. The odds text comes from `Components/FoodOdds.luau`.
+The Bait bowl screen has a status card (no bowl yet with an Upgrades button, empty, "<Food> is in the bowl" with a countdown bar, "A cat is at your bowl!" with See the cat) over one card per food: shop foods by price, then dealer foods ("Sold by the night dealer's cart" until owned). Every card shows the five-rarity odds before Use or Buy as one short row, each rarity's name and share in its colour ("Common 40%   Rare 45%   Epic 12%   Legendary 2.6%   Mythical 0.4%", bold, `Theme.rarityInk`; Derek 2026-10-28: "show the rarities more clean with colored text of the rarity and % make it simple and easy can click info/details for more if needed"). Details opens the rest: the gold chance ("Gold 5%", `GoldChanceBait`, 5% since F42, with the Index's gold luck in it) and the charm star odds (`CharmStarOdds`), then the per-cat split for the player's unlocked areas and which area the next rank up adds. F73: the gold chance and the bowl's wait are for food set now, as BaitService rolls it, so a running potion counts (`PotionLogic.boosts` from `state.buffs` and `catalog.potions`): a Gold Rush Potion's luck goes on top of the Index's capped luck, a Lucky Potion doubles the lot ("Gold 16.5% (+65% luck, Lucky Potion x2)"), and a Quick Bait Potion's speed adds to the Index's inside `BaitSpeedMax`. The night dealer's Details read the same line. Use (green) and Buy are the same size. The odds text comes from `Components/FoodOdds.luau`.
 
 In bowl mode the HUD's bottom right slot is the bowl chip, shown once `upgradeLevels.lure_bowl >= 1`: "Bait bowl / Empty · add food", "<Food> / Cat in 7m 42s", then "Cat waiting!" in gold.
 
@@ -517,6 +517,24 @@ Kept brief, as Derek asked on 2026-10-28 at 01:09: one small tag over him and on
 
 **Engineer (F63):** in UIController, connect `CollectorOffer` to `UI.collector.offer(catUid, offer, endsAt, traded)` and `UI.events.answerCollector` to `Net.fire("AnswerCollector", accept)`. `UI.richTip.bind(plot)` with your own plot already feeds the spot, and the catalog's `crates` and `areas` (passed for the Market) name and draw the crates.
 
+### Quests and achievements (built, F73, quests.md sections 1 and 7)
+
+Kept brief, as Derek asked on 2026-10-28 at 01:09: one pill, one line on the HUD and one window.
+
+- **Quests pill** on the left menu under Index (gold, 📜, key **J**). It shows once ProfileSync carries `quests`, so a server without F73 never shows a pill that does nothing, and the column and its fold tab close up around it. A red count on its corner says how many quests and achievements are ready to claim (`QuestLogic.claimable`); the fold tab carries a dot when the pills are folded.
+- **Quest line** under the next goal card (or where it would be): one outlined line, no box, "📜 Catch 5 cats  3/5" for the unfinished daily closest to done, or "📜 2 ready to claim" in gold. A tap opens Quests. It waits for the tutorial (step 5).
+- **Quests window** (`Screens/Quests.luau`, rules in `Components/QuestLogic.luau` with a spec), tabs Daily, Weekly and Achievements, each with a red count when it has something to claim. The window opens on a tab with something to claim when the last one viewed has none.
+  - Daily and Weekly: "3 of 5 done" and "New quests in 5 h" (days, hours or minutes, plain text that never flashes), a gold strip with what finishing all of them pays from `catalog.questPrizes.dailySet` / `weeklySet` ("✓ Paid" once paid), then a row per quest: its text, a bar with "3/5" ("$320/$600" for a coins quest, known from `catalog.quests` rows whose `stat` is `lifetimeCoins`), what it pays as pictures (`questPrizes.daily`, `dailyBig` for the fifth daily, `weekly`; coins priced from the day rate like the Tip Jar), and **Claim** once done, "✓ Claimed" once claimed, or **🔄 Swap** (the free reroll) while it is unfinished and the swap unused.
+  - Achievements: "12 of 44 claimed", then two cards a row: name, goal, bar with "37/100", the size's prize from `catalog.achievementPrizes`, and **Claim** once met. Ready ones first on a gold card, then the closest to done, claimed ones last on the darker body colour. The 44 cards are built the first time the window opens.
+  - Claim and Swap read "..." until a sync shows the change or 2 s pass; a refusal is the server's toast. `UI.quests.result(paid)` plays `giftClaim` (the server's toast says what was paid).
+- The quest potions sit in the potion bag with the F64 ones (built with F64: names, colours and lines in `Components/PotionLogic`).
+
+| API | Purpose |
+|---|---|
+| `UI.quests.result(paid)` | From `QuestResult(paid)`, the list of what a claim paid. |
+
+**Engineer (F73):** in UIController, add `quests = Catalog.quests, questPrizes = Catalog.questPrizes, achievements = Catalog.achievements, achievementPrizes = Catalog.achievementPrizes` to the catalog passed to `UI.init` / `UI.setCatalog`; pass `quests = s.quests, achievements = s.achievements` in `UI.update` whenever ProfileSync carries them; connect `UI.events.claimQuest` to `Net.fire("ClaimQuest", kind, slot)`, `UI.events.rerollQuest` to `Net.fire("RerollQuest", kind, slot)` and `UI.events.claimAchievement` to `Net.fire("ClaimAchievement", achievementId)`; and call `UI.quests.result(paid)` from `QuestResult`.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -568,6 +586,9 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `usePotion` | `potionId` | Use on a potion row in the Potions window (F64). Forward as `UsePotion(potionId)`; the server checks the count and the 60 minute cap, and a refusal is its toast. |
 | `claimRichTip` | none | Collect on the rich tip marker, within 12 studs of the anchor. Forward as `ClaimRichTip()` (F31); the server checks the owner, range and expiry |
 | `collectTips` | none | Collect on the till's tip button (F61), only shown on your own plot. Forward as `CollectTips()` |
+| `claimQuest` | `kind, slot` | Claim on a finished quest in the Quests window (F73): `kind` "daily" or "weekly", `slot` 1 to 5 or 1 to 3. Forward as `ClaimQuest(kind, slot)`; the answer is `QuestResult` and a sync |
+| `rerollQuest` | `kind, slot` | Swap on an unfinished quest while the day's or week's free reroll is unused (F73). Forward as `RerollQuest(kind, slot)` |
+| `claimAchievement` | `achievementId` | Claim on a met achievement card (F73). Forward as `ClaimAchievement(achievementId)` |
 | `answerCollector` | `accept` | Trade (true) or No thanks (false) on the Cat Collector's card (F63), shown within 12 studs of him. Forward as `AnswerCollector(accept)`; a refusal is the server's toast, and the visit's end comes back as `CollectorOffer("")` |
 | `tackle` | none | The Tackle bar or Q (F74). Lunge and forward as `Tackle()`; the server decides hit or miss and checks the area, locks, cooldown and safe zones. |
 | `screenOpened` | `name or nil` | Modal opened or closed |

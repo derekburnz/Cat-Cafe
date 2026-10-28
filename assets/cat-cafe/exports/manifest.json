@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 08:44 UTC",
+  "generated": "2026-10-28 09:00 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -59487,7 +59487,7 @@
         4.45,
         -0.4
       ],
-      "studio": "CollisionFidelity Hull.",
+      "studio": "CollisionFidelity Hull. F79 bedtime: Attachments Sleep_Top (the top cushion, the entertainer's sit point) and Sleep_Shelf (the lower shelf) take a sleeping cat's pivot, facing their LookVector; Foot is the floor spot it hops up from.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_CatTree.model.json",
       "rbx_parts": 60,
       "files": [
@@ -59879,6 +59879,59 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_StageCatTree.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_StageCatTree.png"
+    },
+    {
+      "name": "CatCafe_Furniture_CatBed",
+      "category": "Furniture",
+      "module": "furniture",
+      "objects": [
+        "CatCafe_Furniture_CatBed"
+      ],
+      "triangles": 504,
+      "budget": 800,
+      "size_studs": {
+        "x": 2.65,
+        "y": 2.65,
+        "z": 0.76
+      },
+      "size_roblox": [
+        2.65,
+        0.76,
+        2.65
+      ],
+      "bounds_min": [
+        -1.33,
+        -1.33,
+        0.0
+      ],
+      "bounds_max": [
+        1.33,
+        1.33,
+        0.76
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F79 bedtime: Tier 3 to 5 dressing, standing on the floor at the plot's bed spots. Attachment Sleep (the cushion) takes a sleeping cat's pivot, facing the bed's front dip (-Z); Foot is the floor 1.5 in front. 2.6 across.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_CatBed.model.json",
+      "rbx_parts": 34,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Furniture_CatBed.fbx",
+        "assets/cat-cafe/exports/CatCafe_Furniture_CatBed.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "504/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "228 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
     },
     {
       "name": "CatCafe_Decor_DoorSign",
@@ -67522,25 +67575,25 @@
       "objects": [
         "CatCafe_Decor_CatTreeTower"
       ],
-      "triangles": 1316,
+      "triangles": 1524,
       "budget": 2400,
       "size_studs": {
-        "x": 3.27,
-        "y": 2.22,
+        "x": 3.45,
+        "y": 2.4,
         "z": 10.62
       },
       "size_roblox": [
-        3.27,
+        3.45,
         10.62,
-        2.22
+        2.4
       ],
       "bounds_min": [
-        -1.63,
-        -1.12,
+        -1.75,
+        -1.3,
         0.0
       ],
       "bounds_max": [
-        1.63,
+        1.7,
         1.1,
         10.62
       ],
@@ -67548,7 +67601,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CatTreeTower.model.json",
-      "rbx_parts": 71,
+      "rbx_parts": 77,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_CatTreeTower.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_CatTreeTower.glb"
@@ -67556,15 +67609,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1316/2400 tris",
+          "budget": "1524/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "525 faces on swatch centers",
+          "uv": "595 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.00 y=-0.01"
+          "centered": "footprint center x=-0.03 y=-0.10"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CatTreeTower.png",
@@ -72521,7 +72576,7 @@
         0.21,
         7.33
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_FireEscape_Front_LeafL": [
@@ -72567,6 +72622,7 @@
           -0.03
         ]
       },
+      "studio": "F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and _LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. _Glass parts are Glass 0.45. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FireEscape_Front.model.json",
       "rbx_parts": 179,
       "files": [
@@ -72623,7 +72679,7 @@
         0.82,
         7.95
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_FireEscape_Back_Leaf": [
@@ -72669,6 +72725,7 @@
           -0.22
         ]
       },
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FireEscape_Back.model.json",
       "rbx_parts": 233,
       "files": [
@@ -72725,7 +72782,7 @@
         0.09,
         7.33
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_GardenGate_Front_LeafL": [
@@ -72771,6 +72828,7 @@
           -0.03
         ]
       },
+      "studio": "F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and _LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. _Glass parts are Glass 0.45. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_GardenGate_Front.model.json",
       "rbx_parts": 161,
       "files": [
@@ -72827,7 +72885,7 @@
         0.82,
         7.95
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_GardenGate_Back_Leaf": [
@@ -72873,6 +72931,7 @@
           -0.22
         ]
       },
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_GardenGate_Back.model.json",
       "rbx_parts": 243,
       "files": [
@@ -72929,7 +72988,7 @@
         0.12,
         7.33
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_FrontPorch_Front_LeafL": [
@@ -72975,6 +73034,7 @@
           -0.03
         ]
       },
+      "studio": "F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and _LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. _Glass parts are Glass 0.45. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FrontPorch_Front.model.json",
       "rbx_parts": 243,
       "files": [
@@ -73031,7 +73091,7 @@
         0.82,
         7.95
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_FrontPorch_Back_Leaf": [
@@ -73077,6 +73137,7 @@
           -0.22
         ]
       },
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FrontPorch_Back.model.json",
       "rbx_parts": 282,
       "files": [
@@ -73131,7 +73192,7 @@
         0.07,
         7.33
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_LogCabin_Front_LeafL": [
@@ -73157,6 +73218,7 @@
           -0.03
         ]
       },
+      "studio": "F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and _LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. _Glass parts are Glass 0.45. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_LogCabin_Front.model.json",
       "rbx_parts": 117,
       "files": [
@@ -73212,7 +73274,7 @@
         0.82,
         7.95
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_LogCabin_Back_Leaf": [
@@ -73248,6 +73310,7 @@
           -0.22
         ]
       },
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_LogCabin_Back.model.json",
       "rbx_parts": 207,
       "files": [
@@ -73304,7 +73367,7 @@
         0.21,
         7.33
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_PortholeHatch_Front_LeafL": [
@@ -73350,6 +73413,7 @@
           -0.03
         ]
       },
+      "studio": "F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and _LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. _Glass parts are Glass 0.45. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PortholeHatch_Front.model.json",
       "rbx_parts": 261,
       "files": [
@@ -73406,7 +73470,7 @@
         0.82,
         7.95
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_PortholeHatch_Back_Leaf": [
@@ -73452,6 +73516,7 @@
           -0.22
         ]
       },
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PortholeHatch_Back.model.json",
       "rbx_parts": 274,
       "files": [
@@ -73508,7 +73573,7 @@
         0.12,
         7.33
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_PanedGlass_Front_LeafL": [
@@ -73554,6 +73619,7 @@
           -0.03
         ]
       },
+      "studio": "F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and _LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. _Glass parts are Glass 0.45. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PanedGlass_Front.model.json",
       "rbx_parts": 73,
       "files": [
@@ -73610,7 +73676,7 @@
         0.82,
         7.95
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_Door_PanedGlass_Back_Leaf": [
@@ -73656,6 +73722,7 @@
           -0.22
         ]
       },
+      "studio": "F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PanedGlass_Back.model.json",
       "rbx_parts": 182,
       "files": [
@@ -73709,7 +73776,7 @@
         0.38,
         2.49
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_CatFlap_Plain_Flap": [
@@ -73725,6 +73792,7 @@
           0.15
         ]
       },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_Plain.model.json",
       "rbx_parts": 20,
       "files": [
@@ -73780,7 +73848,7 @@
         0.37,
         2.49
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_CatFlap_NeonPaw_Flap": [
@@ -73806,6 +73874,7 @@
           0.15
         ]
       },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through; _Flap_Bulb is Neon at night. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_NeonPaw.model.json",
       "rbx_parts": 47,
       "files": [
@@ -73860,7 +73929,7 @@
         0.36,
         2.69
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_CatFlap_Birdhouse_Flap": [
@@ -73876,6 +73945,7 @@
           0.15
         ]
       },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_Birdhouse.model.json",
       "rbx_parts": 20,
       "files": [
@@ -73929,7 +73999,7 @@
         0.35,
         2.57
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_CatFlap_MailSlot_Flap": [
@@ -73945,6 +74015,7 @@
           0.15
         ]
       },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_MailSlot.model.json",
       "rbx_parts": 24,
       "files": [
@@ -73999,7 +74070,7 @@
         0.36,
         2.62
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_CatFlap_TreeStump_Flap": [
@@ -74015,6 +74086,7 @@
           0.15
         ]
       },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_TreeStump.model.json",
       "rbx_parts": 106,
       "files": [
@@ -74068,7 +74140,7 @@
         0.36,
         2.54
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_CatFlap_PipeRing_Flap": [
@@ -74084,6 +74156,7 @@
           0.15
         ]
       },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_PipeRing.model.json",
       "rbx_parts": 78,
       "files": [
@@ -74136,7 +74209,7 @@
         0.36,
         2.69
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "part_pivots": {
         "CatCafe_CatFlap_Bell_Flap": [
@@ -74162,6 +74235,7 @@
           -0.27
         ]
       },
+      "studio": "F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child Model _Flap turns about its pivot's X (the top hinge) as a cat goes through; _Bell hangs from its pivot and can swing about X. Nothing collides.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_Bell.model.json",
       "rbx_parts": 27,
       "files": [

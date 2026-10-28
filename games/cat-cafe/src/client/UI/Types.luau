@@ -49,7 +49,44 @@ export type Catalog = {
 	mysteryGift: { MysteryGiftRow }?, -- F64: Catalog.mysteryGift, what a Mystery Visitor's gift can hold
 	-- F59: Catalog.dealerAmountWeights, lureId -> percent chance of stocking 0, 1, 2, 3 or 4 (the dealer's Details)
 	dealerAmountWeights: { [string]: { number } }?,
+	-- F73 (quests.md section 6): Catalog.quests (to tell a coins quest), Catalog.questPrizes (daily, dailyBig,
+	-- dailySet, weekly, weeklySet), Catalog.achievements in table order and Catalog.achievementPrizes by size
+	quests: { daily: { [string]: { QuestDef } }, weekly: { [string]: { QuestDef } } }?,
+	questPrizes: { [string]: IndexPrize }?,
+	achievements: { AchievementDef }?,
+	achievementPrizes: { [string]: IndexPrize }?,
 }
+
+-- Quests and achievements (F73, quests.md sections 6 and 7), read loosely: a catalog quest row (`stat`
+-- "lifetimeCoins" makes it a coins quest), an achievement, and what ProfileSync sends for them. Progress comes capped
+-- at needs; reset times are server os.time().
+export type QuestDef = { id: string, text: string?, stat: string? }
+export type AchievementDef = {
+	id: string,
+	name: string,
+	text: string?,
+	measure: string?,
+	needs: number,
+	size: string, -- "S", "M", "L" or "XL", the Catalog.achievementPrizes key
+}
+export type QuestView = {
+	id: string,
+	text: string,
+	progress: number,
+	needs: number,
+	claimed: boolean,
+}
+export type QuestsView = {
+	daily: { QuestView },
+	weekly: { QuestView },
+	dailyResetsAt: number,
+	weeklyResetsAt: number,
+	dailyRerollUsed: boolean,
+	weeklyRerollUsed: boolean,
+	dailySetClaimed: boolean,
+	weeklySetClaimed: boolean,
+}
+export type AchievementView = { progress: number, claimed: boolean }
 
 -- A potion (F64, data-model section 12b; quest potions F73): the bag reads these loosely (Components/PotionLogic).
 export type PotionDef = {
@@ -57,6 +94,8 @@ export type PotionDef = {
 	name: string?,
 	minutes: number?,
 	effect: string?,
+	goldLuck: number?, -- F73: a Gold Rush Potion's gold luck while it runs
+	baitSpeed: number?, -- F73: a Quick Bait Potion's faster bait while it runs
 }
 
 -- One thing a Mystery gift can hold (F64): kind "potion", "lure", "fish" or "spin", with a chance in percent.
@@ -205,6 +244,8 @@ export type PlayerState = {
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
 	buffs: { [string]: number }?, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
+	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
+	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -239,6 +280,8 @@ export type PartialState = {
 	introSeen: boolean?,
 	potions: { [string]: number }?,
 	buffs: { [string]: number }?,
+	quests: QuestsView?,
+	achievements: { [string]: AchievementView }?,
 }
 
 export type ScreenName =
@@ -257,6 +300,7 @@ export type ScreenName =
 	| "BugReport"
 	| "Codes"
 	| "Potions"
+	| "Quests"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

@@ -7,7 +7,8 @@
 -- per-cat split (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
 -- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
 -- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold
--- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait. F60: food set
+-- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait; F73 adds a
+-- running Gold Rush, Lucky or Quick Bait Potion's, as the server rolls food set now. F60: food set
 -- at night waits half, so by night the empty bowl's wait is the night one and a night bowl counts down behind a moon.
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 
@@ -23,6 +24,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -105,10 +107,10 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
 	self._tier = 0
-	self._goldLuck = -1 -- the luck the odds lines were written with
+	self._extras = "" -- the gold and charm line the Details were written with
 	self._waitSeconds = FoodOdds.waitSeconds(false, 0)
 	self._bigBowl = false
-	self._speed = 0 -- the Index's faster bait (F54)
+	self._speed = 0 -- the Index's faster bait (F54) plus a running Quick Bait Potion's (F73)
 	self._night = false -- the clock's phase (F60: food set at night waits half)
 	self._accumulator = 0
 
@@ -428,7 +430,7 @@ function BaitBowl._buildRows(self: any)
 		}
 	end
 	self._tier = -1 -- rebuild the split text on the next render
-	self._goldLuck = -1
+	self._extras = ""
 end
 
 function BaitBowl._toggleDetail(self: any, lureId: string)
@@ -488,16 +490,19 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		end
 	end
 	local totals = if catalog then IndexRewards.totals(catalog, state) else nil
+	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
 	local fishPerks: { [string]: number } = state.fishPerks or {}
 	self._bigBowl = (fishPerks.big_bowl or 0) >= 1
-	self._speed = if totals then totals.baitSpeed else 0
+	self._speed = (if totals then totals.baitSpeed else 0) + boosts.baitSpeed
 	self._waitSeconds = FoodOdds.waitSeconds(self._bigBowl, self._speed, self._night)
-	-- Details: the gold chance with the Index's gold luck in it (F54) and the charm stars, then the split
-	local luck = if totals then totals.goldLuck else 0
-	if tierChanged or luck ~= self._goldLuck then
-		self._goldLuck = luck
+	-- Details: the gold chance with the Index's gold luck (F54) and the running potions (F73) in it and the charm
+	-- stars, then the split
+	local extras =
+		FoodOdds.extras(if totals then totals.goldLuck else 0, boosts.goldLuck, boosts.goldScale)
+	if tierChanged or extras ~= self._extras then
+		self._extras = extras
 		for _, row in self._rows do
-			row.detail.Text = FoodOdds.extras(luck) .. "\n" .. (row.split or "")
+			row.detail.Text = extras .. "\n" .. (row.split or "")
 		end
 	end
 	local owned = ownsBowl(state)

@@ -265,6 +265,23 @@ return function()
 			expect(tonumber(capped or "") :: number).to.be.near(base * 2.5, 0.005)
 		end)
 
+		it("adds a running potion's luck past the Index's cap and doubles for a Lucky Potion (F73)", function()
+			local base = Config.GoldChanceBait * 100
+			local rush = FoodOdds.extras(9, 0.25)
+			local gold, luck = rush:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck%) · Charm ")
+			-- BaitService: the Index's luck capped at GoldLuckMax, then the Gold Rush Potion's on top
+			expect(tonumber(gold or "") :: number).to.be.near(base * (2.5 + 0.25), 0.005)
+			expect(luck).to.equal("175")
+			local lucky = FoodOdds.extras(0.4, 0.25, 2)
+			local doubled, luck2 =
+				lucky:match("^Gold ([%d%.]+)%% %(%+(%d+)%% luck, Lucky Potion x2%) · Charm ")
+			expect(tonumber(doubled or "") :: number).to.be.near(base * 1.65 * 2, 0.005)
+			expect(luck2).to.equal("65")
+			local onlyLucky = FoodOdds.extras(0, 0, 2):match("^Gold ([%d%.]+)%% %(Lucky Potion x2%) · Charm ")
+			expect(tonumber(onlyLucky or "") :: number).to.be.near(base * 2, 0.005)
+			expect(FoodOdds.extras(0, 0, 1)).to.equal(FoodOdds.extras())
+		end)
+
 		it("shortens the bait wait by the faster bait, after the Big Bowl", function()
 			local wait = Config.LureWaitSeconds
 			local big = Config.BigBowlLureWaitSeconds or wait
@@ -274,6 +291,10 @@ return function()
 			expect(FoodOdds.waitSeconds(true, 0.9)).to.equal(math.floor(big * 0.5))
 			-- the summed Index percents carry float error; the server adds a hair before flooring, so 372, not 371
 			expect(FoodOdds.waitSeconds(false, 0.38000000000000012)).to.equal(372)
+			-- F73: the Index's 0.38 and a Quick Bait Potion's 0.25 together stay inside BaitSpeedMax
+			expect(FoodOdds.waitSeconds(false, 0.38 + 0.25)).to.equal(
+				FoodOdds.waitSeconds(false, Config.BaitSpeedMax or 0.5)
+			)
 		end)
 
 		it("halves the wait for food set at night, Big Bowl first, then the faster bait (F60)", function()

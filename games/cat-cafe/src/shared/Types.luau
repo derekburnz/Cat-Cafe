@@ -4,6 +4,8 @@
 
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical"
 export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer"
+-- A cat's area: one of the five, or the spare pool of cats an area-themed cat replaced (data-model 3d, F78).
+export type CatArea = Area | "spare"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -65,7 +67,8 @@ export type CatDef = {
 	name: string,
 	rarity: Rarity,
 	incomePerSecond: number,
-	area: Area, -- the one area it spawns in
+	area: CatArea, -- the one area it spawns in, or "spare" (data-model 3d: never spawns)
+	incomeArea: Area?, -- a spare cat's old area, whose income multiplier it keeps
 	favoriteRole: Role, -- earns FavoriteMultiplier in a slot of this role
 	description: string,
 	pattern: string,

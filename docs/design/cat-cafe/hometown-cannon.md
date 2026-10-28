@@ -1,6 +1,6 @@
 # Hometown and the Cat Cannon (town layout v4, 2026-10-28)
 
-Status: proposed by the game-designer thread at 13:55, waiting on Derek's OK. Revised at 14:00 from QA-Planner's, VFX-Agent's and UI-Engineer's notes: seventeen landing spots, the night sweep during a flight, the camp's edge, drops at its opening, the effect hooks and a picker that lists only open areas. Features F84 (hometown, cannons, camps) and F85 (longer rectangular areas).
+Status: proposed by the game-designer thread at 13:55, waiting on Derek's OK. Revised at 14:00 from QA-Planner's, VFX-Agent's and UI-Engineer's notes: seventeen landing spots, the night sweep during a flight, the camp's edge, drops at its opening, the effect hooks and a picker that lists only open areas. Revised at 14:05 from Derek's notes on the picker mockup and the cloud cutscene and from Animation-Engineer's and Sound-Agent's notes: no coin line on the cards, the glide through the clouds, the camera's owner and the sound timing. Features F84 (hometown, cannons, camps) and F85 (longer rectangular areas).
 
 Derek, 2026-10-28, in four messages at 13:39 to 13:42:
 
@@ -43,7 +43,7 @@ Everything else stays as in town-layout-v3: the cafe rows, the stations in the s
 
 - **Model** (`CatCafe_Square_Cannon`): a big friendly cannon, cream and teal with gold bands and a paw on the barrel, on a turntable on the plinth. The barrel is about 10 studs long and rests tilted 50 degrees up. Two steps up the plinth on its south side, toward the spawn, lead to a small ladder at the barrel's back. The barrel turns to face the area it fires at: south for the Park, north for the Neighbourhood, west for the Woods and east for the Sewer, so the old compass still holds in the sky.
 - **Prompt:** "Hop in", hold E for CatchHoldSeconds (0.5) within CannonRangeStuds (10) of the cannon, shown to anyone not carrying and not in a minigame. It opens the picker.
-- **The picker** (UI, section 7) lists the wild areas the player's tier has opened, in tier order, with "More open as you rank up." under them, the same as the Areas panel since #358 (Derek's live notes, 2026-10-27: no buttons for places you cannot go yet). Each card has a picture, the area's name, one short line with its income step and your cats from it ("Coins x1.5 · 7/10 cats") and Launch. At night every card shows a moon and "Closed until sunrise" with the sunrise countdown. In the last DuskWarningSeconds (15) of the day they show "Night is coming" and Launch is off, so nobody lands only to be sent home.
+- **The picker** (UI, section 7) lists the wild areas the player's tier has opened, in tier order, with "More open as you rank up." under them, the same as the Areas panel since #358 (Derek's live notes, 2026-10-27: no buttons for places you cannot go yet). Each card has a picture of the area's landmark, the area's name, your cats from it ("7/10 cats") and Launch. Derek on the mockup, 13:55: "looks good for now needs some better pictures for locations and no need to show coin amounts". At night every card shows a moon and "Closed until sunrise" with the sunrise countdown. In the last DuskWarningSeconds (15) of the day they show "Night is coming" and Launch is off, so nobody lands only to be sent home.
 - **Night.** At dusk a moon cover drops over the barrel's mouth, and it lifts at sunrise. The prompt still opens the picker, so players see the countdown.
 - **A Tier 1 player** can open the picker; it has no cards and reads "Rank up to Tier 2 to fly." The first time a player reaches Tier 2, a one-time hint says "The cannon is ready! Hop in to fly to the Park." and an arrow points at the cannon.
 
@@ -53,12 +53,14 @@ Everything else stays as in town-layout-v3: the cafe rows, the stations in the s
 |---|---|---|---|---|
 | 0.0 | 0.5 | the character hops into the barrel; the barrel turns to the destination and wiggles; the fuse fizzes | the same | accepts `LaunchCannon`, anchors the character at the barrel's seat, sets `CannonLaunchAt` and `CannonTo` |
 | 0.5 | 1.4 | BOOM: a smoke ring, confetti and a camera shake; the character shoots out curled in a ball, spinning, in a high arc; the camera follows from behind | the character arcs up into the sky and vanishes into a puff of cloud | |
-| 1.4 | 2.4 | the cloud cutscene: clouds rush past the camera with the destination's name and icon in the middle ("To the Woods!"), lit in the area's colour toward the end | | at CannonTeleportAtSeconds (1.9) moves the character (still anchored) onto a free spot on the destination's landing pad, and asks the client to stream around it |
+| 1.4 | 2.4 | the cloud cutscene: the player's own character glides through a tunnel of clouds just ahead of the camera, uncurling from the ball into a happy spread, while clouds rush past with the destination's name and icon in the middle ("To the Woods!"), lit in the area's colour toward the end (Derek 13:56 asked for this part to be a little better) | | at CannonTeleportAtSeconds (1.9) moves the character (still anchored) onto a free spot on the destination's landing pad, and asks the client to stream around it |
 | 2.4 | 3.0 | the clouds part above the camp, the character drops onto the pad, lands in a crouch with a dust poof and a bounce, and the camera settles behind them | at the camp: a whistle and a ball dropping from the sky onto the pad | at 3.0 unanchors the character and clears the attributes; control returns |
 
 The flight is the same from every cannon, and it lands at the hometown cannon's foot when the destination is the town. It cannot be skipped; three seconds is short, and the clouds hide the move. The town's landing pad is the same paw print at the hometown cannon's foot, on its south side.
 
 Landing spots: each pad has seventeen, tried in order: its centre, eight points on a 4 stud ring, then eight on a 7 stud ring (inside LandingPadRadius 8). A spot is free when no character is within 3 studs of it. The server places one flight at a time, so two moves in the same frame never share a spot. If all seventeen are taken, the character lands on the nearest point of the camp (in town, of the square) off the pad with no character within 3 studs. Players never land inside each other.
+
+`Launching`, `CannonLaunchAt`, `CannonFrom` and `CannonTo` stay set for the whole flight and clear together at 3.0, so every client can time its sounds and effects from `CannonLaunchAt`.
 
 ### 3c. Camp cannons
 
@@ -91,7 +93,7 @@ Every wild area has a camp across its whole width at one short end, CampDepth (3
 
 ### 6a. F84: the current sets, moved
 
-F84 does not wait for new sets. Each current v3.2 set moves as it is to its new place, turned so its gate side (the set's -Z side) faces the hometown. Its old gate becomes the camp's way out, and the camp is added in front of it, outside the set's old rect. Spawn points, zones and traps move with the set unchanged.
+F84 does not wait for new sets. Each current v3.2 set moves as it is to its new place, turned so its gate side (the set's -Z side) faces the hometown. Its old gate becomes the camp's way out, and the camp is added in front of it, outside the set's old rect. Spawn points, zones and traps move with the set unchanged. In F84 the old gate is the camp's way out and its arch is the name arch, so the opening keeps the gate's width (32 studs for the Park and the Neighbourhood) and the safe edge is the gate line, with the SAFE ZONE stripe on the camp side. Each F84 camp is its ground, low side and back walls, the pad, the camp cannon at the back wall, the carrier basket and the theme props. CampOpeningWidth (24) and the low fence come with the F85 sets.
 
 | area | tier | centre of its set | the camp, toward the town | turn |
 |---|---|---|---|---|
@@ -142,6 +144,7 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after
 
 **Model-Agent (sets and models):**
 - **The cannon:** `CatCafe_Square_Cannon` on the plinth with its steps, ladder, turntable and moon cover, and the town's landing pad paw print at its foot.
+- **Rig:** a `Seat` attachment in each barrel is where the server anchors the character. The hometown cannon's turret is a child model `_Turret`, pivot on the turntable's centre, barrel at rest pointing +Z (north), so code turns it about Y.
 - **Effect points:** both cannon models carry a `Muzzle` attachment at the barrel's mouth and a `Fuse` attachment at the fuse tip. Each camp's carrier basket is tagged `CampBasket` with a `Drop` attachment at its opening.
 - **Camps:** `CatCafe_Camp_Cannon` in each area's trim, and each camp's fence, opening, pad, carrier basket, name arch and theme props.
 - **The hometown's ends:** the two welcome arches and backdrops, and the closed alley walls where the Woods and Sewer gates were.
@@ -149,7 +152,8 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after
 - **F85:** each set rebuilt as the long rectangle in 6b, with its gate side still -Z, to the path, sightline, rescue and spawn rules there.
 
 **VFX-Agent and Animation-Engineer (flight):**
-- Animation: the hop into the barrel, the curled spinning ball pose, and the crouch landing with a bounce.
+- Animation: the hop into the barrel, the curled spinning ball pose, the glide through the cloud tunnel, and the crouch landing with a bounce.
+- **Camera (Animation-Engineer):** the launcher's camera only, in the client's Cannon module, started from `CannonLaunch` or the attributes. It follows from behind 0.5 to 1.4, rides just behind the glide in the tunnel 1.4 to 2.4, settles behind the character 2.4 to 3.0 and hands back to the default camera at 3.0. Onlookers keep their own camera.
 - VFX: the fuse fizz, the muzzle smoke ring and confetti, the sparkle trail, the cloud puff in the sky, the full-screen cloud tunnel tinted by area (the paw path colours from town layout v3: leaf green Park, warm orange Neighbourhood, deep green Woods, slate blue Sewer; cream for Town Square and for Home and Alley hops), the clouds parting, the landing dust poof, and the cat's hop into the carrier basket and its puff at a camp check-in.
 - The cloud hop is the cloud tunnel without the cannon.
 - Effects play at the `Muzzle`, `Fuse` and `Drop` attachments, falling back to the cannon's pivot and its Layout fire direction. The cloud tunnel sits just under UI's destination name card; VFX and UI agree the DisplayOrder.
@@ -166,6 +170,7 @@ The tackle rules do not change. The getaway (CatchRushWalkSpeed 24 for 5 s after
 **Sound-Agent:**
 - Cannon: the fuse fizz, the boom, the whoosh up, the wind in the clouds, the whistle down and the landing thump.
 - The camp check-in chime and the cloud hop whoosh.
+- Cues are timed from `CannonLaunchAt` and `CloudHopAt`; the camp chime plays on `CampCheckIn` (the door bell stays on a door check-in).
 
 **Tutorial-Agent:** intro shots 5, 6 and 9 show the gates and the areas next to the town. They need new shots for the cannon and the far areas, for example shot 5 on the cannon firing and shot 6 cutting to the four camps.
 

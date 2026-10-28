@@ -272,15 +272,35 @@ return function()
 
 		it("each area offers only its own cats", function()
 			expect(idList(Catching.candidates("Common", "alley"))).to.deepEqual({ "tabby", "tuxedo", "ginger", "smoke" })
-			expect(idList(Catching.candidates("Rare", "alley"))).to.deepEqual({ "calico", "tortie" })
-			expect(idList(Catching.candidates("Epic", "alley"))).to.deepEqual({ "sphynx", "maine_coon" })
+			expect(idList(Catching.candidates("Rare", "alley"))).to.deepEqual({ "binbag", "tortie" })
+			expect(idList(Catching.candidates("Epic", "alley"))).to.deepEqual({ "taxi", "maine_coon" })
 			expect(idList(Catching.candidates("Legendary", "alley"))).to.deepEqual({ "void" })
-			expect(idList(Catching.candidates("Mythical", "alley"))).to.deepEqual({ "midnight" })
+			expect(idList(Catching.candidates("Mythical", "alley"))).to.deepEqual({ "neon" })
 			expect(idList(Catching.candidates("Common", "park"))).to.deepEqual({ "snow", "cream", "brownie", "blue" })
-			expect(idList(Catching.candidates("Rare", "park"))).to.deepEqual({ "siamese", "bengal" })
-			expect(idList(Catching.candidates("Epic", "park"))).to.deepEqual({ "ragdoll", "persian" })
+			expect(idList(Catching.candidates("Rare", "park"))).to.deepEqual({ "birdwatch", "bengal" })
+			expect(idList(Catching.candidates("Epic", "park"))).to.deepEqual({ "ragdoll", "duckling" })
 			expect(idList(Catching.candidates("Legendary", "park"))).to.deepEqual({ "blossom" })
-			expect(idList(Catching.candidates("Mythical", "park"))).to.deepEqual({ "aurora" })
+			expect(idList(Catching.candidates("Mythical", "park"))).to.deepEqual({ "balloon" })
+		end)
+
+		it("F78: a spare cat never spawns, from an area wave or a rescue (data-model 3d)", function()
+			for _, rarity in ipairs(Catalog.rarityOrder) do
+				for _, area in ipairs({ "alley", "park", "neighbourhood", "woods", "sewer" }) do
+					for _, def in Catching.candidates(rarity, area) do
+						expect(def.area).to.equal(area)
+					end
+				end
+			end
+		end)
+
+		it("F78: bait never picks a spare cat, at any tier and roll", function()
+			for _, rarity in ipairs(Catalog.rarityOrder) do
+				for tier = 1, 5 do
+					for roll = 0, 0.99, 0.05 do
+						expect(Catching.pickBaitCat(rarity, tier, roll).area ~= "spare").to.equal(true)
+					end
+				end
+			end
 		end)
 
 		it("v0.3: no cat lives in two areas, so the old \"both\" area is empty", function()
@@ -296,9 +316,9 @@ return function()
 			expect(Catching.pickCat("Common", "alley", 0.25).id).to.equal(commons[2].id)
 			expect(Catching.pickCat("Common", "alley", 0.5).id).to.equal(commons[3].id)
 			expect(Catching.pickCat("Common", "alley", 0.999).id).to.equal(commons[4].id)
-			expect(Catching.pickCat("Rare", "park", 0.4999).id).to.equal("siamese")
+			expect(Catching.pickCat("Rare", "park", 0.4999).id).to.equal("birdwatch")
 			expect(Catching.pickCat("Rare", "park", 0.5).id).to.equal("bengal")
-			expect(Catching.pickCat("Mythical", "park", 0.7).id).to.equal("aurora")
+			expect(Catching.pickCat("Mythical", "park", 0.7).id).to.equal("balloon")
 		end)
 
 		it("pickCat falls back to the first catalog cat in an area with no cats", function()

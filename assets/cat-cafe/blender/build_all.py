@@ -245,6 +245,10 @@ for _n in crates.ASSETS:                         # Cafe Crates: shelf, reveal an
                         + ": pivot base centre, front -Z, nothing collides. The child Model " + _n + "_Lid turns "
                         "about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide "
                         "open. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_") + ".png (icons.py).")
+for _n in potions.ASSETS:                        # F64 and F73 potions: the bag, the gift reveal and pictures
+    STUDIO_NOTES[_n] = ("Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the "
+                        "potion's colour. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_")
+                        + ".png (icons.py).")
 for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
     _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
     PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"

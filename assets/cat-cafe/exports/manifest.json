@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 09:37 UTC",
+  "generated": "2026-10-28 09:41 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75086,6 +75086,7 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Tip.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Tip.model.json",
       "rbx_parts": 10,
       "files": [
@@ -75138,6 +75139,7 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Lucky.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Lucky.model.json",
       "rbx_parts": 14,
       "files": [
@@ -75190,6 +75192,7 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Swift.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Swift.model.json",
       "rbx_parts": 23,
       "files": [
@@ -75242,6 +75245,7 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_Steady.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_Steady.model.json",
       "rbx_parts": 13,
       "files": [
@@ -75294,6 +75298,7 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_BigTip.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_BigTip.model.json",
       "rbx_parts": 13,
       "files": [
@@ -75346,6 +75351,7 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_GoldRush.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_GoldRush.model.json",
       "rbx_parts": 30,
       "files": [
@@ -75398,6 +75404,7 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the potion's colour. Its picture is exports/icons/CatCafe_Icon_Potion_QuickBait.png (icons.py).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Potion_QuickBait.model.json",
       "rbx_parts": 16,
       "files": [

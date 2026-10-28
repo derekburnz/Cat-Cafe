@@ -55,6 +55,7 @@ CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's r
 OUTDOOR_PREFIXES = ("CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Street_", "CatCafe_Neighbourhood_", "CatCafe_Woods_",
                     "CatCafe_Sewer_", "CatCafe_Square_")
 THIN_COLLIDE, THIN_LONG = 0.12, 0.9
+THIN_SKIP = ("StringLights",)       # overhead cables stay walk-through
 ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share of the box round it (the mesh is scaled
 #                                       back up), so players stop at the visible surface instead of its corners
 TOUCH_OBJECTS = ("_CodesCircle",)    # parts the game code may watch with Touched; every other part has CanTouch off
@@ -222,7 +223,8 @@ def _material(obname, swatch):
 def _props(p, asset, uid):
     material, transparency = _material(p["name"], p["swatch"])
     climb = p["name"].endswith(CLIMB_OBJECTS)
-    thin_ok = (asset.startswith(OUTDOOR_PREFIXES) and min(p["size"]) >= THIN_COLLIDE - 1e-3
+    thin_ok = (asset.startswith(OUTDOOR_PREFIXES) and not any(k in asset for k in THIN_SKIP)
+               and min(p["size"]) >= THIN_COLLIDE - 1e-3
                and max(p["size"]) >= THIN_LONG - 1e-3)
     collide = ((asset.startswith(COLLIDE_PREFIXES) and (min(p["size"]) >= MIN_COLLIDE or thin_ok)
                 and not p["name"].endswith(NO_COLLIDE_OBJECTS) and material != "Glass")

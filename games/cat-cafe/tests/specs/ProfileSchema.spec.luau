@@ -1264,7 +1264,8 @@ return function()
 					error(string.format("a version %d save's locks came out wrong", version))
 				end
 				-- the player unlocks the Legendary; the next load keeps it unlocked
-				(cats.legend :: any).locked = nil
+				local legend: any = cats.legend
+				legend.locked = nil
 				expect(ProfileSchema.migrate(profile, 2000).cats.legend.locked).to.equal(nil)
 			end
 		end)

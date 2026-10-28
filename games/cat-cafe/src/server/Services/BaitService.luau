@@ -1,15 +1,16 @@
 --!strict
 -- The bait bowl (F28, data-model section 8): one bowl on the cafe's back step (v0.5 F44), bought as the lure_bowl
 -- upgrade.
--- UseLure(lureId) puts one food in and rolls the cat in the same step (rarity from the food's odds, the cat among
--- that rarity's cats in every area the tier opens, charm and gold), so a rejoin cannot reroll it. The cat arrives
--- LureWaitSeconds later, online or not, and sits eating at the bowl. ResolveBait("tame") adds it to the cat room,
+-- UseLure(lureId) puts one food in and rolls the cat in the same step (rarity from the food's odds at the bowl's
+-- level, F82, the cat among that rarity's cats in every area the tier opens, charm and gold), so a rejoin cannot
+-- reroll it. The cat arrives after the bowl's wait, online or not, and sits eating at the bowl. ResolveBait("tame") adds it to the cat room,
 -- "letgo" sends it off; the food is used either way. CafeService draws the bowl and sends it in ProfileSync, which
 -- names the cat only once it has arrived (reviewer N30).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Bait = require(ReplicatedStorage.Shared.Bait)
 local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -83,7 +84,11 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	else
 		profile.lures[lureId] = nil
 	end
-	local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
+	-- F82: the bowl's level now, its luck fixed in the roll, so a level bought later never touches this food
+	local rarity: Types.Rarity = Catching.pickRarity(
+		Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")),
+		rng:NextNumber()
+	)
 	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck and bait speed, fixed now (F54): a later claim never moves a filling bowl. A Lucky
 	-- Potion running now doubles the gold chance (F64).

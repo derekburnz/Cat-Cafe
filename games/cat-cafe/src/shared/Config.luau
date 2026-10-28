@@ -85,6 +85,11 @@ local Config = {
 	-- F60 (round 3 Q6): food that goes in while the server is in night waits this instead, the Big Bowl's in the same
 	-- share (half: 240 s), fixed in bait.readyAt at placement
 	LureWaitSecondsNight = 300,
+	-- F82 bowl levels (v0.13.15): the day wait and the bowl luck by lure_bowl level, read by shared/Bait. Luck is the
+	-- share of each rarity's chance moved up one rarity before the roll. The Big Bowl perk takes a fifth off any level.
+	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
+	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
+	BigBowlWaitMultiplier = 0.8,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
@@ -231,7 +236,8 @@ local Config = {
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
-	BigBowlLureWaitSeconds = 480, -- the bait wait with the Big Bowl perk (LureWaitSeconds without it)
+	-- the Big Bowl's wait on a level 1 bowl, kept only for the UI's food cards until they read Bait.waitSeconds (F82)
+	BigBowlLureWaitSeconds = 480,
 
 	-- Index rewards (F54, golden-fish.md sections 5 and 5b): the permanent bonuses the gold and All Cats tracks add
 	-- up to. Gold rolls use chance x (1 + goldLuck); a bait wait is the wait x (1 - baitSpeed).

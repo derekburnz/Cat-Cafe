@@ -67,13 +67,13 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
--- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
--- badge on the picture stays the food's own grade (F69)
 -- a rarity's odds colour as hex, for FoodOdds.rich
 local function rarityHex(rarity: string): string
 	return Theme.rarityInk(rarity):ToHex()
 end
 
+-- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
+-- badge on the picture stays the food's own grade (F69)
 local function attractsChip(parent: Instance, lure: Types.LureDef, order: number): TextLabel
 	return Create("TextLabel", {
 		Name = "Attracts",

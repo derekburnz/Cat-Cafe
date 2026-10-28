@@ -64,12 +64,12 @@ The Market also opens crates the player already owns (from the Index and the whe
 
 Derek, 18:48 and 18:49: "can make the cosmetics for cafe different wall papers flooring furniture decorations paint etc" and "also can plan on adding decoration crates for each zone and then a general cosmetic one also so that you can have cosmetic index's for each zone".
 
-There are six crates: one per zone (Alley, Park, Neighbourhood, Woods and Sewer Crates) in that zone's theme, plus a general Classic Crate of timeless cafe styles. Each crate holds 10 cosmetics, two of each kind: wallpaper, flooring, paint for the outside of the cafe, furniture and decorations. Every piece boosts every tip in the cafe while it's in use, and a higher rarity gives a much stronger boost, so a lucky crate can be really strong, as Derek wanted.
+There are six crates: one per zone (Alley, Park, Neighbourhood, Woods and Sewer Crates) in that zone's theme, plus a general Classic Crate of timeless cafe styles. Each crate holds 10 cosmetics, two of each kind: wallpaper, flooring, paint for the outside of the cafe, furniture and decorations. Since F80 (section 4b, Derek 2026-10-28 01:28) each crate also holds a door set and a cat flap, so 12 pieces. Every piece boosts every tip in the cafe while it's in use, and a higher rarity gives a much stronger boost, so a lucky crate can be really strong, as Derek wanted.
 
 | rarity | pieces per crate | chance (each piece) | tip bonus while in use |
 |---|---|---|---|
-| Common | 4 | 60% (15% each) | +2% |
-| Rare | 3 | 27% (9% each) | +4% |
+| Common | 4 (5 since F80) | 60% (15% each; 12% each since F80) | +2% |
+| Rare | 3 (4 since F80) | 27% (9% each; 6.75% each since F80) | +4% |
 | Epic | 1 | 10% | +8% |
 | Legendary | 1 | 2.5% | +15% |
 | Mythical | 1 | 0.5% | +25% and a little effect |
@@ -98,7 +98,31 @@ Draft pieces, for the asset thread (names can change). C, R, E, L and M are the 
 | Sewer | Pipe Works (C), Bottle Cap Mosaic (R) | Canal Tile (C), Glimmer Canal (M: water shimmers under glass) | Brass Teal (C), Copper Patina (R) | Crate Shelf (C), Bathtub Sofa (L) | Rubber Duck Row (R), Pipe Fountain (E) |
 | Classic | Cream Stripes (C), Paw Print (R) | Oak Boards (C), Black and White Tile (C) | Latte Brown (C), Gold Leaf (M: gold trim that glints) | Bistro Set (R), Velvet Booth (E) | Hanging Plants (R), Cat Tree Tower (L) |
 
-That's 60 pieces. 36 of them are wallpapers, floors and paints, which are textures or colours on the cafe shell, so they're cheap to make. The other 24 are furniture and decoration models. The Mythicals and their effects matter most for the look.
+That's 60 pieces (72 with the doors and flaps in 4b). 36 of them are wallpapers, floors and paints, which are textures or colours on the cafe shell, so they're cheap to make. The other 24 are furniture and decoration models. The Mythicals and their effects matter most for the look.
+
+### 4b. Doors and cat flaps (F80, Derek 2026-10-28 01:28)
+
+Derek: "and add a back door with a cat door on it", then "can add decor for cat door / doors also". The model thread is building the back door with a plain cat flap now. These are the decor styles for it.
+
+- **Two new kinds** join every crate: a **door set** (`door`) restyles the front door and the back door together, and a **cat flap** (`catflap`) sits low in the back door. They are style slots like wallpaper, floor and paint: one of each in use at a time, swapped on the Decor screen ("Use it" on a new one), counting only while in use. The difference is that they swap models instead of colouring tagged parts. With none in use the cafe keeps its own doors and the plain flap. The front door shows from the street, so other players see it; the back door and its flap show from the yard and the back alley.
+- **Rarity:** in each crate one of the two is Common and the other Rare, so a crate now has 5 Commons and 4 Rares. The chance of each rarity stays 60 / 27 / 10 / 2.5 / 0.5, so a Common piece is now 12% and a Rare one 6.75%. The lucky twentieth, the duplicate refunds and the golden crates (Epic or better only) do not change. Bonuses as for any piece: +2% for a Common and +4% for a Rare while in use.
+- **Decor Index:** each page shows 12 pieces. `decor5` stays at 5 pieces. `decor10` keeps its id but now needs all 12. A page already claimed keeps its claim and its +5%.
+
+| crate | door set | cat flap |
+|---|---|---|
+| Alley | Fire Escape Door (C): a red steel door with rivets and a small wired window | Neon Paw Flap (R): a dark flap with a neon paw outline that glows at night |
+| Park | Garden Gate Door (C): a green plank door with a little window of leaves | Birdhouse Flap (R): the flap framed like a birdhouse, with a tiny roof |
+| Neighbourhood | Front Porch Door (R): a white door with a fanlight window and a wreath | Mail Slot Flap (C): a brass flap like a letterbox |
+| Woods | Log Cabin Door (C): split logs with iron hinges | Tree Stump Flap (R): the flap set in a carved stump ring with moss |
+| Sewer | Porthole Hatch Door (R): a round-windowed hatch with a wheel handle | Pipe Ring Flap (C): the flap in a bolted pipe ring |
+| Classic | Paned Glass Door (C): a cream door with glass panes and a brass knob | Bell Flap (R): a pastel flap with a tiny gold bell on top |
+
+Ids: `alley_fire_escape_door`, `alley_neon_paw_flap`, `park_garden_gate_door`, `park_birdhouse_flap`, `neighbourhood_front_porch_door`, `neighbourhood_mail_slot_flap`, `woods_log_cabin_door`, `woods_tree_stump_flap`, `sewer_porthole_hatch_door`, `sewer_pipe_ring_flap`, `classic_paned_glass_door` and `classic_bell_flap`.
+
+Contract:
+- `DecorKind` gains `door` and `catflap`. `Crates.isStyle` covers them, and the plot model attributes are `Door` and `CatFlap` next to `Wallpaper`, `Floor` and `Paint`.
+- Models: `CatCafe_Door_<Name>` for a door set. It is one door leaf that fits both openings, or `_Front` and `_Back` versions if the openings differ. Every back door leaf, the cafe's own included, carries a `CatFlap` attachment at the bottom centre, so any flap fits any door. Flaps are `CatCafe_CatFlap_<Name>`, and the plain one is the default. Each door and flap gets an icon for the Decor screen and the Decor Index.
+- No save change: decor in use is already saved per kind. No new remote, because `ToggleDecor` handles a style kind already.
 
 ## 5. Index rewards (rebalanced, no decor handed out)
 
@@ -210,7 +234,7 @@ Contract (data-model sections 11b, 11c, 14, 15 and 17 point here since v0.7; thi
   - `OpenCrate(crateId)`: within 14 studs of a `FishMarket` station, a known crate id whose area is unlocked and either a banked crate (used first) or a `price` with enough fish. 2 seconds between opens and 1 call per second. The server rolls (the lucky twentieth uses the golden odds), adds the piece or its rarity's refund, puts a furniture or decoration piece on a free decor spot, updates `crateLuck` and fires `CrateResult(crateId, decorId, duplicate, refund)` (the piece's rarity and kind come from its `DecorDef`), which the reveal effect also listens to. A refusal fires `CrateResult(crateId, "", false, 0)`.
   - `BuyFishItem(itemId)`: within 14 studs of the Market, a known row, affordable and below its max level. 2 per second.
   - ProfileSync adds `goldenFish`, `crates`, `crateLuck` and `fishPerks`.
-- **Style slots and decor spots:** `ToggleDecor(decorId, true)` on a wallpaper, floor or paint takes the place of the one in use of that kind. On furniture or a decoration, it is refused when every decor spot is full. Pieces placed above the cap after a change stay placed. The cafe shell tags its inside wall parts `Wallpaper`, its floor parts `Floor` and its outside facade parts `Paint`, and the client applies the piece in use to every tagged part, so other players see the paint.
+- **Style slots and decor spots:** `ToggleDecor(decorId, true)` on a wallpaper, floor, paint, door set or cat flap (F80, section 4b) takes the place of the one in use of that kind. On furniture or a decoration, it is refused when every decor spot is full. Pieces placed above the cap after a change stay placed. The cafe shell tags its inside wall parts `Wallpaper`, its floor parts `Floor` and its outside facade parts `Paint`, and the client applies the piece in use to every tagged part, so other players see the paint.
 - **Income:** `cafeMultiplier` adds the bonuses of the crate pieces in use, +0.05 for each full Decor Index page, +0.05 per Golden Espresso level and the `bonus` of every claimed Index milestone.
 - **Gold luck and bait speed (v0.10):** the server sums `goldLuck` and `baitSpeed` over the claimed milestones (capped at GoldLuckMax 1.5 and BaitSpeedMax 0.5) and sends both in ProfileSync. Gold rolls use `chance x (1 + goldLuck)`, with the Lucky Potion's double on top for bait. `UseLure` saves `readyAt = placedAt + wait x (1 - baitSpeed)`, so a later claim never moves a filling bowl.
 - **Analytics:** the economy currency `golden_fish`. Its sources are `first_catch`, `repeat_catch`, `rank_up`, `index_reward`, `spin_wheel` and `tip_jar`. Its sinks are `crate`, `lure` and `perk`. There is also a custom event `crate_opened` (crate, rarity, kind, duplicate, lucky twentieth), so the odds can be checked against results.

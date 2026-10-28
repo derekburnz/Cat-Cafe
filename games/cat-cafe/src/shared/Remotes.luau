@@ -23,7 +23,8 @@ Remotes.ClientToServer = {
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
 	"UnequipAll", -- ()  rests every working cat in the cat room (shared/EquipBest.restAll)
-	"SellCat", -- (uid: string)
+	"SellCat", -- (uid: string)  not the last cat, not locked (F62)
+	"LockCat", -- (uid: string, locked: boolean)  F62: owns uid; a locked cat cannot be sold or traded
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)
 	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier

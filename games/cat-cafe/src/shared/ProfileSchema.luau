@@ -29,7 +29,9 @@ local ProfileSchema = {}
 -- 0), lets xp hold fractions and adds stats.catLevelUps: an older server would clamp level 24 back to 10 and save it.
 -- Version 13 (F64) adds potions, buffs (seconds of play time left), stats.potionsUsed and stats.mysteryGifts: an
 -- older server would drop them, losing the bag and any running potion.
-ProfileSchema.VERSION = 13
+-- Version 14 (F62) adds each cat's `locked` and locks every gold, Legendary and Mythical cat already owned, once: an
+-- older server would drop the flag, and a second run would lock again a cat its player unlocked.
+ProfileSchema.VERSION = 14
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -308,6 +310,11 @@ local function sanitizeCats(
 				then sanitizeMethod(entry.method)
 				else legacyMethod(uid, entry),
 		}
+		-- F62: the saved lock; a save from before version 14 locks its gold, Legendary and Mythical cats
+		local locked = if fromVersion >= 14
+			then entry.locked == true
+			else CatStats.arrivesLocked(instance.catId, instance.variant)
+		instance.locked = if locked then true else nil
 		profile.cats[uid] = instance
 	end
 end

@@ -300,6 +300,9 @@ export type CatInstance = {
 	rescued: boolean?, -- true when freed from a rescue spot (for the book and analytics); absent otherwise
 	name: string?, -- the player's name for it as typed, filtered again for display; nil shows the catalog name
 	method: CatchMethod?, -- how it was found
+	-- F62 (section 4): true when the player locked it, so it cannot be sold or traded; nil is unlocked. Gold,
+	-- Legendary and Mythical cats arrive locked.
+	locked: boolean?,
 }
 
 -- One cat as ProfileSync sends it: the saved fields plus the derived numbers the UI shows.
@@ -312,6 +315,7 @@ export type CatView = {
 	rescued: boolean?,
 	name: string?,
 	method: CatchMethod?,
+	locked: boolean, -- F62: the lock icon on its card
 	level: number,
 	xp: number,
 	xpToNext: number, -- 0 at the level cap

@@ -18,8 +18,15 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type CannonCard = {
 	screenGui: ScreenGui,
-	-- destination is "town" or an area id; launchAt is the flight's CannonLaunchAt (server time)
-	show: (self: CannonCard, destination: string, name: string, launchAt: number) -> (),
+	-- destination is "town" or an area id; launchAt is the flight's CannonLaunchAt (server time); hold is how long it
+	-- stays up (CannonLogic.cardTimes)
+	show: (
+		self: CannonCard,
+		destination: string,
+		name: string,
+		launchAt: number,
+		hold: number?
+	) -> (),
 	hide: (self: CannonCard) -> (),
 	destroy: (self: CannonCard) -> (),
 }
@@ -167,7 +174,13 @@ local function still(): boolean
 	return GuiService.ReducedMotionEnabled
 end
 
-function CannonCard.show(self: any, destination: string, name: string, launchAt: number)
+function CannonCard.show(
+	self: any,
+	destination: string,
+	name: string,
+	launchAt: number,
+	hold: number?
+)
 	self._token += 1
 	local token = self._token
 	local color = Theme.areaColors[destination] or Theme.colors.caramel
@@ -179,8 +192,9 @@ function CannonCard.show(self: any, destination: string, name: string, launchAt:
 	self._title.Text = CannonLogic.cardTitle(destination, name)
 	self._sub.Text = CannonLogic.cardSub(destination, name)
 
+	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold)
 	local elapsed = Workspace:GetServerTimeNow() - launchAt
-	if elapsed >= CannonLogic.CARD_OUT then
+	if elapsed >= outAt then
 		return -- joined the flight too late to matter
 	end
 	local function at(seconds: number, step: () -> ())
@@ -190,7 +204,7 @@ function CannonCard.show(self: any, destination: string, name: string, launchAt:
 			end
 		end)
 	end
-	at(CannonLogic.CARD_IN, function()
+	at(inAt, function()
 		local ticket: Frame = self._ticket
 		ticket.Position = HOME
 		ticket.Rotation = 0
@@ -207,21 +221,21 @@ function CannonCard.show(self: any, destination: string, name: string, launchAt:
 		Tween.to(self._ring, RING, { Size = UDim2.new(1, 60, 1, 60) })
 		Tween.to(self._ringStroke, RING, { Transparency = 1 })
 	end)
-	at(CannonLogic.CARD_WOBBLE, function()
+	at(wobbleAt, function()
 		if still() then
 			return
 		end
 		self._ticket.Rotation = -5
 		Tween.to(self._ticket, WOBBLE, { Rotation = 0 })
 	end)
-	at(CannonLogic.CARD_OUT, function()
+	at(outAt, function()
 		if still() then
 			self._ticket.Visible = false
 			return
 		end
 		Tween.to(self._ticket, ZIP, { Position = UDim2.new(0.5, 0, -0.4, 0) })
 	end)
-	at(CannonLogic.CARD_GONE, function()
+	at(goneAt, function()
 		self._ticket.Visible = false
 		self._ticket.Position = HOME
 	end)

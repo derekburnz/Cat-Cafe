@@ -2150,14 +2150,18 @@ function UI.cannon.open(cannonId: string?)
 end
 
 -- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card shows in the clouds
--- from 1.6 s after launchAt (server time) to 2.6 s. Ends the first-flight and Tier 2 hints.
-function UI.cannon.flight(destination: string, launchAt: number)
-	if modal and modal:current() == "Cannon" then
-		modal:close()
+-- from 1.6 s after launchAt (server time) to 2.6 s. Ends the first-flight and Tier 2 hints. The intro's shot 2 calls
+-- it too, for its staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts (card up
+-- 0.7 to 1.1 s in); while the intro plays only the card shows, so the first-flight hint still follows the intro.
+function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
+	if not UI.intro.playing() then
+		if modal and modal:current() == "Cannon" then
+			modal:close()
+		end
+		cannonLaunched = true
+		cannonOpened = nil
+		applyTutorial()
 	end
-	cannonLaunched = true
-	cannonOpened = nil
-	applyTutorial()
 	local name = CannonLogic.TOWN_NAME
 	for _, area in catalogAreas() do
 		if area.id == destination then
@@ -2165,7 +2169,7 @@ function UI.cannon.flight(destination: string, launchAt: number)
 		end
 	end
 	if cannonCard then
-		cannonCard:show(destination, name, launchAt)
+		cannonCard:show(destination, name, launchAt, hold)
 	end
 end
 

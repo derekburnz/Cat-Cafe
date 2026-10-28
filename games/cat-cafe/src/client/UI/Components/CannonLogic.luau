@@ -8,7 +8,7 @@
 --   button(destination, closed, dusk, carrying)  a card's Launch: "launch", "carrying", "dusk" or "night"
 --   notice(closed, dusk, carrying, remaining)  the line under the picker's title, or nil for the plain one
 --   cardTitle / cardSub  "To the Woods!" and "Landing at the Woods camp"
---   cardPhase(elapsed)  the name card's step, seconds after CannonLaunchAt
+--   cardTimes(hold?) / cardPhase(elapsed, hold?)  the name card's steps, seconds after CannonLaunchAt
 --   hint(view)  the cannon hint over the HUD, or nil
 -- Pure, no Theme, so the cloud spec runner can load it.
 
@@ -143,14 +143,26 @@ function CannonLogic.cardSub(destination: string, name: string): string
 	return "Landing at the " .. name .. " camp"
 end
 
-function CannonLogic.cardPhase(elapsed: number): CardPhase
-	if elapsed < CannonLogic.CARD_IN then
+-- When the card pops in, wobbles, zips off and is gone. `hold` is how long it stays from popping in to zipping off
+-- (CARD_OUT - CARD_IN, 0.8 s, by default); the intro's shot 2 holds it 0.4 s (intro-cutscene.md section 4).
+function CannonLogic.cardTimes(hold: number?): (number, number, number, number)
+	local shown = math.max(0, hold or (CannonLogic.CARD_OUT - CannonLogic.CARD_IN))
+	local out = CannonLogic.CARD_IN + shown
+	return CannonLogic.CARD_IN,
+		CannonLogic.CARD_IN + shown / 2,
+		out,
+		out + (CannonLogic.CARD_GONE - CannonLogic.CARD_OUT)
+end
+
+function CannonLogic.cardPhase(elapsed: number, hold: number?): CardPhase
+	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold)
+	if elapsed < inAt then
 		return "waiting"
-	elseif elapsed < CannonLogic.CARD_WOBBLE then
+	elseif elapsed < wobbleAt then
 		return "in"
-	elseif elapsed < CannonLogic.CARD_OUT then
+	elseif elapsed < outAt then
 		return "wobble"
-	elseif elapsed < CannonLogic.CARD_GONE then
+	elseif elapsed < goneAt then
 		return "out"
 	end
 	return "gone"

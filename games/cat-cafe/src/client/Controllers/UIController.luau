@@ -558,6 +558,10 @@ local function wireIntents()
 	UI.events.claimRichTip:Connect(function()
 		Net.fire("ClaimRichTip")
 	end)
+	-- Collect on the till (F61): every waiting tip pile. Walking near a pile sends the same (CustomerController).
+	UI.events.collectTips:Connect(function()
+		Net.fire("CollectTips")
+	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused.
 	UI.events.buyDealerFood:Connect(function(slot: number, lureId: string)
 		Net.fire("BuyDealerFood", slot, lureId)

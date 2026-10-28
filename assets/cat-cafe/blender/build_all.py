@@ -41,6 +41,7 @@ import crate_decor  # noqa: E402
 import crates  # noqa: E402
 import potions  # noqa: E402
 import mystery  # noqa: E402
+import collector  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -73,7 +74,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -260,6 +261,13 @@ STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
 STUDIO_NOTES["CatCafe_Item_MysteryGift"] = (
     "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it "
     "on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.")
+PIVOT_NOTES["CatCafe_NPC_Collector"] = "the floor under him, on the plot's CollectorSpot, facing into the room (-Z)"
+STUDIO_NOTES["CatCafe_NPC_Collector"] = (
+    "F63 Cat Collector: the client pivots it on the plot's CollectorSpot (floor centre, front into the room) and tags "
+    "it CatCollector. A sitting grey tabby (scale 1.45, 2.7 tall to the hat) with the usual hinged pieces (Head, "
+    "Eye1, Eye2, EarL, EarR, Tail, LegF1, LegF2); the bowler is the child Model _Prop inside Head, the tweed coat "
+    "_Coat rides the body and the magnifying glass _Lens is inside LegF2, whose paw is raised to his right eye. "
+    "Nothing collides.")
 for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
     _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
     PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"
@@ -386,8 +394,8 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
-        if name in mystery.NEST:                  # F64: the visitor's hood rides its Head
-            extra = {"nest": mystery.NEST[name]}
+        if name in {**mystery.NEST, **collector.NEST}:   # F64, F63: hats ride the Head, the glass the raised paw
+            extra = {"nest": {**mystery.NEST, **collector.NEST}[name]}
         if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)
             extra = {"attachments": furniture.spot_attachments(name, furniture.TREE_SPOTS)}
         if name == "CatCafe_Furniture_CatBed":

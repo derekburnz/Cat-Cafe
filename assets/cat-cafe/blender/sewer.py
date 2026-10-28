@@ -31,7 +31,7 @@ CAPS = ("bowl_red", "rarity_legend", "fish_blue", "mint", "neon_pink", "offwhite
 FLOOR = 0.4                     # the tiled floor slab's top; everything stands on it
 INNER = 44.4                    # the brick walls' inner faces, just inside WorldBuilder's (44.5)
 WALL_T, WALL_H = 2.2, 16.0      # thick enough to wrap WorldBuilder's 1 stud walls (44.5 to 45.5)
-GATE_HALF = 19.0                # clear of the Sewer gate model
+GATE_HALF = 16.0                # clear of the Sewer gate model (31.1 wide, 24 opening)
 
 
 def _arch(b, w, h, depth, y, sw="brick", n=9, thick=1.0):

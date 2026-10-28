@@ -2,18 +2,18 @@
 see-through barrier and a sign board, the way simulator zone gates work, themed per area with our own art.
 
   CatCafe_Park_Gate            32 wide opening, street's south end (0, -125)
-  CatCafe_Neighbourhood_Gate   32 wide, gap in the Alley Square's north wall (0, 187.5)
-  CatCafe_Woods_Gate           30 wide, west back alley's south end (-78, -125)
-  CatCafe_Sewer_Gate           30 wide, east back alley's south end (78, -125)
+  CatCafe_Neighbourhood_Gate   32 wide, street's north end (0, 125)
+  CatCafe_Woods_Gate           24 wide, west back alley's outer wall (-94, 0), turned -90
+  CatCafe_Sewer_Gate           24 wide, east back alley's outer wall (94, 0), turned 90
 
-The Park and Neighbourhood openings follow the street (town-layout-v3.md: StreetHalfWidth 16).
+The Park and Neighbourhood openings follow the street (town-layout-v3.md: StreetHalfWidth 16); the Woods and Sewer
+openings are SideGateHalfWidth 12 either side of z 0 (section 7, v3.1).
 
-Pivot at the base centre of the opening. The front (-Z) faces the side players come from, so the Park, Woods and
-Sewer gates are placed turned 180 degrees. WorldBuilder's walls (1 thick, at local z 0.5 to 1.5, ending at the edge
-of the opening) and the back alleys' outer walls (running off toward -Z at |x| 15 to 16 on the Woods and Sewer gates)
-meet each gate, so the pillars reach INSET into the opening and BACK behind the gate line, which buries every
-wall end inside a pillar, and nothing beside a pillar sits on the wall line (local z -0.5 to 1.6, toward +Z) or in front
-of the Woods and Sewer pillars where an alley wall runs.
+Pivot at the base centre of the opening. The front (-Z) faces the side players come from (Layout.gateTurn).
+WorldBuilder's area walls (1 thick, at local z 0.5 to 1.5, ending at the edge of the opening) meet each gate, and on
+the Woods and Sewer gates the back alley's outer wall runs the same way just in front (local z -1 to 0), so the pillars
+reach INSET into the opening and FRONT and BACK either side of the gate line, which buries every wall end inside a
+pillar, and nothing beside a pillar sits on the wall line (local z -1 to 1.6).
 Objects per gate:
   <asset>              pillars, lintel with the area name on both faces, decoration (collides)
   <asset>_Bars         one box filling the opening up to 12 studs: exported as a ForceField part named Bars directly
@@ -168,7 +168,7 @@ def _woods(b, lamps, flowers, half):
 
 
 def build_woods_gate(mat):
-    return _gate("CatCafe_Woods_Gate", mat, 30.0, "leaf_green", "dark_wood", _woods)
+    return _gate("CatCafe_Woods_Gate", mat, 24.0, "leaf_green", "dark_wood", _woods)
 
 
 # -------------------------------------------------------------------------------------------- sewer --
@@ -185,8 +185,10 @@ def _sewer(b, lamps, flowers, half):
         b.span((cx - 0.5, 14.0, -0.5), (cx + 0.5, 14.3, 0.5), "fur_black")               # warning lamp
         lamps.span((cx - 0.35, 14.3, -0.35), (cx + 0.35, 15.0, 0.35), "bowl_red")
         b.span((cx - 0.45, 15.0, -0.45), (cx + 0.45, 15.15, 0.45), "fur_black")
-        px_, pz = s * (half + PILLAR + 0.4), -1.0                                          # side pipe with a valve,
-        b.cyl((px_, 6.0, pz), 0.35, 12.0, "rust", segments=10)                             # in front of the wall line
+        px_, pz = s * (half + PILLAR + 0.4), -1.75                                         # side pipe with a valve,
+        b.cyl((px_, 6.0, pz), 0.35, 12.0, "rust", segments=10)                             # in front of the alley wall
+        for y in (3.0, 9.0):                                                               # brackets back to it
+            b.span((px_ - 0.12, y - 0.12, pz + 0.3), (px_ + 0.12, y + 0.12, -0.95), "metal")
         b.cyl((px_ + s * 0.45, 4.2, pz), 0.6, 0.12, "bowl_red", axis="X", segments=12)
         b.cyl((px_ + s * 0.45, 4.2, pz), 0.25, 0.2, "metal", axis="X", segments=8)
         for y in (2.0, 10.0):
@@ -214,7 +216,7 @@ def _sewer(b, lamps, flowers, half):
 
 
 def build_sewer_gate(mat):
-    return _gate("CatCafe_Sewer_Gate", mat, 30.0, "eye_green", "rarity_legend", _sewer)
+    return _gate("CatCafe_Sewer_Gate", mat, 24.0, "eye_green", "rarity_legend", _sewer)
 
 
 # ------------------------------------------------------------------------------------ neighbourhood --

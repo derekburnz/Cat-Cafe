@@ -7,7 +7,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 
--- zone tags a spawn point "lane" (behind a cafe) or "square" (the Alley Square); rarer strays take only "square".
+-- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1); rarer strays take only
+-- "nook".
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- An axis-aligned rectangle on the ground, world or plot space depending on where it is used.
 export type Rect = { x1: number, z1: number, x2: number, z2: number }
@@ -18,15 +19,17 @@ export type Arch = { x: number, z: number, span: number, label: string, asset: s
 export type RescuePoint = { prop: string, trap: string, x: number, z: number, rotY: number? }
 -- y is the height above the area floor (0 when omitted); wall props set it.
 export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
--- A shared area in world space. A box area (no rects) is one floor with walls on three sides and a street-wide
--- opening in its near wall, the one facing the street's end. An area with rects (the Alleyway) is those floors
--- with the listed wall footprints and arches; center, halfWidth and halfDepth are then its bounding box.
+-- A shared area in world space. A box area (no rects) is one floor with walls on three sides and an opening in its
+-- near wall, the one facing the town: a Z side with gateZ (the Park, the Neighbourhood), an X side with gateX (the
+-- Woods and the Sewer, v3.1). An area with rects (the Alleyway) is those floors with the listed wall footprints and
+-- arches; center, halfWidth and halfDepth are then its bounding box.
 export type AreaSpec = {
 	floorY: number,
 	center: Point,
 	halfWidth: number,
 	halfDepth: number,
-	gateZ: number?, -- where the tier gate stands across the opening; nil for the Tier 1 alley
+	gateZ: number?, -- where the tier gate stands across an opening on a Z side; nil for the Tier 1 alley
+	gateX: number?, -- or across an opening on an X side (the Woods and the Sewer since v3.1)
 	openingHalfWidth: number?, -- half the opening of a box area; the street's half width when omitted
 	nearWall: boolean?, -- false when a neighbour's wall already closes a box area's near side, opening and all
 	paths: { Rect }?, -- a box area's roads and paths, laid flat on its floor
@@ -37,6 +40,7 @@ export type AreaSpec = {
 	-- archways a rects area is entered by: the alley kit's asset when it is there, else posts, beam and label
 	arches: { Arch }?,
 	arrival: Point?, -- where fast travel lands; a box area lands just inside its opening
+	arrivalEast: Point?, -- the Alleyway's landing for a player whose cafe is on the east side (v3.1)
 	spawnPoints: { Point },
 	rescueSpots: { RescuePoint },
 	props: { Prop },
@@ -261,16 +265,20 @@ Layout.plot = {
 
 -- Shared areas, in world space. y is the floor top.
 
--- The Alleyway (layout v2, data-model section 9): a 30 stud back alley behind each row of cafes, from the south
--- end of the street to the Alley Square that spans the whole width at the north end. Every cafe's yard gate and
--- the side passages between cafes open onto a back alley; the street runs into the Square under an arch.
+-- The Alleyway (data-model section 9, town-layout-v3.md section 7e): a 30 stud back alley behind each row of cafes,
+-- closed at both ends since v3.1 took the Alley Square away. Every cafe's yard gate, the side passages between cafes
+-- and the Town Square's side arches open onto it, and the Woods and Sewer gates stand in its outer walls straight
+-- across from the side arches.
 local AI, AO = W.AlleyInnerX, W.AlleyOuterX
-local SQ1, SQ2 = W.SquareSouthZ, W.SquareNorthZ
-local SH = W.StreetHalfWidth + 2 -- the street and its sidewalks
-local NG = W.StreetHalfWidth -- the Square's north wall is also the Neighbourhood's near wall, open for its gate
+local AS, AN = W.AlleySouthZ, W.AlleyNorthZ
+local MID = (AI + AO) / 2 -- the middle of a back alley's width
+local GH = W.SideGateHalfWidth -- the Woods and Sewer gate openings, z -GH to GH in the outer walls
 
 -- Two lane spawn points behind every cafe, in plot order: plot p owns alley points 2p - 1 and 2p, so the tutorial
--- stray waits right outside a beginner's own yard gate. Then eight in the Square, where Epic and rarer strays go.
+-- stray waits right outside a beginner's own yard gate. Then two nooks at each end of each back alley (s = -1 west,
+-- 1 east), where Epic and rarer strays go: 6.5 studs off the end walls, so 2 inside the roam rects, and at least 10
+-- studs from every lane point (town-layout-v3.md 7e's suggested points, the ones 4.5 off moved out by 2).
+local NOOKS = { { 70, 119 }, { 78, 119 }, { 82, -119 }, { 68, -119 } }
 local function alleySpawnPoints(): { Point }
 	local points: { Point } = {}
 	for index = 1, W.PlotCount do
@@ -279,20 +287,10 @@ local function alleySpawnPoints(): { Point }
 		table.insert(points, { x = side * (AI + 7), y = 0.1, z = placement.z - 7, zone = "lane" })
 		table.insert(points, { x = side * (AO - 7), y = 0.1, z = placement.z + 9, zone = "lane" })
 	end
-	-- from the Square's south edge
-	for _, xz in
-		{
-			{ -76, 16 },
-			{ -48, 40 },
-			{ -22, 54 },
-			{ 12, 24 },
-			{ 36, 50 },
-			{ 62, 18 },
-			{ 80, 42 },
-			{ -70, 52 },
-		}
-	do
-		table.insert(points, { x = xz[1], y = 0.1, z = W.SquareSouthZ + xz[2], zone = "square" })
+	for _, side in { -1, 1 } do
+		for _, xz in NOOKS do
+			table.insert(points, { x = side * xz[1], y = 0.1, z = xz[2], zone = "nook" })
+		end
 	end
 	return points
 end
@@ -315,20 +313,42 @@ local function onOuterWall(
 	}
 end
 
--- Building backs (30.6 wide) along each back alley's outer wall, from the Woods and Sewer gates north to the
--- Square, so the lane reads as the backs of buildings rather than a bare wall (world-and-feel.md section 2). The
--- first back clears the gate's pillar and the last stops short of the Square arch; as many as fit between, evenly
--- spaced (eight in layout v3).
+-- A piece against a back alley's end wall (side -1 west, 1 east; north 1 for the north end, -1 the south), front
+-- (-Z) turned down the alley; `along` and `out` as for onOuterWall.
+local function onEndWall(
+	asset: string,
+	side: number,
+	north: number,
+	along: number?,
+	out: number?
+): Prop
+	return {
+		asset = asset,
+		x = side * MID + north * (along or 0),
+		z = if north > 0 then AN + (out or 0) else AS - (out or 0),
+		rotY = if north > 0 then 0 else 180,
+	}
+end
+
+-- Building backs (30.6 wide) along each back alley's outer wall, so the lane reads as the backs of buildings rather
+-- than a bare wall (world-and-feel.md section 2): three either side of the Woods or Sewer gate, from clear of the
+-- end wall's piece to clear of the gate's model (42 studs wide with its pillars), evenly spaced.
 local BACK_WIDTH = 30.6
+local GATE_CLEAR = 21.2
+local END_CLEAR = 5 -- the deepest end wall piece, the fire escape
 local BACK_SLOTS: { number } = (function(): { number }
-	local first, last = W.AlleySouthZ + 17.3, SQ1 - 17.2
+	local first, last = AS + END_CLEAR + BACK_WIDTH / 2, -GATE_CLEAR - BACK_WIDTH / 2
 	local count = math.floor((last - first) / BACK_WIDTH) + 1
 	local slots: { number } = {}
 	for n = 0, count - 1 do
 		table.insert(slots, first + n * (last - first) / (count - 1))
 	end
+	for n = count, 1, -1 do -- the north run mirrors the south one
+		table.insert(slots, -slots[n])
+	end
 	return slots
 end)()
+local GATE_SLOT = #BACK_SLOTS // 2 -- the last back south of the gate; the next one is the first north of it
 -- The fire escape's first landing (top 9.35) is reached from the crate stack's tall column (top 7.7), which
 -- stands just past the landing's open end at local x -8 (asset manifest, ledges_roblox).
 local CRATES_ALONG, CRATES_OUT = -12, -2.8
@@ -338,27 +358,17 @@ local function alleyDressing(): { Prop }
 	local function add(prop: Prop)
 		table.insert(props, prop)
 	end
-	-- south to north; the loose props and rescue spots below stand in front of windows and doors, never a fire escape
+	-- south to north; the loose props and rescue spots below stand in front of windows and doors, never a fire
+	-- escape, and no fire escape's crates reach the gate
 	local rows = {
-		[-1] = {
-			"WallWindows",
-			"WallDoor",
-			"WallWindows",
-			"FireEscape",
-			"WallWindows",
-			"WallDoor",
-			"FireEscape",
-			"WallWindows",
-		},
+		[-1] = { "WallWindows", "FireEscape", "WallWindows", "WallDoor", "WallWindows", "WallDoor" },
 		[1] = {
-			"WallDoor",
 			"WallWindows",
 			"FireEscape",
 			"WallWindows",
 			"WallDoor",
-			"WallWindows",
 			"FireEscape",
-			"WallDoor",
+			"WallWindows",
 		},
 	}
 	for _, side in { -1, 1 } do
@@ -369,90 +379,80 @@ local function alleyDressing(): { Prop }
 				add(onOuterWall("CatCafe_Alley_CrateStack", side, z, CRATES_ALONG, CRATES_OUT))
 			end
 		end
-		-- String lights across the lane in some of the gaps between buildings (one by the side arch from the Town
-		-- Square), a laundry line in front of a windowed back.
-		for _, gap in { 1, 2, 4, 6, 7 } do
-			local z = (BACK_SLOTS[gap] + BACK_SLOTS[gap + 1]) / 2
-			add({ asset = "CatCafe_Alley_StringLightsLong", x = side * (AI + AO) / 2, z = z })
+		-- String lights across the lane in the gaps between buildings, a laundry line in front of a windowed back.
+		for slot = 1, #BACK_SLOTS - 1 do
+			if slot ~= GATE_SLOT then
+				add({
+					asset = "CatCafe_Alley_StringLightsLong",
+					x = side * MID,
+					z = (BACK_SLOTS[slot] + BACK_SLOTS[slot + 1]) / 2,
+				})
+			end
 		end
 		add({
 			asset = "CatCafe_Alley_LaundryLine",
-			x = side * ((AI + AO) / 2 - 0.4),
-			z = if side < 0 then BACK_SLOTS[5] else BACK_SLOTS[2],
+			x = side * (MID - 0.4),
+			z = if side < 0 then BACK_SLOTS[5] else BACK_SLOTS[3],
 		})
+		-- the south dead ends: a staff door
+		add(onEndWall("CatCafe_Alley_WallDoor", side, -1))
 	end
-	-- The Square: the mural faces the street arch, a staff door beside it, a fire escape with its crates on the
-	-- west wall and windows on the east.
-	add({ asset = "CatCafe_Alley_Mural", x = -AO + 22, z = SQ2 })
-	add({ asset = "CatCafe_Alley_WallDoor", x = AO - 22, z = SQ2 })
-	local squareMid = (SQ1 + SQ2) / 2
-	add(onOuterWall("CatCafe_Alley_FireEscape", -1, squareMid))
-	add(onOuterWall("CatCafe_Alley_CrateStack", -1, squareMid, CRATES_ALONG, CRATES_OUT))
-	add(onOuterWall("CatCafe_Alley_WallWindows", 1, squareMid))
-	add({ asset = "CatCafe_Alley_StringLightsLong", x = -AO + 49, z = SQ1 + 30, rotY = 90 })
-	add({ asset = "CatCafe_Alley_StringLightsLong", x = AO - 49, z = SQ1 + 30, rotY = 90 })
+	-- The north dead ends take what stood in the Alley Square: the mural on the west, the fire escape with its
+	-- crates on the east (its crates reach the east alley's inner edge, the landing's open end being on that side).
+	add(onEndWall("CatCafe_Alley_Mural", -1, 1))
+	add(onEndWall("CatCafe_Alley_FireEscape", 1, 1))
+	add(onEndWall("CatCafe_Alley_CrateStack", 1, 1, CRATES_ALONG, CRATES_OUT))
 	return props
 end
 
 Layout.alley = {
 	floorY = 0.1,
-	center = { x = 0, y = 0, z = (W.AlleySouthZ + SQ2) / 2 },
+	center = { x = 0, y = 0, z = (AS + AN) / 2 },
 	halfWidth = AO,
-	halfDepth = (SQ2 - W.AlleySouthZ) / 2,
+	halfDepth = (AN - AS) / 2,
 	rects = {
-		{ x1 = -AO, z1 = W.AlleySouthZ, x2 = -AI, z2 = SQ1 }, -- west back alley
-		{ x1 = AI, z1 = W.AlleySouthZ, x2 = AO, z2 = SQ1 }, -- east back alley
-		{ x1 = -AO, z1 = SQ1, x2 = AO, z2 = SQ2 }, -- the Alley Square
+		{ x1 = -AO, z1 = AS, x2 = -AI, z2 = AN }, -- west back alley
+		{ x1 = AI, z1 = AS, x2 = AO, z2 = AN }, -- east back alley
 	},
 	walls = {
-		{ x1 = -AO - 1, z1 = W.AlleySouthZ, x2 = -AO, z2 = SQ2 + 1 }, -- west outer wall
-		{ x1 = AO, z1 = W.AlleySouthZ, x2 = AO + 1, z2 = SQ2 + 1 }, -- east outer wall
-		{ x1 = -AO, z1 = SQ2, x2 = -NG, z2 = SQ2 + 1 }, -- north wall, west of the Neighbourhood gate
-		{ x1 = NG, z1 = SQ2, x2 = AO, z2 = SQ2 + 1 }, -- north wall, east of the Neighbourhood gate
-		{ x1 = -AI, z1 = SQ1 - 1, x2 = -SH, z2 = SQ1 }, -- south wall between the west alley and the street
-		{ x1 = SH, z1 = SQ1 - 1, x2 = AI, z2 = SQ1 }, -- south wall between the street and the east alley
+		-- the outer walls, open for the Woods and Sewer gates
+		{ x1 = -AO - 1, z1 = AS - 1, x2 = -AO, z2 = -GH },
+		{ x1 = -AO - 1, z1 = GH, x2 = -AO, z2 = AN + 1 },
+		{ x1 = AO, z1 = AS - 1, x2 = AO + 1, z2 = -GH },
+		{ x1 = AO, z1 = GH, x2 = AO + 1, z2 = AN + 1 },
+		-- the end walls, carried on to the Park's and the Neighbourhood's side walls so the town is closed between
+		-- them (the area walls are 1 thick on their edges)
+		{ x1 = -AO, z1 = AS - 1, x2 = -W.ParkWidth / 2 - 0.5, z2 = AS },
+		{ x1 = W.ParkWidth / 2 + 0.5, z1 = AS - 1, x2 = AO, z2 = AS },
+		{ x1 = -AO, z1 = AN, x2 = -W.NeighbourhoodWidth / 2 - 0.5, z2 = AN + 1 },
+		{ x1 = W.NeighbourhoodWidth / 2 + 0.5, z1 = AN, x2 = AO, z2 = AN + 1 },
 	},
-	-- Strays keep off the strip along the outer walls where the building backs, fire escapes and crate stacks
-	-- stand (up to 5 studs deep), and off the Square's north wall with its mural and staff door.
+	-- Strays keep off the strip along the outer walls where the building backs, fire escapes and crate stacks stand
+	-- (up to 5 studs deep), and 4 off the end walls, so the nooks 4.5 from them stay inside.
 	roam = {
-		{ x1 = -AO + 5, z1 = W.AlleySouthZ, x2 = -AI, z2 = SQ1 },
-		{ x1 = AI, z1 = W.AlleySouthZ, x2 = AO - 5, z2 = SQ1 },
-		{ x1 = -AO + 5, z1 = SQ1, x2 = AO - 5, z2 = SQ2 - 3.5 },
+		{ x1 = -AO + 5, z1 = AS + 4, x2 = -AI, z2 = AN - 4 },
+		{ x1 = AI, z1 = AS + 4, x2 = AO - 5, z2 = AN - 4 },
 	},
 	wallHeight = 10,
-	arches = {
-		{
-			x = 0,
-			z = SQ1 - 0.5,
-			span = SH * 2,
-			label = "THE ALLEYWAY",
-			asset = "CatCafe_Alley_ArchStreet",
-		},
-		{
-			x = -(AI + AO) / 2,
-			z = SQ1 - 0.5,
-			span = AO - AI,
-			label = "ALLEY SQUARE",
-			asset = "CatCafe_Alley_Arch",
-		},
-		{
-			x = (AI + AO) / 2,
-			z = SQ1 - 0.5,
-			span = AO - AI,
-			label = "ALLEY SQUARE",
-			asset = "CatCafe_Alley_Arch",
-		},
-	},
-	arrival = { x = 0, y = 0.1, z = SQ1 + 6, rotY = 180 }, -- just inside the street arch, facing into the Square
+	arches = {}, -- entered through the Town Square's side arches (Layout.townSquare.arches), the yards and passages
+	-- Fast travel lands just inside the side arch on the side of the player's own cafe, facing along the alley: the
+	-- west one with no cafe, arrivalEast for a cafe on the east side (TravelService).
+	arrival = { x = -(AI + 9), y = 0.1, z = -8, rotY = 180 },
+	arrivalEast = { x = AI + 9, y = 0.1, z = -8, rotY = 180 },
 	spawnPoints = alleySpawnPoints(),
 	rescueSpots = {
-		-- A trash bin in each back alley against the outer wall, lid toward the lane, and the garbage bags in the
-		-- Square against the north wall (data-model section 9). Each bin stands in front of a windowed back and keeps
-		-- 9 studs from every lane spawn point, so a stray there never takes the rescue's prompt (reviewer N77).
+		-- A trash bin in each back alley and the garbage bags on the west outer wall between the cafe rows, each in
+		-- front of a windowed back, lid toward the lane, and 9 studs from every spawn point so a stray there never
+		-- takes the rescue's prompt (reviewer N77).
 		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = -AO + 4.5, z = -36, rotY = -90 },
-		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = AO - 4.5, z = -20, rotY = 90 },
-		-- between the mural and the Neighbourhood gate
-		{ prop = "CatCafe_Alley_GarbageBags", trap = "garbage_bag", x = -AO + 40, z = SQ2 - 1.6 },
+		{ prop = "CatCafe_Alley_TrashBin", trap = "trash_bin", x = AO - 4.5, z = -40, rotY = 90 },
+		{
+			prop = "CatCafe_Alley_GarbageBags",
+			trap = "garbage_bag",
+			x = -AO + 4.5,
+			z = 80,
+			rotY = -90,
+		},
 	} :: { RescuePoint },
 	-- The building backs, crate stacks, lights and laundry from alleyDressing, then the loose props in front of
 	-- them: clear of the backs' depth (2.7 windows, 3.4 door canopy, 5 fire escape) and of the lane spawn points.
@@ -460,29 +460,23 @@ Layout.alley = {
 		local props = alleyDressing()
 		for _, prop in
 			{
-				-- West back alley: a dumpster corner with bags, a bin by the windows, a crate by the staff door
+				-- West back alley: a dumpster corner at each end, a bin by the staff door, a crate, puddles
 				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 4.8, z = -104, rotY = 90 },
 				{ asset = "CatCafe_Alley_GarbageBags", x = -AO + 4.6, z = -111, rotY = 90 },
-				{ asset = "CatCafe_Alley_TrashCan", x = -AO + 3.8, z = 20 },
+				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 3, z = AN - 7.5, rotY = 90 },
+				{ asset = "CatCafe_Alley_TrashCan", x = -AO + 3.8, z = 47 },
 				{ asset = "CatCafe_Alley_Crate", x = -AO + 4.5, z = 55 },
 				{ asset = "CatCafe_Alley_Puddle", x = -AI - 13, z = -40 },
 				{ asset = "CatCafe_Alley_Puddle", x = -AI - 11, z = 40 },
-				-- East back alley
-				{ asset = "CatCafe_Alley_Dumpster", x = AO - 4.8, z = 50, rotY = -90 },
-				{ asset = "CatCafe_Alley_GarbageBags", x = AO - 4.6, z = 43, rotY = -90 },
-				{ asset = "CatCafe_Alley_TrashCan", x = AO - 3.8, z = -70 },
-				{ asset = "CatCafe_Alley_Crate", x = AO - 3.8, z = -84 },
+				-- East back alley: a dumpster corner at the south end, crates by the fire escape at the north end
+				{ asset = "CatCafe_Alley_Dumpster", x = AO - 4.8, z = -104, rotY = -90 },
+				{ asset = "CatCafe_Alley_GarbageBags", x = AO - 4.6, z = -111, rotY = -90 },
+				{ asset = "CatCafe_Alley_TrashCan", x = AO - 3.8, z = -28 },
+				{ asset = "CatCafe_Alley_Crate", x = AO - 3.8, z = 100 },
+				{ asset = "CatCafe_Alley_Crate", x = AO - 4, z = AN - 7 },
+				{ asset = "CatCafe_Alley_Crate", x = AO - 2.5, z = AN - 9.5 },
 				{ asset = "CatCafe_Alley_Puddle", x = AI + 17, z = -12 },
 				{ asset = "CatCafe_Alley_Puddle", x = AI + 12, z = 26 },
-				-- The Square: a dumpster corner, crates, lamps either side of the street arch, puddles that shine
-				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 3, z = SQ2 - 8, rotY = 90 },
-				{ asset = "CatCafe_Alley_Crate", x = AO - 4, z = SQ2 - 4 },
-				{ asset = "CatCafe_Alley_Crate", x = AO - 2.5, z = SQ2 - 6.5 },
-				{ asset = "CatCafe_Alley_TrashCan", x = AO - 49, z = SQ2 - 2 },
-				{ asset = "CatCafe_Alley_StreetLamp", x = -SH - 4, z = SQ1 + 4 },
-				{ asset = "CatCafe_Alley_StreetLamp", x = SH + 4, z = SQ1 + 4 },
-				{ asset = "CatCafe_Alley_Puddle", x = -26, z = SQ1 + 22 },
-				{ asset = "CatCafe_Alley_Puddle", x = 20, z = SQ1 + 40 },
 			} :: { Prop }
 		do
 			table.insert(props, prop)
@@ -555,8 +549,8 @@ end
 
 -- Areas 3 to 5 are grayboxes (features section 3): flat ground, walls, a gate, spawn points and rescue spots.
 -- The rescue props and the scenery reuse alley and park models until each area gets its own set; the rescue
--- spots become the area's traps in F27. The Neighbourhood opens on its -Z side into the Alley Square; the Woods
--- and the Sewer open on their +Z side onto the south ends of the back alleys.
+-- spots become the area's traps in F27. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the street's north
+-- end, the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
 local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
 local NHW, NHD = W.NeighbourhoodWidth / 2, W.NeighbourhoodDepth / 2
 -- The Neighbourhood (areas-and-stations.md, design #240): the gate opens onto Whisker Lane, which runs 58 studs
@@ -572,7 +566,6 @@ Layout.neighbourhood = {
 	halfWidth = NHW,
 	halfDepth = NHD,
 	gateZ = W.NeighbourhoodGateZ,
-	nearWall = false, -- the Square's north wall closes this side
 	paths = {
 		{ x1 = NX - 5, z1 = NZ - NHD, x2 = NX + 5, z2 = LS }, -- Whisker Lane
 		{ x1 = NX - LOOP, z1 = LS, x2 = NX + LOOP, z2 = LS + ROAD }, -- the loop, south
@@ -627,16 +620,64 @@ Layout.neighbourhood = {
 	},
 } :: AreaSpec
 
+-- The Woods and the Sewer keep their v3 graybox plans, which faced the town on their +Z side, turned a quarter so
+-- that side faces the town (town-layout-v3.md section 7f): an offset (dx, dz) becomes (dz, -dx) for the Woods
+-- (quarter 1, the town toward +X) and (-dz, dx) for the Sewer (quarter -1), and a turn rotY becomes rotY + 90 x
+-- quarter. Their kits will come as sets with their own points.
+local function quarterTurn(quarter: number, dx: number, dz: number): (number, number)
+	return quarter * dz, -quarter * dx
+end
+
+local function aroundTurned(
+	cx: number,
+	cz: number,
+	quarter: number,
+	offsets: { { number } }
+): { Point }
+	local points: { Point } = {}
+	for _, offset in offsets do
+		local dx, dz = quarterTurn(quarter, offset[1], offset[2])
+		table.insert(points, { x = cx + dx, y = 0.1, z = cz + dz })
+	end
+	return points
+end
+
+local function trapTurned(
+	cx: number,
+	cz: number,
+	quarter: number,
+	prop: string,
+	trap: string,
+	dx: number,
+	dz: number,
+	rotY: number?
+): RescuePoint
+	local x, z = quarterTurn(quarter, dx, dz)
+	return { prop = prop, trap = trap, x = cx + x, z = cz + z, rotY = (rotY or 0) + 90 * quarter }
+end
+
+local function propTurned(
+	cx: number,
+	cz: number,
+	quarter: number,
+	asset: string,
+	dx: number,
+	dz: number
+): Prop
+	local x, z = quarterTurn(quarter, dx, dz)
+	return { asset = asset, x = cx + x, z = cz + z, rotY = 90 * quarter }
+end
+
 local WX, WZ = W.WoodsCenterX, W.WoodsCenterZ
-local WHW, WHD = W.WoodsWidth / 2, W.WoodsDepth / 2
+local WHW = W.WoodsWidth / 2
 Layout.woods = {
 	floorY = 0.1,
 	center = { x = WX, y = 0, z = WZ },
 	halfWidth = WHW,
-	halfDepth = WHD,
-	gateZ = W.WoodsGateZ,
-	openingHalfWidth = (AO - AI) / 2, -- the whole back alley's width opens into it
-	spawnPoints = around(WX, WZ, {
+	halfDepth = W.WoodsDepth / 2,
+	gateX = W.WoodsGateX,
+	openingHalfWidth = GH,
+	spawnPoints = aroundTurned(WX, WZ, 1, {
 		{ -5, 24 },
 		{ 8, 22 },
 		{ -18, 22 },
@@ -655,36 +696,30 @@ Layout.woods = {
 		{ 16, -26 },
 	}),
 	rescueSpots = {
-		-- Stand-ins for the hollow log and the bramble bush; branches reach toward the middle.
-		{ prop = "CatCafe_Alley_StuckTree", trap = "hollow_log", x = WX + WHW - 4, z = WZ - 26 },
-		{
-			prop = "CatCafe_Alley_StuckTree",
-			trap = "bramble_bush",
-			x = WX - WHW + 4,
-			z = WZ + 18,
-			rotY = 180,
-		},
+		-- Stand-ins for the hollow log and the bramble bush, against the side walls; branches reach toward the middle.
+		trapTurned(WX, WZ, 1, "CatCafe_Alley_StuckTree", "hollow_log", WHW - 4, -26),
+		trapTurned(WX, WZ, 1, "CatCafe_Alley_StuckTree", "bramble_bush", -WHW + 4, 18, 180),
 	},
 	props = {
-		{ asset = "CatCafe_Park_Tree", x = WX + 27, z = WZ + 14 },
-		{ asset = "CatCafe_Park_Tree", x = WX - 27, z = WZ - 16 },
-		{ asset = "CatCafe_Park_Tree", x = WX - 3, z = WZ - 29 },
-		{ asset = "CatCafe_Park_Tree", x = WX - 18, z = WZ + 5 },
-		{ asset = "CatCafe_Park_Tree", x = WX + 11, z = WZ - 16 },
-		{ asset = "CatCafe_Park_Tree", x = WX - 21, z = WZ - 28 },
+		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", 27, 14),
+		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -27, -16),
+		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -3, -29),
+		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -18, 5),
+		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", 11, -16),
+		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -21, -28),
 	},
 } :: AreaSpec
 
 local SX, SZ = W.SewerCenterX, W.SewerCenterZ
-local SHW, SHD = W.SewerWidth / 2, W.SewerDepth / 2
+local SHD = W.SewerWidth / 2 -- the plan's depth runs along X once turned
 Layout.sewer = {
 	floorY = 0.1,
 	center = { x = SX, y = 0, z = SZ },
-	halfWidth = SHW,
-	halfDepth = SHD,
-	gateZ = W.SewerGateZ,
-	openingHalfWidth = (AO - AI) / 2, -- the whole back alley's width opens into it
-	spawnPoints = around(SX, SZ, {
+	halfWidth = W.SewerWidth / 2,
+	halfDepth = W.SewerDepth / 2,
+	gateX = W.SewerGateX,
+	openingHalfWidth = GH,
+	spawnPoints = aroundTurned(SX, SZ, -1, {
 		{ -5, 18 },
 		{ 6, 18 },
 		{ -16, 18 },
@@ -704,27 +739,16 @@ Layout.sewer = {
 	}),
 	rescueSpots = {
 		-- Stand-ins for the drain pipe and the grate, both on the far wall, outlets toward the opening.
-		{
-			prop = "CatCafe_Alley_Drainpipe",
-			trap = "drain_pipe",
-			x = SX - 12,
-			z = SZ - SHD + 0.5,
-			rotY = 180,
-		},
-		{
-			prop = "CatCafe_Alley_Drainpipe",
-			trap = "grate",
-			x = SX + 14,
-			z = SZ - SHD + 0.5,
-			rotY = 180,
-		},
+		trapTurned(SX, SZ, -1, "CatCafe_Alley_Drainpipe", "drain_pipe", -12, -SHD + 0.5, 180),
+		trapTurned(SX, SZ, -1, "CatCafe_Alley_Drainpipe", "grate", 14, -SHD + 0.5, 180),
 	},
 	props = {
-		{ asset = "CatCafe_Alley_StreetLamp", x = SX - 16, z = SZ + SHD - 3 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = SX + 16, z = SZ + SHD - 3 },
-		{ asset = "CatCafe_Alley_Crate", x = SX - 27, z = SZ + 10 },
-		{ asset = "CatCafe_Alley_Crate", x = SX + 27, z = SZ + 5 },
-		{ asset = "CatCafe_Alley_TrashCan", x = SX - 27, z = SZ - 12 },
+		-- lamps either side of the opening, then crates and a bin
+		propTurned(SX, SZ, -1, "CatCafe_Alley_StreetLamp", -16, SHD - 3),
+		propTurned(SX, SZ, -1, "CatCafe_Alley_StreetLamp", 16, SHD - 3),
+		propTurned(SX, SZ, -1, "CatCafe_Alley_Crate", -27, 10),
+		propTurned(SX, SZ, -1, "CatCafe_Alley_Crate", 27, 5),
+		propTurned(SX, SZ, -1, "CatCafe_Alley_TrashCan", -27, -12),
 	},
 } :: AreaSpec
 
@@ -787,6 +811,9 @@ Layout.townSquare = {
 		},
 	} :: { Arch },
 	fountainRadius = 6, -- with a low rim players can sit on
+	-- The finger signpost (v3.1, section 7d) in place of the ring's south-west bench: left of the fountain from the
+	-- spawn and off the cross. Its arms point at the four gates.
+	signpost = { x = -9, y = 0.1, z = -7.5 } :: Point,
 	-- The dressing that is code's to place, until the art thread's square placement table replaces it: the fountain.
 	props = {
 		{ asset = "CatCafe_Square_Fountain", x = 0, z = 0 },
@@ -802,14 +829,10 @@ Layout.codesCat = station(-28, -16)
 Layout.dealerCart = station(28, -16)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 
--- The manhole in the middle of the Alley Square (world-and-feel.md section 2: "the Sewer down a manhole in the
--- middle of the Square"): a shortcut into the Sewer once it opens, alongside its gate at the east back alley's
--- south end. Its sign (-Z) faces the street arch.
-Layout.manhole = { area = "sewer", x = 0, y = 0.1, z = (SQ1 + SQ2) / 2 + 4 }
-
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one 8 studs inside each area's
 -- entrance, to the right of the path for a player walking in and turned 20 degrees toward it. In the space of the
--- area's gate, or of the street arch for the Alleyway, whose +Z both run into the area.
+-- area's gate, or for the Alleyway of each of the Town Square's side arches (v3.1: a board inside both), whose +Z
+-- all run into the area.
 Layout.indexBoards = {
 	alley = { x = -9, y = 0, z = 8, rotY = -20 },
 	park = { x = -7, y = 0, z = 8, rotY = -20 },
@@ -817,7 +840,27 @@ Layout.indexBoards = {
 	woods = { x = -10, y = 0, z = 8, rotY = -20 },
 	sewer = { x = -10, y = 0, z = 8, rotY = -20 },
 } :: { [string]: Point }
-Layout.streetArchAsset = "CatCafe_Alley_ArchStreet" -- the Alleyway's board stands off this arch
+
+-- The turn (degrees about Y) that faces a gate's front (-Z, its sign) the way players come from, which is also the
+-- turn that puts an area kit's -Z side toward the town (town-layout-v3.md section 7b): none for the Neighbourhood, a
+-- half turn for the Park, a quarter turn each way for the Woods and the Sewer. 0 for an area with no gate.
+function Layout.gateTurn(spec: AreaSpec): number
+	local gateX, gateZ = spec.gateX, spec.gateZ
+	if gateX ~= nil then
+		return if gateX > spec.center.x then -90 else 90
+	end
+	return if gateZ ~= nil and gateZ > spec.center.z then 180 else 0
+end
+
+-- Where an area's gate stands: across the middle of its opening. Nil for an area with no gate.
+function Layout.gatePosition(spec: AreaSpec): (number?, number?)
+	if spec.gateX ~= nil then
+		return spec.gateX, spec.center.z
+	elseif spec.gateZ ~= nil then
+		return spec.center.x, spec.gateZ
+	end
+	return nil, nil
+end
 
 -- Every area by id, in the order Catalog.areas lists them.
 Layout.areas = {
@@ -827,6 +870,79 @@ Layout.areas = {
 	woods = Layout.woods,
 	sewer = Layout.sewer,
 } :: { [string]: AreaSpec }
+
+-- The paw paths (town-layout-v3.md section 7d): from the fountain's ring along an arm of the cross to each gated
+-- area's gate and PAW_PAST studs into it, a print every PAW_STRIDE studs, left and right of the line like a walking
+-- cat. A print skips the flat marks it would lie on (the SAFE ZONE words and red stripe by each side arch and street
+-- gate) and the wall line at a side gate. `y` is the top of what it lies on; `rotY` turns its front (-Z) toward the
+-- gate.
+export type PawPrint = { area: string, x: number, y: number, z: number, rotY: number }
+
+local PAW_STRIDE = 3.5
+local PAW_PAST = 10
+local PAW_SIDE = 0.7 -- left or right of the line
+
+-- The top of what lies at (x, z) on a paw path: the square's lane marks over its paving, a box area's road, the
+-- street and the alley and area floors, else the gardens' grass.
+local function pawSurface(x: number, z: number, spec: AreaSpec): number
+	if math.abs(x) <= TSW and math.abs(z) <= TSD then
+		return 0.12
+	end
+	local paths: { Rect } = spec.paths or {}
+	for _, rect in paths do
+		if x >= rect.x1 and x <= rect.x2 and z >= rect.z1 and z <= rect.z2 then
+			return spec.floorY + 0.05
+		end
+	end
+	local onStreet = math.abs(x) <= W.StreetHalfWidth and math.abs(z) <= W.StreetNorthZ
+	local inAlley = math.abs(x) >= AI and math.abs(x) <= AO
+	local inArea = math.abs(x - spec.center.x) <= spec.halfWidth
+		and math.abs(z - spec.center.z) <= spec.halfDepth
+	return if onStreet or inAlley or inArea then 0.1 else 0
+end
+
+function Layout.pawPrints(): { PawPrint }
+	local prints: { PawPrint } = {}
+	for id, spec in Layout.areas do
+		local gx, gz = Layout.gatePosition(spec)
+		if gx == nil or gz == nil then
+			continue
+		end
+		-- along the cross from the origin: a side gate straight out along X, a street gate along Z
+		local ux, uz = 0, 0
+		local gate: number
+		local skips: { { number } }
+		if spec.gateX ~= nil then
+			ux, gate = math.sign(gx), math.abs(gx)
+			skips = { { AI - 5, AI + 1 }, { AO - 0.5, gate + 2 } }
+		else
+			uz, gate = math.sign(gz), math.abs(gz)
+			skips = { { gate - 5.5, gate + 2.5 } }
+		end
+		local rotY = math.deg(math.atan2(-ux, -uz))
+		local d, k = Layout.townSquare.fountainRadius + 2, 0
+		while d <= gate + PAW_PAST do
+			local skipped = false
+			for _, skip in skips do
+				if d >= skip[1] and d <= skip[2] then
+					skipped = true
+				end
+			end
+			if not skipped then
+				local side = if k % 2 == 0 then -PAW_SIDE else PAW_SIDE
+				-- the line's right hand is (-uz, ux) for a walker facing (ux, uz)
+				local x, z = ux * d - uz * side, uz * d + ux * side
+				table.insert(
+					prints,
+					{ area = id, x = x, y = pawSurface(x, z, spec), z = z, rotY = rotY }
+				)
+			end
+			d += PAW_STRIDE
+			k += 1
+		end
+	end
+	return prints
+end
 
 -- Player spawn in the Town Square on the street's line, looking north at the fountain (WorldBuilder turns it by
 -- rotY, and a character spawns facing the way its SpawnLocation faces).

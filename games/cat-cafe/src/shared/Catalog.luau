@@ -1026,7 +1026,7 @@ Catalog.areas = {
 		id = "alley",
 		name = "Alleyway",
 		tier = 1,
-		spawnPoints = 24, -- v0.4 layout: two behind every cafe, eight in the Alley Square
+		spawnPoints = 24, -- two behind every cafe, two at each end of the back alleys (layout v3.1)
 		waveSize = 10,
 		rescueSpots = 3,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },

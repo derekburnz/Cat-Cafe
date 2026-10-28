@@ -439,28 +439,29 @@ local function spawnStray(
 end
 
 -- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Epic and
--- rarer strays take only points tagged "square" when one is free (data-model section 9: the exciting cats are a short run from everyone, no cafe's lane is the lucky one).
+-- rarer strays take only points tagged "nook" when one is free (data-model section 9 and town-layout-v3.md 7e: the
+-- exciting cats wait at the back alleys' ends, so no cafe's lane is the lucky one).
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
 	local free: { number } = {}
-	local square: { number } = {}
-	local hasSquare = false
+	local nooks: { number } = {}
+	local hasNook = false
 	for i, point in area.spawnPoints do
-		local inSquare = point:GetAttribute("Zone") == "square"
-		hasSquare = hasSquare or inSquare
+		local inNook = point:GetAttribute("Zone") == "nook"
+		hasNook = hasNook or inNook
 		if occupied[i] == nil then
 			table.insert(free, i)
-			if inSquare then
-				table.insert(square, i)
+			if inNook then
+				table.insert(nooks, i)
 			end
 		end
 	end
-	-- Epic and rarer spawn only in the Alley Square, never in a back alley lane (F35); with the Square full that
-	-- stray waits for the next wave. spawnWave places the rarer strays first, so this is rare.
+	-- Epic and rarer spawn only in a nook, never in a back alley lane (F35, v3.1); with every nook full that stray
+	-- waits for the next wave. spawnWave places the rarer strays first, so this is rare.
 	local pool: { number } = free
-	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasSquare then
-		pool = square
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasNook then
+		pool = nooks
 	end
 	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
 	local points: { Vector3 } = {}

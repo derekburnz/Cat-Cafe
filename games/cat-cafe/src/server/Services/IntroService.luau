@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local CafeService = require(script.Parent.CafeService)
+local CatService = require(script.Parent.CatService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
@@ -43,6 +44,8 @@ end
 -- Moves the character to the landing when the profile has not seen the intro, or on any respawn with `always`. The
 -- spawn itself places the character first, so this waits for the root and one more frame. The server asks the
 -- client to stream the cafe in first, so the player does not wait on a load screen at the square and again here.
+-- A carrier stays at the square: a carry survives death, and landing at the back door would check the cat in
+-- without the walk home (review S85).
 local function land(player: Player, character: Model, always: boolean?)
 	local root = character:WaitForChild("HumanoidRootPart", 10)
 	if root == nil then
@@ -57,6 +60,7 @@ local function land(player: Player, character: Model, always: boolean?)
 		or landing == nil
 		or player.Character ~= character
 		or character.Parent == nil
+		or CatService.isCarrying(player)
 	then
 		return
 	end
@@ -103,6 +107,7 @@ end
 function IntroService.start()
 	DataService.onLoaded:Connect(onLoaded)
 	local function watch(player: Player)
+		spawned[player] = player.Character ~= nil -- a player already here at start has spawned once (review N227)
 		player.CharacterAdded:Connect(function(character)
 			local respawn = spawned[player] == true
 			spawned[player] = true

@@ -1252,7 +1252,9 @@ end
 
 -- The server's own check-in (Derek 2026-10-28 01:22: "make it friendlier so that you can't run past it"): ten times
 -- a second it checks every carrier's path since the last look, so one who runs straight past a door within
--- CheckInRangeStuds is checked in even if the client's ask never came.
+-- CheckInRangeStuds is checked in even if the client's ask never came. A step longer than MAX_STEP_STUDS is a
+-- teleport or a respawn, not a walk, so only its end counts (review N225).
+local MAX_STEP_STUDS = 16
 local lastCarrierAt: { [Player]: Vector3 } = {}
 local function checkInPassing()
 	local seen: { [Player]: Vector3 } = {}
@@ -1263,6 +1265,9 @@ local function checkInPassing()
 			continue
 		end
 		local from = lastCarrierAt[player] or position
+		if (position - from).Magnitude > MAX_STEP_STUDS then
+			from = position
+		end
 		seen[player] = position
 		local range = Config.CheckInRangeStuds
 		if
@@ -1338,7 +1343,10 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	task.spawn(function()
 		while true do
 			task.wait(0.1)
-			checkInPassing()
+			-- one bad carrier must not end the check-ins for the server's life (review N226, as N185)
+			xpcall(checkInPassing, function(err: unknown)
+				warn("[CatService] check-in: " .. tostring(err))
+			end)
 		end
 	end)
 	Net.on("DropCat", onDropCat)

@@ -1,7 +1,7 @@
 --!strict
 -- The Tackle's character poses (design v0.11, F74; Derek 2026-10-27: the Shove becomes a Tackle): which pose a
--- character is in from its tackle times. Avatar.bind and Avatar.solve need a real R15 character, so they are
--- checked in Studio. Written by the Animation-Engineer (QA said new specs may go straight in here).
+-- character is in from its tackle times. Avatar.bind and Avatar.solve need a real character (R15 or R6), so they
+-- are checked in Studio. Written by the Animation-Engineer (QA said new specs may go straight in here).
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")

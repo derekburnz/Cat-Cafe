@@ -565,6 +565,10 @@ local function wireIntents()
 	UI.events.lockCat:Connect(function(uid: string, locked: boolean)
 		Net.fire("LockCat", uid, locked)
 	end)
+	-- Collect on the till (F61): every waiting tip pile. Walking near a pile sends the same (CustomerController).
+	UI.events.collectTips:Connect(function()
+		Net.fire("CollectTips")
+	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
 	-- the food and the window the screen showed (else the last one sent), so a buy sent across a roll is refused (S42).
 	UI.events.buyDealerFood:Connect(function(_index: number, lureId: string, window: number?)

@@ -189,7 +189,7 @@ return function()
 			local p = ProfileSchema.migrate(raw, 2000)
 			expect(next(p.potions)).never.to.be.ok()
 			expect(next(p.buffs)).never.to.be.ok()
-			expect(p.version).to.equal(13)
+			expect(p.version).to.equal(ProfileSchema.VERSION)
 		end)
 	end)
 

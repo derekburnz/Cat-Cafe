@@ -685,6 +685,10 @@ function CafeService.addCaughtCat(
 			)
 		end
 	end
+	-- F62: gold, Legendary and Mythical cats arrive locked
+	if CatStats.arrivesLocked(def.id, instance.variant) then
+		instance.locked = true
+	end
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
@@ -922,6 +926,10 @@ local function onSellCat(player: Player, rawUid: unknown)
 		Net.toast(player, "You cannot sell your last cat.", "warn")
 		return
 	end
+	if instance.locked == true then
+		Net.toast(player, "This cat is locked. Unlock it to sell it.", "warn")
+		return
+	end
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return
@@ -934,6 +942,21 @@ local function onSellCat(player: Player, rawUid: unknown)
 	Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
 	Net.toast(player, string.format("Sold %s for $%d", def.name, value), "good")
 	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
+-- F62 (section 4): the lock icon on a cat card. A locked cat cannot be sold or traded to the Cat Collector.
+local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
+	local uid = Guard.id(rawUid)
+	local profile = profileFor(player)
+	if profile == nil or uid == nil or type(rawLocked) ~= "boolean" then
+		return
+	end
+	local instance = profile.cats[uid]
+	if instance == nil then
+		return
+	end
+	instance.locked = if rawLocked then true else nil
 	CafeService.sync(player)
 end
 
@@ -1201,6 +1224,7 @@ function CafeService.start()
 	Net.on("EquipBest", onEquipBest)
 	Net.on("UnequipAll", onUnequipAll)
 	Net.on("SellCat", onSellCat)
+	Net.on("LockCat", onLockCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)
 	Net.on("RankUp", onRankUp)

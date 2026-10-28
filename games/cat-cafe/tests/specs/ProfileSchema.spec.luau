@@ -88,10 +88,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 13 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 14 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(13)
-			expect(profile.version).to.equal(13)
+			expect(ProfileSchema.VERSION).to.equal(14)
+			expect(profile.version).to.equal(14)
 			expect(next(profile.potions)).never.to.be.ok()
 			expect(next(profile.buffs)).never.to.be.ok()
 			expect(profile.stats.potionsUsed).to.equal(0)
@@ -225,8 +225,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 14 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 15 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 14 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 13 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 12 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 11 })).to.equal(false)
@@ -1196,6 +1197,50 @@ return function()
 			raw.version = 12
 			raw.stats.catLevelUps = 41
 			expect(ProfileSchema.migrate(raw, 1000).stats.catLevelUps).to.equal(41)
+		end)
+	end)
+	describe("migrate to version 14: the cat lock (F62)", function()
+		local function firstOf(rarity: string): string
+			for _, def in Catalog.cats do
+				if def.rarity == rarity and def.area ~= "spare" then
+					return def.id
+				end
+			end
+			error("no cat of rarity " .. rarity)
+		end
+
+		local function catOf(uid: string, catId: string, variant: string, locked: any): any
+			return { uid = uid, catId = catId, variant = variant, caughtAt = 95, level = 1, xp = 0, charm = 50, locked = locked }
+		end
+
+		it("locks every gold, Legendary and Mythical cat of an older save once", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 13
+			raw.cats.common = catOf("common", firstOf("Common"), "base", nil)
+			raw.cats.gold = catOf("gold", firstOf("Common"), "gold", nil)
+			raw.cats.epic = catOf("epic", firstOf("Epic"), "base", nil)
+			raw.cats.legend = catOf("legend", firstOf("Legendary"), "base", nil)
+			raw.cats.myth = catOf("myth", firstOf("Mythical"), "base", nil)
+			local cats = ProfileSchema.migrate(raw, 1000).cats
+			expect(cats.common.locked).to.equal(nil)
+			expect(cats.gold.locked).to.equal(true)
+			expect(cats.epic.locked).to.equal(nil)
+			expect(cats.legend.locked).to.equal(true)
+			expect(cats.myth.locked).to.equal(true)
+			expect(cats.starter_tabby.locked).to.equal(nil)
+		end)
+
+		it("keeps a version 14 save's locks as saved, so an unlocked Mythical stays unlocked", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.cats.myth = catOf("myth", firstOf("Mythical"), "base", false)
+			raw.cats.common = catOf("common", firstOf("Common"), "base", true)
+			raw.cats.junk = catOf("junk", firstOf("Common"), "base", "yes")
+			local profile = ProfileSchema.migrate(raw, 1000)
+			expect(profile.cats.myth.locked).to.equal(nil)
+			expect(profile.cats.common.locked).to.equal(true)
+			expect(profile.cats.junk.locked).to.equal(nil)
+			-- and loading the result again changes nothing
+			expect(ProfileSchema.migrate(profile, 2000).cats :: any).to.deepEqual(profile.cats)
 		end)
 	end)
 end

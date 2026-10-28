@@ -61,12 +61,13 @@ local function makeMark(model: Model): Mark?
 	gui.Adornee = anchor
 	gui.Size = markSize(1)
 	gui.LightInfluence = 0
+	gui.AlwaysOnTop = true -- seen over the bin's rim and across the area, like a quest marker
 	gui.MaxDistance = m.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
 	gui.Enabled = false
 	local label = Instance.new("TextLabel")
 	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
-	label.Font = Enum.Font.FredokaOne
+	label.FontFace = Font.fromEnum(Enum.Font.FredokaOne)
 	label.Text = "!"
 	label.TextScaled = true
 	label.TextColor3 = m.colour
@@ -156,7 +157,14 @@ local function check()
 		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
 			local model = instance :: Model
 			local distance = (model:GetPivot().Position - focus).Magnitude
-			if Logic.stuckMarkShows(model:GetAttribute("LockedBy"), distance) then
+			local mark = marks[model]
+			if
+				Logic.stuckMarkShows(
+					model:GetAttribute("LockedBy"),
+					distance,
+					mark ~= nil and mark.shown
+				)
+			then
 				table.insert(candidates, { key = model, distance = distance })
 			end
 		end

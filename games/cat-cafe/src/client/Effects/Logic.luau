@@ -241,11 +241,13 @@ function Logic.signatureColors(catId: unknown, gold: boolean): { Color3 }?
 end
 
 -- Whether a stuck cat's "!" can show (Presets.stuckMark): nobody is rescuing it (`LockedBy` is 0 or not set) and you
--- are further than hideWithin but within maxDistance studs.
-function Logic.stuckMarkShows(lockedBy: unknown, distance: number): boolean
+-- are within maxDistance studs but not close: one `shown` hides at hideWithin or nearer, one hidden comes back only
+-- past hideWithin + showAfter, so standing at the edge never pops it in and out.
+function Logic.stuckMarkShows(lockedBy: unknown, distance: number, shown: boolean): boolean
 	local m = Presets.stuckMark
 	local locked = type(lockedBy) == "number" and lockedBy ~= 0
-	return not locked and distance > m.hideWithin and distance <= m.maxDistance
+	local near = if shown then m.hideWithin else m.hideWithin + m.showAfter
+	return not locked and distance > near and distance <= m.maxDistance
 end
 
 -- Whether you stand in a walk-in circle (the Codes Cat's, F65) at `distance` flat studs from its centre: in at

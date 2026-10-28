@@ -13,17 +13,21 @@ return function()
 	describe("Effects stuck cat mark", function()
 		it("shows across the area while nobody is rescuing the cat", function()
 			local m = Presets.stuckMark
-			expect(Logic.stuckMarkShows(0, 40)).to.equal(true)
-			expect(Logic.stuckMarkShows(nil, 40)).to.equal(true) -- LockedBy not replicated yet
-			expect(Logic.stuckMarkShows(0, m.maxDistance)).to.equal(true)
-			expect(Logic.stuckMarkShows(0, m.maxDistance + 1)).to.equal(false)
-			expect(Logic.stuckMarkShows(123456, 40)).to.equal(false) -- someone is rescuing it
+			expect(Logic.stuckMarkShows(0, 40, false)).to.equal(true)
+			expect(Logic.stuckMarkShows(nil, 40, false)).to.equal(true) -- LockedBy not replicated yet
+			expect(Logic.stuckMarkShows(0, m.maxDistance, true)).to.equal(true)
+			expect(Logic.stuckMarkShows(0, m.maxDistance + 1, true)).to.equal(false)
+			expect(Logic.stuckMarkShows(123456, 40, true)).to.equal(false) -- someone is rescuing it
 		end)
 
 		it("hides once you are close enough for the Rescue card", function()
 			local m = Presets.stuckMark
-			expect(Logic.stuckMarkShows(0, m.hideWithin)).to.equal(false)
-			expect(Logic.stuckMarkShows(0, m.hideWithin + 0.5)).to.equal(true)
+			expect(Logic.stuckMarkShows(0, m.hideWithin, true)).to.equal(false)
+			expect(Logic.stuckMarkShows(0, m.hideWithin + 0.5, true)).to.equal(true)
+			-- once hidden it waits until you step back past hideWithin + showAfter, so the edge never flickers
+			expect(m.showAfter > 0).to.equal(true)
+			expect(Logic.stuckMarkShows(0, m.hideWithin + m.showAfter * 0.5, false)).to.equal(false)
+			expect(Logic.stuckMarkShows(0, m.hideWithin + m.showAfter + 0.1, false)).to.equal(true)
 			expect(m.hideWithin >= 8 and m.hideWithin <= 12).to.equal(true) -- GrabRangeStuds is 10
 		end)
 

@@ -1285,6 +1285,7 @@ Presets.stuckMark = {
 	pixels = 18,
 	maxDistance = 160,
 	hideWithin = 10,
+	showAfter = 1, -- a hidden mark comes back only this far past hideWithin
 	most = 6,
 	checkEvery = 0.25,
 }

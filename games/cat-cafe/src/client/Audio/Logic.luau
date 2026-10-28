@@ -291,7 +291,7 @@ function Logic.plotCue(attribute: string, before: any, after: any): string?
 	return nil
 end
 
--- F84 (draft): whether a spot (world X and Z) is out in a wild area. The four wild areas sit wildDistance from the
+-- F84: whether a spot (world X and Z) is out in a wild area. The four wild areas sit wildDistance from the
 -- hometown's centre on the compass points and the hometown is well inside half that, so half is the line. False
 -- while Config.World has no WildAreaDistance, so the town sounds as before until the cannon lands.
 function Logic.inWild(x: number, z: number, wildDistance: any): boolean

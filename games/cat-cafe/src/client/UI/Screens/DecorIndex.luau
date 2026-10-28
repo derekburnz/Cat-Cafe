@@ -1,8 +1,9 @@
 --!strict
 -- The Decor Index (F53, golden-fish.md section 4): the Collection's Decor tab. A page per crate (Alley, Park,
--- Neighbourhood, Woods, Sewer, Classic) with its ten pieces, rarest last, as "?" tiles until owned and then with
--- their name, rarity, kind and tip bonus. Above them the page's reward strip (Screens/IndexStrip) pays 25 golden
--- fish at 5 of 10 (decor5) and +5% tips forever at all 10 (decor10), which also puts a gold frame on the page. The
+-- Neighbourhood, Woods, Sewer, Classic) with its pieces (twelve since F80 added a door set and a cat flap), rarest
+-- last, as "?" tiles until owned and then with their name, rarity, kind and tip bonus. Above them the page's reward
+-- strip (Screens/IndexStrip) pays 25 golden fish at 5 pieces (decor5) and +5% tips forever at all of them (decor10,
+-- whose `needs` the catalog sets, 12 since F80), which also puts a gold frame on the page. The
 -- page tabs carry a red badge when a reward is waiting. Counts come from state.decorOwned (Components/DecorPieces).
 
 local Create = require(script.Parent.Parent.Components.Create)
@@ -53,7 +54,7 @@ local CELL = Vector2.new(112, 134)
 local ICON = 76
 local CHIP_HEIGHT = 46
 local PROGRESS_HEIGHT = 28
-local FULL_MILESTONE = "decor10" -- the all-ten milestone, whose claim puts the gold frame on the page
+local FULL_MILESTONE = "decor10" -- the whole page's milestone (all 12 since F80), whose claim puts on the gold frame
 
 local DecorIndex = {}
 DecorIndex.__index = DecorIndex
@@ -368,7 +369,7 @@ function DecorIndex._buildCell(self: any, def: Types.DecorDef, order: number): C
 		anchorPoint = Vector2.new(0.5, 0),
 		position = UDim2.new(0.5, 0, 0, 6),
 	})
-	-- the kind as a small glyph in the top left corner: wallpaper, floor, paint, furniture or decoration
+	-- the kind as a small glyph in the top left corner: wallpaper, floor, paint, door, cat flap, furniture or decoration
 	local kind = text({
 		Name = "Kind",
 		Position = UDim2.fromOffset(4, 2),

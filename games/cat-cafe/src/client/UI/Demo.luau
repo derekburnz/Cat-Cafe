@@ -137,9 +137,9 @@ local DEMO_INDEX_PRIZES: { [string]: { [string]: Types.IndexPrize } } = {
 }
 
 -- golden-fish.md section 4's draft pieces (names can change), until the engineer's F53 pieces land: per crate,
--- "name/rarity/kind" for its ten cosmetics. They stand in for Catalog.crateDecor and fill the crates, so the
--- Market's odds card and reveal, the Decor screen's style slots and spots, and the Decor Index have something to
--- show.
+-- "name/rarity/kind" for its ten cosmetics (the F80 door and flap follow in DEMO_DOOR_ROWS). They stand in for
+-- Catalog.crateDecor and fill the crates, so the Market's odds card and reveal, the Decor screen's style slots and
+-- spots, and the Decor Index have something to show.
 local DEMO_PIECE_ROWS: { [string]: { string } } = {
 	alley = {
 		"Brick Wall/C/wallpaper",
@@ -214,16 +214,28 @@ local DEMO_PIECE_ROWS: { [string]: { string } } = {
 		"Cat Tree Tower/L/decoration",
 	},
 }
+-- golden-fish.md section 4b's door sets and cat flaps (F80), added to each crate until the catalog has them
+local DEMO_DOOR_ROWS: { [string]: { string } } = {
+	alley = { "Fire Escape Door/C/door", "Neon Paw Flap/R/catflap" },
+	park = { "Garden Gate Door/C/door", "Birdhouse Flap/R/catflap" },
+	neighbourhood = { "Front Porch Door/R/door", "Mail Slot Flap/C/catflap" },
+	woods = { "Log Cabin Door/C/door", "Tree Stump Flap/R/catflap" },
+	sewer = { "Porthole Hatch Door/R/door", "Pipe Ring Flap/C/catflap" },
+	classic = { "Paned Glass Door/C/door", "Bell Flap/R/catflap" },
+}
 local DEMO_RARITY: { [string]: string } =
 	{ C = "Common", R = "Rare", E = "Epic", L = "Legendary", M = "Mythical" }
 local DEMO_BONUS: { [string]: number } =
 	{ Common = 0.02, Rare = 0.04, Epic = 0.08, Legendary = 0.15, Mythical = 0.25 }
 local catalogPieces: { Types.DecorDef }? = (Catalog :: any).crateDecor
-local DEMO_CRATE_DECOR: { Types.DecorDef } = catalogPieces or {}
-local DEMO_POOL_PIECES: { [string]: { string } } = {}
-if catalogPieces == nil then
-	for pool, rows in DEMO_PIECE_ROWS do
-		DEMO_POOL_PIECES[pool] = {}
+-- a copy, so the doors added below never reach the shared Catalog table
+local DEMO_CRATE_DECOR: { Types.DecorDef } = if catalogPieces
+	then table.clone(catalogPieces)
+	else {}
+local DEMO_POOL_PIECES: { [string]: { string } } = {} -- the demo's own pieces per pool, added to the crates
+local function addDemoRows(rowsByPool: { [string]: { string } })
+	for pool, rows in rowsByPool do
+		DEMO_POOL_PIECES[pool] = DEMO_POOL_PIECES[pool] or {}
 		for _, row in rows do
 			local name, letter, kind = row:match("^(.-)/(%a)/(%a+)$")
 			assert(name and letter and kind, row)
@@ -248,11 +260,31 @@ if catalogPieces == nil then
 		end
 	end
 end
+if catalogPieces == nil then
+	addDemoRows(DEMO_PIECE_ROWS)
+end
+local demoDoors = true -- the demo adds F80's doors and flaps, so a whole Decor Index page is 12
+for _, def in DEMO_CRATE_DECOR do
+	if DecorPieces.info(def).kind == "door" then
+		demoDoors = false
+		break
+	end
+end
+if demoDoors then
+	addDemoRows(DEMO_DOOR_ROWS)
+end
 local DEMO_CRATES: { Types.CrateDef } = {}
 for _, def in Catalog.crates do
 	local crate = table.clone(def)
+	local extra: { string } = DEMO_POOL_PIECES[crate.area] or {}
 	if #crate.pieces == 0 then
-		crate.pieces = DEMO_POOL_PIECES[crate.area] or {}
+		crate.pieces = extra
+	elseif #extra > 0 then
+		local pieces = table.clone(crate.pieces)
+		for _, id in extra do
+			table.insert(pieces, id)
+		end
+		crate.pieces = pieces
 	end
 	table.insert(DEMO_CRATES, crate)
 end
@@ -295,9 +327,9 @@ local function withAllCats(
 	end
 	local outPrizes = table.clone(prizes)
 	outPrizes.all = DEMO_ALL_PRIZES
-	-- golden-fish.md section 4's Decor Index: 25 golden fish at 5 of 10 pieces, +5% tips forever at all 10
+	-- golden-fish.md section 4's Decor Index: 25 golden fish at 5 pieces, +5% tips forever at all 12 (F80)
 	table.insert(outMilestones, { id = "decor5", needs = 5, track = "normal" })
-	table.insert(outMilestones, { id = "decor10", needs = 10, track = "normal" })
+	table.insert(outMilestones, { id = "decor10", needs = 12, track = "normal" })
 	for pool in DEMO_PIECE_ROWS do
 		outPrizes[DecorPieces.areaOf(pool)] = { decor5 = { fish = 25 }, decor10 = { bonus = 0.05 } }
 	end
@@ -307,6 +339,19 @@ local demoMilestones, demoPrizes = withAllCats(
 	(Catalog :: any).indexMilestones or DEMO_INDEX_MILESTONES,
 	(Catalog :: any).indexPrizes or DEMO_INDEX_PRIZES
 )
+-- with the demo's doors and flaps on every page, decor10 needs all 12 as F80 has it, until the catalog says so
+if demoDoors then
+	local milestones: { Types.IndexMilestone } = {}
+	for _, milestone in demoMilestones do
+		local row: any = milestone
+		if row.id == "decor10" and (row.needs or 0) < 12 then
+			row = table.clone(row)
+			row.needs = 12
+		end
+		table.insert(milestones, row)
+	end
+	demoMilestones = milestones
+end
 
 -- The real catalog (src/shared/Catalog.luau), so the demo shows the slice's actual cats and prices.
 local CATALOG: Types.Catalog = {
@@ -587,8 +632,8 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 	end)
-	-- ToggleDecor (F53): a wallpaper, floor or paint takes the place of the one in use; furniture and decorations
-	-- need a free decor spot
+	-- ToggleDecor (F53): a style piece (wallpaper, floor, paint, door set, cat flap) takes the place of the one in use;
+	-- furniture and decorations need a free decor spot
 	connections[#connections + 1] = UI.events.toggleDecor:Connect(
 		function(decorId: string, placed: boolean)
 			if not profile.decorOwned[decorId] then

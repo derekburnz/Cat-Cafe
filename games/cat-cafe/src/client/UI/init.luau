@@ -65,6 +65,7 @@ local SpinWheel = require(script.Screens.SpinWheel)
 local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
+local TillTipsButton = require(script.Screens.TillTipsButton)
 local TipJar = require(script.Screens.TipJar)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
@@ -129,6 +130,8 @@ UI.events = {
 	introReplay = Signal.new(),
 	-- F64
 	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
+	-- F61
+	collectTips = Signal.new(), -- ()   Collect on the till's tip button in your cafe: forward as CollectTips
 }
 
 local state: Types.PlayerState = {
@@ -171,6 +174,7 @@ local worldTags: WorldTags.WorldTags? = nil
 local catCard: CatCard.CatCard? = nil -- the hover card over a cat in any cafe (F75)
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
+local tillTips: TillTipsButton.TillTipsButton? = nil -- the till's Collect for tip piles (F61, UI.richTip.bind)
 local tackleBar: TackleBar.TackleBar? = nil -- the Tackle inside catching areas (UI.shove, F74)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
@@ -835,6 +839,11 @@ function UI.init(config: Types.InitConfig)
 			UI.toast("Rich tip missed", "info")
 		end,
 	})
+	tillTips = TillTipsButton.new(parent, {
+		collect = function()
+			UI.events.collectTips:Fire()
+		end,
+	})
 	tackleBar = TackleBar.new(parent, {
 		tackle = function()
 			UI.events.tackle:Fire()
@@ -1062,6 +1071,9 @@ function UI.destroy()
 	if richTipScreen then
 		richTipScreen:destroy()
 	end
+	if tillTips then
+		tillTips:destroy()
+	end
 	if tackleBar then
 		tackleBar:destroy()
 	end
@@ -1085,7 +1097,7 @@ function UI.destroy()
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	locationMarkers, zoneSafe = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
+	cafeSigns, worldTags, actionPills, richTipScreen, tillTips = nil, nil, nil, nil, nil
 	catCard = nil
 	tackleBar = nil
 	Scale.stop()
@@ -1603,10 +1615,15 @@ UI.richTip = {}
 -- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
 -- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
 -- it; a missed one only toasts "Rich tip missed".
+-- F61: the same plot's tip piles too. While its TipPiles is above 0 and the player stands on the plot, a green
+-- "💰 Collect $120" pill floats over the till and fires events.collectTips.
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
+	end
+	if tillTips then
+		tillTips:bind(plot)
 	end
 end
 

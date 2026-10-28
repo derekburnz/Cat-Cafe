@@ -126,7 +126,7 @@ local NIGHT_CHIP = 24 + 4
 -- screen's right edge that stretch may stop and still count.
 local RIGHT_COLUMN_W = 300
 local TOPBAR_SLACK = 48
--- data-model NightIncomeMultiplier (0.6): tips pay this share at night (F31)
+-- data-model NightIncomeMultiplier: tips pay this share at night (F31: 0.6; F60: 1, full pay, so no chip)
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
 local HUD = {}
@@ -201,6 +201,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._lastFish = nil :: number?
 	self._exactToken = 0 -- the latest tap's, so an older timer leaves a newer amount up
 	self._areasOpen = true -- F66: false from dusk to sunrise (the Clock folder's AreasOpen)
+	self._night = false -- the clock's phase is night (F60: night bait waits half)
 	self._alleyClosed = false -- what the Alley button shows now
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
@@ -673,7 +674,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		Parent = clock,
 	})
-	-- v0.3 (F31): tips pay less at night, so the chip says by how much
+	-- v0.3 (F31): tips pay less at night, so the chip says by how much; hidden while night pays in full (F60)
 	self._nightTips = hudPanel("NightTips", {
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + 40 + 4),
@@ -1182,13 +1183,15 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
--- "Bait bowl / Empty · add food", "Tuna / Cat in 7m 42s", then "Cat waiting! / Tap to see it" on gold.
+-- "Bait bowl / Empty · add food", "Tuna / Cat in 7m 42s", then "Cat waiting! / Tap to see it" on gold. F60: food
+-- set at night counts down behind a moon ("Tuna / 🌙 Cat in 3m 42s"), and an empty bowl at night reads "🌙 Half wait
+-- now", since food set then comes in half the time.
 function HUD._renderBowl(self: any)
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
 	local ready = false
 	local name = "Bait bowl"
-	local sub = "Empty · add food"
+	local sub = if self._night then Theme.icons.moon .. " Half wait now" else "Empty · add food"
 	if bait then
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		ready = left <= 0
@@ -1204,7 +1207,9 @@ function HUD._renderBowl(self: any)
 			name = "Cat waiting!"
 			sub = if self._catWaiting then "Tap to see it" else "At your bowl"
 		else
-			sub = "Cat in " .. Format.duration(math.ceil(left))
+			sub = (if bait.night then Theme.icons.moon .. " " else "")
+				.. "Cat in "
+				.. Format.duration(math.ceil(left))
 		end
 	end
 	self._baitReady = ready
@@ -1579,21 +1584,29 @@ end
 -- Day and night chip. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's
 -- synchronised epoch clock, so it compares with the server's os.time() in PhaseEndsAt and never trusts
 -- the device clock (data-model section 1, reviewer S16). In the last DUSK_SECONDS of a day it reads "Night in 0:12"
--- in orange (F66).
+-- in orange (F66). F60: when night falls on an empty bowl, the bowl chip pops so the half wait is seen.
 function HUD.setClock(self: any, clock: Types.ClockState?)
 	self:_stopClock()
 	if not clock then
 		self._clock.Visible = false
 		self._nightTips.Visible = false
+		self._night = false
+		self:_renderBowl()
 		self:_layoutRight()
 		return
 	end
 	local current: Types.ClockState = clock
 	local isNight = current.phase == "night"
+	local nightfall = isNight and not self._night and self._clock.Visible
+	self._night = isNight
+	self:_renderBowl()
+	if nightfall and self._bait == nil and self._bowlSlot.Visible then
+		Tween.popIn(self._bowlSlot, 0.9)
+	end
 	self._sun.Visible = not isNight
 	self._moon.Visible = isNight
 	self._clock.Visible = true
-	self._nightTips.Visible = isNight
+	self._nightTips.Visible = isNight and NIGHT_TIPS < 1
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()

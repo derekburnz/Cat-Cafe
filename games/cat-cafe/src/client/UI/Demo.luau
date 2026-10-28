@@ -671,8 +671,9 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 	end)
-	-- Bait bowl (F28): the food goes in, the cat is rolled at once and shows up DEMO_BAIT_SECONDS later
+	-- Bait bowl (F28): the food goes in, the cat is rolled at once and shows up DEMO_BAIT_SECONDS later (half at night)
 	local bait: Types.BaitView? = nil
+	local demoNight = false -- the demo clock's phase: food set at night waits half (F60)
 	local baitCat: Types.BaitCat? = nil
 	connections[#connections + 1] = UI.events.useLure:Connect(function(lureId: string)
 		local lure: Types.LureDef? = nil
@@ -707,7 +708,13 @@ function Demo.run(UI: any): () -> ()
 		end
 		local picked = if #pool > 0 then pool[math.random(1, #pool)] else CATALOG.cats[1]
 		local charm = math.floor((math.random() + math.random()) / 2 * 101)
-		local view: Types.BaitView = { lureId = lureId, readyAt = now() + DEMO_BAIT_SECONDS }
+		local wait = if demoNight then DEMO_BAIT_SECONDS / 2 else DEMO_BAIT_SECONDS
+		local view: Types.BaitView = {
+			lureId = lureId,
+			placedAt = now(),
+			readyAt = now() + wait,
+			night = if demoNight then true else nil,
+		}
 		bait = view
 		baitCat = {
 			catId = picked.id,
@@ -1311,6 +1318,7 @@ function Demo.run(UI: any): () -> ()
 		local phase: Types.ClockPhase = "day"
 		while running do
 			local length = if phase == "day" then 45 else 20
+			demoNight = phase == "night"
 			UI.clock.set(phase, now() + length)
 			UI.clock.setAreasOpen(phase == "day")
 			task.wait(length)

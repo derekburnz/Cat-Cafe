@@ -272,6 +272,18 @@ return function()
 			expect(FoodOdds.waitSeconds(true, nil)).to.equal(big)
 			expect(FoodOdds.waitSeconds(false, 0.38)).to.equal(math.floor(wait * 0.62))
 			expect(FoodOdds.waitSeconds(true, 0.9)).to.equal(math.floor(big * 0.5))
+			-- the summed Index percents carry float error; the server adds a hair before flooring, so 372, not 371
+			expect(FoodOdds.waitSeconds(false, 0.38000000000000012)).to.equal(372)
+		end)
+
+		it("halves the wait for food set at night, Big Bowl first, then the faster bait (F60)", function()
+			local night = Config.LureWaitSecondsNight
+			expect(night).to.equal(300)
+			expect(FoodOdds.waitSeconds(false, 0, true)).to.equal(night)
+			expect(FoodOdds.waitSeconds(true, 0, true)).to.equal(240)
+			expect(FoodOdds.waitSeconds(false, 0.38, true)).to.equal(186)
+			expect(FoodOdds.waitSeconds(true, 0.5, true)).to.equal(120)
+			expect(FoodOdds.waitSeconds(false, 0, false)).to.equal(FoodOdds.waitSeconds(false, 0))
 		end)
 	end)
 end

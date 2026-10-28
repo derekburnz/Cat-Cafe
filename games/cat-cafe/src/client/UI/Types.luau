@@ -348,6 +348,8 @@ export type InitConfig = {
 export type BaitView = {
 	lureId: string,
 	readyAt: number,
+	placedAt: number?, -- server os.time() the food went in; with readyAt, the fill bar's length
+	night: boolean?, -- F60: the food went in at night and waits half, so the countdown shows a moon
 }
 
 -- The cat that came to the bowl, from BaitReady (a CatView or anything with these fields).

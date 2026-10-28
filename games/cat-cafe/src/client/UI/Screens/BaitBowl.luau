@@ -7,7 +7,8 @@
 -- per-cat split (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
 -- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
 -- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold
--- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait.
+-- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait. F60: food set
+-- at night waits half, so by night the empty bowl's wait is the night one and a night bowl counts down behind a moon.
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 
 local RunService = game:GetService("RunService")
@@ -38,6 +39,7 @@ export type BaitBowl = {
 	setCatalog: (self: BaitBowl, catalog: Types.Catalog) -> (),
 	render: (self: BaitBowl, state: Types.PlayerState) -> (),
 	setBait: (self: BaitBowl, bait: Types.BaitView?, catWaiting: boolean) -> (),
+	setNight: (self: BaitBowl, night: boolean) -> (),
 	destroy: (self: BaitBowl) -> (),
 }
 
@@ -105,6 +107,9 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._tier = 0
 	self._goldLuck = -1 -- the luck the odds lines were written with
 	self._waitSeconds = FoodOdds.waitSeconds(false, 0)
+	self._bigBowl = false
+	self._speed = 0 -- the Index's faster bait (F54)
+	self._night = false -- the clock's phase (F60: food set at night waits half)
 	self._accumulator = 0
 
 	local panel = Panel.new({
@@ -453,6 +458,18 @@ function BaitBowl.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end
 end
 
+-- F60: by night the empty bowl promises the night wait; a bowl already filling keeps its own readyAt.
+function BaitBowl.setNight(self: any, night: boolean)
+	if self._night == night then
+		return
+	end
+	self._night = night
+	self._waitSeconds = FoodOdds.waitSeconds(self._bigBowl, self._speed, night)
+	if self.frame.Visible then
+		self:_renderStatus()
+	end
+end
+
 local function ownsBowl(state: Types.PlayerState): boolean
 	return (state.upgradeLevels.lure_bowl or 0) >= 1
 end
@@ -472,8 +489,9 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	end
 	local totals = if catalog then IndexRewards.totals(catalog, state) else nil
 	local fishPerks: { [string]: number } = state.fishPerks or {}
-	local speed = if totals then totals.baitSpeed else 0
-	self._waitSeconds = FoodOdds.waitSeconds((fishPerks.big_bowl or 0) >= 1, speed)
+	self._bigBowl = (fishPerks.big_bowl or 0) >= 1
+	self._speed = if totals then totals.baitSpeed else 0
+	self._waitSeconds = FoodOdds.waitSeconds(self._bigBowl, self._speed, self._night)
 	-- Details: the gold chance with the Index's gold luck in it (F54) and the charm stars, then the split
 	local luck = if totals then totals.goldLuck else 0
 	if tierChanged or luck ~= self._goldLuck then
@@ -518,7 +536,12 @@ function BaitBowl._renderStatus(self: any)
 	elseif bait == nil then
 		title = "Your bowl is empty"
 		local wait = Format.duration(self._waitSeconds)
-		sub = "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
+		sub = if self._night
+			then ("%s Night bait: half the wait. Use a food now and a cat comes by in %s."):format(
+				Theme.icons.moon,
+				wait
+			)
+			else "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
 	else
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		local foodName = bait.lureId
@@ -535,10 +558,17 @@ function BaitBowl._renderStatus(self: any)
 		end
 		if left > 0 then
 			title = foodName .. " is in the bowl"
-			sub = ("A cat comes by in %s. You can leave; it waits for you."):format(
-				Format.duration(math.ceil(left))
-			)
-			local total = self._waitSeconds -- today's wait (an older bowl keeps its own)
+			local inTime = Format.duration(math.ceil(left))
+			sub = if bait.night
+				then ("%s Night bait: half the wait. A cat comes by in %s."):format(
+					Theme.icons.moon,
+					inTime
+				)
+				else ("A cat comes by in %s. You can leave; it waits for you."):format(inTime)
+			-- the bowl's own wait from placedAt, else today's for its phase
+			local total = if bait.placedAt
+				then bait.readyAt - bait.placedAt
+				else FoodOdds.waitSeconds(self._bigBowl, self._speed, bait.night)
 			self._track.Visible = true
 			self._fill.Size = UDim2.fromScale(math.clamp(1 - left / math.max(total, 1), 0, 1), 1)
 		else

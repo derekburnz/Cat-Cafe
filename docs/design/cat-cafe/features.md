@@ -212,6 +212,14 @@ Derek: "and add a back door with a cat door on it", then "can add decor for cat 
 |---|---|---|---|---|---|---|
 | F80 | Doors and cat flaps: two new style kinds, `door` (front and back door together) and `catflap` (in the back door's `CatFlap` attachment), one Common and one Rare in each crate (12 pieces a crate, group odds unchanged), plot attributes `Door` and `CatFlap`, model swap instead of colour, Decor screen rows and Decor Index pages of 12 (`decor10` needs all 12) | P2 | M | asset (12 models and icons), engineer, ui | F53, the back door with its plain flap | An Alley Crate can roll the Fire Escape Door; using it swaps both doors and the street sees the front one; the Bell Flap goes into any door; the Alley page reads 1 / 12 |
 
+## 2p. Bigger side areas with longer walks (Derek, 2026-10-28 01:42)
+
+Derek: "expand all areas on the side to at least 4x the size it feels a little cramped if a lot of players were here", "and the walking should feel longer", and the Sewer bridge "needs some way of getting up and also shouldn't be able to juts walk through it". Spec in [town-layout-v3.md](town-layout-v3.md) section 8.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F81 | Bigger side areas (town-layout-v3 section 8): each side area doubles its width and depth behind a gate that does not move. Park 160 x 120 at (0, -186), Neighbourhood 280 x 280 at (0, 266), Woods 240 x 240 at (-215, 0), Sewer 180 x 180 at (185, 0), GroundSize 880. Each area's main path winds about 1.6 times the straight distance, with blockers whose gaps alternate sides (Park about 10 s gate to far wall, Neighbourhood 23 s, Woods 19 s, Sewer 15 s on foot). Every raised walkway has steps (1 stud rises at most) or ramps (30 degrees at most) at both ends, bridges, decks and railings collide, and water is crossed only on bridges. Spawn points grow to 40, 72, 64 and 52, tagged `near` or `deep`; Epic and rarer strays take only `deep` points; traps double. Layout keeps each old set at its v3.1 place until its new set lands. No save change | P1 | L | asset, engineer | F77 as built | Each gate is still under 6.5 s from the fountain; no far wall can be reached in a straight line from its gate; every bridge and deck can be walked onto from both ends and not walked through; the Sewer channel is crossed only on its bridges; Epic and rarer side area strays appear only at `deep` points |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

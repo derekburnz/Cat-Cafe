@@ -809,9 +809,9 @@ local function buildSafeZoneMarks(parent: Instance)
 				marks
 			)
 		end
-		-- the Town Square's side arch, on the garden side
+		-- the Town Square's side arch, on the garden side, over the garden path's stones (their tops at 0.12)
 		safeWords(
-			Vector3.new(side * (W.AlleyInnerX - 3.5), groundTop, 0),
+			Vector3.new(side * (W.AlleyInnerX - 3.5), streetTop, 0),
 			Vector3.new(-side, 0, 0),
 			W.TownSquareArchWidth - 3,
 			marks
@@ -1389,6 +1389,8 @@ local function buildCodesCat(parent: Instance): Model
 	return model
 end
 
+local SQUARE_PAVING = "CatCafe_Square_Paving"
+
 -- The Town Square (F76, Layout.townSquare): its paving and the lighter open cross, the gardens' wall along each
 -- back alley with an arch in the middle into it, and the dressing Layout lists (art the AssetRegistry has, or its
 -- placeholder). The stations stand in its quarters (buildSpinWheel and the rest); the square is street, so it is
@@ -1397,15 +1399,21 @@ local function buildTownSquare(parent: Instance)
 	local square = folder("TownSquare", parent)
 	local spec = Layout.townSquare
 	local floor = spec.floor
-	part(
-		"Paving",
-		Vector3.new(floor.x2 - floor.x1, 0.2, floor.z2 - floor.z1),
-		CFrame.new((floor.x1 + floor.x2) / 2, 0, (floor.z1 + floor.z2) / 2),
-		PATH,
-		Enum.Material.Pavement,
-		square
-	)
-	for n, lane in spec.lanes do
+	-- The paving art brings its own slab and stones; the plain floor and lane marks would share their planes and
+	-- flicker, so they stand in only while it is missing.
+	local pavingArt = AssetRegistry.known(SQUARE_PAVING)
+	if not pavingArt then
+		part(
+			"Paving",
+			Vector3.new(floor.x2 - floor.x1, 0.2, floor.z2 - floor.z1),
+			CFrame.new((floor.x1 + floor.x2) / 2, 0, (floor.z1 + floor.z2) / 2),
+			PATH,
+			Enum.Material.Pavement,
+			square
+		)
+	end
+	local lanes: { Layout.Rect } = if pavingArt then {} else spec.lanes
+	for n, lane in lanes do
 		local mark = part(
 			"Lane" .. n,
 			Vector3.new(lane.x2 - lane.x1, 0.02, lane.z2 - lane.z1),

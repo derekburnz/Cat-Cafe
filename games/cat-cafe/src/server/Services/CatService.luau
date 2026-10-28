@@ -1311,18 +1311,27 @@ end
 -- PickUpCat (v0.8 F56) and which gains no charm, so drop and pick up is no charm loop (as S36).
 local DROP_AHEAD_STUDS = 3
 
-local function onDropCat(player: Player)
+-- A carrier's death drops the cat the same way, where the character fell and before the respawn (data-model 10c
+-- v0.13.3), so Reset Character is never a free check-in and cannot skip a Tackle or the dusk sweep. Leaving the game
+-- is the one exit that still checks the cat in.
+local function dropCarry(player: Player, died: boolean)
 	local carry = carrying[player]
 	local character = player.Character
 	local root = rootPosition(player)
-	if carry == nil or character == nil or root == nil then
+	-- a death with no root left (fallen below the world) still drops: the cat runs home, which needs no spot
+	-- (review N240)
+	if carry == nil or character == nil or (root == nil and not died) then
 		return
 	end
 	local name = carry.def.name
-	local here = WorldBuilder.areaAt(world, root)
+	local here = if root ~= nil then WorldBuilder.areaAt(world, root) else nil
 	if here ~= nil then
-		if knockLoose(player, 0, here, DROP_AHEAD_STUDS) ~= nil then
-			Net.toast(player, string.format("You let %s go.", name), "info")
+		if knockLoose(player, 0, here, if died then nil else DROP_AHEAD_STUDS) ~= nil then
+			Net.toast(
+				player,
+				string.format(if died then "You dropped %s." else "You let %s go.", name),
+				"info"
+			)
 		end
 		return
 	end
@@ -1350,6 +1359,10 @@ local function onDropCat(player: Player)
 		),
 		"info"
 	)
+end
+
+local function onDropCat(player: Player)
+	dropCarry(player, false)
 end
 
 -- Lifecycle -----------------------------------------------------------------------------------------------
@@ -1395,6 +1408,22 @@ function CatService.start(builtWorld: WorldBuilder.World)
 
 	Players.PlayerAdded:Connect(function(player)
 		player.CharacterAdded:Connect(function(character)
+			local body = character:WaitForChild("Humanoid", 10)
+			if body ~= nil and body:IsA("Humanoid") then
+				(body :: Humanoid).Died:Connect(function()
+					-- a frame later, so a character torn down by the player leaving (no parent by then) is not a
+					-- death: leaving checks the cat in instead
+					task.defer(function()
+						if
+							player.Parent ~= nil
+							and character.Parent ~= nil
+							and player.Character == character
+						then
+							dropCarry(player, true)
+						end
+					end)
+				end)
+			end
 			task.wait(0.2)
 			local carry = carrying[player]
 			if carry ~= nil then

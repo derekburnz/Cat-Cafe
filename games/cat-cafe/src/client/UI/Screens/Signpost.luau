@@ -34,7 +34,7 @@ local FACES = { Enum.NormalId.Front, Enum.NormalId.Back }
 local LOCKED_DIM = 0.45 -- how far a locked arm's colour goes toward ink
 
 type Face = { gui: SurfaceGui, card: Frame, name: TextLabel, lock: Frame, lockText: TextLabel }
-type Arm = { board: BasePart, areaId: string, faces: { Face } }
+type Arm = { source: Instance, board: BasePart, areaId: string, faces: { Face } } -- source: the part or model
 type Post = {
 	model: Instance,
 	arms: { [BasePart]: Arm },
@@ -207,7 +207,11 @@ function Signpost._scan(self: any, post: Post)
 			table.remove(post.hidden, index)
 		end
 	end
-	local found: { [BasePart]: string } = {}
+	-- once the catalog lists its areas, a helper part that only looks like an arm ("ArmCap") gets no board (N220)
+	local catalog: Types.Catalog? = self._catalog
+	local listed: { Types.AreaDef } = if catalog then catalog.areas or {} else {}
+	local known = #listed > 0
+	local found: { [BasePart]: { source: Instance, areaId: string } } = {}
 	for _, descendant in post.model:GetDescendants() do
 		if descendant:IsA("SurfaceGui") then
 			local serverGui = descendant :: SurfaceGui
@@ -217,29 +221,37 @@ function Signpost._scan(self: any, post: Post)
 			end
 		elseif descendant:IsA("BasePart") or descendant:IsA("Model") then
 			local areaId = Wayfinding.armArea(descendant:GetAttribute("Area"), descendant.Name)
+			if areaId and known and not findArea(catalog, areaId) then
+				areaId = nil
+			end
 			local board = if areaId then boardOf(descendant) else nil
 			if areaId and board and not found[board] then
-				found[board] = areaId
+				found[board] = { source = descendant, areaId = areaId }
 			end
 		end
 	end
 	for board, arm in post.arms do
-		if found[board] ~= arm.areaId or not board:IsDescendantOf(post.model) then
+		local now = found[board]
+		if not now or now.areaId ~= arm.areaId or not board:IsDescendantOf(post.model) then
 			for _, face in arm.faces do
 				face.gui:Destroy()
 			end
 			post.arms[board] = nil
 		end
 	end
-	for board, areaId in found do
-		if not post.arms[board] then
+	for board, entry in found do
+		local arm: Arm? = post.arms[board]
+		if arm then
+			arm.source = entry.source
+		else
 			local faces: { Face } = {}
 			for _, normal in FACES do
-				table.insert(faces, buildFace(self._parent, board, areaId, normal))
+				table.insert(faces, buildFace(self._parent, board, entry.areaId, normal))
 			end
-			local arm: Arm = { board = board, areaId = areaId, faces = faces }
-			post.arms[board] = arm
-			self:_renderArm(arm)
+			local source, areaId = entry.source, entry.areaId
+			local new: Arm = { source = source, board = board, areaId = areaId, faces = faces }
+			post.arms[board] = new
+			self:_renderArm(new)
 		end
 	end
 end
@@ -248,7 +260,9 @@ function Signpost._renderArm(self: any, arm: Arm)
 	local state: Types.PlayerState? = self._state
 	local catalog: Types.Catalog? = self._catalog
 	local area = findArea(catalog, arm.areaId)
-	local override = arm.board:GetAttribute("RequiresTier")
+	-- the override on the arm itself, else on its board, so a model arm can carry it (N221)
+	local source, board = arm.source, arm.board
+	local override = source:GetAttribute("RequiresTier") or board:GetAttribute("RequiresTier")
 	local needs: number = if type(override) == "number"
 		then override
 		elseif area then area.tier
@@ -285,6 +299,10 @@ end
 
 function Signpost.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
+	-- the catalog's areas decide which arms are real (N220)
+	for _, post in self._posts do
+		self:_scan(post)
+	end
 	self:_renderAll()
 end
 

@@ -29,13 +29,17 @@ function Dealer.restocksAt(window: number): number
 	return (window + 1) * Config.DealerWindowSeconds
 end
 
--- The window's seed, the same on every server. Every product stays under 2^53, so it is exact.
+-- The window's seed, the same on every server. Every product stays under 2^53, so it is exact. Each round folds the
+-- high bits into the low ones after the multiply: a multiply alone is linear in the window, so each food's roll would
+-- only step on by a fixed amount from one window to the next and its amounts would cycle (QA, F59: Moon Milk out of
+-- stock 19 windows running). With the fold neighbouring windows roll afresh.
 function Dealer.seed(window: number): number
 	local hash = (7 * 1000003 + math.floor(window) % MODULUS) % MODULUS
-	-- two more rounds so neighbouring windows do not start the generator at neighbouring states
-	for _ = 1, 2 do
+	for _ = 1, 3 do
 		hash = (hash * MULTIPLIER) % MODULUS
+		hash = bit32.bxor(hash, bit32.rshift(hash, 13))
 	end
+	hash %= MODULUS
 	return if hash == 0 then 1 else hash
 end
 

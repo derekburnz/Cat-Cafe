@@ -80,11 +80,12 @@ def _path(g, pts, w, swatch=GRAVEL, top=0.05):
 
 
 def _ring_path(g, c, r, w, swatch, top, n):
+    """A ring of path blocks, their tops 0.003 off the straight paths' so a path joining it never shares a top."""
     chord = 2 * (r + w / 2) * math.sin(PI / n) * 1.04
     for k in range(n):
         a = 2 * PI * (k + 0.5) / n
         x, y, _ = bl(c[0] + r * math.cos(a), c[1] + r * math.sin(a))
-        g.box_base((x, y, 0), (w, chord, top + 0.006 * (k % 2)), swatch, bevel=False, rot=(PI - a, "Z"))
+        g.box_base((x, y, 0), (w, chord, top + 0.003 + 0.006 * (k % 2)), swatch, bevel=False, rot=(PI - a, "Z"))
 
 
 def _ground():

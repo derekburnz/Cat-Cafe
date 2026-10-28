@@ -449,7 +449,8 @@ areas (Alley, Park, Street, Square, Neighbourhood, Woods, Sewer) thin parts coll
 at least 0.9 long, so planks, decks, rungs and rails hold players up. Round parts (ellipsoids) get a block collider
 75% of their size so it does not stick out past the curve. An object ending `_Climb` exports as an invisible
 TrussPart (sizes in 2-stud steps, top flush with the deck it reaches) behind a ladder's rungs so players climb it.
-`_Flowers` never collide.
+An object ending `_Barrier` exports as invisible parts that always collide: walls nobody sees that keep players
+and cats out of water (the Park pond's kerb ring, open only at the jetty). `_Flowers` never collide.
 
 Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded for the owner), a part named
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),

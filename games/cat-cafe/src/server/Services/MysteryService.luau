@@ -96,11 +96,13 @@ local function logGift(
 	gift: Potions.Gift,
 	outcome: string
 )
+	-- three positional fields (review N245): the kind and id share one ("potion:tip_potion", "lure:salmon", "fish")
+	local what = if gift.id ~= nil then gift.kind .. ":" .. gift.id else gift.kind
 	Telemetry.custom(
 		player,
 		"mystery_gift",
 		gift.count,
-		{ outcome, gift.kind, gift.id or "", tostring(Economy.tier(profile)) }
+		{ outcome, what, tostring(Economy.tier(profile)) }
 	)
 end
 

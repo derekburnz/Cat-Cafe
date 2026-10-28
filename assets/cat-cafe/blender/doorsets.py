@@ -11,7 +11,8 @@ Pivots are where CafeService.refreshDoors puts each model, facing out (-Z):
   _Back    the foot of the back doorway in the middle of the wall, plot (-8, 0, 14.5), turned 180: the yard is -Z
   flaps    a back leaf's CatFlap attachment, the foot of its yard face in the middle. The leaf runs from z 0 (its yard
            face) to z 0.3 (its cafe face) and the hole is x -0.9..0.9, y 0.23..2.13. A flap stays inside x -1.48..1.48,
-           y -0.13..2.75 and 0.35 off either face, and back leaves keep that patch flat on both faces (ZONE).
+           y 0..2.75 (nothing below the leaf's foot, so a swung leaf clears the yard decks), 0.45 out of the yard face
+           and 0.1 out of the cafe face, and back leaves keep that patch flat on both faces (ZONE).
 
 Model layout (rbx_export), all modelled shut, nothing solid (CafeService turns collisions off):
   CatCafe_Door_<Name>_Front               the threshold

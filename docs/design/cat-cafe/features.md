@@ -324,8 +324,8 @@ In order: `CatchPress` judging (server clock, latency cap, order, first press on
 Fresh account, phone-sized viewport, 10 minute limit.
 
 1. Join. Plot assigned, Tabby working as Barista in an apron, HUD shows $50 and a positive rate within 5 s.
-2. Walk out of the back door into the Alleyway. A Common stray is waiting right behind your cafe even by day. Start a catch: one slow circle. Good or Perfect catches it; a Miss costs one of its three paws and you try again after 5 s.
-3. Walk home at carry speed, check in. Cat found popup, Index shows 2 / 50.
+2. Hop in the cannon and fly to the Alleyway (F84). A Common stray is waiting just past the camp's way out, even by day. Start a catch: one slow circle. Good or Perfect catches it; a Miss costs one of its three paws and you try again after 5 s.
+3. Carry it into the camp, where it checks in. Cat found popup, Index shows 2 / 50.
 4. Assign the new cat as Waiter. It sits at its station in a bow tie and vest. Rate rises.
 5. Buy Table 1 at $150, then the bait bowl at $600 when affordable (data-model v0.13.6 prices), and put Kibble in. The countdown shows 10:00.
 6. First night by minute two: ten strays and at least one stuck cat (guaranteed per area). Rescue it with the bar.

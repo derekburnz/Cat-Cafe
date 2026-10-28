@@ -159,7 +159,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -963,7 +963,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -1012,7 +1012,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -1099,9 +1099,9 @@
      }
     },
     "Size": [
-     1.0,
-     0.22,
-     0.42
+     0.75,
+     0.165,
+     0.315
     ],
     "Color": [
      0.949,
@@ -1110,7 +1110,7 @@
     ],
     "Material": "Metal",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -1121,7 +1121,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -1403,9 +1408,9 @@
      }
     },
     "Size": [
-     1.0,
-     0.22,
-     0.42
+     0.75,
+     0.165,
+     0.315
     ],
     "Color": [
      0.9843,
@@ -1414,7 +1419,7 @@
     ],
     "Material": "Metal",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -1425,7 +1430,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -1707,9 +1717,9 @@
      }
     },
     "Size": [
-     1.0,
-     0.22,
-     0.42
+     0.75,
+     0.165,
+     0.315
     ],
     "Color": [
      0.949,
@@ -1718,7 +1728,7 @@
     ],
     "Material": "Metal",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -1729,7 +1739,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -2011,9 +2026,9 @@
      }
     },
     "Size": [
-     1.0,
-     0.22,
-     0.42
+     0.75,
+     0.165,
+     0.315
     ],
     "Color": [
      0.9843,
@@ -2022,7 +2037,7 @@
     ],
     "Material": "Metal",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -2033,7 +2048,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -2315,9 +2335,9 @@
      }
     },
     "Size": [
-     1.0,
-     0.22,
-     0.42
+     0.75,
+     0.165,
+     0.315
     ],
     "Color": [
      0.9843,
@@ -2326,7 +2346,7 @@
     ],
     "Material": "Metal",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -2337,7 +2357,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -2619,9 +2644,9 @@
      }
     },
     "Size": [
-     1.0,
-     0.22,
-     0.42
+     0.75,
+     0.165,
+     0.315
     ],
     "Color": [
      0.949,
@@ -2630,7 +2655,7 @@
     ],
     "Material": "Metal",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -2641,7 +2666,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -2923,9 +2953,9 @@
      }
     },
     "Size": [
-     1.0,
-     0.22,
-     0.42
+     0.75,
+     0.165,
+     0.315
     ],
     "Color": [
      0.9843,
@@ -2934,7 +2964,7 @@
     ],
     "Material": "Metal",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -2945,7 +2975,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -4383,7 +4418,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -4432,7 +4467,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -4873,7 +4908,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -4922,7 +4957,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -4971,7 +5006,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -5363,7 +5398,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -5755,7 +5790,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -6147,7 +6182,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -6539,7 +6574,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -6931,7 +6966,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -7323,7 +7358,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -7715,7 +7750,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -8107,7 +8142,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -8499,7 +8534,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -8891,7 +8926,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -8940,7 +8975,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -8989,7 +9024,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -9038,7 +9073,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -9087,7 +9122,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -16195,7 +16230,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -16244,7 +16279,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -17730,7 +17765,7 @@
       ],
       "Material": "Metal",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -24855,7 +24890,7 @@
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
-        "CanCollide": false,
+        "CanCollide": true,
         "CanTouch": false,
         "CastShadow": true,
         "TopSurface": "Smooth",
@@ -24934,7 +24969,7 @@
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
-        "CanCollide": false,
+        "CanCollide": true,
         "CanTouch": false,
         "CastShadow": true,
         "TopSurface": "Smooth",

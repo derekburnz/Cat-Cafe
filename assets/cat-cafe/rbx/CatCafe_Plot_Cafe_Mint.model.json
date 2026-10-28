@@ -12693,9 +12693,9 @@
      }
     },
     "Size": [
-     2.16,
      1.62,
-     1.8
+     1.215,
+     1.35
     ],
     "Color": [
      0.3725,
@@ -12715,7 +12715,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]

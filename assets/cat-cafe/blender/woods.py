@@ -18,7 +18,7 @@ import math
 from mathutils import Matrix, Vector
 
 import common
-from areakit import PI, Set, gable, rx, ry, rz, tree_round
+from areakit import PI, Set, gable, rx, ry, rz, tree_round, window
 from common import RB, Builder
 
 N = "CatCafe_Woods_"
@@ -38,28 +38,91 @@ def oak(mat):
     return [b.finalize(N + "OakRound", mat)]
 
 
+OAK_H, OAK_R0, OAK_R1, OAK_T = 26.0, 5.0, 3.4, 0.9   # the Great Oak's trunk: height, radius foot and top, wall
+NOOK_Z = 18.0                                         # the floor of the nook at the top inside it
+OAK_ROOTS = (-35, 30, 90, 150, -145)                  # degrees from +x (Blender), none in front of the doorway
+OAK_NOOKS = (60, 120, 182)                            # root nooks between them, where strays sit
+NOOK_SPOTS = ((-1.6, -0.6, 0.0), (1.6, -0.6, 0.0), (0.0, -1.8, 0.3))   # Blender x, y on the nook floor, height
+
+
+def _oak_r(z):
+    return OAK_R0 + (OAK_R1 - OAK_R0) * z / OAK_H
+
+
 def great_oak(mat):
-    b, win = Builder(), Builder()
-    b.cyl_base((0, 0, 0), 5.0, 26.0, "fur_brown", segments=12, radius2=3.4)
-    b.box_base((0, -4.6, 0), (4.2, 1.6, 6.5), "choco", bevel=False)                          # hollow doorway
-    b.cyl((0, -4.6, 6.5), 2.1, 1.6, "choco", segments=12, rot=rx(90), bevel=False)
-    win.box((2.6, -4.7, 13.0), (1.6, 0.6, 1.6), "lamp_warm", bevel=False)                     # a little window
-    b.box((2.6, -4.9, 13.0), (1.9, 0.3, 0.2), "caramel_wood", bevel=False)                  # sill, proud of the pane
-    for k in range(7):                                                                       # roots, nooks between
-        a = 2 * PI * (k + 0.5) / 7 - PI / 2
-        if abs(math.cos(a)) < 0.2 and math.sin(a) < 0:
-            continue
+    """The clearing's landmark (Derek 2026-10-28: "have the main big tree entrance actually work"): a hollow trunk
+    of six rings of wall blocks with a doorway at the front, a ladder up the inside (an invisible truss behind its
+    rungs, so it climbs) to a nook at the top with two lit windows, where the rarer strays turn up."""
+    b, win, bulb, climb = Builder(), Builder(), Builder(), Builder()
+    levels, seg = 6, 16
+    hz = OAK_H / levels
+    door = (11, 12)                                                  # the two blocks either side of straight ahead
+    for i in range(levels):
+        z0 = i * hz
+        r_out = _oak_r(z0 + hz / 2)
+        rm = r_out - OAK_T / 2
+        chord = 2 * r_out * math.sin(PI / seg) * 1.04
+        for k in range(seg):
+            a = 2 * PI * (k + 0.5) / seg
+            e = 0.006 * (k % 2)                                      # neighbours never share a top or bottom face
+            spans = [(z0 - e, z0 + hz + e)]
+            if k in door and i == 0:
+                spans = []
+            elif k in door and i == 1:
+                spans = [(6.2, z0 + hz + e)]                         # the lintel over the doorway
+            elif k in door and i == 4:
+                spans = [(z0 - e, 19.3), (21.3, z0 + hz + e)]       # the front window
+            elif k == 8 and i == 4:
+                spans = [(z0 - e, 19.3), (21.3, z0 + hz + e)]       # the side window
+            for (za, zb) in spans:
+                b.box((rm * math.cos(a), rm * math.sin(a), (za + zb) / 2), (OAK_T, chord, zb - za), "fur_brown",
+                      rot=(a, "Z"))
+            if i == 4 and (k in door or k == 8):                     # the pane fills the gap, inside the wall
+                win.box((rm * math.cos(a), rm * math.sin(a), 20.3), (OAK_T * 0.5, chord, 2.0), "lamp_warm",
+                        bevel=False, rot=(a, "Z"))
+                b.box(((r_out + 0.31) * math.cos(a), (r_out + 0.31) * math.sin(a), 19.2), (0.6, chord, 0.2),
+                      "caramel_wood", bevel=False, rot=(a, "Z"))           # sill, against the wall face
+    # the doorway's frame: dark wood jambs against the wall ends either side, a head under each lintel block
+    for i, k, s_ in ((0, 10, 1), (0, 13, -1), (1, 11, 1), (1, 12, -1)):     # s_: the side facing the doorway
+        r_out = _oak_r(i * hz + hz / 2)
+        half = r_out * math.sin(PI / seg) * 1.04                     # half a wall block, along the wall
+        a = 2 * PI * (k + 0.5) / seg
+        if i == 0:                                                   # a jamb past the block's end, 6.2 tall
+            ta, tb, z, h = s_ * (half + 0.01), s_ * (half + 0.51), 0.0, 6.2
+        else:                                                        # a head under the lintel, clear of the jamb
+            ta, tb, z, h = -0.2 * s_, half * s_, 5.7, 0.5
+        tc, rm = (ta + tb) / 2, r_out - OAK_T / 2
+        cx, cy = rm * math.cos(a) - tc * math.sin(a), rm * math.sin(a) + tc * math.cos(a)
+        b.box_base((cx, cy, z), (OAK_T + 0.2, abs(tb - ta), h), "dark_wood", bevel=False, rot=(a, "Z"))
+    # the ladder up the inside, against the back wall, and the nook floor round its top
+    for x in (-0.8, 0.8):
+        b.box_base((x, 0.6, 0), (0.2, 0.2, NOOK_Z + 1.0), "caramel_wood", bevel=False)
+    for n in range(18):
+        b.box((0, 0.6, 0.8 + n * 1.0), (1.6, 0.2, 0.2), "caramel_wood", bevel=False)
+    climb.box_base((0, 1.7, 0), (2.0, 2.0, NOOK_Z), "caramel_wood", bevel=False)
+    f0, R = NOOK_Z - 0.4, 3.2
+    b.box_base((0, (-R + 0.5) / 2, f0), (2 * R, R + 0.5, 0.4), "caramel_wood")       # in front of the ladder
+    for s_ in (-1, 1):
+        b.box_base((s_ * (1.1 + R) / 2, (0.5 + R) / 2, f0), (R - 1.1, R - 0.5, 0.4), "caramel_wood")
+    b.cyl_base((0, 0, 23.6), _oak_r(23.6) - 0.4, 0.4, "dark_wood", segments=12, bevel=False)   # the nook's ceiling
+    b.cyl_base((0.0, -1.8, NOOK_Z), 0.8, 0.3, "blush", segments=10, bevel=False)       # a cushion in the nook
+    bulb.box((-_oak_r(4.0) + OAK_T + 0.25, 0, 4.0), (0.4, 0.5, 0.6), "lamp_warm", bevel=False)   # a lamp inside
+    b.box((-_oak_r(4.0) + OAK_T + 0.1, 0, 4.4), (0.2, 0.2, 0.2), "fur_black", bevel=False)
+    for d in OAK_ROOTS:                                                                  # roots
+        a = math.radians(d)
         b.box((6.0 * math.cos(a), 6.0 * math.sin(a), 1.0), (5.0, 1.8, 2.4), "fur_brown", rot=(a, "Z"))
-    for (x, y, z, r, sw) in ((0, 0, 30, 10, "leaf_green"), (8, 2, 26, 6.5, "leaf_dark"), (-8, -1, 27, 7, "leaf_green"),
-                             (2, 7, 27, 6.5, "leaf_dark"), (-2, -7, 25, 6, "leaf_dark")):
+    for (x, y, z, r, sw) in ((0, 0, 34, 9.5, "leaf_green"), (9.5, 2, 29, 6.0, "leaf_dark"),
+                             (-9.5, -1, 30, 6.5, "leaf_green"), (2, 9, 29, 6.0, "leaf_dark"),
+                             (-2, -9, 28, 5.5, "leaf_dark")):                            # the crown, clear of the nook
         b.ico((x, y, z), r, sw, subdivisions=1)
-    for (x, z) in ((-5.5, 18), (5.5, 20)):                                                   # big branches
+    for (x, z) in ((-6.2, 15.5), (6.2, 20)):                                           # big branches
         b.box((x, 0, z), (6, 1.6, 1.6), "fur_brown", rot=ry(25 if x > 0 else -25))
-    for k in range(4):                                                                       # mushrooms at the foot
-        a = -PI / 2 + 0.7 + k * 0.5
+    for d in (-15, -2, 11):                                                              # mushrooms at the foot
+        a = math.radians(d)
         b.cyl_base((5.4 * math.cos(a), 5.4 * math.sin(a), 0), 0.25, 0.6, "offwhite", segments=6)
         b.cyl_base((5.4 * math.cos(a), 5.4 * math.sin(a), 0.6), 0.6, 0.35, "bowl_red", segments=8, radius2=0.1)
-    return [b.finalize(N + "GreatOak", mat), win.finalize(N + "GreatOak_Pane", mat)]
+    return [b.finalize(N + "GreatOak", mat), win.finalize(N + "GreatOak_Pane", mat),
+            bulb.finalize(N + "GreatOak_Bulb", mat), climb.finalize(N + "GreatOak_Climb", mat)]
 
 
 def stump(mat):
@@ -121,10 +184,10 @@ def fern(mat):
 
 
 def _shroom(b, x, y, s, cap, dots="offwhite", stem="offwhite", glow=None):
-    """A toadstool; with `glow` (a _Bulb builder) the cap and spots are on it, so they light up at night."""
-    top = glow or b
+    """A toadstool; with `glow` (a _Bulb builder) its spots are on it, so they light up at night."""
+    top = glow or b                                       # only the spots glow (Derek 2026-10-28: "lower the glow")
     b.cyl_base((x, y, 0), 0.22 * s, 0.8 * s, stem, segments=8)
-    top.cyl_base((x, y, 0.8 * s), 0.75 * s, 0.45 * s, cap, segments=10, radius2=0.2 * s)
+    b.cyl_base((x, y, 0.8 * s), 0.75 * s, 0.45 * s, cap, segments=10, radius2=0.2 * s)
     for k in range(3):
         a = 2 * PI * k / 3
         top.ico((x + 0.45 * s * math.cos(a), y + 0.45 * s * math.sin(a), 1.02 * s), 0.12 * s, dots, subdivisions=1)
@@ -229,28 +292,68 @@ def log_bench(mat):
     return [b.finalize(N + "LogBench", mat)]
 
 
+DECK = 10.0                     # the tree house deck's top
+
+
 def treehouse(mat):
-    b, win = Builder(), Builder()
-    tree_round(b, 0, 0, h=20.0, r=5.0, leaf="leaf_green")
-    b.box((0, 0, 9.0), (8.0, 8.0, 0.5), "caramel_wood")
-    b.box_base((0, 0.5, 9.25), (5.5, 5.0, 4.0), "treat_tan")
-    gable(b, 0, 0.5, 13.25, 5.5, 5.0, 2.2, "treat_tan", "bowl_red")
-    b.box_base((0, -2.05, 9.25), (1.6, 0.1, 2.6), "choco", bevel=False)
-    win.box((1.8, -2.05, 11.4), (1.0, 0.1, 1.0), "lamp_warm", bevel=False)
-    for x in (-3.8, 3.8):
-        for y in (-3.8, 3.8):
-            b.box_base((x, y, 0), (0.4, 0.4, 9.0), "dark_wood")
-    for i in range(12):                                                                      # rope ladder
-        b.box((-1.5, -4.3, 0.6 + i * 0.7), (1.4, 0.15, 0.15), "caramel_wood", bevel=False)
-    for x in (-2.2, -0.8):
-        b.box((x, -4.3, 4.6), (0.08, 0.08, 9.0), "cardboard", bevel=False)
-    for i in range(9):                                                                       # railing
-        b.box_base((-3.8 + i * 0.95, -3.8, 9.25), (0.2, 0.2, 1.6), "caramel_wood", bevel=False)
-    return [b.finalize(N + "Treehouse", mat), win.finalize(N + "Treehouse_Pane", mat)]
+    """A tree house you can walk into (Derek 2026-10-28: fix its collisions, a climbable ladder, a stuck cat up
+    the tree): a ladder at the front (rungs a stud apart, an invisible truss behind them) up to a 10 x 10 deck,
+    railed round with a gap at the ladder, a cabin on it with a doorway and windows, the trunk behind the cabin,
+    and a branch out over the deck's back corner where a stray gets stuck."""
+    b, win, climb = Builder(), Builder(), Builder()
+    D = DECK
+    b.cyl_base((0, 4.6, 0), 1.0, 24.0, "fur_brown", segments=10, radius2=0.7)                # the trunk
+    for (x, y, z, r) in ((0, 4.2, 24.0, 5.5), (3.8, 3.2, 21.5, 3.6), (-4.0, 5.2, 22.0, 3.8)):
+        b.ico((x, y, z), r, "leaf_green", subdivisions=1)
+    b.cyl((3.6, 4.4, 15.0), 0.45, 5.6, "fur_brown", segments=8, rot=ry(90))              # the branch
+    b.ico((6.9, 4.4, 15.6), 1.3, "leaf_dark", subdivisions=1)
+    b.box((0, 0, D - 0.25), (10.0, 10.0, 0.5), "caramel_wood")                           # the deck
+    for x in (-4.6, 4.6):
+        for y in (-4.6, 4.6):
+            b.box_base((x, y, 0), (0.5, 0.5, D - 0.5), "dark_wood")
+    for x in (-4.6, 4.6):                                                                # braces under the deck
+        b.box((x, 0, D - 1.2), (0.3, 9.0, 0.3), "dark_wood", bevel=False)
+    x0, x1, y0, y1, t, h = -3.5, 3.5, -2.4, 3.4, 0.4, 6.5                               # the cabin
+    b.box_base((0, y1 - t / 2, D), (x1 - x0, t, h), "treat_tan")
+    for s_ in (-1, 1):
+        b.box_base((s_ * (x1 - t / 2), (y0 + y1) / 2, D), (t, y1 - y0, h), "treat_tan")
+        b.box_base((s_ * (x1 + 1.5) / 2, y0 + t / 2, D), (x1 - 1.5, t, h), "treat_tan")  # front, either side of
+    b.box_base((0, y0 + t / 2, D + 5.6), (3.0, t, h - 5.6), "treat_tan")                 # the doorway (3 x 5.6)
+    for s_ in (-1, 1):                                                                   # its frame
+        b.box_base((s_ * 1.6, y0 - 0.15, D), (0.25, 0.3, 5.75), "choco", bevel=False)
+    b.box_base((0, y0 - 0.15, D + 5.6), (3.45, 0.3, 0.25), "choco", bevel=False)
+    for s_ in (-1, 1):
+        window(b, win, s_ * 2.5, y0, D + 3.4, 1.0, 1.2, frame="choco", cross=False)
+    gable(b, 0, (y0 + y1) / 2, D + h, x1 - x0 + 0.2, y1 - y0, 2.6, "treat_tan", "bowl_red")
+    b.cyl_base((1.8, 1.8, D), 0.9, 0.3, "blush", segments=10, bevel=False)              # a cushion inside
+    rail = 3.0                                                                           # railing round the deck
+    for (xa, xb, ya, yb) in ((-5.0, -4.05, -5.0, -4.8), (-1.95, 5.0, -5.0, -4.8),        # front, a gap at the ladder
+                             (-5.0, -1.1, 4.8, 5.0), (1.1, 5.0, 4.8, 5.0),                # back, round the trunk
+                             (-5.0, -4.8, -5.0, 5.0), (4.8, 5.0, -5.0, 5.0)):              # sides
+        b.box_base(((xa + xb) / 2, (ya + yb) / 2, D + rail - 0.2), (xb - xa, yb - ya + 0.04, 0.2), "dark_wood",
+                   bevel=False)
+        L = max(xb - xa, yb - ya)
+        n = max(1, round(L / 1.2))
+        for q in range(n + 1):
+            f = q / n
+            px, py = xa + (xb - xa) * f, ya + (yb - ya) * f
+            px, py = min(max(px, xa + 0.1), xb - 0.1), min(max(py, ya + 0.1), yb - 0.1)
+            b.box_base((px, py, D), (0.2, 0.2, rail - 0.2), "caramel_wood", bevel=False)
+    for x in (-3.8, -2.2):                                                               # the ladder
+        b.box_base((x, -5.3, 0), (0.2, 0.2, D + 1.2), "dark_wood", bevel=False)
+    for n_ in range(10):
+        b.box((-3.0, -5.3, 0.8 + n_ * 1.0), (1.4, 0.2, 0.2), "caramel_wood", bevel=False)
+    climb.box_base((-3.0, -4.3, 0), (2.0, 2.0, D), "caramel_wood", bevel=False)
+    return [b.finalize(N + "Treehouse", mat), win.finalize(N + "Treehouse_Pane", mat),
+            climb.finalize(N + "Treehouse_Climb", mat)]
+
+
+TOWER_TOP = 14.0
 
 
 def tower(mat):
-    b = Builder()
+    b, climb = Builder(), Builder()
+    T = TOWER_TOP
     for x in (-2.2, 2.2):
         for y in (-2.2, 2.2):
             b.box((x * 0.85, y * 0.85, 7.0), (0.5, 0.5, 14.2), "dark_wood",
@@ -259,19 +362,29 @@ def tower(mat):
         for s in (-1, 1):
             b.box((0, s * 2.0, z), (4.4, 0.25, 0.25), "dark_wood", bevel=False)
             b.box((s * 2.0, 0, z), (0.25, 4.4, 0.25), "dark_wood", bevel=False)
-    b.box((0, 0, 14.0), (6.0, 6.0, 0.5), "caramel_wood")
-    for s in (-1, 1):
-        b.box((0, s * 2.9, 15.0), (6.0, 0.2, 1.4), "caramel_wood", bevel=False)
-        b.box((s * 2.9, 0, 15.0), (0.2, 6.0, 1.4), "caramel_wood", bevel=False)
+    b.box((0, 0, T - 0.25), (6.0, 6.0, 0.5), "caramel_wood")
+    # railing 3 high (design 8): a kick board, balusters and a top rail, a gap at the ladder
+    for (xa, xb, ya, yb) in ((-2.65, -1.1, -3.0, -2.8), (1.1, 2.65, -3.0, -2.8), (-2.65, 2.65, 2.8, 3.0),
+                             (-3.0, -2.8, -2.65, 2.65), (2.8, 3.0, -2.65, 2.65)):
+        cx, cy, lx, ly = (xa + xb) / 2, (ya + yb) / 2, xb - xa, yb - ya
+        b.box_base((cx, cy, T), (lx, ly, 0.5), "caramel_wood", bevel=False)
+        b.box_base((cx, cy, T + 2.75), (lx, ly, 0.25), "caramel_wood", bevel=False)
+        L = max(lx, ly)
+        n = max(1, round(L / 0.8))
+        for q in range(1, n):
+            f = q / n
+            px, py = (xa + lx * f, cy) if lx > ly else (cx, ya + ly * f)
+            b.box_base((px, py, T + 0.5), (0.18, 0.18, 2.25), "caramel_wood", bevel=False)
     for x in (-2.8, 2.8):
         for y in (-2.8, 2.8):
-            b.box_base((x, y, 14.25), (0.3, 0.3, 4.0), "dark_wood")
-    b.pyramid((0, 0, 18.2), 8.0, 3.0, "shirt_green")
+            b.box_base((x, y, T), (0.3, 0.3, 4.0), "dark_wood")
+    b.pyramid((0, 0, T + 3.95), 8.0, 3.0, "shirt_green")
     for i in range(18):
         b.box((0, -3.3, 0.5 + i * 0.75), (1.4, 0.2, 0.15), "caramel_wood", bevel=False)
     b.box((0.75, -3.3, 7.0), (0.15, 0.15, 14.0), "caramel_wood", bevel=False)
     b.box((-0.75, -3.3, 7.0), (0.15, 0.15, 14.0), "caramel_wood", bevel=False)
-    return [b.finalize(N + "LookoutTower", mat)]
+    climb.box_base((0, -2.3, 0), (2.0, 2.0, T), "caramel_wood", bevel=False)
+    return [b.finalize(N + "LookoutTower", mat), climb.finalize(N + "LookoutTower_Climb", mat)]
 
 
 def berry(mat):
@@ -317,20 +430,20 @@ def lantern(mat):
 
 
 def waterfall(mat):
-    b = Builder()
+    b, water = Builder(), Builder()
     for k in range(12):                                                                      # rock rim of the pond
         a = 2 * PI * k / 12
         b.ico((5.0 * math.cos(a), 4.0 * math.sin(a) - 1, 0.4), 0.9, "concrete", subdivisions=1, scale=(1.2, 1, 0.6))
-    b.cyl_base((0, -1, 0.05), 4.6, 0.3, "fish_blue", segments=16, scale=(1, 0.8, 1), bevel=False)
+    water.cyl_base((0, -1, 0.05), 4.6, 0.3, "fish_blue", segments=16, scale=(1, 0.8, 1), bevel=False)
     for (x, y, z, r) in ((-3, 4, 3.0, 3.0), (3, 4, 3.5, 3.2), (0, 5, 5.5, 3.4), (-5, 3, 1.6, 2.0), (5, 3, 2.0, 2.2)):
         b.ico((x, y, z), r, "concrete", subdivisions=1)
     b.ico((-2, 4.5, 6.0), 2.0, "leaf_green", subdivisions=1, scale=(1.4, 1, 0.5))
-    b.box((0, 2.2, 3.4), (2.2, 0.4, 6.6), "fish_blue", bevel=False)                          # the falling water
+    water.box((0, 2.2, 3.4), (2.2, 0.4, 6.6), "fish_blue", bevel=False)                      # the falling water
     b.box((0, 1.6, 0.45), (3.0, 1.4, 0.1), "fish_belly", bevel=False)                        # foam
     for (x, y) in ((-2.5, -2.5), (2.0, -3.0)):
         b.cyl_base((x, y, 0.36), 0.6, 0.05, "leaf_green", segments=8, bevel=False)          # lily pads
     b.cyl_base((-2.3, -2.5, 0.41), 0.15, 0.15, "blush", segments=6, bevel=False)
-    return [b.finalize(N + "WaterfallPond", mat)]
+    return [b.finalize(N + "WaterfallPond", mat), water.finalize(N + "WaterfallPond_Water", mat)]   # _Water: splashes
 
 
 # ------------------------------------------------------------------------------------------------- the set --
@@ -344,7 +457,7 @@ OAKS = ((-40, 0), (44, -10), (-26, 36), (22, 40))
 def _ground():
     """Flat pieces on the floor, in Builder (Blender) axes, so Roblox (x, z) is (-x, y) here: the clearing, the
     dirt path from the gate and the stream across it. Neighbouring slabs never share a top face."""
-    g = Builder()
+    g, water = Builder(), Builder()
     g.cyl_base((0, 0, 0), 17, 0.08, "fur_sand", segments=24, bevel=False)                    # the clearing
     for i in range(9):                                                                       # the dirt path in
         t = i / 8
@@ -355,21 +468,23 @@ def _ground():
         dz = 0.006 * (i % 2)
         y = STREAM_Z + 4 * math.sin(i * 0.7)
         g.box_base((x, y, 0.02 + dz), (8.6, 7.0, 0.1), "fur_brown", bevel=False, rot=rz(14 * math.cos(i * 0.7)))
-        g.box_base((x, y, 0.05 + dz), (8.4, 5.0, 0.12), "fish_blue", bevel=False, rot=rz(14 * math.cos(i * 0.7)))
+        water.box_base((x, y, 0.05 + dz), (8.4, 5.0, 0.12), "fish_blue", bevel=False, rot=rz(14 * math.cos(i * 0.7)))
         if i:                                                                                # round joints, a bit lower
             jx, jy = x - 4, STREAM_Z + 2 * (math.sin(i * 0.7) + math.sin((i - 1) * 0.7))
             g.cyl_base((jx, jy, 0.02), 3.5, 0.09, "fur_brown", segments=12, bevel=False)
-            g.cyl_base((jx, jy, 0.05), 2.5, 0.11, "fish_blue", segments=12, bevel=False)
-    return g
+            water.cyl_base((jx, jy, 0.05), 2.5, 0.11, "fish_blue", segments=12, bevel=False)
+    return g, water
 
 
 def build_set(mat):
     """Placed from the approved draft vignette (Blender x is Roblox -x, so every x here is the draft's negated)."""
     s = Set(N + "Set")
     s.put(great_oak(mat), 0, 6, 0)
-    for k in (2, 3, 4):                                          # root nooks, between roots and clear of the mushrooms
-        a = 2 * PI * (k + 1) / 7 - PI / 2
+    for d in OAK_NOOKS:                                          # root nooks, between roots and clear of the mushrooms
+        a = math.radians(d)
         s.mark("oak_nook", -6.8 * math.cos(a), 6 + 6.8 * math.sin(a))
+    for (bx, by, up) in NOOK_SPOTS:                              # up in the nook: Gameplay weights rarer strays here
+        s.mark("nook_great_oak", -bx, 6 + by, y=NOOK_Z + up)
     s.put(bridge(mat), -4.5, -36.5, 5)
     s.mark("bridge", -8.4, -36.5)                                                            # by the bridge's foot
     s.put(stones(mat), 28, -36, 80)
@@ -382,7 +497,8 @@ def build_set(mat):
     s.put(mushroom_ring(mat), -18, -10, 0)
     s.mark("mushroom_ring", -18, -10, y=0.05)
     s.put(treehouse(mat), -30, 16, -30)
-    s.mark("treehouse", *_off(-30, 16, -30, -2.0, 2.0))                                      # between the trunk and legs
+    s.mark("treehouse", *_off(-30, 16, -30, -1.8, 1.8), y=DECK + 0.3)                        # on the cushion inside
+    s.mark("trap_treehouse_branch", *_off(-30, 16, -30, -4.9, 4.4), y=15.45)                # stuck up the tree
     s.put(tower(mat), 38, 28, 20)
     s.mark("tower", 38, 28)                                                                  # between the legs
     s.put(waterfall(mat), -34, -22, -60)
@@ -446,7 +562,9 @@ def build_set(mat):
             tb.ico((-c, -mid, 1.2), 1.0, ("leaf_dark", "leaf_green")[i % 2], subdivisions=1,
                    scale=((step - 2.0) / 2, BORDER_D * 0.45, 1.6))
     s.put([tb.finalize(N + "Thicket", mat)], 0, 0, 0)
-    return s.finish(_ground(), mat), s
+    ground, water = _ground()
+    s.put([water.finalize(N + "Stream_Water", mat)], 0, 0, 0)                               # _Water: splashes
+    return s.finish(ground, mat), s
 
 
 def _off(x, z, rot, lx, lz):

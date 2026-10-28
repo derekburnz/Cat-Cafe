@@ -36,9 +36,9 @@
      }
     },
     "Size": [
-     1.995,
-     1.805,
-     1.9
+     1.4962,
+     1.3537,
+     1.425
     ],
     "Color": [
      0.1686,
@@ -87,7 +87,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -123,9 +128,9 @@
      }
     },
     "Size": [
-     1.5,
-     1.35,
-     1.5
+     1.125,
+     1.0125,
+     1.125
     ],
     "Color": [
      0.3569,
@@ -145,7 +150,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -377,9 +387,9 @@
      }
     },
     "Size": [
-     1.1,
-     0.99,
-     1.1
+     0.825,
+     0.7425,
+     0.825
     ],
     "Color": [
      0.1686,
@@ -399,7 +409,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]

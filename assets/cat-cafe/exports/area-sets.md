@@ -23,8 +23,12 @@ Built by `assets/cat-cafe/blender/{areakit,neighbourhood,woods,sewer}.py` from t
   sets' hedges, thicket and brick walls stand just inside them and cover them.
 - The Sewer's own brick walls are 16 high and wrap WorldBuilder's 1 stud walls at 44.5 to 45.5; its tiled floor
   slab is 0.4 thick, so its spots sit at y 0.4.
-- Collision follows the usual rule: only parts at least 0.35 thick collide. `_Decor`, `_Water`, `_Glow`, `_Bulb`
-  and `_Tube` parts never collide. `_Bulb` and `_Pane` parts light at night through WorldController.
+- Collision (PR #452): parts at least 0.35 thick collide, and so do thin ones down to 0.12 thick when at least
+  0.9 long (planks, decks, rungs, rails). Round parts collide with a block 75% of their size. `_Decor`, `_Water`,
+  `_Glow`, `_Bulb`, `_Tube` and `_Flowers` parts never collide. `_Bulb` and `_Pane` parts light at night through
+  WorldController.
+- Ladders have an invisible TrussPart (`..._Climb`) behind their rungs, so players climb them: the Great Oak's
+  inside ladder, the tree house, the lookout tower and the Neighbourhood slide.
 
 ## Spots for cats
 
@@ -34,13 +38,15 @@ floor or seat for one cat: none is inside a colliding part.
 
 - Neighbourhood: porch 9, flowerbed 9, hub 3 (tyre, under the slide, sandpit), garden 2, shed 1, driveway 4,
   bins 1, van 1.
-- Woods: oak_nook 3, bridge 1, tent 2, mushroom_ring 1, treehouse 1, tower 1, fern 2, berry_bush 1, rock 2,
-  stump 1, leaf_pile 1, log 1.
+- Woods: oak_nook 3, nook_great_oak 3 (inside the Great Oak's top, y 18: the rare-biased nook), bridge 1, tent 2,
+  mushroom_ring 1, treehouse 1 (on the cabin cushion, y 10.3), tower 1, fern 2, berry_bush 1, rock 2, stump 1,
+  leaf_pile 1, log 1.
 - Sewer: catwalk 1, throne 1, toy_pile 1, valve 1, cart 1, pipe_end 1, stall 3, house 4, sofa 1, deck 2, boat 1,
   raft 1, trolley 1, hammock 1.
 
 Labels starting with `trap_` are rescue trap spots, where a stuck cat sits inside its prop:
-Woods `trap_hollow_log` (-14, 0, 22) and `trap_bramble_bush` (14, 0, 22); Sewer `trap_grate` (-31, 0.4, 2) and
+Woods `trap_hollow_log` (-14, 0, 22), `trap_bramble_bush` (14, 0, 22) and `trap_treehouse_branch`
+(-36.44, 15.45, 17.36: up the tree house's trunk); Sewer `trap_grate` (-31, 0.4, 2) and
 `trap_drain_pipe` (-40, 0.4, -35). The Neighbourhood's shed (59.2, 0, 40) has a jammed door for the shed rescue.
 
 ## Checks

@@ -48,7 +48,7 @@
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
-    "CanCollide": false,
+    "CanCollide": true,
     "CanTouch": false,
     "CastShadow": true,
     "TopSurface": "Smooth",
@@ -2523,9 +2523,9 @@
      }
     },
     "Size": [
-     0.832,
-     0.384,
-     0.64
+     0.624,
+     0.288,
+     0.48
     ],
     "Color": [
      0.2431,
@@ -2545,7 +2545,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -2639,9 +2644,9 @@
      }
     },
     "Size": [
-     0.78,
-     0.36,
-     0.6
+     0.585,
+     0.27,
+     0.45
     ],
     "Color": [
      0.2431,
@@ -2661,7 +2666,12 @@
      "name": "Mesh",
      "className": "SpecialMesh",
      "properties": {
-      "MeshType": "Sphere"
+      "MeshType": "Sphere",
+      "Scale": [
+       1.3333,
+       1.3333,
+       1.3333
+      ]
      }
     }
    ]
@@ -3119,7 +3129,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",

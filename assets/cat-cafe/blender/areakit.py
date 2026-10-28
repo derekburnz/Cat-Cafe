@@ -17,7 +17,7 @@ import common
 
 PI = math.pi
 POINTS = {}         # set name -> {label: [(x, y, z), ...]} in area space; build_all writes it into the manifest
-SUFFIXES = ("_Pane", "_Bulb", "_Bulbs", "_Glass", "_Water", "_Glow", "_Flowers", "_Decor", "_Lights", "_Tube")
+SUFFIXES = ("_Pane", "_Bulb", "_Bulbs", "_Glass", "_Water", "_Glow", "_Flowers", "_Decor", "_Lights", "_Tube", "_Climb")
 
 
 def rx(d):

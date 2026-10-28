@@ -347,7 +347,7 @@ local Cues: { [string]: Cue } = {
 		volume = 0.35,
 		minGap = 3,
 		range = 40,
-	}, -- once as you come near a gold or Legendary and up stray (was the shimmerRare loop, retired 2026-10-28)
+	}, -- once as you come near a Mythical stray (was the shimmerRare loop, retired 2026-10-28)
 	goldReveal = {
 		ids = { "rbxassetid://124772067869145" },
 		group = "Sfx",

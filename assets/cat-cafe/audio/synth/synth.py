@@ -603,8 +603,8 @@ def gold_reveal() -> np.ndarray:
 
 
 def rare_near() -> np.ndarray:
-    """Coming near a gold or Legendary and up stray: four soft twinkles over a breath of air, once, so you know a
-    special cat is close. Replaced the constant 2 s shimmer loop on 2026-10-28 (Derek found it annoying)."""
+    """Coming near a Mythical stray: four soft twinkles over a breath of air, once, so you know a special cat is
+    close. Replaced the constant 2 s shimmer loop on 2026-10-28 (Derek found it annoying)."""
     d = 1.3
     t = seconds(d)
     air = bandpass(bandpass(noise(d, 191), 6500, 1.0), 6500, 1.0) * np.sin(np.pi * np.clip(t / 0.9, 0, 1)) ** 2

@@ -291,14 +291,11 @@ function Logic.plotCue(attribute: string, before: any, after: any): string?
 	return nil
 end
 
--- Whether a stray twinkles as a player comes near (rareNear): a gold cat, or Legendary and up. Epic strays stopped
--- twinkling on 2026-10-28 (Derek: the sound around Epic cats was annoying).
-function Logic.shimmers(gold: any, rarity: any): boolean
-	if gold == true then
-		return true
-	end
+-- Whether a stray twinkles as a player comes near (rareNear): Mythical only. Derek 2026-10-28: the sound around
+-- rare cats was annoying, so Epic, Legendary and gold strays are quiet now.
+function Logic.shimmers(rarity: any): boolean
 	local step = if type(rarity) == "string" then Logic.rarityStep(rarity) else nil
-	return step ~= nil and step >= 4
+	return step ~= nil and step >= 5
 end
 
 -- The rare stray twinkle plays once as a player comes within `near` studs, and again only after they have been

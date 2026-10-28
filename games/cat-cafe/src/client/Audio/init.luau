@@ -553,9 +553,9 @@ local function shown(cat: Instance): boolean
 	return cat:GetAttribute("HiddenLocal") ~= true
 end
 
--- A gold or Legendary and up stray twinkles once as you come near (F42; Logic.shimmers), so it can be found.
+-- A Mythical stray twinkles once as you come near (F42; Logic.shimmers), so it can be found.
 local function shimmers(stray: Instance): boolean
-	return Logic.shimmers(stray:GetAttribute("Gold"), stray:GetAttribute("Rarity"))
+	return Logic.shimmers(stray:GetAttribute("Rarity"))
 end
 
 -- World loops by CollectionService tag: the world builder tags a part or model and its loop plays while it
@@ -777,9 +777,9 @@ local function unwatchStray(instance: Instance)
 	strayWatches[instance] = nil
 end
 
--- A gold or Legendary and up stray twinkles once, on the cat, as you come within RARE_NOTICE studs, and again only
--- after you have been further than RARE_FORGET (Derek 2026-10-28: the constant shimmer loop around Epic and up
--- strays was annoying, so it is gone). rareNear's minGap keeps a crowd of rare cats to one twinkle.
+-- A Mythical stray twinkles once, on the cat, as you come within RARE_NOTICE studs, and again only after you have
+-- been further than RARE_FORGET (Derek 2026-10-28: the constant shimmer loop around rare strays was annoying, so it
+-- is gone, and every other rarity and gold is quiet). rareNear's minGap keeps a crowd of them to one twinkle.
 local RARE_NOTICE = 30
 local RARE_FORGET = 45
 
@@ -1181,7 +1181,7 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 
 	-- F42: a bait or rescue cat that turns out gold; a gold cat in your arms plays it by itself (watchHeld), and a
-	-- gold or Legendary and up stray twinkles as you come near (noticeRareStrays), so RareStrayNearby is gone.
+	-- Mythical stray twinkles as you come near (noticeRareStrays), so RareStrayNearby is gone.
 	GoldReveal = function()
 		Audio.play("goldReveal")
 	end,

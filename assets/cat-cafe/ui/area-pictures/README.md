@@ -4,6 +4,7 @@ Card pictures for the F84 cannon picker and the Areas screen, 512 x 256 PNG each
 
 | file | area | Roblox image id |
 |---|---|---|
+| `Area_alley.png` | Alleyway | `rbxassetid://113608977532602` |
 | `Area_park.png` | Park | `rbxassetid://132809833693971` |
 | `Area_neighbourhood.png` | Neighbourhood | `rbxassetid://78164844504840` |
 | `Area_woods.png` | Woods | `rbxassetid://85739310653150` |

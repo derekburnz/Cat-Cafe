@@ -48,7 +48,9 @@ COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "Ca
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
                       "_Wheel", "_Pointer", "_RimLight", "_Flowers")
-INVISIBLE_OBJECTS = ("_Fireflies", "_Climb")   # volumes never drawn: where fireflies drift, ladders' climbing trusses
+INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier")   # volumes never drawn: where fireflies drift, ladders'
+# climbing trusses, the walls round a pond that keep players and cats out of the water
+BARRIER_OBJECTS = ("_Barrier",)       # invisible and always solid
 CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's rungs, so Roblox characters climb it
 # Outdoor families (Derek 2026-10-28: "make all the models climbable not sinking through them"): their planks, rungs,
 # rails and pickets collide too, down to THIN_COLLIDE thick when at least THIN_LONG long.
@@ -229,7 +231,7 @@ def _props(p, asset, uid):
     collide = ((asset.startswith(COLLIDE_PREFIXES) and (min(p["size"]) >= MIN_COLLIDE or thin_ok)
                 and not p["name"].endswith(NO_COLLIDE_OBJECTS) and material != "Glass")
                or (asset.startswith("CatCafe_Plot_") and p["name"].endswith(("_Wall", "_Glass")))
-               or p["name"].endswith("_Bars") or climb)
+               or p["name"].endswith("_Bars") or p["name"].endswith(BARRIER_OBJECTS) or climb)
     size = [max(v, 0.01) for v in p["size"]]
     fit = 1.0
     if climb:                                     # a TrussPart's size comes in 2 stud steps

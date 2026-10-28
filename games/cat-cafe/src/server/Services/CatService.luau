@@ -1130,7 +1130,8 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 
 	-- a Steady Paw Potion running now plays the circles of the next net level (F64)
 	local netLevel = Potions.netLevel(profile, Economy.level(profile, "net"), os.time())
-	local windows = Circles.windows(netLevel)
+	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
+	local windows = Circles.windowsFor(netLevel, stray.def.rarity)
 	local circles = Circles.schedule(stray.def.rarity, netLevel, now, function()
 		return rng:NextNumber()
 	end)

@@ -546,16 +546,17 @@ local function setPoints(
 end
 
 -- A trap built into an area kit set (a `trap_` spot): no prop of its own, the stuck cat at the spot, turned with
--- the set.
+-- the set and by `pieceTurn`, the trap piece's own turn in the set's space (a v3.2 spot's fifth number).
 local function setTrap(
 	cx: number,
 	cz: number,
 	turn: number,
 	trap: string,
-	spot: { number }
+	spot: { number },
+	pieceTurn: number?
 ): RescuePoint
 	local point = setPoints(cx, cz, turn, 0, { spot })[1]
-	return { trap = trap, x = point.x, y = spot[2], z = point.z, rotY = turn }
+	return { trap = trap, x = point.x, y = spot[2], z = point.z, rotY = turn + (pieceTurn or 0) }
 end
 
 -- A rescue prop the world stands at a set's trap spot (the Park's, area-sets.md): `propTurn` turns the prop in the
@@ -753,49 +754,110 @@ local function propTurned(
 	return { asset = asset, x = cx + x, z = cz + z, rotY = 90 * quarter }
 end
 
+-- The Woods at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Woods_SetV32 (#470, area-sets.md
+-- "The Woods (v3.2)") fills the 240 x 240 floor, its trail winding through the one gap in the tree line, over the one
+-- log bridge and through the one gap in the rock ridge to the Great Oak. Its cat spots are `near` on the gate half and
+-- `deep` on the far half, and the Great Oak's top nook is `rare` (Catching.RARE_ZONE: only a Rare or better waits
+-- there, and one goes there first). Its hollow logs and bramble bushes are built into the set, each turned in it, two
+-- of the four deep, and a cat can get stuck up the tree house's branch.
 local WX, WZ = W.WoodsCenterX, W.WoodsCenterZ
-local WHW = W.WoodsWidth / 2
 local WTURN = townTurn(WX, WZ, W.WoodsGateX, nil)
 Layout.woods = {
 	floorY = 0.1,
 	center = { x = WX, y = 0, z = WZ },
-	halfWidth = WHW,
+	halfWidth = W.WoodsWidth / 2,
 	halfDepth = W.WoodsDepth / 2,
 	gateX = W.WoodsGateX,
 	openingHalfWidth = GH,
-	set = "CatCafe_Woods_Set",
-	spawnPoints = setPoints(WX, WZ, WTURN, 0.1, {
-		-- in the Great Oak's roots
-		{ -2.95, 0, 12.13 },
-		{ 2.95, 0, 12.13 },
-		{ 6.63, 0, 7.51 },
-		{ -8.4, 0, -36.5 }, -- the bridge
-		{ 24.32, 0, 0.91 }, -- the tents
-		{ 33.03, 0, -19.35 },
-		{ -18, 0.05, -10 }, -- the mushroom ring
-		{ -32.73, 0, 16.73 }, -- the treehouse
-		{ 38, 0, 28 }, -- the lookout tower
-		{ 10, 0, -26 }, -- ferns
-		{ -12, 0, -28 },
-		{ 17, 0, 9.6 }, -- the berry bush
-		{ -20, 2, 4 }, -- mossy rocks
-		{ -24, 2, -32 },
-		{ 6, 1.66, 18 }, -- the stump
-		{ -12, 0, -3 }, -- the leaf pile
-		{ 18.33, 0, -29.99 }, -- the fallen log
-	}),
+	set = "CatCafe_Woods_SetV32",
+	spawnPoints = (function(): { Point }
+		local points = setPoints(WX, WZ, WTURN, 0.1, {
+			{ -43.5, 0, -22.5 }, -- the log bridge
+			{ 104, 0, -23.51 }, -- the waterfall
+			{ 75.61, 0, -103.84 }, -- the tents
+			{ 84.61, 0, -102.05 },
+			{ 74, 2.06, -95 }, -- log benches
+			{ 86, 2.06, -94 },
+			{ 80.5, 0, -88.5 }, -- the campfire
+			{ -30, 0, -99.8 }, -- berry bushes
+			{ -48, 0, -107.8 },
+			{ -62, 0, -93.8 },
+			{ 100, 0, -79.8 },
+			{ -16, 0, -84 }, -- leaf piles
+			{ -100, 0, -42 },
+			{ -82, 1.66, -100 }, -- stumps
+			{ -40, 1.66, -80 },
+			{ 86, 1.66, -58 },
+			{ -94, 2, -82 }, -- mossy rocks
+			{ 66, 2, -38 },
+			{ -70, 2, -30 },
+			{ -72, 0, -76 }, -- ferns
+			{ 24, 0, -30 },
+			{ -22, 0, -50 },
+			{ 90, 0, -48 },
+			{ -93.1, 0, -106.36 }, -- fallen logs
+			{ 61.56, 0, -56.89 },
+			{ 0, 0.05, -56 }, -- the mushroom ring
+		}, "near")
+		for _, point in
+			setPoints(WX, WZ, WTURN, 0.1, {
+				{ -32.5, 0, 10.5 }, -- the log bridge
+				{ -20, 2.06, 100 }, -- log benches
+				{ -56, 2.06, 100 },
+				{ -24, 2.06, 72 },
+				{ -14, 0, 30.2 }, -- berry bushes
+				{ 6, 0, 35.2 },
+				{ 22, 0, 22.2 },
+				{ -30, 0, 28.2 },
+				{ 104, 0, 76.2 },
+				{ 34, 0, 14 }, -- leaf piles
+				{ 28, 0, 84 },
+				{ -104, 1.66, 34 }, -- stumps
+				{ 44, 1.66, 100 },
+				{ 70, 2, 34 }, -- mossy rocks
+				{ -96, 2, 10 },
+				{ 64, 2, 80 },
+				{ 96, 2, 66 },
+				{ 100, 0, 6 }, -- ferns
+				{ -50, 0, 36 },
+				{ 8, 0, 14 },
+				{ 80, 0, 100 },
+				{ 52, 0, 66 },
+				{ 83.49, 0, 81.87 }, -- fallen logs
+				{ 50, 0, 18.5 }, -- glow mushrooms
+				{ -98, 0, 88.5 },
+				{ 66, 0, 100.5 },
+				{ -60.05, 0, 14.62 }, -- the log pile
+				{ -78, 0, 6 }, -- glades
+				{ -6, 0, 18 },
+				{ -44.71, 0, 86.88 }, -- in the Great Oak's roots
+				{ -42.32, 0, 93.25 },
+				{ -35.39, 0, 94.28 },
+				{ -87.22, 10.3, 71.77 }, -- the tree house's cushion, up its ladder
+				{ -79.64, 0, 78.98 }, -- at the foot of the tree house
+				{ 2, 0, 102 }, -- the lookout tower
+				{ -58, 0, 64 }, -- the oak's clearing
+				{ -78, 0, 104 },
+				{ 84, 0, 54 }, -- the dell
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there)
+		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -36.31, 18.3, 87.37 } }, "rare")[1])
+		return points
+	end)(),
 	rescueSpots = {
-		setTrap(WX, WZ, WTURN, "hollow_log", { -14, 0, 22 }),
-		setTrap(WX, WZ, WTURN, "bramble_bush", { 14, 0, 22 }),
+		-- a hollow log's open end faces its own +X; a bramble is round
+		setTrap(WX, WZ, WTURN, "hollow_log", { 78, 0, -40 }, 20),
+		setTrap(WX, WZ, WTURN, "hollow_log", { 92, 0, 26 }, -20),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { -84, 0, -50 }),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { -86, 0, 30 }),
+		-- up the tree house's branch (Derek 01:34), reached from its deck: shaken down and caught like a Park tree,
+		-- the cat lying across the branch (which points along the piece's -X) as on a Park tree
+		setTrap(WX, WZ, WTURN, "tree", { -88.85, 15.45, 68.06 }, -106.26),
 	},
-	props = {
-		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", 27, 14),
-		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -27, -16),
-		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -3, -29),
-		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -18, 5),
-		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", 11, -16),
-		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", -21, -28),
-	},
+	props = {},
 } :: AreaSpec
 
 local SX, SZ = W.SewerCenterX, W.SewerCenterZ

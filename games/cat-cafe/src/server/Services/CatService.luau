@@ -481,37 +481,21 @@ local function spawnStray(
 	return stray
 end
 
--- The zones Epic and rarer strays keep to: the Alleyway's "nook" points (town-layout-v3.md 7e: the exciting cats
--- wait at the back alleys' ends, so no cafe's lane is the lucky one) and a v3.2 side area's "deep" ones (section 8d:
--- the rarer the cat, the longer the walk to it).
-local RARE_ZONES: { [string]: boolean } = { nook = true, deep = true }
-
--- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Epic and
--- rarer strays take only RARE_ZONES points in an area that has them.
+-- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Which points a
+-- stray of `rarity` may take is Catching.spawnPool's rule: the Woods' oak top for a Rare or better first, Epic and
+-- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81).
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
-	local free: { number } = {}
-	local nooks: { number } = {}
-	local hasNook = false
+	local slots: { Catching.SpawnSlot } = {}
 	for i, point in area.spawnPoints do
 		local zone = point:GetAttribute("Zone")
-		local inNook = type(zone) == "string" and RARE_ZONES[zone] == true
-		hasNook = hasNook or inNook
-		if occupied[i] == nil then
-			table.insert(free, i)
-			if inNook then
-				table.insert(nooks, i)
-			end
-		end
+		table.insert(
+			slots,
+			{ zone = if type(zone) == "string" then zone else nil, free = occupied[i] == nil }
+		)
 	end
-	-- Epic and rarer spawn only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81); with
-	-- every such point full that stray waits for the next wave. spawnWave places the rarer strays first, so this is
-	-- rare.
-	local pool: { number } = free
-	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasNook then
-		pool = nooks
-	end
+	local pool = Catching.spawnPool(slots, rarity)
 	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
 	local points: { Vector3 } = {}
 	for _, index in pool do
@@ -607,9 +591,11 @@ end
 
 -- Carrying ------------------------------------------------------------------------------------------------
 
--- The carried pose from the asset manifest (poses.carried.body_cframe_roblox): cradled across the chest, facing
--- the character's left so the camera behind the player sees the cat side on. Relative to the HumanoidRootPart.
-local CARRIED_POSE = CFrame.new(0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0)
+-- The carried pose (Catching.CARRIED_POSE), relative to the HumanoidRootPart.
+local CARRIED_POSE = (function(): CFrame
+	local p = Catching.CARRIED_POSE
+	return CFrame.new(p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12])
+end)()
 
 -- The carrier's character attributes (section 13): CarryingCatId, CarryStartedAt (server time) and BumpImmune (the
 -- held window). Display only; the shove checks read the carry record. nil clears them.
@@ -869,9 +855,19 @@ end
 
 -- After a miss the stray hisses (HissAt, so every nearby client plays it) and sprints its rarity's fleeStuds straight
 -- away from the player at StrayFleeSpeed, kept inside its area, then catches its breath for StrayRestSeconds
--- (v0.5, data-model section 10 step 5). Nobody can start a catch on it until FleeingUntil.
+-- (v0.5, data-model section 10 step 5). Nobody can start a catch on it until FleeingUntil. A stray on a perch (a
+-- rock, the tree house cushion, the Great Oak's top) hisses and stays put for the breather instead: the sprint aims
+-- at the floor and would drop it through whatever it sits on (reviewer S86), and the climb stays worth a retry.
 local function flee(stray: Stray, player: Player)
 	local at = stray.model:GetPivot().Position
+	if at.Y > world.areas[stray.area].floorY + PERCH_ABOVE then
+		local now = serverNow()
+		stray.fleeingUntil = Catching.fleeUntil(now, 0)
+		stray.selfRetryAt[player.UserId] = stray.fleeingUntil + Config.StraySelfRetrySeconds
+		stray.model:SetAttribute("HissAt", now)
+		stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
+		return
+	end
 	local from = rootPosition(player)
 	local away = if from ~= nil then Vector3.new(at.X - from.X, 0, at.Z - from.Z) else Vector3.zero
 	if away.Magnitude < 0.1 then

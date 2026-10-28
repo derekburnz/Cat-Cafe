@@ -109,17 +109,24 @@ return function()
 
 		-- Model-Agent #401: the Neighbourhood, Woods and Sewer sets bring their cat spots and (but for the gutter)
 		-- their traps, turned with the set so its gate side faces the town; the Park's v3.2 set (#460) its cat spots,
-		-- its traps being the world's trees and bins.
+		-- its traps being the world's trees and bins; the Woods' v3.2 set (#470) its spots and traps, the hollow logs
+		-- turned in the set as well.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
-			local sets: { [string]: string } =
-				{ park = "Park", neighbourhood = "Neighbourhood", woods = "Woods", sewer = "Sewer" }
+			local sets: { [string]: string } = {
+				park = "CatCafe_Park_Set",
+				neighbourhood = "CatCafe_Neighbourhood_Set",
+				woods = "CatCafe_Woods_SetV32",
+				sewer = "CatCafe_Sewer_Set",
+			}
 			for id, name in sets do
 				local spec = Layout.areas[id]
-				expect(spec.set).to.equal("CatCafe_" .. name .. "_Set")
+				expect(spec.set).to.equal(name)
 				local turn = Layout.gateTurn(spec)
+				-- on the ground or a low perch (a porch, a rock, the catwalk), never a roof; the Woods' tree house
+				-- cushion and the Great Oak's top nook, up their ladders, are the high spots
+				local top = spec.floorY + (if id == "woods" then 18.5 else 4)
 				for i, point in spec.spawnPoints do
-					-- on the ground or a low perch (a porch, a rock, the catwalk), never a roof
-					if point.y < spec.floorY or point.y > spec.floorY + 4 then
+					if point.y < spec.floorY or point.y > top then
 						fail("%s spawn point %d stands at y %g", id, i, point.y)
 					end
 					expect(point.rotY).to.equal(turn)
@@ -130,14 +137,17 @@ return function()
 						end
 					end
 				end
+				local pieceTurns: { number } = if id == "woods" then { 20, -20, 0, 0, -106.26 } else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
 					if spot.prop == nil then
 						built += 1
-						expect(spot.rotY).to.equal(turn)
+						expect(spot.rotY).to.equal(turn + (pieceTurns[built] or 0))
 					end
 				end
-				expect(built).to.equal(if id == "park" then 0 elseif id == "neighbourhood" then 1 else 2)
+				expect(built).to.equal(
+					if id == "park" then 0 elseif id == "neighbourhood" then 1 elseif id == "woods" then 5 else 2
+				)
 			end
 		end)
 
@@ -147,9 +157,9 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
-				-- (19.6, -58.8) near its own, the Woods' bridge at local (-8.4, -36.5) near its own, the Sewer's
+				-- (19.6, -58.8) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
 				-- catwalk at local (3, -24) near its own
-				local index = if id == "woods" then 4 else 1
+				local index = if id == "woods" then 8 else 1
 				local point = spec.spawnPoints[index]
 				local toGate = math.sqrt((point.x - (gx :: number)) ^ 2 + (point.z - (gz :: number)) ^ 2)
 				local toCenter = math.sqrt((point.x - spec.center.x) ^ 2 + (point.z - spec.center.z) ^ 2)
@@ -159,33 +169,69 @@ return function()
 			end
 		end)
 
-		-- F81 (town-layout-v3.md section 8d): the Park's v3.2 set tags each cat spot near (the gate half) or deep (the
-		-- far half, where Epic and rarer strays wait), and three of its five traps are in the far half.
-		it("the Park's spots are 16 near its gate and 24 deep in its far half, with three traps deep", function()
-			local park = Layout.park
-			local gateZ = park.gateZ :: number
-			local middle = math.abs(park.center.z - gateZ)
-			local counts: { [string]: number } = {}
-			for i, point in park.spawnPoints do
-				local zone = point.zone :: string
-				counts[zone] = (counts[zone] or 0) + 1
-				local fromGate = math.abs(point.z - gateZ)
-				if (zone == "deep") ~= (fromGate > middle) then
-					fail("Park spawn point %d (%s) is %.1f studs in from the gate", i, zone, fromGate)
+		-- F81 (town-layout-v3.md section 8d): a v3.2 set tags each cat spot near (the gate half) or deep (the far
+		-- half, where Epic and rarer strays wait), and some of its traps are in the far half. The Woods' Great Oak
+		-- top is "rare" (Catching.RARE_ZONE), in the far half too.
+		it("the v3.2 sets' spots are near their gates or deep in their far halves, with traps deep", function()
+			local rows = {
+				{ id = "park", near = 16, deep = 24, rare = 0, deepTraps = 3 },
+				{ id = "woods", near = 26, deep = 38, rare = 1, deepTraps = 3 },
+			}
+			for _, row in rows do
+				local spec = Layout.areas[row.id]
+				local gateX, gateZ = spec.gateX, spec.gateZ
+				-- how far in from the gate, along the way in
+				local function fromGate(x: number, z: number): number
+					if gateX ~= nil then
+						return math.abs(x - gateX)
+					end
+					return math.abs(z - (gateZ :: number))
 				end
+				local middle = fromGate(spec.center.x, spec.center.z)
+				local counts: { [string]: number } = {}
+				for i, point in spec.spawnPoints do
+					local zone = point.zone :: string
+					counts[zone] = (counts[zone] or 0) + 1
+					local inFrom = fromGate(point.x, point.z)
+					if (zone ~= "near") ~= (inFrom > middle) then
+						fail("%s spawn point %d (%s) is %.1f studs in from the gate", row.id, i, zone, inFrom)
+					end
+				end
+				expect(counts.near).to.equal(row.near)
+				expect(counts.deep).to.equal(row.deep)
+				expect(counts.rare or 0).to.equal(row.rare)
+				local deep = 0
+				for _, spot in spec.rescueSpots do
+					if fromGate(spot.x, spot.z) > middle then
+						deep += 1
+					end
+				end
+				expect(deep).to.equal(row.deepTraps)
 			end
-			expect(counts.near).to.equal(16)
-			expect(counts.deep).to.equal(24)
-			local deep = 0
-			for _, spot in park.rescueSpots do
+			-- the Park's traps are the world's trees and bins, the first a prop turned 180 in the set, which is
+			-- turned 180 itself
+			for _, spot in Layout.park.rescueSpots do
 				expect(spot.prop).to.be.ok()
-				if math.abs(spot.z - gateZ) > middle then
-					deep += 1
+			end
+			expect(Layout.park.rescueSpots[1].rotY).to.equal(0)
+		end)
+
+		-- Derek 2026-10-28 01:34 and 01:35 (Model-Agent #452): a cat can get stuck up the tree house's branch, and the
+		-- Great Oak's top nook is where the rarer cats wait.
+		it("the Woods' tree house branch is a tree trap up off the deck, and the oak top a rare spot", function()
+			local woods = Layout.woods
+			local branch = woods.rescueSpots[5]
+			expect(branch.prop).to.equal(nil)
+			expect(branch.trap).to.equal("tree")
+			expect(branch.y).to.equal(15.45)
+			local rares = 0
+			for _, point in woods.spawnPoints do
+				if point.zone == "rare" then
+					rares += 1
+					expect(point.y).to.be.near(woods.floorY + 18.3, 1e-9)
 				end
 			end
-			expect(deep).to.equal(3)
-			-- a prop turned 180 in the set, which is turned 180 itself
-			expect(park.rescueSpots[1].rotY).to.equal(0)
+			expect(rares).to.equal(1)
 		end)
 	end)
 

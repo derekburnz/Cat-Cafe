@@ -1084,7 +1084,7 @@ Catalog.dealerSlotWeights =
 -- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
 -- open, with no top-ups during the day. Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
 -- and 4, 24 a day in all (was 10 each). Every side area's spawn points are its kit set's cat spots (Model-Agent
--- #401, the Park's v3.2 set #460).
+-- #401, the Park's and the Woods' v3.2 sets #460 and #470).
 Catalog.areas = {
 	{
 		id = "alley",
@@ -1120,9 +1120,9 @@ Catalog.areas = {
 		id = "woods",
 		name = "Woods",
 		tier = 4,
-		spawnPoints = 17,
+		spawnPoints = 65, -- the v3.2 set's cat spots, 26 near the gate, 38 deep and the Great Oak's top (F81)
 		waveSize = 4,
-		rescueSpots = 2,
+		rescueSpots = 5, -- two hollow logs, two bramble bushes and the tree house branch
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 		incomeMultiplier = AREA_INCOME.woods,
 	},

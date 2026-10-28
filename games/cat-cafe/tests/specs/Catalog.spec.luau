@@ -1025,7 +1025,7 @@ return function()
 					{ "alley", "Alleyway", 1, 24, same, 6, 1 }, -- v0.4 layout: 24 spawn points
 					{ "park", "Park", 2, 40, same, 5, 1.5 }, -- the v3.2 set's cat spots (F81, #460)
 					{ "neighbourhood", "Neighbourhood", 3, 26, same, 5, 2.25 }, -- the kit set's cat spots (#401)
-					{ "woods", "Woods", 4, 17, same, 4, 3.5 },
+					{ "woods", "Woods", 4, 65, same, 4, 3.5 }, -- the v3.2 set (#470) and the oak top
 					{ "sewer", "Sewer", 5, 20, same, 4, 5 },
 				}
 				expect(#Catalog.areas).to.equal(#want)

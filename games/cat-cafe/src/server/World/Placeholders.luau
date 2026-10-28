@@ -963,6 +963,77 @@ local builders: { [string]: () -> Model } = {
 			},
 		})
 	end,
+	-- F64: the Mystery Visitor, a cat in a hooded purple cloak sitting at a table (data-model 12b), until the asset
+	-- thread's model lands
+	CatCafe_NPC_MysteryVisitor = function()
+		local cloak = Color3.fromRGB(96, 64, 140)
+		return simple("CatCafe_NPC_MysteryVisitor", {
+			{
+				name = "Cloak",
+				size = Vector3.new(1.9, 3.2, 1.5),
+				offset = Vector3.new(0, 1.6, 0),
+				color = cloak,
+				material = Enum.Material.Fabric,
+			},
+			{
+				name = "Hood",
+				size = Vector3.new(1.4, 1.4, 1.4),
+				offset = Vector3.new(0, 3.75, 0),
+				color = cloak:Lerp(Color3.new(0, 0, 0), 0.2),
+				material = Enum.Material.Fabric,
+			},
+			{
+				name = "Face",
+				size = Vector3.new(0.9, 0.7, 0.1),
+				offset = Vector3.new(0, 3.65, -0.68),
+				color = Color3.fromRGB(40, 32, 52),
+			},
+			{
+				name = "EarL",
+				size = Vector3.new(0.3, 0.4, 0.2),
+				offset = Vector3.new(-0.4, 4.6, 0),
+				color = cloak,
+				material = Enum.Material.Fabric,
+			},
+			{
+				name = "EarR",
+				size = Vector3.new(0.3, 0.4, 0.2),
+				offset = Vector3.new(0.4, 4.6, 0),
+				color = cloak,
+				material = Enum.Material.Fabric,
+			},
+		})
+	end,
+	-- F64: the Mystery Visitor's wrapped gift, a box with a ribbon, resting on a table top (base-centred pivot)
+	CatCafe_Item_MysteryGift = function()
+		local ribbon = Color3.fromRGB(255, 214, 120)
+		return simple("CatCafe_Item_MysteryGift", {
+			{
+				name = "Box",
+				size = Vector3.new(0.9, 0.7, 0.9),
+				offset = Vector3.new(0, 0.35, 0),
+				color = Color3.fromRGB(150, 90, 200),
+			},
+			{
+				name = "RibbonX",
+				size = Vector3.new(0.95, 0.72, 0.18),
+				offset = Vector3.new(0, 0.36, 0),
+				color = ribbon,
+			},
+			{
+				name = "RibbonZ",
+				size = Vector3.new(0.18, 0.72, 0.95),
+				offset = Vector3.new(0, 0.36, 0),
+				color = ribbon,
+			},
+			{
+				name = "Bow",
+				size = Vector3.new(0.45, 0.25, 0.3),
+				offset = Vector3.new(0, 0.82, 0),
+				color = ribbon,
+			},
+		})
+	end,
 	CatCafe_Item_FoodBowl = function()
 		return simple("CatCafe_Item_FoodBowl", {
 			{

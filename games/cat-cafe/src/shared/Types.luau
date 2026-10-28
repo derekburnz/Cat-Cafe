@@ -133,10 +133,30 @@ export type IndexPrize = {
 	fish: number?,
 	spins: number?,
 	crates: { [string]: number }?,
+	potions: { [string]: number }?, -- F64: potionId -> count (Tip Jar step 12, codes)
 	bonus: number?,
 	goldLuck: number?,
 	baitSpeed: number?,
 	tag: string?,
+}
+
+-- A potion (F64, data-model section 12b): drunk from the bag with UsePotion, it runs `minutes` of play time.
+-- `effect` is one short line for the bag. Potions are earned only.
+export type PotionDef = {
+	id: string,
+	name: string,
+	minutes: number,
+	effect: string,
+}
+
+-- One thing a Mystery Visitor's gift can hold (F64): `chance` in percent, the rows summing to 100. A "potion" row
+-- has no id: the potion is one of Catalog.potions at even odds.
+export type MysteryGiftKind = "potion" | "lure" | "fish" | "spin"
+export type MysteryGiftRow = {
+	kind: MysteryGiftKind,
+	id: string?,
+	count: number,
+	chance: number,
 }
 
 -- A code (F65, data-model section 11d), keyed in Catalog.codes by its lowercased text. Its prize uses the Index
@@ -315,6 +335,8 @@ export type Stats = {
 	fishEarned: number, -- F52: golden fish earned, every source
 	pickups: number, -- v0.8 F56: Dropped cats picked up with PickUpCat
 	catLevelUps: number, -- v0.12 F75: every level any of the player's cats gained
+	potionsUsed: number, -- F64: potions drunk with UsePotion
+	mysteryGifts: number, -- F64: Mystery gifts opened
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).
@@ -398,6 +420,10 @@ export type PlayerProfile = {
 	fishPerks: { [string]: number }, -- perkId -> level bought
 	codesRedeemed: { [string]: number }, -- code id -> os.time() it was redeemed (F65)
 	introSeen: boolean, -- the intro cutscene has played to the end or been skipped once (F72)
+	potions: { [string]: number }, -- F64: potionId -> count in the bag
+	-- F64: potionId -> seconds of play time left. The timers run only while the player is in the game, so settle
+	-- counts them down with the elapsed time it pays (Economy.settle) and nothing runs them down offline.
+	buffs: { [string]: number },
 	stats: Stats,
 	tutorialStep: number,
 	settings: Settings,
@@ -437,6 +463,8 @@ export type PlayerState = {
 	dataSaves: boolean,
 	tutorialStep: number,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
+	potions: { [string]: number }, -- F64: potionId -> count in the bag
+	buffs: { [string]: number }, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	serverTime: number,
 }

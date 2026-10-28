@@ -7,6 +7,7 @@ local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
+local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
 
 local Economy = {}
@@ -148,28 +149,45 @@ function Economy.phaseMultiplier(phase: Types.ClockPhase): number
 	return if phase == "night" then Config.NightIncomeMultiplier else 1
 end
 
+-- Seconds of [from, from + seconds] weighted by the phase pay: a night second counts NightIncomeMultiplier.
+local function paidSecondsFrom(from: number, seconds: number, clockEpoch: number?): number
+	local nightSeconds = if clockEpoch ~= nil
+		then math.clamp(
+			Clock.nightSecondsBetween(from - clockEpoch, from + seconds - clockEpoch),
+			0,
+			seconds
+		)
+		else 0
+	return seconds - nightSeconds + nightSeconds * Config.NightIncomeMultiplier
+end
+
 -- Lazy accounting: credit everything earned since lastTick, then grant that time as XP to the owned cats.
 -- Coins use the rate from before any level-up in the window (a few seconds at most), which keeps the
 -- credit simple and never overpays. Call before any read or spend.
 -- `clockEpoch` is the os.time() at which the server's clock started (ClockService.epoch): the window is split at
 -- phase boundaries and its night part pays NightIncomeMultiplier (section 11). Without it the whole window pays
 -- the day rate, which only the specs and offline maths want.
+-- F64: a running Tip Potion pays TipPotionBonus more over the start of the window it covers, split where it ends
+-- like a phase change, and every potion timer counts down by the window (play time only: DataService.load resets
+-- lastTick, so time away settles nothing and the timers pause).
 function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: number?): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
 	if elapsed > 0 then
-		local nightSeconds = if clockEpoch ~= nil
-			then math.clamp(
-				Clock.nightSecondsBetween(profile.lastTick - clockEpoch, now - clockEpoch),
-				0,
-				elapsed
+		local paidSeconds = paidSecondsFrom(profile.lastTick, elapsed, clockEpoch)
+		local tipSeconds = math.min(elapsed, Potions.left(profile, Potions.TIP, profile.lastTick))
+		if tipSeconds > 0 then
+			paidSeconds += Config.TipPotionBonus * paidSecondsFrom(
+				profile.lastTick,
+				tipSeconds,
+				clockEpoch
 			)
-			else 0
-		local paidSeconds = elapsed - nightSeconds + nightSeconds * Config.NightIncomeMultiplier
+		end
 		earned = Economy.incomePerSecond(profile) * paidSeconds
 		profile.coins += earned
 		profile.lifetimeCoins += earned
 		Economy.grantXp(profile, elapsed)
+		Potions.tick(profile, elapsed)
 	end
 	profile.lastTick = now
 	return earned

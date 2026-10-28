@@ -21,6 +21,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -83,25 +84,34 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	end
 	local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
 	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
-	-- the player's own gold luck and bait speed, fixed now (F54): a later claim never moves a filling bowl
+	-- the player's own gold luck and bait speed, fixed now (F54): a later claim never moves a filling bowl. A Lucky
+	-- Potion running now doubles the gold chance (F64).
 	local totals = IndexRewards.totals(profile)
 	local now = os.time()
 	local wait = Economy.baitWaitSeconds(profile)
+	local goldChance = Potions.baitGoldChance(
+		profile,
+		IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck),
+		now
+	)
+	local lucky = Potions.running(profile, Potions.LUCKY, now)
 	local bait: Types.BaitState = {
 		lureId = lureId,
 		placedAt = now,
 		readyAt = now + wait,
 		catId = def.id,
-		variant = if rng:NextNumber()
-				< IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck)
-			then "gold"
-			else "base",
+		variant = if rng:NextNumber() < goldChance then "gold" else "base",
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 	}
 	profile.bait = bait
 	profile.stats.luresUsed += 1
 	Telemetry.onboarding(player, profile, "first_bait")
-	Telemetry.custom(player, "bait_rolled", 1, { lureId, rarity, "none" }) -- "none": no catnip buff yet
+	Telemetry.custom(
+		player,
+		"bait_rolled",
+		1,
+		{ lureId, rarity, if lucky then Potions.LUCKY else "none" }
+	)
 	Telemetry.baitStep(player, bait, 1)
 	if profile.tutorialStep == 4 then
 		CafeService.advanceTutorial(profile, 5) -- the last step: set bait

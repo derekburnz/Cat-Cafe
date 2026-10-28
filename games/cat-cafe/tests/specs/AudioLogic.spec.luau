@@ -230,10 +230,10 @@ return function()
 			expect(Logic.isSafeZone("Sewer")).to.equal(false)
 		end)
 
-		it("twinkles for gold strays and Epic and up", function()
+		it("twinkles for gold strays and Legendary and up", function()
 			expect(Logic.shimmers(true, "Common")).to.equal(true)
 			expect(Logic.shimmers(true, nil)).to.equal(true)
-			expect(Logic.shimmers(false, "Epic")).to.equal(true)
+			expect(Logic.shimmers(false, "Epic")).to.equal(false) -- Derek 2026-10-28: Epic strays stay quiet
 			expect(Logic.shimmers(nil, "legendary")).to.equal(true)
 			expect(Logic.shimmers(nil, "Mythical")).to.equal(true)
 			expect(Logic.shimmers(false, "Rare")).to.equal(false)

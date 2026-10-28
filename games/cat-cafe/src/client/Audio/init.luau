@@ -313,7 +313,7 @@ function Audio.play(cueId: string, at: Target?, step: number?): Sound?
 	return sound
 end
 
--- Starts a looped cue (carryPurr, loopDealerCart, shimmerRare, loopFountain) at a target, flat when nil. Returns
+-- Starts a looped cue (carryPurr, loopDealerCart, loopFountain) at a target, flat when nil. Returns
 -- a function that fades it out and removes it. Safe to call for a cue with no file yet (returns a no-op).
 function Audio.loop(cueId: string, at: Target?): () -> ()
 	local cue = Cues[cueId]
@@ -553,7 +553,7 @@ local function shown(cat: Instance): boolean
 	return cat:GetAttribute("HiddenLocal") ~= true
 end
 
--- A stray twinkles for everyone nearby while it is gold or Epic and up (F42), so it can be found in the dark.
+-- A gold or Legendary and up stray twinkles once as you come near (F42; Logic.shimmers), so it can be found.
 local function shimmers(stray: Instance): boolean
 	return Logic.shimmers(stray:GetAttribute("Gold"), stray:GetAttribute("Rarity"))
 end
@@ -568,7 +568,6 @@ local TAGGED_LOOPS: { [string]: LoopDef } = {
 	Fountain = { cue = "loopFountain" },
 	FishTank = { cue = "loopFishTank" },
 	WorkingCat = { cue = "purr", near = 14, when = shown },
-	Stray = { cue = "shimmerRare", near = 40, when = shimmers },
 }
 local MAX_NEAR_LOOPS = 3
 local LOOP_CHECK_SECONDS = 0.5
@@ -726,7 +725,11 @@ end
 -- HissAt attribute, which the server sets on a Miss, and the sprint its FleeingUntil (design v0.5, F40), playing
 -- on the cat itself so it runs off with it. Each at most once per cat per second, like the Effects hiss.
 local STRAY_GAP = 1
-type StrayWatch = { connections: { RBXScriptConnection }, last: { [string]: number } }
+type StrayWatch = {
+	connections: { RBXScriptConnection },
+	last: { [string]: number },
+	noticed: boolean,
+}
 local strayWatches: { [Instance]: StrayWatch } = {}
 
 local function watchStray(instance: Instance)
@@ -734,7 +737,7 @@ local function watchStray(instance: Instance)
 	if existing then
 		return
 	end
-	local watch: StrayWatch = { connections = {}, last = {} }
+	local watch: StrayWatch = { connections = {}, last = {}, noticed = false }
 	strayWatches[instance] = watch
 	-- part is nil while the cat streams in: no sound rather than a flat one everywhere
 	local function once(cueId: string, onCat: boolean)
@@ -774,12 +777,40 @@ local function unwatchStray(instance: Instance)
 	strayWatches[instance] = nil
 end
 
+-- A gold or Legendary and up stray twinkles once, on the cat, as you come within RARE_NOTICE studs, and again only
+-- after you have been further than RARE_FORGET (Derek 2026-10-28: the constant shimmer loop around Epic and up
+-- strays was annoying, so it is gone). rareNear's minGap keeps a crowd of rare cats to one twinkle.
+local RARE_NOTICE = 30
+local RARE_FORGET = 45
+
+local function noticeRareStrays()
+	while true do
+		task.wait(LOOP_CHECK_SECONDS)
+		local root = you()
+		for instance, watch in strayWatches do
+			local part = partOf(instance)
+			if not shimmers(instance) then
+				watch.noticed = false
+			elseif root ~= nil and part ~= nil then -- a cat streaming out keeps its place, so it does not repeat
+				local distance = (part.Position - root.Position).Magnitude
+				local play, noticed =
+					Logic.rareNotice(watch.noticed, distance, RARE_NOTICE, RARE_FORGET)
+				watch.noticed = noticed
+				if play then
+					Audio.play("rareNear", part)
+				end
+			end
+		end
+	end
+end
+
 local function followStrays()
 	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(unwatchStray)
 	for _, instance in CollectionService:GetTagged("Stray") do
 		watchStray(instance)
 	end
+	task.spawn(noticeRareStrays)
 end
 
 local function stopCarry()
@@ -1150,7 +1181,7 @@ local HANDLERS: { [string]: (...any) -> () } = {
 	end,
 
 	-- F42: a bait or rescue cat that turns out gold; a gold cat in your arms plays it by itself (watchHeld), and a
-	-- gold or Epic stray twinkles through the Stray world loop, so RareStrayNearby is gone.
+	-- gold or Legendary and up stray twinkles as you come near (noticeRareStrays), so RareStrayNearby is gone.
 	GoldReveal = function()
 		Audio.play("goldReveal")
 	end,

@@ -341,13 +341,13 @@ local Cues: { [string]: Cue } = {
 		looped = true,
 		range = 8,
 	},
-	shimmerRare = {
-		ids = { "rbxassetid://124510027027761" },
+	rareNear = {
+		ids = {},
 		group = "Sfx",
-		volume = 0.4,
-		looped = true,
+		volume = 0.35,
+		minGap = 3,
 		range = 40,
-	}, -- gold or Epic and up strays
+	}, -- once as you come near a gold or Legendary and up stray (was the shimmerRare loop, retired 2026-10-28)
 	goldReveal = {
 		ids = { "rbxassetid://124772067869145" },
 		group = "Sfx",

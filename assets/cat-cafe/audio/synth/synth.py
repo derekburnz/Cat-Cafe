@@ -602,25 +602,15 @@ def gold_reveal() -> np.ndarray:
     return finish(mix(d, (shimmer / np.max(np.abs(shimmer)) * 0.35, 0.0), *climb, *chord, *settle), -3)
 
 
-def shimmer_rare() -> np.ndarray:
-    """Near a gold or Epic-and-up stray: faint twinkles in a seamless 2 s loop, so you can find it in the dark."""
-    length = 2.0
-    n = int(length * SR)
-    track = np.zeros(n)
-    rng = np.random.default_rng(190)
-    for i in range(7):
-        at = int((i + 0.4 * rng.random()) * n / 7)
-        f = rng.choice((3520.0, 3951.1, 4434.9, 5274.0, 5919.9))
-        tink = bell(0.5, f, ((1.0, 1.0, 0.09), (2.76, 0.2, 0.03))) * (0.5 + 0.5 * rng.random())
-        end = at + len(tink)
-        track[at:min(end, n)] += tink[: min(end, n) - at]
-        if end > n:  # wrap the tail round to the start, so the loop has no seam
-            track[: end - n] += tink[n - at :]
-    hum = np.fft.rfft(np.random.default_rng(191).standard_normal(n))
-    f = np.fft.rfftfreq(n, 1 / SR)
-    air = np.fft.irfft(hum * np.exp(-(((f - 7000) / 2500) ** 2)), n)  # circular, so it loops too
-    x = track + air / np.max(np.abs(air)) * 0.05
-    return x / np.max(np.abs(x)) * 10 ** (-10 / 20)  # no end fade: it is a loop
+def rare_near() -> np.ndarray:
+    """Coming near a gold or Legendary and up stray: four soft twinkles over a breath of air, once, so you know a
+    special cat is close. Replaced the constant 2 s shimmer loop on 2026-10-28 (Derek found it annoying)."""
+    d = 1.3
+    t = seconds(d)
+    air = bandpass(bandpass(noise(d, 191), 6500, 1.0), 6500, 1.0) * np.sin(np.pi * np.clip(t / 0.9, 0, 1)) ** 2
+    tinks = [(bell(d - at, f, ((1.0, 1.0, 0.12), (2.76, 0.2, 0.04))) * amp, at) for f, at, amp in
+             ((4434.9, 0.0, 0.7), (5274.0, 0.1, 0.6), (3951.1, 0.2, 0.55), (4698.6, 0.33, 0.5))]
+    return finish(fade_tail(mix(d, (air / np.max(np.abs(air)) * 0.12, 0.0), *tinks), 0.3), -8)
 
 
 def spin_start() -> np.ndarray:
@@ -1106,7 +1096,7 @@ SOUNDS = {
     "GiftClaim": ("sfx", "Sfx", gift_claim),
     "IndexReward": ("sfx", "Sfx", index_reward),
     "GoldReveal": ("sfx", "Sfx", gold_reveal),
-    "ShimmerRare": ("sfx", "Sfx", shimmer_rare),
+    "RareNear": ("sfx", "Sfx", rare_near),
     "SpinStart": ("ui", "Ui", spin_start),
     "SpinTick": ("ui", "Ui", wheel_tick),
     "SpinWin": ("ui", "Ui", wheel_win),

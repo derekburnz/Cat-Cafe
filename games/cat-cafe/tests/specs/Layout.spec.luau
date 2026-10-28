@@ -885,6 +885,61 @@ return function()
 				end
 			end
 		end)
+
+		-- Model-Agent #535: eight full buildings in place of the repeated backs and the staff doors.
+		it("lines each back alley's outer wall with six different buildings, a crate stack by each Warehouse", function()
+			local prefix = "CatCafe_Alley_Building_"
+			for _, side in { -1, 1 } do
+				local seen: { [string]: boolean } = {}
+				local count, warehouses, stacks = 0, 0, 0
+				for _, prop in alley.props :: { Layout.Prop } do
+					if prop.x * side <= 0 then
+						continue
+					end
+					local onOuterWall = math.abs(prop.x) > W.AlleyOuterX
+					if prop.asset:sub(1, #prefix) == prefix and onOuterWall then
+						count += 1
+						if seen[prop.asset] then
+							fail("%s stands twice on side %d", prop.asset, side)
+						end
+						seen[prop.asset] = true
+						if prop.asset == prefix .. "Warehouse" then
+							warehouses += 1
+						end
+					elseif prop.asset == "CatCafe_Alley_CrateStack" then
+						stacks += 1
+					end
+				end
+				expect(count).to.equal(6)
+				expect(warehouses).to.equal(1)
+				expect(stacks).to.equal(warehouses)
+			end
+		end)
+
+		it("keeps every building's back inside the walls behind it, off the next area's floor", function()
+			local prefix = "CatCafe_Alley_Building_"
+			local woodsEdge = -(W.WoodsCenterX + W.WoodsWidth / 2) -- the Woods' near edge, |x|
+			local sewerEdge = W.SewerCenterX - W.SewerWidth / 2
+			local parkEdge = -(W.ParkCenterZ + W.ParkDepth / 2) -- the Park's near edge, |z|
+			local hoodEdge = W.NeighbourhoodCenterZ - W.NeighbourhoodDepth / 2
+			local ends = 0
+			for _, prop in alley.props :: { Layout.Prop } do
+				if prop.asset:sub(1, #prefix) ~= prefix then
+					continue
+				end
+				if math.abs(prop.x) > W.AlleyOuterX then
+					-- the back plane: past the alley's outer wall face, inside the side area's wall (1 thick, centred)
+					local edge = if prop.x < 0 then woodsEdge else sewerEdge
+					expect(math.abs(prop.x) <= edge + 0.5).to.equal(true)
+				else
+					ends += 1
+					local edge = if prop.z < 0 then parkEdge else hoodEdge
+					expect(math.abs(prop.z) >= math.abs(W.AlleyNorthZ)).to.equal(true)
+					expect(math.abs(prop.z) <= edge + 0.5).to.equal(true)
+				end
+			end
+			expect(ends).to.equal(3) -- both south ends and the east north end; the west north end keeps the mural
+		end)
 	end)
 
 	-- Town layout v3.1 (F77, town-layout-v3.md section 7): every area one straight walk from the fountain.

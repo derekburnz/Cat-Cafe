@@ -89,14 +89,9 @@ end
 -- What a trade pays, in the Index prize shape Payout.pay takes: the zone crate is `area`'s crate and the golden
 -- crate its golden one. Spins go to the bank up to SpinBankCap like any prize's.
 function Collector.prize(offer: Types.CollectorOffer, area: string): Types.IndexPrize
-	local lures: { [string]: number }? = nil
-	if offer.lures ~= nil then
-		local copied: { [string]: number } = {}
-		for lureId, count in offer.lures do
-			copied[lureId] = count
-		end
-		lures = copied
-	end
+	local lures: { [string]: number }? = if offer.lures ~= nil
+		then table.clone(offer.lures)
+		else nil
 	local crates: { [string]: number }? = nil
 	local offered = offer.crates
 	if offered ~= nil then

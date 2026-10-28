@@ -16,6 +16,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
+local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
@@ -139,6 +140,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		settings = Settings.copy(profile.settings),
 		quests = Quests.view(profile, now), -- F73
 		achievements = Quests.achievementsView(profile),
+		dailyTreat = DailyTreat.view(profile.dailyTreat, now), -- F70
 		stats = table.clone(profile.stats),
 		serverTime = now,
 	}

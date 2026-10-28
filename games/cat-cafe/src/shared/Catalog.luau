@@ -1007,6 +1007,27 @@ Catalog.tipJar = {
 	},
 } :: { Types.TipJarStep }
 
+-- Section 11e (F70, round 4 Q9): the Daily Treat card, one stamp per UTC day played and never reset. Days 2 and 4
+-- are pretty good and day 7 really good: a Golden Classic Crate and a Star Treat, the night dealer's best bait, for a
+-- real shot at a top cat while cats still come only from catching, rescue and bait. Earned only (monetization-policy).
+Catalog.dailyTreat = {
+	{ day = 1, prize = { coins = 300, coinSeconds = 300 } },
+	{ day = 2, prize = { lures = { salmon = 2 }, fish = 15, spins = 1 } },
+	{ day = 3, prize = { coins = 600, coinSeconds = 600 } },
+	{ day = 4, prize = { lures = { caviar = 1 }, crates = { classic_crate = 1 }, spins = 1 } },
+	{ day = 5, prize = { coins = 1000, coinSeconds = 900 } },
+	{ day = 6, prize = { lures = { tuna = 3 }, potions = { lucky_potion = 1 } } },
+	{
+		day = 7,
+		prize = {
+			crates = { classic_golden_crate = 1 },
+			lures = { star_treat = 1 },
+			fish = 50,
+			spins = 3,
+		},
+	},
+} :: { Types.DailyTreatDay }
+
 -- Section 11c (F49): the Spin Wheel's six slices in order around the wheel. Free spins only: no Robux button, pass
 -- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes.
 Catalog.spinWheel = {

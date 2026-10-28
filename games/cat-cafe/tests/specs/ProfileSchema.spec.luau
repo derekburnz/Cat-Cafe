@@ -88,10 +88,11 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 16 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 17 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(16)
-			expect(profile.version).to.equal(16)
+			expect(ProfileSchema.VERSION).to.equal(17)
+			expect(profile.version).to.equal(17)
+			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 			expect(profile.stats.collectorTrades).to.equal(0)
 			expect(next(profile.potions)).never.to.be.ok()
 			expect(next(profile.buffs)).never.to.be.ok()
@@ -226,8 +227,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 17 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 18 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 17 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 16 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 15 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 14 })).to.equal(false)
@@ -1284,7 +1286,7 @@ return function()
 				raw.stats[key] = nil
 			end
 			local profile = ProfileSchema.migrate(raw, 1000)
-			expect(profile.version).to.equal(16)
+			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.quests :: any).to.deepEqual({
 				day = 0,
 				daily = {},
@@ -1341,6 +1343,32 @@ return function()
 			local profile = ProfileSchema.migrate(raw, 1000)
 			expect(profile.achievements :: any).to.deepEqual({ [known] = true })
 			expect(ProfileSchema.migrate({ achievements = "junk" }, 1000).achievements :: any).to.deepEqual({})
+		end)
+	end)
+
+	describe("migrate to version 17: the Daily Treat card (F70)", function()
+		local DAY = 86400
+		local NOW = 20000 * DAY + 3600 -- an hour into UTC day 20000
+
+		it("starts an older save on a fresh card with a stamp due", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.version = 16
+			raw.dailyTreat = nil
+			local profile = ProfileSchema.migrate(raw, NOW)
+			expect(profile.version).to.equal(17)
+			expect(profile.dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
+		end)
+
+		it("keeps a saved card, whole, with the stamp 0 to 7 and the last claim no later than today", function()
+			local raw: any = ProfileSchema.template(500)
+			raw.dailyTreat = { stamp = 3.6, lastDay = 19999.2 }
+			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 3, lastDay = 19999 })
+			raw.dailyTreat = { stamp = 12, lastDay = 25000 }
+			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 7, lastDay = 20000 })
+			raw.dailyTreat = { stamp = -2, lastDay = 0 / 0 }
+			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
+			raw.dailyTreat = "junk"
+			expect(ProfileSchema.migrate(raw, NOW).dailyTreat :: any).to.deepEqual({ stamp = 0, lastDay = 0 })
 		end)
 	end)
 end

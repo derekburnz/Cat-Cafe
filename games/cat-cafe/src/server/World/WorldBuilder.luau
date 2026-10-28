@@ -1584,8 +1584,13 @@ function WorldBuilder.build(): World
 	spawn.CFrame = CFrame.new(Layout.playerSpawn.x, Layout.playerSpawn.y, Layout.playerSpawn.z)
 		* CFrame.Angles(0, math.rad(Layout.playerSpawn.rotY or 0), 0)
 	spawn.Anchored = true
-	spawn.Color = MINT
-	spawn.Material = Enum.Material.SmoothPlastic
+	-- Invisible and walk-through (Derek 2026-10-28 00:48: the pad in the square need not be there): players still
+	-- spawn on it and drop the stud onto the paving.
+	spawn.Transparency = 1
+	spawn.CanCollide = false
+	spawn.CanQuery = false
+	spawn.CanTouch = false
+	spawn.CastShadow = false
 	spawn.Duration = 0
 	spawn.Parent = root
 

@@ -120,12 +120,14 @@ return function()
 
 	describe("XP and levels", function()
 		it(
-			"xpToNext is CatXpBase x level and 0 at the cap; level 10 takes 45 minutes placed",
+			"xpToNext is CatXpBase x level and 0 at the cap; level 10 takes 90 minutes working, 50 about 41 hours",
 			function()
 				expect(CatStats.xpToNext(1)).to.equal(Config.CatXpBase)
 				expect(CatStats.xpToNext(9)).to.equal(Config.CatXpBase * 9)
 				expect(CatStats.xpToNext(Config.CatMaxLevel)).to.equal(0)
-				expect(CatStats.xpForLevel(Config.CatMaxLevel)).to.equal(45 * 60)
+				expect(CatStats.xpForLevel(2)).to.equal(2 * 60)
+				expect(CatStats.xpForLevel(10)).to.equal(90 * 60)
+				expect(math.abs(CatStats.xpForLevel(Config.CatMaxLevel) / 3600 - 41) < 0.5).to.equal(true)
 				expect(CatStats.xpForLevel(1)).to.equal(0)
 			end
 		)
@@ -161,7 +163,36 @@ return function()
 			expect(legacy.xp).to.equal(0)
 			expect(legacy.charm).to.equal(CatStats.DEFAULT_CHARM)
 			expect(CatStats.addXp(legacy, 0 / 0)).to.equal(0)
+			expect(CatStats.addXp(legacy, math.huge)).to.equal(0)
 			expect(legacy.xp).to.equal(0)
+		end)
+
+		it("keeps fractions of XP, so a resting cat's quarter a second adds up (v0.12)", function()
+			local instance = cat("tabby")
+			for _ = 1, 4 * Config.CatXpBase - 1 do
+				CatStats.addXp(instance, 0.25)
+			end
+			expect(instance.level).to.equal(1)
+			expect(instance.xp).to.be.near(Config.CatXpBase - 0.25)
+			expect(CatStats.view(instance).xp).to.equal(Config.CatXpBase - 1)
+			expect(CatStats.addXp(instance, 0.25)).to.equal(1)
+			expect(instance.level).to.equal(2)
+			expect(instance.xp).to.be.near(0)
+		end)
+
+		it("remapLevel moves an old 10-level cat onto the 50-level curve without lowering its rating", function()
+			expect(CatStats.remapLevel(1)).to.equal(1)
+			expect(CatStats.remapLevel(2)).to.equal(4)
+			expect(CatStats.remapLevel(3)).to.equal(6)
+			expect(CatStats.remapLevel(10)).to.equal(24)
+			expect(CatStats.remapLevel(99)).to.equal(24)
+			expect(CatStats.remapLevel(0)).to.equal(1)
+			expect(CatStats.remapLevel(0 / 0)).to.equal(1)
+			for old = 1, CatStats.OLD_MAX_LEVEL do
+				local before = 1 + 0.05 * (old - 1)
+				expect(CatStats.levelMultiplier(CatStats.remapLevel(old)) >= before - 1e-9).to.equal(true)
+			end
+			expect(CatStats.levelMultiplier(24)).to.be.near(1.46)
 		end)
 	end)
 
@@ -172,10 +203,11 @@ return function()
 			end
 		end)
 
-		it("a perfect max level Tabby rates 1.74, a Ninja Cat 43.5", function()
-			expect(CatStats.rating(cat("tabby", 100, Config.CatMaxLevel))).to.be.near(1.2 * 1.45)
-			expect(CatStats.maxRating("tabby")).to.be.near(1.2 * 1.45)
-			expect(CatStats.maxRating("void")).to.be.near(25 * 1.2 * 1.45)
+		it("a perfect level 50 Tabby rates 2.376, a Ninja Cat 59.4 (v0.12: 1.98x at the cap)", function()
+			expect(CatStats.levelMultiplier(Config.CatMaxLevel)).to.be.near(1.98)
+			expect(CatStats.rating(cat("tabby", 100, Config.CatMaxLevel))).to.be.near(1.2 * 1.98)
+			expect(CatStats.maxRating("tabby")).to.be.near(2.376)
+			expect(CatStats.maxRating("void")).to.be.near(25 * 1.2 * 1.98)
 			expect(CatStats.maxRating("nope")).to.equal(0)
 		end)
 
@@ -196,19 +228,19 @@ return function()
 			expect(CatStats.rating(cat("dragon"))).to.equal(0)
 		end)
 
-		it("the section 4b example: a perfect max level gold Wizard Cat rates 195.75", function()
+		it("a perfect level 50 gold Wizard Cat rates 267.3 (section 4b's 195.75 was at the old level 10 cap)", function()
 			local best = cat("midnight", 100, Config.CatMaxLevel)
 			best.variant = "gold"
-			expect(CatStats.rating(best)).to.be.near(75 * 1.2 * 1.45 * 1.5, 1e-9)
-			expect(CatStats.rating(best)).to.be.near(195.75, 1e-9)
+			expect(CatStats.rating(best)).to.be.near(75 * 1.2 * 1.98 * 1.5, 1e-9)
+			expect(CatStats.rating(best)).to.be.near(267.3, 1e-9)
 		end)
 
 		it(
 			"maxRating is the base variant figure; the book's gold line is that times 1.5",
 			function()
-				expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.45, 1e-9)
+				expect(CatStats.maxRating("midnight")).to.be.near(75 * 1.2 * 1.98, 1e-9)
 				expect(CatStats.maxRating("midnight") * Config.GoldMultiplier).to.be.near(
-					195.75,
+					267.3,
 					1e-9
 				)
 			end
@@ -242,7 +274,7 @@ return function()
 
 		it("view adds xpToNext, stars and rating for the UI", function()
 			local instance = cat("siamese", 85, 3, "barista_1")
-			instance.xp = 40
+			instance.xp = 40.75 -- shown floored
 			instance.name = "Mochi"
 			instance.method = "bait"
 			local view = CatStats.view(instance)
@@ -282,14 +314,43 @@ return function()
 			end
 		)
 
-		it("settle grants one XP per second to placed cats only", function()
+		it("settle grants XP to every owned cat: 1.5 a second in its favorite role, 1 in another, 0.25 resting", function()
 			local profile = ProfileSchema.template(1000)
+			profile.cats.waiter = cat("tabby", 50, 1, "waiter_1")
 			profile.cats.resting = cat("snow")
-			Economy.settle(profile, 1000 + Config.CatXpBase + 5)
-			expect(profile.cats.starter_tabby.level).to.equal(2)
-			expect(profile.cats.starter_tabby.xp).to.equal(5)
+			Economy.settle(profile, 1000 + 80)
+			expect(profile.cats.starter_tabby.level).to.equal(2) -- the Barista is the Tabby's favorite: 120 XP
+			expect(profile.cats.starter_tabby.xp).to.be.near(0)
+			expect(profile.cats.waiter.level).to.equal(1)
+			expect(profile.cats.waiter.xp).to.be.near(80)
 			expect(profile.cats.resting.level).to.equal(1)
-			expect(profile.cats.resting.xp).to.equal(0)
+			expect(profile.cats.resting.xp).to.be.near(20)
+			expect(profile.stats.catLevelUps).to.equal(1)
+			Economy.settle(profile, 1000 + 81)
+			expect(profile.cats.resting.xp).to.be.near(20.25)
+			expect(profile.stats.catLevelUps).to.equal(1)
+		end)
+
+		it("rarity and night do not change XP; an unknown spot counts as resting", function()
+			-- greeter is neither the Ninja Cat's favorite (waiter) nor the Tabby's (barista)
+			expect(Economy.catXpRate(cat("void", 50, 1, "greeter_1"))).to.equal(Config.CatXpPerSecondPlaced)
+			expect(Economy.catXpRate(cat("tabby", 50, 1, "greeter_1"))).to.equal(Config.CatXpPerSecondPlaced)
+			expect(Economy.catXpRate(cat("void", 50, 1, "waiter_1"))).to.equal(
+				Config.CatXpPerSecondPlaced * Config.CatXpFavoriteMultiplier
+			)
+			expect(Economy.catXpRate(cat("tabby", 50, 1, "nowhere"))).to.equal(Config.CatXpPerSecondResting)
+			local profile = ProfileSchema.template(0)
+			local dusk = Config.DayLengthSeconds
+			profile.lastTick = dusk
+			Economy.settle(profile, dusk + 40, 0) -- all night: the Barista still earns 1.5 a second
+			expect(profile.cats.starter_tabby.xp).to.be.near(60)
+		end)
+
+		it("a long settle counts every level gained in stats.catLevelUps", function()
+			local profile = ProfileSchema.template(0)
+			Economy.settle(profile, math.ceil(CatStats.xpForLevel(5) / Config.CatXpFavoriteMultiplier))
+			expect(profile.cats.starter_tabby.level).to.equal(5)
+			expect(profile.stats.catLevelUps).to.equal(4)
 		end)
 
 		it("coins in a settle window use the rate from before the level up", function()
@@ -309,7 +370,7 @@ return function()
 			expect(Economy.incomePerSecond(profile)).to.be.near(1.5)
 		end)
 
-		it("migrate keeps saved stats, defaults missing ones and clamps nonsense", function()
+		it("migrate keeps charm, remaps levels from an old save, defaults missing ones and clamps nonsense", function()
 			local raw: any = ProfileSchema.template(0)
 			raw.version = 1
 			raw.renovations = nil
@@ -344,10 +405,10 @@ return function()
 			expect(profile.cats.old.level).to.equal(1)
 			expect(profile.cats.old.xp).to.equal(0)
 			expect(profile.cats.old.charm).to.equal(CatStats.DEFAULT_CHARM)
-			expect(profile.cats.kept.level).to.equal(7)
-			expect(profile.cats.kept.xp).to.equal(30)
+			expect(profile.cats.kept.level).to.equal(16) -- v0.12: 1 + ceil(2.5 x 6), xp starts again
+			expect(profile.cats.kept.xp).to.equal(0)
 			expect(profile.cats.kept.charm).to.equal(91)
-			expect(profile.cats.wild.level).to.equal(Config.CatMaxLevel)
+			expect(profile.cats.wild.level).to.equal(24) -- clamped to the old cap of 10, then remapped
 			expect(profile.cats.wild.xp).to.equal(0)
 			expect(profile.cats.wild.charm).to.equal(100)
 		end)

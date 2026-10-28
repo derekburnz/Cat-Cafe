@@ -111,22 +111,36 @@ function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 	return total * Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
 end
 
--- Placed cats earn one XP per second of settled time (data-model section 4b). Only online time is settled:
--- DataService.load resets lastTick before the first settle, so the offline gap earns neither coins at the
--- online rate nor XP. Returns the number of cats that levelled up.
-function Economy.grantPlacedXp(profile: Types.PlayerProfile, seconds: number): number
+-- XP a second for one owned cat (data-model section 4b, v0.12 F75): a working cat earns CatXpPerSecondPlaced, times
+-- CatXpFavoriteMultiplier in its favorite role, and a resting cat CatXpPerSecondResting. Rarity does not change it,
+-- and night does not either (a napping working cat still counts as working).
+function Economy.catXpRate(instance: Types.CatInstance): number
+	local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId :: string) else nil
+	if spot == nil then
+		return Config.CatXpPerSecondResting
+	end
+	local def = Catalog.getCat(instance.catId)
+	local favorite = if def ~= nil and spot.spotType == def.favoriteRole
+		then Config.CatXpFavoriteMultiplier
+		else 1
+	return Config.CatXpPerSecondPlaced * favorite
+end
+
+-- Every owned cat earns XP for the settled time at its catXpRate. Only online time is settled: DataService.load
+-- resets lastTick before the first settle, so the offline gap earns neither coins at the online rate nor XP. Every
+-- level gained counts in stats.catLevelUps. Returns the number of levels gained.
+function Economy.grantXp(profile: Types.PlayerProfile, seconds: number): number
 	if seconds <= 0 then
 		return 0
 	end
-	local levelled = 0
+	local gained = 0
 	for _, instance in profile.cats do
-		if instance.spotId ~= nil and Catalog.getSpot(instance.spotId :: string) ~= nil then
-			if CatStats.addXp(instance, seconds * Config.CatXpPerSecondPlaced) > 0 then
-				levelled += 1
-			end
-		end
+		gained += CatStats.addXp(instance, seconds * Economy.catXpRate(instance))
 	end
-	return levelled
+	if gained > 0 then
+		profile.stats.catLevelUps = (profile.stats.catLevelUps or 0) + gained
+	end
+	return gained
 end
 
 -- The share of the day rate a cafe earns in this phase: 1 by day, NightIncomeMultiplier by night (section 11).
@@ -134,7 +148,7 @@ function Economy.phaseMultiplier(phase: Types.ClockPhase): number
 	return if phase == "night" then Config.NightIncomeMultiplier else 1
 end
 
--- Lazy accounting: credit everything earned since lastTick, then grant that time as XP to the placed cats.
+-- Lazy accounting: credit everything earned since lastTick, then grant that time as XP to the owned cats.
 -- Coins use the rate from before any level-up in the window (a few seconds at most), which keeps the
 -- credit simple and never overpays. Call before any read or spend.
 -- `clockEpoch` is the os.time() at which the server's clock started (ClockService.epoch): the window is split at
@@ -155,7 +169,7 @@ function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: n
 		earned = Economy.incomePerSecond(profile) * paidSeconds
 		profile.coins += earned
 		profile.lifetimeCoins += earned
-		Economy.grantPlacedXp(profile, elapsed)
+		Economy.grantXp(profile, elapsed)
 	end
 	profile.lastTick = now
 	return earned

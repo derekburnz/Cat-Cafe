@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 09:00 UTC",
+  "generated": "2026-10-28 09:18 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -65522,7 +65522,7 @@
         "CatCafe_Park_NightFence",
         "CatCafe_Park_NightFence_Moon_Bulb"
       ],
-      "triangles": 3074,
+      "triangles": 2762,
       "budget": 6000,
       "size_studs": {
         "x": 32.06,
@@ -65558,7 +65558,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Park_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_NightFence.model.json",
-      "rbx_parts": 329,
+      "rbx_parts": 323,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_NightFence.glb"
@@ -65570,10 +65570,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3074/6000 tris",
+          "budget": "2762/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1651 faces on swatch centers",
+          "uv": "1513 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.41"
@@ -65590,7 +65590,7 @@
         "CatCafe_Neighbourhood_NightFence",
         "CatCafe_Neighbourhood_NightFence_Moon_Bulb"
       ],
-      "triangles": 3074,
+      "triangles": 2762,
       "budget": 6000,
       "size_studs": {
         "x": 32.06,
@@ -65626,7 +65626,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Neighbourhood_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_NightFence.model.json",
-      "rbx_parts": 329,
+      "rbx_parts": 323,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_NightFence.glb"
@@ -65638,10 +65638,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3074/6000 tris",
+          "budget": "2762/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1651 faces on swatch centers",
+          "uv": "1513 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.41"
@@ -65658,7 +65658,7 @@
         "CatCafe_Woods_NightFence",
         "CatCafe_Woods_NightFence_Moon_Bulb"
       ],
-      "triangles": 3074,
+      "triangles": 2762,
       "budget": 6000,
       "size_studs": {
         "x": 30.06,
@@ -65694,7 +65694,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Woods_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_NightFence.model.json",
-      "rbx_parts": 329,
+      "rbx_parts": 323,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_NightFence.glb"
@@ -65706,10 +65706,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3074/6000 tris",
+          "budget": "2762/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1651 faces on swatch centers",
+          "uv": "1513 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.41"
@@ -65726,7 +65726,7 @@
         "CatCafe_Sewer_NightFence",
         "CatCafe_Sewer_NightFence_Moon_Bulb"
       ],
-      "triangles": 3074,
+      "triangles": 2762,
       "budget": 6000,
       "size_studs": {
         "x": 30.06,
@@ -65762,7 +65762,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Sewer_Gate. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_NightFence.model.json",
-      "rbx_parts": 329,
+      "rbx_parts": 323,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_NightFence.glb"
@@ -65774,10 +65774,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3074/6000 tris",
+          "budget": "2762/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1651 faces on swatch centers",
+          "uv": "1513 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.41"
@@ -65794,7 +65794,7 @@
         "CatCafe_Alley_NightFence",
         "CatCafe_Alley_NightFence_Moon_Bulb"
       ],
-      "triangles": 3350,
+      "triangles": 3038,
       "budget": 6000,
       "size_studs": {
         "x": 40.06,
@@ -65830,7 +65830,7 @@
       },
       "studio": "F66: only while the areas are closed (Clock AreasOpen false), at the pivot of CatCafe_Alley_ArchStreet. The fence collides (8 studs to the rail tops, above a jump) and stands just behind the gate's Bars, so the Bars and the requirement sign stay as they are; the child Model _Moon_Bulb (moon, stars, CLOSED and OPENS AT SUNRISE) glows at night and does not collide. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_NightFence.model.json",
-      "rbx_parts": 357,
+      "rbx_parts": 351,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_NightFence.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_NightFence.glb"
@@ -65842,10 +65842,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "3350/6000 tris",
+          "budget": "3038/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1793 faces on swatch centers",
+          "uv": "1655 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=1.46"
@@ -65862,7 +65862,7 @@
         "CatCafe_Alley_NightFenceSegment",
         "CatCafe_Alley_NightFenceSegment_Moon_Bulb"
       ],
-      "triangles": 420,
+      "triangles": 398,
       "budget": 2000,
       "size_studs": {
         "x": 8.1,
@@ -65888,7 +65888,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F66: only while the areas are closed. Tile it end to end every 8 studs along the back alleys' inner edges (the SAFE ZONE stripes) and across the side passages, -Z toward the cafes; each piece has a post at both ends. Collides, 8 studs to the rail tops; _Moon_Bulb glows. Tag NightFence.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_NightFenceSegment.model.json",
-      "rbx_parts": 36,
+      "rbx_parts": 49,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_NightFenceSegment.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_NightFenceSegment.glb"
@@ -65900,10 +65900,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "420/2000 tris",
+          "budget": "398/2000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "226 faces on swatch centers",
+          "uv": "225 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.14"

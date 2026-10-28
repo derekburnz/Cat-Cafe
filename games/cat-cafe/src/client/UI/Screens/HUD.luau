@@ -1374,15 +1374,10 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._carryState = state.carrying ~= nil
 	self:_renderTravel()
 
-	local distinct = 0
-	for _ in state.catsOwned do
-		distinct += 1
-	end
-	if state.collection then
-		distinct = 0
-		for _ in state.collection :: { [string]: number } do
-			distinct += 1
-		end
+	-- the Index pill's "12/50": different cats found out of all cats, spare ones left out (F78)
+	local distinct, total = 0, 0
+	if catalog then
+		distinct, total = IndexRewards.book(catalog, state)
 	end
 	self._incomeText.Text = Format.rate(state.incomePerSecond)
 
@@ -1400,7 +1395,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if tierProgress then
 		self:_renderTier(tierProgress)
 		self:_renderBowlSlot(state)
-		local total = if catalog then #catalog.cats else 0
 		self._indexCount.Text = ("%d/%d"):format(distinct, total)
 		return
 	end
@@ -1432,7 +1426,6 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._cafeTrack.Visible = false
 	end
 
-	local total = if catalog then #catalog.cats else 0
 	self._indexCount.Text = ("%d/%d"):format(distinct, total)
 	self:_renderBowlSlot(state)
 end

@@ -8,6 +8,12 @@ local Types = require(script.Parent.Types)
 
 local Catching = {}
 
+-- Where a carried cat rides, relative to the carrier's HumanoidRootPart: the asset manifest's
+-- poses.carried.body_cframe_roblox, cradled across the chest and facing the carrier's left so the camera behind the
+-- player sees it side on. 12 numbers for CFrame.new(table.unpack(...)), so this module stays free of Roblox types;
+-- the server's carry (CatService) and the intro's demo carry (IntroController, F72) both use it.
+Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
+
 -- roll is in [0, 1).
 function Catching.succeeds(chance: number, roll: number): boolean
 	return roll < chance

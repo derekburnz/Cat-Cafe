@@ -3,8 +3,8 @@
 -- profile has not seen the intro lands just inside its own cafe's back door, facing it (Layout.plot.introSpot), when
 -- the profile loads and on every spawn until then, so the fly-through ends where the first stray waits behind the
 -- yard. The client freezes the character while the intro runs, so the move is never seen. IntroDone(shot, replay)
--- marks the intro seen on the first play and logs intro_cutscene (finished or skipped, the shot, first or replay)
--- for the growth thread. Replays move nobody and save nothing. A respawn later in the session (Reset, a fall) lands
+-- marks the intro seen on the first play and logs intro_cutscene (finished or skipped, the intro's version and the
+-- shot, first or replay) for the growth thread. Replays move nobody and save nothing. A respawn later in the session (Reset, a fall) lands
 -- at the same spot, so a reset puts the player back at their own cafe rather than in the Town Square (Derek
 -- 2026-10-28 01:17: "resetting made me fully reload the game").
 
@@ -96,9 +96,10 @@ local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
 	local count = (events[player] or 0) + 1
 	if count <= MAX_EVENTS then
 		events[player] = count
+		-- the shot carries the intro's version, "2:4", since the shots moved (intro-cutscene.md section 3)
 		Telemetry.custom(player, "intro_cutscene", 1, {
 			if shot == 0 then "finished" else "skipped",
-			tostring(shot),
+			tostring(Intro.VERSION) .. ":" .. tostring(shot),
 			if replay then "replay" else "first",
 		})
 	end

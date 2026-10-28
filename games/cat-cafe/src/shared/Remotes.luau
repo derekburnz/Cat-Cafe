@@ -53,7 +53,7 @@ Remotes.ClientToServer = {
 	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
-	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 9: 0 when the intro cutscene played to the end, else
+	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 10: 0 when the intro cutscene played to the end, else
 	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
 	"UsePotion", -- (potionId: string)  F64: a known potion in the bag whose minutes fit under PotionMaxMinutes with
 	-- the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync

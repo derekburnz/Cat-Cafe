@@ -62,7 +62,7 @@ export type CustomEvent =
 	| "spin"
 	| "crate_opened"
 	| "code_redeemed"
-	| "intro_cutscene"
+	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "potion_used" -- F64: potion id, tier
 	| "mystery_gift" -- F64: "opened" or "missed", kind:id ("potion:tip_potion", "spin"), tier; the value is the count
 

@@ -46,6 +46,7 @@ import items  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
 import doors  # noqa: E402
+import doorsets  # noqa: E402
 import market  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
@@ -69,7 +70,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -234,6 +235,27 @@ for _n in crate_decor.ASSETS:                   # F53 crate pieces: the server c
                         "collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass "
                         "Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.")
 
+for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
+    _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
+    PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"
+    PIVOT_NOTES[_b] = "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z"
+    STUDIO_NOTES[_f] = ("F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and "
+                        "_LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. "
+                        "_Glass parts are Glass 0.45. Nothing collides.")
+    STUDIO_NOTES[_b] = ("F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the "
+                        "inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide "
+                        "open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain "
+                        "when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. "
+                        "Nothing collides.")
+for _fl in doorsets.FLAPS:                      # F80 cat flaps: on a back leaf's CatFlap attachment
+    _n = f"CatCafe_CatFlap_{_fl}"
+    PIVOT_NOTES[_n] = "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z"
+    STUDIO_NOTES[_n] = ("F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child "
+                        "Model _Flap turns about its pivot's X (the top hinge) as a cat goes through"
+                        + ("; _Flap_Bulb is Neon at night" if _fl == "NeonPaw" else "")
+                        + ("; _Bell hangs from its pivot and can swing about X" if _fl == "Bell" else "")
+                        + ". Nothing collides.")
+
 for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): Neon eye parts in Studio
     if _spec.get("glow_eyes"):
         for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
@@ -347,6 +369,10 @@ def main():
             extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
+        if name.startswith(("CatCafe_Door_", "CatCafe_CatFlap_")):   # F80: glass, sign and panels ride their leaf
+            extra = {"nest": doorsets.NEST}
+            if name.endswith("_Back"):
+                extra["attachments"] = [doorsets.back_cat_flap_attachment(name)]
         if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
             extra = {"part_attributes": square.ARM_ATTRIBUTES}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)

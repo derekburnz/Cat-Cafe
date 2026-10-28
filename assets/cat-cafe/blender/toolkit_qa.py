@@ -171,6 +171,9 @@ def locate(objs):
             continue
         key = tuple(sorted((f"{site(i)} [{SWN[si]}]", f"{site(j)} [{SWN[sj]}]")))
         visible[key] += 1
+        if os.environ.get("QA_WHERE"):                                  # where each visible pair sits, Roblox x y z
+            print(f"   overlap {SWN[si]} vs {SWN[sj]} at ({-c0.x:.2f}, {c0.z:.2f}, {c0.y:.2f}) facing "
+                  f"({-n.x:.2f}, {n.z:.2f}, {n.y:.2f})", flush=True)
     isl_tris = defaultdict(list)
     for ti, m in enumerate(meta):
         isl_tris[m[4]].append(ti)

@@ -1412,7 +1412,8 @@ local function buildTownSquare(parent: Instance)
 			square
 		)
 	end
-	for n, lane in if pavingArt then {} else spec.lanes do
+	local lanes: { Layout.Rect } = if pavingArt then {} else spec.lanes
+	for n, lane in lanes do
 		local mark = part(
 			"Lane" .. n,
 			Vector3.new(lane.x2 - lane.x1, 0.02, lane.z2 - lane.z1),

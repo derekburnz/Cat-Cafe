@@ -630,7 +630,7 @@ end
 -- The up direction across a wheel's face: world up with its share along the `axle` taken out, or the station's
 -- `back` the same way for a wheel lying flat.
 function Logic.wheelUp(axle: Vector3, back: Vector3): Vector3
-	local up = Vector3.yAxis - axle * Vector3.yAxis:Dot(axle)
+	local up = Vector3.yAxis - axle * axle.Y
 	if up.Magnitude < 1e-3 then
 		up = back - axle * back:Dot(axle)
 	end

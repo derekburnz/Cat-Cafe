@@ -944,6 +944,28 @@ return function()
 				expect(total).to.be.near(100, 1e-9)
 			end
 		)
+
+		it("dealer amount weights are the v0.8 table of section 8b, 0 to 4 of each dealer food (F59)", function()
+			expect(Catalog.dealerAmountWeights :: any).to.deepEqual({
+				sardines = { 15, 25, 30, 20, 10 },
+				caviar = { 35, 40, 20, 5, 0 },
+				moon_milk = { 60, 35, 5, 0, 0 },
+				star_treat = { 90, 10, 0, 0, 0 },
+			})
+			local averages = { sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
+			for id, weights in pairs(Catalog.dealerAmountWeights) do
+				local def = Catalog.getLure(id)
+				assert(def, id)
+				expect(def.source).to.equal("dealer")
+				local total, mean = 0, 0
+				for index, weight in weights do
+					total += weight
+					mean += (index - 1) * weight / 100
+				end
+				expect(total).to.be.near(100, 1e-9)
+				expect(mean).to.be.near(averages[id], 1e-9)
+			end
+		end)
 	end)
 
 	describe("areas (section 9)", function()

@@ -1076,10 +1076,19 @@ for _, row in Catalog.mysteryGift do
 end
 table.freeze(Catalog.mysteryGift)
 
--- Section 8b: chance per dealer slot of each dealer food. v0.5 F43: one row for everyone (the old Tier 3 row);
--- tiers no longer change the stock, so every player on every server sees the same three foods.
+-- Section 8b: chance per dealer slot of each dealer food. v0.5 F43: one row for everyone (the old Tier 3 row).
+-- Retired by v0.8 F59 (the amounts below); only the UI's offline demo still reads it.
 Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
+
+-- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a window stocks 0, 1, 2, 3 or 4 of each dealer
+-- food. Averages 1.85, 0.95, 0.45 and 0.10: a Star Treat turns up about one window in ten.
+Catalog.dealerAmountWeights = {
+	sardines = { 15, 25, 30, 20, 10 },
+	caviar = { 35, 40, 20, 5, 0 },
+	moon_milk = { 60, 35, 5, 0, 0 },
+	star_treat = { 90, 10, 0, 0, 0 },
+} :: { [string]: { number } }
 
 -- Section 9. Every area has the same odds since v0.13.7 (Derek 2026-10-28 01:50: rare cats come mainly from food
 -- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it

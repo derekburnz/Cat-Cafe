@@ -347,6 +347,7 @@ local function sanitizeBait(value: any): Types.BaitState?
 		lureId = value.lureId,
 		placedAt = placedAt,
 		readyAt = readyAt,
+		night = if value.night == true then true else nil, -- F60: night bait, only ever true
 		catId = value.catId,
 		variant = variantOf(value.variant),
 		charm = math.clamp(

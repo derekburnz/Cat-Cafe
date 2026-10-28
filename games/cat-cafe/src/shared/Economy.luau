@@ -67,19 +67,26 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	return multiplier
 end
 
--- How long the bait bowl's cat takes to come (data-model section 8): shorter with the Big Bowl perk (F53).
-function Economy.lureWaitSeconds(profile: Types.PlayerProfile): number
-	return if (profile.fishPerks.big_bowl or 0) >= 1
+-- How long the bait bowl's cat takes to come (data-model section 8): shorter with the Big Bowl perk (F53), and for
+-- food set at night by LureWaitSecondsNight's share of the day wait (F60: half, so 300 s or the Big Bowl's 240).
+function Economy.lureWaitSeconds(profile: Types.PlayerProfile, night: boolean?): number
+	local wait = if (profile.fishPerks.big_bowl or 0) >= 1
 		then Config.BigBowlLureWaitSeconds
 		else Config.LureWaitSeconds
+	if night then
+		return math.floor(wait * Config.LureWaitSecondsNight / Config.LureWaitSeconds)
+	end
+	return wait
 end
 
 -- The wait for food going in now: lureWaitSeconds less the Index's bait speed (F54, golden-fish.md section 5),
 -- whole seconds. UseLure fixes it in the bowl's readyAt. The summed percents carry float error (the full All Cats
--- track is 0.38000000000000012), so a hair is added before flooring: 372 s, not 371 (QA, 2026-10-27).
-function Economy.baitWaitSeconds(profile: Types.PlayerProfile): number
+-- track is 0.38000000000000012), so a hair is added before flooring: 372 s, not 371 (QA, 2026-10-27). `night` is
+-- the server's phase as the food goes in (F60).
+function Economy.baitWaitSeconds(profile: Types.PlayerProfile, night: boolean?): number
 	return math.floor(
-		Economy.lureWaitSeconds(profile) * (1 - IndexRewards.totals(profile).baitSpeed) + 1e-6
+		Economy.lureWaitSeconds(profile, night) * (1 - IndexRewards.totals(profile).baitSpeed)
+			+ 1e-6
 	)
 end
 

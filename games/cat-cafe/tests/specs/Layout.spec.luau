@@ -134,9 +134,10 @@ return function()
 				if point.zone ~= "nook" then
 					continue
 				end
-				-- about 6.5 studs from an end wall (section 7e), so 2 inside the roam rects' 4 stud margin
+				-- 6.5 from a south end wall and 8.5 from a north one (section 7e, reviewer S84), so 2 or more inside
+				-- the roam rects' 4 and 6 stud margins
 				local fromEnd = W.AlleyNorthZ - math.abs(point.z)
-				if fromEnd < 6 or fromEnd > 8 then
+				if fromEnd < 6 or fromEnd > 9 then
 					fail("nook point %d at (%g, %g) is %.1f from its end wall", i, point.x, point.z, fromEnd)
 				end
 				local key = (if point.x < 0 then "w" else "e") .. (if point.z < 0 then "s" else "n")

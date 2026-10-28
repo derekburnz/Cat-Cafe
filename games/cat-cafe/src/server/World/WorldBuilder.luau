@@ -828,7 +828,7 @@ local function buildSafeZoneMarks(parent: Instance)
 		local gateZ = spec.gateZ :: number
 		safeWords(
 			Vector3.new(0, streetTop, gateZ + toward * 4),
-			Vector3.new(0, 0, -toward),
+			Vector3.new(0, 0, toward),
 			12,
 			marks
 		)

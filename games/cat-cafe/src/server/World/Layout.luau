@@ -276,9 +276,10 @@ local GH = W.SideGateHalfWidth -- the Woods and Sewer gate openings, z -GH to GH
 
 -- Two lane spawn points behind every cafe, in plot order: plot p owns alley points 2p - 1 and 2p, so the tutorial
 -- stray waits right outside a beginner's own yard gate. Then two nooks at each end of each back alley (s = -1 west,
--- 1 east), where Epic and rarer strays go: 6.5 studs off the end walls, so 2 inside the roam rects, and at least 10
--- studs from every lane point (town-layout-v3.md 7e's suggested points, the ones 4.5 off moved out by 2).
-local NOOKS = { { 70, 119 }, { 78, 119 }, { 82, -119 }, { 68, -119 } }
+-- 1 east), where Epic and rarer strays go: 6.5 studs off the south end walls and 8.5 off the north ones (the east
+-- north end's fire escape is 5 deep), so at least 2 inside the roam rects, and at least 10 studs from every lane
+-- point (town-layout-v3.md 7e's suggested points, moved out from the end walls).
+local NOOKS = { { 70, 117 }, { 76, 117 }, { 82, -119 }, { 68, -119 } }
 local function alleySpawnPoints(): { Point }
 	local points: { Point } = {}
 	for index = 1, W.PlotCount do
@@ -428,10 +429,11 @@ Layout.alley = {
 		{ x1 = W.NeighbourhoodWidth / 2 + 0.5, z1 = AN, x2 = AO, z2 = AN + 1 },
 	},
 	-- Strays keep off the strip along the outer walls where the building backs, fire escapes and crate stacks stand
-	-- (up to 5 studs deep), and 4 off the end walls, so the nooks 4.5 from them stay inside.
+	-- (up to 5 studs deep), 4 off the south end walls (a staff door) and 6 off the north ones, clear of the east
+	-- north end's fire escape and its crates (reviewer S84); the nooks stay 2 or more inside.
 	roam = {
-		{ x1 = -AO + 5, z1 = AS + 4, x2 = -AI, z2 = AN - 4 },
-		{ x1 = AI, z1 = AS + 4, x2 = AO - 5, z2 = AN - 4 },
+		{ x1 = -AO + 5, z1 = AS + 4, x2 = -AI, z2 = AN - 6 },
+		{ x1 = AI, z1 = AS + 4, x2 = AO - 5, z2 = AN - 6 },
 	},
 	wallHeight = 10,
 	arches = {}, -- entered through the Town Square's side arches (Layout.townSquare.arches), the yards and passages

@@ -50,8 +50,10 @@ type Stray = {
 	-- v0.5 (data-model section 10 step 5): server time the sprint after a miss and the breather end; nobody starts
 	-- a catch before it. Tries are unlimited, so there is no per-player table.
 	fleeingUntil: number,
-	-- server time each player who missed may try again: StraySelfRetrySeconds after it stops (reviewer S44)
+	-- server time each player who missed may try again: their Catching.selfRetrySeconds after it stops (reviewer S44,
+	-- F57), from their misses in a row on it
 	selfRetryAt: { [number]: number },
+	missStreak: { [number]: Catching.MissStreak },
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
 	variant: string, -- "gold" (GoldChanceNet with gold luck, rolled at spawn and shown as a sparkle) or "base"
@@ -92,6 +94,7 @@ local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point i
 local carrying: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local lastCatchStart: { [Player]: number } = {} -- server time of the player's last GrabBegin that started circles
+local startledUntil: { [Player]: number } = {} -- server time each player's Startled slow ends (F57)
 local rng = Random.new()
 local nextStrayNumber = 0
 -- RescueService's answer to "is this player in a rescue attempt?", so a catch cannot start during one.
@@ -450,6 +453,7 @@ local function spawnStray(
 		attempt = nil,
 		fleeingUntil = 0,
 		selfRetryAt = {},
+		missStreak = {},
 		jumping = false,
 		charm = if kept ~= nil and kept.charm ~= nil
 			then kept.charm
@@ -855,15 +859,16 @@ end
 
 -- After a miss the stray hisses (HissAt, so every nearby client plays it) and sprints its rarity's fleeStuds straight
 -- away from the player at StrayFleeSpeed, kept inside its area, then catches its breath for StrayRestSeconds
--- (v0.5, data-model section 10 step 5). Nobody can start a catch on it until FleeingUntil. A stray on a perch (a
+-- (v0.5, data-model section 10 step 5; v0.8 F57 runs twice as far). Nobody can start a catch on it until
+-- FleeingUntil, and the player who missed `selfRetry` seconds more. A stray on a perch (a
 -- rock, the tree house cushion, the Great Oak's top) hisses and stays put for the breather instead: the sprint aims
 -- at the floor and would drop it through whatever it sits on (reviewer S86), and the climb stays worth a retry.
-local function flee(stray: Stray, player: Player)
+local function flee(stray: Stray, player: Player, selfRetry: number)
 	local at = stray.model:GetPivot().Position
 	if at.Y > world.areas[stray.area].floorY + PERCH_ABOVE then
 		local now = serverNow()
 		stray.fleeingUntil = Catching.fleeUntil(now, 0)
-		stray.selfRetryAt[player.UserId] = stray.fleeingUntil + Config.StraySelfRetrySeconds
+		stray.selfRetryAt[player.UserId] = stray.fleeingUntil + selfRetry
 		stray.model:SetAttribute("HissAt", now)
 		stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
 		return
@@ -882,7 +887,7 @@ local function flee(stray: Stray, player: Player)
 	local now = serverNow()
 	local sprint = Vector3.new(target.X - at.X, 0, target.Z - at.Z).Magnitude
 	stray.fleeingUntil = Catching.fleeUntil(now, sprint)
-	stray.selfRetryAt[player.UserId] = stray.fleeingUntil + Config.StraySelfRetrySeconds
+	stray.selfRetryAt[player.UserId] = stray.fleeingUntil + selfRetry
 	stray.model:SetAttribute("HissAt", now)
 	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
 	stray.jumping = true
@@ -893,6 +898,25 @@ local function flee(stray: Stray, player: Player)
 		end)
 		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
 		stray.jumping = false
+	end)
+end
+
+-- F57 (data-model section 10 step 5, v0.8): the player who missed is Startled, walking at StartledWalkSpeed for
+-- StartledSeconds; `StartledUntil` on the character shows the dizzy stars (Effects/Chase).
+local function startle(player: Player)
+	local character = player.Character
+	if character == nil then
+		return
+	end
+	local ends = serverNow() + Config.StartledSeconds
+	startledUntil[player] = ends
+	character:SetAttribute("StartledUntil", ends)
+	CatService.refreshSpeed(player)
+	task.delay(Config.StartledSeconds, function()
+		if startledUntil[player] == ends then
+			startledUntil[player] = nil
+			CatService.refreshSpeed(player)
+		end
 	end)
 end
 
@@ -953,13 +977,15 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		return
 	end
 
-	-- The stray moves first, so its FleeingUntil reaches the client ahead of the result (QA on #130).
-	flee(stray, player)
+	-- The stray moves first, so its FleeingUntil reaches the client ahead of the result (QA on #130). The miss costs
+	-- the player who missed and nobody else (F57): a longer wait the more they miss it in a row, and shaky paws.
+	local streak = Catching.nextMiss(stray.missStreak[player.UserId], serverNow())
+	stray.missStreak[player.UserId] = streak
+	flee(stray, player, Catching.selfRetrySeconds(streak.count))
 	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, 0)
+	startle(player)
 	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
-	if forfeit ~= nil then
-		Net.toast(player, forfeit, "warn")
-	end
+	Net.toast(player, if forfeit ~= nil then forfeit else "Your paws are shaking!", "warn")
 end
 
 -- Shove (section 10c) --------------------------------------------------------------------------------------
@@ -1452,6 +1478,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end
 		circleHistory[player] = nil
 		lastCatchStart[player] = nil
+		startledUntil[player] = nil
 		for _, stray in strays do
 			if stray.lockedBy == player.UserId then
 				setLock(stray, 0)
@@ -1538,8 +1565,8 @@ function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
 end
 
--- A Swift Potion started or ran out (PotionService, F64): the character's speed follows at once, from whatever it
--- is doing now (a Catch Rush, a carry or neither).
+-- A Swift Potion started or ran out (PotionService, F64), or a Startled slow (F57): the character's speed follows at
+-- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither).
 function CatService.refreshSpeed(player: Player)
 	local character = player.Character
 	local humanoid = if character ~= nil
@@ -1549,8 +1576,11 @@ function CatService.refreshSpeed(player: Player)
 		return
 	end
 	local carry = carrying[player]
+	local startled = startledUntil[player]
 	local base = if carry == nil
-		then Config.NormalWalkSpeed
+		then (if startled ~= nil and startled > serverNow()
+			then Config.StartledWalkSpeed
+			else Config.NormalWalkSpeed)
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
 		then Config.CatchRushWalkSpeed

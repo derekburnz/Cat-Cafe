@@ -45,7 +45,15 @@ local Config = {
 	-- faster than NormalWalkSpeed), then catch its breath this long; tries are unlimited
 	StrayFleeSpeed = 26,
 	StrayRestSeconds = 1.5,
-	StraySelfRetrySeconds = 1, -- the player who missed waits this much longer than everyone else (v0.5.1, S44)
+	-- v0.8 F57 (data-model 10 step 5, Gavin round 3 Q3): the player who missed waits this much longer than everyone
+	-- else after the stray stops, by their misses in a row on it (the last step for every miss after), the streak
+	-- starting again after StrayMissStreakResetSeconds without a miss; and walks at StartledWalkSpeed for
+	-- StartledSeconds. StraySelfRetrySeconds is the first step, which the UI's countdown reads.
+	StraySelfRetrySteps = { 3, 6, 10 },
+	StraySelfRetrySeconds = 3,
+	StrayMissStreakResetSeconds = 60,
+	StartledWalkSpeed = 12,
+	StartledSeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
 	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
 

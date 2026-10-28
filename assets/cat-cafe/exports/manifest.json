@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 07:35 UTC",
+  "generated": "2026-10-28 08:34 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -72371,6 +72371,7 @@
         "CatCafe_Plot_BackDoor",
         "CatCafe_Plot_BackDoor_Leaf",
         "CatCafe_Plot_BackDoor_Leaf_Glass",
+        "CatCafe_Plot_BackDoor_FlapFrame",
         "CatCafe_Plot_BackDoor_Flap",
         "CatCafe_Plot_BackDoor_Sign",
         "CatCafe_Plot_BackDoor_Sign_Bulb"
@@ -72410,6 +72411,11 @@
           14.72,
           0.0
         ],
+        "CatCafe_Plot_BackDoor_FlapFrame": [
+          10.88,
+          14.72,
+          0.0
+        ],
         "CatCafe_Plot_BackDoor_Flap": [
           8.0,
           14.57,
@@ -72433,6 +72439,11 @@
           14.72
         ],
         "CatCafe_Plot_BackDoor_Leaf_Glass": [
+          -10.88,
+          0.0,
+          14.72
+        ],
+        "CatCafe_Plot_BackDoor_FlapFrame": [
           -10.88,
           0.0,
           14.72
@@ -72474,6 +72485,1706 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=8.00 y=14.33"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_FireEscape_Front",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_FireEscape_Front",
+        "CatCafe_Door_FireEscape_Front_LeafL",
+        "CatCafe_Door_FireEscape_Front_LeafL_Glass",
+        "CatCafe_Door_FireEscape_Front_LeafR",
+        "CatCafe_Door_FireEscape_Front_LeafR_Glass"
+      ],
+      "triangles": 2292,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 1.21,
+        "z": 7.33
+      },
+      "size_roblox": [
+        7.0,
+        7.33,
+        1.21
+      ],
+      "bounds_min": [
+        -3.5,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.5,
+        0.21,
+        7.33
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_FireEscape_Front_LeafL": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_FireEscape_Front_LeafL_Glass": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_FireEscape_Front_LeafR": [
+          -3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_FireEscape_Front_LeafR_Glass": [
+          -3.4,
+          -0.03,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_FireEscape_Front_LeafL": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_FireEscape_Front_LeafL_Glass": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_FireEscape_Front_LeafR": [
+          3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_FireEscape_Front_LeafR_Glass": [
+          3.4,
+          0.0,
+          -0.03
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FireEscape_Front.model.json",
+      "rbx_parts": 179,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Front.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Front.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2292/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1110 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.39"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_FireEscape_Back",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_FireEscape_Back",
+        "CatCafe_Door_FireEscape_Back_Leaf",
+        "CatCafe_Door_FireEscape_Back_Leaf_Glass",
+        "CatCafe_Door_FireEscape_Back_Sign",
+        "CatCafe_Door_FireEscape_Back_Sign_Bulb"
+      ],
+      "triangles": 2778,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.33,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.33
+      ],
+      "bounds_min": [
+        -3.45,
+        -0.51,
+        0.0
+      ],
+      "bounds_max": [
+        3.45,
+        0.82,
+        7.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_FireEscape_Back_Leaf": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_FireEscape_Back_Leaf_Glass": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_FireEscape_Back_Sign": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_FireEscape_Back_Sign_Bulb": [
+          -2.88,
+          -0.22,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_FireEscape_Back_Leaf": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_FireEscape_Back_Leaf_Glass": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_FireEscape_Back_Sign": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_FireEscape_Back_Sign_Bulb": [
+          2.88,
+          0.0,
+          -0.22
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FireEscape_Back.model.json",
+      "rbx_parts": 233,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Back.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_FireEscape_Back.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2778/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1371 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_GardenGate_Front",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_GardenGate_Front",
+        "CatCafe_Door_GardenGate_Front_LeafL",
+        "CatCafe_Door_GardenGate_Front_LeafL_Glass",
+        "CatCafe_Door_GardenGate_Front_LeafR",
+        "CatCafe_Door_GardenGate_Front_LeafR_Glass"
+      ],
+      "triangles": 1980,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 1.09,
+        "z": 7.33
+      },
+      "size_roblox": [
+        7.0,
+        7.33,
+        1.09
+      ],
+      "bounds_min": [
+        -3.5,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.5,
+        0.09,
+        7.33
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_GardenGate_Front_LeafL": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_GardenGate_Front_LeafL_Glass": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_GardenGate_Front_LeafR": [
+          -3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_GardenGate_Front_LeafR_Glass": [
+          -3.4,
+          -0.03,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_GardenGate_Front_LeafL": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_GardenGate_Front_LeafL_Glass": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_GardenGate_Front_LeafR": [
+          3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_GardenGate_Front_LeafR_Glass": [
+          3.4,
+          0.0,
+          -0.03
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_GardenGate_Front.model.json",
+      "rbx_parts": 161,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Front.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Front.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1980/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "974 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.45"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_GardenGate_Back",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_GardenGate_Back",
+        "CatCafe_Door_GardenGate_Back_Leaf",
+        "CatCafe_Door_GardenGate_Back_Leaf_Glass",
+        "CatCafe_Door_GardenGate_Back_Sign",
+        "CatCafe_Door_GardenGate_Back_Sign_Bulb"
+      ],
+      "triangles": 2818,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.3,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.3
+      ],
+      "bounds_min": [
+        -3.45,
+        -0.48,
+        0.0
+      ],
+      "bounds_max": [
+        3.45,
+        0.82,
+        7.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_GardenGate_Back_Leaf": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_GardenGate_Back_Leaf_Glass": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_GardenGate_Back_Sign": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_GardenGate_Back_Sign_Bulb": [
+          -2.88,
+          -0.22,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_GardenGate_Back_Leaf": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_GardenGate_Back_Leaf_Glass": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_GardenGate_Back_Sign": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_GardenGate_Back_Sign_Bulb": [
+          2.88,
+          0.0,
+          -0.22
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_GardenGate_Back.model.json",
+      "rbx_parts": 243,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Back.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_GardenGate_Back.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2818/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1401 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.17"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_FrontPorch_Front",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_FrontPorch_Front",
+        "CatCafe_Door_FrontPorch_Front_LeafL",
+        "CatCafe_Door_FrontPorch_Front_LeafL_Glass",
+        "CatCafe_Door_FrontPorch_Front_LeafR",
+        "CatCafe_Door_FrontPorch_Front_LeafR_Glass"
+      ],
+      "triangles": 2456,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 1.12,
+        "z": 7.33
+      },
+      "size_roblox": [
+        7.0,
+        7.33,
+        1.12
+      ],
+      "bounds_min": [
+        -3.5,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.5,
+        0.12,
+        7.33
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_FrontPorch_Front_LeafL": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_FrontPorch_Front_LeafL_Glass": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_FrontPorch_Front_LeafR": [
+          -3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_FrontPorch_Front_LeafR_Glass": [
+          -3.4,
+          -0.03,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_FrontPorch_Front_LeafL": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_FrontPorch_Front_LeafL_Glass": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_FrontPorch_Front_LeafR": [
+          3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_FrontPorch_Front_LeafR_Glass": [
+          3.4,
+          0.0,
+          -0.03
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FrontPorch_Front.model.json",
+      "rbx_parts": 243,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Front.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Front.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2456/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1192 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.44"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_FrontPorch_Back",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_FrontPorch_Back",
+        "CatCafe_Door_FrontPorch_Back_Leaf",
+        "CatCafe_Door_FrontPorch_Back_Leaf_Glass",
+        "CatCafe_Door_FrontPorch_Back_Sign",
+        "CatCafe_Door_FrontPorch_Back_Sign_Bulb"
+      ],
+      "triangles": 3052,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.37,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.37
+      ],
+      "bounds_min": [
+        -3.45,
+        -0.55,
+        0.0
+      ],
+      "bounds_max": [
+        3.45,
+        0.82,
+        7.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_FrontPorch_Back_Leaf": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_FrontPorch_Back_Leaf_Glass": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_FrontPorch_Back_Sign": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_FrontPorch_Back_Sign_Bulb": [
+          -2.88,
+          -0.22,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_FrontPorch_Back_Leaf": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_FrontPorch_Back_Leaf_Glass": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_FrontPorch_Back_Sign": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_FrontPorch_Back_Sign_Bulb": [
+          2.88,
+          0.0,
+          -0.22
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_FrontPorch_Back.model.json",
+      "rbx_parts": 282,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Back.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_FrontPorch_Back.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3052/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1508 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.13"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_LogCabin_Front",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_LogCabin_Front",
+        "CatCafe_Door_LogCabin_Front_LeafL",
+        "CatCafe_Door_LogCabin_Front_LeafR"
+      ],
+      "triangles": 1448,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 1.07,
+        "z": 7.33
+      },
+      "size_roblox": [
+        7.0,
+        7.33,
+        1.07
+      ],
+      "bounds_min": [
+        -3.5,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.5,
+        0.07,
+        7.33
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_LogCabin_Front_LeafL": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_LogCabin_Front_LeafR": [
+          -3.4,
+          -0.03,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_LogCabin_Front_LeafL": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_LogCabin_Front_LeafR": [
+          3.4,
+          0.0,
+          -0.03
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_LogCabin_Front.model.json",
+      "rbx_parts": 117,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Front.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Front.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1448/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "700 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.46"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_LogCabin_Back",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_LogCabin_Back",
+        "CatCafe_Door_LogCabin_Back_Leaf",
+        "CatCafe_Door_LogCabin_Back_Sign",
+        "CatCafe_Door_LogCabin_Back_Sign_Bulb"
+      ],
+      "triangles": 2420,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.3,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.3
+      ],
+      "bounds_min": [
+        -3.45,
+        -0.48,
+        0.0
+      ],
+      "bounds_max": [
+        3.45,
+        0.82,
+        7.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_LogCabin_Back_Leaf": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_LogCabin_Back_Sign": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_LogCabin_Back_Sign_Bulb": [
+          -2.88,
+          -0.22,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_LogCabin_Back_Leaf": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_LogCabin_Back_Sign": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_LogCabin_Back_Sign_Bulb": [
+          2.88,
+          0.0,
+          -0.22
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_LogCabin_Back.model.json",
+      "rbx_parts": 208,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2420/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1198 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.17"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_PortholeHatch_Front",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_PortholeHatch_Front",
+        "CatCafe_Door_PortholeHatch_Front_LeafL",
+        "CatCafe_Door_PortholeHatch_Front_LeafL_Glass",
+        "CatCafe_Door_PortholeHatch_Front_LeafR",
+        "CatCafe_Door_PortholeHatch_Front_LeafR_Glass"
+      ],
+      "triangles": 3292,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 1.21,
+        "z": 7.33
+      },
+      "size_roblox": [
+        7.0,
+        7.33,
+        1.21
+      ],
+      "bounds_min": [
+        -3.5,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.5,
+        0.21,
+        7.33
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_PortholeHatch_Front_LeafL": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_PortholeHatch_Front_LeafL_Glass": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_PortholeHatch_Front_LeafR": [
+          -3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_PortholeHatch_Front_LeafR_Glass": [
+          -3.4,
+          -0.03,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_PortholeHatch_Front_LeafL": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_PortholeHatch_Front_LeafL_Glass": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_PortholeHatch_Front_LeafR": [
+          3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_PortholeHatch_Front_LeafR_Glass": [
+          3.4,
+          0.0,
+          -0.03
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PortholeHatch_Front.model.json",
+      "rbx_parts": 261,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Front.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Front.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3292/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1606 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.39"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_PortholeHatch_Back",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_PortholeHatch_Back",
+        "CatCafe_Door_PortholeHatch_Back_Leaf",
+        "CatCafe_Door_PortholeHatch_Back_Leaf_Glass",
+        "CatCafe_Door_PortholeHatch_Back_Sign",
+        "CatCafe_Door_PortholeHatch_Back_Sign_Bulb"
+      ],
+      "triangles": 3278,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.34,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.34
+      ],
+      "bounds_min": [
+        -3.45,
+        -0.52,
+        0.0
+      ],
+      "bounds_max": [
+        3.45,
+        0.82,
+        7.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_PortholeHatch_Back_Leaf": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_PortholeHatch_Back_Leaf_Glass": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_PortholeHatch_Back_Sign": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_PortholeHatch_Back_Sign_Bulb": [
+          -2.88,
+          -0.22,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_PortholeHatch_Back_Leaf": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_PortholeHatch_Back_Leaf_Glass": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_PortholeHatch_Back_Sign": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_PortholeHatch_Back_Sign_Bulb": [
+          2.88,
+          0.0,
+          -0.22
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PortholeHatch_Back.model.json",
+      "rbx_parts": 274,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Back.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_PortholeHatch_Back.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3278/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1619 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_PanedGlass_Front",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_PanedGlass_Front",
+        "CatCafe_Door_PanedGlass_Front_LeafL",
+        "CatCafe_Door_PanedGlass_Front_LeafL_Glass",
+        "CatCafe_Door_PanedGlass_Front_LeafR",
+        "CatCafe_Door_PanedGlass_Front_LeafR_Glass"
+      ],
+      "triangles": 1196,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.0,
+        "y": 1.12,
+        "z": 7.33
+      },
+      "size_roblox": [
+        7.0,
+        7.33,
+        1.12
+      ],
+      "bounds_min": [
+        -3.5,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        3.5,
+        0.12,
+        7.33
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_PanedGlass_Front_LeafL": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_PanedGlass_Front_LeafL_Glass": [
+          3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_PanedGlass_Front_LeafR": [
+          -3.4,
+          -0.03,
+          0.0
+        ],
+        "CatCafe_Door_PanedGlass_Front_LeafR_Glass": [
+          -3.4,
+          -0.03,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_PanedGlass_Front_LeafL": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_PanedGlass_Front_LeafL_Glass": [
+          -3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_PanedGlass_Front_LeafR": [
+          3.4,
+          0.0,
+          -0.03
+        ],
+        "CatCafe_Door_PanedGlass_Front_LeafR_Glass": [
+          3.4,
+          0.0,
+          -0.03
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PanedGlass_Front.model.json",
+      "rbx_parts": 73,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Front.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Front.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1196/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "518 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.44"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Door_PanedGlass_Back",
+      "category": "Door",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_Door_PanedGlass_Back",
+        "CatCafe_Door_PanedGlass_Back_Leaf",
+        "CatCafe_Door_PanedGlass_Back_Leaf_Glass",
+        "CatCafe_Door_PanedGlass_Back_Sign",
+        "CatCafe_Door_PanedGlass_Back_Sign_Bulb"
+      ],
+      "triangles": 2254,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.3,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.3
+      ],
+      "bounds_min": [
+        -3.45,
+        -0.48,
+        0.0
+      ],
+      "bounds_max": [
+        3.45,
+        0.82,
+        7.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Door_PanedGlass_Back_Leaf": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_PanedGlass_Back_Leaf_Glass": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_PanedGlass_Back_Sign": [
+          -2.88,
+          -0.22,
+          0.0
+        ],
+        "CatCafe_Door_PanedGlass_Back_Sign_Bulb": [
+          -2.88,
+          -0.22,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Door_PanedGlass_Back_Leaf": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_PanedGlass_Back_Leaf_Glass": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_PanedGlass_Back_Sign": [
+          2.88,
+          0.0,
+          -0.22
+        ],
+        "CatCafe_Door_PanedGlass_Back_Sign_Bulb": [
+          2.88,
+          0.0,
+          -0.22
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_PanedGlass_Back.model.json",
+      "rbx_parts": 182,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Back.fbx",
+        "assets/cat-cafe/exports/CatCafe_Door_PanedGlass_Back.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2254/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1087 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.17"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_Plain",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_Plain",
+        "CatCafe_CatFlap_Plain_Flap"
+      ],
+      "triangles": 256,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.4,
+        "y": 0.62,
+        "z": 2.41
+      },
+      "size_roblox": [
+        2.4,
+        2.41,
+        0.62
+      ],
+      "bounds_min": [
+        -1.2,
+        -0.24,
+        0.08
+      ],
+      "bounds_max": [
+        1.2,
+        0.38,
+        2.49
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_Plain_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_Plain_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_Plain.model.json",
+      "rbx_parts": 20,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Plain.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Plain.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "256/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "124 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.08 (want 0)",
+          "centered": "footprint center x=0.00 y=0.07"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_NeonPaw",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_NeonPaw",
+        "CatCafe_CatFlap_NeonPaw_Flap",
+        "CatCafe_CatFlap_NeonPaw_Flap_Bulb"
+      ],
+      "triangles": 580,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.48,
+        "y": 0.57,
+        "z": 2.41
+      },
+      "size_roblox": [
+        2.48,
+        2.41,
+        0.57
+      ],
+      "bounds_min": [
+        -1.24,
+        -0.2,
+        0.08
+      ],
+      "bounds_max": [
+        1.24,
+        0.37,
+        2.49
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_NeonPaw_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ],
+        "CatCafe_CatFlap_NeonPaw_Flap_Bulb": [
+          -0.0,
+          0.15,
+          2.13
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_NeonPaw_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ],
+        "CatCafe_CatFlap_NeonPaw_Flap_Bulb": [
+          0.0,
+          2.13,
+          0.15
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_NeonPaw.model.json",
+      "rbx_parts": 47,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_NeonPaw.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_NeonPaw.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "580/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "286 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.08 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_Birdhouse",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_Birdhouse",
+        "CatCafe_CatFlap_Birdhouse_Flap"
+      ],
+      "triangles": 304,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.79,
+        "y": 0.68,
+        "z": 2.61
+      },
+      "size_roblox": [
+        2.79,
+        2.61,
+        0.68
+      ],
+      "bounds_min": [
+        -1.4,
+        -0.32,
+        0.08
+      ],
+      "bounds_max": [
+        1.4,
+        0.36,
+        2.69
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_Birdhouse_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_Birdhouse_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_Birdhouse.model.json",
+      "rbx_parts": 20,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Birdhouse.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Birdhouse.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "304/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "136 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.08 (want 0)",
+          "centered": "footprint center x=-0.00 y=0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_MailSlot",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_MailSlot",
+        "CatCafe_CatFlap_MailSlot_Flap"
+      ],
+      "triangles": 320,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.36,
+        "y": 0.52,
+        "z": 2.49
+      },
+      "size_roblox": [
+        2.36,
+        2.49,
+        0.52
+      ],
+      "bounds_min": [
+        -1.18,
+        -0.17,
+        0.08
+      ],
+      "bounds_max": [
+        1.18,
+        0.35,
+        2.57
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_MailSlot_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_MailSlot_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_MailSlot.model.json",
+      "rbx_parts": 24,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_MailSlot.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_MailSlot.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "320/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "152 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.08 (want 0)",
+          "centered": "footprint center x=0.00 y=0.09"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_TreeStump",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_TreeStump",
+        "CatCafe_CatFlap_TreeStump_Flap"
+      ],
+      "triangles": 1276,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.71,
+        "y": 0.62,
+        "z": 2.79
+      },
+      "size_roblox": [
+        2.71,
+        2.79,
+        0.62
+      ],
+      "bounds_min": [
+        -1.35,
+        -0.26,
+        -0.12
+      ],
+      "bounds_max": [
+        1.35,
+        0.36,
+        2.66
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_TreeStump_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_TreeStump_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_TreeStump.model.json",
+      "rbx_parts": 101,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_TreeStump.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_TreeStump.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1276/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "622 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.12 (want 0)",
+          "centered": "footprint center x=0.00 y=0.05"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_PipeRing",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_PipeRing",
+        "CatCafe_CatFlap_PipeRing_Flap"
+      ],
+      "triangles": 940,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.71,
+        "y": 0.66,
+        "z": 2.71
+      },
+      "size_roblox": [
+        2.71,
+        2.71,
+        0.66
+      ],
+      "bounds_min": [
+        -1.35,
+        -0.3,
+        -0.12
+      ],
+      "bounds_max": [
+        1.35,
+        0.36,
+        2.58
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_PipeRing_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_PipeRing_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_PipeRing.model.json",
+      "rbx_parts": 73,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_PipeRing.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_PipeRing.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "940/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "454 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.12 (want 0)",
+          "centered": "footprint center x=0.00 y=0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_CatFlap_Bell",
+      "category": "CatFlap",
+      "module": "doorsets",
+      "objects": [
+        "CatCafe_CatFlap_Bell",
+        "CatCafe_CatFlap_Bell_Flap",
+        "CatCafe_CatFlap_Bell_Bell"
+      ],
+      "triangles": 372,
+      "budget": 1600,
+      "size_studs": {
+        "x": 2.2,
+        "y": 0.8,
+        "z": 2.61
+      },
+      "size_roblox": [
+        2.2,
+        2.61,
+        0.8
+      ],
+      "bounds_min": [
+        -1.1,
+        -0.44,
+        0.08
+      ],
+      "bounds_max": [
+        1.1,
+        0.36,
+        2.69
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_CatFlap_Bell_Flap": [
+          -0.0,
+          0.15,
+          2.13
+        ],
+        "CatCafe_CatFlap_Bell_Bell": [
+          -0.0,
+          -0.27,
+          2.63
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_CatFlap_Bell_Flap": [
+          0.0,
+          2.13,
+          0.15
+        ],
+        "CatCafe_CatFlap_Bell_Bell": [
+          0.0,
+          2.63,
+          -0.27
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_Bell.model.json",
+      "rbx_parts": 27,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Bell.fbx",
+        "assets/cat-cafe/exports/CatCafe_CatFlap_Bell.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "372/1600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "180 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.08 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.04"
         }
       }
     }

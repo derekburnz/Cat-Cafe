@@ -46,6 +46,7 @@ import items  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
 import doors  # noqa: E402
+import doorsets  # noqa: E402
 import market  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
@@ -69,7 +70,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -336,6 +337,10 @@ def main():
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
+        if name.startswith(("CatCafe_Door_", "CatCafe_CatFlap_")):   # F80: glass, sign and panels ride their leaf
+            extra = {"nest": doorsets.NEST}
+            if name.endswith("_Back"):
+                extra["attachments"] = [doorsets.back_cat_flap_attachment(name)]
         if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
             extra = {"part_attributes": square.ARM_ATTRIBUTES}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)

@@ -14,8 +14,8 @@ v0.10 (round 4 Q6: "good ideas and looks good one or two props is fine do some r
 
 
 - No new mechanics. Each area reuses the Alleyway's systems: 10 strays per night wave, the catch circles, two rescue traps that use the existing kinds (`bar` or `shake_catch`), carry and shove, a gate, a title card. What makes an area different is its look, its sounds, where cats hide and its cats.
-- Size: the floor you can walk on is at least as big as the Park and at least 100 x 90 studs, so 10 strays, 2 traps and 8 players never crowd. Today's grayboxes are smaller (about 66 x 64 for the Woods and Sewer, 90 x 56 for the Neighbourhood), so the engineer grows them when the sets arrive.
-- One hub per area. As in the Alley Square, Epic, Legendary and Mythical strays spawn only in the area's open hub, so the exciting cats are easy to find. Commons and Rares can spawn anywhere.
+- Size: the floor you can walk on is at least as big as the Park and at least 100 x 90 studs, so 10 strays, 2 traps and 8 players never crowd. Today's grayboxes are smaller (about 66 x 64 for the Woods and Sewer, 90 x 56 for the Neighbourhood), so the engineer grows them when the sets arrive. Town layout v3.1 sets them from the kits: Neighbourhood 140 x 140, Woods 120 x 120, Sewer 90 x 90, each turned so its gate faces the Town Square ([town-layout-v3.md](town-layout-v3.md) section 7).
+- One hub per area. As in the old Alley Square (since town layout v3.1 the Alleyway's rare points are its four alley ends), Epic, Legendary and Mythical strays spawn only in the area's open hub, so the exciting cats are easy to find. Commons and Rares can spawn anywhere.
 - Spawn points sit in the area's hiding spots (the "strays hide" lists below), always reachable on foot and never more than 6 studs up.
 - Every area has an Index Board at its entry (Part B), a SAFE ZONE stripe where it meets the street side and its own night lighting.
 - Nothing in an area hurts players, and nothing is gross or scary. The Sewer is a hidden canal town, not a dirty drain.

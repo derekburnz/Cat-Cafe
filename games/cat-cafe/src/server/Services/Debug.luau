@@ -9,6 +9,7 @@
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe, gone unpaid in 20 s
+--   D:Invoke("tipPiles", nil, 6)       -- 6 tip piles on your cafe's tables now, whatever the clock (F61)
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
 --   D:Invoke("tackle", "Player1", "loose")  -- a real Tackle press with every check, the roll forced (F74)
 --   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first
@@ -53,6 +54,7 @@ local ShoveService = require(script.Parent.ShoveService)
 local SpinService = require(script.Parent.SpinService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
+local TipPileService = require(script.Parent.TipPileService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -269,6 +271,13 @@ end
 function Debug.richTip(player: (Player | number | string)?, staySeconds: number?): number
 	guard()
 	return RichTipService.debugOpen(resolve(player), staySeconds)
+end
+
+-- Puts `count` tip piles (1 by default) on the player's cafe tables now, whatever the clock, up to TipPilesMax
+-- (F61). Returns how many wait.
+function Debug.tipPiles(player: (Player | number | string)?, count: number?): number
+	guard()
+	return TipPileService.debugAdd(resolve(player), count)
 end
 
 -- Pretends the player rejoined after `secondsAgo` away: sets the unclaimed offline earnings to what that gap

@@ -5,9 +5,12 @@
 -- within BackDoor.OPEN_RANGE of the doorway and shuts when they have gone, and its _Flap swings as a cat goes through
 -- (shared/BackDoor has the rules). While the areas are closed the leaf stays shut, the CLOSED UNTIL SUNRISE sign
 -- shows (its bulbs glow with the other night bulbs, WorldController) and an owned cafe's back door panel turns
--- solid, as the closed back door art did. An F80 door set in use (the plot's Door attribute) stands in the doorway
--- instead, so the art hides; an F80 cat flap in use (CatFlap) hides the default flap (and its _FlapFrame) and rides
--- the leaf. Only this client's copy moves.
+-- solid, as the closed back door art did.
+-- An F80 door set in use (the plot's Door attribute) hides the art, and its own models, which CafeService puts in the
+-- plot's Decor, move instead: DoorBack's _Leaf swings and shows its sign as the art's did, and DoorFront's _LeafL and
+-- _LeafR stand open into the cafe while the areas are open and shut while they are closed. Decor.CatFlap (the F80 cat
+-- flap in use, or the plain one a door set brings) rides the leaf in use from its CatFlap attachment, hides the art's
+-- own flap (and its _FlapFrame) and swings its _Flap for cats in that flap's place. Only this client's copy moves.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -26,19 +29,43 @@ local STATE_SECONDS = 0.25 -- how often the owner, the clock, the door set and t
 local NEAR_HEIGHT = 10 -- a player more than this above or below the doorway (on a roof) does not open it
 local FLAP_SHUT_DEGREES = 5 -- the flap only meets cats while the leaf is about shut
 
+type Leaf = {
+	model: Model,
+	shut: CFrame, -- its pivot as built: shut
+	catFlapRest: CFrame?, -- its CatFlap attachment in its own space, where the server puts Decor.CatFlap
+	sign: { BasePart }, -- its sign's plate; the bulbs are WorldController's
+}
+
+type Swing = {
+	model: Model, -- a flap that swings for cats: the art's _Flap or Decor.CatFlap's
+	rest: CFrame, -- its pivot at rest in the space of what carries it: the leaf, or Decor.CatFlap
+	axis: Vector3, -- its hinge in its own space: a positive turn about it swings the flap into the cafe
+}
+
+type FrontLeaf = {
+	model: Model,
+	shut: CFrame,
+	turn: number, -- BackDoor.frontTurn
+}
+
 type Door = {
 	art: Model,
 	plot: Instance,
-	leaf: Model,
-	leafShut: CFrame, -- the leaf's pivot as built: shut
-	flap: Model?,
-	flapFrame: Model?, -- the default flap's surround and hood, when the art has it apart: hidden with the flap
-	flapRest: CFrame, -- the flap's pivot in the leaf's space, at rest
-	catFlapRest: CFrame?, -- the leaf's CatFlap attachment in the leaf's space, where the server puts an F80 flap
-	decorFlap: Model?, -- the F80 cat flap riding the leaf
-	sign: { BasePart }, -- the sign's plate; its bulbs are WorldController's
-	bulbs: Instance?, -- the sign's _Sign_Bulb model
-	dimmed: { [Light]: boolean }, -- bulb lights put out while the door is hidden
+	own: Leaf, -- the art's leaf
+	ownFlap: Swing?, -- the art's flap
+	flapFrame: Model?, -- the art flap's surround and hood, when the art has it apart: hidden with the flap
+	leaf: Leaf?, -- the leaf in use: the art's, a door set's back leaf once it is in, or none
+	leafFrom: Model?, -- what `leaf` was taken from: the art or the door set's DoorBack
+	front: Model?, -- the door set's DoorFront
+	frontLeaves: { FrontLeaf },
+	frontAngle: number, -- 0 shut to FRONT_OPEN_DEGREES
+	shownFront: number,
+	decorFlap: Model?, -- Decor.CatFlap riding the leaf in use
+	decorSwing: Swing?, -- its _Flap, as first seen from swingFrom
+	swingFrom: Model?,
+	flapSwings: boolean, -- a flap hangs in the leaf in use: the art's or decorFlap's
+	bulbs: Instance?, -- the art sign's _Sign_Bulb model
+	dimmed: { [Light]: boolean }, -- bulb lights put out while the art is hidden
 	angle: number,
 	flapAngle: number,
 	flapSpeed: number,
@@ -48,9 +75,8 @@ type Door = {
 	wantsOpen: boolean,
 	active: boolean,
 	owned: boolean,
-	replaced: boolean,
-	hidden: boolean,
-	flapHidden: boolean,
+	hidden: boolean, -- the art hidden behind a door set
+	ownFlapHidden: boolean,
 	signShown: boolean?,
 }
 
@@ -68,14 +94,48 @@ local function panelOf(door: Door): BasePart?
 	return if panel ~= nil and panel:IsA("BasePart") then panel :: BasePart else nil
 end
 
--- The F80 cat flap model in use on the plot, if any.
-local function decorFlapOf(door: Door): Model?
-	if door.plot:GetAttribute("CatFlap") == nil then
-		return nil
+local function childModel(parent: Instance?, name: string): Model?
+	local found = if parent ~= nil then parent:FindFirstChild(name) else nil
+	return if found ~= nil and found:IsA("Model") then found :: Model else nil
+end
+
+-- The child model of `parent` whose name ends in `suffix`: the art's and the F80 models' parts carry their name.
+local function partNamed(parent: Instance, suffix: string): Model?
+	for _, child in parent:GetChildren() do
+		if child:IsA("Model") and child.Name:sub(-#suffix) == suffix then
+			return child :: Model
+		end
 	end
-	local decor = door.plot:FindFirstChild("Decor")
-	local flap = if decor ~= nil then decor:FindFirstChild("CatFlap") else nil
-	return if flap ~= nil and flap:IsA("Model") then flap :: Model else nil
+	return nil
+end
+
+-- A leaf as it stands now, shut: its CatFlap attachment and its _Sign plate's parts.
+local function leafOf(model: Model): Leaf
+	local shut = model:GetPivot()
+	local attachment = model:FindFirstChild("CatFlap", true)
+	local sign: { BasePart } = {}
+	local plate = partNamed(model, "_Sign")
+	if plate ~= nil then
+		for _, descendant in plate:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				table.insert(sign, descendant :: BasePart)
+			end
+		end
+	end
+	return {
+		model = model,
+		shut = shut,
+		catFlapRest = if attachment ~= nil and attachment:IsA("Attachment")
+			then shut:Inverse() * (attachment :: Attachment).WorldCFrame
+			else nil,
+		sign = sign,
+	}
+end
+
+-- A flap at rest, carried by a model now at `carrier`, swinging into the cafe about the world direction `intoCafe`.
+local function swingOf(model: Model, carrier: CFrame, intoCafe: Vector3): Swing
+	local at = model:GetPivot()
+	return { model = model, rest = carrier:Inverse() * at, axis = at:VectorToObjectSpace(intoCafe) }
 end
 
 local function setHidden(model: Instance, hidden: boolean)
@@ -86,34 +146,113 @@ local function setHidden(model: Instance, hidden: boolean)
 	end
 end
 
-local function setSignShown(door: Door, shown: boolean)
+local function setSignShown(door: Door, leaf: Leaf, shown: boolean)
 	if door.signShown == shown then
 		return
 	end
 	door.signShown = shown
-	for _, piece in door.sign do
+	for _, piece in leaf.sign do
 		local look = piece:GetAttribute("NightTransparency")
 		piece.Transparency = if shown and type(look) == "number" then look else 1
 	end
 end
 
--- Puts the leaf, the flap and an F80 flap where the angles say.
+-- Puts the leaf in use, its flap and Decor.CatFlap where the angles say.
 local function show(door: Door)
-	if door.angle == door.shownAngle and door.flapAngle == door.shownFlap then
+	local leaf = door.leaf
+	if leaf == nil or (door.angle == door.shownAngle and door.flapAngle == door.shownFlap) then
 		return
 	end
 	door.shownAngle = door.angle
 	door.shownFlap = door.flapAngle
-	local leafAt = door.leafShut * CFrame.Angles(0, math.rad(door.angle), 0)
-	door.leaf:PivotTo(leafAt)
-	local flap = door.flap
-	if flap ~= nil then
-		flap:PivotTo(leafAt * door.flapRest * CFrame.Angles(math.rad(door.flapAngle), 0, 0))
+	local leafAt = leaf.shut * CFrame.Angles(0, math.rad(door.angle), 0)
+	leaf.model:PivotTo(leafAt)
+	local turn = math.rad(door.flapAngle)
+	local own = door.ownFlap
+	if own ~= nil and leaf == door.own and not door.ownFlapHidden then
+		own.model:PivotTo(leafAt * own.rest * CFrame.fromAxisAngle(own.axis, turn))
 	end
-	local decorFlap, rest = door.decorFlap, door.catFlapRest
+	local decorFlap, rest, swing = door.decorFlap, leaf.catFlapRest, door.decorSwing
 	if decorFlap ~= nil and rest ~= nil then
-		decorFlap:PivotTo(leafAt * rest)
+		local flapAt = leafAt * rest
+		decorFlap:PivotTo(flapAt)
+		if swing ~= nil then
+			swing.model:PivotTo(flapAt * swing.rest * CFrame.fromAxisAngle(swing.axis, turn))
+		end
 	end
+end
+
+-- Puts the door set's front leaves where frontAngle says.
+local function showFront(door: Door)
+	if door.frontAngle == door.shownFront then
+		return
+	end
+	door.shownFront = door.frontAngle
+	for _, leaf in door.frontLeaves do
+		leaf.model:PivotTo(leaf.shut * CFrame.Angles(0, math.rad(leaf.turn * door.frontAngle), 0))
+	end
+end
+
+-- Where the flap in use hangs from with the leaf shut, or nil with none.
+local function flapHinge(door: Door): Vector3?
+	local leaf = door.leaf
+	if leaf == nil then
+		return nil
+	end
+	local rest, swing = leaf.catFlapRest, door.decorSwing
+	if door.decorFlap ~= nil then
+		return if rest ~= nil and swing ~= nil
+			then (leaf.shut * rest * swing.rest).Position
+			else nil
+	end
+	local own = door.ownFlap
+	return if own ~= nil and leaf == door.own then (leaf.shut * own.rest).Position else nil
+end
+
+-- The leaf in use: the art's, or with a door set in use its DoorBack's _Leaf (`from`) once that is in.
+local function bindLeaf(door: Door, from: Model?)
+	if door.leafFrom == from then
+		return
+	end
+	local old = door.leaf
+	if old ~= nil and old.model.Parent ~= nil then
+		old.model:PivotTo(old.shut) -- the art's leaf waits shut behind a door set
+	end
+	door.leafFrom = from
+	local leaf: Leaf? = nil
+	if from == door.art then
+		leaf = door.own
+	elseif from ~= nil then
+		local model = partNamed(from, "_Leaf")
+		leaf = if model ~= nil then leafOf(model) else nil
+	end
+	door.leaf = leaf
+	door.angle = 0
+	door.flapAngle, door.flapSpeed = 0, 0
+	door.shownAngle = math.huge
+	door.signShown = nil
+end
+
+-- The door set's front leaves (`front`, its DoorFront), standing as the clock says when they come in.
+local function bindFront(door: Door, front: Model?, open: boolean)
+	if door.front == front then
+		return
+	end
+	door.front = front
+	local leaves: { FrontLeaf } = {}
+	if front ~= nil then
+		for _, child in front:GetChildren() do
+			local turn = BackDoor.frontTurn(child.Name)
+			if turn ~= nil and child:IsA("Model") then
+				local model = child :: Model
+				table.insert(leaves, { model = model, shut = model:GetPivot(), turn = turn })
+			end
+		end
+	end
+	door.frontLeaves = leaves
+	door.shownFront = 0 -- built shut
+	door.frontAngle = if open then BackDoor.FRONT_OPEN_DEGREES else 0
+	showFront(door)
 end
 
 -- A hidden door's bulbs still turn Neon and get their light at night (WorldController). The Neon hides with the
@@ -140,34 +279,53 @@ local function keepLightsOut(door: Door)
 	end
 end
 
--- Owner, clock, door set and cat flap in use: the sign, the panel's night collision and what is hidden.
+-- Owner, clock, door set and cat flap in use: the leaves and flap in use, the sign, the panel's night collision and
+-- what is hidden.
 local function readState(door: Door, open: boolean)
 	local owner = door.plot:GetAttribute("OwnerUserId")
 	door.owned = type(owner) == "number" and owner > 0
-	door.replaced = door.plot:GetAttribute("Door") ~= nil
-	if door.hidden ~= door.replaced then
-		door.hidden = door.replaced
-		setHidden(door.art, door.replaced)
-		door.flapHidden = door.replaced
+	local replaced = door.plot:GetAttribute("Door") ~= nil
+	if door.hidden ~= replaced then
+		door.hidden = replaced
+		setHidden(door.art, replaced)
+		door.ownFlapHidden = replaced
 	end
-	-- the server put the flap at the shut leaf's attachment (CafeService.refreshDoors); with a door set it is on that
-	local decorFlap = if door.replaced then nil else decorFlapOf(door)
+	local decor = door.plot:FindFirstChild("Decor")
+	bindLeaf(door, if replaced then childModel(decor, "DoorBack") else door.art)
+	bindFront(door, if replaced then childModel(decor, "DoorFront") else nil, open)
+	-- the server put the flap at the shut leaf's attachment (CafeService.refreshDoors)
+	local leaf = door.leaf
+	local decorFlap = if leaf ~= nil and leaf.catFlapRest ~= nil
+		then childModel(decor, "CatFlap")
+		else nil
 	if door.decorFlap ~= decorFlap then
 		door.decorFlap = decorFlap
+		if decorFlap ~= nil and decorFlap ~= door.swingFrom then
+			-- first seen as the server put it, at rest; a flap that comes and goes with a door set keeps its rest
+			local swingModel = partNamed(decorFlap, "_Flap")
+			door.swingFrom = decorFlap
+			door.decorSwing = if swingModel ~= nil
+				then swingOf(swingModel, decorFlap:GetPivot(), door.own.shut.XVector)
+				else nil
+		end
 		door.shownAngle = math.huge -- carry it with the leaf from the next frame
 	end
-	local flap = door.flap
-	local flapHidden = door.replaced or decorFlap ~= nil
-	if flap ~= nil and door.flapHidden ~= flapHidden then
-		door.flapHidden = flapHidden
-		setHidden(flap, flapHidden)
+	local flap = door.ownFlap
+	local ownFlapHidden = replaced or decorFlap ~= nil
+	if flap ~= nil and door.ownFlapHidden ~= ownFlapHidden then
+		door.ownFlapHidden = ownFlapHidden
+		setHidden(flap.model, ownFlapHidden)
 		-- an F80 flap brings its own frame (Model-Agent, F80)
 		local frame = door.flapFrame
 		if frame ~= nil then
-			setHidden(frame, flapHidden)
+			setHidden(frame, ownFlapHidden)
 		end
+		door.shownAngle = math.huge
 	end
-	setSignShown(door, not open)
+	door.flapSwings = flapHinge(door) ~= nil
+	if leaf ~= nil then
+		setSignShown(door, leaf, not open)
+	end
 	keepLightsOut(door)
 	-- the closed back door art used to block an owned cafe's back door at night; an empty plot's panel is shut anyway
 	local panel = panelOf(door)
@@ -200,14 +358,9 @@ local function nearestPlayer(doorway: Vector3): number?
 	return best
 end
 
--- Which way a cat at the flap pushes it (BackDoor.pushFrom), or nil with none within FLAP_RANGE: the strays and the
--- plot's own cats.
-local function catPush(door: Door, panel: BasePart): number?
-	local flap = door.flap
-	if flap == nil then
-		return nil
-	end
-	local hinge = (door.leafShut * door.flapRest).Position
+-- Which way a cat at the flap hanging from `hinge` pushes it (BackDoor.pushFrom), or nil with none within
+-- FLAP_RANGE: the strays and the plot's own cats.
+local function catPush(door: Door, panel: BasePart, hinge: Vector3): number?
 	local function near(model: Instance): number?
 		if not model:IsA("Model") then
 			return nil
@@ -249,25 +402,31 @@ local function sense(door: Door, open: boolean, camera: Vector3?)
 		door.push = nil
 		return
 	end
-	door.wantsOpen = BackDoor.wantsOpen(open, door.owned, door.replaced, nearestPlayer(doorway))
-	door.push = if not door.flapHidden and math.abs(door.angle) < FLAP_SHUT_DEGREES
-		then catPush(door, panel)
-		else nil
+	door.wantsOpen = BackDoor.wantsOpen(open, door.owned, nearestPlayer(doorway))
+	local hinge = if math.abs(door.angle) < FLAP_SHUT_DEGREES then flapHinge(door) else nil
+	door.push = if hinge ~= nil then catPush(door, panel, hinge) else nil
 end
 
-local function step(door: Door, dt: number)
-	if not door.active or door.hidden then
+local function step(door: Door, dt: number, open: boolean)
+	if not door.active then
 		return
 	end
-	door.angle =
-		BackDoor.stepLeaf(door.angle, if door.wantsOpen then BackDoor.OPEN_DEGREES else 0, dt)
-	if door.flap ~= nil and not door.flapHidden then
-		door.flapAngle, door.flapSpeed =
-			BackDoor.stepFlap(door.flapAngle, door.flapSpeed, door.push, dt)
-	else
-		door.flapAngle, door.flapSpeed = 0, 0
+	if door.leaf ~= nil then
+		door.angle =
+			BackDoor.stepLeaf(door.angle, if door.wantsOpen then BackDoor.OPEN_DEGREES else 0, dt)
+		if door.flapSwings then
+			door.flapAngle, door.flapSpeed =
+				BackDoor.stepFlap(door.flapAngle, door.flapSpeed, door.push, dt)
+		else
+			door.flapAngle, door.flapSpeed = 0, 0
+		end
+		show(door)
 	end
-	show(door)
+	if #door.frontLeaves > 0 then
+		door.frontAngle =
+			BackDoor.stepLeaf(door.frontAngle, if open then BackDoor.FRONT_OPEN_DEGREES else 0, dt)
+		showFront(door)
+	end
 end
 
 local function register(instance: Instance)
@@ -288,37 +447,26 @@ local function register(instance: Instance)
 		end)
 		return
 	end
-	local leafModel = leaf :: Model
-	local leafShut = leafModel:GetPivot()
-	local attachment = leafModel:FindFirstChild("CatFlap", true)
-	local flapFound = leafModel:FindFirstChild(ART .. "_Flap")
-	local flap = if flapFound ~= nil and flapFound:IsA("Model") then flapFound :: Model else nil
-	local frameFound = leafModel:FindFirstChild(ART .. "_FlapFrame")
-	local sign: { BasePart } = {}
-	local signModel = leafModel:FindFirstChild(ART .. "_Sign")
-	if signModel ~= nil then
-		for _, descendant in signModel:GetDescendants() do
-			if descendant:IsA("BasePart") then
-				table.insert(sign, descendant :: BasePart)
-			end
-		end
-	end
+	local own = leafOf(leaf :: Model)
+	local flap = childModel(own.model, ART .. "_Flap")
 	local door: Door = {
 		art = art,
 		plot = plot,
-		leaf = leafModel,
-		leafShut = leafShut,
-		flap = flap,
-		flapFrame = if frameFound ~= nil and frameFound:IsA("Model")
-			then frameFound :: Model
-			else nil,
-		flapRest = if flap ~= nil then leafShut:Inverse() * flap:GetPivot() else CFrame.identity,
-		catFlapRest = if attachment ~= nil and attachment:IsA("Attachment")
-			then leafShut:Inverse() * (attachment :: Attachment).WorldCFrame
-			else nil,
+		own = own,
+		-- the art's flap turns about its own X (Model-Agent #509), the leaf's as built: positive into the cafe
+		ownFlap = if flap ~= nil then swingOf(flap, own.shut, own.shut.XVector) else nil,
+		flapFrame = childModel(own.model, ART .. "_FlapFrame"),
+		leaf = nil,
+		leafFrom = nil,
+		front = nil,
+		frontLeaves = {},
+		frontAngle = 0,
+		shownFront = 0,
 		decorFlap = nil,
-		sign = sign,
-		bulbs = leafModel:FindFirstChild(ART .. "_Sign_Bulb"),
+		decorSwing = nil,
+		swingFrom = nil,
+		flapSwings = false,
+		bulbs = own.model:FindFirstChild(ART .. "_Sign_Bulb"),
 		dimmed = {},
 		angle = 0,
 		flapAngle = 0,
@@ -329,9 +477,8 @@ local function register(instance: Instance)
 		wantsOpen = false,
 		active = false,
 		owned = false,
-		replaced = false,
 		hidden = false,
-		flapHidden = false,
+		ownFlapHidden = false,
 		signShown = nil,
 	}
 	doors[art] = door
@@ -370,7 +517,7 @@ function DoorController.start()
 			if senseNow then
 				sense(door, open, cameraAt)
 			end
-			step(door, dt)
+			step(door, dt, open)
 		end
 	end)
 end

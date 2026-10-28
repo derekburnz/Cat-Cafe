@@ -792,7 +792,7 @@ function UI.init(config: Types.InitConfig)
 		collect = function()
 			UI.events.claimRichTip:Fire()
 		end,
-		-- claimed or paid into the till at expiry: the server credits it either way
+		-- only a claimed tip pays (data-model 12 v0.13.4); a missed one leaves with nothing
 		collected = function(amount: number, position: Vector3?)
 			if position then
 				UI.floatText(
@@ -802,6 +802,9 @@ function UI.init(config: Types.InitConfig)
 				)
 			end
 			UI.toast("Rich tip! +" .. Format.money(amount), "good")
+		end,
+		missed = function()
+			UI.toast("Rich tip missed", "info")
 		end,
 	})
 	tackleBar = TackleBar.new(parent, {
@@ -1538,8 +1541,9 @@ end
 UI.richTip = {}
 
 -- Your own plot model: a gold marker over its RichTipAnchor whenever RichTipAmount and RichTipExpiresAt (server
--- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When the tip clears, claimed
--- or paid at expiry, "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for it.
+-- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
+-- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
+-- it; a missed one only toasts "Rich tip missed".
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then

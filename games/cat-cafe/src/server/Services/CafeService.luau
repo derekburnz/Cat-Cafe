@@ -320,9 +320,13 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 	end
 end
 
+-- Tables and their chairs, one per tables level. Each chair carries the customers' way to it (CustomerController):
+-- Aisle, beside the aisle on the chair's side at its row's lane, then Approach, on the lane in line with the chair,
+-- so nobody walks through a table (Layout.plot.tables).
 local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 	local count = math.min(Economy.level(profile, "tables"), #plot.tableAnchors)
 	for i, anchor in plot.tableAnchors do
+		local spot = Layout.plot.tables[i]
 		local name = "table_" .. i
 		local existing = plot.tables:FindFirstChild(name)
 		if i > count then
@@ -343,6 +347,18 @@ local function refreshTables(plot: WorldBuilder.Plot, profile: Profile)
 						* CFrame.new(offset.x, offset.y, offset.z)
 						* CFrame.Angles(0, math.rad(offset.rotY or 0), 0)
 				)
+				if spot ~= nil then
+					local x = spot.x + offset.x
+					local side = if x < 0 then -1 else 1
+					chair:SetAttribute(
+						"Aisle",
+						(plot.cframe * CFrame.new(side * Layout.plot.aisleX, 0, spot.lane)).Position
+					)
+					chair:SetAttribute(
+						"Approach",
+						(plot.cframe * CFrame.new(x, 0, spot.lane)).Position
+					)
+				end
 				chair.Parent = group
 			end
 			group.Parent = plot.tables

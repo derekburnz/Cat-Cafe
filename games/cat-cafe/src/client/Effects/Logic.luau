@@ -297,6 +297,35 @@ function Logic.fishPickup(gain: number): (number, number)
 	return sparkles, ring
 end
 
+-- The decor ids a ProfileSync's `decorPlaced` (`current`) has in use that the last one (`previous`) did not, sorted:
+-- none for the first one seen, or when either is not a table, so joining flashes nothing.
+function Logic.newlyPlaced(previous: unknown, current: unknown): { string }
+	local ids: { string } = {}
+	if type(previous) ~= "table" or type(current) ~= "table" then
+		return ids
+	end
+	local before = previous :: { [unknown]: unknown }
+	for id, inUse in current :: { [unknown]: unknown } do
+		if type(id) == "string" and inUse == true and before[id] ~= true then
+			table.insert(ids, id)
+		end
+	end
+	table.sort(ids)
+	return ids
+end
+
+-- What flashes when a decor piece of `kind` (Types.DecorKind, nil for a shop piece) goes into use: "piece" for its
+-- placed model (shop pieces, crate furniture and decorations), "floor" for a floor style, nil for wallpaper and
+-- paint, which already repaint whole walls.
+function Logic.equipTarget(kind: string?): string?
+	if kind == "floor" then
+		return "floor"
+	elseif kind == "wallpaper" or kind == "paint" then
+		return nil
+	end
+	return "piece"
+end
+
 -- Whether a cat's `Level` going from `previous` to `current` is a level up: both whole numbers and the new one
 -- higher. The first value a client sees (nil before it) is not one.
 function Logic.levelledUp(previous: unknown, current: unknown): boolean
@@ -569,6 +598,17 @@ end
 function Logic.licking(t: number, phase: number): boolean
 	local k = Presets.motion.lick
 	return (t + phase * k.every) % k.every < k.hold
+end
+
+-- Bedtime (F79, data-model 12c): the server walks a working cat to a sleep spot at night and back at sunrise,
+-- setting `Bedtime` for the whole trip and `Asleep` while it lies on the spot. On the way it moves like a stray (the
+-- gait at its real speed, the get-up stretch from StretchAt) and on the spot it naps like one. nil when the cat is
+-- not on a bedtime trip, so the station idles and the old station nap (a server that never sets Bedtime) still run.
+function Logic.bedtimeStyle(bedtime: unknown, asleep: unknown): Style?
+	if bedtime ~= true then
+		return nil
+	end
+	return if asleep == true then "nap" else "stray"
 end
 
 -- How long one breath takes in a style: slow asleep, a little slower again dozing or in a loaf.

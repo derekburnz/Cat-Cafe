@@ -2,7 +2,8 @@
 -- Cosmetic customers (features.md F15, F37). Runs entirely on this client: customers walk into every running cafe
 -- within Config.World.CafeLifeRangeStuds of the camera, not just this player's own, so the street looks busy
 -- (world-and-feel.md section 4). Each one walks in from the street, orders at the counter, takes a free chair,
--- sits a while and walks out. Coin text pops only over this player's own cafe. The cafe closes at night (v0.5 F44):
+-- sits a while and walks out. Between the counter and a chair it keeps to the aisle and the walkway beside the
+-- chair's row (the chair's Aisle and Approach attributes), and leaves the same way, so it never cuts through a table. Coin text pops only over this player's own cafe. The cafe closes at night (v0.5 F44):
 -- no customers come, and at nightfall the ones inside skip the rest of their visit and walk out.
 -- A rich customer (F31, data-model section 12) comes to any nearby cafe whose plot shows a rich tip
 -- (RichTipAmount), sits at table 1 beside the gold coin pile on its RichTipAnchor and stays until the tip is paid.
@@ -133,6 +134,24 @@ local function freeSeat(plot: Model): (BasePart?, BasePart?)
 	return pick.seat, pick.tableTop
 end
 
+-- The points between the aisle and `seat`, from its chair's Aisle and Approach (CafeService); none on an old chair.
+local function seatRoute(seat: BasePart): { Vector3 }
+	local chair = seat:FindFirstAncestorWhichIsA("Model")
+	while chair ~= nil and not chair.Name:match("^Chair_") do
+		chair = chair:FindFirstAncestorWhichIsA("Model")
+	end
+	local route: { Vector3 } = {}
+	if chair ~= nil then
+		for _, name in { "Aisle", "Approach" } do
+			local point = chair:GetAttribute(name)
+			if typeof(point) == "Vector3" then
+				table.insert(route, point)
+			end
+		end
+	end
+	return route
+end
+
 local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, visit: Visit?)
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local assetName = if visit ~= nil
@@ -166,6 +185,8 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	model.Parent = container()
 
 	local seatPosition = Vector3.new(seat.Position.X, entry.Y, seat.Position.Z)
+	local route = seatRoute(seat)
+	local walked = 0 -- how many route points it reached, to retrace on the way out
 	local speed = Config.CustomerWalkSpeed
 	local arrived = Mover.walkTo(model, door, speed, isAlive)
 	-- order at the counter, standing a little to one side so a queue spreads out
@@ -179,6 +200,15 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 			Mover.face(model, spot + inward)
 			model:SetAttribute("Order", orders[rng:NextInteger(1, #orders)])
 			task.wait(Config.World.CustomerOrderSeconds)
+		end
+	end
+	for _, point in route do
+		if not (arrived and (visit ~= nil or isDay())) then
+			break
+		end
+		arrived = Mover.walkTo(model, Vector3.new(point.X, entry.Y, point.Z), speed, isAlive)
+		if arrived then
+			walked += 1
 		end
 	end
 	if
@@ -220,6 +250,9 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	end
 	-- out again: after the visit, or at once when the cafe closes for the night on the way in
 	if isAlive() then
+		for i = walked, 1, -1 do
+			Mover.walkTo(model, Vector3.new(route[i].X, entry.Y, route[i].Z), speed, isAlive)
+		end
 		Mover.walkTo(model, door, speed, isAlive)
 		Mover.walkTo(model, entry, speed, isAlive)
 	end

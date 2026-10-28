@@ -292,7 +292,8 @@ local function finish(
 		if profile ~= nil then
 			profile.stats.rescues += 1
 		end
-		CatService.startCarry(player, def, "rescue", charm, variant, funnel)
+		-- the spot it was stuck at, so a Drop walks it back near the trap (F67)
+		CatService.startCarry(player, def, "rescue", charm, variant, funnel, entry.spot.Position)
 		return
 	end
 	local now = serverNow()

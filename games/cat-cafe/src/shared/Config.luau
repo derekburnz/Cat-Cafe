@@ -239,6 +239,12 @@ local Config = {
 	BumpSameTargetSeconds = 20, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
 	ShoveTargetImmuneSeconds = 4, -- after a hit lands, nobody can hit that player again for this long (S45)
+	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
+	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
+	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.
+	DropReturnWalkSpeed = 8,
+	DropHomeRadiusStuds = 2,
+	DropReturnMaxSeconds = 60,
 	-- The Tackle (v0.11 F74, Derek 22:31): a lunge straight ahead that can miss.
 	TackleLungeStuds = 12, -- the tackler's client lunges this far; the server's reach cap
 	TackleLungeSeconds = 0.35,

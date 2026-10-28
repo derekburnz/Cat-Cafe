@@ -98,18 +98,26 @@ local function flash(adornee: Instance, overAll: boolean)
 		TweenInfo.new(e.fadeIn, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 		{ OutlineTransparency = 0, FillTransparency = e.fill }
 	):Play()
+	-- Ends the flash once, whether the fade finishes or the Highlight goes first (a fade on a destroyed one never
+	-- completes), so the count of flashes never sticks.
+	local done = false
+	local function finish()
+		if not done then
+			done = true
+			highlight:Destroy()
+			flashing -= 1
+		end
+	end
 	task.delay(e.fadeIn + e.hold, function()
 		local out = TweenService:Create(
 			highlight,
 			TweenInfo.new(e.fade, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
 			{ OutlineTransparency = 1, FillTransparency = 1 }
 		)
-		out.Completed:Connect(function()
-			highlight:Destroy()
-			flashing -= 1
-		end)
+		out.Completed:Connect(finish)
 		out:Play()
 	end)
+	task.delay(e.fadeIn + e.hold + e.fade + 0.5, finish)
 end
 
 local function equipped(decorId: string)

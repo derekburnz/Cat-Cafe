@@ -103,5 +103,5 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `tackleLunge` | `sfx/CatCafe_Sfx_TackleLunge.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 119010397581874 | 2026-10-27 |
 | `tackleMiss` | `sfx/CatCafe_Sfx_TackleMiss.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 85126153307905 | 2026-10-27 |
 | `catLevelUp` | `sfx/CatCafe_Sfx_CatLevelUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 122201546356974 | 2026-10-27 |
-| `uiDailyStamp` | `ui/CatCafe_Ui_DailyStamp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-28 |
-| `jingleDailyCard` | `music/CatCafe_Music_JingleDailyCard.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-28 |
+| `uiDailyStamp` | `ui/CatCafe_Ui_DailyStamp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 89023008668503 | 2026-10-28 |
+| `jingleDailyCard` | `music/CatCafe_Music_JingleDailyCard.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 99160708780154 | 2026-10-28 |

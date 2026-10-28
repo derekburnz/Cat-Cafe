@@ -81,7 +81,7 @@ local Cues: { [string]: Cue } = {
 		duck = true,
 	},
 	jingleDailyCard = {
-		ids = {},
+		ids = { "rbxassetid://99160708780154" },
 		group = "Music",
 		volume = 0.7,
 		minGap = 1,
@@ -542,7 +542,7 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 	}, -- F65: a code worked (a wrong one is uiError)
 	uiDailyStamp = {
-		ids = {},
+		ids = { "rbxassetid://89023008668503" },
 		group = "Ui",
 		volume = 0.7,
 		minGap = 1,

@@ -376,16 +376,18 @@ local Cues: { [string]: Cue } = {
 	}, -- a player's step through water (Effects.Splash), quiet; cats' steps stay silent
 
 	-- Rewards (5.10) ----------------------------------------------------------------------------------------
+	-- Derek 2026-10-28: the dings on claiming were a little loud, so every claim sound (these two, offlineClaim,
+	-- richTip, uiCodeRedeem and uiDailyStamp) is about 4 dB down, still well above the music.
 	giftClaim = {
 		ids = { "rbxassetid://80009297129343" },
 		group = "Sfx",
-		volume = 0.7,
+		volume = 0.45,
 		minGap = 0.2,
 	}, -- F47 Tip Jar
 	indexReward = {
 		ids = { "rbxassetid://103563370361429" },
 		group = "Sfx",
-		volume = 0.75,
+		volume = 0.5,
 		minGap = 0.5,
 		duck = true,
 	}, -- F48 Index rewards
@@ -408,7 +410,7 @@ local Cues: { [string]: Cue } = {
 		minGap = 0.2,
 		preload = true,
 	},
-	offlineClaim = { ids = {}, group = "Sfx", volume = 0.7 },
+	offlineClaim = { ids = {}, group = "Sfx", volume = 0.45 },
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
 	gateOpen = { ids = { "rbxassetid://89970899972584" }, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
 	shuttersUp = {
@@ -418,7 +420,7 @@ local Cues: { [string]: Cue } = {
 		range = 60,
 	}, -- a For Rent plot becomes a cafe
 	richArrive = { ids = { "rbxassetid://132811455211745" }, group = "Sfx", volume = 0.7 },
-	richTip = { ids = { "rbxassetid://89094982389204" }, group = "Sfx", volume = 0.8 },
+	richTip = { ids = { "rbxassetid://89094982389204" }, group = "Sfx", volume = 0.5 },
 	tipPile = {
 		ids = { "rbxassetid://131031584416450" },
 		group = "Sfx",
@@ -547,13 +549,13 @@ local Cues: { [string]: Cue } = {
 	uiCodeRedeem = {
 		ids = { "rbxassetid://128875832136345" },
 		group = "Ui",
-		volume = 0.7,
+		volume = 0.45,
 		minGap = 1,
 	}, -- F65: a code worked (a wrong one is uiError)
 	uiDailyStamp = {
 		ids = { "rbxassetid://89023008668503" },
 		group = "Ui",
-		volume = 0.7,
+		volume = 0.45,
 		minGap = 1,
 	}, -- F70: a Daily Treat stamp claimed, days 1 to 6 (the UI plays it)
 	uiTrade = { ids = { "rbxassetid://96571316013787" }, group = "Ui", volume = 0.7, minGap = 1 }, -- F63: a trade with the Cat Collector

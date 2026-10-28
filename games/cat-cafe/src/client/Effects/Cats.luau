@@ -296,7 +296,7 @@ local function styleOf(model: Model): Logic.Style
 		end
 		return if Cats.isLoafing(model) then "loaf" else "nap"
 	elseif CollectionService:HasTag(model, "StuckCat") then
-		return "stuck"
+		return Logic.stuckStyle(model:GetAttribute("TrapType"))
 	elseif CollectionService:HasTag(model, "Stray") then
 		return "stray"
 	end

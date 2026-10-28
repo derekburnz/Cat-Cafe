@@ -4,7 +4,8 @@
 --                 the exact amount
 --   top right     small icon buttons (Tutorial, Gifts, Daily, Settings, Invite), the day and night clock under them,
 --                 the tier and next goal block (Screens/GoalCard) under that and the quest line under that (F73: the
---                 closest unfinished daily, "📜 Catch 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests)
+--                 closest unfinished daily, "📜 Catch 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests), and
+--                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
 --   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
 --   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
 --   left          big pill buttons: Cats, Index, Quests, Upgrades, Decor, Potions, with key caps and red "!" dots,
@@ -40,6 +41,7 @@ local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
+local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -136,6 +138,10 @@ local NIGHT_LINE = 20
 local RIGHT_COLUMN_W = math.max(300, ICON_ROW_W)
 local QUEST_LINE_W = 300 -- F73: the quest line under the goal card
 local QUEST_LINE_H = 24
+-- F49: the Town Square's red free-spin dot went with its place bubble (Derek 2026-10-28 01:39), so the HUD says it
+-- instead (Derek okayed 12:02): a gold line under the quest line, no box, not a button, since the wheel is a station
+-- you walk up to
+local SPIN_TEXT = Theme.icons.spin .. " Free spin at the Town Square"
 local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutorial): the quest line waits for it
 local TOPBAR_SLACK = 48
 -- data-model NightIncomeMultiplier: tips pay this share at night (F31: 0.6; F60: 1, full pay, so no line)
@@ -683,6 +689,18 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	self._questLine = questLine
+	self._spinLine = label({
+		Name = "FreeSpin",
+		AnchorPoint = Vector2.new(1, 0),
+		Size = UDim2.fromOffset(QUEST_LINE_W, QUEST_LINE_H),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = SPIN_TEXT,
+		Visible = false,
+		Parent = root,
+	})
+	self._spinTimer = nil :: thread?
 	self._questText = label({
 		Name = "Text",
 		Size = UDim2.fromScale(1, 1),
@@ -1476,6 +1494,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 		Sound.play("uiRankReady")
 	end
 	self:_renderQuests(state, catalog)
+	self:_renderFreeSpin()
 	self:_layoutRight()
 	if catalog then
 		self:_renderDots(catalog, state)
@@ -1641,6 +1660,8 @@ function HUD._layoutRight(self: any)
 	local goal = self._goal.frame
 	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
 	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
+	local spinTop = if self._questLine.Visible then lineTop + QUEST_LINE_H + 2 else lineTop
+	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)
 end
 
 -- The left pills' column and the arrow tab under it, for the pills on show (Quests waits for its data, F73).
@@ -1690,6 +1711,35 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 	self._questLine.Visible = line ~= nil
 	self._questText.Text = line or ""
 	self._questText.TextColor3 = if ready > 0 then Theme.colors.gold else Theme.hud.text
+end
+
+-- F49: the free spin line shows while today's free spin waits (SpinLogic.freeDue), once ProfileSync has the spin
+-- state and the tutorial is done. Spinning sends a new state, which hides it; a timer shows it again at 00:00 UTC.
+function HUD._renderFreeSpin(self: any)
+	local timer: thread? = self._spinTimer
+	if timer then
+		task.cancel(timer)
+		self._spinTimer = nil
+	end
+	local state: Types.PlayerState? = self._state
+	local spin = if state then state.spin else nil
+	if state == nil or spin == nil or (state.tutorialStep or TUTORIAL_DONE) < TUTORIAL_DONE then
+		self._spinLine.Visible = false
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local due = SpinLogic.freeDue(spin, now)
+	if due and not self._spinLine.Visible then
+		Tween.popIn(self._spinLine, 0.8)
+	end
+	self._spinLine.Visible = due
+	if not due then
+		self._spinTimer = task.delay(SpinLogic.nextFreeIn(spin, now) + 1, function()
+			self._spinTimer = nil
+			self:_renderFreeSpin()
+			self:_layoutRight()
+		end)
+	end
 end
 
 function HUD._liftRight(self: any)
@@ -1836,6 +1886,10 @@ end
 
 function HUD.destroy(self: any)
 	self:_stopClock()
+	local spinTimer: thread? = self._spinTimer
+	if spinTimer then
+		task.cancel(spinTimer)
+	end
 	local baitLoop: RBXScriptConnection? = self._baitLoop
 	if baitLoop then
 		baitLoop:Disconnect()

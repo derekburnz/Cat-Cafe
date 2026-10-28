@@ -793,6 +793,12 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- One of this player's cats reached a new level (F75): the UI gathers close ones into one toast, Audio chimes and
+	-- Effects sparkles from the model's Level attribute.
+	Net.on("CatLevelUp", function(uid: string, level: number)
+		UI.catLevelUp(uid, level)
+		Moments.CatLevelUp:Fire(uid, level)
+	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
 		UI.dealer.setStock(stock)
 	end)

@@ -23,6 +23,7 @@ local SocialService = game:GetService("SocialService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
@@ -86,6 +87,7 @@ local FISH_W = MONEY_W
 local FISH_H = MONEY_H
 local PILL_COIN = 32
 local FISH_TOP = MARGIN + MONEY_H + 8
+local BUFFS_GAP = 8 -- the potion timers sit this far under the lowest counter pill (F64)
 local EXACT_SECONDS = 2.5 -- how long a tapped counter's exact amount stays up
 -- F66: in the last DUSK_SECONDS of a day the clock chip turns orange and counts to night; CLOSED_TEXT is the Alley
 -- button while the areas are shut for the night
@@ -315,6 +317,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "0",
 		Parent = fish,
 	})
+
+	-- Potion timers (F64): a chip per running potion under the counters; a tap opens the potion bag
+	self._buffs = BuffChips.new(root, MARGIN, function()
+		callbacks.openScreen("Potions")
+	end)
 
 	-- A tap on a counter shows its exact amount beside it for a moment (golden-fish.md section 1), since big
 	-- numbers are cut down to "1.99M".
@@ -750,6 +757,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				callbacks.openScreen("Decor")
 			end,
 		},
+		{
+			name = "Potions",
+			icon = Theme.icons.potion,
+			key = "P",
+			style = "berry",
+			open = function()
+				callbacks.openScreen("Potions")
+			end,
+		},
 	}
 	local menu: Frame = Create("Frame", {
 		Name = "Menu",
@@ -816,6 +832,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, -10, 0.5, 0),
 				Size = UDim2.fromOffset(52, 20),
+				TextSize = Theme.sizes.textSmall,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				Text = "",
+				ZIndex = 5,
+				Parent = button.face,
+			})
+		elseif item.name == "Potions" then
+			-- how many potions are in the bag, beside the key cap; blank with none (F64)
+			self._potionCount = label({
+				Name = "Count",
+				AnchorPoint = Vector2.new(1, 0.5),
+				Position = UDim2.new(1, if showKeys then -36 else -10, 0.5, 0),
+				Size = UDim2.fromOffset(40, 20),
 				TextSize = Theme.sizes.textSmall,
 				TextXAlignment = Enum.TextXAlignment.Right,
 				Text = "",
@@ -1347,6 +1376,7 @@ end
 function HUD.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	self:_renderBowl()
+	self._buffs:setCatalog(catalog)
 end
 
 function HUD.render(self: any, state: Types.PlayerState)
@@ -1370,6 +1400,16 @@ function HUD.render(self: any, state: Types.PlayerState)
 		end
 	end
 	self._lastFish = fish
+	-- the potion timers under the lowest counter, and the bag's count on its pill (F64)
+	local counterBottom = if fish then FISH_TOP + FISH_H else MARGIN + MONEY_H
+	self._buffs:setTop(counterBottom + BUFFS_GAP)
+	self._buffs:render(state)
+	local potions = 0
+	local bag: { [string]: number } = state.potions or {}
+	for _, count in bag do
+		potions += math.max(0, count)
+	end
+	self._potionCount.Text = if potions > 0 then tostring(potions) else ""
 	self._state = state
 	self._carryState = state.carrying ~= nil
 	self:_renderTravel()
@@ -1753,6 +1793,7 @@ function HUD.destroy(self: any)
 		button:destroy()
 	end
 	self._goal:destroy()
+	self._buffs:destroy()
 	self._scaleConnection:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()

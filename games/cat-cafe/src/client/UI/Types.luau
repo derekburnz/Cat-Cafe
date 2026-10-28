@@ -45,6 +45,24 @@ export type Catalog = {
 	crates: { CrateDef }?, -- F53: Catalog.crates, the Cafe Crates in Market order (golden-fish.md section 4)
 	fishShop: { FishShopRow }?, -- F53: Catalog.fishShop, what golden fish buy at the Market (section 3)
 	crateDecor: { DecorDef }?, -- F53: Catalog.crateDecor, the crate pieces that are not in Catalog.decor
+	potions: { PotionDef }?, -- F64: Catalog.potions, the potion bag's order (data-model section 12b)
+	mysteryGift: { MysteryGiftRow }?, -- F64: Catalog.mysteryGift, what a Mystery Visitor's gift can hold
+}
+
+-- A potion (F64, data-model section 12b; quest potions F73): the bag reads these loosely (Components/PotionLogic).
+export type PotionDef = {
+	id: string,
+	name: string?,
+	minutes: number?,
+	effect: string?,
+}
+
+-- One thing a Mystery gift can hold (F64): kind "potion", "lure", "fish" or "spin", with a chance in percent.
+export type MysteryGiftRow = {
+	kind: string,
+	id: string?,
+	count: number?,
+	chance: number,
 }
 
 -- A Cafe Crate (F53): ten cosmetics of one pool (a zone id or "classic"); golden ones are Epic or better.
@@ -173,6 +191,8 @@ export type PlayerState = {
 	goldLuck: number?, -- F54: the Index's gold luck, capped (GoldLuckMax); nil adds it up from the claims
 	baitSpeed: number?, -- F54: the Index's faster bait, capped (BaitSpeedMax); nil adds it up from the claims
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
+	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
+	buffs: { [string]: number }?, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -205,6 +225,8 @@ export type PartialState = {
 	goldLuck: number?,
 	baitSpeed: number?,
 	introSeen: boolean?,
+	potions: { [string]: number }?,
+	buffs: { [string]: number }?,
 }
 
 export type ScreenName =
@@ -222,6 +244,7 @@ export type ScreenName =
 	| "Market"
 	| "BugReport"
 	| "Codes"
+	| "Potions"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

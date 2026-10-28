@@ -15,6 +15,8 @@
 -- (Moments.TackleRefused) lets go of it.
 -- The net hold (Derek 2026-10-28) is the layer under the Tackle: in a catching area the right arm holds the net up
 -- (Avatar.holdNet, by NetHold.weight, which also puts the net in the hand), and a tackle's pose blends over that.
+-- The carry (Derek 2026-10-28) is a layer under the Tackle too: while the character carries a cat its arms fold
+-- across its chest (Avatar.carryArms, by Carry.weight, which also puts the cat on them).
 -- Listening only: nothing here fires a remote.
 
 local Players = game:GetService("Players")
@@ -23,6 +25,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
+local Carry = require(script.Parent.Carry)
 local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
 local NetHold = require(script.Parent.NetHold)
@@ -113,6 +116,7 @@ local function forget(character: Model)
 		entries[character] = nil
 	end
 	NetHold.forget(character)
+	Carry.forget(character)
 end
 
 -- Which way a tackle threw this player, from where the tackler stands: on its front when hit from behind, and
@@ -172,6 +176,7 @@ local function rebind()
 		if rig == nil then
 			entries[character] = nil
 			NetHold.forget(character)
+			Carry.forget(character)
 			stale[character] = clock + RETRY_SECONDS
 		elseif old ~= nil then
 			-- the same move goes on (a tool's grip or a new outfit mid-tackle): keep its fall direction and walk-out
@@ -187,8 +192,8 @@ end
 -- One pose over the character's own animation, by how much.
 type Layer = { frames: { [Avatar.Joint]: CFrame }, weight: number }
 
--- Writes this frame's layers into the joints: each over what the Animator played, in order (the net hold, then the
--- Tackle). A joint this wrote last frame and no layer moves now goes back to the Animator.
+-- Writes this frame's layers into the joints: each over what the Animator played, in order (the net hold or the
+-- carry, then the Tackle). A joint this wrote last frame and no layer moves now goes back to the Animator.
 local function apply(entry: Entry, layers: { Layer })
 	local moved: { [Avatar.Joint]: boolean } = {}
 	for _, layer in layers do
@@ -255,6 +260,10 @@ local function step(dt: number)
 		local holding = NetHold.weight(character, entry.rig, dt, near)
 		if holding > 0 then
 			table.insert(layers, { frames = Avatar.holdNet(entry.rig), weight = holding })
+		end
+		local carrying = Carry.weight(character, entry.rig, dt, near)
+		if carrying > 0 then
+			table.insert(layers, { frames = Avatar.carryArms(entry.rig), weight = carrying })
 		end
 		if not near then
 			apply(entry, layers)
@@ -350,6 +359,7 @@ function Tackle.start()
 		end)
 	end
 	NetHold.start()
+	Carry.start()
 	RunService.PreSimulation:Connect(step)
 end
 

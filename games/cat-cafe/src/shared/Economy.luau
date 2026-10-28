@@ -1,6 +1,7 @@
 --!strict
 -- Pure income math (data-model section 11) and purchase gates. No Roblox services.
 
+local Bait = require(script.Parent.Bait)
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
@@ -67,16 +68,14 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	return multiplier
 end
 
--- How long the bait bowl's cat takes to come (data-model section 8): shorter with the Big Bowl perk (F53), and for
--- food set at night by LureWaitSecondsNight's share of the day wait (F60: half, so 300 s or the Big Bowl's 240).
+-- How long the bait bowl's cat takes to come (data-model section 8): the bowl level's wait (F82: 600 down to 480), a
+-- fifth off with the Big Bowl perk (F53), and for food set at night LureWaitSecondsNight's share of it (F60: half).
 function Economy.lureWaitSeconds(profile: Types.PlayerProfile, night: boolean?): number
-	local wait = if (profile.fishPerks.big_bowl or 0) >= 1
-		then Config.BigBowlLureWaitSeconds
-		else Config.LureWaitSeconds
-	if night then
-		return math.floor(wait * Config.LureWaitSecondsNight / Config.LureWaitSeconds)
-	end
-	return wait
+	return Bait.waitSeconds(
+		Economy.level(profile, "lure_bowl"),
+		(profile.fishPerks.big_bowl or 0) >= 1,
+		night
+	)
 end
 
 -- The wait for food going in now: lureWaitSeconds less the Index's bait speed (F54, golden-fish.md section 5),

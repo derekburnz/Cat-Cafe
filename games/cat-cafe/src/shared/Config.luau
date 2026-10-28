@@ -85,6 +85,11 @@ local Config = {
 	-- F60 (round 3 Q6): food that goes in while the server is in night waits this instead, the Big Bowl's in the same
 	-- share (half: 240 s), fixed in bait.readyAt at placement
 	LureWaitSecondsNight = 300,
+	-- F82 bowl levels (v0.13.15): the day wait and the bowl luck by lure_bowl level, read by shared/Bait. Luck is the
+	-- share of each rarity's chance moved up one rarity before the roll. The Big Bowl perk takes a fifth off any level.
+	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
+	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
+	BigBowlWaitMultiplier = 0.8,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
@@ -117,20 +122,21 @@ local Config = {
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start
 	RescueMinStuck = 1, -- stuck cats every area gets at night start even when no trap rolled one
-	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar
+	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar.
+	-- v0.13.15 F83 (harder rescues): 0.2 a second faster and narrower zones for every rarity.
 	RescueBarSpeed = {
-		Common = 0.8,
-		Rare = 1.0,
-		Epic = 1.2,
-		Legendary = 1.4,
-		Mythical = 1.6,
+		Common = 1.0,
+		Rare = 1.2,
+		Epic = 1.4,
+		Legendary = 1.6,
+		Mythical = 1.8,
 	} :: { [string]: number },
 	RescueZoneWidth = {
-		Common = 0.30,
-		Rare = 0.24,
-		Epic = 0.19,
-		Legendary = 0.15,
-		Mythical = 0.12,
+		Common = 0.26,
+		Rare = 0.20,
+		Epic = 0.15,
+		Legendary = 0.12,
+		Mythical = 0.10,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	RescuePatience = 3, -- misses one attempt can take
@@ -231,7 +237,6 @@ local Config = {
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
-	BigBowlLureWaitSeconds = 480, -- the bait wait with the Big Bowl perk (LureWaitSeconds without it)
 
 	-- Index rewards (F54, golden-fish.md sections 5 and 5b): the permanent bonuses the gold and All Cats tracks add
 	-- up to. Gold rolls use chance x (1 + goldLuck); a bait wait is the wait x (1 - baitSpeed).

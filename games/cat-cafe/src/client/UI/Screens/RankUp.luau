@@ -116,7 +116,7 @@ local function opensList(
 		("Tips x%s"):format((string.format("%.2f", nextTier.multiplier):gsub("0$", "")))
 	)
 	local caps = {}
-	local before: { tables: number, espresso: number, net: number }? = if current
+	local before: { tables: number, espresso: number, net: number, lure_bowl: number }? = if current
 		then current.caps
 		else nil
 	if not before or nextTier.caps.tables > before.tables then
@@ -127,6 +127,10 @@ local function opensList(
 	end
 	if not before or nextTier.caps.net > before.net then
 		table.insert(caps, ("net to %d"):format(nextTier.caps.net))
+	end
+	-- F82: each tier opens one more bowl level
+	if not before or nextTier.caps.lure_bowl > before.lure_bowl then
+		table.insert(caps, ("bait bowl to %d"):format(nextTier.caps.lure_bowl))
 	end
 	if #caps > 0 then
 		local text = table.concat(caps, ", ")

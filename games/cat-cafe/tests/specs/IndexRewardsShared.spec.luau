@@ -236,12 +236,12 @@ return function()
 			"tuxedo",
 			"ginger",
 			"smoke",
-			"calico",
+			"binbag",
 			"tortie",
-			"sphynx",
+			"taxi",
 			"maine_coon",
 			"void",
-			"midnight",
+			"neon",
 		}
 
 		it("counts only the area's cats in the collection", function()
@@ -267,6 +267,14 @@ return function()
 			expect(IndexRewards.blocker(profile, "alley", "cats3")).to.equal("Already claimed")
 			expect(IndexRewards.claimed(profile, "alley", "cats3")).to.equal(true)
 			expect(IndexRewards.claimed(profile, "park", "cats3")).to.equal(false)
+		end)
+
+		it("F78: a spare cat counts toward no area page and not toward All Cats (data-model 3d)", function()
+			local profile = profileWith({ "calico", "sphynx", "midnight", "tabby" }, { "calico" })
+			expect(IndexRewards.progress(profile.collection, "alley")).to.equal(1)
+			expect(IndexRewards.progress(profile.collection, IndexRewards.ALL)).to.equal(1)
+			expect(IndexRewards.progress(profile.goldCollection, IndexRewards.ALL)).to.equal(0)
+			expect(IndexRewards.progress(profile.collection, "spare")).to.equal(0)
 		end)
 
 		it("gold10 counts the gold collection", function()
@@ -468,7 +476,7 @@ return function()
 				then profile.goldCollection
 				else profile.collection
 			for _, def in Catalog.cats do
-				if collection[def.id] ~= nil and (areaId == "all" or def.area == areaId) then
+				if collection[def.id] ~= nil and def.area ~= "spare" and (areaId == "all" or def.area == areaId) then
 					n += 1
 				end
 			end
@@ -801,7 +809,7 @@ return function()
 						profile.fishPerks.big_bowl = 1
 					end
 					local base = if bowl == 1
-						then Config.BigBowlLureWaitSeconds
+						then Config.LureWaitSeconds * Config.BigBowlWaitMultiplier
 						else Config.LureWaitSeconds
 					expect(Economy.baitWaitSeconds(profile)).to.equal(base)
 					local off = 0
@@ -846,7 +854,7 @@ return function()
 					local speed = UIRewards.totals(Catalog, { indexRewards = profile.indexRewards }).baitSpeed
 					for _, isNight in { false, true } do
 						local server = Economy.baitWaitSeconds(profile, isNight)
-						local shown = FoodOdds.waitSeconds(bowl == 1, speed, isNight)
+						local shown = FoodOdds.waitSeconds(profile.upgradeLevels.lure_bowl or 0, bowl == 1, speed, isNight)
 						local label = string.format("%s, bowl %d, night %s: ", at, bowl, tostring(isNight))
 						expect(label .. shown).to.equal(label .. server)
 					end

@@ -8,14 +8,16 @@ local Types = require(script.Parent.Types)
 
 local Catalog = {}
 
--- Section 2. circles and shrinkSeconds drive the net (section 10), fleeStuds is how far a stray sprints after a
--- missed catch before anyone can try again (v0.5, tries are unlimited; doubled in v0.8 F57, Gavin round 3 Q3),
--- rescueHits the rescue bar (section 10b).
+-- Section 2. circles and shrinkSeconds drive the net (section 10), catchWindow narrows the net's Perfect and Good
+-- for a cat of that rarity (v0.13.15 F83, Derek: "make the catching and rescue games harder"), fleeStuds is how far a
+-- stray sprints after a missed catch before anyone can try again (v0.5, tries are unlimited; doubled in v0.8 F57,
+-- Gavin round 3 Q3), rescueHits the rescue bar (section 10b).
 Catalog.rarities = {
 	Common = {
 		incomePerSecond = 1,
 		circles = 1,
 		shrinkSeconds = 1.40,
+		catchWindow = 0.9,
 		fleeStuds = 24,
 		rescueHits = 2,
 		sellValue = 25,
@@ -26,6 +28,7 @@ Catalog.rarities = {
 		incomePerSecond = 3,
 		circles = 2,
 		shrinkSeconds = 1.15,
+		catchWindow = 0.8,
 		fleeStuds = 32,
 		rescueHits = 3,
 		sellValue = 150,
@@ -36,6 +39,7 @@ Catalog.rarities = {
 		incomePerSecond = 8,
 		circles = 3,
 		shrinkSeconds = 0.95,
+		catchWindow = 0.7,
 		fleeStuds = 40,
 		rescueHits = 4,
 		sellValue = 600,
@@ -46,6 +50,7 @@ Catalog.rarities = {
 		incomePerSecond = 25,
 		circles = 4,
 		shrinkSeconds = 0.80,
+		catchWindow = 0.6,
 		fleeStuds = 52,
 		rescueHits = 5,
 		sellValue = 3000,
@@ -56,6 +61,7 @@ Catalog.rarities = {
 		incomePerSecond = 75,
 		circles = 5,
 		shrinkSeconds = 0.65,
+		catchWindow = 0.5,
 		fleeStuds = 64,
 		rescueHits = 6,
 		sellValue = 12000,
@@ -102,8 +108,16 @@ local function cat(
 	}
 end
 
--- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical). Each lives in
--- exactly one area. Colors are the placeholder body's {r, g, b}. Rares and up in the Alleyway and the Park are
+-- Section 3d: a cat moved to the spare pool never spawns (no wave, bait, rescue or prize) but stays exactly as it was
+-- for whoever owns it, earning at the area it came from (`incomeArea`).
+local function spare(def: Types.CatDef): Types.CatDef
+	def.incomeArea = def.area :: Types.Area
+	def.area = "spare"
+	return def
+end
+
+-- Section 3: 50 cats, 10 per area (four Common, two Rare, two Epic, one Legendary, one Mythical), then the ten of
+-- the spare pool (3d). Each lives in exactly one area. Colors are the placeholder body's {r, g, b}. Rares and up in the Alleyway and the Park are
 -- themed cats with a signature prop (v0.5.2, Derek 2026-10-27); their ids keep the old breed names so saves and
 -- models still match.
 Catalog.cats = {
@@ -149,14 +163,14 @@ Catalog.cats = {
 		"Grey as a rainy morning."
 	),
 	cat(
-		"calico",
-		"Pirate Cat",
+		"binbag",
+		"Garbage Bag Cat",
 		"Rare",
 		"alley",
 		"waiter",
-		"patches",
-		{ 240, 190, 120 },
-		"Carries every tray like buried treasure."
+		"stripes",
+		{ 150, 145, 140 },
+		"Found the comfiest bin bag in the alley and wears it everywhere."
 	),
 	cat(
 		"tortie",
@@ -169,14 +183,14 @@ Catalog.cats = {
 		"Knows one chord and plays it very loudly."
 	),
 	cat(
-		"sphynx",
-		"DJ Cat",
+		"taxi",
+		"Taxi Cat",
 		"Epic",
 		"alley",
 		"greeter",
-		"solid",
-		{ 230, 180, 170 },
-		"Drops a beat every time the door opens."
+		"stripes",
+		{ 225, 140, 60 },
+		"Picks up every customer right at the door."
 	),
 	cat(
 		"maine_coon",
@@ -199,14 +213,14 @@ Catalog.cats = {
 		"Silent, fast and never spills a drop."
 	),
 	cat(
-		"midnight",
-		"Wizard Cat",
+		"neon",
+		"Jazz Cat",
 		"Mythical",
 		"alley",
 		"barista",
-		"solid",
-		{ 30, 30, 70 },
-		"Stirs a little starlight into every cup."
+		"stripes",
+		{ 45, 35, 110 },
+		"Plays a soft tune while the coffee brews."
 	),
 	-- 3b. Park, in the slice
 	cat(
@@ -250,14 +264,14 @@ Catalog.cats = {
 		"Silver-blue and very polite."
 	),
 	cat(
-		"siamese",
-		"Nerd Cat",
+		"birdwatch",
+		"Birdwatcher Cat",
 		"Rare",
 		"park",
 		"barista",
-		"points",
-		{ 225, 205, 175 },
-		"Measures every latte to the last drop."
+		"stripes",
+		{ 215, 185, 135 },
+		"Watches the milk foam like it is a rare bird."
 	),
 	cat(
 		"bengal",
@@ -280,14 +294,14 @@ Catalog.cats = {
 		"Says hello with an enormous yawn."
 	),
 	cat(
-		"persian",
-		"Fancy Cat",
+		"duckling",
+		"Duckling Cat",
 		"Epic",
 		"park",
 		"waiter",
-		"solid",
-		{ 245, 230, 200 },
-		"Serves every cup on a silver tray."
+		"patches",
+		{ 240, 240, 240 },
+		"Brings a duckling along to every table."
 	),
 	cat(
 		"blossom",
@@ -300,14 +314,14 @@ Catalog.cats = {
 		"Leaves a petal on every saucer."
 	),
 	cat(
-		"aurora",
-		"Astro Cat",
+		"balloon",
+		"Balloon Cat",
 		"Mythical",
 		"park",
 		"entertainer",
-		"gradient",
-		{ 110, 200, 190 },
-		"Moonwalks between the tables."
+		"patches",
+		{ 245, 190, 210 },
+		"Floats in on a bunch of balloons and makes everyone smile."
 	),
 	-- 3c. Neighbourhood, Woods and Sewer: provisional names and roles that reserve the ids (after the slice)
 	cat(
@@ -361,24 +375,24 @@ Catalog.cats = {
 		"A Neighbourhood regular. More soon."
 	),
 	cat(
-		"fold",
-		"Fold",
+		"builder",
+		"Construction Cat",
 		"Rare",
 		"neighbourhood",
 		"waiter",
-		"solid",
-		{ 170, 170, 180 },
-		"A Neighbourhood regular. More soon."
+		"stripes",
+		{ 140, 95, 60 },
+		"Stacks plates as neatly as bricks."
 	),
 	cat(
-		"chonk",
-		"Chonk",
+		"gardener",
+		"Gardener Cat",
 		"Epic",
 		"neighbourhood",
 		"barista",
-		"solid",
-		{ 230, 140, 60 },
-		"A Neighbourhood regular. More soon."
+		"patches",
+		{ 230, 215, 185 },
+		"Waters the flowers between every latte."
 	),
 	cat(
 		"postie",
@@ -391,14 +405,14 @@ Catalog.cats = {
 		"A Neighbourhood regular. More soon."
 	),
 	cat(
-		"marshmallow",
-		"Marshmallow",
+		"gnome",
+		"Gnome Cat",
 		"Legendary",
 		"neighbourhood",
 		"waiter",
-		"solid",
-		{ 252, 248, 245 },
-		"A Neighbourhood regular. More soon."
+		"patches",
+		{ 165, 165, 170 },
+		"Stands perfectly still in the garden until someone needs a refill."
 	),
 	cat(
 		"comet",
@@ -551,14 +565,14 @@ Catalog.cats = {
 		"Found down in the Sewer. More soon."
 	),
 	cat(
-		"lantern",
-		"Lantern",
+		"plumber",
+		"Plumber Cat",
 		"Rare",
 		"sewer",
 		"waiter",
-		"solid",
-		{ 240, 180, 80 },
-		"Found down in the Sewer. More soon."
+		"patches",
+		{ 105, 115, 125 },
+		"Fixes every leaky pipe on the way to the table."
 	),
 	cat(
 		"bubbles",
@@ -610,6 +624,127 @@ Catalog.cats = {
 		{ 25, 20, 30 },
 		"Found down in the Sewer. More soon."
 	),
+	-- 3d. The spare pool (v0.13, Derek 2026-10-27 23:59): the ten cats the area-themed ones replaced
+	spare(
+		cat(
+			"calico",
+			"Pirate Cat",
+			"Rare",
+			"alley",
+			"waiter",
+			"patches",
+			{ 240, 190, 120 },
+			"Carries every tray like buried treasure."
+		)
+	),
+	spare(
+		cat(
+			"sphynx",
+			"DJ Cat",
+			"Epic",
+			"alley",
+			"greeter",
+			"solid",
+			{ 230, 180, 170 },
+			"Drops a beat every time the door opens."
+		)
+	),
+	spare(
+		cat(
+			"midnight",
+			"Wizard Cat",
+			"Mythical",
+			"alley",
+			"barista",
+			"solid",
+			{ 30, 30, 70 },
+			"Stirs a little starlight into every cup."
+		)
+	),
+	spare(
+		cat(
+			"siamese",
+			"Nerd Cat",
+			"Rare",
+			"park",
+			"barista",
+			"points",
+			{ 225, 205, 175 },
+			"Measures every latte to the last drop."
+		)
+	),
+	spare(
+		cat(
+			"persian",
+			"Fancy Cat",
+			"Epic",
+			"park",
+			"waiter",
+			"solid",
+			{ 245, 230, 200 },
+			"Serves every cup on a silver tray."
+		)
+	),
+	spare(
+		cat(
+			"aurora",
+			"Astro Cat",
+			"Mythical",
+			"park",
+			"entertainer",
+			"gradient",
+			{ 110, 200, 190 },
+			"Moonwalks between the tables."
+		)
+	),
+	spare(
+		cat(
+			"fold",
+			"Fold",
+			"Rare",
+			"neighbourhood",
+			"waiter",
+			"solid",
+			{ 170, 170, 180 },
+			"A Neighbourhood regular. More soon."
+		)
+	),
+	spare(
+		cat(
+			"chonk",
+			"Chonk",
+			"Epic",
+			"neighbourhood",
+			"barista",
+			"solid",
+			{ 230, 140, 60 },
+			"A Neighbourhood regular. More soon."
+		)
+	),
+	spare(
+		cat(
+			"marshmallow",
+			"Marshmallow",
+			"Legendary",
+			"neighbourhood",
+			"waiter",
+			"solid",
+			{ 252, 248, 245 },
+			"A Neighbourhood regular. More soon."
+		)
+	),
+	spare(
+		cat(
+			"lantern",
+			"Lantern",
+			"Rare",
+			"sewer",
+			"waiter",
+			"solid",
+			{ 240, 180, 80 },
+			"Found down in the Sewer. More soon."
+		)
+	),
 } :: { Types.CatDef }
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
@@ -644,8 +779,8 @@ Catalog.roleOutfits = {
 } :: { [string]: { string } } -- keyed by Types.Role
 
 -- Where each outfit piece sits, for the pieces that share a slot with a themed cat's prop (data-model section 3).
--- A cat model's PropSlot attribute names its prop's slot, and the role piece in that slot stays off. Face props
--- clash with nothing.
+-- A cat model's PropSlot and PropSlot2 attributes name its props' slots, and the role piece in either slot stays off
+-- (CatDress.plan, with F71's Entertainer exception). Face props clash with nothing.
 Catalog.outfitPieceSlots = {
 	BaristaCap = "Head",
 	Boater = "Head",
@@ -707,7 +842,7 @@ Catalog.tiers = {
 		slots = 2,
 		multiplier = 1.00,
 		area = "alley",
-		caps = { tables = 2, espresso = 2, net = 1 },
+		caps = { tables = 2, espresso = 2, net = 1, lure_bowl = 1 },
 	},
 	{
 		tier = 2,
@@ -717,7 +852,7 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 4, espresso = 3, net = 2 },
+		caps = { tables = 4, espresso = 3, net = 2, lure_bowl = 2 },
 	},
 	{
 		tier = 3,
@@ -729,7 +864,7 @@ Catalog.tiers = {
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",
-		caps = { tables = 6, espresso = 4, net = 3 },
+		caps = { tables = 6, espresso = 4, net = 3, lure_bowl = 3 },
 	},
 	{
 		tier = 4,
@@ -741,7 +876,7 @@ Catalog.tiers = {
 		slots = 8,
 		multiplier = 1.75,
 		area = "woods",
-		caps = { tables = 6, espresso = 5, net = 3 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 4 },
 	},
 	{
 		tier = 5,
@@ -753,7 +888,7 @@ Catalog.tiers = {
 		slots = 10,
 		multiplier = 2.00,
 		area = "sewer",
-		caps = { tables = 6, espresso = 5, net = 3 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5 },
 	},
 } :: { Types.TierDef }
 
@@ -763,7 +898,8 @@ function Catalog.getTier(tier: number): Types.TierDef?
 	return Catalog.tiers[tier]
 end
 
--- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net); nil when no tier does.
+-- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net, lure_bowl); nil when no tier
+-- does.
 function Catalog.tierForLevel(upgradeId: string, level: number): number?
 	for _, def in Catalog.tiers do
 		local cap = (def.caps :: any)[upgradeId]
@@ -803,9 +939,10 @@ Catalog.upgrades = {
 	{
 		id = "lure_bowl", -- shown as Bait bowl; ids keep the lure_ prefix (data-model section 6)
 		name = "Bait bowl",
-		description = "A bowl on your back step. Food in, a cat in 10 min",
-		maxLevel = 1,
-		costs = { 600 },
+		-- F82 (v0.13.15): five levels, each tier opening one, the names in Bait.bowlName
+		description = "A bowl on your back step. Each level brings bait cats sooner and rarer",
+		maxLevel = 5,
+		costs = { 600, 6000, 60000, 500000, 3000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }

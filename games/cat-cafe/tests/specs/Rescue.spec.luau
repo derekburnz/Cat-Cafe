@@ -122,7 +122,8 @@ return function()
 	describe("the bar", function()
 		local function binAttempt(rarity: any): any
 			return Rescue.newAttempt(
-				Rescue.newChallenge(rarity, "trash_bin", 0, rolls({ 0.2, 0.7, 0.4, 0.9 }))
+				Rescue.newChallenge(rarity, "trash_bin", 0, rolls({ 0.2, 0.7, 0.4, 0.9 })),
+				rarity
 			)
 		end
 
@@ -184,7 +185,8 @@ return function()
 	describe("the tree", function()
 		local function treeAttempt(rarity: any): any
 			return Rescue.newAttempt(
-				Rescue.newChallenge(rarity, "tree", 0, rolls({ 0.6, 0.1, 0.8, 0.3 }))
+				Rescue.newChallenge(rarity, "tree", 0, rolls({ 0.6, 0.1, 0.8, 0.3 })),
+				rarity
 			)
 		end
 
@@ -200,8 +202,9 @@ return function()
 				local circle = Rescue.startCircle(attempt, now, rolls({ 0.5 }))
 				expect(circle.kind).to.equal("circle")
 				expect(attempt.stage).to.equal("circle")
-				local windows = Circles.windows(Rescue.CIRCLE_NET_LEVEL)
+				local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, "Common")
 				expect((circle.windows :: any).good).to.equal(windows.good)
+				expect((circle.windows :: any).good).to.be.near(0.1395, 1e-12) -- the Pro Net's 0.155 x 0.9 (F83)
 				local c = circle.circle :: any
 				expect(c.startsAt).to.be.near(now + Config.CircleLeadInSeconds, 1e-9)
 				expect(c.shrinkSeconds).to.be.near(Catalog.rarities.Common.shrinkSeconds, 1e-9)
@@ -214,6 +217,20 @@ return function()
 			end
 		)
 
+		it("a Mythical's falling circle has the Pro Net's windows times 0.5 (F83)", function()
+			local attempt = treeAttempt("Mythical")
+			while attempt.stage == "bar" do
+				Rescue.pressBar(attempt, zoneTime(attempt))
+			end
+			local challenge = Rescue.startCircle(attempt, 10, rolls({ 0.5 }))
+			expect((challenge.windows :: any).good).to.be.near(0.0775, 1e-12)
+			expect((challenge.windows :: any).perfect).to.be.near(0.0325, 1e-12)
+			local circle = challenge.circle :: any
+			local target = Circles.target(circle)
+			-- Good on a Common's circle, a Miss on a Mythical's
+			expect(Rescue.pressCircle(attempt, target + 0.1, target + 0.1)).to.equal("miss")
+		end)
+
 		it("a missed circle means the cat climbs back up", function()
 			local attempt = treeAttempt("Rare")
 			while attempt.stage == "bar" do
@@ -222,7 +239,7 @@ return function()
 			expect(attempt.hits).to.equal(Catalog.rarities.Rare.rescueHits - 1)
 			local circle = Rescue.startCircle(attempt, 10, rolls({ 0.5 })).circle :: any
 			local target = Circles.target(circle)
-			-- past Good (0.155 on the Pro Net) but before the circle's deadline: judged, and a Miss
+			-- past Good (0.124 on the Pro Net for a Rare, F83) but before the circle's deadline: judged, and a Miss
 			expect(Rescue.pressCircle(attempt, target + 0.25, target + 0.25)).to.equal("miss")
 			expect(attempt.stage).to.equal("done")
 			expect(attempt.success).to.equal(false)
@@ -232,7 +249,7 @@ return function()
 			local attempt = treeAttempt("Common")
 			Rescue.pressBar(attempt, zoneTime(attempt))
 			local circle = Rescue.startCircle(attempt, 0, rolls({ 0.5 })).circle :: any
-			local deadline = Circles.deadline(circle, Circles.windows(Rescue.CIRCLE_NET_LEVEL))
+			local deadline = Circles.deadline(circle, Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, "Common"))
 			expect(Rescue.deadline(attempt)).to.be.near(deadline, 1e-9)
 			expect(Rescue.expire(attempt, deadline + 0.01)).to.equal(true)
 			expect(attempt.success).to.equal(false)

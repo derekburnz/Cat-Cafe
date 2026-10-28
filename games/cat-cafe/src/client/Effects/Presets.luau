@@ -849,6 +849,10 @@ Presets.motion = {
 		huffEvery = 0.7,
 		huff = 2,
 	},
+	-- Held in a player's arms (Derek 2026-10-28: "awake loafing or sitting"): a loaf on the walking body, a sit on the
+	-- sitting body, eyes open, a breath every `seconds` rising `breathe`, looking `look` degrees either way and `nod`
+	-- up and down over `lookSeconds`, the tail swishing `tail` as much as usual.
+	held = { seconds = 3.4, breathe = 0.05, look = 30, nod = 8, lookSeconds = 6.5, tail = 0.5 },
 	-- Balloon Cat (F78, design v0.13: "it bobs as if it might float off"): a cat in `cats` lifts off its paws and
 	-- settles back once every `seconds`, rising over `rise` of it and coming down over `fall`, then resting on its
 	-- paws for the rest; every `tugEvery`th bob the balloons pull it up to `tugStuds` instead of `studs`. While it is
@@ -1067,6 +1071,42 @@ Presets.netHold = {
 	blendIn = 0.25,
 	blendOut = 0.2,
 	showAt = 0.5,
+}
+
+-- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
+-- arms"), drawn by Tackle.luau on the carrier and by Carry.luau on the HeldCat. `arms` is the upper body's pose in
+-- Avatar.Pose degrees (the legs stay the character's own): arms folded across the chest, the left forearm under the
+-- right, head tipped down to the cat. R6 has no elbows, so `arms6` reaches both arms forward and in to meet under the
+-- cat. The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little) and
+-- `forward` studs further out, clear of the chest. Lying across the arms it turns `loafTurn` degrees (its face at the
+-- character's left) and sitting up `sitTurn` (facing out); either way it moves `loafSide` or `sitSide` studs to the
+-- right (negative: left), so its head is beside the character's, not in front of the face, and the game's camera
+-- behind the player sees it over the shoulder. The arms ease in over `blendIn` and out over `blendOut` seconds. A
+-- HeldCat Pose cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again
+-- after `retry` seconds.
+Presets.carryPose = {
+	arms = {
+		shL = 60,
+		twL = 45,
+		spL = -45,
+		elL = 45,
+		shR = 60,
+		twR = 45,
+		spR = -45,
+		elR = 58,
+		neck = -12,
+		waist = -4,
+	} :: { [string]: number },
+	arms6 = { sh = 80, sp = -30, neck = -12 } :: { [string]: number },
+	gap = -0.15,
+	forward = -0.8,
+	loafTurn = 90,
+	loafSide = -0.45,
+	sitTurn = 15,
+	sitSide = -0.55,
+	blendIn = 0.2,
+	blendOut = 0.2,
+	retry = 1,
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue

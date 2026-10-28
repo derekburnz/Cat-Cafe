@@ -143,7 +143,7 @@ return function()
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
-		BigBowlLureWaitSeconds = 480, -- section 3: the Big Bowl takes the bait wait from 10 to 8 minutes
+		BigBowlWaitMultiplier = 0.8, -- section 17 (v0.13.15): the Big Bowl takes a fifth off any bowl level's wait
 		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
@@ -238,6 +238,8 @@ return function()
 				SwiftPotionSpeed = true, -- section 12b's potion table: "+4 walk and carry speed"
 				LuckyPotionGoldScale = true, -- section 12b's potion table: "double the chance"
 				StraySelfRetrySteps = true, -- section 17's StraySelfRetrySeconds {3, 6, 10}, checked below
+				BowlWaitSeconds = true, -- a table, checked below (F82)
+				BowlLuck = true, -- a table, checked below (F82)
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -276,7 +278,16 @@ return function()
 				Mythical = 150,
 			})
 			expect(Config.DecorSpots :: any).to.deepEqual({ 2, 3, 4, 5, 6 })
-			expect(Config.BigBowlLureWaitSeconds < Config.LureWaitSeconds).to.equal(true)
+		end)
+
+		it("bowl levels (F82, section 8 v0.13.15): waits from 10:00 to 8:00 and luck from 0 to 16%", function()
+			expect(Config.BowlWaitSeconds :: any).to.deepEqual({ 600, 570, 540, 510, 480 })
+			expect(Config.BowlLuck :: any).to.deepEqual({ 0, 0.04, 0.08, 0.12, 0.16 })
+			expect(Config.BowlWaitSeconds[1]).to.equal(Config.LureWaitSeconds)
+			-- section 3's Big Bowl wait of 8:00 on a level 1 bowl
+			expect(Config.BowlWaitSeconds[1] * Config.BigBowlWaitMultiplier).to.equal(480)
+			expect(#Config.BowlLuck).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
+			expect(#Config.BowlWaitSeconds).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
 		end)
 
 		it("NetWindows matches the section 10 net table, levels 0 to 3", function()
@@ -464,13 +475,13 @@ return function()
 			end
 		)
 
-		it("the rescue bar matches the section 10b table: rarer is faster and narrower", function()
+		it("the rescue bar matches the section 10b table: rarer is faster and narrower (v0.13.15 F83)", function()
 			local rows = {
-				Common = { 0.8, 0.30 },
-				Rare = { 1.0, 0.24 },
-				Epic = { 1.2, 0.19 },
-				Legendary = { 1.4, 0.15 },
-				Mythical = { 1.6, 0.12 },
+				Common = { 1.0, 0.26 },
+				Rare = { 1.2, 0.20 },
+				Epic = { 1.4, 0.15 },
+				Legendary = { 1.6, 0.12 },
+				Mythical = { 1.8, 0.10 },
 			}
 			local previous: { number }? = nil
 			for _, rarity in Catalog.rarityOrder do

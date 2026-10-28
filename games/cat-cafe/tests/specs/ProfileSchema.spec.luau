@@ -340,7 +340,7 @@ return function()
 			expect(profile.coins).to.equal(1234 + 11550 + 1000 + v2Cost("tables", 2, 6) + v2Cost("net", 1, 3))
 			expect(profile.upgradeLevels.tables).to.equal(2)
 			expect(profile.upgradeLevels.net).to.equal(1)
-			expect(profile.upgradeLevels.lure_bowl).to.equal(1) -- no cap, but never above its max level
+			expect(profile.upgradeLevels.lure_bowl).to.equal(1) -- Tier 1's bowl cap, with nothing to refund (F82)
 		end)
 
 		it("unknown upgrade ids are dropped without a refund", function()
@@ -628,9 +628,9 @@ return function()
 				expect(ProfileSchema.migrate(raw, 500).tier).to.equal(case[2])
 			end
 			local raw = v3Save()
-			raw.upgradeLevels = { tables = 40, espresso = -2, net = "x", lure_bowl = 3, cafe_level = 4 }
+			raw.upgradeLevels = { tables = 40, espresso = -2, net = "x", lure_bowl = 9, cafe_level = 4 }
 			local profile: any = ProfileSchema.migrate(raw, 500)
-			expect(profile.upgradeLevels).to.deepEqual({ tables = 6, espresso = 1, net = 0, lure_bowl = 1 })
+			expect(profile.upgradeLevels).to.deepEqual({ tables = 6, espresso = 1, net = 0, lure_bowl = 5 })
 			expect(profile.coins).to.equal(4321) -- refunds are for the 2 to 3 step only
 		end)
 

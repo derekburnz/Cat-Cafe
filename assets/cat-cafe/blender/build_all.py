@@ -233,6 +233,10 @@ STUDIO_NOTES = {
                                  "tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter "
                                  "front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is "
                                  "lit at night.",
+    "CatCafe_Street_DealerCart": "F32: the night dealer's cart (DealerService clones it at night). The Bulb and Bulbs "
+                                 "are lit at night. The dealer's own cat sits on the cushion at the back of the counter: "
+                                 "Cat_Body, Cat_Head and the other hinged sitting-cat pieces, its hood Cat_Prop inside "
+                                 "the Head Model; it can idle like any cat.",
     "CatCafe_Prop_FishCoin": "F52: the golden fish coin, a world pickup or prize; gold parts are Metal. Its HUD picture "
                              "is exports/icons/CatCafe_Icon_GoldenFish.png (icons.py).",
 }
@@ -321,17 +325,23 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
                                 "to Neon.").strip()
     if props.slot(_n):                          # themed cats (data-model 3): the prop is part of the model
         _rides = "the Body" if props.slot(_n) == "Back" else "the Head (its Model is inside the Head Model)"
+        _two = ""
+        if props.slot2(_n):                     # a second prop in another slot (v0.13)
+            _r2 = "the Body" if props.slot2(_n) == "Back" else "the Head (inside the Head Model)"
+            _two = (f" Second prop: the {props.slot2(_n)} prop is the child Model <name>_Prop2 and rides {_r2}; "
+                    f"PropSlot2 = {props.slot2(_n)}, so the role piece in that slot stays off too (F71).")
         for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + f" Prop: the {props.slot(_n)} prop is the child Model "
                                 f"<name>_Prop (and <name>_Prop_Glass, Glass) and rides {_rides}; PropSlot = "
-                                f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off.").strip()
+                                f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off." + _two).strip()
 
 
 def cat_rbx_extras(name):
     """A cat's Part model carries its Scale and, on a sitting model (where working cats wear their outfits), one
     Attachment per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part,
     so the game needs no manifest at runtime. A themed cat also carries PropSlot (Head, Face or Back) and its prop's
-    parts carry Follows (Head or Body); a Head or Face prop's Model rides inside the Head Model."""
+    parts carry Follows (Head or Body); a Head or Face prop's Model rides inside the Head Model. A second prop adds
+    PropSlot2 and `_Prop2` parts the same way."""
     cat, _gold, body = cats.parse(name)
     spec = cats.ROSTER[cat]
     s = spec.get("scale", 1.0)
@@ -347,11 +357,16 @@ def cat_rbx_extras(name):
     extras = {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
     slot = props.slot(cat)
     if slot:                                # a themed cat's prop: its slot, and which piece its parts follow
-        rides = "Body" if slot == "Back" else "Head"
+        rides = props.follows(slot)
         extras["attributes"]["PropSlot"] = slot
         extras["part_attributes"] = {"_Prop": {"Follows": rides}, "_Prop_Glass": {"Follows": rides}}
-        if rides == "Head":
-            extras["nest"] = {"_Prop": "_Head", "_Prop_Glass": "_Head"}
+        extras["nest"] = {"_Prop": "_Head", "_Prop_Glass": "_Head"} if rides == "Head" else {}
+        slot2 = props.slot2(cat)
+        if slot2:                           # and a second prop's (`_Prop2`, PropSlot2)
+            extras["attributes"]["PropSlot2"] = slot2
+            extras["part_attributes"]["_Prop2"] = {"Follows": props.follows(slot2)}
+            if props.follows(slot2) == "Head":
+                extras["nest"]["_Prop2"] = "_Head"
     return extras
 
 
@@ -419,6 +434,8 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Street_DealerCart":   # the dealer's cat: its hood rides its Head
+            extra = {"nest": {"_Prop": "_Head"}}
         if name in {**mystery.NEST, **collector.NEST}:   # F64, F63: hats ride the Head, the glass the raised paw
             extra = {"nest": {**mystery.NEST, **collector.NEST}[name]}
         if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)
@@ -478,8 +495,11 @@ def main():
             entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items() if k != "Body"}
             entry["attachments"] = {k: _slot_entry(p, o, r, s_) for k, (p, o, r) in accessories.slots(spec, body).items()}
             if props.slot(cat):
-                entry["prop"] = {"slot": props.slot(cat), "objects": [o.name for o in objs if "_Prop" in o.name],
-                                 "follows": "Body" if props.slot(cat) == "Back" else "Head"}
+                entry["prop"] = {"slot": props.slot(cat), "follows": props.follows(props.slot(cat)),
+                                 "objects": [o.name for o in objs if o.name.endswith(("_Prop", "_Prop_Glass"))]}
+            if props.slot2(cat):
+                entry["prop2"] = {"slot": props.slot2(cat), "follows": props.follows(props.slot2(cat)),
+                                  "objects": [o.name for o in objs if o.name.endswith("_Prop2")]}
             lifts = {k: cats.pose_lift(spec, v) for k, v in poses.CAT_POSES.items() if v["body"] == body and "lift" in v}
             if lifts:                               # already times the cat's scale
                 entry["pose_lifts_roblox"] = {k: common.to_roblox([c * cats.scale_of(spec, body) for c in v])

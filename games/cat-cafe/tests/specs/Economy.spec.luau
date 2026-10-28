@@ -212,6 +212,20 @@ return function()
 				expect(Economy.baitWaitSeconds(p, true)).to.equal(186)
 			end)
 
+			it("the bowl's level sets the day wait, the Big Bowl a fifth off it, night half (F82)", function()
+				local p = freshProfile()
+				p.upgradeLevels.lure_bowl = 3
+				expect(Economy.lureWaitSeconds(p)).to.equal(540)
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(270)
+				p.fishPerks.big_bowl = 1
+				expect(Economy.lureWaitSeconds(p)).to.equal(432) -- 7:12, the spec's done-when
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(216)
+				p.upgradeLevels.lure_bowl = 5
+				expect(Economy.lureWaitSeconds(p)).to.equal(384)
+				p.indexRewards.all = { total5 = true }
+				expect(Economy.baitWaitSeconds(p)).to.equal(376) -- 384 x 0.98, floored
+			end)
+
 			it("crate and Index pieces are never for sale", function()
 				local p = freshProfile()
 				p.coins = 1e9
@@ -419,7 +433,23 @@ return function()
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Not enough coins")
 			p.coins = 600
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
+		end)
+
+		it("each bowl level after the first needs its own tier, the Royal Bowl Tier 5 (F82)", function()
+			local p = freshProfile()
+			p.coins = 1e9
 			p.upgradeLevels.lure_bowl = 1
+			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(6000)
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Needs Tier 2")
+			p.tier = 2
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
+			p.upgradeLevels.lure_bowl = 4
+			p.tier = 4
+			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(3000000)
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Needs Tier 5")
+			p.tier = 5
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
+			p.upgradeLevels.lure_bowl = 5
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Already maxed")
 		end)
 
@@ -472,7 +502,7 @@ return function()
 		it("at Tier 5 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
 			p.tier = 5
-			p.coins = 1000000
+			p.coins = 10000000 -- the Royal Bowl is 3,000,000 (F82)
 			for _, def in ipairs(Catalog.upgrades) do
 				p.upgradeLevels[def.id] = def.maxLevel - 1
 				expect(Economy.upgradeBlocker(p, def.id)).never.to.be.ok()

@@ -30,8 +30,9 @@ from common import Builder, scale_mesh
 # body_scale (x, y, z of the body or the haunches), scale (the whole cat); v0.6: short_legs (A's body 0.12 lower),
 # fold_ears (folded forward), toes (a paint dip per paw: LegF1, LegF2, LegB1 or B's right back paw, LegB2 or left),
 # fluffy (long coat with a normal face), sprinkles (colours of the sprinkle specks), tip (tail tip colour), leafy
-# (spots turned into leaves), mane (colours from the forehead down the back), socks (the colour of all four paws).
-# Themed cats wear a prop (props.py).
+# (spots turned into leaves), mane (colours from the forehead down the back), socks (the colour of all four paws);
+# v0.13: stripes2 (stripes alternate the second and third colours), checker (two colours: a checkered band along
+# each flank, the Taxi Cat's). Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -129,6 +130,28 @@ ROSTER = {
                         muzzle="fur_white", nose="nose_dark"),
     "Puddle":      dict(rarity="Common", fur="fur_puddle", second="fur_puddle", eyes="eye_amber", pattern="solid", muzzle="fur_mist",
                         nose="nose_dark", tip="fur_mist"),
+    # v0.13 area-themed cats (F78, data-model 3, Derek 2026-10-27 23:59): they replace ten themed cats, which stay
+    # built for whoever owns them (the spare pool)
+    "Binbag":      dict(rarity="Rare", fur="fur_dusty", second="fur_soot", eyes="eye_green", pattern="stripes", muzzle="fur_white",
+                        nose="nose_dark"),
+    "Taxi":        dict(rarity="Epic", fur="fur_marmalade", second="fur_orange_dark", eyes="eye_green", pattern="stripes",
+                        muzzle="fur_cream", nose="nose_brick", checker=("fur_white", "fur_black")),
+    "Neon":        dict(rarity="Mythical", fur="fur_indigo", second="neon_pink", third="sign_teal", eyes="sign_teal",
+                        pattern="stripes", muzzle=None, glow_eyes=True, stripes2=True),
+    "Birdwatch":   dict(rarity="Rare", fur="fur_dune", second="fur_hazel", eyes="eye_copper", pattern="stripes", muzzle="fur_cream",
+                        nose="nose_brick"),
+    "Duckling":    dict(rarity="Epic", fur="fur_white", second="fur_silver", third="fur_mist", eyes="eye_blue", pattern="patches",
+                        muzzle=None),
+    "Balloon":     dict(rarity="Mythical", fur="fur_bubblegum", second="mint", third="pastel_butter", eyes="pastel_sky",
+                        pattern="patches", muzzle=None, glow_eyes=True),
+    "Builder":     dict(rarity="Rare", fur="fur_toffee", second="fur_seal", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
+                        nose="nose_brick", socks="fur_white"),
+    "Gardener":    dict(rarity="Epic", fur="fur_cream", second="fur_grey", third="fur_smoke_light", eyes="eye_green", pattern="patches",
+                        muzzle="fur_white"),
+    "Gnome":       dict(rarity="Legendary", fur="fur_pewter", second="fur_white", third="fur_white", eyes="eye_green",
+                        pattern="patches", muzzle="fur_white", fluffy=True, tail_thick=0.28, body_scale=(1.08, 1.0, 1.05)),
+    "Plumber":     dict(rarity="Rare", fur="fur_gunmetal", second="fur_white", eyes="eye_copper", pattern="patches", muzzle="fur_white",
+                        nose="nose_dark", tuxedo=True, socks="fur_gunmetal", tip="fur_gunmetal"),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks")
@@ -279,8 +302,8 @@ def _head(spec, c, h):
     b.box(h["c"], h["s"], c["fur"])
     pat = spec["pattern"]
     if pat == "stripes":                                # three stripes over the crown
-        for x in (-0.2, 0.0, 0.2):
-            b.box((x * w, cy + 0.05, top + 0.01), (0.08, sy * 0.68, 0.06), c["second"], bevel=False)
+        for i, x in enumerate((-0.2, 0.0, 0.2)):
+            b.box((x * w, cy + 0.05, top + 0.01), (0.08, sy * 0.68, 0.06), _stripe(spec, c, i), bevel=False)
     elif pat == "patches" and not spec.get("tuxedo"):
         b.box((-0.22 * w, cy + 0.05, top + 0.01), (0.34 * w, sy * 0.55, 0.06), c["second"], bevel=False)
         b.box((0.3 * w, fy + 0.01, fz + 0.12), (0.2, 0.06, 0.26), c["third"], bevel=False)
@@ -452,6 +475,23 @@ def _coat_extras(b, spec, c, centre, size, sides=True, front=True, top=True):
                 i += 1
 
 
+def _stripe(spec, c, i):
+    """The colour of stripe i: the second colour, or second and third in turn on a stripes2 coat."""
+    return c["third"] if spec.get("stripes2") and i % 2 else c["second"]
+
+
+def _checker(b, cols, side, x, yc, length, zc, h, n=8):
+    """A checkered band on one flank (x is the flank's outer face, past any stripes): a strip of the first colour
+    0.02 proud, and two rows of squares in the second colour 0.01 proud of it, offset like a taxi's, a hair inside
+    the strip's edges so no faces share a plane."""
+    light, dark = cols
+    b.box((side * (x - 0.0025), yc, zc), (0.045, length + 0.02, h), light, bevel=False)
+    q, qh = length / n, h / 2 - 0.01
+    for row, dz in enumerate((qh / 2, -qh / 2)):
+        for j in range(row % 2, n, 2):
+            b.box((side * (x + 0.0225), yc - length / 2 + q * (j + 0.5), zc + dz), (0.015, q, qh), dark, bevel=False)
+
+
 def _body_a(spec, c, d):
     b = Builder()
     (x0, y0, z0), (sx, sy, sz) = d["body"]
@@ -462,8 +502,8 @@ def _body_a(spec, c, d):
         b.box((0, y0 - hy - 0.01, z0), (0.46, 0.08, sz * 0.75), c["second"], bevel=False)            # bib
         b.box((0, y0, bottom - 0.01), (0.5, sy * 0.7, 0.04), c["second"], bevel=False)               # belly
     elif pat == "stripes":
-        for f in (-0.28, 0.05, 0.36):
-            b.box((0, y0 + f * sy, z0 + 0.04), (sx + 0.04, 0.13, sz - 0.02), c["second"], bevel=False)
+        for i, f in enumerate((-0.28, 0.05, 0.36)):
+            b.box((0, y0 + f * sy, z0 + 0.04), (sx + 0.04, 0.13, sz - 0.02), _stripe(spec, c, i), bevel=False)
     elif pat == "patches":
         b.box((-hx - 0.01, y0 + 0.12, z0 + 0.05), (0.04, 0.45, 0.32), c["second"], bevel=False)      # right flank
         b.box((hx + 0.01, y0 - 0.15, z0 - 0.02), (0.04, 0.34, 0.26), c["third"], bevel=False)        # left flank
@@ -482,6 +522,9 @@ def _body_a(spec, c, d):
     if c["belly"] and not spec.get("tuxedo") and not spec.get("ruff"):    # a pale chest under the chin (the ruff covers it)
         b.box((0, y0 - hy - 0.01, z0 - 0.04), (0.36, 0.06, sz * 0.6), c["belly"], bevel=False)
     _coat_extras(b, spec, c, d["body"][0], d["body"][1])
+    if spec.get("checker"):                             # along each flank, over the stripes
+        for side in (-1, 1):
+            _checker(b, spec["checker"], side, hx + 0.02, y0 - 0.02, sy * 0.78, z0 - 0.02, 0.14)
     if spec.get("mane"):                                # down the neck and along the front of the back
         for i in range(3):
             b.box((0, y0 - hy + 0.08 + i * 0.15, top + 0.03 + 0.01 * (i % 2)), (0.16 + 0.02 * (i % 2), 0.17, 0.1),
@@ -506,10 +549,10 @@ def _body_b(spec, c, d):
     elif c["belly"] and not spec.get("ruff"):
         b.box((0, front - 0.01, cz0 + 0.02), (0.34, 0.06, 0.5), c["belly"], bevel=False)
     if pat == "stripes":
-        for z in (0.5, 0.75, 1.0):
-            b.box((0, cy0 + 0.05, z), (csx + 0.04, csy - 0.06, 0.1), c["second"], bevel=False)
-        for y in (0.05, 0.35):
-            b.box((0, y, hz0), (hsx + 0.04, 0.12, hsz - 0.08), c["second"], bevel=False)
+        for i, z in enumerate((0.5, 0.75, 1.0)):
+            b.box((0, cy0 + 0.05, z), (csx + 0.04, csy - 0.06, 0.1), _stripe(spec, c, i), bevel=False)
+        for i, y in enumerate((0.05, 0.35)):
+            b.box((0, y, hz0), (hsx + 0.04, 0.12, hsz - 0.08), _stripe(spec, c, i + 1), bevel=False)
     elif pat == "patches" and not spec.get("tuxedo"):
         b.box((-hsx / 2 - 0.01, hy0 + 0.02, hz0 + 0.04), (0.04, 0.4, 0.3), c["second"], bevel=False)   # right haunch
         b.box((csx / 2 + 0.01, cy0 + 0.05, 0.85), (0.04, 0.3, 0.3), c["third"], bevel=False)          # left of the chest
@@ -527,6 +570,9 @@ def _body_b(spec, c, d):
         b.box_base((0, hy0 - 0.02, 0.005), (hsx + 0.03, hsy * 0.62, hsz + 0.01), c["second"], bevel=False)   # off the floor
         b.box_base((0, hy0 + hsy * 0.36, 0.008), (hsx + 0.04, hsy * 0.3, hsz + 0.012), c["third"], bevel=False)
     _coat_extras(b, spec, c, d["haunch"][0], d["haunch"][1], front=False)
+    if spec.get("checker"):                             # along each haunch, over the stripes
+        for side in (-1, 1):
+            _checker(b, spec["checker"], side, hsx / 2 + 0.02, hy0 + 0.02, hsy * 0.8, hz0 + 0.02, 0.14)
     _coat_extras(b, {**spec, "petals": False}, c, d["chest"][0], d["chest"][1], top=False)
     if spec.get("mane"):                                # down the back of the chest
         for i in range(3):
@@ -557,10 +603,9 @@ def build_cat(name, mat, spec=None, base=None, body="walk"):
     import props                                        # themed cats' props (props imports this module)
     rides = {}
     if name in props.PROPS:
-        slot = props.PROPS[name][0]
         for suffix, b in props.build(name, spec, body, d).items():
             pieces.append((suffix, b))
-            rides[suffix] = "Body" if slot == "Back" else "Head"
+            rides[suffix] = props.follows(props.piece_slot(name, suffix))
     objs = []
     for piece, b in pieces:
         at = d["pivots"][rides.get(piece, piece)]

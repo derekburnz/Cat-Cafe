@@ -4,6 +4,8 @@
 
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical"
 export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer"
+-- A cat's area: one of the five, or the spare pool of cats an area-themed cat replaced (data-model 3d, F78).
+export type CatArea = Area | "spare"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -19,6 +21,7 @@ export type RarityDef = {
 	incomePerSecond: number,
 	circles: number, -- closing circles in a net catch (data-model section 10)
 	shrinkSeconds: number, -- base shrink time of each circle
+	catchWindow: number, -- times the net's Perfect and Good for a cat of this rarity (v0.13.15 F83)
 	fleeStuds: number, -- how far a stray sprints after a missed catch (v0.5, data-model section 10 step 5)
 	rescueHits: number, -- bar hits that free a stuck cat (section 10b)
 	sellValue: number,
@@ -64,7 +67,8 @@ export type CatDef = {
 	name: string,
 	rarity: Rarity,
 	incomePerSecond: number,
-	area: Area, -- the one area it spawns in
+	area: CatArea, -- the one area it spawns in, or "spare" (data-model 3d: never spawns)
+	incomeArea: Area?, -- a spare cat's old area, whose income multiplier it keeps
 	favoriteRole: Role, -- earns FavoriteMultiplier in a slot of this role
 	description: string,
 	pattern: string,
@@ -324,7 +328,7 @@ export type TierDef = {
 	slots: number, -- role slots open at this tier
 	multiplier: number, -- tierMultiplier in the income formula
 	area: Area, -- the area this tier opens
-	caps: { tables: number, espresso: number, net: number }, -- highest shop level allowed at this tier
+	caps: { tables: number, espresso: number, net: number, lure_bowl: number }, -- highest shop level allowed at this tier
 }
 
 export type CatInstance = {

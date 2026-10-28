@@ -28,23 +28,71 @@ function CatDress.scaleOf(model: Model): number
 	return if type(scale) == "number" and scale > 0 then scale else 1
 end
 
--- Puts `role`'s outfit on a seated cat, each piece a copy from `clone(assetName)` (nil while that asset is
--- missing). A piece is skipped while its asset or the cat's Outfit_<Piece> slot is missing, so new pieces and new
--- cats can land in either order, and when it sits where the cat's own prop does (the model's PropSlot attribute).
--- Returns how many pieces went on.
-function CatDress.dress(model: Model, role: string, clone: (assetName: string) -> Model?): number
+-- Which of `role`'s pieces a cat with props in `propSlot` and `propSlot2` (the model's PropSlot and PropSlot2) wears,
+-- and which of its own props comes off for them (features.md F71, data-model section 5): a piece in a slot either
+-- prop takes stays off, except that an Entertainer with a Head and a Back prop wears the party hat in place of its
+-- head prop at the station, so its "Prop" (or "Prop2") object comes off. Pure, for the specs.
+function CatDress.plan(role: string, propSlot: string?, propSlot2: string?): ({ string }, string?)
 	local pieces = Catalog.roleOutfits[role]
 	if pieces == nil then
-		return 0
+		return {}, nil
+	end
+	local taken: { [string]: boolean } = {}
+	if propSlot ~= nil then
+		taken[propSlot] = true
+	end
+	if propSlot2 ~= nil then
+		taken[propSlot2] = true
+	end
+	local offProp: string? = nil
+	if role == "entertainer" and taken.Head == true and taken.Back == true then
+		taken.Head = false
+		offProp = if propSlot == "Head" then "Prop" else "Prop2"
+	end
+	local wear: { string } = {}
+	for _, piece in pieces do
+		local slot = Catalog.outfitPieceSlots[piece]
+		if slot == nil or not taken[slot] then
+			table.insert(wear, piece)
+		end
+	end
+	return wear, offProp
+end
+
+-- Takes one of the cat's own props off: its object Models (a Head prop's nest in the Head) and their _Glass twins.
+local function takeOff(model: Model, prop: string)
+	local tails = { "_" .. prop, "_" .. prop .. "_Glass" }
+	for _, descendant in model:GetDescendants() do
+		if not descendant:IsDescendantOf(model) then
+			continue -- inside a prop already taken off
+		end
+		for _, tail in tails do
+			if descendant.Name:sub(-#tail) == tail then
+				descendant:Destroy()
+				break
+			end
+		end
+	end
+end
+
+-- Puts `role`'s outfit on a seated cat (CatDress.plan), each piece a copy from `clone(assetName)` (nil while that
+-- asset is missing). A piece is skipped while its asset or the cat's Outfit_<Piece> slot is missing, so new pieces
+-- and new cats can land in either order. Returns how many pieces went on.
+function CatDress.dress(model: Model, role: string, clone: (assetName: string) -> Model?): number
+	local propSlot = model:GetAttribute("PropSlot")
+	local propSlot2 = model:GetAttribute("PropSlot2")
+	local pieces, offProp = CatDress.plan(
+		role,
+		if type(propSlot) == "string" then propSlot else nil,
+		if type(propSlot2) == "string" then propSlot2 else nil
+	)
+	if offProp ~= nil then
+		takeOff(model, offProp)
 	end
 	local scale = CatDress.scaleOf(model)
 	local head = objectModel(model, "Head")
-	local propSlot = model:GetAttribute("PropSlot")
 	local worn = 0
 	for _, piece in pieces do
-		if propSlot ~= nil and Catalog.outfitPieceSlots[piece] == propSlot then
-			continue
-		end
 		local slot = model:FindFirstChild("Outfit_" .. piece, true)
 		if slot == nil or not slot:IsA("Attachment") then
 			continue

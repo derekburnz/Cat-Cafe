@@ -21,6 +21,7 @@ export type Style =
 	| "lick"
 	| "stuckButt"
 	| "stuckFlip"
+	| "held"
 
 -- Which body a cat has (Pose finds it): "walk" and "sit" are the bodies with hinged pieces (PR #259: walking A,
 -- sitting B), "parts" the placeholder and older Part cats, which lie down by folding their legs themselves.
@@ -651,6 +652,27 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.headPitch = -math.rad(m.doze.headDroop + m.doze.nod * (1 - 2 * breath))
 		o.headRoll = -o.bodyRoll * 0.5
 		o.tailYaw *= m.doze.tail
+	elseif style == "held" then
+		-- Awake in a player's arms (Derek 2026-10-28): loafing on the walking body (the loaf's piece pose, or
+		-- folded legs on the older Part cats) or just sitting on the sitting body, eyes open, a slow breath, looking
+		-- about now and then and the tail swishing slowly.
+		local h = m.held
+		if body == "walk" then
+			o.loaf = 1
+		elseif not pieces then
+			o.sink = 1
+			o.pawFL = math.rad(90)
+			o.pawFR = math.rad(90)
+			o.pawBL = math.rad(90)
+			o.pawBR = math.rad(90)
+		end
+		if body ~= "sit" then
+			o.bodyY = 0
+			o.belly = Logic.breath(t, h.seconds) * h.breathe
+		end
+		o.headYaw = math.rad(h.look) * wave(t, h.lookSeconds)
+		o.headPitch = math.rad(h.nod) * wave(t, h.lookSeconds * 0.6)
+		o.tailYaw *= h.tail
 	elseif style == "stuckButt" then
 		-- Head first in the trap with only its back end out: in bursts the hips wiggle, the back legs paddle one
 		-- after the other and the raised tail lashes; a little of it keeps going in between.

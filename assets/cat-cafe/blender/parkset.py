@@ -127,7 +127,7 @@ def _seg_hedge(b, L, shade):
 def _seg_brick(b, L, shade):
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 9.0), "brick")
     b.box_base((0, WALL_D / 2, 9.0), (L + 0.1, WALL_D + 0.3, 0.45), "concrete", bevel=False)      # coping
-    b.box_base((0, WALL_D / 2 - 0.1, 0), (L, WALL_D + 0.2, 1.0), "concrete_dark", bevel=False)  # plinth
+    b.box_base((0, WALL_D / 2 - 0.15, 0), (L, WALL_D + 0.1, 1.0), "concrete_dark", bevel=False)  # plinth
     for k in range(3):                                                                         # piers
         x = -L / 2 + L * (k + 1) / 4
         b.box_base((x, -0.15, 1.0), (1.0, 0.3, 7.8), "brick", bevel=False)
@@ -412,13 +412,13 @@ def bandstand(mat):
     b.box((-0.55, 0, vz + 0.3), (0.42, 0.1, 0.4), "gold_mid", bevel=False)
     for ex in (-0.68, -0.42):
         b.pyramid((ex, 0, vz + 0.5), 0.14, 0.2, "gold_mid")
-    b.box((0.62, 0, vz + 0.35), (0.12, 0.1, 0.7), "gold_mid", bevel=False, rot=ry(-20))
+    b.box((0.5, 0, vz + 0.35), (0.12, 0.1, 0.7), "gold_mid", bevel=False, rot=ry(20))
     b.box((0, 0, vz - 0.5), (1.6, 0.06, 0.06), "gold_mid", bevel=False)                       # the arrow
     b.pyramid((-0.85, 0, vz - 0.53), 0.2, 0.25, "gold_mid", rot=ry(90))
     for (x, y) in ((3.0, 3.4), (-3.0, 3.6)):                                                  # music stands
         decor.cyl_base((x, y, stage), 0.25, 0.06, "fur_black", segments=6, bevel=False)
-        decor.box_base((x, y, stage + 0.06), (0.06, 0.06, 2.4), "fur_black", bevel=False)
-        decor.box((x, y - 0.1, stage + 2.6), (0.9, 0.06, 0.6), "fur_black", bevel=False, rot=rx(-25))
+        decor.box_base((x, y, stage + 0.06), (0.06, 0.06, 2.5), "fur_black", bevel=False)
+        decor.box((x, y, stage + 2.6), (0.9, 0.06, 0.6), "fur_black", bevel=False, rot=rx(-25))
     decor.cyl_base((0, 1.2, stage), 0.6, 0.9, "shirt_red", segments=12)                       # a drum
     decor.cyl_base((0, 1.2, stage + 0.9), 0.62, 0.05, "offwhite", segments=12, bevel=False)
     return [b.finalize(N + "Bandstand", mat), bulbs.finalize(N + "Bandstand_Bulbs", mat),
@@ -451,9 +451,9 @@ def willow(mat):
     b.ico((0, 0, 8.2), 4.5, "leaf_green", subdivisions=1, scale=(1, 1, 0.6))
     for k in range(18):
         a = 2 * PI * k / 18
-        r = 3.6 + 0.4 * (k % 3)
-        L = 5.2 - 0.6 * (k % 2)
-        fronds.box_base((r * math.cos(a), r * math.sin(a), 8.2 - L), (0.55, 0.3, L), ("leaf_green", "leaf_dark")[k % 2],
+        r = 3.0 + 0.35 * (k % 3)
+        L = 5.7 - 0.6 * (k % 2)
+        fronds.box_base((r * math.cos(a), r * math.sin(a), 8.7 - L), (0.55, 0.3, L), ("leaf_green", "leaf_dark")[k % 2],
                         bevel=False, rot=(a + PI / 2, "Z"))
     return [b.finalize(N + "Willow", mat), fronds.finalize(N + "Willow_Decor", mat)]
 
@@ -521,7 +521,7 @@ def map_board(mat):
     b.box((0, 0, 3.4), (3.9, 0.3, 2.6), "dark_wood")
     b.box((0, -0.16, 3.4), (3.5, 0.04, 2.2), "leaf_green", bevel=False)
     b.cyl((0, -0.19, 3.3), 0.45, 0.03, "fish_blue", segments=12, bevel=False, rot=rx(90))
-    for (x, z, w, h) in ((0, 2.55, 0.18, 0.5), (0.7, 3.0, 1.2, 0.14), (1.3, 3.5, 0.14, 1.0), (-0.9, 3.75, 1.6, 0.14),
+    for (x, z, w, h) in ((0, 2.6, 0.18, 0.5), (0.7, 3.0, 1.2, 0.14), (1.3, 3.5, 0.14, 1.0), (-0.9, 3.75, 1.6, 0.14),
                          (-1.6, 4.1, 0.14, 0.7)):
         b.box((x, -0.185, z), (w, 0.02, h), "paving_sand", bevel=False)
     b.box((0, -0.19, 4.2), (0.5, 0.03, 0.3), "offwhite", bevel=False)                           # the bandstand
@@ -561,7 +561,7 @@ def kiosk(mat):
     b, bulb = Builder(), Builder()
     W, D, H = 5.0, 3.6, 5.2
     b.box_base((0, 0, 0), (W, D, 2.4), "mint")
-    b.box_base((0, 0.3, 2.4), (W, D - 0.6, 1.8), "mint")
+    b.box_base((0, 0.3, 2.6), (W, D - 0.6, 1.6), "mint")
     b.box_base((0, 0, 4.2), (W, D, H - 4.2), "mint")
     b.box_base((0, -0.15, 2.4), (W + 0.2, D + 0.3, 0.2), "offwhite", bevel=False)              # counter top
     b.box((0, -D / 2 + 0.25, 3.3), (W - 0.6, 0.05, 1.6), "cream", bevel=False)                 # inside back
@@ -570,7 +570,7 @@ def kiosk(mat):
     for i in range(8):
         x = -W / 2 + (i + 0.5) * W / 8
         b.box((x, -D / 2 - 0.62, 4.0), (W / 8, 1.4, 0.08), ("bowl_red", "offwhite")[i % 2], bevel=False, rot=rx(25))
-    b.box((0, -D / 2 - 1.27, 3.66), (W, 0.08, 0.3), "bowl_red", bevel=False)
+    b.box((0, -D / 2 - 1.27, 3.66), (W + 0.1, 0.08, 0.3), "bowl_red", bevel=False)
     bulb.box((0, -0.2, 4.05), (0.6, 0.6, 0.25), "lamp_warm", bevel=False)
     b.cyl_base((1.6, -D / 2 - 0.4, 2.6), 0.35, 0.5, "pastel_butter", segments=8, radius2=0.1)    # a cone sign
     b.ico((1.6, -D / 2 - 0.4, 3.25), 0.3, "blush", subdivisions=1)
@@ -584,7 +584,7 @@ def bistro(mat):
     b.cyl_base((0, 0, 2.4), 1.2, 0.12, "offwhite", segments=14)
     b.cyl_base((0, 0, 2.52), 0.07, 2.9, "fur_black", segments=6, bevel=False)
     b.cyl_base((0, 0, 5.3), 2.6, 1.0, "offwhite", segments=12, radius2=0.15)
-    b.ring((0, 0, 5.36), 2.62, 0.25, 0.12, "bowl_red", segments=12, bevel=False)
+    b.ring((0, 0, 5.375), 2.62, 0.25, 0.12, "bowl_red", segments=12, bevel=False)
     for a in (0.3, 2.4, 4.4):
         x, y = 1.75 * math.cos(a), 1.75 * math.sin(a)
         b.cyl_base((x, y, 0), 0.1, 1.3, "fur_black", segments=6, bevel=False)
@@ -632,7 +632,7 @@ def spring_rider(mat, body="pastel_butter"):
     b.ico((0, 0, 1.55), 0.6, body, subdivisions=1, scale=(1.4, 0.75, 0.75))                    # a duck to ride
     b.ico((-0.9, 0, 2.15), 0.38, body, subdivisions=1)
     b.box((-1.35, 0, 2.1), (0.3, 0.22, 0.12), "fur_orange", bevel=False)
-    b.box((-0.4, 0, 2.15), (0.1, 0.9, 0.1), "fur_black", bevel=False)                           # handle
+    b.box((-0.6, 0, 2.15), (0.1, 0.9, 0.1), "fur_black", bevel=False)                           # handle
     return [b.finalize(N + "SpringRider", mat)]
 
 
@@ -679,7 +679,7 @@ def topiary_cat(mat):
     b.ico((0, -0.2, 3.85), 0.85, "leaf_dark", subdivisions=2)
     for s in (-1, 1):
         b.pyramid((s * 0.45, -0.2, 4.5), 0.45, 0.6, "leaf_dark")
-    b.cyl((0.95, 0.6, 1.5), 0.22, 1.8, "leaf_dark", segments=8, rot=ry(-25))
+    b.cyl((0.95, 0.6, 1.5), 0.22, 1.8, "leaf_dark", segments=8, rot=ry(25))
     b.ico((1.3, 0.6, 2.4), 0.3, "leaf_dark", subdivisions=1)
     return [b.finalize(N + "TopiaryCat", mat)]
 
@@ -743,7 +743,7 @@ def build_set(mat):
     for i, (x, z, r) in enumerate(((-28, -47, 8), (-46, -50, -12), (-62, -44, 5))):
         s.put(picnic_table(mat), x, z, r)
         if i < 2:
-            _spot(s, "picnic", *turned(x, z, r, 0, -3.4))
+            _spot(s, "picnic", *turned(x, z, r, 0, -4.0))
     s.put(blanket(mat), -42, -40, 15)
     _spot(s, "blanket", -42, -40, y=0.06)
     s.put(oak(mat), -38, -52, 20)

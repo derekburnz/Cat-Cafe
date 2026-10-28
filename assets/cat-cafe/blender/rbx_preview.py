@@ -64,9 +64,10 @@ def _shape(bm, cls, props, mesh_type):
         for f in ((0, 1, 2, 3), (3, 2, 4, 5), (0, 3, 5), (1, 4, 2), (0, 5, 4, 1)):
             bm.faces.new([vs[i] for i in f])
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    elif mesh_type == "Sphere":
+    elif mesh_type is not None and mesh_type[0] == "Sphere":
+        k = mesh_type[1]                                  # SpecialMesh.Scale: the mesh is the part's size times it
         bmesh.ops.create_uvsphere(bm, u_segments=16, v_segments=10, radius=0.5,
-                                  matrix=Matrix.Diagonal((sx, sy, sz, 1)))
+                                  matrix=Matrix.Diagonal((sx * k[0], sy * k[1], sz * k[2], 1)))
     elif shape == "Ball":
         bmesh.ops.create_uvsphere(bm, u_segments=16, v_segments=10, radius=min(sx, sy, sz) / 2)
     elif shape == "Cylinder":
@@ -83,7 +84,7 @@ def _walk(node, out):
         mesh_type = None
         for c in node.get("children", []):
             if c.get("className") == "SpecialMesh":
-                mesh_type = c["properties"].get("MeshType")
+                mesh_type = (c["properties"].get("MeshType"), c["properties"].get("Scale", [1, 1, 1]))
         out.append((node["name"], cls, node["properties"], mesh_type))
     for c in node.get("children", []):
         _walk(c, out)

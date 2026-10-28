@@ -325,7 +325,11 @@ return function()
 				expect(def.area).to.equal(row[3])
 				expect(def.favoriteRole).to.equal(row[4])
 				expect(def.description).to.equal(row[5])
-				expect(def.incomePerSecond).to.equal(Catalog.rarities[def.rarity].incomePerSecond)
+				local area = Catalog.getArea(def.area)
+				assert(area)
+				expect(def.incomePerSecond).to.equal(
+					Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
+				)
 			end)
 		end
 
@@ -339,8 +343,10 @@ return function()
 					expect(def.rarity).to.equal(row[2])
 					expect(def.area).to.equal(row[3])
 					expect(def.favoriteRole).to.equal(row[4])
+					local area = Catalog.getArea(def.area)
+					assert(area, id)
 					expect(def.incomePerSecond).to.equal(
-						Catalog.rarities[def.rarity].incomePerSecond
+						Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
 					)
 				end
 			end
@@ -521,10 +527,10 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 1500, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
-			{ "Busy Cafe", 8000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
-			{ "Famous Cafe", 30000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 120000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Cozy Cafe", 8000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
+			{ "Busy Cafe", 80000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Famous Cafe", 700000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
+			{ "Grand Cafe", 5000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 		}
 
 		it("has five tiers matching the table", function()
@@ -648,28 +654,28 @@ return function()
 				tables = {
 					name = "Tables",
 					maxLevel = 6,
-					costs = { 100, 250, 600, 1500, 3500, 8000 },
+					costs = { 150, 600, 3000, 10000, 50000, 150000 }, -- v0.13.6
 					startLevel = 0,
 					atLevel = { [3] = 2, [4] = 2, [5] = 3, [6] = 3 },
 				},
 				espresso = {
 					name = "Espresso machine",
 					maxLevel = 5,
-					costs = { 0, 300, 1200, 4000, 12000 },
+					costs = { 0, 2000, 15000, 100000, 800000 },
 					startLevel = 1,
 					atLevel = { [3] = 2, [4] = 3, [5] = 4 },
 				},
 				net = {
 					name = "Net",
 					maxLevel = 3,
-					costs = { 500, 3000, 15000 },
+					costs = { 2500, 25000, 200000 },
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 3 },
 				},
 				lure_bowl = {
 					name = "Bait bowl",
 					maxLevel = 1,
-					costs = { 400 },
+					costs = { 600 },
 					startLevel = 0,
 					atLevel = nil,
 				},
@@ -730,20 +736,20 @@ return function()
 		local expected: { [string]: { cost: number, bonus: number, requiresTier: number, asset: string } } =
 			{
 				plants = {
-					cost = 150,
+					cost = 4000, -- v0.13.6
 					bonus = 0.05,
 					requiresTier = 2,
 					asset = "CatCafe_Decor_WindowPlants",
 				},
-				rug = { cost = 400, bonus = 0.05, requiresTier = 2, asset = "CatCafe_Decor_Rug" },
+				rug = { cost = 8000, bonus = 0.05, requiresTier = 2, asset = "CatCafe_Decor_Rug" },
 				neon_sign = {
-					cost = 1500,
+					cost = 60000,
 					bonus = 0.10,
 					requiresTier = 3,
 					asset = "CatCafe_Decor_NeonSign",
 				},
 				fish_tank = {
-					cost = 5000,
+					cost = 500000,
 					bonus = 0.10,
 					requiresTier = 4,
 					asset = "CatCafe_Decor_FishTank",
@@ -940,7 +946,7 @@ return function()
 	end)
 
 	describe("areas (section 9)", function()
-		it("alley and park have the v0.3 odds and the tier that opens them", function()
+		it("alley and park have the alley's v0.3 odds (every area since v0.13.7) and the tier that opens them", function()
 			local alley = Catalog.getArea("alley")
 			local park = Catalog.getArea("park")
 			assert(alley and park)
@@ -956,11 +962,11 @@ return function()
 			expect(park.tier).to.equal(2)
 			expect(park.name).to.equal("Park")
 			expect(park.odds :: any).to.deepEqual({
-				Common = 60,
-				Rare = 28,
-				Epic = 9,
-				Legendary = 2.5,
-				Mythical = 0.5,
+				Common = 72,
+				Rare = 22,
+				Epic = 5,
+				Legendary = 0.9,
+				Mythical = 0.1,
 			})
 			expect((park :: any).unlock).never.to.be.ok()
 		end)
@@ -1011,15 +1017,16 @@ return function()
 		end)
 
 		it(
-			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5) and odds (F23)",
+			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
 			function()
-				-- id -> { name, tier, spawnPoints, odds, waveSize }
+				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
+				local same = { 72, 22, 5, 0.9, 0.1 }
 				local want = {
-					{ "alley", "Alleyway", 1, 24, { 72, 22, 5, 0.9, 0.1 }, 6 }, -- v0.4 layout: 24 spawn points
-					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 }, 5 },
-					{ "neighbourhood", "Neighbourhood", 3, 26, { 50, 32, 13, 4, 1 }, 5 }, -- the kit set's cat spots (#401)
-					{ "woods", "Woods", 4, 17, { 42, 34, 17, 5.5, 1.5 }, 4 },
-					{ "sewer", "Sewer", 5, 20, { 35, 35, 20, 7.5, 2.5 }, 4 },
+					{ "alley", "Alleyway", 1, 24, same, 6, 1 }, -- v0.4 layout: 24 spawn points
+					{ "park", "Park", 2, 14, same, 5, 1.5 },
+					{ "neighbourhood", "Neighbourhood", 3, 26, same, 5, 2.25 }, -- the kit set's cat spots (#401)
+					{ "woods", "Woods", 4, 17, same, 4, 3.5 },
+					{ "sewer", "Sewer", 5, 20, same, 4, 5 },
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1029,6 +1036,7 @@ return function()
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
 					expect(def.waveSize).to.equal(row[6]) -- data-model 9 v0.13.5 (was 10 each)
+					expect(def.incomeMultiplier).to.equal(row[7])
 					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({
 						Common = odds[1],

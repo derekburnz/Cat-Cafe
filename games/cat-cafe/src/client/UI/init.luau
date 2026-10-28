@@ -8,6 +8,7 @@
 --   UI.update(partialState)
 --   UI.events.buyUpgrade:Connect(function(upgradeId) Remotes.BuyUpgrade:FireServer(upgradeId) end)
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -49,6 +50,8 @@ local Motion = require(script.Components.Motion)
 local MyCats = require(script.Screens.MyCats)
 local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
+local PotionLogic = require(script.Components.PotionLogic)
+local Potions = require(script.Screens.Potions)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
@@ -119,11 +122,13 @@ UI.events = {
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
-	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to 9); end the intro, call
+	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to Intro.SHOTS, 10); end the intro, call
 	-- UI.intro.finish and fire IntroDone(shot, replay)
 	introSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
+	-- F64
+	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
 }
 
 local state: Types.PlayerState = {
@@ -187,6 +192,7 @@ local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), ope
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
+local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
@@ -323,6 +329,9 @@ local function render()
 	if codesScreen then
 		codesScreen:render(state)
 	end
+	if potionsScreen then
+		potionsScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -372,6 +381,12 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if codesScreen then
 		codesScreen:setCatalog(newCatalog)
+	end
+	if potionsScreen then
+		potionsScreen:setCatalog(newCatalog)
+	end
+	if popups then
+		popups:setCatalog(newCatalog)
 	end
 	if catCard then
 		catCard:setCatalog(newCatalog)
@@ -759,6 +774,19 @@ function UI.init(config: Types.InitConfig)
 			codesView:onClose()
 		end,
 	})
+	potionsScreen = Potions.new({
+		use = function(potionId: string)
+			UI.events.usePotion:Fire(potionId)
+		end,
+		close = closeModal,
+	})
+	local potionsView = potionsScreen :: Potions.Potions
+	modalInstance:register("Potions", {
+		frame = potionsView.frame,
+		onOpen = function()
+			potionsView:render(state)
+		end,
+	})
 	-- range hints: Tame or Let go need the bowl within 20 studs, buying at the cart its range (data-model 8, 8b)
 	local nearClock = 0
 	table.insert(
@@ -792,7 +820,7 @@ function UI.init(config: Types.InitConfig)
 		collect = function()
 			UI.events.claimRichTip:Fire()
 		end,
-		-- claimed or paid into the till at expiry: the server credits it either way
+		-- only a claimed tip pays (data-model 12 v0.13.4); a missed one leaves with nothing
 		collected = function(amount: number, position: Vector3?)
 			if position then
 				UI.floatText(
@@ -802,6 +830,9 @@ function UI.init(config: Types.InitConfig)
 				)
 			end
 			UI.toast("Rich tip! +" .. Format.money(amount), "good")
+		end,
+		missed = function()
+			UI.toast("Rich tip missed", "info")
 		end,
 	})
 	tackleBar = TackleBar.new(parent, {
@@ -868,6 +899,8 @@ function UI.init(config: Types.InitConfig)
 					modalInstance:toggle("Decor")
 				elseif key == Enum.KeyCode.C then
 					modalInstance:toggle("Cats")
+				elseif key == Enum.KeyCode.P then
+					modalInstance:toggle("Potions")
 				elseif key == Enum.KeyCode.F then
 					openBait()
 				elseif key == Enum.KeyCode.H then
@@ -951,6 +984,10 @@ function UI.destroy()
 		codesScreen:destroy()
 	end
 	codesScreen = nil
+	if potionsScreen then
+		potionsScreen:destroy()
+	end
+	potionsScreen = nil
 	if introScreen then
 		introScreen:destroy()
 	end
@@ -1477,6 +1514,30 @@ function UI.market.result(crateId: string, decorId: string, duplicate: boolean, 
 end
 
 ----------------------------------------------------------------------------------------------------
+-- Potions and the Mystery gift (F64, data-model section 12b)
+----------------------------------------------------------------------------------------------------
+
+UI.potions = {}
+
+-- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Tip Potion", "2 Salmon",
+-- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
+function UI.potions.giftResult(kind: string, id: string?, count: number)
+	if popups == nil then
+		return
+	end
+	local function potionName(potionId: string): string?
+		for _, potion in PotionLogic.list(currentCatalog) do
+			if potion.id == potionId then
+				return potion.name
+			end
+		end
+		return nil
+	end
+	local title = PotionLogic.giftTitle(kind, id, count, foodName, potionName)
+	popups:showGift(title, PotionLogic.giftPrize(kind, id, count))
+end
+
+----------------------------------------------------------------------------------------------------
 -- Codes and the Codes Cat (F65, data-model section 11d)
 ----------------------------------------------------------------------------------------------------
 
@@ -1538,8 +1599,9 @@ end
 UI.richTip = {}
 
 -- Your own plot model: a gold marker over its RichTipAnchor whenever RichTipAmount and RichTipExpiresAt (server
--- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When the tip clears, claimed
--- or paid at expiry, "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for it.
+-- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
+-- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
+-- it; a missed one only toasts "Rich tip missed".
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
@@ -1663,12 +1725,13 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- The controller's IntroController moves the camera; the UI draws the letterbox bars, captions, shot dots, title
--- cards, the demo catch ring and Skip (Screens/Intro).
+-- cards, the demo catch ring, the job card and Skip (Screens/Intro).
 UI.intro = {}
 
 -- Bars in, and the HUD, toasts, place icons, the tutorial marker and trail and any popup hidden until finish.
--- options.skipAfter: seconds until Skip shows (default 2.0, or at once with options.replay). Calling it marks the
--- intro live, so the Tutorial tile and Settings rows show afterwards.
+-- Skip shows at once, dimmed, with a gold bar filling it over options.skipAfter seconds (default 5.0, or full at
+-- once with options.replay); only a full Skip skips. Calling it marks the intro live, so the Tutorial tile and
+-- Settings rows show afterwards.
 function UI.intro.start(options: Types.IntroOptions?)
 	local screen = introScreen
 	if screen == nil then
@@ -1691,8 +1754,8 @@ function UI.intro.start(options: Types.IntroOptions?)
 	screen:start(options)
 end
 
--- A shot begins: index 1 to 9 lights its dot, the caption pops. In shot 5 call again for each cut with the next
--- title card ("THE PARK", "THE NEIGHBOURHOOD", ...); the caption stays.
+-- A shot begins: index 1 to Intro.SHOTS (10) lights its dot, the caption pops. In the areas shot (6) call again for
+-- each cut with the next title card ("THE PARK", "THE NEIGHBOURHOOD", ...); the caption stays.
 function UI.intro.setShot(index: number, caption: string, titleCard: string?)
 	if introScreen then
 		introScreen:setShot(index, caption, titleCard)
@@ -1706,7 +1769,15 @@ function UI.intro.demoCatch(worldPosition: Vector3)
 	end
 end
 
--- The end, after shot 9 or on Skip: the bars slide out over 0.45 s and everything hidden comes back.
+-- Shot 4's job card, 0.35 s in, beside the cat taking its spot: the four role tiles in miniature, `role`'s
+-- ("waiter") lit with a tap 0.25 s later, gone by 0.55 s after it showed.
+function UI.intro.jobCard(worldPosition: Vector3, role: string)
+	if introScreen then
+		introScreen:jobCard(worldPosition, role)
+	end
+end
+
+-- The end, after the last shot or on Skip: the bars slide out over 0.45 s and everything hidden comes back.
 function UI.intro.finish()
 	if introScreen then
 		introScreen:finish()
@@ -2170,6 +2241,60 @@ local function isActionPrompt(prompt: ProximityPrompt): boolean
 		and promptAttribute(prompt, "CatId") == nil
 end
 
+-- The plot a prompt sits in (its nearest ancestor tagged Plot), or nil
+local function plotOf(prompt: ProximityPrompt): Instance?
+	local node: Instance? = prompt.Parent
+	while node do
+		if CollectionService:HasTag(node, "Plot") then
+			return node
+		end
+		node = node.Parent
+	end
+	return nil
+end
+
+-- GiftPrompts this client switched off on someone else's plot, each with the watch on the plot's owner that switches
+-- it back on if the plot becomes this player's (a plot keeps its prompt across owners).
+local mutedGifts: { [ProximityPrompt]: RBXScriptConnection } = {}
+
+local function muteGift(prompt: ProximityPrompt, plot: Instance)
+	prompt.Enabled = false
+	if mutedGifts[prompt] then
+		return
+	end
+	local function release()
+		local watch = mutedGifts[prompt]
+		if watch then
+			watch:Disconnect()
+			mutedGifts[prompt] = nil
+		end
+	end
+	mutedGifts[prompt] = plot:GetAttributeChangedSignal("OwnerUserId"):Connect(function()
+		if plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId then
+			release()
+			if prompt.Parent then
+				prompt.Enabled = true
+			end
+		end
+	end)
+	prompt.Destroying:Once(release)
+end
+
+-- F64: a Mystery gift's GiftPrompt opens only for the plot's owner. On anyone else's plot this client switches the
+-- prompt off, so no pill shows and E does nothing, until the plot becomes this player's; the server checks the
+-- owner too. The owner's pill carries the gift's chances under it, shown before opening.
+local function giftNote(prompt: ProximityPrompt): (boolean, string?)
+	if prompt.Name ~= "GiftPrompt" then
+		return true, nil
+	end
+	local plot = plotOf(prompt)
+	if plot and plot:GetAttribute("OwnerUserId") ~= Players.LocalPlayer.UserId then
+		muteGift(prompt, plot)
+		return false, nil
+	end
+	return true, PotionLogic.giftLine(PotionLogic.giftRows(currentCatalog), foodName)
+end
+
 local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local catId = promptAttribute(prompt, "CatId")
 	local def = lookupCat(if type(catId) == "string" then catId else nil)
@@ -2286,8 +2411,9 @@ function UI.catch.bindProximityPrompts()
 
 	local function onShown(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
 		if isActionPrompt(prompt) then
-			if actionPills then
-				actionPills:show(prompt, inputType)
+			local show, note = giftNote(prompt)
+			if show and actionPills then
+				actionPills:show(prompt, inputType, note)
 			end
 			return
 		end
@@ -2400,6 +2526,10 @@ function UI.catch.unbindProximityPrompts()
 		(connection :: any):Disconnect()
 	end
 	table.clear(promptConnections)
+	for _, watch in mutedGifts do
+		watch:Disconnect()
+	end
+	table.clear(mutedGifts)
 	watchStray(nil)
 	activePrompt = nil
 end

@@ -7,7 +7,7 @@
 --         After All Cats, a Spare page (F78, data-model section 3d) lists the spare cats the player has found,
 --         the ones moved out of every area for now; it shows only for a player who has one, and the All Cats page
 --         and the "12 / 50" leave spare cats out.
---   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its ten pieces and two rewards.
+--   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its twelve pieces and two rewards.
 --   Beside the tabs, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
 --   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals).
 

@@ -444,7 +444,12 @@ pairs), coloured from the palette, SmoothPlastic, no bevels. Glass is Glass at 0
 Hanging lamp bulbs are Neon; other `_Bulb`, `_Bulbs`, `_Pane` and `_Tube` parts keep their day look until
 WorldController lights them at night. Every extra object (Head, Tail, Lid, Branch, Roof, SignBoard, bulbs) is a
 child Model whose pivot is that object's origin, so hinges and joints match `part_pivots_roblox`. Big parts of
-furniture, alley, park, plot and street assets collide; cats, people, items and decor do not.
+furniture, alley, park, plot and street assets collide; cats, people, items and decor do not. In the outdoor
+areas (Alley, Park, Street, Square, Neighbourhood, Woods, Sewer) thin parts collide too, down to 0.12 thick when
+at least 0.9 long, so planks, decks, rungs and rails hold players up. Round parts (ellipsoids) get a block collider
+75% of their size so it does not stick out past the curve. An object ending `_Climb` exports as an invisible
+TrussPart (sizes in 2-stud steps, top flush with the deck it reaches) behind a ladder's rungs so players climb it.
+`_Flowers` never collide.
 
 Names the game code reads, so keep them when an asset is rebuilt: `_Roof` (faded for the owner), a part named
 `SignBoard` (owner sign SurfaceGui), `Bars` (a gate barrier, ForceField), `Top` (round table, customers face it),

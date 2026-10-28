@@ -411,7 +411,7 @@ def main():
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
         if args.render:
             path = os.path.join(args.docs, "previews", name + ".png")
-            visible = [o for o in objs if not o.name.endswith(("_Glass", "_Fireflies"))] or objs   # glass is opaque in Cycles here; firefly volumes are air
+            visible = [o for o in objs if not o.name.endswith(("_Glass", "_Fireflies", "_Climb"))] or objs   # glass is opaque in Cycles here; firefly volumes are air
             shifted = [o for o in objs if o.name.endswith("_Closed")]            # show both sign faces side by side
             for o in shifted:
                 o.location.x += 3.2

@@ -297,6 +297,35 @@ function Logic.fishPickup(gain: number): (number, number)
 	return sparkles, ring
 end
 
+-- The decor ids a ProfileSync's `decorPlaced` (`current`) has in use that the last one (`previous`) did not, sorted:
+-- none for the first one seen, or when either is not a table, so joining flashes nothing.
+function Logic.newlyPlaced(previous: unknown, current: unknown): { string }
+	local ids: { string } = {}
+	if type(previous) ~= "table" or type(current) ~= "table" then
+		return ids
+	end
+	local before = previous :: { [unknown]: unknown }
+	for id, inUse in current :: { [unknown]: unknown } do
+		if type(id) == "string" and inUse == true and before[id] ~= true then
+			table.insert(ids, id)
+		end
+	end
+	table.sort(ids)
+	return ids
+end
+
+-- What flashes when a decor piece of `kind` (Types.DecorKind, nil for a shop piece) goes into use: "piece" for its
+-- placed model (shop pieces, crate furniture and decorations), "floor" for a floor style, nil for wallpaper and
+-- paint, which already repaint whole walls.
+function Logic.equipTarget(kind: string?): string?
+	if kind == "floor" then
+		return "floor"
+	elseif kind == "wallpaper" or kind == "paint" then
+		return nil
+	end
+	return "piece"
+end
+
 -- Whether a cat's `Level` going from `previous` to `current` is a level up: both whole numbers and the new one
 -- higher. The first value a client sees (nil before it) is not one.
 function Logic.levelledUp(previous: unknown, current: unknown): boolean
@@ -569,6 +598,17 @@ end
 function Logic.licking(t: number, phase: number): boolean
 	local k = Presets.motion.lick
 	return (t + phase * k.every) % k.every < k.hold
+end
+
+-- Bedtime (F79, data-model 12c): the server walks a working cat to a sleep spot at night and back at sunrise,
+-- setting `Bedtime` for the whole trip and `Asleep` while it lies on the spot. On the way it moves like a stray (the
+-- gait at its real speed, the get-up stretch from StretchAt) and on the spot it naps like one. nil when the cat is
+-- not on a bedtime trip, so the station idles and the old station nap (a server that never sets Bedtime) still run.
+function Logic.bedtimeStyle(bedtime: unknown, asleep: unknown): Style?
+	if bedtime ~= true then
+		return nil
+	end
+	return if asleep == true then "nap" else "stray"
 end
 
 -- How long one breath takes in a style: slow asleep, a little slower again dozing or in a loaf.
@@ -954,6 +994,62 @@ function Logic.note(age: number, phase: number): (Vector3, number)
 	local sway = n.sway * math.sin(age * n.swayHz * 2 * math.pi + phase)
 	local shown = math.clamp(math.min(age / n.fadeIn, (n.seconds - age) / n.fade), 0, 1)
 	return Vector3.new(sway, rise, 0), shown
+end
+
+-- Whether a stray's rarity gem (Presets.rarityMark) can show: its `Rarity` is one that shows, nobody is catching it
+-- (`LockedBy` is 0 or not set) and you are within maxDistance studs but not close: one `shown` hides at hideWithin or
+-- nearer, where the Catch card names the cat, and one hidden comes back only past hideWithin + showAfter.
+function Logic.rarityMarkShows(
+	rarity: unknown,
+	lockedBy: unknown,
+	distance: number,
+	shown: boolean
+): boolean
+	local r = Presets.rarityMark
+	if type(rarity) ~= "string" or r.shows[rarity] ~= true then
+		return false
+	end
+	local locked = type(lockedBy) == "number" and lockedBy ~= 0
+	local near = if shown then r.hideWithin else r.hideWithin + r.showAfter
+	return not locked and distance > near and distance <= r.maxDistance
+end
+
+-- Whether a part is water players can walk through (Effects/Splash): its name ends in "Water" or "Puddle", as the
+-- placeholders' Water, every model's ..._Water and the Alley's puddles do; a WaterfallPond's rocks do not.
+function Logic.isWaterName(name: string): boolean
+	return string.sub(name, -5) == "Water" or string.sub(name, -6) == "Puddle"
+end
+
+-- Whether feet stand in a flat piece of water: `height` studs above its top (Presets.splash: up to `above` over it,
+-- down to `depth` under it, wading), and `u`, `v` across its face within halfU and halfV of its middle, or within
+-- the smaller of the two as a radius on a round one.
+function Logic.wading(
+	height: number,
+	u: number,
+	v: number,
+	halfU: number,
+	halfV: number,
+	round: boolean
+): boolean
+	local s = Presets.splash
+	if height > s.above or height < -s.depth then
+		return false
+	end
+	if round then
+		local radius = math.min(halfU, halfV)
+		return u * u + v * v <= radius * radius
+	end
+	return math.abs(u) <= halfU and math.abs(v) <= halfV
+end
+
+-- A walker's next splash in the water: whether one is due after `moved` more studs, and the studs carried toward the
+-- one after (never more than a stride, so a fast walker does not bank splashes).
+function Logic.waterStep(carried: number, moved: number, stride: number): (boolean, number)
+	local total = carried + moved
+	if total >= stride then
+		return true, math.min(total - stride, stride)
+	end
+	return false, total
 end
 
 return Logic

@@ -46,9 +46,9 @@ def _arch(b, w, h, depth, y, sw="brick", n=9, thick=1.0):
 
 
 def _shroom(b, x, y, s, cap, dots="offwhite", stem="offwhite", glow=None):
-    top = glow or b
+    top = glow or b                                       # only the spots glow (Derek 2026-10-28: "lower the glow")
     b.cyl_base((x, y, 0), 0.22 * s, 0.8 * s, stem, segments=8)
-    top.cyl_base((x, y, 0.8 * s), 0.75 * s, 0.45 * s, cap, segments=10, radius2=0.2 * s)
+    b.cyl_base((x, y, 0.8 * s), 0.75 * s, 0.45 * s, cap, segments=10, radius2=0.2 * s)
     for k in range(3):
         a = 2 * PI * k / 3
         top.ico((x + 0.45 * s * math.cos(a), y + 0.45 * s * math.sin(a), 1.02 * s), 0.12 * s, dots, subdivisions=1)
@@ -77,15 +77,21 @@ def tunnel_arch(mat):
 
 
 def catwalk(mat):
+    """The walkway over the main canal (Derek 2026-10-28: "needs some way of getting up and also shouldn't be able
+    to juts walk through it"): a solid deck 3.1 up with steps at both ends (0.775 high each), railings 3 high."""
     b = Builder()
+    top = 3.1
     b.box((0, 0, 3.0), (3.0, 12.0, 0.2), "metal", bevel=False)
     for i in range(13):
         b.box((0, -5.8 + i * 0.97, 3.12), (2.9, 0.08, 0.05), "concrete_dark", bevel=False)  # grating
+    for s_ in (-1, 1):                                                                       # steps down each end
+        for k in range(4):
+            b.box_base((0, s_ * (6.5 + k), 0), (3.0, 1.0, top - 0.775 * k), "concrete", bevel=False)
     for sx in (-1, 1):
         for y in (-5.6, 0, 5.6):
-            b.box_base((sx * 1.4, y, 0), (0.25, 0.25, 4.6), "rust" if y == 0 else "metal", bevel=False)
-        b.box((sx * 1.4, 0, 4.6), (0.15, 12.0, 0.15), "rarity_legend", bevel=False)
-        b.box((sx * 1.4, 0, 3.8), (0.1, 12.0, 0.1), "metal", bevel=False)
+            b.box_base((sx * 1.4, y, 0), (0.25, 0.25, top + 3.0), "rust" if y == 0 else "metal", bevel=False)
+        b.box((sx * 1.4, 0, top + 3.0), (0.15, 12.0, 0.15), "rarity_legend", bevel=False)   # rails 3 high
+        b.box((sx * 1.4, 0, top + 1.5), (0.12, 12.0, 0.12), "metal", bevel=False)
     return [b.finalize(N + "Catwalk", mat)]
 
 

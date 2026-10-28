@@ -36,16 +36,16 @@ Gavin, Q18: instead of a rebirth, a tier you rank up to by meeting a prerequisit
 | Tier | Name | Rank up needs | Opens |
 |---|---|---|---|
 | 1 | Corner Cafe | start | Alleyway, Barista and Waiter, 2 tables |
-| 2 | Cozy Cafe | 1,500 coins, 5 different cats | Park, 4 slots, x1.25 income, 4 tables, plants and rug |
-| 3 | Busy Cafe | 8,000 coins, 12 different cats, any Epic | Neighbourhood, 6 slots, x1.5, 6 tables, neon sign |
-| 4 | Famous Cafe | 30,000 coins, 20 different cats, any Legendary | Woods, 8 slots, x1.75, fish tank, patio |
-| 5 | Grand Cafe | 120,000 coins, 30 different cats, two different Legendaries | Sewer, 10 slots, x2.0 |
+| 2 | Cozy Cafe | 8,000 coins, 5 different cats | Park, 4 slots, x1.25 income, 4 tables, plants and rug |
+| 3 | Busy Cafe | 80,000 coins, 12 different cats, any Epic | Neighbourhood, 6 slots, x1.5, 6 tables, neon sign |
+| 4 | Famous Cafe | 700,000 coins, 20 different cats, any Legendary | Woods, 8 slots, x1.75, fish tank, patio |
+| 5 | Grand Cafe | 5,000,000 coins, 30 different cats, two different Legendaries | Sewer, 10 slots, x2.0 |
 
 Whether ranking up spends the coins or only needs you to hold them is a round 2 question; we build "spend" because the cafe needs a coin sink.
 
 ## Cats
 
-Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one Mythical (Gavin, Q5 and Q14). Every area can spawn every rarity, and later areas tilt the odds upward. Each cat lives only in its own area, and several of the same cat can be out at once there (Gavin confirmed in round 2). The slice builds the Alleyway and Park cats (20); the other thirty have provisional names in the catalog and arrive with their areas.
+Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one Mythical (Gavin, Q5 and Q14). Every area can spawn every rarity, all with the same odds (Derek, 2026-10-28 01:50); rare cats come mainly from bait food, and cats from later areas earn more (data-model section 9). Each cat lives only in its own area, and several of the same cat can be out at once there (Gavin confirmed in round 2). The slice builds the Alleyway and Park cats (20); the other thirty have provisional names in the catalog and arrive with their areas.
 
 | Rarity | Base tips per second | Net circles | Notes |
 |---|---|---|---|
@@ -103,7 +103,7 @@ Offline earnings stay: 25% of your day rate for up to one hour, claimed with a p
 
 ## Economy
 
-Start with 50 coins and a Tabby as Barista earning 1.5 per second. Table 1 at 100 lands inside two minutes. Tier 2 at 1,500 coins and five different Alleyway cats lands around minute 10 to 15, which opens the Park. Tier 5 is a long goal of several hours. Duplicate cats sell for 25, 150, 600, 3,000 and 12,000 by rarity.
+Start with 50 coins and a Tabby as Barista earning 1.5 per second. Table 1 at 150 lands inside two minutes. Tier 2 at 8,000 coins and five different Alleyway cats lands around minute 12 to 16, which opens the Park. Tier 5 at 5,000,000 coins is a long goal of about three hours. Since data-model v0.13.6 (Derek, 2026-10-28 01:38) each tier waits on coins after its cats are ready, and the shop levels a tier opens take a while to buy (data-model section 11 has the pace). Duplicate cats sell for 25, 150, 600, 3,000 and 12,000 by rarity.
 
 ## The first ten minutes
 

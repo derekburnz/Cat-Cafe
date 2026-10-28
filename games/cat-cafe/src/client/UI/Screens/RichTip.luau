@@ -3,10 +3,11 @@
 -- A gold bubble floats over the plot's RichTipAnchor (the coin pile) with the amount and a draining timer, and a
 -- green Collect button under it, like the cash pads and coin drops in Steal a Brainrot and Pet Simulator 99.
 -- Collect works within RichTipRangeStuds (12) of the anchor; further away it reads "Walk closer". When the tip
--- clears (claimed, or paid into the till at expiry) the marker pops away and `collected` fires so the caller can
--- float "+$X" and toast it. The server pays either way, so the marker never has to be pressed.
+-- clears the marker pops away. A tip pays only when collected (Derek 2026-10-28: "if you miss it you miss it",
+-- data-model 12 v0.13.4): the plot's RichTipOutcome reads "claimed" or "missed" as RichTipAmount goes to 0, and
+-- `collected` fires only on "claimed" so the caller can float "+$X" and toast it; on "missed" `missed` fires.
 --
---   bind(plot)  watch this plot's RichTipAmount and RichTipExpiresAt (server os.time()); nil stops watching
+--   bind(plot)  watch this plot's RichTipAmount, RichTipExpiresAt (server os.time()) and RichTipOutcome; nil stops
 --
 -- Roblox terms: the plot attributes are display copies the server keeps in step with its own record; the button is
 -- inside a BillboardGui, which only passes taps and clicks to its children when Active.
@@ -36,8 +37,9 @@ local BOB = 0.18 -- studs of gentle bobbing (off with Reduced Motion)
 
 export type Callbacks = {
 	collect: () -> (),
-	-- the tip cleared: its amount and where the coin pile was, for a "+$X" pop and a toast
+	-- the tip was claimed: its amount and where the coin pile was, for a "+$X" pop and a toast
 	collected: (amount: number, position: Vector3?) -> (),
+	missed: () -> (), -- the tip left unclaimed (expiry, nightfall), so nothing was paid
 }
 
 export type RichTip = {
@@ -56,6 +58,7 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 	self._plotConnections = {} :: { RBXScriptConnection }
 	self._loop = nil :: RBXScriptConnection?
 	self._lastAmount = 0
+	self._cleared = nil :: { amount: number, position: Vector3? }? -- a cleared tip waiting for its outcome
 	self._pendingUntil = 0
 	self._shown = false
 
@@ -211,7 +214,7 @@ function RichTip._tick(self: any)
 	local view = self:_view()
 	local anchor = self:_findAnchor()
 	if view == nil or anchor == nil then
-		-- the clock ran out here first; the server pays it into the till and clears the attributes next
+		-- the clock ran out here first; the tip leaves unpaid and the server clears the attributes next
 		self:_hide()
 		return
 	end
@@ -266,6 +269,27 @@ function RichTip._hide(self: any)
 	end)
 end
 
+-- Reports a cleared tip once the plot says how it ended. The server writes RichTipOutcome just before it zeroes
+-- RichTipAmount; if the outcome lands second, it still reads "" here and its own change calls this again.
+function RichTip._report(self: any)
+	local cleared = self._cleared
+	local plot: Instance? = self._plot
+	if cleared == nil or plot == nil then
+		return
+	end
+	local outcome = (plot :: Instance):GetAttribute("RichTipOutcome")
+	if outcome == "" then
+		return
+	end
+	self._cleared = nil
+	if outcome == "missed" then
+		self._callbacks.missed()
+	else
+		-- "claimed", or no attribute from a server before v0.13.4, which paid at expiry too
+		self._callbacks.collected(cleared.amount, cleared.position)
+	end
+end
+
 -- An attribute changed: show, update or hide, and report a tip that cleared.
 function RichTip._refresh(self: any)
 	local plot: Instance? = self._plot
@@ -273,7 +297,11 @@ function RichTip._refresh(self: any)
 	local amount = if type(raw) == "number" and raw > 0 then raw else 0
 	if amount == 0 and self._lastAmount > 0 then
 		local anchor = self:_findAnchor()
-		self._callbacks.collected(self._lastAmount, if anchor then anchor.Position else nil)
+		local position = if anchor then anchor.Position else nil
+		self._cleared = { amount = self._lastAmount, position = position }
+		self:_report()
+	elseif amount > 0 then
+		self._cleared = nil -- a new tip; an older one's outcome no longer matters
 	end
 	self._lastAmount = amount
 	local view = self:_view()
@@ -293,6 +321,7 @@ function RichTip.bind(self: any, plot: Instance?)
 	self._plot = plot
 	self._anchor = nil
 	self._lastAmount = 0
+	self._cleared = nil
 	if plot == nil then
 		self:_hide()
 		return
@@ -308,6 +337,12 @@ function RichTip.bind(self: any, plot: Instance?)
 	table.insert(
 		self._plotConnections,
 		plot:GetAttributeChangedSignal("RichTipExpiresAt"):Connect(refresh)
+	)
+	table.insert(
+		self._plotConnections,
+		plot:GetAttributeChangedSignal("RichTipOutcome"):Connect(function()
+			self:_report()
+		end)
 	)
 	-- the coin pile can stream in after the attributes
 	table.insert(

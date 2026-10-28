@@ -91,6 +91,15 @@ return function()
 			end
 		end)
 
+		it("keeps the day's haze light and none at midday, so no grey veil from the high camera (Derek 00:45)", function()
+			for i = 0, 100 do
+				local look = DayLight.at("day", i / 100)
+				expect(look.Haze <= 0.6).to.equal(true)
+				expect(look.Density <= 0.3).to.equal(true)
+			end
+			expect(DayLight.at("day", 0.45).Haze).to.equal(0)
+		end)
+
 		it("is brightest around midday and dimmer at sunrise and sunset", function()
 			local midday = DayLight.at("day", 0.45).Brightness
 			expect(DayLight.at("day", 0).Brightness < midday).to.equal(true)

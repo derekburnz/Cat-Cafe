@@ -2,7 +2,8 @@
 -- Action pills: our look for every custom-style ProximityPrompt that is not a cat (the bait bowl, the night
 -- dealer's cart, the Sewer manhole, Bump). A dark rounded pill over the thing with a key cap and the
 -- prompt's ActionText, its ObjectText small above, like the custom prompts in Pet Simulator 99 and Adopt Me.
---   show(prompt, inputType)  pops a pill in over the prompt's part (PromptShown)
+--   show(prompt, inputType, note?)  pops a pill in over the prompt's part (PromptShown); a note is one small
+--                    outlined line under it, no box (the Mystery gift's chances, F64)
 --   hide(prompt)             shrinks it away (PromptHidden)
 --   holdBegan / holdEnded    a hold prompt fills its key cap with gold over HoldDuration; letting go drains it
 --   triggered(prompt)        a quick squash so the press feels like it landed
@@ -24,7 +25,8 @@ export type ActionPill = {
 	show: (
 		self: ActionPill,
 		prompt: ProximityPrompt,
-		inputType: Enum.ProximityPromptInputType
+		inputType: Enum.ProximityPromptInputType,
+		note: string?
 	) -> (),
 	hide: (self: ActionPill, prompt: ProximityPrompt) -> (),
 	holdBegan: (self: ActionPill, prompt: ProximityPrompt) -> (),
@@ -51,6 +53,8 @@ local WIDTH = 360 -- the billboard; the pill inside is as wide as its text
 local HEIGHT = 72
 local PILL_HEIGHT = 54
 local KEY = 38
+local NOTE_H = 22 -- the note line under the pill
+local NOTE_W = 600
 local TAP = "👆" -- the key cap on touch, where there is no key to name
 
 local ActionPill = {}
@@ -87,7 +91,8 @@ end
 local function build(
 	self: any,
 	prompt: ProximityPrompt,
-	inputType: Enum.ProximityPromptInputType
+	inputType: Enum.ProximityPromptInputType,
+	note: string?
 ): Pill?
 	local adornee = adorneeOf(prompt)
 	if adornee == nil then
@@ -99,6 +104,8 @@ local function build(
 		then prompt.GamepadKeyCode.Name
 		else prompt.KeyboardKeyCode.Name
 	local keyText = if touch then TAP else PromptKey.label(inputType.Name, keyName)
+	-- a note makes the billboard taller below the pill, so the pill itself stays where it was
+	local height = if note then HEIGHT + NOTE_H * 2 else HEIGHT
 
 	local billboard: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeActionPill",
@@ -107,8 +114,8 @@ local function build(
 		Active = clickable, -- a BillboardGui only passes taps and clicks to its children when Active
 		LightInfluence = 0,
 		ResetOnSpawn = false,
-		Size = UDim2.fromOffset(WIDTH, HEIGHT),
-		SizeOffset = Vector2.new(prompt.UIOffset.X / WIDTH, prompt.UIOffset.Y / HEIGHT),
+		Size = UDim2.fromOffset(WIDTH, height),
+		SizeOffset = Vector2.new(prompt.UIOffset.X / WIDTH, prompt.UIOffset.Y / height),
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 	})
 	-- The pill is a button so it can be tapped; it grows with its text through AutomaticSize.
@@ -218,6 +225,22 @@ local function build(
 		Parent = column,
 	})
 	Outline.text(action)
+	if note then
+		local line: TextLabel = Create("TextLabel", {
+			Name = "Note",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0.5, PILL_HEIGHT / 2 + 4),
+			-- wider than the billboard, which does not clip, so a long line such as the gift's chances fits
+			Size = UDim2.fromOffset(NOTE_W, NOTE_H - 4),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.white,
+			Text = note,
+			Parent = billboard,
+		})
+		Outline.text(line, 1.5)
+	end
 
 	local pill: Pill = {
 		billboard = billboard,
@@ -303,7 +326,8 @@ end
 function ActionPill.show(
 	self: any,
 	prompt: ProximityPrompt,
-	inputType: Enum.ProximityPromptInputType
+	inputType: Enum.ProximityPromptInputType,
+	note: string?
 )
 	-- shown again for a new input type (a gamepad plugged in): rebuild with the right key
 	local old: Pill? = self._pills[prompt]
@@ -312,7 +336,7 @@ function ActionPill.show(
 		old.billboard:Destroy()
 		self._pills[prompt] = nil
 	end
-	local pill = build(self, prompt, inputType)
+	local pill = build(self, prompt, inputType, note)
 	if pill == nil then
 		return
 	end

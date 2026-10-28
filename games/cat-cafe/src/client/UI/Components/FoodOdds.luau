@@ -22,6 +22,7 @@ local FoodOdds = {}
 
 -- Theme.rarityOrder, kept here so this module loads without Theme's fonts (the cloud test runner has no Font)
 local RARITIES: { string } = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
+local NBSP = utf8.char(0xA0) -- a no-break space
 
 -- data-model section 8: GoldChanceBait 0.05 (v0.5 F42), and the charm star odds from the two-roll charm
 local GOLD_CHANCE: number = Config.GoldChanceBait
@@ -58,6 +59,7 @@ end
 
 -- The card's odds row for a RichText label: "Common 70%   Rare 25%   ..." with each part in its rarity's colour.
 -- `hexOf` gives that colour as hex (the screens pass Theme.rarityInk), since this module loads without Theme.
+-- A no-break space joins each name to its share, so a wrapped row never leaves "Rare" and "25%" apart (N229).
 function FoodOdds.rich(odds: Types.LureOdds?, hexOf: (rarity: string) -> string): string
 	if not odds then
 		return "Odds: not set"
@@ -67,7 +69,7 @@ function FoodOdds.rich(odds: Types.LureOdds?, hexOf: (rarity: string) -> string)
 	for _, rarity in RARITIES do
 		local share = (odds :: any)[rarity]
 		if type(share) == "number" then
-			local part = ("%s %s"):format(rarity, percent(share))
+			local part = rarity .. NBSP .. percent(share)
 			table.insert(parts, ('<font color="#%s">%s</font>'):format(hexOf(rarity), part))
 		end
 	end

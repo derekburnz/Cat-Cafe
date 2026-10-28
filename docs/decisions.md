@@ -282,3 +282,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Asked by the QA thread, decided by the game-designer thread (2026-10-28, the Cat Collector's visit pace)
 - 2026-10-28 07:29: The Cat Collector keeps CollectorChance 0.12, which comes to about one visit every 25 minutes with the short night (data-model 12b, v0.13.12; QA #506 tests 20 to 30). The doc's 35 minutes dated from the five-minute night. Reason: the short night gives every day visitor more day per hour on purpose, and a trade always costs the player a cat, so more offers do not add free rewards.
+
+### Decided by Derek (2026-10-28, the Mystery gift rule and "food and time")
+- 2026-10-28 12:02: Derek gave his OK to the open suggestions he had read ("it's my ok for everything I read through whats being suggested"). That settles two design questions. The Mystery Visitor's gift follows the rich tip rule: only the owner's hold E at the cafe opens it, and a gift unopened at its keep time or when the owner leaves goes away and pays nothing (data-model 12b, v0.13.4, already built in #459). "Food and time" in the 01:50 ask means bait food and the bowl's wait, with nothing keyed to the time of day (data-model 9, v0.13.7). Reason: Derek's call; it keeps every visitor reward tied to being home, and the odds stay the same everywhere.

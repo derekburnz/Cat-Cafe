@@ -386,6 +386,8 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name in mystery.NEST:                  # F64: the visitor's hood rides its Head
+            extra = {"nest": mystery.NEST[name]}
         if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)
             extra = {"attachments": furniture.spot_attachments(name, furniture.TREE_SPOTS)}
         if name == "CatCafe_Furniture_CatBed":

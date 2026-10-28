@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 05:30 UTC",
+  "generated": "2026-10-28 05:32 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -70119,7 +70119,7 @@
         120.0,
         43.5
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {
         "bridge": [
@@ -70567,7 +70567,8 @@
             -88.85,
             15.45,
             68.06,
-            "deep"
+            "deep",
+            -106.26
           ]
         ],
         "treehouse_foot": [

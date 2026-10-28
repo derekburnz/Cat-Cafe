@@ -13,7 +13,7 @@ at the far wall, where the culvert pours in out of the wall itself (Derek 01:40:
 to the yard's canal. The east hall's cross wall leaves one archway at its east end; the market is before it, the cat
 houses after it. Two steel catwalks cross the channel (8b): one in the yard by the tunnel front, out to the west
 bank, and one at the far end, the only way into the west hall: the junk throne by the far wall, and the far
-chamber with the boat, the raft and the hammock. About 300 studs gate to throne
+chamber with the boat, the raft and the hammock. About 280 studs gate to throne, 330 to the far chamber,
 against 180 straight. Every tunnel mouth in the walls is finished (Derek 01:41): a stone frame, an arch, depth, and
 iron bars, an iron door or a water grate. Water is only crossed on the three bridges (8c): `_Barrier` walls stand on
 every kerb and round the pool, open only at the bridges, and a 30 high `_Barrier` stands in the wall band all round

@@ -1,9 +1,12 @@
 --!strict
--- The Tackle on every R15 character this client can see (design v0.11, F74): the tackler's dive, then the stumble
--- to a stop after a hit or the belly slide and get up after a miss, and the tackled player's fall and get up. Poses
--- from Avatar.luau go into the joints' Motor6D.Transform after the Animator each frame (PreSimulation), eased in
--- from and back out to whatever the character was playing; Transform does not replicate, so each client draws every
--- character it sees. The engineer moves and holds the characters; this only draws them.
+-- The Tackle on every character this client can see (design v0.11, F74): the tackler's dive, then the stumble to a
+-- stop after a hit or the belly slide and get up after a miss, and the tackled player's fall and get up. Poses from
+-- Avatar.luau go into the joints' Transform after the Animator each frame (PreSimulation), eased in from and back out
+-- to whatever the character was playing; Transform does not replicate, so each client draws every character it
+-- sees. The engineer moves and holds the characters; this only draws them. A character's rig is read again whenever
+-- a joint is added or removed (its body parts loading or being swapped), and tried again each second until it has
+-- one, so a character that was not ready when it spawned still gets its poses (Derek 2026-10-28: the live game
+-- showed none).
 --
 -- Source: a tackler's character carries `TackleAt` (server time of the press) and `TackleMissAt` (a window that
 -- ended with no hit); a hit sets the target's `ShovedAt` and `ShovedBy` (the tackler's UserId), so the tackler's hit
@@ -26,7 +29,7 @@ local Tackle = {}
 
 type Entry = {
 	rig: Avatar.Rig,
-	written: { [Motor6D]: CFrame }, -- what this wrote last frame, to tell the Animator's frames from its own
+	written: { [Avatar.Joint]: CFrame }, -- what this wrote last frame, to tell the Animator's frames from its own
 	shoveSeen: number?, -- the ShovedAt the fall direction below was worked out for
 	fallForward: boolean,
 	side: number,
@@ -37,8 +40,10 @@ type Entry = {
 -- How close a joint's Transform must be to what this wrote to count as untouched by the Animator (a value read back
 -- from the property need not match bit for bit).
 local SAME = 1e-5
+local RETRY_SECONDS = 1 -- a character with no rig yet is read again this often
 
 local entries: { [Model]: Entry } = {}
+local stale: { [Model]: number } = {} -- characters whose rig must be read (again), and when to try next
 local localPress: number? = nil -- server time of this player's own press
 local timing: Avatar.Timing? = nil
 local started = false
@@ -82,11 +87,17 @@ local function rootOf(character: Model?): BasePart?
 	return if root ~= nil and root:IsA("BasePart") then root :: BasePart else nil
 end
 
+-- Motor6D and AnimationConstraint both have a Transform, but the type checker only lets it be read through the union.
+local function write(motor: Avatar.Joint, frame: CFrame)
+	local joint: any = motor
+	joint.Transform = frame
+end
+
 -- Gives the joints back to the Animator: a joint no track drives would otherwise keep the last pose.
 local function release(entry: Entry)
 	for motor, frame in entry.written do
 		if motor.Transform:FuzzyEq(frame, SAME) then
-			motor.Transform = CFrame.identity
+			write(motor, CFrame.identity)
 		end
 	end
 	table.clear(entry.written)
@@ -125,7 +136,51 @@ local function aim(entry: Entry, character: Model, shovedAt: number)
 	entry.side = mine.X
 end
 
+local function newEntry(rig: Avatar.Rig): Entry
+	return {
+		rig = rig,
+		written = {},
+		shoveSeen = nil,
+		fallForward = false,
+		side = 0,
+		cutKey = nil,
+		cutAt = 0,
+	}
+end
+
+-- Reads the rig of each character whose joints changed or that has none yet; one still loading is tried again in a
+-- second.
+local function rebind()
+	local clock = os.clock()
+	for character, at in stale do
+		if clock < at then
+			continue
+		end
+		if not character:IsDescendantOf(game) then
+			stale[character] = nil
+			continue
+		end
+		local old = entries[character]
+		if old ~= nil then
+			release(old)
+		end
+		local rig = Avatar.bind(character)
+		if rig == nil then
+			entries[character] = nil
+			stale[character] = clock + RETRY_SECONDS
+		elseif old ~= nil then
+			-- the same move goes on (a tool's grip or a new outfit mid-tackle): keep its fall direction and walk-out
+			old.rig = rig
+			stale[character] = nil
+		else
+			entries[character] = newEntry(rig)
+			stale[character] = nil
+		end
+	end
+end
+
 local function step()
+	rebind()
 	local now = Workspace:GetServerTimeNow()
 	local t = Presets.tacklePose
 	local times = timingNow()
@@ -201,36 +256,26 @@ local function step()
 				base = CFrame.identity -- the Animator left this joint alone, so last frame's pose is still on it
 			end
 			local out = base:Lerp(frame, weight)
-			motor.Transform = out
+			write(motor, out)
 			entry.written[motor] = out
 		end
 	end
 end
 
 local function watchCharacter(character: Model)
-	-- the joints are there once the character is in the world; R15 only
-	task.defer(function()
-		if not character:IsDescendantOf(game) or entries[character] ~= nil then
-			return
+	stale[character] = 0
+	local function changed(descendant: Instance)
+		if descendant:IsA("Motor6D") or descendant:IsA("AnimationConstraint") then
+			stale[character] = 0 -- read again next frame, once it has settled
 		end
-		local rig = Avatar.bind(character)
-		if rig == nil then
-			return
+	end
+	character.DescendantAdded:Connect(changed)
+	character.DescendantRemoving:Connect(changed)
+	character.AncestryChanged:Connect(function()
+		if not character:IsDescendantOf(game) then
+			stale[character] = nil
+			forget(character)
 		end
-		entries[character] = {
-			rig = rig,
-			written = {},
-			shoveSeen = nil,
-			fallForward = false,
-			side = 0,
-			cutKey = nil,
-			cutAt = 0,
-		}
-		character.AncestryChanged:Connect(function()
-			if not character:IsDescendantOf(game) then
-				forget(character)
-			end
-		end)
 	end)
 end
 

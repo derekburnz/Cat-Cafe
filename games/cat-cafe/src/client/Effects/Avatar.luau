@@ -789,23 +789,29 @@ end
 
 -- The cloud cutscene's flyer `seconds` after CannonLaunchAt (Presets.cannonGlide), in its ViewportFrame's space: the
 -- pose, where the body is, its heading, its forward roll and its bank (radians). Before the clouds it waits below the
--- frame as the ball; nil from cannonPose's `drop`, when the clouds part and the flyer is done.
-function Avatar.glide(seconds: number): (Pose?, Vector3, number, number, number)
+-- frame as the ball; nil once it has dived out. It is in view for `span` seconds from cannonPose's `gone` (its `drop`
+-- less `gone` when nil, the flight's own); a shorter span (the intro's squeezed shot) squeezes the rise, the opening
+-- and the dive to fit, and the glide between keeps its own pace.
+function Avatar.glide(seconds: number, span: number?): (Pose?, Vector3, number, number, number)
 	local c = Presets.cannonPose
 	local g = Presets.cannonGlide
-	if seconds >= c.drop then
+	local full = c.drop - c.gone
+	local window = span or full
+	if window <= 0 or seconds >= c.gone + window then
 		return nil, Vector3.zero, 0, 0, 0
 	end
+	local squeeze = math.min(1, window / full)
+	local rise, opening, dive = g.rise * squeeze, g.open * squeeze, g.dive * squeeze
 	local s = math.max(seconds, c.gone)
 	local ball, glide = cannonKey("ball"), cannonKey("spread")
 	local heading = math.rad(g.heading)
-	local roll = 2 * math.pi * c.spin
-	local opened = c.gone + g.rise + g.open
-	local tuck = c.drop - g.dive
+	local roll = 2 * math.pi * c.spin / squeeze
+	local opened = c.gone + rise + opening
+	local tuck = c.gone + window - dive
 	if s < opened then
 		-- up into view still rolling, opening out flat as the roll comes round upright
-		local up = smooth((s - c.gone) / g.rise)
-		local open = smooth((s - (opened - g.open)) / g.open)
+		local up = smooth((s - c.gone) / rise)
+		local open = smooth((s - (opened - opening)) / opening)
 		return Avatar.mix(ball, glide, open),
 			Vector3.new(0, -g.below * (1 - up), 0),
 			heading,
@@ -828,7 +834,7 @@ function Avatar.glide(seconds: number): (Pose?, Vector3, number, number, number)
 		return pose, Vector3.new(0, bob, 0), heading, 0, bank
 	end
 	-- tucked back into the ball and diving out of the bottom
-	local k = (s - tuck) / g.dive
+	local k = (s - tuck) / dive
 	local bob, bank = sway(tuck - opened)
 	return Avatar.mix(glide, ball, smooth(k * 2)),
 		Vector3.new(0, bob - g.below * k * k, 0),
@@ -837,10 +843,10 @@ function Avatar.glide(seconds: number): (Pose?, Vector3, number, number, number)
 		bank * (1 - smooth(k))
 end
 
--- The flyer's joint Transforms `seconds` after CannonLaunchAt (Avatar.glide), its root at the frame's origin; nil
--- once it is done.
-function Avatar.glideFrames(rig: Rig, seconds: number): { [Joint]: CFrame }?
-	local pose, at, yaw, roll, bank = Avatar.glide(seconds)
+-- The flyer's joint Transforms `seconds` after CannonLaunchAt (Avatar.glide, with its `span`), its root at the
+-- frame's origin; nil once it is done.
+function Avatar.glideFrames(rig: Rig, seconds: number, span: number?): { [Joint]: CFrame }?
+	local pose, at, yaw, roll, bank = Avatar.glide(seconds, span)
 	if pose == nil then
 		return nil
 	end

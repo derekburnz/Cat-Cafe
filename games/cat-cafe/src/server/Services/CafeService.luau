@@ -286,6 +286,78 @@ local function showDecor(plot: WorldBuilder.Plot, def: Types.DecorDef, at: BaseP
 	model.Parent = plot.decor
 end
 
+-- A door set or cat flap model (F80) named `name` in plot.decor at `at`, carrying `decorId` for the equip flash, or
+-- none when `asset` is nil. It never collides, is touched or blocks a cast, so both doorways stay open to players,
+-- customers and cats.
+local function showStyleModel(
+	plot: WorldBuilder.Plot,
+	name: string,
+	asset: string?,
+	decorId: string?,
+	at: CFrame
+): Model?
+	local existing = plot.decor:FindFirstChild(name)
+	if existing ~= nil and (asset == nil or existing:GetAttribute("Asset") ~= asset) then
+		existing:Destroy()
+		existing = nil
+	end
+	if asset == nil then
+		return nil
+	end
+	local model: Model
+	if existing ~= nil and existing:IsA("Model") then
+		model = existing :: Model
+	else
+		model = AssetRegistry.clone(asset)
+		model.Name = name
+		model:SetAttribute("Asset", asset)
+		for _, descendant in model:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				local part = descendant :: BasePart
+				part.Anchored = true
+				part.CanCollide = false
+				part.CanTouch = false
+				part.CanQuery = false
+			end
+		end
+		model.Parent = plot.decor
+	end
+	model:SetAttribute("DecorId", decorId)
+	model:PivotTo(at)
+	return model
+end
+
+-- The door set and cat flap in use (F80, golden-fish.md 4b) swap models in: DoorFront in the front doorway and
+-- DoorBack in the back one (the piece's CatCafe_Door_<Name>, or its _Front and _Back versions where the art has
+-- them), each at the bottom centre of its opening facing out, and CatFlap at the back door model's `CatFlap`
+-- attachment, or low on the cafe's own back door panel's yard face with no door set in use. With none in use the cafe
+-- keeps its own doors.
+local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
+	local front = plot.door.CFrame * CFrame.new(0, -plot.door.Size.Y / 2, 0)
+	local back = plot.backDoor.CFrame
+		* CFrame.new(0, -plot.backDoor.Size.Y / 2, 0)
+		* CFrame.Angles(0, math.pi, 0)
+	local doorId = Crates.styleInUse(profile, "door")
+	local doorDef = if doorId ~= nil then Catalog.getDecor(doorId) else nil
+	local function doorAsset(side: string): string?
+		if doorDef == nil then
+			return nil
+		end
+		local named = doorDef.asset .. "_" .. side
+		return if AssetRegistry.has(named) then named else doorDef.asset
+	end
+	showStyleModel(plot, "DoorFront", doorAsset("Front"), doorId, front)
+	local backModel = showStyleModel(plot, "DoorBack", doorAsset("Back"), doorId, back)
+	local flapAt = back * CFrame.new(0, 0, -plot.backDoor.Size.Z / 2 - 0.05)
+	local hinge = if backModel ~= nil then backModel:FindFirstChild("CatFlap", true) else nil
+	if hinge ~= nil and hinge:IsA("Attachment") then
+		flapAt = (hinge :: Attachment).WorldCFrame
+	end
+	local flapId = Crates.styleInUse(profile, "catflap")
+	local flapDef = if flapId ~= nil then Catalog.getDecor(flapId) else nil
+	showStyleModel(plot, "CatFlap", if flapDef ~= nil then flapDef.asset else nil, flapId, flapAt)
+end
+
 local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 	local replaced = Economy.replacedDecor(profile) -- a placed stand-in takes its piece's spot (none since F54)
 	local function inUse(def: Types.DecorDef): boolean
@@ -318,6 +390,11 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 	for _, slot in Crates.STYLE_SLOTS do
 		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))
 	end
+	-- The door set and cat flap in use, by decor id, and their models (F80).
+	for _, slot in Crates.MODEL_SLOTS do
+		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))
+	end
+	refreshDoors(plot, profile)
 end
 
 -- Tables and their chairs, one per tables level. Each chair carries the customers' way to it (CustomerController):
@@ -966,7 +1043,7 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 		return
 	end
 	if placed and Crates.isStyle(def.kind) then
-		-- one wallpaper, one floor and one paint: the new one takes the old one's place (F53)
+		-- one wallpaper, floor, paint, door set and cat flap: the new one takes the old one's place (F53, F80)
 		local current = Crates.styleInUse(profile, def.kind :: Types.DecorKind)
 		if current ~= nil then
 			profile.decorPlaced[current] = nil

@@ -1116,7 +1116,7 @@ Catalog.indexMilestones = {
 	{ id = "total45", track = "normal", needs = 45 },
 	{ id = "total50", track = "normal", needs = 50 },
 	{ id = "decor5", track = "decor", needs = 5 },
-	{ id = "decor10", track = "decor", needs = 10 },
+	{ id = "decor10", track = "decor", needs = 12 }, -- every piece of the page: 12 since F80 (golden-fish.md 4b)
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -1409,10 +1409,12 @@ local CRATE_POOLS = {
 	{ area = "classic", name = "Classic" },
 }
 -- The pieces in each pool (F53, golden-fish.md section 4): ten, two of each kind, 4 Common, 3 Rare and one each of
--- Epic, Legendary and Mythical. A wallpaper, floor or paint is a colour and a material on the cafe's tagged shell
--- parts; furniture and decorations are models (CatCafe_Decor_<Name>) on decor spots. The F48 Index pieces are their
--- zones' Epics and keep their ids, models and anchors (F54: no Index prize hands out decor any more). Every piece
--- is a DecorDef in Catalog.crateDecor.
+-- Epic, Legendary and Mythical, then since F80 (section 4b) a door set and a cat flap, one Common and one Rare, so
+-- twelve with 5 Common and 4 Rare. A wallpaper, floor or paint is a colour and a material on the cafe's tagged shell
+-- parts; furniture and decorations are models (CatCafe_Decor_<Name>) on decor spots; a door set is a model
+-- (CatCafe_Door_<Name>, the name less " Door") in both doorways and a cat flap one (CatCafe_CatFlap_<Name>, less
+-- " Flap") low in the back door. The F48 Index pieces are their zones' Epics and keep their ids, models and anchors
+-- (F54: no Index prize hands out decor any more). Every piece is a DecorDef in Catalog.crateDecor.
 type PieceRow = {
 	id: string,
 	name: string,
@@ -1508,6 +1510,20 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			asset = "CatCafe_Decor_MuralPrint", -- the F48 Index piece, on its own anchor
 			description = "The Alleyway mural in a frame.",
 		},
+		{
+			id = "alley_fire_escape_door",
+			name = "Fire Escape Door",
+			kind = "door",
+			rarity = "Common",
+			description = "A red steel door with rivets and a small wired window.",
+		},
+		{
+			id = "alley_neon_paw_flap",
+			name = "Neon Paw Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "A dark flap with a neon paw outline that glows at night.",
+		},
 	},
 	park = {
 		{
@@ -1592,6 +1608,20 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			kind = "decoration",
 			rarity = "Mythical",
 			description = "A blossom tree with petals drifting down.",
+		},
+		{
+			id = "park_garden_gate_door",
+			name = "Garden Gate Door",
+			kind = "door",
+			rarity = "Common",
+			description = "A green plank door with a little window of leaves.",
+		},
+		{
+			id = "park_birdhouse_flap",
+			name = "Birdhouse Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "The flap framed like a birdhouse, with a tiny roof.",
 		},
 	},
 	neighbourhood = {
@@ -1678,6 +1708,20 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			asset = "CatCafe_Decor_MailboxPlanter", -- the F48 Index piece, on its own anchor
 			description = "A mailbox full of flowers.",
 		},
+		{
+			id = "neighbourhood_front_porch_door",
+			name = "Front Porch Door",
+			kind = "door",
+			rarity = "Rare",
+			description = "A white door with a fanlight window and a wreath.",
+		},
+		{
+			id = "neighbourhood_mail_slot_flap",
+			name = "Mail Slot Flap",
+			kind = "catflap",
+			rarity = "Common",
+			description = "A brass flap like a letterbox.",
+		},
 	},
 	woods = {
 		{
@@ -1762,6 +1806,20 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Epic",
 			asset = "CatCafe_Decor_MushroomLamp", -- the F48 Index piece, on its own anchor
 			description = "A glowing toadstool from the Woods.",
+		},
+		{
+			id = "woods_log_cabin_door",
+			name = "Log Cabin Door",
+			kind = "door",
+			rarity = "Common",
+			description = "Split logs with iron hinges.",
+		},
+		{
+			id = "woods_tree_stump_flap",
+			name = "Tree Stump Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "The flap set in a carved stump ring with moss.",
 		},
 	},
 	sewer = {
@@ -1848,6 +1906,20 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			asset = "CatCafe_Decor_PipeFountain", -- the F48 Index piece, on its own anchor
 			description = "A clean little fountain made of pipes.",
 		},
+		{
+			id = "sewer_porthole_hatch_door",
+			name = "Porthole Hatch Door",
+			kind = "door",
+			rarity = "Rare",
+			description = "A round-windowed hatch with a wheel handle.",
+		},
+		{
+			id = "sewer_pipe_ring_flap",
+			name = "Pipe Ring Flap",
+			kind = "catflap",
+			rarity = "Common",
+			description = "The flap in a bolted pipe ring.",
+		},
 	},
 	classic = {
 		{
@@ -1932,6 +2004,20 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Legendary",
 			description = "A cat tree that nearly touches the ceiling.",
 		},
+		{
+			id = "classic_paned_glass_door",
+			name = "Paned Glass Door",
+			kind = "door",
+			rarity = "Common",
+			description = "A cream door with glass panes and a brass knob.",
+		},
+		{
+			id = "classic_bell_flap",
+			name = "Bell Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "A pastel flap with a tiny gold bell on top.",
+		},
 	},
 }
 
@@ -1939,6 +2025,8 @@ local KIND_CATEGORY: { [string]: string } = {
 	wallpaper = "Wallpaper",
 	floor = "Flooring",
 	paint = "Paint",
+	door = "Door",
+	catflap = "Cat flap",
 	furniture = "Furniture",
 	decoration = "Decoration",
 }
@@ -1951,6 +2039,14 @@ for _, pool in CRATE_POOLS do
 		local bonus = Config.CratePieceBonus[row.rarity]
 		local effect = string.format("+%d%% tips while in use", math.floor(bonus * 100 + 0.5))
 		local styled = row.kind == "wallpaper" or row.kind == "floor" or row.kind == "paint"
+		local plain = row.name:gsub("[^%w]", "")
+		local asset = if row.kind == "door"
+			then "CatCafe_Door_" .. (row.name:gsub(" Door$", ""):gsub("[^%w]", ""))
+			elseif row.kind == "catflap" then "CatCafe_CatFlap_" .. (row.name
+				:gsub(" Flap$", "")
+				:gsub("[^%w]", ""))
+			elseif styled then "CatCafe_Style_" .. plain
+			else "CatCafe_Decor_" .. plain
 		local def: Types.DecorDef = {
 			id = row.id,
 			name = row.name,
@@ -1959,9 +2055,7 @@ for _, pool in CRATE_POOLS do
 			effect = effect,
 			description = row.description or "",
 			bonus = bonus,
-			asset = row.asset
-				or (if styled then "CatCafe_Style_" else "CatCafe_Decor_")
-					.. (row.name:gsub("[^%w]", "")),
+			asset = row.asset or asset,
 			source = "crate",
 			crate = pool.area,
 			rarity = row.rarity,

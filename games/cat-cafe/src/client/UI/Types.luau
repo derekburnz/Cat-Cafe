@@ -134,6 +134,16 @@ export type IndexPrize = {
 	potions: { [string]: number }?, -- v0.10: potion id -> count (Tip Jar step 12, codes, the Daily Treat)
 }
 
+-- The Cat Collector's offer (F63, data-model section 12b), a Catalog.collectorOffers row as CollectorOffer sends it.
+-- `crates.zone` counts the crate of the wanted cat's own area and `crates.golden` its golden one.
+export type CollectorOffer = {
+	value: number?,
+	fish: number?,
+	lures: { [string]: number }?,
+	spins: number?,
+	crates: { zone: number?, golden: number? }?,
+}
+
 -- TipJarState from the server (F47): sessionStartedAt in Workspace:GetServerTimeNow() time, claimed steps.
 export type TipJarState = {
 	sessionStartedAt: number,

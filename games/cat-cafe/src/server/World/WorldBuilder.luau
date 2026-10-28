@@ -1013,6 +1013,10 @@ local function buildArea(
 	local rects: { Layout.Rect }
 	local arrival: CFrame
 	local arrivalEast: CFrame? = nil
+	-- The area's kit set when its art is there (Layout.AreaSpec.set): it brings the ground dressing, buildings and
+	-- trees, so the graybox paths and props stay out.
+	local set = spec.set
+	local hasSet = set ~= nil and AssetRegistry.known(set)
 	local specRects = spec.rects
 	if specRects ~= nil then
 		-- The Alleyway: its floor pieces, wall footprints and archways as listed.
@@ -1105,8 +1109,27 @@ local function buildArea(
 				Vector3.new(cx, spec.floorY + 3, cz)
 			)
 		end
+		if set ~= nil and hasSet then
+			-- Pivot at the area's centre on the floor's top, its gate side (-Z) turned toward the town. The wall
+			-- facing the town still blocks but is hidden: the set's see-through border stands there.
+			place(
+				set,
+				CFrame.new(cx, spec.floorY, cz)
+					* CFrame.Angles(0, math.rad(Layout.gateTurn(spec)), 0),
+				model
+			).Name =
+				"Set"
+			for _, name in { "WallNearL", "WallNearR" } do
+				local near = walls:FindFirstChild(name)
+				if near ~= nil and near:IsA("BasePart") then
+					local nearPart = near :: BasePart
+					nearPart.Transparency = 1
+					nearPart.CastShadow = false
+				end
+			end
+		end
 		-- Roads and paths sit 0.05 above the floor, so their tops never fight with it.
-		local paths: { Layout.Rect } = spec.paths or {}
+		local paths: { Layout.Rect } = if hasSet then {} else spec.paths or {}
 		for n, rect in paths do
 			part(
 				"Path" .. n,
@@ -1120,7 +1143,8 @@ local function buildArea(
 	end
 
 	local props = folder("Props", model)
-	for _, prop in spec.props do
+	local areaProps: { Layout.Prop } = if hasSet then {} else spec.props
+	for _, prop in areaProps do
 		if not AssetRegistry.known(prop.asset) then
 			-- Dressing only: a piece whose art has not landed is left out rather than stopping the world build.
 			warn(
@@ -1159,12 +1183,18 @@ local function buildArea(
 	local rescueSpots: { [string]: BasePart } = {}
 	for i, point in spec.rescueSpots do
 		local name = "rescue_" .. id .. "_" .. i
-		local base = CFrame.new(point.x, spec.floorY, point.z)
+		local base = CFrame.new(point.x, spec.floorY + (point.y or 0), point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
-		local trap = place(point.prop, base, rescueFolder)
-		trap.Name = name .. "_Trap"
-		local pose = Layout.stuckPoses[point.prop]
-		local catAt = if pose ~= nil then base * poseCFrame(pose) else base
+		-- A trap built into the area's set has no prop: the stuck cat sits right at the spot.
+		local prop = point.prop
+		local catAt = base
+		if prop ~= nil then
+			place(prop, base, rescueFolder).Name = name .. "_Trap"
+			local pose = Layout.stuckPoses[prop]
+			if pose ~= nil then
+				catAt = base * poseCFrame(pose)
+			end
+		end
 		local spot = anchor(name, catAt, rescueFolder)
 		spot:SetAttribute("Area", id)
 		spot:SetAttribute("RescueSpotId", name)
@@ -1180,7 +1210,7 @@ local function buildArea(
 	return {
 		id = id,
 		model = model,
-		floorY = spec.floorY,
+		floorY = spec.floorY + (if hasSet then spec.setLift or 0 else 0), -- where strays walk
 		spawnPoints = spawnPoints,
 		rescueSpots = rescueSpots,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
@@ -1481,11 +1511,28 @@ local PAW_COLORS = {
 } :: { [string]: Color3 }
 local PAW_TOES = { { -0.55, -0.5 }, { -0.2, -0.78 }, { 0.2, -0.78 }, { 0.55, -0.5 } }
 
-local function buildPawPaths(parent: Instance)
+-- `sets` are the area kit sets in place: a print over one sits on the set's own ground (a road, the Sewer's tiles)
+-- when that stands up to PAW_LIFT above the floor Layout gave it, never on a canopy or a roof higher up.
+local PAW_LIFT = 1.5
+local function buildPawPaths(parent: Instance, sets: { Instance })
 	local paths = folder("PawPaths", parent)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = sets
 	for _, paw in Layout.pawPrints() do
 		local color = PAW_COLORS[paw.area] or CREAM
-		local at = CFrame.new(paw.x, paw.y + 0.015, paw.z) * CFrame.Angles(0, math.rad(paw.rotY), 0)
+		local y = paw.y
+		if #sets > 0 then
+			local hit = Workspace:Raycast(
+				Vector3.new(paw.x, paw.y + PAW_LIFT, paw.z),
+				Vector3.new(0, -PAW_LIFT - 0.1, 0),
+				params
+			)
+			if hit ~= nil and hit.Position.Y > y then
+				y = hit.Position.Y
+			end
+		end
+		local at = CFrame.new(paw.x, y + 0.015, paw.z) * CFrame.Angles(0, math.rad(paw.rotY), 0)
 		local function pad(name: string, diameter: number, x: number, z: number)
 			-- a cylinder's axis is its X: a quarter turn about Z lays it flat
 			local p = part(
@@ -1553,7 +1600,6 @@ function WorldBuilder.build(): World
 	end
 	buildTownSquare(root)
 	buildSignpost(root)
-	buildPawPaths(root)
 
 	-- A Model set to Persistent so streaming never drops a far zone the client checks against.
 	local zones = Instance.new("Model")
@@ -1606,6 +1652,15 @@ function WorldBuilder.build(): World
 				buildGate(def, gateX, gateZ, math.rad(Layout.gateTurn(spec)), gatesFolder)
 		end
 	end
+	-- after the areas, so the prints inside them sit on the sets' ground
+	local sets: { Instance } = {}
+	for _, info in areas do
+		local set = info.model:FindFirstChild("Set")
+		if set ~= nil then
+			table.insert(sets, set)
+		end
+	end
+	buildPawPaths(root, sets)
 	buildIndexBoards(gates, folder("IndexBoards", root))
 	if not buildNightFences(gates, plots, folder("NightFences", root)) then
 		buildAlleyNightFence(gatesFolder)

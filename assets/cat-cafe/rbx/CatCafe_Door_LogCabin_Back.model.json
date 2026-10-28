@@ -2511,7 +2511,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.38,
+         2.32,
          1.02,
          -0.31
         ],
@@ -2535,7 +2535,7 @@
        }
       },
       "Size": [
-       1.0,
+       1.12,
        0.24,
        0.04
       ],
@@ -2560,7 +2560,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         1.86,
+         1.74,
          1.02,
          -0.31
         ],
@@ -2609,7 +2609,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.58,
+         2.22,
          1.02,
          -0.3425
         ],
@@ -2658,56 +2658,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.38,
-         1.02,
-         -0.3425
-        ],
-        "orientation": [
-         [
-          -1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          -1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.09,
-       0.09,
-       0.025
-      ],
-      "Color": [
-       0.6627,
-       0.6863,
-       0.7216
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Door_LogCabin_Back_Leaf",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         2.03,
+         1.91,
          1.02,
          -0.3425
         ],
@@ -2854,7 +2805,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.58,
+         2.13,
          3.65,
          -0.3425
         ],
@@ -3099,7 +3050,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         2.58,
+         2.13,
          6.8,
          -0.3425
         ],

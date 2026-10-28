@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 08:34 UTC",
+  "generated": "2026-10-28 08:44 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -72502,22 +72502,22 @@
       "triangles": 2292,
       "budget": 4000,
       "size_studs": {
-        "x": 7.0,
+        "x": 6.96,
         "y": 1.21,
         "z": 7.33
       },
       "size_roblox": [
-        7.0,
+        6.96,
         7.33,
         1.21
       ],
       "bounds_min": [
-        -3.5,
+        -3.48,
         -1.0,
         0.0
       ],
       "bounds_max": [
-        3.5,
+        3.48,
         0.21,
         7.33
       ],
@@ -72706,22 +72706,22 @@
       "triangles": 1980,
       "budget": 4000,
       "size_studs": {
-        "x": 7.0,
+        "x": 6.96,
         "y": 1.09,
         "z": 7.33
       },
       "size_roblox": [
-        7.0,
+        6.96,
         7.33,
         1.09
       ],
       "bounds_min": [
-        -3.5,
+        -3.48,
         -1.0,
         0.0
       ],
       "bounds_max": [
-        3.5,
+        3.48,
         0.09,
         7.33
       ],
@@ -72910,22 +72910,22 @@
       "triangles": 2456,
       "budget": 4000,
       "size_studs": {
-        "x": 7.0,
+        "x": 6.96,
         "y": 1.12,
         "z": 7.33
       },
       "size_roblox": [
-        7.0,
+        6.96,
         7.33,
         1.12
       ],
       "bounds_min": [
-        -3.5,
+        -3.48,
         -1.0,
         0.0
       ],
       "bounds_max": [
-        3.5,
+        3.48,
         0.12,
         7.33
       ],
@@ -73112,22 +73112,22 @@
       "triangles": 1448,
       "budget": 4000,
       "size_studs": {
-        "x": 7.0,
+        "x": 6.96,
         "y": 1.07,
         "z": 7.33
       },
       "size_roblox": [
-        7.0,
+        6.96,
         7.33,
         1.07
       ],
       "bounds_min": [
-        -3.5,
+        -3.48,
         -1.0,
         0.0
       ],
       "bounds_max": [
-        3.5,
+        3.48,
         0.07,
         7.33
       ],
@@ -73190,7 +73190,7 @@
         "CatCafe_Door_LogCabin_Back_Sign",
         "CatCafe_Door_LogCabin_Back_Sign_Bulb"
       ],
-      "triangles": 2420,
+      "triangles": 2408,
       "budget": 4000,
       "size_studs": {
         "x": 6.9,
@@ -73249,7 +73249,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Door_LogCabin_Back.model.json",
-      "rbx_parts": 208,
+      "rbx_parts": 207,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.fbx",
         "assets/cat-cafe/exports/CatCafe_Door_LogCabin_Back.glb"
@@ -73261,10 +73261,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2420/4000 tris",
+          "budget": "2408/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1198 faces on swatch centers",
+          "uv": "1192 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.17"
@@ -73285,22 +73285,22 @@
       "triangles": 3292,
       "budget": 4000,
       "size_studs": {
-        "x": 7.0,
+        "x": 6.96,
         "y": 1.21,
         "z": 7.33
       },
       "size_roblox": [
-        7.0,
+        6.96,
         7.33,
         1.21
       ],
       "bounds_min": [
-        -3.5,
+        -3.48,
         -1.0,
         0.0
       ],
       "bounds_max": [
-        3.5,
+        3.48,
         0.21,
         7.33
       ],
@@ -73489,22 +73489,22 @@
       "triangles": 1196,
       "budget": 4000,
       "size_studs": {
-        "x": 7.0,
+        "x": 6.96,
         "y": 1.12,
         "z": 7.33
       },
       "size_roblox": [
-        7.0,
+        6.96,
         7.33,
         1.12
       ],
       "bounds_min": [
-        -3.5,
+        -3.48,
         -1.0,
         0.0
       ],
       "bounds_max": [
-        3.5,
+        3.48,
         0.12,
         7.33
       ],
@@ -73977,27 +73977,27 @@
         "CatCafe_CatFlap_TreeStump",
         "CatCafe_CatFlap_TreeStump_Flap"
       ],
-      "triangles": 1276,
+      "triangles": 1336,
       "budget": 1600,
       "size_studs": {
-        "x": 2.71,
+        "x": 2.91,
         "y": 0.62,
-        "z": 2.79
+        "z": 2.64
       },
       "size_roblox": [
-        2.71,
-        2.79,
+        2.91,
+        2.64,
         0.62
       ],
       "bounds_min": [
-        -1.35,
+        -1.46,
         -0.26,
-        -0.12
+        -0.01
       ],
       "bounds_max": [
-        1.35,
+        1.46,
         0.36,
-        2.66
+        2.62
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -74016,7 +74016,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_TreeStump.model.json",
-      "rbx_parts": 101,
+      "rbx_parts": 106,
       "files": [
         "assets/cat-cafe/exports/CatCafe_CatFlap_TreeStump.fbx",
         "assets/cat-cafe/exports/CatCafe_CatFlap_TreeStump.glb"
@@ -74025,16 +74025,15 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot",
           "centered"
         ],
         "checks": {
-          "budget": "1276/1600 tris",
+          "budget": "1336/1600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "622 faces on swatch centers",
+          "uv": "652 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.12 (want 0)",
+          "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=0.00 y=0.05"
         }
       }
@@ -74047,27 +74046,27 @@
         "CatCafe_CatFlap_PipeRing",
         "CatCafe_CatFlap_PipeRing_Flap"
       ],
-      "triangles": 940,
+      "triangles": 1000,
       "budget": 1600,
       "size_studs": {
-        "x": 2.71,
+        "x": 2.53,
         "y": 0.66,
-        "z": 2.71
+        "z": 2.53
       },
       "size_roblox": [
-        2.71,
-        2.71,
+        2.53,
+        2.53,
         0.66
       ],
       "bounds_min": [
-        -1.35,
+        -1.26,
         -0.3,
-        -0.12
+        0.02
       ],
       "bounds_max": [
-        1.35,
+        1.26,
         0.36,
-        2.58
+        2.54
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -74086,7 +74085,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_CatFlap_PipeRing.model.json",
-      "rbx_parts": 73,
+      "rbx_parts": 78,
       "files": [
         "assets/cat-cafe/exports/CatCafe_CatFlap_PipeRing.fbx",
         "assets/cat-cafe/exports/CatCafe_CatFlap_PipeRing.glb"
@@ -74094,16 +74093,14 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [
-          "pivot"
-        ],
+        "warnings": [],
         "checks": {
-          "budget": "940/1600 tris",
+          "budget": "1000/1600 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "454 faces on swatch centers",
+          "uv": "484 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.12 (want 0)",
+          "pivot": "floor at z=0.02 (want 0)",
           "centered": "footprint center x=0.00 y=0.03"
         }
       }

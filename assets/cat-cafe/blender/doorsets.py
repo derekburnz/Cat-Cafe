@@ -45,7 +45,8 @@ HOLE = (doors.FC - doors.FW / 2, doors.FC + doors.FW / 2, doors.FY0, doors.FY1) 
 ZONE = (doors.FC - 1.52, doors.FC + 1.52, doors.LY0 + 2.78)       # u0, u1, top: no relief here on a back leaf
 FX, FY0, FY1, FT = doors.FW / 2, doors.FY0 - doors.LY0, doors.FY1 - doors.LY0, doors.LT    # a flap's hole and leaf
 FLAP_HINGE = (0.0, FY1, FT / 2)
-RC = 1.23                                                         # round flaps: the centre of their ring
+RC, RP, RI, RO = 1.28, 0.85, 0.9, 1.26                           # round flaps: ring centre, panel, ring in and out;
+# a flat foot fills the hole's bottom corners, so nothing hangs below the leaf (it swings over the Tier 4 deck)
 RPI = Matrix.Rotation(math.pi, 4, "Z")                            # half a turn about Roblox Y
 
 
@@ -392,12 +393,15 @@ class LogCabin:
         L.span(b, w - 1.1, w - 0.2, 2.95 if L.back else 3.0, (2.95 if L.back else 3.0) + 0.14, L.inn - 0.1, L.inn,
                "dark_wood")
         # long iron straps over the logs, arrow ends, nail heads; knuckles on the hinge edge
-        ys = (y0 + 0.8, 3.65, y1 - 0.65) if L.back else (y0 + 0.9, (y0 + y1) / 2, y1 - 0.9)
+        ys = (y0 + 0.8, 3.65, y1 - 0.65) if L.back else (y0 + 0.9, 3.0, 5.05)   # the front's clear of the night sign
         for k, y in enumerate(ys):
-            length = 1.0 if (L.back and k == 0) else (0.62 * w if L.back else 0.74 * w)
+            length = 1.12 if (L.back and k == 0) else (0.62 * w if L.back else 0.74 * w)
             L.span(b, 0.0, length, y - 0.12, y + 0.12, L.out + 0.07, L.out + 0.11, self.IRON)
             L.box(b, length + 0.02, y, L.out + 0.09, 0.26, 0.26, 0.04, self.IRON, deg=45)
-            for u in (0.3, length * 0.5, length - 0.15):
+            nails = (0.3, length * 0.5, length - 0.15)
+            if L.back:                                   # nails clear of the architrave when it stands open
+                nails = (0.66, length - 0.15) if k == 0 else (0.75, length * 0.5, length - 0.15)
+            for u in nails:
                 L.span(b, u - 0.045, u + 0.045, y - 0.045, y + 0.045, L.out + 0.11, L.out + 0.135, "metal")
         L.knuckles(b, ys, 0.08 if L.back else 0.06, self.IRON)
         hu, hy = w - 0.5, 3.0 if L.back else 3.3                 # a ring pull
@@ -442,8 +446,8 @@ class PortholeHatch:
             L.span(b, u - 0.05, u + 0.05, y - 0.05, y + 0.05, L.out + 0.05, L.out + 0.085, self.BOLT)
         self._wheel(L, b, cu, wy, wr, L.out, 1)
         self._wheel(L, b, cu, wy, wr * 0.8, L.inn, -1)
-        for y in (wy - 1.3 if not L.back else 4.0, py + a + 0.9):    # two clamping dogs on the free edge
-            if y < y1 - 0.4:
+        for y in ((4.0,) if L.back else (wy - 1.3, 4.9)):              # clamping dogs on the free edge (the
+            if y < y1 - 0.4:                                             # front's under the night sign)
                 L.span(b, w - 0.42, w - 0.1, y - 0.09, y + 0.09, L.out + 0.05, L.out + 0.13, self.BOLT)
         L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.09 if L.back else 0.07, self.BAND)
 
@@ -491,7 +495,7 @@ SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), P
 def build_front(style, mat):
     name = f"CatCafe_Door_{style.NAME}_Front"
     root = RB()
-    root.span((-3.5, 0.0, -1.0), (3.5, 0.06, 0.0), style.SILL)                # the threshold under both leaves
+    root.span((-3.48, 0.0, -1.0), (3.48, 0.06, 0.0), style.SILL)              # the threshold under both leaves
     objs = [root.finalize(name, mat)]
     for side, sx, hx in (("L", -1, -F_HINGE), ("R", 1, F_HINGE)):
         b, g = RB(), RB()
@@ -533,13 +537,16 @@ def _rect_frame(f, swatch, t, d_yard, d_cafe, cafe_swatch=None):
     doors._frame(f, -FX, FX, FY0, FY1, 0.02, 0.0, FT, cafe_swatch or swatch)     # the lining through the leaf
 
 
-def _round_frame(f, ring, face, lining):
-    """A round flap's rings: `ring` is [(r_out, r_in, z0, z1, swatch)] on the yard side; the cafe face gets a plain
-    ring and the hole a lining, both in `lining`."""
+def _round_frame(f, ring, foot, face, lining):
+    """A round flap's frame: `ring` is [(r_out, r_in, z0, z1, swatch)] on the yard side and `foot` (swatch, depth) a
+    flat foot under it; the cafe face gets a plain ring and foot and the hole a lining, all in `lining`."""
     for r_out, r_in, z0, z1, sw in ring:
         _ring(f, 0.0, RC, z0, z1, r_out, r_in, sw)
-    _ring(f, 0.0, RC, 0.0, FT, 1.3, 0.95, lining)
-    _ring(f, 0.0, RC, FT, FT + face, 1.35, 0.95, lining)
+    f.span((-1.1, 0.02, -foot[1]), (1.1, 0.5, -0.005), foot[0])
+    _ring(f, 0.0, RC, 0.0, FT, RO - 0.02, RI, lining)
+    f.span((-FX, FY0, 0.0), (FX, 0.5, FT), lining)
+    _ring(f, 0.0, RC, FT, FT + face, RO, RI, lining)
+    f.span((-1.1, 0.02, FT), (1.1, 0.5, FT + face), lining)
 
 
 def _panel(p, swatch, rod=2 * FX - 0.04):
@@ -550,8 +557,8 @@ def _panel(p, swatch, rod=2 * FX - 0.04):
 
 
 def _round_panel(p, swatch):
-    p.cyl((0, -0.9, 0), 0.9, 0.06, swatch, axis="Z", segments=16)
-    p.cyl((0, -0.02, 0), 0.05, 0.6, "metal", axis="X", segments=8)
+    p.cyl((0, -RP, 0), RP, 0.06, swatch, axis="Z", segments=16)
+    p.cyl((0, -0.02, 0), 0.05, 0.5, "metal", axis="X", segments=8)
 
 
 def _paw(p, swatch, z0=-0.05, z1=-0.03):
@@ -623,36 +630,40 @@ def build_flap_mail_slot(mat):
 
 
 def build_flap_tree_stump(mat):
-    """Woods (Rare): the flap set in a carved stump ring, bark round the cut face, moss on top."""
+    """Woods (Rare): the flap set in a carved stump ring, bark round the cut face, moss on top, roots at its foot."""
     name = "CatCafe_CatFlap_TreeStump"
     f, p = RB(), RB()
-    _round_frame(f, [(1.35, 1.12, -0.2, 0.0, "fur_bramble"), (1.12, 0.95, -0.14, 0.0, "treat_tan"),
-                     (1.075, 1.025, -0.15, -0.14, "fur_acorn")], 0.06, "caramel_wood")
+    _round_frame(f, [(RO, 1.06, -0.2, 0.0, "fur_bramble"), (1.06, RI, -0.14, 0.0, "treat_tan"),
+                     (1.0, 0.96, -0.15, -0.14, "fur_acorn")], ("fur_bramble", 0.2), 0.06, "caramel_wood")
+    for s in (-1, 1):                                            # roots flaring out at the foot
+        _bar(f, (s * 0.95, 0.3), (s * 1.42, 0.06), 0.16, -0.18, -0.005, "fur_bramble")
     for k, (a, sz) in enumerate(((58, 0.26), (75, 0.3), (92, 0.34), (108, 0.28), (124, 0.24), (140, 0.18),
                                  (30, 0.16))):
         rad = math.radians(a)
-        rr = 1.235 + (0.02 if k % 2 else 0.0)
-        f.box((rr * math.cos(rad), RC + rr * math.sin(rad), -0.23), (0.14, sz, 0.06),
-              ("leaf_green", "leaf_dark")[k % 2], rot=rot_z(a))
-        f.box(((1.35 + 0.04) * math.cos(rad), RC + (1.35 + 0.04) * math.sin(rad), -0.12 - 0.005 * (k % 2)),
-              (0.08, sz * 0.8, 0.18), ("leaf_green", "leaf_dark")[k % 2], rot=rot_z(a))
+        moss = ("leaf_green", "leaf_dark")[k % 2]
+        rr = 1.16 + (0.02 if k % 2 else 0.0)
+        f.box((rr * math.cos(rad), RC + rr * math.sin(rad), -0.23), (0.14, sz, 0.06), moss, rot=rot_z(a))
+        f.box(((RO + 0.04) * math.cos(rad), RC + (RO + 0.04) * math.sin(rad), -0.12 - 0.005 * (k % 2)),
+              (0.08, sz * 0.8, 0.18), moss, rot=rot_z(a))
     _round_panel(p, "caramel_wood")
-    for r_out, r_in in ((0.62, 0.56), (0.34, 0.28)):
-        _ring(p, 0.0, -0.9, -0.04, -0.03, r_out, r_in, "fur_acorn", segs=12)
-    p.span((-0.06, -0.96, -0.04), (0.06, -0.84, -0.03), "fur_acorn")
+    for r_out, r_in in ((0.6, 0.54), (0.32, 0.26)):
+        _ring(p, 0.0, -RP, -0.04, -0.03, r_out, r_in, "fur_acorn", segs=12)
+    p.span((-0.06, -RP - 0.06, -0.04), (0.06, -RP + 0.06, -0.03), "fur_acorn")
     return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
 
 
 def build_flap_pipe_ring(mat):
-    """Sewer (Common): the flap in a bolted pipe ring on a flange."""
+    """Sewer (Common): the flap in a bolted pipe ring on a flange with a flat foot."""
     name = "CatCafe_CatFlap_PipeRing"
     f, p = RB(), RB()
-    _round_frame(f, [(1.35, 0.95, -0.08, 0.0, "concrete_dark"), (1.1, 0.95, -0.3, -0.08, "metal"),
-                     (1.16, 1.1, -0.24, -0.16, "rust")], 0.06, "concrete_dark")
+    _round_frame(f, [(RO, RI, -0.08, -0.005, "concrete_dark"), (1.04, RI, -0.3, -0.08, "metal"),
+                     (1.09, 1.04, -0.24, -0.16, "rust")], ("concrete_dark", 0.08), 0.06, "concrete_dark")
     for k in range(8):
         a = math.radians(22.5 + 45 * k)
-        x, y = 1.23 * math.cos(a), RC + 1.23 * math.sin(a)
+        x, y = 1.15 * math.cos(a), RC + 1.15 * math.sin(a)
         f.span((x - 0.06, y - 0.06, -0.13), (x + 0.06, y + 0.06, -0.08), "metal")
+    for x in (-0.98, 0.98):                                      # the foot's own bolts
+        f.span((x - 0.06, 0.14, -0.13), (x + 0.06, 0.26, -0.08), "metal")
     _round_panel(p, "fur_charcoal")
     p.span((-0.5, -0.32, -0.05), (0.5, -0.2, -0.03), "metal")                                 # a strap across
     for x in (-0.42, 0.42):

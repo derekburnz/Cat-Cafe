@@ -12,19 +12,19 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.5625,
-       2.2043,
-       0.15
+       0.0,
+       0.26,
+       -0.1025
       ],
       "orientation": [
        [
-        -0.5,
-        -0.866,
+        1.0,
+        0.0,
         0.0
        ],
        [
-        0.866,
-        -0.5,
+        0.0,
+        1.0,
         0.0
        ],
        [
@@ -36,14 +36,14 @@
      }
     },
     "Size": [
-     0.35,
-     0.7106,
-     0.3
+     2.2,
+     0.48,
+     0.195
     ],
     "Color": [
-     0.7882,
-     0.5412,
-     0.2941
+     0.4314,
+     0.3176,
+     0.251
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -55,19 +55,19 @@
     "PivotOffset": {
      "CFrame": {
       "position": [
-       -2.1902,
-       0.615,
-       -0.15
+       0.0,
+       -0.26,
+       0.1025
       ],
       "orientation": [
        [
-        -0.5,
-        0.866,
+        1.0,
+        0.0,
         0.0
        ],
        [
-        -0.866,
-        -0.5,
+        0.0,
+        1.0,
         0.0
        ],
        [
@@ -91,7 +91,7 @@
      "CFrame": {
       "position": [
        0.0,
-       2.465,
+       2.44,
        -0.1
       ],
       "orientation": [
@@ -114,8 +114,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -139,8 +139,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6175,
-       2.2995,
+       -0.58,
+       2.2846,
        -0.1
       ],
       "orientation": [
@@ -163,8 +163,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -188,8 +188,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.0695,
-       1.8475,
+       -1.0046,
+       1.86,
        -0.1
       ],
       "orientation": [
@@ -212,8 +212,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -237,8 +237,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.235,
-       1.23,
+       -1.16,
+       1.28,
        -0.1
       ],
       "orientation": [
@@ -261,8 +261,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -286,8 +286,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.0695,
-       0.6125,
+       -1.0046,
+       0.7,
        -0.1
       ],
       "orientation": [
@@ -310,8 +310,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -335,8 +335,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6175,
-       0.1605,
+       -0.58,
+       0.2754,
        -0.1
       ],
       "orientation": [
@@ -359,8 +359,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -385,7 +385,7 @@
      "CFrame": {
       "position": [
        0.0,
-       -0.005,
+       0.12,
        -0.1
       ],
       "orientation": [
@@ -408,8 +408,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -433,8 +433,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.6175,
-       0.1605,
+       0.58,
+       0.2754,
        -0.1
       ],
       "orientation": [
@@ -457,8 +457,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -482,8 +482,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.0695,
-       0.6125,
+       1.0046,
+       0.7,
        -0.1
       ],
       "orientation": [
@@ -506,8 +506,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -531,8 +531,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.235,
-       1.23,
+       1.16,
+       1.28,
        -0.1
       ],
       "orientation": [
@@ -555,8 +555,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -580,8 +580,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.0695,
-       1.8475,
+       1.0046,
+       1.86,
        -0.1
       ],
       "orientation": [
@@ -604,8 +604,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -629,8 +629,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.6175,
-       2.2995,
+       0.58,
+       2.2846,
        -0.1
       ],
       "orientation": [
@@ -653,8 +653,8 @@
      }
     },
     "Size": [
-     0.23,
-     0.7379,
+     0.2,
+     0.6887,
      0.2
     ],
     "Color": [
@@ -679,7 +679,7 @@
      "CFrame": {
       "position": [
        0.0,
-       2.265,
+       2.26,
        -0.07
       ],
       "orientation": [
@@ -702,8 +702,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -727,8 +727,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.5175,
-       2.1263,
+       -0.49,
+       2.1287,
        -0.07
       ],
       "orientation": [
@@ -751,8 +751,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -776,8 +776,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.8963,
-       1.7475,
+       -0.8487,
+       1.77,
        -0.07
       ],
       "orientation": [
@@ -800,8 +800,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -825,8 +825,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.035,
-       1.23,
+       -0.98,
+       1.28,
        -0.07
       ],
       "orientation": [
@@ -849,8 +849,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -874,8 +874,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.8963,
-       0.7125,
+       -0.8487,
+       0.79,
        -0.07
       ],
       "orientation": [
@@ -898,8 +898,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -923,8 +923,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.5175,
-       0.3337,
+       -0.49,
+       0.4313,
        -0.07
       ],
       "orientation": [
@@ -947,8 +947,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -973,7 +973,7 @@
      "CFrame": {
       "position": [
        0.0,
-       0.195,
+       0.3,
        -0.07
       ],
       "orientation": [
@@ -996,8 +996,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -1021,8 +1021,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.5175,
-       0.3337,
+       0.49,
+       0.4313,
        -0.07
       ],
       "orientation": [
@@ -1045,8 +1045,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -1070,8 +1070,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.8963,
-       0.7125,
+       0.8487,
+       0.79,
        -0.07
       ],
       "orientation": [
@@ -1094,8 +1094,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -1119,8 +1119,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.035,
-       1.23,
+       0.98,
+       1.28,
        -0.07
       ],
       "orientation": [
@@ -1143,8 +1143,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -1168,8 +1168,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.8963,
-       1.7475,
+       0.8487,
+       1.77,
        -0.07
       ],
       "orientation": [
@@ -1192,8 +1192,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -1217,8 +1217,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.5175,
-       2.1263,
+       0.49,
+       2.1287,
        -0.07
       ],
       "orientation": [
@@ -1241,8 +1241,8 @@
      }
     },
     "Size": [
-     0.17,
-     0.6122,
+     0.16,
+     0.5794,
      0.14
     ],
     "Color": [
@@ -1267,7 +1267,7 @@
      "CFrame": {
       "position": [
        0.0,
-       2.28,
+       2.26,
        -0.145
       ],
       "orientation": [
@@ -1290,8 +1290,8 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
+     0.04,
+     0.5466,
      0.01
     ],
     "Color": [
@@ -1315,8 +1315,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.525,
-       2.1393,
+       -0.49,
+       2.1287,
        -0.145
       ],
       "orientation": [
@@ -1339,8 +1339,8 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
+     0.04,
+     0.5466,
      0.01
     ],
     "Color": [
@@ -1364,8 +1364,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9093,
-       1.755,
+       -0.8487,
+       1.77,
        -0.145
       ],
       "orientation": [
@@ -1388,8 +1388,8 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
+     0.04,
+     0.5466,
      0.01
     ],
     "Color": [
@@ -1413,8 +1413,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.05,
-       1.23,
+       -0.98,
+       1.28,
        -0.145
       ],
       "orientation": [
@@ -1437,8 +1437,8 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
+     0.04,
+     0.5466,
      0.01
     ],
     "Color": [
@@ -1462,8 +1462,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9093,
-       0.705,
+       -0.8487,
+       0.79,
        -0.145
       ],
       "orientation": [
@@ -1486,8 +1486,8 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
+     0.04,
+     0.5466,
      0.01
     ],
     "Color": [
@@ -1511,8 +1511,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.525,
-       0.3207,
+       -0.49,
+       0.4313,
        -0.145
       ],
       "orientation": [
@@ -1535,8 +1535,8 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
+     0.04,
+     0.5466,
      0.01
     ],
     "Color": [
@@ -1561,18 +1561,1586 @@
      "CFrame": {
       "position": [
        0.0,
+       0.3,
+       -0.145
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5466,
+     0.01
+    ],
+    "Color": [
+     0.6275,
+     0.4078,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.49,
+       0.4313,
+       -0.145
+      ],
+      "orientation": [
+       [
+        0.5,
+        0.866,
+        0.0
+       ],
+       [
+        -0.866,
+        0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5466,
+     0.01
+    ],
+    "Color": [
+     0.6275,
+     0.4078,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8487,
+       0.79,
+       -0.145
+      ],
+      "orientation": [
+       [
+        0.866,
+        0.5,
+        0.0
+       ],
+       [
+        -0.5,
+        0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5466,
+     0.01
+    ],
+    "Color": [
+     0.6275,
+     0.4078,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.98,
+       1.28,
+       -0.145
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5466,
+     0.01
+    ],
+    "Color": [
+     0.6275,
+     0.4078,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8487,
+       1.77,
+       -0.145
+      ],
+      "orientation": [
+       [
+        0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.5,
+        0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5466,
+     0.01
+    ],
+    "Color": [
+     0.6275,
+     0.4078,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.49,
+       2.1287,
+       -0.145
+      ],
+      "orientation": [
+       [
+        0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.866,
+        0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.5466,
+     0.01
+    ],
+    "Color": [
+     0.6275,
+     0.4078,
+     0.2275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.35,
+       0.15
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.535,
+       2.2066,
+       0.15
+      ],
+      "orientation": [
+       [
+        -0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9266,
+       1.815,
+       0.15
+      ],
+      "orientation": [
+       [
+        -0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.07,
+       1.28,
+       0.15
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9266,
+       0.745,
+       0.15
+      ],
+      "orientation": [
+       [
+        -0.866,
+        0.5,
+        0.0
+       ],
+       [
+        -0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.535,
+       0.3534,
+       0.15
+      ],
+      "orientation": [
+       [
+        -0.5,
+        0.866,
+        0.0
+       ],
+       [
+        -0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.21,
+       0.15
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.535,
+       0.3534,
+       0.15
+      ],
+      "orientation": [
+       [
+        0.5,
+        0.866,
+        0.0
+       ],
+       [
+        -0.866,
+        0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9266,
+       0.745,
+       0.15
+      ],
+      "orientation": [
+       [
+        0.866,
+        0.5,
+        0.0
+       ],
+       [
+        -0.5,
+        0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.07,
+       1.28,
+       0.15
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9266,
+       1.815,
+       0.15
+      ],
+      "orientation": [
+       [
+        0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.5,
+        0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.535,
+       2.2066,
+       0.15
+      ],
+      "orientation": [
+       [
+        0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.866,
+        0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.34,
+     0.6778,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.365,
+       0.15
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.8,
+     0.27,
+     0.3
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       2.36,
+       0.33
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.54,
+       2.2153,
+       0.33
+      ],
+      "orientation": [
+       [
+        -0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9353,
+       1.82,
+       0.33
+      ],
+      "orientation": [
+       [
+        -0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.08,
+       1.28,
+       0.33
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.9353,
+       0.74,
+       0.33
+      ],
+      "orientation": [
+       [
+        -0.866,
+        0.5,
+        0.0
+       ],
+       [
+        -0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.54,
+       0.3447,
+       0.33
+      ],
+      "orientation": [
+       [
+        -0.5,
+        0.866,
+        0.0
+       ],
+       [
+        -0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.2,
+       0.33
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.54,
+       0.3447,
+       0.33
+      ],
+      "orientation": [
+       [
+        0.5,
+        0.866,
+        0.0
+       ],
+       [
+        -0.866,
+        0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9353,
+       0.74,
+       0.33
+      ],
+      "orientation": [
+       [
+        0.866,
+        0.5,
+        0.0
+       ],
+       [
+        -0.5,
+        0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.08,
+       1.28,
+       0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9353,
+       1.82,
+       0.33
+      ],
+      "orientation": [
+       [
+        0.866,
+        -0.5,
+        0.0
+       ],
+       [
+        0.5,
+        0.866,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.54,
+       2.2153,
+       0.33
+      ],
+      "orientation": [
+       [
+        0.5,
+        -0.866,
+        0.0
+       ],
+       [
+        0.866,
+        0.5,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.36,
+     0.6887,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.26,
+       0.33
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     2.2,
+     0.48,
+     0.06
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_CatFlap_TreeStump",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.185,
        0.18,
-       -0.145
+       -0.0925
       ],
       "orientation": [
        [
-        0.0,
-        1.0,
+        -0.8906,
+        0.4548,
         0.0
        ],
        [
-        -1.0,
-        0.0,
+        -0.4548,
+        -0.8906,
         0.0
        ],
        [
@@ -1584,14 +3152,14 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
-     0.01
+     0.5277,
+     0.16,
+     0.175
     ],
     "Color": [
-     0.6275,
-     0.4078,
-     0.2275
+     0.4314,
+     0.3176,
+     0.251
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -1609,19 +3177,19 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.525,
-       0.3207,
-       -0.145
+       1.185,
+       0.18,
+       -0.0925
       ],
       "orientation": [
        [
-        0.5,
-        0.866,
+        0.8906,
+        0.4548,
         0.0
        ],
        [
-        -0.866,
-        0.5,
+        -0.4548,
+        0.8906,
         0.0
        ],
        [
@@ -1633,14 +3201,14 @@
      }
     },
     "Size": [
-     0.05,
-     0.5876,
-     0.01
+     0.5277,
+     0.16,
+     0.175
     ],
     "Color": [
-     0.6275,
-     0.4078,
-     0.2275
+     0.4314,
+     0.3176,
+     0.251
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -1658,1331 +3226,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.9093,
-       0.705,
-       -0.145
-      ],
-      "orientation": [
-       [
-        0.866,
-        0.5,
-        0.0
-       ],
-       [
-        -0.5,
-        0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.5876,
-     0.01
-    ],
-    "Color": [
-     0.6275,
-     0.4078,
-     0.2275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.05,
-       1.23,
-       -0.145
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.5876,
-     0.01
-    ],
-    "Color": [
-     0.6275,
-     0.4078,
-     0.2275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9093,
-       1.755,
-       -0.145
-      ],
-      "orientation": [
-       [
-        0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.5,
-        0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.5876,
-     0.01
-    ],
-    "Color": [
-     0.6275,
-     0.4078,
-     0.2275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.525,
-       2.1393,
-       -0.145
-      ],
-      "orientation": [
-       [
-        0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.866,
-        0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.05,
-     0.5876,
-     0.01
-    ],
-    "Color": [
-     0.6275,
-     0.4078,
-     0.2275
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       2.355,
-       0.15
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9743,
-       1.7925,
-       0.15
-      ],
-      "orientation": [
-       [
-        -0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.125,
-       1.23,
-       0.15
-      ],
-      "orientation": [
-       [
-        -1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9743,
-       0.6675,
-       0.15
-      ],
-      "orientation": [
-       [
-        -0.866,
-        0.5,
-        0.0
-       ],
-       [
-        -0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.5625,
-       0.2557,
-       0.15
-      ],
-      "orientation": [
-       [
-        -0.5,
-        0.866,
-        0.0
-       ],
-       [
-        -0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       0.105,
-       0.15
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5625,
-       0.2557,
-       0.15
-      ],
-      "orientation": [
-       [
-        0.5,
-        0.866,
-        0.0
-       ],
-       [
-        -0.866,
-        0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9743,
-       0.6675,
-       0.15
-      ],
-      "orientation": [
-       [
-        0.866,
-        0.5,
-        0.0
-       ],
-       [
-        -0.5,
-        0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.125,
-       1.23,
-       0.15
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9743,
-       1.7925,
-       0.15
-      ],
-      "orientation": [
-       [
-        0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.5,
-        0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.5625,
-       2.2043,
-       0.15
-      ],
-      "orientation": [
-       [
-        0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.866,
-        0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.35,
-     0.7106,
-     0.3
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       2.38,
-       0.33
-      ],
-      "orientation": [
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.575,
-       2.2259,
-       0.33
-      ],
-      "orientation": [
-       [
-        -0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9959,
-       1.805,
-       0.33
-      ],
-      "orientation": [
-       [
-        -0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -1.15,
-       1.23,
-       0.33
-      ],
-      "orientation": [
-       [
-        -1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        -1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.9959,
-       0.655,
-       0.33
-      ],
-      "orientation": [
-       [
-        -0.866,
-        0.5,
-        0.0
-       ],
-       [
-        -0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -0.575,
-       0.2341,
-       0.33
-      ],
-      "orientation": [
-       [
-        -0.5,
-        0.866,
-        0.0
-       ],
-       [
-        -0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.0,
-       0.08,
-       0.33
-      ],
-      "orientation": [
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        -1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.575,
-       0.2341,
-       0.33
-      ],
-      "orientation": [
-       [
-        0.5,
-        0.866,
-        0.0
-       ],
-       [
-        -0.866,
-        0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9959,
-       0.655,
-       0.33
-      ],
-      "orientation": [
-       [
-        0.866,
-        0.5,
-        0.0
-       ],
-       [
-        -0.5,
-        0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       1.15,
-       1.23,
-       0.33
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.9959,
-       1.805,
-       0.33
-      ],
-      "orientation": [
-       [
-        0.866,
-        -0.5,
-        0.0
-       ],
-       [
-        0.5,
-        0.866,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.575,
-       2.2259,
-       0.33
-      ],
-      "orientation": [
-       [
-        0.5,
-        -0.866,
-        0.0
-       ],
-       [
-        0.866,
-        0.5,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.4,
-     0.7379,
-     0.06
-    ],
-    "Color": [
-     0.7882,
-     0.5412,
-     0.2941
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_CatFlap_TreeStump",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       0.6545,
-       2.2773,
+       0.6147,
+       2.2637,
        -0.23
       ],
       "orientation": [
@@ -3030,8 +3275,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.7366,
-       2.4088,
+       0.6889,
+       2.3825,
        -0.12
       ],
       "orientation": [
@@ -3079,8 +3324,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3248,
-       2.4422,
+       0.3054,
+       2.4198,
        -0.23
       ],
       "orientation": [
@@ -3128,8 +3373,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.3598,
-       2.5726,
+       0.3365,
+       2.5357,
        -0.125
       ],
       "orientation": [
@@ -3177,8 +3422,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0431,
-       2.4642,
+       -0.0405,
+       2.4393,
        -0.23
       ],
       "orientation": [
@@ -3226,8 +3471,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.0485,
-       2.6192,
+       -0.0454,
+       2.5792,
        -0.12
       ],
       "orientation": [
@@ -3275,8 +3520,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.3878,
-       2.4236,
+       -0.3646,
+       2.4022,
        -0.23
       ],
       "orientation": [
@@ -3324,8 +3569,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.4295,
-       2.552,
+       -0.4017,
+       2.5164,
        -0.125
       ],
       "orientation": [
@@ -3373,8 +3618,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.6906,
-       2.2539,
+       -0.6487,
+       2.2417,
        -0.23
       ],
       "orientation": [
@@ -3422,8 +3667,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.7773,
-       2.3824,
+       -0.727,
+       2.3577,
        -0.12
       ],
       "orientation": [
@@ -3471,8 +3716,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -0.9614,
-       2.0367,
+       -0.9039,
+       2.0385,
        -0.23
       ],
       "orientation": [
@@ -3520,8 +3765,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -1.0648,
-       2.1235,
+       -0.9959,
+       2.1156,
        -0.125
       ],
       "orientation": [
@@ -3569,8 +3814,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.0695,
-       1.8475,
+       1.0046,
+       1.86,
        -0.23
       ],
       "orientation": [
@@ -3618,8 +3863,8 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       1.2038,
-       1.925,
+       1.1258,
+       1.93,
        -0.12
       ],
       "orientation": [
@@ -3674,7 +3919,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.23,
+         1.28,
          0.15
         ],
         "orientation": [
@@ -3698,8 +3943,8 @@
       },
       "Size": [
        0.06,
-       1.8,
-       1.8
+       1.7,
+       1.7
       ],
       "Color": [
        0.7882,
@@ -3719,7 +3964,7 @@
         "position": [
          0.0,
          0.0,
-         -0.9
+         -0.85
         ],
         "orientation": [
          [
@@ -3776,7 +4021,7 @@
        }
       },
       "Size": [
-       0.6,
+       0.5,
        0.1,
        0.1
       ],
@@ -3803,7 +4048,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.82,
+         1.85,
          0.115
         ],
         "orientation": [
@@ -3827,7 +4072,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -3851,8 +4096,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.295,
-         1.741,
+         -0.285,
+         1.7736,
          0.115
         ],
         "orientation": [
@@ -3876,7 +4121,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -3900,8 +4145,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.511,
-         1.525,
+         -0.4936,
+         1.565,
          0.115
         ],
         "orientation": [
@@ -3925,7 +4170,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -3949,8 +4194,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.59,
-         1.23,
+         -0.57,
+         1.28,
          0.115
         ],
         "orientation": [
@@ -3974,7 +4219,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -3998,8 +4243,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.511,
-         0.935,
+         -0.4936,
+         0.995,
          0.115
         ],
         "orientation": [
@@ -4023,7 +4268,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4047,8 +4292,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.295,
-         0.719,
+         -0.285,
+         0.7864,
          0.115
         ],
         "orientation": [
@@ -4072,7 +4317,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4097,7 +4342,7 @@
        "CFrame": {
         "position": [
          0.0,
-         0.64,
+         0.71,
          0.115
         ],
         "orientation": [
@@ -4121,7 +4366,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4145,8 +4390,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.295,
-         0.719,
+         0.285,
+         0.7864,
          0.115
         ],
         "orientation": [
@@ -4170,7 +4415,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4194,8 +4439,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.511,
-         0.935,
+         0.4936,
+         0.995,
          0.115
         ],
         "orientation": [
@@ -4219,7 +4464,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4243,8 +4488,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.59,
-         1.23,
+         0.57,
+         1.28,
          0.115
         ],
         "orientation": [
@@ -4268,7 +4513,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4292,8 +4537,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.511,
-         1.525,
+         0.4936,
+         1.565,
          0.115
         ],
         "orientation": [
@@ -4317,7 +4562,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4341,8 +4586,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.295,
-         1.741,
+         0.285,
+         1.7736,
          0.115
         ],
         "orientation": [
@@ -4366,7 +4611,7 @@
       },
       "Size": [
        0.06,
-       0.3389,
+       0.328,
        0.01
       ],
       "Color": [
@@ -4391,7 +4636,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.54,
+         1.57,
          0.115
         ],
         "orientation": [
@@ -4415,7 +4660,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4439,8 +4684,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.155,
-         1.4985,
+         -0.145,
+         1.5311,
          0.115
         ],
         "orientation": [
@@ -4464,7 +4709,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4488,8 +4733,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.2685,
-         1.385,
+         -0.2511,
+         1.425,
          0.115
         ],
         "orientation": [
@@ -4513,7 +4758,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4537,8 +4782,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.31,
-         1.23,
+         -0.29,
+         1.28,
          0.115
         ],
         "orientation": [
@@ -4562,7 +4807,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4586,8 +4831,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.2685,
-         1.075,
+         -0.2511,
+         1.135,
          0.115
         ],
         "orientation": [
@@ -4611,7 +4856,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4635,8 +4880,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.155,
-         0.9615,
+         -0.145,
+         1.0289,
          0.115
         ],
         "orientation": [
@@ -4660,7 +4905,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4685,7 +4930,7 @@
        "CFrame": {
         "position": [
          0.0,
-         0.92,
+         0.99,
          0.115
         ],
         "orientation": [
@@ -4709,7 +4954,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4733,8 +4978,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.155,
-         0.9615,
+         0.145,
+         1.0289,
          0.115
         ],
         "orientation": [
@@ -4758,7 +5003,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4782,8 +5027,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.2685,
-         1.075,
+         0.2511,
+         1.135,
          0.115
         ],
         "orientation": [
@@ -4807,7 +5052,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4831,8 +5076,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.31,
-         1.23,
+         0.29,
+         1.28,
          0.115
         ],
         "orientation": [
@@ -4856,7 +5101,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4880,8 +5125,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.2685,
-         1.385,
+         0.2511,
+         1.425,
          0.115
         ],
         "orientation": [
@@ -4905,7 +5150,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4929,8 +5174,8 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.155,
-         1.4985,
+         0.145,
+         1.5311,
          0.115
         ],
         "orientation": [
@@ -4954,7 +5199,7 @@
       },
       "Size": [
        0.06,
-       0.1858,
+       0.1749,
        0.01
       ],
       "Color": [
@@ -4979,7 +5224,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.23,
+         1.28,
          0.115
         ],
         "orientation": [

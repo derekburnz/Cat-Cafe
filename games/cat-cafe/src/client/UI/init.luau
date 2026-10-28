@@ -53,6 +53,7 @@ local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
 local PotionLogic = require(script.Components.PotionLogic)
 local Potions = require(script.Screens.Potions)
+local Quests = require(script.Screens.Quests)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
@@ -135,6 +136,10 @@ UI.events = {
 	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
 	-- F61
 	collectTips = Signal.new(), -- ()   Collect on the till's tip button in your cafe: forward as CollectTips
+	-- F73
+	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
+	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
+	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 }
@@ -202,6 +207,7 @@ local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53)
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
+local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
 local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
@@ -342,6 +348,9 @@ local function render()
 	if potionsScreen then
 		potionsScreen:render(state)
 	end
+	if questsScreen then
+		questsScreen:render(state)
+	end
 	if collectorScreen then
 		collectorScreen:render(state)
 	end
@@ -397,6 +406,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if potionsScreen then
 		potionsScreen:setCatalog(newCatalog)
+	end
+	if questsScreen then
+		questsScreen:setCatalog(newCatalog)
 	end
 	if collectorScreen then
 		collectorScreen:setCatalog(newCatalog)
@@ -803,6 +815,29 @@ function UI.init(config: Types.InitConfig)
 			potionsView:render(state)
 		end,
 	})
+	questsScreen = Quests.new({
+		claimQuest = function(kind: string, slot: number)
+			UI.events.claimQuest:Fire(kind, slot)
+		end,
+		rerollQuest = function(kind: string, slot: number)
+			UI.events.rerollQuest:Fire(kind, slot)
+		end,
+		claimAchievement = function(achievementId: string)
+			UI.events.claimAchievement:Fire(achievementId)
+		end,
+		close = closeModal,
+	})
+	local questsView = questsScreen :: Quests.Quests
+	modalInstance:register("Quests", {
+		frame = questsView.frame,
+		onOpen = function()
+			questsView:render(state)
+			questsView:onOpen()
+		end,
+		onClose = function()
+			questsView:onClose()
+		end,
+	})
 	collectorScreen = Collector.new(parent, {
 		answer = function(accept: boolean)
 			UI.events.answerCollector:Fire(accept)
@@ -949,6 +984,8 @@ function UI.init(config: Types.InitConfig)
 					modalInstance:toggle("Cats")
 				elseif key == Enum.KeyCode.P then
 					modalInstance:toggle("Potions")
+				elseif key == Enum.KeyCode.J and state.quests ~= nil then
+					modalInstance:toggle("Quests")
 				elseif key == Enum.KeyCode.F then
 					openBait()
 				elseif key == Enum.KeyCode.H then
@@ -1036,6 +1073,10 @@ function UI.destroy()
 		potionsScreen:destroy()
 	end
 	potionsScreen = nil
+	if questsScreen then
+		questsScreen:destroy()
+	end
+	questsScreen = nil
 	if collectorScreen then
 		collectorScreen:destroy()
 	end
@@ -1613,6 +1654,20 @@ function UI.collector.offer(
 )
 	if collectorScreen then
 		collectorScreen:offer(catUid, offer, endsAt, traded)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Quests and achievements (F73, quests.md sections 1 and 7)
+----------------------------------------------------------------------------------------------------
+
+UI.quests = {}
+
+-- From QuestResult(paid): what a quest, a full set or an achievement claim paid. The server's toast already says it,
+-- so the window only plays the claim sound.
+function UI.quests.result(paid: { string })
+	if questsScreen then
+		questsScreen:result(paid)
 	end
 end
 
@@ -2686,6 +2741,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	end
 	if codesScreen then
 		codesScreen:setNight(phase == "night")
+	end
+	if questsScreen then
+		questsScreen:setNight(phase == "night")
 	end
 end
 

@@ -4,9 +4,11 @@
 --                 on either shows the exact amount
 --   top centre    cafe tier pill
 --   top right     small icon buttons (Tutorial, Gifts, Settings, Invite) and the day and night clock chip, the next
---                 goal card under them
---   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots, and an arrow
---                 tab under them that folds them off the edge
+--                 goal card under them and the quest line under that (F73: the closest unfinished daily, "📜 Catch
+--                 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests)
+--   left          big pill buttons: Cats, Index, Quests, Upgrades, Decor, Potions, with key caps and red "!" dots,
+--                 and an arrow tab under them that folds them off the edge. Quests (F73) shows once ProfileSync has
+--                 quests, with a red count of what is ready to claim
 --   bottom centre Equip Best, the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away);
 --                 above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
@@ -33,6 +35,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
@@ -125,6 +128,9 @@ local NIGHT_CHIP = 24 + 4
 -- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
 -- screen's right edge that stretch may stop and still count.
 local RIGHT_COLUMN_W = 300
+local QUEST_LINE_W = 300 -- F73: the quest line under the goal card
+local QUEST_LINE_H = 24
+local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutorial): the quest line waits for it
 local TOPBAR_SLACK = 48
 -- data-model NightIncomeMultiplier: tips pay this share at night (F31: 0.6; F60: 1, full pay, so no chip)
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
@@ -696,6 +702,33 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
 		callbacks.openScreen("RankUp")
 	end)
+	-- F73: one outlined line under it, the closest unfinished daily quest or what is ready to claim; a tap opens Quests
+	local questLine: TextButton = Create("TextButton", {
+		Name = "QuestLine",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, GOAL_TOP),
+		Size = UDim2.fromOffset(QUEST_LINE_W, QUEST_LINE_H),
+		Visible = false,
+		Parent = root,
+	})
+	self._questLine = questLine
+	self._questText = label({
+		Name = "Text",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = questLine,
+	})
+	table.insert(
+		self._connections,
+		questLine.Activated:Connect(function()
+			Sound.play("uiClick")
+			callbacks.openScreen("Quests")
+		end)
+	)
 	-- the column follows the top bar as Roblox's menu opens and closes and as the window resizes
 	table.insert(
 		self._connections,
@@ -736,6 +769,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			dot = "Collection",
 			open = function()
 				callbacks.openIndex()
+			end,
+		},
+		{
+			name = "Quests",
+			icon = Theme.icons.quests,
+			key = "J",
+			style = "gold",
+			open = function()
+				callbacks.openScreen("Quests")
 			end,
 		},
 		{
@@ -839,6 +881,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				ZIndex = 5,
 				Parent = button.face,
 			})
+		elseif item.name == "Quests" then
+			-- F73: hidden until ProfileSync has quests; a red count of quests and achievements ready to claim
+			button.instance.Visible = false
+			self._questsPill = button
+			local dot: Frame = Create("Frame", {
+				Name = "Dot",
+				BackgroundColor3 = Theme.colors.red,
+				BorderSizePixel = 0,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromOffset(4, 4),
+				Size = UDim2.fromOffset(24, 24),
+				Visible = false,
+				ZIndex = 6,
+				Parent = button.instance,
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+			Outline.border(dot, 2)
+			self._questCount = label({
+				Name = "Mark",
+				Size = UDim2.fromScale(1, 1),
+				TextSize = Theme.sizes.textSmall,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = "",
+				ZIndex = 7,
+				Parent = dot,
+			})
+			self._questDot = dot
 		elseif item.name == "Potions" then
 			-- how many potions are in the bag, beside the key cap; blank with none (F64)
 			self._potionCount = label({
@@ -878,6 +946,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, menuFold)
 	self._menuFold = menuFold
+	self:_layoutMenu()
 	local foldDot: Frame = Create("Frame", {
 		Name = "Dot",
 		BackgroundColor3 = Theme.colors.red,
@@ -1308,6 +1377,7 @@ function HUD._renderFoldDot(self: any)
 				break
 			end
 		end
+		any = any or self._questDot.Visible
 	end
 	if any and not self._menuFoldDot.Visible then
 		Tween.popIn(self._menuFoldDot, 0.5)
@@ -1433,6 +1503,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._tiersOn = tierProgress ~= nil
 	self._cafeButton.Active = tierProgress ~= nil
 	self._goal:render(tierProgress)
+	self:_renderQuests(state, catalog)
 	self:_layoutRight()
 	if catalog then
 		self:_renderDots(catalog, state)
@@ -1665,6 +1736,58 @@ function HUD._layoutRight(self: any)
 		top += NIGHT_CHIP
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
+	local goal = self._goal.frame
+	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
+	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
+end
+
+-- The left pills' column and the arrow tab under it, for the pills on show (Quests waits for its data, F73).
+function HUD._layoutMenu(self: any)
+	local shown = 0
+	for _, child in self._menu:GetChildren() do
+		if child:IsA("GuiObject") and child.Visible then
+			shown += 1
+		end
+	end
+	local height = shown * PILL_H + math.max(0, shown - 1) * Theme.sizes.gap
+	self._menu.Size = UDim2.fromOffset(PILL_W, height)
+	self._menuFold.instance.Position = UDim2.new(0, MARGIN, 0.5, height / 2 + Theme.sizes.gap + 4)
+end
+
+-- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
+-- line under the goal card once the tutorial is done.
+function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.Catalog?)
+	local pill = self._questsPill
+	local live = state.quests ~= nil
+	if pill.instance.Visible ~= live then
+		pill.instance.Visible = live
+		self:_layoutMenu()
+	end
+	local ready = if live then QuestLogic.claimable(state, catalog) else 0
+	if ready > 0 and not self._questDot.Visible then
+		Tween.popIn(self._questDot, 0.5)
+	end
+	self._questDot.Visible = ready > 0
+	self._questCount.Text = tostring(ready)
+	self:_renderFoldDot()
+
+	local line: string? = nil
+	if live and (state.tutorialStep or TUTORIAL_DONE) >= TUTORIAL_DONE then
+		local quest = QuestLogic.tracker(state.quests)
+		if ready > 0 then
+			line = ("%s %d ready to claim"):format(Theme.icons.quests, ready)
+		elseif quest then
+			local needs = math.max(1, quest.needs)
+			local progress = math.clamp(quest.progress, 0, needs)
+			local count = if QuestLogic.isCoins(catalog, quest.id)
+				then Format.money(progress) .. "/" .. Format.money(needs)
+				else ("%d/%d"):format(math.floor(progress), math.floor(needs))
+			line = ("%s %s  %s"):format(Theme.icons.quests, quest.text, count)
+		end
+	end
+	self._questLine.Visible = line ~= nil
+	self._questText.Text = line or ""
+	self._questText.TextColor3 = if ready > 0 then Theme.colors.gold else Theme.hud.text
 end
 
 function HUD._liftRight(self: any)

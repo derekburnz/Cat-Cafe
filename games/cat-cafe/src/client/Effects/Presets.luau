@@ -670,7 +670,54 @@ Presets.motion = {
 	waiter = { sway = 5, swaySeconds = 1.8, step = 0.05 },
 	greeter = { waveEvery = 3.2, wave = 70, tilt = 10 },
 	entertainer = { swatEvery = 1.4, swat = 55, yarnStuds = 1.2 },
-	stuck = { every = 2.6, shake = 9, seconds = 0.5 },
+	-- Stuck in a rescue trap (Derek 2026-10-28: a different animation "for whatever cat is stuck in it", "like tail
+	-- sticking out or butt", "make the butt sticking out for a lot of the rescue's", "flip the cats upside for some
+	-- rescue missions where fit"). Each TrapType wriggles one of two ways (`kinds`), in bursts once every `every`
+	-- seconds over `seconds` at `hz`, still moving `twitch` as much in between. `butt`: head first into a bin, can,
+	-- bag pile, shed, log, pipe or grate with only its back end out: the hips wiggle `wiggle` degrees, the back legs
+	-- paddle `kick` and the raised tail (`tailUp`) lashes `tail`. `flip`: upside down, hanging under a branch or a
+	-- gutter or on its back in a bramble bush: all four legs pedal `legs` degrees in the air, the body rocks `rock`,
+	-- the tail swings `tail`, the head looks about `look` and the ears go back `ears`. Where the cat sits and which
+	-- way up is the server's stuck pose for the trap. A trap not in `kinds` keeps the plain shake (`every`, `shake`,
+	-- `seconds`).
+	stuck = {
+		every = 2.6,
+		shake = 9,
+		seconds = 0.5,
+		kinds = {
+			trash_bin = "butt",
+			trashcan = "butt",
+			garbage_bag = "butt",
+			shed = "butt",
+			hollow_log = "butt",
+			drain_pipe = "butt",
+			grate = "butt",
+			tree = "flip",
+			gutter = "flip",
+			bramble_bush = "flip",
+		} :: { [string]: string },
+		butt = {
+			every = 2.2,
+			seconds = 1.3,
+			hz = 3,
+			twitch = 0.2,
+			wiggle = 14,
+			kick = 40,
+			tail = 45,
+			tailUp = 30,
+		},
+		flip = {
+			every = 2,
+			seconds = 1.2,
+			hz = 2.5,
+			twitch = 0.3,
+			legs = 45,
+			rock = 10,
+			tail = 40,
+			look = 25,
+			ears = 30,
+		},
+	},
 	-- A nap curls the cat up: it lies on its belly with its legs folded (front paws out in front), tucks its head
 	-- round towards its tail and wraps the tail along its side. sink 1 is right down on its belly. `breathe` is how
 	-- far the top of its back rises with each breath (Derek 2026-10-27: the belly lifting and lowering while it

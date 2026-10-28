@@ -71,4 +71,54 @@ return function()
 			expect(Wayfinding.alpha(math.huge)).to.equal(1)
 		end)
 	end)
+
+	describe("Wayfinding.pickBox", function()
+		it("takes the biggest box", function()
+			local boxes = { { area = 100, x = 5 }, { area = 400, x = -40 }, { area = 50, x = 90 } }
+			expect(Wayfinding.pickBox(boxes, 1)).to.equal(2)
+		end)
+
+		it("takes the one on the player's side when two are the same size", function()
+			local alleys = { { area = 7530, x = 78 }, { area = 7530, x = -78 } }
+			expect(Wayfinding.pickBox(alleys, 1)).to.equal(1)
+			expect(Wayfinding.pickBox(alleys, -1)).to.equal(2)
+		end)
+
+		it("takes the west one with no cafe", function()
+			local alleys = { { area = 7530, x = 78 }, { area = 7530, x = -78 } }
+			expect(Wayfinding.pickBox(alleys, nil)).to.equal(2)
+		end)
+
+		it("finds nothing in no boxes", function()
+			expect(Wayfinding.pickBox({}, 1)).never.to.be.ok()
+		end)
+	end)
+
+	describe("Wayfinding.armArea", function()
+		it("reads the Area attribute first", function()
+			expect(Wayfinding.armArea("Woods", "Arm_Sewer")).to.equal("woods")
+		end)
+
+		it("falls back to the arm's name", function()
+			expect(Wayfinding.armArea(nil, "Arm_Neighbourhood")).to.equal("neighbourhood")
+			expect(Wayfinding.armArea(nil, "CatCafe_Square_Signpost_ArmPark")).to.equal("park")
+		end)
+
+		it("finds nothing on other parts", function()
+			expect(Wayfinding.armArea(nil, "Post")).never.to.be.ok()
+			expect(Wayfinding.armArea("", "Arm")).never.to.be.ok()
+			expect(Wayfinding.armArea(3, "Cap")).never.to.be.ok()
+		end)
+	end)
+
+	describe("Wayfinding.armLock", function()
+		it("locks an arm above the player's tier", function()
+			expect(Wayfinding.armLock(3, 1)).to.equal("🔒 Tier 3")
+		end)
+
+		it("leaves an opened area's arm plain", function()
+			expect(Wayfinding.armLock(2, 2)).never.to.be.ok()
+			expect(Wayfinding.armLock(1, 5)).never.to.be.ok()
+		end)
+	end)
 end

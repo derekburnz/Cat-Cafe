@@ -908,4 +908,16 @@ function Logic.butterfly(t: number, phase: number): (Vector3, number)
 	return offset, flap
 end
 
+-- A Jazz Cat music note `age` seconds after it left the saxophone (Presets.notes, F78): its offset from there, quick
+-- off the sax and slowing as it rises, swaying to and fro, and how much of it shows, fading in over `fadeIn` and out
+-- over the last `fade` seconds.
+function Logic.note(age: number, phase: number): (Vector3, number)
+	local n = Presets.notes
+	local k = math.clamp(age / n.seconds, 0, 1)
+	local rise = n.rise * (1 - (1 - k) * (1 - k))
+	local sway = n.sway * math.sin(age * n.swayHz * 2 * math.pi + phase)
+	local shown = math.clamp(math.min(age / n.fadeIn, (n.seconds - age) / n.fade), 0, 1)
+	return Vector3.new(sway, rise, 0), shown
+end
+
 return Logic

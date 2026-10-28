@@ -4,7 +4,9 @@
 -- gold one wears it in gold, so the rarest gold cats look the most special. Ninja Cat's eyes glow and its coat
 -- twinkles, Wizard Cat's stars drift up, Fairy Cat drops a petal now and then, Astro Cat's glow shifts from galaxy
 -- blue to mint, and the Super, Ice Cream, Antler, Unicorn, King and Dragon cats get a whoosh, sprinkles, leaves, a
--- horn sparkle, crown glints and sparks. Which cat gets what, in which colours, is Presets.signature by CatId.
+-- horn sparkle, crown glints and sparks. The area-themed cats of F78: Jazz Cat's music notes float up off its glowing
+-- saxophone, Balloon Cat's balloons shine and Gnome Cat gives off lucky sparkles (Wizard, Astro and Super Cat are
+-- spare cats now; owned ones keep theirs). Which cat gets what, in which colours, is Presets.signature by CatId.
 --
 -- Cats come from the same replicated state as Cats.luau: the Stray and StuckCat tags, cats inside a Plot with a
 -- CatId and the HeldCat a player carries. Glowing eyes are only a material, so every signature cat's eyes glow;
@@ -12,6 +14,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -20,19 +23,38 @@ local Presets = require(script.Parent.Presets)
 
 local Signature = {}
 
+-- `stopgap`: a prop's effect sitting on the body until the prop streams in.
 type Entry = {
 	spec: Presets.Signature,
-	emitter: ParticleEmitter?,
-	gold: boolean?, -- the colours the emitter wears now
+	emitters: { ParticleEmitter },
+	stopgap: boolean,
+	gold: boolean?, -- the colours the emitters wear now
 	lastAt: Vector3?, -- where the cat stood at the last choice, for a `moving` effect
+	nextNote: number,
+}
+
+-- A music note on its way up: `from` is where it left the saxophone.
+type Note = {
+	model: Model,
+	gui: BillboardGui,
+	anchor: Attachment,
+	shapes: { Frame },
+	strokes: { UIStroke },
+	from: Vector3,
+	born: number,
+	phase: number,
 }
 
 local PICK_SECONDS = 0.5
+local DARK_WOOD = Color3.fromRGB(94, 70, 52)
 
 local entries: { [Model]: Entry } = {}
 local watched: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local waiting: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local eyeColour: { [BasePart]: Color3 } = setmetatable({}, { __mode = "k" }) :: any
+local notes: { Note } = {}
+local noteLoop: RBXScriptConnection? = nil
+local noteCount = 0 -- notes made, so every other one is a pair
 local started = false
 
 -- A gold cat (F42); `Shiny` is the attribute's name on servers from before the rename.
@@ -56,6 +78,47 @@ local function partNamed(model: Model, name: string): BasePart?
 		end
 	end
 	return nil
+end
+
+local function volume(part: BasePart): number
+	local size = part.Size
+	return size.X * size.Y * size.Z
+end
+
+-- The `most` biggest parts of a prop ("Prop" or "Prop2": parts named that or ending _Prop / _Prop2).
+local function propParts(model: Model, prop: string, most: number): { BasePart }
+	local suffix = "_" .. prop
+	local found: { BasePart } = {}
+	for _, descendant in model:GetDescendants() do
+		local name = descendant.Name
+		if descendant:IsA("BasePart") and (name == prop or name:sub(-#suffix) == suffix) then
+			table.insert(found, descendant :: BasePart)
+		end
+	end
+	table.sort(found, function(a: BasePart, b: BasePart): boolean
+		return volume(a) > volume(b)
+	end)
+	while #found > most do
+		table.remove(found)
+	end
+	return found
+end
+
+local function isProp(spec: Presets.Signature): boolean
+	return spec.on == "Prop" or spec.on == "Prop2"
+end
+
+-- Where a cat's effect goes, and whether that is only a stopgap: its Body or Head, or the biggest parts of its
+-- prop, else the body while the prop has not streamed in.
+local function partsFor(model: Model, spec: Presets.Signature): ({ BasePart }, boolean)
+	if isProp(spec) then
+		local found = propParts(model, spec.on, spec.props or 1)
+		if #found > 0 then
+			return found, false
+		end
+	end
+	local part = partNamed(model, if isProp(spec) then "Body" else spec.on) or model.PrimaryPart
+	return if part ~= nil then { part } else {}, isProp(spec)
 end
 
 local function isEyeName(name: string): boolean
@@ -142,7 +205,8 @@ local function consider(instance: Instance)
 	if spec == nil then
 		return
 	end
-	local entry: Entry = { spec = spec, emitter = nil, gold = nil, lastAt = nil }
+	local entry: Entry =
+		{ spec = spec, emitters = {}, stopgap = false, gold = nil, lastAt = nil, nextNote = 0 }
 	entries[model] = entry
 	lightEyes(model, entry)
 	if watched[model] then
@@ -201,35 +265,172 @@ local function watchPlayer(player: Player)
 end
 
 local function switchOff(entry: Entry)
-	local emitter = entry.emitter
-	if emitter ~= nil then
+	for _, emitter in entry.emitters do
 		emitter.Enabled = false
 	end
 end
 
--- Shows a cat's effect: its emitter made on the right part the first time (or again once that part streamed out
--- and back), in the gold colours on a gold cat, and on unless it only runs while the cat moves and it stood still.
+-- Notes ------------------------------------------------------------------------------------------------------
+
+-- A drawn music note in `colour`, `size` studs tall: a tilted round head, a stem and a flag, or as a pair two heads
+-- and stems joined by a beam.
+local function drawNote(colour: Color3, pair: boolean): (BillboardGui, { Frame }, { UIStroke })
+	local n = Presets.notes
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "EffectsNote"
+	gui.Size = UDim2.fromScale(n.size * (if pair then 1 else 0.7), n.size)
+	gui.LightInfluence = 0
+	gui.MaxDistance = n.maxDistance
+	local shapes: { Frame } = {}
+	local strokes: { UIStroke } = {}
+	local function shape(x: number, y: number, w: number, h: number, turn: number, round: boolean)
+		local frame = Instance.new("Frame")
+		frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		frame.Position = UDim2.fromScale(x, y)
+		frame.Size = UDim2.fromScale(w, h)
+		frame.Rotation = turn
+		frame.BorderSizePixel = 0
+		frame.BackgroundColor3 = colour
+		if round then
+			local corner = Instance.new("UICorner")
+			corner.CornerRadius = UDim.new(1, 0)
+			corner.Parent = frame
+		end
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = DARK_WOOD
+		stroke.Thickness = 1
+		stroke.Parent = frame
+		frame.Parent = gui
+		table.insert(shapes, frame)
+		table.insert(strokes, stroke)
+	end
+	if pair then
+		shape(0.24, 0.84, 0.4, 0.22, -20, true)
+		shape(0.74, 0.74, 0.4, 0.22, -20, true)
+		shape(0.41, 0.47, 0.07, 0.7, 0, false)
+		shape(0.91, 0.37, 0.07, 0.7, 0, false)
+		shape(0.66, 0.08, 0.56, 0.1, -11, false)
+	else
+		shape(0.33, 0.84, 0.58, 0.22, -20, true)
+		shape(0.58, 0.46, 0.1, 0.72, 0, false)
+		shape(0.76, 0.2, 0.42, 0.09, 40, false)
+	end
+	return gui, shapes, strokes
+end
+
+local function stepNotes()
+	local n = Presets.notes
+	local now = os.clock()
+	local i = 1
+	while i <= #notes do
+		local note = notes[i]
+		local age = now - note.born
+		if age >= n.seconds or note.model.Parent == nil then
+			note.gui:Destroy()
+			note.anchor:Destroy()
+			notes[i] = notes[#notes]
+			notes[#notes] = nil
+		else
+			local offset, shown = Logic.note(age, note.phase)
+			note.anchor.Position = note.from + offset
+			for _, frame in note.shapes do
+				frame.BackgroundTransparency = 1 - shown
+			end
+			for _, stroke in note.strokes do
+				stroke.Transparency = 1 - shown * 0.6
+			end
+			i += 1
+		end
+	end
+	if #notes == 0 and noteLoop ~= nil then
+		noteLoop:Disconnect()
+		noteLoop = nil
+	end
+end
+
+-- The next note off a Jazz Cat's saxophone, when one is due and it has fewer than `most` in the air.
+local function playNote(model: Model, entry: Entry, colors: { Color3 })
+	local n = Presets.notes
+	local now = os.clock()
+	local first: ParticleEmitter? = entry.emitters[1]
+	local sax = if first ~= nil then first.Parent else nil
+	if now < entry.nextNote or sax == nil or not sax:IsA("BasePart") or #colors == 0 then
+		return
+	end
+	local alive = 0
+	for _, note in notes do
+		if note.model == model then
+			alive += 1
+		end
+	end
+	if alive >= n.most then
+		return
+	end
+	entry.nextNote = now + n.every
+	noteCount += 1
+	local part = sax :: BasePart
+	local from = part.Position + Vector3.new(0, part.Size.Y / 2 + n.above, 0)
+	local gui, shapes, strokes = drawNote(colors[(noteCount - 1) % #colors + 1], noteCount % 2 == 0)
+	local anchor = Particles.anchor("EffectsNote", from)
+	gui.Adornee = anchor
+	gui.Parent = Context.folder()
+	table.insert(notes, {
+		model = model,
+		gui = gui,
+		anchor = anchor,
+		shapes = shapes,
+		strokes = strokes,
+		from = from,
+		born = now,
+		phase = noteCount * 1.7,
+	})
+	if noteLoop == nil then
+		noteLoop = RunService.PreRender:Connect(stepNotes)
+	end
+end
+
+-- Whether a cat's emitters are all still on it, and where they belong (a prop that has streamed in since).
+local function intact(model: Model, entry: Entry): boolean
+	if #entry.emitters == 0 then
+		return false
+	end
+	for _, emitter in entry.emitters do
+		if not emitter:IsDescendantOf(model) then
+			return false
+		end
+	end
+	return not (entry.stopgap and #propParts(model, entry.spec.on, 1) > 0)
+end
+
+-- Shows a cat's effect: its emitters made on the right parts the first time (or again once a part streamed out and
+-- back), in the gold colours on a gold cat, and on unless it only runs while the cat moves and it stood still.
 local function show(model: Model, entry: Entry, at: Vector3)
 	local spec = entry.spec
-	local emitter = entry.emitter
-	if emitter == nil or not emitter:IsDescendantOf(model) then
-		local part = partNamed(model, spec.on) or model.PrimaryPart
+	if not intact(model, entry) then
+		for _, emitter in entry.emitters do
+			emitter:Destroy()
+		end
+		table.clear(entry.emitters)
 		local preset: Presets.EmitterPreset? = Presets.emitters[spec.emitter]
-		if part == nil or preset == nil then
+		local parts, stopgap = partsFor(model, spec)
+		if #parts == 0 or preset == nil then
 			return -- no body yet (streaming); tried again at the next choice
 		end
-		local fresh = Particles.make(preset)
-		fresh.Name = "Signature"
-		fresh.Parent = part
-		entry.emitter = fresh
+		for _, part in parts do
+			local fresh = Particles.make(preset)
+			fresh.Name = "Signature"
+			fresh.Parent = part
+			table.insert(entry.emitters, fresh)
+		end
+		entry.stopgap = stopgap
 		entry.gold = nil
-		emitter = fresh
 	end
-	local made = emitter :: ParticleEmitter
 	local gold = isGold(model)
+	local colors = Logic.signatureColors(model:GetAttribute("CatId"), gold) or spec.colors
 	if entry.gold ~= gold then
-		local colors = Logic.signatureColors(model:GetAttribute("CatId"), gold)
-		Particles.paint(made, colors or spec.colors)
+		for _, emitter in entry.emitters do
+			Particles.paint(emitter, colors)
+		end
 		entry.gold = gold
 	end
 	local lastAt = entry.lastAt
@@ -237,11 +438,17 @@ local function show(model: Model, entry: Entry, at: Vector3)
 	if spec.moving == true then
 		local moved = lastAt ~= nil and (at - lastAt).Magnitude >= Presets.signatureFx.movedStuds
 		if not moved then
-			made.Enabled = false
+			switchOff(entry)
 			return
 		end
 	end
-	Particles.switchOn(made, spec.emitter)
+	for _, emitter in entry.emitters do
+		Particles.switchOn(emitter, spec.emitter)
+		emitter.Rate /= #entry.emitters -- a prop's parts share one cat's rate
+	end
+	if spec.notes == true and not entry.stopgap then
+		playNote(model, entry, colors)
+	end
 end
 
 local function pick()

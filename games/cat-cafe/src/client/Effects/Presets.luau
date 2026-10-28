@@ -1101,12 +1101,17 @@ Presets.wheel = {
 -- cat moves. Only the nearest budget.signatureCats within `radius` studs show their emitter; eyes glow on all.
 export type Signature = {
 	emitter: string,
-	on: string, -- "Body" or "Head"
+	-- "Body" or "Head", or "Prop" / "Prop2" for the cat's first or second prop (parts named ..._Prop, ..._Prop2);
+	-- a prop's emitter goes on its `props` biggest parts (1 if not set), sharing the rate, and falls back to the body
+	-- while the prop has not streamed in
+	on: string,
+	props: number?,
 	colors: { Color3 },
 	gold: { Color3 },
 	eyes: boolean?,
 	goldEyes: Color3?,
 	moving: boolean?,
+	notes: boolean?, -- music notes float up off the prop as well (Jazz Cat, Presets.notes)
 }
 
 local palette = Presets.palette
@@ -1185,10 +1190,52 @@ Presets.signature = {
 		gold = { palette.sparkle, palette.golden, palette.goldDark },
 		eyes = true,
 	},
+	-- The area-themed cats of design v0.13 (F78, data-model 3d). Wizard, Astro and Super Cat above are spare cats
+	-- now; owned ones keep their effects.
+	neon = { -- Jazz Cat: music notes floating up off the glowing saxophone, which twinkles in the sign colours
+		emitter = "sigGlint",
+		on = "Prop2",
+		colors = { palette.neonPink, palette.signTeal, palette.sparkle },
+		gold = { palette.goldLight, palette.golden, palette.sparkle },
+		eyes = true,
+		notes = true,
+	},
+	balloon = { -- Balloon Cat: its three balloons shine; the floaty bob is the cat motion's (Animation-Engineer)
+		emitter = "sigGlint",
+		on = "Prop",
+		props = 3,
+		colors = { palette.offwhite, palette.sparkle, palette.blush },
+		gold = { palette.goldLight, palette.sparkle },
+	},
+	gnome = { -- Gnome Cat: little lucky sparkles, clover green and gold, round the pointy hat
+		emitter = "sigGlint",
+		on = "Head",
+		colors = { palette.leaf, palette.mint, palette.goldLight },
+		gold = { palette.golden, palette.goldLight, palette.sparkle },
+	},
 } :: { [string]: Signature }
 Presets.signatureFx = {
 	radius = 40, -- studs from the player
 	movedStuds = 0.5, -- a `moving` effect runs while the cat moved this far since the last choice
+}
+
+-- Jazz Cat's music notes (F78): drawn notes (a head, a stem and a flag, every other one a pair joined by a beam) in
+-- the cat's colours, one every `every` seconds from `above` studs over its saxophone, rising `rise` studs with a
+-- `sway` to and fro over `seconds`, fading in over `fadeIn` and out over the last `fade`; at most `most` per cat.
+-- Only on cats that show their signature effect (the nearest signatureCats). They only drift, so Reduce Motion keeps
+-- them.
+Presets.notes = {
+	every = 1,
+	seconds = 2.2,
+	rise = 1.8,
+	sway = 0.3,
+	swayHz = 0.7,
+	fadeIn = 0.2,
+	fade = 0.6,
+	above = 0.3,
+	size = 0.5, -- studs tall
+	most = 3,
+	maxDistance = 60,
 }
 
 -- The Codes Cat's walk-in circle (F65; Derek 2026-10-27 20:10: "a clear area circle to walk into to open code

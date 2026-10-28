@@ -18,6 +18,10 @@
 -- v0.10 (golden-fish.md section 5) gives each track its own forever bonus: tips (`bonus`) on the normal tracks and
 -- the Decor Index, gold luck (`goldLuck`) on the gold tracks and faster bait (`baitSpeed`) on All Cats. `totals`
 -- adds up what the claims give, as the server's IndexRewards.totals does.
+--
+-- v0.13 (data-model section 3d, F78) moves ten replaced cats to a spare pool, `area = "spare"`: no area page or
+-- track counts them and the All Cats track stays 50. The Index's Spare page lists the spare cats the player has
+-- found (`counts(..., "spare")`), and `book` gives the "12 / 50" for the Index title and the HUD's Index pill.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -94,6 +98,7 @@ local KNOWN_FIELDS = {
 local IndexRewards = {}
 
 IndexRewards.ALL_AREA = "all" -- the All Cats page: every area's cats together (F54)
+IndexRewards.SPARE_AREA = "spare" -- cats out of every area for now (F78); they count on no track
 local PERKS: { Perk } = { "bonus", "goldLuck", "baitSpeed" } -- the order they show in
 IndexRewards.PERKS = PERKS
 IndexRewards.GOLD_LUCK_MAX = (Config.GoldLuckMax or 1.5) :: number
@@ -115,8 +120,8 @@ function IndexRewards.track(milestone: Milestone): Track
 	return if IndexRewards.isGold(milestone) then "gold" else "normal"
 end
 
--- The area's cats in the catalog and how many are found and gold. The "all" page counts every area's cats, and a
--- Decor Index page its crate's pieces and how many the player owns.
+-- The area's cats in the catalog and how many are found and gold. The "all" page counts every area's cats (spare
+-- ones left out), and a Decor Index page its crate's pieces and how many the player owns.
 function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Counts
 	local pool = DecorPieces.poolOf(areaId)
 	if pool then
@@ -128,7 +133,8 @@ function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Co
 	local counts: Counts = { total = 0, found = 0, gold = 0 }
 	local all = areaId == IndexRewards.ALL_AREA
 	for _, def in catalog.cats do
-		if not all and (def.area or FALLBACK_AREA) ~= areaId then
+		local area = def.area or FALLBACK_AREA
+		if if all then area == IndexRewards.SPARE_AREA else area ~= areaId then
 			continue
 		end
 		counts.total += 1
@@ -140,6 +146,23 @@ function IndexRewards.counts(catalog: Catalog, state: State, areaId: string): Co
 		end
 	end
 	return counts
+end
+
+-- The Index's whole count: different cats found (in `collection` or owned) and all cats, spare ones left out.
+function IndexRewards.book(catalog: Catalog, state: State): (number, number)
+	local collection: { [string]: number } = state.collection or {}
+	local owned: { [string]: any } = state.catsOwned or {}
+	local found, total = 0, 0
+	for _, def in catalog.cats do
+		if def.area == IndexRewards.SPARE_AREA then
+			continue
+		end
+		total += 1
+		if collection[def.id] ~= nil or owned[def.id] ~= nil then
+			found += 1
+		end
+	end
+	return found, total
 end
 
 function IndexRewards.isClaimed(state: State, areaId: string, milestoneId: string): boolean

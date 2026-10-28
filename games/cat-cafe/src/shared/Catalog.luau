@@ -890,7 +890,7 @@ Catalog.lures = {
 	{
 		id = "kibble",
 		name = "Kibble",
-		cost = 25,
+		cost = 30,
 		attracts = "Common",
 		rarity = "Common",
 		source = "shop",
@@ -901,7 +901,7 @@ Catalog.lures = {
 	{
 		id = "tuna",
 		name = "Tuna",
-		cost = 100,
+		cost = 125,
 		attracts = "Rare",
 		rarity = "Rare",
 		source = "shop",
@@ -912,7 +912,7 @@ Catalog.lures = {
 	{
 		id = "salmon",
 		name = "Salmon",
-		cost = 500,
+		cost = 625,
 		attracts = "Epic",
 		rarity = "Epic",
 		source = "shop",
@@ -923,7 +923,7 @@ Catalog.lures = {
 	{
 		id = "sardines",
 		name = "Moonlit Sardines",
-		cost = 800,
+		cost = 1000,
 		attracts = "Rare",
 		rarity = "Rare",
 		source = "dealer",
@@ -934,7 +934,7 @@ Catalog.lures = {
 	{
 		id = "caviar",
 		name = "Caviar",
-		cost = 3000,
+		cost = 3750,
 		attracts = "Epic",
 		rarity = "Epic",
 		source = "dealer",
@@ -945,7 +945,7 @@ Catalog.lures = {
 	{
 		id = "moon_milk",
 		name = "Moon Milk",
-		cost = 10000,
+		cost = 12500,
 		attracts = "Epic",
 		rarity = "Legendary",
 		source = "dealer",
@@ -956,7 +956,7 @@ Catalog.lures = {
 	{
 		id = "star_treat",
 		name = "Star Treat",
-		cost = 40000,
+		cost = 50000,
 		attracts = "Legendary",
 		rarity = "Mythical",
 		source = "dealer",

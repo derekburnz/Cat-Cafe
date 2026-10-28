@@ -423,7 +423,8 @@ function FishMarket._buildOdds(self: any, body: Frame)
 	self._oddsCover = cover -- only Got it closes it: a tap on the card or beside it does nothing (Derek 2026-10-27)
 end
 
--- One line of the odds card: a rarity dot, the name, a small line under it and the chance on the right.
+-- One line of the odds card: a rarity dot, the name, a small line under it and the chance on the right. A rarity's
+-- own line (name == rarity) is written in that rarity's colour (Derek 2026-10-28: "colored text of the rarity and %").
 function FishMarket._oddsLine(
 	self: any,
 	order: number,
@@ -433,6 +434,7 @@ function FishMarket._oddsLine(
 	percent: number
 )
 	local height = if sub then 40 else 28
+	local ink = if name == rarity then Theme.rarityInk(rarity) else Theme.modal.text
 	local line: Frame = Create("Frame", {
 		Name = "Line" .. order,
 		LayoutOrder = order,
@@ -459,6 +461,7 @@ function FishMarket._oddsLine(
 		Size = UDim2.new(1, -110, 0, if sub then 20 else height),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = ink,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = name,
 		ZIndex = 23,
@@ -484,6 +487,7 @@ function FishMarket._oddsLine(
 		Size = UDim2.new(0, 80, 1, 0),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
+		TextColor3 = ink,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Text = MarketLogic.percent(percent),
 		ZIndex = 23,

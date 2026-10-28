@@ -39,6 +39,7 @@ import coins  # noqa: E402
 import common  # noqa: E402
 import crate_decor  # noqa: E402
 import crates  # noqa: E402
+import potions  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -71,7 +72,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "

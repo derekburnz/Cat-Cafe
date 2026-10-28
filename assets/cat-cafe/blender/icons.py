@@ -28,6 +28,7 @@ import coins  # noqa: E402
 import common  # noqa: E402
 import crates  # noqa: E402
 import items  # noqa: E402
+import potions  # noqa: E402
 from common import RB  # noqa: E402
 
 OUT = os.path.join(ROOT, "assets", "cat-cafe", "exports", "icons")
@@ -94,6 +95,8 @@ ICONS = {
     "CatCafe_Icon_Perk_BigBowl": (_perk_big_bowl, INK, 10, (-20.0, 28.0)),
     "CatCafe_Icon_Perk_ExtraDecorSpot": (_perk_extra_decor_spot, INK, 10, (-28.0, 26.0)),
     **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3)},
+    **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
+       for k in potions.POTIONS},
 }
 SIZE, PAD = 512, 0.05
 

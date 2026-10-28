@@ -159,3 +159,11 @@ GitHub's auto-merge (Settings > General > Allow auto-merge, on since 2026-10-27)
 6. **Create**.
 
 After that, a thread turns auto-merge on for each reviewed PR and GitHub merges it once both checks pass. Merges by hand still work once the checks are green.
+
+## 19. Let a publish restart the running servers (once, about 1 minute)
+A publish reaches new servers only; servers already running keep the old version until they empty. When a publish changes the save version (cat levels F75 did, save version 12), a player saved on a new server who then joins an old one is kicked. Creator Hub's **Restart servers for updates** fixes that by hand; with this step the publish workflow can do it (`restart_servers` input). Phone browser works.
+1. [create.roblox.com/dashboard/credentials](https://create.roblox.com/dashboard/credentials) > **API Keys** > the `Cat Cafe GitHub` key > **Edit**.
+2. **Access Permissions** > **Add API System**: **universe**, select the **Cat Cafe** experience, operation `universe:write`.
+3. **Save Changes**. Don't press Regenerate.
+
+`universe:write` also lets the key change some experience settings through the Universes API. The key lives only in the GitHub secret, and no workflow uses it for anything but the restart.

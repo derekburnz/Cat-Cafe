@@ -481,9 +481,13 @@ local function spawnStray(
 	return stray
 end
 
+-- The zones Epic and rarer strays keep to: the Alleyway's "nook" points (town-layout-v3.md 7e: the exciting cats
+-- wait at the back alleys' ends, so no cafe's lane is the lucky one) and a v3.2 side area's "deep" ones (section 8d:
+-- the rarer the cat, the longer the walk to it).
+local RARE_ZONES: { [string]: boolean } = { nook = true, deep = true }
+
 -- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Epic and
--- rarer strays take only points tagged "nook" when one is free (data-model section 9 and town-layout-v3.md 7e: the
--- exciting cats wait at the back alleys' ends, so no cafe's lane is the lucky one).
+-- rarer strays take only RARE_ZONES points in an area that has them.
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
@@ -491,7 +495,8 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local nooks: { number } = {}
 	local hasNook = false
 	for i, point in area.spawnPoints do
-		local inNook = point:GetAttribute("Zone") == "nook"
+		local zone = point:GetAttribute("Zone")
+		local inNook = type(zone) == "string" and RARE_ZONES[zone] == true
 		hasNook = hasNook or inNook
 		if occupied[i] == nil then
 			table.insert(free, i)
@@ -500,8 +505,9 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 			end
 		end
 	end
-	-- Epic and rarer spawn only in a nook, never in a back alley lane (F35, v3.1); with every nook full that stray
-	-- waits for the next wave. spawnWave places the rarer strays first, so this is rare.
+	-- Epic and rarer spawn only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81); with
+	-- every such point full that stray waits for the next wave. spawnWave places the rarer strays first, so this is
+	-- rare.
 	local pool: { number } = free
 	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasNook then
 		pool = nooks

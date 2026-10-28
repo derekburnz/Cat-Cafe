@@ -26,6 +26,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Potions = require(ReplicatedStorage.Shared.Potions)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -184,6 +185,14 @@ end
 
 local function serverNow(): number
 	return Workspace:GetServerTimeNow()
+end
+
+-- Sets a character's walk speed: `base` (normal, carry or Catch Rush) plus a running Swift Potion's
+-- SwiftPotionSpeed (F64).
+local function setSpeed(player: Player, humanoid: Humanoid, base: number)
+	local profile = DataService.get(player)
+	humanoid.WalkSpeed = base
+		+ (if profile ~= nil then Potions.speedBonus(profile, os.time()) else 0)
 end
 
 -- Locks a stray to a player until `untilTime` (server time), or unlocks it (userId 0), dropping any attempt.
@@ -658,7 +667,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	model.Parent = character
 	carry.model = model
 	if humanoid ~= nil then
-		humanoid.WalkSpeed = Config.CarryWalkSpeed
+		setSpeed(player, humanoid, Config.CarryWalkSpeed)
 	end
 	showCarry(player, carry)
 end
@@ -688,7 +697,7 @@ local function getaway(player: Player, carry: Carry)
 	character:SetAttribute("RushUntil", carry.rushUntil)
 	local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 	if humanoid ~= nil then
-		humanoid.WalkSpeed = Config.CatchRushWalkSpeed
+		setSpeed(player, humanoid, Config.CatchRushWalkSpeed)
 	end
 	task.delay(Config.CatchRushSeconds, function()
 		local current = player.Character
@@ -696,7 +705,7 @@ local function getaway(player: Player, carry: Carry)
 			then current:FindFirstChildOfClass("Humanoid") :: Humanoid?
 			else nil
 		if carrying[player] == carry and nowHumanoid ~= nil then
-			nowHumanoid.WalkSpeed = Config.CarryWalkSpeed
+			setSpeed(player, nowHumanoid, Config.CarryWalkSpeed)
 		end
 	end)
 	local facing = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
@@ -791,7 +800,7 @@ local function endCarry(player: Player): Carry?
 		then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 		else nil
 	if humanoid ~= nil then
-		humanoid.WalkSpeed = Config.NormalWalkSpeed
+		setSpeed(player, humanoid, Config.NormalWalkSpeed)
 	end
 	if character ~= nil and carry.rushUntil ~= nil and carry.rushUntil > serverNow() then
 		character:SetAttribute("RushUntil", 0) -- checked in or knocked loose mid-rush: the speed lines stop (F55)
@@ -1066,15 +1075,12 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 	end
 	lastCatchStart[player] = now
 
-	local windows = Circles.windows(Economy.level(profile, "net"))
-	local circles = Circles.schedule(
-		stray.def.rarity,
-		Economy.level(profile, "net"),
-		now,
-		function()
-			return rng:NextNumber()
-		end
-	)
+	-- a Steady Paw Potion running now plays the circles of the next net level (F64)
+	local netLevel = Potions.netLevel(profile, Economy.level(profile, "net"), os.time())
+	local windows = Circles.windows(netLevel)
+	local circles = Circles.schedule(stray.def.rarity, netLevel, now, function()
+		return rng:NextNumber()
+	end)
 	local attempt = Circles.newAttempt(circles, windows)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
@@ -1432,7 +1438,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 			end
 			local humanoid = character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 			if humanoid ~= nil then
-				humanoid.WalkSpeed = Config.NormalWalkSpeed
+				setSpeed(player, humanoid, Config.NormalWalkSpeed)
 			end
 		end)
 	end)
@@ -1528,6 +1534,26 @@ end
 
 function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
+end
+
+-- A Swift Potion started or ran out (PotionService, F64): the character's speed follows at once, from whatever it
+-- is doing now (a Catch Rush, a carry or neither).
+function CatService.refreshSpeed(player: Player)
+	local character = player.Character
+	local humanoid = if character ~= nil
+		then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+		else nil
+	if humanoid == nil then
+		return
+	end
+	local carry = carrying[player]
+	local base = if carry == nil
+		then Config.NormalWalkSpeed
+		elseif
+			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
+		then Config.CatchRushWalkSpeed
+		else Config.CarryWalkSpeed
+	setSpeed(player, humanoid, base)
 end
 
 -- Studio-only test hook: knocks the player's carried cat loose where they stand, as a shove from nobody would,

@@ -99,6 +99,12 @@ return function()
 		RichChance = 0.15,
 		RichTipSeconds = 45,
 		RichTipStaySeconds = 90,
+		-- the Mystery Visitor and potions (F64, section 12b)
+		MysteryCheckSeconds = 120,
+		MysteryChance = 0.08,
+		MysteryStaySeconds = 120,
+		MysteryGiftKeepSeconds = 600,
+		PotionMaxMinutes = 60,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
@@ -193,6 +199,10 @@ return function()
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
+				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
+				TipPotionBonus = true, -- section 12b's potion table: "+25% tips"
+				SwiftPotionSpeed = true, -- section 12b's potion table: "+4 walk and carry speed"
+				LuckyPotionGoldScale = true, -- section 12b's potion table: "double the chance"
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

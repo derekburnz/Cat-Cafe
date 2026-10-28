@@ -55,6 +55,10 @@ Remotes.ClientToServer = {
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
 	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 9: 0 when the intro cutscene played to the end, else
 	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
+	"UsePotion", -- (potionId: string)  F64: a known potion in the bag whose minutes fit under PotionMaxMinutes with
+	-- the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync
+	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
+	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 }
@@ -91,6 +95,8 @@ Remotes.ServerToClient = {
 	-- tackler alone
 	"CatchBurst", -- (direction: Vector3)  the getaway (v0.8 F55): a player beside a catch or rescue that just
 	-- succeeded; their client pushes its own character CatchBurstStuds along direction (flat, unit). Not a shove
+	"MysteryGiftResult", -- (kind: "potion" | "lure" | "fish" | "spin", id: string?, count: number)  F64: what the
+	-- owner's opened Mystery gift held, for the gift card and the ribbon pop
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 }

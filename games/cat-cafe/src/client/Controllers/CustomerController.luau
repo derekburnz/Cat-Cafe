@@ -10,7 +10,12 @@
 -- The server decides the tip; this is only what the street sees.
 -- A customer model carries Order ("coffee", "cake" or "milk") from the counter on and Served once it sits, for the
 -- order bubble and the heart.
+-- The Mystery Visitor (F64, data-model 12b) is built the same way from its plot's attributes: while
+-- MysteryVisitorUntil is ahead, a hooded visitor sits at the MysteryTable chair nearest the gift, and while
+-- MysteryGiftAt is set the wrapped gift sits on the plot's MysteryGiftAnchor. Both are models under the plot, tagged
+-- MysteryVisitor and MysteryGift for the puffs, sparkle and ribbon pop (Effects/Mystery); the server holds the gift.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -34,6 +39,10 @@ local orders = { "coffee", "cake", "milk" }
 local clock: Instance? = nil -- ReplicatedStorage.Clock once it has replicated
 local richVisits: { [Model]: boolean } = {} -- plots with a rich customer on the way or seated
 local coinPiles: { [Model]: Model } = {} -- plot -> the coin pile on its RichTipAnchor while a tip shows
+-- A plot's Mystery Visitor (and the seat it holds) and gift while this client shows them (F64).
+type Mystery = { visitor: Model?, seat: BasePart?, gift: Model? }
+local mysteries: { [Model]: Mystery } = {}
+local watchedPlots: { [Model]: boolean } = {} -- plots whose Mystery attributes this client follows
 
 -- How a customer visits: which model, and for a rich customer how long it stays (while its tip shows).
 type Visit = {
@@ -375,6 +384,168 @@ local function updateRich()
 	end
 end
 
+-- The Mystery Visitor and its gift (F64) ------------------------------------------------------------------------
+
+local function plotsFolder(): Instance?
+	local world = Workspace:FindFirstChild("World")
+	return if world ~= nil then world:FindFirstChild("Plots") else nil
+end
+
+local function nearCamera(plot: Model): boolean
+	local camera = Workspace.CurrentCamera
+	return camera ~= nil
+		and (plot:GetPivot().Position - camera.CFrame.Position).Magnitude
+			<= Config.World.CafeLifeRangeStuds
+end
+
+-- A Mystery model from ReplicatedStorage.Assets at `at` under the plot, tagged for the effects; nil without it.
+local function buildMystery(plot: Model, assetName: string, tag: string, at: CFrame): Model?
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local source = if assets ~= nil then assets:FindFirstChild(assetName) else nil
+	if source == nil then
+		return nil
+	end
+	local cloned = source:Clone()
+	if not cloned:IsA("Model") then
+		cloned:Destroy()
+		return nil
+	end
+	local model = cloned :: Model
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local part = descendant :: BasePart
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+		end
+	end
+	model:PivotTo(at)
+	CollectionService:AddTag(model, tag)
+	model.Parent = plot
+	return model
+end
+
+-- The chair at the plot's MysteryTable for the visitor: the one nearest the gift that no customer holds, else the
+-- nearest; and the table top it faces.
+local function mysterySeat(plot: Model): (BasePart?, BasePart?)
+	local tables = plot:FindFirstChild("Tables")
+	local index = plot:GetAttribute("MysteryTable")
+	local group = if tables ~= nil and type(index) == "number"
+		then tables:FindFirstChild("table_" .. index)
+		else nil
+	if group == nil then
+		return nil, nil
+	end
+	local top = group:FindFirstChild("Top", true)
+	local tableTop = if top ~= nil and top:IsA("BasePart") then top :: BasePart else nil
+	local anchor = plot:FindFirstChild("MysteryGiftAnchor")
+	local toward = if anchor ~= nil and anchor:IsA("BasePart")
+		then (anchor :: BasePart).Position
+		elseif tableTop ~= nil then tableTop.Position
+		else nil
+	local best: BasePart? = nil
+	local bestScore = math.huge
+	for _, child in group:GetChildren() do
+		if child.Name:match("^Chair_") and child:IsA("Model") then
+			local seat = child.PrimaryPart or child:FindFirstChildWhichIsA("BasePart")
+			if seat ~= nil then
+				local score = (if toward ~= nil then (seat.Position - toward).Magnitude else 0)
+					+ (if busySeats[seat] then 1000 else 0)
+				if score < bestScore then
+					best, bestScore = seat, score
+				end
+			end
+		end
+	end
+	return best, tableTop
+end
+
+-- Builds or clears this plot's visitor and gift to match its attributes now.
+local function refreshMystery(plot: Model)
+	local shown: Mystery = mysteries[plot] or { visitor = nil, seat = nil, gift = nil }
+	mysteries[plot] = shown
+	local inRange = plot.Parent ~= nil and nearCamera(plot)
+	local visitorUntil = plot:GetAttribute("MysteryVisitorUntil")
+	local wantVisitor = inRange
+		and type(visitorUntil) == "number"
+		and visitorUntil > Workspace:GetServerTimeNow()
+	local visitor = shown.visitor
+	if wantVisitor then
+		local seat, tableTop = mysterySeat(plot)
+		if visitor == nil and seat ~= nil then
+			local floorY = plot:GetPivot().Position.Y
+			local position = Vector3.new(seat.Position.X, floorY, seat.Position.Z)
+			local look = if tableTop ~= nil
+				then Vector3.new(tableTop.Position.X, floorY, tableTop.Position.Z)
+				else position + plot:GetPivot().LookVector
+			shown.visitor = buildMystery(
+				plot,
+				"CatCafe_NPC_MysteryVisitor",
+				"MysteryVisitor",
+				CFrame.lookAt(position, look)
+			)
+			if shown.visitor ~= nil then
+				shown.seat = seat
+				busySeats[seat] = true
+			end
+		end
+	elseif visitor ~= nil then
+		visitor:Destroy()
+		shown.visitor = nil
+		local seat = shown.seat
+		if seat ~= nil then
+			busySeats[seat] = nil
+			shown.seat = nil
+		end
+	end
+	local giftAt = plot:GetAttribute("MysteryGiftAt")
+	local anchor = plot:FindFirstChild("MysteryGiftAnchor")
+	local wantGift = inRange
+		and type(giftAt) == "number"
+		and giftAt > 0
+		and anchor ~= nil
+		and anchor:IsA("BasePart")
+	local gift = shown.gift
+	if wantGift then
+		if gift == nil then
+			-- the anchor is a 1 stud box resting on the table top: the gift's base goes on its bottom face
+			local base = (anchor :: BasePart).CFrame * CFrame.new(0, -0.5, 0)
+			shown.gift = buildMystery(plot, "CatCafe_Item_MysteryGift", "MysteryGift", base)
+		end
+	elseif gift ~= nil then
+		gift:Destroy()
+		shown.gift = nil
+	end
+	if shown.visitor == nil and shown.gift == nil then
+		mysteries[plot] = nil
+	end
+end
+
+-- Once a second: every plot's visitor and gift follow the attributes and the camera's range; a plot is also
+-- followed at once when its attributes change, so an opened gift goes before its ribbon pop.
+local function updateMysteries()
+	local plots = plotsFolder()
+	if plots == nil then
+		return
+	end
+	for _, child in plots:GetChildren() do
+		if not child:IsA("Model") then
+			continue
+		end
+		local plot = child :: Model
+		if not watchedPlots[plot] then
+			watchedPlots[plot] = true
+			for _, name in { "MysteryVisitorUntil", "MysteryGiftAt", "MysteryTable" } do
+				plot:GetAttributeChangedSignal(name):Connect(function()
+					refreshMystery(plot)
+				end)
+			end
+		end
+		refreshMystery(plot)
+	end
+end
+
 function CustomerController.start()
 	task.spawn(function()
 		clock = ReplicatedStorage:WaitForChild("Clock")
@@ -405,6 +576,7 @@ function CustomerController.start()
 		while true do
 			task.wait(1)
 			updateRich()
+			updateMysteries()
 		end
 	end)
 end

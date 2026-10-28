@@ -404,6 +404,8 @@ local function applyState(s: Types.PlayerState)
 		fishPerks = s.fishPerks,
 		goldLuck = s.goldLuck, -- F54: the Index's gold luck and faster bait, capped
 		baitSpeed = s.baitSpeed,
+		potions = s.potions, -- F64: the potion bag
+		buffs = s.buffs, -- F64: each running potion's endsAt in server time
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -451,6 +453,10 @@ local function wireIntents()
 	-- Spin on the Spin window (F49); the server answers with SpinResult and a ProfileSync.
 	UI.events.spinWheel:Connect(function()
 		Net.fire("SpinWheel")
+	end)
+	-- Use on a potion in the bag (F64); the server answers with a ProfileSync, or a "Full" toast.
+	UI.events.usePotion:Connect(function(potionId: string)
+		Net.fire("UsePotion", potionId)
 	end)
 	-- Open on a Market crate card and Buy on a Market row (F53); the server answers with CrateResult or a toast, and
 	-- a ProfileSync.
@@ -797,6 +803,10 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- What this player's opened Mystery gift held (F64): the gift card, and the ribbon pop in Effects.
+	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
+		UI.potions.giftResult(kind, id, count)
+	end)
 	-- One of this player's cats reached a new level (F75): the UI gathers close ones into one toast, Audio chimes and
 	-- Effects sparkles from the model's Level attribute.
 	Net.on("CatLevelUp", function(uid: string, level: number)
@@ -980,6 +990,8 @@ function UIController.start()
 		crates = Catalog.crates, -- F53: names and models for the crate prizes (review S77)
 		crateDecor = Catalog.crateDecor, -- F53: the 60 crate pieces (the Decor shop keeps reading decor)
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
+		potions = Catalog.potions, -- F64: the potion bag's rows
+		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

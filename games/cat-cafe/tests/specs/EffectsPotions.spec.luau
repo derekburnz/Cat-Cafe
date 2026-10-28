@@ -28,8 +28,9 @@ return function()
 		it("gives every potion a glow on a body place with a modest steady emitter", function()
 			local ids = table.clone(KINDS)
 			if type(Catalog.potions) == "table" then
-				for id in Catalog.potions do
-					table.insert(ids, id)
+				-- Catalog.potions is the bag's ordered rows (F64); a map keyed by id reads too
+				for key, row in Catalog.potions do
+					table.insert(ids, if type(row) == "table" and type(row.id) == "string" then row.id else key)
 				end
 			end
 			for _, id in ids do

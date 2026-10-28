@@ -1,9 +1,9 @@
 --!strict
--- Pays a prize in the Index prize shape (F54, F65, F68; data-model sections 11b and 11d) for Index rewards, codes
--- and the Tip Jar: coins (a minimum or seconds of the day rate), foods, golden fish, banked spins (up to SpinBankCap;
--- the rest are dropped) and crates (banked for the Golden Fish Market, "highest" resolved now). The permanent bonuses are not
--- paid here: IndexRewards.totals reads them from the claims, so they are only named for the toast. The caller has
--- already checked and marked the prize as paid.
+-- Pays a prize in the Index prize shape (F54, F65, F68; data-model sections 11b and 11d) for Index rewards, codes,
+-- the Tip Jar and Mystery gifts: coins (a minimum or seconds of the day rate), foods, golden fish, banked spins (up
+-- to SpinBankCap; the rest are dropped), crates (banked for the Golden Fish Market, "highest" resolved now) and
+-- potions (into the bag, F64). The permanent bonuses are not paid here: IndexRewards.totals reads them from the
+-- claims, so they are only named for the toast. The caller has already checked and marked the prize as paid.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -19,7 +19,7 @@ local Payout = {}
 
 -- Pays the prize and returns what it paid, for the toast ("+$300", "2 Tuna", "+25 golden fish", "2 spins",
 -- "1 Alley Crate", "+2% tips forever"), and the coins. `sku` names the source in analytics ("index_reward", "code",
--- "tip_jar") and `transaction` its kind, "Gameplay" unless given (the Tip Jar's is "TimedReward").
+-- "tip_jar", "mystery_gift") and `transaction` its kind, "Gameplay" unless given (the Tip Jar's is "TimedReward").
 function Payout.pay(
 	player: Player,
 	profile: Types.PlayerProfile,
@@ -68,6 +68,15 @@ function Payout.pay(
 			if paidId ~= nil and crate ~= nil then
 				profile.crates[paidId] = (profile.crates[paidId] or 0) + count
 				table.insert(paid, string.format("%d %s", count, crate.name))
+			end
+		end
+	end
+	if prize.potions ~= nil then
+		for potionId, count in prize.potions do
+			local potion = Catalog.getPotion(potionId)
+			if potion ~= nil and count > 0 then
+				profile.potions[potionId] = (profile.potions[potionId] or 0) + count
+				table.insert(paid, string.format("%d %s", count, potion.name))
 			end
 		end
 	end

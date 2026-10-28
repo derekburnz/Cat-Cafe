@@ -198,6 +198,11 @@ function Economy.richTipAmount(dayRate: number): number
 	return math.max(50, math.floor(dayRate * Config.RichTipSeconds))
 end
 
+-- One tip pile (F61, section 12): TipPileRateSeconds of the day rate, never less than $5.
+function Economy.tipPileAmount(dayRate: number): number
+	return math.max(5, math.floor(dayRate * Config.TipPileRateSeconds))
+end
+
 function Economy.offlineGain(rateAtLogout: number, lastSeen: number, now: number): (number, number)
 	local seconds = math.clamp(now - lastSeen, 0, Config.OfflineCapSeconds)
 	return math.floor(rateAtLogout * Config.OfflineRate * seconds), seconds

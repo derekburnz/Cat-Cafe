@@ -141,10 +141,17 @@ local Config = {
 	-- Night income and rich customers (F31, data-model sections 11 and 12)
 	NightIncomeMultiplier = 0.6, -- tips pay this share of the day rate at night; offline pay keeps the day rate
 	RichCheckSeconds = 60, -- by day, how often each earning cafe rolls for a rich customer
-	RichChance = 0.15,
-	RichTipSeconds = 45, -- a rich tip is this many seconds of the day rate (at least $50)
+	RichChance = 0.10, -- F61: was 0.15, now that a rich visitor pays far more
+	RichTipSeconds = 120, -- a rich tip is this many seconds of the day rate (at least $50; F61: was 45)
 	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
+	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
+	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5), up to TipPilesMax waiting. Only CollectTips
+	-- at the cafe pays them; the owner's client sends it within TipPileCollectRangeStuds of a pile.
+	TipPileSeconds = 30,
+	TipPileRateSeconds = 6,
+	TipPilesMax = 6,
+	TipPileCollectRangeStuds = 8,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
 	MysteryCheckSeconds = 120, -- by day, how often each earning cafe rolls for a Mystery Visitor

@@ -1495,185 +1495,136 @@
     },
     {
      "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
-     "className": "Part",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.2534,
-         7.311,
-         -0.43
+         -0.222,
+         7.3053,
+         -0.45
         ],
         "orientation": [
          [
-          0.3653,
-          0.9309,
-          0.0
-         ],
-         [
-          -0.9309,
-          0.3653,
-          0.0
+          0.0,
+          0.3983,
+          -0.9173
          ],
          [
           0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.1185,
-       0.3267,
-       0.05
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.0138,
-         7.3243,
-         -0.43
-        ],
-        "orientation": [
-         [
-          -0.2708,
-          0.9626,
-          0.0
+          -0.9173,
+          -0.3983
          ],
-         [
-          -0.9626,
-          -0.2708,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.1915,
-       0.3267,
-       0.05
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.2348,
-         7.1736,
-         -0.43
-        ],
-        "orientation": [
-         [
-          -0.7971,
-          0.6038,
-          0.0
-         ],
-         [
-          -0.6038,
-          -0.7971,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.242,
-       0.3267,
-       0.05
-      ],
-      "Color": [
-       0.9647,
-       0.8745,
-       0.6275
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": false,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         0.32,
-         6.92,
-         -0.43
-        ],
-        "orientation": [
          [
           -1.0,
           0.0,
           0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.0948,
+       0.2034
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3812,
+         7.2362,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.3983,
+          0.9173
          ],
          [
           0.0,
+          -0.9173,
+          0.3983
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.0948,
+       0.1436
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3812,
+         7.2362,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8917,
+          0.4526
+         ],
+         [
+          0.0,
+          0.4526,
+          -0.8917
+         ],
+         [
           -1.0,
+          0.0,
           0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
          ]
         ]
        }
       },
       "Size": [
-       0.26,
-       0.3267,
-       0.05
+       0.06,
+       0.1377,
+       0.1032
       ],
       "Color": [
        0.9647,
@@ -1691,38 +1642,38 @@
     },
     {
      "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
-     "className": "Part",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         0.2348,
-         6.6664,
-         -0.43
+         -0.3177,
+         7.1111,
+         -0.45
         ],
         "orientation": [
          [
-          -0.7971,
-          -0.6038,
-          0.0
-         ],
-         [
-          0.6038,
-          -0.7971,
-          0.0
+          0.0,
+          0.8917,
+          -0.4526
          ],
          [
           0.0,
+          0.4526,
+          0.8917
+         ],
+         [
+          1.0,
           0.0,
-          1.0
+          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.242,
-       0.3267,
-       0.05
+       0.06,
+       0.1377,
+       0.1772
       ],
       "Color": [
        0.9647,
@@ -1740,38 +1691,38 @@
     },
     {
      "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
-     "className": "Part",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0138,
-         6.5157,
-         -0.43
+         -0.4024,
+         7.126,
+         -0.45
         ],
         "orientation": [
          [
-          -0.2708,
-          -0.9626,
-          0.0
-         ],
-         [
-          0.9626,
-          -0.2708,
-          0.0
+          0.0,
+          0.8994,
+          -0.4371
          ],
          [
           0.0,
+          -0.4371,
+          -0.8994
+         ],
+         [
+          -1.0,
           0.0,
-          1.0
+          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.1915,
-       0.3267,
-       0.05
+       0.06,
+       0.2235,
+       0.1695
       ],
       "Color": [
        0.9647,
@@ -1789,38 +1740,724 @@
     },
     {
      "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
-     "className": "Part",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.2534,
-         6.529,
-         -0.43
+         -0.4783,
+         6.9699,
+         -0.45
         ],
         "orientation": [
          [
-          0.3653,
-          -0.9309,
-          0.0
-         ],
-         [
-          0.9309,
-          0.3653,
-          0.0
+          0.0,
+          0.8994,
+          0.4371
          ],
          [
           0.0,
+          -0.4371,
+          0.8994
+         ],
+         [
+          1.0,
           0.0,
-          1.0
+          0.0
          ]
         ]
        }
       },
       "Size": [
-       0.1185,
-       0.3267,
-       0.05
+       0.06,
+       0.2235,
+       0.1776
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4783,
+         6.9699,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.3883,
+          0.9215
+         ],
+         [
+          0.0,
+          0.9215,
+          -0.3883
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1654,
+       0.2327
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3012,
+         6.8953,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.3883,
+          -0.9215
+         ],
+         [
+          0.0,
+          0.9215,
+          0.3883
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1654,
+       0.1517
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3965,
+         6.6964,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3883,
+          -0.9215
+         ],
+         [
+          0.0,
+          -0.9215,
+          0.3883
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.2752,
+       0.1729
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5736,
+         6.7711,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.3883,
+          0.9215
+         ],
+         [
+          0.0,
+          -0.9215,
+          -0.3883
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.2752,
+       0.2115
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3965,
+         6.6964,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.0977,
+          0.9952
+         ],
+         [
+          0.0,
+          0.9952,
+          0.0977
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1595,
+       0.2832
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.177,
+         6.718,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.0977,
+          -0.9952
+         ],
+         [
+          0.0,
+          0.9952,
+          -0.0977
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1595,
+       0.1579
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1675,
+         6.526,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0977,
+          -0.9952
+         ],
+         [
+          0.0,
+          -0.9952,
+          -0.0977
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.2245,
+       0.1764
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3869,
+         6.5044,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0977,
+          0.9952
+         ],
+         [
+          0.0,
+          -0.9952,
+          0.0977
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.2245,
+       0.2647
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1675,
+         6.526,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.4799,
+          0.8773
+         ],
+         [
+          0.0,
+          0.8773,
+          0.4799
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1374,
+       0.2502
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0201,
+         6.6286,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.4799,
+          -0.8773
+         ],
+         [
+          0.0,
+          0.8773,
+          -0.4799
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1374,
+       0.1774
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1159,
+         6.5262,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.4799,
+          -0.8773
+         ],
+         [
+          0.0,
+          -0.8773,
+          -0.4799
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1343,
+       0.1076
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0716,
+         6.4236,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.4799,
+          0.8773
+         ],
+         [
+          0.0,
+          -0.8773,
+          0.4799
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.1343,
+       0.32
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1159,
+         6.5262,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7257,
+          0.688
+         ],
+         [
+          0.0,
+          0.688,
+          0.7257
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.0948,
+       0.1436
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Alley_NightFenceSegment_Moon_Bulb",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2353,
+         6.6521,
+         -0.45
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7257,
+          -0.688
+         ],
+         [
+          0.0,
+          0.688,
+          -0.7257
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.06,
+       0.0948,
+       0.2034
       ],
       "Color": [
        0.9647,

@@ -461,7 +461,9 @@ claim), `_Zzz` (sleeping cat). Index Boards (`CatCafe_<Area>_IndexBoard`, `board
 Front face carries the player's Index page), the `IndexBoard` tag, an `Area` attribute and ModelStreamingMode
 Atomic on the root Model; `placement` in the manifest gives the spot in its gate's frame. Night pieces (`night.py`): every
 `CatCafe_<Area>_NightFence`, `CatCafe_Alley_NightFenceSegment` and `CatCafe_Plot_BackDoorClosed` carries the `NightFence`
-tag, the moon, stars and sign letters are `_Moon_Bulb` or `_Sign_Bulb` (Neon at night), and `placement` names the gate or
+tag, the moon, stars and sign letters are `_Moon_Bulb` or `_Sign_Bulb` (Neon at night; on the gate fences the
+CLOSED board's rim and the moon badge's rim glow too, the letters are a 5 x 7 face with thin strokes and the moon
+is a thin crescent, so the sign reads up close), and `placement` names the gate or
 arch whose pivot each gate fence takes. The Codes Cat (`CatCafe_Street_CodesCat`, `stations.py`): the `CodesCat` tag,
 the part `CodesCircle` (the walk-in circle that opens the code box) and an Attachment named `PromptAnchor` on the desk
 front; the cap is nested under `_Head`. The Golden Fish Market (`CatCafe_Street_FishMarket`, `market.py`): an

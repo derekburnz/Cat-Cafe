@@ -15,9 +15,11 @@ local GuiService = game:GetService("GuiService")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RankUp = require(script.Parent.RankUp)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -82,8 +84,20 @@ local function card(name: string, height: number, order: number, parent: Instanc
 	})
 end
 
--- The square on the left of a row with a big glyph, like the item art boxes in the references.
-local function iconBox(parent: Instance, glyph: string, color: Color3)
+-- The square on the left of a row with a big glyph, like the item art boxes in the references; returns the glyph,
+-- which a row with an uploaded icon (the Net) draws its picture over.
+local function iconBox(parent: Instance, glyph: string, color: Color3): TextLabel
+	local label: TextLabel = Create("TextLabel", {
+		Name = "Glyph",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.7, 0.7),
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		TextColor3 = Theme.colors.white,
+		Text = glyph,
+	})
 	local box: Frame = Create("Frame", {
 		Name = "Icon",
 		BackgroundColor3 = color,
@@ -93,20 +107,11 @@ local function iconBox(parent: Instance, glyph: string, color: Color3)
 		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("TextLabel", {
-			Name = "Glyph",
-			BackgroundTransparency = 1,
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromScale(0.7, 0.7),
-			FontFace = Theme.fonts.display,
-			TextScaled = true,
-			TextColor3 = Theme.colors.white,
-			Text = glyph,
-		}),
+		label :: Instance,
 	})
 	Outline.border(box, Theme.sizes.stroke)
 	Outline.shade(box, 0.2)
+	return label
 end
 
 local function scrollList(name: string, parent: Instance): ScrollingFrame
@@ -274,7 +279,11 @@ function UpgradeShop._buildRows(self: any)
 
 	for index, upgrade in catalog.upgrades do
 		local row = card(upgrade.id, ROW_HEIGHT, index, self._list)
-		iconBox(row, Theme.upgradeIcons[upgrade.id] or Theme.icons.upgrades, Theme.colors.caramel)
+		local glyph = iconBox(
+			row,
+			Theme.upgradeIcons[upgrade.id] or Theme.icons.upgrades,
+			Theme.colors.caramel
+		)
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(TEXT_LEFT, 8),
@@ -339,6 +348,7 @@ function UpgradeShop._buildRows(self: any)
 		})
 		self._rows[upgrade.id] = {
 			frame = row,
+			glyph = glyph,
 			name = name,
 			stars = stars,
 			description = description,
@@ -504,6 +514,9 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 
 		local before: number? = row.level
 		row.level = level
+		if upgradeId == "net" and level ~= before then
+			IconArt.setImage(row.glyph, ShopIcons.net(level), 1.25) -- the net the row offers next
+		end
 		if before ~= nil and level > before then
 			self:_celebrate(row, before, level)
 		else

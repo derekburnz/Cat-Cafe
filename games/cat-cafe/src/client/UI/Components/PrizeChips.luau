@@ -23,6 +23,7 @@ local Format = require(script.Parent.Format)
 local IndexRewards = require(script.Parent.IndexRewards)
 local ItemIcon = require(script.Parent.ItemIcon)
 local Outline = require(script.Parent.Outline)
+local ShopIcons = require(script.Parent.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -135,6 +136,16 @@ function PrizeChips.setCatalog(self: any, catalog: Types.Catalog)
 	if self._prize ~= nil then
 		self:set(self._prize, self._look)
 	end
+end
+
+-- The uploaded shop icon for a crate or potion part (Components/ShopIcons), drawn in place of its model.
+local function partImage(part: IndexRewards.PrizePart): string?
+	if part.kind == "crate" then
+		return ShopIcons.crate(part.id)
+	elseif part.kind == "potion" then
+		return ShopIcons.potion(part.id)
+	end
+	return nil
 end
 
 -- The picture, the glyph without a model, the tile's rarity colour and the amount text for one part.
@@ -333,7 +344,7 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 			if part.kind == "lure" then
 				icon:setFood(self._lures[part.id or ""], part.id) -- F69: the food's grade gem
 			else
-				icon:set(asset, glyph, rarity)
+				icon:set(asset, glyph, rarity, partImage(part))
 			end
 			if part.kind == "fish" then
 				FishCoin.new({

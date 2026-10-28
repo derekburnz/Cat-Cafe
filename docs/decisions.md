@@ -255,3 +255,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Derek, designed by the game-designer thread (2026-10-28, door and cat flap decor)
 - 2026-10-28 01:28: Doors and cat flaps become crate decor (F80, golden-fish.md 4b). Derek: "and add a back door with a cat door on it", then "can add decor for cat door / doors also". Every crate gains a door set (front and back door together) and a cat flap, one Common and one Rare, so crates hold 12 pieces with the same rarity odds; they are style slots like wallpaper, swapping models instead of colours. `decor10` now needs all 12, and claims already made stay. Reason: one door set restyles both doors so the front and back match and there are half as many models; Common and Rare keep the golden crates and every Epic and rarer chance unchanged.
+
+### Asked by the reviewer thread, decided by the game-designer thread (2026-10-28, potion cap)
+- 2026-10-28 02:06: A potion is refused when its minutes would not fit under PotionMaxMinutes (60), instead of being taken and clamped (data-model 12b and 15, v0.13.8). Reason: the potion bag (#442) already greys Use to "Full" on that rule, and it never wastes part of a potion. Before this the two disagreed between 51 and 59 minutes left.

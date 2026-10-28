@@ -1,14 +1,16 @@
 --!nocheck
 -- Runs the game's Tackle poses (games/cat-cafe/src/client/Effects: Avatar and Presets, unchanged) on stand-in R15
 -- characters outside Roblox and writes every part's CFrame and Size per frame to JSON for render.py, like dump.luau
--- does for the cats. The stand-in is the blocky R15 shape (Roblox's own Block body, about 5 studs tall) in the
--- palette's shirt and skin swatches; in the game the poses go on each player's own avatar. The engineer's motion
--- (the lunge, the knockback) is copied from the design's numbers: a straight move at a steady speed.
+-- does for the cats. The stand-in (standin.luau) is the blocky R15 shape in the palette's shirt and skin swatches;
+-- in the game the poses go on each player's own avatar. The engineer's motion (the lunge, the knockback) is copied
+-- from the design's numbers: a straight move at a steady speed.
 --
---   lune run avatar.luau <scenario> <out.json> [<Effects folder>/]
+--   lune run avatar.luau <scenario> <out.json> [<Effects folder>/] [<assets.rbxm>]
 --
 -- Scenarios: miss (a tackle with nobody ahead), hit (a tackle into a player facing it, who falls on its back),
--- behind (into a player facing away, who falls on its front). Nothing here ships with the game.
+-- behind (into a player facing away, who falls on its front); net (three players holding the level 1, 2 and 3
+-- nets, standing and then walking: Avatar.holdNet and Avatar.netHand, the net pivoted by its Grip as NetHold.luau
+-- does; the nets come from the rbxm that `rojo build preview.project.json` makes). Nothing here ships with the game.
 
 local fs = require("@lune/fs")
 local luau = require("@lune/luau")
@@ -18,44 +20,13 @@ local serde = require("@lune/serde")
 
 local CFrame, Vector3, Color3 = roblox.CFrame, roblox.Vector3, roblox.Color3
 
-local scenarioName, outPath = process.args[1], process.args[2]
+local scenarioName, outPath, rbxmPath = process.args[1], process.args[2], process.args[4]
 assert(scenarioName and outPath, "usage: lune run avatar.luau <scenario> <out.json>")
 local HERE = string.match(process.cwd, "^(.-)/?$") .. "/"
-local EFFECTS = process.args[3] or (HERE .. "../../../../games/cat-cafe/src/client/Effects/")
-
--- The stand-in characters are plain tables with the few instance members Avatar.bind reads (Name, IsA,
--- FindFirstChild, GetDescendants, Part0, Part1, C0, C1, Size): Roblox hands out one value per instance, which
--- Avatar keys tables by, while Lune makes a new value on every read.
-local function node(className, name, props)
-	local n = props or {}
-	n.ClassName, n.Name, n.children = className, name, {}
-	function n:IsA(class)
-		return class == className or class == "Instance" or (class == "BasePart" and className == "Part")
-	end
-	function n:FindFirstChild(childName)
-		for _, child in self.children do
-			if child.Name == childName then
-				return child
-			end
-		end
-		return nil
-	end
-	function n:GetDescendants()
-		local out = {}
-		local function walk(at)
-			for _, child in at.children do
-				table.insert(out, child)
-				walk(child)
-			end
-		end
-		walk(self)
-		return out
-	end
-	return n
-end
-local function parent(child, to)
-	table.insert(to.children, child)
-end
+-- an empty Effects argument keeps the default, so the rbxm can follow it
+local EFFECTS = if process.args[3] ~= nil and process.args[3] ~= ""
+	then process.args[3]
+	else HERE .. "../../../../games/cat-cafe/src/client/Effects/"
 
 local modules = {}
 local env
@@ -85,87 +56,8 @@ env = setmetatable({
 local Avatar = load("Avatar")
 local Presets = load("Presets")
 
-local function hex(s)
-	return Color3.fromRGB(tonumber(s:sub(1, 2), 16), tonumber(s:sub(3, 4), 16), tonumber(s:sub(5, 6), 16))
-end
-local SKIN = { light = hex("F3C9A2"), tan = hex("C98E6A") }
-local SHIRT = { red = hex("D9483B"), blue = hex("3C7DD9") }
-local PANTS = hex("2F3E5C") -- pants_navy
-local SHOES = hex("5E4634") -- dark_wood
-local EYE = hex("2B211A")
-
--- A blocky R15 standing with its feet at y = 0 and its root at `at`, facing -Z: parts, then the Motor6Ds named and
--- placed the way a Roblox R15 character has them (each joint in the child part, C0 and C1 axis-aligned).
-local function character(name, at, shirt, skin)
-	local model = node("Model", name)
-	local function part(partName, size, centre, colour)
-		local p = node("Part", partName, { Size = size, CFrame = CFrame.new(centre), Color = colour })
-		parent(p, model)
-		return p
-	end
-	local root = part("HumanoidRootPart", Vector3.new(2, 2, 1), Vector3.new(0, 3, 0), SKIN.light)
-	local parts = {
-		LowerTorso = part("LowerTorso", Vector3.new(2, 0.4, 1), Vector3.new(0, 2.2, 0), PANTS),
-		UpperTorso = part("UpperTorso", Vector3.new(2, 1.6, 1), Vector3.new(0, 3.2, 0), shirt),
-		Head = part("Head", Vector3.new(1.2, 1.2, 1.2), Vector3.new(0, 4.6, 0), skin),
-	}
-	for side, x in { Left = -1.5, Right = 1.5 } do
-		parts[side .. "UpperArm"] = part(side .. "UpperArm", Vector3.new(1, 1, 1), Vector3.new(x, 3.5, 0), shirt)
-		parts[side .. "LowerArm"] = part(side .. "LowerArm", Vector3.new(1, 0.75, 1), Vector3.new(x, 2.625, 0), skin)
-		parts[side .. "Hand"] = part(side .. "Hand", Vector3.new(1, 0.3, 1), Vector3.new(x, 2.1, 0), skin)
-		local lx = x / 3
-		parts[side .. "UpperLeg"] = part(side .. "UpperLeg", Vector3.new(1, 0.9, 1), Vector3.new(lx, 1.55, 0), PANTS)
-		parts[side .. "LowerLeg"] = part(side .. "LowerLeg", Vector3.new(1, 0.8, 1), Vector3.new(lx, 0.7, 0), PANTS)
-		parts[side .. "Foot"] = part(side .. "Foot", Vector3.new(1, 0.3, 1.1), Vector3.new(lx, 0.15, -0.05), SHOES)
-	end
-	local function joint(jointName, part0, part1, at)
-		parent(
-			node("Motor6D", jointName, {
-				Part0 = part0,
-				Part1 = part1,
-				C0 = CFrame.new(at - part0.CFrame.Position),
-				C1 = CFrame.new(at - part1.CFrame.Position),
-			}),
-			part1
-		)
-	end
-	joint("Root", root, parts.LowerTorso, Vector3.new(0, 2.2, 0))
-	joint("Waist", parts.LowerTorso, parts.UpperTorso, Vector3.new(0, 2.4, 0))
-	joint("Neck", parts.UpperTorso, parts.Head, Vector3.new(0, 4.0, 0))
-	for side, x in { Left = -1.5, Right = 1.5 } do
-		local lx = x / 3
-		joint(side .. "Shoulder", parts.UpperTorso, parts[side .. "UpperArm"], Vector3.new(x, 3.75, 0))
-		joint(side .. "Elbow", parts[side .. "UpperArm"], parts[side .. "LowerArm"], Vector3.new(x, 3.0, 0))
-		joint(side .. "Wrist", parts[side .. "LowerArm"], parts[side .. "Hand"], Vector3.new(x, 2.25, 0))
-		joint(side .. "Hip", parts.LowerTorso, parts[side .. "UpperLeg"], Vector3.new(lx, 2.0, 0))
-		joint(side .. "Knee", parts[side .. "UpperLeg"], parts[side .. "LowerLeg"], Vector3.new(lx, 1.1, 0))
-		joint(side .. "Ankle", parts[side .. "LowerLeg"], parts[side .. "Foot"], Vector3.new(lx, 0.3, 0))
-	end
-	-- a face, so the front shows: two eyes riding the head
-	local eyes = {}
-	for _, x in { -0.28, 0.28 } do
-		local e = part("Eye", Vector3.new(0.16, 0.3, 0.05), Vector3.new(x, 4.68, -0.61), EYE)
-		table.insert(eyes, { part = e, offset = parts.Head.CFrame:Inverse() * e.CFrame })
-	end
-	local rig = Avatar.bind(model)
-	assert(rig, "Avatar.bind found no R15 rig")
-	return { model = model, rig = rig, root = at, head = parts.Head, eyes = eyes }
-end
-
--- Every part's world CFrame for this root and these Transforms (Avatar.lowest's walk, kept).
-local function place(c, rootCF, transforms)
-	local at = { [c.rig.root] = CFrame.identity }
-	local out = {}
-	for _, link in c.rig.links do
-		local frame = at[link.parent] * link.c0 * (transforms[link.motor] or CFrame.identity) * link.c1
-		at[link.part] = frame
-		out[link.part] = rootCF * frame
-	end
-	for _, eye in c.eyes do
-		out[eye.part] = out[c.head] * eye.offset
-	end
-	return out
-end
+local Standin = luau.load(fs.readFile(HERE .. "standin.luau"), { debugName = "standin" })()(roblox, Avatar)
+local character, place = Standin.character, Standin.place
 
 local T = Presets.tacklePose
 local LUNGE_SPEED = 12 / T.lunge -- TackleLungeStuds in TackleLungeSeconds
@@ -185,13 +77,13 @@ local scenarios = {
 	miss = {
 		seconds = 3.2,
 		camera = "profile",
-		box = { { -1, 0, -15 }, { 1, 5, 2 } },
+		box = { { -1, 0, -17.5 }, { 1, 5, 2.5 } }, -- the outstretched arms reach about 16.4 studs out
 		people = { { name = "Tackler", z = 0, face = 0, shirt = "red" } },
 	},
 	hit = {
 		seconds = 2.4,
 		camera = "profile",
-		box = { { -1, 0, -21 }, { 1, 5, 2 } },
+		box = { { -1, 0, -23.5 }, { 1, 5, 2.5 } },
 		people = {
 			{ name = "Tackler", z = 0, face = 0, shirt = "red" },
 			{ name = "Target", z = -9, face = 180, shirt = "blue", skin = "tan" },
@@ -200,10 +92,23 @@ local scenarios = {
 	behind = {
 		seconds = 2.4,
 		camera = "profile",
-		box = { { -1, 0, -21 }, { 1, 5, 2 } },
+		box = { { -1, 0, -23.5 }, { 1, 5, 2.5 } },
 		people = {
 			{ name = "Tackler", z = 0, face = 0, shirt = "red" },
 			{ name = "Target", z = -9, face = 0, shirt = "blue", skin = "tan" },
+		},
+	},
+	-- standing `still` seconds, then walking at the default 16 studs a second; the camera follows
+	net = {
+		seconds = 4,
+		still = 1.5,
+		speed = 16,
+		camera = "three",
+		box = { { -7, 0, -3 }, { 7, 9, 2 } },
+		people = {
+			{ name = "Basic", x = -5, z = 0, face = 0, shirt = "red", net = 1 },
+			{ name = "Pro", x = 0, z = 0, face = 0, shirt = "blue", skin = "tan", net = 2 },
+			{ name = "Master", x = 5, z = 0, face = 0, shirt = "red", net = 3 },
 		},
 	},
 }
@@ -211,35 +116,67 @@ local scenario = assert(scenarios[scenarioName], "no scenario " .. scenarioName)
 
 local people = {}
 for _, spec in scenario.people do
-	local c = character(spec.name, nil, SHIRT[spec.shirt], SKIN[spec.skin or "light"])
+	local c = character(spec.name, Standin.SHIRT[spec.shirt], Standin.SKIN[spec.skin or "light"])
 	c.spec = spec
-	c.pos = Vector3.new(0, 3, spec.z)
+	c.pos = Vector3.new(spec.x or 0, 3, spec.z)
 	c.yaw = math.rad(spec.face)
 	c.times = {}
 	table.insert(people, c)
 end
 local tackler, target = people[1], people[2]
-tackler.times.tackleAt = PRESS
+if scenario.still == nil then
+	tackler.times.tackleAt = PRESS
+end
+
+-- A held net: the level's model from the rbxm, each visible part kept as its frame from the net's Grip, so it can be
+-- put in the hand as NetHold.luau pivots it there.
+local function netParts(level)
+	assert(rbxmPath, "the net scenario needs the assets rbxm (rojo build preview.project.json)")
+	local folder = roblox.deserializeModel(fs.readFile(rbxmPath))[1]
+	local net = assert(folder:FindFirstChild("CatCafe_Item_Net_L" .. level), "no net L" .. level)
+	local grip = assert(net:FindFirstChild("Grip", true), "net L" .. level .. " has no Grip")
+	local gripWorld = grip.Parent.CFrame * grip.CFrame
+	local out = {}
+	for _, d in net:GetDescendants() do
+		if d:IsA("BasePart") and d.Transparency < 1 then
+			local colour = d.Color
+			table.insert(out, {
+				part = d,
+				offset = gripWorld:Inverse() * d.CFrame,
+				info = {
+					name = "Net_" .. d.Name,
+					shape = if d.ClassName == "Part" then d.Shape.Name else "Block",
+					color = { colour.R, colour.G, colour.B },
+					material = d.Material.Name,
+					transparency = d.Transparency,
+				},
+			})
+		end
+	end
+	return out
+end
+for _, c in people do
+	if c.spec.net then
+		c.net = netParts(c.spec.net)
+	end
+end
 
 local fps = 24
 local frames = {}
 local info = {}
 local order = {}
 for _, c in people do
-	for _, d in c.model:GetDescendants() do
-		if d:IsA("BasePart") and d.Name ~= "HumanoidRootPart" then
-			table.insert(order, { c = c, part = d })
-			local colour = d.Color
-			table.insert(info, {
-				name = c.spec.name .. "_" .. d.Name,
-				shape = "Block",
-				color = { colour.R, colour.G, colour.B },
-				material = "SmoothPlastic",
-				transparency = 0,
-			})
-		end
+	local partInfo, partOrder = Standin.partInfo(c, c.spec.name)
+	for i, entry in partInfo do
+		table.insert(info, entry)
+		table.insert(order, { c = c, part = partOrder[i] })
+	end
+	for _, piece in c.net or {} do
+		table.insert(info, piece.info)
+		table.insert(order, { c = c, net = piece })
 	end
 end
+local travelled = Vector3.zero
 
 local count = math.floor(scenario.seconds * fps + 0.5)
 local hitAt = nil
@@ -247,7 +184,7 @@ for f = 0, count - 1 do
 	local now = f / fps
 	local dt = 1 / fps
 	-- the engineer's motion: the lunge until it ends or hits, the target's push after a hit
-	if now >= PRESS and now < PRESS + T.lunge and hitAt == nil then
+	if scenario.still == nil and now >= PRESS and now < PRESS + T.lunge and hitAt == nil then
 		tackler.pos += Vector3.new(0, 0, -LUNGE_SPEED * dt)
 		if target ~= nil and (target.pos - tackler.pos).Magnitude <= 3 then
 			hitAt = now
@@ -264,10 +201,12 @@ for f = 0, count - 1 do
 	if target ~= nil and hitAt ~= nil and now >= hitAt and now < hitAt + T.push then
 		target.pos += target.push * PUSH_SPEED * dt
 	end
-	if target == nil and now >= PRESS + T.lunge + T.grace and tackler.times.missAt == nil then
+	if scenario.still == nil and target == nil and now >= PRESS + T.lunge + T.grace and tackler.times.missAt == nil then
 		tackler.times.missAt = PRESS + T.lunge + T.grace
 	end
-	local frame = { t = now, pivot = { 0, 0, 0 }, parts = {} }
+	local speed = if scenario.still ~= nil and now >= scenario.still then scenario.speed else 0
+	travelled += Vector3.new(0, 0, -speed * dt)
+	local frame = { t = now, pivot = { travelled.X, travelled.Y, travelled.Z }, parts = {} }
 	local placed = {}
 	for _, c in people do
 		local pose, weight = Avatar.at(c.times, now, timing)
@@ -277,12 +216,35 @@ for f = 0, count - 1 do
 				transforms[motor] = CFrame.identity:Lerp(cf, weight)
 			end
 		end
-		placed[c] = place(c, CFrame.new(c.pos) * CFrame.Angles(0, c.yaw, 0), transforms)
+		if c.net then
+			-- a walk as the Animator would play it (the preview has no copy of it): legs and the free arm swinging
+			-- with the distance covered, then the hold's arm over it
+			c.stride = (c.stride or 0) + speed * dt / 4.5
+			local swing = math.sin(c.stride * 2 * math.pi) * math.rad(28) * math.min(speed / 8, 1)
+			local joints = c.rig.joints
+			transforms[joints.LeftHip] = CFrame.Angles(swing, 0, 0)
+			transforms[joints.RightHip] = CFrame.Angles(-swing, 0, 0)
+			transforms[joints.LeftKnee] = CFrame.Angles(-math.max(0, -swing) * 1.2, 0, 0)
+			transforms[joints.RightKnee] = CFrame.Angles(-math.max(0, swing) * 1.2, 0, 0)
+			transforms[joints.LeftShoulder] = CFrame.Angles(-swing * 0.8, 0, 0)
+			for motor, cf in Avatar.holdNet(c.rig) do
+				transforms[motor] = cf
+			end
+		end
+		local partsAt = place(c, CFrame.new(c.pos + travelled) * CFrame.Angles(0, c.yaw, 0), transforms)
+		if c.net then
+			local hand, grip = Avatar.netHand(c.rig)
+			local gripAt = partsAt[hand] * grip
+			for _, piece in c.net do
+				partsAt[piece] = gripAt * piece.offset
+			end
+		end
+		placed[c] = partsAt
 	end
 	for i, entry in order do
-		local cf = placed[entry.c][entry.part]
+		local cf = placed[entry.c][entry.net or entry.part]
 		local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = cf:GetComponents()
-		local s = entry.part.Size
+		local s = (entry.net and entry.net.part or entry.part).Size
 		frame.parts[i] = { cf = { x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 }, size = { s.X, s.Y, s.Z } }
 	end
 	table.insert(frames, frame)

@@ -414,6 +414,8 @@ local function applyState(s: Types.PlayerState)
 		baitSpeed = s.baitSpeed,
 		potions = s.potions, -- F64: the potion bag
 		buffs = s.buffs, -- F64: each running potion's endsAt in server time
+		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
+		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -573,6 +575,17 @@ local function wireIntents()
 	-- CollectorOffer("") when the visit ends, or a toast when the cat cannot go yet.
 	UI.events.answerCollector:Connect(function(accept: boolean)
 		Net.fire("AnswerCollector", accept)
+	end)
+	-- Quests and achievements (F73): the server checks each claim and swap and answers with a toast, QuestResult on a
+	-- payment and a sync.
+	UI.events.claimQuest:Connect(function(kind: string, slot: number)
+		Net.fire("ClaimQuest", kind, slot)
+	end)
+	UI.events.rerollQuest:Connect(function(kind: string, slot: number)
+		Net.fire("RerollQuest", kind, slot)
+	end)
+	UI.events.claimAchievement:Connect(function(achievementId: string)
+		Net.fire("ClaimAchievement", achievementId)
 	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
 	-- the food and the window the screen showed (else the last one sent), so a buy sent across a roll is refused (S42).
@@ -832,6 +845,10 @@ local function wireServerEvents()
 	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
 		UI.potions.giftResult(kind, id, count)
 	end)
+	-- What a quest, a set or an achievement claim paid (F73), for the Quests window's claim effect.
+	Net.on("QuestResult", function(paid: { string })
+		UI.quests.result(paid)
+	end)
 	-- The Cat Collector at this player's cafe (F63): his card and tag, or catUid "" when he leaves or a trade is done.
 	Net.on(
 		"CollectorOffer",
@@ -1040,6 +1057,10 @@ function UIController.start()
 		potions = Catalog.potions, -- F64: the potion bag's rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
 		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
+		quests = Catalog.quests, -- F73: the quest rows (to tell a coins quest)
+		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet
+		achievements = Catalog.achievements, -- F73: the 44 achievements in table order
+		achievementPrizes = Catalog.achievementPrizes, -- F73: prizes by size
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

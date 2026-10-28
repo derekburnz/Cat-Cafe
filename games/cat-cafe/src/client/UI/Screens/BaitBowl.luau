@@ -2,8 +2,9 @@
 -- Bait bowl screen (F28, data-model section 8): what is in your bowl and every food you can put in it. A food
 -- goes in with Use from anywhere, F included (Derek 2026-10-28); the cat it brings is rolled then and arrives after
 -- the wait, even while you are offline, and you choose Tame or Let go when it comes. Every food card shows its
--- five-rarity odds, the gold chance and the charm star odds before Buy or Use, with the per-cat split under
--- Details (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
+-- five-rarity odds before Buy or Use as one short row, each rarity in its colour (Derek 2026-10-28: "make it simple
+-- and easy can click info/details for more"), and Details opens the gold chance, the charm star odds and the
+-- per-cat split (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
 -- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
 -- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold
 -- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait.
@@ -41,7 +42,7 @@ export type BaitBowl = {
 }
 
 local STATUS_HEIGHT = 92
-local ROW_HEIGHT = 132 -- room for the odds, gold and star lines to wrap on a narrow screen
+local ROW_HEIGHT = 132 -- room for the odds row to wrap onto a second line on a narrow screen
 local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
 local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Garden seed shop
 local TEXT_LEFT = ICON + 28
@@ -68,6 +69,11 @@ end
 
 -- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
 -- badge on the picture stays the food's own grade (F69)
+-- a rarity's odds colour as hex, for FoodOdds.rich
+local function rarityHex(rarity: string): string
+	return Theme.rarityInk(rarity):ToHex()
+end
+
 local function attractsChip(parent: Instance, lure: Types.LureDef, order: number): TextLabel
 	return Create("TextLabel", {
 		Name = "Attracts",
@@ -328,13 +334,15 @@ function BaitBowl._buildRows(self: any)
 		})
 		local odds = text({
 			Name = "Odds",
-			Position = UDim2.fromOffset(TEXT_LEFT, 58),
-			Size = UDim2.new(1, TEXT_WIDTH, 0, ROW_HEIGHT - 64),
-			TextSize = Theme.sizes.textTiny,
+			Position = UDim2.fromOffset(TEXT_LEFT, 60),
+			Size = UDim2.new(1, TEXT_WIDTH, 0, ROW_HEIGHT - 66),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
-			Text = FoodOdds.line(lure.odds) .. "\n" .. FoodOdds.extras(),
+			RichText = true,
+			Text = FoodOdds.rich(lure.odds, rarityHex),
 			Parent = top,
 		})
 		local use = Button.new({
@@ -409,6 +417,7 @@ function BaitBowl._buildRows(self: any)
 			details = details,
 			detail = detail,
 			odds = odds,
+			split = nil :: string?, -- the per-cat split for the tier last drawn
 			def = lure,
 			dealer = dealer,
 		}
@@ -454,21 +463,23 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		return -- money ticks re-render every screen; this one catches up when it opens
 	end
 	local catalog: Types.Catalog? = self._catalog
-	if catalog and state.tier ~= self._tier then
+	local tierChanged = catalog ~= nil and state.tier ~= self._tier
+	if catalog and tierChanged then
 		self._tier = state.tier
 		for _, row in self._rows do
-			row.detail.Text = FoodOdds.split(catalog, row.def, state.tier)
+			row.split = FoodOdds.split(catalog, row.def, state.tier)
 		end
 	end
 	local totals = if catalog then IndexRewards.totals(catalog, state) else nil
 	local fishPerks: { [string]: number } = state.fishPerks or {}
 	local speed = if totals then totals.baitSpeed else 0
 	self._waitSeconds = FoodOdds.waitSeconds((fishPerks.big_bowl or 0) >= 1, speed)
+	-- Details: the gold chance with the Index's gold luck in it (F54) and the charm stars, then the split
 	local luck = if totals then totals.goldLuck else 0
-	if luck ~= self._goldLuck then
+	if tierChanged or luck ~= self._goldLuck then
 		self._goldLuck = luck
 		for _, row in self._rows do
-			row.odds.Text = FoodOdds.line(row.def.odds) .. "\n" .. FoodOdds.extras(luck)
+			row.detail.Text = FoodOdds.extras(luck) .. "\n" .. (row.split or "")
 		end
 	end
 	local owned = ownsBowl(state)

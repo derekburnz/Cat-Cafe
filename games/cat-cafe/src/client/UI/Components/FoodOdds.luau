@@ -1,11 +1,13 @@
 --!strict
 -- The odds text every food card shows before you buy or use the food (data-model section 8 and the growth
 -- thread's rules for paid random items: labelled text, never an icon, shown on the card itself):
---   line   "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical"
+--   rich   the card's one short row, each rarity's name and share in its colour (Derek 2026-10-28):
+--          "Common 70%   Rare 26%   Epic 3.5%   Legendary 0.4%   Mythical 0.1%"
+--   line   the same as plain text, "Odds: 70% Common · 26% Rare · 3.5% Epic · 0.4% Legendary · 0.1% Mythical"
 --   split  the same chance for every cat of a rarity across the areas you have unlocked, cat by cat, and which
 --          area the next rank up adds to the pool
 --   extras the gold chance (with the Index's gold luck in it, v0.10) and the charm star odds, because both change
---          what the cat earns
+--          what the cat earns; under the card's Details since 2026-10-28, with the split
 --   waitSeconds how long the bowl's cat takes: LureWaitSeconds, or the Big Bowl perk's wait, less the Index's
 --          faster bait (F54), whole seconds as the server's Economy.baitWaitSeconds
 -- Shared by the bait bowl screen and the night dealer.
@@ -52,6 +54,24 @@ function FoodOdds.line(odds: Types.LureOdds?): string
 		end
 	end
 	return "Odds: " .. table.concat(parts, " · ")
+end
+
+-- The card's odds row for a RichText label: "Common 70%   Rare 25%   ..." with each part in its rarity's colour.
+-- `hexOf` gives that colour as hex (the screens pass Theme.rarityInk), since this module loads without Theme.
+function FoodOdds.rich(odds: Types.LureOdds?, hexOf: (rarity: string) -> string): string
+	if not odds then
+		return "Odds: not set"
+	end
+	assert(odds, "odds not set")
+	local parts: { string } = {}
+	for _, rarity in RARITIES do
+		local share = (odds :: any)[rarity]
+		if type(share) == "number" then
+			local part = ("%s %s"):format(rarity, percent(share))
+			table.insert(parts, ('<font color="#%s">%s</font>'):format(hexOf(rarity), part))
+		end
+	end
+	return table.concat(parts, "   ")
 end
 
 -- Bait picks the cat uniformly among that rarity's cats in every area the player has unlocked (data-model

@@ -792,49 +792,49 @@ return function()
 			{
 				kibble = {
 					name = "Kibble",
-					cost = 25,
+					cost = 30,
 					source = "shop",
 					attracts = "Common",
 					odds = { Common = 70, Rare = 25, Epic = 4, Legendary = 0.9, Mythical = 0.1 },
 				},
 				tuna = {
 					name = "Tuna",
-					cost = 100,
+					cost = 125,
 					source = "shop",
 					attracts = "Rare",
 					odds = { Common = 40, Rare = 45, Epic = 12, Legendary = 2.6, Mythical = 0.4 },
 				},
 				salmon = {
 					name = "Salmon",
-					cost = 500,
+					cost = 625,
 					source = "shop",
 					attracts = "Epic",
 					odds = { Common = 15, Rare = 45, Epic = 30, Legendary = 8.5, Mythical = 1.5 },
 				},
 				sardines = {
 					name = "Moonlit Sardines",
-					cost = 800,
+					cost = 1000,
 					source = "dealer",
 					attracts = "Rare",
 					odds = { Common = 30, Rare = 45, Epic = 20, Legendary = 4.5, Mythical = 0.5 },
 				},
 				caviar = {
 					name = "Caviar",
-					cost = 3000,
+					cost = 3750,
 					source = "dealer",
 					attracts = "Epic",
 					odds = { Common = 10, Rare = 35, Epic = 38, Legendary = 14, Mythical = 3 },
 				},
 				moon_milk = {
 					name = "Moon Milk",
-					cost = 10000,
+					cost = 12500,
 					source = "dealer",
 					attracts = "Epic",
 					odds = { Common = 0, Rare = 20, Epic = 45, Legendary = 28, Mythical = 7 },
 				},
 				star_treat = {
 					name = "Star Treat",
-					cost = 40000,
+					cost = 50000,
 					source = "dealer",
 					attracts = "Legendary",
 					odds = { Common = 0, Rare = 0, Epic = 40, Legendary = 45, Mythical = 15 },
@@ -1011,15 +1011,15 @@ return function()
 		end)
 
 		it(
-			"five areas in tier order with the section 9 spawn points, waves of 10 and odds (F23)",
+			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5) and odds (F23)",
 			function()
-				-- id -> { name, tier, spawnPoints, odds }
+				-- id -> { name, tier, spawnPoints, odds, waveSize }
 				local want = {
-					{ "alley", "Alleyway", 1, 24, { 72, 22, 5, 0.9, 0.1 } }, -- v0.4 layout: 24 spawn points
-					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 } },
-					{ "neighbourhood", "Neighbourhood", 3, 26, { 50, 32, 13, 4, 1 } }, -- the kit set's cat spots (#401)
-					{ "woods", "Woods", 4, 17, { 42, 34, 17, 5.5, 1.5 } },
-					{ "sewer", "Sewer", 5, 20, { 35, 35, 20, 7.5, 2.5 } },
+					{ "alley", "Alleyway", 1, 24, { 72, 22, 5, 0.9, 0.1 }, 6 }, -- v0.4 layout: 24 spawn points
+					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 }, 5 },
+					{ "neighbourhood", "Neighbourhood", 3, 26, { 50, 32, 13, 4, 1 }, 5 }, -- the kit set's cat spots (#401)
+					{ "woods", "Woods", 4, 17, { 42, 34, 17, 5.5, 1.5 }, 4 },
+					{ "sewer", "Sewer", 5, 20, { 35, 35, 20, 7.5, 2.5 }, 4 },
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1028,7 +1028,7 @@ return function()
 					expect(def.name).to.equal(row[2])
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
-					expect(def.waveSize).to.equal(10)
+					expect(def.waveSize).to.equal(row[6]) -- data-model 9 v0.13.5 (was 10 each)
 					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({
 						Common = odds[1],

@@ -134,6 +134,21 @@ function Logic.nearest<K>(candidates: { Candidate<K> }, radius: number, limit: n
 	return keys
 end
 
+-- Logic.nearest over `first`, then the nearest of `rest` in whatever is left of `limit`, so a crowd of `rest` never
+-- takes a slot one of `first` needs (Rare and better strays ahead of Commons for the rarity gem).
+function Logic.nearestFirst<K>(
+	first: { Candidate<K> },
+	rest: { Candidate<K> },
+	radius: number,
+	limit: number
+): { K }
+	local keys = Logic.nearest(first, radius, limit)
+	for _, key in Logic.nearest(rest, radius, limit - #keys) do
+		table.insert(keys, key)
+	end
+	return keys
+end
+
 -- What a change of a plot's OwnerUserId or Tier means. `sinceOwnerChange` is how long ago the owner last
 -- changed: a claim sets OwnerUserId and Tier in the same server step but they can replicate a frame apart, so a
 -- Tier rise right after a claim is the new owner's saved tier, not a rank up.
@@ -251,6 +266,12 @@ function Logic.stuckMarkShows(lockedBy: unknown, distance: number, shown: boolea
 	local locked = type(lockedBy) == "number" and lockedBy ~= 0
 	local near = if shown then m.hideWithin else m.hideWithin + m.showAfter
 	return not locked and distance > near and distance <= m.maxDistance
+end
+
+-- Whether something last seen at `seenAt` (os.clock(), nil if never) still counts as in view at `now`: for `grace`
+-- seconds after it goes out of sight, so a post or a passing player does not make a mark pop again and again.
+function Logic.stillInView(seenAt: number?, now: number, grace: number): boolean
+	return seenAt ~= nil and now - seenAt <= grace
 end
 
 -- Whether you stand in a walk-in circle (the Codes Cat's, F65) at `distance` flat studs from its centre: in at

@@ -9,12 +9,11 @@ return function()
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
 
 	describe("Effects stray rarity gem", function()
-		it("shows on Rare and better strays, never on Common", function()
-			for _, rarity in { "Rare", "Epic", "Legendary", "Mythical" } do
+		it("shows on every stray with a known rarity, none for a missing or unknown one", function()
+			for _, rarity in { "Common", "Rare", "Epic", "Legendary", "Mythical" } do
 				expect(Logic.rarityMarkShows(rarity, 0, 40, false)).to.equal(true)
 				expect(Presets.rarity[rarity] ~= nil).to.equal(true)
 			end
-			expect(Logic.rarityMarkShows("Common", 0, 40, false)).to.equal(false)
 			expect(Logic.rarityMarkShows(nil, 0, 40, false)).to.equal(false) -- Rarity not replicated yet
 			expect(Logic.rarityMarkShows("Sparkly", 0, 40, false)).to.equal(false)
 			expect(Presets.rarityMark.glints.Mythical).to.equal(true)

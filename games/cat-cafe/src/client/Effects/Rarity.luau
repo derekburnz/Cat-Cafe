@@ -1,9 +1,11 @@
 --!strict
 -- A stray's rarity from a distance (Derek 2026-10-28 01:25: "have some sort indicator of what rarity the cat is
--- before going up to it and looking at the name"): a small gem in the rarity colour bobs over every Rare, Epic,
--- Legendary and Mythical stray, so players can pick their target from across the area; Common shows nothing and a
--- Mythical gem glints now and then. It hides while someone is catching that cat and once you are close enough for
--- its Catch card, which names it. Gold cats keep their gold sparkle as well.
+-- before going up to it and looking at the name"): a small gem in the rarity colour bobs over every stray, so
+-- players can pick their target from across the area (Common too since Derek 12:15: "common ones should also have a
+-- gem"; the nearest Rare and better take the 12 slots first and Commons fill the rest), and a Mythical gem glints
+-- now and then. It hides while someone is catching that cat and once you are close enough for its Catch card, which
+-- names it. Gold cats keep their gold sparkle as well. Rescue.luau puts the same gem over a stuck cat's red "!"
+-- (`Rarity.buildGem`).
 --
 -- Source: the Stray tag CatService puts on each stray model, and its `Rarity` and `LockedBy`. The gem rides the
 -- cat's body part, so it follows a walking or fleeing cat with nothing to move each frame. Listening only. Numbers
@@ -39,22 +41,14 @@ local function bodyOf(model: Model): BasePart?
 	return if part ~= nil then part :: BasePart else nil
 end
 
-local function makeMark(model: Model, rarity: string): Mark?
-	local body = bodyOf(model)
+-- Builds a gem in `rarity`'s colour into `parent`, which is square on screen, and returns its glint for a rarity
+-- that glints. Builds nothing and returns false for a rarity with no colour.
+function Rarity.buildGem(parent: Instance, rarity: string): (boolean, Frame?)
 	local colour: Color3? = Presets.rarity[rarity]
-	if body == nil or colour == nil then
-		return nil -- not streamed in yet
+	if colour == nil then
+		return false, nil
 	end
 	local r = Presets.rarityMark
-	local frame, size = model:GetBoundingBox()
-	local top = frame.Position.Y + Logic.halfExtents(frame, size).Y
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "EffectsRarityMark"
-	gui.Adornee = body
-	gui.Size = UDim2.new(r.size, r.pixels, r.size, r.pixels)
-	gui.LightInfluence = 0
-	gui.MaxDistance = r.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
-	gui.Enabled = false
 	local gem = Instance.new("Frame")
 	gem.Name = "Gem"
 	gem.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -79,7 +73,7 @@ local function makeMark(model: Model, rarity: string): Mark?
 	stroke.Color = r.outline
 	stroke.Thickness = r.outlinePixels
 	stroke.Parent = gem
-	gem.Parent = gui
+	gem.Parent = parent
 	local glint: Frame? = nil
 	if r.glints[rarity] then
 		local spark = Instance.new("Frame")
@@ -91,8 +85,57 @@ local function makeMark(model: Model, rarity: string): Mark?
 		spark.BackgroundColor3 = Color3.new(1, 1, 1)
 		spark.BorderSizePixel = 0
 		spark.ZIndex = 2
-		spark.Parent = gui
+		spark.Parent = parent
 		glint = spark
+	end
+	return true, glint
+end
+
+-- Glints `glint` (from buildGem) now and then, for as long as the returned tween runs.
+function Rarity.playGlint(glint: Frame): Tween
+	local r = Presets.rarityMark
+	glint.Size = UDim2.fromScale(0, 0)
+	local tween = TweenService:Create(
+		glint,
+		TweenInfo.new(
+			r.glintSeconds,
+			Enum.EasingStyle.Quad,
+			Enum.EasingDirection.Out,
+			-1,
+			true,
+			r.glintEvery - 2 * r.glintSeconds
+		),
+		{ Size = UDim2.fromScale(r.glintSize, r.glintSize) }
+	)
+	tween:Play()
+	return tween
+end
+
+-- A glint held still, for Reduce Motion.
+function Rarity.stillGlint(glint: Frame)
+	local r = Presets.rarityMark
+	glint.Size = UDim2.fromScale(r.glintSize * 0.6, r.glintSize * 0.6)
+end
+
+local function makeMark(model: Model, rarity: string): Mark?
+	local body = bodyOf(model)
+	if body == nil then
+		return nil -- not streamed in yet
+	end
+	local r = Presets.rarityMark
+	local frame, size = model:GetBoundingBox()
+	local top = frame.Position.Y + Logic.halfExtents(frame, size).Y
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "EffectsRarityMark"
+	gui.Adornee = body
+	gui.Size = UDim2.new(r.size, r.pixels, r.size, r.pixels)
+	gui.LightInfluence = 0
+	gui.MaxDistance = r.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
+	gui.Enabled = false
+	local built, glint = Rarity.buildGem(gui, rarity)
+	if not built then
+		gui:Destroy()
+		return nil
 	end
 	gui.Parent = Context.folder()
 	return {
@@ -131,7 +174,7 @@ local function show(mark: Mark)
 	local glint = mark.glint
 	if Context.reducedMotion() then
 		if glint ~= nil then
-			glint.Size = UDim2.fromScale(r.glintSize * 0.6, r.glintSize * 0.6)
+			Rarity.stillGlint(glint)
 		end
 		return
 	end
@@ -142,20 +185,7 @@ local function show(mark: Mark)
 		{ StudsOffsetWorldSpace = up + Vector3.new(0, r.bob, 0) }
 	)
 	if glint ~= nil then
-		glint.Size = UDim2.fromScale(0, 0)
-		play(
-			mark,
-			glint,
-			TweenInfo.new(
-				r.glintSeconds,
-				Enum.EasingStyle.Quad,
-				Enum.EasingDirection.Out,
-				-1,
-				true,
-				r.glintEvery - 2 * r.glintSeconds
-			),
-			{ Size = UDim2.fromScale(r.glintSize, r.glintSize) }
-		)
+		table.insert(mark.tweens, Rarity.playGlint(glint))
 	end
 end
 
@@ -185,6 +215,7 @@ local function check()
 	end
 	local r = Presets.rarityMark
 	local candidates: { Logic.Candidate<Model> } = {}
+	local commons: { Logic.Candidate<Model> } = {} -- behind the rest for the `most` slots, so a Rare still shows
 	for _, instance in CollectionService:GetTagged("Stray") do
 		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
 			local model = instance :: Model
@@ -199,12 +230,15 @@ local function check()
 					mark ~= nil and mark.shown
 				)
 			then
-				table.insert(candidates, { key = model, distance = distance })
+				table.insert(
+					if rarity == "Common" then commons else candidates,
+					{ key = model, distance = distance }
+				)
 			end
 		end
 	end
 	local wanted: { [Model]: boolean } = {}
-	for _, model in Logic.nearest(candidates, r.maxDistance, r.most) do
+	for _, model in Logic.nearestFirst(candidates, commons, r.maxDistance, r.most) do
 		wanted[model] = true
 	end
 	for model, mark in marks do

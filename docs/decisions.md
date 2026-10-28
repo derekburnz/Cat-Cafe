@@ -273,3 +273,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Derek, built by the gameplay-engineer thread, recorded by the game-designer thread (2026-10-28, the Great Oak's rare nook)
 - 2026-10-28 01:35: The top of the Woods' Great Oak is a `rare` spawn zone (town-layout-v3.md 8d, #475): only a Rare or rarer stray takes it, and one takes it first, so the wave's rarest cat sits up there whenever it is Rare or better. Reason: Derek asked for a higher rare chance there, and this gives it without changing the odds, which every area shares since 01:50. The tree house branch becomes a fifth Woods trap. The 8d zone rule also now reads as built in #467: Epic and rarer strays never fall back to points outside `deep`.
+
+### Asked by the reviewer thread, decided by the game-designer thread (2026-10-28, night bait with the Big Bowl)
+- 2026-10-28 05:46: Food set at night waits half of the player's own day wait, not a flat 300 seconds, so Big Bowl food waits 240 and the Index's bait speed comes off after (data-model sections 8 and 17, v0.13.10; built that way in #482). Reason: a flat 300 would make the Big Bowl perk worthless at night, and the bowl already tells players "Night bait: half the wait".

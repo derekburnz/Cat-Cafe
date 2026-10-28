@@ -1280,12 +1280,18 @@ local function buildArea(
 		local name = "rescue_" .. id .. "_" .. i
 		local base = CFrame.new(point.x, spec.floorY + (point.y or 0), point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
-		-- A trap built into the area's set has no prop: the stuck cat sits right at the spot.
+		-- A prop trap poses the cat in the prop's space; a trap built into the area's set has no prop, so the cat is
+		-- posed by its TrapType in the spot's space.
 		local prop = point.prop
 		local catAt = base
 		if prop ~= nil then
 			place(prop, base, rescueFolder).Name = name .. "_Trap"
 			local pose = Layout.stuckPoses[prop]
+			if pose ~= nil then
+				catAt = base * poseCFrame(pose)
+			end
+		else
+			local pose = Layout.setStuckPoses[point.trap]
 			if pose ~= nil then
 				catAt = base * poseCFrame(pose)
 			end

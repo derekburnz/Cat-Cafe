@@ -244,6 +244,36 @@ return function()
 			end
 			expect(rares).to.equal(1)
 		end)
+
+		-- Animation-Engineer's stuck placements (2026-10-28): every stuck cat is posed, a prop trap's in the prop's
+		-- space and a set trap's by its TrapType in the spot's, so the wriggles read as back end out or upside down.
+		it("every trap poses its stuck cat, each pose a turn and nothing more", function()
+			local function isTurn(pose: { number }, label: string)
+				if #pose ~= 12 then
+					fail("%s pose has %d numbers", label, #pose)
+				end
+				local a, b, c = { pose[4], pose[5], pose[6] }, { pose[7], pose[8], pose[9] }, { pose[10], pose[11], pose[12] }
+				local det = a[1] * (b[2] * c[3] - b[3] * c[2])
+					- a[2] * (b[1] * c[3] - b[3] * c[1])
+					+ a[3] * (b[1] * c[2] - b[2] * c[1])
+				if math.abs(det - 1) > 1e-3 then
+					fail("%s pose's rotation has determinant %.4f", label, det)
+				end
+			end
+			for id, spec in Layout.areas do
+				for i, spot in spec.rescueSpots do
+					local label = string.format("%s trap %d (%s)", id, i, spot.trap)
+					local pose = if spot.prop ~= nil then Layout.stuckPoses[spot.prop] else Layout.setStuckPoses[spot.trap]
+					if pose == nil then
+						fail("%s has no stuck pose", label)
+					end
+					isTurn(pose :: { number }, label)
+				end
+			end
+			-- the Park's trees are props, so a set's tree pose is the Woods' tree house branch alone
+			expect(Layout.setStuckPoses.tree).to.be.ok()
+			expect(Layout.stuckPoses.CatCafe_Park_RescueTree).to.be.ok()
+		end)
 	end)
 
 	describe("the Alleyway out back (world-and-feel section 2, F35)", function()

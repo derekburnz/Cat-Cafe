@@ -167,12 +167,12 @@ return function()
 			},
 			ginger = { "Ginger", "Common", "alley", "greeter", "Warm, round, always in the sun." },
 			smoke = { "Smoke", "Common", "alley", "entertainer", "Grey as a rainy morning." },
-			calico = {
-				"Pirate Cat",
+			binbag = {
+				"Garbage Bag Cat",
 				"Rare",
 				"alley",
 				"waiter",
-				"Carries every tray like buried treasure.",
+				"Found the comfiest bin bag in the alley and wears it everywhere.",
 			},
 			tortie = {
 				"Rocker Cat",
@@ -181,12 +181,12 @@ return function()
 				"entertainer",
 				"Knows one chord and plays it very loudly.",
 			},
-			sphynx = {
-				"DJ Cat",
+			taxi = {
+				"Taxi Cat",
 				"Epic",
 				"alley",
 				"greeter",
-				"Drops a beat every time the door opens.",
+				"Picks up every customer right at the door.",
 			},
 			maine_coon = {
 				"Bandit Cat",
@@ -202,12 +202,12 @@ return function()
 				"waiter",
 				"Silent, fast and never spills a drop.",
 			},
-			midnight = {
-				"Wizard Cat",
+			neon = {
+				"Jazz Cat",
 				"Mythical",
 				"alley",
 				"barista",
-				"Stirs a little starlight into every cup.",
+				"Plays a soft tune while the coffee brews.",
 			},
 			snow = { "Snow", "Common", "park", "waiter", "All white, hates the muddy paths." },
 			cream = {
@@ -225,12 +225,12 @@ return function()
 				"Chocolate stripes, chases every leaf.",
 			},
 			blue = { "Blue", "Common", "park", "greeter", "Silver-blue and very polite." },
-			siamese = {
-				"Nerd Cat",
+			birdwatch = {
+				"Birdwatcher Cat",
 				"Rare",
 				"park",
 				"barista",
-				"Measures every latte to the last drop.",
+				"Watches the milk foam like it is a rare bird.",
 			},
 			bengal = {
 				"Explorer Cat",
@@ -246,12 +246,12 @@ return function()
 				"greeter",
 				"Says hello with an enormous yawn.",
 			},
-			persian = {
-				"Fancy Cat",
+			duckling = {
+				"Duckling Cat",
 				"Epic",
 				"park",
 				"waiter",
-				"Serves every cup on a silver tray.",
+				"Brings a duckling along to every table.",
 			},
 			blossom = {
 				"Fairy Cat",
@@ -260,12 +260,12 @@ return function()
 				"barista",
 				"Leaves a petal on every saucer.",
 			},
-			aurora = {
-				"Astro Cat",
+			balloon = {
+				"Balloon Cat",
 				"Mythical",
 				"park",
 				"entertainer",
-				"Moonwalks between the tables.",
+				"Floats in on a bunch of balloons and makes everyone smile.",
 			},
 		}
 		-- Section 3c, provisional: id -> { name, rarity, area, favoriteRole }. Descriptions are placeholders.
@@ -275,10 +275,10 @@ return function()
 			socks = { "Socks", "Common", "neighbourhood", "greeter" },
 			butter = { "Butter", "Common", "neighbourhood", "entertainer" },
 			munchkin = { "Munchkin", "Rare", "neighbourhood", "entertainer" },
-			fold = { "Fold", "Rare", "neighbourhood", "waiter" },
-			chonk = { "Chonk", "Epic", "neighbourhood", "barista" },
+			builder = { "Construction Cat", "Rare", "neighbourhood", "waiter" },
+			gardener = { "Gardener Cat", "Epic", "neighbourhood", "barista" },
 			postie = { "Postie", "Epic", "neighbourhood", "greeter" },
-			marshmallow = { "Marshmallow", "Legendary", "neighbourhood", "waiter" },
+			gnome = { "Gnome Cat", "Legendary", "neighbourhood", "waiter" },
 			comet = { "Comet", "Mythical", "neighbourhood", "entertainer" },
 			moss = { "Moss", "Common", "woods", "greeter" },
 			acorn = { "Acorn", "Common", "woods", "barista" },
@@ -294,24 +294,58 @@ return function()
 			soot = { "Soot", "Common", "sewer", "barista" },
 			pipes = { "Pipes", "Common", "sewer", "entertainer" },
 			puddle = { "Puddle", "Common", "sewer", "greeter" },
-			lantern = { "Lantern", "Rare", "sewer", "waiter" },
+			plumber = { "Plumber Cat", "Rare", "sewer", "waiter" },
 			bubbles = { "Bubbles", "Rare", "sewer", "entertainer" },
 			gears = { "Gears", "Epic", "sewer", "barista" },
 			glimmer = { "Glimmer", "Epic", "sewer", "greeter" },
 			bottlecap = { "Bottlecap King", "Legendary", "sewer", "waiter" },
 			eclipse = { "Eclipse", "Mythical", "sewer", "barista" },
 		}
+		-- Section 3d (v0.13, F78): the ten cats the area-themed ones replaced, id -> { name, rarity, the area they
+		-- came from, favoriteRole }
+		local spares: { [string]: { string } } = {
+			calico = { "Pirate Cat", "Rare", "alley", "waiter" },
+			sphynx = { "DJ Cat", "Epic", "alley", "greeter" },
+			midnight = { "Wizard Cat", "Mythical", "alley", "barista" },
+			siamese = { "Nerd Cat", "Rare", "park", "barista" },
+			persian = { "Fancy Cat", "Epic", "park", "waiter" },
+			aurora = { "Astro Cat", "Mythical", "park", "entertainer" },
+			fold = { "Fold", "Rare", "neighbourhood", "waiter" },
+			chonk = { "Chonk", "Epic", "neighbourhood", "barista" },
+			marshmallow = { "Marshmallow", "Legendary", "neighbourhood", "waiter" },
+			lantern = { "Lantern", "Rare", "sewer", "waiter" },
+		}
 
-		it("has exactly the 50 cats: the 20 slice cats and the 30 reserved ids", function()
-			expect(#Catalog.cats).to.equal(50)
+		it("has exactly 60 cats: the 20 slice cats, the 30 later ones and the 10 spare", function()
+			expect(#Catalog.cats).to.equal(60)
 			for _, def in ipairs(Catalog.cats) do
-				expect(slice[def.id] ~= nil or reserved[def.id] ~= nil).to.equal(true)
+				expect(slice[def.id] ~= nil or reserved[def.id] ~= nil or spares[def.id] ~= nil).to.equal(true)
 			end
 			for id in pairs(slice) do
 				expect(Catalog.getCat(id)).to.be.ok()
 			end
 			for id in pairs(reserved) do
 				expect(Catalog.getCat(id)).to.be.ok()
+			end
+			for id in pairs(spares) do
+				expect(Catalog.getCat(id)).to.be.ok()
+			end
+		end)
+
+		it("keeps every spare cat as it was, in the spare pool, earning at the area it came from", function()
+			for id, row in pairs(spares) do
+				local def = Catalog.getCat(id)
+				assert(def, id)
+				expect(def.name).to.equal(row[1])
+				expect(def.rarity).to.equal(row[2])
+				expect(def.area).to.equal("spare")
+				expect(def.incomeArea).to.equal(row[3])
+				expect(def.favoriteRole).to.equal(row[4])
+				local area = Catalog.getArea(row[3])
+				assert(area, id)
+				expect(def.incomePerSecond).to.equal(
+					Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
+				)
 			end
 		end)
 
@@ -360,6 +394,9 @@ return function()
 					counts[area] = {}
 				end
 				for _, def in ipairs(Catalog.cats) do
+					if def.area == "spare" then
+						continue
+					end
 					local area = counts[def.area]
 					expect(area).to.be.ok()
 					assert(area)
@@ -385,7 +422,7 @@ return function()
 					expect(#def.description > 0).to.equal(true)
 					expect(#def.pattern > 0).to.equal(true)
 					expect(ROLE_SET[def.favoriteRole]).to.equal(true)
-					expect(areaSet[def.area]).to.equal(true)
+					expect(areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]).to.equal(true)
 					expect((def :: any).favoriteSpot).never.to.be.ok()
 					expect(#def.color).to.equal(3)
 					for _, channel in ipairs(def.color) do

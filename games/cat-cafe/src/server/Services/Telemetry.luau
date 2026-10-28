@@ -485,8 +485,12 @@ local function areaIndex(player: Player, profile: Profile, complete: boolean, ar
 	end)
 end
 
--- After a new cat joins the collection: area_index completes when every catalog cat of its area is in the Index.
+-- After a new cat joins the collection: area_index completes when every catalog cat of its area is in the Index. A
+-- spare cat (data-model 3d) has no area page.
 function Telemetry.collected(player: Player, profile: Profile, def: Types.CatDef)
+	if def.area == "spare" then
+		return
+	end
 	for _, other in Catalog.cats do
 		if other.area == def.area and profile.collection[other.id] == nil then
 			return

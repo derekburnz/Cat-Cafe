@@ -63,15 +63,17 @@ type Flight = {
 export type Glide = {
 	body: (character: Model) -> CFrame?,
 	mount: (parent: GuiObject, zIndex: number, character: Model, launchAt: number) -> (),
-	-- the intro's copy gliding from `from` (server time) for `seconds`, once Animation-Engineer has it
-	mountStaged: ((
-		parent: GuiObject,
-		zIndex: number,
-		model: Model,
-		from: number,
-		seconds: number
-	) -> ())?,
 }
+
+-- CannonGlide.mountStaged once Animation-Engineer has it: the intro's copy gliding from `from` (server time) for
+-- `seconds`. Looked up on the module when the intro plays, so the build works with or without it.
+type MountStaged = (
+	parent: GuiObject,
+	zIndex: number,
+	model: Model,
+	from: number,
+	seconds: number
+) -> ()
 
 type Hop = {
 	at: number,
@@ -556,7 +558,7 @@ function Cannon.playStaged(
 	fly(model, startedAt, plan, true, cannon, model:GetPivot().Position)
 	Clouds.play(startedAt, plan.clouds, tintOf(destination))
 	local g, rider = glide, Clouds.rider()
-	local staged = if g ~= nil then g.mountStaged else nil
+	local staged: MountStaged? = if g ~= nil then (g :: any).mountStaged else nil
 	if staged ~= nil and rider ~= nil then
 		staged(
 			rider,

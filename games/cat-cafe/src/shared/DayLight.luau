@@ -5,6 +5,8 @@
 -- holds it and warms back to the sunrise just before the areas open. Each phase is a row of keyframes over its
 -- progress (0 at its start, 1 at its end), linear between them, and each phase ends on the look the next one starts
 -- with, so the sky never jumps at a phase change. WorldController applies the look to Lighting and its Atmosphere.
+-- Haze stays light (Derek 2026-10-28 00:45: Haze 2 to 2.6 and Density 0.3 laid a grey fog over the whole screen
+-- from the high camera): a little warm haze at sunrise and the golden hours, none at midday or night.
 -- Visual only, so the numbers live here rather than in Config.
 
 local Config = require(script.Parent.Config)
@@ -48,11 +50,11 @@ DayLight.SUNRISE = {
 	Ambient = rgb(95, 85, 85),
 	ExposureCompensation = -0.1,
 	ColorShift_Top = rgb(255, 190, 150),
-	Density = 0.3,
+	Density = 0.25,
 	Color = rgb(255, 195, 160),
 	Decay = rgb(140, 130, 170),
 	Glare = 0.6,
-	Haze = 2.6,
+	Haze = 0.6,
 } :: Look
 
 DayLight.MORNING = with(DayLight.SUNRISE, {
@@ -65,7 +67,7 @@ DayLight.MORNING = with(DayLight.SUNRISE, {
 	Color = rgb(235, 218, 205),
 	Decay = rgb(150, 165, 205),
 	Glare = 0.3,
-	Haze = 2.2,
+	Haze = 0.3,
 })
 
 -- The brightest the day gets: Brightness 2, OutdoorAmbient 170,160,150 and exposure 0 before was too bright.
@@ -76,11 +78,11 @@ DayLight.MIDDAY = {
 	Ambient = rgb(100, 96, 92),
 	ExposureCompensation = -0.2,
 	ColorShift_Top = rgb(255, 245, 232),
-	Density = 0.3,
+	Density = 0.25,
 	Color = rgb(210, 224, 238),
 	Decay = rgb(150, 180, 215),
 	Glare = 0,
-	Haze = 2,
+	Haze = 0,
 } :: Look
 
 DayLight.GOLDEN = with(DayLight.MIDDAY, {
@@ -91,7 +93,7 @@ DayLight.GOLDEN = with(DayLight.MIDDAY, {
 	Color = rgb(255, 212, 160),
 	Decay = rgb(165, 160, 190),
 	Glare = 0.5,
-	Haze = 2.3,
+	Haze = 0.5,
 })
 
 DayLight.DUSK = with(DayLight.GOLDEN, {
@@ -104,7 +106,7 @@ DayLight.DUSK = with(DayLight.GOLDEN, {
 	Color = rgb(245, 160, 135),
 	Decay = rgb(110, 95, 150),
 	Glare = 0.4,
-	Haze = 2.5,
+	Haze = 0.6,
 })
 
 DayLight.SUNSET = with(DayLight.DUSK, {
@@ -117,7 +119,7 @@ DayLight.SUNSET = with(DayLight.DUSK, {
 	Color = rgb(190, 140, 150),
 	Decay = rgb(80, 80, 130),
 	Glare = 0.2,
-	Haze = 2,
+	Haze = 0.3,
 })
 
 -- The night preset from the style guide (section 9, PR #239). Haze and Glare 0 as the place had them, so the night sky

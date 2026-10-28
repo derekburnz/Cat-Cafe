@@ -10,6 +10,9 @@ local Config = require(ReplicatedStorage.Shared.Config)
 -- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1); rarer strays take only
 -- "nook".
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
+-- A cafe table: its point, and `lane`, the plot-local z of the walkway beside its row that customers walk along to
+-- reach its chairs (Layout.plot.tables).
+export type TableSpot = { x: number, y: number, z: number, lane: number }
 -- An axis-aligned rectangle on the ground, world or plot space depending on where it is used.
 export type Rect = { x1: number, z1: number, x2: number, z2: number }
 -- An archway over an entrance (WorldBuilder.buildArch): the alley kit's `asset` when there is one.
@@ -167,7 +170,7 @@ Layout.plot = {
 		barista_3 = { x = 5.2, y = 0, z = halfD - 3 },
 		waiter_1 = { x = -4.5, y = 0, z = -2.5 },
 		waiter_2 = { x = 4.5, y = 0, z = -2.5 },
-		waiter_3 = { x = 0, y = 0, z = 4.5 },
+		waiter_3 = { x = 4.5, y = 0, z = 3.5 }, -- beside the aisle, off the door to counter walk (was 0, 4.5)
 		greeter_1 = { x = -4, y = 0, z = -halfD + 2.5 },
 		greeter_2 = { x = 4, y = 0, z = -halfD + 2.5 },
 		-- the cat tree's top cushion, at its sit point (-0.5, 4.47, -0.4 from the tree's pivot)
@@ -204,22 +207,29 @@ Layout.plot = {
 		{ x = -halfW + 1.4, y = 0, z = -7.5, rotY = -90 }, -- left wall, between the window corner and the planter
 		{ x = 8, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the counter
 		{ x = -12.6, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, left of the back door
-		{ x = -8.5, y = 0, z = 6.5, rotY = 0 }, -- between the left tables and the cat tree
-		{ x = 8.5, y = 0, z = 6.5, rotY = 0 }, -- between the right tables and the cat tree
+		{ x = -halfW + 1.4, y = 0, z = 4, rotY = -90 }, -- left wall, between the fish tank and the cat tree
+		{ x = 11.5, y = 0, z = halfD - 1.4, rotY = 0 }, -- back wall, right of the counter beyond the first
 	} :: { Point },
 
+	-- Two columns of three, either side of the aisle from the front door to the counter (Derek 2026-10-28 01:27: the
+	-- second table stood in the doorway where everyone walks): a table and its two chairs reach 3.7 either side of
+	-- its x and 2.1 in front and behind, so the aisle is clear from x -6.3 to 6.3. The back left table sits half a
+	-- stud further out, so the walk from the back door to the front door passes its chair a stud clear (review N237). Filled in order, two a tier: front row, middle row, back
+	-- row. Each row's `lane` is the walkway between it and the next row, which customers take to the outer chair.
 	tables = {
-		{ x = -9, y = 0, z = -6 },
-		{ x = 0, y = 0, z = -6 },
-		{ x = 9, y = 0, z = -6 },
-		{ x = -9, y = 0, z = 1 },
-		{ x = 0, y = 0, z = 1 },
-		{ x = 9, y = 0, z = 1 },
-	} :: { Point },
+		{ x = -10, y = 0, z = -8.5, lane = -5.4 },
+		{ x = 10, y = 0, z = -8.5, lane = -5.4 },
+		{ x = -10, y = 0, z = -2.25, lane = 0.9 },
+		{ x = 10, y = 0, z = -2.25, lane = 0.9 },
+		{ x = -10.5, y = 0, z = 4, lane = 0.9 },
+		{ x = 10, y = 0, z = 4, lane = 0.9 },
+	} :: { TableSpot },
+	-- How far either side of the aisle's middle customers walk to and from a lane, clear of the waiters at 4.5.
+	aisleX = 2,
 
 	-- The rich customer's coin pile (data-model section 12): on top of table 1 (2.6 tall), where the rich customer
 	-- sits. The UI's gold marker floats over it and ClaimRichTip measures range from it.
-	richTip = { x = -9, y = 2.7, z = -6 } :: Point,
+	richTip = { x = -10, y = 2.7, z = -8.5 } :: Point,
 
 	-- The back door, between the counter and the left cat tree, opens from Tier 1 onto the yard; the yard's gate
 	-- lines up with it so the way out to the back alley is straight.

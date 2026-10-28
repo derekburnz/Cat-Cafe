@@ -480,6 +480,17 @@ Derek 2026-10-27: "shove should be changed into like a tackle so you can just sp
 | `UI.shove.setEnabled(on)` | The controller's zone check: true while the player stands inside a catching area they have unlocked and `BumpEnabled` is on; false on the street, in the cafes and yards. Off by default. |
 | `UI.shove.result(ok, outcome?, targetUserId?)` | The tackler's `ShoveResult`. `false` after a refusal lifts the cooldown at once. With `outcome` (`"miss"`, `"shove"`, `"loose"` or `"held"`) and the target's UserId (0 on a miss) it toasts and, on a hit, holds the bar grey 0.4 s. The extra arguments are optional. |
 
+### Potions and the Mystery gift (built, F64, data-model section 12b)
+
+Derek 2026-10-28: "potion button still missing". Kept brief, as every window since his 01:09 ask.
+
+- **Potions pill** on the left menu, under Decor (berry, 🧪, key **P**), with the bag's total count beside the key cap; it opens the **Potions** window (`Screens/Potions.luau`, rows and sums in `Components/PotionLogic.luau` with a spec). One row per potion: a round tile in the potion's colour (`Theme.potionColor`) with "x2" on its corner, the name, one short line ("+25% tips · 10 min"), "8:12 left" while it runs, and a **Use** button that fires `events.usePotion(potionId)`. Use is grey with none in the bag and reads "Full" when another would pass `PotionMaxMinutes` (60); a press reads "..." for 1 s. A row with none in the bag and no timer stays, faded, so players see what each potion does; with an empty bag one line says where potions come from. The rows follow `Catalog.potions` and fall back to the four F64 potions; a potion the player holds that the catalog does not name yet still shows, after the rest. The F73 quest potions (Big Tip, Gold Rush, Quick Bait) already have names, lines and colours. `potionDrink` plays when a potion's count drops, which is the server accepting `UsePotion`; a refusal is the server's toast.
+- **Potion timers** (`Screens/BuffChips.luau`): under the money and golden fish pills, a small chip per running potion, a 28 px round tile in its colour and its time left in outlined white ("8:12"), no box behind them. A tap opens the bag. They tick once a second while any runs and go when time is up. The times count to `state.buffs[potionId]` (endsAt in `GetServerTimeNow()` time), so a rejoin shows what is left.
+- **Mystery gift prompt**: the plot's `MysteryGiftAnchor` prompt named `GiftPrompt` gets the action pill with one outlined line of chances under it ("Potion 60% · 2 Salmon 20% · 10 golden fish 10% · 1 spin 10%", from `Catalog.mysteryGift`, else the data model's table), so the chances show before opening. On a plot whose `OwnerUserId` is not the local player the client sets `GiftPrompt.Enabled = false`, so others see no pill and E does nothing.
+- **Gift card**: `UI.potions.giftResult(kind, id, count)` from `MysteryGiftResult` pops a "🎁 Mystery gift!" card over everything with the prize as a picture (`PrizeChips`) and its name ("Tip Potion", "2 Salmon", "10 golden fish", "1 spin"), a Nice! button, gone by itself after 4 s; `giftOpen` plays when it shows.
+
+**Engineer (F64):** in UIController, add `potions = Catalog.potions, mysteryGift = Catalog.mysteryGift` to the catalog table passed to `UI.init` / `UI.setCatalog`; pass `potions = s.potions, buffs = s.buffs` (endsAt in server time) in `UI.update` whenever ProfileSync carries them; connect `UI.events.usePotion` to `Net.fire("UsePotion", potionId)`; and call `UI.potions.giftResult(kind, id, count)` from `MysteryGiftResult`. The gift prompt needs nothing more than the `GiftPrompt` name and Custom style.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -527,6 +538,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `pickUpBegan` | `strayId, catId` | The hold on a dropped cat's prompt whose model has `PickUp = true` (v0.8 F56, v0.10 F67). Forward as `PickUpCat(strayId)`; a refusal comes back as `catch.fail(reason, true)`. |
 | `rescuePressed` | `rescueSpotId` | A press on the rescue bar or the tree's catch circle. Forward as `RescuePress(rescueSpotId)` (F27) |
 | `rescueCancelled` | `rescueSpotId` | Give up on the rescue bar. Forward as `RescueCancel(rescueSpotId)` (F27) |
+| `usePotion` | `potionId` | Use on a potion row in the Potions window (F64). Forward as `UsePotion(potionId)`; the server checks the count and the 60 minute cap, and a refusal is its toast. |
 | `claimRichTip` | none | Collect on the rich tip marker, within 12 studs of the anchor. Forward as `ClaimRichTip()` (F31); the server checks the owner, range and expiry |
 | `tackle` | none | The Tackle bar or Q (F74). Lunge and forward as `Tackle()`; the server decides hit or miss and checks the area, locks, cooldown and safe zones. |
 | `screenOpened` | `name or nil` | Modal opened or closed |
@@ -562,6 +574,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     fishPerks: { [perkId]: number }?,                              -- F53: Golden Fish Market perk levels
     goldLuck: number?, baitSpeed: number?,                         -- F54: the Index's capped forever bonuses; nil adds them up from the claims
     introSeen: boolean?,                                           -- F72: any value shows the Tutorial tile and Settings rows
+    potions: { [potionId]: number }?,                              -- F64: potions in the bag
+    buffs: { [potionId]: number }?,                                -- F64: each running potion's endsAt in GetServerTimeNow() time
 }
 ```
 

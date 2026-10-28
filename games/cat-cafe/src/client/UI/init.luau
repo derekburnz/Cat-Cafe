@@ -8,6 +8,7 @@
 --   UI.update(partialState)
 --   UI.events.buyUpgrade:Connect(function(upgradeId) Remotes.BuyUpgrade:FireServer(upgradeId) end)
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -49,6 +50,8 @@ local Motion = require(script.Components.Motion)
 local MyCats = require(script.Screens.MyCats)
 local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
+local PotionLogic = require(script.Components.PotionLogic)
+local Potions = require(script.Screens.Potions)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
@@ -124,6 +127,8 @@ UI.events = {
 	introSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
+	-- F64
+	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
 }
 
 local state: Types.PlayerState = {
@@ -187,6 +192,7 @@ local spinScreen: SpinWheel.SpinWheel? = nil -- the Spin Wheel window (F49), ope
 local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53), opened from the stall's prompt
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
+local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
@@ -323,6 +329,9 @@ local function render()
 	if codesScreen then
 		codesScreen:render(state)
 	end
+	if potionsScreen then
+		potionsScreen:render(state)
+	end
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -372,6 +381,12 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if codesScreen then
 		codesScreen:setCatalog(newCatalog)
+	end
+	if potionsScreen then
+		potionsScreen:setCatalog(newCatalog)
+	end
+	if popups then
+		popups:setCatalog(newCatalog)
 	end
 	if catCard then
 		catCard:setCatalog(newCatalog)
@@ -759,6 +774,19 @@ function UI.init(config: Types.InitConfig)
 			codesView:onClose()
 		end,
 	})
+	potionsScreen = Potions.new({
+		use = function(potionId: string)
+			UI.events.usePotion:Fire(potionId)
+		end,
+		close = closeModal,
+	})
+	local potionsView = potionsScreen :: Potions.Potions
+	modalInstance:register("Potions", {
+		frame = potionsView.frame,
+		onOpen = function()
+			potionsView:render(state)
+		end,
+	})
 	-- range hints: Tame or Let go need the bowl within 20 studs, buying at the cart its range (data-model 8, 8b)
 	local nearClock = 0
 	table.insert(
@@ -871,6 +899,8 @@ function UI.init(config: Types.InitConfig)
 					modalInstance:toggle("Decor")
 				elseif key == Enum.KeyCode.C then
 					modalInstance:toggle("Cats")
+				elseif key == Enum.KeyCode.P then
+					modalInstance:toggle("Potions")
 				elseif key == Enum.KeyCode.F then
 					openBait()
 				elseif key == Enum.KeyCode.H then
@@ -954,6 +984,10 @@ function UI.destroy()
 		codesScreen:destroy()
 	end
 	codesScreen = nil
+	if potionsScreen then
+		potionsScreen:destroy()
+	end
+	potionsScreen = nil
 	if introScreen then
 		introScreen:destroy()
 	end
@@ -1477,6 +1511,30 @@ function UI.market.result(crateId: string, decorId: string, duplicate: boolean, 
 	if marketScreen then
 		marketScreen:result(crateId, decorId, duplicate, refund)
 	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Potions and the Mystery gift (F64, data-model section 12b)
+----------------------------------------------------------------------------------------------------
+
+UI.potions = {}
+
+-- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Tip Potion", "2 Salmon",
+-- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
+function UI.potions.giftResult(kind: string, id: string?, count: number)
+	if popups == nil then
+		return
+	end
+	local function potionName(potionId: string): string?
+		for _, potion in PotionLogic.list(currentCatalog) do
+			if potion.id == potionId then
+				return potion.name
+			end
+		end
+		return nil
+	end
+	local title = PotionLogic.giftTitle(kind, id, count, foodName, potionName)
+	popups:showGift(title, PotionLogic.giftPrize(kind, id, count))
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -2174,6 +2232,33 @@ local function isActionPrompt(prompt: ProximityPrompt): boolean
 		and promptAttribute(prompt, "CatId") == nil
 end
 
+-- The plot a prompt sits in (its nearest ancestor tagged Plot), or nil
+local function plotOf(prompt: ProximityPrompt): Instance?
+	local node: Instance? = prompt.Parent
+	while node do
+		if CollectionService:HasTag(node, "Plot") then
+			return node
+		end
+		node = node.Parent
+	end
+	return nil
+end
+
+-- F64: a Mystery gift's GiftPrompt opens only for the plot's owner. On anyone else's plot this client switches the
+-- prompt off, so no pill shows and E does nothing; the server checks the owner too. The owner's pill carries the
+-- gift's chances under it, shown before opening.
+local function giftNote(prompt: ProximityPrompt): (boolean, string?)
+	if prompt.Name ~= "GiftPrompt" then
+		return true, nil
+	end
+	local plot = plotOf(prompt)
+	if plot and plot:GetAttribute("OwnerUserId") ~= Players.LocalPlayer.UserId then
+		prompt.Enabled = false
+		return false, nil
+	end
+	return true, PotionLogic.giftLine(PotionLogic.giftRows(currentCatalog), foodName)
+end
+
 local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
 	local catId = promptAttribute(prompt, "CatId")
 	local def = lookupCat(if type(catId) == "string" then catId else nil)
@@ -2290,8 +2375,9 @@ function UI.catch.bindProximityPrompts()
 
 	local function onShown(prompt: ProximityPrompt, inputType: Enum.ProximityPromptInputType)
 		if isActionPrompt(prompt) then
-			if actionPills then
-				actionPills:show(prompt, inputType)
+			local show, note = giftNote(prompt)
+			if show and actionPills then
+				actionPills:show(prompt, inputType, note)
 			end
 			return
 		end

@@ -189,10 +189,11 @@ return function()
 
 		it("puts each rarity's name and share in its own colour, in order", function()
 			local row = FoodOdds.rich({ Common = 70, Rare = 25, Epic = 4.5, Legendary = 0.4, Mythical = 0.1 }, hexOf)
+			-- a no-break space (U+00A0) between each name and its share
 			expect(row).to.equal(
-				'<font color="#6E7691">Common 70%</font>   <font color="#2F80E0">Rare 25%</font>   '
-					.. '<font color="#6E7691">Epic 4.5%</font>   <font color="#6E7691">Legendary 0.4%</font>   '
-					.. '<font color="#6E7691">Mythical 0.1%</font>'
+				'<font color="#6E7691">Common\u{00A0}70%</font>   <font color="#2F80E0">Rare\u{00A0}25%</font>   '
+					.. '<font color="#6E7691">Epic\u{00A0}4.5%</font>   <font color="#6E7691">Legendary\u{00A0}0.4%</font>   '
+					.. '<font color="#6E7691">Mythical\u{00A0}0.1%</font>'
 			)
 		end)
 
@@ -205,7 +206,7 @@ return function()
 				local plain = FoodOdds.rich(lure.odds, hexOf):gsub("<[^>]+>", "")
 				local order: { string } = {}
 				local sum = 0
-				for rarity, share in plain:gmatch("(%a+) ([%d%.]+)%%") do
+				for rarity, share in plain:gmatch("(%a+)\u{00A0}([%d%.]+)%%") do
 					sum += tonumber(share) :: number
 					table.insert(order, rarity :: string)
 				end

@@ -1324,6 +1324,21 @@ Presets.levelUp = {
 	colour = Presets.palette.mint,
 }
 
+-- Decor you just put out (Derek 2026-10-28): a green outline and faint fill (a Highlight, drawn over whatever stands
+-- in front) come in over `fadeIn` seconds, hold, then fade over `fade`. `fill` is the fill's transparency at its
+-- strongest. The piece's model is waited for up to `wait` seconds after the sync; past `maxDistance` studs nothing
+-- shows, and at most `most` flash at once (Roblox draws 31 Highlights at most).
+Presets.equipFlash = {
+	colour = Presets.palette.leaf,
+	fill = 0.7,
+	fadeIn = 0.15,
+	hold = 0.6,
+	fade = 0.75,
+	wait = 3,
+	maxDistance = 150,
+	most = 4,
+}
+
 -- Mythical cafe styles and decor (F53, golden-fish.md section 4: each "gets one steady emitter or a texture scroll.
 -- It runs only near the player, counts against the steady-emitter budget and shows a still look in Low performance
 -- mode"), by decor id. `on` is a plot style attribute (the style shows on the plot's parts with that tag) or

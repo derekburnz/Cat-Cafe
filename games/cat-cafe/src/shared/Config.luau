@@ -305,10 +305,10 @@ local Config = {
 		WoodsWidth = 240,
 		WoodsDepth = 240,
 		WoodsGateX = -94,
-		SewerCenterX = 140,
+		SewerCenterX = 185, -- v3.2 (F81, 8e): 180 x 180 behind the same gate
 		SewerCenterZ = 0,
-		SewerWidth = 90,
-		SewerDepth = 90,
+		SewerWidth = 180,
+		SewerDepth = 180,
 		SewerGateX = 94,
 		SideGateHalfWidth = 12,
 		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger"), at the street's

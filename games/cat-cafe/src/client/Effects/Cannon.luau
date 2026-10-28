@@ -3,7 +3,7 @@
 -- barrel turns, then BOOM, a smoke ring round the muzzle with confetti and a camera shake, a sparkle trail on the
 -- flying player, and a cloud puff where they vanish in the sky. The launching player's screen fills with clouds
 -- tinted toward where they are going (Clouds.luau) with their own character gliding through them, the clouds part
--- over the camp, and a dust poof goes off as their feet touch the pad. A cloud hop (Home or Alley from a wild area, the night sweep) is the clouds without the
+-- over the camp, and a dust poof goes off as their feet touch the pad. A cloud hop (Home from a wild area, the night sweep) is the clouds without the
 -- cannon, with a puff where onlookers see the player go and arrive. At a camp check-in the carried cat hops out of
 -- its carrier's arms into the carrier basket and puffs away. The hop into the barrel, the curled ball, the glide in
 -- the clouds and the crouch landing are Animation-Engineer's (Effects/CannonGlide); the move itself is the server's.

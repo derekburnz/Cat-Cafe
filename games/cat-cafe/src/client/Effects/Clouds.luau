@@ -3,7 +3,7 @@
 -- a little better"). On a cannon flight fluffy clouds rush out of the middle of the screen past the launching player
 -- as they vanish into the sky, with streaks of wind and a warm sun glow ahead, and the whole tunnel banks gently. The
 -- clouds fill the screen while the server moves the player, take on the destination's colour, then part like
--- curtains to either side over the camp. A cloud hop (Home or Alley from a wild area, and the night sweep) is the same
+-- curtains to either side over the camp. A cloud hop (Home from a wild area, and the night sweep) is the same
 -- clouds without the cannon. This player's screen only; UI-Engineer's destination name card sits above it. With
 -- Reduce Motion the clouds hold still, with no wind or banking, and only fade in and out.
 --

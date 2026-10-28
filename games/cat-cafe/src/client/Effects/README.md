@@ -93,7 +93,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Signature effects | `CatId` on a stray, stuck cat, plot cat or `HeldCat` naming a cat in `Presets.signature`; `Gold` (or `Shiny`) for the gold colours; eye pieces named ending `Eye1` and `Eye2` (the biggest part of each is the iris); a prop effect's parts named ending `_Prop` or `_Prop2` (the biggest ones, not `_Prop_Glass`), on the body until they stream in |
 | Codes Cat glow | tag `CodesCat` with a `CodesCircle` inside; your character's flat distance to its centre, in at `CodesCircleRadius` (4) and out past one stud more |
 | Cat Cannon | each character's `CannonLaunchAt`, `CannonTo` and `Launching`; the cannon model round the player and its `Muzzle` and `Fuse` attachments; `CannonGlide.body` for the flying body |
-| Cloud hop | each character's `CloudHopAt` and `CloudHopTo` (`home` or `alley`) |
+| Cloud hop | each character's `CloudHopAt` and `CloudHopTo` (`home`) |
 | Camp check-in | `Moments.CampCheckIn(userId, campId)` before the cat is removed, the carrier's `HeldCat`, the `CampBasket` tag and its `Drop` attachment |
 | Stuck cat mark | tag `StuckCat` on the cat model in a trap (RescueService), its `LockedBy` (not 0 while someone is rescuing it) and `Rarity`; the camera and a ray from it to the mark |
 | Crate opened | this player's `CrateResult` with a decor id (an empty id is a refusal and plays nothing); the piece's rarity from `Catalog.getDecor`; the nearest `FishMarket` in Workspace within 30 studs: its counter from the pivot, or the stand-in's `FishCrate`; the crate's model `ReplicatedStorage.Assets.CatCafe_Prop_Crate_<Area>` (`_Gold` for a golden crate) from `Catalog.getCrate`'s `area` and `golden`, with its child Model ending `_Lid` |

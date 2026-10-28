@@ -1699,7 +1699,8 @@ Presets.mystery = {
 -- back as it drops onto the landing pad from `dropAt`, and a dust poof goes off at `landAt`, when its feet touch
 -- down (Animation-Engineer's Presets.cannonPose). Onlookers within `within` studs see it; the launching player also
 -- gets the full-screen clouds (Presets.clouds.cannon) with their own character gliding through them. `tints` is
--- each destination's colour in the clouds, the paw path colours of town-layout-v3 and a warm cream for the hometown.
+-- each destination's colour in the clouds: the paw path colours of town-layout-v3, neon pink for the Alleyway and a
+-- warm cream for the Town Square and Home.
 Presets.cannon = {
 	boomAt = 0.5,
 	puffAt = 1.4,
@@ -1726,7 +1727,7 @@ Presets.cannon = {
 	tints = {
 		town = Presets.palette.lampWarm,
 		home = Presets.palette.lampWarm,
-		alley = Presets.palette.lampWarm,
+		alley = Presets.palette.neonPink, -- a fifth cannon area since hometown-cannon.md PR 566: the jazz club signs
 		park = Presets.palette.leaf,
 		neighbourhood = Color3.fromRGB(240, 150, 70),
 		woods = Color3.fromRGB(46, 122, 74),
@@ -1734,7 +1735,7 @@ Presets.cannon = {
 	} :: { [string]: Color3 },
 }
 
--- The full-screen clouds of a cannon flight and of a cloud hop (Home, Alley and the night sweep from a wild area;
+-- The full-screen clouds of a cannon flight and of a cloud hop (Home and the night sweep from a wild area;
 -- CloudHopSeconds 1.6, the move at 0.6; Derek 13:56: "make the cloud cutscene a little better"). Each plan is
 -- seconds from its start: the clouds rush in over coverFrom..coverTo, cover the screen fully until partFrom (the
 -- server moves the player meanwhile), and draw aside like curtains by partTo. Over tintFrom..tintTo the

@@ -855,9 +855,19 @@ end
 
 -- After a miss the stray hisses (HissAt, so every nearby client plays it) and sprints its rarity's fleeStuds straight
 -- away from the player at StrayFleeSpeed, kept inside its area, then catches its breath for StrayRestSeconds
--- (v0.5, data-model section 10 step 5). Nobody can start a catch on it until FleeingUntil.
+-- (v0.5, data-model section 10 step 5). Nobody can start a catch on it until FleeingUntil. A stray on a perch (a
+-- rock, the tree house cushion, the Great Oak's top) hisses and stays put for the breather instead: the sprint aims
+-- at the floor and would drop it through whatever it sits on (reviewer S86), and the climb stays worth a retry.
 local function flee(stray: Stray, player: Player)
 	local at = stray.model:GetPivot().Position
+	if at.Y > world.areas[stray.area].floorY + PERCH_ABOVE then
+		local now = serverNow()
+		stray.fleeingUntil = Catching.fleeUntil(now, 0)
+		stray.selfRetryAt[player.UserId] = stray.fleeingUntil + Config.StraySelfRetrySeconds
+		stray.model:SetAttribute("HissAt", now)
+		stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
+		return
+	end
 	local from = rootPosition(player)
 	local away = if from ~= nil then Vector3.new(at.X - from.X, 0, at.Z - from.Z) else Vector3.zero
 	if away.Magnitude < 0.1 then

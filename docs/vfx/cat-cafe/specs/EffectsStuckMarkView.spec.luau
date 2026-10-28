@@ -42,5 +42,23 @@ return function()
 			expect(Presets.rarity.Common ~= nil).to.equal(true)
 			expect(Presets.rarityMark.glints.Common == true).to.equal(false)
 		end)
+
+		it("keeps Rare and better ahead of Commons for the gem slots", function()
+			local rares = { { key = "epic", distance = 50 }, { key = "rare", distance = 70 } }
+			local commons = {}
+			for i = 1, 14 do
+				table.insert(commons, { key = "common" .. i, distance = i * 3 })
+			end
+			local keys = Logic.nearestFirst(rares, commons, 80, 12)
+			expect(#keys).to.equal(12)
+			expect(keys[1]).to.equal("epic")
+			expect(keys[2]).to.equal("rare")
+			expect(keys[3]).to.equal("common1")
+			expect(keys[12]).to.equal("common10")
+			-- out of range is still out, and with no Rares the Commons get every slot
+			expect(#Logic.nearestFirst({ { key = "far", distance = 81 } }, {}, 80, 12)).to.equal(0)
+			expect(#Logic.nearestFirst({}, commons, 80, 12)).to.equal(12)
+			expect(#Logic.nearestFirst(rares, commons, 80, 1)).to.equal(1)
+		end)
 	end)
 end

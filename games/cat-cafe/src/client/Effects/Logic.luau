@@ -131,6 +131,21 @@ function Logic.nearest<K>(candidates: { Candidate<K> }, radius: number, limit: n
 	return keys
 end
 
+-- Logic.nearest over `first`, then the nearest of `rest` in whatever is left of `limit`, so a crowd of `rest` never
+-- takes a slot one of `first` needs (Rare and better strays ahead of Commons for the rarity gem).
+function Logic.nearestFirst<K>(
+	first: { Candidate<K> },
+	rest: { Candidate<K> },
+	radius: number,
+	limit: number
+): { K }
+	local keys = Logic.nearest(first, radius, limit)
+	for _, key in Logic.nearest(rest, radius, limit - #keys) do
+		table.insert(keys, key)
+	end
+	return keys
+end
+
 -- What a change of a plot's OwnerUserId or Tier means. `sinceOwnerChange` is how long ago the owner last
 -- changed: a claim sets OwnerUserId and Tier in the same server step but they can replicate a frame apart, so a
 -- Tier rise right after a claim is the new owner's saved tier, not a rank up.

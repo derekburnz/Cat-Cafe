@@ -2,9 +2,10 @@
 -- A stray's rarity from a distance (Derek 2026-10-28 01:25: "have some sort indicator of what rarity the cat is
 -- before going up to it and looking at the name"): a small gem in the rarity colour bobs over every stray, so
 -- players can pick their target from across the area (Common too since Derek 12:15: "common ones should also have a
--- gem"), and a Mythical gem glints now and then. It hides while someone is catching that cat and once you are close
--- enough for its Catch card, which names it. Gold cats keep their gold sparkle as well. Rescue.luau puts the same
--- gem over a stuck cat's red "!" (`Rarity.buildGem`).
+-- gem"; the nearest Rare and better take the 12 slots first and Commons fill the rest), and a Mythical gem glints
+-- now and then. It hides while someone is catching that cat and once you are close enough for its Catch card, which
+-- names it. Gold cats keep their gold sparkle as well. Rescue.luau puts the same gem over a stuck cat's red "!"
+-- (`Rarity.buildGem`).
 --
 -- Source: the Stray tag CatService puts on each stray model, and its `Rarity` and `LockedBy`. The gem rides the
 -- cat's body part, so it follows a walking or fleeing cat with nothing to move each frame. Listening only. Numbers
@@ -214,6 +215,7 @@ local function check()
 	end
 	local r = Presets.rarityMark
 	local candidates: { Logic.Candidate<Model> } = {}
+	local commons: { Logic.Candidate<Model> } = {} -- behind the rest for the `most` slots, so a Rare still shows
 	for _, instance in CollectionService:GetTagged("Stray") do
 		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
 			local model = instance :: Model
@@ -228,12 +230,15 @@ local function check()
 					mark ~= nil and mark.shown
 				)
 			then
-				table.insert(candidates, { key = model, distance = distance })
+				table.insert(
+					if rarity == "Common" then commons else candidates,
+					{ key = model, distance = distance }
+				)
 			end
 		end
 	end
 	local wanted: { [Model]: boolean } = {}
-	for _, model in Logic.nearest(candidates, r.maxDistance, r.most) do
+	for _, model in Logic.nearestFirst(candidates, commons, r.maxDistance, r.most) do
 		wanted[model] = true
 	end
 	for model, mark in marks do

@@ -1,5 +1,6 @@
 --!strict
--- Centre-screen popups that sit above the modals: "Cat found" celebration and "While you were away".
+-- Centre-screen popups that sit above the modals: "Cat found" celebration, "While you were away" and what a
+-- Mystery gift held (F64: the gift's prize as pictures and its name, with the giftOpen sound).
 -- Only one popup shows at a time; others queue. The cat found card is the Pet Simulator egg hatch reveal
 -- (F39 P1): rays in the rarity colour, the cat's own 3D model popping in, a NEW sticker, its charm stars
 -- filling one by one and the Purrfect charm bonus.
@@ -14,7 +15,9 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Scale = require(script.Parent.Parent.Scale)
+local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -28,12 +31,16 @@ export type Popups = {
 		extra: Types.CatFoundExtra?
 	) -> (),
 	showOffline: (self: Popups, amount: number, seconds: number, onClaim: () -> ()) -> (),
+	showGift: (self: Popups, title: string, prize: Types.IndexPrize) -> (),
+	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
 	dismiss: (self: Popups) -> (),
 	setHeld: (self: Popups, held: boolean) -> (),
 	destroy: (self: Popups) -> (),
 }
 
 local CAT_AUTO_CLOSE = 5
+local GIFT_AUTO_CLOSE = 4
+local GIFT_TILE = 76
 local SPARKLES = 10
 local RAY_BARS = 6 -- each bar crosses the centre, so 12 rays
 local RAY_SPIN = TweenInfo.new(8, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1)
@@ -72,6 +79,7 @@ function Popups.new(parent: Instance): Popups
 	self._offlineWaiting = false -- an offline card is showing or queued
 	self._token = 0
 	self._buttons = {} :: { any }
+	self._current = nil :: Frame? -- the card showing
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafePopups",
@@ -389,6 +397,64 @@ function Popups.new(parent: Instance): Popups
 	})
 	table.insert(self._buttons, self._claimButton)
 
+	-- Mystery gift card (F64): what the gift held, big, then gone by itself
+	local giftCard: Frame = Create("Frame", {
+		Name = "Gift",
+		BackgroundColor3 = Theme.modal.panel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(340, 250),
+		Visible = false,
+		Parent = root,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 6) }),
+		Create("UIStroke", { Color = Theme.colors.berry, Thickness = Theme.sizes.outline + 1 }),
+	})
+	self._giftCard = giftCard
+	text({
+		Name = "Title",
+		Position = UDim2.fromOffset(16, 16),
+		Size = UDim2.new(1, -32, 0, 30),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTitle - 2,
+		Text = Theme.icons.gifts .. " Mystery gift!",
+		Parent = giftCard,
+	})
+	self._giftChips = PrizeChips.new({
+		parent = giftCard,
+		tile = GIFT_TILE,
+		textSize = Theme.sizes.textBody + 2,
+		name = "Prize",
+		position = UDim2.new(0.5, 0, 0, 56),
+		anchorPoint = Vector2.new(0.5, 0),
+		fitTo = giftCard,
+		fitPad = 24,
+	})
+	self._giftName = text({
+		Name = "What",
+		Position = UDim2.fromOffset(16, 64 + GIFT_TILE + 8),
+		Size = UDim2.new(1, -32, 0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		Text = "",
+		Parent = giftCard,
+	})
+	local giftOk = Button.new({
+		name = "Nice",
+		text = "Nice!",
+		style = "berry",
+		size = UDim2.fromOffset(150, Theme.sizes.touchMin),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -12),
+		textSize = Theme.sizes.textBody + 2,
+		parent = giftCard,
+		onClick = function()
+			self:dismiss()
+		end,
+	})
+	table.insert(self._buttons, giftOk)
+
 	if parent then
 		screenGui.Parent = parent
 	end
@@ -398,6 +464,7 @@ end
 function Popups._open(self: any, card: Frame)
 	self._busy = true
 	self._token += 1
+	self._current = card
 	self.screenGui.Enabled = true
 	card.Visible = true
 	Tween.popIn(card, 0.8)
@@ -447,7 +514,8 @@ function Popups.dismiss(self: any)
 	end
 	self._token += 1
 	self._onClaim = nil
-	local card: Frame = if self._catCard.Visible then self._catCard else self._offlineCard
+	local card: Frame = self._current or self._offlineCard
+	self._current = nil
 	local spin: Tween? = self._raySpin
 	if spin then
 		spin:Cancel()
@@ -595,10 +663,32 @@ function Popups.showOffline(self: any, amount: number, seconds: number, onClaim:
 	end)
 end
 
+-- The food names on the gift card's pictures (PrizeChips)
+function Popups.setCatalog(self: any, catalog: Types.Catalog)
+	self._giftChips:setCatalog(catalog)
+end
+
+-- What a Mystery gift held (MysteryGiftResult, F64): its picture and name ("Tip Potion", "2 Salmon"). It closes by
+-- itself after GIFT_AUTO_CLOSE seconds, and plays giftOpen when it shows (sound list 5.11).
+function Popups.showGift(self: any, title: string, prize: Types.IndexPrize)
+	self:_show(function()
+		local token = self:_open(self._giftCard)
+		self._giftChips:set(prize)
+		self._giftName.Text = title
+		Sound.play("giftOpen")
+		task.delay(GIFT_AUTO_CLOSE, function()
+			if self._token == token then
+				self:dismiss()
+			end
+		end)
+	end)
+end
+
 function Popups.destroy(self: any)
 	for _, button in self._buttons do
 		button:destroy()
 	end
+	self._giftChips:destroy()
 	self._portrait:destroy()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()

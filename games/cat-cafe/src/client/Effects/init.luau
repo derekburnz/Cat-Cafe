@@ -2,10 +2,10 @@
 -- Cat Cafe client effects (vfx-animator): cat motion, the Legendary and Mythical cats' signature effects, catch
 -- reactions, the getaway and the startled stars, cafe and gate moments, dusk and sunrise, ambient life, shoves, the
 -- players' tackle poses, the spin wheel, the Codes Cat's circle, crate openings, golden fish, the Mythical cafe styles,
--- potion glows, the Mystery Visitor, cat level ups, the red "!" over stuck cats, the green flash on decor you put out
--- and the rarity gems over strays, all on this client only. Effects read replicated world state (tags and attributes)
--- and this player's own events; they never fire a remote, never change game state and never move a part the server
--- moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
+-- potion glows, the Mystery Visitor, cat level ups, the red "!" over stuck cats, the green flash on decor you put out,
+-- the rarity gems over strays and splashes in water, all on this client only. Effects read replicated world state (tags
+-- and attributes) and this player's own events; they never fire a remote, never change game state and never move a part
+-- the server moves for gameplay. Rules: .claude/skills/animation-vfx/SKILL.md.
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
@@ -26,6 +26,7 @@ local Rarity = require(script.Rarity)
 local Rescue = require(script.Rescue)
 local Shove = require(script.Shove)
 local Signature = require(script.Signature)
+local Splash = require(script.Splash)
 local Tackle = require(script.Tackle)
 local Wheel = require(script.Wheel)
 
@@ -58,6 +59,7 @@ function Effects.start()
 	Mystery.start()
 	Levels.start()
 	Rarity.start()
+	Splash.start()
 	Rescue.start()
 end
 

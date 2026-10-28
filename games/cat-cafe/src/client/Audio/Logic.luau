@@ -301,6 +301,16 @@ function Logic.inWild(x: number, z: number, wildDistance: any): boolean
 	return math.sqrt(x * x + z * z) > wildDistance / 2
 end
 
+-- F84: the sound for a trip that worked (Travel). Home from a wild area is a cloud hop, known by where you are
+-- before the move or by your fresh CloudHopAt after it; the Cannon button moves you at once to a cannon nearby, even
+-- out in a wild area, so it poofs like any other trip (QA-Planner, A15).
+function Logic.travelCue(destination: any, inWild: boolean, hopping: boolean): string
+	if hopping or (inWild and destination ~= "cannon") then
+		return "cloudHop"
+	end
+	return "travelPoof"
+end
+
 -- Whether a stray twinkles as a player comes near (rareNear): Mythical only. Derek 2026-10-28: the sound around
 -- rare cats was annoying, so Epic, Legendary and gold strays are quiet now.
 function Logic.shimmers(rarity: any): boolean

@@ -268,6 +268,7 @@ function Popups.new(parent: Instance): Popups
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.good,
 		FontFace = Theme.fonts.bodyBold,
+		RichText = true, -- the favourite role in ink
 		Text = "",
 		Parent = catCard,
 	})
@@ -505,10 +506,9 @@ function Popups.showCatFound(
 		Tween.to(self._portraitScale, CAT_POP, { Scale = 1 })
 
 		self._catName.Text = def.name
+		local loves: string? = def.favoriteRole
 		self._catMeta.Text = Format.rate(def.incomePerSecond)
-			.. (
-				if def.favoriteRole then "  ·  loves " .. Format.roleName(def.favoriteRole) else ""
-			)
+			.. (if loves then "  ·  " .. Format.lovesRole(loves, Theme.modal.text) else "")
 		local charmGain = info.charmGain or 0
 		if charmGain > 0 then
 			self._catDesc.Text = ("Purrfect catch!  Charm +%d"):format(charmGain)

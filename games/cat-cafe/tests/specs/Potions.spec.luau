@@ -326,6 +326,41 @@ return function()
 			expect(Potions.giftPrize({ kind = "hat", id = "x", count = 1 } :: any) :: any).to.deepEqual({})
 		end)
 
+		it("swaps a spin for the fish row only from the bank cap up, leaving the roll and other gifts alone", function()
+			local cap = Config.SpinBankCap
+			local fishRows, fishCount = 0, 0
+			for _, row in Catalog.mysteryGift do
+				if row.kind == "spin" then
+					-- one spin a gift, so a bank one short of the cap still takes the whole gift
+					expect(row.count).to.equal(1)
+				elseif row.kind == "fish" then
+					fishRows += 1
+					fishCount = row.count
+				end
+			end
+			expect(fishRows).to.equal(1)
+			local spin = { kind = "spin", count = 1 } :: any
+			for _, banked in { -1, 0, cap - 1 } do
+				expect(Potions.giftPaid(spin, banked)).to.equal(spin)
+			end
+			for _, banked in { cap, cap + 1, math.huge } do
+				local paid = Potions.giftPaid(spin, banked) :: any
+				expect(paid).never.to.equal(spin)
+				expect(paid :: any).to.deepEqual({ kind = "fish", count = fishCount })
+				expect(Potions.giftPrize(paid) :: any).to.deepEqual({ fish = fishCount })
+			end
+			expect(spin :: any).to.deepEqual({ kind = "spin", count = 1 })
+			-- every other gift the table can roll pays as rolled, even with the bank full
+			for i = 1, 100 do
+				local gift = Potions.rollGift(function()
+					return (i - 0.5) / 100
+				end)
+				if gift.kind ~= "spin" then
+					expect(Potions.giftPaid(gift, cap)).to.equal(gift)
+				end
+			end
+		end)
+
 		it("keeps the Config numbers the relay and data-model 12b give", function()
 			expect(Config.MysteryStaySeconds).to.equal(120)
 			expect(Config.MysteryGiftKeepSeconds).to.equal(600)

@@ -822,5 +822,67 @@ return function()
 				end
 			end
 		)
+
+		it("keeps a Decor page's claims through F80: twelve pieces for decor10, an earlier claim kept", function()
+			local decor10 = assert(IndexRewards.milestone("decor10"))
+			local decor5 = assert(IndexRewards.milestone("decor5"))
+			for _, pool in POOLS do
+				local page = "decor_" .. pool
+				local older: { any } = {}
+				local door: any, flap: any = nil, nil
+				for _, def in Catalog.crateDecor do
+					if def.crate ~= pool then
+						continue
+					elseif def.kind == "door" then
+						door = def
+					elseif def.kind == "catflap" then
+						flap = def
+					else
+						table.insert(older, def)
+					end
+				end
+				expect(#older).to.equal(10)
+				assert(door and flap)
+				-- the ten pieces a page had before F80 leave decor10 two short, then one, then claimable
+				local profile = ProfileSchema.template(1000) :: any
+				for _, def in older do
+					profile.decorOwned[def.id] = true
+				end
+				expect(IndexRewards.blocker(profile, page, "decor5")).never.to.be.ok()
+				expect(IndexRewards.blocker(profile, page, "decor10")).to.equal("Find 2 more pieces first")
+				profile.decorOwned[door.id] = true
+				expect(IndexRewards.blocker(profile, page, "decor10")).to.equal("Find 1 more piece first")
+				profile.decorOwned[flap.id] = true
+				expect(IndexRewards.blocker(profile, page, "decor10")).never.to.be.ok()
+				-- a door set and a cat flap count toward decor5 like any piece
+				local early = ProfileSchema.template(1000) :: any
+				early.decorOwned[door.id] = true
+				early.decorOwned[flap.id] = true
+				for i = 1, 3 do
+					early.decorOwned[older[i].id] = true
+				end
+				expect(IndexRewards.blocker(early, page, "decor5")).never.to.be.ok()
+				early.decorOwned[older[3].id] = nil
+				expect(IndexRewards.blocker(early, page, "decor5")).to.equal("Find 1 more piece first")
+				-- section 4b: a page claimed at ten before F80 keeps its claim and its +5%
+				local before = ProfileSchema.template(1000) :: any
+				for _, def in older do
+					before.decorOwned[def.id] = true
+				end
+				before.indexRewards[page] = { decor10 = true }
+				expect(IndexRewards.blocker(before, page, "decor10")).to.equal("Already claimed")
+				expect(IndexRewards.totals(before).bonus).to.be.near(Config.DecorIndexBonus, 1e-9)
+				expect(UIRewards.totals(Catalog, { indexRewards = before.indexRewards }).bonus).to.be.near(
+					Config.DecorIndexBonus,
+					1e-9
+				)
+				-- the page's cards read "5 pieces" and "All 12" from the catalog's twelve
+				local counts = UIRewards.counts(Catalog, { decorOwned = before.decorOwned }, page)
+				expect(counts.total).to.equal(12)
+				expect(counts.found).to.equal(10)
+				expect(UIRewards.needLabel(decor5, counts.total, page)).to.equal("5 pieces")
+				expect(UIRewards.needLabel(decor10, counts.total, page)).to.equal("All 12")
+			end
+		end)
 	end)
 end

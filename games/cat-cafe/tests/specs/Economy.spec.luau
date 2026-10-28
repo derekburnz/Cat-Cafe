@@ -253,7 +253,7 @@ return function()
 
 		it("sums working cats and applies the cafe and tier multipliers once", function()
 			local p = freshProfile()
-			p.cats.b = cat("b", "snow", "waiter_1") -- favorite: 1.5
+			p.cats.b = cat("b", "tuxedo", "waiter_1") -- favorite: 1.5
 			p.cats.c = cat("c", "calico", nil) -- resting
 			p.upgradeLevels.tables = 2 -- x1.2
 			expect(Economy.incomePerSecond(p)).to.be.near((1.5 + 1.5) * 1.2)

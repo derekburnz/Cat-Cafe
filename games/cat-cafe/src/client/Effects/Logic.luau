@@ -996,4 +996,60 @@ function Logic.note(age: number, phase: number): (Vector3, number)
 	return Vector3.new(sway, rise, 0), shown
 end
 
+-- Whether a stray's rarity gem (Presets.rarityMark) can show: its `Rarity` is one that shows, nobody is catching it
+-- (`LockedBy` is 0 or not set) and you are within maxDistance studs but not close: one `shown` hides at hideWithin or
+-- nearer, where the Catch card names the cat, and one hidden comes back only past hideWithin + showAfter.
+function Logic.rarityMarkShows(
+	rarity: unknown,
+	lockedBy: unknown,
+	distance: number,
+	shown: boolean
+): boolean
+	local r = Presets.rarityMark
+	if type(rarity) ~= "string" or r.shows[rarity] ~= true then
+		return false
+	end
+	local locked = type(lockedBy) == "number" and lockedBy ~= 0
+	local near = if shown then r.hideWithin else r.hideWithin + r.showAfter
+	return not locked and distance > near and distance <= r.maxDistance
+end
+
+-- Whether a part is water players can walk through (Effects/Splash): its name ends in "Water" or "Puddle", as the
+-- placeholders' Water, every model's ..._Water and the Alley's puddles do; a WaterfallPond's rocks do not.
+function Logic.isWaterName(name: string): boolean
+	return string.sub(name, -5) == "Water" or string.sub(name, -6) == "Puddle"
+end
+
+-- Whether feet stand in a flat piece of water: `height` studs above its top (Presets.splash: up to `above` over it,
+-- down to `depth` under it, wading), and `u`, `v` across its face within halfU and halfV of its middle, or within
+-- the smaller of the two as a radius on a round one.
+function Logic.wading(
+	height: number,
+	u: number,
+	v: number,
+	halfU: number,
+	halfV: number,
+	round: boolean
+): boolean
+	local s = Presets.splash
+	if height > s.above or height < -s.depth then
+		return false
+	end
+	if round then
+		local radius = math.min(halfU, halfV)
+		return u * u + v * v <= radius * radius
+	end
+	return math.abs(u) <= halfU and math.abs(v) <= halfV
+end
+
+-- A walker's next splash in the water: whether one is due after `moved` more studs, and the studs carried toward the
+-- one after (never more than a stride, so a fast walker does not bank splashes).
+function Logic.waterStep(carried: number, moved: number, stride: number): (boolean, number)
+	local total = carried + moved
+	if total >= stride then
+		return true, math.min(total - stride, stride)
+	end
+	return false, total
+end
+
 return Logic

@@ -68,6 +68,16 @@ Catalog.rarityOrder = rarityOrder
 Catalog.rarityRank =
 	{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 } :: { [string]: number }
 
+-- Data-model v0.13.7 (Derek 2026-10-28 01:50: "just make the base money generation more from further areas"): a
+-- cat earns its rarity's income times its area's multiplier. Catalog.areas carries the same numbers.
+local AREA_INCOME: { [string]: number } = {
+	alley = 1,
+	park = 1.5,
+	neighbourhood = 2.25,
+	woods = 3.5,
+	sewer = 5,
+}
+
 local function cat(
 	id: string,
 	name: string,
@@ -82,7 +92,7 @@ local function cat(
 		id = id,
 		name = name,
 		rarity = rarity,
-		incomePerSecond = Catalog.rarities[rarity].incomePerSecond,
+		incomePerSecond = Catalog.rarities[rarity].incomePerSecond * (AREA_INCOME[area] or 1),
 		area = area,
 		favoriteRole = favoriteRole,
 		description = description,
@@ -1019,7 +1029,8 @@ end
 Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
--- Section 9. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
+-- Section 9. Every area has the same odds since v0.13.7 (Derek 2026-10-28 01:50: rare cats come mainly from food
+-- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
 -- open, with no top-ups during the day. Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
 -- and 4, 24 a day in all (was 10 each). The Neighbourhood, Woods and Sewer spawn points are their kit sets' cat spots (Model-Agent #401).
 Catalog.areas = {
@@ -1031,6 +1042,7 @@ Catalog.areas = {
 		waveSize = 6,
 		rescueSpots = 3,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		incomeMultiplier = AREA_INCOME.alley,
 	},
 	{
 		id = "park",
@@ -1039,7 +1051,8 @@ Catalog.areas = {
 		spawnPoints = 14,
 		waveSize = 5,
 		rescueSpots = 3,
-		odds = { Common = 60, Rare = 28, Epic = 9, Legendary = 2.5, Mythical = 0.5 },
+		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		incomeMultiplier = AREA_INCOME.park,
 	},
 	{
 		id = "neighbourhood",
@@ -1048,7 +1061,8 @@ Catalog.areas = {
 		spawnPoints = 26,
 		waveSize = 5,
 		rescueSpots = 2,
-		odds = { Common = 50, Rare = 32, Epic = 13, Legendary = 4, Mythical = 1 },
+		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		incomeMultiplier = AREA_INCOME.neighbourhood,
 	},
 	{
 		id = "woods",
@@ -1057,7 +1071,8 @@ Catalog.areas = {
 		spawnPoints = 17,
 		waveSize = 4,
 		rescueSpots = 2,
-		odds = { Common = 42, Rare = 34, Epic = 17, Legendary = 5.5, Mythical = 1.5 },
+		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		incomeMultiplier = AREA_INCOME.woods,
 	},
 	{
 		id = "sewer",
@@ -1066,7 +1081,8 @@ Catalog.areas = {
 		spawnPoints = 20,
 		waveSize = 4,
 		rescueSpots = 2,
-		odds = { Common = 35, Rare = 35, Epic = 20, Legendary = 7.5, Mythical = 2.5 },
+		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		incomeMultiplier = AREA_INCOME.sewer,
 	},
 } :: { Types.AreaDef }
 

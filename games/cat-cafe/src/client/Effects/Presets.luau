@@ -273,6 +273,19 @@ Presets.emitters = {
 		lightEmission = 0.5,
 		rotSpeed = { -180, 180 },
 	},
+	-- Water kicked up by a step in a puddle or a pond (Effects/Splash): small drops thrown up and falling back.
+	splashDrops = {
+		texture = Presets.textures.smoke,
+		colors = { Presets.palette.milk, Presets.palette.fishBelly },
+		size = { 0.2, 0.08 },
+		transparency = { 0.1, 1 },
+		lifetime = { 0.3, 0.45 },
+		speed = { 5, 8 },
+		spread = 30,
+		rate = 0,
+		acceleration = Vector3.new(0, -35, 0),
+		lightEmission = 0.2,
+	},
 	gateSparkle = {
 		texture = Presets.textures.sparkle,
 		colors = { Presets.palette.sparkle, Presets.palette.mint },
@@ -1430,6 +1443,59 @@ Presets.decorFx = {
 	-- Gold Leaf: a sheen `width` wide sweeping over the front, crossing it in a share of every `seconds`.
 	sheen = { width = 0.08, shown = 0.45, tilt = 20, seconds = 7 },
 	petalPad = 0.8, -- share of the tree's width the petals fall from
+}
+
+-- A stray's rarity gem (Derek 2026-10-28 01:25: "have some sort indicator of what rarity the cat is before going
+-- up to it and looking at the name"): a small gem in the rarity colour (Presets.rarity) bobs `above` studs over each
+-- stray whose rarity `shows`, `size` studs tall plus `pixels` so a far one still reads. It is a square turned 45
+-- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
+-- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
+-- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
+Presets.rarityMark = {
+	shows = { Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
+	glints = { Mythical = true } :: { [string]: boolean },
+	above = 0.9,
+	size = 0.8,
+	pixels = 16,
+	gem = 0.62,
+	corner = 0.18,
+	light = 0.45,
+	dark = 0.2,
+	outline = Presets.palette.milk,
+	outlinePixels = 2,
+	bob = 0.15,
+	bobSeconds = 0.9, -- one way
+	glintSize = 0.34,
+	glintSeconds = 0.3, -- one way
+	glintEvery = 2.2,
+	hideWithin = 10,
+	showAfter = 1,
+	maxDistance = 80,
+	most = 12,
+	checkEvery = 0.25,
+}
+
+-- Walking through water (Derek 2026-10-28 01:33, Effects/Splash): feet count as in the water from `above` studs
+-- over its top down to `depth` under it, on a plate whose up is at least `flat` upright. A splash comes on stepping
+-- in, then every `stride` studs walked (a player's step, a cat's), at least `minSpeed` studs a second, alternating
+-- feet `side` studs out: `drops` droplets (splashDrops) and a ripple from `rippleFrom` to `ripple` studs across over
+-- rippleSeconds. Checked every checkEvery seconds for the `most` nearest walkers within maxDistance studs (you first).
+Presets.splash = {
+	above = 0.4,
+	depth = 3,
+	flat = 0.7,
+	minSpeed = 2,
+	stride = { player = 2.6, cat = 1.1 } :: { [string]: number },
+	side = { player = 0.4, cat = 0.15 } :: { [string]: number },
+	drops = { player = 5, cat = 3 } :: { [string]: number },
+	ripple = { player = 1.8, cat = 1 } :: { [string]: number },
+	rippleFrom = 0.4,
+	rippleSeconds = 0.5,
+	rippleTransparency = 0.35,
+	rippleColour = Presets.palette.milk,
+	checkEvery = 0.1,
+	maxDistance = 60,
+	most = { high = 6, low = 3, saver = 1 },
 }
 
 -- Potions (F64, data-model 12b, and the quest potions of F73): each kind's glow while it runs, shown on the newest id in the drinker's

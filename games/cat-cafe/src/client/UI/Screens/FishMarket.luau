@@ -11,7 +11,8 @@
 -- says when the next crate opens on the golden odds. Open fires events.openCrate(crateId); the server rolls with
 -- its own Random, pays at once and answers CrateResult(crateId, decorId, duplicate, refund), which plays the
 -- reveal: the won piece's rarity colour shows from the first frame and never a better one first, so nothing looks
--- like a near miss; a tap skips it and Reduce Motion makes it a short fade. A new wallpaper, floor or paint gets a
+-- like a near miss; a tap skips it and Reduce Motion makes it a short fade. A new style piece (wallpaper, floor,
+-- paint, door set or cat flap) gets a
 -- "Use it" button that fires callbacks.useDecor (ToggleDecor(decorId, true)). Leaving mid-reveal keeps the piece. A
 -- refusal is CrateResult(crateId, "", false, 0) and the server's toast says why. Buying a treat or perk fires
 -- events.buyFishItem(itemId). Golden fish are earned only: nothing here mentions Robux. Sums in
@@ -42,7 +43,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 export type Callbacks = {
 	openCrate: (crateId: string) -> (),
 	buyItem: (itemId: string) -> (),
-	useDecor: (decorId: string) -> (), -- "Use it" on a new wallpaper, floor or paint in the reveal
+	useDecor: (decorId: string) -> (), -- "Use it" on a new style piece in the reveal
 	toast: (text: string) -> (), -- a crate result that lands while the window is closed
 	close: () -> (),
 }
@@ -658,7 +659,7 @@ function FishMarket._buildReveal(self: any, body: Frame)
 			self:_hideReveal()
 		end,
 	})
-	-- a new wallpaper, floor or paint: "Use it" beside the Done button swaps it in
+	-- a new style piece (wallpaper, floor, paint, door set or cat flap): "Use it" beside the Done button swaps it in
 	local use = Button.new({
 		name = "UseIt",
 		text = "Use it",
@@ -736,7 +737,7 @@ function FishMarket._playReveal(self: any, decorId: string, duplicate: boolean, 
 		DecorPieces.kindName(piece.kind),
 		Format.percent(bonus)
 	)
-	-- a new wallpaper, floor or paint can go up now; furniture and decorations take a free spot by themselves
+	-- a new style piece can go up now; furniture and decorations take a free spot by themselves
 	local offerUse = not duplicate and DecorPieces.isStyle(piece.kind)
 	self._revealId = decorId
 	self._revealUse = offerUse

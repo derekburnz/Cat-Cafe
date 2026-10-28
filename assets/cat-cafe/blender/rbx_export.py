@@ -47,8 +47,17 @@ RZ90 = Matrix(((0, -1, 0), (1, 0, 0), (0, 0, 1)))   # Roblox local X (cylinder a
 COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Plot_", "CatCafe_Street_",
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
-                      "_Wheel", "_Pointer", "_RimLight")
-INVISIBLE_OBJECTS = ("_Fireflies",)   # volumes the effects code reads (where fireflies drift), never drawn
+                      "_Wheel", "_Pointer", "_RimLight", "_Flowers")
+INVISIBLE_OBJECTS = ("_Fireflies", "_Climb")   # volumes never drawn: where fireflies drift, ladders' climbing trusses
+CLIMB_OBJECTS = ("_Climb",)           # invisible TrussParts behind a ladder's rungs, so Roblox characters climb it
+# Outdoor families (Derek 2026-10-28: "make all the models climbable not sinking through them"): their planks, rungs,
+# rails and pickets collide too, down to THIN_COLLIDE thick when at least THIN_LONG long.
+OUTDOOR_PREFIXES = ("CatCafe_Alley_", "CatCafe_Park_", "CatCafe_Street_", "CatCafe_Neighbourhood_", "CatCafe_Woods_",
+                    "CatCafe_Sewer_", "CatCafe_Square_")
+THIN_COLLIDE, THIN_LONG = 0.12, 0.9
+THIN_SKIP = ("StringLights",)       # overhead cables stay walk-through
+ELLIPSOID_FIT = 0.75                  # an ellipsoid's collision box, as a share of the box round it (the mesh is scaled
+#                                       back up), so players stop at the visible surface instead of its corners
 TOUCH_OBJECTS = ("_CodesCircle",)    # parts the game code may watch with Touched; every other part has CanTouch off
 MIN_COLLIDE = 0.35                # thinner parts (trim, handles, bulbs) never collide
 ALWAYS_LIT = ("HangingLamp",)     # matches WorldController: indoor lamps glow all day
@@ -213,13 +222,24 @@ def _material(obname, swatch):
 
 def _props(p, asset, uid):
     material, transparency = _material(p["name"], p["swatch"])
-    collide = ((asset.startswith(COLLIDE_PREFIXES) and min(p["size"]) >= MIN_COLLIDE
+    climb = p["name"].endswith(CLIMB_OBJECTS)
+    thin_ok = (asset.startswith(OUTDOOR_PREFIXES) and not any(k in asset for k in THIN_SKIP)
+               and min(p["size"]) >= THIN_COLLIDE - 1e-3
+               and max(p["size"]) >= THIN_LONG - 1e-3)
+    collide = ((asset.startswith(COLLIDE_PREFIXES) and (min(p["size"]) >= MIN_COLLIDE or thin_ok)
                 and not p["name"].endswith(NO_COLLIDE_OBJECTS) and material != "Glass")
                or (asset.startswith("CatCafe_Plot_") and p["name"].endswith(("_Wall", "_Glass")))
-               or p["name"].endswith("_Bars"))
+               or p["name"].endswith("_Bars") or climb)
+    size = [max(v, 0.01) for v in p["size"]]
+    fit = 1.0
+    if climb:                                     # a TrussPart's size comes in 2 stud steps
+        size = [max(2.0, 2.0 * round(v / 2.0)) for v in size]
+    elif collide and p["mesh"] == "Sphere":
+        fit = ELLIPSOID_FIT
+        size = [v * fit for v in size]
     props = {
         "CFrame": _cf(p["pos"], p["rot"]),
-        "Size": [_r(max(v, 0.01)) for v in p["size"]],
+        "Size": [_r(v) for v in size],
         "Color": _color(p["swatch"]),
         "Material": material,
         "Anchored": True,
@@ -236,11 +256,14 @@ def _props(p, asset, uid):
         props["Tags"] = part_tags
     if p["shape"]:
         props["Shape"] = p["shape"]
-    node = {"name": p["name"], "className": p["cls"], "properties": props}
+    node = {"name": p["name"], "className": "TrussPart" if climb else p["cls"], "properties": props}
     if uid:
         node["attributes"] = {"Rojo_Id": uid}
     if p["mesh"]:
-        node["children"] = [{"name": "Mesh", "className": "SpecialMesh", "properties": {"MeshType": p["mesh"]}}]
+        mesh = {"MeshType": p["mesh"]}
+        if fit != 1.0:
+            mesh["Scale"] = [_r(1 / fit)] * 3
+        node["children"] = [{"name": "Mesh", "className": "SpecialMesh", "properties": mesh}]
     return node
 
 

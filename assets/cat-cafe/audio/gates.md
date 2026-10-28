@@ -47,9 +47,9 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_Purchase.ogg` | sfx | 0.65 | 1 | 48000 | 7 | -16.6 | -3.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Purr.ogg` | sfx | 2.49 | 1 | 48000 | 35 | -29.8 | -5.9 | 4 | - | PASS |  |
 | `sfx/CatCafe_Sfx_PurrfectChime.ogg` | sfx | 1.60 | 1 | 48000 | 16 | -15.4 | -2.9 | 0 | - | PASS |  |
+| `sfx/CatCafe_Sfx_RareNear.ogg` | sfx | 1.30 | 1 | 48000 | 16 | -17.2 | -8.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_RichArrive.ogg` | sfx | 1.10 | 1 | 48000 | 12 | -17.6 | -5.6 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_RichTip.ogg` | sfx | 1.30 | 1 | 48000 | 15 | -14.8 | -3.8 | 0 | - | PASS |  |
-| `sfx/CatCafe_Sfx_ShimmerRare.ogg` | sfx | 2.00 | 1 | 48000 | 22 | -21.0 | -9.8 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_Shove.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -4.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ShuttersUp.ogg` | sfx | 1.40 | 1 | 48000 | 17 | -21.8 | -3.6 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_SignFlip.ogg` | sfx | 0.40 | 1 | 48000 | 7 | - | -6.0 | 1 | - | PASS |  |

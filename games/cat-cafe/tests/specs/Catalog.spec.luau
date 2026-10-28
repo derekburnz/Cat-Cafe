@@ -1011,15 +1011,15 @@ return function()
 		end)
 
 		it(
-			"five areas in tier order with the section 9 spawn points, waves of 10 and odds (F23)",
+			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5) and odds (F23)",
 			function()
-				-- id -> { name, tier, spawnPoints, odds }
+				-- id -> { name, tier, spawnPoints, odds, waveSize }
 				local want = {
-					{ "alley", "Alleyway", 1, 24, { 72, 22, 5, 0.9, 0.1 } }, -- v0.4 layout: 24 spawn points
-					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 } },
-					{ "neighbourhood", "Neighbourhood", 3, 26, { 50, 32, 13, 4, 1 } }, -- the kit set's cat spots (#401)
-					{ "woods", "Woods", 4, 17, { 42, 34, 17, 5.5, 1.5 } },
-					{ "sewer", "Sewer", 5, 20, { 35, 35, 20, 7.5, 2.5 } },
+					{ "alley", "Alleyway", 1, 24, { 72, 22, 5, 0.9, 0.1 }, 6 }, -- v0.4 layout: 24 spawn points
+					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 }, 5 },
+					{ "neighbourhood", "Neighbourhood", 3, 26, { 50, 32, 13, 4, 1 }, 5 }, -- the kit set's cat spots (#401)
+					{ "woods", "Woods", 4, 17, { 42, 34, 17, 5.5, 1.5 }, 4 },
+					{ "sewer", "Sewer", 5, 20, { 35, 35, 20, 7.5, 2.5 }, 4 },
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1028,7 +1028,7 @@ return function()
 					expect(def.name).to.equal(row[2])
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
-					expect(def.waveSize).to.equal(10)
+					expect(def.waveSize).to.equal(row[6]) -- data-model 9 v0.13.5 (was 10 each)
 					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({
 						Common = odds[1],

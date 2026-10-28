@@ -148,10 +148,12 @@ local function onOpen(player: Player)
 	if profile == nil then
 		return
 	end
-	local gift = takeGift(plot.index)
-	if gift == nil then
+	local rolled = takeGift(plot.index)
+	if rolled == nil then
 		return
 	end
+	-- the roll stays as it appeared; a spin with the bank full pays golden fish instead (v0.13.9)
+	local gift = Potions.giftPaid(rolled, profile.spin.banked)
 	Payout.pay(player, profile, Potions.giftPrize(gift), "mystery_gift")
 	profile.stats.mysteryGifts = (profile.stats.mysteryGifts or 0) + 1
 	logGift(player, profile, gift, "opened")

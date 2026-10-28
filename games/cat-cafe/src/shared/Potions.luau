@@ -154,6 +154,20 @@ function Potions.rollGift(roll: () -> number): Gift
 	return { kind = chosen.kind, id = chosen.id, count = chosen.count }
 end
 
+-- What an opened gift pays (v0.13.9): a spin opened with the spin bank at SpinBankCap pays the gift table's golden
+-- fish instead, so a gift is never empty; every other gift pays as rolled. `banked` is the player's `spin.banked`.
+function Potions.giftPaid(gift: Gift, banked: number): Gift
+	if gift.kind ~= "spin" or banked < Config.SpinBankCap then
+		return gift
+	end
+	for _, row in Catalog.mysteryGift do
+		if row.kind == "fish" then
+			return { kind = "fish", count = row.count }
+		end
+	end
+	return gift
+end
+
 -- A gift as the prize shape Payout pays.
 function Potions.giftPrize(gift: Gift): Types.IndexPrize
 	if gift.kind == "potion" and gift.id ~= nil then

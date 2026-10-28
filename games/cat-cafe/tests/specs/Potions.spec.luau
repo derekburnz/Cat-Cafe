@@ -225,5 +225,15 @@ return function()
 			expect(Potions.giftPrize({ kind = "fish", count = 10 }) :: any).to.deepEqual({ fish = 10 })
 			expect(Potions.giftPrize({ kind = "spin", count = 1 }) :: any).to.deepEqual({ spins = 1 })
 		end)
+
+		it("pays a spin as the table's golden fish when the spin bank is full, and every other gift as rolled", function()
+			local spin = { kind = "spin", count = 1 } :: any
+			expect(Potions.giftPaid(spin, Config.SpinBankCap - 1) :: any).to.deepEqual(spin)
+			expect(Potions.giftPaid(spin, Config.SpinBankCap) :: any).to.deepEqual({ kind = "fish", count = 10 })
+			local potion = { kind = "potion", id = "tip_potion", count = 1 } :: any
+			expect(Potions.giftPaid(potion, Config.SpinBankCap) :: any).to.deepEqual(potion)
+			local fish = { kind = "fish", count = 10 } :: any
+			expect(Potions.giftPaid(fish, Config.SpinBankCap) :: any).to.deepEqual(fish)
+		end)
 	end)
 end

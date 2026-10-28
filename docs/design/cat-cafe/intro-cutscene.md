@@ -55,11 +55,11 @@ Shot 9's swoop is longer in v3, about 210 studs in 2.0 s down to a plot 5 or 6 c
 | # | Camera from (position, look) | Camera to (position, look) |
 |---|---|---|
 | 5 | Park (0, 40, -119), (0, 0, -156); Neighbourhood (0, 60, 133.5), (0, 0, 201.5); Woods (-89, 45, 0), (-150, 0, 0); Sewer (89, 40, 0), (136, 0, 0) | each pushes 6% toward its look point |
-| 6 | (-59.5, 5, -4), the west Alleyway Index Board (-71, 4, -9) | (-64.5, 4.5, -6.5), the board |
+| 6 | (-60, 5, -1), the west Alleyway Index Board (-71, 4, -9) | (-64.5, 4.5, -6.5), the board |
 | 8 | (0, 80, -150), (0, 0, -20) | (0, 76, -144), (0, 0, -20) |
 | 9 | (0, 76, -144), (0, 0, -20) | 12 studs behind and 6 above the character, looking at its head |
 
-Shot 6 starts in the square's east to west lane and looks through the west side arch at the board. Shot 8 is a high view up the whole town from the south, with both back alleys in frame; the strays that fade out and pop back in are the back alleys' (there is no Alley Square). Shot 9's swoop is up to about 250 studs to a north row cafe, so it goes through the via point (0, 45, 0) over the square.
+Shot 6 starts in the square's east to west lane and looks through the west side arch at the board; from (-60, 5, -1) the arch's south pillar never hides it (Tutorial-Agent's check). Shot 8 is a high view up the whole town from the south, with both back alleys in frame; the strays that fade out and pop back in are the back alleys' (there is no Alley Square). Shot 9's swoop is up to about 250 studs to a north row cafe, so for plots north of the square (pz > 0: plots 3, 4, 7 and 8) it goes through the via point (0, 45, 0) over the square. Plots 1, 2, 5 and 6 sit on the way from shot 8's southern end, so they swoop straight, about 80 to 120 studs, and plot 1, the one most new players get, never overshoots and turns back.
 
 ## 3. Gameplay-Engineer
 

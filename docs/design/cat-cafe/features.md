@@ -204,6 +204,14 @@ Derek: "when the cats sleep at night have them sleep in the cat tree pedestals m
 |---|---|---|---|---|---|---|
 | F79 | Bedtime: `Layout.plot.sleepSpots` (the two cat trees' top perches and lower shelves, then decor cat tree pedestals, then beds); `CatCafe_Furniture_CatBed` in the tier dressing, 2 at Tier 3, 4 at Tier 4 and 6 at Tier 5; at night start the working cats, best rating first, get up on the walking body without outfits, walk at 6 round the tables, hop up and sleep (`Bedtime`, `SleepSpot`, `Asleep`, `StretchAt`); the reverse at sunrise; a 15 s timeout; no walking for changes made at night; income, XP and slots unchanged; the hover card says "Asleep" | P1 | M | engineer, asset (bed, tree attachments), animation (client walk and nap rule), ui (hover card) | F44, F66 | At nightfall in a Tier 5 cafe all ten working cats walk off, the best two sleep on the top perches and six in the beds, every visitor sees the same spots, and at sunrise each walks back to its station in its outfit; a cat placed at night appears asleep in a free spot |
 
+## 2p. Bigger side areas with longer walks (Derek, 2026-10-28 01:42)
+
+Derek: "expand all areas on the side to at least 4x the size it feels a little cramped if a lot of players were here", "and the walking should feel longer", and the Sewer bridge "needs some way of getting up and also shouldn't be able to juts walk through it". Spec in [town-layout-v3.md](town-layout-v3.md) section 8.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F81 | Bigger side areas (town-layout-v3 section 8): each side area doubles its width and depth behind a gate that does not move. Park 160 x 120 at (0, -186), Neighbourhood 280 x 280 at (0, 266), Woods 240 x 240 at (-215, 0), Sewer 180 x 180 at (185, 0), GroundSize 880. Each area's main path winds about 1.6 times the straight distance, with blockers whose gaps alternate sides (Park about 10 s gate to far wall, Neighbourhood 23 s, Woods 19 s, Sewer 15 s on foot). Every raised walkway has steps (1 stud rises at most) or ramps (30 degrees at most) at both ends, bridges, decks and railings collide, and water is crossed only on bridges. Spawn points grow to 40, 72, 64 and 52, tagged `near` or `deep`; Epic and rarer strays take only `deep` points; traps double. Layout keeps each old set at its v3.1 place until its new set lands. No save change | P1 | L | asset, engineer | F77 as built | Each gate is still under 6.5 s from the fountain; no far wall can be reached in a straight line from its gate; every bridge and deck can be walked onto from both ends and not walked through; the Sewer channel is crossed only on its bridges; Epic and rarer side area strays appear only at `deep` points |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 09:18 UTC",
+  "generated": "2026-10-28 09:24 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -62150,7 +62150,7 @@
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the Handle, the net's axes) is where the hand holds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L1.model.json",
       "rbx_parts": 21,
       "files": [
@@ -62209,7 +62209,7 @@
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the Handle, the net's axes) is where the hand holds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L2.model.json",
       "rbx_parts": 23,
       "files": [
@@ -62268,7 +62268,7 @@
       ],
       "pivot": "grip end of the pole; the pole runs forward (Roblox -Z)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+      "studio": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the Handle, the net's axes) is where the hand holds it.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Net_L3.model.json",
       "rbx_parts": 27,
       "files": [
@@ -74256,6 +74256,802 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.08 (want 0)",
           "centered": "footprint center x=0.00 y=-0.04"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Alley",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Alley",
+        "CatCafe_Prop_Crate_Alley_Lid"
+      ],
+      "triangles": 516,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.48,
+        "y": 2.02,
+        "z": 2.1
+      },
+      "size_roblox": [
+        2.48,
+        2.1,
+        2.02
+      ],
+      "bounds_min": [
+        -1.24,
+        -1.01,
+        0.0
+      ],
+      "bounds_max": [
+        1.24,
+        1.01,
+        2.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Alley_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Alley_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Alley_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Alley.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Alley.model.json",
+      "rbx_parts": 43,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Alley.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Alley.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "516/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "258 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Alley_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Alley_Gold",
+        "CatCafe_Prop_Crate_Alley_Gold_Lid"
+      ],
+      "triangles": 516,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.48,
+        "y": 2.02,
+        "z": 2.1
+      },
+      "size_roblox": [
+        2.48,
+        2.1,
+        2.02
+      ],
+      "bounds_min": [
+        -1.24,
+        -1.01,
+        0.0
+      ],
+      "bounds_max": [
+        1.24,
+        1.01,
+        2.1
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Alley_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Alley_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Alley_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Alley_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Alley_Gold.model.json",
+      "rbx_parts": 43,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "516/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "258 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Park",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Park",
+        "CatCafe_Prop_Crate_Park_Lid"
+      ],
+      "triangles": 1146,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.68,
+        "y": 2.17,
+        "z": 1.84
+      },
+      "size_roblox": [
+        2.68,
+        1.84,
+        2.17
+      ],
+      "bounds_min": [
+        -1.34,
+        -1.14,
+        0.02
+      ],
+      "bounds_max": [
+        1.34,
+        1.03,
+        1.86
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Park_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Park_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Park_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Park.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Park.model.json",
+      "rbx_parts": 96,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Park.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Park.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1146/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "573 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.06"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Park_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Park_Gold",
+        "CatCafe_Prop_Crate_Park_Gold_Lid"
+      ],
+      "triangles": 1146,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.68,
+        "y": 2.17,
+        "z": 1.84
+      },
+      "size_roblox": [
+        2.68,
+        1.84,
+        2.17
+      ],
+      "bounds_min": [
+        -1.34,
+        -1.14,
+        0.02
+      ],
+      "bounds_max": [
+        1.34,
+        1.03,
+        1.86
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Park_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Park_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Park_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Park_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Park_Gold.model.json",
+      "rbx_parts": 96,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1146/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "573 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.02 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.06"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Neighbourhood",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Neighbourhood",
+        "CatCafe_Prop_Crate_Neighbourhood_Lid"
+      ],
+      "triangles": 384,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.54,
+        "y": 2.04,
+        "z": 1.98
+      },
+      "size_roblox": [
+        2.54,
+        1.98,
+        2.04
+      ],
+      "bounds_min": [
+        -1.27,
+        -1.02,
+        0.0
+      ],
+      "bounds_max": [
+        1.27,
+        1.02,
+        1.98
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Neighbourhood_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Neighbourhood_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Neighbourhood_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Neighbourhood.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Neighbourhood.model.json",
+      "rbx_parts": 32,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Neighbourhood.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Neighbourhood.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "384/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "192 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Neighbourhood_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Neighbourhood_Gold",
+        "CatCafe_Prop_Crate_Neighbourhood_Gold_Lid"
+      ],
+      "triangles": 384,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.54,
+        "y": 2.04,
+        "z": 1.98
+      },
+      "size_roblox": [
+        2.54,
+        1.98,
+        2.04
+      ],
+      "bounds_min": [
+        -1.27,
+        -1.02,
+        0.0
+      ],
+      "bounds_max": [
+        1.27,
+        1.02,
+        1.98
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Neighbourhood_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Neighbourhood_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Neighbourhood_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Neighbourhood_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Neighbourhood_Gold.model.json",
+      "rbx_parts": 32,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "384/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "192 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Woods",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Woods",
+        "CatCafe_Prop_Crate_Woods_Lid"
+      ],
+      "triangles": 1140,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.52,
+        "y": 2.06,
+        "z": 2.43
+      },
+      "size_roblox": [
+        2.52,
+        2.43,
+        2.06
+      ],
+      "bounds_min": [
+        -1.26,
+        -1.05,
+        0.0
+      ],
+      "bounds_max": [
+        1.26,
+        1.01,
+        2.43
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Woods_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Woods_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Woods_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Woods.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Woods.model.json",
+      "rbx_parts": 91,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Woods.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Woods.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1140/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "558 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Woods_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Woods_Gold",
+        "CatCafe_Prop_Crate_Woods_Gold_Lid"
+      ],
+      "triangles": 1140,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.52,
+        "y": 2.06,
+        "z": 2.43
+      },
+      "size_roblox": [
+        2.52,
+        2.43,
+        2.06
+      ],
+      "bounds_min": [
+        -1.26,
+        -1.05,
+        0.0
+      ],
+      "bounds_max": [
+        1.26,
+        1.01,
+        2.43
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Woods_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Woods_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Woods_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Woods_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Woods_Gold.model.json",
+      "rbx_parts": 91,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1140/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "558 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Sewer",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Sewer",
+        "CatCafe_Prop_Crate_Sewer_Lid"
+      ],
+      "triangles": 744,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.86,
+        "y": 1.99,
+        "z": 2.28
+      },
+      "size_roblox": [
+        2.86,
+        2.28,
+        1.99
+      ],
+      "bounds_min": [
+        -1.43,
+        -0.98,
+        0.0
+      ],
+      "bounds_max": [
+        1.43,
+        1.01,
+        2.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Sewer_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Sewer_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Sewer_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Sewer.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Sewer.model.json",
+      "rbx_parts": 62,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Sewer.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Sewer.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "744/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "360 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Sewer_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Sewer_Gold",
+        "CatCafe_Prop_Crate_Sewer_Gold_Lid"
+      ],
+      "triangles": 744,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.86,
+        "y": 1.99,
+        "z": 2.28
+      },
+      "size_roblox": [
+        2.86,
+        2.28,
+        1.99
+      ],
+      "bounds_min": [
+        -1.43,
+        -0.98,
+        0.0
+      ],
+      "bounds_max": [
+        1.43,
+        1.01,
+        2.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Sewer_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Sewer_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Sewer_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Sewer_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Sewer_Gold.model.json",
+      "rbx_parts": 62,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "744/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "360 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Classic",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Classic",
+        "CatCafe_Prop_Crate_Classic_Lid"
+      ],
+      "triangles": 552,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.52,
+        "y": 2.04,
+        "z": 2.18
+      },
+      "size_roblox": [
+        2.52,
+        2.18,
+        2.04
+      ],
+      "bounds_min": [
+        -1.26,
+        -1.01,
+        0.0
+      ],
+      "bounds_max": [
+        1.26,
+        1.03,
+        2.18
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Classic_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Classic_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Classic_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Classic.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Classic.model.json",
+      "rbx_parts": 46,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Classic.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Classic.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "552/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Classic_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Classic_Gold",
+        "CatCafe_Prop_Crate_Classic_Gold_Lid"
+      ],
+      "triangles": 552,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.52,
+        "y": 2.04,
+        "z": 2.18
+      },
+      "size_roblox": [
+        2.52,
+        2.18,
+        2.04
+      ],
+      "bounds_min": [
+        -1.26,
+        -1.01,
+        0.0
+      ],
+      "bounds_max": [
+        1.26,
+        1.03,
+        2.18
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Classic_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Classic_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Classic_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Classic_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Classic_Gold.model.json",
+      "rbx_parts": 46,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "552/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "276 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
         }
       }
     }

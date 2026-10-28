@@ -9,6 +9,7 @@ from mathutils import Matrix
 from common import Builder
 
 FOOD_IN_BOWL = 0.18      # kibble top in CatCafe_Item_FoodBowl, studs above its pivot
+GRIP = 0.36              # a net's grip wrap centre, studs along the pole from its end
 FOODS = ("Sardines", "Caviar", "MoonMilk", "StarTreat")     # the dealer foods that sit in a bowl
 
 
@@ -76,7 +77,7 @@ def build_net(level, mat):
     hoop_r = 0.9 + 0.15 * (level - 1)
     h = Builder()
     h.cyl((0, -pole / 2, 0), 0.1, pole, handle_col, segments=8, rot=(math.radians(90), "X"))
-    h.cyl((0, -0.36, 0), 0.13, 0.68, "fur_black", segments=8, rot=(math.radians(90), "X"))     # grip wrap
+    h.cyl((0, -GRIP, 0), 0.13, 0.68, "fur_black", segments=8, rot=(math.radians(90), "X"))     # grip wrap
     if level >= 2:
         for y in (-1.2, -2.0):
             h.cyl((0, y, 0), 0.12, 0.12, ring_col, segments=8, rot=(math.radians(90), "X"))   # bands
@@ -94,6 +95,12 @@ def build_net(level, mat):
     bag.cyl((0, hy, -0.6), 0.22, 1.0, bag_col, segments=14, radius2=hoop_r - 0.06, bevel=False)          # netting
     name = f"CatCafe_Item_Net_L{level}"
     return [h.finalize(name + "_Handle", mat), bag.finalize(name + "_Bag", mat)]
+
+
+def grip_attachment():
+    """The hand's spot on a net: the Attachment `Grip` in the middle of the black wrap, on the Handle, with the
+    net's own axes (the pole runs -Z in Roblox, the hoop's open face up +Y)."""
+    return ("_Handle", "Grip", Matrix.Translation((0.0, -GRIP, 0.0)))
 
 
 def _rz(deg):

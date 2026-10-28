@@ -47,8 +47,8 @@ SWN = [s[0] for s in palette.SWATCHES]
 _init, _log, _tag, _fin = common.Builder.__init__, common.Builder._log, common.Builder._tag, common.Builder.finalize
 
 
-def _p_init(self):
-    _init(self)
+def _p_init(self, *a, **kw):
+    _init(self, *a, **kw)
     self.pr = self.bm.faces.layers.int.new("prim")
     self.callers = []
 

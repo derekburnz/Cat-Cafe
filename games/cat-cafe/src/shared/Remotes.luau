@@ -40,6 +40,7 @@ Remotes.ClientToServer = {
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
+	"CollectTips", -- ()  F61: standing on the caller's own plot with at least one tip pile waiting; pays them all
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a

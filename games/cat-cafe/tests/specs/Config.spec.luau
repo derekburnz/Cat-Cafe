@@ -100,8 +100,11 @@ return function()
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
-		RichChance = 0.15,
-		RichTipSeconds = 45,
+		RichChance = 0.10, -- F61: was 0.15
+		RichTipSeconds = 120, -- F61: was 45
+		TipPileSeconds = 30, -- F61: tip piles (section 12)
+		TipPileRateSeconds = 6,
+		TipPilesMax = 6,
 		RichTipStaySeconds = 90,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryCheckSeconds = 120,
@@ -194,6 +197,7 @@ return function()
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
+				TipPileCollectRangeStuds = true, -- section 12 (F61): the client sends CollectTips within 8 studs
 				FishFirstCatch = true, -- a table, checked below
 				FishRepeatCatch = true, -- a table, checked below
 				FishRankUp = true, -- a table, checked below

@@ -230,10 +230,18 @@ local function baitCat(s: Types.PlayerState): UITypes.BaitCat?
 end
 
 -- The bait bowl (F28, data-model section 8): what is in it, the owner's prompt on it and the card the moment its
--- cat arrives. ProfileSync names the cat only once it has arrived, so its first appearance is the arrival.
+-- cat arrives. ProfileSync names the cat only once it has arrived, so its first appearance is the arrival. placedAt
+-- sets the fill bar's length and night (F60) the countdown's moon.
 local function refreshBait(s: Types.PlayerState)
 	local bait = s.bait
-	UI.bait.set(if bait ~= nil then { lureId = bait.lureId, readyAt = bait.readyAt } else nil)
+	UI.bait.set(if bait ~= nil
+		then {
+			lureId = bait.lureId,
+			readyAt = bait.readyAt,
+			placedAt = bait.placedAt,
+			night = bait.night,
+		}
+		else nil)
 	local bowl = UIController.ownBaitBowl()
 	UI.bait.setBowl(bowl)
 

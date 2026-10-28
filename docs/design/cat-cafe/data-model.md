@@ -123,7 +123,7 @@ New cats get new ids, so a player who caught Pirate Cat still has Pirate Cat. Th
 - A spare cat never spawns: no area wave, no bait, no dealer food, no rescue trap, no code or quest prize, and the Cat Collector only asks for area cats.
 - A spare cat a player already owns stays theirs exactly as it was: it works, rests, levels, sells, locks, keeps its name and gold, and shows in the Cats window.
 - The Index's area pages, boards and reward tracks list each area's current ten, so a spare cat counts toward no area track and no area page shows it. A prize already claimed stays claimed. The All Cats track stays 50. "Different cats" for ranking up still counts every catId in `collection`, spare ones included, so nobody loses rank-up progress.
-- The Index may show a small "Spare" page listing only the spare cats the player owns (UI, P2), so an owned cat never vanishes from the book.
+- The Index shows a small "Spare" page listing the spare cats the player has found (in `collection`, owned now or not), like every other found cat, so a cat never vanishes from the book (as built by the UI thread in #399).
 - Bringing one back later is one Catalog edit: give it an area and take another out.
 - Saves: no change. `collection` and `goldCollection` keep the spare ids.
 

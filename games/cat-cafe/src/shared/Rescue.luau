@@ -7,8 +7,9 @@
 -- it is inside the zone (RescueZoneWidth[rarity] wide, plus RescueTolerance either side) is a hit that moves the
 -- zone to its next spot. rescueHits[rarity] hits free the cat; each miss costs one of RescuePatience paws, and out
 -- of paws ends the attempt. Kind "shake_catch" (a tree): rescueHits - 1 hits shake the branch, then the cat drops
--- and one catch circle (Common shrink time, the Pro Net's windows) must be Good or Perfect. The server stamps each
--- press on arrival and takes off half the player's ping, as for a catch circle.
+-- and one catch circle (Common shrink time, the Pro Net's windows times the stuck cat's catchWindow, v0.13.15 F83)
+-- must be Good or Perfect. The server stamps each press on arrival and takes off half the player's ping, as for a
+-- catch circle.
 
 local Catalog = require(script.Parent.Catalog)
 local Circles = require(script.Parent.Circles)
@@ -28,6 +29,7 @@ export type Press = "hit" | "miss" | "ignored"
 
 export type Attempt = {
 	challenge: Types.RescueChallenge, -- the bar
+	rarity: Types.Rarity, -- the stuck cat's, for the falling cat's circle (F83)
 	hits: number,
 	paws: number,
 	stage: Stage,
@@ -104,9 +106,10 @@ function Rescue.newChallenge(
 	}
 end
 
-function Rescue.newAttempt(challenge: Types.RescueChallenge): Attempt
+function Rescue.newAttempt(challenge: Types.RescueChallenge, rarity: Types.Rarity): Attempt
 	return {
 		challenge = challenge,
+		rarity = rarity,
 		hits = 0,
 		paws = challenge.paws or Config.RescuePatience,
 		stage = "bar",
@@ -151,15 +154,16 @@ function Rescue.pressBar(attempt: Attempt, pressTime: number): Press
 	return "miss"
 end
 
--- The tree's cat drops: one Common circle with the Pro Net's windows, from server time `now`. Returns what the
--- second RescueChallenge sends.
+-- The tree's cat drops: one Common circle with the Pro Net's windows times the stuck cat's catchWindow (F83: 0.14
+-- Good for a Common down to 0.078 for a Mythical), from server time `now`. Returns what the second RescueChallenge
+-- sends.
 function Rescue.startCircle(
 	attempt: Attempt,
 	now: number,
 	roll: () -> number
 ): Types.RescueChallenge
 	assert(attempt.stage == "falling", "the shakes are not done")
-	local windows = Circles.windows(Rescue.CIRCLE_NET_LEVEL)
+	local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, attempt.rarity)
 	local circle = Circles.schedule("Common", Rescue.CIRCLE_NET_LEVEL, now, roll)[1]
 	local circleAttempt = Circles.newAttempt({ circle }, windows)
 	attempt.circle = circleAttempt

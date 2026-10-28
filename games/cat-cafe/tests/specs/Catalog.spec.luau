@@ -131,6 +131,13 @@ return function()
 			end)
 		end
 
+		it("catchWindow narrows the net 0.9 / 0.8 / 0.7 / 0.6 / 0.5 by rarity (v0.13.15 F83)", function()
+			local windows = { Common = 0.9, Rare = 0.8, Epic = 0.7, Legendary = 0.6, Mythical = 0.5 }
+			for _, rarity in ipairs(RARITIES) do
+				expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
+			end
+		end)
+
 		it("rarer means more circles, faster circles and more rescue hits", function()
 			for i = 2, #RARITIES do
 				local lower, higher =
@@ -139,6 +146,7 @@ return function()
 				expect(higher.shrinkSeconds < lower.shrinkSeconds).to.equal(true)
 				expect(higher.rescueHits > lower.rescueHits).to.equal(true)
 				expect(higher.incomePerSecond > lower.incomePerSecond).to.equal(true)
+				expect(higher.catchWindow < lower.catchWindow).to.equal(true)
 			end
 		end)
 

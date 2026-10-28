@@ -12,6 +12,10 @@ on:
         type: choice
         options: [Published, Saved]
         default: Published
+      restart_servers:
+        description: "Also move running servers onto it (Restart servers for updates). Turn on when the save version changed"
+        type: boolean
+        default: false
   workflow_run:
     workflows: [check]
     types: [completed]
@@ -82,3 +86,9 @@ jobs:
       - name: Publish (goes live)
         if: github.event_name != 'workflow_dispatch' || inputs.version_type == 'Published'
         run: bash tools/opencloud/publish.sh Published CatCafe.rbxl
+
+      # A publish only reaches new servers. When it changes the save version, a player saved by a new server who
+      # then joins an old one is kicked by the newer-save guard, so the old servers have to go.
+      - name: Restart running servers onto the new version
+        if: github.event_name == 'workflow_dispatch' && inputs.version_type == 'Published' && inputs.restart_servers
+        run: bash tools/opencloud/restart-servers.sh

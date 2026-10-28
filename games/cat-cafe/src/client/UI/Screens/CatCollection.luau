@@ -4,6 +4,9 @@
 --         (dark silhouettes until found), rarest last; tap one for details. Above the cats, the area's reward
 --         strip (Screens/IndexStrip, F48) pays at 3, 6 and 10 cats and all of them gold; a red badge on the Index
 --         tab and on each area tab says a reward is waiting.
+--         After All Cats, a Spare page (F78, data-model section 3d) lists the spare cats the player has found,
+--         the ones moved out of every area for now; it shows only for a player who has one, and the All Cats page
+--         and the "12 / 50" leave spare cats out.
 --   Decor: the Decor Index (F53, Screens/DecorIndex): a page per crate with its ten pieces and two rewards.
 --   Beside the tabs, the forever bonuses the claimed rewards add up to (F54 v0.10): tips, gold luck with the gold
 --   chance it gives, and faster bait, each in its track's colour (Components/IndexRewards.totals).
@@ -51,6 +54,7 @@ local PROGRESS_HEIGHT = 28
 local PERK_HEIGHT = 26 -- a forever bonus pill beside the tabs
 local FALLBACK_AREA = "alley"
 local ALL_AREA = IndexRewards.ALL_AREA
+local SPARE_AREA = IndexRewards.SPARE_AREA
 local PORTRAITS_PER_FRAME = 10 -- the All Cats page clones its 50 models over a few frames
 
 local CatCollection = {}
@@ -395,6 +399,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		Parent = progress,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(track, 2)
+	self._progressTrack = track -- hidden on the Spare page, which has nothing to complete
 	self._progressFill = Create("Frame", {
 		Name = "Fill",
 		BackgroundColor3 = Theme.colors.mint,
@@ -497,7 +502,9 @@ function CatCollection._select(self: any, catId: string)
 	if def.favoriteRole then
 		table.insert(meta, "loves " .. Format.roleName(def.favoriteRole))
 	end
-	if def.area then
+	if def.area == SPARE_AREA then
+		table.insert(meta, "a spare cat, not in any area for now")
+	elseif def.area then
 		table.insert(meta, "found in the " .. Format.areaName(def.area))
 	end
 	self._detailMeta.Text = table.concat(meta, "  ·  ")
@@ -526,7 +533,7 @@ local function indexAreas(catalog: Types.Catalog): { IndexArea }
 	end)
 	for _, def in catalog.cats do
 		local areaId: string = def.area or FALLBACK_AREA
-		if not seen[areaId] then
+		if areaId ~= SPARE_AREA and not seen[areaId] then
 			seen[areaId] = true
 			table.insert(list, { id = areaId, name = Format.areaName(areaId), tier = 0 })
 		end
@@ -558,6 +565,8 @@ function CatCollection._buildIndex(self: any)
 	local areas = indexAreas(catalog)
 	-- the All Cats page last (F54, golden-fish.md 5b): every area's cats together, never locked
 	table.insert(areas, { id = ALL_AREA, name = Format.areaName(ALL_AREA), tier = 0 })
+	-- then the spare cats the player has found (F78), shown only once there is one
+	table.insert(areas, { id = SPARE_AREA, name = Format.areaName(SPARE_AREA), tier = 0 })
 	table.clear(self._areaRank)
 	local gap = Theme.sizes.gap
 	for order, area in areas do
@@ -732,19 +741,29 @@ function CatCollection._renderIndex(
 	local foundIn: { [string]: number } = {}
 	for catId, cell in self._cells do
 		local areaId: string = cell.def.area or FALLBACK_AREA
+		local spare = areaId == SPARE_AREA
+		if spare and not found[catId] then
+			continue -- the Spare page lists only the ones found
+		end
 		totals[areaId] = (totals[areaId] or 0) + 1
-		totals[ALL_AREA] = (totals[ALL_AREA] or 0) + 1
+		if not spare then
+			totals[ALL_AREA] = (totals[ALL_AREA] or 0) + 1
+		end
 		if found[catId] then
 			foundIn[areaId] = (foundIn[areaId] or 0) + 1
-			foundIn[ALL_AREA] = (foundIn[ALL_AREA] or 0) + 1
+			if not spare then
+				foundIn[ALL_AREA] = (foundIn[ALL_AREA] or 0) + 1
+			end
 		end
 	end
+	local hasSpare = (totals[SPARE_AREA] or 0) > 0
 
 	-- first open: the first area the player can reach that still has cats to find
 	if self._area == nil then
 		for _, chip in self._areaChips do
 			if
 				chip.id ~= ALL_AREA
+				and chip.id ~= SPARE_AREA
 				and state.tier >= chip.tier
 				and (foundIn[chip.id] or 0) < (totals[chip.id] or 0)
 			then
@@ -757,7 +776,25 @@ function CatCollection._renderIndex(
 			self._area = first.id
 		end
 	end
+	if self._area == SPARE_AREA and not hasSpare then
+		local first = self._areaChips[1]
+		self._area = if first then first.id else nil
+	end
 	local open: string? = self._area
+
+	-- the tabs share the row, the Spare tab only while it has cats
+	local shown = 0
+	for _, chip in self._areaChips do
+		chip.frame.Visible = chip.id ~= SPARE_AREA or hasSpare
+		if chip.frame.Visible then
+			shown += 1
+		end
+	end
+	local gap = Theme.sizes.gap
+	for _, chip in self._areaChips do
+		chip.frame.Size = UDim2.new(1 / shown, -gap * (shown - 1) / shown, 1, 0)
+	end
+	self._progressTrack.Visible = open ~= SPARE_AREA
 
 	for _, chip in self._areaChips do
 		local selected = chip.id == open
@@ -766,13 +803,14 @@ function CatCollection._renderIndex(
 		chip.frame.BackgroundColor3 = if selected then chip.color else Theme.modal.card
 		chip.border.Color = if selected then Theme.colors.outline else Theme.modal.cardStroke
 		chip.label.TextColor3 = if selected then Theme.colors.white else Theme.modal.text
-		chip.count.Text = if locked and have == 0
-			then "Tier " .. tostring(chip.tier)
+		chip.count.Text = if chip.id == SPARE_AREA
+			then ("%d %s"):format(have, if have == 1 then "cat" else "cats")
+			elseif locked and have == 0 then "Tier " .. tostring(chip.tier)
 			elseif have >= all and all > 0 then "Complete!"
 			else ("%d / %d"):format(have, all)
 		chip.count.TextColor3 = if selected
 			then Theme.colors.cream
-			elseif have >= all and all > 0 then Theme.colors.goodDark
+			elseif have >= all and all > 0 and chip.id ~= SPARE_AREA then Theme.colors.goodDark
 			else Theme.modal.subtext
 		local waiting = ready[chip.id] or 0
 		chip.dot.Visible = waiting > 0
@@ -785,11 +823,9 @@ function CatCollection._renderIndex(
 				then Theme.colors.gold
 				else chip.color
 			self._progressFill.Size = UDim2.fromScale(fraction, 1)
-			self._progressCount.Text = ("%d / %d  ·  %s"):format(
-				have,
-				all,
-				Format.percent(fraction)
-			)
+			self._progressCount.Text = if chip.id == SPARE_AREA
+				then chip.count.Text
+				else ("%d / %d  ·  %s"):format(have, all, Format.percent(fraction))
 		end
 	end
 
@@ -803,7 +839,9 @@ function CatCollection._renderIndex(
 	for catId, cell in self._cells do
 		local def: Types.CatDef = cell.def
 		local areaId: string = def.area or FALLBACK_AREA
-		local onPage = all or areaId == open
+		local onPage = if areaId == SPARE_AREA
+			then open == SPARE_AREA and found[catId] == true
+			else all or areaId == open
 		cell.frame.Visible = onPage
 		if not onPage then
 			continue
@@ -878,10 +916,13 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 	end
 	self._dirty = false
 	local catalog: Types.Catalog? = self._catalog
-	local total = if catalog then #catalog.cats else 0
+	-- the title's "12 / 50" leaves the spare cats out (F78)
+	local foundCount, total = 0, 0
+	if catalog then
+		foundCount, total = IndexRewards.book(catalog, state)
+	end
 
 	-- found = in collection map, else owned
-	local foundCount = 0
 	local found = {} :: { [string]: boolean }
 	for catId in state.catsOwned do
 		found[catId] = true
@@ -890,9 +931,6 @@ function CatCollection.render(self: any, state: Types.PlayerState)
 		for catId in state.collection :: { [string]: number } do
 			found[catId] = true
 		end
-	end
-	for _ in found do
-		foundCount += 1
 	end
 	self._panel:setTitle(
 		"Index",

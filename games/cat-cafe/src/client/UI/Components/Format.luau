@@ -61,6 +61,7 @@ local AREA_NAMES: { [string]: string } = {
 	woods = "Woods",
 	sewer = "Sewer",
 	all = "All Cats", -- the Index's all-areas page (F54)
+	spare = "Spare", -- the Index's page of spare cats (F78)
 }
 
 -- "park" -> "Park" (data-model section 9 names), unknown ids are capitalised

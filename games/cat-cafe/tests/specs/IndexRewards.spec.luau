@@ -44,6 +44,43 @@ return function()
 		end)
 	end)
 
+	describe("IndexRewards spare cats (F78)", function()
+		local WITH_SPARE = {
+			cats = {
+				{ id = "tabby", area = "alley" },
+				{ id = "binbag", area = "alley" },
+				{ id = "corgi_cat", area = "park" },
+				{ id = "calico", area = "spare" },
+				{ id = "persian", area = "spare" },
+			},
+		}
+
+		it("leaves spare cats off the All Cats page and every area page", function()
+			local found = { tabby = 1, calico = 1 }
+			local state = { collection = found, goldCollection = { calico = 1 } }
+			local all = IndexRewards.counts(WITH_SPARE, state, "all")
+			expect(all.total).to.equal(3)
+			expect(all.found).to.equal(1)
+			expect(all.gold).to.equal(0)
+			expect(IndexRewards.counts(WITH_SPARE, state, "alley").total).to.equal(2)
+		end)
+
+		it("counts the spare page on its own", function()
+			local state = { collection = { tabby = 1, calico = 1 } }
+			local spare = IndexRewards.counts(WITH_SPARE, state, "spare")
+			expect(spare.total).to.equal(2)
+			expect(spare.found).to.equal(1)
+		end)
+
+		it("gives the Index's whole count without spare cats, owned ones included", function()
+			local owned = { corgi_cat = { count = 1 } }
+			local state = { collection = { tabby = 1, calico = 1 }, catsOwned = owned }
+			local found, total = IndexRewards.book(WITH_SPARE, state)
+			expect(found).to.equal(2)
+			expect(total).to.equal(3)
+		end)
+	end)
+
 	describe("IndexRewards.views", function()
 		it("skips milestones without a prize and keeps catalog order", function()
 			local views = IndexRewards.views(CATALOG, {}, "alley")

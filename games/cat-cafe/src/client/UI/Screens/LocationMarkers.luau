@@ -5,7 +5,9 @@
 -- covered (Derek: "symbols to locations also that disappear when close enough so its not clutter").
 --   My Cafe       over the player's own Plot, gold; hidden while carrying, when the carry marker leads to the door
 --   Areas         over the area's gate (tag AreaGate with `Area`), else the middle of its biggest World.Zones box; a
---                 locked area shows a lock and its tier; the area the player stands in (UI.setZone) hides its own
+--                 locked area shows a lock and its tier; the area the player stands in (UI.setZone) hides its own.
+--                 The Alleyway has no gate and two back alleys the same size since v3.1 (F77), so its marker sits in
+--                 the one on the player's side, just inside the Town Square's side arch (west with no cafe)
 --   Night dealer  over the cart (tag DealerCart) while it is open
 --   Town Square   over the Spin Wheel station (tag SpinWheel, F49; the plaza became the Town Square in F76), with a
 --                 red dot while a free spin waits
@@ -315,33 +317,35 @@ local function ownPlot(): Model?
 	return nil
 end
 
--- The middle of the biggest World.Zones box with this name, a little above its floor.
-local function zonePoint(name: string): Vector3?
+-- The middle of the biggest World.Zones box with this name, a little above its floor; of boxes the same size, the
+-- one on `side` of town (-1 west, 1 east, Wayfinding.pickBox).
+local function zonePoint(name: string, side: number?): Vector3?
 	local world = Workspace:FindFirstChild("World")
 	local zones = if world then world:FindFirstChild("Zones") else nil
 	if not zones then
 		return nil
 	end
-	local best: BasePart? = nil
-	local bestArea = 0
+	local found: { BasePart } = {}
+	local sizes: { { area: number, x: number } } = {}
 	for _, box in zones:GetChildren() do
 		if box:IsA("BasePart") and box.Name == name then
-			local area = box.Size.X * box.Size.Z
-			if area > bestArea then
-				best, bestArea = box :: BasePart, area
-			end
+			local part = box :: BasePart
+			table.insert(found, part)
+			table.insert(sizes, { area = part.Size.X * part.Size.Z, x = part.Position.X })
 		end
 	end
-	if not best then
+	local index = Wayfinding.pickBox(sizes, side)
+	if not index then
 		return nil
 	end
-	local box: BasePart = best
+	local box: BasePart = found[index]
 	return box.Position + Vector3.new(0, -box.Size.Y / 2 + ZONE_LIFT, 0)
 end
 
 function LocationMarkers._findPoints(self: any)
 	local plot = ownPlot()
 	self._home.point = if plot then plot:GetPivot().Position + Vector3.new(0, HOME_LIFT, 0) else nil
+	local side: number? = if plot then math.sign(plot:GetPivot().Position.X) else nil
 
 	local gates: { [string]: Model } = {}
 	for _, gate in CollectionService:GetTagged("AreaGate") do
@@ -356,7 +360,7 @@ function LocationMarkers._findPoints(self: any)
 			local gate = gates[area.id]
 			marker.point = if gate
 				then gate:GetPivot().Position + Vector3.new(0, GATE_LIFT, 0)
-				else zonePoint(pascal(area.id))
+				else zonePoint(pascal(area.id), side)
 		end
 	end
 

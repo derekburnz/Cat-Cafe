@@ -86,7 +86,10 @@ function FoodOdds.split(catalog: Types.Catalog, lure: Types.LureDef, tier: numbe
 		end
 		local names: { string } = {}
 		for _, def in catalog.cats do
-			if def.rarity == rarity and (#areaNames == 0 or unlocked[def.area]) then
+			-- with no areas in the catalog every cat but the spare ones (F78), which never come from bait
+			local area: string? = def.area
+			local inPool = if #areaNames == 0 then area ~= "spare" else unlocked[def.area] == true
+			if def.rarity == rarity and inPool then
 				table.insert(names, def.name)
 			end
 		end

@@ -69,7 +69,9 @@ return function()
 				for _, rarity in Catalog.rarityOrder do
 					local expected: { string } = {}
 					for _, def in Catalog.cats do
-						if def.rarity == rarity and Catalog.areasById[def.area].tier <= tier then
+						-- a spare cat (F78) is in no area and never comes from bait
+						local area = Catalog.areasById[def.area]
+						if def.rarity == rarity and area and area.tier <= tier then
 							table.insert(expected, def.name)
 						end
 					end
@@ -92,6 +94,21 @@ return function()
 				end
 			end
 			expect(wrong).to.deepEqual({})
+		end)
+	end)
+
+	describe("FoodOdds.split and spare cats (F78)", function()
+		it("leaves spare cats out when the catalog has no areas", function()
+			local catalog = {
+				cats = {
+					{ id = "tabby", name = "Tabby", rarity = "Common", area = "alley" },
+					{ id = "calico", name = "Pirate Cat", rarity = "Common", area = "spare" },
+				},
+			}
+			local lure = { id = "kibble", odds = { Common = 100 } }
+			local split: string = FoodOdds.split(catalog, lure, 1)
+			expect(split:find("Tabby", 1, true)).to.be.ok()
+			expect(split:find("Pirate Cat", 1, true)).never.to.be.ok()
 		end)
 	end)
 

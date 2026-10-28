@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-27 23:20 UTC",
+  "generated": "2026-10-28 00:31 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -67400,6 +67400,854 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CatTreeTower.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CatTreeTower.png"
+    },
+    {
+      "name": "CatCafe_Neighbourhood_Set",
+      "category": "Neighbourhood",
+      "module": "neighbourhood",
+      "objects": [
+        "CatCafe_Neighbourhood_Set",
+        "CatCafe_Neighbourhood_Set_000_HouseFrontB",
+        "CatCafe_Neighbourhood_Set_000_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_Set_000_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_Set_001_PicketFence",
+        "CatCafe_Neighbourhood_Set_002_PicketFence",
+        "CatCafe_Neighbourhood_Set_003_Mailbox",
+        "CatCafe_Neighbourhood_Set_004_FlowerBed",
+        "CatCafe_Neighbourhood_Set_004_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_005_Hedge",
+        "CatCafe_Neighbourhood_Set_006_HouseFrontC",
+        "CatCafe_Neighbourhood_Set_006_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_Set_006_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_Set_007_PicketFence",
+        "CatCafe_Neighbourhood_Set_008_PicketFence",
+        "CatCafe_Neighbourhood_Set_009_Mailbox",
+        "CatCafe_Neighbourhood_Set_010_FlowerBed",
+        "CatCafe_Neighbourhood_Set_010_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_011_Hedge",
+        "CatCafe_Neighbourhood_Set_012_HouseFrontA",
+        "CatCafe_Neighbourhood_Set_012_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_Set_012_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_Set_013_PicketFence",
+        "CatCafe_Neighbourhood_Set_014_PicketFence",
+        "CatCafe_Neighbourhood_Set_015_Mailbox",
+        "CatCafe_Neighbourhood_Set_016_FlowerBed",
+        "CatCafe_Neighbourhood_Set_016_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_017_Hedge",
+        "CatCafe_Neighbourhood_Set_018_HouseFrontB",
+        "CatCafe_Neighbourhood_Set_018_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_Set_018_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_Set_019_PicketFence",
+        "CatCafe_Neighbourhood_Set_020_PicketFence",
+        "CatCafe_Neighbourhood_Set_021_Mailbox",
+        "CatCafe_Neighbourhood_Set_022_FlowerBed",
+        "CatCafe_Neighbourhood_Set_022_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_023_Hedge",
+        "CatCafe_Neighbourhood_Set_024_HouseFrontA",
+        "CatCafe_Neighbourhood_Set_024_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_Set_024_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_Set_025_PicketFence",
+        "CatCafe_Neighbourhood_Set_026_PicketFence",
+        "CatCafe_Neighbourhood_Set_027_Mailbox",
+        "CatCafe_Neighbourhood_Set_028_FlowerBed",
+        "CatCafe_Neighbourhood_Set_028_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_029_Hedge",
+        "CatCafe_Neighbourhood_Set_030_HouseFrontC",
+        "CatCafe_Neighbourhood_Set_030_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_Set_030_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_Set_031_PicketFence",
+        "CatCafe_Neighbourhood_Set_032_PicketFence",
+        "CatCafe_Neighbourhood_Set_033_Mailbox",
+        "CatCafe_Neighbourhood_Set_034_FlowerBed",
+        "CatCafe_Neighbourhood_Set_034_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_035_Hedge",
+        "CatCafe_Neighbourhood_Set_036_HouseFrontC",
+        "CatCafe_Neighbourhood_Set_036_HouseFrontC_Pane",
+        "CatCafe_Neighbourhood_Set_036_HouseFrontC_Bulb",
+        "CatCafe_Neighbourhood_Set_037_PicketFence",
+        "CatCafe_Neighbourhood_Set_038_PicketFence",
+        "CatCafe_Neighbourhood_Set_039_Mailbox",
+        "CatCafe_Neighbourhood_Set_040_FlowerBed",
+        "CatCafe_Neighbourhood_Set_040_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_041_Hedge",
+        "CatCafe_Neighbourhood_Set_042_HouseFrontB",
+        "CatCafe_Neighbourhood_Set_042_HouseFrontB_Pane",
+        "CatCafe_Neighbourhood_Set_042_HouseFrontB_Bulb",
+        "CatCafe_Neighbourhood_Set_043_PicketFence",
+        "CatCafe_Neighbourhood_Set_044_PicketFence",
+        "CatCafe_Neighbourhood_Set_045_Mailbox",
+        "CatCafe_Neighbourhood_Set_046_FlowerBed",
+        "CatCafe_Neighbourhood_Set_046_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_047_Hedge",
+        "CatCafe_Neighbourhood_Set_048_HouseFrontA",
+        "CatCafe_Neighbourhood_Set_048_HouseFrontA_Pane",
+        "CatCafe_Neighbourhood_Set_048_HouseFrontA_Bulb",
+        "CatCafe_Neighbourhood_Set_049_PicketFence",
+        "CatCafe_Neighbourhood_Set_050_PicketFence",
+        "CatCafe_Neighbourhood_Set_051_Mailbox",
+        "CatCafe_Neighbourhood_Set_052_FlowerBed",
+        "CatCafe_Neighbourhood_Set_052_FlowerBed_Decor",
+        "CatCafe_Neighbourhood_Set_053_Hedge",
+        "CatCafe_Neighbourhood_Set_054_TyreSwingOak",
+        "CatCafe_Neighbourhood_Set_055_Slide",
+        "CatCafe_Neighbourhood_Set_056_Swings",
+        "CatCafe_Neighbourhood_Set_057_Sandbox",
+        "CatCafe_Neighbourhood_Set_058_PicketFence",
+        "CatCafe_Neighbourhood_Set_059_PicketFence",
+        "CatCafe_Neighbourhood_Set_060_PicketFence",
+        "CatCafe_Neighbourhood_Set_061_PicketFence",
+        "CatCafe_Neighbourhood_Set_062_PicketFence",
+        "CatCafe_Neighbourhood_Set_063_PicketFence",
+        "CatCafe_Neighbourhood_Set_064_Trampoline",
+        "CatCafe_Neighbourhood_Set_065_KiddiePool",
+        "CatCafe_Neighbourhood_Set_065_KiddiePool_Water",
+        "CatCafe_Neighbourhood_Set_066_GardenShed",
+        "CatCafe_Neighbourhood_Set_066_GardenShed_Glass",
+        "CatCafe_Neighbourhood_Set_067_BBQGrill",
+        "CatCafe_Neighbourhood_Set_068_GardenGnome",
+        "CatCafe_Neighbourhood_Set_069_GardenGnome",
+        "CatCafe_Neighbourhood_Set_070_GardenGnome",
+        "CatCafe_Neighbourhood_Set_071_Garage",
+        "CatCafe_Neighbourhood_Set_072_Bicycle",
+        "CatCafe_Neighbourhood_Set_073_RecyclingBins",
+        "CatCafe_Neighbourhood_Set_074_RecyclingBins",
+        "CatCafe_Neighbourhood_Set_075_IceCreamVan",
+        "CatCafe_Neighbourhood_Set_075_IceCreamVan_Glass",
+        "CatCafe_Neighbourhood_Set_076_LampPost",
+        "CatCafe_Neighbourhood_Set_076_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_077_LampPost",
+        "CatCafe_Neighbourhood_Set_077_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_078_LampPost",
+        "CatCafe_Neighbourhood_Set_078_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_079_LampPost",
+        "CatCafe_Neighbourhood_Set_079_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_080_LampPost",
+        "CatCafe_Neighbourhood_Set_080_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_081_LampPost",
+        "CatCafe_Neighbourhood_Set_081_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_082_LampPost",
+        "CatCafe_Neighbourhood_Set_082_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_083_LampPost",
+        "CatCafe_Neighbourhood_Set_083_LampPost_Bulb",
+        "CatCafe_Neighbourhood_Set_084_StreetSign",
+        "CatCafe_Neighbourhood_Set_085_BorderHedge",
+        "CatCafe_Neighbourhood_Set_086_Trees"
+      ],
+      "triangles": 43892,
+      "budget": 80000,
+      "size_studs": {
+        "x": 139.0,
+        "y": 139.5,
+        "z": 23.51
+      },
+      "size_roblox": [
+        139.0,
+        23.51,
+        139.5
+      ],
+      "bounds_min": [
+        -69.5,
+        -70.0,
+        -0.01
+      ],
+      "bounds_max": [
+        69.5,
+        69.5,
+        23.5
+      ],
+      "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "porch": [
+          [
+            19.6,
+            1.0,
+            -58.8
+          ],
+          [
+            -19.6,
+            1.0,
+            -53.2
+          ],
+          [
+            19.6,
+            1.0,
+            -33.3
+          ],
+          [
+            -19.6,
+            1.0,
+            -23.2
+          ],
+          [
+            7.3,
+            1.0,
+            54.6
+          ],
+          [
+            -24.71,
+            1.0,
+            44.39
+          ],
+          [
+            28.3,
+            1.0,
+            40.1
+          ],
+          [
+            -34.56,
+            1.0,
+            16.75
+          ],
+          [
+            32.81,
+            1.0,
+            6.8
+          ]
+        ],
+        "flowerbed": [
+          [
+            16.3,
+            0.7,
+            -62.5
+          ],
+          [
+            -16.3,
+            0.7,
+            -49.5
+          ],
+          [
+            16.3,
+            0.7,
+            -35.5
+          ],
+          [
+            -16.3,
+            0.7,
+            -19.5
+          ],
+          [
+            9.5,
+            0.7,
+            51.3
+          ],
+          [
+            -19.8,
+            0.7,
+            45.1
+          ],
+          [
+            28.16,
+            0.7,
+            35.14
+          ],
+          [
+            -31.95,
+            0.7,
+            20.97
+          ],
+          [
+            29.17,
+            0.7,
+            5.21
+          ]
+        ],
+        "hub": [
+          [
+            -7.65,
+            0.32,
+            24.1
+          ],
+          [
+            9.68,
+            0.32,
+            23.12
+          ],
+          [
+            8.39,
+            0.87,
+            12.97
+          ]
+        ],
+        "garden": [
+          [
+            -60.5,
+            1.73,
+            58
+          ],
+          [
+            58,
+            0.0,
+            56
+          ]
+        ],
+        "shed": [
+          [
+            59.2,
+            0.0,
+            40
+          ]
+        ],
+        "driveway": [
+          [
+            -18,
+            0.0,
+            -41.5
+          ],
+          [
+            16,
+            0.0,
+            -41.5
+          ],
+          [
+            -16,
+            0.0,
+            -11.5
+          ],
+          [
+            16,
+            0.0,
+            -11.5
+          ]
+        ],
+        "bins": [
+          [
+            -30.6,
+            0.3,
+            -12.5
+          ]
+        ],
+        "van": [
+          [
+            -22.41,
+            0.24,
+            14.08
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_Set.model.json",
+      "rbx_parts": 2182,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_Neighbourhood_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "43892/80000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "25209 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.01 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.25"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Woods_Set",
+      "category": "Woods",
+      "module": "woods",
+      "objects": [
+        "CatCafe_Woods_Set",
+        "CatCafe_Woods_Set_000_GreatOak",
+        "CatCafe_Woods_Set_000_GreatOak_Pane",
+        "CatCafe_Woods_Set_001_WoodBridge",
+        "CatCafe_Woods_Set_002_SteppingStones",
+        "CatCafe_Woods_Set_003_Campfire",
+        "CatCafe_Woods_Set_003_Campfire_Glow",
+        "CatCafe_Woods_Set_004_Tent",
+        "CatCafe_Woods_Set_005_Tent",
+        "CatCafe_Woods_Set_006_LogBench",
+        "CatCafe_Woods_Set_007_LogBench",
+        "CatCafe_Woods_Set_008_MushroomRing",
+        "CatCafe_Woods_Set_008_MushroomRing_Bulb",
+        "CatCafe_Woods_Set_009_Treehouse",
+        "CatCafe_Woods_Set_009_Treehouse_Pane",
+        "CatCafe_Woods_Set_010_LookoutTower",
+        "CatCafe_Woods_Set_011_WaterfallPond",
+        "CatCafe_Woods_Set_012_HollowLog",
+        "CatCafe_Woods_Set_013_BrambleBush",
+        "CatCafe_Woods_Set_014_Signpost",
+        "CatCafe_Woods_Set_015_Lantern",
+        "CatCafe_Woods_Set_015_Lantern_Bulb",
+        "CatCafe_Woods_Set_016_Lantern",
+        "CatCafe_Woods_Set_016_Lantern_Bulb",
+        "CatCafe_Woods_Set_017_Fern",
+        "CatCafe_Woods_Set_018_Fern",
+        "CatCafe_Woods_Set_019_BerryBush",
+        "CatCafe_Woods_Set_020_MossyRock",
+        "CatCafe_Woods_Set_021_Stump",
+        "CatCafe_Woods_Set_022_LeafPile_Decor",
+        "CatCafe_Woods_Set_023_MushroomSmall",
+        "CatCafe_Woods_Set_024_MossyRock",
+        "CatCafe_Woods_Set_025_FallenLog",
+        "CatCafe_Woods_Set_026_PineTall",
+        "CatCafe_Woods_Set_027_PineTall",
+        "CatCafe_Woods_Set_028_PineTall",
+        "CatCafe_Woods_Set_029_PineTall",
+        "CatCafe_Woods_Set_030_PineTall",
+        "CatCafe_Woods_Set_031_PineTall",
+        "CatCafe_Woods_Set_032_PineTall",
+        "CatCafe_Woods_Set_033_PineTall",
+        "CatCafe_Woods_Set_034_PineTall",
+        "CatCafe_Woods_Set_035_PineTall",
+        "CatCafe_Woods_Set_036_PineTall",
+        "CatCafe_Woods_Set_037_PineTall",
+        "CatCafe_Woods_Set_038_PineTall",
+        "CatCafe_Woods_Set_039_PineTall",
+        "CatCafe_Woods_Set_040_PineTall",
+        "CatCafe_Woods_Set_041_PineTall",
+        "CatCafe_Woods_Set_042_PineTall",
+        "CatCafe_Woods_Set_043_PineTall",
+        "CatCafe_Woods_Set_044_PineTall",
+        "CatCafe_Woods_Set_045_OakRound",
+        "CatCafe_Woods_Set_046_OakRound",
+        "CatCafe_Woods_Set_047_OakRound",
+        "CatCafe_Woods_Set_048_OakRound",
+        "CatCafe_Woods_Set_049_Thicket"
+      ],
+      "triangles": 20126,
+      "budget": 80000,
+      "size_studs": {
+        "x": 119.0,
+        "y": 119.0,
+        "z": 40.4
+      },
+      "size_roblox": [
+        119.0,
+        40.4,
+        119.0
+      ],
+      "bounds_min": [
+        -59.5,
+        -59.5,
+        -0.4
+      ],
+      "bounds_max": [
+        59.5,
+        59.5,
+        40.0
+      ],
+      "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "oak_nook": [
+          [
+            -2.95,
+            0.0,
+            12.13
+          ],
+          [
+            2.95,
+            0.0,
+            12.13
+          ],
+          [
+            6.63,
+            0.0,
+            7.51
+          ]
+        ],
+        "bridge": [
+          [
+            -8.4,
+            0.0,
+            -36.5
+          ]
+        ],
+        "tent": [
+          [
+            24.32,
+            0.0,
+            0.91
+          ],
+          [
+            33.03,
+            0.0,
+            -19.35
+          ]
+        ],
+        "mushroom_ring": [
+          [
+            -18,
+            0.05,
+            -10
+          ]
+        ],
+        "treehouse": [
+          [
+            -32.73,
+            0.0,
+            16.73
+          ]
+        ],
+        "tower": [
+          [
+            38,
+            0.0,
+            28
+          ]
+        ],
+        "trap_hollow_log": [
+          [
+            -14,
+            0.0,
+            22
+          ]
+        ],
+        "trap_bramble_bush": [
+          [
+            14,
+            0.0,
+            22
+          ]
+        ],
+        "fern": [
+          [
+            10,
+            0.0,
+            -26
+          ],
+          [
+            -12,
+            0.0,
+            -28
+          ]
+        ],
+        "berry_bush": [
+          [
+            17,
+            0.0,
+            9.6
+          ]
+        ],
+        "rock": [
+          [
+            -20,
+            2.0,
+            4
+          ],
+          [
+            -24,
+            2.0,
+            -32
+          ]
+        ],
+        "stump": [
+          [
+            6,
+            1.66,
+            18
+          ]
+        ],
+        "leaf_pile": [
+          [
+            -12,
+            0.0,
+            -3
+          ]
+        ],
+        "log": [
+          [
+            18.33,
+            0.0,
+            -29.99
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Set.model.json",
+      "rbx_parts": 880,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Woods_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_Woods_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "20126/80000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "11872 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.40 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Sewer_Set",
+      "category": "Sewer",
+      "module": "sewer",
+      "objects": [
+        "CatCafe_Sewer_Set",
+        "CatCafe_Sewer_Set_000_PipeOutlet",
+        "CatCafe_Sewer_Set_000_PipeOutlet_Glow",
+        "CatCafe_Sewer_Set_001_TunnelArch",
+        "CatCafe_Sewer_Set_001_TunnelArch_Bulb",
+        "CatCafe_Sewer_Set_002_TunnelArch",
+        "CatCafe_Sewer_Set_002_TunnelArch_Bulb",
+        "CatCafe_Sewer_Set_003_TunnelArch",
+        "CatCafe_Sewer_Set_003_TunnelArch_Bulb",
+        "CatCafe_Sewer_Set_004_TunnelArch",
+        "CatCafe_Sewer_Set_004_TunnelArch_Bulb",
+        "CatCafe_Sewer_Set_005_Catwalk",
+        "CatCafe_Sewer_Set_006_BottlecapThrone",
+        "CatCafe_Sewer_Set_007_LostToyPile_Decor",
+        "CatCafe_Sewer_Set_008_ValveWheel",
+        "CatCafe_Sewer_Set_009_Rails",
+        "CatCafe_Sewer_Set_010_MaintenanceCart",
+        "CatCafe_Sewer_Set_011_PipeLarge",
+        "CatCafe_Sewer_Set_012_PipeElbow",
+        "CatCafe_Sewer_Set_013_PawGraffiti",
+        "CatCafe_Sewer_Set_014_Grate",
+        "CatCafe_Sewer_Set_015_DrainPipe",
+        "CatCafe_Sewer_Set_015_DrainPipe_Glow",
+        "CatCafe_Sewer_Set_016_WallLantern",
+        "CatCafe_Sewer_Set_016_WallLantern_Bulb",
+        "CatCafe_Sewer_Set_017_WallLantern",
+        "CatCafe_Sewer_Set_017_WallLantern_Bulb",
+        "CatCafe_Sewer_Set_018_WallLantern",
+        "CatCafe_Sewer_Set_018_WallLantern_Bulb",
+        "CatCafe_Sewer_Set_019_WallLantern",
+        "CatCafe_Sewer_Set_019_WallLantern_Bulb",
+        "CatCafe_Sewer_Set_020_GlowMushrooms",
+        "CatCafe_Sewer_Set_020_GlowMushrooms_Glow",
+        "CatCafe_Sewer_Set_021_GlowMushrooms",
+        "CatCafe_Sewer_Set_021_GlowMushrooms_Glow",
+        "CatCafe_Sewer_Set_022_DripPuddle",
+        "CatCafe_Sewer_Set_022_DripPuddle_Water",
+        "CatCafe_Sewer_Set_023_CrateStack",
+        "CatCafe_Sewer_Set_024_JunkStall",
+        "CatCafe_Sewer_Set_025_JunkStall",
+        "CatCafe_Sewer_Set_026_JunkStall",
+        "CatCafe_Sewer_Set_027_CanHouse",
+        "CatCafe_Sewer_Set_028_TeapotHouse",
+        "CatCafe_Sewer_Set_029_BoxHouse",
+        "CatCafe_Sewer_Set_030_CanHouse",
+        "CatCafe_Sewer_Set_031_CapBunting",
+        "CatCafe_Sewer_Set_032_CapBunting",
+        "CatCafe_Sewer_Set_033_LostLounge",
+        "CatCafe_Sewer_Set_033_LostLounge_Bulb",
+        "CatCafe_Sewer_Set_034_CrateDeck",
+        "CatCafe_Sewer_Set_035_CrateDeck",
+        "CatCafe_Sewer_Set_036_BathtubBoat",
+        "CatCafe_Sewer_Set_037_RubberDucks",
+        "CatCafe_Sewer_Set_038_CrateRaft",
+        "CatCafe_Sewer_Set_039_PipeOrgan",
+        "CatCafe_Sewer_Set_040_WallFan",
+        "CatCafe_Sewer_Set_041_SockLine",
+        "CatCafe_Sewer_Set_042_SteamVent",
+        "CatCafe_Sewer_Set_043_SteamVent",
+        "CatCafe_Sewer_Set_044_Barrel",
+        "CatCafe_Sewer_Set_045_Barrel",
+        "CatCafe_Sewer_Set_046_TyreStack",
+        "CatCafe_Sewer_Set_047_TrafficCone",
+        "CatCafe_Sewer_Set_048_TrafficCone",
+        "CatCafe_Sewer_Set_049_TrafficCone",
+        "CatCafe_Sewer_Set_050_SuitcaseStack",
+        "CatCafe_Sewer_Set_051_YarnTrolley",
+        "CatCafe_Sewer_Set_051_YarnTrolley_Decor",
+        "CatCafe_Sewer_Set_052_PipeHammock"
+      ],
+      "triangles": 36400,
+      "budget": 80000,
+      "size_studs": {
+        "x": 93.2,
+        "y": 93.3,
+        "z": 19.6
+      },
+      "size_roblox": [
+        93.2,
+        19.6,
+        93.3
+      ],
+      "bounds_min": [
+        -46.6,
+        -46.7,
+        0.0
+      ],
+      "bounds_max": [
+        46.6,
+        46.6,
+        19.6
+      ],
+      "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "catwalk": [
+          [
+            3.0,
+            3.5,
+            -24
+          ]
+        ],
+        "throne": [
+          [
+            21.97,
+            3.3,
+            23.91
+          ]
+        ],
+        "toy_pile": [
+          [
+            13,
+            0.4,
+            30
+          ]
+        ],
+        "valve": [
+          [
+            -31.8,
+            0.4,
+            42.8
+          ]
+        ],
+        "cart": [
+          [
+            -28,
+            3.65,
+            30
+          ]
+        ],
+        "pipe_end": [
+          [
+            37.6,
+            0.4,
+            38
+          ]
+        ],
+        "trap_grate": [
+          [
+            -31,
+            0.4,
+            2
+          ]
+        ],
+        "trap_drain_pipe": [
+          [
+            -40.0,
+            0.4,
+            -35
+          ]
+        ],
+        "stall": [
+          [
+            18.6,
+            0.4,
+            -7.0
+          ],
+          [
+            18.6,
+            0.4,
+            -0.0
+          ],
+          [
+            18.6,
+            0.4,
+            7.0
+          ]
+        ],
+        "house": [
+          [
+            -15.4,
+            0.4,
+            2.27
+          ],
+          [
+            -16.51,
+            0.4,
+            12.35
+          ],
+          [
+            -13.94,
+            0.4,
+            -4.57
+          ],
+          [
+            -20.3,
+            0.4,
+            6.89
+          ]
+        ],
+        "sofa": [
+          [
+            34.12,
+            1.88,
+            -30.44
+          ]
+        ],
+        "deck": [
+          [
+            30.6,
+            2.55,
+            -11.7
+          ],
+          [
+            -30.49,
+            2.55,
+            -31.54
+          ]
+        ],
+        "boat": [
+          [
+            -21,
+            1.6,
+            -16
+          ]
+        ],
+        "raft": [
+          [
+            -11.6,
+            2.35,
+            -16.6
+          ]
+        ],
+        "trolley": [
+          [
+            18,
+            1.0,
+            -24
+          ]
+        ],
+        "hammock": [
+          [
+            37,
+            2.4,
+            25
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Set.model.json",
+      "rbx_parts": 1249,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sewer_Set.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sewer_Set.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "36400/80000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "19879 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
+        }
+      }
     }
   ]
 }

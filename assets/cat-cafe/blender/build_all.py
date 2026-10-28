@@ -31,6 +31,7 @@ from mathutils import Euler, Matrix, Vector  # noqa: E402
 import accessories  # noqa: E402
 import alley  # noqa: E402
 import alleyway  # noqa: E402
+import areakit  # noqa: E402
 import areas  # noqa: E402
 import boards  # noqa: E402
 import cats  # noqa: E402
@@ -42,6 +43,7 @@ import furniture  # noqa: E402
 import gold  # noqa: E402
 import gates  # noqa: E402
 import items  # noqa: E402
+import neighbourhood  # noqa: E402
 import night  # noqa: E402
 import market  # noqa: E402
 import npc  # noqa: E402
@@ -51,13 +53,15 @@ import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
 import rbx_export  # noqa: E402
+import sewer  # noqa: E402
 import stations  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
+import woods  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
-           night, stations, coins, market, crate_decor]
+           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -79,6 +83,9 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_Hat": "attachment point (see attach)",
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
+    "CatCafe_Neighbourhood_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Woods_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Sewer_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Park_RescueTree": "base center; the Branch pivots at its root on the trunk (part_pivots_roblox)",
     **{f"CatCafe_Plot_Cafe_{c}": "Plot.cframe: floor top centre of the cafe, front -Z to the street" for c in plot.COLOURS},
     "CatCafe_Plot_Interior": "Plot.cframe: floor top centre of the cafe",
@@ -318,6 +325,8 @@ def main():
         if moved and not name.startswith("CatCafe_Cat_"):   # parts with their own pivot (gate leaves, tree branch); cats use joints
             entry["part_pivots"] = {k: [round(v, 2) for v in p] for k, p in moved.items()}
             entry["part_pivots_roblox"] = {k: common.to_roblox(p) for k, p in moved.items()}
+        if name in areakit.POINTS:                # spots inside an area set (cat spawns, traps), area-space Roblox x, z
+            entry["points_roblox"] = areakit.POINTS[name]
         if name in furniture.SIT_POINTS:
             entry["sit_point"] = list(furniture.SIT_POINTS[name])
             entry["sit_point_roblox"] = common.to_roblox(furniture.SIT_POINTS[name])

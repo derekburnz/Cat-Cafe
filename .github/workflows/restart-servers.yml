@@ -1,0 +1,41 @@
+# Move every running Cat Cafe server onto the newest published version, without publishing anything (Creator Hub's
+# "Restart servers for updates"). publish.yml does the same after a live publish when its restart_servers input is
+# on; this one is for a publish that went out without it, or whose restart step failed. Start it from the Actions
+# tab (restart-servers > Run workflow) or with the GitHub actions_run_trigger tool on main. Needs universe Write on
+# the repo secret ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 19).
+name: restart-servers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never alongside a publish, so a restart cannot land between the Saved upload and the live one.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  restart:
+    name: Restart running servers onto the newest version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+    defaults:
+      run:
+        working-directory: games/cat-cafe
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the publish key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: Restart running servers
+        run: bash tools/opencloud/restart-servers.sh

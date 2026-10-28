@@ -100,7 +100,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Chimney smoke | parts or object Models ending `_Chimney` |
 | Butterflies (day) | parts or object Models ending `_Flowers` (an object Model's beds count as one, so a cafe's two front beds share their butterflies), else the pavement in front of each plot's `Door`; they wander the source's footprint plus 1 stud and come and go on their own timers |
 | Fireflies (night) | parts ending `_Fireflies`, else the street lamps' `_Bulb` parts |
-| Spin wheel turning | tag `SpinWheel` with `LastSpinAt` (server time) changing and `LastSlice` (1 to 6, set just before it); its `Wheel` Model (pivoted at the hub, turns about its own Z axis), `Pointer` and `RimLight` parts |
+| Spin wheel turning | tag `SpinWheel` with `LastSpinAt` (server time) changing and `LastSlice` (1 to 6, set just before it); its `Wheel` Model (pivoted at the hub; the whole Wheel turns about its disc's thinnest axis, the disc being its PrimaryPart or else its biggest part, pointing to the back of the station, whose front faces -Z), `Pointer` and `RimLight` parts |
 | Hidden cats | `HiddenLocal = true`, set on this client only when Show other cats is off: no motion, gold sparkle, burst, hiss or loaf until it clears (picked again within half a second) |
 | Day or night | `ReplicatedStorage.Clock` attribute `Phase` |
 | Areas open | `ReplicatedStorage.Clock` attribute `AreasOpen` (F66) |

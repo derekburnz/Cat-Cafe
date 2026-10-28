@@ -182,6 +182,45 @@ return function()
 		end)
 	end)
 
+	describe("FoodOdds.rich", function()
+		local function hexOf(rarity: string): string
+			return if rarity == "Rare" then "2F80E0" else "6E7691"
+		end
+
+		it("puts each rarity's name and share in its own colour, in order", function()
+			local row = FoodOdds.rich({ Common = 70, Rare = 25, Epic = 4.5, Legendary = 0.4, Mythical = 0.1 }, hexOf)
+			expect(row).to.equal(
+				'<font color="#6E7691">Common 70%</font>   <font color="#2F80E0">Rare 25%</font>   '
+					.. '<font color="#6E7691">Epic 4.5%</font>   <font color="#6E7691">Legendary 0.4%</font>   '
+					.. '<font color="#6E7691">Mythical 0.1%</font>'
+			)
+		end)
+
+		it("shows every food's five rarities in order, adding up to 100, the same as the plain line", function()
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			) :: any
+			local wrong: { string } = {}
+			for _, lure in Catalog.lures do
+				local plain = FoodOdds.rich(lure.odds, hexOf):gsub("<[^>]+>", "")
+				local order: { string } = {}
+				local sum = 0
+				for rarity, share in plain:gmatch("(%a+) ([%d%.]+)%%") do
+					sum += tonumber(share) :: number
+					table.insert(order, rarity :: string)
+				end
+				if table.concat(order, ",") ~= table.concat(Catalog.rarityOrder, ",") or math.abs(sum - 100) > 0.025 then
+					table.insert(wrong, lure.id .. ": " .. plain)
+				end
+			end
+			expect(wrong).to.deepEqual({})
+		end)
+
+		it("says the odds are not set rather than showing none", function()
+			expect(FoodOdds.rich(nil, hexOf)).to.equal("Odds: not set")
+		end)
+	end)
+
 	describe("FoodOdds.extras", function()
 		it("shows the shiny chance and the five charm star odds the server rolls with (QA)", function()
 			local Config = require(

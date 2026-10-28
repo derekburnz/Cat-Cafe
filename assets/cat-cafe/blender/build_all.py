@@ -54,6 +54,7 @@ import poses  # noqa: E402
 import props  # noqa: E402
 import rbx_export  # noqa: E402
 import sewer  # noqa: E402
+import spinwheel  # noqa: E402
 import stations  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
@@ -61,7 +62,7 @@ import woods  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
-           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer]
+           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel]
 
 PIVOT_NOTES = {
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
@@ -306,6 +307,8 @@ def main():
             extra = {"attributes": {"Area": boards.AREA_OF[name]}}
         if name == "CatCafe_Street_CodesCat":     # the prompt's spot, and the cap rides the cat's Head
             extra = {"attachments": [stations.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Street_SpinWheel":    # the Spin prompt's spot; the host's hat rides its Head, its outfit its Body
+            extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)

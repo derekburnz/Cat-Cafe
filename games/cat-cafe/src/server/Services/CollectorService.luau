@@ -215,7 +215,7 @@ local function wantedAt(player: Player, plot: WorldBuilder.Plot): Types.CatInsta
 	if Economy.incomePerSecond(profile) <= 0 or tables < 1 then
 		return nil
 	end
-	return Collector.pickCat(profile.cats, roll)
+	return Collector.pickCat(profile.cats, roll, profile.tier)
 end
 
 -- By day only, before the last DuskWarningSeconds: each eligible cafe without a visit rolls CollectorChance.
@@ -321,7 +321,9 @@ function CollectorService.debugArrive(
 	if plot == nil or profile == nil then
 		return nil, nil
 	end
-	local instance = if uid ~= nil then profile.cats[uid] else Collector.pickCat(profile.cats, roll)
+	local instance = if uid ~= nil
+		then profile.cats[uid]
+		else Collector.pickCat(profile.cats, roll, profile.tier)
 	if instance == nil or not Collector.askable(instance) then
 		return nil, nil
 	end

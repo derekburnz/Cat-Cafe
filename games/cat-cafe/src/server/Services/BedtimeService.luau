@@ -247,7 +247,7 @@ local function workers(
 			models[instance.uid] = child :: Model
 		end
 	end
-	table.sort(list, CatStats.isBetter)
+	table.sort(list, CatStats.betterFor(profile.tier))
 	return list, models
 end
 

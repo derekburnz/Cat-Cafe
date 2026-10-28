@@ -449,12 +449,11 @@ Layout.alley = {
 		{ x1 = -AO - 1, z1 = GH, x2 = -AO, z2 = AN + 1 },
 		{ x1 = AO, z1 = AS - 1, x2 = AO + 1, z2 = -GH },
 		{ x1 = AO, z1 = GH, x2 = AO + 1, z2 = AN + 1 },
-		-- the end walls, carried on to the Park's and the Neighbourhood's side walls so the town is closed between
-		-- them (the area walls are 1 thick on their edges)
+		-- the south end walls, carried on to the Park's side walls so the town is closed between them (the area walls
+		-- are 1 thick on their edges). The Neighbourhood's near wall reaches past both back alleys since v3.2 (280
+		-- wide), so it closes their north ends itself.
 		{ x1 = -AO, z1 = AS - 1, x2 = -W.ParkWidth / 2 - 0.5, z2 = AS },
 		{ x1 = W.ParkWidth / 2 + 0.5, z1 = AS - 1, x2 = AO, z2 = AS },
-		{ x1 = -AO, z1 = AN, x2 = -W.NeighbourhoodWidth / 2 - 0.5, z2 = AN + 1 },
-		{ x1 = W.NeighbourhoodWidth / 2 + 0.5, z1 = AN, x2 = AO, z2 = AN + 1 },
 	},
 	-- Strays keep off the strip along the outer walls where the building backs, fire escapes and crate stacks stand
 	-- (up to 5 studs deep), 4 off the south end walls (a staff door) and 6 off the north ones, clear of the east
@@ -661,81 +660,114 @@ Layout.park = {
 } :: AreaSpec
 
 -- Areas 3 to 5 have their kit sets (Model-Agent #401, area-sets.md): the strays' spawn points are the sets' cat
--- spots and the Woods' and Sewer's traps are built into the sets. The graybox paths and props below stand in only
--- while a set's art is missing. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the street's north end,
--- the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
+-- spots and their traps are built into the sets. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the
+-- street's north end, the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
+--
+-- The Neighbourhood at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Neighbourhood_SetV32
+-- (#505, area-sets.md "The Neighbourhood (v3.2)") fills the 280 x 280 floor behind the same gate. Whisker Lane winds
+-- round two blocks of houses, each with one gap, past the village green to the playground hub, and Paw Crescent loops
+-- round the far third to the corner shop, with the back gardens and the allotments behind it. Its cat spots are `near`
+-- on the gate half and `deep` on the far half; its two sheds and two gutters are built into it, one of each deep.
 local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
-local NHW, NHD = W.NeighbourhoodWidth / 2, W.NeighbourhoodDepth / 2
--- The Neighbourhood (areas-and-stations.md, design #240): the gate opens onto Whisker Lane, which runs 58 studs
--- north to a square loop road around the playground hub; five houses ring the loop and two back gardens sit in the
--- far corners. Offsets below are from the area's center.
-local HUB = 18 -- the hub's center, north of the area's center
-local LOOP, ROAD = 30, 8 -- the loop road's outer half size and its width
-local LS, LN = NZ + HUB - LOOP, NZ + HUB + LOOP -- the loop's south and north edges
 local NTURN = townTurn(NX, NZ, nil, W.NeighbourhoodGateZ)
 Layout.neighbourhood = {
 	floorY = 0.1,
 	center = { x = NX, y = 0, z = NZ },
-	halfWidth = NHW,
-	halfDepth = NHD,
+	halfWidth = W.NeighbourhoodWidth / 2,
+	halfDepth = W.NeighbourhoodDepth / 2,
 	gateZ = W.NeighbourhoodGateZ,
-	paths = {
-		{ x1 = NX - 5, z1 = NZ - NHD, x2 = NX + 5, z2 = LS }, -- Whisker Lane
-		{ x1 = NX - LOOP, z1 = LS, x2 = NX + LOOP, z2 = LS + ROAD }, -- the loop, south
-		{ x1 = NX - LOOP, z1 = LN - ROAD, x2 = NX + LOOP, z2 = LN }, -- north
-		{ x1 = NX - LOOP, z1 = LS + ROAD, x2 = NX - LOOP + ROAD, z2 = LN - ROAD }, -- west
-		{ x1 = NX + LOOP - ROAD, z1 = LS + ROAD, x2 = NX + LOOP, z2 = LN - ROAD }, -- east
-	},
-	set = "CatCafe_Neighbourhood_Set",
-	-- The set's cat spots, all but the shed (the trap) and the three flower beds under 4 studs from their porches.
-	spawnPoints = setPoints(NX, NZ, NTURN, 0.1, {
-		-- porch steps
-		{ 19.6, 1.0, -58.8 },
-		{ -19.6, 1.0, -53.2 },
-		{ 19.6, 1.0, -33.3 },
-		{ -19.6, 1.0, -23.2 },
-		{ 7.3, 1.0, 54.6 },
-		{ -24.71, 1.0, 44.39 },
-		{ 28.3, 1.0, 40.1 },
-		{ -34.56, 1.0, 16.75 },
-		{ 32.81, 1.0, 6.8 },
-		-- flower beds
-		{ 16.3, 0.7, -62.5 },
-		{ -16.3, 0.7, -49.5 },
-		{ -16.3, 0.7, -19.5 },
-		{ -19.8, 0.7, 45.1 },
-		{ 28.16, 0.7, 35.14 },
-		{ -31.95, 0.7, 20.97 },
-		-- the hub: the tyre, under the slide, the sandpit
-		{ -7.65, 0.32, 24.1 },
-		{ 9.68, 0.32, 23.12 },
-		{ 8.39, 0.87, 12.97 },
-		-- the back gardens
-		{ -60.5, 1.73, 58 },
-		{ 58, 0, 56 },
-		-- driveways, the bins and the ice cream van
-		{ -18, 0, -41.5 },
-		{ 16, 0, -41.5 },
-		{ -16, 0, -11.5 },
-		{ 16, 0, -11.5 },
-		{ -30.6, 0.3, -12.5 },
-		{ -22.41, 0.24, 14.08 },
-	}),
+	set = "CatCafe_Neighbourhood_SetV32",
+	spawnPoints = (function(): { Point }
+		local points = setPoints(NX, NZ, NTURN, 0.1, {
+			{ -110.2, 1, -98.9 }, -- porch steps
+			{ -58.2, 1, -98.9 },
+			{ -1.7, 1, -98.9 },
+			{ 77.8, 1, -98.9 },
+			{ -89.8, 1, -59.1 },
+			{ -11.8, 1, -59.1 },
+			{ 14.2, 1, -59.1 },
+			{ 98.2, 1, -59.1 },
+			{ -98.2, 1, -32.9 },
+			{ 16.3, 1, -32.9 },
+			{ 63.8, 1, -32.9 },
+			{ 120.3, 1, -32.9 },
+			{ -77.5, 0.7, -102.2 }, -- flower beds
+			{ 23.5, 0.7, -102.2 },
+			{ 110.5, 0.7, -102.2 },
+			{ -122.5, 0.7, -55.8 },
+			{ -67.5, 0.7, -55.8 },
+			{ 68.5, 0.7, -55.8 },
+			{ -10.5, 0.7, -36.2 },
+			{ 93.5, 0.7, -36.2 },
+			{ 120, 0, -92 }, -- a front garden
+			{ -121.5, 0.29, -35 }, -- the parked cars
+			{ 73, 0.34, -119.2 },
+			{ -40, 1.65, -124.4 }, -- the bus stop
+			{ 16.2, 0, -128 }, -- the post box
+			{ 62, 0, -123.6 }, -- the verge benches
+			{ -78, 0, -123.6 },
+			{ -24, 0, -100.8 }, -- the bins
+		}, "near")
+		for _, point in
+			setPoints(NX, NZ, NTURN, 0.1, {
+				{ -59.1, 1, 12.8 }, -- porch steps
+				{ -59.1, 1, 48.8 },
+				{ 31.1, 1, 48.7 },
+				{ -53.88, 1, 92.28 },
+				{ -36.9, 1, 108.96 },
+				{ 29.34, 1, 82.79 },
+				{ 14.76, 0.7, 101.02 }, -- flower beds
+				{ -8, 0.62, 34 },
+				{ -78, 0, 132 }, -- a front garden
+				{ -27.5, 0.3, 110.8 }, -- the corner shop: its bench
+				{ -14, 0.4, 116.1 }, -- its step
+				{ -23, 0.3, 112.9 }, -- its fruit stall
+				{ -16.89, 0, 73.44 }, -- the playground: the tyre swing
+				{ -25.3, 4, 76.95 }, -- the slide's deck
+				{ -16, 0, 53.5 }, -- the swings
+				{ -0.61, 0.55, 65.97 }, -- the sandpit
+				{ -25, 0.72, 63 }, -- the roundabout
+				{ -5.25, 0, 79.7 }, -- the seesaw
+				{ -23.5, 0, 26.5 }, -- the village green: the oak
+				{ 1.31, 0, 18.06 }, -- a picnic table
+				{ -31, 0, 18.14 }, -- a bench
+				{ 26.6, 0.24, 40 }, -- the ice cream van
+				{ -118, 1.73, 14 }, -- the back gardens: the trampoline
+				{ -108, 0, 31.5 }, -- the washing line
+				{ -84, 0, 0.5 }, -- a deckchair
+				{ -80.5, 0, 21 }, -- the gnomes
+				{ -118, 0, 57 }, -- the paddling pool
+				{ -111.31, 0, 86.82 }, -- the playhouse
+				{ -77.6, 0, 70 }, -- a bench
+				{ -101.5, 0, 54 }, -- the bird bath
+				{ -118, 0.52, 120.5 }, -- the greenhouses
+				{ 101.4, 0.52, 80 },
+				{ 46.4, 0.6, 117 }, -- the allotments: the veg beds
+				{ 102.4, 0.6, 99 },
+				{ 64.4, 0.6, 59 },
+				{ 108.4, 0.6, 18 },
+				{ 80.5, 0, 74.5 }, -- the water butt
+				{ 57.5, 0, 96 }, -- the scarecrow
+				{ 47.5, 0, 70 }, -- the compost bins
+				{ 93.6, 0, 25.4 }, -- the potting bench
+				{ 44.5, 0, 24 }, -- the sunflowers
+				{ 96, 0, 130.4 }, -- a bench
+				{ 122, 0, 88 }, -- the plots
+				{ 60, 0, 4 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
 	rescueSpots = {
-		-- The set's jammed shed door, and the gutter's stand-in drainpipe in front of the far gardens' hedge.
-		setTrap(NX, NZ, NTURN, "shed", { 59.2, 0, 40 }),
-		{ prop = "CatCafe_Alley_Drainpipe", trap = "gutter", x = NX + 16, z = NZ + 62 },
+		-- a shed's door and a gutter's drainpipe face the piece's -Z; the gutters are on house corners, 7 up
+		setTrap(NX, NZ, NTURN, "shed", { 126.4, 0, -89.3 }),
+		setTrap(NX, NZ, NTURN, "shed", { 85.3, 0, 83.4 }, -90),
+		setTrap(NX, NZ, NTURN, "gutter", { -53.4, 7.05, -60.5 }, 180),
+		setTrap(NX, NZ, NTURN, "gutter", { 5.7, 7.05, 112.8 }, 34),
 	},
-	props = {
-		{ asset = "CatCafe_Alley_StreetLamp", x = NX - 16, z = NZ - NHD + 3 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = NX + 16, z = NZ - NHD + 3 },
-		{ asset = "CatCafe_Alley_TrashCan", x = NX - 40, z = NZ - 60 }, -- the recycling bins
-		{ asset = "CatCafe_Alley_Crate", x = NX + 40, z = NZ - 60 },
-		{ asset = "CatCafe_Park_Tree", x = NX, z = NZ + HUB }, -- the big oak in the hub
-		{ asset = "CatCafe_Park_Tree", x = NX - 56, z = NZ + 20 },
-		{ asset = "CatCafe_Park_Tree", x = NX + 56, z = NZ + 20 },
-		{ asset = "CatCafe_Park_Bench", x = NX - 14, z = NZ + 6, rotY = 90 },
-	},
+	props = {},
 } :: AreaSpec
 
 -- The Woods at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Woods_SetV32 (#470, area-sets.md

@@ -330,12 +330,11 @@ local Config = {
 		SewerDepth = 180,
 		SewerGateX = 94,
 		SideGateHalfWidth = 12,
-		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger"), at the street's
-		-- north end since v3.1.
+		-- At the street's north end since v3.1; 280 x 280 behind the same gate since v3.2 (F81, 8e).
 		NeighbourhoodCenterX = 0,
-		NeighbourhoodCenterZ = 196,
-		NeighbourhoodWidth = 140,
-		NeighbourhoodDepth = 140,
+		NeighbourhoodCenterZ = 266,
+		NeighbourhoodWidth = 280,
+		NeighbourhoodDepth = 280,
 		NeighbourhoodGateZ = 125,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
 		-- this range of its camera, up to CustomersMax at once across the street.

@@ -2,10 +2,12 @@
 -- Decor screen: category chips across the top, a grid of cards below.
 -- A card shows cost, Place or Remove depending on what the player owns.
 -- F53 (golden-fish.md section 4): crate pieces the player owns join the grid under their kind's chip, with their
--- rarity and "+4% tips while in use". Between the chips and the grid a "Your cafe" strip shows the three style
--- slots (the wallpaper, floor and paint in use, or "Plain") and the decor spots ("2 / 4"); tapping one filters the
--- grid to that kind. A wallpaper, floor or paint card says "Use it" (it takes the place of the one in use) or "In
--- use"; furniture and decorations say Place, Remove or "Spots full". The server checks the spots too.
+-- rarity and "+4% tips while in use". Between the chips and the grid a "Your cafe" strip shows the style slots
+-- (the wallpaper, floor and paint in use, or "Plain"), the decor spots ("2 / 4"), then the door set and the cat flap
+-- in use (F80, golden-fish.md section 4b) once the catalog has any; it scrolls sideways when it does not fit, the
+-- next slot peeking at the edge. Tapping a slot filters the grid to that kind. A style card (wallpaper, floor, paint,
+-- door set, cat flap) says "Use it" (it takes the place of the one in use) or "Remove"; furniture and decorations
+-- say Place, Remove or "Spots full". The server checks the spots too.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -37,7 +39,10 @@ export type DecorShop = {
 local CARD = Vector2.new(164, 196)
 local CHIP_HEIGHT = 36
 local STRIP_HEIGHT = 58
-local SLOT_WIDTH = 168
+local SLOT_WIDTH = 150 -- four slots fit a full-width window with the fifth peeking, so the strip reads as scrollable
+-- the strip's slots left to right: the first four as before F80, then the door set and the cat flap
+local STRIP_ORDER = { "wallpaper", "floor", "paint", "spots", "door", "catflap" }
+local LATE_KINDS: { [string]: boolean } = { door = true, catflap = true } -- shown once the catalog has one
 local SPOTS_BY_TIER: { number } = Config.DecorSpots or DecorPieces.SPOTS_BY_TIER
 
 -- Placeholder art colour per category until the asset thread delivers images.
@@ -73,7 +78,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._callbacks = callbacks
 	self._cards = {} :: { [string]: any }
 	self._chips = {} :: { any }
-	self._slots = {} :: { any } -- the "Your cafe" strip's three style slots and the spots card
+	self._slots = {} :: { any } -- the "Your cafe" strip's style slots and the spots card
 	self._decor = {} :: { Types.DecorDef } -- Catalog.decor and Catalog.crateDecor
 	self._filter = "All"
 	self._catalog = nil :: Types.Catalog?
@@ -198,7 +203,8 @@ function DecorShop._applyVisible(self: any)
 	self._hint.Visible = shown == 0
 end
 
--- The strip's slots: Wallpaper, Floor and Paint (the piece in use, or "Plain"), then the decor spots.
+-- The strip's slots: Wallpaper, Floor and Paint (the piece in use, or "Plain"), the decor spots, then Door and Cat
+-- flap when the catalog has pieces of those kinds.
 function DecorShop._buildStrip(self: any)
 	for _, slot in self._slots do
 		slot.icon:destroy()
@@ -206,11 +212,19 @@ function DecorShop._buildStrip(self: any)
 		slot.frame:Destroy()
 	end
 	table.clear(self._slots)
-	local kinds: { string } = {}
-	for _, kind in DecorPieces.STYLE_KINDS do
-		table.insert(kinds, kind)
+	local present: { [string]: boolean } = {}
+	for _, def in self._decor do
+		local kind = DecorPieces.info(def).kind
+		if kind then
+			present[kind] = true
+		end
 	end
-	table.insert(kinds, "spots")
+	local kinds: { string } = {}
+	for _, kind in STRIP_ORDER do
+		if not LATE_KINDS[kind] or present[kind] then
+			table.insert(kinds, kind)
+		end
+	end
 	for order, kind in kinds do
 		local frame: TextButton = Create("TextButton", {
 			Name = kind,
@@ -589,8 +603,8 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 				else Theme.icons.lock .. " " .. label
 		end
 		if card.piece and DecorPieces.isStyle(card.kind) then
-			-- a wallpaper, floor or paint: one in use of each kind; Use it swaps it in, Remove brings back the plain
-			-- look (reviewer N171)
+			-- a wallpaper, floor, paint, door set or cat flap: one in use of each kind; Use it swaps it in, Remove
+			-- brings back the plain look or the cafe's own doors (reviewer N171)
 			card.mode = if isPlaced then "remove" else "use"
 			card.action:setText(if isPlaced then "Remove" else "Use it")
 			card.action:setStyle(if isPlaced then "ghost" else "primary")

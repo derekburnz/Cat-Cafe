@@ -1,6 +1,7 @@
 --!strict
 -- Crate cosmetics (F53, golden-fish.md section 4): what kind a piece is, which crate it comes from, the style slots
--- (one wallpaper, one floor and one paint in use) and the decor spots that furniture and decorations stand on, and
+-- (one wallpaper, floor, paint, door set and cat flap in use; the last two since F80, section 4b) and the decor
+-- spots that furniture and decorations stand on, and
 -- the Decor Index's pages (area ids "decor_alley" to "decor_classic"). A piece is a DecorDef with `crate` (its
 -- pool), `rarity` and `kind`; those are read loosely until SharedTypes.DecorDef has them. The crate pieces live in
 -- Catalog.crateDecor, and the five F48 Index pieces in Catalog.decor are their zones' Epics, so `all` reads both.
@@ -8,7 +9,7 @@
 
 local Types = require(script.Parent.Parent.Types)
 
-export type Kind = "wallpaper" | "floor" | "paint" | "furniture" | "decoration"
+export type Kind = "wallpaper" | "floor" | "paint" | "door" | "catflap" | "furniture" | "decoration"
 
 export type Piece = {
 	pool: string?, -- the crate's zone id or "classic"
@@ -19,8 +20,9 @@ export type Piece = {
 local DecorPieces = {}
 
 DecorPieces.AREA_PREFIX = "decor_" -- a Decor Index page's area id is this plus the pool
-DecorPieces.STYLE_KINDS = { "wallpaper", "floor", "paint" } :: { Kind }
-DecorPieces.KINDS = { "wallpaper", "floor", "paint", "furniture", "decoration" } :: { Kind }
+DecorPieces.STYLE_KINDS = { "wallpaper", "floor", "paint", "door", "catflap" } :: { Kind }
+DecorPieces.KINDS =
+	{ "wallpaper", "floor", "paint", "door", "catflap", "furniture", "decoration" } :: { Kind }
 DecorPieces.SPOTS_BY_TIER = { 2, 3, 4, 5, 6 } -- DecorSpots until Config has it
 DecorPieces.EXTRA_SPOT_PERK = "extra_decor_spot"
 
@@ -28,6 +30,8 @@ local KIND_INFO: { [string]: { name: string, icon: string } } = {
 	wallpaper = { name = "Wallpaper", icon = "🖼️" },
 	floor = { name = "Floor", icon = "🟫" },
 	paint = { name = "Paint", icon = "🎨" },
+	door = { name = "Door", icon = "🚪" }, -- a door set: the front and back door together (F80)
+	catflap = { name = "Cat flap", icon = "🐾" }, -- low in the back door (F80)
 	furniture = { name = "Furniture", icon = "🪑" },
 	decoration = { name = "Decoration", icon = "🪴" },
 }
@@ -81,9 +85,9 @@ function DecorPieces.isPiece(def: Types.DecorDef?): boolean
 	return DecorPieces.info(def).kind ~= nil
 end
 
--- Wallpaper, floor and paint: one of each in use at a time; the rest stand on decor spots.
+-- Wallpaper, floor, paint, door set and cat flap: one of each in use at a time; the rest stand on decor spots.
 function DecorPieces.isStyle(kind: string?): boolean
-	return kind == "wallpaper" or kind == "floor" or kind == "paint"
+	return kind ~= nil and table.find(DecorPieces.STYLE_KINDS, kind :: any) ~= nil
 end
 
 function DecorPieces.kindName(kind: string?): string

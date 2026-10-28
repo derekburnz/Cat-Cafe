@@ -87,6 +87,40 @@ return function()
 			expect(chances[7].percent).to.be.near(15)
 		end)
 
+		it("gives a 12 piece crate (F80) 12% a Common and 6.75% a Rare", function()
+			local rarity = {
+				brick = "Common",
+				tile = "Common",
+				red = "Common",
+				stools = "Common",
+				door = "Common",
+				puddle = "Rare",
+				graffiti = "Rare",
+				jars = "Rare",
+				flap = "Rare",
+				mural = "Epic",
+				jukebox = "Legendary",
+				sky = "Mythical",
+			}
+			local pieces = {}
+			for id in rarity do
+				table.insert(pieces, id)
+			end
+			table.sort(pieces)
+			local chances = MarketLogic.pieceChances(pieces, function(id: string)
+				return rarity[id]
+			end, ODDS)
+			expect(#chances).to.equal(12)
+			local byId: { [string]: number } = {}
+			for _, chance in chances do
+				byId[chance.id] = chance.percent
+			end
+			expect(byId.door).to.be.near(12)
+			expect(byId.flap).to.be.near(6.75)
+			expect(MarketLogic.percent(byId.flap)).to.equal("6.75%")
+			expect(MarketLogic.percent(byId.door)).to.equal("12%")
+		end)
+
 		it("leaves out the rarities the odds never give (N166)", function()
 			local rarity = { brick = "Common", puddle = "Rare", mural = "Epic", sky = "Mythical" }
 			local pieces = { "brick", "puddle", "mural", "sky" }

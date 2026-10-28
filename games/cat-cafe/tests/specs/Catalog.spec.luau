@@ -325,7 +325,11 @@ return function()
 				expect(def.area).to.equal(row[3])
 				expect(def.favoriteRole).to.equal(row[4])
 				expect(def.description).to.equal(row[5])
-				expect(def.incomePerSecond).to.equal(Catalog.rarities[def.rarity].incomePerSecond)
+				local area = Catalog.getArea(def.area)
+				assert(area)
+				expect(def.incomePerSecond).to.equal(
+					Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
+				)
 			end)
 		end
 
@@ -339,8 +343,10 @@ return function()
 					expect(def.rarity).to.equal(row[2])
 					expect(def.area).to.equal(row[3])
 					expect(def.favoriteRole).to.equal(row[4])
+					local area = Catalog.getArea(def.area)
+					assert(area, id)
 					expect(def.incomePerSecond).to.equal(
-						Catalog.rarities[def.rarity].incomePerSecond
+						Catalog.rarities[def.rarity].incomePerSecond * area.incomeMultiplier
 					)
 				end
 			end
@@ -940,7 +946,7 @@ return function()
 	end)
 
 	describe("areas (section 9)", function()
-		it("alley and park have the v0.3 odds and the tier that opens them", function()
+		it("alley and park have the alley's v0.3 odds (every area since v0.13.7) and the tier that opens them", function()
 			local alley = Catalog.getArea("alley")
 			local park = Catalog.getArea("park")
 			assert(alley and park)
@@ -956,11 +962,11 @@ return function()
 			expect(park.tier).to.equal(2)
 			expect(park.name).to.equal("Park")
 			expect(park.odds :: any).to.deepEqual({
-				Common = 60,
-				Rare = 28,
-				Epic = 9,
-				Legendary = 2.5,
-				Mythical = 0.5,
+				Common = 72,
+				Rare = 22,
+				Epic = 5,
+				Legendary = 0.9,
+				Mythical = 0.1,
 			})
 			expect((park :: any).unlock).never.to.be.ok()
 		end)
@@ -1011,15 +1017,16 @@ return function()
 		end)
 
 		it(
-			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5) and odds (F23)",
+			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
 			function()
-				-- id -> { name, tier, spawnPoints, odds, waveSize }
+				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
+				local same = { 72, 22, 5, 0.9, 0.1 }
 				local want = {
-					{ "alley", "Alleyway", 1, 24, { 72, 22, 5, 0.9, 0.1 }, 6 }, -- v0.4 layout: 24 spawn points
-					{ "park", "Park", 2, 14, { 60, 28, 9, 2.5, 0.5 }, 5 },
-					{ "neighbourhood", "Neighbourhood", 3, 26, { 50, 32, 13, 4, 1 }, 5 }, -- the kit set's cat spots (#401)
-					{ "woods", "Woods", 4, 17, { 42, 34, 17, 5.5, 1.5 }, 4 },
-					{ "sewer", "Sewer", 5, 20, { 35, 35, 20, 7.5, 2.5 }, 4 },
+					{ "alley", "Alleyway", 1, 24, same, 6, 1 }, -- v0.4 layout: 24 spawn points
+					{ "park", "Park", 2, 14, same, 5, 1.5 },
+					{ "neighbourhood", "Neighbourhood", 3, 26, same, 5, 2.25 }, -- the kit set's cat spots (#401)
+					{ "woods", "Woods", 4, 17, same, 4, 3.5 },
+					{ "sewer", "Sewer", 5, 20, same, 4, 5 },
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1029,6 +1036,7 @@ return function()
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
 					expect(def.waveSize).to.equal(row[6]) -- data-model 9 v0.13.5 (was 10 each)
+					expect(def.incomeMultiplier).to.equal(row[7])
 					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({
 						Common = odds[1],

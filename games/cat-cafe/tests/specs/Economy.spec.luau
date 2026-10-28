@@ -253,7 +253,7 @@ return function()
 
 		it("sums working cats and applies the cafe and tier multipliers once", function()
 			local p = freshProfile()
-			p.cats.b = cat("b", "snow", "waiter_1") -- favorite: 1.5
+			p.cats.b = cat("b", "tuxedo", "waiter_1") -- favorite: 1.5
 			p.cats.c = cat("c", "calico", nil) -- resting
 			p.upgradeLevels.tables = 2 -- x1.2
 			expect(Economy.incomePerSecond(p)).to.be.near((1.5 + 1.5) * 1.2)
@@ -591,7 +591,7 @@ return function()
 		)
 
 		it(
-			"Tier 2's 1,500 after the loop's purchases comes 10 to 20 minutes in (features section 8)",
+			"the v0.3 loop: Tier 2's old 1,500 after its purchases came 10 to 20 minutes in (features section 8; v0.13.6 prices are QA's to re-time)",
 			function()
 				-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second.
 				local spend = 100 + 250 + 400 + 25 + 1500 - Config.StartCoins

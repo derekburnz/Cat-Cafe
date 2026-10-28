@@ -130,7 +130,7 @@ return function()
 		it("fills open spots with favorites first and rests the overflow", function()
 			local profile = profileAt(1)
 			addCat(profile, "a", "tabby") -- loves barista
-			addCat(profile, "b", "snow") -- loves waiter
+			addCat(profile, "b", "tuxedo") -- loves waiter
 			addCat(profile, "c", "ginger") -- loves greeter (no greeter slot at Tier 1)
 			local plan = EquipBest.plan(profile)
 			expect(plan.placements.a).to.equal("barista_1")
@@ -145,12 +145,12 @@ return function()
 		end)
 
 		it("beats greedy-by-rating: a weaker cat on its favorite spot can be worth more", function()
-			-- Two perfect level 24 Tabbies (1.752 each, both love barista) and a perfect Snow (1.2, loves waiter).
-			-- Greedy makes a Tabby the Waiter for 1.752; the best plan makes Snow the Waiter for 1.8.
+			-- Two perfect level 24 Tabbies (1.752 each, both love barista) and a perfect Tuxedo (1.2, loves waiter).
+			-- Greedy makes a Tabby the Waiter for 1.752; the best plan makes the Tuxedo the Waiter for 1.8.
 			local profile = profileAt(1)
 			addCat(profile, "t1", "tabby", 100, 24)
 			addCat(profile, "t2", "tabby", 100, 24)
-			addCat(profile, "s", "snow", 100)
+			addCat(profile, "s", "tuxedo", 100)
 			local plan = EquipBest.plan(profile)
 			expect(plan.placements.s).to.equal("waiter_1")
 			expect(plan.placements.t1 == "barista_1" or plan.placements.t2 == "barista_1").to.equal(
@@ -205,7 +205,8 @@ return function()
 			-- Slots: three barista, three waiter, two greeter, two entertainer. Every slot can take a cat that
 			-- loves its role, so the best plan pays 1.5x everywhere and rests the weakest spare, Ginger:
 			-- barista Wizard 112.5 + Bandit 12 + Tabby 1.5, waiter Ninja 37.5 + Pirate 4.5 + Tuxedo 1.5, greeter
-			-- DJ 12 + Sleepy 12, entertainer Rocker 4.5 + Smoke 1.5 = 199.5.
+			-- DJ 12 + Sleepy 18 (a Park Epic: 8 x 1.5 for its area since v0.13.7, x 1.5), entertainer Rocker 4.5 +
+			-- Smoke 1.5 = 205.5.
 			local profile = profileAt(5)
 			for _, id in ipairs({
 				"tabby",
@@ -225,7 +226,7 @@ return function()
 			local plan = EquipBest.plan(profile)
 			expect(plan.spotsOpen).to.equal(10)
 			expect(plan.catsPlaced).to.equal(10)
-			expect(plan.baseRate).to.be.near(199.5, 1e-9)
+			expect(plan.baseRate).to.be.near(205.5, 1e-9)
 			expect(plan.placements.ginger).never.to.be.ok()
 			for uid, spotId in pairs(plan.placements) do
 				local spot = Catalog.getSpot(spotId)

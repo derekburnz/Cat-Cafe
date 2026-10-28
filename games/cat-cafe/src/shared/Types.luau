@@ -236,6 +236,7 @@ export type AreaDef = {
 	waveSize: number, -- strays spawned at once at each night start
 	rescueSpots: number,
 	odds: LureOdds,
+	incomeMultiplier: number, -- a cat from here earns its rarity's income times this (data-model v0.13.7)
 }
 
 export type SpotDef = {

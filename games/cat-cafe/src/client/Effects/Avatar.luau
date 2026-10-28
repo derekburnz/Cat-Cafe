@@ -2,7 +2,9 @@
 -- A player character's tackle poses (design v0.11, F74; Derek 2026-10-27: the Shove becomes a Tackle): the dive, the
 -- stumble to a stop after a hit, the belly slide and get up after a miss, and a tackled player's fall and get up.
 -- `Avatar.at` says which pose a character is in at a moment from its tackle times, `Avatar.bind` reads an R15 rig's
--- joints and `Avatar.solve` turns a pose into Motor6D Transforms, lowered so the lowest part rests on the floor.
+-- joints and `Avatar.solve` turns a pose into joint Transforms, lowered so the lowest part rests on the floor. An R15
+-- or R6 character, with Motor6D joints or the newer AnimationConstraint ones; R6 has no waist, elbows or knees, so
+-- those parts of a pose are left out on it.
 -- No services and nothing written: Tackle.luau applies the Transforms every frame, and the preview tool
 -- (assets/cat-cafe/anim/preview) runs these same functions outside Roblox.
 
@@ -49,19 +51,24 @@ export type Timing = {
 	down: number,
 }
 
+-- A joint the Animator drives: a Motor6D, or an AnimationConstraint on avatars with the newer joints. Both take a
+-- Transform between the parent part's joint frame and the child's.
+export type Joint = Motor6D | AnimationConstraint
+
 type Link = {
-	motor: Motor6D,
+	motor: Joint,
 	parent: BasePart,
 	part: BasePart,
-	c0: CFrame,
-	c1: CFrame, -- C1:Inverse()
+	c0: CFrame, -- the joint's frame in the parent part (C0, or Attachment0's CFrame)
+	c1: CFrame, -- and the inverse of its frame in the child part
 	size: Vector3,
 }
 
 export type Rig = {
 	root: BasePart, -- HumanoidRootPart
-	joints: { [string]: Motor6D }, -- the posed R15 joints by name
-	links: { Link }, -- every Motor6D out from the root, parents first
+	joints: { [string]: Joint }, -- the posed joints by their R15 name (an R6 rig has fewer)
+	axes: { [string]: CFrame }, -- each posed joint's frame in its parent part, turned only
+	links: { Link }, -- every joint out from the root, parents first
 	restLow: number, -- the lowest point standing, in the root's frame
 }
 
@@ -82,19 +89,28 @@ local FIELDS = {
 	"knL",
 	"knR",
 }
--- The R15 joints a pose moves (each Motor6D sits in the child part and is named after the joint).
-local JOINTS: { [string]: string } = {
-	Root = "LowerTorso",
-	Waist = "UpperTorso",
-	Neck = "Head",
-	LeftShoulder = "LeftUpperArm",
-	RightShoulder = "RightUpperArm",
-	LeftElbow = "LeftLowerArm",
-	RightElbow = "RightLowerArm",
-	LeftHip = "LeftUpperLeg",
-	RightHip = "RightUpperLeg",
-	LeftKnee = "LeftLowerLeg",
-	RightKnee = "RightLowerLeg",
+-- The joints a pose moves, by the parts each joins (parent, child): found that way rather than by the joint's own
+-- name or class, which differ between rigs.
+local R15: { [string]: { string } } = {
+	Root = { "HumanoidRootPart", "LowerTorso" },
+	Waist = { "LowerTorso", "UpperTorso" },
+	Neck = { "UpperTorso", "Head" },
+	LeftShoulder = { "UpperTorso", "LeftUpperArm" },
+	RightShoulder = { "UpperTorso", "RightUpperArm" },
+	LeftElbow = { "LeftUpperArm", "LeftLowerArm" },
+	RightElbow = { "RightUpperArm", "RightLowerArm" },
+	LeftHip = { "LowerTorso", "LeftUpperLeg" },
+	RightHip = { "LowerTorso", "RightUpperLeg" },
+	LeftKnee = { "LeftUpperLeg", "LeftLowerLeg" },
+	RightKnee = { "RightUpperLeg", "RightLowerLeg" },
+}
+local R6: { [string]: { string } } = {
+	Root = { "HumanoidRootPart", "Torso" },
+	Neck = { "Torso", "Head" },
+	LeftShoulder = { "Torso", "Left Arm" },
+	RightShoulder = { "Torso", "Right Arm" },
+	LeftHip = { "Torso", "Left Leg" },
+	RightHip = { "Torso", "Right Leg" },
 }
 
 -- A full pose from a Presets.tacklePose key: `sh`, `sp`, `el`, `hip` and `kn` set both sides, the L and R keys one.
@@ -311,22 +327,43 @@ function Avatar.at(times: Times, now: number, timing: Timing): (Pose?, number, n
 	return Avatar.landing(now - held), weight(tackleAt, math.huge), tackleAt, held
 end
 
--- Every Motor6D under an R15 character, out from its HumanoidRootPart; nil for anything else (an R6 character has
--- no LowerTorso Root joint and keeps its own animation).
+-- One joint's parts and frames: a Motor6D's Part0, Part1, C0 and C1, or an AnimationConstraint's attachments.
+local function jointParts(joint: Instance): (BasePart?, BasePart?, CFrame, CFrame)
+	if joint:IsA("Motor6D") then
+		local motor = joint :: Motor6D
+		return motor.Part0, motor.Part1, motor.C0, motor.C1
+	elseif joint:IsA("AnimationConstraint") then
+		local constraint = joint :: AnimationConstraint
+		local a0, a1 = constraint.Attachment0, constraint.Attachment1
+		if a0 ~= nil and a1 ~= nil then
+			local p0, p1 = a0.Parent, a1.Parent
+			if p0 ~= nil and p0:IsA("BasePart") and p1 ~= nil and p1:IsA("BasePart") then
+				return p0 :: BasePart, p1 :: BasePart, a0.CFrame, a1.CFrame
+			end
+		end
+	end
+	return nil, nil, CFrame.identity, CFrame.identity
+end
+
+-- Every joint under a character, out from its HumanoidRootPart, and the ones a pose moves; nil when it has no root
+-- joint yet (still loading) or is neither an R15 nor an R6 rig.
 function Avatar.bind(character: Model): Rig?
 	local root = character:FindFirstChild("HumanoidRootPart")
-	local lower = character:FindFirstChild("LowerTorso")
-	if root == nil or not root:IsA("BasePart") or lower == nil then
+	if root == nil or not root:IsA("BasePart") then
 		return nil
 	end
-	local byParent: { [BasePart]: { Motor6D } } = {}
+	-- the joints out of each part; an AnimationConstraint first, so it wins over a Motor6D left beside it
+	local byParent: { [BasePart]: { { joint: Joint, child: BasePart, c0: CFrame, c1: CFrame } } } =
+		{}
 	for _, descendant in character:GetDescendants() do
-		if descendant:IsA("Motor6D") then
-			local motor = descendant :: Motor6D
-			local part0, part1 = motor.Part0, motor.Part1
+		local isMotor = descendant:IsA("Motor6D")
+		if isMotor or descendant:IsA("AnimationConstraint") then
+			local part0, part1, c0, c1 = jointParts(descendant)
 			if part0 ~= nil and part1 ~= nil then
 				local list = byParent[part0] or {}
-				table.insert(list, motor)
+				local entry =
+					{ joint = (descendant :: any) :: Joint, child = part1, c0 = c0, c1 = c1 }
+				table.insert(list, if isMotor then #list + 1 else 1, entry)
 				byParent[part0] = list
 			end
 		end
@@ -338,45 +375,51 @@ function Avatar.bind(character: Model): Rig?
 	while head <= #queue do
 		local part = queue[head]
 		head += 1
-		local motors = byParent[part]
-		if motors == nil then
+		local found = byParent[part]
+		if found == nil then
 			continue
 		end
-		for _, motor in motors do
-			local child = motor.Part1 :: BasePart
+		for _, entry in found do
+			local child = entry.child
 			if not seen[child] then
 				seen[child] = true
 				table.insert(queue, child)
 				table.insert(links, {
-					motor = motor,
+					motor = entry.joint,
 					parent = part,
 					part = child,
-					c0 = motor.C0,
-					c1 = motor.C1:Inverse(),
+					c0 = entry.c0,
+					c1 = entry.c1:Inverse(),
 					size = child.Size,
 				})
 			end
 		end
 	end
-	local joints: { [string]: Motor6D } = {}
-	for name, partName in JOINTS do
-		local part = character:FindFirstChild(partName)
-		local motor = if part ~= nil then part:FindFirstChild(name) else nil
-		if motor ~= nil and motor:IsA("Motor6D") then
-			joints[name] = motor :: Motor6D
+	local names: { [string]: { string } } = if character:FindFirstChild("LowerTorso") ~= nil
+		then R15
+		else R6
+	local joints: { [string]: Joint } = {}
+	local axes: { [string]: CFrame } = {}
+	for name, pair in names do
+		for _, link in links do
+			if link.parent.Name == pair[1] and link.part.Name == pair[2] then
+				joints[name] = link.motor
+				axes[name] = link.c0.Rotation
+				break
+			end
 		end
 	end
-	local rootJoint: Motor6D? = joints.Root
-	if rootJoint == nil then
+	if joints.Root == nil then
 		return nil
 	end
-	local rig: Rig = { root = root :: BasePart, joints = joints, links = links, restLow = 0 }
+	local rig: Rig =
+		{ root = root :: BasePart, joints = joints, axes = axes, links = links, restLow = 0 }
 	rig.restLow = Avatar.lowest(rig, {})
 	return rig
 end
 
 -- The lowest point of the rig's parts in the root's frame, with these Transforms (the rest pose where none).
-function Avatar.lowest(rig: Rig, transforms: { [Motor6D]: CFrame }): number
+function Avatar.lowest(rig: Rig, transforms: { [Joint]: CFrame }): number
 	local at: { [BasePart]: CFrame } = { [rig.root] = CFrame.identity }
 	local low = math.huge
 	for _, link in rig.links do
@@ -396,13 +439,15 @@ function Avatar.lowest(rig: Rig, transforms: { [Motor6D]: CFrame }): number
 end
 
 -- The Transforms that put the rig in `pose`, its lowest part `pose.air` studs above where its feet rest standing.
-function Avatar.solve(rig: Rig, pose: Pose): { [Motor6D]: CFrame }
-	local out: { [Motor6D]: CFrame } = {}
+function Avatar.solve(rig: Rig, pose: Pose): { [Joint]: CFrame }
+	local out: { [Joint]: CFrame } = {}
 	local j = rig.joints
+	-- a turn given in the character's axes, put into the joint's own (an R15 joint's are the same; an R6 one's are not)
 	local function set(name: string, frame: CFrame)
-		local motor: Motor6D? = j[name]
-		if motor ~= nil then
-			out[motor] = frame
+		local motor: Joint? = j[name]
+		local axes: CFrame? = rig.axes[name]
+		if motor ~= nil and axes ~= nil then
+			out[motor] = axes:Inverse() * frame * axes
 		end
 	end
 	local rad = math.rad
@@ -421,7 +466,8 @@ function Avatar.solve(rig: Rig, pose: Pose): { [Motor6D]: CFrame }
 	-- Down (or up) so the lowest part sits `air` above the floor; the drop is along the root's up, in Root's C0 axes.
 	local drop = rig.restLow + pose.air - Avatar.lowest(rig, out)
 	local root = j.Root
-	out[root] = CFrame.new(root.C0.Rotation:Inverse() * Vector3.new(0, drop, 0)) * turn
+	local axes = rig.axes.Root
+	out[root] = CFrame.new(axes:Inverse() * Vector3.new(0, drop, 0)) * out[root]
 	return out
 end
 

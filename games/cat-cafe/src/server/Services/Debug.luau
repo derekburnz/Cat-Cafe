@@ -22,6 +22,7 @@
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
 --   D:Invoke("potionLeft", nil, "tip_potion", 30)   -- the running Tip Potion has 30 s left (0 ends it)
 --   D:Invoke("mystery", nil, "potion")  -- a Mystery Visitor sits down at your cafe now, its gift of that kind (F64)
+--   D:Invoke("collector", nil, nil, 1)  -- the Cat Collector at your counter now, his value roll at its best (F63)
 --   D:Invoke("intro")                  -- the intro plays again on your next respawn or rejoin, as for a new player (F72)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
@@ -37,6 +38,7 @@ local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local CodeService = require(script.Parent.CodeService)
+local CollectorService = require(script.Parent.CollectorService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -219,6 +221,20 @@ function Debug.mystery(player: (Player | number | string)?, kind: string?): stri
 	local gift = MysteryService.debugArrive(resolve(player), kind)
 	return if gift ~= nil
 		then string.format("%s %s x%d", gift.kind, gift.id or "", gift.count)
+		else ""
+end
+
+-- The Cat Collector arrives at the player's cafe now, whatever the clock and the roll (F63): asking for the cat `uid`
+-- when given (resting and unlocked), else his own pick, with his value roll forced to `valueRoll` (0 for his lowest
+-- offer for that cat, 1 for his best) when given. Returns "<uid> <value>", or "" without a cafe or an askable cat.
+function Debug.collector(
+	player: (Player | number | string)?,
+	uid: string?,
+	valueRoll: number?
+): string
+	local catUid, offer = CollectorService.debugArrive(resolve(player), uid, valueRoll)
+	return if catUid ~= nil and offer ~= nil
+		then string.format("%s %d", catUid, offer.value)
 		else ""
 end
 

@@ -1004,6 +1004,53 @@ local builders: { [string]: () -> Model } = {
 			},
 		})
 	end,
+	-- F63: the Cat Collector, a cat in a tweed coat with a magnifying glass standing at the counter (data-model 12b,
+	-- features.md asset list), until the asset thread's model lands. Pivot at his feet, front -Z.
+	CatCafe_NPC_Collector = function()
+		local tweed = Color3.fromRGB(122, 98, 70)
+		local fur = Color3.fromRGB(196, 160, 118)
+		return simple("CatCafe_NPC_Collector", {
+			{
+				name = "Coat",
+				size = Vector3.new(2, 3.6, 1.4),
+				offset = Vector3.new(0, 1.8, 0),
+				color = tweed,
+				material = Enum.Material.Fabric,
+			},
+			{
+				name = "Head",
+				size = Vector3.new(1.4, 1.3, 1.3),
+				offset = Vector3.new(0, 4.25, 0),
+				color = fur,
+			},
+			{
+				name = "EarL",
+				size = Vector3.new(0.3, 0.45, 0.2),
+				offset = Vector3.new(-0.42, 5.1, 0),
+				color = fur,
+			},
+			{
+				name = "EarR",
+				size = Vector3.new(0.3, 0.45, 0.2),
+				offset = Vector3.new(0.42, 5.1, 0),
+				color = fur,
+			},
+			{
+				name = "Lens",
+				size = Vector3.new(0.7, 0.7, 0.1),
+				offset = Vector3.new(0.9, 2.9, -0.95),
+				color = Color3.fromRGB(190, 225, 240),
+				transparency = 0.4,
+			},
+			{
+				name = "Handle",
+				size = Vector3.new(0.15, 0.8, 0.15),
+				offset = Vector3.new(0.9, 2.2, -0.95),
+				color = Color3.fromRGB(90, 60, 40),
+				material = Enum.Material.Wood,
+			},
+		})
+	end,
 	-- F64: the Mystery Visitor's wrapped gift, a box with a ribbon, resting on a table top (base-centred pivot)
 	CatCafe_Item_MysteryGift = function()
 		local ribbon = Color3.fromRGB(255, 214, 120)

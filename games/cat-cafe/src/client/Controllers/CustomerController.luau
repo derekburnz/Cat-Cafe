@@ -18,6 +18,8 @@
 -- MysteryVisitorUntil is ahead, a hooded visitor sits at the MysteryTable chair nearest the gift, and while
 -- MysteryGiftAt is set the wrapped gift sits on the plot's MysteryGiftAnchor. Both are models under the plot, tagged
 -- MysteryVisitor and MysteryGift for the puffs, sparkle and ribbon pop (Effects/Mystery); the server holds the gift.
+-- The Cat Collector (F63, data-model 12b) too: while CollectorUntil is ahead he stands on the plot's CollectorSpot by
+-- the counter, facing into the room, a model under the plot tagged CatCollector; the server holds his offer.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -48,7 +50,8 @@ local coinPiles: { [Model]: Model } = {} -- plot -> the coin pile on its RichTip
 -- A plot's Mystery Visitor (and the seat it holds) and gift while this client shows them (F64).
 type Mystery = { visitor: Model?, seat: BasePart?, gift: Model? }
 local mysteries: { [Model]: Mystery } = {}
-local watchedPlots: { [Model]: boolean } = {} -- plots whose Mystery attributes this client follows
+local watchedPlots: { [Model]: boolean } = {} -- plots whose Mystery and Collector attributes this client follows
+local collectors: { [Model]: Model } = {} -- plot -> the Cat Collector this client stands at its counter (F63)
 -- Tip piles (F61): the piles this client shows per plot, and the tables customers just left (newest last).
 type Pile = { model: Model, tableModel: Model, slot: number }
 local tipPiles: { [Model]: { Pile } } = {}
@@ -441,7 +444,8 @@ local function nearCamera(plot: Model): boolean
 			<= Config.World.CafeLifeRangeStuds
 end
 
--- A Mystery model from ReplicatedStorage.Assets at `at` under the plot, tagged for the effects; nil without it.
+-- A visitor's model (the Mystery Visitor, its gift, the Cat Collector) from ReplicatedStorage.Assets at `at` under the
+-- plot, tagged for the effects; nil without it.
 local function buildMystery(plot: Model, assetName: string, tag: string, at: CFrame): Model?
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local source = if assets ~= nil then assets:FindFirstChild(assetName) else nil
@@ -565,7 +569,36 @@ local function refreshMystery(plot: Model)
 	end
 end
 
--- Once a second: every plot's visitor and gift follow the attributes and the camera's range; a plot is also
+-- Stands or clears this plot's Cat Collector to match CollectorUntil now, while the plot is in the camera's range.
+local function refreshCollector(plot: Model)
+	local leaves = plot:GetAttribute("CollectorUntil")
+	local spot = plot:FindFirstChild("CollectorSpot")
+	local want = plot.Parent ~= nil
+		and nearCamera(plot)
+		and type(leaves) == "number"
+		and leaves > Workspace:GetServerTimeNow()
+		and spot ~= nil
+		and spot:IsA("BasePart")
+	local shown = collectors[plot]
+	if not want then
+		if shown then
+			shown:Destroy()
+			collectors[plot] = nil
+		end
+		return
+	end
+	if shown then
+		return
+	end
+	-- the spot's centre is on the floor, its front into the room: his feet go on it
+	local model =
+		buildMystery(plot, "CatCafe_NPC_Collector", "CatCollector", (spot :: BasePart).CFrame)
+	if model then
+		collectors[plot] = model
+	end
+end
+
+-- Once a second: every plot's visitors and gift follow the attributes and the camera's range; a plot is also
 -- followed at once when its attributes change, so an opened gift goes before its ribbon pop.
 local function updateMysteries()
 	local plots = plotsFolder()
@@ -584,8 +617,12 @@ local function updateMysteries()
 					refreshMystery(plot)
 				end)
 			end
+			plot:GetAttributeChangedSignal("CollectorUntil"):Connect(function()
+				refreshCollector(plot)
+			end)
 		end
 		refreshMystery(plot)
+		refreshCollector(plot)
 	end
 end
 
@@ -731,15 +768,17 @@ local function updatePiles()
 			local raw = plot:GetAttribute("TipPiles")
 			local count = if type(raw) == "number" then math.clamp(math.floor(raw), 0, 64) else 0
 			local shown = tipPiles[plot]
-			if count == 0 or not nearCamera(plot) then
-				if shown ~= nil and #shown > 0 and count == 0 and isOwnPlot(plot) then
-					local amount = tipAmounts[plot] or 0
-					if amount > 0 then
-						local above = shown[1].model:GetPivot().Position + Vector3.new(0, 2.5, 0)
-						UI.floatText(above, "+$" .. amount)
-						Moments.CoinPop:Fire(above)
-					end
+			-- your own piles going down is a collect: the server only ever takes them all, but a new pile can land
+			-- within the same quarter second (review N248), so float what the piles held before
+			if shown ~= nil and #shown > count and isOwnPlot(plot) then
+				local amount = tipAmounts[plot] or 0
+				if amount > 0 then
+					local above = shown[1].model:GetPivot().Position + Vector3.new(0, 2.5, 0)
+					UI.floatText(above, "+$" .. amount)
+					Moments.CoinPop:Fire(above)
 				end
+			end
+			if count == 0 or not nearCamera(plot) then
 				clearPiles(plot)
 				continue
 			end

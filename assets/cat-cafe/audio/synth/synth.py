@@ -1001,6 +1001,21 @@ def jingle_daily_card() -> np.ndarray:
     return finish(fade_tail(mix(d, (stamp_thunk(421), 0.0), *tune, *vibes, *pads, *bass, *sparkle), 0.9), -4)
 
 
+# --- 2026-10-28: water underfoot (sound list 5.9) -----------------------------------------------------
+
+
+def water_step() -> np.ndarray:
+    """A foot in a puddle or the pond (Derek's splashes, VFX Splash): a soft slosh with a little drip on top, short
+    and quiet, since it plays on every step through water. Played a little higher or lower each time."""
+    d = 0.32
+    t = seconds(d)
+    slosh = bandpass(bandpass(noise(d, 430), 1400 - 700 * np.clip(t / 0.12, 0, 1), 1.1), 1100, 0.9)
+    slosh *= envelope(d, 0.006, 0.045)
+    body = glide(d, 240, 150, 0.06) * envelope(d, 0.004, 0.03) * 0.35
+    drip = glide(0.12, 700, 1250, 0.03) * envelope(0.12, 0.001, 0.018) * 0.3
+    return finish(fade_tail(mix(d, (slosh / np.max(np.abs(slosh)), 0.0), (body, 0.0), (drip, 0.07)), 0.08), -6)
+
+
 def purr_loop(seed: int, rate: float, out_s: float, in_s: float) -> np.ndarray:
     """A cat's purr over exactly one breath out and one breath in, so it loops. A purr is a fast train of tiny
     clicks (the voice box opening and closing about 25 times a second) heard through the mouth and nose, louder
@@ -1123,6 +1138,7 @@ SOUNDS = {
     "CatLevelUp": ("sfx", "Sfx", cat_level_up),
     "DailyStamp": ("ui", "Ui", ui_daily_stamp),
     "JingleDailyCard": ("music", "Music", jingle_daily_card),
+    "WaterStep": ("sfx", "Sfx", water_step),
 }
 
 

@@ -60,7 +60,7 @@ PRIORITY = (
     "duskBell", "stingDusk", "stingDawn", "catPickUp", "getaway", "announceMythical", "tipPile", "richArrive", "richTip",
     "uiCodeRedeem", "visitorCollector", "uiTrade", "visitorMystery", "giftOpen", "potionDrink",
     "musicDayA", "musicNightA", "musicDayB", "tackleLunge", "tackleMiss", "catLevelUp",
-    "uiDailyStamp", "jingleDailyCard",
+    "uiDailyStamp", "jingleDailyCard", "waterStep",
 )
 
 

@@ -365,6 +365,15 @@ local Cues: { [string]: Cue } = {
 		volume = 0.6,
 		minGap = 0.5,
 	}, -- fast travel and My Cafe
+	waterStep = {
+		ids = { "rbxassetid://74478489900689" },
+		group = "Sfx",
+		volume = 0.3,
+		pitch = { 0.9, 1.12 },
+		minGap = 0.1,
+		range = 30,
+		voices = 3,
+	}, -- a player's step through water (Effects.Splash), quiet; cats' steps stay silent
 
 	-- Rewards (5.10) ----------------------------------------------------------------------------------------
 	giftClaim = {

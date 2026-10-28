@@ -2,7 +2,7 @@
 
 Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat-cafe/audio`. Do not edit by hand; rerun the script. Budgets: audio-pipeline section 5. PASS means measured clean, not that it sounds right: Derek or Gavin still listens.
 
-77 files: 77 PASS, 0 WARN, 0 FAIL.
+78 files: 78 PASS, 0 WARN, 0 FAIL.
 
 | file | kind | s | ch | Hz | KB | LUFS | peak dBTP | lead ms | seam | verdict | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -61,6 +61,7 @@ Written by `.claude/skills/audio-pipeline/scripts/audio_gate.py` for `assets/cat
 | `sfx/CatCafe_Sfx_TravelPoof.ogg` | sfx | 0.95 | 1 | 48000 | 12 | -19.5 | -3.7 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_VisitorCollector.ogg` | sfx | 1.50 | 1 | 48000 | 17 | -14.3 | -6.8 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_VisitorMystery.ogg` | sfx | 1.70 | 1 | 48000 | 17 | -17.3 | -6.1 | 2 | - | PASS |  |
+| `sfx/CatCafe_Sfx_WaterStep.ogg` | sfx | 0.32 | 1 | 48000 | 7 | - | -6.0 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneArea.ogg` | sfx | 0.50 | 1 | 48000 | 7 | -22.9 | -9.9 | 0 | - | PASS |  |
 | `sfx/CatCafe_Sfx_ZoneSafe.ogg` | sfx | 0.75 | 1 | 48000 | 9 | -20.6 | -9.9 | 0 | - | PASS |  |
 | `ui/CatCafe_Ui_Badge.ogg` | ui | 0.11 | 1 | 48000 | 4 | - | -11.0 | 0 | - | PASS |  |

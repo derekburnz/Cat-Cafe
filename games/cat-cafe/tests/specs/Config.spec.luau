@@ -149,6 +149,10 @@ return function()
 		BumpSameTargetSeconds = 20,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 4,
+		-- a dropped cat walks home (v0.10 F67, section 10c)
+		DropReturnWalkSpeed = 8,
+		DropHomeRadiusStuds = 2,
+		DropReturnMaxSeconds = 60,
 		-- the Tackle (v0.11 F74, section 10c)
 		TackleLungeStuds = 12,
 		TackleLungeSeconds = 0.35,

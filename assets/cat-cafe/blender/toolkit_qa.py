@@ -197,6 +197,9 @@ def locate(objs):
             continue                                         # another part rests flush on this one
         k = site(ts[0])
         floating[k] = max(floating.get(k, 0.0), round(gap, 3))
+        if os.environ.get("QA_WHERE") and gap >= VISIBLE_GAP:          # where each floating island sits, Roblox x z y
+            c = sum((verts[v] for v in vs), Vector()) / len(vs)
+            print(f"   floating {gap:.3f} {k} at ({-c.x:.2f}, {c.y:.2f}, {c.z:.2f})", flush=True)
     return {"visible": visible.most_common(), "hidden": hidden, "floating": floating}
 
 

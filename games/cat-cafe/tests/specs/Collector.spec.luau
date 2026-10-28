@@ -166,4 +166,117 @@ return function()
 			end
 		end)
 	end)
+
+	describe("Cat Collector edges (QA, F63)", function()
+		-- the share of rolls, swept evenly over 0 to 1, whose offer is the row of `value`
+		local function share(catId: string, variant: string, value: number): number
+			local hits, steps = 0, 10000
+			for step = 0, steps - 1 do
+				local instance = cat("c", catId, { variant = variant })
+				if Collector.offerFor(Collector.value(instance, (step + 0.5) / steps)).value == value then
+					hits += 1
+				end
+			end
+			return hits / steps
+		end
+
+		it("matches the design's words on how often the better rows come up (section 12b)", function()
+			-- "an Epic a crate and about one time in six 20 fish with it": 8 x 0.8 to 1.5 reaches 11 above roll 0.82
+			expect(share(firstOf("Epic"), "base", 11)).to.be.near(1 / 6, 0.02)
+			-- "a gold Rare (7.2 to 13.5) gets the 20 fish 40% of the time"
+			expect(share(firstOf("Rare"), "gold", 11)).to.be.near(0.40, 0.01)
+			-- "a Mythical a golden crate and often 50 fish with it": 40 to 75 reaches 60 for 15 of its 35
+			expect(share(firstOf("Mythical"), "base", 60)).to.be.near(15 / 35, 0.01)
+			-- "a Legendary a crate and fish or two crates": 16 to 30, two crates from 20
+			expect(share(firstOf("Legendary"), "base", 20)).to.be.near(10 / 14, 0.01)
+		end)
+
+		it("never offers less for a better roll, or for the gold cat of the same kind", function()
+			for _, def in Catalog.cats do
+				if Catalog.getArea(def.area) == nil then
+					continue
+				end
+				local before, beforeGold = 0, 0
+				for step = 0, 200 do
+					local roll = step / 200
+					local plain = Collector.offerFor(Collector.value(cat("p", def.id), roll)).value
+					local gold = Collector.offerFor(Collector.value(cat("g", def.id, { variant = "gold" }), roll)).value
+					if plain < before or gold < beforeGold or gold < plain then
+						error(string.format("%s at roll %.3f: plain %d, gold %d", def.id, roll, plain, gold))
+					end
+					before, beforeGold = plain, gold
+				end
+			end
+		end)
+
+		it("500 seeded cafes: asks only for a resting, unlocked area cat, the lowest rated of its kind", function()
+			local rng = Random.new(6301)
+			local ids: { string } = {}
+			for _, def in Catalog.cats do
+				table.insert(ids, def.id)
+			end
+			table.insert(ids, "no_such_cat")
+			local asked = 0
+			for run = 1, 500 do
+				local cats: { [string]: any } = {}
+				for n = 1, rng:NextInteger(0, 9) do
+					local uid = string.format("u%d_%d", run, n)
+					cats[uid] = cat(uid, ids[rng:NextInteger(1, #ids)], {
+						spotId = if rng:NextNumber() < 0.4 then "waiter_1" else nil,
+						locked = if rng:NextNumber() < 0.3 then true else nil,
+						variant = if rng:NextNumber() < 0.2 then "gold" else "base",
+						level = rng:NextInteger(1, 50),
+						charm = rng:NextInteger(0, 100),
+					})
+				end
+				local askable = 0
+				for _, instance in cats do
+					if Collector.askable(instance) then
+						askable += 1
+					end
+				end
+				local roll = rng:NextNumber()
+				local picked = Collector.pickCat(cats, function()
+					return roll
+				end)
+				if askable == 0 then
+					expect(picked).never.to.be.ok()
+					continue
+				end
+				expect(picked).to.be.ok()
+				local chosen = picked :: any
+				local def = Catalog.getCat(chosen.catId)
+				if
+					def == nil
+					or Catalog.getArea(def.area) == nil
+					or chosen.spotId ~= nil
+					or chosen.locked == true
+				then
+					error(string.format("run %d asked for %s (%s)", run, chosen.uid, chosen.catId))
+				end
+				for _, instance in cats do
+					if
+						instance.catId == chosen.catId
+						and Collector.askable(instance)
+						and CatStats.rating(instance) < CatStats.rating(chosen)
+					then
+						error(string.format("run %d asked for %s over the lower rated %s", run, tostring(chosen.uid), tostring(instance.uid)))
+					end
+				end
+				asked += 1
+			end
+			expect(asked > 200).to.equal(true)
+		end)
+
+		it("about one visit every 25 minutes of play by the clock (one check every 120 s at 12%, by day only)", function()
+			-- data-model 12b says about 35, from before the short night (F66); by the build's numbers a check lands in
+			-- the open part of the day (a 300 s day of a 390 s loop, less the last DuskWarningSeconds) 285 / 390 of
+			-- the time, and a visit then holds the plot for CollectorStaySeconds
+			local open = (Config.DayLengthSeconds - Config.DuskWarningSeconds)
+				/ (Config.DayLengthSeconds + Config.NightLengthSeconds)
+			local waiting = Config.CollectorCheckSeconds / (Config.CollectorChance * open)
+			local minutes = (waiting + Config.CollectorStaySeconds) / 60
+			expect(minutes > 20 and minutes < 30).to.equal(true)
+		end)
+	end)
 end

@@ -53,6 +53,7 @@ import park  # noqa: E402
 import parkset  # noqa: E402
 import woodsset  # noqa: E402
 import sewerset  # noqa: E402
+import neighbourhoodset  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
@@ -68,7 +69,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, doors]
+           woodsset, sewerset, neighbourhoodset, doors]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -101,6 +102,7 @@ PIVOT_NOTES = {
     "CatCafe_Park_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Neighbourhood_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Park_RescueTree": "base center; the Branch pivots at its root on the trunk (part_pivots_roblox)",
     **{f"CatCafe_Plot_Cafe_{c}": "Plot.cframe: floor top centre of the cafe, front -Z to the street" for c in plot.COLOURS},
     "CatCafe_Plot_Interior": "Plot.cframe: floor top centre of the cafe",

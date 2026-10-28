@@ -69,7 +69,6 @@ local UpgradeShop = require(script.Screens.UpgradeShop)
 local Wayfinding = require(script.Components.Wayfinding)
 local WorldMarker = require(script.Components.WorldMarker)
 local WorldTags = require(script.Screens.WorldTags)
-local ZoneChip = require(script.Screens.ZoneChip)
 
 local UI = {}
 
@@ -159,7 +158,7 @@ local signpost: Signpost.Signpost? = nil -- the fountain signpost's arms with ti
 local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
-local zoneChip: ZoneChip.ZoneChip? = nil -- "Safe zone" or "Catching area" under the tier pill (UI.setZone)
+local zoneSafe: boolean? = nil -- whether the last UI.setZone was safe, nil before the first
 local safeToastAt = -math.huge -- os.clock() of the last "Safe zone" toast, so an area's open edge cannot spam it
 local currentZone: string? = nil -- the World.Zones name from UI.setZone, for the dusk banner (F66)
 local cafeSigns: CafeSigns.CafeSigns? = nil
@@ -850,11 +849,10 @@ function UI.init(config: Types.InitConfig)
 			UI.openIndex(areaId)
 		end,
 	})
-	-- icons over My Cafe, every area and the dealer's cart, fading out up close; the Safe zone chip under the tier
+	-- icons over My Cafe, every open area and the dealer's cart, fading out up close and smaller far away
 	local markers = LocationMarkers.new(parent)
 	markers:setEnabled(settingsView:value("markers")) -- the Place icons switch
 	locationMarkers = markers
-	zoneChip = ZoneChip.new(parent)
 	areaTitle = AreaTitle.new(parent)
 	-- the name sign over every cafe door, rate tags over working cats and order bubbles over customers
 	cafeSigns = CafeSigns.new(parent)
@@ -1024,9 +1022,6 @@ function UI.destroy()
 	if locationMarkers then
 		locationMarkers:destroy()
 	end
-	if zoneChip then
-		zoneChip:destroy()
-	end
 	if cafeSigns then
 		cafeSigns:destroy()
 	end
@@ -1063,7 +1058,7 @@ function UI.destroy()
 	hud, upgrades, decor, collection, modal, catch, toasts, popups =
 		nil, nil, nil, nil, nil, nil, nil, nil
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
-	locationMarkers, zoneChip = nil, nil
+	locationMarkers, zoneSafe = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
 	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
 	catCard = nil
@@ -1116,9 +1111,6 @@ function UI.setVisible(isVisible: boolean)
 	end
 	if toasts then
 		toasts.screenGui.Enabled = isVisible
-	end
-	if zoneChip then
-		zoneChip:setVisible(isVisible)
 	end
 	if locationMarkers then
 		locationMarkers:setVisible(isVisible)
@@ -1809,9 +1801,10 @@ local function watchDusk(phase: Types.ClockPhase, phaseEndsAt: number)
 end
 
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
--- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). The chip under the tier pill says
--- "Safe zone" or "Catching area"; walking back to safety pops the chip every time and toasts at most once in
--- SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times); the area's own marker hides.
+-- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). Walking back to safety toasts at most
+-- once in SAFE_TOAST_SECONDS (walking along an area's open edge flips the zone several times); the area's own marker
+-- hides. The "Safe zone" chip under the tier pill went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone
+-- bubble its just clutter").
 local SAFE_TOAST_SECONDS = 20
 function UI.setZone(zone: string?)
 	currentZone = zone
@@ -1819,8 +1812,10 @@ function UI.setZone(zone: string?)
 	if locationMarkers then
 		locationMarkers:setZone(zone)
 	end
-	local chip = zoneChip
-	if chip and chip:set(zone) and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
+	local safe = Wayfinding.isSafe(zone)
+	local cameBack = zoneSafe == false and safe
+	zoneSafe = safe
+	if cameBack and os.clock() - safeToastAt >= SAFE_TOAST_SECONDS then
 		safeToastAt = os.clock()
 		-- quiet: Audio plays its own zone chime from Audio.setZone
 		if toasts then
@@ -1853,12 +1848,10 @@ function UI.showAreaTitle(areaId: string)
 	for _, area in areas do
 		if area.id == areaId then
 			local color = Theme.areaColors[area.id]
-			card:show(
-				area.id,
-				area.name,
-				Areas.rareShare(area),
-				if color then color:Lerp(Theme.colors.white, 0.35) else nil
-			)
+			-- the name only: no spawn rates (Derek 2026-10-28: "No need to show area rates everytime you walk
+			-- into it or at all")
+			local tint = if color then color:Lerp(Theme.colors.white, 0.35) else nil
+			card:show(area.id, area.name, nil, tint)
 			return
 		end
 	end

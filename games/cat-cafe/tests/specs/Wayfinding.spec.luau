@@ -26,6 +26,41 @@ return function()
 		end)
 	end)
 
+	describe("Wayfinding.lockedAlpha (Derek 2026-10-28)", function()
+		it("shows a locked area's marker only right by its gate", function()
+			expect(Wayfinding.lockedAlpha(0)).to.equal(1)
+			expect(Wayfinding.lockedAlpha(Wayfinding.LOCKED_NEAR)).to.equal(1)
+			expect(Wayfinding.lockedAlpha(Wayfinding.LOCKED_FAR)).to.equal(0)
+			expect(Wayfinding.lockedAlpha(Wayfinding.FAR)).to.equal(0)
+			expect(Wayfinding.lockedAlpha(500)).to.equal(0)
+		end)
+
+		it("fades out between LOCKED_NEAR and LOCKED_FAR, NaN hidden", function()
+			local middle = (Wayfinding.LOCKED_NEAR + Wayfinding.LOCKED_FAR) / 2
+			expect(Wayfinding.lockedAlpha(middle)).to.be.near(0.5, 1e-9)
+			expect(Wayfinding.lockedAlpha(0 / 0)).to.equal(0)
+		end)
+	end)
+
+	describe("Wayfinding.scale (Derek 2026-10-28)", function()
+		it("draws near markers full size and far ones smaller", function()
+			expect(Wayfinding.scale(0)).to.equal(1)
+			expect(Wayfinding.scale(Wayfinding.SCALE_NEAR)).to.equal(1)
+			expect(Wayfinding.scale(Wayfinding.SCALE_FAR)).to.be.near(Wayfinding.SCALE_MIN, 1e-9)
+			expect(Wayfinding.scale(math.huge)).to.be.near(Wayfinding.SCALE_MIN, 1e-9)
+		end)
+
+		it("never grows as the player walks away", function()
+			local last = math.huge
+			for distance = 0, Wayfinding.SCALE_FAR + 50, 5 do
+				local size = Wayfinding.scale(distance)
+				expect(size <= last).to.equal(true)
+				last = size
+			end
+			expect(Wayfinding.scale(0 / 0)).to.equal(1)
+		end)
+	end)
+
 	describe("Wayfinding zones", function()
 		it("counts the street and the cafes as safe", function()
 			expect(Wayfinding.isSafe(nil)).to.equal(true)

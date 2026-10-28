@@ -649,9 +649,10 @@ def tunnel_front(mat):
 
 def cross_wall(mat):
     """The east hall's cross wall (area space): brick to the roof from the channel's kerb to x 66, then one archway
-    to the east wall (the only way on). Both faces have a base course and a string course; the arch has a voussoir
-    ring right through."""
-    b = Builder()
+    to the east wall (the only way on). Both faces have a base course, a string course and stone pilasters, the
+    market face a JUNK MARKET sign over the stalls; the arch has a voussoir ring right through."""
+    rb = RB()
+    b = rb.b
     z0, z1 = E1_Z, E1_Z + E1_T
     x0 = CH_HW + KERB_W
     span(b, x0, E1_GAP, z0, z1, 0, WALL_H, "brick")
@@ -679,6 +680,13 @@ def cross_wall(mat):
               bevel=False, rot=ry(-(90 - math.degrees(t))))
     span(b, E1_GAP - 1.2, E1_GAP, z0 - 0.4, z1 + 0.4, 0, spring, "concrete")         # the arch's west jamb
     span(b, E1_GAP - 1.4, E1_GAP + 0.2, z0 - 0.5, z1 + 0.5, spring - 0.25, spring + 0.25, "concrete_dark")
+    for x in (12.0, 25.0, 42.0, 56.0):                                   # pilasters, both faces (the beam at 25 lands on one)
+        for (za, zb) in ((z0 - 0.4, z0), (z1, z1 + 0.4)):
+            span(b, x - 0.8, x + 0.8, za, zb, 0, WALL_H, "concrete")
+    span(b, 26.7, 40.3, z0 - 0.5, z0, 11.4, 14.0, "sign_teal")                    # the market's sign
+    span(b, 26.35, 40.65, z0 - 0.45, z0 - 0.05, 11.05, 14.35, IRON)
+    tw = text_width("JUNK MARKET", 0.3)
+    rb.text("JUNK MARKET", (33.5 + tw / 2, 11.95, z0 - 0.54), 0.3, 0.1, "offwhite", right=(-1, 0, 0))
     return [b.finalize(N + "CrossWall", mat)]
 
 
@@ -723,7 +731,9 @@ def roof(mat, piers=()):
     xs = sorted({x for (x, _) in PILLARS})
     for x in xs:                                                                  # beams along z on the pillars
         far = stop("z", x, IN)
-        for (za, zc) in (((FACADE_Z + FACADE_T, E1_Z), (E1_Z + E1_T, far)) if x > 0 else ((FACADE_Z + FACADE_T, far),)):
+        e1 = 0.4 if x == 25.0 else 0.0                                            # onto the cross wall's pilaster
+        for (za, zc) in (((FACADE_Z + FACADE_T, E1_Z - e1), (E1_Z + E1_T + e1, far)) if x > 0 else
+                         ((FACADE_Z + FACADE_T, far),)):
             span(b, x - 0.8, x + 0.8, za, zc, WALL_H - 1.4, WALL_H, "brick")
     for z in zs:                                                                  # and across, hall by hall
         for (x0, x1) in ((stop("x", z, -IN), -CH_HW - KERB_W - 1.0), (CH_HW + KERB_W + 1.0, stop("x", z, IN))):
@@ -740,6 +750,22 @@ def roof(mat, piers=()):
             for dz in (-0.55, 0.55):
                 span(b, x + dx - 0.06, x + dx + 0.06, z + dz - 0.06, z + dz + 0.06, WALL_H - 6.8, WALL_H - 5.2, IRON)
         span(b, x - 0.7, x + 0.7, z - 0.7, z + 0.7, WALL_H - 7.0, WALL_H - 6.8, IRON)
+    beam_zs = zs
+    for x in (-80.0, -14.0, 14.0, 80.0):                                          # pipe runs under the roof
+        runs = ((FACADE_Z + FACADE_T, E1_Z), (E1_Z + E1_T, IN)) if x > 0 else ((FACADE_Z + FACADE_T, IN),)
+        for (za, zc) in runs:
+            za, zc = za + 0.02, zc - 0.02
+            b.cyl(bl(x, (za + zc) / 2, WALL_H - 2.0), 0.55, zc - za, "dumpster_green", segments=10, bevel=False,
+                  rot=rx(90))
+            for zz in (za + 0.31, zc - 0.31):                                        # flanges at the walls
+                b.cyl(bl(x, zz, WALL_H - 2.0), 0.75, 0.6, "metal", segments=10, bevel=False, rot=rx(90))
+            k = int((zc - za) / 9.0)
+            for i in range(1, k):                                                  # hangers, clear of the beams
+                zz = za + i * (zc - za) / k
+                if any(abs(zz - bz) < 1.6 for bz in beam_zs):
+                    continue
+                span(b, x - 0.08, x + 0.08, zz - 0.08, zz + 0.08, WALL_H - 1.45, WALL_H, IRON)
+                span(b, x - 0.7, x + 0.7, zz - 0.12, zz + 0.12, WALL_H - 1.6, WALL_H - 1.45, IRON)
     for (x, z) in ((-70.0, 0.0), (70.0, 70.0), (-20.0, 80.0), (60.0, -30.0)):    # vent stacks on top
         b.cyl_base(bl(x, z, WALL_H + ROOF_T), 0.8, 3.5, "metal", segments=10, bevel=False)
         b.cyl_base(bl(x, z, WALL_H + ROOF_T + 3.5), 1.2, 0.6, "metal", segments=10, bevel=False, radius2=0.4)
@@ -942,6 +968,7 @@ def build_set(mat):
     _spot(s, "deck", *turned(74, -24, 30, -0.3, 0.6), h=2.15)
     put(sw.barrel(mat), 82, -32, 0)
     put(sw.suitcase_stack(mat), 82.5, -12, -90)
+    put(alleyway.build_crate_stack(mat), 12, -12, -15)
     for (x, z) in ((24, -22), (56, -12)):
         _spot(s, "market", x, z)
     put(sw.glow_mushrooms(mat), 12, -30, 0)
@@ -954,6 +981,8 @@ def build_set(mat):
         r = face(x, z, *sq)
         put(fn(mat), x, z, r)
         _spot(s, "house", *turned(x, z, r, 0, -3.6))
+    for (x, z, fn) in ((42, 66, sw.teapot_house), (64, 44, sw.box_house)):          # two more round the square
+        put(fn(mat), x, z, face(x, z, *sq))
     bunting(25, 24, 25, 62, h=11.0, sag=1.8)
     for (x, z) in ((42, 38), (36, 46)):
         _spot(s, "square", x, z)
@@ -1000,6 +1029,10 @@ def build_set(mat):
     for (x, z) in ((-46, 66), (-20, 70)):
         _spot(s, "throne_room", x, z)
     put(sw.steam_vent(mat), -50, 52, 0)
+    for (x, z) in ((-80, 64), (-77.6, 65.5)):
+        put(sw.barrel(mat), x, z, 0)
+    put(alleyway.build_crate_stack(mat), -56, 30, 15)
+    put(sw.tyre_stack(mat), -83, 40, 0)
     put(sw.puddle(mat), -40, 28, 0)
 
     # ---- the far chamber (deep): the beached boat and raft by the branch, the hammock, a deck
@@ -1021,6 +1054,10 @@ def build_set(mat):
     for (x, z) in ((-46, -18), (-60, 20)):
         _spot(s, "chamber", x, z)
     put(sw.puddle(mat), -34, -12, 0)
+    put(sw.suitcase_stack(mat), -72, 2, 30)
+    put(alleyway.build_crate_stack(mat), -80, -8, -20)
+    for (x, z) in ((-22, -22), (-19.6, -23.5)):
+        put(sw.barrel(mat), x, z, 0)
     return s.finish(_ground(), mat), s
 
 

@@ -111,12 +111,13 @@ return {
 		stuckAt = { 0, 2.55, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
 		segments = { { style = "stuckButt", seconds = 4.4 } },
 	},
-	-- Diving nose first into the bag pile, back end up and back legs off the ground.
+	-- Dived nose first into the top front of the big bag, 60 degrees down: back end up, back legs off the ground,
+	-- tail over the top (Derek 14:17: the old shallow pose stood against the bag and looked off).
 	stuckBags = {
 		model = "CatCafe_Cat_Tabby",
 		camera = "three",
 		trap = "CatCafe_Alley_GarbageBags",
-		stuckAt = { -0.4, 0, -0.45, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
+		stuckAt = { -0.45, 0.75, -0.8, -1, 0, 0, 0, 0.5, 0.866, 0, 0.866, -0.5 },
 		segments = { { style = "stuckButt", seconds = 4.4 } },
 	},
 	stuckCan = {
@@ -169,14 +170,16 @@ return {
 		box = { { 1.5, 0, -2 }, { 5.5, 3, 2 } },
 		segments = { { style = "stuckButt", seconds = 4.4 } },
 	},
-	-- On its back in the middle of a bramble bush.
+	-- Dived nose first into the bramble bush's top front, 70 degrees down so its head is just under the leaves, the
+	-- back end, kicking back legs and tail out on top (Derek 14:17: lying on its back on top of the bush looked off).
+	-- The Woods' other bramble (-86, 0, 30) is the same bush the same way round.
 	stuckBramble = {
 		model = "CatCafe_Cat_Tabby",
 		camera = "three",
 		trapSet = { set = "CatCafe_Woods_SetV32", spot = { -84, 0, -50, 0 }, radius = 4 },
-		stuckAt = { 0, 3.9, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 },
-		box = { { -2.5, 0.5, -2 }, { 2.5, 4.2, 2 } },
-		segments = { { style = "stuckFlip", seconds = 4.4 } },
+		stuckAt = { 0, 2.56, -1.17, -1, 0, 0, 0, 0.342, 0.9397, 0, 0.9397, -0.342 },
+		box = { { -2.5, 0.5, -2.5 }, { 2.5, 4.2, 2 } },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
 	},
 	-- Hanging upside down under the tree house's branch, which points along the piece's -X.
 	stuckBranch = {

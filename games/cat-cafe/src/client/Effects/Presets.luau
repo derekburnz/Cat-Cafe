@@ -705,12 +705,12 @@ Presets.motion = {
 	-- sticking out or butt", "make the butt sticking out for a lot of the rescue's", "flip the cats upside for some
 	-- rescue missions where fit"). Each TrapType wriggles one of two ways (`kinds`), in bursts once every `every`
 	-- seconds over `seconds` at `hz`, still moving `twitch` as much in between. `butt`: head first into a bin, can,
-	-- bag pile, shed, log, pipe or grate with only its back end out: the hips wiggle `wiggle` degrees, the back legs
-	-- paddle `kick` and the raised tail (`tailUp`) lashes `tail`. `flip`: upside down, hanging under a branch or a
-	-- gutter or on its back in a bramble bush: all four legs pedal `legs` degrees in the air, the body rocks `rock`,
-	-- the tail swings `tail`, the head looks about `look` and the ears go back `ears`. Where the cat sits and which
-	-- way up is the server's stuck pose for the trap. A trap not in `kinds` keeps the plain shake (`every`, `shake`,
-	-- `seconds`).
+	-- bag pile, shed, log, pipe, grate or bramble bush (Derek 14:17: on its back on the bush looked off) with only
+	-- its back end out: the hips wiggle `wiggle` degrees, the back legs paddle `kick` and the raised tail (`tailUp`)
+	-- lashes `tail`. `flip`: upside down, hanging under a branch or on its back across a gutter: all four legs pedal
+	-- `legs` degrees in the air, the body rocks `rock`, the tail swings `tail`, the head looks about `look` and the
+	-- ears go back `ears`. Where the cat sits and which way up is the server's stuck pose for the trap. A trap not in
+	-- `kinds` keeps the plain shake (`every`, `shake`, `seconds`).
 	stuck = {
 		every = 2.6,
 		shake = 9,
@@ -723,9 +723,9 @@ Presets.motion = {
 			hollow_log = "butt",
 			drain_pipe = "butt",
 			grate = "butt",
+			bramble_bush = "butt",
 			tree = "flip",
 			gutter = "flip",
-			bramble_bush = "flip",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,

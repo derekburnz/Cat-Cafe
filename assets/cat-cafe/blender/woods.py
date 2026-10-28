@@ -348,7 +348,7 @@ def _ground():
     g.cyl_base((0, 0, 0), 17, 0.08, "fur_sand", segments=24, bevel=False)                    # the clearing
     for i in range(9):                                                                       # the dirt path in
         t = i / 8
-        g.box_base((6 * math.sin(t * 3), -17 - t * 38.5, 0), (6.0, 6.0, 0.06), "kibble", bevel=False,
+        g.box_base((6 * math.sin(t * 3), -17 - t * 38.5, 0), (6.0, 6.0, 0.06 + 0.006 * (i % 2)), "kibble", bevel=False,
                    rot=rz(20 * math.cos(t * 3)))
     for i in range(14):                                                                      # the stream across it
         x = -52 + i * 8

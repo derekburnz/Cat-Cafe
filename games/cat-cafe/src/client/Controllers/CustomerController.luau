@@ -2,12 +2,15 @@
 -- Cosmetic customers (features.md F15, F37). Runs entirely on this client: customers walk into every running cafe
 -- within Config.World.CafeLifeRangeStuds of the camera, not just this player's own, so the street looks busy
 -- (world-and-feel.md section 4). Each one walks in from the street, orders at the counter, takes a free chair,
--- sits a while and walks out. Between the counter and a chair it keeps to the aisle and the walkway beside the
+-- sits in it a while and walks out. Between the counter and a chair it keeps to the aisle and the walkway beside the
 -- chair's row (the chair's Aisle and Approach attributes), and leaves the same way, so it never cuts through a table. Coin text pops only over this player's own cafe. The cafe closes at night (v0.5 F44):
 -- no customers come, and at nightfall the ones inside skip the rest of their visit and walk out.
 -- A rich customer (F31, data-model section 12) comes to any nearby cafe whose plot shows a rich tip
 -- (RichTipAmount), sits at table 1 beside the gold coin pile on its RichTipAnchor and stays until the tip is paid.
 -- The server decides the tip; this is only what the street sees.
+-- Six everyday looks, A to F, and the rich customer each have a seated twin `<asset>_Sit` (Model-Agent #546) whose
+-- pivot is a chair's: at the chair the twin takes the standing model's place on the chair's pivot, facing the table,
+-- and the standing one comes back to walk out.
 -- A customer model carries Order ("coffee", "cake" or "milk") from the counter on and Served once it sits, for the
 -- order bubble and the heart.
 -- Tip piles (F61, data-model section 12): while a plot's TipPiles is above 0, that many small coin piles sit on its
@@ -42,7 +45,7 @@ local folder: Folder? = nil
 local busySeats: { [BasePart]: boolean } = {}
 local activeByPlot: { [Model]: number } = {}
 local activeCustomers = 0
-local variants = { "A", "B", "C" }
+local variants = { "A", "B", "C", "D", "E", "F" }
 local orders = { "coffee", "cake", "milk" }
 local clock: Instance? = nil -- ReplicatedStorage.Clock once it has replicated
 local richVisits: { [Model]: boolean } = {} -- plots with a rich customer on the way or seated
@@ -158,12 +161,18 @@ local function freeSeat(plot: Model): (BasePart?, BasePart?)
 	return pick.seat, pick.tableTop
 end
 
--- The points between the aisle and `seat`, from its chair's Aisle and Approach (CafeService); none on an old chair.
-local function seatRoute(seat: BasePart): { Vector3 }
+-- The Chair_ model `seat` belongs to.
+local function chairOf(seat: BasePart): Model?
 	local chair = seat:FindFirstAncestorWhichIsA("Model")
 	while chair ~= nil and not chair.Name:match("^Chair_") do
 		chair = chair:FindFirstAncestorWhichIsA("Model")
 	end
+	return if chair ~= nil then chair :: Model else nil
+end
+
+-- The points between the aisle and `seat`, from its chair's Aisle and Approach (CafeService); none on an old chair.
+local function seatRoute(seat: BasePart): { Vector3 }
+	local chair = chairOf(seat)
 	local route: { Vector3 } = {}
 	if chair ~= nil then
 		for _, name in { "Aisle", "Approach" } do
@@ -193,12 +202,45 @@ local function tableModelOf(seat: BasePart): Model?
 	return nil
 end
 
+-- Seats a customer: its seated twin goes in on the chair's pivot, already served so its bubble opens on the heart,
+-- and the standing model waits out of the world. Nil (the standing one stays at the seat, as before) without a twin.
+local function sitDown(standing: Model, seat: BasePart, sitSource: Instance?): Model?
+	local chair = chairOf(seat)
+	if sitSource == nil or chair == nil then
+		return nil
+	end
+	local cloned = sitSource:Clone()
+	if not cloned:IsA("Model") then
+		cloned:Destroy()
+		return nil
+	end
+	local seated = cloned :: Model
+	seated.Name = standing.Name
+	seated:SetAttribute("Order", standing:GetAttribute("Order"))
+	seated:SetAttribute("Served", true)
+	seated:PivotTo(chair:GetPivot())
+	standing.Parent = nil
+	seated.Parent = container()
+	return seated
+end
+
+-- Stands a seated customer back up at `at`, facing the way it sat, to walk out. The standing model drops its order
+-- and served marks first, so its bubble does not open again on the way out.
+local function standUp(standing: Model, seated: Model, at: Vector3)
+	standing:SetAttribute("Order", nil)
+	standing:SetAttribute("Served", nil)
+	standing:PivotTo(CFrame.new(at) * seated:GetPivot().Rotation)
+	seated:Destroy()
+	standing.Parent = container()
+end
+
 local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, visit: Visit?)
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local assetName = if visit ~= nil
 		then visit.asset
 		else "CatCafe_NPC_Customer_" .. variants[rng:NextInteger(1, #variants)]
 	local source = if assets ~= nil then assets:FindFirstChild(assetName) else nil
+	local sitSource = if assets ~= nil then assets:FindFirstChild(assetName .. "_Sit") else nil
 	local entry = waypoint(plot, "Entry")
 	local door = waypoint(plot, "Door")
 	local order = waypoint(plot, "Order")
@@ -229,6 +271,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	local route = seatRoute(seat)
 	local walked = 0 -- how many route points it reached, to retrace on the way out
 	local sat = false
+	local seated: Model? = nil -- the seated twin while it sits
 	local speed = Config.CustomerWalkSpeed
 	local arrived = Mover.walkTo(model, door, speed, isAlive)
 	-- order at the counter, standing a little to one side so a queue spreads out
@@ -261,6 +304,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 		if tableTop ~= nil then
 			Mover.face(model, tableTop.Position)
 		end
+		seated = sitDown(model, seat, sitSource)
 		model:SetAttribute("Served", true)
 		sat = true
 		local own = isOwnPlot(plot)
@@ -285,7 +329,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 						rate * Config.CustomerCoinPopSeconds / math.max(1, activeByPlot[plot] or 1)
 					)
 				)
-				local above = model:GetPivot().Position + Vector3.new(0, 5.5, 0)
+				local above = (seated or model):GetPivot().Position + Vector3.new(0, 5.5, 0)
 				UI.floatText(above, "+$" .. tip)
 				Moments.CoinPop:Fire(above)
 			end
@@ -304,6 +348,14 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 		end
 	end
 	-- out again: after the visit, or at once when the cafe closes for the night on the way in
+	if seated ~= nil then
+		if isAlive() then
+			standUp(model, seated, seatPosition)
+		else
+			seated:Destroy()
+		end
+		seated = nil
+	end
 	if isAlive() then
 		for i = walked, 1, -1 do
 			Mover.walkTo(model, Vector3.new(route[i].X, entry.Y, route[i].Z), speed, isAlive)

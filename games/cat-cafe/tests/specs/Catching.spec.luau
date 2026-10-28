@@ -192,10 +192,9 @@ return function()
 			expect(rescue.Mythical).to.be.near(0.15625, 1e-9)
 		end)
 
-		it("Park 60 / 28 / 9 / 2.5 / 0.5 becomes 60 / 56 / 18 / 5 / 1 over 140 (42.9 / 40.0 / 12.9 / 3.6 / 0.7)", function()
-			local park = Catalog.getArea("park")
-			assert(park)
-			local rescue: any = Catching.rescueOdds(park.odds)
+		it("the old Park 60 / 28 / 9 / 2.5 / 0.5 becomes 60 / 56 / 18 / 5 / 1 over 140 (42.9 / 40.0 / 12.9 / 3.6 / 0.7)", function()
+			local rescue: any =
+				Catching.rescueOdds({ Common = 60, Rare = 28, Epic = 9, Legendary = 2.5, Mythical = 0.5 })
 			expect(rescue.Common).to.be.near(60 / 140 * 100, 1e-9)
 			expect(rescue.Rare).to.be.near(40, 1e-9)
 			expect(rescue.Epic).to.be.near(18 / 140 * 100, 1e-9)

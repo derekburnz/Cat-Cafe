@@ -273,13 +273,13 @@ return function()
 		end)
 
 		it("view adds xpToNext, stars and rating for the UI", function()
-			local instance = cat("siamese", 85, 3, "barista_1")
+			local instance = cat("calico", 85, 3, "barista_1")
 			instance.xp = 40.75 -- shown floored
 			instance.name = "Mochi"
 			instance.method = "bait"
 			local view = CatStats.view(instance)
 			expect(view.uid).to.equal(instance.uid)
-			expect(view.catId).to.equal("siamese")
+			expect(view.catId).to.equal("calico")
 			expect(view.spotId).to.equal("barista_1")
 			expect(view.name).to.equal("Mochi")
 			expect(view.method).to.equal("bait")

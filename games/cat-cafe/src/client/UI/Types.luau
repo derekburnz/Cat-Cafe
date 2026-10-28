@@ -94,6 +94,8 @@ export type PotionDef = {
 	name: string?,
 	minutes: number?,
 	effect: string?,
+	goldLuck: number?, -- F73: a Gold Rush Potion's gold luck while it runs
+	baitSpeed: number?, -- F73: a Quick Bait Potion's faster bait while it runs
 }
 
 -- One thing a Mystery gift can hold (F64): kind "potion", "lure", "fish" or "spin", with a chance in percent.

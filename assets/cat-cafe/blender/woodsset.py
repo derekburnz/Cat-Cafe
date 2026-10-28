@@ -196,24 +196,28 @@ def _pine_into(b, x, y, h, base=0.0):
 
 
 def _tree_line(s, mat, z, gap):
-    """Dense thicket 9 to 9.3 high across the area with pines standing in it, bushes spilling out of both faces, and
-    one gap (x0, x1). A barrier 30 high on its footprint, so the gap is the only way through."""
+    """A dense thicket across the area, one gap (x0, x1): a row of big overlapping bush masses about 9.5 high round a
+    narrow solid core, smaller bushes at their feet and pines standing in it. A barrier 30 high on its footprint, so
+    the gap is the only way through."""
     b, bar = Builder(), Builder()
+    greens = ("leaf_dark", "paw_woods", "dumpster_green", "leaf_dark", "shirt_green")
     for (a0, a1) in ((-IN, gap[0]), (gap[1], IN)):
-        n = max(1, round((a1 - a0) / 7.0))
+        n = max(1, round((a1 - a0) / 6.5))
         step = (a1 - a0) / n
+        x, y, _ = bl((a0 + a1) / 2, z)
+        b.box_base((x, y, 0), (a1 - a0, 2.2, 8.4), "paw_woods", bevel=False)                  # the core
         for i in range(n):
-            c, h = a0 + (i + 0.5) * step, 9.0 + 0.3 * (i % 2)
+            c = a0 + (i + 0.5) * step
+            c = min(max(c, a0 + 2.5), a1 - 2.5)
             x, y, _ = bl(c, z + 0.5 * math.sin(i * 1.7))
-            b.box_base((x, y, 0), (step + 0.04 * (i % 2), 4.0 + 0.04 * (i % 2), h), "leaf_dark", bevel=False)
-            b.ico((x, y, h), 1.9, ("leaf_dark", "leaf_green")[i % 2], subdivisions=1, scale=(step / 3.0, 1.2, 0.6))
-            for side in (-1, 1):                                                 # bushes on both faces
-                sw = ("leaf_green", "fur_moss", "leaf_green", "leaf_dark")[(i + (side > 0)) % 4]
-                b.ico((x + 0.25 * step * side * (-1) ** i, y + side * 1.9, 1.5), 1.6, sw, subdivisions=1,
-                      scale=(1.4, 0.65, 1.0))
+            r = 3.6 + 0.3 * (i % 3)
+            b.ico((x, y, 4.6), r, greens[i % 5], subdivisions=1, scale=(step / (1.7 * r), 0.8, 1.3))
+            b.ico((x + 0.2 * step, y, 8.9 + 0.3 * (i % 2)), 2.2, greens[(i + 2) % 5], subdivisions=1,
+                  scale=(step / 4.0, 0.9, 0.7))
+            for side in (-1, 1):                                                 # bushes at the feet
                 if (i + (side > 0)) % 2 == 0:
-                    b.ico((x - 0.2 * step * side, y + side * 1.9, 5.2), 1.8, ("leaf_dark", "leaf_green")[i % 2],
-                          subdivisions=1, scale=(1.3, 0.55, 1.2))
+                    b.ico((x + 0.3 * step * side, y + side * 2.0, 1.2), 1.5, ("leaf_green", "shirt_green")[i % 2],
+                          subdivisions=1, scale=(1.5, 0.8, 0.9))
             if i % 2 == 0 and (abs(c - gap[0]) > 6 and abs(c - gap[1]) > 6):
                 _pine_into(b, x, y + 0.5 * (-1) ** (i // 2), 18 + 3 * ((i // 2) % 3))
         x, y, _ = bl((a0 + a1) / 2, z)
@@ -279,8 +283,6 @@ def _seg_thicket(b, L, k):
         x = -L / 2 + (i + 0.5) * L / n
         b.ico((x, WALL_D / 2, H + 0.1 * (i % 2)), 1.9, ("leaf_dark", "leaf_green")[(i + k) % 2], subdivisions=1,
               scale=(L / n / 3.2, 0.9, 0.6))
-        if i % 3 == 1:
-            b.ico((x, 0.0, H * 0.55), 1.8, "leaf_green", subdivisions=1, scale=(1.3, 0.5, 1.3))
         if i % 2 == 0:
             b.ico((x, -0.2, 1.3), 1.5, ("leaf_green", "leaf_dark")[(k + 1) % 2], subdivisions=1, scale=(1.3, 0.55, 0.9))
 

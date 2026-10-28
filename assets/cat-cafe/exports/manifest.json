@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 13:37 UTC",
+  "generated": "2026-10-28 13:59 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75033,10 +75033,20 @@
       "objects": [
         "CatCafe_Street_DealerCart_Cart",
         "CatCafe_Street_DealerCart_Bulb",
-        "CatCafe_Street_DealerCart_Bulbs"
+        "CatCafe_Street_DealerCart_Bulbs",
+        "CatCafe_Street_DealerCart_Cat_Body",
+        "CatCafe_Street_DealerCart_Cat_Head",
+        "CatCafe_Street_DealerCart_Cat_Eye1",
+        "CatCafe_Street_DealerCart_Cat_Eye2",
+        "CatCafe_Street_DealerCart_Cat_EarL",
+        "CatCafe_Street_DealerCart_Cat_EarR",
+        "CatCafe_Street_DealerCart_Cat_Tail",
+        "CatCafe_Street_DealerCart_Cat_LegF1",
+        "CatCafe_Street_DealerCart_Cat_LegF2",
+        "CatCafe_Street_DealerCart_Cat_Prop"
       ],
-      "triangles": 4182,
-      "budget": 4500,
+      "triangles": 5374,
+      "budget": 6000,
       "size_studs": {
         "x": 6.62,
         "y": 3.57,
@@ -75059,6 +75069,110 @@
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Street_DealerCart_Cat_Body": [
+          0.0,
+          0.45,
+          2.85
+        ],
+        "CatCafe_Street_DealerCart_Cat_Head": [
+          0.0,
+          0.35,
+          3.82
+        ],
+        "CatCafe_Street_DealerCart_Cat_Eye1": [
+          0.21,
+          -0.14,
+          4.05
+        ],
+        "CatCafe_Street_DealerCart_Cat_Eye2": [
+          -0.21,
+          -0.14,
+          4.05
+        ],
+        "CatCafe_Street_DealerCart_Cat_EarL": [
+          0.27,
+          0.28,
+          4.42
+        ],
+        "CatCafe_Street_DealerCart_Cat_EarR": [
+          -0.27,
+          0.28,
+          4.42
+        ],
+        "CatCafe_Street_DealerCart_Cat_Tail": [
+          0.19,
+          0.96,
+          2.98
+        ],
+        "CatCafe_Street_DealerCart_Cat_LegF1": [
+          0.16,
+          0.16,
+          3.44
+        ],
+        "CatCafe_Street_DealerCart_Cat_LegF2": [
+          -0.16,
+          0.16,
+          3.44
+        ],
+        "CatCafe_Street_DealerCart_Cat_Prop": [
+          0.0,
+          0.35,
+          3.82
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Street_DealerCart_Cat_Body": [
+          0.0,
+          2.85,
+          0.45
+        ],
+        "CatCafe_Street_DealerCart_Cat_Head": [
+          0.0,
+          3.82,
+          0.35
+        ],
+        "CatCafe_Street_DealerCart_Cat_Eye1": [
+          -0.21,
+          4.05,
+          -0.14
+        ],
+        "CatCafe_Street_DealerCart_Cat_Eye2": [
+          0.21,
+          4.05,
+          -0.14
+        ],
+        "CatCafe_Street_DealerCart_Cat_EarL": [
+          -0.27,
+          4.42,
+          0.28
+        ],
+        "CatCafe_Street_DealerCart_Cat_EarR": [
+          0.27,
+          4.42,
+          0.28
+        ],
+        "CatCafe_Street_DealerCart_Cat_Tail": [
+          -0.19,
+          2.98,
+          0.96
+        ],
+        "CatCafe_Street_DealerCart_Cat_LegF1": [
+          -0.16,
+          3.44,
+          0.16
+        ],
+        "CatCafe_Street_DealerCart_Cat_LegF2": [
+          0.16,
+          3.44,
+          0.16
+        ],
+        "CatCafe_Street_DealerCart_Cat_Prop": [
+          0.0,
+          3.82,
+          0.35
+        ]
+      },
       "display_slots": [
         [
           -1.6,
@@ -75093,8 +75207,9 @@
           -0.75
         ]
       ],
+      "studio": "F32: the night dealer's cart (DealerService clones it at night). The Bulb and Bulbs are lit at night. The dealer's own cat sits on the cushion at the back of the counter: Cat_Body, Cat_Head and the other hinged sitting-cat pieces, its hood Cat_Prop inside the Head Model; it can idle like any cat.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_DealerCart.model.json",
-      "rbx_parts": 526,
+      "rbx_parts": 647,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Street_DealerCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Street_DealerCart.glb"
@@ -75106,10 +75221,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "4182/4500 tris",
+          "budget": "5374/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2268 faces on swatch centers",
+          "uv": "2959 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.51 y=-0.22"

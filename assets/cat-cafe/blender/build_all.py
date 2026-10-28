@@ -233,6 +233,10 @@ STUDIO_NOTES = {
                                  "tags it FishMarket and hangs the Shop prompt on the Attachment PromptAnchor (counter "
                                  "front, 3 up). The shopkeeper cat's sou'wester rides its Head Model; the sign Bulb is "
                                  "lit at night.",
+    "CatCafe_Street_DealerCart": "F32: the night dealer's cart (DealerService clones it at night). The Bulb and Bulbs "
+                                 "are lit at night. The dealer's own cat sits on the cushion at the back of the counter: "
+                                 "Cat_Body, Cat_Head and the other hinged sitting-cat pieces, its hood Cat_Prop inside "
+                                 "the Head Model; it can idle like any cat.",
     "CatCafe_Prop_FishCoin": "F52: the golden fish coin, a world pickup or prize; gold parts are Metal. Its HUD picture "
                              "is exports/icons/CatCafe_Icon_GoldenFish.png (icons.py).",
 }
@@ -430,6 +434,8 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Street_DealerCart":   # the dealer's cat: its hood rides its Head
+            extra = {"nest": {"_Prop": "_Head"}}
         if name in {**mystery.NEST, **collector.NEST}:   # F64, F63: hats ride the Head, the glass the raised paw
             extra = {"nest": {**mystery.NEST, **collector.NEST}[name]}
         if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)

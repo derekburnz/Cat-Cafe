@@ -342,7 +342,7 @@ local Cues: { [string]: Cue } = {
 		range = 8,
 	},
 	rareNear = {
-		ids = {},
+		ids = { "rbxassetid://110130897728206" },
 		group = "Sfx",
 		volume = 0.35,
 		minGap = 3,

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 01:40 UTC",
+  "generated": "2026-10-28 01:41 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -68322,7 +68322,7 @@
         "CatCafe_Square_Fountain_Water",
         "CatCafe_Square_Fountain_Decor"
       ],
-      "triangles": 5152,
+      "triangles": 5296,
       "budget": 8000,
       "size_studs": {
         "x": 13.05,
@@ -68355,7 +68355,7 @@
         ]
       ],
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_Fountain.model.json",
-      "rbx_parts": 306,
+      "rbx_parts": 318,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_Fountain.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_Fountain.glb"
@@ -68365,10 +68365,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "5152/8000 tris",
+          "budget": "5296/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "2500 faces on swatch centers",
+          "uv": "2572 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

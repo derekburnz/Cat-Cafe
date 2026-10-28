@@ -268,7 +268,7 @@ def _spout(water, x, z, a, y):
         L = math.sqrt(dx * dx + dy * dy + dz * dz) + 0.08
         yaw = math.degrees(math.atan2(-dz, dx))
         pitch = math.degrees(math.atan2(dy, math.hypot(dx, dz)))
-        water.box(c, (L, 0.18, 0.18), "puddle", rot=rot_y(yaw) @ rot_z(pitch))
+        water.box(c, (L, 0.22, 0.22), "fish_blue", rot=rot_y(yaw) @ rot_z(pitch))
     del x0
 
 
@@ -322,7 +322,7 @@ def build_fountain(mat):
         _spout(water, x, z, a, 1.85)
     for (x, z) in ((1.6, -2.1), (-2.4, 0.9), (0.7, 2.8), (-1.1, -3.2), (3.1, 1.2), (-3.3, -1.6)):   # wishes
         b.cyl((x, 0.47, z), 0.25, 0.05, "rarity_legend", segments=8)
-    water.cyl((0, 0.825, 0), 4.95, 0.75, "puddle", segments=32)                  # pool, edge inside the wall
+    water.cyl((0, 0.825, 0), 4.95, 0.75, "fish_blue", segments=32)               # pool, edge inside the wall
     for (x, z, r) in ((-3.0, 2.6, 0.7), (3.4, -1.9, 0.6), (2.2, 3.1, 0.5)):      # lily pads on the water
         b.cyl((x, 1.225, z), r, 0.05, "leaf_green", segments=12)
         b.span((x - 0.14, 1.25, z - 0.14), (x + 0.14, 1.45, z + 0.14), "blush")
@@ -330,10 +330,13 @@ def build_fountain(mat):
     b.cyl((0, 1.6, 0), 1.08, 0.4, "sign_teal", segments=16)                      # its band
     b.cyl((0, 3.3, 0), 1.0, 0.6, "floor_tile", r2=2.6, segments=20)              # bowl
     _ring(b, 3.6, 3.9, 2.9, 0.4, "offwhite", segments=24)                        # bowl lip, the veil hangs off it
-    water.cyl((0, 3.66, 0), 2.45, 0.2, "puddle", segments=20)                    # bowl water
-    for k in range(16):                                                          # veil over the lip
-        a = 2 * math.pi * (k + 0.5) / 16
-        water.box((2.9 * math.cos(a), 2.55, 2.9 * math.sin(a)), (0.1, 2.6, 0.62), "puddle",
+    water.cyl((0, 3.66, 0), 2.45, 0.2, "fish_blue", segments=20)                 # bowl water
+    n = 28                                                                       # a veil over the lip, its
+    chord = 2 * 2.95 * math.sin(math.pi / n) * 1.04                              # strips overlapping into a sheet
+    for k in range(n):
+        a = 2 * math.pi * (k + 0.5) / n
+        r = 2.9 + (0.01 if k % 2 else 0.0)
+        water.box((r * math.cos(a), 2.55, r * math.sin(a)), (0.08, 2.6, chord), "fish_blue",
                   rot=rot_y(-math.degrees(a)))
     b.cyl((0, 4.05, 0), 0.85, 0.5, "floor_tile", segments=14)                    # statue plinth
     b.cyl((0, 4.32, 0), 0.95, 0.06, "sign_teal", segments=14)

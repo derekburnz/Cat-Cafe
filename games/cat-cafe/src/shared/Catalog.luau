@@ -650,8 +650,8 @@ Catalog.roleOutfits = {
 } :: { [string]: { string } } -- keyed by Types.Role
 
 -- Where each outfit piece sits, for the pieces that share a slot with a themed cat's prop (data-model section 3).
--- A cat model's PropSlot attribute names its prop's slot, and the role piece in that slot stays off. Face props
--- clash with nothing.
+-- A cat model's PropSlot and PropSlot2 attributes name its props' slots, and the role piece in either slot stays off
+-- (CatDress.plan, with F71's Entertainer exception). Face props clash with nothing.
 Catalog.outfitPieceSlots = {
 	BaristaCap = "Head",
 	Boater = "Head",

@@ -49,6 +49,22 @@ return function()
 	end)
 
 	describe("Effects stray rarity gem edges (QA)", function()
+		it("wears each rarity's colour from data-model section 2, Common grey included", function()
+			local Catalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
+			for rarity, def in Catalog.rarities do
+				local colour = Presets.rarity[rarity]
+				expect(colour ~= nil).to.equal(true)
+				local hex = string.format(
+					"#%02X%02X%02X",
+					math.round(colour.R * 255),
+					math.round(colour.G * 255),
+					math.round(colour.B * 255)
+				)
+				expect(hex).to.equal(def.color)
+				expect(Presets.rarityMark.shows[rarity]).to.equal(true)
+			end
+		end)
+
 		it("matches the effects list: gone within 10 studs, back past 11, to 80 studs for the 12 nearest", function()
 			local r = Presets.rarityMark
 			expect(r.hideWithin).to.equal(10)

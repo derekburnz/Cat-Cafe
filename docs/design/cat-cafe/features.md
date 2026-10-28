@@ -196,6 +196,14 @@ Derek: "themed cat ideas can be made based on something you might see in those a
 |---|---|---|---|---|---|---|
 | F78 | Area-themed cats and the spare pool (3d): ten new themed cats with new ids, Garbage Bag (`binbag`), Taxi (`taxi`) and Jazz Cat (`neon`) in the Alleyway, Birdwatcher (`birdwatch`), Duckling (`duckling`) and Balloon Cat (`balloon`) in the Park, Construction (`builder`), Gardener (`gardener`) and Gnome Cat (`gnome`) in the Neighbourhood and Plumber Cat (`plumber`) in the Sewer, in the slots of the cats they replace; the ten replaced cats (`calico`, `sphynx`, `midnight`, `siamese`, `persian`, `aurora`, `fold`, `chonk`, `marshmallow`, `lantern`) get `area = "spare"`: never spawn, never offered, still owned and working; area Index pages and tracks list the current ten; an Index "Spare" page for the spare cats the player has found (#399). Assets: ten cats with coats, props and `_Gold` models. Effects: Jazz Cat notes, Balloon Cat bob and shine, Gnome Cat sparkles. No save change | P1 | M | asset, engineer, vfx, ui | the themed props as built (#259 and the props build) | No spare cat appears in any wave, bait, dealer, trap or prize over a full test night; a profile that owns Pirate Cat still has it working in the cafe after the update; each area page shows its new ten; every new cat has its prop on the stray, carried, at work, napping and gold |
 
+## 2n. Bedtime on the cat trees (Derek, 2026-10-28 01:23)
+
+Derek: "when the cats sleep at night have them sleep in the cat tree pedestals make sure at least one each for cats assigned can add cat beds in corner if needed". Spec in [data-model.md](data-model.md) section 12c (v0.13.2). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F79 | Bedtime: `Layout.plot.sleepSpots` (the two cat trees' top perches and lower shelves, then decor cat tree pedestals, then beds); `CatCafe_Furniture_CatBed` in the tier dressing, 2 at Tier 3, 4 at Tier 4 and 6 at Tier 5; at night start the working cats, best rating first, get up on the walking body without outfits, walk at 6 round the tables, hop up and sleep (`Bedtime`, `SleepSpot`, `Asleep`, `StretchAt`); the reverse at sunrise; a 15 s timeout; no walking for changes made at night; income, XP and slots unchanged; the hover card says "Asleep" | P1 | M | engineer, asset (bed, tree attachments), animation (client walk and nap rule), ui (hover card) | F44, F66 | At nightfall in a Tier 5 cafe all ten working cats walk off, the best two sleep on the top perches and six in the beds, every visitor sees the same spots, and at sunrise each walks back to its station in its outfit; a cat placed at night appears asleep in a free spot |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

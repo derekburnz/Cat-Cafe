@@ -44,8 +44,8 @@ end
 -- Moves the character to the landing when the profile has not seen the intro, or on any respawn with `always`. The
 -- spawn itself places the character first, so this waits for the root and one more frame. The server asks the
 -- client to stream the cafe in first, so the player does not wait on a load screen at the square and again here.
--- A carrier stays at the square: a carry survives death, and landing at the back door would check the cat in
--- without the walk home (review S85).
+-- A carrier stays at the square (review S85): a death drops the carried cat (CatService, data-model 10c), so this
+-- only guards a carry that could not be dropped, which landing at the back door would check in for free.
 local function land(player: Player, character: Model, always: boolean?)
 	local root = character:WaitForChild("HumanoidRootPart", 10)
 	if root == nil then

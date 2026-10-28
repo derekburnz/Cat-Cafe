@@ -39,6 +39,7 @@ import coins  # noqa: E402
 import common  # noqa: E402
 import crate_decor  # noqa: E402
 import crates  # noqa: E402
+import potions  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -71,7 +72,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -244,6 +245,10 @@ for _n in crates.ASSETS:                         # Cafe Crates: shelf, reveal an
                         + ": pivot base centre, front -Z, nothing collides. The child Model " + _n + "_Lid turns "
                         "about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide "
                         "open. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_") + ".png (icons.py).")
+for _n in potions.ASSETS:                        # F64 and F73 potions: the bag, the gift reveal and pictures
+    STUDIO_NOTES[_n] = ("Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the "
+                        "potion's colour. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_")
+                        + ".png (icons.py).")
 for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
     _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
     PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"

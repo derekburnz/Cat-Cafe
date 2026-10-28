@@ -301,6 +301,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Cat (every piece, either body) | 1,500 total | plain coats land at 650 to 950 on A and B; themed cats with their prop at 800 to 1,380 |
 | Accessory | 200 to 300 | glasses, hat, and the role outfit pieces: apron, barista cap, bow tie, vest, sash, boater, party hat, cape |
 | Held tool (net) | 500 to 650 | per level |
+| Potion bottles (F64, F73) | 700, Big Tip 750 | `potions.py`: they land at 468 to 688 |
 | Cafe Crates (F53) | 1,500 | `crates.py`, body and `_Lid` together, golden twin the same: they land at 384 (Neighbourhood) to 1,146 (Park) |
 | Customer NPC | 1,000 | |
 | Hero furniture (Counter) | 3,000 | the night dealer's cart 3,500 |
@@ -488,7 +489,9 @@ the cafe's own included, and no flap reaches below the leaf's foot. The Cafe Cra
 open). Golden twins keep the paw, ribbons and accents in colour and are Metal elsewhere. Their shop pictures are
 `exports/icons/CatCafe_Icon_Crate_<Pool>[_Gold].png`; the Star Treat, the three perks and the nets have theirs too
 (`icons.py`). Each net's `_Handle` carries an Attachment named `Grip`, mid wrap with no turn, for the hand in the net
-hold (the pole runs along -Z). Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+hold (the pole runs along -Z). The potion bottles (`CatCafe_Prop_Potion_<Name>`, `potions.py`) never collide; the
+pivot is the base centre with the front -Z, the name is the potion id without `_potion` in PascalCase, the liquid is
+the potion's colour in the UI's `Theme.potionColors` and the picture is `exports/icons/CatCafe_Icon_Potion_<Name>.png`. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
 `Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).

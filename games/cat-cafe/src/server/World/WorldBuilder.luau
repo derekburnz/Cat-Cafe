@@ -129,6 +129,35 @@ local function anchor(name: string, cframe: CFrame, parent: Instance): Part
 	return p
 end
 
+-- The top of the invisible cap on every area wall. A default jump clears 7.2 studs, so without it a player could hop
+-- a 6 high wall from the town into an area its gate keeps them out of (Model-Agent, 2026-10-28); the area sets
+-- bring the same 30 high barrier ring in their own wall bands.
+local WALL_CAP_TOP = 30
+
+-- An invisible, solid part on a wall from its top (height `from`) up to WALL_CAP_TOP, over the wall's footprint.
+local function wallCap(
+	name: string,
+	x1: number,
+	z1: number,
+	x2: number,
+	z2: number,
+	from: number,
+	parent: Instance
+)
+	local height = WALL_CAP_TOP - from
+	local cap = part(
+		name .. "Cap",
+		Vector3.new(x2 - x1, height, z2 - z1),
+		CFrame.new((x1 + x2) / 2, from + height / 2, (z1 + z2) / 2),
+		Color3.new(1, 1, 1),
+		nil,
+		parent
+	)
+	cap.Transparency = 1
+	cap.CastShadow = false
+	cap.CanTouch = false
+end
+
 local function folder(name: string, parent: Instance): Folder
 	local f = Instance.new("Folder")
 	f.Name = name
@@ -1042,6 +1071,7 @@ local function buildArea(
 				Enum.Material.Brick,
 				walls
 			)
+			wallCap("Wall", rect.x1, rect.z1, rect.x2, rect.z2, wallH, walls)
 		end
 		local arches: { Layout.Arch } = spec.arches or {}
 		for _, arch in arches do
@@ -1075,6 +1105,7 @@ local function buildArea(
 				Enum.Material.Brick,
 				walls
 			)
+			wallCap(name, x1, z1, x2, z2, wallH, walls)
 		end
 		-- Three closed sides; the side facing the town has an opening as wide as the street, or as the gate for the
 		-- Woods and the Sewer, whose town side is an X side since v3.1. Walls are 1 thick, centred on the edges.

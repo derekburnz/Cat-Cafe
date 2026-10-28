@@ -180,6 +180,9 @@ def build_gift(mat):
     return [b.finalize("CatCafe_Item_MysteryGift", mat)]
 
 
+# Objects whose Model goes inside another's in the export (rbx_export.NEST): the hood turns with the head.
+NEST = {"CatCafe_NPC_MysteryVisitor": {"_Prop": "_Head"}}
+
 ASSETS = {
     "CatCafe_NPC_MysteryVisitor": (build_visitor, 2600),
     "CatCafe_Item_MysteryGift": (build_gift, 700),

@@ -1294,11 +1294,13 @@ local function dropCarry(player: Player, died: boolean)
 	local carry = carrying[player]
 	local character = player.Character
 	local root = rootPosition(player)
-	if carry == nil or character == nil or root == nil then
+	-- a death with no root left (fallen below the world) still drops: the cat runs home, which needs no spot
+	-- (review N240)
+	if carry == nil or character == nil or (root == nil and not died) then
 		return
 	end
 	local name = carry.def.name
-	local here = WorldBuilder.areaAt(world, root)
+	local here = if root ~= nil then WorldBuilder.areaAt(world, root) else nil
 	if here ~= nil then
 		if knockLoose(player, 0, here, if died then nil else DROP_AHEAD_STUDS) ~= nil then
 			Net.toast(

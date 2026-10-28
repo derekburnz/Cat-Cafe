@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 10:16 UTC",
+  "generated": "2026-10-28 10:46 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -75656,6 +75656,176 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_NPC_Collector",
+      "category": "NPC",
+      "module": "collector",
+      "objects": [
+        "CatCafe_NPC_Collector_Body",
+        "CatCafe_NPC_Collector_Head",
+        "CatCafe_NPC_Collector_Eye1",
+        "CatCafe_NPC_Collector_Eye2",
+        "CatCafe_NPC_Collector_EarL",
+        "CatCafe_NPC_Collector_EarR",
+        "CatCafe_NPC_Collector_Tail",
+        "CatCafe_NPC_Collector_LegF1",
+        "CatCafe_NPC_Collector_LegF2",
+        "CatCafe_NPC_Collector_Prop",
+        "CatCafe_NPC_Collector_Coat",
+        "CatCafe_NPC_Collector_Lens"
+      ],
+      "triangles": 1856,
+      "budget": 2600,
+      "size_studs": {
+        "x": 1.56,
+        "y": 1.99,
+        "z": 2.7
+      },
+      "size_roblox": [
+        1.56,
+        2.7,
+        1.99
+      ],
+      "bounds_min": [
+        -0.71,
+        -1.14,
+        -0.0
+      ],
+      "bounds_max": [
+        0.85,
+        0.85,
+        2.7
+      ],
+      "pivot": "the floor under him, on the plot's CollectorSpot, facing into the room (-Z)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_NPC_Collector_Head": [
+          0.0,
+          -0.14,
+          1.41
+        ],
+        "CatCafe_NPC_Collector_Eye1": [
+          0.3,
+          -0.85,
+          1.74
+        ],
+        "CatCafe_NPC_Collector_Eye2": [
+          -0.3,
+          -0.85,
+          1.74
+        ],
+        "CatCafe_NPC_Collector_EarL": [
+          0.39,
+          -0.25,
+          2.27
+        ],
+        "CatCafe_NPC_Collector_EarR": [
+          -0.39,
+          -0.25,
+          2.27
+        ],
+        "CatCafe_NPC_Collector_Tail": [
+          0.28,
+          0.74,
+          0.15
+        ],
+        "CatCafe_NPC_Collector_LegF1": [
+          0.23,
+          -0.41,
+          0.85
+        ],
+        "CatCafe_NPC_Collector_LegF2": [
+          -0.23,
+          -0.41,
+          0.85
+        ],
+        "CatCafe_NPC_Collector_Prop": [
+          0.0,
+          -0.14,
+          1.41
+        ],
+        "CatCafe_NPC_Collector_Lens": [
+          -0.23,
+          -0.41,
+          0.85
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_NPC_Collector_Head": [
+          0.0,
+          1.41,
+          -0.14
+        ],
+        "CatCafe_NPC_Collector_Eye1": [
+          -0.3,
+          1.74,
+          -0.85
+        ],
+        "CatCafe_NPC_Collector_Eye2": [
+          0.3,
+          1.74,
+          -0.85
+        ],
+        "CatCafe_NPC_Collector_EarL": [
+          -0.39,
+          2.27,
+          -0.25
+        ],
+        "CatCafe_NPC_Collector_EarR": [
+          0.39,
+          2.27,
+          -0.25
+        ],
+        "CatCafe_NPC_Collector_Tail": [
+          -0.28,
+          0.15,
+          0.74
+        ],
+        "CatCafe_NPC_Collector_LegF1": [
+          -0.23,
+          0.85,
+          -0.41
+        ],
+        "CatCafe_NPC_Collector_LegF2": [
+          0.23,
+          0.85,
+          -0.41
+        ],
+        "CatCafe_NPC_Collector_Prop": [
+          0.0,
+          1.41,
+          -0.14
+        ],
+        "CatCafe_NPC_Collector_Lens": [
+          0.23,
+          0.85,
+          -0.41
+        ]
+      },
+      "studio": "F63 Cat Collector: the client pivots it on the plot's CollectorSpot (floor centre, front into the room) and tags it CatCollector. A sitting grey tabby (scale 1.45, 2.7 tall to the hat) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, Tail, LegF1, LegF2); the bowler is the child Model _Prop inside Head, the tweed coat _Coat rides the body and the magnifying glass _Lens is inside LegF2, whose paw is raised to his right eye. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_NPC_Collector.model.json",
+      "rbx_parts": 117,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_NPC_Collector.fbx",
+        "assets/cat-cafe/exports/CatCafe_NPC_Collector.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1856/2600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "951 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.07 y=-0.14"
         }
       }
     }

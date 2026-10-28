@@ -150,7 +150,12 @@ STUDIO_NOTES = {
     "CatCafe_Sewer_Manhole": "Slide or hide the child Model _Cover to open it; the requirement SurfaceGui goes on the "
                              "-Z face of the part named SignBoard on the post.",
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
-    "CatCafe_Furniture_CatTree": "CollisionFidelity Hull.",
+    "CatCafe_Furniture_CatTree": "CollisionFidelity Hull. F79 bedtime: Attachments Sleep_Top (the top cushion, the "
+                                 "entertainer's sit point) and Sleep_Shelf (the lower shelf) take a sleeping cat's "
+                                 "pivot, facing their LookVector; Foot is the floor spot it hops up from.",
+    "CatCafe_Furniture_CatBed": "F79 bedtime: Tier 3 to 5 dressing, standing on the floor at the plot's bed spots. "
+                                "Attachment Sleep (the cushion) takes a sleeping cat's pivot, facing the bed's front "
+                                "dip (-Z); Foot is the floor 1.5 in front. 2.6 across.",
     "CatCafe_Alley_Dumpster": "CollisionFidelity Hull.",
     "CatCafe_Alley_TrashBin": "Rescue trap trash_bin. Put the stuck cat at stuck_pose. The Lid turns about its "
                               "part_pivots_roblox point (the hinge) to rattle on a hit. CollisionFidelity Box on the Bin.",

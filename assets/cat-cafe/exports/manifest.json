@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 07:45 UTC",
+  "generated": "2026-10-28 07:56 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -59487,7 +59487,7 @@
         4.45,
         -0.4
       ],
-      "studio": "CollisionFidelity Hull.",
+      "studio": "CollisionFidelity Hull. F79 bedtime: Attachments Sleep_Top (the top cushion, the entertainer's sit point) and Sleep_Shelf (the lower shelf) take a sleeping cat's pivot, facing their LookVector; Foot is the floor spot it hops up from.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_CatTree.model.json",
       "rbx_parts": 60,
       "files": [
@@ -59890,27 +59890,28 @@
       "triangles": 504,
       "budget": 800,
       "size_studs": {
-        "x": 2.96,
-        "y": 2.96,
-        "z": 0.78
+        "x": 2.65,
+        "y": 2.65,
+        "z": 0.76
       },
       "size_roblox": [
-        2.96,
-        0.78,
-        2.96
+        2.65,
+        0.76,
+        2.65
       ],
       "bounds_min": [
-        -1.48,
-        -1.48,
+        -1.33,
+        -1.33,
         0.0
       ],
       "bounds_max": [
-        1.48,
-        1.48,
-        0.78
+        1.33,
+        1.33,
+        0.76
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "F79 bedtime: Tier 3 to 5 dressing, standing on the floor at the plot's bed spots. Attachment Sleep (the cushion) takes a sleeping cat's pivot, facing the bed's front dip (-Z); Foot is the floor 1.5 in front. 2.6 across.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Furniture_CatBed.model.json",
       "rbx_parts": 34,
       "files": [
@@ -59928,7 +59929,7 @@
           "uv": "228 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.00 y=-0.00"
+          "centered": "footprint center x=0.00 y=-0.00"
         }
       }
     },

@@ -27,7 +27,7 @@ SIT_POINTS = {
 # a perch it only hops through on the way up (Hop_) and the floor it sets off from (Foot); all face the room (-Z).
 # To reach a spot a cat hops through every Hop_ and Sleep_ lower than it, in height order; no hop rises over 2.6.
 TREE_SPOTS = {"Sleep_Top": (-0.5, 4.47, -0.4), "Sleep_Shelf": (0.5, 2.35, 0.3), "Foot": (0.5, 0.0, -1.5)}
-BED_R, BED_RIM, BED_H, BED_TOP = 1.45, 0.42, 0.62, 0.36     # outer radius, rim thickness and height, cushion top
+BED_R, BED_RIM, BED_H, BED_TOP = 1.3, 0.38, 0.6, 0.36     # outer radius, rim thickness and height, cushion top
 BED_SPOTS = {"Sleep": (0.0, BED_TOP, 0.05), "Foot": (0.0, 0.0, -1.5)}
 
 

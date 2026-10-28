@@ -73,7 +73,7 @@ local GAP = Theme.sizes.gap
 local PENDING_SECONDS = 3
 local CONFIRM_SECONDS = 3
 local CHECK_SECONDS = 0.25 -- how often the range check and the timers run while he is here
-local TAG_OFFSET = 6.8 -- studs over the spot; his head tops out near 5.4
+local TAG_OFFSET = 4 -- studs over the spot; he sits, and his bowler tops out at 2.7 (Model-Agent #532)
 local TAG_DISTANCE = 120
 
 local Collector = {}

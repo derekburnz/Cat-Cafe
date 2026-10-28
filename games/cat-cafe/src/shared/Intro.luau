@@ -10,7 +10,7 @@ local Config = require(script.Parent.Config)
 local Intro = {}
 
 Intro.SHOTS = 9
-Intro.SKIP_AFTER = 2.0 -- seconds into the first play before Skip shows; a replay shows it at once
+Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45"; shot 8's is 46)
 Intro.CUT_PUSH = 0.06 -- shot 5: each area cut pushes this share of the way toward its look point
 

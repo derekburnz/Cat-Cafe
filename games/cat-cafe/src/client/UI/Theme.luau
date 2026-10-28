@@ -290,6 +290,17 @@ Theme.roleIcons = {
 	entertainer = "🎈",
 } :: { [string]: string }
 
+-- Each potion's colour (F64), close to its glow in Effects/Presets.potions: the bag's tiles and the HUD timers
+Theme.potionColors = {
+	tip_potion = Color3.fromHex("FFC94D"),
+	lucky_potion = Color3.fromHex("6CCB7A"),
+	swift_potion = Color3.fromHex("5FA8FF"),
+	steady_potion = Color3.fromHex("8FD3C1"),
+	big_tip_potion = Color3.fromHex("F2B233"),
+	gold_rush_potion = Color3.fromHex("FFE08A"),
+	quick_bait_potion = Color3.fromHex("F5A3C0"),
+} :: { [string]: Color3 }
+
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets
 Theme.foodIcons = {
 	kibble = "🥣",
@@ -300,6 +311,10 @@ Theme.foodIcons = {
 	moon_milk = "🥛",
 	star_treat = "⭐",
 } :: { [string]: string }
+
+function Theme.potionColor(potionId: string): Color3
+	return Theme.potionColors[potionId] or Color3.fromHex("C07CFF")
+end
 
 function Theme.rarityColor(rarity: string?): Color3
 	local entry = (Theme.rarity :: any)[rarity or "Common"]

@@ -2,10 +2,14 @@
 -- Location markers (UI plan 2026-10-27, the world icons of Pet Simulator 99 and Grow a Garden): a round icon with the
 -- place's name and distance over My Cafe, every area and the night dealer's cart, seen from anywhere on the map.
 -- Each fades out between Wayfinding.FAR and Wayfinding.NEAR studs, so the place in front of the player is never
--- covered (Derek: "symbols to locations also that disappear when close enough so its not clutter").
+-- covered (Derek: "symbols to locations also that disappear when close enough so its not clutter"), and draws smaller
+-- the further away it is (Wayfinding.scale; Derek 2026-10-28: "further away the bubbles should be smaller").
 --   My Cafe       over the player's own Plot, gold; hidden while carrying, when the carry marker leads to the door
 --   Areas         over the area's gate (tag AreaGate with `Area`), else the middle of its biggest World.Zones box; a
---                 locked area shows a lock and its tier; the area the player stands in (UI.setZone) hides its own.
+--                 locked area's marker is hidden until the tier opens it, except right by its gate, where it shows a
+--                 lock and its tier (Wayfinding.lockedAlpha; Derek 2026-10-28: "hide the tiered map and distance ui
+--                 bubbles until unlocked unless standing really close"); the area the player stands in
+--                 (UI.setZone) hides its own.
 --                 The Alleyway has no gate and two back alleys the same size since v3.1 (F77), so its marker sits in
 --                 the one on the player's side, just inside the Town Square's side arch (west with no cafe)
 --   Night dealer  over the cart (tag DealerCart) while it is open
@@ -55,6 +59,8 @@ local ZONE_LIFT = 12
 type Marker = {
 	key: string,
 	billboard: BillboardGui,
+	scale: UIScale, -- shrinks the whole marker with distance
+	size: number, -- the scale last applied
 	attachment: Attachment,
 	disc: Frame,
 	discStroke: UIStroke,
@@ -102,6 +108,14 @@ local function newMarker(
 		Enabled = false,
 		Parent = parent,
 	})
+	-- everything sits in one full-size frame that a UIScale shrinks, while the billboard's own size follows it
+	local root: Frame = Create("Frame", {
+		Name = "Root",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(WIDTH, HEIGHT),
+		Parent = billboard,
+	})
+	local scale: UIScale = Create("UIScale", { Parent = root })
 	local disc: Frame = Create("Frame", {
 		Name = "Icon",
 		BackgroundColor3 = color,
@@ -109,7 +123,7 @@ local function newMarker(
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromScale(0.5, 0),
 		Size = UDim2.fromOffset(ICON, ICON),
-		Parent = billboard,
+		Parent = root,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	local discStroke = Outline.border(disc, 3, Theme.colors.white)
 	local glyph: TextLabel = Create("TextLabel", {
@@ -132,7 +146,7 @@ local function newMarker(
 		TextSize = 17,
 		TextColor3 = Theme.colors.white,
 		Text = label,
-		Parent = billboard,
+		Parent = root,
 	})
 	local nameStroke = Outline.text(name, 2)
 	local sub: TextLabel = Create("TextLabel", {
@@ -144,12 +158,14 @@ local function newMarker(
 		TextSize = 13,
 		TextColor3 = Theme.hud.subtext,
 		Text = "",
-		Parent = billboard,
+		Parent = root,
 	})
 	local subStroke = Outline.text(sub, 1.5)
 	return {
 		key = key,
 		billboard = billboard,
+		scale = scale,
+		size = 1,
 		attachment = attachment,
 		disc = disc,
 		discStroke = discStroke,
@@ -167,6 +183,17 @@ local function newMarker(
 		hidden = false,
 		shown = -1,
 	}
+end
+
+-- Shrinks the marker and its billboard together, in steps so a slow walk does not resize it every check.
+local function applySize(marker: Marker, size: number)
+	local stepped = math.floor(size * 20 + 0.5) / 20
+	if marker.size == stepped then
+		return
+	end
+	marker.size = stepped
+	marker.scale.Scale = stepped
+	marker.billboard.Size = UDim2.fromOffset(WIDTH * stepped, HEIGHT * stepped)
 end
 
 local function applyAlpha(marker: Marker, alpha: number)
@@ -401,10 +428,13 @@ function LocationMarkers._fade(self: any)
 			continue
 		end
 		local distance = (point - from).Magnitude
-		local alpha = Wayfinding.alpha(distance)
+		local alpha = if marker.locked
+			then Wayfinding.lockedAlpha(distance)
+			else Wayfinding.alpha(distance)
 		if alpha > 0 then
 			marker.sub.Text = marker.lockText
 				.. ("%d m"):format(math.floor(distance / STUDS_PER_METRE + 0.5))
+			applySize(marker, Wayfinding.scale(distance))
 		end
 		applyAlpha(marker, alpha)
 	end

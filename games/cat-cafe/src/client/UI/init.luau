@@ -1365,8 +1365,9 @@ function UI.bait.setBowl(part: BasePart?)
 	bowlPart = part
 end
 
--- What is in the bowl: { lureId, readyAt } with readyAt in server os.time(), or nil when the bowl is empty.
--- nil also forgets the cat at the bowl and closes its card (the server resolved it).
+-- What is in the bowl: { lureId, readyAt, placedAt?, night? } with the times in server os.time(), or nil when the
+-- bowl is empty. night (F60) is true for food set at night, which waits half, and the countdowns show a moon. nil
+-- also forgets the cat at the bowl and closes its card (the server resolved it).
 function UI.bait.set(bait: Types.BaitView?)
 	baitView = bait
 	if bait == nil then
@@ -2549,7 +2550,8 @@ UI.clock = {}
 local clockConnections: { RBXScriptConnection } = {}
 
 -- phaseEndsAt is server os.time() seconds (the Clock folder's PhaseEndsAt). The chip counts down
--- against Workspace:GetServerTimeNow(), so nothing here reads the device clock.
+-- against Workspace:GetServerTimeNow(), so nothing here reads the device clock. F60 (data-model section 8): when
+-- night falls on a player with an empty bowl, one toast says night bait comes in half the time.
 function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	local previous = clockPhase
 	clockPhase = phase
@@ -2562,9 +2564,23 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 			SUNRISE_HOLD
 		)
 	end
+	if
+		previous == "day"
+		and phase == "night"
+		and baitView == nil
+		and (state.upgradeLevels.lure_bowl or 0) >= 1
+	then
+		UI.toast(
+			Theme.icons.moon .. " Night bait! Food in your bowl now brings a cat in half the time.",
+			"info"
+		)
+	end
 	watchDusk(phase, phaseEndsAt)
 	if hud then
 		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })
+	end
+	if baitScreen then
+		baitScreen:setNight(phase == "night")
 	end
 	if dealerScreen then
 		dealerScreen:setNight(phase == "night")
@@ -2592,6 +2608,9 @@ function UI.clock.clear()
 	duskEndsAt = nil
 	if hud then
 		hud:setClock(nil)
+	end
+	if baitScreen then
+		baitScreen:setNight(false)
 	end
 	if dealerScreen then
 		dealerScreen:setNight(nil)

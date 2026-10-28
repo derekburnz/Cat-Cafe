@@ -8,8 +8,8 @@
 --          area the next rank up adds to the pool
 --   extras the gold chance (with the Index's gold luck in it, v0.10) and the charm star odds, because both change
 --          what the cat earns; under the card's Details since 2026-10-28, with the split
---   waitSeconds how long the bowl's cat takes: LureWaitSeconds, or the Big Bowl perk's wait, less the Index's
---          faster bait (F54), whole seconds as the server's Economy.baitWaitSeconds
+--   waitSeconds how long the bowl's cat takes: LureWaitSeconds, or the Big Bowl perk's wait, half for food set at
+--          night (F60), less the Index's faster bait (F54), whole seconds as the server's Economy.baitWaitSeconds
 -- Shared by the bait bowl screen and the night dealer.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -31,6 +31,7 @@ local GOLD_LUCK_MAX: number = (Config :: any).GoldLuckMax or 1.5
 local BAIT_SPEED_MAX: number = (Config :: any).BaitSpeedMax or 0.5
 local WAIT_SECONDS: number = Config.LureWaitSeconds
 local BIG_BOWL_SECONDS: number = (Config :: any).BigBowlLureWaitSeconds or WAIT_SECONDS
+local NIGHT_SECONDS: number = Config.LureWaitSecondsNight -- F60: 300, so night food waits half
 
 -- 70 -> "70%", 3.5 -> "3.5%", 17.5 -> "17.5%", 0.125 -> "0.13%" (catalog odds are percentages). Up to two
 -- decimals, so a food's per-cat split adds back up to its rarity's share (reviewer N69).
@@ -153,10 +154,16 @@ function FoodOdds.extras(goldLuck: number?): string
 	return ("Gold %s · Charm %s"):format(gold, table.concat(stars, ", "))
 end
 
--- The bait wait for food going in now: the Big Bowl perk's wait or LureWaitSeconds, less the faster bait.
-function FoodOdds.waitSeconds(bigBowl: boolean, baitSpeed: number?): number
+-- The bait wait for food going in now, as the server's Economy.baitWaitSeconds: the Big Bowl perk's wait or
+-- LureWaitSeconds, cut to LureWaitSecondsNight's share when it goes in at night (F60: 300 s, or 240 with the Big
+-- Bowl), less the faster bait. The server adds a hair before flooring for the summed percents' float error, so this
+-- does too (372 s, not 371).
+function FoodOdds.waitSeconds(bigBowl: boolean, baitSpeed: number?, night: boolean?): number
 	local base = if bigBowl then BIG_BOWL_SECONDS else WAIT_SECONDS
-	return math.floor(base * (1 - math.clamp(baitSpeed or 0, 0, BAIT_SPEED_MAX)))
+	if night then
+		base = math.floor(base * NIGHT_SECONDS / WAIT_SECONDS)
+	end
+	return math.floor(base * (1 - math.clamp(baitSpeed or 0, 0, BAIT_SPEED_MAX)) + 1e-6)
 end
 
 return FoodOdds

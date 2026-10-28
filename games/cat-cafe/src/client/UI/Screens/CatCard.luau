@@ -24,6 +24,7 @@ local CatCardLogic = require(script.Parent.Parent.Components.CatCardLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
+local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -52,6 +53,7 @@ local NAME_H = 24
 local SUB_H = 16
 local TAGS_H = 22
 local ROLE_H = 22
+local LOVES_H = 18
 local LEVEL_H = 20
 local BAR_H = 10
 local PILL_H = 20
@@ -251,6 +253,16 @@ function CatCard.new(parent: Instance, callbacks: Callbacks): CatCard
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody - 1,
 		RichText = true,
+		Parent = card,
+	})
+
+	self._loves = label({
+		Name = "Loves",
+		Size = UDim2.new(1, -2 * PAD, 0, LOVES_H),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.caramelDark,
+		RichText = true,
+		Visible = false,
 		Parent = card,
 	})
 
@@ -485,7 +497,13 @@ end
 
 -- Rows from the top; returns the card's height. Rows that do not show take no room. The head and the name block sit
 -- side by side, each centred on the taller of the two.
-function CatCard._layout(self: any, sub: boolean, own: boolean, level: boolean): number
+function CatCard._layout(
+	self: any,
+	sub: boolean,
+	own: boolean,
+	level: boolean,
+	loves: boolean
+): number
 	local textHeight = NAME_H + (if sub then SUB_H else 0) + GAP + TAGS_H
 	local block = math.max(HEAD, textHeight)
 	self._headDisc.Position = UDim2.fromOffset(PAD, PAD + math.floor((block - HEAD) / 2))
@@ -503,6 +521,11 @@ function CatCard._layout(self: any, sub: boolean, own: boolean, level: boolean):
 	self._roleIcon.Position = UDim2.fromOffset(PAD, y)
 	self._role.Position = UDim2.fromOffset(PAD + ROLE_H + 6, y)
 	y += ROLE_H
+	self._loves.Visible = loves
+	if loves then
+		self._loves.Position = UDim2.fromOffset(PAD, y + 2)
+		y += LOVES_H + 2
+	end
 	self._level.Visible = level
 	self._xp.Visible = level and own
 	self._track.Visible = level and own
@@ -585,7 +608,8 @@ function CatCard._fill(self: any)
 		local attribute = model:GetAttribute("Role")
 		role = if type(attribute) == "string" then attribute else nil
 	end
-	local roleText, favourite = CatCardLogic.role(role, if def then def.favoriteRole else nil)
+	local loves: string? = if def then def.favoriteRole else nil
+	local roleText, favourite = CatCardLogic.role(role, loves)
 	self._roleGlyph.Text = if role then Theme.roleIcons[role] or "✓" else RESTING_ICON
 	self._role.TextColor3 = if role then Theme.modal.text else Theme.modal.subtext
 	self._role.Text = if favourite
@@ -595,6 +619,10 @@ function CatCard._fill(self: any)
 			HEART
 		)
 		else roleText
+	-- resting or in another role: a line under it with where the cat would rather be (Derek 2026-10-28: the
+	-- favourite role in bold with its icon)
+	local lovesShows = loves ~= nil and not favourite
+	self._loves.Text = if loves then Format.lovesRole(loves) else ""
 
 	-- the level: ProfileSync's for an own cat, else the model's Level
 	local level: number? = nil
@@ -626,7 +654,7 @@ function CatCard._fill(self: any)
 		self._shownUid = uid
 	end
 
-	self._cardHeight = self:_layout(under ~= nil, withBar, hasLevel)
+	self._cardHeight = self:_layout(under ~= nil, withBar, hasLevel, lovesShows)
 	self:_size()
 	local tagShows = CollectionService:HasTag(model, WORKING)
 		and model:GetAttribute("Napping") ~= true

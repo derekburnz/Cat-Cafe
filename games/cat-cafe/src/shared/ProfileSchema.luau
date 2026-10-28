@@ -46,7 +46,6 @@ local V2_START_LEVELS: { [string]: number } = { cafe_level = 1, espresso = 1 }
 
 local STARTER_UID = "starter_tabby"
 local MAX_NAME_LENGTH = 200 -- bytes kept from a saved name
-local DEALER_SLOTS = 3
 
 local function asNumber(value: any, default: number): number
 	if type(value) == "number" and value == value and value >= 0 and value < math.huge then
@@ -488,11 +487,13 @@ local function sanitizeDealer(value: any): Types.DealerState
 		return dealer
 	end
 	dealer.window = asInt(value.window, 0)
+	-- F59: a count per dealer food, at most the largest amount a window can roll; the old per-slot marks ("1" to
+	-- "3") are dropped, and their window is always behind the first 300 second one anyway
 	if type(value.bought) == "table" then
-		for slot = 1, DEALER_SLOTS do
-			local key = tostring(slot)
-			if value.bought[key] == true then
-				dealer.bought[key] = true
+		for lureId, weights in Catalog.dealerAmountWeights do
+			local count = math.clamp(asInt(value.bought[lureId], 0), 0, #weights - 1)
+			if count > 0 then
+				dealer.bought[lureId] = count
 			end
 		end
 	end

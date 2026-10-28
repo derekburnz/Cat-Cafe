@@ -584,7 +584,8 @@ return function()
 			local bait = table.clone(raw.bait)
 			bait.variant = "gold"
 			expect(before.bait :: any).to.deepEqual(bait)
-			expect(before.dealer :: any).to.deepEqual(raw.dealer)
+			-- F59: the old per-slot marks are dropped (that window is long gone anyway)
+			expect(before.dealer :: any).to.deepEqual({ window = raw.dealer.window, bought = {} })
 			expect(before.goldCollection :: any).to.deepEqual({ bengal = 95 })
 			expect((before :: any).shinyCollection).never.to.be.ok()
 			-- and loading the result again changes nothing
@@ -740,10 +741,16 @@ return function()
 			expect(ProfileSchema.migrate(v2, 1000).flags.autoPress).to.equal(false)
 		end)
 
-		it("keeps dealer marks only for slots 1 to 3 saved as true", function()
+		it("keeps a dealer count per dealer food, at most 4, and drops the old slot marks (F59)", function()
 			local raw = v3Save()
-			raw.dealer = { window = 77.9, bought = { ["1"] = true, ["2"] = "yes", ["4"] = true, [3] = true } }
-			expect(ProfileSchema.migrate(raw, 500).dealer :: any).to.deepEqual({ window = 77, bought = { ["1"] = true } })
+			raw.dealer = {
+				window = 77.9,
+				bought = { sardines = 2, caviar = 9, moon_milk = 0, star_treat = "1", kibble = 3, ["1"] = true },
+			}
+			expect(ProfileSchema.migrate(raw, 500).dealer :: any).to.deepEqual({
+				window = 77,
+				bought = { sardines = 2, caviar = 4 },
+			})
 			raw.dealer = "junk"
 			expect(ProfileSchema.migrate(raw, 500).dealer :: any).to.deepEqual({ window = 0, bought = {} })
 		end)

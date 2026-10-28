@@ -19,8 +19,8 @@ blocker and in the wall band all round but the gate: a default jump clears 7.2.
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the gate half, z < 0) or "deep". The trap spots
 (trap_hollow_log, trap_bramble_bush, built into the set as in v3.1) add a fifth number, the piece's turn in degrees
-(a hollow log's open end faces the piece's local +X). nook_great_oak (inside the oak's top) and
-trap_treehouse_branch are kept as in v3.1.
+(a hollow log's open end faces the piece's local +X; trap_treehouse_branch's branch points along the tree house's
+local -X, as the Park's rescue trees do). nook_great_oak (inside the oak's top) is kept as in v3.1.
 """
 
 import math
@@ -553,7 +553,7 @@ def build_set(mat):
     trot = face(tx, tz, ox, oz)
     put(wd.treehouse(mat), tx, tz, trot, r=9)
     _spot(s, "treehouse", *turned(tx, tz, trot, -1.8, 1.8), y=wd.DECK + 0.3)
-    _spot(s, "trap_treehouse_branch", *turned(tx, tz, trot, -4.9, 4.4), y=15.45)
+    _spot(s, "trap_treehouse_branch", *turned(tx, tz, trot, -4.9, 4.4), y=15.45, turn=round(trot, 2))  # branch along -X
     _spot(s, "treehouse_foot", *turned(tx, tz, trot, 3.0, -7.5))
     wx, wz = 2.0, 102.0
     put(wd.tower(mat), wx, wz, face(wx, wz, ox, oz), r=6)

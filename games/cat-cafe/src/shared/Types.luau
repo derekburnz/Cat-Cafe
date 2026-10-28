@@ -374,11 +374,11 @@ export type BaitView = {
 	cat: { catId: string, variant: string, charm: number, stars: number }?,
 }
 
--- What the night dealer sold this player (section 8b): stock and bought marks are keyed on the dealer window
--- floor(os.time() / 600). Slot numbers are string keys ("1" to "3") because a DataStore cannot hold a sparse array.
+-- What the night dealer sold this player (section 8b): bought counts are keyed on the dealer window
+-- floor(os.time() / DealerWindowSeconds). v0.8 F59: how many of each dealer food, by lureId (was a mark per slot).
 export type DealerState = {
 	window: number,
-	bought: { [string]: boolean },
+	bought: { [string]: number },
 }
 
 -- The onboarding funnel's place (data-model section 14, growth analytics-plan 3.2): the last step logged, and later
@@ -388,9 +388,11 @@ export type TelemetryState = {
 	achieved: { [string]: boolean },
 }
 
--- One player's dealer stock as DealerStock sends it: the slot number is the index, restocksAt is os.time().
-export type DealerSlot = { lureId: string, cost: number, bought: boolean }
-export type DealerStock = { slots: { DealerSlot }, restocksAt: number }
+-- One player's dealer stock as DealerStock sends it (v0.8 F59): every dealer food in Dealer.FOODS order with the
+-- window's amount (0 shows "None this time") and how many of it this player bought; `window` is what
+-- BuyDealerFood sends back, restocksAt is os.time().
+export type DealerFood = { lureId: string, cost: number, amount: number, bought: number }
+export type DealerStock = { window: number, restocksAt: number, stock: { DealerFood } }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 -- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.

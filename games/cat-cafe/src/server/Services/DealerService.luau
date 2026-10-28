@@ -1,9 +1,10 @@
 --!strict
 -- The night food dealer (F32, data-model section 8b). A cart parks mid-street at night start and leaves at day
--- start. Everyone sees the same three slots of dealer food from shared/Dealer, on every server for the same window
--- (v0.5 F43), and each player can buy each slot once per window. BuyDealerFood(slot, lureId) recomputes the stock
--- and refuses when the slot holds another food by now (reviewer S42). DealerStock goes to each player whenever their
--- stock or bought marks change (night start, a new window, a join), nil by day, and after every buy, bought or not.
+-- start. v0.8 F59: every window shared/Dealer rolls an amount of each dealer food, the same on every server, and
+-- each player can buy up to that many of each in the window. BuyDealerFood(lureId, window) recomputes the amount
+-- and refuses a buy sent for a window that has rolled over (reviewer S42: nobody buys stock they never saw).
+-- DealerStock goes to each player whenever their stock or bought counts change (night start, a new window, a
+-- join), nil by day, and after every buy, bought or not.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -104,27 +105,31 @@ local function leave()
 	end
 end
 
--- Everyone's stock right now, with this player's bought marks of the current window.
+-- Everyone's amounts right now, with this player's bought counts of the current window. While this server's
+-- window is behind the saved one every food shows as bought out (reviewer N32).
 local function stockFor(profile: Types.PlayerProfile): Types.DealerStock
 	local window = Dealer.window(os.time())
 	Dealer.refresh(profile.dealer, window)
 	local behind = Dealer.behind(profile.dealer, window)
-	local slots: { Types.DealerSlot } = {}
-	for slot, lureId in Dealer.stock(window) do
-		local def = Catalog.getLure(lureId)
-		table.insert(slots, {
-			lureId = lureId,
+	local stock: { Types.DealerFood } = {}
+	for _, food in Dealer.stock(window) do
+		local def = Catalog.getLure(food.lureId)
+		table.insert(stock, {
+			lureId = food.lureId,
 			cost = if def ~= nil then def.cost else 0,
-			bought = behind or profile.dealer.bought[tostring(slot)] == true,
+			amount = food.amount,
+			bought = if behind
+				then food.amount
+				else math.min(profile.dealer.bought[food.lureId] or 0, food.amount),
 		})
 	end
-	return { slots = slots, restocksAt = Dealer.restocksAt(window) }
+	return { window = window, restocksAt = Dealer.restocksAt(window), stock = stock }
 end
 
 local function stockKey(stock: Types.DealerStock): string
-	local parts = { tostring(stock.restocksAt) }
-	for _, slot in stock.slots do
-		table.insert(parts, slot.lureId .. (if slot.bought then "!" else ""))
+	local parts = { tostring(stock.window) }
+	for _, food in stock.stock do
+		table.insert(parts, string.format("%s=%d/%d", food.lureId, food.bought, food.amount))
 	end
 	return table.concat(parts, ":")
 end
@@ -160,7 +165,7 @@ local function nearCart(player: Player): boolean
 	return ((root :: BasePart).Position - part.Position).Magnitude <= Config.DealerRangeStuds
 end
 
-local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unknown)
+local function onBuyDealerFood(player: Player, rawLureId: unknown, rawWindow: unknown)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
@@ -169,9 +174,9 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 		Net.toast(player, text, "warn")
 		sendStock(player, true)
 	end
-	local slot = Guard.int(rawSlot, 1, Dealer.SLOTS)
 	local lureId = Guard.id(rawLureId)
-	if slot == nil or lureId == nil then
+	local seenWindow = Guard.int(rawWindow, 0, 2 ^ 40)
+	if lureId == nil or seenWindow == nil then
 		sendStock(player, true)
 		return
 	end
@@ -189,23 +194,28 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 		refuse("Fresh stock is on its way. Try again in a moment.")
 		return
 	end
-	if Dealer.stock(window)[slot] ~= lureId then
-		-- Only a list from the window before means the stock moved on while the player looked.
-		if Dealer.stock(window - 1)[slot] == lureId then
-			refuse("Fresh stock just arrived. Take another look.")
-		else
-			refuse("That food isn't on the cart.")
-		end
-		return
-	end
-	local key = tostring(slot)
-	if profile.dealer.bought[key] == true then
-		refuse("You already bought that one.")
+	if seenWindow ~= window then
+		-- the stock rolled over while the player looked: they never saw these amounts (S42)
+		refuse("Fresh stock just arrived. Take another look.")
 		return
 	end
 	local def = Catalog.getLure(lureId)
 	if def == nil or def.source ~= "dealer" then
-		sendStock(player, true)
+		refuse("That food isn't on the cart.")
+		return
+	end
+	local amount = Dealer.amountOf(window, lureId)
+	local bought = profile.dealer.bought[lureId] or 0
+	if amount <= 0 then
+		refuse("None this time.")
+		return
+	end
+	if bought >= amount then
+		refuse(
+			if amount == 1
+				then "You bought the only one this time."
+				else "You bought them all this time."
+		)
 		return
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
@@ -214,14 +224,15 @@ local function onBuyDealerFood(player: Player, rawSlot: unknown, rawLureId: unkn
 		return
 	end
 	Telemetry.sink(player, profile, def.cost, "Shop", "dealer_" .. lureId)
+	-- the third field was the slot number before F59; it is now which of the window's amount this buy was ("2/3")
 	Telemetry.custom(
 		player,
 		"dealer_buy",
 		def.cost,
-		{ lureId, tostring(Economy.tier(profile)), key }
+		{ lureId, tostring(Economy.tier(profile)), string.format("%d/%d", bought + 1, amount) }
 	)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
-	profile.dealer.bought[key] = true
+	profile.dealer.bought[lureId] = bought + 1
 	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
 	CafeService.sync(player)
 	sendStock(player, true)

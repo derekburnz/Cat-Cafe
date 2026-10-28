@@ -269,7 +269,7 @@ Spin fires `events.spinWheel()` and the button shows "..." until `SpinResult` (5
 
 Odds (F69, round 4 Q11: "have the odds be a button you can click for the spin so you can see whats likely to hit"): the Odds button covers the window with "Spin odds", the six slices likeliest first (`SpinLogic.byChance`; equal chances keep wheel order), each with its prize picture (foods with their grade gem), the prize, a bar as long as its chance and the chance in big text, the same numbers as on the wheel, adding up to 100%. Back, or closing the window, puts it away. Nothing to call.
 
-The Town Square has no location marker since 2026-10-28 (Derek: only your cafe keeps one), so its red free-spin dot went with it. In the Tip Jar, a gift with `spins` wears a pink "🎡 +1 spin" badge until claimed, or a grey "Spins full" while `spin.banked` is at `SpinBankCap` (20), since the server then drops the spin and pays the rest.
+The Town Square has no location marker since 2026-10-28 (Derek: only your cafe keeps one), so its red free-spin dot went with it. The HUD says it instead (Derek okayed 2026-10-28 12:02): while today's free spin waits (`SpinLogic.freeDue`), a gold outlined line "🎡 Free spin at the Town Square" sits in the right column under the quest line, no box and not a button, since the wheel is a station you walk up to. It waits for `state.spin` and the end of the tutorial (step 5), goes when a spin sends the new state, and comes back at 00:00 UTC. In the Tip Jar, a gift with `spins` wears a pink "🎡 +1 spin" badge until claimed, or a grey "Spins full" while `spin.banked` is at `SpinBankCap` (20), since the server then drops the spin and pays the rest.
 
 | API | Purpose |
 |---|---|

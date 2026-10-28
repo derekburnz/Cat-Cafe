@@ -31,8 +31,11 @@ The `stuck*` scenarios put a cat in a rescue trap with its wriggle. A `trap` sce
 
 `avatar.luau` does the same for the Tackle's character poses (`Avatar.luau` and `Presets.tacklePose`, unchanged) on a stand-in blocky R15 in the palette's shirt and skin swatches, built from plain tables with the members `Avatar.bind` reads. The engineer's lunge and knockback are copied as straight moves at the design's speeds. Scenarios: `miss`, `hit` (into a player facing the tackler) and `behind` (into one facing away). The JSON carries a fixed `box` and the checker floor, so the camera watches the whole run from one place. The carry has its cat in it, so it runs in `dump.luau`: `carryLoaf` and `carrySit` put the cat on the stand-in's folded arms (`Avatar.carryArms`, `Avatar.cradle`) as Carry.luau does, standing and then walking at carry speed. `net` is three players holding the level 1, 2 and 3 nets (`Avatar.holdNet`, `Presets.netHold`), standing and then walking with the camera following; it reads the nets from the assets rbxm, passed after the Effects folder (an empty Effects argument keeps the default). The stand-in itself is in `standin.luau`.
 
+The Cat Cannon flight (F84) is in `avatar.luau` too: `cannon` is the hop from where the player stood into a stand-in cannon (plain parts until Model-Agent's `CatCafe_Square_Cannon` lands) and the shot out of it, `cannonLand` the drop onto a stand-in landing pad and the crouch and bounce, both at half speed with a sitting Tabby from the assets rbxm for scale, and `cannonGlide` the flyer of the cloud cutscene seen through its ViewportFrame's own camera (`Presets.cannonGlide`), with white puffs standing in for VFX-Agent's cloud tunnel. `render.py` takes a fixed camera (`cam`: at, look and a vertical field of view, as a Roblox Camera has them) and a `sky` colour in place of the floor for that one.
+
 ```sh
 lune run avatar.luau hit /tmp/catclips/hit.json
 lune run avatar.luau net /tmp/catclips/net.json "" /tmp/catclips/all.rbxm
+lune run avatar.luau cannon /tmp/catclips/cannon.json "" /tmp/catclips/all.rbxm
 python render.py /tmp/catclips/hit.json /tmp/catclips --samples 10
 ```

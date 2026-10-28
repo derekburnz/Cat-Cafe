@@ -10,6 +10,7 @@
 
 local Ambient = require(script.Ambient)
 local Cannon = require(script.Cannon)
+local CannonGlide = require(script.CannonGlide)
 local Catch = require(script.Catch)
 local Cats = require(script.Cats)
 local Chase = require(script.Chase)
@@ -64,6 +65,7 @@ function Effects.start()
 	Splash.start()
 	Rescue.start()
 	Intro.start()
+	Cannon.setGlide(CannonGlide)
 	Cannon.start()
 end
 

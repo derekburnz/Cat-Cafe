@@ -204,6 +204,11 @@ def main():
     common._ensure_lights(True)
     if frames[0]["pivot"] != frames[-1]["pivot"] or data.get("checker"):
         checker_floor()  # so a walking cat is seen to move while the camera follows it
+    if data.get("sky"):  # up in the air: no floor, a sky behind
+        bpy.data.objects["_PreviewFloor"].hide_render = True
+        bg = sc.world.node_tree.nodes.get("Background")
+        bg.inputs["Color"].default_value = (*linear(data["sky"]), 1)
+        bg.inputs["Strength"].default_value = 1.0
 
     objs = []
     for i, info in enumerate(data["parts"]):
@@ -232,6 +237,12 @@ def main():
     view = VIEWS.get(data.get("camera") or "three", VIEWS["three"])
     cam = setup_camera(args.res)
     view_b = (CT.to_3x3() @ view)
+    fixed = data.get("cam")  # a camera of the game's own (at, look, vertical fov), as a ViewportFrame's
+    if fixed:
+        cam.data.sensor_fit = "VERTICAL"
+        cam.data.angle_y = math.radians(fixed["fov"])
+        cam.location = to_blender(fixed["at"])
+        cam.rotation_euler = (to_blender(fixed["look"]) - cam.location).to_track_quat("-Z", "Y").to_euler()
 
     zs = []
     if has_z:
@@ -245,7 +256,8 @@ def main():
     paths = []
     for n, frame in enumerate(frames):
         pivot = Vector(frame["pivot"])
-        aim(cam, to_blender(center_rbx + pivot), view_b, radius)
+        if not fixed:
+            aim(cam, to_blender(center_rbx + pivot), view_b, radius)
         for ob, info, part in zip(objs, data["parts"], frame["parts"]):
             sx, sy, sz = part_scale(info["shape"], part["size"])
             ob.matrix_world = CT @ cframe_matrix(part["cf"]) @ Matrix.Diagonal((sx, sy, sz, 1))

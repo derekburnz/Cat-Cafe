@@ -9,6 +9,10 @@
 -- a catching area; `Avatar.holdNet` poses that arm only and `Avatar.netHand` says where in the hand the net goes.
 -- The carry (Derek 2026-10-28): arms crossed in front of the chest with the caught cat on them; `Avatar.carryArms`
 -- poses the upper body only, so the legs keep walking, and `Avatar.cradle` says where on the arms the cat rests.
+-- The Cat Cannon flight (F84): the hop into the barrel, the curled ball rolling through the air and the crouch
+-- landing with a bounce; `Avatar.flight` says where the body is and how it is posed at a moment of the flight and
+-- `Avatar.cannon` turns that into joint Transforms, the body's move from the anchored root included. `Avatar.glide`
+-- and `Avatar.glideFrames` do the same for the character flying through the cloud cutscene.
 -- No services and nothing written: Tackle.luau applies the Transforms every frame, and the preview tool
 -- (assets/cat-cafe/anim/preview) runs these same functions outside Roblox.
 
@@ -35,6 +39,8 @@ export type Pose = {
 	hipR: number,
 	knL: number, -- knee bent
 	knR: number,
+	lgL: number, -- thigh out to the side
+	lgR: number,
 }
 
 -- Server times of one character's tackle moves; any may be missing.
@@ -97,6 +103,8 @@ local FIELDS = {
 	"hipR",
 	"knL",
 	"knR",
+	"lgL",
+	"lgR",
 }
 -- The joints a pose moves, by the parts each joins (parent, child): found that way rather than by the joint's own
 -- name or class, which differ between rigs.
@@ -123,8 +131,8 @@ local R6: { [string]: { string } } = {
 	RightHip = { "Torso", "Right Leg" },
 }
 
--- A full pose from a Presets.tacklePose key: `sh`, `sp`, `tw`, `el`, `hip` and `kn` set both sides, the L and R keys
--- one.
+-- A full pose from a Presets.tacklePose key: `sh`, `sp`, `tw`, `el`, `hip`, `kn` and `lg` set both sides, the L and
+-- R keys one.
 function Avatar.pose(spec: { [string]: number }): Pose
 	local function side(key: string, name: string): number
 		return spec[key] or spec[name] or 0
@@ -147,6 +155,8 @@ function Avatar.pose(spec: { [string]: number }): Pose
 		hipR = side("hipR", "hip"),
 		knL = side("knL", "kn"),
 		knR = side("knR", "kn"),
+		lgL = side("lgL", "lg"),
+		lgR = side("lgR", "lg"),
 	}
 end
 
@@ -490,8 +500,8 @@ function Avatar.solve(rig: Rig, pose: Pose): { [Joint]: CFrame }
 	local turn = CFrame.Angles(rad(-pose.lean), 0, rad(-pose.roll))
 	set("Root", turn)
 	upper(set, pose)
-	set("LeftHip", CFrame.Angles(rad(pose.hipL), 0, 0))
-	set("RightHip", CFrame.Angles(rad(pose.hipR), 0, 0))
+	set("LeftHip", CFrame.Angles(rad(pose.hipL), 0, rad(-pose.lgL)))
+	set("RightHip", CFrame.Angles(rad(pose.hipR), 0, rad(pose.lgR)))
 	set("LeftKnee", CFrame.Angles(rad(-pose.knL), 0, 0))
 	set("RightKnee", CFrame.Angles(rad(-pose.knR), 0, 0))
 	-- Down (or up) so the lowest part sits `air` above the floor; the drop is along the root's up, in Root's C0 axes.
@@ -612,6 +622,242 @@ function Avatar.cradle(rig: Rig, held: string, frameOf: (BasePart) -> CFrame): C
 	return torso
 		* CFrame.new(spot)
 		* CFrame.Angles(0, math.rad(if sit then c.sitTurn else c.loafTurn), 0)
+end
+
+-- The Cat Cannon flight's key poses (Presets.cannonPose), read once.
+local cannonKeys: { [string]: Pose } = {}
+local function cannonKey(name: string): Pose
+	local pose = cannonKeys[name]
+	if pose == nil then
+		pose = Avatar.pose(Presets.cannonPose.poses[name])
+		cannonKeys[name] = pose
+	end
+	return pose
+end
+
+-- Where the hop is, `k` (0 to 1) of the way through the air from `from` to the seat (the root's own frame): along
+-- the line between the two, lifted in an arc hopHeight over the higher end, and how far it is still turned from the
+-- barrel's heading, `yaw` radians at the start, the short way round.
+local function hopPlace(from: Vector3, yaw: number, k: number): (Vector3, number)
+	local lift = 4 * (Presets.cannonPose.hopHeight + math.abs(from.Y) / 2) * k * (1 - k)
+	local turn = (yaw + math.pi) % (2 * math.pi) - math.pi
+	return from:Lerp(Vector3.zero, k) + Vector3.new(0, lift, 0), turn * (1 - smooth(k))
+end
+
+-- The flight `seconds` after CannonLaunchAt: the pose; where the body is from the root (which the server holds at
+-- the barrel's seat, then on the landing pad), in the root's frame; how far it is turned about the up axis from the
+-- root's heading and how far it has rolled forward about its middle (radians); and how much of it shows, easing
+-- back to the character's own animation after the landing. `from` and `fromYaw` are where the root stood just before
+-- the launch and its heading, in the root's frame now (nil when this client never saw it: the hop starts at the
+-- seat). Nil outside the flight. Plain numbers and vectors, so the tests run without CFrame.
+function Avatar.flight(
+	seconds: number,
+	from: Vector3?,
+	fromYaw: number?
+): (Pose?, Vector3, number, number, number)
+	local c = Presets.cannonPose
+	if seconds < 0 or seconds >= c.ends + c.blendOut then
+		return nil, Vector3.zero, 0, 0, 0
+	end
+	local ball = cannonKey("ball")
+	local roll = 2 * math.pi * c.spin
+	if seconds < c.hop then
+		-- a crouch where it stood, then up into the barrel, curling into the ball on the way down
+		local pose = through({
+			{ at = 0, pose = STAND },
+			{ at = c.hopCrouch, pose = cannonKey("hopCrouch") },
+			{ at = c.hopCrouch + (c.hop - c.hopCrouch) * 0.3, pose = cannonKey("hopUp") },
+			{ at = c.hop, pose = ball },
+		}, seconds)
+		local air = math.max(0, (seconds - c.hopCrouch) / (c.hop - c.hopCrouch))
+		local at, yaw = hopPlace(from or Vector3.zero, fromYaw or 0, air)
+		return pose, at, yaw, 0, 1
+	end
+	if seconds < c.boom then
+		return Avatar.mix(ball, ball, 0), Vector3.zero, 0, 0, 1
+	end
+	if seconds < c.gone then
+		-- out along the barrel, rising in a high arc and still climbing when it meets the cloud
+		local t = seconds - c.boom
+		local tilt = math.rad(c.tilt)
+		local out = Vector3.new(0, math.sin(tilt), -math.cos(tilt)) * (c.speed * t)
+			- Vector3.new(0, 0.5 * c.gravity * t * t, 0)
+		return Avatar.mix(ball, ball, 0), out, 0, roll * t, 1
+	end
+	if seconds < c.drop then
+		return Avatar.mix(ball, ball, 0), Vector3.new(0, c.hidden, 0), 0, 0, 1
+	end
+	if seconds < c.touch then
+		-- falling faster and faster onto the pad, opening at the last moment and upright as its feet arrive
+		local k = (seconds - c.drop) / (c.touch - c.drop)
+		local open = smooth((seconds - (c.touch - c.open)) / c.open)
+		return Avatar.mix(ball, cannonKey("land"), open),
+			Vector3.new(0, c.dropHeight * (1 - (0.6 * k + 0.4 * k * k)), 0),
+			0,
+			roll * (seconds - c.touch),
+			1
+	end
+	-- down into a crouch, deeper, a little bounce and up standing
+	local span = c.ends - c.touch
+	local pose = through({
+		{ at = c.touch, pose = cannonKey("land") },
+		{ at = c.touch + span * 0.25, pose = cannonKey("squash") },
+		{ at = c.touch + span * 0.55, pose = cannonKey("bounce") },
+		{ at = c.touch + span * 0.85, pose = cannonKey("settle") },
+		{ at = c.ends, pose = STAND },
+	}, seconds)
+	local b = (seconds - (c.touch + span * 0.25)) / (span * 0.6)
+	if b > 0 and b < 1 then
+		pose.air += c.bounce * math.sin(math.pi * b)
+	end
+	local weight = if seconds <= c.ends then 1 else smooth(1 - (seconds - c.ends) / c.blendOut)
+	return pose, Vector3.zero, 0, 0, weight
+end
+
+-- The middle of the rig's parts in the root's frame, with these Transforms: what the ball rolls about.
+function Avatar.middle(rig: Rig, transforms: { [Joint]: CFrame }): Vector3
+	local at: { [BasePart]: CFrame } = { [rig.root] = CFrame.identity }
+	local sum, count = Vector3.zero, 0
+	for _, link in rig.links do
+		local frame = at[link.parent]
+			* link.c0
+			* (transforms[link.motor] or CFrame.identity)
+			* link.c1
+		at[link.part] = frame
+		sum += frame.Position
+		count += 1
+	end
+	return if count > 0 then sum / count else Vector3.zero
+end
+
+-- `pose`'s joint Transforms with the whole body moved from the root through the Root joint: to `at`, turned `yaw`
+-- about the up axis, then rolled `roll` forward and banked `bank` towards its right about its middle (radians). Also
+-- the body's middle, turned with it, in the root's frame.
+local function moved(
+	rig: Rig,
+	pose: Pose,
+	at: Vector3,
+	yaw: number,
+	roll: number,
+	bank: number
+): ({ [Joint]: CFrame }, CFrame)
+	local out = Avatar.solve(rig, pose)
+	local middle = Avatar.middle(rig, out)
+	local centre = CFrame.new(at)
+		* CFrame.Angles(0, yaw, 0)
+		* CFrame.new(middle)
+		* CFrame.Angles(-roll, 0, -bank)
+	local root = rig.joints.Root
+	for _, link in rig.links do
+		if link.motor == root then
+			local move = centre * CFrame.new(-middle)
+			out[root] = link.c0:Inverse() * move * link.c0 * (out[root] or CFrame.identity)
+			break
+		end
+	end
+	return out, centre
+end
+
+-- The flight's joint Transforms `seconds` after CannonLaunchAt and how much of them shows (Avatar.flight): the pose,
+-- with the whole body moved from the anchored root and rolled about its middle. Also where the body's middle is in
+-- the root's frame, nil while it waits out of sight above the clouds. `from` is where the root stood before the
+-- launch, in the root's frame now. Nil outside the flight.
+function Avatar.cannon(
+	rig: Rig,
+	seconds: number,
+	from: CFrame?
+): ({ [Joint]: CFrame }?, number, CFrame?)
+	local fromYaw = nil
+	if from ~= nil then
+		local look = from.LookVector
+		fromYaw = math.atan2(-look.X, -look.Z)
+	end
+	local pose, at, yaw, roll, weight =
+		Avatar.flight(seconds, if from ~= nil then from.Position else nil, fromYaw)
+	if pose == nil then
+		return nil, 0, nil
+	end
+	local out, centre = moved(rig, pose, at, yaw, roll, 0)
+	local c = Presets.cannonPose
+	local hidden = seconds >= c.gone and seconds < c.drop
+	return out, weight, if hidden then nil else centre
+end
+
+-- The cloud cutscene's flyer `seconds` after CannonLaunchAt (Presets.cannonGlide), in its ViewportFrame's space: the
+-- pose, where the body is, its heading, its forward roll and its bank (radians). Before the clouds it waits below the
+-- frame as the ball; nil from cannonPose's `drop`, when the clouds part and the flyer is done.
+function Avatar.glide(seconds: number): (Pose?, Vector3, number, number, number)
+	local c = Presets.cannonPose
+	local g = Presets.cannonGlide
+	if seconds >= c.drop then
+		return nil, Vector3.zero, 0, 0, 0
+	end
+	local s = math.max(seconds, c.gone)
+	local ball, glide = cannonKey("ball"), cannonKey("spread")
+	local heading = math.rad(g.heading)
+	local roll = 2 * math.pi * c.spin
+	local opened = c.gone + g.rise + g.open
+	local tuck = c.drop - g.dive
+	if s < opened then
+		-- up into view still rolling, opening out flat as the roll comes round upright
+		local up = smooth((s - c.gone) / g.rise)
+		local open = smooth((s - (opened - g.open)) / g.open)
+		return Avatar.mix(ball, glide, open),
+			Vector3.new(0, -g.below * (1 - up), 0),
+			heading,
+			roll * (s - opened),
+			0
+	end
+	local function sway(t: number): (number, number)
+		return math.sin(2 * math.pi * g.bobHz * t) * g.bob,
+			math.rad(g.bank) * math.sin(2 * math.pi * g.bankHz * t)
+	end
+	if s < tuck then
+		local t = s - opened
+		local pose = Avatar.mix(glide, glide, 0)
+		local flutter = math.sin(2 * math.pi * g.flutterHz * t) * g.flutter
+		pose.knL += flutter
+		pose.knR -= flutter
+		pose.hipL -= flutter * 0.4
+		pose.hipR += flutter * 0.4
+		local bob, bank = sway(t)
+		return pose, Vector3.new(0, bob, 0), heading, 0, bank
+	end
+	-- tucked back into the ball and diving out of the bottom
+	local k = (s - tuck) / g.dive
+	local bob, bank = sway(tuck - opened)
+	return Avatar.mix(glide, ball, smooth(k * 2)),
+		Vector3.new(0, bob - g.below * k * k, 0),
+		heading,
+		roll * (s - tuck),
+		bank * (1 - smooth(k))
+end
+
+-- The flyer's joint Transforms `seconds` after CannonLaunchAt (Avatar.glide), its root at the frame's origin; nil
+-- once it is done.
+function Avatar.glideFrames(rig: Rig, seconds: number): { [Joint]: CFrame }?
+	local pose, at, yaw, roll, bank = Avatar.glide(seconds)
+	if pose == nil then
+		return nil
+	end
+	return (moved(rig, pose, at, yaw, roll, bank))
+end
+
+-- Every rig part's CFrame with these Transforms and the root at `root`, as the joints would put them: for a copy of
+-- a character that nothing simulates (a ViewportFrame's).
+function Avatar.partFrames(
+	rig: Rig,
+	transforms: { [Joint]: CFrame },
+	root: CFrame
+): { [BasePart]: CFrame }
+	local at: { [BasePart]: CFrame } = { [rig.root] = root }
+	for _, link in rig.links do
+		at[link.part] = at[link.parent]
+			* link.c0
+			* (transforms[link.motor] or CFrame.identity)
+			* link.c1
+	end
+	return at
 end
 
 return Avatar

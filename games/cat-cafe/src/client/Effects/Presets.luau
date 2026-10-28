@@ -1078,6 +1078,118 @@ Presets.carryPose = {
 	retry = 1,
 }
 
+-- The Cat Cannon flight (F84, hometown-cannon.md section 3b), drawn by Cannon.luau on every character from its
+-- `CannonLaunchAt`, in seconds from it (CannonLaunchSeconds 3.0 in all). The server holds the character's root
+-- anchored at the barrel's seat, upright and facing where the barrel fires, then on the landing pad from
+-- CannonTeleportAtSeconds (1.9); the body moves away from the root through the Root joint, so nothing replicates.
+-- From where it stood the character crouches for `hopCrouch` and hops in a `hopHeight` arc into the barrel by `hop`,
+-- curling into the ball on the way. At `boom` the ball leaves along the barrel, tipped `tilt` degrees up, at `speed`
+-- studs a second under `gravity`, rolling forward `spin` turns a second about its middle, and at `gone` it waits
+-- `hidden` studs up, out of sight, while the clouds cover the move. At `drop` it falls from `dropHeight` over the
+-- pad, still rolling, opens over the last `open` seconds and lands at `touch` in a crouch; it sinks deeper, bounces
+-- `bounce` studs up and lands standing at `ends`, then gives the joints back over `blendOut`. A key's numbers are
+-- Avatar.Pose degrees, as in tacklePose; `ball` hugs the shins with the chin tucked.
+Presets.cannonPose = {
+	hopCrouch = 0.1,
+	hop = 0.4,
+	boom = 0.5,
+	gone = 1.4,
+	drop = 2.4,
+	touch = 2.62,
+	ends = 3.0,
+	hopHeight = 2.5,
+	tilt = 50,
+	speed = 150,
+	gravity = 60,
+	spin = 2,
+	hidden = 4000,
+	dropHeight = 40,
+	open = 0.1,
+	bounce = 0.6,
+	blendOut = 0.15,
+	poses = {
+		hopCrouch = {
+			lean = 15,
+			waist = 15,
+			neck = 15,
+			sh = -45,
+			sp = 12,
+			el = 30,
+			hip = 65,
+			kn = 85,
+		},
+		hopUp = { lean = -5, neck = 20, sh = 160, sp = 20, el = 10, hip = 15, kn = 25 },
+		ball = { waist = 50, neck = -35, sh = 55, sp = -10, tw = 35, el = 115, hip = 125, kn = 150 },
+		land = { lean = 25, waist = 20, neck = 25, sh = 35, sp = 50, el = 25, hip = 85, kn = 115 },
+		squash = {
+			lean = 30,
+			waist = 25,
+			neck = 20,
+			sh = 25,
+			sp = 55,
+			el = 30,
+			hip = 100,
+			kn = 135,
+		},
+		bounce = { lean = 5, waist = 5, neck = 15, sh = 60, sp = 45, el = 15, hip = 15, kn = 25 },
+		settle = { lean = 8, waist = 5, neck = 5, sh = 10, sp = 15, el = 15, hip = 25, kn = 35 },
+		spread = {
+			lean = 78,
+			waist = -8,
+			neck = 45,
+			sh = 100,
+			sp = 70,
+			el = 25,
+			hip = -12,
+			kn = 45,
+			lg = 25,
+		},
+	} :: { [string]: { [string]: number } },
+}
+
+-- The cloud cutscene's flyer (Derek 2026-10-28 13:56: "make the cloud cutscene a little better"), drawn by
+-- CannonGlide.luau in a ViewportFrame in the cloud tunnel on the launching player's screen, from cannonPose's `gone`
+-- to its `drop`. The rolling ball rises `below` studs into view over `rise` seconds and opens into cannonPose's
+-- `spread` over `open`, a happy skydiver: flat out, arms up and out, legs apart and bent. It glides with its knees fluttering `flutter` degrees
+-- at `flutterHz`, bobbing `bob` studs at `bobHz` and banking `bank` degrees at `bankHz`, then over the last `dive`
+-- seconds tucks back into the ball and dives out of the bottom of the frame, ready to drop onto the pad. It heads
+-- `heading` degrees off straight into the screen, so its side and face show; the frame's camera sits at `camera`
+-- looking at `look` with `fov` degrees, which puts the flyer in the lower middle, under UI's name card.
+Presets.cannonGlide = {
+	rise = 0.18,
+	open = 0.2,
+	dive = 0.22,
+	below = 9,
+	flutter = 14,
+	flutterHz = 3,
+	bob = 0.25,
+	bobHz = 1.3,
+	bank = 14,
+	bankHz = 0.7,
+	heading = 20,
+	camera = Vector3.new(0, 6, 12),
+	look = Vector3.new(0, -1.2, -1.5),
+	fov = 40,
+}
+
+-- The launching player's camera through the flight (hometown-cannon.md section 7), moved by CannonGlide.luau; everyone
+-- else keeps their own. Over the hop and the fuse it eases from the player's own view to `launch` (studs right, up
+-- and back of the seat) looking `ahead` studs up the barrel. From the boom it chases the ball from `chase` (right, up
+-- and back of its flight), easing there over `catch` seconds, with a shake of `shake` studs dying away over
+-- `shakeSeconds`. Under the clouds it waits. From `over` seconds before the drop it hangs at `above` (right, up and
+-- back of the pad) watching the ball come down, and after the landing it settles behind the character at the
+-- player's own distance and pitch by cannonPose's `ends`, where the game's camera takes over again.
+Presets.cannonCamera = {
+	launch = Vector3.new(5, 5, 14),
+	ahead = 12,
+	chase = Vector3.new(2.5, 3, 13),
+	catch = 0.15,
+	shake = 0.5,
+	shakeSeconds = 0.35,
+	over = 0.1,
+	above = Vector3.new(4, 10, 18),
+}
+
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
 -- pushes every other player within CatchBurstRadiusStuds (10) of the catcher away, so a ring as wide as that
 -- spreads from the catcher's feet, and while their `RushUntil` runs (CatchRushSeconds, 5) speed lines stream off

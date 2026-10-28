@@ -9,6 +9,7 @@
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe, gone unpaid in 20 s
+--   D:Invoke("tipPiles", nil, 6)       -- 6 tip piles on your cafe's tables now, whatever the clock (F61)
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
 --   D:Invoke("tackle", "Player1", "loose")  -- a real Tackle press with every check, the roll forced (F74)
 --   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first
@@ -16,11 +17,13 @@
 --   D:Invoke("tipJar", nil, 30)        -- the Tip Jar's session is 30 minutes older: steps 1 to 6 unlock now
 --   D:Invoke("fillIndex", nil, "alley", nil, true)     -- every Alleyway cat in your Index, gold too (F48)
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
+--   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
 --   D:Invoke("potionLeft", nil, "tip_potion", 30)   -- the running Tip Potion has 30 s left (0 ends it)
 --   D:Invoke("mystery", nil, "potion")  -- a Mystery Visitor sits down at your cafe now, its gift of that kind (F64)
+--   D:Invoke("collector", nil, nil, 1)  -- the Cat Collector at your counter now, his value roll at its best (F63)
 --   D:Invoke("intro")                  -- the intro plays again on your next respawn or rejoin, as for a new player (F72)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
@@ -36,7 +39,9 @@ local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local CodeService = require(script.Parent.CodeService)
+local CollectorService = require(script.Parent.CollectorService)
 local Config = require(ReplicatedStorage.Shared.Config)
+local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FishMarketService = require(script.Parent.FishMarketService)
@@ -46,13 +51,16 @@ local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local QuestService = require(script.Parent.QuestService)
 local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
+local Spin = require(ReplicatedStorage.Shared.Spin)
 local SpinService = require(script.Parent.SpinService)
 local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
+local TipPileService = require(script.Parent.TipPileService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local Debug = {}
@@ -170,6 +178,17 @@ function Debug.spins(player: (Player | number | string)?, banked: number, freeDu
 	return SpinService.debugSet(p, profileOf(p), banked, freeDue == true)
 end
 
+-- Sets the Daily Treat card to `stamp` stamps (0 to 7) with a stamp due now, as if the last claim was yesterday
+-- (F70). Returns the day the next Claim pays.
+function Debug.dailyTreat(player: (Player | number | string)?, stamp: number): number
+	local p = resolve(player)
+	local profile = profileOf(p)
+	profile.dailyTreat.stamp = math.clamp(math.floor(stamp), 0, DailyTreat.DAYS)
+	profile.dailyTreat.lastDay = math.max(Spin.day(os.time()) - 1, 0)
+	CafeService.sync(p)
+	return DailyTreat.nextDay(profile.dailyTreat)
+end
+
 -- Sets the player's banked crates of `crateId` to `count` (default 1) and clears the Market cooldown (F53). Walk
 -- to the Golden Fish Market to open them; a banked crate costs no fish.
 function Debug.giveCrate(player: (Player | number | string)?, crateId: string, count: number?)
@@ -218,6 +237,27 @@ function Debug.mystery(player: (Player | number | string)?, kind: string?): stri
 	return if gift ~= nil
 		then string.format("%s %s x%d", gift.kind, gift.id or "", gift.count)
 		else ""
+end
+
+-- The Cat Collector arrives at the player's cafe now, whatever the clock and the roll (F63): asking for the cat `uid`
+-- when given (resting and unlocked), else his own pick, with his value roll forced to `valueRoll` (0 for his lowest
+-- offer for that cat, 1 for his best) when given. Returns "<uid> <value>", or "" without a cafe or an askable cat.
+function Debug.collector(
+	player: (Player | number | string)?,
+	uid: string?,
+	valueRoll: number?
+): string
+	local catUid, offer = CollectorService.debugArrive(resolve(player), uid, valueRoll)
+	return if catUid ~= nil and offer ~= nil
+		then string.format("%s %d", catUid, offer.value)
+		else ""
+end
+
+-- Starts a new quest day and week for the player now (F73), paying the old sets' finished quests first. Returns the
+-- new daily ids, then " | ", then the weekly ids.
+function Debug.quests(player: (Player | number | string)?): string
+	local daily, weekly = QuestService.debugRenew(resolve(player))
+	return table.concat(daily, " ") .. " | " .. table.concat(weekly, " ")
 end
 
 -- Marks the intro unseen, so the next respawn lands inside the back door and the next join plays it (F72). Reset
@@ -269,6 +309,13 @@ end
 function Debug.richTip(player: (Player | number | string)?, staySeconds: number?): number
 	guard()
 	return RichTipService.debugOpen(resolve(player), staySeconds)
+end
+
+-- Puts `count` tip piles (1 by default) on the player's cafe tables now, whatever the clock, up to TipPilesMax
+-- (F61). Returns how many wait.
+function Debug.tipPiles(player: (Player | number | string)?, count: number?): number
+	guard()
+	return TipPileService.debugAdd(resolve(player), count)
 end
 
 -- Pretends the player rejoined after `secondsAgo` away: sets the unclaimed offline earnings to what that gap

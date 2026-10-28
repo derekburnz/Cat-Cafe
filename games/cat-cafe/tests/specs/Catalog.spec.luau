@@ -105,12 +105,13 @@ return function()
 
 	describe("rarities (section 2)", function()
 		local expected = {
-			-- v0.5: the fourth column is fleeStuds (the sprint after a miss), replacing the v0.4 patience
-			Common = { 1, 1, 1.40, 12, 2, 25, 50, "#8E97B2" },
-			Rare = { 3, 2, 1.15, 16, 3, 150, 300, "#5FA8FF" },
-			Epic = { 8, 3, 0.95, 20, 4, 600, 1500, "#C07CFF" },
-			Legendary = { 25, 4, 0.80, 26, 5, 3000, 8000, "#FFC94D" },
-			Mythical = { 75, 5, 0.65, 32, 6, 12000, 30000, "#FF5E7E" },
+			-- v0.5: the fourth column is fleeStuds (the sprint after a miss), replacing the v0.4 patience; doubled in v0.8
+			-- (F57)
+			Common = { 1, 1, 1.40, 24, 2, 25, 50, "#8E97B2" },
+			Rare = { 3, 2, 1.15, 32, 3, 150, 300, "#5FA8FF" },
+			Epic = { 8, 3, 0.95, 40, 4, 600, 1500, "#C07CFF" },
+			Legendary = { 25, 4, 0.80, 52, 5, 3000, 8000, "#FFC94D" },
+			Mythical = { 75, 5, 0.65, 64, 6, 12000, 30000, "#FF5E7E" },
 		}
 		for _, rarity in ipairs(RARITIES) do
 			it(rarity .. " matches the table", function()
@@ -130,6 +131,13 @@ return function()
 			end)
 		end
 
+		it("catchWindow narrows the net 0.9 / 0.8 / 0.7 / 0.6 / 0.5 by rarity (v0.13.15 F83)", function()
+			local windows = { Common = 0.9, Rare = 0.8, Epic = 0.7, Legendary = 0.6, Mythical = 0.5 }
+			for _, rarity in ipairs(RARITIES) do
+				expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
+			end
+		end)
+
 		it("rarer means more circles, faster circles and more rescue hits", function()
 			for i = 2, #RARITIES do
 				local lower, higher =
@@ -138,6 +146,7 @@ return function()
 				expect(higher.shrinkSeconds < lower.shrinkSeconds).to.equal(true)
 				expect(higher.rescueHits > lower.rescueHits).to.equal(true)
 				expect(higher.incomePerSecond > lower.incomePerSecond).to.equal(true)
+				expect(higher.catchWindow < lower.catchWindow).to.equal(true)
 			end
 		end)
 
@@ -668,7 +677,10 @@ return function()
 				{ "net", 1, 1 },
 				{ "net", 2, 2 },
 				{ "net", 3, 3 },
-				{ "lure_bowl", 1, nil },
+				{ "lure_bowl", 1, 1 },
+				{ "lure_bowl", 2, 2 },
+				{ "lure_bowl", 5, 5 },
+				{ "lure_bowl", 6, nil },
 				{ "nope", 1, nil },
 			}
 			for _, case in ipairs(cases) do
@@ -711,10 +723,10 @@ return function()
 				},
 				lure_bowl = {
 					name = "Bait bowl",
-					maxLevel = 1,
-					costs = { 600 },
+					maxLevel = 5,
+					costs = { 600, 6000, 60000, 500000, 3000000 }, -- F82, v0.13.15
 					startLevel = 0,
-					atLevel = nil,
+					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
 				},
 			}
 
@@ -980,6 +992,28 @@ return function()
 				expect(total).to.be.near(100, 1e-9)
 			end
 		)
+
+		it("dealer amount weights are the v0.8 table of section 8b, 0 to 4 of each dealer food (F59)", function()
+			expect(Catalog.dealerAmountWeights :: any).to.deepEqual({
+				sardines = { 15, 25, 30, 20, 10 },
+				caviar = { 35, 40, 20, 5, 0 },
+				moon_milk = { 60, 35, 5, 0, 0 },
+				star_treat = { 90, 10, 0, 0, 0 },
+			})
+			local averages = { sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
+			for id, weights in pairs(Catalog.dealerAmountWeights) do
+				local def = Catalog.getLure(id)
+				assert(def, id)
+				expect(def.source).to.equal("dealer")
+				local total, mean = 0, 0
+				for index, weight in weights do
+					total += weight
+					mean += (index - 1) * weight / 100
+				end
+				expect(total).to.be.near(100, 1e-9)
+				expect(mean).to.be.near(averages[id], 1e-9)
+			end
+		end)
 	end)
 
 	describe("areas (section 9)", function()
@@ -1061,9 +1095,9 @@ return function()
 				local want = {
 					{ "alley", "Alleyway", 1, 24, same, 6, 1 }, -- v0.4 layout: 24 spawn points
 					{ "park", "Park", 2, 40, same, 5, 1.5 }, -- the v3.2 set's cat spots (F81, #460)
-					{ "neighbourhood", "Neighbourhood", 3, 26, same, 5, 2.25 }, -- the kit set's cat spots (#401)
-					{ "woods", "Woods", 4, 64, same, 4, 3.5 },
-					{ "sewer", "Sewer", 5, 20, same, 4, 5 },
+					{ "neighbourhood", "Neighbourhood", 3, 72, same, 5, 2.25 }, -- the v3.2 set's cat spots (F81, #505)
+					{ "woods", "Woods", 4, 65, same, 4, 3.5 }, -- the v3.2 set (#470) and the oak top
+					{ "sewer", "Sewer", 5, 52, same, 4, 5 }, -- the v3.2 set's cat spots (F81, #491)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do

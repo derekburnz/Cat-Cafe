@@ -6,6 +6,8 @@ Derek, 2026-10-27 22:44: "the main town should be wider so that it can have a ce
 
 **v3.2 (section 8, Derek 2026-10-28 01:42): the four side areas are 4 times their v3.1 floor, each grows away from the town behind a gate that stays where it is, and the walk inside each area winds so it takes longer. Where section 8 differs from section 7, section 8 wins.**
 
+**v4 (proposed 2026-10-28, waiting on Derek's OK): [hometown-cannon.md](hometown-cannon.md). The town keeps its square, cafes and Alleyway, loses its four area gates, and the wild areas move far out, reached by the Cat Cannon. Once Derek says yes, it wins over sections 7 and 8 where they differ.**
+
 Feature F76. Owner: game-designer thread. Sketch: [town-layout-v3.svg](town-layout-v3.svg) (north is up). This replaces the street plaza in [areas-and-stations.md](areas-and-stations.md) B2, and it moves the areas around the town, so it goes in before the Neighbourhood kit placement. Studs, y 0 is the floor top, world X runs across the street (west is -X) and Z along it (south is -Z), as in layout v2.
 
 ## 1. What changes and why
@@ -204,16 +206,18 @@ Walking speeds do not change. Each area's way in, as a brief for its set:
 
 ### 8d. Spawn points, zones and traps
 
-Each set brings its cat spots as now, more of them for the bigger floor, split into two zones: `near`, the half of the area by the gate, and `deep`, the far half. Epic, Legendary and Mythical strays take only free `deep` points (any free point if none is free), the rule the Alleyway's `nook` points already follow. So the rarer the cat, the longer the walk to it. Commons and Rares take any point. StraySpawnSpacingStuds 12 still applies.
+Each set brings its cat spots as now, more of them for the bigger floor, split into two zones: `near`, the half of the area by the gate, and `deep`, the far half. Epic, Legendary and Mythical strays take only free `deep` points, the rule the Alleyway's `nook` points already follow. As built (#467) there is no fallback to other points, so a wave never puts an Epic or rarer stray by the gate. So the rarer the cat, the longer the walk to it. Commons and Rares take any point. StraySpawnSpacingStuds 12 still applies.
 
 | area | spawn points, v3.1 | v3.2 | of them `deep` | rescue traps, v3.2 |
 |---|---|---|---|---|
 | Park | 14 | 40 | 24 | tree x3, trashcan x2 |
 | Neighbourhood | 26 | 72 | 44 | shed x2, gutter x2 |
-| Woods | 17 | 64 | 38 | hollow_log x2, bramble_bush x2 |
+| Woods | 17 | 64 | 38 | hollow_log x2, bramble_bush x2, and the tree house branch as a fifth trap of type `tree` (#475) |
 | Sewer | 20 | 52 | 32 | grate x2, drain_pipe x2 |
 
-At least one trap of each kind is in the `deep` half. Wave sizes stay as Derek set them at 01:34 (data-model section 9), so a bigger area has its strays spread farther apart.
+At least one trap of each kind is in the `deep` half.
+
+The Great Oak's top nook (Derek, 2026-10-28 01:35, a higher rare chance up there; built in #475) is one Woods spot with zone `rare`. Only a Rare or rarer stray takes it, and a Rare or rarer stray takes a free `rare` point before any other. Waves place their rarest strays first, so the oak top holds the wave's rarest cat whenever that is Rare or better, about 73% of Woods waves of four. The odds do not change, so this keeps Derek's 01:50 same-odds rule: the nook decides where the rarest cat sits, not how rare it is. Wave sizes stay as Derek set them at 01:34 (data-model section 9), so a bigger area has its strays spread farther apart.
 
 ### 8e. Contract for the engineer
 

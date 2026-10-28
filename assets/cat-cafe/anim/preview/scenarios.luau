@@ -99,4 +99,136 @@ return {
 		attributes = { Pose = "sit", CatId = "balloon" },
 		segments = { { style = "entertainer", seconds = 4.4 } },
 	},
+	-- Stuck in a rescue trap (Derek 2026-10-28: the back end sticking out for most traps, upside down where it fits).
+	-- A `trap` scenario puts the cat on the trap's own prop, a `trapSet` one on a trap built into an area set (spot
+	-- and piece turn as Layout's setTrap has them). `stuckAt` is the pose tried (12 numbers in the prop's pivot space,
+	-- or in the set trap spot's, as WorldBuilder applies them); without it a prop takes its Layout.stuckPoses entry.
+	-- `box` frames the trap's opening.
+	stuckBin = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trap = "CatCafe_Alley_TrashBin",
+		stuckAt = { 0, 2.55, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
+	},
+	-- Diving nose first into the bag pile, back end up and back legs off the ground.
+	stuckBags = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trap = "CatCafe_Alley_GarbageBags",
+		stuckAt = { -0.4, 0, -0.45, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
+	},
+	stuckCan = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trap = "CatCafe_Park_TrashCan",
+		stuckAt = { 0, 2.05, -0.65, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
+	},
+	stuckTree = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trap = "CatCafe_Park_RescueTree",
+		stuckAt = { -2.2, 4.1, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 },
+		segments = { { style = "stuckFlip", seconds = 4.4 } },
+	},
+	-- The Neighbourhood's garden shed: head first through the jammed door on the piece's -Z.
+	stuckShed = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trapSet = {
+			set = "CatCafe_Neighbourhood_SetV32",
+			spot = { 126.4, 0, -89.3, 0 },
+			radius = 6,
+		},
+		stuckAt = { 0, 0, 0.75, -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+		box = { { -2, 0, -2 }, { 2, 3, 2 } },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
+	},
+	-- On its back across the bungalow's front gutter, 7.05 up by the downpipe: legs in the air and its head hanging
+	-- out over the gutter's front edge (the piece's -Z), towards the street.
+	stuckGutter = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "low",
+		trapSet = {
+			set = "CatCafe_Neighbourhood_SetV32",
+			spot = { -53.4, 7.05, -60.5, 180 },
+			radius = 8,
+		},
+		stuckAt = { 0, 1.25, 0.1, -1, 0, 0, 0, -1, 0, 0, 0, 1 },
+		box = { { -2.5, 6, -1.5 }, { 2.5, 9, 1.5 } },
+		segments = { { style = "stuckFlip", seconds = 4.4 } },
+	},
+	-- The Woods' hollow log: head first into its open end on the piece's +X.
+	stuckLog = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "right",
+		trapSet = { set = "CatCafe_Woods_SetV32", spot = { 78, 0, -40, 20 }, radius = 6 },
+		stuckAt = { 3.5, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 },
+		box = { { 1.5, 0, -2 }, { 5.5, 3, 2 } },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
+	},
+	-- On its back in the middle of a bramble bush.
+	stuckBramble = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trapSet = { set = "CatCafe_Woods_SetV32", spot = { -84, 0, -50, 0 }, radius = 4 },
+		stuckAt = { 0, 3.9, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 },
+		box = { { -2.5, 0.5, -2 }, { 2.5, 4.2, 2 } },
+		segments = { { style = "stuckFlip", seconds = 4.4 } },
+	},
+	-- Hanging upside down under the tree house's branch, which points along the piece's -X.
+	stuckBranch = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trapSet = {
+			set = "CatCafe_Woods_SetV32",
+			spot = { -88.85, 15.45, 68.06, -106.26 },
+			radius = 5,
+		},
+		stuckAt = { 0.5, -0.55, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 },
+		box = { { -2, 12.8, -1.5 }, { 3, 15.6, 1.5 } },
+		segments = { { style = "stuckFlip", seconds = 4.4 } },
+	},
+	-- Nose down through a Sewer grate, back end up.
+	stuckGrate = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trapSet = { set = "CatCafe_Sewer_SetV32", spot = { -38, 0.4, -78, 0 }, radius = 4 },
+		stuckAt = { 0, 0.45, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
+		box = { { -2, 0, -2 }, { 2, 2.2, 2 } },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
+	},
+	-- Head first into a drain pipe's mouth, which faces the piece's -Z.
+	stuckPipe = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		trapSet = { set = "CatCafe_Sewer_SetV32", spot = { 81.7, 0.4, -77, 90 }, radius = 4 },
+		stuckAt = { 0, 0.55, 0.5, -1, 0, 0, 0, 1, 0, 0, 0, -1 },
+		box = { { -1.6, 0.4, -1.5 }, { 1.6, 2.8, 2 } },
+		segments = { { style = "stuckButt", seconds = 4.4 } },
+	},
+	-- The carry (Derek 2026-10-28): held on the stand-in player's folded arms, awake. Loafing across the arms on the
+	-- walking body (what the server's HeldCat is), standing a moment and then carried at CarryWalkSpeed (16).
+	carryLoaf = {
+		model = "CatCafe_Cat_Tabby",
+		camera = "three",
+		carrier = { shirt = "red" },
+		segments = {
+			{ style = "held", seconds = 3.4 },
+			{ style = "held", seconds = 2.6, speed = 16 },
+		},
+	},
+	-- Sitting up on the arms, facing out, on the sitting body.
+	carrySit = {
+		model = "CatCafe_Cat_Tabby_Sit",
+		camera = "three",
+		attributes = { Pose = "sit" },
+		carrier = { shirt = "blue", skin = "tan" },
+		segments = {
+			{ style = "held", seconds = 3.4 },
+			{ style = "held", seconds = 2.6, speed = 16 },
+		},
+	},
 }

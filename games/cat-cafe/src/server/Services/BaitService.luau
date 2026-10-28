@@ -1,19 +1,21 @@
 --!strict
 -- The bait bowl (F28, data-model section 8): one bowl on the cafe's back step (v0.5 F44), bought as the lure_bowl
 -- upgrade.
--- UseLure(lureId) puts one food in and rolls the cat in the same step (rarity from the food's odds, the cat among
--- that rarity's cats in every area the tier opens, charm and gold), so a rejoin cannot reroll it. The cat arrives
--- LureWaitSeconds later, online or not, and sits eating at the bowl. ResolveBait("tame") adds it to the cat room,
+-- UseLure(lureId) puts one food in and rolls the cat in the same step (rarity from the food's odds at the bowl's
+-- level, F82, the cat among that rarity's cats in every area the tier opens, charm and gold), so a rejoin cannot
+-- reroll it. The cat arrives after the bowl's wait, online or not, and sits eating at the bowl. ResolveBait("tame") adds it to the cat room,
 -- "letgo" sends it off; the food is used either way. CafeService draws the bowl and sends it in ProfileSync, which
 -- names the cat only once it has arrived (reviewer N30).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Bait = require(ReplicatedStorage.Shared.Bait)
 local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -82,16 +84,27 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	else
 		profile.lures[lureId] = nil
 	end
-	local rarity: Types.Rarity = Catching.pickRarity(lure.odds, rng:NextNumber())
+	-- F82: the bowl's level now, its luck fixed in the roll, so a level bought later never touches this food
+	local rarity: Types.Rarity = Catching.pickRarity(
+		Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")),
+		rng:NextNumber()
+	)
 	local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng:NextNumber())
 	-- the player's own gold luck and bait speed, fixed now (F54): a later claim never moves a filling bowl. A Lucky
 	-- Potion running now doubles the gold chance (F64).
 	local totals = IndexRewards.totals(profile)
 	local now = os.time()
-	local wait = Economy.baitWaitSeconds(profile)
+	-- F60: food set at night comes in half the time, read from the phase now and fixed in readyAt, so a rejoin, a
+	-- server hop or sunrise never moves it
+	local night = ClockService.phase() == "night"
+	local wait = Economy.baitWaitSeconds(profile, night, now)
+	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
 	local goldChance = Potions.baitGoldChance(
 		profile,
-		IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck),
+		IndexRewards.rollChance(
+			Config.GoldChanceBait,
+			totals.goldLuck + Potions.goldLuck(profile, now)
+		),
 		now
 	)
 	local lucky = Potions.running(profile, Potions.LUCKY, now)
@@ -99,6 +112,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		lureId = lureId,
 		placedAt = now,
 		readyAt = now + wait,
+		night = if night then true else nil,
 		catId = def.id,
 		variant = if rng:NextNumber() < goldChance then "gold" else "base",
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
@@ -118,7 +132,12 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	end
 	Net.toast(
 		player,
-		string.format("%s is in the bowl. A cat will come by in %s.", lure.name, waitText(wait)),
+		string.format(
+			"%s is in the bowl. A cat will come by in %s.%s",
+			lure.name,
+			waitText(wait),
+			if night then " Night bait: half the wait." else ""
+		),
 		"good"
 	)
 	CafeService.refreshPlot(player)

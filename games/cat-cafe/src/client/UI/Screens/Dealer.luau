@@ -1,14 +1,17 @@
 --!strict
 -- Night dealer screen (F32, data-model section 8b), in the Grow a Garden seed shop style: "Fresh stock in
--- 4:12" across the top, then each food the dealer has for you this window with its stock, its odds and one
--- green price button. A food in two slots shows once as "x2 Stock" (Components/DealerRows). The five-rarity odds
+-- 4:12" across the top, then each dealer food with this window's stock, its odds and one green price button. F59:
+-- every food shows, "x2 Stock" while some are left for you, "Sold out" once you bought them all and "None this time"
+-- for an amount of 0; the amounts are the same on every server (Components/DealerRows). The five-rarity odds
 -- sit on every row before Buy as one short row, each rarity in its colour (Derek 2026-10-28), and Details opens the
--- food's line, the gold chance, the charm star odds and the per-cat split (the growth thread's rules for random
--- items); each food wears its grade badge and border (F69). What is for sale comes
+-- food's line, the gold chance, the charm star odds, the chance of each stock amount and the per-cat split (the
+-- growth thread's rules for random items); each food wears its grade badge and border (F69). F82: the odds and the
+-- split are the player's bowl level's (shared Bait, as the server rolls). What is for sale comes
 -- only from UI.dealer.setStock (the DealerStock remote); the screen never guesses stock, and the server recomputes
 -- it on every BuyDealerFood.
 -- Opened by the cart's prompt (UI.dealer.open).
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -22,11 +25,15 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+
 export type Callbacks = {
-	buy: (slot: number, lureId: string) -> (), -- the food too, so a Buy that lands after a restock is refused (S42)
+	-- the food's row, the food and the window the screen showed, so a Buy that lands after a restock is refused (S42)
+	buy: (index: number, lureId: string, window: number?) -> (),
 	close: () -> (),
 }
 
@@ -34,7 +41,7 @@ export type Dealer = {
 	frame: Frame,
 	setCatalog: (self: Dealer, catalog: Types.Catalog) -> (),
 	render: (self: Dealer, state: Types.PlayerState) -> (),
-	setStock: (self: Dealer, stock: Types.DealerStock?) -> (),
+	setStock: (self: Dealer, stock: Types.DealerStock?) -> (), -- either shape (Components/DealerRows.normalize)
 	-- true at night, false by day (the cart has gone), nil when the clock is unknown
 	setNight: (self: Dealer, night: boolean?) -> (),
 	-- true at the cart, false away from it, nil when the cart part is unknown (the server decides)
@@ -50,6 +57,7 @@ local TEXT_LEFT = ICON + 28
 local TEXT_RIGHT = BUTTON.X + 28
 -- a Buy waits this long for the next DealerStock before the button comes back
 local PENDING_SECONDS = 5
+local WINDOW_MINUTES = math.max(1, math.floor(Config.DealerWindowSeconds / 60)) -- F59: 5
 
 local Dealer = {}
 Dealer.__index = Dealer
@@ -109,7 +117,8 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._near = nil :: boolean?
 	self._pending = {} :: { [string]: number } -- lureId -> os.clock() when the wait for DealerStock ends
 	self._tier = 0
-	self._goldLuck = -1 -- the luck the odds lines were written with
+	self._bowlLevel = 0 -- lure_bowl (F82): the odds rows are this level's
+	self._extras = "" -- the gold and charm line the Details were written with
 	self._accumulator = 0
 
 	local panel = Panel.new({
@@ -389,12 +398,12 @@ function Dealer._buildRows(self: any)
 			details = details,
 			detail = detail,
 			odds = odds,
-			split = nil :: string?, -- the per-cat split for the tier last drawn
+			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			group = group,
 		})
 	end
-	self._tier = -1 -- rebuild the split text on the next render
-	self._goldLuck = -1
+	self._tier = -1 -- rebuild the odds and split text on the next render
+	self._extras = ""
 end
 
 function Dealer._toggleDetail(self: any, lureId: string)
@@ -406,13 +415,14 @@ function Dealer._toggleDetail(self: any, lureId: string)
 	end
 end
 
--- Buy sends the first slot of this food not bought yet, then waits for the server's next DealerStock.
+-- Buy sends the food and the window it was shown in, then waits for the server's next DealerStock.
 function Dealer._buy(self: any, lureId: string)
-	for _, row in self._rows do
+	local stock: Types.DealerStock? = self._stock
+	for index, row in self._rows do
 		local group: DealerRows.Row = row.group
-		if group.lureId == lureId and #group.open > 0 and self:_canBuy(group) then
+		if group.lureId == lureId and self:_canBuy(group) then
 			self._pending[lureId] = os.clock() + PENDING_SECONDS
-			self._callbacks.buy(group.open[1], lureId)
+			self._callbacks.buy(index, lureId, if stock then stock.window else nil)
 			self:_renderAll()
 			return
 		end
@@ -443,7 +453,7 @@ function Dealer._canBuy(self: any, group: DealerRows.Row): boolean
 	if pendingUntil and os.clock() < pendingUntil then
 		return false
 	end
-	return #group.open > 0 and (state :: Types.PlayerState).money >= group.cost
+	return group.left > 0 and (state :: Types.PlayerState).money >= group.cost
 end
 
 function Dealer.setCatalog(self: any, catalog: Types.Catalog)
@@ -457,7 +467,7 @@ function Dealer.setCatalog(self: any, catalog: Types.Catalog)
 end
 
 function Dealer.setStock(self: any, stock: Types.DealerStock?)
-	self._stock = stock
+	self._stock = DealerRows.normalize(stock)
 	table.clear(self._pending) -- the server answered: its stock is the truth now
 	self:_buildRows()
 	self:_renderAll()
@@ -495,35 +505,58 @@ function Dealer._renderAll(self: any)
 	end
 	assert(state, "state")
 	local catalog: Types.Catalog? = self._catalog
-	local tierChanged = catalog ~= nil and state.tier ~= self._tier
-	if catalog and tierChanged then
+	-- the odds row and the split are the bowl level's (F82), the split the tier's areas too
+	local bowlLevel: number = state.upgradeLevels.lure_bowl or 0
+	local oddsChanged = catalog ~= nil
+		and (state.tier ~= self._tier or bowlLevel ~= self._bowlLevel)
+	if catalog and oddsChanged then
 		self._tier = state.tier
-		for _, row in self._rows do
-			row.split = FoodOdds.split(catalog, row.group.def, state.tier)
-		end
-	end
-	-- Details: the food's line, the gold chance with the Index's gold luck in it (F54), the charm stars, the split
-	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
-	if tierChanged or luck ~= self._goldLuck then
-		self._goldLuck = luck
+		self._bowlLevel = bowlLevel
 		for _, row in self._rows do
 			local def: Types.LureDef = row.group.def
-			local lines = { def.description, FoodOdds.extras(luck), row.split or "" }
+			row.odds.Text = FoodOdds.rich(FoodOdds.atBowl(def.odds, bowlLevel), rarityHex)
+			row.split = FoodOdds.split(catalog, def, state.tier, bowlLevel)
+		end
+	end
+	-- Details: the food's line, the gold chance with the Index's gold luck (F54) and the running potions (F73) in
+	-- it, the charm stars, the chance of each stock amount (F59) and the split
+	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
+	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
+	local extras = FoodOdds.extras(luck, boosts.goldLuck, boosts.goldScale)
+	if oddsChanged or extras ~= self._extras then
+		self._extras = extras
+		local amounts = if catalog then catalog.dealerAmountWeights else nil
+		for _, row in self._rows do
+			local def: Types.LureDef = row.group.def
+			local lines = { def.description, extras }
+			local stockOdds = DealerRows.amountOdds(if amounts then amounts[def.id] else nil)
+			if stockOdds then
+				table.insert(lines, stockOdds)
+			end
+			table.insert(lines, row.split or "")
 			row.detail.Text = table.concat(lines, "\n")
 		end
 	end
 	for _, row in self._rows do
 		local group: DealerRows.Row = row.group
-		local left = #group.open
+		local left = group.left
+		local none = group.amount == 0
 		local pendingUntil: number? = self._pending[group.lureId]
 		local pending = pendingUntil ~= nil and os.clock() < pendingUntil
-		row.stock.Text = if left > 0 then ("x%d Stock"):format(left) else "Sold out"
-		row.stock.TextColor3 = if left > 0 then Theme.colors.good else Theme.colors.red
+		row.stock.Text = if none
+			then "None this time"
+			elseif left > 0 then ("x%d Stock"):format(left)
+			else "Sold out"
+		row.stock.TextColor3 = if none
+			then Theme.modal.subtext
+			elseif left > 0 then Theme.colors.good
+			else Theme.colors.red
 		local have = state.lures[group.lureId] or 0
 		row.have.Text = if have > 0 then ("You have %d"):format(have) else ""
 		row.buy:setText(
 			if pending
 				then "Buying..."
+				elseif none then "None"
 				elseif left == 0 then "Sold out"
 				else Format.money(group.cost)
 		)
@@ -557,7 +590,9 @@ function Dealer._renderStrip(self: any)
 			.. DealerRows.clock(current.restocksAt - Workspace:GetServerTimeNow())
 		sub = if reason == "away"
 			then "Walk back to the cart to buy."
-			else "Each slot sells once per stock. Dealer food goes in your bait bowl like any food."
+			else ("New stock every %d minutes, the same on every server. Dealer food goes in your bait bowl."):format(
+				WINDOW_MINUTES
+			)
 	end
 	self._stripTitle.Text = title
 	self._stripSub.Text = sub

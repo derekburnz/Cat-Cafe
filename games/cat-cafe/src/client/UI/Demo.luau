@@ -370,6 +370,7 @@ local CATALOG: Types.Catalog = {
 	crates = DEMO_CRATES,
 	fishShop = Catalog.fishShop,
 	rarities = Catalog.rarities,
+	dealerAmountWeights = Catalog.dealerAmountWeights,
 }
 -- every decor item, the shop's and the crates', for the demo's ToggleDecor and OpenCrate
 local DEMO_DECOR = DecorPieces.all(CATALOG)
@@ -388,7 +389,7 @@ local DECOR_BONUS: { [string]: number } =
 	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
 -- the bait bowl's wait, short so the demo shows the cat arriving (the design's LureWaitSeconds is 600)
 local DEMO_BAIT_SECONDS = 20
--- the night dealer's stock window, short so one restock shows each night (DealerWindowSeconds is 600)
+-- the night dealer's stock window, short so one restock shows each night (DealerWindowSeconds is 300 since F59)
 local DEMO_DEALER_WINDOW = 20
 
 local SELL_VALUE: { [string]: number } =
@@ -671,8 +672,9 @@ function Demo.run(UI: any): () -> ()
 			end
 		end
 	end)
-	-- Bait bowl (F28): the food goes in, the cat is rolled at once and shows up DEMO_BAIT_SECONDS later
+	-- Bait bowl (F28): the food goes in, the cat is rolled at once and shows up DEMO_BAIT_SECONDS later (half at night)
 	local bait: Types.BaitView? = nil
+	local demoNight = false -- the demo clock's phase: food set at night waits half (F60)
 	local baitCat: Types.BaitCat? = nil
 	connections[#connections + 1] = UI.events.useLure:Connect(function(lureId: string)
 		local lure: Types.LureDef? = nil
@@ -707,7 +709,13 @@ function Demo.run(UI: any): () -> ()
 		end
 		local picked = if #pool > 0 then pool[math.random(1, #pool)] else CATALOG.cats[1]
 		local charm = math.floor((math.random() + math.random()) / 2 * 101)
-		local view: Types.BaitView = { lureId = lureId, readyAt = now() + DEMO_BAIT_SECONDS }
+		local wait = if demoNight then DEMO_BAIT_SECONDS / 2 else DEMO_BAIT_SECONDS
+		local view: Types.BaitView = {
+			lureId = lureId,
+			placedAt = now(),
+			readyAt = now() + wait,
+			night = if demoNight then true else nil,
+		}
 		bait = view
 		baitCat = {
 			catId = picked.id,
@@ -752,49 +760,58 @@ function Demo.run(UI: any): () -> ()
 		end
 	end)
 
-	-- Night dealer (F32): three slots rolled from the tier's weights at night start and at each window, gone by
-	-- day. Every Buy is answered with fresh stock, as the server does. N opens the cart (the prompt in the game).
+	-- Night dealer (F59): an amount of 0 to 4 of each dealer food rolled from Catalog.dealerAmountWeights at night
+	-- start and at each window, gone by day. Every Buy is answered with fresh stock, as the server does. N opens the
+	-- cart (the prompt in the game).
 	local dealerStock: Types.DealerStock? = nil
+	local dealerWindow = 0
 	local dealerGift = false
 	local function rollDealer()
-		local weights = Catalog.dealerSlotWeights -- v0.5 F43: one row for everyone
-		local total = 0
-		for _, weight in weights do
-			total += weight
-		end
-		local slots: { Types.DealerSlot } = {}
-		for _ = 1, 3 do
-			local roll = math.random() * total
-			local pick = "sardines"
-			for lureId, weight in weights do
+		dealerWindow += 1
+		local foods: { Types.DealerFood } = {}
+		for _, lureId in { "sardines", "caviar", "moon_milk", "star_treat" } do
+			local weights: { number } = Catalog.dealerAmountWeights[lureId] or { 100 }
+			local roll = math.random() * 100
+			local amount = 0
+			for index, weight in weights do
 				roll -= weight
 				if weight > 0 and roll <= 0 then
-					pick = lureId
+					amount = index - 1
 					break
 				end
 			end
-			table.insert(
-				slots,
-				{ lureId = pick, cost = Catalog.luresById[pick].cost, bought = false }
-			)
+			table.insert(foods, {
+				lureId = lureId,
+				cost = Catalog.luresById[lureId].cost,
+				amount = amount,
+				bought = 0,
+			})
 		end
-		local stock: Types.DealerStock = { slots = slots, restocksAt = now() + DEMO_DEALER_WINDOW }
+		local stock: Types.DealerStock =
+			{ window = dealerWindow, restocksAt = now() + DEMO_DEALER_WINDOW, stock = foods }
 		dealerStock = stock
 		UI.dealer.setStock(stock)
 	end
-	-- the server refuses a slot whose food changed with a restock (S42)
-	local function buyDealer(slot: number, lureId: string)
+	-- the server refuses a buy from an older window (S42) and one past the food's amount
+	local function buyDealer(_index: number, lureId: string, window: number?)
 		local stock = dealerStock
 		if not stock then
 			return
 		end
-		local entry = stock.slots[slot]
-		if entry and entry.lureId == lureId and not entry.bought and spend(entry.cost) then
-			entry.bought = true
-			profile.lures[entry.lureId] = (profile.lures[entry.lureId] or 0) + 1
-			local name = Catalog.luresById[entry.lureId].name
-			UI.toast("Bought " .. name .. ". Use it in your bait bowl!", "good")
-			push()
+		local foods: { Types.DealerFood } = stock.stock or {}
+		for _, food in foods do
+			if
+				food.lureId == lureId
+				and window == stock.window
+				and food.bought < food.amount
+				and spend(food.cost)
+			then
+				food.bought += 1
+				profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
+				local name = Catalog.luresById[lureId].name
+				UI.toast("Bought " .. name .. ". Use it in your bait bowl!", "good")
+				push()
+			end
 		end
 		UI.dealer.setStock(stock)
 	end
@@ -1311,6 +1328,7 @@ function Demo.run(UI: any): () -> ()
 		local phase: Types.ClockPhase = "day"
 		while running do
 			local length = if phase == "day" then 45 else 20
+			demoNight = phase == "night"
 			UI.clock.set(phase, now() + length)
 			UI.clock.setAreasOpen(phase == "day")
 			task.wait(length)

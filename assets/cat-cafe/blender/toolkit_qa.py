@@ -47,8 +47,8 @@ SWN = [s[0] for s in palette.SWATCHES]
 _init, _log, _tag, _fin = common.Builder.__init__, common.Builder._log, common.Builder._tag, common.Builder.finalize
 
 
-def _p_init(self):
-    _init(self)
+def _p_init(self, *a, **kw):
+    _init(self, *a, **kw)
     self.pr = self.bm.faces.layers.int.new("prim")
     self.callers = []
 
@@ -171,6 +171,9 @@ def locate(objs):
             continue
         key = tuple(sorted((f"{site(i)} [{SWN[si]}]", f"{site(j)} [{SWN[sj]}]")))
         visible[key] += 1
+        if os.environ.get("QA_WHERE"):                                  # where each visible pair sits, Roblox x y z
+            print(f"   overlap {SWN[si]} vs {SWN[sj]} at ({-c0.x:.2f}, {c0.z:.2f}, {c0.y:.2f}) facing "
+                  f"({-n.x:.2f}, {n.z:.2f}, {n.y:.2f})", flush=True)
     isl_tris = defaultdict(list)
     for ti, m in enumerate(meta):
         isl_tris[m[4]].append(ti)
@@ -197,6 +200,9 @@ def locate(objs):
             continue                                         # another part rests flush on this one
         k = site(ts[0])
         floating[k] = max(floating.get(k, 0.0), round(gap, 3))
+        if os.environ.get("QA_WHERE") and gap >= VISIBLE_GAP:          # where each floating island sits, Roblox x z y
+            c = sum((verts[v] for v in vs), Vector()) / len(vs)
+            print(f"   floating {gap:.3f} {k} at ({-c.x:.2f}, {c.y:.2f}, {c.z:.2f})", flush=True)
     return {"visible": visible.most_common(), "hidden": hidden, "floating": floating}
 
 

@@ -7,9 +7,14 @@
 -- per-cat split (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
 -- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
 -- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold
--- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait.
+-- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait; F73 adds a
+-- running Gold Rush, Lucky or Quick Bait Potion's, as the server rolls food set now. F60: food set
+-- at night waits half, so by night the empty bowl's wait is the night one and a night bowl counts down behind a moon.
+-- F82: the odds row, the split and the wait are the bowl level's (shared Bait, as the server rolls), and the title
+-- names the bowl you have, "Comfy Bowl" up to "Royal Bowl".
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -22,8 +27,11 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
+
+local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
 
 export type Callbacks = {
 	useLure: (lureId: string) -> (),
@@ -38,6 +46,7 @@ export type BaitBowl = {
 	setCatalog: (self: BaitBowl, catalog: Types.Catalog) -> (),
 	render: (self: BaitBowl, state: Types.PlayerState) -> (),
 	setBait: (self: BaitBowl, bait: Types.BaitView?, catWaiting: boolean) -> (),
+	setNight: (self: BaitBowl, night: boolean) -> (),
 	destroy: (self: BaitBowl) -> (),
 }
 
@@ -47,6 +56,8 @@ local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
 local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Garden seed shop
 local TEXT_LEFT = ICON + 28
 local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X * 2 + 32)
+local TITLE = "Bait bowl"
+local SUBTITLE = "Put food in and a cat comes to your door"
 
 local BaitBowl = {}
 BaitBowl.__index = BaitBowl
@@ -103,16 +114,20 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
 	self._tier = 0
-	self._goldLuck = -1 -- the luck the odds lines were written with
-	self._waitSeconds = FoodOdds.waitSeconds(false, 0)
+	self._extras = "" -- the gold and charm line the Details were written with
+	self._waitSeconds = FoodOdds.waitSeconds(0, false, 0)
+	self._bowlLevel = 0 -- lure_bowl (F82): the odds and wait are this level's
+	self._bigBowl = false
+	self._speed = 0 -- the Index's faster bait (F54) plus a running Quick Bait Potion's (F73)
+	self._night = false -- the clock's phase (F60: food set at night waits half)
 	self._accumulator = 0
 
 	local panel = Panel.new({
 		name = "Bait",
 		color = Theme.colors.mintDark,
 		icon = Theme.upgradeIcons.lure_bowl,
-		title = "Bait bowl",
-		subtitle = "Put food in and a cat comes to your door",
+		title = TITLE,
+		subtitle = SUBTITLE,
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})
@@ -417,13 +432,13 @@ function BaitBowl._buildRows(self: any)
 			details = details,
 			detail = detail,
 			odds = odds,
-			split = nil :: string?, -- the per-cat split for the tier last drawn
+			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			def = lure,
 			dealer = dealer,
 		}
 	end
-	self._tier = -1 -- rebuild the split text on the next render
-	self._goldLuck = -1
+	self._tier = -1 -- rebuild the odds and split text on the next render
+	self._extras = ""
 end
 
 function BaitBowl._toggleDetail(self: any, lureId: string)
@@ -453,6 +468,18 @@ function BaitBowl.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end
 end
 
+-- F60: by night the empty bowl promises the night wait; a bowl already filling keeps its own readyAt.
+function BaitBowl.setNight(self: any, night: boolean)
+	if self._night == night then
+		return
+	end
+	self._night = night
+	self._waitSeconds = FoodOdds.waitSeconds(self._bowlLevel, self._bigBowl, self._speed, night)
+	if self.frame.Visible then
+		self:_renderStatus()
+	end
+end
+
 local function ownsBowl(state: Types.PlayerState): boolean
 	return (state.upgradeLevels.lure_bowl or 0) >= 1
 end
@@ -463,23 +490,33 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		return -- money ticks re-render every screen; this one catches up when it opens
 	end
 	local catalog: Types.Catalog? = self._catalog
-	local tierChanged = catalog ~= nil and state.tier ~= self._tier
-	if catalog and tierChanged then
+	-- the odds row and the split are the bowl level's (F82), the split the tier's areas too
+	local bowlLevel: number = state.upgradeLevels.lure_bowl or 0
+	local oddsChanged = catalog ~= nil
+		and (state.tier ~= self._tier or bowlLevel ~= self._bowlLevel)
+	self._bowlLevel = bowlLevel
+	if catalog and oddsChanged then
 		self._tier = state.tier
+		self._panel:setTitle(if bowlLevel >= 1 then Bait.bowlName(bowlLevel) else TITLE, SUBTITLE)
 		for _, row in self._rows do
-			row.split = FoodOdds.split(catalog, row.def, state.tier)
+			row.odds.Text = FoodOdds.rich(FoodOdds.atBowl(row.def.odds, bowlLevel), rarityHex)
+			row.split = FoodOdds.split(catalog, row.def, state.tier, bowlLevel)
 		end
 	end
 	local totals = if catalog then IndexRewards.totals(catalog, state) else nil
+	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
 	local fishPerks: { [string]: number } = state.fishPerks or {}
-	local speed = if totals then totals.baitSpeed else 0
-	self._waitSeconds = FoodOdds.waitSeconds((fishPerks.big_bowl or 0) >= 1, speed)
-	-- Details: the gold chance with the Index's gold luck in it (F54) and the charm stars, then the split
-	local luck = if totals then totals.goldLuck else 0
-	if tierChanged or luck ~= self._goldLuck then
-		self._goldLuck = luck
+	self._bigBowl = (fishPerks.big_bowl or 0) >= 1
+	self._speed = (if totals then totals.baitSpeed else 0) + boosts.baitSpeed
+	self._waitSeconds = FoodOdds.waitSeconds(bowlLevel, self._bigBowl, self._speed, self._night)
+	-- Details: the gold chance with the Index's gold luck (F54) and the running potions (F73) in it and the charm
+	-- stars, then the split
+	local extras =
+		FoodOdds.extras(if totals then totals.goldLuck else 0, boosts.goldLuck, boosts.goldScale)
+	if oddsChanged or extras ~= self._extras then
+		self._extras = extras
 		for _, row in self._rows do
-			row.detail.Text = FoodOdds.extras(luck) .. "\n" .. (row.split or "")
+			row.detail.Text = extras .. "\n" .. (row.split or "")
 		end
 	end
 	local owned = ownsBowl(state)
@@ -518,7 +555,12 @@ function BaitBowl._renderStatus(self: any)
 	elseif bait == nil then
 		title = "Your bowl is empty"
 		local wait = Format.duration(self._waitSeconds)
-		sub = "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
+		sub = if self._night
+			then ("%s Night bait: half the wait. Use a food now and a cat comes by in %s."):format(
+				Theme.icons.moon,
+				wait
+			)
+			else "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
 	else
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		local foodName = bait.lureId
@@ -535,10 +577,22 @@ function BaitBowl._renderStatus(self: any)
 		end
 		if left > 0 then
 			title = foodName .. " is in the bowl"
-			sub = ("A cat comes by in %s. You can leave; it waits for you."):format(
-				Format.duration(math.ceil(left))
-			)
-			local total = self._waitSeconds -- today's wait (an older bowl keeps its own)
+			local inTime = Format.duration(math.ceil(left))
+			sub = if bait.night
+				then ("%s Night bait: half the wait. A cat comes by in %s."):format(
+					Theme.icons.moon,
+					inTime
+				)
+				else ("A cat comes by in %s. You can leave; it waits for you."):format(inTime)
+			-- the bowl's own wait from placedAt, else today's for its phase
+			local total = if bait.placedAt
+				then bait.readyAt - bait.placedAt
+				else FoodOdds.waitSeconds(
+					self._bowlLevel,
+					self._bigBowl,
+					self._speed,
+					bait.night
+				)
 			self._track.Visible = true
 			self._fill.Size = UDim2.fromScale(math.clamp(1 - left / math.max(total, 1), 0, 1), 1)
 		else

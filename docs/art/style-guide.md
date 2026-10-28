@@ -190,6 +190,20 @@ paths' colours in WorldBuilder, so the compass points and the paws match.
 | 110 | paw_woods | #267040 | the Woods' compass point (west) |
 | 111 | paw_sewer | #566E96 | the Sewer's compass point (east) |
 
+Row 14, the coats of the ten area-themed cats of F78 (data-model 3, v0.13, 2026-10-28). Eight cells of row 14 and
+row 15 stay free.
+
+| idx | name | hex | use |
+|---|---|---|---|
+| 112 | fur_dusty | #96918C | Binbag (Garbage Bag Cat) |
+| 113 | fur_marmalade | #E18C3C | Taxi (Taxi Cat) |
+| 114 | fur_indigo | #2D236E | Neon (Jazz Cat) |
+| 115 | fur_dune | #D7B987 | Birdwatch (Birdwatcher Cat) |
+| 116 | fur_bubblegum | #F7A8C8 | Balloon (Balloon Cat) |
+| 117 | fur_toffee | #8C5F3C | Builder (Construction Cat) |
+| 118 | fur_pewter | #A5A5AA | Gnome (Gnome Cat) |
+| 119 | fur_gunmetal | #69737D | Plumber (Plumber Cat) |
+
 **Cat coats (2026-10-27).** Derek asked for a clearly different color scheme on every cat, because the cat meshes may be replaced. So the colors are data, not mesh: `cats.ROSTER` gives each cat its fur, second and third (markings), ruff, muzzle, eyes (eyes2 for an odd-eyed cat's right eye), nose, tail tip, socks (all four paws) and pattern, and `manifest.json` repeats them per cat under `coat` (swatch and hex) and `pattern`, ready to apply to any future model. No two cats share a main coat color. Picture: `docs/concepts/cat-cafe/sheet_cats.png`.
 
 | cat | coat | markings | eyes | nose |
@@ -244,6 +258,16 @@ paths' colours in WorldBuilder, so the compass points and the paws match.
 | Soot | fur_ash | fur_soot muzzle and tail tip | copper | dark |
 | Pipes | fur_smoke_light | fur_charcoal stripes, white muzzle | green | dark |
 | Puddle | fur_puddle | fur_mist muzzle and tail tip | amber | dark |
+| Binbag | fur_dusty | fur_soot stripes, white muzzle | green | dark |
+| Taxi | fur_marmalade | fur_orange_dark stripes, cream muzzle, a white and black checkered band on each flank | green | brick |
+| Neon | fur_indigo | neon_pink and sign_teal stripes, taking turns | sign_teal, glowing | pink |
+| Birdwatch | fur_dune | fur_hazel stripes, cream muzzle | copper | brick |
+| Duckling | fur_white | fur_silver and fur_mist patches | blue | pink |
+| Balloon | fur_bubblegum | mint and pastel_butter patches | pastel_sky, glowing | pink |
+| Builder | fur_toffee | fur_seal stripes, white muzzle and socks | amber | brick |
+| Gardener | fur_cream | fur_grey and fur_smoke_light patches, white muzzle | green | pink |
+| Gnome | fur_pewter | fur_white patches and muzzle, long coat, thick tail, a little rounder | green | pink |
+| Plumber | fur_gunmetal | fur_white bib, belly, socks and muzzle, fur_gunmetal tail tip | copper | dark |
 
 **Gold cats (v0.5 F42, called shiny until 2026-10-27).** Derek picked gold and asked for gold-modeled cats, called gold. Every cat has `CatCafe_Cat_<Name>_Gold`: the same shapes with the coat in three golds and eyes, nose, inner ears and star specks unchanged. The cat's coat colors (fur, second, third, ruff, and a tail tip or socks when the coat names them) are ranked lightest first by CIE L*: the lightest takes gold_light, the next gold_mid, the next gold_dark, and any coat darker than L* 35 (black, chocolate) takes gold_dark too, so stripes, points and patches still show; the muzzle turns gold_light. The golds are metal: `palette.METAL_SWATCHES` makes them Material Metal on the Part models and metallic in the palette material (a mask texture, `CatCafe_Palette_Metal.png`, into Metallic, Roughness 0.3 there). Gold cats are Part models only; their meshes are the base cats'. Picture: `docs/concepts/cat-cafe/sheet_gold.png`.
 
@@ -266,7 +290,7 @@ paths' colours in WorldBuilder, so the compass points and the paws match.
 |---|---|---|
 | Cat, walking (body A) | 1.0 x 2.0 x 1.85 | nose to tail tip 2.0, head top at 1.63, ear tips at 1.85. Ragdoll and Maine Coon are 1.2 times this |
 | Cat, sitting (body B) | 1.05 x 1.2 x 1.85 | drawn at 0.95 so a sitting cat is no taller than a walking one; head top at 1.63 |
-| Customer NPC | 2.0 x 1.0 x 5.0 | Roblox blocky proportions: legs 2, torso 2, head 1 |
+| Customer NPC | 2.25 x 1.55 x 5.0 | our own chunky townsfolk, not Roblox avatars: hip at 1.55, torso 1.5, a big head 1.45 with a face; the kid is 4.1 tall. The seated twins (`_Sit`) sit on the chair cushion at 1.58 |
 | Counter | 8.0 x 2.6 x 3.0 | hero asset. Espresso machine sits on top at the left end, the pastry case at the right end; the barista cat's pad (sit point) is between them, behind the tip jar |
 | Espresso machine | 1.4 x 1.0 x 1.4 (L1, L2), 2.0 x 1.0 x 1.7 (L3) | three upgrade looks: painted, chrome trim, double boiler |
 | Table round | 3.5 dia x 2.6 | |
@@ -301,21 +325,26 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Cat (every piece, either body) | 1,500 total | plain coats land at 650 to 950 on A and B; themed cats with their prop at 800 to 1,380 |
 | Accessory | 200 to 300 | glasses, hat, and the role outfit pieces: apron, barista cap, bow tie, vest, sash, boater, party hat, cape |
 | Held tool (net) | 500 to 650 | per level |
-| Customer NPC | 1,000 | |
-| Hero furniture (Counter) | 3,000 | the night dealer's cart 3,500 |
-| Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400 |
+| Potion bottles (F64, F73) | 700, Big Tip 750 | `potions.py`: they land at 468 to 688 |
+| Cafe Crates (F53) | 1,500 | `crates.py`, body and `_Lid` together, golden twin the same: they land at 384 (Neighbourhood) to 1,146 (Park) |
+| Mystery Visitor and gift (F64) | visitor 2,600, gift 700 | `mystery.py`: the visitor (cat, hood and capelet) lands at 1,636, the gift at 362 |
+| Cat Collector (F63) | 2,600 | `collector.py`: cat, bowler, coat and magnifying glass land at 1,856 |
+| Customer NPC | 1,600 | each of the standing and seated twins; the night dealer 1,800 |
+| Hero furniture (Counter) | 3,000 | the night dealer's cart 4,500 (with its jars, fish, lights and sack) |
+| Furniture | 800 | role stations: GreeterPodium 800, StageCatTree 1,400; the F79 CatBed 800 |
 | Decor | 500 | |
 | Crate decor | 1,500 to 2,400 | the F53 crate furniture and decorations (`crate_decor.py`): 1,500 for the Commons, 1,800 Rare and Epic, 2,400 Legendary and Mythical; they land at 324 to 1,640 (section 14) |
 | Alley props | 800 | Dumpster 1,200; rescue traps (TrashBin, GarbageBags) 600 |
 | Park props | 800 | Fountain 1,200; rescue traps (RescueTree, TrashCan) 900 |
 | Area gates | 6,000 | Park, Neighbourhood, Woods, Sewer: arches with a barrier (section 13) |
-| Area sets (v3.2) | 80,000 Park, 120,000 Woods | a whole area as one Model of Parts; the part count is the real cost (Park 2,807, Woods 4,510) |
+| Area sets (v3.2) | 80,000 Park, 120,000 Woods, Sewer and Neighbourhood | a whole area as one Model of Parts; the part count is the real cost (Park 2,807, Woods 4,510, Sewer 4,471, Neighbourhood 5,478) |
 | Index Boards | 1,500 | one per area, at its entry inside the gate (section 14) |
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14) |
 | Currency props | 1,200 | the golden fish coin (`CatCafe_Prop_FishCoin`); its UI picture is rendered from it (section 14) |
-| Alleyway set pieces | 5,000 to 6,000 | arches and building backs; crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
-| Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier | built from blocks for the Part export (section 14); the FBX is the reference |
+| Alleyway set pieces | 5,000 to 6,000 | arches, building backs and the town buildings (Warehouse 6,000); crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
+| Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier, 4,000 back door | built from blocks for the Part export (section 14); the FBX is the reference |
+| Door sets and cat flaps (F80) | 4,000 per door half, 1,600 per flap | `doorsets.py`: front double doors land at 1,196 to 3,292, back doors 2,254 to 3,278, flaps 256 to 1,336 |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.
@@ -390,12 +419,12 @@ After every visual task save 2 to 4 PNGs to `docs/concepts/cat-cafe/` with a one
 
 The slice has no skeleton. Every pose turns the cat's hinged pieces (section 6) about their joints, so it works for every cat. `manifest.json` carries two kinds, with every value in Blender and Roblox axes:
 
-- `cat_poses` turn single pieces of body A or B, after an optional `lift` of the whole cat: `lick` (B: the left front paw up at the mouth, head tipped down to it; Derek, 2026-10-27: the paw-up sit is licking a paw), `loaf` (A: belly on the floor, all four legs folded under), `sleep` (the loaf with the head down and turned and the tail curled round) and `eat` (A standing, head down to a bowl). In Roblox turn each piece's Model with `piece:PivotTo(piece:GetPivot() * CFrame.Angles(...))` using `angles_roblox_deg`, Head first, then move the whole model by `lift_roblox` times the cat's `scale`. Preview: `previews/Pose_Cats.png` (walk, sit, lick, loaf, sleep, eat). The For Rent plot's sleeping Tabby is the `sleep` pose.
+- `cat_poses` turn single pieces of body A or B, after an optional `lift` of the whole cat: `lick` (B: the left front paw up at the mouth, head tipped down to it; Derek, 2026-10-27: the paw-up sit is licking a paw), `loaf` (A: belly on the floor, all four legs folded under), `sleep` (the loaf with the head down and turned and the tail curled round) and `eat` (A standing, head down to a bowl). In Roblox turn each piece's Model with `piece:PivotTo(piece:GetPivot() * CFrame.Angles(...))` using `angles_roblox_deg`, Head first, then move the whole model by `lift_roblox` times the cat's `scale`. Preview: `previews/Pose_Cats.png` (walk, sit, lick, loaf, sleep, eat).
 - `poses` move the whole walking cat as a Body CFrame plus a turn of the Head and the Tail: `carried` (relative to the HumanoidRootPart centre, 3 studs above the floor on a default R15 character; `previews/Pose_Carried.png`) and `upright`, which is now only the base of the bin traps. Each v0.3 rescue trap has a `stuck_pose` (Alleyway `TrashBin` and `GarbageBags`, Park `RescueTree` and `TrashCan`): in the bin and the can the cat stands inside with its head and front paws over the rim; in the bags it is buried with its head and front paws out the front; on the tree it lies draped across the branch between the trunk and the leaf tuft, facing the tree's front and looking down at the player (the engineer's #200 pose), its Body welded to the `_Branch` so it rides the shake. `body_cframe_roblox` is the Body CFrame as 12 numbers for `CFrame.new(table.unpack(t))`; `head_offset_roblox` moves the Head joint in the Body's own frame. Previews: `previews/CatCafe_Alley_TrashBin.png` and the other three, collected in `sheet_poses.png`.
 
 Cats wear no collar, strays and cafe cats alike (Derek, 2026-10-27). Working cats (v0.3 roles, data-model section 5) sit at their stations on body B in their role's two-piece outfit, which is what marks a cat as staff: Apron and BaristaCap for the barista, BowTie and Vest for the waiter, Sash and Boater for the greeter, PartyHat and Cape for the entertainer (`role_outfits` in the manifest, `previews/Pose_Uniforms.png`). The pieces share the cafe palette: mint and cream for the barista, dark_wood with a white shirt and gold buttons for the waiter, shirt_red and straw (treat_tan) for the greeter, sign_teal and neon_pink with gold stars for the entertainer. Put each piece on the sitting model's `Outfit_<Piece>` Attachment and scale it by the model's `Scale` attribute; multiply every pose position by it too. Idle bob, blinks, ear twitches and tail wag are tweens on the piece Models (the vfx-animator's Effects code). Gavin's reference images (in the shared project folder under cat-cafe/docs/concepts/cat-cafe/reference/, not committed because they are not ours) show cube-headed collectible cats with big glossy eyes.
 
-Themed cats (data-model section 3c) each wear one signature prop, built in `props.py` and named `CatCafe_Cat_<Name>[_Gold][_Sit]_Prop`, on both bodies and the gold twins. The prop has a slot: `Head` (hats, horns, antlers, headphones), `Face` (glasses, masks, the eye patch, the bubble pipe) or `Back` (cape, wings, guitar, skateboard, backpack, the firefly jar). Head and Face props pivot at the neck and the Part model nests them in the Head Model, so a head turn carries them; Back props sit in the root Model and ride the Body. Every prop Part carries a `Follows` attribute (`Head` or `Body`) and the cat's root Model a `PropSlot` attribute. When a themed cat works, `CatPose.dress` leaves off the role piece in the prop's slot (a Head prop replaces the BaristaCap, Boater or PartyHat, a Back prop the Entertainer's Cape) and keeps the other piece; Face props keep the whole outfit. Clear parts (lenses, the helmet, bubbles, the jar) are `_Prop_Glass`, Glass at 0.45. Props follow the toolkit rule for details: sunk 0.005 to 0.01 into the surface they sit on and at least 0.01 proud of it, never coplanar with a face of another swatch. Review sheets: `docs/concepts/cat-cafe/themed_cats_<area>.png`.
+Themed cats (data-model section 3c) each wear one signature prop, built in `props.py` and named `CatCafe_Cat_<Name>[_Gold][_Sit]_Prop`, on both bodies and the gold twins. The prop has a slot: `Head` (hats, horns, antlers, headphones), `Face` (glasses, masks, the eye patch, the bubble pipe) or `Back` (cape, wings, guitar, skateboard, backpack, the firefly jar). Head and Face props pivot at the neck and the Part model nests them in the Head Model, so a head turn carries them; Back props sit in the root Model and ride the Body. Every prop Part carries a `Follows` attribute (`Head` or `Body`) and the cat's root Model a `PropSlot` attribute. When a themed cat works, `CatPose.dress` leaves off the role piece in the prop's slot (a Head prop replaces the BaristaCap, Boater or PartyHat, a Back prop the Entertainer's Cape) and keeps the other piece; Face props keep the whole outfit. Clear parts (lenses, the helmet, bubbles, the jar) are `_Prop_Glass`, Glass at 0.45. Props follow the toolkit rule for details: sunk 0.005 to 0.01 into the surface they sit on and at least 0.01 proud of it, never coplanar with a face of another swatch. Review sheets: `docs/concepts/cat-cafe/themed_cats_<area>.png`. **Second props (F78, v0.13).** A themed cat can wear a second prop in another slot, the object `_Prop2` (`props.PROPS2`): the Jazz Cat's saxophone, the Gardener Cat's watering can and the Plumber Cat's wrench on the back, the Gnome Cat's beard on the face. The root Model's `PropSlot2` attribute names that slot and its parts carry `Follows` like the first prop's; a Face second prop nests in the Head Model. `CatPose.dress` (F71) leaves off the role pieces in both slots, and an Entertainer with a Head and a Back prop wears the PartyHat in place of its head prop and drops the Cape. On body B a back prop keeps its inner face 0.07 behind the chest's back (`props.B_CLEAR`), clear of the waiter's vest, the barista's apron bow and the greeter's sash; straps come over the top of the chest under the chin (`_sling`). The F78 cats: Binbag (a black bin bag over the back, Back), Taxi (a roof light, Head), Neon (fedora, Head; saxophone, Back), Birdwatch (prism binoculars, Face), Duckling (a duckling, Head), Balloon (three glowing balloons, the three biggest parts, Back), Builder (hard hat with a pencil, Head), Gardener (sun hat, Head; watering can, Back), Gnome (gnome hat, Head; beard, Face) and Plumber (work cap, Head; wrench, Back). Review sheets: the Model-Agent library's `f78-themed-cats-1.png` and `-2.png`.
 
 ## 13. Cafe plots and the street
 
@@ -407,8 +436,8 @@ door with a sunburst fanlight, a sign board with cat ears on the front gable, an
 flower beds, a picket fence, a bench and a lamp post. Inside (`CatCafe_Plot_Interior`) follows the concept sketch:
 caramel plank wainscot with a dark chair rail, cream walls, mint curtains, tie beams with mint pendant lamps over
 the tables, a chalk menu board, plant and mug shelves, framed pixel portraits of our cats and coloured string
-lights. Empty plots add `CatCafe_Plot_ForRent` (half-down shutters, a FOR RENT blade sign, dust sheets, boxes, a
-sleeping Tabby) and running cafes add the tier sets `CatCafe_Plot_Tier1` to `Tier5` cumulatively: chalkboard;
+lights. Empty plots add `CatCafe_Plot_ForRent` (half-down shutters, a FOR RENT blade sign, a dust sheet over the counter,
+the tables put away with their chairs turned up on top and one under a sheet, boxes and a broom; no cat) and running cafes add the tier sets `CatCafe_Plot_Tier1` to `Tier5` cumulatively: chalkboard;
 flower boxes and a bistro set; neon OPEN, string lights and a second bistro set; a fish tank in the window and the
 back patio pergola; gold trim, the cup-with-ears rooftop sign and a red carpet. Previews:
 `previews/CatCafe_Plot_*.png`, the Part versions in `rbx/`.
@@ -429,6 +458,8 @@ long string lights and the Sewer manhole with barricades. Area gates are arches 
 ForceField barrier and a hanging sign board, themed: the Park in brick with ivy, planters and a green iron frame;
 the Woods in timber posts and a log beam with moss, mushrooms and small spruces; the Sewer in concrete with hazard
 stripes, a big pipe and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+
+The town buildings (`CatCafe_Alley_Building_<Name>`, `townbuildings.py`) replace the repeated backs and the staff door with whole little buildings, each its own colour, height and roof so no two neighbours match: Bakery, Townhouses, Warehouse, Grocer, Apartments, ClockHouse, MusicShop and NarrowHouses. Shops say what they are with a hanging picture sign (bread, apple, music note), never words. Each is 30.6 wide like the backs, with a 3 deep body standing over the 1 thick outer wall: the pivot is the back plane at the bottom centre, set 2.25 behind the wall's inner face so the facade is 1 out into the lane and the body's back meets the Woods' and the Sewer's own walls (only the back sills and eaves reach 0.25 into them); lane-side doors, sills, canopies and lamps keep within 3.5 of the facade. The backs have plain windows for the areas behind. The Warehouse carries the walkable fire escape at the FireEscape's place (`ledges_roblox`), so the crate stack beside it still climbs to landing 1.
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
 are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never
@@ -461,7 +492,9 @@ claim), `_Zzz` (sleeping cat). Index Boards (`CatCafe_<Area>_IndexBoard`, `board
 Front face carries the player's Index page), the `IndexBoard` tag, an `Area` attribute and ModelStreamingMode
 Atomic on the root Model; `placement` in the manifest gives the spot in its gate's frame. Night pieces (`night.py`): every
 `CatCafe_<Area>_NightFence`, `CatCafe_Alley_NightFenceSegment` and `CatCafe_Plot_BackDoorClosed` carries the `NightFence`
-tag, the moon, stars and sign letters are `_Moon_Bulb` or `_Sign_Bulb` (Neon at night), and `placement` names the gate or
+tag, the moon, stars and sign letters are `_Moon_Bulb` or `_Sign_Bulb` (Neon at night; on the gate fences the
+CLOSED board's rim and the moon badge's rim glow too, the letters are a 5 x 7 face with thin strokes and the moon
+is a thin crescent, so the sign reads up close), and `placement` names the gate or
 arch whose pivot each gate fence takes. The Codes Cat (`CatCafe_Street_CodesCat`, `stations.py`): the `CodesCat` tag,
 the part `CodesCircle` (the walk-in circle that opens the code box) and an Attachment named `PromptAnchor` on the desk
 front; the cap is nested under `_Head`. The Golden Fish Market (`CatCafe_Street_FishMarket`, `market.py`): an
@@ -474,7 +507,19 @@ readable down to 24 px), uploaded as `rbxassetid://77287948377172`. The crate fu
 wide and 2.5 deep around a base-centre pivot, front -Z, and never collides; tall pieces are fine (the Cat Tree Tower
 is 10.6). Lamps and neon are `_Glow`, fountain water `_Water`, a window to look through `_Glass`, and the Blossom
 Tree's flowers are the child Model `_Canopy` that the petal effect falls from. `_Glow` parts are Neon day and night,
-and WorldController leaves them alone. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
+and WorldController leaves them alone. The F80 door sets (`CatCafe_Door_<Name>_Front` and `_Back`, `doorsets.py`) and
+cat flaps (`CatCafe_CatFlap_<Name>`) never collide; the code reads `_LeafL`, `_LeafR` and `_Leaf` (each pivoted on its
+hinge), the back leaf's `CatFlap` Attachment, `_Sign` and `_Sign_Bulb` (night), `_Flap` (pivoted on the flap's top
+hinge) and the Bell flap's `_Bell`. Back leaves keep the flap patch flat on both faces, so any flap fits any back door,
+the cafe's own included, and no flap reaches below the leaf's foot. The Cafe Crates (`CatCafe_Prop_Crate_<Pool>` and
+`_Gold`, `crates.py`) never collide; the pivot is the base centre with the front -Z, and the lid is the child Model
+`_Lid`, pivoted on its back hinge, so the reveal turns it about the pivot's X (positive lifts the front, 105 is wide
+open). Golden twins keep the paw, ribbons and accents in colour and are Metal elsewhere. Their shop pictures are
+`exports/icons/CatCafe_Icon_Crate_<Pool>[_Gold].png`; the Star Treat, the three perks and the nets have theirs too
+(`icons.py`). Each net's `_Handle` carries an Attachment named `Grip`, mid wrap with no turn, for the hand in the net
+hold (the pole runs along -Z). The potion bottles (`CatCafe_Prop_Potion_<Name>`, `potions.py`) never collide; the
+pivot is the base centre with the front -Z, the name is the potion id without `_potion` in PascalCase, the liquid is
+the potion's colour in the UI's `Theme.potionColors` and the picture is `exports/icons/CatCafe_Icon_Potion_<Name>.png`. The Mystery Visitor (`CatCafe_NPC_MysteryVisitor`, `mystery.py`) is a sitting cat at scale 1.3 with the usual hinged pieces, its hood the child Model `_Prop` inside `Head` and its capelet `_Cloak`; the pivot is the floor under a chair seat's centre, facing the table (-Z), so the cat sits at 1.57 clear of the chair's back. Its gift (`CatCafe_Item_MysteryGift`) has its pivot at the base centre with the "?" tag to the front (-Z). Neither collides; the client tags them `MysteryVisitor` and `MysteryGift`. The Cat Collector (`CatCafe_NPC_Collector`, `collector.py`) is a sitting cat at scale 1.45 with the usual hinged pieces, its bowler the child Model `_Prop` inside `Head`, its coat `_Coat` and its magnifying glass the child Model `_Lens` inside `LegF2`, which is raised to the right eye; the pivot is the floor under him on the plot's `CollectorSpot`, facing into the room (-Z), and he sits 2.7 tall to the hat in a 2 x 2 footprint. He does not collide; the client tags him `CatCollector`. The cafe customers (`CatCafe_NPC_Customer_<V>`, `customers.py`) are our own townsfolk, each with a face (dot eyes with a highlight, blush, a small smile), hair and an outfit: six everyday looks A to F (a bob and cardigan with a takeaway cup; a kid in a cap with a backpack; an elder with a silver bun, glasses and a cane; ginger curls and beard with a striped sweater and a tote; puffs, a hoodie and headphones; a beanie, overalls, a scarf and a book) and the Rich customer (top hat, monocle, moustache, tails, gold bow tie and cane). Standing ones pivot at the feet; each has a seated twin `_Sit` pivoted on the floor under a cafe chair's middle (the chair's own pivot), facing the table, sitting on the cushion with the forearms on the table top and no cane, cup, tote or backpack. None collides. Tags for the audio loops: `FishTank` (decor tank and the Tier 4 tank's water) and
 `Fountain`; the engineer tags `CafeDoor` and `WorkingCat` at placement.
 `rbx_preview.py` renders the Part versions the way Roblox draws them; check them before a PR. A MeshPart import
 saved as `<Name>.rbxm` replaces the JSON of the same name (delete the JSON).

@@ -5,6 +5,7 @@
 -- distance, locks, the schedule, the press times, the chase and odds live here.
 
 local CollectionService = game:GetService("CollectionService")
+local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -50,8 +51,10 @@ type Stray = {
 	-- v0.5 (data-model section 10 step 5): server time the sprint after a miss and the breather end; nobody starts
 	-- a catch before it. Tries are unlimited, so there is no per-player table.
 	fleeingUntil: number,
-	-- server time each player who missed may try again: StraySelfRetrySeconds after it stops (reviewer S44)
+	-- server time each player who missed may try again: their Catching.selfRetrySeconds after it stops (reviewer S44,
+	-- F57), from their misses in a row on it
 	selfRetryAt: { [number]: number },
+	missStreak: { [number]: Catching.MissStreak },
 	jumping: boolean, -- sprinting or catching its breath: no wandering
 	charm: number, -- rolled at spawn (section 4b); a net catch adds the Perfect bonus
 	variant: string, -- "gold" (GoldChanceNet with gold luck, rolled at spawn and shown as a sparkle) or "base"
@@ -59,6 +62,12 @@ type Stray = {
 	-- set on a Dropped stray (section 10c, S25): a shove knocked it out of someone's arms or they let it go. It has
 	-- no circles: anyone picks it up with PickUpCat (v0.8 F56).
 	drop: Shove.Drop?,
+	-- F67 (section 10c v0.10): where a Dropped cat was first caught, kept through every pick up and drop, and true
+	-- while one let go with the Drop button walks back there. Home again it is a normal stray whose next catch adds
+	-- no charm (`recaught`, as S36).
+	homePos: Vector3?,
+	returning: boolean,
+	recaught: boolean,
 	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
 	alive: boolean,
 }
@@ -75,6 +84,7 @@ type Carry = {
 	immuneUntil: number, -- server time; after "It held on tight!" (BumpChance below 1 only)
 	funnel: Telemetry.CatchFunnel?, -- the catch_attempt funnel this cat came from (F16)
 	rushUntil: number?, -- server time the Catch Rush ends (F55); nil for a picked-up cat
+	homePos: Vector3?, -- F67: where it was caught (a rescue: the cat spot nearest its trap), for a Drop to walk back to
 }
 
 -- What a Dropped cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
@@ -83,6 +93,8 @@ type Kept = {
 	variant: string?,
 	method: Types.CatchMethod,
 	drop: Shove.Drop,
+	homePos: Vector3?, -- F67: where it was caught, carried on to the next carry
+	returning: boolean?, -- F67: let go with the Drop button, so it walks back to homePos
 }
 
 local world: WorldBuilder.World
@@ -92,6 +104,7 @@ local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point i
 local carrying: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local lastCatchStart: { [Player]: number } = {} -- server time of the player's last GrabBegin that started circles
+local startledUntil: { [Player]: number } = {} -- server time each player's Startled slow ends (F57)
 local rng = Random.new()
 local nextStrayNumber = 0
 -- RescueService's answer to "is this player in a rescue attempt?", so a catch cannot start during one.
@@ -129,7 +142,8 @@ local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boole
 end
 
 -- The gold luck a stray or a rescue trap in the area rolls with (F54, golden-fish.md section 5): the highest among
--- the players in the server whose tier has the area open, 0 when nobody has. The coat shows from the spawn, the
+-- the players in the server whose tier has the area open, a running Gold Rush Potion included (F73), 0 when nobody
+-- has. The coat shows from the spawn, the
 -- same for everyone.
 function CatService.goldLuckFor(areaId: string): number
 	return (CatService.goldLuckSource(areaId))
@@ -150,7 +164,7 @@ function CatService.goldLuckSource(areaId: string): (number, Player?)
 			table.insert(profiles, profile)
 		end
 	end
-	local luck, from = IndexRewards.luckiest(profiles, area.tier, Economy.tier)
+	local luck, from = IndexRewards.luckiest(profiles, area.tier, Economy.tier, os.time())
 	return luck, if from ~= nil then players[from] else nil
 end
 
@@ -218,6 +232,17 @@ local PATH_BOX = Vector3.new(1.6, 1.2, 1.6)
 local PATH_BOX_LIFT = 0.35 + PATH_BOX.Y / 2
 local PATH_STOP_SHORT = 0.2
 
+-- What a stray's casts pass through: the cats themselves and every character.
+local function catsAndCharacters(): { Instance }
+	local ignore: { Instance } = { straysFolder }
+	for _, player in Players:GetPlayers() do
+		if player.Character ~= nil then
+			table.insert(ignore, player.Character :: Model)
+		end
+	end
+	return ignore
+end
+
 -- Where a stray walking from `from` to `to` (on to's floor) stops: at `to`, or just short of the first thing its
 -- body would touch (reviewer N84). Characters and the cats themselves never stop it. Any part a player can see stops it, solid or not (Derek 2026-10-28 01:30: cats clipped through
 -- the area sets' fences, benches and stalls, half of which do not collide), so the cast ignores CanCollide and
@@ -230,12 +255,7 @@ local function clearPath(from: Vector3, to: Vector3): Vector3
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.RespectCanCollide = false
-	local ignore: { Instance } = { straysFolder }
-	for _, player in Players:GetPlayers() do
-		if player.Character ~= nil then
-			table.insert(ignore, player.Character :: Model)
-		end
-	end
+	local ignore = catsAndCharacters()
 	local origin = Vector3.new(from.X, to.Y + PATH_BOX_LIFT, from.Z)
 	local box = CFrame.lookAt(origin, origin + flat)
 	for _ = 1, 4 do
@@ -389,7 +409,7 @@ local function spawnStray(
 ): Stray
 	local variant = if kept ~= nil
 		then kept.variant or "base"
-		elseif forceGold == true or rng:NextNumber() < IndexRewards.goldChance(
+		elseif forceGold == true or rng:NextNumber() < IndexRewards.rollChance(
 			Config.GoldChanceNet,
 			CatService.goldLuckFor(areaId)
 		) then "gold"
@@ -413,6 +433,7 @@ local function spawnStray(
 	-- stray's card reads Pick up, with no circles (v0.8 F56, ui-contract "Pick up").
 	model:SetAttribute("Dropped", kept ~= nil)
 	model:SetAttribute("PickUp", kept ~= nil)
+	model:SetAttribute("Returning", kept ~= nil and kept.returning == true) -- F67: walking home
 	CollectionService:AddTag(model, "Stray")
 
 	local prompt = Instance.new("ProximityPrompt")
@@ -450,6 +471,7 @@ local function spawnStray(
 		attempt = nil,
 		fleeingUntil = 0,
 		selfRetryAt = {},
+		missStreak = {},
 		jumping = false,
 		charm = if kept ~= nil and kept.charm ~= nil
 			then kept.charm
@@ -457,6 +479,9 @@ local function spawnStray(
 		variant = variant,
 		method = if kept ~= nil then kept.method else "net",
 		drop = if kept ~= nil then kept.drop else nil,
+		homePos = if kept ~= nil then kept.homePos else nil,
+		returning = kept ~= nil and kept.returning == true,
+		recaught = false,
 		alive = true,
 	}
 	strays[id] = stray
@@ -481,37 +506,21 @@ local function spawnStray(
 	return stray
 end
 
--- The zones Epic and rarer strays keep to: the Alleyway's "nook" points (town-layout-v3.md 7e: the exciting cats
--- wait at the back alleys' ends, so no cafe's lane is the lucky one) and a v3.2 side area's "deep" ones (section 8d:
--- the rarer the cat, the longer the walk to it).
-local RARE_ZONES: { [string]: boolean } = { nook = true, deep = true }
-
--- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Epic and
--- rarer strays take only RARE_ZONES points in an area that has them.
+-- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Which points a
+-- stray of `rarity` may take is Catching.spawnPool's rule: the Woods' oak top for a Rare or better first, Epic and
+-- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81).
 local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
-	local free: { number } = {}
-	local nooks: { number } = {}
-	local hasNook = false
+	local slots: { Catching.SpawnSlot } = {}
 	for i, point in area.spawnPoints do
 		local zone = point:GetAttribute("Zone")
-		local inNook = type(zone) == "string" and RARE_ZONES[zone] == true
-		hasNook = hasNook or inNook
-		if occupied[i] == nil then
-			table.insert(free, i)
-			if inNook then
-				table.insert(nooks, i)
-			end
-		end
+		table.insert(
+			slots,
+			{ zone = if type(zone) == "string" then zone else nil, free = occupied[i] == nil }
+		)
 	end
-	-- Epic and rarer spawn only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81); with
-	-- every such point full that stray waits for the next wave. spawnWave places the rarer strays first, so this is
-	-- rare.
-	local pool: { number } = free
-	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasNook then
-		pool = nooks
-	end
+	local pool = Catching.spawnPool(slots, rarity)
 	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
 	local points: { Vector3 } = {}
 	for _, index in pool do
@@ -527,11 +536,11 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	return if pick ~= nil then pool[pick] else nil
 end
 
-local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)
+local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity): Stray
 	local area = world.areas[areaId]
 	local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
-	spawnStray(def, areaId, point.Position, pointIndex, nil)
+	return spawnStray(def, areaId, point.Position, pointIndex, nil)
 end
 
 -- A beginner always finds a Common stray waiting in the back alley right outside their own yard gate: plot p's
@@ -583,7 +592,13 @@ local function spawnWave(areaDef: Types.AreaDef)
 	for _, rarity: Types.Rarity in rarities do
 		local point = freeSpawnPoint(areaDef.id, rarity)
 		if point ~= nil then
-			spawnAt(areaDef.id, point, rarity)
+			local stray = spawnAt(areaDef.id, point, rarity)
+			-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
+			-- up); a tutorial or bait Mythical is not a wave's
+			local text = Catching.waveShoutOut(rarity, stray.variant, areaDef.name)
+			if text ~= nil then
+				Net.fireAll("Announce", text, rarity)
+			end
 		end
 	end
 end
@@ -740,7 +755,8 @@ local function startCarry(
 	charm: number?,
 	variant: string?,
 	pickedUp: boolean?,
-	funnel: Telemetry.CatchFunnel?
+	funnel: Telemetry.CatchFunnel?,
+	homePos: Vector3?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -761,6 +777,7 @@ local function startCarry(
 		startedAt = serverNow(),
 		immuneUntil = 0,
 		funnel = funnel,
+		homePos = homePos,
 	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
@@ -804,12 +821,8 @@ local function endCarry(player: Player): Carry?
 		carry.model:Destroy()
 	end
 	local character = player.Character
-	local humanoid = if character ~= nil
-		then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
-		else nil
-	if humanoid ~= nil then
-		setSpeed(player, humanoid, Config.NormalWalkSpeed)
-	end
+	-- through refreshSpeed, so a check-in inside a Startled slow keeps the slow (review N247)
+	CatService.refreshSpeed(player)
 	if character ~= nil and carry.rushUntil ~= nil and carry.rushUntil > serverNow() then
 		character:SetAttribute("RushUntil", 0) -- checked in or knocked loose mid-rush: the speed lines stop (F55)
 	end
@@ -871,9 +884,20 @@ end
 
 -- After a miss the stray hisses (HissAt, so every nearby client plays it) and sprints its rarity's fleeStuds straight
 -- away from the player at StrayFleeSpeed, kept inside its area, then catches its breath for StrayRestSeconds
--- (v0.5, data-model section 10 step 5). Nobody can start a catch on it until FleeingUntil.
-local function flee(stray: Stray, player: Player)
+-- (v0.5, data-model section 10 step 5; v0.8 F57 runs twice as far). Nobody can start a catch on it until
+-- FleeingUntil, and the player who missed `selfRetry` seconds more. A stray on a perch (a
+-- rock, the tree house cushion, the Great Oak's top) hisses and stays put for the breather instead: the sprint aims
+-- at the floor and would drop it through whatever it sits on (reviewer S86), and the climb stays worth a retry.
+local function flee(stray: Stray, player: Player, selfRetry: number)
 	local at = stray.model:GetPivot().Position
+	if at.Y > world.areas[stray.area].floorY + PERCH_ABOVE then
+		local now = serverNow()
+		stray.fleeingUntil = Catching.fleeUntil(now, 0)
+		stray.selfRetryAt[player.UserId] = stray.fleeingUntil + selfRetry
+		stray.model:SetAttribute("HissAt", now)
+		stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
+		return
+	end
 	local from = rootPosition(player)
 	local away = if from ~= nil then Vector3.new(at.X - from.X, 0, at.Z - from.Z) else Vector3.zero
 	if away.Magnitude < 0.1 then
@@ -888,7 +912,7 @@ local function flee(stray: Stray, player: Player)
 	local now = serverNow()
 	local sprint = Vector3.new(target.X - at.X, 0, target.Z - at.Z).Magnitude
 	stray.fleeingUntil = Catching.fleeUntil(now, sprint)
-	stray.selfRetryAt[player.UserId] = stray.fleeingUntil + Config.StraySelfRetrySeconds
+	stray.selfRetryAt[player.UserId] = stray.fleeingUntil + selfRetry
 	stray.model:SetAttribute("HissAt", now)
 	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
 	stray.jumping = true
@@ -899,6 +923,25 @@ local function flee(stray: Stray, player: Player)
 		end)
 		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
 		stray.jumping = false
+	end)
+end
+
+-- F57 (data-model section 10 step 5, v0.8): the player who missed is Startled, walking at StartledWalkSpeed for
+-- StartledSeconds; `StartledUntil` on the character shows the dizzy stars (Effects/Chase).
+local function startle(player: Player)
+	local character = player.Character
+	if character == nil then
+		return
+	end
+	local ends = serverNow() + Config.StartledSeconds
+	startledUntil[player] = ends
+	character:SetAttribute("StartledUntil", ends)
+	CatService.refreshSpeed(player)
+	task.delay(Config.StartledSeconds, function()
+		if startledUntil[player] == ends then
+			startledUntil[player] = nil
+			CatService.refreshSpeed(player)
+		end
 	end)
 end
 
@@ -946,7 +989,9 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		-- no Perfect bonus for a scripted-looking profile, nor on a Dropped cat, which already has its charm
 		-- (reviewer S36: two friends could shove and re-catch it up to 100). Since v0.8 F56 a Dropped stray refuses
 		-- GrabBegin, so this is only a guard.
-		local gain = if profile.flags.autoPress or stray.drop ~= nil
+		local gain = if profile.flags.autoPress
+				or stray.drop ~= nil
+				or stray.recaught
 			then 0
 			else Circles.charmGain(attempt)
 		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain)
@@ -954,54 +999,54 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local method: Types.CatchMethod = stray.method
 		local def, variant = stray.def, stray.variant
 		local charm = math.min(100, stray.charm + gain)
+		-- where it stood for the catch (it stays put while locked), on the floor or perch it lives on (F67)
+		local at = stray.model:GetPivot().Position
+		local homePos = Vector3.new(at.X, stray.home.Y, at.Z)
 		despawn(stray, player)
-		startCarry(player, def, method, charm, variant, nil, funnel)
+		startCarry(player, def, method, charm, variant, nil, funnel, homePos)
 		return
 	end
 
-	-- The stray moves first, so its FleeingUntil reaches the client ahead of the result (QA on #130).
-	flee(stray, player)
-	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, 0)
+	-- The stray moves first, so its FleeingUntil reaches the client ahead of the result (QA on #130). The miss costs
+	-- the player who missed and nobody else (F57): a longer wait the more they miss it in a row, and shaky paws.
+	local streak = Catching.nextMiss(stray.missStreak[player.UserId], serverNow())
+	stray.missStreak[player.UserId] = streak
+	flee(stray, player, Catching.selfRetrySeconds(streak.count))
+	-- Only the server knows the streak, so the miss carries this player's own retry time (review S87).
+	Net.fire(
+		player,
+		"CatchResult",
+		stray.id,
+		attempt.grades,
+		false,
+		0,
+		stray.selfRetryAt[player.UserId]
+	)
+	startle(player)
 	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
-	if forfeit ~= nil then
-		Net.toast(player, forfeit, "warn")
-	end
+	Net.toast(player, if forfeit ~= nil then forfeit else "Your paws are shaking!", "warn")
 end
 
 -- Shove (section 10c) --------------------------------------------------------------------------------------
 
--- The carried cat drops as a Dropped stray that keeps its charm, gold and rescued flag: where the target stands
--- (a shove, v0.8 F56: no scurry), or `ahead` studs in front of them (the Drop button). Anyone picks it up with
--- PickUpCat. `shoverUserId` is 0 for a Drop or Studio's hook. Nil when the target has no character to drop it
+-- The carried cat drops where the target stands as a Dropped stray that keeps its charm, gold, rescued flag and the
+-- spot it was caught at (a shove, v0.8 F56: no scurry; it stays where it fell, F67). Anyone picks it up with
+-- PickUpCat. `shoverUserId` is 0 for a night death or Studio's hook. Nil when the target has no character to drop it
 -- from, in which case the carry stays.
-local function knockLoose(
-	target: Player,
-	shoverUserId: number,
-	areaId: string,
-	ahead: number?
-): Stray?
+local function knockLoose(target: Player, shoverUserId: number, areaId: string): Stray?
 	local root = rootPosition(target)
 	local area = world.areas[areaId]
-	local character = target.Character
-	if root == nil or area == nil or character == nil or carrying[target] == nil then
+	if root == nil or area == nil or target.Character == nil or carrying[target] == nil then
 		return nil
 	end
 	local carry = endCarry(target) :: Carry
-	local spot = root
-	if ahead ~= nil then
-		local look = character:GetPivot().LookVector
-		local flat = Vector3.new(look.X, 0, look.Z)
-		if flat.Magnitude > 0.01 then
-			local feet = Vector3.new(root.X, area.floorY, root.Z) -- the cat lands on the floor, so check there
-			spot = clearPath(feet, feet + flat.Unit * ahead)
-		end
-	end
-	local feet = WorldBuilder.clampToArea(area, spot, 2, root)
+	local feet = WorldBuilder.clampToArea(area, root, 2, root)
 	return spawnStray(carry.def, areaId, feet, nil, nil, nil, {
 		charm = carry.charm,
 		variant = carry.variant,
 		method = carry.method,
 		drop = Shove.newDrop(target.UserId, shoverUserId, serverNow()),
+		homePos = carry.homePos,
 	})
 end
 
@@ -1085,7 +1130,8 @@ local function onGrabBegin(player: Player, rawStrayId: unknown)
 
 	-- a Steady Paw Potion running now plays the circles of the next net level (F64)
 	local netLevel = Potions.netLevel(profile, Economy.level(profile, "net"), os.time())
-	local windows = Circles.windows(netLevel)
+	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
+	local windows = Circles.windowsFor(netLevel, stray.def.rarity)
 	local circles = Circles.schedule(stray.def.rarity, netLevel, now, function()
 		return rng:NextNumber()
 	end)
@@ -1192,9 +1238,9 @@ local function onPickUpCat(player: Player, rawStrayId: unknown)
 	lastCatchStart[player] = now
 	profile.stats.pickups += 1
 	local method: Types.CatchMethod = stray.method
-	local def, charm, variant = stray.def, stray.charm, stray.variant
+	local def, charm, variant, homePos = stray.def, stray.charm, stray.variant, stray.homePos
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
-	startCarry(player, def, method, charm, variant, true, nil)
+	startCarry(player, def, method, charm, variant, true, nil, homePos)
 end
 
 -- Adds the cat to the player's cafe and, with `notify`, tells them and the server (CatCaught, the shout-out). The
@@ -1319,33 +1365,144 @@ local function checkInPassing()
 	lastCarrierAt = seen
 end
 
--- The Drop button (Derek 2026-10-27): lets go of the carried cat. In a catching area it lands DROP_AHEAD_STUDS in
--- front of the player; anywhere else (the street, a cafe, a yard) it runs back to a free spot in its own area.
--- Either way it is a Dropped stray with the player as its last carrier and no shover, which anyone picks up with
--- PickUpCat (v0.8 F56) and which gains no charm, so drop and pick up is no charm loop (as S36).
-local DROP_AHEAD_STUDS = 3
+-- F67 (data-model 10c v0.10) ------------------------------------------------------------------------------
 
--- A carrier's death drops the cat the same way, where the character fell and before the respawn (data-model 10c
--- v0.13.3), so Reset Character is never a free check-in and cannot skip a Tackle or the dusk sweep. Leaving the game
--- is the one exit that still checks the cat in.
-local function dropCarry(player: Player, died: boolean)
-	local carry = carrying[player]
-	local character = player.Character
-	local root = rootPosition(player)
-	-- a death with no root left (fallen below the world) still drops: the cat runs home, which needs no spot
-	-- (review N240)
-	if carry == nil or character == nil or (root == nil and not died) then
+-- The floor under a carrier's root: the first solid part below it, cats and characters aside, else a root's height
+-- (3 studs) down.
+local function floorBelow(root: Vector3): Vector3
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.RespectCanCollide = true
+	params.FilterDescendantsInstances = catsAndCharacters()
+	local hit = Workspace:Raycast(root, Vector3.new(0, -12, 0), params)
+	return if hit ~= nil then hit.Position else root - Vector3.new(0, 3, 0)
+end
+
+-- The stray spot of `areaId` nearest `position`, or nil when the area has none.
+local function nearestSpot(areaId: string, position: Vector3): Vector3?
+	local area = world.areas[areaId]
+	if area == nil then
+		return nil
+	end
+	local best: Vector3? = nil
+	local bestDistance = math.huge
+	for _, point in area.spawnPoints do
+		local distance = (point.Position - position).Magnitude
+		if distance < bestDistance then
+			best, bestDistance = point.Position, distance
+		end
+	end
+	return best
+end
+
+-- Where a let-go cat walks to and the area that is: where it was caught, else (a carry with no homePos) a free spot
+-- of its own area. Nil when there is nowhere, and the player keeps the cat (reviewer N99).
+local function homeFor(carry: Carry): (Vector3?, string?)
+	local home = carry.homePos
+	if home ~= nil then
+		local areaId = WorldBuilder.areaAt(world, home) or carry.def.area
+		if world.areas[areaId] ~= nil then
+			return home, areaId
+		end
+	end
+	local areaId = carry.def.area
+	local area = world.areas[areaId]
+	if area == nil or #area.spawnPoints == 0 then
+		return nil, nil
+	end
+	local pointIndex = freeSpawnPoint(areaId, nil)
+	return area.spawnPoints[pointIndex or rng:NextInteger(1, #area.spawnPoints)].Position, areaId
+end
+
+-- Home again: a normal stray where it was caught, with the circles back. Its next catch adds no charm (S36), so drop
+-- and re-catch is no charm loop. drop_outcome logs "returned" for the player who let it go.
+local function arriveHome(stray: Stray, home: Vector3)
+	if not stray.alive or not stray.returning then
 		return
 	end
+	local drop = stray.drop
+	stray.returning = false
+	stray.drop = nil
+	stray.recaught = true
+	stray.home = home
+	stray.model:PivotTo(CFrame.new(home) * stray.model:GetPivot().Rotation)
+	stray.model:SetAttribute("Returning", false)
+	stray.model:SetAttribute("Dropped", false)
+	stray.model:SetAttribute("PickUp", false)
+	stray.prompt.ActionText = "Catch"
+	local owner = if drop ~= nil then Players:GetPlayerByUserId(drop.owner) else nil
+	if owner ~= nil then
+		Telemetry.custom(owner, "drop_outcome", 1, { "returned", stray.def.rarity, stray.area })
+	end
+end
+
+-- The path a walking-home cat follows: a cat's size, and it may hop up a step.
+local RETURN_AGENT = { AgentRadius = 1, AgentHeight = 2, AgentCanJump = true, WaypointSpacing = 4 }
+
+-- The walk home at DropReturnWalkSpeed: along a PathfindingService path, again from where it got to when a path
+-- runs out short of home, and straight at home up to the first thing in the way when there is no path. It ends when
+-- someone picks the cat up or dusk takes it (either despawns it), within DropHomeRadiusStuds of home, or after
+-- DropReturnMaxSeconds, when the cat appears at home. It walks whether or not anyone is near (unlike wander, S35),
+-- since a walk is short and someone may be chasing it. A home up on a perch (a porch, a rock, the Sewer's catwalk) is
+-- walked to on the floor under it, and arriveHome puts the cat up there (review S88).
+local function walkHome(stray: Stray, home: Vector3)
+	local deadline = os.clock() + Config.DropReturnMaxSeconds
+	local walking = function(): boolean
+		return stray.alive and stray.returning and os.clock() < deadline
+	end
+	local area = world.areas[stray.area]
+	local goal = if area ~= nil and home.Y > area.floorY + PERCH_ABOVE
+		then Vector3.new(home.X, area.floorY, home.Z)
+		else home
+	local path = PathfindingService:CreatePath(RETURN_AGENT)
+	while walking() do
+		local at = stray.model:GetPivot().Position
+		if (at - goal).Magnitude <= Config.DropHomeRadiusStuds then
+			break
+		end
+		local computed = pcall(function()
+			path:ComputeAsync(at, goal)
+		end)
+		if not walking() then
+			break
+		end
+		if computed and path.Status == Enum.PathStatus.Success then
+			for i, waypoint in path:GetWaypoints() do
+				if
+					i > 1
+					and not Mover.walkTo(
+						stray.model,
+						waypoint.Position,
+						Config.DropReturnWalkSpeed,
+						walking
+					)
+				then
+					break
+				end
+			end
+		else
+			Mover.walkTo(stray.model, clearPath(at, goal), Config.DropReturnWalkSpeed, walking)
+		end
+		-- no closer (a path that ends short, or a wall in the way): try again in a moment
+		local now = stray.model:GetPivot().Position
+		if walking() and (now - goal).Magnitude > (at - goal).Magnitude - 1 then
+			task.wait(1)
+		end
+	end
+	if stray.alive and stray.returning then
+		arriveHome(stray, home)
+	end
+end
+
+-- A death while the areas are closed (the Drop button is refused then): the cat lands where the carrier fell in an
+-- area, else at a free spot in its own area, as a Dropped stray anyone picks up once the areas open and that the
+-- next dusk checks in for its last carrier.
+local function dropAtNight(player: Player, carry: Carry, root: Vector3?)
 	local name = carry.def.name
 	local here = if root ~= nil then WorldBuilder.areaAt(world, root) else nil
 	if here ~= nil then
-		if knockLoose(player, 0, here, if died then nil else DROP_AHEAD_STUDS) ~= nil then
-			Net.toast(
-				player,
-				string.format(if died then "You dropped %s." else "You let %s go.", name),
-				"info"
-			)
+		if knockLoose(player, 0, here) ~= nil then
+			Net.toast(player, string.format("You dropped %s.", name), "info")
 		end
 		return
 	end
@@ -1362,6 +1519,7 @@ local function dropCarry(player: Player, died: boolean)
 		variant = carry.variant,
 		method = carry.method,
 		drop = Shove.newDrop(player.UserId, 0, serverNow()),
+		homePos = carry.homePos,
 	})
 	local areaDef = Catalog.getArea(homeId)
 	Net.toast(
@@ -1370,6 +1528,64 @@ local function dropCarry(player: Player, died: boolean)
 			"%s ran back to the %s.",
 			name,
 			if areaDef ~= nil then areaDef.name else "alley"
+		),
+		"info"
+	)
+end
+
+-- The Drop button (Derek 2026-10-27; F67, round 4 Q4): by day the cat is put down at the carrier's feet, wherever
+-- they stand, as a Dropped, Returning stray with the player as its last carrier and no shover. It walks back to where
+-- it was caught (walkHome) and anyone picks it up on the way with PickUpCat, gaining no charm. While the areas are
+-- closed the button is refused, so no cat walks into a closed area.
+-- A carrier's death drops the cat the same way, where the character fell and before the respawn (data-model 10c
+-- v0.13.3), so Reset Character is never a free check-in and cannot skip a Tackle or the dusk sweep; at night it
+-- cannot walk home, so dropAtNight. Leaving the game is the one exit that still checks the cat in.
+local function dropCarry(player: Player, died: boolean)
+	local carry = carrying[player]
+	local character = player.Character
+	local root = rootPosition(player)
+	-- a death with no root left (fallen below the world) still drops: the cat starts at home, which needs no spot
+	-- (review N240)
+	if carry == nil or character == nil or (root == nil and not died) then
+		return
+	end
+	if not ClockService.areasOpen() then
+		if died then
+			dropAtNight(player, carry, root)
+		else
+			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")
+		end
+		return
+	end
+	local home, areaId = homeFor(carry)
+	if home == nil or areaId == nil then
+		return
+	end
+	endCarry(player)
+	local stray = spawnStray(
+		carry.def,
+		areaId,
+		if root ~= nil then floorBelow(root) else home,
+		nil,
+		nil,
+		nil,
+		{
+			charm = carry.charm,
+			variant = carry.variant,
+			method = carry.method,
+			drop = Shove.newDrop(player.UserId, 0, serverNow()),
+			homePos = home,
+			returning = true,
+		}
+	)
+	task.spawn(walkHome, stray, home)
+	Net.toast(
+		player,
+		string.format(
+			if died
+				then "You dropped %s. It's walking home."
+				else "You let %s go. It's walking home.",
+			carry.def.name
 		),
 		"info"
 	)
@@ -1458,6 +1674,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end
 		circleHistory[player] = nil
 		lastCatchStart[player] = nil
+		startledUntil[player] = nil
 		for _, stray in strays do
 			if stray.lockedBy == player.UserId then
 				setLock(stray, 0)
@@ -1544,8 +1761,8 @@ function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
 end
 
--- A Swift Potion started or ran out (PotionService, F64): the character's speed follows at once, from whatever it
--- is doing now (a Catch Rush, a carry or neither).
+-- A Swift Potion started or ran out (PotionService, F64), or a Startled slow (F57): the character's speed follows at
+-- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither).
 function CatService.refreshSpeed(player: Player)
 	local character = player.Character
 	local humanoid = if character ~= nil
@@ -1555,12 +1772,17 @@ function CatService.refreshSpeed(player: Player)
 		return
 	end
 	local carry = carrying[player]
+	local startled = startledUntil[player]
 	local base = if carry == nil
 		then Config.NormalWalkSpeed
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
 		then Config.CatchRushWalkSpeed
 		else Config.CarryWalkSpeed
+	-- Startled slows a carry too (a forfeit miss), never speeds one up (review N247)
+	if startled ~= nil and startled > serverNow() then
+		base = math.min(base, Config.StartledWalkSpeed)
+	end
 	setSpeed(player, humanoid, base)
 end
 
@@ -1578,16 +1800,21 @@ function CatService.debugKnockLoose(player: Player): string
 	return (stray :: Stray).id
 end
 
--- Puts a freed cat in the player's arms (RescueService). False when they already carry one.
+-- Puts a freed cat in the player's arms (RescueService). `foundAt` is where it was stuck: a Drop walks it back to the
+-- stray spot nearest that (F67), never into a bin or up a tree. False when they already carry one.
 function CatService.startCarry(
 	player: Player,
 	def: Types.CatDef,
 	method: Types.CatchMethod,
 	charm: number?,
 	variant: string?,
-	funnel: Telemetry.CatchFunnel?
+	funnel: Telemetry.CatchFunnel?,
+	foundAt: Vector3?
 ): boolean
-	return startCarry(player, def, method, charm, variant, nil, funnel)
+	local homePos = if foundAt ~= nil
+		then nearestSpot(WorldBuilder.areaAt(world, foundAt) or def.area, foundAt)
+		else nil
+	return startCarry(player, def, method, charm, variant, nil, funnel, homePos)
 end
 
 -- RescueService registers how to tell whether a player's rescue attempt is running.

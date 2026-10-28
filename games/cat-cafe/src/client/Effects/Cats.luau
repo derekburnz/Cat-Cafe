@@ -161,7 +161,7 @@ local function consider(instance: Instance)
 	end
 end
 
--- The cat a player carries is welded to them, so it never poses, but a gold one sparkles and a rescued or
+-- The cat a player carries is posed on their arms by Carry.luau, not here, but a gold one sparkles and a rescued or
 -- caught gold cat bursts as it is picked up.
 local function watchCharacter(character: Model)
 	local function onChild(child: Instance, picked: boolean)
@@ -296,7 +296,7 @@ local function styleOf(model: Model): Logic.Style
 		end
 		return if Cats.isLoafing(model) then "loaf" else "nap"
 	elseif CollectionService:HasTag(model, "StuckCat") then
-		return "stuck"
+		return Logic.stuckStyle(model:GetAttribute("TrapType"))
 	elseif CollectionService:HasTag(model, "Stray") then
 		return "stray"
 	end

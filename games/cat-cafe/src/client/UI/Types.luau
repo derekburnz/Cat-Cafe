@@ -47,7 +47,53 @@ export type Catalog = {
 	crateDecor: { DecorDef }?, -- F53: Catalog.crateDecor, the crate pieces that are not in Catalog.decor
 	potions: { PotionDef }?, -- F64: Catalog.potions, the potion bag's order (data-model section 12b)
 	mysteryGift: { MysteryGiftRow }?, -- F64: Catalog.mysteryGift, what a Mystery Visitor's gift can hold
+	-- F59: Catalog.dealerAmountWeights, lureId -> percent chance of stocking 0, 1, 2, 3 or 4 (the dealer's Details)
+	dealerAmountWeights: { [string]: { number } }?,
+	-- F73 (quests.md section 6): Catalog.quests (to tell a coins quest), Catalog.questPrizes (daily, dailyBig,
+	-- dailySet, weekly, weeklySet), Catalog.achievements in table order and Catalog.achievementPrizes by size
+	quests: { daily: { [string]: { QuestDef } }, weekly: { [string]: { QuestDef } } }?,
+	questPrizes: { [string]: IndexPrize }?,
+	achievements: { AchievementDef }?,
+	achievementPrizes: { [string]: IndexPrize }?,
+	dailyTreat: { DailyTreatDay }?, -- F70: Catalog.dailyTreat, the Daily Treat card's seven days (data-model 11e)
 }
+
+-- The Daily Treat (F70, data-model section 11e): one day of the card, its prize in the Index prize shape, and what
+-- ProfileSync sends: `stamp` the last day paid (0 on a fresh card, 7 on a full one), `lastDay` the UTC day number
+-- (os.time() // 86400) of that claim, `due` whether a stamp can be claimed now and `nextDay` the day it pays.
+export type DailyTreatDay = { day: number, prize: IndexPrize? }
+export type DailyTreatView = { stamp: number, lastDay: number, due: boolean, nextDay: number }
+
+-- Quests and achievements (F73, quests.md sections 6 and 7), read loosely: a catalog quest row (`stat`
+-- "lifetimeCoins" makes it a coins quest), an achievement, and what ProfileSync sends for them. Progress comes capped
+-- at needs; reset times are server os.time().
+export type QuestDef = { id: string, text: string?, stat: string? }
+export type AchievementDef = {
+	id: string,
+	name: string,
+	text: string?,
+	measure: string?,
+	needs: number,
+	size: string, -- "S", "M", "L" or "XL", the Catalog.achievementPrizes key
+}
+export type QuestView = {
+	id: string,
+	text: string,
+	progress: number,
+	needs: number,
+	claimed: boolean,
+}
+export type QuestsView = {
+	daily: { QuestView },
+	weekly: { QuestView },
+	dailyResetsAt: number,
+	weeklyResetsAt: number,
+	dailyRerollUsed: boolean,
+	weeklyRerollUsed: boolean,
+	dailySetClaimed: boolean,
+	weeklySetClaimed: boolean,
+}
+export type AchievementView = { progress: number, claimed: boolean }
 
 -- A potion (F64, data-model section 12b; quest potions F73): the bag reads these loosely (Components/PotionLogic).
 export type PotionDef = {
@@ -55,6 +101,8 @@ export type PotionDef = {
 	name: string?,
 	minutes: number?,
 	effect: string?,
+	goldLuck: number?, -- F73: a Gold Rush Potion's gold luck while it runs
+	baitSpeed: number?, -- F73: a Quick Bait Potion's faster bait while it runs
 }
 
 -- One thing a Mystery gift can hold (F64): kind "potion", "lure", "fish" or "spin", with a chance in percent.
@@ -132,6 +180,16 @@ export type IndexPrize = {
 	potions: { [string]: number }?, -- v0.10: potion id -> count (Tip Jar step 12, codes, the Daily Treat)
 }
 
+-- The Cat Collector's offer (F63, data-model section 12b), a Catalog.collectorOffers row as CollectorOffer sends it.
+-- `crates.zone` counts the crate of the wanted cat's own area and `crates.golden` its golden one.
+export type CollectorOffer = {
+	value: number?,
+	fish: number?,
+	lures: { [string]: number }?,
+	spins: number?,
+	crates: { zone: number?, golden: number? }?,
+}
+
 -- TipJarState from the server (F47): sessionStartedAt in Workspace:GetServerTimeNow() time, claimed steps.
 export type TipJarState = {
 	sessionStartedAt: number,
@@ -193,6 +251,9 @@ export type PlayerState = {
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
 	buffs: { [string]: number }?, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
+	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
+	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
+	dailyTreat: DailyTreatView?, -- F70: the Daily Treat window's card and the HUD's Daily tile
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -227,6 +288,9 @@ export type PartialState = {
 	introSeen: boolean?,
 	potions: { [string]: number }?,
 	buffs: { [string]: number }?,
+	quests: QuestsView?,
+	achievements: { [string]: AchievementView }?,
+	dailyTreat: DailyTreatView?,
 }
 
 export type ScreenName =
@@ -245,6 +309,8 @@ export type ScreenName =
 	| "BugReport"
 	| "Codes"
 	| "Potions"
+	| "Quests"
+	| "DailyTreat"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 
@@ -265,8 +331,9 @@ export type CatchInfo = {
 	-- v0.5: the stray's FleeingUntil (server time). Until then it is sprinting off after a miss and nobody can
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
-	-- v0.5.1: server time this player may try again after their own miss (StraySelfRetrySeconds after the cat
-	-- stops); init.luau fills it from this player's CatchResult, the card reads "Catch your breath..." until then.
+	-- v0.5.1, F57: server time this player may try again after their own miss (CatchResult's retryAt: 3, 6, then
+	-- 10 s after the cat stops by misses in a row); init.luau fills it, the card reads "Catch your breath..." until
+	-- then.
 	retryAt: number?,
 	-- v0.5 F41: server time until which only the old carrier may catch a cat knocked loose by a shove (the
 	-- stray's DropOwnerUntil while its DropOwner is someone else); nil when that is you or the cat was not dropped.
@@ -348,6 +415,8 @@ export type InitConfig = {
 export type BaitView = {
 	lureId: string,
 	readyAt: number,
+	placedAt: number?, -- server os.time() the food went in; with readyAt, the fill bar's length
+	night: boolean?, -- F60: the food went in at night and waits half, so the countdown shows a moon
 }
 
 -- The cat that came to the bowl, from BaitReady (a CatView or anything with these fields).
@@ -361,9 +430,18 @@ export type BaitCat = {
 
 export type BaitChoice = "tame" | "letgo"
 
--- The night dealer's stock for this player (data-model section 8b), as the DealerStock remote sends it: three
--- slots in the order the server rolled them (the slot number Buy sends is the index here), and restocksAt in
--- server os.time() when the next dealer window starts.
+-- The night dealer's stock for this player (data-model section 8b v0.8, F59), as the DealerStock remote sends it:
+-- every dealer food in the server's order with this window's amount (0 to 4; 0 shows "None this time") and how
+-- many of it this player bought, the window a buy sends back, and restocksAt in server os.time() when the next
+-- window starts. UI.dealer.setStock also takes the pre-F59 three slots ({ slots, restocksAt }, a food in n slots
+-- read as amount n), so either can arrive; Components/DealerRows.normalize turns both into `stock`.
+export type DealerFood = {
+	lureId: string,
+	cost: number,
+	amount: number,
+	bought: number,
+}
+
 export type DealerSlot = {
 	lureId: string,
 	cost: number,
@@ -371,8 +449,10 @@ export type DealerSlot = {
 }
 
 export type DealerStock = {
-	slots: { DealerSlot },
+	window: number?,
 	restocksAt: number,
+	stock: { DealerFood }?, -- F59
+	slots: { DealerSlot }?, -- before F59
 }
 
 -- ModuleScripts must return a non-nil value.

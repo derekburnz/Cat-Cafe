@@ -5,6 +5,10 @@
 -- joints and `Avatar.solve` turns a pose into joint Transforms, lowered so the lowest part rests on the floor. An R15
 -- or R6 character, with Motor6D joints or the newer AnimationConstraint ones; R6 has no waist, elbows or knees, so
 -- those parts of a pose are left out on it.
+-- The net hold (Derek 2026-10-28): the right arm holding the player's net upright and leaning ahead while it walks
+-- a catching area; `Avatar.holdNet` poses that arm only and `Avatar.netHand` says where in the hand the net goes.
+-- The carry (Derek 2026-10-28): arms crossed in front of the chest with the caught cat on them; `Avatar.carryArms`
+-- poses the upper body only, so the legs keep walking, and `Avatar.cradle` says where on the arms the cat rests.
 -- No services and nothing written: Tackle.luau applies the Transforms every frame, and the preview tool
 -- (assets/cat-cafe/anim/preview) runs these same functions outside Roblox.
 
@@ -23,6 +27,8 @@ export type Pose = {
 	shR: number,
 	spL: number, -- arm out to the side
 	spR: number,
+	twL: number, -- upper arm turned in about its own length, so a bent elbow brings the forearm across the body
+	twR: number,
 	elL: number, -- elbow bent
 	elR: number,
 	hipL: number, -- thigh forward (negative: back)
@@ -68,6 +74,7 @@ export type Rig = {
 	root: BasePart, -- HumanoidRootPart
 	joints: { [string]: Joint }, -- the posed joints by their R15 name (an R6 rig has fewer)
 	axes: { [string]: CFrame }, -- each posed joint's frame in its parent part, turned only
+	parts: { [string]: BasePart }, -- the part each posed joint moves
 	links: { Link }, -- every joint out from the root, parents first
 	restLow: number, -- the lowest point standing, in the root's frame
 }
@@ -82,6 +89,8 @@ local FIELDS = {
 	"shR",
 	"spL",
 	"spR",
+	"twL",
+	"twR",
 	"elL",
 	"elR",
 	"hipL",
@@ -99,6 +108,7 @@ local R15: { [string]: { string } } = {
 	RightShoulder = { "UpperTorso", "RightUpperArm" },
 	LeftElbow = { "LeftUpperArm", "LeftLowerArm" },
 	RightElbow = { "RightUpperArm", "RightLowerArm" },
+	RightWrist = { "RightLowerArm", "RightHand" },
 	LeftHip = { "LowerTorso", "LeftUpperLeg" },
 	RightHip = { "LowerTorso", "RightUpperLeg" },
 	LeftKnee = { "LeftUpperLeg", "LeftLowerLeg" },
@@ -113,7 +123,8 @@ local R6: { [string]: { string } } = {
 	RightHip = { "Torso", "Right Leg" },
 }
 
--- A full pose from a Presets.tacklePose key: `sh`, `sp`, `el`, `hip` and `kn` set both sides, the L and R keys one.
+-- A full pose from a Presets.tacklePose key: `sh`, `sp`, `tw`, `el`, `hip` and `kn` set both sides, the L and R keys
+-- one.
 function Avatar.pose(spec: { [string]: number }): Pose
 	local function side(key: string, name: string): number
 		return spec[key] or spec[name] or 0
@@ -128,6 +139,8 @@ function Avatar.pose(spec: { [string]: number }): Pose
 		shR = side("shR", "sh"),
 		spL = side("spL", "sp"),
 		spR = side("spR", "sp"),
+		twL = side("twL", "tw"),
+		twR = side("twR", "tw"),
 		elL = side("elL", "el"),
 		elR = side("elR", "el"),
 		hipL = side("hipL", "hip"),
@@ -400,11 +413,13 @@ function Avatar.bind(character: Model): Rig?
 		else R6
 	local joints: { [string]: Joint } = {}
 	local axes: { [string]: CFrame } = {}
+	local parts: { [string]: BasePart } = {}
 	for name, pair in names do
 		for _, link in links do
 			if link.parent.Name == pair[1] and link.part.Name == pair[2] then
 				joints[name] = link.motor
 				axes[name] = link.c0.Rotation
+				parts[name] = link.part
 				break
 			end
 		end
@@ -412,8 +427,14 @@ function Avatar.bind(character: Model): Rig?
 	if joints.Root == nil then
 		return nil
 	end
-	local rig: Rig =
-		{ root = root :: BasePart, joints = joints, axes = axes, links = links, restLow = 0 }
+	local rig: Rig = {
+		root = root :: BasePart,
+		joints = joints,
+		axes = axes,
+		parts = parts,
+		links = links,
+		restLow = 0,
+	}
 	rig.restLow = Avatar.lowest(rig, {})
 	return rig
 end
@@ -438,37 +459,159 @@ function Avatar.lowest(rig: Rig, transforms: { [Joint]: CFrame }): number
 	return low
 end
 
--- The Transforms that put the rig in `pose`, its lowest part `pose.air` studs above where its feet rest standing.
-function Avatar.solve(rig: Rig, pose: Pose): { [Joint]: CFrame }
-	local out: { [Joint]: CFrame } = {}
-	local j = rig.joints
-	-- a turn given in the character's axes, put into the joint's own (an R15 joint's are the same; an R6 one's are not)
-	local function set(name: string, frame: CFrame)
-		local motor: Joint? = j[name]
+-- Puts a turn given in the character's axes into each joint's own (an R15 joint's are the same; an R6 one's are not)
+-- and writes it to `out` for that joint, when the rig has it.
+local function setter(rig: Rig, out: { [Joint]: CFrame }): (string, CFrame) -> ()
+	return function(name: string, frame: CFrame)
+		local motor: Joint? = rig.joints[name]
 		local axes: CFrame? = rig.axes[name]
 		if motor ~= nil and axes ~= nil then
 			out[motor] = axes:Inverse() * frame * axes
 		end
 	end
+end
+
+-- The waist, neck, shoulder and elbow Transforms for a pose, through `set(jointName, transform)`.
+local function upper(set: (string, CFrame) -> (), pose: Pose)
+	local rad = math.rad
+	set("Waist", CFrame.Angles(rad(-pose.waist), 0, 0))
+	set("Neck", CFrame.Angles(rad(pose.neck), 0, 0))
+	set("LeftShoulder", CFrame.Angles(rad(pose.shL), rad(-pose.twL), rad(-pose.spL)))
+	set("RightShoulder", CFrame.Angles(rad(pose.shR), rad(pose.twR), rad(pose.spR)))
+	set("LeftElbow", CFrame.Angles(rad(pose.elL), 0, 0))
+	set("RightElbow", CFrame.Angles(rad(pose.elR), 0, 0))
+end
+
+-- The Transforms that put the rig in `pose`, its lowest part `pose.air` studs above where its feet rest standing.
+function Avatar.solve(rig: Rig, pose: Pose): { [Joint]: CFrame }
+	local out: { [Joint]: CFrame } = {}
+	local set = setter(rig, out)
 	local rad = math.rad
 	local turn = CFrame.Angles(rad(-pose.lean), 0, rad(-pose.roll))
 	set("Root", turn)
-	set("Waist", CFrame.Angles(rad(-pose.waist), 0, 0))
-	set("Neck", CFrame.Angles(rad(pose.neck), 0, 0))
-	set("LeftShoulder", CFrame.Angles(rad(pose.shL), 0, rad(-pose.spL)))
-	set("RightShoulder", CFrame.Angles(rad(pose.shR), 0, rad(pose.spR)))
-	set("LeftElbow", CFrame.Angles(rad(pose.elL), 0, 0))
-	set("RightElbow", CFrame.Angles(rad(pose.elR), 0, 0))
+	upper(set, pose)
 	set("LeftHip", CFrame.Angles(rad(pose.hipL), 0, 0))
 	set("RightHip", CFrame.Angles(rad(pose.hipR), 0, 0))
 	set("LeftKnee", CFrame.Angles(rad(-pose.knL), 0, 0))
 	set("RightKnee", CFrame.Angles(rad(-pose.knR), 0, 0))
 	-- Down (or up) so the lowest part sits `air` above the floor; the drop is along the root's up, in Root's C0 axes.
 	local drop = rig.restLow + pose.air - Avatar.lowest(rig, out)
-	local root = j.Root
+	local root = rig.joints.Root
 	local axes = rig.axes.Root
 	out[root] = CFrame.new(axes:Inverse() * Vector3.new(0, drop, 0)) * out[root]
 	return out
+end
+
+-- The net hold's right arm (Presets.netHold): raised and bent so the forearm points ahead, the wrist kept straight
+-- so the pole stays steady while the character walks. The rest of the body stays the character's own.
+function Avatar.holdNet(rig: Rig): { [Joint]: CFrame }
+	local h = Presets.netHold
+	local rad = math.rad
+	local out: { [Joint]: CFrame } = {}
+	local set = setter(rig, out)
+	if rig.joints.RightElbow ~= nil then
+		set("RightShoulder", CFrame.Angles(rad(h.sh), rad(h.tw), rad(h.sp)))
+		set("RightElbow", CFrame.Angles(rad(h.el), 0, 0))
+		set("RightWrist", CFrame.identity)
+	else
+		set("RightShoulder", CFrame.Angles(rad(h.sh6), 0, rad(h.sp)))
+	end
+	return out
+end
+
+-- Whether a character holds its net: standing in a catching area (a World.Zones box other than the Cafe; nil is the
+-- street), alive and with no cat in its arms (`CarryingCatId`).
+function Avatar.holdsNet(zone: string?, carrying: unknown, alive: boolean): boolean
+	return zone ~= nil and zone ~= "Cafe" and carrying == nil and alive
+end
+
+-- Which net model a player's `NetLevel` shows, 1 to 3: the Basic net (level 0) and the Sturdy net (1) share the
+-- first, and a missing or odd value is the Basic net.
+function Avatar.netModel(level: unknown): number
+	local n = if type(level) == "number" and level == level then math.floor(level) else 0
+	return math.clamp(n, 1, 3)
+end
+
+-- The hold's weight `dt` seconds on, easing towards 1 while it holds and 0 while it does not, over the blend times
+-- of `blend` (Presets.netHold when not given).
+function Avatar.holdWeight(
+	weight: number,
+	holding: boolean,
+	dt: number,
+	blend: { blendIn: number, blendOut: number }?
+): number
+	local h = blend or Presets.netHold
+	if holding then
+		return math.min(1, weight + dt / h.blendIn)
+	end
+	return math.max(0, weight - dt / h.blendOut)
+end
+
+-- The hand that holds the net (the RightHand on R15, the Right Arm on R6) and where the net's Grip goes in that
+-- part's space: its RightGripAttachment's spot, or Presets.netHold's, with the pole tipped forward.
+function Avatar.netHand(rig: Rig): (BasePart?, CFrame)
+	local h = Presets.netHold
+	local r15 = rig.joints.RightElbow ~= nil
+	local hand: BasePart? = if r15 then rig.parts.RightWrist else rig.parts.RightShoulder
+	if hand == nil then
+		return nil, CFrame.identity
+	end
+	local attachment = hand:FindFirstChild("RightGripAttachment")
+	local spot = if attachment ~= nil and attachment:IsA("Attachment")
+		then (attachment :: Attachment).Position
+		elseif r15 then h.grip
+		else h.grip6
+	return hand, CFrame.new(spot) * CFrame.Angles(math.rad(if r15 then h.tilt else h.tilt6), 0, 0)
+end
+
+-- Whether a character carries a cat in its arms: a `CarryingCatId` (CatService sets it while the HeldCat is on) and
+-- alive.
+function Avatar.carrying(carryingCatId: unknown, alive: boolean): boolean
+	return type(carryingCatId) == "string" and carryingCatId ~= "" and alive
+end
+
+-- The carry's upper body (Presets.carryPose): arms folded across the chest, the left forearm under the right, the
+-- head tipped down to the cat; on R6, with no elbows, both arms reach forward and in. The hips, legs and root stay
+-- the character's own, so it walks and stands as it would.
+function Avatar.carryArms(rig: Rig): { [Joint]: CFrame }
+	local c = Presets.carryPose
+	local out: { [Joint]: CFrame } = {}
+	upper(setter(rig, out), Avatar.pose(if rig.joints.LeftElbow ~= nil then c.arms else c.arms6))
+	return out
+end
+
+-- Where a carried cat's floor goes (Pose.hold), from where the arms are this frame: on top of the higher forearm
+-- (the whole arm on R6), halfway between the two, level with the chest's up, the cat's front towards the character's
+-- left for a loaf (lying across the arms) and ahead for a sit (Presets.carryPose). `frameOf` gives a part's CFrame
+-- (BasePart.CFrame in the game, the preview's own frames outside it). nil on a rig with no chest or arms.
+function Avatar.cradle(rig: Rig, held: string, frameOf: (BasePart) -> CFrame): CFrame?
+	local chest: BasePart? = rig.parts.Waist or rig.parts.Root -- the UpperTorso, or R6's Torso
+	local leftArm: BasePart? = rig.parts.LeftElbow or rig.parts.LeftShoulder
+	local rightArm: BasePart? = rig.parts.RightElbow or rig.parts.RightShoulder
+	if chest == nil or leftArm == nil or rightArm == nil then
+		return nil
+	end
+	local torso = frameOf(chest)
+	local function top(arm: BasePart): Vector3
+		local frame = torso:ToObjectSpace(frameOf(arm))
+		local _, _, _, _, _, _, r10, r11, r12 = frame:GetComponents()
+		local s = arm.Size
+		return frame.Position
+			+ Vector3.yAxis
+				* 0.5
+				* (math.abs(r10) * s.X + math.abs(r11) * s.Y + math.abs(r12) * s.Z)
+	end
+	local a, b = top(leftArm), top(rightArm)
+	local c = Presets.carryPose
+	local sit = held == "sit"
+	local spot = Vector3.new(
+		(a.X + b.X) / 2 + (if sit then c.sitSide else c.loafSide),
+		math.max(a.Y, b.Y) + c.gap,
+		(a.Z + b.Z) / 2 + c.forward
+	)
+	return torso
+		* CFrame.new(spot)
+		* CFrame.Angles(0, math.rad(if sit then c.sitTurn else c.loafTurn), 0)
 end
 
 return Avatar

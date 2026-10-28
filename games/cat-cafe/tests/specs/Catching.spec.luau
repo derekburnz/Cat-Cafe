@@ -23,14 +23,34 @@ return function()
 	end)
 
 	describe("the chase after a miss (sections 2 and 10, v0.5)", function()
-		it("sprint studs: Common 12, Rare 16, Epic 20, Legendary 26, Mythical 32; the v0.4 paws are gone", function()
-			expect(Catching.fleeStuds("Common")).to.equal(12)
-			expect(Catching.fleeStuds("Rare")).to.equal(16)
-			expect(Catching.fleeStuds("Epic")).to.equal(20)
-			expect(Catching.fleeStuds("Legendary")).to.equal(26)
-			expect(Catching.fleeStuds("Mythical")).to.equal(32)
+		it("sprint studs (v0.8 F57, doubled): Common 24, Rare 32, Epic 40, Legendary 52, Mythical 64; no v0.4 paws", function()
+			expect(Catching.fleeStuds("Common")).to.equal(24)
+			expect(Catching.fleeStuds("Rare")).to.equal(32)
+			expect(Catching.fleeStuds("Epic")).to.equal(40)
+			expect(Catching.fleeStuds("Legendary")).to.equal(52)
+			expect(Catching.fleeStuds("Mythical")).to.equal(64)
 			expect((Catching :: any).patience).never.to.be.ok()
 			expect((Catching :: any).fleesOnFail).never.to.be.ok()
+		end)
+
+		it("F57: the player who missed waits 3, 6, then 10 s by misses in a row on the stray", function()
+			expect(Catching.selfRetrySeconds(1)).to.equal(3)
+			expect(Catching.selfRetrySeconds(2)).to.equal(6)
+			expect(Catching.selfRetrySeconds(3)).to.equal(10)
+			expect(Catching.selfRetrySeconds(7)).to.equal(10)
+			expect(Catching.selfRetrySeconds(0)).to.equal(3)
+		end)
+
+		it("F57: misses in a row count up, and start again 60 s after the last", function()
+			local first = Catching.nextMiss(nil, 100)
+			expect(first.count).to.equal(1)
+			local second = Catching.nextMiss(first, 110)
+			expect(second.count).to.equal(2)
+			expect(second.at).to.equal(110)
+			local third = Catching.nextMiss(second, 169.9)
+			expect(third.count).to.equal(3)
+			local fresh = Catching.nextMiss(third, 169.9 + Config.StrayMissStreakResetSeconds)
+			expect(fresh.count).to.equal(1)
 		end)
 
 		it("a rarer cat always runs at least as far", function()
@@ -555,6 +575,149 @@ return function()
 			end
 			for index, weight in weights do
 				expect(math.abs(counts[index] - sweeps * weight / total) <= 2).to.equal(true)
+			end
+		end)
+	end)
+	describe("spawnPool: which points a new stray may take (v3.1 nooks, F81 deep, the Great Oak's top)", function()
+		local function slots(list: { { any } }): { Catching.SpawnSlot }
+			local out: { Catching.SpawnSlot } = {}
+			for _, row in list do
+				table.insert(out, { zone = row[1], free = row[2] })
+			end
+			return out
+		end
+		-- a Woods-like area: near, deep and the oak's top, one near and one deep taken
+		local woods = slots({
+			{ "near", true },
+			{ "near", false },
+			{ "deep", true },
+			{ "deep", false },
+			{ "rare", true },
+		})
+
+		it("names the rare-biased zone", function()
+			expect(Catching.RARE_ZONE).to.equal("rare")
+		end)
+
+		it("sends a Rare or rarer stray to a free rare point first", function()
+			for _, rarity in { "Rare", "Epic", "Legendary", "Mythical" } do
+				expect(Catching.spawnPool(woods, rarity :: any) :: any).to.deepEqual({ 5 })
+			end
+		end)
+
+		it("never puts a Common, or a carried cat sent home, on a rare point", function()
+			expect(Catching.spawnPool(woods, "Common") :: any).to.deepEqual({ 1, 3 })
+			expect(Catching.spawnPool(woods, nil) :: any).to.deepEqual({ 1, 3 })
+		end)
+
+		it("with the rare point taken, a Rare takes any free point and Epic and rarer only deep ones", function()
+			local full = slots({ { "near", true }, { "deep", true }, { "rare", false } })
+			expect(Catching.spawnPool(full, "Rare") :: any).to.deepEqual({ 1, 2 })
+			expect(Catching.spawnPool(full, "Epic") :: any).to.deepEqual({ 2 })
+			expect(Catching.spawnPool(full, "Mythical") :: any).to.deepEqual({ 2 })
+		end)
+
+		it("leaves an Epic with nowhere to go when every nook or deep point is taken", function()
+			local alley = slots({ { "lane", true }, { "lane", true }, { "nook", false } })
+			expect(#Catching.spawnPool(alley, "Epic")).to.equal(0)
+			expect(Catching.spawnPool(alley, "Rare") :: any).to.deepEqual({ 1, 2 })
+		end)
+
+		it("takes any free point in an area with no zones", function()
+			local plain = slots({ { nil, true }, { nil, false }, { nil, true } })
+			expect(Catching.spawnPool(plain, "Legendary") :: any).to.deepEqual({ 1, 3 })
+			expect(Catching.spawnPool(plain, "Common") :: any).to.deepEqual({ 1, 3 })
+		end)
+	end)
+	describe("waveShoutOut: a wave's Mythical told to the whole server (F58, data-model section 9)", function()
+		it("names the area and not the cat, and says gold when it is", function()
+			expect(Catching.waveShoutOut("Mythical", "base", "Woods")).to.equal("A Mythical cat appeared in the Woods!")
+			expect(Catching.waveShoutOut("Mythical", "gold", "Alleyway")).to.equal(
+				"A gold Mythical cat appeared in the Alleyway!"
+			)
+			expect(Catching.waveShoutOut("Mythical", nil, "Park")).to.equal("A Mythical cat appeared in the Park!")
+		end)
+
+		it("says nothing for any other rarity, gold or not", function()
+			for _, rarity in { "Common", "Rare", "Epic", "Legendary" } do
+				expect(Catching.waveShoutOut(rarity :: any, "gold", "Sewer")).never.to.be.ok()
+			end
+		end)
+	end)
+
+	describe("chase and announce edges (QA, F57 and F58)", function()
+		it("the UI's first wait is the first step, and every step is longer than the one before", function()
+			local steps = Config.StraySelfRetrySteps
+			expect(Config.StraySelfRetrySeconds).to.equal(steps[1])
+			expect(steps[1] > 0).to.equal(true)
+			for index = 2, #steps do
+				expect(steps[index] > steps[index - 1]).to.equal(true)
+			end
+		end)
+
+		it("a streak can build: the longest wait for any rarity is well under the 60 s reset", function()
+			-- a player who tries again the moment they may, and misses, must still be inside the streak window, or
+			-- the 6 and 10 s steps could never come up
+			local last = Config.StraySelfRetrySteps[#Config.StraySelfRetrySteps]
+			for _, rarity in Catalog.rarityOrder do
+				local wait = Catching.fleeUntil(0, Catching.fleeStuds(rarity)) + last
+				expect(wait < Config.StrayMissStreakResetSeconds).to.equal(true)
+				-- and each miss in a row keeps the streak going
+				local streak = Catching.nextMiss(nil, 0)
+				for misses = 2, 5 do
+					local at = Catching.fleeUntil(streak.at, Catching.fleeStuds(rarity))
+						+ Catching.selfRetrySeconds(streak.count)
+					streak = Catching.nextMiss(streak, at)
+					expect(streak.count).to.equal(misses)
+				end
+			end
+		end)
+
+		it("the one who missed always waits longer than everyone else, more with each miss in a row", function()
+			for _, rarity in Catalog.rarityOrder do
+				local everyone = Catching.fleeUntil(100, Catching.fleeStuds(rarity))
+				local before = everyone
+				for misses = 1, 5 do
+					local own = everyone + Catching.selfRetrySeconds(misses)
+					expect(own > everyone).to.equal(true)
+					expect(own >= before).to.equal(true)
+					before = own
+				end
+			end
+		end)
+
+		it("Startled is slower than carrying a cat, which is slower than walking", function()
+			expect(Config.StartledWalkSpeed > 0).to.equal(true)
+			expect(Config.StartledWalkSpeed < Config.CarryWalkSpeed).to.equal(true)
+			expect(Config.CarryWalkSpeed < Config.NormalWalkSpeed).to.equal(true)
+			expect(Config.StartledSeconds > 0).to.equal(true)
+		end)
+
+		it("a dropped cat walking home is slower than anyone on foot, so it can always be caught up with (F67)", function()
+			expect(Config.DropReturnWalkSpeed > 0).to.equal(true)
+			expect(Config.DropReturnWalkSpeed < Config.StartledWalkSpeed).to.equal(true)
+			-- home means within DropHomeRadiusStuds, well inside the reach of a grab
+			expect(Config.DropHomeRadiusStuds < Config.GrabRangeStuds).to.equal(true)
+			-- the fallback leaves time for a long walk: from the back alley's far end to the street at least
+			local alley = Config.World.AlleyNorthZ - Config.World.AlleySouthZ
+			expect(Config.DropReturnMaxSeconds > alley / Config.DropReturnWalkSpeed).to.equal(true)
+		end)
+
+		it("every area's Mythical line names the area and no cat", function()
+			for _, area in Catalog.areas do
+				for _, variant in { "base", "gold" } do
+					local line = Catching.waveShoutOut("Mythical", variant, area.name) :: string
+					expect(line).to.be.ok()
+					expect(line:find(area.name, 1, true) ~= nil).to.equal(true)
+					expect(line:sub(1, 2)).to.equal("A ")
+					expect(line:sub(-1)).to.equal("!")
+					expect(line:find("gold ", 1, true) ~= nil).to.equal(variant == "gold")
+					for _, def in Catalog.cats do
+						if line:find(def.name, 1, true) ~= nil then
+							error(string.format("%q names the cat %s", line, def.name))
+						end
+					end
+				end
 			end
 		end)
 	end)

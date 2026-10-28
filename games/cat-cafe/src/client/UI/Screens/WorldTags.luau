@@ -40,7 +40,7 @@ local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
 local ORDER_ICONS: { [string]: string } = { coffee = "☕", cake = "🍰", milk = "🥛" }
 local HEART = "❤"
 local MOON = "🌙"
--- data-model NightIncomeMultiplier (0.6): the night share of the day rate; the cat's Rate stays the day rate
+-- data-model NightIncomeMultiplier (1 since F60, 0.6 before): the night share of the day rate; Rate stays the day rate
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
 local WorldTags = {}

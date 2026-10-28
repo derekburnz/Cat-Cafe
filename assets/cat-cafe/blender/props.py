@@ -3,7 +3,7 @@ models (walking, sitting and the gold twins) as its own object, `CatCafe_Cat_<Na
 `..._Prop_Glass` for clear parts (lenses, bubbles, a jar, a helmet; Glass in Roblox, left out of the Cycles
 previews). The model's PropSlot attribute names the slot, and CatPose.dress leaves the role outfit piece in that slot
 off (Catalog.outfitPieceSlots): a Head prop replaces the role hat, a Back prop the Entertainer's cape, and a Face prop
-clashes with nothing.
+clashes with nothing. A few cats wear a second prop in another slot (PROPS2, v0.13): `..._Prop2`, slot in PropSlot2.
 
   Head  on top of the head, between and over the ears (they poke through hats, as with the role hats)
   Face  on the face, around the eyes or at the mouth
@@ -648,6 +648,384 @@ def dragon_wings(ctx):
     U.box((0, 0.05, 0.05), (0.26, 0.1, 0.12), "fur_emerald")
 
 
+# ------------------------------------------------------------------------------- F78 area-themed cats --
+# v0.13 (data-model 3, Derek 2026-10-27 23:59). On body B a back prop stays 0.055 or more off the back of the chest
+# below the vest's top (z 0.965), so it clears the waiter's vest, the barista's apron bow and the greeter's sash
+# (accessories.py); only the Entertainer's cape shares the back, and a Back prop takes its place.
+B_CLEAR = 0.07              # up-frame y of a back prop's inner face on B: the vest's back is at 0.045, the bow's 0.06
+
+
+def _sling(ctx, sw, xs=(-0.2, 0.2), down=0.3):
+    """B: straps over the top of the chest from under the chin and down the back, 0.055 off it and clear of the
+    role outfits, `down` from the strap tops (up frame z 0.155)."""
+    U = ctx.pen("up")
+    for x in xs:
+        U.box((x, -0.02, 0.135), (0.09, 0.23, 0.04), sw)                  # over the chest top (z 1.1), under the chin
+        U.box((x, 0.075, 0.155 - down / 2), (0.09, 0.04, down), sw)        # down the back
+
+
+def _on(P, c, R, local, size, sw, rot=None):
+    """A box on a turned panel: `local` and `rot` in the panel's own axes (centre c, turn R)."""
+    P.box(tuple(Vector(c) + R @ Vector(local)), size, sw, rot=R @ rot if rot is not None else R)
+
+
+def _bag_knot(P, at, out, up, bag):
+    """A bin bag's tied top: a gathered neck out of the bag along `out`, a bunch and two floppy tie ears."""
+    at, out, up = Vector(at), Vector(out), Vector(up)
+    side = out.cross(up)
+    P.cyl(tuple(at + out * 0.04), 0.06, 0.1, bag, rot=Vector((0, 0, 1)).rotation_difference(out).to_matrix(),
+          segments=8)
+    bunch = at + out * 0.11
+    P.sphere(tuple(bunch), 0.08, bag, segments=8, rings=5)
+    for sx in (-1, 1):
+        d = (up * 0.8 + side * sx * 0.6).normalized()
+        R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+        P.sphere(tuple(bunch + d * 0.1), 0.11, bag, scale=(0.4, 0.16, 1.0), rot=R, segments=8, rings=5)
+
+
+def bin_bag(ctx):
+    """Binbag, Garbage Bag Cat: a shiny black bin bag draped over its back like a cape (nothing at the neck):
+    rumpled panels, a ragged hem of points, its tied top with two floppy ears on the back and a few glints."""
+    bag, shine = "fur_black", "fur_smoke_light"
+    if ctx.body == "walk":
+        P = ctx.pen("back")                         # z 0 is the body top; the stripes stand 0.03 proud of it
+        (x0, y0, zc), (sx, sy, sz) = ctx.d["body"]
+        hx = sx / 2 + 0.035
+        for k, (ya, yb, z, t) in enumerate(((-0.22, -0.02, 0.035, 4), (-0.04, 0.16, 0.05, -3), (0.14, 0.3, 0.035, 5))):
+            c, R = ((0, (ya + yb) / 2, z)), _rx(t)                                             # over the back
+            P.box(c, (2 * hx + 0.05 - 0.02 * k, yb - ya, 0.05), bag, rot=R)
+            if k == 1:
+                _on(P, c, R, (0.18, 0.0, 0.029), (0.03, 0.14, 0.012), shine, rot=_rz(25))      # a glint
+        for side in (-1, 1):                                                                   # down the flanks
+            for k, (y, ln) in enumerate(((-0.13, 0.3), (0.04, 0.38), (0.2, 0.26))):
+                c, R = (side * (hx + 0.012), y, 0.035 - ln / 2), _ry(-side * 6)
+                P.box(c, (0.04, 0.17, ln), bag, rot=R)
+                _on(P, c, R, (0, 0, -ln / 2), (0.04, 0.085, 0.085), bag, rot=_rx(45))          # a point of the hem
+                if k == 1:
+                    _on(P, c, R, (side * 0.024, 0.03, 0.04), (0.012, 0.03, 0.14), shine, rot=_rx(18))
+        _bag_knot(P, (0, 0.06, 0.06), (0, 0, 1), (0, 1, 0), bag)
+        return
+    U = ctx.pen("up")                               # y 0 is the back of the chest, z 0.12 its top, -0.42 the haunches
+    hb, ht = ctx.haunch_back - B_BACK_Y, ctx.haunch_top - 0.98
+    y1 = B_CLEAR + 0.02
+    U.box((-0.2, 0.0, 0.14), (0.46, 0.16, 0.1), bag, rot=_ry(4))                             # bunched on the shoulders
+    U.box((0.2, 0.01, 0.15), (0.46, 0.15, 0.1), bag, rot=_ry(-5))
+    for k, (x, t, lo) in enumerate(((-0.34, 8, 0.0), (-0.17, 5, 0.04), (0.0, 9, 0.0), (0.17, 6, 0.03),
+                                    (0.34, 8, 0.01))):                                        # rumpled down the back
+        top, bot = 0.15, ht + 0.03 + lo
+        ln = top - bot
+        c = (x, y1 + 0.02 + ln / 2 * math.sin(math.radians(t)), (top + bot) / 2)
+        R = _rx(t)
+        U.box(c, (0.19, 0.04, ln), bag, rot=R)
+        if k in (1, 3):
+            _on(U, c, R, (0.02, 0.024, 0.08 - 0.1 * (k == 3)), (0.03, 0.012, 0.16), shine, rot=_ry(20 - 40 * (k == 3)))
+    U.box((0, (y1 + hb) / 2 + 0.05, ht + 0.02), (0.9, hb - y1 - 0.06, 0.05), bag)          # over the haunches
+    U.box((0, hb + 0.03, ht - 0.1), (0.9, 0.04, 0.24), bag)                                 # down the rump
+    for x in (-0.36, -0.18, 0.0, 0.18, 0.36):                                               # a ragged hem of points
+        U.box((x, hb + 0.03, ht - 0.22), (0.085, 0.04, 0.085), bag, rot=_ry(45))
+    _bag_knot(U, (0.04, y1 + 0.06, -0.02), (0, 1, 0), (0, 0, 1), bag)
+
+
+def taxi_light(ctx):
+    """Taxi, Taxi Cat: a yellow taxi roof light worn as a hat, a black base, a checkered band round it and a paw
+    print on the front (no words)."""
+    P = ctx.pen("head")
+    y, w, dp = -0.1, 0.44, 0.26
+    P.box((0, y, 0.02), (w + 0.08, dp + 0.06, 0.05), "fur_black")                        # base on the head
+    P.box((0, y, 0.15), (w, dp, 0.22), "rarity_legend")                                  # the light
+    P.box((0, y, 0.275), (w - 0.08, dp - 0.06, 0.04), "rarity_legend")                   # its rounded top
+    n, q = 8, w / 8
+    for face in (-1, 1):                                                                  # checkered band, both faces
+        fy = y + face * dp / 2
+        P.box((0, fy + face * 0.004, 0.08), (w - 0.02, 0.02, 0.07), "fur_white")
+        for row, dz in enumerate((0.0155, -0.0155)):
+            for j in range(row % 2, n, 2):
+                if (j == 0 and row == 0) or (j == n - 1 and row == 1):
+                    continue                                                            # the band's own corners
+                P.box((-w / 2 + q * (j + 0.5), fy + face * 0.0165, 0.08 + dz), (q, 0.015, 0.025), "fur_black")
+    fy = y - dp / 2 - 0.006
+    P.box((0, fy, 0.16), (0.13, 0.02, 0.075), "fur_black")                                # a paw print: the pad
+    for x, z in ((-0.085, 0.215), (-0.03, 0.235), (0.03, 0.235), (0.085, 0.215)):        # and four toes
+        P.box((x, fy, z), (0.04, 0.02, 0.04), "fur_black")
+
+
+def fedora(ctx):
+    """Neon, Jazz Cat: a little black fedora with a neon pink band and a crease on top, tipped to one side."""
+    P = ctx.pen("head")
+    R = _ry(-8) @ _rx(-5)
+    o = Vector((0.03, -0.02, 0.0))
+
+    def at(x, y, z):
+        return tuple(o + R @ Vector((x, y, z)))
+    P.cyl(at(0, 0, 0.02), 0.38, 0.035, "fur_black", rot=R, segments=14)                  # brim
+    P.cyl(at(0, 0, 0.13), 0.24, 0.2, "fur_black", rot=R, r2=0.21, segments=12)          # crown
+    P.cyl(at(0, 0, 0.07), 0.25, 0.06, "neon_pink", rot=R, r2=0.24, segments=12)       # band
+    P.box(at(0, 0.0, 0.235), (0.07, 0.3, 0.03), "fur_black", rot=R)                     # the crease on top
+
+
+def _plane(p0, p1, out):
+    """A frame on a flat tool lying against the back: origin p0, y toward p1, z `out` (away from the cat), x = y x z.
+    Returns (origin, rotation, length)."""
+    p0, p1, z = Vector(p0), Vector(p1), Vector(out)
+    y = (p1 - p0).normalized()
+    x = y.cross(z)
+    return p0, Matrix((x, y, z)).transposed(), (p1 - p0).length
+
+
+def saxophone(ctx):
+    """Neon, Jazz Cat's second prop: a glowing saxophone slung on its back, brass with a gold bell rim, teal and pink
+    keys and a black mouthpiece, on a strap. Its body is the biggest part (the music notes rise off it)."""
+    walk = ctx.body == "walk"
+    if walk:                                    # across the back, bell by the left shoulder, neck to the right rear
+        P = ctx.pen("back")
+        o = 0.095
+        p0, R, _ = _plane((0.2, 0.3, o), (-0.138, 0.004, o), (0, 0, 1))
+        bell = -1
+    else:                                       # down the back, bell low on the right, neck up by the left shoulder
+        P = ctx.pen("up")
+        o = B_CLEAR + 0.075
+        p0, R, _ = _plane((-0.12, o, -0.33), (0.1035, o, 0.117), (0, 1, 0))
+        bell = 1
+
+    def at(x, y, z=0.0):
+        return tuple(p0 + R @ Vector((x, y, z)))
+    up, across = R @ _rx(-90), R @ _ry(90)              # a cylinder's axis along the sax, and across it
+    bx = 0.2 * bell
+    P.cyl(at(0, 0.225), 0.07, 0.45, "brass", rot=up, r2=0.06, segments=10)                    # the body
+    P.cyl(at(bx / 2, -0.02, 0.03), 0.075, 0.2 + 0.075, "brass", rot=across, segments=10)      # the bow at the bottom
+    P.cyl(at(bx, 0.11, 0.06), 0.09, 0.24, "brass", rot=up, r2=0.13, segments=10)              # the bell's tube
+    P.ring(at(bx, 0.235, 0.06), 0.14, 0.035, 0.04, "rarity_legend", rot=up, segments=10)      # bell rim
+    a, b = Vector((0, 0.43)), Vector((-0.14 * bell, 0.53))                                      # the neck, bent away
+    d = (b - a).normalized()
+    turn = R @ _rz(math.degrees(math.atan2(-d.x, d.y))) @ _rx(-90)
+    P.cyl(at(*((a + b) / 2)), 0.035, (b - a).length + 0.04, "brass", rot=turn, segments=6)
+    P.cyl(at(*(b + d * 0.04)), 0.03, 0.08, "fur_black", rot=turn, segments=6)                 # mouthpiece
+    for k, y in enumerate((0.08, 0.17, 0.26, 0.35)):                                           # keys on the front
+        P.cyl(at(0, y, 0.07), 0.028, 0.02, "neon_pink" if k % 2 else "sign_teal", rot=R, segments=6)
+    if walk:
+        mid = p0 + R @ Vector((0, 0.225, 0))
+        _strap_round(ctx, "fur_black", at_y=mid.y)
+        P.box((mid.x, mid.y, 0.025), (0.09, 0.09, 0.05), "fur_black")                         # the strap's loop
+    else:
+        _sling(ctx, "fur_black", xs=(0.05,), down=0.205)
+
+
+def binoculars(ctx):
+    """Birdwatch, Birdwatcher Cat: green field binoculars (the old prism kind) up to its eyes: black eyecups on the
+    eyes, a chunky green prism body each side, the big lens barrels set wider apart in front with black rims and
+    clear lenses, a focus wheel on the bridge and a strap round the head."""
+    F, G, ex = ctx.pen("face"), ctx.gpen("face"), ctx.eye_x
+    z = 0.02
+    for sx in (-1, 1):
+        x, xo = sx * ex, sx * (ex + 0.07)
+        F.cyl((x, -0.075, z), 0.09, 0.07, "fur_black", rot=_rx(90), segments=10)            # eyecup, on the eye
+        F.box((sx * (ex + 0.02), -0.17, z), (0.22, 0.14, 0.24), "leaf_dark")               # prism body
+        F.cyl((xo, -0.3, z), 0.11, 0.14, "leaf_dark", rot=_rx(90), segments=10)             # lens barrel
+        F.ring((xo, -0.38, z), 0.125, 0.03, 0.03, "fur_black", rot=_rx(90), segments=10)    # front rim
+        G.cyl((xo, -0.375, z), 0.09, 0.012, "glass", rot=_rx(90), segments=10)              # lens, inside the rim
+        F.bar((sx * (ex + 0.12), -0.15, z), (sx * (ctx.fw + 0.015), -0.02, z), 0.05, 0.03, "fur_black",
+              up=(0, 0, 1))                                                                 # strap to the head
+    F.box((0, -0.17, z + 0.05), (2 * ex - 0.2, 0.1, 0.07), "fur_black")                    # bridge
+    F.cyl((0, -0.17, z + 0.105), 0.045, 0.06, "fur_black", rot=_ry(90), segments=8)        # focus wheel
+    _side_strap(ctx, z, "fur_black", hgt=0.05)
+
+
+def duckling(ctx):
+    """Duckling, Duckling Cat: a fluffy yellow duckling sitting on its head, facing forward, with an orange beak and
+    feet, butter wings, a tuft and a little tail."""
+    P = ctx.pen("head")
+    yellow, pale, beak = "rarity_legend", "pastel_butter", "eye_copper"
+    P.sphere((0, 0.04, 0.115), 0.17, yellow, scale=(1, 1.2, 0.8), segments=10, rings=6)       # body
+    P.sphere((0, -0.11, 0.29), 0.115, yellow, segments=10, rings=6)                            # head
+    P.box((0, -0.235, 0.27), (0.1, 0.08, 0.035), beak)                                        # beak
+    P.box((0, -0.24, 0.245), (0.08, 0.06, 0.025), beak)
+    for sx in (-1, 1):
+        P.box((sx * 0.055, -0.205, 0.32), (0.035, 0.03, 0.04), "fur_black")                  # eyes
+        P.sphere((sx * 0.155, 0.05, 0.13), 0.1, pale, scale=(0.35, 1.0, 0.6), segments=8, rings=4)   # wings
+        P.box((sx * 0.06, -0.13, 0.008), (0.07, 0.1, 0.03), beak)                             # feet
+    P.pyramid((0, 0.22, 0.13), 0.1, 0.12, yellow, rot=_rx(-70))                               # tail
+    for x, a in ((-0.02, 15), (0.03, -20)):                                                   # tuft
+        P.box((x, -0.11, 0.41), (0.025, 0.025, 0.08), yellow, rot=_ry(a))
+
+
+def balloons(ctx):
+    """Balloon, Balloon Cat: three glowing balloons, pink, sky and yellow, on strings tied to a bow on its back, high
+    over the back and the tail (on B clear of the party hat). Each balloon is one part, the three biggest of the
+    prop, with a knot under it."""
+    cols = ("neon_pink", "pastel_sky", "rarity_legend")
+    if ctx.body == "walk":
+        P = ctx.pen("back")                                 # z 0 on the body top, z up
+        tie = Vector((0, 0.05, 0.04))
+        tops = [Vector((-0.32, 0.2, 1.15)), Vector((0.3, 0.32, 1.05)), Vector((0.0, 0.55, 1.36))]
+        _strap_round(ctx, "pastel_lilac", at_y=0.05)
+        P.box(tuple(tie), (0.1, 0.1, 0.06), "pastel_lilac")
+        for sx in (-1, 1):
+            P.box((sx * 0.09, 0.05, 0.045), (0.11, 0.07, 0.05), "pastel_lilac", rot=_ry(sx * 20))   # the bow
+    else:
+        P = ctx.pen("up")                                   # y out of the back, z up
+        tie = Vector((0, B_CLEAR + 0.05, -0.05))
+        tops = [Vector((-0.34, 0.36, 1.0)), Vector((0.32, 0.42, 0.9)), Vector((0.0, 0.62, 1.26))]
+        _sling(ctx, "pastel_lilac", xs=(0.0,), down=0.24)                                     # one ribbon down the back
+        P.box(tuple(tie), (0.12, 0.06, 0.1), "pastel_lilac")                                  # the strings' tie
+    r = 0.24
+    for c, col in zip(tops, cols):
+        P.sphere(tuple(c), r, col, scale=(1, 1, 1.15), segments=12, rings=8)                 # a balloon
+        knot = c - Vector((0, 0, r * 1.15))
+        P.pyramid(tuple(knot - Vector((0, 0, 0.045))), 0.07, 0.07, col, rot=_rx(180))         # its knot
+        P.bar(tuple(tie + Vector((0, 0, 0.02))), tuple(knot - Vector((0, 0, 0.035))), 0.02, 0.02, "offwhite")
+
+
+def hard_hat_pencil(ctx):
+    """Builder, Construction Cat: an orange hard hat with a ridge and a peak, a dark band round the crown and a
+    yellow pencil tucked in it at the front left."""
+    P = ctx.pen("head")
+    hat = "paw_neighbourhood"
+    P.cyl((0, -0.02, 0.0), 0.4, 0.04, hat, segments=14)                                     # brim
+    P.box((0, -0.38, 0.0), (0.36, 0.16, 0.04), hat, rot=_rx(10))                            # the peak
+    P.cyl((0, 0, 0.1), 0.32, 0.18, hat, r2=0.29, segments=12)
+    P.cyl((0, 0, 0.23), 0.29, 0.08, hat, r2=0.17, segments=12)
+    P.box((0, 0, 0.255), (0.08, 0.5, 0.07), hat)                                            # ridge
+    P.cyl((0, 0, 0.065), 0.33, 0.05, "dark_wood", r2=0.322, segments=12)                    # band
+    R = _rz(40)                                         # the pencil, along the band at the front left, off the ear
+    c, ax = R @ Vector((0, -0.345, 0.07)), R @ Vector((1, 0, 0))
+    along, tip = R @ _ry(90), R @ _ry(-90)
+    P.cyl(tuple(c), 0.03, 0.3, "pastel_butter", rot=along, segments=6)
+    P.cyl(tuple(c - ax * 0.185), 0.03, 0.07, "treat_tan", rot=tip, r2=0.008, segments=6)
+    P.cyl(tuple(c - ax * 0.215), 0.012, 0.025, "fur_black", rot=tip, r2=0.0, segments=6)
+    P.cyl(tuple(c + ax * 0.165), 0.032, 0.03, "metal", rot=along, segments=6)
+    P.cyl(tuple(c + ax * 0.195), 0.03, 0.04, "blush", rot=along, segments=6)
+
+
+def sun_hat(ctx):
+    """Gardener, Gardener Cat: a wide straw sun hat with a woven line on the brim, a green ribbon and a daisy."""
+    P = ctx.pen("head")
+    straw, weave = "treat_tan", "cardboard"
+    P.cyl((0, 0, 0.0), 0.52, 0.035, straw, r2=0.5, segments=14)                             # brim
+    P.ring((0, 0, 0.0215), 0.44, 0.03, 0.016, weave, segments=12)                           # woven line
+    P.cyl((0, 0, 0.11), 0.27, 0.19, straw, r2=0.25, segments=12)                            # crown
+    P.sphere((0, 0, 0.2), 0.25, straw, scale=(1, 1, 0.38), segments=12, rings=3)            # rounded top
+    P.cyl((0, 0, 0.06), 0.282, 0.065, "leaf_green", r2=0.275, segments=12)                  # ribbon
+    az = 35                                                                                 # the daisy, front left
+    R = _rz(az)
+    c = R @ Vector((0, -0.285, 0.07))
+    face = R @ _rx(90)
+    P.cyl(tuple(c), 0.04, 0.03, "rarity_legend", rot=face, segments=8)
+    for k in range(6):
+        a = math.radians(60 * k)
+        off = R @ Vector((0.075 * math.cos(a), -0.005, 0.075 * math.sin(a)))
+        P.box(tuple(c + off), (0.06, 0.02, 0.035), "offwhite", rot=R @ _ry(-60 * k))
+
+
+def watering_can(ctx):
+    """Gardener, Gardener Cat's second prop: a little teal watering can carried on its back, spout and rose to the
+    cat's right, a handle over the top on a strap (on B it rests on the haunches behind the back)."""
+    walk = ctx.body == "walk"
+    U = ctx.pen("up")
+    if walk:
+        base = Vector((0, 0.2, 0.02))                       # standing on the back (on the saddle patch)
+    else:
+        base = Vector((0, B_CLEAR + 0.16, ctx.haunch_top - 0.98 - 0.005))
+    can, metal = "sign_teal", "metal"
+    r, h = 0.15, 0.24
+    U.cyl(tuple(base + Vector((0, 0, h / 2))), r, h, can, segments=12)                      # body
+    U.cyl(tuple(base + Vector((0, 0, h + 0.015))), r * 0.75, 0.03, can, segments=12)        # top
+    U.ring(tuple(base + Vector((0, 0, 0.05))), r + 0.012, 0.025, 0.04, "leaf_dark", segments=12)   # a band
+    spout_a = base + Vector((-r + 0.02, 0, 0.06))
+    spout_b = base + Vector((-r - 0.2, 0, 0.3))
+    U.bar(tuple(spout_a), tuple(spout_b), 0.05, 0.05, can, up=(0, 1, 0))                    # spout
+    d = (spout_b - spout_a).normalized()
+    tilt = math.degrees(math.atan2(d.x, d.z))
+    U.cyl(tuple(spout_b + d * 0.02), 0.05, 0.04, metal, rot=_ry(tilt), segments=8)          # the rose
+    for y in (-0.06, 0.06):
+        U.box(tuple(base + Vector((0, y, h + 0.07))), (0.04, 0.03, 0.12), can)              # handle posts
+    U.box(tuple(base + Vector((0, 0, h + 0.13))), (0.04, 0.18, 0.04), can)                  # handle bar
+    if walk:
+        _strap_round(ctx, "dark_wood", at_y=0.2 - ctx.d["body"][1][1] * 0.22)
+    else:
+        top = base.z + h + 0.15
+        _sling(ctx, "dark_wood", xs=(0.0,), down=0.155 - top + 0.02)
+        U.box((0, (0.055 + base.y) / 2, top - 0.02), (0.06, base.y - 0.055, 0.06), "dark_wood")   # to the handle
+
+
+def gnome_hat(ctx):
+    """Gnome, Gnome Cat: a tall pointy red gnome hat, its tip drooping forward, and a four-leaf clover on the front."""
+    P = ctx.pen("head")
+    red = "shirt_red"
+    P.cyl((0, 0, 0.13), 0.34, 0.3, red, r2=0.21, segments=12)
+    at, a = Vector((0, 0, 0.26)), 0.0
+    for r1, r2, hgt, turn in ((0.215, 0.11, 0.26, 25), (0.115, 0.0, 0.24, 60)):
+        R = _rx(a + turn / 2)
+        d = R @ Vector((0, 0, 1))
+        P.cyl(tuple(at + d * hgt / 2), r1, hgt, red, r2=r2, rot=R, segments=10)
+        at, a = at + d * (hgt - 0.02), a + turn
+    slope = 0.13 / 0.3                                                                      # the clover, on the cone
+    tilt = _rx(-math.degrees(math.atan(slope)))
+
+    def on(x, z, out):                                  # a point `out` off the cone's front at height z
+        return (x, -(0.34 - slope * (z + 0.02) + out), z)
+    for dx, dz in ((-0.035, 0.035), (0.035, 0.035), (-0.035, -0.035), (0.035, -0.035)):
+        P.box(on(dx, 0.13 + dz, 0.004), (0.055, 0.02, 0.055), "leaf_green", rot=tilt @ _ry(45))
+    P.box(on(0.02, 0.05, 0.004), (0.015, 0.02, 0.07), "leaf_dark", rot=tilt @ _ry(-20))
+
+
+def gnome_beard(ctx):
+    """Gnome, Gnome Cat's second prop: a fluffy white beard from the cheeks round under the mouth, clear of the W
+    mouth and ending a little below the chin, above where a waiter's bow tie sits."""
+    F = ctx.pen("face")
+    beard = "milk"
+    top, bot = ctx.mouth_z - 0.07, ctx.fbot - 0.12          # bot: the lowest point of the fluff
+    F.box((0, -0.075, (top + bot + 0.08) / 2), (0.44, 0.1, top - bot - 0.08), beard)        # under the mouth
+    for x, dz in ((-0.14, 0.03), (0.0, 0.0), (0.14, 0.03)):                                 # rounded fluffy bottom
+        F.ico((x, -0.075, bot + 0.09 + dz), 0.1, beard, scale=(1.1, 0.6, 0.9))
+    for sx in (-1, 1):                                                                      # side whiskers
+        lo, hi = bot + 0.08, ctx.mouth_z + 0.05
+        F.box((sx * 0.3, -0.05, (lo + hi) / 2), (0.16, 0.11, hi - lo), beard)
+        F.ico((sx * 0.31, -0.06, lo + 0.01), 0.09, beard, scale=(1, 0.65, 1))
+
+
+def work_cap(ctx):
+    """Plumber, Plumber Cat: a blue work cap with a navy band, a long bill and a water drop badge (no red, no
+    moustache)."""
+    P = ctx.pen("head")
+    blue = "shirt_blue"
+    P.sphere((0, 0.01, 0.03), 0.31, blue, scale=(1, 1.05, 0.62), segments=12, rings=6)       # crown
+    P.cyl((0, 0.01, 0.02), 0.336, 0.05, "pants_navy", segments=12)                          # band
+    P.box((0, -0.4, 0.015), (0.4, 0.26, 0.03), blue, rot=_rx(8))                            # the bill
+    P.cyl((0, 0.01, 0.215), 0.04, 0.03, "pants_navy", segments=8)                           # button
+    P.sphere((0, -0.285, 0.11), 0.045, "pastel_sky", scale=(1, 0.5, 1), segments=8, rings=4)   # a water drop
+    P.pyramid((0, -0.29, 0.135), 0.05, 0.07, "pastel_sky")
+
+
+def wrench(ctx):
+    """Plumber, Plumber Cat's second prop: a big wrench slung on its back, the open jaw up toward the right shoulder,
+    a ring at the other end and a navy grip, on a strap."""
+    walk = ctx.body == "walk"
+    if walk:                                    # on the back, ring by the left hip, jaw toward the right shoulder
+        P = ctx.pen("back")
+        p0, R, L = _plane((0.22, 0.42, 0.018), (-0.17, -0.1, 0.018), (0, 0, 1))
+    else:
+        P = ctx.pen("up")
+        yc = B_CLEAR + 0.03
+        p0, R, L = _plane((0.25, yc, -0.32), (-0.17, yc, 0.3), (0, 1, 0))
+
+    def at(x, y, z=0.0):
+        return tuple(p0 + R @ Vector((x, y, z)))
+    P.box(at(0, L / 2), (0.09, L, 0.045), "metal", rot=R)                                     # the shank
+    P.box(at(0, 0.2), (0.11, 0.24, 0.055), "pants_navy", rot=R)                               # grip
+    P.box(at(0, L + 0.03), (0.24, 0.12, 0.05), "metal", rot=R)                                # the head
+    for sx in (-1, 1):
+        P.box(at(sx * 0.085, L + 0.15), (0.07, 0.14, 0.05), "metal", rot=R)                   # the jaw
+    P.ring(at(0, -0.06), 0.085, 0.04, 0.05, "metal", rot=R, segments=8)                       # ring end
+    P.box(at(0, L - 0.07, 0.03), (0.05, 0.05, 0.02), "fur_black", rot=R)                      # adjuster
+    if walk:
+        _strap_round(ctx, "dark_wood", at_y=(p0 + R @ Vector((0, L / 2, 0))).y)
+    else:
+        z = -0.1
+        x = 0.25 + (z + 0.32) / 0.62 * (-0.42)                  # the shank at that height
+        _sling(ctx, "dark_wood", xs=(x,), down=0.155 - z + 0.03)
+        P.box((x, B_CLEAR + 0.03, z), (0.11, 0.08, 0.07), "dark_wood")                          # holding the wrench
+
+
 # name -> (slot, builder). data-model 3a (Alleyway), 3b (Park), 3c (Neighbourhood, Woods, Sewer).
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
@@ -660,19 +1038,50 @@ PROPS = {
     "Firefly": ("Back", firefly_jar), "OldOak": ("Head", antlers), "Wisp": ("Head", unicorn_horn),
     "Lantern": ("Head", hard_hat), "Bubbles": ("Face", bubble_pipe), "Gears": ("Face", brass_goggles),
     "Glimmer": ("Face", snorkel_mask), "Bottlecap": ("Head", bottlecap_crown), "Eclipse": ("Back", dragon_wings),
+    # v0.13 area-themed cats (F78)
+    "Binbag": ("Back", bin_bag), "Taxi": ("Head", taxi_light), "Neon": ("Head", fedora),
+    "Birdwatch": ("Face", binoculars), "Duckling": ("Head", duckling), "Balloon": ("Back", balloons),
+    "Builder": ("Head", hard_hat_pencil), "Gardener": ("Head", sun_hat), "Gnome": ("Head", gnome_hat),
+    "Plumber": ("Head", work_cap),
+}
+# Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
+# object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
+PROPS2 = {
+    "Neon": ("Back", saxophone), "Gardener": ("Back", watering_can), "Gnome": ("Face", gnome_beard),
+    "Plumber": ("Back", wrench),
 }
 
 
 def build(name, spec, body, d):
-    """{object suffix: Builder} for one cat's prop on one body: "Prop", plus "Prop_Glass" when it has clear parts.
-    Head and Face props are drawn relative to the neck (the Head's pivot), Back props in the model's space."""
-    ctx = Ctx(spec, body, d)
-    PROPS[name][1](ctx)
-    out = {"Prop": ctx.main}
-    if ctx.glass.prims:
-        out["Prop_Glass"] = ctx.glass
+    """{object suffix: Builder} for one cat's props on one body: "Prop", plus "Prop_Glass" when it has clear parts,
+    and "Prop2" for a second prop. Head and Face props are drawn relative to the neck (the Head's pivot), Back props
+    in the model's space."""
+    out = {}
+    for key, table in (("Prop", PROPS), ("Prop2", PROPS2)):
+        if name not in table:
+            continue
+        ctx = Ctx(spec, body, d)
+        table[name][1](ctx)
+        out[key] = ctx.main
+        if ctx.glass.prims:
+            assert key == "Prop", "second props have no clear parts"
+            out["Prop_Glass"] = ctx.glass
     return out
 
 
 def slot(name):
     return PROPS[name][0] if name in PROPS else None
+
+
+def slot2(name):
+    return PROPS2[name][0] if name in PROPS2 else None
+
+
+def piece_slot(name, suffix):
+    """The slot of one of a cat's prop objects ("Prop", "Prop_Glass" or "Prop2")."""
+    return slot2(name) if suffix == "Prop2" else slot(name)
+
+
+def follows(slot_):
+    """What a prop in this slot rides: Back props the Body, Head and Face props the Head."""
+    return "Body" if slot_ == "Back" else "Head"

@@ -1,6 +1,7 @@
 --!strict
 -- Pure income math (data-model section 11) and purchase gates. No Roblox services.
 
+local Bait = require(script.Parent.Bait)
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
@@ -67,20 +68,31 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	return multiplier
 end
 
--- How long the bait bowl's cat takes to come (data-model section 8): shorter with the Big Bowl perk (F53).
-function Economy.lureWaitSeconds(profile: Types.PlayerProfile): number
-	return if (profile.fishPerks.big_bowl or 0) >= 1
-		then Config.BigBowlLureWaitSeconds
-		else Config.LureWaitSeconds
+-- How long the bait bowl's cat takes to come (data-model section 8): the bowl level's wait (F82: 600 down to 480), a
+-- fifth off with the Big Bowl perk (F53), and for food set at night LureWaitSecondsNight's share of it (F60: half).
+function Economy.lureWaitSeconds(profile: Types.PlayerProfile, night: boolean?): number
+	return Bait.waitSeconds(
+		Economy.level(profile, "lure_bowl"),
+		(profile.fishPerks.big_bowl or 0) >= 1,
+		night
+	)
 end
 
 -- The wait for food going in now: lureWaitSeconds less the Index's bait speed (F54, golden-fish.md section 5),
 -- whole seconds. UseLure fixes it in the bowl's readyAt. The summed percents carry float error (the full All Cats
--- track is 0.38000000000000012), so a hair is added before flooring: 372 s, not 371 (QA, 2026-10-27).
-function Economy.baitWaitSeconds(profile: Types.PlayerProfile): number
-	return math.floor(
-		Economy.lureWaitSeconds(profile) * (1 - IndexRewards.totals(profile).baitSpeed) + 1e-6
-	)
+-- track is 0.38000000000000012), so a hair is added before flooring: 372 s, not 371 (QA, 2026-10-27). `night` is
+-- the server's phase as the food goes in (F60). With `now`, a running Quick Bait Potion's speed adds to the Index's,
+-- the two together inside BaitSpeedMax (F73).
+function Economy.baitWaitSeconds(
+	profile: Types.PlayerProfile,
+	night: boolean?,
+	now: number?
+): number
+	local speed = IndexRewards.totals(profile).baitSpeed
+	if now ~= nil then
+		speed = math.min(speed + Potions.baitSpeed(profile, now), Config.BaitSpeedMax)
+	end
+	return math.floor(Economy.lureWaitSeconds(profile, night) * (1 - speed) + 1e-6)
 end
 
 -- Rate of one working cat before the cafe multiplier: its rating (rarity x charm x level x variant, see CatStats)
@@ -161,6 +173,44 @@ local function paidSecondsFrom(from: number, seconds: number, clockEpoch: number
 	return seconds - nightSeconds + nightSeconds * Config.NightIncomeMultiplier
 end
 
+-- The extra paid seconds the running tip potions add to a window of `elapsed` from lastTick: each potion's `tips` over
+-- the start it covers, split where each ends, the running sum capped at TimedTipsMax.
+local function tipBonusSeconds(
+	profile: Types.PlayerProfile,
+	elapsed: number,
+	clockEpoch: number?
+): number
+	type Span = { seconds: number, tips: number }
+	local spans: { Span } = {}
+	local total = 0
+	for _, def in Catalog.potions do
+		local tips = def.tips
+		if tips ~= nil then
+			local seconds = math.min(elapsed, Potions.left(profile, def.id, profile.lastTick))
+			if seconds > 0 then
+				table.insert(spans, { seconds = seconds, tips = tips })
+				total += tips
+			end
+		end
+	end
+	table.sort(spans, function(a: Span, b: Span): boolean
+		return a.seconds < b.seconds
+	end)
+	local bonus, from = 0, 0
+	for _, span in spans do
+		if span.seconds > from then
+			bonus += math.min(total, Config.TimedTipsMax) * paidSecondsFrom(
+				profile.lastTick + from,
+				span.seconds - from,
+				clockEpoch
+			)
+			from = span.seconds
+		end
+		total -= span.tips
+	end
+	return bonus
+end
+
 -- Lazy accounting: credit everything earned since lastTick, then grant that time as XP to the owned cats.
 -- Coins use the rate from before any level-up in the window (a few seconds at most), which keeps the
 -- credit simple and never overpays. Call before any read or spend.
@@ -169,20 +219,14 @@ end
 -- the day rate, which only the specs and offline maths want.
 -- F64: a running Tip Potion pays TipPotionBonus more over the start of the window it covers, split where it ends
 -- like a phase change, and every potion timer counts down by the window (play time only: DataService.load resets
--- lastTick, so time away settles nothing and the timers pause).
+-- lastTick, so time away settles nothing and the timers pause). F73: every potion with `tips` (the Big Tip Potion
+-- too) pays its own share the same way, the shares together at most TimedTipsMax at any moment.
 function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: number?): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
 	if elapsed > 0 then
 		local paidSeconds = paidSecondsFrom(profile.lastTick, elapsed, clockEpoch)
-		local tipSeconds = math.min(elapsed, Potions.left(profile, Potions.TIP, profile.lastTick))
-		if tipSeconds > 0 then
-			paidSeconds += Config.TipPotionBonus * paidSecondsFrom(
-				profile.lastTick,
-				tipSeconds,
-				clockEpoch
-			)
-		end
+			+ tipBonusSeconds(profile, elapsed, clockEpoch)
 		earned = Economy.incomePerSecond(profile) * paidSeconds
 		profile.coins += earned
 		profile.lifetimeCoins += earned
@@ -196,6 +240,11 @@ end
 -- A rich customer's tip (section 12): RichTipSeconds of the day rate, never less than $50.
 function Economy.richTipAmount(dayRate: number): number
 	return math.max(50, math.floor(dayRate * Config.RichTipSeconds))
+end
+
+-- One tip pile (F61, section 12): TipPileRateSeconds of the day rate, never less than $5.
+function Economy.tipPileAmount(dayRate: number): number
+	return math.max(5, math.floor(dayRate * Config.TipPileRateSeconds))
 end
 
 function Economy.offlineGain(rateAtLogout: number, lastSeen: number, now: number): (number, number)

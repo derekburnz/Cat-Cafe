@@ -13,6 +13,10 @@
 -- is the target whose ShovedBy names it. On its own screen the tackler's dive starts at the press
 -- (Moments.TacklePress, once the engineer adds it) instead of a round trip later, and a refused press
 -- (Moments.TackleRefused) lets go of it.
+-- The net hold (Derek 2026-10-28) is the layer under the Tackle: in a catching area the right arm holds the net up
+-- (Avatar.holdNet, by NetHold.weight, which also puts the net in the hand), and a tackle's pose blends over that.
+-- The carry (Derek 2026-10-28) is a layer under the Tackle too: while the character carries a cat its arms fold
+-- across its chest (Avatar.carryArms, by Carry.weight, which also puts the cat on them).
 -- Listening only: nothing here fires a remote.
 
 local Players = game:GetService("Players")
@@ -21,8 +25,10 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
+local Carry = require(script.Parent.Carry)
 local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
+local NetHold = require(script.Parent.NetHold)
 local Presets = require(script.Parent.Presets)
 
 local Tackle = {}
@@ -109,6 +115,8 @@ local function forget(character: Model)
 		release(entry)
 		entries[character] = nil
 	end
+	NetHold.forget(character)
+	Carry.forget(character)
 end
 
 -- Which way a tackle threw this player, from where the tackler stands: on its front when hit from behind, and
@@ -167,6 +175,8 @@ local function rebind()
 		local rig = Avatar.bind(character)
 		if rig == nil then
 			entries[character] = nil
+			NetHold.forget(character)
+			Carry.forget(character)
 			stale[character] = clock + RETRY_SECONDS
 		elseif old ~= nil then
 			-- the same move goes on (a tool's grip or a new outfit mid-tackle): keep its fall direction and walk-out
@@ -179,7 +189,45 @@ local function rebind()
 	end
 end
 
-local function step()
+-- One pose over the character's own animation, by how much.
+type Layer = { frames: { [Avatar.Joint]: CFrame }, weight: number }
+
+-- Writes this frame's layers into the joints: each over what the Animator played, in order (the net hold or the
+-- carry, then the Tackle). A joint this wrote last frame and no layer moves now goes back to the Animator.
+local function apply(entry: Entry, layers: { Layer })
+	local moved: { [Avatar.Joint]: boolean } = {}
+	for _, layer in layers do
+		for motor in layer.frames do
+			moved[motor] = true
+		end
+	end
+	for motor, frame in entry.written do
+		if not moved[motor] then
+			if motor.Transform:FuzzyEq(frame, SAME) then
+				write(motor, CFrame.identity)
+			end
+			entry.written[motor] = nil
+		end
+	end
+	for motor in moved do
+		local base = motor.Transform
+		local last: CFrame? = entry.written[motor]
+		if last ~= nil and last:FuzzyEq(base, SAME) then
+			base = CFrame.identity -- the Animator left this joint alone, so last frame's pose is still on it
+		end
+		local out = base
+		for _, layer in layers do
+			local frame: CFrame? = layer.frames[motor]
+			if frame ~= nil then
+				out = out:Lerp(frame, layer.weight)
+			end
+		end
+		write(motor, out)
+		entry.written[motor] = out
+	end
+end
+
+local function step(dt: number)
 	rebind()
 	local now = Workspace:GetServerTimeNow()
 	local t = Presets.tacklePose
@@ -207,8 +255,18 @@ local function step()
 		end
 		local root = entry.rig.root
 		local mine = character == me
-		if not mine and Context.distance(root.Position) > radius then
-			release(entry)
+		local near = mine or Context.distance(root.Position) <= radius
+		local layers: { Layer } = {}
+		local holding = NetHold.weight(character, entry.rig, dt, near)
+		if holding > 0 then
+			table.insert(layers, { frames = Avatar.holdNet(entry.rig), weight = holding })
+		end
+		local carrying = Carry.weight(character, entry.rig, dt, near)
+		if carrying > 0 then
+			table.insert(layers, { frames = Avatar.carryArms(entry.rig), weight = carrying })
+		end
+		if not near then
+			apply(entry, layers)
 			continue
 		end
 		local tackleAt = number(character, "TackleAt")
@@ -231,34 +289,22 @@ local function step()
 			fallForward = entry.fallForward,
 			side = entry.side,
 		}, now, times)
-		if pose == nil then
-			release(entry)
-			continue
-		end
-		-- Walking while the pose says it is down means it is up: let go of this move.
-		if entry.cutKey ~= began and now > still + t.cutAfter then
-			local v = root.AssemblyLinearVelocity
-			if Vector3.new(v.X, 0, v.Z).Magnitude > t.cutSpeed then
-				entry.cutKey, entry.cutAt = began, now
+		if pose ~= nil then
+			-- Walking while the pose says it is down means it is up: let go of this move.
+			if entry.cutKey ~= began and now > still + t.cutAfter then
+				local v = root.AssemblyLinearVelocity
+				if Vector3.new(v.X, 0, v.Z).Magnitude > t.cutSpeed then
+					entry.cutKey, entry.cutAt = began, now
+				end
+			end
+			if entry.cutKey == began then
+				weight *= 1 - math.clamp((now - entry.cutAt) / t.cutSeconds, 0, 1)
+			end
+			if weight > 0 then
+				table.insert(layers, { frames = Avatar.solve(entry.rig, pose), weight = weight })
 			end
 		end
-		if entry.cutKey == began then
-			weight *= 1 - math.clamp((now - entry.cutAt) / t.cutSeconds, 0, 1)
-		end
-		if weight <= 0 then
-			release(entry)
-			continue
-		end
-		for motor, frame in Avatar.solve(entry.rig, pose) do
-			local base = motor.Transform
-			local last: CFrame? = entry.written[motor]
-			if last ~= nil and last:FuzzyEq(base, SAME) then
-				base = CFrame.identity -- the Animator left this joint alone, so last frame's pose is still on it
-			end
-			local out = base:Lerp(frame, weight)
-			write(motor, out)
-			entry.written[motor] = out
-		end
+		apply(entry, layers)
 	end
 end
 
@@ -312,6 +358,8 @@ function Tackle.start()
 			end
 		end)
 	end
+	NetHold.start()
+	Carry.start()
 	RunService.PreSimulation:Connect(step)
 end
 

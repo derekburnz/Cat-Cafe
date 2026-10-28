@@ -448,4 +448,24 @@ return function()
 			expect(profile.cats.plain.rescued).to.equal(nil)
 		end)
 	end)
+	describe("the cat lock (F62, section 4)", function()
+		it("gold, Legendary and Mythical cats arrive locked; the rest do not", function()
+			local seen: { [string]: boolean } = {}
+			for _, def in Catalog.cats do
+				local best = def.rarity == "Legendary" or def.rarity == "Mythical"
+				expect(CatStats.arrivesLocked(def.id, "base")).to.equal(best)
+				expect(CatStats.arrivesLocked(def.id, "gold")).to.equal(true)
+				seen[def.rarity] = true
+			end
+			expect(seen.Legendary and seen.Mythical and seen.Common).to.equal(true)
+			expect(CatStats.arrivesLocked("no_such_cat", "base")).to.equal(false)
+		end)
+
+		it("the view says whether it is locked, false when the field is missing", function()
+			local instance = CatStats.newInstance("u1", "tabby", 100)
+			expect(CatStats.view(instance).locked).to.equal(false)
+			instance.locked = true
+			expect(CatStats.view(instance).locked).to.equal(true)
+		end)
+	end)
 end

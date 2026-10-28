@@ -31,7 +31,7 @@ local BOARD_NAMES = { "SignBoard", "Sign" }
 local PIXELS_PER_STUD = 50
 local MAX_DISTANCE = 150
 local WATCHED = { "OwnerUserId", "OwnerName", "TierName", "Rate" }
--- data-model NightIncomeMultiplier (0.6): the night share of the day rate; the plot's Rate stays the day rate
+-- data-model NightIncomeMultiplier (1 since F60, 0.6 before): the night share of the day rate; Rate stays the day rate
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 local MOON = "🌙"
 

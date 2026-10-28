@@ -33,6 +33,7 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local MarketLogic = require(script.Parent.Parent.Components.MarketLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -845,7 +846,8 @@ function FishMarket._build(self: any)
 		icon:set(
 			(crate :: any).asset,
 			Theme.icons.crate,
-			if crate.golden then "Legendary" else "Rare"
+			if crate.golden then "Legendary" else "Rare",
+			ShopIcons.crate(crate.id)
 		)
 		local owned = text({
 			Name = "Owned",
@@ -955,7 +957,8 @@ function FishMarket._build(self: any)
 		icon:set(
 			if lure then lure.asset else nil,
 			fallback,
-			if row.kind == "perk" then "Legendary" elseif lure then lure.attracts else nil
+			if row.kind == "perk" then "Legendary" elseif lure then lure.attracts else nil,
+			if row.kind == "perk" then ShopIcons.perk(row.id) else ShopIcons.food(row.id)
 		)
 		text({
 			Name = "Name",

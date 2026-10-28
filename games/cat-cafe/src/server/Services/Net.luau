@@ -34,7 +34,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	UseLure = RateLimiter.new(1, 1), -- rolls a cat and rebuilds the bowl
 	ResolveBait = RateLimiter.new(1, 1), -- the card retries after 6 s at most
 	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer
+	CollectTips = RateLimiter.new(2, 1), -- data-model section 15: 2 a second (walking past the piles, the till)
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
+	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
 	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
 	TelemetryReport = RateLimiter.new(10, 60), -- data-model section 15: 10 a minute
 	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
@@ -48,6 +50,11 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	ReportBug = RateLimiter.new(1, 1), -- a flood guard; BugReportService answers its own 1 per 20 s with a toast
 	UsePotion = RateLimiter.new(2, 1), -- data-model section 15: 2 a second
 	OpenMysteryGift = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	AnswerCollector = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second
+	RerollQuest = RateLimiter.new(1, 1), -- 1 a second
+	ClaimAchievement = RateLimiter.new(2, 1), -- 2 a second
+	ClaimDailyTreat = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

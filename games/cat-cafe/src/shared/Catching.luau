@@ -31,6 +31,25 @@ function Catching.fleeUntil(missedAt: number, sprintStuds: number): number
 	return missedAt + math.max(Config.GrabRetrySeconds, sprint + Config.StrayRestSeconds)
 end
 
+-- F57 (data-model section 10 step 5, v0.8): a player's misses in a row on one stray, the last at server time `at`.
+export type MissStreak = { count: number, at: number }
+
+-- The streak after a miss at `now`: one more, or 1 again when StrayMissStreakResetSeconds have passed since the
+-- last. A catch or a despawn ends the stray and its streaks with it.
+function Catching.nextMiss(streak: MissStreak?, now: number): MissStreak
+	if streak == nil or now - streak.at >= Config.StrayMissStreakResetSeconds then
+		return { count = 1, at = now }
+	end
+	return { count = streak.count + 1, at = now }
+end
+
+-- How much longer than everyone else the player who missed waits once the stray stops: StraySelfRetrySteps by
+-- misses in a row (3, 6, then 10 s for every miss after).
+function Catching.selfRetrySeconds(misses: number): number
+	local steps = Config.StraySelfRetrySteps
+	return steps[math.clamp(misses, 1, #steps)]
+end
+
 local function oddsTotal(odds: Types.LureOdds): number
 	local total = 0
 	for _, rarity: Types.Rarity in Catalog.rarityOrder do
@@ -151,6 +170,20 @@ function Catching.shoutOut(
 	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
 end
 
+-- F58 (data-model section 9, v0.8): the server-wide line when a wave spawns a Mythical stray, naming the area and
+-- not the cat, so finding it is still a surprise: "A Mythical cat appeared in the Woods!", "A gold Mythical cat..."
+-- when it is gold. Nil for any other rarity.
+function Catching.waveShoutOut(rarity: Types.Rarity, variant: string?, areaName: string): string?
+	if rarity ~= "Mythical" then
+		return nil
+	end
+	return string.format(
+		"A %sMythical cat appeared in the %s!",
+		if variant == "gold" then "gold " else "",
+		areaName
+	)
+end
+
 function Catching.percentText(chance: number): string
 	return string.format("%d%%", math.floor(chance * 100 + 0.5))
 end
@@ -197,6 +230,51 @@ function Catching.spreadPick(points: { Vector3 }, taken: { Vector3 }, roll: numb
 		end
 	end
 	return last -- roll 1: the last far-enough point
+end
+
+-- The zones Epic and rarer strays keep to: the Alleyway's "nook" points (town-layout-v3.md 7e: the exciting cats
+-- wait at the back alleys' ends, so no cafe's lane is the lucky one) and a v3.2 side area's "deep" ones (section 8d:
+-- the rarer the cat, the longer the walk to it).
+local KEEP_ZONES: { [string]: boolean } = { nook = true, deep = true }
+
+-- A "rare" spawn point is a rare-biased nook (the Great Oak's top in the Woods, Derek 2026-10-28 01:35): only a Rare
+-- or rarer stray takes it, and one takes it first while it is free, so whoever climbs up finds a Rare or better.
+Catching.RARE_ZONE = "rare"
+
+export type SpawnSlot = { zone: string?, free: boolean }
+
+-- The spawn points, as indexes into `slots`, that a new stray of `rarity` may take: a free "rare" point for a Rare
+-- or rarer stray when there is one; else, for Epic and rarer in an area with "nook" or "deep" points, only the free
+-- ones of those (none free: none, and the stray waits for the next wave; spawnWave places the rarest first, so this
+-- is rare); else every free point but a "rare" one. A nil rarity (a carried cat sent home) is any but a "rare" one.
+function Catching.spawnPool(slots: { SpawnSlot }, rarity: Types.Rarity?): { number }
+	local rare: { number } = {}
+	local kept: { number } = {}
+	local open: { number } = {}
+	local hasKept = false
+	for i, slot in slots do
+		local zone = slot.zone
+		local keep = zone ~= nil and KEEP_ZONES[zone] == true
+		hasKept = hasKept or keep
+		if not slot.free then
+			continue
+		end
+		if zone == Catching.RARE_ZONE then
+			table.insert(rare, i)
+		else
+			table.insert(open, i)
+			if keep then
+				table.insert(kept, i)
+			end
+		end
+	end
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Rare") and #rare > 0 then
+		return rare
+	end
+	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasKept then
+		return kept
+	end
+	return open
 end
 
 return Catching

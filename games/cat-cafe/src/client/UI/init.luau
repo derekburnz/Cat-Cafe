@@ -33,7 +33,10 @@ local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
 local Codes = require(script.Screens.Codes)
+local Collector = require(script.Screens.Collector)
 local Create = require(script.Components.Create)
+local DailyTreat = require(script.Screens.DailyTreat)
+local DailyTreatLogic = require(script.Components.DailyTreatLogic)
 local Dealer = require(script.Screens.Dealer)
 local DecorShop = require(script.Screens.DecorShop)
 local FishMarket = require(script.Screens.FishMarket)
@@ -52,6 +55,7 @@ local NightClock = require(script.Components.NightClock)
 local Popups = require(script.Screens.Popups)
 local PotionLogic = require(script.Components.PotionLogic)
 local Potions = require(script.Screens.Potions)
+local Quests = require(script.Screens.Quests)
 local RankUp = require(script.Screens.RankUp)
 local RescueBar = require(script.Screens.RescueBar)
 local RichTip = require(script.Screens.RichTip)
@@ -65,6 +69,7 @@ local SpinWheel = require(script.Screens.SpinWheel)
 local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
 local Theme = require(script.Theme)
+local TillTipsButton = require(script.Screens.TillTipsButton)
 local TipJar = require(script.Screens.TipJar)
 local Toasts = require(script.Screens.Toasts)
 local Types = require(script.Types)
@@ -107,7 +112,9 @@ UI.events = {
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
 	useLure = Signal.new(), -- (lureId)   Use on a food in the Bait bowl screen: forward as UseLure (F28)
 	resolveBait = Signal.new(), -- (choice)   "tame" or "letgo" from the bait card: forward as ResolveBait
-	buyDealerFood = Signal.new(), -- (slot, lureId)   Buy on the night dealer screen: forward both as BuyDealerFood (F32)
+	-- (index, lureId, window)   Buy on the night dealer screen (F32): forward lureId and window as BuyDealerFood (F59);
+	-- index is the food's row, unused since F59, and window the DealerStock's the screen showed (nil if none came)
+	buyDealerFood = Signal.new(),
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
@@ -129,6 +136,16 @@ UI.events = {
 	introReplay = Signal.new(),
 	-- F64
 	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
+	-- F61
+	collectTips = Signal.new(), -- ()   Collect on the till's tip button in your cafe: forward as CollectTips
+	-- F73
+	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
+	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
+	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
+	-- F63
+	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
+	-- F70
+	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 }
 
 local state: Types.PlayerState = {
@@ -171,6 +188,7 @@ local worldTags: WorldTags.WorldTags? = nil
 local catCard: CatCard.CatCard? = nil -- the hover card over a cat in any cafe (F75)
 local actionPills: ActionPill.ActionPill? = nil -- custom prompts that are not cats (bowl, cart, manhole, Bump)
 local richTipScreen: RichTip.RichTip? = nil -- the gold marker over your cafe's rich tip (UI.richTip.bind)
+local tillTips: TillTipsButton.TillTipsButton? = nil -- the till's Collect for tip piles (F61, UI.richTip.bind)
 local tackleBar: TackleBar.TackleBar? = nil -- the Tackle inside catching areas (UI.shove, F74)
 local currentCatalog: Types.Catalog? = nil
 local toasts: Toasts.Toasts? = nil
@@ -193,6 +211,12 @@ local marketScreen: FishMarket.FishMarket? = nil -- the Golden Fish Market (F53)
 local bugReportScreen: BugReport.BugReport? = nil -- the Report a bug window, opened from Settings > Help
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
+local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
+local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
+local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F70), from the HUD's Daily tile
+-- F70: nil until the first Daily Treat card arrives, then whether the window still opens by itself this session (only a
+-- stamp due on joining opens it; one that comes due mid-session lights the Daily tile)
+local dailyAutoOpen: boolean? = nil
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
@@ -264,6 +288,34 @@ local function introBlocked(): boolean
 	return (hud ~= nil and hud:isCarrying()) or UI.catch.circlesActive() or UI.rescue.isActive()
 end
 
+-- F70: the Daily Treat window opens by itself once when the player joins with a stamp due, after the tutorial and the
+-- intro, while no other window is open and nothing is being carried, caught or rescued.
+local function autoOpenDailyTreat()
+	if dailyAutoOpen == false or state.dailyTreat == nil then
+		return
+	end
+	local view = DailyTreatLogic.view(state.dailyTreat)
+	local now = Workspace:GetServerTimeNow()
+	if not DailyTreatLogic.due(view, now) then
+		dailyAutoOpen = false
+		return
+	end
+	dailyAutoOpen = true
+	local windows = modal
+	if
+		not DailyTreatLogic.autoOpen(view, now, state.tutorialStep)
+		or not visible
+		or windows == nil
+		or windows:current() ~= nil
+		or UI.intro.playing()
+		or introBlocked()
+	then
+		return
+	end
+	dailyAutoOpen = false
+	windows:open("DailyTreat")
+end
+
 local function render()
 	if not initialized then
 		return
@@ -332,6 +384,16 @@ local function render()
 	if potionsScreen then
 		potionsScreen:render(state)
 	end
+	if questsScreen then
+		questsScreen:render(state)
+	end
+	if collectorScreen then
+		collectorScreen:render(state)
+	end
+	if dailyTreatScreen then
+		dailyTreatScreen:render(state)
+	end
+	autoOpenDailyTreat()
 end
 
 local function setCatalog(newCatalog: Types.Catalog)
@@ -384,6 +446,15 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if potionsScreen then
 		potionsScreen:setCatalog(newCatalog)
+	end
+	if questsScreen then
+		questsScreen:setCatalog(newCatalog)
+	end
+	if collectorScreen then
+		collectorScreen:setCatalog(newCatalog)
+	end
+	if dailyTreatScreen then
+		dailyTreatScreen:setCatalog(newCatalog)
 	end
 	if popups then
 		popups:setCatalog(newCatalog)
@@ -629,8 +700,8 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	dealerScreen = Dealer.new({
-		buy = function(slot: number, lureId: string)
-			UI.events.buyDealerFood:Fire(slot, lureId)
+		buy = function(index: number, lureId: string, window: number?)
+			UI.events.buyDealerFood:Fire(index, lureId, window)
 		end,
 		close = closeModal,
 	})
@@ -787,6 +858,72 @@ function UI.init(config: Types.InitConfig)
 			potionsView:render(state)
 		end,
 	})
+	questsScreen = Quests.new({
+		claimQuest = function(kind: string, slot: number)
+			UI.events.claimQuest:Fire(kind, slot)
+		end,
+		rerollQuest = function(kind: string, slot: number)
+			UI.events.rerollQuest:Fire(kind, slot)
+		end,
+		claimAchievement = function(achievementId: string)
+			UI.events.claimAchievement:Fire(achievementId)
+		end,
+		close = closeModal,
+	})
+	local questsView = questsScreen :: Quests.Quests
+	modalInstance:register("Quests", {
+		frame = questsView.frame,
+		onOpen = function()
+			questsView:render(state)
+			questsView:onOpen()
+		end,
+		onClose = function()
+			questsView:onClose()
+		end,
+	})
+	dailyTreatScreen = DailyTreat.new({
+		claim = function()
+			UI.events.claimDailyTreat:Fire()
+		end,
+		status = function(shown: boolean, due: boolean)
+			hudInstance:setDailyTreat(shown, due)
+		end,
+		close = closeModal,
+	})
+	local dailyTreatView = dailyTreatScreen :: DailyTreat.DailyTreat
+	modalInstance:register("DailyTreat", {
+		frame = dailyTreatView.frame,
+		onOpen = function()
+			dailyTreatView:render(state)
+		end,
+	})
+	collectorScreen = Collector.new(parent, {
+		answer = function(accept: boolean)
+			UI.events.answerCollector:Fire(accept)
+		end,
+		-- walking up to him opens it only when no other window is open; a tap on his tag opens it anyway
+		open = function(force: boolean)
+			if force or modalInstance:current() == nil then
+				modalInstance:open("Collector")
+			end
+		end,
+		close = function()
+			if modalInstance:current() == "Collector" then
+				modalInstance:close()
+			end
+		end,
+	})
+	local collectorView = collectorScreen :: Collector.Collector
+	modalInstance:register("Collector", {
+		frame = collectorView.frame,
+		onOpen = function()
+			collectorView:render(state)
+			collectorView:onOpen()
+		end,
+		onClose = function()
+			collectorView:onClose()
+		end,
+	})
 	-- range hints: Tame or Let go need the bowl within 20 studs, buying at the cart its range (data-model 8, 8b)
 	local nearClock = 0
 	table.insert(
@@ -833,6 +970,11 @@ function UI.init(config: Types.InitConfig)
 		end,
 		missed = function()
 			UI.toast("Rich tip missed", "info")
+		end,
+	})
+	tillTips = TillTipsButton.new(parent, {
+		collect = function()
+			UI.events.collectTips:Fire()
 		end,
 	})
 	tackleBar = TackleBar.new(parent, {
@@ -901,6 +1043,8 @@ function UI.init(config: Types.InitConfig)
 					modalInstance:toggle("Cats")
 				elseif key == Enum.KeyCode.P then
 					modalInstance:toggle("Potions")
+				elseif key == Enum.KeyCode.J and state.quests ~= nil then
+					modalInstance:toggle("Quests")
 				elseif key == Enum.KeyCode.F then
 					openBait()
 				elseif key == Enum.KeyCode.H then
@@ -988,6 +1132,19 @@ function UI.destroy()
 		potionsScreen:destroy()
 	end
 	potionsScreen = nil
+	if questsScreen then
+		questsScreen:destroy()
+	end
+	questsScreen = nil
+	if collectorScreen then
+		collectorScreen:destroy()
+	end
+	collectorScreen = nil
+	if dailyTreatScreen then
+		dailyTreatScreen:destroy()
+	end
+	dailyTreatScreen = nil
+	dailyAutoOpen = nil
 	if introScreen then
 		introScreen:destroy()
 	end
@@ -1062,6 +1219,9 @@ function UI.destroy()
 	if richTipScreen then
 		richTipScreen:destroy()
 	end
+	if tillTips then
+		tillTips:destroy()
+	end
 	if tackleBar then
 		tackleBar:destroy()
 	end
@@ -1085,7 +1245,7 @@ function UI.destroy()
 	carryMarker, tutorialMarker, tutorialTrail = nil, nil, nil
 	locationMarkers, zoneSafe = nil, nil
 	circles, rankUpScreen, areasScreen, gateSigns, areaTitle = nil, nil, nil, nil, nil
-	cafeSigns, worldTags, actionPills, richTipScreen = nil, nil, nil, nil
+	cafeSigns, worldTags, actionPills, richTipScreen, tillTips = nil, nil, nil, nil, nil
 	catCard = nil
 	tackleBar = nil
 	Scale.stop()
@@ -1365,8 +1525,9 @@ function UI.bait.setBowl(part: BasePart?)
 	bowlPart = part
 end
 
--- What is in the bowl: { lureId, readyAt } with readyAt in server os.time(), or nil when the bowl is empty.
--- nil also forgets the cat at the bowl and closes its card (the server resolved it).
+-- What is in the bowl: { lureId, readyAt, placedAt?, night? } with the times in server os.time(), or nil when the
+-- bowl is empty. night (F60) is true for food set at night, which waits half, and the countdowns show a moon. nil
+-- also forgets the cat at the bowl and closes its card (the server resolved it).
 function UI.bait.set(bait: Types.BaitView?)
 	baitView = bait
 	if bait == nil then
@@ -1425,9 +1586,10 @@ function UI.dealer.setCart(part: BasePart?)
 	cartPart = part
 end
 
--- From DealerStock: { slots = { { lureId, cost, bought } }, restocksAt }. Send it at night start, at each window
--- change and after every BuyDealerFood, bought or not, so the rows and the countdown stay true. nil when the cart
--- leaves at dawn: the screen closes if it is open.
+-- From DealerStock (F59): { window, restocksAt, stock = { { lureId, cost, amount, bought } } }, every dealer food
+-- with this window's amount and this player's buys; the pre-F59 { slots = { { lureId, cost, bought } }, restocksAt }
+-- still works. Send it at night start, at each window change and after every BuyDealerFood, bought or not, so the
+-- rows and the countdown stay true. nil when the cart leaves at dawn: the screen closes if it is open.
 function UI.dealer.setStock(stock: Types.DealerStock?)
 	if dealerScreen then
 		dealerScreen:setStock(stock)
@@ -1538,6 +1700,42 @@ function UI.potions.giftResult(kind: string, id: string?, count: number)
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The Cat Collector (F63, data-model section 12b)
+----------------------------------------------------------------------------------------------------
+
+UI.collector = {}
+
+-- From CollectorOffer(catUid, offer, endsAt, traded): his visit to your cafe. A tag over his CollectorSpot shows the
+-- time he has left (endsAt is server os.time()) and his card opens when you walk within 12 studs of him: the cat he
+-- wants (looked up in state.cats), his offer as pictures and Trade / No thanks, which fire events.answerCollector.
+-- catUid "" ends the visit and closes the card; `traded` true plays uiTrade. Needs UI.richTip.bind(plot) for the
+-- spot.
+function UI.collector.offer(
+	catUid: string,
+	offer: Types.CollectorOffer?,
+	endsAt: number,
+	traded: boolean?
+)
+	if collectorScreen then
+		collectorScreen:offer(catUid, offer, endsAt, traded)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Quests and achievements (F73, quests.md sections 1 and 7)
+----------------------------------------------------------------------------------------------------
+
+UI.quests = {}
+
+-- From QuestResult(paid): what a quest, a full set or an achievement claim paid. The server's toast already says it,
+-- so the window only plays the claim sound.
+function UI.quests.result(paid: { string })
+	if questsScreen then
+		questsScreen:result(paid)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Codes and the Codes Cat (F65, data-model section 11d)
 ----------------------------------------------------------------------------------------------------
 
@@ -1602,10 +1800,19 @@ UI.richTip = {}
 -- os.time()) show a tip, with Collect firing events.claimRichTip within 12 studs. When a claimed tip clears
 -- (RichTipOutcome "claimed") "+$X" rises from the coin pile and a toast says so, so the server needs no Notify for
 -- it; a missed one only toasts "Rich tip missed".
+-- F61: the same plot's tip piles too. While its TipPiles is above 0 and the player stands on the plot, a green
+-- "💰 Collect $120" pill floats over the till and fires events.collectTips.
+-- F63: the same plot's CollectorSpot, where the Cat Collector's tag and card follow UI.collector.offer.
 -- Call it again when the player gets a new plot; nil stops watching.
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
+	end
+	if tillTips then
+		tillTips:bind(plot)
+	end
+	if collectorScreen then
+		collectorScreen:bind(plot)
 	end
 end
 
@@ -1924,17 +2131,20 @@ local promptConnections: { RBXScriptConnection } = {}
 -- the active stray's FleeingUntil (v0.5), and its PickUp, Returning and Dropped (F67: a walking cat that gets home
 -- turns back into one that needs the circles)
 local strayWatch: { RBXScriptConnection } = {}
--- v0.5.1 (reviewer S44): the player who missed a stray tries again StraySelfRetrySeconds after it stops
+-- v0.5.1 (reviewer S44), F57: when this player may try a stray again after their own miss. The server sends it with
+-- CatchResult (3, 6, then 10 s after the stray stops, by misses in a row; only the server knows the streak, S87).
+-- Without it (a server before F57) the wait is StraySelfRetrySeconds after the stop, from the miss time.
 local SELF_RETRY: number = Config.StraySelfRetrySeconds
-local missedAt: { [string]: number } = {} -- strayId -> server time of this player's last miss on it
+type Retry = { missedAt: number, retryAt: number? }
+local retries: { [string]: Retry } = {} -- strayId -> this player's last miss on it
 
 -- When this player may try the stray again, or nil when they never missed it.
 local function retryAtFor(strayId: string?, fleeingUntil: number?): number?
-	local missed = if strayId then missedAt[strayId] else nil
-	if missed == nil then
+	local retry = if strayId then retries[strayId] else nil
+	if retry == nil then
 		return nil
 	end
-	return math.max(fleeingUntil or 0, missed) + SELF_RETRY
+	return retry.retryAt or math.max(fleeingUntil or 0, retry.missedAt) + SELF_RETRY
 end
 
 function UI.catch.show(info: Types.CatchInfo)
@@ -1983,10 +2193,10 @@ end
 
 -- Net circles (F26, data-model section 10). CatchSchedule(strayId, circles, windows) -> showCircles: the prompt
 -- card makes way for the circles and every press fires events.catchPressed(strayId, index, grade).
--- CatchResult(strayId, grades, success, charmGain) -> showGrades: each circle shows the server's grade. A catch
--- shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It got
--- away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the player
--- is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
+-- CatchResult(strayId, grades, success, charmGain, retryAt) -> showGrades: each circle shows the server's grade. A
+-- catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It
+-- got away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the
+-- player is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
 function UI.catch.showCircles(
 	strayId: string,
 	circleList: { Types.CatchCircle },
@@ -2024,7 +2234,7 @@ end
 local SLIPPED_TEXT = "It got away! Chase it!"
 
 -- The end of a catch: on a miss the toast, then the card comes back while the prompt is still up.
-local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
+local function finishCatch(strayId: string, outcome: CatchCircles.Outcome, retryAt: number?)
 	local screen = circles
 	if not screen then
 		return
@@ -2032,12 +2242,13 @@ local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
 	local current = activeInfo
 	if not outcome.success then
 		local now = Workspace:GetServerTimeNow()
-		for id, at in missedAt do
-			if now - at > 120 then
-				missedAt[id] = nil
+		for id, retry in retries do
+			if now - retry.missedAt > 120 and (retry.retryAt or 0) < now then
+				retries[id] = nil
 			end
 		end
-		missedAt[strayId] = now
+		local given = if type(retryAt) == "number" and retryAt == retryAt then retryAt else nil
+		retries[strayId] = { missedAt = now, retryAt = given }
 		if current and current.strayId == strayId then
 			current.retryAt = retryAtFor(strayId, current.fleeingUntil)
 		end
@@ -2057,18 +2268,20 @@ local function finishCatch(strayId: string, outcome: CatchCircles.Outcome)
 	end)
 end
 
--- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss.
+-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. retryAt (F57, miss only) is
+-- the server time this player may try the stray again; the card reads "Catch your breath..." until then.
 function UI.catch.showGrades(
 	strayId: string,
 	grades: { Types.CircleGrade },
 	success: boolean,
-	charmGain: number?
+	charmGain: number?,
+	retryAt: number?
 )
 	finishCatch(strayId, {
 		grades = grades,
 		success = success,
 		charmGain = charmGain,
-	})
+	}, retryAt)
 end
 
 function UI.catch.hideCircles()
@@ -2543,7 +2756,8 @@ UI.clock = {}
 local clockConnections: { RBXScriptConnection } = {}
 
 -- phaseEndsAt is server os.time() seconds (the Clock folder's PhaseEndsAt). The chip counts down
--- against Workspace:GetServerTimeNow(), so nothing here reads the device clock.
+-- against Workspace:GetServerTimeNow(), so nothing here reads the device clock. F60 (data-model section 8): when
+-- night falls on a player with an empty bowl, one toast says night bait comes in half the time.
 function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	local previous = clockPhase
 	clockPhase = phase
@@ -2556,9 +2770,23 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 			SUNRISE_HOLD
 		)
 	end
+	if
+		previous == "day"
+		and phase == "night"
+		and baitView == nil
+		and (state.upgradeLevels.lure_bowl or 0) >= 1
+	then
+		UI.toast(
+			Theme.icons.moon .. " Night bait! Food in your bowl now brings a cat in half the time.",
+			"info"
+		)
+	end
 	watchDusk(phase, phaseEndsAt)
 	if hud then
 		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })
+	end
+	if baitScreen then
+		baitScreen:setNight(phase == "night")
 	end
 	if dealerScreen then
 		dealerScreen:setNight(phase == "night")
@@ -2578,6 +2806,12 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if codesScreen then
 		codesScreen:setNight(phase == "night")
 	end
+	if questsScreen then
+		questsScreen:setNight(phase == "night")
+	end
+	if dailyTreatScreen then
+		dailyTreatScreen:setNight(phase == "night")
+	end
 end
 
 function UI.clock.clear()
@@ -2586,6 +2820,9 @@ function UI.clock.clear()
 	duskEndsAt = nil
 	if hud then
 		hud:setClock(nil)
+	end
+	if baitScreen then
+		baitScreen:setNight(false)
 	end
 	if dealerScreen then
 		dealerScreen:setNight(nil)

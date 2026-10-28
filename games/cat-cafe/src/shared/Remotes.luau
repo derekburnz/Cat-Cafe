@@ -16,14 +16,15 @@ Remotes.ClientToServer = {
 	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail
 	"CheckIn", -- ()  carrying and within CheckInRangeStuds of own plot Door
-	"DropCat", -- ()  carrying: lets the cat go, at the feet in a catching area, else back to its own area
+	"DropCat", -- ()  carrying, areas open: puts the cat down to walk back to where it was caught (F67)
 	"PickUpCat", -- (strayId: string)  v0.8 F56: a Dropped stray, area unlocked, 10 studs, not carrying, no lock held,
 	-- GrabCooldownSeconds; the first valid call wins and starts the carry (data-model section 10c)
 	"PlaceCat", -- (uid: string, spotId: string)
 	"UnplaceCat", -- (uid: string)
 	"EquipBest", -- ()  places owned cats on open spots for the highest rate (shared/EquipBest.plan)
 	"UnequipAll", -- ()  rests every working cat in the cat room (shared/EquipBest.restAll)
-	"SellCat", -- (uid: string)
+	"SellCat", -- (uid: string)  not the last cat, not locked (F62)
+	"LockCat", -- (uid: string, locked: boolean)  F62: owns uid; a locked cat cannot be sold or traded
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)
 	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier
@@ -35,10 +36,12 @@ Remotes.ClientToServer = {
 	"TutorialAdvance", -- (step: number)
 	"RequestSync", -- ()  asks for a full ProfileSync (client UI just loaded)
 	"Travel", -- (destination: string)  "home" or an AreaId the player's tier opens; not while carrying or mid catch
-	"BuyDealerFood", -- (slot: number, lureId: string)  night, near the cart, the slot still holds lureId (S42)
+	"BuyDealerFood", -- (lureId: string, window: number)  F59: night, near the cart, a dealer food, `window` the
+	-- current one (a buy sent across a roll is refused, S42), fewer bought this window than its amount
 	"Tackle", -- ()  v0.11 F74 (data-model section 10c, shared/Shove): in an unlocked catching area, areas open, not
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
+	"CollectTips", -- ()  F61: standing on the caller's own plot with at least one tip pile waiting; pays them all
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
@@ -59,6 +62,17 @@ Remotes.ClientToServer = {
 	-- the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
+	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, within
+	-- CollectorRangeStuds of him; on accept the cat he asks for is still owned, resting, unlocked and not the
+	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")
+	"ClaimQuest", -- (kind: "daily" | "weekly", slot: number)  F73: slot 1 to QuestDailyCount or QuestWeeklyCount,
+	-- finished and unclaimed; pays it and, when it is the set's last, the set prize; answered with QuestResult
+	"RerollQuest", -- (kind: "daily" | "weekly", slot: number)  F73: the day's or week's free swap unused, the quest
+	-- neither finished nor claimed; another eligible quest from the same pool, counting from now
+	"ClaimAchievement", -- (achievementId: string)  F73: a known achievement, met and unclaimed; answered with
+	-- QuestResult
+	"ClaimDailyTreat", -- ()  F70: a Daily Treat stamp due (a later UTC day than the last claim); pays the next day
+	-- of the card and answers with ProfileSync (`dailyTreat`)
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 }
@@ -73,14 +87,17 @@ Remotes.ServerToClient = {
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a strayId or a rescueSpotId;
 	-- retry keeps the prompt open. For a stray it only refuses GrabBegin; the catch outcome is CatchResult.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
-	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number)  grades
-	-- up to and including the first Miss; after a miss the stray sprints off and anyone may try again (v0.5)
+	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
+	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may
+	-- try again (v0.5). retryAt (server time, miss only) is when this player may try that stray again (F57: 3, 6
+	-- then 10 s after it stops, by their miss streak).
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean)
 	-- after every judged press and when the attempt ends; refusals of RescueBegin come as GrabResult
 	"TravelResult", -- (destination: string, ok: boolean, reason: string?)  answers every Travel the limiter lets through
 	"PlotOpened", -- (position: Vector3, plotIndex: number)  fired to everyone when a For Rent plot gets an owner
-	"DealerStock", -- (stock: Types.DealerStock?)  this player's three slots at night, nil by day; after every buy
+	"DealerStock", -- (stock: Types.DealerStock?)  this player's amounts and buys of each food at night (F59), nil by
+	-- day; after every buy
 	"TipJarState", -- (state: Types.TipJarState)  when the profile loads and after every claim (F47)
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
@@ -97,6 +114,11 @@ Remotes.ServerToClient = {
 	-- succeeded; their client pushes its own character CatchBurstStuds along direction (flat, unit). Not a shove
 	"MysteryGiftResult", -- (kind: "potion" | "lure" | "fish" | "spin", id: string?, count: number)  F64: what the
 	-- owner's opened Mystery gift held, for the gift card and the ribbon pop
+	"CollectorOffer", -- (catUid: string, offer: Types.CollectorOffer?, endsAt: number, traded: boolean?)  F63: the
+	-- owner's Cat Collector card: the cat he wants, his offer (a Catalog.collectorOffers row; the zone crate is the
+	-- cat's area's) and the server time he leaves. catUid "" ends the visit, `traded` true when it ended in a trade
+	"QuestResult", -- (paid: { string })  F73: what a quest, a set or an achievement claim paid ("+$300", "2 spins"),
+	-- after the server's toast with the same words, for the Quests window's own claim effect
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 }

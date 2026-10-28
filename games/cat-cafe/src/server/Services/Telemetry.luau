@@ -65,6 +65,11 @@ export type CustomEvent =
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "potion_used" -- F64: potion id, tier
 	| "mystery_gift" -- F64: "opened" or "missed", kind:id ("potion:tip_potion", "spin"), tier; the value is the count
+	| "collector_visit" -- F63: "arrived", "traded", "declined", "timeout" or "withdrawn", catId:variant, offer value
+	| "quest_claimed" -- F73: kind ("daily" or "weekly"), quest id, slot ("<slot> auto" when a reset paid it)
+	| "quest_set" -- F73: kind, when the last quest of a full set is claimed and the set prize paid
+	| "achievement_claimed" -- F73: achievement id, size
+	| "daily_treat" -- F70: the day stamped (1 to 7)
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

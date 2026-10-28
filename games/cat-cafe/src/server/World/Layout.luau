@@ -13,12 +13,15 @@ export type Point = { x: number, y: number, z: number, rotY: number?, zone: stri
 -- A cafe table: its point, and `lane`, the plot-local z of the walkway beside its row that customers walk along to
 -- reach its chairs (Layout.plot.tables).
 export type TableSpot = { x: number, y: number, z: number, lane: number }
+-- A cat bed (F79): its id (the sleep spot's), point, turn about Y and the tier it comes with.
+export type BedSpot = { id: string, x: number, y: number, z: number, rotY: number, tier: number }
 -- An axis-aligned rectangle on the ground, world or plot space depending on where it is used.
 export type Rect = { x1: number, z1: number, x2: number, z2: number }
 -- An archway over an entrance (WorldBuilder.buildArch): the alley kit's `asset` when there is one.
 export type Arch = { x: number, z: number, span: number, label: string, asset: string? }
 -- A rescue trap: the prop stands at (x, floor, z) turned by rotY; the stuck cat sits at Layout.stuckPoses[prop].
--- A trap built into an area's kit set has no prop: the stuck cat sits right at (x, floor + y, z) turned by rotY.
+-- A trap built into an area's kit set has no prop: the stuck cat sits at Layout.setStuckPoses[trap] on top of
+-- (x, floor + y, z) turned by rotY.
 -- `trap` is the TrapType (data-model section 9): a "tree" is shaken then caught, every other trap is the bar.
 export type RescuePoint = {
 	prop: string?,
@@ -69,16 +72,16 @@ local Layout = {}
 -- from assets/cat-cafe/exports/manifest.json, 12 numbers for CFrame.new(table.unpack(pose)). Plain numbers keep
 -- this module free of Roblox types. Placeholders share the real props' pivots, so one set fits both.
 Layout.stuckPoses = {
-	-- The traps (F27). Head first into the bin, back legs and tail out of the top.
-	CatCafe_Alley_TrashBin = { 0, 2.05, -0.8, 1, 0, 0, 0, 0, -1, 0, 1, 0 },
-	-- Wedged between the bags, front half showing.
-	CatCafe_Alley_GarbageBags = { -0.45, 0, 0.4, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
-	-- Draped across the shakeable branch between the trunk and the leaf tuft at its tip, facing the tree's front.
-	-- The manifest's pose (along the branch, head toward the trunk) put the longer cats' heads and tails in the
-	-- trunk and the leaves.
-	CatCafe_Park_RescueTree = { -2.35, 3.96, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
-	-- Head first into the can under the lid.
-	CatCafe_Park_TrashCan = { 0, 1.75, -0.8, 1, 0, 0, 0, 0, -1, 0, 1, 0 },
+	-- The traps (F27), fitted by Animation-Engineer on the current models (stuck-placements.md, 2026-10-28) so
+	-- the wriggles (Logic.stuckStyle, #545) read: back end out of the bin, can and bags, upside down on the tree.
+	-- Nose first into the bin under the open lid: back end, back legs and tail out of the top.
+	CatCafe_Alley_TrashBin = { 0, 2.55, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
+	-- Diving nose first into the bag pile, back end up and the back legs off the ground.
+	CatCafe_Alley_GarbageBags = { -0.4, 0, -0.45, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
+	-- Hanging upside down under the shakeable branch, all four paws round it, facing the tip.
+	CatCafe_Park_RescueTree = { -2.2, 4.1, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 },
+	-- Nose first into the can under the lid, back end out of the top.
+	CatCafe_Park_TrashCan = { 0, 2.05, -0.65, -1, 0, 0, 0, 0, 1, 0, 1, 0 },
 	-- Stand-ins for the provisional traps of the grayboxes.
 	-- Clings to the low branch, rolled 20 degrees toward the trunk.
 	CatCafe_Alley_StuckTree = { -1.4, 4.4, 0, 0.9397, -0.342, 0, 0.342, 0.9397, 0, 0, 0, 1 },
@@ -86,6 +89,20 @@ Layout.stuckPoses = {
 	CatCafe_Alley_StuckBox = { 0, 0, -0.6, -1, 0, 0, 0, 1, 0, 0, 0, -1 },
 	-- Body inside the outlet, head poking out.
 	CatCafe_Alley_Drainpipe = { 0, 0, -2, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+} :: { [string]: { number } }
+
+-- Where the stuck cat's pivot sits at a trap built into an area set (setTrap), in the spot's space: the spot at
+-- (x, floor + y, z) turned by rotY, the set's turn plus the piece's. By TrapType; each fits both spots of its
+-- type, since they are the same piece. `tree` only meets the Woods' tree house branch: the Park's trees are props.
+-- Animation-Engineer's numbers (stuck-placements.md, 2026-10-28), 12 numbers like stuckPoses.
+Layout.setStuckPoses = {
+	shed = { 0, 0, 0.75, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- head first through the jammed door (+Z), back end out
+	gutter = { 0, 1.25, 0.1, -1, 0, 0, 0, -1, 0, 0, 0, 1 }, -- on its back across the gutter, head over the front edge
+	hollow_log = { 3.5, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 }, -- head first into the open end (+X), back end out
+	bramble_bush = { 0, 3.9, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 }, -- on its back on top of the bush, legs up
+	tree = { 0.5, -0.55, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 }, -- hanging under the tree house branch, facing its tip
+	grate = { 0, 0.45, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 }, -- nose down through the grate, back end up
+	drain_pipe = { 0, 0.55, 0.5, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- head first into the mouth (-Z side), back end out
 } :: { [string]: { number } }
 
 local W = Config.World
@@ -276,6 +293,10 @@ Layout.plot = {
 
 	-- Where customers stand to order, in front of the counter (world-and-feel.md section 4).
 	orderPoint = { x = 0, y = 0, z = halfD - 6 } :: Point,
+	-- Where the Cat Collector waits (F63, data-model section 12b: "at the counter"): beside the order point, clear of
+	-- the queue's 3 studs either side of it, facing into the room so the owner sees him from the door. AnswerCollector
+	-- counts CollectorRangeStuds from here.
+	collectorSpot = { x = 4.5, y = 0, z = halfD - 6 } :: Point,
 
 	-- Where cats without a job nap, so the collection is on show (world-and-feel.md section 4, F37): the two
 	-- front window corners, beside the right cat tree and at the counter's right end. Highest rating first.
@@ -285,6 +306,18 @@ Layout.plot = {
 		{ x = 15.5, y = 0, z = 3.5, rotY = -90 },
 		{ x = 11, y = 0, z = 11, rotY = 180 },
 	} :: { Point },
+
+	-- The cat beds (F79, data-model 12c v0.13.13, Model-Agent's fit in #511): a CatCafe_Furniture_CatBed at each from
+	-- its tier, out by day as furniture, turned rotY degrees so its front (-Z) faces into the room. Two at Tier 3,
+	-- four at Tier 4 and six at Tier 5, exactly where the working slots outrun the cat trees' four pedestals.
+	beds = {
+		{ id = "bed_1", x = -16.3, y = 0, z = -12.4, rotY = -135, tier = 3 },
+		{ id = "bed_2", x = 16.3, y = 0, z = -12.4, rotY = 135, tier = 3 },
+		{ id = "bed_3", x = -13.6, y = 0, z = -12.4, rotY = 180, tier = 4 },
+		{ id = "bed_4", x = 16.4, y = 0, z = -1.5, rotY = 90, tier = 4 },
+		{ id = "bed_5", x = -16.4, y = 0, z = 8.5, rotY = -90, tier = 5 },
+		{ id = "bed_6", x = 16.4, y = 0, z = 8.5, rotY = 90, tier = 5 },
+	} :: { BedSpot },
 }
 
 -- Shared areas, in world space. y is the floor top.
@@ -300,8 +333,8 @@ local GH = W.SideGateHalfWidth -- the Woods and Sewer gate openings, z -GH to GH
 
 -- Two lane spawn points behind every cafe, in plot order: plot p owns alley points 2p - 1 and 2p, so the tutorial
 -- stray waits right outside a beginner's own yard gate. Then two nooks at each end of each back alley (s = -1 west,
--- 1 east), where Epic and rarer strays go: 6.5 studs off the south end walls and 8.5 off the north ones (the east
--- north end's fire escape is 5 deep), so at least 2 inside the roam rects, and at least 10 studs from every lane
+-- 1 east), where Epic and rarer strays go: 6.5 studs off the south end walls and 8.5 off the north ones (clear of
+-- the north ends' mural and building), so at least 2 inside the roam rects, and at least 10 studs from every lane
 -- point (town-layout-v3.md 7e's suggested points, moved out from the end walls).
 local NOOKS = { { 70, 117 }, { 76, 117 }, { 82, -119 }, { 68, -119 } }
 local function alleySpawnPoints(): { Point }
@@ -355,12 +388,13 @@ local function onEndWall(
 	}
 end
 
--- Building backs (30.6 wide) along each back alley's outer wall, so the lane reads as the backs of buildings rather
--- than a bare wall (world-and-feel.md section 2): three either side of the Woods or Sewer gate, from clear of the
--- end wall's piece to clear of the gate's model (42 studs wide with its pillars), evenly spaced.
+-- Buildings (30.6 wide) along each back alley's outer wall, so the lane reads as a street of different buildings
+-- rather than a bare wall (world-and-feel.md section 2; Model-Agent #535 made the repeated backs and the staff door
+-- into eight full buildings for Derek): three either side of the Woods or Sewer gate, from clear of the end wall's
+-- piece to clear of the gate's model (42 studs wide with its pillars), evenly spaced.
 local BACK_WIDTH = 30.6
 local GATE_CLEAR = 21.2
-local END_CLEAR = 5 -- the deepest end wall piece, the fire escape
+local END_CLEAR = 5 -- the end wall pieces' room (the fire escape that stood there was 5 deep); the slots stay put
 local BACK_SLOTS: { number } = (function(): { number }
 	local first, last = AS + END_CLEAR + BACK_WIDTH / 2, -GATE_CLEAR - BACK_WIDTH / 2
 	local count = math.floor((last - first) / BACK_WIDTH) + 1
@@ -374,33 +408,35 @@ local BACK_SLOTS: { number } = (function(): { number }
 	return slots
 end)()
 local GATE_SLOT = #BACK_SLOTS // 2 -- the last back south of the gate; the next one is the first north of it
--- The fire escape's first landing (top 9.35) is reached from the crate stack's tall column (top 7.7), which
--- stands just past the landing's open end at local x -8 (asset manifest, ledges_roblox).
+-- The Warehouse's fire escape's first landing (top 9.35) is reached from the crate stack's tall column (top 7.7),
+-- which stands just past the landing's open end at local x -8 (asset manifest, ledges_roblox).
 local CRATES_ALONG, CRATES_OUT = -12, -2.8
+-- A building pivots on its back plane with its body 3 deep, so it stands this far out over the outer wall (1 thick)
+-- and its facade lands where the old backs' faces were: the back plane stays inside the side area's wall. On the
+-- end walls it stands END_OUT out, its back plane 0.25 inside the Park's or the Neighbourhood's wall the same way,
+-- not on the wall's far face where the two would flicker (reviewer N255).
+local BUILDING_OUT, END_OUT = 2.25, 0.75
+
+local function building(name: string): string
+	return "CatCafe_Alley_Building_" .. name
+end
 
 local function alleyDressing(): { Prop }
 	local props: { Prop } = {}
 	local function add(prop: Prop)
 		table.insert(props, prop)
 	end
-	-- south to north; the loose props and rescue spots below stand in front of windows and doors, never a fire
-	-- escape, and no fire escape's crates reach the gate
+	-- south to north (Model-Agent's rows); the loose props and rescue spots below stand in front of windows and
+	-- doors, never the Warehouse's fire escape, and no Warehouse's crates reach the gate
 	local rows = {
-		[-1] = { "WallWindows", "FireEscape", "WallWindows", "WallDoor", "WallWindows", "WallDoor" },
-		[1] = {
-			"WallWindows",
-			"FireEscape",
-			"WallWindows",
-			"WallDoor",
-			"FireEscape",
-			"WallWindows",
-		},
+		[-1] = { "Bakery", "Warehouse", "Townhouses", "MusicShop", "Apartments", "Grocer" },
+		[1] = { "Grocer", "Warehouse", "Apartments", "NarrowHouses", "Townhouses", "MusicShop" },
 	}
 	for _, side in { -1, 1 } do
 		for slot, z in BACK_SLOTS do
-			local piece = rows[side][slot] or "WallWindows"
-			add(onOuterWall("CatCafe_Alley_" .. piece, side, z))
-			if piece == "FireEscape" then
+			local piece = rows[side][slot] or "Townhouses"
+			add(onOuterWall(building(piece), side, z, 0, BUILDING_OUT))
+			if piece == "Warehouse" then
 				add(onOuterWall("CatCafe_Alley_CrateStack", side, z, CRATES_ALONG, CRATES_OUT))
 			end
 		end
@@ -419,14 +455,20 @@ local function alleyDressing(): { Prop }
 			x = side * (MID - 0.4),
 			z = if side < 0 then BACK_SLOTS[5] else BACK_SLOTS[3],
 		})
-		-- the south dead ends: a staff door
-		add(onEndWall("CatCafe_Alley_WallDoor", side, -1))
+		-- the south dead ends close on a building, where a staff door stood
+		add(
+			onEndWall(
+				building(if side < 0 then "NarrowHouses" else "ClockHouse"),
+				side,
+				-1,
+				0,
+				END_OUT
+			)
+		)
 	end
-	-- The north dead ends take what stood in the Alley Square: the mural on the west, the fire escape with its
-	-- crates on the east (its crates reach the east alley's inner edge, the landing's open end being on that side).
+	-- The north dead ends: the mural from the old Alley Square on the west, the Bakery on the east.
 	add(onEndWall("CatCafe_Alley_Mural", -1, 1))
-	add(onEndWall("CatCafe_Alley_FireEscape", 1, 1))
-	add(onEndWall("CatCafe_Alley_CrateStack", 1, 1, CRATES_ALONG, CRATES_OUT))
+	add(onEndWall(building("Bakery"), 1, 1, 0, END_OUT))
 	return props
 end
 
@@ -445,16 +487,15 @@ Layout.alley = {
 		{ x1 = -AO - 1, z1 = GH, x2 = -AO, z2 = AN + 1 },
 		{ x1 = AO, z1 = AS - 1, x2 = AO + 1, z2 = -GH },
 		{ x1 = AO, z1 = GH, x2 = AO + 1, z2 = AN + 1 },
-		-- the end walls, carried on to the Park's and the Neighbourhood's side walls so the town is closed between
-		-- them (the area walls are 1 thick on their edges)
+		-- the south end walls, carried on to the Park's side walls so the town is closed between them (the area walls
+		-- are 1 thick on their edges). The Neighbourhood's near wall reaches past both back alleys since v3.2 (280
+		-- wide), so it closes their north ends itself.
 		{ x1 = -AO, z1 = AS - 1, x2 = -W.ParkWidth / 2 - 0.5, z2 = AS },
 		{ x1 = W.ParkWidth / 2 + 0.5, z1 = AS - 1, x2 = AO, z2 = AS },
-		{ x1 = -AO, z1 = AN, x2 = -W.NeighbourhoodWidth / 2 - 0.5, z2 = AN + 1 },
-		{ x1 = W.NeighbourhoodWidth / 2 + 0.5, z1 = AN, x2 = AO, z2 = AN + 1 },
 	},
-	-- Strays keep off the strip along the outer walls where the building backs, fire escapes and crate stacks stand
-	-- (up to 5 studs deep), 4 off the south end walls (a staff door) and 6 off the north ones, clear of the east
-	-- north end's fire escape and its crates (reviewer S84); the nooks stay 2 or more inside.
+	-- Strays keep off the strip along the outer walls where the buildings, the Warehouses' fire escapes and the crate
+	-- stacks stand (up to 5 studs deep), 4 off the south end walls and 6 off the north ones, clear of the end walls'
+	-- buildings and the mural (reviewer S84); the nooks stay 2 or more inside.
 	roam = {
 		{ x1 = -AO + 5, z1 = AS + 4, x2 = -AI, z2 = AN - 6 },
 		{ x1 = AI, z1 = AS + 4, x2 = AO - 5, z2 = AN - 6 },
@@ -480,13 +521,13 @@ Layout.alley = {
 			rotY = -90,
 		},
 	} :: { RescuePoint },
-	-- The building backs, crate stacks, lights and laundry from alleyDressing, then the loose props in front of
-	-- them: clear of the backs' depth (2.7 windows, 3.4 door canopy, 5 fire escape) and of the lane spawn points.
+	-- The buildings, crate stacks, lights and laundry from alleyDressing, then the loose props in front of them: clear
+	-- of the buildings' fronts and the Warehouses' fire escapes, and of the lane spawn points.
 	props = (function(): { Prop }
 		local props = alleyDressing()
 		for _, prop in
 			{
-				-- West back alley: a dumpster corner at each end, a bin by the staff door, a crate, puddles
+				-- West back alley: a dumpster corner at each end, a bin, a crate, puddles
 				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 4.8, z = -104, rotY = 90 },
 				{ asset = "CatCafe_Alley_GarbageBags", x = -AO + 4.6, z = -111, rotY = 90 },
 				{ asset = "CatCafe_Alley_Dumpster", x = -AO + 3, z = AN - 7.5, rotY = 90 },
@@ -494,7 +535,7 @@ Layout.alley = {
 				{ asset = "CatCafe_Alley_Crate", x = -AO + 4.5, z = 55 },
 				{ asset = "CatCafe_Alley_Puddle", x = -AI - 13, z = -40 },
 				{ asset = "CatCafe_Alley_Puddle", x = -AI - 11, z = 40 },
-				-- East back alley: a dumpster corner at the south end, crates by the fire escape at the north end
+				-- East back alley: a dumpster corner at the south end, crates by the Bakery at the north end
 				{ asset = "CatCafe_Alley_Dumpster", x = AO - 4.8, z = -104, rotY = -90 },
 				{ asset = "CatCafe_Alley_GarbageBags", x = AO - 4.6, z = -111, rotY = -90 },
 				{ asset = "CatCafe_Alley_TrashCan", x = AO - 3.8, z = -28 },
@@ -545,8 +586,9 @@ local function setPoints(
 	return points
 end
 
--- A trap built into an area kit set (a `trap_` spot): no prop of its own, the stuck cat at the spot, turned with
--- the set and by `pieceTurn`, the trap piece's own turn in the set's space (a v3.2 spot's fifth number).
+-- A trap built into an area kit set (a `trap_` spot): no prop of its own, the stuck cat by Layout.setStuckPoses at
+-- the spot, turned with the set and by `pieceTurn`, the trap piece's own turn in the set's space (a v3.2 spot's
+-- fifth number).
 local function setTrap(
 	cx: number,
 	cz: number,
@@ -657,108 +699,122 @@ Layout.park = {
 } :: AreaSpec
 
 -- Areas 3 to 5 have their kit sets (Model-Agent #401, area-sets.md): the strays' spawn points are the sets' cat
--- spots and the Woods' and Sewer's traps are built into the sets. The graybox paths and props below stand in only
--- while a set's art is missing. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the street's north end,
--- the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
+-- spots and their traps are built into the sets. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the
+-- street's north end, the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
+--
+-- The Neighbourhood at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Neighbourhood_SetV32
+-- (#505, area-sets.md "The Neighbourhood (v3.2)") fills the 280 x 280 floor behind the same gate. Whisker Lane winds
+-- round two blocks of houses, each with one gap, past the village green to the playground hub, and Paw Crescent loops
+-- round the far third to the corner shop, with the back gardens and the allotments behind it. Its cat spots are `near`
+-- on the gate half and `deep` on the far half; its two sheds and two gutters are built into it, one of each deep.
 local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
-local NHW, NHD = W.NeighbourhoodWidth / 2, W.NeighbourhoodDepth / 2
--- The Neighbourhood (areas-and-stations.md, design #240): the gate opens onto Whisker Lane, which runs 58 studs
--- north to a square loop road around the playground hub; five houses ring the loop and two back gardens sit in the
--- far corners. Offsets below are from the area's center.
-local HUB = 18 -- the hub's center, north of the area's center
-local LOOP, ROAD = 30, 8 -- the loop road's outer half size and its width
-local LS, LN = NZ + HUB - LOOP, NZ + HUB + LOOP -- the loop's south and north edges
 local NTURN = townTurn(NX, NZ, nil, W.NeighbourhoodGateZ)
 Layout.neighbourhood = {
 	floorY = 0.1,
 	center = { x = NX, y = 0, z = NZ },
-	halfWidth = NHW,
-	halfDepth = NHD,
+	halfWidth = W.NeighbourhoodWidth / 2,
+	halfDepth = W.NeighbourhoodDepth / 2,
 	gateZ = W.NeighbourhoodGateZ,
-	paths = {
-		{ x1 = NX - 5, z1 = NZ - NHD, x2 = NX + 5, z2 = LS }, -- Whisker Lane
-		{ x1 = NX - LOOP, z1 = LS, x2 = NX + LOOP, z2 = LS + ROAD }, -- the loop, south
-		{ x1 = NX - LOOP, z1 = LN - ROAD, x2 = NX + LOOP, z2 = LN }, -- north
-		{ x1 = NX - LOOP, z1 = LS + ROAD, x2 = NX - LOOP + ROAD, z2 = LN - ROAD }, -- west
-		{ x1 = NX + LOOP - ROAD, z1 = LS + ROAD, x2 = NX + LOOP, z2 = LN - ROAD }, -- east
-	},
-	set = "CatCafe_Neighbourhood_Set",
-	-- The set's cat spots, all but the shed (the trap) and the three flower beds under 4 studs from their porches.
-	spawnPoints = setPoints(NX, NZ, NTURN, 0.1, {
-		-- porch steps
-		{ 19.6, 1.0, -58.8 },
-		{ -19.6, 1.0, -53.2 },
-		{ 19.6, 1.0, -33.3 },
-		{ -19.6, 1.0, -23.2 },
-		{ 7.3, 1.0, 54.6 },
-		{ -24.71, 1.0, 44.39 },
-		{ 28.3, 1.0, 40.1 },
-		{ -34.56, 1.0, 16.75 },
-		{ 32.81, 1.0, 6.8 },
-		-- flower beds
-		{ 16.3, 0.7, -62.5 },
-		{ -16.3, 0.7, -49.5 },
-		{ -16.3, 0.7, -19.5 },
-		{ -19.8, 0.7, 45.1 },
-		{ 28.16, 0.7, 35.14 },
-		{ -31.95, 0.7, 20.97 },
-		-- the hub: the tyre, under the slide, the sandpit
-		{ -7.65, 0.32, 24.1 },
-		{ 9.68, 0.32, 23.12 },
-		{ 8.39, 0.87, 12.97 },
-		-- the back gardens
-		{ -60.5, 1.73, 58 },
-		{ 58, 0, 56 },
-		-- driveways, the bins and the ice cream van
-		{ -18, 0, -41.5 },
-		{ 16, 0, -41.5 },
-		{ -16, 0, -11.5 },
-		{ 16, 0, -11.5 },
-		{ -30.6, 0.3, -12.5 },
-		{ -22.41, 0.24, 14.08 },
-	}),
+	set = "CatCafe_Neighbourhood_SetV32",
+	spawnPoints = (function(): { Point }
+		local points = setPoints(NX, NZ, NTURN, 0.1, {
+			{ -110.2, 1, -98.9 }, -- porch steps
+			{ -58.2, 1, -98.9 },
+			{ -1.7, 1, -98.9 },
+			{ 77.8, 1, -98.9 },
+			{ -89.8, 1, -59.1 },
+			{ -11.8, 1, -59.1 },
+			{ 14.2, 1, -59.1 },
+			{ 98.2, 1, -59.1 },
+			{ -98.2, 1, -32.9 },
+			{ 16.3, 1, -32.9 },
+			{ 63.8, 1, -32.9 },
+			{ 120.3, 1, -32.9 },
+			{ -77.5, 0.7, -102.2 }, -- flower beds
+			{ 23.5, 0.7, -102.2 },
+			{ 110.5, 0.7, -102.2 },
+			{ -122.5, 0.7, -55.8 },
+			{ -67.5, 0.7, -55.8 },
+			{ 68.5, 0.7, -55.8 },
+			{ -10.5, 0.7, -36.2 },
+			{ 93.5, 0.7, -36.2 },
+			{ 120, 0, -92 }, -- a front garden
+			{ -121.5, 0.29, -35 }, -- the parked cars
+			{ 73, 0.34, -119.2 },
+			{ -40, 1.65, -124.4 }, -- the bus stop
+			{ 16.2, 0, -128 }, -- the post box
+			{ 62, 0, -123.6 }, -- the verge benches
+			{ -78, 0, -123.6 },
+			{ -24, 0, -100.8 }, -- the bins
+		}, "near")
+		for _, point in
+			setPoints(NX, NZ, NTURN, 0.1, {
+				{ -59.1, 1, 12.8 }, -- porch steps
+				{ -59.1, 1, 48.8 },
+				{ 31.1, 1, 48.7 },
+				{ -53.88, 1, 92.28 },
+				{ -36.9, 1, 108.96 },
+				{ 29.34, 1, 82.79 },
+				{ 14.76, 0.7, 101.02 }, -- flower beds
+				{ -8, 0.62, 34 },
+				{ -78, 0, 132 }, -- a front garden
+				{ -27.5, 0.3, 110.8 }, -- the corner shop: its bench
+				{ -14, 0.4, 116.1 }, -- its step
+				{ -23, 0.3, 112.9 }, -- its fruit stall
+				{ -16.89, 0, 73.44 }, -- the playground: the tyre swing
+				{ -25.3, 4, 76.95 }, -- the slide's deck
+				{ -16, 0, 53.5 }, -- the swings
+				{ -0.61, 0.55, 65.97 }, -- the sandpit
+				{ -25, 0.72, 63 }, -- the roundabout
+				{ -5.25, 0, 79.7 }, -- the seesaw
+				{ -23.5, 0, 26.5 }, -- the village green: the oak
+				{ 1.31, 0, 18.06 }, -- a picnic table
+				{ -31, 0, 18.14 }, -- a bench
+				{ 26.6, 0.24, 40 }, -- the ice cream van
+				{ -118, 1.73, 14 }, -- the back gardens: the trampoline
+				{ -108, 0, 31.5 }, -- the washing line
+				{ -84, 0, 0.5 }, -- a deckchair
+				{ -80.5, 0, 21 }, -- the gnomes
+				{ -118, 0, 57 }, -- the paddling pool
+				{ -111.31, 0, 86.82 }, -- the playhouse
+				{ -77.6, 0, 70 }, -- a bench
+				{ -101.5, 0, 54 }, -- the bird bath
+				{ -118, 0.52, 120.5 }, -- the greenhouses
+				{ 101.4, 0.52, 80 },
+				{ 46.4, 0.6, 117 }, -- the allotments: the veg beds
+				{ 102.4, 0.6, 99 },
+				{ 64.4, 0.6, 59 },
+				{ 108.4, 0.6, 18 },
+				{ 80.5, 0, 74.5 }, -- the water butt
+				{ 57.5, 0, 96 }, -- the scarecrow
+				{ 47.5, 0, 70 }, -- the compost bins
+				{ 93.6, 0, 25.4 }, -- the potting bench
+				{ 44.5, 0, 24 }, -- the sunflowers
+				{ 96, 0, 130.4 }, -- a bench
+				{ 122, 0, 88 }, -- the plots
+				{ 60, 0, 4 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
 	rescueSpots = {
-		-- The set's jammed shed door, and the gutter's stand-in drainpipe in front of the far gardens' hedge.
-		setTrap(NX, NZ, NTURN, "shed", { 59.2, 0, 40 }),
-		{ prop = "CatCafe_Alley_Drainpipe", trap = "gutter", x = NX + 16, z = NZ + 62 },
+		-- a shed's door and a gutter's drainpipe face the piece's -Z; the gutters are on house corners, 7 up
+		setTrap(NX, NZ, NTURN, "shed", { 126.4, 0, -89.3 }),
+		setTrap(NX, NZ, NTURN, "shed", { 85.3, 0, 83.4 }, -90),
+		setTrap(NX, NZ, NTURN, "gutter", { -53.4, 7.05, -60.5 }, 180),
+		setTrap(NX, NZ, NTURN, "gutter", { 5.7, 7.05, 112.8 }, 34),
 	},
-	props = {
-		{ asset = "CatCafe_Alley_StreetLamp", x = NX - 16, z = NZ - NHD + 3 },
-		{ asset = "CatCafe_Alley_StreetLamp", x = NX + 16, z = NZ - NHD + 3 },
-		{ asset = "CatCafe_Alley_TrashCan", x = NX - 40, z = NZ - 60 }, -- the recycling bins
-		{ asset = "CatCafe_Alley_Crate", x = NX + 40, z = NZ - 60 },
-		{ asset = "CatCafe_Park_Tree", x = NX, z = NZ + HUB }, -- the big oak in the hub
-		{ asset = "CatCafe_Park_Tree", x = NX - 56, z = NZ + 20 },
-		{ asset = "CatCafe_Park_Tree", x = NX + 56, z = NZ + 20 },
-		{ asset = "CatCafe_Park_Bench", x = NX - 14, z = NZ + 6, rotY = 90 },
-	},
+	props = {},
 } :: AreaSpec
-
--- The Woods and the Sewer keep their v3 graybox props, planned facing the town on their +Z side, turned a quarter so
--- that side faces the town (town-layout-v3.md section 7f): an offset (dx, dz) becomes (dz, -dx) for the Woods
--- (quarter 1, the town toward +X) and (-dz, dx) for the Sewer (quarter -1), and a turn rotY becomes rotY + 90 x
--- quarter. Their kit sets bring their own cat spots and traps.
-local function quarterTurn(quarter: number, dx: number, dz: number): (number, number)
-	return quarter * dz, -quarter * dx
-end
-
-local function propTurned(
-	cx: number,
-	cz: number,
-	quarter: number,
-	asset: string,
-	dx: number,
-	dz: number
-): Prop
-	local x, z = quarterTurn(quarter, dx, dz)
-	return { asset = asset, x = cx + x, z = cz + z, rotY = 90 * quarter }
-end
 
 -- The Woods at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Woods_SetV32 (#470, area-sets.md
 -- "The Woods (v3.2)") fills the 240 x 240 floor, its trail winding through the one gap in the tree line, over the one
 -- log bridge and through the one gap in the rock ridge to the Great Oak. Its cat spots are `near` on the gate half and
--- `deep` on the far half; the Great Oak's top nook and the tree house branch trap are left out, as in v3.1. Its
--- hollow logs and bramble bushes are built into the set, each turned in it, two of the four deep.
+-- `deep` on the far half, and the Great Oak's top nook is `rare` (Catching.RARE_ZONE: only a Rare or better waits
+-- there, and one goes there first). Its hollow logs and bramble bushes are built into the set, each turned in it, two
+-- of the four deep, and a cat can get stuck up the tree house's branch.
 local WX, WZ = W.WoodsCenterX, W.WoodsCenterZ
 local WTURN = townTurn(WX, WZ, W.WoodsGateX, nil)
 Layout.woods = {
@@ -842,6 +898,8 @@ Layout.woods = {
 		do
 			table.insert(points, point)
 		end
+		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there)
+		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -36.31, 18.3, 87.37 } }, "rare")[1])
 		return points
 	end)(),
 	rescueSpots = {
@@ -850,12 +908,21 @@ Layout.woods = {
 		setTrap(WX, WZ, WTURN, "hollow_log", { 92, 0, 26 }, -20),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -84, 0, -50 }),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -86, 0, 30 }),
+		-- up the tree house's branch (Derek 01:34), reached from its deck: shaken down and caught like a Park tree,
+		-- the cat lying across the branch (which points along the piece's -X) as on a Park tree
+		setTrap(WX, WZ, WTURN, "tree", { -88.85, 15.45, 68.06 }, -106.26),
 	},
 	props = {},
 } :: AreaSpec
 
+-- The Sewer at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Sewer_SetV32 (#491, area-sets.md
+-- "The Sewer (v3.2)") fills the 180 x 180 floor, roofed from the tunnel front back. The way in winds from the storm
+-- drain yard over the canal's one brick bridge, through the walk-in arch and the east hall's market to the cross
+-- wall's one archway, then over the far catwalk into the west hall and the junk throne. Its cat spots are tagged by
+-- region, not by half: `near` the yard and the market, `deep` everything past the cross wall's arch, the west hall's
+-- far chamber in the gate half among them. Its grates and drain pipes are built into the set, each turned in it, two
+-- of the four deep.
 local SX, SZ = W.SewerCenterX, W.SewerCenterZ
-local SHD = W.SewerWidth / 2 -- the plan's depth runs along X once turned
 local STURN = townTurn(SX, SZ, W.SewerGateX, nil)
 Layout.sewer = {
 	floorY = 0.1,
@@ -864,42 +931,79 @@ Layout.sewer = {
 	halfDepth = W.SewerDepth / 2,
 	gateX = W.SewerGateX,
 	openingHalfWidth = GH,
-	set = "CatCafe_Sewer_Set",
+	set = "CatCafe_Sewer_SetV32",
 	setLift = 0.4, -- the set's tiled slab
-	spawnPoints = setPoints(SX, SZ, STURN, 0.1, {
-		{ 3, 3.5, -24 }, -- the catwalk
-		{ 21.97, 3.3, 23.91 }, -- the junk throne
-		{ 13, 0.4, 30 }, -- the toy pile
-		{ -31.8, 0.4, 42.8 }, -- the valve
-		{ -28, 3.65, 30 }, -- the mine cart
-		{ 37.6, 0.4, 38 }, -- a pipe end
-		{ 18.6, 0.4, -7 }, -- the market stalls
-		{ 18.6, 0.4, 0 },
-		{ 18.6, 0.4, 7 },
-		{ -15.4, 0.4, 2.27 }, -- the rat houses
-		{ -16.51, 0.4, 12.35 },
-		{ -13.94, 0.4, -4.57 },
-		{ -20.3, 0.4, 6.89 },
-		{ 34.12, 1.88, -30.44 }, -- the sofa
-		{ 30.6, 2.55, -11.7 }, -- the decks
-		{ -30.49, 2.55, -31.54 },
-		{ -21, 1.6, -16 }, -- the boat
-		{ -11.6, 2.35, -16.6 }, -- the raft
-		{ 18, 1, -24 }, -- the trolley
-		{ 37, 2.4, 25 }, -- the hammock
-	}),
+	spawnPoints = (function(): { Point }
+		local points = setPoints(SX, SZ, STURN, 0.1, {
+			{ 44, 2.8, -61 }, -- the bridge
+			{ -24, 0.4, -73 }, -- the puddle
+			{ 73, 0.4, -79 }, -- the barrel
+			{ 60, 0.4, -78 }, -- the tyres
+			{ 30, 0.4, -76 }, -- the cones
+			{ -66, 0.4, -78 }, -- the crates
+			{ -78, 0.4, -72.5 }, -- the suitcases
+			{ -56, 0.4, -76.5 }, -- glow mushrooms
+			{ 12, 0.4, -26.5 },
+			{ 20, 0.4, -46 }, -- the canal banks
+			{ -20, 0.4, -47 },
+			{ -66, 0.4, -47 },
+			{ 72, 0.4, -46 },
+			{ -44, 0.4, -44.5 }, -- the barred arch
+			{ 20, 0.4, -4 }, -- the market stalls
+			{ 34, 0.4, -4 },
+			{ 48, 0.4, -4 },
+			{ 74.04, 2.55, -23.33 }, -- the deck
+			{ 24, 0.4, -22 }, -- the market
+			{ 56, 0.4, -12 },
+		}, "near")
+		for _, point in
+			setPoints(SX, SZ, STURN, 0.1, {
+				{ 0, 3.6, 50 }, -- the bridge
+				{ -76, 0.4, 79.5 }, -- the suitcases
+				{ 20, 0.4, 66.5 }, -- glow mushrooms
+				{ 72, 0.4, 17.5 },
+				{ -15.5, 0.4, 30 },
+				{ -60, 0.4, -2.5 },
+				{ -17.5, 0.4, -32 },
+				{ -38.49, 2.55, -21.54 }, -- the deck
+				{ 32.34, 0.4, 32.73 }, -- the cat houses
+				{ 51.66, 0.4, 32.73 },
+				{ 30.73, 0.4, 53.66 },
+				{ 53.45, 0.4, 55.45 },
+				{ 42, 0.4, 38 }, -- the square
+				{ 36, 0.4, 46 },
+				{ 80, 3.65, 64 }, -- the mine cart
+				{ 34, 0.4, 81.9 }, -- the valve
+				{ 73.6, 0.4, 78 }, -- a pipe end
+				{ 12, 0.4, 46 }, -- the far catwalk's feet
+				{ -12, 0.4, 54 },
+				{ 14, 0.4, 74 }, -- the pool
+				{ -46, 3.3, 80.1 }, -- the junk throne
+				{ -32, 0.4, 82.7 }, -- the pipe organ
+				{ -62, 0.4, 74 }, -- the toy pile
+				{ -67.2, 1.88, 45.3 }, -- the sofa
+				{ -30, 1, 40 }, -- the trolley
+				{ -46, 0.4, 66 }, -- the throne room
+				{ -20, 0.4, 70 },
+				{ -28, 1.82, 4 }, -- the boat
+				{ -39.5, 2.2, 2.98 }, -- the raft
+				{ -82, 2.4, -25.7 }, -- the hammock
+				{ -46, 0.4, -18 }, -- the far chamber
+				{ -60, 0.4, 20 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
 	rescueSpots = {
-		setTrap(SX, SZ, STURN, "grate", { -31, 0.4, 2 }),
-		setTrap(SX, SZ, STURN, "drain_pipe", { -40, 0.4, -35 }),
+		-- a grate is square; a drain pipe's mouth faces the piece's -Z
+		setTrap(SX, SZ, STURN, "grate", { -38, 0.4, -78 }),
+		setTrap(SX, SZ, STURN, "grate", { 70, 0.4, 40 }),
+		setTrap(SX, SZ, STURN, "drain_pipe", { 81.7, 0.4, -77 }, 90),
+		setTrap(SX, SZ, STURN, "drain_pipe", { -81.7, 0.4, 22 }, -90),
 	},
-	props = {
-		-- lamps either side of the opening, then crates and a bin
-		propTurned(SX, SZ, -1, "CatCafe_Alley_StreetLamp", -16, SHD - 3),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_StreetLamp", 16, SHD - 3),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_Crate", -27, 10),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_Crate", 27, 5),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_TrashCan", -27, -12),
-	},
+	props = {},
 } :: AreaSpec
 
 -- The Town Square (F76, town-layout-v3.md section 3): paved, in the middle of the street and the safe zone, with a

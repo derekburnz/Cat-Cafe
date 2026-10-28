@@ -1,12 +1,16 @@
 --!strict
 -- Always-on overlay in the simulator layout (docs/design/cat-cafe/ui-contract.md, HUD v3):
---   top left      a compact money pill with the rate beside the amount, the golden fish pill under it (F52); a tap
---                 on either shows the exact amount
---   top centre    cafe tier pill
---   top right     small icon buttons (Tutorial, Gifts, Settings, Invite) and the day and night clock chip, the next
---                 goal card under them
---   left          big pill buttons: Cats, Index, Upgrades, Decor, with key caps and red "!" dots, and an arrow
---                 tab under them that folds them off the edge
+--   top left      the money with the rate beside the amount, the golden fish under it (F52); a tap on either shows
+--                 the exact amount
+--   top right     small icon buttons (Tutorial, Gifts, Daily, Settings, Invite), the day and night clock under them,
+--                 the tier and next goal block (Screens/GoalCard) under that and the quest line under that (F73: the
+--                 closest unfinished daily, "📜 Catch 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests), and
+--                 under it "🎡 Free spin at the Town Square" while today's free spin waits (F49)
+--   Lighter HUD (Derek 2026-10-28, after a look at popular Roblox HUDs): counters, the clock and the goal are outlined
+--   text with no box behind them; only things you press look like buttons, and the top centre is left clear.
+--   left          big pill buttons: Cats, Index, Quests, Upgrades, Decor, Potions, with key caps and red "!" dots,
+--                 and an arrow tab under them that folds them off the edge. Quests (F73) shows once ProfileSync has
+--                 quests, with a red count of what is ready to claim
 --   bottom centre Equip Best, the gold My Cafe teleport, Alley and Areas (an arrow tab folds the row away);
 --                 above them the carry banner with
 --                 its red Drop button, and the tutorial strip above that
@@ -33,9 +37,11 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
+local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -70,6 +76,7 @@ export type HUD = {
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
+	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
@@ -80,16 +87,18 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 
 local MARGIN = 16
--- the money and golden fish pills, one tidy column of the same size (Derek 2026-10-27: the money one was too big)
+-- the money and golden fish counters, one tidy column with no box behind them (the lighter HUD); the sizes are
+-- their tap areas
 local MONEY_W = 232
-local MONEY_H = 48
+local MONEY_H = 44
 local FISH_W = MONEY_W
 local FISH_H = MONEY_H
-local PILL_COIN = 32
-local FISH_TOP = MARGIN + MONEY_H + 8
+local COUNTER_COIN = 36
+local COUNTER_TEXT = 30
+local FISH_TOP = MARGIN + MONEY_H + 2
 local BUFFS_GAP = 8 -- the potion timers sit this far under the lowest counter pill (F64)
 local EXACT_SECONDS = 2.5 -- how long a tapped counter's exact amount stays up
--- F66: in the last DUSK_SECONDS of a day the clock chip turns orange and counts to night; CLOSED_TEXT is the Alley
+-- F66: in the last DUSK_SECONDS of a day the clock turns orange and counts to night; CLOSED_TEXT is the Alley
 -- button while the areas are shut for the night
 local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
 local CLOSED_TEXT = Theme.icons.moon .. " Closed"
@@ -97,11 +106,11 @@ local PILL_W = 192
 local PILL_H = 54
 local PILL_ICON = 36 -- the pictures on the pills and the bottom row are bigger than their text (Derek 2026-10-27)
 local TRAVEL_ICON = 28
-local CAFE_HEIGHT = 56
 local TRAVEL_W = 136
 local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
 local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
 local ICON = 58 -- top right icon buttons
+local ICON_ROW_W = 5 * ICON + 4 * Theme.sizes.gap -- Tutorial, Gifts, Daily (F70), Settings and Invite
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
@@ -116,17 +125,26 @@ local HOME_TEXT = "My Cafe"
 local HOME_CARRYING_TEXT = "Walk it home" -- the server refuses trips while carrying, so the button says why
 -- F19: the server allows one trip per 3 s; the row greys for the same time so a double tap is not refused
 local TRAVEL_COOLDOWN: number = Config.TravelCooldownSeconds
--- right column: icon row (58), clock chip (40), then the next goal card; the night tips chip pushes it down
+-- right column: icon row (58), the clock line, then the tier and next goal block; the night tips line pushes it down
 local CLOCK_TOP = MARGIN + ICON + Theme.sizes.gap
-local GOAL_TOP = CLOCK_TOP + 40 + Theme.sizes.gap
-local NIGHT_CHIP = 24 + 4
--- The top right column (icon row, clock, tips chip, goal card) is this wide at most. The HUD keeps clear of
+local CLOCK_H = 30
+local CLOCK_W = 200
+local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
+local NIGHT_LINE = 20
+-- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
 -- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
 -- screen's right edge that stretch may stop and still count.
-local RIGHT_COLUMN_W = 300
+local RIGHT_COLUMN_W = math.max(300, ICON_ROW_W)
+local QUEST_LINE_W = 300 -- F73: the quest line under the goal card
+local QUEST_LINE_H = 24
+-- F49: the Town Square's red free-spin dot went with its place bubble (Derek 2026-10-28 01:39), so the HUD says it
+-- instead (Derek okayed 12:02): a gold line under the quest line, no box, not a button, since the wheel is a station
+-- you walk up to
+local SPIN_TEXT = Theme.icons.spin .. " Free spin at the Town Square"
+local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutorial): the quest line waits for it
 local TOPBAR_SLACK = 48
--- data-model NightIncomeMultiplier (0.6): tips pay this share at night (F31)
+-- data-model NightIncomeMultiplier: tips pay this share at night (F31: 0.6; F60: 1, full pay, so no line)
 local NIGHT_TIPS: number = Config.NightIncomeMultiplier
 
 local HUD = {}
@@ -147,6 +165,18 @@ local function hudPanel(name: string, props: { [string]: any }): Frame
 	})
 	Outline.border(frame, Theme.sizes.outline, Theme.hud.stroke)
 	return frame
+end
+
+-- A counter or the clock: no box (the lighter HUD), just the outlined text and its coin or sun.
+local function bare(name: string, props: { [string]: any }, children: { Instance }?): Frame
+	local merged: { [string]: any } = {
+		Name = name,
+		BackgroundTransparency = 1,
+	}
+	for key, value in props do
+		merged[key] = value
+	end
+	return Create("Frame", merged, children)
 end
 
 -- HUD text is the chunky display font with a dark outline, so it reads over any world colour. Wrapped
@@ -201,6 +231,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._lastFish = nil :: number?
 	self._exactToken = 0 -- the latest tap's, so an older timer leaves a newer amount up
 	self._areasOpen = true -- F66: false from dusk to sunrise (the Clock folder's AreasOpen)
+	self._night = false -- the clock's phase is night (F60: night bait waits half)
 	self._alleyClosed = false -- what the Alley button shows now
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
@@ -229,8 +260,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._root = root
 	self._uiScale = Scale.bind(root)
 
-	-- Money panel (top left)
-	local money = hudPanel("Money", {
+	-- Money (top left)
+	local money = bare("Money", {
 		Position = UDim2.fromOffset(MARGIN, MARGIN),
 		Size = UDim2.fromOffset(MONEY_W, MONEY_H),
 		Parent = root,
@@ -241,26 +272,26 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 10, 0.5, 0),
-		Size = UDim2.fromOffset(PILL_COIN, PILL_COIN),
+		Position = UDim2.new(0, 0, 0.5, 0),
+		Size = UDim2.fromOffset(COUNTER_COIN, COUNTER_COIN),
 		Parent = money,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		label({
 			Size = UDim2.fromScale(1, 1),
-			TextSize = 20,
+			TextSize = 22,
 			TextColor3 = Theme.colors.white,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = Theme.currencySymbol,
 		}),
 	})
-	Outline.border(coin, 2)
+	Outline.border(coin, 2.5)
 	Outline.shade(coin, 0.2)
 	local line: Frame = Create("Frame", {
 		Name = "Line",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(PILL_COIN + 20, 0),
-		Size = UDim2.new(1, -(PILL_COIN + 30), 1, 0),
+		Position = UDim2.fromOffset(COUNTER_COIN + 8, 0),
+		Size = UDim2.new(1, -(COUNTER_COIN + 8), 1, 0),
 		ClipsDescendants = true,
 		Parent = money,
 	}, {
@@ -274,8 +305,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._moneyText = label({
 		Name = "Amount",
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 32),
-		TextSize = 26,
+		Size = UDim2.fromOffset(0, 36),
+		TextSize = COUNTER_TEXT,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = Format.money(0),
 		LayoutOrder = 1,
@@ -285,7 +316,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "Income",
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 22),
-		TextSize = Theme.sizes.textSmall + 1,
+		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.hud.income,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = "",
@@ -295,7 +326,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Golden fish (F52): the rare currency's counter under the money, with the cat-face coin. Hidden until
 	-- ProfileSync sends goldenFish.
-	local fish = hudPanel("Fish", {
+	local fish = bare("Fish", {
 		Position = UDim2.fromOffset(MARGIN, FISH_TOP),
 		Size = UDim2.fromOffset(FISH_W, FISH_H),
 		Visible = false,
@@ -304,15 +335,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._fishPanel = fish
 	FishCoin.new({
 		parent = fish,
-		size = PILL_COIN,
-		position = UDim2.new(0, 10, 0.5, 0),
+		size = COUNTER_COIN,
+		position = UDim2.new(0, 0, 0.5, 0),
 		anchorPoint = Vector2.new(0, 0.5),
 	})
 	self._fishText = label({
 		Name = "Amount",
-		Position = UDim2.fromOffset(PILL_COIN + 20, 0),
-		Size = UDim2.new(1, -(PILL_COIN + 30), 1, 0),
-		TextSize = 26,
+		Position = UDim2.fromOffset(COUNTER_COIN + 8, 0),
+		Size = UDim2.new(1, -(COUNTER_COIN + 8), 1, 0),
+		TextSize = COUNTER_TEXT,
 		TextColor3 = Theme.fish.text,
 		Text = "0",
 		Parent = fish,
@@ -364,106 +395,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		)
 	end
 
-	-- Cafe pill (top centre)
-	local cafe = hudPanel("Cafe", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, MARGIN),
-		Size = UDim2.fromOffset(340, CAFE_HEIGHT),
-		Parent = root,
-	})
-	self._cafeTitle = label({
-		Name = "Title",
-		Position = UDim2.fromOffset(16, 4),
-		Size = UDim2.new(1, -32, 0, 24),
-		TextSize = 20,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "Cafe Lv 1",
-		Parent = cafe,
-	})
-	self._cafeSub = label({
-		Name = "Sub",
-		Position = UDim2.fromOffset(16, 27),
-		Size = UDim2.new(1, -32, 0, 15),
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.hud.subtext,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "",
-		Parent = cafe,
-	})
-	-- chunky XP-style bar: dark trough with an outline, shaded mint fill
-	local track: Frame = Create("Frame", {
-		Name = "Progress",
-		BackgroundColor3 = Theme.colors.ink,
-		BorderSizePixel = 0,
-		Position = UDim2.new(0, 16, 1, -12),
-		Size = UDim2.new(1, -32, 0, 8),
-		Visible = false,
-		Parent = cafe,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(track, 1.5)
-	self._cafeTrack = track
-	self._cafeFill = Create("Frame", {
-		Name = "Fill",
-		BackgroundColor3 = Theme.colors.mint,
-		BorderSizePixel = 0,
-		Size = UDim2.fromScale(0, 1),
-		Parent = track,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.shade(self._cafeFill, 0.25)
-	-- v0.3: with tiers the pill opens the rank up card, and a gold tag shows when it is ready
-	local cafeButton: TextButton = Create("TextButton", {
-		Name = "Open",
-		Text = "",
-		AutoButtonColor = false,
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Active = false,
-		ZIndex = 3,
-		Parent = cafe,
-	})
-	self._cafeButton = cafeButton
-	table.insert(
-		self._connections,
-		cafeButton.Activated:Connect(function()
-			if self._tiersOn then
-				callbacks.openScreen("RankUp")
-			end
-		end)
-	)
-	-- a tilted red sticker on the pill's corner, the simulator "something to claim" badge; the travel row
-	-- sits right under the pill, so nothing hangs below it
-	self._rankBadge = Create("TextLabel", {
-		Name = "RankReady",
-		BackgroundColor3 = Theme.colors.red,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.new(1, -10, 0, 2),
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 24),
-		Rotation = 8,
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.colors.white,
-		Text = "Rank up!",
-		Visible = false,
-		ZIndex = 4,
-		Parent = cafe,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
-	})
-	Outline.text(self._rankBadge)
-	self._tiersOn = false
-
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
 	-- Tutorial replays the intro (F72), Gifts opens the Tip Jar (F47) and counts down to the next playtime gift,
-	-- the gear opens Settings, Invite opens Roblox's own invite window; Daily and Mail join them as they arrive.
+	-- Daily opens the Daily Treat card (F70), the gear opens Settings, Invite opens Roblox's own invite window.
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, MARGIN),
-		Size = UDim2.fromOffset(4 * ICON + 3 * Theme.sizes.gap, ICON),
+		Size = UDim2.fromOffset(ICON_ROW_W, ICON),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -580,6 +520,39 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		ZIndex = 7,
 		Parent = giftDot,
 	})
+	-- Daily (F70): the Daily Treat card, once ProfileSync has it; "Claim!" and a red dot while a stamp is due
+	local daily = Button.new({
+		name = "Daily",
+		text = "Daily",
+		icon = Theme.icons.daily,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "primary",
+		size = UDim2.fromOffset(ICON, ICON),
+		layoutOrder = 3,
+		parent = icons,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openScreen("DailyTreat")
+		end,
+	})
+	daily.instance.Visible = false
+	table.insert(self._buttons, daily)
+	self._daily = daily
+	self._dailyText = "Daily"
+	local dailyDot: Frame = Create("Frame", {
+		Name = "Dot",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(18, 18),
+		Visible = false,
+		ZIndex = 6,
+		Parent = daily.instance,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(dailyDot, 2)
+	self._dailyDot = dailyDot
 	table.insert(
 		self._buttons,
 		Button.new({
@@ -590,7 +563,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textTiny,
 			style = "ghost",
 			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 3,
+			layoutOrder = 4,
 			parent = icons,
 			onClick = function()
 				callbacks.openScreen("Settings")
@@ -607,7 +580,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textTiny,
 			style = "secondary",
 			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 4,
+			layoutOrder = 5,
 			parent = icons,
 			onClick = function()
 				task.spawn(function()
@@ -625,76 +598,123 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		})
 	)
 
-	-- Clock chip (top right, under the icon row): sun or moon and the time to the next phase (F20)
-	local clock = hudPanel("Clock", {
+	-- Clock (top right, under the icon row): the sun or moon and the time to the next phase (F20), right-aligned
+	-- outlined text with no chip behind it ("☀ Day 3:29")
+	local clock = bare("Clock", {
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP),
-		Size = UDim2.fromOffset(150, 40),
+		Size = UDim2.fromOffset(CLOCK_W, CLOCK_H),
 		Visible = false,
 		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
 	})
 	self._clock = clock
+	local sky: Frame = Create("Frame", {
+		Name = "Sky",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(26, 26),
+		LayoutOrder = 1,
+		Parent = clock,
+	})
 	self._sun = Create("Frame", {
 		Name = "Sun",
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(10, 8),
-		Size = UDim2.fromOffset(24, 24),
-		Parent = clock,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(22, 22),
+		Parent = sky,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIStroke", { Color = Theme.colors.outline, Thickness = 2 }),
+		Create("UIStroke", { Color = Theme.colors.outline, Thickness = 2.5 }),
 	})
-	self._moon = Create("Frame", {
+	-- the crescent glyph: the old drawn crescent cut its shape with a disc of the chip's colour, which needs a chip
+	self._moon = Create("TextLabel", {
 		Name = "Moon",
-		BackgroundColor3 = Theme.colors.paper,
-		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(10, 8),
-		Size = UDim2.fromOffset(24, 24),
-		ClipsDescendants = true,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = 24,
+		Text = Theme.icons.moon,
 		Visible = false,
-		Parent = clock,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		-- a second disc offset up and right turns the paper disc into a crescent
-		Create("Frame", {
-			Name = "Shadow",
-			BackgroundColor3 = Theme.hud.panel,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(8, -5),
-			Size = UDim2.fromOffset(22, 22),
-		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+		Parent = sky,
 	})
 	self._clockText = label({
 		Name = "Phase",
-		Position = UDim2.fromOffset(42, 0),
-		Size = UDim2.new(1, -50, 1, 0),
-		TextSize = 18,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, CLOCK_H),
+		TextSize = 22,
+		TextTruncate = Enum.TextTruncate.None,
 		Text = "",
+		LayoutOrder = 2,
 		Parent = clock,
 	})
-	-- v0.3 (F31): tips pay less at night, so the chip says by how much
-	self._nightTips = hudPanel("NightTips", {
+	-- v0.3 (F31): tips pay less at night, so a line under the clock says by how much; hidden while night pays in
+	-- full (F60)
+	self._nightTips = label({
+		Name = "NightTips",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + 40 + 4),
-		Size = UDim2.fromOffset(150, 24),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
+		Size = UDim2.fromOffset(CLOCK_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.sky,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = "Tips " .. Format.percent(NIGHT_TIPS),
 		Visible = false,
 		Parent = root,
 	})
-	label({
-		Name = "Text",
-		Size = UDim2.fromScale(1, 1),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = Theme.colors.sky,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "Tips " .. Format.percent(NIGHT_TIPS),
-		Parent = self._nightTips,
-	})
 
-	-- Next goal card (right, under the clock): the next tier's requirements as bars; a tap opens rank up
+	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
+	-- rank up
 	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
 		callbacks.openScreen("RankUp")
 	end)
+	-- F73: one outlined line under it, the closest unfinished daily quest or what is ready to claim; a tap opens Quests
+	local questLine: TextButton = Create("TextButton", {
+		Name = "QuestLine",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, GOAL_TOP),
+		Size = UDim2.fromOffset(QUEST_LINE_W, QUEST_LINE_H),
+		Visible = false,
+		Parent = root,
+	})
+	self._questLine = questLine
+	self._spinLine = label({
+		Name = "FreeSpin",
+		AnchorPoint = Vector2.new(1, 0),
+		Size = UDim2.fromOffset(QUEST_LINE_W, QUEST_LINE_H),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = SPIN_TEXT,
+		Visible = false,
+		Parent = root,
+	})
+	self._spinTimer = nil :: thread?
+	self._questText = label({
+		Name = "Text",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = questLine,
+	})
+	table.insert(
+		self._connections,
+		questLine.Activated:Connect(function()
+			Sound.play("uiClick")
+			callbacks.openScreen("Quests")
+		end)
+	)
 	-- the column follows the top bar as Roblox's menu opens and closes and as the window resizes
 	table.insert(
 		self._connections,
@@ -735,6 +755,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			dot = "Collection",
 			open = function()
 				callbacks.openIndex()
+			end,
+		},
+		{
+			name = "Quests",
+			icon = Theme.icons.quests,
+			key = "J",
+			style = "gold",
+			open = function()
+				callbacks.openScreen("Quests")
 			end,
 		},
 		{
@@ -838,6 +867,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				ZIndex = 5,
 				Parent = button.face,
 			})
+		elseif item.name == "Quests" then
+			-- F73: hidden until ProfileSync has quests; a red count of quests and achievements ready to claim
+			button.instance.Visible = false
+			self._questsPill = button
+			local dot: Frame = Create("Frame", {
+				Name = "Dot",
+				BackgroundColor3 = Theme.colors.red,
+				BorderSizePixel = 0,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromOffset(4, 4),
+				Size = UDim2.fromOffset(24, 24),
+				Visible = false,
+				ZIndex = 6,
+				Parent = button.instance,
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+			Outline.border(dot, 2)
+			self._questCount = label({
+				Name = "Mark",
+				Size = UDim2.fromScale(1, 1),
+				TextSize = Theme.sizes.textSmall,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = "",
+				ZIndex = 7,
+				Parent = dot,
+			})
+			self._questDot = dot
 		elseif item.name == "Potions" then
 			-- how many potions are in the bag, beside the key cap; blank with none (F64)
 			self._potionCount = label({
@@ -877,6 +932,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, menuFold)
 	self._menuFold = menuFold
+	self:_layoutMenu()
 	local foldDot: Frame = Create("Frame", {
 		Name = "Dot",
 		BackgroundColor3 = Theme.colors.red,
@@ -1182,13 +1238,15 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
--- "Bait bowl / Empty · add food", "Tuna / Cat in 7m 42s", then "Cat waiting! / Tap to see it" on gold.
+-- "Bait bowl / Empty · add food", "Tuna / Cat in 7m 42s", then "Cat waiting! / Tap to see it" on gold. F60: food
+-- set at night counts down behind a moon ("Tuna / 🌙 Cat in 3m 42s"), and an empty bowl at night reads "🌙 Half wait
+-- now", since food set then comes in half the time.
 function HUD._renderBowl(self: any)
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
 	local ready = false
 	local name = "Bait bowl"
-	local sub = "Empty · add food"
+	local sub = if self._night then Theme.icons.moon .. " Half wait now" else "Empty · add food"
 	if bait then
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		ready = left <= 0
@@ -1204,7 +1262,9 @@ function HUD._renderBowl(self: any)
 			name = "Cat waiting!"
 			sub = if self._catWaiting then "Tap to see it" else "At your bowl"
 		else
-			sub = "Cat in " .. Format.duration(math.ceil(left))
+			sub = (if bait.night then Theme.icons.moon .. " " else "")
+				.. "Cat in "
+				.. Format.duration(math.ceil(left))
 		end
 	end
 	self._baitReady = ready
@@ -1303,6 +1363,7 @@ function HUD._renderFoldDot(self: any)
 				break
 			end
 		end
+		any = any or self._questDot.Visible
 	end
 	if any and not self._menuFoldDot.Visible then
 		Tween.popIn(self._menuFoldDot, 0.5)
@@ -1421,89 +1482,25 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	self._incomeText.Text = Format.rate(state.incomePerSecond)
 
+	-- the tier and next goal block: "Tier 1 · Corner Cafe", then the next tier's requirements, or the tier alone
 	local tierProgress: RankUp.Progress? = nil
 	if catalog and catalog.tiers and state.tier then
 		tierProgress = RankUp.progress(catalog, state)
 	end
-	self._tiersOn = tierProgress ~= nil
-	self._cafeButton.Active = tierProgress ~= nil
-	self._goal:render(tierProgress)
+	self._goal:render(tierProgress, Format.tier(state.tier, if catalog then catalog.tiers else nil))
+	-- uiRankReady chimes once per tier, the first time that tier's requirements are all met
+	if tierProgress and tierProgress.ready and self._chimedTier ~= tierProgress.tier then
+		self._chimedTier = tierProgress.tier
+		Sound.play("uiRankReady")
+	end
+	self:_renderQuests(state, catalog)
+	self:_renderFreeSpin()
 	self:_layoutRight()
 	if catalog then
 		self:_renderDots(catalog, state)
 	end
-	if tierProgress then
-		self:_renderTier(tierProgress)
-		self:_renderBowlSlot(state)
-		self._indexCount.Text = ("%d/%d"):format(distinct, total)
-		return
-	end
-	self._rankBadge.Visible = false
-
-	self._cafeTitle.Text = Format.tier(state.tier, if catalog then catalog.tiers else nil)
-	local parts = {}
-	if state.tables then
-		table.insert(
-			parts,
-			("%d table%s"):format(state.tables, if state.tables == 1 then "" else "s")
-		)
-	end
-	if state.customers then
-		table.insert(
-			parts,
-			("%d customer%s"):format(state.customers, if state.customers == 1 then "" else "s")
-		)
-	end
-	if state.cafeProgressText then
-		table.insert(parts, state.cafeProgressText)
-	end
-	self._cafeSub.Text = table.concat(parts, "  ·  ")
-	self._cafeSub.Visible = #parts > 0
-	if state.cafeProgress then
-		self._cafeTrack.Visible = true
-		self._cafeFill.Size = UDim2.fromScale(math.clamp(state.cafeProgress, 0, 1), 1)
-	else
-		self._cafeTrack.Visible = false
-	end
-
 	self._indexCount.Text = ("%d/%d"):format(distinct, total)
 	self:_renderBowlSlot(state)
-end
-
--- v0.3 top pill: "Tier 2 · Cozy Cafe", what the next tier still needs, and a gold tag when ready.
-function HUD._renderTier(self: any, progress: RankUp.Progress)
-	local current = progress.current
-	self._cafeTitle.Text = ("Tier %d%s"):format(
-		progress.tier,
-		if current then "  ·  " .. current.name else ""
-	)
-	local nextTier = progress.nextTier
-	-- the next goal card lists the requirements, so the pill only names the next tier
-	local sub = "Top tier"
-	if nextTier then
-		sub = "Next: " .. nextTier.name
-	end
-	self._cafeSub.Text = sub
-	self._cafeSub.Visible = true
-	self._cafeTrack.Visible = nextTier ~= nil
-	self._cafeFill.Size = UDim2.fromScale(math.clamp(progress.fraction, 0, 1), 1)
-	self._cafeFill.BackgroundColor3 = if progress.ready
-		then Theme.colors.gold
-		else Theme.colors.mint
-	if progress.ready then
-		self._cafeSub.Text = "Rank up ready! Tap to see "
-			.. (if nextTier then nextTier.name else "")
-	end
-	local wasVisible = self._rankBadge.Visible
-	self._rankBadge.Visible = progress.ready
-	if progress.ready and not wasVisible then
-		Tween.popIn(self._rankBadge, 0.7)
-	end
-	-- uiRankReady chimes once per tier, the first time that tier's requirements are all met
-	if progress.ready and self._chimedTier ~= progress.tier then
-		self._chimedTier = progress.tier
-		Sound.play("uiRankReady")
-	end
 end
 
 -- The bowl chip shows once the Bait bowl upgrade is owned.
@@ -1576,24 +1573,32 @@ function HUD.bottomTop(self: any): number
 	return y
 end
 
--- Day and night chip. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's
+-- Day and night clock. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's
 -- synchronised epoch clock, so it compares with the server's os.time() in PhaseEndsAt and never trusts
 -- the device clock (data-model section 1, reviewer S16). In the last DUSK_SECONDS of a day it reads "Night in 0:12"
--- in orange (F66).
+-- in orange (F66). F60: when night falls on an empty bowl, the bowl chip pops so the half wait is seen.
 function HUD.setClock(self: any, clock: Types.ClockState?)
 	self:_stopClock()
 	if not clock then
 		self._clock.Visible = false
 		self._nightTips.Visible = false
+		self._night = false
+		self:_renderBowl()
 		self:_layoutRight()
 		return
 	end
 	local current: Types.ClockState = clock
 	local isNight = current.phase == "night"
+	local nightfall = isNight and not self._night and self._clock.Visible
+	self._night = isNight
+	self:_renderBowl()
+	if nightfall and self._bait == nil and self._bowlSlot.Visible then
+		Tween.popIn(self._bowlSlot, 0.9)
+	end
 	self._sun.Visible = not isNight
 	self._moon.Visible = isNight
 	self._clock.Visible = true
-	self._nightTips.Visible = isNight
+	self._nightTips.Visible = isNight and NIGHT_TIPS < 1
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -1641,17 +1646,100 @@ local function topbarLift(): number
 	return inset.Max.Y / scale
 end
 
--- The top right column, top down: the icon row, the clock, the night tips chip when it shows, the goal card.
+-- The top right column, top down: the icon row, the clock, the night tips line when it shows, the tier and goal.
 function HUD._layoutRight(self: any)
 	local lift = self._lift
 	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN - lift)
 	self._clock.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP - lift)
-	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + 40 + 4 - lift)
+	self._nightTips.Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H - lift)
 	local top = if self._clock.Visible then GOAL_TOP else CLOCK_TOP
 	if self._nightTips.Visible then
-		top += NIGHT_CHIP
+		top += NIGHT_LINE
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
+	local goal = self._goal.frame
+	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
+	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
+	local spinTop = if self._questLine.Visible then lineTop + QUEST_LINE_H + 2 else lineTop
+	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)
+end
+
+-- The left pills' column and the arrow tab under it, for the pills on show (Quests waits for its data, F73).
+function HUD._layoutMenu(self: any)
+	local shown = 0
+	for _, child in self._menu:GetChildren() do
+		if child:IsA("GuiObject") and child.Visible then
+			shown += 1
+		end
+	end
+	local height = shown * PILL_H + math.max(0, shown - 1) * Theme.sizes.gap
+	self._menu.Size = UDim2.fromOffset(PILL_W, height)
+	self._menuFold.instance.Position = UDim2.new(0, MARGIN, 0.5, height / 2 + Theme.sizes.gap + 4)
+end
+
+-- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
+-- line under the goal card once the tutorial is done.
+function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.Catalog?)
+	local pill = self._questsPill
+	local live = state.quests ~= nil
+	if pill.instance.Visible ~= live then
+		pill.instance.Visible = live
+		self:_layoutMenu()
+	end
+	local ready = if live then QuestLogic.claimable(state, catalog) else 0
+	if ready > 0 and not self._questDot.Visible then
+		Tween.popIn(self._questDot, 0.5)
+	end
+	self._questDot.Visible = ready > 0
+	self._questCount.Text = tostring(ready)
+	self:_renderFoldDot()
+
+	local line: string? = nil
+	if live and (state.tutorialStep or TUTORIAL_DONE) >= TUTORIAL_DONE then
+		local quest = QuestLogic.tracker(state.quests)
+		if ready > 0 then
+			line = ("%s %d ready to claim"):format(Theme.icons.quests, ready)
+		elseif quest then
+			local needs = math.max(1, quest.needs)
+			local progress = math.clamp(quest.progress, 0, needs)
+			local count = if QuestLogic.isCoins(catalog, quest.id)
+				then Format.money(progress) .. "/" .. Format.money(needs)
+				else ("%d/%d"):format(math.floor(progress), math.floor(needs))
+			line = ("%s %s  %s"):format(Theme.icons.quests, quest.text, count)
+		end
+	end
+	self._questLine.Visible = line ~= nil
+	self._questText.Text = line or ""
+	self._questText.TextColor3 = if ready > 0 then Theme.colors.gold else Theme.hud.text
+end
+
+-- F49: the free spin line shows while today's free spin waits (SpinLogic.freeDue), once ProfileSync has the spin
+-- state and the tutorial is done. Spinning sends a new state, which hides it; a timer shows it again at 00:00 UTC.
+function HUD._renderFreeSpin(self: any)
+	local timer: thread? = self._spinTimer
+	if timer then
+		task.cancel(timer)
+		self._spinTimer = nil
+	end
+	local state: Types.PlayerState? = self._state
+	local spin = if state then state.spin else nil
+	if state == nil or spin == nil or (state.tutorialStep or TUTORIAL_DONE) < TUTORIAL_DONE then
+		self._spinLine.Visible = false
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local due = SpinLogic.freeDue(spin, now)
+	if due and not self._spinLine.Visible then
+		Tween.popIn(self._spinLine, 0.8)
+	end
+	self._spinLine.Visible = due
+	if not due then
+		self._spinTimer = task.delay(SpinLogic.nextFreeIn(spin, now) + 1, function()
+			self._spinTimer = nil
+			self:_renderFreeSpin()
+			self:_layoutRight()
+		end)
+	end
 end
 
 function HUD._liftRight(self: any)
@@ -1729,6 +1817,22 @@ function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, lef
 	self._giftCount.Text = tostring(summary.ready)
 end
 
+-- The Daily tile (F70): shown once ProfileSync has the Daily Treat card; "Claim!" with a red dot while a stamp is
+-- due, else "Daily".
+function HUD.setDailyTreat(self: any, shown: boolean, due: boolean)
+	local tile: Button.Button = self._daily
+	tile.instance.Visible = shown
+	local text = if due then "Claim!" else "Daily"
+	if text ~= self._dailyText then
+		self._dailyText = text
+		tile:setText(text)
+	end
+	if due and not self._dailyDot.Visible then
+		Tween.popIn(self._dailyDot, 0.5)
+	end
+	self._dailyDot.Visible = due
+end
+
 -- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot.
 function HUD.screenOpened(self: any, name: string?)
 	self._openScreen = name
@@ -1782,6 +1886,10 @@ end
 
 function HUD.destroy(self: any)
 	self:_stopClock()
+	local spinTimer: thread? = self._spinTimer
+	if spinTimer then
+		task.cancel(spinTimer)
+	end
 	local baitLoop: RBXScriptConnection? = self._baitLoop
 	if baitLoop then
 		baitLoop:Disconnect()

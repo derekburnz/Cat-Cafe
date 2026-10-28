@@ -107,24 +107,24 @@ return function()
 			end
 		end)
 
-		-- Model-Agent #401: the Neighbourhood, Woods and Sewer sets bring their cat spots and (but for the gutter)
-		-- their traps, turned with the set so its gate side faces the town; the Park's v3.2 set (#460) its cat spots,
-		-- its traps being the world's trees and bins; the Woods' v3.2 set (#470) its spots and traps, the hollow logs
-		-- turned in the set as well.
+		-- Model-Agent #401: the area sets bring their cat spots and their traps, turned with the set so its gate side
+		-- faces the town; the Park's v3.2 set (#460) its cat spots, its traps being the world's trees and bins; the
+		-- Woods', the Sewer's and the Neighbourhood's v3.2 sets (#470, #491, #505) their spots and traps, the hollow
+		-- logs, drain pipes, sheds and gutters turned in the set as well.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
 			local sets: { [string]: string } = {
 				park = "CatCafe_Park_Set",
-				neighbourhood = "CatCafe_Neighbourhood_Set",
+				neighbourhood = "CatCafe_Neighbourhood_SetV32",
 				woods = "CatCafe_Woods_SetV32",
-				sewer = "CatCafe_Sewer_Set",
+				sewer = "CatCafe_Sewer_SetV32",
 			}
 			for id, name in sets do
 				local spec = Layout.areas[id]
 				expect(spec.set).to.equal(name)
 				local turn = Layout.gateTurn(spec)
 				-- on the ground or a low perch (a porch, a rock, the catwalk), never a roof; the Woods' tree house
-				-- cushion, up its ladder, is the one high spot
-				local top = spec.floorY + (if id == "woods" then 10.5 else 4)
+				-- cushion and the Great Oak's top nook, up their ladders, are the high spots
+				local top = spec.floorY + (if id == "woods" then 18.5 else 4)
 				for i, point in spec.spawnPoints do
 					if point.y < spec.floorY or point.y > top then
 						fail("%s spawn point %d stands at y %g", id, i, point.y)
@@ -137,7 +137,11 @@ return function()
 						end
 					end
 				end
-				local pieceTurns: { number } = if id == "woods" then { 20, -20, 0, 0 } else {}
+				local pieceTurns: { number } = if id == "woods"
+					then { 20, -20, 0, 0, -106.26 }
+					elseif id == "sewer" then { 0, 0, 90, -90 }
+					elseif id == "neighbourhood" then { 0, -90, 180, 34 }
+					else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
 					if spot.prop == nil then
@@ -146,7 +150,7 @@ return function()
 					end
 				end
 				expect(built).to.equal(
-					if id == "park" then 0 elseif id == "neighbourhood" then 1 elseif id == "woods" then 4 else 2
+					if id == "park" then 0 elseif id == "woods" then 5 else 4
 				)
 			end
 		end)
@@ -157,8 +161,8 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
-				-- (19.6, -58.8) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
-				-- catwalk at local (3, -24) near its own
+				-- (-110.2, -98.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
+				-- canal bridge at local (44, -61) near its own
 				local index = if id == "woods" then 8 else 1
 				local point = spec.spawnPoints[index]
 				local toGate = math.sqrt((point.x - (gx :: number)) ^ 2 + (point.z - (gz :: number)) ^ 2)
@@ -170,11 +174,16 @@ return function()
 		end)
 
 		-- F81 (town-layout-v3.md section 8d): a v3.2 set tags each cat spot near (the gate half) or deep (the far
-		-- half, where Epic and rarer strays wait), and some of its traps are in the far half.
+		-- half, where Epic and rarer strays wait), and some of its traps are in the far half. The Woods' Great Oak
+		-- top is "rare" (Catching.RARE_ZONE), in the far half too. The Sewer's zones go by region (#491): its near
+		-- spots are all in the gate half, but past the cross wall's arch is deep, the west hall's far chamber in the
+		-- gate half among it.
 		it("the v3.2 sets' spots are near their gates or deep in their far halves, with traps deep", function()
 			local rows = {
-				{ id = "park", near = 16, deep = 24, deepTraps = 3 },
-				{ id = "woods", near = 26, deep = 38, deepTraps = 2 },
+				{ id = "park", near = 16, deep = 24, rare = 0, deepTraps = 3, byRegion = false },
+				{ id = "woods", near = 26, deep = 38, rare = 1, deepTraps = 3, byRegion = false },
+				{ id = "sewer", near = 20, deep = 32, rare = 0, deepTraps = 2, byRegion = true },
+				{ id = "neighbourhood", near = 28, deep = 44, rare = 0, deepTraps = 2, byRegion = false },
 			}
 			for _, row in rows do
 				local spec = Layout.areas[row.id]
@@ -192,12 +201,16 @@ return function()
 					local zone = point.zone :: string
 					counts[zone] = (counts[zone] or 0) + 1
 					local inFrom = fromGate(point.x, point.z)
-					if (zone == "deep") ~= (inFrom > middle) then
+					local wrong = if row.byRegion
+						then zone == "near" and inFrom > middle
+						else (zone ~= "near") ~= (inFrom > middle)
+					if wrong then
 						fail("%s spawn point %d (%s) is %.1f studs in from the gate", row.id, i, zone, inFrom)
 					end
 				end
 				expect(counts.near).to.equal(row.near)
 				expect(counts.deep).to.equal(row.deep)
+				expect(counts.rare or 0).to.equal(row.rare)
 				local deep = 0
 				for _, spot in spec.rescueSpots do
 					if fromGate(spot.x, spot.z) > middle then
@@ -212,6 +225,54 @@ return function()
 				expect(spot.prop).to.be.ok()
 			end
 			expect(Layout.park.rescueSpots[1].rotY).to.equal(0)
+		end)
+
+		-- Derek 2026-10-28 01:34 and 01:35 (Model-Agent #452): a cat can get stuck up the tree house's branch, and the
+		-- Great Oak's top nook is where the rarer cats wait.
+		it("the Woods' tree house branch is a tree trap up off the deck, and the oak top a rare spot", function()
+			local woods = Layout.woods
+			local branch = woods.rescueSpots[5]
+			expect(branch.prop).to.equal(nil)
+			expect(branch.trap).to.equal("tree")
+			expect(branch.y).to.equal(15.45)
+			local rares = 0
+			for _, point in woods.spawnPoints do
+				if point.zone == "rare" then
+					rares += 1
+					expect(point.y).to.be.near(woods.floorY + 18.3, 1e-9)
+				end
+			end
+			expect(rares).to.equal(1)
+		end)
+
+		-- Animation-Engineer's stuck placements (2026-10-28): every stuck cat is posed, a prop trap's in the prop's
+		-- space and a set trap's by its TrapType in the spot's, so the wriggles read as back end out or upside down.
+		it("every trap poses its stuck cat, each pose a turn and nothing more", function()
+			local function isTurn(pose: { number }, label: string)
+				if #pose ~= 12 then
+					fail("%s pose has %d numbers", label, #pose)
+				end
+				local a, b, c = { pose[4], pose[5], pose[6] }, { pose[7], pose[8], pose[9] }, { pose[10], pose[11], pose[12] }
+				local det = a[1] * (b[2] * c[3] - b[3] * c[2])
+					- a[2] * (b[1] * c[3] - b[3] * c[1])
+					+ a[3] * (b[1] * c[2] - b[2] * c[1])
+				if math.abs(det - 1) > 1e-3 then
+					fail("%s pose's rotation has determinant %.4f", label, det)
+				end
+			end
+			for id, spec in Layout.areas do
+				for i, spot in spec.rescueSpots do
+					local label = string.format("%s trap %d (%s)", id, i, spot.trap)
+					local pose = if spot.prop ~= nil then Layout.stuckPoses[spot.prop] else Layout.setStuckPoses[spot.trap]
+					if pose == nil then
+						fail("%s has no stuck pose", label)
+					end
+					isTurn(pose :: { number }, label)
+				end
+			end
+			-- the Park's trees are props, so a set's tree pose is the Woods' tree house branch alone
+			expect(Layout.setStuckPoses.tree).to.be.ok()
+			expect(Layout.stuckPoses.CatCafe_Park_RescueTree).to.be.ok()
 		end)
 	end)
 
@@ -854,6 +915,61 @@ return function()
 				end
 			end
 		end)
+
+		-- Model-Agent #535: eight full buildings in place of the repeated backs and the staff doors.
+		it("lines each back alley's outer wall with six different buildings, a crate stack by each Warehouse", function()
+			local prefix = "CatCafe_Alley_Building_"
+			for _, side in { -1, 1 } do
+				local seen: { [string]: boolean } = {}
+				local count, warehouses, stacks = 0, 0, 0
+				for _, prop in alley.props :: { Layout.Prop } do
+					if prop.x * side <= 0 then
+						continue
+					end
+					local onOuterWall = math.abs(prop.x) > W.AlleyOuterX
+					if prop.asset:sub(1, #prefix) == prefix and onOuterWall then
+						count += 1
+						if seen[prop.asset] then
+							fail("%s stands twice on side %d", prop.asset, side)
+						end
+						seen[prop.asset] = true
+						if prop.asset == prefix .. "Warehouse" then
+							warehouses += 1
+						end
+					elseif prop.asset == "CatCafe_Alley_CrateStack" then
+						stacks += 1
+					end
+				end
+				expect(count).to.equal(6)
+				expect(warehouses).to.equal(1)
+				expect(stacks).to.equal(warehouses)
+			end
+		end)
+
+		it("keeps every building's back inside the walls behind it, off the next area's floor", function()
+			local prefix = "CatCafe_Alley_Building_"
+			local woodsEdge = -(W.WoodsCenterX + W.WoodsWidth / 2) -- the Woods' near edge, |x|
+			local sewerEdge = W.SewerCenterX - W.SewerWidth / 2
+			local parkEdge = -(W.ParkCenterZ + W.ParkDepth / 2) -- the Park's near edge, |z|
+			local hoodEdge = W.NeighbourhoodCenterZ - W.NeighbourhoodDepth / 2
+			local ends = 0
+			for _, prop in alley.props :: { Layout.Prop } do
+				if prop.asset:sub(1, #prefix) ~= prefix then
+					continue
+				end
+				if math.abs(prop.x) > W.AlleyOuterX then
+					-- the back plane: past the alley's outer wall face, inside the side area's wall (1 thick, centred)
+					local edge = if prop.x < 0 then woodsEdge else sewerEdge
+					expect(math.abs(prop.x) <= edge + 0.5).to.equal(true)
+				else
+					ends += 1
+					local edge = if prop.z < 0 then parkEdge else hoodEdge
+					expect(math.abs(prop.z) >= math.abs(W.AlleyNorthZ)).to.equal(true)
+					expect(math.abs(prop.z) <= edge + 0.5).to.equal(true)
+				end
+			end
+			expect(ends).to.equal(3) -- both south ends and the east north end; the west north end keeps the mural
+		end)
 	end)
 
 	-- Town layout v3.1 (F77, town-layout-v3.md section 7): every area one straight walk from the fountain.
@@ -1154,6 +1270,85 @@ return function()
 				south = south or arch.z < 0
 			end
 			expect(north and south).to.equal(true)
+		end)
+	end)
+
+	describe("the cat beds (F79, Model-Agent #511)", function()
+		local plot = Layout.plot
+		local halfW, halfD = W.PlotWidth / 2, W.PlotDepth / 2
+		local CLEAR = 2 -- studs from a bed's centre to anything else's
+
+		local function apart(bed: any, x: number, z: number): number
+			return math.sqrt((bed.x - x) ^ 2 + (bed.z - z) ^ 2)
+		end
+
+		it("adds two beds a tier from Tier 3, so the trees' four places and the beds sleep every working slot", function()
+			expect(#plot.beds).to.equal(6)
+			for n, bed in plot.beds do
+				expect(bed.id).to.equal("bed_" .. n)
+				expect(bed.tier).to.equal(2 + math.ceil(n / 2))
+			end
+			for _, tier in Catalog.tiers do
+				local places = 4
+				for _, bed in plot.beds do
+					if tier.tier >= bed.tier then
+						places += 1
+					end
+				end
+				if places < tier.slots then
+					fail(
+						"Tier %d has %d working slots and only %d sleep places",
+						tier.tier,
+						tier.slots,
+						places
+					)
+				end
+			end
+		end)
+
+		it("stands each bed on the floor inside the walls, facing into the room", function()
+			for _, bed in plot.beds do
+				expect(bed.y).to.equal(0)
+				expect(math.abs(bed.x) <= halfW - 1.5 and math.abs(bed.z) <= halfD - 1.5).to.equal(
+					true
+				)
+				-- the front (-Z turned rotY about Y) points away from the nearest walls, toward the middle
+				local angle = math.rad(bed.rotY)
+				local frontX, frontZ = -math.sin(angle), -math.cos(angle)
+				if frontX * -bed.x + frontZ * -bed.z <= 0 then
+					fail("%s faces the wall", bed.id)
+				end
+			end
+		end)
+
+		it("keeps every bed clear of the nap spots, decor spots, tables, stations, cat trees and the other beds", function()
+			for _, bed in plot.beds do
+				local function check(what: string, x: number, z: number)
+					if apart(bed, x, z) < CLEAR then
+						fail("%s is %.2f studs from %s", bed.id, apart(bed, x, z), what)
+					end
+				end
+				for n, spot in plot.napSpots do
+					check("nap spot " .. n, spot.x, spot.z)
+				end
+				for n, spot in plot.decorSpots do
+					check("decor spot " .. n, spot.x, spot.z)
+				end
+				for n, spot in plot.tables do
+					check("table " .. n, spot.x, spot.z)
+				end
+				for id, spot in plot.spots do
+					check(id, spot.x, spot.z)
+				end
+				for id, spot in plot.spotFurniture do
+					check(id .. "'s cat tree", spot.x, spot.z)
+				end
+				for _, other in plot.beds do
+					if other ~= bed then
+						check(other.id, other.x, other.z)
+					end
+				end
+			end
 		end)
 	end)
 end

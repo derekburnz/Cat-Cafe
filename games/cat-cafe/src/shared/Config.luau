@@ -45,7 +45,15 @@ local Config = {
 	-- faster than NormalWalkSpeed), then catch its breath this long; tries are unlimited
 	StrayFleeSpeed = 26,
 	StrayRestSeconds = 1.5,
-	StraySelfRetrySeconds = 1, -- the player who missed waits this much longer than everyone else (v0.5.1, S44)
+	-- v0.8 F57 (data-model 10 step 5, Gavin round 3 Q3): the player who missed waits this much longer than everyone
+	-- else after the stray stops, by their misses in a row on it (the last step for every miss after), the streak
+	-- starting again after StrayMissStreakResetSeconds without a miss; and walks at StartledWalkSpeed for
+	-- StartledSeconds. StraySelfRetrySeconds is the first step, which the UI's countdown reads.
+	StraySelfRetrySteps = { 3, 6, 10 },
+	StraySelfRetrySeconds = 3,
+	StrayMissStreakResetSeconds = 60,
+	StartledWalkSpeed = 12,
+	StartledSeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
 	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
 
@@ -74,6 +82,14 @@ local Config = {
 	} :: { [number]: { perfect: number, good: number, jitter: number } },
 	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.
 	LureWaitSeconds = 600,
+	-- F60 (round 3 Q6): food that goes in while the server is in night waits this instead, the Big Bowl's in the same
+	-- share (half: 240 s), fixed in bait.readyAt at placement
+	LureWaitSecondsNight = 300,
+	-- F82 bowl levels (v0.13.15): the day wait and the bowl luck by lure_bowl level, read by shared/Bait. Luck is the
+	-- share of each rarity's chance moved up one rarity before the roll. The Big Bowl perk takes a fifth off any level.
+	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
+	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
+	BigBowlWaitMultiplier = 0.8,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
@@ -98,27 +114,29 @@ local Config = {
 	StraySpawnSpacingStuds = 12,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
-	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window.
+	-- The night dealer (data-model section 8b): buy from this close to the cart; the stock rerolls every window
+	-- (F59: every 5 minutes, was 10).
 	DealerRangeStuds = 12,
-	DealerWindowSeconds = 600,
+	DealerWindowSeconds = 300,
 
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start
 	RescueMinStuck = 1, -- stuck cats every area gets at night start even when no trap rolled one
-	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar
+	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar.
+	-- v0.13.15 F83 (harder rescues): 0.2 a second faster and narrower zones for every rarity.
 	RescueBarSpeed = {
-		Common = 0.8,
-		Rare = 1.0,
-		Epic = 1.2,
-		Legendary = 1.4,
-		Mythical = 1.6,
+		Common = 1.0,
+		Rare = 1.2,
+		Epic = 1.4,
+		Legendary = 1.6,
+		Mythical = 1.8,
 	} :: { [string]: number },
 	RescueZoneWidth = {
-		Common = 0.30,
-		Rare = 0.24,
-		Epic = 0.19,
-		Legendary = 0.15,
-		Mythical = 0.12,
+		Common = 0.26,
+		Rare = 0.20,
+		Epic = 0.15,
+		Legendary = 0.12,
+		Mythical = 0.10,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	RescuePatience = 3, -- misses one attempt can take
@@ -131,12 +149,21 @@ local Config = {
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
 
 	-- Night income and rich customers (F31, data-model sections 11 and 12)
-	NightIncomeMultiplier = 0.6, -- tips pay this share of the day rate at night; offline pay keeps the day rate
+	-- tips pay this share of the day rate at night; offline pay keeps the day rate. F60 (round 3 Q6): full pay, the
+	-- cafe still closed with its cats asleep (v0.5 to v0.8 paid 0.6)
+	NightIncomeMultiplier = 1,
 	RichCheckSeconds = 60, -- by day, how often each earning cafe rolls for a rich customer
-	RichChance = 0.15,
-	RichTipSeconds = 45, -- a rich tip is this many seconds of the day rate (at least $50)
+	RichChance = 0.10, -- F61: was 0.15, now that a rich visitor pays far more
+	RichTipSeconds = 120, -- a rich tip is this many seconds of the day rate (at least $50; F61: was 45)
 	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
+	-- Tip piles (F61, data-model section 12, round 3 Q6): by day, every TipPileSeconds each earning cafe with a table
+	-- gets a pile worth TipPileRateSeconds of the day rate (at least $5), up to TipPilesMax waiting. Only CollectTips
+	-- at the cafe pays them; the owner's client sends it within TipPileCollectRangeStuds of a pile.
+	TipPileSeconds = 30,
+	TipPileRateSeconds = 6,
+	TipPilesMax = 6,
+	TipPileCollectRangeStuds = 8,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
 	MysteryCheckSeconds = 120, -- by day, how often each earning cafe rolls for a Mystery Visitor
@@ -144,10 +171,41 @@ local Config = {
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
+	-- The Cat Collector (F63, data-model section 12b, round 3 Q6): by day, every CollectorCheckSeconds each earning
+	-- cafe with a table and a resting, unlocked cat rolls CollectorChance; he waits at the counter for
+	-- CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
+	-- CollectorGoldMultiplier for a gold cat, times a roll from CollectorRollMin to CollectorRollMax, and offers the
+	-- best Catalog.collectorOffers row that value reaches.
+	CollectorCheckSeconds = 120,
+	CollectorChance = 0.12,
+	CollectorStaySeconds = 180,
+	CollectorValue = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 } :: { [string]: number },
+	CollectorGoldMultiplier = 3,
+	CollectorRollMin = 0.8,
+	CollectorRollMax = 1.5,
+	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
 	PotionMaxMinutes = 60, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
 	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance
+	TimedTipsMax = 1.0, -- F73: every running tip potion together adds at most +100% (a Tip and a Big Tip: +75%)
+
+	-- Quests and achievements (F73, quests.md section 6). Pure rules in Quests. A day starts at 00:00 UTC; a week
+	-- at Monday 00:00 UTC, QuestWeekOffsetSeconds after the epoch's Thursday. Players in the game are checked for a
+	-- new day or week every QuestRollCheckSeconds.
+	QuestDailyCount = 5,
+	QuestWeeklyCount = 3,
+	QuestWeekOffsetSeconds = 345600,
+	QuestRollCheckSeconds = 60,
+
+	-- Bedtime (F79, data-model sections 12c and 17): at night the working cats walk from their stations to the cat
+	-- trees and beds and sleep, and walk back at sunrise. Pure rules in Bedtime, the walk in BedtimeService.
+	CafeCatWalkSpeed = 6, -- studs per second
+	BedtimeStaggerSeconds = 0.3, -- the wait per place in the sleep order, at the night start and at sunrise
+	BedtimeStretchSeconds = 1, -- from the get-up stretch (StretchAt) to the first step
+	HopSeconds = 0.45, -- one hop onto or off a pedestal, a bed or the counter
+	HopMaxRise = 2.6, -- the most a hop climbs, so the top perch takes two
+	BedtimeTimeoutSeconds = 15, -- a cat still on its way after this is placed on its spot or station
 
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
 	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
@@ -179,7 +237,6 @@ local Config = {
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
 	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
-	BigBowlLureWaitSeconds = 480, -- the bait wait with the Big Bowl perk (LureWaitSeconds without it)
 
 	-- Index rewards (F54, golden-fish.md sections 5 and 5b): the permanent bonuses the gold and All Cats tracks add
 	-- up to. Gold rolls use chance x (1 + goldLuck); a bait wait is the wait x (1 - baitSpeed).
@@ -205,6 +262,12 @@ local Config = {
 	BumpSameTargetSeconds = 20, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
 	ShoveTargetImmuneSeconds = 4, -- after a hit lands, nobody can hit that player again for this long (S45)
+	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
+	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
+	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.
+	DropReturnWalkSpeed = 8,
+	DropHomeRadiusStuds = 2,
+	DropReturnMaxSeconds = 60,
 	-- The Tackle (v0.11 F74, Derek 22:31): a lunge straight ahead that can miss.
 	TackleLungeStuds = 12, -- the tackler's client lunges this far; the server's reach cap
 	TackleLungeSeconds = 0.35,
@@ -284,18 +347,17 @@ local Config = {
 		WoodsWidth = 240,
 		WoodsDepth = 240,
 		WoodsGateX = -94,
-		SewerCenterX = 140,
+		SewerCenterX = 185, -- v3.2 (F81, 8e): 180 x 180 behind the same gate
 		SewerCenterZ = 0,
-		SewerWidth = 90,
-		SewerDepth = 90,
+		SewerWidth = 180,
+		SewerDepth = 180,
 		SewerGateX = 94,
 		SideGateHalfWidth = 12,
-		-- About 140 x 140 (areas-and-stations.md, Derek 2026-10-27: "extend it a little bigger"), at the street's
-		-- north end since v3.1.
+		-- At the street's north end since v3.1; 280 x 280 behind the same gate since v3.2 (F81, 8e).
 		NeighbourhoodCenterX = 0,
-		NeighbourhoodCenterZ = 196,
-		NeighbourhoodWidth = 140,
-		NeighbourhoodDepth = 140,
+		NeighbourhoodCenterZ = 266,
+		NeighbourhoodWidth = 280,
+		NeighbourhoodDepth = 280,
 		NeighbourhoodGateZ = 125,
 		-- Cafe life (world-and-feel.md section 4, F37): each client walks customers into every running cafe within
 		-- this range of its camera, up to CustomersMax at once across the street.

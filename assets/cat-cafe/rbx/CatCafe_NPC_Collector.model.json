@@ -1,0 +1,6542 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.3857,
+       0.248
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.2398,
+     0.7714,
+     1.0331
+    ],
+    "Color": [
+     0.5569,
+     0.5882,
+     0.6392
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.3857,
+       -0.248
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_NPC_Collector/0"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.0194,
+       -0.0826
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.9643,
+     0.9918,
+     0.7576
+    ],
+    "Color": [
+     0.5569,
+     0.5882,
+     0.6392
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5097,
+       0.0895,
+       -0.1378
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3306,
+     0.1515,
+     0.551
+    ],
+    "Color": [
+     0.5569,
+     0.5882,
+     0.6392
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5097,
+       0.0895,
+       -0.1378
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.3306,
+     0.1515,
+     0.551
+    ],
+    "Color": [
+     0.5569,
+     0.5882,
+     0.6392
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.0469,
+       -0.4752
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.4684,
+     0.6888,
+     0.0826
+    ],
+    "Color": [
+     0.9686,
+     0.9451,
+     0.902
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.6888,
+       -0.0138
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0194,
+     0.1378,
+     0.675
+    ],
+    "Color": [
+     0.2902,
+     0.3098,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.0331,
+       -0.0138
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0194,
+     0.1378,
+     0.675
+    ],
+    "Color": [
+     0.2902,
+     0.3098,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.3775,
+       -0.0138
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0194,
+     0.1378,
+     0.675
+    ],
+    "Color": [
+     0.2902,
+     0.3098,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.3857,
+       0.0689
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.2948,
+     0.6612,
+     0.1653
+    ],
+    "Color": [
+     0.2902,
+     0.3098,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_NPC_Collector_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.3857,
+       0.4821
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.2948,
+     0.6612,
+     0.1653
+    ],
+    "Color": [
+     0.2902,
+     0.3098,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.7908,
+         -0.3306
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.2673,
+       1.0469,
+       1.0194
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.3857,
+         0.1929
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_NPC_Collector/1"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2755,
+         2.328,
+         -0.2617
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1102,
+       0.0826,
+       0.6932
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         2.328,
+         -0.2617
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1102,
+       0.0826,
+       0.6932
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2755,
+         2.328,
+         -0.2617
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1102,
+       0.0826,
+       0.6932
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.5187,
+         -0.8265
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5207,
+       0.2893,
+       0.1102
+      ],
+      "Color": [
+       0.9686,
+       0.9451,
+       0.902
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.5765,
+         -0.8747
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1446,
+       0.1012,
+       0.0826
+      ],
+      "Color": [
+       0.8784,
+       0.4784,
+       0.549
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.4894,
+         -0.8885
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0386,
+       0.1006,
+       0.0413
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0362,
+         1.4247,
+         -0.8926
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0723,
+       0.0386,
+       0.0413
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1229,
+         1.4247,
+         -0.8885
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0723,
+       0.0386,
+       0.0413
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0362,
+         1.4247,
+         -0.8926
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0723,
+       0.0386,
+       0.0413
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1229,
+         1.4247,
+         -0.8885
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0723,
+       0.0386,
+       0.0413
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.5207,
+         1.5332,
+         -0.8403
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1736,
+       0.0723,
+       0.0689
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5207,
+         1.5332,
+         -0.8403
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1736,
+       0.0723,
+       0.0689
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/2"
+     },
+     "children": [
+      {
+       "name": "CatCafe_NPC_Collector_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3037,
+           1.7356,
+           -0.854
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2893,
+         0.3761,
+         0.0964
+        ],
+        "Color": [
+         0.4353,
+         0.8118,
+         0.5922
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_NPC_Collector/2"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3175,
+           1.7067,
+           -0.8885
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1736,
+         0.2708,
+         0.0551
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2387,
+           1.8409,
+           -0.916
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0868,
+         0.1012,
+         0.0413
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.3037,
+         1.7356,
+         -0.854
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_NPC_Collector_Eye1"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/3"
+     },
+     "children": [
+      {
+       "name": "CatCafe_NPC_Collector_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3037,
+           1.7356,
+           -0.854
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2893,
+         0.3761,
+         0.0964
+        ],
+        "Color": [
+         0.4353,
+         0.8118,
+         0.5922
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_NPC_Collector/3"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3175,
+           1.7067,
+           -0.8885
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1736,
+         0.2708,
+         0.0551
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3688,
+           1.8409,
+           -0.916
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0868,
+         0.1012,
+         0.0413
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.3037,
+         1.7356,
+         -0.854
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_NPC_Collector_Eye2"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_NPC_Collector_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3571,
+           2.3448,
+           -0.248
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.3444,
+         0.1378,
+         0.3444
+        ],
+        "Color": [
+         0.5569,
+         0.5882,
+         0.6392
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.043,
+           -0.0644,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_NPC_Collector/4"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3857,
+           2.4795,
+           -0.248
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2066,
+         0.1378,
+         0.2066
+        ],
+        "Color": [
+         0.5569,
+         0.5882,
+         0.6392
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4143,
+           2.6142,
+           -0.248
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.1378,
+         0.0689
+        ],
+        "Color": [
+         0.5569,
+         0.5882,
+         0.6392
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4115,
+           2.3969,
+           -0.3967
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1488,
+         0.157,
+         0.0413
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.3857,
+         2.2729,
+         -0.248
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_NPC_Collector_EarL"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_NPC_Collector_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3571,
+           2.3448,
+           -0.248
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.3444,
+         0.1378,
+         0.3444
+        ],
+        "Color": [
+         0.5569,
+         0.5882,
+         0.6392
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.043,
+           -0.0644,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_NPC_Collector/5"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3857,
+           2.4795,
+           -0.248
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2066,
+         0.1378,
+         0.2066
+        ],
+        "Color": [
+         0.5569,
+         0.5882,
+         0.6392
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4143,
+           2.6142,
+           -0.248
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.1378,
+         0.0689
+        ],
+        "Color": [
+         0.5569,
+         0.5882,
+         0.6392
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4115,
+           2.3969,
+           -0.3967
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1488,
+         0.157,
+         0.0413
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.3857,
+         2.2729,
+         -0.248
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_NPC_Collector_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/9"
+     },
+     "children": [
+      {
+       "name": "CatCafe_NPC_Collector_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.3824,
+           -0.4312
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9903,
+            -0.1392
+           ],
+           [
+            0.0,
+            0.1392,
+            0.9903
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.6888,
+         0.6337,
+         0.6887
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           -0.927,
+           0.4266
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.9903,
+            0.1392
+           ],
+           [
+            0.0,
+            -0.1392,
+            0.9903
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_NPC_Collector/9"
+       },
+       "children": [
+        {
+         "name": "Mesh",
+         "className": "SpecialMesh",
+         "properties": {
+          "MeshType": "Sphere"
+         }
+        }
+       ]
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.3551,
+           -0.435
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.9903,
+            0.0,
+            -0.1392
+           ],
+           [
+            0.1392,
+            0.0,
+            0.9903
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0551,
+         1.0193,
+         1.0193
+        ],
+        "Color": [
+         0.2902,
+         0.1804,
+         0.1216
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           2.4506,
+           -0.4216
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.9903,
+            0.0,
+            -0.1392
+           ],
+           [
+            0.1392,
+            0.0,
+            0.9903
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0826,
+         0.6943,
+         0.6943
+        ],
+        "Color": [
+         0.1804,
+         0.6196,
+         0.4196
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.4051,
+         -0.1377
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_NPC_Collector_Prop"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       1.4051,
+       -0.1377
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_NPC_Collector_Head"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/6"
+   },
+   "children": [
+    {
+     "name": "CatCafe_NPC_Collector_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5022,
+         0.1515,
+         0.613
+        ],
+        "orientation": [
+         [
+          -0.5,
+          0.0,
+          -0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.866,
+          0.0,
+          -0.5
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.248,
+       0.248,
+       0.6061
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.2617
+        ],
+        "orientation": [
+         [
+          -0.5,
+          0.0,
+          0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          -0.5
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_NPC_Collector/6"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.7288,
+         0.1515,
+         0.2204
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.248,
+       0.248,
+       0.6061
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5022,
+         0.1515,
+         -0.1722
+        ],
+        "orientation": [
+         [
+          -0.5,
+          0.0,
+          0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          -0.5
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.248,
+       0.248,
+       0.6061
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.2755,
+       0.1515,
+       0.7438
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_NPC_Collector_Tail"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/7"
+   },
+   "children": [
+    {
+     "name": "CatCafe_NPC_Collector_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2342,
+         0.4615,
+         -0.4132
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2755,
+       0.7852,
+       0.2755
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.3926,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_NPC_Collector/7"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.2342,
+         0.0758,
+         -0.4821
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3306,
+       0.1515,
+       0.3857
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.2342,
+       0.854,
+       -0.4132
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_NPC_Collector_LegF1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/8"
+   },
+   "children": [
+    {
+     "name": "CatCafe_NPC_Collector_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2342,
+         1.0792,
+         -0.7348
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5736,
+          -0.8192
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2755,
+       0.7852,
+       0.2755
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.3926,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5736,
+          0.8192
+         ],
+         [
+          0.0,
+          -0.8192,
+          -0.5736
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_NPC_Collector/8"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2342,
+         1.3569,
+         -1.0113
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5736,
+          -0.8192
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3306,
+       0.1515,
+       0.3857
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/11"
+     },
+     "children": [
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2342,
+           1.0437,
+           -0.6841
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.5736,
+            -0.8192
+           ],
+           [
+            0.0,
+            0.8192,
+            -0.5736
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.3857,
+         0.551,
+         0.3857
+        ],
+        "Color": [
+         0.6353,
+         0.4784,
+         0.3333
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3306,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.5736,
+            0.8192
+           ],
+           [
+            0.0,
+            -0.8192,
+            -0.5736
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_NPC_Collector/11"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2342,
+           1.2175,
+           -0.9323
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.5736,
+            -0.8192
+           ],
+           [
+            0.0,
+            0.8192,
+            -0.5736
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.4133,
+         0.0551,
+         0.4133
+        ],
+        "Color": [
+         1.0,
+         0.9765,
+         0.949
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0234,
+           1.9159,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            -0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0604,
+           2.061,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            -0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2055,
+           2.1448,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            -0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3731,
+           2.1448,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            -0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5182,
+           2.061,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            -0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            -0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.602,
+           1.9159,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            -0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            -0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.602,
+           1.7483,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            -0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.5182,
+           1.6032,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            -0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3731,
+           1.5194,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            -0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2055,
+           1.5194,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.2588,
+            0.0,
+            -0.9659
+           ],
+           [
+            0.9659,
+            0.0,
+            0.2588
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0604,
+           1.6032,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.7071,
+            0.0,
+            -0.7071
+           ],
+           [
+            0.7071,
+            0.0,
+            0.7071
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0234,
+           1.7483,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.9659,
+            0.0,
+            -0.2588
+           ],
+           [
+            0.2588,
+            0.0,
+            0.9659
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0689,
+         0.0689,
+         0.2002
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2893,
+           1.8321,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0276,
+         0.675,
+         0.675
+        ],
+        "Color": [
+         0.8118,
+         0.9137,
+         0.8902
+        ],
+        "Material": "Glass",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Transparency": 0.45,
+        "Shape": "Cylinder"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2893,
+           1.4326,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1102,
+         0.0964,
+         0.0964
+        ],
+        "Color": [
+         0.7216,
+         0.5686,
+         0.2275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2893,
+           1.1709,
+           -1.0469
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.4133,
+         0.124,
+         0.124
+        ],
+        "Color": [
+         0.3686,
+         0.2745,
+         0.2039
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2893,
+           1.8321,
+           -1.0676
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.3306,
+         0.4684,
+         0.0138
+        ],
+        "Color": [
+         0.4353,
+         0.8118,
+         0.5922
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2755,
+           1.7908,
+           -1.0779
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1997,
+         0.3375,
+         0.01
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_NPC_Collector_Lens",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3582,
+           1.9423,
+           -1.0831
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0964,
+         0.1102,
+         0.01
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.2342,
+         0.854,
+         -0.4132
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_NPC_Collector_Lens"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.2342,
+       0.854,
+       -0.4132
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_NPC_Collector_LegF2"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_NPC_Collector/10"
+   },
+   "children": [
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.1433,
+         0.5992
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.3775,
+       0.7439,
+       0.4684
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -1.1433,
+         0.5992
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_NPC_Collector/10"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6543,
+         1.1433,
+         -0.0482
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0689,
+       0.7439,
+       0.8265
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6543,
+         0.5372,
+         0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0689,
+       0.4684,
+       1.2948
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4408,
+         1.1433,
+         -0.489
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4959,
+       0.7439,
+       0.0551
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.551,
+         0.5372,
+         -0.489
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2755,
+       0.4684,
+       0.0551
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1929,
+         1.0745,
+         -0.5234
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8275,
+          -0.5615
+         ],
+         [
+          0.0,
+          0.5615,
+          0.8275
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0276,
+       0.2166,
+       0.3192
+      ],
+      "Color": [
+       0.4314,
+       0.3176,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3237,
+         1.2673,
+         -0.5234
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8275,
+          0.5615
+         ],
+         [
+          0.0,
+          0.5615,
+          -0.8275
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0276,
+       0.2166,
+       0.147
+      ],
+      "Color": [
+       0.4314,
+       0.3176,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0964,
+         1.2122,
+         -0.5097
+        ],
+        "orientation": [
+         [
+          0.9397,
+          -0.342,
+          0.0
+         ],
+         [
+          0.342,
+          0.9397,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1653,
+       0.1377,
+       0.0551
+      ],
+      "Color": [
+       0.1804,
+       0.6196,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6543,
+         1.1433,
+         -0.0482
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0689,
+       0.7439,
+       0.8265
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6543,
+         0.5372,
+         0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0689,
+       0.4684,
+       1.2948
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4408,
+         1.1433,
+         -0.489
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4959,
+       0.7439,
+       0.0551
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.551,
+         0.5372,
+         -0.489
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2755,
+       0.4684,
+       0.0551
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1929,
+         1.0745,
+         -0.5234
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8275,
+          0.5615
+         ],
+         [
+          0.0,
+          0.5615,
+          0.8275
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0276,
+       0.2166,
+       0.3192
+      ],
+      "Color": [
+       0.4314,
+       0.3176,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3237,
+         1.2673,
+         -0.5234
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8275,
+          -0.5615
+         ],
+         [
+          0.0,
+          0.5615,
+          -0.8275
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0276,
+       0.2166,
+       0.147
+      ],
+      "Color": [
+       0.4314,
+       0.3176,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0964,
+         1.2122,
+         -0.5097
+        ],
+        "orientation": [
+         [
+          0.9397,
+          0.342,
+          0.0
+         ],
+         [
+          -0.342,
+          0.9397,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1653,
+       0.1377,
+       0.0551
+      ],
+      "Color": [
+       0.1804,
+       0.6196,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.2122,
+         -0.5303
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0689,
+       0.0826,
+       0.0413
+      ],
+      "Color": [
+       0.1804,
+       0.6196,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.5497,
+         -0.0482
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.3775,
+       0.0689,
+       0.8265
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3582,
+         1.0194,
+         -0.5235
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0276,
+       0.0964,
+       0.0964
+      ],
+      "Color": [
+       0.7216,
+       0.5686,
+       0.2275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3582,
+         0.8541,
+         -0.5235
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0276,
+       0.0964,
+       0.0964
+      ],
+      "Color": [
+       0.7216,
+       0.5686,
+       0.2275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.5372,
+         0.799
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.2398,
+       0.4684,
+       0.0689
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.5235,
+         0.8403
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0276,
+       0.4133,
+       0.0138
+      ],
+      "Color": [
+       0.4314,
+       0.3176,
+       0.251
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6956,
+         1.1433,
+         -0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.7439,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6956,
+         1.1433,
+         0.0895
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.7439,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6991,
+         1.0194,
+         -0.0482
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.0207,
+       0.8265
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6991,
+         1.2673,
+         -0.0482
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.0207,
+       0.8265
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6956,
+         0.5372,
+         -0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6956,
+         0.5372,
+         0.0895
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6956,
+         0.5372,
+         0.365
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6956,
+         0.5372,
+         0.6405
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.6991,
+         0.5372,
+         0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.0207,
+       1.2948
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6956,
+         1.1433,
+         -0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.7439,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6956,
+         1.1433,
+         0.0895
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.7439,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6991,
+         1.0194,
+         -0.0482
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.0207,
+       0.8265
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6991,
+         1.2673,
+         -0.0482
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.0207,
+       0.8265
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6956,
+         0.5372,
+         -0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6956,
+         0.5372,
+         0.0895
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6956,
+         0.5372,
+         0.365
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6956,
+         0.5372,
+         0.6405
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0138,
+       0.4684,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.6991,
+         0.5372,
+         0.186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.0207,
+       1.2948
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4133,
+         0.5372,
+         0.8403
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.4684,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1378,
+         0.5372,
+         0.8403
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.4684,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1378,
+         0.5372,
+         0.8403
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.4684,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4133,
+         0.5372,
+         0.8403
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.4684,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.5372,
+         0.8437
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.2398,
+       0.0207,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.4133,
+         1.147,
+         0.605
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8462,
+          0.5328
+         ],
+         [
+          0.0,
+          -0.5328,
+          0.8462
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.8515,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1378,
+         1.147,
+         0.605
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8462,
+          0.5328
+         ],
+         [
+          0.0,
+          -0.5328,
+          0.8462
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.8515,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1378,
+         1.147,
+         0.605
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8462,
+          0.5328
+         ],
+         [
+          0.0,
+          -0.5328,
+          0.8462
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.8515,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.4133,
+         1.147,
+         0.605
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8462,
+          0.5328
+         ],
+         [
+          0.0,
+          -0.5328,
+          0.8462
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0207,
+       0.8515,
+       0.0138
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0249,
+         0.686
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8462,
+          0.5328
+         ],
+         [
+          0.0,
+          -0.5328,
+          0.8462
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.35,
+       0.0207,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_NPC_Collector_Coat",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.2728,
+         0.5299
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.8462,
+          0.5328
+         ],
+         [
+          0.0,
+          -0.5328,
+          0.8462
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.35,
+       0.0207,
+       0.0207
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_NPC_Collector_Coat"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

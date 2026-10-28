@@ -230,10 +230,18 @@ local function baitCat(s: Types.PlayerState): UITypes.BaitCat?
 end
 
 -- The bait bowl (F28, data-model section 8): what is in it, the owner's prompt on it and the card the moment its
--- cat arrives. ProfileSync names the cat only once it has arrived, so its first appearance is the arrival.
+-- cat arrives. ProfileSync names the cat only once it has arrived, so its first appearance is the arrival. placedAt
+-- sets the fill bar's length and night (F60) the countdown's moon.
 local function refreshBait(s: Types.PlayerState)
 	local bait = s.bait
-	UI.bait.set(if bait ~= nil then { lureId = bait.lureId, readyAt = bait.readyAt } else nil)
+	UI.bait.set(if bait ~= nil
+		then {
+			lureId = bait.lureId,
+			readyAt = bait.readyAt,
+			placedAt = bait.placedAt,
+			night = bait.night,
+		}
+		else nil)
 	local bowl = UIController.ownBaitBowl()
 	UI.bait.setBowl(bowl)
 
@@ -406,6 +414,9 @@ local function applyState(s: Types.PlayerState)
 		baitSpeed = s.baitSpeed,
 		potions = s.potions, -- F64: the potion bag
 		buffs = s.buffs, -- F64: each running potion's endsAt in server time
+		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
+		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
+		dailyTreat = s.dailyTreat, -- F70: the Daily Treat card, whether a stamp is due and the day it pays
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -430,6 +441,9 @@ local function applyState(s: Types.PlayerState)
 	refreshTutorial(s)
 	refreshRichTip()
 end
+
+-- The night dealer (F59): the window of the last DealerStock, which a buy sends back when the screen has none.
+local dealerWindow: number? = nil
 
 local function wireIntents()
 	UI.events.setSetting:Connect(function(key: string, value: any)
@@ -550,9 +564,38 @@ local function wireIntents()
 	UI.events.claimRichTip:Connect(function()
 		Net.fire("ClaimRichTip")
 	end)
-	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused.
-	UI.events.buyDealerFood:Connect(function(slot: number, lureId: string)
-		Net.fire("BuyDealerFood", slot, lureId)
+	-- The Lock row on a cat (F62): a locked cat cannot be sold or traded; the next ProfileSync shows the new lock.
+	UI.events.lockCat:Connect(function(uid: string, locked: boolean)
+		Net.fire("LockCat", uid, locked)
+	end)
+	-- Collect on the till (F61): every waiting tip pile. Walking near a pile sends the same (CustomerController).
+	UI.events.collectTips:Connect(function()
+		Net.fire("CollectTips")
+	end)
+	-- Trade or No thanks on the Cat Collector's card (F63). The server checks the range and the cat and answers with
+	-- CollectorOffer("") when the visit ends, or a toast when the cat cannot go yet.
+	UI.events.answerCollector:Connect(function(accept: boolean)
+		Net.fire("AnswerCollector", accept)
+	end)
+	-- Quests and achievements (F73): the server checks each claim and swap and answers with a toast, QuestResult on a
+	-- payment and a sync.
+	UI.events.claimQuest:Connect(function(kind: string, slot: number)
+		Net.fire("ClaimQuest", kind, slot)
+	end)
+	UI.events.rerollQuest:Connect(function(kind: string, slot: number)
+		Net.fire("RerollQuest", kind, slot)
+	end)
+	UI.events.claimAchievement:Connect(function(achievementId: string)
+		Net.fire("ClaimAchievement", achievementId)
+	end)
+	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
+	UI.events.claimDailyTreat:Connect(function()
+		Net.fire("ClaimDailyTreat")
+	end)
+	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
+	-- the food and the window the screen showed (else the last one sent), so a buy sent across a roll is refused (S42).
+	UI.events.buyDealerFood:Connect(function(_index: number, lureId: string, window: number?)
+		Net.fire("BuyDealerFood", lureId, window or dealerWindow or -1)
 	end)
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
@@ -634,40 +677,6 @@ local function rescueInfo(rescueSpotId: string): (string?, string?)
 	return trap, rarity
 end
 
--- The night dealer's cart (F32): the UI's range hint follows it and its prompt opens the dealer screen. The cart
--- is the server's, tagged DealerCart, there from night start to day start.
-local function bindDealerCart()
-	-- `cue` is false for a cart already out when this client starts, so a player who joins at night does not
-	-- hear it arrive (reviewer note on #110).
-	local function arrived(instance: Instance, cue: boolean)
-		if not instance:IsA("Model") then
-			return
-		end
-		local model = instance :: Model
-		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
-		UI.dealer.setCart(if found ~= nil and found:IsA("BasePart") then found :: BasePart else nil)
-		local prompt = model:FindFirstChild("DealerPrompt", true)
-		if prompt ~= nil and prompt:IsA("ProximityPrompt") then
-			(prompt :: ProximityPrompt).Triggered:Connect(function()
-				UI.dealer.open()
-			end)
-		end
-		if cue then
-			Moments.DealerArrive:Fire()
-		end
-	end
-	CollectionService:GetInstanceAddedSignal("DealerCart"):Connect(function(instance)
-		arrived(instance, true)
-	end)
-	CollectionService:GetInstanceRemovedSignal("DealerCart"):Connect(function()
-		UI.dealer.setCart(nil)
-		Moments.DealerLeave:Fire()
-	end)
-	for _, instance in CollectionService:GetTagged("DealerCart") do
-		arrived(instance, false)
-	end
-end
-
 -- The Golden Fish Market window (F53) and its two events come with UI #312. Until that is on main the UI module may
 -- not have them, so they are reached loosely and skipped when missing. Drop the casts once #312 merges.
 local function marketUI(): any
@@ -676,8 +685,13 @@ end
 
 -- A street station's prompt opens its window, which closes itself when the player walks out of range. The station is
 -- the server's, tagged and Persistent; a prompt that streams in after its model is bound too, and each prompt only
--- once.
-local function bindStationPrompts(tag: string, promptName: string, open: () -> ())
+-- once. `found`, when given, hears of each prompt as it is bound.
+local function bindStationPrompts(
+	tag: string,
+	promptName: string,
+	open: () -> (),
+	found: ((ProximityPrompt) -> ())?
+)
 	local bound: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 	local function bindPrompt(instance: Instance)
 		if
@@ -692,6 +706,9 @@ local function bindStationPrompts(tag: string, promptName: string, open: () -> (
 		prompt.Triggered:Connect(function()
 			open()
 		end)
+		if found ~= nil then
+			found(prompt)
+		end
 	end
 	local function station(instance: Instance)
 		for _, descendant in instance:GetDescendants() do
@@ -702,6 +719,48 @@ local function bindStationPrompts(tag: string, promptName: string, open: () -> (
 	CollectionService:GetInstanceAddedSignal(tag):Connect(station)
 	for _, instance in CollectionService:GetTagged(tag) do
 		station(instance)
+	end
+end
+
+-- The night dealer's cart (F32): the UI's range hint follows it and its prompt opens the dealer screen. The cart
+-- is the server's, tagged DealerCart, there from night start to day start. Its prompt is bound the way a station's
+-- is, since it can reach this client after the cart's tag does: looking for it once when the tag arrived left E at
+-- the cart doing nothing (Derek 2026-10-28). The range hint follows the part the prompt floats on, the part the
+-- server measures the range from.
+local function bindDealerCart()
+	bindStationPrompts("DealerCart", "DealerPrompt", function()
+		UI.dealer.open()
+	end, function(prompt: ProximityPrompt)
+		local holder = prompt.Parent
+		local part = if holder ~= nil and holder:IsA("Attachment") then holder.Parent else holder
+		if part ~= nil and part:IsA("BasePart") then
+			UI.dealer.setCart(part :: BasePart)
+		end
+	end)
+	-- `cue` is false for a cart already out when this client starts, so a player who joins at night does not
+	-- hear it arrive (reviewer note on #110).
+	local function arrived(instance: Instance, cue: boolean)
+		if not instance:IsA("Model") then
+			return
+		end
+		local model = instance :: Model
+		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if found ~= nil and found:IsA("BasePart") then
+			UI.dealer.setCart(found :: BasePart)
+		end
+		if cue then
+			Moments.DealerArrive:Fire()
+		end
+	end
+	CollectionService:GetInstanceAddedSignal("DealerCart"):Connect(function(instance)
+		arrived(instance, true)
+	end)
+	CollectionService:GetInstanceRemovedSignal("DealerCart"):Connect(function()
+		UI.dealer.setCart(nil)
+		Moments.DealerLeave:Fire()
+	end)
+	for _, instance in CollectionService:GetTagged("DealerCart") do
+		arrived(instance, false)
 	end
 end
 
@@ -807,6 +866,18 @@ local function wireServerEvents()
 	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
 		UI.potions.giftResult(kind, id, count)
 	end)
+	-- What a quest, a set or an achievement claim paid (F73), for the Quests window's claim effect.
+	Net.on("QuestResult", function(paid: { string })
+		UI.quests.result(paid)
+	end)
+	-- The Cat Collector at this player's cafe (F63): his card and tag, or catUid "" when he leaves or a trade is done.
+	Net.on(
+		"CollectorOffer",
+		function(catUid: string, offer: Types.CollectorOffer?, endsAt: number, traded: boolean?)
+			-- the UI's own CollectorOffer reads `value` as optional, so the shared row passes as is
+			UI.collector.offer(catUid, offer :: any, endsAt, traded)
+		end
+	)
 	-- One of this player's cats reached a new level (F75): the UI gathers close ones into one toast, Audio chimes and
 	-- Effects sparkles from the model's Level attribute.
 	Net.on("CatLevelUp", function(uid: string, level: number)
@@ -814,7 +885,13 @@ local function wireServerEvents()
 		Moments.CatLevelUp:Fire(uid, level)
 	end)
 	Net.on("DealerStock", function(stock: Types.DealerStock?)
-		UI.dealer.setStock(stock)
+		dealerWindow = if stock ~= nil then stock.window else nil
+		-- the screen takes F59's amounts as they come (#492)
+		UI.dealer.setStock(
+			if stock ~= nil
+				then { window = stock.window, restocksAt = stock.restocksAt, stock = stock.stock }
+				else nil
+		)
 	end)
 	Net.on("PlotOpened", function(position: Vector3, plotIndex: number)
 		Moments.PlotOpened:Fire(position, plotIndex)
@@ -850,20 +927,28 @@ local function wireServerEvents()
 		end
 	)
 	-- Data-model section 10 step 5: grades up to and including the first Miss and the Purrfect charm bonus. The HUD
-	-- shows the grades and, on a miss, that the cat got away (v0.5: it sprints off and tries are unlimited).
+	-- shows the grades and, on a miss, that the cat got away (v0.5: it sprints off and tries are unlimited). A miss
+	-- also brings this player's retryAt (F57, review S87), when the card's "Catch your breath..." ends.
 	Net.on(
 		"CatchResult",
 		function(
 			strayId: string,
 			grades: { Types.CircleGrade },
 			success: boolean,
-			charmGain: number
+			charmGain: number,
+			retryAt: number?
 		)
 			local allPerfect = #grades > 0
 			for _, grade in grades do
 				allPerfect = allPerfect and grade == "perfect"
 			end
-			UI.catch.showGrades(strayId, grades, success, charmGain)
+			UI.catch.showGrades(
+				strayId,
+				grades,
+				success,
+				charmGain,
+				if type(retryAt) == "number" then retryAt else nil
+			)
 			cancelCircleTimers()
 			if success then
 				local model = strayModel(strayId)
@@ -992,6 +1077,12 @@ function UIController.start()
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 		potions = Catalog.potions, -- F64: the potion bag's rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
+		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
+		quests = Catalog.quests, -- F73: the quest rows (to tell a coins quest)
+		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet
+		achievements = Catalog.achievements, -- F73: the 44 achievements in table order
+		achievementPrizes = Catalog.achievementPrizes, -- F73: prizes by size
+		dailyTreat = Catalog.dailyTreat, -- F70: the Daily Treat card's seven days and their prizes
 	}
 	-- UI cues (button clicks, popups, toasts) play through the client's Audio channels.
 	UI.init({

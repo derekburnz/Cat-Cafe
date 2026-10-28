@@ -8,14 +8,17 @@ local Types = require(script.Parent.Types)
 
 local Catalog = {}
 
--- Section 2. circles and shrinkSeconds drive the net (section 10), fleeStuds is how far a stray sprints after a
--- missed catch before anyone can try again (v0.5, tries are unlimited), rescueHits the rescue bar (section 10b).
+-- Section 2. circles and shrinkSeconds drive the net (section 10), catchWindow narrows the net's Perfect and Good
+-- for a cat of that rarity (v0.13.15 F83, Derek: "make the catching and rescue games harder"), fleeStuds is how far a
+-- stray sprints after a missed catch before anyone can try again (v0.5, tries are unlimited; doubled in v0.8 F57,
+-- Gavin round 3 Q3), rescueHits the rescue bar (section 10b).
 Catalog.rarities = {
 	Common = {
 		incomePerSecond = 1,
 		circles = 1,
 		shrinkSeconds = 1.40,
-		fleeStuds = 12,
+		catchWindow = 0.9,
+		fleeStuds = 24,
 		rescueHits = 2,
 		sellValue = 25,
 		firstCatchReward = 50,
@@ -25,7 +28,8 @@ Catalog.rarities = {
 		incomePerSecond = 3,
 		circles = 2,
 		shrinkSeconds = 1.15,
-		fleeStuds = 16,
+		catchWindow = 0.8,
+		fleeStuds = 32,
 		rescueHits = 3,
 		sellValue = 150,
 		firstCatchReward = 300,
@@ -35,7 +39,8 @@ Catalog.rarities = {
 		incomePerSecond = 8,
 		circles = 3,
 		shrinkSeconds = 0.95,
-		fleeStuds = 20,
+		catchWindow = 0.7,
+		fleeStuds = 40,
 		rescueHits = 4,
 		sellValue = 600,
 		firstCatchReward = 1500,
@@ -45,7 +50,8 @@ Catalog.rarities = {
 		incomePerSecond = 25,
 		circles = 4,
 		shrinkSeconds = 0.80,
-		fleeStuds = 26,
+		catchWindow = 0.6,
+		fleeStuds = 52,
 		rescueHits = 5,
 		sellValue = 3000,
 		firstCatchReward = 8000,
@@ -55,7 +61,8 @@ Catalog.rarities = {
 		incomePerSecond = 75,
 		circles = 5,
 		shrinkSeconds = 0.65,
-		fleeStuds = 32,
+		catchWindow = 0.5,
+		fleeStuds = 64,
 		rescueHits = 6,
 		sellValue = 12000,
 		firstCatchReward = 30000,
@@ -835,7 +842,7 @@ Catalog.tiers = {
 		slots = 2,
 		multiplier = 1.00,
 		area = "alley",
-		caps = { tables = 2, espresso = 2, net = 1 },
+		caps = { tables = 2, espresso = 2, net = 1, lure_bowl = 1 },
 	},
 	{
 		tier = 2,
@@ -845,7 +852,7 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 4, espresso = 3, net = 2 },
+		caps = { tables = 4, espresso = 3, net = 2, lure_bowl = 2 },
 	},
 	{
 		tier = 3,
@@ -857,7 +864,7 @@ Catalog.tiers = {
 		slots = 6,
 		multiplier = 1.50,
 		area = "neighbourhood",
-		caps = { tables = 6, espresso = 4, net = 3 },
+		caps = { tables = 6, espresso = 4, net = 3, lure_bowl = 3 },
 	},
 	{
 		tier = 4,
@@ -869,7 +876,7 @@ Catalog.tiers = {
 		slots = 8,
 		multiplier = 1.75,
 		area = "woods",
-		caps = { tables = 6, espresso = 5, net = 3 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 4 },
 	},
 	{
 		tier = 5,
@@ -881,7 +888,7 @@ Catalog.tiers = {
 		slots = 10,
 		multiplier = 2.00,
 		area = "sewer",
-		caps = { tables = 6, espresso = 5, net = 3 },
+		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5 },
 	},
 } :: { Types.TierDef }
 
@@ -891,7 +898,8 @@ function Catalog.getTier(tier: number): Types.TierDef?
 	return Catalog.tiers[tier]
 end
 
--- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net); nil when no tier does.
+-- Lowest tier whose shop cap allows `level` of a capped upgrade (tables, espresso, net, lure_bowl); nil when no tier
+-- does.
 function Catalog.tierForLevel(upgradeId: string, level: number): number?
 	for _, def in Catalog.tiers do
 		local cap = (def.caps :: any)[upgradeId]
@@ -931,9 +939,10 @@ Catalog.upgrades = {
 	{
 		id = "lure_bowl", -- shown as Bait bowl; ids keep the lure_ prefix (data-model section 6)
 		name = "Bait bowl",
-		description = "A bowl on your back step. Food in, a cat in 10 min",
-		maxLevel = 1,
-		costs = { 600 },
+		-- F82 (v0.13.15): five levels, each tier opening one, the names in Bait.bowlName
+		description = "A bowl on your back step. Each level brings bait cats sooner and rarer",
+		maxLevel = 5,
+		costs = { 600, 6000, 60000, 500000, 3000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }
@@ -1135,6 +1144,27 @@ Catalog.tipJar = {
 	},
 } :: { Types.TipJarStep }
 
+-- Section 11e (F70, round 4 Q9): the Daily Treat card, one stamp per UTC day played and never reset. Days 2 and 4
+-- are pretty good and day 7 really good: a Golden Classic Crate and a Star Treat, the night dealer's best bait, for a
+-- real shot at a top cat while cats still come only from catching, rescue and bait. Earned only (monetization-policy).
+Catalog.dailyTreat = {
+	{ day = 1, prize = { coins = 300, coinSeconds = 300 } },
+	{ day = 2, prize = { lures = { salmon = 2 }, fish = 15, spins = 1 } },
+	{ day = 3, prize = { coins = 600, coinSeconds = 600 } },
+	{ day = 4, prize = { lures = { caviar = 1 }, crates = { classic_crate = 1 }, spins = 1 } },
+	{ day = 5, prize = { coins = 1000, coinSeconds = 900 } },
+	{ day = 6, prize = { lures = { tuna = 3 }, potions = { lucky_potion = 1 } } },
+	{
+		day = 7,
+		prize = {
+			crates = { classic_golden_crate = 1 },
+			lures = { star_treat = 1 },
+			fish = 50,
+			spins = 3,
+		},
+	},
+} :: { Types.DailyTreatDay }
+
 -- Section 11c (F49): the Spin Wheel's six slices in order around the wheel. Free spins only: no Robux button, pass
 -- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes.
 Catalog.spinWheel = {
@@ -1163,7 +1193,13 @@ end
 -- drinking another of a running kind adds its time, up to Config.PotionMaxMinutes. Earned only (Tip Jar, codes,
 -- Mystery gifts), never sold: one for Robux would change income or catch odds and needs the monetization review.
 Catalog.potions = {
-	{ id = "tip_potion", name = "Tip Potion", minutes = 10, effect = "+25% tips" },
+	{
+		id = "tip_potion",
+		name = "Tip Potion",
+		minutes = 10,
+		effect = "+25% tips",
+		tips = Config.TipPotionBonus,
+	},
 	{
 		id = "lucky_potion",
 		name = "Lucky Potion",
@@ -1176,6 +1212,31 @@ Catalog.potions = {
 		name = "Steady Paw Potion",
 		minutes = 10,
 		effect = "Easier catch circles",
+	},
+	-- F73 (quests.md section 4): the quest potions, paid only by full quest sets and achievements
+	{
+		id = "big_tip_potion",
+		name = "Big Tip Potion",
+		minutes = 30,
+		effect = "+50% tips",
+		tips = 0.5,
+		quest = true,
+	},
+	{
+		id = "gold_rush_potion",
+		name = "Gold Rush Potion",
+		minutes = 30,
+		effect = "+25% gold luck",
+		goldLuck = 0.25,
+		quest = true,
+	},
+	{
+		id = "quick_bait_potion",
+		name = "Quick Bait Potion",
+		minutes = 30,
+		effect = "Bait ready 25% sooner",
+		baitSpeed = 0.25,
+		quest = true,
 	},
 } :: { Types.PotionDef }
 Catalog.potionsById = {} :: { [string]: Types.PotionDef }
@@ -1191,6 +1252,583 @@ function Catalog.getPotion(id: string): Types.PotionDef?
 	return Catalog.potionsById[id]
 end
 
+-- Quests and achievements (F73, quests.md sections 2, 3 and 5, approved by Derek 2026-10-27 22:14). Each day picks
+-- one quest per slot from its pool, in Quests.DAILY_POOLS order (two Streets, Cafe, Extra, the Big Request), each week
+-- one from each weekly pool. Coins quests fix their needs from the day rate when picked.
+Catalog.quests = {
+	daily = {
+		streets = {
+			{ id = "d_catch5", text = "Catch 5 cats", stat = "catsCaught", needs = 5 },
+			{
+				id = "d_perfect10",
+				text = "Land 10 perfect circles",
+				stat = "perfectCircles",
+				needs = 10,
+			},
+			{ id = "d_rescue2", text = "Rescue 2 stuck cats", stat = "rescues", needs = 2 },
+			{
+				id = "d_rare1",
+				text = "Catch a Rare or better cat",
+				stat = "rareCatches",
+				needs = 1,
+			},
+		},
+		cafe = {
+			{
+				id = "d_coins",
+				text = "Earn coins",
+				stat = "lifetimeCoins",
+				needsSeconds = 600,
+				needsMin = 500,
+			},
+			{ id = "d_tips6", text = "Collect 6 tip piles", stat = "tipPilesCollected", needs = 6 },
+			{
+				id = "d_bait1",
+				text = "Tame a cat at your bait bowl",
+				stat = "baitsTamed",
+				needs = 1,
+				requires = { upgrade = "lure_bowl" },
+			},
+			{
+				id = "d_food2",
+				text = "Put 2 foods in your bait bowl",
+				stat = "luresUsed",
+				needs = 2,
+				requires = { upgrade = "lure_bowl" },
+			},
+		},
+		extra = {
+			{ id = "d_spin1", text = "Spin the wheel", stat = "spins", needs = 1 },
+			{ id = "d_tipjar3", text = "Claim 3 Tip Jar gifts", stat = "tipJarClaims", needs = 3 },
+			{ id = "d_fish5", text = "Earn 5 golden fish", stat = "fishEarned", needs = 5 },
+			{
+				id = "d_crate1",
+				text = "Open a Cafe Crate",
+				stat = "cratesOpened",
+				needs = 1,
+				requires = { fishOrCrate = true },
+			},
+			{ id = "d_levelup1", text = "Level up a cat", stat = "catLevelUps", needs = 1 },
+		},
+		big = {
+			{
+				id = "d_rare3",
+				text = "Catch 3 Rare or better cats",
+				stat = "rareCatches",
+				needs = 3,
+			},
+			{ id = "d_catch12", text = "Catch 12 cats", stat = "catsCaught", needs = 12 },
+			{ id = "d_rescue5", text = "Rescue 5 stuck cats", stat = "rescues", needs = 5 },
+			{
+				id = "d_perfect30",
+				text = "Land 30 perfect circles",
+				stat = "perfectCircles",
+				needs = 30,
+			},
+			{
+				id = "d_coinsbig",
+				text = "Earn coins",
+				stat = "lifetimeCoins",
+				needsSeconds = 1500,
+				needsMin = 1500,
+			},
+		},
+	},
+	weekly = {
+		a = {
+			{ id = "w_catch60", text = "Catch 60 cats", stat = "catsCaught", needs = 60 },
+			{
+				id = "w_perfect150",
+				text = "Land 150 perfect circles",
+				stat = "perfectCircles",
+				needs = 150,
+			},
+			{ id = "w_rescue15", text = "Rescue 15 stuck cats", stat = "rescues", needs = 15 },
+		},
+		b = {
+			{
+				id = "w_coins",
+				text = "Earn coins",
+				stat = "lifetimeCoins",
+				needsSeconds = 10800,
+				needsMin = 10000,
+			},
+			{
+				id = "w_bait10",
+				text = "Tame 10 cats at your bait bowl",
+				stat = "baitsTamed",
+				needs = 10,
+				requires = { upgrade = "lure_bowl" },
+			},
+			{
+				id = "w_tips60",
+				text = "Collect 60 tip piles",
+				stat = "tipPilesCollected",
+				needs = 60,
+			},
+		},
+		c = {
+			{
+				id = "w_new2",
+				text = "Find 2 new cats",
+				stat = "distinctCats",
+				needs = 2,
+				requires = { uncaught = 2 },
+			},
+			{ id = "w_gold2", text = "Catch 2 gold cats", stat = "goldCatches", needs = 2 },
+			{
+				id = "w_daily15",
+				text = "Finish 15 daily quests",
+				stat = "dailyQuestsDone",
+				needs = 15,
+			},
+			{
+				id = "w_sets3",
+				text = "Finish all your dailies on 3 days",
+				stat = "dailySetsDone",
+				needs = 3,
+			},
+		},
+	},
+} :: {
+	daily: { [string]: { Types.QuestDef } },
+	weekly: { [string]: { Types.QuestDef } },
+}
+
+-- What finishing a quest pays, in the Index prize shape: coins are `coinSeconds` of the day rate when claimed, at
+-- least `coins`.
+Catalog.questPrizes = {
+	daily = { coins = 200, coinSeconds = 180, fish = 2 },
+	dailyBig = { coins = 400, coinSeconds = 300, fish = 4, lures = { tuna = 1 } },
+	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, spins = 1 },
+	weekly = { coins = 2000, coinSeconds = 1200, fish = 15, spins = 1, lures = { salmon = 1 } },
+	weeklySet = {
+		potions = { big_tip_potion = 3, gold_rush_potion = 3, quick_bait_potion = 2 },
+		crates = { classic_golden_crate = 1 },
+		fish = 40,
+		spins = 3,
+	},
+} :: { [string]: Types.IndexPrize }
+
+-- The 44 achievements, each on its own and paid once, in the design's table order.
+Catalog.achievements = {
+	{
+		id = "a_first_catch",
+		name = "First Catch",
+		text = "Catch your first cat",
+		measure = "catsCaught",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_catch100",
+		name = "Cat Catcher",
+		text = "Catch 100 cats",
+		measure = "catsCaught",
+		needs = 100,
+		size = "M",
+	},
+	{
+		id = "a_catch1k",
+		name = "Cat Wrangler",
+		text = "Catch 1,000 cats",
+		measure = "catsCaught",
+		needs = 1000,
+		size = "L",
+	},
+	{
+		id = "a_catch10k",
+		name = "Cat Legend",
+		text = "Catch 10,000 cats",
+		measure = "catsCaught",
+		needs = 10000,
+		size = "XL",
+	},
+	{
+		id = "a_rare1",
+		name = "Rare Find",
+		text = "Catch a Rare or better cat",
+		measure = "rareCatches",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_rare100",
+		name = "Rare Hunter",
+		text = "Catch 100 Rare or better cats",
+		measure = "rareCatches",
+		needs = 100,
+		size = "L",
+	},
+	{
+		id = "a_gold1",
+		name = "Golden Paws",
+		text = "Catch a gold cat",
+		measure = "goldCatches",
+		needs = 1,
+		size = "M",
+	},
+	{
+		id = "a_gold50",
+		name = "Gold Rush",
+		text = "Catch 50 gold cats",
+		measure = "goldCatches",
+		needs = 50,
+		size = "XL",
+	},
+	{
+		id = "a_perfect1",
+		name = "Perfect Circle",
+		text = "Land a perfect circle",
+		measure = "perfectCircles",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_perfect500",
+		name = "Perfect Paws",
+		text = "Land 500 perfect circles",
+		measure = "perfectCircles",
+		needs = 500,
+		size = "L",
+	},
+	{
+		id = "a_perfect5k",
+		name = "Steady Hands",
+		text = "Land 5,000 perfect circles",
+		measure = "perfectCircles",
+		needs = 5000,
+		size = "XL",
+	},
+	{
+		id = "a_rescue1",
+		name = "First Rescue",
+		text = "Rescue a stuck cat",
+		measure = "rescues",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_rescue250",
+		name = "Rescue Hero",
+		text = "Rescue 250 stuck cats",
+		measure = "rescues",
+		needs = 250,
+		size = "L",
+	},
+	{
+		id = "a_bait1",
+		name = "Bait Beginner",
+		text = "Tame a cat at your bait bowl",
+		measure = "baitsTamed",
+		needs = 1,
+		size = "S",
+	},
+	{
+		id = "a_bait200",
+		name = "Bait Master",
+		text = "Tame 200 cats at your bait bowl",
+		measure = "baitsTamed",
+		needs = 200,
+		size = "L",
+	},
+	{
+		id = "a_cats10",
+		name = "Growing Family",
+		text = "Find 10 different cats",
+		measure = "distinctCats",
+		needs = 10,
+		size = "S",
+	},
+	{
+		id = "a_cats25",
+		name = "Big Family",
+		text = "Find 25 different cats",
+		measure = "distinctCats",
+		needs = 25,
+		size = "M",
+	},
+	{
+		id = "a_cats50",
+		name = "Every Cat",
+		text = "Find all 50 cats",
+		measure = "distinctCats",
+		needs = 50,
+		size = "XL",
+	},
+	{
+		id = "a_goldcats10",
+		name = "Gold Collector",
+		text = "Find 10 different gold cats",
+		measure = "goldCats",
+		needs = 10,
+		size = "L",
+	},
+	{
+		id = "a_mythical",
+		name = "Mythical Friend",
+		text = "Find a Mythical cat",
+		measure = "mythicalCats",
+		needs = 1,
+		size = "L",
+	},
+	{
+		id = "a_tier2",
+		name = "Open for Business",
+		text = "Reach Cozy Cafe (Tier 2)",
+		measure = "tier",
+		needs = 2,
+		size = "S",
+	},
+	{
+		id = "a_tier3",
+		name = "Busy Bee",
+		text = "Reach Busy Cafe (Tier 3)",
+		measure = "tier",
+		needs = 3,
+		size = "M",
+	},
+	{
+		id = "a_tier4",
+		name = "Famous",
+		text = "Reach Famous Cafe (Tier 4)",
+		measure = "tier",
+		needs = 4,
+		size = "L",
+	},
+	{
+		id = "a_tier5",
+		name = "Grand Opening",
+		text = "Reach Grand Cafe (Tier 5)",
+		measure = "tier",
+		needs = 5,
+		size = "XL",
+	},
+	{
+		id = "a_coins10k",
+		name = "Pocket Money",
+		text = "Earn 10,000 coins",
+		measure = "lifetimeCoins",
+		needs = 10000,
+		size = "S",
+	},
+	{
+		id = "a_coins1m",
+		name = "Big Earner",
+		text = "Earn 1,000,000 coins",
+		measure = "lifetimeCoins",
+		needs = 1000000,
+		size = "L",
+	},
+	{
+		id = "a_coins100m",
+		name = "Coin Mountain",
+		text = "Earn 100,000,000 coins",
+		measure = "lifetimeCoins",
+		needs = 100000000,
+		size = "XL",
+	},
+	{
+		id = "a_tips100",
+		name = "Tip Collector",
+		text = "Collect 100 tip piles",
+		measure = "tipPilesCollected",
+		needs = 100,
+		size = "M",
+	},
+	{
+		id = "a_tips2k",
+		name = "Head Waiter",
+		text = "Collect 2,000 tip piles",
+		measure = "tipPilesCollected",
+		needs = 2000,
+		size = "L",
+	},
+	{
+		id = "a_net",
+		name = "Master Net",
+		text = "Get the Master Net",
+		measure = "upgrade:net",
+		needs = 3,
+		size = "M",
+	},
+	{
+		id = "a_tables",
+		name = "Full House",
+		text = "Get every table",
+		measure = "upgrade:tables",
+		needs = 6,
+		size = "M",
+	},
+	{
+		id = "a_spins50",
+		name = "Lucky Spinner",
+		text = "Spin the wheel 50 times",
+		measure = "spins",
+		needs = 50,
+		size = "M",
+	},
+	{
+		id = "a_crates25",
+		name = "Crate Opener",
+		text = "Open 25 Cafe Crates",
+		measure = "cratesOpened",
+		needs = 25,
+		size = "M",
+	},
+	{
+		id = "a_decor30",
+		name = "Decorator",
+		text = "Own 30 decor pieces",
+		measure = "decorOwned",
+		needs = 30,
+		size = "L",
+	},
+	{
+		id = "a_potions25",
+		name = "Potion Brewer",
+		text = "Drink 25 potions",
+		measure = "potionsUsed",
+		needs = 25,
+		size = "M",
+	},
+	{
+		id = "a_trades5",
+		name = "Collector's Friend",
+		text = "Trade 5 cats with the Cat Collector",
+		measure = "collectorTrades",
+		needs = 5,
+		size = "M",
+	},
+	{
+		id = "a_gifts10",
+		name = "Mystery Fan",
+		text = "Open 10 Mystery Visitor gifts",
+		measure = "mysteryGifts",
+		needs = 10,
+		size = "M",
+	},
+	{
+		id = "a_hours10",
+		name = "Cafe Regular",
+		text = "Play for 10 hours",
+		measure = "playtimeSeconds",
+		needs = 36000,
+		size = "M",
+	},
+	{
+		id = "a_hours100",
+		name = "Devoted",
+		text = "Play for 100 hours",
+		measure = "playtimeSeconds",
+		needs = 360000,
+		size = "XL",
+	},
+	{
+		id = "a_quests100",
+		name = "Quest Keeper",
+		text = "Finish 100 daily quests",
+		measure = "dailyQuestsDone",
+		needs = 100,
+		size = "L",
+	},
+	{
+		id = "a_week1",
+		name = "Full Week",
+		text = "Finish every weekly quest in a week",
+		measure = "weeklySetsDone",
+		needs = 1,
+		size = "M",
+	},
+	{
+		id = "a_week10",
+		name = "Week Champion",
+		text = "Finish every weekly quest in 10 weeks",
+		measure = "weeklySetsDone",
+		needs = 10,
+		size = "XL",
+	},
+	{
+		id = "a_level25",
+		name = "Top Cat",
+		text = "Raise a cat to level 25",
+		measure = "topCatLevel",
+		needs = 25,
+		size = "L",
+	},
+	{
+		id = "a_level50",
+		name = "Master Cat",
+		text = "Raise a cat to level 50",
+		measure = "topCatLevel",
+		needs = 50,
+		size = "XL",
+	},
+} :: { Types.AchievementDef }
+
+-- An achievement's prize by its size; coins scale with the day rate when claimed.
+Catalog.achievementPrizes = {
+	S = { coins = 300, coinSeconds = 300, spins = 1 },
+	M = { coins = 1000, coinSeconds = 900, spins = 2, potions = { tip_potion = 1 } },
+	L = {
+		coins = 2500,
+		coinSeconds = 1800,
+		spins = 3,
+		crates = { classic_crate = 1 },
+		potions = { big_tip_potion = 1 },
+	},
+	XL = {
+		coins = 5000,
+		coinSeconds = 3600,
+		spins = 5,
+		crates = { classic_golden_crate = 1 },
+		potions = { big_tip_potion = 1, gold_rush_potion = 1 },
+	},
+} :: { [string]: Types.IndexPrize }
+
+Catalog.questsById = {} :: { [string]: Types.QuestDef }
+Catalog.questPools = {} :: { [string]: string } -- quest id -> its pool
+for _, pools in { Catalog.quests.daily, Catalog.quests.weekly } do
+	for pool, rows in pools do
+		for _, row in rows do
+			Catalog.questsById[row.id] = row
+			Catalog.questPools[row.id] = pool
+			if row.requires ~= nil then
+				table.freeze(row.requires)
+			end
+			table.freeze(row)
+		end
+		table.freeze(rows)
+	end
+	table.freeze(pools)
+end
+table.freeze(Catalog.quests)
+Catalog.achievementsById = {} :: { [string]: Types.AchievementDef }
+for _, def in Catalog.achievements do
+	Catalog.achievementsById[def.id] = def
+	table.freeze(def)
+end
+table.freeze(Catalog.achievements)
+for _, prizes in { Catalog.questPrizes, Catalog.achievementPrizes } do
+	for _, prize in prizes do
+		for _, part in prize :: { [string]: any } do
+			if type(part) == "table" then
+				table.freeze(part)
+			end
+		end
+		table.freeze(prize)
+	end
+	table.freeze(prizes)
+end
+
+function Catalog.getQuest(id: string): Types.QuestDef?
+	return Catalog.questsById[id]
+end
+
+function Catalog.getAchievement(id: string): Types.AchievementDef?
+	return Catalog.achievementsById[id]
+end
+
 -- Section 12b (F64): what a Mystery Visitor's gift holds, rolled when it appears and shown before it is opened.
 -- Chances in percent; a potion is one of Catalog.potions at even odds.
 Catalog.mysteryGift = {
@@ -1204,16 +1842,45 @@ for _, row in Catalog.mysteryGift do
 end
 table.freeze(Catalog.mysteryGift)
 
--- Section 8b: chance per dealer slot of each dealer food. v0.5 F43: one row for everyone (the old Tier 3 row);
--- tiers no longer change the stock, so every player on every server sees the same three foods.
+-- Section 12b (F63): the Cat Collector's offers by the value he puts on the cat, lowest first. He offers the best row
+-- his value reaches, and the first below that, so a Common always gets 5 golden fish. The crate rows start at 6 and 11
+-- (Design #500), so every Epic gets a crate and its best rolls 20 fish with it. A zone crate is the crate of
+-- the cat's own area and a golden crate its golden version (golden-fish.md section 4).
+Catalog.collectorOffers = {
+	{ value = 1, fish = 5 },
+	{ value = 2, lures = { tuna = 3 }, spins = 1 },
+	{ value = 4, fish = 15 },
+	{ value = 6, crates = { zone = 1 } },
+	{ value = 11, crates = { zone = 1 }, fish = 20 },
+	{ value = 20, crates = { zone = 2 } },
+	{ value = 35, crates = { golden = 1 } },
+	{ value = 60, crates = { golden = 1 }, fish = 50 },
+	{ value = 120, crates = { golden = 2 }, fish = 100 },
+} :: { Types.CollectorOffer }
+for _, row in Catalog.collectorOffers do
+	table.freeze(row)
+end
+table.freeze(Catalog.collectorOffers)
+
+-- Section 8b: chance per dealer slot of each dealer food. v0.5 F43: one row for everyone (the old Tier 3 row).
+-- Retired by v0.8 F59 (the amounts below); only the UI's offline demo still reads it.
 Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
+
+-- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a window stocks 0, 1, 2, 3 or 4 of each dealer
+-- food. Averages 1.85, 0.95, 0.45 and 0.10: a Star Treat turns up about one window in ten.
+Catalog.dealerAmountWeights = {
+	sardines = { 15, 25, 30, 20, 10 },
+	caviar = { 35, 40, 20, 5, 0 },
+	moon_milk = { 60, 35, 5, 0, 0 },
+	star_treat = { 90, 10, 0, 0, 0 },
+} :: { [string]: { number } }
 
 -- Section 9. Every area has the same odds since v0.13.7 (Derek 2026-10-28 01:50: rare cats come mainly from food
 -- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
 -- open, with no top-ups during the day. Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
 -- and 4, 24 a day in all (was 10 each). Every side area's spawn points are its kit set's cat spots (Model-Agent
--- #401, the Park's and the Woods' v3.2 sets #460 and #470).
+-- #401, the Park's, the Woods', the Sewer's and the Neighbourhood's v3.2 sets #460, #470, #491 and #505).
 Catalog.areas = {
 	{
 		id = "alley",
@@ -1239,9 +1906,9 @@ Catalog.areas = {
 		id = "neighbourhood",
 		name = "Neighbourhood",
 		tier = 3,
-		spawnPoints = 26,
+		spawnPoints = 72, -- the v3.2 set's cat spots, 28 near the gate and 44 deep (F81)
 		waveSize = 5,
-		rescueSpots = 2,
+		rescueSpots = 4, -- two sheds and two gutters
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 		incomeMultiplier = AREA_INCOME.neighbourhood,
 	},
@@ -1249,9 +1916,9 @@ Catalog.areas = {
 		id = "woods",
 		name = "Woods",
 		tier = 4,
-		spawnPoints = 64, -- the v3.2 set's cat spots, 26 near the gate and 38 deep (F81)
+		spawnPoints = 65, -- the v3.2 set's cat spots, 26 near the gate, 38 deep and the Great Oak's top (F81)
 		waveSize = 4,
-		rescueSpots = 4,
+		rescueSpots = 5, -- two hollow logs, two bramble bushes and the tree house branch
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 		incomeMultiplier = AREA_INCOME.woods,
 	},
@@ -1259,9 +1926,9 @@ Catalog.areas = {
 		id = "sewer",
 		name = "Sewer",
 		tier = 5,
-		spawnPoints = 20,
+		spawnPoints = 52, -- the v3.2 set's cat spots, 20 in the yard and the market and 32 deep (F81)
 		waveSize = 4,
-		rescueSpots = 2,
+		rescueSpots = 4, -- two grates and two drain pipes
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 		incomeMultiplier = AREA_INCOME.sewer,
 	},

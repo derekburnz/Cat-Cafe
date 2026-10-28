@@ -54,7 +54,7 @@ A fishmonger stall in the street plaza beside the Spin Wheel, run by a cat shopk
 | A crate (each unlocked zone's crate and the Classic Crate) | 60 | opens at once, section 4 |
 | Star Treat | 80 | the best food (dealer only today, 3% of slots), a fish route to Legendary and Mythical bait cats |
 | Golden Espresso (perk, 5 levels) | 40, 80, 150, 250, 400 | +5% tips per level, forever |
-| Big Bowl (perk, 1 level) | 150 | bait wait 10 to 8 minutes, forever |
+| Big Bowl (perk, 1 level) | 150 | every bait wait a fifth shorter, forever (10:00 to 8:00 on a level 1 bowl; data-model v0.13.15 makes it 0.8 times the bowl level's wait) |
 | Extra Decor Spot (perk, 2 levels) | 100, 250 | +1 decor spot per level |
 | Catnip (launch) | 10 | the 15 minute luck buff, its numeric effect on the card |
 

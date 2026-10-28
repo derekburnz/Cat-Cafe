@@ -31,13 +31,18 @@ DARK_WOOD = (94 / 255, 70 / 255, 52 / 255)  # the z's outline
 # Where the camera sits for each view, as a direction from the cat in Roblox axes (the cat faces -Z, +X is its right).
 # "three" is Model-Agent's pose sheet camera (azimuth 35, elevation 22: front left, the face towards the camera) and
 # "side" sees the left side, a little from the front, so the cat faces left on screen as in the sheets. "high" looks
-# down on a cat lying down. "profile" is straight from the left.
+# down on a cat lying down. "profile" is straight from the left. "behind" is the game's own camera, behind the player
+# and a little above, for what a player's pose looks like while playing. "right" is the front right, for a trap
+# that opens towards +X, and "low" looks up from the street at one up on a roof.
 VIEWS = {
     "side": Vector((-1.0, 0.3, -0.45)),
     "front": Vector((0.0, 0.3, -1.0)),
     "three": Vector((-0.53, 0.37, -0.76)),
     "high": Vector((-0.6, 1.0, -0.7)),
     "profile": Vector((-1.0, 0.22, 0.0)),  # straight from the left, for a run along -Z
+    "behind": Vector((0.3, 0.5, 1.0)),
+    "right": Vector((0.76, 0.37, -0.53)),  # front right, for a trap that opens towards +X
+    "low": Vector((-0.35, -0.45, -1.0)),  # from the street below, for a trap up on a roof
 }
 
 
@@ -57,7 +62,7 @@ def cframe_matrix(cf):
 def unit_mesh(shape, name):
     """A shape at unit size; the object's scale gives it the part's Size each frame."""
     bm = bmesh.new()
-    if shape == "Ball":
+    if shape in ("Ball", "Ellipsoid"):  # an Ellipsoid (a sphere mesh) keeps all three sizes in part_scale
         bmesh.ops.create_uvsphere(bm, u_segments=16, v_segments=10, radius=0.5)
     elif shape == "Cylinder":
         bmesh.ops.create_cone(bm, cap_ends=True, segments=20, radius1=0.5, radius2=0.5, depth=1,

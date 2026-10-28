@@ -4,6 +4,7 @@
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local Onboarding = require(script.Parent.Onboarding)
 local Settings = require(script.Parent.Settings)
@@ -29,7 +30,15 @@ local ProfileSchema = {}
 -- 0), lets xp hold fractions and adds stats.catLevelUps: an older server would clamp level 24 back to 10 and save it.
 -- Version 13 (F64) adds potions, buffs (seconds of play time left), stats.potionsUsed and stats.mysteryGifts: an
 -- older server would drop them, losing the bag and any running potion.
-ProfileSchema.VERSION = 13
+-- Version 14 (F62) adds each cat's `locked` and locks every gold, Legendary and Mythical cat already owned, once: an
+-- older server would drop the flag, and a second run would lock again a cat its player unlocked.
+-- Version 15 (F63) adds stats.collectorTrades, the cats traded to the Cat Collector: an older server would drop it.
+-- Version 16 (F73) adds quests, achievements and seven stats (rareCatches, goldCatches, tipPilesCollected and the
+-- quest and set counts): an older server would drop the claims, so a player hopping servers during a rollout could
+-- claim a quest or an achievement twice.
+-- Version 17 (F70) adds dailyTreat, the Daily Treat card: an older server would drop it, letting a stamp pay twice
+-- in a day and the card start again at day 1.
+ProfileSchema.VERSION = 17
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -44,7 +53,6 @@ local V2_START_LEVELS: { [string]: number } = { cafe_level = 1, espresso = 1 }
 
 local STARTER_UID = "starter_tabby"
 local MAX_NAME_LENGTH = 200 -- bytes kept from a saved name
-local DEALER_SLOTS = 3
 
 local function asNumber(value: any, default: number): number
 	if type(value) == "number" and value == value and value >= 0 and value < math.huge then
@@ -83,6 +91,28 @@ local function newStats(): Types.Stats
 		catLevelUps = 0,
 		potionsUsed = 0,
 		mysteryGifts = 0,
+		collectorTrades = 0,
+		rareCatches = 0,
+		goldCatches = 0,
+		tipPilesCollected = 0,
+		dailyQuestsDone = 0,
+		dailySetsDone = 0,
+		weeklyQuestsDone = 0,
+		weeklySetsDone = 0,
+	}
+end
+
+-- No quests yet (F73): day and week 0, so QuestService rolls both when the profile loads.
+local function newQuests(): Types.QuestState
+	return {
+		day = 0,
+		daily = {},
+		dailyReroll = false,
+		dailySet = false,
+		week = 0,
+		weekly = {},
+		weeklyReroll = false,
+		weeklySet = false,
 	}
 end
 
@@ -126,6 +156,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		introSeen = false,
 		potions = {},
 		buffs = {},
+		quests = newQuests(),
+		achievements = {},
+		dailyTreat = { stamp = 0, lastDay = 0 },
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = Settings.defaults(),
@@ -308,6 +341,11 @@ local function sanitizeCats(
 				then sanitizeMethod(entry.method)
 				else legacyMethod(uid, entry),
 		}
+		-- F62: the saved lock; a save from before version 14 locks its gold, Legendary and Mythical cats
+		local locked = if fromVersion >= 14
+			then entry.locked == true
+			else CatStats.arrivesLocked(instance.catId, instance.variant)
+		instance.locked = if locked then true else nil
 		profile.cats[uid] = instance
 	end
 end
@@ -347,6 +385,7 @@ local function sanitizeBait(value: any): Types.BaitState?
 		lureId = value.lureId,
 		placedAt = placedAt,
 		readyAt = readyAt,
+		night = if value.night == true then true else nil, -- F60: night bait, only ever true
 		catId = value.catId,
 		variant = variantOf(value.variant),
 		charm = math.clamp(
@@ -438,6 +477,57 @@ local function sanitizeBuffs(value: any): { [string]: number }
 	return out
 end
 
+-- A save's quest slots (F73), in order up to `slots` and dense (the N116 lesson): a string id (QuestService gives an
+-- unknown or misplaced one a fresh pick), a whole base of 0 or more and needs of at least 1.
+local function sanitizeQuestList(value: any, slots: number): { Types.QuestEntry }
+	local out: { Types.QuestEntry } = {}
+	if type(value) ~= "table" then
+		return out
+	end
+	for slot = 1, slots do
+		local entry = value[slot]
+		if type(entry) ~= "table" then
+			break
+		end
+		table.insert(out, {
+			id = if type(entry.id) == "string" then string.sub(entry.id, 1, 40) else "",
+			base = math.max(0, asInt(entry.base, 0)),
+			needs = math.max(1, asInt(entry.needs, 1)),
+			claimed = entry.claimed == true,
+		})
+	end
+	return out
+end
+
+local function sanitizeQuests(value: any): Types.QuestState
+	local quests = newQuests()
+	if type(value) ~= "table" then
+		return quests
+	end
+	quests.day = asInt(value.day, 0)
+	quests.daily = sanitizeQuestList(value.daily, Config.QuestDailyCount)
+	quests.dailyReroll = value.dailyReroll == true
+	quests.dailySet = value.dailySet == true
+	quests.week = asInt(value.week, 0)
+	quests.weekly = sanitizeQuestList(value.weekly, Config.QuestWeeklyCount)
+	quests.weeklyReroll = value.weeklyReroll == true
+	quests.weeklySet = value.weeklySet == true
+	return quests
+end
+
+-- Claimed achievements (F73): known ids only.
+local function sanitizeAchievements(value: any): { [string]: boolean }
+	local out: { [string]: boolean } = {}
+	if type(value) == "table" then
+		for id, claimed in value do
+			if type(id) == "string" and claimed == true and Catalog.getAchievement(id) ~= nil then
+				out[id] = true
+			end
+		end
+	end
+	return out
+end
+
 -- Redeemed codes (F65): any code id a code could have had (letters and digits, up to CodeMaxLength) with a time, so
 -- a code row removed and later added back still counts as used.
 local function sanitizeCodes(value: any): { [string]: number }
@@ -480,11 +570,13 @@ local function sanitizeDealer(value: any): Types.DealerState
 		return dealer
 	end
 	dealer.window = asInt(value.window, 0)
+	-- F59: a count per dealer food, at most the largest amount a window can roll; the old per-slot marks ("1" to
+	-- "3") are dropped, and their window is always behind the first 300 second one anyway
 	if type(value.bought) == "table" then
-		for slot = 1, DEALER_SLOTS do
-			local key = tostring(slot)
-			if value.bought[key] == true then
-				dealer.bought[key] = true
+		for lureId, weights in Catalog.dealerAmountWeights do
+			local count = math.clamp(asInt(value.bought[lureId], 0), 0, #weights - 1)
+			if count > 0 then
+				dealer.bought[lureId] = count
 			end
 		end
 	end
@@ -609,6 +701,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.introSeen = raw.introSeen == true
 	profile.potions = sanitizePotions(raw.potions) -- F64; saves before version 13 hold none
 	profile.buffs = sanitizeBuffs(raw.buffs)
+	profile.quests = sanitizeQuests(raw.quests) -- F73; saves before version 16 have none and roll on load
+	profile.achievements = sanitizeAchievements(raw.achievements)
+	profile.dailyTreat = DailyTreat.sanitize(raw.dailyTreat, now) -- F70; saves before version 17 start a fresh card
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

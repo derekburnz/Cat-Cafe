@@ -2,15 +2,17 @@
 -- The HUD's potion timers (F64, data-model section 12b; quests.md section 7: "their timers show in the HUD buff
 -- chips"): under the money and golden fish pills, one small chip per running potion, a round tile in the potion's
 -- colour and its time left in outlined white ("8:12"), no dark panel behind them. A tap on any chip opens the
--- potion bag. The row hides with no potion running; while one runs it ticks once a second, and a chip goes when
+-- potion bag. Each tile shows the potion's own bottle icon (Components/ShopIcons). The row hides with no potion running; while one runs it ticks once a second, and a chip goes when
 -- its time is up. Times come from ProfileSync `buffs` (endsAt in server time), so a rejoin shows what is left.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -100,6 +102,7 @@ function BuffChips._chip(self: any, potionId: string, order: number): Chip
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(tile, 2)
+	IconArt.setImage(tile, ShopIcons.potion(potionId), 0.92) -- the bottle; the glyph until it loads
 	local time: TextLabel = Create("TextLabel", {
 		Name = "Time",
 		BackgroundTransparency = 1,

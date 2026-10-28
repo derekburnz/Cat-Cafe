@@ -1,0 +1,4971 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/0",
+  "PartBuilt": true,
+  "Scale": {
+   "Float64": 1.0
+  },
+  "PropSlot": "Face"
+ },
+ "children": [
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.266,
+       0.171
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.855,
+     0.532,
+     0.7125
+    ],
+    "Color": [
+     0.8431,
+     0.7255,
+     0.5294
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.266,
+       -0.171
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/0"
+   },
+   "children": [
+    {
+     "name": "Outfit_Apron",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.361,
+         -0.4892
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_BowTie",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.437,
+         -0.5225
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Vest",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.361,
+         -0.228
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Sash",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.361,
+         -0.228
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "Outfit_Cape",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.608,
+         0.0333
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.703,
+       -0.057
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.665,
+     0.684,
+     0.5225
+    ],
+    "Color": [
+     0.8431,
+     0.7255,
+     0.5294
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3515,
+       0.0617,
+       -0.095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.228,
+     0.1045,
+     0.38
+    ],
+    "Color": [
+     0.8431,
+     0.7255,
+     0.5294
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3515,
+       0.0617,
+       -0.095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.228,
+     0.1045,
+     0.38
+    ],
+    "Color": [
+     0.8431,
+     0.7255,
+     0.5294
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.722,
+       -0.3277
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.323,
+     0.475,
+     0.057
+    ],
+    "Color": [
+     0.9373,
+     0.851,
+     0.7059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.475,
+       -0.0095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.703,
+     0.095,
+     0.4655
+    ],
+    "Color": [
+     0.6353,
+     0.4784,
+     0.3333
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.7125,
+       -0.0095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.703,
+     0.095,
+     0.4655
+    ],
+    "Color": [
+     0.6353,
+     0.4784,
+     0.3333
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.95,
+       -0.0095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.703,
+     0.095,
+     0.4655
+    ],
+    "Color": [
+     0.6353,
+     0.4784,
+     0.3333
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.266,
+       0.0475
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.893,
+     0.456,
+     0.114
+    ],
+    "Color": [
+     0.6353,
+     0.4784,
+     0.3333
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Birdwatch_Sit_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.266,
+       0.3325
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.893,
+     0.456,
+     0.114
+    ],
+    "Color": [
+     0.6353,
+     0.4784,
+     0.3333
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/1"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.235,
+         -0.228
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.874,
+       0.722,
+       0.703
+      ],
+      "Color": [
+       0.8431,
+       0.7255,
+       0.5294
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.266,
+         0.133
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/1"
+     },
+     "children": [
+      {
+       "name": "Outfit_BaristaCap",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3515,
+           -0.057
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_Boater",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3515,
+           -0.057
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      },
+      {
+       "name": "Outfit_PartyHat",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.3515,
+           -0.057
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.19,
+         1.6055,
+         -0.1805
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.076,
+       0.057,
+       0.478
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.6055,
+         -0.1805
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.076,
+       0.057,
+       0.478
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.19,
+         1.6055,
+         -0.1805
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.076,
+       0.057,
+       0.478
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0474,
+         -0.57
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3591,
+       0.1995,
+       0.076
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0873,
+         -0.6033
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0997,
+       0.0698,
+       0.057
+      ],
+      "Color": [
+       0.7686,
+       0.4039,
+       0.3569
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.0272,
+         -0.6128
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0266,
+       0.0693,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0249,
+         0.9825,
+         -0.6156
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0848,
+         0.9825,
+         -0.6128
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0249,
+         0.9825,
+         -0.6156
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0848,
+         0.9825,
+         -0.6128
+        ],
+        "orientation": [
+         [
+          0.866,
+          0.5,
+          0.0
+         ],
+         [
+          -0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0499,
+       0.0266,
+       0.0285
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3591,
+         1.0573,
+         -0.5795
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1197,
+       0.0499,
+       0.0475
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3591,
+         1.0573,
+         -0.5795
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1197,
+       0.0499,
+       0.0475
+      ],
+      "Color": [
+       0.9098,
+       0.6275,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/2"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2095,
+           1.197,
+           -0.589
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1995,
+         0.2594,
+         0.0665
+        ],
+        "Color": [
+         0.8784,
+         0.4706,
+         0.1843
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/2"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.219,
+           1.177,
+           -0.6127
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1197,
+         0.1867,
+         0.038
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1646,
+           1.2696,
+           -0.6317
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0598,
+         0.0698,
+         0.0285
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.2095,
+         1.197,
+         -0.589
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Birdwatch_Sit_Eye1"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/3"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2095,
+           1.197,
+           -0.589
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1995,
+         0.2594,
+         0.0665
+        ],
+        "Color": [
+         0.8784,
+         0.4706,
+         0.1843
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/3"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.219,
+           1.177,
+           -0.6127
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1197,
+         0.1867,
+         0.038
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2544,
+           1.2696,
+           -0.6317
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0598,
+         0.0698,
+         0.0285
+        ],
+        "Color": [
+         1.0,
+         1.0,
+         1.0
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.2095,
+         1.197,
+         -0.589
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Birdwatch_Sit_Eye2"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/4"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2462,
+           1.6171,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2375,
+         0.095,
+         0.2375
+        ],
+        "Color": [
+         0.8431,
+         0.7255,
+         0.5294
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.0296,
+           -0.0444,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/4"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.266,
+           1.71,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1425,
+         0.095,
+         0.1425
+        ],
+        "Color": [
+         0.8431,
+         0.7255,
+         0.5294
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2858,
+           1.8029,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0475,
+         0.095,
+         0.0475
+        ],
+        "Color": [
+         0.8431,
+         0.7255,
+         0.5294
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2838,
+           1.653,
+           -0.2736
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1026,
+         0.1083,
+         0.0285
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.266,
+         1.5675,
+         -0.171
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Birdwatch_Sit_EarL"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/5"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2462,
+           1.6171,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2375,
+         0.095,
+         0.2375
+        ],
+        "Color": [
+         0.8431,
+         0.7255,
+         0.5294
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0296,
+           -0.0444,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/5"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.266,
+           1.71,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1425,
+         0.095,
+         0.1425
+        ],
+        "Color": [
+         0.8431,
+         0.7255,
+         0.5294
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2858,
+           1.8029,
+           -0.171
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0475,
+         0.095,
+         0.0475
+        ],
+        "Color": [
+         0.8431,
+         0.7255,
+         0.5294
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2838,
+           1.653,
+           -0.2736
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1026,
+         0.1083,
+         0.0285
+        ],
+        "Color": [
+         0.8784,
+         0.4784,
+         0.549
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.266,
+         1.5675,
+         -0.171
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Birdwatch_Sit_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/9"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2285,
+           1.216,
+           -0.741
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.209,
+         0.228,
+         0.133
+        ],
+        "Color": [
+         0.2431,
+         0.498,
+         0.3059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.2285,
+           -0.247,
+           0.646
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/9",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2095,
+           1.216,
+           -0.6507
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0665,
+         0.171,
+         0.171
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.276,
+           1.216,
+           -0.8645
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.133,
+         0.209,
+         0.209
+        ],
+        "Color": [
+         0.2431,
+         0.498,
+         0.3059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1766,
+           1.2483,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.9511,
+            0.0,
+            0.309
+           ],
+           [
+            -0.309,
+            0.0,
+            0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2146,
+           1.3005,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.5878,
+            0.0,
+            0.809
+           ],
+           [
+            -0.809,
+            0.0,
+            0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.276,
+           1.3205,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3374,
+           1.3005,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.5878,
+            0.0,
+            0.809
+           ],
+           [
+            -0.809,
+            0.0,
+            -0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3754,
+           1.2483,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.9511,
+            0.0,
+            0.309
+           ],
+           [
+            -0.309,
+            0.0,
+            -0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3754,
+           1.1837,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.9511,
+            0.0,
+            -0.309
+           ],
+           [
+            0.309,
+            0.0,
+            -0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3374,
+           1.1315,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.5878,
+            0.0,
+            -0.809
+           ],
+           [
+            0.809,
+            0.0,
+            -0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.276,
+           1.1115,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2146,
+           1.1315,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.5878,
+            0.0,
+            -0.809
+           ],
+           [
+            0.809,
+            0.0,
+            0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1766,
+           1.1837,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.9511,
+            0.0,
+            -0.309
+           ],
+           [
+            0.309,
+            0.0,
+            0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3874,
+           1.216,
+           -0.6602
+          ],
+          "orientation": [
+           [
+            0.695,
+            0.0,
+            0.719
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -0.719,
+            0.0,
+            0.695
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0475,
+         0.0285,
+         0.1777
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2095,
+           1.216,
+           -0.6507
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0665,
+         0.171,
+         0.171
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2285,
+           1.216,
+           -0.741
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.209,
+         0.228,
+         0.133
+        ],
+        "Color": [
+         0.2431,
+         0.498,
+         0.3059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.276,
+           1.216,
+           -0.8645
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.133,
+         0.209,
+         0.209
+        ],
+        "Color": [
+         0.2431,
+         0.498,
+         0.3059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3754,
+           1.2483,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.9511,
+            0.0,
+            0.309
+           ],
+           [
+            -0.309,
+            0.0,
+            0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3374,
+           1.3005,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.5878,
+            0.0,
+            0.809
+           ],
+           [
+            -0.809,
+            0.0,
+            0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.276,
+           1.3205,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2146,
+           1.3005,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.5878,
+            0.0,
+            0.809
+           ],
+           [
+            -0.809,
+            0.0,
+            -0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1766,
+           1.2483,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.9511,
+            0.0,
+            0.309
+           ],
+           [
+            -0.309,
+            0.0,
+            -0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1766,
+           1.1837,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.9511,
+            0.0,
+            -0.309
+           ],
+           [
+            0.309,
+            0.0,
+            -0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2146,
+           1.1315,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            -0.5878,
+            0.0,
+            -0.809
+           ],
+           [
+            0.809,
+            0.0,
+            -0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.276,
+           1.1115,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3374,
+           1.1315,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.5878,
+            0.0,
+            -0.809
+           ],
+           [
+            0.809,
+            0.0,
+            0.5878
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3754,
+           1.1837,
+           -0.9405
+          ],
+          "orientation": [
+           [
+            0.9511,
+            0.0,
+            -0.309
+           ],
+           [
+            0.309,
+            0.0,
+            0.9511
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0285,
+         0.0793
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3874,
+           1.216,
+           -0.6602
+          ],
+          "orientation": [
+           [
+            0.695,
+            0.0,
+            -0.719
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.719,
+            0.0,
+            0.695
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0475,
+         0.0285,
+         0.1777
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.2635,
+           -0.741
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2289,
+         0.0665,
+         0.095
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.3158,
+           -0.741
+          ],
+          "orientation": [
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.0855,
+         0.0855
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.4465,
+           1.216,
+           -0.247
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0475,
+         0.722
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4465,
+           1.216,
+           -0.247
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0285,
+         0.0475,
+         0.722
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.216,
+           0.133
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.9215,
+         0.0513,
+         0.0285
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.969,
+         -0.095
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Birdwatch_Sit_Prop"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/10"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop_Glass",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.276,
+           1.216,
+           -0.9358
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0114,
+         0.171,
+         0.171
+        ],
+        "Color": [
+         0.8118,
+         0.9137,
+         0.8902
+        ],
+        "Material": "Glass",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Transparency": 0.45,
+        "Shape": "Cylinder",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.8407,
+           0.276,
+           -0.247
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/10",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Birdwatch_Sit_Prop_Glass",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.276,
+           1.216,
+           -0.9358
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0114,
+         0.171,
+         0.171
+        ],
+        "Color": [
+         0.8118,
+         0.9137,
+         0.8902
+        ],
+        "Material": "Glass",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": false,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Transparency": 0.45,
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.969,
+         -0.095
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Birdwatch_Sit_Prop_Glass"
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.969,
+       -0.095
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Birdwatch_Sit_Head"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/6"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3463,
+         0.1045,
+         0.4227
+        ],
+        "orientation": [
+         [
+          -0.5,
+          0.0,
+          -0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.866,
+          0.0,
+          -0.5
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.171,
+       0.171,
+       0.418
+      ],
+      "Color": [
+       0.8431,
+       0.7255,
+       0.5294
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.0,
+         -0.1805
+        ],
+        "orientation": [
+         [
+          -0.5,
+          0.0,
+          0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          -0.5
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/6"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.5026,
+         0.1045,
+         0.152
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.171,
+       0.171,
+       0.418
+      ],
+      "Color": [
+       0.8431,
+       0.7255,
+       0.5294
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3463,
+         0.1045,
+         -0.1187
+        ],
+        "orientation": [
+         [
+          -0.5,
+          0.0,
+          0.866
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.866,
+          0.0,
+          -0.5
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.171,
+       0.171,
+       0.418
+      ],
+      "Color": [
+       0.6353,
+       0.4784,
+       0.3333
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.19,
+       0.1045,
+       0.513
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Birdwatch_Sit_Tail"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/7"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1615,
+         0.3183,
+         -0.285
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.19,
+       0.5415,
+       0.19
+      ],
+      "Color": [
+       0.8431,
+       0.7255,
+       0.5294
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.2707,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/7"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.1615,
+         0.0522,
+         -0.3325
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.228,
+       0.1045,
+       0.266
+      ],
+      "Color": [
+       0.8431,
+       0.7255,
+       0.5294
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       -0.1615,
+       0.589,
+       -0.285
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Birdwatch_Sit_LegF1"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Birdwatch_Sit/8"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1615,
+         0.3183,
+         -0.285
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.19,
+       0.5415,
+       0.19
+      ],
+      "Color": [
+       0.8431,
+       0.7255,
+       0.5294
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.2707,
+         0.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Cat_Birdwatch_Sit/8"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Birdwatch_Sit_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1615,
+         0.0522,
+         -0.3325
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.228,
+       0.1045,
+       0.266
+      ],
+      "Color": [
+       0.8431,
+       0.7255,
+       0.5294
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.1615,
+       0.589,
+       -0.285
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Cat_Birdwatch_Sit_LegF2"
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

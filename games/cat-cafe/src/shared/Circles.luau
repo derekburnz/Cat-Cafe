@@ -6,6 +6,7 @@
 -- uniform in [-jitter, +jitter] for the net level, separated by CircleGapMin to CircleGapMax. A circle's target is
 -- startsAt + shrinkSeconds. The server stamps each CatchPress on arrival, takes off half the player's ping (capped
 -- at CatchLatencyCapSeconds) and grades |press - target|: within perfect Perfect, within good Good, else Miss.
+-- v0.13.15 (F83): a stray's perfect and good are its net's times its rarity's catchWindow (windowsFor).
 -- v0.4: the first Miss (a press outside Good, or no press by a circle's deadline) ends the attempt, and an attempt
 -- with every circle Good or Perfect is a sure catch. No roll.
 
@@ -47,6 +48,14 @@ end
 
 function Circles.windows(netLevel: number): Types.NetWindows
 	return Config.NetWindows[clampNetLevel(netLevel)]
+end
+
+-- The windows a cat of `rarity` is judged with (v0.13.15 F83): the net level's Perfect and Good times the rarity's
+-- catchWindow, so the bands narrow the rarer the cat; the jitter stays the net's.
+function Circles.windowsFor(netLevel: number, rarity: Types.Rarity): Types.NetWindows
+	local net = Circles.windows(netLevel)
+	local scale = Catalog.rarities[rarity].catchWindow
+	return { perfect = net.perfect * scale, good = net.good * scale, jitter = net.jitter }
 end
 
 -- What CatchSchedule sends: the two half-widths the UI draws as bands.

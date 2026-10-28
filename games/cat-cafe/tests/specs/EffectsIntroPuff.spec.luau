@@ -1,6 +1,6 @@
 --!strict
 -- The intro's cat puff (F72, intro-cutscene.md section 2): small, within the burst budget and drawn from emitters that
--- exist. Written by the vfx-animator for QA to move into tests/specs.
+-- exist. Written by the vfx-animator; QA moved it into tests/specs and added an edge.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -22,6 +22,12 @@ return function()
 			end
 			expect(p.from <= Presets.bursts.smokePuff).to.equal(true)
 			expect(p.seat <= Presets.bursts.smokePuff).to.equal(true)
+		end)
+
+		it("hooks a moment the intro really fires, so the swap is not left a plain cut (QA, #471)", function()
+			local Moments = require(Client:WaitForChild("Moments")) :: any
+			expect(Moments.IntroCatSeated).to.be.ok()
+			expect(type(Moments.IntroCatSeated.Connect)).to.equal("function")
 		end)
 	end)
 end

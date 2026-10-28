@@ -1,6 +1,7 @@
 """Street props. The night food dealer's cart: mysterious but friendly, deep blue with gold stars,
 a moon sign and a lantern. Pivot base center, front -Y (the side the player shops from).
-Cart + Bulb objects: the lantern's Bulb goes Neon at night (style guide section 9)."""
+Cart + Bulb + Bulbs objects: the lantern's Bulb and the little lights under the canopy go Neon at night (style
+guide section 9)."""
 
 import math
 
@@ -62,9 +63,55 @@ def build_dealer_cart(mat):
             b.box((lx + dx, ly + dy, 4.46), (0.05, 0.05, 0.66), "fur_black", bevel=False)
     bulb = Builder()
     bulb.box((lx, ly, 4.46), (0.36, 0.36, 0.6), "lamp_warm", bevel=False)
-    return [b.finalize("CatCafe_Street_DealerCart_Cart", mat), bulb.finalize("CatCafe_Street_DealerCart_Bulb", mat)]
+    bulbs = Builder()
+    _dressing(b, bulbs)
+    return [b.finalize("CatCafe_Street_DealerCart_Cart", mat), bulb.finalize("CatCafe_Street_DealerCart_Bulb", mat),
+            bulbs.finalize("CatCafe_Street_DealerCart_Bulbs", mat)]
+
+
+def _fish(b, x, y, z):
+    """A small dried fish hanging by its tail on a string: body, tail fan above, an eye."""
+    b.box((x, y, z), (0.12, 0.3, 0.46), "metal", bevel=False)
+    b.wedge((x, y, z + 0.33), (0.1, 0.26, 0.2), "fur_silver", bevel=False, rot=_rx(180))
+    b.box((x, y - 0.155, z - 0.13), (0.06, 0.01, 0.06), "fur_black", bevel=False)
+
+
+def _dressing(b, bulbs):
+    """Cart dressing: jars of treats along the back of the counter, a string of dried fish down the front left post,
+    a string of little warm lights under the canopy's front edge (`bulbs`, glowing at night) and a fish sack by the
+    handle."""
+    for x, fill in ((-2.05, "fur_strawberry"), (-1.35, "pastel_butter"), (1.35, "mint"), (2.05, "pastel_lilac")):
+        b.cyl_base((x, 0.55, 2.66), 0.26, 0.5, fill, segments=10, bevel=False)              # jar of treats
+        b.cyl_base((x, 0.55, 3.16), 0.28, 0.1, "dark_wood", segments=10, bevel=False)       # lid
+        b.cyl_base((x, 0.55, 3.26), 0.06, 0.06, "rarity_legend", segments=6, bevel=False)   # knob
+        b.box((x, 0.28, 2.95), (0.24, 0.02, 0.18), "offwhite", bevel=False)                 # label
+        b.star((x, 0.265, 2.95), 0.06, 0.027, 0.01, "rarity_legend", rot=_rx(90))
+    fx, fy = -2.34, -1.45                                                                    # beside the front post
+    b.cyl((fx, fy, 4.35), 0.015, 1.3, "fur_black", segments=4, bevel=False)                 # string
+    b.box((fx - 0.06, fy, 5.0), (0.16, 0.04, 0.04), "fur_black", bevel=False)                # tied to the post
+    for z in (4.5, 3.95):
+        _fish(b, fx, fy, z)
+    for i in (0, 1, 3, 5, 7, 8):                                                             # lights on the edge
+        x = -2.8 + 5.6 * (i + 0.5) / 9                                                       # under a scallop
+        b.cyl((x, -1.88, 4.785), 0.015, 0.11, "fur_black", segments=4, bevel=False)
+        bulbs.box((x, -1.88, 4.66), (0.16, 0.16, 0.16), "lamp_warm", bevel=False)
+    sx, sy = 3.45, -1.25                                                                      # the fish sack
+    b.box_base((sx, sy, 0), (0.75, 0.65, 0.8), "treat_tan")
+    b.box_base((sx, sy, 0.8), (0.5, 0.45, 0.14), "treat_tan")
+    b.box_base((sx, sy, 0.94), (0.24, 0.24, 0.18), "treat_tan")                            # the gathered top
+    b.box((sx, sy, 0.86), (0.54, 0.49, 0.05), "dark_wood", bevel=False)                     # its tie
+    b.box((sx, sy - 0.335, 0.42), (0.36, 0.02, 0.16), "puddle", bevel=False)                # a fish on it
+    b.wedge((sx + 0.22, sy - 0.335, 0.42), (0.02, 0.16, 0.16), "puddle", bevel=False, rot=_rz(90))
+
+
+def _rx(deg):
+    return Matrix.Rotation(math.radians(deg), 3, "X")
+
+
+def _rz(deg):
+    return Matrix.Rotation(math.radians(deg), 3, "Z")
 
 
 ASSETS = {
-    "CatCafe_Street_DealerCart": (build_dealer_cart, 3500),
+    "CatCafe_Street_DealerCart": (build_dealer_cart, 4500),
 }

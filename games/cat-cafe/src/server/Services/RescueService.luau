@@ -193,7 +193,7 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
 	local charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
 	local chance =
-		IndexRewards.goldChance(Config.GoldChanceRescue, CatService.goldLuckFor(areaDef.id))
+		IndexRewards.rollChance(Config.GoldChanceRescue, CatService.goldLuckFor(areaDef.id))
 	local variant = if rng:NextNumber() < chance then "gold" else "base"
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end
@@ -292,7 +292,8 @@ local function finish(
 		if profile ~= nil then
 			profile.stats.rescues += 1
 		end
-		CatService.startCarry(player, def, "rescue", charm, variant, funnel)
+		-- the spot it was stuck at, so a Drop walks it back near the trap (F67)
+		CatService.startCarry(player, def, "rescue", charm, variant, funnel, entry.spot.Position)
 		return
 	end
 	local now = serverNow()
@@ -394,7 +395,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	local challenge = Rescue.newChallenge(entry.def.rarity, entry.trap, now, function()
 		return rng:NextNumber()
 	end)
-	local attempt = Rescue.newAttempt(challenge)
+	local attempt = Rescue.newAttempt(challenge, entry.def.rarity)
 	entry.attempt = attempt
 	setLock(entry, player.UserId)
 	profile.stats.rescueAttempts += 1

@@ -195,6 +195,37 @@ return function()
 				expect(Economy.baitWaitSeconds(p)).to.equal(372)
 			end)
 
+			it("food set at night waits half: 300 s, 240 with the Big Bowl, then the bait speed (F60)", function()
+				local p = freshProfile()
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(Config.LureWaitSecondsNight)
+				expect(Economy.baitWaitSeconds(p, true)).to.equal(300)
+				expect(Economy.baitWaitSeconds(p, false)).to.equal(600)
+				p.fishPerks.big_bowl = 1
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(240)
+				expect(Economy.lureWaitSeconds(p)).to.equal(480)
+				p.fishPerks.big_bowl = nil
+				local all: { [string]: boolean } = {}
+				for id in Catalog.indexPrizes.all do
+					all[id] = true
+				end
+				p.indexRewards.all = all
+				expect(Economy.baitWaitSeconds(p, true)).to.equal(186)
+			end)
+
+			it("the bowl's level sets the day wait, the Big Bowl a fifth off it, night half (F82)", function()
+				local p = freshProfile()
+				p.upgradeLevels.lure_bowl = 3
+				expect(Economy.lureWaitSeconds(p)).to.equal(540)
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(270)
+				p.fishPerks.big_bowl = 1
+				expect(Economy.lureWaitSeconds(p)).to.equal(432) -- 7:12, the spec's done-when
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(216)
+				p.upgradeLevels.lure_bowl = 5
+				expect(Economy.lureWaitSeconds(p)).to.equal(384)
+				p.indexRewards.all = { total5 = true }
+				expect(Economy.baitWaitSeconds(p)).to.equal(376) -- 384 x 0.98, floored
+			end)
+
 			it("crate and Index pieces are never for sale", function()
 				local p = freshProfile()
 				p.coins = 1e9
@@ -277,7 +308,7 @@ return function()
 			expect(p.coins).to.equal(Config.StartCoins)
 		end)
 
-		it("settle splits the window at phase boundaries, 0.6x by night (F31)", function()
+		it("settle splits the window at phase boundaries, NightIncomeMultiplier by night (F31, F60)", function()
 			-- the clock started at os.time() 1000, so its first night begins at 1000 + ServerStartDaySeconds
 			local epoch = 1000
 			local dusk = epoch + Config.ServerStartDaySeconds
@@ -285,7 +316,7 @@ return function()
 			local earned = Economy.settle(p, dusk + 30, epoch)
 			expect(earned).to.be.near(1.5 * (20 + 30 * Config.NightIncomeMultiplier))
 			expect(p.lastTick).to.equal(dusk + 30)
-			-- all night: 0.6x; and back to day at dawn (each settle grants XP, so read the rate before each)
+			-- all night: NightIncomeMultiplier (1 since F60); and back to day at dawn (each settle grants XP, so read the rate before each)
 			local dawn = dusk + Config.NightLengthSeconds
 			p.lastTick = dawn - 10
 			local rate = Economy.incomePerSecond(p)
@@ -305,11 +336,20 @@ return function()
 			expect(Economy.phaseMultiplier("night")).to.equal(Config.NightIncomeMultiplier)
 		end)
 
-		it("a rich tip is RichTipSeconds of the day rate, at least $50 (section 12)", function()
-			expect(Economy.richTipAmount(1)).to.equal(50)
-			expect(Economy.richTipAmount(1.5)).to.equal(67)
-			expect(Economy.richTipAmount(10)).to.equal(450)
+		it("a rich tip is RichTipSeconds of the day rate, at least $50 (section 12; F61: 120 s)", function()
+			expect(Economy.richTipAmount(0.2)).to.equal(50)
+			expect(Economy.richTipAmount(1)).to.equal(120)
+			expect(Economy.richTipAmount(1.5)).to.equal(180)
+			expect(Economy.richTipAmount(10)).to.equal(1200)
 			expect(Economy.richTipAmount(33.3)).to.equal(math.floor(33.3 * Config.RichTipSeconds))
+		end)
+
+		it("a tip pile is TipPileRateSeconds of the day rate, at least $5 (F61, section 12)", function()
+			expect(Economy.tipPileAmount(0)).to.equal(5)
+			expect(Economy.tipPileAmount(0.5)).to.equal(5)
+			expect(Economy.tipPileAmount(1)).to.equal(6)
+			expect(Economy.tipPileAmount(10.5)).to.equal(63)
+			expect(Economy.tipPileAmount(33.3)).to.equal(math.floor(33.3 * Config.TipPileRateSeconds))
 		end)
 	end)
 
@@ -393,7 +433,23 @@ return function()
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Not enough coins")
 			p.coins = 600
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
+		end)
+
+		it("each bowl level after the first needs its own tier, the Royal Bowl Tier 5 (F82)", function()
+			local p = freshProfile()
+			p.coins = 1e9
 			p.upgradeLevels.lure_bowl = 1
+			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(6000)
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Needs Tier 2")
+			p.tier = 2
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
+			p.upgradeLevels.lure_bowl = 4
+			p.tier = 4
+			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(3000000)
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Needs Tier 5")
+			p.tier = 5
+			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
+			p.upgradeLevels.lure_bowl = 5
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Already maxed")
 		end)
 
@@ -446,7 +502,7 @@ return function()
 		it("at Tier 5 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
 			p.tier = 5
-			p.coins = 1000000
+			p.coins = 10000000 -- the Royal Bowl is 3,000,000 (F82)
 			for _, def in ipairs(Catalog.upgrades) do
 				p.upgradeLevels[def.id] = def.maxLevel - 1
 				expect(Economy.upgradeBlocker(p, def.id)).never.to.be.ok()

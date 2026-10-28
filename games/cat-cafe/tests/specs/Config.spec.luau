@@ -41,7 +41,10 @@ return function()
 		-- v0.4 catching stakes (F34, section 10 step 5); v0.5 the chase after a miss (F40)
 		StrayFleeSpeed = 26,
 		StrayRestSeconds = 1.5,
-		StraySelfRetrySeconds = 1, -- v0.5.1 (S44)
+		StraySelfRetrySeconds = 3, -- v0.5.1 (S44); v0.8 F57: the first of the steps {3, 6, 10}
+		StrayMissStreakResetSeconds = 60, -- v0.8 F57
+		StartledWalkSpeed = 12, -- v0.8 F57
+		StartledSeconds = 2, -- v0.8 F57
 		PerfectCharmBonus = 4,
 		PurrfectCharmMultiplier = 2,
 		AutoPressFlagRate = 0.95,
@@ -55,6 +58,7 @@ return function()
 		CatchLatencyCapSeconds = 0.15,
 		-- the bait bowl (F28, section 8)
 		LureWaitSeconds = 600,
+		LureWaitSecondsNight = 300, -- F60: night bait, half the wait
 		BaitBowlRangeStuds = 12,
 		BaitResolveRangeStuds = 20,
 		GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02)
@@ -92,12 +96,15 @@ return function()
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
-		DealerWindowSeconds = 600,
+		DealerWindowSeconds = 300, -- F59: every 5 minutes (was 600)
 		-- night income and rich customers (F31, sections 11 and 12)
-		NightIncomeMultiplier = 0.6,
+		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
-		RichChance = 0.15,
-		RichTipSeconds = 45,
+		RichChance = 0.10, -- F61: was 0.15
+		RichTipSeconds = 120, -- F61: was 45
+		TipPileSeconds = 30, -- F61: tip piles (section 12)
+		TipPileRateSeconds = 6,
+		TipPilesMax = 6,
 		RichTipStaySeconds = 90,
 		-- the Mystery Visitor and potions (F64, section 12b)
 		MysteryCheckSeconds = 120,
@@ -105,6 +112,26 @@ return function()
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 600,
 		PotionMaxMinutes = 60,
+		-- quests and achievements and their potions (F73, quests.md section 6)
+		TimedTipsMax = 1.0,
+		QuestDailyCount = 5,
+		QuestWeeklyCount = 3,
+		QuestWeekOffsetSeconds = 345600,
+		QuestRollCheckSeconds = 60,
+		-- bedtime (F79, sections 12c and 17)
+		CafeCatWalkSpeed = 6,
+		BedtimeStaggerSeconds = 0.3,
+		BedtimeStretchSeconds = 1,
+		HopSeconds = 0.45,
+		HopMaxRise = 2.6,
+		BedtimeTimeoutSeconds = 15,
+		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
+		CollectorCheckSeconds = 120,
+		CollectorChance = 0.12,
+		CollectorStaySeconds = 180,
+		CollectorGoldMultiplier = 3,
+		CollectorRollMin = 0.8,
+		CollectorRollMax = 1.5,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
@@ -116,7 +143,7 @@ return function()
 		CrateOpenCooldownSeconds = 2,
 		DecorIndexBonus = 0.05,
 		GoldenEspressoBonus = 0.05, -- section 3: +5% tips per Golden Espresso level
-		BigBowlLureWaitSeconds = 480, -- section 3: the Big Bowl takes the bait wait from 10 to 8 minutes
+		BigBowlWaitMultiplier = 0.8, -- section 17 (v0.13.15): the Big Bowl takes a fifth off any bowl level's wait
 		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
@@ -135,6 +162,10 @@ return function()
 		BumpSameTargetSeconds = 20,
 		ShoveKnockbackStuds = 10,
 		ShoveTargetImmuneSeconds = 4,
+		-- a dropped cat walks home (v0.10 F67, section 10c)
+		DropReturnWalkSpeed = 8,
+		DropHomeRadiusStuds = 2,
+		DropReturnMaxSeconds = 60,
 		-- the Tackle (v0.11 F74, section 10c)
 		TackleLungeStuds = 12,
 		TackleLungeSeconds = 0.35,
@@ -190,6 +221,7 @@ return function()
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
+				TipPileCollectRangeStuds = true, -- section 12 (F61): the client sends CollectTips within 8 studs
 				FishFirstCatch = true, -- a table, checked below
 				FishRepeatCatch = true, -- a table, checked below
 				FishRankUp = true, -- a table, checked below
@@ -200,9 +232,14 @@ return function()
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
+				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
+				CollectorRangeStuds = true, -- section 12b: his card opens "within 12 studs"
 				TipPotionBonus = true, -- section 12b's potion table: "+25% tips"
 				SwiftPotionSpeed = true, -- section 12b's potion table: "+4 walk and carry speed"
 				LuckyPotionGoldScale = true, -- section 12b's potion table: "double the chance"
+				StraySelfRetrySteps = true, -- section 17's StraySelfRetrySeconds {3, 6, 10}, checked below
+				BowlWaitSeconds = true, -- a table, checked below (F82)
+				BowlLuck = true, -- a table, checked below (F82)
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then
@@ -241,7 +278,16 @@ return function()
 				Mythical = 150,
 			})
 			expect(Config.DecorSpots :: any).to.deepEqual({ 2, 3, 4, 5, 6 })
-			expect(Config.BigBowlLureWaitSeconds < Config.LureWaitSeconds).to.equal(true)
+		end)
+
+		it("bowl levels (F82, section 8 v0.13.15): waits from 10:00 to 8:00 and luck from 0 to 16%", function()
+			expect(Config.BowlWaitSeconds :: any).to.deepEqual({ 600, 570, 540, 510, 480 })
+			expect(Config.BowlLuck :: any).to.deepEqual({ 0, 0.04, 0.08, 0.12, 0.16 })
+			expect(Config.BowlWaitSeconds[1]).to.equal(Config.LureWaitSeconds)
+			-- section 3's Big Bowl wait of 8:00 on a level 1 bowl
+			expect(Config.BowlWaitSeconds[1] * Config.BigBowlWaitMultiplier).to.equal(480)
+			expect(#Config.BowlLuck).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
+			expect(#Config.BowlWaitSeconds).to.equal(Catalog.upgradesById.lure_bowl.maxLevel)
 		end)
 
 		it("NetWindows matches the section 10 net table, levels 0 to 3", function()
@@ -302,6 +348,12 @@ return function()
 			expect(Config.StraySelfRetrySeconds > 0).to.equal(true)
 		end)
 
+		it("v0.8 F57: the wait after a miss grows 3, 6, then 10 s, and a Startled player walks slower", function()
+			expect(Config.StraySelfRetrySteps :: any).to.deepEqual({ 3, 6, 10 })
+			expect(Config.StraySelfRetrySeconds).to.equal(Config.StraySelfRetrySteps[1])
+			expect(Config.StartledWalkSpeed < Config.NormalWalkSpeed).to.equal(true)
+		end)
+
 		it("v0.5 chase: the v0.4 wary wait and jump back are gone (F40)", function()
 			local config = Config :: any
 			expect(config.StrayWarySeconds).never.to.be.ok()
@@ -311,7 +363,11 @@ return function()
 
 		it("v0.5 night: the cafe closes, so the night owls' spawn time is gone (F44)", function()
 			expect((Config :: any).CustomerSpawnSecondsNight).never.to.be.ok()
-			expect(Config.NightIncomeMultiplier).to.equal(0.6)
+		end)
+
+		it("v0.8 night (F60): full pay, and night bait waits half the day wait", function()
+			expect(Config.NightIncomeMultiplier).to.equal(1)
+			expect(Config.LureWaitSecondsNight * 2).to.equal(Config.LureWaitSeconds)
 		end)
 
 		it("v0.4 stakes: the scripted-press flag clears well below where it sets", function()
@@ -419,13 +475,13 @@ return function()
 			end
 		)
 
-		it("the rescue bar matches the section 10b table: rarer is faster and narrower", function()
+		it("the rescue bar matches the section 10b table: rarer is faster and narrower (v0.13.15 F83)", function()
 			local rows = {
-				Common = { 0.8, 0.30 },
-				Rare = { 1.0, 0.24 },
-				Epic = { 1.2, 0.19 },
-				Legendary = { 1.4, 0.15 },
-				Mythical = { 1.6, 0.12 },
+				Common = { 1.0, 0.26 },
+				Rare = { 1.2, 0.20 },
+				Epic = { 1.4, 0.15 },
+				Legendary = { 1.6, 0.12 },
+				Mythical = { 1.8, 0.10 },
 			}
 			local previous: { number }? = nil
 			for _, rarity in Catalog.rarityOrder do

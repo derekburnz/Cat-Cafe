@@ -6,14 +6,17 @@ local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
 local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
+local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
@@ -27,7 +30,9 @@ local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local Quests = require(ReplicatedStorage.Shared.Quests)
 local Settings = require(ReplicatedStorage.Shared.Settings)
+local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -35,6 +40,8 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 type Profile = Types.PlayerProfile
 
 local CafeService = {}
+
+local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for a door set with none picked (F80)
 
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
 -- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
@@ -71,9 +78,10 @@ function CafeService.catViews(player: Player, profile: Profile): { [string]: Typ
 end
 
 -- When the bowl's cat arrives (data-model section 8), online or not: the readyAt UseLure fixed (the wait, Big Bowl
--- and the Index's bait speed in it, F54), or for a bowl filled before that, the wait after the food went in.
-function CafeService.baitReadyAt(profile: Types.PlayerProfile, bait: Types.BaitState): number
-	return bait.readyAt or bait.placedAt + Economy.lureWaitSeconds(profile)
+-- and the Index's bait speed in it, F54), or for a bowl filled before that, LureWaitSeconds after the food went in,
+-- never the wait of a bowl level bought since (F82).
+function CafeService.baitReadyAt(_profile: Types.PlayerProfile, bait: Types.BaitState): number
+	return bait.readyAt or bait.placedAt + Config.LureWaitSeconds
 end
 
 -- The bowl as ProfileSync sends it: the rolled cat only once it has arrived, so the reveal is not spoiled (N30).
@@ -84,7 +92,7 @@ local function baitView(profile: Profile, now: number): Types.BaitView?
 	end
 	local readyAt = CafeService.baitReadyAt(profile, bait)
 	local view: Types.BaitView =
-		{ lureId = bait.lureId, placedAt = bait.placedAt, readyAt = readyAt }
+		{ lureId = bait.lureId, placedAt = bait.placedAt, readyAt = readyAt, night = bait.night }
 	if now >= readyAt then
 		view.cat = {
 			catId = bait.catId,
@@ -133,6 +141,10 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		potions = profile.potions, -- F64
 		buffs = Potions.endsAt(profile, now), -- F64: endsAt in server time; the save keeps seconds left
 		settings = Settings.copy(profile.settings),
+		quests = Quests.view(profile, now), -- F73
+		achievements = Quests.achievementsView(profile),
+		dailyTreat = DailyTreat.view(profile.dailyTreat, now), -- F70
+		stats = table.clone(profile.stats),
 		serverTime = now,
 	}
 end
@@ -161,7 +173,8 @@ end
 -- so the collection is on show from the street (world-and-feel.md section 4, F37). Each model carries what the
 -- world labels and effects read: Slot, Napping, Rarity, Gold, Rate (its coins per second after the cafe and
 -- tier multipliers, 0 while napping) and DisplayName (its filtered name, else the catalog name; F33); working cats
--- are tagged WorkingCat.
+-- are tagged WorkingCat. At night a working cat may be on a bedtime trip or asleep on a sleep spot (F79,
+-- BedtimeService): on the walking body without its outfit, with Bedtime, SleepSpot and Asleep.
 type CatPlacement = { instance: Types.CatInstance, slot: string, anchor: BasePart }
 
 -- The name over a cat model; a named cat not filtered yet asks NameService, which refreshes once it has the text.
@@ -170,6 +183,53 @@ local function shownName(player: Player, instance: Types.CatInstance): string
 	local def = Catalog.getCat(instance.catId)
 	return NameService.displayName(player, instance)
 		or (if def ~= nil then def.name else instance.catId)
+end
+
+-- One cat's model at `at` for its `slot`, not parented yet. A working cat sits on the seated body (B) in its role's
+-- outfit; with `sleepSpot` (F79) it is on the walking body (A) without the outfit instead, on a bedtime trip to that
+-- spot or asleep on it. Resting cats mix their idles (Derek 2026-10-27: "use a mix of idle animations"): the odd nap
+-- spots sit on B and wash a paw, the even ones lie on A, where they sleep and sit up into a loaf with its purr.
+local function buildCat(
+	player: Player,
+	instance: Types.CatInstance,
+	slot: string,
+	at: CFrame,
+	multiplier: number,
+	sleepSpot: string?
+): Model
+	local def = Catalog.getCat(instance.catId)
+	local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
+	local napIndex = tonumber(slot:match("^nap_(%d+)$"))
+	local sitting = sleepSpot == nil and (spot ~= nil or (napIndex ~= nil and napIndex % 2 == 1))
+	local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, sitting)
+	model.Name = instance.uid
+	model:SetAttribute("Uid", instance.uid)
+	model:SetAttribute("CatId", instance.catId)
+	model:SetAttribute("Slot", slot)
+	model:SetAttribute("SpotId", instance.spotId)
+	model:SetAttribute("Napping", instance.spotId == nil)
+	model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
+	model:SetAttribute("Gold", instance.variant == "gold")
+	model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
+	model:SetAttribute("DisplayName", shownName(player, instance))
+	model:SetAttribute("Level", CatStats.level(instance))
+	model:SetAttribute("OwnerUserId", player.UserId)
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
+	model:PivotTo(at)
+	if seated then
+		model:SetAttribute("Pose", "sit") -- the client's Effects keep a seated cat seated
+	end
+	if spot ~= nil then
+		CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
+		model:SetAttribute("Role", spot.spotType)
+		if sleepSpot ~= nil then
+			model:SetAttribute("Bedtime", true)
+			model:SetAttribute("SleepSpot", sleepSpot)
+		else
+			CatPose.dress(model, spot.spotType) -- F25: a working cat sits at its station in its role's outfit
+		end
+	end
+	return model
 end
 
 local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Profile)
@@ -217,10 +277,29 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 				{ instance = instance, slot = "nap_" .. nextSpot, anchor = plot.napSpots[nextSpot] }
 		end
 	end
+	-- At night (F79) a cat asleep on a spot that has gone (a decor cat tree put away) is built again on a free one.
+	local sleepSpots: { SleepSpots.Spot }? = if ClockService.isNight()
+		then SleepSpots.list(plot)
+		else nil
+	local spotIds: { [string]: boolean } = {}
+	if sleepSpots ~= nil then
+		for _, spot in sleepSpots do
+			spotIds[spot.id] = true
+		end
+	end
 	for _, child in plot.cats:GetChildren() do
 		local uid = child:GetAttribute("Uid")
 		local placement: CatPlacement? = if type(uid) == "string" then wanted[uid] else nil
-		if placement == nil or child:GetAttribute("Slot") ~= placement.slot then
+		local sleepSpot = child:GetAttribute("SleepSpot")
+		if
+			placement == nil
+			or child:GetAttribute("Slot") ~= placement.slot
+			or (
+				sleepSpots ~= nil
+				and child:GetAttribute("Asleep") == true
+				and not (type(sleepSpot) == "string" and spotIds[sleepSpot])
+			)
+		then
 			child:Destroy()
 		else
 			wanted[uid :: string] = nil
@@ -230,38 +309,52 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 			child:SetAttribute("Level", CatStats.level(placement.instance))
 		end
 	end
-	for uid, placement in wanted do
-		local instance = placement.instance
-		local def = Catalog.getCat(instance.catId)
-		local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId) else nil
-		-- A working cat sits on the seated body (B). Resting cats mix their idles (Derek 2026-10-27: "use a mix of
-		-- idle animations"): the odd nap spots sit on B and wash a paw, the even ones lie on the walking body (A),
-		-- where they sleep and sit up into a loaf with its purr.
-		local napIndex = tonumber(placement.slot:match("^nap_(%d+)$"))
-		local sitting = spot ~= nil or (napIndex ~= nil and napIndex % 2 == 1)
-		local model, seated = AssetRegistry.cloneCat(instance.catId, instance.variant, sitting)
-		model.Name = uid
-		model:SetAttribute("Uid", uid)
-		model:SetAttribute("CatId", instance.catId)
-		model:SetAttribute("Slot", placement.slot)
-		model:SetAttribute("SpotId", instance.spotId)
-		model:SetAttribute("Napping", instance.spotId == nil)
-		model:SetAttribute("Rarity", if def ~= nil then def.rarity else nil)
-		model:SetAttribute("Gold", instance.variant == "gold")
-		model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
-		model:SetAttribute("DisplayName", shownName(player, instance))
-		model:SetAttribute("Level", CatStats.level(instance))
-		model:SetAttribute("OwnerUserId", player.UserId)
-		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
-		model:PivotTo(placement.anchor.CFrame)
-		if seated then
-			model:SetAttribute("Pose", "sit") -- the client's Effects keep a seated cat seated
+	-- A working cat built at night (a join, or one placed after dark) is built asleep on the first free sleep spot,
+	-- best rating first, without the walk (F79); one left over sits at its station as by day.
+	local beds: { [string]: SleepSpots.Spot } = {}
+	if sleepSpots ~= nil then
+		local taken: { [string]: boolean } = {}
+		for _, child in plot.cats:GetChildren() do
+			local held = child:GetAttribute("SleepSpot")
+			if type(held) == "string" then
+				taken[held] = true
+			end
 		end
-		if spot ~= nil then
-			-- F25: a working cat sits at its station in its role's outfit
-			CollectionService:AddTag(model, "WorkingCat") -- the client's Audio purrs from the nearest few
-			model:SetAttribute("Role", spot.spotType)
-			CatPose.dress(model, spot.spotType)
+		local free: { string } = {}
+		local byId: { [string]: SleepSpots.Spot } = {}
+		for _, spot in sleepSpots do
+			byId[spot.id] = spot
+			if not taken[spot.id] then
+				table.insert(free, spot.id)
+			end
+		end
+		local workers: { Types.CatInstance } = {}
+		for _, placement in wanted do
+			if placement.instance.spotId ~= nil then
+				table.insert(workers, placement.instance)
+			end
+		end
+		table.sort(workers, CatStats.isBetter)
+		local uids: { string } = {}
+		for _, instance in workers do
+			table.insert(uids, instance.uid)
+		end
+		for uid, id in Bedtime.assign(uids, free, {}) do
+			beds[uid] = byId[id]
+		end
+	end
+	for uid, placement in wanted do
+		local bed = beds[uid]
+		local model = buildCat(
+			player,
+			placement.instance,
+			placement.slot,
+			if bed ~= nil then bed.at else placement.anchor.CFrame,
+			multiplier,
+			if bed ~= nil then bed.id else nil
+		)
+		if bed ~= nil then
+			model:SetAttribute("Asleep", true)
 		end
 		model.Parent = plot.cats
 	end
@@ -294,7 +387,8 @@ end
 
 -- A door set or cat flap model (F80) named `name` in plot.decor at `at`, carrying `decorId` for the equip flash, or
 -- none when `asset` is nil. It never collides, is touched or blocks a cast, so both doorways stay open to players,
--- customers and cats.
+-- customers and cats. It is Persistent and only moved when its place changes, so each client keeps the leaves and
+-- the flap it swings (DoorController); a door set's back door sign comes hidden for the night (hideSignByDay).
 local function showStyleModel(
 	plot: WorldBuilder.Plot,
 	name: string,
@@ -313,10 +407,14 @@ local function showStyleModel(
 	local model: Model
 	if existing ~= nil and existing:IsA("Model") then
 		model = existing :: Model
+		if not model:GetPivot():FuzzyEq(at, 0.001) then
+			model:PivotTo(at)
+		end
 	else
 		model = AssetRegistry.clone(asset)
 		model.Name = name
 		model:SetAttribute("Asset", asset)
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 		for _, descendant in model:GetDescendants() do
 			if descendant:IsA("BasePart") then
 				local part = descendant :: BasePart
@@ -326,18 +424,21 @@ local function showStyleModel(
 				part.CanQuery = false
 			end
 		end
+		WorldBuilder.hideSignByDay(model)
+		model:PivotTo(at)
 		model.Parent = plot.decor
 	end
 	model:SetAttribute("DecorId", decorId)
-	model:PivotTo(at)
 	return model
 end
 
 -- The door set and cat flap in use (F80, golden-fish.md 4b) swap models in: DoorFront in the front doorway and
 -- DoorBack in the back one (the piece's CatCafe_Door_<Name>, or its _Front and _Back versions where the art has
 -- them), each at the bottom centre of its opening facing out, and CatFlap at the back door model's `CatFlap`
--- attachment, or low on the cafe's own back door panel's yard face with no door set in use. With none in use the cafe
--- keeps its own doors.
+-- attachment: the door set's, else the real back door's (Model-Agent #509, its leaf as built, shut; each client
+-- carries the flap with the leaf as it swings), else low on the back door panel's yard face. A door set with no cat
+-- flap picked brings the cafe's own flap alone (PLAIN_FLAP, no DecorId), as the cafe's back door it replaces had one.
+-- With none in use the cafe keeps its own doors.
 local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 	local front = plot.door.CFrame * CFrame.new(0, -plot.door.Size.Y / 2, 0)
 	local back = plot.backDoor.CFrame
@@ -355,13 +456,18 @@ local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 	showStyleModel(plot, "DoorFront", doorAsset("Front"), doorId, front)
 	local backModel = showStyleModel(plot, "DoorBack", doorAsset("Back"), doorId, back)
 	local flapAt = back * CFrame.new(0, 0, -plot.backDoor.Size.Z / 2 - 0.05)
-	local hinge = if backModel ~= nil then backModel:FindFirstChild("CatFlap", true) else nil
+	local doorModel: Model? = if backModel ~= nil then backModel else plot.backDoorArt
+	local hinge = if doorModel ~= nil then doorModel:FindFirstChild("CatFlap", true) else nil
 	if hinge ~= nil and hinge:IsA("Attachment") then
 		flapAt = (hinge :: Attachment).WorldCFrame
 	end
 	local flapId = Crates.styleInUse(profile, "catflap")
 	local flapDef = if flapId ~= nil then Catalog.getDecor(flapId) else nil
-	showStyleModel(plot, "CatFlap", if flapDef ~= nil then flapDef.asset else nil, flapId, flapAt)
+	local flapAsset = if flapDef ~= nil
+		then flapDef.asset
+		elseif backModel ~= nil and AssetRegistry.has(PLAIN_FLAP) then PLAIN_FLAP
+		else nil
+	showStyleModel(plot, "CatFlap", flapAsset, flapId, flapAt)
 end
 
 local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
@@ -550,10 +656,70 @@ function CafeService.refreshPlot(player: Player)
 	refreshSpots(plot, profile)
 	refreshExpansions(plot, profile)
 	refreshEspresso(plot, profile)
+	refreshDecor(plot, profile) -- before the cats: at night they sleep on decor cat trees (F79, review S89)
 	refreshCats(player, plot, profile)
-	refreshDecor(plot, profile)
 	refreshTables(plot, profile)
 	refreshBait(player, plot, profile)
+end
+
+-- Bedtime (F79, BedtimeService) ----------------------------------------------------------------------------------
+
+-- Gets the working cat `uid` up for a bedtime trip to `sleepSpot`, or back from one: its model goes onto the walking
+-- body without the outfit where it is now, with Bedtime and SleepSpot, and Asleep false. With `stretch` it stretches
+-- first (StretchAt, the server time the client plays the get-up stretch from). Returns the new model, or nil when the
+-- cat has no model in the cafe or no longer works there.
+function CafeService.bedtimeBody(
+	player: Player,
+	uid: string,
+	sleepSpot: string,
+	stretch: boolean
+): Model?
+	local profile = DataService.get(player)
+	local plot = PlotService.get(player)
+	local old = if plot ~= nil then plot.cats:FindFirstChild(uid) else nil
+	local instance = if profile ~= nil then profile.cats[uid] else nil
+	if
+		profile == nil
+		or plot == nil
+		or old == nil
+		or not old:IsA("Model")
+		or instance == nil
+		or instance.spotId == nil
+	then
+		return nil
+	end
+	local slot = old:GetAttribute("Slot")
+	local multiplier = Economy.cafeMultiplier(profile) * Economy.tierMultiplier(profile)
+	local model = buildCat(
+		player,
+		instance,
+		if type(slot) == "string" then slot else instance.spotId :: string,
+		(old :: Model):GetPivot(),
+		multiplier,
+		sleepSpot
+	)
+	model:SetAttribute("Asleep", false)
+	if stretch then
+		model:SetAttribute("StretchAt", Workspace:GetServerTimeNow())
+	end
+	old:Destroy()
+	model.Parent = plot.cats
+	return model
+end
+
+-- Ends the working cat `uid`'s bedtime trip back to its station: it sits there again on the seated body in its
+-- outfit, as refreshCats builds it by day.
+function CafeService.endBedtime(player: Player, uid: string)
+	local profile = DataService.get(player)
+	local plot = PlotService.get(player)
+	if profile == nil or plot == nil then
+		return
+	end
+	local model = plot.cats:FindFirstChild(uid)
+	if model ~= nil then
+		model:Destroy()
+	end
+	refreshCats(player, plot, profile)
 end
 
 -- "$2.6/s", "$12/s": the HUD's rounding (one decimal under 10), so the toast and the income pill agree.
@@ -618,6 +784,9 @@ function CafeService.sync(player: Player)
 		return
 	end
 	Net.fire(player, "ProfileSync", CafeService.buildState(player, profile))
+	-- the net upgrade bought, on the Player for the net in hand every client shows (Effects, #527); a set that
+	-- changes nothing does not replicate
+	player:SetAttribute("NetLevel", Economy.level(profile, "net"))
 	refreshShowcase(player, profile)
 	announceLevelUps(player, profile) -- after both, so the card and the model's Level are already the new level
 end
@@ -685,8 +854,19 @@ function CafeService.addCaughtCat(
 			)
 		end
 	end
+	-- F62: gold, Legendary and Mythical cats arrive locked
+	if CatStats.arrivesLocked(def.id, instance.variant) then
+		instance.locked = true
+	end
 	profile.cats[instance.uid] = instance
 	profile.stats.catsCaught += 1
+	-- F73: the quest and achievement counters that follow catsCaught (net, rescue and bait alike)
+	if (Catalog.rarityRank[def.rarity] or 0) >= Catalog.rarityRank.Rare then
+		profile.stats.rareCatches += 1
+	end
+	if instance.variant == "gold" then
+		profile.stats.goldCatches += 1
+	end
 	Telemetry.custom(player, "cat_caught", 1, { def.id, howText, instance.variant })
 	if isNew then
 		profile.collection[def.id] = now
@@ -922,6 +1102,10 @@ local function onSellCat(player: Player, rawUid: unknown)
 		Net.toast(player, "You cannot sell your last cat.", "warn")
 		return
 	end
+	if instance.locked == true then
+		Net.toast(player, "This cat is locked. Unlock it to sell it.", "warn")
+		return
+	end
 	local def = Catalog.getCat(instance.catId)
 	if def == nil then
 		return
@@ -934,6 +1118,21 @@ local function onSellCat(player: Player, rawUid: unknown)
 	Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
 	Net.toast(player, string.format("Sold %s for $%d", def.name, value), "good")
 	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
+-- F62 (section 4): the lock icon on a cat card. A locked cat cannot be sold or traded to the Cat Collector.
+local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
+	local uid = Guard.id(rawUid)
+	local profile = profileFor(player)
+	if profile == nil or uid == nil or type(rawLocked) ~= "boolean" then
+		return
+	end
+	local instance = profile.cats[uid]
+	if instance == nil then
+		return
+	end
+	instance.locked = if rawLocked then true else nil
 	CafeService.sync(player)
 end
 
@@ -1201,6 +1400,7 @@ function CafeService.start()
 	Net.on("EquipBest", onEquipBest)
 	Net.on("UnequipAll", onUnequipAll)
 	Net.on("SellCat", onSellCat)
+	Net.on("LockCat", onLockCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)
 	Net.on("RankUp", onRankUp)

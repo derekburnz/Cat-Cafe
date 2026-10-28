@@ -19,6 +19,9 @@ export type Style =
 	| "entertainer"
 	| "sit"
 	| "lick"
+	| "stuckButt"
+	| "stuckFlip"
+	| "held"
 
 -- Which body a cat has (Pose finds it): "walk" and "sit" are the bodies with hinged pieces (PR #259: walking A,
 -- sitting B), "parts" the placeholder and older Part cats, which lie down by folding their legs themselves.
@@ -127,6 +130,21 @@ function Logic.nearest<K>(candidates: { Candidate<K> }, radius: number, limit: n
 	local keys: { K } = {}
 	for i = 1, math.min(limit, #inRange) do
 		keys[i] = inRange[i].key
+	end
+	return keys
+end
+
+-- Logic.nearest over `first`, then the nearest of `rest` in whatever is left of `limit`, so a crowd of `rest` never
+-- takes a slot one of `first` needs (Rare and better strays ahead of Commons for the rarity gem).
+function Logic.nearestFirst<K>(
+	first: { Candidate<K> },
+	rest: { Candidate<K> },
+	radius: number,
+	limit: number
+): { K }
+	local keys = Logic.nearest(first, radius, limit)
+	for _, key in Logic.nearest(rest, radius, limit - #keys) do
+		table.insert(keys, key)
 	end
 	return keys
 end
@@ -248,6 +266,12 @@ function Logic.stuckMarkShows(lockedBy: unknown, distance: number, shown: boolea
 	local locked = type(lockedBy) == "number" and lockedBy ~= 0
 	local near = if shown then m.hideWithin else m.hideWithin + m.showAfter
 	return not locked and distance > near and distance <= m.maxDistance
+end
+
+-- Whether something last seen at `seenAt` (os.clock(), nil if never) still counts as in view at `now`: for `grace`
+-- seconds after it goes out of sight, so a post or a passing player does not make a mark pop again and again.
+function Logic.stillInView(seenAt: number?, now: number, grace: number): boolean
+	return seenAt ~= nil and now - seenAt <= grace
 end
 
 -- Whether you stand in a walk-in circle (the Codes Cat's, F65) at `distance` flat studs from its centre: in at
@@ -543,6 +567,53 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.headPitch = -math.rad(m.doze.headDroop + m.doze.nod * (1 - 2 * breath))
 		o.headRoll = -o.bodyRoll * 0.5
 		o.tailYaw *= m.doze.tail
+	elseif style == "held" then
+		-- Awake in a player's arms (Derek 2026-10-28): loafing on the walking body (the loaf's piece pose, or
+		-- folded legs on the older Part cats) or just sitting on the sitting body, eyes open, a slow breath, looking
+		-- about now and then and the tail swishing slowly.
+		local h = m.held
+		if body == "walk" then
+			o.loaf = 1
+		elseif not pieces then
+			o.sink = 1
+			o.pawFL = math.rad(90)
+			o.pawFR = math.rad(90)
+			o.pawBL = math.rad(90)
+			o.pawBR = math.rad(90)
+		end
+		if body ~= "sit" then
+			o.bodyY = 0
+			o.belly = Logic.breath(t, h.seconds) * h.breathe
+		end
+		o.headYaw = math.rad(h.look) * wave(t, h.lookSeconds)
+		o.headPitch = math.rad(h.nod) * wave(t, h.lookSeconds * 0.6)
+		o.tailYaw *= h.tail
+	elseif style == "stuckButt" then
+		-- Head first in the trap with only its back end out: in bursts the hips wiggle, the back legs paddle one
+		-- after the other and the raised tail lashes; a little of it keeps going in between.
+		local s = m.stuck.butt
+		local burst = math.max(Logic.pulse(t, s.every, s.seconds), s.twitch)
+		local beat = math.sin(t * s.hz * 2 * math.pi)
+		o.bodyRoll = math.rad(s.wiggle) * beat * burst
+		o.pawBL = math.rad(s.kick) * beat * burst
+		o.pawBR = -math.rad(s.kick) * beat * burst
+		o.tailPitch = math.rad(s.tailUp)
+		o.tailYaw = math.rad(s.tail) * math.sin(t * s.hz * 1.5 * 2 * math.pi) * burst
+	elseif style == "stuckFlip" then
+		-- Upside down, hanging under a branch or a gutter or on its back in a bush: in bursts all four legs pedal in
+		-- the air and the body rocks, ears back; the tail swings and the head looks about all the while.
+		local s = m.stuck.flip
+		local burst = math.max(Logic.pulse(t, s.every, s.seconds), s.twitch)
+		local w = t * s.hz * 2 * math.pi
+		o.pawFL = math.rad(s.legs) * math.sin(w) * burst
+		o.pawFR = math.rad(s.legs) * math.sin(w + math.pi) * burst
+		o.pawBL = math.rad(s.legs) * math.sin(w + math.pi / 2) * burst
+		o.pawBR = math.rad(s.legs) * math.sin(w - math.pi / 2) * burst
+		o.bodyRoll = math.rad(s.rock) * math.sin(w * 0.5) * burst
+		o.tailYaw = math.rad(s.tail) * wave(t, 1.6)
+		o.headYaw = math.rad(s.look) * wave(t, 3.1)
+		o.earL = math.max(o.earL, math.rad(s.ears) * burst)
+		o.earR = math.max(o.earR, math.rad(s.ears) * burst)
 	elseif style == "stuck" then
 		local struggle = Logic.pulse(t, m.stuck.every, m.stuck.seconds)
 		o.headYaw = math.rad(m.stuck.shake) * math.sin(t * 40) * struggle
@@ -877,10 +948,26 @@ function Logic.pant(o: Offsets, t: number)
 	o.tailYaw *= 0.4
 end
 
+-- Which wriggle a cat stuck in a rescue trap of this TrapType gets (motion.stuck.kinds); the plain shake when the
+-- trap is not listed.
+function Logic.stuckStyle(trapType: unknown): Style
+	local kind = if type(trapType) == "string" then Presets.motion.stuck.kinds[trapType] else nil
+	if kind == "butt" then
+		return "stuckButt"
+	elseif kind == "flip" then
+		return "stuckFlip"
+	end
+	return "stuck"
+end
+
+function Logic.isStuck(style: Style): boolean
+	return style == "stuck" or style == "stuckButt" or style == "stuckFlip"
+end
+
 -- How much of the Balloon Cat's float (motion.float) a style gets: all of it awake, `resting` of it asleep or
 -- loafing, none stuck in a trap.
 function Logic.floatShare(style: Style): number
-	if style == "stuck" then
+	if Logic.isStuck(style) then
 		return 0
 	elseif style == "nap" or style == "loaf" or style == "doze" then
 		return Presets.motion.float.resting
@@ -1050,6 +1137,26 @@ function Logic.waterStep(carried: number, moved: number, stride: number): (boole
 		return true, math.min(total - stride, stride)
 	end
 	return false, total
+end
+
+-- The model of a crate from `area` (a zone id or "classic") in ReplicatedStorage.Assets: `CatCafe_Prop_Crate_Alley`,
+-- `CatCafe_Prop_Crate_Alley_Gold` for its golden twin (Model-Agent's crates.py). Nil for no area.
+function Logic.crateModelName(area: unknown, golden: unknown): string?
+	if type(area) ~= "string" or area == "" then
+		return nil
+	end
+	local pool = string.upper(string.sub(area, 1, 1)) .. string.sub(area, 2)
+	return "CatCafe_Prop_Crate_" .. pool .. (if golden == true then "_Gold" else "")
+end
+
+-- How far open a crate's lid is `elapsed` seconds into its `seconds` swing: quick at first and easing into
+-- `degrees`, never past it.
+function Logic.lidAngle(elapsed: number, seconds: number, degrees: number): number
+	if seconds <= 0 then
+		return degrees
+	end
+	local x = math.clamp(elapsed / seconds, 0, 1)
+	return degrees * (1 - (1 - x) * (1 - x))
 end
 
 return Logic

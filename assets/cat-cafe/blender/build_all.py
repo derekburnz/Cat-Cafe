@@ -38,6 +38,12 @@ import cats  # noqa: E402
 import coins  # noqa: E402
 import common  # noqa: E402
 import crate_decor  # noqa: E402
+import crates  # noqa: E402
+import customers  # noqa: E402
+import potions  # noqa: E402
+import mystery  # noqa: E402
+import collector  # noqa: E402
+import townbuildings  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -45,12 +51,16 @@ import gates  # noqa: E402
 import items  # noqa: E402
 import neighbourhood  # noqa: E402
 import night  # noqa: E402
+import doors  # noqa: E402
+import doorsets  # noqa: E402
 import market  # noqa: E402
 import npc  # noqa: E402
 import palette  # noqa: E402
 import park  # noqa: E402
 import parkset  # noqa: E402
 import woodsset  # noqa: E402
+import sewerset  # noqa: E402
+import neighbourhoodset  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
@@ -66,7 +76,8 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset]
+           woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
+           townbuildings, customers]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -96,6 +107,10 @@ PIVOT_NOTES = {
     "CatCafe_Neighbourhood_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Woods_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Park_Set": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+    "CatCafe_Neighbourhood_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Park_RescueTree": "base center; the Branch pivots at its root on the trunk (part_pivots_roblox)",
     **{f"CatCafe_Plot_Cafe_{c}": "Plot.cframe: floor top centre of the cafe, front -Z to the street" for c in plot.COLOURS},
     "CatCafe_Plot_Interior": "Plot.cframe: floor top centre of the cafe",
@@ -111,6 +126,7 @@ PIVOT_NOTES = {
     **{n: f"the pivot of {h}: place it there with no offset" for n, h in night.HOSTS.items()},
     "CatCafe_Alley_NightFenceSegment": "base centre of the 8 stud piece; -Z faces the cafe side",
     "CatCafe_Plot_BackDoorClosed": "Plot.cframe: floor top centre of the cafe",
+    "CatCafe_Plot_BackDoor": "Plot.cframe: floor top centre of the cafe; the _Leaf pivot is the hinge",
     "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
     "CatCafe_Prop_FishCoin": "base centre: the coin stands on its rim, the cat face toward -Z; spin it about Y",
@@ -142,7 +158,12 @@ STUDIO_NOTES = {
     "CatCafe_Sewer_Manhole": "Slide or hide the child Model _Cover to open it; the requirement SurfaceGui goes on the "
                              "-Z face of the part named SignBoard on the post.",
     "CatCafe_Furniture_Counter": "CollisionFidelity Hull. Sit pad on the left end is the counter spot.",
-    "CatCafe_Furniture_CatTree": "CollisionFidelity Hull.",
+    "CatCafe_Furniture_CatTree": "CollisionFidelity Hull. F79 bedtime: Attachments Sleep_Top (the top cushion, the "
+                                 "entertainer's sit point) and Sleep_Shelf (the lower shelf) take a sleeping cat's "
+                                 "pivot, facing their LookVector; Foot is the floor spot it hops up from.",
+    "CatCafe_Furniture_CatBed": "F79 bedtime: Tier 3 to 5 dressing, standing on the floor at the plot's bed spots. "
+                                "Attachment Sleep (the cushion) takes a sleeping cat's pivot, facing the bed's front "
+                                "dip (-Z); Foot is the floor 1.5 in front. 2.6 across.",
     "CatCafe_Alley_Dumpster": "CollisionFidelity Hull.",
     "CatCafe_Alley_TrashBin": "Rescue trap trash_bin. Put the stuck cat at stuck_pose. The Lid turns about its "
                               "part_pivots_roblox point (the hinge) to rattle on a hit. CollisionFidelity Box on the Bin.",
@@ -156,9 +177,12 @@ STUDIO_NOTES = {
     "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, Transparency 0.3, plus a PointLight (Brightness 0.8, Range 10).",
     "CatCafe_Decor_DoorSign": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
     "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
-    "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
-    "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
-    "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+    "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
+                           "Handle, the net's axes) is where the hand holds it.",
+    "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
+                           "Handle, the net's axes) is where the hand holds it.",
+    "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
+                           "Handle, the net's axes) is where the hand holds it.",
     **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
                                  "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "
                                  "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "
@@ -181,6 +205,12 @@ STUDIO_NOTES = {
     "CatCafe_Plot_BackDoorClosed": "F66: owned cafes while the areas are closed, at the Plot pivot. A door shut in the "
                                    "6 x 7.5 back door (x -11..-5), so it collides; the CLOSED UNTIL SUNRISE sign faces "
                                    "the back alley (+Z) and its child Model _Sign_Bulb glows. Tag NightFence.",
+    "CatCafe_Plot_BackDoor": "Every cafe, at the Plot pivot: a wooden door hung in the back doorway with a cat flap. "
+                             "Turn the child Model _Leaf about its pivot's Y to swing it (-90 degrees is wide open, out "
+                             "into the yard); _Flap rides the leaf and turns about its own X as a cat goes through. "
+                             "_Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. The leaf's CatFlap "
+                             "Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code "
+                             "panel as the collider.",
     "CatCafe_Street_CodesCat": "F65: the Codes Cat in the street plaza, tag CodesCat. Walking into the part named "
                                "CodesCircle (a flat Neon disc 8 studs across, centre 6 studs in front of the pivot, "
                                "CanCollide off, CanTouch on, inside the child Model _CodesCircle) opens the code box; "
@@ -215,6 +245,75 @@ for _n in crate_decor.ASSETS:                   # F53 crate pieces: the server c
                         "collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass "
                         "Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.")
 
+for _n in crates.ASSETS:                         # Cafe Crates: shelf, reveal and pictures
+    STUDIO_NOTES[_n] = ("F53 Cafe Crate" + (" (golden: gold parts are Metal)" if _n.endswith("_Gold") else "")
+                        + ": pivot base centre, front -Z, nothing collides. The child Model " + _n + "_Lid turns "
+                        "about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide "
+                        "open. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_") + ".png (icons.py).")
+for _n in potions.ASSETS:                        # F64 and F73 potions: the bag, the gift reveal and pictures
+    STUDIO_NOTES[_n] = ("Potion bottle (F64, F73): pivot base centre, front -Z, nothing collides; the liquid is the "
+                        "potion's colour. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_")
+                        + ".png (icons.py).")
+PIVOT_NOTES["CatCafe_NPC_MysteryVisitor"] = ("the floor under a cafe chair's seat centre, facing the table (-Z); the cat "
+                                             "sits on the seat at 1.57")
+STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
+    "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and "
+    "tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, "
+    "Tail, LegF1, LegF2); the hood is the child Model _Prop inside Head and the capelet _Cloak rides the body. "
+    "Nothing collides.")
+STUDIO_NOTES["CatCafe_Item_MysteryGift"] = (
+    "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it "
+    "on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.")
+PIVOT_NOTES["CatCafe_NPC_Collector"] = "the floor under him, on the plot's CollectorSpot, facing into the room (-Z)"
+STUDIO_NOTES["CatCafe_NPC_Collector"] = (
+    "F63 Cat Collector: the client pivots it on the plot's CollectorSpot (floor centre, front into the room) and tags "
+    "it CatCollector. A sitting grey tabby (scale 1.45, 2.7 tall to the hat) with the usual hinged pieces (Head, "
+    "Eye1, Eye2, EarL, EarR, Tail, LegF1, LegF2); the bowler is the child Model _Prop inside Head, the tweed coat "
+    "_Coat rides the body and the magnifying glass _Lens is inside LegF2, whose paw is raised to his right eye. "
+    "Nothing collides.")
+for _n in customers.ASSETS:                      # F15 and F37 cafe customers, standing and seated
+    if _n.endswith("_Sit"):
+        PIVOT_NOTES[_n] = ("the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table "
+                           "(-Z); the customer sits on the cushion at 1.58")
+        STUDIO_NOTES[_n] = ("Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot "
+                            "(same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. "
+                            "Nothing collides.")
+    else:
+        STUDIO_NOTES[_n] = ("Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk "
+                            "it with PivotTo; at the chair swap to " + _n + "_Sit.")
+for _n in townbuildings.ASSETS:                  # town buildings on the back alleys' outer walls
+    PIVOT_NOTES[_n] = "wall: back plane at the bottom centre; -Z faces into the alley"
+    STUDIO_NOTES[_n] = (
+        "Town building for a back alley's outer wall, in place of the WallWindows, WallDoor and FireEscape backs: "
+        "30.6 wide, -Z into the lane. Its 3 deep body stands over the 1 thick wall: put the pivot (the back plane) "
+        "2.25 behind the wall's inner face, so the facade is 1 out into the lane where the old backs' faces were. "
+        "The body and roof collide; _Pane parts glow at night (as the other wall pieces), _Lamp_Bulb is the door "
+        "lamp (Neon + a warm PointLight at night), _Flowers needs no collision.")
+STUDIO_NOTES[townbuildings.N + "Warehouse"] += (
+    " The fire escape is CatCafe_Alley_FireEscape's, at the same place on the facade: landings and ladder rungs "
+    "collide, landing_1 (top 9.35) is reached from CatCafe_Alley_CrateStack (top 7.7) just past its open left end "
+    "(local x -8), stairs lead to landing_2 (17.35). See ledges_roblox (in this model's frame).")
+for _st in doorsets.SETS:                       # F80 door sets: CafeService.refreshDoors places them
+    _f, _b = f"CatCafe_Door_{_st.NAME}_Front", f"CatCafe_Door_{_st.NAME}_Back"
+    PIVOT_NOTES[_f] = "the foot of the front doorway at its inside face, plot (0, 0, -14); the street is -Z"
+    PIVOT_NOTES[_b] = "the foot of the back doorway, plot (-8, 0, 14.5) turned 180; the yard is -Z"
+    STUDIO_NOTES[_f] = ("F80 door set, front half, in place of the cafe's own front door. The child Models _LeafL and "
+                        "_LeafR are pivoted on their hinges: -90 (LeafL) or +90 (LeafR) about Y swings them in. "
+                        "_Glass parts are Glass 0.45. Nothing collides.")
+    STUDIO_NOTES[_b] = ("F80 door set, back half, in place of CatCafe_Plot_BackDoor (it brings the threshold and the "
+                        "inside architrave). The child Model _Leaf swings on the cafe's own hinge (-90 about Y is wide "
+                        "open, out into the yard); its CatFlap Attachment takes an F80 flap (CatCafe_CatFlap_Plain "
+                        "when none is picked). _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. "
+                        "Nothing collides.")
+for _fl in doorsets.FLAPS:                      # F80 cat flaps: on a back leaf's CatFlap attachment
+    _n = f"CatCafe_CatFlap_{_fl}"
+    PIVOT_NOTES[_n] = "a back leaf's CatFlap Attachment (the foot of the leaf's yard face, mid-door); the yard is -Z"
+    STUDIO_NOTES[_n] = ("F80 cat flap: the frame on both faces of the leaf and its lining; ride the leaf. The child "
+                        "Model _Flap turns about its pivot's X (the top hinge) as a cat goes through"
+                        + ("; _Flap_Bulb is Neon at night" if _fl == "NeonPaw" else "")
+                        + ("; _Bell hangs from its pivot and can swing about X" if _fl == "Bell" else "")
+                        + ". Nothing collides.")
+
 for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): Neon eye parts in Studio
     if _spec.get("glow_eyes"):
         for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
@@ -222,17 +321,23 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
                                 "to Neon.").strip()
     if props.slot(_n):                          # themed cats (data-model 3): the prop is part of the model
         _rides = "the Body" if props.slot(_n) == "Back" else "the Head (its Model is inside the Head Model)"
+        _two = ""
+        if props.slot2(_n):                     # a second prop in another slot (v0.13)
+            _r2 = "the Body" if props.slot2(_n) == "Back" else "the Head (inside the Head Model)"
+            _two = (f" Second prop: the {props.slot2(_n)} prop is the child Model <name>_Prop2 and rides {_r2}; "
+                    f"PropSlot2 = {props.slot2(_n)}, so the role piece in that slot stays off too (F71).")
         for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + f" Prop: the {props.slot(_n)} prop is the child Model "
                                 f"<name>_Prop (and <name>_Prop_Glass, Glass) and rides {_rides}; PropSlot = "
-                                f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off.").strip()
+                                f"{props.slot(_n)}, so CatPose.dress leaves that slot's role piece off." + _two).strip()
 
 
 def cat_rbx_extras(name):
     """A cat's Part model carries its Scale and, on a sitting model (where working cats wear their outfits), one
     Attachment per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part,
     so the game needs no manifest at runtime. A themed cat also carries PropSlot (Head, Face or Back) and its prop's
-    parts carry Follows (Head or Body); a Head or Face prop's Model rides inside the Head Model."""
+    parts carry Follows (Head or Body); a Head or Face prop's Model rides inside the Head Model. A second prop adds
+    PropSlot2 and `_Prop2` parts the same way."""
     cat, _gold, body = cats.parse(name)
     spec = cats.ROSTER[cat]
     s = spec.get("scale", 1.0)
@@ -248,11 +353,16 @@ def cat_rbx_extras(name):
     extras = {"attachments": attachments, "attributes": {"Scale": {"Float64": float(s)}}}
     slot = props.slot(cat)
     if slot:                                # a themed cat's prop: its slot, and which piece its parts follow
-        rides = "Body" if slot == "Back" else "Head"
+        rides = props.follows(slot)
         extras["attributes"]["PropSlot"] = slot
         extras["part_attributes"] = {"_Prop": {"Follows": rides}, "_Prop_Glass": {"Follows": rides}}
-        if rides == "Head":
-            extras["nest"] = {"_Prop": "_Head", "_Prop_Glass": "_Head"}
+        extras["nest"] = {"_Prop": "_Head", "_Prop_Glass": "_Head"} if rides == "Head" else {}
+        slot2 = props.slot2(cat)
+        if slot2:                           # and a second prop's (`_Prop2`, PropSlot2)
+            extras["attributes"]["PropSlot2"] = slot2
+            extras["part_attributes"]["_Prop2"] = {"Follows": props.follows(slot2)}
+            if props.follows(slot2) == "Head":
+                extras["nest"]["_Prop2"] = "_Head"
     return extras
 
 
@@ -320,6 +430,22 @@ def main():
             extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name in {**mystery.NEST, **collector.NEST}:   # F64, F63: hats ride the Head, the glass the raised paw
+            extra = {"nest": {**mystery.NEST, **collector.NEST}[name]}
+        if name == "CatCafe_Furniture_CatTree":   # F79 sleep spots: pedestals, hops and the foot (furniture.TREE_SPOTS)
+            extra = {"attachments": furniture.spot_attachments(name, furniture.TREE_SPOTS)}
+        if name == "CatCafe_Furniture_CatBed":
+            extra = {"attachments": furniture.spot_attachments(name, furniture.BED_SPOTS)}
+        if name == "CatCafe_Decor_CatTreeTower":
+            extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
+        if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
+            extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
+        if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
+            extra = {"attachments": [items.grip_attachment()]}
+        if name.startswith(("CatCafe_Door_", "CatCafe_CatFlap_")):   # F80: glass, sign and panels ride their leaf
+            extra = {"nest": doorsets.NEST}
+            if name.endswith("_Back"):
+                extra["attachments"] = [doorsets.back_cat_flap_attachment(name)]
         if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
             extra = {"part_attributes": square.ARM_ATTRIBUTES}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
@@ -363,8 +489,11 @@ def main():
             entry["joints_roblox"] = {k: common.to_roblox(j) for k, j in joints.items() if k != "Body"}
             entry["attachments"] = {k: _slot_entry(p, o, r, s_) for k, (p, o, r) in accessories.slots(spec, body).items()}
             if props.slot(cat):
-                entry["prop"] = {"slot": props.slot(cat), "objects": [o.name for o in objs if "_Prop" in o.name],
-                                 "follows": "Body" if props.slot(cat) == "Back" else "Head"}
+                entry["prop"] = {"slot": props.slot(cat), "follows": props.follows(props.slot(cat)),
+                                 "objects": [o.name for o in objs if o.name.endswith(("_Prop", "_Prop_Glass"))]}
+            if props.slot2(cat):
+                entry["prop2"] = {"slot": props.slot2(cat), "follows": props.follows(props.slot2(cat)),
+                                  "objects": [o.name for o in objs if o.name.endswith("_Prop2")]}
             lifts = {k: cats.pose_lift(spec, v) for k, v in poses.CAT_POSES.items() if v["body"] == body and "lift" in v}
             if lifts:                               # already times the cat's scale
                 entry["pose_lifts_roblox"] = {k: common.to_roblox([c * cats.scale_of(spec, body) for c in v])
@@ -382,8 +511,9 @@ def main():
             entry["display_slots_roblox"] = [common.to_roblox(p) for p in street.DISPLAY_SLOTS]
         if name.startswith("CatCafe_Item_") and name.split("_")[-1] in items.FOODS:
             entry["food_in_bowl_roblox"] = [0, items.FOOD_IN_BOWL, 0]
-        if name in alleyway.LEDGES:
-            entry["ledges_roblox"] = {k: list(v) for k, v in alleyway.LEDGES[name].items()}
+        ledges = alleyway.LEDGES.get(name) or townbuildings.LEDGES.get(name)
+        if ledges:
+            entry["ledges_roblox"] = {k: list(v) for k, v in ledges.items()}
         if name.endswith("_Gate") and name in areas.ASSETS:
             entry["sign_board_roblox"] = areas.SIGN_INFO
         if name.startswith("CatCafe_Plot_Cafe_"):

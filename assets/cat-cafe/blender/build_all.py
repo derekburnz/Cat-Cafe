@@ -54,6 +54,7 @@ import poses  # noqa: E402
 import props  # noqa: E402
 import rbx_export  # noqa: E402
 import sewer  # noqa: E402
+import square  # noqa: E402
 import stations  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
@@ -61,9 +62,14 @@ import woods  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
-           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer]
+           night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, square]
 
 PIVOT_NOTES = {
+    "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
+                             "pivot, the stones 0.02 above it. Square space is world space; place with no turn.",
+    "CatCafe_Square_Signpost": "Post's foot at (-9, 0.1, -7.5) with no turn: each _Arm<Area> board is aimed in world "
+                               "space at its gate, long along its own X, with an Area attribute.",
+    "CatCafe_Square_Bunting": "On the ground under the middle of the span; its ends sit inside two lamps 22 apart.",
     "CatCafe_Furniture_WallShelf": "wall: back-bottom center",
     "CatCafe_Decor_WindowPlants": "wall: back-bottom center",
     "CatCafe_Decor_NeonSign": "wall: back-bottom center",
@@ -308,6 +314,8 @@ def main():
             extra = {"attachments": [stations.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
+            extra = {"part_attributes": square.ARM_ATTRIBUTES}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
@@ -325,6 +333,8 @@ def main():
         if moved and not name.startswith("CatCafe_Cat_"):   # parts with their own pivot (gate leaves, tree branch); cats use joints
             entry["part_pivots"] = {k: [round(v, 2) for v in p] for k, p in moved.items()}
             entry["part_pivots_roblox"] = {k: common.to_roblox(p) for k, p in moved.items()}
+        if name.startswith("CatCafe_Square_"):    # Layout.townSquare.props: world x, floor top y, z, turn about Y
+            entry["placements_roblox"] = [[x, 0.1, z, r] for (n, x, z, r) in square.PLACEMENTS if n == name]
         if name in areakit.POINTS:                # spots inside an area set (cat spawns, traps), area-space Roblox x, z
             entry["points_roblox"] = areakit.POINTS[name]
         if name in furniture.SIT_POINTS:

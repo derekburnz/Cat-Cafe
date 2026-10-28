@@ -40,7 +40,7 @@ import math
 
 from alleyway import _arch, flower_clump, label, lantern
 from common import RB
-from plot import rot_y, rot_z
+from plot import rot_x, rot_y, rot_z
 
 SQ_W, SQ_D = 48.0, 32.0                        # the square's half width (x) and half depth (z)
 LANE, CROSS = 8.0, 6.0                         # half widths of the street's line and the east to west lane
@@ -72,7 +72,15 @@ def flat_tri(b, pts, y0, y1, swatch):
 
 
 def _ring(b, y0, y1, r_out, width, swatch, segments=32):
-    b.b.ring(RB.p(0, (y0 + y1) / 2, 0), r_out, width, y1 - y0, swatch, segments=segments, bevel=False)
+    """A flat ring round the origin from boxes; every other one stands 0.01 proud top and bottom, so neighbours
+    never share a face where they overlap."""
+    rm = r_out - width / 2
+    chord = 2 * r_out * math.sin(math.pi / segments) * 1.04
+    for k in range(segments):
+        a = 2 * math.pi * (k + 0.5) / segments
+        e = 0.01 if k % 2 else 0.0
+        b.box((rm * math.cos(a), (y0 + y1) / 2, rm * math.sin(a)), (width, y1 - y0 + 2 * e, chord), swatch,
+              rot=rot_y(-math.degrees(a)))
 
 
 def _hash(*v):
@@ -236,12 +244,12 @@ def _fish(b, x, z, a, y):
     ux, uz = -math.cos(a), -math.sin(a)                                          # toward the middle
     deg = math.degrees(math.atan2(-uz, ux))                                      # its local +X to the middle
     b.box((x - ux * 0.15, y + 0.12, z - uz * 0.15), (1.0, 0.24, 0.7), "brass", rot=rot_y(deg))      # base
-    b.ball((x, y + 0.75, z), 0.42, "brass", scale=(1.35, 1.0, 0.75))            # body, tipped up toward the pool
+    b.b.ico(RB.p(x, y + 0.75, z), 0.42, "brass", scale=(1.35, 0.75, 1.0), rot=RB._rot(rot_y(deg)))   # body
     b.box((x - ux * 0.62, y + 0.62, z - uz * 0.62), (0.5, 0.62, 0.12), "gold_dark",
           rot=rot_y(deg) @ rot_z(35))                                             # tail fin
     b.ball((x + ux * 0.5, y + 0.86, z + uz * 0.5), 0.15, "bronze")               # mouth
     for s in (-1, 1):                                                             # eyes either side
-        b.ball((x + ux * 0.28 + uz * s * 0.3, y + 0.98, z + uz * 0.28 - ux * s * 0.3), 0.09, "fur_black")
+        b.ball((x + ux * 0.28 + uz * s * 0.22, y + 0.95, z + uz * 0.28 - ux * s * 0.22), 0.09, "fur_black")
 
 
 def _spout(water, x, z, a, y):
@@ -282,10 +290,10 @@ def _statue(b, scarf, y):
     for s in (-1, 1):
         b.box((s * 0.5, hy + 0.72, -0.3), (0.5, 0.5, 0.3), m, rot=rot_z(45))     # ears
         b.box((s * 0.5, hy + 0.7, -0.46), (0.28, 0.28, 0.04), "gold_dark", rot=rot_z(45))   # inner ears
-        b.span((s * 0.3 - 0.09, hy + 0.05, -1.08), (s * 0.3 + 0.09, hy + 0.3, -1.0), "fur_black")   # eyes
+        b.span((s * 0.3 - 0.09, hy + 0.05, -1.08), (s * 0.3 + 0.09, hy + 0.3, -0.94), "fur_black")   # eyes
         for dy in (-0.12, 0.0):                                                   # whiskers
-            b.span((s * 0.55 - 0.2, hy - 0.1 + dy, -0.96), (s * 0.55 + 0.2, hy - 0.06 + dy, -0.92), "bronze")
-    b.span((-0.09, hy - 0.12, -1.07), (0.09, hy - 0.02, -1.0), "nose_pink")      # nose
+            b.span((s * 0.55 - 0.2, hy - 0.1 + dy, -0.96), (s * 0.55 + 0.2, hy - 0.06 + dy, -0.86), "bronze")
+    b.span((-0.09, hy - 0.12, -1.07), (0.09, hy - 0.02, -0.94), "nose_pink")     # nose
     for k, x in enumerate((-0.2, -0.07, 0.07, 0.2)):                             # W mouth
         lo = hy - (0.3 if k in (0, 2) else 0.24)
         b.span((x - 0.06, lo, -1.04 - 0.002 * k), (x + 0.06, lo + 0.08, -0.98), "bronze")
@@ -302,7 +310,7 @@ def build_fountain(mat):
     for k in range(16):                                                          # white diamonds on the band
         a = 2 * math.pi * (k + 0.5) / 16
         b.box((5.97 * math.cos(a), 0.92, 5.97 * math.sin(a)), (0.06, 0.3, 0.3), "offwhite",
-              rot=rot_y(-math.degrees(a)) @ rot_z(0) @ _rx(45))
+              rot=rot_y(-math.degrees(a)) @ rot_x(45))
     _ring(b, 1.55, 1.85, 6.1, 1.4, "offwhite", segments=32)                      # coping, a ledge to sit on
     for sw, ux, uz in AREA_POINTS:                                               # a paw in each area's colour
         r = 5.4
@@ -321,22 +329,17 @@ def build_fountain(mat):
     b.cyl((0, 1.75, 0), 1.0, 2.5, "floor_tile", segments=16)                     # pedestal
     b.cyl((0, 1.6, 0), 1.08, 0.4, "sign_teal", segments=16)                      # its band
     b.cyl((0, 3.3, 0), 1.0, 0.6, "floor_tile", r2=2.6, segments=20)              # bowl
-    _ring(b, 3.6, 3.9, 2.75, 0.32, "offwhite", segments=24)                      # bowl lip
+    _ring(b, 3.6, 3.9, 2.9, 0.4, "offwhite", segments=24)                        # bowl lip, the veil hangs off it
     water.cyl((0, 3.66, 0), 2.45, 0.2, "puddle", segments=20)                    # bowl water
     for k in range(16):                                                          # veil over the lip
         a = 2 * math.pi * (k + 0.5) / 16
-        water.box((2.95 * math.cos(a), 2.55, 2.95 * math.sin(a)), (0.1, 2.6, 0.62), "puddle",
+        water.box((2.9 * math.cos(a), 2.55, 2.9 * math.sin(a)), (0.1, 2.6, 0.62), "puddle",
                   rot=rot_y(-math.degrees(a)))
     b.cyl((0, 4.05, 0), 0.85, 0.5, "floor_tile", segments=14)                    # statue plinth
     b.cyl((0, 4.32, 0), 0.95, 0.06, "sign_teal", segments=14)
     _statue(b, scarf, 4.35)
     return [b.finalize("CatCafe_Square_Fountain", mat), water.finalize("CatCafe_Square_Fountain_Water", mat),
             scarf.finalize("CatCafe_Square_Fountain_Decor", mat)]
-
-
-def _rx(deg):
-    from plot import rot_x
-    return rot_x(deg)
 
 
 # ----------------------------------------------------------------------------------------------- signpost --
@@ -369,7 +372,7 @@ def build_signpost(mat):
     flowers.cyl((0, 0.82, 0), 0.82, 0.05, "leaf_green", segments=14)
     for k in range(5):
         a = 2 * math.pi * (k + 0.3) / 5
-        flower_clump(flowers, 0.58 * math.cos(a), 0.85, 0.58 * math.sin(a), n=3, spread=0.2)
+        flower_clump(flowers, 0.58 * math.cos(a), 0.82, 0.58 * math.sin(a), n=3, spread=0.2)
     b.span((-h, 0.3, -h), (h, 8.0, h), "caramel_wood")                           # post
     for y in (2.0, 3.2):                                                          # iron bands
         b.span((-h - 0.03, y, -h - 0.03), (h + 0.03, y + 0.12, h + 0.03), "fur_black")
@@ -379,7 +382,7 @@ def build_signpost(mat):
     for s in (-1, 1):
         b.box((s * 0.4, hy + 0.5, 0), (0.36, 0.36, 0.24), "fur_ginger", rot=rot_z(45))
         b.box((s * 0.4, hy + 0.48, -0.1), (0.2, 0.2, 0.06), "nose_pink", rot=rot_z(45))
-        b.span((s * 0.22 - 0.06, hy + 0.02, -0.57), (s * 0.22 + 0.06, hy + 0.2, -0.5), "fur_black")
+        b.span((s * 0.22 - 0.06, hy + 0.02, -0.57), (s * 0.22 + 0.06, hy + 0.2, -0.42), "fur_black")
     b.span((-0.07, hy - 0.1, -0.58), (0.07, hy - 0.02, -0.5), "nose_pink")
     for k, x in enumerate((-0.15, -0.05, 0.05, 0.15)):
         lo = hy - (0.25 if k in (0, 2) else 0.2)
@@ -392,7 +395,7 @@ def build_signpost(mat):
         ux, uz = math.cos(math.radians(yaw)), -math.sin(math.radians(yaw))
         e = ARM_LEN / 2
         tx, tz = x + ux * (e + 0.25), z + uz * (e + 0.25)                         # pointed tip at the gate end
-        tips.box((tx, y, tz), (0.5, ARM_H * 0.71, ARM_T * 0.9), "dark_wood", rot=R @ rot_z(0) @ _rx(0) @ _ry_z45())
+        tips.box((tx, y, tz), (0.5, ARM_H * 0.71, ARM_T * 0.9), "dark_wood", rot=R @ rot_z(45))
         for dy in (-1, 1):                                                         # dark trim top and bottom
             tips.box((x, y + dy * (ARM_H / 2 + 0.035), z), (ARM_LEN, 0.07, ARM_T + 0.04), "dark_wood", rot=R)
         bx, bz = ux * (h + 0.06), uz * (h + 0.06)                                 # bracket on the post
@@ -403,10 +406,6 @@ def build_signpost(mat):
     for area in ARM_ORDER:
         out.append(arms[area].finalize("CatCafe_Square_Signpost_Arm" + area.capitalize(), mat))
     return out
-
-
-def _ry_z45():
-    return rot_z(45)
 
 
 ARM_ATTRIBUTES = {"_Arm" + a.capitalize(): {"Area": a} for a in ARM_ORDER}
@@ -420,13 +419,13 @@ def build_bench(mat):
         b.span((x - 0.12, 0, -0.6), (x + 0.12, 0.2, 0.75), "fur_black")                       # foot
         b.span((x - 0.1, 0.2, -0.45), (x + 0.1, 1.2, -0.25), "fur_black")                      # front leg
         b.span((x - 0.1, 0.2, 0.45), (x + 0.1, 2.8, 0.65), "fur_black")                        # back leg and post
-        b.span((x - 0.11, 1.2, -0.55), (x + 0.11, 1.3, 0.45), "fur_black")                     # seat rail
+        b.span((x - 0.11, 1.2, -0.55), (x + 0.11, 1.31, 0.45), "fur_black")                    # seat rail
         b.span((x - 0.1, 1.75, -0.5), (x + 0.1, 1.9, 0.45), "fur_black")                       # arm
-        b.span((x - 0.08, 1.3, -0.48), (x + 0.08, 1.75, -0.36), "fur_black")                   # arm post
+        b.span((x - 0.08, 1.35, -0.48), (x + 0.08, 1.75, -0.36), "fur_black")                  # arm post
     for k, z in enumerate((-0.42, -0.14, 0.14, 0.42)):                                         # seat slats
         b.span((-2.0, 1.3, z - 0.12), (2.0, 1.4 + 0.004 * k, z + 0.12), "sign_teal")
     for y in (1.75, 2.15, 2.55):                                                               # back slats
-        b.span((-2.0, y, 0.66), (2.0, y + 0.28, 0.8), "sign_teal")
+        b.span((-2.0, y, 0.63), (2.0, y + 0.28, 0.77), "sign_teal")
     return [b.finalize("CatCafe_Square_Bench", mat)]
 
 
@@ -442,7 +441,7 @@ def build_lamp(mat):
     for s in (-1, 1):
         b.span((s * 1.5 - 0.08, 9.8, -0.08), (s * 1.5 + 0.08, 10.4, 0.08), "fur_black")       # arm brace
         lantern(b, lamps, s * 1.45, 10.6, 0, 0.75)
-    b.ball((0, 11.0, 0), 0.32, "brass")                                                        # finial
+    b.ball((0, 10.88, 0), 0.32, "brass")                                                       # finial
     b.cyl((0, 6.0, 0), 0.75, 0.55, "terracotta", r2=0.95, segments=12)                         # flower ring
     flowers = RB()
     flowers.cyl((0, 6.31, 0), 0.85, 0.08, "leaf_green", segments=12)

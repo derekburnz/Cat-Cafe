@@ -68,12 +68,14 @@ local DEMO_CODES: { [string]: { prize: Types.IndexPrize, active: boolean? } } = 
 	launch = { prize = { coins = 1000, coinSeconds = 600, fish = 25, spins = 2 }, active = false },
 }
 
--- The intro's shots (F72, intro-cutscene.md section 2): seconds, caption and shot 5's title cards. The camera is the
--- controller's, so the demo only runs the bars, captions, cards, demo ring and Skip over whatever is on screen.
+-- The intro's shots (F72, intro-cutscene.md section 2, ten since 2026-10-28): seconds, caption and shot 6's title
+-- cards. The camera is the controller's, so the demo only runs the bars, captions, cards, demo ring, job card and
+-- Skip over whatever is on screen.
 local DEMO_SHOTS: { { seconds: number, caption: string, cards: { string }? } } = {
 	{ seconds = 3.5, caption = "Catch stray cats behind your cafe!" },
 	{ seconds = 2.5, caption = "Tap as each circle closes!" },
-	{ seconds = 3.0, caption = "Bring cats home. Give them jobs. Earn tips!" },
+	{ seconds = 2.0, caption = "Carry it home to your cafe!" },
+	{ seconds = 2.8, caption = "Give it a job. Working cats earn tips!" },
 	{ seconds = 2.7, caption = "Rank up your cafe to open new areas" },
 	{
 		seconds = 1.8,
@@ -885,7 +887,7 @@ function Demo.run(UI: any): () -> ()
 	local function playIntro(replay: boolean)
 		introToken += 1
 		local token = introToken
-		UI.intro.start({ replay = replay })
+		UI.intro.start({ replay = replay }) -- a first play's Skip bar fills over the default 5.0 s
 		task.spawn(function()
 			for index, shot in DEMO_SHOTS do
 				if token ~= introToken or not running then
@@ -906,7 +908,18 @@ function Demo.run(UI: any): () -> ()
 					if index == 2 and camera then
 						UI.intro.demoCatch(camera.CFrame.Position + camera.CFrame.LookVector * 14)
 					end
-					task.wait(shot.seconds)
+					if index == 4 and camera then
+						-- the job card 0.35 s in, at a point ahead of the camera as the waiter spot would be
+						local point = camera.CFrame.Position + camera.CFrame.LookVector * 14
+						task.wait(0.35)
+						if token ~= introToken then
+							return
+						end
+						UI.intro.jobCard(point, "waiter")
+						task.wait(shot.seconds - 0.35)
+					else
+						task.wait(shot.seconds)
+					end
 				end
 			end
 			if token == introToken then

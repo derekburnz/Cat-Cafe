@@ -10,7 +10,11 @@
 -- Scenarios: miss (a tackle with nobody ahead), hit (a tackle into a player facing it, who falls on its back),
 -- behind (into a player facing away, who falls on its front); net (three players holding the level 1, 2 and 3
 -- nets, standing and then walking: Avatar.holdNet and Avatar.netHand, the net pivoted by its Grip as NetHold.luau
--- does; the nets come from the rbxm that `rojo build preview.project.json` makes). Nothing here ships with the game.
+-- does; the nets come from the rbxm that `rojo build preview.project.json` makes). The Cat Cannon flight (F84):
+-- cannon (the hop into a stand-in cannon and the shot out of it), cannonLand (the drop onto a stand-in pad and the
+-- landing) and cannonGlide (the flyer of the cloud cutscene through its ViewportFrame's camera, white puffs standing
+-- in for VFX-Agent's tunnel), with a sitting Tabby from the rbxm for scale where there is ground. Nothing here ships
+-- with the game.
 
 local fs = require("@lune/fs")
 local luau = require("@lune/luau")
@@ -48,9 +52,11 @@ env = setmetatable({
 	NumberRange = roblox.NumberRange,
 	UDim2 = roblox.UDim2,
 	Enum = roblox.Enum,
-	script = { Parent = setmetatable({}, { __index = function(_, name)
-		return name
-	end }) },
+	script = { Parent = setmetatable({}, {
+		__index = function(_, name)
+			return name
+		end,
+	}) },
 	require = load,
 }, { __index = _G })
 local Avatar = load("Avatar")
@@ -112,7 +118,198 @@ local scenarios = {
 		},
 	},
 }
+-- The flight scenarios: `from` and `to` are seconds from CannonLaunchAt, played at `slow` times real speed; `seat`
+-- is where the server holds the root (the barrel's seat, or the landing pad), `stand` where the player stood before.
+scenarios.cannon = {
+	flight = true,
+	from = -0.3,
+	to = 1.0,
+	slow = 0.5,
+	camera = "profile",
+	box = { { -7, 0, -9 }, { 7, 13, 9 } },
+	seat = { 0, 4.5, 0 },
+	stand = { 0, 3, 7 },
+	cat = { -4, 0, 6, 210 },
+	props = "cannon",
+}
+scenarios.cannonLand = {
+	flight = true,
+	from = 2.3,
+	to = 3.3,
+	slow = 0.5,
+	camera = "three",
+	box = { { -4, 0, -4 }, { 4, 8, 4 } },
+	seat = { 0, 3.25, 0 },
+	cat = { 5, 0.25, -2, 230 },
+	props = "pad",
+}
+scenarios.cannonGlide = { flight = true, glide = true, from = 1.35, to = 2.45, slow = 1 }
 local scenario = assert(scenarios[scenarioName], "no scenario " .. scenarioName)
+
+if scenario.flight then
+	local fps = 24
+	local c = Presets.cannonPose
+	local person = character("Player", Standin.SHIRT.red, Standin.SKIN.light)
+	local seat = if scenario.seat then CFrame.new(table.unpack(scenario.seat)) else CFrame.identity
+	local stood = if scenario.stand then CFrame.new(table.unpack(scenario.stand)) else seat
+	local info, order = Standin.partInfo(person, "Player")
+	local still = {} -- parts that do not move: { cf, size }
+	local moving = {} -- the stand-in clouds: { at, size, speed }
+	local function add(name, shape, colour, cf, size, transparency)
+		table.insert(info, {
+			name = name,
+			shape = shape,
+			color = { colour.R, colour.G, colour.B },
+			material = "SmoothPlastic",
+			transparency = transparency or 0,
+		})
+		table.insert(still, { cf = cf, size = size })
+	end
+	local cream, teal, gold = Color3.fromRGB(255, 244, 228), Color3.fromRGB(64, 160, 160), Color3.fromRGB(230, 184, 74)
+	if scenario.props == "cannon" then
+		-- a stand-in for CatCafe_Square_Cannon: the plinth, a turntable and the barrel 50 degrees up, its breech round
+		-- the ball where the seat holds it
+		local up = CFrame.Angles(0, 0, math.rad(90))
+		add("Plinth", "Cylinder", cream, CFrame.new(0, 0.75, 0) * up, Vector3.new(1.5, 12, 12))
+		add("Turntable", "Cylinder", teal, CFrame.new(0, 1.7, 0.5) * up, Vector3.new(0.4, 6, 6))
+		local tilt = math.rad(c.tilt)
+		local axis = Vector3.new(0, math.sin(tilt), -math.cos(tilt))
+		local middle = seat.Position + Vector3.new(0, -1.7, -0.3)
+		local along = CFrame.lookAt(Vector3.zero, axis) * CFrame.Angles(0, math.rad(90), 0)
+		local function along3(at)
+			return CFrame.new(middle + axis * at) * along
+		end
+		add("Barrel", "Cylinder", teal, along3(3.4), Vector3.new(10, 3.9, 3.9), 0.55)
+		add("Band1", "Cylinder", gold, along3(-1.2), Vector3.new(0.5, 4.2, 4.2), 0.3)
+		add("Band2", "Cylinder", gold, along3(8.1), Vector3.new(0.6, 4.4, 4.4))
+		add("Steps", "Block", cream, CFrame.new(0, 0.4, 6.8), Vector3.new(4, 0.8, 2))
+	elseif scenario.props == "pad" then
+		add(
+			"Pad",
+			"Cylinder",
+			cream,
+			CFrame.new(0, 0.125, 0) * CFrame.Angles(0, 0, math.rad(90)),
+			Vector3.new(0.25, 16, 16)
+		)
+		add(
+			"PadPaw",
+			"Cylinder",
+			teal,
+			CFrame.new(0, 0.26, 0) * CFrame.Angles(0, 0, math.rad(90)),
+			Vector3.new(0.05, 5, 5)
+		)
+	end
+	if scenario.cat then
+		assert(rbxmPath, "the cannon scenarios need the assets rbxm for the Tabby")
+		local folder = roblox.deserializeModel(fs.readFile(rbxmPath))[1]
+		local cat = assert(folder:FindFirstChild("CatCafe_Cat_Tabby_Sit"), "no CatCafe_Cat_Tabby_Sit")
+		local primary = cat.PrimaryPart -- the model's pivot, as dump.luau reads it
+		local pivot = if primary then primary.CFrame * primary.PivotOffset else CFrame.identity
+		local x, y, z, turn = table.unpack(scenario.cat)
+		local place = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
+		for _, d in cat:GetDescendants() do
+			if d:IsA("BasePart") and d.Transparency < 1 then
+				local mesh = d:FindFirstChildWhichIsA("SpecialMesh")
+				local sphere = mesh and mesh.MeshType.Name == "Sphere"
+				local shape = if sphere then "Ellipsoid" elseif d.ClassName == "Part" then d.Shape.Name else "Block"
+				add(
+					"Cat_" .. d.Name,
+					shape,
+					d.Color,
+					place * pivot:Inverse() * d.CFrame,
+					if sphere then d.Size * mesh.Scale else d.Size,
+					d.Transparency
+				)
+			end
+		end
+	end
+	if scenario.glide then
+		-- puffs rushing past the camera, as VFX-Agent's tunnel will
+		local seed = 7
+		local rng = {}
+		function rng:NextNumber(lo, hi) -- a fixed sequence, so every render has the same sky
+			seed = (seed * 1103515245 + 12345) % 2147483648
+			return lo + (hi - lo) * seed / 2147483648
+		end
+		for i = 1, 26 do
+			local size = rng:NextNumber(4, 9)
+			table.insert(info, {
+				name = "Cloud" .. i,
+				shape = "Ellipsoid",
+				color = { 1, 1, 1 },
+				material = "SmoothPlastic",
+				transparency = 0.15,
+			})
+			local angle = rng:NextNumber(0, 2 * math.pi)
+			local r = rng:NextNumber(6, 14)
+			table.insert(moving, {
+				at = Vector3.new(math.cos(angle) * r * 1.4, math.sin(angle) * r - 1, rng:NextNumber(-60, 10)),
+				size = Vector3.new(size * 1.6, size, size * 1.2),
+				speed = rng:NextNumber(70, 100),
+			})
+		end
+	end
+
+	local frames = {}
+	local count = math.floor((scenario.to - scenario.from) / scenario.slow * fps + 0.5)
+	for f = 0, count - 1 do
+		local t = scenario.from + f / fps * scenario.slow
+		local transforms, rootCF = {}, seat
+		if scenario.glide then
+			transforms, rootCF = Avatar.glideFrames(person.rig, t) or {}, CFrame.identity
+		elseif t < 0 then
+			rootCF = stood -- standing where it will hop from, before the launch
+		else
+			local out, weight = Avatar.cannon(person.rig, t, if scenario.stand then seat:Inverse() * stood else nil)
+			for motor, cf in out or {} do
+				transforms[motor] = CFrame.identity:Lerp(cf, weight)
+			end
+		end
+		local partsAt = place(person, rootCF, transforms)
+		local frame = { t = t, pivot = { 0, 0, 0 }, parts = {} }
+		local function put(cf, size)
+			local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = cf:GetComponents()
+			table.insert(
+				frame.parts,
+				{ cf = { x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 }, size = { size.X, size.Y, size.Z } }
+			)
+		end
+		for _, part in order do
+			put(partsAt[part], part.Size)
+		end
+		for _, piece in still do
+			put(piece.cf, piece.size)
+		end
+		for _, cloud in moving do
+			local z = (cloud.at.Z + cloud.speed * (t - scenario.from) + 60) % 75 - 60
+			put(CFrame.new(cloud.at.X, cloud.at.Y, z), cloud.size)
+		end
+		table.insert(frames, frame)
+	end
+	local g = Presets.cannonGlide
+	fs.writeFile(
+		outPath,
+		serde.encode("json", {
+			model = scenarioName,
+			fps = fps,
+			camera = scenario.camera,
+			parts = info,
+			frames = frames,
+			box = scenario.box,
+			checker = not scenario.glide,
+			sky = if scenario.glide then { 0.62, 0.8, 0.95 } else nil,
+			cam = if scenario.glide
+				then {
+					at = { g.camera.X, g.camera.Y, g.camera.Z },
+					look = { g.look.X, g.look.Y, g.look.Z },
+					fov = g.fov,
+				}
+				else nil,
+		})
+	)
+	print(string.format("%s: %d frames of %d parts -> %s", scenarioName, #frames, #info, outPath))
+	return
+end
 
 local people = {}
 for _, spec in scenario.people do

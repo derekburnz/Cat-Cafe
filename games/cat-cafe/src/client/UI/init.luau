@@ -25,6 +25,9 @@ local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
 local BugReportLogic = require(script.Components.BugReportLogic)
 local CafeSigns = require(script.Screens.CafeSigns)
+local Cannon = require(script.Screens.Cannon)
+local CannonCard = require(script.Screens.CannonCard)
+local CannonLogic = require(script.Components.CannonLogic)
 local CatCard = require(script.Screens.CatCard)
 local CatCardLogic = require(script.Components.CatCardLogic)
 local CatCollection = require(script.Screens.CatCollection)
@@ -146,6 +149,8 @@ UI.events = {
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
+	-- F84
+	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
 }
 
 local state: Types.PlayerState = {
@@ -175,6 +180,18 @@ local circles: CatchCircles.CatchCircles? = nil
 local rescueBar: RescueBar.RescueBar? = nil
 local rankUpScreen: RankUp.RankUp? = nil
 local areasScreen: Areas.Areas? = nil
+local cannonScreen: Cannon.Cannon? = nil -- the Cat Cannon picker (F84, UI.cannon.open)
+local cannonCard: CannonCard.CannonCard? = nil -- the destination's name card in the clouds (UI.cannon.flight)
+-- F84: the cannon is live (UI.cannon.setEnabled), the player is in a wild area (setWild), the Town Square cannon's
+-- part for the hint arrow (setCannon), whether they have flown this session, and the area a rank up to Tier 2
+-- opened, hinted until their next flight
+local cannonOn = false
+local cannonWild = false
+local cannonPart: BasePart? = nil
+local cannonLaunched = false
+local cannonOpened: string? = nil
+local hintTier: number? = nil -- the tier in the last update that carried one, to see the rank up to Tier 2
+local hintShown: string? = nil -- the cannon hint on screen, so render only redraws the line when it changes
 local gateSigns: GateSigns.GateSigns? = nil
 local signpost: Signpost.Signpost? = nil -- the fountain signpost's arms with tier locks (F77)
 local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
@@ -223,6 +240,8 @@ local introGlowed = false -- the Tutorial tile has had its two pulses after a fi
 local tutorialButtonOn = true -- the Tutorial button setting as shown (F72)
 local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.show's, put back after an intro
 local tutorialLabel: string? = nil
+local tutorialText: string? = nil -- UI.tutorial.show's line, nil once hidden
+local applyTutorial: () -> ()
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 -- data-model section 8: ResolveBait within 20 studs of the bowl; UseLure works from anywhere (Derek 2026-10-28)
@@ -247,6 +266,67 @@ local function lookupCat(catId: string?): Types.CatDef?
 	return catById[catId]
 end
 
+local function catalogAreas(): { Types.AreaDef }
+	local catalog = currentCatalog
+	local areas: { Types.AreaDef }? = if catalog then catalog.areas else nil
+	return areas or {}
+end
+
+-- F84 (hometown-cannon.md 3a): the cannon hint, from what the UI knows now (Components/CannonLogic.hint).
+local function cannonHint(): string?
+	local first: string? = nil
+	for _, area in catalogAreas() do
+		if area.tier <= 1 then
+			first = area.name
+			break
+		end
+	end
+	return CannonLogic.hint({
+		on = cannonOn,
+		wild = cannonWild,
+		intro = introScreen ~= nil and introScreen:playing(),
+		launched = cannonLaunched,
+		tier = state.tier or 1,
+		tutorialStep = state.tutorialStep or math.huge,
+		told = tutorialText ~= nil,
+		opened = cannonOpened,
+		first = first,
+	})
+end
+
+-- The tutorial strip, marker and trail: the cannon hint with its arrow at the cannon when it applies, else the
+-- controller's onboarding line (UI.tutorial.show). The marker and trail wait out the intro.
+function applyTutorial()
+	local hint = cannonHint()
+	hintShown = hint
+	local text: string? = tutorialText
+	local target: (BasePart | Attachment | Vector3)? = tutorialTarget
+	local label: string? = tutorialLabel
+	if hint ~= nil then
+		text, target, label = hint, cannonPart, "Cannon"
+	end
+	if hud then
+		hud:setTutorial(text)
+	end
+	if introScreen ~= nil and introScreen:playing() then
+		return -- the marker and trail come back when the intro ends
+	end
+	if tutorialMarker then
+		if target ~= nil then
+			tutorialMarker:show(target :: any, label or "Go here", Theme.colors.gold)
+		else
+			tutorialMarker:hide()
+		end
+	end
+	if tutorialTrail then
+		if target ~= nil then
+			tutorialTrail:show(target :: any)
+		else
+			tutorialTrail:hide()
+		end
+	end
+end
+
 -- F72: the Tutorial tile shows once the intro is live and while its setting is on; the Settings rows once live.
 local function renderTutorialButton()
 	if hud then
@@ -264,15 +344,7 @@ local function introEnded(replay: boolean)
 	if popups then
 		popups:setHeld(false) -- on only if a card waits; never the bare dimmed backdrop
 	end
-	local target = tutorialTarget
-	if target ~= nil then
-		if tutorialMarker then
-			tutorialMarker:show(target :: any, tutorialLabel or "Go here", Theme.colors.gold)
-		end
-		if tutorialTrail then
-			tutorialTrail:show(target :: any)
-		end
-	end
+	applyTutorial()
 	if not replay and not introGlowed then
 		introGlowed = true
 		task.delay(IntroLogic.OUT_SECONDS, function()
@@ -348,6 +420,12 @@ local function render()
 	if areasScreen and hud then
 		areasScreen:render(state, hud:isCarrying())
 	end
+	if cannonScreen and hud then
+		cannonScreen:render(state, hud:isCarrying())
+	end
+	if cannonHint() ~= hintShown then
+		applyTutorial()
+	end
 	if gateSigns then
 		gateSigns:render(state)
 	end
@@ -416,6 +494,9 @@ local function setCatalog(newCatalog: Types.Catalog)
 	end
 	if areasScreen then
 		areasScreen:setCatalog(newCatalog)
+	end
+	if cannonScreen then
+		cannonScreen:setCatalog(newCatalog)
 	end
 	if gateSigns then
 		gateSigns:setCatalog(newCatalog)
@@ -626,6 +707,13 @@ function UI.init(config: Types.InitConfig)
 		end,
 		close = closeModal,
 	})
+	cannonScreen = Cannon.new({
+		launch = function(cannonId: string, destination: string)
+			UI.events.launchCannon:Fire(cannonId, destination)
+		end,
+		close = closeModal,
+	})
+	cannonCard = CannonCard.new(parent)
 	-- explicit casts: Luau does not carry nil refinements into the closures below
 	local upgradesScreen = upgrades :: UpgradeShop.UpgradeShop
 	local decorScreen = decor :: DecorShop.DecorShop
@@ -668,6 +756,17 @@ function UI.init(config: Types.InitConfig)
 		frame = areasView.frame,
 		onOpen = function()
 			areasView:render(state, hudInstance:isCarrying())
+		end,
+	})
+	local cannonView = cannonScreen :: Cannon.Cannon
+	modalInstance:register("Cannon", {
+		frame = cannonView.frame,
+		onOpen = function()
+			cannonView:render(state, hudInstance:isCarrying())
+			cannonView:opened()
+		end,
+		onClose = function()
+			cannonView:closed()
 		end,
 	})
 	baitScreen = BaitBowl.new({
@@ -1048,6 +1147,9 @@ function UI.init(config: Types.InitConfig)
 				elseif key == Enum.KeyCode.F then
 					openBait()
 				elseif key == Enum.KeyCode.H then
+					if cannonOn and hudInstance:isCarrying() then
+						UI.toast(CannonLogic.CARRY_REFUSED, "info") -- the greyed Home says it too (F84)
+					end
 					hudInstance:pressTravel("home")
 				elseif key == Enum.KeyCode.G and hudInstance:isCarrying() then
 					UI.events.dropCat:Fire()
@@ -1070,6 +1172,21 @@ end
 function UI.update(partial: Types.PartialState)
 	for key, value in partial :: { [string]: any } do
 		(state :: any)[key] = value
+	end
+	-- F84: the first time the tier passes CannonLogic.HINT_TIER this session, hint at the area it opened. The first
+	-- update with a tier only records it, so joining at Tier 4 is no rank up.
+	local tier: number? = partial.tier
+	if tier ~= nil then
+		local before = hintTier
+		hintTier = tier
+		if before ~= nil and before < CannonLogic.HINT_TIER and tier >= CannonLogic.HINT_TIER then
+			for _, area in catalogAreas() do
+				if area.tier == CannonLogic.HINT_TIER then
+					cannonOpened = area.name
+					break
+				end
+			end
+		end
 	end
 	deriveState(partial)
 	render()
@@ -1187,6 +1304,15 @@ function UI.destroy()
 	if areasScreen then
 		areasScreen:destroy()
 	end
+	if cannonScreen then
+		cannonScreen:destroy()
+	end
+	if cannonCard then
+		cannonCard:destroy()
+	end
+	cannonScreen, cannonCard, cannonPart, cannonOpened, hintTier, hintShown =
+		nil, nil, nil, nil, nil, nil
+	cannonOn, cannonWild, cannonLaunched = false, false, false
 	if gateSigns then
 		gateSigns:destroy()
 	end
@@ -1869,13 +1995,19 @@ function UI.setCarrying(info: Types.CarryInfo?)
 			catName = info.catName or (if def then def.name else nil),
 			rarity = info.rarity or (if def then def.rarity else nil),
 			door = info.door,
+			camp = info.camp,
 		}
 	end
 	hudScreen:setCarrying(resolved)
 	if areasScreen then
 		areasScreen:render(state, hudScreen:isCarrying())
 	end
-	if resolved and resolved.door then
+	if cannonScreen then
+		cannonScreen:render(state, hudScreen:isCarrying())
+	end
+	if resolved and resolved.camp then
+		marker:show(resolved.camp :: BasePart, "Bring it here", Theme.rarityColor(resolved.rarity))
+	elseif resolved and resolved.door then
 		marker:show(resolved.door :: BasePart, "Check in here", Theme.rarityColor(resolved.rarity))
 	else
 		marker:hide()
@@ -1891,40 +2023,13 @@ function UI.tutorial.show(
 	target: (BasePart | Attachment | Vector3)?,
 	markerLabel: string?
 )
-	tutorialTarget, tutorialLabel = target, markerLabel
-	if hud then
-		hud:setTutorial(text)
-	end
-	if UI.intro.playing() then
-		return -- the marker and trail come back when the intro ends
-	end
-	if tutorialMarker then
-		if target ~= nil then
-			tutorialMarker:show(target :: any, markerLabel or "Go here", Theme.colors.gold)
-		else
-			tutorialMarker:hide()
-		end
-	end
-	if tutorialTrail then
-		if target ~= nil then
-			tutorialTrail:show(target :: any)
-		else
-			tutorialTrail:hide()
-		end
-	end
+	tutorialText, tutorialTarget, tutorialLabel = text, target, markerLabel
+	applyTutorial() -- the cannon hint can come first (F84)
 end
 
 function UI.tutorial.hide()
-	tutorialTarget, tutorialLabel = nil, nil
-	if hud then
-		hud:setTutorial(nil)
-	end
-	if tutorialMarker then
-		tutorialMarker:hide()
-	end
-	if tutorialTrail then
-		tutorialTrail:hide()
-	end
+	tutorialText, tutorialTarget, tutorialLabel = nil, nil, nil
+	applyTutorial()
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -1997,11 +2102,98 @@ function UI.intro.playing(): boolean
 end
 
 ----------------------------------------------------------------------------------------------------
+-- The Cat Cannon (F84, docs/design/cat-cafe/hometown-cannon.md)
+----------------------------------------------------------------------------------------------------
+
+-- Every catching area is reached by the Cat Cannon in the Town Square, and each has a safe camp with a cannon back.
+-- Off until setEnabled(true), so the Areas button and panel work as before on a server without F84.
+UI.cannon = {}
+
+-- On: the HUD's Cannon button takes the Areas button's place and fires events.travel("cannon") (the server moves
+-- the player to the front of the nearest cannon), the Alley button goes, and the carry banner reads "Bring it to the
+-- camp!".
+function UI.cannon.setEnabled(on: boolean)
+	cannonOn = on
+	if hud then
+		hud:setCannonMode(on)
+	end
+	if on and modal and modal:current() == "Areas" then
+		modal:close()
+	end
+	applyTutorial()
+end
+
+-- The wild area the character is in, camp included, or nil in the hometown. Hides the cannon hints out there.
+function UI.cannon.setWild(areaId: string?)
+	if cannonWild == (areaId ~= nil) then
+		return
+	end
+	cannonWild = areaId ~= nil
+	applyTutorial()
+end
+
+-- The Town Square cannon, for the hint's arrow and trail.
+function UI.cannon.setCannon(part: BasePart?)
+	cannonPart = part
+	if hintShown ~= nil then
+		applyTutorial()
+	end
+end
+
+-- "Hop in" held at a cannon: "town" for the Town Square cannon, or a camp's area id for its cannon (Town Square first,
+-- never its own area). Launch fires events.launchCannon(cannonId, destination).
+function UI.cannon.open(cannonId: string?)
+	local screen = cannonScreen
+	local windows = modal
+	if screen == nil or windows == nil then
+		return
+	end
+	screen:setCannon(cannonId or CannonLogic.TOWN)
+	windows:open("Cannon")
+end
+
+-- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card shows in the clouds
+-- from 1.6 s after launchAt (server time) to 2.6 s. Ends the first-flight and Tier 2 hints. The intro's shot 2 calls
+-- it too, for its staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts (card up
+-- 0.7 to 1.1 s in); while the intro plays only the card shows, so the first-flight hint still follows the intro.
+function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
+	if not UI.intro.playing() then
+		if modal and modal:current() == "Cannon" then
+			modal:close()
+		end
+		cannonLaunched = true
+		cannonOpened = nil
+		applyTutorial()
+	end
+	local name = CannonLogic.TOWN_NAME
+	for _, area in catalogAreas() do
+		if area.id == destination then
+			name = area.name
+		end
+	end
+	if cannonCard then
+		cannonCard:show(destination, name, launchAt, hold)
+	end
+end
+
+-- The player's own CampCheckIn: "Pirate Cat is on its way to your cafe!" (the camp chime is Audio's).
+function UI.cannon.checkedIn(catName: string?)
+	UI.toast(("🧺 %s is on its way to your cafe!"):format(catName or "Your cat"), "good")
+end
+
+-- A refused LaunchCannon: Launch comes back at once and the card's button wobbles. The server's toast says why.
+function UI.cannon.result(ok: boolean, destination: string?)
+	if cannonScreen then
+		cannonScreen:result(ok, destination)
+	end
+end
+
+----------------------------------------------------------------------------------------------------
 -- Fast travel (F19)
 ----------------------------------------------------------------------------------------------------
 
 -- The travel row (Cafe, Alley, Areas) and the Areas panel fire events.travel(destination) with "home" or an
--- AreaId. The server answers TravelResult(destination, ok, reason?); pass it here so a refused trip lifts the
+-- AreaId; with the Cat Cannon live (F84), Cafe and Cannon fire "home" and "cannon". The server answers TravelResult(destination, ok, reason?); pass it here so a refused trip lifts the
 -- cooldown and wobbles its button. The server's own toast gives the reason.
 UI.travel = {}
 
@@ -2785,6 +2977,9 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if hud then
 		hud:setClock({ phase = phase, phaseEndsAt = phaseEndsAt })
 	end
+	if cannonScreen then
+		cannonScreen:setClock(phase, phaseEndsAt)
+	end
 	if baitScreen then
 		baitScreen:setNight(phase == "night")
 	end
@@ -2827,6 +3022,9 @@ function UI.clock.clear()
 	if dealerScreen then
 		dealerScreen:setNight(nil)
 	end
+	if cannonScreen then
+		cannonScreen:setClock(nil, nil)
+	end
 end
 
 -- F66: false from dusk to sunrise. The Alley button and every Go in the Areas panel grey with a moon, so nobody asks
@@ -2840,6 +3038,9 @@ function UI.clock.setAreasOpen(open: boolean)
 		if hud then
 			areasScreen:render(state, hud:isCarrying())
 		end
+	end
+	if cannonScreen then
+		cannonScreen:setAreasOpen(open)
 	end
 end
 

@@ -25,6 +25,7 @@ local Leaderstats = require(script.Parent.Leaderstats)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local Telemetry = require(script.Parent.Telemetry)
@@ -49,9 +50,12 @@ local function profileFor(player: Player): Profile?
 	return profile
 end
 
--- What the cafe earns per second right now: the day rate, times NightIncomeMultiplier at night (section 11).
+-- What the cafe earns per second right now: the day rate, times NightIncomeMultiplier at night (section 11) and the
+-- Tip Potion's share while one runs (F64). PotionService syncs when a potion ends, so the HUD's rate follows.
 local function currentRate(profile: Profile): number
-	return Economy.incomePerSecond(profile) * Economy.phaseMultiplier(ClockService.phase())
+	return Economy.incomePerSecond(profile)
+		* Economy.phaseMultiplier(ClockService.phase())
+		* Potions.tipMultiplier(profile, os.time())
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is
@@ -126,6 +130,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
 		introSeen = profile.introSeen,
+		potions = profile.potions, -- F64
+		buffs = Potions.endsAt(profile, now), -- F64: endsAt in server time; the save keeps seconds left
 		settings = Settings.copy(profile.settings),
 		serverTime = now,
 	}

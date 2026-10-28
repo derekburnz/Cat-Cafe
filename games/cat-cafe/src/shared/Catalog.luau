@@ -992,11 +992,17 @@ Catalog.tipJar = {
 	{ step = 9, minutes = 60, prize = { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 } },
 	{ step = 10, minutes = 75, prize = { lures = { sardines = 1 } } },
 	{ step = 11, minutes = 90, prize = { coins = 600, coinSeconds = 300, spins = 1 } },
-	-- and a really good one at two hours; its Tip Potion comes with F64
+	-- and a really good one at two hours, with a Tip Potion since F64
 	{
 		step = 12,
 		minutes = 120,
-		prize = { lures = { caviar = 1 }, crates = { classic_crate = 1 }, fish = 25, spins = 2 },
+		prize = {
+			lures = { caviar = 1 },
+			crates = { classic_crate = 1 },
+			fish = 25,
+			spins = 2,
+			potions = { tip_potion = 1 },
+		},
 	},
 } :: { Types.TipJarStep }
 
@@ -1023,6 +1029,51 @@ end
 function Catalog.getLure(id: string): Types.LureDef?
 	return Catalog.luresById[id]
 end
+
+-- Section 12b (F64): the potions, in the bag's order. A potion runs `minutes` of play time once drunk (UsePotion);
+-- drinking another of a running kind adds its time, up to Config.PotionMaxMinutes. Earned only (Tip Jar, codes,
+-- Mystery gifts), never sold: one for Robux would change income or catch odds and needs the monetization review.
+Catalog.potions = {
+	{ id = "tip_potion", name = "Tip Potion", minutes = 10, effect = "+25% tips" },
+	{
+		id = "lucky_potion",
+		name = "Lucky Potion",
+		minutes = 10,
+		effect = "Double gold chance on bait",
+	},
+	{ id = "swift_potion", name = "Swift Potion", minutes = 5, effect = "+4 walk speed" },
+	{
+		id = "steady_potion",
+		name = "Steady Paw Potion",
+		minutes = 10,
+		effect = "Easier catch circles",
+	},
+} :: { Types.PotionDef }
+Catalog.potionsById = {} :: { [string]: Types.PotionDef }
+for _, def in Catalog.potions do
+	Catalog.potionsById[def.id] = def
+end
+for _, def in Catalog.potions do
+	table.freeze(def)
+end
+table.freeze(Catalog.potions)
+
+function Catalog.getPotion(id: string): Types.PotionDef?
+	return Catalog.potionsById[id]
+end
+
+-- Section 12b (F64): what a Mystery Visitor's gift holds, rolled when it appears and shown before it is opened.
+-- Chances in percent; a potion is one of Catalog.potions at even odds.
+Catalog.mysteryGift = {
+	{ kind = "potion", count = 1, chance = 60 },
+	{ kind = "lure", id = "salmon", count = 2, chance = 20 },
+	{ kind = "fish", count = 10, chance = 10 },
+	{ kind = "spin", count = 1, chance = 10 },
+} :: { Types.MysteryGiftRow }
+for _, row in Catalog.mysteryGift do
+	table.freeze(row)
+end
+table.freeze(Catalog.mysteryGift)
 
 -- Section 8b: chance per dealer slot of each dealer food. v0.5 F43: one row for everyone (the old Tier 3 row);
 -- tiers no longer change the stock, so every player on every server sees the same three foods.
@@ -1344,7 +1395,9 @@ table.freeze(Catalog.indexPrizes)
 -- Codes (F65, data-model section 11d), keyed by the lowercased code a player types at the Codes Cat. The prize uses
 -- the Index prize shape and pays once per player. `playtest` is for the friends alpha and gets an endsAt or goes
 -- inactive before the experience is public; `launch` switches on that day; `group` waits for the community group
--- (requiresGroup, Config.GroupId). Potions join playtest and group with F64. Rows can be added without new code.
+-- (requiresGroup, Config.GroupId). F64 adds the potions to playtest and group, and `playtest2` with two of each so
+-- testers who redeemed playtest before potions existed still get them (data-model 11d). Rows can be added without
+-- new code.
 Catalog.codes = {
 	playtest = {
 		id = "playtest",
@@ -1355,6 +1408,14 @@ Catalog.codes = {
 			spins = 10,
 			crates = { classic_crate = 3, alley_crate = 1, classic_golden_crate = 1 },
 			lures = { tuna = 3, salmon = 2, caviar = 1 },
+			potions = { tip_potion = 1, lucky_potion = 1, swift_potion = 1, steady_potion = 1 },
+		},
+	},
+	playtest2 = {
+		id = "playtest2",
+		active = true,
+		prize = {
+			potions = { tip_potion = 2, lucky_potion = 2, swift_potion = 2, steady_potion = 2 },
 		},
 	},
 	launch = {
@@ -1373,6 +1434,7 @@ Catalog.codes = {
 			spins = 5,
 			crates = { classic_crate = 1 },
 			lures = { caviar = 2 },
+			potions = { tip_potion = 1 },
 		},
 	},
 } :: { [string]: Types.CodeDef }
@@ -1383,6 +1445,9 @@ for _, code in Catalog.codes do
 	end
 	if prize.crates ~= nil then
 		table.freeze(prize.crates)
+	end
+	if prize.potions ~= nil then
+		table.freeze(prize.potions)
 	end
 	table.freeze(prize)
 	table.freeze(code)

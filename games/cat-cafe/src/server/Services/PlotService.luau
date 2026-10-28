@@ -93,6 +93,14 @@ function PlotService.release(player: Player)
 	plot.model:SetAttribute("RichTipOutcome", nil)
 	plot.model:SetAttribute("RichTipAmount", 0)
 	plot.model:SetAttribute("RichTipExpiresAt", 0)
+	-- MysteryService has already ended any visit (an unopened gift is gone with its owner, F64)
+	plot.model:SetAttribute("MysteryVisitorUntil", 0)
+	plot.model:SetAttribute("MysteryGiftAt", 0)
+	plot.model:SetAttribute("MysteryTable", 0)
+	local anchor = plot.model:FindFirstChild("MysteryGiftAnchor")
+	if anchor ~= nil then
+		anchor:Destroy()
+	end
 	local espresso = plot.model:FindFirstChild("Espresso")
 	if espresso ~= nil then
 		espresso:Destroy()

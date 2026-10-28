@@ -23,6 +23,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
+local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -154,7 +155,8 @@ local function open(
 end
 
 -- By day only, before the last DuskWarningSeconds: each owned cafe that earns, has a table for the rich
--- customer to sit at and has no tip open rolls RichChance. The tip ends at dusk at the latest.
+-- customer to sit at and has no tip open rolls RichChance. The tip ends at dusk at the latest. A Tip Potion running
+-- when the visitor comes adds its share to the tip (F64).
 local function roll()
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
@@ -172,7 +174,7 @@ local function roll()
 			continue
 		end
 		if rng:NextNumber() < Config.RichChance then
-			open(player, plot, dayRate, now, dusk)
+			open(player, plot, dayRate * Potions.tipMultiplier(profile, now), now, dusk)
 		end
 	end
 end

@@ -18,6 +18,9 @@
 --   D:Invoke("spins", nil, 3, true)    -- 3 banked spins and today's free spin due again, no cooldown (F49)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
+--   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
+--   D:Invoke("potionLeft", nil, "tip_potion", 30)   -- the running Tip Potion has 30 s left (0 ends it)
+--   D:Invoke("mystery", nil, "potion")  -- a Mystery Visitor sits down at your cafe now, its gift of that kind (F64)
 --   D:Invoke("intro")                  -- the intro plays again on your next respawn or rejoin, as for a new player (F72)
 --   D:Invoke("bugReports", 50)         -- today's newest 50 bug reports (UTC), oldest first; needs API access on
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
@@ -38,8 +41,10 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local FishMarketService = require(script.Parent.FishMarketService)
 local Layout = require(script.Parent.Parent.World.Layout)
+local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
+local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
@@ -170,6 +175,49 @@ end
 function Debug.giveCrate(player: (Player | number | string)?, crateId: string, count: number?)
 	local p = resolve(player)
 	FishMarketService.debugGive(p, profileOf(p), crateId, count or 1)
+end
+
+-- Puts `count` (default 1) of a potion in the bag, or of every potion when `potionId` is nil (F64).
+function Debug.givePotion(player: (Player | number | string)?, potionId: string?, count: number?)
+	local p = resolve(player)
+	local profile = profileOf(p)
+	for _, def in Catalog.potions do
+		if potionId == nil or def.id == potionId then
+			profile.potions[def.id] = (profile.potions[def.id] or 0) + (count or 1)
+		end
+	end
+	CafeService.sync(p)
+end
+
+-- Sets a potion's time left to `seconds` of play (0 ends it within a second), to see an expiry without the wait.
+-- Returns the time left before.
+function Debug.potionLeft(
+	player: (Player | number | string)?,
+	potionId: string,
+	seconds: number
+): number
+	local p = resolve(player)
+	local profile = profileOf(p)
+	assert(Catalog.getPotion(potionId) ~= nil, "unknown potion " .. tostring(potionId))
+	local now = os.time()
+	Economy.settle(profile, now, ClockService.epoch())
+	local before = Potions.left(profile, potionId, now)
+	if seconds > 0 then
+		profile.buffs[potionId] = seconds
+	else
+		profile.buffs[potionId] = nil
+	end
+	CafeService.sync(p)
+	return before
+end
+
+-- A Mystery Visitor sits down at the player's cafe now, its gift of `kind` ("potion", "lure", "fish" or "spin")
+-- when given (F64). Returns the gift's kind and id, or "" without a cafe or a table.
+function Debug.mystery(player: (Player | number | string)?, kind: string?): string
+	local gift = MysteryService.debugArrive(resolve(player), kind)
+	return if gift ~= nil
+		then string.format("%s %s x%d", gift.kind, gift.id or "", gift.count)
+		else ""
 end
 
 -- Marks the intro unseen, so the next respawn lands inside the back door and the next join plays it (F72). Reset

@@ -27,7 +27,9 @@ local ProfileSchema = {}
 -- Version 11 (v0.8 F56) adds stats.pickups, the counter of Dropped cats picked up: an older server would drop it.
 -- Version 12 (v0.12 F75) moves cats onto the 50-level curve (an old level L becomes 1 + ceil(2.5 x (L - 1)) with xp
 -- 0), lets xp hold fractions and adds stats.catLevelUps: an older server would clamp level 24 back to 10 and save it.
-ProfileSchema.VERSION = 12
+-- Version 13 (F64) adds potions, buffs (seconds of play time left), stats.potionsUsed and stats.mysteryGifts: an
+-- older server would drop them, losing the bag and any running potion.
+ProfileSchema.VERSION = 13
 
 -- What version 2 charged for each level, frozen here because the live Catalog no longer has cafe_level or
 -- park_access and has repriced the net. The 2 to 3 migration refunds levels it takes away at these prices.
@@ -79,6 +81,8 @@ local function newStats(): Types.Stats
 		fishEarned = 0,
 		pickups = 0,
 		catLevelUps = 0,
+		potionsUsed = 0,
+		mysteryGifts = 0,
 	}
 end
 
@@ -120,6 +124,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		fishPerks = {},
 		codesRedeemed = {},
 		introSeen = false,
+		potions = {},
+		buffs = {},
 		stats = newStats(),
 		tutorialStep = 0,
 		settings = Settings.defaults(),
@@ -400,6 +406,38 @@ local function sanitizeFishPerks(value: any): { [string]: number }
 	return out
 end
 
+-- The potion bag (F64): known potion ids with a whole count above 0.
+local function sanitizePotions(value: any): { [string]: number }
+	local out: { [string]: number } = {}
+	if type(value) == "table" then
+		for id, count in value do
+			if type(id) == "string" and Catalog.getPotion(id) ~= nil then
+				local n = asInt(count, 0)
+				if n > 0 then
+					out[id] = n
+				end
+			end
+		end
+	end
+	return out
+end
+
+-- Running potions (F64): known potion ids with seconds of play time left, above 0 and at most PotionMaxMinutes.
+local function sanitizeBuffs(value: any): { [string]: number }
+	local out: { [string]: number } = {}
+	if type(value) == "table" then
+		for id, left in value do
+			if type(id) == "string" and Catalog.getPotion(id) ~= nil then
+				local seconds = math.min(asNumber(left, 0), Config.PotionMaxMinutes * 60)
+				if seconds > 0 then
+					out[id] = seconds
+				end
+			end
+		end
+	end
+	return out
+end
+
 -- Redeemed codes (F65): any code id a code could have had (letters and digits, up to CodeMaxLength) with a time, so
 -- a code row removed and later added back still counts as used.
 local function sanitizeCodes(value: any): { [string]: number }
@@ -569,6 +607,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none
 	-- F72: every save from before version 10 plays the intro once too (Derek, intro-cutscene.md answer 2)
 	profile.introSeen = raw.introSeen == true
+	profile.potions = sanitizePotions(raw.potions) -- F64; saves before version 13 hold none
+	profile.buffs = sanitizeBuffs(raw.buffs)
 
 	if type(raw.stats) == "table" then
 		local stats = profile.stats :: any

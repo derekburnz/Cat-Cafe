@@ -138,6 +138,17 @@ local Config = {
 	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
 
+	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
+	MysteryCheckSeconds = 120, -- by day, how often each earning cafe rolls for a Mystery Visitor
+	MysteryChance = 0.08,
+	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
+	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
+	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
+	PotionMaxMinutes = 60, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8)
+	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
+	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
+	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance
+
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
 	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long

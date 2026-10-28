@@ -20,8 +20,17 @@ return function()
 			{ 60, { coins = 1000, coinSeconds = 600, fish = 10, spins = 1 } },
 			{ 75, { lures = { sardines = 1 } } },
 			{ 90, { coins = 600, coinSeconds = 300, spins = 1 } },
-			-- and the really good one at two hours; the Tip Potion waits for F64
-			{ 120, { lures = { caviar = 1 }, crates = { classic_crate = 1 }, fish = 25, spins = 2 } },
+			-- and the really good one at two hours, with its Tip Potion since F64
+			{
+				120,
+				{
+					lures = { caviar = 1 },
+					crates = { classic_crate = 1 },
+					fish = 25,
+					spins = 2,
+					potions = { tip_potion = 1 },
+				},
+			},
 		}
 
 		it("has the twelve steps in order, each at its own index, paying the design's prizes", function()

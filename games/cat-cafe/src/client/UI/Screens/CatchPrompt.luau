@@ -277,8 +277,9 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 end
 
 -- v0.5: why the cat cannot be grabbed yet, or nil when it can. "It's running!" while it sprints off after a miss
--- (FleeingUntil still ahead); "Catch your breath..." for the player who missed, who waits StraySelfRetrySeconds
--- more (the server's own refusal for that wait is "Catch your breath, then try again").
+-- (FleeingUntil still ahead); "Catch your breath..." for the player who missed, until the retryAt the server sent
+-- with CatchResult (F57: 3, 6, then 10 s after the stop by misses in a row; the server's own refusal for that wait is
+-- "Catch your breath, then try again").
 function CatchPrompt.blockedText(self: any): string?
 	local now = Workspace:GetServerTimeNow()
 	local fleeingUntil: number? = self._fleeingUntil

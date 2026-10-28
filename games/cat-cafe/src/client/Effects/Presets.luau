@@ -1239,17 +1239,24 @@ Presets.notes = {
 }
 
 -- The Codes Cat's walk-in circle (F65; Derek 2026-10-27 20:10: "a clear area circle to walk into to open code
--- entering menu"): a soft mint glow over the circle that breathes between `glow` transparencies every `seconds`
--- (steady with Reduce Motion), brighter (`inside`) while you stand in it, motes rising off it within the budget's
--- ambientRadius (not in Low performance) and a ring with a few sparkles as you step in. In and out use the code
--- box's own edges, CodesCircleRadius (`radius` until Config has it) and `leaveAfter` studs past it, so the glow
--- and the box agree.
+-- entering menu"): a soft mint ring round the inside of the circle's rim that breathes between `glow` transparencies
+-- every `seconds` (steady with Reduce Motion), brighter (`inside`) while you stand in it, motes rising off it within
+-- the budget's ambientRadius (not in Low performance) and a ring with a few sparkles as you step in. In and out use
+-- the code box's own edges, CodesCircleRadius (`radius` until Config has it) and `leaveAfter` studs past it, so the
+-- glow and the box agree. The glow is a ring, `ring` studs wide `inset` in from the edge with a fainter `halo` band
+-- inside it at `haloShare` of its strength, drawn flat (a SurfaceGui, no Neon bloom), so the middle of the circle
+-- and the ticket on it stay clear (Derek 2026-10-28 00:47: "too bright and can't see what symbol its showing").
 Presets.codes = {
 	radius = 4,
 	leaveAfter = 1,
-	glow = { 0.9, 0.78 },
-	inside = 0.65,
+	glow = { 0.75, 0.5 },
+	inside = 0.25,
 	seconds = 1.2, -- one way; a breath is twice this
+	ring = 0.25,
+	halo = 0.3,
+	haloShare = 0.35,
+	inset = 0.3, -- clear of the modelled rim; the halo's inner edge stays clear of the ticket's corners (3.1 studs)
+	pixelsPerStud = 24,
 	lift = 0.06, -- studs above the circle's top
 	ringPad = 1,
 	ringSeconds = 0.45,

@@ -14,7 +14,7 @@ approved drafts in `/mnt/project-files/Model-Agent/area-drafts/`. The Park, `Cat
 | `CatCafe_Park_Set` | 159.5 x 119.75 | 54,766 | 2,807 | v3.2: 160 x 120, centre (0, -186), gate z -125 |
 | `CatCafe_Woods_SetV32` | 240 x 240 | 105,040 | 4,510 | v3.2: 240 x 240, centre (-215, 0), gate x -94 |
 | `CatCafe_Sewer_SetV32` | 179.2 x 179.15 | 89,112 | 4,471 | v3.2: 180 x 180, centre (185, 0), gate x 94 |
-| `CatCafe_Neighbourhood_SetV32` | 279.5 x 279.8 | 112,292 | 5,321 | v3.2: 280 x 280, centre (0, 266), gate z 125 |
+| `CatCafe_Neighbourhood_SetV32` | 279.5 x 279.8 | 115,000 | 5,478 | v3.2: 280 x 280, centre (0, 266), gate z 125 |
 
 ## Placing a set
 
@@ -183,7 +183,7 @@ floor or seat for one cat: none is inside a colliding part.
 - Neighbourhood v3.2 (`CatCafe_Neighbourhood_SetV32`, 72 spots, each `[x, y, z, zone]`, zone `near` for the gate half
   (z < 0) or `deep`): near 28 (porch 12 at y 1.0, flowerbed 8 at y 0.7, garden 1, car 2 at y 0.29 and 0.34,
   bus_stop 1 at y 1.65, post_box 1, verge_bench 2, bins 1), deep 44 (porch 6 at y 1.0, flowerbed 2 at y 0.62 and
-  0.7, garden 1, shop_bench 1, shop_step 1 and fruit_stall 1 at y 0.3, tyre 1, slide 1 at y 4.0 on the deck,
+  0.7, garden 1, shop_bench 1 and fruit_stall 1 at y 0.3, shop_step 1 at y 0.4, tyre 1, slide 1 at y 4.0 on the deck,
   swings 1, sandbox 1 at y 0.55, roundabout 1 at y 0.72, seesaw 1, oak 1, picnic 1, green_bench 1, van 1 at y 0.24,
   trampoline 1 at y 1.73, washing 1, deckchair 1, gnomes 1, pool 1, playhouse 1, garden_bench 1, birdbath 1,
   greenhouse 2 at y 0.52, veg_bed 4 at y 0.6, water_butt 1, scarecrow 1, compost 1, potting_bench 1, sunflowers 1,

@@ -467,7 +467,7 @@ def corner_shop(mat):
     panes.box_base((0, fy - 0.32, 2.6), (1.8, 0.06, 2.6), "glass", bevel=False)
     panes.box_base((0, fy - 0.24, 5.9), (2.8, 0.06, 0.8), "glass", bevel=False)                 # transom
     b.box((0.95, fy - 0.38, 2.9), (0.15, 0.2, 0.7), "brass", bevel=False)
-    b.box_base((0, fy - 0.85, 0), (4.6, 1.4, 0.3), "concrete")                                   # the step
+    b.box_base((0, fy - 0.85, 0), (4.6, 1.4, 0.4), "concrete")                                   # the step
     lamp.box((0, fy - 0.45, 6.95), (0.6, 0.5, 0.4), "lamp_warm", bevel=False)
     # the striped awning over the windows, sloping out from under the fascia, with a valance
     n = 12
@@ -1000,7 +1000,7 @@ def _crescent(s, g, mat):
             s.put(bench(mat), *turned(cx, cz, rot, -15.5, -depth / 2 - 4.5),
                   rot)
             _spot(s, "shop_bench", *turned(cx, cz, rot, -13.5, -depth / 2 - 6.7), y=PATH_Y)
-            _spot(s, "shop_step", *turned(cx, cz, rot, 0.0, -depth / 2 - 1.4), y=0.3)
+            _spot(s, "shop_step", *turned(cx, cz, rot, 0.0, -depth / 2 - 1.4), y=0.4)
             _spot(s, "fruit_stall", *turned(cx, cz, rot, -9.0, -depth / 2 - 4.6), y=PATH_Y)
             s.put(nb.bicycle(mat), *turned(cx, cz, rot, 14.4, -depth / 2 - 1.0), rot + 90)
             s.put(post_box(mat), *turned(cx, cz, rot, 14.0, -depth / 2 - 6.5), rot)
@@ -1117,9 +1117,28 @@ def _far(s, g, mat):
     beds = [(48, 117, "cabbage"), (62, 117, "beans"), (76, 117, "carrot"), (104, 117, "pumpkin"), (118, 117, "cabbage"),
             (48, 99, "carrot"), (62, 99, "pumpkin"), (104, 99, "beans"), (118, 99, "carrot"),
             (52, 59, "pumpkin"), (66, 59, "cabbage"), (104, 59, "carrot"), (118, 59, "cabbage"),
-            (52, 41, "beans"), (112, 41, "pumpkin"), (66, 18, "carrot"), (110, 18, "cabbage")]
+            (52, 41, "beans"), (112, 41, "pumpkin"), (66, 18, "carrot"), (110, 18, "cabbage"),
+            (80, 41, "cabbage"), (80, 18, "pumpkin"), (124, 18, "beans"), (52, 77, "beans"), (66, 77, "carrot"),
+            (124, 72, "pumpkin"), (-112, 100, "carrot"), (-112, 107, "cabbage")]          # the last two: a garden's
     for i, (x, z, crop) in enumerate(beds):
         s.put(veg_bed(mat, crop, i), x, z, 0)
+    # dug plots between the beds (ground: tilled earth, top 0.04, and furrows, top 0.07), every other furrow ridged
+    # with a crop (_Decor, so cats sit in it)
+    crops = Builder()
+    for (x0, x1, z0, n) in ((56.0, 74.0, 25.0, 4), (108.0, 128.0, 26.5, 3), (46.0, 70.0, 85.0, 3),
+                            (110.0, 130.0, 76.5, 3), (-128.0, -114.0, 78.0, 3)):
+        z1 = z0 + 3.4 * (n - 1)
+        g.box_base(bl((x0 + x1) / 2, (z0 + z1) / 2), (x1 - x0 + 1.0, z1 - z0 + 2.6, 0.04), "dark_wood", bevel=False)
+        for k in range(n):
+            z = z0 + 3.4 * k
+            g.box_base(bl((x0 + x1) / 2, z), (x1 - x0, 1.5, 0.07), "choco", bevel=False)
+            if k % 2 == 0:
+                crops.box_base(bl((x0 + x1) / 2, z, 0.07), (x1 - x0 - 1.0, 0.7, 0.45),
+                               ("leaf_dark", "leaf_green", "fur_fern")[(k // 2 + int(x0)) % 3], bevel=False)
+    s.put([crops.finalize(N + "CropRows_Decor", mat)], 0, 0, 0)
+    # patios behind the houses: the south garden's round its deck chairs and barbecue, the middle one's by the bench
+    for (x0, x1, z0, z1) in ((-91.0, -74.0, -1.5, 18.0), (-87.0, -74.0, 63.0, 77.0)):
+        g.box_base(bl((x0 + x1) / 2, (z0 + z1) / 2), (x1 - x0, z1 - z0, 0.06), "paving_light", bevel=False)
     for (x, z) in ((48, 117), (104, 99), (66, 59), (110, 18)):
         _spot(s, "veg_bed", x - 1.6, z, y=BED_TOP)
     s.put(nb.garden_shed(mat), 82.0, 84.0, -90)
@@ -1177,7 +1196,9 @@ def _near(s, g, mat):
     for (x, z, h, k) in ((-110, -129, 10, 0), (-62, -130, 11, 1), (36, -130, 10, 2), (84, -129, 11, 0),
                          (116, -130, 10, 1), (-130, -126, 11, 2), (35, -95, 9, 1), (35, -66, 10, 0), (57, -80, 9, 2),
                          (-58, -26, 10, 0), (-34, -14, 9, 1), (-130, 0, 11, 1), (-128, 128, 12, 0), (-84, 104, 10, 2),
-                         (130, 4, 10, 0), (124, 120, 11, 1), (44, 132, 10, 2), (128, 72, 10, 2), (-38, 40, 9, 0)):
+                         (130, 4, 10, 0), (124, 120, 11, 1), (44, 132, 10, 2), (128, 72, 10, 2), (-38, 40, 9, 0),
+                         (-128, 30, 9, 2), (-88, 88, 10, 0), (-72, 110, 9, 1), (-104, 70, 8, 2), (84, 64, 9, 1),
+                         (128, 104, 9, 0)):                                           # fruit trees in the gardens
         tree_round(tb, -x, z, 0, h=h, r=3.0 + 0.4 * k, leaf=("leaf_green", "leaf_dark", "mint")[k])
     s.put([tb.finalize(N + "Trees", mat)], 0, 0, 0)
 

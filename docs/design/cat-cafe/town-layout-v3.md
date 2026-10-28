@@ -204,16 +204,18 @@ Walking speeds do not change. Each area's way in, as a brief for its set:
 
 ### 8d. Spawn points, zones and traps
 
-Each set brings its cat spots as now, more of them for the bigger floor, split into two zones: `near`, the half of the area by the gate, and `deep`, the far half. Epic, Legendary and Mythical strays take only free `deep` points (any free point if none is free), the rule the Alleyway's `nook` points already follow. So the rarer the cat, the longer the walk to it. Commons and Rares take any point. StraySpawnSpacingStuds 12 still applies.
+Each set brings its cat spots as now, more of them for the bigger floor, split into two zones: `near`, the half of the area by the gate, and `deep`, the far half. Epic, Legendary and Mythical strays take only free `deep` points, the rule the Alleyway's `nook` points already follow. As built (#467) there is no fallback to other points, so a wave never puts an Epic or rarer stray by the gate. So the rarer the cat, the longer the walk to it. Commons and Rares take any point. StraySpawnSpacingStuds 12 still applies.
 
 | area | spawn points, v3.1 | v3.2 | of them `deep` | rescue traps, v3.2 |
 |---|---|---|---|---|
 | Park | 14 | 40 | 24 | tree x3, trashcan x2 |
 | Neighbourhood | 26 | 72 | 44 | shed x2, gutter x2 |
-| Woods | 17 | 64 | 38 | hollow_log x2, bramble_bush x2 |
+| Woods | 17 | 64 | 38 | hollow_log x2, bramble_bush x2, and the tree house branch as a fifth trap of type `tree` (#475) |
 | Sewer | 20 | 52 | 32 | grate x2, drain_pipe x2 |
 
-At least one trap of each kind is in the `deep` half. Wave sizes stay as Derek set them at 01:34 (data-model section 9), so a bigger area has its strays spread farther apart.
+At least one trap of each kind is in the `deep` half.
+
+The Great Oak's top nook (Derek, 2026-10-28 01:35, a higher rare chance up there; built in #475) is one Woods spot with zone `rare`. Only a Rare or rarer stray takes it, and a Rare or rarer stray takes a free `rare` point before any other. Waves place their rarest strays first, so the oak top holds the wave's rarest cat whenever that is Rare or better, about 73% of Woods waves of four. The odds do not change, so this keeps Derek's 01:50 same-odds rule: the nook decides where the rarest cat sits, not how rare it is. Wave sizes stay as Derek set them at 01:34 (data-model section 9), so a bigger area has its strays spread farther apart.
 
 ### 8e. Contract for the engineer
 

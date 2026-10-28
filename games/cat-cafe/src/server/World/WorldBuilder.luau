@@ -589,7 +589,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local tableFolder = folder("TableAnchors", model)
 	local tableAnchors: { BasePart } = {}
 	for i, point in Layout.plot.tables do
-		local a = anchor("table_" .. i, localCFrame(cframe, point), tableFolder)
+		local a = anchor("table_" .. i, cframe * CFrame.new(point.x, point.y, point.z), tableFolder)
 		table.insert(tableAnchors, a)
 	end
 

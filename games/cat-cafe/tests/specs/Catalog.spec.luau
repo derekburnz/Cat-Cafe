@@ -1078,4 +1078,52 @@ return function()
 			expect((Catalog :: any).shinyModelName).never.to.be.ok()
 		end)
 	end)
+
+	describe("area income edges (QA, data-model v0.13.7)", function()
+		it("pays more in every area farther out, starting at 1 in the Alleyway", function()
+			expect(Catalog.areas[1].id).to.equal("alley")
+			expect(Catalog.areas[1].incomeMultiplier).to.equal(1)
+			for i = 2, #Catalog.areas do
+				local near, far = Catalog.areas[i - 1], Catalog.areas[i]
+				if not (far.incomeMultiplier > near.incomeMultiplier) then
+					error(string.format("%s pays x%s, not more than %s's x%s", far.id, tostring(far.incomeMultiplier), near.id, tostring(near.incomeMultiplier)))
+				end
+			end
+		end)
+
+		it("never pays a cat from a farther area less than the same rarity from a nearer one", function()
+			expect(#Catalog.cats > 0).to.equal(true)
+			local tierOf: { [string]: number } = {}
+			for _, area in Catalog.areas do
+				tierOf[area.id] = area.tier
+			end
+			for _, def in Catalog.cats do
+				local tier = tierOf[(def :: any).incomeArea or def.area]
+				if tier ~= nil then
+					for _, other in Catalog.cats do
+						local otherTier = tierOf[(other :: any).incomeArea or other.area]
+						if other.rarity == def.rarity and otherTier ~= nil and otherTier < tier then
+							if def.incomePerSecond < other.incomePerSecond then
+								error(string.format("%s (%s) earns less than %s (%s)", def.id, def.area, other.id, other.area))
+							end
+						end
+					end
+				end
+			end
+		end)
+
+		it("pays a spare cat by its incomeArea, never by the spare pool (F78)", function()
+			for _, def in Catalog.cats do
+				if def.area == "spare" then
+					local area = Catalog.getArea((def :: any).incomeArea)
+					if area == nil then
+						error(def.id .. " is a spare cat with no incomeArea")
+					end
+					expect(def.incomePerSecond).to.equal(
+						Catalog.rarities[def.rarity].incomePerSecond * (area :: any).incomeMultiplier
+					)
+				end
+			end
+		end)
+	end)
 end

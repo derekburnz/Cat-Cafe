@@ -1516,6 +1516,10 @@ Presets.potions = {
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
 
+-- The intro's shot 4 (F72): the demo cat leaves your arms in a cream puff of `from` smoke and appears in its seat in
+-- one of `seat` with `sparkle` sparkles.
+Presets.introPuff = { from = 5, seat = 6, sparkle = 8 }
+
 -- The Mystery Visitor (F64): a purple puff of `puff` smoke where the visitor arrives and leaves, `sparkle` sparkles
 -- where the gift appears and, when the owner opens it (MysteryGiftResult), confetti (`confetti` of the budget's) in
 -- the ribbon colours with `pop` sparkles and a `ring` in the colour of what was inside, from the gift's top.

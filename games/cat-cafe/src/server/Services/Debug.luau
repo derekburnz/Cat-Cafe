@@ -8,7 +8,7 @@
 --   D:Invoke("setFish", nil, 300)      -- 300 golden fish in the wallet (F52)
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
---   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe that pays itself in 20 s
+--   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe, gone unpaid in 20 s
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
 --   D:Invoke("tackle", "Player1", "loose")  -- a real Tackle press with every check, the roll forced (F74)
 --   D:Invoke("telemetry", 20)          -- the last 20 analytics events, oldest first

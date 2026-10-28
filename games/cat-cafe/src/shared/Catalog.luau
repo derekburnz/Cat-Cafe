@@ -890,7 +890,7 @@ Catalog.lures = {
 	{
 		id = "kibble",
 		name = "Kibble",
-		cost = 25,
+		cost = 30,
 		attracts = "Common",
 		rarity = "Common",
 		source = "shop",
@@ -901,7 +901,7 @@ Catalog.lures = {
 	{
 		id = "tuna",
 		name = "Tuna",
-		cost = 100,
+		cost = 125,
 		attracts = "Rare",
 		rarity = "Rare",
 		source = "shop",
@@ -912,7 +912,7 @@ Catalog.lures = {
 	{
 		id = "salmon",
 		name = "Salmon",
-		cost = 500,
+		cost = 625,
 		attracts = "Epic",
 		rarity = "Epic",
 		source = "shop",
@@ -923,7 +923,7 @@ Catalog.lures = {
 	{
 		id = "sardines",
 		name = "Moonlit Sardines",
-		cost = 800,
+		cost = 1000,
 		attracts = "Rare",
 		rarity = "Rare",
 		source = "dealer",
@@ -934,7 +934,7 @@ Catalog.lures = {
 	{
 		id = "caviar",
 		name = "Caviar",
-		cost = 3000,
+		cost = 3750,
 		attracts = "Epic",
 		rarity = "Epic",
 		source = "dealer",
@@ -945,7 +945,7 @@ Catalog.lures = {
 	{
 		id = "moon_milk",
 		name = "Moon Milk",
-		cost = 10000,
+		cost = 12500,
 		attracts = "Epic",
 		rarity = "Legendary",
 		source = "dealer",
@@ -956,7 +956,7 @@ Catalog.lures = {
 	{
 		id = "star_treat",
 		name = "Star Treat",
-		cost = 40000,
+		cost = 50000,
 		attracts = "Legendary",
 		rarity = "Mythical",
 		source = "dealer",
@@ -1019,15 +1019,16 @@ end
 Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
--- Section 9. A full wave of waveSize strays spawns in every area at each night start, whether or not anyone has
--- it open. The Neighbourhood, Woods and Sewer spawn points are their kit sets' cat spots (Model-Agent #401).
+-- Section 9. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
+-- open, with no top-ups during the day. Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
+-- and 4, 24 a day in all (was 10 each). The Neighbourhood, Woods and Sewer spawn points are their kit sets' cat spots (Model-Agent #401).
 Catalog.areas = {
 	{
 		id = "alley",
 		name = "Alleyway",
 		tier = 1,
 		spawnPoints = 24, -- two behind every cafe, two at each end of the back alleys (layout v3.1)
-		waveSize = 10,
+		waveSize = 6,
 		rescueSpots = 3,
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 	},
@@ -1036,7 +1037,7 @@ Catalog.areas = {
 		name = "Park",
 		tier = 2,
 		spawnPoints = 14,
-		waveSize = 10,
+		waveSize = 5,
 		rescueSpots = 3,
 		odds = { Common = 60, Rare = 28, Epic = 9, Legendary = 2.5, Mythical = 0.5 },
 	},
@@ -1045,7 +1046,7 @@ Catalog.areas = {
 		name = "Neighbourhood",
 		tier = 3,
 		spawnPoints = 26,
-		waveSize = 10,
+		waveSize = 5,
 		rescueSpots = 2,
 		odds = { Common = 50, Rare = 32, Epic = 13, Legendary = 4, Mythical = 1 },
 	},
@@ -1054,7 +1055,7 @@ Catalog.areas = {
 		name = "Woods",
 		tier = 4,
 		spawnPoints = 17,
-		waveSize = 10,
+		waveSize = 4,
 		rescueSpots = 2,
 		odds = { Common = 42, Rare = 34, Epic = 17, Legendary = 5.5, Mythical = 1.5 },
 	},
@@ -1063,7 +1064,7 @@ Catalog.areas = {
 		name = "Sewer",
 		tier = 5,
 		spawnPoints = 20,
-		waveSize = 10,
+		waveSize = 4,
 		rescueSpots = 2,
 		odds = { Common = 35, Rare = 35, Epic = 20, Legendary = 7.5, Mythical = 2.5 },
 	},

@@ -63,6 +63,9 @@ SWATCHES = [
     # row 12: the twelve plain Commons of the Neighbourhood, Woods and Sewer (data-model 3c)
     ("fur_puddle", "#7A96B4"), ("fur_pepper", "#6B6C73"), ("fur_ink", "#363C4C"), ("fur_moss", "#8D9B6E"),
     ("fur_acorn", "#A0683A"), ("fur_bramble", "#6E5140"), ("fur_fern", "#A4C08F"), ("fur_ash", "#3A373C"),
+    # row 13: the Town Square's paving and the four areas' compass colours (v3.1, the paw paths' colours)
+    ("paving_light", "#F2E8D5"), ("paving_sand", "#E2CFAE"), ("paving_tan", "#D4BC96"), ("paving_grout", "#A7957C"),
+    ("paw_park", "#68C45C"), ("paw_neighbourhood", "#F09640"), ("paw_woods", "#267040"), ("paw_sewer", "#566E96"),
 ]
 assert len(SWATCHES) % GRID == 0 and len(SWATCHES) <= GRID * ROWS
 

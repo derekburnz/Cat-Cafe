@@ -1,7 +1,8 @@
 --!strict
 -- Which cats move on this client and how (design v0.4 sections 1 and 4, v0.5 F40 and F44): role idles at the
--- cafe stations, naps (and every working cat asleep at its station at night, when the cafe is closed: curled up,
--- or dozing where it sits or stands in its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
+-- cafe stations, naps (and at night, when the cafe is closed, every working cat walking to a cat tree or bed and
+-- asleep there, F79, or on an older server asleep at its station: curled up, or dozing where it sits or stands in
+-- its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
 -- pant after a sprint, the hiss hop on a missed catch and the Balloon Cat bobbing as if it might float off (F78).
 -- Only the nearest few within range move (budget.animatedCats within budget.animRadius); the rest stand as the
@@ -269,6 +270,11 @@ function Cats.isLoafing(model: Model): boolean
 end
 
 local function styleOf(model: Model): Logic.Style
+	local bedtime: Logic.Style? =
+		Logic.bedtimeStyle(model:GetAttribute("Bedtime"), model:GetAttribute("Asleep"))
+	if bedtime ~= nil then
+		return bedtime
+	end
 	local pose = model:GetAttribute("Pose")
 	local night = Context.isNight()
 	if

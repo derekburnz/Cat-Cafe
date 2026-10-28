@@ -318,7 +318,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Night pieces | 6,000 per gate fence | the short night (section 14): Alley_NightFenceSegment 2,000, Plot_BackDoorClosed 2,500 |
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14) |
 | Currency props | 1,200 | the golden fish coin (`CatCafe_Prop_FishCoin`); its UI picture is rendered from it (section 14) |
-| Alleyway set pieces | 5,000 to 6,000 | arches and building backs; crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
+| Alleyway set pieces | 5,000 to 6,000 | arches, building backs and the town buildings (Warehouse 6,000); crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
 | Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier, 4,000 back door | built from blocks for the Part export (section 14); the FBX is the reference |
 | Door sets and cat flaps (F80) | 4,000 per door half, 1,600 per flap | `doorsets.py`: front double doors land at 1,196 to 3,292, back doors 2,254 to 3,278, flaps 256 to 1,336 |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
@@ -434,6 +434,8 @@ long string lights and the Sewer manhole with barricades. Area gates are arches 
 ForceField barrier and a hanging sign board, themed: the Park in brick with ivy, planters and a green iron frame;
 the Woods in timber posts and a log beam with moss, mushrooms and small spruces; the Sewer in concrete with hazard
 stripes, a big pipe and slime; the Neighbourhood in brick with a white pergola, hedges and a mailbox.
+
+The town buildings (`CatCafe_Alley_Building_<Name>`, `townbuildings.py`) replace the repeated backs and the staff door with whole little buildings, each its own colour, height and roof so no two neighbours match: Bakery, Townhouses, Warehouse, Grocer, Apartments, ClockHouse, MusicShop and NarrowHouses. Shops say what they are with a hanging picture sign (bread, apple, music note), never words. Each is 30.6 wide like the backs, with a 3 deep body standing over the 1 thick outer wall: the pivot is the back plane at the bottom centre, set 2.25 behind the wall's inner face so the facade is 1 out into the lane and the body's back meets the Woods' and the Sewer's own walls (only the back sills and eaves reach 0.25 into them); lane-side doors, sills, canopies and lamps keep within 3.5 of the facade. The backs have plain windows for the areas behind. The Warehouse carries the walkable fire escape at the FireEscape's place (`ledges_roblox`), so the crate stack beside it still climbs to landing 1.
 
 Where a model meets the code-built walls (gates and arches, 2026-10-27, Derek: "a lot of the gate models for zones
 are clipping in eachother and can see it when walking"): a wall that ends at an opening must end inside a post, never

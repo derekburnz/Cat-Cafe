@@ -600,6 +600,17 @@ function Logic.licking(t: number, phase: number): boolean
 	return (t + phase * k.every) % k.every < k.hold
 end
 
+-- Bedtime (F79, data-model 12c): the server walks a working cat to a sleep spot at night and back at sunrise,
+-- setting `Bedtime` for the whole trip and `Asleep` while it lies on the spot. On the way it moves like a stray (the
+-- gait at its real speed, the get-up stretch from StretchAt) and on the spot it naps like one. nil when the cat is
+-- not on a bedtime trip, so the station idles and the old station nap (a server that never sets Bedtime) still run.
+function Logic.bedtimeStyle(bedtime: unknown, asleep: unknown): Style?
+	if bedtime ~= true then
+		return nil
+	end
+	return if asleep == true then "nap" else "stray"
+end
+
 -- How long one breath takes in a style: slow asleep, a little slower again dozing or in a loaf.
 function Logic.breathSeconds(style: Style): number
 	local m = Presets.motion

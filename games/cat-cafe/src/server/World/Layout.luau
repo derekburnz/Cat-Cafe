@@ -734,26 +734,6 @@ Layout.neighbourhood = {
 	},
 } :: AreaSpec
 
--- The Woods and the Sewer keep their v3 graybox props, planned facing the town on their +Z side, turned a quarter so
--- that side faces the town (town-layout-v3.md section 7f): an offset (dx, dz) becomes (dz, -dx) for the Woods
--- (quarter 1, the town toward +X) and (-dz, dx) for the Sewer (quarter -1), and a turn rotY becomes rotY + 90 x
--- quarter. Their kit sets bring their own cat spots and traps.
-local function quarterTurn(quarter: number, dx: number, dz: number): (number, number)
-	return quarter * dz, -quarter * dx
-end
-
-local function propTurned(
-	cx: number,
-	cz: number,
-	quarter: number,
-	asset: string,
-	dx: number,
-	dz: number
-): Prop
-	local x, z = quarterTurn(quarter, dx, dz)
-	return { asset = asset, x = cx + x, z = cz + z, rotY = 90 * quarter }
-end
-
 -- The Woods at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Woods_SetV32 (#470, area-sets.md
 -- "The Woods (v3.2)") fills the 240 x 240 floor, its trail winding through the one gap in the tree line, over the one
 -- log bridge and through the one gap in the rock ridge to the Great Oak. Its cat spots are `near` on the gate half and
@@ -860,8 +840,14 @@ Layout.woods = {
 	props = {},
 } :: AreaSpec
 
+-- The Sewer at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's CatCafe_Sewer_SetV32 (#491, area-sets.md
+-- "The Sewer (v3.2)") fills the 180 x 180 floor, roofed from the tunnel front back. The way in winds from the storm
+-- drain yard over the canal's one brick bridge, through the walk-in arch and the east hall's market to the cross
+-- wall's one archway, then over the far catwalk into the west hall and the junk throne. Its cat spots are tagged by
+-- region, not by half: `near` the yard and the market, `deep` everything past the cross wall's arch, the west hall's
+-- far chamber in the gate half among them. Its grates and drain pipes are built into the set, each turned in it, two
+-- of the four deep.
 local SX, SZ = W.SewerCenterX, W.SewerCenterZ
-local SHD = W.SewerWidth / 2 -- the plan's depth runs along X once turned
 local STURN = townTurn(SX, SZ, W.SewerGateX, nil)
 Layout.sewer = {
 	floorY = 0.1,
@@ -870,42 +856,79 @@ Layout.sewer = {
 	halfDepth = W.SewerDepth / 2,
 	gateX = W.SewerGateX,
 	openingHalfWidth = GH,
-	set = "CatCafe_Sewer_Set",
+	set = "CatCafe_Sewer_SetV32",
 	setLift = 0.4, -- the set's tiled slab
-	spawnPoints = setPoints(SX, SZ, STURN, 0.1, {
-		{ 3, 3.5, -24 }, -- the catwalk
-		{ 21.97, 3.3, 23.91 }, -- the junk throne
-		{ 13, 0.4, 30 }, -- the toy pile
-		{ -31.8, 0.4, 42.8 }, -- the valve
-		{ -28, 3.65, 30 }, -- the mine cart
-		{ 37.6, 0.4, 38 }, -- a pipe end
-		{ 18.6, 0.4, -7 }, -- the market stalls
-		{ 18.6, 0.4, 0 },
-		{ 18.6, 0.4, 7 },
-		{ -15.4, 0.4, 2.27 }, -- the rat houses
-		{ -16.51, 0.4, 12.35 },
-		{ -13.94, 0.4, -4.57 },
-		{ -20.3, 0.4, 6.89 },
-		{ 34.12, 1.88, -30.44 }, -- the sofa
-		{ 30.6, 2.55, -11.7 }, -- the decks
-		{ -30.49, 2.55, -31.54 },
-		{ -21, 1.6, -16 }, -- the boat
-		{ -11.6, 2.35, -16.6 }, -- the raft
-		{ 18, 1, -24 }, -- the trolley
-		{ 37, 2.4, 25 }, -- the hammock
-	}),
+	spawnPoints = (function(): { Point }
+		local points = setPoints(SX, SZ, STURN, 0.1, {
+			{ 44, 2.8, -61 }, -- the bridge
+			{ -24, 0.4, -73 }, -- the puddle
+			{ 73, 0.4, -79 }, -- the barrel
+			{ 60, 0.4, -78 }, -- the tyres
+			{ 30, 0.4, -76 }, -- the cones
+			{ -66, 0.4, -78 }, -- the crates
+			{ -78, 0.4, -72.5 }, -- the suitcases
+			{ -56, 0.4, -76.5 }, -- glow mushrooms
+			{ 12, 0.4, -26.5 },
+			{ 20, 0.4, -46 }, -- the canal banks
+			{ -20, 0.4, -47 },
+			{ -66, 0.4, -47 },
+			{ 72, 0.4, -46 },
+			{ -44, 0.4, -44.5 }, -- the barred arch
+			{ 20, 0.4, -4 }, -- the market stalls
+			{ 34, 0.4, -4 },
+			{ 48, 0.4, -4 },
+			{ 74.04, 2.55, -23.33 }, -- the deck
+			{ 24, 0.4, -22 }, -- the market
+			{ 56, 0.4, -12 },
+		}, "near")
+		for _, point in
+			setPoints(SX, SZ, STURN, 0.1, {
+				{ 0, 3.6, 50 }, -- the bridge
+				{ -76, 0.4, 79.5 }, -- the suitcases
+				{ 20, 0.4, 66.5 }, -- glow mushrooms
+				{ 72, 0.4, 17.5 },
+				{ -15.5, 0.4, 30 },
+				{ -60, 0.4, -2.5 },
+				{ -17.5, 0.4, -32 },
+				{ -38.49, 2.55, -21.54 }, -- the deck
+				{ 32.34, 0.4, 32.73 }, -- the cat houses
+				{ 51.66, 0.4, 32.73 },
+				{ 30.73, 0.4, 53.66 },
+				{ 53.45, 0.4, 55.45 },
+				{ 42, 0.4, 38 }, -- the square
+				{ 36, 0.4, 46 },
+				{ 80, 3.65, 64 }, -- the mine cart
+				{ 34, 0.4, 81.9 }, -- the valve
+				{ 73.6, 0.4, 78 }, -- a pipe end
+				{ 12, 0.4, 46 }, -- the far catwalk's feet
+				{ -12, 0.4, 54 },
+				{ 14, 0.4, 74 }, -- the pool
+				{ -46, 3.3, 80.1 }, -- the junk throne
+				{ -32, 0.4, 82.7 }, -- the pipe organ
+				{ -62, 0.4, 74 }, -- the toy pile
+				{ -67.2, 1.88, 45.3 }, -- the sofa
+				{ -30, 1, 40 }, -- the trolley
+				{ -46, 0.4, 66 }, -- the throne room
+				{ -20, 0.4, 70 },
+				{ -28, 1.82, 4 }, -- the boat
+				{ -39.5, 2.2, 2.98 }, -- the raft
+				{ -82, 2.4, -25.7 }, -- the hammock
+				{ -46, 0.4, -18 }, -- the far chamber
+				{ -60, 0.4, 20 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
 	rescueSpots = {
-		setTrap(SX, SZ, STURN, "grate", { -31, 0.4, 2 }),
-		setTrap(SX, SZ, STURN, "drain_pipe", { -40, 0.4, -35 }),
+		-- a grate is square; a drain pipe's mouth faces the piece's -Z
+		setTrap(SX, SZ, STURN, "grate", { -38, 0.4, -78 }),
+		setTrap(SX, SZ, STURN, "grate", { 70, 0.4, 40 }),
+		setTrap(SX, SZ, STURN, "drain_pipe", { 81.7, 0.4, -77 }, 90),
+		setTrap(SX, SZ, STURN, "drain_pipe", { -81.7, 0.4, 22 }, -90),
 	},
-	props = {
-		-- lamps either side of the opening, then crates and a bin
-		propTurned(SX, SZ, -1, "CatCafe_Alley_StreetLamp", -16, SHD - 3),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_StreetLamp", 16, SHD - 3),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_Crate", -27, 10),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_Crate", 27, 5),
-		propTurned(SX, SZ, -1, "CatCafe_Alley_TrashCan", -27, -12),
-	},
+	props = {},
 } :: AreaSpec
 
 -- The Town Square (F76, town-layout-v3.md section 3): paved, in the middle of the street and the safe zone, with a

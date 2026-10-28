@@ -850,20 +850,28 @@ local function wireServerEvents()
 		end
 	)
 	-- Data-model section 10 step 5: grades up to and including the first Miss and the Purrfect charm bonus. The HUD
-	-- shows the grades and, on a miss, that the cat got away (v0.5: it sprints off and tries are unlimited).
+	-- shows the grades and, on a miss, that the cat got away (v0.5: it sprints off and tries are unlimited). A miss
+	-- also brings this player's retryAt (F57, review S87), when the card's "Catch your breath..." ends.
 	Net.on(
 		"CatchResult",
 		function(
 			strayId: string,
 			grades: { Types.CircleGrade },
 			success: boolean,
-			charmGain: number
+			charmGain: number,
+			retryAt: number?
 		)
 			local allPerfect = #grades > 0
 			for _, grade in grades do
 				allPerfect = allPerfect and grade == "perfect"
 			end
-			UI.catch.showGrades(strayId, grades, success, charmGain)
+			UI.catch.showGrades(
+				strayId,
+				grades,
+				success,
+				charmGain,
+				if type(retryAt) == "number" then retryAt else nil
+			)
 			cancelCircleTimers()
 			if success then
 				local model = strayModel(strayId)

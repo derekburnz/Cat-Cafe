@@ -711,7 +711,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 1500,
+		cost = 8000,
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -721,7 +721,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 8000,
+		cost = 80000,
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -733,7 +733,7 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 30000,
+		cost = 700000,
 		distinctCats = 20,
 		needsRarity = "Legendary",
 		needsRarityCount = 1,
@@ -745,7 +745,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 120000,
+		cost = 5000000,
 		distinctCats = 30,
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
@@ -780,7 +780,7 @@ Catalog.upgrades = {
 		name = "Tables",
 		description = "Each table seats two more customers and adds tips",
 		maxLevel = 6,
-		costs = { 100, 250, 600, 1500, 3500, 8000 },
+		costs = { 150, 600, 3000, 10000, 50000, 150000 },
 		startLevel = 0,
 	},
 	{
@@ -788,7 +788,7 @@ Catalog.upgrades = {
 		name = "Espresso machine",
 		description = "Better coffee, bigger tips from every cat",
 		maxLevel = 5,
-		costs = { 0, 300, 1200, 4000, 12000 },
+		costs = { 0, 2000, 15000, 100000, 800000 },
 		startLevel = 1,
 	},
 	{
@@ -796,7 +796,7 @@ Catalog.upgrades = {
 		name = "Net",
 		description = "A better net: higher odds on every swing",
 		maxLevel = 3,
-		costs = { 500, 3000, 15000 },
+		costs = { 2500, 25000, 200000 },
 		startLevel = 0,
 	},
 	{
@@ -804,7 +804,7 @@ Catalog.upgrades = {
 		name = "Bait bowl",
 		description = "A bowl on your back step. Food in, a cat in 10 min",
 		maxLevel = 1,
-		costs = { 400 },
+		costs = { 600 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }
@@ -842,7 +842,7 @@ Catalog.decor = {
 	{
 		id = "plants",
 		name = "Window plants",
-		cost = 150,
+		cost = 4000,
 		category = "Plants",
 		effect = "+5% tips",
 		description = "Green in the window, warmth in the room.",
@@ -853,7 +853,7 @@ Catalog.decor = {
 	{
 		id = "rug",
 		name = "Cozy rug",
-		cost = 400,
+		cost = 8000,
 		category = "Floor",
 		effect = "+5% tips",
 		description = "Warm paws, generous customers.",
@@ -864,7 +864,7 @@ Catalog.decor = {
 	{
 		id = "neon_sign",
 		name = "Neon cat sign",
-		cost = 1500,
+		cost = 60000,
 		category = "Wall",
 		effect = "+10% tips",
 		description = "Seen from the far end of the street.",
@@ -875,7 +875,7 @@ Catalog.decor = {
 	{
 		id = "fish_tank",
 		name = "Fish tank",
-		cost = 5000,
+		cost = 500000,
 		category = "Furniture",
 		effect = "+10% tips, cats stare at it",
 		description = "The fish are fine. Probably.",

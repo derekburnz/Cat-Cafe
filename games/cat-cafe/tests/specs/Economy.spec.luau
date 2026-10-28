@@ -369,29 +369,29 @@ return function()
 	describe("upgrade costs and tier caps (sections 5b and 6)", function()
 		it("next cost is costs[level + 1], nil when maxed, removed or unknown", function()
 			local p = freshProfile()
-			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(100)
-			expect(Economy.nextUpgradeCost(p, "espresso")).to.equal(300)
-			expect(Economy.nextUpgradeCost(p, "net")).to.equal(500)
-			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(400)
+			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(150)
+			expect(Economy.nextUpgradeCost(p, "espresso")).to.equal(2000)
+			expect(Economy.nextUpgradeCost(p, "net")).to.equal(2500)
+			expect(Economy.nextUpgradeCost(p, "lure_bowl")).to.equal(600)
 			p.upgradeLevels.net = 1
-			expect(Economy.nextUpgradeCost(p, "net")).to.equal(3000)
+			expect(Economy.nextUpgradeCost(p, "net")).to.equal(25000)
 			p.upgradeLevels.tables = 6
 			expect(Economy.nextUpgradeCost(p, "tables")).never.to.be.ok()
 			expect(Economy.nextUpgradeCost(p, "cafe_level")).never.to.be.ok()
 			expect(Economy.nextUpgradeCost(p, "jetpack")).never.to.be.ok()
 		end)
 
-		it("fresh profile: Tables is not affordable at 50 coins (100)", function()
+		it("fresh profile: Tables is not affordable at 50 coins (150, v0.13.6)", function()
 			local p = freshProfile()
 			expect(Economy.upgradeBlocker(p, "tables")).to.equal("Not enough coins")
-			p.coins = 100
+			p.coins = 150
 			expect(Economy.upgradeBlocker(p, "tables")).never.to.be.ok()
 		end)
 
-		it("the Bait bowl needs no tier: Tier 1 can buy it at 400 (loop step 5)", function()
+		it("the Bait bowl needs no tier: Tier 1 can buy it at 600 (loop step 5, v0.13.6)", function()
 			local p = freshProfile()
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Not enough coins")
-			p.coins = 400
+			p.coins = 600
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
 			p.upgradeLevels.lure_bowl = 1
 			expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Already maxed")
@@ -471,7 +471,7 @@ return function()
 			expect(Economy.decorBlocker(p, "plants")).to.equal("Needs Tier 2")
 			p.tier = 2
 			expect(Economy.decorBlocker(p, "plants")).to.equal("Not enough coins")
-			p.coins = 150
+			p.coins = 4000
 			expect(Economy.decorBlocker(p, "plants")).never.to.be.ok()
 			p.decorOwned.plants = true
 			expect(Economy.decorBlocker(p, "plants")).to.equal("Already owned")
@@ -556,24 +556,25 @@ return function()
 			end
 		)
 
-		it("step 5: Table 1 costs $100 and raises the rate by exactly 10%", function()
+		it("step 5: Table 1 costs $150 (v0.13.6) and raises the rate by exactly 10%", function()
 			local p = freshProfile()
 			p.cats.new = cat("new", "ginger", "waiter_1")
 			local before = Economy.incomePerSecond(p)
-			p.coins = 100
-			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(100)
+			p.coins = 150
+			expect(Economy.nextUpgradeCost(p, "tables")).to.equal(150)
 			expect(Economy.upgradeBlocker(p, "tables")).never.to.be.ok()
-			expect(Economy.trySpend(p, 100)).to.equal(true)
+			expect(Economy.trySpend(p, 150)).to.equal(true)
 			p.upgradeLevels.tables = 1
 			expect(Economy.incomePerSecond(p)).to.be.near(before * 1.1)
 		end)
 
 		it(
-			"reaching $100 for Table 1 from the start takes about 34 s at the starter rate",
+			"reaching Table 1 from the start takes about a minute at the starter rate (67 s at $150, v0.13.6)",
 			function()
-				-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow.
+				-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow. QA: the cost
+				-- comes from the Catalog, so a price change is checked here too.
 				local p = freshProfile(0)
-				local seconds = (100 - p.coins) / Economy.incomePerSecond(p)
+				local seconds = (Catalog.upgradesById.tables.costs[1] - p.coins) / Economy.incomePerSecond(p)
 				expect(seconds <= 120).to.equal(true)
 			end
 		)
@@ -586,21 +587,47 @@ return function()
 				p.upgradeLevels.tables = 1
 				p.coins = 0
 				Economy.settle(p, 600 - 90) -- rough: 90 s spent walking and catching
-				expect(p.coins >= 100 + 250 + 400 + 25).to.equal(true)
+				local tables = Catalog.upgradesById.tables.costs
+				local spend = tables[1] + tables[2] + Catalog.upgradesById.lure_bowl.costs[1] + Catalog.luresById.kibble.cost
+				expect(p.coins >= spend).to.equal(true)
 			end
 		)
 
 		it(
-			"the v0.3 loop: Tier 2's old 1,500 after its purchases came 10 to 20 minutes in (features section 8; v0.13.6 prices are QA's to re-time)",
+			"Tier 2's coins after the loop's purchases take more than 10 minutes on cafe income alone (v0.13.6)",
 			function()
-				-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second.
-				local spend = 100 + 250 + 400 + 25 + 1500 - Config.StartCoins
+				-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second. Since
+				-- v0.13.6 (Derek 01:38: "you can max out almost instantly every unlock") Tier 2 waits on coins after the
+				-- cats are ready at about 9 minutes, so cafe income alone must not reach it inside 10. The 20 minute top
+				-- of features section 8's window is the data-model 11 pace model's (16 min with first catch rewards,
+				-- Index coins and the Tip Jar), which this income-only sum leaves out; the S14 playtest times it. QA:
+				-- every cost comes from the Catalog (this guard read 1,500 and the old prices until v0.13.6).
+				local tables = Catalog.upgradesById.tables.costs
+				local spend = tables[1]
+					+ tables[2]
+					+ Catalog.upgradesById.lure_bowl.costs[1]
+					+ Catalog.luresById.kibble.cost
+					+ Catalog.tiers[2].cost
+					- Config.StartCoins
 				for _, rate in ipairs({ 2.5 * 1.2, 3.0 * 1.2 }) do
 					local minutes = spend / rate / 60
-					expect(minutes >= 10 and minutes <= 20).to.equal(true)
+					expect(minutes >= 10).to.equal(true)
 				end
 			end
 		)
+
+		it("every rank up costs at least five times the one before (QA, v0.13.6 pace)", function()
+			-- data-model 11, pace v0.13.6: income grows about five times a tier, and the old costs, growing about four
+			-- times, let every tier's shop be bought the moment it opened. A rank up cheaper than that is Derek's
+			-- 01:38 "max out almost instantly" again.
+			for tier = 3, Catalog.maxTier do
+				local ratio = Catalog.tiers[tier].cost / Catalog.tiers[tier - 1].cost
+				if ratio < 5 then
+					error(string.format("Tier %d costs only %.2f times Tier %d", tier, ratio, tier - 1))
+				end
+			end
+			expect(Catalog.tiers[2].cost >= 5000).to.equal(true)
+		end)
 	end)
 	describe("rank up (F24, section 5b)", function()
 		-- Cat ids of one rarity, in catalog order.
@@ -681,16 +708,16 @@ return function()
 			expect(Economy.distinctCatsAtLeast(p, "Legendary")).to.equal(1)
 		end)
 
-		it("Tier 1 to 2: 5 different cats and 1,500 coins, the starter Tabby counts", function()
+		it("Tier 1 to 2: 5 different cats and 8,000 coins (v0.13.6), the starter Tabby counts", function()
 			local p = freshProfile()
-			p.coins = 1500
+			p.coins = 8000
 			for _, id in { "ginger", "tuxedo", "smoke" } do
 				p.collection[id] = 1000
 			end
 			expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
 			p.collection.calico = 1000
 			expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-			p.coins = 1499
+			p.coins = 7999
 			expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 		end)
 

@@ -527,10 +527,10 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 1500, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
-			{ "Busy Cafe", 8000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
-			{ "Famous Cafe", 30000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 120000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Cozy Cafe", 8000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
+			{ "Busy Cafe", 80000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Famous Cafe", 700000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
+			{ "Grand Cafe", 5000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 		}
 
 		it("has five tiers matching the table", function()
@@ -654,28 +654,28 @@ return function()
 				tables = {
 					name = "Tables",
 					maxLevel = 6,
-					costs = { 100, 250, 600, 1500, 3500, 8000 },
+					costs = { 150, 600, 3000, 10000, 50000, 150000 }, -- v0.13.6
 					startLevel = 0,
 					atLevel = { [3] = 2, [4] = 2, [5] = 3, [6] = 3 },
 				},
 				espresso = {
 					name = "Espresso machine",
 					maxLevel = 5,
-					costs = { 0, 300, 1200, 4000, 12000 },
+					costs = { 0, 2000, 15000, 100000, 800000 },
 					startLevel = 1,
 					atLevel = { [3] = 2, [4] = 3, [5] = 4 },
 				},
 				net = {
 					name = "Net",
 					maxLevel = 3,
-					costs = { 500, 3000, 15000 },
+					costs = { 2500, 25000, 200000 },
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 3 },
 				},
 				lure_bowl = {
 					name = "Bait bowl",
 					maxLevel = 1,
-					costs = { 400 },
+					costs = { 600 },
 					startLevel = 0,
 					atLevel = nil,
 				},
@@ -736,20 +736,20 @@ return function()
 		local expected: { [string]: { cost: number, bonus: number, requiresTier: number, asset: string } } =
 			{
 				plants = {
-					cost = 150,
+					cost = 4000, -- v0.13.6
 					bonus = 0.05,
 					requiresTier = 2,
 					asset = "CatCafe_Decor_WindowPlants",
 				},
-				rug = { cost = 400, bonus = 0.05, requiresTier = 2, asset = "CatCafe_Decor_Rug" },
+				rug = { cost = 8000, bonus = 0.05, requiresTier = 2, asset = "CatCafe_Decor_Rug" },
 				neon_sign = {
-					cost = 1500,
+					cost = 60000,
 					bonus = 0.10,
 					requiresTier = 3,
 					asset = "CatCafe_Decor_NeonSign",
 				},
 				fish_tank = {
-					cost = 5000,
+					cost = 500000,
 					bonus = 0.10,
 					requiresTier = 4,
 					asset = "CatCafe_Decor_FishTank",

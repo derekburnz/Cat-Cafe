@@ -1024,9 +1024,11 @@ Presets.tacklePose = {
 -- arm free to swing. The right shoulder is raised `sh` degrees forward, turned `tw` and out `sp`, the elbow bent
 -- `el`, so the forearm points ahead; on R6, which has no elbow, the whole arm rises `sh6`. The pole leaves the fist
 -- along the hand's back-to-front axis tipped `tilt` (R6: `tilt6`) degrees towards the fingers, so it leans
--- `sh + el + tilt` degrees up from straight ahead. The grip sits at the hand's own RightGripAttachment where it has
--- one, else `grip` studs from the hand's centre (`grip6` on R6). Within budget.animRadius; the arm eases in over
--- `blendIn` and out over `blendOut` seconds, and the net shows while the arm is past halfway (`showAt`).
+-- `sh + el + tilt` degrees up from straight ahead, turned `roll` degrees about the pole so the hoop opens forward and
+-- the bag trails back towards the player (Derek 14:17: the nets faced the wrong way). The grip sits at the hand's
+-- own RightGripAttachment where it has one, else `grip` studs from the hand's centre (`grip6` on R6). Within
+-- budget.animRadius; the arm eases in over `blendIn` and out over `blendOut` seconds, and the net shows while the arm
+-- is past halfway (`showAt`).
 Presets.netHold = {
 	sh = 20,
 	tw = 0,
@@ -1035,6 +1037,7 @@ Presets.netHold = {
 	sh6 = 70,
 	tilt = -45,
 	tilt6 = -15,
+	roll = 180,
 	grip = Vector3.new(0, -0.1, 0),
 	grip6 = Vector3.new(0, -0.9, 0),
 	blendIn = 0.25,

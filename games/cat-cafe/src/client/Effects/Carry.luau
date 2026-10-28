@@ -2,8 +2,8 @@
 -- The cat in each player's arms (Derek 2026-10-28: "hold it in your arms crossed arms and it should be either awake
 -- loafing or sitting in your arms"). While a character carries a cat (`CarryingCatId`, set by CatService with the
 -- HeldCat) Tackle.luau folds its arms across its chest by `Carry.weight` (Avatar.carryArms), and the HeldCat the
--- server welded in front of it rests on those arms instead: awake, loafing on the walking body or sitting up on the
--- sitting one (Logic's "held"), put on the arms before each frame draws (Avatar.cradle) and posed like any cat.
+-- server welded in front of it rests on those arms instead: awake and loafing (Logic's "held"; Derek 14:16 picked
+-- the loaf over sitting up), put on the arms before each frame draws (Avatar.cradle) and posed like any cat.
 -- To move it, this client lets go of the HeldCat's welds and anchors its parts, here only: the server keeps its weld,
 -- so where the server has the cat, and every other client's own copy, are unchanged. Past the animation radius,
 -- hidden by Show other cats, or once the carry ends, the parts go back where the server had them and the welds come
@@ -167,8 +167,7 @@ local function place()
 		if catRig == nil then
 			continue
 		end
-		local hold = if catRig.kind == "sit" then "sit" else "loaf"
-		local floor = Avatar.cradle(entry.rig, hold, frameOf)
+		local floor = Avatar.cradle(entry.rig, "loaf", frameOf)
 		if floor == nil or not Pose.read(catRig) then
 			release(entry)
 			continue

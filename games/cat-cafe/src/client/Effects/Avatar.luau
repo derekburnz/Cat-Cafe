@@ -558,7 +558,8 @@ function Avatar.holdWeight(
 end
 
 -- The hand that holds the net (the RightHand on R15, the Right Arm on R6) and where the net's Grip goes in that
--- part's space: its RightGripAttachment's spot, or Presets.netHold's, with the pole tipped forward.
+-- part's space: its RightGripAttachment's spot, or Presets.netHold's, with the pole tipped forward and the hoop
+-- turned to open forward.
 function Avatar.netHand(rig: Rig): (BasePart?, CFrame)
 	local h = Presets.netHold
 	local r15 = rig.joints.RightElbow ~= nil
@@ -571,7 +572,10 @@ function Avatar.netHand(rig: Rig): (BasePart?, CFrame)
 		then (attachment :: Attachment).Position
 		elseif r15 then h.grip
 		else h.grip6
-	return hand, CFrame.new(spot) * CFrame.Angles(math.rad(if r15 then h.tilt else h.tilt6), 0, 0)
+	return hand,
+		CFrame.new(spot)
+			* CFrame.Angles(math.rad(if r15 then h.tilt else h.tilt6), 0, 0)
+			* CFrame.Angles(0, 0, math.rad(h.roll))
 end
 
 -- Whether a character carries a cat in its arms: a `CarryingCatId` (CatService sets it while the HeldCat is on) and

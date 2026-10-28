@@ -40,6 +40,7 @@ GARDEN, SUNDIAL = (46.0, 40.0), (63.0, 28.0)
 HEDGE_A, GAP_A = -34.5, (31.0, 45.0)   # first hedge row, gap at the east end
 HEDGE_B, GAP_B = 20.0, (-45.0, -31.0)  # second hedge row, gap at the west end
 PLAY = (-49.0, 41.0, 44.0, 26.0)     # playground mat centre and size
+BARRIER_H = 30.0                     # invisible walls on the hedges and the outer walls: no jumping over from a prop
 
 
 def bl(x, z, h=0.0):
@@ -247,22 +248,35 @@ def _walls(s, mat):
             if i < 2:
                 s.put(pillar(mat, h=5.2), sx * (c + L / 2 + 0.9), -IN_Z, 180)
         s.put(pillar(mat, top="lantern", h=7.0), sx * GATE_HALF, -IN_Z, 180)                 # by the gate
+    # an invisible wall in the band the walls stand in, all round but the gate: WorldBuilder's walls are 6 high and a
+    # jump from a bench or an urn clears 10, so this keeps everyone in (and out of a locked Park) but at the gate
+    bar = Builder()
+    ox = IN_X + WALL_D
+    bar.box_base((0, IN_Z + WALL_D / 2, 0), (2 * ox, WALL_D, BARRIER_H), "offwhite", bevel=False)            # far
+    for sx in (-1, 1):
+        bar.box_base((sx * (IN_X + WALL_D / 2), 0, 0), (WALL_D, 2 * IN_Z, BARRIER_H), "offwhite", bevel=False)  # sides
+        bar.box_base((sx * (GATE_HALF + ox) / 2, -(IN_Z + WALL_D / 2), 0), (ox - GATE_HALF, WALL_D, BARRIER_H),
+                     "offwhite", bevel=False)                                                               # town side
+    s.put([bar.finalize(N + "Walls_Barrier", mat)], 0, 0, 0)
 
 
 def _hedge_row(s, mat, z, gap, urns=True):
-    """A hedge row across the area, 6 to 6.8 high, with one gap (x0, x1); a stone urn ends the hedge on each side
-    of the gap, in line with it, so the path through the gap stays clear."""
-    b = Builder()
+    """A hedge row across the area, 8 to 8.8 high, with one gap (x0, x1); a stone urn ends the hedge on each side
+    of the gap, in line with it, so the path through the gap stays clear. A `_Barrier` 30 high on the hedge's own
+    footprint stops anyone jumping onto it (a default jump is 7.2, more from a bench), so the gap is the only way."""
+    b, bar = Builder(), Builder()
     for (a0, a1) in ((-IN_X, gap[0]), (gap[1], IN_X)):
         n = max(1, round((a1 - a0) / 8.0))
         step = (a1 - a0) / n
         for i in range(n):
-            c, h = a0 + (i + 0.5) * step, 6.0 + 0.4 * (i % 3)
+            c, h = a0 + (i + 0.5) * step, 8.0 + 0.4 * (i % 3)
             sw = ("leaf_dark", "leaf_green")[i % 2]
             x, y, _ = bl(c, z)
             b.box_base((x, y, 0), (step + 0.02 * (i % 2), 2.4 + 0.02 * (i % 2), h), sw, bevel=False)
             b.ico((x, y, h), 1.4, sw, subdivisions=1, scale=(step / 2.6, 0.95, 0.5))
-    s.put([b.finalize(N + "Hedge", mat)], 0, 0, 0)
+        x, y, _ = bl((a0 + a1) / 2, z)
+        bar.box_base((x, y, 0), (a1 - a0, 2.4, BARRIER_H), "offwhite", bevel=False)
+    s.put([b.finalize(N + "Hedge", mat), bar.finalize(N + "Hedge_Barrier", mat)], 0, 0, 0)
     if urns:
         for x in (gap[0] + 0.9, gap[1] - 0.9):
             s.put(urn(mat), x, z, 0)

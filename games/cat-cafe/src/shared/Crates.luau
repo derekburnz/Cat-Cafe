@@ -2,9 +2,10 @@
 -- Cafe Crates (F53, golden-fish.md section 4), pure, so the Market window and the server agree. A crate rolls a
 -- rarity from its odds and then one of that rarity's pieces, each equally likely. The lucky twentieth: after
 -- CrateLuckyEvery - 1 opens of one pool with nothing Epic or better, the next opens on the golden odds. A piece the
--- player owns already pays CrateDuplicateRefund golden fish instead. The cafe has one wallpaper, one floor and one
--- paint in use; furniture and decorations in use are capped by decor spots (DecorSpots by tier plus the Extra Decor
--- Spot perk). A Decor Index page with all ten pieces adds DecorIndexBonus to every tip.
+-- player owns already pays CrateDuplicateRefund golden fish instead. The cafe has one wallpaper, one floor, one
+-- paint, one door set and one cat flap in use (the last two since F80); furniture and decorations in use are capped
+-- by decor spots (DecorSpots by tier plus the Extra Decor Spot perk). A Decor Index page with all twelve pieces adds
+-- DecorIndexBonus to every tip.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -23,9 +24,13 @@ for _, def in Catalog.crates do
 	end
 end
 
--- Wallpaper, floor and paint: one of each in use at a time.
+-- Wallpaper, floor, paint, door set and cat flap: one of each in use at a time.
 function Crates.isStyle(kind: Types.DecorKind?): boolean
-	return kind == "wallpaper" or kind == "floor" or kind == "paint"
+	return kind == "wallpaper"
+		or kind == "floor"
+		or kind == "paint"
+		or kind == "door"
+		or kind == "catflap"
 end
 
 -- The plot model attribute that names each style kind's piece in use, and the CollectionService tag on the cafe
@@ -34,6 +39,13 @@ Crates.STYLE_SLOTS = {
 	{ kind = "wallpaper" :: Types.DecorKind, attribute = "Wallpaper" },
 	{ kind = "floor" :: Types.DecorKind, attribute = "Floor" },
 	{ kind = "paint" :: Types.DecorKind, attribute = "Paint" },
+}
+
+-- The style kinds that swap models instead of colouring parts (F80, golden-fish.md 4b), and the plot model
+-- attribute naming each one's piece in use: the door set in both doorways and the cat flap low in the back door.
+Crates.MODEL_SLOTS = {
+	{ kind = "door" :: Types.DecorKind, attribute = "Door" },
+	{ kind = "catflap" :: Types.DecorKind, attribute = "CatFlap" },
 }
 
 -- The colour and material a style slot shows for `decorId`, or nil when the id is not a style piece of `kind`
@@ -173,7 +185,7 @@ function Crates.styleInUse(profile: Types.PlayerProfile, kind: Types.DecorKind):
 	return nil
 end
 
--- Pieces of `pool` the player owns, out of its ten.
+-- Pieces of `pool` the player owns, out of its twelve.
 function Crates.pageCount(profile: Types.PlayerProfile, pool: string): number
 	local n = 0
 	for _, def in Catalog.crateDecor do

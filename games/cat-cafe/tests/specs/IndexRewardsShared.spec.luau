@@ -29,7 +29,11 @@ return function()
 				expect(table.find({ "normal", "gold", "decor" }, milestone.track) ~= nil).to.equal(true)
 				expect(milestone.needs > 0).to.equal(true)
 				local digits = tonumber(string.match(milestone.id, "%d+$"))
-				expect(digits).to.equal(milestone.needs)
+				-- decor10 keeps its id but needs all twelve pieces since F80 (golden-fish.md 4b)
+				expect(digits).to.equal(if milestone.id == "decor10" then 10 else milestone.needs)
+				if milestone.id == "decor10" then
+					expect(milestone.needs).to.equal(12)
+				end
 			end
 			expect(ids :: any).to.deepEqual({
 				"cats3",
@@ -131,7 +135,7 @@ return function()
 			})
 		end)
 
-		it("gives each Decor Index page 25 fish at five pieces and +5% tips forever at ten", function()
+		it("gives each Decor Index page 25 fish at five pieces and +5% tips forever at all twelve", function()
 			for _, pool in POOLS do
 				local page = Catalog.indexPrizes["decor_" .. pool]
 				assert(page)
@@ -315,7 +319,7 @@ return function()
 				end
 			end
 			expect(IndexRewards.blocker(profile, "decor_park", "decor5")).never.to.be.ok()
-			expect(IndexRewards.blocker(profile, "decor_park", "decor10")).to.equal("Find 5 more pieces first")
+			expect(IndexRewards.blocker(profile, "decor_park", "decor10")).to.equal("Find 7 more pieces first")
 			expect(IndexRewards.blocker(profile, "decor_woods", "decor5")).to.equal("Find 5 more pieces first")
 			expect(IndexRewards.blocker(profile, "decor_park", "gold1")).to.equal("Unknown reward")
 		end)

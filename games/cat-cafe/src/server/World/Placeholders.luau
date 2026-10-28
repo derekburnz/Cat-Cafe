@@ -1373,6 +1373,61 @@ for _, def in Catalog.crateDecor do
 	end
 end
 
+-- Door sets and cat flaps (F80, golden-fish.md 4b) until the asset thread models them, front toward -Z and the pivot
+-- at the bottom centre. A door set is one leaf in the piece's rarity colour with a knob, 4 wide and 7.2 tall so it
+-- fits the 7 stud front doorway and the 6 stud back one, and a `CatFlap` attachment at the bottom of its front face
+-- where a flap goes. A cat flap is a small square in its rarity colour with a darker hood.
+for _, def in Catalog.crateDecor do
+	if (def.kind ~= "door" and def.kind ~= "catflap") or builders[def.asset] ~= nil then
+		continue
+	end
+	local name = def.asset
+	local color = hexColor(Catalog.rarities[def.rarity or "Common"].color)
+	if def.kind == "door" then
+		builders[name] = function()
+			local model = simple(name, {
+				{
+					name = "Leaf",
+					size = Vector3.new(4, 7.2, 0.3),
+					offset = Vector3.new(0, 3.6, 0),
+					color = color,
+					material = Enum.Material.WoodPlanks,
+				},
+				{
+					name = "Knob",
+					size = Vector3.new(0.35, 0.35, 0.35),
+					offset = Vector3.new(1.5, 3.4, -0.3),
+					color = INDEX_GOLD,
+					material = Enum.Material.Metal,
+					shape = Enum.PartType.Ball,
+				},
+			})
+			local flap = Instance.new("Attachment")
+			flap.Name = "CatFlap"
+			flap.Position = Vector3.new(0, -3.6, -0.15) -- relative to the leaf's centre: its foot, front face
+			flap.Parent = model:FindFirstChild("Leaf")
+			return model
+		end
+	else
+		builders[name] = function()
+			return simple(name, {
+				{
+					name = "Flap",
+					size = Vector3.new(1.4, 1.4, 0.1),
+					offset = Vector3.new(0, 0.9, -0.05),
+					color = color,
+				},
+				{
+					name = "Hood",
+					size = Vector3.new(1.7, 0.25, 0.2),
+					offset = Vector3.new(0, 1.7, -0.1),
+					color = color:Lerp(DARK, 0.4),
+				},
+			})
+		end
+	end
+end
+
 -- The Golden Fish Market (F53, golden-fish.md section 3) until the art is synced: a fishmonger's counter under a
 -- striped awning, a crate of golden fish on top and a sign, front toward -Z. PromptAnchor sits at the front, 3 up.
 builders.CatCafe_Street_FishMarket = function()

@@ -213,11 +213,27 @@ function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
 	plot.backDoor.Transparency = if open or plot.backDoorArt ~= nil then 1 else 0
 end
 
+-- A back door's CLOSED UNTIL SUNRISE sign comes hidden: each part of its `_Sign` plate and `_Sign_Bulb` models keeps
+-- its look in NightTransparency for DoorController and the bulbs' day look is hidden, so WorldController lights them
+-- at night only. The cafe's own back door art and an F80 door set's back door (CafeService) both carry one.
+function WorldBuilder.hideSignByDay(model: Model)
+	for _, descendant in model:GetDescendants() do
+		local holder = descendant.Parent
+		if
+			descendant:IsA("BasePart")
+			and holder ~= nil
+			and (holder.Name:sub(-5) == "_Sign" or holder.Name:sub(-10) == "_Sign_Bulb")
+		then
+			local piece = descendant :: BasePart
+			piece:SetAttribute("NightTransparency", piece.Transparency)
+			piece.Transparency = 1
+		end
+	end
+end
+
 -- The real back door (Model-Agent #509) at the plot's pivot, tagged CafeBackDoor: the threshold and architrave stay
 -- put and each client swings the _Leaf and turns the _Flap (DoorController). Nothing on it collides or blocks a ray,
--- so the code-built panel stays the collider. Its CLOSED UNTIL SUNRISE sign comes hidden, each plate part's look
--- kept in NightTransparency for DoorController and each bulb's day look hidden, so WorldController lights the bulbs
--- at night only.
+-- so the code-built panel stays the collider. Its sign comes hidden (hideSignByDay).
 local function buildBackDoorArt(cframe: CFrame, parent: Instance): Model
 	local art = AssetRegistry.clone(BACK_DOOR_ART)
 	art.Name = "BackDoorArt"
@@ -229,19 +245,9 @@ local function buildBackDoorArt(cframe: CFrame, parent: Instance): Model
 			piece.CanCollide = false
 			piece.CanQuery = false
 			piece.CanTouch = false
-			local holder = piece.Parent
-			if
-				holder ~= nil
-				and (
-					holder.Name == BACK_DOOR_ART .. "_Sign"
-					or holder.Name == BACK_DOOR_ART .. "_Sign_Bulb"
-				)
-			then
-				piece:SetAttribute("NightTransparency", piece.Transparency)
-				piece.Transparency = 1
-			end
 		end
 	end
+	WorldBuilder.hideSignByDay(art)
 	art:PivotTo(cframe)
 	CollectionService:AddTag(art, "CafeBackDoor")
 	art.Parent = parent

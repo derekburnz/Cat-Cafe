@@ -2,7 +2,8 @@
 -- The cafe back door's swing (Model-Agent #509; Derek 2026-10-28 01:28: players walk through the door, cats use the
 -- flap), pure: when the leaf stands open and how the leaf and the cat flap move. Client/DoorController moves the art.
 -- Angles are degrees: the leaf turns about its hinge's Y, OPEN_DEGREES out into the yard; the flap turns about its
--- top hinge's X, negative out into the yard and positive into the cafe.
+-- top hinge's X, negative out into the yard and positive into the cafe. An F80 door set's back leaf swings the same
+-- way, and its two front leaves stand open into the cafe by day (Model-Agent, F80).
 
 local BackDoor = {}
 
@@ -15,20 +16,23 @@ BackDoor.FLAP_MAX = 60 -- the most the flap turns either way
 BackDoor.FLAP_RATE = 12 -- how fast a pushing cat swings it, as LEAF_RATE
 BackDoor.FLAP_SPRING = 140 -- degrees a second squared per degree off rest, once the cat is through
 BackDoor.FLAP_DAMPING = 5 -- per second, so it rocks a few times and settles
+BackDoor.FRONT_OPEN_DEGREES = 90 -- a door set's front leaves by day, each flat against the wall inside
 
--- Whether the leaf stands open: while the areas are open (by day), on an owned cafe that shows its own back door
--- (no F80 door set in its place), with a player's character `nearest` studs from the doorway, within OPEN_RANGE.
-function BackDoor.wantsOpen(
-	areasOpen: boolean,
-	owned: boolean,
-	replaced: boolean,
-	nearest: number?
-): boolean
-	return areasOpen
-		and owned
-		and not replaced
-		and nearest ~= nil
-		and nearest <= BackDoor.OPEN_RANGE
+-- Whether the leaf stands open: while the areas are open (by day), on an owned cafe, with a player's character
+-- `nearest` studs from the doorway, within OPEN_RANGE. The leaf is the cafe's own or an F80 door set's.
+function BackDoor.wantsOpen(areasOpen: boolean, owned: boolean, nearest: number?): boolean
+	return areasOpen and owned and nearest ~= nil and nearest <= BackDoor.OPEN_RANGE
+end
+
+-- Which way a door set's front leaf named `name` turns to open (Model-Agent, F80: `_LeafL` -90 about its hinge's Y
+-- and `_LeafR` +90, both into the cafe), or nil for any other part of the model.
+function BackDoor.frontTurn(name: string): number?
+	if name:sub(-6) == "_LeafL" then
+		return -1
+	elseif name:sub(-6) == "_LeafR" then
+		return 1
+	end
+	return nil
 end
 
 -- The leaf's angle `dt` seconds on from `angle`, easing toward `target`; it lands on the target within half a degree.

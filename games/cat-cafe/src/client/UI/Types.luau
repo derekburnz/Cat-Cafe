@@ -55,7 +55,14 @@ export type Catalog = {
 	questPrizes: { [string]: IndexPrize }?,
 	achievements: { AchievementDef }?,
 	achievementPrizes: { [string]: IndexPrize }?,
+	dailyTreat: { DailyTreatDay }?, -- F70: Catalog.dailyTreat, the Daily Treat card's seven days (data-model 11e)
 }
+
+-- The Daily Treat (F70, data-model section 11e): one day of the card, its prize in the Index prize shape, and what
+-- ProfileSync sends: `stamp` the last day paid (0 on a fresh card, 7 on a full one), `lastDay` the UTC day number
+-- (os.time() // 86400) of that claim, `due` whether a stamp can be claimed now and `nextDay` the day it pays.
+export type DailyTreatDay = { day: number, prize: IndexPrize? }
+export type DailyTreatView = { stamp: number, lastDay: number, due: boolean, nextDay: number }
 
 -- Quests and achievements (F73, quests.md sections 6 and 7), read loosely: a catalog quest row (`stat`
 -- "lifetimeCoins" makes it a coins quest), an achievement, and what ProfileSync sends for them. Progress comes capped
@@ -246,6 +253,7 @@ export type PlayerState = {
 	buffs: { [string]: number }?, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
 	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
+	dailyTreat: DailyTreatView?, -- F70: the Daily Treat window's card and the HUD's Daily tile
 }
 
 -- Partial update accepted by UI.update. Every field optional. Tables replace, not deep-merge,
@@ -282,6 +290,7 @@ export type PartialState = {
 	buffs: { [string]: number }?,
 	quests: QuestsView?,
 	achievements: { [string]: AchievementView }?,
+	dailyTreat: DailyTreatView?,
 }
 
 export type ScreenName =
@@ -301,6 +310,7 @@ export type ScreenName =
 	| "Codes"
 	| "Potions"
 	| "Quests"
+	| "DailyTreat"
 
 export type ToastKind = "info" | "good" | "warn" | "announce"
 

@@ -3,7 +3,7 @@
 --   top left      a compact money pill with the rate beside the amount, the golden fish pill under it (F52); a tap
 --                 on either shows the exact amount
 --   top centre    cafe tier pill
---   top right     small icon buttons (Tutorial, Gifts, Settings, Invite) and the day and night clock chip, the next
+--   top right     small icon buttons (Tutorial, Gifts, Daily, Settings, Invite) and the day and night clock chip, the next
 --                 goal card under them and the quest line under that (F73: the closest unfinished daily, "📜 Catch
 --                 5 cats 3/5", or "📜 2 ready to claim"; a tap opens Quests)
 --   left          big pill buttons: Cats, Index, Quests, Upgrades, Decor, Potions, with key caps and red "!" dots,
@@ -73,6 +73,7 @@ export type HUD = {
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
+	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
@@ -105,6 +106,7 @@ local TRAVEL_W = 136
 local TRAVEL_H = 50 -- every bottom row button, My Cafe too (Derek 2026-10-27 22:26: no bigger, no ears)
 local TRAVEL_ROW_W = 4 * TRAVEL_W + 3 * Theme.sizes.gap
 local ICON = 58 -- top right icon buttons
+local ICON_ROW_W = 5 * ICON + 4 * Theme.sizes.gap -- Tutorial, Gifts, Daily (F70), Settings and Invite
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
@@ -127,7 +129,7 @@ local NIGHT_CHIP = 24 + 4
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
 -- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
 -- screen's right edge that stretch may stop and still count.
-local RIGHT_COLUMN_W = 300
+local RIGHT_COLUMN_W = math.max(300, ICON_ROW_W)
 local QUEST_LINE_W = 300 -- F73: the quest line under the goal card
 local QUEST_LINE_H = 24
 local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutorial): the quest line waits for it
@@ -464,13 +466,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Icon row (top right): small square buttons like the calendar, mail and gear icons of popular simulators.
 	-- Tutorial replays the intro (F72), Gifts opens the Tip Jar (F47) and counts down to the next playtime gift,
-	-- the gear opens Settings, Invite opens Roblox's own invite window; Daily and Mail join them as they arrive.
+	-- Daily opens the Daily Treat card (F70), the gear opens Settings, Invite opens Roblox's own invite window.
 	local icons: Frame = Create("Frame", {
 		Name = "Icons",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, MARGIN),
-		Size = UDim2.fromOffset(4 * ICON + 3 * Theme.sizes.gap, ICON),
+		Size = UDim2.fromOffset(ICON_ROW_W, ICON),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -587,6 +589,39 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		ZIndex = 7,
 		Parent = giftDot,
 	})
+	-- Daily (F70): the Daily Treat card, once ProfileSync has it; "Claim!" and a red dot while a stamp is due
+	local daily = Button.new({
+		name = "Daily",
+		text = "Daily",
+		icon = Theme.icons.daily,
+		layout = "tile",
+		textSize = Theme.sizes.textTiny,
+		style = "primary",
+		size = UDim2.fromOffset(ICON, ICON),
+		layoutOrder = 3,
+		parent = icons,
+		sound = false, -- the modal swish is the sound
+		onClick = function()
+			callbacks.openScreen("DailyTreat")
+		end,
+	})
+	daily.instance.Visible = false
+	table.insert(self._buttons, daily)
+	self._daily = daily
+	self._dailyText = "Daily"
+	local dailyDot: Frame = Create("Frame", {
+		Name = "Dot",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -4, 0, 4),
+		Size = UDim2.fromOffset(18, 18),
+		Visible = false,
+		ZIndex = 6,
+		Parent = daily.instance,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(dailyDot, 2)
+	self._dailyDot = dailyDot
 	table.insert(
 		self._buttons,
 		Button.new({
@@ -597,7 +632,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textTiny,
 			style = "ghost",
 			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 3,
+			layoutOrder = 4,
 			parent = icons,
 			onClick = function()
 				callbacks.openScreen("Settings")
@@ -614,7 +649,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			textSize = Theme.sizes.textTiny,
 			style = "secondary",
 			size = UDim2.fromOffset(ICON, ICON),
-			layoutOrder = 4,
+			layoutOrder = 5,
 			parent = icons,
 			onClick = function()
 				task.spawn(function()
@@ -1863,6 +1898,22 @@ function HUD.setTipJar(self: any, summary: { ready: number, nextIn: number?, lef
 	end
 	self._giftDot.Visible = ready
 	self._giftCount.Text = tostring(summary.ready)
+end
+
+-- The Daily tile (F70): shown once ProfileSync has the Daily Treat card; "Claim!" with a red dot while a stamp is
+-- due, else "Daily".
+function HUD.setDailyTreat(self: any, shown: boolean, due: boolean)
+	local tile: Button.Button = self._daily
+	tile.instance.Visible = shown
+	local text = if due then "Claim!" else "Daily"
+	if text ~= self._dailyText then
+		self._dailyText = text
+		tile:setText(text)
+	end
+	if due and not self._dailyDot.Visible then
+		Tween.popIn(self._dailyDot, 0.5)
+	end
+	self._dailyDot.Visible = due
 end
 
 -- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot.

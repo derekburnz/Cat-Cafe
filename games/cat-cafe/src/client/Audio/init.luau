@@ -1288,10 +1288,11 @@ local HANDLERS: { [string]: (...any) -> () } = {
 		Audio.play("catDrop", vec(position) or you())
 	end,
 	-- Fast travel, the My Cafe button and the manholes, once the server says the trip worked.
-	Travel = function()
+	Travel = function(destination: any)
 		lastTravelAt = os.clock()
-		-- F84: leaving a wild area is a cloud hop (its gap keeps CloudHopAt from playing it twice)
-		Audio.play(if youInWild() or youHopping() then "cloudHop" else "travelPoof")
+		-- F84: Home from a wild area is a cloud hop (its gap keeps CloudHopAt from playing it twice), the Cannon button
+		-- a poof (Logic.travelCue)
+		Audio.play(Logic.travelCue(destination, youInWild(), youHopping()))
 	end,
 	-- Roles (Staff tab, Equip Best, Unequip All): one sound however many cats change in the same sync.
 	CatPlaced = function()

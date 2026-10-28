@@ -65,7 +65,18 @@ def flower_clump(f, x, y, z, colours=("blush", "sparkle", "offwhite", "nose_pink
 
 
 # ------------------------------------------------------------------------------------------------ arches --
-def _arch(name, mat, inner, front, back):
+def _sign_lines(b, lines, z, facing, y0, y1):
+    """Lines of (text, px) stacked and centred between y0 and y1 on a face at depth z, a gap of one px between."""
+    h = sum(5 * px for _, px in lines) + sum(px for _, px in lines[1:])
+    y = (y0 + y1) / 2 + h / 2
+    for k, (s, px) in enumerate(lines):
+        y -= 5 * px
+        label(b, s, 0, y, z, px, 0.07, "offwhite", facing)
+        y -= px
+
+
+def _arch(name, mat, inner, front, back, board_top=13.28):
+    """`front` and `back` are a name in one line, or a list of (text, px) lines for a narrow arch."""
     b, flowers, lamps, bulbs = RB(), RB(), RB(), RB()
     half, post, top = inner / 2, 2.0, 13.0
     for s in (-1, 1):
@@ -86,15 +97,17 @@ def _arch(name, mat, inner, front, back):
             b.span((bx - 0.15, 6.2, dz - 0.15), (bx + 0.15, 7.1, dz + 0.15), "leaf_dark")
     # iron beam, sign board and the curved top
     b.span((-half, 10.0, -0.35), (half, 10.5, 0.35), "fur_black")
-    bw = inner - 3.0
-    b.span((-bw / 2, 10.52, -0.25), (bw / 2, 13.28, 0.25), "sign_teal")                   # edges tucked into the trim
-    for (xa, xb, ya, yb) in ((-bw / 2 - 0.2, bw / 2 + 0.2, 10.5, 10.75), (-bw / 2 - 0.2, bw / 2 + 0.2, 13.05, 13.3),
-                             (-bw / 2 - 0.2, -bw / 2 + 0.05, 10.5, 13.3), (bw / 2 - 0.05, bw / 2 + 0.2, 10.5, 13.3)):
+    bw, bt = inner - 3.0, board_top
+    b.span((-bw / 2, 10.52, -0.25), (bw / 2, bt, 0.25), "sign_teal")                      # edges tucked into the trim
+    for (xa, xb, ya, yb) in ((-bw / 2 - 0.2, bw / 2 + 0.2, 10.5, 10.75), (-bw / 2 - 0.2, bw / 2 + 0.2, bt - 0.23, bt + 0.02),
+                             (-bw / 2 - 0.2, -bw / 2 + 0.05, 10.5, bt + 0.02), (bw / 2 - 0.05, bw / 2 + 0.2, 10.5, bt + 0.02)):
         b.span((xa, ya, -0.32), (xb, yb, 0.32), TRIM)
-    px = 0.42
-    label(b, front, 0, 10.85, -0.25, px, 0.07, "offwhite", -1)
-    label(b, back, 0, 10.85, 0.25, px, 0.07, "offwhite", 1)
-    n, rise, y0 = 12, max(2.0, inner / 14), 13.3                                        # wider arches curve more
+    for words, z, facing in ((front, -0.25, -1), (back, 0.25, 1)):
+        if isinstance(words, str):
+            label(b, words, 0, 10.85, z, 0.42, 0.07, "offwhite", facing)
+        else:
+            _sign_lines(b, words, z, facing, 10.75, bt - 0.23)
+    n, rise, y0 = 12, max(2.0, inner / 14), bt + 0.02                                   # wider arches curve more
     pts = [(-half + inner * k / n, y0 + rise * (1 - (2 * k / n - 1) ** 2)) for k in range(n + 1)]
     for p0, p1 in zip(pts, pts[1:]):
         bar(b, p0, p1, 0.3, -0.15, 0.15, "fur_black")

@@ -758,6 +758,25 @@ Presets.motion = {
 		huffEvery = 0.7,
 		huff = 2,
 	},
+	-- Balloon Cat (F78, design v0.13: "it bobs as if it might float off"): a cat in `cats` lifts off its paws and
+	-- settles back once every `seconds`, rising over `rise` of it and coming down over `fall`, then resting on its
+	-- paws for the rest; every `tugEvery`th bob the balloons pull it up to `tugStuds` instead of `studs`. While it is
+	-- up its legs hang `dangle` degrees apart, the tail lifts `tail` and it sways `sway` degrees about every
+	-- `swaySeconds`. Asleep or loafing it floats `resting` as high; stuck in a trap or galloping it stays down.
+	float = {
+		cats = { balloon = true } :: { [string]: boolean },
+		studs = 0.14,
+		tugStuds = 0.3,
+		tugEvery = 4,
+		seconds = 2.2,
+		rise = 0.5,
+		fall = 0.35,
+		dangle = 8,
+		tail = 15,
+		sway = 3,
+		swaySeconds = 3.1,
+		resting = 0.5,
+	},
 }
 
 -- Model-Agent's piece poses for the new bodies (manifest `cat_poses`, PR #259), copied here because the

@@ -3,9 +3,10 @@
 -- cafe stations, naps (and every working cat asleep at its station at night, when the cafe is closed: curled up,
 -- or dozing where it sits or stands in its outfit, F25 and PR #260), the resting cat's loaf now and then, stuck
 -- cats struggling in their traps, strays looking around, legs that walk and gallop with the cat's real speed, the
--- pant after a sprint and the hiss hop on a missed catch. Only the nearest few within range move
--- (budget.animatedCats within budget.animRadius); the rest stand as the server placed them. Gold cats in range
--- sparkle, a gold coat seen for the first time bursts with gold sparkles, and napping cats show floating z's.
+-- pant after a sprint, the hiss hop on a missed catch and the Balloon Cat bobbing as if it might float off (F78).
+-- Only the nearest few within range move (budget.animatedCats within budget.animRadius); the rest stand as the
+-- server placed them. Gold cats in range sparkle, a gold coat seen for the first time bursts with gold sparkles,
+-- and napping cats show floating z's.
 --
 -- Cats come from replicated world state only: the Stray and StuckCat tags, models inside a Plot with a CatId,
 -- Napping or Pose attribute (working cats under Plot/Cats, napping cats; data-model section 13), and the HeldCat
@@ -43,6 +44,7 @@ type Entry = {
 	yarn: BasePart?,
 	naps: { TextLabel }?,
 	napGui: BillboardGui?,
+	floats: boolean, -- a cat that bobs as if it might float off (motion.float.cats: Balloon Cat)
 }
 
 local ROLES: { [string]: Logic.Style } = {
@@ -427,6 +429,11 @@ local function dress(entry: Entry)
 	end
 end
 
+local function canFloat(model: Model): boolean
+	local id = model:GetAttribute("CatId")
+	return type(id) == "string" and Presets.motion.float.cats[id] == true
+end
+
 local function bind(model: Model): Entry?
 	local rig = Pose.bind(model)
 	if rig == nil then
@@ -453,6 +460,7 @@ local function bind(model: Model): Entry?
 		yarn = nil,
 		naps = nil,
 		napGui = nil,
+		floats = canFloat(model),
 	}
 	active[model] = entry
 	dress(entry)
@@ -626,13 +634,19 @@ local function step(dt: number)
 		end
 		local t = now + entry.phase
 		local o = Logic.idle(entry.style, t, rig.kind)
+		local float = if entry.floats then Logic.floatShare(entry.style) else 0
 		local from: Logic.Style? = entry.from
 		if from ~= nil then
 			local k = (now - entry.changedAt) / entry.settleFor
 			if k >= 1 then
 				entry.from = nil
 			else
-				o = Logic.mix(Logic.idle(from, t, rig.kind), o, k * k * (3 - 2 * k))
+				local eased = k * k * (3 - 2 * k)
+				o = Logic.mix(Logic.idle(from, t, rig.kind), o, eased)
+				if entry.floats then
+					local was = Logic.floatShare(from)
+					float = was + (float - was) * eased
+				end
 			end
 		end
 		-- F40: a stray that ran from a missed catch catches its breath until FleeingUntil.
@@ -651,6 +665,7 @@ local function step(dt: number)
 		else
 			Logic.gait(o, rig.speed, rig.stride)
 		end
+		Logic.float(o, t, float * (1 - Logic.runFactor(rig.speed)))
 		if Logic.runFactor(rig.speed) > 0.3 and now - entry.dustAt >= gait.dustEvery then
 			entry.dustAt = now
 			Particles.burst("kick", Pose.floor(rig).Position, gait.dust)

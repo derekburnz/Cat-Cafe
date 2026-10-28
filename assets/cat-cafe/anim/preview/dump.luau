@@ -205,9 +205,12 @@ end
 local Z_STYLES = { nap = true, doze = true }
 
 -- The same composition as Effects/Cats.luau's step: the style's idle, a settle from the last style, the gait,
--- the stretch (where a segment says `stretch = true`, as when the server sets a stray's StretchAt). Older Effects
--- folders without a function here just skip it.
+-- the Balloon Cat's float (a scenario's `attributes.CatId` in motion.float.cats), the stretch (where a segment says
+-- `stretch = true`, as when the server sets a stray's StretchAt). Older Effects folders without a function here
+-- just skip it.
 local Presets = modules.Presets
+local catId = model:GetAttribute("CatId")
+local floats = Logic.float ~= nil and type(catId) == "string" and Presets.motion.float.cats[catId] == true
 local fps = scenario.fps or 24
 local frames = {}
 local style, from, changedAt = nil, nil, 0
@@ -242,15 +245,24 @@ for _, segment in scenario.segments do
 		Pose.read(rig)
 		local t = clock + (scenario.phase or 0)
 		local o = Logic.idle(style, t, rig.kind)
+		local float = if floats then Logic.floatShare(style) else 0
 		if from ~= nil then
 			local k = (clock - changedAt) / settleFor
 			if k >= 1 then
 				from = nil
 			else
-				o = Logic.mix(Logic.idle(from, t, rig.kind), o, k * k * (3 - 2 * k))
+				local eased = k * k * (3 - 2 * k)
+				o = Logic.mix(Logic.idle(from, t, rig.kind), o, eased)
+				if floats then
+					local was = Logic.floatShare(from)
+					float = was + (float - was) * eased
+				end
 			end
 		end
 		Logic.gait(o, rig.speed, rig.stride)
+		if floats then
+			Logic.float(o, t, float * (1 - Logic.runFactor(rig.speed)))
+		end
 		if stretchAt ~= nil and Logic.stretch then
 			local alpha = (clock - stretchAt) / Presets.motion.stretch.seconds
 			if alpha >= 1 then

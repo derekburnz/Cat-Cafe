@@ -801,6 +801,47 @@ function Logic.pant(o: Offsets, t: number)
 	o.tailYaw *= 0.4
 end
 
+-- How much of the Balloon Cat's float (motion.float) a style gets: all of it awake, `resting` of it asleep or
+-- loafing, none stuck in a trap.
+function Logic.floatShare(style: Style): number
+	if style == "stuck" then
+		return 0
+	elseif style == "nap" or style == "loaf" or style == "doze" then
+		return Presets.motion.float.resting
+	end
+	return 1
+end
+
+-- The Balloon Cat's bob (F78, motion.float), layered on everything else by `share` (Logic.floatShare, less while it
+-- runs): the whole cat lifts off its paws and settles back, every few bobs pulled higher, swaying as it hangs with
+-- its legs a little apart (on its feet only) and its tail up.
+function Logic.float(o: Offsets, t: number, share: number)
+	if share <= 0 then
+		return
+	end
+	local f = Presets.motion.float
+	local cycle = t / f.seconds
+	local into = cycle % 1
+	local up = 0
+	if into < f.rise then
+		local k = into / f.rise
+		up = k * k * (3 - 2 * k)
+	elseif into < f.rise + f.fall then
+		local k = (into - f.rise) / f.fall
+		up = 1 - k * k * (3 - 2 * k)
+	end
+	local tug = math.floor(cycle) % f.tugEvery == f.tugEvery - 1
+	up *= share
+	o.bodyY += up * (if tug then f.tugStuds else f.studs)
+	o.bodyRoll += math.rad(f.sway) * up * wave(t, f.swaySeconds)
+	o.tailPitch += math.rad(f.tail) * up
+	local hang = math.rad(f.dangle) * up * (1 - math.max(o.sink, o.sleep, o.loaf))
+	o.pawFL += hang
+	o.pawFR += hang
+	o.pawBL -= hang
+	o.pawBR -= hang
+end
+
 -- The hiss on a missed catch, layered on the idle while `alpha` runs from 0 to 1: the cat rears and hops back
 -- with its head pulled back and its tail straight up.
 function Logic.hiss(o: Offsets, alpha: number)

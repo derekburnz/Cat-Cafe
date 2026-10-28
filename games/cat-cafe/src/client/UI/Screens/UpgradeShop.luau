@@ -9,11 +9,14 @@
 -- Rows are built once per catalog and only their text, colours and buttons change on render. When a row's level goes
 -- up its price button pops, the new stars pop in and flash mint before turning gold, and the row flashes mint, in
 -- step with the sparkle VFX plays where the upgrade shows in the cafe (Reduce Motion keeps only the colour flash).
+-- F82: the Bait bowl's row has two lines in place of its effect line, the next bowl and its wait, then one food's
+-- rarer cats ("Rarer bait cats: Salmon Legendary 8.5% to 9.36%", Components/FoodOdds.bowlStep).
 
 local GuiService = game:GetService("GuiService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local Format = require(script.Parent.Parent.Components.Format)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -324,10 +327,12 @@ function UpgradeShop._buildRows(self: any)
 			Outline.text(star, 1.5)
 			table.insert(stars, star)
 		end
+		-- the Bait bowl's two lines (F82) start a little higher to fit
+		local twoLines = upgrade.id == "lure_bowl"
 		local description = text({
 			Name = "Description",
-			Position = UDim2.fromOffset(TEXT_LEFT, 64),
-			Size = UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, 20),
+			Position = UDim2.fromOffset(TEXT_LEFT, if twoLines then 62 else 64),
+			Size = UDim2.new(1, -(TEXT_LEFT + BUTTON_W + 24), 0, if twoLines then 36 else 20),
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = Theme.modal.subtext,
 			Text = upgrade.description,
@@ -516,6 +521,16 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		row.level = level
 		if upgradeId == "net" and level ~= before then
 			IconArt.setImage(row.glyph, ShopIcons.net(level), 1.25) -- the net the row offers next
+		end
+		if upgradeId == "lure_bowl" and catalog then
+			-- the next bowl and its wait, with the Big Bowl perk's fifth off when owned (F82)
+			local fishPerks: { [string]: number } = state.fishPerks or {}
+			local bigBowl = (fishPerks.big_bowl or 0) >= 1
+			if level ~= before or bigBowl ~= row.bigBowl then
+				row.bigBowl = bigBowl
+				local first, second = FoodOdds.bowlStep(catalog, level, bigBowl)
+				row.description.Text = first .. "\n" .. (second or def.description)
+			end
 		end
 		if before ~= nil and level > before then
 			self:_celebrate(row, before, level)

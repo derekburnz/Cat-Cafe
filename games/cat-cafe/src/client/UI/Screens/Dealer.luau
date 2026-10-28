@@ -5,7 +5,8 @@
 -- for an amount of 0; the amounts are the same on every server (Components/DealerRows). The five-rarity odds
 -- sit on every row before Buy as one short row, each rarity in its colour (Derek 2026-10-28), and Details opens the
 -- food's line, the gold chance, the charm star odds, the chance of each stock amount and the per-cat split (the
--- growth thread's rules for random items); each food wears its grade badge and border (F69). What is for sale comes
+-- growth thread's rules for random items); each food wears its grade badge and border (F69). F82: the odds and the
+-- split are the player's bowl level's (shared Bait, as the server rolls). What is for sale comes
 -- only from UI.dealer.setStock (the DealerStock remote); the screen never guesses stock, and the server recomputes
 -- it on every BuyDealerFood.
 -- Opened by the cart's prompt (UI.dealer.open).
@@ -116,6 +117,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._near = nil :: boolean?
 	self._pending = {} :: { [string]: number } -- lureId -> os.clock() when the wait for DealerStock ends
 	self._tier = 0
+	self._bowlLevel = 0 -- lure_bowl (F82): the odds rows are this level's
 	self._extras = "" -- the gold and charm line the Details were written with
 	self._accumulator = 0
 
@@ -396,11 +398,11 @@ function Dealer._buildRows(self: any)
 			details = details,
 			detail = detail,
 			odds = odds,
-			split = nil :: string?, -- the per-cat split for the tier last drawn
+			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			group = group,
 		})
 	end
-	self._tier = -1 -- rebuild the split text on the next render
+	self._tier = -1 -- rebuild the odds and split text on the next render
 	self._extras = ""
 end
 
@@ -503,11 +505,17 @@ function Dealer._renderAll(self: any)
 	end
 	assert(state, "state")
 	local catalog: Types.Catalog? = self._catalog
-	local tierChanged = catalog ~= nil and state.tier ~= self._tier
-	if catalog and tierChanged then
+	-- the odds row and the split are the bowl level's (F82), the split the tier's areas too
+	local bowlLevel: number = state.upgradeLevels.lure_bowl or 0
+	local oddsChanged = catalog ~= nil
+		and (state.tier ~= self._tier or bowlLevel ~= self._bowlLevel)
+	if catalog and oddsChanged then
 		self._tier = state.tier
+		self._bowlLevel = bowlLevel
 		for _, row in self._rows do
-			row.split = FoodOdds.split(catalog, row.group.def, state.tier)
+			local def: Types.LureDef = row.group.def
+			row.odds.Text = FoodOdds.rich(FoodOdds.atBowl(def.odds, bowlLevel), rarityHex)
+			row.split = FoodOdds.split(catalog, def, state.tier, bowlLevel)
 		end
 	end
 	-- Details: the food's line, the gold chance with the Index's gold luck (F54) and the running potions (F73) in
@@ -515,7 +523,7 @@ function Dealer._renderAll(self: any)
 	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
 	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
 	local extras = FoodOdds.extras(luck, boosts.goldLuck, boosts.goldScale)
-	if tierChanged or extras ~= self._extras then
+	if oddsChanged or extras ~= self._extras then
 		self._extras = extras
 		local amounts = if catalog then catalog.dealerAmountWeights else nil
 		for _, row in self._rows do

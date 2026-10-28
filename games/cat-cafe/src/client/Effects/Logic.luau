@@ -611,6 +611,32 @@ function Logic.wheelEase(k: number): number
 	return 1 - left * left * left
 end
 
+-- A flat part's thinnest axis, one of its `right`, `up` and `look` vectors by the smallest of `size`'s X, Y and Z,
+-- turned to point the same way as `back`: the Spin Wheel's axle, from its disc, pointing to the back of the station.
+function Logic.thinAxis(
+	right: Vector3,
+	up: Vector3,
+	look: Vector3,
+	size: Vector3,
+	back: Vector3
+): Vector3
+	local axis = if size.X <= size.Y and size.X <= size.Z
+		then right
+		elseif size.Y <= size.Z then up
+		else look
+	return if axis:Dot(back) < 0 then -axis else axis
+end
+
+-- The up direction across a wheel's face: world up with its share along the `axle` taken out, or the station's
+-- `back` the same way for a wheel lying flat.
+function Logic.wheelUp(axle: Vector3, back: Vector3): Vector3
+	local up = Vector3.yAxis - axle * axle.Y
+	if up.Magnitude < 1e-3 then
+		up = back - axle * back:Dot(axle)
+	end
+	return up.Unit
+end
+
 -- Where the world wheel comes to rest after a spin at server time `at`, in radians from where the server placed
 -- it: on the won slice when the station says which (`slice`, 1 to `slices`, slice 1 under the pointer at rest and
 -- the rest counted round the way the wheel turns), somewhere inside it rather than dead centre, never near an

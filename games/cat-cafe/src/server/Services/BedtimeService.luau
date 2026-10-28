@@ -152,6 +152,12 @@ local function toBed(
 		endTrip(uid, trip)
 		return
 	end
+	local existing = if plot ~= nil then plot.cats:FindFirstChild(uid) else nil
+	if existing ~= nil and existing:GetAttribute("Bedtime") == true then
+		-- rebuilt asleep on a spot of its own during the stagger (its slot changed after dark): it stays there
+		endTrip(uid, trip)
+		return
+	end
 	local here = (spot.at.Position - station.Position).Magnitude <= SleepSpots.SAME
 	local model = CafeService.bedtimeBody(player, uid, spot.id, not here)
 	if plot == nil or model == nil then

@@ -14,6 +14,7 @@ local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -88,7 +89,10 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	-- Potion running now doubles the gold chance (F64).
 	local totals = IndexRewards.totals(profile)
 	local now = os.time()
-	local wait = Economy.baitWaitSeconds(profile)
+	-- F60: food set at night comes in half the time, read from the phase now and fixed in readyAt, so a rejoin, a
+	-- server hop or sunrise never moves it
+	local night = ClockService.phase() == "night"
+	local wait = Economy.baitWaitSeconds(profile, night)
 	local goldChance = Potions.baitGoldChance(
 		profile,
 		IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck),
@@ -99,6 +103,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		lureId = lureId,
 		placedAt = now,
 		readyAt = now + wait,
+		night = if night then true else nil,
 		catId = def.id,
 		variant = if rng:NextNumber() < goldChance then "gold" else "base",
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
@@ -118,7 +123,12 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	end
 	Net.toast(
 		player,
-		string.format("%s is in the bowl. A cat will come by in %s.", lure.name, waitText(wait)),
+		string.format(
+			"%s is in the bowl. A cat will come by in %s.%s",
+			lure.name,
+			waitText(wait),
+			if night then " Night bait: half the wait." else ""
+		),
 		"good"
 	)
 	CafeService.refreshPlot(player)

@@ -58,6 +58,7 @@ return function()
 		CatchLatencyCapSeconds = 0.15,
 		-- the bait bowl (F28, section 8)
 		LureWaitSeconds = 600,
+		LureWaitSecondsNight = 300, -- F60: night bait, half the wait
 		BaitBowlRangeStuds = 12,
 		BaitResolveRangeStuds = 20,
 		GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02)
@@ -97,7 +98,7 @@ return function()
 		DealerRangeStuds = 12,
 		DealerWindowSeconds = 600,
 		-- night income and rich customers (F31, sections 11 and 12)
-		NightIncomeMultiplier = 0.6,
+		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
 		RichChance = 0.15,
 		RichTipSeconds = 45,
@@ -321,7 +322,11 @@ return function()
 
 		it("v0.5 night: the cafe closes, so the night owls' spawn time is gone (F44)", function()
 			expect((Config :: any).CustomerSpawnSecondsNight).never.to.be.ok()
-			expect(Config.NightIncomeMultiplier).to.equal(0.6)
+		end)
+
+		it("v0.8 night (F60): full pay, and night bait waits half the day wait", function()
+			expect(Config.NightIncomeMultiplier).to.equal(1)
+			expect(Config.LureWaitSecondsNight * 2).to.equal(Config.LureWaitSeconds)
 		end)
 
 		it("v0.4 stakes: the scripted-press flag clears well below where it sets", function()

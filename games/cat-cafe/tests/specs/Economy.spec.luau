@@ -195,6 +195,23 @@ return function()
 				expect(Economy.baitWaitSeconds(p)).to.equal(372)
 			end)
 
+			it("food set at night waits half: 300 s, 240 with the Big Bowl, then the bait speed (F60)", function()
+				local p = freshProfile()
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(Config.LureWaitSecondsNight)
+				expect(Economy.baitWaitSeconds(p, true)).to.equal(300)
+				expect(Economy.baitWaitSeconds(p, false)).to.equal(600)
+				p.fishPerks.big_bowl = 1
+				expect(Economy.lureWaitSeconds(p, true)).to.equal(240)
+				expect(Economy.lureWaitSeconds(p)).to.equal(480)
+				p.fishPerks.big_bowl = nil
+				local all: { [string]: boolean } = {}
+				for id in Catalog.indexPrizes.all do
+					all[id] = true
+				end
+				p.indexRewards.all = all
+				expect(Economy.baitWaitSeconds(p, true)).to.equal(186)
+			end)
+
 			it("crate and Index pieces are never for sale", function()
 				local p = freshProfile()
 				p.coins = 1e9
@@ -277,7 +294,7 @@ return function()
 			expect(p.coins).to.equal(Config.StartCoins)
 		end)
 
-		it("settle splits the window at phase boundaries, 0.6x by night (F31)", function()
+		it("settle splits the window at phase boundaries, NightIncomeMultiplier by night (F31, F60)", function()
 			-- the clock started at os.time() 1000, so its first night begins at 1000 + ServerStartDaySeconds
 			local epoch = 1000
 			local dusk = epoch + Config.ServerStartDaySeconds
@@ -285,7 +302,7 @@ return function()
 			local earned = Economy.settle(p, dusk + 30, epoch)
 			expect(earned).to.be.near(1.5 * (20 + 30 * Config.NightIncomeMultiplier))
 			expect(p.lastTick).to.equal(dusk + 30)
-			-- all night: 0.6x; and back to day at dawn (each settle grants XP, so read the rate before each)
+			-- all night: NightIncomeMultiplier (1 since F60); and back to day at dawn (each settle grants XP, so read the rate before each)
 			local dawn = dusk + Config.NightLengthSeconds
 			p.lastTick = dawn - 10
 			local rate = Economy.incomePerSecond(p)

@@ -6,8 +6,8 @@
 -- (shared/BackDoor has the rules). While the areas are closed the leaf stays shut, the CLOSED UNTIL SUNRISE sign
 -- shows (its bulbs glow with the other night bulbs, WorldController) and an owned cafe's back door panel turns
 -- solid, as the closed back door art did. An F80 door set in use (the plot's Door attribute) stands in the doorway
--- instead, so the art hides; an F80 cat flap in use (CatFlap) hides the default flap and rides the leaf. Only this
--- client's copy moves.
+-- instead, so the art hides; an F80 cat flap in use (CatFlap) hides the default flap (and its _FlapFrame) and rides
+-- the leaf. Only this client's copy moves.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -32,10 +32,13 @@ type Door = {
 	leaf: Model,
 	leafShut: CFrame, -- the leaf's pivot as built: shut
 	flap: Model?,
+	flapFrame: Model?, -- the default flap's surround and hood, when the art has it apart: hidden with the flap
 	flapRest: CFrame, -- the flap's pivot in the leaf's space, at rest
 	catFlapRest: CFrame?, -- the leaf's CatFlap attachment in the leaf's space, where the server puts an F80 flap
 	decorFlap: Model?, -- the F80 cat flap riding the leaf
 	sign: { BasePart }, -- the sign's plate; its bulbs are WorldController's
+	bulbs: Instance?, -- the sign's _Sign_Bulb model
+	dimmed: { [Light]: boolean }, -- bulb lights put out while the door is hidden
 	angle: number,
 	flapAngle: number,
 	flapSpeed: number,
@@ -113,6 +116,30 @@ local function show(door: Door)
 	end
 end
 
+-- A hidden door's bulbs still turn Neon and get their light at night (WorldController). The Neon hides with the
+-- rest, so only the light is put out here, and lit again when the door shows at night (review N251).
+local function keepLightsOut(door: Door)
+	local bulbs = door.bulbs
+	if bulbs == nil then
+		return
+	end
+	if door.hidden then
+		for _, descendant in bulbs:GetDescendants() do
+			if descendant:IsA("Light") and (descendant :: Light).Enabled then
+				(descendant :: Light).Enabled = false
+				door.dimmed[descendant :: Light] = true
+			end
+		end
+	elseif next(door.dimmed) ~= nil then
+		local clock = ReplicatedStorage:FindFirstChild("Clock")
+		local night = clock ~= nil and clock:GetAttribute("Phase") == "night"
+		for light in door.dimmed do
+			light.Enabled = night
+		end
+		table.clear(door.dimmed)
+	end
+end
+
 -- Owner, clock, door set and cat flap in use: the sign, the panel's night collision and what is hidden.
 local function readState(door: Door, open: boolean)
 	local owner = door.plot:GetAttribute("OwnerUserId")
@@ -134,8 +161,14 @@ local function readState(door: Door, open: boolean)
 	if flap ~= nil and door.flapHidden ~= flapHidden then
 		door.flapHidden = flapHidden
 		setHidden(flap, flapHidden)
+		-- an F80 flap brings its own frame (Model-Agent, F80)
+		local frame = door.flapFrame
+		if frame ~= nil then
+			setHidden(frame, flapHidden)
+		end
 	end
 	setSignShown(door, not open)
+	keepLightsOut(door)
 	-- the closed back door art used to block an owned cafe's back door at night; an empty plot's panel is shut anyway
 	local panel = panelOf(door)
 	if panel ~= nil and door.owned and panel.CanCollide == open then
@@ -260,6 +293,7 @@ local function register(instance: Instance)
 	local attachment = leafModel:FindFirstChild("CatFlap", true)
 	local flapFound = leafModel:FindFirstChild(ART .. "_Flap")
 	local flap = if flapFound ~= nil and flapFound:IsA("Model") then flapFound :: Model else nil
+	local frameFound = leafModel:FindFirstChild(ART .. "_FlapFrame")
 	local sign: { BasePart } = {}
 	local signModel = leafModel:FindFirstChild(ART .. "_Sign")
 	if signModel ~= nil then
@@ -275,12 +309,17 @@ local function register(instance: Instance)
 		leaf = leafModel,
 		leafShut = leafShut,
 		flap = flap,
+		flapFrame = if frameFound ~= nil and frameFound:IsA("Model")
+			then frameFound :: Model
+			else nil,
 		flapRest = if flap ~= nil then leafShut:Inverse() * flap:GetPivot() else CFrame.identity,
 		catFlapRest = if attachment ~= nil and attachment:IsA("Attachment")
 			then leafShut:Inverse() * (attachment :: Attachment).WorldCFrame
 			else nil,
 		decorFlap = nil,
 		sign = sign,
+		bulbs = leafModel:FindFirstChild(ART .. "_Sign_Bulb"),
+		dimmed = {},
 		angle = 0,
 		flapAngle = 0,
 		flapSpeed = 0,

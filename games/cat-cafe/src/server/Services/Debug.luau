@@ -49,6 +49,7 @@ local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local QuestService = require(script.Parent.QuestService)
 local RescueService = require(script.Parent.RescueService)
 local RichTipService = require(script.Parent.RichTipService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
@@ -236,6 +237,13 @@ function Debug.collector(
 	return if catUid ~= nil and offer ~= nil
 		then string.format("%s %d", catUid, offer.value)
 		else ""
+end
+
+-- Starts a new quest day and week for the player now (F73), paying the old sets' finished quests first. Returns the
+-- new daily ids, then " | ", then the weekly ids.
+function Debug.quests(player: (Player | number | string)?): string
+	local daily, weekly = QuestService.debugRenew(resolve(player))
+	return table.concat(daily, " ") .. " | " .. table.concat(weekly, " ")
 end
 
 -- Marks the intro unseen, so the next respawn lands inside the back door and the next join plays it (F72). Reset

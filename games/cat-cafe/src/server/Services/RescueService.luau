@@ -193,7 +193,7 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 	local def = Catching.pickCat(rarity, areaDef.id, rng:NextNumber())
 	local charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber())
 	local chance =
-		IndexRewards.goldChance(Config.GoldChanceRescue, CatService.goldLuckFor(areaDef.id))
+		IndexRewards.rollChance(Config.GoldChanceRescue, CatService.goldLuckFor(areaDef.id))
 	local variant = if rng:NextNumber() < chance then "gold" else "base"
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end

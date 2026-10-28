@@ -804,6 +804,14 @@ def _sisal_post(b, x, z, y0, y1):
         b.cyl((x, y0 + (y1 - y0) * f, z), 0.215, 0.05, "kibble", segments=10)
 
 
+# F79 bedtime (data-model 12c; see furniture.TREE_SPOTS): the tower's two sleep spots, best first (the bed on top,
+# then the blush platform; the other platforms have a post through them), the perches a cat only hops through, clear
+# of their posts, and the floor it sets off from.
+TOWER_SPOTS = {"Sleep_1": (0.0, 9.9, 0.1), "Sleep_2": (1.05, 5.2, -0.15),
+               "Hop_1": (-0.7, 1.55, -0.85), "Hop_2": (-1.2, 3.2, 0.0), "Hop_3": (0.5, 3.4, -0.5),
+               "Hop_4": (-0.85, 6.2, -0.1), "Hop_5": (-1.25, 7.9, -0.55), "Foot": (-0.7, 0.0, -1.8)}
+
+
 def build_cat_tree_tower(mat):
     """A cat tree nearly to the ceiling: sisal posts, carpeted platforms, a cubby with a round door, dangling toys
     and a round bed on top with cat ears on its rim."""
@@ -823,8 +831,15 @@ def build_cat_tree_tower(mat):
     _sisal_post(b, -0.75, 0.3, 3.2, 6.0)
     b.cyl((-0.45, 6.1, 0.15), 0.75, 0.2, "pastel_butter", segments=14)
     _sisal_post(b, 1.0, -0.1, 3.4, 5.0)
-    b.cyl((1.05, 5.1, -0.15), 0.6, 0.2, "blush", segments=14)
+    b.cyl((1.05, 5.1, -0.15), 0.72, 0.2, "blush", segments=14)
     _sisal_post(b, -0.3, 0.2, 6.2, 9.6)
+    # two step pads so no hop rises more than 2.6: a low one off the floor, a high one on a bracket under the bed
+    _sisal_post(b, -0.7, -0.85, 0.3, 1.45)
+    b.cyl((-0.7, 1.5, -0.85), 0.45, 0.1, "pastel_lilac", segments=12)
+    dx, dz = -1.25 - (-0.3), -0.55 - 0.2
+    b.box((-0.3 + dx / 2, 7.74, 0.2 + dz / 2), (0.16, 0.16, math.hypot(dx, dz)), "treat_tan",
+          rot=rot_y(math.degrees(math.atan2(dx, dz))))
+    b.cyl((-1.25, 7.85, -0.55), 0.45, 0.1, "pastel_lilac", segments=12)
     b.cyl((0.0, 9.75, 0.1), 0.85, 0.3, "mint", segments=14)                                   # the bed on top
     _ring_flat(b, (0.0, 10.05, 0.1), 0.85, 0.22, 0.3, "blush", segments=14)
     for sx in (-1, 1):

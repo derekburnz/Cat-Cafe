@@ -51,6 +51,9 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	UsePotion = RateLimiter.new(2, 1), -- data-model section 15: 2 a second
 	OpenMysteryGift = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	AnswerCollector = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
+	ClaimQuest = RateLimiter.new(2, 1), -- quests.md section 6: 2 a second
+	RerollQuest = RateLimiter.new(1, 1), -- 1 a second
+	ClaimAchievement = RateLimiter.new(2, 1), -- 2 a second
 }
 local overLimitLog: { [number]: number } = {} -- userId -> last warn time
 

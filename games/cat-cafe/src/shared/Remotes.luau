@@ -65,6 +65,12 @@ Remotes.ClientToServer = {
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, within
 	-- CollectorRangeStuds of him; on accept the cat he asks for is still owned, resting, unlocked and not the
 	-- caller's last cat, else a toast says why and he waits on. A trade or No thanks ends the visit (CollectorOffer "")
+	"ClaimQuest", -- (kind: "daily" | "weekly", slot: number)  F73: slot 1 to QuestDailyCount or QuestWeeklyCount,
+	-- finished and unclaimed; pays it and, when it is the set's last, the set prize; answered with QuestResult
+	"RerollQuest", -- (kind: "daily" | "weekly", slot: number)  F73: the day's or week's free swap unused, the quest
+	-- neither finished nor claimed; another eligible quest from the same pool, counting from now
+	"ClaimAchievement", -- (achievementId: string)  F73: a known achievement, met and unclaimed; answered with
+	-- QuestResult
 	"ReportBug", -- (text: string, kind: string?, clientErrors: { string }?)  shared/BugReport: 3 to 500 bytes of
 	-- UTF-8 text; kind "bug", "stuck" or "idea"; up to 3 error lines; 1 per 20 s, 10 a player and 200 a server
 }
@@ -109,6 +115,8 @@ Remotes.ServerToClient = {
 	"CollectorOffer", -- (catUid: string, offer: Types.CollectorOffer?, endsAt: number, traded: boolean?)  F63: the
 	-- owner's Cat Collector card: the cat he wants, his offer (a Catalog.collectorOffers row; the zone crate is the
 	-- cat's area's) and the server time he leaves. catUid "" ends the visit, `traded` true when it ended in a trade
+	"QuestResult", -- (paid: { string })  F73: what a quest, a set or an achievement claim paid ("+$300", "2 spins"),
+	-- after the server's toast with the same words, for the Quests window's own claim effect
 	"CatLevelUp", -- (uid: string, level: number)  one of this player's cats reached `level` (v0.12 F75): the toast,
 	-- the level up chime and, from the model's Level attribute, the sparkle; once per settle that raises it
 }

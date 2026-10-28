@@ -46,6 +46,8 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
 
    A Mythical stray (`Rarity`) plays `rareNear` once as you come within 30 studs, and again only after you have been 45 studs away (no loop since 2026-10-28; every other rarity and gold strays are silent).
 
+   A player's step through water plays `waterStep` at the splash, from the vfx-animator's `Effects.Splash.stepped` (PR #455); a cat's splashes stay silent.
+
    The nearest resting cafe cat within 14 studs purrs too, by day (`Logic.restingPurrs`): the Napping children of each `Plot`'s `Cats` folder, one sitting on the seated body (`Pose` "sit", PR #266) the whole day, one on the lying body only while `Effects.isLoafing(model)` (vfx-animator PR #222). Only one, so it is always a cat Effects is animating (reviewer N131, N150).
 7. **Holding a prompt** needs nothing: Audio listens to ProximityPromptService's hold events and plays `holdFill` on any Custom prompt with a HoldDuration (a stray's, a stuck cat's, a manhole's), stretched so its pop lands on the trigger, faded out if the key is let go early, silent while the cat is still running.
 8. **A gold cat in your arms** needs nothing either: Audio watches your character for a `HeldCat` model with `Gold` (or `Gold` turning on) and plays `goldReveal` once per cat.

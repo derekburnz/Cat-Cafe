@@ -21,6 +21,7 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local Cues = require(script.Cues)
 local Effects = require(script.Parent.Effects)
 local Logic = require(script.Logic)
+local Splash = require(script.Parent.Effects.Splash)
 
 local Audio = {}
 
@@ -804,6 +805,16 @@ local function noticeRareStrays()
 	end
 end
 
+-- Derek's splashes (2026-10-28): a soft step on each splash Effects shows under a player in water, already budgeted
+-- to the nearest walkers. A cat's splashes stay quiet, since a stray splashes about every stud and would patter.
+local function followSplashes()
+	Splash.stepped:Connect(function(position: Vector3, kind: string)
+		if kind == "player" then
+			Audio.play("waterStep", position)
+		end
+	end)
+end
+
 local function followStrays()
 	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watchStray)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(unwatchStray)
@@ -1278,6 +1289,7 @@ function Audio.start()
 	task.spawn(followClock)
 	followTags()
 	followStrays()
+	followSplashes()
 	followHolds()
 	followHeldCats()
 	followCharacters()

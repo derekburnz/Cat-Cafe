@@ -7,8 +7,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 
--- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1); rarer strays take only
--- "nook".
+-- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1), or in a v3.2 side area
+-- "near" (the gate half) or "deep" (the far half); Epic and rarer strays take only "nook" or "deep" points.
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- A cafe table: its point, and `lane`, the plot-local z of the walkway beside its row that customers walk along to
 -- reach its chairs (Layout.plot.tables).
@@ -511,59 +511,6 @@ Layout.alley = {
 	end)(),
 } :: AreaSpec
 
-Layout.park = {
-	floorY = 0.1,
-	center = { x = 0, y = 0, z = W.ParkCenterZ },
-	halfWidth = W.ParkWidth / 2,
-	halfDepth = W.ParkDepth / 2,
-	gateZ = W.ParkGateZ,
-	spawnPoints = {
-		{ x = -14, y = 0.1, z = W.ParkCenterZ + 20 },
-		{ x = 16, y = 0.1, z = W.ParkCenterZ + 18 },
-		{ x = -30, y = 0.1, z = W.ParkCenterZ + 10 },
-		{ x = 32, y = 0.1, z = W.ParkCenterZ + 6 },
-		{ x = -20, y = 0.1, z = W.ParkCenterZ - 4 },
-		{ x = 22, y = 0.1, z = W.ParkCenterZ - 6 },
-		{ x = -34, y = 0.1, z = W.ParkCenterZ - 14 },
-		{ x = 34, y = 0.1, z = W.ParkCenterZ - 18 },
-		{ x = -8, y = 0.1, z = W.ParkCenterZ - 22 },
-		{ x = 10, y = 0.1, z = W.ParkCenterZ - 24 },
-		{ x = 0, y = 0.1, z = W.ParkCenterZ + 18 },
-		{ x = -14, y = 0.1, z = W.ParkCenterZ },
-		{ x = 12, y = 0.1, z = W.ParkCenterZ - 2 },
-		{ x = 0, y = 0.1, z = W.ParkCenterZ - 14 },
-	} :: { Point },
-	rescueSpots = {
-		-- Branches reach toward the middle of the park (a tree's branch points along its -X).
-		{ prop = "CatCafe_Park_RescueTree", trap = "tree", x = 36, z = W.ParkCenterZ + 26 },
-		{
-			prop = "CatCafe_Park_RescueTree",
-			trap = "tree",
-			x = -36,
-			z = W.ParkCenterZ - 25,
-			rotY = 180,
-		},
-		{
-			prop = "CatCafe_Park_TrashCan",
-			trap = "trashcan",
-			x = 24,
-			z = W.ParkCenterZ - 25,
-			rotY = 90,
-		},
-	} :: { RescuePoint },
-	props = {
-		{ asset = "CatCafe_Park_Fountain", x = 0, z = W.ParkCenterZ },
-		{ asset = "CatCafe_Park_Tree", x = -26, z = W.ParkCenterZ + 18 },
-		{ asset = "CatCafe_Park_Tree", x = 28, z = W.ParkCenterZ + 14 },
-		{ asset = "CatCafe_Park_Tree", x = -30, z = W.ParkCenterZ - 8 },
-		{ asset = "CatCafe_Park_Tree", x = 30, z = W.ParkCenterZ - 10 },
-		{ asset = "CatCafe_Park_Tree", x = -14, z = W.ParkCenterZ - 20 },
-		{ asset = "CatCafe_Park_Bench", x = -8, z = W.ParkCenterZ + 10, rotY = 180 },
-		{ asset = "CatCafe_Park_Bench", x = 8, z = W.ParkCenterZ + 10, rotY = 180 },
-		{ asset = "CatCafe_Park_Bench", x = 20, z = W.ParkCenterZ - 16, rotY = 90 },
-	} :: { Prop },
-} :: AreaSpec
-
 -- The turn (degrees about Y) that faces a gate's front toward the town, from where the gate is (Layout.gateTurn).
 local function townTurn(cx: number, cz: number, gateX: number?, gateZ: number?): number
 	if gateX ~= nil then
@@ -574,22 +521,26 @@ end
 
 -- An area kit set's spots (manifest.json points_roblox: x, height above the floor and z in the set's own space) in
 -- world space, for the set WorldBuilder places at (cx, floorY, cz) turned `turn` degrees: CFrame.Angles(0, rad(turn),
--- 0) takes (x, z) to (x cos + z sin, -x sin + z cos).
+-- 0) takes (x, z) to (x cos + z sin, -x sin + z cos). `zone` tags them all (a v3.2 set's `near` or `deep` spots).
 local function setPoints(
 	cx: number,
 	cz: number,
 	turn: number,
 	floorY: number,
-	spots: { { number } }
+	spots: { { number } },
+	zone: string?
 ): { Point }
 	local c, s = math.cos(math.rad(turn)), math.sin(math.rad(turn))
 	local points: { Point } = {}
 	for _, spot in spots do
 		local x, z = spot[1], spot[3]
-		table.insert(
-			points,
-			{ x = cx + x * c + z * s, y = floorY + spot[2], z = cz - x * s + z * c, rotY = turn }
-		)
+		table.insert(points, {
+			x = cx + x * c + z * s,
+			y = floorY + spot[2],
+			z = cz - x * s + z * c,
+			rotY = turn,
+			zone = zone,
+		})
 	end
 	return points
 end
@@ -606,6 +557,103 @@ local function setTrap(
 	local point = setPoints(cx, cz, turn, 0, { spot })[1]
 	return { trap = trap, x = point.x, y = spot[2], z = point.z, rotY = turn }
 end
+
+-- A rescue prop the world stands at a set's trap spot (the Park's, area-sets.md): `propTurn` turns the prop in the
+-- set's own space, so in the world it turns by the set's turn as well.
+local function setPropTrap(
+	cx: number,
+	cz: number,
+	turn: number,
+	prop: string,
+	trap: string,
+	spot: { number },
+	propTurn: number
+): RescuePoint
+	local point = setPoints(cx, cz, turn, 0, { spot })[1]
+	return {
+		prop = prop,
+		trap = trap,
+		x = point.x,
+		y = spot[2],
+		z = point.z,
+		rotY = (turn + propTurn) % 360,
+	}
+end
+
+-- The Park at its v3.2 size (F81, town-layout-v3.md section 8): Model-Agent's set (#460, area-sets.md "The Park
+-- (v3.2)") fills the 160 x 120 floor and brings its own fountain, trees and benches. The way in winds past two hedge
+-- rows to the bandstand. Its cat spots are `near` on the gate half and `deep` on the far half, where Epic and rarer
+-- strays wait (CatService). Its rescue trees and bins stand at the set's trap spots, three of the five deep.
+local PX, PZ = 0, W.ParkCenterZ
+local PTURN = townTurn(PX, PZ, nil, W.ParkGateZ)
+Layout.park = {
+	floorY = 0.1,
+	center = { x = PX, y = 0, z = PZ },
+	halfWidth = W.ParkWidth / 2,
+	halfDepth = W.ParkDepth / 2,
+	gateZ = W.ParkGateZ,
+	set = "CatCafe_Park_Set",
+	spawnPoints = (function(): { Point }
+		local points = setPoints(PX, PZ, PTURN, 0.1, {
+			{ -3.5, 0, -49.5 }, -- the plaza
+			{ 18, 0.62, -48.5 }, -- the flower beds
+			{ 30, 0.62, -45.5 },
+			{ 45, 0.62, -41 },
+			{ 51.6, 0, -42 }, -- the bench
+			{ -28.56, 0, -50.96 }, -- the picnic tables
+			{ -45.17, 0, -53.91 },
+			{ -42, 0.06, -40 }, -- a picnic blanket
+			{ -35, 0, -48.5 }, -- oaks
+			{ -34, 0, -29.5 },
+			{ 62, 0, -50.5 }, -- the blossom tree
+			{ 10, 1.2, -8 }, -- the jetty, on its boards
+			{ -15.56, 0, -18.9 }, -- the pond bank
+			{ -42, 0, -16 }, -- the willow
+			{ 46.5, 0, -16.5 }, -- the kiosk
+			{ -60, 0, -12 }, -- lawns
+		}, "near")
+		for _, point in
+			setPoints(PX, PZ, PTURN, 0.1, {
+				{ 26, 0, 8 }, -- oaks
+				{ 6.5, 0, 9.85 }, -- the pond bank
+				{ -50, 0, 10 }, -- lawns
+				{ 50, 0, 6 },
+				{ 56, 0, 14 },
+				{ -60, 0, 24 }, -- by the second hedge row
+				{ -3, 1.15, 40.5 }, -- the bandstand
+				{ 3, 1.15, 41 },
+				{ 0, 1.15, 44 },
+				{ -9.75, 0, 53.93 }, -- the loop path
+				{ -15.97, 0, 45.81 },
+				{ -27, 0, 52 }, -- the slide
+				{ -46, 0, 45 }, -- the swings
+				{ -63.5, 0.55, 46.5 }, -- the sandbox
+				{ -44, 0, 30 }, -- the seesaw
+				{ -60, 0.72, 33 }, -- the roundabout
+				{ -36, 0, 39 }, -- the playground
+				{ 46, 0, 35.5 }, -- the fountain
+				{ 46, 0.57, 48.6 }, -- the rose beds
+				{ 56.74, 0, 33.8 },
+				{ 62.5, 0, 48 }, -- the topiary
+				{ 31, 0, 50 }, -- the flower garden
+				{ -40, 0, 54 }, -- the far end
+				{ 6, 0, 55 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
+	-- a tree's branch points along its -X, a bin's open lid is at its back
+	rescueSpots = {
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -28, 0, -16 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -18, 0, 27 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 20, 0, 53 }, -90),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 10, 0, -38.5 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -14, 0, 23.5 }, 90),
+	},
+	props = {},
+} :: AreaSpec
 
 -- Areas 3 to 5 have their kit sets (Model-Agent #401, area-sets.md): the strays' spawn points are the sets' cat
 -- spots and the Woods' and Sewer's traps are built into the sets. The graybox paths and props below stand in only

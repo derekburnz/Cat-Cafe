@@ -271,9 +271,11 @@ local Config = {
 		AlleyOuterX = 93,
 		AlleySouthZ = -125.5,
 		AlleyNorthZ = 125.5,
-		ParkCenterZ = -154,
-		ParkWidth = 80,
-		ParkDepth = 56,
+		-- The Park at its v3.2 size (F81, town-layout-v3.md section 8e): 160 x 120 behind the same gate, so its far
+		-- half is a long walk in.
+		ParkCenterZ = -186,
+		ParkWidth = 160,
+		ParkDepth = 120,
 		ParkGateZ = -125,
 		-- The Woods west and the Sewer east of the back alleys (v3.1), each with its gate on its town side, in the back
 		-- alley's outer wall straight across from the square's side arch: SideGateHalfWidth either side of z 0.

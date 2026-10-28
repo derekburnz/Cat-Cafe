@@ -108,9 +108,11 @@ return function()
 		end)
 
 		-- Model-Agent #401: the Neighbourhood, Woods and Sewer sets bring their cat spots and (but for the gutter)
-		-- their traps, turned with the set so its gate side faces the town.
+		-- their traps, turned with the set so its gate side faces the town; the Park's v3.2 set (#460) its cat spots,
+		-- its traps being the world's trees and bins.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
-			local sets: { [string]: string } = { neighbourhood = "Neighbourhood", woods = "Woods", sewer = "Sewer" }
+			local sets: { [string]: string } =
+				{ park = "Park", neighbourhood = "Neighbourhood", woods = "Woods", sewer = "Sewer" }
 			for id, name in sets do
 				local spec = Layout.areas[id]
 				expect(spec.set).to.equal("CatCafe_" .. name .. "_Set")
@@ -135,18 +137,19 @@ return function()
 						expect(spot.rotY).to.equal(turn)
 					end
 				end
-				expect(built).to.equal(if id == "neighbourhood" then 1 else 2)
+				expect(built).to.equal(if id == "park" then 0 elseif id == "neighbourhood" then 1 else 2)
 			end
 		end)
 
 		it("a set spot turns with the set: its -Z side toward the gate", function()
-			for _, id in { "neighbourhood", "woods", "sewer" } do
+			for _, id in { "park", "neighbourhood", "woods", "sewer" } do
 				local spec = Layout.areas[id]
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
-				-- the Neighbourhood's porch at local (19.6, -58.8) is near its gate side, the Woods' bridge at local
-				-- (-8.4, -36.5) near its own, the Sewer's catwalk at local (3, -24) near its own
-				local index = if id == "neighbourhood" then 1 elseif id == "woods" then 4 else 1
+				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
+				-- (19.6, -58.8) near its own, the Woods' bridge at local (-8.4, -36.5) near its own, the Sewer's
+				-- catwalk at local (3, -24) near its own
+				local index = if id == "woods" then 4 else 1
 				local point = spec.spawnPoints[index]
 				local toGate = math.sqrt((point.x - (gx :: number)) ^ 2 + (point.z - (gz :: number)) ^ 2)
 				local toCenter = math.sqrt((point.x - spec.center.x) ^ 2 + (point.z - spec.center.z) ^ 2)
@@ -154,6 +157,35 @@ return function()
 					fail("%s spawn point %d is %.1f from the gate and %.1f from the centre", id, index, toGate, toCenter)
 				end
 			end
+		end)
+
+		-- F81 (town-layout-v3.md section 8d): the Park's v3.2 set tags each cat spot near (the gate half) or deep (the
+		-- far half, where Epic and rarer strays wait), and three of its five traps are in the far half.
+		it("the Park's spots are 16 near its gate and 24 deep in its far half, with three traps deep", function()
+			local park = Layout.park
+			local gateZ = park.gateZ :: number
+			local middle = math.abs(park.center.z - gateZ)
+			local counts: { [string]: number } = {}
+			for i, point in park.spawnPoints do
+				local zone = point.zone :: string
+				counts[zone] = (counts[zone] or 0) + 1
+				local fromGate = math.abs(point.z - gateZ)
+				if (zone == "deep") ~= (fromGate > middle) then
+					fail("Park spawn point %d (%s) is %.1f studs in from the gate", i, zone, fromGate)
+				end
+			end
+			expect(counts.near).to.equal(16)
+			expect(counts.deep).to.equal(24)
+			local deep = 0
+			for _, spot in park.rescueSpots do
+				expect(spot.prop).to.be.ok()
+				if math.abs(spot.z - gateZ) > middle then
+					deep += 1
+				end
+			end
+			expect(deep).to.equal(3)
+			-- a prop turned 180 in the set, which is turned 180 itself
+			expect(park.rescueSpots[1].rotY).to.equal(0)
 		end)
 	end)
 

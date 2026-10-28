@@ -107,8 +107,8 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `jingleDailyCard` | `music/CatCafe_Music_JingleDailyCard.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 99160708780154 | 2026-10-28 |
 | `rareNear` | `sfx/CatCafe_Sfx_RareNear.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 110130897728206 | 2026-10-28 |
 | `waterStep` | `sfx/CatCafe_Sfx_WaterStep.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 74478489900689 | 2026-10-28 |
-| `cannonLaunch` | `sfx/CatCafe_Sfx_CannonLaunch.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-28 |
-| `cannonClouds` | `sfx/CatCafe_Sfx_CannonClouds.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-28 |
-| `cannonLand` | `sfx/CatCafe_Sfx_CannonLand.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-28 |
-| `cloudHop` | `sfx/CatCafe_Sfx_CloudHop.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-28 |
-| `campCheckIn` | `sfx/CatCafe_Sfx_CampCheckIn.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | - | 2026-10-28 |
+| `cannonLaunch` | `sfx/CatCafe_Sfx_CannonLaunch.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 102475819257335 | 2026-10-28 |
+| `cannonClouds` | `sfx/CatCafe_Sfx_CannonClouds.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 111789214666060 | 2026-10-28 |
+| `cannonLand` | `sfx/CatCafe_Sfx_CannonLand.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 110709007201936 | 2026-10-28 |
+| `cloudHop` | `sfx/CatCafe_Sfx_CloudHop.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 115354802839165 | 2026-10-28 |
+| `campCheckIn` | `sfx/CatCafe_Sfx_CampCheckIn.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 123523380344527 | 2026-10-28 |

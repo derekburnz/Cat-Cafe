@@ -39,6 +39,7 @@ import coins  # noqa: E402
 import common  # noqa: E402
 import crate_decor  # noqa: E402
 import crates  # noqa: E402
+import customers  # noqa: E402
 import potions  # noqa: E402
 import mystery  # noqa: E402
 import collector  # noqa: E402
@@ -76,7 +77,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
            woodsset, sewerset, neighbourhoodset, doors, doorsets, crates, potions, mystery, collector,
-           townbuildings]
+           townbuildings, customers]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -270,6 +271,16 @@ STUDIO_NOTES["CatCafe_NPC_Collector"] = (
     "Eye1, Eye2, EarL, EarR, Tail, LegF1, LegF2); the bowler is the child Model _Prop inside Head, the tweed coat "
     "_Coat rides the body and the magnifying glass _Lens is inside LegF2, whose paw is raised to his right eye. "
     "Nothing collides.")
+for _n in customers.ASSETS:                      # F15 and F37 cafe customers, standing and seated
+    if _n.endswith("_Sit"):
+        PIVOT_NOTES[_n] = ("the floor under a cafe chair's middle (CatCafe_Furniture_Chair's pivot), facing the table "
+                           "(-Z); the customer sits on the cushion at 1.58")
+        STUDIO_NOTES[_n] = ("Seated customer: swap to it when the customer reaches its chair, PivotTo the chair's pivot "
+                            "(same CFrame, front toward the table). Forearms rest on a round table 2.4 in front. "
+                            "Nothing collides.")
+    else:
+        STUDIO_NOTES[_n] = ("Cafe customer (F15; Rich is F31): pivot at the feet, front -Z, nothing collides. Walk "
+                            "it with PivotTo; at the chair swap to " + _n + "_Sit.")
 for _n in townbuildings.ASSETS:                  # town buildings on the back alleys' outer walls
     PIVOT_NOTES[_n] = "wall: back plane at the bottom centre; -Z faces into the alley"
     STUDIO_NOTES[_n] = (

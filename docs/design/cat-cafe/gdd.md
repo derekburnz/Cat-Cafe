@@ -45,7 +45,7 @@ Whether ranking up spends the coins or only needs you to hold them is a round 2 
 
 ## Cats
 
-Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one Mythical (Gavin, Q5 and Q14). Every area can spawn every rarity, and later areas tilt the odds upward. Each cat lives only in its own area, and several of the same cat can be out at once there (Gavin confirmed in round 2). The slice builds the Alleyway and Park cats (20); the other thirty have provisional names in the catalog and arrive with their areas.
+Fifty cats, ten per area: four Common, two Rare, two Epic, one Legendary and one Mythical (Gavin, Q5 and Q14). Every area can spawn every rarity, all with the same odds (Derek, 2026-10-28 01:50); rare cats come mainly from bait food, and cats from later areas earn more (data-model section 9). Each cat lives only in its own area, and several of the same cat can be out at once there (Gavin confirmed in round 2). The slice builds the Alleyway and Park cats (20); the other thirty have provisional names in the catalog and arrive with their areas.
 
 | Rarity | Base tips per second | Net circles | Notes |
 |---|---|---|---|

@@ -86,7 +86,9 @@ function PlotService.release(player: Player)
 	plot.tables:ClearAllChildren()
 	plot.bait:ClearAllChildren()
 	plot.model:SetAttribute("BaitReadyAt", 0)
-	-- RichTipService has paid any open tip before the save (S29); the marker must not outlive the owner
+	-- RichTipService has already missed any open tip (unclaimed tips are never paid); the marker and its outcome
+	-- must not outlive the owner (review N232)
+	plot.model:SetAttribute("RichTipOutcome", nil)
 	plot.model:SetAttribute("RichTipAmount", 0)
 	plot.model:SetAttribute("RichTipExpiresAt", 0)
 	local espresso = plot.model:FindFirstChild("Espresso")

@@ -853,8 +853,9 @@ Layout.woods = {
 		setTrap(WX, WZ, WTURN, "hollow_log", { 92, 0, 26 }, -20),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -84, 0, -50 }),
 		setTrap(WX, WZ, WTURN, "bramble_bush", { -86, 0, 30 }),
-		-- up the tree house's branch (Derek 01:34), reached from its deck: shaken down and caught like a Park tree
-		setTrap(WX, WZ, WTURN, "tree", { -88.85, 15.45, 68.06 }),
+		-- up the tree house's branch (Derek 01:34), reached from its deck: shaken down and caught like a Park tree,
+		-- the cat lying across the branch (which points along the piece's -X) as on a Park tree
+		setTrap(WX, WZ, WTURN, "tree", { -88.85, 15.45, 68.06 }, -106.26),
 	},
 	props = {},
 } :: AreaSpec

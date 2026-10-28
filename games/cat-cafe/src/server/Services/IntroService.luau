@@ -4,13 +4,16 @@
 -- the profile loads and on every spawn until then, so the fly-through ends where the first stray waits behind the
 -- yard. The client freezes the character while the intro runs, so the move is never seen. IntroDone(shot, replay)
 -- marks the intro seen on the first play and logs intro_cutscene (finished or skipped, the shot, first or replay)
--- for the growth thread. Replays move nobody and save nothing.
+-- for the growth thread. Replays move nobody and save nothing. A respawn later in the session (Reset, a fall) lands
+-- at the same spot, so a reset puts the player back at their own cafe rather than in the Town Square (Derek
+-- 2026-10-28 01:17: "resetting made me fully reload the game").
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local CafeService = require(script.Parent.CafeService)
+local CatService = require(script.Parent.CatService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
@@ -25,6 +28,7 @@ local IntroService = {}
 -- A replay can be sent once a second for a whole session; past this many events a player's log stops.
 local MAX_EVENTS = 20
 local events: { [Player]: number } = {}
+local spawned: { [Player]: boolean } = {} -- the player has had a character this session, so the next is a respawn
 
 -- Where a player who has not seen the intro stands: just inside its own back door, facing it (plot space: -Z faces
 -- the street, so the back wall is toward +Z). Nil without a plot.
@@ -37,9 +41,12 @@ function IntroService.landing(player: Player): CFrame?
 	return plot.cframe * CFrame.new(spot.x, spot.y, spot.z) * CFrame.Angles(0, math.pi, 0)
 end
 
--- Moves the character to the landing when the profile has not seen the intro. The spawn itself places the
--- character first, so this waits for the root and one more frame.
-local function land(player: Player, character: Model)
+-- Moves the character to the landing when the profile has not seen the intro, or on any respawn with `always`. The
+-- spawn itself places the character first, so this waits for the root and one more frame. The server asks the
+-- client to stream the cafe in first, so the player does not wait on a load screen at the square and again here.
+-- A carrier stays at the square: a carry survives death, and landing at the back door would check the cat in
+-- without the walk home (review S85).
+local function land(player: Player, character: Model, always: boolean?)
 	local root = character:WaitForChild("HumanoidRootPart", 10)
 	if root == nil then
 		return
@@ -49,14 +56,20 @@ local function land(player: Player, character: Model)
 	local landing = IntroService.landing(player)
 	if
 		profile == nil
-		or profile.introSeen
+		or (profile.introSeen and not always)
 		or landing == nil
 		or player.Character ~= character
 		or character.Parent == nil
+		or CatService.isCarrying(player)
 	then
 		return
 	end
-	character:PivotTo(landing)
+	pcall(function()
+		player:RequestStreamAroundAsync((landing :: CFrame).Position, 2)
+	end)
+	if player.Character == character and character.Parent ~= nil then
+		character:PivotTo(landing)
+	end
 end
 
 local function onLoaded(player: Player, profile: Types.PlayerProfile)
@@ -94,10 +107,13 @@ end
 function IntroService.start()
 	DataService.onLoaded:Connect(onLoaded)
 	local function watch(player: Player)
+		spawned[player] = player.Character ~= nil -- a player already here at start has spawned once (review N227)
 		player.CharacterAdded:Connect(function(character)
+			local respawn = spawned[player] == true
+			spawned[player] = true
 			local profile = DataService.get(player)
-			if profile ~= nil and not profile.introSeen then
-				land(player, character)
+			if profile ~= nil and (respawn or not profile.introSeen) then
+				land(player, character, respawn)
 			end
 		end)
 	end
@@ -107,6 +123,7 @@ function IntroService.start()
 	end
 	Players.PlayerRemoving:Connect(function(player)
 		events[player] = nil
+		spawned[player] = nil
 	end)
 	Net.on("IntroDone", onIntroDone)
 end

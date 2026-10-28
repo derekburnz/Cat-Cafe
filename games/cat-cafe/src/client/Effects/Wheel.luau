@@ -8,10 +8,13 @@
 -- has stopped, a rarer prize gets more: a ring and confetti for a "good" one, and for a "jackpot" gold confetti, a
 -- gold ring, falling sparkles and longer blinking (Logic.prizeTier, from the slice's chance in Catalog.spinWheel).
 --
--- The station is a model tagged SpinWheel. Its `Wheel` (or `..._Wheel`) is a Model pivoted at the hub that turns
--- about its own Z axis, with slice 1 under the pointer at rest and slice n (n - 1) sixths of a turn round from it,
--- the way the wheel turns (the placeholder's layout); `Pointer` and the `RimLight` parts sit outside it. Every part
--- is the server's; the turn is drawn on this client only.
+-- The station is a model tagged SpinWheel, its front toward -Z of its pivot. Its `Wheel` (or `..._Wheel`) is a Model
+-- pivoted at the hub, with slice 1 under the pointer at rest and slice n (n - 1) sixths of a turn round from it, the
+-- way the wheel turns (the placeholder's layout); `Pointer` and the `RimLight` parts sit outside it. The whole Wheel
+-- turns as one about its axle, which is the thinnest axis of its disc (its PrimaryPart, else its biggest part)
+-- pointing to the back of the station. The Wheel's own pivot only gives the hub: on the placeholder its rotation lay
+-- in the wheel's face (a Model with a PrimaryPart ignores the WorldPivot it sets), so turning about it flipped the
+-- wheel end over end (Derek 2026-10-28 01:03). Every part is the server's; the turn is drawn on this client only.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -30,7 +33,7 @@ local Wheel = {}
 type Station = {
 	model: Model,
 	wheel: Model,
-	rest: CFrame, -- the hub where the server placed it
+	rest: CFrame, -- the hub where the server placed it, its Z axis the axle and its Y axis up across the face
 	parts: { BasePart },
 	offsets: { CFrame }, -- each wheel part in the hub's frame at rest
 	frames: { CFrame }, -- reused every frame
@@ -38,7 +41,7 @@ type Station = {
 	pointerRest: CFrame,
 	lights: { BasePart },
 	lit: { Enum.Material }, -- each rim light's own material, put back when it stops
-	angle: number, -- how far this client has turned the wheel from rest, radians about the hub's Z axis
+	angle: number, -- how far this client has turned the wheel from rest, radians about the axle
 	from: number,
 	to: number,
 	began: number, -- os.clock() the turn started, moved back by how late LastSpinAt replicated
@@ -70,6 +73,32 @@ local function findWheel(model: Model): Model?
 	return nil
 end
 
+-- The hub as the server placed it, turned so its Z axis is the axle (see the header) and its Y axis is up across the
+-- wheel's face.
+local function restOf(model: Model, wheel: Model, parts: { BasePart }): CFrame
+	local disc = wheel.PrimaryPart
+	if disc == nil then
+		local most = -1
+		for _, part in parts do
+			local size = part.Size
+			local volume = size.X * size.Y * size.Z
+			if volume > most then
+				disc, most = part, volume
+			end
+		end
+	end
+	local hub = wheel:GetPivot().Position
+	if disc == nil then
+		return CFrame.new(hub)
+	end
+	local frame = disc.CFrame
+	local back = model:GetPivot().ZVector
+	local axle =
+		Logic.thinAxis(frame.RightVector, frame.UpVector, frame.LookVector, disc.Size, back)
+	local up = Logic.wheelUp(axle, back)
+	return CFrame.fromMatrix(hub, up:Cross(axle), up, axle)
+end
+
 -- Reads the wheel as the server placed it. Nil while it has not streamed in (the station is Persistent, so this
 -- is only ever brief).
 local function bind(model: Model): Station?
@@ -77,12 +106,21 @@ local function bind(model: Model): Station?
 	if wheel == nil then
 		return nil
 	end
-	local rest = wheel:GetPivot()
+	local parts: { BasePart } = {}
+	for _, descendant in wheel:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			table.insert(parts, descendant :: BasePart)
+		end
+	end
+	if #parts == 0 then
+		return nil
+	end
+	local rest = restOf(model, wheel, parts)
 	local station: Station = {
 		model = model,
 		wheel = wheel,
 		rest = rest,
-		parts = {},
+		parts = parts,
 		offsets = {},
 		frames = {},
 		pointer = nil,
@@ -96,16 +134,9 @@ local function bind(model: Model): Station?
 		spinning = false,
 		prize = "small",
 	}
-	for _, descendant in wheel:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			local part = descendant :: BasePart
-			table.insert(station.parts, part)
-			table.insert(station.offsets, rest:Inverse() * part.CFrame)
-			table.insert(station.frames, part.CFrame)
-		end
-	end
-	if #station.parts == 0 then
-		return nil
+	for _, part in parts do
+		table.insert(station.offsets, rest:Inverse() * part.CFrame)
+		table.insert(station.frames, part.CFrame)
 	end
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and not descendant:IsDescendantOf(wheel) then

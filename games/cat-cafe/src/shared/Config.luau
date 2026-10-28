@@ -90,7 +90,8 @@ local Config = {
 	CatchBurstStuds = 8,
 	CatchRushWalkSpeed = 24,
 	CatchRushSeconds = 5,
-	CheckInRangeStuds = 8,
+	-- A carrier this near either own door, or whose path passes this near it, checks the cat in (Derek 01:22: was 8)
+	CheckInRangeStuds = 10,
 	StrayWanderRadius = 5,
 	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
 	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.

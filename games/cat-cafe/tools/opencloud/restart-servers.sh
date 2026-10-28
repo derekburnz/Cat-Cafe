@@ -3,7 +3,8 @@
 # same as Creator Hub's "Restart servers for updates"; it does nothing when every server already runs the newest).
 # A publish alone only reaches new servers. Needed when the publish changes the save version: a player saved by a
 # new server who lands on an old one is kicked by the newer-save guard.
-# Run by .github/workflows/publish.yml with restart_servers on; also works from Git Bash with the same variables.
+# Run by .github/workflows/publish.yml with restart_servers on and by restart-servers.yml on its own; also works
+# from Git Bash with the same variables.
 #
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key that also has universe Write on the Cat Cafe experience
 #                        (docs/setup-guide.md step 19)

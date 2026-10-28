@@ -1,8 +1,13 @@
 --!strict
--- Rules for the location markers and the zone chip (UI plan 2026-10-27; Derek: "symbols to locations also that
+-- Rules for the location markers and the safe zone toast (UI plan 2026-10-27; Derek: "symbols to locations also that
 -- disappear when close enough so its not clutter", and "if you get back to the area with the cafes that can be
 -- considered safe").
 --   alpha(distance)  how visible a marker is at that many studs: 0 within NEAR, rising to 1 at FAR and beyond
+--   lockedAlpha(distance)  the same for a locked area's marker, which shows only right by its gate (Derek
+--                    2026-10-28: "hide the tiered map and distance ui bubbles until unlocked unless standing really
+--                    close"): 1 within LOCKED_NEAR, gone from LOCKED_FAR out
+--   scale(distance)  how big a marker draws: full size to SCALE_NEAR, shrinking to SCALE_MIN at SCALE_FAR and beyond
+--                    ("further away the bubbles should be smaller")
 --   isSafe(zone)     the World.Zones name the player stands in: nil (the street) or "Cafe" is safe from shoves,
 --                    an area ("Alley", "Park") is not
 --   areaOf(zone)     the area id for a zone name ("Alley" -> "alley"), nil when safe
@@ -22,6 +27,29 @@ function Wayfinding.alpha(distance: number): number
 		return 0
 	end
 	return math.clamp((distance - Wayfinding.NEAR) / (Wayfinding.FAR - Wayfinding.NEAR), 0, 1)
+end
+
+Wayfinding.LOCKED_NEAR = 35 -- studs: a locked area's marker is fully shown this close to its gate
+Wayfinding.LOCKED_FAR = 50 -- studs: and gone from here out, as the gate's own sign
+Wayfinding.SCALE_NEAR = 60 -- studs: markers this close draw full size
+Wayfinding.SCALE_FAR = 300 -- studs: about the width of the map
+Wayfinding.SCALE_MIN = 0.55 -- the size a marker shrinks to from SCALE_FAR out
+
+function Wayfinding.lockedAlpha(distance: number): number
+	if distance ~= distance then
+		return 0
+	end
+	local span = Wayfinding.LOCKED_FAR - Wayfinding.LOCKED_NEAR
+	return math.clamp((Wayfinding.LOCKED_FAR - distance) / span, 0, 1)
+end
+
+function Wayfinding.scale(distance: number): number
+	if distance ~= distance then
+		return 1
+	end
+	local span = Wayfinding.SCALE_FAR - Wayfinding.SCALE_NEAR
+	local far = math.clamp((distance - Wayfinding.SCALE_NEAR) / span, 0, 1)
+	return 1 - far * (1 - Wayfinding.SCALE_MIN)
 end
 
 function Wayfinding.isSafe(zone: string?): boolean

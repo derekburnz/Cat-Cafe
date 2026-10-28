@@ -15,8 +15,16 @@ export type Rect = { x1: number, z1: number, x2: number, z2: number }
 -- An archway over an entrance (WorldBuilder.buildArch): the alley kit's `asset` when there is one.
 export type Arch = { x: number, z: number, span: number, label: string, asset: string? }
 -- A rescue trap: the prop stands at (x, floor, z) turned by rotY; the stuck cat sits at Layout.stuckPoses[prop].
+-- A trap built into an area's kit set has no prop: the stuck cat sits right at (x, floor + y, z) turned by rotY.
 -- `trap` is the TrapType (data-model section 9): a "tree" is shaken then caught, every other trap is the bar.
-export type RescuePoint = { prop: string, trap: string, x: number, z: number, rotY: number? }
+export type RescuePoint = {
+	prop: string?,
+	trap: string,
+	x: number,
+	y: number?,
+	z: number,
+	rotY: number?,
+}
 -- y is the height above the area floor (0 when omitted); wall props set it.
 export type Prop = { asset: string, x: number, y: number?, z: number, rotY: number? }
 -- A shared area in world space. A box area (no rects) is one floor with walls on three sides and an opening in its
@@ -33,6 +41,12 @@ export type AreaSpec = {
 	openingHalfWidth: number?, -- half the opening of a box area; the street's half width when omitted
 	nearWall: boolean?, -- false when a neighbour's wall already closes a box area's near side, opening and all
 	paths: { Rect }?, -- a box area's roads and paths, laid flat on its floor
+	-- The area's kit set (Model-Agent's CatCafe_<Area>_Set, assets/cat-cafe/exports/area-sets.md): when the art is
+	-- there WorldBuilder places it on the floor turned by Layout.gateTurn, in place of `paths` and `props`, and hides
+	-- the wall facing the town behind the set's see-through border. setLift is how far the set's own ground stands
+	-- above the floor where strays walk (the Sewer's tiles).
+	set: string?,
+	setLift: number?,
 	rects: { Rect }?,
 	walls: { Rect }?, -- wall footprints for a rects area
 	roam: { Rect }?, -- where strays may walk when props line the walls; the floor pieces when nil
@@ -540,28 +554,62 @@ Layout.park = {
 	} :: { Prop },
 } :: AreaSpec
 
--- Points at (dx, dz) from an area's center, on its floor.
-local function around(cx: number, cz: number, offsets: { { number } }): { Point }
+-- The turn (degrees about Y) that faces a gate's front toward the town, from where the gate is (Layout.gateTurn).
+local function townTurn(cx: number, cz: number, gateX: number?, gateZ: number?): number
+	if gateX ~= nil then
+		return if gateX > cx then -90 else 90
+	end
+	return if gateZ ~= nil and gateZ > cz then 180 else 0
+end
+
+-- An area kit set's spots (manifest.json points_roblox: x, height above the floor and z in the set's own space) in
+-- world space, for the set WorldBuilder places at (cx, floorY, cz) turned `turn` degrees: CFrame.Angles(0, rad(turn),
+-- 0) takes (x, z) to (x cos + z sin, -x sin + z cos).
+local function setPoints(
+	cx: number,
+	cz: number,
+	turn: number,
+	floorY: number,
+	spots: { { number } }
+): { Point }
+	local c, s = math.cos(math.rad(turn)), math.sin(math.rad(turn))
 	local points: { Point } = {}
-	for _, offset in offsets do
-		table.insert(points, { x = cx + offset[1], y = 0.1, z = cz + offset[2] })
+	for _, spot in spots do
+		local x, z = spot[1], spot[3]
+		table.insert(
+			points,
+			{ x = cx + x * c + z * s, y = floorY + spot[2], z = cz - x * s + z * c, rotY = turn }
+		)
 	end
 	return points
 end
 
--- Areas 3 to 5 are grayboxes (features section 3): flat ground, walls, a gate, spawn points and rescue spots.
--- The rescue props and the scenery reuse alley and park models until each area gets its own set; the rescue
--- spots become the area's traps in F27. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the street's north
--- end, the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
+-- A trap built into an area kit set (a `trap_` spot): no prop of its own, the stuck cat at the spot, turned with
+-- the set.
+local function setTrap(
+	cx: number,
+	cz: number,
+	turn: number,
+	trap: string,
+	spot: { number }
+): RescuePoint
+	local point = setPoints(cx, cz, turn, 0, { spot })[1]
+	return { trap = trap, x = point.x, y = spot[2], z = point.z, rotY = turn }
+end
+
+-- Areas 3 to 5 have their kit sets (Model-Agent #401, area-sets.md): the strays' spawn points are the sets' cat
+-- spots and the Woods' and Sewer's traps are built into the sets. The graybox paths and props below stand in only
+-- while a set's art is missing. Since v3.1 (F77) the Neighbourhood opens on its -Z side at the street's north end,
+-- the Woods on its +X side and the Sewer on its -X side, through the back alleys' outer walls.
 local NX, NZ = W.NeighbourhoodCenterX, W.NeighbourhoodCenterZ
 local NHW, NHD = W.NeighbourhoodWidth / 2, W.NeighbourhoodDepth / 2
 -- The Neighbourhood (areas-and-stations.md, design #240): the gate opens onto Whisker Lane, which runs 58 studs
 -- north to a square loop road around the playground hub; five houses ring the loop and two back gardens sit in the
--- far corners. The houses are not built yet, so the spawn points stand where their porches, driveways, flower beds
--- and fences will be. Offsets below are from the area's center.
+-- far corners. Offsets below are from the area's center.
 local HUB = 18 -- the hub's center, north of the area's center
 local LOOP, ROAD = 30, 8 -- the loop road's outer half size and its width
 local LS, LN = NZ + HUB - LOOP, NZ + HUB + LOOP -- the loop's south and north edges
+local NTURN = townTurn(NX, NZ, nil, W.NeighbourhoodGateZ)
 Layout.neighbourhood = {
 	floorY = 0.1,
 	center = { x = NX, y = 0, z = NZ },
@@ -575,40 +623,45 @@ Layout.neighbourhood = {
 		{ x1 = NX - LOOP, z1 = LS + ROAD, x2 = NX - LOOP + ROAD, z2 = LN - ROAD }, -- west
 		{ x1 = NX + LOOP - ROAD, z1 = LS + ROAD, x2 = NX + LOOP, z2 = LN - ROAD }, -- east
 	},
-	spawnPoints = around(NX, NZ, {
-		-- Whisker Lane: four driveways, then the lane houses' porch steps and flower beds
-		{ -9, -56 },
-		{ 9, -50 },
-		{ -9, -32 },
-		{ 9, -26 },
-		{ -27, -54 },
-		{ 27, -38 },
-		{ -27, -26 },
-		{ 20, -14 }, -- under the ice cream van at the end of the lane
-		-- The hub: under the slide, in the sandbox, by the tyre swing
-		{ 0, 10 },
-		{ -10, 22 },
-		{ 10, 26 },
-		-- The five loop houses' porches, west to east
-		{ -44, 4 },
-		{ -38, 36 },
-		{ 0, 56 },
-		{ 38, 36 },
-		{ 44, 4 },
-		-- The back gardens: the trampoline and the fence tops
-		{ -58, 58 },
-		{ 58, 58 },
+	set = "CatCafe_Neighbourhood_Set",
+	-- The set's cat spots, all but the shed (the trap) and the three flower beds under 4 studs from their porches.
+	spawnPoints = setPoints(NX, NZ, NTURN, 0.1, {
+		-- porch steps
+		{ 19.6, 1.0, -58.8 },
+		{ -19.6, 1.0, -53.2 },
+		{ 19.6, 1.0, -33.3 },
+		{ -19.6, 1.0, -23.2 },
+		{ 7.3, 1.0, 54.6 },
+		{ -24.71, 1.0, 44.39 },
+		{ 28.3, 1.0, 40.1 },
+		{ -34.56, 1.0, 16.75 },
+		{ 32.81, 1.0, 6.8 },
+		-- flower beds
+		{ 16.3, 0.7, -62.5 },
+		{ -16.3, 0.7, -49.5 },
+		{ -16.3, 0.7, -19.5 },
+		{ -19.8, 0.7, 45.1 },
+		{ 28.16, 0.7, 35.14 },
+		{ -31.95, 0.7, 20.97 },
+		-- the hub: the tyre, under the slide, the sandpit
+		{ -7.65, 0.32, 24.1 },
+		{ 9.68, 0.32, 23.12 },
+		{ 8.39, 0.87, 12.97 },
+		-- the back gardens
+		{ -60.5, 1.73, 58 },
+		{ 58, 0, 56 },
+		-- driveways, the bins and the ice cream van
+		{ -18, 0, -41.5 },
+		{ 16, 0, -41.5 },
+		{ -16, 0, -11.5 },
+		{ 16, 0, -11.5 },
+		{ -30.6, 0.3, -12.5 },
+		{ -22.41, 0.24, 14.08 },
 	}),
 	rescueSpots = {
-		-- Stand-ins: the box for the shed in the west back garden, the drainpipe for the gutter on the far wall.
-		{
-			prop = "CatCafe_Alley_StuckBox",
-			trap = "shed",
-			x = NX - NHW + 4,
-			z = NZ + 40,
-			rotY = -90,
-		},
-		{ prop = "CatCafe_Alley_Drainpipe", trap = "gutter", x = NX + 14, z = NZ + NHD - 0.5 },
+		-- The set's jammed shed door, and the gutter's stand-in drainpipe in front of the far gardens' hedge.
+		setTrap(NX, NZ, NTURN, "shed", { 59.2, 0, 40 }),
+		{ prop = "CatCafe_Alley_Drainpipe", trap = "gutter", x = NX + 16, z = NZ + 62 },
 	},
 	props = {
 		{ asset = "CatCafe_Alley_StreetLamp", x = NX - 16, z = NZ - NHD + 3 },
@@ -622,40 +675,12 @@ Layout.neighbourhood = {
 	},
 } :: AreaSpec
 
--- The Woods and the Sewer keep their v3 graybox plans, which faced the town on their +Z side, turned a quarter so
+-- The Woods and the Sewer keep their v3 graybox props, planned facing the town on their +Z side, turned a quarter so
 -- that side faces the town (town-layout-v3.md section 7f): an offset (dx, dz) becomes (dz, -dx) for the Woods
 -- (quarter 1, the town toward +X) and (-dz, dx) for the Sewer (quarter -1), and a turn rotY becomes rotY + 90 x
--- quarter. Their kits will come as sets with their own points.
+-- quarter. Their kit sets bring their own cat spots and traps.
 local function quarterTurn(quarter: number, dx: number, dz: number): (number, number)
 	return quarter * dz, -quarter * dx
-end
-
-local function aroundTurned(
-	cx: number,
-	cz: number,
-	quarter: number,
-	offsets: { { number } }
-): { Point }
-	local points: { Point } = {}
-	for _, offset in offsets do
-		local dx, dz = quarterTurn(quarter, offset[1], offset[2])
-		table.insert(points, { x = cx + dx, y = 0.1, z = cz + dz })
-	end
-	return points
-end
-
-local function trapTurned(
-	cx: number,
-	cz: number,
-	quarter: number,
-	prop: string,
-	trap: string,
-	dx: number,
-	dz: number,
-	rotY: number?
-): RescuePoint
-	local x, z = quarterTurn(quarter, dx, dz)
-	return { prop = prop, trap = trap, x = cx + x, z = cz + z, rotY = (rotY or 0) + 90 * quarter }
 end
 
 local function propTurned(
@@ -672,6 +697,7 @@ end
 
 local WX, WZ = W.WoodsCenterX, W.WoodsCenterZ
 local WHW = W.WoodsWidth / 2
+local WTURN = townTurn(WX, WZ, W.WoodsGateX, nil)
 Layout.woods = {
 	floorY = 0.1,
 	center = { x = WX, y = 0, z = WZ },
@@ -679,28 +705,30 @@ Layout.woods = {
 	halfDepth = W.WoodsDepth / 2,
 	gateX = W.WoodsGateX,
 	openingHalfWidth = GH,
-	spawnPoints = aroundTurned(WX, WZ, 1, {
-		{ -5, 24 },
-		{ 8, 22 },
-		{ -18, 22 },
-		{ 22, 24 },
-		{ -26, 10 },
-		{ -10, 12 },
-		{ 4, 7 },
-		{ 16, 10 },
-		{ 27, 0 },
-		{ -21, -5 },
-		{ -5, -7 },
-		{ 10, -7 },
-		{ 23, -12 },
-		{ -13, -19 },
-		{ 2, -22 },
-		{ 16, -26 },
+	set = "CatCafe_Woods_Set",
+	spawnPoints = setPoints(WX, WZ, WTURN, 0.1, {
+		-- in the Great Oak's roots
+		{ -2.95, 0, 12.13 },
+		{ 2.95, 0, 12.13 },
+		{ 6.63, 0, 7.51 },
+		{ -8.4, 0, -36.5 }, -- the bridge
+		{ 24.32, 0, 0.91 }, -- the tents
+		{ 33.03, 0, -19.35 },
+		{ -18, 0.05, -10 }, -- the mushroom ring
+		{ -32.73, 0, 16.73 }, -- the treehouse
+		{ 38, 0, 28 }, -- the lookout tower
+		{ 10, 0, -26 }, -- ferns
+		{ -12, 0, -28 },
+		{ 17, 0, 9.6 }, -- the berry bush
+		{ -20, 2, 4 }, -- mossy rocks
+		{ -24, 2, -32 },
+		{ 6, 1.66, 18 }, -- the stump
+		{ -12, 0, -3 }, -- the leaf pile
+		{ 18.33, 0, -29.99 }, -- the fallen log
 	}),
 	rescueSpots = {
-		-- Stand-ins for the hollow log and the bramble bush, against the side walls; branches reach toward the middle.
-		trapTurned(WX, WZ, 1, "CatCafe_Alley_StuckTree", "hollow_log", WHW - 4, -26),
-		trapTurned(WX, WZ, 1, "CatCafe_Alley_StuckTree", "bramble_bush", -WHW + 4, 18, 180),
+		setTrap(WX, WZ, WTURN, "hollow_log", { -14, 0, 22 }),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { 14, 0, 22 }),
 	},
 	props = {
 		propTurned(WX, WZ, 1, "CatCafe_Park_Tree", 27, 14),
@@ -714,6 +742,7 @@ Layout.woods = {
 
 local SX, SZ = W.SewerCenterX, W.SewerCenterZ
 local SHD = W.SewerWidth / 2 -- the plan's depth runs along X once turned
+local STURN = townTurn(SX, SZ, W.SewerGateX, nil)
 Layout.sewer = {
 	floorY = 0.1,
 	center = { x = SX, y = 0, z = SZ },
@@ -721,28 +750,33 @@ Layout.sewer = {
 	halfDepth = W.SewerDepth / 2,
 	gateX = W.SewerGateX,
 	openingHalfWidth = GH,
-	spawnPoints = aroundTurned(SX, SZ, -1, {
-		{ -5, 18 },
-		{ 6, 18 },
-		{ -16, 18 },
-		{ 18, 16 },
-		{ -10, 8 },
-		{ 2, 5 },
-		{ 13, 3 },
-		{ -20, 3 },
-		{ 21, -7 },
-		{ -5, -5 },
-		{ 6, -7 },
-		{ -15, -10 },
-		{ 15, -15 },
-		{ -20, -20 },
-		{ -3, -19 },
-		{ 6, -23 },
+	set = "CatCafe_Sewer_Set",
+	setLift = 0.4, -- the set's tiled slab
+	spawnPoints = setPoints(SX, SZ, STURN, 0.1, {
+		{ 3, 3.5, -24 }, -- the catwalk
+		{ 21.97, 3.3, 23.91 }, -- the junk throne
+		{ 13, 0.4, 30 }, -- the toy pile
+		{ -31.8, 0.4, 42.8 }, -- the valve
+		{ -28, 3.65, 30 }, -- the mine cart
+		{ 37.6, 0.4, 38 }, -- a pipe end
+		{ 18.6, 0.4, -7 }, -- the market stalls
+		{ 18.6, 0.4, 0 },
+		{ 18.6, 0.4, 7 },
+		{ -15.4, 0.4, 2.27 }, -- the rat houses
+		{ -16.51, 0.4, 12.35 },
+		{ -13.94, 0.4, -4.57 },
+		{ -20.3, 0.4, 6.89 },
+		{ 34.12, 1.88, -30.44 }, -- the sofa
+		{ 30.6, 2.55, -11.7 }, -- the decks
+		{ -30.49, 2.55, -31.54 },
+		{ -21, 1.6, -16 }, -- the boat
+		{ -11.6, 2.35, -16.6 }, -- the raft
+		{ 18, 1, -24 }, -- the trolley
+		{ 37, 2.4, 25 }, -- the hammock
 	}),
 	rescueSpots = {
-		-- Stand-ins for the drain pipe and the grate, both on the far wall, outlets toward the opening.
-		trapTurned(SX, SZ, -1, "CatCafe_Alley_Drainpipe", "drain_pipe", -12, -SHD + 0.5, 180),
-		trapTurned(SX, SZ, -1, "CatCafe_Alley_Drainpipe", "grate", 14, -SHD + 0.5, 180),
+		setTrap(SX, SZ, STURN, "grate", { -31, 0.4, 2 }),
+		setTrap(SX, SZ, STURN, "drain_pipe", { -40, 0.4, -35 }),
 	},
 	props = {
 		-- lamps either side of the opening, then crates and a bin
@@ -847,11 +881,7 @@ Layout.indexBoards = {
 -- turn that puts an area kit's -Z side toward the town (town-layout-v3.md section 7b): none for the Neighbourhood, a
 -- half turn for the Park, a quarter turn each way for the Woods and the Sewer. 0 for an area with no gate.
 function Layout.gateTurn(spec: AreaSpec): number
-	local gateX, gateZ = spec.gateX, spec.gateZ
-	if gateX ~= nil then
-		return if gateX > spec.center.x then -90 else 90
-	end
-	return if gateZ ~= nil and gateZ > spec.center.z then 180 else 0
+	return townTurn(spec.center.x, spec.center.z, spec.gateX, spec.gateZ)
 end
 
 -- Where an area's gate stands: across the middle of its opening. Nil for an area with no gate.

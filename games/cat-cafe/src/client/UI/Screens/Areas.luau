@@ -1,12 +1,11 @@
 --!strict
--- Areas screen (F19 fast travel): one card per area with its icon, the share of Epic or better strays, and a
--- Go button. Only the areas the player's tier has opened show (Derek 2026-10-27: no buttons for places you cannot
+-- Areas screen (F19 fast travel): one card per area with its icon, its name and a Go button (no spawn rates since
+-- 2026-10-28, Derek: "No need to show area rates everytime you walk into it or at all"). Only the areas the player's tier has opened show (Derek 2026-10-27: no buttons for places you cannot
 -- go yet), so the grid grows as they rank up, and every Go greys out while the player is carrying a cat, because
 -- walking it home is the loop. Opened from the Areas button in the HUD travel row.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
-local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Theme = require(script.Parent.Parent.Theme)
@@ -45,25 +44,6 @@ local function text(props: { [string]: any }): TextLabel
 	end
 	return Create("TextLabel", merged)
 end
-
--- "Epic or better 5.9%" from the area's stray odds, so later areas read as the place for rarer cats.
-local function rareShare(area: Types.AreaDef): string?
-	local odds = (area :: any).odds
-	if type(odds) ~= "table" then
-		return nil
-	end
-	local total = 0
-	for _, rarity in { "Epic", "Legendary", "Mythical" } do
-		local share = odds[rarity]
-		if type(share) == "number" then
-			total += share
-		end
-	end
-	-- catalog odds are percentages; Format.percent takes a fraction
-	return "Epic or better " .. Format.percent(total / 100)
-end
-
-Areas.rareShare = rareShare
 
 function Areas.new(callbacks: Callbacks): Areas
 	local self = setmetatable({}, Areas) :: any
@@ -178,16 +158,6 @@ function Areas._buildCards(self: any)
 			Text = area.name,
 			Parent = frame,
 		})
-		local detail = text({
-			Name = "Detail",
-			Position = UDim2.fromOffset(10, 118),
-			Size = UDim2.new(1, -20, 0, 18),
-			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textSmall,
-			TextColor3 = Theme.modal.subtext,
-			Text = rareShare(area) or "",
-			Parent = frame,
-		})
 		local go = Button.new({
 			name = "Go",
 			text = "Go",
@@ -207,7 +177,6 @@ function Areas._buildCards(self: any)
 			icon = icon,
 			lock = lock,
 			name = name,
-			detail = detail,
 			go = go,
 			def = area,
 		}

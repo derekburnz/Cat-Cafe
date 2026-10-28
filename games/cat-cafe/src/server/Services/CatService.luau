@@ -311,6 +311,9 @@ local function nap(stray: Stray): boolean
 	return canWander(stray)
 end
 
+-- How far above its area's walking floor a stray's home is a perch it does not wander from.
+local PERCH_ABOVE = 0.6
+
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
 	local alive = function()
@@ -324,15 +327,21 @@ local function wander(stray: Stray)
 		if rng:NextNumber() < NAP_CHANCE and not nap(stray) then
 			continue
 		end
+		-- A stray spawned up on a porch, a rock or the Sewer's catwalk (the area sets' cat spots) stays there until a
+		-- miss sends it running to the floor; on the floor it walks no further than the first solid thing in the way.
+		if stray.home.Y > area.floorY + PERCH_ABOVE then
+			continue
+		end
 		local radius = Config.StrayWanderRadius
+		local at = stray.model:GetPivot().Position
 		local target = WorldBuilder.clampToArea(
 			area,
 			stray.home
 				+ Vector3.new(rng:NextNumber(-radius, radius), 0, rng:NextNumber(-radius, radius)),
 			2,
-			stray.model:GetPivot().Position
+			at
 		)
-		Mover.walkTo(stray.model, target, Config.StrayWanderSpeed, alive)
+		Mover.walkTo(stray.model, clearPath(at, target), Config.StrayWanderSpeed, alive)
 	end
 end
 
@@ -483,13 +492,7 @@ local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)
 	local area = world.areas[areaId]
 	local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
-	spawnStray(
-		def,
-		areaId,
-		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
-		pointIndex,
-		nil
-	)
+	spawnStray(def, areaId, point.Position, pointIndex, nil)
 end
 
 -- A beginner always finds a Common stray waiting in the back alley right outside their own yard gate: plot p's
@@ -1262,20 +1265,12 @@ local function onDropCat(player: Player)
 	endCarry(player)
 	local pointIndex = freeSpawnPoint(homeId, nil)
 	local point = area.spawnPoints[pointIndex or rng:NextInteger(1, #area.spawnPoints)]
-	spawnStray(
-		carry.def,
-		homeId,
-		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
-		pointIndex,
-		nil,
-		nil,
-		{
-			charm = carry.charm,
-			variant = carry.variant,
-			method = carry.method,
-			drop = Shove.newDrop(player.UserId, 0, serverNow()),
-		}
-	)
+	spawnStray(carry.def, homeId, point.Position, pointIndex, nil, nil, {
+		charm = carry.charm,
+		variant = carry.variant,
+		method = carry.method,
+		drop = Shove.newDrop(player.UserId, 0, serverNow()),
+	})
 	local areaDef = Catalog.getArea(homeId)
 	Net.toast(
 		player,
@@ -1496,7 +1491,7 @@ function CatService.debugSpawnStray(catId: string, areaId: string, gold: boolean
 	local stray = spawnStray(
 		def :: Types.CatDef,
 		areaId,
-		Vector3.new(point.Position.X, area.floorY, point.Position.Z),
+		point.Position,
 		pointIndex,
 		Config.StrayDespawnSeconds,
 		gold

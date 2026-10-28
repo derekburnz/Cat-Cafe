@@ -87,6 +87,17 @@ function Format.roleName(role: string): string
 	return role:sub(1, 1):upper() .. role:sub(2)
 end
 
+-- A cat's favourite role for a RichText line (Derek 2026-10-27, again 2026-10-28: "bold the text and have a little
+-- symbol of what role they like the most"): the role's icon, then "Loves Barista" in bold, in `ink` when given.
+function Format.lovesRole(role: string, ink: Color3?): string
+	local words = "<b>Loves " .. Format.roleName(role) .. "</b>"
+	if ink then
+		words = ('<font color="#%s">%s</font>'):format(ink:ToHex(), words)
+	end
+	local icon = Theme.roleIcons[role]
+	return if icon then icon .. " " .. words else words
+end
+
 -- 0.6 -> "60%", 0.125 -> "12.5%", 0.004 -> "0.4%" (whole percentages, one decimal under 10%)
 function Format.percent(fraction: number): string
 	local value = fraction * 100

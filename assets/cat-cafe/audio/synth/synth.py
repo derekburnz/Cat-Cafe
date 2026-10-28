@@ -962,6 +962,55 @@ def cat_level_up() -> np.ndarray:
     return finish(fade_tail(mix(d, *run, *twinkle), 0.35), -7)
 
 
+# --- design v0.10: the Daily Treat (F70, sound list 5.10) -----------------------------------------
+
+
+def stamp_thunk(seed: int) -> np.ndarray:
+    """A soft rubber stamp pressed onto a card: a padded thump with a papery tap on top."""
+    d = 0.2
+    thump = glide(d, 190, 105, 0.05) * envelope(d, 0.002, 0.045)
+    paper = bandpass(bandpass(noise(d, seed), 1100, 1.2), 1100, 1.2) * envelope(d, 0.0008, 0.014)
+    return thump + paper / np.max(np.abs(paper)) * 0.45
+
+
+def soft_pad(d: float, names, attack: float, release: float) -> np.ndarray:
+    """A gentle sustained chord: rounded sines with a slow swell and a soft fade, no brass edge."""
+    t = seconds(d)
+    env = np.clip(t / attack, 0, 1) ** 1.5 * np.clip((d - t) / release, 0, 1)
+    voice = sum(np.sin(2 * np.pi * note(n) * k * t * (1 + 0.0015 * j)) / k**1.5
+                for j, n in enumerate(names) for k in (1, 2, 3))
+    return voice * env * (1 + 0.04 * np.sin(2 * np.pi * 4.8 * t))
+
+
+def ui_daily_stamp() -> np.ndarray:
+    """A Daily Treat stamp is claimed (F70, days 1 to 6): a soft stamp lands on the card, then a warm vibraphone
+    run with a piano chord under it and a small sparkle. A little bigger than the code redeem."""
+    d = 1.5
+    run = [(vibe(d - at, note(n), i) * 0.6, at) for i, (n, at) in
+           enumerate((("A5", 0.16), ("C6", 0.24), ("F6", 0.33)))]
+    chord = [(bell(d - 0.33, note(n), PIANO, attack=0.004) * 0.35, 0.33) for n in ("F4", "A4", "C5")]
+    sparkle = [(bell(0.3, f, ((1.0, 1.0, 0.05),)) * 0.16, 0.5 + 0.05 * i) for i, f in enumerate((3520.0, 4186.0, 5274.0))]
+    return finish(fade_tail(mix(d, (stamp_thunk(420), 0.0), *run, *chord, *sparkle), 0.4), -4)
+
+
+def jingle_daily_card() -> np.ndarray:
+    """Day 7 fills the Daily Treat card (F70): the last stamp lands, a music box plays a short happy phrase over a
+    warm, slow swell of soft chords, and it settles on a sparkle. A fanfare, but a gentle one. Ducks the music."""
+    d = 3.2
+    tune = [(bell(d - at, note(n), CELESTA) * amp, at) for n, at, amp in
+            (("C6", 0.2, 0.55), ("E6", 0.32, 0.55), ("G6", 0.44, 0.6), ("A6", 0.62, 0.6), ("G6", 0.8, 0.55),
+             ("E6", 0.92, 0.5), ("G6", 1.04, 0.55), ("C7", 1.28, 0.75))]
+    vibes = [(vibe(d - at, note(n), i) * 0.35, at) for i, (n, at) in
+             enumerate((("E5", 0.2), ("F5", 0.62), ("E5", 1.28), ("G5", 1.28)))]
+    pads = [(soft_pad(0.5, ("C4", "E4", "G4"), 0.12, 0.2), 0.2), (soft_pad(0.7, ("F4", "A4", "C5"), 0.15, 0.25), 0.55),
+            (soft_pad(1.9, ("C4", "E4", "G4", "C5"), 0.25, 1.0), 1.2)]
+    pads = [(x * 0.06, at) for x, at in pads]
+    bass = [(bell(d - at, note(n), PIANO, attack=0.004) * 0.3, at) for n, at in (("C3", 0.2), ("F3", 0.62), ("C3", 1.28))]
+    sparkle = [(bell(0.4, f, ((1.0, 1.0, 0.07),)) * 0.15, 1.45 + 0.06 * i)
+               for i, f in enumerate((3520.0, 4186.0, 4698.6, 5274.0))]
+    return finish(fade_tail(mix(d, (stamp_thunk(421), 0.0), *tune, *vibes, *pads, *bass, *sparkle), 0.9), -4)
+
+
 def purr_loop(seed: int, rate: float, out_s: float, in_s: float) -> np.ndarray:
     """A cat's purr over exactly one breath out and one breath in, so it loops. A purr is a fast train of tiny
     clicks (the voice box opening and closing about 25 times a second) heard through the mouth and nose, louder
@@ -1082,6 +1131,8 @@ SOUNDS = {
     "TackleLunge": ("sfx", "Sfx", tackle_lunge),
     "TackleMiss": ("sfx", "Sfx", tackle_miss),
     "CatLevelUp": ("sfx", "Sfx", cat_level_up),
+    "DailyStamp": ("ui", "Ui", ui_daily_stamp),
+    "JingleDailyCard": ("music", "Music", jingle_daily_card),
 }
 
 

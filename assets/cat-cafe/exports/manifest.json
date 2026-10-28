@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 05:32 UTC",
+  "generated": "2026-10-28 06:08 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -70798,7 +70798,7 @@
         "CatCafe_Sewer_SetV32_113_Barrel",
         "CatCafe_Sewer_SetV32_114_Barrel"
       ],
-      "triangles": 89046,
+      "triangles": 89112,
       "budget": 120000,
       "size_studs": {
         "x": 179.2,
@@ -71229,7 +71229,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetV32.model.json",
-      "rbx_parts": 4465,
+      "rbx_parts": 4471,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.glb"
@@ -71241,10 +71241,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "89046/120000 tris",
+          "budget": "89112/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "46574 faces on swatch centers",
+          "uv": "46607 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.08"

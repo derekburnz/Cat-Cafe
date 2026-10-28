@@ -683,8 +683,8 @@ def cross_wall(mat):
     for x in (12.0, 25.0, 42.0, 56.0):                                   # pilasters, both faces (the beam at 25 lands on one)
         for (za, zb) in ((z0 - 0.4, z0), (z1, z1 + 0.4)):
             span(b, x - 0.8, x + 0.8, za, zb, 0, WALL_H, "concrete")
-    span(b, 26.7, 40.3, z0 - 0.5, z0, 11.4, 14.0, "sign_teal")                    # the market's sign
-    span(b, 26.35, 40.65, z0 - 0.45, z0 - 0.05, 11.05, 14.35, IRON)
+    span(b, 26.4, 40.6, z0 - 0.5, z0, 11.4, 14.0, "sign_teal")                    # the market's sign
+    span(b, 26.05, 40.95, z0 - 0.45, z0 - 0.05, 11.05, 14.35, IRON)
     tw = text_width("JUNK MARKET", 0.3)
     rb.text("JUNK MARKET", (33.5 + tw / 2, 11.95, z0 - 0.54), 0.3, 0.1, "offwhite", right=(-1, 0, 0))
     return [b.finalize(N + "CrossWall", mat)]
@@ -1055,7 +1055,7 @@ def build_set(mat):
         _spot(s, "chamber", x, z)
     put(sw.puddle(mat), -34, -12, 0)
     put(sw.suitcase_stack(mat), -72, 2, 30)
-    put(alleyway.build_crate_stack(mat), -80, -8, -20)
+    put(alleyway.build_crate_stack(mat), -76, 5, -20)                             # clear of the barred mouth
     for (x, z) in ((-22, -22), (-19.6, -23.5)):
         put(sw.barrel(mat), x, z, 0)
     return s.finish(_ground(), mat), s

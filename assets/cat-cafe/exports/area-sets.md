@@ -12,7 +12,7 @@ v3.1 `CatCafe_Woods_Set` and `CatCafe_Sewer_Set` are still sized for v3.1 (secti
 | `CatCafe_Sewer_Set` | 93.2 x 93.3 | 36,400 | 1,249 | 90 x 90 walkable, centre (140, 0), gate x 94 |
 | `CatCafe_Park_Set` | 159.5 x 119.75 | 54,766 | 2,807 | v3.2: 160 x 120, centre (0, -186), gate z -125 |
 | `CatCafe_Woods_SetV32` | 240 x 240 | 105,040 | 4,510 | v3.2: 240 x 240, centre (-215, 0), gate x -94 |
-| `CatCafe_Sewer_SetV32` | 179.2 x 179.15 | 89,046 | 4,465 | v3.2: 180 x 180, centre (185, 0), gate x 94 |
+| `CatCafe_Sewer_SetV32` | 179.2 x 179.15 | 89,112 | 4,471 | v3.2: 180 x 180, centre (185, 0), gate x 94 |
 
 ## Placing a set
 

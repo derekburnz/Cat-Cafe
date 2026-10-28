@@ -340,8 +340,9 @@ end
 -- The door set and cat flap in use (F80, golden-fish.md 4b) swap models in: DoorFront in the front doorway and
 -- DoorBack in the back one (the piece's CatCafe_Door_<Name>, or its _Front and _Back versions where the art has
 -- them), each at the bottom centre of its opening facing out, and CatFlap at the back door model's `CatFlap`
--- attachment, or low on the cafe's own back door panel's yard face with no door set in use. With none in use the cafe
--- keeps its own doors.
+-- attachment: the door set's, else the real back door's (Model-Agent #509, its leaf as built, shut; each client
+-- carries the flap with the leaf as it swings), else low on the back door panel's yard face. With none in use the
+-- cafe keeps its own doors.
 local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 	local front = plot.door.CFrame * CFrame.new(0, -plot.door.Size.Y / 2, 0)
 	local back = plot.backDoor.CFrame
@@ -359,7 +360,8 @@ local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 	showStyleModel(plot, "DoorFront", doorAsset("Front"), doorId, front)
 	local backModel = showStyleModel(plot, "DoorBack", doorAsset("Back"), doorId, back)
 	local flapAt = back * CFrame.new(0, 0, -plot.backDoor.Size.Z / 2 - 0.05)
-	local hinge = if backModel ~= nil then backModel:FindFirstChild("CatFlap", true) else nil
+	local doorModel: Model? = if backModel ~= nil then backModel else plot.backDoorArt
+	local hinge = if doorModel ~= nil then doorModel:FindFirstChild("CatFlap", true) else nil
 	if hinge ~= nil and hinge:IsA("Attachment") then
 		flapAt = (hinge :: Attachment).WorldCFrame
 	end

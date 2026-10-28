@@ -31,7 +31,8 @@ export type Plot = {
 	customerEntry: BasePart,
 	counter: Model, -- Counter; out of the plot while the For Rent set's dust-sheeted counter stands in for it
 	espresso: BasePart,
-	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1
+	backDoor: BasePart, -- the back door panel: shut on an empty plot, open from Tier 1; unseen under backDoorArt
+	backDoorArt: Model?, -- BackDoorArt, CatCafe_Plot_BackDoor when the art is in: the door the client swings
 	backDoorZone: BasePart, -- check-in works here as well as at the front door
 	expansions: { Model }, -- Expansions/<n>, patio sections in the yard, hidden until the owner's tier opens them
 	napSpots: { BasePart }, -- NapSpots/<n>, where cats without a job nap, best first
@@ -73,6 +74,7 @@ local BRICK = Color3.fromRGB(150, 85, 70)
 local GRASS = Color3.fromRGB(110, 170, 90)
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
+local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
 local DECK = Color3.fromRGB(205, 160, 110)
 -- The cafe shell's facade pastel, by plot number (world-and-feel.md section 3).
 local SHELL_COLORS = { "Mint", "Blush", "Butter", "Lilac" }
@@ -206,7 +208,43 @@ end
 
 function WorldBuilder.setBackDoorOpen(plot: Plot, open: boolean)
 	plot.backDoor.CanCollide = not open
-	plot.backDoor.Transparency = if open then 1 else 0
+	-- under the real door the panel is only the collider
+	plot.backDoor.Transparency = if open or plot.backDoorArt ~= nil then 1 else 0
+end
+
+-- The real back door (Model-Agent #509) at the plot's pivot, tagged CafeBackDoor: the threshold and architrave stay
+-- put and each client swings the _Leaf and turns the _Flap (DoorController). Nothing on it collides or blocks a ray,
+-- so the code-built panel stays the collider. Its CLOSED UNTIL SUNRISE sign comes hidden, each plate part's look
+-- kept in NightTransparency for DoorController and each bulb's day look hidden, so WorldController lights the bulbs
+-- at night only.
+local function buildBackDoorArt(cframe: CFrame, parent: Instance): Model
+	local art = AssetRegistry.clone(BACK_DOOR_ART)
+	art.Name = "BackDoorArt"
+	art.ModelStreamingMode = Enum.ModelStreamingMode.Persistent -- the client keeps the leaf's shut pivot
+	for _, descendant in art:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local piece = descendant :: BasePart
+			piece.Anchored = true
+			piece.CanCollide = false
+			piece.CanQuery = false
+			piece.CanTouch = false
+			local holder = piece.Parent
+			if
+				holder ~= nil
+				and (
+					holder.Name == BACK_DOOR_ART .. "_Sign"
+					or holder.Name == BACK_DOOR_ART .. "_Sign_Bulb"
+				)
+			then
+				piece:SetAttribute("NightTransparency", piece.Transparency)
+				piece.Transparency = 1
+			end
+		end
+	end
+	art:PivotTo(cframe)
+	CollectionService:AddTag(art, "CafeBackDoor")
+	art.Parent = parent
+	return art
 end
 
 -- Derek 22:43: an empty cafe has no cats. The For Rent art still has a sleeping doorstep cat and its Zzz baked in
@@ -465,6 +503,9 @@ local function buildPlot(index: number, parent: Instance): Plot
 	)
 	local backDoorZone = anchor("BackDoorZone", cframe * CFrame.new(door0.x, 3, halfD + 0.5), model)
 	backDoorZone.Size = Vector3.new(door0.width, 6, 2)
+	local backDoorArt = if AssetRegistry.has(BACK_DOOR_ART)
+		then buildBackDoorArt(cframe, model)
+		else nil
 
 	-- The patio yard's low fence: both sides and the back, with a gate gap in line with the back door.
 	local yard, gate = Layout.plot.yard, Layout.plot.yardGate
@@ -683,6 +724,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 		counter = counter,
 		espresso = espresso,
 		backDoor = backDoor,
+		backDoorArt = backDoorArt,
 		backDoorZone = backDoorZone,
 		expansions = expansions,
 		napSpots = napSpots,
@@ -997,7 +1039,10 @@ local function buildNightFences(
 			placeNightFence(asset, gate:GetPivot(), parent).Name = asset
 		end
 	end
-	if AssetRegistry.has("CatCafe_Plot_BackDoorClosed") then
+	-- the real back door shuts with its own sign at night, so the closed back door only stands in without it
+	if
+		AssetRegistry.has("CatCafe_Plot_BackDoorClosed") and not AssetRegistry.has(BACK_DOOR_ART)
+	then
 		for _, plot in plots do
 			placeNightFence("CatCafe_Plot_BackDoorClosed", plot.cframe, plot.model).Name =
 				"BackDoorClosed"

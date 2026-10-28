@@ -151,6 +151,20 @@ function Catching.shoutOut(
 	return string.format("%s %s %s%s%s!", playerName, verb, article, phrase, where or "")
 end
 
+-- F58 (data-model section 9, v0.8): the server-wide line when a wave spawns a Mythical stray, naming the area and
+-- not the cat, so finding it is still a surprise: "A Mythical cat appeared in the Woods!", "A gold Mythical cat..."
+-- when it is gold. Nil for any other rarity.
+function Catching.waveShoutOut(rarity: Types.Rarity, variant: string?, areaName: string): string?
+	if rarity ~= "Mythical" then
+		return nil
+	end
+	return string.format(
+		"A %sMythical cat appeared in the %s!",
+		if variant == "gold" then "gold " else "",
+		areaName
+	)
+end
+
 function Catching.percentText(chance: number): string
 	return string.format("%d%%", math.floor(chance * 100 + 0.5))
 end

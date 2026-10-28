@@ -609,4 +609,19 @@ return function()
 			expect(Catching.spawnPool(plain, "Common") :: any).to.deepEqual({ 1, 3 })
 		end)
 	end)
+	describe("waveShoutOut: a wave's Mythical told to the whole server (F58, data-model section 9)", function()
+		it("names the area and not the cat, and says gold when it is", function()
+			expect(Catching.waveShoutOut("Mythical", "base", "Woods")).to.equal("A Mythical cat appeared in the Woods!")
+			expect(Catching.waveShoutOut("Mythical", "gold", "Alleyway")).to.equal(
+				"A gold Mythical cat appeared in the Alleyway!"
+			)
+			expect(Catching.waveShoutOut("Mythical", nil, "Park")).to.equal("A Mythical cat appeared in the Park!")
+		end)
+
+		it("says nothing for any other rarity, gold or not", function()
+			for _, rarity in { "Common", "Rare", "Epic", "Legendary" } do
+				expect(Catching.waveShoutOut(rarity :: any, "gold", "Sewer")).never.to.be.ok()
+			end
+		end)
+	end)
 end

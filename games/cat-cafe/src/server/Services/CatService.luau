@@ -515,11 +515,11 @@ local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
 	return if pick ~= nil then pool[pick] else nil
 end
 
-local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity)
+local function spawnAt(areaId: string, pointIndex: number, rarity: Types.Rarity): Stray
 	local area = world.areas[areaId]
 	local def = Catching.pickCat(rarity, areaId, rng:NextNumber())
 	local point = area.spawnPoints[pointIndex]
-	spawnStray(def, areaId, point.Position, pointIndex, nil)
+	return spawnStray(def, areaId, point.Position, pointIndex, nil)
 end
 
 -- A beginner always finds a Common stray waiting in the back alley right outside their own yard gate: plot p's
@@ -571,7 +571,13 @@ local function spawnWave(areaDef: Types.AreaDef)
 	for _, rarity: Types.Rarity in rarities do
 		local point = freeSpawnPoint(areaDef.id, rarity)
 		if point ~= nil then
-			spawnAt(areaDef.id, point, rarity)
+			local stray = spawnAt(areaDef.id, point, rarity)
+			-- F58: everyone in the server hears of a wave's Mythical, those without the area too (a reason to rank
+			-- up); a tutorial or bait Mythical is not a wave's
+			local text = Catching.waveShoutOut(rarity, stray.variant, areaDef.name)
+			if text ~= nil then
+				Net.fireAll("Announce", text, rarity)
+			end
 		end
 	end
 end

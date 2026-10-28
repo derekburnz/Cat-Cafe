@@ -137,7 +137,7 @@ return function()
 						end
 					end
 				end
-				local pieceTurns: { number } = if id == "woods" then { 20, -20, 0, 0, 0 } else {}
+				local pieceTurns: { number } = if id == "woods" then { 20, -20, 0, 0, -106.26 } else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
 					if spot.prop == nil then

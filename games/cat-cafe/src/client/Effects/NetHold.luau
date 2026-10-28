@@ -28,6 +28,7 @@ type Held = {
 	level: number, -- the model it is (1 to 3)
 	offset: CFrame, -- the model's pivot from its Grip
 	parts: { BasePart }, -- the net's parts, to fade with the hand
+	missing: number?, -- a level whose net the assets lack: no hold while it stays the level
 }
 
 local CHECK_SECONDS = 0.25 -- how often a character's area is read again
@@ -113,6 +114,7 @@ function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boo
 			level = 0,
 			offset = CFrame.identity,
 			parts = {},
+			missing = nil,
 		}
 	held[character] = entry
 	entry.rig = rig
@@ -130,13 +132,14 @@ function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boo
 	if entry.model ~= nil and entry.level ~= level then
 		drop(entry) -- an upgrade bought while holding: the new net comes next
 	end
-	entry.weight = Avatar.holdWeight(entry.weight, entry.holding and near, dt)
+	entry.weight =
+		Avatar.holdWeight(entry.weight, entry.holding and near and entry.missing ~= level, dt)
 	if entry.weight >= Presets.netHold.showAt then
 		if entry.model == nil then
 			local model, offset, parts = make(level)
 			entry.model, entry.offset, entry.parts, entry.level = model, offset, parts, level
 			if model == nil then
-				entry.weight = 0 -- no net to hold, so no hold
+				entry.weight, entry.missing = 0, level -- no net to hold, so the arm stays down
 			end
 		end
 	else

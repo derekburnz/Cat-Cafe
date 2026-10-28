@@ -315,7 +315,7 @@ Roblox has a per-MeshPart triangle cap (10,000 at last check; verify in the Crea
 | Street stations | 6,000 | the Codes Cat desk and the Golden Fish Market stall, each with its cat (section 14) |
 | Currency props | 1,200 | the golden fish coin (`CatCafe_Prop_FishCoin`); its UI picture is rendered from it (section 14) |
 | Alleyway set pieces | 5,000 to 6,000 | arches and building backs; crate stack 3,000, laundry line 2,500, long string lights 1,500, manhole 2,500 |
-| Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier | built from blocks for the Part export (section 14); the FBX is the reference |
+| Cafe plot set pieces | 12,000 shell, 8,000 interior, 4,000 For Rent, 3,000 per tier, 4,000 back door | built from blocks for the Part export (section 14); the FBX is the reference |
 | Items | 300 | dealer foods: Sardines 400, Caviar 600; TipPile prop 600 |
 
 The build script prints the triangle count for every export and fails the build if a budget is exceeded.

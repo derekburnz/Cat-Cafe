@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 07:12 UTC",
+  "generated": "2026-10-28 07:35 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -72360,6 +72360,120 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.15"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_BackDoor",
+      "category": "Plot",
+      "module": "doors",
+      "objects": [
+        "CatCafe_Plot_BackDoor",
+        "CatCafe_Plot_BackDoor_Leaf",
+        "CatCafe_Plot_BackDoor_Leaf_Glass",
+        "CatCafe_Plot_BackDoor_Flap",
+        "CatCafe_Plot_BackDoor_Sign",
+        "CatCafe_Plot_BackDoor_Sign_Bulb"
+      ],
+      "triangles": 2298,
+      "budget": 4000,
+      "size_studs": {
+        "x": 6.9,
+        "y": 1.3,
+        "z": 7.95
+      },
+      "size_roblox": [
+        6.9,
+        7.95,
+        1.3
+      ],
+      "bounds_min": [
+        4.55,
+        13.68,
+        0.0
+      ],
+      "bounds_max": [
+        11.45,
+        14.98,
+        7.95
+      ],
+      "pivot": "Plot.cframe: floor top centre of the cafe; the _Leaf pivot is the hinge",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_BackDoor_Leaf": [
+          10.88,
+          14.72,
+          0.0
+        ],
+        "CatCafe_Plot_BackDoor_Leaf_Glass": [
+          10.88,
+          14.72,
+          0.0
+        ],
+        "CatCafe_Plot_BackDoor_Flap": [
+          8.0,
+          14.57,
+          2.35
+        ],
+        "CatCafe_Plot_BackDoor_Sign": [
+          10.88,
+          14.72,
+          0.0
+        ],
+        "CatCafe_Plot_BackDoor_Sign_Bulb": [
+          10.88,
+          14.72,
+          0.0
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_BackDoor_Leaf": [
+          -10.88,
+          0.0,
+          14.72
+        ],
+        "CatCafe_Plot_BackDoor_Leaf_Glass": [
+          -10.88,
+          0.0,
+          14.72
+        ],
+        "CatCafe_Plot_BackDoor_Flap": [
+          -8.0,
+          2.35,
+          14.57
+        ],
+        "CatCafe_Plot_BackDoor_Sign": [
+          -10.88,
+          0.0,
+          14.72
+        ],
+        "CatCafe_Plot_BackDoor_Sign_Bulb": [
+          -10.88,
+          0.0,
+          14.72
+        ]
+      },
+      "studio": "Every cafe, at the Plot pivot: a wooden door hung in the back doorway with a cat flap. Turn the child Model _Leaf about its pivot's Y to swing it (-90 degrees is wide open, out into the yard); _Flap rides the leaf and turns about its own X as a cat goes through. _Sign (CLOSED UNTIL SUNRISE) is for the night, its _Sign_Bulb glows. The leaf's CatFlap Attachment is where an F80 flap goes (hide _Flap then). Nothing collides: keep the code panel as the collider.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_BackDoor.model.json",
+      "rbx_parts": 191,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_BackDoor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_BackDoor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2298/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1125 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=8.00 y=14.33"
         }
       }
     }

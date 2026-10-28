@@ -569,11 +569,12 @@ return function()
 		end)
 
 		it(
-			"reaching $100 for Table 1 from the start takes about 34 s at the starter rate",
+			"reaching Table 1 from the start takes about a minute at the starter rate (67 s at $150, v0.13.6)",
 			function()
-				-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow.
+				-- Balance guard: if this jumps past ~2 minutes the tutorial beat 'buy a table' is too slow. QA: the cost
+				-- comes from the Catalog, so a price change is checked here too.
 				local p = freshProfile(0)
-				local seconds = (100 - p.coins) / Economy.incomePerSecond(p)
+				local seconds = (Catalog.upgradesById.tables.costs[1] - p.coins) / Economy.incomePerSecond(p)
 				expect(seconds <= 120).to.equal(true)
 			end
 		)
@@ -586,21 +587,47 @@ return function()
 				p.upgradeLevels.tables = 1
 				p.coins = 0
 				Economy.settle(p, 600 - 90) -- rough: 90 s spent walking and catching
-				expect(p.coins >= 100 + 250 + 400 + 25).to.equal(true)
+				local tables = Catalog.upgradesById.tables.costs
+				local spend = tables[1] + tables[2] + Catalog.upgradesById.lure_bowl.costs[1] + Catalog.luresById.kibble.cost
+				expect(p.coins >= spend).to.equal(true)
 			end
 		)
 
 		it(
-			"Tier 2's 1,500 after the loop's purchases comes 10 to 20 minutes in (features section 8)",
+			"Tier 2's coins after the loop's purchases take more than 10 minutes on cafe income alone (v0.13.6)",
 			function()
-				-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second.
-				local spend = 100 + 250 + 400 + 25 + 1500 - Config.StartCoins
+				-- Balance guard at the loop's end rates: two Commons and two tables earn 3.0 or 3.6 per second. Since
+				-- v0.13.6 (Derek 01:38: "you can max out almost instantly every unlock") Tier 2 waits on coins after the
+				-- cats are ready at about 9 minutes, so cafe income alone must not reach it inside 10. The 20 minute top
+				-- of features section 8's window is the data-model 11 pace model's (16 min with first catch rewards,
+				-- Index coins and the Tip Jar), which this income-only sum leaves out; the S14 playtest times it. QA:
+				-- every cost comes from the Catalog (this guard read 1,500 and the old prices until v0.13.6).
+				local tables = Catalog.upgradesById.tables.costs
+				local spend = tables[1]
+					+ tables[2]
+					+ Catalog.upgradesById.lure_bowl.costs[1]
+					+ Catalog.luresById.kibble.cost
+					+ Catalog.tiers[2].cost
+					- Config.StartCoins
 				for _, rate in ipairs({ 2.5 * 1.2, 3.0 * 1.2 }) do
 					local minutes = spend / rate / 60
-					expect(minutes >= 10 and minutes <= 20).to.equal(true)
+					expect(minutes >= 10).to.equal(true)
 				end
 			end
 		)
+
+		it("every rank up costs at least five times the one before (QA, v0.13.6 pace)", function()
+			-- data-model 11, pace v0.13.6: income grows about five times a tier, and the old costs, growing about four
+			-- times, let every tier's shop be bought the moment it opened. A rank up cheaper than that is Derek's
+			-- 01:38 "max out almost instantly" again.
+			for tier = 3, Catalog.maxTier do
+				local ratio = Catalog.tiers[tier].cost / Catalog.tiers[tier - 1].cost
+				if ratio < 5 then
+					error(string.format("Tier %d costs only %.2f times Tier %d", tier, ratio, tier - 1))
+				end
+			end
+			expect(Catalog.tiers[2].cost >= 5000).to.equal(true)
+		end)
 	end)
 	describe("rank up (F24, section 5b)", function()
 		-- Cat ids of one rarity, in catalog order.

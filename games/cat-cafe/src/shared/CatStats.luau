@@ -1,6 +1,6 @@
 --!strict
 -- Per-cat stats (data-model section 4b): charm rolled once when the cat is caught, level and XP earned while
--- placed, and the rating they combine into. Pure: random rolls are passed in, so tests are deterministic.
+-- the owner is in the game (v0.12, F75), and the rating they combine into. Pure: random rolls are passed in, so tests are deterministic.
 --
 --   rating = rarity rate x charmMultiplier(charm) x levelMultiplier(level) x variantMultiplier(variant)
 --            x rescuedMultiplier(rescued)
@@ -19,6 +19,7 @@ CatStats.MIN_CHARM = 0
 CatStats.MAX_CHARM = 100
 CatStats.DEFAULT_CHARM = 50 -- exactly a 1.0x multiplier
 CatStats.MIN_LEVEL = 1
+CatStats.OLD_MAX_LEVEL = 10 -- the cap before v0.12 (frozen: old saves are remapped from it)
 
 -- Readers -------------------------------------------------------------------------------------------------
 
@@ -30,12 +31,14 @@ function CatStats.level(instance: Types.CatInstance): number
 	return math.clamp(math.floor(level), CatStats.MIN_LEVEL, Config.CatMaxLevel)
 end
 
+-- XP toward the next level. It may hold a fraction (a resting cat earns a quarter a second, v0.12), so only what
+-- is shown is floored (CatStats.view).
 function CatStats.xp(instance: Types.CatInstance): number
 	local xp = (instance :: any).xp
-	if type(xp) ~= "number" or xp ~= xp or xp < 0 then
+	if type(xp) ~= "number" or xp ~= xp or xp < 0 or xp == math.huge then
 		return 0
 	end
-	return math.floor(xp)
+	return xp
 end
 
 function CatStats.charm(instance: Types.CatInstance): number
@@ -105,7 +108,7 @@ end
 
 -- XP and levels -------------------------------------------------------------------------------------------
 
--- XP needed to go from `level` to the next one; 0 at the cap. One XP is one second placed on a spot.
+-- XP needed to go from `level` to the next one; 0 at the cap. A working cat earns one XP a second.
 function CatStats.xpToNext(level: number): number
 	if level >= Config.CatMaxLevel then
 		return 0
@@ -113,7 +116,7 @@ function CatStats.xpToNext(level: number): number
 	return Config.CatXpBase * math.max(CatStats.MIN_LEVEL, math.floor(level))
 end
 
--- Total placed seconds needed to reach `level` from level 1 (for balance checks and the collection UI).
+-- Total XP needed to reach `level` from level 1 (for balance checks and the collection UI).
 function CatStats.xpForLevel(level: number): number
 	local total = 0
 	for step = CatStats.MIN_LEVEL, math.min(level, Config.CatMaxLevel) - 1 do
@@ -127,8 +130,8 @@ end
 function CatStats.addXp(instance: Types.CatInstance, amount: number): number
 	local level = CatStats.level(instance)
 	local xp = CatStats.xp(instance)
-	if type(amount) == "number" and amount == amount and amount > 0 then
-		xp += math.floor(amount)
+	if type(amount) == "number" and amount == amount and amount > 0 and amount ~= math.huge then
+		xp += amount
 	end
 	local gained = 0
 	while level < Config.CatMaxLevel do
@@ -233,12 +236,21 @@ function CatStats.view(instance: Types.CatInstance): Types.CatView
 		name = instance.name,
 		method = instance.method,
 		level = level,
-		xp = CatStats.xp(instance),
+		xp = math.floor(CatStats.xp(instance)),
 		xpToNext = CatStats.xpToNext(level),
 		charm = charm,
 		stars = CatStats.stars(charm),
 		rating = CatStats.rating(instance),
 	}
+end
+
+-- An old save's level (CatMaxLevel 10, 5% a level) on the v0.12 curve (50 levels, 2% a level): 1 + ceil(2.5 x
+-- (L - 1)), which never lowers the cat's rating. Level 10 becomes 24 and level 1 stays 1 (data-model section 4b).
+function CatStats.remapLevel(level: number): number
+	local old = if type(level) == "number" and level == level
+		then math.clamp(math.floor(level), CatStats.MIN_LEVEL, CatStats.OLD_MAX_LEVEL)
+		else CatStats.MIN_LEVEL
+	return math.clamp(1 + math.ceil(2.5 * (old - 1)), CatStats.MIN_LEVEL, Config.CatMaxLevel)
 end
 
 -- "Lv 3 · ★★★★☆" for toasts.

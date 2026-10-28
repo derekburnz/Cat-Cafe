@@ -145,18 +145,18 @@ return function()
 		end)
 
 		it("beats greedy-by-rating: a weaker cat on its favorite spot can be worth more", function()
-			-- Two perfect Tabbies (1.74 each, both love barista) and a perfect Snow (1.2, loves waiter). Greedy
-			-- makes a Tabby the Waiter for 1.74; the best plan makes Snow the Waiter for 1.8.
+			-- Two perfect level 24 Tabbies (1.752 each, both love barista) and a perfect Snow (1.2, loves waiter).
+			-- Greedy makes a Tabby the Waiter for 1.752; the best plan makes Snow the Waiter for 1.8.
 			local profile = profileAt(1)
-			addCat(profile, "t1", "tabby", 100, Config.CatMaxLevel)
-			addCat(profile, "t2", "tabby", 100, Config.CatMaxLevel)
+			addCat(profile, "t1", "tabby", 100, 24)
+			addCat(profile, "t2", "tabby", 100, 24)
 			addCat(profile, "s", "snow", 100)
 			local plan = EquipBest.plan(profile)
 			expect(plan.placements.s).to.equal("waiter_1")
 			expect(plan.placements.t1 == "barista_1" or plan.placements.t2 == "barista_1").to.equal(
 				true
 			)
-			expect(plan.baseRate).to.be.near(1.74 * 1.5 + 1.2 * 1.5, 1e-6)
+			expect(plan.baseRate).to.be.near(1.752 * 1.5 + 1.2 * 1.5, 1e-6)
 			expect(plan.baseRate).to.be.near(bruteForce(profile), 1e-6)
 		end)
 

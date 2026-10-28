@@ -265,8 +265,8 @@ export type CatInstance = {
 	caughtAt: number,
 	spotId: string?, -- the role slot it works, nil when resting in the cat room
 	-- Stats (data-model section 4b). Readers go through CatStats, which defaults any missing field.
-	level: number, -- 1 to Config.CatMaxLevel, rises with XP earned while placed
-	xp: number, -- toward the next level; one XP per second placed
+	level: number, -- 1 to Config.CatMaxLevel, rises with XP earned while the owner is in the game (v0.12 F75)
+	xp: number, -- toward the next level, may hold a fraction; one XP a second working, a quarter resting
 	charm: number, -- 0 to 100, rolled once when caught; 50 is a 1.0x rate
 	rescued: boolean?, -- true when freed from a rescue spot (for the book and analytics); absent otherwise
 	name: string?, -- the player's name for it as typed, filtered again for display; nil shows the catalog name
@@ -313,6 +313,7 @@ export type Stats = {
 	cratesOpened: number, -- F53
 	fishEarned: number, -- F52: golden fish earned, every source
 	pickups: number, -- v0.8 F56: Dropped cats picked up with PickUpCat
+	catLevelUps: number, -- v0.12 F75: every level any of the player's cats gained
 }
 
 -- The cat on its way to the bait bowl, rolled when the food goes in so a rejoin cannot reroll it (section 8).

@@ -36,6 +36,8 @@ type Profile = Types.PlayerProfile
 local CafeService = {}
 
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
+-- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
+local knownLevels: { [Player]: { [string]: number } } = {}
 local rng = Random.new() -- charm rolls for caught cats
 
 -- Settled profile or nil when not loaded yet.
@@ -218,6 +220,8 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 			wanted[uid :: string] = nil
 			child:SetAttribute("Rate", Economy.catRate(placement.instance) * multiplier)
 			child:SetAttribute("DisplayName", shownName(player, placement.instance))
+			-- a rise plays the owner's level up sparkle (F75); the hover card reads it on other players' cats
+			child:SetAttribute("Level", CatStats.level(placement.instance))
 		end
 	end
 	for uid, placement in wanted do
@@ -240,6 +244,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("Gold", instance.variant == "gold")
 		model:SetAttribute("Rate", Economy.catRate(instance) * multiplier)
 		model:SetAttribute("DisplayName", shownName(player, instance))
+		model:SetAttribute("Level", CatStats.level(instance))
 		model:SetAttribute("OwnerUserId", player.UserId)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- a cat streams in whole (reviewer S37)
 		model:PivotTo(placement.anchor.CFrame)
@@ -487,6 +492,27 @@ local function refreshShowcase(player: Player, profile: Profile)
 	)
 end
 
+-- Sends CatLevelUp(uid, level) for each cat whose level rose since the last sync (data-model section 4b, F75). XP is
+-- granted in every settle, and the periodic sync settles every SyncIntervalSeconds, so a level up shows within that.
+-- A player's first sync and a cat new since the last one only record the level: nothing levelled up that anyone saw.
+local function announceLevelUps(player: Player, profile: Profile)
+	if player.Parent == nil then
+		knownLevels[player] = nil
+		return
+	end
+	local known = knownLevels[player]
+	local levels: { [string]: number } = {}
+	for uid, instance in profile.cats do
+		local level = CatStats.level(instance)
+		levels[uid] = level
+		local before = if known ~= nil then known[uid] else nil
+		if before ~= nil and level > before then
+			Net.fire(player, "CatLevelUp", uid, level)
+		end
+	end
+	knownLevels[player] = levels
+end
+
 function CafeService.sync(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -494,6 +520,7 @@ function CafeService.sync(player: Player)
 	end
 	Net.fire(player, "ProfileSync", CafeService.buildState(player, profile))
 	refreshShowcase(player, profile)
+	announceLevelUps(player, profile) -- after both, so the card and the model's Level are already the new level
 end
 
 -- Mutations used by other services -----------------------------------------------------------------------
@@ -1067,6 +1094,7 @@ function CafeService.start()
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		carrying[player] = nil
+		knownLevels[player] = nil
 	end)
 
 	Net.on("PlaceCat", onPlaceCat)

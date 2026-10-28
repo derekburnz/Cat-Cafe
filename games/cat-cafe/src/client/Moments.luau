@@ -31,6 +31,8 @@ local Moments = {
 	IndexReward = Signal.new() :: Signal.Signal<string, string>, -- (areaId, milestoneId) a sync shows this Index
 	-- reward newly claimed (F48)
 	RankUp = Signal.new() :: Signal.Signal<number>, -- (tier) this player's cafe ranked up
+	CatLevelUp = Signal.new() :: Signal.Signal<string, number>, -- (uid, level) one of this player's cats levelled
+	-- up (v0.12 F75), once per CatLevelUp from the server
 	AreaUnlock = Signal.new() :: Signal.Signal<string, Vector3>, -- (areaId, gate position) a gate opened for you
 	Announce = Signal.new() :: Signal.Signal<string, string?>, -- (text, rarity) a server shout-out
 	PlotOpened = Signal.new() :: Signal.Signal<Vector3, number>, -- (door position, plotIndex) a For Rent plot opened

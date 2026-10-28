@@ -569,6 +569,11 @@ local function wireIntents()
 	UI.events.collectTips:Connect(function()
 		Net.fire("CollectTips")
 	end)
+	-- Trade or No thanks on the Cat Collector's card (F63). The server checks the range and the cat and answers with
+	-- CollectorOffer("") when the visit ends, or a toast when the cat cannot go yet.
+	UI.events.answerCollector:Connect(function(accept: boolean)
+		Net.fire("AnswerCollector", accept)
+	end)
 	-- The night dealer (F32): the server answers every buy with DealerStock, bought or refused. Since F59 a buy names
 	-- the food and the window the screen showed (else the last one sent), so a buy sent across a roll is refused (S42).
 	UI.events.buyDealerFood:Connect(function(_index: number, lureId: string, window: number?)
@@ -827,6 +832,14 @@ local function wireServerEvents()
 	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
 		UI.potions.giftResult(kind, id, count)
 	end)
+	-- The Cat Collector at this player's cafe (F63): his card and tag, or catUid "" when he leaves or a trade is done.
+	Net.on(
+		"CollectorOffer",
+		function(catUid: string, offer: Types.CollectorOffer?, endsAt: number, traded: boolean?)
+			-- the UI's own CollectorOffer reads `value` as optional, so the shared row passes as is
+			UI.collector.offer(catUid, offer :: any, endsAt, traded)
+		end
+	)
 	-- One of this player's cats reached a new level (F75): the UI gathers close ones into one toast, Audio chimes and
 	-- Effects sparkles from the model's Level attribute.
 	Net.on("CatLevelUp", function(uid: string, level: number)

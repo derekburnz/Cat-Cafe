@@ -838,6 +838,21 @@ function Pose.startHop(rig: Rig)
 	end
 end
 
+-- A cat held in a player's arms (Carry.luau): moves where it rests so its floor is at `floor`, without counting
+-- that as the cat walking. Call it between Pose.read and Pose.draw.
+function Pose.hold(rig: Rig, floor: CFrame)
+	if rig.usesMotors or rig.bodyIndex == 0 then
+		return
+	end
+	local move = floor * Pose.floor(rig):Inverse()
+	local base = rig.base
+	for i, frame in base do
+		base[i] = move * frame
+	end
+	rig.lastBody = base[rig.bodyIndex].Position
+	rig.speed = 0
+end
+
 -- The floor under the cat with the model's axes (-Z is the way it faces), for props that play with it.
 function Pose.floor(rig: Rig): CFrame
 	if rig.usesMotors or rig.bodyIndex == 0 then

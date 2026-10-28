@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 04:30 UTC",
+  "generated": "2026-10-28 06:08 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -70119,7 +70119,7 @@
         120.0,
         43.5
       ],
-      "pivot": "base center (floor contact)",
+      "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {
         "bridge": [
@@ -70567,7 +70567,8 @@
             -88.85,
             15.45,
             68.06,
-            "deep"
+            "deep",
+            -106.26
           ]
         ],
         "treehouse_foot": [
@@ -70629,6 +70630,624 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Sewer_SetV32",
+      "category": "Sewer",
+      "module": "sewerset",
+      "objects": [
+        "CatCafe_Sewer_SetV32",
+        "CatCafe_Sewer_SetV32_000_TunnelMouth",
+        "CatCafe_Sewer_SetV32_000_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetV32_000_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetV32_001_Wall",
+        "CatCafe_Sewer_SetV32_002_Wall",
+        "CatCafe_Sewer_SetV32_003_TunnelMouth",
+        "CatCafe_Sewer_SetV32_003_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetV32_003_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetV32_004_Wall",
+        "CatCafe_Sewer_SetV32_005_Wall",
+        "CatCafe_Sewer_SetV32_006_Wall",
+        "CatCafe_Sewer_SetV32_007_CornerPier",
+        "CatCafe_Sewer_SetV32_008_CornerColumn",
+        "CatCafe_Sewer_SetV32_009_TunnelMouth",
+        "CatCafe_Sewer_SetV32_009_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetV32_009_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetV32_010_Wall",
+        "CatCafe_Sewer_SetV32_011_Wall",
+        "CatCafe_Sewer_SetV32_012_TunnelMouth",
+        "CatCafe_Sewer_SetV32_012_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetV32_012_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetV32_013_TunnelMouth",
+        "CatCafe_Sewer_SetV32_013_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetV32_013_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetV32_014_Wall",
+        "CatCafe_Sewer_SetV32_015_Wall",
+        "CatCafe_Sewer_SetV32_016_Wall",
+        "CatCafe_Sewer_SetV32_017_CornerPier",
+        "CatCafe_Sewer_SetV32_018_CornerColumn",
+        "CatCafe_Sewer_SetV32_019_TunnelMouth",
+        "CatCafe_Sewer_SetV32_019_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetV32_019_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetV32_020_TunnelMouth",
+        "CatCafe_Sewer_SetV32_020_TunnelMouth_Decor",
+        "CatCafe_Sewer_SetV32_020_TunnelMouth_Barrier",
+        "CatCafe_Sewer_SetV32_021_Wall",
+        "CatCafe_Sewer_SetV32_022_Wall",
+        "CatCafe_Sewer_SetV32_023_Wall",
+        "CatCafe_Sewer_SetV32_024_Wall",
+        "CatCafe_Sewer_SetV32_025_TownWall",
+        "CatCafe_Sewer_SetV32_026_TownWall",
+        "CatCafe_Sewer_SetV32_027_Walls_Barrier",
+        "CatCafe_Sewer_SetV32_028_Canals",
+        "CatCafe_Sewer_SetV32_028_Canals_Water",
+        "CatCafe_Sewer_SetV32_028_Canals_Barrier",
+        "CatCafe_Sewer_SetV32_029_TunnelFront",
+        "CatCafe_Sewer_SetV32_029_TunnelFront_Bulb",
+        "CatCafe_Sewer_SetV32_029_TunnelFront_Barrier",
+        "CatCafe_Sewer_SetV32_030_CrossWall",
+        "CatCafe_Sewer_SetV32_031_Roof",
+        "CatCafe_Sewer_SetV32_031_Roof_Bulb",
+        "CatCafe_Sewer_SetV32_032_Culvert",
+        "CatCafe_Sewer_SetV32_032_Culvert_Water",
+        "CatCafe_Sewer_SetV32_032_Culvert_Glow",
+        "CatCafe_Sewer_SetV32_032_Culvert_Decor",
+        "CatCafe_Sewer_SetV32_033_BrickBridge",
+        "CatCafe_Sewer_SetV32_033_BrickBridge_Bulb",
+        "CatCafe_Sewer_SetV32_034_CatwalkBridge",
+        "CatCafe_Sewer_SetV32_035_CatwalkBridge",
+        "CatCafe_Sewer_SetV32_036_WallLantern",
+        "CatCafe_Sewer_SetV32_036_WallLantern_Bulb",
+        "CatCafe_Sewer_SetV32_037_WallLantern",
+        "CatCafe_Sewer_SetV32_037_WallLantern_Bulb",
+        "CatCafe_Sewer_SetV32_038_WallLantern",
+        "CatCafe_Sewer_SetV32_038_WallLantern_Bulb",
+        "CatCafe_Sewer_SetV32_039_WallLantern",
+        "CatCafe_Sewer_SetV32_039_WallLantern_Bulb",
+        "CatCafe_Sewer_SetV32_040_DripPuddle",
+        "CatCafe_Sewer_SetV32_040_DripPuddle_Water",
+        "CatCafe_Sewer_SetV32_041_DripPuddle",
+        "CatCafe_Sewer_SetV32_041_DripPuddle_Water",
+        "CatCafe_Sewer_SetV32_042_Grate",
+        "CatCafe_Sewer_SetV32_043_DrainPipe",
+        "CatCafe_Sewer_SetV32_043_DrainPipe_Glow",
+        "CatCafe_Sewer_SetV32_044_Barrel",
+        "CatCafe_Sewer_SetV32_045_Barrel",
+        "CatCafe_Sewer_SetV32_046_TyreStack",
+        "CatCafe_Sewer_SetV32_047_TrafficCone",
+        "CatCafe_Sewer_SetV32_048_TrafficCone",
+        "CatCafe_Sewer_SetV32_049_TrafficCone",
+        "CatCafe_Sewer_SetV32_050_CrateStack",
+        "CatCafe_Sewer_SetV32_051_SuitcaseStack",
+        "CatCafe_Sewer_SetV32_052_SteamVent",
+        "CatCafe_Sewer_SetV32_053_GlowMushrooms",
+        "CatCafe_Sewer_SetV32_053_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetV32_054_SteamVent",
+        "CatCafe_Sewer_SetV32_055_Barrel",
+        "CatCafe_Sewer_SetV32_056_Barrel",
+        "CatCafe_Sewer_SetV32_057_TyreStack",
+        "CatCafe_Sewer_SetV32_058_JunkStall",
+        "CatCafe_Sewer_SetV32_059_JunkStall",
+        "CatCafe_Sewer_SetV32_060_JunkStall",
+        "CatCafe_Sewer_SetV32_061_CapBunting",
+        "CatCafe_Sewer_SetV32_062_CrateDeck",
+        "CatCafe_Sewer_SetV32_063_Barrel",
+        "CatCafe_Sewer_SetV32_064_SuitcaseStack",
+        "CatCafe_Sewer_SetV32_065_CrateStack",
+        "CatCafe_Sewer_SetV32_066_GlowMushrooms",
+        "CatCafe_Sewer_SetV32_066_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetV32_067_CanHouse",
+        "CatCafe_Sewer_SetV32_068_TeapotHouse",
+        "CatCafe_Sewer_SetV32_069_BoxHouse",
+        "CatCafe_Sewer_SetV32_070_CanHouse",
+        "CatCafe_Sewer_SetV32_071_TeapotHouse",
+        "CatCafe_Sewer_SetV32_072_BoxHouse",
+        "CatCafe_Sewer_SetV32_073_CapBunting",
+        "CatCafe_Sewer_SetV32_074_Rails",
+        "CatCafe_Sewer_SetV32_075_MaintenanceCart",
+        "CatCafe_Sewer_SetV32_076_ValveWheel",
+        "CatCafe_Sewer_SetV32_077_PipeLarge",
+        "CatCafe_Sewer_SetV32_078_PipeElbow",
+        "CatCafe_Sewer_SetV32_079_PawGraffiti",
+        "CatCafe_Sewer_SetV32_080_GlowMushrooms",
+        "CatCafe_Sewer_SetV32_080_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetV32_081_GlowMushrooms",
+        "CatCafe_Sewer_SetV32_081_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetV32_082_SteamVent",
+        "CatCafe_Sewer_SetV32_083_Grate",
+        "CatCafe_Sewer_SetV32_084_TyreStack",
+        "CatCafe_Sewer_SetV32_085_DripPuddle",
+        "CatCafe_Sewer_SetV32_085_DripPuddle_Water",
+        "CatCafe_Sewer_SetV32_086_BottlecapThrone",
+        "CatCafe_Sewer_SetV32_087_PipeOrgan",
+        "CatCafe_Sewer_SetV32_088_LostToyPile_Decor",
+        "CatCafe_Sewer_SetV32_089_LostLounge",
+        "CatCafe_Sewer_SetV32_089_LostLounge_Bulb",
+        "CatCafe_Sewer_SetV32_090_YarnTrolley",
+        "CatCafe_Sewer_SetV32_090_YarnTrolley_Decor",
+        "CatCafe_Sewer_SetV32_091_CapBunting",
+        "CatCafe_Sewer_SetV32_092_SuitcaseStack",
+        "CatCafe_Sewer_SetV32_093_GlowMushrooms",
+        "CatCafe_Sewer_SetV32_093_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetV32_094_DrainPipe",
+        "CatCafe_Sewer_SetV32_094_DrainPipe_Glow",
+        "CatCafe_Sewer_SetV32_095_SteamVent",
+        "CatCafe_Sewer_SetV32_096_Barrel",
+        "CatCafe_Sewer_SetV32_097_Barrel",
+        "CatCafe_Sewer_SetV32_098_CrateStack",
+        "CatCafe_Sewer_SetV32_099_TyreStack",
+        "CatCafe_Sewer_SetV32_100_DripPuddle",
+        "CatCafe_Sewer_SetV32_100_DripPuddle_Water",
+        "CatCafe_Sewer_SetV32_101_BathtubBoat",
+        "CatCafe_Sewer_SetV32_102_CrateRaft",
+        "CatCafe_Sewer_SetV32_103_RubberDucks",
+        "CatCafe_Sewer_SetV32_104_PipeHammock",
+        "CatCafe_Sewer_SetV32_105_CrateDeck",
+        "CatCafe_Sewer_SetV32_106_CapBunting",
+        "CatCafe_Sewer_SetV32_107_GlowMushrooms",
+        "CatCafe_Sewer_SetV32_107_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetV32_108_GlowMushrooms",
+        "CatCafe_Sewer_SetV32_108_GlowMushrooms_Glow",
+        "CatCafe_Sewer_SetV32_109_TyreStack",
+        "CatCafe_Sewer_SetV32_110_DripPuddle",
+        "CatCafe_Sewer_SetV32_110_DripPuddle_Water",
+        "CatCafe_Sewer_SetV32_111_SuitcaseStack",
+        "CatCafe_Sewer_SetV32_112_CrateStack",
+        "CatCafe_Sewer_SetV32_113_Barrel",
+        "CatCafe_Sewer_SetV32_114_Barrel"
+      ],
+      "triangles": 89112,
+      "budget": 120000,
+      "size_studs": {
+        "x": 179.2,
+        "y": 179.15,
+        "z": 30.0
+      },
+      "size_roblox": [
+        179.2,
+        30.0,
+        179.15
+      ],
+      "bounds_min": [
+        -89.6,
+        -89.65,
+        0.0
+      ],
+      "bounds_max": [
+        89.6,
+        89.5,
+        30.0
+      ],
+      "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {
+        "bridge": [
+          [
+            44.0,
+            2.8,
+            -61.0,
+            "near"
+          ],
+          [
+            0,
+            3.6,
+            50.0,
+            "deep"
+          ]
+        ],
+        "puddle": [
+          [
+            -24,
+            0.4,
+            -73,
+            "near"
+          ]
+        ],
+        "trap_grate": [
+          [
+            -38,
+            0.4,
+            -78,
+            "near",
+            0
+          ],
+          [
+            70,
+            0.4,
+            40,
+            "deep",
+            0
+          ]
+        ],
+        "trap_drain_pipe": [
+          [
+            81.7,
+            0.4,
+            -77.0,
+            "near",
+            90
+          ],
+          [
+            -81.7,
+            0.4,
+            22.0,
+            "deep",
+            -90
+          ]
+        ],
+        "barrel": [
+          [
+            73,
+            0.4,
+            -79,
+            "near"
+          ]
+        ],
+        "tyres": [
+          [
+            60,
+            0.4,
+            -78,
+            "near"
+          ]
+        ],
+        "cones": [
+          [
+            30,
+            0.4,
+            -76,
+            "near"
+          ]
+        ],
+        "crates": [
+          [
+            -66,
+            0.4,
+            -78,
+            "near"
+          ]
+        ],
+        "suitcases": [
+          [
+            -78,
+            0.4,
+            -72.5,
+            "near"
+          ],
+          [
+            -76,
+            0.4,
+            79.5,
+            "deep"
+          ]
+        ],
+        "glow_mushrooms": [
+          [
+            -56,
+            0.4,
+            -76.5,
+            "near"
+          ],
+          [
+            12,
+            0.4,
+            -26.5,
+            "near"
+          ],
+          [
+            20,
+            0.4,
+            66.5,
+            "deep"
+          ],
+          [
+            72,
+            0.4,
+            17.5,
+            "deep"
+          ],
+          [
+            -15.5,
+            0.4,
+            30,
+            "deep"
+          ],
+          [
+            -60,
+            0.4,
+            -2.5,
+            "deep"
+          ],
+          [
+            -17.5,
+            0.4,
+            -32,
+            "deep"
+          ]
+        ],
+        "bank": [
+          [
+            20,
+            0.4,
+            -46,
+            "near"
+          ],
+          [
+            -20,
+            0.4,
+            -47,
+            "near"
+          ],
+          [
+            -66,
+            0.4,
+            -47,
+            "near"
+          ],
+          [
+            72,
+            0.4,
+            -46,
+            "near"
+          ]
+        ],
+        "arch": [
+          [
+            -44.0,
+            0.4,
+            -44.5,
+            "near"
+          ]
+        ],
+        "stall": [
+          [
+            20.0,
+            0.4,
+            -4.0,
+            "near"
+          ],
+          [
+            34.0,
+            0.4,
+            -4.0,
+            "near"
+          ],
+          [
+            48.0,
+            0.4,
+            -4.0,
+            "near"
+          ]
+        ],
+        "deck": [
+          [
+            74.04,
+            2.55,
+            -23.33,
+            "near"
+          ],
+          [
+            -38.49,
+            2.55,
+            -21.54,
+            "deep"
+          ]
+        ],
+        "market": [
+          [
+            24,
+            0.4,
+            -22,
+            "near"
+          ],
+          [
+            56,
+            0.4,
+            -12,
+            "near"
+          ]
+        ],
+        "house": [
+          [
+            32.34,
+            0.4,
+            32.73,
+            "deep"
+          ],
+          [
+            51.66,
+            0.4,
+            32.73,
+            "deep"
+          ],
+          [
+            30.73,
+            0.4,
+            53.66,
+            "deep"
+          ],
+          [
+            53.45,
+            0.4,
+            55.45,
+            "deep"
+          ]
+        ],
+        "square": [
+          [
+            42,
+            0.4,
+            38,
+            "deep"
+          ],
+          [
+            36,
+            0.4,
+            46,
+            "deep"
+          ]
+        ],
+        "cart": [
+          [
+            80,
+            3.65,
+            64,
+            "deep"
+          ]
+        ],
+        "valve": [
+          [
+            34,
+            0.4,
+            81.9,
+            "deep"
+          ]
+        ],
+        "pipe_end": [
+          [
+            73.6,
+            0.4,
+            78,
+            "deep"
+          ]
+        ],
+        "catwalk_foot": [
+          [
+            12,
+            0.4,
+            46,
+            "deep"
+          ],
+          [
+            -12,
+            0.4,
+            54,
+            "deep"
+          ]
+        ],
+        "pool": [
+          [
+            14,
+            0.4,
+            74,
+            "deep"
+          ]
+        ],
+        "throne": [
+          [
+            -46.0,
+            3.3,
+            80.1,
+            "deep"
+          ]
+        ],
+        "organ": [
+          [
+            -32,
+            0.4,
+            82.7,
+            "deep"
+          ]
+        ],
+        "toy_pile": [
+          [
+            -62,
+            0.4,
+            74,
+            "deep"
+          ]
+        ],
+        "sofa": [
+          [
+            -67.2,
+            1.88,
+            45.3,
+            "deep"
+          ]
+        ],
+        "trolley": [
+          [
+            -30,
+            1.0,
+            40,
+            "deep"
+          ]
+        ],
+        "throne_room": [
+          [
+            -46,
+            0.4,
+            66,
+            "deep"
+          ],
+          [
+            -20,
+            0.4,
+            70,
+            "deep"
+          ]
+        ],
+        "boat": [
+          [
+            -28,
+            1.82,
+            4.0,
+            "deep"
+          ]
+        ],
+        "raft": [
+          [
+            -39.5,
+            2.2,
+            2.98,
+            "deep"
+          ]
+        ],
+        "hammock": [
+          [
+            -82.0,
+            2.4,
+            -25.7,
+            "deep"
+          ]
+        ],
+        "chamber": [
+          [
+            -46,
+            0.4,
+            -18,
+            "deep"
+          ],
+          [
+            -60,
+            0.4,
+            20,
+            "deep"
+          ]
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetV32.model.json",
+      "rbx_parts": 4471,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sewer_SetV32.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "89112/120000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "46607 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.08"
         }
       }
     }

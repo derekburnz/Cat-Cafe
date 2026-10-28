@@ -17,6 +17,7 @@ local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -192,7 +193,13 @@ function Potions._row(self: any, potionId: string): Row
 		Text = Theme.icons.potion,
 		Parent = tile,
 	})
-	IconArt.set(glyph, Theme.icons.potion, 0.8)
+	-- the potion's own bottle (Model-Agent's icons), else the drawn potion glyph
+	local bottle = ShopIcons.potion(potionId)
+	if bottle then
+		IconArt.setImage(glyph, bottle, 0.92)
+	else
+		IconArt.set(glyph, Theme.icons.potion, 0.8)
+	end
 	-- how many are in the bag, a small dark pill on the tile's corner
 	local count = text({
 		Name = "Count",

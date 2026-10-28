@@ -25,9 +25,10 @@ Scenarios (which cat, which styles for how long, how fast it walks, which view, 
 
 ## Player poses (the Tackle)
 
-`avatar.luau` does the same for the Tackle's character poses (`Avatar.luau` and `Presets.tacklePose`, unchanged) on a stand-in blocky R15 in the palette's shirt and skin swatches, built from plain tables with the members `Avatar.bind` reads. The engineer's lunge and knockback are copied as straight moves at the design's speeds. Scenarios: `miss`, `hit` (into a player facing the tackler) and `behind` (into one facing away). The JSON carries a fixed `box` and the checker floor, so the camera watches the whole run from one place.
+`avatar.luau` does the same for the Tackle's character poses (`Avatar.luau` and `Presets.tacklePose`, unchanged) on a stand-in blocky R15 in the palette's shirt and skin swatches, built from plain tables with the members `Avatar.bind` reads. The engineer's lunge and knockback are copied as straight moves at the design's speeds. Scenarios: `miss`, `hit` (into a player facing the tackler) and `behind` (into one facing away). The JSON carries a fixed `box` and the checker floor, so the camera watches the whole run from one place. `net` is three players holding the level 1, 2 and 3 nets (`Avatar.holdNet`, `Presets.netHold`), standing and then walking with the camera following; it reads the nets from the assets rbxm, passed after the Effects folder (an empty Effects argument keeps the default). The stand-in itself is in `standin.luau`.
 
 ```sh
 lune run avatar.luau hit /tmp/catclips/hit.json
+lune run avatar.luau net /tmp/catclips/net.json "" /tmp/catclips/all.rbxm
 python render.py /tmp/catclips/hit.json /tmp/catclips --samples 10
 ```

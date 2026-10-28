@@ -28,8 +28,9 @@ export type Props = {
 
 export type ItemIcon = {
 	frame: Frame,
-	-- asset: the model name in ReplicatedStorage.Assets; glyph: shown when there is no model
-	set: (self: ItemIcon, asset: string?, glyph: string, rarity: string?) -> (),
+	-- asset: the model name in ReplicatedStorage.Assets; glyph: shown when there is no model; image: an uploaded
+	-- shop icon (Components/ShopIcons) drawn in place of the model, the glyph showing until it loads
+	set: (self: ItemIcon, asset: string?, glyph: string, rarity: string?, image: string?) -> (),
 	-- a food by its LureDef, or by `id` alone when the catalog does not have it: tile, picture and grade badge
 	setFood: (self: ItemIcon, lure: Types.LureDef?, id: string?) -> (),
 	destroy: (self: ItemIcon) -> (),
@@ -38,6 +39,7 @@ export type ItemIcon = {
 local FOV = 30
 local THREE_QUARTER = 30 -- degrees turned from face-on
 local TILE_SHADE = 0.55 -- the tile is the rarity colour mixed this far toward cream, so the item stands out
+local IMAGE_SCALE = 1.35 -- a shop icon over the glyph's padded box: about 86% of the tile
 
 local ItemIcon = {}
 ItemIcon.__index = ItemIcon
@@ -164,7 +166,7 @@ function ItemIcon.setFood(self: any, lure: Types.LureDef?, id: string?)
 	badge.Visible = true
 end
 
-function ItemIcon.set(self: any, asset: string?, glyph: string, rarity: string?)
+function ItemIcon.set(self: any, model: string?, glyph: string, rarity: string?, image: string?)
 	local badge: TextLabel? = self._badge
 	if badge then
 		badge.Visible = false -- setFood shows it again; anything else has no grade
@@ -173,8 +175,13 @@ function ItemIcon.set(self: any, asset: string?, glyph: string, rarity: string?)
 	self.frame.BackgroundColor3 = color:Lerp(Theme.colors.cream, TILE_SHADE)
 	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)
 	self._glyph.Text = glyph
-	-- spins, crates, potions and decor tiles get the drawn icon; the Decor Index's unknown piece stays a plain "?"
-	IconArt.set(self._glyph, if glyph ~= "?" then glyph else nil)
+	if image then
+		IconArt.setImage(self._glyph, image, IMAGE_SCALE) -- a shop icon stands in for the model
+	else
+		-- spins, crates, potions and decor tiles get the drawn icon; the Decor Index's unknown piece stays a plain "?"
+		IconArt.set(self._glyph, if glyph ~= "?" then glyph else nil)
+	end
+	local asset = if image then nil else model
 	if asset == self._asset and (self._model ~= nil or asset == nil) then
 		-- the same picture as before; a tile that never had a model shows its glyph (the coin tiles were blank)
 		self._glyph.Visible = self._model == nil

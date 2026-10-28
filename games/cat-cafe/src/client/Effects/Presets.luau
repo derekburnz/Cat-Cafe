@@ -967,6 +967,30 @@ Presets.tacklePose = {
 	} :: { [string]: { [string]: number } },
 }
 
+-- The net hold (Derek 2026-10-28: "have your character holding a net while walking around until catching a cat"),
+-- drawn by Tackle.luau, the net itself by NetHold.luau: in a catching area, with no cat in the arms, the right hand
+-- holds the player's net (CatCafe_Item_Net_L1 to L3 by its `Grip` attachment) upright and leaning ahead, the other
+-- arm free to swing. The right shoulder is raised `sh` degrees forward, turned `tw` and out `sp`, the elbow bent
+-- `el`, so the forearm points ahead; on R6, which has no elbow, the whole arm rises `sh6`. The pole leaves the fist
+-- along the hand's back-to-front axis tipped `tilt` (R6: `tilt6`) degrees towards the fingers, so it leans
+-- `sh + el + tilt` degrees up from straight ahead. The grip sits at the hand's own RightGripAttachment where it has
+-- one, else `grip` studs from the hand's centre (`grip6` on R6). Within budget.animRadius; the arm eases in over
+-- `blendIn` and out over `blendOut` seconds, and the net shows while the arm is past halfway (`showAt`).
+Presets.netHold = {
+	sh = 20,
+	tw = 0,
+	sp = 6,
+	el = 80,
+	sh6 = 70,
+	tilt = -45,
+	tilt6 = -15,
+	grip = Vector3.new(0, -0.1, 0),
+	grip6 = Vector3.new(0, -0.9, 0),
+	blendIn = 0.25,
+	blendOut = 0.2,
+	showAt = 0.5,
+}
+
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
 -- pushes every other player within CatchBurstRadiusStuds (10) of the catcher away, so a ring as wide as that
 -- spreads from the catcher's feet, and while their `RushUntil` runs (CatchRushSeconds, 5) speed lines stream off

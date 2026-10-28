@@ -7,6 +7,8 @@
 -- moderation approves it), for glyphs the sheet has no picture of, and with no sheet id at all.
 --
 --   IconArt.set(label, glyph, scale?)        the label's glyph changed (or was just made); scale shrinks the picture
+--   IconArt.setImage(label, image, scale?)   a whole uploaded picture instead of a sheet cell (the shop icons of
+--                                            Components/ShopIcons); nil goes back to the glyph
 --   IconArt.setTransparency(label, value)    fade or grey the icon, picture or emoji, whichever shows
 --
 -- Roblox terms: ImageRectOffset and ImageRectSize cut one cell out of a bigger picture; IsLoaded turns true once
@@ -44,28 +46,25 @@ local function apply(label: TextLabel)
 	end
 end
 
-function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
+-- The label's picture, made the first time; nil hides it, so the glyph shows.
+local function artFor(label: TextLabel, image: string?, scale: number?): ImageLabel?
 	if label:GetAttribute(BASE) == nil then
 		label:SetAttribute(BASE, label.TextTransparency)
 	end
-	local cell = IconArt.cell(glyph)
 	local art = label:FindFirstChild(ART) :: ImageLabel?
-	if cell == nil then
+	if image == nil or image == "" then
 		if art then
 			art.Visible = false
 		end
 		apply(label)
-		return
+		return nil
 	end
-	assert(cell, "cell")
 	if art == nil then
 		local made: ImageLabel = Create("ImageLabel", {
 			Name = ART,
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
-			Image = Theme.iconSheet.image,
-			ImageRectSize = Vector2.new(Theme.iconSheet.cell, Theme.iconSheet.cell),
 			ImageTransparency = 1,
 			ScaleType = Enum.ScaleType.Fit,
 			ZIndex = label.ZIndex,
@@ -78,10 +77,29 @@ function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 	end
 	local picture = art :: ImageLabel
 	local size = scale or 1
+	picture.Image = image :: string
 	picture.Size = UDim2.fromScale(size, size)
-	picture.ImageRectOffset = cell * Theme.iconSheet.cell
 	picture.Visible = true
-	apply(label)
+	return picture
+end
+
+function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
+	local cell = IconArt.cell(glyph)
+	local picture = artFor(label, if cell then Theme.iconSheet.image else nil, scale)
+	if picture and cell then
+		picture.ImageRectSize = Vector2.new(Theme.iconSheet.cell, Theme.iconSheet.cell)
+		picture.ImageRectOffset = cell * Theme.iconSheet.cell
+		apply(label)
+	end
+end
+
+function IconArt.setImage(label: TextLabel, image: string?, scale: number?)
+	local picture = artFor(label, image, scale)
+	if picture then
+		picture.ImageRectSize = Vector2.zero
+		picture.ImageRectOffset = Vector2.zero
+		apply(label)
+	end
 end
 
 function IconArt.setTransparency(label: TextLabel, transparency: number)

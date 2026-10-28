@@ -107,14 +107,14 @@ return function()
 			end
 		end)
 
-		-- Model-Agent #401: the Neighbourhood, Woods and Sewer sets bring their cat spots and (but for the gutter)
-		-- their traps, turned with the set so its gate side faces the town; the Park's v3.2 set (#460) its cat spots,
-		-- its traps being the world's trees and bins; the Woods' and the Sewer's v3.2 sets (#470, #491) their spots and
-		-- traps, the hollow logs and drain pipes turned in the set as well.
+		-- Model-Agent #401: the area sets bring their cat spots and their traps, turned with the set so its gate side
+		-- faces the town; the Park's v3.2 set (#460) its cat spots, its traps being the world's trees and bins; the
+		-- Woods', the Sewer's and the Neighbourhood's v3.2 sets (#470, #491, #505) their spots and traps, the hollow
+		-- logs, drain pipes, sheds and gutters turned in the set as well.
 		it("the area sets' cat spots stand on the set's ground, clear of its traps", function()
 			local sets: { [string]: string } = {
 				park = "CatCafe_Park_Set",
-				neighbourhood = "CatCafe_Neighbourhood_Set",
+				neighbourhood = "CatCafe_Neighbourhood_SetV32",
 				woods = "CatCafe_Woods_SetV32",
 				sewer = "CatCafe_Sewer_SetV32",
 			}
@@ -140,6 +140,7 @@ return function()
 				local pieceTurns: { number } = if id == "woods"
 					then { 20, -20, 0, 0, -106.26 }
 					elseif id == "sewer" then { 0, 0, 90, -90 }
+					elseif id == "neighbourhood" then { 0, -90, 180, 34 }
 					else {}
 				local built = 0
 				for _, spot in spec.rescueSpots do
@@ -149,7 +150,7 @@ return function()
 					end
 				end
 				expect(built).to.equal(
-					if id == "park" then 0 elseif id == "neighbourhood" then 1 elseif id == "woods" then 5 else 4
+					if id == "park" then 0 elseif id == "woods" then 5 else 4
 				)
 			end
 		end)
@@ -160,7 +161,7 @@ return function()
 				local gx, gz = Layout.gatePosition(spec)
 				expect(gx).to.be.ok()
 				-- the Park's plaza at local (-3.5, -49.5) is near its gate side, the Neighbourhood's porch at local
-				-- (19.6, -58.8) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
+				-- (-110.2, -98.9) near its own, the Woods' berry bush at local (-30, -99.8) near its own, the Sewer's
 				-- canal bridge at local (44, -61) near its own
 				local index = if id == "woods" then 8 else 1
 				local point = spec.spawnPoints[index]
@@ -182,6 +183,7 @@ return function()
 				{ id = "park", near = 16, deep = 24, rare = 0, deepTraps = 3, byRegion = false },
 				{ id = "woods", near = 26, deep = 38, rare = 1, deepTraps = 3, byRegion = false },
 				{ id = "sewer", near = 20, deep = 32, rare = 0, deepTraps = 2, byRegion = true },
+				{ id = "neighbourhood", near = 28, deep = 44, rare = 0, deepTraps = 2, byRegion = false },
 			}
 			for _, row in rows do
 				local spec = Layout.areas[row.id]

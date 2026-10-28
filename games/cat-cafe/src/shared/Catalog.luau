@@ -1114,7 +1114,7 @@ Catalog.dealerAmountWeights = {
 -- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
 -- open, with no top-ups during the day. Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
 -- and 4, 24 a day in all (was 10 each). Every side area's spawn points are its kit set's cat spots (Model-Agent
--- #401, the Park's, the Woods' and the Sewer's v3.2 sets #460, #470 and #491).
+-- #401, the Park's, the Woods', the Sewer's and the Neighbourhood's v3.2 sets #460, #470, #491 and #505).
 Catalog.areas = {
 	{
 		id = "alley",
@@ -1140,9 +1140,9 @@ Catalog.areas = {
 		id = "neighbourhood",
 		name = "Neighbourhood",
 		tier = 3,
-		spawnPoints = 26,
+		spawnPoints = 72, -- the v3.2 set's cat spots, 28 near the gate and 44 deep (F81)
 		waveSize = 5,
-		rescueSpots = 2,
+		rescueSpots = 4, -- two sheds and two gutters
 		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
 		incomeMultiplier = AREA_INCOME.neighbourhood,
 	},

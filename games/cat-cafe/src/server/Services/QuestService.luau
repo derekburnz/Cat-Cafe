@@ -61,11 +61,9 @@ local function payQuest(
 	else
 		profile.stats.weeklyQuestsDone += 1
 	end
-	local fields: { string } = { kind :: string, entry.id, tostring(slot) }
-	if auto then
-		table.insert(fields, "auto")
-	end
-	Telemetry.custom(player, "quest_claimed", 1, fields)
+	-- three fields at most (Telemetry's customFields): a reset's payment marks the slot field "<slot> auto"
+	local slotField = if auto then tostring(slot) .. " auto" else tostring(slot)
+	Telemetry.custom(player, "quest_claimed", 1, { kind :: string, entry.id, slotField })
 	local setPaid = if kind == "daily" then quests.dailySet else quests.weeklySet
 	if not setPaid and Quests.allClaimed(list, #Quests.pools(kind)) then
 		if kind == "daily" then

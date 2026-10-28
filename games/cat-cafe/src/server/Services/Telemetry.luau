@@ -66,7 +66,7 @@ export type CustomEvent =
 	| "potion_used" -- F64: potion id, tier
 	| "mystery_gift" -- F64: "opened" or "missed", kind:id ("potion:tip_potion", "spin"), tier; the value is the count
 	| "collector_visit" -- F63: "arrived", "traded", "declined", "timeout" or "withdrawn", catId:variant, offer value
-	| "quest_claimed" -- F73: kind ("daily" or "weekly"), quest id, slot; "auto" as a fourth field when a reset paid it
+	| "quest_claimed" -- F73: kind ("daily" or "weekly"), quest id, slot ("<slot> auto" when a reset paid it)
 	| "quest_set" -- F73: kind, when the last quest of a full set is claimed and the set prize paid
 	| "achievement_claimed" -- F73: achievement id, size
 

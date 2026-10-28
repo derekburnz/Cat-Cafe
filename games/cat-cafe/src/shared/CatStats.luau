@@ -222,6 +222,16 @@ function CatStats.newInstance(
 	}
 end
 
+-- F62 (data-model section 4): gold, Legendary and Mythical cats arrive locked, so one quick tap never sells or
+-- trades away a player's best cat. Version 14 locks the ones already owned the same way.
+function CatStats.arrivesLocked(catId: string, variant: string): boolean
+	if variant == "gold" then
+		return true
+	end
+	local def = Catalog.getCat(catId)
+	return def ~= nil and (def.rarity == "Legendary" or def.rarity == "Mythical")
+end
+
 -- What ProfileSync sends per cat: the saved fields plus the derived numbers the UI shows.
 function CatStats.view(instance: Types.CatInstance): Types.CatView
 	local level = CatStats.level(instance)
@@ -235,6 +245,7 @@ function CatStats.view(instance: Types.CatInstance): Types.CatView
 		rescued = instance.rescued,
 		name = instance.name,
 		method = instance.method,
+		locked = instance.locked == true,
 		level = level,
 		xp = math.floor(CatStats.xp(instance)),
 		xpToNext = CatStats.xpToNext(level),

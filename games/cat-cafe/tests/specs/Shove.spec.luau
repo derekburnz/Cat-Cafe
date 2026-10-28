@@ -203,6 +203,18 @@ return function()
 		end)
 	end)
 
+	describe("the getaway burst (v0.8 F55)", function()
+		it("reaches players within CatchBurstRadiusStuds of the catcher, root to root, and no farther", function()
+			local at = Vector3.new(10, 3, 10)
+			local r = Config.CatchBurstRadiusStuds
+			expect(Shove.inBurst(at, at + Vector3.new(r - 0.1, 0, 0))).to.equal(true)
+			expect(Shove.inBurst(at, at + Vector3.new(0, 0, r))).to.equal(true)
+			expect(Shove.inBurst(at, at + Vector3.new(r + 0.1, 0, 0))).to.equal(false)
+			expect(Shove.inBurst(at, at + Vector3.new(6, 9, 0))).to.equal(false) -- a roof above is out of reach
+			expect(Shove.inBurst(at, at)).to.equal(true)
+		end)
+	end)
+
 	-- A pick up that starts the carry: a Dropped stray next to an idle player in an open, unlocked area.
 	local function pickUp(): Shove.PickUpCheck
 		return {

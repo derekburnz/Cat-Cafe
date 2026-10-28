@@ -81,6 +81,13 @@ local Config = {
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
+	-- The getaway after a net catch or a rescue (v0.8 F55, section 10c): every other player this close to the catcher
+	-- is pushed this far away (not a shove: no drop, no cooldown, never someone in a catch or rescue), and the catcher
+	-- walks at CatchRushWalkSpeed for CatchRushSeconds before carry speed. A picked-up cat gives neither.
+	CatchBurstRadiusStuds = 10,
+	CatchBurstStuds = 8,
+	CatchRushWalkSpeed = 24,
+	CatchRushSeconds = 5,
 	CheckInRangeStuds = 8,
 	StrayWanderRadius = 5,
 	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every

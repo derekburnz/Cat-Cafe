@@ -7,6 +7,8 @@
 -- the push; a miss holds the tackler TackleMissRecoverSeconds; and every client fires Moments.Shove, then BumpLoose
 -- or BumpHeld, for sound and effects. Holding a player down disables the PlayerModule's controls, so the Humanoid
 -- stays upright for the animation and WalkSpeed stays the server's (it changes when a carry starts or ends).
+-- It also answers CatchBurst, the getaway after someone else's catch or rescue (v0.8 F55): the same push as a shove,
+-- CatchBurstStuds along the server's direction, with no hold and nothing for Moments (Effects reads PushedAt).
 
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
@@ -282,9 +284,21 @@ local function onShoveResult(
 	end
 end
 
+local function onCatchBurst(direction: Vector3)
+	if typeof(direction) ~= "Vector3" then
+		return
+	end
+	local root = rootPart()
+	if root ~= nil then
+		stopLunge()
+		slide(root, direction, Config.CatchBurstStuds, PUSH_SECONDS)
+	end
+end
+
 function ShoveController.start()
 	UI.events.tackle:Connect(press) -- the Tackle button or Q (F74)
 	Net.on("ShoveResult", onShoveResult)
+	Net.on("CatchBurst", onCatchBurst)
 	player.CharacterAdded:Connect(function()
 		-- a new character starts free
 		lunge = nil

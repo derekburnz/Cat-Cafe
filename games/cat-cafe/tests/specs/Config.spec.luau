@@ -60,6 +60,10 @@ return function()
 		GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02)
 		GoldChanceNet = 0.05, -- F30, v0.5 F42 (was 0.02)
 		CarryWalkSpeed = 16, -- v0.4
+		CatchBurstRadiusStuds = 10, -- v0.8 F55
+		CatchBurstStuds = 8,
+		CatchRushWalkSpeed = 24,
+		CatchRushSeconds = 5,
 		CheckInRangeStuds = 8,
 		CustomerSpawnSeconds = 6,
 		CustomerStayMin = 20,
@@ -314,6 +318,11 @@ return function()
 
 		it("carry speed is about 80% of normal walk speed (features F07)", function()
 			expect(Config.CarryWalkSpeed / Config.NormalWalkSpeed).to.be.near(0.8, 0.02)
+		end)
+
+		it("the Catch Rush outruns a walking player and the burst stays inside its own radius (F55)", function()
+			expect(Config.CatchRushWalkSpeed > Config.NormalWalkSpeed).to.equal(true)
+			expect(Config.CatchBurstStuds <= Config.CatchBurstRadiusStuds).to.equal(true)
 		end)
 
 		it(

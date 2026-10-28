@@ -41,6 +41,8 @@ type Profile = Types.PlayerProfile
 
 local CafeService = {}
 
+local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for a door set with none picked (F80)
+
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
 -- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
 local knownLevels: { [Player]: { [string]: number } } = {}
@@ -384,7 +386,8 @@ end
 
 -- A door set or cat flap model (F80) named `name` in plot.decor at `at`, carrying `decorId` for the equip flash, or
 -- none when `asset` is nil. It never collides, is touched or blocks a cast, so both doorways stay open to players,
--- customers and cats.
+-- customers and cats. It is Persistent and only moved when its place changes, so each client keeps the leaves and
+-- the flap it swings (DoorController); a door set's back door sign comes hidden for the night (hideSignByDay).
 local function showStyleModel(
 	plot: WorldBuilder.Plot,
 	name: string,
@@ -403,10 +406,14 @@ local function showStyleModel(
 	local model: Model
 	if existing ~= nil and existing:IsA("Model") then
 		model = existing :: Model
+		if not model:GetPivot():FuzzyEq(at, 0.001) then
+			model:PivotTo(at)
+		end
 	else
 		model = AssetRegistry.clone(asset)
 		model.Name = name
 		model:SetAttribute("Asset", asset)
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 		for _, descendant in model:GetDescendants() do
 			if descendant:IsA("BasePart") then
 				local part = descendant :: BasePart
@@ -416,10 +423,11 @@ local function showStyleModel(
 				part.CanQuery = false
 			end
 		end
+		WorldBuilder.hideSignByDay(model)
+		model:PivotTo(at)
 		model.Parent = plot.decor
 	end
 	model:SetAttribute("DecorId", decorId)
-	model:PivotTo(at)
 	return model
 end
 
@@ -427,8 +435,9 @@ end
 -- DoorBack in the back one (the piece's CatCafe_Door_<Name>, or its _Front and _Back versions where the art has
 -- them), each at the bottom centre of its opening facing out, and CatFlap at the back door model's `CatFlap`
 -- attachment: the door set's, else the real back door's (Model-Agent #509, its leaf as built, shut; each client
--- carries the flap with the leaf as it swings), else low on the back door panel's yard face. With none in use the
--- cafe keeps its own doors.
+-- carries the flap with the leaf as it swings), else low on the back door panel's yard face. A door set with no cat
+-- flap picked brings the cafe's own flap alone (PLAIN_FLAP, no DecorId), as the cafe's back door it replaces had one.
+-- With none in use the cafe keeps its own doors.
 local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 	local front = plot.door.CFrame * CFrame.new(0, -plot.door.Size.Y / 2, 0)
 	local back = plot.backDoor.CFrame
@@ -453,7 +462,11 @@ local function refreshDoors(plot: WorldBuilder.Plot, profile: Profile)
 	end
 	local flapId = Crates.styleInUse(profile, "catflap")
 	local flapDef = if flapId ~= nil then Catalog.getDecor(flapId) else nil
-	showStyleModel(plot, "CatFlap", if flapDef ~= nil then flapDef.asset else nil, flapId, flapAt)
+	local flapAsset = if flapDef ~= nil
+		then flapDef.asset
+		elseif backModel ~= nil and AssetRegistry.has(PLAIN_FLAP) then PLAIN_FLAP
+		else nil
+	showStyleModel(plot, "CatFlap", flapAsset, flapId, flapAt)
 end
 
 local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)

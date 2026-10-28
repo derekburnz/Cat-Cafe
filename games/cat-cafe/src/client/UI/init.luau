@@ -2125,6 +2125,9 @@ end
 
 -- The wild area the character is in, camp included, or nil in the hometown. Hides the cannon hints out there.
 function UI.cannon.setWild(areaId: string?)
+	if cannonWild == (areaId ~= nil) then
+		return
+	end
 	cannonWild = areaId ~= nil
 	applyTutorial()
 end

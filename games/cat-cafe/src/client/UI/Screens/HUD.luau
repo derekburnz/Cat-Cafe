@@ -1567,12 +1567,13 @@ end
 
 function HUD.setTutorial(self: any, text: string?)
 	if text and text ~= "" then
+		-- only a new line chimes and pops; the same line again (a sync, a zone change) stays still
 		if not self._tutorial.Visible or self._tutorial.Text ~= text then
 			Sound.play("uiHint")
+			Tween.popIn(self._tutorial, 0.92)
 		end
 		self._tutorial.Text = text
 		self._tutorial.Visible = true
-		Tween.popIn(self._tutorial, 0.92)
 	else
 		self._tutorial.Visible = false
 	end

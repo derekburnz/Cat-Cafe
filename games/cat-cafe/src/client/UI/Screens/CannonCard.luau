@@ -181,7 +181,12 @@ function CannonCard.show(
 	launchAt: number,
 	hold: number?
 )
-	self._token += 1
+	self:hide() -- a card still up from an earlier flight goes first
+	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold)
+	local elapsed = Workspace:GetServerTimeNow() - launchAt
+	if elapsed >= outAt then
+		return -- joined the flight too late to matter
+	end
 	local token = self._token
 	local color = Theme.areaColors[destination] or Theme.colors.caramel
 	local glyph = (Theme.icons :: any)[destination] or Theme.icons.travel
@@ -192,11 +197,6 @@ function CannonCard.show(
 	self._title.Text = CannonLogic.cardTitle(destination, name)
 	self._sub.Text = CannonLogic.cardSub(destination, name)
 
-	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold)
-	local elapsed = Workspace:GetServerTimeNow() - launchAt
-	if elapsed >= outAt then
-		return -- joined the flight too late to matter
-	end
 	local function at(seconds: number, step: () -> ())
 		task.delay(math.max(0, seconds - elapsed), function()
 			if self._token == token then

@@ -44,7 +44,6 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 
 export type Callbacks = {
 	spin: () -> (),
-	status: (freeDue: boolean) -> (), -- every second, for the Plaza marker's red dot
 	toast: (text: string) -> (), -- a prize that lands while the window is closed
 	close: () -> (),
 }
@@ -952,7 +951,6 @@ end
 function SpinWheel._refresh(self: any)
 	local now = Workspace:GetServerTimeNow()
 	local spin: Types.SpinState? = self._spin
-	self._callbacks.status(spin ~= nil and #self._rows > 0 and SpinLogic.freeDue(spin, now))
 	if self._pressedAt and os.clock() - self._pressedAt >= PENDING_SECONDS then
 		self._pressedAt = nil
 		self:_say("The wheel did not answer. Try again!", Theme.colors.warnDark)

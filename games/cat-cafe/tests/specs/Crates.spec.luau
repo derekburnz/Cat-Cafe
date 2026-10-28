@@ -586,6 +586,198 @@ return function()
 		)
 	end)
 
+	describe("door sets and cat flaps edges (QA, F80)", function()
+		-- golden-fish.md 4b's table: each crate's door set and cat flap and which of the two is Common
+		local DESIGN: { [string]: { door: string, flap: string, commonDoor: boolean } } = {
+			alley = { door = "alley_fire_escape_door", flap = "alley_neon_paw_flap", commonDoor = true },
+			park = { door = "park_garden_gate_door", flap = "park_birdhouse_flap", commonDoor = true },
+			neighbourhood = {
+				door = "neighbourhood_front_porch_door",
+				flap = "neighbourhood_mail_slot_flap",
+				commonDoor = false,
+			},
+			woods = { door = "woods_log_cabin_door", flap = "woods_tree_stump_flap", commonDoor = true },
+			sewer = { door = "sewer_porthole_hatch_door", flap = "sewer_pipe_ring_flap", commonDoor = false },
+			classic = { door = "classic_paned_glass_door", flap = "classic_bell_flap", commonDoor = true },
+		}
+		local ALL_KINDS = { "wallpaper", "floor", "paint", "door", "catflap", "furniture", "decoration" }
+
+		local function modelPieces(): { any }
+			local list = {}
+			for _, def in Catalog.crateDecor do
+				if def.kind == "door" or def.kind == "catflap" then
+					table.insert(list, def)
+				end
+			end
+			return list
+		end
+
+		it("has section 4b's door set and cat flap in every crate, with its rarity, bonus and model name", function()
+			expect(Config.CratePieceBonus.Common).to.be.near(0.02, 1e-9)
+			expect(Config.CratePieceBonus.Rare).to.be.near(0.04, 1e-9)
+			for _, pool in POOLS do
+				local want = DESIGN[pool]
+				for _, side in { "door", "flap" } do
+					local def = Catalog.getDecor(if side == "door" then want.door else want.flap) :: any
+					expect(def).to.be.ok()
+					local common = if side == "door" then want.commonDoor else not want.commonDoor
+					local suffix = if side == "door" then " Door" else " Flap"
+					local prefix = if side == "door" then "CatCafe_Door_" else "CatCafe_CatFlap_"
+					expect(def.kind).to.equal(if side == "door" then "door" else "catflap")
+					expect(def.crate).to.equal(pool)
+					expect(def.source).to.equal("crate")
+					expect(def.rarity).to.equal(if common then "Common" else "Rare")
+					expect(def.category).to.equal(if side == "door" then "Door" else "Cat flap")
+					expect(def.effect).to.equal(if common then "+2% tips while in use" else "+4% tips while in use")
+					expect(def.description ~= "").to.equal(true)
+					-- the model is named after the piece, less " Door" or " Flap" and anything not a letter or digit
+					expect(string.sub(def.name, -#suffix)).to.equal(suffix)
+					local stem = string.gsub(string.sub(def.name, 1, -#suffix - 1), "[^%w]", "")
+					expect(#stem > 0).to.equal(true)
+					expect(def.asset).to.equal(prefix .. stem)
+				end
+			end
+			-- and no door set or cat flap the design does not list
+			local listed: { [string]: boolean } = {}
+			for _, want in DESIGN do
+				listed[want.door] = true
+				listed[want.flap] = true
+			end
+			local pieces = modelPieces()
+			expect(#pieces).to.equal(12)
+			for _, def in pieces do
+				expect(listed[def.id]).to.equal(true)
+			end
+		end)
+
+		it("gives every one of the 72 pieces its own id and its own model", function()
+			local ids: { [string]: boolean } = {}
+			local assets: { [string]: string } = {}
+			for _, def in Catalog.crateDecor do
+				expect(ids[def.id]).never.to.be.ok()
+				ids[def.id] = true
+				local other = assets[def.asset]
+				if other ~= nil then
+					error(string.format("%s and %s share the model %s", other, def.id, def.asset))
+				end
+				assets[def.asset] = def.id
+			end
+		end)
+
+		it("rolls a door set or cat flap at 12% or 6.75% on a plain crate, never on golden odds", function()
+			for _, pool in POOLS do
+				local want = DESIGN[pool]
+				local crate = assert(Catalog.getCrate(pool .. "_crate"))
+				local golden = assert(Catalog.getCrate(pool .. "_golden_crate"))
+				local plain = Crates.pieceChances(crate, Crates.oddsFor(crate, 0))
+				local lucky = Crates.pieceChances(crate, Crates.oddsFor(crate, Config.CrateLuckyEvery - 1))
+				local gold = Crates.pieceChances(golden, Crates.oddsFor(golden, 0))
+				local total = 0
+				for _, chance in plain do
+					total += chance
+				end
+				expect(total).to.be.near(100, 1e-9)
+				for _, id in { want.door, want.flap } do
+					local common = (id == want.door) == want.commonDoor
+					expect(plain[id]).to.be.near(if common then 12 else 6.75, 1e-9)
+					expect(lucky[id] or 0).to.equal(0)
+					expect(gold[id] or 0).to.equal(0)
+				end
+			end
+		end)
+
+		it("keeps door sets and cat flaps out of the colour slots and off the decor spots", function()
+			-- the colour slots and the model slots cover exactly the style kinds, each attribute once
+			local seen: { [string]: string } = {}
+			for _, list in { Crates.STYLE_SLOTS, Crates.MODEL_SLOTS } do
+				for _, slot in list do
+					expect(seen[slot.kind]).never.to.be.ok()
+					seen[slot.kind] = slot.attribute
+				end
+			end
+			local attributes: { [string]: boolean } = {}
+			for _, kind in ALL_KINDS do
+				expect(seen[kind] ~= nil).to.equal(Crates.isStyle(kind :: any))
+				local attribute = seen[kind]
+				if attribute ~= nil then
+					expect(attributes[attribute]).never.to.be.ok()
+					attributes[attribute] = true
+				end
+			end
+			for _, odd in { "Door", "cat_flap", "catFlap", "doors", "" } do
+				expect(Crates.isStyle(odd :: any)).to.equal(false)
+			end
+			expect(Crates.isStyle(nil)).to.equal(false)
+			for _, def in modelPieces() do
+				expect(Crates.takesSpot(def)).to.equal(false)
+				expect(def.color).never.to.be.ok()
+				expect(def.material).never.to.be.ok()
+				for _, kind in ALL_KINDS do
+					local color, material = Crates.styleLook(def.id, kind :: any)
+					expect(color).never.to.be.ok()
+					expect(material).never.to.be.ok()
+				end
+			end
+			-- every door set and cat flap out at once, and two furniture pieces: two spots used
+			local profile = fresh()
+			for _, def in modelPieces() do
+				own(profile, def, true)
+			end
+			for _, kind in { "furniture", "decoration" } do
+				for _, def in Catalog.crateDecor do
+					if def.kind == kind then
+						own(profile, def, true)
+						break
+					end
+				end
+			end
+			expect(Crates.spotsUsed(profile, {})).to.equal(2)
+		end)
+
+		it("finds the door set and cat flap in use only when owned and placed, each kind apart", function()
+			local door = assert(Catalog.getDecor("sewer_porthole_hatch_door"))
+			local flap = assert(Catalog.getDecor("neighbourhood_mail_slot_flap"))
+			local profile = fresh()
+			expect(Crates.styleInUse(profile, "door")).never.to.be.ok()
+			expect(Crates.styleInUse(profile, "catflap")).never.to.be.ok()
+			own(profile, door, false)
+			expect(Crates.styleInUse(profile, "door")).never.to.be.ok()
+			profile.decorPlaced[door.id] = false
+			expect(Crates.styleInUse(profile, "door")).never.to.be.ok()
+			profile.decorPlaced[flap.id] = true -- placed but never owned (a stale save)
+			expect(Crates.styleInUse(profile, "catflap")).never.to.be.ok()
+			profile.decorPlaced[door.id] = true
+			expect(Crates.styleInUse(profile, "door")).to.equal(door.id)
+			expect(Crates.styleInUse(profile, "catflap")).never.to.be.ok()
+			own(profile, flap, true)
+			expect(Crates.styleInUse(profile, "catflap")).to.equal(flap.id)
+			expect(Crates.styleInUse(profile, "door")).to.equal(door.id)
+			for _, kind in { "wallpaper", "floor", "paint" } do
+				expect(Crates.styleInUse(profile, kind :: any)).never.to.be.ok()
+			end
+		end)
+
+		it("counts a page's door set and cat flap: the ten older pieces leave it two short", function()
+			for _, pool in POOLS do
+				local want = DESIGN[pool]
+				local profile = fresh()
+				for _, def in Catalog.crateDecor do
+					if def.crate == pool and def.kind ~= "door" and def.kind ~= "catflap" then
+						own(profile, def, false)
+					end
+				end
+				expect(Crates.pageCount(profile, pool)).to.equal(10)
+				expect(Crates.fullPages(profile)).to.equal(0)
+				own(profile, assert(Catalog.getDecor(want.door)), false)
+				expect(Crates.pageCount(profile, pool)).to.equal(11)
+				expect(Crates.fullPages(profile)).to.equal(0)
+				own(profile, assert(Catalog.getDecor(want.flap)), false)
+				expect(Crates.pageCount(profile, pool)).to.equal(12)
+				expect(Crates.fullPages(profile)).to.equal(1)
+			end
+		end)
+	end)
+
 	describe("GoldenFish guards (QA, after F53)", function()
 		local GoldenFish = require(Shared.GoldenFish)
 

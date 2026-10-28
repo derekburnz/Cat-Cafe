@@ -38,6 +38,7 @@ import cats  # noqa: E402
 import coins  # noqa: E402
 import common  # noqa: E402
 import crate_decor  # noqa: E402
+import crates  # noqa: E402
 import decor  # noqa: E402
 import furniture  # noqa: E402
 import gold  # noqa: E402
@@ -69,7 +70,7 @@ import woods  # noqa: E402
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, street, areas, plot, alleyway, boards,
            night, stations, coins, market, crate_decor, neighbourhood, woods, sewer, spinwheel, square, parkset,
-           woodsset, sewerset, neighbourhoodset, doors]
+           woodsset, sewerset, neighbourhoodset, doors, crates]
 
 PIVOT_NOTES = {
     "CatCafe_Square_Paving": "The square's centre on its floor top (0, 0.1, 0): the grout slab runs 0.4 below the "
@@ -169,9 +170,12 @@ STUDIO_NOTES = {
     "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, Transparency 0.3, plus a PointLight (Brightness 0.8, Range 10).",
     "CatCafe_Decor_DoorSign": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
     "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
-    "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
-    "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
-    "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. Grip at the pivot.",
+    "CatCafe_Item_Net_L1": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
+                           "Handle, the net's axes) is where the hand holds it.",
+    "CatCafe_Item_Net_L2": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
+                           "Handle, the net's axes) is where the hand holds it.",
+    "CatCafe_Item_Net_L3": "Tool Handle = _Handle. Bag: Transparency 0.35. The Attachment Grip (mid wrap, on the "
+                           "Handle, the net's axes) is where the hand holds it.",
     **{f"CatCafe_Plot_Cafe_{c}": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. "
                                  "The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the "
                                  "owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). "
@@ -233,6 +237,12 @@ for _n in crate_decor.ASSETS:                   # F53 crate pieces: the server c
                         else "on a decor spot, 1.4 studs off the wall") + "; pivot base centre, front -Z, no "
                         "collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass "
                         "Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.")
+
+for _n in crates.ASSETS:                         # Cafe Crates: shelf, reveal and pictures
+    STUDIO_NOTES[_n] = ("F53 Cafe Crate" + (" (golden: gold parts are Metal)" if _n.endswith("_Gold") else "")
+                        + ": pivot base centre, front -Z, nothing collides. The child Model " + _n + "_Lid turns "
+                        "about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide "
+                        "open. Its picture is exports/icons/" + _n.replace("Prop_", "Icon_") + ".png (icons.py).")
 
 for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): Neon eye parts in Studio
     if _spec.get("glow_eyes"):
@@ -347,6 +357,8 @@ def main():
             extra = {"attachments": furniture.spot_attachments(name, crate_decor.TOWER_SPOTS)}
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
+        if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
+            extra = {"attachments": [items.grip_attachment()]}
         if name == "CatCafe_Square_Signpost":     # each arm's Area, for the UI to draw its name and lock on
             extra = {"part_attributes": square.ARM_ATTRIBUTES}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)

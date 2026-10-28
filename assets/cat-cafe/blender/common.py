@@ -116,18 +116,19 @@ class Builder:
     build everything relative to the pivot you want (base center, floor).
     """
 
-    def __init__(self):
+    def __init__(self, remap=None):
         self.bm = bmesh.new()
         self.sw = self.bm.faces.layers.int.new("swatch")
         self.bev = self.bm.edges.layers.int.new("bev")
         self.prims = []
+        self.remap = remap              # swatch -> swatch, for a recoloured twin (a golden crate)
 
     def _log(self, kind, matrix, swatch, extra=None):
-        self.prims.append((kind, matrix.copy(), swatch, extra))
+        self.prims.append((kind, matrix.copy(), self.remap(swatch) if self.remap else swatch, extra))
 
     # -- tagging ------------------------------------------------------------
     def _tag(self, verts, swatch, bevel):
-        i = palette.idx(swatch)
+        i = palette.idx(self.remap(swatch) if self.remap else swatch)
         faces, edges = set(), set()
         for v in verts:
             faces.update(v.link_faces)
@@ -322,8 +323,8 @@ class RB:
     """A Builder you feed in Roblox axes (x across, y up, z away from the street, -Z is the front), for big
     set pieces laid out in plot or area coordinates. Sizes are Roblox (x, y, z); rot is a Roblox 3x3 Matrix."""
 
-    def __init__(self):
-        self.b = Builder()
+    def __init__(self, remap=None):
+        self.b = Builder(remap)
 
     @staticmethod
     def p(x, y, z):

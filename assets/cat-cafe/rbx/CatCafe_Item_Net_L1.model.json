@@ -82,7 +82,41 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Item_Net_L1/0"
-   }
+   },
+   "children": [
+    {
+     "name": "Grip",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -1.14,
+         0.0,
+         0.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
   },
   {
    "name": "CatCafe_Item_Net_L1_Handle",

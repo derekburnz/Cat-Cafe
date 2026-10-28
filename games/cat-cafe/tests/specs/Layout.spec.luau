@@ -1053,7 +1053,7 @@ return function()
 				local toward = math.deg(math.atan2(bench.x, bench.z))
 				local off = ((bench.rotY or 0) - toward) % 360
 				if math.min(off, 360 - off) > 0.5 then
-					error(string.format("bench %d at (%.2f, %.2f) is turned %.1f degrees off the fountain", i, bench.x, bench.z, off))
+					fail("bench %d at (%.2f, %.2f) is turned %.1f degrees off the fountain", i, bench.x, bench.z, off)
 				end
 				-- the signpost stands in the eighth bench's place, so no bench crowds it
 				local dx, dz = bench.x - square.signpost.x, bench.z - square.signpost.z
@@ -1066,7 +1066,7 @@ return function()
 			for _, asset in { "CatCafe_Square_Bench", "CatCafe_Square_Lamp", "CatCafe_Square_Garden" } do
 				for i, piece in piecesOf(asset) do
 					if onCross(piece.x, piece.z, 1) then
-						error(string.format("%s %d at (%.2f, %.2f) stands on the open cross", asset, i, piece.x, piece.z))
+						fail("%s %d at (%.2f, %.2f) stands on the open cross", asset, i, piece.x, piece.z)
 					end
 					local dx, dz = piece.x - spawn.x, piece.z - spawn.z
 					expect(math.sqrt(dx * dx + dz * dz) >= 6).to.equal(true)

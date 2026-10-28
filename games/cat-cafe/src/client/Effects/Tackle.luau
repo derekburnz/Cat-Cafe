@@ -168,6 +168,10 @@ local function rebind()
 		if rig == nil then
 			entries[character] = nil
 			stale[character] = clock + RETRY_SECONDS
+		elseif old ~= nil then
+			-- the same move goes on (a tool's grip or a new outfit mid-tackle): keep its fall direction and walk-out
+			old.rig = rig
+			stale[character] = nil
 		else
 			entries[character] = newEntry(rig)
 			stale[character] = nil

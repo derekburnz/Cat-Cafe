@@ -3,15 +3,18 @@
 -- barrel turns, then BOOM, a smoke ring round the muzzle with confetti and a camera shake, a sparkle trail on the
 -- flying player, and a cloud puff where they vanish in the sky. The launching player's screen fills with clouds
 -- tinted toward where they are going (Clouds.luau) with their own character gliding through them, the clouds part
--- over the camp, and a dust poof goes off as their feet touch the pad. A cloud hop (Home from a wild area, the night sweep) is the clouds without the
--- cannon, with a puff where onlookers see the player go and arrive. At a camp check-in the carried cat hops out of
--- its carrier's arms into the carrier basket and puffs away. The hop into the barrel, the curled ball, the glide in
--- the clouds and the crouch landing are Animation-Engineer's (Effects/CannonGlide); the move itself is the server's.
+-- over the camp, and a dust poof goes off as their feet touch the pad. A cloud hop (Home from a wild area, the night
+-- sweep) is the clouds without the cannon, with a puff where onlookers see the player go and arrive. At a camp
+-- check-in the carried cat hops out of its carrier's arms into the carrier basket and puffs away. The intro plays
+-- the same flight and check-in on its copy of the player (Cannon.playStaged, Cannon.checkInStaged). The hop into the
+-- barrel, the curled ball, the glide in the clouds and the crouch landing are Animation-Engineer's
+-- (Effects/CannonGlide); the move itself is the server's.
 --
 -- Source: the character attributes `CannonLaunchAt` (server time), `CannonTo` and `Launching`, and `CloudHopAt` and
 -- `CloudHopTo`; the cannon models' `Muzzle` and `Fuse` attachments (else the cannon's bounding box); the
--- `CampBasket` tag and its `Drop` attachment; CannonGlide.body and CannonGlide.mount once that module is in; `Moments.CampCheckIn(userId, campId)` and the carrier's `HeldCat`, once
--- the engineer has them. Listening only. Numbers in Presets.cannon, Presets.clouds and Presets.campCheckIn.
+-- `CampBasket` tag and its `Drop` attachment; CannonGlide through Cannon.setGlide once that module is in;
+-- `Moments.CampCheckIn(userId, campId)` and the carrier's `HeldCat`, once the engineer has them. Listening only.
+-- Numbers in Presets.cannon, Presets.clouds and Presets.campCheckIn.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -28,8 +31,24 @@ local Presets = require(script.Parent.Presets)
 
 local Cannon = {}
 
+-- A flight's beats in seconds from its start: Presets.cannon for a real one, Presets.cannon.introStage for the
+-- intro's squeezed one (Cannon.playStaged).
+export type Stage = {
+	boomAt: number,
+	puffAt: number,
+	dropAt: number,
+	landAt: number,
+	endAt: number,
+	clouds: Logic.CloudPlan,
+	glideFrom: number,
+	glideTo: number,
+}
+
 type Flight = {
 	at: number, -- server time of the launch
+	stage: Stage,
+	beats: { [string]: number },
+	staged: boolean, -- the intro's local copy: no attributes, effects on its pivot, always this screen's
 	mine: boolean,
 	fired: { [string]: boolean },
 	muzzle: Vector3,
@@ -46,6 +65,16 @@ export type Glide = {
 	mount: (parent: GuiObject, zIndex: number, character: Model, launchAt: number) -> (),
 }
 
+-- CannonGlide.mountStaged once Animation-Engineer has it: the intro's copy gliding from `from` (server time) for
+-- `seconds`. Looked up on the module when the intro plays, so the build works with or without it.
+type MountStaged = (
+	parent: GuiObject,
+	zIndex: number,
+	model: Model,
+	from: number,
+	seconds: number
+) -> ()
+
 type Hop = {
 	at: number,
 	mine: boolean,
@@ -56,8 +85,16 @@ type Hop = {
 }
 
 local CANNONS = { "CatCafe_Square_Cannon", "CatCafe_Camp_Cannon" }
-local BEATS: { [string]: number } =
-	{ boom = Presets.cannon.boomAt, puff = Presets.cannon.puffAt, land = Presets.cannon.landAt }
+local REAL: Stage = {
+	boomAt = Presets.cannon.boomAt,
+	puffAt = Presets.cannon.puffAt,
+	dropAt = Presets.cannon.dropAt,
+	landAt = Presets.cannon.landAt,
+	endAt = Presets.cannon.endAt,
+	clouds = Presets.clouds.cannon,
+	glideFrom = Presets.cannon.puffAt,
+	glideTo = Presets.cannon.dropAt,
+}
 
 local flights: { [Model]: Flight } = {}
 -- Animation-Engineer's CannonGlide (the flying body and the launching player's character in the clouds), handed in
@@ -116,10 +153,10 @@ end
 
 -- Where the muzzle and the fuse are and the way it fires: the model's attachments, else the top of its bounding box
 -- firing straight up, else the player's own spot.
-local function aimOf(cannon: Model?, root: BasePart): (Vector3, Vector3, Vector3)
+local function aimOf(cannon: Model?, spot: Vector3): (Vector3, Vector3, Vector3)
 	local up = Vector3.new(0, 1, 0)
 	if cannon == nil then
-		return root.Position + up * 3, root.Position, up
+		return spot + up * 3, spot, up
 	end
 	local frame, size = cannon:GetBoundingBox()
 	local muzzle = frame.Position + up * Logic.halfExtents(frame, size).Y
@@ -162,11 +199,11 @@ local function boom(flight: Flight)
 	end
 end
 
-local function land(character: Model, root: BasePart)
+local function land(character: Model, at: Vector3)
 	local c = Presets.cannon
 	below.FilterDescendantsInstances = { character, Context.folder() }
-	local hit = Workspace:Raycast(root.Position, Vector3.new(0, -12, 0), below)
-	local ground = if hit ~= nil then hit.Position else root.Position - Vector3.new(0, 3, 0)
+	local hit = Workspace:Raycast(at, Vector3.new(0, -12, 0), below)
+	local ground = if hit ~= nil then hit.Position else at - Vector3.new(0, 3, 0)
 	for i = 1, c.landRing do
 		local angle = 2 * math.pi * i / c.landRing
 		Particles.burst(
@@ -219,44 +256,48 @@ end
 
 local function stepFlight(character: Model, flight: Flight, now: number)
 	local c = Presets.cannon
+	local s = flight.stage
 	local t = now - flight.at
 	local root = rootOf(character)
-	if t > c.endAt + c.stale or character.Parent == nil or root == nil then
+	if t > s.endAt + c.stale or character.Parent == nil or (root == nil and not flight.staged) then
 		endFlight(character)
 		return
 	end
-	local body = root :: BasePart
-	local at = bodyAt(character, body)
-	if at ~= nil and t < c.puffAt then
+	-- the intro's copy is flown by its pivot; a real character's root part waits in the barrel while its body flies
+	local spot = if flight.staged
+		then character:GetPivot().Position
+		else (root :: BasePart).Position
+	local at = if flight.staged then spot else bodyAt(character, root :: BasePart)
+	if at ~= nil and t < s.puffAt then
 		flight.last = at
 	end
 	-- stopped before the drop (the server clears `Launching` only as it lands): no more of the flight
 	local launching = character:GetAttribute("Launching") == true
 	flight.flying = flight.flying or launching
-	if flight.flying and not launching and t < c.dropAt then
+	if not flight.staged and flight.flying and not launching and t < s.dropAt then
 		if flight.mine then
 			Clouds.stop()
 		end
 		endFlight(character)
 		return
 	end
-	local seen = near(body.Position, c.within, flight.mine)
-	if t < c.boomAt and t >= flight.nextFizz then
+	local seen = near(spot, c.within, flight.mine)
+	if t < s.boomAt and t >= flight.nextFizz then
 		flight.nextFizz = t + c.fuseEvery
 		if seen or Context.distance(flight.fuse) <= c.within then
 			Particles.burst("fuseSpark", flight.fuse, Presets.bursts.fuseSpark)
 		end
 	end
-	for _, beat in Logic.beatsDue(t, BEATS, flight.fired) do
+	for _, beat in Logic.beatsDue(t, flight.beats, flight.fired) do
 		if beat == "boom" and (seen or Context.distance(flight.muzzle) <= c.within) then
 			boom(flight)
 		elseif beat == "puff" and (seen or Context.distance(flight.last) <= c.within) then
 			Particles.burst("smokePuff", flight.last, c.skyPuff, Presets.clouds.white)
-		elseif beat == "land" and near(body.Position, c.within, flight.mine) then
-			land(character, body)
+		elseif beat == "land" and near(spot, c.within, flight.mine) then
+			land(character, spot)
 		end
 	end
-	setTrail(flight, at, seen and Logic.cannonTrail(t, c))
+	setTrail(flight, at, seen and Logic.cannonTrail(t, s))
 end
 
 local function stepHop(character: Model, hop: Hop, now: number)
@@ -303,6 +344,45 @@ local function running()
 	end
 end
 
+-- A flight starting at `at` (server time) on `character`'s beats in `stage`.
+local function fly(
+	character: Model,
+	at: number,
+	stage: Stage,
+	staged: boolean,
+	cannon: Model?,
+	spot: Vector3
+)
+	local c = Presets.cannon
+	local t = Workspace:GetServerTimeNow() - at
+	local muzzle, fuse, aim = aimOf(cannon, spot)
+	local beats: { [string]: number } =
+		{ boom = stage.boomAt, puff = stage.puffAt, land = stage.landAt }
+	local fired: { [string]: boolean } = {}
+	-- beats long gone when this client heard of the flight are skipped, not played late
+	for name, beat in beats do
+		if t > beat + 0.3 then
+			fired[name] = true
+		end
+	end
+	flights[character] = {
+		at = at,
+		stage = stage,
+		beats = beats,
+		staged = staged,
+		mine = staged or character == Players.LocalPlayer.Character,
+		fired = fired,
+		muzzle = muzzle,
+		fuse = fuse,
+		aim = aim,
+		nextFizz = stage.boomAt - c.fuseSeconds,
+		flying = false,
+		last = spot,
+		trail = nil,
+	}
+	running()
+end
+
 local function launched(character: Model)
 	local at = character:GetAttribute("CannonLaunchAt")
 	local root = rootOf(character)
@@ -319,29 +399,9 @@ local function launched(character: Model)
 	if t > c.endAt + c.stale then
 		return -- joined or streamed in after it was over
 	end
-	local body = root :: BasePart
-	local muzzle, fuse, aim = aimOf(findCannon(character, body.Position), body)
-	local mine = character == Players.LocalPlayer.Character
-	local fired: { [string]: boolean } = {}
-	-- beats long gone when this client heard of the flight are skipped, not played late
-	for name, beat in BEATS do
-		if t > beat + 0.3 then
-			fired[name] = true
-		end
-	end
-	flights[character] = {
-		at = at,
-		mine = mine,
-		fired = fired,
-		muzzle = muzzle,
-		fuse = fuse,
-		aim = aim,
-		nextFizz = 0,
-		flying = false,
-		last = body.Position,
-		trail = nil,
-	}
-	if mine then
+	local spot = (root :: BasePart).Position
+	fly(character, at, REAL, false, findCannon(character, spot), spot)
+	if character == Players.LocalPlayer.Character then
 		Clouds.play(at, Presets.clouds.cannon, tintOf(character:GetAttribute("CannonTo")))
 		-- your own character glides through the clouds (Animation-Engineer), between the clouds behind and in front
 		local g, rider = glide, Clouds.rider()
@@ -349,7 +409,6 @@ local function launched(character: Model)
 			g.mount(rider, Presets.clouds.riderZ, character, at)
 		end
 	end
-	running()
 end
 
 local function hopped(character: Model)
@@ -376,32 +435,32 @@ local function hopped(character: Model)
 	running()
 end
 
--- The checked-in cat's hop from its carrier's arms into the camp's carrier basket: a copy of the carried cat, so
--- it keeps its outfit and gold coat while the server removes the real one.
-local function checkedIn(userId: number)
+-- Where a cat drops into a carrier basket: its `Drop` attachment, else its pivot.
+local function dropPoint(basket: Instance): Vector3
+	local drop = basket:FindFirstChild("Drop", true)
+	if drop ~= nil and drop:IsA("Attachment") then
+		return (drop :: Attachment).WorldPosition
+	end
+	return if basket:IsA("Model") then (basket :: Model):GetPivot().Position else Vector3.zero
+end
+
+-- A cat's hop from its carrier's arms into a camp's carrier basket: a copy of the cat, so it keeps its outfit and
+-- gold coat while the real one is removed. Into `basket`, else the nearest CampBasket.
+local function hopIn(cat: Model, basket: Model?)
 	local k = Presets.campCheckIn
-	local player = Players:GetPlayerByUserId(userId)
-	local character = if player ~= nil then player.Character else nil
-	local held = if character ~= nil then character:FindFirstChild("HeldCat") else nil
-	if character == nil or held == nil or not held:IsA("Model") then
-		return
-	end
-	local cat = held :: Model
 	local from = cat:GetPivot()
-	if not near(from.Position, k.within, player == Players.LocalPlayer) then
-		return
-	end
 	local to = from.Position + Vector3.new(0, -1, 0)
-	local best = k.findBasket
-	for _, basket in CollectionService:GetTagged("CampBasket") do
-		if basket:IsA("Model") and basket:IsDescendantOf(Workspace) then
-			local drop = basket:FindFirstChild("Drop", true)
-			local point = if drop ~= nil and drop:IsA("Attachment")
-				then (drop :: Attachment).WorldPosition
-				else (basket :: Model):GetPivot().Position
-			local distance = (point - from.Position).Magnitude
-			if distance < best then
-				best, to = distance, point
+	if basket ~= nil then
+		to = dropPoint(basket)
+	else
+		local best = k.findBasket
+		for _, tagged in CollectionService:GetTagged("CampBasket") do
+			if tagged:IsA("Model") and tagged:IsDescendantOf(Workspace) then
+				local point = dropPoint(tagged)
+				local distance = (point - from.Position).Magnitude
+				if distance < best then
+					best, to = distance, point
+				end
 			end
 		end
 	end
@@ -450,6 +509,20 @@ local function checkedIn(userId: number)
 	end)
 end
 
+-- The checked-in cat of a carrier at a camp (Moments.CampCheckIn), within sight.
+local function checkedIn(userId: number)
+	local player = Players:GetPlayerByUserId(userId)
+	local character = if player ~= nil then player.Character else nil
+	local held = if character ~= nil then character:FindFirstChild("HeldCat") else nil
+	if character == nil or held == nil or not held:IsA("Model") then
+		return
+	end
+	local cat = held :: Model
+	if near(cat:GetPivot().Position, Presets.campCheckIn.within, player == Players.LocalPlayer) then
+		hopIn(cat, nil)
+	end
+end
+
 local function watchCharacter(character: Model)
 	character:GetAttributeChangedSignal("CannonLaunchAt"):Connect(function()
 		launched(character)
@@ -466,6 +539,52 @@ local function watchPlayer(player: Player)
 		watchCharacter(player.Character)
 	end
 	player.CharacterAdded:Connect(watchCharacter)
+end
+
+-- The intro's cannon shot (F84 intro, intro-cutscene.md shot 2): the same flight on a local copy of the player's
+-- character, which the intro flies itself, on `stage`'s squeezed beats (Presets.cannon.introStage by default) from
+-- `startedAt` (Workspace:GetServerTimeNow() terms; call it stage.boomAt - fuseSeconds early for the fuse fizz). The
+-- muzzle and fuse come from `cannon`'s attachments. This screen only: the clouds tinted toward `destination` and,
+-- once Animation-Engineer has it, the copy gliding in them.
+function Cannon.playStaged(
+	model: Model,
+	cannon: Model?,
+	destination: string,
+	startedAt: number,
+	stage: Stage?
+)
+	local plan = stage or Presets.cannon.introStage
+	endFlight(model)
+	fly(model, startedAt, plan, true, cannon, model:GetPivot().Position)
+	Clouds.play(startedAt, plan.clouds, tintOf(destination))
+	local g, rider = glide, Clouds.rider()
+	local staged: MountStaged? = if g ~= nil then (g :: any).mountStaged else nil
+	if staged ~= nil and rider ~= nil then
+		staged(
+			rider,
+			Presets.clouds.riderZ,
+			model,
+			startedAt + plan.glideFrom,
+			plan.glideTo - plan.glideFrom
+		)
+	end
+end
+
+-- The intro's camp check-in: `cat` (the copy's carried cat) hops into `basket`'s Drop point, else the nearest
+-- CampBasket, and puffs away. It hides `cat` on this client, so the intro removes it after.
+function Cannon.checkInStaged(cat: Model, basket: Model?)
+	hopIn(cat, basket)
+end
+
+-- Ends the intro's flight on `model` at once (Skip, or the intro over): no more beats or trail, and the clouds go
+-- unless this player is on a real flight.
+function Cannon.stopStaged(model: Model)
+	endFlight(model)
+	local own = Players.LocalPlayer.Character
+	local real = if own ~= nil then flights[own] else nil
+	if real == nil or real.staged then
+		Clouds.stop()
+	end
 end
 
 -- Hands in Animation-Engineer's CannonGlide (init.luau calls it once that module is in the build).

@@ -153,6 +153,57 @@ if scenario.role then
 	end
 end
 
+-- A stuck cat. A scenario's `trap` names a rescue prop: the prop with its pivot at the origin and the cat where the
+-- server pivots it, Layout.stuckPoses[prop], read from Layout.luau itself so the two cannot drift apart. A
+-- `trapSet` is a trap built into an area set instead (Layout's setTrap): `set` names the set, `spot` is the trap spot
+-- in set space with the piece's turn as a fourth number, as in Layout, and the set's parts whose centres lie within
+-- `radius` studs of it are drawn. Everything is seen from the spot's ground under it, turned by the piece, so the
+-- cat sits at (0, y, 0) * pose, the pose the server would put at the spot. `stuckAt` tries a new pose instead, 12
+-- numbers as in Layout.stuckPoses. The trap's parts follow the cat's in the JSON and never move.
+local propParts = {}
+if scenario.trap or scenario.trapSet then
+	local numbers = scenario.stuckAt
+	local trapSet = scenario.trapSet
+	if trapSet then
+		local set = folder:FindFirstChild(trapSet.set)
+		assert(set, "no set " .. trapSet.set)
+		local spot = trapSet.spot
+		local ground = CFrame.new(spot[1], 0, spot[3]) * CFrame.Angles(0, math.rad(spot[4] or 0), 0)
+		local toGround = ground:Inverse()
+		local centre = Vector3.new(spot[1], spot[2], spot[3])
+		for _, descendant in set:GetDescendants() do
+			if descendant:IsA("BasePart") and descendant.Transparency < 1 then
+				if (descendant.CFrame.Position - centre).Magnitude <= (trapSet.radius or 6) then
+					descendant.CFrame = toGround * descendant.CFrame
+					table.insert(propParts, descendant)
+				end
+			end
+		end
+		assert(numbers, "a trapSet scenario needs its stuckAt")
+		pivotTo(model, CFrame.new(0, spot[2], 0) * CFrame.new(table.unpack(numbers)))
+	else
+		local prop = folder:FindFirstChild(scenario.trap)
+		assert(prop, "no prop " .. scenario.trap)
+		if numbers == nil then
+			local layout =
+				fs.readFile(HERE .. "../../../../games/cat-cafe/src/server/World/Layout.luau")
+			local list = string.match(layout, "\n%s*" .. scenario.trap .. " = {([^}]*)}")
+			assert(list, "no stuck pose for " .. scenario.trap .. " in Layout.stuckPoses")
+			numbers = {}
+			for number in string.gmatch(list, "[-%d%.]+") do
+				table.insert(numbers, tonumber(number))
+			end
+		end
+		pivotTo(prop, CFrame.identity)
+		pivotTo(model, CFrame.new(table.unpack(numbers)))
+		for _, descendant in prop:GetDescendants() do
+			if descendant:IsA("BasePart") and descendant.Transparency < 1 then
+				table.insert(propParts, descendant)
+			end
+		end
+	end
+end
+
 -- Every part, with what render.py needs to draw it.
 local parts = {}
 for _, descendant in model:GetDescendants() do
@@ -160,8 +211,20 @@ for _, descendant in model:GetDescendants() do
 		table.insert(parts, descendant)
 	end
 end
+-- A sphere mesh (a bush, a bin bag, a blossom) draws as an ellipsoid of the part's size times the mesh's Scale.
+local function sphereMesh(part)
+	local mesh = part:FindFirstChildWhichIsA("SpecialMesh")
+	return if mesh and mesh.MeshType.Name == "Sphere" then mesh else nil
+end
+local function sizeOf(part)
+	local mesh = sphereMesh(part)
+	local size = if mesh then part.Size * mesh.Scale else part.Size
+	return { size.X, size.Y, size.Z }
+end
 local function shapeOf(part)
-	if part.ClassName == "WedgePart" then
+	if sphereMesh(part) then
+		return "Ellipsoid"
+	elseif part.ClassName == "WedgePart" then
 		return "Wedge"
 	elseif part.ClassName == "Part" then
 		return part.Shape.Name
@@ -182,6 +245,16 @@ for i, part in parts do
 		material = part.Material.Name,
 		transparency = part.Transparency,
 	}
+end
+for _, part in propParts do
+	local color = part.Color
+	table.insert(info, {
+		name = "Prop_" .. part.Name,
+		shape = shapeOf(part),
+		color = { color.R, color.G, color.B },
+		material = part.Material.Name,
+		transparency = part.Transparency,
+	})
 end
 
 -- What the server would be doing: where it has each part. A walking scenario moves them all each frame.
@@ -310,8 +383,10 @@ for _, segment in scenario.segments do
 			end
 		end
 		for i, part in parts do
-			local size = part.Size
-			frame.parts[i] = { cf = cframeList(part.CFrame), size = { size.X, size.Y, size.Z } }
+			frame.parts[i] = { cf = cframeList(part.CFrame), size = sizeOf(part) }
+		end
+		for _, part in propParts do
+			table.insert(frame.parts, { cf = cframeList(part.CFrame), size = sizeOf(part) })
 		end
 		table.insert(frames, frame)
 	end
@@ -324,6 +399,7 @@ fs.writeFile(
 		model = scenario.model,
 		fps = fps,
 		camera = scenario.camera,
+		box = scenario.box,
 		parts = info,
 		frames = frames,
 		zOn = zOn,

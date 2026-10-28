@@ -19,6 +19,8 @@ export type Style =
 	| "entertainer"
 	| "sit"
 	| "lick"
+	| "stuckButt"
+	| "stuckFlip"
 
 -- Which body a cat has (Pose finds it): "walk" and "sit" are the bodies with hinged pieces (PR #259: walking A,
 -- sitting B), "parts" the placeholder and older Part cats, which lie down by folding their legs themselves.
@@ -564,6 +566,32 @@ function Logic.idle(style: Style, t: number, body: Body?): Offsets
 		o.headPitch = -math.rad(m.doze.headDroop + m.doze.nod * (1 - 2 * breath))
 		o.headRoll = -o.bodyRoll * 0.5
 		o.tailYaw *= m.doze.tail
+	elseif style == "stuckButt" then
+		-- Head first in the trap with only its back end out: in bursts the hips wiggle, the back legs paddle one
+		-- after the other and the raised tail lashes; a little of it keeps going in between.
+		local s = m.stuck.butt
+		local burst = math.max(Logic.pulse(t, s.every, s.seconds), s.twitch)
+		local beat = math.sin(t * s.hz * 2 * math.pi)
+		o.bodyRoll = math.rad(s.wiggle) * beat * burst
+		o.pawBL = math.rad(s.kick) * beat * burst
+		o.pawBR = -math.rad(s.kick) * beat * burst
+		o.tailPitch = math.rad(s.tailUp)
+		o.tailYaw = math.rad(s.tail) * math.sin(t * s.hz * 1.5 * 2 * math.pi) * burst
+	elseif style == "stuckFlip" then
+		-- Upside down, hanging under a branch or a gutter or on its back in a bush: in bursts all four legs pedal in
+		-- the air and the body rocks, ears back; the tail swings and the head looks about all the while.
+		local s = m.stuck.flip
+		local burst = math.max(Logic.pulse(t, s.every, s.seconds), s.twitch)
+		local w = t * s.hz * 2 * math.pi
+		o.pawFL = math.rad(s.legs) * math.sin(w) * burst
+		o.pawFR = math.rad(s.legs) * math.sin(w + math.pi) * burst
+		o.pawBL = math.rad(s.legs) * math.sin(w + math.pi / 2) * burst
+		o.pawBR = math.rad(s.legs) * math.sin(w - math.pi / 2) * burst
+		o.bodyRoll = math.rad(s.rock) * math.sin(w * 0.5) * burst
+		o.tailYaw = math.rad(s.tail) * wave(t, 1.6)
+		o.headYaw = math.rad(s.look) * wave(t, 3.1)
+		o.earL = math.max(o.earL, math.rad(s.ears) * burst)
+		o.earR = math.max(o.earR, math.rad(s.ears) * burst)
 	elseif style == "stuck" then
 		local struggle = Logic.pulse(t, m.stuck.every, m.stuck.seconds)
 		o.headYaw = math.rad(m.stuck.shake) * math.sin(t * 40) * struggle
@@ -898,10 +926,26 @@ function Logic.pant(o: Offsets, t: number)
 	o.tailYaw *= 0.4
 end
 
+-- Which wriggle a cat stuck in a rescue trap of this TrapType gets (motion.stuck.kinds); the plain shake when the
+-- trap is not listed.
+function Logic.stuckStyle(trapType: unknown): Style
+	local kind = if type(trapType) == "string" then Presets.motion.stuck.kinds[trapType] else nil
+	if kind == "butt" then
+		return "stuckButt"
+	elseif kind == "flip" then
+		return "stuckFlip"
+	end
+	return "stuck"
+end
+
+function Logic.isStuck(style: Style): boolean
+	return style == "stuck" or style == "stuckButt" or style == "stuckFlip"
+end
+
 -- How much of the Balloon Cat's float (motion.float) a style gets: all of it awake, `resting` of it asleep or
 -- loafing, none stuck in a trap.
 function Logic.floatShare(style: Style): number
-	if style == "stuck" then
+	if Logic.isStuck(style) then
 		return 0
 	elseif style == "nap" or style == "loaf" or style == "doze" then
 		return Presets.motion.float.resting

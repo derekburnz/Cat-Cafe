@@ -4,6 +4,8 @@
 -- set(def, true) shows a gold cat's own coat (v0.5 F42, Catalog.goldModelName), else its base coat.
 -- When the model is not there yet it falls back to the cat's initial on its body colour. A silhouette (the
 -- Index's cats not found yet, like the Pet Simulator index) tints the whole view near black and hides the initial.
+-- `head` keeps only the cat's head and frames it nearly face on (the hover card, Derek 2026-10-27: "do a pic of the
+-- cats head"); a model with no head pieces shows whole.
 --
 -- Roblox terms: a ViewportFrame draws 3D parts inside 2D UI through its own Camera. Nothing in it is simulated,
 -- so the clone needs no anchoring, but scripts inside a model would still run under PlayerGui, so they are
@@ -26,6 +28,7 @@ export type Props = {
 	anchorPoint: Vector2?,
 	zIndex: number?,
 	still: boolean?, -- no sway: an Index cell holds the three-quarter pose, so a page of cells costs no frames
+	head: boolean?, -- the head alone, a small turn from face on
 }
 
 export type CatPortrait = {
@@ -41,6 +44,9 @@ local THREE_QUARTER = 35 -- degrees turned from face-on, so the body shows behin
 local SWAY_DEGREES = 20 -- each side of the three-quarter view
 local SWAY_SECONDS = 4
 local SILHOUETTE = Color3.fromRGB(38, 30, 26) -- multiplies the render: every part goes this dark brown
+local HEAD_TURN = 15 -- degrees from face on for a head shot, so both eyes show
+local HEAD_SWAY = 10
+local HEAD_PIECES = { "Head", "Ear", "Eye" } -- the placeholder's head parts; the exporter's sit in <name>_Head
 
 local CatPortrait = {}
 CatPortrait.__index = CatPortrait
@@ -81,6 +87,51 @@ local function cloneModel(catId: string, gold: boolean): Model?
 	local wrapper = Instance.new("Model")
 	copy.Parent = wrapper
 	return wrapper
+end
+
+-- The last word of an exporter name ("CatCafe_Cat_Acorn_EarL" -> "EarL") starts with a head piece.
+local function isHeadPiece(name: string): boolean
+	local last = name:match("([^_]+)$") or name
+	for _, piece in HEAD_PIECES do
+		if last:sub(1, #piece) == piece then
+			return true
+		end
+	end
+	return false
+end
+
+-- Strips everything but the head: the exporter's <name>_Head model (head, eyes, ears and whatever rides on it),
+-- else the placeholder's Head, Ear and Eye parts. Leaves the model whole and returns false when it has no head.
+local function keepHead(model: Model): boolean
+	local headModel: Instance? = nil
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("Model") and descendant.Name:sub(-5) == "_Head" then
+			headModel = descendant
+			break
+		end
+	end
+	local drop: { BasePart } = {}
+	local kept = 0
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local part = descendant :: BasePart
+			local inHead = if headModel
+				then part:IsDescendantOf(headModel)
+				else isHeadPiece(part.Name)
+			if inHead then
+				kept += 1
+			else
+				table.insert(drop, part)
+			end
+		end
+	end
+	if kept == 0 then
+		return false
+	end
+	for _, part in drop do
+		part:Destroy()
+	end
+	return true
 end
 
 function CatPortrait.new(props: Props): CatPortrait
@@ -134,6 +185,7 @@ function CatPortrait.new(props: Props): CatPortrait
 	Outline.text(glyph, Theme.sizes.textOutline + 1)
 	self._glyph = glyph
 	self._still = props.still == true
+	self._headOnly = props.head == true
 	self._silhouette = false
 	self._def = nil :: Types.CatDef?
 	self._model = nil :: Model?
@@ -183,20 +235,23 @@ function CatPortrait.set(self: any, def: Types.CatDef?, shiny: boolean?)
 	assert(model, "model")
 	self._glyph.Visible = false
 
+	local head = self._headOnly and keepHead(model)
+
 	-- Stand the cat at the origin facing the camera (models face -Z, the Roblox front), then frame its box.
 	model:PivotTo(CFrame.new())
 	local boxCFrame, boxSize = model:GetBoundingBox()
 	local centre = boxCFrame.Position
 	local radius = boxSize.Magnitude / 2
-	local distance = radius / math.tan(math.rad(FOV / 2)) * 1.05
-	self._camera.CFrame = CFrame.lookAt(centre + Vector3.new(0, radius * 0.35, -distance), centre)
+	local distance = radius / math.tan(math.rad(FOV / 2)) * (if head then 0.95 else 1.05)
+	local lift = radius * (if head then 0.1 else 0.35)
+	self._camera.CFrame = CFrame.lookAt(centre + Vector3.new(0, lift, -distance), centre)
 	model.Parent = self._viewport
 	self._model = model
 
-	-- a slow sway round a three-quarter view, only while the portrait is on screen
-	local base = CFrame.new(centre)
-		* CFrame.Angles(0, math.rad(THREE_QUARTER), 0)
-		* CFrame.new(-centre)
+	-- a slow sway round a three-quarter view (nearly face on for a head), only while the portrait is on screen
+	local turn = if head then HEAD_TURN else THREE_QUARTER
+	local sway = if head then HEAD_SWAY else SWAY_DEGREES
+	local base = CFrame.new(centre) * CFrame.Angles(0, math.rad(turn), 0) * CFrame.new(-centre)
 	model:PivotTo(base)
 	if self._still then
 		return
@@ -206,7 +261,7 @@ function CatPortrait.set(self: any, def: Types.CatDef?, shiny: boolean?)
 		if not self.frame.Visible or not self.frame:IsDescendantOf(game) then
 			return
 		end
-		local angle = math.sin((os.clock() - started) * math.pi * 2 / SWAY_SECONDS) * SWAY_DEGREES
+		local angle = math.sin((os.clock() - started) * math.pi * 2 / SWAY_SECONDS) * sway
 		model:PivotTo(
 			CFrame.new(centre) * CFrame.Angles(0, math.rad(angle), 0) * CFrame.new(-centre) * base
 		)

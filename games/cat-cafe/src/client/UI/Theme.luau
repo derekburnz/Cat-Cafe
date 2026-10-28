@@ -245,6 +245,7 @@ Theme.icons = {
 	tag = "🏷️",
 	potion = "🧪", -- v0.10 potions in prizes until the asset thread draws the bottles
 	quests = "📜", -- F73: the Quests pill, window badge and the HUD quest line
+	daily = "📅", -- F70: the HUD's Daily tile and the Daily Treat window's badge
 	tutorial = "?", -- F72: the Tutorial tile's big question mark, drawn in the display font
 	replay = "🎬", -- F72: Settings' Replay tutorial row
 }

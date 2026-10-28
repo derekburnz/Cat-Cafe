@@ -535,6 +535,17 @@ Kept brief, as Derek asked on 2026-10-28 at 01:09: one pill, one line on the HUD
 
 **Engineer (F73):** in UIController, add `quests = Catalog.quests, questPrizes = Catalog.questPrizes, achievements = Catalog.achievements, achievementPrizes = Catalog.achievementPrizes` to the catalog passed to `UI.init` / `UI.setCatalog`; pass `quests = s.quests, achievements = s.achievements` in `UI.update` whenever ProfileSync carries them; connect `UI.events.claimQuest` to `Net.fire("ClaimQuest", kind, slot)`, `UI.events.rerollQuest` to `Net.fire("RerollQuest", kind, slot)` and `UI.events.claimAchievement` to `Net.fire("ClaimAchievement", achievementId)`; and call `UI.quests.result(paid)` from `QuestResult`.
 
+### Daily Treat (built, F70, data-model section 11e)
+
+A seven-stamp card, one stamp per UTC day played, never reset: a missed day loses nothing (no streak to lose, monetization-policy). Kept brief like Quests.
+
+- **Daily tile** in the HUD's top right icon row, between Gifts and Settings (green, 📅). It shows once ProfileSync carries `dailyTreat`, reads "Claim!" with a red dot while a stamp is due and "Daily" otherwise. The dot also lights at UTC midnight without a sync, since the window checks once a second whether a new day has started (`DailyTreatLogic.due`: the server's `due`, or a later UTC day than `lastDay`).
+- **Daily Treat window** (`Screens/DailyTreat.luau`, rules in `Components/DailyTreatLogic.luau` with a spec): one line on top ("Day 3 is ready!", "Next treat in 5 h 12 min", "Card full! A fresh card starts in 5 h 12 min"), then the seven days, four on the first line and days 5, 6 and the wide gold "Day 7 · Best day" on the second. Each day shows its prize from `catalog.dailyTreat` as pictures (coins priced from the day rate like the Tip Jar, spins reading "Full" when the bank is full). A stamped day fades and reads "✓ Stamped", the day due has a green border and **Claim**, the next day reads "Tomorrow". A full card stays all stamped until the next stamp is due, then reads as a fresh card with day 1 ready.
+- It opens by itself once when a player joins with a stamp due, after the tutorial (step 5) and the intro, when no other window is open and nothing is being carried, caught or rescued. A stamp that comes due mid-session only lights the tile.
+- Claim reads "..." until a sync stamps the day or 2 s pass. When a sync moves `lastDay` on, the window plays `uiDailyStamp` for days 1 to 6 or `jingleDailyCard` when day 7 fills the card, and pops the new "✓ Stamped". The server's toast says what was paid.
+
+**Engineer (F70):** in UIController, keep `dailyTreat = Catalog.dailyTreat` in the catalog passed to `UI.init` / `UI.setCatalog` (#518 has it); pass `dailyTreat = s.dailyTreat` in `UI.update` whenever ProfileSync carries it; and connect `UI.events.claimDailyTreat` to `Net.fire("ClaimDailyTreat")`.
+
 ### Planned in the next UI pull requests
 
 | API | Purpose |
@@ -589,6 +600,7 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
 | `claimQuest` | `kind, slot` | Claim on a finished quest in the Quests window (F73): `kind` "daily" or "weekly", `slot` 1 to 5 or 1 to 3. Forward as `ClaimQuest(kind, slot)`; the answer is `QuestResult` and a sync |
 | `rerollQuest` | `kind, slot` | Swap on an unfinished quest while the day's or week's free reroll is unused (F73). Forward as `RerollQuest(kind, slot)` |
 | `claimAchievement` | `achievementId` | Claim on a met achievement card (F73). Forward as `ClaimAchievement(achievementId)` |
+| `claimDailyTreat` | none | Claim on the Daily Treat card's day that is due (F70). Forward as `ClaimDailyTreat()`; the server pays the next day, toasts what it paid and answers with ProfileSync |
 | `answerCollector` | `accept` | Trade (true) or No thanks (false) on the Cat Collector's card (F63), shown within 12 studs of him. Forward as `AnswerCollector(accept)`; a refusal is the server's toast, and the visit's end comes back as `CollectorOffer("")` |
 | `tackle` | none | The Tackle bar or Q (F74). Lunge and forward as `Tackle()`; the server decides hit or miss and checks the area, locks, cooldown and safe zones. |
 | `screenOpened` | `name or nil` | Modal opened or closed |
@@ -626,6 +638,8 @@ Removed with F26: `grabEnded`, `startRing`, `stopRing`, `expire`, `setProgress`,
     introSeen: boolean?,                                           -- F72: any value shows the Tutorial tile and Settings rows
     potions: { [potionId]: number }?,                              -- F64: potions in the bag
     buffs: { [potionId]: number }?,                                -- F64: each running potion's endsAt in GetServerTimeNow() time
+    quests: QuestsView?, achievements: { [id]: AchievementView }?, -- F73: the Quests window, its pill and the HUD's quest line
+    dailyTreat: { stamp, lastDay, due, nextDay }?,                 -- F70: the Daily Treat card and the HUD's Daily tile
 }
 ```
 

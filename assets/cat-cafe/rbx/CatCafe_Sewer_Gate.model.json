@@ -36,7 +36,7 @@
      }
     },
     "Size": [
-     36.0,
+     30.0,
      2.5,
      2.5
     ],
@@ -91,7 +91,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        0.4,
        0.225
       ],
@@ -140,7 +140,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        7.2,
        0.225
       ],
@@ -189,7 +189,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        1.1,
        0.225
       ],
@@ -238,7 +238,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        1.5,
        0.225
       ],
@@ -287,7 +287,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        1.9,
        0.225
       ],
@@ -336,7 +336,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        2.3,
        0.225
       ],
@@ -385,7 +385,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        13.8,
        0.225
       ],
@@ -434,7 +434,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        14.15,
        0.0
       ],
@@ -483,7 +483,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.24,
+       -13.24,
        15.075,
        0.0
       ],
@@ -532,9 +532,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -18.0,
+       -15.0,
        6.0,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -582,9 +582,107 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -18.45,
+       -15.0,
+       3.0,
+       -1.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.5
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Sewer_Gate",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.0,
+       9.0,
+       -1.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.5
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Sewer_Gate",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -15.45,
        4.2,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -632,9 +730,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -18.45,
+       -15.45,
        4.2,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -682,9 +780,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -18.0,
+       -15.0,
        2.0,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -732,9 +830,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -18.0,
+       -15.0,
        10.0,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -782,7 +880,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        0.4,
        0.225
       ],
@@ -831,7 +929,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        7.2,
        0.225
       ],
@@ -880,7 +978,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        1.1,
        0.225
       ],
@@ -929,7 +1027,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        1.5,
        0.225
       ],
@@ -978,7 +1076,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        1.9,
        0.225
       ],
@@ -1027,7 +1125,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        2.3,
        0.225
       ],
@@ -1076,7 +1174,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        13.8,
        0.225
       ],
@@ -1125,7 +1223,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        14.15,
        0.0
       ],
@@ -1174,7 +1272,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.24,
+       13.24,
        15.075,
        0.0
       ],
@@ -1223,9 +1321,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       18.0,
+       15.0,
        6.0,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -1273,9 +1371,107 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       18.45,
+       15.0,
+       3.0,
+       -1.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.5
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Sewer_Gate",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.0,
+       9.0,
+       -1.2
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.24,
+     0.24,
+     0.5
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Sewer_Gate",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       15.45,
        4.2,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -1323,9 +1519,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       18.45,
+       15.45,
        4.2,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -1373,9 +1569,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       18.0,
+       15.0,
        2.0,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -1423,9 +1619,9 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       18.0,
+       15.0,
        10.0,
-       -1.0
+       -1.75
       ],
       "orientation": [
        [
@@ -1473,7 +1669,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -16.3,
+       -13.3,
        13.4,
        0.0
       ],
@@ -1523,7 +1719,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       -7.5,
+       -6.0,
        13.4,
        0.0
       ],
@@ -1623,7 +1819,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       7.5,
+       6.0,
        13.4,
        0.0
       ],
@@ -1673,7 +1869,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       16.3,
+       13.3,
        13.4,
        0.0
       ],
@@ -9051,7 +9247,7 @@
      }
     },
     "Size": [
-     30.0,
+     24.0,
      12.0,
      0.4
     ],
@@ -9197,7 +9393,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -16.24,
+         -13.24,
          14.65,
          0.0
         ],
@@ -9240,7 +9436,7 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         16.24,
+         13.24,
          -14.65,
          0.0
         ],
@@ -9275,7 +9471,7 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         16.24,
+         13.24,
          14.65,
          0.0
         ],

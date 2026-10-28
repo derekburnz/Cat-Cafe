@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-28 00:31 UTC",
+  "generated": "2026-10-28 00:43 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -63370,22 +63370,22 @@
       "triangles": 3228,
       "budget": 6000,
       "size_studs": {
-        "x": 42.23,
+        "x": 36.23,
         "y": 11.59,
         "z": 16.95
       },
       "size_roblox": [
-        42.23,
+        36.23,
         16.95,
         11.59
       ],
       "bounds_min": [
-        -21.12,
+        -18.12,
         -3.6,
         0.0
       ],
       "bounds_max": [
-        21.12,
+        18.12,
         7.99,
         16.95
       ],
@@ -63440,25 +63440,25 @@
         "CatCafe_Sewer_Gate_SignBoard",
         "CatCafe_Sewer_Gate_Lamp_Bulb"
       ],
-      "triangles": 2714,
+      "triangles": 2762,
       "budget": 6000,
       "size_studs": {
-        "x": 37.1,
+        "x": 31.1,
         "y": 5.6,
         "z": 17.3
       },
       "size_roblox": [
-        37.1,
+        31.1,
         17.3,
         5.6
       ],
       "bounds_min": [
-        -18.55,
+        -15.55,
         -3.65,
         0.0
       ],
       "bounds_max": [
-        18.55,
+        15.55,
         1.95,
         17.3
       ],
@@ -63479,7 +63479,7 @@
       },
       "studio": "Area gate. Bars (ForceField, directly under the gate) fills the opening up to 12 studs: keep it solid and Transparency 0.35 below the tier, CanCollide false and fade it once open. Requirement SurfaceGui on the -Z face of the part named SignBoard (10 x 2.5). Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Gate.model.json",
-      "rbx_parts": 187,
+      "rbx_parts": 191,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_Gate.glb"
@@ -63491,10 +63491,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "2714/6000 tris",
+          "budget": "2762/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1213 faces on swatch centers",
+          "uv": "1237 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.85"

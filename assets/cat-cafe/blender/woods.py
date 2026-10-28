@@ -335,7 +335,7 @@ def waterfall(mat):
 
 # ------------------------------------------------------------------------------------------------- the set --
 HALF = 60.0                     # 120 x 120 inside WorldBuilder's walls (their inner faces at +-59.5)
-GATE_HALF = 22.0                # the Woods gate model is 42.2 wide, centred on the path
+GATE_HALF = 19.0                # the Woods gate model is 36.2 wide (24 opening), centred on the path
 BORDER_D = 3.0                  # the thicket along the walls
 STREAM_Z = -36.0
 OAKS = ((-40, 0), (44, -10), (-26, 36), (22, 40))

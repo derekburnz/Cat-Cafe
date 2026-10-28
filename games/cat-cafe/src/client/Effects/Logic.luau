@@ -297,6 +297,35 @@ function Logic.fishPickup(gain: number): (number, number)
 	return sparkles, ring
 end
 
+-- The decor ids a ProfileSync's `decorPlaced` (`current`) has in use that the last one (`previous`) did not, sorted:
+-- none for the first one seen, or when either is not a table, so joining flashes nothing.
+function Logic.newlyPlaced(previous: unknown, current: unknown): { string }
+	local ids: { string } = {}
+	if type(previous) ~= "table" or type(current) ~= "table" then
+		return ids
+	end
+	local before = previous :: { [unknown]: unknown }
+	for id, inUse in current :: { [unknown]: unknown } do
+		if type(id) == "string" and inUse == true and before[id] ~= true then
+			table.insert(ids, id)
+		end
+	end
+	table.sort(ids)
+	return ids
+end
+
+-- What flashes when a decor piece of `kind` (Types.DecorKind, nil for a shop piece) goes into use: "piece" for its
+-- placed model (shop pieces, crate furniture and decorations), "floor" for a floor style, nil for wallpaper and
+-- paint, which already repaint whole walls.
+function Logic.equipTarget(kind: string?): string?
+	if kind == "floor" then
+		return "floor"
+	elseif kind == "wallpaper" or kind == "paint" then
+		return nil
+	end
+	return "piece"
+end
+
 -- Whether a cat's `Level` going from `previous` to `current` is a level up: both whole numbers and the new one
 -- higher. The first value a client sees (nil before it) is not one.
 function Logic.levelledUp(previous: unknown, current: unknown): boolean

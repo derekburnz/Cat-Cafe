@@ -1313,6 +1313,10 @@ Presets.market = {
 	counterY = 3.1,
 	counterZ = -0.65,
 }
+-- The opened crate on the counter (crates.py's models, about 2.5 by 2 by 2 studs at full size): scaled down to sit on
+-- the stall's ice, the lid swung up `lidDegrees` (crates.py: 105 is wide open with no clipping) over `lidSeconds`,
+-- held for `hold` seconds from the open and faded over `fade`.
+Presets.marketCrate = { scale = 0.6, lidDegrees = 105, lidSeconds = 0.3, hold = 1.8, fade = 0.4 }
 
 -- Golden fish landing in your wallet (golden-fish.md section 4: "the catch sparkle in gold"): catch sparkles in gold
 -- `chest` studs above the root part, `rise` of as many gold glints floating up (fishRise) and a gold ring at your

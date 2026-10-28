@@ -73,8 +73,10 @@ Remotes.ServerToClient = {
 	"GrabResult", -- (id: string, ok: boolean, reason: string, retry: boolean)  id is a strayId or a rescueSpotId;
 	-- retry keeps the prompt open. For a stray it only refuses GrabBegin; the catch outcome is CatchResult.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
-	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number)  grades
-	-- up to and including the first Miss; after a miss the stray sprints off and anyone may try again (v0.5)
+	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
+	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may
+	-- try again (v0.5). retryAt (server time, miss only) is when this player may try that stray again (F57: 3, 6
+	-- then 10 s after it stops, by their miss streak).
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean)
 	-- after every judged press and when the attempt ends; refusals of RescueBegin come as GrabResult

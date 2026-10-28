@@ -9,13 +9,14 @@ local Types = require(script.Parent.Types)
 local Catalog = {}
 
 -- Section 2. circles and shrinkSeconds drive the net (section 10), fleeStuds is how far a stray sprints after a
--- missed catch before anyone can try again (v0.5, tries are unlimited), rescueHits the rescue bar (section 10b).
+-- missed catch before anyone can try again (v0.5, tries are unlimited; doubled in v0.8 F57, Gavin round 3 Q3),
+-- rescueHits the rescue bar (section 10b).
 Catalog.rarities = {
 	Common = {
 		incomePerSecond = 1,
 		circles = 1,
 		shrinkSeconds = 1.40,
-		fleeStuds = 12,
+		fleeStuds = 24,
 		rescueHits = 2,
 		sellValue = 25,
 		firstCatchReward = 50,
@@ -25,7 +26,7 @@ Catalog.rarities = {
 		incomePerSecond = 3,
 		circles = 2,
 		shrinkSeconds = 1.15,
-		fleeStuds = 16,
+		fleeStuds = 32,
 		rescueHits = 3,
 		sellValue = 150,
 		firstCatchReward = 300,
@@ -35,7 +36,7 @@ Catalog.rarities = {
 		incomePerSecond = 8,
 		circles = 3,
 		shrinkSeconds = 0.95,
-		fleeStuds = 20,
+		fleeStuds = 40,
 		rescueHits = 4,
 		sellValue = 600,
 		firstCatchReward = 1500,
@@ -45,7 +46,7 @@ Catalog.rarities = {
 		incomePerSecond = 25,
 		circles = 4,
 		shrinkSeconds = 0.80,
-		fleeStuds = 26,
+		fleeStuds = 52,
 		rescueHits = 5,
 		sellValue = 3000,
 		firstCatchReward = 8000,
@@ -55,7 +56,7 @@ Catalog.rarities = {
 		incomePerSecond = 75,
 		circles = 5,
 		shrinkSeconds = 0.65,
-		fleeStuds = 32,
+		fleeStuds = 64,
 		rescueHits = 6,
 		sellValue = 12000,
 		firstCatchReward = 30000,

@@ -792,12 +792,8 @@ local function endCarry(player: Player): Carry?
 		carry.model:Destroy()
 	end
 	local character = player.Character
-	local humanoid = if character ~= nil
-		then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
-		else nil
-	if humanoid ~= nil then
-		setSpeed(player, humanoid, Config.NormalWalkSpeed)
-	end
+	-- through refreshSpeed, so a check-in inside a Startled slow keeps the slow (review N247)
+	CatService.refreshSpeed(player)
 	if character ~= nil and carry.rushUntil ~= nil and carry.rushUntil > serverNow() then
 		character:SetAttribute("RushUntil", 0) -- checked in or knocked loose mid-rush: the speed lines stop (F55)
 	end
@@ -982,7 +978,16 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	local streak = Catching.nextMiss(stray.missStreak[player.UserId], serverNow())
 	stray.missStreak[player.UserId] = streak
 	flee(stray, player, Catching.selfRetrySeconds(streak.count))
-	Net.fire(player, "CatchResult", stray.id, attempt.grades, false, 0)
+	-- Only the server knows the streak, so the miss carries this player's own retry time (review S87).
+	Net.fire(
+		player,
+		"CatchResult",
+		stray.id,
+		attempt.grades,
+		false,
+		0,
+		stray.selfRetryAt[player.UserId]
+	)
 	startle(player)
 	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
 	Net.toast(player, if forfeit ~= nil then forfeit else "Your paws are shaking!", "warn")
@@ -1578,13 +1583,15 @@ function CatService.refreshSpeed(player: Player)
 	local carry = carrying[player]
 	local startled = startledUntil[player]
 	local base = if carry == nil
-		then (if startled ~= nil and startled > serverNow()
-			then Config.StartledWalkSpeed
-			else Config.NormalWalkSpeed)
+		then Config.NormalWalkSpeed
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
 		then Config.CatchRushWalkSpeed
 		else Config.CarryWalkSpeed
+	-- Startled slows a carry too (a forfeit miss), never speeds one up (review N247)
+	if startled ~= nil and startled > serverNow() then
+		base = math.min(base, Config.StartledWalkSpeed)
+	end
 	setSpeed(player, humanoid, base)
 end
 

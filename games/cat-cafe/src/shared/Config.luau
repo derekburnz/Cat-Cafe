@@ -74,7 +74,7 @@ local Config = {
 	} :: { [number]: { perfect: number, good: number, jitter: number } },
 	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.
 	LureWaitSeconds = 600,
-	BaitBowlRangeStuds = 12, -- UseLure from this close to your own bowl
+	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	BaitResolveRangeStuds = 20, -- Tame or Let go from this close
 	GoldChanceBait = 0.05, -- v0.5 F42 (was 0.02): rolled when the food goes in, revealed when the cat arrives
 	GoldChanceNet = 0.05, -- v0.5 F42 (was 0.02): rolled when a stray spawns, shown as its gold coat and sparkle
@@ -134,7 +134,7 @@ local Config = {
 	RichCheckSeconds = 60, -- by day, how often each earning cafe rolls for a rich customer
 	RichChance = 0.15,
 	RichTipSeconds = 45, -- a rich tip is this many seconds of the day rate (at least $50)
-	RichTipStaySeconds = 90, -- unclaimed, it pays itself into the till after this
+	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
 
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.

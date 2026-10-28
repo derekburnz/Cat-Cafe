@@ -250,7 +250,8 @@ def _walls(s, mat):
 
 
 def _hedge_row(s, mat, z, gap, urns=True):
-    """A hedge row across the area, 6 to 6.8 high, with one gap (x0, x1); stone urns flank the gap."""
+    """A hedge row across the area, 6 to 6.8 high, with one gap (x0, x1); a stone urn ends the hedge on each side
+    of the gap, in line with it, so the path through the gap stays clear."""
     b = Builder()
     for (a0, a1) in ((-IN_X, gap[0]), (gap[1], IN_X)):
         n = max(1, round((a1 - a0) / 8.0))
@@ -263,9 +264,8 @@ def _hedge_row(s, mat, z, gap, urns=True):
             b.ico((x, y, h), 1.4, sw, subdivisions=1, scale=(step / 2.6, 0.95, 0.5))
     s.put([b.finalize(N + "Hedge", mat)], 0, 0, 0)
     if urns:
-        for x in (gap[0] + 1.0, gap[1] - 1.0):
-            for dz in (-2.2, 2.2):
-                s.put(urn(mat), x, z + dz, 0)
+        for x in (gap[0] + 0.9, gap[1] - 0.9):
+            s.put(urn(mat), x, z, 0)
 
 
 # ------------------------------------------------------------ the pond -------

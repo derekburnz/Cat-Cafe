@@ -203,8 +203,16 @@ local function lockExpired(stray: Stray): boolean
 	return serverNow() > stray.lockUntil
 end
 
--- `to`, or the point short of it where a prop or wall would block a cat running there from `from` (reviewer N84).
--- The ray runs a stud above the floor and ignores characters and the cats themselves.
+-- A stray's body for the path check (Model-Agent, 2026-10-28): 1.6 wide, 1.2 tall and 1.6 long, its bottom
+-- 0.35 above the floor it walks on, so the floor and the paw paths are never hit but a step, a root or a fence is.
+local PATH_BOX = Vector3.new(1.6, 1.2, 1.6)
+local PATH_BOX_LIFT = 0.35 + PATH_BOX.Y / 2
+local PATH_STOP_SHORT = 0.2
+
+-- Where a stray walking from `from` to `to` (on to's floor) stops: at `to`, or just short of the first thing its
+-- body would touch (reviewer N84). Characters and the cats themselves never stop it. Any part a player can see stops it, solid or not (Derek 2026-10-28 01:30: cats clipped through
+-- the area sets' fences, benches and stalls, half of which do not collide), so the cast ignores CanCollide and
+-- passes only through parts nobody can see.
 local function clearPath(from: Vector3, to: Vector3): Vector3
 	local flat = Vector3.new(to.X - from.X, 0, to.Z - from.Z)
 	if flat.Magnitude < 0.1 then
@@ -212,20 +220,30 @@ local function clearPath(from: Vector3, to: Vector3): Vector3
 	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.RespectCanCollide = true -- decoration a player walks through never cuts a run short (reviewer N87)
+	params.RespectCanCollide = false
 	local ignore: { Instance } = { straysFolder }
 	for _, player in Players:GetPlayers() do
 		if player.Character ~= nil then
 			table.insert(ignore, player.Character :: Model)
 		end
 	end
-	params.FilterDescendantsInstances = ignore
-	local hit = Workspace:Raycast(from + Vector3.new(0, 1, 0), flat, params)
-	if hit == nil then
-		return to
+	local origin = Vector3.new(from.X, to.Y + PATH_BOX_LIFT, from.Z)
+	local box = CFrame.lookAt(origin, origin + flat)
+	for _ = 1, 4 do
+		params.FilterDescendantsInstances = ignore
+		local hit = Workspace:Blockcast(box, PATH_BOX, flat, params)
+		if hit == nil then
+			return to
+		end
+		local part = hit.Instance
+		if part:IsA("BasePart") and part.Transparency >= 1 and not part.CanCollide then
+			table.insert(ignore, part) -- an invisible marker or zone: look past it
+			continue
+		end
+		local reach = math.max(0, hit.Distance - PATH_STOP_SHORT)
+		return Vector3.new(from.X, to.Y, from.Z) + flat.Unit * reach
 	end
-	local reach = math.max(0, (hit.Position - (from + Vector3.new(0, 1, 0))).Magnitude - 1.5)
-	return Vector3.new(from.X, to.Y, from.Z) + flat.Unit * reach
+	return Vector3.new(from.X, to.Y, from.Z) -- too many invisible parts in the way: stay put
 end
 
 -- Spawning ------------------------------------------------------------------------------------------------
@@ -952,7 +970,8 @@ local function knockLoose(
 		local look = character:GetPivot().LookVector
 		local flat = Vector3.new(look.X, 0, look.Z)
 		if flat.Magnitude > 0.01 then
-			spot = clearPath(root, root + flat.Unit * ahead)
+			local feet = Vector3.new(root.X, area.floorY, root.Z) -- the cat lands on the floor, so check there
+			spot = clearPath(feet, feet + flat.Unit * ahead)
 		end
 	end
 	local feet = WorldBuilder.clampToArea(area, spot, 2, root)

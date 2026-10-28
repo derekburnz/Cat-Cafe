@@ -1320,9 +1320,13 @@ Presets.stuckMark = {
 	bobSeconds = 0.6, -- one way
 	size = 1.4,
 	pixels = 18,
-	maxDistance = 160,
+	maxDistance = 100, -- in view only (Derek 12:13); was 160 when it drew over everything
 	hideWithin = 10,
 	showAfter = 1, -- a hidden mark comes back only this far past hideWithin
+	lostAfter = 0.5, -- seconds out of view before it hides
+	gem = 0.8, -- studs: the cat's rarity gem over the "!", as big as a stray's (rarityMark.size)
+	gemGap = 0.15,
+	seeThrough = 3, -- see-through parts a sight line passes before it gives up
 	most = 6,
 	checkEvery = 0.25,
 }
@@ -1480,7 +1484,7 @@ Presets.decorFx = {
 -- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
 -- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
 Presets.rarityMark = {
-	shows = { Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
+	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
 	glints = { Mythical = true } :: { [string]: boolean },
 	above = 0.9,
 	size = 0.8,

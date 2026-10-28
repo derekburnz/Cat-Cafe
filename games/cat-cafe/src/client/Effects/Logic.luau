@@ -250,6 +250,12 @@ function Logic.stuckMarkShows(lockedBy: unknown, distance: number, shown: boolea
 	return not locked and distance > near and distance <= m.maxDistance
 end
 
+-- Whether something last seen at `seenAt` (os.clock(), nil if never) still counts as in view at `now`: for `grace`
+-- seconds after it goes out of sight, so a post or a passing player does not make a mark pop again and again.
+function Logic.stillInView(seenAt: number?, now: number, grace: number): boolean
+	return seenAt ~= nil and now - seenAt <= grace
+end
+
 -- Whether you stand in a walk-in circle (the Codes Cat's, F65) at `distance` flat studs from its centre: in at
 -- `radius` or less, out only past `radius + leaveAfter`, and between the two as you were, so the edge never
 -- flickers.

@@ -264,3 +264,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Asked by the reviewer thread, decided by the game-designer thread (2026-10-28, potion cap)
 - 2026-10-28 02:06: A potion is refused when its minutes would not fit under PotionMaxMinutes (60), instead of being taken and clamped (data-model 12b and 15, v0.13.8). Reason: the potion bag (#442) already greys Use to "Full" on that rule, and it never wastes part of a potion. Before this the two disagreed between 51 and 59 minutes left.
+
+### Decided by Derek, written up by the game-designer thread (2026-10-28, collect it or miss it)
+- 2026-10-28 01:32: Rich tips and tip piles pay only when the owner collects them at the cafe (data-model 12, v0.13.4). Derek: "I got a rich tip while it was night time shouldnt happen, also only make it so you get the rewards from the rare customers if your collecting it manually at your cafe if you miss it you miss it". An unclaimed rich tip is no longer paid at expiry or on leave, and tip piles are no longer paid on leave. No rich customer rolls after the dusk warning, and one still waiting at the night start leaves then. The same rule is proposed for the Mystery Visitor's gift, pending Derek's yes. Reason: Derek's call; being home to collect is the point of these visitors, and none can show at night while the cafe is closed.

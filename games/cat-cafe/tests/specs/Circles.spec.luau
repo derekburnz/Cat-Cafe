@@ -75,6 +75,41 @@ return function()
 		end)
 	end)
 
+	describe("windows by rarity (v0.13.15 F83)", function()
+		it("a stray's perfect and good are its net's times its rarity's catchWindow; the jitter is the net's", function()
+			for level = 0, 3 do
+				local net = Circles.windows(level)
+				for _, rarity in Catalog.rarityOrder do
+					local scale = Catalog.rarities[rarity].catchWindow
+					local windows = Circles.windowsFor(level, rarity)
+					expect(windows.perfect).to.be.near(net.perfect * scale, 1e-12)
+					expect(windows.good).to.be.near(net.good * scale, 1e-12)
+					expect(windows.jitter).to.equal(net.jitter)
+					expect(windows.perfect < windows.good).to.equal(true)
+				end
+			end
+		end)
+
+		it("a Basic Net Mythical's bands are half as wide as at the net, and the net's own table is untouched", function()
+			local mythical = Circles.windowsFor(0, "Mythical")
+			expect(mythical.perfect).to.be.near(0.0225, 1e-12)
+			expect(mythical.good).to.be.near(0.055, 1e-12)
+			expect(Circles.windowsFor(3, "Common").good).to.be.near(0.162, 1e-12)
+			expect(Circles.windows(0).good).to.equal(0.11)
+		end)
+
+		it("rarer is never wider, at every net", function()
+			for level = 0, 3 do
+				for i = 2, #Catalog.rarityOrder do
+					local lower = Circles.windowsFor(level, Catalog.rarityOrder[i - 1])
+					local higher = Circles.windowsFor(level, Catalog.rarityOrder[i])
+					expect(higher.good < lower.good).to.equal(true)
+					expect(higher.perfect < lower.perfect).to.equal(true)
+				end
+			end
+		end)
+	end)
+
 	describe("schedule (section 10 flow step 1)", function()
 		it("has circles[rarity] circles: 1 for a Common up to 5 for a Mythical", function()
 			for _, rarity in ipairs(Catalog.rarityOrder) do

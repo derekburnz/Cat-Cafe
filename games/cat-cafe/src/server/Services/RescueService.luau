@@ -395,7 +395,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	local challenge = Rescue.newChallenge(entry.def.rarity, entry.trap, now, function()
 		return rng:NextNumber()
 	end)
-	local attempt = Rescue.newAttempt(challenge)
+	local attempt = Rescue.newAttempt(challenge, entry.def.rarity)
 	entry.attempt = attempt
 	setLock(entry, player.UserId)
 	profile.stats.rescueAttempts += 1

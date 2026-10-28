@@ -122,20 +122,21 @@ local Config = {
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start
 	RescueMinStuck = 1, -- stuck cats every area gets at night start even when no trap rolled one
-	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar
+	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar.
+	-- v0.13.15 F83 (harder rescues): 0.2 a second faster and narrower zones for every rarity.
 	RescueBarSpeed = {
-		Common = 0.8,
-		Rare = 1.0,
-		Epic = 1.2,
-		Legendary = 1.4,
-		Mythical = 1.6,
+		Common = 1.0,
+		Rare = 1.2,
+		Epic = 1.4,
+		Legendary = 1.6,
+		Mythical = 1.8,
 	} :: { [string]: number },
 	RescueZoneWidth = {
-		Common = 0.30,
-		Rare = 0.24,
-		Epic = 0.19,
-		Legendary = 0.15,
-		Mythical = 0.12,
+		Common = 0.26,
+		Rare = 0.20,
+		Epic = 0.15,
+		Legendary = 0.12,
+		Mythical = 0.10,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	RescuePatience = 3, -- misses one attempt can take

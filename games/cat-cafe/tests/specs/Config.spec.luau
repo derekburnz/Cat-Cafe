@@ -476,13 +476,13 @@ return function()
 			end
 		)
 
-		it("the rescue bar matches the section 10b table: rarer is faster and narrower", function()
+		it("the rescue bar matches the section 10b table: rarer is faster and narrower (v0.13.15 F83)", function()
 			local rows = {
-				Common = { 0.8, 0.30 },
-				Rare = { 1.0, 0.24 },
-				Epic = { 1.2, 0.19 },
-				Legendary = { 1.4, 0.15 },
-				Mythical = { 1.6, 0.12 },
+				Common = { 1.0, 0.26 },
+				Rare = { 1.2, 0.20 },
+				Epic = { 1.4, 0.15 },
+				Legendary = { 1.6, 0.12 },
+				Mythical = { 1.8, 0.10 },
 			}
 			local previous: { number }? = nil
 			for _, rarity in Catalog.rarityOrder do

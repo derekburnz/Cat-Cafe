@@ -538,4 +538,55 @@ return function()
 			end
 		end)
 	end)
+	describe("spawnPool: which points a new stray may take (v3.1 nooks, F81 deep, the Great Oak's top)", function()
+		local function slots(list: { { any } }): { Catching.SpawnSlot }
+			local out: { Catching.SpawnSlot } = {}
+			for _, row in list do
+				table.insert(out, { zone = row[1], free = row[2] })
+			end
+			return out
+		end
+		-- a Woods-like area: near, deep and the oak's top, one near and one deep taken
+		local woods = slots({
+			{ "near", true },
+			{ "near", false },
+			{ "deep", true },
+			{ "deep", false },
+			{ "rare", true },
+		})
+
+		it("names the rare-biased zone", function()
+			expect(Catching.RARE_ZONE).to.equal("rare")
+		end)
+
+		it("sends a Rare or rarer stray to a free rare point first", function()
+			for _, rarity in { "Rare", "Epic", "Legendary", "Mythical" } do
+				expect(Catching.spawnPool(woods, rarity :: any) :: any).to.deepEqual({ 5 })
+			end
+		end)
+
+		it("never puts a Common, or a carried cat sent home, on a rare point", function()
+			expect(Catching.spawnPool(woods, "Common") :: any).to.deepEqual({ 1, 3 })
+			expect(Catching.spawnPool(woods, nil) :: any).to.deepEqual({ 1, 3 })
+		end)
+
+		it("with the rare point taken, a Rare takes any free point and Epic and rarer only deep ones", function()
+			local full = slots({ { "near", true }, { "deep", true }, { "rare", false } })
+			expect(Catching.spawnPool(full, "Rare") :: any).to.deepEqual({ 1, 2 })
+			expect(Catching.spawnPool(full, "Epic") :: any).to.deepEqual({ 2 })
+			expect(Catching.spawnPool(full, "Mythical") :: any).to.deepEqual({ 2 })
+		end)
+
+		it("leaves an Epic with nowhere to go when every nook or deep point is taken", function()
+			local alley = slots({ { "lane", true }, { "lane", true }, { "nook", false } })
+			expect(#Catching.spawnPool(alley, "Epic")).to.equal(0)
+			expect(Catching.spawnPool(alley, "Rare") :: any).to.deepEqual({ 1, 2 })
+		end)
+
+		it("takes any free point in an area with no zones", function()
+			local plain = slots({ { nil, true }, { nil, false }, { nil, true } })
+			expect(Catching.spawnPool(plain, "Legendary") :: any).to.deepEqual({ 1, 3 })
+			expect(Catching.spawnPool(plain, "Common") :: any).to.deepEqual({ 1, 3 })
+		end)
+	end)
 end

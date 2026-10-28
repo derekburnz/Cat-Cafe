@@ -238,6 +238,14 @@ Spec in [hometown-cannon.md](hometown-cannon.md). No save change.
 | F84 | Hometown and cannons: the four wild areas move 2000 studs out with their current sets, the town's area gates close, the Cat Cannon replaces the fountain; `LaunchCannon(cannonId, destination)` with a 3 s flight and a cloud cutscene that hides the server move; a safe camp at each area's town end with a landing pad, check-in on entry and a camp cannon to town or the other open areas; Home and Alley refused while carrying and played as a cloud hop from a wild area; the Areas button becomes Cannon; night sweep by cloud hop; respawn at the camp | P1 | L | engineer, asset, vfx, anim, ui, sound, tutorial | F66, F81 | A Tier 3 player hops in, picks the Neighbourhood, sees the boom, the arc and the clouds and lands on its pad in 3 s; a caught cat carried into the camp is in the cat room; Home is refused while carrying; at night everyone in the Neighbourhood is clouded home |
 | F85 | Longer rectangular areas: Park 120 x 340, Neighbourhood 180 x 460, Woods 160 x 520, Sewer 120 x 600 with the camp at the town end; the main path about 1.25 times the length with low blockers a hunter can see over; three quarters of the traps in the far half and none within 100 studs of the camp | P2 | L | asset, engineer, qa | F84 | The carry from each area's far end to its camp takes about 27, 36, 41 and 47 s, and QA sees a carrier from across the blockers |
 
+## 2s. Older Legendaries and Mythicals keep up (Derek, 2026-10-28 13:55)
+
+Derek: "also make it so legendarys / mythics in the previous areas still hold decent value across areas and don't instantly become useless next area". Spec in [data-model.md](data-model.md) sections 4b, 11 and 17 (v0.13.16). No save change.
+
+| id | feature | P | size | owner | depends | done when |
+|---|---|---|---|---|---|---|
+| F86 | Keep up: a Legendary or Mythical from an older area earns with the `incomeMultiplier` of the area one step behind the owner's newest (KeepUpStepsBehind 1, KeepUpRarities), never less than its own; `CatStats.areaMultiplier(def, tier)` and `rating(cat, def, tier)`, every caller passes the owner's tier; the income line shows the kept-up figure and a "Keeps up" tag | P1 | S | engineer, ui, qa | v0.13.7 area income | At Tier 5 an Alleyway Legendary at charm 50 and level 1 rates 87.5 and a Sewer Legendary 125; an Epic's rating does not change; ranking up to Tier 4 lifts an Alleyway Mythical from 112.5 to 168.75 at once; Equip Best puts an older Mythical ahead of a newest-area Legendary |
+
 ## 3. Placeholder rules for the rough draft
 
 As in v0.2: every placeholder uses the final name and attributes so swapping is a file replace, not a code change.

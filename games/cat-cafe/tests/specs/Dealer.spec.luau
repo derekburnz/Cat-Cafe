@@ -67,6 +67,47 @@ return function()
 			end
 		end)
 
+		it("rolls each window afresh: a food matches the window before about as often as chance (QA)", function()
+			-- with fresh rolls, the chance a food's amount equals the one `lag` windows before is the sum of the
+			-- squared weights (Moon Milk 0.6^2 + 0.35^2 + 0.05^2 = 0.485), at every lag
+			local count = 70 * 288 -- 70 days of windows from 2026-10-28 (window 5977152)
+			local amounts: { [string]: { number } } = {}
+			for window = 5977152, 5977152 + count - 1 do
+				for _, food in Dealer.stock(window) do
+					local list = amounts[food.lureId] or {}
+					table.insert(list, food.amount)
+					amounts[food.lureId] = list
+				end
+			end
+			for _, lureId in Dealer.FOODS do
+				local chance = 0
+				for _, weight in Catalog.dealerAmountWeights[lureId] do
+					chance += (weight / 100) ^ 2
+				end
+				local list = amounts[lureId]
+				for lag = 1, 12 do
+					local same = 0
+					for index = lag + 1, count do
+						if list[index] == list[index - lag] then
+							same += 1
+						end
+					end
+					local share = same / (count - lag)
+					if math.abs(share - chance) > 0.03 then
+						error(
+							string.format(
+								"%s matches the window %d before %.3f of the time, chance is %.3f",
+								lureId,
+								lag,
+								share,
+								chance
+							)
+						)
+					end
+				end
+			end
+		end)
+
 		it("pickAmount walks the weights from 0 and clamps the roll", function()
 			local weights = { 1, 1, 0, 2 }
 			expect(Dealer.pickAmount(weights, 0)).to.equal(0)

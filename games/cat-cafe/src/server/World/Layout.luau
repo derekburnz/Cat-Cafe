@@ -850,9 +850,33 @@ Layout.townSquare = {
 	-- The finger signpost (v3.1, section 7d) in place of the ring's south-west bench: left of the fountain from the
 	-- spawn and off the cross. Its arms point at the four gates.
 	signpost = { x = -9, y = 0.1, z = -7.5 } :: Point,
-	-- The dressing that is code's to place, until the art thread's square placement table replaces it: the fountain.
+	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
+	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the fountain, the two sign
+	-- arches over the street, seven benches round the fountain, four lamps, four buntings and the four gardens.
 	props = {
-		{ asset = "CatCafe_Square_Fountain", x = 0, z = 0 },
+		{ asset = "CatCafe_Square_Paving", x = 0, y = 0.1, z = 0 },
+		{ asset = "CatCafe_Square_Fountain", x = 0, y = 0.1, z = 0 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -32 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 32, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = 13.93, y = 0.1, z = 9.75, rotY = 55 },
+		{ asset = "CatCafe_Square_Bench", x = 9.75, y = 0.1, z = 13.93, rotY = 35 },
+		{ asset = "CatCafe_Square_Bench", x = -9.75, y = 0.1, z = 13.93, rotY = 325 },
+		{ asset = "CatCafe_Square_Bench", x = -13.93, y = 0.1, z = 9.75, rotY = 305 },
+		{ asset = "CatCafe_Square_Bench", x = -9.75, y = 0.1, z = -13.93, rotY = 215 },
+		{ asset = "CatCafe_Square_Bench", x = 9.75, y = 0.1, z = -13.93, rotY = 145 },
+		{ asset = "CatCafe_Square_Bench", x = 13.93, y = 0.1, z = -9.75, rotY = 125 },
+		{ asset = "CatCafe_Square_Lamp", x = -11, y = 0.1, z = -11, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -11, y = 0.1, z = 11, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 11, y = 0.1, z = -11, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 11, y = 0.1, z = 11, rotY = 45 },
+		{ asset = "CatCafe_Square_Bunting", x = 0, y = 0.1, z = -11 },
+		{ asset = "CatCafe_Square_Bunting", x = 0, y = 0.1, z = 11 },
+		{ asset = "CatCafe_Square_Bunting", x = -11, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_Bunting", x = 11, y = 0.1, z = 0, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = -55.5, y = 0.1, z = -19.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = -55.5, y = 0.1, z = 19.5, rotY = -90 },
+		{ asset = "CatCafe_Square_Garden", x = 55.5, y = 0.1, z = -19.5, rotY = 90 },
+		{ asset = "CatCafe_Square_Garden", x = 55.5, y = 0.1, z = 19.5, rotY = 90 },
 	} :: { Prop },
 }
 

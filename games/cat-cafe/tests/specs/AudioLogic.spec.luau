@@ -486,4 +486,61 @@ return function()
 			end
 		end)
 	end)
+	-- Sound-Agent PR #430 (Derek 2026-10-28 01:41): a Mythical stray's `rareNear` plays once as you come within 30
+	-- studs and not again until you have walked past 45 (Audio/init.luau RARE_NOTICE and RARE_FORGET; review N234).
+	describe("Audio.Logic rare stray notice (QA)", function()
+		local NEAR, FAR = 30, 45
+
+		it("plays at 30 studs, not 31, and forgets only past 45 (N234)", function()
+			local play, noticed = Logic.rareNotice(false, 31, NEAR, FAR)
+			expect(play).to.equal(false)
+			expect(noticed).to.equal(false)
+			play, noticed = Logic.rareNotice(false, 30, NEAR, FAR)
+			expect(play).to.equal(true)
+			expect(noticed).to.equal(true)
+			play, noticed = Logic.rareNotice(true, 44, NEAR, FAR)
+			expect(play).to.equal(false)
+			expect(noticed).to.equal(true)
+			play, noticed = Logic.rareNotice(true, 45, NEAR, FAR)
+			expect(play).to.equal(false)
+			expect(noticed).to.equal(true)
+			play, noticed = Logic.rareNotice(true, 46, NEAR, FAR)
+			expect(play).to.equal(false)
+			expect(noticed).to.equal(false)
+		end)
+
+		it("plays once per approach on a walk in, around and out, never twice without leaving past 45", function()
+			-- 0.5 stud steps: in from 60 to 0, out to 44, back in to 0, out to 60, in to 0
+			local legs = { { 60, 0 }, { 0, 44 }, { 44, 0 }, { 0, 60 }, { 60, 0 } }
+			local noticed, plays = false, 0
+			local playedAt: { number } = {}
+			for _, leg in legs do
+				local from, to = leg[1], leg[2]
+				local step = if to > from then 0.5 else -0.5
+				for distance = from, to, step do
+					local play
+					play, noticed = Logic.rareNotice(noticed, distance, NEAR, FAR)
+					if play then
+						plays += 1
+						table.insert(playedAt, distance)
+					end
+				end
+			end
+			-- the first approach, then nothing on the way back from 44, then the approach after 60
+			expect(plays).to.equal(2)
+			expect(playedAt[1]).to.equal(NEAR)
+			expect(playedAt[2]).to.equal(NEAR)
+		end)
+
+		it("never plays for a distance it cannot read, and a stray it cannot see is forgotten", function()
+			for _, odd in { 0 / 0, math.huge } do
+				local play, noticed = Logic.rareNotice(false, odd, NEAR, FAR)
+				expect(play).to.equal(false)
+				expect(noticed).to.equal(false)
+				play, noticed = Logic.rareNotice(true, odd, NEAR, FAR)
+				expect(play).to.equal(false)
+				expect(noticed).to.equal(false)
+			end
+		end)
+	end)
 end

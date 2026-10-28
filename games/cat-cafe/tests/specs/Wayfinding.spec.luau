@@ -81,6 +81,18 @@ return function()
 			expect(Wayfinding.alpha(-math.huge)).to.equal(0)
 			expect(Wayfinding.alpha(math.huge)).to.equal(1)
 		end)
+
+		it("keeps every marker between SCALE_MIN and full size and never grows it walking away (#408)", function()
+			local last = 1
+			for distance = -10, Wayfinding.SCALE_FAR + 60, 0.5 do
+				local scale = Wayfinding.scale(distance)
+				expect(scale >= Wayfinding.SCALE_MIN and scale <= 1).to.equal(true)
+				expect(scale <= last).to.equal(true)
+				last = scale
+			end
+			expect(Wayfinding.scale(math.huge)).to.equal(Wayfinding.SCALE_MIN)
+			expect(Wayfinding.scale(-math.huge)).to.equal(1)
+		end)
 	end)
 
 	describe("Wayfinding.armArea", function()

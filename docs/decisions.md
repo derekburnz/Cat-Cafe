@@ -276,3 +276,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Asked by the reviewer thread, decided by the game-designer thread (2026-10-28, night bait with the Big Bowl)
 - 2026-10-28 05:46: Food set at night waits half of the player's own day wait, not a flat 300 seconds, so Big Bowl food waits 240 and the Index's bait speed comes off after (data-model sections 8 and 17, v0.13.10; built that way in #482). Reason: a flat 300 would make the Big Bowl perk worthless at night, and the bowl already tells players "Night bait: half the wait".
+
+### Asked by the gameplay-engineer thread, decided by the game-designer thread (2026-10-28, the Cat Collector's Epic offers)
+- 2026-10-28 06:52: The Cat Collector's crate rows move from value 7 and 12 to 6 and 11 (data-model 12b, v0.13.11). Reason: an Epic's value runs 6.4 to 12, so at 7 about one Epic in nine got only 15 fish and the crate and 20 fish row needed the very top roll, against the doc's "an Epic a crate or more" and Gavin's "the rarer the cat the better the item". At 6 and 11 every Epic gets a crate and about one in six also gets 20 fish. Recorded from the #499 build at the same time: he never takes a player's last cat, a roll below the first row still pays that row, and CollectorOffer's end message carries `traded`.
